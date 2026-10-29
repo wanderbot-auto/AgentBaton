@@ -1,0 +1,76 @@
+{
+  "subject": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+  "reviewer_Rust_product_tests_executed": 0,
+  "source_matches": {
+    "crates/core/src/data_workspaces.rs": "9f759f969c93f5fe91241d0a32f7bd08c7add52e45b4115aafd084cf9e441323",
+    "crates/core/src/execution.rs": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+    "crates/core/src/factory.rs": "77b71b60fdcf68f6590e615aa746205173092c5b251b56373d03240327fa870e",
+    "crates/core/src/factory_budget.rs": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+    "crates/core/src/factory_capture.rs": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+    "crates/core/src/factory_runtime.rs": "65dfe5df848ebd56e1b5b38764f586916fdb0edbe3cf45308bf83cf5a329d6ef",
+    "crates/core/src/factory_store.rs": "045776631910cfbc64c57bb470f79a4d66280b9a9c6af4533e68b471223e30ed",
+    "crates/core/src/goal_runtime.rs": "5bce45e5d78d3de57549d06f6911051c3f6b56e954e644867ddf1ebd9c27473f",
+    "crates/core/src/ipc.rs": "c17ed2e3872af4b4011d242181757284a58c6f24b734ea773de231c0c9470b23",
+    "crates/core/src/policy.rs": "60c5720eddaa19804c9f3342afee166c55796ef329d633a5a89a317f20bce477",
+    "crates/core/src/sessions.rs": "a5e4709fcd997c9e5c8f9fc1060e628ba151c21ee9f17b238b7402485b5e8f2c",
+    "crates/core/tests/factory_runtime_ipc.rs": "f8ddecb3dd39a9519469e9ef9b52b3945796b9de8430bb5720290bf625e0be53"
+  },
+  "logs": {
+    "data-ticket-first-check.log": {
+      "sha256": "8fd4b767d28e0dd078d1495a601931f09677e8a6f6508675099bfac9b70d050f",
+      "bytes": 1525,
+      "results": []
+    },
+    "data-ticket-second-check.log": {
+      "sha256": "3c854ca2c7a23cc943faa34aeae334178b826fdd62359ffba5da0d908e22d41f",
+      "bytes": 696,
+      "results": []
+    },
+    "data-ticket-binaries-build.log": {
+      "sha256": "d98821ca804aeebd0ebba5639f5014b0667a39ee2452e0bc1692f2be43552e80",
+      "bytes": 538,
+      "results": []
+    },
+    "data-ticket-binaries-build2.log": {
+      "sha256": "926bb0f317664e6d2b702234fb5ebd4ced33afdba6f8730729cbe4a68b68b88c",
+      "bytes": 330,
+      "results": []
+    },
+    "data-factory-first-test.log": {
+      "sha256": "b478f1407184bf05f68d1993e27bd565fe6151608f64441cc46216c7635b899f",
+      "bytes": 549,
+      "results": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.18s"
+      ]
+    },
+    "data-and-git-seven-runtime.log": {
+      "sha256": "7b7bd07d24194c532aea41a33f5e7dced901278a2f5d80aea4b9c11f187e8085",
+      "bytes": 978,
+      "results": [
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.77s"
+      ]
+    },
+    "data-ticket-queue-unit.log": {
+      "sha256": "8478821eddc757fedcbceeeb91c2099b4c4a222005182981c44ca1668cb9f431",
+      "bytes": 561,
+      "results": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 69 filtered out; finished in 0.02s"
+      ]
+    }
+  },
+  "limits": [
+    "7runtime includes the new standalone Data case and previous6; do not add old14/17/593",
+    "queue unit is fakehandle gate-order only",
+    "Source manifest is a partial set; test installed copies of target binaries, no independent rebuild or binary execution by reviewer"
+  ],
+  "public_Factory_DTO_prefix_unchanged_from137": true,
+  "later_shared_target_incident": {
+    "source": "Root direct task message; not independently rerun or binary-hashed here",
+    "time_reported": "Root21:26\u201327 Native compile after fixed053 normal7 run",
+    "cause_reported": "tauri-build copy_binaries from borrowed old5541 sidecars replaced shared target/debug baton and batond",
+    "wrong_later_binary_053_attribution": "rejected; erroneous manifest retained by Core; separate exact rebuild underway",
+    "known_old_batond_sha256": "fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e",
+    "known_old_baton_sha256": "9065fa79d6381b51364d9304eb98aea16cf355d0cb81024134a07fb6ddef7c73",
+    "schema13_actual_UI": "NOT_RUN"
+  }
+}

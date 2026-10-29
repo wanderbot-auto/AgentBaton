@@ -1,3 +1,5 @@
+#[path = "fixtures/pre_factory_schema.rs"]
+mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::{params, Connection};
 use std::{
@@ -26,6 +28,7 @@ fn schema8() -> (tempfile::TempDir, PathBuf, String) {
         .unwrap();
     drop(store);
     let c = Connection::open(&db).unwrap();
+    pre_factory_schema::remove_empty_factory_increment(&c).unwrap();
     c.execute_batch(DROP_GOAL).unwrap();
     c.execute_batch("PRAGMA user_version=8;CREATE TABLE original_blob(bytes BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');").unwrap();
     let raw: String = c
@@ -60,7 +63,7 @@ fn actual_schema8_upgrade_preserves_raw_rows_and_private_reopenable_backup() {
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        14
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -145,10 +148,10 @@ fn migration9_failure_rolls_back_schema_and_preserves_unknown_goal_named_table()
     assert_eq!(backups(dir.path()).len(), 1);
 }
 #[test]
-fn actual_future_schema13_is_rejected_without_modifying_bytes() {
+fn actual_future_schema15_is_rejected_without_modifying_bytes() {
     let (_dir, db, _) = schema8();
     let c = Connection::open(&db).unwrap();
-    c.execute_batch("PRAGMA user_version=13;").unwrap();
+    c.execute_batch("PRAGMA user_version=15;").unwrap();
     drop(c);
     let before = fs::read(&db).unwrap();
     assert_eq!(Store::open(&db).err().unwrap().code, "VERSION_UNSUPPORTED");

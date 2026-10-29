@@ -1,0 +1,132 @@
+{
+  "revision": "343eb53d2220e87c542e9babff3110c427af982e",
+  "baseline": "53e07a08a5ea8bf8878fd226be18e0bccd1f3ced",
+  "mode": "static Git source review; no Cargo/daemon/Provider",
+  "files": [
+    {
+      "path": "apps/cli/src/main.rs",
+      "sha256": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+      "bytes": 5738
+    },
+    {
+      "path": "crates/core/src/execution.rs",
+      "sha256": "9c9ac5ef8023f155d6c7513ef772c457981372164092f62f34fe9f84f129c455",
+      "bytes": 17539
+    },
+    {
+      "path": "crates/core/src/factory.rs",
+      "sha256": "fc241b2357cc483e656fdf55fd9b45f36bf8dae61759c555824ba33317a6af3e",
+      "bytes": 8264
+    },
+    {
+      "path": "crates/core/src/factory_budget.rs",
+      "sha256": "b922169edf13185f60da0da4073eb3b8d70cb25b65b5d5d0bfba80f5a92837fc",
+      "bytes": 12897
+    },
+    {
+      "path": "crates/core/src/factory_companion.rs",
+      "sha256": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+      "bytes": 11133
+    },
+    {
+      "path": "crates/core/src/factory_runtime.rs",
+      "sha256": "d54c9d5fb0d11065172a874ea5f1532fc10ff629f719a11a3f9ff2c63b535444",
+      "bytes": 71356
+    },
+    {
+      "path": "crates/core/src/factory_store.rs",
+      "sha256": "2ccb80d2c0e29d8d2ddf26ee778b6a102d11a717b4cb5043647aff7e84407424",
+      "bytes": 41795
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "sha256": "8588707921901259af58224e2ef9f82bf9690cbbaa37195c9444dc9794e4f0be",
+      "bytes": 151401
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sha256": "d8f775c020108cf08ddc36f27b8ae0d54cd500d4c7bb00617771273b06024849",
+      "bytes": 92712
+    },
+    {
+      "path": "crates/core/src/policy.rs",
+      "sha256": "f281c45c5f5057b5f6c83b35eda5129444ebdde625e42962f4a8183f7d3b7ae9",
+      "bytes": 46540
+    },
+    {
+      "path": "crates/core/src/sessions.rs",
+      "sha256": "098d9975f63c36edecfbcdcc6e69b3fca646156c1c3a4c9d7683025158a4412c",
+      "bytes": 82795
+    },
+    {
+      "path": "crates/core/src/storage.rs",
+      "sha256": "925002caeb223b8e181100848cea204bd46721c7759e9ac4de8d7f0c56f7f4cf",
+      "bytes": 28227
+    },
+    {
+      "path": "crates/core/tests/factory_migration.rs",
+      "sha256": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf",
+      "bytes": 5321
+    },
+    {
+      "path": "crates/core/tests/factory_runtime_ipc.rs",
+      "sha256": "51a576ff94bd966e803a5345b4aad3c1dfff76eb882deb7faeeda5dd0932ce37",
+      "bytes": 21023
+    },
+    {
+      "path": "crates/core/tests/factory_scope.rs",
+      "sha256": "9ea657bf06b23ff7156652724c13cf2b58c09f61fd8ca06bbce432d30e29ea5f",
+      "bytes": 22807
+    },
+    {
+      "path": "crates/providers/src/driver.rs",
+      "sha256": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+      "bytes": 4518
+    },
+    {
+      "path": "crates/providers/src/session_configuration.rs",
+      "sha256": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+      "bytes": 8965
+    },
+    {
+      "path": "crates/providers/src/transport.rs",
+      "sha256": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+      "bytes": 19557
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/CHECKPOINT.md",
+      "sha256": "07aba3d10d3a54a58fc2a762397d1b23a020bd837e2745290dc88f65044d5b92",
+      "bytes": 4120
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/EVIDENCE.json",
+      "sha256": "11b385bbadfa23b1277864b7c31a04079832d3b6ef62eac1b9edacdd0b2c8c4a",
+      "bytes": 11776
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/PROGRESS.md",
+      "sha256": "f9cea883531a01c4fb750eaf429e16dac0aa51828318fd0f1e86d33c89cd1f50",
+      "bytes": 2658
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/0c82518-manifest.json",
+      "sha256": "38d1399fd948c8058c53075e7f0d530392870e3d13fa6aa19c656513a6872e5c",
+      "bytes": 4968
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/0c82518-static.md",
+      "sha256": "155ae9c35ae39c64b2a800815018b49f3444997b1b9e77f5c547956330198d65",
+      "bytes": 10706
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/53e07a0-manifest.json",
+      "sha256": "4329ceeb41c9fc99d76dfe0512b2233481ce4c31246032f812f8bed933a61396",
+      "bytes": 3081
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/53e07a0-static.md",
+      "sha256": "8ba72a78487581e13541fecfe62e507f66e082fbfd291ce5d032f98b3d446f83",
+      "bytes": 7643
+    }
+  ]
+}

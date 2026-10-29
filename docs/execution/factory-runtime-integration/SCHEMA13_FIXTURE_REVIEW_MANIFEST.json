@@ -1,0 +1,127 @@
+{
+  "state": "SEALED limited independent static/source review, no runtime tests",
+  "source_commit": "116506ace23a073f1f60b1968110258aa4a8a0df",
+  "base_commit": "dac6d80ebebcc9285c1a3eadafc81668c5b9567c",
+  "files": {
+    "AUTHOR_SNAPSHOT.json": {
+      "sha256": "c6dab030c94865afe87423ef0360a1cdd0e73c207336e861108b312689ceb9ab",
+      "bytes": 13654
+    },
+    "REVIEW.md": {
+      "sha256": "f18ffb34dcd4049962e902ce0809f1b1983a8e633e8451a2a7fa810299dc3061",
+      "bytes": 4673
+    },
+    "VERIFICATION.json": {
+      "sha256": "408a454e1da0aac43ff0e8261993a6c82273406d41f49c9a965e6b1b94be68ac",
+      "bytes": 17148
+    },
+    "after/crates/core/tests/admission_performance.rs": {
+      "sha256": "d24ded513e3e3d8d3e361c1178d9b4d3d4d8cff7a427e85743c2b8029eb96bce",
+      "bytes": 7951
+    },
+    "after/crates/core/tests/command_validation.rs": {
+      "sha256": "9a5db91d791d60e89b1aa2c24e038fd7ece3aabf89ffb249e64b656025b74326",
+      "bytes": 54054
+    },
+    "after/crates/core/tests/command_validation_migration.rs": {
+      "sha256": "79ae4b663335235314aa913ca6dd257b4af7117326a51ab17bce2591a2ebd14f",
+      "bytes": 5741
+    },
+    "after/crates/core/tests/data_workspace_migration.rs": {
+      "sha256": "9e5f4c7fcde0057988de00a579f9f676a2a73bd944eeaf5d749c7701c04f5b8c",
+      "bytes": 5256
+    },
+    "after/crates/core/tests/data_workspaces.rs": {
+      "sha256": "b31430f97f811fe44ed6e76be8d757a09b09d974f2de87c778965a9813507d5d",
+      "bytes": 62748
+    },
+    "after/crates/core/tests/goal_graph_migration.rs": {
+      "sha256": "71a97dca393f745fa3ae49e9a9e8cf087158ff4f82b9d574552513e7192787ef",
+      "bytes": 5153
+    },
+    "after/crates/core/tests/goal_runtime_migration.rs": {
+      "sha256": "6117948ac3d32d5f42d0f6322fed502837546974ac45ea712c3335cb8c9c6c99",
+      "bytes": 4997
+    },
+    "after/crates/core/tests/goal_store_migration.rs": {
+      "sha256": "e6a3e53688b6c81d40c3703df08e9de4f1909dccbfa90fa9ff27a0b7eee963c2",
+      "bytes": 5646
+    },
+    "after/crates/core/tests/migration_v5.rs": {
+      "sha256": "f9f5380ec62e4033ea327aac8c636e07071fc1fb975d9e13b7fa87f7f338740d",
+      "bytes": 5485
+    },
+    "after/crates/core/tests/migration_v6.rs": {
+      "sha256": "64257fed090b85bf223f1781639e9a31eafb725654fc51c37f40e6981987b837",
+      "bytes": 7290
+    },
+    "after/crates/core/tests/migration_v7.rs": {
+      "sha256": "a6dfe287af360cbc58c024631e04f7d4c18073bf3d2f2270f1e0f14504d81e61",
+      "bytes": 7550
+    },
+    "after/crates/core/tests/sessions_ipc.rs": {
+      "sha256": "c3eaf79e4928171bbd47698bd495a4e799d353eb8bf04c755022ea9d98f50bf6",
+      "bytes": 233976
+    },
+    "after/crates/core/tests/storage.rs": {
+      "sha256": "be95431b9829b934eb6bf707fcb1a5fb3e2b0d087a8ed256d52f28789693067a",
+      "bytes": 8438
+    },
+    "before/crates/core/tests/admission_performance.rs": {
+      "sha256": "5b7f7a2475ae47727160736660c0435a944949728be40599e788b607da833459",
+      "bytes": 7951
+    },
+    "before/crates/core/tests/command_validation.rs": {
+      "sha256": "252afb6800be9a26f43393bea2832964a0eda31ffd56d8206a4ee463eed74f8a",
+      "bytes": 54054
+    },
+    "before/crates/core/tests/command_validation_migration.rs": {
+      "sha256": "dd3e41571c1a16bbd168f81dbb4226457ab7227cbc31478a57b7c057a23a8ece",
+      "bytes": 5741
+    },
+    "before/crates/core/tests/data_workspace_migration.rs": {
+      "sha256": "dda0928fa139dbb9a4fac1a868669c71254790d8b909205be2eeefa109d03935",
+      "bytes": 5256
+    },
+    "before/crates/core/tests/data_workspaces.rs": {
+      "sha256": "b6d6cd13bc5efa80f40d6c19ac7b1c981fcfbc01177bda0a5dc1916d2aed764b",
+      "bytes": 62748
+    },
+    "before/crates/core/tests/goal_graph_migration.rs": {
+      "sha256": "ffcbe3fca9f104c67a03fea456635bf13ca2a97f2de5d398b02ee172ab82c7d5",
+      "bytes": 5153
+    },
+    "before/crates/core/tests/goal_runtime_migration.rs": {
+      "sha256": "b0790fecdf12b31d12c82a107b1b4d8b873611097450e0cd63f6eb37f53cf2d2",
+      "bytes": 4997
+    },
+    "before/crates/core/tests/goal_store_migration.rs": {
+      "sha256": "0ee059f1089c8a63d868cd5e4f4dd38827ecb2548e988a49a539721e73409410",
+      "bytes": 5646
+    },
+    "before/crates/core/tests/migration_v5.rs": {
+      "sha256": "fb0ded6690fc0046b9321a2f2d3ad3c4ef2d96735c8c9a775aed00b523eb6fc2",
+      "bytes": 5485
+    },
+    "before/crates/core/tests/migration_v6.rs": {
+      "sha256": "7b04b3bf019e41ded14848057f9983d4f3f4109411e82940bc4352ef6a24c1d7",
+      "bytes": 7290
+    },
+    "before/crates/core/tests/migration_v7.rs": {
+      "sha256": "07817e204b0c71f9c8c773c6b73050990a8fdbe2825b2f4c5d7f62aceed25bda",
+      "bytes": 7550
+    },
+    "before/crates/core/tests/sessions_ipc.rs": {
+      "sha256": "f884a060b61b689bffd7487798b7b0a77b5ffc2e3910085490ce44d55d435440",
+      "bytes": 233976
+    },
+    "before/crates/core/tests/storage.rs": {
+      "sha256": "b9a547a15657d8bff7ae05f90fde23718c168215cced81efbd0b5d20e569d8c6",
+      "bytes": 8438
+    },
+    "verify.py": {
+      "sha256": "0d5c7b5443ed582e00003a8c6c7ba559a9f573fbcf96e6b435c74ecf6cd1cd51",
+      "bytes": 4271
+    }
+  }
+}

@@ -353,7 +353,7 @@ fn ready_copy_survives_deleted_original_and_restart_without_touching_model_budge
         database
             .pragma_query_value::<u32, _>(None, "user_version", |r| r.get(0))
             .unwrap(),
-        12
+        14
     );
     assert_eq!(
         database

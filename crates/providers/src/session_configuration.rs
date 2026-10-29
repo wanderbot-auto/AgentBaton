@@ -175,3 +175,66 @@ mod tests {
         }
     }
 }
+
+/// Only trusted host approval resolution may construct this value. No wire or
+/// serde conversion grants a server the right to execute. The application must
+/// bind the exact installation, Factory approval, session and credential file.
+#[derive(Clone)]
+pub struct ApprovedFactoryMcp {
+    server: Value,
+}
+impl ApprovedFactoryMcp {
+    pub fn from_verified_host(
+        executable: &std::path::Path,
+        expected: &crate::installation::BinaryDigest,
+        credential_file: &std::path::Path,
+        approval_reference: &str,
+    ) -> Result<Self, TransportFailure> {
+        use std::os::unix::fs::MetadataExt;
+        if approval_reference.is_empty()
+            || approval_reference.len() > 128
+            || !executable.is_absolute()
+            || !credential_file.is_absolute()
+            || credential_file.as_os_str().len() > 4096
+        {
+            return Err(invalid());
+        }
+        crate::installation::verify_executable(executable, expected).map_err(|_| unsupported())?;
+        let m = std::fs::symlink_metadata(credential_file).map_err(|_| invalid())?;
+        let parent = credential_file.parent().ok_or_else(invalid)?;
+        let p = std::fs::symlink_metadata(parent).map_err(|_| invalid())?;
+        if !m.is_file()
+            || m.nlink() != 1
+            || m.mode() & 0o7777 != 0o600
+            || m.uid() != unsafe { libc::geteuid() }
+            || !p.is_dir()
+            || p.mode() & 0o7777 != 0o700
+            || p.uid() != m.uid()
+            || std::fs::canonicalize(credential_file).ok().as_deref() != Some(credential_file)
+        {
+            return Err(invalid());
+        }
+        Ok(Self {
+            server: json!({"name":"agentbaton-factory","command":executable,"args":["factory-mcp",credential_file],"env":[]}),
+        })
+    }
+}
+pub(crate) fn validate_factory(
+    configuration: &Value,
+    claude: bool,
+    approved: &ApprovedFactoryMcp,
+) -> Result<Value, TransportFailure> {
+    if serde_json::to_vec(configuration)
+        .map_err(|_| invalid())?
+        .len()
+        > 64 * 1024
+    {
+        return Err(invalid());
+    }
+    // Preserve all original native configuration restrictions. Only this fixed
+    // host-resolved server is added after the baseline has validated.
+    validate(configuration, claude)?;
+    let mut projected = configuration.clone();
+    projected["mcpServers"] = json!([approved.server]);
+    Ok(projected)
+}

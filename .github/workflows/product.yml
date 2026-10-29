@@ -28,7 +28,15 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/provider-contract
+          # Planning integration tests require matching normal tools before tests.
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema14-tools"
+          export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+          cargo build --workspace --locked --bins
+          python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output "$AGENTBATON_FACTORY_TEST_TOOLS" --evidence artifacts/provider-contract/factory-test-tools
           AGENTBATON_TEST_SCHEMA_CAPTURE="$GITHUB_WORKSPACE/artifacts/provider-contract/wire.ndjson" cargo test --workspace --locked
+          python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS"
+          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION
       - name: Validate captured messages against hash-pinned official native schema
         run: |
           set -euo pipefail
@@ -73,7 +81,7 @@ jobs:
         run: |
           set -euo pipefail
           rustup toolchain install stable --profile minimal
-          cargo build --locked --bin batond
+          cargo build --locked --bin batond --bin baton
           python3 -m venv artifacts/browser-venv
           artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt
           artifacts/browser-venv/bin/python -m playwright install --with-deps chromium
@@ -92,11 +100,11 @@ jobs:
               return subprocess.check_output(['git', *args], text=True).strip()
           assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
           candidate = {
-              'schema': 12,
+              'schema': 14,
               'git_head': git('rev-parse', 'HEAD'),
               'git_tree': git('rev-parse', 'HEAD^{tree}'),
               'dirty': False,
-              'binaries': {'batond': hashlib.sha256(pathlib.Path('target/debug/batond').read_bytes()).hexdigest()},
+              'binaries': {name: hashlib.sha256(pathlib.Path('target/debug', name).read_bytes()).hexdigest() for name in ['batond', 'baton']},
               'scope': 'CI-built Linux debug candidate; actual schema checked by read-only SQLite in the harness; acceptance pending',
           }
           pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
@@ -126,6 +134,35 @@ jobs:
                   '--validation-case', case,
                   '--output', 'artifacts/ui-browser/goal-graph-' + case,
               ], check=True)
+          factory_failures = []
+          for case in ['normal', 'cancel', 'unknown']:
+              try:
+                  subprocess.run([
+                      sys.executable, 'apps/desktop/tests/factory-real-ipc.py',
+                      '--case', case, '--batond', 'target/debug/batond',
+                      '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
+                      '--frontend', 'apps/desktop/dist', '--chromium', chromium,
+                      '--output', 'artifacts/ui-browser/factory-' + case,
+                  ], check=True)
+              except subprocess.CalledProcessError as failure:
+                  factory_failures.append({'case': case, 'exit_code': failure.returncode})
+          if factory_failures:
+              raise SystemExit('Factory runtime checks failed: ' + json.dumps(factory_failures))
+          frontend = pathlib.Path('apps/desktop/dist')
+          planning_candidate = {
+              **candidate,
+              'source_head': candidate['git_head'],
+              'compiled_core_source_head': candidate['git_head'],
+              'frontend_assets': {str(path.relative_to(frontend)): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(frontend.rglob('*')) if path.is_file()},
+          }
+          planning_manifest = pathlib.Path('artifacts/ui-browser/factory-child-planning-candidate.json')
+          planning_manifest.write_text(json.dumps(planning_candidate, indent=2) + '\n')
+          subprocess.run([
+              sys.executable, 'apps/desktop/tests/factory-child-planning-real-ipc.py',
+              '--run', '--tools', 'target/debug', '--frontend', str(frontend),
+              '--manifest', str(planning_manifest), '--chromium', chromium,
+              '--output', 'artifacts/ui-browser/factory-child-planning',
+          ], check=True)
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
@@ -169,7 +206,15 @@ jobs:
           RUST_TEST_THREADS: '1'
         run: |
           set -euo pipefail
+          # Planning integration tests require matching normal tools before tests.
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema14-tools"
+          export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+          cargo build --workspace --locked --bins
+          python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output "$AGENTBATON_FACTORY_TEST_TOOLS" --evidence artifacts/native-smoke/factory-test-tools
           cargo test --workspace --locked -- --show-output
+          python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS"
+          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION
           cargo build --locked --bin batond --bin baton
           python3 scripts/smoke-local-product.py
           cargo build --release --locked --bin batond --bin baton
@@ -186,6 +231,10 @@ jobs:
           cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
           cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
           python3 scripts/native-owner-dialog-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --output artifacts/native-smoke/owner-dialog
+      - name: Actual Native Factory planning approval and unchanged Grant evidence
+        run: |
+          set -euo pipefail
+          python3 scripts/native-owner-dialog-smoke.py --kind factory_planning --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --companion target/debug/baton --output artifacts/native-smoke/factory-planning-owner-dialog
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

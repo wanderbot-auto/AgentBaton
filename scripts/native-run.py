@@ -20,6 +20,10 @@ import time
 WEBCRYPTO_INPUT = '{"text":"原文证据🔒","inode":1152921504606846979,"u64":9223372036854775809,"max":18446744073709551615}\n'
 WEBCRYPTO_UTF8_BYTES = 109
 WEBCRYPTO_SHA256 = "d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892"
+FACTORY_COUNT_FIELDS = ('scopes', 'runs', 'task_lineage', 'task_bindings', 'delegations',
+                        'attempts', 'scoped_handles', 'handoffs', 'budget_reservations',
+                        'child_plan_heads', 'child_plan_revisions')
+MISSING_FACTORY_SCOPE_ID = 'native-readonly-missing-factory-scope'
 
 
 def webcrypto_expected(checkpoint):
@@ -48,6 +52,46 @@ def webcrypto_report_error(report):
         error = webcrypto_error(proof, checkpoint)
         if error:
             return error
+    return None
+
+
+def factory_report_error(report):
+    database = report.get('factory_readonly_database')
+    flags = report.get('first_webview')
+    if (not isinstance(database, dict) or set(database) != {'read_only', 'unchanged', 'before', 'after'}
+            or database.get('read_only') is not True or database.get('unchanged') is not True
+            or not isinstance(flags, dict)
+            or any(flags.get(field) is not True for field in ['factoryScopeLists', 'factoryMissingScopeDenied', 'factoryMissingRunDenied', 'readonlyFactoryNoMutation'])):
+        return 'native report lacks complete readonly Factory database/invoke evidence'
+    fields = set(FACTORY_COUNT_FIELDS) | {'schema_version', 'sequence'}
+    for phase in ['before', 'after']:
+        counts = database.get(phase)
+        if (not isinstance(counts, dict) or set(counts) != fields
+                or any(type(value) is not int or value < 0 for value in counts.values())
+                or counts['schema_version'] != 14
+                or any(counts[field] != 0 for field in FACTORY_COUNT_FIELDS)):
+            return 'native Factory schema14 or one of eleven independent zero counts is invalid'
+    if database['before'] != database['after']:
+        return 'native Factory readonly counts or sequence changed'
+    sequence = flags.get('factoryReadonlySequence')
+    if (not isinstance(sequence, dict) or set(sequence) != {'before', 'after'}
+            or any(type(value) is not int or value < 0 for value in sequence.values())):
+        return 'native Factory UI readonly interval is missing or malformed'
+    for phase in ['before', 'after']:
+        if sequence[phase] != database[phase]['sequence']:
+            return 'native Factory UI/database readonly interval differs'
+        for name in ['goal_readonly_database', 'goal_execution_readonly_database', 'goal_graph_readonly_database']:
+            original = report.get(name)
+            if (not isinstance(original, dict) or not isinstance(original.get(phase), dict)
+                    or original[phase].get('sequence') != sequence[phase]):
+                return 'native Factory evidence cannot replace the original Goal/execution/Graph interval'
+        for name in ['goalReadonlySequence', 'goalExecutionReadonlySequence', 'goalGraphReadonlySequence']:
+            original = flags.get(name)
+            if not isinstance(original, dict) or original.get(phase) != sequence[phase]:
+                return 'native Factory evidence cannot replace an original UI interval'
+    expected = {'scope_id': MISSING_FACTORY_SCOPE_ID, 'code': 'NOT_FOUND', 'side_effect_state': 'not_started'}
+    if any(flags.get(name) != expected for name in ['factoryMissingScope', 'factoryMissingRun']):
+        return 'native Factory scope/run lookup lacks exact fixed Core not-started denial'
     return None
 
 
@@ -99,7 +143,7 @@ def native_report_error(report):
     if (not isinstance(start, dict) or set(start) != execution_fields
             or not isinstance(finish, dict) or set(finish) != execution_fields
             or any(type(value) is not int or value < 0 for value in [*start.values(), *finish.values()])
-            or start['schema_version'] != 12 or finish['schema_version'] != 12
+            or start['schema_version'] != 14 or finish['schema_version'] != 14
             or any(start[field] != 0 or finish[field] != 0 for field in ['run_count', 'node_count', 'reservation_count'])
             or start != finish):
         return 'native report Goal execution schema/counts/sequence changed or are incomplete'
@@ -124,7 +168,7 @@ def native_report_error(report):
     if (not isinstance(graph_before, dict) or set(graph_before) != graph_fields
             or not isinstance(graph_after, dict) or set(graph_after) != graph_fields
             or any(type(value) is not int or value < 0 for value in [*graph_before.values(), *graph_after.values()])
-            or graph_before['schema_version'] != 12 or graph_after['schema_version'] != 12
+            or graph_before['schema_version'] != 14 or graph_after['schema_version'] != 14
             or any(graph_before[field] != 0 or graph_after[field] != 0 for field in graph_counts)
             or graph_before != graph_after):
         return 'native report Goal graph schema/counts/sequence changed or are incomplete'
@@ -138,6 +182,9 @@ def native_report_error(report):
     if (not isinstance(graph_missing, dict) or set(graph_missing) != {'run_id', 'code', 'side_effect_state'}
             or graph_missing != {'run_id': 'native-readonly-missing-goal-graph-run', 'code': 'NOT_FOUND', 'side_effect_state': 'not_started'}):
         return 'native report lacks the exact missing Goal graph Core denial'
+    factory_error = factory_report_error(report)
+    if factory_error:
+        return factory_error
     for field in ['window_close_daemon_survived', 'second_writer_rejected', 'owned_daemon_restarted', 'owned_daemon_cleanup']:
         if report.get(field) is not True:
             return 'native report lacks required daemon lifecycle evidence'

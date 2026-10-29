@@ -1,0 +1,58 @@
+# Factory built-UI / real Unix IPC validation
+
+AB-START-001; ACK OWNER-001/002. Native subtask /root/data_real_ipc_resume, actual Cloud task URL unavailable here. Baseline40b435b4ca32eb816ad4ebd9f6cba5821463e4d7; new isolated codex/factory-browser-real-ipc. Only new apps/desktop/tests/factory-real-ipc.py, necessary own tests and this unit4records permitted. Root owns integration/independent review/CI; Core sole Cargo/target writer. No old harness/Core/UI/Native/locks/schema/gates/STATUS edits, no remote/PR/fees/accounts/credentials/model/recursive agents.
+
+Implement fixed browser IPC adapter and real driver, never forged successful callbacks. Reuse only imported old pure transport/identity helpers with source hash, not old schema12 execution. HTTP permits exact scoped reads and start/cancel CAS; revoke stays private Host. Ownerapprove/propose/finalize/decline/generic/sessiondispatch/Agent4 tools never exposed over HTTP. Bind scope/rootTask/project from actual private authenticated Core resources; strict JSON/key/CAS/UTF8/Host/Origin/frame limits. HTTP forwards original whole Core reply bytes to preserve fs-u64.
+
+Private Owner fixture creates generated local ACP connection, Git project/workspace/rootGrant/draftTask through real Core proposals/finalizers, reviews full1MiB Factory snapshot/Project/pins/inputs/outputs, then finalizes outside HTTP. This is expressly not a human OS dialog. Generated account-free ACP consumes strict full TaskRequest and calls the real frozen Baton MCP via original private file reference; never opens credential or Owner token or calls a model.
+
+Runtime normal plan: explicit built-UI start; real initial parent→queued child→actual owned parent stop→child result→new parent attempt with digest-bound handoff. Keep distinct child/parent outputs and FD/hash evidence; one originalGrant, sharedroot3attempt history and true owned stops. Cancel case holds a live real ACP prompt, UI requests cancel, intentreceipt distinct from actual terminal joined stop. Unknown case emits malformed ACP and retains actual outcome_unknown without inventing release, cancellation or TaskAccepted. Wrong CAS and ordinary same-key/different-payload checks use actual Core errors; ordinary receipt replay is not a response-drop test.
+
+Runtime depends on Root immutable schema13 batond+matching sibling baton (original128MiB binding cap, do not strip frozen binaries), Root composed frontend/asset evidence and Core-author stable wire/runtime/ledger confirmation. Until supplied, default/prefailed invocations exit2 and actual runtime remains NOT_RUN. Compile/unit checks and saved Store DTOs cannot satisfy product/macOS/Provider acceptance. Then Root reviews/freeze/runs each case in new exclusive output, retains failures and actual PNG, obtains independent review before integration.
+
+## Independent initial review mustfix
+
+Preserve fd5e and the original actual AST counterexamples. Fail closed on every body/browser/HTTP/daemon/log/temp cleanup exception, keep first failure, and require cleanup_complete plus no failure for exit0. Bind cleanup to previously validated record paths/hash/fixed identities; exact3normal or1other record must cover6/2 identities, never a new empty glob. Check exact root:<rootTaskId> and project:<projectId> ledger rows with consumed3normal/1cancel/1malformedunknown, active0 only alongside the same number of actual owned-reap receipts. No missing/multiple/incorrect project rows, refund or reset. Token/cost/output full budget enforcement remains untested.
+
+Root now supplied normalized schema13 manifest4194ae2d...c9414a, immutable0ef rawbatond/baton081a/89eb and composedFactorydist. Read-only strict preflight passed; no binary executed or token/socket accessed. Actual runtime remains gated on independent repaired-source review and Root's explicit sequencing. Automated Owner fixture, scopedMCP tool-list and OwnerUIcancel are distinct: this driver does not yet actually invoke Agent cancel_task. Readonly SQL observations/report are retained, not temporary DBbytes or a replayable database.
+
+Independent repaired-source review now source-ready (23countercontrols plus63/13/28 units passed). Root next owns exactsource real normal/cancel/unknown runs. No real-run success inferred, no pre-relaxation for unknown/stop timing.
+
+
+## Diagnostic repair after Root normal-first failure
+
+Continue in isolated `/workspace/.worktrees/factory-browser-diagnostics`, branch `codex/factory-browser-diagnostics`, base `fc61215b549ec6eef99278313ac20994908f2948`; only this script and four own records. ACK OWNER-001/002 and current AB-START-001 gate on resume. Root's original normal-first actual failure remains intact; previous NOT_RUN statements above describe earlier checkpoints, not absence of this later Root execution.
+
+Private installation copies the immutable daemon and sibling CLI into an exclusive 0700 generated directory, verifies distinct inodes/copy hashes, leaves daemon bytes unchanged and runs system `strip -S` only on the private CLI copy. Original source paths, before/after SHA/size, installed path/SHA/size and strip argv/tool SHA are recorded. Core Scope/ACP must bind the actual installed companion; frozen originals are never stripped. Original child5s, observer15s, authority, HTTP allowlist, expected normal completed state and exact success3records/6identities (other cases1/2) remain unchanged. This tests a hypothesis about debug-tool startup cost; timing alone does not establish cause.
+
+Observe started records incrementally, before terminal success: bind exclusive file FD identity/content/hash, generated nonce/program/settings, strict full TaskRequest/raw original Core turn, matching session/Factory attempt, private argv and PID/starttick/PGID. Discovery glob alone never authorizes signals. On failure while daemon lives, save a bounded readonly SQLite transaction with full allowed journal/session/attempt/Factory rows and generated stderr, redacting only generated Owner/scoped token secrets. Preserve query/columns/raw-encoding hashes; no temporary DB bytes or replay claim. Record actual verified identities, reserved and known-never-started sessions separately; partial failed workflow cleanup remains incomplete, even if every known identity is gone. No fabricated normal3 spawned records.
+
+Freeze source, independently review pure controls, then Root alone runs the new exact-source real normal/cancel/unknown cases with fixed schema13 tools and composed UI in new exclusive directories. Do not execute Core/browser here. Follow-up actual failures stay evidence; no timeout changes, synthetic success or weakened assertions.
+
+
+Independent diagnostic review found FIFO open could block before fstat and prevent the observer loop from returning. Use O_NONBLOCK with O_NOFOLLOW, keep strict S_ISREG/FD-pin checks, and reject own FIFO/socket controls without changing deadlines. Credential snapshot completeness is explicit: ignore only deleted-file ENOENT race; other permission/parse/type/bounds errors record name/type only and mark incomplete; inspect at most256entries, detect257th as incomplete. No raw credential/error text is saved.
+
+
+## Generated MCP owned-stop repair after second Root normal failure
+
+Keep the strict zombie/argv/PIDstart/true-join and six-identity checks. Generated ACP must close and wait its own MCP Popen before normal end_turn; if close or wait fails, do not emit terminal success. SIGTERM enters finally rather than Python's default immediate exit; ignore repeat TERM to avoid recursive handler, retain original Popen until successful wait. Preserve first close exception and annotate secondary wait failure; original wait timeout1 remains unchanged. Validate with real self-created Python parent/child processes only under a standalone unit-controller subreaper, never setting prctl in Core/agent or touching the old orphan. Root reruns full actual workflow after independent exactsource review; helper stop proof cannot substitute for six actual runtime identities.
+
+
+## SIGKILL cancellation and test-controller descendant reap
+
+Frozen Core terminate uses group SIGKILL then direct provider.wait; TERM handler cannot intercept SIGKILL. Preserve normal851PASS and actualcancelFAIL as separate cases. Do not close active MCP early or change Core. Only the independently launched Linux harness process enables subreaper before daemon spawn and restores it in outermostfinally. For an already bound record, revalidate all fresh Core/session/attempt/run/raw-turn/nonce/FD semantics before inspecting an adopted companion. Exact same PID/start, PPID=this controller, stateZ and original PGID permit only knownPID waitpid(WNOHANG); prove disappearance after real wait and record raw status/exitcode as test-controller reap, never Core-all-descendants join. Wrong identity, nonchild or unknown/first-unbound record cannot authorize wait. No global scan/signal/wait(-1); strict2/6 disappearance and failedpartial cleanupfalse stay mandatory. Original5s/15s/fixturewait1 unchanged.
+
+
+## Bound MCP stop-transition race and strict manifest schema
+
+Independent202blocked showed early reaper may see R, then concurrent groupSIGKILL precedes cmdline read. On empty or vanished cmdline only for the same previously bound MCP, repeat exact FD/identity/adopted-child reap and require original identity actually gone; otherwise fail. No accepting Z itself, foreign/unbound/live identity, nonempty malformed argv or a missing wait as success. No retries with new deadlines/sleep, no new permissions. Manifest preflight accepts only type(schema)is int and value13; float13.0 rejected just like12/14; actual runtime SQLite schema13 remains separately required.
+
+
+## Wrong-start CAS diagnostic ordering only
+
+Root's12e+22cc actualnormal failed before firstcheck/browser/Provider at the existing wrong-start CAS assertion. Retain complete actual stale reply in observations before that assertion, preserving expected STALE_REVISION, empty sessions and every call/limit. This is diagnostics only; do not guess missing old reply or relax Core error semantics. Root/Core investigate separately and Root runs next exact-source case after mechanical review.
+
+
+## Real UI start acknowledgment ordering without extending the phase
+
+After click, wait for the unique real scoped/CAS/key start request plus complete valid queued Core receipt and server HTTP reply write before any terminal read. Register inflight start before Core call so duplicates/pending replies are visible; no fabricated success or generic NOT_FOUND swallowing. One monotonic deadline is fixed before click: acknowledgment and normal/unknown terminal share original15s; cancellation acknowledgment and firstfixture record share original15s, while its existing subsequent intent/terminal15s phases stay unchanged. Check shared deadline both before and after reads so a late receipt cannot obtain another15s. Core/session/FD/cleanup/authority/allowlist invariants stay fixed. Root actualreplays after independent review; pure controlled clock/trace tests cannot prove real HTTP/browser completion.

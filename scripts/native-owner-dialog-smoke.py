@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Own-process macOS Grant dialog fixture. No production credentials/OS permissions.
+"""Own-process macOS Grant(default) / Factory planning dialog fixtures.
 
-The only approvals.finalize host bootstrap is for this generated local executable's
---version connection. The target Grant is finalized ONLY by production Tauri UI.
+No production credentials/OS permissions. Default Grant host bootstrap finalizes
+only its generated --version connection. Factory mode additionally prepares its
+own explicit enclosing nondelegating Grant; the target Factory is finalized ONLY
+by the real production factory_scope_approve bridge after actual OS confirmation.
 """
 import argparse
 from contextlib import contextmanager, ExitStack
@@ -26,7 +28,7 @@ import time
 import uuid
 
 
-# Exact schema12 tables: never substitute old test DDL or silently skip absent
+# Exact schema14 tables: never substitute old test DDL or silently skip absent
 # tables. Every Goal store/runtime/graph table is empty in this Grant-only probe.
 GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
                'goal_plan_revisions', 'goal_plan_proposals', 'goal_ledgers',
@@ -34,7 +36,11 @@ GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
                'goal_run_nodes', 'goal_run_reservations', 'goal_graph_capabilities',
                'goal_graph_jobs', 'goal_graph_candidates', 'goal_graph_validations',
                'goal_graph_owner_decisions', 'goal_graph_acceptances')
-ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES)
+FACTORY_TABLES = ('factory_scopes', 'factory_runs', 'factory_task_lineage',
+                  'factory_task_bindings', 'factory_delegations', 'factory_attempts',
+                  'factory_scoped_handles', 'factory_handoffs', 'factory_budget_reservations',
+                  'factory_child_plan_heads', 'factory_child_plan_revisions')
+ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES, *FACTORY_TABLES)
 
 
 def save(path, value):
@@ -81,7 +87,7 @@ class NativeCoreClient:
         return reply['result']
 
 
-def database(runtime, proposal_id):
+def database(runtime, proposal_id, *, factory_planning=False):
     with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as conn:
         conn.execute('PRAGMA query_only=ON')
         conn.execute('BEGIN')
@@ -100,9 +106,16 @@ def database(runtime, proposal_id):
             events.append(item)
         counts = {table: conn.execute(f'SELECT count(*) FROM {table}').fetchone()[0]
                   for table in ZERO_TABLES}
+        extra = {}
+        if factory_planning:
+            extra = {'grant_documents': dict(conn.execute('SELECT id,document FROM execution_grants')),
+                     'other_proposals': other_proposal_rows(conn, proposal_id),
+                     'task_documents': dict(conn.execute('SELECT id,document FROM tasks')),
+                     'scopes': [{'document': json.loads(doc), 'owner_sequence': seq} for doc, seq in conn.execute('SELECT document,owner_sequence FROM factory_scopes')],
+                     'dispatch_intents': conn.execute('SELECT count(*) FROM dispatch_intents').fetchone()[0]}
         conn.rollback()
     return {'read_only': True, 'schema_version': schema, 'sequence': sequence,
-            'proposal': proposal, 'proposal_result': result, 'grants': grants, 'events': events, 'counts': counts}
+            'proposal': proposal, 'proposal_result': result, 'grants': grants, 'events': events, 'counts': counts, **extra}
 
 
 def json_exact(left, right):
@@ -123,7 +136,7 @@ def json_exact(left, right):
 def pending_error(value, proposal, sequence):
     if (type(sequence) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 12)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
             or type(value.get('sequence')) is not int or not json_exact(value['sequence'], sequence)
             or not json_exact(value.get('proposal'), proposal) or proposal.get('kind') != 'grant'
             or proposal.get('consumed') is not False or value.get('proposal_result') is not None
@@ -161,7 +174,7 @@ def approved_error(value, proposal, baseline, response):
     current = value.get('proposal', {})
     if (type(baseline) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 12)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
             or not isinstance(grants, list) or len(grants) != 1
             or current.get('id') != proposal['id'] or not json_exact(current.get('snapshot'), proposal['snapshot'])
             or current.get('kind') != 'grant' or current.get('consumed') is not True
@@ -376,12 +389,14 @@ def daemon_output_record(path):
 
 
 @contextmanager
-def bootstrap(daemon_path, output):
+def bootstrap(daemon_path, output, *, factory_planning=False):
     """Actual Core/generated --version fixture only; no GUI or Grant finalize.
 
     Linux controls use this same pre-OS path, never pretending they ran macOS.
     The caller must keep the yielded context alive while observing the database.
     """
+    if type(factory_planning) is not bool:
+        raise ValueError('Fixed internal Factory fixture selector must be boolean')
     # 103 UTF-8 bytes leaves the trailing NUL in Darwin's sockaddr_un.sun_path.
     # This prepares only our new fixture paths; the production guard is unchanged.
     socket_limit = 103
@@ -430,6 +445,9 @@ def bootstrap(daemon_path, output):
             git_env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null')
             phase = 'generated_project_preparation'
             for args in [['init', '-q'], ['-c', 'user.name=Native Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--allow-empty', '-qm', 'local owner fixture']]:
+                if factory_planning and args[0] != 'init':
+                    (project / 'input.txt').write_bytes(b'fixed input\n')
+                    subprocess.run(['git', '-C', str(project), '-c', 'core.hooksPath=/dev/null', 'add', 'input.txt'], env=git_env, check=True, timeout=10, capture_output=True)
                 subprocess.run(['git', '-C', str(project), '-c', 'core.hooksPath=/dev/null', '-c', 'init.templateDir=', *args], env=git_env, check=True, timeout=10, capture_output=True)
             enable_owned_subreaper()
             streams = []
@@ -475,9 +493,9 @@ def bootstrap(daemon_path, output):
                 if time.monotonic() >= deadline:
                     raise TimeoutError('Bounded generated version probe')
                 time.sleep(.05)
-            params = {'project_id': imported['id'], 'workspace_id': workspace['id'], 'connection_id': connection['id'], 'max_attempts': 1, 'max_concurrency': 1, 'max_duration_ms': 1000}
+            params = {'project_id': imported['id'], 'workspace_id': workspace['id'], 'connection_id': connection['id'], 'max_attempts': 1, 'max_concurrency': 1, 'max_duration_ms': 300000 if factory_planning else 1000}
             proposal = client.call('grants.propose', params, 'owner-os-grant')
-            invoke = {'projectId': imported['id'], 'workspaceId': workspace['id'], 'connectionId': connection['id'], 'maxAttempts': 1, 'maxConcurrency': 1, 'maxDurationMs': 1000, 'idempotencyKey': 'owner-os-grant'}
+            invoke = {'projectId': imported['id'], 'workspaceId': workspace['id'], 'connectionId': connection['id'], 'maxAttempts': 1, 'maxConcurrency': 1, 'maxDurationMs': 300000 if factory_planning else 1000, 'idempotencyKey': 'owner-os-grant'}
             generated = {'runtime': runtime, 'env': env, 'client': client, 'proposal': proposal, 'invoke': invoke}
             phase = 'yielded_before_native_owner'
             yield generated
@@ -582,14 +600,540 @@ def run(binary, daemon_path, output):
     save(output / 'result.json', result)
 
 
+FACTORY_KIND = 'native_factory_planning_os_dialog_fixture'
+FACTORY_KEY = 'owner-os-factory-planning'
+FACTORY_TITLE = 'AgentBaton — Independent Factory approval'
+
+
+def compact(value):
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')
+
+
+def digest(value):
+    return hashlib.sha256(compact(value)).hexdigest()
+
+
+def factory_messages(proposal, source):
+    """Full-snapshot independent formatter mirror; every byte is reconstructed.
+
+    Literal captions are extracted from the frozen shipping source, not supplied
+    by the renderer. Fail on a formatter refactor; never accept a digest-only UI.
+    """
+    body = source.split('pub fn confirm_factory_and_finalize(', 1)[1].split('\n#[cfg(test)]', 1)[0]
+    action = re.search(r'let action = if .*?\{\s*("(?:[^"\\]|\\.)*")', body, re.S)
+    page = re.search(r'let message\s*=\s*format!\(\s*("(?:[^"\\]|\\.)*")', body)
+    final = re.search(r'if !confirm_native\(&format!\(\s*("(?:[^"\\]|\\.)*")', body)
+    if not action or not page or not final:
+        raise ValueError('Audit changed production Factory formatter before OS clicks')
+    action, page, final = [json.loads(m.group(1)) for m in (action, page, final)]
+    raw = compact(proposal['snapshot'])
+    if not raw or len(raw) > 1048576:
+        raise ValueError('Complete Factory snapshot exceeds original 1MiB bound')
+    chunks, offset = [], 0
+    while offset < len(raw):
+        end = min(offset + 12288, len(raw))
+        while True:
+            try:
+                text = raw[offset:end].decode('utf-8')
+                break
+            except UnicodeDecodeError:
+                end -= 1
+        if end == offset:
+            raise ValueError('No complete UTF8 scalar in Factory page')
+        chunks.append(text)
+        offset = end
+    if ''.join(chunks).encode('utf-8') != raw:
+        raise ValueError('Factory snapshot was not completely reconstructed')
+    messages, offset = [], 0
+    for index, chunk in enumerate(chunks):
+        end = offset + len(chunk.encode())
+        replacements = {'action': action, 'id': proposal['id'], 'revision': proposal['revision'],
+                        'offset': offset, 'end': end, 'total': len(raw), 'page': chunk}
+        template = page
+        for positional in (index + 1, len(chunks), offset, end, len(raw)):
+            template = template.replace('{}', str(positional), 1)
+        # Substitute from a single regex pass: original JSON may contain caption
+        # placeholders verbatim and must not be interpreted a second time.
+        messages.append(re.sub(r'\{(action|id|revision|offset|end|total|page)\}', lambda m: str(replacements[m[1]]), template))
+        offset = end
+    template = final.replace('{}', str(len(chunks)), 1)
+    values = {'action': action, 'id': proposal['id'], 'revision': proposal['revision'], 'total': len(raw)}
+    messages.append(re.sub(r'\{(action|id|revision|total)\}', lambda m: str(values[m[1]]), template))
+    if any(len(message.encode()) > 16384 for message in messages):
+        raise ValueError('Factory outer message exceeds original16KiB bound')
+    return messages
+
+
+def factory_presentation(proposal, source):
+    messages = factory_messages(proposal, source)
+    pages, contexts = [], []
+    for outer, message in enumerate(messages):
+        inner = presentation_prompts(message)
+        for index, page in enumerate(inner):
+            pages.append(page)
+            contexts.append({'outer_index': outer, 'outer_count': len(messages),
+                             'inner_index': index, 'inner_count': len(inner),
+                             'outer_final': outer + 1 == len(messages), 'inner_final': index + 1 == len(inner),
+                             'message_sha256': hashlib.sha256(message.encode()).hexdigest()})
+    if not 2 <= len(pages) <= 1024 or any(len(p.encode()) > 2048 for p in pages):
+        raise ValueError('Factory display exceeds original bounded page envelope')
+    return messages, pages, contexts
+
+
+def factory_presentation_error(observed, fixture, pages, contexts, index):
+    # Retain the original strict text/layout predicate, with only the fixed
+    # Factory title and the additional immutable two-layer nonce/context binding.
+    title = observed.get('title')
+    normalized = dict(observed, title='AgentBaton — Native owner approval')
+    return (presentation_error(normalized, fixture['proposal'], pages, fixture['phase'], index)
+            or (None if title == FACTORY_TITLE
+                and observed.get('review_nonce') == fixture['review_nonce']
+                and json_exact(observed.get('factory_page'), contexts[index]) else 'Factory outer/inner/nonce/title mismatch'))
+
+
+class FactoryBootstrapClient:
+    """Generated-fixture Owner setup only. No target Factory finalize method.
+
+    This is not product authorization or a public endpoint. The pre-existing
+    Grant-mode client remains restricted to connection bootstrap only.
+    """
+    def __init__(self, client, grant_proposal):
+        self.client = client
+        self.grant_proposal = grant_proposal
+        self.finalized_grant = False
+
+    def request(self, method, params, key, revision=None):
+        if method == 'approvals.finalize':
+            if (self.finalized_grant or self.grant_proposal.get('kind') != 'grant'
+                    or not json_exact(params, {'proposal_id': self.grant_proposal['id']})
+                    or not json_exact(revision, self.grant_proposal['revision'])
+                    or key != 'proposal:' + self.grant_proposal['id']):
+                raise ValueError('Only the single generated enclosing Grant bootstrap; NEVER Factory finalize')
+        elif method not in {'tasks.create', 'factory_scopes.propose'}:
+            raise ValueError('Not a fixed Factory fixture preparation method')
+        frame = {'api_version': 1, 'request_id': str(uuid.uuid4()),
+                 'token': (self.client.runtime / 'session.token').read_text(),
+                 'method': method, 'params': params, 'idempotency_key': key}
+        if revision is not None:
+            frame['expected_revision'] = revision
+        with socket.socket(socket.AF_UNIX) as stream:
+            stream.settimeout(20)
+            stream.connect(str(self.client.runtime / 'batond.sock'))
+            stream.sendall(json.dumps(frame).encode() + b'\n')
+            raw = bytearray()
+            while not raw.endswith(b'\n'):
+                chunk = stream.recv(65536)
+                if not chunk or len(raw) + len(chunk) > 4 * 1024 * 1024:
+                    raise RuntimeError('Incomplete or oversized generated Core reply')
+                raw.extend(chunk)
+        reply = json.loads(raw)
+        self.client.transcript.append({'method': method, 'params': params, 'idempotency_key': key,
+                                       'expected_revision': revision, 'reply': reply,
+                                       'dimension': 'generated enclosing resources only, not OS approval'})
+        if 'error' in reply:
+            raise RuntimeError(f'{method}: {reply["error"]}')
+        if method == 'approvals.finalize':
+            self.finalized_grant = True
+        return reply['result']
+
+
+def prepare_factory(generated):
+    p = generated['proposal']
+    initial = database(generated['runtime'], p['id'])
+    if error := pending_error(initial, p, initial['sequence']):
+        raise ValueError(error)
+    # Exact live14/30zero BEFORE any enclosing Grant finalization.
+    client = FactoryBootstrapClient(generated['client'], p)
+    grant = client.request('approvals.finalize', {'proposal_id': p['id']}, 'proposal:' + p['id'], p['revision'])
+    intent = p['snapshot']['intent']
+    if grant['scope']['max_children'] != 0 or grant['scope']['max_depth'] != 0:
+        raise ValueError('Generated enclosing Grant cannot delegate')
+    task = client.request('tasks.create', {'project_id': intent['project_id'], 'goal': 'Review bounded 子计划 planning only'}, 'owner-factory-task')
+    budget = {'attempts': 1, 'parallel': 1, 'runtime_ms': 1000, 'output_bytes': 1024,
+              'children': 1, 'reworks': 0, 'tokens': None, 'cost_microunits': None}
+    output = {'artifact_id': 'report', 'relative_path': 'report.txt', 'max_bytes': 1024, 'expected_sha256': None}
+    selection = {'root_task_id': task['id'], 'expected_task_revision': task['revision'],
+        'grant_id': grant['id'], 'expected_grant_revision': grant['revision'],
+        'connection_ids': [intent['connection_id']], 'workspace_ids': [intent['workspace_id']],
+        'inputs': [{'artifact_id': 'input', 'relative_path': 'input.txt', 'max_bytes': 1024,
+                    'expected_sha256': hashlib.sha256(b'fixed input\n').hexdigest()}],
+        'outputs': [output], 'recipients': [], 'max_depth': 1, 'max_children': 1, 'max_total_nodes': 2,
+        'root_budget': budget, 'project_budget': dict(budget), 'ttl_ms': 300000,
+        'capabilities': {'delegate_task': True, 'resume_parent_as_new_attempt': True,
+                         'child_planning': True, 'child_goal_execution': False, 'create_workspace': False},
+        'child_planning_policy': {'max_nodes': 1, 'max_revisions': 2, 'max_plan_bytes': 1024,
+            'outputs': [{'artifact': output, 'validators': []}], 'writable_prefixes': ['report.txt'],
+            'owner_acceptance_criteria': 'Review complete report / 核对完整报告; stored plan is not acceptance.'}}
+    proposal = client.request('factory_scopes.propose', selection, FACTORY_KEY)
+    if proposal.get('kind') != 'factory' or not json_exact(proposal['snapshot']['selection'], selection):
+        raise ValueError('Real Core did not return the exact Factory proposal')
+    return proposal, {'selection': selection, 'idempotencyKey': FACTORY_KEY}
+
+
+
+def sqlite_raw(value, kind):
+    """Lossless typed SQLite cell, never parse/normalize another receipt JSON."""
+    if kind == 'null' and value is None:
+        return {'sqlite_type': 'null', 'value': None}
+    if kind == 'text' and type(value) is str:
+        value.encode('utf-8')  # invalid text is failure, not a replacement string
+        return {'sqlite_type': 'text', 'value': value}
+    if kind == 'blob' and type(value) is bytes:
+        return {'sqlite_type': 'blob', 'hex': value.hex()}
+    if kind == 'integer' and type(value) is int:
+        return {'sqlite_type': 'integer', 'value': value}
+    if kind == 'real' and type(value) is float and math.isfinite(value):
+        return {'sqlite_type': 'real', 'value': value}
+    raise ValueError('Unsupported or mismatched SQLite storage class')
+
+
+def other_proposal_rows(conn, excluded):
+    # Actual approval_proposals has exactly id/document/result. Consumed,
+    # expiry and every other immutable proposal field live inside document.
+    rows = {}
+    for key, document, result, doc_type, result_type in conn.execute(
+            'SELECT id,document,result,typeof(document),typeof(result) FROM approval_proposals WHERE id!=?', (excluded,)):
+        if type(key) is not str or key in rows:
+            raise ValueError('Invalid/ambiguous non-target approval primary key')
+        rows[key] = {'document': sqlite_raw(document, doc_type), 'result': sqlite_raw(result, result_type)}
+    return rows
+
+
+NATIVE_OWNER_BINARY = 'agentbaton-native-owner-dialog-smoke'
+
+
+def native_binary_record(path):
+    """Record the explicit compiled test executable without reading FIFO/links.
+
+    This is byte/identity evidence, not compiler provenance or an OS sandbox.
+    The actual build log + checkout + this raw hash supply that separate proof.
+    """
+    requested = Path(path).absolute()
+    if requested.name != NATIVE_OWNER_BINARY:
+        raise ValueError('Only the fixed Native Owner test executable is supported; not the default application')
+    initial = requested.lstat()
+    if (not stat.S_ISREG(initial.st_mode) or initial.st_uid != os.geteuid()
+            or initial.st_mode & 0o022 or not initial.st_mode & 0o111):
+        raise ValueError('Native test executable must be an owned regular non-writable-by-group/world executable, not a link/FIFO/directory')
+    canonical = requested.resolve(strict=True)
+    fields = ('st_dev', 'st_ino', 'st_nlink', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    fd = os.open(canonical, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0))
+    try:
+        before = os.fstat(fd)
+        if any(getattr(before, name) != getattr(initial, name) for name in fields):
+            raise ValueError('Native test executable changed before capture')
+        digest_value, size = hashlib.sha256(), 0
+        while chunk := os.read(fd, 65536):
+            digest_value.update(chunk)
+            size += len(chunk)
+        after = os.fstat(fd)
+        live = canonical.lstat()
+        if (size != before.st_size or any(getattr(after, name) != getattr(before, name) for name in fields)
+                or any(getattr(live, name) != getattr(before, name) for name in fields)):
+            raise ValueError('Native test executable changed during capture')
+        return {'path': str(canonical), 'sha256': digest_value.hexdigest(), 'bytes': size,
+                'device': before.st_dev, 'inode': before.st_ino, 'nlink': before.st_nlink,
+                'mode': stat.S_IMODE(before.st_mode), 'mtime_ns': before.st_mtime_ns, 'ctime_ns': before.st_ctime_ns}
+    finally:
+        os.close(fd)
+
+
+def native_binary_check(original):
+    try:
+        observed = native_binary_record(Path(original['path']))
+        return {'stable': json_exact(observed, original), 'observed': observed}
+    except Exception as error:
+        return {'stable': False, 'error': {'type': type(error).__name__, 'message': str(error)}}
+
+
+@contextmanager
+def native_binary_witness(binary, output):
+    original = native_binary_record(binary)
+    save(output / 'native-binary-before.json', {'source': original, 'executed': original,
+         'resource_contract': 'Execute the original canonical build path; no Native copy/resource-directory relocation',
+         'compiler_provenance': 'Not certified by path/hash; bind real same-checkout build log separately'})
+    primary = None
+    try:
+        yield original
+    except BaseException as error:
+        primary = {'type': type(error).__name__, 'message': str(error)}
+        raise
+    finally:
+        after = native_binary_check(original)
+        after['original_failure'] = primary
+        try:
+            save(output / 'native-binary-after.json', after)
+        except Exception as secondary:
+            if primary is None:
+                raise
+            print('SECONDARY Native binary evidence write failure: ' + repr(secondary), file=sys.stderr)
+        if not after['stable'] and primary is None:
+            raise RuntimeError('Native test executable changed; no successful Factory evidence')
+
+def factory_database(runtime, proposal_id):
+    # One readonly SQLite transaction binds sequence, receipt and ALL raw docs.
+    return database(runtime, proposal_id, factory_planning=True)
+
+
+def factory_pending_error(value, fixture, before):
+    proposal = fixture['proposal']
+    if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int
+            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
+            or not json_exact(value.get('sequence'), before['sequence'])
+            or proposal.get('kind') != 'factory' or proposal.get('consumed') is not False
+            or not json_exact(value.get('proposal'), proposal) or value.get('proposal_result') is not None
+            or not json_exact(value.get('grant_documents'), before['grant_documents'])
+            or not json_exact(value.get('other_proposals'), before['other_proposals'])
+            or not json_exact(value.get('task_documents'), before['task_documents'])
+            or not json_exact(value.get('events'), before['events'])
+            or not json_exact(value.get('grants'), before['grants'])
+            or value.get('scopes') != [] or not json_exact(value.get('dispatch_intents'), 0)
+            or not isinstance(value.get('counts'), dict) or set(value['counts']) != set(ZERO_TABLES)
+            or any(type(n) is not int or n != 0 for n in value['counts'].values())):
+        return 'Factory pending proposal/sequence/original Grant/raw documents/zero execution changed'
+    if (len(before['grants']) != 1 or not json_exact(before['grants'][0]['scope']['max_children'], 0)
+            or not json_exact(before['grants'][0]['scope']['max_depth'], 0)
+            or not json_exact(proposal['snapshot']['bindings']['approved_grant'], before['grants'][0])):
+        return 'Factory proposal not bound to the original nondelegating Grant'
+    return None
+
+
+def factory_approved_error(value, fixture, before, response):
+    proposal = fixture['proposal']
+    current = dict(proposal, consumed=True, revision=proposal['revision'] + 1)
+    scope = response.get('result')
+    counts = {name: int(name == 'factory_scopes') for name in ZERO_TABLES}
+    if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int
+            or proposal['revision'] <= 0 or not isinstance(scope, dict) or response.get('error') is not None
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
+            or not json_exact(value.get('sequence'), before['sequence'] + 1)
+            or not json_exact(value.get('proposal'), current)
+            or not json_exact(value.get('proposal_result'), scope)
+            or not json_exact(value.get('scopes'), [{'document': scope, 'owner_sequence': before['sequence'] + 1}])
+            or not json_exact(value.get('counts'), counts) or not json_exact(value.get('dispatch_intents'), 0)
+            or any(not json_exact(value.get(key), before[key]) for key in ['grant_documents', 'grants', 'other_proposals', 'task_documents'])):
+        return 'Factory exact persisted scope/result/CAS/sequence/unchanged original documents missing'
+    selection, bindings = proposal['snapshot']['selection'], proposal['snapshot']['bindings']
+    if (scope.get('id') != proposal['id'] or scope.get('approval_id') != proposal['id']
+            or scope.get('root_task_id') != selection['root_task_id']
+            or scope.get('root_grant_id') != selection['grant_id']
+            or not json_exact(scope.get('root_grant_revision'), selection['expected_grant_revision'])
+            or scope.get('project_id') != bindings['root_task']['project_id']
+            or not json_exact(scope.get('revision'), 1) or scope.get('revoked') is not False
+            or not json_exact(scope.get('selection'), selection) or not json_exact(scope.get('bindings'), bindings)
+            or scope.get('contract_digest') != proposal['snapshot']['contract_digest']
+            or selection['capabilities']['child_planning'] is not True
+            or selection['capabilities']['child_goal_execution'] is not False
+            or selection['capabilities']['create_workspace'] is not False
+            or not json_exact(bindings['child_planning']['policy'], selection['child_planning_policy'])
+            or bindings['child_planning'].get('goal_execution_authorized') is not False
+            or bindings['child_planning'].get('new_workspace_authorized') is not False
+            or bindings['child_planning'].get('authority_kind') != 'factory_child_planning_only'):
+        return 'Factory approval response expanded/mismatched the complete approved planning contract'
+    event = {'aggregate_id': proposal['id'], 'kind': 'approval.confirmed', 'source': 'local_owner_confirmation',
+             'revision': proposal['revision'] + 1, 'sequence': before['sequence'] + 1,
+             'payload': {'kind': 'factory', 'factory_scope_id': proposal['id'], 'contract_digest': scope['contract_digest'],
+                         'root_task_id': scope['root_task_id'], 'root_grant_id': scope['root_grant_id'],
+                         'original_grant_revision_unchanged': scope['root_grant_revision'], 'spawned': False,
+                         'authority': 'independent_task_delegation_only'}}
+    # Events have additional server metadata (timestamp/id), but every original
+    # event remains byte-value exact and there is exactly ONE new matching event.
+    events = value.get('events', [])
+    if len(events) != len(before['events']) + 1 or not json_exact(events[:-1], before['events']) or any(not json_exact(events[-1].get(k), v) for k, v in event.items()):
+        return 'Factory unique exact Owner event/old history mismatch'
+    return None
+
+
+def factory_fixture(proposal, invoke, runtime, output, before, source, phase, cancel_at=None):
+    messages, pages, contexts = factory_presentation(proposal, source)
+    cancel_at = len(pages) - 1 if cancel_at is None else cancel_at
+    if phase not in ('cancel', 'approve') or type(cancel_at) is not int or not 0 <= cancel_at < len(pages):
+        raise ValueError('Fixed Factory phase/cancel index required')
+    fixture = {'kind': FACTORY_KIND, 'runtime': str(runtime), 'output': str(output), 'proposal': proposal,
+               'invoke': invoke, 'baseline_sequence': before['sequence'], 'phase': phase, 'cancel_at': cancel_at,
+               'review_nonce': uuid.uuid4().hex, 'snapshot_sha256': digest(proposal['snapshot']),
+               'outer_message_sha256': [hashlib.sha256(m.encode()).hexdigest() for m in messages],
+               'presentation_sha256': digest(pages), 'presentation_count': len(pages)}
+    # Store the whole proposal ONCE, not duplicated projected/digest-only policy.
+    # Runtime expected text is rebuilt independently from this complete object.
+    if len(json.dumps(fixture, ensure_ascii=False, indent=2).encode()) > 65536:
+        raise ValueError('Complete generated Factory fixture exceeds unchanged64KiB bound')
+    return fixture, pages, contexts
+
+
+def run_factory(binary, daemon_path, companion_path, output, cancel_at=None):
+    if sys.platform != 'darwin':
+        raise RuntimeError('NOT_RUN: real macOS GUI required; Linux/browser results do not qualify')
+    output.mkdir(mode=0o700, parents=True, exist_ok=True)
+    output = output.resolve()
+    if any(output.iterdir()):
+        raise ValueError('Use a fresh empty Factory evidence directory')
+    with native_binary_witness(binary, output) as native:
+        result = _run_factory_pinned(Path(native['path']), daemon_path, companion_path, output, cancel_at, native)
+    # No successful result is persisted until the final binary stability check.
+    save(output / 'result.json', result)
+
+
+
+def _finish_factory_app(app, native, output, primary):
+    """Only this fixture's existing owned cleanup; never mask the first failure."""
+    secondary = []
+    try:
+        cleanup = stop_owned(app, 'app')
+    except Exception as error:
+        cleanup = {'ok': False, 'error': {'type': type(error).__name__, 'message': str(error)}}
+    if cleanup.get('ok') is not True:
+        secondary.append({'stage': 'owned_app_cleanup', 'record': cleanup})
+    after = native_binary_check(native)
+    if not after['stable']:
+        secondary.append({'stage': 'native_binary_postcheck', 'record': after})
+    for name, value in [('app-cleanup.json', cleanup), ('native-binary-after.json', after)]:
+        try:
+            save(output / name, value)
+        except Exception as error:
+            secondary.append({'stage': name, 'error': repr(error)})
+    if secondary:
+        try:
+            save(output / 'secondary-cleanup-errors.json', {'original_failure': primary, 'secondary': secondary})
+        except Exception as error:
+            print('SECONDARY cleanup diagnostic write: ' + repr(error), file=sys.stderr)
+        if primary is None:
+            raise RuntimeError('Factory cleanup/Native executable check failed: ' + secondary[0]['stage'])
+    return cleanup, after
+
+def _run_factory_pinned(binary, daemon_path, companion_path, output, cancel_at, native):
+    # Keep the existing Native executable/resource location. Only the normal
+    # generated daemon/companion are copied beside one another as before.
+    installed = output / 'private-tools'
+    installed.mkdir(mode=0o700)
+    tool_record = {}
+    for name, raw in [('batond', daemon_path), ('baton', companion_path)]:
+        if raw.is_symlink():
+            raise ValueError('Normal tool input must not be a symlink')
+        raw = raw.resolve(strict=True)
+        if not raw.is_file():
+            raise ValueError('Need actual matching normal14 tools')
+        destination = installed / name
+        data = raw.read_bytes()
+        destination.write_bytes(data)
+        destination.chmod(0o500)
+        tool_record[name] = {'source': str(raw), 'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)}
+        if (hashlib.sha256(destination.read_bytes()).hexdigest() != tool_record[name]['sha256']
+                or hashlib.sha256(raw.read_bytes()).hexdigest() != tool_record[name]['sha256']):
+            raise ValueError('Private tool copy mismatch')
+    save(output / 'tool-sources.json', tool_record)
+    bootstrap_output = output / 'bootstrap'
+    bootstrap_output.mkdir(mode=0o700)
+    with bootstrap(installed / 'batond', bootstrap_output, factory_planning=True) as generated:
+        runtime = generated['runtime']
+        proposal, invoke = prepare_factory(generated)
+        before = factory_database(runtime, proposal['id'])
+        source = (Path(__file__).resolve().parents[1] / 'apps/desktop/src-tauri/src/approval.rs').read_text()
+        phase_results = []
+        for phase in ('cancel', 'approve'):
+            phase_out = output / phase
+            phase_out.mkdir(mode=0o700)
+            fixture, pages, contexts = factory_fixture(proposal, invoke, runtime, phase_out, before, source, phase, cancel_at)
+            if error := factory_pending_error(factory_database(runtime, proposal['id']), fixture, before):
+                raise ValueError(error)
+            save(phase_out / 'fixture.json', fixture)
+            save(phase_out / 'before.json', before)
+            save(phase_out / 'expected-display.json', {'pages': pages, 'contexts': contexts})
+            app = None
+            permits = set()
+            limit = fixture['cancel_at'] + 1 if phase == 'cancel' else len(pages)
+            phase_failure = None
+            try:
+                native_before = native_binary_check(native)
+                save(phase_out / 'native-binary-before.json', native_before)
+                if not native_before['stable']:
+                    raise ValueError('Native test executable changed before actual Popen')
+                app = subprocess.Popen([str(binary.resolve()), str(phase_out / 'fixture.json')], env=generated['env'], start_new_session=True)
+                deadline = time.monotonic() + 85
+                while not exited_without_reaping(app) and time.monotonic() < deadline:
+                    for index in range(limit):
+                        key = f'{phase}-page-{index + 1:04}'
+                        ready = phase_out / f'{key}-sheet-ready.json'
+                        if ready.exists() and index not in permits:
+                            observed = json.loads(ready.read_text())
+                            error = factory_presentation_error(observed, fixture, pages, contexts, index)
+                            if error:
+                                raise ValueError(error)
+                            if index and index - 1 not in permits:
+                                raise ValueError('Factory nested page arrived out of order')
+                            check = factory_database(runtime, proposal['id'])
+                            if error := factory_pending_error(check, fixture, before):
+                                raise ValueError(error)
+                            save(phase_out / f'{key}-before-click-database.json', check)
+                            save(phase_out / f'{key}-database-permit.json', {
+                                'phase': phase, 'presentation_index': index, 'presentation_count': len(pages),
+                                'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'],
+                                'before_click_sequence': before['sequence'], 'review_nonce': fixture['review_nonce'],
+                                'factory_page': contexts[index]})
+                            permits.add(index)
+                    time.sleep(.05)
+                if not exited_without_reaping(app) or permits != set(range(limit)):
+                    raise RuntimeError('Factory real dialog deadline/missing exact-page permits')
+                reply = json.loads((phase_out / (phase + '-reply.json')).read_text())
+                after = factory_database(runtime, proposal['id'])
+                save(phase_out / 'after.json', after)
+                error = (factory_pending_error(after, fixture, before) if phase == 'cancel'
+                         else factory_approved_error(after, fixture, before, reply))
+                if error:
+                    raise ValueError(error)
+                if phase == 'cancel' and (reply.get('error', {}).get('code') != 'PERMISSION_DENIED'
+                        or reply.get('error', {}).get('side_effect_state') != 'not_started' or reply.get('result') is not None):
+                    raise ValueError('Factory cancel did not remain zero finalize/not_started')
+                images = {}
+                for index in range(limit):
+                    name = f'{phase}-page-{index + 1:04}-sheet.png'
+                    raw = (phase_out / name).read_bytes()
+                    if len(raw) < 64 or raw[:8] != b'\x89PNG\r\n\x1a\n' or raw[12:16] != b'IHDR' or min(int.from_bytes(raw[16:20], 'big'), int.from_bytes(raw[20:24], 'big')) < 20:
+                        raise ValueError('Missing actual complete Factory sheet pixels')
+                    images[name] = {'sha256': hashlib.sha256(raw).hexdigest(), 'bytes': len(raw), 'visual_review': 'pending'}
+                phase_results.append({'phase': phase, 'pages_observed': limit, 'total_pages': len(pages), 'images': images})
+            except BaseException as error:
+                phase_failure = {'type': type(error).__name__, 'message': str(error)}
+                try:
+                    save(phase_out / 'original-failure.json', phase_failure)
+                except Exception as secondary:
+                    print('SECONDARY original failure evidence write: ' + repr(secondary), file=sys.stderr)
+                try:
+                    save(phase_out / 'failure-database.json', factory_database(runtime, proposal['id']))
+                except Exception as secondary:
+                    try:
+                        save(phase_out / 'failure-database-error.json', {'type': type(secondary).__name__, 'message': str(secondary)})
+                    except Exception as write_error:
+                        print('SECONDARY database diagnostic write: ' + repr(write_error), file=sys.stderr)
+                raise
+            finally:
+                _finish_factory_app(app, native, phase_out, phase_failure)
+    return {'status': 'actual_factory_planning_cancel_and_same_key_approval_visual_review_pending',
+         'proposal_id': proposal['id'], 'phases': phase_results, 'daemon_cleanup': generated['daemon_cleanup'],
+         'dimension': 'actual_macos_factory_planning_only_no_execution', 'real_provider': 'not_run',
+         'human_owner_approval': 'not_claimed', 'os': sys.platform, 'architecture': platform.machine(),
+         'harness_binary_sha256': native['sha256'], 'harness_binary_path': native['path'],
+         'harness_binary_bytes': native['bytes'], 'harness_binary': native}
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--daemon', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--kind', choices=['grant', 'factory_planning'], default='grant')
+    parser.add_argument('--companion', type=Path)
+    parser.add_argument('--factory-cancel-at', type=int)
     args = parser.parse_args()
+    if args.kind == 'factory_planning' and args.companion is None:
+        parser.error('factory_planning requires the matching actual baton companion')
+    if args.kind == 'grant' and (args.companion is not None or args.factory_cancel_at is not None):
+        parser.error('Factory-only options are not Grant fixture authority')
     try:
-        run(args.binary, args.daemon, args.output)
+        if args.kind == 'grant':
+            run(args.binary, args.daemon, args.output)
+        else:
+            run_factory(args.binary, args.daemon, args.companion, args.output, args.factory_cancel_at)
     except Exception as error:
         args.output.mkdir(mode=0o700, parents=True, exist_ok=True)
         save(args.output / 'runner-failure.json', {'status': 'failed_or_not_run', 'error': str(error), 'os': sys.platform})

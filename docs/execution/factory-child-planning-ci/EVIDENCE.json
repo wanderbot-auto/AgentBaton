@@ -1,0 +1,351 @@
+{
+  "state": "source frozen; author finite/Python checks passed; independent review and actual schema14 runtime pending",
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-SEC-003",
+    "AB-COR-002"
+  ],
+  "base": "1f325d80561ea48301f5f72b2ecf4c7c9745efb9",
+  "source_commit": "745baac3fbdd664c35279585dca6a72edb1febdf",
+  "source_tree": "98c2df9c5d0724c3234383f4c897dd2fa9ceadfa",
+  "worktree": "/workspace/.worktrees/factory-child-planning-ci",
+  "branch": "codex/factory-child-planning-ci",
+  "changes": [
+    {
+      "path": ".github/workflows/product.yml",
+      "before_sha256": "1ad4b3378b08c7570cfb2ce603e6fde2f199c5b1d75c3237d664f2e97cff68ef",
+      "after_sha256": "ac16fd60c5ba4c923cfa264d5482e023841ac6c8612d978d356bc69c72e62d7f",
+      "inverse_byte_equal": true
+    },
+    {
+      "path": "apps/desktop/tests/goal-execution-real-ipc.py",
+      "before_sha256": "9a42f13fbf64a8e4cc6d6f6eff2bc5013d115155e665da6e937d6e15c5dd1830",
+      "after_sha256": "8d414ae0a4307b98b049b2b1ab6a7fbc452d11c6fd896733c6fee6956441ff03",
+      "inverse_byte_equal": true
+    },
+    {
+      "path": "apps/desktop/tests/data-workspace-real-ipc.py",
+      "before_sha256": "20da2b9f4fbfba6448ed2fb7a844189b9adc851d43a0ac90d621a34109a3c92e",
+      "after_sha256": "04b70119512b27ebb81d75d9609c5cd97ab559fbf6d1772b98c26a0d7d1c49ad",
+      "inverse_byte_equal": true
+    },
+    {
+      "path": "apps/desktop/tests/goal-graph-real-ipc.py",
+      "before_sha256": "0061e0c15421fb7356ca6706a5f81f36db68102b09eca30aea451a9671da4e0a",
+      "after_sha256": "f94ae8db872baf9b5e8c2181b0eeeb573369a03679c78c348a94f256463791e2",
+      "inverse_byte_equal": true
+    },
+    {
+      "path": "apps/desktop/tests/factory-real-ipc.py",
+      "before_sha256": "ad0f5b6ac01214e13852ee330412dd878c56a72cb987f795b697e5079b276b63",
+      "after_sha256": "e4786d13c52efb1fa212196955c1c46027078024ceb6862e88d358fd29deaf74",
+      "inverse_byte_equal": true
+    },
+    {
+      "path": "scripts/native-owner-dialog-smoke.py",
+      "before_sha256": "66c613a4a589f1d96d05df9e2ea15e475de23164a83f386b4e015ae879636fd3",
+      "after_sha256": "4977bd529e07764cf3451a00aefdc2681228c21339e4ddd9fa10404e9c005614",
+      "inverse_byte_equal": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "before_sha256": "f50301f9f762d06843da8ef6dd5e4cdd1f3655e79137232e37a23c7cb19853ad",
+      "after_sha256": "768e73a4302965eab9e881f43330bc5db4880e83b992cb2fed37e08c3991f8fa",
+      "inverse_byte_equal": true
+    },
+    {
+      "path": "scripts/native-macos-smoke.sh",
+      "before_sha256": "792692232e1949248c1790e75dc3d2b21dc81988a392956208f5cdd0723c038b",
+      "after_sha256": "b73ca528f22fc77751c661edf8b6178288b53afce6b9b420634f19b7958334bb",
+      "inverse_byte_equal": true
+    },
+    {
+      "path": "scripts/native-run.py",
+      "before_sha256": "813ff1bbb901aac58f441ede157f59a05b2726a0295ddaaa363e074d00030f51",
+      "after_sha256": "2fd6e0dd2c538f9933adfa0588e0e8a738714a911fddab8de4c80777adcd4b3a",
+      "inverse_byte_equal": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_runner.py",
+      "before_sha256": "dcbd9959811c9d1d13d06778b0a021063c92e329a96d374137e5a81191875113",
+      "after_sha256": "705b7d6f616f23ed3fac876415dddd53326fe6d2473385cd24690ed8105315e7",
+      "inverse_byte_equal": true
+    }
+  ],
+  "mechanical_proof": "All ten complete final source files reverse to exact base bytes with only recorded schema14/future15/legacynegative/zero2/counter11 transformations; no observer/timeout/HTTP/permission behavior change",
+  "Core_counts": {
+    "actual_frozen_DTO_path": "/workspace/.worktrees/factory-child-planning-core/crates/core/src/factory.rs",
+    "source_sha256": "4b278a5a2900d156b7b6c5ee0b6c188f2efb79bd800acbcb157f8affc7592735",
+    "fields": [
+      "child_plan_heads",
+      "child_plan_revisions",
+      "scopes",
+      "runs",
+      "task_lineage",
+      "task_bindings",
+      "delegations",
+      "attempts",
+      "scoped_handles",
+      "handoffs",
+      "budget_reservations"
+    ],
+    "new_tables": [
+      "factory_child_plan_heads",
+      "factory_child_plan_revisions"
+    ],
+    "Core_runtime_tests_for_newcounts": "not_run yet by Core author at handoff",
+    "schema14_binary": "not_frozen; no actual Core/Native claim",
+    "immutable_handoff_source_path": "/workspace/.onboarding/factory-child-planning-contract/factory-DTO-v2-counts-4b278a5.rs"
+  },
+  "commands": [
+    {
+      "tag": "infrastructure",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/validate_infrastructure.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-ci",
+      "exit": 0,
+      "observed_utc": "2026-10-29T03:54:59.650824+00:00",
+      "stdout_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "shell-syntax",
+      "argv": [
+        "bash",
+        "-n",
+        "scripts/native-macos-smoke.sh"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-ci",
+      "exit": 0,
+      "observed_utc": "2026-10-29T03:54:59.653514+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-ci",
+      "exit": 0,
+      "observed_utc": "2026-10-29T03:54:59.667128+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "owner-pure",
+      "argv": [
+        "python3",
+        "-B",
+        "/workspace/.onboarding/factory-child-planning-ci/run-owner-pure.py"
+      ],
+      "cwd": "/workspace",
+      "exit": 0,
+      "already_observed_completed_tool_exit": true,
+      "count": 26,
+      "dimension": "selected26of30; four actual schema14 Core tests not_run",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "994c095049104922a8e77264ce05da45dc072456990f60453a5b51554858f1fe"
+    },
+    {
+      "tag": "native-runner-tests",
+      "argv": [
+        "python3",
+        "-B",
+        "apps/desktop/src-tauri/tests/test_native_runner.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-ci",
+      "exit": 0,
+      "already_observed_completed_tool_exit": true,
+      "count": 32,
+      "dimension": "complete32 existing tests; synthetic metadata and owned-process unit controls, no native GUI",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "8d5919bf2dce9fa22fa7c7094a7348152eabd4ecfe97219531300eb736116b4f"
+    },
+    {
+      "tag": "finite",
+      "argv": [
+        "python3",
+        "-B",
+        "/workspace/.onboarding/factory-child-planning-ci/finite.py"
+      ],
+      "cwd": "/workspace",
+      "exit": 0,
+      "already_observed_completed_tool_exit": true,
+      "count": 212,
+      "dimension": "finiteAST/actualguards/generatedemptySQLite; no actual binary executed",
+      "stdout_sha256": "68244657c5ee95689db7e2b08814cb26fe5cbb942061236762a230d1dc46e5a5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "counts": {
+    "finite_controls": 212,
+    "native_runner_existing_unit_tests": 32,
+    "owner_total_existing": 30,
+    "owner_pure_selected_executed": 26,
+    "owner_actual_Core_not_run": 4
+  },
+  "Owner_actual_Core_not_run_ids": [
+    "test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready",
+    "test_long_private_temp_parent_uses_short_canonical_real_core_runtime",
+    "test_real_core_grant_contract_binds_independent_approval_and_owner_proposal",
+    "test_real_readonly_sqlite_observation_rejects_authority_change"
+  ],
+  "original_controls_retained": {
+    "Factory_counters": 9,
+    "original_Grant_zero_tables": 19,
+    "all_Owner_test_functions": 30,
+    "all_NativeRunner_test_functions": 32,
+    "browser_legacy_flows": 12,
+    "Factory_modes": [
+      "normal",
+      "cancel",
+      "unknown"
+    ],
+    "workflow_and_all_operation_limits": "unchanged including CI60 and5s/1500 observers"
+  },
+  "artifact": {
+    "path": "/workspace/.onboarding/factory-child-planning-ci/EVIDENCE.tar.gz",
+    "bytes": 145076,
+    "sha256": "2e2fc9bb5d7cea2fbf042a50f8e8ae6eca3653835ee356cb29b1a052b9bd9f85",
+    "regular_members": 39,
+    "roundtrip_bytes_hashes_modes": true,
+    "external_manifest_sha256": "c771cbad12b6470347d720060e101b73dee9f6b3143c63813ec482f44cc3ba29"
+  },
+  "setup_failures_retained": [
+    {
+      "exit": 129,
+      "dimension": "sparse-add CLI unsupported --no-cone; corrected existing noncone command only"
+    },
+    {
+      "exit": 1,
+      "dimension": "guard expected4 Graph schema13 text occurrences but actual3; generator corrected to validate against fixedGit before applying all files"
+    },
+    {
+      "exit": 1,
+      "dimension": "initial sparse checkout omitted existing tools/environment-smoke/Cargo.lock; read-only sparse fixture paths populated and unchanged validator rerun passed",
+      "stderr": "sparse-initial-infrastructure.stderr"
+    }
+  ],
+  "not_run": [
+    "Cargo",
+    "actual schema14 Core daemon tests (4)",
+    "12+3 actual browser flows",
+    "NativeRust/macOS/AppKit",
+    "new child planning end-to-end",
+    "CI/remote/Provider calls"
+  ],
+  "not_claimed": [
+    "actual schema14 migration/table contents",
+    "new child-planning product capability",
+    "Native WebView/OS Owner/macOS",
+    "schema14 binary or CI success",
+    "real Provider/account/model",
+    "complete product"
+  ],
+  "permissions": "Only authorized ten sources and own four records; no Cargo/target/remote/product Core/Native Rust/UI/lock/gate/STATUS mutation"
+,
+  "tools_prebuild_followup": {
+    "state": "source frozen; author finite/Python checks passed; independent review and precise integratedCI pending",
+    "source_commit": "6ab36d95c46d59725938d2ef233ecf71a47c5d40",
+    "source_tree": "4023b567a5b586b5be6cd22ab012461a293cfae1",
+    "base": "fdb900e73fe37bfeaea223233a4c4a5e7b1e90b1",
+    "changes": [
+      {
+        "path": ".github/workflows/product.yml",
+        "bytes": 13389,
+        "sha256": "fcb915d9cdce919c843967e063f5756de19e834b00b5cf7789a8c61c2e89ee87"
+      },
+      {
+        "path": "scripts/prepare-factory-test-tools.py",
+        "bytes": 9567,
+        "sha256": "ff88bc8dd1078ac2ee592b1e8f583764851fb77f4c5e6686eda6b3fd9da4368a"
+      },
+      {
+        "path": "tests/infrastructure/test_factory_test_tools.py",
+        "bytes": 12321,
+        "sha256": "ddbbea8fb4dbe0af37e3e43d22a84fc3fbe66809e002a9c46d4493021ff06f3a"
+      }
+    ],
+    "workflow_added_lines": 16,
+    "historical745_and_fdb": "kept as prior scope; original complete-current-file schema-only inverse claim does not cover new prebuild design",
+    "tests": {
+      "infrastructure_python": {
+        "count": 49,
+        "unchanged_original": 34,
+        "new": 15,
+        "exit": 0
+      },
+      "infrastructure_node": {
+        "count": 4,
+        "exit": 0
+      },
+      "finite": {
+        "count": 163,
+        "exit": 0
+      },
+      "infra_validator": {
+        "workflows": 2,
+        "pins": 15,
+        "exit": 0
+      },
+      "diff_check": {
+        "exit": 0
+      }
+    },
+    "actual_linux_probes": {
+      "tool_compiled_source_commit": "92658e4cecd74517371aaf47c5ce0f7de38e0eb0",
+      "tool_git_tree": "dca6c27b8d261c022f341486488665fbc1f8d653",
+      "daemon_sha256": "64d0a247a2eb15d4fe194cc6d5e34bf26bdf88e5fb73bf2b33763396760d2c05",
+      "cli_sha256": "f25c935666d13b0443a2837530fa3a7e249d3f2d703c42c3404ac7566068dda9",
+      "second_actual_helper_sha256": "41406c4d2090f107a1d79959dbd2c0df94c720a7dedc1da9c947f9910279da38",
+      "second_actual_report_sha256": "aedefc8b3d28503eacf42b9c2e607f1fc4516fedfceac7e3bac51e892fa19378",
+      "source_and_frozen_hashes_before_after": "equal",
+      "runtime_mode": "0o700",
+      "socket_utf8_bytes": 30,
+      "snapshot_api_version": 1,
+      "database_schema": 14,
+      "eleven_factory_counts": 0,
+      "snapshot_and_database_sequence": 0,
+      "snapshot_exit": 0,
+      "sigterm_sent": true,
+      "wait_exit": 0,
+      "forced_kill": false,
+      "owned_pid_gone": true,
+      "final_source_limitation": "Only sha256 function changed to portable streaming after actual414 probe; other runtime AST identical. Complete final-helper probe stopped at HEAD preflight before binary reads/Popen when Core docsHEAD changed; NOT_RUN, not runtime failure."
+    },
+    "archive": {
+      "path": "/workspace/.onboarding/factory-child-planning-ci/tools-prebuild/EVIDENCE.tar.gz",
+      "bytes": 39659,
+      "sha256": "f2cdd631f02323c9826692ca1bfd8a2fcd6aebc08144b4185f3528de44a8d72d",
+      "manifest_sha256": "e91d694b366bb8fa3633ce8a58fa2f76b807f2675b1bab5f324654567addb444",
+      "payload_members": 57,
+      "total_regular_members": 58,
+      "roundtrip": true,
+      "binary_files_in_archive": false
+    },
+    "retained_failures": {
+      "initial_unit_error": "first15predecessor14 fixture attempted unlink already-missing file; original source+actual tool result retained in initial-unit-error.json",
+      "first_full48": "1FAIL6ERROR: 5 missing sparsespec/reference/STATUS errors + design missingspec failure + Mock PID omitted during cleanup JSON; raw full stdout/stderr retained. Read-only sparse dependencies restored; mock PID fixed. No old test deletion or limit change.",
+      "final_counts": "49Python=34unchanged+15new,4existingNode;163finite;infra2/15;all exit0",
+      "probes": "first25c and second414 really ran with actual92658 normal private tools. Exact SHA source snapshots reconstructed from the known inverse source operations and checked against actual recorded script SHA, then stored; not a claim they were saved before execution. Final third attempt stopped at frozenHEAD preflight before tool-hash reads/Popen because Core had added docs60d; outer shell tool exit0 due following cat, inner uncaught AssertionError traceback retained, no captured innerreturncode claim. No old13fallback.",
+      "probe_evidence": "Only normal current14ELF copies were executed; generated copy fixtures in unit tests never executed. Their mocked probe replies solely isolate guard/cleanup rejection and cannot establish realCore success. Actual toolELF copies excluded from archive; metadata/hashes/raw private output included.",
+      "future": "macOS execution, clean samecandidate CI prebuild/fullworkspace/Native/fullbrowser and new child-planning e2e not run by leaf"
+    },
+    "not_run": [
+      "local Cargo/shared targets",
+      "exact final integrated CI/workspace build tests",
+      "final helper complete daemon execution after portablehash-onlydelta",
+      "macOS/NativeRust/WebView/OSdialogs/release packaging audit",
+      "12legacy+3Factory actual browser flows under newcandidate",
+      "new child-planning end-to-end",
+      "real Provider/model/credentials/remote actions"
+    ]
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "state": "Native testbin14 source frozen; pure checks passed; actual Native/Core14 compiled tests pending",
+  "base": "31ad16c0bf880dab76b4bdd4568d231efc2245ac",
+  "source_commit": "a9baaa49b2b259be1e93d1e9894441be02b3095b",
+  "source_map": {
+    "base": "31ad16c0bf880dab76b4bdd4568d231efc2245ac",
+    "source_commit": "a9baaa49b2b259be1e93d1e9894441be02b3095b",
+    "only_source_file": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+    "bytes": 128327,
+    "sha256": "9f44f9bdc3c9fdce84f87f971fb30cb416296b1132e850a67140d7d22890e70a",
+    "Core_counts_DTO_SHA256": "4b278a5a2900d156b7b6c5ee0b6c188f2efb79bd800acbcb157f8affc7592735",
+    "approval_lib_equal_frozen8d": true,
+    "schema_version": 14,
+    "Factory_count_fields": 11,
+    "factory_snapshot_keys": 13
+  },
+  "Core_contract": "FactoryRecordCounts v2 SHA4b278a5a2900d156b7b6c5ee0b6c188f2efb79bd800acbcb157f8affc7592735 adds child_plan_heads/revisions to original9; fields are named JSON values, Core declaration order is not Native query tuple order",
+  "tables": [
+    "factory_child_plan_heads",
+    "factory_child_plan_revisions"
+  ],
+  "actual_commands": [
+    {
+      "tag": "pure",
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/factory-child-planning-native14/check_readonly_sql.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-native",
+      "exit": 0,
+      "utc": "2026-10-29T04:15:02.179796+00:00",
+      "stdout_sha256": "29e308b9a27964cc13e045595b18d30111965da681c9a5356a80f84770dc1ee2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "fmt",
+      "argv": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--check",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "apps/desktop/src-tauri/src/bin/native_smoke.rs"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-native",
+      "exit": 0,
+      "utc": "2026-10-29T04:15:02.231850+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-native",
+      "exit": 0,
+      "utc": "2026-10-29T04:15:02.239192+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "pure_results": {
+    "passed_controls": 188,
+    "embedded_SQL_queries": 29,
+    "scope": "source/shape checks and actual readonly SQL subprocesses against generated minimal SQLite",
+    "Rust_predicate_projection": "source-derived Python projection is explicitly not compiled Rust behavior",
+    "database_unchanged": "every readonly subprocess checked actual file SHA before/after"
+  },
+  "negative_evidence": {
+    "missing_table_queries": "actual nonzero subprocess exits/stderr in sql-queries.json, never fakedzero",
+    "new_table_nonzero": "actual inserted malformed generated metadata observed in each new field; old9 query demonstrably omits those rows",
+    "versions": "rawSQL reports12/13/14/15; source-derived strict14 projection rejects all except14; authoredRust controls explicitly reject13/15",
+    "capture_failures": "migration-source.json records unsuccessful multilineDDL capture assumptions before source writes",
+    "checker_failures": [
+      "initial-Core-struct-order assumption rejected valid differently ordered JSON countfield set; rawscript/log/exit preserved",
+      "second-checker regex missed indentedRust testfn; rawscript/log/exit preserved"
+    ],
+    "correction": "Only collector/checker fixed; Native source was not weakened to pass"
+  },
+  "Rust_tests": {
+    "native_smoke_test_functions_before_after": [
+      30,
+      30
+    ],
+    "all_old_tests_retained": true,
+    "schema_labels_renamed": 3,
+    "new_controls": "11 typedzero fields, both new actualtable row/missing negatives, old13/future15, Core projection11",
+    "executed": false,
+    "planning8_tests_from8d": "still not run here"
+  },
+  "unchanged": [
+    "approval.rs/lib.rs exact8d source",
+    "Core/DTO/schema/locks/RootSTATUS/UI",
+    "native_parent/helper modules",
+    "workflow/runner/timeouts/permissions",
+    "scripts/native-run/Owner/macOS smoke and Python tests owned by Root-designated author",
+    "original page/owned lifecycle/refusal/sequence assertions"
+  ],
+  "not_run": [
+    "Cargo/NativeRust30 or planning8",
+    "actual Core14 migration/read-only counter projection",
+    "real IPC/browser/AppKit/macOS/CI",
+    "Native candidate binary/build/hash/package"
+  ],
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 37376,
+    "sha256": "1d70e331c60167273646f91fc7f3d507f3dce8e511d423fab51406a178c17513"
+  },
+  "archive_manifest": "EVIDENCE_ARCHIVE_MANIFEST.json",
+  "at_utc": "2026-10-29T04:21:13.110811+00:00"
+}

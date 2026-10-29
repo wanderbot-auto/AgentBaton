@@ -925,6 +925,7 @@ pub(crate) struct DataInputContext {
 }
 pub(crate) struct DataInputWitness {
     pub(crate) graph: Option<crate::goal_store::GraphReadWitness>,
+    pub(crate) factory: Option<Box<crate::factory::FactoryReadWitness>>,
     request_hash: String,
     deadline: std::time::Instant,
     inputs: Vec<VerifiedDataInput>,
@@ -1078,8 +1079,22 @@ impl DataInputWitness {
         request_hash: String,
         deadline: std::time::Instant,
     ) -> Result<Self> {
+        Self::restore_controlled(
+            contexts,
+            request_hash,
+            deadline,
+            &std::sync::atomic::AtomicBool::new(false),
+        )
+    }
+    pub(crate) fn restore_controlled(
+        contexts: Vec<DataInputContext>,
+        request_hash: String,
+        deadline: std::time::Instant,
+        cancel: &std::sync::atomic::AtomicBool,
+    ) -> Result<Self> {
         use agentbaton_workspaces::data_workspace::{
-            restore_data_workspace, ApprovedManagedRoot, ApprovedRestoreContract,
+            restore_data_workspace_controlled, ApprovedManagedRoot, ApprovedRestoreContract,
+            CopyControl,
         };
         let mut inputs = Vec::new();
         for context in contexts {
@@ -1099,15 +1114,21 @@ impl DataInputWitness {
             if managed.view() != c.managed_root {
                 return Err(changed());
             }
-            let verified = restore_data_workspace(&restore, &managed).map_err(data_error)?;
+            let control = CopyControl::new(cancel, deadline);
+            let verified = restore_data_workspace_controlled(&restore, &managed, &control)
+                .map_err(data_error)?;
             inputs.push(VerifiedDataInput { context, verified });
         }
         Ok(Self {
             graph: None,
+            factory: None,
             request_hash,
             deadline,
             inputs,
         })
+    }
+    pub(crate) fn for_hash(&self, hash: &str) -> bool {
+        std::time::Instant::now() < self.deadline && self.request_hash == hash
     }
     pub(crate) fn for_request(&self, raw: &str) -> bool {
         std::time::Instant::now() < self.deadline
@@ -1720,5 +1741,64 @@ impl DataInputWitness {
     }
     pub(crate) fn deadline(&self) -> std::time::Instant {
         self.deadline
+    }
+}
+
+impl DataInputWitness {
+    /// A consumed request/attempt observation, never a reusable authorization
+    /// cache. Worker handoff rechecks the original deadline and held descriptors.
+    pub(crate) fn check_worker_boundary(&self) -> Result<()> {
+        if std::time::Instant::now() >= self.deadline {
+            return Err(CoreError::new(
+                "DEADLINE_EXCEEDED",
+                "Original data observation deadline expired before worker boundary",
+            ));
+        }
+        for input in &self.inputs {
+            input
+                .verified
+                .recheck_observed_identities()
+                .map_err(data_error)?;
+        }
+        Ok(())
+    }
+    pub(crate) fn recheck_all_authority(&self, db: &Connection) -> Result<()> {
+        for input in &self.inputs {
+            let workspace = workspace_record(db, &input.context.workspace.id)?;
+            self.authorize(db, &workspace)?;
+        }
+        Ok(())
+    }
+    pub(crate) fn selected_input_observation(
+        &self,
+        db: &Connection,
+        workspace: &ManagedWorkspace,
+        requirement: &ArtifactRequirement,
+    ) -> Result<(String, u64)> {
+        let sha = self.selected_input_hash(db, workspace, requirement)?;
+        let input = self
+            .inputs
+            .iter()
+            .find(|i| i.context.workspace.id == workspace.id)
+            .ok_or_else(changed)?;
+        let file = input
+            .context
+            .creation
+            .contract
+            .as_ref()
+            .ok_or_else(changed)?
+            .files
+            .iter()
+            .find(|f| f.input.destination_relative_path == requirement.relative_path)
+            .ok_or_else(changed)?;
+        Ok((sha, file.input.bytes))
+    }
+}
+impl DataInputWitness {
+    /// Drops the request admission proof. These immutable creation references
+    /// may only support a fresh execution observation; they are not a witness
+    /// for any later scoped request or dispatch.
+    pub(crate) fn into_observation_contexts(self) -> Vec<DataInputContext> {
+        self.inputs.into_iter().map(|i| i.context).collect()
     }
 }

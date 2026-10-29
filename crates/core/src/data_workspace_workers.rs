@@ -1,4 +1,5 @@
-//! A single bounded domain I/O worker; no SQLite or external process in threads.
+//! A single bounded domain I/O worker; no SQLite writes. Factory read plans may
+//! use an identity-pinned readonly/query-only connection; the Actor alone commits.
 use crate::{
     data_workspaces::{
         data_error, DataWorkspaceCreation, DataWorkspacePreview, DataWorkspaceSelection,
@@ -68,6 +69,8 @@ struct Worker {
     preview: bool,
     pending: Option<crate::ipc::ReadyRequest>,
     projects: Vec<(String, u64)>,
+    factory_scope: Option<(String, u64)>,
+    factory_owner_watch: Option<crate::factory::FactoryReadWatch>,
     validation: Option<(String, String, u64, bool)>,
     thread: JoinHandle<Output>,
 }
@@ -107,7 +110,7 @@ impl DataWorkspaceWorkers {
         workers.runtime_privacy_pin()?;
         Ok(workers)
     }
-    fn runtime_privacy_pin(&self) -> Result<(u64, u64)> {
+    pub(crate) fn runtime_privacy_pin(&self) -> Result<(u64, u64)> {
         use std::os::unix::fs::MetadataExt;
         let held = self.runtime_directory.metadata().map_err(|_| {
             CoreError::new("PERMISSION_DENIED", "Private runtime identity unavailable")
@@ -138,6 +141,25 @@ impl DataWorkspaceWorkers {
     pub(crate) fn cancel(&self, id: &str) {
         if let Some(w) = self.worker.as_ref().filter(|w| w.id == id) {
             w.cancel.store(true, Ordering::Relaxed)
+        }
+    }
+    /// Metadata is derived from a private authenticated/ticket context before
+    /// deferral. It is a stop watch, never a dispatch/approval capability.
+    pub(crate) fn watch_factory(&mut self, id: &str, revision: u64) {
+        if let Some(w) = self.worker.as_mut().filter(|w| w.pending.is_some()) {
+            w.factory_scope = Some((id.into(), revision));
+        }
+    }
+    pub(crate) fn cancel_factory(&self, id: &str) {
+        if let Some(w) = self.worker.as_ref().filter(|w| {
+            w.factory_scope
+                .as_ref()
+                .is_some_and(|(scope, _)| scope == id)
+                || w.factory_owner_watch
+                    .as_ref()
+                    .is_some_and(|watch| watch.scope_id() == Some(id))
+        }) {
+            w.cancel.store(true, Ordering::Relaxed);
         }
     }
     pub(crate) fn preview(
@@ -282,6 +304,8 @@ impl DataWorkspaceWorkers {
             preview,
             pending: None,
             projects: Vec::new(),
+            factory_scope: None,
+            factory_owner_watch: None,
             validation: None,
             thread,
         });
@@ -289,6 +313,18 @@ impl DataWorkspaceWorkers {
     }
     pub(crate) fn tick(&mut self, store: &mut Store) -> Result<()> {
         if let Some(w) = &self.worker {
+            if w.factory_owner_watch
+                .as_ref()
+                .is_some_and(|watch| !watch.current(store))
+            {
+                w.cancel.store(true, Ordering::Relaxed);
+            }
+            if w.factory_scope
+                .as_ref()
+                .is_some_and(|(id, rev)| !store.factory_read_is_current(id, *rev))
+            {
+                w.cancel.store(true, Ordering::Relaxed);
+            }
             let project_changed = w.projects.iter().any(|(id, revision)| {
                 store
                     .get_project(id)
@@ -387,6 +423,7 @@ impl DataWorkspaceWorkers {
         &mut self,
         contexts: Vec<crate::data_workspaces::DataInputContext>,
         graph: Option<crate::goal_store::GraphReadContext>,
+        factory: Option<crate::factory::FactoryReadPlan>,
         job: crate::ipc::ReadyRequest,
     ) -> std::result::Result<(), Box<(CoreError, crate::ipc::ReadyRequest)>> {
         if self.has_workers() {
@@ -395,10 +432,12 @@ impl DataWorkspaceWorkers {
         let hash = agentbaton_workspaces::validation::sha256(job.raw.as_bytes());
         let id = format!("data-read:{}", uuid::Uuid::new_v4());
         let request_deadline = job.deadline;
+        let factory_watch = factory.as_ref().map(|plan| plan.watch());
         let result=self.spawn(&id,false,move|cancel,deadline|Output::admission((||{
             if cancel.load(Ordering::Relaxed) { return Err(cancelled()); }
-            let mut witness=crate::data_workspaces::DataInputWitness::restore(contexts,hash,request_deadline.min(deadline))?;
+            let mut witness=crate::data_workspaces::DataInputWitness::restore_controlled(contexts,hash,request_deadline.min(deadline),cancel)?;
             if let Some(graph)=graph {witness.graph=Some(graph.execute(cancel.clone(),request_deadline.min(deadline))?);}
+            if let Some(factory)=factory {witness=factory.execute(witness,cancel.clone(),request_deadline.min(deadline))?;}
             if cancel.load(Ordering::Relaxed) { return Err(cancelled()); }
             if Instant::now()>=request_deadline.min(deadline) { return Err(CoreError::new("DEADLINE_EXCEEDED","The data read observation arrived after admission deadline; no new action was admitted")); }
             Ok(witness)
@@ -407,7 +446,9 @@ impl DataWorkspaceWorkers {
             error.side_effect_state = "not_started".into();
             return Err(Box::new((error, job)));
         }
-        self.worker.as_mut().unwrap().pending = Some(job);
+        let worker = self.worker.as_mut().unwrap();
+        worker.pending = Some(job);
+        worker.factory_owner_watch = factory_watch;
         Ok(())
     }
     pub(crate) fn validate_data(

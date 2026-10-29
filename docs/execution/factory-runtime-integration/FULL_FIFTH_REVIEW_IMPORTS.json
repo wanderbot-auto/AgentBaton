@@ -1,0 +1,41 @@
+{
+  "completed_source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+  "tested": "645unique+7docs; nested5notadded;fullClippy/fmt0;TEST_DEBUG0 Linux only",
+  "pending_merge_parent": "bb8c093",
+  "incoming_Core_sources_tests_Cargo_zero_diff": true,
+  "integration_checks": "bootstrap93/design130/infra2+15pass;Python34/Node4/nativeOwnerPython30actualschema13bootstrap0",
+  "archives": [
+    {
+      "label": "FULL_FIFTH_RUST_EVIDENCE",
+      "sha256": "645905d4891c6935ba8e55b72067af1218205dac24c03e965e2bd98e0b643609",
+      "bytes": 291990,
+      "regular_members": 158,
+      "source": "/workspace/.onboarding/factory-root-rust-regression-shared-budget",
+      "roundtrip": true
+    },
+    {
+      "label": "FULL_FIFTH_INDEPENDENT_REVIEW",
+      "sha256": "48f7742668437d5a0a1f311221ebf0eae40fa58f290d11999cd75cf69ff535fc",
+      "bytes": 26423,
+      "regular_members": 4,
+      "source": "/workspace/.onboarding/factory-full-fifth-review",
+      "roundtrip": true
+    },
+    {
+      "label": "GOAL_ORDINARY_BUDGET_REVIEW",
+      "sha256": "606fe3edc0e3691f741f9220b9fb40b9e07405c5271a8aba048227d522dff736",
+      "bytes": 94157,
+      "regular_members": 10,
+      "source": "/workspace/.onboarding/factory-goal-ordinary-budget-review",
+      "roundtrip": true
+    },
+    {
+      "label": "FOURTH_FULL_FAILURE_EVIDENCE",
+      "sha256": "a3782ecfe2baef43451682d38707139e23e5ff770dfd9ca3dd3cda53db2df7a1",
+      "bytes": 283134,
+      "regular_members": 148,
+      "omits": "immutable36MB failedELF stays original local path/hash in explicitsubsetmanifest, notembedded"
+    }
+  ],
+  "limitations": "newmergecommit not itself rerun645; sourceequiv onlyCorepayload, notNative/Mac14/liveProvider/full130; originals4fullfail/19cepreflight preserved"
+}

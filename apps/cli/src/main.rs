@@ -11,6 +11,12 @@ fn main() {
 }
 fn run() -> Result<()> {
     let args: Vec<String> = std::env::args().skip(1).collect();
+    if let [mode, path] = args.as_slice() {
+        if mode == "factory-mcp" {
+            return agentbaton_core::factory_companion::run(std::path::Path::new(path));
+        }
+    }
+
     let command=match args.iter().map(String::as_str).collect::<Vec<_>>().as_slice() {
         ["connections","list"]=>json!({"method":"connections.list","params":{}}),
         ["connections","propose",name,provider,executable,key,arguments @ ..]=>json!({"method":"connections.propose","params":{"name":name,"provider":provider,"executable":executable,"arguments":arguments},"idempotency_key":key}),

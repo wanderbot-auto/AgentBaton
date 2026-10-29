@@ -1128,7 +1128,7 @@
     {
       "id": "AB-TSK-002",
       "work_package": "WP08",
-      "status": "not_started",
+      "status": "implementing",
       "implementation_refs": [],
       "verification": {
         "unit": "not_run",
@@ -1137,8 +1137,50 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+      ],
+      "limitations": [],
+      "verified_slices": [
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        }
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-TSK-003",
@@ -1170,7 +1212,9 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1312,12 +1356,79 @@
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         },
         {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
           "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
           "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
           "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -1350,7 +1461,9 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1499,6 +1612,42 @@
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         },
         {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Factory new start rejects stale CAS before owner-read worker; exact historical replay stays read-only",
+          "source": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "integration": "38f8cd60d91d9cd1c7a5215ab720b60400ca81c8",
+          "author_dimension": "13 owner-read units and1actual generated ACP/MCP Data OwnerIPC; build/Clippy/fmt",
+          "independent_dimension": "limited source/hash review47sources15evidence2tools, not independently rerun Rust",
+          "root_actual_dimension": "new source/raw2f5/577+744 driver observed STALE_REVISION/not_started/rev13; normal later failed asynchronous UI ack order,2checks2PNG/cleanupfalse",
+          "evidence": "docs/execution/factory-runtime-integration/OWNER_CAS_REVIEW_IMPORT.json",
+          "actual_failure": "docs/execution/factory-runtime-integration/BROWSER_CAS_NORMAL_ASYNC_FAILURE.json",
+          "status": "partial; whole requirement remains open",
+          "limits": "No full Factory/recovery/fault/largeI/O/Mac/liveProvider acceptance."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
           "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
           "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
           "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
@@ -1516,6 +1665,27 @@
           "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
           "status": "partial exact historical native slice, whole requirement not accepted",
           "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -1544,7 +1714,8 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1575,6 +1746,36 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -1625,6 +1826,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
         }
       ]
     },
@@ -1656,7 +1866,8 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1803,12 +2014,58 @@
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         },
         {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
           "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
           "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
           "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
         }
       ]
     },
@@ -1846,7 +2103,8 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1999,12 +2257,58 @@
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         },
         {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
           "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
           "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
           "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
         }
       ]
     },
@@ -2033,7 +2337,8 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2177,6 +2482,27 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -3417,7 +3743,8 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -3566,13 +3893,34 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
     {
       "id": "AB-SEC-003",
       "work_package": "WP12",
-      "status": "not_started",
+      "status": "implementing",
       "implementation_refs": [],
       "verification": {
         "unit": "not_run",
@@ -3581,9 +3929,36 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
+      "evidence": [
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+      ],
       "limitations": [],
       "verified_slices": [
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
         {
           "slice": "shipping lossless bounded Native display pages and cancellation/final confirmation guards",
           "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
@@ -3591,8 +3966,39 @@
           "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
           "status": "partial",
           "coverage_limit": "Supporting Native presentation only; this slice does NOT verify scopedMCP credential expiry/cross-session rejection. Those belong to separateFactoryschema13 tests and are not accepted inPR16."
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
-      ]
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-SEC-004",
@@ -3696,7 +4102,8 @@
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
         "docs/execution/validation-integration/UI_REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -3728,6 +4135,27 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -4455,7 +4883,8 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
@@ -4465,7 +4894,39 @@
         "crates/core/tests/ipc.rs",
         "crates/core/tests/execution.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        }
+      ]
     },
     {
       "id": "AB-COR-003",
@@ -4632,7 +5093,8 @@
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -4643,7 +5105,30 @@
         "crates/core/tests/ipc.rs",
         "crates/core/tests/execution.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        }
+      ]
     },
     {
       "id": "AB-ACP-001",
@@ -5211,7 +5696,8 @@
         "docs/execution/goal-editing-context/REVIEW.md",
         "docs/execution/goal-plan-editor-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -5366,6 +5852,27 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -5403,7 +5910,9 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -5549,12 +6058,70 @@
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         },
         {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
           "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
           "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
           "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -5973,7 +6540,9 @@
       "evidence": [
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -6009,6 +6578,42 @@
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         },
         {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Factory new start rejects stale CAS before owner-read worker; exact historical replay stays read-only",
+          "source": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "integration": "38f8cd60d91d9cd1c7a5215ab720b60400ca81c8",
+          "author_dimension": "13 owner-read units and1actual generated ACP/MCP Data OwnerIPC; build/Clippy/fmt",
+          "independent_dimension": "limited source/hash review47sources15evidence2tools, not independently rerun Rust",
+          "root_actual_dimension": "new source/raw2f5/577+744 driver observed STALE_REVISION/not_started/rev13; normal later failed asynchronous UI ack order,2checks2PNG/cleanupfalse",
+          "evidence": "docs/execution/factory-runtime-integration/OWNER_CAS_REVIEW_IMPORT.json",
+          "actual_failure": "docs/execution/factory-runtime-integration/BROWSER_CAS_NORMAL_ASYNC_FAILURE.json",
+          "status": "partial; whole requirement remains open",
+          "limits": "No full Factory/recovery/fault/largeI/O/Mac/liveProvider acceptance."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
           "slice": "shipping lossless bounded Native display pages and cancellation/final confirmation guards",
           "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
           "evidence": "docs/execution/goal-graph-integration/NATIVE_PAGES_ROOT_IMPORT.json",
@@ -6034,6 +6639,27 @@
           "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
           "status": "partial exact historical native slice, whole requirement not accepted",
           "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },

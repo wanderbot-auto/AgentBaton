@@ -1,4 +1,7 @@
 //! Pure validation of observations. These tests are NOT OS-dialog evidence.
+use agentbaton_desktop::native_review_test_limits::{
+    REVIEW_MESSAGE_BYTES, REVIEW_ROWS_PER_PAGE, REVIEW_ROW_ENCODED_BYTES,
+};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
@@ -74,6 +77,291 @@ pub fn validate_grant_response(response: &Value, expected: &Value) -> Result<(),
     Ok(())
 }
 
+pub const FACTORY_KIND: &str = "native_factory_planning_os_dialog_fixture";
+pub fn is_factory(expected: &Value) -> bool {
+    expected["kind"] == FACTORY_KIND
+}
+pub fn dialog_title(expected: &Value) -> &'static str {
+    if is_factory(expected) {
+        "AgentBaton — Independent Factory approval"
+    } else {
+        "AgentBaton — Native owner approval"
+    }
+}
+fn hex(value: &Value, len: usize) -> bool {
+    value.as_str().is_some_and(|s| {
+        s.len() == len
+            && s.bytes()
+                .all(|b| b.is_ascii_hexdigit() && !b.is_ascii_uppercase())
+    })
+}
+fn digest(value: &Value) -> Result<String, String> {
+    Ok(format!(
+        "{:x}",
+        Sha256::digest(serde_json::to_vec(value).map_err(|e| e.to_string())?)
+    ))
+}
+/// Test-only reconstruction of each COMPLETE production Factory callback.
+/// Python independently reconstructs all snapshot bytes and validates every
+/// actual OS text. This mirror does not replace the shipping formatter/bridge.
+pub fn factory_messages(proposal: &Value) -> Result<Vec<String>, String> {
+    let snapshot = &proposal["snapshot"];
+    let selection = &snapshot["selection"];
+    if proposal["kind"] != "factory"
+        || !opaque_id(&proposal["id"])
+        || proposal["revision"].as_u64().is_none_or(|n| n == 0)
+        || proposal["consumed"] != false
+        || selection["capabilities"]["child_planning"] != true
+        || selection["capabilities"]["child_goal_execution"] != false
+        || selection["capabilities"]["create_workspace"] != false
+        || !selection["child_planning_policy"].is_object()
+        || snapshot["bindings"]["child_planning"]["policy"] != selection["child_planning_policy"]
+    {
+        return Err("Only a complete exact Factory planning proposal is supported".into());
+    }
+    let complete = serde_json::to_string(snapshot).map_err(|e| e.to_string())?;
+    if !snapshot.is_object() || complete.len() > 1_048_576 {
+        return Err("Complete Factory snapshot exceeds original 1MiB".into());
+    }
+    let mut pages = Vec::new();
+    let mut start = 0;
+    while start < complete.len() {
+        let mut end = (start + 12_288).min(complete.len());
+        while !complete.is_char_boundary(end) {
+            end -= 1;
+        }
+        if end == start {
+            return Err("UTF8 Factory page boundary".into());
+        }
+        pages.push(complete[start..end].to_owned());
+        start = end;
+    }
+    if pages.concat() != complete {
+        return Err("Incomplete Factory snapshot".into());
+    }
+    let id = proposal["id"].as_str().unwrap();
+    let revision = proposal["revision"].as_u64().unwrap();
+    let total = complete.len();
+    let mut offset = 0;
+    let action = "Review INDEPENDENT bounded Factory delegation AND versioned child PLAN STORAGE ONLY. Review every planning limit, output/validator definition, writable path and Owner acceptance criterion in the complete server snapshot. Approval does NOT start a run or execute a plan/validator. Child Goal execution, workspace creation, Task acceptance, new Grant authority, OS sandbox and native-context restoration are NOT granted. Parent continuation remains a NEW attempt. / 独立批准有界委派与子计划版本存储；完整核对规划限额、输出、检查定义、可写路径及负责人验收标准。批准不启动，不执行计划或检查，不授予子Goal执行、工作区创建、任务验收、新Grant权限或系统隔离；父任务仍以新尝试交接。";
+    let mut messages = Vec::new();
+    for (index, page) in pages.iter().enumerate() {
+        let end = offset + page.len();
+        let message=format!("{action}\n\nFactory proposal {id} / revision {revision}. Page {}/{}; complete JSON UTF-8 bytes {}..{} of {}. OK only reviews this page; final confirmation is still required. Cancel stops review without a rejection receipt.\n\n{page}",index+1,pages.len(),offset,end,total);
+        if message.len() > 16384 {
+            return Err("Factory outer display bound".into());
+        }
+        messages.push(message);
+        offset = end;
+    }
+    messages.push(format!("{action}\n\nFINAL independent Factory approval — proposal {id} / revision {revision}. All {} complete JSON pages ({total} UTF-8 bytes) reviewed. OK records only this exact proposal. Changed inputs require a fresh proposal; unknown replies require reconciliation. Cancel records no rejection.",pages.len()));
+    Ok(messages)
+}
+
+/// Expand a <=64KiB fixed fixture into its independently bound full presentation.
+/// Descriptor digests are evidence bindings only; no click/finalize authority.
+pub fn prepare_factory(expected: &mut Value) -> Result<(), String> {
+    let fields = [
+        "kind",
+        "runtime",
+        "output",
+        "proposal",
+        "invoke",
+        "baseline_sequence",
+        "phase",
+        "cancel_at",
+        "review_nonce",
+        "snapshot_sha256",
+        "outer_message_sha256",
+        "presentation_sha256",
+        "presentation_count",
+    ];
+    if !is_factory(expected)
+        || expected
+            .as_object()
+            .is_none_or(|o| o.len() != fields.len() || fields.iter().any(|k| !o.contains_key(*k)))
+        || !matches!(expected["phase"].as_str(), Some("cancel" | "approve"))
+        || !hex(&expected["review_nonce"], 32)
+        || expected["baseline_sequence"].as_u64().is_none()
+        || expected["invoke"].as_object().is_none_or(|v| v.len() != 2)
+        || expected["invoke"]["idempotencyKey"] != "owner-os-factory-planning"
+        || expected["invoke"]["selection"] != expected["proposal"]["snapshot"]["selection"]
+        || expected["snapshot_sha256"] != digest(&expected["proposal"]["snapshot"])?
+    {
+        return Err("Factory fixture kind/CAS/nonce/full selection mismatch".into());
+    }
+    let messages = factory_messages(&expected["proposal"])?;
+    let outer_hashes: Vec<_> = messages
+        .iter()
+        .map(|m| format!("{:x}", Sha256::digest(m.as_bytes())))
+        .collect();
+    if expected["outer_message_sha256"] != serde_json::json!(outer_hashes) {
+        return Err("Factory outer messages changed".into());
+    }
+    let mut presentation = Vec::new();
+    let mut contexts = Vec::new();
+    for (outer, message) in messages.iter().enumerate() {
+        let inner = mirrored_review_prompts(message)?;
+        for (index, page) in inner.iter().enumerate() {
+            presentation.push(page.clone());
+            contexts.push(
+                serde_json::json!({"outer_index":outer,"outer_count":messages.len(),
+               "inner_index":index,"inner_count":inner.len(),"outer_final":outer+1==messages.len(),
+               "inner_final":index+1==inner.len(),"message_sha256":outer_hashes[outer]}),
+            );
+        }
+    }
+    if presentation.len() < 2
+        || presentation.len() > 1024
+        || presentation.iter().any(|p| p.len() > 2048)
+        || expected["presentation_count"].as_u64() != Some(presentation.len() as u64)
+        || expected["cancel_at"]
+            .as_u64()
+            .is_none_or(|n| n >= presentation.len() as u64)
+        || expected["presentation_sha256"] != digest(&serde_json::json!(presentation))?
+    {
+        return Err("Factory complete nested presentation/count/cancel boundary mismatch".into());
+    }
+    expected["presentation"] = serde_json::json!(presentation);
+    expected["factory_contexts"] = serde_json::json!(contexts);
+    Ok(())
+}
+pub fn validate_factory_identity(
+    value: &Value,
+    expected: &Value,
+    index: usize,
+) -> Result<(), String> {
+    if !is_factory(expected) {
+        return Err("Wrong Factory fixture kind".into());
+    }
+    let context = &expected["factory_contexts"][index];
+    if value["review_nonce"] != expected["review_nonce"]
+        || !hex(&value["review_nonce"], 32)
+        || !context.is_object()
+        || value["factory_page"] != *context
+        || ["outer_index", "outer_count", "inner_index", "inner_count"]
+            .iter()
+            .any(|k| {
+                value["factory_page"][*k].as_u64() != context[*k].as_u64()
+                    || context[*k].as_u64().is_none()
+            })
+    {
+        return Err("Factory outer/inner identity or fresh per-process nonce mismatch".into());
+    }
+    Ok(())
+}
+pub fn cancel_here(expected: &Value, phase: &str, index: usize) -> Result<bool, String> {
+    let count = expected["presentation"]
+        .as_array()
+        .ok_or("No display pages")?
+        .len();
+    if !matches!(phase, "cancel" | "approve") || index >= count {
+        return Err("Out of order phase/page".into());
+    }
+    if is_factory(expected) {
+        if expected["phase"] != phase {
+            return Err("Foreign Factory phase".into());
+        }
+        let cancel = expected["cancel_at"]
+            .as_u64()
+            .filter(|n| *n < count as u64)
+            .ok_or("Typed bounded cancel index required")?;
+        Ok(phase == "cancel" && cancel == index as u64)
+    } else {
+        Ok(phase == "cancel" && index + 1 == count)
+    }
+}
+
+pub fn validate_factory_response(response: &Value, expected: &Value) -> Result<(), String> {
+    let p = &expected["proposal"];
+    let s = &response["result"];
+    if !is_factory(expected)
+        || response.get("error").is_some()
+        || p["kind"] != "factory"
+        || s["id"] != p["id"]
+        || s["approval_id"] != p["id"]
+        || s["root_task_id"] != p["snapshot"]["selection"]["root_task_id"]
+        || s["root_grant_id"] != p["snapshot"]["selection"]["grant_id"]
+        || s["root_grant_revision"].as_u64()
+            != p["snapshot"]["selection"]["expected_grant_revision"].as_u64()
+        || s["project_id"] != p["snapshot"]["bindings"]["root_task"]["project_id"]
+        || s["selection"] != p["snapshot"]["selection"]
+        || s["bindings"] != p["snapshot"]["bindings"]
+        || s["contract_digest"] != p["snapshot"]["contract_digest"]
+        || s["revision"].as_u64() != Some(1)
+        || s["revoked"] != false
+    {
+        return Err("Factory response does not bind exact complete approved scope".into());
+    }
+    Ok(())
+}
+
+pub fn mirrored_review_prompts(message: &str) -> Result<Vec<String>, String> {
+    if message.len() > REVIEW_MESSAGE_BYTES {
+        return Err("Complete native message exceeds the bounded presentation envelope".into());
+    }
+    let mut rows = Vec::new();
+    let mut encoded = String::new();
+    let mut start = 0;
+    let mut end = 0;
+    for (offset, ch) in message.char_indices() {
+        let escaped = if ch == '\u{061c}'
+            || ch == '\x7f'
+            || ('\u{0080}'..='\u{009f}').contains(&ch)
+            || ('\u{200b}'..='\u{200f}').contains(&ch)
+            || ('\u{2028}'..='\u{202e}').contains(&ch)
+            || ('\u{2060}'..='\u{206f}').contains(&ch)
+            || ch == '\u{feff}'
+        {
+            format!("\\u{:04x}", ch as u32)
+        } else {
+            let quoted = serde_json::to_string(&ch.to_string()).map_err(|e| e.to_string())?;
+            quoted[1..quoted.len() - 1].to_owned()
+        };
+        if !encoded.is_empty() && encoded.len() + escaped.len() > REVIEW_ROW_ENCODED_BYTES {
+            rows.push((start, offset, std::mem::take(&mut encoded)));
+            start = offset;
+        }
+        encoded.push_str(&escaped);
+        end = offset + ch.len_utf8();
+    }
+    if !encoded.is_empty() || rows.is_empty() {
+        rows.push((start, end, encoded));
+    }
+    // Verify the exact roundtrip before opening even the first native page.
+    let mut restored = String::new();
+    for (start, end, encoded) in &rows {
+        let decoded: String = serde_json::from_str(&format!("\"{encoded}\""))
+            .map_err(|_| "Native review encoding could not be restored")?;
+        if message.get(*start..*end) != Some(decoded.as_str()) {
+            return Err("Native review encoding changed original bytes".into());
+        }
+        restored.push_str(&decoded);
+    }
+    if restored != message {
+        return Err("Native review encoding omitted original bytes".into());
+    }
+    let total = rows.len().div_ceil(REVIEW_ROWS_PER_PAGE);
+    let mut prompts = Vec::with_capacity(total + 1);
+    for (index, page) in rows.chunks(REVIEW_ROWS_PER_PAGE).enumerate() {
+        let body = page
+            .iter()
+            .enumerate()
+            .map(|(row, (_, _, text))| {
+                format!(
+                    "L{:05} \"{}\"",
+                    index * REVIEW_ROWS_PER_PAGE + row + 1,
+                    text
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+        prompts.push(format!("Native review page {}/{}\nOriginal UTF-8 bytes {}..{} of {}.\nRead JSON strings in L order; escapes preserve ALL text.\nOK reads this page only. Cancel stops this review.\n{}", index + 1, total, page[0].0, page.last().unwrap().1, message.len(), body));
+    }
+    prompts.push(format!("FINAL display confirmation\nAll {} pages / {} original UTF-8 bytes were reviewed.\nOK confirms the original request exactly as displayed.\nAny further required reviews still apply.\nCancel stops without private approval.", total, message.len()));
+    Ok(prompts)
+}
+
 pub fn validate(
     observed: &Value,
     expected: &Value,
@@ -94,7 +382,7 @@ pub fn validate(
                 .map(Vec::len)
                 .unwrap_or(0)
         || observed["message"] != expected["presentation"][index]
-        || observed["title"] != "AgentBaton — Native owner approval"
+        || observed["title"] != dialog_title(expected)
         || observed["parent_matches"] != true
         || observed["visible"] != true
         || observed["complete_text_visible"] != true
@@ -103,6 +391,9 @@ pub fn validate(
         return Err(
             "Own sheet, exact proposal/message or complete visible layout did not match".into(),
         );
+    }
+    if is_factory(expected) {
+        validate_factory_identity(observed, expected, index)?;
     }
     let buttons = observed["buttons"]
         .as_array()
@@ -288,5 +579,151 @@ mod diagnostic_tests {
         let mut overflow = usize::MAX;
         assert!(diagnostic_text("x", &mut overflow).is_err());
         assert_eq!(overflow, usize::MAX);
+    }
+}
+
+#[cfg(test)]
+mod factory_tests {
+    use super::*;
+    use serde_json::json;
+    fn fixture() -> Value {
+        let policy = json!({"max_nodes":1,"max_revisions":2,"max_plan_bytes":1024,"outputs":[{"artifact":{"artifact_id":"report","relative_path":"report.txt","max_bytes":1024,"expected_sha256":null},"validators":[]}],"writable_prefixes":["report.txt"],"owner_acceptance_criteria":"完整原文 中文😀 {page}; no execution"});
+        let selection = json!({"root_task_id":"task","grant_id":"grant","expected_grant_revision":1,"capabilities":{"child_planning":true,"child_goal_execution":false,"create_workspace":false},"child_planning_policy":policy});
+        let p = json!({"id":"proposal","kind":"factory","revision":1,"consumed":false,"snapshot":{"schema_version":1,"selection":selection,"bindings":{"root_task":{"project_id":"project"},"child_planning":{"policy":policy}},"contract_digest":"c".repeat(64)}});
+        let messages = factory_messages(&p).unwrap();
+        let hashes: Vec<_> = messages
+            .iter()
+            .map(|m| format!("{:x}", Sha256::digest(m.as_bytes())))
+            .collect();
+        let pages: Vec<_> = messages
+            .iter()
+            .flat_map(|m| mirrored_review_prompts(m).unwrap())
+            .collect();
+        json!({"kind":FACTORY_KIND,"proposal":p,"phase":"cancel","cancel_at":pages.len()-1,
+            "invoke":{"selection":selection,"idempotencyKey":"owner-os-factory-planning"},
+            "runtime":"/generated","output":"/evidence","baseline_sequence":10,"review_nonce":"a".repeat(32),"snapshot_sha256":digest(&p["snapshot"]).unwrap(),
+            "outer_message_sha256":hashes,"presentation_sha256":digest(&json!(pages)).unwrap(),"presentation_count":pages.len()})
+    }
+    #[test]
+    fn factory_compact_fixture_reconstructs_all_callbacks_without_changing_original_snapshot() {
+        let mut e = fixture();
+        let before = e["proposal"].clone();
+        assert!(serde_json::to_vec(&e).unwrap().len() < 65536);
+        prepare_factory(&mut e).unwrap();
+        assert_eq!(e["proposal"], before);
+        assert!(e["presentation"].as_array().unwrap().len() > 2);
+        let contexts = e["factory_contexts"].as_array().unwrap();
+        assert_eq!(contexts.last().unwrap()["outer_final"], true);
+        assert_eq!(contexts.last().unwrap()["inner_final"], true);
+    }
+    #[test]
+    fn factory_wrong_kind_digest_selection_nonce_or_typed_cas_never_becomes_a_grant() {
+        for (field, value) in [
+            ("kind", json!("grant")),
+            ("snapshot_sha256", json!("0".repeat(64))),
+            ("presentation_sha256", json!("0".repeat(64))),
+            ("review_nonce", json!("")),
+            ("baseline_sequence", json!(true)),
+            ("cancel_at", json!(1.0)),
+            ("presentation_count", json!(true)),
+        ] {
+            let mut e = fixture();
+            e[field] = value;
+            assert!(prepare_factory(&mut e).is_err(), "{field}");
+        }
+        let mut e = fixture();
+        e["invoke"]["selection"]["capabilities"]["create_workspace"] = json!(true);
+        assert!(prepare_factory(&mut e).is_err());
+        let mut e = fixture();
+        e["proposal"]["snapshot"]["selection"]["child_planning_policy"] = Value::Null;
+        assert!(prepare_factory(&mut e).is_err());
+    }
+    #[test]
+    fn factory_each_outer_and_inner_context_has_exact_nonce_and_order_with_no_cross_page_permit() {
+        let mut e = fixture();
+        prepare_factory(&mut e).unwrap();
+        for index in 0..e["presentation"].as_array().unwrap().len() {
+            let value = json!({"review_nonce":e["review_nonce"],"factory_page":e["factory_contexts"][index]});
+            assert!(validate_factory_identity(&value, &e, index).is_ok());
+            let mut wrong = value.clone();
+            wrong["review_nonce"] = json!("b".repeat(32));
+            assert!(validate_factory_identity(&wrong, &e, index).is_err());
+            let mut wrong = value.clone();
+            wrong["factory_page"]["outer_index"] = json!(0.0);
+            assert!(validate_factory_identity(&wrong, &e, index).is_err());
+            let next = (index + 1) % e["presentation"].as_array().unwrap().len();
+            assert!(validate_factory_identity(&value, &e, next).is_err());
+        }
+    }
+    #[test]
+    fn factory_scope_response_keeps_full_policy_bindings_and_original_grant_revision() {
+        let e = fixture();
+        let p = &e["proposal"];
+        let scope = json!({"id":p["id"],"approval_id":p["id"],"root_task_id":"task","root_grant_id":"grant","root_grant_revision":1,"project_id":"project","selection":p["snapshot"]["selection"],"bindings":p["snapshot"]["bindings"],"contract_digest":p["snapshot"]["contract_digest"],"revision":1,"revoked":false});
+        let result = json!({"result":scope});
+        assert!(validate_factory_response(&result, &e).is_ok());
+        for (key, value) in [
+            ("approval_id", json!("foreign")),
+            ("bindings", json!({})),
+            ("revision", json!(1.0)),
+            ("root_grant_revision", json!(true)),
+            ("revoked", json!(0)),
+            ("selection", json!({})),
+        ] {
+            let mut wrong = result.clone();
+            wrong["result"][key] = value;
+            assert!(validate_factory_response(&wrong, &e).is_err(), "{key}");
+        }
+    }
+    #[test]
+    fn every_factory_outer_inner_page_and_final_can_cancel_without_advancing_past_the_cancel() {
+        let mut e = fixture();
+        prepare_factory(&mut e).unwrap();
+        let count = e["presentation"].as_array().unwrap().len();
+        for decline in 0..count {
+            e["cancel_at"] = json!(decline);
+            for page in 0..count {
+                assert_eq!(cancel_here(&e, "cancel", page).unwrap(), page == decline);
+            }
+            assert!(cancel_here(&e, "approve", decline).is_err());
+        }
+        e["phase"] = json!("approve");
+        for page in 0..count {
+            assert!(!cancel_here(&e, "approve", page).unwrap());
+        }
+        assert!(cancel_here(&e, "approve", count).is_err());
+    }
+    #[test]
+    fn factory_closed_foreign_parent_partial_text_or_unknown_reply_never_qualifies() {
+        let mut e = fixture();
+        prepare_factory(&mut e).unwrap();
+        let observed = json!({"phase":"cancel","proposal_id":e["proposal"]["id"],"proposal_revision":1,
+           "presentation_index":0,"presentation_count":e["presentation"].as_array().unwrap().len(),
+           "message":e["presentation"][0],"title":dialog_title(&e),"parent_matches":true,
+           "visible":true,"complete_text_visible":true,"window_number":1,
+           "review_nonce":e["review_nonce"],"factory_page":e["factory_contexts"][0],
+           "buttons":[{"title":"OK","enabled":true,"visible":true},{"title":"Cancel","enabled":true,"visible":true}]});
+        assert!(validate(&observed, &e, "cancel", 0).is_ok());
+        for (key, value) in [
+            ("parent_matches", json!(false)),
+            ("visible", json!(false)),
+            ("complete_text_visible", json!(false)),
+            ("message", json!("partial")),
+            ("window_number", json!(0)),
+            ("title", json!("AgentBaton — Native owner approval")),
+            ("proposal_revision", json!(true)),
+        ] {
+            let mut wrong = observed.clone();
+            wrong[key] = value;
+            assert!(validate(&wrong, &e, "cancel", 0).is_err(), "{key}");
+        }
+        assert!(validate(&observed, &e, "unknown", 0).is_err());
+        for reply in [
+            json!({}),
+            json!({"error":{"code":"OUTCOME_UNKNOWN"}}),
+            json!({"result":{"id":"foreign"}}),
+        ] {
+            assert!(validate_factory_response(&reply, &e).is_err());
+        }
     }
 }

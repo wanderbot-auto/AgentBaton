@@ -1,0 +1,14 @@
+{
+  "source": "98bc23ee10529ed290eaaaa68412e4e3ff971aef",
+  "author_docs": "1f6c69a3c884c023fdb56f3bfa21c5a02fb66e2a",
+  "integration": "6ebb521c0cd42bf716ed21d059a00978e7813f91",
+  "review_sha256": "a1792af4942f4681d791616b3bfdf6c10261fdb2e04f3164fba28197f1aebb45",
+  "manifest_sha256": "4c43364b3dcbefbf87a9ca21a0a05823200085c3fccf658ce83e8b7756849206",
+  "archive": "CI_SCHEMA13_REVIEW_EVIDENCE.tar.gz",
+  "archive_sha256": "9cdb4baf7f49e3ff26d5cd97c5c7b8bb436bc72669b3bcce5a9ceb82051a9603",
+  "regular_members": 102,
+  "author_controls_replayed": 81,
+  "independent_controls": 87,
+  "scope": "Finite/static only; no actual Core/browser/Native/workflow/threeFlow acceptance. Exact744 source preserved, async ack followup pending.",
+  "Root_import_tool_error": "First local import assumed files map but manifest files is list; AttributeError preserved in tool history, zero writes, corrected list traversal; no product check failed."
+}

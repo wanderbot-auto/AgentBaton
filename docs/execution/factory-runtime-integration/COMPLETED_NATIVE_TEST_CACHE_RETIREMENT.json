@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-28T21:41:46.317120+00:00",
+  "scope": "only four completed Root Native test executables explicitly named in preserved first/second logs; generated caches can be rebuilt; no Core/provider/daemon/CLI/dependency/fingerprint/unknown target removal",
+  "lease": "explicit Core\u2192Root temporary maintenance, no Cargo",
+  "free_before": 1211846656,
+  "files": [
+    {
+      "path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_desktop-25c3b85e5bbf13e3",
+      "bytes": 53531384,
+      "sha256": "2893a08c281fedcc70f81a2e123f4b5e9f7efaeec124a83409f345ad9379d6fd",
+      "inode": 1052168,
+      "nlink": 1,
+      "retired": true
+    },
+    {
+      "path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_desktop-ade8d4d94413f58c",
+      "bytes": 222854168,
+      "sha256": "d5ece94231a0441c686633da051931b8dcec7135fd0f360a264ff73a59f2b023",
+      "inode": 1052213,
+      "nlink": 1,
+      "retired": true
+    },
+    {
+      "path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_native_owner_dialog_smoke-071ffbfe0fd71b44",
+      "bytes": 9786080,
+      "sha256": "dd34f90c899dae2aca56eba9af0896884dfda334bb8ec7707d9ae24a94970654",
+      "inode": 1052176,
+      "nlink": 1,
+      "retired": true
+    },
+    {
+      "path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_native_smoke-29b941efabe86a8c",
+      "bytes": 273702640,
+      "sha256": "60c2c77ead5ab93d6c987fc41f5a2822989fed4897ce3473fe568984628df675",
+      "inode": 1051955,
+      "nlink": 1,
+      "retired": true
+    }
+  ],
+  "free_after": 1771429888,
+  "actual_freed_bytes": 559583232
+}

@@ -347,6 +347,7 @@ impl Store {
                 key,
             ),
             None,
+            None,
         )
     }
     pub(crate) fn create_session_for_goal(
@@ -354,12 +355,20 @@ impl Store {
         request: (&str, &str, &str, &str, u64, &str),
         context: crate::goal_store::GoalDispatchContext,
     ) -> Result<ManagedSession> {
-        self.create_session_inner(request, Some(context))
+        self.create_session_inner(request, Some(context), None)
+    }
+    pub(crate) fn create_session_for_factory(
+        &mut self,
+        request: (&str, &str, &str, &str, u64, &str),
+        context: crate::factory::FactoryDispatchContext,
+    ) -> Result<ManagedSession> {
+        self.create_session_inner(request, None, Some(context))
     }
     fn create_session_inner(
         &mut self,
         request: (&str, &str, &str, &str, u64, &str),
         goal: Option<crate::goal_store::GoalDispatchContext>,
+        factory: Option<crate::factory::FactoryDispatchContext>,
     ) -> Result<ManagedSession> {
         let (task_id, workspace_id, connection_id, grant_id, expected_revision, key) = request;
         key_valid(key)?;
@@ -408,22 +417,33 @@ impl Store {
             .map_err(db_error)?;
         let mut task: Task =
             decode(&raw.ok_or_else(|| CoreError::new("NOT_FOUND", "Task does not exist"))?)?;
-        if goal.is_none() {
-            crate::goal_store::ordinary_session_budget_gate(&tx, &task.project_id)?;
+        if factory.is_none() && crate::factory::is_factory_task(&tx, &task.id)? {
+            return Err(CoreError::new(
+                "AUTH_REQUIRED",
+                "Factory descendants require their private Factory dispatch context",
+            ));
         }
+        let canonical_root = if let Some(context) = factory.as_ref() {
+            context.root_task_id().to_owned()
+        } else {
+            task.id.clone()
+        };
         if task.revision != expected_revision {
             return Err(CoreError::new(
                 "STALE_REVISION",
                 "Task changed before session creation",
             ));
         }
-        if task.state != TaskState::Draft && !(goal.is_some() && task.state == TaskState::Running) {
+        if task.state != TaskState::Draft
+            && !((goal.is_some() || factory.is_some())
+                && matches!(task.state, TaskState::Running | TaskState::OutcomeUnknown))
+        {
             return Err(CoreError::new(
                 "PERMISSION_DENIED",
                 "Only a draft task or current privately bound Goal node can start a managed session",
             ));
         }
-        let validate = if goal.is_some() {
+        let validate = if goal.is_some() || factory.is_some() {
             validate_grant_live_from_with_data
         } else {
             validate_grant_from_with_data
@@ -509,7 +529,7 @@ impl Store {
         }
         for scope in [
             format!("project:{}", task.project_id),
-            format!("root:{}", task.id),
+            format!("root:{}", canonical_root),
         ] {
             tx.execute(
                 "INSERT OR IGNORE INTO budgets(scope,total_limit,parallel_limit) VALUES(?1,?2,?3)",
@@ -542,7 +562,7 @@ impl Store {
             id: Uuid::new_v4().to_string(),
             attempt_id: Uuid::new_v4().to_string(),
             task_id: task.id.clone(),
-            root_task_id: task.id.clone(),
+            root_task_id: canonical_root.clone(),
             state: IntentState::Prepared,
             executor_instance: None,
             binding,
@@ -552,7 +572,7 @@ impl Store {
             params![
                 intent.attempt_id,
                 task.id,
-                task.id,
+                canonical_root,
                 encode(&intent.binding)?,
                 format!("session:{key}")
             ],
@@ -619,6 +639,17 @@ impl Store {
                 self.graph_input.as_ref(),
             )?;
         }
+        if let Some(context) = factory.as_ref() {
+            crate::factory::reserve_factory_session(
+                &tx,
+                context,
+                &session,
+                &intent.binding,
+                self.data_input.as_ref(),
+            )?;
+        } else if goal.is_none() {
+            Store::reserve_ordinary_shared_budget(&tx, &session, &grant, &canonical_root)?;
+        }
         task.revision += 1;
         task.updated_at = timestamp;
         tx.execute(
@@ -644,7 +675,7 @@ impl Store {
         revision: u64,
         key: &str,
     ) -> Result<(ManagedSession, bool)> {
-        self.send_session_inner(id, text, revision, key, false)
+        self.send_session_inner(id, text, revision, key, false, false)
     }
     pub(crate) fn send_goal_session(
         &mut self,
@@ -653,7 +684,16 @@ impl Store {
         revision: u64,
         key: &str,
     ) -> Result<(ManagedSession, bool)> {
-        self.send_session_inner(id, text, revision, key, true)
+        self.send_session_inner(id, text, revision, key, true, false)
+    }
+    pub(crate) fn send_factory_session(
+        &mut self,
+        id: &str,
+        text: &str,
+        revision: u64,
+        key: &str,
+    ) -> Result<(ManagedSession, bool)> {
+        self.send_session_inner(id, text, revision, key, false, true)
     }
     fn send_session_inner(
         &mut self,
@@ -662,15 +702,25 @@ impl Store {
         revision: u64,
         key: &str,
         goal: bool,
+        factory: bool,
     ) -> Result<(ManagedSession, bool)> {
         key_valid(key)?;
-        if crate::goal_store::owns_session(&self.conn, id)? != goal {
+        if crate::goal_store::owns_session(&self.conn, id)? != goal
+            || crate::factory::owns_session(&self.conn, id)? != factory
+        {
             return Err(CoreError::new(
                 "AUTH_REQUIRED",
                 "Goal-owned turns require their private fixed-node dispatcher",
             ));
         }
-        if text.trim().is_empty() || text.len() > 65536 {
+        if text.trim().is_empty()
+            || text.len()
+                > if factory {
+                    agentbaton_providers::MAX_FRAME_BYTES / 8
+                } else {
+                    65536
+                }
+        {
             return Err(invalid("Message must be nonempty and at most 64 KiB"));
         }
         let payload = encode(&json!({"text":text,"expected_revision":revision}))?;
@@ -905,6 +955,7 @@ enum Outcome {
     Failure(String, String),
 }
 struct WorkerReceipt {
+    capture: Option<crate::factory::FactoryCapture>,
     elapsed_ms: u64,
     reason: String,
     process_reaped: bool,
@@ -921,6 +972,7 @@ pub struct Supervisor {
     events: Receiver<Outcome>,
     sender: SyncSender<Outcome>,
     runtime: PathBuf,
+    launch_clocks: HashMap<String, Instant>,
 }
 impl Supervisor {
     pub fn new(runtime: &Path) -> Self {
@@ -931,6 +983,7 @@ impl Supervisor {
             events,
             sender,
             runtime: runtime.into(),
+            launch_clocks: HashMap::new(),
         }
     }
     fn environment(&self, c: &ProviderConnection) -> Result<BTreeMap<OsString, OsString>> {
@@ -1031,13 +1084,18 @@ impl Supervisor {
         if self.workers.contains_key(id) {
             return Ok(());
         }
+        self.launch_clocks
+            .entry(id.to_owned())
+            .or_insert_with(Instant::now);
         let s = store.get_session(id)?;
         if s.state != "starting" {
             return Ok(());
         }
         let c = store.get_connection(&s.connection_id)?;
         let plan = crate::runtime_config::approved_plan(&c)?;
-        let goal_duration = store.goal_session_duration(id)?;
+        let goal_duration = store
+            .goal_session_duration(id)?
+            .or(store.shared_session_duration(id)?);
         let grant = if goal_duration.is_some() {
             crate::policy::validate_grant_live_from_with_data(
                 &store.conn,
@@ -1139,18 +1197,38 @@ impl Supervisor {
             approval_reference: grant.approval_id,
             environment,
         };
+        let mut factory_mcp = store.factory_mcp_for_launch(id, &self.runtime)?;
         // The durable sent marker precedes worker spawn and any provider code.
         store.mark_dispatch_started(&s.intent_id, &s.id)?;
+        if let Some(mcp) = factory_mcp.as_mut() {
+            mcp.attach_data(store.data_input.take());
+        }
         let (commands, receiver) = mpsc::sync_channel(8);
         let cancel = Arc::new(AtomicBool::new(false));
         let worker_cancel = cancel.clone();
         let sender = self.sender.clone();
         let id = s.id.clone();
+        let prelaunch_ms = u64::try_from(
+            self.launch_clocks
+                .get(&id)
+                .ok_or_else(|| invalid("Missing owned launch clock"))?
+                .elapsed()
+                .as_millis(),
+        )
+        .unwrap_or(u64::MAX)
+        .saturating_add(store.shared_session_queue(&id)?.unwrap_or(0));
         let duration = Duration::from_millis(
             goal_duration
                 .unwrap_or(grant.scope.max_duration_ms)
-                .min(grant.scope.max_duration_ms),
+                .min(grant.scope.max_duration_ms)
+                .saturating_sub(prelaunch_ms),
         );
+        if duration.is_zero() {
+            return Err(CoreError::new(
+                "RESOURCE_LIMIT",
+                "Queued/configuration preparation exhausted the original attempt runtime",
+            ));
+        }
         let thread = std::thread::Builder::new()
             .name("baton-provider".into())
             .spawn(move || {
@@ -1160,6 +1238,8 @@ impl Supervisor {
                         route: c.protocol_route,
                         installation,
                         configuration,
+                        factory_mcp,
+                        prelaunch_ms,
                         duration,
                     },
                     receiver,
@@ -1173,6 +1253,7 @@ impl Supervisor {
                     "Cannot start owned provider worker; reconcile intent",
                 )
             })?;
+        self.launch_clocks.remove(&s.id);
         self.workers.insert(
             s.id,
             Worker {
@@ -1214,14 +1295,23 @@ impl Supervisor {
                 "An owned worker exists; local no-start proof is unavailable",
             ));
         }
+        let elapsed_ms = u64::try_from(
+            self.launch_clocks
+                .remove(id)
+                .map(|s| s.elapsed().as_millis())
+                .unwrap_or(0),
+        )
+        .unwrap_or(u64::MAX)
+        .saturating_add(store.shared_session_queue(id)?.unwrap_or(0));
         self.persist_receipt(
             store,
             id,
             WorkerReceipt {
+                capture: None,
                 reason: "local_launch_failed_before_worker_start".into(),
                 process_reaped: false,
                 never_started: true,
-                elapsed_ms: 0,
+                elapsed_ms,
             },
         )
     }
@@ -1251,6 +1341,7 @@ impl Supervisor {
             if (receipt.reason == "cancelled" || s.state == "cancel_requested")
                 && task.state != TaskState::CancelRequested
                 && !crate::goal_store::owns_session(&store.conn, id)?
+                && !store.factory_internal_stop_is_current(id)?
             {
                 store.cancel(&task.id, task.revision)?;
             }
@@ -1295,6 +1386,20 @@ impl Supervisor {
             receipt.elapsed_ms,
             receipt.process_reaped || receipt.never_started,
             receipt.never_started,
+        )?;
+        store.settle_shared_session(
+            id,
+            receipt.elapsed_ms,
+            receipt.process_reaped || receipt.never_started,
+            receipt.never_started,
+            receipt.capture.as_ref(),
+        )?;
+        store.settle_factory_worker(
+            id,
+            receipt.process_reaped,
+            receipt.never_started,
+            &receipt.reason,
+            receipt.capture.as_ref(),
         )
     }
     pub fn shutdown(&mut self, store: &mut Store) -> Result<()> {
@@ -1325,7 +1430,8 @@ impl Supervisor {
         for (id, worker) in &self.workers {
             let s = store.get_session(id)?;
             let task = store.get(&s.task_id)?;
-            let policy_invalid = crate::policy::checked_lineage(&store.conn, &s.grant_id).is_err();
+            let policy_invalid = crate::policy::checked_lineage(&store.conn, &s.grant_id).is_err()
+                || !store.factory_session_policy_current(id)?;
             if policy_invalid && s.state != "cancel_requested" {
                 let mut stopped = s.clone();
                 stopped.state = "cancel_requested".into();
@@ -1438,6 +1544,7 @@ impl Supervisor {
             }
             check();
             WorkerReceipt {
+                capture: None,
                 reason: "generated_drop_fixture".into(),
                 process_reaped: true,
                 never_started: true,
@@ -1464,18 +1571,51 @@ struct WorkerLaunch {
     route: ProtocolRoute,
     installation: ApprovedInstallation,
     configuration: Option<Value>,
+    factory_mcp: Option<crate::factory::FactoryMcpLaunch>,
+    prelaunch_ms: u64,
     duration: Duration,
 }
 fn run_worker(
     id: String,
-    launch: WorkerLaunch,
+    mut launch: WorkerLaunch,
     commands: Receiver<Work>,
     cancel: Arc<AtomicBool>,
     events: SyncSender<Outcome>,
 ) -> WorkerReceipt {
     let started = Instant::now();
-    let mut receipt = run_worker_inner(id, launch, commands, cancel, events);
-    receipt.elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
+    let prior = launch.prelaunch_ms;
+    let mut receipt = (|| {
+        if launch
+            .factory_mcp
+            .as_ref()
+            .is_some_and(|m| m.check_data_boundary().is_err())
+        {
+            return WorkerReceipt {
+                capture: None,
+                reason: "data_observation_expired_before_worker".into(),
+                process_reaped: false,
+                never_started: true,
+                elapsed_ms: 0,
+            };
+        }
+        let data = launch.factory_mcp.as_mut().and_then(|m| m.take_data());
+        let execution_deadline = started + launch.duration;
+        let mut capture_plan = launch
+            .factory_mcp
+            .as_mut()
+            .and_then(|m| m.take_capture_plan());
+        let mut receipt = run_worker_inner(id, launch, commands, cancel, events, data.as_ref());
+        if let (Some(plan), Some(data)) = (capture_plan.as_mut(), data) {
+            plan.attach_observation_contexts(data.into_observation_contexts());
+        }
+        if receipt.process_reaped && !receipt.never_started {
+            receipt.capture = capture_plan.and_then(|p| p.capture(execution_deadline).ok());
+        }
+        receipt
+    })();
+    receipt.elapsed_ms = u64::try_from(started.elapsed().as_millis())
+        .unwrap_or(u64::MAX)
+        .saturating_add(prior);
     receipt
 }
 fn run_worker_inner(
@@ -1484,18 +1624,52 @@ fn run_worker_inner(
     commands: Receiver<Work>,
     cancel: Arc<AtomicBool>,
     events: SyncSender<Outcome>,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
 ) -> WorkerReceipt {
     let WorkerLaunch {
         route,
         installation,
         configuration,
+        factory_mcp,
+        prelaunch_ms: _,
         duration,
     } = launch;
     let started = Instant::now();
     let notify = |outcome| events.try_send(outcome).is_ok();
     if cancel.load(Ordering::Relaxed) {
         return WorkerReceipt {
+            capture: None,
             reason: "cancelled".into(),
+            process_reaped: false,
+            never_started: true,
+            elapsed_ms: 0,
+        };
+    }
+    let factory_mcp = match factory_mcp.map(|permit| permit.authorize()).transpose() {
+        Ok(mcp) => mcp,
+        Err(_) => {
+            return WorkerReceipt {
+                capture: None,
+                reason: "factory_launch_binding_changed".into(),
+                process_reaped: false,
+                never_started: true,
+                elapsed_ms: 0,
+            }
+        }
+    };
+    if cancel.load(Ordering::Relaxed) || started.elapsed() >= duration {
+        return WorkerReceipt {
+            capture: None,
+            reason: "factory_preflight_cancelled_or_deadline".into(),
+            process_reaped: false,
+            never_started: true,
+            elapsed_ms: 0,
+        };
+    }
+    if data.is_some_and(|d| d.check_worker_boundary().is_err()) {
+        return WorkerReceipt {
+            capture: None,
+            reason: "data_changed_or_request_deadline_before_spawn".into(),
             process_reaped: false,
             never_started: true,
             elapsed_ms: 0,
@@ -1513,6 +1687,7 @@ fn run_worker_inner(
                 "provider_initialization_failed".into(),
             ));
             return WorkerReceipt {
+                capture: None,
                 reason: "initialization_failed".into(),
                 process_reaped: false,
                 never_started: failure.side_effect_state
@@ -1524,6 +1699,7 @@ fn run_worker_inner(
     if cancel.load(Ordering::Relaxed) || started.elapsed() >= duration {
         process.terminate();
         return WorkerReceipt {
+            capture: None,
             reason: "launch_cancelled_or_timeout".into(),
             process_reaped: process.diagnostics().process_reaped,
             never_started: false,
@@ -1536,12 +1712,15 @@ fn run_worker_inner(
             .min(Duration::from_secs(3)),
     );
     if let Some(configuration) = configuration {
-        if process
-            .configure_session_configuration(&configuration)
-            .is_err()
-        {
+        let configured = if let Some(mcp) = factory_mcp {
+            process.configure_factory_session_configuration(&configuration, &mcp)
+        } else {
+            process.configure_session_configuration(&configuration)
+        };
+        if configured.is_err() {
             process.terminate();
             return WorkerReceipt {
+                capture: None,
                 reason: "provider_configuration_unsupported".into(),
                 process_reaped: process.diagnostics().process_reaped,
                 never_started: false,
@@ -1558,6 +1737,7 @@ fn run_worker_inner(
                 "provider_session_creation_failed".into(),
             ));
             return WorkerReceipt {
+                capture: None,
                 reason: "session_creation_failed".into(),
                 process_reaped: process.diagnostics().process_reaped,
                 never_started: false,
@@ -1568,6 +1748,7 @@ fn run_worker_inner(
     if !notify(Outcome::Ready(id.clone(), native.clone())) {
         process.terminate();
         return WorkerReceipt {
+            capture: None,
             reason: "event_backpressure".into(),
             process_reaped: process.diagnostics().process_reaped,
             never_started: false,
@@ -1618,6 +1799,7 @@ fn run_worker_inner(
                 process.terminate();
                 notify(Outcome::Failure(id.clone(), "event_backpressure".into()));
                 return WorkerReceipt {
+                    capture: None,
                     reason: "event_backpressure".into(),
                     process_reaped: process.diagnostics().process_reaped,
                     never_started: false,
@@ -1653,6 +1835,7 @@ fn run_worker_inner(
         notify(Outcome::Failure(id.clone(), reason.into()));
     }
     WorkerReceipt {
+        capture: None,
         reason: reason.into(),
         process_reaped: process.diagnostics().process_reaped,
         never_started: false,
@@ -1807,6 +1990,14 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "factory" {
+            let companion: crate::factory::FactoryCompanionBinding =
+                serde_json::from_value(proposal.snapshot["bindings"]["companion"].clone())
+                    .map_err(|_| {
+                        CoreError::new("INPUT_CHANGED", "Factory companion contract is invalid")
+                    })?;
+            return self.finalize_factory_scope(id, revision, &companion.executable);
+        }
         if proposal.kind == "goal_node_acceptance" {
             return self.decide_goal_node(id, revision, true);
         }
@@ -1954,6 +2145,8 @@ mod tests {
                     environment: BTreeMap::new(),
                 },
                 configuration: None,
+                factory_mcp: None,
+                prelaunch_ms: 0,
                 duration: Duration::from_secs(2),
             },
             receiver,

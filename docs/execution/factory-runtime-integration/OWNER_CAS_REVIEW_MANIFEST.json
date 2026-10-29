@@ -1,0 +1,206 @@
+{
+  "state": "SEALED limited independent source/evidence review; no independent runtime execution",
+  "source_commit": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+  "files": {
+    "REVIEW.md": {
+      "sha256": "d40fcf1edbbc1ed8ec1835879dc880e10e8c137c4162c32a5195994542000fcd",
+      "bytes": 5285
+    },
+    "VERIFICATION.json": {
+      "sha256": "2873da44996a03bc2fc89f8a2db54df81737c55f152d65ffcb0b8057024612c1",
+      "bytes": 10920
+    },
+    "source/apps/cli/src/main.rs": {
+      "sha256": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+      "bytes": 5738
+    },
+    "source/apps/daemon/src/main.rs": {
+      "sha256": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+      "bytes": 796
+    },
+    "source/crates/core/src/command_validation.rs": {
+      "sha256": "804cede65389ea44810e4646a668d05dac056e0c71069640b5cb9cb55aef14e2",
+      "bytes": 43126
+    },
+    "source/crates/core/src/command_workers.rs": {
+      "sha256": "73c26d9f2db4e5e59cdbe13655af536a64d7ceb9f95977f8f90da9a9cc2ddd84",
+      "bytes": 7297
+    },
+    "source/crates/core/src/data_validation.rs": {
+      "sha256": "a3694819f13551ae250b36be99314376bdba86ec531752c082aa9fa69a2d3bdf",
+      "bytes": 61389
+    },
+    "source/crates/core/src/data_workspace_workers.rs": {
+      "sha256": "b3c3e1dee67d6707d44781d656115df0c2e2a23c6a9442707879ccb2a893dc08",
+      "bytes": 26683
+    },
+    "source/crates/core/src/data_workspaces.rs": {
+      "sha256": "87ae5614025fb8ce7c6b94603f8f27a34f9ef651a9cafcc6d58cfe2d8887e3cb",
+      "bytes": 72623
+    },
+    "source/crates/core/src/execution.rs": {
+      "sha256": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+      "bytes": 17628
+    },
+    "source/crates/core/src/factory.rs": {
+      "sha256": "3334a1e32004b2f9406f680cd7eef36f038def917e503ad4d22b73308d309d7d",
+      "bytes": 8538
+    },
+    "source/crates/core/src/factory_budget.rs": {
+      "sha256": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+      "bytes": 13332
+    },
+    "source/crates/core/src/factory_capture.rs": {
+      "sha256": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+      "bytes": 6100
+    },
+    "source/crates/core/src/factory_companion.rs": {
+      "sha256": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+      "bytes": 11133
+    },
+    "source/crates/core/src/factory_reads.rs": {
+      "sha256": "d2d5929c3b27919cde4e484b30d7b7039303871b48cf3b0c7d108527a4d9c169",
+      "bytes": 64349
+    },
+    "source/crates/core/src/factory_runtime.rs": {
+      "sha256": "471d0cfdde2104e527b29e96c938676dc29399dc32c92cb216866a4c8d7293dd",
+      "bytes": 87134
+    },
+    "source/crates/core/src/factory_store.rs": {
+      "sha256": "a26577fd40abcd3b5b73d631a81ef163415a5f661791f12fa4565b9564269bac",
+      "bytes": 43362
+    },
+    "source/crates/core/src/goal_evidence.rs": {
+      "sha256": "d786d708aef63e82bdf081a2f5fd5314f184f7f1e7b7b81512d114b74ab1f802",
+      "bytes": 17489
+    },
+    "source/crates/core/src/goal_graph.rs": {
+      "sha256": "80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7",
+      "bytes": 134848
+    },
+    "source/crates/core/src/goal_graph_validators.rs": {
+      "sha256": "969b6941f6827a9460144d329986c6d0f75d9a99b9856ae204bcc073cb157820",
+      "bytes": 53581
+    },
+    "source/crates/core/src/goal_plan.rs": {
+      "sha256": "243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21",
+      "bytes": 80912
+    },
+    "source/crates/core/src/goal_runtime.rs": {
+      "sha256": "1faa97b5ba7b9fe052e23fa889a7a84109627b374a8cfe0426b419252484de56",
+      "bytes": 153606
+    },
+    "source/crates/core/src/goal_store.rs": {
+      "sha256": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+      "bytes": 101266
+    },
+    "source/crates/core/src/goal_validator_io.rs": {
+      "sha256": "bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57",
+      "bytes": 42300
+    },
+    "source/crates/core/src/ipc.rs": {
+      "sha256": "a0707471d9eba23b8fc34be50c39bd6a3ad54eebff6940fdef7ac6eb73ec261e",
+      "bytes": 107327
+    },
+    "source/crates/core/src/lib.rs": {
+      "sha256": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+      "bytes": 1666
+    },
+    "source/crates/core/src/policy.rs": {
+      "sha256": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+      "bytes": 48528
+    },
+    "source/crates/core/src/registry.rs": {
+      "sha256": "2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45",
+      "bytes": 31351
+    },
+    "source/crates/core/src/routes.rs": {
+      "sha256": "259642508b6bba313f2545b122986d377b434af6f6caccfcf3208a8bb3c128a1",
+      "bytes": 2962
+    },
+    "source/crates/core/src/runtime_config.rs": {
+      "sha256": "73e326b050e7fe661fe8a83e19775ea1d0d9da431e2909a1cb4e14c51d0ff3da",
+      "bytes": 8324
+    },
+    "source/crates/core/src/sessions.rs": {
+      "sha256": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+      "bytes": 85216
+    },
+    "source/crates/core/src/storage.rs": {
+      "sha256": "cf1610158d80d40cfd0dfe988cee158abdd412fd2e5cd59c3af448a51f717cbd",
+      "bytes": 28348
+    },
+    "source/crates/core/src/validation.rs": {
+      "sha256": "54dbcb97fcb5cb70c74feb07fb5a737defb8dd0c6af931abbe59ae9143ce71db",
+      "bytes": 49367
+    },
+    "source/crates/core/tests/factory_runtime_ipc.rs": {
+      "sha256": "cda3b55d61a2ffb17a106bcaf7dce6626f3a977786c11a4b32112c9d48ac2d93",
+      "bytes": 80999
+    },
+    "source/crates/providers/src/codex.rs": {
+      "sha256": "295a0e5ac624e375e0a5cbae7e419594627f657d6485e2f39098e077958099dd",
+      "bytes": 23956
+    },
+    "source/crates/providers/src/connections.rs": {
+      "sha256": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+      "bytes": 12779
+    },
+    "source/crates/providers/src/driver.rs": {
+      "sha256": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+      "bytes": 4518
+    },
+    "source/crates/providers/src/framing.rs": {
+      "sha256": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+      "bytes": 3231
+    },
+    "source/crates/providers/src/installation.rs": {
+      "sha256": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+      "bytes": 14287
+    },
+    "source/crates/providers/src/lib.rs": {
+      "sha256": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+      "bytes": 19169
+    },
+    "source/crates/providers/src/process_io.rs": {
+      "sha256": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+      "bytes": 11827
+    },
+    "source/crates/providers/src/session_configuration.rs": {
+      "sha256": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+      "bytes": 8965
+    },
+    "source/crates/providers/src/transport.rs": {
+      "sha256": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+      "bytes": 19557
+    },
+    "source/crates/workspaces/src/adoption.rs": {
+      "sha256": "be970ed01ee18bebe9b06e62087d0bd7c52e97bfca6db0dcaec60cbedeba9472",
+      "bytes": 19150
+    },
+    "source/crates/workspaces/src/command_validation.rs": {
+      "sha256": "76a5eeaa2a1822b40d206af63ec32d643da9278e502e72c82da510d62cf8184e",
+      "bytes": 55640
+    },
+    "source/crates/workspaces/src/data_workspace.rs": {
+      "sha256": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+      "bytes": 64465
+    },
+    "source/crates/workspaces/src/deterministic.rs": {
+      "sha256": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+      "bytes": 25680
+    },
+    "source/crates/workspaces/src/lib.rs": {
+      "sha256": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+      "bytes": 25975
+    },
+    "source/crates/workspaces/src/validation.rs": {
+      "sha256": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83",
+      "bytes": 29933
+    },
+    "verify.py": {
+      "sha256": "ccf91204118ab009b12afaed73dff2bb6f71defd0ae4328952eaa01bbbe1b838",
+      "bytes": 4353
+    }
+  }
+}

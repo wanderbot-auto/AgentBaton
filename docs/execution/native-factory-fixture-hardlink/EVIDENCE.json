@@ -1,0 +1,241 @@
+{
+  "source_commit": "038e048d3e87b79bd242badf8d5862f7ed850d98",
+  "base": "9ca48c82ff35ceaf4a1c1cb41ce1cc92d533b103",
+  "source_file": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+  "source_sha256": "dfd091300a5a778fc82078aadb4a6b6b06576383f7e985af5cca0c0e752f5d47",
+  "one_method_only_46_preserved": {
+    "source_pair_and_frozen_all_metadata_and_aliases_unchanged": true,
+    "source_regular_no022_under128MiB_nlink2": true,
+    "copy_mode500_nlink1_canonical_exactsha": true,
+    "original46_of47_methods_AST_unchanged": true,
+    "changed_method": [
+      "FactoryPlanningControls.test_real_core_factory_preparation_is_schema14_complete_and_never_finalizes_target"
+    ],
+    "actual_old_shared_exit": 1,
+    "actual_fixed_shared_exit": 0,
+    "full47_exit": 0,
+    "metadata_before_sha256": "21b9b989ad811f9691e56dde8080610e8c8f21105f28502be241fdabdabf6c6f",
+    "metadata_after_sha256": "21b9b989ad811f9691e56dde8080610e8c8f21105f28502be241fdabdabf6c6f",
+    "dimension": "local actual test14 only; no CI stat observed/no Rust/Mac/Provider proof"
+  },
+  "old_shared": {
+    "selected_test": "FactoryPlanningControls.test_real_core_factory_preparation_is_schema14_complete_and_never_finalizes_target",
+    "daemon": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+    "tests_run": 1,
+    "failures": 0,
+    "errors": 1,
+    "exit": 1,
+    "source_sha256": "d19e5df0aac52a37685548a7d3c5d595e51edb86b7040a69eda4b306ed6f7a2a",
+    "start_UTC": "2026-10-29T07:40:59.939992+00:00",
+    "end_UTC": "2026-10-29T07:41:00.852782+00:00",
+    "retention": "Only allowlisted diagnostics copied from runner.save after original write; real source/Guard/RPC unchanged; no token file copied",
+    "dimension": "Actual local schema14 Core/generated files/probe only; no GUI/Provider/model/Mac"
+  },
+  "old_shared_cleanup": {
+    "role": "daemon",
+    "started": true,
+    "ok": true,
+    "signals": [
+      {
+        "signal": "SIGTERM",
+        "result": "signalled"
+      }
+    ],
+    "errors": [],
+    "returncode": 0,
+    "pid": 1371909,
+    "running_before_cleanup": true,
+    "initial_group_quiescent": false,
+    "group_quiescent_before_reaping": true,
+    "adopted_owned_group_children_reaped": 0
+  },
+  "fixed_shared": {
+    "selected_test": "FactoryPlanningControls.test_real_core_factory_preparation_is_schema14_complete_and_never_finalizes_target",
+    "daemon": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+    "tests_run": 1,
+    "failures": 0,
+    "errors": 0,
+    "exit": 0,
+    "source_sha256": "dfd091300a5a778fc82078aadb4a6b6b06576383f7e985af5cca0c0e752f5d47",
+    "start_UTC": "2026-10-29T07:47:26.007836+00:00",
+    "end_UTC": "2026-10-29T07:47:27.247696+00:00",
+    "retention": "Only allowlisted diagnostics copied from runner.save after original write; real source/Guard/RPC unchanged; no token file copied",
+    "dimension": "Actual local schema14 Core/generated files/probe only; no GUI/Provider/model/Mac"
+  },
+  "full47": {
+    "argv": [
+      "python",
+      "-B",
+      "apps/desktop/src-tauri/tests/test_native_owner_dialog.py"
+    ],
+    "cwd": "/workspace/.worktrees/factory-child-planning-native-dialog",
+    "daemon": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+    "exit": 0,
+    "wall_seconds": 8.750195536995307,
+    "start_UTC": "2026-10-29T07:48:09.113145+00:00",
+    "end_UTC": "2026-10-29T07:48:17.863357+00:00",
+    "test_source_sha256": "dfd091300a5a778fc82078aadb4a6b6b06576383f7e985af5cca0c0e752f5d47",
+    "source_before_after_equal": true,
+    "log_sha256": "d57397a29a4073ca8f96b0c976bab267050d7ea7df5a409c0bbb0ab57bc65317",
+    "dimension": "Actual local Python47 including5realCore cases; not Native GUI/Rust/Mac/Provider"
+  },
+  "CI": {
+    "original_log_path": "/workspace/.onboarding/pr17-9ac-linux-review/rust-job.log",
+    "original_log_sha256": "e42ec3ffc7360c10666e06983c01fd00c879a0840df031df2a7fe78fb16024b3",
+    "original_log_bytes": 159722,
+    "product_run": 40834973094,
+    "job": 123317518484,
+    "evidence_read_only_existing_download": true,
+    "excerpt": "CI_FAILURE_EXCERPT.txt",
+    "limitation": "CI raw stat/nlink was not captured. Local f0322 fixture reproduces guard refusal with nlink2 and all other known predicates satisfied; do not assert local metadata as historical CI stat. UI raw CLI size evidence is separate and not re-downloaded.",
+    "checkout_merge": "4593668cf8e03c84689012acce401a454e2c01eb",
+    "feature_head": "9ac06f78b107aa812fcec00f3b0c584911a88274",
+    "base_main": "3fd60f354236ddc5ab0ea2f7665428a8496f4a64"
+  },
+  "frozen_tools_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+  "Core_CLI_sources_equal_f032": true,
+  "tool_before_after_identical": true,
+  "source_modes": "shared0700/nlink2 vsfrozen0500/nlink1; private copies0500/nlink1",
+  "lease": "Explicitly returned after actual run and post-metadata check",
+  "archive": {
+    "path": "docs/execution/native-factory-fixture-hardlink/EVIDENCE.tar.gz",
+    "bytes": 35133,
+    "sha256": "1b182ec142aa4555e0979947bc2d9290d7546d66d6478d83c65ccc2e314e22ec",
+    "regular_members": 30,
+    "symlinks": 0,
+    "all_bytes_roundtrip": true
+  },
+  "manifest_sha256": "3b3eb6e2b56ef4a58f797c7eab73cd610805b1598b8e7b1ffab0f7feb267e031",
+  "members": {
+    "CHECKS.json": {
+      "bytes": 728,
+      "sha256": "bdf2f3fac8d01d6b64fbedbfb35229283edf5c0357456ab9eadb00a5ed9c7b0c"
+    },
+    "CI_BINDING.json": {
+      "bytes": 803,
+      "sha256": "7670cd4e1c45bd342f04e425cb5810eb539f6b412b3b73a33225d1a17356f1cf"
+    },
+    "CI_FAILURE_EXCERPT.txt": {
+      "bytes": 20331,
+      "sha256": "a6b74822a069c042f9071ef7682ec453459cba47fac1e4e77288f58f5a9db2f8"
+    },
+    "FULL_RESULT.json": {
+      "bytes": 743,
+      "sha256": "23e19bd1815b416f58f2ab29e980086b51be8c83ac1eea5f5447e2bc756ba25c"
+    },
+    "INERT_COPY.json": {
+      "bytes": 2266,
+      "sha256": "90cabe30b17c40fb3433e6f09d67874dc6a606e4c46fde611e18099b1b3ef19b"
+    },
+    "LOCAL_TOOLS_AFTER.json": {
+      "bytes": 4932,
+      "sha256": "21b9b989ad811f9691e56dde8080610e8c8f21105f28502be241fdabdabf6c6f"
+    },
+    "LOCAL_TOOLS_BEFORE.json": {
+      "bytes": 4932,
+      "sha256": "21b9b989ad811f9691e56dde8080610e8c8f21105f28502be241fdabdabf6c6f"
+    },
+    "edit_method.py": {
+      "bytes": 5750,
+      "sha256": "254b5870d9f39223a59e95ea8a46dc5ff5f1df935b6f8f483adbdb1df26ecd0e"
+    },
+    "fixed-shared/RESULT.json": {
+      "bytes": 731,
+      "sha256": "883281253ee9ee1914ec7e2ff3afb63b55f2ec093efe06e22992163a13c8496c"
+    },
+    "fixed-shared/bootstrap-paths.json": {
+      "bytes": 714,
+      "sha256": "1c811b589d5234bb21c1a889f81c834ca3cb1b2268db4056f6560d0b0a51c738"
+    },
+    "fixed-shared/bootstrap-state.json": {
+      "bytes": 2067,
+      "sha256": "d4db6e47f6b0b338c4732a2a4465db7b20f5a4f01975feb4948d39108d612de4"
+    },
+    "fixed-shared/core-bootstrap-transcript.json": {
+      "bytes": 31489,
+      "sha256": "8779c1d6bf51f8bc863bf90b24e6447280902c5a258b38b2188870f28ec26249"
+    },
+    "fixed-shared/daemon-cleanup.json": {
+      "bytes": 352,
+      "sha256": "6671346ac22a8d51b0fc0879a9f6a0c091b424db2bd65637bfefc07ac57dbbd1"
+    },
+    "fixed-shared/fixture-tools.json": {
+      "bytes": 4007,
+      "sha256": "2b26ea6a4d050114003cd0025c51666c4e5bef3e39d5563fa6c6f41a02b58ff8"
+    },
+    "fixed-shared.log": {
+      "bytes": 47080,
+      "sha256": "9c6701d40ab36fd4ce7c2be2e8add78a32b185740fa394eb6bd982329fd48fff"
+    },
+    "full47.log": {
+      "bytes": 64078,
+      "sha256": "d57397a29a4073ca8f96b0c976bab267050d7ea7df5a409c0bbb0ab57bc65317"
+    },
+    "inert-copy.log": {
+      "bytes": 130,
+      "sha256": "0b0fcb4ca8e0bff666d24e36a8d0bb2bfd409dc3f6d94de937f229cb2ffd2081"
+    },
+    "inert_copy_controls.py": {
+      "bytes": 2199,
+      "sha256": "e0cfce22e7a498a08c682738df87f3c65c79b8297a9874c1753aaa64398acb14"
+    },
+    "inspect-after.stdout": {
+      "bytes": 2924,
+      "sha256": "998f9d15a1a051c4ff755ffa45e10b95f7b2696356593614729696b8e663f331"
+    },
+    "inspect_after.py": {
+      "bytes": 1874,
+      "sha256": "1bce27b891026e92ad9e82f03fcb226392542af232aed595bbccaafe53c1e235"
+    },
+    "inspect_tools.py": {
+      "bytes": 1875,
+      "sha256": "56e5791c2849122ebcefa3bed06956d945bd61872d1ef35c47472540f9c14551"
+    },
+    "old-shared/RESULT.json": {
+      "bytes": 731,
+      "sha256": "3d644e1b18b824d086c5e939d3de4e529f4d7ca913d0d58c2355a209b8d061e9"
+    },
+    "old-shared/bootstrap-paths.json": {
+      "bytes": 714,
+      "sha256": "8ecb714cf82fd8d6393b3c61be221c4a3818ae31023d68115f27e4c9a5ca3469"
+    },
+    "old-shared/bootstrap-state.json": {
+      "bytes": 2320,
+      "sha256": "9bf97f2f9cbb33ffb97961c53efc15600e4473b48bdfacd42a747ba46881834f"
+    },
+    "old-shared/core-bootstrap-transcript.json": {
+      "bytes": 17814,
+      "sha256": "536f8b3980b981d18b4a3a11b9e7aabe3cc81bacd369834459f81cd86dfab627"
+    },
+    "old-shared/daemon-cleanup.json": {
+      "bytes": 352,
+      "sha256": "229d2661dc5d1a42152a058a2660e76947c9ca060dab808416a9bb2855402721"
+    },
+    "old-shared.log": {
+      "bytes": 1787,
+      "sha256": "481f77af975b005853cf885897432cb2be2a185419162e6e973e9cb9c0fa4119"
+    },
+    "run_full.py": {
+      "bytes": 1390,
+      "sha256": "941478d08f491eeb2581811eb565a67d4bacd3871dfcd440d00a0912c71d5df1"
+    },
+    "run_one.py": {
+      "bytes": 1913,
+      "sha256": "2cdfad0f3a56b030f0f008983b35265c1795e6fcd12fae7baddedbb7c9be6f28"
+    }
+  },
+  "not_run": [
+    "newCI",
+    "Cargo/build/NativeRust",
+    "Node/browser/NativeGUI/Mac",
+    "Provider/model/accounts/keys",
+    "packages"
+  ],
+  "limits": [
+    "CI did not capture toolstat/nlink; local metadata is not asserted as historical CI stat",
+    "Single fixed case overlaps full47; no extra unique test count",
+    "NoCore guard relaxation/strip/shared-original mutation/Native binary relocation",
+    "UI NUL failure and Native15 reworks separate"
+  ],
+  "record_staging_note": "Initial git add declined the newly authorized own-record path outside sparse patterns; no source/index overwrite. Followed by explicit --sparse staging of only this record directory; not a product test."
+}

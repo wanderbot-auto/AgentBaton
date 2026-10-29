@@ -1,0 +1,10 @@
+import { beforeEach,describe,it,expect,vi } from 'vitest';
+import { invoke } from '@tauri-apps/api/core';
+import { factoryApi } from './factory-api';
+import { factoryFixture } from './factory-test-fixtures';
+vi.mock('@tauri-apps/api/core',()=>({invoke:vi.fn()}));
+beforeEach(()=>{vi.mocked(invoke).mockReset();vi.mocked(invoke).mockResolvedValue({result:{},warnings:[]});});
+describe('fixed Factory Owner transport, mocked Tauri',()=>{
+ it('only exposes seven fixed Owner commands with exact selection/CAS/key',async()=>{const f=factoryFixture();await factoryApi.approve(f.selection,'approve-key');await factoryApi.get(f.scope.id);await factoryApi.list(f.task.id);await factoryApi.revoke(f.scope.id,2,'revoke-key');await factoryApi.start(f.scope.id,3,'start-key');await factoryApi.run(f.scope.id);await factoryApi.cancel(f.scope.id,4,'cancel-key');expect(vi.mocked(invoke).mock.calls).toEqual([['factory_scope_approve',{selection:f.selection,idempotencyKey:'approve-key'}],['factory_scopes_get',{scopeId:f.scope.id}],['factory_scopes_list',{rootTaskId:f.task.id}],['factory_scopes_revoke',{scopeId:f.scope.id,expectedRevision:2,idempotencyKey:'revoke-key'}],['factory_runs_start',{scopeId:f.scope.id,expectedRevision:3,idempotencyKey:'start-key'}],['factory_runs_get',{scopeId:f.scope.id}],['factory_runs_cancel',{scopeId:f.scope.id,expectedRevision:4,idempotencyKey:'cancel-key'}]]);expect(Object.keys(factoryApi)).toHaveLength(7);});
+ it('propagates denied and unknown Core outcomes without manufacturing success',async()=>{vi.mocked(invoke).mockResolvedValue({error:{code:'OUTCOME_UNKNOWN',message:'reconcile',retryable:false,side_effect_state:'unknown'},warnings:[]});await expect(factoryApi.start('scope',1,'key')).rejects.toMatchObject({code:'OUTCOME_UNKNOWN',sideEffectState:'unknown'});vi.mocked(invoke).mockResolvedValue({error:{code:'PERMISSION_DENIED',message:'Native Cancel',retryable:false,side_effect_state:'not_started'},warnings:[]});await expect(factoryApi.approve(factoryFixture().selection,'key')).rejects.toMatchObject({code:'PERMISSION_DENIED'});});
+});

@@ -24,7 +24,7 @@ def pending():
                 'snapshot': {'intent': {'project_id': 'project', 'workspace_id': 'workspace', 'connection_id': 'connection',
                                         'max_attempts': 1, 'max_concurrency': 1, 'max_duration_ms': 1000},
                              'refs': {'workspace_identity': {'canonical_root': '/fixture', 'device': 1, 'inode': 2}, 'connection': {'revision': 2}}}}
-    value = {'read_only': True, 'schema_version': 12, 'sequence': 9, 'proposal': proposal,
+    value = {'read_only': True, 'schema_version': 14, 'sequence': 9, 'proposal': proposal,
              'proposal_result': None, 'grants': [], 'events': [], 'counts': COUNTS.copy()}
     return proposal, value
 
@@ -66,7 +66,7 @@ class OwnerRunnerControls(unittest.TestCase):
 
     def test_real_readonly_sqlite_observation_rejects_authority_change(self):
         daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
-        self.assertTrue(daemon.is_file(), 'Provide the actual frozen/schema12 batond; never substitute test DDL')
+        self.assertTrue(daemon.is_file(), 'Provide the actual frozen/schema14 batond; never substitute test DDL')
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
             with runner.bootstrap(daemon, output) as fixture:
@@ -77,12 +77,25 @@ class OwnerRunnerControls(unittest.TestCase):
                     actual.execute('PRAGMA query_only=ON')
                     tables = {row[0] for row in actual.execute("SELECT name FROM sqlite_master WHERE type='table'") if row[0].startswith('goal_')}
                     self.assertEqual(tables, set(runner.GOAL_TABLES))
+                    factory_tables = {row[0] for row in actual.execute("SELECT name FROM sqlite_master WHERE type='table'") if row[0].startswith('factory_')}
+                    self.assertEqual(factory_tables, set(runner.FACTORY_TABLES))
                     clone = output / 'real-core-copy'
                     clone.mkdir()
                     with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
                         actual.backup(copy_db)
                 self.assertEqual(set(observed['counts']), set(runner.ZERO_TABLES))
-                self.assertEqual(len(observed['counts']), 19)
+                self.assertEqual(len(observed['counts']), 30)
+                for table in runner.FACTORY_TABLES:
+                    missing_copy = output / ('missing-' + table)
+                    missing_copy.mkdir()
+                    with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as actual:
+                        actual.execute('PRAGMA query_only=ON')
+                        with sqlite3.connect(missing_copy / 'baton.sqlite3') as copy_db:
+                            actual.backup(copy_db)
+                    with sqlite3.connect(missing_copy / 'baton.sqlite3') as copy_db:
+                        copy_db.execute('DROP TABLE ' + table)
+                    with self.assertRaisesRegex(sqlite3.OperationalError, table):
+                        runner.database(missing_copy, proposal['id'])
                 # Negative controls mutate only an isolated backup of the REAL
                 # migration DB. The running Core database/schema is untouched.
                 with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
@@ -90,10 +103,10 @@ class OwnerRunnerControls(unittest.TestCase):
                 self.assertIsNotNone(runner.pending_error(runner.database(clone, proposal['id']), proposal, observed['sequence']))
                 with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
                     copy_db.execute('DELETE FROM goal_graph_jobs')
-                    copy_db.execute('PRAGMA user_version=13')
+                    copy_db.execute('PRAGMA user_version=15')
                 self.assertIsNotNone(runner.pending_error(runner.database(clone, proposal['id']), proposal, observed['sequence']))
                 with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
-                    copy_db.execute('PRAGMA user_version=12')
+                    copy_db.execute('PRAGMA user_version=14')
                     copy_db.execute('DROP TABLE goal_plan_heads')
                 with self.assertRaisesRegex(sqlite3.OperationalError, 'goal_plan_heads'):
                     runner.database(clone, proposal['id'])
@@ -136,7 +149,7 @@ class OwnerRunnerControls(unittest.TestCase):
     def test_exact_root_grant_commit_event_and_reply_bindings_are_required(self):
         proposal, after, response = approved()
         self.assertIsNone(runner.approved_error(after, proposal, 9, response))
-        for field, wrong in [('counts', {}), ('sequence', 10), ('schema_version', 13), ('proposal_result', {}), ('grants', [])]:
+        for field, wrong in [('counts', {}), ('sequence', 10), ('schema_version', 12), ('proposal_result', {}), ('grants', [])]:
             changed = copy.deepcopy(after)
             changed[field] = wrong
             self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), field)
@@ -154,6 +167,32 @@ class OwnerRunnerControls(unittest.TestCase):
             changed['events'][0]['sequence'] = first
             changed['events'][1]['sequence'] = second
             self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response))
+
+    def test_schema14_requires_original19_plus_all_eleven_factory_zero_tables(self):
+        proposal, before = pending()
+        _, after, response = approved()
+        self.assertEqual(len(runner.ZERO_TABLES), 30)
+        self.assertEqual(len(runner.FACTORY_TABLES), 11)
+        self.assertEqual(set(runner.ZERO_TABLES), {'attempts', 'sessions', *runner.GOAL_TABLES, *runner.FACTORY_TABLES})
+        for schema in [11, 12, 13, 15, 13.0, 14.0, True, '13', '14', None]:
+            changed = copy.deepcopy(before); changed['schema_version'] = schema
+            self.assertIsNotNone(runner.pending_error(changed, proposal, 9), schema)
+            changed = copy.deepcopy(after); changed['schema_version'] = schema
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), schema)
+        for table in runner.ZERO_TABLES:
+            for wrong in [1, -1, None, True, False, '0', 0.0]:
+                changed = copy.deepcopy(before); changed['counts'][table] = wrong
+                self.assertIsNotNone(runner.pending_error(changed, proposal, 9), table)
+                changed = copy.deepcopy(after); changed['counts'][table] = wrong
+                self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), table)
+            changed = copy.deepcopy(before); del changed['counts'][table]
+            self.assertIsNotNone(runner.pending_error(changed, proposal, 9), table)
+            changed = copy.deepcopy(after); del changed['counts'][table]
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), table)
+        for value in [before, after]:
+            value['counts']['unknown_factory_authority'] = 0
+        self.assertIsNotNone(runner.pending_error(before, proposal, 9))
+        self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
 
     def test_foreign_approval_and_expanded_scope_are_never_accepted(self):
         proposal, after, response = approved()
@@ -390,7 +429,7 @@ class OwnerRunnerControls(unittest.TestCase):
 class BootstrapPathControls(unittest.TestCase):
     def daemon(self):
         daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
-        self.assertTrue(daemon.is_file(), 'Use the real frozen schema12 daemon')
+        self.assertTrue(daemon.is_file(), 'Use the real frozen schema14 daemon')
         return daemon
 
     def test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready(self):
@@ -575,6 +614,414 @@ class PresentationControls(unittest.TestCase):
                              ('visible', False), ('complete_text_visible', False), ('parent_matches', False)]:
             changed = {**value, field: wrong}
             self.assertIsNotNone(runner.presentation_error(changed, proposal, prompts, 'approve', 0))
+
+
+
+
+# Explicit synthetic JSON fixtures below. They do not claim a Core/OS approval.
+def factory_pending():
+    grant_proposal, _, grant_response = approved()
+    grant = copy.deepcopy(grant_response['result'])
+    grant['scope']['max_duration_ms'] = 300000
+    artifact = {'artifact_id': 'report', 'relative_path': 'report.txt', 'max_bytes': 1024, 'expected_sha256': None}
+    policy = {'max_nodes': 1, 'max_revisions': 2, 'max_plan_bytes': 1024,
+              'outputs': [{'artifact': artifact, 'validators': []}], 'writable_prefixes': ['report.txt'],
+              'owner_acceptance_criteria': 'Complete 原文 / emoji😀 / {page} / no execution'}
+    selection = {'root_task_id': 'task', 'expected_task_revision': 1, 'grant_id': grant['id'],
+                 'expected_grant_revision': 1, 'connection_ids': ['connection'], 'workspace_ids': ['workspace'],
+                 'inputs': [{'artifact_id': 'input', 'relative_path': 'input.txt', 'max_bytes': 1024, 'expected_sha256': 'a' * 64}],
+                 'outputs': [artifact], 'recipients': [], 'max_depth': 1, 'max_children': 1, 'max_total_nodes': 2,
+                 'root_budget': {'attempts': 1, 'parallel': 1, 'runtime_ms': 1000, 'output_bytes': 1024, 'children': 1, 'reworks': 0, 'tokens': None, 'cost_microunits': None},
+                 'project_budget': {'attempts': 1, 'parallel': 1, 'runtime_ms': 1000, 'output_bytes': 1024, 'children': 1, 'reworks': 0, 'tokens': None, 'cost_microunits': None},
+                 'ttl_ms': 300000, 'capabilities': {'delegate_task': True, 'resume_parent_as_new_attempt': True, 'child_planning': True, 'child_goal_execution': False, 'create_workspace': False},
+                 'child_planning_policy': policy}
+    bindings = {'root_task': {'id': 'task', 'project_id': 'project', 'goal': 'Generated task', 'state': 'draft'},
+                'approved_grant': grant, 'child_planning': {'schema_version': 1, 'authority_kind': 'factory_child_planning_only',
+                  'policy': copy.deepcopy(policy), 'owner_rule_id': 'factory-child-owner-review', 'input_rule_id': 'factory-child-input-sha256',
+                  'validator_definitions': {}, 'definition_digest': 'd' * 64, 'goal_execution_authorized': False, 'new_workspace_authorized': False},
+                'unknown_preserved': {'controls': '\u061c\u2028\n', 'list': [False, 0, 1.5]}}
+    proposal = {'id': 'factory-proposal', 'kind': 'factory', 'consumed': False, 'revision': 1,
+                'snapshot': {'schema_version': 1, 'selection': selection, 'bindings': bindings, 'contract_digest': 'c' * 64},
+                'created_at': 'generated', 'expires_at_ms': 9999999999999}
+    before = {'read_only': True, 'schema_version': 14, 'sequence': 20, 'proposal': copy.deepcopy(proposal),
+              'proposal_result': None, 'grants': [copy.deepcopy(grant)], 'events': [], 'counts': COUNTS.copy(),
+              'grant_documents': {'grant': runner.json.dumps(grant)}, 'other_proposals': {'connection': 'original raw connection'},
+              'task_documents': {'task': 'original raw task'}, 'scopes': [], 'dispatch_intents': 0}
+    fixture = {'kind': runner.FACTORY_KIND, 'proposal': proposal, 'phase': 'cancel', 'review_nonce': 'f' * 32}
+    return fixture, before
+
+
+def factory_approved():
+    fixture, before = factory_pending()
+    proposal = fixture['proposal']
+    scope = {'id': proposal['id'], 'approval_id': proposal['id'], 'root_task_id': 'task', 'project_id': 'project',
+             'root_grant_id': 'grant', 'root_grant_revision': 1, 'revision': 1, 'revoked': False,
+             'selection': copy.deepcopy(proposal['snapshot']['selection']), 'bindings': copy.deepcopy(proposal['snapshot']['bindings']),
+             'contract_digest': proposal['snapshot']['contract_digest'], 'created_at': 'generated', 'expires_at_ms': 9999999999999}
+    after = copy.deepcopy(before)
+    after['sequence'] = 21
+    after['proposal']['consumed'] = True
+    after['proposal']['revision'] = 2
+    after['proposal_result'] = copy.deepcopy(scope)
+    after['scopes'] = [{'document': copy.deepcopy(scope), 'owner_sequence': 21}]
+    after['counts']['factory_scopes'] = 1
+    after['events'].append({'aggregate_id': proposal['id'], 'kind': 'approval.confirmed', 'source': 'local_owner_confirmation',
+        'revision': 2, 'sequence': 21, 'payload': {'kind': 'factory', 'factory_scope_id': proposal['id'],
+        'contract_digest': scope['contract_digest'], 'root_task_id': 'task', 'root_grant_id': 'grant',
+        'original_grant_revision_unchanged': 1, 'spawned': False, 'authority': 'independent_task_delegation_only'}})
+    return fixture, before, after, {'result': copy.deepcopy(scope)}
+
+
+class FactoryPlanningControls(unittest.TestCase):
+    @staticmethod
+    def source():
+        return (ROOT / 'apps/desktop/src-tauri/src/approval.rs').read_text()
+
+    def test_complete_factory_outer_messages_contain_exact_snapshot_all_fields_and_utf8(self):
+        fixture, _ = factory_pending()
+        p = fixture['proposal']
+        # Force a UTF8 split across the original12KiB outer page boundary.
+        p['snapshot']['bindings']['unknown_long'] = '😀中{page}' * 1800
+        messages = runner.factory_messages(p, self.source())
+        segments = [message.split('\n\n', 2)[2] for message in messages[:-1]]
+        self.assertEqual(''.join(segments).encode(), runner.compact(p['snapshot']))
+        self.assertGreater(len(messages), 2)
+        self.assertTrue(all('PLAN STORAGE ONLY' in m and '不授予子Goal执行' in m for m in messages))
+        self.assertIn('FINAL independent Factory approval', messages[-1])
+        self.assertNotIn('{}', messages[0].split('\n\n', 2)[1])
+
+    def test_nested_fulltext_reconstruction_keeps_every_outer_callback_and_inner_final(self):
+        fixture, _ = factory_pending()
+        messages, pages, contexts = runner.factory_presentation(fixture['proposal'], self.source())
+        for outer, message in enumerate(messages):
+            group = [(p, c) for p, c in zip(pages, contexts) if c['outer_index'] == outer]
+            rows = []
+            for page, context in group:
+                self.assertEqual(context['outer_count'], len(messages))
+                for line in page.splitlines():
+                    if line.startswith('L'):
+                        rows.append(runner.json.loads(line.split(' ', 1)[1]))
+            self.assertEqual(''.join(rows).encode(), message.encode())
+            self.assertTrue(group[-1][1]['inner_final'])
+            self.assertIn('FINAL display confirmation', group[-1][0])
+        self.assertTrue(contexts[-1]['outer_final'] and contexts[-1]['inner_final'])
+
+    def test_factory_compact_fixture_preserves_proposal_and_does_not_raise64k(self):
+        fixture, before = factory_pending()
+        p = fixture['proposal']
+        value, pages, contexts = runner.factory_fixture(p, {'selection': p['snapshot']['selection'], 'idempotencyKey': runner.FACTORY_KEY}, Path('/generated'), Path('/evidence'), before, self.source(), 'cancel')
+        self.assertTrue(runner.json_exact(value['proposal'], p))
+        self.assertNotIn('presentation', value)
+        self.assertNotIn('message', value)
+        self.assertEqual(value['presentation_sha256'], runner.digest(pages))
+        self.assertEqual(value['presentation_count'], len(contexts))
+        p['snapshot']['bindings']['large_complete_field'] = 'x' * 65536
+        with self.assertRaisesRegex(ValueError, '64KiB'):
+            runner.factory_fixture(p, {}, Path('/g'), Path('/e'), before, self.source(), 'cancel')
+
+    def test_each_factory_display_page_requires_original_grant_and_zero_finalize(self):
+        fixture, before = factory_pending()
+        self.assertIsNone(runner.factory_pending_error(before, fixture, before))
+        for table in runner.ZERO_TABLES:
+            changed = copy.deepcopy(before)
+            changed['counts'][table] = 1
+            self.assertIsNotNone(runner.factory_pending_error(changed, fixture, before), table)
+        for key, wrong in [('sequence', 21), ('schema_version', 14.0), ('dispatch_intents', True),
+                           ('grant_documents', {'grant': 'changed raw bytes'}), ('other_proposals', {}),
+                           ('task_documents', {}), ('proposal_result', {'id': 'factory-proposal'})]:
+            changed = copy.deepcopy(before)
+            changed[key] = wrong
+            self.assertIsNotNone(runner.factory_pending_error(changed, fixture, before), key)
+
+    def test_exact_factory_commit_is_only_one_scope_one_event_no_other_mutation(self):
+        fixture, before, after, reply = factory_approved()
+        self.assertIsNone(runner.factory_approved_error(after, fixture, before, reply))
+        for key, wrong in [('sequence', 22), ('sequence', 21.0), ('schema_version', 13),
+                           ('dispatch_intents', 1), ('grant_documents', {}), ('other_proposals', {}), ('task_documents', {}),
+                           ('scopes', []), ('events', []), ('counts', {})]:
+            changed = copy.deepcopy(after)
+            changed[key] = wrong
+            self.assertIsNotNone(runner.factory_approved_error(changed, fixture, before, reply), key)
+        for table in runner.ZERO_TABLES:
+            changed = copy.deepcopy(after)
+            changed['counts'][table] += 1
+            self.assertIsNotNone(runner.factory_approved_error(changed, fixture, before, reply), table)
+
+    def test_factory_receipt_policy_scope_digest_and_three_independent_records_exact(self):
+        fixture, before, after, reply = factory_approved()
+        for field, bad in [('id', 'foreign'), ('approval_id', 'foreign'), ('revision', True), ('root_grant_revision', 1.0),
+                           ('revoked', 0), ('selection', {}), ('bindings', {}), ('contract_digest', 'e' * 64)]:
+            changed = runner.json.loads(runner.json.dumps(reply))
+            changed['result'][field] = bad
+            self.assertIsNotNone(runner.factory_approved_error(after, fixture, before, changed), field)
+        # Self-consistent expanded receipts still cannot exceed approved selection.
+        for capability in ['child_goal_execution', 'create_workspace']:
+            changed = copy.deepcopy(after); response = copy.deepcopy(reply)
+            for value in [changed['proposal_result'], changed['scopes'][0]['document'], response['result']]:
+                value['selection']['capabilities'][capability] = True
+            self.assertIsNotNone(runner.factory_approved_error(changed, fixture, before, response))
+
+    def test_outer_inner_nonce_title_and_exact_page_text_are_all_required(self):
+        fixture, before = factory_pending()
+        value, pages, contexts = runner.factory_fixture(fixture['proposal'], {}, Path('/g'), Path('/e'), before, self.source(), 'cancel')
+        observed = {'phase': 'cancel', 'presentation_index': 0, 'presentation_count': len(pages),
+                    'proposal_id': value['proposal']['id'], 'proposal_revision': 1, 'message': pages[0],
+                    'title': runner.FACTORY_TITLE, 'parent_matches': True, 'visible': True, 'complete_text_visible': True,
+                    'review_nonce': value['review_nonce'], 'factory_page': contexts[0]}
+        self.assertIsNone(runner.factory_presentation_error(observed, value, pages, contexts, 0))
+        for field, wrong in [('review_nonce', '0' * 32), ('factory_page', contexts[-1]), ('title', 'AgentBaton — Native owner approval'),
+                             ('message', pages[0][:-1]), ('presentation_index', False), ('presentation_count', float(len(pages))),
+                             ('complete_text_visible', False), ('proposal_revision', True)]:
+            changed = copy.deepcopy(observed); changed[field] = wrong
+            self.assertIsNotNone(runner.factory_presentation_error(changed, value, pages, contexts, 0), field)
+        changed = copy.deepcopy(observed)
+        changed['factory_page']['outer_index'] = 0.0
+        self.assertIsNotNone(runner.factory_presentation_error(changed, value, pages, contexts, 0))
+
+    def test_target_factory_finalization_is_never_available_to_bootstrap_host(self):
+        class Client:
+            runtime = Path('/no-runtime')
+        grant, _ = pending()
+        client = runner.FactoryBootstrapClient(Client(), grant)
+        for params, key, revision in [({'proposal_id': 'factory-proposal'}, 'proposal:factory-proposal', 1),
+                                       ({'proposal_id': grant['id']}, 'wrong-key', 1),
+                                       ({'proposal_id': grant['id']}, 'proposal:' + grant['id'], True)]:
+            with self.assertRaisesRegex(ValueError, 'NEVER Factory'):
+                client.request('approvals.finalize', params, key, revision)
+        for method in ['factory_runs.start', 'factory_child_plans.submit', 'sessions.start', 'grants.delegate']:
+            with self.assertRaisesRegex(ValueError, 'fixed Factory'):
+                client.request(method, {}, 'key')
+
+    def test_factory_linux_is_not_run_and_creates_no_fixture(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / 'not-created'
+            with mock.patch.object(runner.sys, 'platform', 'linux'):
+                with self.assertRaisesRegex(RuntimeError, 'NOT_RUN'):
+                    runner.run_factory(Path('/missing'), Path('/missing'), Path('/missing'), output)
+            self.assertFalse(output.exists())
+
+    def test_invalid_phase_cancel_index_unsupported_kind_cannot_become_grant(self):
+        fixture, before = factory_pending()
+        for phase, index in [('unknown', 0), ('cancel', True), ('cancel', 1.0), ('cancel', -1), ('cancel', 10000)]:
+            with self.assertRaises(ValueError):
+                runner.factory_fixture(fixture['proposal'], {}, Path('/g'), Path('/e'), before, self.source(), phase, index)
+        source = (ROOT / 'apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs').read_text()
+        self.assertIn('controller::prepare_factory(&mut expected)?', source)
+        self.assertIn('expected["kind"] != "native_grant_os_dialog_fixture"', source)
+        self.assertIn('factory_scope_approve', source)
+
+    def test_presentation_mirror_and_native_production_sources_are_mechanically_bound(self):
+        parent = (ROOT / 'apps/desktop/src-tauri/src/native_parent.rs').read_text()
+        controller = (ROOT / 'apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs').read_text()
+        original = parent.split('fn review_prompts(', 1)[1].split('\nfn present_complete(', 1)[0]
+        mirror = controller.split('pub fn mirrored_review_prompts(', 1)[1].split('\npub fn validate(', 1)[0]
+        self.assertEqual(''.join(original.split()), ''.join(mirror.split()))
+        shipping = self.source().split('pub fn confirm_factory_and_finalize(', 1)[1].split('\n#[cfg(test)]', 1)[0]
+        mirror_factory = controller.split('pub fn factory_messages(', 1)[1].split('pub fn prepare_factory(', 1)[0]
+        # The three production action/page/final literal strings must all appear
+        # byte-for-byte in the Rust test mirror. Full byte reconstruction tested above.
+        literals = [runner.re.search(pattern, shipping, runner.re.S).group(1) for pattern in [
+            r'let action = if .*?\{\s*("(?:[^"\\]|\\.)*")',
+            r'let message\s*=\s*format!\(\s*("(?:[^"\\]|\\.)*")',
+            r'if !confirm_native\(&format!\(\s*("(?:[^"\\]|\\.)*")']]
+        for literal in literals:
+            self.assertIn(literal, mirror_factory)
+
+    def test_old_or_future_schema_refused_before_any_factory_resource_approval(self):
+        proposal, initial = pending()
+        for schema in [12, 13, 14.0, 15]:
+            changed = copy.deepcopy(initial)
+            changed['schema_version'] = schema
+            with mock.patch.object(runner, 'database', return_value=changed), mock.patch.object(runner, 'FactoryBootstrapClient') as host:
+                with self.assertRaisesRegex(ValueError, 'schema'):
+                    runner.prepare_factory({'runtime': Path('/generated'), 'proposal': proposal, 'client': object()})
+                host.assert_not_called()
+
+    def test_real_core_factory_preparation_is_schema14_complete_and_never_finalizes_target(self):
+        daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
+        self.assertTrue((daemon.parent / 'baton').is_file(), 'Use matching same-head14 tools, not an old companion')
+
+        def observe_tool(path):
+            before = path.lstat()
+            if not runner.stat.S_ISREG(before.st_mode):
+                raise AssertionError('Fixture tool must be a regular file, not a symlink or special file')
+            digest, size = runner.hashlib.sha256(), 0
+            descriptor = os.open(path, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0))
+            try:
+                opened = os.fstat(descriptor)
+                fields = ('st_dev', 'st_ino', 'st_nlink', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+                if any(getattr(before, field) != getattr(opened, field) for field in fields):
+                    raise AssertionError('Fixture tool changed before reading')
+                while chunk := os.read(descriptor, 65536):
+                    digest.update(chunk)
+                    size += len(chunk)
+                after = os.fstat(descriptor)
+                live = path.lstat()
+                if (size != before.st_size or any(getattr(before, field) != getattr(after, field) for field in fields)
+                        or any(getattr(before, field) != getattr(live, field) for field in fields)):
+                    raise AssertionError('Fixture tool changed during reading')
+                return {'path': str(path), 'canonical': str(path.resolve(strict=True)), 'device': before.st_dev,
+                        'inode': before.st_ino, 'nlink': before.st_nlink, 'mode': runner.stat.S_IMODE(before.st_mode),
+                        'bytes': size, 'sha256': digest.hexdigest()}
+            finally:
+                os.close(descriptor)
+
+        def prepare_tools(raw_daemon, directory):
+            # Match run_factory's existing private sibling-tool semantics. Cargo
+            # may hardlink target/debug to deps; the production nlink1 guard stays.
+            sources = {'batond': raw_daemon, 'baton': raw_daemon.parent / 'baton'}
+            before = {name: observe_tool(path) for name, path in sources.items()}
+            directory.mkdir(mode=0o700)
+            directory = directory.resolve(strict=True)
+            for name, path in sources.items():
+                destination = directory / name
+                with path.open('rb') as reader, destination.open('xb') as writer:
+                    for chunk in iter(lambda: reader.read(65536), b''):
+                        writer.write(chunk)
+                destination.chmod(0o500)
+            copied = {name: observe_tool(directory / name) for name in sources}
+            after = {name: observe_tool(path) for name, path in sources.items()}
+            if before != after:
+                raise AssertionError('Original Cargo/frozen tool inode/link/mode/hash changed')
+            if runner.stat.S_IMODE(directory.stat().st_mode) != 0o700:
+                raise AssertionError('Private sibling tool directory must be0700')
+            for name in sources:
+                if (copied[name]['sha256'] != before[name]['sha256'] or copied[name]['bytes'] != before[name]['bytes']
+                        or copied[name]['nlink'] != 1 or copied[name]['mode'] != 0o500
+                        or copied[name]['canonical'] != str(directory / name)):
+                    raise AssertionError('Private tool copy must retain exact bytes,0500,nlink1,canonical path')
+            return directory, {'source_before': before, 'source_after_copy': after, 'copied': copied}
+
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary).resolve(strict=True)
+            installed, tool_record = prepare_tools(daemon, output / 'private-tools')
+            runner.save(output / 'fixture-tools.json', tool_record)
+            bootstrap_output = output / 'bootstrap'
+            bootstrap_output.mkdir(mode=0o700)
+            original_failure = None
+            try:
+                with runner.bootstrap(installed / 'batond', bootstrap_output, factory_planning=True) as generated:
+                    proposal, invoke = runner.prepare_factory(generated)
+                    before = runner.factory_database(generated['runtime'], proposal['id'])
+                    fixture, pages, contexts = runner.factory_fixture(proposal, invoke, generated['runtime'], output, before, self.source(), 'cancel')
+                    self.assertIsNone(runner.factory_pending_error(before, fixture, before))
+                    self.assertEqual(before['grants'][0]['scope']['max_duration_ms'], 300000)
+                    self.assertEqual(before['grants'][0]['scope']['max_children'], 0)
+                    self.assertEqual(before['counts']['factory_scopes'], 0)
+                    self.assertEqual(len(before['counts']), 30)
+                    self.assertGreater(len(pages), 2)
+                    self.assertEqual(contexts[-1]['outer_final'], True)
+                    self.assertEqual(proposal['snapshot']['bindings']['child_planning']['policy'], invoke['selection']['child_planning_policy'])
+                    self.assertFalse(any(row['method'] == 'approvals.finalize' and row['params'] == {'proposal_id': proposal['id']} for row in generated['client'].transcript))
+                    print('REAL_CORE_FACTORY_NATIVE_FIXTURE=' + runner.json.dumps({'fixture': fixture, 'before': before, 'dimension': 'actual Core preparation only; NO Native OS and NO Factory finalize'}))
+                self.assertTrue(runner.json.loads((bootstrap_output / 'daemon-cleanup.json').read_text())['ok'])
+            except BaseException as error:
+                original_failure = {'type': type(error).__name__, 'message': str(error)}
+                raise
+            finally:
+                tool_record['original_failure'] = original_failure
+                tool_record['source_after_test'] = {name: observe_tool(Path(info['path'])) for name, info in tool_record['source_before'].items()}
+                tool_record['copied_after_test'] = {name: observe_tool(installed / name) for name in tool_record['copied']}
+                runner.save(output / 'fixture-tools.json', tool_record)
+                self.assertEqual(tool_record['source_before'], tool_record['source_after_test'])
+                self.assertEqual(tool_record['copied'], tool_record['copied_after_test'])
+
+
+class FactoryEvidenceClosureControls(unittest.TestCase):
+    def test_other_proposal_complete_typed_raw_result_changes_never_look_unchanged(self):
+        # One real SQLite table with the exact three-column shape; generated
+        # unit data only, NOT an actual Core migration/runtime or Owner result.
+        cases = [('receipt', 'changed'), (None, 'null'), ('null', None),
+                 ('null', b'null'), ('', None), ('中文😀', '中文😀'.encode())]
+        for original, changed in cases:
+            with self.subTest(original=repr(original), changed=repr(changed)), sqlite3.connect(':memory:') as conn:
+                conn.execute('CREATE TABLE approval_proposals(id TEXT PRIMARY KEY,document TEXT NOT NULL,result TEXT)')
+                conn.execute('INSERT INTO approval_proposals VALUES(?,?,?)', ('other', '{"consumed":true,"expires_at_ms":999}', original))
+                before = runner.other_proposal_rows(conn, 'target')
+                conn.execute('UPDATE approval_proposals SET result=?', (changed,))
+                after = runner.other_proposal_rows(conn, 'target')
+                self.assertFalse(runner.json_exact(before, after))
+                self.assertEqual(before['other']['document'], after['other']['document'])
+                self.assertIn(before['other']['result']['sqlite_type'], ['null', 'text', 'blob'])
+        for document in ['{"consumed":false,"expires_at_ms":999}', '{"consumed":true,"expires_at_ms":1000}']:
+            with self.subTest(document=document), sqlite3.connect(':memory:') as conn:
+                conn.execute('CREATE TABLE approval_proposals(id TEXT PRIMARY KEY,document TEXT NOT NULL,result TEXT)')
+                conn.execute('INSERT INTO approval_proposals VALUES(?,?,?)', ('other', '{"consumed":true,"expires_at_ms":999}', 'receipt'))
+                before = runner.other_proposal_rows(conn, 'target')
+                conn.execute('UPDATE approval_proposals SET document=?', (document,))
+                self.assertFalse(runner.json_exact(before, runner.other_proposal_rows(conn, 'target')))
+        self.assertNotEqual(runner.sqlite_raw(None, 'null'), runner.sqlite_raw('null', 'text'))
+        self.assertNotEqual(runner.sqlite_raw('null', 'text'), runner.sqlite_raw(b'null', 'blob'))
+        with self.assertRaises(ValueError):
+            runner.sqlite_raw(True, 'integer')
+
+    def test_native_binary_exact_source_path_hash_size_stays_bound_without_resource_relocation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            executable = root / runner.NATIVE_OWNER_BINARY
+            executable.write_bytes(b'Synthetic file metadata fixture, NEVER executed\n')
+            executable.chmod(0o700)
+            output = root / 'evidence'; output.mkdir(mode=0o700)
+            with runner.native_binary_witness(executable, output) as record:
+                self.assertEqual(record['path'], str(executable.resolve()))
+                self.assertEqual(record['bytes'], executable.stat().st_size)
+                self.assertEqual(record['sha256'], runner.hashlib.sha256(executable.read_bytes()).hexdigest())
+                self.assertTrue(runner.native_binary_check(record)['stable'])
+            before = runner.json.loads((output / 'native-binary-before.json').read_text())
+            after = runner.json.loads((output / 'native-binary-after.json').read_text())
+            self.assertTrue(after['stable'])
+            self.assertEqual(before['source'], before['executed'])
+            self.assertIn('no Native copy', before['resource_contract'])
+            changed_output = root / 'changed'; changed_output.mkdir(mode=0o700)
+            with self.assertRaisesRegex(RuntimeError, 'changed'):
+                with runner.native_binary_witness(executable, changed_output):
+                    executable.write_bytes(b'changed source bytes')
+            self.assertFalse(runner.json.loads((changed_output / 'native-binary-after.json').read_text())['stable'])
+
+    def test_native_binary_wrong_file_types_never_open_and_original_failure_is_retained(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for mode in ['fifo', 'directory', 'symlink', 'default-app', 'writable']:
+                with self.subTest(mode=mode):
+                    folder = root / mode; folder.mkdir()
+                    executable = folder / runner.NATIVE_OWNER_BINARY
+                    if mode == 'fifo':
+                        os.mkfifo(executable, mode=0o700)
+                    elif mode == 'directory':
+                        executable.mkdir()
+                    elif mode == 'symlink':
+                        target = folder / 'target'; target.write_bytes(b'never executed'); target.chmod(0o700)
+                        executable.symlink_to(target)
+                    elif mode == 'default-app':
+                        executable = folder / 'agentbaton-desktop'; executable.write_bytes(b'not a test binary'); executable.chmod(0o700)
+                    else:
+                        executable.write_bytes(b'never executed'); executable.chmod(0o777)
+                    with mock.patch.object(runner.os, 'open') as open_file:
+                        with self.assertRaises(ValueError):
+                            runner.native_binary_record(executable)
+                        open_file.assert_not_called()
+            executable = root / runner.NATIVE_OWNER_BINARY
+            executable.write_bytes(b'not executed'); executable.chmod(0o700)
+            output = root / 'failure'; output.mkdir(mode=0o700)
+            with self.assertRaisesRegex(RuntimeError, 'original deadline cause'):
+                with runner.native_binary_witness(executable, output):
+                    executable.write_bytes(b'changed after original failure')
+                    raise RuntimeError('original deadline cause')
+            report = runner.json.loads((output / 'native-binary-after.json').read_text())
+            self.assertFalse(report['stable'])
+            self.assertEqual(report['original_failure'], {'type': 'RuntimeError', 'message': 'original deadline cause'})
+
+    def test_factory_postcheck_and_cleanup_failures_are_secondary_to_original_error(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            with mock.patch.object(runner, 'stop_owned', side_effect=RuntimeError('cleanup fault')), mock.patch.object(runner, 'native_binary_check', return_value={'stable': False, 'error': 'changed'}):
+                # Mock-only cleanup failure control, no process/Native execution.
+                runner._finish_factory_app(None, {}, output, {'type': 'TimeoutError', 'message': 'first cause'})
+                record = runner.json.loads((output / 'secondary-cleanup-errors.json').read_text())
+                self.assertEqual(record['original_failure']['message'], 'first cause')
+                self.assertEqual([x['stage'] for x in record['secondary']], ['owned_app_cleanup', 'native_binary_postcheck'])
+                with self.assertRaisesRegex(RuntimeError, 'owned_app_cleanup'):
+                    runner._finish_factory_app(None, {}, output, None)
 
 
 if __name__ == '__main__':

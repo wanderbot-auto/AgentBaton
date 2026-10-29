@@ -1,0 +1,34 @@
+# 52ee Factory browser start acknowledgement — independent review
+
+Verdict: **PASS / source-ready for the next actual run**, with no blocking source finding. This is a finite source/pure-control review, not a Core/browser/runtime success, product acceptance, Native/macOS result, formal GitHub approval, or merge authorization.
+
+Subject: `52ee7ab93b4238ea2c642dbb19f58a9930e21e38`, compared with `744bf29d255b618c54a905dff72a784942903f83`; `apps/desktop/tests/factory-real-ipc.py` SHA-256 `ad0f5b6ac01214e13852ee330412dd878c56a72cb987f795b697e5079b276b63`. Git-fixed bytes were exported into this directory; author source was not edited. The author tree HEAD had later documentation commits; this review uses the fixed source commit, not an assumed HEAD.
+
+## Findings and boundaries
+
+The host records the decoded real start call as inflight before invoking the private Core socket, retaining method, exact scope params, expected revision, actual decoded idempotency key, and original HTTP-body digest. It attaches the actual Core value and original reply-byte digest, sends those same bytes, and sets `response_complete=True` only after the complete writer returns successfully. The standard library HTTP server uses its socket writer, not a manufactured renderer completion. This is server-side completed response writing; it does not establish browser JSON consumption or a response-drop recovery guarantee.
+
+The confirmation guard requires exactly one start, exact scope/revision, a legal nonempty actual key, exact success-envelope/result key sets, strict integer revision types, the complete queued receipt, project/root binding, no active task/session/error/cancel, explicit context continuation, and matching nonempty creation/update timestamps. Pending inflight writes do not enable an observer or run query. Duplicate or malformed entries and any HTTP unexpected error fail. The original final unique-start/replay/CAS checks remain. There is no new NOT_FOUND or arbitrary-error suppression. The same private socket call produces the response; the existing `PrivateHost.wire` implementation is unchanged.
+
+The deadline is created before the UI click. Confirmation and normal/unknown terminal observation share that original 15-second deadline. Cancellation confirmation and its first fixture wait share that deadline; the subsequent intent/terminal phase retains its original timeout. The existing bounded socket/click operations are not rewritten as hard realtime preemption: each shared wait checks expiry before and after its iteration and cannot pass after exhausting the shared budget. No product budget, TTL, runtime, observer, or cleanup timeout is increased.
+
+Mechanical comparison found only the new `confirmed_start_response` top-level helper and changes inside `runtime_driver`. Every other existing top-level function/class, including HTTP decoders, immutable record collector, controller reaper, cleanup, preflight, generated ACP lifecycle, and meter checks, is byte-identical. All original assertion ASTs are retained in order. Existing runtime nested helpers are identical except the intended `wait`/`Handler.do_POST` portions. Owner authority stays outside HTTP; no generic/approval endpoint or provider/model credential was added. Old 744's ten frozen files and manifest rehashed unchanged.
+
+## Actual independent commands and results
+
+All commands used `PYTHONDONTWRITEBYTECODE=1`. No Cargo, target write, actual daemon, browser, listener, Provider/model, source mutation, dependency install, remote operation, CI trigger or formal approval occurred.
+
+- `python3 prepare.py` — exit 0: fixed Git source export/SHA, compile, diff-check, preservation checks, old 744 manifest, and original failure-report audit (`prepare.log`, `static-proof.json`).
+- `python3 controlled-order.py` — exit 0: 26 controlled trace/clock tests using the exact exported confirmation helper and nested wait AST; only the author control's subject path was adapted. Covers inflight/pending/completed, duplicate, binding/type/result errors, late acknowledgement, exhausted shared normal/cancel deadline, and no query before acknowledgement (`results.json`, stdout/stderr). These are deterministic unit clocks and synthetic trace DTOs.
+- `python3 source-after.py --self-check --output .../boundary` — exit 0, 63 boundary tests.
+- `python3 subject/tests/factory-real-ipc.py --fixture-self-check --output .../fixture-complete` — exit 0, 13 fixture/version-only tests, using the exact fixed Git fixture and support script. Version-only generated local process is not Core/runtime execution.
+- Same fixed script `--cleanup-self-check` and `--diagnostic-self-check` — exit 0, 28 and 25 respectively. Stubbed identity/gone portions are units, not actual stop/join proof.
+- `python3 handler-controls.py` — exit 0: 11 additional independent controls executing the exact nested Handler AST with a synthetic decoded request/private-host response and controlled writer. Success remains inflight during writing then completes; Core/header/BrokenPipe/reset failure remains incomplete and explicitly erroneous, never accepted. Extra typed/unknown-field/request-id controls reject malformed receipts. No HTTP socket is opened.
+
+The initial isolated runner lacked the support file; after exporting it, the fixture runner's flat layout lacked the expected relative fixture. Both original failures/logs are retained (`initial-missing-support-*`, `initial-flat-fixture-*`). The fixture was then exported into its expected private layout and only the remaining tests resumed. The initial reviewer Handler double omitted `Headers.get_all`'s default argument; its script/log are retained, then the double was corrected, with the fixed source unchanged. These were reviewer harness preparation errors, not product failures or reasons to remove assertions.
+
+## Preserved actual prior failure
+
+`prior-runtime-failure-report.json` is an exact copy of Root's `reviewed-db949-744-normal/evidence/report.json`, SHA recorded in `static-proof.json`: status failed, 2 checks/2 PNG references, wrong-CAS correctly STALE_REVISION/not_started. The early authenticated get was NOT_FOUND/revision 13; the subsequently recorded actual HTTP start reply was queued/revision 14; the later diagnostic get was running/revision 19 with task starting. These are distinct observations and are not combined as one atomic state or a completed workflow. The report also retains the actual mutation BrokenPipe and incomplete identity cleanup; no missing raw/Core state was invented. PNG references are not image inspection, and this review does not claim to have viewed them. The original source/runtime archive was not modified.
+
+Next: Root may run its already authorized actual normal/cancel/unknown flows against the exact intended Core/UI candidate. This source-ready decision does not stand in for those results or new CI/macOS/package evidence.

@@ -112,7 +112,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal execution counts")?;
     if !valid_goal_execution_counts(&snapshot) {
         return Err(
-            "Goal execution fixture must have schema12 and no run/node/reservation authority"
+            "Goal execution fixture must have schema14 and no run/node/reservation authority"
                 .into(),
         );
     }
@@ -120,7 +120,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
 }
 fn valid_goal_execution_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 5)
-        && value["schema_version"].as_u64() == Some(12)
+        && value["schema_version"].as_u64() == Some(14)
         && ["run_count", "node_count", "reservation_count"]
             .iter()
             .all(|key| value[*key].as_u64() == Some(0))
@@ -223,7 +223,7 @@ db.close()
 
 fn valid_goal_graph_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 8)
-        && value["schema_version"].as_u64() == Some(12)
+        && value["schema_version"].as_u64() == Some(14)
         && GOAL_GRAPH_COUNT_FIELDS
             .iter()
             .all(|key| value[*key].as_u64() == Some(0))
@@ -238,7 +238,7 @@ fn goal_graph_database_snapshot(runtime: &Path) -> Result<Value, String> {
     let snapshot: Value =
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal graph counts")?;
     if !valid_goal_graph_counts(&snapshot) {
-        return Err("Goal graph fixture must have schema12 and six empty graph tables".into());
+        return Err("Goal graph fixture must have schema14 and six empty graph tables".into());
     }
     Ok(snapshot)
 }
@@ -322,6 +322,152 @@ fn validate_goal_graph_evidence(result: &Value, report: &Value) -> Result<(), St
         || missing["side_effect_state"] != "not_started"
     {
         return Err("missing, fabricated or changed readonly Goal graph evidence".into());
+    }
+    Ok(())
+}
+
+const MISSING_FACTORY_SCOPE_ID: &str = "native-readonly-missing-factory-scope";
+const FACTORY_COUNT_FIELDS: [&str; 11] = [
+    "scopes",
+    "runs",
+    "task_lineage",
+    "task_bindings",
+    "delegations",
+    "attempts",
+    "scoped_handles",
+    "handoffs",
+    "budget_reservations",
+    "child_plan_heads",
+    "child_plan_revisions",
+];
+const FACTORY_READONLY_SQL: &str = r#"
+import json,sqlite3,sys
+from pathlib import Path
+db=sqlite3.connect(Path(sys.argv[1]).resolve().as_uri()+'?mode=ro',uri=True,timeout=1,isolation_level=None)
+db.execute('PRAGMA query_only=ON')
+db.execute('BEGIN')
+schema=db.execute('PRAGMA user_version').fetchone()[0]
+tables=('factory_scopes','factory_runs','factory_task_lineage','factory_task_bindings','factory_delegations','factory_attempts','factory_scoped_handles','factory_handoffs','factory_budget_reservations','factory_child_plan_heads','factory_child_plan_revisions')
+fields=('scopes','runs','task_lineage','task_bindings','delegations','attempts','scoped_handles','handoffs','budget_reservations','child_plan_heads','child_plan_revisions')
+counts=[db.execute('SELECT count(*) FROM '+table).fetchone()[0] for table in tables]
+sequence=db.execute('SELECT COALESCE(max(sequence),0) FROM events').fetchone()[0]
+print(json.dumps(dict(schema_version=schema,sequence=sequence,**dict(zip(fields,counts)))))
+db.close()
+"#;
+fn valid_factory_counts(value: &Value) -> bool {
+    value.as_object().is_some_and(|record| record.len() == 13)
+        && value["schema_version"].as_u64() == Some(14)
+        && value["sequence"].as_u64().is_some()
+        && FACTORY_COUNT_FIELDS
+            .iter()
+            .all(|field| value[*field].as_u64() == Some(0))
+}
+fn factory_database_snapshot(runtime: &Path) -> Result<Value, String> {
+    let mut command = Command::new("python3");
+    command
+        .args(["-I", "-S", "-c", FACTORY_READONLY_SQL])
+        .arg(runtime.join("baton.sqlite3"));
+    let bytes = bounded_goal_query(command)?;
+    let snapshot: Value =
+        serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Factory counts")?;
+    if !valid_factory_counts(&snapshot) {
+        return Err(
+            "Factory fixture requires exact schema14 and eleven independently empty tables".into(),
+        );
+    }
+    Ok(snapshot)
+}
+fn record_factory_checkpoint(
+    phase: u8,
+    label: &str,
+    report: &mut Value,
+    checkpoint: &str,
+    snapshot: Value,
+) -> Result<(), String> {
+    if phase != 0
+        || label != "main"
+        || !["before", "after"].contains(&checkpoint)
+        || !valid_factory_counts(&snapshot)
+        || [
+            "goal_readonly_database",
+            "goal_execution_readonly_database",
+            "goal_graph_readonly_database",
+        ]
+        .iter()
+        .any(|name| report[*name][checkpoint]["sequence"] != snapshot["sequence"])
+    {
+        return Err(
+            "readonly Factory checkpoint is outside the exact schema/phase/original interval"
+                .into(),
+        );
+    }
+    match checkpoint {
+        "before" if report.get("factory_readonly_database").is_none() => {
+            report["factory_readonly_database"] = json!({"read_only":true,"before":snapshot});
+        }
+        "after"
+            if report["factory_readonly_database"]["before"] == snapshot
+                && report["factory_readonly_database"]
+                    .as_object()
+                    .is_some_and(|record| record.len() == 2) =>
+        {
+            report["factory_readonly_database"]["after"] = snapshot;
+            report["factory_readonly_database"]["unchanged"] = json!(true);
+        }
+        _ => {
+            return Err(
+                "Factory readonly counts/sequence drifted or checkpoint was repeated".into(),
+            )
+        }
+    }
+    Ok(())
+}
+fn validate_factory_evidence(result: &Value, report: &Value) -> Result<(), String> {
+    let database = &report["factory_readonly_database"];
+    let sequence = &result["factoryReadonlySequence"];
+    let missing_scope = &result["factoryMissingScope"];
+    let missing_run = &result["factoryMissingRun"];
+    if [
+        "factoryScopeLists",
+        "factoryMissingScopeDenied",
+        "factoryMissingRunDenied",
+        "readonlyFactoryNoMutation",
+    ]
+    .iter()
+    .any(|flag| result[*flag] != true)
+        || database["read_only"] != true
+        || database["unchanged"] != true
+        || !database.as_object().is_some_and(|record| record.len() == 4)
+        || !valid_factory_counts(&database["before"])
+        || !valid_factory_counts(&database["after"])
+        || database["before"] != database["after"]
+        || !sequence.as_object().is_some_and(|record| record.len() == 2)
+        || ["before", "after"].iter().any(|phase| {
+            sequence[*phase].as_u64().is_none()
+                || sequence[*phase] != database[*phase]["sequence"]
+                || [
+                    "goal_readonly_database",
+                    "goal_execution_readonly_database",
+                    "goal_graph_readonly_database",
+                ]
+                .iter()
+                .any(|name| database[*phase]["sequence"] != report[*name][*phase]["sequence"])
+                || [
+                    "goalReadonlySequence",
+                    "goalExecutionReadonlySequence",
+                    "goalGraphReadonlySequence",
+                ]
+                .iter()
+                .any(|name| sequence[*phase] != result[*name][*phase])
+        })
+        || [missing_scope, missing_run].iter().any(|missing| {
+            !missing.as_object().is_some_and(|record| record.len() == 3)
+                || missing["scope_id"] != MISSING_FACTORY_SCOPE_ID
+                || missing["code"] != "NOT_FOUND"
+                || missing["side_effect_state"] != "not_started"
+        })
+    {
+        return Err("Missing, fabricated or changed readonly Factory evidence".into());
     }
     Ok(())
 }
@@ -801,12 +947,13 @@ fn native_smoke_report(
             if state.phase.load(Ordering::SeqCst) != 0 || window.label() != "main" {
                 return Err("readonly Goal checkpoint outside first window".into());
             }
-            let (snapshot, execution_snapshot, graph_snapshot) = {
+            let (snapshot, execution_snapshot, graph_snapshot, factory_snapshot) = {
                 let daemon = state.daemon.lock().unwrap();
                 (
                     goal_database_snapshot(&daemon.runtime)?,
                     goal_execution_database_snapshot(&daemon.runtime)?,
                     goal_graph_database_snapshot(&daemon.runtime)?,
+                    factory_database_snapshot(&daemon.runtime)?,
                 )
             };
             let mut report = state.report.lock().unwrap();
@@ -831,6 +978,13 @@ fn native_smoke_report(
                 &mut report,
                 checkpoint,
                 graph_snapshot,
+            )?;
+            record_factory_checkpoint(
+                state.phase.load(Ordering::SeqCst),
+                window.label(),
+                &mut report,
+                checkpoint,
+                factory_snapshot,
             )?;
             fs::write(
                 state.output.join("native-smoke.json"),
@@ -862,6 +1016,7 @@ fn native_smoke_report(
                 }
                 validate_goal_execution_evidence(&result, &report)?;
                 validate_goal_graph_evidence(&result, &report)?;
+                validate_factory_evidence(&result, &report)?;
                 validate_webcrypto_evidence(&result, &report, false)?;
                 commit_native_report(&state.phase, &mut report, 0, result)?;
                 report["screenshot"] = json!(screenshot);
@@ -1021,12 +1176,23 @@ const FIRST: &str = r#"
   require(missingGraphRun?.error?.code==='NOT_FOUND'&&missingGraphRun.error.side_effect_state==='not_started'&&!Object.prototype.hasOwnProperty.call(missingGraphRun,'result'),'fixed missing Graph run must return the actual Core denial without a result');
   const afterGoalGraph=result(await invoke('system_snapshot')).sequence;
   require(afterGoalGraph===beforeGoalGraph,'readonly Graph list/get unexpectedly mutated history');
+  const beforeFactory=result(await invoke('system_snapshot')).sequence;
+  require(beforeFactory===beforeGoal&&beforeFactory===beforeGoalExecution&&beforeFactory===beforeGoalGraph,'Factory reads must share the original Goal/execution/Graph readonly interval');
+  const factoryScopes=result(await invoke('factory_scopes_list',{rootTaskId:task.id}));
+  require(Array.isArray(factoryScopes)&&factoryScopes.length===0,'fresh task must have no Factory scope or authority');
+  const absentFactoryScopeId='native-readonly-missing-factory-scope';
+  const missingFactoryScope=await invoke('factory_scopes_get',{scopeId:absentFactoryScopeId});
+  require(missingFactoryScope?.error?.code==='NOT_FOUND'&&missingFactoryScope.error.side_effect_state==='not_started'&&!Object.prototype.hasOwnProperty.call(missingFactoryScope,'result'),'missing Factory scope must return the actual fixed Core denial without result');
+  const missingFactoryRun=await invoke('factory_runs_get',{scopeId:absentFactoryScopeId});
+  require(missingFactoryRun?.error?.code==='NOT_FOUND'&&missingFactoryRun.error.side_effect_state==='not_started'&&!Object.prototype.hasOwnProperty.call(missingFactoryRun,'result'),'missing Factory run must return the actual fixed Core denial without result');
+  const afterFactory=result(await invoke('system_snapshot')).sequence;
+  require(afterFactory===beforeFactory,'readonly Factory list/get unexpectedly mutated history');
   const afterGoal=result(await invoke('system_snapshot')).sequence;
   require(afterGoal===beforeGoal,'read-only Goal controls unexpectedly mutated history');
   await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'after',webCrypto:await webCryptoProof('after')}});
   document.querySelector('#tab-conversation').click();
   while(document.querySelector('#tab-conversation')?.getAttribute('aria-selected')!=='true'){require(Date.now()<deadline,'return to conversation did not settle');await new Promise(r=>setTimeout(r,25));}
-  await invoke('native_smoke_report',{result:{ok:true,webCrypto:await webCryptoProof('first'),domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state},goalGraphLists:true,goalGraphMissingRunDenied:true,readonlyGoalGraphNoMutation:true,goalGraphReadonlySequence:{before:beforeGoalGraph,after:afterGoalGraph},goalGraphMissingRun:{run_id:absentGraphRunId,code:missingGraphRun.error.code,side_effect_state:missingGraphRun.error.side_effect_state}}});
+  await invoke('native_smoke_report',{result:{ok:true,webCrypto:await webCryptoProof('first'),domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state},goalGraphLists:true,goalGraphMissingRunDenied:true,readonlyGoalGraphNoMutation:true,goalGraphReadonlySequence:{before:beforeGoalGraph,after:afterGoalGraph},goalGraphMissingRun:{run_id:absentGraphRunId,code:missingGraphRun.error.code,side_effect_state:missingGraphRun.error.side_effect_state},factoryScopeLists:true,factoryMissingScopeDenied:true,factoryMissingRunDenied:true,readonlyFactoryNoMutation:true,factoryReadonlySequence:{before:beforeFactory,after:afterFactory},factoryMissingScope:{scope_id:absentFactoryScopeId,code:missingFactoryScope.error.code,side_effect_state:missingFactoryScope.error.side_effect_state},factoryMissingRun:{scope_id:absentFactoryScopeId,code:missingFactoryRun.error.code,side_effect_state:missingFactoryRun.error.side_effect_state}}});
  } catch (error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
@@ -1740,7 +1906,7 @@ mod fixture_tests {
         json!({"status":"running","goal_readonly_database":{"read_only":true,"unchanged":true,"before":goal,"after":goal}})
     }
     fn execution_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":12,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
+        json!({"schema_version":14,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
     }
     fn execution_result_fixture(sequence: u64) -> Value {
         json!({"goalExecutionLists":true,"goalExecutionMissingRunDenied":true,"readonlyGoalExecutionNoMutation":true,"goalReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionMissingRun":{"run_id":MISSING_GOAL_RUN_ID,"code":"NOT_FOUND","side_effect_state":"not_started"}})
@@ -1788,7 +1954,9 @@ mod fixture_tests {
         let controls=[
             ("schema_version","PRAGMA user_version=10",10),
             ("schema_version","PRAGMA user_version=11",11),
+            ("schema_version","PRAGMA user_version=12",12),
             ("schema_version","PRAGMA user_version=13",13),
+            ("schema_version","PRAGMA user_version=15",15),
             ("run_count","INSERT INTO goal_runs VALUES('count-probe','scope','project','task',1,'queued','{}')",1),
             ("node_count","INSERT INTO goal_run_nodes VALUES('count-probe',1,'node',0,'not_started',NULL,NULL,'{}')",1),
             ("reservation_count","INSERT INTO goal_run_reservations VALUES('attempt','count-probe','node',NULL,'{}')",1),
@@ -1982,7 +2150,7 @@ mod fixture_tests {
     }
 
     fn graph_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":12,"capability_count":0,"job_count":0,"candidate_count":0,"validation_count":0,"owner_decision_count":0,"acceptance_count":0,"sequence":sequence})
+        json!({"schema_version":14,"capability_count":0,"job_count":0,"candidate_count":0,"validation_count":0,"owner_decision_count":0,"acceptance_count":0,"sequence":sequence})
     }
     fn graph_report_fixture(sequence: u64) -> Value {
         let mut report = readonly_report_fixture(sequence);
@@ -2012,7 +2180,7 @@ mod fixture_tests {
         assert_eq!(goal_database_snapshot(&runtime).unwrap()["sequence"], 0);
         assert_eq!(
             goal_execution_database_snapshot(&runtime).unwrap()["schema_version"],
-            12
+            14
         );
         let mut report = graph_report_fixture(0);
         record_goal_graph_checkpoint(0, "main", &mut report, "before", before.clone()).unwrap();
@@ -2053,7 +2221,9 @@ mod fixture_tests {
         let controls = [
             ("schema_version", "PRAGMA user_version=10", 10),
             ("schema_version", "PRAGMA user_version=11", 11),
+            ("schema_version", "PRAGMA user_version=12", 12),
             ("schema_version", "PRAGMA user_version=13", 13),
+            ("schema_version", "PRAGMA user_version=15", 15),
             ("capability_count", "INSERT INTO goal_graph_capabilities(run_id,approval_id,version,document) VALUES('probe','approval',1,'{}')", 1),
             ("job_count", "INSERT INTO goal_graph_jobs(id,run_id,node_id,plan_revision,state,attempt_id,workspace_id,document) VALUES('probe','run','node',1,'queued',NULL,'workspace','{}')", 1),
             ("candidate_count", "INSERT INTO goal_graph_candidates(id,run_id,node_id,plan_revision,attempt_id,document) VALUES('probe','run','node',1,'attempt','{}')", 1),
@@ -2171,7 +2341,7 @@ mod fixture_tests {
         .is_err());
     }
     #[test]
-    fn graph_final_evidence_requires_independent_schema12_and_exact_core_denial() {
+    fn graph_final_evidence_requires_independent_schema14_and_exact_core_denial() {
         let mut report = graph_report_fixture(2);
         let counts = graph_counts_fixture(2);
         record_goal_graph_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
@@ -2258,7 +2428,7 @@ mod fixture_tests {
         let before = goal_graph_database_snapshot(&runtime).unwrap();
         let old_before = goal_database_snapshot(&runtime).unwrap();
         let execution_before = goal_execution_database_snapshot(&runtime).unwrap();
-        assert_eq!(before["schema_version"], 12);
+        assert_eq!(before["schema_version"], 14);
         let listed = ipc::call(
             &runtime,
             json!({"method":"goal_graph_runs.list","params":{"task_id":task_id}}),
@@ -2365,5 +2535,231 @@ mod fixture_tests {
         validate_webcrypto_evidence(&second, &report, true).unwrap();
         report["webcrypto_checkpoints"]["before"] = webcrypto_expected("after");
         assert!(validate_webcrypto_evidence(&second, &report, true).is_err());
+    }
+    fn factory_counts_fixture(sequence: u64) -> Value {
+        let mut counts = json!({"schema_version":14,"sequence":sequence});
+        for field in FACTORY_COUNT_FIELDS {
+            counts[field] = json!(0);
+        }
+        counts
+    }
+    fn factory_report_fixture(sequence: u64) -> Value {
+        let mut report = graph_report_fixture(sequence);
+        let graph = graph_counts_fixture(sequence);
+        report["goal_graph_readonly_database"] =
+            json!({"read_only":true,"unchanged":true,"before":graph,"after":graph});
+        report
+    }
+    fn factory_result_fixture(sequence: u64) -> Value {
+        let mut result = graph_result_fixture(sequence);
+        for field in [
+            "factoryScopeLists",
+            "factoryMissingScopeDenied",
+            "factoryMissingRunDenied",
+            "readonlyFactoryNoMutation",
+        ] {
+            result[field] = json!(true);
+        }
+        result["factoryReadonlySequence"] = json!({"before":sequence,"after":sequence});
+        for field in ["factoryMissingScope", "factoryMissingRun"] {
+            result[field] = json!({"scope_id":MISSING_FACTORY_SCOPE_ID,"code":"NOT_FOUND","side_effect_state":"not_started"});
+        }
+        result
+    }
+    #[test]
+    fn factory_readonly_requires_exact_schema14_all_eleven_typed_counts_and_ordered_context() {
+        let counts = factory_counts_fixture(3);
+        assert!(valid_factory_counts(&counts));
+        for field in ["schema_version", "sequence"]
+            .into_iter()
+            .chain(FACTORY_COUNT_FIELDS)
+        {
+            for wrong in [
+                Value::Null,
+                json!(true),
+                json!(false),
+                json!("0"),
+                json!(0.0),
+                json!(-1),
+            ] {
+                let mut changed = counts.clone();
+                changed[field] = wrong;
+                assert!(!valid_factory_counts(&changed), "{field}");
+            }
+            let mut missing = counts.clone();
+            missing.as_object_mut().unwrap().remove(field);
+            assert!(!valid_factory_counts(&missing), "{field}");
+        }
+        for field in FACTORY_COUNT_FIELDS {
+            let mut changed = counts.clone();
+            changed[field] = json!(1);
+            assert!(!valid_factory_counts(&changed));
+        }
+        for schema in [11, 12, 13, 15] {
+            let mut changed = counts.clone();
+            changed["schema_version"] = json!(schema);
+            assert!(!valid_factory_counts(&changed));
+        }
+        let mut extra = counts.clone();
+        extra["unknown_factory_authority"] = json!(0);
+        assert!(!valid_factory_counts(&extra));
+        let mut report = factory_report_fixture(3);
+        assert!(
+            record_factory_checkpoint(0, "main", &mut report, "after", counts.clone()).is_err()
+        );
+        for (phase, label) in [(1, "main"), (2, "native-reopened"), (0, "other")] {
+            assert!(
+                record_factory_checkpoint(phase, label, &mut report, "before", counts.clone())
+                    .is_err()
+            );
+        }
+        record_factory_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
+        assert!(
+            record_factory_checkpoint(0, "main", &mut report, "before", counts.clone()).is_err()
+        );
+        record_factory_checkpoint(0, "main", &mut report, "after", counts.clone()).unwrap();
+        assert!(record_factory_checkpoint(0, "main", &mut report, "after", counts).is_err());
+        validate_factory_evidence(&factory_result_fixture(3), &report).unwrap();
+        let mut shifted = factory_counts_fixture(4);
+        assert!(record_factory_checkpoint(
+            0,
+            "main",
+            &mut factory_report_fixture(3),
+            "before",
+            shifted.clone()
+        )
+        .is_err());
+        shifted["sequence"] = json!("3");
+        assert!(!valid_factory_counts(&shifted));
+    }
+    #[test]
+    fn factory_final_requires_fixed_core_denials_and_does_not_replace_original_readonly_proofs() {
+        let mut report = factory_report_fixture(3);
+        let counts = factory_counts_fixture(3);
+        record_factory_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
+        record_factory_checkpoint(0, "main", &mut report, "after", counts).unwrap();
+        let result = factory_result_fixture(3);
+        validate_factory_evidence(&result, &report).unwrap();
+        for field in [
+            "factoryScopeLists",
+            "factoryMissingScopeDenied",
+            "factoryMissingRunDenied",
+            "readonlyFactoryNoMutation",
+        ] {
+            let mut changed = result.clone();
+            changed[field] = json!(1);
+            assert!(validate_factory_evidence(&changed, &report).is_err());
+        }
+        for location in ["factoryMissingScope", "factoryMissingRun"] {
+            for (field, wrong) in [
+                ("scope_id", json!("other")),
+                ("code", json!("CAPABILITY_UNSUPPORTED")),
+                ("side_effect_state", json!("unknown")),
+            ] {
+                let mut changed = result.clone();
+                changed[location][field] = wrong;
+                assert!(validate_factory_evidence(&changed, &report).is_err());
+            }
+            let mut changed = result.clone();
+            changed[location]["result"] = json!({});
+            assert!(validate_factory_evidence(&changed, &report).is_err());
+        }
+        for name in [
+            "goal_readonly_database",
+            "goal_execution_readonly_database",
+            "goal_graph_readonly_database",
+        ] {
+            let mut changed = report.clone();
+            changed.as_object_mut().unwrap().remove(name);
+            assert!(validate_factory_evidence(&result, &changed).is_err());
+        }
+        let mut replay = report.clone();
+        for phase in ["before", "after"] {
+            replay["factory_readonly_database"][phase]["sequence"] = json!(4);
+        }
+        let mut replay_result = result;
+        replay_result["factoryReadonlySequence"] = json!({"before":4,"after":4});
+        assert!(validate_factory_evidence(&replay_result, &replay).is_err());
+    }
+    #[test]
+    fn factory_actual_schema14_query_and_core_count_projection_leave_history_unchanged() {
+        let (_directory, runtime, mut store) = fresh_execution_fixture();
+        let task = store
+            .create(
+                "local",
+                "Generated Factory readonly task, no grant",
+                "factory-readonly-task",
+            )
+            .unwrap();
+        let before = factory_database_snapshot(&runtime).unwrap();
+        assert_eq!(before, factory_counts_fixture(store.sequence().unwrap()));
+        let projection =
+            serde_json::to_value(store.factory_record_counts(&task.id).unwrap()).unwrap();
+        assert_eq!(projection.as_object().unwrap().len(), 11);
+        for field in FACTORY_COUNT_FIELDS {
+            assert_eq!(projection[field], 0);
+        }
+        assert!(store.list_factory_scopes(&task.id).unwrap().is_empty());
+        let missing = store
+            .get_factory_scope(MISSING_FACTORY_SCOPE_ID)
+            .unwrap_err();
+        assert_eq!(missing.code, "NOT_FOUND");
+        assert_eq!(missing.side_effect_state, "not_started");
+        let old_goal = goal_database_snapshot(&runtime).unwrap();
+        let old_execution = goal_execution_database_snapshot(&runtime).unwrap();
+        let old_graph = goal_graph_database_snapshot(&runtime).unwrap();
+        assert_eq!(before, factory_database_snapshot(&runtime).unwrap());
+        assert_eq!(before["sequence"], old_goal["sequence"]);
+        assert_eq!(before["sequence"], old_execution["sequence"]);
+        assert_eq!(before["sequence"], old_graph["sequence"]);
+    }
+    #[test]
+    fn factory_real_sql_observes_each_table_drift_wrong_schema_and_missing_table_instead_of_zero() {
+        let controls=[
+            ("scopes","INSERT INTO factory_scopes VALUES('probe','task','project','grant',1,0,1,'{}')"),
+            ("runs","INSERT INTO factory_runs VALUES('probe','scope','task','project',1,'running','{}')"),
+            ("task_lineage","INSERT INTO factory_task_lineage VALUES('task','root',NULL,'scope',NULL,0,'{}')"),
+            ("task_bindings","INSERT INTO factory_task_bindings VALUES('task','scope','run','grant','starting','{}')"),
+            ("delegations","INSERT INTO factory_delegations VALUES('probe','scope','run','parent','child','grant','starting','{}')"),
+            ("attempts","INSERT INTO factory_attempts VALUES('session','attempt','scope','run','task','root','{}','starting','{}')"),
+            ("scoped_handles","INSERT INTO factory_scoped_handles VALUES('probe','scope','session','attempt','task','digest',1,0,1,'{}')"),
+            ("handoffs","INSERT INTO factory_handoffs VALUES('probe','run','parent','child','parent-session',NULL,'pending','{}')"),
+            ("budget_reservations",r#"INSERT INTO factory_budget_reservations VALUES('attempt','scope','root','project','{"authority_kind":"factory_task"}')"#),
+            ("child_plan_heads","INSERT INTO factory_child_plan_heads VALUES('scope','run','task',1,'revision')"),
+            ("child_plan_revisions","INSERT INTO factory_child_plan_revisions VALUES('revision','scope','run','task',1,'{}','raw','plan',1,'record','{}')"),
+        ];
+        for (field, sql) in controls {
+            let (_directory, runtime, store) = fresh_execution_fixture();
+            assert!(factory_database_snapshot(&runtime).is_ok());
+            // Malformed metadata exists only in this generated private negative
+            // fixture. It is not a Core-approved scope, delegation or attempt.
+            let status=Command::new("python3").args(["-I","-S","-c","import sqlite3,sys;db=sqlite3.connect(sys.argv[1]);db.execute(sys.argv[2]);db.commit();db.close()"]).arg(runtime.join("baton.sqlite3")).arg(sql).status().unwrap();
+            assert!(status.success());
+            assert!(factory_database_snapshot(&runtime).is_err());
+            let mut command = Command::new("python3");
+            command
+                .args(["-I", "-S", "-c", FACTORY_READONLY_SQL])
+                .arg(runtime.join("baton.sqlite3"));
+            let observed: Value =
+                serde_json::from_slice(&bounded_goal_query(command).unwrap()).unwrap();
+            assert_eq!(observed[field], 1);
+            assert_eq!(observed["sequence"], 0);
+            drop(store);
+        }
+        for sql in [
+            "PRAGMA user_version=12",
+            "PRAGMA user_version=13",
+            "PRAGMA user_version=15",
+            "DROP TABLE factory_scopes",
+            "DROP TABLE factory_budget_reservations",
+            "DROP TABLE factory_child_plan_heads",
+            "DROP TABLE factory_child_plan_revisions",
+        ] {
+            let (_directory, runtime, store) = fresh_execution_fixture();
+            let status=Command::new("python3").args(["-I","-S","-c","import sqlite3,sys;db=sqlite3.connect(sys.argv[1]);db.execute(sys.argv[2]);db.commit();db.close()"]).arg(runtime.join("baton.sqlite3")).arg(sql).status().unwrap();
+            assert!(status.success());
+            assert!(factory_database_snapshot(&runtime).is_err());
+            drop(store);
+        }
     }
 }

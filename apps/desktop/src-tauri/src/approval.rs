@@ -1338,6 +1338,693 @@ fn graph_review_pages(snapshot: &Value) -> Result<Vec<String>, String> {
     Ok(pages)
 }
 
+// Factory authority is independent of Goal. This fixed route shares only the
+// lossless bounded page splitter; it never upgrades an older approval kind.
+fn factory_ids(value: &Value, nonempty: bool) -> bool {
+    value.as_array().is_some_and(|ids| {
+        (!nonempty || !ids.is_empty())
+            && ids.len() <= 256
+            && ids.iter().all(graph_id)
+            && ids.iter().enumerate().all(|(i, id)| !ids[..i].contains(id))
+    })
+}
+fn factory_safe(value: &Value, min: u64, max: u64) -> bool {
+    value
+        .as_u64()
+        .is_some_and(|n| n >= min && n <= max && n <= 9_007_199_254_740_991)
+}
+fn factory_budget(value: &Value) -> bool {
+    exact_fields(
+        value,
+        &[
+            "attempts",
+            "parallel",
+            "runtime_ms",
+            "output_bytes",
+            "children",
+            "reworks",
+            "tokens",
+            "cost_microunits",
+        ],
+    ) && factory_safe(&value["attempts"], 1, 100000)
+        && factory_safe(
+            &value["parallel"],
+            1,
+            value["attempts"].as_u64().unwrap_or(0),
+        )
+        && factory_safe(&value["runtime_ms"], 1, 604800000)
+        && factory_safe(&value["output_bytes"], 1, 9_007_199_254_740_991)
+        && ["children", "reworks"]
+            .iter()
+            .all(|key| factory_safe(&value[*key], 0, 1000))
+        && ["tokens", "cost_microunits"].iter().all(|key| {
+            value[*key].is_null() || factory_safe(&value[*key], 0, 9_007_199_254_740_991)
+        })
+}
+fn factory_artifacts(value: &Value) -> bool {
+    value.as_array().is_some_and(|items| {
+        items.len() <= 64
+            && items.iter().enumerate().all(|(i, a)| {
+                exact_fields(
+                    a,
+                    &[
+                        "artifact_id",
+                        "relative_path",
+                        "max_bytes",
+                        "expected_sha256",
+                    ],
+                ) && graph_id(&a["artifact_id"])
+                    && a["relative_path"].as_str().is_some_and(|p| {
+                        !p.is_empty()
+                            && p.len() <= 4096
+                            && !p.starts_with('/')
+                            && !p.contains('\\')
+                            && !(p.len() > 1
+                                && p.as_bytes()[0].is_ascii_alphabetic()
+                                && p.as_bytes()[1] == b':')
+                            && !p.bytes().any(|c| c < 32 || c == 127)
+                            && p.split('/')
+                                .all(|part| !part.is_empty() && part != "." && part != "..")
+                    })
+                    && factory_safe(&a["max_bytes"], 1, 9_007_199_254_740_991)
+                    && (a["expected_sha256"].is_null() || graph_hash(&a["expected_sha256"]))
+                    && !items[..i].iter().any(|old| {
+                        old["artifact_id"] == a["artifact_id"]
+                            || old["relative_path"] == a["relative_path"]
+                    })
+            })
+    })
+}
+// Optional planning fields are present only for a new explicit planning grant.
+// None is omitted by the Core DTO, preserving old false-capability snapshots.
+fn factory_planning_fields(value: &Value, fields: &[&str], field: &str, enabled: bool) -> bool {
+    if enabled {
+        value.as_object().is_some_and(|object| {
+            object.len() == fields.len() + 1
+                && object.contains_key(field)
+                && fields.iter().all(|name| object.contains_key(*name))
+        })
+    } else {
+        exact_fields(value, fields)
+    }
+}
+fn factory_planning_reference(value: &Value) -> bool {
+    exact_fields(value, &["kind", "policy_id", "revision"])
+        && matches!(
+            value["kind"].as_str(),
+            Some("integrity" | "data" | "command")
+        )
+        && graph_id(&value["policy_id"])
+        && graph_revision(&value["revision"])
+}
+fn factory_planning_policy(policy: &Value, selection: &Value) -> bool {
+    if !exact_fields(
+        policy,
+        &[
+            "max_nodes",
+            "max_revisions",
+            "max_plan_bytes",
+            "outputs",
+            "writable_prefixes",
+            "owner_acceptance_criteria",
+        ],
+    ) || !factory_safe(&policy["max_nodes"], 1, 256)
+        || !factory_safe(&policy["max_revisions"], 1, 256)
+        || !factory_safe(&policy["max_plan_bytes"], 1, 262_144)
+        || !policy["owner_acceptance_criteria"]
+            .as_str()
+            .is_some_and(|v| !v.trim().is_empty() && v.len() <= 16_384)
+    {
+        return false;
+    }
+    let (Some(outputs), Some(selected), Some(prefixes)) = (
+        policy["outputs"].as_array(),
+        selection["outputs"].as_array(),
+        policy["writable_prefixes"].as_array(),
+    ) else {
+        return false;
+    };
+    outputs.len() == selected.len()
+        && !outputs.is_empty()
+        && outputs.len() <= 16
+        && outputs.iter().enumerate().all(|(i, output)| {
+            exact_fields(output, &["artifact", "validators"])
+                && selected.contains(&output["artifact"])
+                && !outputs[..i]
+                    .iter()
+                    .any(|old| old["artifact"] == output["artifact"])
+                && output["validators"].as_array().is_some_and(|refs| {
+                    refs.len() <= 16
+                        && refs.iter().enumerate().all(|(j, reference)| {
+                            factory_planning_reference(reference) && !refs[..j].contains(reference)
+                        })
+                })
+        })
+        && prefixes.len() <= 16
+        && prefixes.iter().enumerate().all(|(i, prefix)| {
+            prefix.is_string()
+                && !prefixes[..i].contains(prefix)
+                && selected.iter().any(|a| a["relative_path"] == *prefix)
+        })
+}
+fn factory_planning_binding(binding: &Value, selection: &Value, bindings: &Value) -> bool {
+    if !exact_fields(
+        binding,
+        &[
+            "schema_version",
+            "authority_kind",
+            "policy",
+            "owner_rule_id",
+            "input_rule_id",
+            "validator_definitions",
+            "definition_digest",
+            "goal_execution_authorized",
+            "new_workspace_authorized",
+        ],
+    ) || !factory_safe(&binding["schema_version"], 1, 1)
+        || binding["authority_kind"] != "factory_child_planning_only"
+        || binding["policy"] != selection["child_planning_policy"]
+        || binding["owner_rule_id"] != "factory-child-owner-review"
+        || binding["input_rule_id"] != "factory-child-input-sha256"
+        || !graph_hash(&binding["definition_digest"])
+        || binding["goal_execution_authorized"] != false
+        || binding["new_workspace_authorized"] != false
+    {
+        return false;
+    }
+    let Some(definitions) = binding["validator_definitions"].as_object() else {
+        return false;
+    };
+    let Some(outputs) = selection["child_planning_policy"]["outputs"].as_array() else {
+        return false;
+    };
+    let refs = outputs
+        .iter()
+        .filter_map(|o| o["validators"].as_array())
+        .flatten()
+        .collect::<Vec<_>>();
+    // Digests are Core-resolved evidence, displayed without normalization. Core
+    // validates/recomputes them and the complete original Native policy origin;
+    // Native independently checks shape, references and exact final receipt.
+    definitions.len() <= 256
+        && definitions.iter().all(|(key, row)| {
+            let reference = &row["reference"];
+            let definition = &row["definition"];
+            exact_fields(
+                row,
+                &[
+                    "reference",
+                    "rule_id",
+                    "digest",
+                    "definition",
+                    "source_runs_started",
+                    "source_run_states",
+                ],
+            ) && factory_planning_reference(reference)
+                && refs.contains(&reference)
+                && key
+                    == &format!(
+                        "{}:{}",
+                        reference["kind"].as_str().unwrap_or(""),
+                        reference["policy_id"].as_str().unwrap_or("")
+                    )
+                && row["rule_id"] == *key
+                && graph_hash(&row["digest"])
+                && definition.is_object()
+                && definition["id"] == reference["policy_id"]
+                && graph_revision(&definition["revision"])
+                && definition["revision"] == reference["revision"]
+                && definition["project_id"] == bindings["root_task"]["project_id"]
+                && selection["workspace_ids"]
+                    .as_array()
+                    .is_some_and(|ids| ids.contains(&definition["workspace_id"]))
+                && graph_id(&definition["approval_id"])
+                && definition["revoked"] == false
+                && definition["scope"]
+                    == match reference["kind"].as_str() {
+                        Some("integrity") => "artifact_integrity_only",
+                        Some("data") => "data_contract_only",
+                        _ => "approved_deterministic_command_only",
+                    }
+                && factory_safe(&row["source_runs_started"], 0, 0)
+                && row["source_run_states"]
+                    .as_array()
+                    .is_some_and(Vec::is_empty)
+        })
+        && refs.iter().all(|reference| {
+            let key = format!(
+                "{}:{}",
+                reference["kind"].as_str().unwrap_or(""),
+                reference["policy_id"].as_str().unwrap_or("")
+            );
+            definitions
+                .get(&key)
+                .is_some_and(|row| row["reference"] == **reference)
+        })
+}
+
+fn factory_selection_matches(value: &Value) -> bool {
+    let planning = value["capabilities"]["child_planning"] == true;
+    factory_planning_fields(
+        value,
+        &[
+            "root_task_id",
+            "expected_task_revision",
+            "grant_id",
+            "expected_grant_revision",
+            "connection_ids",
+            "workspace_ids",
+            "inputs",
+            "outputs",
+            "recipients",
+            "max_depth",
+            "max_children",
+            "max_total_nodes",
+            "root_budget",
+            "project_budget",
+            "ttl_ms",
+            "capabilities",
+        ],
+        "child_planning_policy",
+        planning,
+    ) && graph_id(&value["root_task_id"])
+        && graph_id(&value["grant_id"])
+        && graph_revision(&value["expected_task_revision"])
+        && graph_revision(&value["expected_grant_revision"])
+        && factory_ids(&value["connection_ids"], true)
+        && factory_ids(&value["workspace_ids"], true)
+        && factory_ids(&value["recipients"], false)
+        && factory_artifacts(&value["inputs"])
+        && factory_artifacts(&value["outputs"])
+        && factory_safe(&value["max_depth"], 1, 32)
+        && factory_safe(&value["max_children"], 1, 1000)
+        && factory_safe(&value["max_total_nodes"], 2, 1000)
+        && factory_budget(&value["root_budget"])
+        && factory_budget(&value["project_budget"])
+        && factory_safe(&value["ttl_ms"], 1, 3600000)
+        && exact_fields(
+            &value["capabilities"],
+            &[
+                "delegate_task",
+                "resume_parent_as_new_attempt",
+                "child_planning",
+                "child_goal_execution",
+                "create_workspace",
+            ],
+        )
+        && value["capabilities"]["delegate_task"] == true
+        && value["capabilities"]["resume_parent_as_new_attempt"] == true
+        && value["connection_ids"]
+            .as_array()
+            .is_some_and(|v| v.len() <= 4)
+        && value["workspace_ids"]
+            .as_array()
+            .is_some_and(|v| v.len() == 1)
+        && value["recipients"]
+            .as_array()
+            .is_some_and(|v| v.len() <= 64)
+        && ["inputs", "outputs"].iter().all(|k| {
+            value[*k]
+                .as_array()
+                .is_some_and(|v| !v.is_empty() && v.len() <= 16)
+        })
+        && value["max_children"].as_u64() < value["max_total_nodes"].as_u64()
+        && ["root_budget", "project_budget"].iter().all(|k| {
+            value[*k]["reworks"] == 0
+                && value[*k]["tokens"].is_null()
+                && value[*k]["cost_microunits"].is_null()
+        })
+        && [
+            "attempts",
+            "parallel",
+            "runtime_ms",
+            "output_bytes",
+            "children",
+            "reworks",
+        ]
+        .iter()
+        .all(|k| value["root_budget"][*k].as_u64() <= value["project_budget"][*k].as_u64())
+        && value["capabilities"]["child_goal_execution"] == false
+        && value["capabilities"]["create_workspace"] == false
+        && if planning {
+            factory_planning_policy(&value["child_planning_policy"], value)
+        } else {
+            value["capabilities"]["child_planning"] == false
+        }
+}
+fn factory_contract_matches(contract: &Value, requirements: &Value, workspaces: &Value) -> bool {
+    exact_fields(contract,&["canonical_root","root_device","root_inode","requirement"])
+    &&contract["canonical_root"].as_str().is_some_and(|p|!p.is_empty()&&p.len()<=4096)
+    // These remain original serde u64, without the renderer safe-number cap.
+    &&contract["root_device"].as_u64().is_some()&&contract["root_inode"].as_u64().is_some()
+    &&requirements.as_array().is_some_and(|items|items.contains(&contract["requirement"]))
+    &&workspaces.as_array().is_some_and(|items|items.iter().any(|w|w["root"]==contract["canonical_root"] && w["identity"]["device"]==contract["root_device"] && w["identity"]["inode"]==contract["root_inode"]))
+}
+fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
+    let b = &snapshot["bindings"];
+    let task = &b["root_task"];
+    let project = &b["project"];
+    let grant = &b["approved_grant"];
+    if !exact_fields(
+        snapshot,
+        &["schema_version", "selection", "bindings", "contract_digest"],
+    ) || snapshot["schema_version"] != 1
+        || snapshot["selection"] != *selection
+        || !factory_selection_matches(selection)
+        || !graph_hash(&snapshot["contract_digest"])
+        || !factory_planning_fields(
+            b,
+            &[
+                "project",
+                "root_task",
+                "approved_grant",
+                "connections",
+                "workspaces",
+                "inputs",
+                "outputs",
+                "companion",
+                "guarantees",
+                "start_contract",
+            ],
+            "child_planning",
+            selection["capabilities"]["child_planning"] == true,
+        )
+        || (selection["capabilities"]["child_planning"] == true
+            && !factory_planning_binding(&b["child_planning"], selection, b))
+        || !exact_fields(
+            project,
+            &[
+                "id",
+                "name",
+                "identity",
+                "revision",
+                "archived",
+                "created_at",
+                "updated_at",
+            ],
+        )
+        || project["id"] != task["project_id"]
+        || !graph_revision(&project["revision"])
+        || project["archived"] != false
+        || !project["name"]
+            .as_str()
+            .is_some_and(|s| !s.is_empty() && s.len() <= 4096)
+        || !project["created_at"].is_string()
+        || !project["updated_at"].is_string()
+        || !project["identity"]["canonical_root"]
+            .as_str()
+            .is_some_and(|s| s.starts_with('/') && !s.contains('\0'))
+        || project["identity"]["device"].as_u64().is_none()
+        || project["identity"]["inode"].as_u64().is_none()
+        || task["id"] != selection["root_task_id"]
+        || task["revision"] != selection["expected_task_revision"]
+        || !graph_id(&task["project_id"])
+        || !graph_revision(&task["spec_revision"])
+        || !task["goal"]
+            .as_str()
+            .is_some_and(|v| !v.is_empty() && v.len() <= 16384)
+        || !task["created_at"].is_string()
+        || !task["updated_at"].is_string()
+        || task["state"] != "draft"
+        || !task["acceptance_ref"].is_null()
+        || !task["acceptance_sequence"].is_null()
+        || grant["id"] != selection["grant_id"]
+        || grant["root_grant_id"] != grant["id"]
+        || !grant["parent_id"].is_null()
+        || grant["project_id"] != task["project_id"]
+        || grant["revision"] != selection["expected_grant_revision"]
+        || grant["revoked"] != false
+    {
+        return false;
+    }
+    if !factory_ids(&grant["scope"]["host_ids"], true)
+        || !factory_ids(&grant["scope"]["recipients"], false)
+        || !grant["scope"]["recipients"]
+            .as_array()
+            .is_some_and(|allowed| {
+                selection["recipients"]
+                    .as_array()
+                    .is_some_and(|selected| selected.iter().all(|id| allowed.contains(id)))
+            })
+    {
+        return false;
+    }
+    let root = &selection["root_budget"];
+    if !grant["scope"]["max_attempts"]
+        .as_u64()
+        .is_some_and(|n| root["attempts"].as_u64().unwrap_or(u64::MAX) <= n)
+        || !grant["scope"]["max_concurrency"]
+            .as_u64()
+            .is_some_and(|n| root["parallel"].as_u64().unwrap_or(u64::MAX) <= n)
+        || !grant["scope"]["max_duration_ms"].as_u64().is_some_and(|n| {
+            root["runtime_ms"].as_u64().unwrap_or(u64::MAX)
+                <= n.saturating_mul(grant["scope"]["max_attempts"].as_u64().unwrap_or(0))
+        })
+        || root["children"].as_u64().unwrap_or(u64::MAX)
+            >= selection["max_total_nodes"].as_u64().unwrap_or(0)
+    {
+        return false;
+    }
+    for (field, ids) in [
+        ("connections", "connection_ids"),
+        ("workspaces", "workspace_ids"),
+    ] {
+        let Some(rows) = b[field].as_array() else {
+            return false;
+        };
+        let Some(selected) = selection[ids].as_array() else {
+            return false;
+        };
+        if rows.len() != selected.len()
+            || !rows.iter().enumerate().all(|(i, row)| {
+                selected.contains(&row["id"])
+                    && graph_revision(&row["revision"])
+                    && !rows[..i].iter().any(|old| old["id"] == row["id"])
+            })
+            || !grant["scope"][ids]
+                .as_array()
+                .is_some_and(|allowed| selected.iter().all(|id| allowed.contains(id)))
+        {
+            return false;
+        }
+    }
+    if !b["connections"].as_array().is_some_and(|rows| {
+        rows.iter().all(|c| {
+            graph_hash(&c["executable_sha256"])
+                && c["id"].as_str().is_some_and(|id| {
+                    let pin = &grant["connection_bindings"][id];
+                    let fields = [
+                        "protocol_route",
+                        "revision",
+                        "environment_id",
+                        "identity_ref",
+                        "host_id",
+                        "config_revision",
+                        "executable_sha256",
+                        "capability_snapshot_id",
+                    ];
+                    exact_fields(pin, &fields)
+                        && fields.iter().all(|field| pin[*field] == c[*field])
+                })
+                && grant["scope"]["host_ids"]
+                    .as_array()
+                    .is_some_and(|allowed| allowed.contains(&c["host_id"]))
+                && [
+                    "protocol_route",
+                    "environment_id",
+                    "identity_ref",
+                    "host_id",
+                    "config_revision",
+                    "capability_snapshot_id",
+                ]
+                .iter()
+                .all(|k| c[*k].as_str().is_some_and(|v| !v.is_empty()))
+        })
+    }) || !b["workspaces"].as_array().is_some_and(|rows| {
+        rows.iter().all(|w| {
+            w["project_id"] == task["project_id"]
+                && w["id"].as_str().is_some_and(|id| {
+                    let pin = &grant["workspace_bindings"][id];
+                    pin.is_object()
+                        && pin["canonical_root"] == w["root"]
+                        && pin["device"].as_u64().is_some()
+                        && pin["inode"].as_u64().is_some()
+                        && pin["kind"].is_object()
+                        && w["identity"] == *pin
+                })
+                && w["root"].as_str().is_some_and(|p| !p.is_empty())
+                && w["state"] == "ready"
+        })
+    }) {
+        return false;
+    }
+    for (field, input) in [("inputs", true), ("outputs", false)] {
+        let Some(rows) = b[field].as_array() else {
+            return false;
+        };
+        let Some(requirements) = selection[field].as_array() else {
+            return false;
+        };
+        if rows.len() != requirements.len()
+            || !rows.iter().enumerate().all(|(i, row)| {
+                let c = if input { &row["contract"] } else { row };
+                factory_contract_matches(c, &selection[field], &b["workspaces"])
+                    && (!input
+                        || (exact_fields(row, &["contract", "sha256", "bytes"])
+                            && graph_hash(&row["sha256"])
+                            && row["bytes"].as_u64().is_some_and(|n| {
+                                n <= c["requirement"]["max_bytes"].as_u64().unwrap_or(0)
+                            })
+                            && (c["requirement"]["expected_sha256"].is_null()
+                                || c["requirement"]["expected_sha256"] == row["sha256"])))
+                    && !rows[..i].iter().any(|old| {
+                        if input {
+                            old["contract"]["requirement"]["artifact_id"]
+                                == c["requirement"]["artifact_id"]
+                        } else {
+                            old["requirement"]["artifact_id"] == c["requirement"]["artifact_id"]
+                        }
+                    })
+            })
+        {
+            return false;
+        }
+    }
+    let companion = &b["companion"];
+    let start = &b["start_contract"];
+    exact_fields(
+        companion,
+        &[
+            "executable",
+            "executable_sha256",
+            "argument_template",
+            "credential_transport",
+            "global_daemon_token_available",
+        ],
+    ) && companion["executable"]
+        .as_str()
+        .is_some_and(|p| p.starts_with('/') && !p.contains('\0'))
+        && graph_hash(&companion["executable_sha256"])
+        && companion["argument_template"] == json!(["factory-mcp", "${SESSION_HANDLE_FILE}"])
+        && companion["credential_transport"] == "private_0600_file_reference"
+        && companion["global_daemon_token_available"] == false
+        && exact_fields(
+            &b["guarantees"],
+            &[
+                "filesystem_sandbox",
+                "network_sandbox",
+                "account_isolation",
+                "output_quota",
+                "continuous_input_immutability",
+                "complete_process_tree_containment",
+            ],
+        )
+        && b["guarantees"]
+            .as_object()
+            .is_some_and(|v| v.values().all(|v| v == false))
+        && exact_fields(
+            start,
+            &[
+                "mode",
+                "root_task_request_digest",
+                "context_continuation",
+                "implicit_start_on_approval",
+                "new_workspace_authority",
+            ],
+        )
+        && start["mode"] == "single_scope_single_run"
+        && graph_hash(&start["root_task_request_digest"])
+        && start["context_continuation"] == "new_attempt_explicit_handoff_only"
+        && start["implicit_start_on_approval"] == false
+        && start["new_workspace_authority"] == false
+}
+fn factory_refused(message: &str) -> Result<Value, String> {
+    Ok(
+        json!({"request_id":null,"error":{"code":"INVALID_APPROVAL_PROPOSAL","message":message,"retryable":false,"side_effect_state":"not_started","details_ref":null},"revision":0,"warnings":[]}),
+    )
+}
+pub fn confirm_factory_and_finalize(
+    response: Value,
+    selection: &Value,
+    mut confirm_native: impl FnMut(&str) -> bool,
+    finalize: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    if let Some(error) = graph_server_error(&response) {
+        return error;
+    }
+    let proposal = response["result"].clone();
+    if serde_json::to_vec(&response).map_or(true, |v| v.len() > GRAPH_REVIEW_SNAPSHOT_BYTES)
+        || proposal["kind"] != "factory"
+        || !graph_id(&proposal["id"])
+        || !graph_revision(&proposal["revision"])
+        || !proposal["id"].as_str().is_some_and(|id| id.len() <= 128)
+        || !factory_snapshot_matches(&proposal["snapshot"], selection)
+    {
+        return factory_refused("Factory proposal does not match the exact independent task/grant/recipient/workspace/input/budget and companion boundaries");
+    }
+    let pages = match graph_review_pages(&proposal["snapshot"]) {
+        Ok(pages) => pages,
+        Err(_) => {
+            return factory_refused("Complete Factory JSON exceeds the bounded Native review limit")
+        }
+    };
+    let id = proposal["id"].as_str().unwrap();
+    let revision = proposal["revision"].as_u64().unwrap();
+    let total = pages.iter().map(String::len).sum::<usize>();
+    let mut offset = 0;
+    let action = if selection["capabilities"]["child_planning"] == true {
+        "Review INDEPENDENT bounded Factory delegation AND versioned child PLAN STORAGE ONLY. Review every planning limit, output/validator definition, writable path and Owner acceptance criterion in the complete server snapshot. Approval does NOT start a run or execute a plan/validator. Child Goal execution, workspace creation, Task acceptance, new Grant authority, OS sandbox and native-context restoration are NOT granted. Parent continuation remains a NEW attempt. / 独立批准有界委派与子计划版本存储；完整核对规划限额、输出、检查定义、可写路径及负责人验收标准。批准不启动，不执行计划或检查，不授予子Goal执行、工作区创建、任务验收、新Grant权限或系统隔离；父任务仍以新尝试交接。"
+    } else {
+        "Review INDEPENDENT bounded Factory task-delegation authority. Existing Grant execution authority and Factory task-splitting limits are distinct and both displayed. Approval does NOT start a run. Parent continuation is a NEW attempt with explicit handoff, not restored native context. No child planning/Goal execution/workspace creation, OS sandbox, network/account isolation, output quota or process-tree containment is granted. / 独立审查有界委派；Grant执行权限与Factory任务拆分上限分别核对；批准不启动，父任务以新尝试交接，不恢复原生上下文。"
+    };
+    for (index, page) in pages.iter().enumerate() {
+        let end = offset + page.len();
+        let message=format!("{action}\n\nFactory proposal {id} / revision {revision}. Page {}/{}; complete JSON UTF-8 bytes {}..{} of {}. OK only reviews this page; final confirmation is still required. Cancel stops review without a rejection receipt.\n\n{page}",index+1,pages.len(),offset,end,total);
+        if message.len() > 16384 {
+            return factory_refused("Factory Native review page exceeds display limit");
+        }
+        if !confirm_native(&message) {
+            return graph_declined();
+        }
+        offset = end;
+    }
+    if !confirm_native(&format!("{action}\n\nFINAL independent Factory approval — proposal {id} / revision {revision}. All {} complete JSON pages ({total} UTF-8 bytes) reviewed. OK records only this exact proposal. Changed inputs require a fresh proposal; unknown replies require reconciliation. Cancel records no rejection.",pages.len())){return graph_declined();}
+    let result = finalize(
+        json!({"method":"approvals.finalize","params":{"proposal_id":id},"expected_revision":revision,"idempotency_key":format!("proposal:{id}")}),
+    )?;
+    if let Some(error) = result.get("error") {
+        if error.is_object()
+            && error["code"].is_string()
+            && error["message"].is_string()
+            && error["retryable"].is_boolean()
+            && error["side_effect_state"].is_string()
+        {
+            return Ok(result);
+        }
+        return Ok(
+            json!({"request_id":null,"error":{"code":"OUTCOME_UNKNOWN","message":"Factory private finalization returned a malformed error; reconcile the exact original request","retryable":false,"side_effect_state":"unknown","details_ref":null},"revision":0,"warnings":[]}),
+        );
+    }
+    let scope = &result["result"];
+    if scope["id"] == proposal["id"]
+        && scope["approval_id"] == proposal["id"]
+        && scope["root_task_id"] == selection["root_task_id"]
+        && scope["project_id"] == proposal["snapshot"]["bindings"]["root_task"]["project_id"]
+        && scope["root_grant_id"] == selection["grant_id"]
+        && scope["root_grant_revision"] == selection["expected_grant_revision"]
+        && scope["selection"] == *selection
+        && scope["bindings"] == proposal["snapshot"]["bindings"]
+        && scope["contract_digest"] == proposal["snapshot"]["contract_digest"]
+        && graph_revision(&scope["revision"])
+        && scope["revoked"].is_boolean()
+    {
+        return Ok(result);
+    }
+    Ok(
+        json!({"request_id":null,"error":{"code":"OUTCOME_UNKNOWN","message":"Factory finalization returned an unbound receipt; reconcile the exact original request before any action","retryable":false,"side_effect_state":"unknown","details_ref":null},"revision":0,"warnings":[]}),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2708,5 +3395,753 @@ mod graph_review_tests {
             graph_review_pages(&snapshot).unwrap().concat(),
             serde_json::to_string(&snapshot).unwrap()
         );
+    }
+}
+
+#[cfg(test)]
+mod factory_tests {
+    use super::*;
+    use std::cell::{Cell, RefCell};
+    fn fixture() -> (Value, Value) {
+        let budget = json!({"attempts":3,"parallel":1,"runtime_ms":120000,"output_bytes":8388608,"children":1,"reworks":0,"tokens":null,"cost_microunits":null});
+        let input = json!({"artifact_id":"input","relative_path":"input.txt","max_bytes":1024,"expected_sha256":null});
+        let output = json!({"artifact_id":"output","relative_path":"report.txt","max_bytes":1024,"expected_sha256":null});
+        let selection = json!({"root_task_id":"task","expected_task_revision":1,"grant_id":"grant","expected_grant_revision":2,"connection_ids":["connection"],"workspace_ids":["workspace"],"inputs":[input],"outputs":[output],"recipients":[],"max_depth":1,"max_children":1,"max_total_nodes":2,"root_budget":budget,"project_budget":budget,"ttl_ms":300000,"capabilities":{"delegate_task":true,"resume_parent_as_new_attempt":true,"child_planning":false,"child_goal_execution":false,"create_workspace":false}});
+        let contract = |requirement: Value| json!({"canonical_root":"/managed/factory","root_device":1,"root_inode":9223372036854775809u64,"requirement":requirement});
+        let bindings = json!({"project":{"id":"project","name":"Existing project","identity":{"canonical_root":"/managed/factory","device":1,"inode":9223372036854775809u64,"kind":{"kind":"directory"}},"revision":1,"archived":false,"created_at":"2026-10-28T00:00:00Z","updated_at":"2026-10-28T00:00:00Z"},"root_task":{"id":"task","project_id":"project","revision":1,"spec_revision":1,"goal":"Bounded local Factory","state":"draft","created_at":"2026-10-28T00:00:00Z","updated_at":"2026-10-28T00:00:00Z"},"approved_grant":{"id":"grant","root_grant_id":"grant","parent_id":null,"project_id":"project","revision":2,"revoked":false,"scope":{"connection_ids":["connection"],"workspace_ids":["workspace"],"host_ids":["local"],"recipients":[],"max_children":0,"max_depth":0,"max_attempts":8,"max_concurrency":2,"max_duration_ms":120000}},"connections":[{"id":"connection","revision":2,"executable_sha256":"a".repeat(64),"environment_id":"environment","identity_ref":"identity-unknown","host_id":"local","config_revision":"config","capability_snapshot_id":"capability"}],"workspaces":[{"id":"workspace","project_id":"project","revision":1,"root":"/managed/factory","state":"ready"}],"inputs":[{"contract":contract(input),"sha256":"b".repeat(64),"bytes":3}],"outputs":[contract(output)],"companion":{"executable":"/host/baton","executable_sha256":"c".repeat(64),"argument_template":["factory-mcp","${SESSION_HANDLE_FILE}"],"credential_transport":"private_0600_file_reference","global_daemon_token_available":false},"guarantees":{"filesystem_sandbox":false,"network_sandbox":false,"account_isolation":false,"output_quota":false,"continuous_input_immutability":false,"complete_process_tree_containment":false},"start_contract":{"mode":"single_scope_single_run","root_task_request_digest":"d".repeat(64),"context_continuation":"new_attempt_explicit_handoff_only","implicit_start_on_approval":false,"new_workspace_authority":false}});
+        let mut bindings = bindings;
+        let identity = json!({"canonical_root":"/managed/factory","device":1,"inode":9223372036854775809u64,"kind":{"kind":"directory"}});
+        bindings["workspaces"][0]["identity"] = identity.clone();
+        bindings["connections"][0]["protocol_route"] = json!("custom_acp");
+        bindings["approved_grant"]["workspace_bindings"] = json!({"workspace":identity});
+        bindings["approved_grant"]["connection_bindings"] = json!({"connection":{"protocol_route":"custom_acp","revision":2,"environment_id":"environment","identity_ref":"identity-unknown","host_id":"local","config_revision":"config","executable_sha256":"a".repeat(64),"capability_snapshot_id":"capability"}});
+        (
+            selection.clone(),
+            json!({"result":{"id":"factory-proposal","kind":"factory","revision":3,"snapshot":{"schema_version":1,"selection":selection,"bindings":bindings,"contract_digest":"e".repeat(64)}},"revision":8,"warnings":[]}),
+        )
+    }
+    fn scope_result(proposal: &Value) -> Value {
+        let snapshot = &proposal["result"]["snapshot"];
+        json!({"result":{"id":"factory-proposal","approval_id":"factory-proposal","project_id":"project","root_task_id":"task","root_grant_id":"grant","root_grant_revision":2,"revision":1,"revoked":false,"expires_at_ms":1793145600000i64,"selection":snapshot["selection"],"bindings":snapshot["bindings"],"contract_digest":snapshot["contract_digest"],"created_at":"2026-10-28T00:00:00Z"},"revision":9,"warnings":[]})
+    }
+    #[test]
+    fn factory_full_u64_snapshot_pages_and_original_private_frame_are_preserved() {
+        let (selection, proposal) = fixture();
+        let result = scope_result(&proposal);
+        let messages = RefCell::new(Vec::new());
+        let calls = Cell::new(0);
+        let returned=confirm_factory_and_finalize(proposal.clone(),&selection,|message|{messages.borrow_mut().push(message.to_owned());true},|frame|{calls.set(calls.get()+1);assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":"factory-proposal"},"expected_revision":3,"idempotency_key":"proposal:factory-proposal"}));Ok(result.clone())}).unwrap();
+        assert_eq!(returned, result);
+        assert_eq!(calls.get(), 1);
+        assert!(messages.borrow().len() >= 2);
+        assert!(messages
+            .borrow()
+            .iter()
+            .any(|m| m.contains("9223372036854775809")));
+        assert!(messages
+            .borrow()
+            .last()
+            .unwrap()
+            .contains("FINAL independent Factory"));
+        assert_eq!(
+            graph_review_pages(&proposal["result"]["snapshot"])
+                .unwrap()
+                .concat(),
+            serde_json::to_string(&proposal["result"]["snapshot"]).unwrap()
+        );
+    }
+    #[test]
+    fn factory_cancel_each_page_or_final_is_zero_finalize_not_rejection() {
+        let (selection, mut proposal) = fixture();
+        proposal["result"]["snapshot"]["bindings"]["root_task"]["goal"] =
+            json!("委派".repeat(2000));
+        let pages = graph_review_pages(&proposal["result"]["snapshot"])
+            .unwrap()
+            .len();
+        assert!(pages > 1);
+        for decline in 0..=pages {
+            let prompts = Cell::new(0);
+            let calls = Cell::new(0);
+            let value = confirm_factory_and_finalize(
+                proposal.clone(),
+                &selection,
+                |_| {
+                    let index = prompts.get();
+                    prompts.set(index + 1);
+                    index != decline
+                },
+                |_| {
+                    calls.set(calls.get() + 1);
+                    Ok(json!({}))
+                },
+            )
+            .unwrap();
+            assert_eq!(value["error"]["code"], "PERMISSION_DENIED");
+            assert_eq!(calls.get(), 0);
+        }
+    }
+    #[test]
+    fn factory_foreign_task_grant_unsupported_or_companion_authority_never_prompts() {
+        let (selection, proposal) = fixture();
+        let mut variants = Vec::new();
+        for path in [
+            "task",
+            "grant",
+            "workspace",
+            "companion",
+            "token",
+            "start",
+            "capability",
+        ] {
+            let mut p = proposal.clone();
+            let b = &mut p["result"]["snapshot"]["bindings"];
+            match path {
+                "task" => b["root_task"]["id"] = json!("foreign"),
+                "grant" => b["approved_grant"]["revision"] = json!(3),
+                "workspace" => b["workspaces"][0]["id"] = json!("foreign"),
+                "companion" => b["companion"]["argument_template"] = json!(["--different"]),
+                "token" => b["companion"]["global_daemon_token_available"] = json!(true),
+                "start" => b["start_contract"]["implicit_start_on_approval"] = json!(true),
+                _ => {
+                    p["result"]["snapshot"]["selection"]["capabilities"]["create_workspace"] =
+                        json!(true)
+                }
+            };
+            variants.push(p);
+        }
+        for p in variants {
+            let prompts = Cell::new(0);
+            let calls = Cell::new(0);
+            let value = confirm_factory_and_finalize(
+                p,
+                &selection,
+                |_| {
+                    prompts.set(prompts.get() + 1);
+                    true
+                },
+                |_| {
+                    calls.set(calls.get() + 1);
+                    Ok(json!({}))
+                },
+            )
+            .unwrap();
+            assert_eq!(value["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+            assert_eq!(prompts.get(), 0);
+            assert_eq!(calls.get(), 0);
+        }
+    }
+    #[test]
+    fn factory_wrong_postfinalize_id_bindings_or_digest_retains_unknown() {
+        let (selection, proposal) = fixture();
+        for field in ["id", "approval_id", "contract_digest", "bindings"] {
+            let mut result = scope_result(&proposal);
+            result["result"][field] = json!("foreign");
+            let value = confirm_factory_and_finalize(
+                proposal.clone(),
+                &selection,
+                |_| true,
+                |_| Ok(result),
+            )
+            .unwrap();
+            assert_eq!(value["error"]["code"], "OUTCOME_UNKNOWN");
+            assert_eq!(value["error"]["side_effect_state"], "unknown");
+        }
+        for malformed in [json!({"error":true}), json!({"error":{"code":"BROKEN"}})] {
+            let value = confirm_factory_and_finalize(
+                proposal.clone(),
+                &selection,
+                |_| true,
+                |_| Ok(malformed),
+            )
+            .unwrap();
+            assert_eq!(value["error"]["code"], "OUTCOME_UNKNOWN");
+            assert_eq!(value["error"]["side_effect_state"], "unknown");
+        }
+        let value = confirm_factory_and_finalize(
+            proposal.clone(),
+            &selection,
+            |_| true,
+            |_| Err("transport reply lost".into()),
+        );
+        assert_eq!(value.unwrap_err(), "transport reply lost");
+    }
+    #[test]
+    fn factory_kind_and_envelope_cap_are_independent_from_old_kinds() {
+        let (selection, proposal) = fixture();
+        let mut wrong = proposal.clone();
+        wrong["result"]["kind"] = json!("goal_execution");
+        let denied = confirm_factory_and_finalize(
+            wrong,
+            &selection,
+            |_| panic!("wrong kind prompt"),
+            |_| panic!("wrong kind finalize"),
+        )
+        .unwrap();
+        assert_eq!(denied["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        let mut huge = proposal;
+        huge["result"]["snapshot"]["bindings"]["root_task"]["goal"] = json!("a".repeat(1_048_576));
+        let denied = confirm_factory_and_finalize(
+            huge,
+            &selection,
+            |_| panic!("oversize prompt"),
+            |_| panic!("oversize finalize"),
+        )
+        .unwrap();
+        assert_eq!(denied["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+    }
+    #[test]
+    fn factory_root_unknown_or_running_is_not_an_initial_new_authority() {
+        let (selection, proposal) = fixture();
+        for state in ["running", "outcome_unknown", "accepted"] {
+            let mut p = proposal.clone();
+            p["result"]["snapshot"]["bindings"]["root_task"]["state"] = json!(state);
+            let denied = confirm_factory_and_finalize(
+                p,
+                &selection,
+                |_| panic!("unsafe root prompt"),
+                |_| panic!("unsafe root finalize"),
+            )
+            .unwrap();
+            assert_eq!(denied["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        }
+    }
+    fn planning_fixture() -> (Value, Value) {
+        let (mut selection, mut proposal) = fixture();
+        let policy = json!({"max_nodes":8,"max_revisions":4,"max_plan_bytes":262144,"outputs":[{"artifact":selection["outputs"][0],"validators":[]}],"writable_prefixes":["report.txt"],"owner_acceptance_criteria":"核对完整报告与计划；planning is not execution 🧭"});
+        selection["capabilities"]["child_planning"] = json!(true);
+        selection["child_planning_policy"] = policy.clone();
+        proposal["result"]["snapshot"]["selection"] = selection.clone();
+        proposal["result"]["snapshot"]["bindings"]["child_planning"] = json!({"schema_version":1,"authority_kind":"factory_child_planning_only","policy":policy,"owner_rule_id":"factory-child-owner-review","input_rule_id":"factory-child-input-sha256","validator_definitions":{},"definition_digest":"e".repeat(64),"goal_execution_authorized":false,"new_workspace_authorized":false});
+        (selection, proposal)
+    }
+    #[test]
+    fn planning_complete_policy_and_resolved_binding_are_reviewed_without_starting() {
+        let (selection, proposal) = planning_fixture();
+        let messages = RefCell::new(Vec::new());
+        let calls = Cell::new(0);
+        let result = scope_result(&proposal);
+        let value = confirm_factory_and_finalize(
+            proposal.clone(),
+            &selection,
+            |message| {
+                messages.borrow_mut().push(message.to_owned());
+                true
+            },
+            |frame| {
+                calls.set(calls.get() + 1);
+                assert_eq!(frame["method"], "approvals.finalize");
+                assert_eq!(frame["expected_revision"], 3);
+                Ok(result.clone())
+            },
+        )
+        .unwrap();
+        assert_eq!(value, result);
+        assert_eq!(calls.get(), 1);
+        assert!(messages
+            .borrow()
+            .iter()
+            .all(|m| m.contains("PLAN STORAGE ONLY")));
+        let original = serde_json::to_string(&proposal["result"]["snapshot"]).unwrap();
+        assert_eq!(
+            graph_review_pages(&proposal["result"]["snapshot"])
+                .unwrap()
+                .concat(),
+            original
+        );
+        for field in [
+            "max_nodes",
+            "max_revisions",
+            "max_plan_bytes",
+            "outputs",
+            "writable_prefixes",
+            "owner_acceptance_criteria",
+            "validator_definitions",
+            "definition_digest",
+            "goal_execution_authorized",
+            "new_workspace_authorized",
+        ] {
+            assert!(original.contains(field));
+        }
+        assert!(original.contains("9223372036854775809"));
+    }
+    #[test]
+    fn planning_missing_or_expanded_policy_and_execution_authority_never_prompt() {
+        let (selection, proposal) = planning_fixture();
+        for variant in [
+            "missing-policy",
+            "missing-binding",
+            "policy-mismatch",
+            "max-nodes",
+            "max-revisions",
+            "max-bytes",
+            "boolean-limit",
+            "float-limit",
+            "foreign-output",
+            "wider-path",
+            "empty-criteria",
+            "unknown-policy-field",
+            "wrong-kind",
+            "wrong-owner-rule",
+            "wrong-input-rule",
+            "goal-execution",
+            "new-workspace",
+            "capability-goal",
+            "capability-workspace",
+        ] {
+            let mut s = selection.clone();
+            let mut p = proposal.clone();
+            match variant {
+                "missing-policy" => {
+                    s.as_object_mut().unwrap().remove("child_planning_policy");
+                }
+                "missing-binding" => {
+                    p["result"]["snapshot"]["bindings"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("child_planning");
+                }
+                "policy-mismatch" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]["policy"]["max_nodes"] =
+                        json!(7)
+                }
+                "max-nodes" => s["child_planning_policy"]["max_nodes"] = json!(257),
+                "max-revisions" => s["child_planning_policy"]["max_revisions"] = json!(0),
+                "max-bytes" => s["child_planning_policy"]["max_plan_bytes"] = json!(262145),
+                "boolean-limit" => s["child_planning_policy"]["max_nodes"] = json!(true),
+                "float-limit" => s["child_planning_policy"]["max_nodes"] = json!(8.0),
+                "foreign-output" => {
+                    s["child_planning_policy"]["outputs"][0]["artifact"]["artifact_id"] =
+                        json!("foreign")
+                }
+                "wider-path" => {
+                    s["child_planning_policy"]["writable_prefixes"] = json!(["../outside"])
+                }
+                "empty-criteria" => {
+                    s["child_planning_policy"]["owner_acceptance_criteria"] = json!(" \n")
+                }
+                "unknown-policy-field" => s["child_planning_policy"]["execute"] = json!(true),
+                "wrong-kind" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]["authority_kind"] =
+                        json!("goal_execution")
+                }
+                "wrong-owner-rule" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]["owner_rule_id"] =
+                        json!("foreign")
+                }
+                "wrong-input-rule" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]["input_rule_id"] =
+                        json!("foreign")
+                }
+                "goal-execution" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]
+                        ["goal_execution_authorized"] = json!(true)
+                }
+                "new-workspace" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]
+                        ["new_workspace_authorized"] = json!(true)
+                }
+                "capability-goal" => s["capabilities"]["child_goal_execution"] = json!(true),
+                _ => s["capabilities"]["create_workspace"] = json!(true),
+            }
+            p["result"]["snapshot"]["selection"] = s.clone();
+            let denied = confirm_factory_and_finalize(
+                p,
+                &s,
+                |_| panic!("invalid planning prompt {variant}"),
+                |_| panic!("invalid planning finalize {variant}"),
+            )
+            .unwrap();
+            assert_eq!(
+                denied["error"]["code"], "INVALID_APPROVAL_PROPOSAL",
+                "{variant}"
+            );
+        }
+    }
+    #[test]
+    fn planning_false_legacy_scope_does_not_gain_policy_or_binding() {
+        let (selection, proposal) = fixture();
+        assert!(factory_snapshot_matches(
+            &proposal["result"]["snapshot"],
+            &selection
+        ));
+        let mut s = selection.clone();
+        s["child_planning_policy"] = Value::Null;
+        let mut p = proposal.clone();
+        p["result"]["snapshot"]["selection"] = s.clone();
+        assert!(!factory_snapshot_matches(&p["result"]["snapshot"], &s));
+        let mut p = proposal.clone();
+        p["result"]["snapshot"]["bindings"]["child_planning"] = Value::Null;
+        assert!(!factory_snapshot_matches(
+            &p["result"]["snapshot"],
+            &selection
+        ));
+        let messages = RefCell::new(Vec::new());
+        let result = scope_result(&proposal);
+        confirm_factory_and_finalize(
+            proposal,
+            &selection,
+            |message| {
+                messages.borrow_mut().push(message.to_owned());
+                true
+            },
+            |_| Ok(result),
+        )
+        .unwrap();
+        assert!(messages
+            .borrow()
+            .iter()
+            .all(|m| m.contains("No child planning/Goal execution/workspace creation")));
+    }
+    #[test]
+    fn planning_cancel_every_complete_page_and_final_is_zero_finalize() {
+        let (mut selection, mut proposal) = planning_fixture();
+        selection["child_planning_policy"]["owner_acceptance_criteria"] =
+            json!("中文🧭".repeat(1000));
+        proposal["result"]["snapshot"]["selection"] = selection.clone();
+        proposal["result"]["snapshot"]["bindings"]["child_planning"]["policy"] =
+            selection["child_planning_policy"].clone();
+        let pages = graph_review_pages(&proposal["result"]["snapshot"]).unwrap();
+        assert!(pages.len() > 1);
+        for decline in 0..=pages.len() {
+            let prompts = Cell::new(0);
+            let denied = confirm_factory_and_finalize(
+                proposal.clone(),
+                &selection,
+                |message| {
+                    assert!(message.len() <= 16384);
+                    let i = prompts.get();
+                    prompts.set(i + 1);
+                    i != decline
+                },
+                |_| panic!("cancel must never finalize"),
+            )
+            .unwrap();
+            assert_eq!(denied["error"]["code"], "PERMISSION_DENIED");
+            assert_eq!(prompts.get(), decline + 1);
+        }
+    }
+    #[test]
+    fn planning_foreign_final_receipt_retains_unknown_and_never_replays() {
+        let (selection, proposal) = planning_fixture();
+        let mut result = scope_result(&proposal);
+        result["result"]["bindings"]["child_planning"]["policy"]["max_nodes"] = json!(9);
+        let count = Cell::new(0);
+        let reply = confirm_factory_and_finalize(
+            proposal,
+            &selection,
+            |_| true,
+            |_| {
+                count.set(count.get() + 1);
+                Ok(result)
+            },
+        )
+        .unwrap();
+        assert_eq!(count.get(), 1);
+        assert_eq!(reply["error"]["code"], "OUTCOME_UNKNOWN");
+        assert_eq!(reply["error"]["side_effect_state"], "unknown");
+    }
+    #[test]
+    fn planning_validator_references_are_complete_exact_and_not_run_receipts() {
+        let (mut selection, mut proposal) = planning_fixture();
+        let reference = json!({"kind":"integrity","policy_id":"integrity-policy","revision":1});
+        selection["child_planning_policy"]["outputs"][0]["validators"] = json!([reference]);
+        proposal["result"]["snapshot"]["selection"] = selection.clone();
+        let binding = &mut proposal["result"]["snapshot"]["bindings"]["child_planning"];
+        binding["policy"] = selection["child_planning_policy"].clone();
+        binding["validator_definitions"] = json!({"integrity:integrity-policy":{"reference":reference,"rule_id":"integrity:integrity-policy","digest":"f".repeat(64),"definition":{"id":"integrity-policy","project_id":"project","workspace_id":"workspace","revision":1,"approval_id":"original-native-policy","revoked":false,"scope":"artifact_integrity_only","full_unknown_native_definition":"preserved and displayed"},"source_runs_started":0,"source_run_states":[]}});
+        assert!(factory_snapshot_matches(
+            &proposal["result"]["snapshot"],
+            &selection
+        ));
+        for variant in [
+            "missing",
+            "extra",
+            "reference",
+            "project",
+            "workspace",
+            "revoked",
+            "used",
+            "state",
+            "digest",
+        ] {
+            let mut p = proposal.clone();
+            let definitions =
+                &mut p["result"]["snapshot"]["bindings"]["child_planning"]["validator_definitions"];
+            match variant {
+                "missing" => *definitions = json!({}),
+                "extra" => definitions["foreign"] = json!({}),
+                "reference" => {
+                    definitions["integrity:integrity-policy"]["reference"]["revision"] = json!(2)
+                }
+                "project" => {
+                    definitions["integrity:integrity-policy"]["definition"]["project_id"] =
+                        json!("foreign")
+                }
+                "workspace" => {
+                    definitions["integrity:integrity-policy"]["definition"]["workspace_id"] =
+                        json!("foreign")
+                }
+                "revoked" => {
+                    definitions["integrity:integrity-policy"]["definition"]["revoked"] = json!(true)
+                }
+                "used" => {
+                    definitions["integrity:integrity-policy"]["source_runs_started"] = json!(1)
+                }
+                "state" => {
+                    definitions["integrity:integrity-policy"]["source_run_states"] =
+                        json!(["passed"])
+                }
+                _ => definitions["integrity:integrity-policy"]["digest"] = json!("not-a-digest"),
+            };
+            assert!(
+                !factory_snapshot_matches(&p["result"]["snapshot"], &selection),
+                "{variant}"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod factory_contract_regression_tests {
+    use super::*;
+    use std::cell::Cell;
+    fn actual_bundle() -> Value {
+        serde_json::from_str(include_str!("../tests/fixtures/factory-wire-bundle-0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64.json")).unwrap()
+    }
+    #[test]
+    fn factory_actual_store_project_snapshot_and_scope_bind_every_original_value() {
+        let wire = actual_bundle();
+        let proposal = &wire["proposal"];
+        let finalized = Cell::new(0);
+        let result=confirm_factory_and_finalize(json!({"result":proposal}),&wire["selection"],|message|{
+            assert!(message.contains(proposal["id"].as_str().unwrap()));true
+        },|frame|{
+            finalized.set(finalized.get()+1);
+            assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"].as_str().unwrap())}));
+            Ok(json!({"result":wire["scope"]}))
+        }).unwrap();
+        assert_eq!(result["result"], wire["scope"]);
+        assert_eq!(
+            result["result"]["bindings"]["project"],
+            proposal["snapshot"]["bindings"]["project"]
+        );
+        assert_eq!(finalized.get(), 1);
+    }
+    #[test]
+    fn factory_native_rejects_missing_or_foreign_grant_hosts_recipients_and_project_before_prompt()
+    {
+        for kind in [
+            "host",
+            "missing-hosts",
+            "recipient",
+            "missing-recipients",
+            "project",
+            "missing-project",
+        ] {
+            let wire = actual_bundle();
+            let mut proposal = wire["proposal"].clone();
+            let mut selection = wire["selection"].clone();
+            match kind {
+                "host" => {
+                    proposal["snapshot"]["bindings"]["connections"][0]["host_id"] = json!("outside")
+                }
+                "missing-hosts" => {
+                    proposal["snapshot"]["bindings"]["approved_grant"]["scope"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("host_ids");
+                }
+                "recipient" => {
+                    selection["recipients"] = json!(["outside"]);
+                    proposal["snapshot"]["selection"] = selection.clone();
+                }
+                "missing-recipients" => {
+                    proposal["snapshot"]["bindings"]["approved_grant"]["scope"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("recipients");
+                }
+                "project" => proposal["snapshot"]["bindings"]["project"]["id"] = json!("foreign"),
+                "missing-project" => {
+                    proposal["snapshot"]["bindings"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("project");
+                }
+                _ => unreachable!(),
+            }
+            let refused = confirm_factory_and_finalize(
+                json!({"result":proposal}),
+                &selection,
+                |_| panic!("foreign authority must not prompt"),
+                |_| panic!("foreign authority must not finalize"),
+            )
+            .unwrap();
+            assert_eq!(
+                refused["error"]["side_effect_state"], "not_started",
+                "{kind}"
+            );
+            assert_eq!(
+                refused["error"]["code"], "INVALID_APPROVAL_PROPOSAL",
+                "{kind}"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod factory_grant_pin_tests {
+    use super::*;
+    fn actual_wire() -> Value {
+        serde_json::from_str(include_str!("../tests/fixtures/factory-wire-bundle-0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64.json")).unwrap()
+    }
+    fn refuse(proposal: Value, selection: &Value) {
+        let value = confirm_factory_and_finalize(
+            json!({"result":proposal}),
+            selection,
+            |_| panic!("unbound Grant pin must not prompt"),
+            |_| panic!("unbound Grant pin must not finalize"),
+        )
+        .unwrap();
+        assert_eq!(value["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        assert_eq!(value["error"]["side_effect_state"], "not_started");
+    }
+    #[test]
+    fn factory_original_grant_connection_pin_is_required_for_all_eight_fields() {
+        for field in [
+            "protocol_route",
+            "revision",
+            "environment_id",
+            "identity_ref",
+            "host_id",
+            "config_revision",
+            "executable_sha256",
+            "capability_snapshot_id",
+            "missing-selected",
+            "missing-map",
+        ] {
+            let wire = actual_wire();
+            let mut proposal = wire["proposal"].clone();
+            let b = &mut proposal["snapshot"]["bindings"];
+            if field == "missing-selected" {
+                let id = b["connections"][0]["id"].as_str().unwrap().to_owned();
+                b["approved_grant"]["connection_bindings"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove(&id);
+            } else if field == "missing-map" {
+                b["approved_grant"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("connection_bindings");
+            } else {
+                b["connections"][0][field] = match field {
+                    "revision" => json!(2),
+                    "executable_sha256" => json!("f".repeat(64)),
+                    _ => json!("foreign-binding"),
+                };
+                if field == "host_id" {
+                    b["approved_grant"]["scope"]["host_ids"]
+                        .as_array_mut()
+                        .unwrap()
+                        .push(json!("foreign-binding"));
+                }
+            }
+            refuse(proposal, &wire["selection"]);
+        }
+    }
+    #[test]
+    fn factory_workspace_and_contract_pins_use_exact_serde_u64_without_renderer_rounding() {
+        let wire = actual_wire();
+        let mut proposal = wire["proposal"].clone();
+        let b = &mut proposal["snapshot"]["bindings"];
+        let workspace_id = b["workspaces"][0]["id"].as_str().unwrap().to_owned();
+        let exact = 9223372036854775809u64;
+        b["workspaces"][0]["identity"]["inode"] = json!(exact);
+        b["approved_grant"]["workspace_bindings"][&workspace_id]["inode"] = json!(exact);
+        b["inputs"][0]["contract"]["root_inode"] = json!(exact);
+        b["outputs"][0]["root_inode"] = json!(exact);
+        assert!(factory_snapshot_matches(
+            &proposal["snapshot"],
+            &wire["selection"]
+        ));
+        for field in [
+            "device",
+            "inode",
+            "kind",
+            "missing-selected",
+            "missing-map",
+            "input-device",
+            "input-inode",
+            "output-device",
+            "output-inode",
+        ] {
+            let mut changed = proposal.clone();
+            let b = &mut changed["snapshot"]["bindings"];
+            match field {
+                "device" => b["workspaces"][0]["identity"]["device"] = json!(999u64),
+                "inode" => b["workspaces"][0]["identity"]["inode"] = json!(exact + 1),
+                "kind" => b["workspaces"][0]["identity"]["kind"] = json!({"kind":"directory"}),
+                "missing-selected" => {
+                    b["approved_grant"]["workspace_bindings"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove(&workspace_id);
+                }
+                "missing-map" => {
+                    b["approved_grant"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("workspace_bindings");
+                }
+                "input-device" => b["inputs"][0]["contract"]["root_device"] = json!(999u64),
+                "input-inode" => b["inputs"][0]["contract"]["root_inode"] = json!(exact + 1),
+                "output-device" => b["outputs"][0]["root_device"] = json!(999u64),
+                "output-inode" => b["outputs"][0]["root_inode"] = json!(exact + 1),
+                _ => unreachable!(),
+            }
+            refuse(changed, &wire["selection"]);
+        }
+    }
+}
+
+#[cfg(test)]
+mod factory_protocol_pin_tests {
+    use super::*;
+    #[test]
+    fn factory_protocol_pin_requires_a_nonempty_string_not_merely_equal_values() {
+        for mode in ["missing", "null", "empty"] {
+            let wire:Value=serde_json::from_str(include_str!("../tests/fixtures/factory-wire-bundle-0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64.json")).unwrap();
+            let mut proposal = wire["proposal"].clone();
+            let b = &mut proposal["snapshot"]["bindings"];
+            let id = b["connections"][0]["id"].as_str().unwrap().to_owned();
+            if mode == "missing" {
+                b["connections"][0]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("protocol_route");
+                b["approved_grant"]["connection_bindings"][&id]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("protocol_route");
+            } else {
+                let value = if mode == "null" {
+                    Value::Null
+                } else {
+                    json!("")
+                };
+                b["connections"][0]["protocol_route"] = value.clone();
+                b["approved_grant"]["connection_bindings"][&id]["protocol_route"] = value;
+            }
+            let refused = confirm_factory_and_finalize(
+                json!({"result":proposal}),
+                &wire["selection"],
+                |_| panic!("untyped route must not prompt"),
+                |_| panic!("untyped route must not finalize"),
+            )
+            .unwrap();
+            assert_eq!(refused["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+            assert_eq!(refused["error"]["side_effect_state"], "not_started");
+        }
     }
 }

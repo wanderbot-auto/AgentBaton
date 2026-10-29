@@ -58,3 +58,7 @@ impl fmt::Display for CoreError {
 }
 impl std::error::Error for CoreError {}
 pub type Result<T> = std::result::Result<T, CoreError>;
+
+pub mod factory;
+
+pub mod factory_companion;

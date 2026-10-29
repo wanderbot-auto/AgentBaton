@@ -67,6 +67,9 @@ fn fail(app: &tauri::AppHandle, reason: &str) {
     app.exit(1);
 }
 fn invoke_script(expected: &Value) -> String {
+    if controller::is_factory(expected) {
+        return format!("(async()=>{{try{{const response=await window.__TAURI_INTERNALS__.invoke('factory_scope_approve',{});await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response}})}}catch(error){{await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response:{{bridge_error:String(error)}}}})}}}})()",expected["invoke"]);
+    }
     format!("(async()=>{{try{{const response=await window.__TAURI_INTERNALS__.invoke('grants_create',{});await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response}})}}catch(error){{await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response:{{bridge_error:String(error)}}}})}}}})()",expected["invoke"])
 }
 fn record_report(
@@ -94,6 +97,11 @@ fn record_report(
             drop(phase);
             return Err("Cancel response mismatch".into());
         }
+        if controller::is_factory(&state.expected) {
+            state.done.store(true, Ordering::Release);
+            app.exit(0);
+            return Ok(());
+        }
         *phase = Phase {
             name: "approve",
             clicked: false,
@@ -109,7 +117,12 @@ fn record_report(
             .eval(invoke_script(&state.expected))
             .map_err(|e| e.to_string())?;
     } else {
-        if controller::validate_grant_response(&response, &state.expected).is_err() {
+        let checked = if controller::is_factory(&state.expected) {
+            controller::validate_factory_response(&response, &state.expected)
+        } else {
+            controller::validate_grant_response(&response, &state.expected)
+        };
+        if checked.is_err() {
             drop(phase);
             return Err("Grant response mismatch".into());
         }
@@ -230,7 +243,7 @@ fn observe(
             "parent_frame":rect(parent.frame()),"sheet_frame":rect(sheet.frame()),
             "on_screen":sheet.screen().is_some_and(|screen|contains(screen.visibleFrame(),sheet.frame())),
             "expected_message":controller::diagnostic_text(page_message, &mut 0)?,
-            "expected_title":controller::diagnostic_text("AgentBaton — Native owner approval", &mut 0)?,
+            "expected_title":controller::diagnostic_text(controller::dialog_title(expected), &mut 0)?,
             "title_matches":0,"message_matches":0,"views":[],"buttons":[],
             "limits":{"views":256,"class_bytes":256,"field_text_utf8_bytes":controller::DIAGNOSTIC_TEXT_BYTES,"total_text_utf8_bytes":controller::DIAGNOSTIC_TOTAL_TEXT_BYTES},
             "automated_fixture_not_human_owner":true,"diagnostic_not_click_authority":true}),
@@ -277,11 +290,11 @@ fn observe(
             diagnostic["views"][index]["text_utf8_bytes"] = json!(value.len());
             diagnostic["views"][index]["text"] =
                 controller::diagnostic_text(&value, &mut text_bytes)?;
-            title_matches += usize::from(value == "AgentBaton — Native owner approval");
+            title_matches += usize::from(value == controller::dialog_title(expected));
             message_matches += usize::from(value == page_message);
             diagnostic["title_matches"] = json!(title_matches);
             diagnostic["message_matches"] = json!(message_matches);
-            if value == page_message || value == "AgentBaton — Native owner approval" {
+            if value == page_message || value == controller::dialog_title(expected) {
                 let bounds = text.bounds();
                 let cell = text.cell().ok_or("Text has no measurable cell")?;
                 let mut unconstrained = bounds;
@@ -294,7 +307,7 @@ fn observe(
                     && required.width <= bounds.size.width + 0.5;
                 diagnostic["views"][index]["required_cell_size"] =
                     json!({"width":required.width,"height":required.height});
-                if value == "AgentBaton — Native owner approval" {
+                if value == controller::dialog_title(expected) {
                     title.push(value);
                 } else {
                     message.push(value);
@@ -336,7 +349,11 @@ fn observe(
         .screen()
         .is_some_and(|screen| contains(screen.visibleFrame(), sheet.frame()));
     let number = sheet.windowNumber();
-    let value = json!({"phase":phase,"presentation_index":index,"presentation_count":expected["presentation"].as_array().unwrap().len(),"proposal_id":expected["proposal"]["id"],"proposal_revision":expected["proposal"]["revision"],"title":title[0],"message":message[0],"parent_matches":parent_matches,"visible":parent.isVisible() && sheet.isVisible() && on_screen,"complete_text_visible":complete,"window_number":number,"buttons":buttons,"capture_api":"/usr/sbin/screencapture -x -l exact_attached_sheet_window_number","click_api":"NSControl.performClick(None)","automated_fixture_not_human_owner":true});
+    let mut value = json!({"phase":phase,"presentation_index":index,"presentation_count":expected["presentation"].as_array().unwrap().len(),"proposal_id":expected["proposal"]["id"],"proposal_revision":expected["proposal"]["revision"],"title":title[0],"message":message[0],"parent_matches":parent_matches,"visible":parent.isVisible() && sheet.isVisible() && on_screen,"complete_text_visible":complete,"window_number":number,"buttons":buttons,"capture_api":"/usr/sbin/screencapture -x -l exact_attached_sheet_window_number","click_api":"NSControl.performClick(None)","automated_fixture_not_human_owner":true});
+    if controller::is_factory(expected) {
+        value["review_nonce"] = expected["review_nonce"].clone();
+        value["factory_page"] = expected["factory_contexts"][index].clone();
+    }
     diagnostic["validation_stage"] = json!("controller_validate");
     controller::validate(&value, expected, phase, index)?;
     Ok(Some(Observation {
@@ -552,14 +569,18 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
             "Host database permit does not bind the same exact pending proposal/sequence".into(),
         );
     }
+    if controller::is_factory(&state.expected) {
+        controller::validate_factory_identity(&permit, &state.expected, phase.page)?;
+    }
     // Mark before public action to prevent reentrant polling from clicking twice.
     let final_page = phase.page + 1 == state.expected["presentation"].as_array().unwrap().len();
-    let button = if final_page && phase.name == "cancel" {
+    let cancel_here = controller::cancel_here(&state.expected, phase.name, phase.page)?;
+    let button = if cancel_here {
         observed.cancel
     } else {
         observed.ok
     };
-    if final_page {
+    if final_page || cancel_here {
         phase.clicked = true;
     } else {
         phase.page += 1;
@@ -583,35 +604,39 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     if fs::metadata(&fixture)?.len() > 65536 {
         return Err("Generated Grant fixture exceeds 64 KiB bound".into());
     }
-    let expected: Value = serde_json::from_slice(&fs::read(fixture)?)?;
-    let intent = json!({"project_id":expected["invoke"]["projectId"],"workspace_id":expected["invoke"]["workspaceId"],"connection_id":expected["invoke"]["connectionId"],"max_attempts":1,"max_concurrency":1,"max_duration_ms":1000});
-    if expected["proposal"]["id"]
-        .as_str()
-        .is_none_or(|s| s.is_empty())
-        || expected["proposal"]["revision"]
-            .as_u64()
-            .is_none_or(|n| n == 0)
-        || expected["baseline_sequence"].as_u64().is_none()
-        || expected["proposal"]["snapshot"]["intent"] != intent
-        || expected["invoke"]["idempotencyKey"] != "owner-os-grant"
-        || expected["message"]
+    let mut expected: Value = serde_json::from_slice(&fs::read(fixture)?)?;
+    if controller::is_factory(&expected) {
+        controller::prepare_factory(&mut expected)?;
+    } else {
+        let intent = json!({"project_id":expected["invoke"]["projectId"],"workspace_id":expected["invoke"]["workspaceId"],"connection_id":expected["invoke"]["connectionId"],"max_attempts":1,"max_concurrency":1,"max_duration_ms":1000});
+        if expected["proposal"]["id"]
             .as_str()
-            .is_none_or(|s| s.is_empty() || s.len() > 24576)
-        || expected["presentation"].as_array().is_none_or(|pages| {
-            pages.len() < 2
-                || pages.len() > 1024
-                || pages
-                    .iter()
-                    .any(|page| page.as_str().is_none_or(|s| s.is_empty() || s.len() > 2048))
-        })
-        || expected["kind"] != "native_grant_os_dialog_fixture"
-        || expected["proposal"]["kind"] != "grant"
-        || expected["proposal"]["consumed"] != false
-        || expected["invoke"]["maxAttempts"] != 1
-        || expected["invoke"]["maxConcurrency"] != 1
-        || expected["invoke"]["maxDurationMs"] != 1000
-    {
-        return Err("Only the bounded generated Grant fixture is supported".into());
+            .is_none_or(|s| s.is_empty())
+            || expected["proposal"]["revision"]
+                .as_u64()
+                .is_none_or(|n| n == 0)
+            || expected["baseline_sequence"].as_u64().is_none()
+            || expected["proposal"]["snapshot"]["intent"] != intent
+            || expected["invoke"]["idempotencyKey"] != "owner-os-grant"
+            || expected["message"]
+                .as_str()
+                .is_none_or(|s| s.is_empty() || s.len() > 24576)
+            || expected["presentation"].as_array().is_none_or(|pages| {
+                pages.len() < 2
+                    || pages.len() > 1024
+                    || pages
+                        .iter()
+                        .any(|page| page.as_str().is_none_or(|s| s.is_empty() || s.len() > 2048))
+            })
+            || expected["kind"] != "native_grant_os_dialog_fixture"
+            || expected["proposal"]["kind"] != "grant"
+            || expected["proposal"]["consumed"] != false
+            || expected["invoke"]["maxAttempts"] != 1
+            || expected["invoke"]["maxConcurrency"] != 1
+            || expected["invoke"]["maxDurationMs"] != 1000
+        {
+            return Err("Only the bounded generated Grant fixture is supported".into());
+        }
     }
     let runtime =
         PathBuf::from(expected["runtime"].as_str().ok_or("No runtime")?).canonicalize()?;
@@ -624,12 +649,17 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         window.incognito = true;
         window.data_directory = Some("owner-smoke-webview".into());
     }
+    let initial_phase = if controller::is_factory(&expected) && expected["phase"] == "approve" {
+        "approve"
+    } else {
+        "cancel"
+    };
     let state = State {
         expected,
         output,
         caller: Mutex::new(None),
         phase: Mutex::new(Phase {
-            name: "cancel",
+            name: initial_phase,
             clicked: false,
             page: 0,
             previous_number: None,

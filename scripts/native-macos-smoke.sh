@@ -25,9 +25,18 @@ if [[ "$root_target/debug/batond" != "$native_target/batond" ]]; then
 fi
 python3 scripts/native-run.py --output "$output" -- "$native_target/agentbaton-native-smoke" "$output"
 python3 - "$output/native-smoke.json" <<'PY'
-import json,sys
+import importlib.util,json,sys
 from pathlib import Path
 record=json.loads(Path(sys.argv[1]).read_text())
+native_spec=importlib.util.spec_from_file_location('native_schema14_contract','scripts/native-run.py')
+native_runner=importlib.util.module_from_spec(native_spec)
+native_spec.loader.exec_module(native_runner)
+factory_error=native_runner.factory_report_error(record)
+assert factory_error is None,factory_error
+for phase in ['before', 'after']:
+    factory_counts = record['factory_readonly_database'][phase]
+    assert type(factory_counts['schema_version']) is int and factory_counts['schema_version'] == 14
+    assert all(type(factory_counts[field]) is int and factory_counts[field] == 0 for field in ['child_plan_heads', 'child_plan_revisions'])
 assert record['status']=='passed',record
 assert record['os']=='macos',record
 assert record['first_webview']['realComposerSubmitted']
@@ -46,7 +55,7 @@ assert record['first_webview']['readonlyGoalExecutionNoMutation'] is True
 assert record['goal_execution_readonly_database']['read_only'] is True
 assert record['goal_execution_readonly_database']['unchanged'] is True
 assert record['goal_execution_readonly_database']['before'] == record['goal_execution_readonly_database']['after']
-assert record['goal_execution_readonly_database']['before']['schema_version'] == 12
+assert type(record['goal_execution_readonly_database']['before']['schema_version']) is int and record['goal_execution_readonly_database']['before']['schema_version'] == 14
 assert all(record['goal_execution_readonly_database']['before'][field] == 0 for field in ['run_count','node_count','reservation_count'])
 assert record['first_webview']['goalExecutionReadonlySequence'] == record['first_webview']['goalReadonlySequence']
 assert record['first_webview']['goalExecutionReadonlySequence']['before'] == record['goal_execution_readonly_database']['before']['sequence']
@@ -57,7 +66,7 @@ assert record['first_webview']['readonlyGoalGraphNoMutation'] is True
 assert record['goal_graph_readonly_database']['read_only'] is True
 assert record['goal_graph_readonly_database']['unchanged'] is True
 assert record['goal_graph_readonly_database']['before'] == record['goal_graph_readonly_database']['after']
-assert record['goal_graph_readonly_database']['before']['schema_version'] == 12
+assert type(record['goal_graph_readonly_database']['before']['schema_version']) is int and record['goal_graph_readonly_database']['before']['schema_version'] == 14
 assert all(record['goal_graph_readonly_database']['before'][field] == 0 for field in ['capability_count','job_count','candidate_count','validation_count','owner_decision_count','acceptance_count'])
 assert record['first_webview']['goalGraphReadonlySequence'] == record['first_webview']['goalExecutionReadonlySequence'] == record['first_webview']['goalReadonlySequence']
 assert record['first_webview']['goalGraphReadonlySequence']['before'] == record['goal_graph_readonly_database']['before']['sequence']

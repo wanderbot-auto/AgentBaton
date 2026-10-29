@@ -1,0 +1,210 @@
+{
+  "source_commit": "98bc23ee10529ed290eaaaa68412e4e3ff971aef",
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 9441,
+    "sha256": "302a4303e47281ba1de613bd79a4b44589cd613c31b17d34c631d557d7060ecd"
+  },
+  "internal_manifest": {
+    "path": "MEMBERS.json",
+    "bytes": 5933,
+    "sha256": "146cbcf4c4c5bf9472d41ec9690c022cbe5b8f525fb4577d9b8471a0f44a19ba"
+  },
+  "payload_members": 32,
+  "total_members": 33,
+  "roundtrip": "every member byte-equal; regular files only; no duplicate/traversal/symlink members",
+  "members": [
+    {
+      "path": "actual-parent.py",
+      "bytes": 2690,
+      "sha256": "35869b34b9f888d1808f39b47d60a6ebad35d15c21a803cc6f86020b26da4a98",
+      "mode": "0600"
+    },
+    {
+      "path": "check_static.py",
+      "bytes": 11248,
+      "sha256": "a6733c7cb93be24709d0fc84921d8f7be28df3a893fa0ed1b892a2da1ae4f716",
+      "mode": "0600"
+    },
+    {
+      "path": "command.json",
+      "bytes": 402,
+      "sha256": "ed73139cd8bf47b28e57920b3e4e2d07c93f24e4efa081801501d055ad7e25f9",
+      "mode": "0600"
+    },
+    {
+      "path": "diff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "diff.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "infrastructure.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "infrastructure.stdout",
+      "bytes": 231,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/actual-parent.py",
+      "bytes": 2690,
+      "sha256": "35869b34b9f888d1808f39b47d60a6ebad35d15c21a803cc6f86020b26da4a98",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/check_static.py",
+      "bytes": 11325,
+      "sha256": "f33a893dea9a2f298c54d12b7c412bd4e780beb2301b04835cb5d536e8bd4109",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/command.json",
+      "bytes": 509,
+      "sha256": "a264b3c0ce95287e82e07e895c969a87651d635509a16ea4d39f0a71863eed5d",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/diff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/diff.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/infrastructure.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/infrastructure.stdout",
+      "bytes": 231,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/other-commands.json",
+      "bytes": 1270,
+      "sha256": "9f38b6ac0aa0b0c49f67a52f694c15a0613e2c4f8721b740cf4d5fc33608eb27",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/preservation.json",
+      "bytes": 732,
+      "sha256": "eb2670775f44d127d9e38a96eaa8e23f86f68ee142bdde41edb6876d96513b82",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/results.json",
+      "bytes": 9133,
+      "sha256": "b6a0af4c6f5f2599ffa78c1ff3af18e173a1d44e637e6537318bbe2015e6d386",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/shell-syntax.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/shell-syntax.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/source-map.json",
+      "bytes": 1867,
+      "sha256": "8983174b0674ca406f223c7fd7b7c9740238c12b5da61deab39e256e9a807d0b",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/static.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "integrated-744/static.stdout",
+      "bytes": 142,
+      "sha256": "b79076cca81c0679696f3208c5d90595ad6e195acc46a7d88a65c9f8c8f349d2",
+      "mode": "0600"
+    },
+    {
+      "path": "other-commands.json",
+      "bytes": 1101,
+      "sha256": "d3720214c10cf8ecb1499fed154f1dbdc0be7a831a24564d730055ea76325edf",
+      "mode": "0600"
+    },
+    {
+      "path": "previous-command.json",
+      "bytes": 342,
+      "sha256": "526f47c7d6257aa8f690dc5a3ddc25b90149a9535d893b461704507f3079fd86",
+      "mode": "0600"
+    },
+    {
+      "path": "previous-results.json",
+      "bytes": 8658,
+      "sha256": "035ddd9c466497d02313f66868ce058758cd1e1141b0afccf7ce0d52959d7463",
+      "mode": "0600"
+    },
+    {
+      "path": "previous-static.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "previous-static.stdout",
+      "bytes": 381,
+      "sha256": "9224eda3e9d03ed0888b19631e2d0d9c88021e3269ffb2caa4ce11c4c04ed001",
+      "mode": "0600"
+    },
+    {
+      "path": "results.json",
+      "bytes": 8988,
+      "sha256": "5d407e7ba9ee86d54c6f36849a665399c12d5ed862f513db24d9db1d338e4dd5",
+      "mode": "0600"
+    },
+    {
+      "path": "shell-syntax.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "shell-syntax.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "static.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "static.stdout",
+      "bytes": 381,
+      "sha256": "a0945b7992977765d0765be20250fc72a17076b7ef5990bbec7cbabe09fdf6f5",
+      "mode": "0600"
+    }
+  ]
+}

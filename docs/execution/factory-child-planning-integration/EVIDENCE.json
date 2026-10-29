@@ -1,0 +1,247 @@
+{
+  "at": "2026-10-29T05:53:38.704700+00:00",
+  "source_at_checkpoint": "1097980c7eb86a88f679014c2242b8abc1231d61",
+  "branch": "codex/factory-child-planning-integration",
+  "approval": "AB-START-001",
+  "inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-005",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-003",
+    "AB-SEC-005",
+    "AB-SEC-010",
+    "AB-COR-002",
+    "AB-COR-007"
+  ],
+  "workspace": {
+    "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+    "outer_passed": 659,
+    "docs_passed": 7,
+    "nested_overlap_not_added": 5,
+    "failed": 0,
+    "seconds": 626.21,
+    "profile": "Linux TEST_DEBUG0 offline jobs2 serial; not Native workspace/Mac/liveProvider",
+    "post_tests_clippy": "exit101 type_complexity; preserved"
+  },
+  "lint_fix": {
+    "source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+    "change": "StoredPlanRow type alias only, no SQL/tuple-order/behavior change",
+    "clippy_exit": 0,
+    "fmt_exit": 0,
+    "not_claimed": "full659 rerun on f9a"
+  },
+  "frontend": {
+    "build_source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+    "typecheck_exit": 0,
+    "build_exit": 0,
+    "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+    "node_passed": 733,
+    "test_files": 44,
+    "node_exit": 0
+  },
+  "native_first_run": {
+    "source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+    "exit": -15,
+    "reason": "200MiB disk guard during compile",
+    "tests_reached": 0,
+    "exact_original_tools_restored": true,
+    "tracked_before_after_equal": true,
+    "pending_fix": "dd2c29b changes exactly one current positive fixture schema13 to14; historical13 negatives remain"
+  },
+  "browser": {
+    "source": "0e1a4145e33f9cadf9f4da9095690b2fe293e578",
+    "independent_review_sha256": "ee281f08ac430e3f05e66a638d88f77e292d4c6f8fc56f5f8573277b26af5e1b",
+    "pure_controls": 94,
+    "additional_independent_controls": 11,
+    "actual_runtime": "not_run"
+  },
+  "composition_review": {
+    "sha256": "c4dd382cffff74b26f771c29fec2966e8abf3c37cf6122f6ca596155c9a50f9d",
+    "manifest_sha256": "b905237bda919d3669149898ee86b8a710a4b1042daaf7b316dcdcca441071d2",
+    "verdict": "SOURCE_READY_RUNTIME_PENDING"
+  },
+  "remaining": [
+    "new-head normal tools preparation and guarded Native Rust tests",
+    "fresh actual UI14/Core14 Unix IPC browser flow",
+    "real native OS Factory planning approval and dual Mac schema14 CI",
+    "child_goal_execution/create_workspace and all remaining full-design requirements",
+    "realProvider/remote/signing/manualinstall independently blocked or not_run"
+  ],
+  "full_product_complete": false,
+  "post_checkpoint": {
+    "native_source": "ff5191afa76f9b5612558cd8960a7c9a572b2521",
+    "native_library": 83,
+    "native_smoke": 30,
+    "owner_controller": 10,
+    "native_total_unique": 123,
+    "planning8_in_library": true,
+    "native_exact_tools_and_source_restored": true,
+    "native_review_sha256": "ed6d4e6e559b9de4d72dd77c1c0270178aae19969d8859824525dbf58fb5fd15",
+    "native_manifest_sha256": "5b3e1130178fd4aa8fb52ed4ee870f8f67e411213bdca189ee0ce828e78b1320",
+    "browser_run1_source": "ff5191afa76f9b5612558cd8960a7c9a572b2521",
+    "browser_exit": 1,
+    "browser_checks": 0,
+    "browser_screenshots": 0,
+    "browser_cleanup_complete": false,
+    "browser_reason": "exact dynamic label timeout before approval/start/MCP; secondary closedPlaywright-context cleanup error retained",
+    "browser_fixed_harness": "d27be8fe506ac7455b2ac9c000a7e072acaf8a8c under independent review, NOT_RUN",
+    "accepted_main": "3fd60f354236ddc5ab0ea2f7665428a8496f4a64",
+    "tested_candidate": "de1135018a1fef279f37bbd99ab624bca588f52e",
+    "equal_tree": "1bdfa98507023b2b48f87cabeb118713dc86ec6b",
+    "main_merge_payload_changes": [],
+    "OWNER_ACK": [
+      "OWNER-001",
+      "OWNER-002"
+    ]
+  },
+  "development_packages_schema12": {
+    "product_run": 40820986808,
+    "environment_after_ready": 40826447998,
+    "AppleSilicon": {
+      "artifact": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40820986808/artifacts/12876135886",
+      "DMG_SHA256": "d98fd1d51f506311875958ba9e3fb3bde72d58573591739b282630fdf6a4ba7e",
+      "signature": "adhoc/noTeamID"
+    },
+    "Intel": {
+      "artifact": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40820986808/artifacts/12876475535",
+      "DMG_SHA256": "9a9388d9c2d77483c28960042d9cd65ab2dafa0e594a8c8cd8274b2c82f8a5c8",
+      "signature": "unsigned"
+    },
+    "formal_signing_notarization": "not_run",
+    "human_install_defaultlaunch": "not_run",
+    "full_factory14_or_full_design_acceptance": false,
+    "independent_merge_review_sha256": "98245529dd89acb46a1f72c457195559408dd8789ec744e03126b2d84fe773e5"
+  },
+  "latest_runtime_checkpoint": {
+    "at": "2026-10-29T07:18:54.488006+00:00",
+    "root_source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+    "Native": {
+      "source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+      "library": 83,
+      "smoke": 30,
+      "owner_controller": 16,
+      "unique_total": 129,
+      "new_planning8_and_controller6_already_in_totals": true,
+      "all_exit_codes": 0,
+      "exact_inode_mode_nlink_sha_source_restore": true,
+      "review_sha256": "c3264c1ff77e7a0b16c82abc6b415fc34a125eb63bdf360ce4ef037755dd19d6"
+    },
+    "Python": {
+      "source": "62518def138d7c831d9f9cc4fbe59ea6478f59c9",
+      "passed": 47,
+      "real_Core_cases": 5,
+      "finite_cases": 42,
+      "exit": 0,
+      "env_record": "Actualtoolcall and retrospective POSTNOTE, not original separately persisted env snapshot/execattestation"
+    },
+    "actual_UI_IPC": {
+      "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+      "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+      "built_UI_source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+      "harness_source": "c89d2379f91a2f2529a63f5f88e2f9ba314fbcf0",
+      "harness_sha256": "5308b2d9168aa8cfa102b997d434409051e81941c6070dc5abee3f2e6d156e16",
+      "run": 5,
+      "exit": 0,
+      "seconds": 17.140609741210938,
+      "checks_passed": 9,
+      "PNG": 4,
+      "cleanup_complete": true,
+      "tracked_source_head_status_tools_assets_manifest_equal": true,
+      "features": [
+        "explicit full planning policy approval via private simulatedNative binding and actualCore",
+        "generatedACP real scoped MCP5 root/child revisions1/2 and resumedparent livehandoff",
+        "exact raw history get and real structured UIrootr3",
+        "fourUI+Core denial classes and atomic zeroeffects",
+        "staleCAS refusal",
+        "actual committedrootr4 replydrop, readonlyreconciliation/noautomutation, explicitexactkey/CAS/rawreceipt recover, changedpayload conflict",
+        "6rawrevisions+realjournal receipts/originalGrantchildren0/3attemptsactive0/leases0/Goal0/TaskAccepted0",
+        "3trueStopreap events/6boundidentitiesgone/HTTPandhandlerjoins/temporarycleanup"
+      ],
+      "limits": [
+        "LinuxChromium actualbuiltUI/UnixIPC and generatedProvider only",
+        "privateOwner binding simulation, not actualOS approval",
+        "not Mac schema14 or realproductProvider"
+      ],
+      "raw_originals": "/workspace/.onboarding/factory-child-planning-real-browser/run5",
+      "independent_evidence_review": "sealed new independent context, original reviewer files unmodified",
+      "review_sha256": "252636312325d67713809c97b92c5a71354c0e5f2f5e0eb856558f13e109be68",
+      "readonly_requests_between_replydrop_and_recover": 12
+    },
+    "CI": {
+      "new_browser_wiring_review": "56ae82c7fb6956d1e3f25675c133cee16c53a949f541e1b3bf378f461b6f47d9",
+      "new_MacOwner_wiring_review": "ed1390e9753bfa140e8247e480ce417f1290fbf465682828a55213a0ae0b259c",
+      "new_release_audit_review": "46a9eb04171ace415a8a473d7ec221da8d6f0915337c2fdfe06e1d32672f5544",
+      "productchecks": "not_run forFactory14; draftPRnext",
+      "Environment3": "unchanged requirednames, newexactCIpending"
+    },
+    "preserved_failures": [
+      "all4earlierfullworkspace failures and firstCore14fixture failure",
+      "689strictClippy101 then f9 neutralaliasfixed",
+      "Nativef9diskguard-15/0tests",
+      "Native625fiveE0425/101/0tests then sharedlimitsfix",
+      "browserrun1exactlabel+closedengine,run2nestedsummary,run3nestedalert,run4badSQLcolumn: alloverallfailed/cleanupfalse retained"
+    ],
+    "complete_product": false
+  },
+  "PR17_first_remote_candidate": {
+    "at": "2026-10-29T08:05:23.438761+00:00",
+    "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/17",
+    "head": "9ac06f78b107aa812fcec00f3b0c584911a88274",
+    "actualcheckout": "4593668cf8e03c84689012acce401a454e2c01eb",
+    "tree": "205f01a1088d2c58a402b0b5921e40c7d23845b3",
+    "Environment_run": 40834973097,
+    "Product_run": 40834973094,
+    "Environment": "UbuntuPASS,ARMandIntelFAIL:49tests3errors beforeintendedstopnegative dueprivate-runtimeguard;actualhistoricalinputpathnotlogged",
+    "Rust": "workspace659+7PASS,2nestedexcluded;NativeRunner34PASS;Owner47=46PASS1ERRORcompanionguard;ClippySKIPPED",
+    "UI": "Node733/44PASS;old15flows126checks76PNGpass;childplanning2checks2PNGFAILcombined8KiB/NULargvguard,firstPID/length/stateunknown;total128recordedchecks78imagesNOTfullpass",
+    "ARM": "terminalSUCCESS;newactualNativeWebView/Grant/Factoryplanning/defaultbuild/releaseaudit/package passed; offlineauditpassed, finalsealedreportpending",
+    "Intel": "terminalSUCCESS08:12:25UTC;NativeWebView/Grant/Factoryplanning/defaultbuild/releaseaudit/package passed,originalonceacquired;finalsealedreportpending",
+    "Linux_independent_review_sha256": "81aa37fd2a93df134c6c54257da0cd187b698cef8dbff2a28060483b656d92bb",
+    "source_not_ready_merge": true,
+    "overall": "FAILED:EnvMac2,RustandUI;dualMacsuccessisnotall7green",
+    "ARM_DMG_SHA256": "636e71706763a0f08c47bdd5079683e7f0abf8afee7f14fd0e3770535b416ccb",
+    "Intel_DMG_SHA256": "4a76ad193aa43bcc5bb67320cc8382d6cc1d1dfd7f325635371d5c8dd63038a7"
+  },
+  "PR17_local_candidate_fixes": {
+    "head": "675376800b65d1d48120b754c4568373f1b6974d",
+    "not_pushed_while_oldMac_running": "Held untilbothMacactualterminalSUCCESS;oneordinarysourcepushnowauthorizedbyoriginalscope",
+    "short_runtime_fixture": {
+      "commit": "f6a31a27d7be737ab86a5f07f91363e293d9b436",
+      "change": "Testsetup uses shortcanonical /tmp,original49 retained plus1 longpathpreSpawnnegative",
+      "actual_result": "100byte defaulttemp replay old2methods3guarderrors/new2methods0; full50PASS",
+      "review": "21a83a47aaf24bfffb6e602eb4c94e7fd4ae55191b58d6e8eaa6a45a303ca5ef",
+      "production_helper_changed": false,
+      "newMac_run": "not_run"
+    },
+    "argv_diagnostics": {
+      "commit": "7dcf0ceaca9caab177dd5d8a866f8d5880cd8083",
+      "change": "OriginalguardrejectsNone/over8192/noNUL unchanged,onlyfirstfailure PIDtuple/state/length/NUL/SHA metadata without rawargv",
+      "review": "9dd18030d73a6076385bb1f5c734c6f091bcf9f2ea4d630560c494b82f534307",
+      "current_CI_cause_established": false,
+      "latercleanup_not_backfilled": true
+    },
+    "actual_Core_privatecopy": {
+      "source": "038e048d3e87b79bd242badf8d5862f7ed850d98",
+      "change": "OnlynewactualCoretest uses private0700 samebytes daemon+CLI500singlelink copies;46othersunchanged;Coreguard/run_factory/Nativebinaryuntouched",
+      "local_causal_sample": "sharedsamebytes nlink2 denied;privatecopy1 accepted;originalallmetadata/aliasesunchanged",
+      "actual_after": "47PASS8.604s onsharedinput",
+      "CI_original_FD_stat": "notretained,doNOTbackfilllocalnlink",
+      "review": "583f9cda58087fdf4e4f5774fbfdd87bfa24e3dad1df5707778c2e371bde8de6"
+    }
+  },
+  "parallel_schema15_partial": {
+    "Core": "0a79421checkPASS7WIPwarnings;4ffb210libpolicy5PASS91filtered,notfullsuite/migration/runtime",
+    "UI": "5414490types/focused69/full802/buildPASS componentmockonly;noIPC15",
+    "Native": "d250source-reviewed383d8d7,13newRustNOTRUN;reworksconditionfollowupinprogress",
+    "runtime": "Lifecycle/failedallstop→originalplannerresume/append-onlysameGraphadoption andMCPregistrationWIP;oldfalse/planningreworks0",
+    "not_current14_delivery": true
+  }
+}

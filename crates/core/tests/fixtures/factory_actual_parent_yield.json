@@ -1,0 +1,493 @@
+{
+  "origin": {
+    "dimension": "recorded exact rows from actual generated ACP/private schema14 CLI/Daemon parent-yield snapshot; pure replay/tamper controls do not reexecute or newly join processes",
+    "snapshot_sha256": "bc2fc57db71061e714ed2914866d73eaa71adf521ac5af7c8b8a70db726d1a6f",
+    "source_map_sha256": "c0f0969961badfd2f48932355bcc40065bafd2256a3cd73e033bfa611c5f29fe",
+    "original_scope_ttl_historical_not_reauthorized": true
+  },
+  "scope": {
+    "id": "f38486e3-866f-41a6-95fa-fda582c9b391",
+    "approval_id": "f38486e3-866f-41a6-95fa-fda582c9b391",
+    "project_id": "e5d7ce62-43ab-408e-b5c6-2387f7ea6155",
+    "root_task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+    "root_grant_id": "ed4fbe2d-9eab-4780-9123-324aa142ec3e",
+    "root_grant_revision": 1,
+    "revision": 1,
+    "revoked": false,
+    "expires_at_ms": 1793247089044,
+    "selection": {
+      "root_task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+      "expected_task_revision": 1,
+      "grant_id": "ed4fbe2d-9eab-4780-9123-324aa142ec3e",
+      "expected_grant_revision": 1,
+      "connection_ids": [
+        "generated-connection"
+      ],
+      "workspace_ids": [
+        "15f29d52-808a-4938-94d1-1f43791223ef"
+      ],
+      "inputs": [
+        {
+          "artifact_id": "input",
+          "relative_path": "input.txt",
+          "max_bytes": 1024,
+          "expected_sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+        }
+      ],
+      "outputs": [
+        {
+          "artifact_id": "report",
+          "relative_path": "reports/report.txt",
+          "max_bytes": 4096,
+          "expected_sha256": null
+        }
+      ],
+      "recipients": [],
+      "max_depth": 2,
+      "max_children": 2,
+      "max_total_nodes": 4,
+      "root_budget": {
+        "attempts": 8,
+        "parallel": 1,
+        "runtime_ms": 30000,
+        "output_bytes": 12288,
+        "children": 3,
+        "reworks": 0,
+        "tokens": null,
+        "cost_microunits": null
+      },
+      "project_budget": {
+        "attempts": 8,
+        "parallel": 1,
+        "runtime_ms": 30000,
+        "output_bytes": 12288,
+        "children": 3,
+        "reworks": 0,
+        "tokens": null,
+        "cost_microunits": null
+      },
+      "ttl_ms": 30000,
+      "capabilities": {
+        "delegate_task": true,
+        "resume_parent_as_new_attempt": true,
+        "child_planning": true,
+        "child_goal_execution": false,
+        "create_workspace": false
+      },
+      "child_planning_policy": {
+        "max_nodes": 8,
+        "max_revisions": 16,
+        "max_plan_bytes": 262144,
+        "outputs": [
+          {
+            "artifact": {
+              "artifact_id": "report",
+              "relative_path": "reports/report.txt",
+              "max_bytes": 4096,
+              "expected_sha256": null
+            },
+            "validators": []
+          }
+        ],
+        "writable_prefixes": [
+          "reports/report.txt"
+        ],
+        "owner_acceptance_criteria": "Review the entire exact approved report; storing a plan is not acceptance"
+      }
+    },
+    "bindings": {
+      "child_planning": {
+        "schema_version": 1,
+        "authority_kind": "factory_child_planning_only",
+        "policy": {
+          "max_nodes": 8,
+          "max_revisions": 16,
+          "max_plan_bytes": 262144,
+          "outputs": [
+            {
+              "artifact": {
+                "artifact_id": "report",
+                "relative_path": "reports/report.txt",
+                "max_bytes": 4096,
+                "expected_sha256": null
+              },
+              "validators": []
+            }
+          ],
+          "writable_prefixes": [
+            "reports/report.txt"
+          ],
+          "owner_acceptance_criteria": "Review the entire exact approved report; storing a plan is not acceptance"
+        },
+        "owner_rule_id": "factory-child-owner-review",
+        "input_rule_id": "factory-child-input-sha256",
+        "validator_definitions": {},
+        "definition_digest": "e2aca54dc2f545a437ad161c6309ea79b02600671e3693c9ffc3b39289929f5d",
+        "goal_execution_authorized": false,
+        "new_workspace_authorized": false
+      },
+      "project": {
+        "id": "e5d7ce62-43ab-408e-b5c6-2387f7ea6155",
+        "name": "Generated Factory scope",
+        "identity": {
+          "canonical_root": "/tmp/.tmpCFmFDr/source",
+          "device": 34,
+          "inode": 672244,
+          "kind": {
+            "kind": "git",
+            "common_dir": "/tmp/.tmpCFmFDr/source/.git",
+            "head": "983173188819458fb0f829b6984b45103f68fa83",
+            "dirty": false
+          }
+        },
+        "revision": 1,
+        "archived": false,
+        "created_at": "2026-10-29T04:10:58.776673035Z",
+        "updated_at": "2026-10-29T04:10:58.776673035Z"
+      },
+      "root_task": {
+        "id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+        "project_id": "e5d7ce62-43ab-408e-b5c6-2387f7ea6155",
+        "goal": "Delegate only the fixed generated input and return a report",
+        "spec_revision": 1,
+        "state": "draft",
+        "revision": 1,
+        "created_at": "2026-10-29T04:10:58.990036263Z",
+        "updated_at": "2026-10-29T04:10:58.990036263Z"
+      },
+      "approved_grant": {
+        "id": "ed4fbe2d-9eab-4780-9123-324aa142ec3e",
+        "project_id": "e5d7ce62-43ab-408e-b5c6-2387f7ea6155",
+        "root_grant_id": "ed4fbe2d-9eab-4780-9123-324aa142ec3e",
+        "parent_id": null,
+        "depth": 0,
+        "revision": 1,
+        "approval_id": "38decd50-cf47-42d6-8085-24a23a327e53",
+        "approved_at": "2026-10-29T04:10:59.044056009Z",
+        "expires_at_ms": 1793247089044,
+        "revoked": false,
+        "scope": {
+          "workspace_ids": [
+            "15f29d52-808a-4938-94d1-1f43791223ef"
+          ],
+          "connection_ids": [
+            "generated-connection"
+          ],
+          "host_ids": [
+            "local"
+          ],
+          "max_attempts": 8,
+          "max_concurrency": 1,
+          "max_duration_ms": 30000,
+          "recipients": [],
+          "network": {
+            "mode": "deny"
+          },
+          "max_depth": 0,
+          "max_children": 0
+        },
+        "connection_bindings": {
+          "generated-connection": {
+            "protocol_route": "custom_acp",
+            "revision": 1,
+            "environment_id": "generated-environment",
+            "identity_ref": "unknown",
+            "host_id": "local",
+            "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+            "executable_sha256": "21dfa21370e43d3378efd2386dcf870fcbd7fa8d66ab9ae9739c78d3672a91c7",
+            "capability_snapshot_id": "generated-capability"
+          }
+        },
+        "workspace_bindings": {
+          "15f29d52-808a-4938-94d1-1f43791223ef": {
+            "canonical_root": "/tmp/.tmpCFmFDr/managed/15f29d52-808a-4938-94d1-1f43791223ef",
+            "device": 34,
+            "inode": 672305,
+            "kind": {
+              "kind": "git",
+              "common_dir": "/tmp/.tmpCFmFDr/source/.git",
+              "head": "983173188819458fb0f829b6984b45103f68fa83",
+              "dirty": false
+            }
+          }
+        },
+        "enforcement": {
+          "baton_mediated_scope": true,
+          "os_filesystem_sandbox": false,
+          "os_network_sandbox": false,
+          "native_identity_isolation": false
+        }
+      },
+      "connections": [
+        {
+          "id": "generated-connection",
+          "name": "Explicit synthetic connection; no Provider call",
+          "provider": "custom_acp",
+          "protocol_route": "custom_acp",
+          "executable": "/tmp/.tmpCFmFDr/generated-factory-acp",
+          "arguments": [],
+          "executable_sha256": "21dfa21370e43d3378efd2386dcf870fcbd7fa8d66ab9ae9739c78d3672a91c7",
+          "environment_id": "generated-environment",
+          "identity_ref": "unknown",
+          "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+          "runtime_plan": {
+            "provider": "custom_acp",
+            "codex": {
+              "model": null,
+              "sandbox": "workspace-write",
+              "approval_policy": "on-request"
+            },
+            "claude": {
+              "enabled_project_mcp_names": [],
+              "disabled_project_mcp_names": []
+            },
+            "mcp_servers": [],
+            "skills": [],
+            "source_refs": []
+          },
+          "host_id": "local",
+          "approval_id": "synthetic-no-provider",
+          "probe_state": "ready",
+          "revision": 1,
+          "capability_snapshot_id": "generated-capability",
+          "identity_status": "unknown",
+          "config_status": "baton_managed",
+          "created_at": "2026-10-28T00:00:00Z",
+          "version_evidence": null
+        }
+      ],
+      "workspaces": [
+        {
+          "id": "15f29d52-808a-4938-94d1-1f43791223ef",
+          "project_id": "e5d7ce62-43ab-408e-b5c6-2387f7ea6155",
+          "identity": {
+            "canonical_root": "/tmp/.tmpCFmFDr/managed/15f29d52-808a-4938-94d1-1f43791223ef",
+            "device": 34,
+            "inode": 672305,
+            "kind": {
+              "kind": "git",
+              "common_dir": "/tmp/.tmpCFmFDr/source/.git",
+              "head": "983173188819458fb0f829b6984b45103f68fa83",
+              "dirty": false
+            }
+          },
+          "root": "/tmp/.tmpCFmFDr/managed/15f29d52-808a-4938-94d1-1f43791223ef",
+          "base_revision": "983173188819458fb0f829b6984b45103f68fa83",
+          "created_at": "2026-10-29T04:10:58.830142612Z",
+          "state": "ready",
+          "revision": 2
+        }
+      ],
+      "inputs": [
+        {
+          "contract": {
+            "canonical_root": "/tmp/.tmpCFmFDr/managed/15f29d52-808a-4938-94d1-1f43791223ef",
+            "root_device": 34,
+            "root_inode": 672305,
+            "requirement": {
+              "artifact_id": "input",
+              "relative_path": "input.txt",
+              "max_bytes": 1024,
+              "expected_sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+            }
+          },
+          "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1",
+          "bytes": 12
+        }
+      ],
+      "outputs": [
+        {
+          "canonical_root": "/tmp/.tmpCFmFDr/managed/15f29d52-808a-4938-94d1-1f43791223ef",
+          "root_device": 34,
+          "root_inode": 672305,
+          "requirement": {
+            "artifact_id": "report",
+            "relative_path": "reports/report.txt",
+            "max_bytes": 4096,
+            "expected_sha256": null
+          }
+        }
+      ],
+      "companion": {
+        "executable": "/tmp/.tmpCFmFDr/generated-companion-binding-only",
+        "executable_sha256": "8ec9f31dc08f21c46e831d8cebe0d70289502275e108c8335dba5292dcdebe00",
+        "argument_template": [
+          "factory-mcp",
+          "${SESSION_HANDLE_FILE}"
+        ],
+        "credential_transport": "private_0600_file_reference",
+        "global_daemon_token_available": false
+      },
+      "guarantees": {
+        "filesystem_sandbox": false,
+        "network_sandbox": false,
+        "account_isolation": false,
+        "output_quota": false,
+        "continuous_input_immutability": false,
+        "complete_process_tree_containment": false
+      },
+      "start_contract": {
+        "mode": "single_scope_single_run",
+        "root_task_request_digest": "2687e96d989d987dd435b3a6a48e1efd87f7244ca1e4fa8d97df73a6c0c4d028",
+        "context_continuation": "new_attempt_explicit_handoff_only",
+        "implicit_start_on_approval": false,
+        "new_workspace_authority": false
+      }
+    },
+    "contract_digest": "39ae73781a60df77c1b7bdd372799c2e4376f2efb7828089b41ee48fb472f80d",
+    "created_at": "2026-10-29T04:10:59.337557773Z"
+  },
+  "task": {
+    "id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+    "project_id": "e5d7ce62-43ab-408e-b5c6-2387f7ea6155",
+    "goal": "Delegate only the fixed generated input and return a report",
+    "spec_revision": 1,
+    "state": "outcome_unknown",
+    "revision": 4,
+    "created_at": "2026-10-29T04:10:58.990036263Z",
+    "updated_at": "2026-10-29T04:11:02.093413644Z"
+  },
+  "binding": {
+    "handle": {
+      "task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+      "parent_task_id": null,
+      "root_task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+      "delegation_id": "root:1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+      "factory_scope_id": "f38486e3-866f-41a6-95fa-fda582c9b391",
+      "revision": 10,
+      "state": "waiting_child",
+      "attempt_id": "a85dbdcc-23fe-4665-be2f-5be20957eca2",
+      "cancel_requested": false,
+      "confirmed_stop": true,
+      "result_available": false
+    },
+    "planning_spec_revision": 1,
+    "scope_id": "f38486e3-866f-41a6-95fa-fda582c9b391",
+    "run_id": "e245c269-5b83-430a-9dfc-130520d3a654",
+    "grant_id": "ed4fbe2d-9eab-4780-9123-324aa142ec3e",
+    "request": {
+      "goal": "Delegate only the fixed generated input and return a report",
+      "connection_id": "generated-connection",
+      "workspace_id": "15f29d52-808a-4938-94d1-1f43791223ef",
+      "input_artifact_ids": [
+        "input"
+      ],
+      "output_artifact_ids": [
+        "report"
+      ],
+      "budget": {
+        "attempts": 8,
+        "parallel": 1,
+        "runtime_ms": 30000,
+        "output_bytes": 12288,
+        "children": 3,
+        "reworks": 0,
+        "tokens": null,
+        "cost_microunits": null
+      },
+      "wait_for_child": false
+    },
+    "round": 0,
+    "session_id": "632c30c1-cf6b-47a3-a5cd-13c94621abad",
+    "turn_sent": true,
+    "stop_reason": "completed_turn_handoff",
+    "result": {
+      "task": {
+        "task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+        "parent_task_id": null,
+        "root_task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+        "delegation_id": "root:1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+        "factory_scope_id": "f38486e3-866f-41a6-95fa-fda582c9b391",
+        "revision": 9,
+        "state": "waiting_child",
+        "attempt_id": "a85dbdcc-23fe-4665-be2f-5be20957eca2",
+        "cancel_requested": false,
+        "confirmed_stop": true,
+        "result_available": false
+      },
+      "artifacts": [],
+      "validation_refs": [],
+      "acceptance_state": "not_established",
+      "context_continuation": "new_attempt_explicit_handoff_only",
+      "handoff_digest": null,
+      "child_plan": {
+        "id": "f86b5477-9635-4f55-8dc4-33cf58ebe50b",
+        "scope_id": "f38486e3-866f-41a6-95fa-fda582c9b391",
+        "run_id": "e245c269-5b83-430a-9dfc-130520d3a654",
+        "task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+        "revision": 2,
+        "plan_digest": "3d3539a6f9d84825e48137c93c95b437004bb74eeff2cb9814d512620650a5fd",
+        "raw_sha256": "c7fcecc13836c52315e5b13890020d68ea2169381edbb9f3aa671b988768adec",
+        "receipt_sequence": 18
+      }
+    },
+    "handoff_results": [],
+    "handoff_digest": null
+  },
+  "attempt": {
+    "session_id": "632c30c1-cf6b-47a3-a5cd-13c94621abad",
+    "attempt_id": "a85dbdcc-23fe-4665-be2f-5be20957eca2",
+    "scope_id": "f38486e3-866f-41a6-95fa-fda582c9b391",
+    "run_id": "e245c269-5b83-430a-9dfc-130520d3a654",
+    "task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+    "root_task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+    "reservation": "{\"runtime_ms\":30000,\"output_bytes\":4096,\"tokens\":null,\"cost_microunits\":null}",
+    "state": "waiting_child",
+    "document": "{\"attempt_id\":\"a85dbdcc-23fe-4665-be2f-5be20957eca2\",\"never_started\":0,\"root_task_id\":\"1064fbc2-cee9-4a77-a376-d8034b21dcb4\",\"run_id\":\"e245c269-5b83-430a-9dfc-130520d3a654\",\"scope_id\":\"f38486e3-866f-41a6-95fa-fda582c9b391\",\"session_id\":\"632c30c1-cf6b-47a3-a5cd-13c94621abad\",\"stop_confirmed\":1,\"stop_reason\":\"cancelled\",\"task_id\":\"1064fbc2-cee9-4a77-a376-d8034b21dcb4\"}"
+  },
+  "session": {
+    "id": "632c30c1-cf6b-47a3-a5cd-13c94621abad",
+    "task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+    "project_id": "e5d7ce62-43ab-408e-b5c6-2387f7ea6155",
+    "workspace_id": "15f29d52-808a-4938-94d1-1f43791223ef",
+    "connection_id": "generated-connection",
+    "grant_id": "ed4fbe2d-9eab-4780-9123-324aa142ec3e",
+    "state": "stopped",
+    "revision": 6,
+    "native_session_id": "generated-native",
+    "created_at": "2026-10-29T04:10:59.51691979Z",
+    "updated_at": "2026-10-29T04:11:02.093853931Z",
+    "last_error": null,
+    "turn_state": "completed",
+    "attempt_id": "a85dbdcc-23fe-4665-be2f-5be20957eca2",
+    "intent_id": "9c733610-7388-49dc-a42e-bed04d6d1146",
+    "fencing_token": 1,
+    "runtime_snapshot": {
+      "session_id": "632c30c1-cf6b-47a3-a5cd-13c94621abad",
+      "attempt_id": "a85dbdcc-23fe-4665-be2f-5be20957eca2",
+      "connection_config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+      "plan_digest": "db080c15365e88c7fce214468bf2584803e9dc13fa13d5548e5fee92dc53b6b5",
+      "snapshot": {
+        "id": "5eb10fb2-544c-475f-a866-1941a7c284be",
+        "digest": "466fabebba8923e74c58ce1ab88cbfe2896ec8b2d54e94f6c0409c1658142400",
+        "root_device": 34,
+        "root_inode": 672332,
+        "snapshot_device": 34,
+        "snapshot_inode": 672333
+      }
+    }
+  },
+  "run": {
+    "id": "e245c269-5b83-430a-9dfc-130520d3a654",
+    "scope_id": "f38486e3-866f-41a6-95fa-fda582c9b391",
+    "root_task_id": "1064fbc2-cee9-4a77-a376-d8034b21dcb4",
+    "project_id": "e5d7ce62-43ab-408e-b5c6-2387f7ea6155",
+    "revision": 5,
+    "state": "running",
+    "document": "{\"id\":\"e245c269-5b83-430a-9dfc-130520d3a654\",\"scope_id\":\"f38486e3-866f-41a6-95fa-fda582c9b391\",\"project_id\":\"e5d7ce62-43ab-408e-b5c6-2387f7ea6155\",\"root_task_id\":\"1064fbc2-cee9-4a77-a376-d8034b21dcb4\",\"revision\":5,\"state\":\"running\",\"active_task_id\":\"236e5c5f-6361-4570-a30a-1ae2fae0ad67\",\"active_session_id\":\"360b9c31-8ebd-4148-8c98-7cbc8374ce23\",\"cancel_requested\":false,\"context_continuation\":\"new_attempt_explicit_handoff_only\",\"last_error\":null,\"created_at\":\"2026-10-29T04:10:59.502689857Z\",\"updated_at\":\"2026-10-29T04:11:02.130015025Z\"}"
+  },
+  "events": [
+    {
+      "sequence": 22,
+      "document": "{\"sequence\":0,\"event_id\":\"7b7beaac-f2ef-42a9-ba46-aecd43327557\",\"aggregate_id\":\"632c30c1-cf6b-47a3-a5cd-13c94621abad\",\"revision\":5,\"kind\":\"factory.internal_stop_prepared\",\"occurred_at\":\"2026-10-29T04:11:02.079796336Z\",\"payload\":{\"attempt_id\":\"a85dbdcc-23fe-4665-be2f-5be20957eca2\",\"task_accepted\":false,\"turn_state\":\"completed\"},\"source\":\"factory_core\"}"
+    },
+    {
+      "sequence": 25,
+      "document": "{\"sequence\":0,\"event_id\":\"736654b4-f2f3-44cb-8c1b-b00f3c17b796\",\"aggregate_id\":\"632c30c1-cf6b-47a3-a5cd-13c94621abad\",\"revision\":6,\"kind\":\"session.stopped\",\"occurred_at\":\"2026-10-29T04:11:02.093908602Z\",\"payload\":{\"no_process_started\":false,\"process_reaped\":true,\"reason\":\"cancelled\",\"task_accepted\":false},\"source\":\"baton_supervisor\"}"
+    },
+    {
+      "sequence": 27,
+      "document": "{\"sequence\":0,\"event_id\":\"4181f389-b344-4c81-9be4-06ce9768612a\",\"aggregate_id\":\"e245c269-5b83-430a-9dfc-130520d3a654\",\"revision\":4,\"kind\":\"factory.attempt_stopped\",\"occurred_at\":\"2026-10-29T04:11:02.106130792Z\",\"payload\":{\"attempt_id\":\"a85dbdcc-23fe-4665-be2f-5be20957eca2\",\"never_started\":false,\"normal_completed_turn\":true,\"owned_reaped\":true,\"selected_outputs_missing\":true,\"session_id\":\"632c30c1-cf6b-47a3-a5cd-13c94621abad\",\"task_accepted\":false,\"task_id\":\"1064fbc2-cee9-4a77-a376-d8034b21dcb4\"},\"source\":\"factory_core\"}"
+    }
+  ]
+}

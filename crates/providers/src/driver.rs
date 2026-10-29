@@ -42,6 +42,18 @@ impl ManagedProviderProcess {
             )),
         }
     }
+    pub fn configure_factory_session_configuration(
+        &mut self,
+        configuration: &Value,
+        approved: &crate::ApprovedFactoryMcp,
+    ) -> Result<(), TransportFailure> {
+        match self {
+            Self::Acp(p) => p.configure_factory_session_configuration(configuration, approved),
+            Self::Codex(_) => Err(TransportFailure::protocol(
+                ProtocolError::CapabilityUnsupported,
+            )),
+        }
+    }
     pub fn new_session(&mut self, binding: &str) -> Result<String, TransportFailure> {
         match self {
             Self::Acp(p) => p.new_session(binding),

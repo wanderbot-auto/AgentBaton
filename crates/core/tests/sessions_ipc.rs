@@ -1,4 +1,6 @@
 //! Real generated fixture child only. No vendor executable, identity, model or network is invoked.
+#[path = "fixtures/pre_factory_schema.rs"]
+mod pre_factory_schema;
 use agentbaton_core::ipc::{call, Daemon};
 use serde_json::{json, Value};
 use std::{
@@ -242,12 +244,26 @@ impl Scenario {
         Self::with_provider(duration, "custom_acp")
     }
     fn with_provider(duration: u64, provider: &str) -> Self {
+        Self::with_generated_output_policy(duration, provider, false, 2)
+    }
+    fn with_generated_output_policy(
+        duration: u64,
+        provider: &str,
+        clean_outputs: bool,
+        attempts: u32,
+    ) -> Self {
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path().canonicalize().unwrap();
         let source = root.join("source");
         std::fs::create_dir(&source).unwrap();
         git(&source, &["init", "-q"]);
         std::fs::write(source.join("file"), "baseline").unwrap();
+        if clean_outputs {
+            // Only this dedicated budget fixture opts in, BEFORE its first
+            // commit/import/Grant. Never remove produced bytes to fake clean.
+            std::fs::write(source.join(".gitignore"), "/reports/\n/fixture-started\n").unwrap();
+            git(&source, &["add", ".gitignore"]);
+        }
         git(&source, &["add", "file"]);
         git(&source, &["commit", "-qm", "baseline"]);
         let head = git(&source, &["rev-parse", "HEAD"]);
@@ -271,7 +287,7 @@ impl Scenario {
             .find(|c| c["id"] == connection["id"])
             .unwrap()
             .clone();
-        let gp=result(server.request(json!({"method":"grants.propose","params":{"project_id":project["id"],"workspace_id":workspace["id"],"connection_id":connection["id"],"max_attempts":2,"max_concurrency":1,"max_duration_ms":duration},"idempotency_key":"grant-proposal"})));
+        let gp=result(server.request(json!({"method":"grants.propose","params":{"project_id":project["id"],"workspace_id":workspace["id"],"connection_id":connection["id"],"max_attempts":attempts,"max_concurrency":1,"max_duration_ms":duration},"idempotency_key":"grant-proposal"})));
         let grant = approve(&server, gp);
         let task=result(server.request(json!({"method":"tasks.create","params":{"project_id":project["id"],"goal":"Run generated local fixture only"},"idempotency_key":"task"})));
         Self {
@@ -1986,7 +2002,7 @@ fn actual_data_goal_executes_and_plan_advance_receipt_recovers_after_drift_witho
 }
 
 #[test]
-fn actual_goal_shared_budget_cannot_be_bypassed_by_normal_session_or_trusted_lowlevel_attempt() {
+fn actual_goal_shared_budget_dirty_inputs_refuse_ordinary_and_lowlevel_attempts() {
     let f = Scenario::new(10_000);
     let scope = goal_scope_and_plan(&f, "goal-report");
     let run = approve_goal_execution(&f, &scope);
@@ -1998,7 +2014,8 @@ fn actual_goal_shared_budget_cannot_be_bypassed_by_normal_session_or_trusted_low
     );
     let task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":"Ordinary bounded-policy bypass control"},"idempotency_key":"ordinary-bypass-task"})));
     let refused=f.server.request(json!({"method":"sessions.create","params":{"task_id":task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":task["revision"],"idempotency_key":"ordinary-session-bypass"}));
-    assert_eq!(refused["error"]["code"], "AUTH_REQUIRED");
+    assert_eq!(refused["error"]["code"], "INPUT_CHANGED");
+    assert_eq!(refused["error"]["side_effect_state"], "not_started");
     let db_path = f.server.runtime.join("baton.sqlite3");
     let mut store = agentbaton_core::storage::Store::open(&db_path).unwrap();
     let task_id = task["id"].as_str().unwrap();
@@ -2030,6 +2047,363 @@ fn actual_goal_shared_budget_cannot_be_bypassed_by_normal_session_or_trusted_low
         .unwrap(),
         1
     );
+}
+
+#[test]
+fn actual_goal_shared_budget_clean_exhaustion_refuses_ordinary_and_lowlevel_attempts() {
+    goal_ordinary_budget_control(1);
+}
+
+#[test]
+fn actual_goal_shared_budget_remaining_allows_bounded_ordinary_without_refunding_consumption() {
+    goal_ordinary_budget_control(2);
+}
+
+fn goal_ordinary_budget_control(attempt_cap: u32) {
+    let f = Scenario::with_generated_output_policy(10_000, "custom_acp", true, attempt_cap);
+    let workspace = PathBuf::from(f.workspace["root"].as_str().unwrap());
+    let expected_head = git(&workspace, &["rev-parse", "HEAD"]);
+    let original_input = std::fs::read(workspace.join("file")).unwrap();
+    let scope = goal_scope_and_plan_with_options(&f, "goal-report", 0, 1, 2, attempt_cap, vec![]);
+    let run = approve_goal_execution(&f, &scope);
+    let goal = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |v| {
+            matches!(
+                v["run"]["state"].as_str(),
+                Some("awaiting_acceptance" | "blocked" | "failed" | "outcome_unknown")
+            )
+        },
+    );
+    if goal["run"]["state"] != "awaiting_acceptance" {
+        let diagnostic_db =
+            rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        let rows:Vec<String>=diagnostic_db.prepare("SELECT document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 ORDER BY sequence").unwrap().query_map([run["id"].as_str().unwrap()],|row|row.get(0)).unwrap().map(|row|row.unwrap()).collect();
+        let diagnostic = json!({"run":goal,"events":rows});
+        eprintln!("GOAL_BEFORE_ORDINARY_DIAGNOSTIC {diagnostic}");
+        std::fs::write(
+            graph_artifact_path(format!("goal-before-ordinary-blocked-{attempt_cap}.json")),
+            serde_json::to_vec_pretty(&diagnostic).unwrap(),
+        )
+        .unwrap();
+    }
+    assert_eq!(goal["run"]["state"], "awaiting_acceptance", "{goal}");
+    assert_eq!(goal["nodes"][0]["stop_confirmed"], true);
+    assert_eq!(goal["nodes"][0]["actual_output_bytes"], 12);
+    assert_eq!(git(&workspace, &["status", "--porcelain"]), "");
+    assert_eq!(git(&workspace, &["rev-parse", "HEAD"]), expected_head);
+    assert_eq!(
+        std::fs::read(workspace.join("file")).unwrap(),
+        original_input
+    );
+    assert_eq!(
+        std::fs::read(workspace.join("reports/report.txt")).unwrap(),
+        b"fixed report"
+    );
+    let db_path = f.server.runtime.join("baton.sqlite3");
+    let db = rusqlite::Connection::open(&db_path).unwrap();
+    let project_key = format!("project:{}", f.project["id"].as_str().unwrap());
+    let grant_id = f.grant["id"].as_str().unwrap();
+    let root_key = format!(
+        "root-grant:{}",
+        goal["run"]["root_grant_id"].as_str().unwrap()
+    );
+    let grant_before: String = db
+        .query_row(
+            "SELECT document FROM execution_grants WHERE id=?1",
+            [grant_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let meter = |key: &str| -> Value {
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM goal_ledgers WHERE scope=?1",
+                [key],
+                |row| row.get(0),
+            )
+            .unwrap();
+        serde_json::from_str(&raw).unwrap()
+    };
+    let before_project = meter(&project_key);
+    let before_root = meter(&root_key);
+    for current in [&before_project, &before_root] {
+        assert_eq!(current["limits"]["attempts"], attempt_cap);
+        assert_eq!(current["observed_attempts"], 1);
+        assert_eq!(current["output_bytes"], 12);
+        assert!(current["runtime_ms"].as_u64().unwrap() > 0);
+    }
+    let task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":"Generated bounded ordinary work after known Goal consumption"},"idempotency_key":"known-budget-ordinary-task"})));
+    let observed_task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":task["id"]}})),
+    );
+    assert_eq!(observed_task["revision"], task["revision"]);
+    assert_eq!(observed_task["state"], "draft");
+    let attempts_before: i64 = db
+        .query_row("SELECT count(*) FROM attempts", [], |row| row.get(0))
+        .unwrap();
+    let sessions_before: i64 = db
+        .query_row("SELECT count(*) FROM sessions", [], |row| row.get(0))
+        .unwrap();
+    let intents_before: i64 = db
+        .query_row("SELECT count(*) FROM dispatch_intents", [], |row| {
+            row.get(0)
+        })
+        .unwrap();
+    let reservations_before: i64 = db
+        .query_row(
+            "SELECT count(*) FROM factory_budget_reservations",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let leases_before:Vec<(String,String,i64,i64)>=db.prepare("SELECT resource,holder,fencing_token,expires_at FROM workspace_leases ORDER BY resource").unwrap().query_map([],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?))).unwrap().map(|row|row.unwrap()).collect();
+    let sequence_before: i64 = db
+        .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |row| {
+            row.get(0)
+        })
+        .unwrap();
+    assert_eq!(
+        (
+            attempts_before,
+            sessions_before,
+            intents_before,
+            reservations_before
+        ),
+        (1, 1, 1, 0)
+    );
+    let reply=f.server.request(json!({"method":"sessions.create","params":{"task_id":task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":task["revision"],"idempotency_key":"known-budget-ordinary-session"}));
+    if attempt_cap == 1 {
+        assert_eq!(reply["error"]["code"], "RESOURCE_LIMIT", "{reply}");
+        assert_eq!(reply["error"]["side_effect_state"], "not_started");
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |row| row
+                .get::<_, i64>(0))
+                .unwrap(),
+            attempts_before
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM sessions", [], |row| row
+                .get::<_, i64>(0))
+                .unwrap(),
+            sessions_before
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM dispatch_intents", [], |row| row
+                .get::<_, i64>(0))
+                .unwrap(),
+            intents_before
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM factory_budget_reservations",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+            reservations_before
+        );
+        let leases_after:Vec<(String,String,i64,i64)>=db.prepare("SELECT resource,holder,fencing_token,expires_at FROM workspace_leases ORDER BY resource").unwrap().query_map([],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?))).unwrap().map(|row|row.unwrap()).collect();
+        assert_eq!(leases_after, leases_before);
+        assert_eq!(
+            db.query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |row| {
+                row.get::<_, i64>(0)
+            })
+            .unwrap(),
+            sequence_before
+        );
+        assert_eq!(db.query_row("SELECT count(*) FROM sessions WHERE idempotency_key='known-budget-ordinary-session'",[],|row|row.get::<_,i64>(0)).unwrap(),0);
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM idempotency WHERE key='known-budget-ordinary-session'",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+            0
+        );
+        let mut store = agentbaton_core::storage::Store::open(&db_path).unwrap();
+        let view: agentbaton_core::goal_store::GoalScopeView =
+            serde_json::from_value(scope).unwrap();
+        let denied = store
+            .prepare_attempt(
+                task["id"].as_str().unwrap(),
+                task["revision"].as_u64().unwrap(),
+                view.binding,
+                "exhausted-unbounded-lowlevel",
+            )
+            .unwrap_err();
+        assert_eq!(denied.code, "AUTH_REQUIRED");
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |row| row
+                .get::<_, i64>(0))
+                .unwrap(),
+            1
+        );
+        assert_eq!(meter(&project_key), before_project);
+        assert_eq!(meter(&root_key), before_root);
+    } else {
+        let session = result(reply);
+        let ready = f.ready(&session["id"]);
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM factory_budget_reservations WHERE attempt_id=?1",
+                [session["attempt_id"].as_str().unwrap()],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let reserved: Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(reserved["authority_kind"], "legacy_shared_session");
+        assert!(reserved["scope_id"].is_null() && reserved["run_id"].is_null());
+        assert_eq!(reserved["root_grant_id"], goal["run"]["root_grant_id"]);
+        assert_eq!(reserved["settled"], false);
+        assert_eq!(reserved["reservation"]["output_bytes"], 0);
+        assert_eq!(
+            reserved["measurement_scope"],
+            "empty_selected_artifacts_no_validator_streams"
+        );
+        assert!(reserved["filesystem_total_bytes"].is_null());
+        let expected_runtime = (before_project["limits"]["runtime_ms"].as_u64().unwrap()
+            - before_project["runtime_ms"].as_u64().unwrap())
+        .min(
+            before_root["limits"]["runtime_ms"].as_u64().unwrap()
+                - before_root["runtime_ms"].as_u64().unwrap(),
+        )
+        .min(10_000);
+        assert_eq!(reserved["reservation"]["runtime_ms"], expected_runtime);
+        for key in [&project_key, &root_key] {
+            let current = meter(key);
+            assert_eq!(current["observed_attempts"], 2);
+            assert_eq!(current["limits"], before_project["limits"]);
+        }
+        let counts: (i64, i64) = db
+            .query_row(
+                "SELECT consumed,active FROM budgets WHERE scope=?1",
+                [&project_key],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(counts, (2, 1));
+        f.send(&ready, "ordinary-after-goal", "ordinary-bounded-turn");
+        let completed = f.ready(&session["id"]);
+        assert_eq!(completed["turn_state"], "completed");
+        f.cancel(&completed);
+        let stopped = wait(
+            &f.server,
+            "sessions.get",
+            json!({"session_id":session["id"]}),
+            |s| s["state"] == "stopped",
+        );
+        let reaped:i64=db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.payload.process_reaped')=1 AND json_extract(document,'$.payload.no_process_started')=0",[session["id"].as_str().unwrap()],|row|row.get(0)).unwrap();
+        assert_eq!(reaped, 1);
+        assert_eq!(
+            db.query_row(
+                "SELECT state FROM dispatch_intents WHERE attempt_id=?1",
+                [session["attempt_id"].as_str().unwrap()],
+                |row| row.get::<_, String>(0)
+            )
+            .unwrap(),
+            "stopped"
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+            0
+        );
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM factory_budget_reservations WHERE attempt_id=?1",
+                [session["attempt_id"].as_str().unwrap()],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let settled: Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(settled["settled"], true);
+        assert_eq!(settled["actual_output_bytes"], 0);
+        assert!(settled["captured_provider_message_bytes"].as_u64().unwrap() > 0);
+        assert_eq!(settled["provider_message_capture_complete"], false);
+        assert!(settled["filesystem_total_bytes"].is_null());
+        let ordinary_ms = settled["actual_runtime_ms"].as_u64().unwrap();
+        assert!(ordinary_ms > 0);
+        for (key, before) in [(&project_key, &before_project), (&root_key, &before_root)] {
+            let after = meter(key);
+            assert_eq!(after["observed_attempts"], 2);
+            assert_eq!(
+                after["runtime_ms"],
+                before["runtime_ms"].as_u64().unwrap() + ordinary_ms
+            );
+            assert_eq!(after["output_bytes"], 12);
+            assert_eq!(after["limits"], before["limits"]);
+        }
+        assert_eq!(
+            db.query_row(
+                "SELECT consumed,active FROM budgets WHERE scope=?1",
+                [&project_key],
+                |row| Ok((row.get::<_, i64>(0)?, row.get::<_, i64>(1)?))
+            )
+            .unwrap(),
+            (2, 0)
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |row| row
+                .get::<_, i64>(0))
+                .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT document FROM execution_grants WHERE id=?1",
+                [grant_id],
+                |row| row.get::<_, String>(0)
+            )
+            .unwrap(),
+            grant_before
+        );
+        assert_ne!(
+            result(
+                f.server
+                    .request(json!({"method":"tasks.get","params":{"task_id":task["id"]}}))
+            )["state"],
+            "accepted"
+        );
+        assert_eq!(stopped["id"], session["id"]);
+    }
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed,active FROM budgets WHERE scope=?1",
+            [&project_key],
+            |row| Ok((row.get::<_, i64>(0)?, row.get::<_, i64>(1)?))
+        )
+        .unwrap(),
+        (i64::from(attempt_cap), 0)
+    );
+    assert_eq!(git(&workspace, &["status", "--porcelain"]), "");
+    assert_eq!(git(&workspace, &["rev-parse", "HEAD"]), expected_head);
+    assert_eq!(
+        std::fs::read(workspace.join("file")).unwrap(),
+        original_input
+    );
+    assert_eq!(
+        std::fs::read(workspace.join("reports/report.txt")).unwrap(),
+        b"fixed report"
+    );
+    let evidence = json!({"attempt_cap":attempt_cap,"initial_head":expected_head,"selected_input_sha256":agentbaton_workspaces::validation::sha256(&original_input),"precommitted_gitignore":"/reports/\n/fixture-started\n","Goal_only_project_meter":before_project,"Goal_only_root_meter":before_root,"final_project_meter":meter(&project_key),"final_root_meter":meter(&root_key),"grant_unchanged":db.query_row("SELECT document FROM execution_grants WHERE id=?1",[grant_id],|row|row.get::<_,String>(0)).unwrap()==grant_before,"task_acceptance":"not_established","filesystem_total_and_whole_Provider_output":"unknown; only empty selected-artifact contract0 and captured normalized bytes measured"});
+    let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
+    let hash = agentbaton_workspaces::validation::sha256(&bytes);
+    std::fs::write(
+        graph_artifact_path(format!(
+            "generated-goal-ordinary-budget-{attempt_cap}-{hash}.json"
+        )),
+        bytes,
+    )
+    .unwrap();
 }
 
 struct OwnedGoalDaemonProcess {
@@ -3021,7 +3395,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        14
     );
     assert!(db
         .query_row(
@@ -3054,6 +3428,138 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
     let raw_node: String = db
         .query_row("SELECT document FROM goal_run_nodes", [], |r| r.get(0))
         .unwrap();
+    // This is an explicit test-only historical projection after real Goal
+    // execution and server join, never production cleanup or meter forgiveness.
+    assert_eq!(stopped["nodes"].as_array().unwrap().len(), 1);
+    let node = &stopped["nodes"][0];
+    assert_eq!(node["stop_confirmed"], true);
+    let session_id = node["session_id"].as_str().unwrap();
+    let attempt_id = node["attempt_id"].as_str().unwrap();
+    let (session_state, intent_state): (String, String) = db.query_row(
+        "SELECT s.state,d.state FROM sessions s JOIN dispatch_intents d ON d.attempt_id=?2 WHERE s.id=?1 AND json_extract(s.document,'$.attempt_id')=d.attempt_id",
+        rusqlite::params![session_id,attempt_id], |row| Ok((row.get(0)?,row.get(1)?)),
+    ).unwrap();
+    assert_eq!(
+        (session_state.as_str(), intent_state.as_str()),
+        ("stopped", "stopped")
+    );
+    let stop_receipt: String = db.query_row(
+        "SELECT document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.payload.process_reaped')=1 AND json_extract(document,'$.payload.no_process_started')=0",
+        [session_id], |row|row.get(0),
+    ).unwrap();
+    let original_reservation: String = db
+        .query_row(
+            "SELECT document FROM goal_run_reservations WHERE attempt_id=?1",
+            [attempt_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let reservation: Value = serde_json::from_str(&original_reservation).unwrap();
+    assert_eq!(reservation["settled"], true);
+    assert_eq!(reservation["run_id"], run["id"]);
+    assert_eq!(reservation["actual_output_bytes"], 12);
+    let actual_runtime = reservation["actual_runtime_ms"].as_u64().unwrap();
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+            [],
+            |row| row.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row("SELECT COALESCE(sum(active),0) FROM budgets", [], |row| row
+            .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| row.get::<_, i64>(0)
+        )
+        .unwrap(),
+        1
+    );
+    let mut meter_receipts = Vec::new();
+    for key in [
+        format!("project:{}", f.project["id"].as_str().unwrap()),
+        format!(
+            "root-grant:{}",
+            stopped["run"]["root_grant_id"].as_str().unwrap()
+        ),
+    ] {
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM goal_ledgers WHERE scope=?1",
+                [&key],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let meter: Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(meter["observed_attempts"], 1);
+        assert_eq!(meter["runtime_ms"], actual_runtime);
+        assert_eq!(meter["output_bytes"], 12);
+        meter_receipts.push((key, raw));
+    }
+    // Goal-owned sessions use their existing Goal reservation, not an ordinary
+    // shared reservation. If this premise changes, STOP instead of deleting it.
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM factory_budget_reservations",
+            [],
+            |row| row.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0,
+        "nonempty shared receipts require a separately reviewed historical projection"
+    );
+    type LegacyTableRows = (String, Vec<Vec<rusqlite::types::Value>>);
+    let legacy_snapshot = || -> Vec<LegacyTableRows> {
+        let names: Vec<String> = db
+            .prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+            .unwrap()
+            .query_map([], |row| row.get::<_, String>(0))
+            .unwrap()
+            .map(|row| row.unwrap())
+            .filter(|name| !pre_factory_schema::FACTORY_TABLES.contains(&name.as_str()))
+            .collect();
+        names
+            .into_iter()
+            .map(|name| {
+                let mut statement = db
+                    .prepare(&format!(
+                        "SELECT rowid,* FROM \"{}\" ORDER BY rowid",
+                        name.replace('"', "\"\"")
+                    ))
+                    .unwrap();
+                let columns = statement.column_count();
+                let rows = statement
+                    .query_map([], |row| {
+                        (0..columns)
+                            .map(|column| row.get::<_, rusqlite::types::Value>(column))
+                            .collect::<rusqlite::Result<Vec<_>>>()
+                    })
+                    .unwrap()
+                    .map(|row| row.unwrap())
+                    .collect();
+                (name, rows)
+            })
+            .collect()
+    };
+    let before_projection = legacy_snapshot();
+    pre_factory_schema::remove_empty_factory_increment(&db).unwrap();
+    assert_eq!(legacy_snapshot(),before_projection,"the historical projection must not rewrite any legacy row, including counters and consumed meters");
+    let evidence = json!({"kind":"test_only_empty_factory_historical_projection","goal_run_id":run["id"],"session_id":session_id,"attempt_id":attempt_id,"server_shutdown_joined":true,"raw_goal_run":raw_run,"raw_goal_node":raw_node,"raw_goal_reservation":original_reservation,"raw_owned_stop_receipt":stop_receipt,"raw_legacy_meter_receipts":meter_receipts,"legacy_tables_compared":before_projection.iter().map(|row|row.0.clone()).collect::<Vec<_>>(),"factory_shared_rows_before":0,"deleted_receipt_rows":0,"complete_old_session_budget_upgrade_compatibility":"not_established"});
+    let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
+    let hash = agentbaton_workspaces::validation::sha256(&bytes);
+    std::fs::write(
+        graph_artifact_path(format!("generated-pre-factory-goal-projection-{hash}.json")),
+        bytes,
+    )
+    .unwrap();
     db.execute_batch("DROP TRIGGER graph_fence_lease_insert; DROP TRIGGER graph_fence_lease_update; DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;PRAGMA user_version=11;").unwrap();
     drop(db);
     let store = agentbaton_core::storage::Store::open(&path).unwrap();
@@ -3248,8 +3754,8 @@ impl GraphOwnerGrantClock {
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
         assert_eq!(
-            version, 12,
-            "This PR16 fixture must link actual schema12, not a shared-target Factory cache"
+            version, 14,
+            "This Factory integration fixture must link exact schema14"
         );
         let raw: String = db
             .query_row(

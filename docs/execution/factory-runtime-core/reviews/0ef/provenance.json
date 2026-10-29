@@ -1,0 +1,580 @@
+{
+  "revision": "0efda24e092e630d84e227d06d43b38442672ffe",
+  "mode": "independent static and existing evidence only; no product commands executed",
+  "source_checks": [
+    {
+      "path": "crates/core/src/data_workspace_workers.rs",
+      "sha256": "fd37562bac8767396fd530142b594c8f91276472c5d62d5a034493df941081cd",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/data_workspaces.rs",
+      "sha256": "7105a5434d0748837fe7c0aa6e53b234443fff028289190c3c789f4aa24919d0",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/factory_runtime.rs",
+      "sha256": "55b43ad1465edebeed1b8f8838f7cfaa03031d0ad2e245ce8cfb6f4efad8a439",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "sha256": "9d57bfeb5e267a8de1f92dbdc2b846efc860511712b157a7ae898ea226370a3b",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sha256": "228e7a1763afe76e84b5487a6501229cda46eb7427b87ef699ac4c2bcb32df00",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/policy.rs",
+      "sha256": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/sessions.rs",
+      "sha256": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/tests/factory_runtime_ipc.rs",
+      "sha256": "08b37a8639d559fbd05ffa27a0a478ea96ec0240d27052759182b88cd1b6ff6f",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/workspaces/src/data_workspace.rs",
+      "sha256": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+      "fixed_git_match": true
+    }
+  ],
+  "logs": [
+    {
+      "name": "controlled-restore-first-check.log",
+      "sha256": "3be7191e9660339584747e3f76514aa9d17283acb04013a55384f7e91ce701f1",
+      "bytes": 453,
+      "selected_result_lines": [
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.42s"
+      ]
+    },
+    {
+      "name": "controlled-restore-unit-first.log",
+      "sha256": "45edb4efa8122a0d4698f0e631edfab7335a2e77a693225da07904beac913d2a",
+      "bytes": 1916,
+      "selected_result_lines": [
+        "   Compiling agentbaton-workspaces v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/workspaces)",
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.55s",
+        "test data_workspace::controlled_restore_tests::cancellation_during_actual_restore_read_never_mints_verified_observation ... FAILED",
+        "test data_workspace::controlled_restore_tests::deadline_observed_after_actual_restore_read_never_mints_verified_observation ... FAILED",
+        "thread 'data_workspace::controlled_restore_tests::cancellation_during_actual_restore_read_never_mints_verified_observation' (942758) panicked at crates/workspaces/src/data_workspace.rs:1691:17:",
+        "thread 'data_workspace::controlled_restore_tests::deadline_observed_after_actual_restore_read_never_mints_verified_observation' (942759) panicked at crates/workspaces/src/data_workspace.rs:1691:17:",
+        "test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.07s",
+        "error: test failed, to rerun pass `-p agentbaton-workspaces --lib`"
+      ]
+    },
+    {
+      "name": "controlled-restore-unit-fixed.log",
+      "sha256": "92b98695cf4210db7d0cbbb28bc37f703db5f7de719e5c3f8ae56160528769fe",
+      "bytes": 710,
+      "selected_result_lines": [
+        "   Compiling agentbaton-workspaces v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/workspaces)",
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.48s",
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.09s"
+      ]
+    },
+    {
+      "name": "controlled-wip-forced-binaries.log",
+      "sha256": "f497341ed64140b897eaeee0f45f550f727a220849fdfc1391d1b6a2efc015be",
+      "bytes": 538,
+      "selected_result_lines": [
+        "   Compiling agentbaton-workspaces v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/workspaces)",
+        "   Compiling agentbaton-providers v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/providers)",
+        "   Compiling agentbaton-core v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/core)",
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 20.23s"
+      ]
+    },
+    {
+      "name": "data-input-drift-first.log",
+      "sha256": "60bb3d93e751e1737fbf10e4897a4473e5ba83c5c4e63c66a4f327e2da3ccef7",
+      "bytes": 546,
+      "selected_result_lines": [
+        "   Compiling agentbaton-core v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/core)",
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.99s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.47s"
+      ]
+    },
+    {
+      "name": "controlled-restore-clippy-first.log",
+      "sha256": "2956a36bd14f3434bff10884912f1d7c6e6308d42432f740b66521e7a737df11",
+      "bytes": 3670,
+      "selected_result_lines": [
+        "error: called `unwrap` on `job.factory_dispatch` after checking its variant with `is_some`",
+        "error: called `unwrap` on `job.factory_dispatch` after checking its variant with `is_some`",
+        "error: very complex type used. Consider factoring parts into `type` definitions",
+        "    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#type_complexity",
+        "    = note: `-D clippy::type-complexity` implied by `-D warnings`",
+        "    = help: to override `-D warnings` add `#[allow(clippy::type_complexity)]`",
+        "error: could not compile `agentbaton-core` (lib) due to 3 previous errors",
+        "error: items after a test module",
+        "error: items after a test module",
+        "error: could not compile `agentbaton-core` (lib test) due to 5 previous errors"
+      ]
+    },
+    {
+      "name": "controlled-restore-clippy-fixed.log",
+      "sha256": "1b90fde6584642c8b57e0a2287def7cf0f4879a603b1478d14bd93723f3224f9",
+      "bytes": 271,
+      "selected_result_lines": [
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.15s"
+      ]
+    },
+    {
+      "name": "controlled-current-forced-binaries.log",
+      "sha256": "a4e32c80dabeaccfe561f118f4ececb60e12ad497454a7f67bd4b0287476ceb0",
+      "bytes": 330,
+      "selected_result_lines": [
+        "   Compiling agentbaton-core v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/core)",
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 15.87s"
+      ]
+    },
+    {
+      "name": "data-controlled-twenty-two.log",
+      "sha256": "982816f420fed885f4a35fe9bcd4744684a27d925379a83eca9c125b5d714837",
+      "bytes": 2029,
+      "selected_result_lines": [
+        "   Compiling agentbaton-core v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/core)",
+        "error[E0277]: the trait bound `u64: FromSql` is not satisfied",
+        "error[E0277]: the trait bound `u64: FromSql` is not satisfied",
+        "error: could not compile `agentbaton-core` (test \"factory_runtime_ipc\") due to 2 previous errors"
+      ]
+    },
+    {
+      "name": "data-controlled-twenty-two-fixed.log",
+      "sha256": "9b64761c2a7a20ab780871376eeb5d101e1d2313663f2967bf98dfecf204fbc6",
+      "bytes": 3052,
+      "selected_result_lines": [
+        "   Compiling agentbaton-core v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/core)",
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.91s",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.83s",
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.31s"
+      ]
+    },
+    {
+      "name": "data-controlled-final-clippy.log",
+      "sha256": "390354ff08a4a1bb21c4b8472a09432ca5f81f2f22c5151d0ff5a07aab336936",
+      "bytes": 165,
+      "selected_result_lines": [
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.27s"
+      ]
+    },
+    {
+      "name": "data-controlled-final-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "selected_result_lines": []
+    },
+    {
+      "name": "data-controlled-queue-unit.log",
+      "sha256": "f8909bfa15222f038741d9d797abf7586cc3fcaee95e09d17247e9f06fed7f7d",
+      "bytes": 561,
+      "selected_result_lines": [
+        "   Compiling agentbaton-core v0.1.0 (/workspace/.worktrees/factory-runtime-core/crates/core)",
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.59s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 69 filtered out; finished in 0.02s"
+      ]
+    }
+  ],
+  "helper_moves": [
+    {
+      "function": "reserve_shared_execution_meter",
+      "path": "crates/core/src/goal_runtime.rs",
+      "byte_identical": true,
+      "sha256": "a6af33903daa166c13179941febec5e9c0f9c498f51bc101b139d35f66e32744"
+    },
+    {
+      "function": "settle_shared_execution_meter",
+      "path": "crates/core/src/goal_runtime.rs",
+      "byte_identical": true,
+      "sha256": "d5f84473d371e6df16dc2e0b0df46fa7787c36d305b0e204bbfff4b4c9e720ec"
+    },
+    {
+      "function": "remaining_shared_runtime",
+      "path": "crates/core/src/goal_runtime.rs",
+      "byte_identical": true,
+      "sha256": "e32ba08de09238c657c0fadcff46e7710c0f5d73bd262e798c2a18f5c6723e9a"
+    },
+    {
+      "function": "charge_factory_preflight",
+      "path": "crates/core/src/goal_runtime.rs",
+      "byte_identical": true,
+      "sha256": "0597e23215a0eea1639d2c4920213454309d974bc499033460058e6629d2de7d"
+    },
+    {
+      "function": "observe_grant_bindings",
+      "path": "crates/core/src/policy.rs",
+      "byte_identical": true,
+      "sha256": "7ed881c0a8c03cb8621d19ae5fe10159b48f595279e78db2fcb64dde91812ab0"
+    }
+  ],
+  "tool_manifest": {
+    "sha256": "69b6744dcf85b26ed7b7308c0f6c7d04ee45f409545db40034724b22bd87dca2",
+    "source_checks": [
+      {
+        "path": "apps/cli/src/main.rs",
+        "sha256": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+        "fixed_git_match": true
+      },
+      {
+        "path": "apps/daemon/src/main.rs",
+        "sha256": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/command_validation.rs",
+        "sha256": "804cede65389ea44810e4646a668d05dac056e0c71069640b5cb9cb55aef14e2",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/command_workers.rs",
+        "sha256": "73c26d9f2db4e5e59cdbe13655af536a64d7ceb9f95977f8f90da9a9cc2ddd84",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/data_validation.rs",
+        "sha256": "a3694819f13551ae250b36be99314376bdba86ec531752c082aa9fa69a2d3bdf",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/data_workspace_workers.rs",
+        "sha256": "fd37562bac8767396fd530142b594c8f91276472c5d62d5a034493df941081cd",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/data_workspaces.rs",
+        "sha256": "7105a5434d0748837fe7c0aa6e53b234443fff028289190c3c789f4aa24919d0",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/execution.rs",
+        "sha256": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/factory.rs",
+        "sha256": "77b71b60fdcf68f6590e615aa746205173092c5b251b56373d03240327fa870e",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/factory_budget.rs",
+        "sha256": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/factory_capture.rs",
+        "sha256": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/factory_companion.rs",
+        "sha256": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/factory_runtime.rs",
+        "sha256": "55b43ad1465edebeed1b8f8838f7cfaa03031d0ad2e245ce8cfb6f4efad8a439",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/factory_store.rs",
+        "sha256": "045776631910cfbc64c57bb470f79a4d66280b9a9c6af4533e68b471223e30ed",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/goal_evidence.rs",
+        "sha256": "d786d708aef63e82bdf081a2f5fd5314f184f7f1e7b7b81512d114b74ab1f802",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/goal_graph.rs",
+        "sha256": "80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/goal_graph_validators.rs",
+        "sha256": "969b6941f6827a9460144d329986c6d0f75d9a99b9856ae204bcc073cb157820",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/goal_plan.rs",
+        "sha256": "243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/goal_runtime.rs",
+        "sha256": "9d57bfeb5e267a8de1f92dbdc2b846efc860511712b157a7ae898ea226370a3b",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/goal_store.rs",
+        "sha256": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/goal_validator_io.rs",
+        "sha256": "bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/ipc.rs",
+        "sha256": "228e7a1763afe76e84b5487a6501229cda46eb7427b87ef699ac4c2bcb32df00",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/lib.rs",
+        "sha256": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/policy.rs",
+        "sha256": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/registry.rs",
+        "sha256": "2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/routes.rs",
+        "sha256": "259642508b6bba313f2545b122986d377b434af6f6caccfcf3208a8bb3c128a1",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/runtime_config.rs",
+        "sha256": "73e326b050e7fe661fe8a83e19775ea1d0d9da431e2909a1cb4e14c51d0ff3da",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/sessions.rs",
+        "sha256": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/storage.rs",
+        "sha256": "925002caeb223b8e181100848cea204bd46721c7759e9ac4de8d7f0c56f7f4cf",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/core/src/validation.rs",
+        "sha256": "54dbcb97fcb5cb70c74feb07fb5a737defb8dd0c6af931abbe59ae9143ce71db",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/providers/src/codex.rs",
+        "sha256": "295a0e5ac624e375e0a5cbae7e419594627f657d6485e2f39098e077958099dd",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/providers/src/connections.rs",
+        "sha256": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/providers/src/driver.rs",
+        "sha256": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/providers/src/framing.rs",
+        "sha256": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/providers/src/installation.rs",
+        "sha256": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/providers/src/lib.rs",
+        "sha256": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/providers/src/process_io.rs",
+        "sha256": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/providers/src/session_configuration.rs",
+        "sha256": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/providers/src/transport.rs",
+        "sha256": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/workspaces/src/adoption.rs",
+        "sha256": "be970ed01ee18bebe9b06e62087d0bd7c52e97bfca6db0dcaec60cbedeba9472",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/workspaces/src/command_validation.rs",
+        "sha256": "76a5eeaa2a1822b40d206af63ec32d643da9278e502e72c82da510d62cf8184e",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/workspaces/src/data_workspace.rs",
+        "sha256": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/workspaces/src/deterministic.rs",
+        "sha256": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/workspaces/src/lib.rs",
+        "sha256": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+        "fixed_git_match": true
+      },
+      {
+        "path": "crates/workspaces/src/validation.rs",
+        "sha256": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83",
+        "fixed_git_match": true
+      }
+    ],
+    "tools": [
+      {
+        "name": "batond",
+        "path": "/workspace/AgentBaton/.onboarding/factory-data-controlled-candidate/batond",
+        "sha256": "081a1e489952a2dc71ecd034930e1ce8cb3927f639a29f625116e101df0f0307",
+        "bytes": 111270496,
+        "sha256_verified": true,
+        "executed": false
+      },
+      {
+        "name": "baton",
+        "path": "/workspace/AgentBaton/.onboarding/factory-data-controlled-candidate/baton",
+        "sha256": "89eb42f559f0df9e4958495a8b9235da7fb54c23727d9bbc079f55d853812a13",
+        "bytes": 80838848,
+        "sha256_verified": true,
+        "executed": false
+      }
+    ],
+    "build_log_sha256": "a4e32c80dabeaccfe561f118f4ececb60e12ad497454a7f67bd4b0287476ceb0"
+  },
+  "export_checks": [
+    {
+      "path": "crates/core/src/data_workspace_workers.rs",
+      "sha256": "fd37562bac8767396fd530142b594c8f91276472c5d62d5a034493df941081cd",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/data_workspaces.rs",
+      "sha256": "7105a5434d0748837fe7c0aa6e53b234443fff028289190c3c789f4aa24919d0",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/factory.rs",
+      "sha256": "77b71b60fdcf68f6590e615aa746205173092c5b251b56373d03240327fa870e",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/factory_budget.rs",
+      "sha256": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/factory_capture.rs",
+      "sha256": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/factory_runtime.rs",
+      "sha256": "55b43ad1465edebeed1b8f8838f7cfaa03031d0ad2e245ce8cfb6f4efad8a439",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "sha256": "9d57bfeb5e267a8de1f92dbdc2b846efc860511712b157a7ae898ea226370a3b",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sha256": "228e7a1763afe76e84b5487a6501229cda46eb7427b87ef699ac4c2bcb32df00",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/policy.rs",
+      "sha256": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/src/sessions.rs",
+      "sha256": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/core/tests/factory_runtime_ipc.rs",
+      "sha256": "08b37a8639d559fbd05ffa27a0a478ea96ec0240d27052759182b88cd1b6ff6f",
+      "fixed_git_match": true
+    },
+    {
+      "path": "crates/workspaces/src/data_workspace.rs",
+      "sha256": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+      "fixed_git_match": true
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/ADR.md",
+      "sha256": "83f76afec26a8208170d33ac018249635f745aab06e341ad4bbca0121cf3021b",
+      "fixed_git_match": true
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/CHECKPOINT.md",
+      "sha256": "83e0e9ad5bbb594003fd770e5095dce36d4731b3dd208e343bcd56061d04024a",
+      "fixed_git_match": true
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/EVIDENCE.json",
+      "sha256": "8ed087b861685cb87e4cbcea476f1c8e1b4026f99d80262bf3bd4cdc2b9f7d82",
+      "fixed_git_match": true
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/PROGRESS.md",
+      "sha256": "23f50796cde377b1526d33bbc3b52f078d9e5c25371169a3197d499dcddc8055",
+      "fixed_git_match": true
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/053/REVIEW.md",
+      "sha256": "57a6febb842545f0925c010f1b8b54077063253eb5d237990fd059195eff0b71",
+      "fixed_git_match": true
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/053/REVIEW_MANIFEST.json",
+      "sha256": "0bcc4463e5a0d724761e14f265885b19bc306d2bb280f4c13d2ef20e77bd5890",
+      "fixed_git_match": true
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/053/manifest.json",
+      "sha256": "4ddd7968fdd483a35cee7ad7e73e97e2c353e3cb208f5accc66e2fed8c6f30a0",
+      "fixed_git_match": true
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/053/provenance.json",
+      "sha256": "a40b2eed426ab55d65d752639e2d93e5e84fc4d504b05e05cd520454ffe27f8e",
+      "fixed_git_match": true
+    }
+  ],
+  "author_unique_cases": {
+    "factory_migration": 3,
+    "factory_scope": 11,
+    "factory_runtime_ipc": 8,
+    "controlled_restore_library_units": 2,
+    "queue_gate_order_unit": 1,
+    "total": 25
+  },
+  "independent_test_execution": false
+}

@@ -23,6 +23,8 @@ mod process_io;
 #[cfg(unix)]
 mod session_configuration;
 #[cfg(unix)]
+pub use session_configuration::ApprovedFactoryMcp;
+#[cfg(unix)]
 pub mod transport;
 
 pub const ACP_VERSION: u64 = 1;

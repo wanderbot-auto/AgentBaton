@@ -1,32 +1,60 @@
-## 当前 Intel Goal Owner 夹具生命周期修复 — 2026-10-29T04:58:53.992904+00:00
+## 双 Mac 旧候选终态与修复候选推进 — 2026-10-29T08:16:11.748853+00:00
 
-PR16旧2ceaa608/实际a5814094/treecf8692c1：最终6success/1IntelCorefailure。UI真实12flow114checks70PNG含原timeout完整5通过，Rust593unique+7doc、3Env完整链通过；ARM完成Native/readonly/Owner/defaultbuild/audit/开发包，Intel在normalGraphOwner最后finalize遭Grant revoked/expired拒绝（54pass1fail/notstarted），随后Native/Owner/build全部skipped，无Intel包，不可合入。原报告/原log/schema12sourceSHA均保留，GoalOwnerGrant具体Mac绝对时序未记录，不把约13.528s估算写成确证根因。a220仍最近真实双架构安装包对。
+PR17 head9ac / Product40834973094 的双Mac已全部终态成功，Intel于08:12:25UTC结束。实际Native WebView、Grant和Factoryplanning审批、默认应用构建、testcontrol扫描及开发包已执行；原件各一次收取并在独立离线核验。ARM DMG SHA636e71706763a0f08c47bdd5079683e7f0abf8afee7f14fd0e3770535b416ccb，Intel4a76ad193aa43bcc5bb67320cc8382d6cc1d1dfd7f325635371d5c8dd63038a7。签名/页图等最终报告尚待封存，不冒人工安装或正式签名。
 
-新固定5dc9b195测试专用正常fixture初次NativeGrant批准30s，原Graph/root/project10k、node5k、reservation4k与全部旧断言不变；原55case/54其它body逆归一完整227d3fcb相同，新增原10s真实expiry负控仍精确PERMISSION_DENIED/not_started、0attempt/key/effects。原10正常6.34与新30正常6.28是同一个用例的两版，不叠算；另expiry10.63，共2unique targeted。真实readonlyphase显示expiry从不续期、原Grant无parent/revokedfalse、UTCmono偏差0–1ms；不是生产权限/预算放宽或接受expired为成功。独审a4956d1c/5fbbe37b source-ready；Root同sourceworkspacefmtcheck0。full56/Clippy/新准确七CI和双Mac尚未跑，本地所有runtime维度不替代新候选。
+旧候选整体仍失败：Environment两Mac夹具早守卫、Rust47中一项companion拒绝、UI私有进程观察器失败均原样保留。修复候选只有已独审的短路径夹具/私有单link工具夹具和严格argv首次失败诊断，生产权限守卫未变。等待旧Mac结束的条件已满足，现在一次普通sourcepush触发全新准确七检查；旧Mac通过不直接移给新提交。无formalApprove或保护合入。完整130需求继续，schema15隔离WIP不混此候选。以下保留前次真实时间点。
 
-Factoryfoundation远端1d0fef1保全645+7/Clippy/fmt与源等价证据，未创建FactoryPR。childplanning14真实Actor/MCP父子修订链已有旧修订通过，当前Core6+MCP2/richmigration3通过但最新工具/Directorycase/Native38/full14矩阵仍未完；四P2原审查保留、输入输出精确及元数据/错绑防御逐项闭合，不能拼签不同源码。UI733/独立原11neg闭合、Native14/CI14leaf静态独审不冒真实IPC/Mac。
+## 当前 PR17 首轮远程结果与候选修复 — 2026-10-29T08:05:23.438761+00:00
 
-main最近a1be94/OWNER001002ACK无003，130/27/WP01–14整体未完成。无formalApprove/merge/生产/真实产品Provider身份或费用/新资源主机/签名公证/最终许可证扩权。以下均为历史。
+草稿 PR17 head `9ac06f7`，准确检出 `4593668` / tree `205f01a`。Environment Ubuntu通过、两Mac失败于49项中的3个私有运行时夹具提前守卫。Product Rust工作区659＋7通过（2个nested不加），Native报告34通过，Owner47一项companion安全守卫错误，Clippy未执行。UI原15路径126检查/76PNG通过，新planning在2检查/2PNG后因8KiB/NUL进程观察守卫失败；首次PID/长度/状态未保存，不猜测原因。ARM产品job已实际成功且原件已一次采齐，离线验包中；Intel最后仍运行，不称双架构通过。
 
-## 当前 Command timeout 观察器因果修复 — 2026-10-29T03:58:11.912835+00:00
+本地候选 `6753768` 已合三项独审修复：短canonical测试目录（原49+新增1通过）、不改变拒绝逻辑的首argv失败诊断、仅新Core夹具使用单硬链接私有工具副本（原共享样本拒绝、修后47通过且原工具元数据不变）。生产安全边界与旧断言未放宽。历史CI未记录FD stat，不能拿本机nlink倒填。候选尚未推送，等待原Mac终态避免并发自动取消；全部准确新CI仍须执行后再考虑合入。
 
-PR16旧7f83/actualdce5739的Environment三项/Rust通过，UI再次失败，双Mac截至03:54仍进行中（ARM已通过Native/readonly/Owner、Intel尚Core/native）。本轮原报告给出真实私有child10200、PPID9949、start20524，前/读后/失败后均live R同身份，但cmdline读取0字节；不是超长或已观察Z，cleanup另见10207sleep不得倒填同PID。Linuxv6.8源码说明liveexec阶段有可能返回0，但该CI具体内核机制未证。
+本地run5独立补封完成，9项/4PNG/真实恢复与停止仅证Linux/generatedProvider/privateOwner模拟；不覆盖上述远程红灯。独立组合审查为结构SOURCE_READY_FOR_CI，明确NOT_READY_MERGE。完整证据见本单元EVIDENCE.json及CI_9AC_AND_FIXES_REVIEW归档。schema15隔离分支策略5例和UI802组件测试通过，Native13未运行/真实完整生命周期仍WIP；130需求/27决定/WP01–14不缩范围。main3fd60f3/OWNER001002ACK；无formalApprove/生产/真实Provider/新费用/签名/许可证扩权。以下保留历史。
 
-新源码79bbf4e/2066f54b仅把这种stable-owned空读取标pending且acceptedfalse并继续原观测；真正command仍要求完整非空≤1024/NUL/相同PPID/start/独立PGID。该case仅一次原5s绝对截止，返回exact前也拒迟到；Core1500ms、全局wait、其它flow/断言不变，cleanup默认None不冒按时证据。独审3571dcbc/00fed411 source-ready；17+13+4及独立extra7控制全通过，实际永久注入空值在原5s失败、late拒绝、所有自有childwait/gone。控制里的注入空读不冒自然kernel复现，旧CI失败与原控制历史全留。新source需要自己完整七CI，当前未合入或formalApprove。
+## 当前 Factory14 完整本地规划流程 — 2026-10-29T07:18:54.488006+00:00
 
-Factoryfoundation1f已645unique+7docs/fullClippy/fmt证据独审，Corepayload等价6d，最终集成1d2f88f9/19c5c57c通过；下一childplanning14源码分支继续。UI P2 fixed da382/733Node/type/build通过，独审原11neg与合法childshape复放闭合中；Native8Rust尚未编译，CI14guard升级745baac待独审；Core5库测试仅实际Core/SQLite+direct测试线程workerbody，无daemonworkerjoin证明，真实ACP/MCP/Actor、CLI14/迁移测试正进入执行。不得把这些替代schema14真实IPC、Native/Mac或完整130验收。
+`codex/factory-child-planning-integration` 当前实现源码 `80c70cdf`：真实 UI14/Core14 IPC run5 完整通过9项检查、4PNG、17.14秒，清理成功；6份原始计划/回执链、UI编辑、UI与Core拒绝/stale、真实r4丢回复的显式精确恢复、停止与预算均完成。独立运行证据审查进行中，不能预写为通过。该路径采用 Linux Chromium、生成 ACP/MCP5 和私有 Native审批模拟，不冒实际OS/Mac或真实Provider。
 
-main最近a1be94/OWNER001002ACK无003，完整130/27/WP01–14未完成。原a220真实双开发包及SHA仍可用，均无正式签名/公证/人工安装；真实Provider/私人身份、额外费用资源主机、生产与最终许可证保持关闭。以下为历史检查点。
+Native Rust 在 `f0322aa2` 实际通过83+30+16=129项，原工具inode/权限/硬链接/SHA及源码已恢复。Python在 `62518def` 通过47项（含5真实Core），原编译101/0test与全部四轮浏览器失败保留。完整Core659+7docs仍绑定689，后续Clippy/fmt绑定f9，UI733/44绑定ea6；没有把这些虚移到新提交重跑。证据与原件见 factory-child-planning-integration/EVIDENCE.json。
 
-## 当前诊断候选与精确 CI 终态 — 2026-10-29T03:22:04.300888+00:00
+双Mac NativeFactoryplanning与完整规划UI流/发布testcontrol扫描已真实接入现有CI并独立静审，尚未执行Factory14远程CI；保留Environment3/checknames、原所有flow、双runner/60分钟及权限。下一步是独立组合审查、draftPR和准确七项CI/新双架构包。PR16已保护合入main3fd60f3，既有双包是schema12，不能代Factory14。最新OWNER001/002 ACK，无003。
 
-PR16远端被测a2201fe2729eddb0d76bf3995667d3692126ee0f/actual7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16/tree520d7aab6abdd4d659d0a9d301d9e28bdfffafd2：Environment40806943416完整三项成功，Product40806944290的Rust及双Mac成功、UI失败，总6success/1fail；Product总体failure，不能合入。双Mac均完成真实Core/native/readonly/Owner/defaultbuild/releaseaudit/开发打包；Apple Silicon与Intel本次真实包及各自签名、SHA和人工未验项目见goal-graph-integration/DEVELOPMENT_DELIVERY_A2201.md，不能作Factory13或整个产品验收。原a220 UI firstcause仍未确认，不能把70a本地5checks/1PNG通过倒填。
+完整130需求/27决定/WP01–14未完成；schema15子GoalCore首次真实类型检查21错误后修正，0a79421再check通过但7WIP warnings/运行迁移与生命周期未完成；UI/Native15隔离推进。createworkspace仍未实现。真实产品Provider、私密身份、新费用资源、生产、签名公证与最终许可证未扩权。以下为保留历史。
 
-本地仅追加Graph owned_command_child诊断source a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1及真实记录。原≤1024/NUL/PPID/start/PGID、5s观察/1500ms产品期限和全部失败断言保持，独审dc836104/e74d86c2验证原assert AST/函数外字节与独立受控进程正负控；不会吞错或据推测跳过pre-exec。下一候选若再次失败会保存真正PID、前后身份、长度/NUL和boundedSHA；新准确七CI仍需自己通过。Root非Rust完整Python34/Node4、gate/doctor和三个static0；Rust环境小链最近依据是本次a220三平台真实CI，不虚构新本地重跑。无formalApprove/merge。
+## 当前已合入 Goal 基线与 Factory14 验证 — 2026-10-29
 
-独立Factory线Root6d666ed3完整645unique+7docs/Clippy/fmt0且独审bf880188/470be657，nested5不叠加，1308tracked相等；其本地TEST_DEBUG0维度不移作PR16或Mac13。Root正在同步本线已审查Nativehelper/CI60/严格类型到Factory分支，Core源与上述645相同；NativeOwner Python30（含schema13实际路径bootstrap）及Python34/Node4通过，合成审查待完成。下一child_planning Core/Native/UI均真实编码，schema14/同GoalPlan持久修订/窄scoped工具/完整新Nativepolicy/Ref历史+单原文读取，类型修复与新测试仍进行，不标能力通过；旧false不升级、childGoal/workspace仍false。
+PR #16 已经保护合入 main `3fd60f354236ddc5ab0ea2f7665428a8496f4a64`；实际 merge tree `1bdfa98507023b2b48f87cabeb118713dc86ec6b` 与 CI candidate `de113501` 精确相同，两者提交 ID 不同。Ready 后新 Environment40826447998 三项以及 Product40820986808 四项全部通过，独立审查已关闭，无正式 Approve。准确双架构包、SHA、签名限制见本单元 EVIDENCE.json；它们是 schema12 开发包，不是 Factory14 或全产品验收。ARM ad-hoc/Intel unsigned，无正式签名、公证、人工安装或真实产品 Provider 验证。
 
-main最近a1be94/OWNER001002ACK无003，130项/27决定/WP01–14未完成。真实产品Provider/私人身份、新费用资源或主机、生产、签名公证与最终许可证仍关闭。以下为历史检查点。
+Factory14 在 `ff5191af` 实际通过 Linux Native Rust 83+30+10=123 项（planning8已含83），原 shared tool inode/权限/硬链接/SHA 及所有源码精确恢复。首个真实 UI14/Core14 浏览器流未匹配动态表单标签，15秒定位超时，0检查/0截图、未审批/MCP；退出上下文后清理异常也保留，不能记绿。脚本修正与独审在进行，Native OS Factory 审批新测试两项证据缺口也在修复。完整130需求与 child Goal/workspace 等范围继续，schema15 子 Goal 仅隔离实现，未集成或验证。最新 OWNER001/002 ACK，无003。被合入的 STATUS 原文另存 docs/execution/STATUS.incoming-main-3fd60f3.md；以下保留本分支既有历史。
+
+## 当前 Child planning 组合验证 — 2026-10-29T05:53:38.704700+00:00
+
+本分支 `codex/factory-child-planning-integration` 已组合 schema14 Core、完整 Native planning policy、UI 计划历史及固定 MCP/IPC。Core 完整测试在 `68940d76` 通过659项非文档测试和7项文档测试；后续仅类型别名修正的 `f9a7e0c` 通过严格 Clippy/格式检查。实际组合 UI 在 `ea6ca3b0` 通过733项测试（44文件）；f9a 的类型检查和构建通过。完整证据、原失败和精确提交见 `factory-child-planning-integration/EVIDENCE.json`。
+
+首轮 Linux Native 编译触发200MiB磁盘守卫，退出-15，尚未运行测试；原工具 inode/权限/硬链接/SHA 和源码已恢复。独审发现一处当前 schema13 断言，已单独修为14，历史负控不变。真实 UI14/Core14 浏览器 IPC、Native OS Factory planning 和双架构 schema14 CI 仍待运行。child Goal 执行与新 workspace 创建仍未实现，130项需求/27决定/WP01–14目标未完成。
+
+独立分支 PR16 当前 `4f5c61e` 的七项准确CI已全部成功，正在审查双架构包原件；不能将其 schema12 结果替代 Factory14 验证。最新 main `a1be94` / OWNER001、002 ACK，无003。仍无正式 GitHub Approve、真实产品 Provider、额外费用资源、生产、签名公证或最终许可证扩权。以下为保留历史。
+
+## 当前 Foundation13 与新准确 CI — 2026-10-29T03:30:38.015548+00:00
+
+本分支codex/factory-runtime-integration已合Goal诊断/Nativehelper/CI60到44d87fdb，后续faea4a2仅更新4unitrecords/130需求partial证据和真实新包记录。Core、Coretests、Cargo与6d666ed3完整645unique+7docs/fullClippy/fmt通过的payload完全相同；这是源码等价维度，未把新合成SHA冒为重跑645。NativeOwner strictjson/type/CAS保留、schema仅当前13，实际Python30含原schema13bootstrap、Python34/Node4及三static通过。独立最终合成审查正在安排，尚未Factorypush/PR/新CI。
+
+PR16已普通push新7f83c66652a40a9d01e995b45ce270abd44fbdde，Product40812118373与Environment40812118369实际已启动，结果未知；旧a220完整终态6success/1UIFail不能复用。旧a220双Mac真实开发包/新SHA/签名/10目视40hash-only截图及原件已完整封存381members，SHAf082b21971eea3780dd30090c3a9c561774c54340761d395d271b568c469b4da；正式签名与人工安装未验。原UI原因仍未确认，新Graph只保留原断言和期限添加私有进程诊断。
+
+下一child_planning Core/Native/UI均实际代码：Core14类型check2通过，真实新tests待运行；UI703Node/type/build0，Native8新增Rusttests未编译，分别独审/集成进行中。不得把这些标为实际schema14IPC或Mac通过。旧false scope不升级、childGoal执行及workspacecreation仍未实现。130/27/WP01–14总目标保持完整，main最近a1be94/OWNER001002ACK；无formalApprove/受保护合并、生产、真实产品Provider身份、额外费用资源或主机、签名公证、最终许可证扩权。以下为已保留历史。
+
+## 当前 Factory 完整本地回归与后续实现 — 2026-10-29T03:16:19.776661+00:00
+
+Factory foundation准确源码6d666ed3a52ad14889440b84a903c58e050fa24c已实际完整通过645unique outer tests/0fail/0ignored及7文档测试，另5nested均重叠不叠加；workspace tests586.21s、fullClippy13.01s、fmt1.0s均0。57sessions含dirty拒绝/真正耗尽零新增副作用/剩余额度真实普通运行三项共享budget，18Factory含受控16MiB读取取消/撤销/TTL、原Grant父子接力/真实stop与mixed原root/project计数，均通过。1308tracked前后等、原4redirect准确清理、原shared188f/577和CAS2f5均保持；独审bf880188/470be657逐件核157证据和raw唯一645计数。仅Linux TEST_DEBUG0/root workspace，不计Native workspace/Mac/真实Provider或完整130验收；四旧full失败150/170/224/421各1FAIL原件保留。
+
+当前将Goal PR16本地bb8c093已审查的Nativehelper移位/固定NativeParent处理、desktopjob60及strictinfra60/61 tests、完整a220真实CI记录和Graph argv诊断合入本功能分支；Core生产与Coretests相对上述645源码保持逐字不变，非该合成SHA新跑645。NativeOwner runner冲突保留incoming全部严格json/type/原receipt关联，唯一schema取本分支实际13；不得改回12或松类型。完整需求表130 IDs/status/工作包与双方证据历史均保留。
+
+PR16远端a220/actual7f359dc：Environment3和Rust成功，UI argv观察器失败/根因仍未确认；ARM本轮Native/readonly/Owner/defaultbuild/audit/开发包成功，Intel已通过Native/readonly/Owner、仍defaultbuild。准确新ARM DMG f58ef4c78221176459ccae247cc66b660cd8fb30e1b097419acc62e1427b4fd1（ad-hoc/无公证），不是bb旧包；未做人工安装。诊断only的Graph源a054989b已独审dc836104/e74d86c2，原1024/NUL/5s/1500/身份与失败断言均不变；70a单次5/1PASS不作exacta220通过。等待现有Intel终态再一次普通新push，新准确七检查仍需验证。
+
+完整下一child_planning已在隔离Core/Native/UI稀疏分支真实编码，schema14/同GoalPlan持久修订+窄MCP/完整Nativepolicy/真实UIhistory并行，首次Corecheck5类型问题正修，尚无新能力运行通过；旧false scope不升级，childGoal执行/新workspace仍false。list只完整revision refs，单get取原文，保持既有IPC上限，不创建第二DSL/隐含模型。
+
+main最近a1be94、OWNER001/002ACK无003；无formalApprove/受保护合并、生产、真实产品Provider身份调用、新费用/主机、签名公证或最终许可证扩权。130/27/WP01–14整体未完成，继续已授权工作。以下为两条并行分支原始历史检查点，均保留且不能替代本段当前事实。
 
 ## 当前精确 CI 与持续实现检查点 — 2026-10-29T02:58:06.016877+00:00
 
@@ -91,6 +119,41 @@ main最新仍a1be94，OWNER001/002重读ACK无003。没有formalApprove、合入
 Root安全编译对shareddebug tools先硬链保存原inode，锁定Tauri资源仅stage已知70a工具，验SHA后还原原081a/89eb哈希及inode，3本人symlink清理；本轮纯Native测试不运行这些工具。之前Factory冻结旧fc5/906误标053的sidecarcopy事件已独立留证并纠正；不再凭可变target/debug推断源码。Native Cargo租约已归Core。
 
 另行Factory分支c581e0f保留Core0ef/25作者用例与有限静态复核、 earlierCore053 Native106/Node643及新真实normal失败2checks/2PNG/40events。子任务在原5s预检预算内未启动并保持unknown，完整矩阵未通过；privateinstalled compactCLI/失败只读留证与Owner大hash offload正在分别修复，未扩权限。Factory/schema13不混入PR16。完整130需求/WP01–14仍开放；main最新fetch a1be94、OWNER001/002 ACK无003。当前PR16仍draft，未formalApprove/merge；先最终组合记录审查再一次normalpush/准确7CI，仍需真实双MacOwner和开发包通过。以下保留历次检查点，不作当前通过结论。
+
+<!-- Preserved Factory branch checkpoint history -->
+## 当前 Factory 本地集成检查点 — 2026-10-29T01:12:17.258675+00:00
+
+本地codex/factory-runtime-integration current6b623af；实际15flow执行源8abb5cac8f7842a3286b27cc48583ee07b609f0b、生产等价db949/46源、原始工具2f5/577、UI40b在Root72c84构建，均逐hash核对；不冒称cleanCIbuild。真实Factorynormal/cancel/unknown三路径合12checks6PNG、原12schema13flow114checks70PNG全部通过，输入源码不变。两组独审分别0868e865/cbc28760、b4a6d78f/4f2a892f，rawreply/nonces/receipts/root-projectmeters/6-2-2原identitygone已核；cancel的已验证adoptedPID由testcontrollerwait，不夸Core全后代join。未新增Grant/TaskAccepted，unknown不自动重放。原失败全部保留，见FINAL_LOCAL_REVIEW_IMPORTS与旧archives。
+
+三项tests-only大Data16MiB/真实首64KiB停顿cancel/revoke/ScopeTTL4000均通过，heldactive1/lease1/threadalive，release后才回包/join/真实ownedreap，已独审；非kernel可中断/Mac/全树隔离证明。编译器仅postrun身份、临时strippedtool非现存重hash等局限保留，125原artifact已入无损archive。
+
+完整Rust两次尚失败：8532先150outerPASS/1FAIL(nested1另计)因current12期待；reviewed13fixtureversion对齐后6b623准确重跑170outerPASS/1FAIL(nested1另计)，历史schema7fixture残留Factory表而Storeopen报INTERNAL_ERROR，未保留具体engine文本不伪造。两轮source1283tracked前后一致、原完整日志/失败与未跑后续docs/Clippy均保存于FULL_RUST_ORIGINAL_FAILURES。cabf新fixture构造guard与原Goalcase定向3PASS，独审/合入/新全套待完成，不把partial当fullgreen。共享debug188f系合法DEBUG0编译产物，冻结2f5/577原样。
+
+Factory无远端PR/推送/新Mac包；childplanning/childGoal/workspacecreation/完整排队期限、预算恢复/故障矩阵及Mac13仍open。独立PR16远端C6准确5success+ARMbundleFAIL+Intel45mincancel，双Mac真正Owner通过且50PNG全看；defaultreleaseaudit/packages均skip。其本地helpermove/CI60+严格validator companion已独审、Rustcheck/fmt0，Rootd0c01ba最终集成审查中，未新push/CI。main最新a1be94d2、OWNER001/002ACK无003。
+
+保持130需求原ID/status/WP、27决定及完整获批目标；仅增加partial真实证据，没有产品完成百分比或全量验收。实际产品Provider/私人身份、新费用/资源、生产、签名公证及最终许可证仍关闭；无formalApprove/合入。以下均历史记录，不能覆盖本段。
+
+## 当前检查点 — 2026-10-29T00:06:47.690858+00:00
+
+Factory本地codex/factory-runtime-integration：当前执行源38f8cd60d91d9cd1c7a5215ab720b60400ca81c8，包含Core db949cb（历史265036c记录）、UI40b、Native13与driver744。新CAS修复13unit+1真实IPC、build/Clippy/fmt和独立有限review已封存；Root逐一核46生产源/1测试/2工具。原6cdf候选保留，normalized6347保留真实WIPbuild身份，不冒称cleanCIbuild。Root新实际normal于00:02:51UTC exit1，2checks/2PNG、源/输入哈希不变、cleanupfalse。正确保存STALE_REVISION/not_started/rev13；随后terminalget早于UIstartHTTPack而NOT_FOUND，later单独快照runstarting/rev19。两个时刻不混同，无重试求绿。作者正修严格唯一request/ack顺序，并共享原15s阶段截止时间；新组合cancel/unknown未运行。完整原日志/实际报告/截图、CAS源码和独审均在factory-runtime-integration/OWNER_CAS_REVIEW_*与BROWSER_CAS_NORMAL_ASYNC_FAILURE*。
+
+历史0ef/851 normal和unknown各4checks/2PNG通过、原identitygone；cancel2checks/2PNG失败且原companionZombie，未借后续修复改写。四历史执行已无损归档BROWSER_PRE_CAS_RUNTIME_EVIDENCE，41成员逐字roundtrip。Core既有Owner读取和共享ledger有限修复/27affected以及独立review记录保留，不借历史053Native106或UI643/41证明当前Mac。Core独占现有Cargo/CPU窗口，正续既有tests-only受控blocked-read工作；这是Linux合成I/Ostall验证，尚无运行结论。Factory schema13CI source98bc23e/records1f6c69已冻结，81finite检查通过，独审正在封存，不等真实三flow通过。尚无FactoryPR/推送/安装包。
+
+独立PR16已正常推送headc6f6b3c2be18ecc339f1cba6a9603657739e4cd4，Product40790894775/Environment40790894815。三个Environment成功，Product仍运行；API mergecandidate e963523c04b27d99d44a7893b161b5180b9818e3/tree32b2747d4541b7f09d05cf21332f6232b081d8a5，实际检出待job原log，不借API候选冒称实际。旧fb7五成功/双Mac测试关联断言失败保留；没有本轮新安装包/合入，PR16仍draft。main最近安全fetch a1be94d2，OWNER001/002ACK无003。
+
+需求表保持130ID/原status/WP不变，只增加明确partial/历史/失败证据维度。完整v0.2、27决定、WP01–14未完成，继续可执行范围。实际产品Provider账号/模型调用、私人凭据、额外费用/资源/主机、生产发布、正式签名/公证及最终许可证仍关闭；无formalApprove。以下均为历史检查点，不能覆盖本段。
+
+## 当前 Factory 本地集成检查点 — 2026-10-28 22:49 UTC
+
+本地分支 codex/factory-runtime-integration，最新实际测试源 fc5b08340ec8f5137d240e9b18c8d2602c1a8de1；尚未创建 Factory PR 或推送。Core0ef、UI40b（643/41/type/build）及 Native13 叶子已组合。早期 Core053 的 Linux Native106项通过记录保留，不借成当前 Core或macOS通过。
+
+两次真实 normal 均失败且证据保留：第一次旧CLI预检到期，child未启动；第二次 reviewed5de 使用独立私有压缩CLI，推进到child结果及父新attempt，但观察器遇空cmdline而失败。稍后原MCP同一PID/start身份为Z/PPID1；不算消失，不发送信号。真实只读SQL快照35events/2attempt与稍后seq51 HTTP分时记录，未证明completed。第二次2检查/2截图、cleanupfalse；作者正在修生成ACP对自己MCP子进程的close/wait，cancel/unknown仍未运行。详见 factory-runtime-integration/BROWSER_NORMAL_SECOND_FAILURE.json 与无损归档。
+
+Core Owner读取移出Actor的独立审查发现未选文件变化漏检，修前真实负控失败已保留；作者补完整有界metadata观察，新增源、完整测试及独立签收尚待完成。没有借WIP结果宣布范围完成。历史Native缓存仅按已完成日志精确清理10个测试EXE，原hash/inode与无运行映射记录保存在Cloud检查点；源、失败日志和冻结工具保留。Core独占Cargo。
+
+独立 PR16 远端仍fb7ff7d/schema12，Product40779542803和Environment40779542808：三Environment、Rust及UI成功，Linux原始检出6131661/treebcfd已独审。双Mac仍Core/native进行中，尚无新Owner或安装包证据。既有Playwright关闭警告已保留，正在隔离诊断，不声称无警告。main仍a1be94，OWNER001/002已重读ACK无003；无formalApprove/合入/权限扩张。下方保留较早阶段状态，不能替代本段当前结果。完整130需求、27决定和WP01–14不缩减；真实Provider/私人身份、额外费用/资源、正式签名、生产和最终许可证仍关闭。
+
+# AgentBaton 执行状态
 
 ## PR16 第四轮准确 CI：五成功、双 Mac Owner 文本观察失败；诊断已独审合成
 
