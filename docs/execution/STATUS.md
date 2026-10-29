@@ -1,3 +1,7 @@
+# 原子预留优化与收据窄修本地验证通过，准备准确 CI — 2026-10-29T23:58:13.519671+00:00
+
+Rust b651真实Factory26/88.57s、Core129/90.12s、全workspace alltargets严格Clippy通过；初次Core编译容量中断保留，重试无中断。新collector e068的原两P2已独审闭合，fullinfra150（含66）与新b651真实join快照CLI通过：r1启动exit1、r2启动exit0，child12746ms/root14744ms。这些Linux数据不证明Mac根因修复，也不是受控性能比较。详见 [准确本地证据](factory-child-goal-integration/ATOMIC_RESERVATION_RESULTS.json)。原7ac双Mac失败保留，新准确七CI/native/构建/包未运行；PR18仍draft，依赖PR19与完整130未完成。main653679d/OWNER001002 ACK，无新授权。
+
 # PR18 准确7ac CI终态与新诊断证据 — 2026-10-29T23:43:30.215969+00:00
 
 Environment三平台、Rust/UI通过；双Mac返工失败，原55s观察和批准Scope墙钟窗口尚未到期（不等于独立刷新Grant撤销状态）。Intel第二轮验证未启动，same-revision RESOURCE_LIMIT；ARM两轮验证failed/worker_joined，仍不能证明grep已执行。有限post-join证据成功取得，详见 [准确结果](factory-child-goal-integration/HEAD7AC_TERMINAL_RESULTS.json)。PR18 draft/unmerged；PR19 7d3依赖PR18，schema16本地166infra/Factory26与原995UI、5真实浏览器场景分别归属，不冒Mac。继续诊断验证准入/预检/结算，不提高预算或接受失败。完整130/WP01–14未完成，main653679d与OWNER001/002ACK无新指令，权限不变。

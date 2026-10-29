@@ -1,3 +1,11 @@
+## Atomic reservation reuse and finite receipt attribution verified locally — 2026-10-29T23:58:13.519671+00:00
+
+Rust b651: actual Factory26PASS88.57s and Core129PASS90.12s; the nested helper1 is not additive. Full workspace/all-target strictClippy and format passed. First Corelib compile capacity interruption executed no tests and remains preserved; successful generated caches were losslessly archived with full SHA roundtrip, then retry passed. The optimization reuses only the complete checked node view inside the same IMMEDIATE reservation; no cross-request cache or budget/Grant/witness/CAS relaxation. Independent runtime source review passed.
+
+Collector source e068/composed e62: full infrastructure150PASS, including66collector controls; original915 twoP2 findings remain retained and independent same-counterexample review closes exact receipt-run binding and ledger uniqueness. Root actual CLI on the new b651 real joined snapshot passed: command1 truly started/exit1/1277ms; command2 started/exit0/2284ms; child5settled12746ms, root/project8attempts14744ms, active0. These are post-join metadata, not admission-time proof or Mac findings. Original old retained-input CLI also remains separately source-bound. No rawDB/IDs/paths/RPC publication.
+
+See ATOMIC_RESERVATION_RESULTS.json. Exact new seven CI, both native Mac gates and packages remain next; original7ac5pass/2Macfail is not relabelled. No performance improvement or root-cause closure inferred from differing local durations. Full130/WP01–14 continues; main653679d/OWNER001002 ACK, no003 and no permission expansion.
+
 ## PR18 head7ac exact terminal CI — 2026-10-29T23:43:30.215969+00:00
 
 Environment40971954724 three platforms and Product40971954667 Rust/UI passed. ARM22PASS/1FAIL143.30s and Intel22PASS/1FAIL180.71s in the original rework case; downstream native/build/package gates skipped. Tested merge checkout57d049d is not an actual main merge. Safe post-owned-shutdown reports were collected successfully on both Macs.

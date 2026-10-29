@@ -1,0 +1,255 @@
+{
+  "recorded_at": "2026-10-29T23:58:13.519671+00:00",
+  "approval_id": "AB-START-001",
+  "rust_source": "b6519bde6a91c84b20719f15ab6c92b284588894",
+  "collector_source": "e06828b81c879f7d853f9a4ef29e4b6483e0a556",
+  "composed_collector_source": "e62ed752583536d0afb58f6f9295ac5bcd023791",
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "scope": "Same-transaction checked-node reuse; fixed finite existing receipt/ledger diagnostics. No profile, timer, budget, permission or acceptance changes.",
+  "actual_checks": [
+    {
+      "source": "b6519bde6a91c84b20719f15ab6c92b284588894",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 107.90711321900017,
+      "minimum_free_bytes": 207663104,
+      "interruption": null,
+      "log_sha256": "7a62feaa95e393819f2714fb97b7628382985100b0696b2fc6495e25388cc9e1",
+      "summaries": [
+        "test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 88.57s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "evidence_name": "pr18-atomic-node-reuse-factory1"
+    },
+    {
+      "source": "b6519bde6a91c84b20719f15ab6c92b284588894",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": -15,
+      "seconds": 16.187649081985,
+      "minimum_free_bytes": 136650752,
+      "interruption": "external_capacity_time_or_log_bound",
+      "log_sha256": "076c161d6606fe774fd9ccd40242693e5f801b3f830cb310b2e5e4a3b10d37d4",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "evidence_name": "pr18-atomic-node-reuse-core-units1"
+    },
+    {
+      "source": "b6519bde6a91c84b20719f15ab6c92b284588894",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 105.55602363697835,
+      "minimum_free_bytes": 258756608,
+      "interruption": null,
+      "log_sha256": "ff2fb198b30c3e07f1f786c7073b58bfb247e25aa30965146b69a29427a40823",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 128 filtered out; finished in 0.00s",
+        "test result: ok. 129 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 90.12s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "evidence_name": "pr18-atomic-node-reuse-core-units2"
+    },
+    {
+      "source": "b6519bde6a91c84b20719f15ab6c92b284588894",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 11.537448332994245,
+      "minimum_free_bytes": 274169856,
+      "interruption": null,
+      "log_sha256": "458f45287e0d62301d9bb5c0645e7b0ebdabfbc1dedafa96f63725fe651d1a04",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "evidence_name": "pr18-atomic-node-reuse-clippy1"
+    },
+    {
+      "source": "e62ed752583536d0afb58f6f9295ac5bcd023791",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.1204060979944188,
+      "minimum_free_bytes": 275296256,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "evidence_name": "pr18-atomic-node-reuse-format1"
+    },
+    {
+      "source": "e62ed752583536d0afb58f6f9295ac5bcd023791",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure"
+      ],
+      "exit": 0,
+      "seconds": 1.3064472910191398,
+      "minimum_free_bytes": 275296256,
+      "interruption": null,
+      "log_sha256": "abee3b33abbd4a74ffb3d4290e3856adb4c50a4d83e8dab5faad1878b2577c22",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "evidence_name": "pr18-receipt-budget-infrastructure1"
+    },
+    {
+      "source": "e62ed752583536d0afb58f6f9295ac5bcd023791",
+      "command": [
+        "python3",
+        "scripts/record-factory-rework-ci-evidence.py",
+        "--evidence-root",
+        "/workspace/.onboarding/pr18-rework-progress-collector-actual-input2"
+      ],
+      "exit": 0,
+      "seconds": 0.10429007900529541,
+      "minimum_free_bytes": 275365888,
+      "interruption": null,
+      "log_sha256": "96ce2ea8b8e8c3a4027e77bacab3ed27465b6679d475a5483c70215c692297ed",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "evidence_name": "pr18-receipt-budget-fixed-cli1"
+    },
+    {
+      "source": "ea443a736569292ccfc22971e8daca52bf4b2981",
+      "command": [
+        "python3",
+        "scripts/record-factory-rework-ci-evidence.py",
+        "--evidence-root",
+        "/workspace/.onboarding/pr18-node-reuse-b651-retained-input1"
+      ],
+      "exit": 0,
+      "seconds": 0.10064811600022949,
+      "minimum_free_bytes": 273555456,
+      "interruption": null,
+      "log_sha256": "57f4e8eed01ce71cfede3579d0445b9ba117145dc937f6a6784d7388092cc887",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "evidence_name": "pr18-receipt-budget-b651-actual1"
+    }
+  ],
+  "counts": {
+    "factory_integration": 26,
+    "core_units": 129,
+    "nested_core_helper_not_additive": 1,
+    "infrastructure_unique": 150,
+    "collector_subset_not_additive": 66
+  },
+  "new_owned_join_projection": {
+    "validation_observations": {
+      "1": {
+        "actual_runtime_ms": 1277,
+        "error_code": null,
+        "exit_code": 1,
+        "goal_io_state": "observed",
+        "process_started": true
+      },
+      "2": {
+        "actual_runtime_ms": 2284,
+        "error_code": null,
+        "exit_code": 0,
+        "goal_io_state": "observed",
+        "process_started": true
+      }
+    },
+    "budget_usage": {
+      "child": {
+        "settled_actual_runtime_ms": 12746,
+        "settled_count": 5,
+        "settled_runtime_unknown": false,
+        "unsettled_count": 0,
+        "unsettled_reserved_runtime_ms": 0
+      },
+      "code": "existing_ledger_and_child_records",
+      "not_an_authority_or_admission_verdict": true,
+      "project": {
+        "actual_runtime_ms": 14744,
+        "observed_attempts": 8,
+        "runtime_unknown": false
+      },
+      "root": {
+        "actual_runtime_ms": 14744,
+        "observed_attempts": 8,
+        "runtime_unknown": false
+      },
+      "snapshot_time": "post_owned_shutdown_not_admission_instant",
+      "status": "collected_post_shutdown_budget_facts"
+    }
+  },
+  "independent_reviews": {
+    "runtime_review_sha256": "1f6facb7212be79ad3fba0691d7f1b2adb923de5a398d2c20d5e226e4beaf324",
+    "runtime_manifest_sha256": "a376b4ee26f4baf89a5f0599aa5ee5d6976adffaff2129b2a8055ec05126b696",
+    "original_collector_915_blocked_review_sha256": "6bb13e942d9f62857de9978ef25564c46d483c761790ea773bed0a818ca532ae",
+    "fixed_collector_review_sha256": "415a13a5a92381e09363f390d00f43f549c9abea6a70d76d74c91dc034fbdac4",
+    "fixed_collector_manifest_sha256": "efe6111c93f359d095355493bf899843719a328cd2c18ef1b2adfe5c6c75e31d"
+  },
+  "retained_failures": [
+    "First Corelib compile interrupted after16.19s by150MiB capacity reserve, no test executed; retry passed.",
+    "Original915 wrong-run receipt and duplicate-ledger counterexamples retained; e068 exact binding/uniqueness rejection independently closed.",
+    "Initial fmt command omitted existing RUSTUP_HOME activation and failed read-only home; activated pinned toolchain then formatted/verified.",
+    "Prior7ac exact dualMac failures remain failed and distinct."
+  ],
+  "limitations": [
+    "New candidate accurate CI/Mac/native/build/package not run at record time.",
+    "Linux timers are individual observations, not a controlled performance comparison or established Mac root-cause fix.",
+    "Post-owned-shutdown budget totals are not an admission-time or authority verdict.",
+    "No schema15/16 installers accepted; full130 requirements remain incomplete."
+  ]
+}
