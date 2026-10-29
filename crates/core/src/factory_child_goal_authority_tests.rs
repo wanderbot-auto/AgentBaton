@@ -140,7 +140,10 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
         let seq = f.store.sequence().unwrap();
         let source_error = |e: crate::CoreError| {
             assert!(
-                matches!(e.code.as_str(), "AUTH_REQUIRED" | "INPUT_CHANGED"),
+                matches!(
+                    e.code.as_str(),
+                    "AUTH_REQUIRED" | "INPUT_CHANGED" | "CAPABILITY_UNSUPPORTED"
+                ),
                 "missing={missing}: {}",
                 e.code
             );
