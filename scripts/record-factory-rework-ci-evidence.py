@@ -23,6 +23,15 @@ MAX_CASES = 16
 MAX_ENTRIES = 64
 MAX_ROWS = 512
 MAX_PUBLIC = 128 * 1024
+MAX_ASSOCIATED_EVENTS = 16
+MAX_EVENT_ROWS = 4096
+EVENT_KINDS = ('goal.run_blocked', 'goal.node_settled', 'goal.capture_settled',
+               'goal.validation_settled', 'goal.owner_node_settled', 'goal.factory_failure_confirmed')
+# Same finite production codes as goal_runtime_diagnostics::error_code.
+REASON_CODES = frozenset(('WORKSPACE_BUSY', 'STALE_REVISION', 'INPUT_CHANGED',
+    'AUTH_REQUIRED', 'RESOURCE_LIMIT', 'DEADLINE_EXCEEDED', 'OUTCOME_UNKNOWN',
+    'BUDGET_UNKNOWN', 'INTERNAL_ERROR', 'PERMISSION_DENIED',
+    'CAPABILITY_UNSUPPORTED', 'CONFIG_CONFLICT', 'INTERNAL_ADVANCE_INTERRUPTED'))
 RUN_STATES = frozenset(('queued', 'running', 'awaiting_acceptance', 'blocked',
     'failed', 'cancel_requested', 'cancelled', 'outcome_unknown', 'accepted', 'completed'))
 NODE_STATES = RUN_STATES | frozenset(('not_started', 'ready', 'reserved', 'stopping',
@@ -209,7 +218,146 @@ def bucket_revision(value):
     return str(value) if value in (1, 2) else 'later'
 
 
-def project_db(raw):
+def event_fields(event, subject, observed_plan_revision):
+    """Exact known scalars only. No arbitrary payload key/value is published."""
+    kind = enum(event.get('kind'), EVENT_KINDS)
+    payload = event.get('payload')
+    need(type(payload) is dict)
+    out = {'kind': kind}
+    out['task_accepted'] = boolean(payload.get('task_accepted'))
+    if kind == 'goal.run_blocked':
+        reason = payload.get('reason_code')
+        need(type(reason) is str)
+        out['reason_code'] = reason if reason in REASON_CODES else 'unrecognized'
+        out['automatic_retry'] = boolean(payload.get('automatic_retry'))
+        need(out['automatic_retry'] is False and out['task_accepted'] is False)
+    elif kind == 'goal.factory_failure_confirmed':
+        plan = integer(payload.get('plan_revision'))
+        proof = payload.get('proof')
+        need(type(proof) is dict and proof.get('run_id') == subject)
+        need(plan == observed_plan_revision and integer(proof.get('plan_revision')) == plan)
+        refs = proof.get('failure_refs')
+        need(type(refs) is list and 1 <= len(refs) <= MAX_ROWS)
+        need(all(type(ref) is str and 0 < len(ref.encode()) <= 512 for ref in refs))
+        need(out['task_accepted'] is False and payload.get('reservation_refunded') is False)
+        out.update(plan_revision=plan, failure_ref_count=len(refs), reservation_refunded=False)
+    elif kind == 'goal.owner_node_settled':
+        out['decision'] = enum(payload.get('decision'), ('accepted', 'rejected'))
+    else:
+        for key in ('actual_runtime_ms', 'actual_output_bytes'):
+            out[key] = integer(payload.get(key), nullable=True)
+        if kind in ('goal.node_settled', 'goal.validation_settled'):
+            out['budget_overrun'] = boolean(payload.get('budget_overrun'))
+            out['stop_confirmed'] = boolean(payload.get('stop_confirmed'))
+            out['observed_runtime_lower_bound_ms'] = integer(payload.get('observed_runtime_lower_bound_ms'))
+        if kind == 'goal.node_settled':
+            out['node_state'] = enum(payload.get('state'), NODE_STATES)
+        if kind == 'goal.validation_settled':
+            out['passed'] = boolean(payload.get('passed'))
+        if kind == 'goal.capture_settled':
+            out['capture_state'] = enum(payload.get('state'), ('completed', 'failed', 'outcome_unknown'))
+            for key in ('capture_worker_joined', 'producer_stop_confirmed'):
+                out[key] = boolean(payload.get(key))
+        if kind in ('goal.capture_settled', 'goal.validation_settled'):
+            out['io_completion'] = enum(payload.get('io_completion'), ('worker_joined', 'not_started'))
+    return out
+
+
+def project_events(conn, observation):
+    result = {'status': 'pending', 'code': 'unknown_not_available',
+              'snapshot_time': 'post_owned_shutdown_not_deadline_instant',
+              'events': [], 'previous_node_settlement': None}
+    # A global IPC revision or Factory.get run is not a child Graph observation.
+    if not (type(observation) is dict
+            and observation.get('method') == 'factory_child_goals.list'
+            and observation.get('stage') == 'response_received'
+            and observation.get('reply_object_supplied') is True
+            and observation.get('reply_is_error') is False):
+        return result
+    observed = observation.get('list_progress')
+    if not (type(observed) is dict and observed.get('summary_count') == 1
+            and observed.get('plan_digest_matches') is True
+            and observed.get('plan_revision') in (1, 2)
+            and observed.get('run_plan_revision') == observed.get('plan_revision')
+            and observed.get('failure_code') != 'REWORK_LIST_INVALID'):
+        return result
+    revision = integer(observed.get('run_revision'), (1 << 63) - 1)
+    need(revision > 0)
+    result.update(observed_run_revision=revision, observed_plan_revision=observed['plan_revision'])
+    table = conn.execute("SELECT type,sql FROM sqlite_master WHERE name='events'").fetchone()
+    if table is None:
+        return result
+    need(table[0] == 'table' and type(table[1]) is str
+         and re.match(r'CREATE\s+TABLE\s', table[1], re.I))
+    columns = conn.execute('PRAGMA table_info(events)').fetchall()
+    need([(c[1], c[2], c[3], c[5]) for c in columns] ==
+         [('sequence', 'INTEGER', 0, 1), ('document', 'TEXT', 1, 0)])
+    count, total, maximum = conn.execute(
+        'SELECT count(*),coalesce(sum(length(CAST(document AS BLOB))),0),'
+        'coalesce(max(length(CAST(document AS BLOB))),0) FROM events').fetchone()
+    integer(count, MAX_EVENT_ROWS)
+    integer(total, 4 * 1024 * 1024)
+    integer(maximum, 1024 * 1024)
+    need(conn.execute('SELECT count(*) FROM events WHERE NOT json_valid(document)').fetchone() == (0,))
+    subject = conn.execute('SELECT goal_run_id FROM factory_child_goal_runs').fetchone()[0]
+    need(type(subject) is str and 0 < len(subject.encode()) <= 128)
+    where = ("json_extract(document,'$.aggregate_id')=? AND json_extract(document,'$.source')='goal_core' "
+             "AND json_extract(document,'$.revision')=? AND json_extract(document,'$.kind') IN (?,?,?,?,?,?)")
+    params = (subject, revision, *EVENT_KINDS)
+    matched = conn.execute('SELECT count(*) FROM events WHERE ' + where, params).fetchone()[0]
+    integer(matched, MAX_ASSOCIATED_EVENTS)
+    if matched == 0:
+        return result
+    seen = set()
+    first_sequence = None
+    for sequence, raw in conn.execute('SELECT sequence,document FROM events WHERE ' + where +
+                                      ' ORDER BY sequence LIMIT 17', params):
+        integer(sequence, (1 << 63) - 1)
+        need(sequence > 0)
+        if first_sequence is None:
+            first_sequence = sequence
+        event = strict_json(raw)
+        need(type(event) is dict and event.get('aggregate_id') == subject
+             and event.get('source') == 'goal_core')
+        need(integer(event.get('revision'), (1 << 63) - 1) == revision)
+        kind = enum(event.get('kind'), EVENT_KINDS)
+        need((kind, revision) not in seen)
+        seen.add((kind, revision))
+        projected = event_fields(event, subject, observed['plan_revision'])
+        projected['ordinal'] = len(result['events']) + 1
+        result['events'].append(projected)
+    # A capture settlement can follow a prior work settlement. Keep that event
+    # distinct: its earlier run revision does NOT prove the same plan revision.
+    if any(event['kind'] == 'goal.capture_settled' for event in result['events']):
+        prior_where = ("json_extract(document,'$.aggregate_id')=? "
+            "AND json_extract(document,'$.source')='goal_core' "
+            "AND json_extract(document,'$.kind')='goal.node_settled' "
+            "AND json_extract(document,'$.revision')<? AND sequence<?")
+        prior_revision = conn.execute("SELECT max(json_extract(document,'$.revision')) FROM events WHERE " +
+                                      prior_where, (subject, revision, first_sequence)).fetchone()[0]
+        if prior_revision is not None:
+            integer(prior_revision, (1 << 63) - 1)
+            need(prior_revision > 0)
+            prior_params = (subject, prior_revision, *EVENT_KINDS)
+            prior = conn.execute('SELECT sequence,document FROM events WHERE ' + where +
+                " AND json_extract(document,'$.kind')='goal.node_settled' AND sequence<? ORDER BY sequence LIMIT 2", prior_params + (first_sequence,)).fetchall()
+            need(len(prior) == 1 and len(result['events']) < MAX_ASSOCIATED_EVENTS)
+            integer(prior[0][0], (1 << 63) - 1)
+            need(prior[0][0] > 0)
+            event = strict_json(prior[0][1])
+            need(type(event) is dict and event.get('aggregate_id') == subject
+                 and event.get('source') == 'goal_core' and event.get('kind') == 'goal.node_settled')
+            need(integer(event.get('revision'), (1 << 63) - 1) == prior_revision)
+            result['previous_node_settlement'] = {'run_revision': prior_revision,
+                'same_observed_revision': False, 'same_plan_not_established': True,
+                'event': event_fields(event, subject, None)}
+    unknown = any(event.get('reason_code') == 'unrecognized' for event in result['events'])
+    result['status'] = 'pending' if unknown else 'collected_historical_events'
+    result['code'] = 'unrecognized_reason' if unknown else 'same_observed_run_revision'
+    return result
+
+
+def project_db(raw, observation=None):
     """Read a bounded private derivative of the FD-verified, joined snapshot.
 
     SQLite opens only this owned copy with mode=ro, immutable and query_only.
@@ -284,7 +432,8 @@ def project_db(raw):
                 validations[f'{rev}:{state}:passed_{passed_type}:stopped_{stopped_type}:{io}'] = count
             return {'schema': SCHEMA, 'child_graph_count': 1, 'runs': runs,
                     'node_counts': dict(sorted(nodes.items())),
-                    'validation_counts': dict(sorted(validations.items()))}
+                    'validation_counts': dict(sorted(validations.items())),
+                    'associated_events': project_events(conn, observation)}
         finally:
             conn.close()
 
@@ -333,7 +482,7 @@ def case(parent, name):
         digest = cleanup.get('raw_db_sha256')
         need(type(digest) is str and re.fullmatch('[a-f0-9]{64}', digest) is not None)
         need(hashlib.sha256(raw).hexdigest() == digest)
-        result['post_shutdown'] = project_db(raw)
+        result['post_shutdown'] = project_db(raw, result.get('last_readonly_observation'))
         result['test_panicking'] = boolean(cleanup.get('test_panicking'))
         if 'last_readonly_observation' in result:
             result['status'], result['code'] = 'collected_post_shutdown', 'FINITE_PROJECTION_COLLECTED'
