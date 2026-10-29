@@ -664,30 +664,60 @@ def fixture_cleanup_permitted(*,daemon_complete,factory_identities_complete,http
 class WireEvidenceRecorder:
     """Test-only original reply capture; no IPC or business-result synthesis.
 
-    Allocation and metadata locks never cover IPC or file IO. A failed slot is
-    consumed forever; an existing/partial file is preserved, never overwritten.
+    Reserve the existing4MiB response bound before dispatch; do not hold a lock
+    over disk checks, IPC, callbacks or writes. Failed slots never get reused.
     """
     def __init__(self,output,report):
-        self.output=output;self.report=report;self._lock=threading.Lock();self._next=0;self._bytes=0
-        report['actual_core_wires']=[];report['actual_core_wire_attempts']=[];report['actual_core_wire_failures']=[]
+        self.output=output;self.report=report;self._lock=threading.Lock();self._condition=threading.Condition(self._lock)
+        self._next=0;self._bytes=0;self._reserved=0;self._pending_writes=0;self._inflight=0;self._peak=0
+        report['actual_core_wires']=[];report['actual_core_wire_attempts']=[];report['actual_core_wire_failures']=[];report['actual_core_wire_rejections']=[]
+
+    def _free_bytes(self):
+        capacity=os.statvfs(self.output)
+        return capacity.f_bavail*capacity.f_frsize
+
+    def _check_disk(self):
+        with self._lock:outstanding=self._reserved+self._pending_writes
+        # The actual filesystem query is outside metadata locking.
+        require(self._free_bytes()>=200*1024*1024+outstanding,'Retain200MiB plus all outstanding wire reservations')
 
     def begin(self,call):
-        params=copy.deepcopy(call.params)
-        with self._lock:
-            require(self._next<2048,'Bounded actual Core observation count exceeded')
-            sequence=self._next;self._next+=1
-            slot={'sequence':sequence,'method':call.method,'params':params,'key':call.key,'revision':call.revision,
-                'original_reply_path':str(self.output/('wire-reply-'+str(sequence)+'.json')),'capture_state':'pending'}
-            self.report['actual_core_wire_attempts'].append(slot)
-        return slot
+        params=copy.deepcopy(call.params);slot=None;deadline=time.monotonic()+5
+        try:
+            with self._condition:
+                while True:
+                    require(self._next<2048,'Bounded actual Core observation count exceeded')
+                    if self._bytes+self._reserved+base.MAX_RESPONSE_BYTES<=16*1024*1024:break
+                    require(self._inflight>0,'Known original wire capture capacity exhausted before dispatch')
+                    remaining=deadline-time.monotonic()
+                    require(remaining>0,'Bounded pre-dispatch wire reservation wait exceeded')
+                    self._condition.wait(timeout=remaining)  # releases the lock; never dispatches/retries IPC
+                sequence=self._next;self._next+=1;self._reserved+=base.MAX_RESPONSE_BYTES;self._inflight+=1
+                self._peak=max(self._peak,self._bytes+self._reserved)
+                slot={'sequence':sequence,'method':call.method,'params':params,'key':call.key,'revision':call.revision,
+                    'original_reply_path':str(self.output/('wire-reply-'+str(sequence)+'.json')),'capture_state':'pending',
+                    'reserved_response_bytes':base.MAX_RESPONSE_BYTES,'reservation_settled':False,'pending_write_bytes':0}
+                self.report['actual_core_wire_attempts'].append(slot)
+            self._check_disk()
+            slot['capacity_checked_before_dispatch']=True
+            return slot
+        except BaseException as error:
+            if slot is not None:self.failed(slot,error,'capacity_pre_dispatch')
+            else:
+                with self._lock:self.report['actual_core_wire_rejections'].append({'method':call.method,'params':params,'key':call.key,'revision':call.revision,
+                    'stage':'capacity_pre_dispatch','error_type':type(error).__name__,'error':str(error),'backend_called':False})
+            raise
 
     def failed(self,slot,error,stage,raw=None):
         entry={**slot,'capture_state':'failed','stage':stage,'error_type':type(error).__name__,'error':str(error),
             'received_sha256':base.sha(raw)if raw is not None else None,
             'received_bytes':len(raw)if raw is not None else None,
             'retained_path_exists':os.path.lexists(slot['original_reply_path']),'capture_complete':False}
-        with self._lock:
-            slot['capture_state']='failed';self.report['actual_core_wire_failures'].append(entry)
+        with self._condition:
+            if not slot['reservation_settled']:
+                self._reserved-=slot['reserved_response_bytes'];self._inflight-=1;slot['reservation_settled']=True
+            self._pending_writes-=slot['pending_write_bytes'];slot['pending_write_bytes']=0
+            slot['capture_state']='failed';self.report['actual_core_wire_failures'].append(entry);self._condition.notify_all()
 
     def _write(self,path,raw):
         fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
@@ -697,17 +727,19 @@ class WireEvidenceRecorder:
 
     def finish(self,slot,raw):
         try:
-            require(type(raw)is bytes and len(raw)>0,'Original wire bytes required')
-            with self._lock:
-                require(slot['capture_state']=='pending','Wire slot already completed')
-                self._bytes+=len(raw);within_limit=self._bytes<=16*1024*1024
-            require(within_limit,'Bounded original Core reply evidence exceeded16MiB')
-            capacity=os.statvfs(self.output)
-            require(capacity.f_bavail*capacity.f_frsize>=200*1024*1024+len(raw),'Retain200MiB evidence guard')
-            self._write(Path(slot['original_reply_path']),raw)
-            entry={**slot,'capture_state':'captured','sha256':base.sha(raw),'bytes':len(raw),'capture_complete':True}
-            with self._lock:
-                slot['capture_state']='captured';self.report['actual_core_wires'].append(entry)
+            require(type(raw)is bytes and 0<len(raw)<=base.MAX_RESPONSE_BYTES,'Original bounded wire bytes required')
+            with self._condition:
+                require(slot['capture_state']=='pending'and not slot['reservation_settled'],'Wire slot already completed')
+                self._reserved-=slot['reserved_response_bytes'];self._inflight-=1;slot['reservation_settled']=True
+                self._bytes+=len(raw);self._pending_writes+=len(raw);slot['pending_write_bytes']=len(raw)
+                require(self._bytes+self._reserved<=16*1024*1024,'Bounded original Core reply evidence exceeded16MiB')
+                self._condition.notify_all()
+            self._check_disk();self._write(Path(slot['original_reply_path']),raw)
+            digest=base.sha(raw)
+            with self._condition:
+                self._pending_writes-=slot['pending_write_bytes'];slot['pending_write_bytes']=0;slot['capture_state']='captured'
+                entry={**slot,'sha256':digest,'bytes':len(raw),'capture_complete':True}
+                self.report['actual_core_wires'].append(entry);self._condition.notify_all()
             return entry
         except BaseException as error:
             self.failed(slot,error,'raw_capture',raw)
@@ -736,6 +768,7 @@ def wire_recording_self_check(output):
     assert len(report['actual_core_wires'])==len(expected)==128 and len(report['actual_core_wire_attempts'])==128
     assert not report['actual_core_wire_failures']
     assert recorder._bytes==sum(len(row['raw'])for row in expected.values())
+    assert recorder._peak<=16*1024*1024 and recorder._reserved==recorder._pending_writes==recorder._inflight==0
     paths=[entry['original_reply_path']for entry in report['actual_core_wires']]
     assert len(set(paths))==128 and set(expected)==set(range(128))
     for entry in report['actual_core_wires']:
@@ -820,11 +853,36 @@ def wire_recording_self_check(output):
     wire=next(n for n in observed.body if isinstance(n,ast.FunctionDef)and n.name=='wire')
     assert not any(isinstance(n,(ast.With,ast.AsyncWith))for n in ast.walk(wire))
     checks.append('actual-IPC-wrapper-never-holds-recorder-lock')
+    # Pure capacity inputs prove refusal BEFORE any backend marker is called.
+    exhausted_dir=output/'capacity-full';exhausted_dir.mkdir(mode=0o700);exhausted_report={};exhausted=WireEvidenceRecorder(exhausted_dir,exhausted_report)
+    exhausted._bytes=16*1024*1024  # inert ledger boundary input, no fake Core/storage success
+    marker={'calls':0}
+    try:
+        exhausted.begin(call);marker['calls']+=1
+    except Refusal:pass
+    else:raise AssertionError('Known capture exhaustion dispatched')
+    assert marker['calls']==0 and not exhausted_report['actual_core_wires']and len(exhausted_report['actual_core_wire_rejections'])==1
+    checks.append('known16MiB-exhaustion-refused-before-backend-marker0')
+    class LowDisk(WireEvidenceRecorder):
+        def _free_bytes(self):return 200*1024*1024-1
+    low_dir=output/'capacity-low-disk';low_dir.mkdir(mode=0o700);low_report={};low=LowDisk(low_dir,low_report)
+    try:
+        low.begin(call);marker['calls']+=1
+    except Refusal:pass
+    else:raise AssertionError('Known low disk dispatched')
+    assert marker['calls']==0 and low._reserved==low._inflight==0 and low_report['actual_core_wire_failures'][0]['stage']=='capacity_pre_dispatch'
+    assert not low_report['actual_core_wires']and not list(low_dir.iterdir())
+    checks.append('known-low-disk-refused-before-backend-marker0-and-reservation-released')
+    assert base.MAX_RESPONSE_BYTES==4*1024*1024
+    assert all(row['reserved_response_bytes']==base.MAX_RESPONSE_BYTES and row['capacity_checked_before_dispatch']is True for row in report['actual_core_wire_attempts'])
+    checks.append('all16threads-inflight-plus-captured-never-exceed16MiB')
+
     return {'status':'passed','count':len(checks),'checks':checks,'threads':16,'parallel_files':128,
         'dimension':'actual concurrent/exclusive file IO only; opaque unit bytes, no Core/reply success/IPC/product/Provider simulation',
         'actual_runtime':'not_run','backend_invoked':False,
         'parallel':report,'preexisting':collision,'partial':partial_report,'aborted':abort_report,'nested':nested_report,
         'old_race_file_control':{'recorded':old_rows,'expected_failures':old_errors,'not_Core_data':True},
+        'capacity_controls':{'full':exhausted_report,'low_disk':low_report,'backend_marker_calls':marker['calls'],'peak_captured_plus_reserved_bytes':recorder._peak,'low_disk_input':'synthetic numeric capacity input only, not actual disk exhaustion'},
         'original_Root_missing_second_raw':'not reconstructed; original FAIL remains unchanged'}
 
 def runtime_driver(args, output):
