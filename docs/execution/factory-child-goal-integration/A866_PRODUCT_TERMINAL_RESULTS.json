@@ -1,0 +1,133 @@
+{
+  "recorded_at": "2026-10-29T23:16:01.259869+00:00",
+  "head": "a866f21eaff167b7d90a4c723f55f938ceec03fd",
+  "base": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "actual_CI_checkout": "9937cd446f38fc65d1cb0c236574401238cca248",
+  "Environment_run": 40967949761,
+  "Product_run": 40967949766,
+  "checks": {
+    "Environment / ubuntu-24.04": "success",
+    "Environment / macos-15": "failure",
+    "Environment / macos-15-intel": "failure",
+    "Product / UI": "success",
+    "Product / Rust": "failure",
+    "Product / macos-15": "failure",
+    "Product / macos-15-intel": "failure"
+  },
+  "rework_failures": {
+    "rust": {
+      "job": 123777130657,
+      "run_plan_revision": 2,
+      "run_revision": 14,
+      "run_state": "blocked",
+      "task_accepted": false,
+      "run_task_accepted": false,
+      "cancel_requested": false,
+      "plan_digest_matches": true,
+      "summary_count": 1,
+      "group_passed": 25,
+      "group_failed": 1,
+      "group_seconds": 94.83,
+      "log_sha256": "e202753a7051f1da0ee2776049d221a8ad204060658678c59d04b3c13fa01d4a",
+      "deadline": "This guard follows the unchanged received_before_deadline assertion; coherent failure response was within original55s, not evidence of elapsed55s failure."
+    },
+    "arm": {
+      "job": 123777130411,
+      "run_plan_revision": 2,
+      "run_revision": 16,
+      "run_state": "failed",
+      "task_accepted": false,
+      "run_task_accepted": false,
+      "cancel_requested": false,
+      "plan_digest_matches": true,
+      "summary_count": 1,
+      "group_passed": 22,
+      "group_failed": 1,
+      "group_seconds": 150.92,
+      "log_sha256": "d2f31261ab1ef038fb9240908f4844dbe14ece56aeac24a275bcdd2f4c5572ae",
+      "deadline": "This guard follows the unchanged received_before_deadline assertion; coherent failure response was within original55s, not evidence of elapsed55s failure."
+    },
+    "intel": {
+      "job": 123777130180,
+      "run_plan_revision": 2,
+      "run_revision": 10,
+      "run_state": "blocked",
+      "task_accepted": false,
+      "run_task_accepted": false,
+      "cancel_requested": false,
+      "plan_digest_matches": true,
+      "summary_count": 1,
+      "group_passed": 22,
+      "group_failed": 1,
+      "group_seconds": 205.98,
+      "log_sha256": "d78441d1b432c1b1878a6ccc115e4201079b73f7d124825779471082bdbd2dcf",
+      "deadline": "This guard follows the unchanged received_before_deadline assertion; coherent failure response was within original55s, not evidence of elapsed55s failure."
+    }
+  },
+  "actual_job_steps": [
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        "Core and native host tests",
+        "Retain finite rework progress without private runtime data"
+      ],
+      "name": "Product / macos-15-intel",
+      "skipped_steps": [
+        "Migrate genuine native schema14 history with corruption and rollback controls",
+        "Actual macOS WebView and daemon lifecycle acceptance",
+        "Actual native Owner Grant dialog and private database acceptance",
+        "Actual Native Factory planning approval and unchanged Grant evidence",
+        "Build desktop UI and application",
+        "Audit the actual default release application for test controls",
+        "Package development application and evidence",
+        "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+      ]
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        "Core and native host tests",
+        "Retain finite rework progress without private runtime data"
+      ],
+      "name": "Product / macos-15",
+      "skipped_steps": [
+        "Migrate genuine native schema14 history with corruption and rollback controls",
+        "Actual macOS WebView and daemon lifecycle acceptance",
+        "Actual native Owner Grant dialog and private database acceptance",
+        "Actual Native Factory planning approval and unchanged Grant evidence",
+        "Build desktop UI and application",
+        "Audit the actual default release application for test controls",
+        "Package development application and evidence",
+        "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+      ]
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "name": "Product / UI",
+      "skipped_steps": []
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        "Workspace tests with actual generated native-wire capture",
+        "Retain finite rework progress without private runtime data"
+      ],
+      "name": "Product / Rust",
+      "skipped_steps": [
+        "Migrate genuine nonempty schema14 history with corruption and rollback controls",
+        "Validate captured messages against hash-pinned official native schema",
+        "Native evidence runner and artifact audit failure contracts",
+        "Run cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py",
+        "Native Owner runner contracts against actual Core database",
+        "Run cargo clippy --workspace --all-targets --locked -- -D warnings",
+        "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065"
+      ]
+    }
+  ],
+  "cause_status": "Different coherent r2 outcomes observed within original55s; specific causes unknown, no inference they share a cause.",
+  "collector_failure_separate": "Originalalwaysstep passed relative root to absolute-only guarded collector; actualfailure retained; de786 narrowinputabsolute fix independently verified14 actualCLI controls. This collection failure is separate from failed realrework tests.",
+  "no_installer": "BothMac later genuine14 consumer/WebView/Owner/Factory/native/build/releaseaudit/devpackage skipped, no new15 installer. Old14 artifacts never transfer."
+}

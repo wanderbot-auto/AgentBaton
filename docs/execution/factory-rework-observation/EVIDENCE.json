@@ -818,5 +818,211 @@
       "Product workflow/push"
     ],
     "no_heavy_or_remote_actions": true
+  },
+  "a866_blocked_failed_historical_events": {
+    "source_commit": "dd8873347a2f5e054993e7c24c7625e6e48c5a50",
+    "base": "b22cc68e00b7a504a83dc9fe082a3e3c177b8a34",
+    "source_manifest": {
+      "path": "/workspace/.onboarding/factory-rework-blocked-event-evidence/SOURCE_MANIFEST.json",
+      "sha256": "a14be74f25220f16103a6c34aba461b663e8bb8d2dd29d195089820ef81992fe"
+    },
+    "source_files": {
+      "scripts/record-factory-rework-ci-evidence.py": {
+        "sha256": "531bd50ac4f1793840242dca47768c0a4b27f95c3ba53e5205d6263a2f5ad49c",
+        "bytes": 28742
+      },
+      "tests/infrastructure/test_factory_rework_ci_evidence.py": {
+        "sha256": "c06aa735379b24aa11ba6221a77613e0df4073f515a41d0fb457a0468077abdd",
+        "bytes": 35008
+      }
+    },
+    "actual_commands": [
+      {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_factory_rework_ci_evidence.py",
+          "-v"
+        ],
+        "exit": 0,
+        "log": "pure-sealed.log",
+        "unique_tests": 40,
+        "seconds": 0.168
+      },
+      {
+        "argv": [
+          "python3",
+          "/workspace/.onboarding/factory-rework-blocked-event-evidence/static-checks.py"
+        ],
+        "exit": 0,
+        "log": "static-checks.log"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "log": "diff-sealed.log"
+      }
+    ],
+    "static_checks": {
+      "base": "b22cc68e00b7a504a83dc9fe082a3e3c177b8a34",
+      "reference_production_source": "a866f21eaff167b7d90a4c723f55f938ceec03fd",
+      "changed_sources": {
+        "scripts/record-factory-rework-ci-evidence.py": "531bd50ac4f1793840242dca47768c0a4b27f95c3ba53e5205d6263a2f5ad49c",
+        "tests/infrastructure/test_factory_rework_ci_evidence.py": "c06aa735379b24aa11ba6221a77613e0df4073f515a41d0fb457a0468077abdd"
+      },
+      "checks": {
+        "collector_inverse_only_event_constants_functions_and_call_site_byte_equal": true,
+        "original23_tests_byte_equal_after_removing_EventProjection_class": true,
+        "new_event_tests": 17,
+        "all_rust_production_locks_unchanged": true,
+        "schema15_constant_unchanged": true,
+        "exact_rendered128k_guard_cli_redaction_and_nofollow_unchanged": true,
+        "python_AST_parse": true
+      },
+      "source_points": {
+        "crates/core/src/goal_factory_adoption.rs": {
+          "lines": "435-443",
+          "fact": "same transaction changes plan revision/digest and queues new plan; no exposed old-blocked transition",
+          "sha256": "682018c977eedb28d92d141cbd77617325452d3fa6a0dfe600fe8c38d383b180"
+        },
+        "crates/core/src/goal_graph.rs": {
+          "lines": "1133-1145;2389-2433",
+          "fact": "capture may block; Owner frontier excludes blocked and atomically sets awaiting_owner/awaiting_acceptance",
+          "sha256": "59f6c5003e5c6a4dbb7b632ca0105403c58f79bf571d2b9cf7d8ecfacc1f5d71"
+        },
+        "crates/core/src/goal_runtime.rs": {
+          "lines": "257-280;1823-1865;1949-1964",
+          "fact": "CAS increments run revision and same-revision event; meter/overrun/admission can block; failed work maps failed",
+          "sha256": "405564b27d0bdede1d10a60ac5a41c835e5f09b2912fd90c248d64996bae65db"
+        },
+        "crates/core/src/goal_graph_validators.rs": {
+          "lines": "1091-1159",
+          "fact": "shared meter, failed validator, overrun or sticky blocked maps blocked; event captures typed counters",
+          "sha256": "a302324acb530499a6e845c3d249f38b138cd89a7c3950e2f68e3bb4098ad29e"
+        },
+        "crates/core/src/goal_factory.rs": {
+          "lines": "1013-1067;1380-1394",
+          "fact": "summary has no cause; get has full history; all-stop/refuse-overrun then failed CAS writes goal.factory_failure_confirmed",
+          "sha256": "28de5b6194ab8a71d69a3134a4f44849809ae2e58b29b6302eff71ab4d4fb36c"
+        },
+        "crates/core/src/goal_graph_stop.rs": {
+          "lines": "23-26;129-153",
+          "fact": "blocked/failed labels alone are not stopped failure proof; current-plan failure refs are bounded private data",
+          "sha256": "30ef544d40d6b64faf7d5113211b527555eed60cc3811b6af3b96486652f4472"
+        },
+        "crates/core/src/ipc.rs": {
+          "lines": "2313-2334",
+          "fact": "non-retry admission/disconnect errors block; STALE_REVISION/WORKSPACE_BUSY exempt",
+          "sha256": "ce6b7f45ca8c25c79350c4286376522444680fc8a4f814b25ce709da1d92cc1f"
+        },
+        "crates/core/src/goal_store.rs": {
+          "lines": "124-140",
+          "fact": "events carry source goal_core and aggregate/revision; no kind SQL column",
+          "sha256": "3dd18953672c4836d964fbc7ebe9c8813760e6f8ba4e6260b6298b39bd82fb39"
+        },
+        "crates/core/src/storage.rs": {
+          "lines": "223",
+          "fact": "events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,document TEXT NOT NULL)",
+          "sha256": "60996f4587d4d021496e6ae6897b12c9937d1dd4cf1e2002ecadc0494762a1d2"
+        },
+        "crates/core/src/goal_runtime_diagnostics.rs": {
+          "lines": "184-204",
+          "fact": "fixed13 reason-code names; unknown maps to a constant",
+          "sha256": "14cc8b52ffcd02c638f5616660b7e8688f5eb19ca1609421d1260bf8de6f80c2"
+        }
+      },
+      "retained_failures": {
+        "rust": {
+          "path": "/workspace/.onboarding/pr18-heada866-failures/product-rust.log",
+          "sha256": "e202753a7051f1da0ee2776049d221a8ad204060658678c59d04b3c13fa01d4a",
+          "actual_progress": {
+            "cancel_requested": false,
+            "failure_code": "REWORK_REVISION2_TERMINAL",
+            "plan_digest_matches": true,
+            "plan_revision": 2,
+            "run_plan_revision": 2,
+            "run_revision": 14,
+            "run_state": "blocked",
+            "run_task_accepted": false,
+            "summary_count": 1,
+            "task_accepted": false
+          },
+          "source_order_proves_reply_was_within_original55s": true,
+          "cause": "not established; no new event-source evidence yet"
+        },
+        "arm": {
+          "path": "/workspace/.onboarding/pr18-heada866-failures/product-arm.log",
+          "sha256": "d2f31261ab1ef038fb9240908f4844dbe14ece56aeac24a275bcdd2f4c5572ae",
+          "actual_progress": {
+            "cancel_requested": false,
+            "failure_code": "REWORK_REVISION2_TERMINAL",
+            "plan_digest_matches": true,
+            "plan_revision": 2,
+            "run_plan_revision": 2,
+            "run_revision": 16,
+            "run_state": "failed",
+            "run_task_accepted": false,
+            "summary_count": 1,
+            "task_accepted": false
+          },
+          "source_order_proves_reply_was_within_original55s": true,
+          "cause": "not established; no new event-source evidence yet"
+        }
+      },
+      "interpretation": "blocked is not general stop/irrecoverable proof, but no normal revision2 Owner transition uses blocked; retain strict refusal. Rust blocked14 and ARM failed16 are separate observations, not shared cause.",
+      "limits": {
+        "associated_events_total": 16,
+        "all_event_rows": 4096,
+        "events_documents_total_bytes": 4194304,
+        "event_document_max_bytes": 1048576,
+        "failure_refs_count": 512,
+        "failure_ref_max_utf8_bytes": 512,
+        "public_stdout_bytes": 131072
+      },
+      "same_revision": "only coherent child-list response Graph revision; no Factory/global/cleanup currentRev fallback",
+      "prior_node": "only for observed capture, exact same private goal, lower revision AND lower sequence; separate version and no same-plan/instant claim",
+      "not_run": [
+        "Cargo/Rust/Actor/daemon/browser",
+        "actual retained-input collector",
+        "new CI/Mac",
+        "root-cause or performance fix"
+      ]
+    },
+    "event_kinds": [
+      "goal.run_blocked",
+      "goal.node_settled",
+      "goal.capture_settled",
+      "goal.validation_settled",
+      "goal.owner_node_settled",
+      "goal.factory_failure_confirmed"
+    ],
+    "unique_tests": 40,
+    "old23_unchanged": true,
+    "new_event_tests": 17,
+    "not_cumulative35_37_39": true,
+    "actual_input_projection_not_run": true,
+    "correlation": "only coherent actual child-list response run_revision/plan_revision; same private single child Goal/source goal_core/exact observed run revision, no Factory/global/cleanup fallback",
+    "pending_semantics": "no coherent observation, no events/table, or unrecognized reason remains nested pending; not inferred cause or product/test pass",
+    "prior_node": "capture only, one earlier revision AND sequence, separately versioned with same_plan_not_established, not a cutoff-state claim",
+    "failure_confirmation_limits_not_authority": "internal proof.run_id and both plan revisions matched; bounded refs count only, not independent private all-stop/authority/causality verification",
+    "schema15_unchanged": true,
+    "no_rust_policy_workflow_changes": true,
+    "no_heavy_or_remote_actions": true,
+    "not_run": [
+      "actual retained-input event projection",
+      "Rust/Actor/daemon/MCP/browser",
+      "new CI/Mac",
+      "failure root-cause/performance fix"
+    ],
+    "root_cause": "not established for either Rust blocked14 or ARM failed16"
   }
 }

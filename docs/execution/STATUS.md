@@ -1,3 +1,9 @@
+# schema16依赖整合继续，真实26项核心流程通过 — 2026-10-29T23:17:31.887728+00:00
+
+本地整合Parent7ac新有限事件字段，保留exact16投影守卫与拒旧15/future17控制。原c1 schema16真实Factory26PASS82.97s/全workspace严格Clippy/fmt/149infra独立记录；40event新增纯控组合待复核，不移签原结果。Task五真实UI场景/6PNG、995Node归e313/6c；private500工具/绝对路径及finitePNG publication源独审闭合。
+
+Parent7ac当前Env40971954724/Product40971954667已启动未读终态，a866旧5失败保留；仍未知Rustblocked14/ARMfailed16/Intelblocked10具体原因，不互相冒充。未有15/16新开发包/Native16/Mac16验收，完整130保持未完成。main653679d/OWNER001/002 ACK，原权限边界不变。以下两侧历史保留。
+
 # 依赖分支整合：真实五场景与有界返工诊断 — 2026-10-29T22:56:01.688233+00:00
 
 PR19本地整合父分支de786，保留两侧执行历史。Task五场景真实PASS/6PNG与995Node按e313/6c归属；有限投影Root真实报告+六原图通过、33pure通过，bf源与012CIwrapper独审闭合，原P2和相对路径错误保留。新父collector仍schema15，接下来只在schema16分支精确适配并测试拒旧15/future17；此集成未算通过。
@@ -16,6 +22,29 @@ e313 Session修复的40针对性、全前端995/55files、type/build通过；同
 
 依赖PR18 accurate727 Env3/Rust/UI通过而双Mac返工观察失败，后续桌面/构建/包skipped；原55/60/30/5/60不改。schema16 exactCI/Mac/native/包尚未通过。完整130、默认coding隔离/child绑定/验收合入/remote等保留未完范围；OWNER001/002ACK/main653679d，无新授权，无生产/凭据/付费/正式Approve操作。以下保留历史。
 
+
+# PR18 新有界诊断完成本地回归，待准确CI — 2026-10-29T22:42:51.936548+00:00
+
+准确3faa单返工1PASS34.39s、完整Factory26PASS91.45s，target严格Clippy通过；collector51723独审闭合两P2，Root22pure与真实保留输入postjoin有限投影通过。fmt/infra106通过。原55/60/30/5/60和完整验收断言保持；不声称根因已修复或性能改善。CI引号SyntaxError被前置独审截住、c4两行修正及12mock边界通过，保留原证据。见[精确结果](factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json)。
+
+远程PR18仍727/draft，Env3/Rust/UI通过但双Mac返工失败，后续Native/构建/包skipped，无新15安装包；下一准确七CI待推。隔离PR19草稿依赖18，真实5场景/6PNG7.020026s已过，含[2,1,2,1]四步选择与6TaskGet、零Grant/session/数据库源不变；995前端/40target/type/build和同源e313工具分开记录。新发现Task CI私有日志整树上传P2，正改finite projection，尚未CI16。完整130/WP01-14/Native双Mac16/新包未完成。main653679d/OWNER001/002 ACK，无003；所有费用、身份、Provider、生产、签名、许可证、formalApprove边界保持。以下保留历史。
+
+# PR18 准确727：Rust/UI和Environment通过，双Mac返工失败 — 2026-10-29T22:21:34.361300+00:00
+
+head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项、Product40961152550的Rust/UI通过；ARM与Intel均在原55s返工观察门槛失败(21/1，182.13s/201.06s)。late list分别210ms/361ms，授权仍余955ms/960ms，零fullget；现有投影缺数组进度，尚不能确定节点状态或共同根因。保留原期限和断言，补有界进度与安全post-join投影；不上传原始DB。后续Native/构建/包跳过，无15安装包。详见HEAD727_CI_RESULTS.json；旧be12/3b失败不覆盖。
+
+隔离schema16继续：Session新P2时序修复独审闭合，针对40、完整Node995/55files、type/build实际通过e313；新第五个真UI/IPC对话框默认绑定验收在实现中，不把原4场景当新场景通过。Native/Mac16与完整130仍未验收。main653679d/OWNER001/002 ACK，无新指令；所有凭据/费用/生产/签名/正式Approve边界保持。
+
+
+
+
+# PR18 新候选准备：精确失败已保留、事件诊断独审闭合 — 2026-10-29T23:16:01.259869+00:00
+
+a866/实际9937终态：EnvUbuntu与UI通过，其余5项失败；三个真实返工在原55s内分别r2blocked14/failed16/blocked10，不能同因推断。Mac后续真实迁移/WebView/Owner/构建/审计/包跳过，无15安装包。alwaysrelative输入失配单独修为absolute、Mac正例tempalias夹具规范化；生产NoFollow/权限和原55/60/30/5/60/最终验收不变。
+
+六kind sameGoal/source/revision有限事件字段已独审40pure+7控制，Root40pure/完整infra124/真实保留inputpostjoin投影通过；旧成功input最后是Factory.get，故事件关联unknown，不伪造失败观测。原Rust26仍归3faa。见[准确终态](factory-child-goal-integration/A866_PRODUCT_TERMINAL_RESULTS.json)及[事件投影证据](factory-child-goal-integration/EVENT_DIAGNOSTICS_RESULTS.json)。下一新候选7CI待推。
+
+PR19隔离集成schema16实际Factory26PASS82.97s、完整149infra/全workspace alltargets strictClippy/fmt通过c1；995Node/5真浏览器/6PNG与旧迁移/156Core分别准确归属。Task私有日志/PNG/CI参数P2已独审闭合，尚未schema16 CI/Mac/new包，不转签。完整130仍未完成；最新main653679d/OWNER001/002ACK，无003，所有权限边界保持。以下保留历史。
 
 # PR18 新有界诊断完成本地回归，待准确CI — 2026-10-29T22:42:51.936548+00:00
 

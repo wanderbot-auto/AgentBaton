@@ -135,3 +135,8 @@ head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项
 ## a866准确Environment失败与夹具窄修
 
 2026-10-29T22:51:55.625910+00:00：Env40967949761 Ubuntu过/双Mac106项3fail28errors，actualcheckout9937、开var errno20保留；Product40967949766当时四项仍跑，不push取消。Fixture正例canonical root窄修1e720/Root65d已独审16f55b，普通/受控alias同23过，Root全infra107过；collector/Rust/原22方法与链接负例字节保留。新Mac未跑，见A866_ENVIRONMENT_AND_ALIAS_FIX.json。
+
+
+## 新准确CI前置准备
+
+2026-10-29T23:16:01.259869+00:00：a866实际checkout9937终态EnvUbuntu/UI过，其余5失败；Rust r2blocked14(25/1/94.83s)、ARMfailed16(22/1/150.92s)、Intelblocked10(22/1/205.98s)，均原55内coherent，原因未明不归同因。后续Mac桌面/包跳过。absolute输入de786与aliasfixture1e均独审闭合；六kind有限event dd887独审40+7控，Root40pure/真旧保留input有效postjoin但历史关联unknown/infra124过。原Rust和断言逐字保留，旧错误都留，下一精确7CI才验证Mac/失败原因。见A866_PRODUCT_TERMINAL_RESULTS.json与EVENT_DIAGNOSTICS_RESULTS.json。

@@ -410,5 +410,231 @@ class FiniteScalars(unittest.TestCase):
         self.assertLess(source.index('self.record_observation(&observed)'), source.index('received_before_deadline,\n'))
 
 
+class EventProjection(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.f = Fixture(Path(self.temp.name))
+        self.f.sql('CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, document TEXT NOT NULL)')
+
+    def add(self, kind='goal.run_blocked', revision=9, subject=SECRET,
+            source='goal_core', payload=None, sequence=None):
+        if payload is None:
+            payload = dict(reason_code='RESOURCE_LIMIT', automatic_retry=False,
+                           task_accepted=False, message=SECRET)
+        event = dict(aggregate_id=subject, source=source, revision=revision,
+                     kind=kind, payload=payload, event_id=SECRET)
+        self.f.sql('INSERT INTO events(sequence,document) VALUES(?,?)',
+                   (sequence, json.dumps(event)))
+
+    def collected(self):
+        result = P.collect(str(self.f.root))
+        raw = P.render_public(result)
+        self.assertNotIn(SECRET, raw)
+        self.assertNotIn(str(self.f.root), raw)
+        self.assertLessEqual(len(raw.encode()), P.MAX_PUBLIC)
+        return result
+
+    def events(self):
+        result = self.collected()
+        self.assertEqual(result['status'], 'collected_post_shutdown')
+        return result['cases'][0]['post_shutdown']['associated_events']
+
+    def node(self, overrun=False):
+        return dict(task_accepted=False, actual_runtime_ms=4123,
+            actual_output_bytes=19, budget_overrun=overrun, stop_confirmed=True,
+            observed_runtime_lower_bound_ms=4123, state='candidate', node_id=SECRET)
+
+    def capture(self):
+        return dict(task_accepted=False, actual_runtime_ms=4125,
+            actual_output_bytes=19, state='failed', io_completion='worker_joined',
+            capture_worker_joined=True, producer_stop_confirmed=True, job_id=SECRET)
+
+    def confirmed_failure(self):
+        return dict(plan_revision=2, task_accepted=False, reservation_refunded=False,
+            proof=dict(run_id=SECRET, plan_revision=2, failure_refs=['validation:' + SECRET],
+                       plan_digest=SECRET), proof_digest=SECRET)
+
+    def test_confirmed_failure_exact_observed_revision_counts_not_private_proof(self):
+        value = observation()
+        value['list_progress'].update(run_revision=16, run_state='failed')
+        self.f.write('readonly-observation-last.json', value)
+        self.add(kind='goal.factory_failure_confirmed', revision=16, payload=self.confirmed_failure())
+        result = self.events()
+        self.assertEqual(result['observed_run_revision'], 16)
+        self.assertEqual(result['events'], [dict(kind='goal.factory_failure_confirmed',
+            task_accepted=False, plan_revision=2, failure_ref_count=1,
+            reservation_refunded=False, ordinal=1)])
+
+    def test_failure_confirmation_foreign_plan_subject_empty_and_overflow_refused(self):
+        variants = []
+        for change in ('foreign_subject', 'foreign_plan', 'empty_refs', 'many_refs', 'not_ref_string'):
+            value = self.confirmed_failure()
+            if change == 'foreign_subject': value['proof']['run_id'] = 'OTHER_' + SECRET
+            elif change == 'foreign_plan': value['proof']['plan_revision'] = 1
+            elif change == 'empty_refs': value['proof']['failure_refs'] = []
+            elif change == 'many_refs': value['proof']['failure_refs'] = [SECRET] * (P.MAX_ROWS + 1)
+            else: value['proof']['failure_refs'] = [True]
+            variants.append(value)
+        for value in variants:
+            with self.subTest(proof=value['proof']):
+                self.f.sql('DELETE FROM events')
+                self.add(kind='goal.factory_failure_confirmed', payload=value)
+                self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_same_goal_revision_only_not_bootstrap_or_rev1_or_wrong_source(self):
+        self.add(subject='UNRELATED_BOOTSTRAP_' + SECRET)
+        self.add(revision=8)
+        self.add(source=SECRET)
+        self.add(revision=10)
+        self.add(kind='UNSELECTED_' + SECRET)
+        self.add()
+        result = self.events()
+        self.assertEqual(result['status'], 'collected_historical_events')
+        self.assertEqual(result['observed_run_revision'], 9)
+        self.assertEqual(result['observed_plan_revision'], 2)
+        self.assertEqual(len(result['events']), 1)
+        self.assertEqual(result['events'][0], dict(kind='goal.run_blocked',
+            reason_code='RESOURCE_LIMIT', automatic_retry=False, task_accepted=False, ordinal=1))
+        self.assertEqual(result['snapshot_time'], 'post_owned_shutdown_not_deadline_instant')
+
+    def test_zero_events_and_missing_table_are_explicit_pending(self):
+        result = self.events()
+        self.assertEqual(result['status'], 'pending')
+        self.assertEqual(result['code'], 'unknown_not_available')
+        self.assertEqual(result['events'], [])
+        self.f.sql('DROP TABLE events')
+        self.assertEqual(self.events()['code'], 'unknown_not_available')
+
+    def test_unknown_reason_is_unrecognized_pending_not_raw_message(self):
+        self.add(payload=dict(reason_code=SECRET, automatic_retry=False, task_accepted=False))
+        result = self.events()
+        self.assertEqual(result['status'], 'pending')
+        self.assertEqual(result['code'], 'unrecognized_reason')
+        self.assertEqual(result['events'][0]['reason_code'], 'unrecognized')
+
+    def test_all_six_event_kinds_emit_only_known_scalars_in_sequence_order(self):
+        self.add(kind='goal.owner_node_settled', payload=dict(decision='rejected', task_accepted=False), sequence=50)
+        self.add(sequence=10)
+        self.add(kind='goal.node_settled', payload=self.node(True), sequence=20)
+        self.add(kind='goal.capture_settled', payload=self.capture(), sequence=30)
+        self.add(kind='goal.validation_settled', payload=dict(task_accepted=False,
+            actual_runtime_ms=1501, actual_output_bytes=0, passed=False, budget_overrun=True,
+            stop_confirmed=True, observed_runtime_lower_bound_ms=1501,
+            io_completion='worker_joined', error={'message': SECRET}), sequence=40)
+        self.add(kind='goal.factory_failure_confirmed', payload=self.confirmed_failure(), sequence=60)
+        result = self.events()
+        self.assertEqual([e['kind'] for e in result['events']], list(P.EVENT_KINDS))
+        self.assertEqual([e['ordinal'] for e in result['events']], list(range(1, 7)))
+        self.assertTrue(result['events'][1]['budget_overrun'])
+        self.assertEqual(result['events'][3]['actual_runtime_ms'], 1501)
+
+    def test_capture_prior_node_is_separate_and_never_called_same_plan(self):
+        self.add(kind='goal.node_settled', revision=7, payload=self.node())
+        self.add(kind='goal.node_settled', revision=8, payload=self.node(True))
+        self.add(kind='goal.node_settled', revision=8, subject='OTHER_' + SECRET, payload=self.node())
+        self.add(kind='goal.capture_settled', payload=self.capture())
+        result = self.events()
+        self.assertEqual(result['observed_run_revision'], 9)
+        self.assertEqual(len(result['events']), 1)
+        previous = result['previous_node_settlement']
+        self.assertEqual(previous['run_revision'], 8)
+        self.assertFalse(previous['same_observed_revision'])
+        self.assertTrue(previous['same_plan_not_established'])
+        self.assertTrue(previous['event']['budget_overrun'])
+
+    def test_later_sequence_is_not_presented_as_previous_settlement(self):
+        self.add(kind='goal.node_settled', revision=8, payload=self.node(True), sequence=99)
+        self.add(kind='goal.capture_settled', payload=self.capture(), sequence=50)
+        self.assertIsNone(self.events()['previous_node_settlement'])
+
+    def test_absent_or_factory_get_observation_never_uses_cleanup_revision(self):
+        self.add()
+        p = self.f.case / 'readonly-observation-last.json'
+        for changed in (dict(method='factory_runs.get', list_progress=None),
+                        dict(stage='request_begin', reply_object_supplied=False, list_progress=None),
+                        dict(list_progress=dict(summary_count=0, failure_code=None))):
+            value = observation(); value.update(changed)
+            self.f.write(p.name, value)
+            result = self.events()
+            self.assertEqual(result['code'], 'unknown_not_available')
+            self.assertNotIn('observed_run_revision', result)
+        p.unlink()
+        result = self.collected()
+        self.assertEqual(result['status'], 'invalid_or_pending')
+        self.assertEqual(result['cases'][0]['post_shutdown']['associated_events']['code'], 'unknown_not_available')
+
+    def test_duplicate_event_and_duplicate_prior_node_are_rejected(self):
+        self.add(); self.add()
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+        self.f.sql('DELETE FROM events')
+        self.add(kind='goal.node_settled', revision=8, payload=self.node())
+        self.add(kind='goal.node_settled', revision=8, payload=self.node())
+        self.add(kind='goal.capture_settled', payload=self.capture())
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_associated_event_limit_never_truncates(self):
+        for _ in range(P.MAX_ASSOCIATED_EVENTS + 1): self.add()
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_boolean_number_state_and_sequence_corruption_refused(self):
+        for kind, payload in [
+            ('goal.run_blocked', dict(reason_code=0, automatic_retry=False, task_accepted=False)),
+            ('goal.run_blocked', dict(reason_code='INPUT_CHANGED', automatic_retry=0, task_accepted=False)),
+            ('goal.node_settled', dict(self.node(), budget_overrun=1)),
+            ('goal.node_settled', dict(self.node(), actual_runtime_ms=True)),
+            ('goal.capture_settled', dict(self.capture(), state=SECRET)),
+            ('goal.validation_settled', dict(task_accepted=False, actual_runtime_ms=1,
+                actual_output_bytes=0, budget_overrun=False, stop_confirmed=True,
+                observed_runtime_lower_bound_ms=1, io_completion='worker_joined', passed=1)),
+        ]:
+            with self.subTest(kind=kind, payload=payload):
+                self.f.sql('DELETE FROM events')
+                self.add(kind=kind, payload=payload)
+                self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+        self.f.sql('DELETE FROM events'); self.add(sequence=-1)
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_events_table_schema_and_document_bounds_are_checked(self):
+        self.f.sql('INSERT INTO events(document) VALUES(?)', (' ' * (1024 * 1024 + 1),))
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+        self.f.sql('DROP TABLE events')
+        self.f.sql('CREATE TABLE events(sequence TEXT,document TEXT)')
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_selected_duplicate_json_and_invalid_json_are_refused(self):
+        event = dict(aggregate_id=SECRET, source='goal_core', revision=9,
+            kind='goal.run_blocked', payload=dict(reason_code='AUTH_REQUIRED',
+                                                automatic_retry=False, task_accepted=False))
+        raw = json.dumps(event)[:-1] + ',"payload":{}}'
+        self.f.sql('INSERT INTO events(document) VALUES(?)', (raw,))
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+        self.f.sql('DELETE FROM events')
+        self.f.sql('INSERT INTO events(document) VALUES(?)', ('{' + SECRET,))
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_global_event_row_budget_is_checked_before_event_materialization(self):
+        conn = sqlite3.connect(self.f.db)
+        conn.executemany('INSERT INTO events(document) VALUES(?)',
+            [('{}',)] * (P.MAX_EVENT_ROWS + 1))
+        conn.commit(); conn.close(); self.f.receipt()
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_previous_node_invalid_sequence_is_not_normalized(self):
+        self.add(kind='goal.node_settled', revision=8, payload=self.node(), sequence=-1)
+        self.add(kind='goal.capture_settled', payload=self.capture())
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_public_stdout_cap_and_cli_redaction_remain_global(self):
+        # Actual linked event case remains below the exact same renderer cap.
+        self.add()
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout): code = P.main(['--evidence-root', str(self.f.root)])
+        self.assertEqual(code, 0)
+        self.assertLessEqual(len(stdout.getvalue().encode()), P.MAX_PUBLIC)
+        self.assertNotIn(SECRET, stdout.getvalue())
+        self.assertEqual(P.SCHEMA, 15)
+
+
 if __name__ == '__main__':
     unittest.main()
