@@ -98,6 +98,22 @@ describe('Read-only code workspace preparation', () => {
     ]) { respond({ ...directory(), candidates }); await expect(api.workspacesResolve(selection)).rejects.toThrow('contract'); }
   });
 
+  it('rejects JSON-decoded trailing line terminators in decimal identities, Git heads and preparation keys', async () => {
+    const endings: string[] = JSON.parse('["\\n","\\r","\\u2028","\\u2029"]');
+    for (const ending of endings) {
+      for (const field of ['device', 'inode']) {
+        respond({ ...directory(), source: { ...directory().source, [field]: '1' + ending } });
+        await expect(api.workspacesResolve(selection)).rejects.toThrow('contract');
+      }
+      const git = { ...directory(), source: { ...directory().source, kind: { kind: 'git', common_dir: '/source/.git', head: 'a'.repeat(40), dirty: false } },
+        source_head: 'a'.repeat(40), preparation_key: 'code-prep:' + 'b'.repeat(64), state: 'needs_git_workspace', reason: 'isolated_git_workspace_required' };
+      respond({ ...git, source: { ...git.source, kind: { ...git.source.kind, head: git.source.kind.head + ending } }, source_head: git.source_head + ending });
+      await expect(api.workspacesResolve(selection)).rejects.toThrow('contract');
+      respond({ ...git, preparation_key: git.preparation_key + ending });
+      await expect(api.workspacesResolve(selection)).rejects.toThrow('contract');
+    }
+  });
+
   it('preserves Core errors and does not create or finalize on refusal', async () => {
     vi.mocked(invoke).mockResolvedValue({ error: { code: 'STALE_REVISION', message: 'Refresh', retryable: false, side_effect_state: 'not_started' }, warnings: [] });
     await expect(api.workspacesResolve(selection)).rejects.toMatchObject({ code: 'STALE_REVISION', sideEffectState: 'not_started' });
