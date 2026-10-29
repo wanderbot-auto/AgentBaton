@@ -403,6 +403,7 @@ fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_an
         "task_invalid_json",
         "task_duplicate_id",
         "task_nonobject_json",
+        "task_complete_current_array",
         "task_foreign_id",
         "task_zero_revision",
         "task_zero_spec_revision",
@@ -459,6 +460,22 @@ fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_an
                 connection.execute("UPDATE tasks SET document=?1", [duplicate]).unwrap();
             },
             "task_nonobject_json" => { connection.execute("UPDATE tasks SET document=?1", ["[]"]).unwrap(); },
+            "task_complete_current_array" => {
+                let raw: String = connection.query_row("SELECT document FROM tasks", [], |row| row.get(0)).unwrap();
+                let value: serde_json::Value = serde_json::from_str(&raw).unwrap();
+                // Exact current Task declaration order, including the ninth
+                // workspace-binding slot. Serde accepts this 11-slot struct
+                // sequence, but it cannot represent the old 10-field Task.
+                let fields = ["id", "project_id", "goal", "spec_revision", "state", "revision", "acceptance_ref", "acceptance_sequence", "code_workspace_binding", "created_at", "updated_at"];
+                let array = serde_json::Value::Array(fields.iter().map(|field| value.get(*field).cloned().unwrap_or(serde_json::Value::Null)).collect());
+                assert_eq!(array.as_array().unwrap().len(), 11);
+                assert!(array[8].is_null());
+                let raw = serde_json::to_string(&array).unwrap();
+                let decoded: agentbaton_core::storage::Task = serde_json::from_str(&raw).unwrap();
+                assert_eq!(decoded.id, value["id"].as_str().unwrap());
+                assert!(decoded.code_workspace_binding.is_none());
+                connection.execute("UPDATE tasks SET document=?1", [raw]).unwrap();
+            },
             "task_foreign_id" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.id','foreign-generated-task');").unwrap(),
             "task_zero_revision" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.revision',0);").unwrap(),
             "task_zero_spec_revision" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.spec_revision',0);").unwrap(),

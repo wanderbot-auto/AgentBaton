@@ -59,7 +59,7 @@ fn check_old_task_semantics(transaction: &Transaction<'_>) -> rusqlite::Result<(
         let raw = raw.ok_or(rusqlite::Error::InvalidQuery)?;
         let value: serde_json::Value =
             serde_json::from_str(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
-        if value.get("code_workspace_binding").is_some() {
+        if !value.is_object() || value.get("code_workspace_binding").is_some() {
             return Err(rusqlite::Error::InvalidQuery);
         }
         let task: agentbaton_core::storage::Task =
