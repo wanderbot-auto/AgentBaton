@@ -1071,5 +1071,224 @@
       "no current full28case or repeated lints performed",
       "queued deadline/large Data/fault/unknown/fullproduct matrix remains"
     ]
+  },
+  "owner_start_cas_checkpoint": {
+    "source_commit": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+    "base_commit": "c3e547308e549afc5bede12513686c9b2635998f",
+    "candidate_manifest_path": "/workspace/AgentBaton/.onboarding/factory-owner-cas-candidate-20261028/manifest.json",
+    "candidate_manifest_sha256": "6cdfc423d2c15c5f91087350fa9742123bfdf58a1f88eca3434502f75cb5cd01",
+    "snapshot": {
+      "state": "WIP exact Factory Owner start-CAS checkpoint; not whole Factory acceptance",
+      "build_base_commit": "c3e547308e549afc5bede12513686c9b2635998f",
+      "source_identity": "compiled working source individually SHA-256 pinned; checkpoint commit supplied separately",
+      "schema": 13,
+      "sources": {
+        "apps/cli/src/main.rs": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+        "apps/daemon/src/main.rs": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+        "crates/core/src/command_validation.rs": "804cede65389ea44810e4646a668d05dac056e0c71069640b5cb9cb55aef14e2",
+        "crates/core/src/command_workers.rs": "73c26d9f2db4e5e59cdbe13655af536a64d7ceb9f95977f8f90da9a9cc2ddd84",
+        "crates/core/src/data_validation.rs": "a3694819f13551ae250b36be99314376bdba86ec531752c082aa9fa69a2d3bdf",
+        "crates/core/src/data_workspace_workers.rs": "b3c3e1dee67d6707d44781d656115df0c2e2a23c6a9442707879ccb2a893dc08",
+        "crates/core/src/data_workspaces.rs": "87ae5614025fb8ce7c6b94603f8f27a34f9ef651a9cafcc6d58cfe2d8887e3cb",
+        "crates/core/src/execution.rs": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+        "crates/core/src/factory.rs": "3334a1e32004b2f9406f680cd7eef36f038def917e503ad4d22b73308d309d7d",
+        "crates/core/src/factory_budget.rs": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+        "crates/core/src/factory_capture.rs": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+        "crates/core/src/factory_companion.rs": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+        "crates/core/src/factory_reads.rs": "d2d5929c3b27919cde4e484b30d7b7039303871b48cf3b0c7d108527a4d9c169",
+        "crates/core/src/factory_runtime.rs": "471d0cfdde2104e527b29e96c938676dc29399dc32c92cb216866a4c8d7293dd",
+        "crates/core/src/factory_store.rs": "a26577fd40abcd3b5b73d631a81ef163415a5f661791f12fa4565b9564269bac",
+        "crates/core/src/goal_evidence.rs": "d786d708aef63e82bdf081a2f5fd5314f184f7f1e7b7b81512d114b74ab1f802",
+        "crates/core/src/goal_graph.rs": "80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7",
+        "crates/core/src/goal_graph_validators.rs": "969b6941f6827a9460144d329986c6d0f75d9a99b9856ae204bcc073cb157820",
+        "crates/core/src/goal_plan.rs": "243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21",
+        "crates/core/src/goal_runtime.rs": "1faa97b5ba7b9fe052e23fa889a7a84109627b374a8cfe0426b419252484de56",
+        "crates/core/src/goal_store.rs": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+        "crates/core/src/goal_validator_io.rs": "bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57",
+        "crates/core/src/ipc.rs": "a0707471d9eba23b8fc34be50c39bd6a3ad54eebff6940fdef7ac6eb73ec261e",
+        "crates/core/src/lib.rs": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+        "crates/core/src/policy.rs": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+        "crates/core/src/registry.rs": "2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45",
+        "crates/core/src/routes.rs": "259642508b6bba313f2545b122986d377b434af6f6caccfcf3208a8bb3c128a1",
+        "crates/core/src/runtime_config.rs": "73e326b050e7fe661fe8a83e19775ea1d0d9da431e2909a1cb4e14c51d0ff3da",
+        "crates/core/src/sessions.rs": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+        "crates/core/src/storage.rs": "cf1610158d80d40cfd0dfe988cee158abdd412fd2e5cd59c3af448a51f717cbd",
+        "crates/core/src/validation.rs": "54dbcb97fcb5cb70c74feb07fb5a737defb8dd0c6af931abbe59ae9143ce71db",
+        "crates/providers/src/codex.rs": "295a0e5ac624e375e0a5cbae7e419594627f657d6485e2f39098e077958099dd",
+        "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+        "crates/providers/src/driver.rs": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+        "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+        "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+        "crates/providers/src/lib.rs": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+        "crates/providers/src/process_io.rs": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+        "crates/providers/src/session_configuration.rs": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+        "crates/providers/src/transport.rs": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+        "crates/workspaces/src/adoption.rs": "be970ed01ee18bebe9b06e62087d0bd7c52e97bfca6db0dcaec60cbedeba9472",
+        "crates/workspaces/src/command_validation.rs": "76a5eeaa2a1822b40d206af63ec32d643da9278e502e72c82da510d62cf8184e",
+        "crates/workspaces/src/data_workspace.rs": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+        "crates/workspaces/src/deterministic.rs": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+        "crates/workspaces/src/lib.rs": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+        "crates/workspaces/src/validation.rs": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83"
+      },
+      "tests": {
+        "crates/core/tests/factory_runtime_ipc.rs": "cda3b55d61a2ffb17a106bcaf7dce6626f3a977786c11a4b32112c9d48ac2d93"
+      },
+      "binaries": {
+        "batond": {
+          "path": "/workspace/AgentBaton/.onboarding/factory-owner-cas-candidate-20261028/batond",
+          "sha256": "2f5eb74f52b0653397683def7f66c579418c95f133cfc692bae68511be30c6b3",
+          "bytes": 112100616
+        },
+        "baton": {
+          "path": "/workspace/AgentBaton/.onboarding/factory-owner-cas-candidate-20261028/baton",
+          "sha256": "57798c44229c1a7ae7c99b1e1a31b7b8c3549a8f6be5fbfe64df1b0258402468",
+          "bytes": 81315144
+        }
+      },
+      "logs": {
+        "wrong-start-cas-old-owner-ipc.log": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-old-owner-ipc.log",
+          "sha256": "a37deebf52b4fda715af99a998898d33001c595342388cc63cae0a7d4f03410a"
+        },
+        "wrong-start-cas-old-owner-ipc-exit.json": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-old-owner-ipc-exit.json",
+          "sha256": "2b70081b573872dcecace06d8e2b03c30a5c6b495484e8025803a64af1c1e48d"
+        },
+        "wrong-start-cas-pre-fix/factory_reads.rs": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-pre-fix/factory_reads.rs",
+          "sha256": "db5be98b6e8fa1e43f98a6e91d41b020c468d03a7894759780a79b2d230d5509"
+        },
+        "wrong-start-cas-pre-fix/factory_runtime_ipc.rs": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-pre-fix/factory_runtime_ipc.rs",
+          "sha256": "cda3b55d61a2ffb17a106bcaf7dce6626f3a977786c11a4b32112c9d48ac2d93"
+        },
+        "wrong-start-cas-pre-fix/old-test-binary": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-pre-fix/old-test-binary",
+          "sha256": "49872dfc7031e22569ea2bffe42c4ae1efee2a4b3769b0808dd70099964bcc97"
+        },
+        "wrong-start-cas-pre-fix/manifest.json": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-pre-fix/manifest.json",
+          "sha256": "1b665e94c6224269d3993aed34647badf3213ce439a38f446fe1bb0378620b3b"
+        },
+        "wrong-start-cas-entry-before.sha256": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-entry-before.sha256",
+          "sha256": "8e500270dab0b7f0c219cc3f074aec429654e1b39c680ce2fd0e8ce231d1ebce"
+        },
+        "wrong-start-cas-entry-after.sha256": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-entry-after.sha256",
+          "sha256": "8e500270dab0b7f0c219cc3f074aec429654e1b39c680ce2fd0e8ce231d1ebce"
+        },
+        "wrong-start-cas-final-build.log": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-final-build.log",
+          "sha256": "2c75998f47722ef38c25c0c101bc8531f4d59ce2ec0a530e06407d51c084f19a"
+        },
+        "wrong-start-cas-thirteen-unit.log": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-thirteen-unit.log",
+          "sha256": "def18240d2a2d05989547a2fa6e20a1d4752631ebb9bd0cc42298cf9f8f9a9f5"
+        },
+        "wrong-start-cas-final-owner-ipc.log": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-final-owner-ipc.log",
+          "sha256": "a2d8569eff89ee55c82ed9d0067b3c5c1867c14c35df80b803b112cbb16f3f4b"
+        },
+        "wrong-start-cas-final-clippy.log": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-final-clippy.log",
+          "sha256": "047e200a405d811b138217d34aa2fb599164820e1121e1a2b9fdff372a5ece59"
+        },
+        "wrong-start-cas-final-fmt.log": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-final-fmt.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "wrong-start-cas-response-7df5ee5268d7f3f971807d03a15faad92f520b71d08d2e90ae1af2618fd493dd.json": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-response-7df5ee5268d7f3f971807d03a15faad92f520b71d08d2e90ae1af2618fd493dd.json",
+          "sha256": "7df5ee5268d7f3f971807d03a15faad92f520b71d08d2e90ae1af2618fd493dd"
+        },
+        "wrong-start-cas-response-b019770c234e37968b4cb8f50808567868c6f3ee397774083547da374e924ab6.json": {
+          "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wrong-start-cas-response-b019770c234e37968b4cb8f50808567868c6f3ee397774083547da374e924ab6.json",
+          "sha256": "b019770c234e37968b4cb8f50808567868c6f3ee397774083547da374e924ab6"
+        }
+      },
+      "previous_immutable_narrow_manifest_sha256": "84b6a612eebaebaa3f4badc3623f5d6c6302dbc4b652b80d338c4fd3c28b025e",
+      "verification": {
+        "owner_read_units": 13,
+        "actual_owner_ipc_wrong_cas_normal_and_history": 1,
+        "clippy": "PASS",
+        "fmt": "PASS"
+      },
+      "parked_uncompiled_large_data_wip": {
+        "stash": "da4ae89c6e71928e3cdc527ee875ce67ea113fb6",
+        "permanent_local_ref": "refs/codex-checkpoints/factory-large-data-read-wip",
+        "not_compiled_or_executed": true
+      }
+    },
+    "actual_commands": [
+      {
+        "command": "cargo build --locked --bin batond --bin baton",
+        "result": "PASS",
+        "seconds": 15.64
+      },
+      {
+        "command": "cargo test --locked -p agentbaton-core --lib factory::reads::tests -- --nocapture",
+        "result": "PASS",
+        "unique_tests": 13,
+        "seconds": 6.06
+      },
+      {
+        "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc actual_data_factory_wrong_start_revision_ -- --nocapture",
+        "result": "PASS",
+        "unique_tests": 1,
+        "seconds": 2.18
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+        "result": "PASS",
+        "seconds": 8.38
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "result": "PASS"
+      }
+    ],
+    "pre_fix_control": {
+      "result": "FAIL",
+      "exit_code": 101,
+      "actual_error_code": "CANCEL_REQUESTED",
+      "side_effect_state": "not_started",
+      "revision": 17,
+      "daemon": "immutable standalone12e; separate reproduction, not Root browser original response",
+      "saved_source_qualification": "pre-fix production body plus newly added unit; not whole-file byte-exact12e"
+    },
+    "fixed_control": {
+      "actual_error_code": "STALE_REVISION",
+      "side_effect_state": "not_started",
+      "revision": 17,
+      "fresh_request_effects": "zero sequence/key/run/attempt/lineage/binding/reservation/dispatch-intent changes",
+      "normal_and_history": "same rejected key corrected revision completed real generated ACP/MCP3attempt; removing installed companion still permits exact successful historical receipt with zero new effects"
+    },
+    "recovery_verification": {
+      "production_sources_equal": 46,
+      "test_sources_equal": 1,
+      "recorded_artifact_hashes_equal": 15,
+      "tool_hashes_equal": 2,
+      "only_production_delta_vs_12e": "crates/core/src/factory_reads.rs",
+      "cargo_or_tests_rerun": false
+    },
+    "not_run": [
+      "independent CAS review",
+      "Root browser rerun against new candidate",
+      "full current Factory/workspace regression",
+      "new Mac/native/UI validation",
+      "authorized queued ReadyRequest deadline control",
+      "parked large Data read shim compilation/execution",
+      "remaining large capture/fault/unknown matrix"
+    ],
+    "parked_large_data_wip": {
+      "stash": "da4ae89c6e71928e3cdc527ee875ce67ea113fb6",
+      "ref": "refs/codex-checkpoints/factory-large-data-read-wip",
+      "applied": false,
+      "compiled": false,
+      "executed": false
+    },
+    "lease": "returned to parent; no Cargo in recovery",
+    "scope": "narrow Owner start CAS correction; not Task/Git acceptance or complete Factory/product acceptance"
   }
 }

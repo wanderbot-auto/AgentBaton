@@ -772,6 +772,15 @@ impl Store {
                     return Ok(None);
                 }
                 let scope = scope(&self.conn, id)?;
+                // Exact-key history above stays read-only even after authority
+                // changes. A NEW stale request must fail before projection, FD
+                // lookup, observation allocation or occupying the I/O worker.
+                if scope.revision != revision.ok_or_else(invalid)? {
+                    return Err(CoreError::new(
+                        "STALE_REVISION",
+                        "Factory scope changed before start",
+                    ));
+                }
                 // Start uses the exact native-approved immutable installation,
                 // never silently substitutes this daemon's adjacent executable.
                 pinned_companion = Some(scope.bindings.companion.executable.clone());
@@ -1324,6 +1333,40 @@ mod tests {
                 .unwrap()
                 .id,
             p.id
+        );
+    }
+    #[test]
+    fn wrong_owner_start_revision_never_prepares_an_observation_or_reads_the_program() {
+        let mut f = Fixture::new();
+        let p = f
+            .store
+            .propose_factory_scope(&f.selection, "cas-scope", &f.companion)
+            .unwrap();
+        let scope: crate::factory::FactoryScope =
+            serde_json::from_value(f.store.finalize_proposal(&p.id, p.revision).unwrap()).unwrap();
+        fs::remove_file(&f.companion).unwrap();
+        let seq = f.store.sequence().unwrap();
+        let error = f
+            .store
+            .prepare_factory_owner_read(
+                "factory_runs.start",
+                &serde_json::json!({"scope_id":scope.id}),
+                Some(scope.revision + 1),
+                Some("must-not-prepare-reader"),
+                "wrong-cas-original-raw",
+                None,
+            )
+            .err()
+            .expect("wrong CAS must return an error, not a read plan");
+        assert_eq!(error.code, "STALE_REVISION");
+        assert_eq!(error.side_effect_state, "not_started");
+        assert_eq!(f.store.sequence().unwrap(), seq);
+        assert_eq!(
+            f.store
+                .factory_record_counts(&scope.root_task_id)
+                .unwrap()
+                .runs,
+            0
         );
     }
     #[test]
