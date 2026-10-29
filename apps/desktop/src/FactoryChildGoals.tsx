@@ -63,7 +63,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
     else remember({...narrowing,reconciled:true});
    }
    const context=await factoryChildPlanApi.context(scope.id,target.task_id);
-   if(!childContextShape(context,scope,target)||context.run_id!==family.run.id||context.goal.spec_revision!==task.spec_revision)throw new Error(t.invalid);
+   if(!childContextShape(context,scope,target)||context.run_id!==family.run.id)throw new Error(t.invalid);
    let head:FactoryChildPlanView|null=null;
    try{head=await factoryChildPlanApi.get(scope.id,target.task_id);if(!childViewShape(head,context,scope)||head.reference.revision!==context.current_plan_revision)throw new Error(t.invalid);await verifyChildRaw(head);}
    catch(e){if(!(context.current_plan_revision===0&&e instanceof DaemonError&&e.code==='NOT_FOUND'&&e.sideEffectState==='not_started'))throw e;}
@@ -97,7 +97,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
  useEffect(()=>{if(!open||!connected||!fresh||loading||busy||pending||!data?.rows.some(row=>graphRunPolling(row.goal)))return;if(reads.current>=20){setPaused(true);return;}const timer=setTimeout(()=>{++reads.current;void refresh(false);},1000);return()=>clearTimeout(timer);},[open,connected,fresh,loading,busy,pending,data,tick,refresh]);
  const disabled=capacity||!connected||!fresh||busy||loading||!!pending;
  const cancelDisabled=capacity||!connected||!summaryFresh||busy||loading||!!pending;
- const live=(v:Snapshot)=>current.current.parentReady&&!v.scope.revoked&&v.scope.expires_at_ms>Date.now()&&!!v.grant&&!v.grant.revoked&&v.grant.revision===v.scope.root_grant_revision&&v.grant.expires_at_ms>Date.now()&&v.grant.scope.max_children>0&&factoryRunSupported(v.family.run)&&!v.family.run.cancel_requested&&!['cancelled','outcome_unknown'].includes(v.family.run.state)&&!v.target.cancel_requested&&taskAllowsExecution(v.task);
+ const live=(v:Snapshot)=>v.task.spec_revision===v.context.goal.spec_revision&&current.current.parentReady&&!v.scope.revoked&&v.scope.expires_at_ms>Date.now()&&!!v.grant&&!v.grant.revoked&&v.grant.revision===v.scope.root_grant_revision&&v.grant.expires_at_ms>Date.now()&&v.grant.scope.max_children>0&&factoryRunSupported(v.family.run)&&!v.family.run.cancel_requested&&!['cancelled','outcome_unknown'].includes(v.family.run.state)&&!v.target.cancel_requested&&taskAllowsExecution(v.task);
  const selected=current.current.selected;
  const sameHead=!!data?.head&&!!selected&&childGoalRefSame(selected.reference,data.head.reference)&&selected.proposal.nodes.length<=(data.scope.bindings.child_goal_execution?.policy.max_nodes??0);
  const canStart=!disabled&&!!data&&live(data)&&sameHead&&data.rows.length===0;

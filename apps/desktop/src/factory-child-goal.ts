@@ -32,7 +32,7 @@ export function childGoalEvidenceContext(summary:FactoryChildGoalSummary,c:Facto
  return {id:summary.goal.run.scope_id,root_grant_id:summary.goal.run.root_grant_id,workspace_id:c.execution_bindings[0].workspace_id,goal:c.goal,input_revision:c.goal.input_revision,outputs:c.outputs,required_acceptance_rules:c.required_acceptance_rules,edit_context:c.edit_context};
 }
 export function childGoalViewShape(v:FactoryChildGoalView,s:FactoryScope,target:FactoryTaskHandle,f:FactoryRunDetails,c:FactoryChildPlanningContext,task:Task):boolean {
- if(!v||!keys(v,['summary','origin','details'])||utf8Bytes(JSON.stringify(v))>4194304||!childGoalSummaryShape(v.summary,s,target,f,c,task)||!childGoalOriginShape(v.origin,s,target,f,c)||v.origin.initial_plan.revision>v.summary.plan.revision||task.spec_revision!==c.goal.spec_revision||!safeInteger(task.revision,1)||typeof task.goal!=='string')return false;
+ if(!v||!keys(v,['summary','origin','details'])||utf8Bytes(JSON.stringify(v))>4194304||!childGoalSummaryShape(v.summary,s,target,f,c,task)||!childGoalOriginShape(v.origin,s,target,f,c)||v.origin.initial_plan.revision>v.summary.plan.revision||!safeInteger(task.revision,1)||typeof task.goal!=='string')return false;
  return graphDetailsShape(v.details,task,childGoalEvidenceContext(v.summary,c))&&factorySame(v.summary.goal,{graph_contract_version:v.details.graph_contract_version,run:v.details.run,ledger_revision:v.details.ledger_revision,task_accepted:v.details.task_accepted})&&v.details.run.plan_revision===v.summary.plan.revision&&v.details.run.plan_digest===v.summary.plan.plan_digest;
 }
 export function childGoalSummaryMeetsFloor(next:FactoryChildGoalSummary,prior:FactoryChildGoalSummary):boolean {
