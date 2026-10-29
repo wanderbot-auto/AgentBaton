@@ -1,3 +1,7 @@
+
+## 2026-10-29T20:40:42.716507+00:00 — exact newCI failure
+
+Actual3b/head20d checkout: Envall3PASS; ProductRust24/1 failure in55s readonly observation afterreply, not proven Grant/CPU cause. UI Data8+Graphpass; legacyFactory all3 finalbehavior reached but wrong all-Goal-empty accounting assertion fails. Exact metadata/log/report hashes inPR18_HEAD3B_FAILURES.json. Raw original retained, Maclastread pending, no currentpackages/wholePASS. Diagnostic+strictsharedmeter assertion source underway; budgets/authority not widened. WSI16 integrationactualbridge2+Unix4 separatePASS e203; oldfilter0test notPASS.
 ## 2026-10-29T20:11:43.950362+00:00 — local IO and migration repairs accepted for new CI
 
 Feature Core145 actual outer tests pass (nested1 excluded), including both gates16; debug pair build, featurelib strictClippy, defaultworkspace alltargets strictClippy andfmt passed at their exact recorded heads. Genuine nonempty14→15 migration6 passed. Fixed private driver73pure andactualLinuxChromium/realUnixData8checks/unrun0 passed at1dad36c (7.131s). Preview realcancel finished13 andcopy realcancel/workerjoined finished20, eachrevision3; no partialcopy/midcopy/OSreap claim. Current frontend source byte-equal to2d build; compiledCore0c78, not falsely labeled newhead.

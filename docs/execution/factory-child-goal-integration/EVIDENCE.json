@@ -278,5 +278,6 @@
   },
   "latest_local_regression_and_preview_failures": "docs/execution/factory-child-goal-integration/REGRESSION_AND_PREVIEW_FAILURES.json",
   "latest_private_io_local_acceptance": "docs/execution/factory-child-goal-integration/IO_LOCAL_ACCEPTANCE.json",
-  "final_pre_push_validation": "docs/execution/factory-child-goal-integration/PRE_PUSH_VALIDATION.json"
+  "final_pre_push_validation": "docs/execution/factory-child-goal-integration/PRE_PUSH_VALIDATION.json",
+  "remote_head3b_actual_failures": "docs/execution/factory-child-goal-integration/PR18_HEAD3B_FAILURES.json"
 }
