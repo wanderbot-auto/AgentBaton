@@ -16,7 +16,29 @@ use std::{
 
 type Rows = BTreeMap<String, Vec<Vec<Value>>>;
 
-fn fixture() -> (tempfile::TempDir, PathBuf, Value) {
+struct FixtureDir(Option<tempfile::TempDir>);
+impl FixtureDir {
+    fn path(&self) -> &Path {
+        self.0.as_ref().unwrap().path()
+    }
+}
+impl Drop for FixtureDir {
+    fn drop(&mut self) {
+        if std::thread::panicking() {
+            if let Some(dir) = self.0.take() {
+                // Retain the exact failing copy, WAL and migration backup;
+                // the immutable real14 source input is never edited either.
+                let path = dir.keep();
+                eprintln!(
+                    "Retained private failed migration database: {}",
+                    path.display()
+                );
+            }
+        }
+    }
+}
+
+fn fixture() -> (FixtureDir, PathBuf, Value) {
     let source =
         Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/child_goal_legacy_migration");
     let manifest: Value = serde_json::from_slice(
@@ -64,11 +86,13 @@ fn fixture() -> (tempfile::TempDir, PathBuf, Value) {
         agentbaton_workspaces::validation::sha256(&bytes),
         manifest["database_sha256"]
     );
-    let dir = tempfile::Builder::new()
-        .prefix("legacy14-")
-        .permissions(fs::Permissions::from_mode(0o700))
-        .tempdir()
-        .unwrap();
+    let dir = FixtureDir(Some(
+        tempfile::Builder::new()
+            .prefix("legacy14-")
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap(),
+    ));
     let path = dir.path().join("history.sqlite3");
     fs::write(&path, bytes).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
