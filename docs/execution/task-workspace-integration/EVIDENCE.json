@@ -534,7 +534,7 @@
     "session_P2_original_changes_required": "d3b5c73a9a324b7109cc037d8c1d60f8ad70f778fcae0567f4d27442ed7034cb",
     "session_0db_closed": "a48da92f3b367f5d8d36d92d61a45b9d793ceed65da65304bb236fa47f833e2d",
     "Factory_exact16_guard": "488455e6d055b5130ced9763f6f893f0a22808ddac6fd93949a8d33838c3aa27",
-    "strict_inverse_P2_closed": "031d6d: see owned strict-inverse review manifest; not expanded here",
+    "strict_inverse_P2_closed": "031d6d4774a131e98188f0425fecefa6ad3337cb470b64cd648565266c0b905c",
     "old15_consumer": "e18ad8a42dcc14731a575373ca49635e084fe1f07b68d98f057da6b018b68107",
     "old15_CI_gate": "ace30d38faddb6abb0b2fe15bd858b7af1dbc0c061a41b638584c6c87ce44e64",
     "build_browser_CI": "8b436e7df01bae3d18d470d1cfab0549a2c7a7a141554d1590b7bd372ab90051",
