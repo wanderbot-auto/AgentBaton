@@ -105,6 +105,7 @@ impl Trace {
             | "mcp_provider_verify"
             | "factory_query_check"
             | "factory_git_snapshot"
+            | "factory_phase"
             | "goal_budget_denied" => 0,
             _ => 63,
         };
@@ -159,6 +160,7 @@ fn allowed_stage(stage: &str) -> bool {
             | "dispatch_task_rejected"
             | "factory_tick_begin"
             | "factory_tick_end"
+            | "factory_phase"
             | "goal_tick_begin"
             | "goal_tick_end"
             | "goal_after_stops"
@@ -412,5 +414,24 @@ mod tests {
         assert!(!line.contains("private-token"));
         assert!(line.contains("other_code"));
         assert!(line.len() <= MAX_LINE);
+        // One fixed stage shares the existing eight-first/eight-tail bucket
+        // across all six phases; no phase adds an unbounded trace dimension.
+        for phase in 1..=6 {
+            let line = trace
+                .record(
+                    "factory_phase",
+                    now,
+                    Some(Duration::from_millis(7406)),
+                    [false; 6],
+                    phase,
+                    "none",
+                )
+                .unwrap();
+            assert!(line.contains("stage=factory_phase"));
+            assert!(line.contains("elapsed_ms=7406 flags=000000 valid=0"));
+            assert!(line.contains(&format!("count={phase} code=none")));
+            assert!(line.len() <= MAX_LINE);
+        }
+        assert!(31 * PER_STAGE * 2 <= MAX_LINES);
     }
 }

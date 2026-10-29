@@ -169,11 +169,21 @@ impl Store {
         task_id: &str,
         goal_id: &str,
     ) -> Result<()> {
+        #[cfg(debug_assertions)]
+        let phase_clock = std::time::Instant::now();
         let view = self.get_factory_child_goal(&FactoryChildGoalQuery {
             scope_id: scope_id.into(),
             task_id: task_id.into(),
             goal_run_id: Some(goal_id.into()),
         })?;
+        #[cfg(debug_assertions)]
+        crate::ipc::goal_diagnostics::emit(
+            "factory_phase",
+            Some(phase_clock.elapsed()),
+            [false; 6],
+            2,
+            None,
+        );
         let accepted = view.details.task_acceptance.as_ref().ok_or_else(denied)?;
         if !view.details.task_accepted
             || !view.summary.goal.task_accepted
@@ -182,6 +192,8 @@ impl Store {
         {
             return Err(denied());
         }
+        #[cfg(debug_assertions)]
+        let phase_clock = std::time::Instant::now();
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -199,6 +211,16 @@ impl Store {
         {
             return Err(denied());
         }
+        #[cfg(debug_assertions)]
+        crate::ipc::goal_diagnostics::emit(
+            "factory_phase",
+            Some(phase_clock.elapsed()),
+            [false; 6],
+            3,
+            None,
+        );
+        #[cfg(debug_assertions)]
+        let phase_clock = std::time::Instant::now();
         // The accepted Graph receipt is a genuine Task acceptance, not the
         // earlier Factory output snapshot or its pre-Graph bytecount.
         b.handle.state = "result_available".into();
@@ -254,6 +276,14 @@ impl Store {
         // No new I/O occurs here: the Goal's accepted history already binds
         // original inputs/root, candidate FilePins/SHA, validators and Owner.
         let _ = s;
+        #[cfg(debug_assertions)]
+        crate::ipc::goal_diagnostics::emit(
+            "factory_phase",
+            Some(phase_clock.elapsed()),
+            [false; 6],
+            4,
+            None,
+        );
         tx.commit().map_err(db_error)
     }
 }

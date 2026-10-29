@@ -2535,7 +2535,17 @@ impl Daemon {
         {
             return Ok(());
         }
+        #[cfg(debug_assertions)]
+        let phase_clock = Instant::now();
         let action = self.store.next_factory_action()?;
+        #[cfg(debug_assertions)]
+        goal_diagnostics::emit(
+            "factory_phase",
+            Some(phase_clock.elapsed()),
+            [false; 6],
+            1,
+            None,
+        );
         for (task, round, queued_at) in self.store.factory_recovery_queue_epochs.drain(..) {
             FactoryQueueClock::record_recovery(
                 &mut self.factory_queue_clocks,
@@ -2554,7 +2564,17 @@ impl Daemon {
                 text,
                 context,
             } => {
+                #[cfg(debug_assertions)]
+                let phase_clock = Instant::now();
                 let (raw, ticket) = context.prompt_ticket(session_id, text)?;
+                #[cfg(debug_assertions)]
+                goal_diagnostics::emit(
+                    "factory_phase",
+                    Some(phase_clock.elapsed()),
+                    [false; 6],
+                    5,
+                    None,
+                );
                 self.schedule_factory_ticket(raw, ticket);
             }
             crate::factory::FactoryAction::Launch(context) => {
@@ -2564,7 +2584,17 @@ impl Daemon {
                     .remove(&task)
                     .map(|clock| clock.queued_at)
                     .unwrap_or_else(Instant::now);
+                #[cfg(debug_assertions)]
+                let phase_clock = Instant::now();
                 let (raw, ticket) = context.ticket(queued)?;
+                #[cfg(debug_assertions)]
+                goal_diagnostics::emit(
+                    "factory_phase",
+                    Some(phase_clock.elapsed()),
+                    [false; 6],
+                    5,
+                    None,
+                );
                 self.schedule_factory_ticket(raw, ticket);
             }
         }
@@ -2723,12 +2753,22 @@ impl Daemon {
         let scope = ticket.scope_id().to_owned();
         let (reply, receive) = mpsc::sync_channel(1);
         self.factory_pending = Some((scope, receive));
+        #[cfg(debug_assertions)]
+        let phase_clock = Instant::now();
         self.handle_ready_request(ReadyRequest {
             raw,
             reply,
             deadline: Instant::now() + Duration::from_secs(60),
             factory_dispatch: Some(ticket),
         });
+        #[cfg(debug_assertions)]
+        goal_diagnostics::emit(
+            "factory_phase",
+            Some(phase_clock.elapsed()),
+            [false; 6],
+            6,
+            None,
+        );
     }
     fn execute_factory_ticket(&mut self, mut job: ReadyRequest) {
         let Some(ticket) = job.factory_dispatch.take() else {
