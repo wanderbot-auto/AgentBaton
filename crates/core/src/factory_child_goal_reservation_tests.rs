@@ -23,6 +23,22 @@ fn reserved_with_prior_root_counter(
         )
         .unwrap();
     assert_eq!(present, if prior_counter { 1 } else { 0 });
+    if prior_counter {
+        let usage: (i64, i64) = f
+            .store
+            .conn
+            .query_row(
+                "SELECT consumed,active FROM budgets WHERE scope=?1",
+                [format!("root:{}", s.root_task_id)],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(
+            usage,
+            (0, 0),
+            "prior approved counter must retain its exact initial usage assertion"
+        );
+    }
     assert_eq!(
         f.store
             .conn
