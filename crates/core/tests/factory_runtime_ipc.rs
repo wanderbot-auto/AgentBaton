@@ -1716,10 +1716,12 @@ fn run_data_mode(mode: &str) {
         .replace("status_connection", "data_connection")
         .replace("status_workspace", "data_workspace");
     if mode.starts_with("read_gate_") {
-        // Preserve the original successful real MCP request and marker; add
-        // timestamps only, never use its output to authorize a product action.
+        // Keep the original real MCP reply verbatim. This is fixture evidence,
+        // never a product authorization or a reusable private Data witness.
+        body=body.replace("result=json.loads(mcp.stdout.readline());assert 'error' not in result,result", "result=json.loads(mcp.stdout.readline());assert 'error' not in result,result\n global last_mcp_response_frame\n last_mcp_response_frame=result");
+        body=body.replace("actual=json.loads(result['content'][0]['text']);assert 'error' not in actual,actual", "actual=json.loads(result['content'][0]['text']);assert 'error' not in actual,actual\n if name=='get_task_status':\n  global initial_scoped_response_text,initial_scoped_mcp_frame\n  initial_scoped_response_text=result['content'][0]['text']\n  initial_scoped_mcp_frame=last_mcp_response_frame");
         body=body.replace("status=tool('get_task_status',{'task_id':c['task_id']});assert status['task_id']==c['task_id']", "import time\n  initial_scoped_begin_ms=int(time.time()*1000)\n  status=tool('get_task_status',{'task_id':c['task_id']});assert status['task_id']==c['task_id']\n  initial_scoped_response_ms=int(time.time()*1000)");
-        body=body.replace("open('reports/pin-ready','w').write('generated safe gate')", "open('reports/pin-ready','w').write(json.dumps({'provider_pid':os.getpid(),'initial_get_begin_epoch_ms':initial_scoped_begin_ms,'initial_get_response_epoch_ms':initial_scoped_response_ms,'task_id':status['task_id'],'task_revision':status['revision'],'task_state':status['state']}))");
+        body=body.replace("open('reports/pin-ready','w').write('generated safe gate')", "open('reports/pin-ready','w').write(json.dumps({'provider_pid':os.getpid(),'initial_get_begin_epoch_ms':initial_scoped_begin_ms,'initial_get_response_epoch_ms':initial_scoped_response_ms,'task_id':status['task_id'],'task_revision':status['revision'],'task_state':status['state'],'method':'get_task_status','original_scoped_response_text':initial_scoped_response_text,'original_mcp_response_frame':initial_scoped_mcp_frame}))");
     }
     // Fixture-only, nonsecret host-generated identifier; it grants no rights.
     let connection_label = base.join("generated-connection-label.txt");

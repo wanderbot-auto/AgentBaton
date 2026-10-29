@@ -323,18 +323,93 @@ pub(super) fn run_inflight_case(
         json!({"handle_id":credential["handle_id"]}),
     );
     let raw = json!({"api_version":1,"request_id":"controlled-large-data-original-nonce","handle_id":credential["handle_id"],"scoped_token":credential["scoped_token"],"method":"get_task_status","params":{"task_id":scope["root_task_id"]}});
-    gate.phase("initial_get_begin",runtime,Some(scope),json!({"request_id":"controlled-large-data-original-nonce","method":"get_task_status","client_deadline_epoch_ms":SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis()+5000}));
-    let before = super::scoped_request(runtime, raw.clone());
-    gate.phase(
-        "initial_get_response",
-        runtime,
-        Some(scope),
-        json!({"complete_response_envelope":before}),
-    );
+    // The generated Provider already issued this same real, authenticated MCP
+    // GET before pin-ready. Preserve its exact reply instead of repeating a
+    // needless16MiB setup read that can consume the approved four-second TTL.
+    let marker: serde_json::Value =
+        serde_json::from_slice(&fs::read(workspace.join("reports/pin-ready")).unwrap()).unwrap();
+    assert_eq!(marker["method"], "get_task_status");
+    let original_text = marker["original_scoped_response_text"].as_str().unwrap();
+    let before: serde_json::Value = serde_json::from_str(original_text).unwrap();
     assert!(
         before.get("error").is_none(),
         "must first prove the real handle/witness works: {before}"
     );
+    assert_eq!(
+        marker["original_mcp_response_frame"]["result"]["content"][0]["text"],
+        original_text
+    );
+    assert!(uuid::Uuid::parse_str(before["request_id"].as_str().unwrap()).is_ok());
+    assert_eq!(before["result"]["factory_scope_id"], scope["id"]);
+    assert_eq!(before["result"]["root_task_id"], scope["root_task_id"]);
+    assert_eq!(before["result"]["task_id"], scope["root_task_id"]);
+    let began = marker["initial_get_begin_epoch_ms"].as_i64().unwrap();
+    let returned = marker["initial_get_response_epoch_ms"].as_i64().unwrap();
+    assert!(began <= returned && returned - began < 5000);
+    assert!(returned < scope["expires_at_ms"].as_i64().unwrap());
+    let db = Connection::open_with_flags(
+        runtime.join("baton.sqlite3"),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+    )
+    .unwrap();
+    let caller = db.query_row(
+        "SELECT h.scope_id,h.session_id,h.attempt_id,h.fencing_token,h.expires_at_ms,h.revoked,h.token_digest,s.task_id,s.project_id,s.state,json_extract(s.document,'$.fencing_token'),l.holder,l.fencing_token,b.document,c.revision,c.revoked,json_extract(c.document,'$.expires_at_ms'),t.document,json_extract(s.document,'$.revision'),l.expires_at,s.workspace_id,s.connection_id,s.grant_id FROM factory_scoped_handles h JOIN sessions s ON s.id=h.session_id JOIN workspace_leases l ON l.resource=s.workspace_id JOIN factory_task_bindings b ON b.scope_id=h.scope_id AND b.task_id=s.task_id JOIN factory_scopes c ON c.id=h.scope_id JOIN tasks t ON t.id=s.task_id WHERE h.id=?1",
+        [credential["handle_id"].as_str().unwrap()], |row| {
+            let binding: serde_json::Value = serde_json::from_str(&row.get::<_,String>(13)?).unwrap();
+            let task: serde_json::Value = serde_json::from_str(&row.get::<_,String>(17)?).unwrap();
+            Ok(json!({"scope_id":row.get::<_,String>(0)?,"session_id":row.get::<_,String>(1)?,"attempt_id":row.get::<_,String>(2)?,"fencing_token":row.get::<_,i64>(3)?,"handle_expires_at_ms":row.get::<_,i64>(4)?,"handle_revoked":row.get::<_,bool>(5)?,"credential_sha256":row.get::<_,String>(6)?,"task_id":row.get::<_,String>(7)?,"project_id":row.get::<_,String>(8)?,"session_state":row.get::<_,String>(9)?,"session_fencing_token":row.get::<_,i64>(10)?,"lease_holder":row.get::<_,String>(11)?,"lease_fencing_token":row.get::<_,i64>(12)?,"task_handle":binding["handle"],"scope_revision":row.get::<_,i64>(14)?,"scope_revoked":row.get::<_,bool>(15)?,"scope_expires_at_ms":row.get::<_,i64>(16)?,"task_revision":task["revision"],"task_spec_revision":task["spec_revision"],"task_state":task["state"],"task_goal_sha256":sha256(task["goal"].as_str().unwrap().as_bytes()),"session_revision":row.get::<_,i64>(18)?,"lease_expires_at_ms":row.get::<_,i64>(19)?,"workspace_id":row.get::<_,String>(20)?,"connection_id":row.get::<_,String>(21)?,"grant_id":row.get::<_,String>(22)?}))
+        },
+    ).unwrap();
+    assert_eq!(caller["scope_id"], scope["id"]);
+    assert_eq!(caller["scope_revision"], scope["revision"]);
+    assert_eq!(caller["scope_expires_at_ms"], scope["expires_at_ms"]);
+    assert_eq!(caller["scope_revoked"], false);
+    assert_eq!(caller["handle_revoked"], false);
+    assert_eq!(caller["handle_expires_at_ms"], scope["expires_at_ms"]);
+    assert_eq!(
+        caller["credential_sha256"],
+        sha256(credential["scoped_token"].as_str().unwrap().as_bytes())
+    );
+    assert_eq!(caller["task_id"], scope["root_task_id"]);
+    assert_eq!(caller["project_id"], scope["project_id"]);
+    assert_eq!(caller["session_state"], "running");
+    assert_eq!(caller["task_state"], "running");
+    assert_eq!(
+        caller["task_spec_revision"],
+        scope["bindings"]["root_task"]["spec_revision"]
+    );
+    assert_eq!(
+        caller["task_goal_sha256"],
+        sha256(
+            scope["bindings"]["root_task"]["goal"]
+                .as_str()
+                .unwrap()
+                .as_bytes()
+        )
+    );
+    assert!(
+        caller["task_revision"].as_u64().unwrap()
+            >= scope["selection"]["expected_task_revision"]
+                .as_u64()
+                .unwrap()
+    );
+    assert!(caller["session_revision"].as_u64().unwrap() > 0);
+    assert_eq!(
+        caller["workspace_id"],
+        scope["selection"]["workspace_ids"][0]
+    );
+    assert_eq!(
+        caller["connection_id"],
+        scope["selection"]["connection_ids"][0]
+    );
+    assert_eq!(caller["grant_id"], scope["selection"]["grant_id"]);
+    assert_eq!(caller["attempt_id"], before["result"]["attempt_id"]);
+    assert_eq!(caller["task_handle"], before["result"]);
+    assert_eq!(caller["lease_holder"], caller["session_id"]);
+    assert_eq!(caller["lease_fencing_token"], caller["fencing_token"]);
+    assert_eq!(caller["session_fencing_token"], caller["fencing_token"]);
+    gate.phase("owned_initial_get_verified",runtime,Some(scope),json!({"original_scoped_response_text":original_text,"original_mcp_response_frame":marker["original_mcp_response_frame"],"provider_get_begin_epoch_ms":began,"provider_get_response_epoch_ms":returned,"trusted_caller":caller,"product_authority_from_this_marker":false}));
+    drop(db);
     gate.arm(&workspace.join("inputs/input.txt"));
     gate.phase(
         "armed",
@@ -343,9 +418,26 @@ pub(super) fn run_inflight_case(
         json!({"actual_gate_entered":false}),
     );
     let _cleanup = ReleaseOnFailure(gate);
+    let controlled_begin_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
+    if mode == "read_gate_expiry" {
+        assert!(
+            scope["expires_at_ms"].as_i64().unwrap() > i64::try_from(controlled_begin_ms).unwrap()
+        );
+        assert!(
+            i128::from(scope["expires_at_ms"].as_i64().unwrap())
+                < i128::try_from(controlled_begin_ms + 5000).unwrap()
+        );
+    }
+    gate.phase("controlled_get_begin",runtime,Some(scope),json!({"request_id":"controlled-large-data-original-nonce","client_deadline_epoch_ms":controlled_begin_ms+5000,"initial_validity_proof_request_id":before["request_id"]}));
     let target = runtime.to_path_buf();
     let pending = std::thread::spawn(move || super::scoped_request(&target, raw));
     let entered = gate.entered(daemon_id);
+    if mode == "read_gate_expiry" {
+        assert!(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis()<u128::try_from(scope["expires_at_ms"].as_i64().unwrap()).unwrap(),"must enter actual64KiB read before approved Scope expiry, never count expired/Ready setup as inflight");
+    }
     gate.phase(
         "entered",
         runtime,
