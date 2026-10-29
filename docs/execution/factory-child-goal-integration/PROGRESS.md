@@ -1,3 +1,7 @@
+## Atomic reservation checked-view reuse candidate
+
+The initial `node_records` call already validates the current plan, node mirrors, session/attempt/stop and reservation bindings. Within the same reservation transaction, no node/run write precedes the ancestor walk. Reuse that immutable checked Vec for parent/ancestor lookup instead of loading and verifying the complete history again for every ancestor. Keep the initial full validation, all scope/Grant/FS witnesses, cumulative root/project/Factory/ancestor budget checks, compare-and-swap and postwrite seal. Never cache across requests. This reduces redundant bounded work; it is not an established fix for the two Mac failures. Original ceilings, assertions and unknown-outcome rules remain. Independent review and actual Rust regression are next.
+
 ## PR18 head7ac exact terminal CI — 2026-10-29T23:43:30.215969+00:00
 
 Environment40971954724 three platforms and Product40971954667 Rust/UI passed. ARM22PASS/1FAIL143.30s and Intel22PASS/1FAIL180.71s in the original rework case; downstream native/build/package gates skipped. Tested merge checkout57d049d is not an actual main merge. Safe post-owned-shutdown reports were collected successfully on both Macs.
