@@ -1,0 +1,9 @@
+# Native child Goal schema15 harness
+
+Requirements AB-COR-007, AB-SEC-002, AB-TSK-009. Exact basea57d647e49190fa795f655ed102c0ad29275370a; isolated sparse codex/factory-child-goal-native-harness. Eight explicitly allowed source paths only, own records. Core current storage15 and FactoryRecordCounts12 plus real root-task SQL are authority inputs. Nativeapproval/lib/Core/DTO/UI/CI/locks/STATUS unchanged. No Cargo/daemon/Node/browser/macOS or account/remote operation authorized in this run.
+
+ADR: current harness should accept exactly integer15, reject old14/future16 while keeping earlier negative cases. Add child_goal_runs/factory_child_goal_runs as an independent typed zero projection and include it in every before/after missing/nonzero/type/unknown assertion. Retain original Goal3/Graph6 counts and Owner original19zero tables; Factory12 means total31. Current fresh-Store/synthetic expectations move to15, historical14 migration/data/evidence do not change or acquire new labels.
+
+Retain preparation's private0700/short Unix path/two same-head raw SHA/0500singlelink/probe5s/SIGTERMwait5s/zeroexit/no-forcedkill rules. Add explicit copied-file metadata checks before hashing/verification and generated inert hardlink-source/corruption controls. No actual binary rewrite/strip, no private credentials and no product permission change. ExistingGrant/planning false permissions are unchanged; schema support cannot establish execution Native approval.
+
+Run meaningful pure Python/generatedSQLite/inert owned-child tests; list actualCore tests NOT_RUN without deleting/skipping them. Check source/AST preservation, exact typed fields/current-schema negatives, Python/shell syntax, standalone Rustfmt parse and diff. Freeze source/portable evidence, obtain independent review, then Root assigns actualCore/NativeRust/current15tools/Mac verification.

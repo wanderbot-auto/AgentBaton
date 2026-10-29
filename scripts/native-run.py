@@ -22,7 +22,7 @@ WEBCRYPTO_UTF8_BYTES = 109
 WEBCRYPTO_SHA256 = "d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892"
 FACTORY_COUNT_FIELDS = ('scopes', 'runs', 'task_lineage', 'task_bindings', 'delegations',
                         'attempts', 'scoped_handles', 'handoffs', 'budget_reservations',
-                        'child_plan_heads', 'child_plan_revisions')
+                        'child_plan_heads', 'child_plan_revisions', 'child_goal_runs')
 MISSING_FACTORY_SCOPE_ID = 'native-readonly-missing-factory-scope'
 
 
@@ -68,9 +68,9 @@ def factory_report_error(report):
         counts = database.get(phase)
         if (not isinstance(counts, dict) or set(counts) != fields
                 or any(type(value) is not int or value < 0 for value in counts.values())
-                or counts['schema_version'] != 14
+                or counts['schema_version'] != 15
                 or any(counts[field] != 0 for field in FACTORY_COUNT_FIELDS)):
-            return 'native Factory schema14 or one of eleven independent zero counts is invalid'
+            return 'native Factory schema15 or one of twelve independent zero counts is invalid'
     if database['before'] != database['after']:
         return 'native Factory readonly counts or sequence changed'
     sequence = flags.get('factoryReadonlySequence')
@@ -143,7 +143,7 @@ def native_report_error(report):
     if (not isinstance(start, dict) or set(start) != execution_fields
             or not isinstance(finish, dict) or set(finish) != execution_fields
             or any(type(value) is not int or value < 0 for value in [*start.values(), *finish.values()])
-            or start['schema_version'] != 14 or finish['schema_version'] != 14
+            or start['schema_version'] != 15 or finish['schema_version'] != 15
             or any(start[field] != 0 or finish[field] != 0 for field in ['run_count', 'node_count', 'reservation_count'])
             or start != finish):
         return 'native report Goal execution schema/counts/sequence changed or are incomplete'
@@ -168,7 +168,7 @@ def native_report_error(report):
     if (not isinstance(graph_before, dict) or set(graph_before) != graph_fields
             or not isinstance(graph_after, dict) or set(graph_after) != graph_fields
             or any(type(value) is not int or value < 0 for value in [*graph_before.values(), *graph_after.values()])
-            or graph_before['schema_version'] != 14 or graph_after['schema_version'] != 14
+            or graph_before['schema_version'] != 15 or graph_after['schema_version'] != 15
             or any(graph_before[field] != 0 or graph_after[field] != 0 for field in graph_counts)
             or graph_before != graph_after):
         return 'native report Goal graph schema/counts/sequence changed or are incomplete'

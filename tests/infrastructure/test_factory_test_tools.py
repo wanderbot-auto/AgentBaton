@@ -39,7 +39,7 @@ class FactoryTestToolTests(unittest.TestCase):
         with mock.patch.object(TOOLS, 'source_identity', return_value=IDENTITY), mock.patch.object(TOOLS, 'probe', return_value={'unit_only': True}):
             return TOOLS.prepare(ROOT, self.source, self.output, self.evidence)
 
-    def database(self, schema=14, missing=None, populated=None):
+    def database(self, schema=15, missing=None, populated=None):
         with sqlite3.connect(self.root / 'baton.sqlite3') as conn:
             conn.execute(f'PRAGMA user_version={schema}')
             conn.execute('CREATE TABLE events(sequence INTEGER)')
@@ -57,6 +57,7 @@ class FactoryTestToolTests(unittest.TestCase):
             self.assertEqual((self.source / name).stat().st_mode, mode)
             self.assertEqual(TOOLS.sha256(self.output / name), digest)
             self.assertEqual((self.output / name).stat().st_mode & 0o777, 0o500)
+            self.assertEqual((self.output / name).stat().st_nlink, 1)
         self.assertEqual(self.output.stat().st_mode & 0o777, 0o700)
         self.assertEqual(record['binaries'], record['source_binaries_after'])
         self.assertEqual(record['binaries'], record['frozen_binaries_after'])
@@ -72,6 +73,39 @@ class FactoryTestToolTests(unittest.TestCase):
         self.prepare()
         with mock.patch.object(TOOLS, 'source_identity', return_value=IDENTITY), self.assertRaises(FileExistsError):
             TOOLS.prepare(ROOT, self.source, self.output, self.root / 'other-evidence')
+
+    def test_single_link_copies_preserve_hardlinked_source_without_execution(self):
+        aliases = {name: self.root / (name + '-alias') for name in ('batond', 'baton')}
+        for name, alias in aliases.items():
+            os.link(self.source / name, alias)
+        before = {name: ((self.source / name).stat(), TOOLS.sha256(self.source / name)) for name in aliases}
+        self.prepare()
+        for name, (metadata, digest) in before.items():
+            after = (self.source / name).stat()
+            self.assertEqual((after.st_ino, after.st_nlink, after.st_mode),
+                             (metadata.st_ino, 2, metadata.st_mode))
+            self.assertEqual(TOOLS.sha256(aliases[name]), digest)
+            self.assertEqual((self.output / name).stat().st_nlink, 1)
+            self.assertEqual(TOOLS.sha256(self.output / name), digest)
+
+    def test_frozen_mode_hardlink_symlink_and_nonregular_refused_before_hash(self):
+        self.prepare()
+        target = self.output / 'baton'
+        original = target.read_bytes()
+        for kind in ('mode', 'hardlink', 'symlink', 'fifo'):
+            target.unlink()
+            if kind == 'symlink':
+                target.symlink_to(self.output / 'batond')
+            elif kind == 'fifo':
+                os.mkfifo(target, 0o500)
+            else:
+                target.write_bytes(original); target.chmod(0o700 if kind == 'mode' else 0o500)
+                if kind == 'hardlink':
+                    os.link(target, self.output / 'extra-link')
+            with self.subTest(kind=kind), mock.patch.object(TOOLS, 'source_identity', return_value=IDENTITY), mock.patch.object(TOOLS, 'sha256') as read, self.assertRaises(ValueError):
+                TOOLS.verify(ROOT, self.output)
+            read.assert_not_called()
+            (self.output / 'extra-link').unlink(missing_ok=True)
 
     def test_missing_nonexecutable_and_symlink_source_rejected_without_execution(self):
         for kind in ('missing', 'nonexecutable', 'symlink'):
@@ -104,17 +138,17 @@ class FactoryTestToolTests(unittest.TestCase):
         self.assertEqual(json.loads((self.evidence / 'probe-failure.json').read_text())['error_type'], 'TimeoutError')
         self.assertFalse((self.output / 'manifest.json').exists())
 
-    def test_readonly_exact_schema14_all_eleven_tables(self):
+    def test_readonly_exact_schema15_all_twelve_tables(self):
         self.database()
         before = (self.root / 'baton.sqlite3').read_bytes()
         observed = TOOLS.observe_database(self.root)
-        self.assertEqual(observed['schema'], 14)
-        self.assertEqual(len(observed['zero_tables']), 11)
+        self.assertEqual(observed['schema'], 15)
+        self.assertEqual(len(observed['zero_tables']), 12)
         self.assertTrue(observed['query_only'])
         self.assertEqual((self.root / 'baton.sqlite3').read_bytes(), before)
 
     def test_old_and_future_schema_rejected(self):
-        for schema in (13, 15):
+        for schema in (13, 14, 16):
             with self.subTest(schema=schema):
                 self.database(schema=schema)
                 with self.assertRaises(ValueError):
@@ -142,7 +176,7 @@ class FactoryTestToolTests(unittest.TestCase):
         original = (self.output / 'manifest.json').read_bytes()
         with mock.patch.object(TOOLS, 'source_identity', return_value=IDENTITY):
             TOOLS.verify(ROOT, self.output)
-            for key, value in [('schema', 13), ('schema', 15), ('schema', 14.0), ('schema', True), ('git_head', 'c' * 40), ('git_tree', 'd' * 40), ('frozen_directory', '/wrong'), ('binaries', {'baton': 'x'})]:
+            for key, value in [('schema', 13), ('schema', 14), ('schema', 16), ('schema', 14.0), ('schema', 15.0), ('schema', True), ('git_head', 'c' * 40), ('git_tree', 'd' * 40), ('frozen_directory', '/wrong'), ('binaries', {'baton': 'x'})]:
                 record = json.loads(original); record[key] = value
                 (self.output / 'manifest.json').write_text(json.dumps(record))
                 with self.subTest(key=key, value=value), self.assertRaises(ValueError):
