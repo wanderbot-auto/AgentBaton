@@ -96,12 +96,16 @@ jobs:
       - run: npm run typecheck && npm test && npm run build
         working-directory: apps/desktop
       - name: Preview transport timing and failure contracts
-        run: python3 apps/desktop/tests/test_data_preview_browser_timing.py
+        run: |
+          python3 apps/desktop/tests/test_data_preview_browser_timing.py
+          python3 apps/desktop/tests/test_data_preview_evidence.py
+          python3 apps/desktop/tests/test_data_preview_evidence_deadline.py
       - name: Real daemon and browser test dependencies
         run: |
           set -euo pipefail
           rustup toolchain install stable --profile minimal
-          cargo build --locked --bin batond --bin baton
+          cargo test --locked -p agentbaton-core --features preview-evidence --lib preview_evidence_gate -- --nocapture --test-threads=1
+          cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence
           python3 -m venv artifacts/browser-venv
           artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt
           artifacts/browser-venv/bin/python -m playwright install --with-deps chromium
@@ -112,7 +116,7 @@ jobs:
           artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/approved-commands
           artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/goal-planning
           artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --structured-editor --output artifacts/ui-browser/goal-plan-editor
-          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
+          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --preview-evidence --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
           artifacts/browser-venv/bin/python - <<'PY'
           import asyncio, hashlib, json, pathlib, subprocess, sys
           from playwright.async_api import async_playwright
@@ -124,8 +128,9 @@ jobs:
               'git_head': git('rev-parse', 'HEAD'),
               'git_tree': git('rev-parse', 'HEAD^{tree}'),
               'dirty': False,
+              'cargo_features': ['agentbaton-core/preview-evidence'],
               'binaries': {name: hashlib.sha256(pathlib.Path('target/debug', name).read_bytes()).hexdigest() for name in ['batond', 'baton']},
-              'scope': 'CI-built Linux debug candidate; actual schema checked by read-only SQLite in the harness; acceptance pending',
+              'scope': 'CI-built Linux debug evidence candidate; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact',
           }
           pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
           async def chromium_executable_path():
