@@ -75,5 +75,32 @@
     }
   ],
   "scope_expanded": false,
-  "new_remote_or_provider_or_cost": false
+  "new_remote_or_provider_or_cost": false,
+  "review_followup_0db5603": {
+    "recorded_at": "2026-10-29T22:09:41.136619+00:00",
+    "source": "0db56038faae62d2b458cd6bc8909d0980d6275c",
+    "prior_source": "f18d5ff0c2c2c8d48f64dfe76114f9636e64b0ad",
+    "dimension": "Python stdlib source/inverse assertions; no React scheduling, Node execution or IPC proof",
+    "checks": {
+      "whole_ManagedSessions_inverse_equals_f18": true,
+      "whole_original26test_inverse_equals_f18": true,
+      "unchanged12legacytest_file": true,
+      "existing_session_inspection_send_cancel_code_byte_equal": true,
+      "no_stateTaskId_equal_initialTaskId_lock": true,
+      "new_declared_cases_NOT_RUN": 28,
+      "diffcheck_exit": 0
+    },
+    "source_pins": {
+      "apps/desktop/src/ManagedSessions.tsx": "a3b71bdfd8e21d252c0103f1d684ef40df4a0a85cf7260d7814550ba4f086225",
+      "apps/desktop/src/ManagedSessionsTaskBinding.test.tsx": "54e073521de895d78d11bcef59a5db5c6d114f6866dba0c066ac27ea2e039302"
+    },
+    "Root_prior_result": {
+      "source": "f18d5ff0c2c2c8d48f64dfe76114f9636e64b0ad",
+      "typecheck": "Root reported PASS",
+      "targeted_tests": "Root reported38PASS=26new+12legacy",
+      "exact_log": "Root message partial hash e99b...b6b5; not independently re-read or moved to new source"
+    },
+    "actual_new_type_or_test_or_product": "NOT_RUN",
+    "original_source_and_seals_preserved": true
+  }
 }

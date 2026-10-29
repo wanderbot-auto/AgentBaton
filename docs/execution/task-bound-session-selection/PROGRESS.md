@@ -15,3 +15,12 @@ Root explicitly allowed the old SessionWorkbench mock update required by the new
 26 new mocked-transport component cases written but NOT_RUN: normal location; parent staleNone; exact explicit Session call/Core refusal; pending/unknown/input_changed; missing/creating/unknown/foreign/wrong-root/head/duplicate workspaces; spec/project/host drift; late Task/project reads; delayed Grant; binding invalidation; failed/regressing reads; legacy/manual/global Grant; Chinese boundary.
 
 Actual verification only Python stdlib source/inverse/protected-file assertions and git diffcheck0. Not TypeScript syntax/compiler/runtime proof. No Node/Cargo/browser/Actor/Provider/remote execution. Root-reported earlier four TaskCodeWorkspace flows are a different unit, not green evidence for this new selection.
+
+
+## Independent P2 follow-up 0db56038faae62d2b458cd6bc8909d0980d6275c
+
+Original f18 source had a synchronous parent-prop transition gap: same-project initialTaskId A→B could render stateTaskA before its passive synchronization effect; old freshness/ack/Grant/action handler context did not include the new initial props. Independent source/finite model finding is preserved, not claimed as an executed React reproduction. Root separately reported original f18 typecheck and targeted38 (26new+12legacy) PASS; these remain original-source results, not proof that this timing gap was absent.
+
+Narrow fix uses local parent-initial identity plus render epoch (including A→B→A), matched against an applied-state stamp. The stamp enters Task-source and selection context, synchronously invalidating old TaskFresh/ack/Grant/handler context. Until effect applies TaskB and its stamp, refreshTask returns before requesting oldA; B must then complete its own fresh fixed Get. This is local UI provenance, never wire/approval authority. Subsequent manual Task selection is allowed; it does not have to equal initialTaskId. Existing active Session inspection/send/cancel code is byte unchanged and not gated by this new setup epoch.
+
+Added2source-only specs: the actual equality helper's sync/ABA predicate and RTL parentB plus deferred B Get, rejection of a new A request during transition, and later manual A selection. Whole old26test inverse is byte-equal; legacy12 test file unchanged. New declared28, planned targeted40; all new-source type/Node/test/build/actual IPC/browser remain NOT_RUN. Python source/inverse and diff0 only. Root will independently test.
