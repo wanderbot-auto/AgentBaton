@@ -1,3 +1,15 @@
+# Current pre-start lease0 checkpoint — source0a906d3, rerun NOT_RUN
+
+Source `0a906d3eda6b3c70a6ff5af968a505dce7c645dc`; SHA `d9d975100a0b5338c766d7c9a83b4d983354533ddd550f3dbb2954e73059847c`. Exact preapproval workspace_leases0 replaces incorrect1. All28 zero-execution domains, other metadata, Work4000/Owner1000, child5000/Grant-scope30000, old five drivers, cancel hold and real-stop rules stay unchanged.
+
+Root1e0150d normal is an actual retainedFAIL (exit1/6.16s/1 check/2 PNG), before any UI factory_runs.start. Original report SHA d411ab6ea191dc541a4e22adccc754c2dc39b4d22ca9babf759504e79f195a23; raw DB SHA72d030d8825f3ace4fe22dbc1eec18885a7a882113844cf19cc5eb8f5c5a4f3a. Original private runtime /tmp/baton-child-goal-browser-a1kiiqtt remains0700. No files or permissions were changed/deleted. Secondary cleanup diagnostics were not turned into a PASS.
+
+Current validation:287 pure controls PASS; default exit2; actual original DB readonly replay rejects old1 and accepts strict0, preserving all28 zero domains and original bytes/mtime. New actual browser/Core/daemon/Native/Cargo/Node runs remain NOT_RUN. No before-start NOT_FOUND-success exception was added.
+
+Next: Root independent narrow review, then actual normal in a fresh output directory and Root exclusive window. Lost-start/cancel remain pending that result. Evidence `/workspace/.onboarding/factory-child-goal-browser-prestart-lease-zero`.
+
+## Prior reservation checkpoint preserved
+
 # Current reservation checkpoint — source dd117b5, actual runtime NOT_RUN
 
 Source `dd117b5c7790b7f27bbc54152daf1cd0cefd93b5`; new driver SHA `ad280ff7ba7c23000bb594cc3b1e48c9b90d9def2bd51fbb289ee207fd17c6b4`. One actual generated-plan change: copy Owner1000 first, then Work upfront4000 before immutable raw serialization/submit. Combined5000 and Grant/scope/root/project30000 caps unchanged. The runtime_driver function, old five harnesses, cancel hold and true-stop rules remain byte-identical to54bc919.

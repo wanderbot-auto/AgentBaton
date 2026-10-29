@@ -21,3 +21,7 @@ Audit every old non-schema numeric expression rather than only generated fixture
 ## Narrow normal-case upfront reservation declaration
 
 Root's actual Core trace showed launch→prompt1178ms exceeding the old normal fixture's1000ms upfront Work reservation. Declare4000ms on the new child-Goal Work only, after copying the Owner so Owner retains1000ms. Combined reservations fit the unchanged child5000ms and Grant/scope/root/project30000ms envelopes. Fix the immutable plan before raw serialization/submission; do not adjust production deadlines, old negative cases, cancel hold or actual-stop rules. Pure AST/raw/digest controls precede independent review and any leased actual browser execution.
+
+## First actual browser pre-start lease fixture correction
+
+Root's actual1e0150d normal run failed before explicit Factory.start: current storage creates a workspace lease only when execution reserves it, so the preapproval lease table correctly has0 rows. Require exact0 instead of1, retaining all28 existing zero-execution domains and inactive lease/intent assertions. Add0-positive/1-negative pure controls and replay the retained actual raw SQLite read-only; never reinterpret generic NOT_FOUND or missing identity as successful stop. Keep first actual failure/secondary diagnostics and original0700 runtime/DB/PNG untouched. Root independently reviews before a new-directory rerun.
