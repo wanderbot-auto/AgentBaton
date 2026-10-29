@@ -1,3 +1,11 @@
+# PR18 准确 be12 CI 终态：Environment 与 UI 通过，Rust/双 Mac 失败 — 2026-10-29T21:23:38.990411+00:00
+
+headbe12ec4／实际checkout70e9596／main653679d，Environment40954313788三项通过；Product40954313798的UI通过。Rust Factoryruntime25通过102.52s（含返工），后scope旧负控10/1失败：actualINVALID_REQUEST vs CAPABILITY_UNSUPPORTED。精确test-only8028窄修已独审并Root实际11PASS/Clippy，未转签新CI。
+
+ARM/Intel均在Owner前55s观察越界，标量分别为childGoals.get第68次/825ms/超768ms/授权余930ms，与Factory.get第63次/527ms/超127ms/授权余1376ms；均非已证5sRPC超时或Grant已过期。plan2/nodes6不证明Owner已经ready。正做fixture-only去冗余观察，保持全部原最终断言/时限，需实际新测试与独审；双Mac后续Native/WebView/Owner/构建/打包跳过，无新安装包。详见[准确终态](factory-child-goal-integration/BE12_CI_RESULTS.json)，原3b失败保留。
+
+隔离工作区schema16分支继续：Factory只读旧15守卫导致的122/33实际失败保留；改exact16+拒old15/future17后46专项与完整Core156通过104.37s。真实15→16五项及14→16六项分别通过，更新nativehelper后真旧15工具新生成input2，consumer待重验。TaskUI旧FSproof P2已修并独审；组件25、全前端967(54files)、type/build通过，真实新UI/IPC验收源研发中，不以Mock当实机。默认16工具真实构建/emptyUnix/CLIprobe/正常SIGTERM通过；Native/Mac/CI16未运行。完整130、OWNER001/002ACK、所有权限边界维持，继续实现。以下保留历史。
+
 # PR18 共享账本修复本地通过，返工 CI 根因仍待诊断 — 2026-10-29T20:59:42.058612+00:00
 
 远程PR18仍3b4c4b9/draft/open/unmerged，Environment3PASS/Product4FAIL证据保留。局部新源诊断e165+a7及meter e8已接入30bb083：真实Factory全组25PASS/93.03s，单返工1PASS/32.71s，均未复现CI三lane的原55s失败，不能声称已解决根因。原55观察/60Grant/30runtime/5RPC/60Actor与retry2、所有终态断言保留；诊断c207与共享meter8802独审均闭合，fmt通过，下一准确CI需提供phase/scalar证据。

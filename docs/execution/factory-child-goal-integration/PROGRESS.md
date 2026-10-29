@@ -112,3 +112,8 @@ Actual3b/head20d checkout: Envall3PASS; ProductRust24/1 failure in55s readonly o
 ## Bounded observation and strict shared-meter repair 2026-10-29T20:59:42.058612+00:00
 
 See OBSERVATION_SHARED_METER_RESULTS.json: local Factory25 and four actual Linux browser cases passed, existing compiled tool/frontend attribution preserved. Remote3b Product4 failures remain; new CI required, no55s renewal/root-cause or Mac/package acceptance inferred. WSI16 continues separately.
+
+
+## Exact be12 terminal CI
+
+See BE12_CI_RESULTS.json. Environment3/UI1PASS; Rustscope10/1 failure after Factory25PASS; both Mac original55s observation failed with exact phase/method clocks, still-unexpired scope. No new installer; fixture-only observation reduction under implementation, original deadlines and final acceptance assertions retained. Scope8028 source review closed/Root11PASS; no newCI transfer.

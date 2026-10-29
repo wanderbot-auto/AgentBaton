@@ -280,5 +280,6 @@
   "latest_private_io_local_acceptance": "docs/execution/factory-child-goal-integration/IO_LOCAL_ACCEPTANCE.json",
   "final_pre_push_validation": "docs/execution/factory-child-goal-integration/PRE_PUSH_VALIDATION.json",
   "remote_head3b_actual_failures": "docs/execution/factory-child-goal-integration/PR18_HEAD3B_FAILURES.json",
-  "observation_shared_meter_repair": "OBSERVATION_SHARED_METER_RESULTS.json"
+  "observation_shared_meter_repair": "OBSERVATION_SHARED_METER_RESULTS.json",
+  "be12_remote_terminal": "BE12_CI_RESULTS.json"
 }
