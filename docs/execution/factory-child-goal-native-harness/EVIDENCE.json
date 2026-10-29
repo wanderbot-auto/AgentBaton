@@ -1,0 +1,301 @@
+{
+  "source_commit": "46a27a575b97f15e58a82956d6ced5f2a4990832",
+  "base": "a57d647e49190fa795f655ed102c0ad29275370a",
+  "source_fields": {
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": {
+      "sha256": "f06377975d86f977e0fd8ae2c0f52fd86b6d1c7fac9a80d05a9e2d0f120c1de9",
+      "bytes": 128836
+    },
+    "apps/desktop/src-tauri/tests/test_native_owner_dialog.py": {
+      "sha256": "37c36b6d4023aaa9743d6c5cc10fd6cf7e579a75b2c2b9c819b84b36b11e811b",
+      "bytes": 69327
+    },
+    "apps/desktop/src-tauri/tests/test_native_runner.py": {
+      "sha256": "288a2951f27d7a6f96f4ee24fc6779cf4058ee61ace793c77b040c1b3341a0c9",
+      "bytes": 32437
+    },
+    "scripts/native-macos-smoke.sh": {
+      "sha256": "783091ac15cf9f19bb118c5859eac6c391ab23e6a149e96329eabd69a67d3d76",
+      "bytes": 5779
+    },
+    "scripts/native-owner-dialog-smoke.py": {
+      "sha256": "d21a01d24a18cc0b94ce5889ff3681fd70c24e0a7eb81f6d4cb8ad8de4e2503d",
+      "bytes": 69653
+    },
+    "scripts/native-run.py": {
+      "sha256": "93cedd78288869fb4afded9fa9b96cbe5e75e37e1667123c4bdea5fa2013d8fe",
+      "bytes": 20843
+    },
+    "scripts/prepare-factory-test-tools.py": {
+      "sha256": "082bbf0b4bee609a81b9f85f3689c705b29938972aba8cf75b6fdda76661341a",
+      "bytes": 10100
+    },
+    "tests/infrastructure/test_factory_test_tools.py": {
+      "sha256": "a4d14999f32b4d9e68053f8b2b44a0b528acdd49ea816ebe83cc159b0ce36800",
+      "bytes": 15001
+    }
+  },
+  "source_before_after_equal": true,
+  "actual_commands": [
+    {
+      "name": "pure-final",
+      "argv": [
+        "python",
+        "-B",
+        "/workspace/.onboarding/factory-child-goal-native-harness/run_pure.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native-harness",
+      "start_UTC": "2026-10-29T09:26:01.357396+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "pure-final.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "pure-final.stderr",
+        "sha256": "eee6fc40101c3f7d282502f5b0a00799765c442f9aaf3ecc46b7abb99dea8a16",
+        "bytes": 17235
+      }
+    },
+    {
+      "name": "static-final",
+      "argv": [
+        "python",
+        "-B",
+        "/workspace/.onboarding/factory-child-goal-native-harness/check_static.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native-harness",
+      "start_UTC": "2026-10-29T09:26:10.028261+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "static-final.stdout",
+        "sha256": "b8afa22325157a9799cc20436638446860173e5e26c295d3002f0d69130fc78c",
+        "bytes": 68
+      },
+      "stderr": {
+        "path": "static-final.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "Python-compile",
+      "argv": [
+        "python",
+        "-B",
+        "-c",
+        "import sys;from pathlib import Path;[compile(Path(p).read_text(),p,\"exec\") for p in sys.argv[1:]]",
+        "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+        "apps/desktop/src-tauri/tests/test_native_runner.py",
+        "scripts/native-owner-dialog-smoke.py",
+        "scripts/native-run.py",
+        "scripts/prepare-factory-test-tools.py",
+        "tests/infrastructure/test_factory_test_tools.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native-harness",
+      "start_UTC": "2026-10-29T09:26:10.380900+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "Python-compile.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "Python-compile.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "shell-syntax",
+      "argv": [
+        "bash",
+        "-n",
+        "scripts/native-macos-smoke.sh"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native-harness",
+      "start_UTC": "2026-10-29T09:26:10.469012+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "shell-syntax.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "shell-syntax.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "rustfmt",
+      "argv": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "apps/desktop/src-tauri/src/bin/native_smoke.rs"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native-harness",
+      "start_UTC": "2026-10-29T09:26:10.472016+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "rustfmt.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "rustfmt.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "diffcheck",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "a57d647e49190fa795f655ed102c0ad29275370a",
+        "46a27a575b97f15e58a82956d6ced5f2a4990832"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native-harness",
+      "start_UTC": "2026-10-29T09:26:10.530309+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "diffcheck.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "diffcheck.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ],
+  "actual_results": {
+    "pure": {
+      "tests_run": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "selected": 94,
+      "not_run_actual_Core": 5,
+      "success": true,
+      "dimension": "Pure Python/generated SQLite/inert owned child controls, NOT Core/GUI/Provider"
+    },
+    "static": 30
+  },
+  "authority_input_hashes": {
+    "crates/core/src/storage.rs": {
+      "path": "INPUT-storage.rs",
+      "sha256": "244e44fb18e259286e7be1b3a21c0c4367ebafb58240010ac1d428309ec72798",
+      "bytes": 29481
+    },
+    "crates/core/src/factory.rs": {
+      "path": "INPUT-factory.rs",
+      "sha256": "d23ac7a04bbd6a76ffd31e1121ceb315c4227647eada73584be15fa5c862867d",
+      "bytes": 18451
+    },
+    "crates/core/src/factory_store.rs": {
+      "path": "INPUT-factory_store.rs",
+      "sha256": "d95315375abbbf0bc847a4bd01d39babf1c4213f19bcb3b52faed558f5cf0e42",
+      "bytes": 45451
+    },
+    "crates/core/src/factory_child_goal.rs": {
+      "path": "INPUT-factory_child_goal.rs",
+      "sha256": "ec2d98a2f03718d3900be492ea83ed4a294d955ca524327d2510605217171c43",
+      "bytes": 34155
+    }
+  },
+  "negative_preservation_matrix": {
+    "old_schema14_positive": "Current synthetic/fresh-Store expectations move to15. Historical14 logs/migrations untouched.",
+    "current15": "Strict integer only",
+    "old14_future16": "Both rejected, with older10\u201313 retained where present",
+    "typed_counts": "12 exact Factory fields, before/after, each missing/nonzero/bool/float/string/null/unknown denied",
+    "Goal_Graph_counts": "Original3 and6 counts, independent before/after sequence checks retained",
+    "Owner_counts": "Original19+Factory12=31; originalGrant/otherproposal/document/result/CAS/receipt and exactOS page predicates unchanged except current schema guard",
+    "tool_prepare": "Private0700/short103byte socket/0500singlelink/fullsameheadtwohashes/probe5s/SIGTERMwait5s/forcedkill or nonzero reject; generated inert controls only executed",
+    "actual_Core_NOT_RUN": [
+      {
+        "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+        "test": "BootstrapPathControls.test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready",
+        "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+      },
+      {
+        "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+        "test": "BootstrapPathControls.test_long_private_temp_parent_uses_short_canonical_real_core_runtime",
+        "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+      },
+      {
+        "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+        "test": "FactoryPlanningControls.test_real_core_factory_preparation_is_schema15_complete_and_never_finalizes_target",
+        "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+      },
+      {
+        "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+        "test": "OwnerRunnerControls.test_real_core_grant_contract_binds_independent_approval_and_owner_proposal",
+        "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+      },
+      {
+        "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+        "test": "OwnerRunnerControls.test_real_readonly_sqlite_observation_rejects_authority_change",
+        "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+      }
+    ],
+    "Native_Rust30_tests": "Source only; not compiled or run",
+    "newexecutionScope_OS": "NOT_RUN: existingGrant/planning false permissions unchanged, no execution approval claimed"
+  },
+  "not_run_actual_Core_tests": [
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "test": "BootstrapPathControls.test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready",
+      "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+    },
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "test": "BootstrapPathControls.test_long_private_temp_parent_uses_short_canonical_real_core_runtime",
+      "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+    },
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "test": "FactoryPlanningControls.test_real_core_factory_preparation_is_schema15_complete_and_never_finalizes_target",
+      "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+    },
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "test": "OwnerRunnerControls.test_real_core_grant_contract_binds_independent_approval_and_owner_proposal",
+      "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+    },
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "test": "OwnerRunnerControls.test_real_readonly_sqlite_observation_rejects_authority_change",
+      "reason": "Actual Core/daemon requires separate Root lease; unchanged/preserved in source."
+    }
+  ],
+  "not_run": [
+    "5 actual Core/daemon Owner tests listed in TEST_SELECTION.json",
+    "Native Rust30 unit/type/Clippy",
+    "real same-head15 prepare/probe/SIGTERM Core chain",
+    "Node/browser",
+    "macOS/AppKit Grant/planning/execution GUI",
+    "CI",
+    "Provider/accounts",
+    "packages"
+  ],
+  "failures_preserved": {
+    "first_pure94": "exit1/eight failure entries caused by sparse-missing unchanged audit script returning127; raw logs preserved",
+    "first_static_checker": "exit1 from octal string vs ASTdecimal320; raw checker/log preserved"
+  },
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "sha256": "5255c6ecfab2f284eece8f97a4729a840ca6e919e9749b90aadd218df5b17e78",
+    "bytes": 146271,
+    "members": 52,
+    "manifest_sha256": "c700f19112513112088b4e631f1ff65e8f443d9eb163377502e806e1c5800578",
+    "all_regular_safe_paths_and_byte_roundtrip": true
+  },
+  "integration": "Root owns workflow/dbd6bcc integration. No CI or actual15 daemon/Mac proof claimed; schedule independent source review then leased current15 tool tests."
+}
