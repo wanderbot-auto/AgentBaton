@@ -1,44 +1,117 @@
 {
-  "status": "review_fixes_authored_pure94_pass_runtime_not_run",
-  "source_commit": "0e1a4145e33f9cadf9f4da9095690b2fe293e578",
-  "source_sha256": "20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5",
+  "status": "actual_run1_failed_before_approval_corrected_static109_waiting_review",
+  "source_commit": "d27be8fe506ac7455b2ac9c000a7e072acaf8a8c",
+  "source_sha256": "613ebf871d5d98510cddd5dfad5e595a69f0186ac4ad47d21ac7aab28487adeb",
   "snapshot": {
-    "path": "/workspace/.onboarding/factory-child-planning-browser/review-fix/SOURCE_SNAPSHOT.json",
-    "sha256": "360899748e907d4791c6e7c0d448d8ddb94d91ac4754b14d1f271779cc134770"
+    "path": "/workspace/.onboarding/factory-child-planning-browser/locator-fix/SOURCE_SNAPSHOT.json",
+    "sha256": "8a8ac1c57abefaca5b5e6089bc0d51ecebe9acbbcc39c3b9365e09aaa20cba45"
   },
-  "corrections": {
-    "R1": "full typed business receipt/exact request, separate UUID+monotone current journal cursor",
-    "R2": "after-join/cleanup unexpected error seal + defensive exit; narrow readonly body abort classification"
+  "actual_run1": {
+    "dimension": "actual built UI/fixed HTTP/private generated resources + Core UnixIPC, FAILED before Factory approval/start",
+    "source_head": "ff5191afa76f9b5612558cd8960a7c9a572b2521",
+    "harness_source_sha256": "20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5",
+    "exitcode": 1,
+    "checks": 0,
+    "PNG": 0,
+    "cleanup_complete": false
   },
-  "executed": {
+  "new_corrected_runtime": "not_run",
+  "executed_on_new_source": {
     "syntax_exit": 0,
     "boundary_pure": 46,
     "recorded_DTO_pure": 11,
     "review_pure": 37,
-    "total_distinct_pure": 94,
+    "locator_lifecycle_pure": 15,
+    "total_distinct_pure": 109,
     "diff_exit": 0
   },
-  "old_counterexamples": {
-    "directory": "/workspace/.onboarding/factory-child-planning-browser/review-fix/old-control",
-    "kind": "exact-source AST finite counterexamples",
-    "count": 2,
-    "probe_exit": 0,
-    "meaning": "both original defects confirmed, NOT runtime execution/PASS"
-  },
-  "original_checkpoint_unchanged_in_Git_and_snapshot": {
-    "status": "source_prepared_static_pass_runtime_not_run",
-    "base": "ead1f468546694e0852205a66416432d8be1a4c2",
-    "source_commit": "49bcf16b15968fe5b81961852df1fa12dd406ffc",
-    "source_sha256": "6100ba1d3aecab214fe31c9537a2b8adcb9f90be51640e7364773e48049273df",
+  "previous_checkpoint_preserved_in_Git_and_snapshot": {
+    "status": "review_fixes_authored_pure94_pass_runtime_not_run",
+    "source_commit": "0e1a4145e33f9cadf9f4da9095690b2fe293e578",
+    "source_sha256": "20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5",
     "snapshot": {
-      "path": "/workspace/.onboarding/factory-child-planning-browser/SOURCE_SNAPSHOT.json",
-      "sha256": "3a10c697bd3db5fc08217ea7732823f48c5716357922e7643b8332a5b802b36b"
+      "path": "/workspace/.onboarding/factory-child-planning-browser/review-fix/SOURCE_SNAPSHOT.json",
+      "sha256": "360899748e907d4791c6e7c0d448d8ddb94d91ac4754b14d1f271779cc134770"
+    },
+    "corrections": {
+      "R1": "full typed business receipt/exact request, separate UUID+monotone current journal cursor",
+      "R2": "after-join/cleanup unexpected error seal + defensive exit; narrow readonly body abort classification"
     },
     "executed": {
       "syntax_exit": 0,
       "boundary_pure": 46,
       "recorded_DTO_pure": 11,
+      "review_pure": 37,
+      "total_distinct_pure": 94,
       "diff_exit": 0
+    },
+    "old_counterexamples": {
+      "directory": "/workspace/.onboarding/factory-child-planning-browser/review-fix/old-control",
+      "kind": "exact-source AST finite counterexamples",
+      "count": 2,
+      "probe_exit": 0,
+      "meaning": "both original defects confirmed, NOT runtime execution/PASS"
+    },
+    "original_checkpoint_unchanged_in_Git_and_snapshot": {
+      "status": "source_prepared_static_pass_runtime_not_run",
+      "base": "ead1f468546694e0852205a66416432d8be1a4c2",
+      "source_commit": "49bcf16b15968fe5b81961852df1fa12dd406ffc",
+      "source_sha256": "6100ba1d3aecab214fe31c9537a2b8adcb9f90be51640e7364773e48049273df",
+      "snapshot": {
+        "path": "/workspace/.onboarding/factory-child-planning-browser/SOURCE_SNAPSHOT.json",
+        "sha256": "3a10c697bd3db5fc08217ea7732823f48c5716357922e7643b8332a5b802b36b"
+      },
+      "executed": {
+        "syntax_exit": 0,
+        "boundary_pure": 46,
+        "recorded_DTO_pure": 11,
+        "diff_exit": 0
+      },
+      "runtime_checks": {
+        "CP01": "not_run",
+        "CP02": "not_run",
+        "CP03": "not_run",
+        "CP04": "not_run",
+        "CP05": "not_run",
+        "CP06": "not_run",
+        "CP07": "not_run",
+        "CP08": "not_run",
+        "CP09": "not_run"
+      },
+      "actual_fixture": {
+        "path": "/workspace/.onboarding/factory-child-planning-core/actual-scoped-planning-r7.json",
+        "sha256": "c572871caa9ecfe7868f137058a556cba1eaa7964efc01314b081724612ba411",
+        "bytes": 149485,
+        "meaning": "Core author recorded fixture, pure verification only in this unit"
+      },
+      "failed_commands": [],
+      "preserved_initial_iterations": [
+        "/workspace/.onboarding/factory-child-planning-browser/initial-pure-controls",
+        "/workspace/.onboarding/factory-child-planning-browser/strict-pure-controls",
+        "/workspace/.onboarding/factory-child-planning-browser/actual-dto-pure-controls",
+        "/workspace/.onboarding/factory-child-planning-browser/live-handshake-pure-controls"
+      ],
+      "native_OS": "not_run",
+      "macOS": "not_run",
+      "Cargo": "not_run",
+      "browser": "not_run",
+      "Node": "not_run",
+      "real_Provider_model": "not_run",
+      "locks_Core_Native_UI_existing_harness": "unchanged",
+      "requirements": [
+        "AB-TSK-009",
+        "AB-TSK-011",
+        "AB-TSK-003",
+        "AB-TSK-004",
+        "AB-TSK-005",
+        "AB-TSK-012",
+        "AB-SEC-002",
+        "AB-SEC-003",
+        "AB-SEC-005",
+        "AB-SEC-010",
+        "AB-COR-002",
+        "AB-COR-007"
+      ]
     },
     "runtime_checks": {
       "CP01": "not_run",
@@ -51,61 +124,27 @@
       "CP08": "not_run",
       "CP09": "not_run"
     },
-    "actual_fixture": {
-      "path": "/workspace/.onboarding/factory-child-planning-core/actual-scoped-planning-r7.json",
-      "sha256": "c572871caa9ecfe7868f137058a556cba1eaa7964efc01314b081724612ba411",
-      "bytes": 149485,
-      "meaning": "Core author recorded fixture, pure verification only in this unit"
-    },
-    "failed_commands": [],
-    "preserved_initial_iterations": [
-      "/workspace/.onboarding/factory-child-planning-browser/initial-pure-controls",
-      "/workspace/.onboarding/factory-child-planning-browser/strict-pure-controls",
-      "/workspace/.onboarding/factory-child-planning-browser/actual-dto-pure-controls",
-      "/workspace/.onboarding/factory-child-planning-browser/live-handshake-pure-controls"
+    "not_run": [
+      "browser",
+      "actual new Unix IPC flow",
+      "Native OS dialog",
+      "Mac",
+      "Cargo",
+      "Node",
+      "real Provider/model",
+      "full product acceptance"
     ],
-    "native_OS": "not_run",
-    "macOS": "not_run",
-    "Cargo": "not_run",
-    "browser": "not_run",
-    "Node": "not_run",
-    "real_Provider_model": "not_run",
-    "locks_Core_Native_UI_existing_harness": "unchanged",
-    "requirements": [
-      "AB-TSK-009",
-      "AB-TSK-011",
-      "AB-TSK-003",
-      "AB-TSK-004",
-      "AB-TSK-005",
-      "AB-TSK-012",
-      "AB-SEC-002",
-      "AB-SEC-003",
-      "AB-SEC-005",
-      "AB-SEC-010",
-      "AB-COR-002",
-      "AB-COR-007"
-    ]
+    "product_existing_helpers_UI_Native_locks": "unchanged"
   },
-  "runtime_checks": {
-    "CP01": "not_run",
-    "CP02": "not_run",
-    "CP03": "not_run",
-    "CP04": "not_run",
-    "CP05": "not_run",
-    "CP06": "not_run",
-    "CP07": "not_run",
-    "CP08": "not_run",
-    "CP09": "not_run"
-  },
-  "not_run": [
-    "browser",
-    "actual new Unix IPC flow",
-    "Native OS dialog",
-    "Mac",
-    "Cargo",
-    "Node",
+  "existing_helpers_product_UI_Core_Native_locks": "unchanged",
+  "not_claimed": [
+    "successful UI flow",
+    "Factory MCP5 in run1",
+    "new revision submission in run1",
+    "complete expected-workflow cleanup",
+    "OS Native dialog",
     "real Provider/model",
+    "Mac",
     "full product acceptance"
-  ],
-  "product_existing_helpers_UI_Native_locks": "unchanged"
+  ]
 }

@@ -462,6 +462,128 @@ def review_self_check(path):
         'dimension':'pure finite recovery/cleanup controls using a synthetic Owner receipt derived from recorded Core model; NO Core/browser/socket/thread execution'}
 
 
+def require_fixed_field(descriptor, caption, tag):
+    assert tag in {'select','textarea'}
+    assert type(descriptor) is dict and set(descriptor)=={'caption','direct_controls'}
+    assert descriptor['caption']==caption and descriptor['direct_controls']==[tag]
+
+
+def fixed_form_control(container, caption, tag):
+    # A wrapping label's text includes its dynamic <option> text in Playwright's
+    # get_by_label text selector. Match candidates, then verify the complete
+    # static caption and exactly one direct control on a detached clone.
+    labels=container.locator('label').filter(has_text=re.compile(re.escape(caption)))
+    labels.wait_for(state='attached')
+    assert labels.count()==1, ('Expected exactly one fixed field',caption,labels.count())
+    descriptor=labels.evaluate("""label=>{const copy=label.cloneNode(true);copy.querySelectorAll('input,select,textarea').forEach(e=>e.remove());return {caption:copy.textContent.trim(),direct_controls:[...label.children].filter(e=>['INPUT','SELECT','TEXTAREA'].includes(e.tagName)).map(e=>e.tagName.toLowerCase())};}""")
+    require_fixed_field(descriptor,caption,tag)
+    control=labels.locator(':scope > '+tag)
+    assert control.count()==1
+    return control
+
+
+def capture_browser_failure(browser, output, report, clean=str):
+    if browser is None:return
+    try:
+        pages=browser.contexts[0].pages
+        if pages:
+            path=output/'failure-current-ui.png';pages[0].screenshot(path=str(path))
+            report['screenshots'].append({'path':str(path),'sha256':sha(path.read_bytes())})
+    except BaseException as error:report['failure_capture_error']=clean(error)
+
+
+def close_browser_engine(browser, playwright, report, clean=str):
+    if browser is not None:base.cleanup_call(report,'browser_close',browser.close,clean)
+    if playwright is not None:base.cleanup_call(report,'playwright_stop',playwright.stop,clean)
+
+
+def locator_self_check(previous_report, output):
+    """Finite tests of field uniqueness and failure capture ordering, no browser."""
+    raw,pin=base.bounded_file(previous_report,4*MAX_WIRE,previous_report.parent)
+    previous=json.loads(raw,object_pairs_hook=unique_object)
+    assert previous['harness_sha256']=='20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5'
+    assert previous['checks']==[] and previous['cleanup_complete'] is False
+    assert previous['failure']['type']=='TimeoutError' and 'Existing root Grant' in previous['failure']['message']
+    assert 'Event loop is closed' in previous['failure_capture_error']
+    checks=['actual-run1-timeout-and-closed-context-evidence-retained']
+    # The same wrapping-label structure used by FactoryRuntime.tsx. The old
+    # exact-label string includes dynamic option text, while static clone text
+    # excludes controls. This is a finite model, NOT a new DOM/browser run.
+    fields=[('Existing root Grant','grants.list','id'),('Existing connections','connections.list','name'),
+        ('Existing workspaces','workspaces.list','root')]
+    class Control:
+        def count(self):return 1
+    class Labels:
+        def __init__(self,descriptor,count=1):self.descriptor=descriptor;self.n=count
+        def filter(self,has_text):assert has_text.search(self.descriptor['caption']);return self
+        def count(self):return self.n
+        def wait_for(self,state):assert state=='attached'
+        def evaluate(self,script):
+            assert 'cloneNode(true)' in script and 'e.remove()' in script
+            return self.descriptor
+        def locator(self,selector):assert selector==':scope > select';return Control()
+    class Container:
+        def __init__(self,labels):self.labels=labels
+        def locator(self,selector):assert selector=='label';return self.labels
+    for caption,method,key in fields:
+        row=next(r['response']['result'][0] for r in previous['http'] if r['method']==method)
+        complete_label=caption+' — '+str(row[key]);assert complete_label!=caption
+        descriptor={'caption':caption,'direct_controls':['select']}
+        assert isinstance(fixed_form_control(Container(Labels(descriptor)),caption,'select'),Control)
+        checks.append('dynamic-option-exact-caption:'+caption)
+    for label,descriptor,count in [
+        ('zero-fields',{'caption':'Existing root Grant','direct_controls':['select']},0),
+        ('ambiguous-fields',{'caption':'Existing root Grant','direct_controls':['select']},2),
+        ('wrong-static-caption',{'caption':'Existing root Grant expanded','direct_controls':['select']},1),
+        ('wrong-control',{'caption':'Existing root Grant','direct_controls':['textarea']},1),
+        ('two-direct-controls',{'caption':'Existing root Grant','direct_controls':['select','select']},1),
+        ('nested-only-control',{'caption':'Existing root Grant','direct_controls':[]},1),
+    ]:
+        try:fixed_form_control(Container(Labels(descriptor,count)),'Existing root Grant','select')
+        except AssertionError:pass
+        else:raise AssertionError('Field ambiguity accepted: '+label)
+        checks.append('reject:'+label)
+    require_fixed_field({'caption':'Step goal fixed-work','direct_controls':['textarea']},'Step goal fixed-work','textarea')
+    checks.append('exact-editor-textarea-caption')
+    from types import SimpleNamespace
+    state={'active':True,'events':[]}
+    class Page:
+        def screenshot(self,path):
+            if not state['active']:raise RuntimeError('Event loop is closed! synthetic old ordering')
+            state['events'].append('capture');Path(path).write_bytes(b'synthetic unit bytes, NOT an actual browser PNG')
+    class Browser:
+        contexts=[SimpleNamespace(pages=[Page()])]
+        def close(self):assert state['active'];state['events'].append('close')
+    class Engine:
+        def stop(self):state['events'].append('stop');state['active']=False
+    old={'screenshots':[],'status':'failed_or_interrupted'};Engine().stop()
+    capture_browser_failure(Browser(),output,old)
+    assert 'Event loop is closed' in old['failure_capture_error'] and old['screenshots']==[]
+    checks.append('old-stop-before-capture-model-refuses-screenshot')
+    state.update(active=True,events=[]);current={'screenshots':[],'status':'failed_or_interrupted'}
+    capture_browser_failure(Browser(),output,current)
+    close_browser_engine(Browser(),Engine(),current)
+    assert state['events']==['capture','close','stop'] and len(current['screenshots'])==1
+    assert 'failure_capture_error' not in current and 'failure' not in current
+    checks.append('capture-and-close-before-engine-stop')
+    state.update(active=True,events=[])
+    class BrokenBrowser(Browser):
+        def close(self):raise RuntimeError('synthetic close error')
+    report={'screenshots':[],'status':'passed'}
+    close_browser_engine(BrokenBrowser(),Engine(),report)
+    assert report['failure']['stage']=='browser_close' and state['events']==['stop']
+    checks.append('close-error-retained-engine-still-stopped')
+    import ast
+    tree=ast.parse(Path(__file__).read_text());fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    assert not any(isinstance(n,ast.With) and 'sync_playwright' in ast.unparse(n.items[0].context_expr) for n in ast.walk(fn))
+    body=next(n for n in fn.body if isinstance(n,ast.Try))
+    assert 'capture_browser_failure(browser, output, report, clean)' in ast.unparse(body.handlers[0])
+    assert 'close_browser_engine(browser, playwright, report, clean)' in ast.unparse(ast.Module(body=body.finalbody,type_ignores=[]))
+    checks.append('actual-runtime-AST-active-engine-until-finally')
+    return {'status':'passed','count':len(checks),'checks':checks,'previous_actual_report_pin':pin,
+        'synthetic_capture':current['screenshots'],'dimension':'actual prior failure evidence plus finite fake locator/engine controls and source AST; NO new browser/Core/IPC run'}
+
+
 def runtime_driver(args, output, manifest):
     from playwright.sync_api import expect, sync_playwright
     raw_daemon = args.tools / 'batond'; raw_cli = args.tools / 'baton'
@@ -486,7 +608,7 @@ def runtime_driver(args, output, manifest):
             'new workspace authority', 'TaskAccepted', 'complete fault matrix', 'full product completion']}
     temporary = tempfile.TemporaryDirectory(prefix='baton-child-plan-browser-')
     root = Path(temporary.name).resolve(); root.chmod(0o700)
-    daemon = server = http_thread = browser = log = reaper = None
+    daemon = server = http_thread = browser = playwright = log = reaper = None
     runtime = root / 'runtime'; runtime.mkdir(mode=0o700)
     workspace = scope = host = None; verified = []; active = {}; lock = threading.Lock()
     token = ''; pump = lambda: None
@@ -619,269 +741,263 @@ def runtime_driver(args, output, manifest):
         server = Server(('127.0.0.1', 0), partial(Handler, directory=str(frontend)))
         url = 'http://127.0.0.1:' + str(server.server_port)
         http_thread = threading.Thread(target=server.serve_forever); http_thread.start()
-        with sync_playwright() as playwright:
-            browser = playwright.chromium.launch(executable_path=args.chromium, headless=True, args=['--no-sandbox'])
-            context = browser.new_context(viewport={'width': 1488, 'height': 1400}, locale='en-US')
-            # Simulates ONLY the genuine Native Owner surface in this private
-            # test browser. It is not an HTTP endpoint or a product IPC route.
-            def private_owner_approve(_source, command, payload):
-                nonlocal scope
-                assert command == 'factory_scope_approve'
-                assert set(payload) == {'selection', 'idempotencyKey'} and exact_json(payload['selection'], expected_selection)
-                assert type(payload['idempotencyKey']) is str and KEY.fullmatch(payload['idempotencyKey'])
-                assert scope is None, 'This fixture approves exactly one complete scope'
-                proposal = host.result('factory_scopes.propose', payload['selection'], payload['idempotencyKey'])
-                review = review_scope(proposal, expected_selection, resources)
-                report['private_owner_reviews'].append(review)
-                envelope, original = host.wire(FixedCall('approvals.finalize', {'proposal_id': proposal['id']},
-                    'proposal:' + proposal['id'], proposal['revision']))
-                assert not envelope.get('error') and len(original) <= MAX_WIRE, envelope
-                scope = envelope['result']; bounds.scope_id = scope['id']
-                assert exact_json(scope['selection'], expected_selection) and exact_json(scope['bindings'], proposal['snapshot']['bindings'])
-                assert scope['contract_digest'] == proposal['snapshot']['contract_digest']
-                report['observations']['factory_approval_reply'] = {'envelope': envelope, 'original_sha256': sha(original)}
-                return envelope
-            context.expose_binding('__private_test_factory_owner', private_owner_approve)
-            context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{if(command==='factory_scope_approve')return window.__private_test_factory_owner(command,args);const r=await fetch('/__test_child_plan_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw new Error('Fixed child-plan test bridge refused request');return r.json();}};""")
-            context.set_default_timeout(15000)
-            context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(url + '/') else route.abort())
-            page = context.new_page(); errors = []; page.on('pageerror', lambda error: errors.append(str(error)))
-            pump = lambda: page.wait_for_timeout(1)
-            def shot(label, focus):
-                focus.evaluate("e=>e.scrollIntoView({block:'start'})")
-                path = output / (label + '.png'); page.screenshot(path=str(path))
-                report['screenshots'].append({'path': str(path), 'sha256': sha(path.read_bytes()), 'dimension': 'Linux Chromium; NOT Native/macOS'})
-            def http_call(command, args2):
-                return page.evaluate("async v=>{const r=await fetch('/__test_child_plan_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)});return {status:r.status,value:r.ok?await r.json():null}}", {'command': command, 'args': args2})
-            page.goto(url); page.get_by_test_id('task-card').filter(has_text=task['goal']).click(); page.locator('#tab-details').click()
-            panel = page.get_by_test_id('factory-runtime')
-            assert not panel.locator(':scope > details').evaluate('e=>e.open')
-            panel.locator(':scope > details > summary').click()
-            form = panel.locator('form')
-            form.get_by_label('Existing root Grant', exact=True).select_option(grant['id'])
-            form.get_by_label('Existing connections', exact=True).select_option([cid])
-            form.get_by_label('Existing workspaces', exact=True).select_option([workspace['id']])
-            form.locator('details').filter(has=page.get_by_text('Selected inputs / Declared outputs', exact=True)).locator('summary').click()
-            form.get_by_label('Selected inputs', exact=True).fill('input | input.txt | 1024 | ' + sha(b'fixed input\n'))
-            form.get_by_label('Declared outputs', exact=True).fill('\n'.join(a['artifact_id'] + ' | ' + a['relative_path'] + ' | 4096' for a in outputs))
-            for label, value in [('Maximum delegation depth', 2), ('Maximum child tasks', 1), ('Maximum total tasks', 3), ('Approval lifetime (ms)', 30000)]:
-                form.get_by_label(label, exact=True).fill(str(value))
-            for legend in ['Root shared limits', 'Project shared limits']:
-                group = form.get_by_role('group', name=legend, exact=True)
-                for label, key in [('Attempts', 'attempts'), ('Parallel attempts', 'parallel'), ('Runtime ms', 'runtime_ms'),
-                        ('Declared output bytes', 'output_bytes'), ('Children', 'children'), ('Reworks', 'reworks')]:
-                    group.get_by_label(label, exact=True).fill(str(budget[key]))
-            planning = form.locator('details').filter(has=page.get_by_text('Child-planning policy for Native review', exact=True))
-            planning.locator('summary').click(); planning.get_by_label('Allow bounded child planning', exact=True).check()
-            for label, value in [('Maximum plan nodes', 8), ('Maximum revisions per task', 16), ('Maximum original plan bytes', PLAN_BYTES)]:
-                planning.get_by_label(label, exact=True).fill(str(value))
-            planning.get_by_label('Owner acceptance criteria', exact=True).fill(expected_selection['child_planning_policy']['owner_acceptance_criteria'])
-            shot('01-explicit-planning-policy', form)
-            form.get_by_role('button', name='Review Factory scope in native dialog', exact=True).click()
-            expect(panel.get_by_role('button', name='Start approved Factory run', exact=True)).to_be_enabled()
-            assert scope is not None and host.result('sessions.list', {}) == []
-            after_approval = fingerprint_db(runtime)
-            assert after_approval['factory_attempts']['count'] == after_approval['factory_runs']['count'] == 0
-            assert after_approval['execution_grants']['count'] == 1
-            passed('CP01', 'Actual UI complete policy -> private simulated Native review -> actual Core approval, no spawn/no Grant delegation')
-            forbidden = [http_call(cmd, {})['status'] for cmd in ['factory_scope_approve', 'approvals_finalize',
-                'factory_scopes_propose', 'submit_child_plan', 'generic_ipc', 'sessions_create']]
-            assert forbidden == [403] * len(forbidden)
-            passed('CP02', 'HTTP excludes Native approval/finalize/generic/scoped tool/session routes')
-            panel.get_by_role('button', name='Start approved Factory run', exact=True).click()
-            # Observe original HTTP start receipt completion before assuming a run exists.
-            wait(lambda: [r for r in report['http'] if r['method'] == 'factory_runs.start'],
-                lambda r: len(r) == 1 and r[0].get('response_complete') and not r[0].get('response', {}).get('error'))
-            def observe():
-                details = host.result('factory_runs.get', {'scope_id': scope['id']})
-                record_context['run_id'] = details['run']['id']
-                base.collect_started_records(runtime, workspace, scope, record_context, verified, output, reaper)
-                return details
-            details = wait(observe, lambda d: len(verified)==3 and (wroot/'reports/ui-parent-held').exists())
-            assert details['run']['state'] not in {'completed','cancelled','outcome_unknown','blocked'}
-            assert details['run']['active_session_id'] is not None and not details['run']['cancel_requested']
-            assert len(details['tasks']) == 2
-            assert scope['expires_at_ms'] > int(time.time()*1000) and grant['expires_at_ms'] > int(time.time()*1000)
-            bounds.tasks = {t['task_id'] for t in details['tasks']}
-            child_id = next(t['task_id'] for t in details['tasks'] if t['parent_task_id'] == task['id'])
-            assert len(verified) == 3
-            held_raw,held_pin=base.bounded_file(wroot/'reports/ui-parent-held',MAX_WIRE,wroot/'reports')
-            held=json.loads(held_raw,object_pairs_hook=unique_object)
-            resumed=next(r for r in verified if r['stage']=='parent-resumed')
-            assert held['task_id']==task['id'] and held['native_session_id']==resumed['native_session_id']
-            child_head=host.result('factory_child_plans.get',{'scope_id':scope['id'],'task_id':child_id})
-            assert held['child_plan']==child_head['reference'] and held['child_plan']['revision']==2
-            report['observations']['actual_generated_live_barrier']={'pin':held_pin,'value':held,'session_id':resumed['session_id'],'attempt_id':resumed['attempt_id']}
-            report['observations']['live_held_run_before_UI_writes'] = details
-            provider_views = {}
-            for name in ['root-plans.json', 'child-plan.json']:
-                raw, pin = base.bounded_file(wroot / 'reports' / name, MAX_WIRE, wroot / 'reports')
-                provider_views[name] = {'data': json.loads(raw), 'pin': pin}
-            report['observations']['actual_generated_mcp_plans'] = provider_views
-            for task_id in [task['id'], child_id]:
-                refs = host.result('factory_child_plans.list', {'scope_id': scope['id'], 'task_id': task_id})
-                assert [r['revision'] for r in refs] == [1, 2] and all('plan_json' not in r and 'proposal' not in r for r in refs)
-                for ref in refs:
-                    view = host.result('factory_child_plans.get', {'scope_id': scope['id'], 'task_id': task_id, 'plan_revision': ref['revision']})
-                    verify_plan(view, scope, task_id); assert view['reference'] == ref
-            passed('CP03', 'Generated ACP -> actual private MCP5 -> root 1/2 and child 1/2 immutable refs; live third parent held after real child-ref2 handoff, prior attempts truly stopped')
-            panel.get_by_role('button', name='Refresh Factory records', exact=True).click()
-            root_summary = panel.locator('summary').filter(has_text='Child task plans · ' + task['id'])
-            root_summary.click()
-            root_region = root_summary.locator('..').get_by_role('region', name='Child task plans', exact=True)
-            expect(root_region.get_by_text('Current plan head: r2', exact=False)).to_be_visible()
-            child_summary = panel.locator('summary').filter(has_text='Child task plans · ' + child_id); child_summary.click()
-            child_region = child_summary.locator('..').get_by_role('region', name='Child task plans', exact=True)
-            expect(child_region.get_by_text('Current plan head: r2', exact=False)).to_be_visible()
-            child_region.locator('details').filter(has=page.get_by_text('Immutable plan revisions', exact=True)).locator('summary').click()
-            child_region.get_by_role('button', name=re.compile(r'^r1 · ')).click()
-            child_region.locator('details').filter(has=page.get_by_text('Selected recorded revision: r1', exact=True)).locator('summary').click()
-            recorded = child_region.get_by_label('Original stored plan text', exact=True).text_content()
-            actual_child_one = host.result('factory_child_plans.get', {'scope_id': scope['id'], 'task_id': child_id, 'plan_revision': 1})
-            assert recorded == actual_child_one['plan_json']
-            shot('02-real-child-ref-history-original-plan', child_region)
-            passed('CP04', 'UI list refs and select r1 retrieves exact original GoalPlan bytes and raw SHA, not fabricated history')
-            editor = root_region.get_by_test_id('factory-child-plan-editor'); editor.locator(':scope > summary').click()
-            editor.get_by_role('button', name='Prepare steps from latest revision', exact=True).click()
-            editor.get_by_label('Step goal fixed-work', exact=True).fill('Actual UI revised bounded root plan')
-            editor.get_by_role('button', name='Apply steps to JSON draft', exact=True).click()
-            draft = root_region.get_by_label('Complete GoalPlan JSON draft', exact=True)
-            original_draft = draft.input_value(); parsed = json.loads(original_draft)
-            assert parsed['revision'] == 3 and parsed['expected_revision'] == 2
-            assert parsed['nodes'][0]['goal'] == 'Actual UI revised bounded root plan'
-            live = host.result('factory_runs.get',{'scope_id':scope['id']})
-            assert live['run']['active_session_id']==details['run']['active_session_id'] and not live['run']['cancel_requested']
-            assert scope['expires_at_ms']>int(time.time()*1000) and grant['expires_at_ms']>int(time.time()*1000)
-            before_plan = fingerprint_db(runtime)
+        playwright = sync_playwright().start()
+        browser = playwright.chromium.launch(executable_path=args.chromium, headless=True, args=['--no-sandbox'])
+        context = browser.new_context(viewport={'width': 1488, 'height': 1400}, locale='en-US')
+        # Simulates ONLY the genuine Native Owner surface in this private
+        # test browser. It is not an HTTP endpoint or a product IPC route.
+        def private_owner_approve(_source, command, payload):
+            nonlocal scope
+            assert command == 'factory_scope_approve'
+            assert set(payload) == {'selection', 'idempotencyKey'} and exact_json(payload['selection'], expected_selection)
+            assert type(payload['idempotencyKey']) is str and KEY.fullmatch(payload['idempotencyKey'])
+            assert scope is None, 'This fixture approves exactly one complete scope'
+            proposal = host.result('factory_scopes.propose', payload['selection'], payload['idempotencyKey'])
+            review = review_scope(proposal, expected_selection, resources)
+            report['private_owner_reviews'].append(review)
+            envelope, original = host.wire(FixedCall('approvals.finalize', {'proposal_id': proposal['id']},
+                'proposal:' + proposal['id'], proposal['revision']))
+            assert not envelope.get('error') and len(original) <= MAX_WIRE, envelope
+            scope = envelope['result']; bounds.scope_id = scope['id']
+            assert exact_json(scope['selection'], expected_selection) and exact_json(scope['bindings'], proposal['snapshot']['bindings'])
+            assert scope['contract_digest'] == proposal['snapshot']['contract_digest']
+            report['observations']['factory_approval_reply'] = {'envelope': envelope, 'original_sha256': sha(original)}
+            return envelope
+        context.expose_binding('__private_test_factory_owner', private_owner_approve)
+        context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{if(command==='factory_scope_approve')return window.__private_test_factory_owner(command,args);const r=await fetch('/__test_child_plan_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw new Error('Fixed child-plan test bridge refused request');return r.json();}};""")
+        context.set_default_timeout(15000)
+        context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(url + '/') else route.abort())
+        page = context.new_page(); errors = []; page.on('pageerror', lambda error: errors.append(str(error)))
+        pump = lambda: page.wait_for_timeout(1)
+        def shot(label, focus):
+            focus.evaluate("e=>e.scrollIntoView({block:'start'})")
+            path = output / (label + '.png'); page.screenshot(path=str(path))
+            report['screenshots'].append({'path': str(path), 'sha256': sha(path.read_bytes()), 'dimension': 'Linux Chromium; NOT Native/macOS'})
+        def http_call(command, args2):
+            return page.evaluate("async v=>{const r=await fetch('/__test_child_plan_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)});return {status:r.status,value:r.ok?await r.json():null}}", {'command': command, 'args': args2})
+        page.goto(url); page.get_by_test_id('task-card').filter(has_text=task['goal']).click(); page.locator('#tab-details').click()
+        panel = page.get_by_test_id('factory-runtime')
+        assert not panel.locator(':scope > details').evaluate('e=>e.open')
+        panel.locator(':scope > details > summary').click()
+        form = panel.locator('form')
+        fixed_form_control(form,'Existing root Grant','select').select_option(grant['id'])
+        fixed_form_control(form,'Existing connections','select').select_option([cid])
+        fixed_form_control(form,'Existing workspaces','select').select_option([workspace['id']])
+        form.locator('details').filter(has=page.get_by_text('Selected inputs / Declared outputs', exact=True)).locator('summary').click()
+        form.get_by_label('Selected inputs', exact=True).fill('input | input.txt | 1024 | ' + sha(b'fixed input\n'))
+        form.get_by_label('Declared outputs', exact=True).fill('\n'.join(a['artifact_id'] + ' | ' + a['relative_path'] + ' | 4096' for a in outputs))
+        for label, value in [('Maximum delegation depth', 2), ('Maximum child tasks', 1), ('Maximum total tasks', 3), ('Approval lifetime (ms)', 30000)]:
+            form.get_by_label(label, exact=True).fill(str(value))
+        for legend in ['Root shared limits', 'Project shared limits']:
+            group = form.get_by_role('group', name=legend, exact=True)
+            for label, key in [('Attempts', 'attempts'), ('Parallel attempts', 'parallel'), ('Runtime ms', 'runtime_ms'),
+                    ('Declared output bytes', 'output_bytes'), ('Children', 'children'), ('Reworks', 'reworks')]:
+                group.get_by_label(label, exact=True).fill(str(budget[key]))
+        planning = form.locator('details').filter(has=page.get_by_text('Child-planning policy for Native review', exact=True))
+        planning.locator('summary').click(); planning.get_by_label('Allow bounded child planning', exact=True).check()
+        for label, value in [('Maximum plan nodes', 8), ('Maximum revisions per task', 16), ('Maximum original plan bytes', PLAN_BYTES)]:
+            planning.get_by_label(label, exact=True).fill(str(value))
+        planning.get_by_label('Owner acceptance criteria', exact=True).fill(expected_selection['child_planning_policy']['owner_acceptance_criteria'])
+        shot('01-explicit-planning-policy', form)
+        form.get_by_role('button', name='Review Factory scope in native dialog', exact=True).click()
+        expect(panel.get_by_role('button', name='Start approved Factory run', exact=True)).to_be_enabled()
+        assert scope is not None and host.result('sessions.list', {}) == []
+        after_approval = fingerprint_db(runtime)
+        assert after_approval['factory_attempts']['count'] == after_approval['factory_runs']['count'] == 0
+        assert after_approval['execution_grants']['count'] == 1
+        passed('CP01', 'Actual UI complete policy -> private simulated Native review -> actual Core approval, no spawn/no Grant delegation')
+        forbidden = [http_call(cmd, {})['status'] for cmd in ['factory_scope_approve', 'approvals_finalize',
+            'factory_scopes_propose', 'submit_child_plan', 'generic_ipc', 'sessions_create']]
+        assert forbidden == [403] * len(forbidden)
+        passed('CP02', 'HTTP excludes Native approval/finalize/generic/scoped tool/session routes')
+        panel.get_by_role('button', name='Start approved Factory run', exact=True).click()
+        # Observe original HTTP start receipt completion before assuming a run exists.
+        wait(lambda: [r for r in report['http'] if r['method'] == 'factory_runs.start'],
+            lambda r: len(r) == 1 and r[0].get('response_complete') and not r[0].get('response', {}).get('error'))
+        def observe():
+            details = host.result('factory_runs.get', {'scope_id': scope['id']})
+            record_context['run_id'] = details['run']['id']
+            base.collect_started_records(runtime, workspace, scope, record_context, verified, output, reaper)
+            return details
+        details = wait(observe, lambda d: len(verified)==3 and (wroot/'reports/ui-parent-held').exists())
+        assert details['run']['state'] not in {'completed','cancelled','outcome_unknown','blocked'}
+        assert details['run']['active_session_id'] is not None and not details['run']['cancel_requested']
+        assert len(details['tasks']) == 2
+        assert scope['expires_at_ms'] > int(time.time()*1000) and grant['expires_at_ms'] > int(time.time()*1000)
+        bounds.tasks = {t['task_id'] for t in details['tasks']}
+        child_id = next(t['task_id'] for t in details['tasks'] if t['parent_task_id'] == task['id'])
+        assert len(verified) == 3
+        held_raw,held_pin=base.bounded_file(wroot/'reports/ui-parent-held',MAX_WIRE,wroot/'reports')
+        held=json.loads(held_raw,object_pairs_hook=unique_object)
+        resumed=next(r for r in verified if r['stage']=='parent-resumed')
+        assert held['task_id']==task['id'] and held['native_session_id']==resumed['native_session_id']
+        child_head=host.result('factory_child_plans.get',{'scope_id':scope['id'],'task_id':child_id})
+        assert held['child_plan']==child_head['reference'] and held['child_plan']['revision']==2
+        report['observations']['actual_generated_live_barrier']={'pin':held_pin,'value':held,'session_id':resumed['session_id'],'attempt_id':resumed['attempt_id']}
+        report['observations']['live_held_run_before_UI_writes'] = details
+        provider_views = {}
+        for name in ['root-plans.json', 'child-plan.json']:
+            raw, pin = base.bounded_file(wroot / 'reports' / name, MAX_WIRE, wroot / 'reports')
+            provider_views[name] = {'data': json.loads(raw), 'pin': pin}
+        report['observations']['actual_generated_mcp_plans'] = provider_views
+        for task_id in [task['id'], child_id]:
+            refs = host.result('factory_child_plans.list', {'scope_id': scope['id'], 'task_id': task_id})
+            assert [r['revision'] for r in refs] == [1, 2] and all('plan_json' not in r and 'proposal' not in r for r in refs)
+            for ref in refs:
+                view = host.result('factory_child_plans.get', {'scope_id': scope['id'], 'task_id': task_id, 'plan_revision': ref['revision']})
+                verify_plan(view, scope, task_id); assert view['reference'] == ref
+        passed('CP03', 'Generated ACP -> actual private MCP5 -> root 1/2 and child 1/2 immutable refs; live third parent held after real child-ref2 handoff, prior attempts truly stopped')
+        panel.get_by_role('button', name='Refresh Factory records', exact=True).click()
+        root_summary = panel.locator('summary').filter(has_text='Child task plans · ' + task['id'])
+        root_summary.click()
+        root_region = root_summary.locator('..').get_by_role('region', name='Child task plans', exact=True)
+        expect(root_region.get_by_text('Current plan head: r2', exact=False)).to_be_visible()
+        child_summary = panel.locator('summary').filter(has_text='Child task plans · ' + child_id); child_summary.click()
+        child_region = child_summary.locator('..').get_by_role('region', name='Child task plans', exact=True)
+        expect(child_region.get_by_text('Current plan head: r2', exact=False)).to_be_visible()
+        child_region.locator('details').filter(has=page.get_by_text('Immutable plan revisions', exact=True)).locator('summary').click()
+        child_region.get_by_role('button', name=re.compile(r'^r1 · ')).click()
+        child_region.locator('details').filter(has=page.get_by_text('Selected recorded revision: r1', exact=True)).locator('summary').click()
+        recorded = child_region.get_by_label('Original stored plan text', exact=True).text_content()
+        actual_child_one = host.result('factory_child_plans.get', {'scope_id': scope['id'], 'task_id': child_id, 'plan_revision': 1})
+        assert recorded == actual_child_one['plan_json']
+        shot('02-real-child-ref-history-original-plan', child_region)
+        passed('CP04', 'UI list refs and select r1 retrieves exact original GoalPlan bytes and raw SHA, not fabricated history')
+        editor = root_region.get_by_test_id('factory-child-plan-editor'); editor.locator(':scope > summary').click()
+        editor.get_by_role('button', name='Prepare steps from latest revision', exact=True).click()
+        fixed_form_control(editor,'Step goal fixed-work','textarea').fill('Actual UI revised bounded root plan')
+        editor.get_by_role('button', name='Apply steps to JSON draft', exact=True).click()
+        draft = root_region.get_by_label('Complete GoalPlan JSON draft', exact=True)
+        original_draft = draft.input_value(); parsed = json.loads(original_draft)
+        assert parsed['revision'] == 3 and parsed['expected_revision'] == 2
+        assert parsed['nodes'][0]['goal'] == 'Actual UI revised bounded root plan'
+        live = host.result('factory_runs.get',{'scope_id':scope['id']})
+        assert live['run']['active_session_id']==details['run']['active_session_id'] and not live['run']['cancel_requested']
+        assert scope['expires_at_ms']>int(time.time()*1000) and grant['expires_at_ms']>int(time.time()*1000)
+        before_plan = fingerprint_db(runtime)
+        root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
+        expect(root_region.get_by_text('Current plan head: r3', exact=False)).to_be_visible()
+        stored = host.result('factory_child_plans.get', {'scope_id': scope['id'], 'task_id': task['id']})
+        verify_plan(stored, scope, task['id']); assert stored['plan_json'] == original_draft
+        after_plan = fingerprint_db(runtime)
+        assert after_plan['factory_child_plan_revisions']['count'] == before_plan['factory_child_plan_revisions']['count'] + 1
+        for name in ['execution_grants', 'managed_workspaces', 'attempts', 'sessions', 'factory_attempts', 'budgets', 'factory_runs']:
+            assert after_plan[name] == before_plan[name], ('Planning unexpectedly changed execution', name)
+        passed('CP05', 'Real structured GoalPlan UI edit -> fixed Owner submit -> atomic revision3; no execution/new Grant/workspace/budget mutation')
+        shot('03-real-ui-stored-root-plan-r3', root_region)
+        # Local UI guards and actual backend checks are distinct dimensions.
+        candidate = json.loads(next_raw(stored, 'Denied local candidate'))
+        variants = []
+        p = copy.deepcopy(candidate); p['nodes'][0]['budget']['attempts'] = budget['attempts'] + 1; variants.append(('budget', p, 'AUTH_REQUIRED'))
+        p = copy.deepcopy(candidate); p['goal']['input_revision'] = 'coherent-foreign'; p['nodes'][0]['executor']['binding']['input_revision'] = 'coherent-foreign'; variants.append(('input', p, 'INPUT_CHANGED'))
+        p = copy.deepcopy(candidate); p['nodes'][0]['outputs'] = []; variants.append(('outputs', p, 'AUTH_REQUIRED'))
+        p = copy.deepcopy(candidate); p['nodes'][0]['required_validators'] = []; variants.append(('validators', p, 'INVALID_REQUEST'))
+        refusals = []
+        for label, invalid, code in variants:
+            before = fingerprint_db(runtime); n = sum(r['method'] == 'factory_child_plans.submit' for r in report['http'])
+            text = json.dumps(invalid, indent=2); draft.fill(text)
             root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-            expect(root_region.get_by_text('Current plan head: r3', exact=False)).to_be_visible()
-            stored = host.result('factory_child_plans.get', {'scope_id': scope['id'], 'task_id': task['id']})
-            verify_plan(stored, scope, task['id']); assert stored['plan_json'] == original_draft
-            after_plan = fingerprint_db(runtime)
-            assert after_plan['factory_child_plan_revisions']['count'] == before_plan['factory_child_plan_revisions']['count'] + 1
-            for name in ['execution_grants', 'managed_workspaces', 'attempts', 'sessions', 'factory_attempts', 'budgets', 'factory_runs']:
-                assert after_plan[name] == before_plan[name], ('Planning unexpectedly changed execution', name)
-            passed('CP05', 'Real structured GoalPlan UI edit -> fixed Owner submit -> atomic revision3; no execution/new Grant/workspace/budget mutation')
-            shot('03-real-ui-stored-root-plan-r3', root_region)
-            # Local UI guards and actual backend checks are distinct dimensions.
-            candidate = json.loads(next_raw(stored, 'Denied local candidate'))
-            variants = []
-            p = copy.deepcopy(candidate); p['nodes'][0]['budget']['attempts'] = budget['attempts'] + 1; variants.append(('budget', p, 'AUTH_REQUIRED'))
-            p = copy.deepcopy(candidate); p['goal']['input_revision'] = 'coherent-foreign'; p['nodes'][0]['executor']['binding']['input_revision'] = 'coherent-foreign'; variants.append(('input', p, 'INPUT_CHANGED'))
-            p = copy.deepcopy(candidate); p['nodes'][0]['outputs'] = []; variants.append(('outputs', p, 'AUTH_REQUIRED'))
-            p = copy.deepcopy(candidate); p['nodes'][0]['required_validators'] = []; variants.append(('validators', p, 'INVALID_REQUEST'))
-            refusals = []
-            for label, invalid, code in variants:
-                before = fingerprint_db(runtime); n = sum(r['method'] == 'factory_child_plans.submit' for r in report['http'])
-                text = json.dumps(invalid, indent=2); draft.fill(text)
-                root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-                expect(root_region.get_by_role('alert')).to_contain_text('Plan submission refused')
-                assert sum(r['method'] == 'factory_child_plans.submit' for r in report['http']) == n
-                reply = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': text,
-                    'expectedPlanRevision': 3, 'expectedRevision': scope['revision'], 'idempotencyKey': 'negative-' + label})
-                assert reply['status'] == 200 and reply['value']['error']['code'] == code, reply
-                assert reply['value']['error']['side_effect_state'] == 'not_started'
-                assert fingerprint_db(runtime) == before
-                refusals.append({'label': label, 'actual_core_response': reply['value'], 'ui_sent_no_mutation': True})
-            report['observations']['actual_plan_refusals'] = refusals
-            passed('CP06', 'UI rejects coherent budget/input/output/mandatory-owner-validator drift; actual Core independently rejects exact payloads with zero DB mutation')
-            # Stale head uses a new key and is denied; this is not transport replay.
-            before_stale = fingerprint_db(runtime)
-            stale = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': original_draft,
-                'expectedPlanRevision': 2, 'expectedRevision': scope['revision'], 'idempotencyKey': 'actual-stale-head'})
-            assert stale['value']['error']['code'] == 'STALE_REVISION'
-            assert stale['value']['error']['side_effect_state'] == 'not_started' and fingerprint_db(runtime) == before_stale
-            passed('CP07', 'Actual stale plan CAS refuses atomically; observed head/floors remain r3')
-            root_region.get_by_role('button', name='Discard local draft', exact=True).click()
-            raw4 = next_raw(stored, 'Actual lost-response UI revision four')
-            draft.fill(raw4); faults['drop_next_submit'] = True
-            root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-            expect(root_region.get_by_text('Submission outcome unknown.', exact=False)).to_be_visible()
-            lost = [r for r in report['http'] if r.get('actual_committed_reply_deliberately_dropped')]
-            assert len(lost) == 1 and lost[0]['params']['plan_json'] == raw4
-            assert lost[0]['host_observed_utc_ms']<min(scope['expires_at_ms'],grant['expires_at_ms'])
-            committed = lost[0]['response']['result']; verify_plan(committed, scope, task['id'])
-            assert committed['reference']['revision'] == 4
-            root_region.get_by_role('button', name='Refresh child-plan history', exact=True).click()
-            expect(root_region.get_by_text('Current plan head: r4', exact=False)).to_be_visible()
-            assert len([r for r in report['http'] if r['method'] == 'factory_child_plans.submit' and r['key'] == lost[0]['key']]) == 1
-            expect(root_region.get_by_role('button', name='Store next plan revision', exact=True)).to_be_disabled()
-            before_recovery = fingerprint_db(runtime)
-            root_region.get_by_role('button', name='Recover the exact plan submission', exact=True).click()
-            expect(root_region.get_by_text('Submission outcome unknown.', exact=False)).to_have_count(0)
-            expect(root_region.get_by_text('Current plan head: r4', exact=False)).to_be_visible()
-            recovered = [r for r in report['http'] if r['method'] == 'factory_child_plans.submit' and r['key'] == lost[0]['key']]
-            assert len(recovered) == 2
-            report['observations']['exact_key_recovery_receipt'] = verify_exact_recovery(recovered[0], recovered[1], scope, task['id'])
-            assert fingerprint_db(runtime) == before_recovery
-            conflict = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': raw4 + ' ',
-                'expectedPlanRevision': 3, 'expectedRevision': scope['revision'], 'idempotencyKey': lost[0]['key']})
-            assert conflict['value']['error']['code'] == 'CONFIG_CONFLICT' and fingerprint_db(runtime) == before_recovery
-            passed('CP08', 'Actual committed reply dropped; UI only reads/reconciles then explicit exact raw/key/CAS replay returns same immutable receipt without new row, changed payload conflicts')
-            shot('04-exact-key-recovered-r4', root_region)
-            # All new submits above occurred before releasing the actual live
-            # parent. Historical terminal reads never become write authority.
-            live_before_release=host.result('factory_runs.get',{'scope_id':scope['id']})
-            assert live_before_release['run']['active_session_id']==details['run']['active_session_id']
-            assert not live_before_release['run']['cancel_requested']
-            check_held,check_pin=base.bounded_file(wroot/'reports/ui-parent-held',MAX_WIRE,wroot/'reports')
-            assert check_held==held_raw and check_pin==held_pin
-            base.write_private_json(wroot/'reports/ui-parent-release',{'fixture':'bounded UI edits finished'})
-            details=wait(observe,lambda d:d['run']['state']=='completed')
-            assert all(t['confirmed_stop'] for t in details['tasks']) and details['run']['active_session_id'] is None
-            report['observations']['terminal_run']=details
-            # Immutable refs and SQL journal agree independently of UI state.
-            with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
-                db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-                rows = db.execute('SELECT document,plan_json,raw_sha256,plan_digest,record_digest,receipt_sequence FROM factory_child_plan_revisions ORDER BY receipt_sequence').fetchall()
-                assert len(rows) == 6
-                journals = []
-                for document, raw, raw_hash, digest, record_digest, seq in rows:
-                    view = json.loads(document); verify_plan(view, scope, view['reference']['task_id'])
-                    assert view['plan_json'] == raw and sha(raw.encode()) == raw_hash == view['reference']['raw_sha256']
-                    assert digest == view['reference']['plan_digest'] and seq == view['reference']['receipt_sequence']
-                    event = json.loads(db.execute('SELECT document FROM events WHERE sequence=?', (seq,)).fetchone()[0])
-                    assert event['kind'] == 'factory.child_plan_stored' and event['source'] == 'factory_child_planning'
-                    assert event['aggregate_id'] == view['reference']['id'] and event['revision'] == view['reference']['revision']
-                    payload = event['payload']; assert payload['record_digest'] == record_digest
-                    assert payload['scope_id'] == scope['id'] and payload['run_id'] == details['run']['id'] and payload['task_id'] == view['reference']['task_id']
-                    assert payload['raw_sha256'] == raw_hash and payload['plan_digest'] == digest
-                    assert payload['planning_only'] is True and payload['dispatched'] is payload['task_accepted'] is payload['new_grant'] is False
-                    journals.append({'view': view, 'event': event, 'record_digest': record_digest})
-                report['observations']['actual_plan_journal_chain'] = journals
-                assert db.execute('SELECT count(*) FROM execution_grants').fetchone()[0] == 1
-                actual_grant = json.loads(db.execute('SELECT document FROM execution_grants WHERE id=?', (grant['id'],)).fetchone()[0])
-                assert actual_grant['scope']['max_children'] == grant['scope']['max_children'] == 0
-                assert actual_grant == grant
-                assert db.execute('SELECT count(*) FROM factory_attempts').fetchone()[0] == 3
-                assert db.execute("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'").fetchone()[0] == 0
-                assert db.execute("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'").fetchone()[0] == 0
-                assert db.execute("SELECT count(*) FROM workspace_leases WHERE holder!=''").fetchone()[0] == 0
-                budget_rows = [dict(zip(['scope', 'consumed', 'active'], r)) for r in db.execute('SELECT scope,consumed,active FROM budgets')]
-                base.verify_attempt_budgets(budget_rows, task['id'], project['id'], 3)
-                report['observations']['actual_budgets'] = budget_rows
-                owned_stops = [json.loads(r[0]) for r in db.execute("SELECT document FROM events WHERE kind='session.stopped'")]
-                assert len([e for e in owned_stops if e['payload'].get('process_reaped') is True and e['payload'].get('no_process_started') is False]) == 3
-                db.rollback()
-            assert git('status', '--porcelain') == '' and source_before == {'head': git('rev-parse', 'HEAD'),
-                'sha256': sha((source_root / 'input.txt').read_bytes()), 'mtime_ns': (source_root / 'input.txt').stat().st_mtime_ns}
-            final_state = fingerprint_db(runtime)
-            for name in ['goal_scopes', 'goal_plans', 'goal_runs', 'goal_graph_runs']:
-                if name in after_approval: assert final_state[name] == after_approval[name], ('Unexpected Goal dispatch', name)
-            assert not errors and not report['http_unexpected_errors'], (errors, report['http_unexpected_errors'])
-            assert sha(Path(__file__).read_bytes()) == sha(source)
-            passed('CP09', 'Six raw revisions bind independent real journal receipts; original Grant children0, exactly3 attempts, active0, no new Goal/TaskAccepted/workspace, source unchanged')
-            report['status'] = 'passed'
+            expect(root_region.get_by_role('alert')).to_contain_text('Plan submission refused')
+            assert sum(r['method'] == 'factory_child_plans.submit' for r in report['http']) == n
+            reply = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': text,
+                'expectedPlanRevision': 3, 'expectedRevision': scope['revision'], 'idempotencyKey': 'negative-' + label})
+            assert reply['status'] == 200 and reply['value']['error']['code'] == code, reply
+            assert reply['value']['error']['side_effect_state'] == 'not_started'
+            assert fingerprint_db(runtime) == before
+            refusals.append({'label': label, 'actual_core_response': reply['value'], 'ui_sent_no_mutation': True})
+        report['observations']['actual_plan_refusals'] = refusals
+        passed('CP06', 'UI rejects coherent budget/input/output/mandatory-owner-validator drift; actual Core independently rejects exact payloads with zero DB mutation')
+        # Stale head uses a new key and is denied; this is not transport replay.
+        before_stale = fingerprint_db(runtime)
+        stale = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': original_draft,
+            'expectedPlanRevision': 2, 'expectedRevision': scope['revision'], 'idempotencyKey': 'actual-stale-head'})
+        assert stale['value']['error']['code'] == 'STALE_REVISION'
+        assert stale['value']['error']['side_effect_state'] == 'not_started' and fingerprint_db(runtime) == before_stale
+        passed('CP07', 'Actual stale plan CAS refuses atomically; observed head/floors remain r3')
+        root_region.get_by_role('button', name='Discard local draft', exact=True).click()
+        raw4 = next_raw(stored, 'Actual lost-response UI revision four')
+        draft.fill(raw4); faults['drop_next_submit'] = True
+        root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
+        expect(root_region.get_by_text('Submission outcome unknown.', exact=False)).to_be_visible()
+        lost = [r for r in report['http'] if r.get('actual_committed_reply_deliberately_dropped')]
+        assert len(lost) == 1 and lost[0]['params']['plan_json'] == raw4
+        assert lost[0]['host_observed_utc_ms']<min(scope['expires_at_ms'],grant['expires_at_ms'])
+        committed = lost[0]['response']['result']; verify_plan(committed, scope, task['id'])
+        assert committed['reference']['revision'] == 4
+        root_region.get_by_role('button', name='Refresh child-plan history', exact=True).click()
+        expect(root_region.get_by_text('Current plan head: r4', exact=False)).to_be_visible()
+        assert len([r for r in report['http'] if r['method'] == 'factory_child_plans.submit' and r['key'] == lost[0]['key']]) == 1
+        expect(root_region.get_by_role('button', name='Store next plan revision', exact=True)).to_be_disabled()
+        before_recovery = fingerprint_db(runtime)
+        root_region.get_by_role('button', name='Recover the exact plan submission', exact=True).click()
+        expect(root_region.get_by_text('Submission outcome unknown.', exact=False)).to_have_count(0)
+        expect(root_region.get_by_text('Current plan head: r4', exact=False)).to_be_visible()
+        recovered = [r for r in report['http'] if r['method'] == 'factory_child_plans.submit' and r['key'] == lost[0]['key']]
+        assert len(recovered) == 2
+        report['observations']['exact_key_recovery_receipt'] = verify_exact_recovery(recovered[0], recovered[1], scope, task['id'])
+        assert fingerprint_db(runtime) == before_recovery
+        conflict = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': raw4 + ' ',
+            'expectedPlanRevision': 3, 'expectedRevision': scope['revision'], 'idempotencyKey': lost[0]['key']})
+        assert conflict['value']['error']['code'] == 'CONFIG_CONFLICT' and fingerprint_db(runtime) == before_recovery
+        passed('CP08', 'Actual committed reply dropped; UI only reads/reconciles then explicit exact raw/key/CAS replay returns same immutable receipt without new row, changed payload conflicts')
+        shot('04-exact-key-recovered-r4', root_region)
+        # All new submits above occurred before releasing the actual live
+        # parent. Historical terminal reads never become write authority.
+        live_before_release=host.result('factory_runs.get',{'scope_id':scope['id']})
+        assert live_before_release['run']['active_session_id']==details['run']['active_session_id']
+        assert not live_before_release['run']['cancel_requested']
+        check_held,check_pin=base.bounded_file(wroot/'reports/ui-parent-held',MAX_WIRE,wroot/'reports')
+        assert check_held==held_raw and check_pin==held_pin
+        base.write_private_json(wroot/'reports/ui-parent-release',{'fixture':'bounded UI edits finished'})
+        details=wait(observe,lambda d:d['run']['state']=='completed')
+        assert all(t['confirmed_stop'] for t in details['tasks']) and details['run']['active_session_id'] is None
+        report['observations']['terminal_run']=details
+        # Immutable refs and SQL journal agree independently of UI state.
+        with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
+            db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
+            rows = db.execute('SELECT document,plan_json,raw_sha256,plan_digest,record_digest,receipt_sequence FROM factory_child_plan_revisions ORDER BY receipt_sequence').fetchall()
+            assert len(rows) == 6
+            journals = []
+            for document, raw, raw_hash, digest, record_digest, seq in rows:
+                view = json.loads(document); verify_plan(view, scope, view['reference']['task_id'])
+                assert view['plan_json'] == raw and sha(raw.encode()) == raw_hash == view['reference']['raw_sha256']
+                assert digest == view['reference']['plan_digest'] and seq == view['reference']['receipt_sequence']
+                event = json.loads(db.execute('SELECT document FROM events WHERE sequence=?', (seq,)).fetchone()[0])
+                assert event['kind'] == 'factory.child_plan_stored' and event['source'] == 'factory_child_planning'
+                assert event['aggregate_id'] == view['reference']['id'] and event['revision'] == view['reference']['revision']
+                payload = event['payload']; assert payload['record_digest'] == record_digest
+                assert payload['scope_id'] == scope['id'] and payload['run_id'] == details['run']['id'] and payload['task_id'] == view['reference']['task_id']
+                assert payload['raw_sha256'] == raw_hash and payload['plan_digest'] == digest
+                assert payload['planning_only'] is True and payload['dispatched'] is payload['task_accepted'] is payload['new_grant'] is False
+                journals.append({'view': view, 'event': event, 'record_digest': record_digest})
+            report['observations']['actual_plan_journal_chain'] = journals
+            assert db.execute('SELECT count(*) FROM execution_grants').fetchone()[0] == 1
+            actual_grant = json.loads(db.execute('SELECT document FROM execution_grants WHERE id=?', (grant['id'],)).fetchone()[0])
+            assert actual_grant['scope']['max_children'] == grant['scope']['max_children'] == 0
+            assert actual_grant == grant
+            assert db.execute('SELECT count(*) FROM factory_attempts').fetchone()[0] == 3
+            assert db.execute("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'").fetchone()[0] == 0
+            assert db.execute("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'").fetchone()[0] == 0
+            assert db.execute("SELECT count(*) FROM workspace_leases WHERE holder!=''").fetchone()[0] == 0
+            budget_rows = [dict(zip(['scope', 'consumed', 'active'], r)) for r in db.execute('SELECT scope,consumed,active FROM budgets')]
+            base.verify_attempt_budgets(budget_rows, task['id'], project['id'], 3)
+            report['observations']['actual_budgets'] = budget_rows
+            owned_stops = [json.loads(r[0]) for r in db.execute("SELECT document FROM events WHERE kind='session.stopped'")]
+            assert len([e for e in owned_stops if e['payload'].get('process_reaped') is True and e['payload'].get('no_process_started') is False]) == 3
+            db.rollback()
+        assert git('status', '--porcelain') == '' and source_before == {'head': git('rev-parse', 'HEAD'),
+            'sha256': sha((source_root / 'input.txt').read_bytes()), 'mtime_ns': (source_root / 'input.txt').stat().st_mtime_ns}
+        final_state = fingerprint_db(runtime)
+        for name in ['goal_scopes', 'goal_plans', 'goal_runs', 'goal_graph_runs']:
+            if name in after_approval: assert final_state[name] == after_approval[name], ('Unexpected Goal dispatch', name)
+        assert not errors and not report['http_unexpected_errors'], (errors, report['http_unexpected_errors'])
+        assert sha(Path(__file__).read_bytes()) == sha(source)
+        passed('CP09', 'Six raw revisions bind independent real journal receipts; original Grant children0, exactly3 attempts, active0, no new Goal/TaskAccepted/workspace, source unchanged')
+        report['status'] = 'passed'
     except BaseException as error:
         fail('runtime', error)
         report['traceback'] = clean(traceback.format_exc())
-        if browser is not None:
-            try:
-                pages = browser.contexts[0].pages
-                if pages:
-                    path = output / 'failure-current-ui.png'; pages[0].screenshot(path=str(path))
-                    report['screenshots'].append({'path': str(path), 'sha256': sha(path.read_bytes())})
-            except BaseException as capture_error: report['failure_capture_error'] = clean(capture_error)
+        capture_browser_failure(browser,output,report,clean)
     finally:
         pump = lambda: None
         if host is not None:
@@ -890,7 +1006,7 @@ def runtime_driver(args, output, manifest):
                 report['observations']['final_diagnostics'] = info
                 assert info['complete'] is True and info['schema'] == 14
             base.cleanup_call(report, 'readonly_final_diagnostics', final_diagnostics, clean)
-        if browser is not None: base.cleanup_call(report, 'browser_close', browser.close, clean)
+        close_browser_engine(browser,playwright,report,clean)
         http_complete = True
         if server is not None:
             base.cleanup_call(report, 'http_shutdown', server.shutdown, clean)
@@ -948,12 +1064,13 @@ def main():
     parser.add_argument('--run', action='store_true')
     parser.add_argument('--fixture-self-check', type=Path)
     parser.add_argument('--review-self-check', type=Path)
+    parser.add_argument('--locator-self-check', type=Path)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--tools', type=Path)
     parser.add_argument('--frontend', type=Path)
     parser.add_argument('--manifest', type=Path)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
-    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check),bool(args.review_self_check)]) <= 1
+    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check),bool(args.review_self_check),bool(args.locator_self_check)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False); output.chmod(0o700)
     if args.self_check:
         value = self_check(); value.update(harness_sha256=sha(Path(__file__).read_bytes()), support_sha256=sha(BASE_PATH.read_bytes()))
@@ -964,6 +1081,9 @@ def main():
     if args.review_self_check:
         value=review_self_check(args.review_self_check.resolve(strict=True));value['harness_sha256']=sha(Path(__file__).read_bytes())
         base.write_private_json(output/'review-check.json',value);print(json.dumps(value));return 0
+    if args.locator_self_check:
+        value=locator_self_check(args.locator_self_check.resolve(strict=True),output);value['harness_sha256']=sha(Path(__file__).read_bytes())
+        base.write_private_json(output/'locator-check.json',value);print(json.dumps(value));return 0
     if not args.run:
         base.write_private_json(output / 'NOT_RUN.json', {'actual_runtime': 'not_run',
             'pending': ['Root reviewed harness', 'fixed schema14 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
