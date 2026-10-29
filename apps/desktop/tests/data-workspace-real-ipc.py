@@ -97,7 +97,13 @@ def main():
               'not_claimed': ['macOS', 'native WebView', 'Provider/session/model', 'OS sandbox', 'DLP', 'atomic directory freeze', 'execution grant', 'Task acceptance'],
               'daemon_sha256': sha(binary.read_bytes()), 'harness_sha256': sha(Path(__file__).read_bytes()),
               'frontend_assets_sha256': {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()},
-              'checks': [], 'requests': [], 'faults': [], 'observations': {}, 'screenshots': [], 'unrun': []}
+              'checks': [], 'requests': [], 'faults': [], 'observations': {}, 'screenshots': [], 'unrun': [],
+              'timing_semantics': {'clock': 'same_python_process_time.monotonic_ns',
+                                   'http_received_ns': 'handler entry, not browser dispatch or Actor arrival',
+                                   'pre_ipc_ns': 'immediately before synchronous authenticated Unix IPC call',
+                                   'post_ipc_ns': 'IPC return or exception observed, not Actor execution time',
+                                   'ui_click': 'Python click-call boundaries include Playwright actionability waiting; not a DOM event timestamp',
+                                   'authority_or_stop_evidence': False}}
     if args.candidate_manifest:
         manifest_bytes = args.candidate_manifest.resolve(strict=True).read_bytes()
         manifest = json.loads(manifest_bytes)
@@ -332,6 +338,7 @@ def main():
                     pass
 
                 def do_POST(self):
+                    received_ns = time.monotonic_ns()
                     if self.path != '/__test_data_workspace_ipc':
                         self.send_error(404); return
                     if self.headers.get('Origin') != url or self.headers.get('Host') != url.removeprefix('http://'):
@@ -378,10 +385,15 @@ def main():
                             assert isinstance(key, str) and re.fullmatch(r'[A-Za-z0-9:_-]{1,128}', key) and integer(revision, 1)
                     except (AssertionError, ValueError, KeyError, TypeError):
                         self.send_error(400); return
+                    timing = {'http_received_ns': received_ns}
                     try:
-                        response = ipc(method, params, key, revision)
+                        timing['pre_ipc_ns'] = time.monotonic_ns()
+                        try:
+                            response = ipc(method, params, key, revision)
+                        finally:
+                            timing['post_ipc_ns'] = time.monotonic_ns()
                         remember(method, response)
-                        entry = {'method': method, 'args': values, 'response': response}
+                        entry = {'method': method, 'args': values, 'response': response, 'timing': timing}
                         report['requests'].append(entry)
                         with fault_lock:
                             drop = method in {'data_workspace_previews.cancel', 'data_workspaces.cancel'} and drop_cancel['target'] in {params.get('preview_id'), params.get('creation_id')} and drop_cancel['target'] is not None and isinstance(response.get('result'), dict) and response['result'].get('id') == drop_cancel['target']
@@ -402,6 +414,7 @@ def main():
                     except (BrokenPipeError, ConnectionResetError):
                         report['observations']['client_aborts'] = report['observations'].get('client_aborts', 0) + 1
                     except (AssertionError, OSError, ValueError) as failure:
+                        report['observations'].setdefault('adapter_failure_timings', []).append({'method': method, 'timing': timing})
                         report['observations']['adapter_error'] = safe(failure)
                         self.send_error(502)
 
@@ -545,13 +558,21 @@ def main():
                     # Actual worker cancellation, not a promised scheduling win.
                     panel = open_project('preview-cancel')
                     started, _ = start_preview(panel, 'preview-cancel')
-                    refresh(panel); current = detail(panel, started['id'])
+                    # The start acknowledgement already refreshes the real UI.
+                    # Go directly to this exact record; no second list roundtrip.
+                    current = detail(panel, started['id'])
                     cancel_button = current.get_by_role('button', name='Request preview cancellation', exact=True)
                     requested = cancel_button.count() > 0
                     if requested:
                         with fault_lock:
                             drop_cancel['target'] = started['id']
-                        cancel_button.click()
+                        # click() waits for this exact real button's actionability.
+                        click_timing = {'before_click_call_ns': time.monotonic_ns()}
+                        report['observations']['preview_cancel_ui_click'] = click_timing
+                        try:
+                            cancel_button.click()
+                        finally:
+                            click_timing['after_click_call_ns'] = time.monotonic_ns()
                         expect(panel.get_by_role('alert')).to_contain_text('Request outcome unknown')
                         assert any(fault['params'].get('preview_id') == started['id'] for fault in report['faults'])
                         screenshot('04-real-cancel-response-lost')
