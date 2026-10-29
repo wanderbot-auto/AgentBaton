@@ -8,7 +8,7 @@ import { sessionApi, type ExecutionGrant, type NamedConnection, type ManagedSess
 
 // Only the browser/component transport is mocked. These tests never execute a
 // selected program, copy credentials or call a vendor model.
-vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { workspacesList: vi.fn(), snapshot: vi.fn(), events: vi.fn() } }));
+vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { taskGet: vi.fn(), workspacesList: vi.fn(), snapshot: vi.fn(), events: vi.fn() } }));
 vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), connectionsRegister: vi.fn(), grantsCreate: vi.fn(), grantsList: vi.fn(), grantsRevoke: vi.fn(), sessionsCreate: vi.fn(), sessionsList: vi.fn(), sessionsGet: vi.fn(), sessionsSend: vi.fn(), sessionsCancel: vi.fn() } }));
 const created = '2026-10-27T00:00:00Z';
 const project: Project = { id: 'project-1', name: 'Project', revision: 1, archived: false, created_at: created, updated_at: created, identity: { canonical_root: '/source', device: 1, inode: 2, kind: { kind: 'directory' } } };
@@ -21,6 +21,7 @@ const refreshTasks = vi.fn().mockResolvedValue(undefined);
 beforeEach(() => {
   vi.resetAllMocks();
   refreshTasks.mockResolvedValue(undefined);
+  vi.mocked(api.taskGet).mockImplementation(async id => { if (id !== task.id) throw new Error('Unknown fixture Task'); return { ...task, spec_revision: 1 }; });
   vi.mocked(api.workspacesList).mockResolvedValue([workspace]);
   vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], api_version: 1, sequence: 0 });
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
