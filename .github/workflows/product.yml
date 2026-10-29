@@ -181,6 +181,20 @@ jobs:
               '--manifest', str(planning_manifest), '--chromium', chromium,
               '--output', 'artifacts/ui-browser/factory-child-planning',
           ], check=True)
+          child_goal_failures = []
+          for case in ['normal', 'lost-start', 'cancel']:
+              try:
+                  subprocess.run([
+                      sys.executable, 'apps/desktop/tests/factory-child-goal-real-ipc.py',
+                      '--run', '--case', case,
+                      '--tools', 'target/debug', '--frontend', str(frontend),
+                      '--manifest', str(planning_manifest), '--chromium', chromium,
+                      '--output', 'artifacts/ui-browser/factory-child-goal-' + case,
+                  ], check=True)
+              except subprocess.CalledProcessError as failure:
+                  child_goal_failures.append({'case': case, 'exit_code': failure.returncode})
+          if child_goal_failures:
+              raise SystemExit('Factory child Goal runtime checks failed: ' + json.dumps(child_goal_failures))
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
