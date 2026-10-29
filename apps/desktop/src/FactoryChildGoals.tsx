@@ -25,6 +25,16 @@ type Memory={active:number;pending:Intent|null;scope:string;scopeRevision:number
 const memories=new Map<string,Memory>();
 const uncertain=(error:unknown)=>!(error instanceof DaemonError)||error.code==='OUTCOME_UNKNOWN'||!['none','not_started'].includes(error.sideEffectState);
 type ReadSummary={scope:FactoryScope;family:FactoryRunDetails;target:FactoryTaskHandle;task:Task;rows:FactoryChildGoalSummary[];grant:ExecutionGrant|null};
+// Narrowing needs a fresh existing-run summary, not artifact/Owner input reads.
+// Only a validated, known start receipt can yield its UI acknowledgement slot.
+function acknowledgedStart(op:Intent|null,read:ReadSummary,runId?:string):boolean {
+ const receipt=op?.receipt,request=op?.request;
+ if(!op||op.kind!=='start'||op.unknown||!receipt||!request||op.scopeId!==read.scope.id||op.taskId!==read.target.task_id||op.factoryRunId!==read.family.run.id||op.scopeRevision>read.scope.revision||request.task_id!==read.target.task_id||request.expected_factory_run_revision>read.family.run.revision)return false;
+ const row=read.rows.find(item=>item.goal.run.id===receipt.runId);
+ return !!row&&(!runId||runId===receipt.runId)&&row.goal.run.revision>=receipt.revision&&childGoalRefSame(row.plan,request.plan);
+}
+const cancelIdentity=(p:Props)=>factorySafeFingerprint([childGoalScopeFingerprint(p.scope),p.scope.project_id,p.target.task_id,p.target.root_task_id,p.target.parent_task_id,p.target.factory_scope_id,p.run.id,p.run.scope_id]);
+
 type Snapshot={scope:FactoryScope;family:FactoryRunDetails;target:FactoryTaskHandle;task:Task;context:FactoryChildPlanningContext;head:FactoryChildPlanView|null;rows:FactoryChildGoalSummary[];view:FactoryChildGoalView|null;initial:FactoryChildPlanView|null;adopted:FactoryChildPlanView|null;grant:ExecutionGrant|null};
 
 export function FactoryChildGoals(props:Props){
@@ -36,15 +46,12 @@ function ChildGoalPanel(props:Props&{open:boolean}){
  const {language,connected,open}=props,t=childGoalMessages[language],identity=`${props.scope.id}:${props.target.task_id}`;
  const [saved]=useState(()=>{const prior=memories.get(identity);if(prior)return prior;if(memories.size>=64){const disposable=[...memories].find(([,entry])=>entry.active===0&&entry.pending===null);if(disposable)memories.delete(disposable[0]);}const item:Memory={active:0,pending:null,scope:childGoalScopeFingerprint(props.scope),scopeRevision:props.scope.revision,factoryRevision:0,taskRevision:0,taskFingerprint:'',floors:new Map()};if(memories.size<64)memories.set(identity,item);return item;});
  const capacity=memories.get(identity)!==saved;
- const [summary,setSummary]=useState<ReadSummary|null>(null),[summaryFresh,setSummaryFresh]=useState(false),[data,setData]=useState<Snapshot|null>(null),[pending,setPending]=useState(saved.pending),[fresh,setFresh]=useState(false),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[error,setError]=useState(''),[tick,setTick]=useState(0),[paused,setPaused]=useState(false);
+ const [summary,setSummary]=useState<ReadSummary|null>(null),[summaryFresh,setSummaryFresh]=useState(false),[data,setData]=useState<Snapshot|null>(null),[pending,setPending]=useState(saved.pending),[fresh,setFresh]=useState(false),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[cancelReading,setCancelReading]=useState(false),[error,setError]=useState(''),[tick,setTick]=useState(0),[paused,setPaused]=useState(false);
  const summaryRead=useRef<{stamp:number;value:ReadSummary}|null>(null);
- const current=useRef(props),mounted=useRef(true),epoch=useRef(0),writing=useRef(false),reads=useRef(0),choice=useRef('');current.current=props;
+ const current=useRef(props),mounted=useRef(true),epoch=useRef(0),writing=useRef(false),writeOwner=useRef<string|null>(null),cancelReadInFlight=useRef(false),reads=useRef(0),choice=useRef('');current.current=props;
  useEffect(()=>{mounted.current=true;++saved.active;return()=>{mounted.current=false;--saved.active;++epoch.current;};},[saved]);
  function remember(op:Intent|null){saved.pending=op;if(mounted.current)setPending(op);}
- const refresh=useCallback(async(manual=true):Promise<Snapshot|null>=>{
-  if(manual){reads.current=0;setPaused(false);}const stamp=++epoch.current;setFresh(false);setSummaryFresh(false);setError('');
-  if(!current.current.connected){setError(t.disconnected);return null;}setLoading(true);
-  try{
+ const readSummary=useCallback(async(stamp:number):Promise<ReadSummary|null>=>{
    const p=current.current;
    const [scope,family,all,grants]=await Promise.all([factoryApi.get(p.scope.id),factoryApi.run(p.scope.id),api.snapshot(),sessionApi.grantsList(p.scope.project_id)]);
    if(!mounted.current||stamp!==epoch.current)return null;
@@ -65,18 +72,30 @@ function ChildGoalPanel(props:Props&{open:boolean}){
     if(receipt&&row&&row.goal.run.revision>=receipt.revision&&row.goal.run.cancel_requested)remember(null);
     else remember({...narrowing,reconciled:true});
    }
+   return trusted;
+ },[saved,t]);
+ const refresh=useCallback(async(manual=true):Promise<Snapshot|null>=>{
+  if(manual){reads.current=0;setPaused(false);}const stamp=++epoch.current;setFresh(false);setSummaryFresh(false);setError('');
+  if(!current.current.connected){setError(t.disconnected);return null;}setLoading(true);
+  try{
+   const trusted=await readSummary(stamp);if(!trusted)return null;
+   const {scope,family,target,task,rows}=trusted;
    const context=await factoryChildPlanApi.context(scope.id,target.task_id);
+   if(!mounted.current||stamp!==epoch.current)return null;
    if(!childContextShape(context,scope,target)||context.run_id!==family.run.id)throw new Error(t.invalid);
    let head:FactoryChildPlanView|null=null;
-   try{head=await factoryChildPlanApi.get(scope.id,target.task_id);if(!childViewShape(head,context,scope)||head.reference.revision!==context.current_plan_revision)throw new Error(t.invalid);await verifyChildRaw(head);}
+   try{head=await factoryChildPlanApi.get(scope.id,target.task_id);if(!mounted.current||stamp!==epoch.current)return null;if(!childViewShape(head,context,scope)||head.reference.revision!==context.current_plan_revision)throw new Error(t.invalid);await verifyChildRaw(head);}
    catch(e){if(!(context.current_plan_revision===0&&e instanceof DaemonError&&e.code==='NOT_FOUND'&&e.sideEffectState==='not_started'))throw e;}
+   if(!mounted.current||stamp!==epoch.current)return null;
    const op=saved.pending,id=op?.receipt?.runId??op?.goalRunId??(rows.some(row=>row.goal.run.id===choice.current)?choice.current:rows.at(-1)?.goal.run.id);
    let view:FactoryChildGoalView|null=null,initial:FactoryChildPlanView|null=null,adopted:FactoryChildPlanView|null=null;
    if(id){
     view=await factoryChildGoalApi.get(scope.id,target.task_id,id);
+    if(!mounted.current||stamp!==epoch.current)return null;
     const listed=rows.find(row=>row.goal.run.id===id),floor=saved.floors.get(id);
     if(!listed||!childGoalViewShape(view,scope,target,family,context,task)||!childGoalSummaryMeetsFloor(view.summary,listed)||floor?.origin&&floor.origin!==JSON.stringify(view.origin)||floor?.details&&!graphDetailsMeetFloor(view.details,{summary:floor.summary.goal,details:floor.details}))throw new Error(t.invalid);
     initial=await factoryChildPlanApi.get(scope.id,target.task_id,view.origin.initial_plan.revision);
+    if(!mounted.current||stamp!==epoch.current)return null;
     adopted=childGoalRefSame(view.origin.initial_plan,view.summary.plan)?initial:await factoryChildPlanApi.get(scope.id,target.task_id,view.summary.plan.revision);
     for(const [plan,ref] of [[initial,view.origin.initial_plan],[adopted,view.summary.plan]] as const){if(!childViewShape(plan,context,scope)||!childGoalRefSame(plan.reference,ref))throw new Error(t.invalid);await verifyChildRaw(plan);}
     if(!childGoalSavedReferencesMatch(view,initial,adopted))throw new Error(t.invalid);
@@ -85,7 +104,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    const nextRows=rows.map(row=>row.goal.run.id===view?.summary.goal.run.id?view.summary:row);
    for(const row of nextRows){const before=saved.floors.get(row.goal.run.id);saved.floors.set(row.goal.run.id,{summary:structuredClone(row),details:view?.summary.goal.run.id===row.goal.run.id?structuredClone(view.details):before?.details??null,origin:view?.summary.goal.run.id===row.goal.run.id?JSON.stringify(view.origin):before?.origin??null});}
    saved.scopeRevision=scope.revision;saved.factoryRevision=family.run.revision;saved.taskRevision=task.revision;saved.taskFingerprint=JSON.stringify(task);choice.current=id??'';
-   const snapshot:Snapshot={scope,family,target,task,context,head,rows:nextRows,view,initial,adopted,grant:grants.find(g=>g.id===scope.root_grant_id)??null};setData(snapshot);setFresh(true);
+   const snapshot:Snapshot={scope,family,target,task,context,head,rows:nextRows,view,initial,adopted,grant:trusted.grant};setData(snapshot);setFresh(true);
    if(op){
     const r=op.receipt,detail=view?.details;
     const decision=r?.decisionId?detail?.owner_decisions.find(item=>item.id===r.decisionId):null;
@@ -95,11 +114,12 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    return snapshot;
   }catch(e){if(mounted.current&&stamp===epoch.current){setFresh(false);setError(`${t.invalid} ${e instanceof Error?e.message:''}`);}return null;}
   finally{if(mounted.current&&stamp===epoch.current){setLoading(false);setTick(n=>n+1);}}
- },[identity,connected,saved,t]);
+ },[identity,connected,saved,t,readSummary]);
  useEffect(()=>{if(open)void refresh();},[open,refresh,props.selected?.reference.id,props.selected?.reference.revision]);
  useEffect(()=>{if(!open||!connected||!fresh||loading||busy||pending||!data?.rows.some(row=>graphRunPolling(row.goal)))return;if(reads.current>=20){setPaused(true);return;}const timer=setTimeout(()=>{++reads.current;void refresh(false);},1000);return()=>clearTimeout(timer);},[open,connected,fresh,loading,busy,pending,data,tick,refresh]);
- const disabled=capacity||!connected||!fresh||busy||loading||!!pending;
- const cancelDisabled=capacity||!connected||!summaryFresh||busy||loading||!!pending;
+ const disabled=capacity||!connected||!fresh||busy||loading||cancelReading||!!pending;
+ const checkedSummary=summaryRead.current;
+ const cancelDisabled=capacity||!connected||!summaryFresh||busy||cancelReading||!checkedSummary||checkedSummary.stamp!==epoch.current||!!pending&&!acknowledgedStart(pending,checkedSummary.value);
  const live=(v:Snapshot)=>v.task.spec_revision===v.context.goal.spec_revision&&parentReadReady(current.current)&&!v.scope.revoked&&v.scope.expires_at_ms>Date.now()&&!!v.grant&&!v.grant.revoked&&v.grant.revision===v.scope.root_grant_revision&&v.grant.expires_at_ms>Date.now()&&v.grant.scope.max_children>0&&factoryRunSupported(v.family.run)&&!v.family.run.cancel_requested&&!['cancelled','outcome_unknown'].includes(v.family.run.state)&&!v.target.cancel_requested&&taskAllowsExecution(v.task);
  const selected=current.current.selected;
  const sameHead=!!data?.head&&!!selected&&childGoalRefSame(selected.reference,data.head.reference)&&selected.proposal.nodes.length<=(data.scope.bindings.child_goal_execution?.policy.max_nodes??0)&&childGoalExecutionPlanReady(selected,data.context);
@@ -110,7 +130,8 @@ function ChildGoalPanel(props:Props&{open:boolean}){
  }
  async function send(op:Intent,v:Snapshot|ReadSummary){
   if(writing.current||capacity||!current.current.connected||saved.pending&&saved.pending.key!==op.key)return;
-  writing.current=true;setBusy(true);setError('');++epoch.current;setFresh(false);remember({...op,reconciled:false});
+  writing.current=true;writeOwner.current=op.key;setBusy(true);setError('');++epoch.current;setFresh(false);remember({...op,reconciled:false});
+  const releaseWrite=()=>{if(writeOwner.current===op.key){writeOwner.current=null;writing.current=false;if(mounted.current)setBusy(false);}};
   try{
    let result:FactoryChildGoalSummary|GraphOwnerDecisionResult;
    if(op.kind==='owner'||op.kind==='reject'){
@@ -125,12 +146,15 @@ function ChildGoalPanel(props:Props&{open:boolean}){
     if(!before||childGoalSummaryMeetsFloor(result,before.summary))saved.floors.set(result.goal.run.id,{summary:structuredClone(result),details:before?.details??null,origin:before?.origin??null});
     remember({...op,reconciled:false,receipt:{runId:result.goal.run.id,revision:result.goal.run.revision}});
    }
+   // A validated receipt ends the write. The remaining read must not block
+   // stopping that exact acknowledged run or unlock a newer in-flight write.
+   releaseWrite();
    if(mounted.current)await refresh();
   }catch(e){
    if(saved.pending?.key!==op.key)return;
    if(op.unknown||uncertain(e)){remember({...op,unknown:true,reconciled:false});if(mounted.current)setError(t.pending);}
    else{remember(null);if(mounted.current)setError(`${t.denied} ${e instanceof DaemonError?`${e.code} · ${e.sideEffectState} · `:''}${e instanceof Error?e.message:''}`);}
-  }finally{writing.current=false;if(mounted.current)setBusy(false);}
+  }finally{releaseWrite();}
  }
  async function act(kind:Intent['kind'],nodeId:string|null=null){
   try{
@@ -154,17 +178,34 @@ function ChildGoalPanel(props:Props&{open:boolean}){
   }catch(e){if(mounted.current){setFresh(false);setError(`${t.invalid} ${e instanceof Error?e.message:''}`);}}
  }
  async function cancel(runId:string){
-  if(cancelDisabled||saved.pending)return;
-  const stamp=epoch.current+1;await refresh();const trusted=summaryRead.current;
-  if(!trusted||trusted.stamp!==stamp||epoch.current!==stamp||saved.pending||writing.current)return;
-  const v=trusted.value,row=v.rows.find(item=>item.goal.run.id===runId);if(!row||!graphRunCanCancel(row.goal))return;
-  await send({kind:'cancel',key:crypto.randomUUID(),scopeId:v.scope.id,taskId:v.target.task_id,factoryRunId:v.family.run.id,scopeRevision:v.scope.revision,goalRunId:row.goal.run.id,goalRevision:row.goal.run.revision,request:null,nodeId:null,planRevision:row.goal.run.plan_revision,planDigest:row.goal.run.plan_digest,ledger:row.goal.ledger_revision,unknown:false,reconciled:false},v);
+  const before=summaryRead.current;
+  if(cancelDisabled||cancelReadInFlight.current||writing.current||!before||before.stamp!==epoch.current||saved.pending&&!acknowledgedStart(saved.pending,before.value,runId))return;
+  const identityBefore=cancelIdentity(current.current),specBefore=before.value.task.spec_revision;
+  const stamp=++epoch.current;cancelReadInFlight.current=true;setCancelReading(true);setFresh(false);setSummaryFresh(false);setLoading(true);setError('');
+  try{
+   const v=await readSummary(stamp);
+   if(!v||!mounted.current||stamp!==epoch.current)return;
+   if(!current.current.connected||cancelIdentity(current.current)!==identityBefore||v.task.spec_revision!==specBefore||writing.current||saved.pending&&!acknowledgedStart(saved.pending,v,runId)){setSummaryFresh(false);setError(t.stale);return;}
+   const row=v.rows.find(item=>item.goal.run.id===runId);if(!row||!graphRunCanCancel(row.goal))return;
+   // Only this known receipt was confirmed by this fresh exact-run summary.
+   // Unknown writes, Owner decisions and other pending operations never yield.
+   if(saved.pending)remember(null);
+   setLoading(false);
+   await send({kind:'cancel',key:crypto.randomUUID(),scopeId:v.scope.id,taskId:v.target.task_id,factoryRunId:v.family.run.id,scopeRevision:v.scope.revision,goalRunId:row.goal.run.id,goalRevision:row.goal.run.revision,request:null,nodeId:null,planRevision:row.goal.run.plan_revision,planDigest:row.goal.run.plan_digest,ledger:row.goal.ledger_revision,unknown:false,reconciled:false},v);
+  }catch(e){if(mounted.current&&stamp===epoch.current){setSummaryFresh(false);setError(`${t.invalid} ${e instanceof Error?e.message:''}`);}}
+  finally{cancelReadInFlight.current=false;if(mounted.current){setCancelReading(false);if(stamp===epoch.current)setLoading(false);}}
+ }
+ function recover(){
+  const op=saved.pending;if(!op||!op.unknown||!op.reconciled||writing.current||cancelReadInFlight.current||capacity||!current.current.connected)return;
+  if(op.kind==='cancel'){
+   const trusted=summaryRead.current;if(summaryFresh&&trusted&&trusted.stamp===epoch.current)void send(op,trusted.value);
+  }else if(fresh&&!loading&&data)void send(op,data);
  }
  const view=data?.view;
  return <section aria-label={t.title} data-testid="factory-child-goal-panel" aria-busy={busy||loading}>
   <p>{t.separate}</p><p>{t.remaining}</p><p>{t.cancelHint}</p>{summary&&<p>{summary.scope.id} · r{summary.scope.revision} · {summary.scope.revoked?(language==='zh'?'已撤销':'revoked'):summary.scope.expires_at_ms<=Date.now()?(language==='zh'?'已到期':'expired'):(language==='zh'?'范围尚未到期':'scope not expired')} · {summary.scope.expires_at_ms}</p>}{capacity&&<p>{t.limited}</p>}
   <button type="button" disabled={!connected||busy||loading} onClick={()=>void refresh()}>{t.refresh}</button>
-  {error&&<p role="alert">{error}</p>}{pending&&<><p role="status">{pending.unknown?t.pending:t.ack}</p>{pending.unknown&&<button type="button" disabled={!connected||!(pending.kind==='cancel'?summaryFresh:fresh)||loading||busy||capacity||!pending.reconciled||!(pending.kind==='cancel'?summary:data)} onClick={()=>{const proof=pending.kind==='cancel'?summary:data;if(proof)void send(pending,proof);}}>{t.recover}</button>}</>}{paused&&<p>{t.paused}</p>}
+  {error&&<p role="alert">{error}</p>}{pending&&<><p role="status">{pending.unknown?t.pending:t.ack}</p>{pending.unknown&&<button type="button" disabled={!connected||busy||cancelReading||capacity||!pending.reconciled||(pending.kind==='cancel'?(!summaryFresh||!summary||!checkedSummary||checkedSummary.stamp!==epoch.current):(!fresh||loading||!data))} onClick={recover}>{t.recover}</button>}</>}{paused&&<p>{t.paused}</p>}
   <details><summary>{t.selected}</summary>{selected?<><pre>{JSON.stringify(selected.reference,null,2)}</pre><pre aria-label={t.raw}>{selected.plan_json}</pre></>:<p>{t.stale}</p>}</details>
   {data&&selected&&!childGoalExecutionPlanReady(selected,data.context)&&<p role="status">{t.incomplete}</p>}
   <button type="button" className="primary" disabled={!canStart} onClick={()=>void act('start')}>{t.start}</button><button type="button" disabled={!canAdvance} onClick={()=>void act('advance')}>{t.advance}</button>

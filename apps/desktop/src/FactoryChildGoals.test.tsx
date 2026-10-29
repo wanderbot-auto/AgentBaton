@@ -11,7 +11,7 @@ import { childGoalMessages } from './factory-child-goal-i18n';
 import { childGoalFixture } from './factory-child-goal-test-fixtures';
 import { factoryScopeShape,factoryDetailsShape } from './factory-guards';
 import { childContextShape,childViewShape } from './factory-child-plan';
-import type { FactoryChildGoalView,FactoryChildPlanView } from './factory-types';
+import type { FactoryChildGoalView,FactoryChildGoalSummary,FactoryChildPlanView } from './factory-types';
 vi.mock('./api',async()=>{const actual=await vi.importActual<typeof import('./api')>('./api');return {...actual,api:{...actual.api,snapshot:vi.fn()}};});
 vi.mock('./session-api',()=>({sessionApi:{grantsList:vi.fn()}}));
 vi.mock('./factory-api',()=>({factoryApi:{get:vi.fn(),run:vi.fn()},factoryChildPlanApi:{context:vi.fn(),get:vi.fn()},factoryChildGoalApi:{start:vi.fn(),list:vi.fn(),get:vi.fn(),cancel:vi.fn(),advancePlan:vi.fn()}}));
@@ -184,4 +184,125 @@ it.each(['draft','outcome_unknown'])('keeps the exact Factory child path with a 
   await waitFor(()=>expect(factoryChildGoalApi.start).toHaveBeenCalledOnce());expect(factoryChildGoalApi.start).toHaveBeenCalledWith(f.scope.id,{task_id:f.task.id,plan:f.plan.reference,expected_factory_run_revision:1},1,expect.any(String));
   expect(await screen.findByRole('alert')).toHaveTextContent('private Core proof still required');
  }
+});
+
+// Deferred mock transport controls: a stop request must not wait for plan/raw
+// or complete Graph/Owner evidence. They run no daemon, process or Native dialog.
+function deferredCancelValue<T>(){
+ let resolve!:(value:T)=>void;const promise=new Promise<T>(done=>{resolve=done;});return {promise,resolve};
+}
+function liveCancelView(f:Fixture){
+ const v=f.makeView(f.plan,2,'running');v.details.nodes[0]={...v.details.nodes[0],state:'running',session_id:'owned-live-session',attempt_id:'owned-live-attempt'};return f.sync(v);
+}
+function requestCancelView(f:Fixture,v:FactoryChildGoalView,unknown=false){
+ const next=structuredClone(v);next.details.run={...next.details.run,revision:next.details.run.revision+1,state:unknown?'outcome_unknown':'cancel_requested',cancel_requested:true};next.details.ledger_revision++;return f.sync(next);
+}
+async function beginCancelWindow(unknownStart=false){
+ const user=userEvent.setup(),f=await childGoalFixture(),state=records(f),full=deferredCancelValue<FactoryChildGoalView>(),receipt=structuredClone(f.makeView().summary);
+ vi.mocked(factoryChildGoalApi.start).mockImplementationOnce(async()=>{state.view=liveCancelView(f);state.task={...state.task,state:'running',revision:2};if(unknownStart)throw new Error('lost start reply');return receipt;});
+ vi.mocked(factoryChildGoalApi.get).mockImplementationOnce(()=>full.promise);
+ const rendered=render(<FactoryChildGoals {...props(f)}/>);await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());await user.click(screen.getByRole('button',{name:t.start}));
+ if(unknownStart){await screen.findByRole('status');await user.click(screen.getByRole('button',{name:t.refresh}));}
+ await waitFor(()=>expect(factoryChildGoalApi.get).toHaveBeenCalledOnce());
+ return {user,f,state,full,receipt,rendered};
+}
+it('cancels the exact acknowledged run while its first full view remains pending, using only a new checked summary',async()=>{
+ const x=await beginCancelWindow(),{user,f,state,full}=x;
+ try{
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled());expect(screen.getByTestId('factory-child-goal-panel')).toHaveAttribute('aria-busy','true');
+  const contextCalls=vi.mocked(factoryChildPlanApi.context).mock.calls.length,rawCalls=vi.mocked(factoryChildPlanApi.get).mock.calls.length;
+  vi.mocked(factoryChildGoalApi.cancel).mockImplementation(async()=>{expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(contextCalls);expect(factoryChildPlanApi.get).toHaveBeenCalledTimes(rawCalls);state.view=requestCancelView(f,state.view!);return structuredClone(state.view.summary);});
+  await user.click(screen.getByRole('button',{name:t.cancel}));await waitFor(()=>expect(factoryChildGoalApi.cancel).toHaveBeenCalledOnce());
+  expect(factoryChildGoalApi.cancel).toHaveBeenCalledWith(f.scope.id,f.task.id,f.runId,2,1,expect.any(String));expect(vi.mocked(factoryChildGoalApi.cancel).mock.calls[0][5]).not.toBe(vi.mocked(factoryChildGoalApi.start).mock.calls[0][3]);
+  expect(state.view!.details.run.state).toBe('cancel_requested');expect(state.view!.details.nodes[0].stop_confirmed).toBe(false);expect(state.view!.details.task_accepted).toBe(false);
+ }finally{await act(async()=>full.resolve(structuredClone(state.view!)));}
+});
+it('does not let a late superseded full read unlock a newer in-flight cancellation write',async()=>{
+ const {user,f,state,full}=await beginCancelWindow(),reply=deferredCancelValue<FactoryChildGoalSummary>();
+ try{
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled());vi.mocked(factoryChildGoalApi.cancel).mockImplementationOnce(()=>reply.promise);
+  await user.click(screen.getByRole('button',{name:t.cancel}));await waitFor(()=>expect(factoryChildGoalApi.cancel).toHaveBeenCalledOnce());
+  await act(async()=>full.resolve(structuredClone(state.view!)));expect(screen.getByTestId('factory-child-goal-panel')).toHaveAttribute('aria-busy','true');expect(screen.getByRole('button',{name:t.cancel})).toBeDisabled();
+  state.view=requestCancelView(f,state.view!);await act(async()=>reply.resolve(structuredClone(state.view!.summary)));await waitFor(()=>expect(screen.queryByRole('button',{name:t.cancel})).toBeNull());expect(factoryChildGoalApi.cancel).toHaveBeenCalledOnce();
+ }finally{full.resolve(structuredClone(state.view!));reply.resolve(structuredClone(state.view!.summary));}
+});
+it('keeps an unknown start blocked even with a valid running summary until explicit original-key recovery',async()=>{
+ const {user,f,state,full,receipt}=await beginCancelWindow(true);
+ try{
+  expect(screen.getByRole('button',{name:t.cancel})).toBeDisabled();expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();expect(screen.getByRole('button',{name:t.recover})).toBeDisabled();
+  await act(async()=>full.resolve(structuredClone(state.view!)));await waitFor(()=>expect(screen.getByRole('button',{name:t.recover})).toBeEnabled());expect(screen.getByRole('button',{name:t.cancel})).toBeDisabled();
+  const original=vi.mocked(factoryChildGoalApi.start).mock.calls[0];vi.mocked(factoryChildGoalApi.start).mockResolvedValueOnce(receipt);await user.click(screen.getByRole('button',{name:t.recover}));await waitFor(()=>expect(factoryChildGoalApi.start).toHaveBeenCalledTimes(2));expect(vi.mocked(factoryChildGoalApi.start).mock.calls[1]).toEqual(original);
+  await waitFor(()=>expect(screen.queryByRole('button',{name:t.recover})).toBeNull());expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();
+ }finally{full.resolve(structuredClone(state.view!));}
+});
+it('explicitly recovers an unknown cancel using fresh summary and the same original key/CAS while full views are slow',async()=>{
+ const {user,f,state,full}=await beginCancelWindow();let originalReceipt:FactoryChildGoalSummary|undefined;
+ try{
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled());vi.mocked(factoryChildGoalApi.get).mockImplementation(()=>full.promise);
+  vi.mocked(factoryChildGoalApi.cancel).mockImplementationOnce(async()=>{state.view=requestCancelView(f,state.view!);originalReceipt=structuredClone(state.view.summary);throw new Error('lost cancellation reply');});
+  await user.click(screen.getByRole('button',{name:t.cancel}));await waitFor(()=>expect(screen.getByRole('status')).toHaveTextContent(t.pending));expect(factoryChildGoalApi.cancel).toHaveBeenCalledOnce();
+  await user.click(screen.getByRole('button',{name:t.refresh}));await waitFor(()=>expect(screen.getByRole('button',{name:t.recover})).toBeEnabled());expect(screen.getByTestId('factory-child-goal-panel')).toHaveAttribute('aria-busy','true');
+  const original=vi.mocked(factoryChildGoalApi.cancel).mock.calls[0];vi.mocked(factoryChildGoalApi.cancel).mockResolvedValueOnce(originalReceipt!);await user.click(screen.getByRole('button',{name:t.recover}));await waitFor(()=>expect(factoryChildGoalApi.cancel).toHaveBeenCalledTimes(2));expect(vi.mocked(factoryChildGoalApi.cancel).mock.calls[1]).toEqual(original);
+  expect(state.view!.details.run.state).toBe('cancel_requested');expect(state.view!.details.nodes[0].stop_confirmed).toBe(false);expect(state.view!.details.task_accepted).toBe(false);expect(factoryChildGoalApi.start).toHaveBeenCalledOnce();
+ }finally{await act(async()=>full.resolve(structuredClone(state.view!)));}
+});
+it.each(['foreign-scope','foreign-run','missing-task','stale-scope','stale-goal','goal-contract','changed-plan','read-error'])('refuses %s in the fresh cancellation read before dispatch',async mode=>{
+ const {user,f,state,full}=await beginCancelWindow();
+ try{
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled());
+  if(mode==='foreign-scope')vi.mocked(factoryApi.get).mockResolvedValueOnce({...structuredClone(f.scope),id:'foreign-scope'});
+  if(mode==='foreign-run')vi.mocked(factoryApi.run).mockResolvedValueOnce({...structuredClone(f.detail),run:{...f.detail.run,id:'foreign-run'}});
+  if(mode==='missing-task')vi.mocked(api.snapshot).mockResolvedValueOnce({tasks:[],sequence:1000,api_version:1});
+  if(mode==='stale-scope')vi.mocked(factoryApi.get).mockResolvedValueOnce({...structuredClone(f.scope),revision:0});
+  if(mode==='stale-goal')vi.mocked(factoryChildGoalApi.list).mockResolvedValueOnce([structuredClone(f.makeView().summary)]);
+  if(mode==='goal-contract')vi.mocked(factoryChildGoalApi.list).mockResolvedValueOnce([{...structuredClone(state.view!.summary),goal:{...state.view!.summary.goal,graph_contract_version:2}}]);
+  if(mode==='changed-plan')vi.mocked(factoryChildGoalApi.list).mockResolvedValueOnce([{...structuredClone(state.view!.summary),plan:{...state.view!.summary.plan,raw_sha256:'f'.repeat(64)}}]);
+  if(mode==='read-error')vi.mocked(factoryApi.run).mockRejectedValueOnce(new Error('summary read disconnected'));
+  await user.click(screen.getByRole('button',{name:t.cancel}));await screen.findByRole('alert');expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();expect(factoryChildGoalApi.start).toHaveBeenCalledOnce();
+ }finally{await act(async()=>full.resolve(structuredClone(state.view!)));}
+});
+it.each(['task-identity','specification'])('rejects changed %s while the exact cancellation summary is being read',async mode=>{
+ const x=await beginCancelWindow(),{user,f,state,full,rendered}=x,rows=deferredCancelValue<FactoryChildGoalSummary[]>();
+ try{
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled());const before=vi.mocked(factoryChildGoalApi.list).mock.calls.length;
+  if(mode==='specification')state.task={...state.task,revision:state.task.revision+1,spec_revision:2};
+  vi.mocked(factoryChildGoalApi.list).mockImplementationOnce(()=>rows.promise);await user.click(screen.getByRole('button',{name:t.cancel}));await waitFor(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(before+1));
+  if(mode==='task-identity')rendered.rerender(<FactoryChildGoals {...props(f)} target={{...f.target,parent_task_id:'foreign-parent'}}/>);
+  await act(async()=>rows.resolve([structuredClone(state.view!.summary)]));await screen.findByRole('alert');expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();
+ }finally{rows.resolve([structuredClone(state.view!.summary)]);await act(async()=>full.resolve(structuredClone(state.view!)));}
+});
+it.each(['wrong-run-receipt','changed-ref-receipt'])('never yields an unmatched %s to a cancellation',async mode=>{
+ const user=userEvent.setup(),f=await childGoalFixture(),state=records(f);
+ vi.mocked(factoryChildGoalApi.start).mockImplementationOnce(async()=>{state.view=liveCancelView(f);const receipt=structuredClone(f.makeView().summary);if(mode==='wrong-run-receipt')receipt.goal.run.id='different-run';else receipt.plan.raw_sha256='f'.repeat(64);return receipt;});
+ render(<FactoryChildGoals {...props(f)}/>);await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());await user.click(screen.getByRole('button',{name:t.start}));await screen.findByRole('alert');expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();expect(factoryChildGoalApi.start).toHaveBeenCalledOnce();
+});
+it.each(['expired','revoked'])('allows only narrowing stop of the exact known run under %s authority',async mode=>{
+ const {user,f,state,full}=await beginCancelWindow(),clock=vi.spyOn(Date,'now');
+ try{
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled());if(mode==='expired')clock.mockReturnValue(Math.max(f.scope.expires_at_ms,f.grant.expires_at_ms)+1);else{f.scope.revoked=true;f.scope.revision=2;}
+  await user.click(screen.getByRole('button',{name:t.cancel}));await waitFor(()=>expect(factoryChildGoalApi.cancel).toHaveBeenCalledWith(f.scope.id,f.task.id,f.runId,2,mode==='revoked'?2:1,expect.any(String)));expect(factoryChildGoalApi.start).toHaveBeenCalledOnce();expect(factoryChildGoalApi.advancePlan).not.toHaveBeenCalled();expect(goalGraphApi.approveNode).not.toHaveBeenCalled();
+ }finally{clock.mockRestore();await act(async()=>full.resolve(structuredClone(state.view!)));}
+});
+it('preserves a definitive stale-CAS failure without automatic cancellation retry',async()=>{
+ const {user,state,full}=await beginCancelWindow();
+ try{
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled());vi.mocked(factoryChildGoalApi.cancel).mockRejectedValueOnce(new DaemonError('STALE_REVISION','current Goal CAS changed','not_started'));
+  await user.click(screen.getByRole('button',{name:t.cancel}));expect(await screen.findByRole('alert')).toHaveTextContent('STALE_REVISION');expect(factoryChildGoalApi.cancel).toHaveBeenCalledOnce();expect(screen.queryByRole('button',{name:t.recover})).toBeNull();
+ }finally{await act(async()=>full.resolve(structuredClone(state.view!)));}
+});
+it('does not turn an existing unknown outcome into confirmed cancellation',async()=>{
+ const {user,f,state,full}=await beginCancelWindow();
+ try{
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled());const unknown=liveCancelView(f);unknown.details.run={...unknown.details.run,revision:3,state:'outcome_unknown'};unknown.details.nodes[0]={...unknown.details.nodes[0],state:'outcome_unknown',acceptance_state:'unknown',stop_confirmed:true,actual_runtime_ms:10000};unknown.details.ledger_revision++;state.view=f.sync(unknown);state.task={...state.task,state:'outcome_unknown',revision:3};
+  vi.mocked(factoryChildGoalApi.cancel).mockImplementationOnce(async()=>{state.view=requestCancelView(f,state.view!,true);return structuredClone(state.view.summary);});
+  await user.click(screen.getByRole('button',{name:t.cancel}));await waitFor(()=>expect(factoryChildGoalApi.cancel).toHaveBeenCalledWith(f.scope.id,f.task.id,f.runId,3,1,expect.any(String)));
+  expect(state.view!.details.run.state).toBe('outcome_unknown');expect(state.view!.details.run.cancel_requested).toBe(true);expect(state.view!.details.task_accepted).toBe(false);expect(state.view!.details.task_acceptance).toBeNull();expect(screen.queryByText('Cancelled')).toBeNull();
+ }finally{await act(async()=>full.resolve(structuredClone(state.view!)));}
+});
+it('keeps an unknown Native Owner decision pending instead of permitting an opposite cancel',async()=>{
+ const user=userEvent.setup(),f=await childGoalFixture(true),state=records(f,f.ownerReady()),full=deferredCancelValue<FactoryChildGoalView>();
+ vi.mocked(goalGraphApi.approveNode).mockRejectedValueOnce(new Error('unknown Owner decision'));
+ render(<FactoryChildGoals {...props(f)}/>);await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.owner})).toBeEnabled());await user.click(screen.getByRole('button',{name:t.owner}));await screen.findByRole('alert');
+ const before=vi.mocked(factoryChildGoalApi.get).mock.calls.length;vi.mocked(factoryChildGoalApi.get).mockImplementationOnce(()=>full.promise);await user.click(screen.getByRole('button',{name:t.refresh}));await waitFor(()=>expect(factoryChildGoalApi.get).toHaveBeenCalledTimes(before+1));expect(screen.getByRole('button',{name:t.cancel})).toBeDisabled();expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();expect(goalGraphApi.approveNode).toHaveBeenCalledOnce();
+ await act(async()=>full.resolve(structuredClone(state.view!)));await waitFor(()=>expect(screen.getByRole('button',{name:t.recover})).toBeEnabled());expect(screen.getByRole('button',{name:t.cancel})).toBeDisabled();expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();
 });
