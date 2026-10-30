@@ -1,3 +1,5 @@
+Next: observe exact new diagnostic candidate CI, retain failures and fixed scalar timing facts without changing budgets; continue Core17 real authorization/worker/sharedledger/CAS/migration/Native/UI integration and full130 acceptance. No dualarchitecture installer accepted.
+
 Next: after independentfinite-evidence review, push oneprivatefixture candidate andread all7exactCI/realreworkphase results; preserve allbounds andrepair onlyevidence-supported runtimeissues. Continue dependencyready schema16/SourceCapture/Coreintegration/full130 work.
 
 Next: push one independently reviewed diagnostics-only candidate, read exact CI phases/toolbytes under original budgets, repair only evidence-supported causes, verify both architectures/artifacts before protected integration; compose dependent16 safely and continue all130.

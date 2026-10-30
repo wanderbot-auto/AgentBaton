@@ -1,0 +1,224 @@
+{
+  "recorded_at": "2026-10-30T07:25:23.797598+00:00",
+  "source": "c17015dc6feb57ba5b776d2f8df52132f70fc2bd",
+  "source_tree": "e17ca5fa50f54f0b638b2ad6123eb0e52197508a",
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "approval": "AB-START-001",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "change": "At selected same-revision blocked child Graph, publish at most2 earlier exact same subject/source capture settlements with both strict revision and physical sequence bounds; each selected revision globally unique within eligible history. Six existing nullable u64 timing fields only; explicit earlier revision/not same plan, no authority/admission/performance verdict. No runtime/timeout/budget/test safety change.",
+  "actual_commands": {
+    "projection1": {
+      "source": "96d1f036e72ccad7991d4736f3446538ea44f882",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_factory_rework_ci_evidence.py",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 0.6020619669870939,
+      "minimum_free_bytes": 599552000,
+      "interruption": null,
+      "log_sha256": "66056e7ecff04161f720f0d129cf588249d481a6b4333213a2fe98052bbc87e3",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "projection2": {
+      "source": "c17015dc6feb57ba5b776d2f8df52132f70fc2bd",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_factory_rework_ci_evidence.py",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 0.5014832640008535,
+      "minimum_free_bytes": 576352256,
+      "interruption": null,
+      "log_sha256": "c736e28735a19b0afe2c64c38ffe933f8d075e6debd8803f75bf04cc014e9816",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "infrastructure1": {
+      "source": "96d1f036e72ccad7991d4736f3446538ea44f882",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 4.509781681001186,
+      "minimum_free_bytes": 590680064,
+      "interruption": null,
+      "log_sha256": "2f5c9f39641921383fab23f1839ebf66ae45ce4770530c0ff8af88e5721d6cad",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "infrastructure2": {
+      "source": "c17015dc6feb57ba5b776d2f8df52132f70fc2bd",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 5.010930734017165,
+      "minimum_free_bytes": 576106496,
+      "interruption": null,
+      "log_sha256": "b0c0b83a236c3444cf6205c8235e3c3f6d7bf50bb42b7d66c968d8553642b021",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "final_counts_by_separate_dimension": {
+    "pure_projection": 80,
+    "infrastructure": 203,
+    "pure_projection_included_in_infrastructure": true,
+    "not_a_sum": true
+  },
+  "source_review": {
+    "review_sha256": "629abb505c45e4bb461ee241b1b61967b482ee788aecda6fe1bbc5845e0942e2",
+    "manifest_sha256": "bc36fbc9abf723b289c665c5d386a3efa6435174fd5778cfc60f3f111fceeb4b",
+    "final_static_assertions": 10,
+    "independent_pure80": "same80 controls, not another product total",
+    "history": "96d original79green missed selectedrev6 duplicate outsideLIMIT2 (6,6,8); counterexample/CHANGES_REQUIRED retained; c170 extraCOUNT+unchanged-counterexample refusal closed finding"
+  },
+  "exact_prior_remote_CI": {
+    "head": "60ba0f9cf78260a5b009dc55a8e0b132af7c7723",
+    "Environment": {
+      "run": 41012469144,
+      "conclusion": "success"
+    },
+    "Product": {
+      "run": 41012469123,
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "Product / Rust",
+          "id": 123921200848,
+          "conclusion": "success"
+        },
+        {
+          "name": "Product / macos-15",
+          "id": 123921201140,
+          "conclusion": "success"
+        },
+        {
+          "name": "Product / UI",
+          "id": 123921201155,
+          "conclusion": "success"
+        },
+        {
+          "name": "Product / macos-15-intel",
+          "id": 123921201203,
+          "conclusion": "failure"
+        }
+      ]
+    }
+  },
+  "synthetic_checkout": "9dde29d67de500a4cf041298b3e83a99587a30be",
+  "same_git_tree": "d44903e3c7b44ea95b8ddacfce146c61f5ffbfe4",
+  "not_main_merge": true,
+  "Intel": {
+    "observed_at": "2026-10-30T06:47:18.624397+00:00",
+    "head": "60ba0f9cf78260a5b009dc55a8e0b132af7c7723",
+    "synthetic_checkout": "9dde29d67de500a4cf041298b3e83a99587a30be",
+    "not_main_merge": true,
+    "Product": 41012469123,
+    "intel_job": 123921201203,
+    "artifact": 12958454112,
+    "zip_sha256": "95762771796ab82c86df757137f6f9784e96fb88b1d58b34b5d9fe2b57e1b1ff",
+    "finite_json_sha256": "d614be0877d04ed7f5239ee53d4b586e0d37fb3f43df01ea5fd0e0c2faaf6e0d",
+    "log_sha256": "2cf77ad311590d54c8cd6e628f1e6a43addd602bcc98ff9d6b899a9e9787dba5",
+    "actual": "Factory26passed1failed199.45s; revision2/runrevision14blocked RESOURCE_LIMIT; daemonok/joinedtrue; collectorcollected; original0700capture10positivepassed inCorelib",
+    "limited_diagnosis": "postshutdown child settled4/runtime14527 allknown/unsettled0; next validation reservation6000 =>20527 > originalchild20000; root/project16674+6000<30000. Possible ancestor runtime admission, not observed exactguard. No capture sixphase fields in same revision filteredprojection; missing does not imply originalevent absent. Not199.45s perstage."
+  },
+  "ARM_finite": {
+    "artifact": 12959558567,
+    "zip_sha256": "e3e77658a27d609379285a4bd4de5dc55ef5a27803fd2fd65bd96b0f74530385",
+    "finite_json_sha256": "0f57f42bf0e64fc530a0332ffdf61b5a2c5cd21f6ddc8669b1ee2576e9b7415c",
+    "actual": "Factory full rework success, originalbudget preserved; joinedtrue/daemonok, child5settled13643ms/unknownfalse, rootproject16230ms/8attempts; actualCommand1failed1858ms and2passed2633ms; no same-revision captureprojection since last observation Factory.get, not Graph.list",
+    "not_cause_of_Intel_failure": true
+  },
+  "ARM_development_artifact": {
+    "observed_at": "2026-10-30T06:58:16.843659+00:00",
+    "source_head": "60ba0f9cf78260a5b009dc55a8e0b132af7c7723",
+    "synthetic_checkout": "9dde29d67de500a4cf041298b3e83a99587a30be",
+    "same_git_tree": "d44903e3c7b44ea95b8ddacfce146c61f5ffbfe4",
+    "not_main_merge": true,
+    "run": 41012469123,
+    "ARM_job": 123921201140,
+    "artifact": 12959388051,
+    "zip_bytes": 9888487,
+    "zip_sha256": "334dff971cb0c9320653f6c79d5c2a4a2893d08815d6f2491bcb4493f9ea916d",
+    "DMG": {
+      "name": "AgentBaton-arm64-9dde29d67de500a4cf041298b3e83a99587a30be-development.dmg",
+      "bytes": 9956398,
+      "sha256": "f4d34ad8c7ae3cf3fa50a81f0355bf480fec88e1df4c60a3ba4be234dbedafe5",
+      "matches_packaged_SHA256SUMS": true,
+      "UDIF_koly_footer": true
+    },
+    "signature_dimension": "CI build record says adhoc/linker-signed, TeamIdentifier not set; no DeveloperID/notarization. Root Linux does not independently codesignverify or perform Mac manual installation.",
+    "CI_platform": "macOS15.8.2 arm64 Xcode16.4 rust1.99.1 node24.22.1",
+    "overall_product_result": "failure: Intel Factory rework; no Intel developmentartifact; no dualarchitecture acceptance",
+    "private_history_unpacked": false
+  },
+  "terminal_API_record_sha256": {
+    "environment-terminal.json": "cdd64051c24248f8fc0394d675dcdacaa56d5ffaae11e5e665fe7abbc7a33e8f",
+    "product-terminal.json": "969a933d1fdf0832862bda9d81bcc6a2fdf6c579f3b0141caaf0b4b849189098",
+    "jobs-terminal.json": "3b24fc12f9194496c3700de33d95828017504e1d67ad7feb3034229bdee31957",
+    "artifacts-terminal.json": "7bf9498da3f64e26d252d52b66f8f8ef640d2a31113c2a4942d2dd54c46809cc"
+  },
+  "parallel_schema17_progress": {
+    "Core_source": "7ed07891a86d8d1e478875c23118687c94534e02 workspace/alltargets compilePASS12.447; initiale7 SQL trait errors retained. Realpropose/finalize+ownedread source, runtimewatcher/stages/neutralledger/CAS not complete/accepted.",
+    "UI_source": "da997678dbcf698308278b1cc92ce0b91a94c978: actual1059/58 frontendtests PASS83.114wrapper; new43 included; build(type+Vite)PASS1.613. Earlier syntax/type/componentfailures retained; jsdom/mock only, no17realIPC/Native/Mac claim.",
+    "genuine16": "Actual0644 source build20.181s and actualprivateCoreRPC generator1.207s passed:55tables/3Tasks/1managedworkspace/9events/5idempotency,0newexecutionauthority, sourceGitunchanged; full17migrationtests pending at record time. Initialstandard17test compilation u64SQL error retained, explicitrequiredfeature registered; no syntheticoldpositive.",
+    "standard17_failure": "Second actualstandard17 test@277b9da:2passed3failed because migrationcount excluded sqlite_sequence but still expected55; actual55total/54business. Core52d sourcefix preserves fullschema equality, Rootverification pending; rawfailedELF/3privateDBs retained. This is not a passing17migration."
+  },
+  "next": [
+    "execute new exact remote candidate and read actual finite prior timings if failure; this is diagnostics, not an Intel performance fix",
+    "continue realCore17 pipeline/sharedbudget/journal/recovery + actual16migration/Native/UI composition and independent reviews",
+    "exact dualarchitecture developmentinstallers remain incomplete; only currentARM package verified, noIntelartifact",
+    "retain full130/remote/adoption/cleanup/provider external acceptance constraints"
+  ],
+  "not_product_complete": true,
+  "authority_closed": [
+    "live product Provider/model/private identity",
+    "new spend/resources/hosts",
+    "production/signing/notarization/final license",
+    "formalGitHubApprovewithoutcurrentexactPRconfirmation"
+  ]
+}

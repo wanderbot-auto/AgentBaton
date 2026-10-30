@@ -292,5 +292,12 @@
   "latest_ci_status": "Environment3/Rust success; UI/ARM/Intel failed; allterminal; no new installer",
   "latest_local_validation": "CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
   "latest_capture_timing_and_34f_results": "CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
-  "latest_private_fixture_and_4344_results": "PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json"
+  "latest_private_fixture_and_4344_results": "PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json",
+  "latest_prior_capture_and_head60ba_results": "PRIOR_CAPTURE_AND_HEAD60BA_RESULTS.json",
+  "latest_prior_capture_counts": {
+    "pure_projection": 80,
+    "infrastructure": 203,
+    "pure_projection_included_in_infrastructure": true,
+    "not_a_sum": true
+  }
 }
