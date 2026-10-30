@@ -508,6 +508,11 @@ impl Daemon {
             self.tick_factory()?;
             #[cfg(debug_assertions)]
             self.trace_goal_stage("factory_tick_end", Some(factory_clock.elapsed()), 0, None);
+            // Factory dispatch can retain a fatal error while returning Ok.
+            // Propagate it before any newly prioritized completion/continuation.
+            if let Some(error) = self.factory_fatal_error.take() {
+                return Err(error);
+            }
             // The original worker may have finished during Factory work.
             self.integration_workers
                 .tick_finished_stage(&mut self.store)?;
