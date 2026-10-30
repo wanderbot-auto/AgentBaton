@@ -1994,9 +1994,9 @@ def main():
         raw = args.candidate_manifest.resolve(strict=True).read_bytes(); manifest = json.loads(raw)
         report['manifest_sha256'] = hashlib.sha256(raw).hexdigest()
         if type(manifest.get('schema')) is not int or manifest.get('schema') != 17:
-            report['refusal'] = 'Older schema binary is not exact Graph16 execution evidence'
+            report['refusal'] = 'Older schema binary is not exact Graph17 execution evidence'
         else:
-            report['manifest_schema'] = 16
+            report['manifest_schema'] = 17
     (output / 'pending-runtime.json').write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps({'status': report['status'], 'actual_runtime': report['actual_runtime'], 'pending': report['pending']}))
     return 2
