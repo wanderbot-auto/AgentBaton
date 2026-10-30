@@ -176,5 +176,21 @@
     "Provider"
   ],
   "target_lease": "never held",
-  "next_scope": "new Integration mutation OS driver separately authorized, not implemented in this snapshot"
+  "next_scope": "new Integration mutation OS driver separately authorized, not implemented in this snapshot",
+  "genuine16_gate_update": {
+    "source_commit": "d017d274cd4433f1084b3e0aef03198efba3d3b8",
+    "feature": "actual-schema16-migration-tests",
+    "target": "integration_actual16_migration",
+    "env": "AGENTBATON_ACTUAL_SCHEMA16_FIXTURE",
+    "env_semantics": "manifest FILE",
+    "workflow_controls": {
+      "tests": 4,
+      "passed": 4,
+      "seconds": 0.069
+    },
+    "previous_distinct_pure_tests": 246,
+    "total_distinct_pure_tests": 250,
+    "runtime": "NOT_RUN",
+    "evidence_directory": "/workspace/.onboarding/integration-schema17-consumers/genuine16-workflow"
+  }
 }
