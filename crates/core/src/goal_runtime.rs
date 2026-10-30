@@ -2712,6 +2712,180 @@ impl Store {
     }
 }
 
+fn reserve_shared_meter_fields(
+    db: &Connection,
+    root_task_id: &str,
+    root_grant_id: &str,
+    project_id: &str,
+    reservation: &AttemptReservation,
+    limits: (&BudgetLimits, &BudgetLimits),
+    own_integration: Option<(&str, &str)>,
+) -> Result<()> {
+    let (root_limits, project_limits) = limits;
+    let task: Task = raw(db, "tasks", root_task_id)?;
+    let grant = crate::policy::checked_lineage(db, root_grant_id)?;
+    let (pc, _, rc, _) = counts(db, &task, &grant)?;
+    let pc = pc.checked_sub(1).ok_or_else(changed)?;
+    let rc = rc.checked_sub(1).ok_or_else(changed)?;
+    let records = reservations(db, root_grant_id, project_id)?;
+    let active = records
+        .iter()
+        .filter(|x| {
+            !x.settled
+                && !own_integration.is_some_and(|(run, attempt)| {
+                    x.run_id == format!("integration:{run}") && x.node_id == attempt
+                })
+        })
+        .collect::<Vec<_>>();
+    let mut root_active = Vec::new();
+    for old in &active {
+        let same = if let Some(root) = &old.shared_root_grant_id {
+            root == root_grant_id
+        } else {
+            db.query_row(
+                "SELECT json_extract(document,'$.root_grant_id')=?1 FROM goal_runs WHERE id=?2",
+                params![root_grant_id, old.run_id],
+                |r| r.get::<_, bool>(0),
+            )
+            .map_err(db_error)?
+        };
+        if same {
+            root_active.push(*old);
+        }
+    }
+    for (key, limits, before, active) in [
+        (
+            format!("project:{}", project_id),
+            project_limits,
+            pc,
+            &active,
+        ),
+        (
+            format!("root-grant:{}", root_grant_id),
+            root_limits,
+            rc,
+            &root_active,
+        ),
+    ] {
+        remember_meter(db, &key, limits, before)?;
+        reserve_meter(db, &key, limits, before, reservation, active)?;
+    }
+    Ok(())
+}
+fn settle_shared_meter_fields(
+    db: &Connection,
+    root_grant_id: &str,
+    project_id: &str,
+    actual_runtime_ms: Option<u64>,
+    actual_output_bytes: Option<u64>,
+) -> Result<()> {
+    for key in [
+        format!("project:{project_id}"),
+        format!("root-grant:{root_grant_id}"),
+    ] {
+        let raw:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_ledgers WHERE scope=?1",[&key],|r|r.get(0)).optional().map_err(db_error)?;
+        let mut meter: MeterLedger = decode(&raw.flatten().ok_or_else(changed)?)?;
+        meter.runtime_ms = meter
+            .runtime_ms
+            .and_then(|before| actual_runtime_ms.and_then(|used| before.checked_add(used)));
+        meter.output_bytes = meter
+            .output_bytes
+            .and_then(|before| actual_output_bytes.and_then(|used| before.checked_add(used)));
+        meter.tokens = None;
+        meter.cost_microunits = None;
+        if db
+            .execute(
+                "UPDATE goal_ledgers SET document=?1 WHERE scope=?2",
+                params![encode(&meter)?, key],
+            )
+            .map_err(db_error)?
+            != 1
+        {
+            return Err(changed());
+        }
+    }
+    Ok(())
+}
+impl Store {
+    pub(crate) fn reserve_integration_execution_meter(
+        db: &Connection,
+        r: &crate::integration::IntegrationAccounting,
+        root_limits: &BudgetLimits,
+        project_limits: &BudgetLimits,
+    ) -> Result<()> {
+        reserve_shared_meter_fields(
+            db,
+            &r.root_task_id,
+            &r.root_grant_id,
+            &r.project_id,
+            &r.reservation,
+            (root_limits, project_limits),
+            Some((&r.integration_id, &r.attempt_id)),
+        )
+    }
+    pub(crate) fn settle_integration_execution_meter(
+        db: &Connection,
+        r: &crate::integration::IntegrationAccounting,
+    ) -> Result<()> {
+        if !r.settled {
+            return Err(changed());
+        }
+        settle_shared_meter_fields(
+            db,
+            &r.root_grant_id,
+            &r.project_id,
+            r.actual_runtime_ms,
+            r.actual_output_bytes,
+        )
+    }
+    pub(crate) fn integration_historical_usage(
+        &self,
+        p: &crate::integration::IntegrationPolicy,
+    ) -> Result<crate::integration::IntegrationSharedUsage> {
+        let task: Task = raw(&self.conn, "tasks", &p.bindings.root_task_id)?;
+        let grant: ExecutionGrant = raw(&self.conn, "execution_grants", &p.bindings.root_grant_id)?;
+        let (pc, pa, rc, ra) = counts(&self.conn, &task, &grant)?;
+        let project_children:u32=self.conn.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND project_id=?1",[&p.bindings.project_id],|r|r.get(0)).map_err(db_error)?;
+        let root_children:u32=self.conn.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND json_extract(document,'$.root_grant_id')=?1",[&p.bindings.root_grant_id],|r|r.get(0)).map_err(db_error)?;
+        let read = |scope: String,
+                    attempts: u32,
+                    active: u32,
+                    children: u32|
+         -> Result<crate::integration::IntegrationBudgetUsage> {
+            let raw:Option<Option<String>>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_ledgers WHERE scope=?1",[scope],|r|r.get(0)).optional().map_err(db_error)?;
+            let ledger: MeterLedger = decode(&raw.flatten().ok_or_else(|| {
+                err(
+                    "BUDGET_UNKNOWN",
+                    "Original integration shared meter is unavailable",
+                )
+            })?)?;
+            Ok(crate::integration::IntegrationBudgetUsage {
+                attempts: attempts.max(ledger.observed_attempts),
+                active,
+                children,
+                runtime_ms: ledger.runtime_ms,
+                output_bytes: ledger.output_bytes,
+                tokens: ledger.tokens,
+                cost_microunits: ledger.cost_microunits,
+            })
+        };
+        Ok(crate::integration::IntegrationSharedUsage {
+            root: read(
+                format!("root-grant:{}", p.bindings.root_grant_id),
+                rc,
+                ra,
+                root_children,
+            )?,
+            project: read(
+                format!("project:{}", p.bindings.project_id),
+                pc,
+                pa,
+                project_children,
+            )?,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -3777,179 +3951,5 @@ mod tests {
                 0
             );
         }
-    }
-}
-
-fn reserve_shared_meter_fields(
-    db: &Connection,
-    root_task_id: &str,
-    root_grant_id: &str,
-    project_id: &str,
-    reservation: &AttemptReservation,
-    limits: (&BudgetLimits, &BudgetLimits),
-    own_integration: Option<(&str, &str)>,
-) -> Result<()> {
-    let (root_limits, project_limits) = limits;
-    let task: Task = raw(db, "tasks", root_task_id)?;
-    let grant = crate::policy::checked_lineage(db, root_grant_id)?;
-    let (pc, _, rc, _) = counts(db, &task, &grant)?;
-    let pc = pc.checked_sub(1).ok_or_else(changed)?;
-    let rc = rc.checked_sub(1).ok_or_else(changed)?;
-    let records = reservations(db, root_grant_id, project_id)?;
-    let active = records
-        .iter()
-        .filter(|x| {
-            !x.settled
-                && !own_integration.is_some_and(|(run, attempt)| {
-                    x.run_id == format!("integration:{run}") && x.node_id == attempt
-                })
-        })
-        .collect::<Vec<_>>();
-    let mut root_active = Vec::new();
-    for old in &active {
-        let same = if let Some(root) = &old.shared_root_grant_id {
-            root == root_grant_id
-        } else {
-            db.query_row(
-                "SELECT json_extract(document,'$.root_grant_id')=?1 FROM goal_runs WHERE id=?2",
-                params![root_grant_id, old.run_id],
-                |r| r.get::<_, bool>(0),
-            )
-            .map_err(db_error)?
-        };
-        if same {
-            root_active.push(*old);
-        }
-    }
-    for (key, limits, before, active) in [
-        (
-            format!("project:{}", project_id),
-            project_limits,
-            pc,
-            &active,
-        ),
-        (
-            format!("root-grant:{}", root_grant_id),
-            root_limits,
-            rc,
-            &root_active,
-        ),
-    ] {
-        remember_meter(db, &key, limits, before)?;
-        reserve_meter(db, &key, limits, before, reservation, active)?;
-    }
-    Ok(())
-}
-fn settle_shared_meter_fields(
-    db: &Connection,
-    root_grant_id: &str,
-    project_id: &str,
-    actual_runtime_ms: Option<u64>,
-    actual_output_bytes: Option<u64>,
-) -> Result<()> {
-    for key in [
-        format!("project:{project_id}"),
-        format!("root-grant:{root_grant_id}"),
-    ] {
-        let raw:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_ledgers WHERE scope=?1",[&key],|r|r.get(0)).optional().map_err(db_error)?;
-        let mut meter: MeterLedger = decode(&raw.flatten().ok_or_else(changed)?)?;
-        meter.runtime_ms = meter
-            .runtime_ms
-            .and_then(|before| actual_runtime_ms.and_then(|used| before.checked_add(used)));
-        meter.output_bytes = meter
-            .output_bytes
-            .and_then(|before| actual_output_bytes.and_then(|used| before.checked_add(used)));
-        meter.tokens = None;
-        meter.cost_microunits = None;
-        if db
-            .execute(
-                "UPDATE goal_ledgers SET document=?1 WHERE scope=?2",
-                params![encode(&meter)?, key],
-            )
-            .map_err(db_error)?
-            != 1
-        {
-            return Err(changed());
-        }
-    }
-    Ok(())
-}
-impl Store {
-    pub(crate) fn reserve_integration_execution_meter(
-        db: &Connection,
-        r: &crate::integration::IntegrationAccounting,
-        root_limits: &BudgetLimits,
-        project_limits: &BudgetLimits,
-    ) -> Result<()> {
-        reserve_shared_meter_fields(
-            db,
-            &r.root_task_id,
-            &r.root_grant_id,
-            &r.project_id,
-            &r.reservation,
-            (root_limits, project_limits),
-            Some((&r.integration_id, &r.attempt_id)),
-        )
-    }
-    pub(crate) fn settle_integration_execution_meter(
-        db: &Connection,
-        r: &crate::integration::IntegrationAccounting,
-    ) -> Result<()> {
-        if !r.settled {
-            return Err(changed());
-        }
-        settle_shared_meter_fields(
-            db,
-            &r.root_grant_id,
-            &r.project_id,
-            r.actual_runtime_ms,
-            r.actual_output_bytes,
-        )
-    }
-    pub(crate) fn integration_historical_usage(
-        &self,
-        p: &crate::integration::IntegrationPolicy,
-    ) -> Result<crate::integration::IntegrationSharedUsage> {
-        let task: Task = raw(&self.conn, "tasks", &p.bindings.root_task_id)?;
-        let grant: ExecutionGrant = raw(&self.conn, "execution_grants", &p.bindings.root_grant_id)?;
-        let (pc, pa, rc, ra) = counts(&self.conn, &task, &grant)?;
-        let project_children:u32=self.conn.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND project_id=?1",[&p.bindings.project_id],|r|r.get(0)).map_err(db_error)?;
-        let root_children:u32=self.conn.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND json_extract(document,'$.root_grant_id')=?1",[&p.bindings.root_grant_id],|r|r.get(0)).map_err(db_error)?;
-        let read = |scope: String,
-                    attempts: u32,
-                    active: u32,
-                    children: u32|
-         -> Result<crate::integration::IntegrationBudgetUsage> {
-            let raw:Option<Option<String>>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_ledgers WHERE scope=?1",[scope],|r|r.get(0)).optional().map_err(db_error)?;
-            let ledger: MeterLedger = decode(&raw.flatten().ok_or_else(|| {
-                err(
-                    "BUDGET_UNKNOWN",
-                    "Original integration shared meter is unavailable",
-                )
-            })?)?;
-            Ok(crate::integration::IntegrationBudgetUsage {
-                attempts: attempts.max(ledger.observed_attempts),
-                active,
-                children,
-                runtime_ms: ledger.runtime_ms,
-                output_bytes: ledger.output_bytes,
-                tokens: ledger.tokens,
-                cost_microunits: ledger.cost_microunits,
-            })
-        };
-        Ok(crate::integration::IntegrationSharedUsage {
-            root: read(
-                format!("root-grant:{}", p.bindings.root_grant_id),
-                rc,
-                ra,
-                root_children,
-            )?,
-            project: read(
-                format!("project:{}", p.bindings.project_id),
-                pc,
-                pa,
-                project_children,
-            )?,
-        })
     }
 }

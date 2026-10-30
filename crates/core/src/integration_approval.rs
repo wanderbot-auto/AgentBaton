@@ -152,7 +152,8 @@ impl Store {
         if let Some(old) = records::replay(&tx, "integration:propose", key_id, &payload)? {
             return Ok(old);
         }
-        if !matches!(&proof.intent,IntegrationReadIntent::Proposal(original) if original==s) {
+        if !matches!(&proof.intent,IntegrationReadIntent::Proposal(original) if original.as_ref()==s)
+        {
             return Err(denied());
         }
         proof.verify(self, raw_request, deadline)?;

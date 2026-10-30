@@ -172,7 +172,7 @@ impl QueryProof {
 #[derive(Clone)]
 pub(crate) enum IntegrationReadIntent {
     Context(IntegrationContextQuery),
-    Proposal(IntegrationPolicySelection),
+    Proposal(Box<IntegrationPolicySelection>),
     Finalize { proposal_id: String, revision: u64 },
     Stage(super::runtime::IntegrationStageReadRef),
 }
@@ -643,7 +643,7 @@ impl IntegrationReadPlan {
                 }
             }
             let selected = match &self.intent {
-                IntegrationReadIntent::Proposal(s) => Some(s.clone()),
+                IntegrationReadIntent::Proposal(s) => Some(s.as_ref().clone()),
                 IntegrationReadIntent::Finalize { proposal_id, .. } => {
                     let p: crate::sessions::ApprovalProposal =
                         raw(&reader.conn, "approval_proposals", proposal_id)?;
@@ -705,7 +705,9 @@ impl IntegrationReadPlan {
             let source = git_pin(&source)?;
             let workspace_binding = match &material.workspace_ownership {
                 IntegrationWorkspaceMaterial::TaskManaged(r) => {
-                    IntegrationWorkspaceBinding::TaskManaged { receipt: r.clone() }
+                    IntegrationWorkspaceBinding::TaskManaged {
+                        receipt: r.as_ref().clone(),
+                    }
                 }
                 IntegrationWorkspaceMaterial::FactoryDelegated(d) => {
                     IntegrationWorkspaceBinding::FactoryDelegated {
@@ -716,8 +718,8 @@ impl IntegrationReadPlan {
                         lineage: d.lineage.clone(),
                         delegation_event_sequence: d.delegation_event_sequence,
                         delegation_document_digest: d.delegation_document_digest.clone(),
-                        original_request: d.original_request.clone(),
-                        original_handle: d.original_handle.clone(),
+                        original_request: Box::new(d.original_request.clone()),
+                        original_handle: Box::new(d.original_handle.clone()),
                         workspace_id: d.workspace_id.clone(),
                         registered_pin: source.clone(),
                         source_base: d.source_base.clone(),

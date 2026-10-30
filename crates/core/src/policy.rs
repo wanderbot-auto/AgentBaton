@@ -1138,6 +1138,27 @@ pub(crate) fn observe_grant_bindings(conn: &Connection, grant: &ExecutionGrant) 
     Ok(())
 }
 
+/// Only a privately authenticated integration stage may read through its own
+/// physical-repository fence; this does not change the original Grant scope.
+pub(crate) fn validate_grant_for_integration(
+    db: &Connection,
+    grant_id: &str,
+    project_id: &str,
+    workspace_id: &str,
+    connection_id: &str,
+    permit: &crate::integration::IntegrationFencePermit,
+) -> Result<ExecutionGrant> {
+    validate_grant_inner(
+        db,
+        grant_id,
+        project_id,
+        workspace_id,
+        connection_id,
+        false,
+        (None, Some(permit)),
+    )
+}
+
 #[cfg(test)]
 mod live_workspace_tests {
     use super::*;
@@ -1259,25 +1280,4 @@ mod live_workspace_tests {
             std::thread::sleep(std::time::Duration::from_millis(5));
         }
     }
-}
-
-/// Only a privately authenticated integration stage may read through its own
-/// physical-repository fence; this does not change the original Grant scope.
-pub(crate) fn validate_grant_for_integration(
-    db: &Connection,
-    grant_id: &str,
-    project_id: &str,
-    workspace_id: &str,
-    connection_id: &str,
-    permit: &crate::integration::IntegrationFencePermit,
-) -> Result<ExecutionGrant> {
-    validate_grant_inner(
-        db,
-        grant_id,
-        project_id,
-        workspace_id,
-        connection_id,
-        false,
-        (None, Some(permit)),
-    )
 }

@@ -1020,7 +1020,7 @@ impl Store {
             executor_instance: None,
             binding: binding.clone(),
         };
-        tx.execute("INSERT INTO attempts(id,task_id,root_task_id,binding,idempotency_key) VALUES(?1,?2,?3,?4,?5)",params![attempt_id,run.task_id,p.bindings.root_task_id,encode(&binding)?,format!("integration:{}:{}:{:?}:{}",run.id,run.round,kind,validator.as_ref().map(|v|encode(v)).transpose()?.unwrap_or_default())]).map_err(db_error)?;
+        tx.execute("INSERT INTO attempts(id,task_id,root_task_id,binding,idempotency_key) VALUES(?1,?2,?3,?4,?5)",params![attempt_id,run.task_id,p.bindings.root_task_id,encode(&binding)?,format!("integration:{}:{}:{:?}:{}",run.id,run.round,kind,validator.as_ref().map(encode).transpose()?.unwrap_or_default())]).map_err(db_error)?;
         tx.execute("INSERT INTO dispatch_intents(id,attempt_id,state,executor_instance,document) VALUES(?1,?2,'prepared',NULL,?3)",params![intent_id,attempt_id,encode(&dispatch)?]).map_err(db_error)?;
         let attempt = IntegrationAttemptRecord {
             view: IntegrationAttemptView {

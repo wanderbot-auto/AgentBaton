@@ -95,10 +95,9 @@ impl crate::storage::Store {
     }
 }
 
-fn schema_objects(
-    db: &Connection,
-    expected_tables: usize,
-) -> Result<Vec<(String, String, String, Option<String>)>> {
+type SchemaObject = (String, String, String, Option<String>);
+
+fn schema_objects(db: &Connection, expected_tables: usize) -> Result<Vec<SchemaObject>> {
     let (count, bytes):(i64,i64)=db.query_row("SELECT count(*),COALESCE(sum(octet_length(type)+octet_length(name)+octet_length(tbl_name)+COALESCE(octet_length(sql),0)),0) FROM sqlite_schema",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
     if !(1..=256).contains(&count) || !(1..=1048576).contains(&bytes) {
         return Err(CoreError::new(

@@ -65,13 +65,13 @@ impl Store {
                 if delegated.source_base != workspace.base_revision {
                     return Err(changed());
                 }
-                IntegrationWorkspaceMaterial::FactoryDelegated(delegated)
+                IntegrationWorkspaceMaterial::FactoryDelegated(Box::new(delegated))
             }
-            None => IntegrationWorkspaceMaterial::TaskManaged(
+            None => IntegrationWorkspaceMaterial::TaskManaged(Box::new(
                 crate::task_workspace_binding::verify_task_binding_for_integration(
                     &self.conn, &task, &workspace,
                 )?,
-            ),
+            )),
         };
         let identity = workspace.identity.as_ref().ok_or_else(changed)?;
         if workspace.root != identity.canonical_root

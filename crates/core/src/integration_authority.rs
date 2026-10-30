@@ -136,6 +136,6 @@ pub(crate) struct IntegrationDelegatedMaterial {
 }
 #[derive(Clone, Serialize)]
 pub(crate) enum IntegrationWorkspaceMaterial {
-    TaskManaged(TaskWorkspaceReservationReceipt),
-    FactoryDelegated(IntegrationDelegatedMaterial),
+    TaskManaged(Box<TaskWorkspaceReservationReceipt>),
+    FactoryDelegated(Box<IntegrationDelegatedMaterial>),
 }

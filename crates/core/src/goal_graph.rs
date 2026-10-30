@@ -3272,56 +3272,6 @@ pub(super) fn verify_pending_factory_validator(
     validators::verify_pending_factory_validator(db, r, n, attempt, intent)
 }
 
-#[cfg(test)]
-mod proposal_size_tests {
-    use super::*;
-    #[test]
-    fn complete_proposal_envelope_accounts_for_maximum_control_id_escaping_at_exact_byte_boundary()
-    {
-        let mut p = ApprovalProposal {
-            id: "p".into(),
-            kind: "goal_graph_execution".into(),
-            revision: 1,
-            snapshot: json!({"padding":""}),
-            created_at: "2026-10-28T00:00:00Z".into(),
-            expires_at_ms: 1,
-            consumed: false,
-        };
-        let envelope = |p: &ApprovalProposal, id: &str| {
-            encode(&json!({"request_id":id,"result":p,"revision":u64::MAX,"warnings":[]})).unwrap()
-        };
-        let overhead = envelope(&p, &"\0".repeat(128)).len();
-        p.snapshot["padding"] = json!("x".repeat(MAX_STORED_BYTES as usize - overhead));
-        let event_for = |p: &ApprovalProposal| Event {
-            sequence: 0,
-            event_id: "e".into(),
-            aggregate_id: p.id.clone(),
-            revision: 1,
-            kind: "approval.proposed".into(),
-            occurred_at: "2026-10-28T00:00:00Z".into(),
-            payload: json!({"kind":p.kind,"snapshot":p.snapshot}),
-            source: "user_action".into(),
-        };
-        assert_eq!(
-            envelope(&p, &"\0".repeat(128)).len(),
-            MAX_STORED_BYTES as usize
-        );
-        assert!(bounded_graph_proposal(&p, &event_for(&p)).is_ok());
-        assert!(envelope(&p, "ordinary-request-id").len() < MAX_STORED_BYTES as usize);
-        let mut padding = p.snapshot["padding"].as_str().unwrap().to_owned();
-        padding.push('x');
-        p.snapshot["padding"] = json!(padding);
-        assert_eq!(
-            bounded_graph_proposal(&p, &event_for(&p)).unwrap_err().code,
-            "RESOURCE_LIMIT"
-        );
-        assert!(
-            envelope(&p, "ordinary-request-id").len() < MAX_STORED_BYTES as usize,
-            "ordinary UUID alone would incorrectly pass the old control-id bound"
-        );
-    }
-}
-
 impl Store {
     /// Recorded Goal/Factory provenance only. The integration owner-read worker
     /// performs filesystem/hash/Git checks; this method grants no execution.
@@ -3356,11 +3306,11 @@ impl Store {
             return Err(denied());
         }
         let workspace_ownership = if task.code_workspace_binding.is_some() {
-            crate::integration::IntegrationWorkspaceMaterial::TaskManaged(
+            crate::integration::IntegrationWorkspaceMaterial::TaskManaged(Box::new(
                 crate::task_workspace_binding::verify_task_binding_for_integration(
                     &self.conn, &task, &workspace,
                 )?,
-            )
+            ))
         } else if let Some(origin) = &record.factory_origin {
             let delegated =
                 self.integration_factory_workspace_material(&origin.factory_scope_id, &task.id)?;
@@ -3369,7 +3319,7 @@ impl Store {
             {
                 return Err(changed());
             }
-            crate::integration::IntegrationWorkspaceMaterial::FactoryDelegated(delegated)
+            crate::integration::IntegrationWorkspaceMaterial::FactoryDelegated(Box::new(delegated))
         } else {
             return Err(err("CAPABILITY_UNSUPPORTED","Integration requires genuine Task-managed or authenticated Factory-delegated managed Git ownership"));
         };
@@ -3710,5 +3660,55 @@ impl Store {
         }
         out.sort_by(|a, b| a.rule_id.cmp(&b.rule_id));
         Ok(out)
+    }
+}
+
+#[cfg(test)]
+mod proposal_size_tests {
+    use super::*;
+    #[test]
+    fn complete_proposal_envelope_accounts_for_maximum_control_id_escaping_at_exact_byte_boundary()
+    {
+        let mut p = ApprovalProposal {
+            id: "p".into(),
+            kind: "goal_graph_execution".into(),
+            revision: 1,
+            snapshot: json!({"padding":""}),
+            created_at: "2026-10-28T00:00:00Z".into(),
+            expires_at_ms: 1,
+            consumed: false,
+        };
+        let envelope = |p: &ApprovalProposal, id: &str| {
+            encode(&json!({"request_id":id,"result":p,"revision":u64::MAX,"warnings":[]})).unwrap()
+        };
+        let overhead = envelope(&p, &"\0".repeat(128)).len();
+        p.snapshot["padding"] = json!("x".repeat(MAX_STORED_BYTES as usize - overhead));
+        let event_for = |p: &ApprovalProposal| Event {
+            sequence: 0,
+            event_id: "e".into(),
+            aggregate_id: p.id.clone(),
+            revision: 1,
+            kind: "approval.proposed".into(),
+            occurred_at: "2026-10-28T00:00:00Z".into(),
+            payload: json!({"kind":p.kind,"snapshot":p.snapshot}),
+            source: "user_action".into(),
+        };
+        assert_eq!(
+            envelope(&p, &"\0".repeat(128)).len(),
+            MAX_STORED_BYTES as usize
+        );
+        assert!(bounded_graph_proposal(&p, &event_for(&p)).is_ok());
+        assert!(envelope(&p, "ordinary-request-id").len() < MAX_STORED_BYTES as usize);
+        let mut padding = p.snapshot["padding"].as_str().unwrap().to_owned();
+        padding.push('x');
+        p.snapshot["padding"] = json!(padding);
+        assert_eq!(
+            bounded_graph_proposal(&p, &event_for(&p)).unwrap_err().code,
+            "RESOURCE_LIMIT"
+        );
+        assert!(
+            envelope(&p, "ordinary-request-id").len() < MAX_STORED_BYTES as usize,
+            "ordinary UUID alone would incorrectly pass the old control-id bound"
+        );
     }
 }

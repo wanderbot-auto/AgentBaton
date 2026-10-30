@@ -3084,7 +3084,7 @@ impl Daemon {
                 if self.store.integration_proposal_replay(&s, key)?.is_some() {
                     return Ok(None);
                 }
-                Intent::Proposal(s)
+                Intent::Proposal(Box::new(s))
             }
             "approvals.finalize" => {
                 let p: ProposalId = params(request.params)?;

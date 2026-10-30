@@ -222,82 +222,6 @@ impl Drop for IntegrationWorkers {
         self.join_stages();
     }
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::{sync::mpsc, time::Duration};
-    fn retain_until_join(unwind: bool) {
-        let (cancelled_tx, cancelled_rx) = mpsc::sync_channel(1);
-        let (release_tx, release_rx) = mpsc::sync_channel(1);
-        let (done_tx, done_rx) = mpsc::sync_channel(1);
-        let owner = std::thread::spawn(move || {
-            let result = std::panic::catch_unwind(|| {
-                let cancel = Arc::new(AtomicBool::new(false));
-                let flag = cancel.clone();
-                let thread = std::thread::spawn(move || {
-                    let deadline = Instant::now() + Duration::from_secs(3);
-                    while !flag.load(Ordering::Acquire) {
-                        assert!(
-                            Instant::now() < deadline,
-                            "owned cancellation was not delivered"
-                        );
-                        std::thread::yield_now();
-                    }
-                    cancelled_tx.send(()).unwrap();
-                    release_rx.recv_timeout(Duration::from_secs(3)).unwrap();
-                    Err(CoreError::new(
-                        "CANCEL_REQUESTED",
-                        "bounded unit-fixture observation stopped",
-                    ))
-                });
-                let (reply, _) = mpsc::sync_channel(1);
-                let _manager = IntegrationWorkers {
-                    reader: Some(ReadWorker {
-                        request: crate::ipc::ReadyRequest {
-                            raw: "{}".into(),
-                            reply,
-                            deadline: Instant::now() + Duration::from_secs(60),
-                            factory_dispatch: None,
-                        },
-                        cancel,
-                        thread,
-                    }),
-                    target_reader: None,
-                    stage: None,
-                    retained: None,
-                    armed_after: None,
-                    armed_queue_epochs: Default::default(),
-                };
-                if unwind {
-                    panic!("unit-fixture original first cause");
-                }
-                Err::<(), _>(CoreError::new(
-                    "INPUT_CHANGED",
-                    "unit-fixture original first cause",
-                ))
-            });
-            assert_eq!(result.is_err(), unwind);
-            done_tx.send(()).unwrap();
-        });
-        cancelled_rx.recv_timeout(Duration::from_secs(3)).unwrap();
-        assert!(
-            matches!(done_rx.try_recv(), Err(mpsc::TryRecvError::Empty)),
-            "owner returned before its blocked original worker joined"
-        );
-        release_tx.send(()).unwrap();
-        done_rx.recv_timeout(Duration::from_secs(3)).unwrap();
-        owner.join().unwrap();
-    }
-    #[test]
-    fn read_error_drop_retains_ownership_until_actual_join() {
-        retain_until_join(false);
-    }
-    #[test]
-    fn read_unwind_drop_retains_ownership_until_actual_join() {
-        retain_until_join(true);
-    }
-}
-
 impl IntegrationWorkers {
     pub(crate) fn start(
         &mut self,
@@ -500,10 +424,7 @@ impl IntegrationWorkers {
                             | "RESOURCE_LIMIT"
                             | "BUDGET_UNKNOWN"
                             | "DEADLINE_EXCEEDED"
-                    ) =>
-                {
-                    ()
-                }
+                    ) => {}
                 Err(error) => return Err(error),
             }
         }
@@ -543,5 +464,81 @@ impl IntegrationWorkers {
         }
         self.join_stages();
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{sync::mpsc, time::Duration};
+    fn retain_until_join(unwind: bool) {
+        let (cancelled_tx, cancelled_rx) = mpsc::sync_channel(1);
+        let (release_tx, release_rx) = mpsc::sync_channel(1);
+        let (done_tx, done_rx) = mpsc::sync_channel(1);
+        let owner = std::thread::spawn(move || {
+            let result = std::panic::catch_unwind(|| {
+                let cancel = Arc::new(AtomicBool::new(false));
+                let flag = cancel.clone();
+                let thread = std::thread::spawn(move || {
+                    let deadline = Instant::now() + Duration::from_secs(3);
+                    while !flag.load(Ordering::Acquire) {
+                        assert!(
+                            Instant::now() < deadline,
+                            "owned cancellation was not delivered"
+                        );
+                        std::thread::yield_now();
+                    }
+                    cancelled_tx.send(()).unwrap();
+                    release_rx.recv_timeout(Duration::from_secs(3)).unwrap();
+                    Err(CoreError::new(
+                        "CANCEL_REQUESTED",
+                        "bounded unit-fixture observation stopped",
+                    ))
+                });
+                let (reply, _) = mpsc::sync_channel(1);
+                let _manager = IntegrationWorkers {
+                    reader: Some(ReadWorker {
+                        request: crate::ipc::ReadyRequest {
+                            raw: "{}".into(),
+                            reply,
+                            deadline: Instant::now() + Duration::from_secs(60),
+                            factory_dispatch: None,
+                        },
+                        cancel,
+                        thread,
+                    }),
+                    target_reader: None,
+                    stage: None,
+                    retained: None,
+                    armed_after: None,
+                    armed_queue_epochs: Default::default(),
+                };
+                if unwind {
+                    panic!("unit-fixture original first cause");
+                }
+                Err::<(), _>(CoreError::new(
+                    "INPUT_CHANGED",
+                    "unit-fixture original first cause",
+                ))
+            });
+            assert_eq!(result.is_err(), unwind);
+            done_tx.send(()).unwrap();
+        });
+        cancelled_rx.recv_timeout(Duration::from_secs(3)).unwrap();
+        assert!(
+            matches!(done_rx.try_recv(), Err(mpsc::TryRecvError::Empty)),
+            "owner returned before its blocked original worker joined"
+        );
+        release_tx.send(()).unwrap();
+        done_rx.recv_timeout(Duration::from_secs(3)).unwrap();
+        owner.join().unwrap();
+    }
+    #[test]
+    fn read_error_drop_retains_ownership_until_actual_join() {
+        retain_until_join(false);
+    }
+    #[test]
+    fn read_unwind_drop_retains_ownership_until_actual_join() {
+        retain_until_join(true);
     }
 }

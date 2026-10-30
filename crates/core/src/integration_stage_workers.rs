@@ -65,7 +65,7 @@ impl OwnedStage {
         context: Option<IntegrationPreparedContext>,
         plan: IntegrationReadPlan,
         raw: String,
-    ) -> std::result::Result<Self, StageSpawnFailure> {
+    ) -> std::result::Result<Self, Box<StageSpawnFailure>> {
         let cancel = Arc::new(AtomicBool::new(false));
         let flag = cancel.clone();
         let (request_tx, requests) = mpsc::sync_channel(1);
@@ -169,13 +169,13 @@ impl OwnedStage {
                     .unwrap_or_else(|p| p.into_inner())
                     .take()
                     .expect("unstarted stage retains its packet");
-                Err(StageSpawnFailure {
+                Err(Box::new(StageSpawnFailure {
                     error: CoreError::new(
                         "RESOURCE_LIMIT",
                         "Cannot start the reserved integration stage worker",
                     ),
                     context,
-                })
+                }))
             }
         }
     }
