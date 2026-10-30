@@ -1270,7 +1270,7 @@ def integration_fixture(proposal, invoke, runtime, output, before, source, phase
                'outer_message_sha256': [hashlib.sha256(message.encode('utf-8')).hexdigest() for message in messages],
                'presentation_sha256': digest(pages), 'presentation_count': len(pages)}
     if set(fixture) != INTEGRATION_DESCRIPTOR_FIELDS or len(json.dumps(fixture, ensure_ascii=False, indent=2).encode('utf-8')) > 1048576:
-        raise ValueError('Complete integration fixture exceeds Native's fixed 1MiB input bound')
+        raise ValueError("Complete integration fixture exceeds Native's fixed 1MiB input bound")
     return fixture, pages, contexts
 
 
