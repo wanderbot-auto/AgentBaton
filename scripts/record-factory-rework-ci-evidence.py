@@ -17,7 +17,7 @@ import sys
 import tempfile
 
 CONTRACT = 'agentbaton.factory-rework-progress.v1'
-SCHEMA = 16
+SCHEMA = 17
 MAX_DB = 16 * 1024 * 1024
 MAX_CASES = 16
 MAX_ENTRIES = 64
@@ -52,6 +52,7 @@ PHASES = frozenset(('wait_rework_awaiting_owner', 'owner_exact_second_review',
 STAGES = frozenset(('request_begin', 'response_received', 'transport_failure',
     'milestone', 'owner_write_returned'))
 TABLES = ('factory_child_goal_runs', 'goal_runs', 'goal_run_nodes', 'goal_graph_validations')
+INTEGRATION_TABLES = ('integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences')
 NAME = re.compile(r'rework-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\Z')
 
 
@@ -549,6 +550,14 @@ def project_db(raw, observation=None):
                 integer(count, MAX_ROWS)
                 integer(total, 4 * 1024 * 1024)
                 integer(maximum, 1024 * 1024)
+            integration_counts = {}
+            for table in INTEGRATION_TABLES:
+                row = conn.execute('SELECT type,sql FROM sqlite_master WHERE name=?', (table,)).fetchone()
+                need(row is not None and row[0] == 'table' and type(row[1]) is str
+                     and re.match(r'CREATE\s+TABLE\s', row[1], re.I))
+                count = conn.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0]
+                need(type(count) is int and count == 0)
+                integration_counts[table] = count
             # One rework test owns one child Graph. Empty capture is pending,
             # never evidence of successful progress or confirmed process stop.
             count = conn.execute('SELECT count(*) FROM factory_child_goal_runs').fetchone()[0]
@@ -592,7 +601,7 @@ def project_db(raw, observation=None):
                 enum(io, ('worker_joined', 'not_started'))
                 integer(count, MAX_ROWS)
                 validations[f'{rev}:{state}:passed_{passed_type}:stopped_{stopped_type}:{io}'] = count
-            return {'schema': SCHEMA, 'child_graph_count': 1, 'runs': runs,
+            return {'schema': SCHEMA, 'integration_counts': integration_counts, 'child_graph_count': 1, 'runs': runs,
                     'node_counts': dict(sorted(nodes.items())),
                     'validation_counts': dict(sorted(validations.items())),
                     'validation_observations': validation_observations(conn, selected),

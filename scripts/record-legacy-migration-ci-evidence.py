@@ -279,6 +279,115 @@ def public15_fixture(record):
         result[field] = digest(record.get(field))
     return result
 
+SOURCE16 = '0644ea9d8c10d075fef6b139bd9d7d363d5cc4fb'
+TREE16 = '107895dfd43c996c668017d556f938d01fa17d3d'
+FACTORY16 = FACTORY15
+AUTHORITY16 = tuple(name for name in AUTHORITY15 if name != 'managed_workspaces')
+SCHEMA16_TABLES = ('approval_proposals', 'attempts', 'budgets', 'command_validation_policies', 'command_validation_runs', 'command_workspace_fences', 'connections', 'data_validation_policies', 'data_validation_runs', 'data_workspace_creations', 'data_workspace_previews', 'data_workspace_receipts', 'dispatch_intents', 'events', 'execution_grants', 'factory_attempts', 'factory_budget_reservations', 'factory_child_goal_runs', 'factory_child_plan_heads', 'factory_child_plan_revisions', 'factory_delegations', 'factory_handoffs', 'factory_runs', 'factory_scoped_handles', 'factory_scopes', 'factory_task_bindings', 'factory_task_lineage', 'goal_external_action_journal', 'goal_grant_revisions', 'goal_graph_acceptances', 'goal_graph_candidates', 'goal_graph_capabilities', 'goal_graph_jobs', 'goal_graph_owner_decisions', 'goal_graph_validations', 'goal_ledgers', 'goal_node_evidence', 'goal_plan_heads', 'goal_plan_proposals', 'goal_plan_revisions', 'goal_run_nodes', 'goal_run_reservations', 'goal_runs', 'goal_scopes', 'idempotency', 'managed_workspaces', 'projects', 'session_runtime_snapshots', 'session_turns', 'sessions', 'sqlite_sequence', 'tasks', 'validation_policies', 'validation_runs', 'workspace_leases')
+
+
+def public16_build(record):
+    status = public15_status(record, 'compiled')
+    if status != 'compiled':
+        return {'status': status}
+    require(record.get('contract') == 'agentbaton.schema16-source-build.v1')
+    bounded_int(record.get('schema'), 16, 16)
+    host = public15_host(record)
+    source = record.get('source')
+    require(type(source) is dict and source.get('commit') == SOURCE16 and source.get('tree') == TREE16
+            and source.get('repository') == 'https://github.com/wanderbot-auto/AgentBaton.git'
+            and source.get('compiled_source_clean') is True)
+    build = record.get('build')
+    require(type(build) is dict and build.get('default_features') is True and build.get('features') == [])
+    bounded_int(build.get('exit_code'), 0, 0)
+    argv = build.get('argv')
+    require(type(argv) is list and len(argv) == 10 and type(argv[0]) is str and Path(argv[0]).is_absolute()
+            and argv[1:] == ['build', '--offline', '--locked', '-j', '2', '--bin', 'batond', '--bin', 'baton'])
+    toolchain = record.get('toolchain')
+    require(type(toolchain) is dict)
+    safe_toolchain = {}
+    for name in ('cargo', 'rustc'):
+        value = toolchain.get(name)
+        require(type(value) is str and len(value) <= 160)
+        require(re.fullmatch(name + r' [0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.]+)? \([0-9a-f]+ [0-9]{4}-[0-9]{2}-[0-9]{2}\)', value) is not None)
+        safe_toolchain[name] = value
+    return {'contract': 'agentbaton.schema16-source-build.v1', 'status': 'compiled', 'schema': 16,
+            **host, 'builder_sha256': digest(record.get('builder_sha256')),
+            'common_helper_sha256': digest(record.get('common_helper_sha256')),
+            'source': {'commit': SOURCE16, 'tree': TREE16,
+                       'archive_sha256': digest(source.get('archive_sha256')), 'compiled_source_clean': True},
+            'binaries': public15_tools(record.get('binaries'), host),
+            'toolchain': safe_toolchain, 'build_exit': 0}
+
+
+def public16_fixture(record):
+    status = public15_status(record, 'passed')
+    if status != 'passed':
+        return {'status': status}
+    require(record.get('contract') == 'agentbaton.actual-task-schema16.v1'
+            and record.get('origin') == 'actual_source16_core_rpc'
+            and record.get('source_commit') == SOURCE16 and record.get('source_tree') == TREE16
+            and record.get('provenance_kind') == 'reviewed_source_build')
+    bounded_int(record.get('schema'), 16, 16)
+    host = public15_host(record)
+    tools = public15_tools(record.get('tool_metadata'), host)
+    require(public15_tools(record.get('tool_metadata_after'), host) == tools)
+    hashes = record.get('binaries')
+    require(type(hashes) is dict and set(hashes) == {'baton', 'batond'})
+    require(all(digest(hashes[name]) == tools[name]['sha256'] for name in tools))
+    daemon = record.get('daemon')
+    require(type(daemon) is dict and daemon.get('sigterm_sent') is True
+            and daemon.get('forced_kill') is False and daemon.get('identity_gone_after_join') is True
+            and daemon.get('leader_unreaped_until_signalling') is True
+            and daemon.get('group_quiescent_before_reaping') is True and daemon.get('cleanup_errors') == [])
+    bounded_int(daemon.get('daemon_wait_exit'), 0, 0)
+    require(record.get('backup_logical_exact') is True and record.get('runtime_mode') == '0o700'
+            and record.get('source_git_unchanged') is True)
+    bounded_int(record.get('prepared_task_count'), 1, 1)
+    bounded_int(record.get('socket_utf8_bytes'), 1, 100)
+    cli = record.get('actual_cli_probe')
+    require(type(cli) is dict)
+    for field, expected in (('exit', 0), ('api_version', 1), ('sequence', 0)):
+        bounded_int(cli.get(field), expected, expected)
+    probes = {}
+    for label in ('initial_probe', 'final_probe'):
+        probe = record.get(label)
+        require(type(probe) is dict and probe.get('query_only') is True)
+        bounded_int(probe.get('schema'), 16, 16)
+        bounded_int(probe.get('foreign_key_errors'), 0, 0)
+        counts = probe.get('counts')
+        require(type(counts) is dict and set(counts) == set(SCHEMA16_TABLES))
+        for count in counts.values():
+            bounded_int(count, 0, 100000)
+        names = ('tasks', 'events', 'idempotency', 'managed_workspaces') + FACTORY16 + AUTHORITY16
+        require(set(names) <= set(counts))
+        for name in FACTORY16 + AUTHORITY16:
+            bounded_int(counts[name], 0, 0)
+        if label == 'initial_probe':
+            for name in ('tasks', 'events', 'idempotency', 'managed_workspaces'):
+                bounded_int(counts[name], 0, 0)
+            bounded_int(probe.get('sequence'), 0, 0)
+        else:
+            bounded_int(counts['tasks'], 3, 3)
+            bounded_int(counts['managed_workspaces'], 1, 1)
+            bounded_int(counts['events'], 5, 100000)
+            bounded_int(counts['idempotency'], 5, 100000)
+            bounded_int(probe.get('sequence'), 5, 1000000)
+        probes[label] = {'counts': {name: counts[name] for name in names}, 'sequence': probe['sequence']}
+    require(bounded_int(record.get('final_api_sequence'), 5, 1000000) == probes['final_probe']['sequence'])
+    result = {'contract': 'agentbaton.actual-task-schema16.v1', 'status': 'passed', 'schema': 16,
+              **host, 'origin': 'actual_source16_core_rpc', 'source_commit': SOURCE16, 'source_tree': TREE16,
+              'provenance_kind': 'reviewed_source_build', 'database_sha256': digest(record.get('database_sha256')),
+              'database_bytes': bounded_int(record.get('database_bytes'), 1, 16777216), 'binaries': tools,
+              'initial_probe': probes['initial_probe'], 'final_probe': probes['final_probe'],
+              'backup_logical_exact': True, 'prepared_task_count': 1, 'source_git_unchanged': True, 'daemon_stop': {'sigterm_sent': True, 'wait_exit': 0,
+              'forced_kill': False, 'identity_gone_after_join': True, 'leader_unreaped_until_signalling': True,
+              'group_quiescent_before_reaping': True, 'cleanup_error_count': 0}}
+    for field in ('generator_sha256', 'helper_sha256', 'common_helper_sha256',
+                  'native_helper_sha256', 'tool_provenance_sha256'):
+        result[field] = digest(record.get(field))
+    return result
+
 
 def unique_json(pairs):
     result = {}
@@ -315,7 +424,7 @@ def main():
     parser.add_argument('--temporary', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
-    summary = {'dimension': 'Genuine14-to-16 and genuine15-to-16 source/fixture metadata; platform-specific supplied evidence only',
+    summary = {'dimension': 'Genuine14/15/16 historical inputs for current17 validation; supplied source/fixture metadata only, not migration acceptance',
                'metadata_only': True, 'private_history_uploaded': False}
     invalid = False
     for label, path, project in [
@@ -323,6 +432,8 @@ def main():
         ('fixture', args.temporary / 'agentbaton-legacy14-fixture/manifest.json', public_fixture),
         ('schema15_source_build', args.temporary / 'agentbaton-legacy15-build/frozen/source-build-manifest.json', public15_build),
         ('schema15_fixture', args.temporary / 'agentbaton-legacy15-fixture/manifest.json', public15_fixture),
+        ('schema16_source_build', args.temporary / 'agentbaton-legacy16-build/frozen/source-build-manifest.json', public16_build),
+        ('schema16_fixture', args.temporary / 'agentbaton-legacy16-fixture/manifest.json', public16_fixture),
     ]:
         try:
             record = load(path)

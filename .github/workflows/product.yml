@@ -34,6 +34,12 @@ jobs:
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy15-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy15-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy15-fixture"
+      - name: Build genuine schema16 workspace history for the required migration gate
+        run: |
+          set -euo pipefail
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/generate-schema16-migration-fixture.py --frozen "$RUNNER_TEMP/agentbaton-legacy16-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy16-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy16-fixture"
       - name: Workspace tests with actual generated native-wire capture
         env:
           RUST_TEST_THREADS: '1'
@@ -42,7 +48,7 @@ jobs:
           mkdir -p artifacts/provider-contract
           # Planning integration tests require matching normal tools before tests.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema16-tools"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema17-tools"
           export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           cargo build --workspace --locked --bins
@@ -66,6 +72,14 @@ jobs:
           set -euo pipefail
           cargo test --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- -D warnings
+      - name: Migrate genuine nonempty schema16 workspace history with corruption and receipt controls
+        env:
+          AGENTBATON_ACTUAL_SCHEMA16_FIXTURE: ${{ runner.temp }}/agentbaton-legacy16-fixture/manifest.json
+          RUST_TEST_THREADS: '1'
+        run: |
+          set -euo pipefail
+          cargo test --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- --nocapture --test-threads=1
+          cargo clippy --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- -D warnings
       - name: Validate captured messages against hash-pinned official native schema
         run: |
           set -euo pipefail
@@ -381,7 +395,7 @@ jobs:
       - name: Build genuine native schema14 history for the required migration gate
         run: |
           set -euo pipefail
-          # Freeze the original native14 pair before normal16 overwrites target.
+          # Freeze the original native14 pair before normal17 overwrites target.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
@@ -391,6 +405,12 @@ jobs:
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy15-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy15-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy15-fixture"
+      - name: Build genuine schema16 workspace history for the required migration gate
+        run: |
+          set -euo pipefail
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/generate-schema16-migration-fixture.py --frozen "$RUNNER_TEMP/agentbaton-legacy16-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy16-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy16-fixture"
       - name: Core and native host tests
         env:
           # Each fixture owns real Git/SQLite/process work. Keep the original
@@ -400,7 +420,7 @@ jobs:
           set -euo pipefail
           # Planning integration tests require matching normal tools before tests.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema16-tools"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema17-tools"
           export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           cargo build --workspace --locked --bins
@@ -429,6 +449,14 @@ jobs:
           set -euo pipefail
           cargo test --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- -D warnings
+      - name: Migrate genuine nonempty schema16 workspace history with corruption and receipt controls
+        env:
+          AGENTBATON_ACTUAL_SCHEMA16_FIXTURE: ${{ runner.temp }}/agentbaton-legacy16-fixture/manifest.json
+          RUST_TEST_THREADS: '1'
+        run: |
+          set -euo pipefail
+          cargo test --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- --nocapture --test-threads=1
+          cargo clippy --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- -D warnings
       - name: Actual macOS WebView and daemon lifecycle acceptance
         run: |
           set -euo pipefail

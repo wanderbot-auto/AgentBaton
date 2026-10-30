@@ -26,11 +26,11 @@ GOOD = {
 
 # New evidence is additive; the original GOOD fields and all old test bodies stay intact.
 GOOD['first_webview'].update(goalExecutionLists=True, goalExecutionMissingRunDenied=True, readonlyGoalExecutionNoMutation=True, goalExecutionReadonlySequence=dict(before=2, after=2), goalExecutionMissingRun=dict(run_id='native-readonly-missing-goal-run', code='NOT_FOUND', side_effect_state='not_started'))
-GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=16,run_count=0,node_count=0,reservation_count=0,sequence=2), after=dict(schema_version=16,run_count=0,node_count=0,reservation_count=0,sequence=2))
+GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=17,run_count=0,node_count=0,reservation_count=0,sequence=2), after=dict(schema_version=17,run_count=0,node_count=0,reservation_count=0,sequence=2))
 
 
 GOOD['first_webview'].update(goalGraphLists=True, goalGraphMissingRunDenied=True, readonlyGoalGraphNoMutation=True, goalGraphReadonlySequence=dict(before=2, after=2), goalGraphMissingRun=dict(run_id='native-readonly-missing-goal-graph-run', code='NOT_FOUND', side_effect_state='not_started'))
-GOOD['goal_graph_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=16,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2), after=dict(schema_version=16,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2))
+GOOD['goal_graph_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=17,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2), after=dict(schema_version=17,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2))
 
 
 # Runtime crypto evidence is additive to the unchanged readonly/lifecycle fixture.
@@ -44,8 +44,11 @@ GOOD['first_webview'].update(factoryScopeLists=True, factoryMissingScopeDenied=T
                             readonlyFactoryNoMutation=True, factoryReadonlySequence=dict(before=2, after=2),
                             factoryMissingScope=dict(scope_id=native_run.MISSING_FACTORY_SCOPE_ID, code='NOT_FOUND', side_effect_state='not_started'),
                             factoryMissingRun=dict(scope_id=native_run.MISSING_FACTORY_SCOPE_ID, code='NOT_FOUND', side_effect_state='not_started'))
-_factory_counts = dict(schema_version=16, sequence=2, **{name: 0 for name in native_run.FACTORY_COUNT_FIELDS})
+_factory_counts = dict(schema_version=17, sequence=2, **{name: 0 for name in native_run.FACTORY_COUNT_FIELDS})
 GOOD['factory_readonly_database'] = dict(read_only=True, unchanged=True, before=_factory_counts.copy(), after=_factory_counts.copy())
+
+_integration_counts = dict(schema_version=17, sequence=2, **{name: 0 for name in native_run.INTEGRATION_COUNT_FIELDS})
+GOOD['integration_readonly_database'] = dict(read_only=True, unchanged=True, before=_integration_counts.copy(), after=_integration_counts.copy())
 
 
 class NativeRunnerTests(unittest.TestCase):
@@ -203,7 +206,7 @@ class GoalExecutionReadonlyEvidenceTests(unittest.TestCase):
                     changed=copy.deepcopy(GOOD);changed['first_webview'][field]=value
                     self.assertIsNotNone(native_run.native_report_error(changed))
 
-    def test_execution_database_is_independent_complete_schema16_and_all_zero(self):
+    def test_execution_database_is_independent_complete_schema17_and_all_zero(self):
         for location in ['goal_execution_readonly_database','before','after']:
             missing=copy.deepcopy(GOOD)
             if location=='goal_execution_readonly_database':del missing[location]
@@ -263,7 +266,7 @@ class GoalGraphReadonlyEvidenceTests(unittest.TestCase):
                 changed=copy.deepcopy(GOOD);changed['first_webview'][field]=value
                 self.assertIsNotNone(native_run.native_report_error(changed))
 
-    def test_graph_database_requires_schema16_and_all_six_independent_zero_counts(self):
+    def test_graph_database_requires_schema17_and_all_six_independent_zero_counts(self):
         fields=['schema_version','capability_count','job_count','candidate_count','validation_count','owner_decision_count','acceptance_count','sequence']
         for location in ['goal_graph_readonly_database','before','after']:
             missing=copy.deepcopy(GOOD)
@@ -281,7 +284,7 @@ class GoalGraphReadonlyEvidenceTests(unittest.TestCase):
             changed=copy.deepcopy(GOOD)
             for phase in ['before','after']:changed['goal_graph_readonly_database'][phase][field]=1
             self.assertIsNotNone(native_run.native_report_error(changed))
-        for schema in [10,11,12,13,14,15,17,13.0,14.0,15.0,16.0,True,'13','14','15','16',None]:
+        for schema in [10,11,12,13,14,15,16,18,13.0,14.0,15.0,16.0,17.0,True,'13','14','15','16','17',None]:
             for group in ['goal_graph_readonly_database','goal_execution_readonly_database']:
                 changed=copy.deepcopy(GOOD)
                 for phase in ['before','after']:changed[group][phase]['schema_version']=schema
@@ -365,7 +368,7 @@ class NativeArtifactAuditTests(unittest.TestCase):
 
 
 class FactoryReadonlyEvidenceTests(unittest.TestCase):
-    def test_exact_schema16_and_all_twelve_independent_typed_zero_counts_are_required(self):
+    def test_exact_schema17_and_all_twelve_independent_typed_zero_counts_are_required(self):
         self.assertIsNone(native_run.native_report_error(copy.deepcopy(GOOD)))
         fields = set(native_run.FACTORY_COUNT_FIELDS) | {'schema_version', 'sequence'}
         self.assertEqual(len(native_run.FACTORY_COUNT_FIELDS), 12)
@@ -383,7 +386,7 @@ class FactoryReadonlyEvidenceTests(unittest.TestCase):
                 for checkpoint in ['before', 'after']:
                     changed['factory_readonly_database'][checkpoint][field] = 1
                 self.assertIsNotNone(native_run.native_report_error(changed), field)
-        for schema in [0, 11, 12, 13, 14, 15, 17, 13.0, 14.0, 15.0, 16.0, True, '13', '14', '15', '16', None]:
+        for schema in [0, 11, 12, 13, 14, 15, 16, 18, 13.0, 14.0, 15.0, 16.0, 17.0, True, '13', '14', '15', '16', '17', None]:
             changed = copy.deepcopy(GOOD)
             for phase in ['before', 'after']:
                 changed['factory_readonly_database'][phase]['schema_version'] = schema
@@ -498,6 +501,52 @@ class WebCryptoEvidenceTests(unittest.TestCase):
         changed['goal_graph_readonly_database']['after']['candidate_count'] = 1
         self.assertIsNotNone(native_run.native_report_error(changed))
 
+
+
+
+class IntegrationReadonlyEvidenceTests(unittest.TestCase):
+    def test_separate_exact_zero_domain_keeps_original_factory_fields(self):
+        self.assertIsNone(native_run.native_report_error(copy.deepcopy(GOOD)))
+        self.assertEqual(set(GOOD['factory_readonly_database']['before']), set(native_run.FACTORY_COUNT_FIELDS) | {'schema_version', 'sequence'})
+        self.assertEqual(len(native_run.FACTORY_COUNT_FIELDS), 12)
+        self.assertEqual(set(GOOD['integration_readonly_database']['before']), {'policies', 'runs', 'attempts', 'ref_fences', 'schema_version', 'sequence'})
+
+    def test_missing_extra_and_typed_shape_are_not_optional(self):
+        for mode in ['missing', 'extra', 'bool-read', 'bool-unchanged', 'missing-phase']:
+            value = copy.deepcopy(GOOD)
+            if mode == 'missing': del value['integration_readonly_database']
+            elif mode == 'extra': value['integration_readonly_database']['private'] = 'not-public'
+            elif mode == 'bool-read': value['integration_readonly_database']['read_only'] = 1
+            elif mode == 'bool-unchanged': value['integration_readonly_database']['unchanged'] = 1
+            else: del value['integration_readonly_database']['after']
+            with self.subTest(mode=mode): self.assertIsNotNone(native_run.native_report_error(value))
+        for phase in ['before', 'after']:
+            for field in GOOD['integration_readonly_database'][phase]:
+                for bad in [True, False, None, 0.0, '0', -1, 18_446_744_073_709_551_616]:
+                    value = copy.deepcopy(GOOD); value['integration_readonly_database'][phase][field] = bad
+                    with self.subTest(phase=phase, field=field, bad=bad): self.assertIsNotNone(native_run.native_report_error(value))
+                value = copy.deepcopy(GOOD); del value['integration_readonly_database'][phase][field]
+                self.assertIsNotNone(native_run.native_report_error(value))
+            value = copy.deepcopy(GOOD); value['integration_readonly_database'][phase]['extra'] = 0
+            self.assertIsNotNone(native_run.native_report_error(value))
+
+    def test_old_future_float_and_each_nonzero_table_are_rejected(self):
+        for schema in [15, 16, 18, 16.0, 17.0, True, '17']:
+            value = copy.deepcopy(GOOD)
+            for phase in ['before', 'after']: value['integration_readonly_database'][phase]['schema_version'] = schema
+            with self.subTest(schema=schema): self.assertIsNotNone(native_run.native_report_error(value))
+        for field in native_run.INTEGRATION_COUNT_FIELDS:
+            value = copy.deepcopy(GOOD)
+            for phase in ['before', 'after']: value['integration_readonly_database'][phase][field] = 1
+            with self.subTest(field=field): self.assertIsNotNone(native_run.native_report_error(value))
+
+    def test_interval_matches_every_original_domain_and_never_coerces(self):
+        for name in ['goal_readonly_database', 'goal_execution_readonly_database', 'goal_graph_readonly_database', 'factory_readonly_database']:
+            for bad in [3, 2.0, True, None]:
+                value = copy.deepcopy(GOOD); value[name]['after']['sequence'] = bad
+                with self.subTest(name=name, bad=bad): self.assertIsNotNone(native_run.integration_report_error(value))
+        value = copy.deepcopy(GOOD); value['integration_readonly_database']['after']['sequence'] = 3
+        self.assertIsNotNone(native_run.native_report_error(value))
 
 if __name__ == '__main__':
     unittest.main()
