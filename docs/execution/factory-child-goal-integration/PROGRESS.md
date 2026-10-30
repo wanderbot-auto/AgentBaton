@@ -1,3 +1,23 @@
+## Atomic reservation reuse and finite receipt attribution verified locally — 2026-10-29T23:58:13.519671+00:00
+
+Rust b651: actual Factory26PASS88.57s and Core129PASS90.12s; the nested helper1 is not additive. Full workspace/all-target strictClippy and format passed. First Corelib compile capacity interruption executed no tests and remains preserved; successful generated caches were losslessly archived with full SHA roundtrip, then retry passed. The optimization reuses only the complete checked node view inside the same IMMEDIATE reservation; no cross-request cache or budget/Grant/witness/CAS relaxation. Independent runtime source review passed.
+
+Collector source e068/composed e62: full infrastructure150PASS, including66collector controls; original915 twoP2 findings remain retained and independent same-counterexample review closes exact receipt-run binding and ledger uniqueness. Root actual CLI on the new b651 real joined snapshot passed: command1 truly started/exit1/1277ms; command2 started/exit0/2284ms; child5settled12746ms, root/project8attempts14744ms, active0. These are post-join metadata, not admission-time proof or Mac findings. Original old retained-input CLI also remains separately source-bound. No rawDB/IDs/paths/RPC publication.
+
+See ATOMIC_RESERVATION_RESULTS.json. Exact new seven CI, both native Mac gates and packages remain next; original7ac5pass/2Macfail is not relabelled. No performance improvement or root-cause closure inferred from differing local durations. Full130/WP01–14 continues; main653679d/OWNER001002 ACK, no003 and no permission expansion.
+
+## Atomic reservation checked-view reuse candidate
+
+The initial `node_records` call already validates the current plan, node mirrors, session/attempt/stop and reservation bindings. Within the same reservation transaction, no node/run write precedes the ancestor walk. Reuse that immutable checked Vec for parent/ancestor lookup instead of loading and verifying the complete history again for every ancestor. Keep the initial full validation, all scope/Grant/FS witnesses, cumulative root/project/Factory/ancestor budget checks, compare-and-swap and postwrite seal. Never cache across requests. This reduces redundant bounded work; it is not an established fix for the two Mac failures. Original ceilings, assertions and unknown-outcome rules remain. Independent review and actual Rust regression are next.
+
+## PR18 head7ac exact terminal CI — 2026-10-29T23:43:30.215969+00:00
+
+Environment40971954724 three platforms and Product40971954667 Rust/UI passed. ARM22PASS/1FAIL143.30s and Intel22PASS/1FAIL180.71s in the original rework case; downstream native/build/package gates skipped. Tested merge checkout57d049d is not an actual main merge. Safe post-owned-shutdown reports were collected successfully on both Macs.
+
+Intel observed plan2/runrevision14 blocked with same-revision goal.run_blocked RESOURCE_LIMIT; second validator not_started, observation/approved Scope window still27565/28924ms. ARM observed plan2/revision16 failed with both receipts failed/stopped/worker_joined and goal.factory_failure_confirmed; observation/approved Scope window still31312/32478ms. worker_joined includes preflight-error placeholders; grep launch/exit and the exact resource subtype remain unknown. Production candidate selection was independently confirmed current-plan/exact full-reference bound. No unsupported common root cause, timeout or fix is claimed. Original budgets and all success/failure assertions stay intact.
+
+See HEAD7AC_TERMINAL_RESULTS.json for exact commits, jobs, artifact IDs and hashes. Continue focused validator admission/preflight/settlement diagnosis and independent review; PR18 remains draft/unmerged. PR19 stays dependent at7d3ac96 with local schema16 validation separately recorded; full130 requirements and current dualMac/installers remain incomplete. OWNER001/002 ACK at unchanged main653679d, no003; all authority boundaries remain.
+
 ## 当前预算/交接负控通过与真实返工失败 — 2026-10-29T14:50:41.251044+00:00
 
 首次预算初始化的5项真实Store测试＋1项私有query-proof单元通过；8类历史异常、精确关联/日志晚失败回滚和其他counter不变均保留硬断言。另3项交接负控已在d413纠正测试列/doc一致性后通过，仍精确AUTH_REQUIRED与完整rollback，cfg(test)一次性注入不进应用/发布包。原6个E0277是0测试执行的编译失败，不冒5case失败；旧2/1、首次Ownercounter0/1及所有原始日志/失败ELF均保留。

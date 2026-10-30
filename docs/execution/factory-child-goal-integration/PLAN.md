@@ -1,3 +1,5 @@
+Next: submit the independently reviewed atomic-view/finite-receipt candidate for exact seven CI; diagnose separate Mac outcomes from actual new evidence, preserve original ceilings and failure assertions, then proceed through protected integration and dependent schema16 work. Full scope remains.
+
 # Full-product next execution unit
 
 Continue AB-START-001 / Design v0.2 / WP01–WP14 without reducing the 130 requirements. ACK OWNER-001/002 at main653679d; no new instruction.

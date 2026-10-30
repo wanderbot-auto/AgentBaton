@@ -287,5 +287,8 @@
   "Root_progress_diagnostics_results": "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
   "a866_environment_failure_and_fixture_fix": "docs/execution/factory-child-goal-integration/A866_ENVIRONMENT_AND_ALIAS_FIX.json",
   "a866_product_terminal": "docs/execution/factory-child-goal-integration/A866_PRODUCT_TERMINAL_RESULTS.json",
-  "Root_event_diagnostics": "docs/execution/factory-child-goal-integration/EVENT_DIAGNOSTICS_RESULTS.json"
+  "Root_event_diagnostics": "docs/execution/factory-child-goal-integration/EVENT_DIAGNOSTICS_RESULTS.json",
+  "latest_exact_ci": "HEAD7AC_TERMINAL_RESULTS.json",
+  "latest_ci_status": "Environment3/Rust/UI passed; bothMac failed; allterminal; no new installer",
+  "latest_local_validation": "ATOMIC_RESERVATION_RESULTS.json"
 }

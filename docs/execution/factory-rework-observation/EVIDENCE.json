@@ -1024,5 +1024,61 @@
       "failure root-cause/performance fix"
     ],
     "root_cause": "not established for either Rust blocked14 or ARM failed16"
+  },
+  "validation_observation_915b570": {
+    "source_commit": "915b5704163a97b98cd705b72ab23857e3eb346e",
+    "source_parent": "f28f3e0f435465782d7bbc7f2130c508c1c9dbfd",
+    "source_manifest": "/workspace/.onboarding/factory-rework-validation-observation-evidence/SOURCE_MANIFEST.json",
+    "source_manifest_sha256": "96cde557604fb7fb50f90d5dacacd34d77e16d1af5a2e0fa309c5ed476fa2dda",
+    "diagnosis_path": "/workspace/.onboarding/factory-rework-validation-observation-evidence/DIAGNOSIS.json",
+    "diagnosis_sha256": "a1784aeb8e2c4b1f76120514a41a5dbd139bd76e48ffaaf6ad86be4b57cdd5d8",
+    "actual_final_pure_result": {
+      "distinct_tests": 60,
+      "seconds": 0.307,
+      "exit": 0,
+      "old40_methods_byte_equal": true,
+      "stage_results_not_added": true
+    },
+    "production_and_fixture_7ac_files_byte_equal": 14,
+    "root_meter_20k_inference_withdrawn": true,
+    "actual_root_selection": "execution.policy.root_budget=30000; host policy target20000 is separate",
+    "collector_schema_exact": 15,
+    "product_fix": false,
+    "actual_retained_db_cli": "NOT_RUN",
+    "rust_actor_browser_mac_ci": "NOT_RUN",
+    "independent_review": "PENDING",
+    "bounded_receipt_and_budget_projection_only": true
+  },
+  "receipt_binding_e06828b": {
+    "source_commit": "e06828b81c879f7d853f9a4ef29e4b6483e0a556",
+    "source_parent": "f78cbee97299b29d25b808260700b9d417b5867b",
+    "independent_915_findings": [
+      "foreign document.run_id attributed to selected Goal",
+      "duplicate exact ledger key selected arbitrary first row"
+    ],
+    "original_915_counterexamples_preserved": true,
+    "actual_pure_result": {
+      "exit": 0,
+      "distinct_tests": 66,
+      "seconds": 0.213,
+      "original60_method_bodies_byte_equal": true
+    },
+    "old_and_fixed_generated_countercontrols": {
+      "old_counterexamples": 2,
+      "new_rejected": 2,
+      "exits": [
+        0,
+        0
+      ]
+    },
+    "manifest_path": "/workspace/.onboarding/factory-rework-receipt-binding-correction/SOURCE_MANIFEST.json",
+    "manifest_sha256": "a1ab6fd7cdcaa360513da7f31275fffca46c7632ca126ba8897cc09c1d2e9204",
+    "historical_missing_run_id": "null observation slot, no runtime/start/exit inference",
+    "duplicate_missing_receipts": "invalid",
+    "ledger_cardinality": "0 pending; exactly1 observed; 2 invalid",
+    "changed_production_schema_rust_cargo": false,
+    "independent_fixed_review": "PENDING",
+    "actual_retained_input_or_runtime": "NOT_RUN_BY_AUTHOR",
+    "mac_ci": "NOT_RUN_BY_AUTHOR"
   }
 }

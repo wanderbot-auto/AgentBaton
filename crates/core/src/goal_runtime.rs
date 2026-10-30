@@ -1187,8 +1187,9 @@ fn reserve_attempt(
     }
     let nodes = node_records(db, &r.id)?;
     let mut n = nodes
-        .into_iter()
+        .iter()
         .find(|n| n.node.id == c.node.id && n.state == "not_started")
+        .cloned()
         .ok_or_else(changed)?;
     if n.node != c.node || target.task_id != r.task_id || target.grant_id != r.root_grant_id {
         return Err(changed());
@@ -1268,6 +1269,10 @@ fn reserve_attempt(
         &n.node.reservation,
         &root_active,
     )?;
+    // All node rows and their plan/session/receipt bindings were checked above
+    // in this same atomic reservation. No node or run is written until after
+    // the ancestor checks; reuse that checked view instead of revalidating the
+    // complete plan history once per ancestor. Never cache it across requests.
     let mut ancestors = vec![n.node.id.clone()];
     let mut parent = n.node.parent_id.clone();
     while let Some(p) = parent {
@@ -1275,15 +1280,12 @@ fn reserve_attempt(
             return Err(changed());
         }
         ancestors.push(p.clone());
-        let old = node_records(db, &r.id)?
-            .into_iter()
-            .find(|x| x.node.id == p)
-            .ok_or_else(changed)?;
-        parent = old.node.parent_id;
+        let old = nodes.iter().find(|x| x.node.id == p).ok_or_else(changed)?;
+        parent = old.node.parent_id.clone();
     }
     for ancestor in &ancestors {
-        let budget = node_records(db, &r.id)?
-            .into_iter()
+        let budget = &nodes
+            .iter()
             .find(|x| &x.node.id == ancestor)
             .ok_or_else(changed)?
             .node
