@@ -4,7 +4,7 @@ import type { GoalValidatorRef } from './goal-api';
 export interface IntegrationReservationForm {runtime:string;output:string;tokens:string;cost:string}
 export interface IntegrationForm {scopeId:string;targetRef:string;rounds:string;advance:IntegrationPolicySelection['on_target_advance'];ttl:string;extraValidators:string[];preparation:IntegrationReservationForm;cas:IntegrationReservationForm;validators:Record<string,IntegrationReservationForm>}
 export const integrationValidatorKey=(v:GoalValidatorRef)=>`${v.kind}:${v.policy_id}:${v.revision}`;
-export const newIntegrationReservation=():IntegrationReservationForm=>({runtime:'1000',output:'1048576',tokens:'',cost:''});
+export const newIntegrationReservation=():IntegrationReservationForm=>({runtime:'5000',output:'1048576',tokens:'',cost:''});
 export const newIntegrationForm=():IntegrationForm=>({scopeId:'',targetRef:'',rounds:'1',advance:'block',ttl:'60000',extraValidators:[],preparation:newIntegrationReservation(),cas:newIntegrationReservation(),validators:{}});
 function integer(v:string,min=0,max=Number.MAX_SAFE_INTEGER):number {const n=Number(v);if(!/^(0|[1-9][0-9]*)$/.test(v)||!Number.isSafeInteger(n)||n<min||n>max)throw new Error('Invalid integration reservation');return n;}
 const reservation=(v:IntegrationReservationForm):IntegrationReservation=>({runtime_ms:integer(v.runtime,1),output_bytes:integer(v.output,1),tokens:v.tokens===''?null:integer(v.tokens),cost_microunits:v.cost===''?null:integer(v.cost)});

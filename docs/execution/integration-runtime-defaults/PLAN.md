@@ -1,0 +1,9 @@
+# Integration draft runtime defaults
+
+Scope: AB-START-001 / Design v0.2 integration permission UI; original author worktree codex/authorized-integration-ui, clean baseline6b889af8b3631da1b055c697fc7ba0a690422d4f. Only integration-form.ts, the existing TaskIntegration component test and these four records are authorized. Root owns Node/type/build checks and a third party will independently review the frozen source.
+
+Change only the runtime string returned by newIntegrationReservation from1000 to5000 milliseconds. Existing new-form preparation/CAS and selected-validator fallback already share this function. Keep fields editable and preserve every approved/saved policy, retained exact request/key, TTL, output/token/cost values, Native complete-snapshot confirmation and original Core budget/permission checks. A draft whose total exceeds the authoritative shared budget remains refused; do not expand Goal scope or original grants to fit it.
+
+ADR: choose an explicit5s draft-stage suggestion because Root observed complete real preparation exceeding1s (reported1072/1075ms, conservatively unknown under the original reservations). Root's separately bound5s-per-stage Unix IPC positive fixture then passed both normal chains. This supports replacing a too-small suggestion; it is neither a performance percentile nor a guarantee that5s will always suffice. It does not retroactively alter approved authority. Owner reviews the exact edited selection in Native; unknown/cancel/timeouts and shared-budget refusal remain authoritative.
+
+Acceptance: the actual component submits all three default runtime reservations as5000; user edits all three to1000 and the exact request remains1000; loading/read-only refresh leaves the complete existing1000-policy byte representation unchanged, without write calls. Existing approval, unknown/recovery and refusal assertions remain.
