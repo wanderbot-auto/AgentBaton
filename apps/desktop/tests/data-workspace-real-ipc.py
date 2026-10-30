@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Actual built React + fixed loopback adapter + real schema16 dataset-copy IPC.
+"""Actual built React + fixed loopback adapter + real schema17 dataset-copy IPC.
 
 Only generated sibling source/runtime directories are used. Owner confirmation
 is an explicit host fixture OUTSIDE HTTP, never an OS dialog or Renderer grant.
@@ -338,7 +338,7 @@ def main():
     binary, frontend, output = args.batond.resolve(strict=True), args.frontend.resolve(strict=True), args.output.resolve()
     assert (frontend / 'index.html').is_file()
     output.mkdir(parents=True, exist_ok=False)  # interrupted evidence without report.json is still evidence
-    report = {'status': 'failed_or_interrupted', 'dimension': 'actual built React / Chromium / fixed test-only HTTP / real Unix schema16 daemon / actual generated files',
+    report = {'status': 'failed_or_interrupted', 'dimension': 'actual built React / Chromium / fixed test-only HTTP / real Unix schema17 daemon / actual generated files',
               'owner_confirmation': 'host fixture outside HTTP, not a native OS OwnerDialog',
               'not_claimed': ['macOS', 'native WebView', 'Provider/session/model', 'OS sandbox', 'DLP', 'atomic directory freeze', 'execution grant', 'Task acceptance'],
               'daemon_sha256': sha(binary.read_bytes()), 'harness_sha256': sha(Path(__file__).read_bytes()),
@@ -355,7 +355,7 @@ def main():
         manifest = json.loads(manifest_bytes)
         binary_entry = manifest['binaries']['batond']
         expected_binary = binary_entry['sha256'] if isinstance(binary_entry, dict) else binary_entry
-        assert type(manifest.get('schema')) is int and manifest['schema'] == 16 and expected_binary == report['daemon_sha256']
+        assert type(manifest.get('schema')) is int and manifest['schema'] == 17 and expected_binary == report['daemon_sha256']
         report['candidate'] = {'manifest_sha256': sha(manifest_bytes), 'status': manifest.get('status'),
                                'git_head': manifest['git_head'], 'dirty': manifest['dirty'],
                                'source_tree_sha256': manifest['source_tree_sha256'],
@@ -453,8 +453,10 @@ def main():
                 with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True) as store:
                     store.execute('PRAGMA query_only=ON')
                     store.execute('BEGIN')
-                    assert store.execute('PRAGMA user_version').fetchone()[0] == 16
+                    assert store.execute('PRAGMA user_version').fetchone()[0] == 17
                     assert store.execute('SELECT count(*) FROM factory_child_goal_runs').fetchone()[0] == 0
+                    for table in ('integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences'):
+                        assert store.execute('SELECT count(*) FROM '+table).fetchone()[0] == 0
                     tables = ['data_workspace_previews', 'data_workspace_creations', 'managed_workspaces', 'approval_proposals', 'attempts', 'sessions', 'dispatch_intents']
                     snapshot = {table: store.execute('SELECT count(*) FROM ' + table).fetchone()[0] for table in tables}
                     snapshot['sequence'] = store.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]
