@@ -103,7 +103,28 @@ pub(crate) fn check_workspace_fences(
     }
     let (device, inode) = super::fs::directory_identity(common_dir)?;
     let digest = repository_digest(&device.to_string(), &inode.to_string())?;
-    // Authenticate every stored row before filtering its physical repository.
+    for current in checked_fences(db)? {
+        let repository = &current.repository_digest;
+        let id = &current.integration_id;
+        let state = &current.state;
+        if repository != &digest || state == "released" {
+            continue;
+        }
+        let allowed = own.is_some_and(|permit| {
+            permit.repository_digest == digest
+                && permit.integration_id == *id
+                && current.state == "held"
+        });
+        if !allowed {
+            return Err(CoreError::new("WORKSPACE_BUSY", "This physical repository remains fenced by an owned or unknown integration; paths, new projects and lease expiry cannot bypass it"));
+        }
+        own.ok_or_else(denied)?.verify(db)?;
+    }
+    Ok(())
+}
+
+pub(super) fn checked_fences(db: &Connection) -> Result<Vec<runtime::RefFence>> {
+    // Authenticate every stored row before any filter or replacement write.
     // A malformed/moved SQL key must not turn an existing fence into absence.
     let (count, bytes): (i64, i64) = db.query_row(
         "SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(integration_id)+octet_length(repository_digest)+octet_length(target_ref)),0) FROM integration_ref_fences", [],
@@ -127,6 +148,7 @@ pub(crate) fn check_workspace_fences(
         .map_err(db_error)?
         .collect::<std::result::Result<Vec<_>, _>>()
         .map_err(db_error)?;
+    let mut checked = Vec::with_capacity(rows.len());
     for (repository, target, id, revision, state, document) in rows {
         let run = records::run(db, &id)?;
         let current = runtime::fence(db, &run)?;
@@ -141,18 +163,7 @@ pub(crate) fn check_workspace_fences(
         {
             return Err(changed());
         }
-        if repository != digest || state == "released" {
-            continue;
-        }
-        let allowed = own.is_some_and(|permit| {
-            permit.repository_digest == digest
-                && permit.integration_id == id
-                && current.state == "held"
-        });
-        if !allowed {
-            return Err(CoreError::new("WORKSPACE_BUSY", "This physical repository remains fenced by an owned or unknown integration; paths, new projects and lease expiry cannot bypass it"));
-        }
-        own.ok_or_else(denied)?.verify(db)?;
+        checked.push(current);
     }
-    Ok(())
+    Ok(checked)
 }

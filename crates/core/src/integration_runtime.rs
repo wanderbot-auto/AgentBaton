@@ -169,6 +169,8 @@ fn historical_fence(
     Ok(original)
 }
 pub(super) fn write_fence(db: &Connection, f: &mut RefFence, kind: &str) -> Result<()> {
+    // Validate old rows before an UPSERT can hide corrupted mirror state.
+    let _ = super::fences::checked_fences(db)?;
     f.receipt_sequence = None;
     let seq = records::event(
         db,
@@ -428,6 +430,11 @@ impl Store {
             return Err(changed());
         }
         source_idle(&tx, &p)?;
+        super::fences::check_workspace_fences(
+            &tx,
+            material.workspace.identity.as_ref().ok_or_else(changed)?,
+            None,
+        )?;
         let occupied:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM integration_ref_fences WHERE repository_digest=?1 AND state IN('held','unknown'))",params![p.bindings.repository_digest],|r|r.get(0)).map_err(db_error)?;
         if occupied {
             return Err(CoreError::new(
