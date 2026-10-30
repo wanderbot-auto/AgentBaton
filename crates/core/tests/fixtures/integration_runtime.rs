@@ -3557,3 +3557,294 @@ fn block_policy_with_three_round_limit_refuses_real_descendant_advance() {
 fn third_real_descendant_advance_exhausts_rounds_without_fourth_preparation_or_cas() {
     assert_real_drift_refusal(DriftRefusal::ExhaustedRounds);
 }
+
+// There is deliberately no production test-control gate for the short private
+// stopped-command postprobe. These cases hold the real validator at its FIFO,
+// move the actual approved ref, then withdraw authority before releasing it.
+// They prove running-validator withdrawal with actual drift, not withdrawal
+// after the process has stopped or while the private postprobe is queued.
+fn assert_withdrawal_during_actual_target_drift(revoke: bool) {
+    let mut f = RuntimeFixture::with_attempt_limit(12);
+    let ready = f.owner_ready();
+    let mut gate = ReprepareGate::new(&f.root);
+    let definition = f.reprepare_command_definition(&ready["candidates"][0], &gate);
+    let original = OriginalCommand::capture(&f, &definition);
+    let accepted = f.accept();
+    user_changes(&f);
+    let source_before = source_image(&f.source());
+    let project_before = source_image(&f.project_root);
+    let policy = f.approve_three_round_integration(&definition);
+    let start = rpc(
+        &f.server,
+        "integrations.start",
+        json!({"policy_id":policy["id"]}),
+        Some("drift-withdrawal-start"),
+        Some(policy["revision"].clone()),
+    );
+    let id = start["run"]["id"].clone();
+    let (leader, host_deadline) = gate.next_owned_validator();
+    assert!(Instant::now() < host_deadline);
+    let live = rpc(
+        &f.server,
+        "integrations.get",
+        json!({"integration_id":id}),
+        None,
+        None,
+    );
+    assert!(Instant::now() < host_deadline);
+    assert_eq!(live["run"]["round"], 1);
+    assert_eq!(live["run"]["active_stage"], "validator");
+    assert_eq!(live["attempts"].as_array().unwrap().len(), 2);
+    assert_eq!(live["attempts"][1]["settled"], false);
+    let advanced = advance_owned_test_target(&f, &f.initial_target, 1, host_deadline);
+    assert!(Instant::now() < host_deadline);
+    let withdrawal = if revoke {
+        let revoked = rpc(
+            &f.server,
+            "integration_policies.revoke",
+            json!({"policy_id":policy["id"]}),
+            Some("revoke-during-owned-target-drift"),
+            Some(policy["revision"].clone()),
+        );
+        assert_eq!(revoked["id"], policy["id"]);
+        assert_eq!(revoked["revoked"], true);
+        assert_eq!(revoked["revision"], 2);
+        revoked
+    } else {
+        let cancelled = rpc(
+            &f.server,
+            "integrations.cancel",
+            json!({"integration_id":id}),
+            Some("cancel-during-owned-target-drift"),
+            Some(live["run"]["revision"].clone()),
+        );
+        assert_eq!(cancelled["run"]["cancel_requested"], true);
+        assert_eq!(cancelled["run"]["state"], "cancel_requested");
+        assert_eq!(cancelled["attempts"][1]["settled"], false);
+        cancelled
+    };
+    assert!(Instant::now() < host_deadline);
+    // The kernel command may already have been killed by the Actor. Writing
+    // the held FIFO is only a release, never a stop or exit acknowledgement.
+    gate.release(host_deadline);
+    let stopped = observe(
+        &f.server,
+        "integrations.get",
+        json!({"integration_id":id}),
+        |v| {
+            let state = v["run"]["state"].as_str().unwrap();
+            assert!(
+                !matches!(
+                    state,
+                    "failed"
+                        | "blocked"
+                        | "outcome_unknown"
+                        | "confirmed_local_ref"
+                        | "stale_target"
+                ),
+                "expected actual authority withdrawal, observed {state}/{}",
+                v["run"]["last_error"]["code"]
+            );
+            state == "cancelled"
+        },
+    );
+    let run = &stopped["run"];
+    assert_eq!(run["id"], id);
+    assert_eq!(run["round"], 1);
+    assert_eq!(run["expected_target_head"], f.initial_target);
+    assert_eq!(
+        run["last_error"]["code"],
+        if revoke {
+            "PERMISSION_DENIED"
+        } else {
+            "CANCEL_REQUESTED"
+        }
+    );
+    assert_eq!(run["active_stage"], Value::Null);
+    assert_eq!(run["io_completion"], "worker_joined");
+    assert_eq!(run["acceptance_ref"], accepted["task_acceptance"]["id"]);
+    assert_eq!(stopped["fence"]["state"], "released");
+    assert_eq!(git(&f.project_root, &["rev-parse", TARGET]), advanced);
+    assert_eq!(source_image(&f.source()), source_before);
+    assert_eq!(source_image(&f.project_root), project_before);
+    let attempts = stopped["attempts"].as_array().unwrap();
+    assert_eq!(attempts.len(), 2);
+    let receipts = run["validation_receipts"].as_array().unwrap();
+    assert_eq!(receipts.len(), 1);
+    let receipt = &receipts[0];
+    assert_eq!(receipt["round"], 1);
+    assert_eq!(receipt["passed"], false);
+    assert_eq!(receipt["stop_confirmed"], true);
+    assert_eq!(receipt["worker_joined"], true);
+    assert_eq!(receipt["attempt_id"], attempts[1]["attempt_id"]);
+    assert_eq!(
+        receipt["integration_commit"],
+        live["run"]["integration_commit"]
+    );
+    let db = readonly(&f);
+    original.assert_unchanged(&f, &db);
+    let all = events(&db);
+    let observed = unique_event(&all, "integration.validator_observed", &id);
+    assert_eq!(observed.0, receipt["sequence"].as_u64().unwrap());
+    let view = &observed.1["payload"]["view"];
+    assert_eq!(
+        sha256(&serde_json::to_vec(view).unwrap()),
+        receipt["result_digest"]
+    );
+    assert_eq!(view["process_started"], true);
+    assert_eq!(view["passed"], false);
+    assert_eq!(view["cleanup_completed_within_budget"], true);
+    assert_eq!(view["cleanup"]["owned_leader_reaped"], true);
+    assert_eq!(view["cleanup"]["all_capture_pipes_observed_eof"], true);
+    assert_eq!(view["contract"]["wall_time_ms"], 500);
+    assert_eq!(view["contract"]["cleanup_time_ms"], 500);
+    assert_eq!(
+        view["contract"]["file_contract"]["subject"]["version"]["expected_target_head"],
+        f.initial_target
+    );
+    // A natural exit can race withdrawal after the host releases the FIFO.
+    // Only the actual retained view determines its exit/cancellation fields;
+    // authority withdrawal still forbids any continuation or false CAS pass.
+    let withdrawal_event = if revoke {
+        unique_event(&all, "integration.policy_revoked", &policy["id"])
+    } else {
+        unique_event(&all, "integration.cancel_requested", &id)
+    };
+    let dispatched = all
+        .iter()
+        .filter(|(_, e)| {
+            e["aggregate_id"] == id
+                && e["kind"] == "integration.stage_dispatched"
+                && e["payload"]["kind"] == "validator"
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(dispatched.len(), 1);
+    assert!(dispatched[0].0 < withdrawal_event.0 && withdrawal_event.0 < observed.0);
+    assert!(all.iter().all(|(_, e)| !(e["aggregate_id"] == id
+        && matches!(
+            e["kind"].as_str(),
+            Some("integration.cas_observed" | "integration.descendant_target_observed")
+        ))));
+    for (i, attempt) in attempts.iter().enumerate() {
+        assert_eq!(attempt["round"], 1);
+        assert_eq!(
+            attempt["kind"],
+            if i == 0 { "preparation" } else { "validator" }
+        );
+        assert_eq!(attempt["state"], "finished");
+        assert_eq!(attempt["settled"], true);
+        assert_eq!(attempt["io_completion"], "worker_joined");
+        assert!(attempt["actual_runtime_ms"].as_u64().unwrap() <= 2000);
+        assert!(
+            attempt["actual_output_bytes"].as_u64().unwrap()
+                <= attempt["reservation"]["output_bytes"].as_u64().unwrap()
+        );
+        let joined = all
+            .iter()
+            .filter(|(_, e)| {
+                e["aggregate_id"] == id
+                    && e["kind"] == "integration.attempt_joined"
+                    && e["payload"]["attempt_id"] == attempt["attempt_id"]
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(joined.len(), 1);
+        assert_eq!(joined[0].1["payload"]["reservation_refunded"], false);
+    }
+    let graph_cost: String = db
+        .query_row(
+            "SELECT document FROM goal_run_reservations WHERE run_id=?1",
+            [f.graph["run"]["id"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let graph_cost: Value = serde_json::from_str(&graph_cost).unwrap();
+    assert_eq!(graph_cost["settled"], true);
+    let runtime = graph_cost["actual_runtime_ms"].as_u64().unwrap()
+        + attempts
+            .iter()
+            .map(|a| a["actual_runtime_ms"].as_u64().unwrap())
+            .sum::<u64>();
+    let output = graph_cost["actual_output_bytes"].as_u64().unwrap()
+        + attempts
+            .iter()
+            .map(|a| a["actual_output_bytes"].as_u64().unwrap())
+            .sum::<u64>();
+    assert!(runtime > 0 && runtime <= 20_000);
+    assert!(output > 0 && output <= 8192);
+    for domain in ["root", "project"] {
+        assert_eq!(stopped["shared_usage"][domain]["attempts"], 3);
+        assert_eq!(stopped["shared_usage"][domain]["active"], 0);
+        assert_eq!(stopped["shared_usage"][domain]["runtime_ms"], runtime);
+        assert_eq!(stopped["shared_usage"][domain]["output_bytes"], output);
+    }
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM integration_attempts", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        2
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
+            .unwrap(),
+        3
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",
+            [],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+            [],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    drop(db);
+    let graph_after = rpc(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":f.graph["run"]["id"]}),
+        None,
+        None,
+    );
+    assert_eq!(graph_after["task_acceptance"], accepted["task_acceptance"]);
+    assert_eq!(graph_after["task_accepted"], true);
+    if revoke {
+        let policies = rpc(
+            &f.server,
+            "integration_policies.list",
+            json!({"task_id":f.task["id"]}),
+            None,
+            None,
+        );
+        let current = policies
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|p| p["id"] == policy["id"])
+            .unwrap();
+        assert_eq!(*current, withdrawal);
+    } else {
+        assert_eq!(run["cancel_requested"], true);
+    }
+    assert!(original_command_identity_is_gone(&leader));
+    f.server.finish();
+    assert!(original_command_identity_is_gone(&leader));
+}
+
+#[test]
+fn owner_cancel_with_actual_descendant_drift_stops_without_reprepare_or_cas() {
+    assert_withdrawal_during_actual_target_drift(false);
+}
+
+#[test]
+fn owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas() {
+    assert_withdrawal_during_actual_target_drift(true);
+}
