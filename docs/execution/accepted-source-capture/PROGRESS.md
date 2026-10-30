@@ -21,3 +21,11 @@ Final direct rustfmt/diff and source inverse/pattern checks exit0. An initial fi
 ## Final freeze49fdf92
 
 Source49fdf925e9522d869cb0ff8c96c5540177dcdc67 adds only the explicit submodule observation flag and one generated-Git cfg-unit source to4811. Total test-source counts are13integration+5cfg-unit=18, all NOT_RUN. The new control is not an old-version executed exploit and no Mac behavior is inferred. Final direct format/diff/source checks exit0 with exact current hashes at `/workspace/.onboarding/accepted-source-capture-49fdf92`. Both earlier source commits and evidence directories remain unchanged. No further hardening, Cargo, Git product test, Actor, Node, CI, remote or dependency operation was executed.
+
+## Root actual execution and isolated empty-base diagnostic
+
+Root executed source49/on-docs8e:5cfg-unit PASS1.25s (11filtered), and integration13 gave12PASS/1FAIL7.89s, exit101. Exact logs/results are independently hash-bound in `/workspace/.onboarding/accepted-source-capture-empty-base-diagnostic-caf405d/SOURCE_AND_RESULTS.json`; original unit1/integration1 artifacts are untouched. The failed empty-base test expected precisely UnsafeRepository but originally did not print the actual result class. These groups are not18passes and author source-only records above are historical, not retroactive runtime evidence.
+
+Diagnostic-only sourcecaf405d7e3fc25183cc3cf5cad0147031aac67c4 changes only that integration function. It retains the exact error expectation and original final source/index/ref assertions, and prints a finite WorkspaceError category or Ok commit/tree/base object hashes. No arbitrary error strings, source paths or contents are formatted. A local Option-owned guard forgets only this generated Repo on panic so its existing raw-generated-tree repository remains for Root investigation; normal success retains original TempDir cleanup. Shared constructor/other12cases and all production bytes are unchanged.
+
+Direct fmt/diff and mechanical prefix/assert/source checks passed. This author did not run Cargo, Git product tests or touch shared targets. Root must run this one diagnostic case to establish actual Ok/Err before any production fix. Initial index cache-tree behavior and final recursive-diff omission are testable source hypotheses, not yet actual-return evidence or a confirmed root cause.

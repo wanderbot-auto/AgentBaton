@@ -4,7 +4,7 @@
     "AB-PRJ-004",
     "AB-PRJ-005"
   ],
-  "stage": "fixed_source_implemented_pending_independent_review_and_runtime",
+  "stage": "root_initial_runtime_failed_pending_one_case_diagnosis",
   "base": "bc10ee94c667da9535018c37fdf5b128d63126af",
   "source_commit": "49fdf925e9522d869cb0ff8c96c5540177dcdc67",
   "source_sha256": {
@@ -131,5 +131,58 @@
       "artifacts": "/workspace/.onboarding/accepted-source-capture-49fdf92"
     }
   ],
-  "submodule_config_note": "defensive explicit flag; prior diff-tree config-adoption semantics NOT_RUN, not a reproduced bypass"
+  "submodule_config_note": "defensive explicit flag; prior diff-tree config-adoption semantics NOT_RUN, not a reproduced bypass",
+  "root_actual_execution_initial": {
+    "unit1": {
+      "artifact_directory": "/workspace/.onboarding/accepted-source-capture-unit1",
+      "result_sha256": "20d1f1459f51b932b450c8ebfc2f74a690550e18becdab1c06d254fb1120b1ab",
+      "command_log_sha256": "b5a02d5775054c243b5b199bc58ae82fa5fb9ed594bb4e42bb8855da85eb9be4",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 1.25s"
+      ]
+    },
+    "integration1": {
+      "artifact_directory": "/workspace/.onboarding/accepted-source-capture-integration1",
+      "result_sha256": "72737db01e223f0b585e7595db620bf6eba7568f7102751ef1960dd4bb286121",
+      "command_log_sha256": "28644cecae5c7f12087e91bbaf8a177a86807415d5fc2b0e304f9b6385302e61",
+      "exit": 101,
+      "summaries": [
+        "test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.89s"
+      ]
+    }
+  },
+  "diagnostic_revision": {
+    "source_commit": "caf405d7e3fc25183cc3cf5cad0147031aac67c4",
+    "production_unchanged_from": "49fdf925e9522d869cb0ff8c96c5540177dcdc67",
+    "test_file_sha256": "4ad350e43f9c7ecab5b28b244c9a7f2891e9fbbd63dd633c493e036055d300af",
+    "actual_diagnostic_case": "NOT_RUN",
+    "expectation": "exact Err UnsafeRepository",
+    "retention": "only own generated Repo on panic; no raw paths printed",
+    "author_commands": [
+      {
+        "argv": [
+          "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+          "--edition",
+          "2021",
+          "--check",
+          "crates/workspaces/tests/source_capture.rs"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "source_evidence": "/workspace/.onboarding/accepted-source-capture-empty-base-diagnostic-caf405d/SOURCE_AND_RESULTS.json"
+  }
 }

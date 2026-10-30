@@ -17,3 +17,9 @@ Suggested actual commands when Root grants disk/CPU: `cargo test --locked -p age
 ## Final handoff
 
 Use source49fdf925e9522d869cb0ff8c96c5540177dcdc67 and the new49 evidence directory. This supersedes the running-source checkpoint above without erasing278/4811 histories. Run both13test integration target and5private cfg-unit sources under the Root lease after independent review; neither group has been compiled by this author. Exact18source count is not a test-pass count. Root owns any actual disk/CPU lease; this author used no heavy lease and removed no artifacts/caches.
+
+## Diagnostic handoff caf405d
+
+Run only `unrepresentable_empty_base_subtree_is_rejected_instead_of_silently_removed` on diagnostic sourcecaf405d (production remains49) under Root's lease. Preserve Root's12/1FAIL and5PASS original logs/failed ELF; do not accept any alternate error or Ok as success. Failed fixture retention is local to this one test, with no public knob; its generated temp repository contains the own `raw-generated-tree` file and is deliberately not auto-cleaned on panic. No private paths are printed.
+
+If actual Ok confirms the source hypothesis, the proposed reversible next patch is only newmodule's bounded base-tree metadata inspection (`ls-tree -r -t -z`, strict mode/type/OID/path, same4MiB/65536/global15s caps) to reject empty subtrees explicitly rather than rely on cache-tree roundtrip. This patch has not been written or approved as a demonstrated fix in this checkpoint. Wait for actual diagnostic evidence; original UnsafeRepository contract stays fixed.

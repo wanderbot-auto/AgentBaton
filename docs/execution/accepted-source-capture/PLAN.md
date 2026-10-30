@@ -29,3 +29,7 @@ These are sampled before/after protections, not atomic exclusion of arbitrary sa
 ## Fixed submodule observation flag
 
 Source49fdf925e9522d869cb0ff8c96c5540177dcdc67 explicitly passes `--ignore-submodules=none` in final diff-tree. This is Root-approved contract fixedness, not a claim that the earlier plumbing actually obeyed diff.ignoreSubmodules=all; reviewer explicitly narrowed that unexecuted risk. Do not reject all unselected base gitlinks to simplify this guard. A real generated Git cfg-unit source verifies original unselected gitlink preservation and rejects private-index pointer substitution even with configall. No other speculative diff hardening or production path expanded.
+
+## Evidence-first empty-subtree diagnosis
+
+After Root's actual12PASS/1FAIL, only enrich the failed test's bounded result diagnostics and preserve that fixture on panic. Do not broaden its error expectation, change the other tests or patch production before the actual result is known. Exact old results and code remain preserved. Any later explicit-empty-tree refusal must keep all source/index/ref, selected-type/path/Unicode and original resource/deadline guards.
