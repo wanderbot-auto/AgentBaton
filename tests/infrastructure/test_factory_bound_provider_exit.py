@@ -438,5 +438,158 @@ class ChildGoalObserverWaitTests(unittest.TestCase):
             ns['wait'](lambda:self.fail('Read must not run after binding refusal'),bool)
 
 
+class ChildGoalTimingTests(unittest.TestCase):
+    def nodes(self):
+        path=SUBJECT.with_name('factory-child-goal-real-ipc.py');tree=ast.parse(path.read_text())
+        runtime=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='runtime_driver')
+        return path,runtime
+
+    def test_wire_timing_survives_success_backend_and_capture_failures(self):
+        path,runtime=self.nodes()
+        observed=next(n for n in ast.walk(runtime)if isinstance(n,ast.ClassDef)and n.name=='ObservedHost')
+        for fault in ('none','backend','capture'):
+            with self.subTest(fault=fault):
+                slots=[];finished=[];failed=[];ticks=iter((10,20,30,40));sent=[]
+                reply={'result':{'unit':'unchanged'}};raw=b'original unit bytes'
+                class Host:
+                    def wire(self,call):
+                        sent.append(call)
+                        if fault=='backend':raise TimeoutError('injected backend failure')
+                        return reply,raw
+                def begin(call):
+                    slot={'method':call.method,'params':copy.deepcopy(call.params),'key':call.key,'revision':call.revision}
+                    slots.append(slot);return slot
+                def finish(slot,value):
+                    self.assertIs(value,raw)
+                    finished.append(dict(slot))
+                    if fault=='capture':raise OSError('injected recorder failure')
+                def fail(slot,error,stage):failed.append({**slot,'stage':stage})
+                ns={'base':SimpleNamespace(PrivateHost=Host),'time':SimpleNamespace(monotonic_ns=lambda:next(ticks)),
+                    'FixedCall':lambda method,params,key,revision:SimpleNamespace(method=method,params=params,key=key,revision=revision),
+                    'wire_recorder':SimpleNamespace(begin=begin,finish=finish,failed=fail)}
+                exec(compile(ast.Module(body=[observed],type_ignores=[]),str(path),'exec'),ns)
+                call=SimpleNamespace(method='unit-fixed',params={'a':1},key='unit-key',revision=7)
+                if fault=='none':self.assertEqual(ns['ObservedHost']().wire(call),(reply,raw))
+                else:
+                    with self.assertRaises(TimeoutError if fault=='backend'else OSError):ns['ObservedHost']().wire(call)
+                self.assertEqual((sent[0].method,sent[0].params,sent[0].key,sent[0].revision),('unit-fixed',{'a':1},'unit-key',7))
+                self.assertEqual(slots[0]['timing_ns'],{'started':10,'backend_started':20,'backend_finished':30,'finished':40})
+                evidence=(failed if fault=='backend'else finished)[0]
+                self.assertIs(evidence['timing_ns'],slots[0]['timing_ns'])
+                self.assertEqual(evidence['timing_ns']['finished'],40)
+
+    def test_phase_stamps_are_finite_private_clock_metadata(self):
+        path,runtime=self.nodes();phase=next(n for n in runtime.body if isinstance(n,ast.FunctionDef)and n.name=='phase_stamp')
+        report={};ticks=iter((100,200));ns={'report':report,'time':SimpleNamespace(monotonic_ns=lambda:next(ticks))}
+        exec(compile(ast.Module(body=[phase],type_ignores=[]),str(path),'exec'),ns)
+        ns['phase_stamp']('owner_enabled_expect','start')
+        try:raise AssertionError('unit-only original failure')
+        except AssertionError:ns['phase_stamp']('owner_enabled_expect','end')
+        self.assertEqual(report['owner_phase_stamps'],[
+            {'phase':'owner_enabled_expect','edge':'start','monotonic_ns':100},
+            {'phase':'owner_enabled_expect','edge':'end','monotonic_ns':200}])
+        with self.assertRaises(AssertionError):ns['phase_stamp']('arbitrary private text','start')
+        self.assertEqual(len(report['owner_phase_stamps']),2)
+
+    def test_all_four_actual_phase_blocks_keep_end_stamp_on_failure(self):
+        path,runtime=self.nodes()
+        blocks=[n for n in ast.walk(runtime)if isinstance(n,ast.Try)and len(n.finalbody)==1
+            and isinstance(n.finalbody[0],ast.Expr)and isinstance(n.finalbody[0].value,ast.Call)
+            and isinstance(n.finalbody[0].value.func,ast.Name)and n.finalbody[0].value.func.id=='phase_stamp']
+        self.assertEqual(len(blocks),4)
+        for block in blocks:
+            stamps=[]
+            def refuse(*a,**k):raise RuntimeError('original unit failure')
+            button=SimpleNamespace(click=refuse)
+            ns={'phase_stamp':lambda *a:stamps.append(a),'wait':refuse,'capture':refuse,
+                'goal_panel':SimpleNamespace(get_by_role=lambda *a,**k:button),'owner':object(),
+                'expect':lambda _:SimpleNamespace(to_be_enabled=refuse)}
+            with self.assertRaisesRegex(RuntimeError,'original unit failure'):
+                exec(compile(ast.Module(body=[block],type_ignores=[]),str(path),'exec'),ns)
+            self.assertEqual(len(stamps),1);self.assertEqual(stamps[0][1],'end')
+
+
+class BoundMcpLateDiagnosticTests(unittest.TestCase):
+    setUp=BoundExitTests.setUp
+    fixture=BoundExitTests.fixture
+
+    def test_late_live_or_zombie_remains_refused_with_finite_state_diagnostic(self):
+        for index,(state,parent) in enumerate((('S',12124),('Z',os.getpid()))):
+            root=self.root/str(index);root.mkdir();f=Fixture(root)
+            f.argv_overrides[f.companion]=b''
+            f.proc_steps[f.companion]=[f.identity(f.companion,state='R'),f.identity(f.companion,state=state,parent_pid=parent)]
+            calls=[];reaper=SimpleNamespace(reap=lambda old:calls.append(old))
+            with self.assertRaisesRegex(AssertionError,'Bound MCP still exists after late adopted-child wait: ')as error:
+                f.collect(reaper)
+            detail=json.loads(str(error.exception).split(': ',1)[1])
+            self.assertEqual(detail,{'stage':'bound_MCP_late_wait_still_present','before_state':'R','after_state':state,
+                'after_parent_is_controller':parent==os.getpid(),'birth_matches':True,'pgid_matches':True,'pgid_error_type':None})
+            self.assertEqual(len(calls),2);self.assertEqual(f.verified,f.original)
+            self.assertNotIn('stop_confirmed',detail);self.assertNotIn('process_reaped',detail)
+
+    def test_late_pgid_error_type_is_recorded_without_changing_refusal(self):
+        f=self.fixture();f.argv_overrides[f.companion]=b''
+        f.pgid_overrides[f.companion]=PermissionError('sensitive unit message must not be copied')
+        with self.assertRaisesRegex(AssertionError,'Bound MCP still exists after late adopted-child wait: ')as error:
+            f.collect(SimpleNamespace(reap=lambda _:None))
+        detail=json.loads(str(error.exception).split(': ',1)[1])
+        self.assertEqual(detail['pgid_error_type'],'PermissionError');self.assertIsNone(detail['pgid_matches'])
+        self.assertNotIn('sensitive',str(error.exception));self.assertEqual(f.verified,f.original)
+
+
+class BoundMcpDeferredDiscoveryTests(unittest.TestCase):
+    setUp=BoundExitTests.setUp
+    fixture=BoundExitTests.fixture
+
+    def pending_fixture(self):
+        f=self.fixture();f.argv_overrides[f.companion]=b''
+        f.proc_steps[f.companion]=[f.identity(f.companion,state='Z',parent_pid=f.provider)]
+        return f
+
+    def test_nonadopted_bound_zombie_defers_row_without_changing_history_or_files(self):
+        f=self.pending_fixture();before={str(p):p.read_bytes()for p in f.out.iterdir()}
+        calls=[];rows=f.collect(SimpleNamespace(reap=lambda old:calls.append(old)))
+        self.assertEqual(rows,[]);self.assertEqual(f.verified,f.original);self.assertEqual(len(calls),2)
+        self.assertEqual({str(p):p.read_bytes()for p in f.out.iterdir()},before)
+        self.assertNotIn('stop_confirmed',f.verified[0]);self.assertNotIn('process_reaped',f.verified[0])
+        self.assertFalse(list(f.work.glob('reports/fixture-observed-*')))
+        # Permanent nonadoption remains pending, never a fresh successful discovery.
+        self.assertEqual(f.collect(SimpleNamespace(reap=lambda _:None)),[])
+
+    def test_later_adopted_child_requires_existing_reaper_before_fresh_discovery(self):
+        f=self.pending_fixture();self.assertEqual(f.collect(SimpleNamespace(reap=lambda _:None)),[])
+        f.proc_steps[f.companion]=[f.identity(f.companion,state='Z',parent_pid=os.getpid())]
+        waits=[]
+        def reaper(old):
+            self.assertEqual(old,f.original[0])
+            current=f.proc_steps[f.companion][0]
+            if current is not None and current['state']=='Z'and current['parent_pid']==os.getpid():
+                waits.append(f.companion)  # injected known-child wait; no OS wait/reap claim
+                f.proc_steps[f.companion]=[None]
+        rows=f.collect(SimpleNamespace(reap=reaper))
+        self.assertEqual(waits,[f.companion]);self.assertEqual(len(rows),1)
+        self.assertEqual(f.verified,f.original);self.assertNotIn('stop_confirmed',rows[0])
+
+    def test_pending_never_excuses_live_controller_wrong_identity_or_pgid(self):
+        cases=('before-live','after-live','controller','wrong-pgid','pgid-permission','wrong-after-pid','wrong-initial-birth','malformed-argv','unbound')
+        for index,case in enumerate(cases):
+            root=self.root/str(index);root.mkdir();f=Fixture(root,bound=case!='unbound')
+            f.argv_overrides[f.companion]=b''
+            z=f.identity(f.companion,state='Z',parent_pid=f.provider)
+            f.proc_steps[f.companion]=[dict(z),dict(z)]
+            if case=='before-live':f.proc_steps[f.companion][0]['state']='R'
+            if case=='after-live':f.proc_steps[f.companion][1]['state']='S'
+            if case=='controller':
+                for x in f.proc_steps[f.companion]:x['parent_pid']=os.getpid()
+            if case=='wrong-pgid':f.pgid_overrides[f.companion]=99999
+            if case=='pgid-permission':f.pgid_overrides[f.companion]=PermissionError('not copied')
+            if case=='wrong-after-pid':f.proc_steps[f.companion][1]['pid']=99999
+            if case=='wrong-initial-birth':f.proc_steps[f.companion][0]['start_ticks']='99999'
+            if case=='malformed-argv':f.argv_overrides[f.companion]=b'nonempty-no-NUL'
+            with self.subTest(case=case):
+                with self.assertRaises(AssertionError):f.collect(SimpleNamespace(reap=lambda _:None))
+                self.assertEqual(f.verified,f.original)
+
+
 if __name__ == '__main__':
     unittest.main()

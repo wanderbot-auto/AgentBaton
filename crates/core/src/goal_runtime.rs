@@ -2511,13 +2511,16 @@ fn trusted_session_stop(
     Ok(sequence)
 }
 
-fn refuse_retained_overrun(db: &Connection, root: &str, project: &str) -> Result<()> {
-    if reservations(db, root, project)?.iter().any(|r| {
+fn retained_overrun(db: &Connection, root: &str, project: &str) -> Result<bool> {
+    Ok(reservations(db, root, project)?.iter().any(|r| {
         r.actual_runtime_ms
             .is_some_and(|n| n > r.reservation.runtime_ms)
             || r.actual_output_bytes
                 .is_some_and(|n| n > r.reservation.output_bytes)
-    }) {
+    }))
+}
+fn refuse_retained_overrun(db: &Connection, root: &str, project: &str) -> Result<()> {
+    if retained_overrun(db, root, project)? {
         return Err(err("RESOURCE_LIMIT","Retained actual execution exceeded a declared per-attempt reservation; reconcile the budget before any new dispatch"));
     }
     Ok(())

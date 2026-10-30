@@ -41,11 +41,22 @@ impl Store {
             }
             if g.task_accepted && g.run.state == "accepted" {
                 self.finish_factory_child_goal(scope_id, &b.handle.task_id, goal_id)?;
-            } else if live
-                && matches!(g.run.state.as_str(), "blocked" | "failed")
-                && self.confirm_factory_child_goal_failure(goal_id)?
-            {
-                self.prepare_factory_goal_recovery(scope_id, &b.handle.task_id, goal_id)?;
+            } else if live && matches!(g.run.state.as_str(), "blocked" | "failed") {
+                match self.confirm_factory_child_goal_failure(goal_id)? {
+                    crate::goal_store::FactoryGoalFailureStatus::Confirmed => {
+                        self.prepare_factory_goal_recovery(scope_id, &b.handle.task_id, goal_id)?;
+                    }
+                    crate::goal_store::FactoryGoalFailureStatus::Pending => {}
+                    crate::goal_store::FactoryGoalFailureStatus::RetainedOverrun(proof) => {
+                        self.block_factory_child_goal_overrun(
+                            scope_id,
+                            &b.handle.task_id,
+                            goal_id,
+                            *proof,
+                        )?;
+                        return Ok(());
+                    }
+                }
             } else if live && g.run.state == "outcome_unknown" {
                 let tx = self
                     .conn
@@ -67,6 +78,47 @@ impl Store {
             }
         }
         Ok(())
+    }
+    fn block_factory_child_goal_overrun(
+        &mut self,
+        scope_id: &str,
+        task_id: &str,
+        goal_id: &str,
+        proof: crate::goal_store::FactoryGoalRetainedOverrun,
+    ) -> Result<()> {
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let s = scope(&tx, scope_id)?;
+        base_live(&tx, &s)?;
+        let mut r = run(&tx, scope_id)?;
+        let mut b = binding(&tx, &r.id, task_id)?;
+        if r.cancel_requested
+            || r.active_session_id.is_some()
+            || b.child_goal_run_id.as_deref() != Some(goal_id)
+            || b.handle.cancel_requested
+            || b.handle.result_available
+            || !matches!(b.handle.state.as_str(), "waiting_child" | "waiting_goal")
+        {
+            return Err(denied());
+        }
+        proof.recheck(&tx, scope_id, task_id, goal_id)?;
+        let mut error = CoreError::new("RESOURCE_LIMIT", "Retained actual execution exceeded a declared per-attempt reservation; reconcile the budget before any new dispatch");
+        // Confirmed refers only to this durable blocked decision. Do not mint
+        // Task acceptance, a new stop proof, a retry epoch or a refunded budget.
+        error.side_effect_state = "confirmed".into();
+        b.handle.state = "blocked".into();
+        save_binding(&tx, &mut b)?;
+        r.state = "blocked".into();
+        r.last_error = Some(error);
+        save_run(
+            &tx,
+            &mut r,
+            "factory.child_goal_rework_blocked",
+            json!({"task_id":task_id,"goal_run_id":goal_id,"reason_code":"RESOURCE_LIMIT","automatic_retry":false,"planner_attempt_started":false,"new_dispatch":false,"reservation_refunded":false,"task_accepted":false}),
+        )?;
+        tx.commit().map_err(db_error)
     }
     fn prepare_factory_goal_recovery(
         &mut self,

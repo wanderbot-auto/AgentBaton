@@ -475,10 +475,12 @@ impl Daemon {
                 };
                 self.handle_ready_request(job);
                 self.supervisor.tick(&mut self.store)?;
-                // Service captures/validators immediately after owned session
-                // receipts, as in the outer loop. A batch of ready clients
-                // must not defer this work until all sixteen requests finish.
-                self.graph_workers.tick(&mut self.store)?;
+                // Service owned workers and newly queued captures immediately.
+                // Idle frontier reconciliation remains in the full outer pass;
+                // this wake-up hint does not replace any admission checks.
+                if self.graph_workers.has_workers() || !self.store.graph_capture_clocks.is_empty() {
+                    self.graph_workers.tick(&mut self.store)?;
+                }
                 self.command_workers.tick(&mut self.store)?;
                 self.data_workers.tick(&mut self.store)?;
                 self.finish_data_admission();
