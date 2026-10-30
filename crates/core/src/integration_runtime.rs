@@ -1055,17 +1055,22 @@ impl Store {
         let policy = records::policy(&self.conn, policy_id)?;
         self.conn.query_row("SELECT EXISTS(SELECT 1 FROM integrations WHERE policy_id=?1 AND task_id=?2 AND spec_revision=?3)",params![policy.id,policy.selection.task_id,sql_num(policy.selection.expected_spec_revision)?],|r|r.get(0)).map_err(db_error)
     }
-    pub(crate) fn armed_integration_policies(&self) -> Result<Vec<IntegrationPolicy>> {
+    pub(crate) fn armed_integration_policies(
+        &self,
+        after: Option<&str>,
+    ) -> Result<(Vec<IntegrationPolicy>, Option<String>)> {
         records::check_metadata_bounds(&self.conn)?;
-        let mut statement=self.conn.prepare("SELECT p.id FROM integration_policies p WHERE NOT EXISTS(SELECT 1 FROM integrations r WHERE r.policy_id=p.id AND r.task_id=p.task_id AND r.spec_revision=p.spec_revision) ORDER BY p.id LIMIT 101").map_err(db_error)?;
+        let mut statement=self.conn.prepare("SELECT p.id FROM integration_policies p WHERE (?1 IS NULL OR p.id>?1) AND NOT EXISTS(SELECT 1 FROM integrations r WHERE r.policy_id=p.id AND r.task_id=p.task_id AND r.spec_revision=p.spec_revision) ORDER BY p.id LIMIT 100").map_err(db_error)?;
         let ids = statement
-            .query_map([], |r| r.get::<_, String>(0))
+            .query_map([after], |r| r.get::<_, String>(0))
             .map_err(db_error)?
             .collect::<std::result::Result<Vec<_>, _>>()
             .map_err(db_error)?;
-        if ids.len() > 100 {
-            return Err(limited());
-        }
+        let next = if ids.len() == 100 {
+            ids.last().cloned()
+        } else {
+            None
+        };
         let mut result = Vec::new();
         for id in ids {
             let policy = records::policy(&self.conn, &id)?;
@@ -1073,15 +1078,16 @@ impl Store {
                 continue;
             }
             let task: crate::storage::Task = raw(&self.conn, "tasks", &policy.selection.task_id)?;
-            if task.id != policy.selection.task_id
-                || task.spec_revision != policy.selection.expected_spec_revision
-            {
+            if task.id != policy.selection.task_id {
                 return Err(changed());
+            }
+            if task.spec_revision != policy.selection.expected_spec_revision {
+                continue;
             }
             if task.state == crate::storage::TaskState::Accepted {
                 result.push(policy);
             }
         }
-        Ok(result)
+        Ok((result, next))
     }
 }

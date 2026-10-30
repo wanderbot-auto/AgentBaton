@@ -18,6 +18,7 @@ struct ReadWorker {
 #[derive(Default)]
 pub(crate) struct IntegrationWorkers {
     reader: Option<ReadWorker>,
+    armed_after: Option<String>,
     stage: Option<super::stage_workers::OwnedStage>,
     retained: Option<(
         super::runtime::IntegrationStageTicket,
@@ -167,6 +168,7 @@ mod tests {
                     }),
                     stage: None,
                     retained: None,
+                    armed_after: None,
                 };
                 if unwind {
                     panic!("unit-fixture original first cause");
@@ -335,7 +337,9 @@ impl IntegrationWorkers {
         if self.has_workers() {
             return Ok(());
         }
-        for policy in store.armed_integration_policies()? {
+        let (policies, next) = store.armed_integration_policies(self.armed_after.as_deref())?;
+        self.armed_after = next;
+        for policy in policies {
             let key = format!("automatic-integration:{}", policy.id);
             match self.start(
                 store,
