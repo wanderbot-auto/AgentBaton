@@ -106,7 +106,9 @@ int main(int argc,char**argv){if(argc!=4)return 99;FILE*f=fopen(argv[1],"w");if(
             git(&workspace, &["init", "--initial-branch=main"]);
             fs::write(workspace.join("input"), b"fixed input").unwrap();
             fs::write(workspace.join("report"), b"fixed report").unwrap();
-            git(&workspace, &["add", "input", "report"]);
+            fs::create_dir(workspace.join("nested")).unwrap();
+            fs::write(workspace.join("nested/unselected"), b"unselected baseline").unwrap();
+            git(&workspace, &["add", "input", "report", "nested/unselected"]);
             git(&workspace, &["commit", "-m", "base"]);
             git(&workspace, &["branch", "integration"]);
             let head = git(&workspace, &["rev-parse", "HEAD"]);
@@ -325,5 +327,66 @@ int main(int argc,char**argv){if(argc!=4)return 99;FILE*f=fopen(argv[1],"w");if(
             !run.view().passed,
             "the readonly observation never changes correctness/PASS"
         );
+    }
+    #[test]
+    fn a_raw_tag_slot_is_not_reported_as_its_peeled_commit() {
+        let f = Fixture::new();
+        git(&f.workspace, &["tag", "-a", "wrapped", "-m", "wrapped"]);
+        let tag = git(&f.workspace, &["rev-parse", "refs/tags/wrapped"]);
+        let running = f.begin(0);
+        f.ready();
+        // Corrupt generated private slot, not normal Git/Owner authority.
+        fs::write(
+            f.workspace.join(".git/refs/heads/integration"),
+            format!("{tag}\n"),
+        )
+        .unwrap();
+        f.release();
+        let run = running.finish();
+        assert_eq!(run.view().reason, RunReason::ArtifactContractFailed);
+        assert!(!run.view().passed);
+        let error = run
+            .observe_stopped_target_drift(
+                &AtomicBool::new(false),
+                Instant::now() + Duration::from_secs(3),
+            )
+            .err()
+            .expect("tag slot must reject");
+        assert_eq!(error, CommandError::CwdChanged);
+    }
+    #[test]
+    fn final_metadata_seal_rejects_unselected_nested_mutations_after_clean_status() {
+        for new_file in [false, true] {
+            let f = Fixture::new();
+            let running = f.begin(0);
+            f.ready();
+            f.advance();
+            f.release();
+            let run = running.finish();
+            let deadline = Instant::now() + Duration::from_secs(3);
+            let observation = run
+                .observe_stopped_target_drift(&AtomicBool::new(false), deadline)
+                .unwrap()
+                .expect("clean candidate before mutation");
+            let root_stamp = fs::metadata(&f.workspace).unwrap();
+            fs::write(
+                f.workspace.join(if new_file {
+                    "nested/new-untracked"
+                } else {
+                    "nested/unselected"
+                }),
+                b"late mutation",
+            )
+            .unwrap();
+            use std::os::unix::fs::MetadataExt;
+            assert_eq!(
+                fs::metadata(&f.workspace).unwrap().mtime_nsec(),
+                root_stamp.mtime_nsec()
+            );
+            assert!(observation
+                .recheck(&AtomicBool::new(false), deadline)
+                .is_err());
+            assert!(!run.view().passed);
+        }
     }
 }
