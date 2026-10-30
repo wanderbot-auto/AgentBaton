@@ -2546,7 +2546,8 @@ impl RuntimeFixture {
             None,
         );
         assert_eq!(context["preview_only"], true);
-        assert_eq!(self.grant["max_attempts"], 12);
+        assert_eq!(self.grant["scope"]["max_attempts"], 12);
+        assert_eq!(self.grant["scope"]["max_duration_ms"], 30_000);
         let reference = json!({"kind":"command","policy_id":definition["id"],"revision":definition["revision"]});
         assert_eq!(
             context["available_validators"]
