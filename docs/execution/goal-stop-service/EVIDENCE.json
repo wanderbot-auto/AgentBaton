@@ -100,6 +100,57 @@
     "AB-GOL existing Goal/Factory stop service",
     "AB-VAL-009"
   ],
+  "running_turn_retention_fix": {
+    "actual_writer_semantics": {
+      "ManagedSession.turn_state": "Some(\"running\")",
+      "session_turns.state": "pending"
+    },
+    "independent_source_closure": "requested integration_ui; pending",
+    "new_functions_count": 6,
+    "new_strict_assertions": [
+      "fresh before state exactly Some(\"running\")",
+      "fresh after state equals before",
+      "same session total turn rows1/pending1/ended0",
+      "same session terminal event count0 for any source",
+      "all original precise error/journal/hint/no-stop/post-reap/global Task assertions retained"
+    ],
+    "old_actual_result": {
+      "author_did_not_execute": true,
+      "exit": 101,
+      "fail": 2,
+      "ignored": 0,
+      "log_sha256": "1143f13cb663bd3ef676cf42acd26bda9fb43299cc8d6d89c03b997b238257a4",
+      "pass": 4,
+      "result_sha256": "b5b8fd78a2441601a0d72ac910233835e5eab59b3b9004bb1fcf524d395f4a04",
+      "source_and_tools_unchanged": true,
+      "test_seconds": 4.86,
+      "wrapper_seconds": 25.48726766600157
+    },
+    "old_actual_source": "87c47e03f31a394c5def4be3c76356b2c27e4d28",
+    "old_failure_dimension": "two wrong is_none fixture assumptions; no old turn_state payload printed; no old failure DB retained",
+    "original_caps_fees_stop_checks_unchanged": true,
+    "performance_fixed": false,
+    "production_071_unchanged": true,
+    "retention": {
+      "extra_DB_open_or_copy": false,
+      "future_real_panic_retention_executed": false,
+      "kind": "panic only, original constructed Daemon cleaned before private directory keep",
+      "new_stop_or_join_authority": false,
+      "normal_or_expected_failure_success": "automatic cleanup",
+      "old_failure_DB": "not retained by original TempDir; no path/receipt to inspect",
+      "snapshot_time": "post_Daemon_drop_not_panic_instant",
+      "stderr_write_failure_does_not_replace_original_panic": true
+    },
+    "revised_Rust_compiled_or_executed_by_author": false,
+    "source": "729340a18bfe8f0abfd6e2e8f91dd1a298cd7825",
+    "source_static": {
+      "all_pass": true,
+      "artifact": "/workspace/.onboarding/goal-stop-service-source/RUNNING_TURN_RETENTION_CHECKS.json",
+      "count": 17,
+      "full_inverse": "/workspace/.onboarding/goal-stop-service-source/RUNNING_TURN_TEST_INVERSE.rs"
+    },
+    "test_sha256": "d531e6412afefd9f67d0f5d0d60c26104bf0b1ae8750d5b7efbb2db2912be4f2"
+  },
   "source_author_not_independent_reviewer": true,
   "source_sha256": {
     "crates/core/src/goal_stop_service_tests.rs": "745ff4e527279a8e606ad100c079ce52a6bbf28a47b728faf431280915e462c4",
