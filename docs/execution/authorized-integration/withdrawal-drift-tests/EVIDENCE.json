@@ -73,6 +73,43 @@
       "fix_source": "9434d035d5a322f9d548d1baa27aa0e85b955c94",
       "fix_file_sha256": "36c919478bd984fe14644b1d01ada9c175ec6ca54126db8a96d783491e731a4b",
       "fixed_rust_execution": "not_run_by_author"
+    },
+    {
+      "source": "1eb4c0d79282eed98f87fc9e4f6df56919f3e77a",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 122.51451853002072,
+      "summaries": [
+        "test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 96.13s"
+      ],
+      "log_sha256": "fec599ec508946f7a25e8d62070af0a483b2dfbc41caf9e44a71b1b6df0a3dd3",
+      "failed_case": "owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+      "failure": "original Host 500ms assertion after synchronous Owner RPC return expired; different from preceding last_error expectation failure",
+      "root_observed_events": [
+        "policy_revoked",
+        "supervisor_stop_requested:PERMISSION_DENIED",
+        "validator_observed:deadline_exceeded;passed=false;within_budget=false;cleanup=true;join=true",
+        "finished"
+      ],
+      "retained_fixture": "/tmp/integration-runtime-NVAkN6",
+      "root_reports_failed_raw_elf_retained": true,
+      "new_source": "db19915c2066f654bdf822849d9a73510e5533df",
+      "new_source_file_sha256": "d876b13fe1340853681ecfc8bf90fcbf17c69c1d26a9d4b5efeef38f33fac995",
+      "source_change": "only two withdrawal suffixes: fresh private readonly observation plus owned scoped original IPC caller; release after exact committed event within original Host500ms, original reply joined within existing five-second observation; reject deadline_exceeded as timely withdrawal evidence",
+      "phase_limit": "running validator; pre-observation is private readonly SQLite, Owner mutation and terminal reads remain real IPC; not stopped-command/postprobe authority withdrawal coverage",
+      "fixed_rust_execution": "not_run_by_author"
     }
   ]
 }
