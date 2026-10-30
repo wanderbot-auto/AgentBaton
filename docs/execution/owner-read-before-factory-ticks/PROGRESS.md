@@ -1,0 +1,9 @@
+# Progress
+
+Source-only candidate on `codex/owner-read-before-factory-ticks`, based on f55a805a952f84dc65e83c5e33f98e975871c3f1. `ipc.rs` now observes one already queued FIFO head after the original worker/fatal pass. Only the exact Owner read envelope runs early. All other methods stay owned in one stack `Option<ReadyRequest>` until the normal drain and precede every later request. Early service counts as one of the original sixteen requests.
+
+Original post-request statements and comments were moved to one private helper without changes except indentation. Early service immediately propagates any retained fatal Factory error before entering further ticks. Original normal drain error propagation and shutdown remain unchanged.
+
+Rustfmt and static byte comparisons ran successfully. New Rust tests are authored, not compiled or executed by this source author. No Cargo, Actor, SQLite, browser, Provider or network work ran in this work unit. Root must independently review and actually execute focused and product regressions.
+
+Diagnostic source limitation: f55 Intel's final read used 5004 ms and exhausted the existing shared two-retry pool after one classified busy and one earlier transport retry. Retained post-shutdown child acceptance/validator success does not prove the parent was complete at the failed observation. Queue delay is an unproved candidate, not a diagnosed cause. CI used dev/test debuginfo, but the observed CI CLI was smaller than the local Linux fixture; no debug-symbol/hash explanation is established.

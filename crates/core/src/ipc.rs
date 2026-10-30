@@ -400,6 +400,65 @@ pub(crate) struct ReadyRequest {
     pub(crate) deadline: Instant,
     pub(crate) factory_dispatch: Option<crate::factory::FactoryDispatchTicket>,
 }
+// A single turn owns at most the existing FIFO head while Factory/Goal ticks
+// run. This is request custody, not cached data or authority. An early Owner
+// read consumes one of the same sixteen admissions as the later drain.
+struct ReadyTurn {
+    head: Option<ReadyRequest>,
+    served: usize,
+}
+impl ReadyTurn {
+    fn queue_head(ready: &Receiver<ReadyRequest>, token: &str) -> (Self, Option<ReadyRequest>) {
+        match ready.try_recv() {
+            Ok(job) if queued_owner_factory_run_read(&job, token) => (
+                Self {
+                    head: None,
+                    served: 1,
+                },
+                Some(job),
+            ),
+            head => (
+                Self {
+                    head: head.ok(),
+                    served: 0,
+                },
+                None,
+            ),
+        }
+    }
+    fn next(&mut self, ready: &Receiver<ReadyRequest>) -> Option<ReadyRequest> {
+        if self.served == 16 {
+            return None;
+        }
+        let job = self.head.take().or_else(|| ready.try_recv().ok())?;
+        self.served += 1;
+        Some(job)
+    }
+}
+fn queued_owner_factory_run_read(job: &ReadyRequest, token: &str) -> bool {
+    #[derive(Deserialize)]
+    struct TypedScopeEnvelope {
+        params: FactoryScopeId,
+    }
+    if job.factory_dispatch.is_some() {
+        return false;
+    }
+    let Ok(request) = serde_json::from_str::<Request>(&job.raw) else {
+        return false;
+    };
+    request.api_version == API_VERSION
+        && request.token == token
+        && !request.request_id.is_empty()
+        && request.request_id.len() <= 128
+        && request.method == "factory_runs.get"
+        && request.expected_revision.is_none()
+        && request.idempotency_key.is_none()
+        // Parse the original bytes: going through Value would erase duplicate
+        // scope_id keys before the closed typed params can reject them.
+        && serde_json::from_str::<TypedScopeEnvelope>(&job.raw)
+            .map(|envelope| envelope.params)
+            .is_ok()
+}
 fn configure_accepted_stream(stream: &UnixStream) -> std::io::Result<()> {
     // BSD/Darwin can inherit O_NONBLOCK from the listener. Deadline-based frame
     // IO requires a blocking accepted descriptor; do not depend on accept flags.
@@ -562,6 +621,13 @@ impl Daemon {
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
             }
+            // Inspect only the FIFO head after the original worker/fatal pass.
+            // Other methods retain their position until the original drain.
+            let (mut turn, early_read) = ReadyTurn::queue_head(&ready, &self.token);
+            if let Some(job) = early_read {
+                self.handle_ready_request(job);
+                self.service_after_early_owner_read()?;
+            }
             #[cfg(debug_assertions)]
             let factory_clock = Instant::now();
             #[cfg(debug_assertions)]
@@ -576,25 +642,9 @@ impl Daemon {
             self.tick_goals()?;
             #[cfg(debug_assertions)]
             self.trace_goal_stage("goal_tick_end", Some(goal_clock.elapsed()), 0, None);
-            for _ in 0..16 {
-                let Ok(job) = ready.try_recv() else {
-                    break;
-                };
+            while let Some(job) = turn.next(&ready) {
                 self.handle_ready_request(job);
-                self.supervisor.tick(&mut self.store)?;
-                // A committed owned Goal terminal turn may need its original
-                // stop-only policy now; this never selects or admits new work.
-                self.service_hinted_goal_stops()?;
-                // Service owned workers and newly queued captures immediately.
-                // Idle frontier reconciliation remains in the full outer pass;
-                // this wake-up hint does not replace any admission checks.
-                if self.graph_workers.has_workers() || !self.store.graph_capture_clocks.is_empty() {
-                    self.graph_workers.tick(&mut self.store)?;
-                }
-                self.command_workers.tick(&mut self.store)?;
-                self.data_workers.tick(&mut self.store)?;
-                self.finish_data_admission();
-                self.history_workers.poll(&self.store);
+                self.service_after_ready_request()?;
             }
             readers.retain(|reader| !reader.is_finished());
             match self.listener.accept() {
@@ -626,6 +676,32 @@ impl Daemon {
         for reader in readers {
             let _ = reader.join();
         }
+        Ok(())
+    }
+    fn service_after_early_owner_read(&mut self) -> Result<()> {
+        self.service_after_ready_request()?;
+        // The same worker service can retain a fatal Factory error.
+        // Propagate it before doing any further Factory/Goal work.
+        if let Some(error) = self.factory_fatal_error.take() {
+            return Err(error);
+        }
+        Ok(())
+    }
+    fn service_after_ready_request(&mut self) -> Result<()> {
+        self.supervisor.tick(&mut self.store)?;
+        // A committed owned Goal terminal turn may need its original
+        // stop-only policy now; this never selects or admits new work.
+        self.service_hinted_goal_stops()?;
+        // Service owned workers and newly queued captures immediately.
+        // Idle frontier reconciliation remains in the full outer pass;
+        // this wake-up hint does not replace any admission checks.
+        if self.graph_workers.has_workers() || !self.store.graph_capture_clocks.is_empty() {
+            self.graph_workers.tick(&mut self.store)?;
+        }
+        self.command_workers.tick(&mut self.store)?;
+        self.data_workers.tick(&mut self.store)?;
+        self.finish_data_admission();
+        self.history_workers.poll(&self.store);
         Ok(())
     }
     #[cfg(test)]
@@ -3079,3 +3155,7 @@ impl Daemon {
 #[cfg(test)]
 #[path = "goal_stop_service_tests.rs"]
 mod goal_stop_service_tests;
+
+#[cfg(test)]
+#[path = "ipc_owner_read_queue_tests.rs"]
+mod owner_read_queue_tests;
