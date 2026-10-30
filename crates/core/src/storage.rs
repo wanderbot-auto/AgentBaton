@@ -704,3 +704,25 @@ PRAGMA user_version=8;").map_err(db_error)?;
     }
     Ok(())
 }
+
+/// Schema-only reference for the integration migration. Uses the existing
+/// migration functions against a fresh private in-memory connection, with no
+/// Store construction/recovery, filesystem access or predecessor row mutation.
+pub(crate) fn integration_schema16_reference() -> Result<Connection> {
+    let mut conn = Connection::open_in_memory().map_err(db_error)?;
+    conn.execute_batch("CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL); CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, document TEXT NOT NULL); CREATE TABLE idempotency(scope TEXT NOT NULL, key TEXT NOT NULL, payload TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(scope,key)); PRAGMA user_version=1; PRAGMA foreign_keys=ON;").map_err(db_error)?;
+    crate::execution::migrate(&mut conn, 0)?;
+    migrate_registry(&mut conn, 0)?;
+    migrate_sessions(&mut conn, 0)?;
+    migrate_runtime_snapshots(&mut conn, 0)?;
+    migrate_validations(&mut conn, 0)?;
+    migrate_data_validations(&mut conn, 0)?;
+    migrate_command_validations(&mut conn, 0)?;
+    crate::goal_store::migrate(&mut conn, 0)?;
+    crate::data_workspaces::migrate(&mut conn, 0)?;
+    crate::goal_store::migrate_runtime(&mut conn, 0)?;
+    crate::goal_store::migrate_graph(&mut conn, 0)?;
+    crate::factory::migrate(&mut conn, 0)?;
+    crate::task_workspace_binding::migrate(&mut conn, 0)?;
+    Ok(conn)
+}

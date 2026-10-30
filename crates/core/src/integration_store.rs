@@ -18,6 +18,16 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
     let tx = db
         .transaction_with_behavior(TransactionBehavior::Immediate)
         .map_err(db_error)?;
+    // A label and an empty FK check do not prove a complete predecessor.
+    // Compare all original table/constraint/index/view/trigger definitions
+    // before writing any new DDL; a failure leaves the source transaction inert.
+    let reference = crate::storage::integration_schema16_reference()?;
+    if predecessor_schema(&tx)? != predecessor_schema(&reference)? {
+        return Err(CoreError::new(
+            "INPUT_CHANGED",
+            "Integration migration refuses a changed or incomplete schema16 predecessor",
+        ));
+    }
     if tx
         .prepare("PRAGMA foreign_key_check")
         .map_err(db_error)?
@@ -58,4 +68,62 @@ impl crate::storage::Store {
             ref_fences: convert(counts[3])?,
         })
     }
+}
+
+fn predecessor_schema(db: &Connection) -> Result<Vec<(String, String, String, String)>> {
+    let (count, bytes):(i64,i64)=db.query_row("SELECT count(*),COALESCE(sum(octet_length(type)+octet_length(name)+octet_length(tbl_name)+COALESCE(octet_length(sql),0)),0) FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%'",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+    if !(1..=256).contains(&count) || !(1..=1048576).contains(&bytes) {
+        return Err(CoreError::new(
+            "INPUT_CHANGED",
+            "Predecessor schema exceeds the fixed definition bound",
+        ));
+    }
+    let mut statement=db.prepare("SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name").map_err(db_error)?;
+    let rows = statement
+        .query_map([], |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, String>(1)?,
+                r.get::<_, String>(2)?,
+                r.get::<_, String>(3)?,
+            ))
+        })
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    if rows.iter().filter(|r| r.0 == "table").count() != 55 {
+        return Err(CoreError::new(
+            "INPUT_CHANGED",
+            "Integration predecessor must contain the complete schema16 table set",
+        ));
+    }
+    Ok(rows
+        .into_iter()
+        .map(|(kind, name, table, sql)| (kind, name, table, normalize_ddl(&sql)))
+        .collect())
+}
+fn normalize_ddl(sql: &str) -> String {
+    // Ignore formatting only outside quoted SQL content. Literal values and
+    // named constraints/index predicates remain byte-exact.
+    let mut out = String::new();
+    let mut quote = None;
+    let mut chars = sql.chars().peekable();
+    while let Some(c) = chars.next() {
+        if let Some(q) = quote {
+            out.push(c);
+            if c == q {
+                if chars.peek() == Some(&q) {
+                    out.push(chars.next().expect("peeked character"));
+                } else {
+                    quote = None;
+                }
+            }
+        } else if matches!(c, '\'' | '"' | '`') {
+            quote = Some(c);
+            out.push(c);
+        } else if !c.is_ascii_whitespace() {
+            out.push(c);
+        }
+    }
+    out
 }
