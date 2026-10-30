@@ -1,0 +1,83 @@
+{
+  "source": "4e9e20d25c7b104c57cffc51a92de3a2eff82a71",
+  "base": "61c0fce36c1819d136b91c6349e8d86031156f8d",
+  "requirements_partial": [
+    "AB-TSK-009",
+    "AB-TSK-003",
+    "AB-TSK-008",
+    "AB-TSK-007",
+    "AB-VAL-009"
+  ],
+  "source_sha256": {
+    "crates/core/src/ipc.rs": "264f12a719ed0a54a85617801b6da50ce099975f44515d0013770aa94968b089",
+    "crates/core/src/factory.rs": "ace87ef9fbf54fff079872a6d34f03cc6b7aff9f57a6cbebf3a77e863a56c852",
+    "crates/core/src/factory_reads.rs": "0844765868539f98c8d862dbb234d1caf333826d922dad7fa77687d297219d6d",
+    "crates/core/src/factory_history_reads.rs": "1c3f1f91c52d8a2659ef0c3e9dd672f534187f22ec03cf3f2b5a2ee331c2e760",
+    "crates/core/src/factory_history_reads_tests.rs": "ffb48585c0db80b8b040e0d7bd13564b77936991a890c83bd59830a8b54e9cfd",
+    "crates/core/src/factory_child_goal_state_tests.rs": "037b26cefdf711a0d7ee97c95acbb5e8a2371ba7b08feeaf78eae3461ce002cf",
+    "crates/core/src/goal_stop_service_tests.rs": "557205dff9a19363dc09271f9bd2b5f5b6ef38c167356260b951dd3ea1581da8",
+    "crates/core/src/factory_history_actor_tests.rs": "f331222487c3eb77502a043eba285b69989244fc9d2e5c31c9160aee7c6067c4"
+  },
+  "author_validation": {
+    "rustfmt": "PASS",
+    "diff_check": "PASS",
+    "bounded_static_checks": 26,
+    "Rust": "NOT_COMPILED / NOT_RUN",
+    "SQL_Actor_Provider_Node_network": "NOT_RUN"
+  },
+  "static_checks_sha256": "46039364849934f5dd2945afcfc23777888c2620d23462a5e081b86c823cc9b1",
+  "source_inverses": [
+    "entire IPC old content exact after removing new helper/field/route/polls/reaping",
+    "Factory reads bodies exact except four internal visibilities",
+    "Factory module only registration",
+    "all old two cfg fixture prefixes byte exact"
+  ],
+  "tests": {
+    "history_worker_tests": 10,
+    "history_actor_tests": 2,
+    "not_additive_to_unrun_full_Core": true,
+    "actual_unit_dimension": "real approved Core history and SQLite/thread controls when Root runs",
+    "actual_actor_dimension": "Unix framing/socket_worker and generated ACP with manually driven Actor helpers; missingFactoryscope negative history read, no Daemon.run/Mac/fullFactoryGraph claim"
+  },
+  "authority": "fixed readonly DTO only; no live Scope/Grant/FS cache or new IPC/permission",
+  "resource_model": {
+    "active_threads": 1,
+    "pending": 0,
+    "busy_retryable": true,
+    "raw_database_pin": "Actor strong Arc resource across requests; no authority/history content cached",
+    "deadline": "original ReadyRequest Instant unchanged",
+    "SQLite": "READ_ONLY/query_only/active WAL/exact schema15; never Store::open",
+    "reply_revision": "same SQL read snapshot even empty list",
+    "interrupt": "only request connection; actual join before writer ownership release"
+  },
+  "inherited_limits_unchanged": [
+    "OwnerRPC5s",
+    "accepted-request60s",
+    "Node4s",
+    "child20s",
+    "Factory/root/project30s",
+    "observer55s",
+    "scope60s where originally selected",
+    "original JSON/count/rawbyte/fee/stop/capture guards"
+  ],
+  "known_limits": [
+    "original strict existing-TX helper intentionally repeats immutable proof; not a CPU/performance claim",
+    "metadata/path held-FD protocol reused; no new claim of atomic SQLite internal-FD identity against arbitrary same-UID ABA",
+    "kernel stalls cannot be forcibly killed; shutdown really joins",
+    "independent source review and Root actual validation pending",
+    "schema17 composition is separately reviewed; no dual-version acceptance"
+  ],
+  "prior_Intel61": {
+    "product_run": 41063677236,
+    "Intel_job": 124089485764,
+    "status": "Factory26PASS1FAIL229.55s plan2/run12 blocked",
+    "capture_actual_ms": 4164,
+    "reservation_ms": 4000,
+    "producer_ms": 3745,
+    "IO": "not_started/no_join/four_worker_phase_null",
+    "cause_and_improvement": "NOT_ESTABLISHED",
+    "official_finite_zip": 12982199412,
+    "official_zip_sha256": "f2969e808988356d3fc7a884ad16d8433f3818833974d0aef27997eb530c3502"
+  },
+  "gates": "No formal Approve, performance/Mac/final130 acceptance or production release; Root soleheavy."
+}
