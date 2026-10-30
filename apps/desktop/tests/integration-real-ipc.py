@@ -969,10 +969,12 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         def shot(name, focus):
             focus.scroll_into_view_if_needed()
             expect(focus).to_be_in_viewport(ratio=1)
+            focus_box_before_capture = focus.bounding_box()
             path = output / (name + '.png'); page.screenshot(path=str(path))
             report['screenshots'].append({'name': name, 'sha256': digest(path.read_bytes()),
                 'bytes': path.stat().st_size, 'viewport': page.viewport_size,
-                'focus_box': focus.bounding_box(), 'focus_fully_in_viewport': True,
+                'focus_box_before_capture_observation': focus_box_before_capture,
+                'focus_viewport_asserted_before_capture': True, 'pixel_synchronized': False,
                 'dimension': 'Linux Chromium only'})
         phase = 'actual_frontend'
         page.goto(server.origin + '/', wait_until='networkidle')

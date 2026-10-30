@@ -12,7 +12,7 @@
     "docs/execution/integration-real-browser/EVIDENCE.json"
   ],
   "source_sha256": {
-    "apps/desktop/tests/integration-real-ipc.py": "77215c1d9071293ff6856a540b70e77646189be1161d611e54a02209000b8ff4",
+    "apps/desktop/tests/integration-real-ipc.py": "14c6f5bfa643ff15338fe96213e018065e0cfd579d81fdd05a229ff105ad149b",
     "tests/infrastructure/test_integration_real_ipc.py": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2"
   },
   "actual_pure_command": [
@@ -86,6 +86,13 @@
       "failed": 0,
       "seconds": 0.086,
       "note": "capture-only source change; same35tests, no mirror image test"
+    },
+    {
+      "tests": 35,
+      "passed": 35,
+      "failed": 0,
+      "seconds": 0.077,
+      "note": "bbox timing metadata only; same35 controls/no mirror test"
     }
   ],
   "counts": {
@@ -107,7 +114,7 @@
     "macos_Intel": "NOT_RUN",
     "real_Provider_model": "NOT_RUN"
   },
-  "independent_review": "PENDING capture-only narrow revision closure",
+  "independent_review": "PENDING metadata-only observation timing leaf",
   "authority_guards": [
     "exact twelve-field private expected selection fixed before HTTP",
     "complete original Core response/proposal/snapshot1MiB",
@@ -163,7 +170,7 @@
     "advisory_not_observed_browser_failure": true,
     "focus_scroll": "exact passed locator",
     "viewport_assertion": "to_be_in_viewport(ratio=1)",
-    "metadata": "actual focus bounding box plus unchanged viewport",
+    "metadata": "one bounding box observation after full viewport assertion and before capture; no pixel-frame synchrony",
     "pre_acceptance_captures": [
       "task-pending-before-acceptance",
       "permission-before-task-acceptance"
@@ -179,5 +186,44 @@
     "mobile_overflow_guard_preserved": true,
     "full_page_or_viewport_expansion": false,
     "actual_images_run_or_viewed_by_author": false
-  }
+  },
+  "previous_source_sha256_b1882df": {
+    "apps/desktop/tests/integration-real-ipc.py": "77215c1d9071293ff6856a540b70e77646189be1161d611e54a02209000b8ff4",
+    "tests/infrastructure/test_integration_real_ipc.py": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2"
+  },
+  "independent_b188_closure": {
+    "source": "b1882df02815f70d04ec6cae5548b4af83b19086",
+    "verdict": "SOURCE_READY only",
+    "review_sha256": "ceefb78454d04f427c308a82e0be5475f64167270d21ba5495a6c5521e37f942",
+    "manifest_sha256": "9e1351610ff1dee8f979f9dc6270c653bc351e980e81b9938ed7d40ed7bdc5a5",
+    "reviewer_pure_tests": 35,
+    "reviewer_pure_seconds": 0.093
+  },
+  "bbox_timing_metadata": {
+    "sample_before_capture": true,
+    "viewport_asserted_before_capture": true,
+    "pixel_synchronized": false,
+    "original_b188_sample": "independent after-capture observation, may differ from actual pixels",
+    "original_4e_records_or_pngs_changed": false,
+    "root_prior_actual_pngs_viewed": true,
+    "new_images_run_or_viewed_by_author": false,
+    "production_labels_touched": false
+  },
+  "root_prior_browser_reference": {
+    "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+    "entry": ".onboarding/integration17-browser4e-actual2",
+    "attribution": "Root reported, not this author execution or new-source acceptance",
+    "normal_checks": 5,
+    "failure_checks": 4,
+    "pngs_each": 6,
+    "seconds": 29.519,
+    "original_first_probe_failures_preserved": true
+  },
+  "author_metadata_edit_history": [
+    {
+      "exit": 1,
+      "cause": "tracked EVIDENCE.json absent from sparse checkout after branch switch; first edit wrote three MD updates then stopped, no product execution",
+      "resolution": "loaded immutable b188 EVIDENCE with git show, preserved history, wrote only authorized EVIDENCE; no sparse rules changed"
+    }
+  ]
 }
