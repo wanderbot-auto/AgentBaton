@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "kind": "child_goal_finite_diagnostic_source",
+  "base": "4155548fbeca71f238309cff33a248ea1e2d53ca",
+  "actual_pure_commands": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_child_goal_ci_evidence.py",
+        "-v"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "test_candidate_json_types_cannot_coerce_schema_dirty_or_nested_values (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_candidate_json_types_cannot_coerce_schema_dirty_or_nested_values) ... ok\ntest_cli_publishes_only_summary_preserving_private_raw_originals (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_cli_publishes_only_summary_preserving_private_raw_originals) ... ok\ntest_duplicate_json_keys_and_nonprivate_or_oversized_input_are_refused (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_duplicate_json_keys_and_nonprivate_or_oversized_input_are_refused) ... ok\ntest_fifo_and_unix_socket_are_rejected_without_waiting_for_a_writer (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_fifo_and_unix_socket_are_rejected_without_waiting_for_a_writer) ... ok\ntest_final_publish_failure_never_exposes_passed_final_name (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_final_publish_failure_never_exposes_passed_final_name) ... ok\ntest_missing_preflight_symlink_and_bad_json_remain_failed_and_private (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_missing_preflight_symlink_and_bad_json_remain_failed_and_private) ... ok\ntest_nonzero_or_late_error_cleanup_or_missing_check_never_passes (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_nonzero_or_late_error_cleanup_or_missing_check_never_passes) ... ok\ntest_only_explicit_fields_leave_all_three_synthetic_case_reports (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_only_explicit_fields_leave_all_three_synthetic_case_reports) ... ok\ntest_private_ci_driver_and_projection_failures_still_attempt_all_cases (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_private_ci_driver_and_projection_failures_still_attempt_all_cases) ... ok\ntest_runner_temp_symlink_alias_keeps_all_cases_under_canonical_private_root (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_runner_temp_symlink_alias_keeps_all_cases_under_canonical_private_root) ... ok\ntest_unknown_duplicate_or_wrong_case_check_is_refused_without_raw_error (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_unknown_duplicate_or_wrong_case_check_is_refused_without_raw_error) ... ok\ntest_unresolved_runner_temp_alias_is_rejected_by_private_root_assertion (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_unresolved_runner_temp_alias_is_rejected_by_private_root_assertion) ... ok\ntest_wrong_manifest_source_tools_harness_or_report_case_is_refused (test_child_goal_ci_evidence.ChildGoalProjectionTests.test_wrong_manifest_source_tools_harness_or_report_case_is_refused) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 0.095s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_child_goal_finite_diagnostics.py",
+        "-v"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "test_absent_and_no_reply_are_explicitly_unobserved (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_absent_and_no_reply_are_explicitly_unobserved) ... ok\ntest_caps_are_explicit_and_never_claim_all_errors_observed (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_caps_are_explicit_and_never_claim_all_errors_observed) ... ok\ntest_classification_uses_exception_objects_not_messages_and_preserves_first (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_classification_uses_exception_objects_not_messages_and_preserves_first) ... ok\ntest_direct_reply_metadata_omits_all_raw_private_fields (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_direct_reply_metadata_omits_all_raw_private_fields) ... ok\ntest_driver_hook_preserves_single_backend_call_and_original_reply (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_driver_hook_preserves_single_backend_call_and_original_reply) ... ok\ntest_failed_summary_retains_finite_error_without_changing_pass_predicate (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_failed_summary_retains_finite_error_without_changing_pass_predicate) ... ok\ntest_invalid_diagnostics_make_real_projector_cli_nonzero_and_never_publish_raw (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_invalid_diagnostics_make_real_projector_cli_nonzero_and_never_publish_raw) ... ok\ntest_malformed_observed_error_invalidates_projection_not_silently_no_error (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_malformed_observed_error_invalidates_projection_not_silently_no_error) ... ok\ntest_only_exact_driver_filename_lines_leave_traceback (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_only_exact_driver_filename_lines_leave_traceback) ... ok\ntest_parallel_reply_counting_is_exact (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_parallel_reply_counting_is_exact) ... ok\ntest_public_whitelist_rejects_secret_fields_strings_types_and_duplicates (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_public_whitelist_rejects_secret_fields_strings_types_and_duplicates) ... ok\ntest_success_reply_is_observed_zero_errors_not_missing (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_success_reply_is_observed_zero_errors_not_missing) ... ok\ntest_unknown_code_method_or_effect_is_counted_without_leaking_string (test_child_goal_finite_diagnostics.ChildGoalFiniteDiagnosticsTests.test_unknown_code_method_or_effect_is_counted_without_leaking_string) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 0.038s\n\nOK\n"
+    }
+  ],
+  "dimension": "pure source/typed metadata and exact inert wire-hook tests only; no Core/browser/CI run",
+  "driver_self_check": {
+    "command": [
+      "python3",
+      "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "--self-check",
+      "--output",
+      "<owned-temporary-output>"
+    ],
+    "exit": 0,
+    "stdout_sha256": "34e4f57849f49fa616c81ca39a3fa7f4d8029df55bcd466c3c24102d847db97d",
+    "stderr": "",
+    "dimension": "original pure source/self-check only, no listener/daemon/browser/subprocess inside driver"
+  },
+  "source_commit": "42b014b229f3f04d5189c8142f3775e42dad15cf",
+  "source": {
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": {
+      "bytes": 132853,
+      "sha256": "b89188b6b47d508d43b9aebbae1e0d2dbbc684696abef79ee88b4c4ca8d387e1"
+    },
+    "scripts/record-child-goal-ci-evidence.py": {
+      "bytes": 16932,
+      "sha256": "88482810b7ca226d347e48ecb5d64cdf24ee71f3532f695129ffc368d03c5546"
+    },
+    "tests/infrastructure/test_child_goal_finite_diagnostics.py": {
+      "bytes": 11213,
+      "sha256": "896143bf42a1bf7714bce20e3b9714c5fd678a8b1defec0146a5c7023bd15d8b"
+    }
+  },
+  "requirements": {
+    "AB-TSK-007": "finite cancellation vs stop evidence only",
+    "AB-TSK-008": "finite unknown/recovery evidence only",
+    "AB-TSK-009": "finite progression failure observation only",
+    "AB-VAL-009": "finite lifecycle evidence only; not full completion"
+  },
+  "unique_pure_methods": {
+    "existing_unchanged": 13,
+    "new": 13,
+    "total": 26
+  },
+  "original_driver_source_self_checks": 322,
+  "counts_not_additive_to_runtime": true,
+  "static_proofs": {
+    "original_projection_test_file": "byte-identical",
+    "passed_predicate": "AST-identical",
+    "driver_wait_phase_stamp_capture": "AST-identical",
+    "other8_projector_helpers": "AST-identical",
+    "syntax_compile": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "limits": {
+    "captured_reply_count": 2048,
+    "error_buckets": 64,
+    "driver_line_count": 64,
+    "driver_line_max": 1000000,
+    "reply_overflow": "captured subset with truncated=true",
+    "unknown_vocab_or_bucket_overflow": "unmapped_error_count; no original string",
+    "malformed_observation": "invalid marker; strict projector refuses"
+  },
+  "privacy": {
+    "raw_error_message": false,
+    "traceback_string": false,
+    "paths_ids_tokens_argv_snapshots": false,
+    "foreign_traceback_frames": false,
+    "owner_durations_added": false
+  },
+  "observations": {
+    "core_scope": "direct ObservedHost top-level response error only",
+    "not_parsed": [
+      "exception message",
+      "nested result last_error",
+      "Provider internal MCP",
+      "private cleanup text"
+    ],
+    "missing": "null/unobserved",
+    "phase": "actual runtime/cleanup control-flow edge",
+    "concurrent_failure": "first finite caught observation; not inferred private primary race chronology"
+  },
+  "not_run": [
+    "real Core/Actor/browser flows",
+    "CI or failing CI reproduction",
+    "Native/macOS",
+    "Cargo/Node",
+    "network/model/account/fee operations"
+  ],
+  "local_context": "Root-reported normal/cancel passes cannot explain original CG01/CG02 CI failure; no new real flow by this leaf"
+}
