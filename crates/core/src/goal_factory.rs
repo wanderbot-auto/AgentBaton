@@ -953,6 +953,37 @@ impl AncestorAdmissionDiagnostic {
         error
     }
 }
+// This observation has no Clone/Serialize/Deserialize implementation and owns
+// only one exact dispatch's bounded original sample. It cannot admit execution.
+pub(crate) struct GoalAdmissionObservation {
+    run_id: String,
+    details_ref: String,
+}
+impl GoalAdmissionObservation {
+    pub(crate) fn capture(run_id: &str, error: &CoreError) -> Option<Self> {
+        if error.code != "RESOURCE_LIMIT" || run_id.is_empty() || run_id.len() > 512 {
+            return None;
+        }
+        let details_ref = error.details_ref.as_deref()?;
+        let raw = details_ref.strip_prefix(ANCESTOR_ADMISSION_PREFIX)?;
+        if raw.len() > 1024 {
+            return None;
+        }
+        // Reject arbitrary details at capture as well as at consumption.
+        let _: AncestorAdmissionDiagnostic = serde_json::from_str(raw).ok()?;
+        Some(Self {
+            run_id: run_id.to_owned(),
+            details_ref: details_ref.to_owned(),
+        })
+    }
+    pub(super) fn for_run(&self, code: &str, r: &GoalRun) -> Option<Value> {
+        if self.run_id != r.id {
+            return None;
+        }
+        ancestor_admission_diagnostic(code, Some(&self.details_ref), r)
+    }
+}
+
 pub(super) fn ancestor_admission_diagnostic(
     code: &str,
     details_ref: Option<&str>,

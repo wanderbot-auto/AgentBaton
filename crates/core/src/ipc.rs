@@ -321,9 +321,71 @@ fn private_file(path: &Path) -> Result<File> {
         .open(path)
         .map_err(|_| CoreError::new("PERMISSION_DENIED", "Cannot open private runtime state"))
 }
+// Only the owned automatic Goal lane receives this non-serializable envelope.
+// Socket and Factory callers retain the original JSON Value byte-for-byte.
+pub(crate) struct GoalAdvanceReply {
+    wire: Value,
+    admission: Option<crate::goal_store::GoalAdmissionObservation>,
+}
+impl GoalAdvanceReply {
+    pub(crate) fn new(
+        wire: Value,
+        admission: Option<crate::goal_store::GoalAdmissionObservation>,
+    ) -> Self {
+        Self { wire, admission }
+    }
+    pub(crate) fn into_parts(self) -> (Value, Option<crate::goal_store::GoalAdmissionObservation>) {
+        (self.wire, self.admission)
+    }
+}
+pub(crate) enum ReadyReply {
+    Wire(SyncSender<Value>),
+    Goal(SyncSender<GoalAdvanceReply>),
+}
+impl ReadyReply {
+    pub(crate) fn try_send(
+        &self,
+        wire: Value,
+    ) -> std::result::Result<(), mpsc::TrySendError<Value>> {
+        self.try_send_observed(GoalAdvanceReply::new(wire, None))
+    }
+    pub(crate) fn try_send_observed(
+        &self,
+        reply: GoalAdvanceReply,
+    ) -> std::result::Result<(), mpsc::TrySendError<Value>> {
+        match self {
+            Self::Wire(sender) => sender.try_send(reply.wire),
+            Self::Goal(sender) => sender.try_send(reply).map_err(|error| match error {
+                mpsc::TrySendError::Full(reply) => mpsc::TrySendError::Full(reply.wire),
+                mpsc::TrySendError::Disconnected(reply) => {
+                    mpsc::TrySendError::Disconnected(reply.wire)
+                }
+            }),
+        }
+    }
+}
+
+// Preserve the original recorded-intent recovery reference and all error fields.
+// The optional observation remains a same-reply Rust value, never a wire token.
+pub(crate) fn recorded_goal_dispatch_error(
+    run_id: &str,
+    receipt: &Value,
+    mut error: CoreError,
+    admission: &mut Option<crate::goal_store::GoalAdmissionObservation>,
+) -> CoreError {
+    *admission = crate::goal_store::GoalAdmissionObservation::capture(run_id, &error);
+    if error.side_effect_state == "not_started" {
+        error.side_effect_state = "confirmed".into();
+    }
+    error.details_ref = receipt["intent_id"]
+        .as_str()
+        .map(|id| format!("recorded-goal-advance:{id}"));
+    error
+}
+
 pub(crate) struct ReadyRequest {
     pub(crate) raw: String,
-    pub(crate) reply: SyncSender<Value>,
+    pub(crate) reply: ReadyReply,
     pub(crate) deadline: Instant,
     pub(crate) factory_dispatch: Option<crate::factory::FactoryDispatchTicket>,
 }
@@ -343,7 +405,7 @@ fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
             let (reply, receive): (_, Receiver<Value>) = mpsc::sync_channel(1);
             let job = ReadyRequest {
                 raw,
-                reply,
+                reply: ReadyReply::Wire(reply),
                 deadline: Instant::now() + Duration::from_secs(60),
                 factory_dispatch: None,
             };
@@ -404,7 +466,7 @@ pub struct Daemon {
     supervisor: Supervisor,
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
-    goal_pending: Option<(String, Receiver<Value>)>,
+    goal_pending: Option<(String, Receiver<GoalAdvanceReply>)>,
     factory_queue_clocks: std::collections::HashMap<String, FactoryQueueClock>,
     factory_pending: Option<(String, Receiver<Value>)>,
     factory_fatal_error: Option<CoreError>,
@@ -556,14 +618,18 @@ impl Daemon {
         Ok(())
     }
     fn handle(&mut self, raw: &str) -> Value {
+        self.handle_observed(raw).wire
+    }
+    fn handle_observed(&mut self, raw: &str) -> GoalAdvanceReply {
         #[cfg(debug_assertions)]
         let diagnostic_clock = Instant::now();
         let request = serde_json::from_str::<Request>(raw);
         let id = request.as_ref().ok().map(|r| r.request_id.clone());
         let authenticated = request.as_ref().is_ok_and(|r| r.token == self.token);
+        let mut admission = None;
         let result = request
             .map_err(|_| invalid())
-            .and_then(|r| self.dispatch(r));
+            .and_then(|r| self.dispatch(r, &mut admission));
         let revision = if authenticated {
             self.store.sequence().unwrap_or(0)
         } else {
@@ -580,9 +646,13 @@ impl Daemon {
             goal_diagnostics::method_tag(raw),
             response["error"]["code"].as_str(),
         );
-        response
+        GoalAdvanceReply::new(response, admission)
     }
-    fn dispatch(&mut self, r: Request) -> Result<Value> {
+    fn dispatch(
+        &mut self,
+        r: Request,
+        admission: &mut Option<crate::goal_store::GoalAdmissionObservation>,
+    ) -> Result<Value> {
         if r.token != self.token {
             return Err(CoreError::new(
                 "AUTH_REQUIRED",
@@ -670,7 +740,7 @@ impl Daemon {
                     }
                     if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send(&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
                 })();
-                if let Err(mut error)=action {if error.side_effect_state=="not_started"{error.side_effect_state="confirmed".into();}error.details_ref=receipt["intent_id"].as_str().map(|id|format!("recorded-goal-advance:{id}"));return Err(error);}Ok(receipt)
+                if let Err(error)=action {return Err(recorded_goal_dispatch_error(&p.run_id,&receipt,error,admission));}Ok(receipt)
             }
             "factory_runs.start" => {
                 let p: FactoryScopeId = params(r.params)?;
@@ -2134,8 +2204,8 @@ impl Daemon {
                     }
                     Ok(None) => {}
                 }
-                let response = self.handle(&job.raw);
-                let _ = job.reply.try_send(response);
+                let response = self.handle_observed(&job.raw);
+                let _ = job.reply.try_send_observed(response);
             }
         }
     }
@@ -2257,10 +2327,10 @@ impl Daemon {
                             }
                         }
                     } else {
-                        let response = self.handle(&job.raw);
+                        let response = self.handle_observed(&job.raw);
                         self.store.data_input = None;
                         self.store.graph_input = None;
-                        let _ = job.reply.try_send(response);
+                        let _ = job.reply.try_send_observed(response);
                     }
                 }
             },
@@ -2373,6 +2443,7 @@ impl Daemon {
         if let Some((id, receiver)) = self.goal_pending.take() {
             match receiver.try_recv() {
                 Ok(response) => {
+                    let (response, admission) = response.into_parts();
                     #[cfg(debug_assertions)]
                     if response["error"]["code"] == "BUDGET_UNKNOWN" {
                         goal_diagnostics::emit(
@@ -2394,10 +2465,11 @@ impl Daemon {
                     );
                     if let Some(code) = response["error"]["code"].as_str() {
                         if !matches!(code, "STALE_REVISION" | "WORKSPACE_BUSY") {
-                            self.store.block_goal_run(
+                            self.store.block_goal_run_observed(
                                 &id,
                                 code,
                                 response["error"]["details_ref"].as_str(),
+                                admission.as_ref(),
                             )?;
                         }
                     }
@@ -2457,7 +2529,7 @@ impl Daemon {
         self.goal_pending = Some((run.id, receive));
         self.handle_ready_request(ReadyRequest {
             raw,
-            reply,
+            reply: ReadyReply::Goal(reply),
             deadline: Instant::now() + Duration::from_secs(60),
             factory_dispatch: None,
         });
@@ -2812,7 +2884,7 @@ mod factory_queue_deadline_tests {
             let (send, recv) = std::sync::mpsc::sync_channel(1);
             let deadline = Instant::now();
             std::thread::sleep(Duration::from_millis(2));
-            daemon.handle_ready_request(ReadyRequest{raw:json!({"api_version":1,"request_id":"generated-expired-scoped","handle_id":"missing-generated","scoped_token":"0".repeat(64),"method":method,"params":{},"expected_revision":1,"idempotency_key":"never-admit"}).to_string(),reply:send,deadline,factory_dispatch:None});
+            daemon.handle_ready_request(ReadyRequest{raw:json!({"api_version":1,"request_id":"generated-expired-scoped","handle_id":"missing-generated","scoped_token":"0".repeat(64),"method":method,"params":{},"expected_revision":1,"idempotency_key":"never-admit"}).to_string(),reply:ReadyReply::Wire(send),deadline,factory_dispatch:None});
             let response = recv.recv_timeout(Duration::from_secs(1)).unwrap();
             assert_eq!(
                 response["error"]["code"], "RESOURCE_LIMIT",
@@ -2863,7 +2935,7 @@ impl Daemon {
         let phase_clock = Instant::now();
         self.handle_ready_request(ReadyRequest {
             raw,
-            reply,
+            reply: ReadyReply::Wire(reply),
             deadline: Instant::now() + Duration::from_secs(60),
             factory_dispatch: Some(ticket),
         });

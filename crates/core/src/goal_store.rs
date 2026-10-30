@@ -20,6 +20,7 @@ use uuid::Uuid;
 
 #[path = "goal_runtime.rs"]
 mod runtime;
+pub(crate) use runtime::factory::GoalAdmissionObservation;
 pub(crate) use runtime::migrate_graph;
 use runtime::runtime_scope_for_revision;
 pub(crate) use runtime::{

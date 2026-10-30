@@ -18,7 +18,7 @@ fn job(deadline: Instant) -> (crate::ipc::ReadyRequest, mpsc::Receiver<serde_jso
     (
         crate::ipc::ReadyRequest {
             raw: "private-test-read".into(),
-            reply,
+            reply: crate::ipc::ReadyReply::Wire(reply),
             deadline,
             factory_dispatch: None,
         },
