@@ -39,5 +39,18 @@
     "cause": "not established by whole-suite duration",
     "command_log_sha256": "15e801596af1c38c22ea6dd71d51d86a10916eca87d6da4dd9ed8617ee9a2686"
   },
-  "authority_unchanged": true
+  "authority_unchanged": true,
+  "source_revisions": [
+    {
+      "source": "59f2f3048fbe671ebb15069a69e9b0f03a6cef5b",
+      "finding": "Independent P2: known retained Factory fatal before new second service",
+      "scope": "5added ipc lines; propagate original fatal before any newly prioritized completion",
+      "source_sha256": "c8a0d9c97fdf4bc22a7cc3a65a5fd44b6fd88dc3e3dd49301198a4f4636424ca",
+      "inverse": "whole previous IPC file restored by exact removal",
+      "rustfmt": "passed",
+      "diff_check": "passed",
+      "runtime": "not_run",
+      "original_finding_retained": true
+    }
+  ]
 }
