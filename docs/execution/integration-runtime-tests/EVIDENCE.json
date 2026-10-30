@@ -4,12 +4,12 @@
   "status": "SOURCE_ONLY_NOT_COMPILED_OR_RUN",
   "base": "97f14100f746c24aebf2bf7eba54264d1029c387",
   "tested_source_commit": null,
-  "source_commit": "f053e77a3a946ce222f33045e53cddd28edc4648",
+  "source_commit": "889fb40bcd059395232aaa1b1577b45f617da955",
   "authority": "OWNER-001/002 implementation authorization; private Owner IPC is trusted-test-host only",
   "source": {
     "crates/core/tests/fixtures/integration_runtime.rs": {
-      "bytes": 52370,
-      "sha256": "1e51d8f800da1d00791528fec2c727c4d9b060c49e90c05d14429318240ae5c9"
+      "bytes": 52371,
+      "sha256": "13c7ab9f5bd17fe361c9ac5fb7e213a41ec1b774101c02bbb4edef842e1344ac"
     },
     "crates/core/tests/integration_ipc.rs": {
       "bytes": 8590,
@@ -55,6 +55,16 @@
       ],
       "exit": 0,
       "dimension": "review follow-up source syntax/format only"
+    },
+    {
+      "source_commit": "889fb40bcd059395232aaa1b1577b45f617da955",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check",
+        "inverse exactly three stage runtime literals gives f053 whole fixture bytes"
+      ],
+      "exit": 0,
+      "dimension": "static only"
     }
   ],
   "test_sources": [
@@ -79,14 +89,16 @@
     "integration_ttl_ms": 30000,
     "observer_ms": 5000,
     "stage_runtime_ms": [
-      1000,
-      1500,
-      500
+      5000,
+      5000,
+      5000
     ],
     "expected_total_attempts": 4,
     "expected_integration_attempts": 3,
     "source_and_preparation_artifact_subtotal_bytes": 24,
-    "expected_total_output_formula": "24 + actual joined CAS stdout_retained_bytes + stderr_retained_bytes; all must be known and fully ledger-charged"
+    "expected_total_output_formula": "24 + actual joined CAS stdout_retained_bytes + stderr_retained_bytes; all must be known and fully ledger-charged",
+    "fixed_command_wall_time_ms": 500,
+    "fixed_command_cleanup_time_ms": 500
   },
   "expected_measures_are_not_results": true,
   "proposed_root_command": [
@@ -160,6 +172,21 @@
         "No original approved Command row/result comparison and insufficient new merged observation binding"
       ],
       "root_inflight_runtime": "Old 8c assembly result is separate and not a pass for f053"
+    },
+    {
+      "source_commit": "f053e77a3a946ce222f33045e53cddd28edc4648",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 52370,
+          "sha256": "1e51d8f800da1d00791528fec2c727c4d9b060c49e90c05d14429318240ae5c9"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "runtime_result": "NOT_RUN_BY_AUTHOR",
+      "follow_up": "Root-authorized fresh positive declarations; no production defect claimed"
     }
   ],
   "review_followup": {
@@ -170,5 +197,89 @@
     "new_observation": "real process_started/exit0/reap/EOF; exact full merged Git subject/new attempt; registered managed candidate cwd/root; fixed input/output SHA+size; approved program/settings/script/environment/enforcement unchanged",
     "independent_review": "PENDING",
     "runtime": "NOT_RUN"
+  },
+  "root_actual_previous_source": {
+    "source": "d0fab8b3426605b415e2500ce4528b380d20e5da",
+    "fixture_source": "8c41e50af6c05dbc8b6f770004f12c26062ed047",
+    "command": [
+      "env",
+      "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "integration_ipc",
+      "integration_runtime::",
+      "--",
+      "--show-output",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "wrapper_seconds": 34.438629665994085,
+    "summaries": [
+      "test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 2 filtered out; finished in 9.42s"
+    ],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "artifacts": {
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/RESULT.json": {
+        "bytes": 966,
+        "sha256": "21c72ac4f850c41ed3f179925ac143642d6fa2a413ab60d0cc6e77444e582e8e"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/FINITE_RUNTIME_FAILURE.json": {
+        "bytes": 3542,
+        "sha256": "ad4d87bfc6ed21618d7e5c4881de8b30ea34e3cd81b5255309d6116eba58578f"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/FINITE_STAGE_TIMING.json": {
+        "bytes": 2036,
+        "sha256": "27be25d15c82d6975b657a6cca3d82a914470466dde66e682307da21440ff719"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/INPUTS.json": {
+        "bytes": 16928,
+        "sha256": "c98ec40d54833711b6001506a275244e11a8e3c2a2ba1711981b87d6cd86b5a5"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/command.log": {
+        "bytes": 2381,
+        "sha256": "41772007b981cbea19cc36a63628d5ad221a89d71e2805f8f32d3b2f3030ee5e"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/failed-elf/MANIFEST.json": {
+        "bytes": 582,
+        "sha256": "2ae8896218c2a766f54c3145f18c650adc4ca3acc59e780e64c3c1787294d518"
+      }
+    },
+    "safe_actual_facts": [
+      {
+        "fixture": "integration-runtime-Mqtmag",
+        "observed_runtime_lower_bound_ms": 1072,
+        "worker_thread_joined": true,
+        "effects_admitted": true,
+        "reservation_refunded": false
+      },
+      {
+        "fixture": "integration-runtime-p6gTLY",
+        "observed_runtime_lower_bound_ms": 1075,
+        "worker_thread_joined": true,
+        "effects_admitted": true,
+        "reservation_refunded": false
+      }
+    ],
+    "retained_private_roots": [
+      "/tmp/integration-runtime-Mqtmag",
+      "/tmp/integration-runtime-p6gTLY"
+    ],
+    "retention_limit": "Raw DB not read/copied by this author; original failed ELF identity is referenced via Root manifest, not independently rehashed here",
+    "not_a_current_source_pass": true
+  },
+  "adr_001": {
+    "choice": "new explicit Native selection stage runtime5000/5000/5000 only",
+    "not_a_performance_fix": true,
+    "new_declaration_runtime": "NOT_RUN",
+    "unchanged": "Root/project20k;Grant/TTL30k;Work4k;actualCmd500+500;alloutput reservations/RPC/observer/assertions",
+    "unknown_old_run_retried": false,
+    "ui_default_1000_support": "OPEN",
+    "cpu_or_timer_bug_root_cause": "NOT_ESTABLISHED",
+    "no_automatic_further_escalation": true
   }
 }
