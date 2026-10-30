@@ -1266,7 +1266,8 @@
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
         "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
-        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial.",
+        "private_capture_fixture_portability": "674d actual10under022/002/077/fullCore139under022/fmt/strictClippyPASS;4344 originalCI137/1andlocalbefore0/1 retained;newexactMac/native/runtime4sdiagnosispending, partial."
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
@@ -1288,7 +1289,8 @@
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1560,7 +1562,8 @@
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
         "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
-        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial.",
+        "private_capture_fixture_portability": "674d actual10under022/002/077/fullCore139under022/fmt/strictClippyPASS;4344 originalCI137/1andlocalbefore0/1 retained;newexactMac/native/runtime4sdiagnosispending, partial."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -1581,7 +1584,8 @@
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1858,7 +1862,8 @@
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
         "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
-        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial.",
+        "private_capture_fixture_portability": "674d actual10under022/002/077/fullCore139under022/fmt/strictClippyPASS;4344 originalCI137/1andlocalbefore0/1 retained;newexactMac/native/runtime4sdiagnosispending, partial."
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
@@ -1877,7 +1882,8 @@
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -3125,7 +3131,8 @@
         "schema15_exact7ac": "Environment3/Rust/UI passed; ARM22/1 failed revision16; Intel22/1 blocked revision14 RESOURCE_LIMIT before validator2; original deadlines live; no native/build/package acceptance",
         "atomic_reservation_local": "b651 Factory26/Core129/strictClippy pass; e068 finite collector independently reviewed/fullinfra150/real postjoin CLI pass; new exact Mac/CI not_run, full requirement partial",
         "schema15_exactde0b": "Environment3/Rust passed; UI argv-exit race failed CP01/02 only; bothMac22/1 failed at distinct preflight/capture boundaries; no later native/build/package; original limits unchanged",
-        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial.",
+        "private_capture_fixture_portability": "674d actual10under022/002/077/fullCore139under022/fmt/strictClippyPASS;4344 originalCI137/1andlocalbefore0/1 retained;newexactMac/native/runtime4sdiagnosispending, partial."
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -3160,7 +3167,8 @@
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -4393,7 +4401,8 @@
         "native_x86_64": "not_run",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
         "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
-        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial.",
+        "private_capture_fixture_portability": "674d actual10under022/002/077/fullCore139under022/fmt/strictClippyPASS;4344 originalCI137/1andlocalbefore0/1 retained;newexactMac/native/runtime4sdiagnosispending, partial."
       },
       "evidence": [
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
@@ -4408,7 +4417,8 @@
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json"
       ],
       "limitations": [],
       "verified_slices": [
@@ -4605,7 +4615,9 @@
         "native_x86_64": "not_run",
         "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
-        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
+        "head60ba_terminal_prior_capture_diagnostics": "Exact60ba Env/Rust/UI/ARM pass Intel reworkRESOURCE_LIMIT fail; wholeProduct failed. c170 diagnostic-only80pure/203infra(80subset), duplicate-windowfinding closed; no runtimebudgetfix/newCI/Mac claim. Core17/UI/source16 preparation partialseparate; fullscope pending.",
+        "capture_completion_service": "0b647 actual14capture/143Core(14included)/30Factory/strictClippy/fmt passed,18sourceassertions separate; originalfee/caps/authority unchanged. ExactnewdualMac/Native/UI/packaging pending, not Intelperformance/fullscope completion."
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -4618,7 +4630,10 @@
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
         "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/PRIOR_CAPTURE_AND_HEAD60BA_RESULTS.json",
+        "docs/execution/capture-completion-service/ROOT_RESULTS.json",
+        "docs/execution/goal-stop-service/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -4682,6 +4697,15 @@
           "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
           "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
           "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
+        },
+        {
+          "slice": "owned_goal_terminal_stop_service",
+          "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+          "evidence": "docs/execution/goal-stop-service/ROOT_RESULTS.json",
+          "local": "149Core incl6,30Factory,58sessionsIPC,strictClippy/fmt passed",
+          "new_exact_Mac_CI": "not_run_yet",
+          "whole_requirement": "incomplete",
+          "authority": "hint is scheduling only; original fresh stop/actual receipts and budget/unknown guards unchanged"
         }
       ],
       "pr18_repair_observation": {
@@ -6918,7 +6942,9 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
-        "local_integration17_foundation_partial": "passed only source-attributed Core/migration/CAS and proposal preparation; full execution/Native/Mac remain unverified"
+        "local_integration17_foundation_partial": "passed only source-attributed Core/migration/CAS and proposal preparation; full execution/Native/Mac remain unverified",
+        "head60ba_terminal_prior_capture_diagnostics": "Exact60ba Env/Rust/UI/ARM pass Intel reworkRESOURCE_LIMIT fail; wholeProduct failed. c170 diagnostic-only80pure/203infra(80subset), duplicate-windowfinding closed; no runtimebudgetfix/newCI/Mac claim. Core17/UI/source16 preparation partialseparate; fullscope pending.",
+        "capture_completion_service": "0b647 actual14capture/143Core(14included)/30Factory/strictClippy/fmt passed,18sourceassertions separate; originalfee/caps/authority unchanged. ExactnewdualMac/Native/UI/packaging pending, not Intelperformance/fullscope completion."
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -6940,7 +6966,10 @@
         "docs/execution/command-integration/EVIDENCE.json",
         "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
         "docs/execution/integration17-root-evidence/EVIDENCE.json",
-        "docs/execution/integration17-root-evidence/ROOT_CHECKPOINT.json"
+        "docs/execution/integration17-root-evidence/ROOT_CHECKPOINT.json",
+        "docs/execution/factory-child-goal-integration/PRIOR_CAPTURE_AND_HEAD60BA_RESULTS.json",
+        "docs/execution/capture-completion-service/ROOT_RESULTS.json",
+        "docs/execution/goal-stop-service/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -7029,6 +7058,15 @@
           "Native_tests_and_Mac": "not_run",
           "full_integration": "incomplete; coordinatorP1, controlledpreparation, watcher, merged validators/CAS/recovery pending",
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "owned_goal_terminal_stop_service",
+          "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+          "evidence": "docs/execution/goal-stop-service/ROOT_RESULTS.json",
+          "local": "149Core incl6,30Factory,58sessionsIPC,strictClippy/fmt passed",
+          "new_exact_Mac_CI": "not_run_yet",
+          "whole_requirement": "incomplete",
+          "authority": "hint is scheduling only; original fresh stop/actual receipts and budget/unknown guards unchanged"
         }
       ]
     },

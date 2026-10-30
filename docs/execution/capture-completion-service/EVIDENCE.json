@@ -1,0 +1,80 @@
+{
+  "actual_product_processes": 0,
+  "actual_tests_run": 0,
+  "base": "030a4f5ab406eec26adcd81463fa1c82d9752360",
+  "commands": [
+    {
+      "command": "rustfmt --edition 2021 crates/core/src/goal_graph.rs crates/core/src/goal_graph_capture_service_tests.rs",
+      "dimension": "sparse checkout formatter setup only",
+      "exit": 1,
+      "reason": "cannot resolve omitted child module goal_evidence.rs; no compile attempted"
+    },
+    {
+      "command": "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt --edition 2021 --config skip_children=true --check crates/core/src/goal_graph.rs crates/core/src/goal_graph_capture_service_tests.rs",
+      "dimension": "format only",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "dimension": "whitespace only",
+      "exit": 0
+    }
+  ],
+  "new_test_functions": [
+    "finished_real_capture_is_joined_once_but_cannot_settle_without_original_authority",
+    "unfinished_owned_capture_poll_returns_without_waiting_or_releasing_the_handle",
+    "failed_start_receipt_keeps_even_a_finished_owned_handle_for_fatal_drop",
+    "cancelled_real_capture_poll_cannot_create_a_candidate_or_an_extra_settlement"
+  ],
+  "not_run": [
+    "Rust compilation",
+    "capture_service_tests 14 functions",
+    "Actor",
+    "Core full library",
+    "Factory normal/rework/cancel",
+    "macOS Intel/ARM",
+    "latency improvement"
+  ],
+  "original_test_methods": 10,
+  "prior_intel_evidence": {
+    "actual_runtime_ms": 4063,
+    "join_observed_queue_ms": 629,
+    "original_runtime_reservation_ms": 4000,
+    "performance_fixed": false,
+    "producer_ms": 3434,
+    "review": "/workspace/.onboarding/pr18-head030-source-diagnosis/REVIEW.md",
+    "review_sha256": "44ae770b1c9b89ec2a7a447c5c896612be5e49d0d5f6b21824bd38d524e95f74",
+    "specific_273ms_method_cause": "unknown",
+    "worker_started_and_completed_queue_ms": 356
+  },
+  "production_commit": "8c29344ca8bd4967fe283b6aa862527bdd1a85a4",
+  "source_sha256": {
+    "crates/core/src/goal_graph.rs": "7cffe531ddae9cda472051d0eb51d2f7bf1acdad7cc7bc9b8030442ae1efaf9f",
+    "crates/core/src/goal_graph_capture_service_tests.rs": "659df2c077641216606d8ec05b77185738b5f6debd89a8e31881ef4a8ffe484c"
+  },
+  "source_static": {
+    "all_pass": true,
+    "artifact": "/workspace/.onboarding/capture-completion-service-source/STATIC_CHECKS.json",
+    "count": 16,
+    "whole_inverse": "/workspace/.onboarding/capture-completion-service-source/ORDERING_INVERSE.rs"
+  },
+  "test_dimension_limit": "real FD/thread, empty Store and invalid origin; no successful Graph/candidate authority claim",
+  "total_expected_test_methods": 14,
+  "unchanged": [
+    "original full reconcile before any new capture spawn",
+    "fresh origin/plan/lease/fence/stop proof",
+    "producer plus max(queue-to-real-join, capture elapsed) accounting",
+    "six timing fields and null semantics",
+    "original reservation/budget/deadline/unknown/cancel/refund rules",
+    "public API/schema/dependencies/locks/permissions"
+  ],
+  "root_actual_results": "ROOT_RESULTS.json",
+  "root_counts_by_dimension": {
+    "capture": 14,
+    "Core": 143,
+    "capture_included_in_Core": true,
+    "nested_helper_not_additive": 1,
+    "Factory": 30,
+    "not_a_sum": true
+  }
+}

@@ -721,8 +721,9 @@ impl GraphWorkers {
     pub(crate) fn has_workers(&self) -> bool {
         !self.captures.is_empty() || self.validators.has_workers()
     }
-    pub(crate) fn tick(&mut self, store: &mut Store) -> Result<()> {
-        self.validators.tick(store)?;
+    // Poll only handles that are already finished. The caller still owns every
+    // other handle; no thread wait or admission/frontier work happens here.
+    fn poll_finished_captures(&mut self, store: &mut Store) -> Result<()> {
         let finished: Vec<_> = self
             .captures
             .iter()
@@ -739,6 +740,18 @@ impl GraphWorkers {
                 w.queued_at.elapsed(),
             )?;
         }
+        Ok(())
+    }
+    fn mark_started_capture_and_poll(&mut self, store: &mut Store, id: &str) -> Result<()> {
+        store.mark_graph_capture_started(&self.captures.get(id).ok_or_else(changed)?.origin)?;
+        // The original frontier/origin checks and durable start receipt have
+        // succeeded. Observe a fast owned read's real join before unrelated
+        // Actor work, without renewing or discounting its original clock.
+        self.poll_finished_captures(store)
+    }
+    pub(crate) fn tick(&mut self, store: &mut Store) -> Result<()> {
+        self.validators.tick(store)?;
+        self.poll_finished_captures(store)?;
         for w in self.captures.values_mut() {
             let r = run(&store.conn, &w.origin.run_id)?;
             if r.cancel_requested
@@ -808,9 +821,7 @@ impl GraphWorkers {
                         queued_at,
                     },
                 );
-                store.mark_graph_capture_started(
-                    &self.captures.get(&id).ok_or_else(changed)?.origin,
-                )?;
+                self.mark_started_capture_and_poll(store, &id)?;
             }
             Err(_) => store.finish_graph_capture(
                 &origin,

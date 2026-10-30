@@ -1,0 +1,183 @@
+{
+  "recorded_at": "2026-10-30T09:33:57.321236+00:00",
+  "source": "0b647f4b20559e93179f69051eaceaba47081026",
+  "source_tree": "16eaccf13447abfdb6d276c62bb9b3d25ccea8be",
+  "production_source": "8c29344ca8bd4967fe283b6aa862527bdd1a85a4",
+  "parent_head": "030a4f5ab406eec26adcd81463fa1c82d9752360",
+  "approval": "AB-START-001",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "change": "Reuse original completed-handle poll after the real start receipt succeeds, before unrelated later Actor work. Original validators/poll/reconcile/prepare/spawn/map/start sequence preserved; no join of unfinished handle, no new authority or admission ordering.",
+  "unchanged_contract": "Original queue epoch, producer+max(queue,capture) fees, original4000/20000 limits, six nullable timings, full fresh finish proof, cancellation/unknown handling unchanged.",
+  "actual_commands": {
+    "capture-tests1": {
+      "source": "0b647f4b20559e93179f69051eaceaba47081026",
+      "root": "/workspace/.worktrees/capture-completion-validation",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "capture_service_tests",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 19.771365299995523,
+      "minimum_free_bytes": 278052864,
+      "interruption": null,
+      "log_sha256": "e62bee213682691c94c1b27b7e17287c1ec2be0c4320dbbe068126b327495956",
+      "summaries": [
+        "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 129 filtered out; finished in 0.15s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "core1": {
+      "source": "0b647f4b20559e93179f69051eaceaba47081026",
+      "root": "/workspace/.worktrees/capture-completion-validation",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 92.3227714850218,
+      "minimum_free_bytes": 338182144,
+      "interruption": null,
+      "log_sha256": "ba0b942676305d87a3f5145314fc55b34a0c9cd3395704d0419e3c55c1891101",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 142 filtered out; finished in 0.00s",
+        "test result: ok. 143 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 92.19s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "factory1": {
+      "source": "0b647f4b20559e93179f69051eaceaba47081026",
+      "root": "/workspace/.worktrees/capture-completion-validation",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 129.98711092499434,
+      "minimum_free_bytes": 338010112,
+      "interruption": null,
+      "log_sha256": "e2f17f867d60b651b4c92c518a6803791a30d7db7833bd141f0ade293b9e5533",
+      "summaries": [
+        "test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 114.35s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "clippy1": {
+      "source": "0b647f4b20559e93179f69051eaceaba47081026",
+      "root": "/workspace/.worktrees/capture-completion-validation",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 15.760040132008726,
+      "minimum_free_bytes": 345456640,
+      "interruption": null,
+      "log_sha256": "2ec70e5adee04768e74baf32eb39d9ec367a22a42c90c43551c141f56f742efd",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "format1": {
+      "source": "0b647f4b20559e93179f69051eaceaba47081026",
+      "root": "/workspace/.worktrees/capture-completion-validation",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.002845682989573,
+      "minimum_free_bytes": 345694208,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "counts_by_separate_dimension": {
+    "capture": 14,
+    "Core": 143,
+    "capture_included_in_Core": true,
+    "nested_helper_not_additive": 1,
+    "Factory": 30,
+    "not_a_sum": true
+  },
+  "actual_factory_sources": {
+    "current": "Embedded real Daemon in child Goal/real rework fixtures is compiled from exact0b647 source; generated account-free ACP and real fixed Command/Unix IPC/owned stop/accept/resume are actual.",
+    "compatibility": "Other legacy external-daemon cases use explicit existing15 frozen tools from INPUTS; those bytes remain unchanged. Do not claim all30 launched a freshly rebuilt externaldaemon or a model/OSdialog."
+  },
+  "source_review": {
+    "review_sha256": "bffffcd001aa196c6c55b5761963597416187207a97cecf9da902226e3fc044f",
+    "manifest_sha256": "7367d884d95982c4039b9764ef66e04203986050c9e32a9077a8d324437a9302",
+    "static_assertions": 18,
+    "no_must_fix": true,
+    "not_product_test_count": true
+  },
+  "new_four_unit_limits": "Real FD/thread/empty Store refusal controls, not forged legitimate Graph/start/producer receipts. Successful authenticated chain is separately exercised by actual embedded Factory/rework above; source/static controls are not added to143.",
+  "prior_remote": {
+    "head": "030a4f5ab406eec26adcd81463fa1c82d9752360",
+    "Environment": 41022338431,
+    "Product": 41022338410,
+    "terminal": "Environment3/Rust/UI/ARMsuccess, Intel26pass1fail; wholeProductfailure",
+    "Intel": "runrevision12 plan2 captureactual4063=producer3434+joinqueue629 > original4000. Worker started/completed356, elapsed0floor;273ms completion→observedjoin not localized. Originalbudget/failure retained, not same as prior60ba ancestor-budget candidate.",
+    "finite_artifact": 12962114360,
+    "finite_zip_sha256": "aa81192f4dbf5d1a69b1be4d7875d488c28d436f92c9d878a7c61d1c5f056e6f",
+    "ARM_development_artifact": 12964106676,
+    "ARM_current_artifact_dimension": "metadata only; not downloaded/hashed here; noIntelartifact/noDualdelivery"
+  },
+  "remaining": [
+    "exact new candidate Environment/Product/Intel+ARM and real UI/native/build/audit/packages; localpass is not Intelresolution",
+    "new timing still cannot isolate mark-started commit vs later Actor service; no claimed causal profile or fixed milliseconds saved",
+    "continue separate Core17 sharedledger/stage/fence/controlledCAS/recovery implementation and actualNative/UI composition; full130 remains open"
+  ],
+  "authority_closed": [
+    "live product models/private Provider credentials",
+    "new paid resources/hosts/accountspend",
+    "production/signing/notarization/finallicense",
+    "formalGitHubApprovewithoutcurrentexactPRconfirmation"
+  ],
+  "not_product_complete": true
+}

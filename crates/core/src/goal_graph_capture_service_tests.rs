@@ -317,3 +317,189 @@ fn nonprivate_directory_mode_alone_is_rejected_by_actual_capture() {
     assert_eq!(outcome.result.err().unwrap().code, "INPUT_CHANGED");
     assert_eq!(fs::read(&report).unwrap(), original_bytes);
 }
+
+// These handles perform real bounded FD reads. Their origin deliberately has no
+// approved Graph/producer receipt: successful I/O must not manufacture authority.
+fn retained_real_capture(
+    prepared: evidence::PreparedCandidateCapture,
+    wait_for_release: bool,
+) -> (
+    GraphWorkers,
+    mpsc::Sender<()>,
+    mpsc::Receiver<()>,
+    Arc<AtomicBool>,
+) {
+    let origin = origin(prepared.root.clone());
+    let queued_at = Instant::now();
+    let deadline = prepared.deadline;
+    let cancel = prepared.cancelled.clone();
+    let thread_cancel = cancel.clone();
+    let (release, wait) = mpsc::channel();
+    let (entered, ready) = mpsc::channel();
+    let done = Arc::new(AtomicBool::new(false));
+    let thread_done = done.clone();
+    let thread = std::thread::spawn(move || {
+        entered.send(()).unwrap();
+        if wait_for_release {
+            // Bound even a regression that accidentally joins this gated
+            // thread before the test can send its release; normal service
+            // needs no elapsed-time threshold or sleep to pass.
+            let until = Instant::now() + Duration::from_secs(5);
+            while !thread_cancel.load(Ordering::Relaxed) && Instant::now() < until {
+                match wait.recv_timeout(Duration::from_millis(10)) {
+                    Ok(()) | Err(mpsc::RecvTimeoutError::Disconnected) => break,
+                    Err(mpsc::RecvTimeoutError::Timeout) => {}
+                }
+            }
+        }
+        let observed = observe_capture_worker(queued_at, || prepared.execute());
+        thread_done.store(true, Ordering::SeqCst);
+        observed
+    });
+    let mut workers = GraphWorkers::default();
+    workers.captures.insert(
+        origin.id.clone(),
+        CaptureWorker {
+            origin,
+            cancel,
+            thread,
+            deadline,
+            unknown_recorded: false,
+            queued_at,
+        },
+    );
+    (workers, release, ready, done)
+}
+fn wait_for_real_capture_completion(workers: &GraphWorkers) {
+    let until = Instant::now() + Duration::from_secs(5);
+    while !workers.captures.values().all(|w| w.thread.is_finished()) {
+        assert!(
+            Instant::now() < until,
+            "bounded owned test reader must finish"
+        );
+        std::thread::yield_now();
+    }
+}
+fn no_capture_authority_or_settlement(store: &Store, sequence: u64) {
+    assert_eq!(store.sequence().unwrap(), sequence);
+    for table in [
+        "goal_graph_candidates",
+        "goal_graph_jobs",
+        "goal_run_reservations",
+    ] {
+        assert_eq!(
+            store
+                .conn
+                .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
+                    .get::<_, i64>(0))
+                .unwrap(),
+            0,
+            "real thread completion is not a {table} authority"
+        );
+    }
+}
+
+#[test]
+fn finished_real_capture_is_joined_once_but_cannot_settle_without_original_authority() {
+    let (temp, prepared) = fixture();
+    let mut store = empty_store(&temp);
+    let sequence = store.sequence().unwrap();
+    let (mut workers, _release, ready, done) = retained_real_capture(prepared, false);
+    ready.recv_timeout(Duration::from_secs(5)).unwrap();
+    wait_for_real_capture_completion(&workers);
+    assert!(done.load(Ordering::SeqCst));
+    // The production poll really joins/removes the handle, then the unchanged
+    // fresh Store verifier refuses the deliberately unauthorised origin.
+    let error = workers.poll_finished_captures(&mut store).err().unwrap();
+    assert_eq!(error.code, "INTERNAL_ERROR");
+    assert!(workers.captures.is_empty());
+    no_capture_authority_or_settlement(&store, sequence);
+    // No handle remains to rejoin or call settlement a second time.
+    workers.poll_finished_captures(&mut store).unwrap();
+    no_capture_authority_or_settlement(&store, sequence);
+}
+
+#[test]
+fn unfinished_owned_capture_poll_returns_without_waiting_or_releasing_the_handle() {
+    let (temp, prepared) = fixture();
+    let mut store = empty_store(&temp);
+    let sequence = store.sequence().unwrap();
+    let (mut workers, release, ready, done) = retained_real_capture(prepared, true);
+    ready.recv_timeout(Duration::from_secs(5)).unwrap();
+    // The thread cannot finish until the later release; a blocking join here
+    // would prevent this same test thread from ever issuing that release.
+    workers.poll_finished_captures(&mut store).unwrap();
+    assert!(workers.has_workers());
+    assert!(!done.load(Ordering::SeqCst));
+    assert!(!workers
+        .captures
+        .values()
+        .next()
+        .unwrap()
+        .thread
+        .is_finished());
+    no_capture_authority_or_settlement(&store, sequence);
+    release.send(()).unwrap();
+    wait_for_real_capture_completion(&workers);
+    assert_eq!(
+        workers
+            .poll_finished_captures(&mut store)
+            .err()
+            .unwrap()
+            .code,
+        "INTERNAL_ERROR"
+    );
+    assert!(workers.captures.is_empty());
+    no_capture_authority_or_settlement(&store, sequence);
+}
+
+#[test]
+fn failed_start_receipt_keeps_even_a_finished_owned_handle_for_fatal_drop() {
+    let (temp, prepared) = fixture();
+    let mut store = empty_store(&temp);
+    let sequence = store.sequence().unwrap();
+    let (mut workers, _release, ready, done) = retained_real_capture(prepared, false);
+    ready.recv_timeout(Duration::from_secs(5)).unwrap();
+    wait_for_real_capture_completion(&workers);
+    let id = workers.captures.keys().next().unwrap().clone();
+    // Call the production mark-then-poll path, not a test copy of its branch.
+    // No original Graph/job/stop provenance exists, so mark must fail before
+    // the new completion service can remove or settle this finished handle.
+    assert_eq!(
+        workers
+            .mark_started_capture_and_poll(&mut store, &id)
+            .err()
+            .unwrap()
+            .code,
+        "INTERNAL_ERROR"
+    );
+    assert!(workers.captures.contains_key(&id));
+    no_capture_authority_or_settlement(&store, sequence);
+    drop(workers);
+    assert!(done.load(Ordering::SeqCst));
+    no_capture_authority_or_settlement(&store, sequence);
+}
+
+#[test]
+fn cancelled_real_capture_poll_cannot_create_a_candidate_or_an_extra_settlement() {
+    let (temp, prepared) = fixture();
+    prepared.cancelled.store(true, Ordering::Relaxed);
+    let mut store = empty_store(&temp);
+    let sequence = store.sequence().unwrap();
+    let (mut workers, _release, ready, done) = retained_real_capture(prepared, false);
+    ready.recv_timeout(Duration::from_secs(5)).unwrap();
+    wait_for_real_capture_completion(&workers);
+    assert!(done.load(Ordering::SeqCst));
+    assert_eq!(
+        workers
+            .poll_finished_captures(&mut store)
+            .err()
+            .unwrap()
+            .code,
+        "INTERNAL_ERROR"
+    );
+    assert!(!workers.has_workers());
+    no_capture_authority_or_settlement(&store, sequence);
+    workers.poll_finished_captures(&mut store).unwrap();
+    no_capture_authority_or_settlement(&store, sequence);
+}
