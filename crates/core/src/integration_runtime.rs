@@ -821,3 +821,217 @@ fn historical_cas_confirmed(db: &Connection, run: &IntegrationRun) -> Result<boo
     }
     Ok(true)
 }
+
+impl Store {
+    /// Only the manager retaining the actual merged-candidate handles calls
+    /// this after consuming the preceding real join/settlement. No wire input
+    /// can reconstruct that handle or turn a stored pass into continuation.
+    pub(super) fn queue_integration_next_stage(
+        &mut self,
+        previous: &IntegrationStageTicket,
+        context: &super::io::IntegrationPreparedContext,
+        kind: IntegrationStageKind,
+        validator: Option<crate::goal_store::GoalValidatorRef>,
+    ) -> Result<IntegrationStageTicket> {
+        let queued_at = Instant::now();
+        let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let p = records::policy(&tx, &previous.policy.id)?;
+        let material = live_policy(self, &p)?;
+        let mut run = records::run(&tx, &previous.run.id)?;
+        let prior = budget::attempt(&tx, &previous.attempt.view.attempt_id)?;
+        let mut ref_fence = fence(&tx, &run)?;
+        let _ = super::fences::checked_fences(&tx)?;
+        if !prior.view.settled
+            || prior.view.io_completion != Some(IntegrationIoCompletion::WorkerJoined)
+            || prior.view.actual_runtime_ms.is_none()
+            || prior.view.actual_output_bytes.is_none()
+            || run.cancel_requested
+            || terminal(run.state)
+            || run.state == IntegrationState::OutcomeUnknown
+            || run.active_stage.is_some()
+            || ref_fence.state != "held"
+            || ref_fence.active_attempt_id.is_some()
+            || context.run_id != run.id
+            || context.policy.id != p.id
+            || context.policy.snapshot_digest != p.snapshot_digest
+            || run.integration_commit.as_deref() != Some(context.candidate.candidate_commit())
+            || run.source_commit.as_deref() != Some(context.captured.commit())
+        {
+            return Err(changed());
+        }
+        source_idle(&tx, &p)?;
+        let reservation = match kind {
+            IntegrationStageKind::Preparation => return Err(CoreError::new(
+                "AUTH_REQUIRED",
+                "A new round requires its separate exact descendant-target preparation admission",
+            )),
+            IntegrationStageKind::Validator => {
+                let reference = validator.as_ref().ok_or_else(denied)?;
+                let index = p
+                    .selection
+                    .stage_reservations
+                    .validators
+                    .iter()
+                    .position(|v| &v.validator == reference)
+                    .ok_or_else(denied)?;
+                if (index == 0 && prior.view.kind != IntegrationStageKind::Preparation)
+                    || (index > 0
+                        && (prior.view.kind != IntegrationStageKind::Validator
+                            || prior.view.validator.as_ref()
+                                != Some(
+                                    &p.selection.stage_reservations.validators[index - 1].validator,
+                                )))
+                    || context.validations.len() != index
+                    || context.validations.iter().any(|(_, observed)| {
+                        !observed.passed
+                            || !super::io::IntegrationPreparedContext::validation_is_stopped(
+                                observed,
+                            )
+                    })
+                {
+                    return Err(denied());
+                }
+                p.selection.stage_reservations.validators[index]
+                    .reservation
+                    .clone()
+            }
+            IntegrationStageKind::Cas => {
+                if validator.is_some()
+                    || prior.view.kind != IntegrationStageKind::Validator
+                    || context.validations.len() != p.bindings.validators.len()
+                    || context.validations.iter().any(|(_, observed)| {
+                        !observed.passed
+                            || !super::io::IntegrationPreparedContext::validation_is_stopped(
+                                observed,
+                            )
+                    })
+                {
+                    return Err(denied());
+                }
+                p.selection.stage_reservations.cas.clone()
+            }
+        };
+        reserve_ancestors(&tx, &p, &reservation)?;
+        reserve_counters(&tx, &p)?;
+        let candidate: ManagedWorkspace = raw(&tx, "managed_workspaces", &previous.candidate.id)?;
+        let control: ManagedWorkspace = raw(&tx, "managed_workspaces", &previous.control.id)?;
+        if candidate.state != "ready"
+            || control.state != "ready"
+            || candidate.root != context.candidate.workspace().canonical_root
+            || control.root != context.control.canonical_root
+            || candidate.identity.as_ref() != Some(context.candidate.workspace())
+            || control.identity.as_ref() != Some(&context.control)
+        {
+            return Err(changed());
+        }
+        let binding = derive_binding(&p, &candidate.id, context.candidate.candidate_commit())?;
+        let attempt_id = Uuid::new_v4().to_string();
+        let intent_id = Uuid::new_v4().to_string();
+        let dispatch = DispatchIntent {
+            id: intent_id.clone(),
+            attempt_id: attempt_id.clone(),
+            task_id: run.task_id.clone(),
+            root_task_id: p.bindings.root_task_id.clone(),
+            state: IntentState::Prepared,
+            executor_instance: None,
+            binding: binding.clone(),
+        };
+        tx.execute("INSERT INTO attempts(id,task_id,root_task_id,binding,idempotency_key) VALUES(?1,?2,?3,?4,?5)",params![attempt_id,run.task_id,p.bindings.root_task_id,encode(&binding)?,format!("integration:{}:{}:{:?}:{}",run.id,run.round,kind,validator.as_ref().map(|v|encode(v)).transpose()?.unwrap_or_default())]).map_err(db_error)?;
+        tx.execute("INSERT INTO dispatch_intents(id,attempt_id,state,executor_instance,document) VALUES(?1,?2,'prepared',NULL,?3)",params![intent_id,attempt_id,encode(&dispatch)?]).map_err(db_error)?;
+        let attempt = IntegrationAttemptRecord {
+            view: IntegrationAttemptView {
+                attempt_id: attempt_id.clone(),
+                round: run.round,
+                kind,
+                validator,
+                state: "prepared".into(),
+                reservation: reservation.clone(),
+                settled: false,
+                actual_runtime_ms: None,
+                actual_output_bytes: None,
+                io_completion: None,
+                last_error: None,
+                receipt_sequence: None,
+            },
+            integration_id: run.id.clone(),
+            policy_id: p.id.clone(),
+            policy_snapshot_digest: p.snapshot_digest.clone(),
+            root_task_id: p.bindings.root_task_id.clone(),
+            root_grant_id: p.bindings.root_grant_id.clone(),
+            project_id: p.bindings.project_id.clone(),
+            task_id: run.task_id.clone(),
+            factory_scope_id: p.bindings.factory_scope_id.clone(),
+            ancestors: p.bindings.ancestors.clone(),
+            intent_id,
+            binding,
+            prepared_at_ms: ms()?,
+            queued_ms: u64::try_from(queued_at.elapsed().as_millis()).map_err(|_| limited())?,
+        };
+        tx.execute("INSERT INTO integration_attempts(attempt_id,integration_id,round,kind,authority_kind,root_task_id,root_grant_id,project_id,state,document) VALUES(?1,?2,?3,?4,'integration',?5,?6,?7,'prepared',?8)",params![attempt_id,run.id,i64::from(run.round),encode(&kind)?.trim_matches('"'),p.bindings.root_task_id,p.bindings.root_grant_id,p.bindings.project_id,encode(&attempt)?]).map_err(db_error)?;
+        records::event(
+            &tx,
+            &run.id,
+            run.revision,
+            "integration.attempt_prepared",
+            &json!({"attempt_id":attempt_id,"origin_digest":sha(&budget::original(attempt.clone()))?}),
+        )?;
+        let checked =
+            budget::accounting_records(&tx, &p.bindings.root_grant_id, &p.bindings.project_id)?
+                .into_iter()
+                .find(|r| r.attempt_id == attempt_id)
+                .ok_or_else(changed)?;
+        Store::reserve_integration_execution_meter(
+            &tx,
+            &checked,
+            &p.bindings.root_budget,
+            &p.bindings.project_budget,
+        )?;
+        run.active_stage = Some(kind);
+        run.io_completion = None;
+        records::save_run(
+            &tx,
+            &mut run,
+            "integration.stage_queued",
+            json!({"attempt_id":attempt_id,"kind":kind,"new_provider_dispatch":false,"original_shared_meter":true}),
+        )?;
+        ref_fence.active_attempt_id = Some(attempt_id);
+        ref_fence.revision = ref_fence.revision.checked_add(1).ok_or_else(limited)?;
+        write_fence(&tx, &mut ref_fence, "integration.fence_updated")?;
+        let remaining = u64::try_from(
+            p.expires_at_ms
+                .min(material.expires_at_ms)
+                .checked_sub(ms()?)
+                .ok_or_else(denied)?,
+        )
+        .map_err(|_| denied())?;
+        let deadline = (queued_at + Duration::from_millis(reservation.runtime_ms))
+            .min(Instant::now() + Duration::from_millis(remaining));
+        if Instant::now() >= deadline {
+            return Err(CoreError::new(
+                "DEADLINE_EXCEEDED",
+                "Original next-stage queue time exhausted its unchanged reservation",
+            ));
+        }
+        let acceptance = self
+            .integration_verified_acceptance(&p.selection.goal_scope_id, &p.selection.task_id)?
+            .ok_or_else(denied)?;
+        if acceptance.id != run.acceptance_ref || sha(&acceptance)? != run.acceptance_digest {
+            return Err(changed());
+        }
+        let ticket = IntegrationStageTicket {
+            policy: p,
+            run,
+            attempt,
+            acceptance,
+            control,
+            candidate,
+            managed_root: previous.managed_root.clone(),
+            queued_at,
+            deadline,
+        };
+        records::check_metadata_bounds(&tx)?;
+        tx.commit().map_err(db_error)?;
+        Ok(ticket)
+    }
+}
