@@ -2,6 +2,7 @@
 from pathlib import Path
 import copy
 import hashlib
+import re
 import shlex
 import unittest
 
@@ -9,6 +10,17 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE_PRODUCT_SHA256 = '4b7543d61e8846248e1b7474ff6fe15d64068612fadbd44f6fe7585933a3378d'
+# Independently reviewed Native CI addition, not a replacement for the old pin.
+# Runtime validation uses these exact raw UTF8 blocks, never a git/network lookup.
+APPROVED_NATIVE_CI_SOURCE = 'ea9bcd12fc78016922c86b40ed84108dbf918b70'
+APPROVED_NATIVE_CI_STEPS = (
+    ('Native library tests with smoke features', 42,
+     'e03239832ab58f2c1a37d3f75fca37644fcf17076bd023b41570ae8c9c0aa46f'),
+    ('Actual Native integration approval and early cancellation', 43,
+     '0c4e0ccdb9cc5f9e3a8168e6edb865772a75c2c8b629bfb3ba1bfad91710d5e5'),
+    ('Retain finite Native integration evidence without private snapshots', 44,
+     '0d6868d45c646b8ddf689dbb287712fce1ab493e59fba3f8d385d64010915135'),
+)
 HISTORICAL_BUILDERS = {
     14: 'scripts/prepare-legacy-migration-fixture.py',
     15: 'scripts/prepare-schema15-migration-fixture.py',
@@ -44,6 +56,38 @@ def historical_targets(job):
     return targets
 
 
+def strip_approved_native_ci_steps(text):
+    """Remove only the exact three approved adjacent desktop step blocks."""
+    headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
+    indices = []
+    for name, expected_index, expected_digest in APPROVED_NATIVE_CI_STEPS:
+        matches = [index for index, header in enumerate(headers)
+                   if header.group(0) == '      - name: ' + name + '\n']
+        if len(matches) != 1 or matches[0] != expected_index:
+            raise ValueError('Reviewed Native CI step name, count or position changed')
+        index = matches[0]
+        if index + 1 >= len(headers):
+            raise ValueError('Reviewed Native CI block boundary is missing')
+        block = text[headers[index].start():headers[index + 1].start()]
+        if hashlib.sha256(block.encode('utf-8')).hexdigest() != expected_digest:
+            raise ValueError('Reviewed Native CI raw block bytes changed')
+        indices.append(index)
+    if indices != list(range(indices[0], indices[0] + 3)):
+        raise ValueError('Reviewed Native CI steps must stay consecutive')
+    before = '      - name: Actual Native Factory planning approval and unchanged Grant evidence\n'
+    after = '      - name: Retain bounded native migration metadata without private history\n'
+    if (headers[indices[0] - 1].group(0) != before
+            or headers[indices[-1] + 1].group(0) != after):
+        raise ValueError('Reviewed Native CI neighbors changed')
+    first, end = headers[indices[0]].start(), headers[indices[-1] + 1].start()
+    jobs = list(re.finditer(r'^  [a-zA-Z_][a-zA-Z0-9_-]*:\n', text, re.MULTILINE))
+    preceding = [header for header in jobs if header.start() < first]
+    if (not preceding or preceding[-1].group(0) != '  desktop:\n'
+            or any(first <= header.start() < end for header in jobs)):
+        raise ValueError('Reviewed Native CI steps must remain in desktop')
+    return text[:first] + text[end:]
+
+
 def verify_only_six_historical_target_changes(text):
     """Reverse exactly six approved argv edits, preserving every other byte.
 
@@ -51,6 +95,7 @@ def verify_only_six_historical_target_changes(text):
     object/network lookup. Future workflow changes need their own reviewed
     baseline update; this guard cannot silently normalize tests or permissions.
     """
+    text = strip_approved_native_ci_steps(text)
     workflow = yaml.load(text, Loader=yaml.BaseLoader)
     for lane in ('core', 'desktop'):
         historical_targets(workflow['jobs'][lane])
@@ -188,6 +233,51 @@ class Genuine16WorkflowWiring(unittest.TestCase):
                 self.assertIn(old, original)
                 with self.assertRaises(ValueError):
                     verify_only_six_historical_target_changes(original.replace(old, new, 1))
+
+    def test_reviewed_native_blocks_refuse_changed_duplicate_missing_or_moved_steps(self):
+        original = (ROOT / '.github/workflows/product.yml').read_bytes().decode('utf-8')
+        verify_only_six_historical_target_changes(original)
+        headers = list(re.finditer(r'^      - .*\n', original, re.MULTILINE))
+        blocks = []
+        changes = [
+            ('--lib -- --test-threads=1', '--lib -- --ignored --test-threads=1'),
+            ("'--integration-cancel-at', '0'", "'--integration-cancel-at', '1'"),
+            ("'complete': driver == 0 and projection == 0", "'complete': projection == 0"),
+        ]
+        for (name, _, _), (old, new) in zip(APPROVED_NATIVE_CI_STEPS, changes):
+            start = original.index('      - name: ' + name + '\n')
+            end = next(header.start() for header in headers if header.start() > start)
+            block = original[start:end]
+            self.assertIn(old, block)
+            blocks.append(block)
+            without = original[:start] + original[end:]
+            move_at = without.index('      - name: Toolchain\n')
+            variants = {
+                'content': original[:start] + block.replace(old, new, 1) + original[end:],
+                'raw bytes': original[:start] + block.replace('\n', '\r\n') + original[end:],
+                'duplicate': original[:start] + block + block + original[end:],
+                'missing': without,
+                'moved': without[:move_at] + block + without[move_at:],
+            }
+            for mutation, text in variants.items():
+                with self.subTest(step=name, mutation=mutation):
+                    with self.assertRaises(ValueError):
+                        verify_only_six_historical_target_changes(text)
+        # A hash-only stripper would incorrectly accept moving the complete
+        # unchanged addition as a unit. Its exact position is independently bound.
+        addition = ''.join(blocks)
+        self.assertEqual(original.count(addition), 1)
+        without = original.replace(addition, '', 1)
+        move_at = without.index('      - name: Actual Native Factory planning approval and unchanged Grant evidence\n')
+        moved = without[:move_at] + addition + without[move_at:]
+        with self.subTest(mutation='entire addition moved'):
+            with self.assertRaises(ValueError):
+                verify_only_six_historical_target_changes(moved)
+        # The old whole-workflow guard still rejects an unrelated legacy byte.
+        with self.subTest(mutation='old retention changed'):
+            self.assertIn('retention-days: 14', original)
+            with self.assertRaises(ValueError):
+                verify_only_six_historical_target_changes(original.replace('retention-days: 14', 'retention-days: 15', 1))
 
 
 if __name__ == '__main__':
