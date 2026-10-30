@@ -118,6 +118,7 @@ impl DatabasePin {
     }
 }
 
+const LEASE_PROJECTION:&str="SELECT json_array(resource,holder,fencing_token,expires_at) AS value FROM workspace_leases WHERE resource IN (SELECT value FROM json_each(?1)) ORDER BY resource";
 struct QueryProof {
     sql: &'static str,
     args: Vec<String>,
@@ -210,7 +211,12 @@ fn projection(db: &Connection, material: &IntegrationScopeMaterial) -> Result<Ve
   result.push(QueryProof::capture(db,sql,vec![scope],&mut remaining)?);
  }
     result.push(QueryProof::capture(db,"SELECT json_array(id,state,document) AS value FROM dispatch_intents WHERE json_extract(document,'$.root_task_id')=?1 ORDER BY id",vec![material.root_task_id.clone()],&mut remaining)?);
-    result.push(QueryProof::capture(db,"SELECT json_array(resource,holder,fencing_token,expires_at_ms) AS value FROM workspace_leases WHERE resource IN (SELECT value FROM json_each(?1)) ORDER BY resource",vec![encode(&material.grant.scope.workspace_ids)?],&mut remaining)?);
+    result.push(QueryProof::capture(
+        db,
+        LEASE_PROJECTION,
+        vec![encode(&material.grant.scope.workspace_ids)?],
+        &mut remaining,
+    )?);
     Ok(result)
 }
 impl Store {
@@ -813,4 +819,37 @@ fn observe_target(
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod lease_projection_tests {
+    use super::*;
+    #[test]
+    fn existing_schema_lease_expiry_column_is_projected_and_rechecked() {
+        // Actual predecessor DDL, with only an inert isolated row. This is a
+        // SQL/proof regression, not a session/permission or UnixIPC substitute.
+        let db = crate::storage::integration_schema16_reference().unwrap();
+        db.execute_batch("PRAGMA foreign_keys=OFF;INSERT INTO workspace_leases(resource,holder,fencing_token,expires_at) VALUES('fixture-workspace','',7,12345);").unwrap();
+        let proof = QueryProof::capture(
+            &db,
+            LEASE_PROJECTION,
+            vec!["[\"fixture-workspace\"]".into()],
+            &mut (4_194_304, 100_000),
+        )
+        .unwrap();
+        assert_eq!(proof.rows, vec!["[\"fixture-workspace\",\"\",7,12345]"]);
+        proof.recheck(&db, &mut (4_194_304, 100_000)).unwrap();
+        db.execute(
+            "UPDATE workspace_leases SET expires_at=12346 WHERE resource='fixture-workspace'",
+            [],
+        )
+        .unwrap();
+        assert_eq!(
+            proof
+                .recheck(&db, &mut (4_194_304, 100_000))
+                .unwrap_err()
+                .code,
+            "INPUT_CHANGED"
+        );
+    }
 }
