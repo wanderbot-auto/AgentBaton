@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "kind": "integration_runtime_test_source",
-  "status": "CURRENT_SOURCE_NOT_COMPILED_OR_RUN; previous exact025 two-positive source passed on Root944d",
+  "status": "CURRENT_NEW_REVOCATION_CASE_NOT_COMPILED_OR_RUN; previous two positives and fresh-validator-negative passed at separately attributed Root sources",
   "base": "97f14100f746c24aebf2bf7eba54264d1029c387",
   "tested_source_commit": null,
-  "source_commit": "77d3f33ad08e2be5ff8c0b1c4009233057ad6e1a",
+  "source_commit": "ca91b7cbb3aa78350b46dc4b8830d37674b76092",
   "authority": "OWNER-001/002 implementation authorization; private Owner IPC is trusted-test-host only",
   "source": {
     "crates/core/tests/fixtures/integration_runtime.rs": {
-      "bytes": 67305,
-      "sha256": "00c2c2c5dcb813049be4e6f6447db042b48d2d7c834d529411d09197e7d73959"
+      "bytes": 75782,
+      "sha256": "61bf9a4f88996bfbdfadbbbccf57bc2b35bae3b04e9ab5980923a21bca659e0d"
     },
     "crates/core/tests/integration_ipc.rs": {
       "bytes": 8590,
@@ -85,6 +85,16 @@
       ],
       "exit": 0,
       "dimension": "source-only; no new product or Rust execution"
+    },
+    {
+      "source_commit": "ca91b7cbb3aa78350b46dc4b8830d37674b76092",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check",
+        "new fixture starts with exact77d whole file bytes"
+      ],
+      "exit": 0,
+      "dimension": "source-only; no new product or Rust execution"
     }
   ],
   "test_sources": [
@@ -102,6 +112,11 @@
       "name": "fresh_merged_correctness_failure_never_admits_cas_and_retains_charged_receipts",
       "runtime_result": "NOT_RUN",
       "expected_dimension": "actual exit7/26Bstderr/ownedreap+EOF on fresh merged subject; failure persists, noCAS/noadvance, sharedmeter no refund, no old policy/result rewrite, same/newkey cannot relaunch"
+    },
+    {
+      "name": "policy_revoked_before_acceptance_cannot_be_rearmed_by_owner_or_any_start_key",
+      "runtime_result": "NOT_RUN",
+      "expected_dimension": "real preaccept approval+exact revoke; actual later Graph Owner acceptance does not arm policy; strict oldCAS/currentrevoked errors; no stage/CAS/new fee; historical receipts remain historical"
     }
   ],
   "normal_path_sql_mutations": false,
@@ -243,6 +258,21 @@
       },
       "root_actual_source": "944d49d62bf0db08ff33f36594532709d6548b53",
       "runtime_result": "2PASS13.64s Root actual; not new negative source pass"
+    },
+    {
+      "source_commit": "77d3f33ad08e2be5ff8c0b1c4009233057ad6e1a",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 67305,
+          "sha256": "00c2c2c5dcb813049be4e6f6447db042b48d2d7c834d529411d09197e7d73959"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "root_actual_source": "f719821f844cb3cbf973f0fecb508e3cf3925144",
+      "runtime_result": "fresh-validator-failure1PASS6.16s on Root; not new revocation-source pass"
     }
   ],
   "review_followup": {
@@ -251,7 +281,7 @@
     "old_command_result_fixture": "none; strict zero original one-shot results before/after, no source-pass fabrication",
     "original_definition": "actual stored policy rowid/all raw typed columns unchanged, fresh public policy matches actual original finalizer definition",
     "new_observation": "real process_started/exit0/reap/EOF; exact full merged Git subject/new attempt; registered managed candidate cwd/root; fixed input/output SHA+size; approved program/settings/script/environment/enforcement unchanged",
-    "independent_review": "revision025 SOURCE_READY; new77d pending",
+    "independent_review": "revision025 SOURCE_READY; subsequent negatives require their own review/runtime attribution",
     "runtime": "NOT_RUN"
   },
   "root_actual_previous_source": {
@@ -473,5 +503,63 @@
     "source_fact": "frozen944d queue_integration_start checks existing run before fresh admission; failed validator branch never returns nextCAS",
     "unknown_is_not_expected_failure": true,
     "no_sql_normal_authority_mutation": true
+  },
+  "root_actual_validator_failure_source": {
+    "source": "f719821f844cb3cbf973f0fecb508e3cf3925144",
+    "exact_fixture_sha256": "00c2c2c5dcb813049be4e6f6447db042b48d2d7c834d529411d09197e7d73959",
+    "command": [
+      "env",
+      "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "integration_ipc",
+      "integration_runtime::fresh_merged_correctness_failure_never_admits_cas_and_retains_charged_receipts",
+      "--",
+      "--show-output",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "wrapper_seconds": 35.33813607200864,
+    "summaries": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 6.16s"
+    ],
+    "source_unchanged": true,
+    "tools_unchanged": true,
+    "artifacts": {
+      "/workspace/.onboarding/integration17-validator-failure-ipc1/RESULT.json": {
+        "bytes": 1037,
+        "sha256": "4f4bf47e8477065d50f563fc25c32113e89eb86e28fa1969e7b4f2799df78f39"
+      },
+      "/workspace/.onboarding/integration17-validator-failure-ipc1/INPUTS.json": {
+        "bytes": 17006,
+        "sha256": "15f13826b8811ecb4a72b76e99ce5001d39e82557e99585a85b794771a91b5d8"
+      },
+      "/workspace/.onboarding/integration17-validator-failure-ipc1/command.log": {
+        "bytes": 1023,
+        "sha256": "d6493d5f072c69c0e7db70e6fab2487c9c731190833128cd63e0d82b08bec304"
+      }
+    },
+    "scope": "actual single fresh-validator failure UnixCore17 test only; not new ca91 revocation/Mac/full matrix"
+  },
+  "revocation_expected_not_observed": {
+    "policy_revision": 2,
+    "revoked": true,
+    "preaccept_start_code": "AUTH_REQUIRED",
+    "old_revision_after_revoke_code": "STALE_REVISION",
+    "current_revision_after_revoke_code": "AUTH_REQUIRED",
+    "error_side_effect_state": "not_started",
+    "integration_policies": 1,
+    "integrations": 0,
+    "integration_attempts": 0,
+    "integration_ref_fences": 0,
+    "all_shared_attempts": 1,
+    "active": 0,
+    "cross_owner_comparison": "meter/admission rows only; legitimate Task/Owner/acceptance/events writes not required unchanged",
+    "full_image_comparison": "quiescent individual refusal/replay boundaries only",
+    "historical_native_finalize": "same original receipt; current policy remains revoked and start still refused"
   }
 }
