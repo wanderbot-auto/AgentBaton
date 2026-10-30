@@ -4,12 +4,12 @@
   "status": "SOURCE_ONLY_NOT_COMPILED_OR_RUN",
   "base": "97f14100f746c24aebf2bf7eba54264d1029c387",
   "tested_source_commit": null,
-  "source_commit": "19c402e9ad05ce4b4271b750b64c5effc942dd6b",
+  "source_commit": "8c41e50af6c05dbc8b6f770004f12c26062ed047",
   "authority": "OWNER-001/002 implementation authorization; private Owner IPC is trusted-test-host only",
   "source": {
     "crates/core/tests/fixtures/integration_runtime.rs": {
-      "bytes": 42363,
-      "sha256": "ad5e7a4d1004f90036e675d9a9c42989f20fe456aef542507014f8362b7d664b"
+      "bytes": 42761,
+      "sha256": "24af7f5be8c7bf931026c365ad90c4da33bad1cf0634fff41ed01c215bae27eb"
     },
     "crates/core/tests/integration_ipc.rs": {
       "bytes": 8590,
@@ -37,6 +37,15 @@
     {
       "command": "git diff --check",
       "exit": 0
+    },
+    {
+      "source_commit": "8c41e50af6c05dbc8b6f770004f12c26062ed047",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check"
+      ],
+      "exit": 0,
+      "dimension": "follow-up format/syntax only; no Rust compilation"
     }
   ],
   "test_sources": [
@@ -67,7 +76,8 @@
     ],
     "expected_total_attempts": 4,
     "expected_integration_attempts": 3,
-    "expected_artifact_and_retained_output_bytes": 24
+    "source_and_preparation_artifact_subtotal_bytes": 24,
+    "expected_total_output_formula": "24 + actual joined CAS stdout_retained_bytes + stderr_retained_bytes; all must be known and fully ledger-charged"
   },
   "expected_measures_are_not_results": true,
   "proposed_root_command": [
@@ -106,5 +116,22 @@
     "shared mixed roots and full execution matrix",
     "full AB-VAL-009 and full product"
   ],
-  "preservation": "Generated TempDir kept on panic including setup; daemon joined before cleanup. No previous evidence changed."
+  "preservation": "Generated TempDir kept on panic including setup; daemon joined before cleanup. No previous evidence changed.",
+  "source_history": [
+    {
+      "source_commit": "19c402e9ad05ce4b4271b750b64c5effc942dd6b",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 42761,
+          "sha256": "24af7f5be8c7bf931026c365ad90c4da33bad1cf0634fff41ed01c215bae27eb"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "runtime_result": "NOT_RUN",
+      "static_correction": "First source erroneously assumed CAS retained streams zero in hardcoded 24B total. Follow-up charges genuine receipt bytes; no actual failure or product fix claimed."
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 # Checkpoint
 
-Source freeze: `19c402e9ad05ce4b4271b750b64c5effc942dd6b` on `codex/integration-runtime-tests`, baseline `97f14100f746c24aebf2bf7eba54264d1029c387`.
+Current source freeze: `8c41e50af6c05dbc8b6f770004f12c26062ed047` (first source `19c402e9ad05ce4b4271b750b64c5effc942dd6b`) on `codex/integration-runtime-tests`, baseline `97f14100f746c24aebf2bf7eba54264d1029c387`.
 
 Only own documentation may change while Root compiles the frozen Rust source. No author Cargo/Actor/Git-fixture/cache lease is held. Do not run old schema15/16 tools for these tests; the Actor in the new target must actually report schema17. Root supplies supported-host PATH for the complete test process; `/usr/local/bin/git` with multiple links remains unsupported, not silently bypassed.
 
