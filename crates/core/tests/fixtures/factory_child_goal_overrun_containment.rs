@@ -8,7 +8,7 @@ enum Fault {
     RetainedOverrun,
     MissingReservation,
     MissingStop,
-    OversizeReservation,
+    OversizeNodeRecords,
 }
 struct OwnedActor {
     stop: Arc<AtomicBool>,
@@ -69,7 +69,7 @@ fn actual_missing_stop_proof_is_not_disguised_as_confirmed_budget_block() {
 }
 #[test]
 fn actual_raw_resource_limit_is_not_caught_as_confirmed_budget_block() {
-    actual_containment(Fault::OversizeReservation);
+    actual_containment(Fault::OversizeNodeRecords);
 }
 fn actual_containment(fault: Fault) {
     let mut f = Fixture::new();
@@ -275,7 +275,7 @@ UPDATE goal_ledgers SET document=json_set(document,'$.runtime_ms',json_extract(d
 "#),
         Fault::MissingReservation => format!("DELETE FROM goal_run_reservations WHERE run_id='{goal}' AND node_id='fixed-work';"),
         Fault::MissingStop => format!("UPDATE events SET document=json_set(document,'$.kind','fixture.stop_proof_missing') WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.aggregate_id') IN(SELECT session_id FROM goal_run_nodes WHERE run_id='{goal}' AND node_id='fixed-work' AND plan_revision=1);"),
-        Fault::OversizeReservation => format!("UPDATE goal_run_reservations SET document=json_set(document,'$.fixture_padding',hex(zeroblob(600000))) WHERE run_id='{goal}' AND node_id='fixed-work';"),
+        Fault::OversizeNodeRecords => format!("UPDATE goal_run_nodes SET document=json_set(document,'$.fixture_padding',hex(zeroblob(600000))) WHERE run_id='{goal}' AND node_id='fixed-work' AND plan_revision=1;"),
     };
     db.execute_batch(&format!(r#"CREATE TRIGGER fixture_post_stop_containment AFTER INSERT ON events
 WHEN json_extract(NEW.document,'$.kind')='goal.owner_node_settled' AND json_extract(NEW.document,'$.aggregate_id')='{goal}' AND json_extract(NEW.document,'$.payload.decision')='rejected'
@@ -359,12 +359,15 @@ BEGIN {injected} END;"#)).unwrap();
         assert_eq!(
             error.code,
             match fault {
-                Fault::MissingReservation => "INPUT_CHANGED",
+                Fault::MissingReservation => "INTERNAL_ERROR",
                 Fault::MissingStop => "PERMISSION_DENIED",
-                Fault::OversizeReservation => "RESOURCE_LIMIT",
+                Fault::OversizeNodeRecords => "RESOURCE_LIMIT",
                 _ => unreachable!(),
             }
         );
+        if matches!(fault, Fault::MissingReservation) {
+            assert_eq!(error.side_effect_state, "unknown");
+        }
         assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='factory.child_goal_rework_blocked'", [], |r| r.get::<_,i64>(0)).unwrap(), 0);
     }
     assert_eq!(
