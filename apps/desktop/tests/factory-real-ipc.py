@@ -372,6 +372,53 @@ def _bound_identity_disappeared(old, fixed, field, before):
 
 def collect_started_records(runtime, workspace, scope, context, verified, output, reaper=None):
     """A discovery glob cannot authorize cleanup: bind every FD to actual Core text/session."""
+    def cancel_row(connection):
+        table=connection.execute("SELECT type,sql FROM sqlite_master WHERE name='factory_runs'").fetchone()
+        if not(table is not None and table[0]=='table' and type(table[1])is str and re.match(r'CREATE\s+TABLE\s',table[1],re.I)):return False
+        rows=connection.execute("SELECT revision,CASE WHEN length(state)<=32 THEN state END,CASE WHEN length(CAST(document AS BLOB)) BETWEEN 1 AND 262144 THEN document END FROM factory_runs WHERE id=? AND scope_id=? AND root_task_id=? LIMIT 2",(context['run_id'],scope['id'],scope['root_task_id'])).fetchall()
+        if len(rows)!=1:return False
+        revision,state,raw=rows[0]
+        if not(type(revision)is int and revision>0 and state in ('cancel_requested','cancelled') and type(raw)is str):return False
+        value=json.loads(raw,object_pairs_hook=unique_object)
+        return (type(value)is dict and value.get('id')==context['run_id'] and value.get('scope_id')==scope['id']
+            and value.get('root_task_id')==scope['root_task_id'] and type(value.get('revision'))is int
+            and value['revision']==revision and value.get('state')==state and value.get('cancel_requested')is True)
+    cancellation_proof = None
+    def committed_cancel(connection):
+        nonlocal cancellation_proof
+        if cancellation_proof is not None:return cancellation_proof
+        cancellation_proof = False
+        try:
+            if cancel_row(connection):cancellation_proof=True;return True
+            # The original read transaction may predate the actual cancel commit.
+            # One fresh read-only snapshot, no RPC/retry/new outer deadline.
+            fresh=sqlite3.connect('file:'+str(runtime/'baton.sqlite3')+'?mode=ro',uri=True,timeout=2)
+            try:
+                fresh.execute('PRAGMA query_only=ON');fresh.execute('BEGIN')
+                cancellation_proof=cancel_row(fresh)
+                return cancellation_proof
+            finally:fresh.close()
+        except (sqlite3.Error,ValueError,TypeError,KeyError,AssertionError):return False
+    def same_bound_empty_provider(connection,old,fixed,current):
+        if old is None or old!=fixed:return False
+        parents=context.get('_verified_provider_parents')
+        if not(type(parents)is dict and len(parents)<=8 and fixed['path']in parents):return False
+        prior=parents[fixed['path']];expected=fixed['owned_provider']
+        if not(type(prior)is dict and set(prior)=={'pid','pgid','start_ticks','parent_pid'} and type(prior['pid'])is int and type(prior['pgid'])is int and type(prior['start_ticks'])is str and all(prior[k]==expected[k]for k in ('pid','pgid','start_ticks'))):return False
+        if not committed_cancel(connection):return False
+        assert type(prior['parent_pid'])is int and prior['parent_pid']>0
+        assert type(current['pid'])is int and type(current['parent_pid'])is int and type(current['start_ticks'])is str and current['pid']==prior['pid'] and current['start_ticks']==prior['start_ticks'] and current['parent_pid']==prior['parent_pid'], 'Previously bound provider parent/identity changed'
+        try:
+            before_uid=Path('/proc',str(expected['pid'])).stat().st_uid
+            assert type(before_uid)is int and before_uid==os.geteuid(), 'Bound provider UID changed'
+            assert os.getpgid(expected['pid'])==prior['pgid'], 'Bound provider PGID changed'
+            after=support.proc_identity(expected['pid'])
+            assert type(after['pid'])is int and type(after['parent_pid'])is int and type(after['start_ticks'])is str and after['pid']==prior['pid'] and after['start_ticks']==prior['start_ticks'] and after['parent_pid']==prior['parent_pid'], 'Bound provider identity changed during empty argv read'
+            after_uid=Path('/proc',str(expected['pid'])).stat().st_uid
+            assert type(after_uid)is int and after_uid==before_uid
+            assert os.getpgid(expected['pid'])==prior['pgid']
+        except (FileNotFoundError,ProcessLookupError):return False
+        return True
     if workspace is None or scope is None: return []
     directory = Path(workspace['root']) / 'reports'
     if not directory.exists(): return []
@@ -437,6 +484,8 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
             if reaper is not None and old is not None:
                 reaper.reap(old)  # Only previously bound identities after fresh full Core/record validation.
             deferred_bound_mcp = False
+            deferred_bound_provider = False
+            first_provider_parent = None
             for field, expected_argv in [('owned_provider', row['provider_argv']), ('owned_companion', argv)]:
                 expected = row[field]
                 try: current = support.proc_identity(expected['pid'])
@@ -475,6 +524,11 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                             break
                         assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait: '+json.dumps(late_observation,sort_keys=True)
                         continue
+                    if observed == b'' and field == 'owned_provider' and same_bound_empty_provider(db,old,fixed,current):
+                        # Historical binding only: no fresh discovery/ACK/update,
+                        # no signal, no inference of argv validity or stop/join.
+                        deferred_bound_provider = True
+                        continue
                     if observed in (None, b'') and field == 'owned_provider' and _bound_identity_disappeared(old, fixed, field, current):
                         continue  # Keep the original binding, not a new argv or stop proof.
                     try:
@@ -510,12 +564,16 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                     assert actual[-len(expected_argv):] == expected_argv
                     try:
                         assert os.getpgid(expected['pid'])==expected['pgid']
-                        assert support.proc_identity(expected['pid'])['start_ticks']==expected['start_ticks']
+                        checked_identity = support.proc_identity(expected['pid'])
+                        assert checked_identity['start_ticks']==expected['start_ticks']
+                        if field == 'owned_provider':
+                            assert checked_identity['pid']==expected['pid'] and type(checked_identity['parent_pid'])is int and checked_identity['parent_pid']>0
+                            first_provider_parent = checked_identity['parent_pid']
                     except (FileNotFoundError, ProcessLookupError):
                         if _bound_identity_disappeared(old, fixed, field, current):
                             continue  # Completed argv matched; the known identity has now vanished.
                         raise
-            if deferred_bound_mcp:
+            if deferred_bound_mcp or deferred_bound_provider:
                 continue
             if old is None:
                 copy = output / ('verified-' + str(pid) + '.json')
@@ -525,6 +583,10 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                 if observer is not None:
                     assert time.monotonic_ns()<observer['deadline_ns'],'Fixture observer binding exceeded original fixture deadline'
                     acks[str(path)]=observer_ack_publish(path,observer_ack_value(row,sha(raw)))
+                assert first_provider_parent is not None
+                parents=context.setdefault('_verified_provider_parents',{})
+                assert type(parents)is dict and len(parents)<8 and fixed['path']not in parents
+                parents[fixed['path']]={**fixed['owned_provider'],'parent_pid':first_provider_parent}
             row['request'] = request; discovered.append(row)
         db.rollback()
     return discovered
