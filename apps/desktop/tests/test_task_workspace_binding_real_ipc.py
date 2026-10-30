@@ -463,6 +463,31 @@ class ManagedWorktreeImageTests(unittest.TestCase):
                 self.image()
         self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
 
+    def test_growing_stream_is_rejected_with_only_initial_size_plus_one_byte_read(self):
+        import io
+        class Growing(io.BytesIO):
+            def __init__(self):
+                super().__init__(); self.requests = []; self.returned = 0
+            def fileno(self):
+                return 12345  # fstat is the injected original owned-file metadata.
+            def read(self, maximum=-1):
+                self.requests.append(maximum)
+                self.assert_bounded(maximum)
+                self.returned += maximum
+                return b'x' * maximum  # Never EOF, only a bounded controlled stream.
+            def assert_bounded(self, maximum):
+                if not 0 < maximum <= 1_048_576:
+                    raise AssertionError('Read was unbounded')
+        info = (self.work / 'input.txt').stat()
+        expected = (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_nlink,
+                    info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+        stream = Growing()
+        with patch.object(h.os, 'open', return_value=12345), patch.object(h.os, 'fdopen', return_value=stream), patch.object(h.os, 'fstat', return_value=info):
+            with self.assertRaises(ValueError):
+                h.file_digest('input.txt', 64 * 1024 * 1024, dir_fd=3, allow_empty=True, expected_identity=expected)
+        self.assertEqual(stream.returned, info.st_size + 1)
+        self.assertEqual(stream.requests, [info.st_size + 1])
+
     def test_change_after_hash_is_not_a_stable_snapshot(self):
         original = h.file_digest
         def changing(name, *args, **kwargs):

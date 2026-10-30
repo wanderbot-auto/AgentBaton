@@ -92,8 +92,18 @@ def file_digest(path, limit=134_217_728, *, dir_fd=None, allow_empty=False, expe
             before.st_dev, before.st_ino, before.st_mode, before.st_uid, before.st_nlink,
             before.st_size, before.st_mtime_ns, before.st_ctime_ns))
         h = hashlib.sha256()
-        while block := stream.read(1_048_576):
-            h.update(block)
+        if expected_identity is None:
+            while block := stream.read(1_048_576):
+                h.update(block)
+        else:
+            # Only the new image path: bound actual reads even if a file grows.
+            # One extra byte detects overflow; never follow an unbounded EOF.
+            observed = 0
+            while block := stream.read(min(1_048_576, before.st_size - observed + 1)):
+                observed += len(block)
+                require(observed <= before.st_size and observed <= limit)
+                h.update(block)
+            require(observed == before.st_size)
         after = os.fstat(stream.fileno())
         require((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) ==
                 (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns))
