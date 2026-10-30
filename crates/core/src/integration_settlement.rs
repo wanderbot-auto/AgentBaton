@@ -130,6 +130,19 @@ impl Store {
             return Err(changed());
         }
         let mut historical_cas = false;
+        if let Some(io) = &joined.preparation_io {
+            if attempt.view.kind != IntegrationStageKind::Preparation {
+                return Err(changed());
+            }
+            records::event(
+                &tx,
+                &run.id,
+                run.revision,
+                "integration.preparation_io_observed",
+                &json!({"attempt_id":attempt.view.attempt_id,"io":io,"measurement_not_authority":true,"whole_filesystem_output":null}),
+            )?;
+        }
+
         if let Ok(StageFact::Cas(receipt)) = &joined.result {
             let observed = receipt.record();
             if observed.grant_ref != policy.approval_id

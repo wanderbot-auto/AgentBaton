@@ -8,7 +8,9 @@ use crate::{
 use agentbaton_workspaces::{
     adoption::{AuthorizedIntegration, PreparedCandidate},
     data_workspace::FilePin,
-    source_capture::{capture_source_commit, AuthorizedSourceCapture, CapturedSourceCommit},
+    source_capture::{
+        capture_source_commit_controlled, AuthorizedSourceCapture, CapturedSourceCommit,
+    },
     validation::{
         validate_artifacts, ApprovedRule, ArtifactRequirement, BoundArtifact, ValidationSubject,
     },
@@ -30,6 +32,7 @@ pub(super) struct IntegrationPreparedContext {
     pub(super) candidate: PreparedCandidate,
     pub(super) inputs: Vec<ArtifactRequirement>,
     pub(super) outputs: Vec<(ArtifactRequirement, FilePin)>,
+    pub(super) preparation_io: Option<agentbaton_workspaces::adoption::ControlledPreparationIo>,
     pub(super) validations: Vec<(
         crate::goal_store::GoalValidatorRef,
         GoalValidatorObservation,
@@ -108,155 +111,175 @@ fn private_managed_root(root: &Path) -> Result<()> {
     }
     Ok(())
 }
+pub(super) struct IntegrationPreparationOutcome {
+    pub(super) result: Result<IntegrationPreparedContext>,
+    pub(super) io: agentbaton_workspaces::adoption::ControlledPreparationIo,
+}
 pub(super) fn prepare(
     ticket: &IntegrationStageTicket,
     cancel: Arc<AtomicBool>,
-) -> Result<IntegrationPreparedContext> {
-    let guard = IntegrationReadControl {
-        cancel,
-        deadline: ticket.deadline,
-    };
-    guard.check()?;
-    private_managed_root(&ticket.managed_root)?;
-    let policy = &ticket.policy;
-    let source = identity(&policy.bindings.source)?;
-    let mut selected = vec![];
-    let mut held = vec![];
-    let mut total = 0u64;
-    for output in &policy.bindings.outputs {
-        let refs = ticket
-            .acceptance
-            .artifact_refs
-            .iter()
-            .filter(|a| {
-                a.artifact_id == output.artifact.artifact_id
-                    && a.relative_path == output.artifact.relative_path
-            })
-            .collect::<Vec<_>>();
-        if refs.len() != 1 || !same_root(&refs[0].root, &source) {
-            return Err(changed());
-        }
-        let accepted = refs[0];
-        let mut requirement = output.artifact.clone();
-        requirement.expected_sha256 = Some(accepted.sha256.clone());
-        let (pin, hash, bytes, stamp) = held_file(&source, &requirement, &guard)?;
-        if hash != accepted.sha256 || bytes != accepted.bytes || stamp != accepted.file_pin {
-            return Err(changed());
-        }
-        total = total.checked_add(bytes).ok_or_else(limited)?;
-        if total > 67_108_864 || total > ticket.attempt.view.reservation.output_bytes {
-            return Err(limited());
-        }
-        selected.push(bound(&source, requirement)?);
-        held.push(pin);
-    }
-    let commit_time = u64::try_from(ticket.attempt.prepared_at_ms / 1000).map_err(|_| invalid())?;
-    let approved = AuthorizedSourceCapture::from_verified_selection(
-        &source,
-        policy.bindings.source.head.clone(),
-        selected,
-        commit_time,
-        ticket.acceptance.id.clone(),
-        policy.approval_id.clone(),
-    )
-    .map_err(|_| changed())?;
-    guard.check()?;
-    let captured = capture_source_commit(approved).map_err(|e| match e {
-        agentbaton_workspaces::WorkspaceError::ResourceLimit
-        | agentbaton_workspaces::WorkspaceError::TooLarge => limited(),
-        _ => changed(),
-    })?;
-    guard.check()?;
-    for pin in &held {
-        pin.recheck()?;
-    }
-    let control_name = ticket
-        .control
-        .root
-        .file_name()
-        .and_then(|s| s.to_str())
-        .ok_or_else(changed)?;
-    let control = agentbaton_workspaces::create_isolated(
-        &source.canonical_root,
-        &ticket.managed_root,
-        control_name,
-        &policy.bindings.source.head,
-    )
-    .map_err(|_| changed())?;
-    guard.check()?;
-    let approved = AuthorizedIntegration::from_verified_grant(
-        &control,
-        ticket.run.target_ref.clone(),
-        ticket.run.expected_target_head.clone(),
-        captured.commit().into(),
-        policy.approval_id.clone(),
-        commit_time,
-    )
-    .map_err(|_| changed())?;
-    let candidate_name = ticket
-        .candidate
-        .root
-        .file_name()
-        .and_then(|s| s.to_str())
-        .ok_or_else(changed)?;
-    let candidate = agentbaton_workspaces::adoption::prepare_candidate(
-        approved,
-        &ticket.managed_root,
-        candidate_name,
-    )
-    .map_err(|error| match error {
-        agentbaton_workspaces::adoption::AdoptionError::StaleHead => CoreError::new(
-            "INPUT_CHANGED",
-            "Authorized integration target advanced during preparation",
-        ),
-        agentbaton_workspaces::adoption::AdoptionError::Conflict => CoreError::new(
-            "CONFIG_CONFLICT",
-            "Accepted selected files conflict with the exact integration target",
-        ),
-        _ => changed(),
-    })?;
-    guard.check()?;
-    let workspace = candidate.workspace();
-    let mut outputs = vec![];
-    for output in &policy.bindings.outputs {
-        let mut requirement = output.artifact.clone();
-        let (_, hash, _, pin) = held_file(workspace, &requirement, &guard)?;
-        // Only the independently approved integration may rebind output SHA at
-        // this exact same selected path. Original source definitions stay intact.
-        requirement.expected_sha256 = Some(hash);
-        outputs.push((requirement, pin));
-    }
-    for input in &policy.bindings.inputs {
-        let (_, hash, _, _) = held_file(workspace, input, &guard)?;
-        if input.expected_sha256.as_deref() != Some(hash.as_str()) {
-            return Err(changed());
-        }
-    }
-    for validator in &policy.bindings.validators {
-        if let Some(script) = &validator.script {
-            if script.canonical_root != source.canonical_root
-                || script.root_device != policy.bindings.source.device
-                || script.root_inode != policy.bindings.source.inode
-            {
+) -> IntegrationPreparationOutcome {
+    let host_control =
+        agentbaton_workspaces::adoption::AdoptionControl::for_request(&cancel, ticket.deadline);
+    let mut result = (|| {
+        let guard = IntegrationReadControl {
+            cancel: cancel.clone(),
+            deadline: ticket.deadline,
+        };
+        guard.check()?;
+        private_managed_root(&ticket.managed_root)?;
+        let policy = &ticket.policy;
+        let source = identity(&policy.bindings.source)?;
+        let mut selected = vec![];
+        let mut held = vec![];
+        let mut total = 0u64;
+        for output in &policy.bindings.outputs {
+            let refs = ticket
+                .acceptance
+                .artifact_refs
+                .iter()
+                .filter(|a| {
+                    a.artifact_id == output.artifact.artifact_id
+                        && a.relative_path == output.artifact.relative_path
+                })
+                .collect::<Vec<_>>();
+            if refs.len() != 1 || !same_root(&refs[0].root, &source) {
                 return Err(changed());
             }
-            let (_, hash, _, _) = held_file(workspace, &script.requirement, &guard)?;
-            if script.requirement.expected_sha256.as_deref() != Some(hash.as_str()) {
+            let accepted = refs[0];
+            let mut requirement = output.artifact.clone();
+            requirement.expected_sha256 = Some(accepted.sha256.clone());
+            let (pin, hash, bytes, stamp) = held_file(&source, &requirement, &guard)?;
+            if hash != accepted.sha256 || bytes != accepted.bytes || stamp != accepted.file_pin {
+                return Err(changed());
+            }
+            total = total.checked_add(bytes).ok_or_else(limited)?;
+            if total > 67_108_864 || total > ticket.attempt.view.reservation.output_bytes {
+                return Err(limited());
+            }
+            selected.push(bound(&source, requirement)?);
+            held.push(pin);
+        }
+        let commit_time =
+            u64::try_from(ticket.attempt.prepared_at_ms / 1000).map_err(|_| invalid())?;
+        let approved = AuthorizedSourceCapture::from_verified_selection_controlled(
+            &source,
+            policy.bindings.source.head.clone(),
+            selected,
+            commit_time,
+            ticket.acceptance.id.clone(),
+            policy.approval_id.clone(),
+            &host_control,
+        )
+        .map_err(|_| changed())?;
+        guard.check()?;
+        let captured =
+            capture_source_commit_controlled(approved, &host_control).map_err(|e| match e {
+                agentbaton_workspaces::WorkspaceError::ResourceLimit
+                | agentbaton_workspaces::WorkspaceError::TooLarge => limited(),
+                _ => changed(),
+            })?;
+        guard.check()?;
+        for pin in &held {
+            pin.recheck()?;
+        }
+        let control_name = ticket
+            .control
+            .root
+            .file_name()
+            .and_then(|s| s.to_str())
+            .ok_or_else(changed)?;
+        let control = agentbaton_workspaces::create_isolated_controlled(
+            &source.canonical_root,
+            &ticket.managed_root,
+            control_name,
+            &policy.bindings.source.head,
+            &host_control,
+        )
+        .map_err(|_| changed())?;
+        guard.check()?;
+        let approved = AuthorizedIntegration::from_verified_grant_controlled(
+            &control,
+            ticket.run.target_ref.clone(),
+            ticket.run.expected_target_head.clone(),
+            captured.commit().into(),
+            policy.approval_id.clone(),
+            commit_time,
+            &host_control,
+        )
+        .map_err(|_| changed())?;
+        let candidate_name = ticket
+            .candidate
+            .root
+            .file_name()
+            .and_then(|s| s.to_str())
+            .ok_or_else(changed)?;
+        let candidate = agentbaton_workspaces::adoption::prepare_candidate_controlled(
+            approved,
+            &ticket.managed_root,
+            candidate_name,
+            &host_control,
+        )
+        .map_err(|error| match error {
+            agentbaton_workspaces::adoption::AdoptionError::StaleHead => CoreError::new(
+                "INPUT_CHANGED",
+                "Authorized integration target advanced during preparation",
+            ),
+            agentbaton_workspaces::adoption::AdoptionError::Conflict => CoreError::new(
+                "CONFIG_CONFLICT",
+                "Accepted selected files conflict with the exact integration target",
+            ),
+            _ => changed(),
+        })?;
+        guard.check()?;
+        let workspace = candidate.workspace();
+        let mut outputs = vec![];
+        for output in &policy.bindings.outputs {
+            let mut requirement = output.artifact.clone();
+            let (_, hash, _, pin) = held_file(workspace, &requirement, &guard)?;
+            // Only the independently approved integration may rebind output SHA at
+            // this exact same selected path. Original source definitions stay intact.
+            requirement.expected_sha256 = Some(hash);
+            outputs.push((requirement, pin));
+        }
+        for input in &policy.bindings.inputs {
+            let (_, hash, _, _) = held_file(workspace, input, &guard)?;
+            if input.expected_sha256.as_deref() != Some(hash.as_str()) {
                 return Err(changed());
             }
         }
+        for validator in &policy.bindings.validators {
+            if let Some(script) = &validator.script {
+                if script.canonical_root != source.canonical_root
+                    || script.root_device != policy.bindings.source.device
+                    || script.root_inode != policy.bindings.source.inode
+                {
+                    return Err(changed());
+                }
+                let (_, hash, _, _) = held_file(workspace, &script.requirement, &guard)?;
+                if script.requirement.expected_sha256.as_deref() != Some(hash.as_str()) {
+                    return Err(changed());
+                }
+            }
+        }
+        guard.check()?;
+        Ok(IntegrationPreparedContext {
+            policy: policy.clone(),
+            run_id: ticket.run.id.clone(),
+            captured,
+            control,
+            candidate,
+            inputs: policy.bindings.inputs.clone(),
+            outputs,
+            validations: vec![],
+            preparation_io: None,
+        })
+    })();
+    let io = host_control.preparation_io();
+    if let Ok(context) = result.as_mut() {
+        context.preparation_io = Some(io.clone());
     }
-    guard.check()?;
-    Ok(IntegrationPreparedContext {
-        policy: policy.clone(),
-        run_id: ticket.run.id.clone(),
-        captured,
-        control,
-        candidate,
-        inputs: policy.bindings.inputs.clone(),
-        outputs,
-        validations: vec![],
-    })
+    IntegrationPreparationOutcome { result, io }
 }
 impl IntegrationPreparedContext {
     pub(super) fn validation(

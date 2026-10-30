@@ -30,6 +30,7 @@ struct StageReturn {
     result: Result<StageFact>,
     output_bytes: Option<u64>,
     effects_admitted: bool,
+    preparation_io: Option<agentbaton_workspaces::adoption::ControlledPreparationIo>,
 }
 pub(super) struct StageReadRequest {
     pub(super) proof: IntegrationReadProof,
@@ -44,6 +45,7 @@ pub(super) struct JoinedStage {
     pub(super) effects_admitted: bool,
     pub(super) worker_joined: bool,
     pub(super) never_scheduled: bool,
+    pub(super) preparation_io: Option<agentbaton_workspaces::adoption::ControlledPreparationIo>,
 }
 pub(super) struct OwnedStage {
     pub(super) ticket: IntegrationStageTicket,
@@ -128,6 +130,7 @@ impl OwnedStage {
                             result: Err(error),
                             output_bytes: Some(0),
                             effects_admitted: false,
+                            preparation_io: None,
                         }
                     }
                 };
@@ -137,6 +140,7 @@ impl OwnedStage {
                         result: Err(error),
                         output_bytes: Some(0),
                         effects_admitted: false,
+                        preparation_io: None,
                     };
                 }
                 execute(&ticket, context, flag)
@@ -202,6 +206,7 @@ impl OwnedStage {
                 effects_admitted: result.effects_admitted,
                 worker_joined: true,
                 never_scheduled: false,
+                preparation_io: result.preparation_io,
             },
             Err(_) => JoinedStage {
                 context: None,
@@ -214,6 +219,7 @@ impl OwnedStage {
                 effects_admitted: true,
                 worker_joined: true,
                 never_scheduled: false,
+                preparation_io: None,
             },
         };
         (self.ticket.clone(), joined)
@@ -238,40 +244,52 @@ fn execute(
     cancel: Arc<AtomicBool>,
 ) -> StageReturn {
     match ticket.attempt.view.kind {
-        IntegrationStageKind::Preparation => match super::io::prepare(ticket, cancel) {
-            Ok(prepared) => {
-                let bytes =
-                    ticket
-                        .policy
-                        .bindings
-                        .outputs
-                        .iter()
-                        .try_fold(0u64, |total, output| {
-                            let mut selected =
-                                ticket.acceptance.artifact_refs.iter().filter(|artifact| {
-                                    artifact.artifact_id == output.artifact.artifact_id
-                                        && artifact.relative_path == output.artifact.relative_path
-                                });
-                            let artifact = selected.next()?;
-                            if selected.next().is_some() {
-                                return None;
-                            }
-                            total.checked_add(artifact.bytes)
-                        });
-                StageReturn {
-                    context: Some(prepared),
-                    result: Ok(StageFact::Prepared),
-                    output_bytes: bytes,
-                    effects_admitted: true,
+        IntegrationStageKind::Preparation => {
+            let observed = super::io::prepare(ticket, cancel);
+            match observed.result {
+                Ok(prepared) => {
+                    let bytes =
+                        ticket
+                            .policy
+                            .bindings
+                            .outputs
+                            .iter()
+                            .try_fold(0u64, |total, output| {
+                                let mut selected =
+                                    ticket.acceptance.artifact_refs.iter().filter(|artifact| {
+                                        artifact.artifact_id == output.artifact.artifact_id
+                                            && artifact.relative_path
+                                                == output.artifact.relative_path
+                                    });
+                                let artifact = selected.next()?;
+                                if selected.next().is_some() {
+                                    return None;
+                                }
+                                total.checked_add(artifact.bytes)
+                            });
+                    StageReturn {
+                        context: Some(prepared),
+                        result: Ok(StageFact::Prepared),
+                        output_bytes: bytes,
+                        effects_admitted: true,
+                        preparation_io: Some(observed.io.clone()),
+                    }
                 }
+                Err(error) => StageReturn {
+                    context,
+                    result: Err(error),
+                    output_bytes: if !observed.io.effects_may_have_started()
+                        && observed.io.io_complete()
+                    {
+                        Some(0)
+                    } else {
+                        None
+                    },
+                    effects_admitted: true,
+                    preparation_io: Some(observed.io.clone()),
+                },
             }
-            Err(error) => StageReturn {
-                context,
-                result: Err(error),
-                output_bytes: None,
-                effects_admitted: true,
-            },
-        },
+        }
         IntegrationStageKind::Validator => {
             let result = (|| {
                 let reference = ticket
@@ -321,12 +339,14 @@ fn execute(
                     result: Ok(fact),
                     output_bytes,
                     effects_admitted: true,
+                    preparation_io: None,
                 },
                 Err(error) => StageReturn {
                     context,
                     result: Err(error),
                     output_bytes: None,
                     effects_admitted: true,
+                    preparation_io: None,
                 },
             }
         }
@@ -346,6 +366,7 @@ fn execute(
                 result: result.map(StageFact::Cas),
                 output_bytes,
                 effects_admitted: true,
+                preparation_io: None,
             }
         }
     }
@@ -365,6 +386,7 @@ impl JoinedStage {
             effects_admitted: false,
             worker_joined: false,
             never_scheduled: true,
+            preparation_io: None,
         }
     }
 }
