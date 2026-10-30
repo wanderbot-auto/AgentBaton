@@ -84,6 +84,29 @@ describe('Execution workspace entry: real preparation component with mocked fixe
     await user.click(screen.getByRole('button', { name: 'Check workspace preparation' })); const recover = screen.getByRole('button', { name: 'Recover the exact preparation' }); await waitFor(() => expect(recover).toBeEnabled());
     expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce(); expect(workspace()).toHaveValue(''); await user.click(recover); await waitFor(() => expect(workspace()).toHaveValue(f.own.id)); expect(created).toBe(1); expect(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[1]).toEqual(original); noExecution();
   });
+  it.each(['ready', 'pending', 'outcome_unknown'] as const)('keeps original recovery through parent Refresh when the lost preparation is stored %s', async stored => {
+    const user = userEvent.setup(), f = fixture(), state = setup(f);
+    vi.mocked(api.workspacesPrepareTaskGit).mockImplementationOnce(async (selection, key) => {
+      const view = state.commit(selection, key);
+      if (stored !== 'ready') {
+        state.server.task = { ...f.task, revision: 2, code_workspace_binding: { ...view.binding, state: stored, revision: 1, managed_pin: null } };
+        state.server.rows = [f.other, { ...f.own, state: stored === 'pending' ? 'creating' : 'outcome_unknown', identity: null }];
+      }
+      throw new Error('preparation reply lost');
+    }).mockImplementationOnce(async (selection, key) => {
+      if (stored !== 'ready') throw new DaemonError('OUTCOME_UNKNOWN', 'Original preparation remains unresolved', 'unknown');
+      return f.view(selection, key);
+    });
+    render(element(f)); await entryReady(); await user.selectOptions(screen.getByLabelText('Named connection'), f.connection.id); await user.click(prepare()); await screen.findByText(/Request outcome unknown/);
+    const original = vi.mocked(api.workspacesPrepareTaskGit).mock.calls[0];
+    // Deliberately use the outer refresh, not the component's own Check button.
+    await user.click(refresh()); const recover = await screen.findByRole('button', { name: 'Recover the exact preparation' }); await waitFor(() => expect(recover).toBeEnabled());
+    expect(screen.getByLabelText('I authorize this exact recipient, workspace and bounded execution scope.')).toBeDisabled(); expect(grant()).toBeDisabled(); expect(session()).toBeDisabled(); expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce();
+    await user.click(recover); await waitFor(() => expect(api.workspacesPrepareTaskGit).toHaveBeenCalledTimes(2)); expect(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[1]).toEqual(original);
+    if (stored === 'ready') await waitFor(() => expect(workspace()).toHaveValue(f.own.id));
+    else { await screen.findByText(/Original preparation remains unresolved/); expect(grant()).toBeDisabled(); expect(session()).toBeDisabled(); expect(screen.getByRole('button', { name: 'Recover the exact preparation' })).toBeDisabled(); }
+    noExecution();
+  });
   it('blocks arbitrary workspace and grants while the initial resolver is pending', async () => {
     const f = fixture(); setup(f); const gate = deferred<CodeWorkspacePreparation>(); vi.mocked(api.workspacesResolve).mockReturnValueOnce(gate.promise); render(element(f));
     await waitFor(() => expect(api.workspacesResolve).toHaveBeenCalled()); expect(workspace()).toBeDisabled(); expect(grant()).toBeDisabled(); expect(session()).toBeDisabled(); expect(screen.queryByTestId('session-task-workspace-entry')).toBeNull();
