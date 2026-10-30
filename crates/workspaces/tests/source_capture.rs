@@ -117,6 +117,21 @@ fn accepted_dirty_files_make_exact_commit_preserving_user_index_refs_and_unselec
     assert_eq!(result.base(), r.base);
     assert_eq!(result.selected().len(), 3);
     assert_eq!(result.selected()[0].sha256, sha256(b"accepted selected\n"));
+    let actual = Command::new("git")
+        .arg("-C")
+        .arg(&r.root)
+        .args([
+            "cat-file",
+            "blob",
+            &format!("{}:selected.txt", result.commit()),
+        ])
+        .env("GIT_CONFIG_NOSYSTEM", "1")
+        .env("GIT_CONFIG_GLOBAL", "/dev/null")
+        .output()
+        .unwrap();
+    assert!(actual.status.success());
+    assert_eq!(actual.stdout, b"accepted selected\n");
+    assert_eq!(sha256(&actual.stdout), result.selected()[0].sha256);
     assert_eq!(
         git(
             &r.root,

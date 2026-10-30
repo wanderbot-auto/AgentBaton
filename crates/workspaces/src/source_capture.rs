@@ -5,13 +5,14 @@ use crate::{
     validation::{sha256, valid_id, BoundArtifact},
     WorkspaceError, WorkspaceIdentity, WorkspaceKind,
 };
+use sha2::{Digest, Sha256};
 use std::{
     collections::BTreeSet,
     fs::{self, File, OpenOptions},
-    io::Write,
+    io::{Read, Write},
     os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt},
     path::{Component, Path, PathBuf},
-    process::Command,
+    process::{Child, Command, Stdio},
     sync::atomic::{AtomicU64, Ordering},
     time::{Duration, Instant},
 };
@@ -76,6 +77,18 @@ impl CapturedSourceCommit {
 }
 fn same_identity(a: &fs::Metadata, b: &fs::Metadata) -> bool {
     a.dev() == b.dev() && a.ino() == b.ino()
+}
+fn same_stamp(a: &fs::Metadata, b: &fs::Metadata) -> bool {
+    same_identity(a, b)
+        && a.len() == b.len()
+        && a.nlink() == b.nlink()
+        && a.mode() == b.mode()
+        && a.uid() == b.uid()
+        && a.gid() == b.gid()
+        && a.mtime() == b.mtime()
+        && a.mtime_nsec() == b.mtime_nsec()
+        && a.ctime() == b.ctime()
+        && a.ctime_nsec() == b.ctime_nsec()
 }
 fn safe_path(path: &Path) -> bool {
     let Some(text) = path.to_str() else {
@@ -412,6 +425,229 @@ fn check_base_paths(capture: &AuthorizedSourceCapture) -> Result<(), WorkspaceEr
     Ok(())
 }
 
+struct ExpectedTreeEntry {
+    path: PathBuf,
+    mode: String,
+    blob: String,
+    base_mode: String,
+    base_blob: String,
+}
+impl AuthorizedSourceCapture {
+    fn verify_tree(
+        &self,
+        tree: &str,
+        expected: &[ExpectedTreeEntry],
+    ) -> Result<(), WorkspaceError> {
+        if !is_oid(tree) || expected.is_empty() || expected.len() > MAX_SELECTED_FILES {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        let raw = text_output(
+            self.deadline,
+            self.command().args([
+                "diff-tree",
+                "-r",
+                "--raw",
+                "--no-abbrev",
+                "-z",
+                "--no-renames",
+                "--no-ext-diff",
+                self.base.as_str(),
+                tree,
+            ]),
+        )?;
+        if !raw.is_empty() && raw.last() != Some(&0) {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        let mut seen = BTreeSet::new();
+        let mut rows = raw.split(|b| *b == 0);
+        while let Some(header) = rows.next() {
+            check_deadline(self.deadline)?;
+            if header.is_empty() {
+                if rows.next().is_some() {
+                    return Err(WorkspaceError::InvalidPath);
+                }
+                break;
+            }
+            if seen.len() >= MAX_SELECTED_FILES || header.len() > 170 {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            let path = rows
+                .next()
+                .filter(|p| !p.is_empty() && p.len() <= MAX_PATH_BYTES)
+                .ok_or(WorkspaceError::InvalidPath)?;
+            let entry = expected
+                .iter()
+                .find(|e| e.path.as_os_str().as_encoded_bytes() == path)
+                .ok_or(WorkspaceError::InvalidPath)?;
+            if !seen.insert(path.to_vec()) {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            let h = std::str::from_utf8(header).map_err(|_| WorkspaceError::InvalidPath)?;
+            let fields: Vec<_> = h.split(' ').collect();
+            let status = if entry.base_mode == "000000" {
+                "A"
+            } else {
+                "M"
+            };
+            if fields.len() != 5
+                || fields[0] != format!(":{}", entry.base_mode)
+                || fields[1] != entry.mode
+                || fields[2] != entry.base_blob
+                || fields[3] != entry.blob
+                || fields[4] != status
+                || (entry.base_mode == entry.mode && entry.base_blob == entry.blob)
+            {
+                return Err(WorkspaceError::InvalidPath);
+            }
+        }
+        for entry in expected {
+            check_deadline(self.deadline)?;
+            if !safe_path(&entry.path)
+                || !matches!(entry.mode.as_str(), "100644" | "100755")
+                || !is_oid(&entry.blob)
+            {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            let changed = entry.base_mode != entry.mode || entry.base_blob != entry.blob;
+            if changed != seen.contains(entry.path.as_os_str().as_encoded_bytes()) {
+                return Err(WorkspaceError::InvalidPath);
+            }
+        }
+        Ok(())
+    }
+}
+
+/// Owns exactly this fixed cat-file child; even setup/unwind paths attempt
+/// kill+wait, and normal verification explicitly joins both bounded readers.
+struct BlobChild {
+    child: Child,
+    reaped: bool,
+}
+impl BlobChild {
+    fn stop(&mut self) -> std::io::Result<std::process::ExitStatus> {
+        let _ = self.child.kill();
+        let result = self.child.wait();
+        self.reaped = result.is_ok();
+        result
+    }
+}
+impl Drop for BlobChild {
+    fn drop(&mut self) {
+        if !self.reaped {
+            let _ = self.stop();
+        }
+    }
+}
+impl AuthorizedSourceCapture {
+    // This narrow verifier streams actual Git object bytes, rather than trusting
+    // a post-Git reread of the mutable scratch pathname. No 64MiB output Vec or
+    // alteration of the existing 4MiB bounded_output helper is needed.
+    fn verify_blob(
+        &self,
+        blob: &str,
+        expected_sha: &str,
+        expected_bytes: u64,
+    ) -> Result<(), WorkspaceError> {
+        if !is_oid(blob)
+            || !crate::validation::valid_hash(expected_sha)
+            || expected_bytes > MAX_SELECTED_BYTES
+        {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        check_deadline(self.deadline)?;
+        let end = self.deadline.min(Instant::now() + Duration::from_secs(15));
+        let child = self
+            .command()
+            .args(["cat-file", "blob", blob])
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()?;
+        let mut owned = BlobChild {
+            child,
+            reaped: false,
+        };
+        let stdout = owned.child.stdout.take().expect("fixed blob stdout pipe");
+        let stderr = owned.child.stderr.take().expect("fixed blob stderr pipe");
+        let out = std::thread::Builder::new()
+            .name("source-blob-sha".into())
+            .spawn(move || -> std::io::Result<(u64, String)> {
+                let mut reader = stdout.take(expected_bytes + 1);
+                let mut hash = Sha256::new();
+                let mut total = 0u64;
+                let mut chunk = [0u8; 65_536];
+                loop {
+                    let n = reader.read(&mut chunk)?;
+                    if n == 0 {
+                        break;
+                    }
+                    total += n as u64;
+                    hash.update(&chunk[..n]);
+                }
+                Ok((total, format!("{:x}", hash.finalize())))
+            })?;
+        let err = match std::thread::Builder::new()
+            .name("source-blob-stderr".into())
+            .spawn(move || -> std::io::Result<u64> {
+                let mut reader = stderr.take(4 * 1024 * 1024 + 1);
+                let mut total = 0u64;
+                let mut chunk = [0u8; 65_536];
+                loop {
+                    let n = reader.read(&mut chunk)?;
+                    if n == 0 {
+                        break;
+                    }
+                    total += n as u64;
+                }
+                Ok(total)
+            }) {
+            Ok(reader) => reader,
+            Err(error) => {
+                let _ = owned.stop();
+                let _ = out.join();
+                return Err(error.into());
+            }
+        };
+        let mut timed_out = false;
+        let status = loop {
+            match owned.child.try_wait() {
+                Ok(Some(status)) => {
+                    owned.reaped = true;
+                    break Ok(status);
+                }
+                Ok(None) => {
+                    if Instant::now() >= end {
+                        timed_out = true;
+                        break owned.stop();
+                    }
+                    std::thread::sleep(Duration::from_millis(10));
+                }
+                Err(error) => {
+                    let _ = owned.stop();
+                    break Err(error);
+                }
+            }
+        };
+        // Collect both joins before propagating either error/panic.
+        let out = out.join();
+        let err = err.join();
+        let output = out.map_err(|_| WorkspaceError::ResourceLimit)??;
+        let stderr_bytes = err.map_err(|_| WorkspaceError::ResourceLimit)??;
+        let status = status?;
+        if timed_out || !owned.reaped || Instant::now() >= end {
+            return Err(WorkspaceError::ResourceLimit);
+        }
+        if !status.success()
+            || stderr_bytes > 4 * 1024 * 1024
+            || output.0 != expected_bytes
+            || output.1 != expected_sha
+        {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        Ok(())
+    }
+}
+
 struct Scratch {
     root: PathBuf,
     identity: fs::Metadata,
@@ -511,6 +747,7 @@ pub fn capture_source_commit(
                 .args(["hash-object", "-w", "--no-filters", "--"])
                 .arg(&raw),
         )?)?;
+        capture.verify_blob(&blob, &digest, bytes.len() as u64)?;
         let raw_check = crate::validation::BoundArtifact::from_approved_root(
             &scratch.root,
             crate::validation::ArtifactRequirement {
@@ -524,7 +761,7 @@ pub fn capture_source_commit(
         let raw_bytes = raw_check.read()?;
         check_deadline(deadline)?;
         let after = fs::symlink_metadata(&raw)?;
-        if !same_identity(&before, &after)
+        if !same_stamp(&before, &after)
             || after.nlink() != 1
             || after.mode() & 0o777 != 0o600
             || sha256(&raw_bytes) != digest
@@ -568,6 +805,7 @@ pub fn capture_source_commit(
     if original_tree != roundtrip_tree {
         return Err(WorkspaceError::UnsafeRepository);
     }
+    let mut expected_tree = Vec::with_capacity(selected.len());
     for ((v, blob), s) in blobs.iter().zip(selected.iter_mut()) {
         let path = &v.requirement.relative_path;
         let listing = text_output(
@@ -583,8 +821,8 @@ pub fn capture_source_commit(
                 ])
                 .arg(path),
         )?;
-        let mode = if listing.is_empty() {
-            "100644"
+        let (mode, base_mode, base_blob) = if listing.is_empty() {
+            ("100644", "000000", "0".repeat(blob.len()))
         } else {
             let mut rows = listing.split(|b| *b == 0).filter(|r| !r.is_empty());
             let row = rows.next().ok_or(WorkspaceError::InvalidPath)?;
@@ -600,12 +838,21 @@ pub fn capture_source_commit(
             if found != path.as_os_str().as_encoded_bytes() {
                 return Err(WorkspaceError::InvalidPath);
             }
-            if header.starts_with(b"100644 blob ") {
-                "100644"
-            } else if header.starts_with(b"100755 blob ") {
-                "100755"
-            } else {
+            let fields: Vec<_> = std::str::from_utf8(header)
+                .map_err(|_| WorkspaceError::InvalidPath)?
+                .split(' ')
+                .collect();
+            if fields.len() != 3
+                || fields[1] != "blob"
+                || !is_oid(fields[2])
+                || fields[2].len() != blob.len()
+            {
                 return Err(WorkspaceError::NotRegularFile);
+            }
+            match fields[0] {
+                "100644" => ("100644", "100644", fields[2].to_string()),
+                "100755" => ("100755", "100755", fields[2].to_string()),
+                _ => return Err(WorkspaceError::NotRegularFile),
             }
         };
         // --add cannot overwrite a parent tree/symlink/gitlink. Missing nested
@@ -642,6 +889,13 @@ pub fn capture_source_commit(
                 .arg(path),
         )?;
         s.mode = mode.into();
+        expected_tree.push(ExpectedTreeEntry {
+            path: path.clone(),
+            mode: mode.into(),
+            blob: blob.clone(),
+            base_mode: base_mode.into(),
+            base_blob,
+        });
     }
     let tree = oid(text_output(
         deadline,
@@ -661,6 +915,7 @@ pub fn capture_source_commit(
         }
     }
     capture.recheck()?;
+    capture.verify_tree(&tree, &expected_tree)?;
     let date = format!("@{} +0000", capture.commit_time);
     let commit = oid(text_output(
         deadline,
@@ -682,6 +937,16 @@ pub fn capture_source_commit(
             ]),
     )?)?;
     capture.recheck()?;
+    let actual_tree = oid(text_output(
+        deadline,
+        capture
+            .command()
+            .args(["rev-parse", "--verify", &format!("{commit}^{{tree}}")]),
+    )?)?;
+    if actual_tree != tree {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    capture.verify_tree(&tree, &expected_tree)?;
     for (a, s) in capture.selected.iter().zip(&selected) {
         check_deadline(deadline)?;
         let bytes = a.read()?;
@@ -690,6 +955,11 @@ pub fn capture_source_commit(
             return Err(WorkspaceError::InvalidPath);
         }
     }
+    for ((_, blob), selected) in blobs.iter().zip(&selected) {
+        capture.verify_blob(blob, &selected.sha256, selected.bytes)?;
+    }
+    capture.verify_tree(&tree, &expected_tree)?;
+    capture.recheck()?;
     scratch.check()?;
     check_deadline(deadline)?;
     // No cleanup on failure, and no recursive cleanup even on success. The host
@@ -766,5 +1036,253 @@ mod deadline_tests {
         assert_eq!(git(&["count-objects", "-v"]), objects);
         assert_eq!(git(&["rev-parse", "HEAD"]), base);
         assert_eq!(fs::read(root.join("file")).unwrap(), b"base\n");
+    }
+
+    fn test_git(root: &Path, args: &[&str]) -> String {
+        let out = Command::new("git")
+            .arg("--no-optional-locks")
+            .arg("-C")
+            .arg(root)
+            .args(args)
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .env("GIT_CONFIG_NOSYSTEM", "1")
+            .output()
+            .unwrap();
+        assert!(out.status.success());
+        String::from_utf8(out.stdout)
+            .unwrap()
+            .trim_end_matches('\n')
+            .to_owned()
+    }
+    fn verifier_fixture() -> (tempfile::TempDir, AuthorizedSourceCapture) {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        test_git(&root, &["init", "-b", "source"]);
+        test_git(&root, &["config", "user.name", "Generated fixture"]);
+        test_git(&root, &["config", "user.email", "fixture@example.invalid"]);
+        fs::write(root.join("file"), b"base\n").unwrap();
+        test_git(&root, &["add", "file"]);
+        test_git(&root, &["commit", "-m", "base"]);
+        let workspace = crate::inspect(&root).unwrap();
+        let base = test_git(&root, &["rev-parse", "HEAD"]);
+        let item = BoundArtifact::from_approved_root(
+            &root,
+            crate::validation::ArtifactRequirement {
+                artifact_id: "file".into(),
+                relative_path: "file".into(),
+                max_bytes: 128,
+                expected_sha256: Some(sha256(b"base\n")),
+            },
+        )
+        .unwrap();
+        let capture = AuthorizedSourceCapture::from_verified_selection(
+            &workspace,
+            base,
+            vec![item],
+            1_700_000_000,
+            "selection".into(),
+            "owner-policy".into(),
+        )
+        .unwrap();
+        (temp, capture)
+    }
+    #[test]
+    fn actual_wrong_blob_is_rejected_after_mutable_same_inode_raw_bytes_are_restored() {
+        let (_temp, capture) = verifier_fixture();
+        let raw = capture.root.join("generated-raw");
+        fs::write(&raw, b"approved\n").unwrap();
+        let before = fs::metadata(&raw).unwrap();
+        let good = test_git(
+            &capture.root,
+            &["hash-object", "-w", "--no-filters", raw.to_str().unwrap()],
+        );
+        capture
+            .verify_blob(&good, &sha256(b"approved\n"), 9)
+            .unwrap();
+        fs::write(&raw, b"tampered\n").unwrap();
+        let wrong = test_git(
+            &capture.root,
+            &["hash-object", "-w", "--no-filters", raw.to_str().unwrap()],
+        );
+        fs::write(&raw, b"approved\n").unwrap();
+        let after = fs::metadata(&raw).unwrap();
+        assert!(same_identity(&before, &after));
+        assert_eq!(before.mode(), after.mode());
+        assert_eq!(before.nlink(), after.nlink());
+        assert_eq!(sha256(&fs::read(&raw).unwrap()), sha256(b"approved\n"));
+        assert_ne!(good, wrong);
+        assert!(capture
+            .verify_blob(&wrong, &sha256(b"approved\n"), 9)
+            .is_err());
+        assert_eq!(
+            test_git(&capture.root, &["rev-parse", "HEAD"]),
+            capture.base
+        );
+    }
+    #[test]
+    fn actual_blob_stream_rejects_oversize_short_hash_and_expired_deadline() {
+        let (_temp, mut capture) = verifier_fixture();
+        let raw = capture.root.join("generated-raw");
+        fs::write(&raw, b"approved\n").unwrap();
+        let good = test_git(
+            &capture.root,
+            &["hash-object", "-w", "--no-filters", raw.to_str().unwrap()],
+        );
+        let hash = sha256(b"approved\n");
+        capture.verify_blob(&good, &hash, 9).unwrap();
+        assert!(capture.verify_blob(&good, &hash, 8).is_err());
+        assert!(capture.verify_blob(&good, &hash, 10).is_err());
+        assert!(capture.verify_blob(&good, &sha256(b"foreign"), 9).is_err());
+        assert!(capture
+            .verify_blob(&good, &hash, MAX_SELECTED_BYTES + 1)
+            .is_err());
+        assert!(capture.verify_blob("-not-an-object", &hash, 9).is_err());
+        capture.deadline = Instant::now() - Duration::from_millis(1);
+        assert!(matches!(
+            capture.verify_blob(&good, &hash, 9),
+            Err(WorkspaceError::ResourceLimit)
+        ));
+    }
+    #[test]
+    fn private_index_foreign_omitted_mode_changed_and_deleted_entries_are_rejected() {
+        let (_temp, capture) = verifier_fixture();
+        let raw = capture.root.join("generated-raw");
+        fs::write(&raw, b"approved\n").unwrap();
+        let blob = test_git(
+            &capture.root,
+            &["hash-object", "-w", "--no-filters", raw.to_str().unwrap()],
+        );
+        let old = test_git(
+            &capture.root,
+            &["rev-parse", &format!("{}:file", capture.base)],
+        );
+        let expected = [ExpectedTreeEntry {
+            path: "file".into(),
+            mode: "100644".into(),
+            blob: blob.clone(),
+            base_mode: "100644".into(),
+            base_blob: old.clone(),
+        }];
+        let private = tempfile::tempdir().unwrap();
+        let index = private.path().join("private-index");
+        let original_index = fs::read(capture.root.join(".git/index")).unwrap();
+        let refs = test_git(&capture.root, &["show-ref"]);
+        text_output(
+            capture.deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["read-tree", capture.base.as_str()]),
+        )
+        .unwrap();
+        let tree = oid(text_output(
+            capture.deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["write-tree"]),
+        )
+        .unwrap())
+        .unwrap();
+        assert!(capture.verify_tree(&tree, &expected).is_err()); // omitted selected change
+        text_output(
+            capture.deadline,
+            capture.command().env("GIT_INDEX_FILE", &index).args([
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                "100644",
+                blob.as_str(),
+                "file",
+            ]),
+        )
+        .unwrap();
+        let tree = oid(text_output(
+            capture.deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["write-tree"]),
+        )
+        .unwrap())
+        .unwrap();
+        capture.verify_tree(&tree, &expected).unwrap();
+        text_output(
+            capture.deadline,
+            capture.command().env("GIT_INDEX_FILE", &index).args([
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                "100644",
+                blob.as_str(),
+                "foreign-unselected",
+            ]),
+        )
+        .unwrap();
+        let tree = oid(text_output(
+            capture.deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["write-tree"]),
+        )
+        .unwrap())
+        .unwrap();
+        assert!(capture.verify_tree(&tree, &expected).is_err());
+        text_output(
+            capture.deadline,
+            capture.command().env("GIT_INDEX_FILE", &index).args([
+                "update-index",
+                "--force-remove",
+                "foreign-unselected",
+            ]),
+        )
+        .unwrap();
+        text_output(
+            capture.deadline,
+            capture.command().env("GIT_INDEX_FILE", &index).args([
+                "update-index",
+                "--cacheinfo",
+                "100755",
+                blob.as_str(),
+                "file",
+            ]),
+        )
+        .unwrap();
+        let tree = oid(text_output(
+            capture.deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["write-tree"]),
+        )
+        .unwrap())
+        .unwrap();
+        assert!(capture.verify_tree(&tree, &expected).is_err());
+        text_output(
+            capture.deadline,
+            capture.command().env("GIT_INDEX_FILE", &index).args([
+                "update-index",
+                "--force-remove",
+                "file",
+            ]),
+        )
+        .unwrap();
+        let tree = oid(text_output(
+            capture.deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["write-tree"]),
+        )
+        .unwrap())
+        .unwrap();
+        assert!(capture.verify_tree(&tree, &expected).is_err());
+        assert_eq!(
+            fs::read(capture.root.join(".git/index")).unwrap(),
+            original_index
+        );
+        assert_eq!(test_git(&capture.root, &["show-ref"]), refs);
+        assert_eq!(fs::read(capture.root.join("file")).unwrap(), b"base\n");
     }
 }
