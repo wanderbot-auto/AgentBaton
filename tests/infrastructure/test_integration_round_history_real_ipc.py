@@ -4,6 +4,8 @@ import importlib.util
 from pathlib import Path
 import subprocess
 import tempfile
+import threading
+from types import SimpleNamespace
 import unittest
 from unittest import mock
 
@@ -141,7 +143,7 @@ class GateControls(unittest.TestCase):
 class DriverLifecycleOrderTests(unittest.TestCase):
     @staticmethod
     def assert_order(source):
-        observe = "        done = D.observe(read_terminal, finished, pump=pump)\n"
+        observe = "        done = D.observe(read_terminal, finished, pump=pump,\n"
         refresh = "        panel.get_by_role('button', name='Refresh integration records').click()\n"
         enabled = "        expect(panel.get_by_role('button', name='Check accepted task for the same run')).to_be_enabled()\n"
         wake = "        panel.get_by_role('button', name='Check accepted task for the same run').click()\n"
@@ -151,7 +153,8 @@ class DriverLifecycleOrderTests(unittest.TestCase):
         checked = source.index(enabled, accepted)
         written = source.index(wake, accepted)
         audit = source.index("        starts = [a for a in host.audit if a['method'] == 'integrations.start']\n", accepted)
-        assert accepted < observed < refreshed < checked < written < audit
+        replied = source.index("        D.observe(lambda: observed_same_run_start(host, done['run']['id'], observation_deadline),\n", written)
+        assert accepted < observed < refreshed < checked < written < replied < audit
         assert source.count(wake) == 1
         assert "require(not any(a['method'] == 'integrations.start' for a in host.audit))" in source[observed:refreshed]
         assert "require(len(starts) == 1 and starts[0]['response']['result']['run']['id'] == done['run']['id'])" in source[audit:]
@@ -169,6 +172,59 @@ class DriverLifecycleOrderTests(unittest.TestCase):
         inverse = source.replace(block, '', 1).replace('        def read_terminal():\n', block + '        def read_terminal():\n', 1)
         with self.assertRaises(AssertionError):
             self.assert_order(inverse)
+
+
+class SameRunReplyObservationTests(unittest.TestCase):
+    def host(self, audit=()):
+        return SimpleNamespace(audit=list(audit), lock=threading.Lock())
+
+    def reply(self, run_id='confirmed-run'):
+        return {'method': 'integrations.start', 'response': {'result': {'run': {'id': run_id}}}}
+
+    def test_pending_then_completed_audit_is_read_without_sending_or_mutating(self):
+        host = self.host([{'method': 'integrations.get'}])
+        with mock.patch.object(R.time, 'monotonic', return_value=1):
+            self.assertFalse(R.observed_same_run_start(host, 'confirmed-run', 10))
+            host.audit.append(self.reply())
+            before = copy.deepcopy(host.audit)
+            self.assertTrue(R.observed_same_run_start(host, 'confirmed-run', 10))
+            self.assertEqual(host.audit, before)
+
+    def test_missing_or_completed_reply_at_original_deadline_is_refused(self):
+        for rows in ([], [self.reply()]):
+            with self.subTest(rows=bool(rows)), mock.patch.object(R.time, 'monotonic', return_value=10):
+                with self.assertRaises(R.D.Refusal):
+                    R.observed_same_run_start(self.host(rows), 'confirmed-run', 10)
+
+    def test_reply_becoming_late_during_observation_is_refused(self):
+        with mock.patch.object(R.time, 'monotonic', side_effect=[1, 10]):
+            with self.assertRaises(R.D.Refusal):
+                R.observed_same_run_start(self.host([self.reply()]), 'confirmed-run', 10)
+
+    def test_error_wrong_run_missing_and_malformed_responses_are_refused(self):
+        responses = [{}, {'error': {'code': 'WORKSPACE_BUSY'}},
+            {'result': {'run': {'id': 'foreign-run'}}}, {'result': None},
+            {'result': {'run': None}}, {'result': {'run': {'id': 'confirmed-run'}}, 'error': None}]
+        for response in responses:
+            with self.subTest(response=response), mock.patch.object(R.time, 'monotonic', return_value=1):
+                with self.assertRaises(R.D.Refusal):
+                    R.observed_same_run_start(self.host([{'method': 'integrations.start', 'response': response}]), 'confirmed-run', 10)
+
+    def test_duplicate_completed_responses_are_refused(self):
+        with mock.patch.object(R.time, 'monotonic', return_value=1):
+            with self.assertRaises(R.D.Refusal):
+                R.observed_same_run_start(self.host([self.reply(), self.reply()]), 'confirmed-run', 10)
+
+    def test_both_waits_consume_one_absolute_deadline(self):
+        with mock.patch.object(R.time, 'monotonic', side_effect=[1, 4, 10]):
+            self.assertEqual(R.observation_remaining(10), 9)
+            self.assertEqual(R.observation_remaining(10), 6)
+            with self.assertRaises(R.D.Refusal): R.observation_remaining(10)
+        source = (ROOT / 'apps/desktop/tests/integration-round-history-real-ipc.py').read_text()
+        self.assertEqual(source.count('observation_deadline = time.monotonic() + 15'), 1)
+        self.assertEqual(source.count('seconds=observation_remaining(observation_deadline)'), 2)
+        self.assertIn('def observe(read, ready, *, pump=lambda: None, seconds=15):',
+            (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text())
 
 
 if __name__ == '__main__':

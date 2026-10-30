@@ -44,6 +44,30 @@ def own_source(expected):
     return {'sha256': D.digest(raw), 'source': expected, 'tracked_clean': True}
 
 
+def observation_remaining(deadline):
+    remaining = deadline - time.monotonic()
+    require(remaining > 0, 'Original fifteen-second observation expired')
+    return remaining
+
+
+def observed_same_run_start(host, run_id, deadline):
+    observation_remaining(deadline)
+    with host.lock:
+        starts = [a for a in host.audit if a['method'] == 'integrations.start']
+    require(len(starts) <= 1, 'UI check issued more than one start')
+    if not starts:
+        observation_remaining(deadline)
+        return False
+    response = starts[0].get('response')
+    require(type(response) is dict and 'error' not in response
+        and type(response.get('result')) is dict
+        and type(response['result'].get('run')) is dict
+        and response['result']['run'].get('id') == run_id,
+        'Actual UI start reply did not identify the confirmed run')
+    observation_remaining(deadline)
+    return True
+
+
 def selected(context, target, reference):
     value = D.expected_selection(context, target, reference)
     value.update(max_rounds=3, on_target_advance='bounded_descendant_reprepare', ttl_ms=30000)
@@ -442,6 +466,7 @@ def run_case(args, binary, companion, frontend, attribution):
         accepted = D.accept_graph(host, fixture)
         # Observe the independent watcher before refreshing expensive context:
         # an active owned stage can correctly make that context WORKSPACE_BUSY.
+        observation_deadline = time.monotonic() + 15
         def read_terminal():
             gate.healthy()
             runs = host.result('integrations.list', {'task_id': bounds.task}); require(len(runs) <= 1)
@@ -451,13 +476,20 @@ def run_case(args, binary, companion, frontend, attribution):
             require(value['run']['state'] not in ('failed', 'blocked', 'outcome_unknown', 'stale_target', 'cancelled'),
                 'Three-round runtime did not establish expected confirmation')
             return value['run']['state'] == 'confirmed_local_ref'
-        done = D.observe(read_terminal, finished, pump=pump)
+        done = D.observe(read_terminal, finished, pump=pump,
+            seconds=observation_remaining(observation_deadline))
+        observation_remaining(observation_deadline)
         require(not any(a['method'] == 'integrations.start' for a in host.audit))
         # After the watcher confirms the run, retain the real UI freshness
         # guard and prove its explicit check returns that same completed run.
         panel.get_by_role('button', name='Refresh integration records').click()
         expect(panel.get_by_role('button', name='Check accepted task for the same run')).to_be_enabled()
         panel.get_by_role('button', name='Check accepted task for the same run').click()
+        # Click dispatch is asynchronous. Wait only for its real Host audit
+        # append, within the same original deadline; never issue another start.
+        D.observe(lambda: observed_same_run_start(host, done['run']['id'], observation_deadline),
+            bool, pump=pump, seconds=observation_remaining(observation_deadline))
+        observation_remaining(observation_deadline)
         starts = [a for a in host.audit if a['method'] == 'integrations.start']
         require(len(starts) == 1 and starts[0]['response']['result']['run']['id'] == done['run']['id'])
         facts = terminal_evidence(host, fixture, accepted, policy, done, gate)
