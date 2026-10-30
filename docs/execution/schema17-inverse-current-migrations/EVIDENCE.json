@@ -107,5 +107,21 @@
     "--nocapture"
   ],
   "no_new_permissions": true,
-  "whole_requirement_accepted": false
+  "whole_requirement_accepted": false,
+  "independent_session_projection_correction": {
+    "source": "7f55a4f583902b4cf5f6618198a034bed1889b22",
+    "previous_source": "306f46a78ad42385e2174f278b062e308546dbab",
+    "file": "crates/core/tests/sessions_ipc.rs",
+    "sha256": "4c0cdcacf7577a9675ed48f8795d06a99eb119b4a36d4571158df3c47d8807df",
+    "finding": "static P2; not an executed runtime failure",
+    "static_checks": {
+      "count": 8,
+      "all_passed": true,
+      "path": "/workspace/.onboarding/schema17-inverse-current-migrations-source1/STATIC-7f55a4f.json",
+      "sha256": "d3134b66bf64fb2de2b05c15739520cb9f4bc50ad974fcd420fad0e3029acab1"
+    },
+    "old_full_projection_equality_and_raw_history_suffix": "byte_preserved",
+    "runtime": "NOT_RUN",
+    "independent_closure": "pending"
+  }
 }
