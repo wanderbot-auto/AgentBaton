@@ -68,5 +68,26 @@
     "OS sandbox or kernel I/O preemption",
     "product-wide Unicode completion"
   ],
-  "source_manifest_sha256": "17fee5e06b173823c1be16f0a6fa4537f19049284f3a7d97383203434e17ee37"
+  "source_manifest_sha256": "17fee5e06b173823c1be16f0a6fa4537f19049284f3a7d97383203434e17ee37",
+  "review_correction_0fa": {
+    "source_commit": "0fa6dad9bc474731c0d8778745b458b8dbc47945",
+    "source_hashes": {
+      "crates/workspaces/src/source_capture.rs": "f589fc936d466e75a524482686cd7caade2350f0453c8171d25fb35e2635aeb8",
+      "crates/workspaces/tests/source_capture.rs": "1dc9790430b796585ae3ab7ff8832aebb0fdbafc87de8186046660798d1fe847"
+    },
+    "original_review": "8d8f24c CHANGES_REQUIRED P2-01/P2-02 retained",
+    "checks": {
+      "same_original_deadline_and_control": true,
+      "five_inner_walk_checks_no_new_clock": true,
+      "invalid_UTF8_raw_Git_fixture_no_invalid_host_filename": true,
+      "raw_Git_setup_success_required_and_cap_constructed": true,
+      "exact_InvalidPath_from_capture": true,
+      "direct_invalid_selection_exact_InvalidContract": true,
+      "other_six_new_fixture_blocks_byte_unchanged": true,
+      "control_path_test_error_types_matched_separately": true
+    },
+    "cargo": "NOT_RUN",
+    "runtime": "NOT_RUN",
+    "manifest_sha256": "4eab0e470a1fce08c6e445eb31af765f1b068c4d3209c593858ab0698c632ddb"
+  }
 }
