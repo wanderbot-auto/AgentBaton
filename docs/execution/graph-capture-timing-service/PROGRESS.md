@@ -1,3 +1,19 @@
+# Final source8af test-code correction
+
+8af8ade4ef298f677b821a920b6771017351bf11 changes only the new expired-deadline assertion to TIMEOUT, the exact existing goal_evidence::check return. Independent reviewer identified the mismatch by source; a645 tests were NOT_RUN, so this is not an actual failing-test record. Production still diagnostics-only, original scheduler order/fees/lifecycle unchanged. Source formatter/diff checks0, no Cargo. New immutable diagnostics-only-8af static record supersedes current binding; older manifests and source commits remain preserved.
+
+# Current progress — diagnostics only
+
+Final corrected code a6450f43877bd3039858fe6b28051ec16ba84e40. Candidate priority is DEFERRED pending actual numeric phase evidence and an independently justified scheduling change. No optimization is implemented or claimed in this final source. Original full reconcile again runs before prepared-job lookup/start, with identical no-job/missing-clock/prepare/spawn failure branches. Inverting only the real join-result wrapper and real thread-execute wrapper makes the entire tick function byte-identical to baseline34f. All7 original verifier/deadline/reconcile/shutdown/Drop method bodies and the original billing block remain byte-identical.
+
+Independent static review found2 new cfg(test) count reads as u64 unsupported by rusqlite0.38 FromSql. Final a645 changes those reads to i64 and retains exact zero expectations. This is a source-identified type issue, NOT an actual compiler failure. A first local editing script failed an exact source assertion because rustfmt split r.get across lines: it restored ordering before stopping but did not change counts. b830 consequently contains only the sequencing restoration despite its overly broad commit title; a645 separately contains the complete2-site type correction. No Cargo ran during either step.
+
+New private timing wrapper and six numeric/null future settlement fields remain. Nine test functions remain written but NOT_RUN. Direct rustfmt --check and git diff --check pass. New diagnostics-only STATIC_CHECKS and later manifest live in a new subdirectory; original a067 artifacts, reviews, failures and manifests are not overwritten.
+
+Below is retained earlier implementation history, superseded regarding scheduling priority/type readiness; it is not the final current behavior.
+
+---
+
 # Progress
 
 2026-10-30: isolated codex/graph-capture-timing-service baseline34f8b23d4fdd529caf4f7da6f949604f2746e0e9. Remote verified wanderbot-auto/AgentBaton. Root source tree was clean and untouched. Read origin/main653679db60d5c68f7e3c5b5e146ef58aed10de23 OWNER-001/002 (latest inbox change2e0383c78d3482a0dbdea1f2e61982aabfbf91de); ACK both without changing product scope/permissions.

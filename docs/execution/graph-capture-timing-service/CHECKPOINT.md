@@ -1,9 +1,11 @@
-# Checkpoint
+# Checkpoint — diagnostics only
 
-Code/source commit a067d9123b790b6ba6793d7cc40e036ccc98618e; baseline34f8b23d4fdd529caf4f7da6f949604f2746e0e9; branch codex/graph-capture-timing-service; tree /workspace/.worktrees/graph-capture-timing-service. Only own docs may change after code freeze. No remote push/PR/CI/main operation.
+Final code8af8ade4ef298f677b821a920b6771017351bf11; baseline34f8b23d4fdd529caf4f7da6f949604f2746e0e9; branch codex/graph-capture-timing-service; tree /workspace/.worktrees/graph-capture-timing-service. Prior source a067 and docs291 remain historical, not current optimization acceptance. Restoration b830 followed by exact test-type fix a645; own docs are a separate commit.
 
-Private observation wrapper and six fixed settlement fields implemented. Prepared capture starts ahead of unrelated frontier scan, with complete scan retained afterward and all prepare/start/finish authority checks intact. No candidate② capability reuse or other module refactor.
+Original reconcile-before-prepared-job order and every original tick branch are restored. Only actual join/spawn observation wrappers differ inside tick; reverse wrappers recover the full original function bytes. Diagnostics do not change actual runtime formula, billing, known/unknown, lifecycle or authority. Six fixed settlement fields remain; panic/no-start missing observations remain null. Candidate priority is DEFERRED, not implemented performance work.
 
-Root owns all Cargo/Actor/browser/target execution. This leaf never acquired or used a Cargo/CPU/target lease. Nine new tests, all actual Core/Factory regression, compiler/lint/build, performance, Mac/CI are NOT_RUN here. Source/fmt/static only is not runtime acceptance.
+Root owns all compiler/Actor/browser/target execution. This leaf never acquired a target lease. Rust tests, Clippy/build, actual Core/Factory regression, performance and Mac/CI remain NOT_RUN here. Independent static review corrected2 cfgtest SQL reads to i64 without weakening expected counts; no real compile failure claimed.
 
-Root next: independent source review, compile new private test filter, actual queue-expiry/cancel/unknown/Drop and Factory rework regression using the exact new source and original budgets. If tests/compiler fail, retain failure and return concrete source issue; do not claim this source is runtime-green. The implementation is not a whole-product completion checkpoint.
+Next Root: independent corrected-source review and real --lib capture_service_tests execution, then original actual queue-expiry/cancel/unknown/Drop and Factory rework checks as applicable. Keep original budgets and failure evidence. No remote/main/PR/CI action performed by this leaf.
+
+Independent final test review corrected one expected expired-deadline code to actual existing TIMEOUT in test-only8af. The prior a645 had not run; no compiler/runtime failure was fabricated. Root/reviewer now own actual execution/final source review. Rust source remains frozen; only records may advance.
