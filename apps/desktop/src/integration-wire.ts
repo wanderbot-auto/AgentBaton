@@ -1,0 +1,75 @@
+import { safeInteger, utf8Bytes, type GoalScope, type GoalValidatorRef } from './goal-api';
+import type { Task } from './api';
+import type { IntegrationPolicy, IntegrationPolicySelection, IntegrationReconciliation, IntegrationRun, IntegrationRunView, IntegrationTarget } from './integration-types';
+
+type Obj=Record<string,unknown>;
+const invalid=():never=>{throw new Error('Invalid or unsupported integration contract');};
+const obj=(v:unknown):v is Obj=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const exact=(v:unknown,keys:string[]):v is Obj=>obj(v)&&Object.keys(v).length===keys.length&&keys.every(k=>Object.hasOwn(v,k));
+const str=(v:unknown,max=4096):v is string=>typeof v==='string'&&v.length>0&&utf8Bytes(v)<=max&&!v.includes('\0');
+const id=(v:unknown):v is string=>str(v,256)&&/^[A-Za-z0-9._:-]+$/.test(v);
+const digest=(v:unknown)=>typeof v==='string'&&v.length===64&&/^[a-f0-9]+$/.test(v);
+const oid=(v:unknown)=>typeof v==='string'&&[40,64].includes(v.length)&&/^[a-f0-9]+$/.test(v);
+const decimal=(v:unknown)=>typeof v==='string'&&/^(0|[1-9][0-9]{0,19})$/.test(v)&&(v.length<20||v<='18446744073709551615');
+const path=(v:unknown)=>str(v,262144)&&v.startsWith('/');
+const nullable=(v:unknown,guard:(v:unknown)=>boolean)=>v===null||guard(v);
+const meter=(v:unknown)=>v===null||safeInteger(v);
+const list=(v:unknown,max:number,guard:(v:unknown)=>boolean)=>Array.isArray(v)&&v.length<=max&&v.every(guard);
+const bool=(v:unknown)=>typeof v==='boolean';
+export const integrationRef=(v:unknown):v is string=>str(v,1024)&&v.startsWith('refs/heads/')&&!/[\s\u0000-\u001f\u007f~^:?*\[\\]/.test(v)&&!v.includes('..')&&!v.includes('@{')&&!v.endsWith('.')&&!v.endsWith('/')&&v.split('/').every(p=>p.length>0&&!p.startsWith('.')&&!p.endsWith('.lock'));
+const validator=(v:unknown):v is GoalValidatorRef=>exact(v,['kind','policy_id','revision'])&&['integrity','data','command'].includes(v.kind as string)&&id(v.policy_id)&&safeInteger(v.revision,1);
+const reservation=(v:unknown)=>exact(v,['runtime_ms','output_bytes','tokens','cost_microunits'])&&safeInteger(v.runtime_ms,1)&&safeInteger(v.output_bytes,1)&&meter(v.tokens)&&meter(v.cost_microunits);
+const budget=(v:unknown)=>exact(v,['attempts','parallel','runtime_ms','output_bytes','children','reworks','tokens','cost_microunits'])&&['attempts','parallel','runtime_ms','output_bytes'].every(k=>safeInteger(v[k],1))&&['children','reworks'].every(k=>safeInteger(v[k]))&&meter(v.tokens)&&meter(v.cost_microunits);
+const usage=(v:unknown)=>exact(v,['attempts','active','children','runtime_ms','output_bytes','tokens','cost_microunits'])&&['attempts','active','children'].every(k=>safeInteger(v[k]))&&['runtime_ms','output_bytes','tokens','cost_microunits'].every(k=>meter(v[k]));
+const shared=(v:unknown)=>exact(v,['root','project'])&&usage(v.root)&&usage(v.project);
+const pin=(v:unknown)=>exact(v,['canonical_root','device','inode','common_dir','common_device','common_inode','head'])&&path(v.canonical_root)&&path(v.common_dir)&&['device','inode','common_device','common_inode'].every(k=>decimal(v[k]))&&oid(v.head);
+const artifact=(v:unknown)=>exact(v,['artifact_id','relative_path','max_bytes','expected_sha256'])&&id(v.artifact_id)&&str(v.relative_path)&&!v.relative_path.startsWith('/')&&!/[\\\u0000-\u001f\u007f]/.test(v.relative_path)&&v.relative_path.split('/').every(p=>p!==''&&p!=='.'&&p!=='..')&&safeInteger(v.max_bytes,1)&&nullable(v.expected_sha256,digest);
+const artifactBinding=(v:unknown)=>exact(v,['canonical_root','root_device','root_inode','requirement'])&&path(v.canonical_root)&&decimal(v.root_device)&&decimal(v.root_inode)&&artifact(v.requirement);
+const definition=(v:unknown)=>exact(v,['reference','rule_id','definition_digest','definition_json','program','script'])&&validator(v.reference)&&id(v.rule_id)&&digest(v.definition_digest)&&str(v.definition_json,1048576)&&nullable(v.program,artifactBinding)&&nullable(v.script,artifactBinding);
+const program=(v:unknown)=>exact(v,['canonical_path','device','inode','sha256','bytes','uid','mode','links'])&&path(v.canonical_path)&&['device','inode','links'].every(k=>decimal(v[k]))&&digest(v.sha256)&&safeInteger(v.bytes,1)&&safeInteger(v.uid)&&safeInteger(v.mode);
+const lineage=(v:unknown)=>exact(v,['id','root_grant_id','parent_id','revision','approval_id','approved_at','expires_at_ms','scope','connection_bindings','workspace_bindings','original_document_sha256'])&&id(v.id)&&id(v.root_grant_id)&&nullable(v.parent_id,id)&&safeInteger(v.revision,1)&&id(v.approval_id)&&str(v.approved_at,128)&&safeInteger(v.expires_at_ms,Number.MIN_SAFE_INTEGER)&&obj(v.scope)&&obj(v.connection_bindings)&&obj(v.workspace_bindings)&&Object.values(v.workspace_bindings).every(pin)&&digest(v.original_document_sha256);
+
+export function validateIntegrationSelection(v:unknown):IntegrationPolicySelection {
+ if(!exact(v,['task_id','expected_task_revision','expected_spec_revision','goal_scope_id','expected_scope_revision','host_id','target_ref','expected_target_head','max_rounds','on_target_advance','ttl_ms','stage_reservations'])||!id(v.task_id)||!id(v.goal_scope_id)||!['expected_task_revision','expected_spec_revision','expected_scope_revision'].every(k=>safeInteger(v[k],1))||v.host_id!=='local'||!integrationRef(v.target_ref)||!oid(v.expected_target_head)||!safeInteger(v.max_rounds,1,8)||!['block','bounded_descendant_reprepare'].includes(v.on_target_advance as string)||!safeInteger(v.ttl_ms,1)||!exact(v.stage_reservations,['preparation','validators','cas'])||!reservation(v.stage_reservations.preparation)||!reservation(v.stage_reservations.cas)||!list(v.stage_reservations.validators,64,row=>exact(row,['validator','reservation'])&&validator(row.validator)&&reservation(row.reservation)))return invalid();
+ const refs=(v.stage_reservations.validators as {validator:GoalValidatorRef}[]).map(row=>JSON.stringify(row.validator));
+ if(new Set(refs).size!==refs.length||!(v.stage_reservations.validators as {validator:GoalValidatorRef}[]).some(row=>['data','command'].includes(row.validator.kind)))return invalid();
+ if(utf8Bytes(JSON.stringify(v))>1048576)return invalid();return v as unknown as IntegrationPolicySelection;
+}
+function bindings(v:unknown):boolean {
+ if(!exact(v,['task_id','task_goal','spec_revision','project_id','project_revision','project_source','workspace_id','workspace_revision','source','task_workspace_receipt','goal_scope_id','goal_scope_revision','goal_scope_digest','root_task_id','root_grant_id','factory_scope_id','ancestors','grant_lineage','root_budget','project_budget','inputs','outputs','validators','system_git','repository_digest','binding_digest']))return false;
+ return ['task_id','project_id','workspace_id','goal_scope_id','root_task_id','root_grant_id'].every(k=>id(v[k]))&&str(v.task_goal,16384)&&['spec_revision','project_revision','workspace_revision','goal_scope_revision'].every(k=>safeInteger(v[k],1))&&pin(v.project_source)&&pin(v.source)&&obj(v.task_workspace_receipt)&&nullable(v.factory_scope_id,id)&&list(v.ancestors,64,id)&&list(v.grant_lineage,64,lineage)&&budget(v.root_budget)&&budget(v.project_budget)&&list(v.inputs,256,artifact)&&list(v.outputs,256,row=>exact(row,['artifact','validators'])&&artifact(row.artifact)&&list(row.validators,64,validator))&&list(v.validators,64,definition)&&program(v.system_git)&&['goal_scope_digest','repository_digest','binding_digest'].every(k=>digest(v[k]));
+}
+function bounded(v:unknown){if(utf8Bytes(JSON.stringify(v))>4194304)return invalid();}
+export function parseIntegrationPolicy(v:unknown):IntegrationPolicy {
+ bounded(v);if(!exact(v,['id','revision','approval_id','selection','bindings','snapshot_digest','created_at','expires_at_ms','revoked'])||!id(v.id)||!safeInteger(v.revision,1)||!id(v.approval_id)||!bindings(v.bindings)||!digest(v.snapshot_digest)||!str(v.created_at,128)||!safeInteger(v.expires_at_ms,Number.MIN_SAFE_INTEGER)||!bool(v.revoked))return invalid();
+ const s=validateIntegrationSelection(v.selection),b=v.bindings as Obj;
+ if(s.task_id!==b.task_id||s.expected_spec_revision!==b.spec_revision||s.goal_scope_id!==b.goal_scope_id||s.expected_scope_revision!==b.goal_scope_revision)return invalid();
+ return v as unknown as IntegrationPolicy;
+}
+const states=['queued','capturing','preparing','validating','cas_prepared','confirmed_local_ref','blocked','stale_target','failed','cancel_requested','cancelled','outcome_unknown'];
+const stage=(v:unknown)=>['preparation','validator','cas'].includes(v as string);
+const completion=(v:unknown)=>['worker_joined','not_scheduled','interrupted_no_join_receipt'].includes(v as string);
+const error=(v:unknown)=>exact(v,['code','message','retryable','side_effect_state'])&&str(v.code,128)&&str(v.message,65536)&&bool(v.retryable)&&str(v.side_effect_state,128);
+const receipt=(v:unknown)=>exact(v,['attempt_id','round','validator','definition_digest','integration_commit','integration_tree','result_digest','passed','stop_confirmed','worker_joined','actual_runtime_ms','actual_output_bytes','details_ref','sequence'])&&id(v.attempt_id)&&safeInteger(v.round,1,8)&&validator(v.validator)&&['definition_digest','result_digest'].every(k=>digest(v[k]))&&oid(v.integration_commit)&&oid(v.integration_tree)&&['passed','stop_confirmed','worker_joined'].every(k=>bool(v[k]))&&meter(v.actual_runtime_ms)&&meter(v.actual_output_bytes)&&str(v.details_ref,4096)&&safeInteger(v.sequence,1);
+export function parseIntegrationRun(v:unknown):IntegrationRun {
+ bounded(v);if(!exact(v,['id','policy_id','policy_revision','revision','task_id','spec_revision','goal_scope_id','scope_digest','acceptance_ref','acceptance_digest','source_commit','source_tree','target_ref','expected_target_head','integration_commit','integration_tree','round','state','cancel_requested','active_stage','io_completion','validation_receipts','last_error','created_at','updated_at'])||!['id','policy_id','task_id','goal_scope_id','acceptance_ref'].every(k=>id(v[k]))||!['policy_revision','revision','spec_revision'].every(k=>safeInteger(v[k],1))||!digest(v.scope_digest)||!digest(v.acceptance_digest)||!['source_commit','source_tree','integration_commit','integration_tree'].every(k=>nullable(v[k],oid))||!integrationRef(v.target_ref)||!oid(v.expected_target_head)||!safeInteger(v.round,0,8)||!states.includes(v.state as string)||!bool(v.cancel_requested)||!nullable(v.active_stage,stage)||!nullable(v.io_completion,completion)||!list(v.validation_receipts,512,receipt)||!nullable(v.last_error,error)||!str(v.created_at,128)||!str(v.updated_at,128))return invalid();
+ if(v.state==='cancel_requested'&&v.cancel_requested!==true)return invalid();
+ if(v.state==='cancelled'&&(v.cancel_requested!==true||v.io_completion!=='worker_joined'||v.active_stage!==null))return invalid();
+ if(v.state==='confirmed_local_ref'&&(!oid(v.integration_commit)||!oid(v.integration_tree)||!oid(v.source_commit)||!oid(v.source_tree)||v.io_completion!=='worker_joined'||v.active_stage!==null||!(v.validation_receipts as Obj[]).some(r=>(r.validator as Obj).kind!=='integrity')||(v.validation_receipts as Obj[]).some(r=>r.passed!==true||r.stop_confirmed!==true||r.worker_joined!==true||r.integration_commit!==v.integration_commit||r.integration_tree!==v.integration_tree)))return invalid();
+ return v as unknown as IntegrationRun;
+}
+const attempt=(v:unknown)=>exact(v,['attempt_id','round','kind','validator','state','reservation','settled','actual_runtime_ms','actual_output_bytes','io_completion','last_error','receipt_sequence'])&&id(v.attempt_id)&&safeInteger(v.round,1,8)&&stage(v.kind)&&nullable(v.validator,validator)&&((v.kind==='validator')===(v.validator!==null))&&str(v.state,128)&&reservation(v.reservation)&&bool(v.settled)&&meter(v.actual_runtime_ms)&&meter(v.actual_output_bytes)&&nullable(v.io_completion,completion)&&nullable(v.last_error,error)&&nullable(v.receipt_sequence,x=>safeInteger(x,1));
+export function parseIntegrationRunView(v:unknown):IntegrationRunView {
+ bounded(v);if(!exact(v,['run','attempts','shared_usage','fence'])||!list(v.attempts,528,attempt)||!shared(v.shared_usage)||!exact(v.fence,['repository_digest','target_ref','integration_id','revision','state'])||!digest(v.fence.repository_digest)||!safeInteger(v.fence.revision,1)||!str(v.fence.state,128))return invalid();
+ const run=parseIntegrationRun(v.run);if(v.fence.integration_id!==run.id||v.fence.target_ref!==run.target_ref||new Set((v.attempts as Obj[]).map(a=>a.attempt_id)).size!==(v.attempts as Obj[]).length)return invalid();
+ return v as unknown as IntegrationRunView;
+}
+export function parseIntegrationReconciliation(v:unknown):IntegrationReconciliation {
+ if(!exact(v,['integration','observed_target_head','observation_scope','historical_cas_confirmed'])||!nullable(v.observed_target_head,oid)||!str(v.observation_scope,4096)||!bool(v.historical_cas_confirmed))return invalid();
+ const view=parseIntegrationRunView(v.integration);if(v.historical_cas_confirmed!==(view.run.state==='confirmed_local_ref'))return invalid();return v as unknown as IntegrationReconciliation;
+}
+export function parseIntegrationTargets(v:unknown):IntegrationTarget[] {if(!list(v,100,row=>exact(row,['target_ref','head','checked_out'])&&integrationRef(row.target_ref)&&oid(row.head)&&bool(row.checked_out)))return invalid();const rows=v as IntegrationTarget[];if(new Set(rows.map(r=>r.target_ref)).size!==rows.length)return invalid();return rows;}
+
+/** Cross-record checks fail closed; the server repeats all authority checks. */
+export function integrationPolicyFits(policy:IntegrationPolicy,task:Task,scope?:GoalScope):boolean {return policy.selection.task_id===task.id&&policy.bindings.task_id===task.id&&policy.bindings.project_id===task.project_id&&policy.bindings.spec_revision===task.spec_revision&&policy.selection.expected_spec_revision===task.spec_revision&&(!scope||policy.selection.goal_scope_id===scope.id&&policy.bindings.goal_scope_digest===scope.scope_digest&&policy.bindings.workspace_id===scope.workspace_id);}
+export function integrationRunFits(run:IntegrationRun,policy:IntegrationPolicy,task:Task):boolean {return run.policy_id===policy.id&&run.policy_revision<=policy.revision&&run.task_id===task.id&&run.spec_revision===policy.selection.expected_spec_revision&&run.goal_scope_id===policy.selection.goal_scope_id&&run.scope_digest===policy.bindings.goal_scope_digest&&run.target_ref===policy.selection.target_ref&&run.round<=policy.selection.max_rounds&&(!task.acceptance_ref||run.acceptance_ref===task.acceptance_ref)&&run.validation_receipts.every(r=>policy.selection.stage_reservations.validators.some(v=>JSON.stringify(v.validator)===JSON.stringify(r.validator)))&&(run.state!=='confirmed_local_ref'||policy.selection.stage_reservations.validators.every(v=>run.validation_receipts.some(r=>r.round===run.round&&JSON.stringify(r.validator)===JSON.stringify(v.validator)&&r.passed&&r.stop_confirmed&&r.worker_joined)));}

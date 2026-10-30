@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "baseline": "c8128e42b1f280f6f7dc232e319235e15673d8a4",
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-005",
+    "D18",
+    "D19"
+  ],
+  "dimensions": {
+    "source_implemented": "typed transport and strict projection guards, panel in progress",
+    "component_tests": "source written, not_run",
+    "typecheck": "not_run",
+    "real_ipc": "not_run",
+    "native_macos_arm": "not_run",
+    "native_macos_intel": "not_run"
+  },
+  "constraints": "Root owns heavy toolchain/test execution; author has not run Node, Cargo, browser, Actor or Git product operations."
+}
