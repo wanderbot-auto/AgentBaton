@@ -646,6 +646,7 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     let executable_metadata = executable_file.metadata().unwrap();
     assert!(executable_metadata.is_file());
     assert_eq!(executable_metadata.nlink(), 1);
+    #[cfg(target_os = "macos")]
     assert_eq!(executable_metadata.uid(), 0);
     assert_ne!(executable_metadata.mode() & 0o111, 0);
     assert_eq!(executable_metadata.mode() & 0o6022, 0);
