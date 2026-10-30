@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "kind": "integration_runtime_test_source",
-  "status": "CURRENT_NEW_REVOCATION_CASE_NOT_COMPILED_OR_RUN; previous two positives and fresh-validator-negative passed at separately attributed Root sources",
+  "status": "CURRENT_RUNNING_CANCEL_CASE_NOT_COMPILED_OR_RUN",
   "base": "97f14100f746c24aebf2bf7eba54264d1029c387",
   "tested_source_commit": null,
-  "source_commit": "ca91b7cbb3aa78350b46dc4b8830d37674b76092",
+  "source_commit": "8abc53a0f03796f27cc0830d7a52847687b38d56",
   "authority": "OWNER-001/002 implementation authorization; private Owner IPC is trusted-test-host only",
   "source": {
     "crates/core/tests/fixtures/integration_runtime.rs": {
-      "bytes": 75782,
-      "sha256": "61bf9a4f88996bfbdfadbbbccf57bc2b35bae3b04e9ab5980923a21bca659e0d"
+      "bytes": 95015,
+      "sha256": "37640f2e4cefa51b96f2d4e4aeab4fd41b2a64e178ac780e7d5e67d46e538fcc"
     },
     "crates/core/tests/integration_ipc.rs": {
       "bytes": 8590,
@@ -95,6 +95,16 @@
       ],
       "exit": 0,
       "dimension": "source-only; no new product or Rust execution"
+    },
+    {
+      "source_commit": "8abc53a0f03796f27cc0830d7a52847687b38d56",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check",
+        "exactca91 wholefile prefix preservation"
+      ],
+      "exit": 0,
+      "dimension": "source only; no Rust/product/ps execution"
     }
   ],
   "test_sources": [
@@ -117,6 +127,11 @@
       "name": "policy_revoked_before_acceptance_cannot_be_rearmed_by_owner_or_any_start_key",
       "runtime_result": "NOT_RUN",
       "expected_dimension": "real preaccept approval+exact revoke; actual later Graph Owner acceptance does not arm policy; strict oldCAS/currentrevoked errors; no stage/CAS/new fee; historical receipts remain historical"
+    },
+    {
+      "name": "cancelling_actual_owned_merged_validator_reaps_without_cas_or_refunding_attempts",
+      "runtime_result": "NOT_RUN",
+      "expected_dimension": "actual approved own stopped leader before real cancel; intent distinct joined stop; strict known cancelled/noCAS/nonrefund; original Task acceptance retained"
     }
   ],
   "normal_path_sql_mutations": false,
@@ -273,6 +288,21 @@
       },
       "root_actual_source": "f719821f844cb3cbf973f0fecb508e3cf3925144",
       "runtime_result": "fresh-validator-failure1PASS6.16s on Root; not new revocation-source pass"
+    },
+    {
+      "source_commit": "ca91b7cbb3aa78350b46dc4b8830d37674b76092",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 75782,
+          "sha256": "61bf9a4f88996bfbdfadbbbccf57bc2b35bae3b04e9ab5980923a21bca659e0d"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "root_actual_source": "b22b6d4835ecb86ea52a8e2c194ff28ff6e4b0e2",
+      "runtime_result": "preaccept revocation1PASS4.51s/5filtered Root; not new cancellation pass"
     }
   ],
   "review_followup": {
@@ -561,5 +591,79 @@
     "cross_owner_comparison": "meter/admission rows only; legitimate Task/Owner/acceptance/events writes not required unchanged",
     "full_image_comparison": "quiescent individual refusal/replay boundaries only",
     "historical_native_finalize": "same original receipt; current policy remains revoked and start still refused"
+  },
+  "root_actual_revocation_source": {
+    "source": "b22b6d4835ecb86ea52a8e2c194ff28ff6e4b0e2",
+    "exact_fixture_sha256": "61bf9a4f88996bfbdfadbbbccf57bc2b35bae3b04e9ab5980923a21bca659e0d",
+    "command": [
+      "env",
+      "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "integration_ipc",
+      "integration_runtime::policy_revoked_before_acceptance_cannot_be_rearmed_by_owner_or_any_start_key",
+      "--",
+      "--show-output",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "wrapper_seconds": 28.824356857978273,
+    "summaries": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 4.51s"
+    ],
+    "artifacts": {
+      "/workspace/.onboarding/integration17-revoked-policy-ipc1/RESULT.json": {
+        "bytes": 1036,
+        "sha256": "6628648a70c212b969b754a06024e3fe04fe5b5cadb28c3227639a9d68936ffe"
+      },
+      "/workspace/.onboarding/integration17-revoked-policy-ipc1/INPUTS.json": {
+        "bytes": 17004,
+        "sha256": "68c794b5e1fabffe41e7842b64ded661e56eb3785ba790604aa9bab95618ebdd"
+      },
+      "/workspace/.onboarding/integration17-revoked-policy-ipc1/command.log": {
+        "bytes": 1019,
+        "sha256": "142aae4155161f3b4ce7c4acfadc8cb99428355f5b8bb1f2eba584d67b8920a6"
+      }
+    },
+    "scope": "one preaccept revocation UnixCore17 test only"
+  },
+  "running_cancel_expected_not_observed": {
+    "new_native_definition": true,
+    "argv": "-c kill -STOP \"$$\"; exit 0 <unique generated token>",
+    "wall_time_ms": 3000,
+    "cleanup_time_ms": 500,
+    "stage_ms": 5000,
+    "token_authority": false,
+    "ps_identity": [
+      "sameeuid",
+      "ppid=testPID",
+      "pgid=PID",
+      "T",
+      "full approved argv",
+      "independentrecheck"
+    ],
+    "ps_timeout_ms": 500,
+    "ps_stdout_max": 1048576,
+    "ps_stderr_max": 4096,
+    "ps_nonzero_or_diagnostic": "FAIL",
+    "signals_observed_product_pid": false,
+    "immediate": "cancel_requested; validator unsettled",
+    "terminal": "cancelled/CANCEL_REQUESTED",
+    "exit_observed_within_budget": false,
+    "process_elapsed_ms": "<3000",
+    "mandatory": "process_started/cancellation_observed/SIGKILL/reap/EOF/join; full subject/digest/journal order",
+    "integration_attempts": 2,
+    "shared_attempts": 3,
+    "active": 0,
+    "measured_output_bytes": 24,
+    "CAS": 0,
+    "TaskAccepted": "retained",
+    "same_cancel_key": "original intent receipt no newmutation",
+    "panic_dynamic": "NOT_RUN; original lifecycle source path only",
+    "current_static_blocker": "validation_is_stopped requires natural within-budget flag even after cancel/reap; unknown must FAIL pending independent Corefix"
   }
 }
