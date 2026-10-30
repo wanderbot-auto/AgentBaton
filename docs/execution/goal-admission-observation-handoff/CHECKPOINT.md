@@ -12,3 +12,10 @@ No permission expansion, formalApprove, merge, signing, live product Provider ca
 ## Independent static P2 correction `d9149a0111dd81776f3853e0e988bb5b0ba7a521`
 
 Reviewer identified that the original thin wire-only `handle` wrapper now has only test references; a non-test dead_code warning was expected. This was a static finding, not an actual Cargo/strict check failure. A single `#[cfg(test)]` now gates only that unchanged thin wrapper. The actual handle_observed implementation, all test bodies, wire data, error/recovery transformation, budgets and guards are unchanged; no allow was added. Configured rustfmt --check and diff checks passed. Root compilation/runtime and independent closure remain pending.
+
+
+## Root actual compilation failure and minimal adapter correction `04de1f8136c86288b7c479127ca826441c4a728d`
+
+Root source429a6f7 failed E0599 before running tests: the original delayed-frame test uses blocking request.reply.send(Value), while the new reply enum initially retained only try_send. Original log SHA256 `d9cff462d2d1a33fe7416f5aff9845000ed55e034bc1c3f4fde9a3bf6afaba9c` remains unchanged. This is an actual compile failure, separate from the earlier static unused-wrapper finding.
+
+A cfg(test)-only send adapter now directly calls the original Wire SyncSender::send, preserving its blocking/disconnected behavior and SendError<Value> payload. The Goal variant also blocks on its original channel and sends the unchanged wire with no diagnostic; an error maps back to the original wire Value. The old test body is unchanged and was not converted to try_send. Author rustfmt/diff checks passed, but no Cargo/runtime retry or successful compiler result is claimed; Root and independent reviewer must verify next.

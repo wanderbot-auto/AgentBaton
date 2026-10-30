@@ -82,5 +82,20 @@
     ],
     "cargo": "NOT_RUN",
     "independent_closure": "pending"
+  },
+  "root_compile_correction": {
+    "source": "04de1f8136c86288b7c479127ca826441c4a728d",
+    "prior_source_root": "429a6f7",
+    "actual_failure": "E0599 original delayed-frame test still invokes blocking request.reply.send(Value); ReadyReply initially preserved only try_send; no tests executed in that failed Root compile",
+    "retained_log_sha256": "d9cff462d2d1a33fe7416f5aff9845000ed55e034bc1c3f4fde9a3bf6afaba9c",
+    "correction": "#[cfg(test)] ReadyReply::send directly invokes original Wire SyncSender::send and adapts Goal sender with a diagnostic-free envelope, preserving blocking and SendError<Value> payload semantics",
+    "original_test_body": "unchanged; not converted to try_send",
+    "checks": [
+      "configured rustfmt --check passed",
+      "git diff --check passed",
+      "only test adapter source added"
+    ],
+    "runtime": "author not_run; Root actual retry pending",
+    "independent_closure": "pending"
   }
 }
