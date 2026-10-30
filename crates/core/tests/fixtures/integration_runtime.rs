@@ -1703,3 +1703,227 @@ fn fresh_merged_correctness_failure_never_admits_cas_and_retains_charged_receipt
     assert_eq!(source_image(&f.source()), before_source);
     assert_eq!(source_image(&f.project_root), before_project);
 }
+
+fn integration_meter_image(server: &Server) -> Vec<(String, Vec<Vec<SqlValue>>)> {
+    server
+        .image()
+        .into_iter()
+        .filter(|(name, _)| {
+            matches!(
+                name.as_str(),
+                "budgets"
+                    | "goal_ledgers"
+                    | "attempts"
+                    | "dispatch_intents"
+                    | "goal_run_reservations"
+                    | "workspace_leases"
+                    | "integration_attempts"
+                    | "integration_ref_fences"
+            )
+        })
+        .collect()
+}
+
+#[test]
+fn policy_revoked_before_acceptance_cannot_be_rearmed_by_owner_or_any_start_key() {
+    let f = RuntimeFixture::new();
+    let ready = f.owner_ready();
+    let definition = f.command_definition(&ready["candidates"][0]);
+    let original_command = OriginalCommand::capture(&f, &definition);
+    let before_source = source_image(&f.source());
+    let before_project = source_image(&f.project_root);
+    let policy = f.approve_integration(&definition);
+    assert_eq!(policy["revoked"], false);
+    let policy_id = &policy["id"];
+    let old_key = "cannot-start-before-task-acceptance";
+    // A failed preaccept request is not a successful replay receipt or a permit.
+    let image = f.server.image();
+    let denied = f.server.request(json!({"method":"integrations.start","params":{"policy_id":policy_id},"expected_revision":policy["revision"],"idempotency_key":old_key}));
+    assert_eq!(denied["error"]["code"], "AUTH_REQUIRED");
+    assert_eq!(denied["error"]["side_effect_state"], "not_started");
+    assert_eq!(f.server.image(), image);
+    let revoked = rpc(
+        &f.server,
+        "integration_policies.revoke",
+        json!({"policy_id":policy_id}),
+        Some("revoke-before-acceptance"),
+        Some(policy["revision"].clone()),
+    );
+    assert_eq!(revoked["id"], *policy_id);
+    assert_eq!(revoked["revision"], 2);
+    assert_eq!(revoked["revoked"], true);
+    let image = f.server.image();
+    let replay = rpc(
+        &f.server,
+        "integration_policies.revoke",
+        json!({"policy_id":policy_id}),
+        Some("revoke-before-acceptance"),
+        Some(policy["revision"].clone()),
+    );
+    assert_eq!(replay, revoked);
+    assert_eq!(f.server.image(), image);
+    let meter_before_acceptance = integration_meter_image(&f.server);
+    let accepted = f.accept();
+    assert_eq!(accepted["task_accepted"], true);
+    assert_eq!(
+        integration_meter_image(&f.server),
+        meter_before_acceptance,
+        "Owner acceptance must not reserve/charge work under a revoked integration policy"
+    );
+    // Give the actual Actor repeated independent read requests while its armed
+    // watcher runs. Do not use a fake timer or synthesize an integration row.
+    for _ in 0..4 {
+        rpc(&f.server, "system.snapshot", json!({}), None, None);
+        let runs = rpc(
+            &f.server,
+            "integrations.list",
+            json!({"task_id":f.task["id"]}),
+            None,
+            None,
+        );
+        assert!(runs.as_array().unwrap().is_empty());
+    }
+    let image = f.server.image();
+    for (revision, key, code) in [
+        (policy["revision"].clone(), old_key, "STALE_REVISION"),
+        (revoked["revision"].clone(), old_key, "AUTH_REQUIRED"),
+        (
+            revoked["revision"].clone(),
+            "new-key-cannot-revive-policy",
+            "AUTH_REQUIRED",
+        ),
+        (
+            policy["revision"].clone(),
+            "new-key-with-old-policy-cas",
+            "STALE_REVISION",
+        ),
+    ] {
+        let reply=f.server.request(json!({"method":"integrations.start","params":{"policy_id":policy_id},"expected_revision":revision,"idempotency_key":key}));
+        assert_eq!(reply["error"]["code"], code);
+        assert_eq!(reply["error"]["side_effect_state"], "not_started");
+        assert_eq!(
+            f.server.image(),
+            image,
+            "refusal must not record a key, stage, fence, event or fee"
+        );
+    }
+    let db = readonly(&f);
+    original_command.assert_unchanged(&f, &db);
+    let proposal_raw: String = db
+        .query_row(
+            "SELECT document FROM approval_proposals WHERE id=?1",
+            [policy_id.as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let original_proposal: Value = serde_json::from_str(&proposal_raw).unwrap();
+    assert_eq!(original_proposal["id"], *policy_id);
+    assert_eq!(original_proposal["kind"], "integration");
+    assert_eq!(original_proposal["consumed"], true);
+    let all = events(&db);
+    let revoke_event = unique_event(&all, "integration.policy_revoked", policy_id);
+    assert_eq!(revoke_event.1["revision"], revoked["revision"]);
+    assert_eq!(revoke_event.1["payload"]["new_dispatch"], false);
+    assert!(revoke_event.0 < accepted["task_acceptance"]["sequence"].as_u64().unwrap());
+    assert!(!all.iter().any(|(_, e)| matches!(
+        e["kind"].as_str(),
+        Some(
+            "integration.queued"
+                | "integration.attempt_prepared"
+                | "integration.stage_dispatched"
+                | "integration.cas_observed"
+        )
+    )));
+    let count = |sql: &str| db.query_row(sql, [], |r| r.get::<_, i64>(0)).unwrap();
+    assert_eq!(count("SELECT count(*) FROM integration_policies"), 1);
+    assert_eq!(count("SELECT count(*) FROM integrations"), 0);
+    assert_eq!(count("SELECT count(*) FROM integration_attempts"), 0);
+    assert_eq!(count("SELECT count(*) FROM integration_ref_fences"), 0);
+    assert_eq!(count("SELECT count(*) FROM attempts"), 1);
+    assert_eq!(
+        count("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'"),
+        0
+    );
+    assert_eq!(
+        count("SELECT count(*) FROM workspace_leases WHERE holder!=''"),
+        0
+    );
+    for scope in [
+        format!(
+            "root:{}",
+            policy["bindings"]["root_task_id"].as_str().unwrap()
+        ),
+        format!(
+            "project:{}",
+            policy["bindings"]["project_id"].as_str().unwrap()
+        ),
+    ] {
+        let counters: (i64, i64) = db
+            .query_row(
+                "SELECT consumed,active FROM budgets WHERE scope=?1",
+                [scope],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(counters, (1, 0));
+    }
+    drop(db);
+    // Recover the actual original consumed proposal's revision. The private
+    // finalizer may return its immutable original approval receipt; this does
+    // not mutate current revoked authority or grant a new integration start.
+    let image = f.server.image();
+    let historical = private_owner(&f.server, &original_proposal);
+    assert_eq!(historical, policy);
+    assert_eq!(f.server.image(), image);
+    let current = rpc(
+        &f.server,
+        "integration_policies.get",
+        json!({"policy_id":policy_id}),
+        None,
+        None,
+    );
+    assert_eq!(current, revoked);
+    let after_history=f.server.request(json!({"method":"integrations.start","params":{"policy_id":policy_id},"expected_revision":current["revision"],"idempotency_key":"history-is-not-a-live-permission"}));
+    assert_eq!(after_history["error"]["code"], "AUTH_REQUIRED");
+    assert_eq!(after_history["error"]["side_effect_state"], "not_started");
+    assert_eq!(f.server.image(), image);
+    assert_eq!(integration_meter_image(&f.server), meter_before_acceptance);
+    let graph_after = rpc(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":f.graph["run"]["id"]}),
+        None,
+        None,
+    );
+    assert_eq!(graph_after["task_accepted"], true);
+    for field in [
+        "run",
+        "candidates",
+        "validations",
+        "owner_decisions",
+        "task_acceptance",
+    ] {
+        assert_eq!(graph_after[field], accepted[field]);
+    }
+    let grants = rpc(
+        &f.server,
+        "grants.list",
+        json!({"project_id":policy["bindings"]["project_id"]}),
+        None,
+        None,
+    );
+    let matching = grants
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|g| g["id"] == f.grant["id"])
+        .collect::<Vec<_>>();
+    assert_eq!(matching.len(), 1);
+    assert_eq!(matching[0]["revoked"], false);
+    assert_eq!(
+        git(&f.project_root, &["rev-parse", TARGET]),
+        f.initial_target
+    );
+    assert_eq!(source_image(&f.source()), before_source);
+    assert_eq!(source_image(&f.project_root), before_project);
+}
