@@ -7,6 +7,7 @@ No fake result from these controls is used as runtime/stop/Owner acceptance.
 import ast
 import copy
 import hashlib
+import importlib.util
 import io
 import json
 import os
@@ -447,9 +448,15 @@ class ChildGoalTimingTests(unittest.TestCase):
     def test_wire_timing_survives_success_backend_and_capture_failures(self):
         path,runtime=self.nodes()
         observed=next(n for n in ast.walk(runtime)if isinstance(n,ast.ClassDef)and n.name=='ObservedHost')
+        # The extracted class closes over this real, bounded diagnostic object
+        # in runtime_driver. Supply the same dependency without importing the
+        # browser harness or changing any original timing/failure assertions.
+        spec=importlib.util.spec_from_file_location('_wire_timing_diagnostics',ROOT/'scripts/record-child-goal-ci-evidence.py')
+        diagnostics=importlib.util.module_from_spec(spec);spec.loader.exec_module(diagnostics)
         for fault in ('none','backend','capture'):
             with self.subTest(fault=fault):
                 slots=[];finished=[];failed=[];ticks=iter((10,20,30,40));sent=[]
+                finite=diagnostics.FiniteRuntimeDiagnostics()
                 reply={'result':{'unit':'unchanged'}};raw=b'original unit bytes'
                 class Host:
                     def wire(self,call):
@@ -466,7 +473,7 @@ class ChildGoalTimingTests(unittest.TestCase):
                 def fail(slot,error,stage):failed.append({**slot,'stage':stage})
                 ns={'base':SimpleNamespace(PrivateHost=Host),'time':SimpleNamespace(monotonic_ns=lambda:next(ticks)),
                     'FixedCall':lambda method,params,key,revision:SimpleNamespace(method=method,params=params,key=key,revision=revision),
-                    'wire_recorder':SimpleNamespace(begin=begin,finish=finish,failed=fail)}
+                    'wire_recorder':SimpleNamespace(begin=begin,finish=finish,failed=fail),'finite':finite}
                 exec(compile(ast.Module(body=[observed],type_ignores=[]),str(path),'exec'),ns)
                 call=SimpleNamespace(method='unit-fixed',params={'a':1},key='unit-key',revision=7)
                 if fault=='none':self.assertEqual(ns['ObservedHost']().wire(call),(reply,raw))
@@ -477,6 +484,10 @@ class ChildGoalTimingTests(unittest.TestCase):
                 evidence=(failed if fault=='backend'else finished)[0]
                 self.assertIs(evidence['timing_ns'],slots[0]['timing_ns'])
                 self.assertEqual(evidence['timing_ns']['finished'],40)
+                observation=finite.snapshot()['core_replies']
+                self.assertEqual(observation['observation'],'unobserved'if fault=='backend'else 'observed')
+                self.assertEqual(observation['captured_count'],None if fault=='backend'else 1)
+                self.assertEqual(observation['errors'],None if fault=='backend'else [])
 
     def test_phase_stamps_are_finite_private_clock_metadata(self):
         path,runtime=self.nodes();phase=next(n for n in runtime.body if isinstance(n,ast.FunctionDef)and n.name=='phase_stamp')
