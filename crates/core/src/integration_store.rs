@@ -49,6 +49,13 @@ impl crate::storage::Store {
     /// Strict read-only domain counts. Missing/malformed schema is an error,
     /// never a fabricated zero; FactoryRecordCounts remains unchanged.
     pub fn integration_record_counts(&self) -> Result<super::IntegrationRecordCounts> {
-        self.conn.query_row("SELECT (SELECT count(*) FROM integration_policies),(SELECT count(*) FROM integrations),(SELECT count(*) FROM integration_attempts),(SELECT count(*) FROM integration_ref_fences)",[],|r|Ok(super::IntegrationRecordCounts{policies:r.get(0)?,runs:r.get(1)?,attempts:r.get(2)?,ref_fences:r.get(3)?})).map_err(db_error)
+        let counts: [i64; 4] = self.conn.query_row("SELECT (SELECT count(*) FROM integration_policies),(SELECT count(*) FROM integrations),(SELECT count(*) FROM integration_attempts),(SELECT count(*) FROM integration_ref_fences)",[],|r|Ok([r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?])).map_err(db_error)?;
+        let convert = |value| u64::try_from(value).map_err(|_| super::authority::changed());
+        Ok(super::IntegrationRecordCounts {
+            policies: convert(counts[0])?,
+            runs: convert(counts[1])?,
+            attempts: convert(counts[2])?,
+            ref_fences: convert(counts[3])?,
+        })
     }
 }

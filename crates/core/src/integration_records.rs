@@ -11,10 +11,12 @@ use serde_json::{json, Value};
 use uuid::Uuid;
 
 pub(super) fn sequence(db: &Connection) -> Result<u64> {
-    db.query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| {
-        r.get(0)
-    })
-    .map_err(db_error)
+    let value: i64 = db
+        .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| {
+            r.get(0)
+        })
+        .map_err(db_error)?;
+    u64::try_from(value).map_err(|_| changed())
 }
 pub(super) fn event<T: Serialize>(
     db: &Connection,

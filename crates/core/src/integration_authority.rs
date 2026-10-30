@@ -3,7 +3,7 @@ use super::*;
 use crate::{
     policy::ExecutionGrant,
     registry::{ManagedWorkspace, Project},
-    storage::{db_error, decode, encode, Task},
+    storage::{db_error, decode, Task},
     CoreError, Result,
 };
 use rusqlite::{Connection, OptionalExtension};
