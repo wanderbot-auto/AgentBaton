@@ -62,7 +62,7 @@ def historical_targets(job):
 BROWSER_CI_BASE_SHA256 = '599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc'
 BROWSER_CI_STEPS = (
     ('Actual integration frontend with real Core IPC and generated correctness', 27,
-     'e7ee9d2c663f107b0660125901a0060017ea2ab7a535c61d86828efdadb9d748'),
+     'a1db5e7447f25ac6dd8f7a3fff8005e071971cb75c0aee109ace816b23ece680'),
     ('Retain finite integration browser evidence without private runtime data', 28,
      '3065cc48dea7cb751aebea051ff9f8d84f4b0c090d003161ddb770043c34a431'),
 )

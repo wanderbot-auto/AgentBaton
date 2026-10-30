@@ -17,12 +17,12 @@
     "docs/execution/integration-browser-ci/EVIDENCE.json"
   ],
   "source_sha256": {
-    ".github/workflows/product.yml": "fa5626a558cf2dd9dd21da82cddb119f72ebe83bde34ed09c9eebf52ec26b4b0",
+    ".github/workflows/product.yml": "d57073b8b9e923228cf7329a1a7ceae5ee75ee088a9e77c777a48e88805db974",
     "apps/desktop/tests/integration-real-ipc.py": "1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e",
     "scripts/record-integration-browser-ci-evidence.py": "4329a748b5cf941ad97a8db0c4bdbdd885547eddd63d126d3611f52b37ee1c41",
     "tests/infrastructure/test_integration_browser_ci_evidence.py": "a3967a5fcfe44b86a08435b415fb67003bc286a40ddee5c7535da5757e4e30fd",
-    "tests/infrastructure/test_integration_browser_ci.py": "77d4fe1f0dbec6a57584ce2d1bb119b731ed3c158b722a3f9736ad7bf33afad9",
-    "tests/infrastructure/test_schema17_migration_workflow.py": "f73881d04affe3681fbcfd66cf89bf74d32523d50050b77d9aea199e88cab8aa",
+    "tests/infrastructure/test_integration_browser_ci.py": "119c758b93ffd6c505cd3e97a3ba67bd7cb9eeba7ce7f4160f2fb4198842bb67",
+    "tests/infrastructure/test_schema17_migration_workflow.py": "43466892e839881a5eab13a671b461caa1da5530a7e35080c1229d27fde1b323",
     "tests/infrastructure/test_integration_native_ci.py": "484b153886d6751df77821385a57990cddb2dba16a3e889846b619a06cce9725"
   },
   "old_driver_tests_unchanged": {
@@ -92,11 +92,18 @@
       "passed": 94,
       "failed": 0,
       "seconds": 2.668
+    },
+    {
+      "scope": "private setup traceback review closure; old94 included",
+      "tests": 97,
+      "passed": 97,
+      "failed": 0,
+      "seconds": 3.084
     }
   ],
   "counts": {
-    "final_unique_pure_tests": 94,
-    "passed": 94,
+    "final_unique_pure_tests": 97,
+    "passed": 97,
     "failed": 0,
     "author_actual_product_or_CI_runs": 0
   },
@@ -166,7 +173,32 @@
     }
   ],
   "new_block_sha256": [
-    "e7ee9d2c663f107b0660125901a0060017ea2ab7a535c61d86828efdadb9d748",
+    "a1db5e7447f25ac6dd8f7a3fff8005e071971cb75c0aee109ace816b23ece680",
     "3065cc48dea7cb751aebea051ff9f8d84f4b0c090d003161ddb770043c34a431"
-  ]
+  ],
+  "previous_source_sha256_37114a4": {
+    ".github/workflows/product.yml": "fa5626a558cf2dd9dd21da82cddb119f72ebe83bde34ed09c9eebf52ec26b4b0",
+    "apps/desktop/tests/integration-real-ipc.py": "1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e",
+    "scripts/record-integration-browser-ci-evidence.py": "4329a748b5cf941ad97a8db0c4bdbdd885547eddd63d126d3611f52b37ee1c41",
+    "tests/infrastructure/test_integration_browser_ci_evidence.py": "a3967a5fcfe44b86a08435b415fb67003bc286a40ddee5c7535da5757e4e30fd",
+    "tests/infrastructure/test_integration_browser_ci.py": "77d4fe1f0dbec6a57584ce2d1bb119b731ed3c158b722a3f9736ad7bf33afad9",
+    "tests/infrastructure/test_schema17_migration_workflow.py": "f73881d04affe3681fbcfd66cf89bf74d32523d50050b77d9aea199e88cab8aa",
+    "tests/infrastructure/test_integration_native_ci.py": "484b153886d6751df77821385a57990cddb2dba16a3e889846b619a06cce9725"
+  },
+  "setup_traceback_p2": {
+    "old_source": "37114a4199405d6352ff3996c34b9375234859de",
+    "finding": "setup except-pass lost exception despite comment; no actual CI failure is claimed",
+    "file": "RUNNER_TEMP private root/setup-error.traceback.txt",
+    "max_utf8_bytes": 16384,
+    "captured_locals": false,
+    "mode": "0600",
+    "nofollow": true,
+    "exclusive_create": true,
+    "fsync": true,
+    "console_or_public_fields": false,
+    "logging_write_failure": "propagates; finally writes original failed/unobserved status; no overwrite",
+    "new_inert_pure_test_functions": 3,
+    "old_budget_timeout_publisher_semantics_changed": false,
+    "independent_closure": "PENDING"
+  }
 }

@@ -134,6 +134,8 @@ class DriverWrapper(unittest.TestCase):
         namespace['source_driver']=lambda:module
         namespace['chromium_path']=lambda:chromium
         def probe(*args):
+            private_local_value='LOCAL_ONLY_VALUE_MUST_NOT_BE_CAPTURED'
+            if isinstance(probe_error,Exception):raise probe_error
             if probe_error:raise ValueError(SECRET)
         namespace['actual_schema_probe']=probe
         def run(command,**kwargs):
@@ -157,6 +159,7 @@ class DriverWrapper(unittest.TestCase):
             private=temporary/'agentbaton-integration-browser-ci'
             status=json.loads((private/'status.json').read_text());self.assertEqual(status,{'source':HEAD,'driver_exit':0,'probe_passed':True})
             self.assertEqual(stat.S_IMODE(private.stat().st_mode),0o700)
+            self.assertFalse((private/'setup-error.traceback.txt').exists())
             for name in ['driver.log','status.json','candidate.json','frontend-build-record.json']:
                 self.assertEqual(stat.S_IMODE((private/name).stat().st_mode),0o600)
             for name in ('batond','baton'):
@@ -172,6 +175,48 @@ class DriverWrapper(unittest.TestCase):
                 if probe_error:self.assertEqual(calls,[]);self.assertIs(value['probe_passed'],False)
                 if isinstance(exit_code,Exception):self.assertIsNone(value['driver_exit'])
                 self.assertNotIn(SECRET,json.dumps(value))
+
+    def test_setup_exception_retains_bounded_utf8_traceback_privately_without_locals_or_console(self):
+        code,_=program(RUN,'INTEGRATION_BROWSER')
+        with fixture() as (root,temporary,chromium):
+            import io
+            stdout,stderr=io.StringIO(),io.StringIO()
+            with contextlib.redirect_stdout(stdout),contextlib.redirect_stderr(stderr):
+                result,calls=self.run_fake(code,root,chromium,probe_error=RuntimeError('private setup '+('雪😀'*10000)))
+            self.assertEqual(result,1);self.assertEqual(calls,[])
+            private=temporary/'agentbaton-integration-browser-ci';path=private/'setup-error.traceback.txt';raw=path.read_bytes()
+            self.assertGreater(len(raw),0);self.assertLessEqual(len(raw),16384);raw.decode('utf-8')
+            self.assertIn(b'RuntimeError',raw);self.assertNotIn(b'LOCAL_ONLY_VALUE_MUST_NOT_BE_CAPTURED',raw)
+            self.assertEqual(stat.S_IMODE(path.stat().st_mode),0o600)
+            self.assertEqual(path.stat().st_nlink,1);self.assertEqual(stdout.getvalue(),'');self.assertEqual(stderr.getvalue(),'')
+            self.assertEqual(json.loads((private/'status.json').read_text()),{'source':HEAD,'driver_exit':None,'probe_passed':False})
+
+    def test_copy_setup_exception_gets_private_traceback_and_unobserved_exit(self):
+        code,_=program(RUN,'INTEGRATION_BROWSER')
+        with fixture() as (root,temporary,chromium):
+            code['copy_tool']=mock.Mock(side_effect=OSError(SECRET))
+            result,calls=self.run_fake(code,root,chromium)
+            self.assertEqual(result,1);self.assertEqual(calls,[])
+            private=temporary/'agentbaton-integration-browser-ci'
+            self.assertIn(SECRET,(private/'setup-error.traceback.txt').read_text())
+            self.assertNotIn(SECRET,(private/'status.json').read_text())
+            self.assertIsNone(json.loads((private/'status.json').read_text())['driver_exit'])
+
+    def test_private_traceback_write_collision_or_symlink_cannot_be_swallowed_as_success(self):
+        for variant in ['existing','symlink']:
+            with self.subTest(variant=variant),fixture() as (root,temporary,chromium):
+                code,_=program(RUN,'INTEGRATION_BROWSER');private=temporary/'agentbaton-integration-browser-ci'
+                outside=root/'untouched';outside.write_text(SECRET);outside.chmod(0o600)
+                def fail_copy(*args):
+                    target=private/'setup-error.traceback.txt'
+                    if variant=='symlink':target.symlink_to(outside)
+                    else:target.write_text('original private evidence');target.chmod(0o600)
+                    raise OSError('setup failed before driver launch')
+                code['copy_tool']=fail_copy
+                with self.assertRaises(OSError):self.run_fake(code,root,chromium)
+                self.assertEqual(outside.read_text(),SECRET)
+                if variant=='existing':self.assertEqual((private/'setup-error.traceback.txt').read_text(),'original private evidence')
+                self.assertEqual(json.loads((private/'status.json').read_text()),{'source':HEAD,'driver_exit':None,'probe_passed':False})
 
     def test_private_root_reuse_refuses_without_overwriting_old_evidence(self):
         code,_=program(RUN,'INTEGRATION_BROWSER')

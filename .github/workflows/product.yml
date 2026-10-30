@@ -363,7 +363,7 @@ jobs:
           set -euo pipefail
           umask 077
           artifacts/browser-venv/bin/python - <<'INTEGRATION_BROWSER'
-          import asyncio, hashlib, importlib.util, json, os, pathlib, signal, stat, subprocess, sys, time
+          import asyncio, hashlib, importlib.util, json, os, pathlib, signal, stat, subprocess, sys, time, traceback
 
           def git(*args):
               return subprocess.check_output(['git', *args], text=True).strip()
@@ -484,9 +484,14 @@ jobs:
                           '--frontend', 'apps/desktop/dist', '--frontend-build-record', str(private / 'frontend-build-record.json'),
                           '--expected-source-head', source, '--chromium', str(chromium), '--output', str(private / 'driver'),
                       ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
-              except Exception:
-                  # Full errors/logs stay private; an unobserved exit never becomes zero.
-                  pass
+              except Exception as error:
+                  # Bounded traceback only, never locals or public diagnostics.
+                  raw = ''.join(traceback.TracebackException.from_exception(error, capture_locals=False).format()).encode('utf-8', 'backslashreplace')
+                  raw = raw[:16384].decode('utf-8', 'ignore').encode('utf-8')
+                  with os.fdopen(os.open(private / 'setup-error.traceback.txt', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      log.write(raw)
+                      log.flush()
+                      os.fsync(log.fileno())
               finally:
                   private_json(private / 'status.json', status)
               return 0 if type(status['driver_exit']) is int and status['driver_exit'] == 0 and status['probe_passed'] is True else 1
