@@ -174,7 +174,6 @@ pub(crate) enum IntegrationReadIntent {
     Context(IntegrationContextQuery),
     Proposal(IntegrationPolicySelection),
     Finalize { proposal_id: String, revision: u64 },
-    Start { policy_id: String, revision: u64 },
     Stage(super::runtime::IntegrationStageReadRef),
 }
 pub(crate) struct IntegrationReadPlan {
@@ -301,19 +300,6 @@ impl Store {
                     let policy = records::policy(&self.conn, &reference.policy_id)?;
                     (policy.selection.task_id, policy.selection.goal_scope_id)
                 }
-                IntegrationReadIntent::Start {
-                    policy_id,
-                    revision,
-                } => {
-                    let p = records::policy(&self.conn, policy_id)?;
-                    if p.revision != *revision {
-                        return Err(CoreError::new(
-                            "STALE_REVISION",
-                            "Integration policy changed",
-                        ));
-                    }
-                    (p.selection.task_id, p.selection.goal_scope_id)
-                }
             };
             key(&task)?;
             key(&scope)?;
@@ -329,14 +315,6 @@ impl Store {
             let mut queries = projection(&self.conn, &material, &mut remaining)?;
             if let IntegrationReadIntent::Finalize { proposal_id, .. } = &intent {
                 queries.push(QueryProof::capture(&self.conn,"SELECT json_array(document,COALESCE(result,'null')) AS value FROM approval_proposals WHERE id=?1",vec![proposal_id.clone()],&mut remaining)?);
-            }
-            if let IntegrationReadIntent::Start { policy_id, .. } = &intent {
-                queries.push(QueryProof::capture(
-                    &self.conn,
-                    "SELECT document AS value FROM integration_policies WHERE id=?1",
-                    vec![policy_id.clone()],
-                    &mut remaining,
-                )?);
             }
             if let IntegrationReadIntent::Stage(reference) = &intent {
                 for (sql, id) in [
@@ -674,9 +652,6 @@ impl IntegrationReadPlan {
                             .map_err(|_| changed())?
                             .intent,
                     )
-                }
-                IntegrationReadIntent::Start { policy_id, .. } => {
-                    Some(records::policy(&reader.conn, policy_id)?.selection)
                 }
                 IntegrationReadIntent::Stage(reference) => {
                     let mut selection =
