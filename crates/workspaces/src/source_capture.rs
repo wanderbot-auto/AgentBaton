@@ -1,0 +1,770 @@
+//! Host-selected accepted files to raw Git objects. No acceptance, integration,
+//! ref, checkout, remote or original-index authority is granted by this module.
+use crate::{
+    bounded_output, git_command, is_oid, open_root_without_symlinks,
+    validation::{sha256, valid_id, BoundArtifact},
+    WorkspaceError, WorkspaceIdentity, WorkspaceKind,
+};
+use std::{
+    collections::BTreeSet,
+    fs::{self, File, OpenOptions},
+    io::Write,
+    os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt},
+    path::{Component, Path, PathBuf},
+    process::Command,
+    sync::atomic::{AtomicU64, Ordering},
+    time::{Duration, Instant},
+};
+
+pub const MAX_SELECTED_FILES: usize = 256;
+pub const MAX_SELECTED_BYTES: u64 = 64 * 1024 * 1024;
+const MAX_PATH_BYTES: usize = 4096;
+static NEXT_SCRATCH: AtomicU64 = AtomicU64::new(0);
+
+/// Private host capability, not an Owner/TaskAccepted verifier. The host must
+/// authenticate the accepted receipt and independent integration policy first.
+/// There is deliberately no Deserialize/Clone implementation.
+pub struct AuthorizedSourceCapture {
+    root: PathBuf,
+    root_fd: File,
+    git_dir: PathBuf,
+    git_fd: File,
+    common_dir: PathBuf,
+    common_fd: File,
+    base: String,
+    selected: Vec<BoundArtifact>,
+    selection_digest: String,
+    selection_ref: String,
+    approval_ref: String,
+    commit_time: u64,
+    deadline: Instant,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SelectedSourceDigest {
+    pub artifact_id: String,
+    pub relative_path: PathBuf,
+    pub sha256: String,
+    pub bytes: u64,
+    pub mode: String,
+}
+/// Observed object result, never an acceptance, Grant or adoption receipt.
+/// No Deserialize path can reconstruct a trusted capture result.
+pub struct CapturedSourceCommit {
+    commit: String,
+    tree: String,
+    base: String,
+    selection_digest: String,
+    selected: Vec<SelectedSourceDigest>,
+}
+impl CapturedSourceCommit {
+    pub fn commit(&self) -> &str {
+        &self.commit
+    }
+    pub fn tree(&self) -> &str {
+        &self.tree
+    }
+    pub fn base(&self) -> &str {
+        &self.base
+    }
+    pub fn selection_digest(&self) -> &str {
+        &self.selection_digest
+    }
+    pub fn selected(&self) -> &[SelectedSourceDigest] {
+        &self.selected
+    }
+}
+fn same_identity(a: &fs::Metadata, b: &fs::Metadata) -> bool {
+    a.dev() == b.dev() && a.ino() == b.ino()
+}
+fn safe_path(path: &Path) -> bool {
+    let Some(text) = path.to_str() else {
+        return false;
+    };
+    if text.is_empty()
+        || !text.is_ascii()
+        || text.len() > MAX_PATH_BYTES
+        || text.chars().any(char::is_control)
+    {
+        return false;
+    }
+    if path.components().any(|c| !matches!(c, Component::Normal(n) if !n.as_encoded_bytes().eq_ignore_ascii_case(b".git"))) { return false; }
+    // Components must not normalize aliases (double separators or dot segments).
+    path.components().collect::<PathBuf>().as_os_str() == path.as_os_str()
+}
+fn oid(bytes: Vec<u8>) -> Result<String, WorkspaceError> {
+    let s = String::from_utf8(bytes).map_err(|_| WorkspaceError::InvalidPath)?;
+    let s = s.trim_end_matches('\n');
+    if !is_oid(s) {
+        return Err(WorkspaceError::NotRepository);
+    }
+    Ok(s.into())
+}
+fn check_deadline(deadline: Instant) -> Result<(), WorkspaceError> {
+    if Instant::now() >= deadline {
+        return Err(WorkspaceError::ResourceLimit);
+    }
+    Ok(())
+}
+fn text_output(deadline: Instant, command: &mut Command) -> Result<Vec<u8>, WorkspaceError> {
+    check_deadline(deadline)?;
+    let output = bounded_output(command)?;
+    check_deadline(deadline)?;
+    if !output.status.success() {
+        return Err(WorkspaceError::Git("source capture rejected".into()));
+    }
+    Ok(output.stdout)
+}
+fn git_path(deadline: Instant, root: &Path, arg: &str) -> Result<PathBuf, WorkspaceError> {
+    let raw = text_output(
+        deadline,
+        git_command(root).args(["rev-parse", "--path-format=absolute", arg]),
+    )?;
+    let text = String::from_utf8(raw).map_err(|_| WorkspaceError::InvalidPath)?;
+    let text = text.strip_suffix('\n').ok_or(WorkspaceError::InvalidPath)?;
+    if text.len() > MAX_PATH_BYTES || text.chars().any(char::is_control) {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let p = PathBuf::from(text);
+    if fs::canonicalize(&p)? != p {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    Ok(p)
+}
+fn no_alternates(deadline: Instant, common: &Path) -> Result<(), WorkspaceError> {
+    // No external loose-object directories, pack links or alternate stores.
+    // The scan is metadata-only and globally bounded, never silently truncated.
+    let objects = common.join("objects");
+    let _objects = open_root_without_symlinks(&objects)?;
+    let mut count = 0usize;
+    for entry in fs::read_dir(&objects)? {
+        check_deadline(deadline)?;
+        count += 1;
+        if count > 65_536 {
+            return Err(WorkspaceError::ResourceLimit);
+        }
+        let entry = entry?;
+        let name = entry.file_name();
+        let bytes = name.as_encoded_bytes();
+        if bytes != b"info"
+            && bytes != b"pack"
+            && !(bytes.len() == 2 && bytes.iter().all(u8::is_ascii_hexdigit))
+        {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+        let _dir = open_root_without_symlinks(&entry.path())?;
+        for child in fs::read_dir(entry.path())? {
+            check_deadline(deadline)?;
+            count += 1;
+            if count > 65_536 {
+                return Err(WorkspaceError::ResourceLimit);
+            }
+            let child = child?;
+            if bytes == b"info"
+                && matches!(
+                    child.file_name().as_encoded_bytes(),
+                    b"alternates" | b"http-alternates"
+                )
+            {
+                return Err(WorkspaceError::UnsafeRepository);
+            }
+            let meta = fs::symlink_metadata(child.path())?;
+            if !meta.is_file() || meta.nlink() != 1 {
+                return Err(WorkspaceError::UnsafeRepository);
+            }
+        }
+    }
+    Ok(())
+}
+
+fn audit(deadline: Instant, command: &mut Command) -> Result<(), WorkspaceError> {
+    let raw = text_output(
+        deadline,
+        command.args(["config", "--no-includes", "--null", "--list"]),
+    )?;
+    if !raw.is_empty() && raw.last() != Some(&0) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    for entry in raw.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+        let key = entry.split(|b| *b == b'\n').next().unwrap_or_default();
+        if key == b"include.path"
+            || (key.starts_with(b"includeif.") && key.ends_with(b".path"))
+            || key.starts_with(b"filter.")
+            || key.starts_with(b"merge.")
+            || key == b"extensions.partialclone"
+            || (key.starts_with(b"remote.") && key.ends_with(b".promisor"))
+        {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+    }
+    Ok(())
+}
+impl AuthorizedSourceCapture {
+    pub fn from_verified_selection(
+        workspace: &WorkspaceIdentity,
+        expected_base: String,
+        selected: Vec<BoundArtifact>,
+        commit_time_unix: u64,
+        selection_ref: String,
+        approval_ref: String,
+    ) -> Result<Self, WorkspaceError> {
+        // The same deadline includes host construction, queued handoff and all
+        // stages; consuming the capability never refreshes it.
+        let deadline = Instant::now() + Duration::from_secs(15);
+        if selected.is_empty() || selected.len() > MAX_SELECTED_FILES {
+            return Err(WorkspaceError::TooLarge);
+        }
+        if !valid_id(&selection_ref)
+            || !valid_id(&approval_ref)
+            || !is_oid(&expected_base)
+            || commit_time_unix > u32::MAX as u64
+        {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        let WorkspaceKind::Git {
+            common_dir, head, ..
+        } = &workspace.kind
+        else {
+            return Err(WorkspaceError::NotRepository);
+        };
+        if head != &expected_base {
+            return Err(WorkspaceError::StaleHead);
+        }
+        let mut ids = BTreeSet::new();
+        let mut paths = BTreeSet::new();
+        // Reject count/path/cap errors before reading any selected file.
+        for a in &selected {
+            check_deadline(deadline)?;
+            let v = a.contract_view();
+            if v.canonical_root != workspace.canonical_root
+                || (v.root_device, v.root_inode) != (workspace.device, workspace.inode)
+                || !safe_path(&v.requirement.relative_path)
+                || !valid_id(&v.requirement.artifact_id)
+                || v.requirement.max_bytes == 0
+                || v.requirement.max_bytes > MAX_SELECTED_BYTES
+                || !v
+                    .requirement
+                    .expected_sha256
+                    .as_deref()
+                    .is_some_and(crate::validation::valid_hash)
+                || !ids.insert(v.requirement.artifact_id)
+                || !paths.insert(
+                    v.requirement
+                        .relative_path
+                        .to_string_lossy()
+                        .to_ascii_lowercase(),
+                )
+            {
+                return Err(WorkspaceError::InvalidPath);
+            }
+        }
+        for path in &paths {
+            for parent in Path::new(path)
+                .ancestors()
+                .skip(1)
+                .filter(|p| !p.as_os_str().is_empty())
+            {
+                if paths.contains(parent.to_str().ok_or(WorkspaceError::InvalidPath)?) {
+                    return Err(WorkspaceError::InvalidPath);
+                }
+            }
+        }
+        let root_fd = open_root_without_symlinks(&workspace.canonical_root)?;
+        let root_meta = root_fd.metadata()?;
+        if (root_meta.dev(), root_meta.ino()) != (workspace.device, workspace.inode) {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        audit(deadline, &mut git_command(&workspace.canonical_root))?;
+        let git_dir = git_path(deadline, &workspace.canonical_root, "--absolute-git-dir")?;
+        if git_path(deadline, &workspace.canonical_root, "--git-common-dir")? != *common_dir {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        let git_fd = open_root_without_symlinks(&git_dir)?;
+        let common_fd = open_root_without_symlinks(common_dir)?;
+        no_alternates(deadline, common_dir)?;
+        let mut result = Self {
+            root: workspace.canonical_root.clone(),
+            root_fd,
+            git_dir,
+            git_fd,
+            common_dir: common_dir.clone(),
+            common_fd,
+            base: expected_base,
+            selected,
+            selection_digest: String::new(),
+            selection_ref,
+            approval_ref,
+            commit_time: commit_time_unix,
+            deadline,
+        };
+        result.selection_digest = result.current_selection_digest()?;
+        result.recheck()?;
+        Ok(result)
+    }
+    fn current_selection_digest(&self) -> Result<String, WorkspaceError> {
+        let views: Vec<_> = self
+            .selected
+            .iter()
+            .map(BoundArtifact::contract_view)
+            .collect();
+        let common = self.common_fd.metadata()?;
+        let git = self.git_fd.metadata()?;
+        let binding = serde_json::to_vec(&(
+            "agentbaton.source-capture.v1",
+            &self.selection_ref,
+            &self.approval_ref,
+            &self.base,
+            self.commit_time,
+            &views,
+            &self.git_dir,
+            (git.dev(), git.ino()),
+            &self.common_dir,
+            (common.dev(), common.ino()),
+        ))
+        .map_err(|_| WorkspaceError::InvalidPath)?;
+        Ok(sha256(&binding))
+    }
+    fn command(&self) -> Command {
+        let mut c = git_command(&self.root);
+        c.arg("--git-dir").arg(&self.git_dir).args([
+            "-c",
+            "commit.gpgsign=false",
+            "-c",
+            "i18n.commitEncoding=UTF-8",
+        ]);
+        c
+    }
+    fn recheck(&self) -> Result<(), WorkspaceError> {
+        let deadline = self.deadline;
+        check_deadline(deadline)?;
+        if self.current_selection_digest()? != self.selection_digest {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        for (p, fd) in [
+            (&self.root, &self.root_fd),
+            (&self.git_dir, &self.git_fd),
+            (&self.common_dir, &self.common_fd),
+        ] {
+            let current = open_root_without_symlinks(p)?.metadata()?;
+            if !same_identity(&current, &fd.metadata()?) {
+                return Err(WorkspaceError::InvalidPath);
+            }
+        }
+        audit(deadline, &mut self.command())?;
+        no_alternates(deadline, &self.common_dir)?;
+        if git_path(deadline, &self.root, "--show-toplevel")? != self.root
+            || git_path(deadline, &self.root, "--absolute-git-dir")? != self.git_dir
+            || git_path(deadline, &self.root, "--git-common-dir")? != self.common_dir
+        {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        if oid(text_output(
+            deadline,
+            self.command()
+                .args(["rev-parse", "--verify", "HEAD^{commit}"]),
+        )?)? != self.base
+        {
+            return Err(WorkspaceError::StaleHead);
+        }
+        Ok(())
+    }
+}
+fn check_base_paths(capture: &AuthorizedSourceCapture) -> Result<(), WorkspaceError> {
+    let deadline = capture.deadline;
+    let raw = text_output(
+        deadline,
+        capture
+            .command()
+            .args(["ls-tree", "-r", "-z", "--name-only", capture.base.as_str()]),
+    )?;
+    let mut count = 0usize;
+    let selected: Vec<_> = capture
+        .selected
+        .iter()
+        .map(|a| a.contract_view().requirement.relative_path)
+        .collect();
+    for entry in raw.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+        check_deadline(deadline)?;
+        count += 1;
+        if count > 65_536 {
+            return Err(WorkspaceError::ResourceLimit);
+        }
+        let text = std::str::from_utf8(entry).map_err(|_| WorkspaceError::InvalidPath)?;
+        // This slice supports ASCII paths only. Reject the whole base when a
+        // Unicode entry could alias an ASCII selection on a normalizing host.
+        if !safe_path(Path::new(text)) {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        for path in &selected {
+            let wanted = path.to_str().ok_or(WorkspaceError::InvalidPath)?;
+            let base_parts: Vec<_> = text.split('/').collect();
+            let wanted_parts: Vec<_> = wanted.split('/').collect();
+            for (base, wanted) in base_parts.iter().zip(&wanted_parts) {
+                if base.eq_ignore_ascii_case(wanted) && base != wanted {
+                    return Err(WorkspaceError::InvalidPath);
+                }
+                if base != wanted {
+                    break;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+struct Scratch {
+    root: PathBuf,
+    identity: fs::Metadata,
+}
+impl Scratch {
+    fn create(capture: &AuthorizedSourceCapture) -> Result<Self, WorkspaceError> {
+        let parent = fs::canonicalize(std::env::temp_dir())?;
+        let _parent = open_root_without_symlinks(&parent)?;
+        if parent.starts_with(&capture.root) || parent.starts_with(&capture.common_dir) {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        for _ in 0..16 {
+            let name = format!(
+                "agentbaton-source-{}-{}-{}",
+                std::process::id(),
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map_err(|_| WorkspaceError::InvalidPath)?
+                    .as_nanos(),
+                NEXT_SCRATCH.fetch_add(1, Ordering::Relaxed)
+            );
+            let root = parent.join(name);
+            match fs::DirBuilder::new().mode(0o700).create(&root) {
+                Ok(()) => {
+                    let identity = open_root_without_symlinks(&root)?.metadata()?;
+                    return Ok(Self { root, identity });
+                }
+                Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {}
+                Err(e) => return Err(e.into()),
+            }
+        }
+        Err(WorkspaceError::ResourceLimit)
+    }
+    fn check(&self) -> Result<(), WorkspaceError> {
+        if !same_identity(
+            &open_root_without_symlinks(&self.root)?.metadata()?,
+            &self.identity,
+        ) {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        Ok(())
+    }
+}
+
+/// Build only raw objects; failures may leave unreferenced objects and a private
+/// scratch directory for host reconciliation. Never recursively removes files.
+pub fn capture_source_commit(
+    capture: AuthorizedSourceCapture,
+) -> Result<CapturedSourceCommit, WorkspaceError> {
+    let deadline = capture.deadline;
+    capture.recheck()?;
+    check_base_paths(&capture)?;
+    let scratch = Scratch::create(&capture)?;
+    let index = scratch.root.join("index");
+    let mut selected = Vec::with_capacity(capture.selected.len());
+    let mut total = 0u64;
+    let mut blobs = Vec::new();
+    for (i, a) in capture.selected.iter().enumerate() {
+        check_deadline(deadline)?;
+        let v = a.contract_view();
+        let remaining = MAX_SELECTED_BYTES
+            .checked_sub(total)
+            .ok_or(WorkspaceError::TooLarge)?;
+        let mut narrowed = v.clone();
+        narrowed.requirement.max_bytes = narrowed.requirement.max_bytes.min(remaining.max(1));
+        let bytes = BoundArtifact::from_verified_contract(&narrowed)
+            .map_err(|_| WorkspaceError::InvalidPath)?
+            .read()?;
+        check_deadline(deadline)?;
+        total = total
+            .checked_add(bytes.len() as u64)
+            .ok_or(WorkspaceError::TooLarge)?;
+        if total > MAX_SELECTED_BYTES {
+            return Err(WorkspaceError::TooLarge);
+        }
+        let digest = sha256(&bytes);
+        if Some(digest.as_str()) != v.requirement.expected_sha256.as_deref() {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        check_deadline(deadline)?;
+        scratch.check()?;
+        let raw = scratch.root.join(format!("blob-{i}"));
+        let mut f = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .custom_flags(libc::O_NOFOLLOW | libc::O_CLOEXEC)
+            .open(&raw)?;
+        f.write_all(&bytes)?;
+        f.sync_all()?;
+        capture.recheck()?;
+        let before = f.metadata()?;
+        let blob = oid(text_output(
+            deadline,
+            capture
+                .command()
+                .args(["hash-object", "-w", "--no-filters", "--"])
+                .arg(&raw),
+        )?)?;
+        let raw_check = crate::validation::BoundArtifact::from_approved_root(
+            &scratch.root,
+            crate::validation::ArtifactRequirement {
+                artifact_id: "private-raw".into(),
+                relative_path: PathBuf::from(format!("blob-{i}")),
+                max_bytes: MAX_SELECTED_BYTES,
+                expected_sha256: Some(digest.clone()),
+            },
+        )
+        .map_err(|_| WorkspaceError::InvalidPath)?;
+        let raw_bytes = raw_check.read()?;
+        check_deadline(deadline)?;
+        let after = fs::symlink_metadata(&raw)?;
+        if !same_identity(&before, &after)
+            || after.nlink() != 1
+            || after.mode() & 0o777 != 0o600
+            || sha256(&raw_bytes) != digest
+        {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        blobs.push((v, blob));
+        selected.push(SelectedSourceDigest {
+            artifact_id: a.contract_view().requirement.artifact_id,
+            relative_path: a.contract_view().requirement.relative_path,
+            sha256: digest,
+            bytes: bytes.len() as u64,
+            mode: String::new(),
+        });
+    }
+    scratch.check()?;
+    text_output(
+        deadline,
+        capture
+            .command()
+            .env("GIT_INDEX_FILE", &index)
+            .args(["read-tree", capture.base.as_str()]),
+    )?;
+    // An index cannot represent every possible raw Git tree (for example an
+    // explicit empty subtree). Refuse instead of silently dropping base data.
+    let original_tree = oid(text_output(
+        deadline,
+        capture.command().args([
+            "rev-parse",
+            "--verify",
+            &format!("{}^{{tree}}", capture.base),
+        ]),
+    )?)?;
+    let roundtrip_tree = oid(text_output(
+        deadline,
+        capture
+            .command()
+            .env("GIT_INDEX_FILE", &index)
+            .args(["write-tree"]),
+    )?)?;
+    if original_tree != roundtrip_tree {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    for ((v, blob), s) in blobs.iter().zip(selected.iter_mut()) {
+        let path = &v.requirement.relative_path;
+        let listing = text_output(
+            deadline,
+            capture
+                .command()
+                .args([
+                    "--literal-pathspecs",
+                    "ls-tree",
+                    "-z",
+                    capture.base.as_str(),
+                    "--",
+                ])
+                .arg(path),
+        )?;
+        let mode = if listing.is_empty() {
+            "100644"
+        } else {
+            let mut rows = listing.split(|b| *b == 0).filter(|r| !r.is_empty());
+            let row = rows.next().ok_or(WorkspaceError::InvalidPath)?;
+            if rows.next().is_some() {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            let tab = row
+                .iter()
+                .position(|b| *b == b'\t')
+                .ok_or(WorkspaceError::InvalidPath)?;
+            let header = &row[..tab];
+            let found = &row[tab + 1..];
+            if found != path.as_os_str().as_encoded_bytes() {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            if header.starts_with(b"100644 blob ") {
+                "100644"
+            } else if header.starts_with(b"100755 blob ") {
+                "100755"
+            } else {
+                return Err(WorkspaceError::NotRegularFile);
+            }
+        };
+        // --add cannot overwrite a parent tree/symlink/gitlink. Missing nested
+        // paths below non-tree entries must fail, not remove those entries.
+        for parent in path
+            .ancestors()
+            .skip(1)
+            .filter(|p| !p.as_os_str().is_empty())
+        {
+            let entry = text_output(
+                deadline,
+                capture
+                    .command()
+                    .args([
+                        "--literal-pathspecs",
+                        "ls-tree",
+                        "-z",
+                        capture.base.as_str(),
+                        "--",
+                    ])
+                    .arg(parent),
+            )?;
+            if !entry.is_empty() && !entry.starts_with(b"040000 tree ") {
+                return Err(WorkspaceError::InvalidPath);
+            }
+        }
+        scratch.check()?;
+        text_output(
+            deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["update-index", "--add", "--cacheinfo", mode, blob.as_str()])
+                .arg(path),
+        )?;
+        s.mode = mode.into();
+    }
+    let tree = oid(text_output(
+        deadline,
+        capture
+            .command()
+            .env("GIT_INDEX_FILE", &index)
+            .args(["write-tree"]),
+    )?)?;
+    // Re-read all approved bytes after object creation. A prior successful read
+    // or serialized contract is not fresh evidence after replacement/drift.
+    for (a, s) in capture.selected.iter().zip(&selected) {
+        check_deadline(deadline)?;
+        let bytes = a.read()?;
+        check_deadline(deadline)?;
+        if bytes.len() as u64 != s.bytes || sha256(&bytes) != s.sha256 {
+            return Err(WorkspaceError::InvalidPath);
+        }
+    }
+    capture.recheck()?;
+    let date = format!("@{} +0000", capture.commit_time);
+    let commit = oid(text_output(
+        deadline,
+        capture
+            .command()
+            .env("GIT_AUTHOR_NAME", "AgentBaton")
+            .env("GIT_AUTHOR_EMAIL", "development@agentbaton.invalid")
+            .env("GIT_COMMITTER_NAME", "AgentBaton")
+            .env("GIT_COMMITTER_EMAIL", "development@agentbaton.invalid")
+            .env("GIT_AUTHOR_DATE", &date)
+            .env("GIT_COMMITTER_DATE", &date)
+            .args([
+                "commit-tree",
+                tree.as_str(),
+                "-p",
+                capture.base.as_str(),
+                "-m",
+                "AgentBaton accepted selected source",
+            ]),
+    )?)?;
+    capture.recheck()?;
+    for (a, s) in capture.selected.iter().zip(&selected) {
+        check_deadline(deadline)?;
+        let bytes = a.read()?;
+        check_deadline(deadline)?;
+        if bytes.len() as u64 != s.bytes || sha256(&bytes) != s.sha256 {
+            return Err(WorkspaceError::InvalidPath);
+        }
+    }
+    scratch.check()?;
+    check_deadline(deadline)?;
+    // No cleanup on failure, and no recursive cleanup even on success. The host
+    // may retain/reconcile this private scratch; it contains no authority token.
+    Ok(CapturedSourceCommit {
+        commit,
+        tree,
+        base: capture.base,
+        selection_digest: capture.selection_digest,
+        selected,
+    })
+}
+
+#[cfg(test)]
+mod deadline_tests {
+    use super::*;
+
+    #[test]
+    fn expired_private_capture_rejects_before_any_scratch_or_object_write() {
+        // Real generated Git setup, then a test-local expired deadline. No
+        // production knob or sleep can renew/shorten a host capability.
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        let git = |args: &[&str]| {
+            let output = Command::new("git")
+                .arg("--no-optional-locks")
+                .arg("-C")
+                .arg(&root)
+                .args(args)
+                .env("GIT_CONFIG_GLOBAL", "/dev/null")
+                .env("GIT_CONFIG_NOSYSTEM", "1")
+                .output()
+                .unwrap();
+            assert!(output.status.success());
+            String::from_utf8(output.stdout).unwrap().trim().to_owned()
+        };
+        git(&["init", "-b", "source"]);
+        git(&["config", "user.name", "Generated fixture"]);
+        git(&["config", "user.email", "fixture@example.invalid"]);
+        fs::write(root.join("file"), b"base\n").unwrap();
+        git(&["add", "file"]);
+        git(&["commit", "-m", "base"]);
+        let workspace = crate::inspect(&root).unwrap();
+        let base = git(&["rev-parse", "HEAD"]);
+        let artifact = BoundArtifact::from_approved_root(
+            &root,
+            crate::validation::ArtifactRequirement {
+                artifact_id: "file".into(),
+                relative_path: "file".into(),
+                max_bytes: 32,
+                expected_sha256: Some(sha256(b"base\n")),
+            },
+        )
+        .unwrap();
+        let mut capture = AuthorizedSourceCapture::from_verified_selection(
+            &workspace,
+            base.clone(),
+            vec![artifact],
+            1_700_000_000,
+            "selection".into(),
+            "owner-policy".into(),
+        )
+        .unwrap();
+        let index = fs::read(root.join(".git/index")).unwrap();
+        let refs = git(&["show-ref"]);
+        let objects = git(&["count-objects", "-v"]);
+        capture.deadline = Instant::now() - Duration::from_millis(1);
+        assert!(matches!(
+            capture_source_commit(capture),
+            Err(WorkspaceError::ResourceLimit)
+        ));
+        assert_eq!(fs::read(root.join(".git/index")).unwrap(), index);
+        assert_eq!(git(&["show-ref"]), refs);
+        assert_eq!(git(&["count-objects", "-v"]), objects);
+        assert_eq!(git(&["rev-parse", "HEAD"]), base);
+        assert_eq!(fs::read(root.join("file")).unwrap(), b"base\n");
+    }
+}
