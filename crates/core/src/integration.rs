@@ -22,6 +22,9 @@ pub(crate) use authority::{
 mod approval;
 #[path = "integration_budget.rs"]
 mod budget;
+#[path = "integration_runtime.rs"]
+mod runtime;
+pub(crate) use runtime::{IntegrationQueueResult, IntegrationStageTicket};
 #[path = "integration_workers.rs"]
 mod workers;
 pub(crate) use budget::{accounting_records, IntegrationAccounting};
