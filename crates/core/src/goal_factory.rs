@@ -1362,27 +1362,81 @@ pub(crate) fn accepted_stop(db: &Connection, id: &str) -> Result<bool> {
     capability(db, &r)?;
     Ok(graph::stopped_graph(db, &r)?.is_some())
 }
+/// Private same-handler result, never a wire error-code exception or approval.
+pub(crate) enum FactoryGoalFailureStatus {
+    Pending,
+    Confirmed,
+    RetainedOverrun(FactoryGoalRetainedOverrun),
+}
+
+/// Constructed only after genuine stopped-failure proof and successful budget
+/// reads. Missing/corrupt/oversize/unauthorized evidence remains an ordinary Err.
+pub(crate) struct FactoryGoalRetainedOverrun {
+    goal: GoalRun,
+    factory_scope_id: String,
+}
+impl FactoryGoalRetainedOverrun {
+    pub(crate) fn recheck(
+        &self,
+        db: &Connection,
+        scope_id: &str,
+        task_id: &str,
+        goal_id: &str,
+    ) -> Result<()> {
+        let current = run(db, goal_id)?;
+        let record = checked_record(db, goal_id)?;
+        if self.factory_scope_id != scope_id
+            || record.origin.factory_scope_id != scope_id
+            || current.id != self.goal.id
+            || current.task_id != task_id
+            || current.revision != self.goal.revision
+            || current.plan_revision != self.goal.plan_revision
+            || current.plan_digest != self.goal.plan_digest
+            || current.root_grant_id != self.goal.root_grant_id
+            || current.project_id != self.goal.project_id
+            || current.cancel_requested
+            || current.task_accepted
+            || !matches!(current.state.as_str(), "blocked" | "failed")
+            || graph::stopped_failure(db, &current)?.is_none()
+            || !retained_overrun(db, &current.root_grant_id, &current.project_id)?
+        {
+            return Err(changed());
+        }
+        Ok(())
+    }
+}
 impl Store {
-    pub(crate) fn confirm_factory_child_goal_failure(&mut self, id: &str) -> Result<bool> {
+    pub(crate) fn confirm_factory_child_goal_failure(
+        &mut self,
+        id: &str,
+    ) -> Result<FactoryGoalFailureStatus> {
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
         let mut r = run(&tx, id)?;
         if !marked_run(&tx, id)? {
-            return Ok(false);
+            return Ok(FactoryGoalFailureStatus::Pending);
         }
         let confirmed:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.factory_failure_confirmed' AND json_extract(document,'$.payload.plan_revision')=?2)",params![r.id,sql_num(r.plan_revision)?],|row|row.get(0)).map_err(db_error)?;
         if confirmed {
             verify_confirmed_failure(&tx, &r)?;
-            return Ok(true);
+            return Ok(FactoryGoalFailureStatus::Confirmed);
         }
         let Some(proof) = graph::stopped_failure(&tx, &r)? else {
-            return Ok(false);
+            return Ok(FactoryGoalFailureStatus::Pending);
         };
         // A joined outcome may still have exceeded an ancestor budget. Such
         // retained overruns do not become permission to start a fresh attempt.
-        refuse_retained_overrun(&tx, &r.root_grant_id, &r.project_id)?;
+        if retained_overrun(&tx, &r.root_grant_id, &r.project_id)? {
+            let record = checked_record(&tx, &r.id)?;
+            return Ok(FactoryGoalFailureStatus::RetainedOverrun(
+                FactoryGoalRetainedOverrun {
+                    goal: r,
+                    factory_scope_id: record.origin.factory_scope_id,
+                },
+            ));
+        }
         r.state = "failed".into();
         let revision = r.plan_revision;
         let digest = r.plan_digest.clone();
@@ -1393,7 +1447,7 @@ impl Store {
             json!({"plan_revision":revision,"plan_digest":digest,"proof":proof,"proof_digest":sha(&proof)?,"task_accepted":false,"reservation_refunded":false}),
         )?;
         tx.commit().map_err(db_error)?;
-        Ok(true)
+        Ok(FactoryGoalFailureStatus::Confirmed)
     }
 }
 

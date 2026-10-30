@@ -2463,7 +2463,8 @@ pub(crate) use runtime::factory::session_root as factory_goal_session_root;
 
 pub(crate) use runtime::factory::{
     reserve_rework as reserve_factory_child_goal_rework,
-    verify_planner_recovery as verify_factory_child_goal_recovery,
+    verify_planner_recovery as verify_factory_child_goal_recovery, FactoryGoalFailureStatus,
+    FactoryGoalRetainedOverrun,
 };
 
 pub(crate) use runtime::factory::request_stop as request_factory_child_goal_stop;
