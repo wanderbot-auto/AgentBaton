@@ -682,3 +682,227 @@ mod raw_ancestry_tests {
         assert_eq!(fs::read(root.join(".git/index")).unwrap(), index_before);
     }
 }
+
+/// Private control-aware output. A known joined exit status is retained even
+/// when cancellation races completion; the write caller decides its meaning.
+pub(crate) struct ControlledGitOutput {
+    pub(crate) output: Output,
+    pub(crate) interrupted: bool,
+}
+pub(crate) fn controlled_output(
+    command: &mut Command,
+    control: &adoption::AdoptionControl<'_>,
+) -> Result<ControlledGitOutput, WorkspaceError> {
+    control.check()?;
+    let mut child = command
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+    let stdout = child.stdout.take().expect("piped stdout");
+    let stderr = child.stderr.take().expect("piped stderr");
+    let read = |stream: Box<dyn Read + Send>| -> io::Result<Vec<u8>> {
+        let mut bytes = Vec::new();
+        stream.take(4_194_305).read_to_end(&mut bytes)?;
+        Ok(bytes)
+    };
+    let out = match std::thread::Builder::new()
+        .name("integration-git-out".into())
+        .spawn(move || read(Box::new(stdout)))
+    {
+        Ok(thread) => thread,
+        Err(error) => {
+            let _ = child.kill();
+            let _ = child.wait();
+            return Err(WorkspaceError::Io(error));
+        }
+    };
+    let err = match std::thread::Builder::new()
+        .name("integration-git-err".into())
+        .spawn(move || read(Box::new(stderr)))
+    {
+        Ok(thread) => thread,
+        Err(error) => {
+            let _ = child.kill();
+            let _ = child.wait();
+            let _ = out.join();
+            return Err(WorkspaceError::Io(error));
+        }
+    };
+    let deadline = control
+        .deadline()
+        .min(Instant::now() + Duration::from_secs(15));
+    let mut interrupted = false;
+    let mut first_error = None;
+    let status = loop {
+        match child.try_wait() {
+            Ok(Some(status)) => break Some(status),
+            Ok(None) => (),
+            Err(error) => {
+                first_error = Some(error);
+                interrupted = true;
+                let _ = child.kill();
+                break child.wait().ok();
+            }
+        }
+        if control.check().is_err() || Instant::now() >= deadline {
+            interrupted = true;
+            let _ = child.kill();
+            break match child.wait() {
+                Ok(status) => Some(status),
+                Err(error) => {
+                    first_error = Some(error);
+                    None
+                }
+            };
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    };
+    // Always consume both actual readers before returning an observation.
+    let stdout = out.join().map_err(|_| WorkspaceError::ResourceLimit);
+    let stderr = err.join().map_err(|_| WorkspaceError::ResourceLimit);
+    if let Some(error) = first_error {
+        return Err(WorkspaceError::Io(error));
+    }
+    let stdout = stdout??;
+    let stderr = stderr??;
+    if stdout.len() > 4_194_304 || stderr.len() > 4_194_304 {
+        return Err(WorkspaceError::ResourceLimit);
+    }
+    Ok(ControlledGitOutput {
+        output: Output {
+            status: status.ok_or(WorkspaceError::ResourceLimit)?,
+            stdout,
+            stderr,
+        },
+        interrupted,
+    })
+}
+
+/// Git-only inspection under one original monotonic control. The ordinary
+/// public inspect API is unchanged. Every existing safety predicate is retained.
+pub(crate) fn inspect_controlled(
+    root: &Path,
+    control: &adoption::AdoptionControl<'_>,
+) -> Result<WorkspaceIdentity, WorkspaceError> {
+    control.check()?;
+    let canonical_root = fs::canonicalize(root)?;
+    let metadata = fs::metadata(&canonical_root)?;
+    if !metadata.is_dir() {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let run = |args: &[&str]| -> Result<Output, WorkspaceError> {
+        control.check()?;
+        let observation = controlled_output(git_command(&canonical_root).args(args), control)?;
+        control.check()?;
+        if observation.interrupted {
+            return Err(WorkspaceError::ResourceLimit);
+        }
+        Ok(observation.output)
+    };
+    let config = run(&["config", "--no-includes", "--null", "--list"])?;
+    if !config.status.success() || (!config.stdout.is_empty() && config.stdout.last() != Some(&0)) {
+        return Err(WorkspaceError::NotRepository);
+    }
+    for record in config.stdout.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+        let key = record.split(|b| *b == b'\n').next().unwrap_or_default();
+        if key == b"include.path"
+            || (key.starts_with(b"includeif.")
+                && key.ends_with(b".path")
+                && key.len() >= b"includeif.".len() + b".path".len())
+            || key == b"extensions.partialclone"
+            || (key.starts_with(b"remote.")
+                && key.ends_with(b".promisor")
+                && key.len() >= b"remote.".len() + b".promisor".len())
+            || key.starts_with(b"filter.")
+        {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+    }
+    let batch = run(&[
+        "rev-parse",
+        "--path-format=absolute",
+        "--show-toplevel",
+        "--git-common-dir",
+        "--verify",
+        "HEAD^{commit}",
+    ])?;
+    let parsed = if batch.status.success() {
+        let text = String::from_utf8(batch.stdout).map_err(|_| WorkspaceError::InvalidPath)?;
+        let fields = text.lines().collect::<Vec<_>>();
+        if fields.len() == 3 && is_oid(fields[2]) {
+            Some((
+                fs::canonicalize(fields[0])?,
+                fields[2].to_owned(),
+                fs::canonicalize(fields[1])?,
+            ))
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    let (top, head, common_dir) = if let Some(fields) = parsed {
+        fields
+    } else {
+        let text = |args: &[&str]| -> Result<String, WorkspaceError> {
+            let output = run(args)?;
+            if !output.status.success() {
+                return Err(WorkspaceError::NotRepository);
+            }
+            String::from_utf8(output.stdout)
+                .map(|s| s.trim().to_owned())
+                .map_err(|_| WorkspaceError::InvalidPath)
+        };
+        (
+            fs::canonicalize(text(&["rev-parse", "--show-toplevel"])?)?,
+            text(&["rev-parse", "--verify", "HEAD^{commit}"])?,
+            fs::canonicalize(text(&[
+                "rev-parse",
+                "--path-format=absolute",
+                "--git-common-dir",
+            ])?)?,
+        )
+    };
+    if top != canonical_root || !is_oid(&head) {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let entries = run(&["ls-files", "--cached", "--stage", "-v", "-z"])?;
+    if !entries.status.success() {
+        return Err(WorkspaceError::NotRepository);
+    }
+    let mut submodules = false;
+    for entry in entries.stdout.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+        if entry.len() < 3 || entry[1] != b' ' || entry[0].is_ascii_lowercase() || entry[0] == b'S'
+        {
+            return Err(WorkspaceError::UnverifiedIndex);
+        }
+        submodules |= entry[2..].starts_with(b"160000 ");
+    }
+    let sparse = run(&["config", "--bool", "--get", "core.sparseCheckout"])?;
+    if (sparse.status.success() && sparse.stdout != b"false\n")
+        || (!sparse.status.success() && sparse.status.code() != Some(1))
+    {
+        return Err(WorkspaceError::UnverifiedIndex);
+    }
+    let status = run(&[
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all",
+        "--ignore-submodules=all",
+    ])?;
+    if !status.status.success() {
+        return Err(WorkspaceError::NotRepository);
+    }
+    control.check()?;
+    Ok(WorkspaceIdentity {
+        canonical_root,
+        device: metadata.dev(),
+        inode: metadata.ino(),
+        kind: WorkspaceKind::Git {
+            common_dir,
+            head,
+            dirty: submodules || !status.stdout.is_empty(),
+        },
+    })
+}

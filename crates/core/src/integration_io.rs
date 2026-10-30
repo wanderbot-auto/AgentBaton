@@ -452,10 +452,13 @@ impl IntegrationPreparedContext {
         let evidence = validate_artifacts(&rule, inputs, outputs, None).map_err(|_| changed())?;
         let acceptance = evidence.accept(&rule).map_err(|_| changed())?;
         guard.check()?;
-        let receipt = agentbaton_workspaces::adoption::adopt_local_reference(
+        let control =
+            agentbaton_workspaces::adoption::AdoptionControl::for_request(&guard.cancel, deadline);
+        let receipt = agentbaton_workspaces::adoption::adopt_local_reference_controlled(
             &self.candidate,
             &evidence,
             &acceptance,
+            &control,
         )
         .map_err(|_| changed())?;
         Ok((self, receipt))
