@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "base": "796bb90907fa1510281525b1076d4e5592ad93c6",
+  "source": "1ce5640994ca067204c48cb0168276111e782473",
+  "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+  "source_sha256": "14b340de9b0c32f016e54321e24ad300cb38cd12b9375d12204046f45bb0049b",
+  "state": "source_only",
+  "production_changes": false,
+  "static": {
+    "path": "/workspace/.onboarding/unicode-core-resume-source1/STATIC.json",
+    "sha256": "b7e1947e2a1f65358844354b173ec874aa738d0851961c6017dc3e14cfd202f8",
+    "checks": 36,
+    "all_pass": true,
+    "dimension": "source conservation only"
+  },
+  "author_checks": [
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --check crates/core/tests/fixtures/integration_runtime.rs",
+      "exit": 0,
+      "dimension": "source formatting only"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "dimension": "source whitespace only"
+    }
+  ],
+  "preserved": {
+    "original_fixture_test_bodies": 12,
+    "other_integration_ipc_entry_tests": 2,
+    "default_provider_body": "byte-exact",
+    "original_budget_and_stage_limits": true,
+    "old_approval_and_acceptance_helpers": "byte-exact",
+    "original_business_test_bodies": "byte-exact",
+    "production_source_api_schema_permissions": "unchanged"
+  },
+  "new_test_source_names": [
+    "unicode_accepted_artifact_fresh_command_and_exact_cas_preserve_raw_utf8_path",
+    "unicode_accepted_artifact_replaced_inode_is_refused_without_validator_or_cas"
+  ],
+  "expected_total_integration_ipc_cases": 16,
+  "expected_is_not_actual_result": true,
+  "not_run": [
+    "Cargo compilation",
+    "new Unicode IPC cases",
+    "full integration_ipc",
+    "strictClippy",
+    "independent source review",
+    "actual browser",
+    "Native OS Owner dialog",
+    "Apple Silicon macOS",
+    "Intel macOS",
+    "live Provider/model calls"
+  ],
+  "not_claimed": [
+    "full product Unicode coverage",
+    "whole requirement acceptance",
+    "alias behavior on unobserved filesystems",
+    "production sandbox guarantee",
+    "new fee/authority/retry",
+    "background continuation"
+  ]
+}
