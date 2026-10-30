@@ -237,5 +237,7 @@
       }
     ],
     "evidence": "/workspace/.onboarding/accepted-source-capture-empty-tree-fixed-5ccb526/SOURCE_AND_EVIDENCE.json"
-  }
+  },
+  "root_actual_results": "ROOT_GIT_CAPTURE_RESULTS.json",
+  "root_actual_source_attribution": "Full147Rust+7docs actually source0720. Finalaed differs only two equivalent test-hex iterators; original1 rerun at695, new5 rerun atfinalaed, finalfmt/strictworkspacealltargetsClippy actually finalaed. No finalaed full147 rerun claimed. All production methods remain byte-equal5ccb."
 }

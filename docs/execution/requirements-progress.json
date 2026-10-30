@@ -217,18 +217,21 @@
         "crates/workspaces/src/lib.rs",
         "crates/core/src/registry.rs",
         "crates/core/src/ipc.rs",
-        "apps/desktop/src/Projects.tsx"
+        "apps/desktop/src/Projects.tsx",
+        "crates/workspaces/src/source_capture.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "host_accepted_file_Git_capture_partial": "0720actual147Rust+7compilefaildocs inclnew18; finalaed5/fmt/strictClippy pass after2equivalenttestonlysyntax fixes. Originalemptytree12/1+diag0/1/fixed1+5/13 evidence retained. Libraryonly: noCore/native/adoptionRPC/wholeVAL009/Mac."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/accepted-source-capture/ROOT_GIT_CAPTURE_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -247,7 +250,8 @@
         "crates/workspaces/src/lib.rs",
         "crates/core/src/registry.rs",
         "crates/core/src/ipc.rs",
-        "apps/desktop/src/Projects.tsx"
+        "apps/desktop/src/Projects.tsx",
+        "crates/workspaces/src/source_capture.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -256,7 +260,8 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial",
-        "schema16_parent_34f_composed": "bc10 actualFactory30/Core156/infra235/sameheadFE+Corebuilt/6realIPC8PNG PASS; nestedhelperexcluded, originalfailures retained. No own16CI/Mac/native/package acceptance; partial."
+        "schema16_parent_34f_composed": "bc10 actualFactory30/Core156/infra235/sameheadFE+Corebuilt/6realIPC8PNG PASS; nestedhelperexcluded, originalfailures retained. No own16CI/Mac/native/package acceptance; partial.",
+        "host_accepted_file_Git_capture_partial": "0720actual147Rust+7compilefaildocs inclnew18; finalaed5/fmt/strictClippy pass after2equivalenttestonlysyntax fixes. Originalemptytree12/1+diag0/1/fixed1+5/13 evidence retained. Libraryonly: noCore/native/adoptionRPC/wholeVAL009/Mac."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -267,7 +272,8 @@
         "docs/execution/task-workspace-integration/EVIDENCE.json",
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
+        "docs/execution/accepted-source-capture/ROOT_GIT_CAPTURE_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -6891,7 +6897,8 @@
         "crates/workspaces/src/command_validation.rs",
         "crates/core/src/command_validation.rs",
         "crates/core/src/command_workers.rs",
-        "apps/desktop/src/CommandValidation.tsx"
+        "apps/desktop/src/CommandValidation.tsx",
+        "crates/workspaces/src/source_capture.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -6899,7 +6906,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
+        "host_accepted_file_Git_capture_partial": "0720actual147Rust+7compilefaildocs inclnew18; finalaed5/fmt/strictClippy pass after2equivalenttestonlysyntax fixes. Originalemptytree12/1+diag0/1/fixed1+5/13 evidence retained. Libraryonly: noCore/native/adoptionRPC/wholeVAL009/Mac."
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -6919,7 +6927,8 @@
         "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
         "docs/execution/command-core/REVIEW.md",
         "docs/execution/command-integration/EVIDENCE.json",
-        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
+        "docs/execution/accepted-source-capture/ROOT_GIT_CAPTURE_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",

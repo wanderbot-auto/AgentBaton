@@ -1,0 +1,492 @@
+{
+  "recorded_at": "2026-10-30T04:53:28.808547+00:00",
+  "head_before_metadata": "d8c80d448076bcd8e98ae1422babc330faae13f8",
+  "base_WSIPR19": "0644ea9d8c10d075fef6b139bd9d7d363d5cc4fb",
+  "base_composition": "0644merged afteraed, only its8 independently reviewed metadata files; no product source changed",
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "approval": "AB-START-001",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "implementation": "Host-only non-Deserialize accepted-file selection to raw blobs/tree/commit; exact SHA256/length streaming of actual Git blobs; bounded final tree diff+structure; original index/files/refs untouched. Independent Owner/accepted receipt/branch authorization is a future Core caller responsibility, not minted here.",
+  "approved_limits": {
+    "selected_files": 256,
+    "selected_bytes": 67108864,
+    "original_global_deadline_ms": 15000,
+    "individual_Git_output_bytes": 4194304,
+    "tree_entries": 65536,
+    "ASCII_selected_and_entire_base_only": true,
+    "new_file_mode": "100644",
+    "existing_regular_mode": "preserve100644/100755",
+    "unsupported": "deletion/rename/chmod/special selected types/empty subtree/Unicode explicitly refuse; full design scope remains open"
+  },
+  "independent_reviews": {
+    "initial_278_changes_required": {
+      "review_sha256": "f478adad066086a7fa25e457174d74d6f9779f827affeb71cf1625e54845e7ee",
+      "manifest_sha256": "6e6f6657b47c0226ac419b9ddc848c66a0c49f6422115aed52cdba08b9d55682",
+      "dimension": "independent source/pure and bounded checks of existing Root logs; no reviewer Rust/Git execution"
+    },
+    "49_two_original_P1_closed_empty_case_open": {
+      "review_sha256": "2c84bd25bc66ec145c08b3c4b865de3a1cdc1884d71a32cfd664d6ed349cc882",
+      "manifest_sha256": "2e15c9360a6aab994e20aa67784cdc7451d1305e80feecf819e49e29a8a40a3a",
+      "dimension": "independent source/pure and bounded checks of existing Root logs; no reviewer Rust/Git execution"
+    },
+    "5ccb_empty_tree_source_and_new18": {
+      "review_sha256": "21553a0167f74600d4fc5192581909613ba6b455642a9330e6fd8d282e4ee3a2",
+      "manifest_sha256": "463c4eefa7321b951dc7ddf49c1e59cb82594c38edb47c571118df4f7959a1c3",
+      "dimension": "independent source/pure and bounded checks of existing Root logs; no reviewer Rust/Git execution"
+    },
+    "final_aed_syntax_and_existing_actual_logs": {
+      "review_sha256": "28e8dc13dfec1b5a83ed5f62bd50162bd3c9f03adfa79b378ecba9f7ebe2fdcf",
+      "manifest_sha256": "5bc7c77010ed3088c8652978d63209f1c5b0420765ede22f8863a3ac03f518ce",
+      "dimension": "independent source/pure and bounded checks of existing Root logs; no reviewer Rust/Git execution"
+    }
+  },
+  "actual_commands": {
+    "unit1": {
+      "source": "8e5c12fb043a9c88d6d2b15e485b62b79f308013",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--lib",
+        "source_capture",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 5.115975070017157,
+      "minimum_free_bytes": 231477248,
+      "interruption": null,
+      "log_sha256": "b5a02d5775054c243b5b199bc58ae82fa5fb9ed594bb4e42bb8855da85eb9be4",
+      "summaries": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 1.25s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "integration1": {
+      "source": "8e5c12fb043a9c88d6d2b15e485b62b79f308013",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--test",
+        "source_capture",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 10.527987985988148,
+      "minimum_free_bytes": 233496576,
+      "interruption": null,
+      "log_sha256": "28644cecae5c7f12087e91bbaf8a177a86807415d5fc2b0e304f9b6385302e61",
+      "summaries": [
+        "test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.89s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "empty-tree-diagnostic1": {
+      "source": "caf405d7e3fc25183cc3cf5cad0147031aac67c4",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--test",
+        "source_capture",
+        "unrepresentable_empty_base_subtree_is_rejected_instead_of_silently_removed",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 1.0027466380270198,
+      "minimum_free_bytes": 219762688,
+      "interruption": null,
+      "log_sha256": "44cde6747c04a5dddebfc362c3ed0c10343c43fae59f588bfae8f9caf113c6d4",
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.58s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "empty-tree-fixed1": {
+      "source": "0720b554e773ebc58c091c02afbaa4f07122e1be",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--test",
+        "source_capture",
+        "unrepresentable_empty_base_subtree_is_rejected_instead_of_silently_removed",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 2.60908204401494,
+      "minimum_free_bytes": 219201536,
+      "interruption": null,
+      "log_sha256": "1c434d841da990fc28010f23c5e8f580c4941f599cc752869c0fa3404011fa29",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.24s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "unit2": {
+      "source": "0720b554e773ebc58c091c02afbaa4f07122e1be",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--lib",
+        "source_capture",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 3.813922603992978,
+      "minimum_free_bytes": 214208512,
+      "interruption": null,
+      "log_sha256": "d6096136ae6f063843df413c6b9504b41e356dca0886ed25604ff09d73777b2b",
+      "summaries": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 1.32s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "integration2": {
+      "source": "0720b554e773ebc58c091c02afbaa4f07122e1be",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--test",
+        "source_capture",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 7.820651949994499,
+      "minimum_free_bytes": 219607040,
+      "interruption": null,
+      "log_sha256": "7ab702ee819aa595bce3b8370847598d0e6cf9e9dd4cc2937bcc4d1d6f1a6bf7",
+      "summaries": [
+        "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.70s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "workspaces1": {
+      "source": "0720b554e773ebc58c091c02afbaa4f07122e1be",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 49.731534168007784,
+      "minimum_free_bytes": 303976448,
+      "interruption": null,
+      "log_sha256": "63cb7f8b425b88c03b12208a3022050dedd7bd5cd96a6e0185d95b85a77e4995",
+      "summaries": [
+        "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.93s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 1.66s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.31s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.31s",
+        "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.90s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s",
+        "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+        "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s",
+        "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.27s",
+        "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.73s",
+        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.69s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "clippy1": {
+      "source": "0720b554e773ebc58c091c02afbaa4f07122e1be",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 101,
+      "seconds": 2.0070822020061314,
+      "minimum_free_bytes": 304840704,
+      "interruption": null,
+      "log_sha256": "64f25c8c67648ca44676acf59069bb0d1d7e5a9c8b827271506d1d67013194a4",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "format1": {
+      "source": "69536b31793f37acbc1b2fd983dd2649e4c53d4a",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.2039253760012798,
+      "minimum_free_bytes": 304979968,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "empty-tree-fixed2": {
+      "source": "69536b31793f37acbc1b2fd983dd2649e4c53d4a",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--test",
+        "source_capture",
+        "unrepresentable_empty_base_subtree_is_rejected_instead_of_silently_removed",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 0.6016252650006209,
+      "minimum_free_bytes": 304488448,
+      "interruption": null,
+      "log_sha256": "ef101bd429e542142e6e26562eab1615828770b18c04080346147994f51886b2",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.22s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "clippy2": {
+      "source": "69536b31793f37acbc1b2fd983dd2649e4c53d4a",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 101,
+      "seconds": 13.66089004999958,
+      "minimum_free_bytes": 304467968,
+      "interruption": null,
+      "log_sha256": "ef4723369b41b85fb302dd1ce4fe44eea191b0c60142c23ed0b1849de6b6b3f7",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "unit3": {
+      "source": "aed431827b2da4979df620052a1926ea1b629f84",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--lib",
+        "source_capture",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 3.310895545000676,
+      "minimum_free_bytes": 298975232,
+      "interruption": null,
+      "log_sha256": "022cc3a5ee914d8c9f140d93d5162468c02ac26cadb06a3a69d6d1493791a8a4",
+      "summaries": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 1.32s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "format2": {
+      "source": "aed431827b2da4979df620052a1926ea1b629f84",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.2030953229987063,
+      "minimum_free_bytes": 304398336,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "clippy3": {
+      "source": "aed431827b2da4979df620052a1926ea1b629f84",
+      "root": "/workspace/.worktrees/accepted-source-capture",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 12.941336691990728,
+      "minimum_free_bytes": 303689728,
+      "interruption": null,
+      "log_sha256": "0365816b85ef01f9f2795656809a6dd553685e8dc27e7d2beaebf8636014c474",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "unique_counts_by_dimension": {
+    "new_private_unit": 5,
+    "new_generated_Git_integration": 13,
+    "new18_included_in_full147": true,
+    "all_workspaces_unique_Rust": 147,
+    "all_workspaces_outer_targets": [
+      16,
+      28,
+      24,
+      21,
+      5,
+      23,
+      13,
+      17
+    ],
+    "nested_helpers_not_added": 4,
+    "compile_fail_docs_separately": 7,
+    "targeted_empty_tree_case_included_in13_not_added": true,
+    "not_a_sum": true
+  },
+  "source_attribution": "Full147Rust+7docs actually source0720. Finalaed differs only two equivalent test-hex iterators; original1 rerun at695, new5 rerun atfinalaed, finalfmt/strictworkspacealltargetsClippy actually finalaed. No finalaed full147 rerun claimed. All production methods remain byte-equal5ccb.",
+  "actual_failed_empty_tree": {
+    "original_49_integration": "actual12PASS1FAIL7.89s/exit101; exactUnsafeRepository expected, actualvariant initiallynotprinted",
+    "diagnostic_caf": "actual0PASS1FAIL12filtered/.58s/exit101; unexpectedOk; ownnewfixture retained onpanic",
+    "safe_post_failure_inspection": {
+      "source": "caf405d7e3fc25183cc3cf5cad0147031aac67c4",
+      "actual_result": "unexpected Ok; exact required UnsafeRepository refusal did not occur",
+      "read_only_git_inspection_only": true,
+      "trees": {
+        "base": {
+          "top_entry_count": 1,
+          "original_empty_subtree_present": true,
+          "selected_regular_file_present": false,
+          "raw_tree_listing_sha256": "770b9913ca6e24a1fdc6cf797216f905a04b437b92539ff13726ae1a5e947466"
+        },
+        "candidate": {
+          "top_entry_count": 1,
+          "original_empty_subtree_present": false,
+          "selected_regular_file_present": true,
+          "raw_tree_listing_sha256": "ceed028a2e72f9f122684006a3d8f1af333fe7c682d1d88df3b6894cb5ef8a04"
+        }
+      },
+      "original_empty_subtree_lost": true,
+      "original_refs_not_adopted": true,
+      "not_production_or_user_data": true
+    },
+    "private_inspection_report_sha256": "5fb6dcade766ee5836e9d2ba100c1a674027d362d9732c6ba4ce0edeb2db0e96",
+    "failed_full_ELF_sha256": "9d0b3b7be911971cd640347d1fe37f4ab0b0addd39b73807d215c66a4bd2d43b",
+    "failed_full_ELF_bytes": 2420456,
+    "preservation": "Fullsinglelink0500ELFcopy+gzip roundtrip/logs/exactsource retained; initial originalTempDir automatically cleaned onpanic, no originalrepo reconstruction claim. Subsequent diagnosticrepo retained untouched; privatepaths/rawtrees not published."
+  },
+  "fix": "Explicit bounded ls-tree -r-t-z mode/type/OID/path tree audit beforeScratch/anyobjects writes and again oncandidate rejects empty subtreesUnsafeRepository; originalindexroundtrip, diffallowlist, globaldeadline/caps remain. Original assertions preserved.",
+  "retained_source_findings": "278 rawA→B→A and finalindex foreign changes were source/pure ordinary-file findings, not Rust/Git product runs; fixed by actualblobstreamSHA/length and exact finaltree diff. Originalsealedreviews retained. ignoreSubmodules configuration risk was immediately narrowed to unprovenplumbing semantics; defensive fixedflag added, never reported as demonstrated oldbypass.",
+  "retained_Clippy_failures": "Two actual Rust1.99 chunks_exact_to_as_chunks errors in test-only hex loops, two separate101logs retained. Only fixed iterators to as_chunks::<2>().0; no allow/-Dwarnings relaxation; final strictalltargets Clippy passes.",
+  "no_adoption_or_execution_authority": [
+    "no originalindex/workfiles/refs/checkout/push mutations bycapture",
+    "no CoreRPC/Nativeapproval/Grant/DDL/schema changes inthisslice",
+    "no Provider/model/privatecredentials",
+    "no standalonebudget that bypasses future sharedroot/project accounting"
+  ],
+  "limitations": [
+    "No Core integrationpolicy/intent/fence/ownedworker/actualmergedcorrectness/CASunknown recovery is connected yet; TaskAccepted remains distinct fromIntegrationAccepted",
+    "Library from_verified_selection requires trustedhostpolicy, not a deserializedapproval verifier",
+    "ASCII-only and unsupported change kinds must be completed forfullVAL009; do not mark entire requirement complete",
+    "Private success/failure scratch retained; hostcleanup/retention not complete",
+    "FS/Git path pre/post pins are not an atomicOSsandbox against allsameUID externalmutation; regularI/O cannot be promised forciblyinterruptible",
+    "No Mac/native/remote/liveProvider verification or newinstaller claim"
+  ],
+  "CI": "Not run for thisfeature-onlybase; parentPR18 exact4344 Env3passed/Product4running at04:51 observation is not thisschema16/primitive CI proof",
+  "current_full_goal": "FullDesignv0.2/130 continues; primitive not fullVAL009/productcompletion",
+  "authority_unchanged": [
+    "no new paidresources/hosts/topups",
+    "no production/signing/notarization/finallicense",
+    "no formal GitHubApprove/current exactPR confirmation still required"
+  ],
+  "retained_metadata_helper_error": "Root generator initially missed sparse-tracked EVIDENCE.json. Partial local metadata commit2b0eb1e and initial exception/pathspec warnings retained privately; no product source/test result changed. Expanded only own JSON path, completed remaining four metadata writes, preserved original single history prefix and verified all93 hashes before any featurepush."
+}
