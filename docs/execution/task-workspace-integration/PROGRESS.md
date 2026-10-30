@@ -1,3 +1,11 @@
+## Reviewed Parent34f composition verified on schema16 — 2026-10-30T04:13:18.951553+00:00
+
+Exact bc10 keeps the reviewed Parent34f containment/Graph-service/fixture fixes and the Task schema16/default-entry recovery. Only STATUS/manifest conflicts needed explicit resolution; both histories and93 actual hashes are preserved. Independent source/merge audit is sealed (6226c9d3be91/6f3b9e32858b);2047 Git/source assertions are not product tests.
+
+Actual matched bc10: Factory30PASS106.49s, Core156PASS103.44s (nested helper excluded), infrastructure235PASS; actual same-head frontend/type and Core evidence-tool rebuilds pass. All6 real browser/UnixIPC paths pass9.039s with8 original PNGs, cleanupcomplete/daemonwait0 and unchanged assets/tools. Finite metadata publication is not an extra product pass; Root viewed original07. Explicit16 tools match immutable pins; generic runner INPUT15 is not the explicit16 execution. Prior1016/56 frontend tests and genuine14/15→16 migration results retain their own source attribution, productionTS/migrations unchanged.
+
+Parent34f remote is Environment3/UI/Rust/ARMpass, Intel original4000ms capture budget failure; wholeProductfailed. ARMartifact12953590846 is metadata-only here, not a verified installer and never schema16 evidence. Own exact16 CI/native/dual-Mac/audit/packages remain unrun. Later Root diagnostics are not composed. Full130/adoption/remote scope continues; OWNER001002ACK/main653679d and all authority boundaries unchanged. See PARENT_34F_COMPOSED_RESULTS.json.
+
 ## Default coding workspace entry and six actual paths — 2026-10-30T03:29:42.183153+00:00
 
 Fresh draft Git Tasks now enter their own isolated workspace preparation from execution setup. While preparation is unknown/pending, the original same-key recovery stays mounted through parent refresh and new Grant/session remain blocked; after explicit recovery, independent fresh Task/scope reads lock the recorded workspace. Other project kinds/historical views preserve their existing explicit behavior. Root old3counterexamplesFAIL and new3PASS are separately retained; fullNode1016/56 at363 and actualtype/build pass, with productionTS unchanged through this checkpoint. Independent293 review closes that P2.

@@ -1,3 +1,11 @@
+## Reviewed Parent34f composition verified on schema16 — 2026-10-30T04:13:18.951553+00:00
+
+Exact bc10 keeps the reviewed Parent34f containment/Graph-service/fixture fixes and the Task schema16/default-entry recovery. Only STATUS/manifest conflicts needed explicit resolution; both histories and93 actual hashes are preserved. Independent source/merge audit is sealed (6226c9d3be91/6f3b9e32858b);2047 Git/source assertions are not product tests.
+
+Actual matched bc10: Factory30PASS106.49s, Core156PASS103.44s (nested helper excluded), infrastructure235PASS; actual same-head frontend/type and Core evidence-tool rebuilds pass. All6 real browser/UnixIPC paths pass9.039s with8 original PNGs, cleanupcomplete/daemonwait0 and unchanged assets/tools. Finite metadata publication is not an extra product pass; Root viewed original07. Explicit16 tools match immutable pins; generic runner INPUT15 is not the explicit16 execution. Prior1016/56 frontend tests and genuine14/15→16 migration results retain their own source attribution, productionTS/migrations unchanged.
+
+Parent34f remote is Environment3/UI/Rust/ARMpass, Intel original4000ms capture budget failure; wholeProductfailed. ARMartifact12953590846 is metadata-only here, not a verified installer and never schema16 evidence. Own exact16 CI/native/dual-Mac/audit/packages remain unrun. Later Root diagnostics are not composed. Full130/adoption/remote scope continues; OWNER001002ACK/main653679d and all authority boundaries unchanged. See PARENT_34F_COMPOSED_RESULTS.json.
+
 ## Schema16 composed with reviewed parent34f — 2026-10-30T03:49:00.499612+00:00
 
 Parent34f typed retained-overrun containment, bounded Graph service and fixture fixes are now composed with Task schema16/default workspace recovery. Six matched115Core/frontend paths and other historical tests retain their original source attribution; new combined-head Factory/Core/real IPC checks have not yet run. Parent34f Environment3/UI/Rust pass, Intel fails its original per-attempt4000ms capture boundary (4231ms); ARM remains running at latest observation. This is a local integration checkpoint, not schema16 CI/Mac acceptance. OWNER001002ACK/main653679d; permissions unchanged.

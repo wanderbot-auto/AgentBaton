@@ -59,7 +59,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial"
+        "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial",
+        "schema16_parent_34f_composed": "bc10 actualFactory30/Core156/infra235/sameheadFE+Corebuilt/6realIPC8PNG PASS; nestedhelperexcluded, originalfailures retained. No own16CI/Mac/native/package acceptance; partial."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -69,7 +70,8 @@
         "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
         "docs/execution/task-workspace-integration/EVIDENCE.json",
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json"
+        "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
+        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -140,7 +142,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial"
+        "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial",
+        "schema16_parent_34f_composed": "bc10 actualFactory30/Core156/infra235/sameheadFE+Corebuilt/6realIPC8PNG PASS; nestedhelperexcluded, originalfailures retained. No own16CI/Mac/native/package acceptance; partial."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -150,7 +153,8 @@
         "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
         "docs/execution/task-workspace-integration/EVIDENCE.json",
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json"
+        "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
+        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -251,7 +255,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial"
+        "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial",
+        "schema16_parent_34f_composed": "bc10 actualFactory30/Core156/infra235/sameheadFE+Corebuilt/6realIPC8PNG PASS; nestedhelperexcluded, originalfailures retained. No own16CI/Mac/native/package acceptance; partial."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -261,7 +266,8 @@
         "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
         "docs/execution/task-workspace-integration/EVIDENCE.json",
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json"
+        "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
+        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -4763,7 +4769,8 @@
         "native_x86_64": "not_run",
         "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance",
         "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
-        "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial"
+        "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial",
+        "schema16_parent_34f_composed": "bc10 actualFactory30/Core156/infra235/sameheadFE+Corebuilt/6realIPC8PNG PASS; nestedhelperexcluded, originalfailures retained. No own16CI/Mac/native/package acceptance; partial."
       },
       "evidence": [
         "docs/execution/provider-adapters/EVIDENCE.json",
@@ -4776,7 +4783,8 @@
         "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
         "docs/execution/task-workspace-integration/EVIDENCE.json",
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json"
+        "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
+        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json"
       ],
       "limitations": [
         "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open.",
