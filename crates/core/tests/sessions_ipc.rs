@@ -3532,7 +3532,11 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
             .query_map([], |row| row.get::<_, String>(0))
             .unwrap()
             .map(|row| row.unwrap())
-            .filter(|name| !pre_factory_schema::FACTORY_TABLES.contains(&name.as_str()))
+            .filter(|name| {
+                !pre_factory_schema::FACTORY_TABLES.contains(&name.as_str())
+                    && !pre_factory_schema::pre_integration_schema::INTEGRATION17_TABLES
+                        .contains(&name.as_str())
+            })
             .collect();
         names
             .into_iter()
@@ -3557,6 +3561,10 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
             })
             .collect()
     };
+    // Prove the four exact new domains are empty before excluding them from
+    // the historical row projection. The old-version read below never calls
+    // this current17-only verifier and still compares every retained old row.
+    pre_factory_schema::pre_integration_schema::verify_empty_integration17(&db).unwrap();
     let before_projection = legacy_snapshot();
     pre_factory_schema::remove_empty_current_factory_increment(&db).unwrap();
     assert_eq!(legacy_snapshot(),before_projection,"the historical projection must not rewrite any legacy row, including counters and consumed meters");
