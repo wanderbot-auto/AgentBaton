@@ -27,6 +27,10 @@ MAX_ASSOCIATED_EVENTS = 16
 MAX_EVENT_ROWS = 4096
 EVENT_KINDS = ('goal.run_blocked', 'goal.node_settled', 'goal.capture_settled',
                'goal.validation_settled', 'goal.owner_node_settled', 'goal.factory_failure_confirmed')
+# Optional historical-event diagnostics only; never runtime/admission/stop proof.
+CAPTURE_TIMING_FIELDS = ('producer_elapsed_ms', 'runtime_reservation_ms',
+    'capture_worker_started_queue_ms', 'capture_worker_completed_queue_ms',
+    'capture_join_observed_queue_ms', 'capture_worker_elapsed_ms')
 # Same finite production codes as goal_runtime_diagnostics::error_code.
 REASON_CODES = frozenset(('WORKSPACE_BUSY', 'STALE_REVISION', 'INPUT_CHANGED',
     'AUTH_REQUIRED', 'RESOURCE_LIMIT', 'DEADLINE_EXCEEDED', 'OUTCOME_UNKNOWN',
@@ -411,6 +415,11 @@ def event_fields(event, subject, observed_plan_revision):
             out['capture_state'] = enum(payload.get('state'), ('completed', 'failed', 'outcome_unknown'))
             for key in ('capture_worker_joined', 'producer_stop_confirmed'):
                 out[key] = boolean(payload.get(key))
+            for key in CAPTURE_TIMING_FIELDS:
+                out[key] = integer(payload.get(key), nullable=True)
+            # A partial observed timing is not evidence for the missing segments.
+            out['capture_timing_status'] = ('observed' if any(out[key] is not None
+                for key in CAPTURE_TIMING_FIELDS) else 'not_available')
         if kind in ('goal.capture_settled', 'goal.validation_settled'):
             out['io_completion'] = enum(payload.get('io_completion'), ('worker_joined', 'not_started'))
     return out

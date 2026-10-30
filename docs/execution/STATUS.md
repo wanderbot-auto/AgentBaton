@@ -1,3 +1,17 @@
+## Schema16 composed with reviewed capture diagnostics/private fixture — 2026-10-30T05:23:58.379076+00:00
+
+Reviewed Parent674d adds diagnostic fields and an explicit private0700 test fixture while preserving production checks/budgets. Parent4344 exactEnvironment3/UI pass; Rust/ARM/Intel fail the same newpositivecapture INPUT_CHANGED (137/1), preventing later Factory/native/build stages and secondarily failing required rework evidence collection. Root reproduced originalfailure with childumask022; explicitprivatefixture gives10 controls passed under022/002/077 and full139Core passed under022. OriginalCI/inputchanged guard/failedELF remain; this is not a newMac/oldIntel4231 fix claim. New combinedschema16 tests/CI/native/packages have not run; priorbc10 30/156/235/6IPC8PNG retain source attribution. PR20 acceptedfileprimitive is separately reviewed/pushed225 but NOT composed here. OWNER001002ACK/main653679d; authority unchanged.
+
+## Capture timing diagnostic validated; exact34f CI retained — 2026-10-30T04:32:57.910319+00:00
+
+Diagnostics-only source8af (Root6deb actual execution) preserves original reconcile/admission, fresh authority, producer+queue runtime accounting, unknown and owned Drop. Proposed priority reordering was withdrawn; static SQLcount/TIMEOUT findings were fixed before compiling, never recorded as actual test failures. Independent capture/projection/tool-size reviews are sealed; no performance or Macfix claim.
+
+Actual Core138PASS90.91s includes9 new private FD/thread controls; nested helper excluded. Factory30PASS113.05s includes4retained-overrun controls; actualsessionsIPC58PASS190.08s includes queue-exhaustion/no-fabricated-join, cancel/revoke/timeout and acceptance. StrictalltargetsClippy/fmt and infrastructure195 pass, with the latter rerun after the stdout-only fixed toolsize observation. Real retained rework events show original4000ms per-attempt accounting: r1 producer1176+queue164=1340; r2 producer2054+queue393=2447, actualworker/join fields observed. Exactstoredjob-origin binding is post-owned-shutdown evidence, not finalIPC/admission-time proof or another product pass.
+
+Previous exact34f Environment3/UI/Rust/ARM pass, Intel actualcapture4231/4000 fails; wholeProduct40996509874 fails. ARMdevelopmentartifact12953590846 is downloaded: ZIP9888198B SHA162447ea…c233, DMG9956395B SHA5c745c15…cc25f matches packagedsum/UDIFfooter. CIreports adhoc/noTeam/noDeveloperID; no Linux codesign/macOS manualinstall claim. Intel package absent, no new15dualarchitecture delivery accepted. New diagnostic candidate CI is still pending and must bind its exact source. PriorUI results remain separately attributed. See CAPTURE_TIMING_AND_HEAD34F_RESULTS.json.
+
+PR19 schema16 actualFactory30/Core156/infra235/6IPC8PNG is separately reviewed/pushed0644; no own16CI/Mac acceptance. Standalone accepted-source capture is not integrated: actual5cfgPASS/12of13GitPASS with emptytreefixturefail is being repaired, originalevidence retained. Full130/adoption/remote scope continues; OWNER001002ACK/main653679d; permissions unchanged.
+
 ## Reviewed Parent34f composition verified on schema16 — 2026-10-30T04:13:18.951553+00:00
 
 Exact bc10 keeps the reviewed Parent34f containment/Graph-service/fixture fixes and the Task schema16/default-entry recovery. Only STATUS/manifest conflicts needed explicit resolution; both histories and93 actual hashes are preserved. Independent source/merge audit is sealed (6226c9d3be91/6f3b9e32858b);2047 Git/source assertions are not product tests.

@@ -1265,7 +1265,8 @@
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
-        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
@@ -1286,7 +1287,8 @@
         "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1557,7 +1559,8 @@
         "native_x86_64": "not_run",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
-        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -1577,7 +1580,8 @@
         "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1853,7 +1857,8 @@
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
-        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
@@ -1871,7 +1876,8 @@
         "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -3118,7 +3124,8 @@
         "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
         "schema15_exact7ac": "Environment3/Rust/UI passed; ARM22/1 failed revision16; Intel22/1 blocked revision14 RESOURCE_LIMIT before validator2; original deadlines live; no native/build/package acceptance",
         "atomic_reservation_local": "b651 Factory26/Core129/strictClippy pass; e068 finite collector independently reviewed/fullinfra150/real postjoin CLI pass; new exact Mac/CI not_run, full requirement partial",
-        "schema15_exactde0b": "Environment3/Rust passed; UI argv-exit race failed CP01/02 only; bothMac22/1 failed at distinct preflight/capture boundaries; no later native/build/package; original limits unchanged"
+        "schema15_exactde0b": "Environment3/Rust passed; UI argv-exit race failed CP01/02 only; bothMac22/1 failed at distinct preflight/capture boundaries; no later native/build/package; original limits unchanged",
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -3152,7 +3159,8 @@
         "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -4384,7 +4392,8 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
-        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
+        "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial."
       },
       "evidence": [
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
@@ -4398,7 +4407,8 @@
         "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
         "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json"
       ],
       "limitations": [],
       "verified_slices": [

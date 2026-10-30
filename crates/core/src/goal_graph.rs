@@ -609,15 +609,91 @@ struct CaptureOrigin {
     runtime_reservation_ms: u64,
     consumed_inputs: Vec<GraphInputBinding>,
 }
+// Private monotonic observations, never deserialized or accepted as authority.
+#[derive(Clone, Copy)]
+struct CaptureWorkerTiming {
+    started_queue_ms: u64,
+    completed_queue_ms: u64,
+    elapsed_ms: u64,
+}
+struct CaptureWorkerObservation {
+    result: Result<evidence::CapturedCandidate>,
+    timing: CaptureWorkerTiming,
+}
+fn capture_millis(duration: std::time::Duration) -> u64 {
+    u64::try_from(duration.as_millis()).unwrap_or(u64::MAX)
+}
+fn observe_capture_worker(
+    queued_at: std::time::Instant,
+    execute: impl FnOnce() -> Result<evidence::CapturedCandidate>,
+) -> CaptureWorkerObservation {
+    let started = std::time::Instant::now();
+    let result = execute();
+    let completed = std::time::Instant::now();
+    CaptureWorkerObservation {
+        result,
+        timing: CaptureWorkerTiming {
+            started_queue_ms: capture_millis(started.saturating_duration_since(queued_at)),
+            completed_queue_ms: capture_millis(completed.saturating_duration_since(queued_at)),
+            elapsed_ms: capture_millis(completed.saturating_duration_since(started)),
+        },
+    }
+}
+#[derive(Serialize)]
+struct CaptureSettlementTiming {
+    producer_elapsed_ms: u64,
+    runtime_reservation_ms: u64,
+    capture_worker_started_queue_ms: Option<u64>,
+    capture_worker_completed_queue_ms: Option<u64>,
+    capture_join_observed_queue_ms: Option<u64>,
+    capture_worker_elapsed_ms: Option<u64>,
+}
+impl CaptureSettlementTiming {
+    fn observed(
+        origin: &CaptureOrigin,
+        worker: Option<CaptureWorkerTiming>,
+        joined: bool,
+        observed_ms: u64,
+    ) -> Self {
+        Self {
+            producer_elapsed_ms: origin.elapsed_at_stop_ms,
+            runtime_reservation_ms: origin.runtime_reservation_ms,
+            capture_worker_started_queue_ms: worker.map(|w| w.started_queue_ms),
+            capture_worker_completed_queue_ms: worker.map(|w| w.completed_queue_ms),
+            capture_join_observed_queue_ms: joined.then_some(observed_ms),
+            capture_worker_elapsed_ms: worker.map(|w| w.elapsed_ms),
+        }
+    }
+}
 enum CaptureCompletion {
     NotStarted(CoreError),
-    Joined(Box<Result<evidence::CapturedCandidate>>),
+    Joined {
+        result: Box<Result<evidence::CapturedCandidate>>,
+        timing: Option<CaptureWorkerTiming>,
+    },
     UnjoinedUnknown,
+}
+impl CaptureCompletion {
+    fn joined(outcome: std::thread::Result<CaptureWorkerObservation>) -> Self {
+        match outcome {
+            Ok(observed) => Self::Joined {
+                result: Box::new(observed.result),
+                timing: Some(observed.timing),
+            },
+            Err(_) => Self::Joined {
+                result: Box::new(Err(err(
+                    "OUTCOME_UNKNOWN",
+                    "Owned evidence worker panicked after an unknown partial observation",
+                ))),
+                timing: None,
+            },
+        }
+    }
 }
 struct CaptureWorker {
     origin: CaptureOrigin,
     cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
-    thread: std::thread::JoinHandle<Result<evidence::CapturedCandidate>>,
+    thread: std::thread::JoinHandle<CaptureWorkerObservation>,
     deadline: std::time::Instant,
     unknown_recorded: bool,
     queued_at: std::time::Instant,
@@ -655,19 +731,10 @@ impl GraphWorkers {
             .collect();
         for id in finished {
             let w = self.captures.remove(&id).ok_or_else(changed)?;
-            let result = w
-                .thread
-                .join()
-                .map_err(|_| {
-                    err(
-                        "OUTCOME_UNKNOWN",
-                        "Owned evidence worker panicked after an unknown partial observation",
-                    )
-                })
-                .and_then(|r| r);
+            let completion = CaptureCompletion::joined(w.thread.join());
             store.finish_graph_capture(
                 &w.origin,
-                CaptureCompletion::Joined(Box::new(result)),
+                completion,
                 w.unknown_recorded,
                 w.queued_at.elapsed(),
             )?;
@@ -726,7 +793,7 @@ impl GraphWorkers {
         let deadline = prepared.deadline;
         let thread = std::thread::Builder::new()
             .name("baton-goal-evidence".into())
-            .spawn(move || prepared.execute());
+            .spawn(move || observe_capture_worker(queued_at, || prepared.execute()));
         match thread {
             Ok(thread) => {
                 let id = origin.id.clone();
@@ -994,9 +1061,9 @@ impl Store {
         was_unknown: bool,
         queue_elapsed: std::time::Duration,
     ) -> Result<()> {
-        let (mut result, capture_joined) = match completion {
-            CaptureCompletion::NotStarted(e) => (Err(e), false),
-            CaptureCompletion::Joined(r) => (*r, true),
+        let (mut result, capture_joined, worker_timing) = match completion {
+            CaptureCompletion::NotStarted(e) => (Err(e), false, None),
+            CaptureCompletion::Joined { result, timing } => (*result, true, timing),
             CaptureCompletion::UnjoinedUnknown => return self.mark_graph_capture_unknown(origin),
         };
         let (r, n, record) = self.verify_capture_origin(origin)?;
@@ -1138,12 +1205,19 @@ impl Store {
             }
             .into();
         }
-        save_run(
-            &tx,
-            &mut current,
-            "goal.capture_settled",
-            json!({"job_id":origin.id,"state":state,"io_completion":if capture_joined {"worker_joined"}else{"not_started"},"capture_worker_joined":capture_joined,"producer_stop_confirmed":true,"actual_runtime_ms":elapsed,"actual_output_bytes":output_bytes,"task_accepted":false}),
-        )?;
+        let mut payload = json!({"job_id":origin.id,"state":state,"io_completion":if capture_joined {"worker_joined"}else{"not_started"},"capture_worker_joined":capture_joined,"producer_stop_confirmed":true,"actual_runtime_ms":elapsed,"actual_output_bytes":output_bytes,"task_accepted":false});
+        let timing = serde_json::to_value(CaptureSettlementTiming::observed(
+            origin,
+            worker_timing,
+            capture_joined,
+            observed,
+        ))
+        .map_err(|_| changed())?;
+        payload
+            .as_object_mut()
+            .ok_or_else(changed)?
+            .extend(timing.as_object().ok_or_else(changed)?.clone());
+        save_run(&tx, &mut current, "goal.capture_settled", payload)?;
         tx.commit().map_err(db_error)
     }
 }
@@ -3069,15 +3143,18 @@ impl GraphWorkers {
         };
         let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
         let flag = cancel.clone();
+        let queued_at = std::time::Instant::now();
         let thread = std::thread::spawn(move || {
-            while !flag.load(std::sync::atomic::Ordering::SeqCst) {
-                std::thread::sleep(std::time::Duration::from_millis(1));
-            }
-            checked();
-            Err(err(
-                "CANCEL_REQUESTED",
-                "Controlled owned reader observed cancellation",
-            ))
+            observe_capture_worker(queued_at, || {
+                while !flag.load(std::sync::atomic::Ordering::SeqCst) {
+                    std::thread::sleep(std::time::Duration::from_millis(1));
+                }
+                checked();
+                Err(err(
+                    "CANCEL_REQUESTED",
+                    "Controlled owned reader observed cancellation",
+                ))
+            })
         });
         let origin = CaptureOrigin {
             id: "drop-reader-fixture".into(),
@@ -3105,11 +3182,15 @@ impl GraphWorkers {
                 thread,
                 deadline: std::time::Instant::now() + std::time::Duration::from_secs(30),
                 unknown_recorded: false,
-                queued_at: std::time::Instant::now(),
+                queued_at,
             },
         );
     }
 }
+
+#[cfg(test)]
+#[path = "goal_graph_capture_service_tests.rs"]
+mod capture_service_tests;
 
 pub(super) fn ready_dispatch_node<'a>(
     db: &Connection,

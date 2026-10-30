@@ -1,0 +1,114 @@
+{
+  "source_commit": "8af8ade4ef298f677b821a920b6771017351bf11",
+  "baseline": "34f8b23d4fdd529caf4f7da6f949604f2746e0e9",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "origin_main_at_read": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "source_files": {
+    "crates/core/src/goal_graph.rs": "d689c92fd7615cf80a8f437b4e679e699869d8f200804fa881debb7120b2055d",
+    "crates/core/src/goal_graph_capture_service_tests.rs": "cf7c5760ec2a9a5bd2aa98a54d4bb4a9d72b71d93baa6f7a9d589cf101081124"
+  },
+  "commands_run": [
+    {
+      "command": "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt --edition 2021 --config skip_children=true --check crates/core/src/goal_graph.rs crates/core/src/goal_graph_capture_service_tests.rs",
+      "exit_code": 0,
+      "dimension": "source formatter only"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "bounded source comparison (STATIC_CHECKS.json)",
+      "exit_code": 0,
+      "unchanged_authority_deadline_reconcile_shutdown_drop_method_bodies": 7,
+      "billing_block_byte_equal": true
+    }
+  ],
+  "static_artifact": {
+    "path": "/workspace/.onboarding/graph-capture-timing-service/diagnostics-only-8af/STATIC_CHECKS.json",
+    "sha256": "dd44b92461973191af7008f46bbe02d0828595ffbdd7aac1d70ef9909e917686"
+  },
+  "tests_written": [
+    "real_capture_thread_observes_queue_start_completion_and_later_join",
+    "cancelled_real_capture_keeps_observed_thread_metrics_and_no_candidate",
+    "original_expired_deadline_is_not_refreshed_by_worker_start",
+    "byte_identical_symlink_replacement_is_rejected_by_actual_capture",
+    "real_panic_join_has_no_fabricated_worker_start_or_completion_metrics",
+    "not_started_metrics_are_null_instead_of_zero_or_a_join",
+    "process_local_clock_never_mints_a_prepared_job_or_authority",
+    "shutdown_with_only_a_clock_hint_cannot_start_capture",
+    "owned_graph_drop_really_cancels_and_joins_the_wrapped_reader"
+  ],
+  "test_execution": "NOT_RUN",
+  "independent_review": "PENDING_ROOT",
+  "root_only_next_commands_not_executed": [
+    "cargo test -p agentbaton-core --lib capture_service_tests -- --test-threads=1",
+    "cargo test -p agentbaton-core --test sessions_ipc actual_capture_prestart_queue_exhaustion_never_spawns_or_claims_an_io_join -- --exact --test-threads=1",
+    "cargo test -p agentbaton-core --test sessions_ipc actual_graph_work_captures_owned_versioned_sha_without_task_acceptance -- --exact --test-threads=1",
+    "cargo test -p agentbaton-core --test sessions_ipc actual_last_owner_rechecks_all_original_products_and_never_accepts_changed_cancelled_or_revoked_graph -- --exact --test-threads=1",
+    "cargo test -p agentbaton-core --test sessions_ipc actual_graph_command_cancel_and_definition_revocation_join_the_owned_child_and_block_downstream -- --exact --test-threads=1",
+    "cargo test -p agentbaton-core --test sessions_ipc actual_graph_interrupted_validator_snapshot_is_unknown_fenced_and_never_automatically_replayed -- --exact --test-threads=1",
+    "cargo test -p agentbaton-core --test factory_runtime_ipc actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume -- --exact --test-threads=1",
+    "cargo clippy -p agentbaton-core --all-targets -- -D warnings"
+  ],
+  "metrics_contract": {
+    "fields": [
+      "producer_elapsed_ms",
+      "runtime_reservation_ms",
+      "capture_worker_started_queue_ms",
+      "capture_worker_completed_queue_ms",
+      "capture_join_observed_queue_ms",
+      "capture_worker_elapsed_ms"
+    ],
+    "type": "nonnegative integers or null; producer/reservation known from durable origin",
+    "authority": false,
+    "old_billing": "unchanged producer + max(original queue-to-join observation, original captured.elapsed)"
+  },
+  "not_run": [
+    "Cargo/compiler",
+    "Clippy/build",
+    "all new Rust tests",
+    "actual Core/Factory runtime",
+    "performance comparison",
+    "browser",
+    "Mac/CI",
+    "Provider"
+  ],
+  "target_lease": "never acquired; Root sole owner",
+  "scope": "partial Goal budget/stop/responsiveness/Factory rework contribution; not full product acceptance",
+  "previous_source_and_docs": {
+    "initial_source": "a067d9123b790b6ba6793d7cc40e036ccc98618e",
+    "initial_docs": "291c82ece2802b392e6e0ad2f5a7d81561312d58",
+    "order_restoration": "b830a2a1285b2ef287fcb87a18e7626c1c53d3f3",
+    "count_type_correction": "a6450f43877bd3039858fe6b28051ec16ba84e40",
+    "diagnostics_first_count_fix": "a6450f43877bd3039858fe6b28051ec16ba84e40",
+    "diagnostics_docs": "4d42b63f55dc4b3407220075a31cb665f92d5da1"
+  },
+  "priority_candidate": "DEFERRED; final source preserves original exact tick order and branches",
+  "performance": "NOT_ESTABLISHED; diagnostics only",
+  "new_source_checks": {
+    "tick_reverse_only_join_and_spawn_wrappers_exact_original": true,
+    "original_reconcile_order": true,
+    "seven_verifier_lifecycle_method_bodies_exact": true,
+    "billing_block_exact": true,
+    "SQL_count_type": "i64 with original exact0 assertions"
+  },
+  "retained_failure_observations": [
+    "Independent static FromSql issue only; no actual Rust compile failure",
+    "First source edit script AssertionError due formatted .get line break; b830 only restored order; next a645 fixes both count sites",
+    "Original a067 scheduling candidate not accepted; final source withdrawn optimization",
+    "Independent static test-code mismatch: underlying capture check returns TIMEOUT, not DEADLINE_EXCEEDED. Test-only8af fixes exact expectation; a645 was NOT_RUN and no runtime failure is claimed."
+  ],
+  "root_actual_validation": {
+    "record": "../factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
+    "Rust_source_byte_equal": "8af8ade",
+    "executed_at_source": "6deb4ab",
+    "Core_including_new9": 138,
+    "Factory": 30,
+    "sessionsIPC": 58,
+    "not_a_performance_or_Macfix_proof": true
+  }
+}

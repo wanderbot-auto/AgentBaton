@@ -952,5 +952,80 @@ class ReceiptBindingCorrection(unittest.TestCase):
         self.assertEqual(self.budget_fixture.budget()['root']['actual_runtime_ms'], 15000)
 
 
+class CaptureTimings(unittest.TestCase):
+    setUp = EventProjection.setUp
+    add = EventProjection.add
+    collected = EventProjection.collected
+    events = EventProjection.events
+    capture = EventProjection.capture
+
+    def projected(self, payload):
+        return P.event_fields(dict(kind='goal.capture_settled', payload=payload), SECRET, 2)
+
+    def test_exact_six_timings_project_without_changing_runtime_or_input(self):
+        values = (0, (1 << 64) - 1, 80, 20, 0, 31)
+        payload = dict(self.capture(), **dict(zip(P.CAPTURE_TIMING_FIELDS, values)))
+        self.add(kind='goal.capture_settled', payload=payload)
+        before = {p.name: p.read_bytes() for p in self.f.case.iterdir()}
+        result = self.events()
+        event = result['events'][0]
+        self.assertEqual({key: event[key] for key in P.CAPTURE_TIMING_FIELDS}, dict(zip(P.CAPTURE_TIMING_FIELDS, values)))
+        self.assertEqual(event['capture_timing_status'], 'observed')
+        self.assertEqual(event['actual_runtime_ms'], 4125)
+        self.assertFalse(event['task_accepted'])
+        self.assertEqual(result['snapshot_time'], 'post_owned_shutdown_not_deadline_instant')
+        self.assertEqual(before, {p.name: p.read_bytes() for p in self.f.case.iterdir()})
+
+    def test_historical_absent_null_and_partial_fields_preserve_unknown(self):
+        for timings in ({}, dict.fromkeys(P.CAPTURE_TIMING_FIELDS), {'producer_elapsed_ms': 0}):
+            event = self.projected(dict(self.capture(), **timings))
+            for key in P.CAPTURE_TIMING_FIELDS:
+                self.assertEqual(event[key], timings.get(key))
+            self.assertEqual(event['capture_timing_status'], 'observed' if timings.get('producer_elapsed_ms') == 0 else 'not_available')
+            self.assertEqual(event['actual_runtime_ms'], 4125)
+
+    def test_partial_malformed_values_use_existing_invalid_path_without_secret(self):
+        for key in P.CAPTURE_TIMING_FIELDS:
+            for bad in (True, False, -1, 1 << 64, 1.0, SECRET, {'private': SECRET}, [SECRET]):
+                with self.subTest(key=key, bad_type=type(bad).__name__):
+                    self.f.sql('DELETE FROM events')
+                    self.add(kind='goal.capture_settled', payload=dict(self.capture(), **{key: bad}))
+                    result = self.collected()
+                    self.assertEqual(result['cases'][0]['status'], 'invalid')
+                    self.assertNotIn(SECRET, P.render_public(result))
+
+    def test_unknown_nested_keys_are_not_forwarded_as_timing_evidence(self):
+        payload = dict(self.capture(), producer_elapsed_ms=7,
+            private_timing={'message': SECRET, 'token': SECRET}, timing_source=SECRET)
+        self.add(kind='goal.capture_settled', payload=payload)
+        event = self.events()['events'][0]
+        self.assertEqual(event['producer_elapsed_ms'], 7)
+        self.assertNotIn('private_timing', event)
+        self.assertNotIn('timing_source', event)
+        self.assertNotIn(SECRET, json.dumps(event))
+
+    def test_failed_or_not_started_with_unknown_timings_never_implies_join(self):
+        for state, io, joined, stopped in (('failed', 'not_started', False, False),
+                ('outcome_unknown', 'not_started', False, False), ('failed', 'worker_joined', True, True)):
+            payload = dict(self.capture(), state=state, io_completion=io,
+                capture_worker_joined=joined, producer_stop_confirmed=stopped,
+                actual_runtime_ms=None, actual_output_bytes=None, **dict.fromkeys(P.CAPTURE_TIMING_FIELDS))
+            event = self.projected(payload)
+            self.assertEqual(event['capture_state'], state)
+            self.assertEqual(event['io_completion'], io)
+            self.assertIs(event['capture_worker_joined'], joined)
+            self.assertIs(event['producer_stop_confirmed'], stopped)
+            self.assertIsNone(event['actual_runtime_ms'])
+            self.assertEqual(event['capture_timing_status'], 'not_available')
+            self.assertTrue(all(event[key] is None for key in P.CAPTURE_TIMING_FIELDS))
+
+    def test_timing_keys_on_other_event_kinds_do_not_expand_whitelist(self):
+        payload = dict(reason_code='RESOURCE_LIMIT', automatic_retry=False, task_accepted=False,
+            **{key: {'private': SECRET} for key in P.CAPTURE_TIMING_FIELDS})
+        event = P.event_fields(dict(kind='goal.run_blocked', payload=payload), SECRET, 2)
+        self.assertEqual(event, dict(kind='goal.run_blocked', task_accepted=False,
+            reason_code='RESOURCE_LIMIT', automatic_retry=False))
+
+
 if __name__ == '__main__':
     unittest.main()

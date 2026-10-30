@@ -1,0 +1,13 @@
+{
+  "code_source": "84853a94a6b2830db0f1ece3fca5e37314b19eaf",
+  "independent_review": {
+    "review_sha256": "278036ac6891950a8471668e6bd6c5fc2c5747a56fb6756881573eee8121e7a7",
+    "manifest_sha256": "7ed7ef2db7b1b01d1d21452fd382842ba7b096ea45430ad33f8a4cbbecf86b9a",
+    "dimension": "independent source/pure/static; actual Root runtime attributed separately"
+  },
+  "pure72": "passed independently; original66controls unchanged, not additive to Rootinfra195",
+  "root_actual_event_projection": "Actual persisted events bound to exact private stored job origins after owned shutdown, not the final IPC observation or admission-time snapshot. Original final readonly observation and rawDB are retained privately. Integer flooring can yield worker_elapsed0 while queue timestamp difference1; no fabricated zero for missing observations. This is not a separate test pass or controlled speedup.",
+  "root_actual_record": "../factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
+  "no_new_execution_authority": true,
+  "original_EVIDENCE_md_preserved": true
+}
