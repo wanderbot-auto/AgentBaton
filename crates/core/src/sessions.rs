@@ -2136,6 +2136,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "integration" {
+            return self.integration_finalization_replay(id,revision)?.ok_or_else(||CoreError::new("AUTH_REQUIRED","Integration native finalization requires its original request-owned observation"));
+        }
         if proposal.kind == "factory" {
             let companion: crate::factory::FactoryCompanionBinding =
                 serde_json::from_value(proposal.snapshot["bindings"]["companion"].clone())

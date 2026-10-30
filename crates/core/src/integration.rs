@@ -18,6 +18,16 @@ mod authority;
 pub(crate) use authority::{
     IntegrationDelegatedMaterial, IntegrationScopeMaterial, IntegrationWorkspaceMaterial,
 };
+#[path = "integration_approval.rs"]
+mod approval;
+#[path = "integration_workers.rs"]
+mod workers;
+pub(crate) use workers::IntegrationWorkers;
+#[path = "integration_fs.rs"]
+mod fs;
+#[path = "integration_reads.rs"]
+mod reads;
+pub(crate) use reads::{IntegrationReadIntent, IntegrationReadPlan, IntegrationReadProof};
 #[path = "integration_records.rs"]
 mod records;
 

@@ -377,6 +377,7 @@ pub struct Daemon {
     factory_pending: Option<(String, Receiver<Value>)>,
     factory_fatal_error: Option<CoreError>,
     graph_workers: crate::goal_store::GraphWorkers,
+    integration_workers: crate::integration::IntegrationWorkers,
 }
 impl Daemon {
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
@@ -437,6 +438,7 @@ impl Daemon {
             factory_pending: None,
             factory_fatal_error: None,
             graph_workers: Default::default(),
+            integration_workers: Default::default(),
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
@@ -452,6 +454,7 @@ impl Daemon {
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
+            self.finish_integration_read();
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
             }
@@ -484,6 +487,7 @@ impl Daemon {
                 self.command_workers.tick(&mut self.store)?;
                 self.data_workers.tick(&mut self.store)?;
                 self.finish_data_admission();
+                self.finish_integration_read();
             }
             readers.retain(|reader| !reader.is_finished());
             match self.listener.accept() {
@@ -505,6 +509,19 @@ impl Daemon {
         }
         drop(ready);
         drop(requests);
+        self.integration_workers.stop_reads();
+        if let Some((job, result)) = self.integration_workers.join_reads() {
+            // Shutdown consumes the original worker and proof without admitting
+            // a late mutation, even if its readonly observation completed first.
+            drop(result);
+            let _ = job.reply.try_send(self.ready_error(
+                &job.raw,
+                CoreError::new(
+                    "CANCEL_REQUESTED",
+                    "Daemon stopped before integration read admission",
+                ),
+            ));
+        }
         self.data_workers.shutdown(&mut self.store)?;
         self.command_workers.shutdown(&mut self.store)?;
         self.supervisor.shutdown(&mut self.store)?;
@@ -729,6 +746,17 @@ impl Daemon {
                 }
                 Ok(result)
             }
+            "integration_policies.propose"=>{
+                let selection:crate::integration::IntegrationPolicySelection=params(r.params)?;
+                if r.expected_revision.is_some_and(|v|v!=selection.expected_task_revision){return Err(CoreError::new("STALE_REVISION","Integration outer CAS differs from the Task selection"));}
+                let key=r.idempotency_key.ok_or_else(invalid)?;
+                self.store.integration_proposal_replay(&selection,&key)?.map(|p|json!(p)).ok_or_else(||CoreError::new("AUTH_REQUIRED","A request-owned integration observation is required before proposing authority"))
+            },
+            "integration_context.get"=>Err(CoreError::new("AUTH_REQUIRED","Integration context requires its request-owned observation")),
+            "integration_policies.get"=>{let p:crate::integration::IntegrationPolicyId=params(r.params)?;Ok(json!(self.store.get_integration_policy(&p.policy_id)?))},
+            "integration_policies.list"=>{let p:crate::integration::IntegrationListQuery=params(r.params)?;Ok(json!(self.store.list_integration_policies(&p)?))},
+            "integration_policies.revoke"=>{let p:crate::integration::IntegrationPolicyId=params(r.params)?;Ok(json!(self.store.revoke_integration_policy(&p.policy_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))},
+            "integrations.list"=>{let p:crate::integration::IntegrationListQuery=params(r.params)?;Ok(json!(self.store.list_integrations(&p)?))},
             "connections.register" | "grants.create" => Err(CoreError::new(
                 "AUTH_REQUIRED",
                 "Server proposal and trusted native owner confirmation are required",
@@ -1895,6 +1923,22 @@ impl Daemon {
             let _ = job.reply.try_send(json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before admission"),"revision":0,"warnings":[]}));
             return;
         }
+        if job.factory_dispatch.is_none() {
+            match self.integration_read_for_request(&job.raw) {
+                Err(error) => {
+                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    return;
+                }
+                Ok(Some(plan)) => {
+                    if let Err(failure) = self.integration_workers.defer_read(plan, job) {
+                        let (error, job) = *failure;
+                        let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    }
+                    return;
+                }
+                Ok(None) => (),
+            }
+        }
         if let Some(ticket) = job.factory_dispatch.as_ref() {
             #[cfg(debug_assertions)]
             let phase_clock = Instant::now();
@@ -2939,3 +2983,137 @@ impl Daemon {
 #[cfg(test)]
 #[path = "task_workspace_binding_ipc_tests.rs"]
 mod task_binding_bridge_tests;
+
+impl Daemon {
+    fn integration_read_for_request(
+        &self,
+        raw: &str,
+    ) -> Result<Option<crate::integration::IntegrationReadPlan>> {
+        use crate::integration::IntegrationReadIntent as Intent;
+        let request: Request = match serde_json::from_str(raw) {
+            Ok(r) => r,
+            Err(_) => return Ok(None),
+        };
+        if request.token != self.token || request.api_version != API_VERSION {
+            return Ok(None);
+        }
+        if request.request_id.is_empty() || request.request_id.len() > 128 {
+            return Err(invalid());
+        }
+        let intent = match request.method.as_str() {
+            "integration_context.get" => Intent::Context(params(request.params)?),
+            "integration_policies.propose" => {
+                let s: crate::integration::IntegrationPolicySelection = params(request.params)?;
+                if request
+                    .expected_revision
+                    .is_some_and(|v| v != s.expected_task_revision)
+                {
+                    return Err(CoreError::new(
+                        "STALE_REVISION",
+                        "Integration outer CAS differs from the Task selection",
+                    ));
+                }
+                let key = request.idempotency_key.as_deref().ok_or_else(invalid)?;
+                if self.store.integration_proposal_replay(&s, key)?.is_some() {
+                    return Ok(None);
+                }
+                Intent::Proposal(s)
+            }
+            "approvals.finalize" => {
+                let p: ProposalId = params(request.params)?;
+                let proposal = self.store.integration_proposal_record(&p.proposal_id)?;
+                if proposal.kind != "integration" {
+                    return Ok(None);
+                }
+                let revision = request.expected_revision.ok_or_else(invalid)?;
+                if self
+                    .store
+                    .integration_finalization_replay(&p.proposal_id, revision)?
+                    .is_some()
+                {
+                    return Ok(None);
+                }
+                Intent::Finalize {
+                    proposal_id: p.proposal_id,
+                    revision,
+                }
+            }
+            _ => return Ok(None),
+        };
+        if self.supervisor.has_workers()
+            || self.command_workers.has_workers()
+            || self.data_workers.has_workers()
+            || self.graph_workers.has_workers()
+        {
+            return Err(CoreError::new("WORKSPACE_BUSY","Stop active source writers before preparing an independent integration observation"));
+        }
+        self.store
+            .prepare_integration_scope_read(intent, raw)
+            .map(Some)
+    }
+    fn finish_integration_read(&mut self) {
+        let Some((job, result)) = self.integration_workers.poll_read() else {
+            return;
+        };
+        let response = (|| -> Result<Value> {
+            use crate::integration::IntegrationReadIntent as Intent;
+            let request: Request = serde_json::from_str(&job.raw).map_err(|_| invalid())?;
+            if request.token != self.token || request.api_version != API_VERSION {
+                return Err(CoreError::new(
+                    "AUTH_REQUIRED",
+                    "Integration request authentication changed",
+                ));
+            }
+            let proof = result?;
+            if Instant::now() >= job.deadline {
+                return Err(CoreError::new(
+                    "DEADLINE_EXCEEDED",
+                    "Integration observation arrived after the original request deadline",
+                ));
+            }
+            match &proof.intent {
+                Intent::Context(_) => {
+                    if request.method != "integration_context.get" {
+                        return Err(invalid());
+                    }
+                    proof.verify(&self.store, &job.raw, job.deadline)?;
+                    Ok(json!(proof.context))
+                }
+                Intent::Proposal(_) => {
+                    let selection: crate::integration::IntegrationPolicySelection =
+                        params(request.params)?;
+                    Ok(json!(self.store.propose_integration_policy_observed(
+                        &selection,
+                        request.idempotency_key.as_deref().ok_or_else(invalid)?,
+                        proof,
+                        &job.raw,
+                        job.deadline
+                    )?))
+                }
+                Intent::Finalize {
+                    proposal_id,
+                    revision,
+                } => {
+                    let id = proposal_id.clone();
+                    let revision = *revision;
+                    self.store.finalize_integration_policy_observed(
+                        &id,
+                        revision,
+                        proof,
+                        &job.raw,
+                        job.deadline,
+                    )
+                }
+                Intent::Start { .. } => Err(CoreError::new(
+                    "AUTH_REQUIRED",
+                    "Only the private integration stage admission may consume this observation",
+                )),
+            }
+        })();
+        let response = match response {
+            Ok(value) => self.ready_success(&job.raw, value),
+            Err(error) => self.ready_error(&job.raw, error),
+        };
+        let _ = job.reply.try_send(response);
+    }
+}

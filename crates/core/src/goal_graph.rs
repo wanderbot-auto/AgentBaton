@@ -3505,3 +3505,147 @@ impl Store {
         Ok(Some(actual))
     }
 }
+
+// Independently approved definitions offered to a new integration approval only.
+// This deliberately does not consume/replenish an old one-shot command run.
+impl Store {
+    pub(crate) fn integration_available_validators(
+        &self,
+        material: &crate::integration::IntegrationScopeMaterial,
+    ) -> Result<Vec<crate::integration::IntegrationValidatorBinding>> {
+        let mut out = Vec::new();
+        for (table, kind, approval_kind, tag) in [
+            (
+                "data_validation_policies",
+                GoalValidatorKind::Data,
+                "data_validation",
+                "data",
+            ),
+            (
+                "command_validation_policies",
+                GoalValidatorKind::Command,
+                "command_validation",
+                "command",
+            ),
+        ] {
+            let check=format!("SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM {table} WHERE json_extract(document,'$.project_id')=?1 AND workspace_id=?2 AND json_extract(document,'$.revoked')=0");
+            let (count, bytes, max): (i64, i64, i64) = self
+                .conn
+                .query_row(
+                    &check,
+                    params![material.project.id, material.workspace.id],
+                    |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                )
+                .map_err(db_error)?;
+            if !(0..=64).contains(&count)
+                || !(0..=1_048_576).contains(&bytes)
+                || !(0..=1_048_576).contains(&max)
+            {
+                return Err(limited());
+            }
+            let sql=format!("SELECT document FROM {table} WHERE json_extract(document,'$.project_id')=?1 AND workspace_id=?2 AND json_extract(document,'$.revoked')=0 ORDER BY id");
+            let mut statement = self.conn.prepare(&sql).map_err(db_error)?;
+            let rows = statement
+                .query_map(params![material.project.id, material.workspace.id], |r| {
+                    r.get::<_, String>(0)
+                })
+                .map_err(db_error)?
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .map_err(db_error)?;
+            for text in rows {
+                let definition: Value = decode(&text)?;
+                let reference = GoalValidatorRef {
+                    kind: kind.clone(),
+                    policy_id: definition["id"].as_str().ok_or_else(changed)?.into(),
+                    revision: definition["revision"].as_u64().ok_or_else(changed)?,
+                };
+                if material.validators.iter().any(|v| v.reference == reference) {
+                    continue;
+                }
+                let approval = definition["approval_id"].as_str().ok_or_else(changed)?;
+                let (proposal, original) =
+                    native_confirmation(&self.conn, approval, approval_kind)?;
+                if original != definition
+                    || definition["project_id"] != material.project.id
+                    || definition["workspace_id"] != material.workspace.id
+                    || definition["revoked"] != false
+                {
+                    return Err(changed());
+                }
+                let file = if kind == GoalValidatorKind::Data {
+                    &definition["file_contract"]
+                } else {
+                    &definition["contract"]["file_contract"]
+                };
+                if kind == GoalValidatorKind::Data {
+                    if proposal.snapshot["file_contract"] != definition["file_contract"]
+                        || proposal.snapshot["table"] != definition["table"]
+                        || proposal.snapshot["contract_digest"] != definition["contract_digest"]
+                    {
+                        return Err(changed());
+                    }
+                } else if proposal.snapshot["intent"] != definition["selection"]
+                    || proposal.snapshot["contract"] != definition["contract"]
+                    || proposal.snapshot["refs"] != definition["refs"]
+                    || proposal.snapshot["contract_digest"] != definition["contract_digest"]
+                {
+                    return Err(changed());
+                }
+                let contract: agentbaton_workspaces::validation::ValidationPolicyContractView =
+                    serde_json::from_value(file.clone()).map_err(|_| changed())?;
+                if contract.outputs.is_empty()
+                    || contract.outputs.len() > 16
+                    || contract.inputs.len() > 16
+                {
+                    return Err(changed());
+                }
+                let identity = material.workspace.identity.as_ref().ok_or_else(changed)?;
+                let same_root = |a: &agentbaton_workspaces::validation::ArtifactContractView| {
+                    a.canonical_root == material.workspace.root
+                        && a.root_device == identity.device
+                        && a.root_inode == identity.inode
+                };
+                // Unsupported contracts are not offered as selectable permissions.
+                if !contract.outputs.iter().all(|a| {
+                    same_root(a) && material.outputs.iter().any(|o| o.artifact == a.requirement)
+                }) || !contract.inputs.iter().all(|a| {
+                    same_root(a)
+                        && a.requirement.expected_sha256.is_some()
+                        && material.inputs.contains(&a.requirement)
+                }) {
+                    continue;
+                }
+                let artifact =
+                    |v: &Value| -> Result<Option<crate::integration::IntegrationArtifactBinding>> {
+                        if v.is_null() {
+                            return Ok(None);
+                        }
+                        let a: agentbaton_workspaces::validation::ArtifactContractView =
+                            serde_json::from_value(v.clone()).map_err(|_| changed())?;
+                        if a.requirement.expected_sha256.is_none() {
+                            return Err(changed());
+                        }
+                        Ok(Some(crate::integration::IntegrationArtifactBinding {
+                            canonical_root: a.canonical_root,
+                            root_device: a.root_device.to_string(),
+                            root_inode: a.root_inode.to_string(),
+                            requirement: a.requirement,
+                        }))
+                    };
+                out.push(crate::integration::IntegrationValidatorBinding {
+                    reference,
+                    rule_id: format!("{tag}:{}", definition["id"].as_str().ok_or_else(changed)?),
+                    definition_digest: sha(&definition)?,
+                    definition_json: encode(&definition)?,
+                    program: artifact(&definition["contract"]["program"])?,
+                    script: artifact(&definition["contract"]["script"])?,
+                });
+                if out.len() + material.validators.len() > 64 {
+                    return Err(limited());
+                }
+            }
+        }
+        out.sort_by(|a, b| a.rule_id.cmp(&b.rule_id));
+        Ok(out)
+    }
+}

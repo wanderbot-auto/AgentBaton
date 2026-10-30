@@ -89,7 +89,7 @@ pub(super) fn raw<T: for<'a> serde::Deserialize<'a>>(
     }
     decode(&text.ok_or_else(limited)?)
 }
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub(crate) struct IntegrationScopeMaterial {
     pub(crate) task: Task,
     pub(crate) project: Project,
@@ -112,7 +112,7 @@ pub(crate) struct IntegrationScopeMaterial {
     pub(crate) workspace_ownership: IntegrationWorkspaceMaterial,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub(crate) struct IntegrationDelegatedMaterial {
     pub(crate) factory_scope_id: String,
     pub(crate) factory_scope_digest: String,
@@ -127,7 +127,7 @@ pub(crate) struct IntegrationDelegatedMaterial {
     pub(crate) source_base: String,
     pub(crate) managed_creation_ref: String,
 }
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub(crate) enum IntegrationWorkspaceMaterial {
     TaskManaged(TaskWorkspaceReservationReceipt),
     FactoryDelegated(IntegrationDelegatedMaterial),
