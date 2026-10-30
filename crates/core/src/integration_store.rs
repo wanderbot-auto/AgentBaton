@@ -39,6 +39,7 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
             "Integration migration refuses inconsistent predecessor foreign keys",
         ));
     }
+    validate_predecessor_tasks(&tx)?;
     tx.execute_batch(DDL).map_err(db_error)?;
     tx.execute_batch("PRAGMA user_version=17;")
         .map_err(db_error)?;
@@ -133,4 +134,47 @@ fn normalize_ddl(sql: &str) -> String {
         }
     }
     out
+}
+
+fn validate_predecessor_tasks(db: &Connection) -> Result<()> {
+    let(count,bytes,max):(i64,i64,i64)=db.query_row("SELECT count(*),COALESCE(sum(octet_length(id)+octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM tasks",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).map_err(db_error)?;
+    let bad = || {
+        CoreError::new(
+            "INPUT_CHANGED",
+            "Integration migration refuses malformed predecessor Task records",
+        )
+    };
+    if !(0..=100_000).contains(&count)
+        || !(0..=4_194_304).contains(&bytes)
+        || !(0..=262_144).contains(&max)
+    {
+        return Err(bad());
+    }
+    let mut statement = db
+        .prepare("SELECT id,document FROM tasks ORDER BY id")
+        .map_err(db_error)?;
+    let mut rows = statement.query([]).map_err(db_error)?;
+    while let Some(row) = rows.next().map_err(db_error)? {
+        let id: String = row.get(0).map_err(db_error)?;
+        let text: String = row.get(1).map_err(db_error)?;
+        let value: serde_json::Value = serde_json::from_str(&text).map_err(|_| bad())?;
+        if !value.is_object() {
+            return Err(bad());
+        }
+        let task: crate::storage::Task = serde_json::from_value(value).map_err(|_| bad())?;
+        if task.id != id || task.revision == 0 || task.spec_revision == 0 {
+            return Err(bad());
+        }
+        if let Some(binding) = task.code_workspace_binding {
+            if binding.receipt.task_id != id
+                || binding.receipt.project_id != task.project_id
+                || binding.receipt.spec_revision != task.spec_revision
+                || binding.receipt.version != 1
+                || binding.revision == 0
+            {
+                return Err(bad());
+            }
+        }
+    }
+    Ok(())
 }
