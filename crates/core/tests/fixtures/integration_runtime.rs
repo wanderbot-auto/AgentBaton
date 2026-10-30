@@ -1338,7 +1338,7 @@ fn unicode_accepted_artifact_fresh_command_and_exact_cas_preserve_raw_utf8_path(
         &f.server,
         "integrations.start",
         json!({"policy_id":policy["id"]}),
-        Some("unicode-explicit-start"),
+        Some("explicit-start"),
         Some(policy["revision"].clone()),
     );
     // All original fresh subject/Command, real join, exact CAS, source/index
