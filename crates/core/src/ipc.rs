@@ -343,6 +343,17 @@ pub(crate) enum ReadyReply {
     Goal(SyncSender<GoalAdvanceReply>),
 }
 impl ReadyReply {
+    // Existing delayed-frame tests use blocking SyncSender::send. Preserve
+    // its wait/disconnect behavior; the plain wire carries no observation.
+    #[cfg(test)]
+    pub(crate) fn send(&self, wire: Value) -> std::result::Result<(), mpsc::SendError<Value>> {
+        match self {
+            Self::Wire(sender) => sender.send(wire),
+            Self::Goal(sender) => sender
+                .send(GoalAdvanceReply::new(wire, None))
+                .map_err(|mpsc::SendError(reply)| mpsc::SendError(reply.wire)),
+        }
+    }
     pub(crate) fn try_send(
         &self,
         wire: Value,
