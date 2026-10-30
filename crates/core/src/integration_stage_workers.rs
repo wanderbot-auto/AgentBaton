@@ -248,25 +248,14 @@ fn execute(
             let observed = super::io::prepare(ticket, cancel);
             match observed.result {
                 Ok(prepared) => {
-                    let bytes =
-                        ticket
-                            .policy
-                            .bindings
+                    let bytes = if observed.io.io_complete() {
+                        prepared
                             .outputs
                             .iter()
-                            .try_fold(0u64, |total, output| {
-                                let mut selected =
-                                    ticket.acceptance.artifact_refs.iter().filter(|artifact| {
-                                        artifact.artifact_id == output.artifact.artifact_id
-                                            && artifact.relative_path
-                                                == output.artifact.relative_path
-                                    });
-                                let artifact = selected.next()?;
-                                if selected.next().is_some() {
-                                    return None;
-                                }
-                                total.checked_add(artifact.bytes)
-                            });
+                            .try_fold(0u64, |total, (_, pin)| total.checked_add(pin.bytes))
+                    } else {
+                        None
+                    };
                     StageReturn {
                         context: Some(prepared),
                         result: Ok(StageFact::Prepared),

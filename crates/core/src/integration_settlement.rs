@@ -134,6 +134,7 @@ impl Store {
             if attempt.view.kind != IntegrationStageKind::Preparation {
                 return Err(changed());
             }
+            unknown |= !io.io_complete();
             records::event(
                 &tx,
                 &run.id,
@@ -143,6 +144,12 @@ impl Store {
             )?;
         }
 
+        if attempt.view.kind == IntegrationStageKind::Preparation
+            && joined.effects_admitted
+            && joined.preparation_io.is_none()
+        {
+            unknown = true;
+        }
         if let Ok(StageFact::Cas(receipt)) = &joined.result {
             let observed = receipt.record();
             if observed.grant_ref != policy.approval_id
