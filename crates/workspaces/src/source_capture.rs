@@ -1343,7 +1343,7 @@ mod deadline_tests {
             (b"100644 file\0".as_slice(), blob.as_str()),
         ] {
             raw_tree.extend_from_slice(header);
-            for pair in object.as_bytes().chunks_exact(2) {
+            for pair in object.as_bytes().as_chunks::<2>().0 {
                 raw_tree.push(u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap());
             }
         }
