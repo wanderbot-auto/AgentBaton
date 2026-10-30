@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "kind": "integration_runtime_test_source",
+  "status": "SOURCE_ONLY_NOT_COMPILED_OR_RUN",
+  "base": "97f14100f746c24aebf2bf7eba54264d1029c387",
+  "tested_source_commit": null,
+  "source_commit": "19c402e9ad05ce4b4271b750b64c5effc942dd6b",
+  "authority": "OWNER-001/002 implementation authorization; private Owner IPC is trusted-test-host only",
+  "source": {
+    "crates/core/tests/fixtures/integration_runtime.rs": {
+      "bytes": 42363,
+      "sha256": "ad5e7a4d1004f90036e675d9a9c42989f20fe456aef542507014f8362b7d664b"
+    },
+    "crates/core/tests/integration_ipc.rs": {
+      "bytes": 8590,
+      "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+    }
+  },
+  "author_actual_checks": [
+    {
+      "command": "rustfmt --edition 2021 <two permitted test paths>",
+      "exit": 0,
+      "dimension": "format/syntax only"
+    },
+    {
+      "command": "rustfmt --edition 2021 --check <two permitted test paths>",
+      "exit": 0
+    },
+    {
+      "command": "Python ast.parse(exact embedded generated ACP body)",
+      "result": "PASS; not executed"
+    },
+    {
+      "command": "assert current integration_ipc == git show 97f1410:integration_ipc + exact 3-line module include",
+      "result": "PASS; both existing tests/helper bytes unchanged"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "test_sources": [
+    {
+      "name": "accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_source",
+      "runtime_result": "NOT_RUN",
+      "expected_dimension": "actual Graph Owner acceptance, independent Integration authority, new merged correctness, controlled capture/merge/CAS, dirty unselected/index preservation, shared receipts and replay"
+    },
+    {
+      "name": "native_policy_before_task_acceptance_automatically_integrates_once_without_explicit_wake",
+      "runtime_result": "NOT_RUN",
+      "expected_dimension": "real policy approved while unaccepted, zero preaccept run/stages, automatic accepted watcher, same/new-key convergence without duplicate stages"
+    }
+  ],
+  "normal_path_sql_mutations": false,
+  "fixture_expected_constants": {
+    "work_reservation_ms": 4000,
+    "node_runtime_limit_ms": 5000,
+    "root_runtime_ms": 20000,
+    "project_runtime_ms": 20000,
+    "grant_lifetime_ms": 30000,
+    "integration_ttl_ms": 30000,
+    "observer_ms": 5000,
+    "stage_runtime_ms": [
+      1000,
+      1500,
+      500
+    ],
+    "expected_total_attempts": 4,
+    "expected_integration_attempts": 3,
+    "expected_artifact_and_retained_output_bytes": 24
+  },
+  "expected_measures_are_not_results": true,
+  "proposed_root_command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--test",
+    "integration_ipc",
+    "integration_runtime::",
+    "--",
+    "--show-output",
+    "--test-threads=1"
+  ],
+  "required_environment": {
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_TARGET_DIR": "Root existing lease only",
+    "PATH": "Root explicitly selects supported single-link system Git for whole test command; no in-test global override"
+  },
+  "not_run": [
+    "Rust compile/tests",
+    "generated Git fixture",
+    "Actor/product",
+    "browser",
+    "OS dialogs/macOS",
+    "CI",
+    "real Provider/models",
+    "delivery"
+  ],
+  "remaining": [
+    "compile and actual positive results",
+    "cancellation/revocation/expiry",
+    "unknown/journal failure/recovery",
+    "target/CAS races",
+    "shared mixed roots and full execution matrix",
+    "full AB-VAL-009 and full product"
+  ],
+  "preservation": "Generated TempDir kept on panic including setup; daemon joined before cleanup. No previous evidence changed."
+}
