@@ -1,0 +1,230 @@
+{
+  "contract": "agentbaton.goal-stop-service.root-results.v1",
+  "at_utc": "2026-10-30T11:59:41.191738+00:00",
+  "approval": "AB-START-001 unchanged",
+  "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+  "production_commit": "071083a340632ca780c817970e64837281080096",
+  "test_corrections": [
+    "ce6ff35689860ff6f2105d282026c9f321a753f8",
+    "729340a18bfe8f0abfd6e2e8f91dd1a298cd7825"
+  ],
+  "before_checkpoint_commit": "9a72b12f10b7325fd1f92e51c761aac107da3697",
+  "production_behavior": "A private coalesced hint follows a successfully committed owned Goal terminal turn. The ready batch services the original complete fresh stop-only policy before later Actor work. Original outer fresh sweep, admission/capture order, budgets and fees remain. No raw Provider event or hint is stop/join/acceptance authority.",
+  "actual": {
+    "focused6": "6passed4.87s; included in149",
+    "Core": "149unique95.93s; nested1included",
+    "Factory": "30passed119.40s; current embedded childGoal/rework source, other external legacy cases original frozen15 tools",
+    "sessionsIPC": "58passed189.21s actual Unix IPC",
+    "strictClippy": "workspace/alltargets -Dwarnings passed17.559s",
+    "format": "passed1.204s"
+  },
+  "commands": {
+    "goal-stop-service-tests1": {
+      "source": "87c47e03f31a394c5def4be3c76356b2c27e4d28",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "goal_stop_service_tests",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 25.48726766600157,
+      "log_sha256": "1143f13cb663bd3ef676cf42acd26bda9fb43299cc8d6d89c03b997b238257a4",
+      "summaries": [
+        "test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 143 filtered out; finished in 4.86s"
+      ],
+      "result_sha256": "b5b8fd78a2441601a0d72ac910233835e5eab59b3b9004bb1fcf524d395f4a04"
+    },
+    "goal-stop-service-tests2": {
+      "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "goal_stop_service_tests",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 24.58185076402151,
+      "log_sha256": "1961ff47536ca86e5900db07b96fe6714da851627b75f574fcdfd05bac48b645",
+      "summaries": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 143 filtered out; finished in 4.87s"
+      ],
+      "result_sha256": "e1b4d26d3195f4eef58b67e5bc1037683a8d5091660a57254bbb67ac3872c5e4"
+    },
+    "goal-stop-service-core1": {
+      "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 115.08381551899947,
+      "log_sha256": "0bd3a0c8bc0a1f936621b838d83c493fe8315dc50084c6d9ab4e1e2f509d5bed",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 148 filtered out; finished in 0.01s",
+        "test result: ok. 149 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 95.93s"
+      ],
+      "result_sha256": "2182b1a6593cae8b0e96bd715c23b131cd665242342df56eae21683dcdeb5d31"
+    },
+    "goal-stop-service-factory1": {
+      "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 141.51204503700137,
+      "log_sha256": "398679a18330dd825b745099eb77ce646cf08d94dbb3f751fddcaaec9a0146c9",
+      "summaries": [
+        "test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 119.40s"
+      ],
+      "result_sha256": "c7c7b12f7e936e050ba2c3fb51915bcd379b313de6236ef635978fa698553112"
+    },
+    "goal-stop-service-sessions1": {
+      "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 209.3719893039961,
+      "log_sha256": "e47dba321b425d3d6657a3a0f922702eef3f545f34b9e9b96e13a62f6236703b",
+      "summaries": [
+        "test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 189.21s"
+      ],
+      "result_sha256": "64e9f0739a98b5854cf1bd0a44ac9d8ea9ab6a239a55f3f431882e0c367ff1b2"
+    },
+    "goal-stop-service-clippy1": {
+      "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 17.559360229992308,
+      "log_sha256": "8f0c4ea73116852c7f2ab5411cbd2ce982ebfbe2d292100f6f3d920a7680fd75",
+      "summaries": [],
+      "result_sha256": "ce44bbbb4dc4b76648216c4d6df9eec9fcfe3e2c13f2e44757eace8a262645d3"
+    },
+    "goal-stop-service-format1": {
+      "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.2036441429809202,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "result_sha256": "3c7368147336d1aea8962a4dc8ad0148aecebe57131229fe686e9bc8d4a65101"
+    }
+  },
+  "reviews": [
+    {
+      "scope": "goal-stop-service-source-independent-review",
+      "review_sha256": "801846f77d234cd7106739de0c4621f6051b38bd6c8a50fddfc37e946d28b548",
+      "manifest_sha256": "3b24bafb8707f70268671d4545c2aff4eccf57c730412b513955234e7355e76f"
+    },
+    {
+      "scope": "goal-stop-service-tests-independent-review",
+      "review_sha256": "261e8e18cb3a675bc66a0534ec64b1402d0e95af4716eab750938f8f957496bc",
+      "manifest_sha256": "cfb710dd8c71ca864753783e0535369b45ecdc7b3cd6b2e5f4a8ccab41d9dbaf"
+    },
+    {
+      "scope": "goal-stop-service-tests-independent-review/revision-ce6ff356",
+      "review_sha256": "4adea8b3625d79738079f923aa6b19fecfacf62facf9b8c41875384f723612fa",
+      "manifest_sha256": "80fd57c3c1597dd95e7e8786b44fce293ae60ce59dbb6f61e7a05f6ed3c4c25e"
+    },
+    {
+      "scope": "goal-stop-service-tests-independent-review/revision-729340a",
+      "review_sha256": "3711a2a64e17b0d8eca71960bc8d67eee59cdc3f2c196f695cce0004cc23a93d",
+      "manifest_sha256": "3afb15f5831ae4f03b60a913942e880145d87830f3627cbd9aed91a19bd117db"
+    }
+  ],
+  "original_failure": {
+    "source": "87c47e03f31a394c5def4be3c76356b2c27e4d28",
+    "passed": 4,
+    "failed": 2,
+    "seconds": 4.86,
+    "reason": "Two tests incorrectly expected turn_state=None, although real prompt dispatch persists running/pending. Fixed tests require exact fresh running/pending state and no terminal event before the intended action. Production071 unchanged.",
+    "failed_ELF_sha256": "b3507ff95a485b7c4144c8645e60cd4bae1fff52016e688417e45289bacc15da",
+    "retention": "Raw0500singlelink plus full verified gzip and complete command log retained. Old TempDirs were automatically removed after daemon cleanup; no old database or panic-instant snapshot is claimed. Future failed fixture uses panic-only retention after owned cleanup.",
+    "prior_assertion_review": "Original missing post-reap Task/attempt assertions and both original review seals remain; new actual Task/receipt/attempt/event-tail checks preserve original4s/20s bounds."
+  },
+  "prior_exact_CI": {
+    "head": "8c292ae9edb0741a1629783ad9ac297a1f941f9e",
+    "Environment": 41035223312,
+    "Product": 41035223038,
+    "result": "Environment3/Rust/UI/ARM success; Intel26pass1fail, wholeProduct failure",
+    "Intel_job": 123994285814,
+    "finite_artifact": 12968668273,
+    "zip_sha256": "e5a5038495bbb78370885d9d3170db3ac6726b16d6f2c700a0d9cbe2f71450a9",
+    "failure": "wait_rework_awaiting_owner readonly response150ms beyond original observation deadline; plan1/run4 blocked",
+    "capture": {
+      "producer_ms": 4005,
+      "charged_actual_ms": 4362,
+      "reservation_ms": 4000,
+      "worker_started_or_joined": false,
+      "io": "not_started"
+    },
+    "rootcause_limit": "No phase-specific CPU/wait attribution. This differs from prior030 completed-worker join observation. New stop service must still be verified on exact Intel CI.",
+    "ARM_artifact": 12969147692,
+    "ARM_ZIP_bytes": 9889228,
+    "ARM_verification": "metadata only, not downloaded/hashed; no Intel installation package or dual accepted delivery"
+  },
+  "next": [
+    "exact new seven CI checks and both Mac native/build/audit/development packages",
+    "retain original failures and all4s/20s/30s/55s/60s test/product bounds",
+    "continue full Designv0.2/130 including separate schema16/17 and full authorized integration"
+  ],
+  "not_claimed": [
+    "Intel performance fixed",
+    "new Mac/native/real Provider validation",
+    "formal PR Approve or protected merge",
+    "complete product or final delivery"
+  ]
+}

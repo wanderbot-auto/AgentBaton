@@ -166,5 +166,12 @@
     "full_sessions_inverse": "/workspace/.onboarding/goal-stop-service-source/SESSIONS_INVERSE.rs"
   },
   "test_commit": "bac24a63b74aa1e253061c73ffcdac91be1385fe",
-  "test_dimension": "actual Native Core proposal/finalizer/version probe/approved Goal and generated ACP/owned Supervisor threads; direct private Actor helpers, not Daemon.run/Unix socket or OS dialog"
+  "test_dimension": "actual Native Core proposal/finalizer/version probe/approved Goal and generated ACP/owned Supervisor threads; direct private Actor helpers, not Daemon.run/Unix socket or OS dialog",
+  "root_validation_checkpoint": {
+    "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+    "results": "docs/execution/goal-stop-service/ROOT_RESULTS.json",
+    "sha256": "f8bcb4bc13ab622a7f1166e3f1542a1c08208a26536a6e0fec7ca87f7fb482ca",
+    "actual": "6included149/Factory30/sessions58/strictClippy/fmt pass; exactMacCI pending",
+    "old_failures_preserved": true
+  }
 }

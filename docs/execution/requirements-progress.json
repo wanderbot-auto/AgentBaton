@@ -4572,7 +4572,8 @@
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
         "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
         "docs/execution/factory-child-goal-integration/PRIOR_CAPTURE_AND_HEAD60BA_RESULTS.json",
-        "docs/execution/capture-completion-service/ROOT_RESULTS.json"
+        "docs/execution/capture-completion-service/ROOT_RESULTS.json",
+        "docs/execution/goal-stop-service/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -4636,6 +4637,15 @@
           "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
           "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
           "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
+        },
+        {
+          "slice": "owned_goal_terminal_stop_service",
+          "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+          "evidence": "docs/execution/goal-stop-service/ROOT_RESULTS.json",
+          "local": "149Core incl6,30Factory,58sessionsIPC,strictClippy/fmt passed",
+          "new_exact_Mac_CI": "not_run_yet",
+          "whole_requirement": "incomplete",
+          "authority": "hint is scheduling only; original fresh stop/actual receipts and budget/unknown guards unchanged"
         }
       ],
       "pr18_repair_observation": {
@@ -6867,7 +6877,8 @@
         "docs/execution/command-integration/EVIDENCE.json",
         "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
         "docs/execution/factory-child-goal-integration/PRIOR_CAPTURE_AND_HEAD60BA_RESULTS.json",
-        "docs/execution/capture-completion-service/ROOT_RESULTS.json"
+        "docs/execution/capture-completion-service/ROOT_RESULTS.json",
+        "docs/execution/goal-stop-service/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -6945,6 +6956,15 @@
           "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
           "exact_new_mac_ci": "not_run_yet",
           "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
+        },
+        {
+          "slice": "owned_goal_terminal_stop_service",
+          "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+          "evidence": "docs/execution/goal-stop-service/ROOT_RESULTS.json",
+          "local": "149Core incl6,30Factory,58sessionsIPC,strictClippy/fmt passed",
+          "new_exact_Mac_CI": "not_run_yet",
+          "whole_requirement": "incomplete",
+          "authority": "hint is scheduling only; original fresh stop/actual receipts and budget/unknown guards unchanged"
         }
       ]
     },
