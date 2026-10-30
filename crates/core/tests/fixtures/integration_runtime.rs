@@ -2529,6 +2529,10 @@ impl ReprepareGate {
         );
         // One PIPE_BUF-small nonblocking write; never waits for a failed child.
         assert_eq!(self.release.write(b"continue\n").unwrap(), 9);
+        assert!(
+            Instant::now() < host_deadline,
+            "Host release returned after bound"
+        );
     }
 }
 
