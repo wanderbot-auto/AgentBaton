@@ -4,13 +4,13 @@
     "AB-PRJ-004",
     "AB-PRJ-005"
   ],
-  "stage": "source_implemented_runtime_not_run",
+  "stage": "fixed_source_implemented_pending_independent_review_and_runtime",
   "base": "bc10ee94c667da9535018c37fdf5b128d63126af",
-  "source_commit": "2784897058dbf81b29432bac096892b01f0fa98d",
+  "source_commit": "4811d9b935b7c6a92113152d843470eb1d906355",
   "source_sha256": {
     "crates/workspaces/src/lib.rs": "2227d043ceaf878bcefbf594788b9b3e81864d955484e3fe98cbc718fd057b89",
-    "crates/workspaces/src/source_capture.rs": "5f91cb3d5abcc5d88ecb841ed25b1f9cac7e3168834fa6d8c76fd2a008039ac6",
-    "crates/workspaces/tests/source_capture.rs": "17931da3eea88c4bae9dd19fbd421722cef1252f2c4b7bbcb12ae7f8c09861c4"
+    "crates/workspaces/src/source_capture.rs": "03b85436642cf85379b43a2abf839b269d6f8bda0804f31861ac5a0961434977",
+    "crates/workspaces/tests/source_capture.rs": "6e4b708b0d7420e4c66d852d54fcec7b0e8bde1d3a382e6a5ed5135146dfb168"
   },
   "authority": "trusted host must verify accepted receipt and independent integration policy; this library authenticates neither",
   "actual_command_results": [
@@ -18,10 +18,10 @@
       "name": "static-checks",
       "argv": [
         "python3",
-        "/workspace/.onboarding/accepted-source-capture-2784897/static-checks.py"
+        "/workspace/.onboarding/accepted-source-capture-4811d9b/static-checks.py"
       ],
       "exit_code": 0,
-      "stdout_sha256": "e592aabfb1b60bde3011a0999fac841cc860e2ad32a5b07250404fe15fdb4276",
+      "stdout_sha256": "8a3dc2393891d12192b56225ae622492c977ad114c2aa5b9b8455e932a10c609",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
@@ -52,7 +52,7 @@
   ],
   "test_source_counts": {
     "integration": 13,
-    "cfg_unit": 1,
+    "cfg_unit": 4,
     "executed": 0
   },
   "not_run": [
@@ -82,6 +82,36 @@
     "no TaskAccepted/Grant/adoption authority",
     "no new Core schema/DTO/API/permissions"
   ],
-  "artifact_directory": "/workspace/.onboarding/accepted-source-capture-2784897",
-  "source_only_checks_do_not_prove_runtime": true
+  "artifact_directory": "/workspace/.onboarding/accepted-source-capture-4811d9b",
+  "source_only_checks_do_not_prove_runtime": true,
+  "history": {
+    "initial_source": "2784897058dbf81b29432bac096892b01f0fa98d",
+    "initial_source_sha256": {
+      "crates/workspaces/src/lib.rs": "2227d043ceaf878bcefbf594788b9b3e81864d955484e3fe98cbc718fd057b89",
+      "crates/workspaces/src/source_capture.rs": "5f91cb3d5abcc5d88ecb841ed25b1f9cac7e3168834fa6d8c76fd2a008039ac6",
+      "crates/workspaces/tests/source_capture.rs": "17931da3eea88c4bae9dd19fbd421722cef1252f2c4b7bbcb12ae7f8c09861c4"
+    },
+    "initial_artifacts": "/workspace/.onboarding/accepted-source-capture-2784897",
+    "initial_independent_verdict": "changes_required",
+    "initial_independent_artifacts": "/workspace/.onboarding/accepted-source-capture-independent-review",
+    "initial_independent_artifact_sha256": {
+      "REVIEW.md": "f478adad066086a7fa25e457174d74d6f9779f827affeb71cf1625e54845e7ee",
+      "MANIFEST.json": "6e6f6657b47c0226ac419b9ddc848c66a0c49f6422115aed52cdba08b9d55682",
+      "RAW_RACE_RESULT.json": "72af1cb8dd671939eb401c11e5fc43baccba06a1b272da9e12023625cad83c5f",
+      "raw_race_countercontrol.py": "0b7835a1d94fb7b6749b45785be69b3b1e3900094a88f6eaeba209cfc46b9cbe"
+    }
+  },
+  "fix_dimensions": [
+    "full raw metadata excluding atime",
+    "bounded actual Git blob stream SHA256/exact length, real child wait/reader joins before return",
+    "strict entire tree-vs-base selected allowlist and exact commit tree proof"
+  ],
+  "runtime_claims": {
+    "Rust_compilation": false,
+    "Git_tests": false,
+    "kill_wait_join_experiment": false,
+    "Clippy": false,
+    "Mac": false,
+    "full_adoption": false
+  }
 }

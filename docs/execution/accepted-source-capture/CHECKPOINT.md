@@ -7,3 +7,9 @@ Next Root actions: independent source/API/safety review, then actual `cargo test
 Future integration must retain the one-use private host capability, approved receipt + separate product integration policy checks, root/common bindings, file contracts and current proof. This source commit does not supply those higher-level authorities. Never reuse prior file integrity pass as correctness proof for a merged Git candidate, never reset shared budgets, and never convert partial raw objects into a completed integration receipt.
 
 Residual boundaries: unsupported Unicode base/selected paths and unusual/unrepresentable Git layouts; no deletion/rename/chmod; no cooperative interruption of blocked kernel reads; private scratch retained with no automatic cleanup service; same-user uncoordinated mutation is not excluded continuously; no OS sandbox, candidate correctness, adoption/ref CAS, restart/unknown Core protocol, remote branch protection, macOS or complete AB-VAL-009 acceptance.
+
+## Superseding checkpoint (history above retained)
+
+Use final source4811d9b935b7c6a92113152d843470eb1d906355 and final artifact directory `/workspace/.onboarding/accepted-source-capture-4811d9b`; old278 evidence stays immutable. Root-approved private stream verifier and final diff allowlist are implemented after initial review P1/static gaps. Wait for independent fixed-source review and real Root compilation/tests; do not call the unit accepted. Test-source counts13integration+4cfgunit are not executed passes and are not added to prior checks.
+
+Suggested actual commands when Root grants disk/CPU: `cargo test --locked -p agentbaton-workspaces --test source_capture`; `cargo test --locked -p agentbaton-workspaces --lib source_capture::deadline_tests`; then applicable exact-source Clippy/fmt. Keep actual failures and all raw first-review artifacts. No global deadline/budget/contract widening is authorized for a green result.
