@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import stat
+import threading
 
 CASES = ('normal', 'lost-start', 'cancel')
 EXPECTED = {'normal': {'CG01','CG02','CG05','CG06'},
@@ -66,6 +67,100 @@ def candidate_summary(raw):
         'frontend_asset_count':len(assets),'frontend_assets_sha256':sha(json.dumps(assets,sort_keys=True,separators=(',',':')).encode())}
     return m,summary
 
+# Fixed Core15 method/code vocabulary, not user-supplied display strings.
+DIAGNOSTIC_METHODS = frozenset(['approvals.decline', 'approvals.finalize', 'command_validation_policies.list', 'command_validation_policies.propose', 'command_validation_policies.revoke', 'command_validations.cancel', 'command_validations.get', 'command_validations.list', 'command_validations.run', 'connections.list', 'connections.propose', 'connections.register', 'data_validation_policies.list', 'data_validation_policies.propose', 'data_validation_policies.revoke', 'data_validations.list', 'data_validations.run', 'data_workspace_previews.cancel', 'data_workspace_previews.get', 'data_workspace_previews.list', 'data_workspace_previews.start', 'data_workspaces.approve', 'data_workspaces.cancel', 'data_workspaces.create', 'data_workspaces.get', 'data_workspaces.list', 'data_workspaces.propose', 'events.subscribe', 'factory_child_goals.advance_plan', 'factory_child_goals.cancel', 'factory_child_goals.get', 'factory_child_goals.list', 'factory_child_goals.start', 'factory_child_plans.context', 'factory_child_plans.get', 'factory_child_plans.list', 'factory_child_plans.submit', 'factory_runs.cancel', 'factory_runs.get', 'factory_runs.start', 'factory_scopes.get', 'factory_scopes.list', 'factory_scopes.propose', 'factory_scopes.revoke', 'goal_graph_runs.advance_plan', 'goal_graph_runs.cancel', 'goal_graph_runs.dispatch', 'goal_graph_runs.get', 'goal_graph_runs.list', 'goal_graph_runs.propose', 'goal_node_approvals.propose', 'goal_plans.accept', 'goal_plans.dispatch', 'goal_plans.get', 'goal_plans.list', 'goal_plans.propose', 'goal_plans.ready_preview', 'goal_plans.reserve', 'goal_plans.revise', 'goal_runs.advance_plan', 'goal_runs.cancel', 'goal_runs.dispatch', 'goal_runs.get', 'goal_runs.list', 'goal_runs.propose', 'goal_scopes.approve', 'goal_scopes.get', 'goal_scopes.list', 'goal_scopes.propose', 'goal_scopes.revoke', 'grants.create', 'grants.list', 'grants.propose', 'grants.revoke', 'projects.archive', 'projects.import', 'projects.list', 'projects.reassociate', 'sessions.cancel', 'sessions.create', 'sessions.get', 'sessions.list', 'sessions.send', 'system.snapshot', 'tasks.cancel', 'tasks.create', 'tasks.get', 'tasks.list', 'validation_policies.list', 'validation_policies.propose', 'validation_policies.revoke', 'validations.list', 'validations.run', 'workspaces.create', 'workspaces.list'])
+DIAGNOSTIC_CODES = frozenset(['AUTH_REQUIRED', 'BUDGET_UNKNOWN', 'CANCEL_REQUESTED', 'CAPABILITY_UNSUPPORTED', 'CHILD_CANCELLED', 'CONFIG_CONFLICT', 'DEADLINE_EXCEEDED', 'ENFORCEMENT_UNAVAILABLE', 'INPUT_CHANGED', 'INTERNAL_ERROR', 'INVALID_REQUEST', 'NOT_FOUND', 'OUTCOME_UNKNOWN', 'PERMISSION_DENIED', 'PROVIDER_DISCONNECTED', 'RESOURCE_LIMIT', 'STALE_REVISION', 'TIMEOUT', 'VERSION_UNSUPPORTED', 'WORKSPACE_BUSY'])
+DIAGNOSTIC_EFFECTS = frozenset({'not_started','confirmed','unknown'})
+ERROR_CLASSES = frozenset({'assertion','refusal','timeout','os_error','type_error','value_error','runtime_error','other'})
+MAX_DIAGNOSTIC_REPLIES=2048
+MAX_DIAGNOSTIC_BUCKETS=64
+
+def unobserved_diagnostics():
+    return {'version':1,'failure_class':None,'driver_lines':None,'lines_truncated':None,
+        'phase':None,'last_completed_check':None,'core_replies':{'observation':'unobserved',
+        'captured_count':None,'truncated':None,'unmapped_error_count':None,'errors':None}}
+
+def finite_diagnostics(value):
+    if value is None:return unobserved_diagnostics()
+    require(type(value)is dict and set(value)==set(unobserved_diagnostics()))
+    require(type(value['version'])is int and value['version']==1)
+    require(value['failure_class']is None or type(value['failure_class'])is str and value['failure_class']in ERROR_CLASSES)
+    require(value['phase']is None or type(value['phase'])is str and value['phase']in {'runtime','cleanup'})
+    require(value['last_completed_check']is None or type(value['last_completed_check'])is str and value['last_completed_check']in {'CG01','CG02','CG03','CG04','CG05','CG06'})
+    lines=value['driver_lines'];require(lines is None or type(lines)is list and 0<len(lines)<=64 and all(type(n)is int and 1<=n<=1000000 for n in lines))
+    require(type(value['lines_truncated'])is bool if value['failure_class']is not None else value['lines_truncated']is None)
+    require(value['failure_class']is not None or lines is None and value['phase']is None)
+    rows=value['core_replies'];require(type(rows)is dict and set(rows)=={'observation','captured_count','truncated','unmapped_error_count','errors'})
+    require(type(rows['observation'])is str and rows['observation']in {'unobserved','observed'})
+    if rows['observation']=='unobserved':require(all(rows[k]is None for k in ('captured_count','truncated','unmapped_error_count','errors')))
+    else:
+        require(type(rows['captured_count'])is int and 1<=rows['captured_count']<=MAX_DIAGNOSTIC_REPLIES and type(rows['truncated'])is bool)
+        require(type(rows['unmapped_error_count'])is int and 0<=rows['unmapped_error_count']<=rows['captured_count'])
+        require(type(rows['errors'])is list and len(rows['errors'])<=MAX_DIAGNOSTIC_BUCKETS)
+        seen=set();total=rows['unmapped_error_count']
+        for row in rows['errors']:
+            require(type(row)is dict and set(row)=={'method','code','retryable','side_effect_state','count'})
+            require(type(row['method'])is str and row['method']in DIAGNOSTIC_METHODS and type(row['code'])is str and row['code']in DIAGNOSTIC_CODES)
+            require(type(row['retryable'])is bool and type(row['side_effect_state'])is str and row['side_effect_state']in DIAGNOSTIC_EFFECTS)
+            require(type(row['count'])is int and 1<=row['count']<=MAX_DIAGNOSTIC_REPLIES)
+            identity=(row['method'],row['code'],row['retryable'],row['side_effect_state']);require(identity not in seen);seen.add(identity);total+=row['count']
+        require(total<=rows['captured_count'])
+    return value
+
+class FiniteRuntimeDiagnostics:
+    """Observe returned Core dictionaries only; no error-text parsing or IO."""
+    def __init__(self):
+        self._lock=threading.Lock();self._value=unobserved_diagnostics();self._buckets={};self._invalid=False
+    def completed(self,check):
+        with self._lock:
+            if type(check)is not str or check not in {'CG01','CG02','CG03','CG04','CG05','CG06'}:self._invalid=True
+            else:self._value['last_completed_check']=check
+    def reply(self,method,reply):
+        # This short independent metadata lock covers no IPC, file or callback.
+        with self._lock:
+            rows=self._value['core_replies']
+            if rows['observation']=='unobserved':rows.update(observation='observed',captured_count=0,truncated=False,unmapped_error_count=0,errors=[])
+            if rows['captured_count']>=MAX_DIAGNOSTIC_REPLIES:rows['truncated']=True;return
+            rows['captured_count']+=1
+            if type(reply)is not dict:self._invalid=True;return
+            if 'error'not in reply:return
+            error=reply['error']
+            if type(error)is not dict or set(error)!={'code','message','retryable','side_effect_state','details_ref'} or type(error['code'])is not str or type(error['message'])is not str or type(error['retryable'])is not bool or type(error['side_effect_state'])is not str or not(error['details_ref']is None or type(error['details_ref'])is str):
+                self._invalid=True;return
+            if type(method)is not str or method not in DIAGNOSTIC_METHODS or error['code']not in DIAGNOSTIC_CODES or error['side_effect_state']not in DIAGNOSTIC_EFFECTS:
+                rows['unmapped_error_count']+=1;return
+            identity=(method,error['code'],error['retryable'],error['side_effect_state'])
+            if identity not in self._buckets:
+                if len(self._buckets)>=MAX_DIAGNOSTIC_BUCKETS:rows['unmapped_error_count']+=1;rows['truncated']=True;return
+                row=dict(zip(('method','code','retryable','side_effect_state'),identity));row['count']=0
+                self._buckets[identity]=row;rows['errors'].append(row)
+            self._buckets[identity]['count']+=1
+    def failure(self,error,phase,filename,refusal_type,timeout_types=()):
+        with self._lock:
+            if self._value['failure_class']is not None:return
+            if isinstance(error,refusal_type):kind='refusal'
+            elif isinstance(error,AssertionError):kind='assertion'
+            elif isinstance(error,(TimeoutError,)+timeout_types):kind='timeout'
+            elif isinstance(error,OSError):kind='os_error'
+            elif isinstance(error,TypeError):kind='type_error'
+            elif isinstance(error,ValueError):kind='value_error'
+            elif isinstance(error,RuntimeError):kind='runtime_error'
+            else:kind='other'
+            lines=[];truncated=False;tb=error.__traceback__
+            for _ in range(4096):
+                if tb is None:break
+                if tb.tb_frame.f_code.co_filename==filename:
+                    if len(lines)<64:lines.append(tb.tb_lineno)
+                    else:truncated=True
+                tb=tb.tb_next
+            if tb is not None:truncated=True
+            self._value.update(failure_class=kind,driver_lines=lines or None,lines_truncated=truncated,phase=phase)
+    def snapshot(self):
+        with self._lock:
+            if self._invalid:return {'version':1,'invalid':True}
+            # All retained fields have already been reduced to finite scalars.
+            return json.loads(json.dumps(self._value,allow_nan=False))
+
 def project(report, candidate, summary, case, exit_code, harness_sha):
     require(case in CASES and (exit_code is None or type(exit_code)is int and -128<=exit_code<=255))
     require(type(report)is dict and report.get('case')==case and report.get('status')in ('passed','failed_or_interrupted'))
@@ -83,7 +178,7 @@ def project(report, candidate, summary, case, exit_code, harness_sha):
         **summary,'harness_sha256':harness_sha,'exit_code':exit_code,'command_state':'unobserved'if exit_code is None else 'returned','checks':safe,
         'cleanup_complete':report['cleanup_complete'],'cleanup_record_count':len(cleanup),
         'failure_kind':'none'if passed else 'runtime_failed','screenshots_published':False,
-        'private_history_published':False}
+        'private_history_published':False,'finite_diagnostics':finite_diagnostics(report.get('finite_diagnostics'))}
 
 def publish(path,value):
     pending=path.with_name(path.name+'.pending')
@@ -100,7 +195,7 @@ def main():
     require(exit_code is None or -128<=exit_code<=255)
     output=args.output.absolute();output.mkdir(mode=0o700,parents=True,exist_ok=False)
     summary={'contract':'agentbaton.child-goal-ci.v1','case':args.case,'status':'failed',
-        'exit_code':exit_code,'command_state':'unobserved'if exit_code is None else 'returned','failure_kind':'manifest_invalid','screenshots_published':False,'private_history_published':False}
+        'exit_code':exit_code,'command_state':'unobserved'if exit_code is None else 'returned','failure_kind':'manifest_invalid','screenshots_published':False,'private_history_published':False,'finite_diagnostics':unobserved_diagnostics()}
     stage='manifest_invalid'
     try:
         candidate,fields=candidate_summary(regular_bytes(args.manifest,4_194_304));summary.update(fields)
