@@ -2017,7 +2017,8 @@
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-stop-service/ROOT_RESULTS.json",
-        "docs/execution/factory-history-worker/ROOT_RESULTS.json"
+        "docs/execution/factory-history-worker/ROOT_RESULTS.json",
+        "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2247,6 +2248,16 @@
           "history_authority": "none; original effect/livechecks unchanged; readonlysameWALsnapshot",
           "current_Mac_and_performance": "not_run",
           "whole_requirement": "incomplete"
+        },
+        {
+          "slice": "typed_private_failure_diagnostics_and_stopped_history_correlation_partial",
+          "source": "2d424044de882f2497370b174ed0d31a5b8bd945",
+          "infrastructure": 233,
+          "actual_rework_cases": 1,
+          "actual_new_normal_browser_checks": 4,
+          "compiled_Core_and_frontend_for_browser": "4155548fbeca71f238309cff33a248ea1e2d53ca",
+          "CI_cause_or_performance_fix": false,
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -2287,7 +2298,8 @@
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
         "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
-        "docs/execution/factory-history-worker/ROOT_RESULTS.json"
+        "docs/execution/factory-history-worker/ROOT_RESULTS.json",
+        "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2510,6 +2522,16 @@
           "history_authority": "none; original effect/livechecks unchanged; readonlysameWALsnapshot",
           "current_Mac_and_performance": "not_run",
           "whole_requirement": "incomplete"
+        },
+        {
+          "slice": "typed_private_failure_diagnostics_and_stopped_history_correlation_partial",
+          "source": "2d424044de882f2497370b174ed0d31a5b8bd945",
+          "infrastructure": 233,
+          "actual_rework_cases": 1,
+          "actual_new_normal_browser_checks": 4,
+          "compiled_Core_and_frontend_for_browser": "4155548fbeca71f238309cff33a248ea1e2d53ca",
+          "CI_cause_or_performance_fix": false,
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -2559,7 +2581,8 @@
         "docs/execution/factory-child-goal-integration/ATOMIC_RESERVATION_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEADDE0B_TERMINAL_RESULTS.json",
         "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
-        "docs/execution/factory-history-worker/ROOT_RESULTS.json"
+        "docs/execution/factory-history-worker/ROOT_RESULTS.json",
+        "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2787,6 +2810,16 @@
           "history_authority": "none; original effect/livechecks unchanged; readonlysameWALsnapshot",
           "current_Mac_and_performance": "not_run",
           "whole_requirement": "incomplete"
+        },
+        {
+          "slice": "typed_private_failure_diagnostics_and_stopped_history_correlation_partial",
+          "source": "2d424044de882f2497370b174ed0d31a5b8bd945",
+          "infrastructure": 233,
+          "actual_rework_cases": 1,
+          "actual_new_normal_browser_checks": 4,
+          "compiled_Core_and_frontend_for_browser": "4155548fbeca71f238309cff33a248ea1e2d53ca",
+          "CI_cause_or_performance_fix": false,
+          "overall_requirement": "incomplete"
         }
       ],
       "pr18_repair_observation": {
