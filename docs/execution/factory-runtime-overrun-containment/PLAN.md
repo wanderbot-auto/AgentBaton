@@ -1,3 +1,5 @@
+Next: validate the exact combined source in all seven remote checks and real Mac native/package gates; retain original per-attempt/ancestor limits and distinguish clean blocked state from daemon failure. Local Actor control flow now passes; do not claim natural Mac overrun closure.
+
 # Plan
 
 AB-TSK-003/004/005 and AB-SEC-003/005: isolate a confirmed resource rejection so an existing stopped Factory child Goal cannot terminate the daemon merely because its retained measured attempt exceeded its original reservation. Preserve exact stopped-history authentication, per-attempt/root/project budgets, unknown outcomes, Owner controls and no-auto-retry/no-refund semantics. This is not permission for the failed rework to succeed.

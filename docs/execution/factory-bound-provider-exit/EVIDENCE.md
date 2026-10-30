@@ -1,3 +1,9 @@
+## Root actual combined recheck — 2026-10-30T03:06:54.839236+00:00
+
+Actual compiledCoref22/driverf22 and unchanged frontend2d: childGoal normal/lost-start/cancel4/5/4checks, legacy normal/cancel/unknown4each and child planning9 all pass, all cleanup_complete=true. Only exact already-bound double-Z/non-controller records defer fresh discovery. No ACK, new identity, stop/wait proof or signal is invented; final actual daemon wait and bound identity disappearance remain strict. Existing base final fresh-stage assertion also stayed intact.
+
+Older first-binding/ACK-cycle/current Ownerloading/late-MCP failures remain source-bound and retained. The successful generated fixture result is Linux/Chromium/UnixIPC, not real Provider or Native/Mac. See ../factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json; new exactCI remains required.
+
 # Evidence
 
 ## Already-bound, not-yet-adopted MCP discovery deferral

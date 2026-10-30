@@ -1,3 +1,5 @@
+Next: exercise the exact combined candidate in remote UI/native validation; keep finalactualwait/gone checks and original budgets. No speculative broader process tolerance.
+
 # Previously bound Factory fixture process exit observations
 
 ## Already-bound, not-yet-adopted MCP discovery deferral

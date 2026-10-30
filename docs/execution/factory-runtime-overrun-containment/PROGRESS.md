@@ -1,3 +1,9 @@
+## Root actual regression — 2026-10-30T03:06:54.839236+00:00
+
+Root Rust source9aa (unchanged production Rust throughf22) compiled and executed all four new Actor cases:4PASS25.27s/log9d4783e977410957ad3834fcece67dd30752fd62a13860ee7b2829f049a3c8bd. The positive uses a precise test-only post-owned-stop4000→4001 ledger override and proves subsequent same-daemon reads and Owner cancellation request remain usable; it does not prove a natural overrun or a final cancelled terminal state. Missing reservation/stop proof and unrelated raw RESOURCE_LIMIT remain exact negative paths.
+
+Whole Factory group30PASS114.20s (includes those4), Core129PASS90.78s (nested1excluded), strict all-target workspaceClippy, format and infrastructure189 pass at separately recorded sources. First full30's missing debugCLI18/12 failure and compilation-capacity interruption remain retained; no assertion changed to resolve the environment issue. The combined f22 preview build also passes all seven actual generated ACP/browser/UnixIPC flows with actual cleanup, not a Mac fix proof. See ../factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json and independent97 source seal. New exact CI and native/package gates remain pending; full130 and authority boundaries unchanged.
+
 # Progress
 
 Implemented the exact original retained predicate as Result<bool>, preserving the existing refusal wrapper and error text for all old callers. Confirmation returns Pending, Confirmed or a boxed opaque RetainedOverrun token. The token has no Debug/Serialize/Deserialize and is minted only after original private stop proof and successful budget-record reads. It is consumed once, rechecks Goal ID/revision/plan/digest/task/root/project/scope and stop/budget facts, then the existing Factory transaction writes the exact target and run blocked with the existing rework_blocked event. Original accepted/unknown/recovery paths remain.

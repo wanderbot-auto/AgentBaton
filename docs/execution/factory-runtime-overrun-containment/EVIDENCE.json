@@ -94,5 +94,7 @@
   "actual_root_tests": "PENDING",
   "budgets_permissions_ipc_dto_schema_locks_workflows_changed": false,
   "opaque_proof_traits": "no Debug/Serialize/Deserialize/Clone",
-  "resource_limit_code_catch": "NONE; successful predicate result only"
+  "resource_limit_code_catch": "NONE; successful predicate result only",
+  "Root_actual_results": "../factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
+  "Root_actual_limits": "Post-owned-stop synthetic duration override, not natural elapsed cost. Cancellation request+join, not a terminalcancelled claim."
 }

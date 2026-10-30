@@ -1,3 +1,9 @@
+## Root actual regression — 2026-10-30T03:06:54.839236+00:00
+
+Root Rust source9aa (unchanged production Rust throughf22) compiled and executed all four new Actor cases:4PASS25.27s/log9d4783e977410957ad3834fcece67dd30752fd62a13860ee7b2829f049a3c8bd. The positive uses a precise test-only post-owned-stop4000→4001 ledger override and proves subsequent same-daemon reads and Owner cancellation request remain usable; it does not prove a natural overrun or a final cancelled terminal state. Missing reservation/stop proof and unrelated raw RESOURCE_LIMIT remain exact negative paths.
+
+Whole Factory group30PASS114.20s (includes those4), Core129PASS90.78s (nested1excluded), strict all-target workspaceClippy, format and infrastructure189 pass at separately recorded sources. First full30's missing debugCLI18/12 failure and compilation-capacity interruption remain retained; no assertion changed to resolve the environment issue. The combined f22 preview build also passes all seven actual generated ACP/browser/UnixIPC flows with actual cleanup, not a Mac fix proof. See ../factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json and independent97 source seal. New exact CI and native/package gates remain pending; full130 and authority boundaries unchanged.
+
 # Checkpoint
 
 SOURCE_ONLY candidate awaits independent fixed-source review and Root compilation/actual tests. The original d514 ARM22pass1fail/159.17s remains: fixture received a PROVIDER_DISCONNECTED/unknown envelope; Actor thread joined with retained-overrun RESOURCE_LIMIT error. That log has no exact offending attempt/node/round/runtime/capture facts. Static code establishes one fatal propagation path, not its independently measured call stack. No claim is made that this change solves the natural Mac timing/rework failure, proves the shell started, or proves the prior grep alias hypothesis.
