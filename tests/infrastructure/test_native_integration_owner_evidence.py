@@ -367,6 +367,45 @@ class IntegrationSeedSourceControls(unittest.TestCase):
                      base+['--kind','integration','--companion','/companion','--factory-cancel-at','1']]:
             with mock.patch.object(sys,'argv',argv),mock.patch('sys.stderr'),self.assertRaises(SystemExit):exec(code,namespace)
 
+    def test_real_preparation_view_selects_only_exact_nested_receipt_workspace(self):
+        # Shape follows actual TaskWorkspaceBindingView / TaskWorkspaceBinding;
+        # this is pure DTO data, not an executed preparation or an authority.
+        receipt={'workspace_id':'nested-workspace','task_id':'task','project_id':'project','host_id':'local','managed_root':'/private/generated/workspaces'}
+        binding={'receipt':receipt,'state':'ready','revision':2,'managed_pin':{'head':'a'*40}}
+        view={'original_receipt':copy.deepcopy(receipt),'binding':binding,'task_revision':2,
+              'observed_managed_pin':{'head':'a'*40},'identity_revalidated':True,'execution_authorized':False}
+        task={'id':'task','project_id':'project','revision':2,'code_workspace_binding':copy.deepcopy(binding)}
+        workspace={'id':'nested-workspace','project_id':'project','root':'/private/generated/workspaces/nested-workspace'}
+        self.assertEqual(F.prepared_workspace(N,view,task,[workspace]),workspace)
+        for bad in ['flat_only','extra_flat','original_mismatch','task_mismatch','foreign_id','duplicate_id','wrong_root','foreign_project']:
+            v=json.loads(json.dumps(view));t=json.loads(json.dumps(task));ws=json.loads(json.dumps([workspace]))
+            if bad=='flat_only':v['binding']={'workspace_id':'nested-workspace','state':'ready'}
+            elif bad=='extra_flat':v['binding']['workspace_id']='foreign-flat-id'
+            elif bad=='original_mismatch':v['original_receipt']['workspace_id']='foreign-workspace'
+            elif bad=='task_mismatch':t['code_workspace_binding']['receipt']['workspace_id']='foreign-workspace'
+            elif bad=='foreign_id':ws[0]['id']='foreign-workspace'
+            elif bad=='duplicate_id':ws.append(copy.deepcopy(ws[0]))
+            elif bad=='wrong_root':ws[0]['root']='/private/generated/wrong-root'
+            else:ws[0]['project_id']='foreign-project'
+            with self.subTest(bad=bad),self.assertRaises(ValueError):F.prepared_workspace(N,v,t,ws)
+
+    def test_policy_cas_uses_scope_record1_while_execution_grant_revision_is2(self):
+        scope={'id':'scope','task_id':'task','revision':1,'authority_revision':2,'root_grant_revision':2,'revoked':False}
+        context={'bindings':{'goal_scope_id':'scope','task_id':'task','goal_scope_revision':1}}
+        self.assertEqual(F.policy_scope_revision(N,context,scope),1)
+        self.assertNotEqual(F.policy_scope_revision(N,context,scope),scope['authority_revision'])
+        for bad in [True,1.0,0,2,None,'1',1<<64]:
+            value=json.loads(json.dumps(context));value['bindings']['goal_scope_revision']=bad
+            with self.subTest(bad=bad),self.assertRaises(ValueError):F.policy_scope_revision(N,value,scope)
+        # Wrong-domain values are not accepted even if they are real u64s.
+        value=json.loads(json.dumps(context));value['bindings']['goal_scope_revision']=2
+        with self.assertRaises(ValueError):F.policy_scope_revision(N,value,scope)
+        for field,bad in [('revision',True),('revision',1.0),('id','foreign'),('task_id','foreign'),('revoked',True)]:
+            value=json.loads(json.dumps(scope));value[field]=bad
+            with self.subTest(field=field),self.assertRaises(ValueError):F.policy_scope_revision(N,context,value)
+        updated=dict(scope,revision=3);observed=copy.deepcopy(context);observed['bindings']['goal_scope_revision']=3
+        self.assertEqual(F.policy_scope_revision(N,observed,updated),3)
+
     def test_raw_postapproval_requires_complete_result_and_exact_c932_two_event_transaction(self):
         # Inert records only. No Core authority or accepted Task is manufactured.
         from types import SimpleNamespace

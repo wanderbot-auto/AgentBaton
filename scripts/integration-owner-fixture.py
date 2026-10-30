@@ -151,6 +151,41 @@ def tool_copy(source, destination, *, fixed_system_program=False):
     return {'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
 
 
+def prepared_workspace(owner, view, task, workspaces):
+    """Select the real TaskWorkspaceBindingView's nested immutable receipt ID."""
+    require(type(view) is dict and set(view) == {'original_receipt', 'binding', 'task_revision',
+            'observed_managed_pin', 'identity_revalidated', 'execution_authorized'}, 'Exact preparation view required')
+    binding = view['binding']
+    require(type(binding) is dict and set(binding) == {'receipt', 'state', 'revision', 'managed_pin'}
+            and binding['state'] == 'ready' and view['identity_revalidated'] is True
+            and view['execution_authorized'] is False, 'Ready nested binding required; no flat workspace_id')
+    receipt = binding['receipt']
+    require(type(receipt) is dict and owner.json_exact(receipt, view['original_receipt'])
+            and owner.json_exact(task.get('code_workspace_binding'), binding)
+            and receipt.get('task_id') == task.get('id') and receipt.get('project_id') == task.get('project_id')
+            and receipt.get('host_id') == 'local', 'Original receipt/Task binding mismatch')
+    workspace_id = receipt.get('workspace_id')
+    require(owner.opaque_id(workspace_id) and type(workspaces) is list and len(workspaces) <= 256)
+    selected = [w for w in workspaces if type(w) is dict and w.get('id') == workspace_id]
+    require(len(selected) == 1 and selected[0].get('project_id') == receipt['project_id']
+            and selected[0].get('root') == str(Path(receipt['managed_root']) / workspace_id),
+            'Unique workspace must match the nested original receipt')
+    return selected[0]
+
+
+def policy_scope_revision(owner, context, scope):
+    """Policy CAS is ScopeRecord.revision, never its execution-Grant revision."""
+    bindings = context.get('bindings')
+    require(type(bindings) is dict and bindings.get('goal_scope_id') == scope.get('id')
+            and bindings.get('task_id') == scope.get('task_id') and scope.get('revoked') is False,
+            'Observed integration context/Goal scope identity mismatch')
+    revision = bindings.get('goal_scope_revision')
+    require(type(revision) is int and 0 < revision <= (1 << 64) - 1
+            and owner.json_exact(revision, scope.get('revision')),
+            'Observed ScopeRecord CAS mismatch; authority_revision is a distinct Grant domain')
+    return revision
+
+
 @contextmanager
 def bootstrap(owner, daemon_path, companion_path, output):
     """Actual Core only, when Root explicitly runs it. No OS success fabricated."""
@@ -200,7 +235,7 @@ def bootstrap(owner, daemon_path, companion_path, output):
                     'preparation_key': preview['preparation_key']}, 'integration-owner:prepare', task['revision'])
                 require(receipt['identity_revalidated'] is True and receipt['execution_authorized'] is False and receipt['binding']['state'] == 'ready')
                 task = client.call('tasks.get', {'task_id': task['id']})
-                workspace = next(w for w in client.call('workspaces.list', {'project_id': project['id']}) if w['id'] == receipt['binding']['workspace_id'])
+                workspace = prepared_workspace(owner, receipt, task, client.call('workspaces.list', {'project_id': project['id']}))
                 connection = client.approved('connections.propose', {'name': 'Generated integration ACP', 'provider': 'custom_acp', 'executable': str(provider), 'arguments': []}, 'integration-owner:connection')
                 wait(lambda: client.call('connections.list', {}), lambda rows: any(c['id'] == connection['id'] and c['probe_state'] == 'ready' for c in rows))
                 grant = client.approved('grants.propose', {'project_id': project['id'], 'workspace_id': workspace['id'], 'connection_id': connection['id'],
@@ -229,7 +264,7 @@ def bootstrap(owner, daemon_path, companion_path, output):
                 require(any(v['reference'] == reference for v in context['available_validators']))
                 reservation = lambda runtime_ms, output_bytes: {'runtime_ms': runtime_ms, 'output_bytes': output_bytes, 'tokens': None, 'cost_microunits': None}
                 intent = {'task_id': task['id'], 'expected_task_revision': context['task_revision'], 'expected_spec_revision': 1,
-                    'goal_scope_id': scope['id'], 'expected_scope_revision': scope['authority_revision'], 'host_id': 'local',
+                    'goal_scope_id': scope['id'], 'expected_scope_revision': policy_scope_revision(owner, context, scope), 'host_id': 'local',
                     'target_ref': target_ref, 'expected_target_head': target_head, 'max_rounds': 1,
                     'on_target_advance': 'block', 'ttl_ms': 300000,
                     'stage_reservations': {'preparation': reservation(1000, 1024),
