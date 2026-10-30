@@ -1117,24 +1117,198 @@ def _run_factory_pinned(binary, daemon_path, companion_path, output, cancel_at, 
          'harness_binary_bytes': native['bytes'], 'harness_binary': native}
 
 
+INTEGRATION_KIND = 'native_integration_os_dialog_fixture'
+INTEGRATION_KEY = 'owner-os-integration'
+INTEGRATION_TITLE = 'AgentBaton — Independent local integration approval'
+INTEGRATION_GROUP_FIELDS = frozenset({
+    'read_only', 'phase', 'before', 'after', 'proposal_matches',
+    'proposal_result_matches', 'policy_matches', 'owner_event_matches',
+    'policy_event_matches', 'owner_event_sequence', 'policy_event_sequence'})
+INTEGRATION_CHECKPOINT_FIELDS = frozenset({
+    'schema_version', 'sequence', 'policies', 'runs', 'attempts', 'ref_fences'})
+INTEGRATION_DESCRIPTOR_FIELDS = frozenset({
+    'kind', 'runtime', 'output', 'proposal', 'invoke', 'baseline_sequence',
+    'phase', 'cancel_at', 'review_nonce', 'snapshot_sha256',
+    'outer_message_sha256', 'presentation_sha256', 'presentation_count'})
+
+
+def integration_database_error(value, phase, baseline_sequence):
+    """Consume Native's separate mutation witness; never mint an Owner receipt.
+
+    read_only describes the observer's SQLite connection. It does NOT mean that
+    before/after are unchanged on approval. Core owns every authority check.
+    """
+    if (type(value) is not dict or set(value) != INTEGRATION_GROUP_FIELDS
+            or phase not in ('cancel', 'approve') or value.get('phase') != phase
+            or type(baseline_sequence) is not int or not 0 <= baseline_sequence <= (1 << 64) - 1
+            or value.get('read_only') is not True):
+        return 'Integration witness kind/phase/readonly/shape mismatch'
+    for key in ['proposal_matches', 'proposal_result_matches', 'policy_matches',
+                'owner_event_matches', 'policy_event_matches']:
+        if value[key] is not True:
+            return 'Integration exact record/event binding was not independently checked'
+    before, after = value['before'], value['after']
+    for checkpoint in [before, after]:
+        if (type(checkpoint) is not dict or set(checkpoint) != INTEGRATION_CHECKPOINT_FIELDS
+                or any(type(n) is not int or not 0 <= n <= (1 << 64) - 1 for n in checkpoint.values())
+                or checkpoint['schema_version'] != 17):
+            return 'Integration exact schema17/checkpoint typed count mismatch'
+    if (before['sequence'] != baseline_sequence or any(before[k] != 0 for k in ['policies', 'runs', 'attempts', 'ref_fences'])
+            or any(after[k] != 0 for k in ['runs', 'attempts', 'ref_fences'])):
+        return 'Integration baseline or zero execution changed'
+    if phase == 'cancel':
+        if (not json_exact(before, after) or value['owner_event_sequence'] is not None
+                or value['policy_event_sequence'] is not None):
+            return 'Integration Cancel must have zero policy/event mutation'
+    elif (after['policies'] != 1 or type(value['owner_event_sequence']) is not int
+            or type(value['policy_event_sequence']) is not int
+            or not baseline_sequence < value['owner_event_sequence'] < value['policy_event_sequence'] <= after['sequence']):
+        return 'Integration consumed Owner event must precede its single policy publication'
+    return None
+
+
+def integration_messages(proposal, source):
+    """Lossless display mirror of the frozen production integration formatter.
+
+    Parses literal captions; never reconstructs or authorizes policy bindings.
+    Full JSON remains in the Native review, including unknown display fields.
+    """
+    if (type(proposal) is not dict or proposal.get('kind') != 'integration'
+            or proposal.get('consumed') is not False or not opaque_id(proposal.get('id'))
+            or type(proposal.get('revision')) is not int or not 0 < proposal['revision'] <= (1 << 64) - 1
+            or type(proposal.get('snapshot')) is not dict):
+        raise ValueError('Exact pending integration proposal required')
+    body = source.split('fn format_complete_snapshot(', 1)[1].split('pub(super) fn confirm_and_finalize(', 1)[0]
+    action = re.search(r'const ACTION: &str = ("(?:[^"\\]|\\.)*");', source)
+    page = re.search(r'let message\s*=\s*format!\(\s*("(?:[^"\\]|\\.)*")', body)
+    final = re.search(r'messages.push\(format!\(\s*("(?:[^"\\]|\\.)*")', body)
+    if not action or not page or not final:
+        raise ValueError('Audit changed production integration formatter before OS clicks')
+    action, page, final = [json.loads(m.group(1)) for m in (action, page, final)]
+    raw = compact(proposal['snapshot'])
+    if not raw or len(raw) > 1048576:
+        raise ValueError('Complete integration snapshot exceeds unchanged 1MiB bound')
+    chunks, offset = [], 0
+    while offset < len(raw):
+        end = min(offset + 12288, len(raw))
+        while end > offset:
+            try:
+                text = raw[offset:end].decode('utf-8')
+                break
+            except UnicodeDecodeError:
+                end -= 1
+        if end == offset:
+            raise ValueError('No complete UTF8 scalar at integration page boundary')
+        chunks.append(text)
+        offset = end
+    if ''.join(chunks).encode('utf-8') != raw:
+        raise ValueError('Integration snapshot reconstruction failed')
+    messages, offset = [], 0
+    for index, chunk in enumerate(chunks):
+        end = offset + len(chunk.encode('utf-8'))
+        template = page
+        for positional in (index + 1, len(chunks), offset, end, len(raw)):
+            template = template.replace('{}', str(positional), 1)
+        values = {'ACTION': action, 'id': proposal['id'], 'revision': proposal['revision'], 'page': chunk}
+        messages.append(re.sub(r'\{(ACTION|id|revision|page)\}', lambda m: str(values[m[1]]), template))
+        offset = end
+    template = final.replace('{}', str(len(chunks)), 1).replace('{}', str(len(raw)), 1)
+    values = {'ACTION': action, 'id': proposal['id'], 'revision': proposal['revision']}
+    messages.append(re.sub(r'\{(ACTION|id|revision)\}', lambda m: str(values[m[1]]), template))
+    if any(len(message.encode('utf-8')) > 16384 for message in messages):
+        raise ValueError('Integration Native outer message exceeds unchanged 16KiB bound')
+    return messages
+
+
+def integration_presentation(proposal, source):
+    messages = integration_messages(proposal, source)
+    pages, contexts = [], []
+    for outer, message in enumerate(messages):
+        inner = presentation_prompts(message)
+        for index, page in enumerate(inner):
+            pages.append(page)
+            contexts.append({'outer_index': outer, 'outer_count': len(messages),
+                             'inner_index': index, 'inner_count': len(inner),
+                             'outer_final': outer + 1 == len(messages), 'inner_final': index + 1 == len(inner),
+                             'message_sha256': hashlib.sha256(message.encode('utf-8')).hexdigest()})
+    if not 2 <= len(pages) <= 1024 or any(len(page.encode('utf-8')) > 2048 for page in pages):
+        raise ValueError('Integration nested display exceeds original bounded envelope')
+    return messages, pages, contexts
+
+
+def integration_presentation_error(observed, fixture, pages, contexts, index):
+    # The existing production NativeParent text/layout predicate stays exact.
+    if type(observed) is not dict or type(index) is not int or not 0 <= index < len(pages):
+        return 'Invalid Integration presentation index'
+    normalized = dict(observed, title='AgentBaton — Native owner approval')
+    return (presentation_error(normalized, fixture['proposal'], pages, fixture['phase'], index)
+            or (None if observed.get('title') == INTEGRATION_TITLE
+                and observed.get('review_nonce') == fixture['review_nonce']
+                and json_exact(observed.get('integration_page'), contexts[index])
+                else 'Integration outer/inner/nonce/title mismatch'))
+
+
+def integration_fixture(proposal, invoke, runtime, output, before, source, phase, cancel_at=None):
+    """Descriptor only. The caller must obtain proposal from real Core, not SQL.
+
+    Native redecodes selection, rechecks every complete snapshot binding and
+    privately finalizes only after all real NativeParent buttons are confirmed.
+    """
+    if (type(invoke) is not dict or set(invoke) != {'selection', 'idempotencyKey'}
+            or invoke.get('idempotencyKey') != INTEGRATION_KEY
+            or not json_exact(invoke.get('selection'), proposal.get('snapshot', {}).get('intent'))
+            or type(before) is not dict or type(before.get('sequence')) is not int
+            or not 0 <= before['sequence'] <= (1 << 64) - 1):
+        raise ValueError('Exact Core integration intent/key/baseline required')
+    messages, pages, contexts = integration_presentation(proposal, source)
+    cancel_at = len(pages) - 1 if cancel_at is None else cancel_at
+    if phase not in ('cancel', 'approve') or type(cancel_at) is not int or not 0 <= cancel_at < len(pages):
+        raise ValueError('Fixed integration phase/cancel index required')
+    fixture = {'kind': INTEGRATION_KIND, 'runtime': str(runtime), 'output': str(output), 'proposal': proposal,
+               'invoke': invoke, 'baseline_sequence': before['sequence'], 'phase': phase, 'cancel_at': cancel_at,
+               'review_nonce': uuid.uuid4().hex, 'snapshot_sha256': digest(proposal['snapshot']),
+               'outer_message_sha256': [hashlib.sha256(message.encode('utf-8')).hexdigest() for message in messages],
+               'presentation_sha256': digest(pages), 'presentation_count': len(pages)}
+    if set(fixture) != INTEGRATION_DESCRIPTOR_FIELDS or len(json.dumps(fixture, ensure_ascii=False, indent=2).encode('utf-8')) > 1048576:
+        raise ValueError("Complete integration fixture exceeds Native's fixed 1MiB input bound")
+    return fixture, pages, contexts
+
+
+def run_integration(binary, daemon_path, companion_path, output, cancel_at=None):
+    """Only explicit --kind integration uses the new independent Native route."""
+    path = Path(__file__).with_name('integration-owner-fixture.py')
+    spec = importlib.util.spec_from_file_location('_actual_integration_owner_fixture', path)
+    fixture = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixture)
+    from types import SimpleNamespace
+    return fixture.run(SimpleNamespace(**globals()), binary, daemon_path, companion_path, output, cancel_at)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--daemon', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--kind', choices=['grant', 'factory_planning'], default='grant')
+    parser.add_argument('--kind', choices=['grant', 'factory_planning', 'integration'], default='grant')
     parser.add_argument('--companion', type=Path)
     parser.add_argument('--factory-cancel-at', type=int)
+    parser.add_argument('--integration-cancel-at', type=int)
     args = parser.parse_args()
-    if args.kind == 'factory_planning' and args.companion is None:
-        parser.error('factory_planning requires the matching actual baton companion')
+    if args.kind in ('factory_planning', 'integration') and args.companion is None:
+        parser.error('Independent mode requires the matching actual baton companion')
+    if args.kind != 'integration' and args.integration_cancel_at is not None:
+        parser.error('Integration cancel index cannot alter an old mode')
+    if args.kind == 'integration' and args.factory_cancel_at is not None:
+        parser.error('Factory cancel index is not Integration authority')
     if args.kind == 'grant' and (args.companion is not None or args.factory_cancel_at is not None):
         parser.error('Factory-only options are not Grant fixture authority')
     try:
         if args.kind == 'grant':
             run(args.binary, args.daemon, args.output)
-        else:
+        elif args.kind == 'factory_planning':
             run_factory(args.binary, args.daemon, args.companion, args.output, args.factory_cancel_at)
+        else:
+            run_integration(args.binary, args.daemon, args.companion, args.output, args.integration_cancel_at)
     except Exception as error:
         args.output.mkdir(mode=0o700, parents=True, exist_ok=True)
         save(args.output / 'runner-failure.json', {'status': 'failed_or_not_run', 'error': str(error), 'os': sys.platform})
