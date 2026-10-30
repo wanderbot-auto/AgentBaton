@@ -13,3 +13,7 @@ Residual boundaries: unsupported Unicode base/selected paths and unusual/unrepre
 Use final source4811d9b935b7c6a92113152d843470eb1d906355 and final artifact directory `/workspace/.onboarding/accepted-source-capture-4811d9b`; old278 evidence stays immutable. Root-approved private stream verifier and final diff allowlist are implemented after initial review P1/static gaps. Wait for independent fixed-source review and real Root compilation/tests; do not call the unit accepted. Test-source counts13integration+4cfgunit are not executed passes and are not added to prior checks.
 
 Suggested actual commands when Root grants disk/CPU: `cargo test --locked -p agentbaton-workspaces --test source_capture`; `cargo test --locked -p agentbaton-workspaces --lib source_capture::deadline_tests`; then applicable exact-source Clippy/fmt. Keep actual failures and all raw first-review artifacts. No global deadline/budget/contract widening is authorized for a green result.
+
+## Final handoff
+
+Use source49fdf925e9522d869cb0ff8c96c5540177dcdc67 and the new49 evidence directory. This supersedes the running-source checkpoint above without erasing278/4811 histories. Run both13test integration target and5private cfg-unit sources under the Root lease after independent review; neither group has been compiled by this author. Exact18source count is not a test-pass count. Root owns any actual disk/CPU lease; this author used no heavy lease and removed no artifacts/caches.

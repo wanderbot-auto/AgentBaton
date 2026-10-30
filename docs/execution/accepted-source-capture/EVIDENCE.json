@@ -6,10 +6,10 @@
   ],
   "stage": "fixed_source_implemented_pending_independent_review_and_runtime",
   "base": "bc10ee94c667da9535018c37fdf5b128d63126af",
-  "source_commit": "4811d9b935b7c6a92113152d843470eb1d906355",
+  "source_commit": "49fdf925e9522d869cb0ff8c96c5540177dcdc67",
   "source_sha256": {
     "crates/workspaces/src/lib.rs": "2227d043ceaf878bcefbf594788b9b3e81864d955484e3fe98cbc718fd057b89",
-    "crates/workspaces/src/source_capture.rs": "03b85436642cf85379b43a2abf839b269d6f8bda0804f31861ac5a0961434977",
+    "crates/workspaces/src/source_capture.rs": "1481a9399cce916568f3fb09d1a8fca3f0f345800923c53358ebcd490c3cbf31",
     "crates/workspaces/tests/source_capture.rs": "6e4b708b0d7420e4c66d852d54fcec7b0e8bde1d3a382e6a5ed5135146dfb168"
   },
   "authority": "trusted host must verify accepted receipt and independent integration policy; this library authenticates neither",
@@ -18,10 +18,10 @@
       "name": "static-checks",
       "argv": [
         "python3",
-        "/workspace/.onboarding/accepted-source-capture-4811d9b/static-checks.py"
+        "/workspace/.onboarding/accepted-source-capture-49fdf92/static-checks.py"
       ],
       "exit_code": 0,
-      "stdout_sha256": "8a3dc2393891d12192b56225ae622492c977ad114c2aa5b9b8455e932a10c609",
+      "stdout_sha256": "c75ab765aa103939a7acbf4dd7ae6eb113c2ccc857d9b99f7808330d0ccaa5c4",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
@@ -52,7 +52,7 @@
   ],
   "test_source_counts": {
     "integration": 13,
-    "cfg_unit": 4,
+    "cfg_unit": 5,
     "executed": 0
   },
   "not_run": [
@@ -82,7 +82,7 @@
     "no TaskAccepted/Grant/adoption authority",
     "no new Core schema/DTO/API/permissions"
   ],
-  "artifact_directory": "/workspace/.onboarding/accepted-source-capture-4811d9b",
+  "artifact_directory": "/workspace/.onboarding/accepted-source-capture-49fdf92",
   "source_only_checks_do_not_prove_runtime": true,
   "history": {
     "initial_source": "2784897058dbf81b29432bac096892b01f0fa98d",
@@ -113,5 +113,23 @@
     "Clippy": false,
     "Mac": false,
     "full_adoption": false
-  }
+  },
+  "source_history": [
+    {
+      "source": "2784897058dbf81b29432bac096892b01f0fa98d",
+      "status": "changes_required_static_and_pure_counterexample_not_runtime",
+      "artifacts": "/workspace/.onboarding/accepted-source-capture-2784897"
+    },
+    {
+      "source": "4811d9b935b7c6a92113152d843470eb1d906355",
+      "status": "blob_and_tree_fix_source_not_run",
+      "artifacts": "/workspace/.onboarding/accepted-source-capture-4811d9b"
+    },
+    {
+      "source": "49fdf925e9522d869cb0ff8c96c5540177dcdc67",
+      "status": "explicit_submodule_observation_fixed_source_not_run",
+      "artifacts": "/workspace/.onboarding/accepted-source-capture-49fdf92"
+    }
+  ],
+  "submodule_config_note": "defensive explicit flag; prior diff-tree config-adoption semantics NOT_RUN, not a reproduced bypass"
 }
