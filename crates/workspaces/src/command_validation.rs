@@ -1398,6 +1398,602 @@ fn run_approved_command_inner(
     }
 }
 
+/// Readonly, non-authoritative observation from an actual stopped CommandRun.
+/// It never changes PASS and cannot authorize a retry, adoption or a new target.
+/// The host must independently prove current policy/lineage/descendant/fences.
+pub struct CommandTargetDriftObservation {
+    contract_digest: String,
+    target_ref: String,
+    from_head: String,
+    to_head: String,
+    candidate: String,
+    tree: String,
+    pins: Vec<DriftPin>,
+}
+impl CommandTargetDriftObservation {
+    pub fn contract_digest(&self) -> &str {
+        &self.contract_digest
+    }
+    pub fn target_ref(&self) -> &str {
+        &self.target_ref
+    }
+    pub fn from_head(&self) -> &str {
+        &self.from_head
+    }
+    pub fn to_head(&self) -> &str {
+        &self.to_head
+    }
+    pub fn candidate(&self) -> &str {
+        &self.candidate
+    }
+    pub fn tree(&self) -> &str {
+        &self.tree
+    }
+    /// Metadata-only final seal, not a fresh correctness/authority decision.
+    pub fn recheck(&self, cancel: &AtomicBool, deadline: Instant) -> Result<(), CommandError> {
+        let control = crate::adoption::AdoptionControl::for_request(cancel, deadline);
+        for pin in &self.pins {
+            pin.recheck(&control)?;
+        }
+        drift_check(&control)
+    }
+}
+#[derive(PartialEq, Eq)]
+struct DriftStamp {
+    dev: u64,
+    ino: u64,
+    mode: u32,
+    uid: u32,
+    gid: u32,
+    links: u64,
+    bytes: u64,
+    mtime: i64,
+    mtime_nsec: i64,
+    ctime: i64,
+    ctime_nsec: i64,
+}
+fn drift_stamp(m: &std::fs::Metadata) -> DriftStamp {
+    DriftStamp {
+        dev: m.dev(),
+        ino: m.ino(),
+        mode: m.mode(),
+        uid: m.uid(),
+        gid: m.gid(),
+        links: m.nlink(),
+        bytes: m.len(),
+        mtime: m.mtime(),
+        mtime_nsec: m.mtime_nsec(),
+        ctime: m.ctime(),
+        ctime_nsec: m.ctime_nsec(),
+    }
+}
+fn drift_check(c: &crate::adoption::AdoptionControl<'_>) -> Result<(), CommandError> {
+    c.check().map_err(|_| CommandError::Io)
+}
+fn drift_root(
+    path: &std::path::Path,
+    c: &crate::adoption::AdoptionControl<'_>,
+) -> Result<File, CommandError> {
+    use std::{
+        ffi::CString,
+        os::{
+            fd::FromRawFd,
+            unix::{ffi::OsStrExt, fs::OpenOptionsExt},
+        },
+        path::Component,
+    };
+    drift_check(c)?;
+    if !path.is_absolute()
+        || path.as_os_str().len() > 4096
+        || path
+            .components()
+            .any(|v| !matches!(v, Component::RootDir | Component::Normal(_)))
+    {
+        return Err(CommandError::InvalidContract);
+    }
+    let mut fd = std::fs::OpenOptions::new()
+        .read(true)
+        .custom_flags(libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC)
+        .open("/")
+        .map_err(|_| CommandError::InputChanged)?;
+    drift_check(c)?;
+    for component in path.components() {
+        let Component::Normal(name) = component else {
+            continue;
+        };
+        drift_check(c)?;
+        let name = CString::new(name.as_bytes()).map_err(|_| CommandError::InvalidContract)?;
+        let raw = unsafe {
+            libc::openat(
+                fd.as_raw_fd(),
+                name.as_ptr(),
+                libc::O_RDONLY
+                    | libc::O_DIRECTORY
+                    | libc::O_NOFOLLOW
+                    | libc::O_CLOEXEC
+                    | libc::O_NONBLOCK,
+            )
+        };
+        if raw < 0 {
+            return Err(CommandError::InputChanged);
+        }
+        fd = unsafe { File::from_raw_fd(raw) };
+        drift_check(c)?;
+    }
+    Ok(fd)
+}
+struct DriftPin {
+    parent: File,
+    parent_path: std::path::PathBuf,
+    parent_identity: (u64, u64),
+    name: std::ffi::CString,
+    held: Option<File>,
+    stamp: DriftStamp,
+}
+impl DriftPin {
+    fn capture(
+        path: &std::path::Path,
+        c: &crate::adoption::AdoptionControl<'_>,
+        directory: bool,
+    ) -> Result<Self, CommandError> {
+        use std::{
+            ffi::CString,
+            os::{fd::FromRawFd, unix::ffi::OsStrExt},
+        };
+        let parent_path = path
+            .parent()
+            .ok_or(CommandError::InvalidContract)?
+            .to_owned();
+        let parent = drift_root(&parent_path, c)?;
+        let pm = parent.metadata().map_err(|_| CommandError::InputChanged)?;
+        drift_check(c)?;
+        let name = CString::new(
+            path.file_name()
+                .ok_or(CommandError::InvalidContract)?
+                .as_bytes(),
+        )
+        .map_err(|_| CommandError::InvalidContract)?;
+        let raw = unsafe {
+            libc::openat(
+                parent.as_raw_fd(),
+                name.as_ptr(),
+                libc::O_RDONLY
+                    | libc::O_NOFOLLOW
+                    | libc::O_CLOEXEC
+                    | libc::O_NONBLOCK
+                    | if directory { libc::O_DIRECTORY } else { 0 },
+            )
+        };
+        let held = if raw >= 0 {
+            Some(unsafe { File::from_raw_fd(raw) })
+        } else if std::io::Error::last_os_error().kind() == ErrorKind::NotFound {
+            None
+        } else {
+            return Err(CommandError::InputChanged);
+        };
+        drift_check(c)?;
+        let stamp = if let Some(f) = &held {
+            let m = f.metadata().map_err(|_| CommandError::InputChanged)?;
+            if (directory && !m.is_dir()) || (!directory && (!m.is_file() || m.nlink() != 1)) {
+                return Err(CommandError::InputChanged);
+            }
+            drift_stamp(&m)
+        } else {
+            drift_stamp(&pm)
+        };
+        let pin = Self {
+            parent,
+            parent_path,
+            parent_identity: (pm.dev(), pm.ino()),
+            name,
+            held,
+            stamp,
+        };
+        pin.recheck(c)?;
+        Ok(pin)
+    }
+    fn recheck(&self, c: &crate::adoption::AdoptionControl<'_>) -> Result<(), CommandError> {
+        use std::os::fd::FromRawFd;
+        drift_check(c)?;
+        let current = drift_root(&self.parent_path, c)?;
+        let pm = current.metadata().map_err(|_| CommandError::InputChanged)?;
+        let held_parent = self
+            .parent
+            .metadata()
+            .map_err(|_| CommandError::InputChanged)?;
+        if (pm.dev(), pm.ino()) != self.parent_identity
+            || (held_parent.dev(), held_parent.ino()) != self.parent_identity
+        {
+            return Err(CommandError::InputChanged);
+        }
+        let raw = unsafe {
+            libc::openat(
+                current.as_raw_fd(),
+                self.name.as_ptr(),
+                libc::O_RDONLY | libc::O_NOFOLLOW | libc::O_CLOEXEC | libc::O_NONBLOCK,
+            )
+        };
+        match (&self.held, raw) {
+            (Some(held), fd) if fd >= 0 => {
+                let now = unsafe { File::from_raw_fd(fd) };
+                if drift_stamp(&held.metadata().map_err(|_| CommandError::InputChanged)?)
+                    != self.stamp
+                    || drift_stamp(&now.metadata().map_err(|_| CommandError::InputChanged)?)
+                        != self.stamp
+                {
+                    return Err(CommandError::InputChanged);
+                }
+            }
+            (None, fd)
+                if fd < 0 && std::io::Error::last_os_error().kind() == ErrorKind::NotFound =>
+            {
+                if drift_stamp(&pm) != self.stamp {
+                    return Err(CommandError::InputChanged);
+                }
+            }
+            (_, fd) => {
+                if fd >= 0 {
+                    drop(unsafe { File::from_raw_fd(fd) });
+                }
+                return Err(CommandError::InputChanged);
+            }
+        }
+        drift_check(c)
+    }
+}
+fn drift_artifact(
+    view: &ArtifactContractView,
+    evidence: &crate::validation::ArtifactEvidence,
+    c: &crate::adoption::AdoptionControl<'_>,
+    keep_bytes: bool,
+) -> Result<(Vec<DriftPin>, Vec<u8>), CommandError> {
+    use sha2::{Digest, Sha256};
+    use std::path::Component;
+    drift_check(c)?;
+    let relative = &view.requirement.relative_path;
+    if relative.as_os_str().is_empty()
+        || relative.as_os_str().len() > 4096
+        || relative
+            .components()
+            .any(|v| !matches!(v, Component::Normal(_)))
+        || view.requirement.max_bytes > MAX_PROGRAM
+    {
+        return Err(CommandError::InvalidContract);
+    }
+    let root_pin = DriftPin::capture(&view.canonical_root, c, true)?;
+    let root = drift_root(&view.canonical_root, c)?;
+    let m = root.metadata().map_err(|_| CommandError::InputChanged)?;
+    drift_check(c)?;
+    if (m.dev(), m.ino()) != (view.root_device, view.root_inode)
+        || evidence.artifact_id != view.requirement.artifact_id
+        || evidence.relative_path != *relative
+        || evidence.root_device != view.root_device
+        || evidence.root_inode != view.root_inode
+        || evidence.expected_sha256 != view.requirement.expected_sha256
+        || evidence.state != crate::validation::CheckState::Passed
+    {
+        return Err(CommandError::InputChanged);
+    }
+    // Parent traversal is nofollow at every component. The leaf owner remains
+    // alive through the final Actor seal; all reads/hash chunks use this clock.
+    let path = view.canonical_root.join(relative);
+    let mut pin = DriftPin::capture(&path, c, false)?;
+    let f = pin.held.as_mut().ok_or(CommandError::InputChanged)?;
+    let mut digest = Sha256::new();
+    let mut count = 0u64;
+    let mut bytes = Vec::new();
+    let mut chunk = [0; 65536];
+    loop {
+        drift_check(c)?;
+        let n = match f.read(&mut chunk) {
+            Ok(n) => n,
+            Err(e) if e.kind() == ErrorKind::Interrupted => continue,
+            Err(_) => return Err(CommandError::InputChanged),
+        };
+        drift_check(c)?;
+        if n == 0 {
+            break;
+        }
+        count = count
+            .checked_add(u64::try_from(n).map_err(|_| CommandError::InvalidContract)?)
+            .ok_or(CommandError::InvalidContract)?;
+        if count > view.requirement.max_bytes {
+            return Err(CommandError::InputChanged);
+        }
+        digest.update(&chunk[..n]);
+        if keep_bytes {
+            let retain = (4usize.saturating_sub(bytes.len())).min(n);
+            bytes.extend_from_slice(&chunk[..retain]);
+        }
+        drift_check(c)?;
+    }
+    if evidence.size != Some(count)
+        || evidence.observed_sha256.as_deref() != Some(format!("{:x}", digest.finalize()).as_str())
+    {
+        return Err(CommandError::InputChanged);
+    }
+    pin.recheck(c)?;
+    root_pin.recheck(c)?;
+    Ok((vec![root_pin, pin], bytes))
+}
+fn drift_git(
+    root: &std::path::Path,
+    args: &[&str],
+    c: &crate::adoption::AdoptionControl<'_>,
+) -> Result<std::process::Output, CommandError> {
+    drift_check(c)?;
+    let result = crate::controlled_output(crate::git_command(root).args(args), c)
+        .map_err(|_| CommandError::CwdChanged)?;
+    drift_check(c)?;
+    if result.interrupted || !result.io.io_complete() {
+        return Err(CommandError::CwdChanged);
+    }
+    Ok(result.output)
+}
+fn drift_git_text(
+    root: &std::path::Path,
+    args: &[&str],
+    c: &crate::adoption::AdoptionControl<'_>,
+) -> Result<String, CommandError> {
+    let result = drift_git(root, args, c)?;
+    if !result.status.success() {
+        return Err(CommandError::CwdChanged);
+    }
+    let text = String::from_utf8(result.stdout).map_err(|_| CommandError::CwdChanged)?;
+    Ok(text.trim().to_owned())
+}
+#[cfg(target_os = "macos")]
+fn drift_protected_program_view(
+    view: &CommandContractView,
+    bytes: &[u8],
+    control: &crate::adoption::AdoptionControl<'_>,
+) -> Result<ProtectedProgramObservation, CommandError> {
+    use std::{ffi::CString, os::unix::ffi::OsStrExt, path::Path};
+    drift_check(control)?;
+    let identity = execution_identity();
+    if identity != view.execution_identity
+        || identity.effective_uid == 0
+        || identity.real_uid != identity.effective_uid
+        || identity.real_gid != identity.effective_gid
+    {
+        return Err(CommandError::EnforcementUnavailable);
+    }
+    let magic: &[u8] = bytes.get(..4).ok_or(CommandError::UnsupportedProgram)?;
+    if !matches!(
+        magic,
+        b"\xcf\xfa\xed\xfe"
+            | b"\xfe\xed\xfa\xcf"
+            | b"\xce\xfa\xed\xfe"
+            | b"\xfe\xed\xfa\xce"
+            | b"\xca\xfe\xba\xbe"
+            | b"\xbe\xba\xfe\xca"
+            | b"\xca\xfe\xba\xbf"
+            | b"\xbf\xba\xfe\xca"
+    ) {
+        return Err(CommandError::UnsupportedProgram);
+    }
+    // The exact approved SHA was already verified in controlled chunks.
+    drift_check(control)?;
+    let path = Path::new(&view.argv0);
+    if std::fs::canonicalize(path).map_err(|_| CommandError::ProgramChanged)? != path {
+        return Err(CommandError::EnforcementUnavailable);
+    }
+    drift_check(control)?;
+    // Check every canonical ancestor including /. Mode bits alone miss ACLs;
+    // access(W_OK) uses the same real/effective identity required above.
+    for (index, component) in path.ancestors().enumerate() {
+        drift_check(control)?;
+        let metadata =
+            std::fs::symlink_metadata(component).map_err(|_| CommandError::ProgramChanged)?;
+        drift_check(control)?;
+        if metadata.file_type().is_symlink()
+            || metadata.uid() != 0
+            || metadata.mode() & 0o022 != 0
+            || (index == 0
+                && (!metadata.is_file()
+                    || metadata.mode() & 0o111 == 0
+                    || metadata.mode() & 0o6000 != 0))
+            || (index > 0 && !metadata.is_dir())
+        {
+            return Err(CommandError::EnforcementUnavailable);
+        }
+        let name = CString::new(component.as_os_str().as_bytes())
+            .map_err(|_| CommandError::InvalidContract)?;
+        if unsafe { libc::access(name.as_ptr(), libc::W_OK) } == 0 {
+            return Err(CommandError::EnforcementUnavailable);
+        }
+        let error = std::io::Error::last_os_error().raw_os_error();
+        drift_check(control)?;
+        if !matches!(
+            error,
+            Some(libc::EACCES) | Some(libc::EROFS) | Some(libc::EPERM)
+        ) {
+            return Err(CommandError::EnforcementUnavailable);
+        }
+    }
+    drift_check(control)?;
+    let metadata = std::fs::symlink_metadata(path).map_err(|_| CommandError::ProgramChanged)?;
+    drift_check(control)?;
+    Ok(ProtectedProgramObservation {
+        device: metadata.dev(),
+        inode: metadata.ino(),
+        mode: metadata.mode(),
+        uid: metadata.uid(),
+        gid: metadata.gid(),
+        bytes: metadata.len(),
+        mtime: metadata.mtime(),
+        mtime_nsec: metadata.mtime_nsec(),
+        ctime: metadata.ctime(),
+        ctime_nsec: metadata.ctime_nsec(),
+    })
+}
+impl CommandRun {
+    pub fn observe_stopped_target_drift(
+        &self,
+        cancel: &AtomicBool,
+        deadline: Instant,
+    ) -> Result<Option<CommandTargetDriftObservation>, CommandError> {
+        let c = crate::adoption::AdoptionControl::for_request(cancel, deadline);
+        drift_check(&c)?;
+        let v = &self.view;
+        let contract = &v.contract;
+        if self.pending.is_some()
+            || !v.process_started
+            || v.reason != RunReason::ArtifactContractFailed
+            || !v.exit_observed_within_budget
+            || !v.cleanup_completed_within_budget
+            || v.cancellation_observed
+            || !v.cleanup.owned_leader_reaped
+            || !v.cleanup.all_capture_pipes_observed_eof
+            || !v.stdout.eof_observed
+            || !v.stderr.eof_observed
+            || v.stdout.truncated
+            || v.stderr.truncated
+            || !v.main_image_verified
+            || !v
+                .exit_code
+                .is_some_and(|code| contract.expected_exit_codes.contains(&code))
+            || v.exit_signal.is_some()
+            || execution_identity() != contract.execution_identity
+        {
+            return Ok(None);
+        }
+        let VersionBinding::Git {
+            target_ref,
+            expected_target_head,
+            integration_candidate,
+            tree,
+            ..
+        } = &contract.file_contract.subject.version
+        else {
+            return Ok(None);
+        };
+        let files = self
+            .files
+            .as_ref()
+            .ok_or(CommandError::InputChanged)?
+            .view();
+        if !files.passed
+            || files.policy_contract != contract.file_contract
+            || v.file_integrity.as_ref() != Some(&files)
+            || files.inputs.len() != contract.file_contract.inputs.len()
+            || files.outputs.len() != contract.file_contract.outputs.len()
+            || files.inputs.len() + files.outputs.len() > 64
+        {
+            return Ok(None);
+        }
+        let mut pins = Vec::new();
+        let mut program_bytes = Vec::new();
+        let mut total = 0u64;
+        for (template, evidence) in contract
+            .file_contract
+            .inputs
+            .iter()
+            .zip(&files.inputs)
+            .chain(contract.file_contract.outputs.iter().zip(&files.outputs))
+        {
+            total = total
+                .checked_add(template.requirement.max_bytes)
+                .ok_or(CommandError::InvalidContract)?;
+            if total > MAX_ARTIFACT_TOTAL + MAX_PROGRAM + MAX_SCRIPT {
+                return Err(CommandError::InvalidContract);
+            }
+            let is_program = template == &contract.program;
+            let (artifact_pins, bytes) = drift_artifact(template, evidence, &c, is_program)?;
+            pins.extend(artifact_pins);
+            if is_program {
+                program_bytes = bytes;
+            }
+        }
+        if program_bytes.is_empty() {
+            return Err(CommandError::ProgramChanged);
+        }
+        #[cfg(target_os = "macos")]
+        if v.protected_program.as_ref()
+            != Some(&drift_protected_program_view(contract, &program_bytes, &c)?)
+        {
+            return Err(CommandError::ProgramChanged);
+        }
+        let cwd = &contract.cwd;
+        let WorkspaceKind::Git {
+            common_dir,
+            head,
+            dirty: false,
+        } = &cwd.kind
+        else {
+            return Ok(None);
+        };
+        if head != integration_candidate {
+            return Err(CommandError::CwdChanged);
+        }
+        let admin = std::path::PathBuf::from(drift_git_text(
+            &cwd.canonical_root,
+            &["rev-parse", "--path-format=absolute", "--absolute-git-dir"],
+            &c,
+        )?);
+        if !admin.is_absolute() || !admin.starts_with(common_dir) {
+            return Err(CommandError::CwdChanged);
+        }
+        // Capture before inspect; never pair an old Git result with newer pins.
+        for path in [
+            admin.join("HEAD"),
+            admin.join("index"),
+            admin.join("commondir"),
+            admin.join("config.worktree"),
+            common_dir.join("config"),
+            common_dir.join("packed-refs"),
+            common_dir.join(target_ref),
+        ] {
+            pins.push(DriftPin::capture(&path, &c, false)?);
+        }
+        let git_entry = cwd.canonical_root.join(".git");
+        drift_check(&c)?;
+        let entry = std::fs::symlink_metadata(&git_entry).map_err(|_| CommandError::CwdChanged)?;
+        drift_check(&c)?;
+        pins.push(DriftPin::capture(&git_entry, &c, entry.is_dir())?);
+        let now = crate::inspect_controlled(&cwd.canonical_root, &c)
+            .map_err(|_| CommandError::CwdChanged)?;
+        if now != *cwd {
+            return Err(CommandError::CwdChanged);
+        }
+        if drift_git_text(
+            &cwd.canonical_root,
+            &["rev-parse", "--verify", "HEAD^{tree}"],
+            &c,
+        )? != *tree
+        {
+            return Err(CommandError::CwdChanged);
+        }
+        let symbolic = drift_git(
+            &cwd.canonical_root,
+            &["symbolic-ref", "--quiet", target_ref],
+            &c,
+        )?;
+        if symbolic.status.code() != Some(1) || !symbolic.stdout.is_empty() {
+            return Err(CommandError::CwdChanged);
+        }
+        let to = drift_git_text(
+            &cwd.canonical_root,
+            &["rev-parse", "--verify", &format!("{target_ref}^{{commit}}")],
+            &c,
+        )?;
+        if !crate::is_oid(&to) || to == *expected_target_head {
+            return Ok(None);
+        }
+        let observation = CommandTargetDriftObservation {
+            contract_digest: v.contract_digest.clone(),
+            target_ref: target_ref.clone(),
+            from_head: expected_target_head.clone(),
+            to_head: to,
+            candidate: integration_candidate.clone(),
+            tree: tree.clone(),
+            pins,
+        };
+        observation.recheck(cancel, deadline)?;
+        Ok(Some(observation))
+    }
+}
+
 #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
 mod absolute_deadline_tests {
     use super::*;
