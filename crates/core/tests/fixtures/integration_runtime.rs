@@ -885,6 +885,13 @@ fn assert_closed_chain(
     assert_eq!(record["expected_target_head"], f.initial_target);
     assert_eq!(record["candidate_commit"], run["integration_commit"]);
     assert_eq!(record["state"], "confirmed_local_ref");
+    let cas_io = &cas.1["payload"]["io"];
+    assert_eq!(cas_io["stdout_eof"], true);
+    assert_eq!(cas_io["stderr_eof"], true);
+    assert_eq!(cas_io["owned_leader_reaped"], true);
+    let cas_retained = cas_io["stdout_retained_bytes"].as_u64().unwrap()
+        + cas_io["stderr_retained_bytes"].as_u64().unwrap();
+    assert_eq!(attempts[2]["actual_output_bytes"], cas_retained);
     for stage in attempts {
         let event = all
             .iter()
@@ -941,7 +948,7 @@ fn assert_closed_chain(
         assert_eq!(usage["cost_microunits"], Value::Null);
     }
     // Selected artifacts plus retained stream bytes, not total FS accounting.
-    assert_eq!(total_output, 24);
+    assert_eq!(total_output, 24 + cas_retained);
     let root = policy["bindings"]["root_task_id"].as_str().unwrap();
     let project = policy["bindings"]["project_id"].as_str().unwrap();
     for scope in [format!("root:{root}"), format!("project:{project}")] {
