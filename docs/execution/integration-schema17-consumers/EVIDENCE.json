@@ -1,0 +1,180 @@
+{
+  "baseline": "c8128e42b1f280f6f7dc232e319235e15673d8a4",
+  "source_commit": "f9baff81bff1c7a04c26e3cf3e385996a972ac2c",
+  "code_chain": [
+    "73382169fefcde3e3235a5099d7f0c0bbe1c557d",
+    "fd7a434b30d195b84566030fca47286e3b002d0e",
+    "f9baff81bff1c7a04c26e3cf3e385996a972ac2c"
+  ],
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "actual_unique_unittest_functions": 246,
+  "actual_test_results": {
+    "dimension": "Python finite metadata/SQLite/FD controls only, no Core/Actor/Node/browser/compiler",
+    "results": [
+      {
+        "command": [
+          "python",
+          "tests/infrastructure/test_factory_test_tools.py"
+        ],
+        "exit": 0,
+        "seconds": 0.1540198719885666,
+        "log": "1.log",
+        "sha256": "568f9e7d580a053057ae5eab80b3abaf03ba99073ed1ee374f32186f18e303c8",
+        "tests": 18,
+        "test_seconds": 0.047
+      },
+      {
+        "command": [
+          "python",
+          "tests/infrastructure/test_child_goal_ci_evidence.py"
+        ],
+        "exit": 0,
+        "seconds": 0.1896679819910787,
+        "log": "2.log",
+        "sha256": "9936e66e782cf94c34b55abede497c9b756a3cc3b43bc06c3d8a8cbbf17b2837",
+        "tests": 13,
+        "test_seconds": 0.077
+      },
+      {
+        "command": [
+          "python",
+          "tests/infrastructure/test_task_workspace_ci_evidence.py"
+        ],
+        "exit": 0,
+        "seconds": 1.4786429630185012,
+        "log": "3.log",
+        "sha256": "a9785e381a1a2b0687d5e7c1de4d37112a878eacd3f74eff04903a9de10cce81",
+        "tests": 37,
+        "test_seconds": 1.346
+      },
+      {
+        "command": [
+          "python",
+          "tests/infrastructure/test_factory_rework_ci_evidence.py"
+        ],
+        "exit": 0,
+        "seconds": 0.5039316850015894,
+        "log": "4.log",
+        "sha256": "7af0e940f3914bae3ead1a988cc5d974f55f78d830f4aadada0aa2175beb98da",
+        "tests": 74,
+        "test_seconds": 0.366
+      },
+      {
+        "command": [
+          "python",
+          "tests/infrastructure/test_schema17_integration_metadata.py"
+        ],
+        "exit": 0,
+        "seconds": 0.13244192601996474,
+        "log": "5.log",
+        "sha256": "27c4a39d34ece4cbc66cc59cb0870c7abe4cc0a5f009205bdd0ea06a93f8b3ac",
+        "tests": 3,
+        "test_seconds": 0.007
+      },
+      {
+        "command": [
+          "python",
+          "apps/desktop/tests/test_task_workspace_binding_real_ipc.py"
+        ],
+        "exit": 0,
+        "seconds": 0.16249946499010548,
+        "log": "6.log",
+        "sha256": "11cc04264914e5eb2e30149d747dccda08e37905434e334d9eebbb14146ef0d1",
+        "tests": 58,
+        "test_seconds": 0.03
+      },
+      {
+        "command": [
+          "python",
+          "tests/infrastructure/test_schema16_migration_preparation.py"
+        ],
+        "exit": 0,
+        "seconds": 0.13158309500431642,
+        "log": "7.log",
+        "sha256": "209637c5270ea62667d3505f25f6e8e713fd220b3020983b799e40ff6ae4138a",
+        "tests": 7,
+        "test_seconds": 0.01
+      },
+      {
+        "command": [
+          "python",
+          "tests/infrastructure/test_legacy_migration_ci_evidence.py"
+        ],
+        "exit": 0,
+        "seconds": 0.11640677499235608,
+        "log": "8.log",
+        "sha256": "b45cdc1a639291fb5ed5a9855bbc7652459ddd7595d2df36572d5495ffc63735",
+        "tests": 17,
+        "test_seconds": 0.013
+      },
+      {
+        "command": [
+          "python",
+          "-c",
+          "import importlib.util,unittest,pathlib; p=pathlib.Path('apps/desktop/src-tauri/tests/test_native_runner.py');s=importlib.util.spec_from_file_location('native17pure',p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);suite=unittest.TestSuite();[suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(getattr(m,c)))for c in ['GoalExecutionReadonlyEvidenceTests','GoalGraphReadonlyEvidenceTests','FactoryReadonlyEvidenceTests','IntegrationReadonlyEvidenceTests','WebCryptoEvidenceTests']];r=unittest.TextTestRunner(verbosity=2).run(suite);raise SystemExit(not r.wasSuccessful())"
+        ],
+        "exit": 0,
+        "seconds": 0.19284891500137746,
+        "log": "9.log",
+        "sha256": "2b97f9c66273a6cf0887f83f214214622320f56dc93eafe1fdfd29dd8d0e23b0",
+        "tests": 19,
+        "test_seconds": 0.085
+      }
+    ],
+    "unique_unittest_functions": 246
+  },
+  "artifact_refs": {
+    "/workspace/.onboarding/integration-schema17-consumers/final-consumer-batch/RESULTS.json": "3961c81d7965d78b70384dc840e7f211c4a40f34d8a99f97e46032cd0b462155",
+    "/workspace/.onboarding/integration-schema17-consumers/final-consumer-batch/SOURCE_SNAPSHOT.json": "bf41b928e664c128eddf043d66da25cb0e55d4fe9e9d6cad90826e4ed5fdd3f7",
+    "/workspace/.onboarding/integration-schema17-consumers/current-consumer-batch/FINITE_DDL_AND_COUNTS.json": "4df571f147d02137337abc372bec6abe342ee1eeab17ba127f811dd2beaf0a00",
+    "/workspace/.onboarding/integration-schema17-consumers/genuine16-contract/SOURCE_SNAPSHOT.json": "a60abed51bd856995668e0786fafe8b125808785e02165c5bad6e9440ac20787"
+  },
+  "harness_finite_helpers_not_unique_runtime_counts": {
+    "graph_boundary": 58,
+    "graph_driver": 32,
+    "factory_boundary": 63,
+    "planning_boundary": 46,
+    "childgoal_boundary": 362
+  },
+  "syntax": "all changed Python AST and native-macos-smoke bash-n PASS",
+  "resource_literals": "all prior MAX_* constants exact",
+  "legacy14_15_producer_bytes": "unchanged",
+  "legacy_projection_old_functions_AST_unchanged": 15,
+  "new17_tables": [
+    "integration_policies",
+    "integrations",
+    "integration_attempts",
+    "integration_ref_fences"
+  ],
+  "integration_readonly_keys": [
+    "schema_version",
+    "sequence",
+    "policies",
+    "runs",
+    "attempts",
+    "ref_fences"
+  ],
+  "Task_snapshot_table_count": 59,
+  "Owner_old_mode_zero_tables": 35,
+  "Factory_record_keys_count": 12,
+  "genuine16_source": "0644ea9d8c10d075fef6b139bd9d7d363d5cc4fb",
+  "genuine16_tree": "107895dfd43c996c668017d556f938d01fa17d3d",
+  "genuine16_scripts": "written_NOT_RUN",
+  "required16to17_CI_gate": "pending_exact_Core_target_env_feature; workflow not yet modified",
+  "not_run": [
+    "real16 source build",
+    "actual16 fixture generation",
+    "actual16\u219217/rollback/future migration",
+    "actual59table Core17 Store DB",
+    "actual Core17/NativeRust",
+    "Native Owner actual Core5 methods",
+    "browser/Node",
+    "Mac/OS/CI",
+    "Provider"
+  ],
+  "target_lease": "never held",
+  "next_scope": "new Integration mutation OS driver separately authorized, not implemented in this snapshot"
+}
