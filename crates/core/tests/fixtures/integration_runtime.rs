@@ -4,11 +4,12 @@
 use super::{git, result, Server};
 use agentbaton_core::{goal_plan::*, goal_store::*};
 use agentbaton_workspaces::validation::{sha256, ArtifactRequirement};
-use rusqlite::{Connection, OpenFlags};
+use rusqlite::{types::Value as SqlValue, Connection, OpenFlags};
 use serde_json::{json, Value};
 use std::{
     collections::BTreeMap,
     fs,
+    io::Write,
     os::unix::fs::{MetadataExt, PermissionsExt},
     path::{Path, PathBuf},
     process::Command,
@@ -39,7 +40,8 @@ impl Drop for RetainedDirectory {
     fn drop(&mut self) {
         if std::thread::panicking() {
             if let Some(directory) = self.0.take() {
-                eprintln!(
+                let _ = writeln!(
+                    std::io::stderr().lock(),
                     "Retained integration failure fixture: {}",
                     directory.keep().display()
                 );
@@ -661,6 +663,244 @@ fn readonly(f: &RuntimeFixture) -> Connection {
     assert_eq!(version, 17);
     db
 }
+struct OriginalCommand {
+    definition: Value,
+    policy_rows: Vec<Vec<SqlValue>>,
+    old_result_rows: Vec<Vec<SqlValue>>,
+}
+fn command_rows(db: &Connection, sql: &str, policy_id: &str) -> Vec<Vec<SqlValue>> {
+    let mut statement = db.prepare(sql).unwrap();
+    let columns = statement.column_count();
+    let rows = statement
+        .query_map([policy_id], |r| {
+            (0..columns)
+                .map(|i| r.get::<_, SqlValue>(i))
+                .collect::<Result<Vec<_>, _>>()
+        })
+        .unwrap()
+        .collect::<Result<Vec<_>, _>>()
+        .unwrap();
+    rows
+}
+impl OriginalCommand {
+    fn capture(f: &RuntimeFixture, definition: &Value) -> Self {
+        let db = readonly(f);
+        let id = definition["id"].as_str().unwrap();
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM command_validation_policies WHERE id=?1",
+                [id],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert!(
+            serde_json::from_str::<Value>(&raw).unwrap() == *definition,
+            "the actual finalized definition must match its original stored document"
+        );
+        let policy_rows = command_rows(
+            &db,
+            "SELECT rowid,* FROM command_validation_policies WHERE id=?1 ORDER BY rowid",
+            id,
+        );
+        assert_eq!(policy_rows.len(), 1);
+        let old_result_rows = command_rows(
+            &db,
+            "SELECT rowid,* FROM command_validation_runs WHERE policy_id=?1 ORDER BY rowid",
+            id,
+        );
+        // This Owner-only Graph never ran the old one-shot Command policy.
+        // New merged validation must not manufacture an old source pass.
+        assert!(old_result_rows.is_empty());
+        Self {
+            definition: definition.clone(),
+            policy_rows,
+            old_result_rows,
+        }
+    }
+    fn assert_unchanged(&self, f: &RuntimeFixture, db: &Connection) {
+        let id = self.definition["id"].as_str().unwrap();
+        assert!(
+            command_rows(
+                db,
+                "SELECT rowid,* FROM command_validation_policies WHERE id=?1 ORDER BY rowid",
+                id
+            ) == self.policy_rows,
+            "integration must not rewrite the original approved Command record"
+        );
+        assert!(
+            command_rows(
+                db,
+                "SELECT rowid,* FROM command_validation_runs WHERE policy_id=?1 ORDER BY rowid",
+                id
+            ) == self.old_result_rows,
+            "integration must not rewrite or invent old one-shot Command results"
+        );
+        let policies = rpc(
+            &f.server,
+            "command_validation_policies.list",
+            json!({"task_id":f.task["id"]}),
+            None,
+            None,
+        );
+        let matches = policies
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|p| p["id"] == self.definition["id"])
+            .collect::<Vec<_>>();
+        assert_eq!(matches.len(), 1);
+        assert!(
+            *matches[0] == self.definition,
+            "fresh public read must retain the exact original approved definition"
+        );
+    }
+}
+fn exact_artifact<'a>(items: &'a Value, id: &str) -> &'a Value {
+    let matches = items
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|a| a["requirement"]["artifact_id"] == id)
+        .collect::<Vec<_>>();
+    assert_eq!(matches.len(), 1);
+    matches[0]
+}
+fn observed_artifact<'a>(items: &'a Value, id: &str) -> &'a Value {
+    let matches = items
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|a| a["artifact_id"] == id)
+        .collect::<Vec<_>>();
+    assert_eq!(matches.len(), 1);
+    matches[0]
+}
+fn assert_merged_command(
+    f: &RuntimeFixture,
+    db: &Connection,
+    run: &Value,
+    receipt: &Value,
+    policy: &Value,
+    original: &OriginalCommand,
+    view: &Value,
+) {
+    original.assert_unchanged(f, db);
+    assert_eq!(view["process_started"], true);
+    assert_eq!(view["exit_code"], 0);
+    assert_eq!(view["exit_signal"], Value::Null);
+    assert_eq!(view["exit_observed_within_budget"], true);
+    assert_eq!(view["cleanup_completed_within_budget"], true);
+    assert_eq!(view["cleanup"]["owned_leader_reaped"], true);
+    assert_eq!(view["cleanup"]["all_capture_pipes_observed_eof"], true);
+    assert_eq!(view["passed"], true);
+    assert_eq!(view["goal_io"]["state"], "observed");
+    assert_eq!(view["task_acceptance"], "not_established");
+    assert_eq!(view["integration_authorized"], false);
+    assert_eq!(view["approval_id"], policy["approval_id"]);
+    assert_eq!(view["policy_revision"], receipt["definition_digest"]);
+    let contract = &view["contract"];
+    let original_contract = &original.definition["contract"];
+    let subject = json!({"task_id":f.task["id"],"attempt_id":receipt["attempt_id"],"spec_revision":policy["selection"]["expected_spec_revision"],"input_revision":policy["bindings"]["source"]["head"],
+        "version":{"kind":"git","target_ref":TARGET,"expected_target_head":f.initial_target,"source_candidate":run["source_commit"],"integration_candidate":run["integration_commit"],"tree":run["integration_tree"]}});
+    assert_eq!(contract["file_contract"]["subject"], subject);
+    assert_ne!(
+        subject["attempt_id"],
+        original_contract["file_contract"]["subject"]["attempt_id"]
+    );
+    let cwd = &contract["cwd"];
+    assert_ne!(cwd["canonical_root"], f.workspace["root"]);
+    let raw: String = db
+        .query_row(
+            "SELECT document FROM managed_workspaces WHERE root=?1",
+            [cwd["canonical_root"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let managed: Value = serde_json::from_str(&raw).unwrap();
+    assert_eq!(managed["identity"], *cwd);
+    assert_eq!(managed["base_revision"], run["integration_commit"]);
+    assert_ne!(managed["id"], f.workspace["id"]);
+    assert_eq!(cwd["kind"]["kind"], "git");
+    assert_eq!(cwd["kind"]["head"], run["integration_commit"]);
+    for field in [
+        "arguments",
+        "mode",
+        "script",
+        "argv0",
+        "image_policy",
+        "environment_sha256",
+        "expected_exit_codes",
+        "wall_time_ms",
+        "cleanup_time_ms",
+        "stdout_limit",
+        "stderr_limit",
+        "require",
+    ] {
+        assert_eq!(
+            contract[field], original_contract[field],
+            "new subject cannot alter approved {field}"
+        );
+    }
+    for field in ["canonical_root", "root_device", "root_inode"] {
+        assert_eq!(
+            contract["program"][field],
+            original_contract["program"][field]
+        );
+    }
+    for field in ["artifact_id", "relative_path", "expected_sha256"] {
+        assert_eq!(
+            contract["program"]["requirement"][field],
+            original_contract["program"]["requirement"][field]
+        );
+    }
+    assert!(
+        contract["program"]["requirement"]["max_bytes"]
+            .as_u64()
+            .unwrap()
+            <= original_contract["program"]["requirement"]["max_bytes"]
+                .as_u64()
+                .unwrap()
+    );
+    let integrity = &view["file_integrity"];
+    assert_eq!(integrity["subject"], subject);
+    assert_eq!(integrity["policy_contract"], contract["file_contract"]);
+    assert_eq!(integrity["passed"], true);
+    for (id, collection, original_collection, path, bytes) in [
+        (
+            "fixed-input",
+            "inputs",
+            "inputs",
+            "inputs/file",
+            b"baseline".as_slice(),
+        ),
+        ("report", "outputs", "outputs", "reports/report.txt", REPORT),
+    ] {
+        let bound = exact_artifact(&contract["file_contract"][collection], id);
+        let old = exact_artifact(&original_contract["file_contract"][original_collection], id);
+        let checked = observed_artifact(&integrity[collection], id);
+        assert_eq!(bound["canonical_root"], cwd["canonical_root"]);
+        assert_eq!(bound["root_device"], cwd["device"]);
+        assert_eq!(bound["root_inode"], cwd["inode"]);
+        assert_eq!(bound["requirement"]["relative_path"], path);
+        assert_eq!(
+            bound["requirement"]["relative_path"],
+            old["requirement"]["relative_path"]
+        );
+        assert_eq!(bound["requirement"]["expected_sha256"], sha256(bytes));
+        assert_eq!(bound["requirement"]["max_bytes"], bytes.len());
+        assert!(
+            bound["requirement"]["max_bytes"].as_u64().unwrap()
+                <= old["requirement"]["max_bytes"].as_u64().unwrap()
+        );
+        assert_eq!(checked["relative_path"], path);
+        assert_eq!(checked["root_device"], cwd["device"]);
+        assert_eq!(checked["root_inode"], cwd["inode"]);
+        assert_eq!(checked["expected_sha256"], sha256(bytes));
+        assert_eq!(checked["observed_sha256"], sha256(bytes));
+        assert_eq!(checked["size"], bytes.len());
+        assert_eq!(checked["state"], "passed");
+    }
+}
 fn events(db: &Connection) -> Vec<(u64, Value)> {
     let mut statement = db
         .prepare("SELECT sequence,document FROM events ORDER BY sequence")
@@ -716,6 +956,7 @@ fn assert_closed_chain(
     f: &RuntimeFixture,
     policy: &Value,
     accepted: &Value,
+    original_command: &OriginalCommand,
     before_source: &SourceImage,
     before_project: &SourceImage,
 ) -> Value {
@@ -876,6 +1117,15 @@ fn assert_closed_chain(
         sha256(&serde_json::to_vec(&observed.1["payload"]["view"]).unwrap()),
         validation["result_digest"]
     );
+    assert_merged_command(
+        f,
+        &db,
+        run,
+        validation,
+        policy,
+        original_command,
+        &observed.1["payload"]["view"],
+    );
     let cas = unique_event(&all, "integration.cas_observed", &run["id"]);
     assert!(observed.0 < cas.0);
     assert_eq!(cas.1["payload"]["historical_cas_confirmed"], true);
@@ -1019,6 +1269,7 @@ fn accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_
     let f = RuntimeFixture::new();
     let ready = f.owner_ready();
     let definition = f.command_definition(&ready["candidates"][0]);
+    let original_command = OriginalCommand::capture(&f, &definition);
     let accepted = f.accept();
     user_changes(&f);
     let before_source = source_image(&f.source());
@@ -1033,7 +1284,14 @@ fn accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_
         Some("explicit-start"),
         Some(policy["revision"].clone()),
     );
-    let done = assert_closed_chain(&f, &policy, &accepted, &before_source, &before_project);
+    let done = assert_closed_chain(
+        &f,
+        &policy,
+        &accepted,
+        &original_command,
+        &before_source,
+        &before_project,
+    );
     assert_eq!(start["run"]["id"], done["run"]["id"]);
     assert_start_replay(&f, &policy, &start, &done);
 }
@@ -1043,6 +1301,7 @@ fn native_policy_before_task_acceptance_automatically_integrates_once_without_ex
     let f = RuntimeFixture::new();
     let ready = f.owner_ready();
     let definition = f.command_definition(&ready["candidates"][0]);
+    let original_command = OriginalCommand::capture(&f, &definition);
     let before_source = source_image(&f.source());
     let before_project = source_image(&f.project_root);
     let policy = f.approve_integration(&definition);
@@ -1068,7 +1327,14 @@ fn native_policy_before_task_acceptance_automatically_integrates_once_without_ex
     drop(db);
     let accepted = f.accept();
     // No integrations.start call occurs before this actual terminal witness.
-    let done = assert_closed_chain(&f, &policy, &accepted, &before_source, &before_project);
+    let done = assert_closed_chain(
+        &f,
+        &policy,
+        &accepted,
+        &original_command,
+        &before_source,
+        &before_project,
+    );
     let original = rpc(
         &f.server,
         "integrations.start",
