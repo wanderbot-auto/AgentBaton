@@ -28,7 +28,11 @@ class ChildGoalFiniteDiagnosticsTests(unittest.TestCase):
     def test_absent_and_no_reply_are_explicitly_unobserved(self):
         self.assertEqual(P.finite_diagnostics(None),P.unobserved_diagnostics())
         self.assertEqual(P.FiniteRuntimeDiagnostics().snapshot(),P.unobserved_diagnostics())
-        _,m,s,r=OLD.inputs();value=P.project(r,m,s,'normal',0,'e'*64)
+        _,m,s,r=OLD.inputs();self.assertIs(type(m['schema']),int);self.assertEqual(m['schema'],17)
+        for rejected_schema in (15,16,18):
+            bad=copy.deepcopy(m);bad['schema']=rejected_schema
+            with self.assertRaises(P.Refused):P.candidate_summary(json.dumps(bad).encode())
+        value=P.project(r,m,s,'normal',0,'e'*64)
         self.assertEqual(value['status'],'passed')
         self.assertIsNone(value['finite_diagnostics']['failure_class'])
         self.assertIsNone(value['finite_diagnostics']['core_replies']['errors'])
