@@ -632,7 +632,7 @@ impl ControlledGitChild {
             self.signal_attempted = true;
             if let Ok(pid) = i32::try_from(self.child.id()) {
                 if let Some(pid) = rustix::process::Pid::from_raw(pid) {
-                    let _ = rustix::process::kill_process_group(pid, rustix::process::Signal::Kill);
+                    let _ = rustix::process::kill_process_group(pid, rustix::process::Signal::KILL);
                 }
             }
             let _ = self.child.kill();
