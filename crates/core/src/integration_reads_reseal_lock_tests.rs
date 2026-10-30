@@ -42,7 +42,7 @@ impl OwnedProbe {
         let deadline = Instant::now() + Duration::from_secs(5);
         loop {
             if let Some(status) = self.0.as_mut().unwrap().try_wait().unwrap() {
-                self.0.take(); // try_wait consumed the real exit receipt.
+                drop(self.0.take()); // try_wait consumed the real exit receipt.
                 return status;
             }
             assert!(
