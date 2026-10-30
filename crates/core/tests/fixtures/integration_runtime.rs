@@ -3474,14 +3474,14 @@ fn assert_real_drift_refusal(case: DriftRefusal) {
     }
     assert_eq!(
         db.query_row("SELECT count(*) FROM integration_attempts", [], |r| r
-            .get::<_, u64>(0))
+            .get::<_, i64>(0))
             .unwrap(),
-        rounds * 2
+        i64::try_from(rounds * 2).unwrap()
     );
     assert_eq!(
-        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u64>(0))
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        rounds * 2 + 1
+        i64::try_from(rounds * 2 + 1).unwrap()
     );
     for scope in [
         format!(
@@ -3493,20 +3493,20 @@ fn assert_real_drift_refusal(case: DriftRefusal) {
             policy["bindings"]["project_id"].as_str().unwrap()
         ),
     ] {
-        let counters: (u64, u64) = db
+        let counters: (i64, i64) = db
             .query_row(
                 "SELECT consumed,active FROM budgets WHERE scope=?1",
                 [scope],
                 |r| Ok((r.get(0)?, r.get(1)?)),
             )
             .unwrap();
-        assert_eq!(counters, (rounds * 2 + 1, 0));
+        assert_eq!(counters, (i64::try_from(rounds * 2 + 1).unwrap(), 0));
     }
     assert_eq!(
         db.query_row(
             "SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",
             [],
-            |r| r.get::<_, u64>(0)
+            |r| r.get::<_, i64>(0)
         )
         .unwrap(),
         0
@@ -3515,7 +3515,7 @@ fn assert_real_drift_refusal(case: DriftRefusal) {
         db.query_row(
             "SELECT count(*) FROM workspace_leases WHERE holder!=''",
             [],
-            |r| r.get::<_, u64>(0)
+            |r| r.get::<_, i64>(0)
         )
         .unwrap(),
         0
