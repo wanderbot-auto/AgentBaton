@@ -34,6 +34,7 @@ pub(super) struct RefFence {
     pub(super) active_attempt_id: Option<String>,
     pub(super) receipt_sequence: Option<u64>,
 }
+#[derive(Clone)]
 pub(crate) struct IntegrationStageTicket {
     pub(super) policy: IntegrationPolicy,
     pub(super) run: IntegrationRun,
@@ -44,6 +45,23 @@ pub(crate) struct IntegrationStageTicket {
     pub(super) managed_root: PathBuf,
     pub(super) queued_at: Instant,
     pub(super) deadline: Instant,
+}
+/// Created only from an already admitted private stage ticket. It is never a
+/// wire input, deserializable capability, or a replacement for live DB checks.
+#[derive(Clone, PartialEq, Eq)]
+pub(crate) struct IntegrationStageReadRef {
+    pub(super) run_id: String,
+    pub(super) attempt_id: String,
+    pub(super) policy_id: String,
+}
+impl IntegrationStageTicket {
+    pub(super) fn read_reference(&self) -> IntegrationStageReadRef {
+        IntegrationStageReadRef {
+            run_id: self.run.id.clone(),
+            attempt_id: self.attempt.view.attempt_id.clone(),
+            policy_id: self.policy.id.clone(),
+        }
+    }
 }
 pub(crate) struct IntegrationQueueResult {
     pub(crate) view: IntegrationRunView,
@@ -87,18 +105,18 @@ fn attempts(db: &Connection, run: &str) -> Result<Vec<IntegrationAttemptRecord>>
         .map_err(db_error)?;
     ids.iter().map(|id| budget::attempt(db, id)).collect()
 }
-pub(super) fn fence(db: &Connection, run: &IntegrationRun) -> Result<Option<RefFence>> {
+pub(super) fn fence(db: &Connection, run: &IntegrationRun) -> Result<RefFence> {
     let p = records::policy(db, &run.policy_id)?;
     let row:Option<(String,i64,String,Option<String>)>=db.query_row("SELECT integration_id,revision,state,CASE WHEN octet_length(document)<=1048576 THEN document END FROM integration_ref_fences WHERE repository_digest=?1 AND target_ref=?2",params![p.bindings.repository_digest,run.target_ref],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?))).optional().map_err(db_error)?;
     let Some((id, revision, state, text)) = row else {
         if terminal(run.state) {
-            return Ok(None);
+            return historical_fence(db, run, &p);
         }
         return Err(changed());
     };
     if id != run.id {
         if terminal(run.state) {
-            return Ok(None);
+            return historical_fence(db, run, &p);
         }
         return Err(changed());
     }
@@ -120,16 +138,46 @@ pub(super) fn fence(db: &Connection, run: &IntegrationRun) -> Result<Option<RefF
     {
         return Err(changed());
     }
-    Ok(Some(f))
+    Ok(f)
+}
+fn historical_fence(
+    db: &Connection,
+    run: &IntegrationRun,
+    p: &IntegrationPolicy,
+) -> Result<RefFence> {
+    let row:Option<(i64,Option<String>)>=db.query_row("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='integration_core' AND json_extract(document,'$.kind')='integration.fence_released' ORDER BY sequence DESC LIMIT 1",[&run.id],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
+    let (sequence, text) = row.ok_or_else(changed)?;
+    let event: crate::storage::Event = decode(&text.ok_or_else(limited)?)?;
+    let mut original: RefFence =
+        serde_json::from_value(event.payload["fence"].clone()).map_err(|_| changed())?;
+    if original.receipt_sequence.is_some()
+        || original.integration_id != run.id
+        || original.repository_digest != p.bindings.repository_digest
+        || original.target_ref != run.target_ref
+        || original.revision != event.revision
+        || original.state != "released"
+        || original.active_attempt_id.is_some()
+        || original.common_dir != p.bindings.source.common_dir
+        || original.common_device != p.bindings.source.common_device
+        || original.common_inode != p.bindings.source.common_inode
+        || original.source_workspace_id != p.bindings.workspace_id
+        || event.payload["fence_digest"] != sha(&original)?
+    {
+        return Err(changed());
+    }
+    original.receipt_sequence = Some(u64::try_from(sequence).map_err(|_| changed())?);
+    Ok(original)
 }
 pub(super) fn write_fence(db: &Connection, f: &mut RefFence, kind: &str) -> Result<()> {
+    // Validate old rows before an UPSERT can hide corrupted mirror state.
+    let _ = super::fences::checked_fences(db)?;
     f.receipt_sequence = None;
     let seq = records::event(
         db,
         &f.integration_id,
         f.revision,
         kind,
-        &json!({"fence_digest":sha(f)?,"state":f.state,"active_attempt_id":f.active_attempt_id}),
+        &json!({"fence_digest":sha(f)?,"state":f.state,"active_attempt_id":f.active_attempt_id,"fence":f}),
     )?;
     f.receipt_sequence = Some(seq);
     db.execute("INSERT INTO integration_ref_fences(repository_digest,target_ref,integration_id,revision,state,document) VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(repository_digest,target_ref) DO UPDATE SET integration_id=excluded.integration_id,revision=excluded.revision,state=excluded.state,document=excluded.document",params![f.repository_digest,f.target_ref,f.integration_id,sql_num(f.revision)?,f.state,encode(f)?]).map_err(db_error)?;
@@ -254,7 +302,7 @@ impl Store {
             .into_iter()
             .map(|r| r.view)
             .collect::<Vec<_>>();
-        let current = fence(&self.conn, &run)?.ok_or_else(changed)?;
+        let current = fence(&self.conn, &run)?;
         let view = IntegrationRunView {
             run,
             attempts,
@@ -306,6 +354,7 @@ impl Store {
         }
         let view = self.get_integration(id)?;
         records::remember(&tx, &scope, key_id, &payload, &view)?;
+        records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(view)
     }
@@ -329,7 +378,7 @@ impl Store {
                 "Integration changed before reconciliation",
             ));
         }
-        let historical = integration.run.state == IntegrationState::ConfirmedLocalRef;
+        let historical = historical_cas_confirmed(&tx, &integration.run)?;
         let result = IntegrationReconciliation {
             integration,
             observed_target_head: None,
@@ -338,6 +387,7 @@ impl Store {
             historical_cas_confirmed: historical,
         };
         records::remember(&tx, &scope, key_id, &payload, &result)?;
+        records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(result)
     }
@@ -367,6 +417,7 @@ impl Store {
         if let Some(id) = existing {
             let view = self.get_integration(&id)?;
             records::remember(&tx, &scope, key_id, &payload, &view)?;
+            records::check_metadata_bounds(&tx)?;
             tx.commit().map_err(db_error)?;
             return Ok(IntegrationQueueResult { view, ticket: None });
         }
@@ -379,7 +430,12 @@ impl Store {
             return Err(changed());
         }
         source_idle(&tx, &p)?;
-        let occupied:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM integration_ref_fences WHERE repository_digest=?1 AND target_ref=?2 AND state IN('held','unknown'))",params![p.bindings.repository_digest,p.selection.target_ref],|r|r.get(0)).map_err(db_error)?;
+        super::fences::check_workspace_fences(
+            &tx,
+            material.workspace.identity.as_ref().ok_or_else(changed)?,
+            None,
+        )?;
+        let occupied:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM integration_ref_fences WHERE repository_digest=?1 AND state IN('held','unknown'))",params![p.bindings.repository_digest],|r|r.get(0)).map_err(db_error)?;
         if occupied {
             return Err(CoreError::new(
                 "WORKSPACE_BUSY",
@@ -522,16 +578,6 @@ impl Store {
             state: "creating".into(),
             revision: 1,
         };
-        for workspace in [&control, &candidate] {
-            crate::registry::reserve_workspace_row(
-                &tx,
-                workspace,
-                &format!("integration:{}:{}", run.id, workspace.id),
-                &encode(
-                    &json!({"integration_id":run.id,"policy_id":p.id,"role":if workspace.id==control.id {"control"}else{"candidate"}}),
-                )?,
-            )?;
-        }
         // Keep the original monotonic clock, including request queuing and all
         // subsequent read/hash/capture/merge/cleanup work in this same attempt.
         let deadline = queued_at + Duration::from_millis(reservation.runtime_ms);
@@ -553,27 +599,80 @@ impl Store {
                 "Original integration preparation reservation expired before its durable admission",
             ));
         }
+        let ticket = IntegrationStageTicket {
+            policy: p.clone(),
+            run: run.clone(),
+            attempt: attempt.clone(),
+            acceptance,
+            control: control.clone(),
+            candidate: candidate.clone(),
+            managed_root: managed_root.into(),
+            queued_at,
+            deadline,
+        };
+        let permit = super::fences::for_stage(&tx, &ticket)?;
+        for workspace in [&control, &candidate] {
+            crate::registry::reserve_workspace_row_for_integration(
+                &tx,
+                workspace,
+                &format!("integration:{}:{}", run.id, workspace.id),
+                &encode(
+                    &json!({"integration_id":run.id,"policy_id":p.id,"role":if workspace.id==control.id {"control"}else{"candidate"}}),
+                )?,
+                &permit,
+            )?;
+        }
         let view = self.get_integration(&run.id)?;
         records::remember(&tx, &scope, key_id, &payload, &view)?;
+        records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(IntegrationQueueResult {
             view,
-            ticket: Some(IntegrationStageTicket {
-                policy: p,
-                run,
-                attempt,
-                acceptance,
-                control,
-                candidate,
-                managed_root: managed_root.into(),
-                queued_at,
-                deadline,
-            }),
+            ticket: Some(ticket),
         })
     }
     /// Called before generic dispatch recovery: integration uncertainty never
     /// rewrites the already accepted Task into a Provider dispatch outcome.
     pub(crate) fn recover_integrations(&mut self) -> Result<()> {
+        // Validate every origin even if it has no active run. No orphan policy,
+        // reservation or fence is treated as absent/zero merely by filtering.
+        let (count,bytes):(i64,i64)=self.conn.query_row("SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)),0) FROM integration_policies",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+        if !(0..=100000).contains(&count) || !(0..=4194304).contains(&bytes) {
+            return Err(limited());
+        }
+        let policies = {
+            let mut q = self
+                .conn
+                .prepare("SELECT id FROM integration_policies ORDER BY id")
+                .map_err(db_error)?;
+            let rows = q
+                .query_map([], |r| r.get::<_, String>(0))
+                .map_err(db_error)?
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .map_err(db_error)?;
+            rows
+        };
+        for id in policies {
+            records::policy(&self.conn, &id)?;
+        }
+        let _ = budget::accounting_records(&self.conn, "", "")?;
+        let (count,bytes):(i64,i64)=self.conn.query_row("SELECT count(*),COALESCE(sum(octet_length(document)),0) FROM integration_ref_fences",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+        if !(0..=100000).contains(&count) || !(0..=4194304).contains(&bytes) {
+            return Err(limited());
+        }
+        let fenced = {
+            let mut q=self.conn.prepare("SELECT integration_id FROM integration_ref_fences ORDER BY repository_digest,target_ref").map_err(db_error)?;
+            let rows = q
+                .query_map([], |r| r.get::<_, String>(0))
+                .map_err(db_error)?
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .map_err(db_error)?;
+            rows
+        };
+        for id in fenced {
+            let run = records::run(&self.conn, &id)?;
+            fence(&self.conn, &run)?;
+        }
         let ids = run_ids(&self.conn)?;
         for id in ids {
             let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Immediate)
@@ -584,7 +683,7 @@ impl Store {
                 && !(run.state == IntegrationState::OutcomeUnknown
                     && run.io_completion == Some(IntegrationIoCompletion::InterruptedNoJoinReceipt))
             {
-                let mut held = fence(&tx, &run)?.ok_or_else(changed)?;
+                let mut held = fence(&tx, &run)?;
                 for row in rows.iter_mut().filter(|r| !r.view.settled) {
                     let mut dispatch: DispatchIntent = decode(
                         &tx.query_row(
@@ -616,8 +715,323 @@ impl Store {
                     json!({"replayed":false,"task_acceptance_unchanged":true,"resources_released":false}),
                 )?;
             }
+            records::check_metadata_bounds(&tx)?;
             tx.commit().map_err(db_error)?;
         }
         Ok(())
+    }
+}
+
+impl Store {
+    pub(crate) fn admit_integration_stage_effect(
+        &mut self,
+        ticket: &IntegrationStageTicket,
+        mut proof: super::reads::IntegrationReadProof,
+        raw: &str,
+    ) -> Result<super::reads::IntegrationReadProof> {
+        let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        if !matches!(proof.intent(),super::reads::IntegrationReadIntent::Stage(reference) if reference==&ticket.read_reference())
+        {
+            return Err(denied());
+        }
+        proof.verify(self, raw, ticket.deadline)?;
+        let policy = records::policy(&tx, &ticket.policy.id)?;
+        let _ = live_policy(self, &policy)?;
+        let mut run = records::run(&tx, &ticket.run.id)?;
+        let mut record = budget::attempt(&tx, &ticket.attempt.view.attempt_id)?;
+        let current = fence(&tx, &run)?;
+        if run.cancel_requested
+            || run.state == IntegrationState::OutcomeUnknown
+            || record.view.state != "prepared"
+            || record.view.settled
+            || current.state != "held"
+            || current.active_attempt_id.as_deref() != Some(record.view.attempt_id.as_str())
+            || run.active_stage != Some(record.view.kind)
+        {
+            return Err(changed());
+        }
+        let mut intent: DispatchIntent = raw_dispatch(&tx, &record.intent_id)?;
+        if intent.state != IntentState::Prepared {
+            return Err(changed());
+        }
+        record.view.state = "running".into();
+        if tx.execute("UPDATE integration_attempts SET state='running',document=?1 WHERE attempt_id=?2 AND state='prepared'",params![encode(&record)?,record.view.attempt_id]).map_err(db_error)? != 1 { return Err(changed()); }
+        intent.state = IntentState::Sent;
+        intent.executor_instance = Some(format!("integration:{}", record.view.attempt_id));
+        if tx.execute("UPDATE dispatch_intents SET state='sent',executor_instance=?1,document=?2 WHERE id=?3 AND state='prepared'",params![intent.executor_instance,encode(&intent)?,record.intent_id]).map_err(db_error)?!=1 { return Err(changed()); }
+        run.state = match record.view.kind {
+            IntegrationStageKind::Preparation => IntegrationState::Capturing,
+            IntegrationStageKind::Validator => IntegrationState::Validating,
+            IntegrationStageKind::Cas => IntegrationState::CasPrepared,
+        };
+        records::save_run(
+            &tx,
+            &mut run,
+            "integration.stage_dispatched",
+            json!({"attempt_id":record.view.attempt_id,"kind":record.view.kind,"new_provider_dispatch":false,"original_deadline_retained":true}),
+        )?;
+        proof.reseal_stage_after_own_transition(self, ticket, raw)?;
+        records::check_metadata_bounds(&tx)?;
+        tx.commit().map_err(db_error)?;
+        Ok(proof)
+    }
+}
+fn raw_dispatch(db: &Connection, id: &str) -> Result<DispatchIntent> {
+    raw(db, "dispatch_intents", id)
+}
+
+fn historical_cas_confirmed(db: &Connection, run: &IntegrationRun) -> Result<bool> {
+    let policy = records::policy(db, &run.policy_id)?;
+    let mut statement=db.prepare("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='integration_core' AND json_extract(document,'$.kind')='integration.cas_observed' AND json_type(document,'$.payload.historical_cas_confirmed')='true' ORDER BY sequence LIMIT 2").map_err(db_error)?;
+    let events = statement
+        .query_map([&run.id], |r| {
+            Ok((r.get::<_, i64>(0)?, r.get::<_, Option<String>>(1)?))
+        })
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    if events.len() > 1 {
+        return Err(changed());
+    }
+    let Some((sequence, text)) = events.into_iter().next() else {
+        if run.state == IntegrationState::ConfirmedLocalRef {
+            return Err(changed());
+        }
+        return Ok(false);
+    };
+    let event: crate::storage::Event = crate::storage::decode(&text.ok_or_else(limited)?)?;
+    let attempt_id = event.payload["attempt_id"].as_str().ok_or_else(changed)?;
+    let attempt = budget::attempt(db, attempt_id)?;
+    let record: &serde_json::Value = &event.payload["record"];
+    if attempt.integration_id != run.id
+        || attempt.view.kind != IntegrationStageKind::Cas
+        || attempt.view.round != run.round
+        || event.revision > run.revision
+        || event.payload["round"] != run.round
+        || event.payload["historical_cas_confirmed"] != true
+        || record["state"] != "confirmed_local_ref"
+        || record["grant_ref"] != policy.approval_id
+        || record["target_ref"] != run.target_ref
+        || record["expected_target_head"] != run.expected_target_head
+        || record["candidate_commit"].as_str() != run.integration_commit.as_deref()
+        || sequence <= 0
+    {
+        return Err(changed());
+    }
+    Ok(true)
+}
+
+impl Store {
+    /// Only the manager retaining the actual merged-candidate handles calls
+    /// this after consuming the preceding real join/settlement. No wire input
+    /// can reconstruct that handle or turn a stored pass into continuation.
+    pub(super) fn queue_integration_next_stage(
+        &mut self,
+        previous: &IntegrationStageTicket,
+        context: &super::io::IntegrationPreparedContext,
+        kind: IntegrationStageKind,
+        validator: Option<crate::goal_store::GoalValidatorRef>,
+    ) -> Result<IntegrationStageTicket> {
+        let queued_at = Instant::now();
+        let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let p = records::policy(&tx, &previous.policy.id)?;
+        let material = live_policy(self, &p)?;
+        let mut run = records::run(&tx, &previous.run.id)?;
+        let prior = budget::attempt(&tx, &previous.attempt.view.attempt_id)?;
+        let mut ref_fence = fence(&tx, &run)?;
+        let _ = super::fences::checked_fences(&tx)?;
+        if !prior.view.settled
+            || prior.view.io_completion != Some(IntegrationIoCompletion::WorkerJoined)
+            || prior.view.actual_runtime_ms.is_none()
+            || prior.view.actual_output_bytes.is_none()
+            || run.cancel_requested
+            || terminal(run.state)
+            || run.state == IntegrationState::OutcomeUnknown
+            || run.active_stage.is_some()
+            || ref_fence.state != "held"
+            || ref_fence.active_attempt_id.is_some()
+            || context.run_id != run.id
+            || context.policy.id != p.id
+            || context.policy.snapshot_digest != p.snapshot_digest
+            || run.integration_commit.as_deref() != Some(context.candidate.candidate_commit())
+            || run.source_commit.as_deref() != Some(context.captured.commit())
+        {
+            return Err(changed());
+        }
+        source_idle(&tx, &p)?;
+        let reservation = match kind {
+            IntegrationStageKind::Preparation => return Err(CoreError::new(
+                "AUTH_REQUIRED",
+                "A new round requires its separate exact descendant-target preparation admission",
+            )),
+            IntegrationStageKind::Validator => {
+                let reference = validator.as_ref().ok_or_else(denied)?;
+                let index = p
+                    .selection
+                    .stage_reservations
+                    .validators
+                    .iter()
+                    .position(|v| &v.validator == reference)
+                    .ok_or_else(denied)?;
+                if (index == 0 && prior.view.kind != IntegrationStageKind::Preparation)
+                    || (index > 0
+                        && (prior.view.kind != IntegrationStageKind::Validator
+                            || prior.view.validator.as_ref()
+                                != Some(
+                                    &p.selection.stage_reservations.validators[index - 1].validator,
+                                )))
+                    || context.validations.len() != index
+                    || context.validations.iter().any(|(_, observed)| {
+                        !observed.passed
+                            || !super::io::IntegrationPreparedContext::validation_is_stopped(
+                                observed,
+                            )
+                    })
+                {
+                    return Err(denied());
+                }
+                p.selection.stage_reservations.validators[index]
+                    .reservation
+                    .clone()
+            }
+            IntegrationStageKind::Cas => {
+                if validator.is_some()
+                    || prior.view.kind != IntegrationStageKind::Validator
+                    || context.validations.len() != p.bindings.validators.len()
+                    || context.validations.iter().any(|(_, observed)| {
+                        !observed.passed
+                            || !super::io::IntegrationPreparedContext::validation_is_stopped(
+                                observed,
+                            )
+                    })
+                {
+                    return Err(denied());
+                }
+                p.selection.stage_reservations.cas.clone()
+            }
+        };
+        reserve_ancestors(&tx, &p, &reservation)?;
+        reserve_counters(&tx, &p)?;
+        let candidate: ManagedWorkspace = raw(&tx, "managed_workspaces", &previous.candidate.id)?;
+        let control: ManagedWorkspace = raw(&tx, "managed_workspaces", &previous.control.id)?;
+        if candidate.state != "ready"
+            || control.state != "ready"
+            || candidate.root != context.candidate.workspace().canonical_root
+            || control.root != context.control.canonical_root
+            || candidate.identity.as_ref() != Some(context.candidate.workspace())
+            || control.identity.as_ref() != Some(&context.control)
+        {
+            return Err(changed());
+        }
+        let binding = derive_binding(&p, &candidate.id, context.candidate.candidate_commit())?;
+        let attempt_id = Uuid::new_v4().to_string();
+        let intent_id = Uuid::new_v4().to_string();
+        let dispatch = DispatchIntent {
+            id: intent_id.clone(),
+            attempt_id: attempt_id.clone(),
+            task_id: run.task_id.clone(),
+            root_task_id: p.bindings.root_task_id.clone(),
+            state: IntentState::Prepared,
+            executor_instance: None,
+            binding: binding.clone(),
+        };
+        tx.execute("INSERT INTO attempts(id,task_id,root_task_id,binding,idempotency_key) VALUES(?1,?2,?3,?4,?5)",params![attempt_id,run.task_id,p.bindings.root_task_id,encode(&binding)?,format!("integration:{}:{}:{:?}:{}",run.id,run.round,kind,validator.as_ref().map(|v|encode(v)).transpose()?.unwrap_or_default())]).map_err(db_error)?;
+        tx.execute("INSERT INTO dispatch_intents(id,attempt_id,state,executor_instance,document) VALUES(?1,?2,'prepared',NULL,?3)",params![intent_id,attempt_id,encode(&dispatch)?]).map_err(db_error)?;
+        let attempt = IntegrationAttemptRecord {
+            view: IntegrationAttemptView {
+                attempt_id: attempt_id.clone(),
+                round: run.round,
+                kind,
+                validator,
+                state: "prepared".into(),
+                reservation: reservation.clone(),
+                settled: false,
+                actual_runtime_ms: None,
+                actual_output_bytes: None,
+                io_completion: None,
+                last_error: None,
+                receipt_sequence: None,
+            },
+            integration_id: run.id.clone(),
+            policy_id: p.id.clone(),
+            policy_snapshot_digest: p.snapshot_digest.clone(),
+            root_task_id: p.bindings.root_task_id.clone(),
+            root_grant_id: p.bindings.root_grant_id.clone(),
+            project_id: p.bindings.project_id.clone(),
+            task_id: run.task_id.clone(),
+            factory_scope_id: p.bindings.factory_scope_id.clone(),
+            ancestors: p.bindings.ancestors.clone(),
+            intent_id,
+            binding,
+            prepared_at_ms: ms()?,
+            queued_ms: u64::try_from(queued_at.elapsed().as_millis()).map_err(|_| limited())?,
+        };
+        tx.execute("INSERT INTO integration_attempts(attempt_id,integration_id,round,kind,authority_kind,root_task_id,root_grant_id,project_id,state,document) VALUES(?1,?2,?3,?4,'integration',?5,?6,?7,'prepared',?8)",params![attempt_id,run.id,i64::from(run.round),encode(&kind)?.trim_matches('"'),p.bindings.root_task_id,p.bindings.root_grant_id,p.bindings.project_id,encode(&attempt)?]).map_err(db_error)?;
+        records::event(
+            &tx,
+            &run.id,
+            run.revision,
+            "integration.attempt_prepared",
+            &json!({"attempt_id":attempt_id,"origin_digest":sha(&budget::original(attempt.clone()))?}),
+        )?;
+        let checked =
+            budget::accounting_records(&tx, &p.bindings.root_grant_id, &p.bindings.project_id)?
+                .into_iter()
+                .find(|r| r.attempt_id == attempt_id)
+                .ok_or_else(changed)?;
+        Store::reserve_integration_execution_meter(
+            &tx,
+            &checked,
+            &p.bindings.root_budget,
+            &p.bindings.project_budget,
+        )?;
+        run.active_stage = Some(kind);
+        run.io_completion = None;
+        records::save_run(
+            &tx,
+            &mut run,
+            "integration.stage_queued",
+            json!({"attempt_id":attempt_id,"kind":kind,"new_provider_dispatch":false,"original_shared_meter":true}),
+        )?;
+        ref_fence.active_attempt_id = Some(attempt_id);
+        ref_fence.revision = ref_fence.revision.checked_add(1).ok_or_else(limited)?;
+        write_fence(&tx, &mut ref_fence, "integration.fence_updated")?;
+        let remaining = u64::try_from(
+            p.expires_at_ms
+                .min(material.expires_at_ms)
+                .checked_sub(ms()?)
+                .ok_or_else(denied)?,
+        )
+        .map_err(|_| denied())?;
+        let deadline = (queued_at + Duration::from_millis(reservation.runtime_ms))
+            .min(Instant::now() + Duration::from_millis(remaining));
+        if Instant::now() >= deadline {
+            return Err(CoreError::new(
+                "DEADLINE_EXCEEDED",
+                "Original next-stage queue time exhausted its unchanged reservation",
+            ));
+        }
+        let acceptance = self
+            .integration_verified_acceptance(&p.selection.goal_scope_id, &p.selection.task_id)?
+            .ok_or_else(denied)?;
+        if acceptance.id != run.acceptance_ref || sha(&acceptance)? != run.acceptance_digest {
+            return Err(changed());
+        }
+        let ticket = IntegrationStageTicket {
+            policy: p,
+            run,
+            attempt,
+            acceptance,
+            control,
+            candidate,
+            managed_root: previous.managed_root.clone(),
+            queued_at,
+            deadline,
+        };
+        records::check_metadata_bounds(&tx)?;
+        tx.commit().map_err(db_error)?;
+        Ok(ticket)
     }
 }

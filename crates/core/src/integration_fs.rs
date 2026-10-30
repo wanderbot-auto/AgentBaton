@@ -4,7 +4,9 @@ use crate::{CoreError, Result};
 use sha2::{Digest, Sha256};
 use std::{
     fs::{self, File, OpenOptions},
+    io,
     io::Read,
+    os::fd::AsRawFd,
     os::unix::fs::{MetadataExt, OpenOptionsExt},
     path::{Path, PathBuf},
     sync::{
@@ -597,7 +599,122 @@ pub(super) fn system_git(
         pin,
     ))
 }
-/// Only fixed internal Git argv reach here. Readers cap both streams and are always joined.
+struct ControlledGitChild {
+    child: std::process::Child,
+    reaped: bool,
+    signal_attempted: bool,
+}
+impl ControlledGitChild {
+    fn finished(&self) -> io::Result<bool> {
+        let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
+        let result = unsafe {
+            libc::waitid(
+                libc::P_PID,
+                libc::id_t::from(self.child.id()),
+                &mut info,
+                libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
+            )
+        };
+        if result < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(unsafe { info.si_pid() } != 0)
+    }
+    fn signal_own_group(&mut self) {
+        // Never reap the leader before group signals end: its unreaped PID
+        // prevents targeting a later unrelated process with a reused number.
+        let original_child_is_owned = match self.finished() {
+            Ok(_) => true,
+            // waitid(WNOWAIT) did not consume the child on EINTR. Keep its
+            // original identity and deliver cleanup instead of waiting live.
+            Err(error) => error.kind() == io::ErrorKind::Interrupted,
+        };
+        if !self.reaped && !self.signal_attempted && original_child_is_owned {
+            self.signal_attempted = true;
+            if let Ok(pid) = i32::try_from(self.child.id()) {
+                unsafe {
+                    libc::kill(-pid, libc::SIGKILL);
+                }
+            }
+            let _ = self.child.kill();
+        }
+    }
+    fn reap(&mut self) -> io::Result<std::process::ExitStatus> {
+        let status = self.child.wait()?;
+        self.reaped = true;
+        Ok(status)
+    }
+}
+impl Drop for ControlledGitChild {
+    fn drop(&mut self) {
+        if !self.reaped {
+            self.signal_own_group();
+            if self.signal_attempted || self.finished().is_ok() {
+                let _ = self.reap();
+            }
+        }
+    }
+}
+struct ControlledCapture<T> {
+    pipe: Option<T>,
+    bytes: Vec<u8>,
+    eof: bool,
+    failed: bool,
+    truncated: bool,
+}
+impl<T: Read + AsRawFd> ControlledCapture<T> {
+    fn new(pipe: T) -> io::Result<Self> {
+        let fd = pipe.as_raw_fd();
+        let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
+        if flags < 0 || unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(Self {
+            pipe: Some(pipe),
+            bytes: vec![],
+            eof: false,
+            failed: false,
+            truncated: false,
+        })
+    }
+    fn pump(&mut self) -> bool {
+        let Some(pipe) = self.pipe.as_mut() else {
+            return false;
+        };
+        let mut buffer = [0u8; 65536];
+        match pipe.read(&mut buffer) {
+            Ok(0) => {
+                self.eof = true;
+                self.pipe.take();
+                true
+            }
+            Ok(n) => {
+                let remaining = 4_194_304usize.saturating_sub(self.bytes.len());
+                self.bytes.extend_from_slice(&buffer[..remaining.min(n)]);
+                if n > remaining {
+                    self.truncated = true;
+                    self.pipe.take();
+                }
+                true
+            }
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    io::ErrorKind::WouldBlock | io::ErrorKind::Interrupted
+                ) =>
+            {
+                false
+            }
+            Err(_) => {
+                self.failed = true;
+                self.pipe.take();
+                true
+            }
+        }
+    }
+}
+/// Only fixed internal Git argv reach here. Capture has no detached readers;
+/// the original deadline covers leader and inherited pipe completion.
 pub(super) fn git(
     root: &Path,
     program: &IntegrationProgramPin,
@@ -646,74 +763,95 @@ pub(super) fn git(
         .arg("-C")
         .arg(root)
         .args(args);
-    let mut child = command
+    use std::os::unix::process::CommandExt;
+    let child = command
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
+        .process_group(0)
         .spawn()
         .map_err(|_| changed())?;
-    let out = child.stdout.take().ok_or_else(changed)?;
-    let err = child.stderr.take().ok_or_else(changed)?;
-    let read = |r: Box<dyn Read + Send>| {
-        let mut bytes = vec![];
-        r.take(4_194_305).read_to_end(&mut bytes).map(|_| bytes)
+    let mut owned = ControlledGitChild {
+        child,
+        reaped: false,
+        signal_attempted: false,
     };
-    let stdout = std::thread::spawn(move || read(Box::new(out)));
-    let stderr = std::thread::spawn(move || read(Box::new(err)));
+    #[cfg(test)]
+    controlled_pipe_hook::apply(owned.child.id());
+    let mut stdout = ControlledCapture::new(owned.child.stdout.take().ok_or_else(changed)?)
+        .map_err(|_| changed())?;
+    let mut stderr = ControlledCapture::new(owned.child.stderr.take().ok_or_else(changed)?)
+        .map_err(|_| changed())?;
     let deadline = control
         .deadline
         .min(Instant::now() + Duration::from_secs(15));
     let mut failure = None;
-    let status = loop {
-        match child.try_wait() {
-            Ok(Some(s)) => break Some(s),
-            Ok(None) => (),
-            Err(_) => {
-                failure = Some(changed());
-                break None;
-            }
+    loop {
+        let progress = stdout.pump() | stderr.pump();
+        if stdout.failed || stderr.failed {
+            failure = Some(changed());
+            break;
         }
-        if let Err(e) = control.check() {
-            failure = Some(e);
-            break None;
+        if stdout.truncated || stderr.truncated {
+            failure = Some(limited());
+            break;
+        }
+        let finished = match owned.finished() {
+            Ok(value) => value,
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => false,
+            Err(_) => {
+                failure = Some(CoreError::new(
+                    "OUTCOME_UNKNOWN",
+                    "Owned integration Git leader could not be observed",
+                ));
+                break;
+            }
+        };
+        if finished && stdout.eof && stderr.eof {
+            break;
+        }
+        if let Err(error) = control.check() {
+            failure = Some(error);
+            break;
         }
         if Instant::now() >= deadline {
             failure = Some(CoreError::new(
                 "DEADLINE_EXCEEDED",
-                "Owned integration Git command exceeded its bounded deadline",
+                "Owned integration Git command exceeded its original bounded deadline",
             ));
-            break None;
+            break;
         }
-        std::thread::sleep(Duration::from_millis(10));
-    };
-    if status.is_none() {
-        let _ = child.kill();
-        if child.wait().is_err() {
-            failure = Some(CoreError::new(
-                "OUTCOME_UNKNOWN",
-                "Owned integration Git command could not be reaped",
-            ));
+        if !progress {
+            std::thread::sleep(
+                Duration::from_millis(2).min(deadline.saturating_duration_since(Instant::now())),
+            );
         }
     }
-    let out = stdout
-        .join()
-        .map_err(|_| changed())
-        .and_then(|r| r.map_err(|_| changed()));
-    let err = stderr
-        .join()
-        .map_err(|_| changed())
-        .and_then(|r| r.map_err(|_| changed()));
-    if let Some(e) = failure {
-        return Err(e);
+    owned.signal_own_group();
+    let status = owned.reap().map_err(|_| {
+        CoreError::new(
+            "OUTCOME_UNKNOWN",
+            "Owned integration Git command could not be reaped",
+        )
+    })?;
+    while stdout.pump() {}
+    while stderr.pump() {}
+    if let Some(error) = failure {
+        return Err(error);
     }
-    let out = out?;
-    let err = err?;
-    if out.len() > 4_194_304 || err.len() > 4_194_304 {
+    if !stdout.eof || !stderr.eof || stdout.failed || stderr.failed {
+        return Err(CoreError::new(
+            "OUTCOME_UNKNOWN",
+            "Integration Git streams have no complete bounded IO receipt",
+        ));
+    }
+    if stdout.truncated || stderr.truncated {
         return Err(limited());
     }
-    if !status.is_some_and(|s| s.success()) {
+    if !status.success() {
         return Err(changed());
     }
+    let out = stdout.bytes;
     control.check()?;
     Ok(out)
 }
@@ -917,5 +1055,84 @@ mod controlled_git_tests {
                 .code,
             "RESOURCE_LIMIT"
         );
+    }
+}
+
+#[cfg(test)]
+mod controlled_pipe_hook {
+    use std::cell::RefCell;
+    type Hook = Box<dyn FnOnce(u32)>;
+    thread_local! { static HOOK:RefCell<Option<Hook>>=RefCell::new(None); }
+    pub(super) struct Guard;
+    pub(super) fn install(hook: impl FnOnce(u32) + 'static) -> Guard {
+        HOOK.with(|slot| *slot.borrow_mut() = Some(Box::new(hook)));
+        Guard
+    }
+    pub(super) fn apply(pid: u32) {
+        if let Some(hook) = HOOK.with(|slot| slot.borrow_mut().take()) {
+            hook(pid);
+        }
+    }
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            HOOK.with(|slot| {
+                slot.borrow_mut().take();
+            });
+        }
+    }
+}
+#[cfg(all(test, target_os = "linux"))]
+mod controlled_inherited_pipe_test {
+    use super::*;
+    use std::sync::mpsc;
+    #[test]
+    fn exited_leader_does_not_hide_original_deadline_behind_an_inherited_writer() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        use std::os::unix::fs::PermissionsExt;
+        let executable = root.join("owned-git-fixture");
+        fs::write(&executable, b"#!/bin/sh\nexit 0\n").unwrap();
+        fs::set_permissions(&executable, fs::Permissions::from_mode(0o700)).unwrap();
+        let (writer_tx, writer_rx) = mpsc::sync_channel(1);
+        let (release_tx, release_rx) = mpsc::sync_channel(1);
+        let started = Instant::now();
+        let owner = std::thread::spawn(move || {
+            let _hook = controlled_pipe_hook::install(move |pid| {
+                let writer = File::options()
+                    .write(true)
+                    .open(format!("/proc/{pid}/fd/1"));
+                writer_tx.send(writer).unwrap();
+                release_rx.recv_timeout(Duration::from_secs(3)).unwrap();
+            });
+            let program = IntegrationProgramPin {
+                canonical_path: executable,
+                device: String::new(),
+                inode: String::new(),
+                sha256: String::new(),
+                bytes: 0,
+                uid: 0,
+                mode: 0,
+                links: String::new(),
+            };
+            let control = IntegrationReadControl {
+                cancel: Arc::new(AtomicBool::new(false)),
+                deadline: started + Duration::from_secs(1),
+            };
+            git(
+                &root,
+                &program,
+                &[std::ffi::OsStr::new("-c"), std::ffi::OsStr::new("exit 0")],
+                &control,
+            )
+        });
+        let held = writer_rx
+            .recv_timeout(Duration::from_secs(2))
+            .unwrap()
+            .unwrap();
+        release_tx.send(()).unwrap();
+        let result = owner.join().unwrap();
+        drop(held);
+        assert_eq!(result.unwrap_err().code, "DEADLINE_EXCEEDED");
+        assert!(started.elapsed() < Duration::from_secs(3));
     }
 }

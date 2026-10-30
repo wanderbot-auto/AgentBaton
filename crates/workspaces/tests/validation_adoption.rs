@@ -789,3 +789,117 @@ fn workspace_artifact_binding_is_honest_and_cannot_drive_git_adoption() {
     ));
     assert_eq!(git(&repo.root, &["rev-parse", "integration"]), repo.base);
 }
+
+#[test]
+fn controlled_cas_preexpired_preserves_original_ref_index_and_files() {
+    use std::{sync::atomic::AtomicBool, time::Instant};
+    let repo = Repository::new();
+    let candidate = repo.prepare();
+    let (_, evidence, acceptance) = candidate_validation(&candidate);
+    let index = fs::read(repo.root.join(".git/index")).unwrap();
+    let bytes = fs::read(repo.root.join("file.txt")).unwrap();
+    let reflog = git(
+        &repo.root,
+        &[
+            "reflog",
+            "show",
+            "--format=%H %gs",
+            "refs/heads/integration",
+        ],
+    );
+    let cancel = AtomicBool::new(false);
+    let control = AdoptionControl::for_request(&cancel, Instant::now());
+    assert!(matches!(
+        adopt_local_reference_controlled(&candidate, &evidence, &acceptance, &control),
+        Err(AdoptionError::Workspace(WorkspaceError::ResourceLimit))
+    ));
+    assert_eq!(
+        git(&repo.root, &["rev-parse", "refs/heads/integration"]),
+        repo.base
+    );
+    assert_eq!(
+        git(
+            &repo.root,
+            &[
+                "reflog",
+                "show",
+                "--format=%H %gs",
+                "refs/heads/integration"
+            ]
+        ),
+        reflog
+    );
+    assert_eq!(fs::read(repo.root.join(".git/index")).unwrap(), index);
+    assert_eq!(fs::read(repo.root.join("file.txt")).unwrap(), bytes);
+}
+#[test]
+fn controlled_cas_cancelled_before_start_preserves_original_ref() {
+    use std::{
+        sync::atomic::AtomicBool,
+        time::{Duration, Instant},
+    };
+    let repo = Repository::new();
+    let candidate = repo.prepare();
+    let (_, evidence, acceptance) = candidate_validation(&candidate);
+    let index = fs::read(repo.root.join(".git/index")).unwrap();
+    let cancel = AtomicBool::new(true);
+    let control = AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(5));
+    assert!(matches!(
+        adopt_local_reference_controlled(&candidate, &evidence, &acceptance, &control),
+        Err(AdoptionError::Workspace(WorkspaceError::ResourceLimit))
+    ));
+    assert_eq!(
+        git(&repo.root, &["rev-parse", "refs/heads/integration"]),
+        repo.base
+    );
+    assert_eq!(fs::read(repo.root.join(".git/index")).unwrap(), index);
+}
+#[test]
+fn controlled_cas_retains_original_custom_merge_driver_refusal() {
+    use std::{
+        sync::atomic::AtomicBool,
+        time::{Duration, Instant},
+    };
+    let repo = Repository::new();
+    let candidate = repo.prepare();
+    let (_, evidence, acceptance) = candidate_validation(&candidate);
+    git(&repo.root, &["config", "merge.selected.driver", "false"]);
+    let cancel = AtomicBool::new(false);
+    let control = AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(5));
+    assert!(matches!(
+        adopt_local_reference_controlled(&candidate, &evidence, &acceptance, &control),
+        Err(AdoptionError::UnsafeMergeDriver)
+    ));
+    assert_eq!(
+        git(&repo.root, &["rev-parse", "refs/heads/integration"]),
+        repo.base
+    );
+}
+
+#[test]
+fn controlled_actual_cas_records_distinct_complete_io_without_changing_user_files() {
+    use std::{
+        sync::atomic::AtomicBool,
+        time::{Duration, Instant},
+    };
+    let repo = Repository::new();
+    let candidate = repo.prepare();
+    let (_, evidence, acceptance) = candidate_validation(&candidate);
+    let index = fs::read(repo.root.join(".git/index")).unwrap();
+    let bytes = fs::read(repo.root.join("file.txt")).unwrap();
+    let cancel = AtomicBool::new(false);
+    let control = AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(5));
+    let result =
+        adopt_local_reference_controlled(&candidate, &evidence, &acceptance, &control).unwrap();
+    assert_eq!(result.record().state, IntegrationState::ConfirmedLocalRef);
+    assert!(result.io().io_complete());
+    assert_eq!(result.io().owned_leader_reaped(), Some(true));
+    assert_eq!(result.io().read_failed(), Some(false));
+    assert!(!result.io().interrupted());
+    assert_eq!(
+        git(&repo.root, &["rev-parse", "refs/heads/integration"]),
+        candidate.candidate_commit()
+    );
+    assert_eq!(fs::read(repo.root.join(".git/index")).unwrap(), index);
+    assert_eq!(fs::read(repo.root.join("file.txt")).unwrap(), bytes);
+}

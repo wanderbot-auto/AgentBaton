@@ -18,6 +18,33 @@ pub(super) fn sequence(db: &Connection) -> Result<u64> {
         .map_err(db_error)?;
     u64::try_from(value).map_err(|_| changed())
 }
+/// Existing retained-read limits are also commit-time metadata bounds. This
+/// never truncates history or creates an execution quota; exact historical
+/// replay occurs before new writes, and an over-limit transaction rolls back.
+pub(super) fn check_metadata_bounds(db: &Connection) -> Result<()> {
+    for (table, key_bytes) in [
+        ("integration_policies", "octet_length(id)"),
+        ("integrations", "octet_length(id)"),
+        ("integration_attempts", "octet_length(attempt_id)"),
+        (
+            "integration_ref_fences",
+            "octet_length(integration_id)+octet_length(repository_digest)+octet_length(target_ref)",
+        ),
+    ] {
+        // Names/expressions are fixed server constants, not caller identifiers.
+        let sql = format!("SELECT count(*),COALESCE(sum(octet_length(document)+{key_bytes}),0),COALESCE(max(octet_length(document)),0) FROM {table}");
+        let (count, bytes, largest): (i64, i64, i64) = db
+            .query_row(&sql, [], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
+            .map_err(db_error)?;
+        if !(0..=100_000).contains(&count)
+            || !(0..=4_194_304).contains(&bytes)
+            || !(0..=1_048_576).contains(&largest)
+        {
+            return Err(limited());
+        }
+    }
+    Ok(())
+}
 pub(super) fn event<T: Serialize>(
     db: &Connection,
     id: &str,
@@ -106,6 +133,11 @@ pub(super) fn policy(db: &Connection, id: &str) -> Result<IntegrationPolicy> {
         || snapshot.intent != actual.selection
         || sha(&snapshot.bindings)? != sha(&actual.bindings)?
         || actual.snapshot_digest != sha(&proposal.snapshot)?
+        || actual.bindings.repository_digest
+            != super::fences::repository_digest(
+                &actual.bindings.source.common_device,
+                &actual.bindings.source.common_inode,
+            )?
         || encode(&immutable)? != encode(&original)?
     {
         return Err(denied());
@@ -270,7 +302,49 @@ impl Store {
             )?;
         }
         remember(&tx, &scope, key, &payload, &p)?;
+        check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(p)
+    }
+}
+
+#[cfg(test)]
+mod metadata_bounds_tests {
+    use super::*;
+    #[test]
+    fn retained_metadata_is_rejected_without_deleting_history() {
+        let db = Connection::open_in_memory().unwrap();
+        for table in [
+            "integration_policies",
+            "integrations",
+            "integration_attempts",
+            "integration_ref_fences",
+        ] {
+            db.execute_batch(&format!("CREATE TABLE {table}(document TEXT NOT NULL,id TEXT NOT NULL DEFAULT '',attempt_id TEXT NOT NULL DEFAULT '',integration_id TEXT NOT NULL DEFAULT '',repository_digest TEXT NOT NULL DEFAULT '',target_ref TEXT NOT NULL DEFAULT '')"))
+                .unwrap();
+        }
+        let one = "x".repeat(1_048_576);
+        for _ in 0..4 {
+            db.execute("INSERT INTO integrations(document) VALUES(?1)", [&one])
+                .unwrap();
+        }
+        check_metadata_bounds(&db).unwrap();
+        let tx = db.unchecked_transaction().unwrap();
+        tx.execute("INSERT INTO integrations(document) VALUES('x')", [])
+            .unwrap();
+        assert_eq!(
+            check_metadata_bounds(&tx).unwrap_err().code,
+            "RESOURCE_LIMIT"
+        );
+        drop(tx);
+        check_metadata_bounds(&db).unwrap();
+        let (count, bytes): (i64, i64) = db
+            .query_row(
+                "SELECT count(*),sum(octet_length(document)) FROM integrations",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!((count, bytes), (4, 4_194_304));
     }
 }

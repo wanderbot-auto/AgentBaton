@@ -7,6 +7,30 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
         .pragma_query_value(None, "user_version", |r| r.get(0))
         .map_err(db_error)?;
     if current == 17 {
+        let reference = crate::storage::integration_schema16_reference()?;
+        reference.execute_batch(DDL).map_err(db_error)?;
+        let tx = db
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        if schema_objects(&tx, 59)? != schema_objects(&reference, 59)? {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Integration current schema17 is incomplete or changed",
+            ));
+        }
+        if tx
+            .prepare("PRAGMA foreign_key_check")
+            .map_err(db_error)?
+            .exists([])
+            .map_err(db_error)?
+        {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Integration current schema17 foreign keys are inconsistent",
+            ));
+        }
+        validate_predecessor_tasks(&tx)?;
+        tx.commit().map_err(db_error)?;
         return Ok(());
     }
     if current != 16 {
@@ -22,7 +46,7 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
     // Compare all original table/constraint/index/view/trigger definitions
     // before writing any new DDL; a failure leaves the source transaction inert.
     let reference = crate::storage::integration_schema16_reference()?;
-    if predecessor_schema(&tx)? != predecessor_schema(&reference)? {
+    if schema_objects(&tx, 55)? != schema_objects(&reference, 55)? {
         return Err(CoreError::new(
             "INPUT_CHANGED",
             "Integration migration refuses a changed or incomplete schema16 predecessor",
@@ -71,7 +95,10 @@ impl crate::storage::Store {
     }
 }
 
-fn predecessor_schema(db: &Connection) -> Result<Vec<(String, String, String, Option<String>)>> {
+fn schema_objects(
+    db: &Connection,
+    expected_tables: usize,
+) -> Result<Vec<(String, String, String, Option<String>)>> {
     let (count, bytes):(i64,i64)=db.query_row("SELECT count(*),COALESCE(sum(octet_length(type)+octet_length(name)+octet_length(tbl_name)+COALESCE(octet_length(sql),0)),0) FROM sqlite_schema",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
     if !(1..=256).contains(&count) || !(1..=1048576).contains(&bytes) {
         return Err(CoreError::new(
@@ -94,10 +121,10 @@ fn predecessor_schema(db: &Connection) -> Result<Vec<(String, String, String, Op
         .map_err(db_error)?
         .collect::<std::result::Result<Vec<_>, _>>()
         .map_err(db_error)?;
-    if rows.iter().filter(|r| r.0 == "table").count() != 55 {
+    if rows.iter().filter(|r| r.0 == "table").count() != expected_tables {
         return Err(CoreError::new(
             "INPUT_CHANGED",
-            "Integration predecessor must contain all 55 schema16 tables including sqlite_sequence",
+            "Integration schema must contain its complete exact table set including sqlite_sequence",
         ));
     }
     Ok(rows

@@ -5,10 +5,11 @@
     "AB-PRJ-004",
     "AB-PRJ-005"
   ],
-  "source_commit": "e7df3f224549d50647ffd82d722e763bf11232a2",
+  "source_commit": "dc12030f942c2807d98818d853c8ef0499a38d7a",
   "author_checks": {
     "direct_rustfmt": "pass",
-    "git_diff_check": "pass"
+    "git_diff_check": "pass",
+    "scope": "direct rustfmt and git diff --check on each changed source boundary; no Cargo/Actor/Git product tests"
   },
   "not_run": [
     "cargo check",
@@ -21,5 +22,48 @@
     "Mac",
     "remote delivery"
   ],
-  "implementation_status": "in_progress_not_accepted"
+  "implementation_status": "in_progress_not_accepted",
+  "initial_source_commit": "e7df3f224549d50647ffd82d722e763bf11232a2",
+  "checkpoints": [
+    {
+      "commit": "96012107c8e4594ae7f350e817e9fe630327a563",
+      "change": "actual workspace_leases expires_at projection and same real predecessor-schema proof invalidation test",
+      "execution": "new Rust source NOT_RUN; independent generatedDB immutable-main EXPLAIN/preparation only",
+      "readonly_diagnosis": "/workspace/.onboarding/integration17-context-lease-column-diagnosis/RESULT.json",
+      "wal_caveat": "WAL present; no latest complete history claim"
+    },
+    {
+      "commit": "141cf9a",
+      "change": "physical common identity fencing, strict all-row mirrors and original released-fence journal history",
+      "execution": "source_only_NOT_RUN"
+    },
+    {
+      "commit": "0aba0b1",
+      "predecessor": "a7b138b",
+      "change": "atomic retained metadata 4MiB limits including identity bytes and original shared query-proof budget",
+      "execution": "two new inert SQLite Rust regression sources NOT_RUN"
+    },
+    {
+      "commit": "b9d5c17",
+      "change": "private admitted-stage observation origin and own-fence permit; no wire stage endpoint",
+      "execution": "source_only_NOT_RUN"
+    },
+    {
+      "commit": "f8d03fabbf5dbd60e38a302c0552d8b9e56ff240",
+      "followup": "ca56751",
+      "change": "controlled library CAS original-deadline nonblocking capture and independent IO facts; EINTR and owned test-FD source correction",
+      "execution": "new Rust/pipe/generatedGit tests NOT_RUN by author"
+    },
+    {
+      "commit": "dc12030f942c2807d98818d853c8ef0499a38d7a",
+      "change": "Core private integration Git capture also removes inherited-pipe reader joins; one Linux pipe test source",
+      "execution": "source_only_NOT_RUN"
+    }
+  ],
+  "remaining": [
+    "actual owned stage scheduler/effect execution and transactional settlement",
+    "automatic accepted watcher and start/targets runtime routes",
+    "full original lineage/fence/validator/CAS and unknown reconciliation fault tests",
+    "Native/UI/UnixIPC actual integration and real Mac runtime validation"
+  ]
 }

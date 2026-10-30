@@ -682,3 +682,441 @@ mod raw_ancestry_tests {
         assert_eq!(fs::read(root.join(".git/index")).unwrap(), index_before);
     }
 }
+
+/// Private control-aware output. A known joined exit status is retained even
+/// when cancellation races completion; the write caller decides its meaning.
+pub(crate) struct ControlledGitOutput {
+    pub(crate) output: Output,
+    pub(crate) interrupted: bool,
+    pub(crate) io: adoption::ControlledIntegrationIo,
+}
+struct ControlledGitChild {
+    child: std::process::Child,
+    reaped: bool,
+    signal_attempted: bool,
+}
+impl ControlledGitChild {
+    fn finished(&self) -> io::Result<bool> {
+        let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
+        let result = unsafe {
+            libc::waitid(
+                libc::P_PID,
+                libc::id_t::from(self.child.id()),
+                &mut info,
+                libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
+            )
+        };
+        if result < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(unsafe { info.si_pid() } != 0)
+    }
+    fn signal_own_group(&mut self) {
+        // Never reap the leader before group signals end: its unreaped PID
+        // prevents targeting a later unrelated process with a reused number.
+        let original_child_is_owned = match self.finished() {
+            Ok(_) => true,
+            // waitid(WNOWAIT) did not consume the child on EINTR. Keep its
+            // original identity and deliver cleanup instead of waiting live.
+            Err(error) => error.kind() == io::ErrorKind::Interrupted,
+        };
+        if !self.reaped && !self.signal_attempted && original_child_is_owned {
+            self.signal_attempted = true;
+            if let Ok(pid) = i32::try_from(self.child.id()) {
+                unsafe {
+                    libc::kill(-pid, libc::SIGKILL);
+                }
+            }
+            let _ = self.child.kill();
+        }
+    }
+    fn reap(&mut self) -> io::Result<std::process::ExitStatus> {
+        let status = self.child.wait()?;
+        self.reaped = true;
+        Ok(status)
+    }
+}
+impl Drop for ControlledGitChild {
+    fn drop(&mut self) {
+        if !self.reaped {
+            self.signal_own_group();
+            if self.signal_attempted || self.finished().is_ok() {
+                let _ = self.reap();
+            }
+        }
+    }
+}
+struct ControlledCapture<T> {
+    pipe: Option<T>,
+    bytes: Vec<u8>,
+    eof: bool,
+    failed: bool,
+    truncated: bool,
+}
+impl<T: Read + AsRawFd> ControlledCapture<T> {
+    fn new(pipe: T) -> io::Result<Self> {
+        let fd = pipe.as_raw_fd();
+        let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
+        if flags < 0 || unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(Self {
+            pipe: Some(pipe),
+            bytes: vec![],
+            eof: false,
+            failed: false,
+            truncated: false,
+        })
+    }
+    fn pump(&mut self) -> bool {
+        let Some(pipe) = self.pipe.as_mut() else {
+            return false;
+        };
+        let mut buffer = [0u8; 65536];
+        match pipe.read(&mut buffer) {
+            Ok(0) => {
+                self.eof = true;
+                self.pipe.take();
+                true
+            }
+            Ok(n) => {
+                let remaining = 4_194_304usize.saturating_sub(self.bytes.len());
+                self.bytes.extend_from_slice(&buffer[..remaining.min(n)]);
+                if n > remaining {
+                    self.truncated = true;
+                    self.pipe.take();
+                }
+                true
+            }
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    io::ErrorKind::WouldBlock | io::ErrorKind::Interrupted
+                ) =>
+            {
+                false
+            }
+            Err(_) => {
+                self.failed = true;
+                self.pipe.take();
+                true
+            }
+        }
+    }
+}
+pub(crate) fn controlled_output(
+    command: &mut Command,
+    control: &adoption::AdoptionControl<'_>,
+) -> Result<ControlledGitOutput, WorkspaceError> {
+    use std::os::unix::process::CommandExt;
+    control.check()?;
+    let started = Instant::now();
+    let child = command
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .process_group(0)
+        .spawn()?;
+    let mut owned = ControlledGitChild {
+        child,
+        reaped: false,
+        signal_attempted: false,
+    };
+    #[cfg(test)]
+    controlled_spawn_hook::apply(owned.child.id());
+    let mut stdout = ControlledCapture::new(owned.child.stdout.take().expect("piped stdout"))?;
+    let mut stderr = ControlledCapture::new(owned.child.stderr.take().expect("piped stderr"))?;
+    let deadline = control.deadline().min(started + Duration::from_secs(15));
+    let mut interrupted = false;
+    loop {
+        let out_progress = stdout.pump();
+        let err_progress = stderr.pump();
+        if stdout.failed || stderr.failed || stdout.truncated || stderr.truncated {
+            interrupted = true;
+            break;
+        }
+        let finished = match owned.finished() {
+            Ok(value) => value,
+            // A signal cannot skip the original deadline/cancel check.
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => false,
+            Err(error) => return Err(WorkspaceError::Io(error)),
+        };
+        if finished && stdout.eof && stderr.eof {
+            break;
+        }
+        if control.check().is_err() || Instant::now() >= deadline {
+            interrupted = true;
+            break;
+        }
+        if !out_progress && !err_progress {
+            std::thread::sleep(
+                Duration::from_millis(2).min(deadline.saturating_duration_since(Instant::now())),
+            );
+        }
+    }
+    // This always targets our own group before consuming the leader's identity,
+    // including a leader that exited while another inherited pipe stayed open.
+    owned.signal_own_group();
+    let status = owned.reap()?;
+    // Nonblocking bounded final drain only: never invent a new cleanup clock or
+    // wait indefinitely for an escaped descendant. Missing EOF stays unknown.
+    while stdout.pump() {}
+    while stderr.pump() {}
+    let io = adoption::ControlledIntegrationIo {
+        elapsed_ms: u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),
+        stdout_retained_bytes: Some(stdout.bytes.len() as u64),
+        stderr_retained_bytes: Some(stderr.bytes.len() as u64),
+        stdout_eof: stdout.eof,
+        stderr_eof: stderr.eof,
+        owned_leader_reaped: Some(owned.reaped),
+        owned_group_signal_attempted: Some(owned.signal_attempted),
+        interrupted,
+        read_failed: Some(stdout.failed || stderr.failed),
+    };
+    stdout.pipe.take();
+    stderr.pipe.take();
+    Ok(ControlledGitOutput {
+        output: Output {
+            status,
+            stdout: stdout.bytes,
+            stderr: stderr.bytes,
+        },
+        interrupted,
+        io,
+    })
+}
+
+/// Git-only inspection under one original monotonic control. The ordinary
+/// public inspect API is unchanged. Every existing safety predicate is retained.
+pub(crate) fn inspect_controlled(
+    root: &Path,
+    control: &adoption::AdoptionControl<'_>,
+) -> Result<WorkspaceIdentity, WorkspaceError> {
+    control.check()?;
+    let canonical_root = fs::canonicalize(root)?;
+    let metadata = fs::metadata(&canonical_root)?;
+    if !metadata.is_dir() {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let run = |args: &[&str]| -> Result<Output, WorkspaceError> {
+        control.check()?;
+        let observation = controlled_output(git_command(&canonical_root).args(args), control)?;
+        control.check()?;
+        if observation.interrupted {
+            return Err(WorkspaceError::ResourceLimit);
+        }
+        Ok(observation.output)
+    };
+    let config = run(&["config", "--no-includes", "--null", "--list"])?;
+    if !config.status.success() || (!config.stdout.is_empty() && config.stdout.last() != Some(&0)) {
+        return Err(WorkspaceError::NotRepository);
+    }
+    for record in config.stdout.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+        let key = record.split(|b| *b == b'\n').next().unwrap_or_default();
+        if key == b"include.path"
+            || (key.starts_with(b"includeif.")
+                && key.ends_with(b".path")
+                && key.len() >= b"includeif.".len() + b".path".len())
+            || key == b"extensions.partialclone"
+            || (key.starts_with(b"remote.")
+                && key.ends_with(b".promisor")
+                && key.len() >= b"remote.".len() + b".promisor".len())
+            || key.starts_with(b"filter.")
+        {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+    }
+    let batch = run(&[
+        "rev-parse",
+        "--path-format=absolute",
+        "--show-toplevel",
+        "--git-common-dir",
+        "--verify",
+        "HEAD^{commit}",
+    ])?;
+    let parsed = if batch.status.success() {
+        let text = String::from_utf8(batch.stdout).map_err(|_| WorkspaceError::InvalidPath)?;
+        let fields = text.lines().collect::<Vec<_>>();
+        if fields.len() == 3 && is_oid(fields[2]) {
+            Some((
+                fs::canonicalize(fields[0])?,
+                fields[2].to_owned(),
+                fs::canonicalize(fields[1])?,
+            ))
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    let (top, head, common_dir) = if let Some(fields) = parsed {
+        fields
+    } else {
+        let text = |args: &[&str]| -> Result<String, WorkspaceError> {
+            let output = run(args)?;
+            if !output.status.success() {
+                return Err(WorkspaceError::NotRepository);
+            }
+            String::from_utf8(output.stdout)
+                .map(|s| s.trim().to_owned())
+                .map_err(|_| WorkspaceError::InvalidPath)
+        };
+        (
+            fs::canonicalize(text(&["rev-parse", "--show-toplevel"])?)?,
+            text(&["rev-parse", "--verify", "HEAD^{commit}"])?,
+            fs::canonicalize(text(&[
+                "rev-parse",
+                "--path-format=absolute",
+                "--git-common-dir",
+            ])?)?,
+        )
+    };
+    if top != canonical_root || !is_oid(&head) {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let entries = run(&["ls-files", "--cached", "--stage", "-v", "-z"])?;
+    if !entries.status.success() {
+        return Err(WorkspaceError::NotRepository);
+    }
+    let mut submodules = false;
+    for entry in entries.stdout.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+        if entry.len() < 3 || entry[1] != b' ' || entry[0].is_ascii_lowercase() || entry[0] == b'S'
+        {
+            return Err(WorkspaceError::UnverifiedIndex);
+        }
+        submodules |= entry[2..].starts_with(b"160000 ");
+    }
+    let sparse = run(&["config", "--bool", "--get", "core.sparseCheckout"])?;
+    if (sparse.status.success() && sparse.stdout != b"false\n")
+        || (!sparse.status.success() && sparse.status.code() != Some(1))
+    {
+        return Err(WorkspaceError::UnverifiedIndex);
+    }
+    let status = run(&[
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all",
+        "--ignore-submodules=all",
+    ])?;
+    if !status.status.success() {
+        return Err(WorkspaceError::NotRepository);
+    }
+    control.check()?;
+    Ok(WorkspaceIdentity {
+        canonical_root,
+        device: metadata.dev(),
+        inode: metadata.ino(),
+        kind: WorkspaceKind::Git {
+            common_dir,
+            head,
+            dirty: submodules || !status.stdout.is_empty(),
+        },
+    })
+}
+
+#[cfg(test)]
+mod controlled_spawn_hook {
+    type Hook = Box<dyn FnOnce(u32)>;
+    std::thread_local! {static HOOK:std::cell::RefCell<Option<Hook>>=std::cell::RefCell::new(None);}
+    pub(super) struct Guard;
+    pub(super) fn install(hook: impl FnOnce(u32) + 'static) -> Guard {
+        HOOK.with(|slot| {
+            assert!(slot.borrow().is_none());
+            *slot.borrow_mut() = Some(Box::new(hook));
+        });
+        Guard
+    }
+    pub(super) fn apply(pid: u32) {
+        let hook = HOOK.with(|slot| slot.borrow_mut().take());
+        if let Some(hook) = hook {
+            hook(pid);
+        }
+    }
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            HOOK.with(|slot| {
+                slot.borrow_mut().take();
+            });
+        }
+    }
+}
+#[cfg(all(test, target_os = "linux"))]
+mod controlled_pipe_tests {
+    use super::*;
+    use std::sync::{
+        atomic::{AtomicBool, Ordering},
+        mpsc, Arc,
+    };
+    #[test]
+    fn exited_leader_with_an_open_inherited_pipe_still_obeys_the_original_deadline() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        let release = root.join("release");
+        let cancel = Arc::new(AtomicBool::new(false));
+        let flag = cancel.clone();
+        let start = Instant::now();
+        let deadline = start + Duration::from_secs(1);
+        let release_file = release.clone();
+        let (done_tx, done_rx) = mpsc::sync_channel(1);
+        let (writer_tx, writer_rx) = mpsc::sync_channel(1);
+        let (ack_tx, ack_rx) = mpsc::sync_channel(1);
+        let owner = std::thread::spawn(move || {
+            // The parent opens the inherited writer before this owned runner can
+            // reap the leader. No potentially reused PID is opened or signalled.
+            let _hook = controlled_spawn_hook::install(move |pid| {
+                let writer = File::options()
+                    .write(true)
+                    .open(format!("/proc/{pid}/fd/1"));
+                writer_tx.send(writer).unwrap();
+                ack_rx.recv_timeout(Duration::from_secs(3)).unwrap();
+            });
+            let control = adoption::AdoptionControl::for_request(&flag, deadline);
+            let result = controlled_output(
+                Command::new("/bin/sh").args([
+                    OsStr::new("-c"),
+                    OsStr::new("while [ ! -f \"$1\" ]; do :; done; exit 0"),
+                    OsStr::new("fixture"),
+                    release_file.as_os_str(),
+                ]),
+                &control,
+            );
+            let _ = done_tx.send(());
+            result
+        });
+        let held_writer = writer_rx
+            .recv_timeout(Duration::from_secs(2))
+            .ok()
+            .and_then(Result::ok);
+        let Some(held_writer) = held_writer else {
+            cancel.store(true, Ordering::Release);
+            let _ = ack_tx.send(());
+            let _ = owner.join();
+            panic!("fixture could not retain its own pipe writer");
+        };
+        if fs::write(&release, b"release").is_err() {
+            cancel.store(true, Ordering::Release);
+            drop(held_writer);
+            let _ = ack_tx.send(());
+            let _ = owner.join();
+            panic!("fixture release failed");
+        }
+        let _ = ack_tx.send(());
+        let completed = done_rx.recv_timeout(Duration::from_secs(2));
+        drop(held_writer);
+        let result = owner.join().unwrap().unwrap();
+        assert!(
+            completed.is_ok(),
+            "an open pipe must not cause an unbounded reader join"
+        );
+        assert!(start.elapsed() < Duration::from_secs(3));
+        assert!(
+            result.output.status.success(),
+            "the actual original leader exited0 before the controlled pipe deadline"
+        );
+        assert!(result.interrupted);
+        assert_eq!(result.io.owned_leader_reaped(), Some(true));
+        assert!(!result.io.stdout_eof());
+        assert!(!result.io.io_complete());
+        assert_eq!(result.io.stdout_retained_bytes(), Some(0));
+    }
+}

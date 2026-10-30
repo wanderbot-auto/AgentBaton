@@ -15,6 +15,16 @@ use std::{
     sync::{atomic::AtomicBool, Arc},
     time::{Duration, Instant},
 };
+// Fixed phase tags only: no SQL, identities, paths, caller bytes or hashes.
+// Preserve numeric DB diagnostics and the original code/state/message.
+fn phase_result<T>(phase: &'static str, result: Result<T>) -> Result<T> {
+    result.map_err(|mut error| {
+        if error.details_ref.is_none() {
+            error.details_ref = Some(format!("integration-read-phase:{phase}"));
+        }
+        error
+    })
+}
 struct DatabasePin {
     path: PathBuf,
     file: File,
@@ -165,6 +175,7 @@ pub(crate) enum IntegrationReadIntent {
     Proposal(IntegrationPolicySelection),
     Finalize { proposal_id: String, revision: u64 },
     Start { policy_id: String, revision: u64 },
+    Stage(super::runtime::IntegrationStageReadRef),
 }
 pub(crate) struct IntegrationReadPlan {
     intent: IntegrationReadIntent,
@@ -186,16 +197,19 @@ pub(crate) struct IntegrationReadProof {
     request_hash: String,
     deadline: Instant,
 }
-fn projection(db: &Connection, material: &IntegrationScopeMaterial) -> Result<Vec<QueryProof>> {
+fn projection(
+    db: &Connection,
+    material: &IntegrationScopeMaterial,
+    remaining: &mut (usize, usize),
+) -> Result<Vec<QueryProof>> {
     let mut result = vec![];
-    let mut remaining = (4_194_304, 100_000);
     for grant in &material.grant_lineage {
         for id in &grant.scope.connection_ids {
             result.push(QueryProof::capture(
                 db,
                 "SELECT document AS value FROM connections WHERE id=?1",
                 vec![id.clone()],
-                &mut remaining,
+                remaining,
             )?);
         }
         for id in &grant.scope.workspace_ids {
@@ -203,101 +217,150 @@ fn projection(db: &Connection, material: &IntegrationScopeMaterial) -> Result<Ve
                 db,
                 "SELECT document AS value FROM managed_workspaces WHERE id=?1",
                 vec![id.clone()],
-                &mut remaining,
+                remaining,
             )?);
         }
     }
     for(scope,sql)in[(format!("root:{}",material.root_task_id),"SELECT json_array(total_limit,parallel_limit,consumed,active) AS value FROM budgets WHERE scope=?1"),(format!("project:{}",material.project.id),"SELECT json_array(total_limit,parallel_limit,consumed,active) AS value FROM budgets WHERE scope=?1")] {
-  result.push(QueryProof::capture(db,sql,vec![scope],&mut remaining)?);
+  result.push(QueryProof::capture(db,sql,vec![scope],remaining)?);
  }
-    result.push(QueryProof::capture(db,"SELECT json_array(id,state,document) AS value FROM dispatch_intents WHERE json_extract(document,'$.root_task_id')=?1 ORDER BY id",vec![material.root_task_id.clone()],&mut remaining)?);
+    result.push(QueryProof::capture(db,"SELECT json_array(id,state,document) AS value FROM dispatch_intents WHERE json_extract(document,'$.root_task_id')=?1 ORDER BY id",vec![material.root_task_id.clone()],remaining)?);
     result.push(QueryProof::capture(
         db,
         LEASE_PROJECTION,
         vec![encode(&material.grant.scope.workspace_ids)?],
-        &mut remaining,
+        remaining,
     )?);
     Ok(result)
 }
 impl Store {
+    pub(crate) fn prepare_integration_stage_read(
+        &self,
+        ticket: &super::runtime::IntegrationStageTicket,
+    ) -> Result<(IntegrationReadPlan, String)> {
+        let reference = ticket.read_reference();
+        let raw = encode(
+            &json!({"private_integration_stage":reference.run_id,"attempt":reference.attempt_id,"policy":reference.policy_id}),
+        )?;
+        let plan =
+            self.prepare_integration_scope_read(IntegrationReadIntent::Stage(reference), &raw)?;
+        Ok((plan, raw))
+    }
     pub(crate) fn prepare_integration_scope_read(
         &self,
         intent: IntegrationReadIntent,
         raw_request: &str,
     ) -> Result<IntegrationReadPlan> {
-        if raw_request.len() > MAX_INTEGRATION_BYTES {
-            return Err(limited());
-        }
-        let (task, scope) = match &intent {
-            IntegrationReadIntent::Context(q) => (q.task_id.clone(), q.goal_scope_id.clone()),
-            IntegrationReadIntent::Proposal(s) => {
-                selection_shape(s)?;
-                (s.task_id.clone(), s.goal_scope_id.clone())
+        let mut phase = "actor-request-admission";
+        let result = (|| {
+            if raw_request.len() > MAX_INTEGRATION_BYTES {
+                return Err(limited());
             }
-            IntegrationReadIntent::Finalize {
-                proposal_id,
-                revision,
-            } => {
-                let p: crate::sessions::ApprovalProposal =
-                    raw(&self.conn, "approval_proposals", proposal_id)?;
-                if p.kind != "integration" {
-                    return Err(denied());
+            let (task, scope) = match &intent {
+                IntegrationReadIntent::Context(q) => (q.task_id.clone(), q.goal_scope_id.clone()),
+                IntegrationReadIntent::Proposal(s) => {
+                    selection_shape(s)?;
+                    (s.task_id.clone(), s.goal_scope_id.clone())
                 }
-                if p.revision != *revision {
-                    return Err(CoreError::new(
-                        "STALE_REVISION",
-                        "Integration proposal changed",
-                    ));
+                IntegrationReadIntent::Finalize {
+                    proposal_id,
+                    revision,
+                } => {
+                    let p: crate::sessions::ApprovalProposal =
+                        raw(&self.conn, "approval_proposals", proposal_id)?;
+                    if p.kind != "integration" {
+                        return Err(denied());
+                    }
+                    if p.revision != *revision {
+                        return Err(CoreError::new(
+                            "STALE_REVISION",
+                            "Integration proposal changed",
+                        ));
+                    }
+                    if p.consumed {
+                        return Err(changed());
+                    }
+                    let s: IntegrationPolicySnapshot =
+                        serde_json::from_value(p.snapshot).map_err(|_| changed())?;
+                    (s.intent.task_id, s.intent.goal_scope_id)
                 }
-                if p.consumed {
-                    return Err(changed());
+                IntegrationReadIntent::Stage(reference) => {
+                    let _permit = super::fences::for_reference(&self.conn, reference)?;
+                    let policy = records::policy(&self.conn, &reference.policy_id)?;
+                    (policy.selection.task_id, policy.selection.goal_scope_id)
                 }
-                let s: IntegrationPolicySnapshot =
-                    serde_json::from_value(p.snapshot).map_err(|_| changed())?;
-                (s.intent.task_id, s.intent.goal_scope_id)
+                IntegrationReadIntent::Start {
+                    policy_id,
+                    revision,
+                } => {
+                    let p = records::policy(&self.conn, policy_id)?;
+                    if p.revision != *revision {
+                        return Err(CoreError::new(
+                            "STALE_REVISION",
+                            "Integration policy changed",
+                        ));
+                    }
+                    (p.selection.task_id, p.selection.goal_scope_id)
+                }
+            };
+            key(&task)?;
+            key(&scope)?;
+            phase = "actor-scope-material";
+            let material = self.integration_scope_material(&scope, &task)?;
+            if let IntegrationReadIntent::Proposal(s) = &intent {
+                selection_cas(s, &material)?;
             }
-            IntegrationReadIntent::Start {
-                policy_id,
-                revision,
-            } => {
-                let p = records::policy(&self.conn, policy_id)?;
-                if p.revision != *revision {
-                    return Err(CoreError::new(
-                        "STALE_REVISION",
-                        "Integration policy changed",
-                    ));
-                }
-                (p.selection.task_id, p.selection.goal_scope_id)
+            phase = "actor-validator-catalog";
+            let available = self.integration_available_validators(&material)?;
+            let mut remaining = (4_194_304, 100_000);
+            phase = "actor-row-projection";
+            let mut queries = projection(&self.conn, &material, &mut remaining)?;
+            if let IntegrationReadIntent::Finalize { proposal_id, .. } = &intent {
+                queries.push(QueryProof::capture(&self.conn,"SELECT json_array(document,COALESCE(result,'null')) AS value FROM approval_proposals WHERE id=?1",vec![proposal_id.clone()],&mut remaining)?);
             }
-        };
-        key(&task)?;
-        key(&scope)?;
-        let material = self.integration_scope_material(&scope, &task)?;
-        if let IntegrationReadIntent::Proposal(s) = &intent {
-            selection_cas(s, &material)?;
-        }
-        let available = self.integration_available_validators(&material)?;
-        let mut queries = projection(&self.conn, &material)?;
-        if let IntegrationReadIntent::Finalize { proposal_id, .. } = &intent {
-            queries.push(QueryProof::capture(&self.conn,"SELECT json_array(document,COALESCE(result,'null')) AS value FROM approval_proposals WHERE id=?1",vec![proposal_id.clone()],&mut(1_048_576,2))?);
-        }
-        if let IntegrationReadIntent::Start { policy_id, .. } = &intent {
-            queries.push(QueryProof::capture(
-                &self.conn,
-                "SELECT document AS value FROM integration_policies WHERE id=?1",
-                vec![policy_id.clone()],
-                &mut (1_048_576, 2),
-            )?);
-        }
-        Ok(IntegrationReadPlan {
-            intent,
-            queries,
-            database: DatabasePin::capture(&self.conn)?,
-            request_hash: sha(&raw_request)?,
-            as_of_sequence: records::sequence(&self.conn)?,
-            material,
-            available,
-        })
+            if let IntegrationReadIntent::Start { policy_id, .. } = &intent {
+                queries.push(QueryProof::capture(
+                    &self.conn,
+                    "SELECT document AS value FROM integration_policies WHERE id=?1",
+                    vec![policy_id.clone()],
+                    &mut remaining,
+                )?);
+            }
+            if let IntegrationReadIntent::Stage(reference) = &intent {
+                for (sql, id) in [
+                    (
+                        "SELECT document AS value FROM integration_policies WHERE id=?1",
+                        reference.policy_id.clone(),
+                    ),
+                    (
+                        "SELECT document AS value FROM integrations WHERE id=?1",
+                        reference.run_id.clone(),
+                    ),
+                    (
+                        "SELECT document AS value FROM integration_attempts WHERE attempt_id=?1",
+                        reference.attempt_id.clone(),
+                    ),
+                ] {
+                    queries.push(QueryProof::capture(
+                        &self.conn,
+                        sql,
+                        vec![id],
+                        &mut remaining,
+                    )?);
+                }
+            }
+            phase = "actor-database-pin";
+            Ok(IntegrationReadPlan {
+                intent,
+                queries,
+                database: DatabasePin::capture(&self.conn)?,
+                request_hash: sha(&raw_request)?,
+                as_of_sequence: records::sequence(&self.conn)?,
+                material,
+                available,
+            })
+        })();
+        phase_result(phase, result)
     }
 }
 pub(super) fn selection_shape(s: &IntegrationPolicySelection) -> Result<()> {
@@ -431,249 +494,298 @@ impl IntegrationReadPlan {
         cancel: Arc<AtomicBool>,
         deadline: Instant,
     ) -> Result<IntegrationReadProof> {
-        let control = IntegrationReadControl { cancel, deadline };
-        control.check()?;
-        let connection = self.database.open_readonly(deadline)?;
-        let version: u32 = connection
-            .pragma_query_value(None, "user_version", |r| r.get(0))
-            .map_err(db_error)?;
-        if version != 17 {
-            return Err(changed());
-        }
-        let mut remaining = (4_194_304, 100_000);
-        for q in &self.queries {
+        let mut phase = "worker-original-control";
+        let result = (|| {
+            let control = IntegrationReadControl { cancel, deadline };
             control.check()?;
-            q.recheck(&connection, &mut remaining)?;
-        }
-        let reader = Store {
-            conn: connection,
-            data_input: None,
-            graph_input: None,
-            graph_capture_clocks: Default::default(),
-            factory_recovery_queue_epochs: vec![],
-            factory_read_control: None,
-        };
-        let material =
-            reader.integration_scope_material(&self.material.scope_id, &self.material.task.id)?;
-        let available = reader.integration_available_validators(&material)?;
-        if sha(&material)? != sha(&self.material)? || sha(&available)? != sha(&self.available)? {
-            return Err(changed());
-        }
-        let mut roots = std::collections::BTreeSet::new();
-        roots.insert(material.project.identity.canonical_root.clone());
-        for grant in &material.grant_lineage {
-            for workspace in grant.workspace_bindings.values() {
-                if !matches!(workspace.kind, WorkspaceKind::Git { .. }) {
-                    return Err(CoreError::new(
-                        "CAPABILITY_UNSUPPORTED",
-                        "An original Grant Directory binding needs a separate genuine data witness",
-                    ));
-                }
-                roots.insert(workspace.canonical_root.clone());
+            phase = "worker-database-open";
+            let connection = self.database.open_readonly(deadline)?;
+            let version: u32 = connection
+                .pragma_query_value(None, "user_version", |r| r.get(0))
+                .map_err(db_error)?;
+            if version != 17 {
+                return Err(changed());
             }
-        }
-        let mut observed =
-            FsObservation::capture(&roots.into_iter().collect::<Vec<_>>(), &control)?;
-        let (program, program_pin) = system_git(&control)?;
-        observed.add_leaf(program_pin);
-        for grant in &material.grant_lineage {
-            control.check()?;
-            let first_ws = grant.scope.workspace_ids.first().ok_or_else(denied)?;
-            let first_conn = grant.scope.connection_ids.first().ok_or_else(denied)?;
-            if crate::policy::validate_grant_live_from_with_data(
-                &reader.conn,
-                &grant.id,
-                &grant.project_id,
-                first_ws,
-                first_conn,
-                None,
-            )? != *grant
+            phase = "worker-row-recheck";
+            let mut remaining = (4_194_304, 100_000);
+            for q in &self.queries {
+                control.check()?;
+                q.recheck(&connection, &mut remaining)?;
+            }
+            let reader = Store {
+                conn: connection,
+                data_input: None,
+                graph_input: None,
+                graph_capture_clocks: Default::default(),
+                factory_recovery_queue_epochs: vec![],
+                factory_read_control: None,
+            };
+            phase = "worker-scope-material";
+            let material = reader
+                .integration_scope_material(&self.material.scope_id, &self.material.task.id)?;
+            phase = "worker-validator-catalog";
+            let available = reader.integration_available_validators(&material)?;
+            phase = "worker-material-consistency";
+            if sha(&material)? != sha(&self.material)? || sha(&available)? != sha(&self.available)?
             {
                 return Err(changed());
             }
-            for c in &grant.scope.connection_ids {
-                let connection = reader.get_connection(c)?;
-                crate::runtime_config::approved_plan(&connection)?;
-                let pin = LeafPin::capture(&connection.executable)?;
-                let (hash, _) = pin.digest(268435456, &control)?;
-                if hash != connection.executable_sha256 {
+            let stage_permit = match &self.intent {
+                IntegrationReadIntent::Stage(reference) => {
+                    Some(super::fences::for_reference(&reader.conn, reference)?)
+                }
+                _ => None,
+            };
+            let mut roots = std::collections::BTreeSet::new();
+            roots.insert(material.project.identity.canonical_root.clone());
+            for grant in &material.grant_lineage {
+                for workspace in grant.workspace_bindings.values() {
+                    if !matches!(workspace.kind, WorkspaceKind::Git { .. }) {
+                        return Err(CoreError::new(
+                        "CAPABILITY_UNSUPPORTED",
+                        "An original Grant Directory binding needs a separate genuine data witness",
+                    ));
+                    }
+                    roots.insert(workspace.canonical_root.clone());
+                }
+            }
+            phase = "worker-tree-observation";
+            let mut observed =
+                FsObservation::capture(&roots.into_iter().collect::<Vec<_>>(), &control)?;
+            phase = "worker-system-git-pin";
+            let (program, program_pin) = system_git(&control)?;
+            observed.add_leaf(program_pin);
+            for grant in &material.grant_lineage {
+                control.check()?;
+                let first_ws = grant.scope.workspace_ids.first().ok_or_else(denied)?;
+                let first_conn = grant.scope.connection_ids.first().ok_or_else(denied)?;
+                phase = "worker-original-grant";
+                let current = if let Some(permit) = &stage_permit {
+                    crate::policy::validate_grant_for_integration(
+                        &reader.conn,
+                        &grant.id,
+                        &grant.project_id,
+                        first_ws,
+                        first_conn,
+                        permit,
+                    )?
+                } else {
+                    crate::policy::validate_grant_live_from_with_data(
+                        &reader.conn,
+                        &grant.id,
+                        &grant.project_id,
+                        first_ws,
+                        first_conn,
+                        None,
+                    )?
+                };
+                if current != *grant {
                     return Err(changed());
                 }
-                observed.add_leaf(pin);
+                for c in &grant.scope.connection_ids {
+                    phase = "worker-connection-program";
+                    let connection = reader.get_connection(c)?;
+                    crate::runtime_config::approved_plan(&connection)?;
+                    let pin = LeafPin::capture(&connection.executable)?;
+                    let (hash, _) = pin.digest(268435456, &control)?;
+                    if hash != connection.executable_sha256 {
+                        return Err(changed());
+                    }
+                    observed.add_leaf(pin);
+                }
+                for (id, pinned) in &grant.workspace_bindings {
+                    let workspace: crate::registry::ManagedWorkspace =
+                        raw(&reader.conn, "managed_workspaces", id)?;
+                    phase = "worker-grant-workspace-inspection";
+                    inspect_exact(
+                        pinned,
+                        &workspace.base_revision,
+                        id == &material.workspace.id,
+                        &program,
+                        &control,
+                    )?;
+                }
             }
-            for (id, pinned) in &grant.workspace_bindings {
-                let workspace: crate::registry::ManagedWorkspace =
-                    raw(&reader.conn, "managed_workspaces", id)?;
-                inspect_exact(
-                    pinned,
-                    &workspace.base_revision,
-                    id == &material.workspace.id,
-                    &program,
-                    &control,
-                )?;
+            let project_head = match &material.project.identity.kind {
+                WorkspaceKind::Git { head, .. } => head,
+                _ => return Err(changed()),
+            };
+            phase = "worker-project-inspection";
+            let project = inspect_exact(
+                &material.project.identity,
+                project_head,
+                false,
+                &program,
+                &control,
+            )?;
+            phase = "worker-source-inspection";
+            let source = inspect_exact(
+                material.workspace.identity.as_ref().ok_or_else(changed)?,
+                &material.workspace.base_revision,
+                true,
+                &program,
+                &control,
+            )?;
+            phase = "worker-input-binding";
+            for input in &material.inputs {
+                artifact_pin(&source, input, &control, &mut observed)?;
             }
-        }
-        let project_head = match &material.project.identity.kind {
-            WorkspaceKind::Git { head, .. } => head,
-            _ => return Err(changed()),
-        };
-        let project = inspect_exact(
-            &material.project.identity,
-            project_head,
-            false,
-            &program,
-            &control,
-        )?;
-        let source = inspect_exact(
-            material.workspace.identity.as_ref().ok_or_else(changed)?,
-            &material.workspace.base_revision,
-            true,
-            &program,
-            &control,
-        )?;
-        for input in &material.inputs {
-            artifact_pin(&source, input, &control, &mut observed)?;
-        }
-        for validator in material.validators.iter().chain(&available) {
-            for file in [validator.program.as_ref(), validator.script.as_ref()]
-                .into_iter()
-                .flatten()
-            {
-                let identity = super::fs::directory_identity(&file.canonical_root)?;
-                if identity.0.to_string() != file.root_device
-                    || identity.1.to_string() != file.root_inode
+            phase = "worker-validator-file-binding";
+            for validator in material.validators.iter().chain(&available) {
+                for file in [validator.program.as_ref(), validator.script.as_ref()]
+                    .into_iter()
+                    .flatten()
                 {
-                    return Err(changed());
-                }
-                let pin =
-                    LeafPin::capture(&file.canonical_root.join(&file.requirement.relative_path))?;
-                let (hash, _) = pin.digest(file.requirement.max_bytes, &control)?;
-                if file.requirement.expected_sha256.as_deref() != Some(hash.as_str()) {
-                    return Err(changed());
-                }
-                observed.add_leaf(pin);
-            }
-        }
-        let selected = match &self.intent {
-            IntegrationReadIntent::Proposal(s) => Some(s.clone()),
-            IntegrationReadIntent::Finalize { proposal_id, .. } => {
-                let p: crate::sessions::ApprovalProposal =
-                    raw(&reader.conn, "approval_proposals", proposal_id)?;
-                Some(
-                    serde_json::from_value::<IntegrationPolicySnapshot>(p.snapshot)
-                        .map_err(|_| changed())?
-                        .intent,
-                )
-            }
-            IntegrationReadIntent::Start { policy_id, .. } => {
-                Some(records::policy(&reader.conn, policy_id)?.selection)
-            }
-            IntegrationReadIntent::Context(_) => None,
-        };
-        if let Some(selection) = selected {
-            observe_target(&material.workspace.root, &program, &selection, &control)?;
-        }
-        let source = git_pin(&source)?;
-        let workspace_binding = match &material.workspace_ownership {
-            IntegrationWorkspaceMaterial::TaskManaged(r) => {
-                IntegrationWorkspaceBinding::TaskManaged { receipt: r.clone() }
-            }
-            IntegrationWorkspaceMaterial::FactoryDelegated(d) => {
-                IntegrationWorkspaceBinding::FactoryDelegated {
-                    factory_scope_id: d.factory_scope_id.clone(),
-                    factory_scope_digest: d.factory_scope_digest.clone(),
-                    factory_run_id: d.factory_run_id.clone(),
-                    child_spec_revision: d.child_spec_revision,
-                    lineage: d.lineage.clone(),
-                    delegation_event_sequence: d.delegation_event_sequence,
-                    delegation_document_digest: d.delegation_document_digest.clone(),
-                    original_request: d.original_request.clone(),
-                    original_handle: d.original_handle.clone(),
-                    workspace_id: d.workspace_id.clone(),
-                    registered_pin: source.clone(),
-                    source_base: d.source_base.clone(),
-                    managed_creation_ref: d.managed_creation_ref.clone(),
+                    let identity = super::fs::directory_identity(&file.canonical_root)?;
+                    if identity.0.to_string() != file.root_device
+                        || identity.1.to_string() != file.root_inode
+                    {
+                        return Err(changed());
+                    }
+                    let pin = LeafPin::capture(
+                        &file.canonical_root.join(&file.requirement.relative_path),
+                    )?;
+                    let (hash, _) = pin.digest(file.requirement.max_bytes, &control)?;
+                    if file.requirement.expected_sha256.as_deref() != Some(hash.as_str()) {
+                        return Err(changed());
+                    }
+                    observed.add_leaf(pin);
                 }
             }
-        };
-        let mut lineage = vec![];
-        for grant in &material.grant_lineage {
-            let mut workspace_bindings = std::collections::BTreeMap::new();
-            for (id, w) in &grant.workspace_bindings {
-                workspace_bindings.insert(id.clone(), git_pin(w)?);
+            let selected = match &self.intent {
+                IntegrationReadIntent::Proposal(s) => Some(s.clone()),
+                IntegrationReadIntent::Finalize { proposal_id, .. } => {
+                    let p: crate::sessions::ApprovalProposal =
+                        raw(&reader.conn, "approval_proposals", proposal_id)?;
+                    Some(
+                        serde_json::from_value::<IntegrationPolicySnapshot>(p.snapshot)
+                            .map_err(|_| changed())?
+                            .intent,
+                    )
+                }
+                IntegrationReadIntent::Start { policy_id, .. } => {
+                    Some(records::policy(&reader.conn, policy_id)?.selection)
+                }
+                IntegrationReadIntent::Stage(reference) => {
+                    let mut selection =
+                        records::policy(&reader.conn, &reference.policy_id)?.selection;
+                    let run = records::run(&reader.conn, &reference.run_id)?;
+                    selection.expected_target_head = run.expected_target_head;
+                    Some(selection)
+                }
+                IntegrationReadIntent::Context(_) => None,
+            };
+            if let Some(selection) = selected {
+                phase = "worker-target-inspection";
+                observe_target(&material.workspace.root, &program, &selection, &control)?;
             }
-            lineage.push(IntegrationGrantBinding {
-                id: grant.id.clone(),
-                root_grant_id: grant.root_grant_id.clone(),
-                parent_id: grant.parent_id.clone(),
-                revision: grant.revision,
-                approval_id: grant.approval_id.clone(),
-                approved_at: grant.approved_at.clone(),
-                expires_at_ms: grant.expires_at_ms,
-                scope: grant.scope.clone(),
-                connection_bindings: grant.connection_bindings.clone(),
-                workspace_bindings,
-                original_document_sha256: sha(grant)?,
-            });
-        }
-        let mut bindings = IntegrationStaticBindings {
-            task_id: material.task.id.clone(),
-            task_goal: material.task.goal.clone(),
-            spec_revision: material.task.spec_revision,
-            project_id: material.project.id.clone(),
-            project_revision: material.project.revision,
-            project_source: git_pin(&project)?,
-            workspace_id: material.workspace.id.clone(),
-            workspace_revision: material.workspace.revision,
-            source: source.clone(),
-            workspace_binding,
-            goal_scope_id: material.scope_id.clone(),
-            goal_scope_revision: material.scope_revision,
-            goal_scope_digest: material.scope_digest.clone(),
-            goal_scope_expires_at_ms: material.expires_at_ms,
-            root_task_id: material.root_task_id.clone(),
-            root_grant_id: material.grant.root_grant_id.clone(),
-            factory_scope_id: material.factory_scope_id.clone(),
-            ancestors: material.ancestors.clone(),
-            grant_lineage: lineage,
-            root_budget: material.root_budget.clone(),
-            project_budget: material.project_budget.clone(),
-            inputs: material.inputs.clone(),
-            outputs: material.outputs.clone(),
-            validators: material.validators.clone(),
-            system_git: program,
-            repository_digest: sha(
-                &json!({"host":"local","project":material.project.id,"common_dir":source.common_dir,"common_device":source.common_device,"common_inode":source.common_inode}),
-            )?,
-            binding_digest: String::new(),
-        };
-        bindings.binding_digest = sha(&bindings)?;
-        control.check()?;
-        observed.recheck()?;
-        self.database.recheck()?;
-        reader.conn.execute_batch("ROLLBACK;").map_err(db_error)?;
-        let context = IntegrationContextView {
-            task_revision: material.task.revision,
-            bindings,
-            as_of_sequence: self.as_of_sequence,
-            shared_usage: material.usage.clone(),
-            available_validators: available.clone(),
-            preview_only: true,
-        };
-        if encode(&context)?.len() > MAX_INTEGRATION_BYTES {
-            return Err(limited());
-        }
-        Ok(IntegrationReadProof {
-            intent: self.intent,
-            context,
-            material_digest: sha(&material)?,
-            available_digest: sha(&available)?,
-            database: self.database,
-            queries: self.queries,
-            observation: observed,
-            request_hash: self.request_hash,
-            deadline,
-        })
+            phase = "worker-final-identity";
+            let source = git_pin(&source)?;
+            let workspace_binding = match &material.workspace_ownership {
+                IntegrationWorkspaceMaterial::TaskManaged(r) => {
+                    IntegrationWorkspaceBinding::TaskManaged { receipt: r.clone() }
+                }
+                IntegrationWorkspaceMaterial::FactoryDelegated(d) => {
+                    IntegrationWorkspaceBinding::FactoryDelegated {
+                        factory_scope_id: d.factory_scope_id.clone(),
+                        factory_scope_digest: d.factory_scope_digest.clone(),
+                        factory_run_id: d.factory_run_id.clone(),
+                        child_spec_revision: d.child_spec_revision,
+                        lineage: d.lineage.clone(),
+                        delegation_event_sequence: d.delegation_event_sequence,
+                        delegation_document_digest: d.delegation_document_digest.clone(),
+                        original_request: d.original_request.clone(),
+                        original_handle: d.original_handle.clone(),
+                        workspace_id: d.workspace_id.clone(),
+                        registered_pin: source.clone(),
+                        source_base: d.source_base.clone(),
+                        managed_creation_ref: d.managed_creation_ref.clone(),
+                    }
+                }
+            };
+            let mut lineage = vec![];
+            for grant in &material.grant_lineage {
+                let mut workspace_bindings = std::collections::BTreeMap::new();
+                for (id, w) in &grant.workspace_bindings {
+                    workspace_bindings.insert(id.clone(), git_pin(w)?);
+                }
+                lineage.push(IntegrationGrantBinding {
+                    id: grant.id.clone(),
+                    root_grant_id: grant.root_grant_id.clone(),
+                    parent_id: grant.parent_id.clone(),
+                    revision: grant.revision,
+                    approval_id: grant.approval_id.clone(),
+                    approved_at: grant.approved_at.clone(),
+                    expires_at_ms: grant.expires_at_ms,
+                    scope: grant.scope.clone(),
+                    connection_bindings: grant.connection_bindings.clone(),
+                    workspace_bindings,
+                    original_document_sha256: sha(grant)?,
+                });
+            }
+            let mut bindings = IntegrationStaticBindings {
+                task_id: material.task.id.clone(),
+                task_goal: material.task.goal.clone(),
+                spec_revision: material.task.spec_revision,
+                project_id: material.project.id.clone(),
+                project_revision: material.project.revision,
+                project_source: git_pin(&project)?,
+                workspace_id: material.workspace.id.clone(),
+                workspace_revision: material.workspace.revision,
+                source: source.clone(),
+                workspace_binding,
+                goal_scope_id: material.scope_id.clone(),
+                goal_scope_revision: material.scope_revision,
+                goal_scope_digest: material.scope_digest.clone(),
+                goal_scope_expires_at_ms: material.expires_at_ms,
+                root_task_id: material.root_task_id.clone(),
+                root_grant_id: material.grant.root_grant_id.clone(),
+                factory_scope_id: material.factory_scope_id.clone(),
+                ancestors: material.ancestors.clone(),
+                grant_lineage: lineage,
+                root_budget: material.root_budget.clone(),
+                project_budget: material.project_budget.clone(),
+                inputs: material.inputs.clone(),
+                outputs: material.outputs.clone(),
+                validators: material.validators.clone(),
+                system_git: program,
+                repository_digest: sha(
+                    &json!({"host_id":"local","common_device":source.common_device,"common_inode":source.common_inode}),
+                )?,
+                binding_digest: String::new(),
+            };
+            bindings.binding_digest = sha(&bindings)?;
+            control.check()?;
+            phase = "worker-final-observation";
+            observed.recheck()?;
+            phase = "worker-final-database-pin";
+            self.database.recheck()?;
+            reader.conn.execute_batch("ROLLBACK;").map_err(db_error)?;
+            let context = IntegrationContextView {
+                task_revision: material.task.revision,
+                bindings,
+                as_of_sequence: self.as_of_sequence,
+                shared_usage: material.usage.clone(),
+                available_validators: available.clone(),
+                preview_only: true,
+            };
+            phase = "worker-context-envelope";
+            if encode(&context)?.len() > MAX_INTEGRATION_BYTES {
+                return Err(limited());
+            }
+            Ok(IntegrationReadProof {
+                intent: self.intent,
+                context,
+                material_digest: sha(&material)?,
+                available_digest: sha(&available)?,
+                database: self.database,
+                queries: self.queries,
+                observation: observed,
+                request_hash: self.request_hash,
+                deadline,
+            })
+        })();
+        phase_result(phase, result)
     }
 }
 fn artifact_pin(
@@ -701,6 +813,48 @@ fn artifact_pin(
     Ok(())
 }
 impl IntegrationReadProof {
+    pub(super) fn reseal_stage_after_own_transition(
+        &mut self,
+        store: &Store,
+        ticket: &super::runtime::IntegrationStageTicket,
+        raw: &str,
+    ) -> Result<()> {
+        // Only after the old complete proof was checked in the same immediate
+        // transaction. Refresh the deliberate own run/dispatch state change;
+        // retained FD observations and original deadline never reset.
+        let (plan, expected) = store.prepare_integration_stage_read(ticket)?;
+        if expected != raw
+            || sha(&plan.material)? != self.material_digest
+            || sha(&plan.available)? != self.available_digest
+            || plan.request_hash != self.request_hash
+        {
+            return Err(changed());
+        }
+        self.queries = plan.queries;
+        self.seal_observation()?;
+        Ok(())
+    }
+    pub(super) fn verify_on_worker(
+        &self,
+        raw: &str,
+        cancel: Arc<AtomicBool>,
+        deadline: Instant,
+    ) -> Result<()> {
+        let control = IntegrationReadControl { cancel, deadline };
+        control.check()?;
+        let reader = Store {
+            conn: self.database.open_readonly(deadline)?,
+            data_input: None,
+            graph_input: None,
+            graph_capture_clocks: Default::default(),
+            factory_recovery_queue_epochs: vec![],
+            factory_read_control: None,
+        };
+        self.verify(&reader, raw, deadline)?;
+        control.check()?;
+        reader.conn.execute_batch("ROLLBACK;").map_err(db_error)?;
+        Ok(())
+    }
     pub(crate) fn intent(&self) -> &IntegrationReadIntent {
         &self.intent
     }
@@ -725,43 +879,78 @@ impl IntegrationReadProof {
         Ok(())
     }
     pub(crate) fn verify(&self, store: &Store, raw_request: &str, deadline: Instant) -> Result<()> {
-        if Instant::now() >= self.deadline
-            || Instant::now() >= deadline
-            || self.deadline != deadline
-        {
-            return Err(CoreError::new(
-                "DEADLINE_EXCEEDED",
-                "Integration read arrived after its original request deadline",
-            ));
-        }
-        if sha(&raw_request)? != self.request_hash {
-            return Err(denied());
-        }
-        self.database.recheck()?;
-        let material = store.integration_scope_material(
-            &self.context.bindings.goal_scope_id,
-            &self.context.bindings.task_id,
-        )?;
-        if sha(&material)? != self.material_digest
-            || sha(&store.integration_available_validators(&material)?)? != self.available_digest
-        {
-            return Err(changed());
-        }
-        let mut remaining = (4_194_304, 100_000);
-        for q in &self.queries {
-            q.recheck(&store.conn, &mut remaining)?;
-        }
-        for grant in &material.grant_lineage {
-            crate::policy::observe_grant_bindings(&store.conn, grant)?;
-        }
-        self.observation.recheck()?;
-        if Instant::now() >= deadline {
-            return Err(CoreError::new(
-                "DEADLINE_EXCEEDED",
-                "Integration proof expired at admission",
-            ));
-        }
-        Ok(())
+        let mut phase = "actor-proof-original-request";
+        let result = (|| {
+            if Instant::now() >= self.deadline
+                || Instant::now() >= deadline
+                || self.deadline != deadline
+            {
+                return Err(CoreError::new(
+                    "DEADLINE_EXCEEDED",
+                    "Integration read arrived after its original request deadline",
+                ));
+            }
+            if sha(&raw_request)? != self.request_hash {
+                return Err(denied());
+            }
+            phase = "actor-proof-database-pin";
+            self.database.recheck()?;
+            phase = "actor-proof-scope-material";
+            let material = store.integration_scope_material(
+                &self.context.bindings.goal_scope_id,
+                &self.context.bindings.task_id,
+            )?;
+            phase = "actor-proof-material-consistency";
+            if sha(&material)? != self.material_digest
+                || sha(&store.integration_available_validators(&material)?)?
+                    != self.available_digest
+            {
+                return Err(changed());
+            }
+            phase = "actor-proof-row-recheck";
+            let mut remaining = (4_194_304, 100_000);
+            for q in &self.queries {
+                q.recheck(&store.conn, &mut remaining)?;
+            }
+            phase = "actor-proof-original-grant";
+            for grant in &material.grant_lineage {
+                crate::policy::observe_grant_bindings(&store.conn, grant)?;
+            }
+            if let IntegrationReadIntent::Stage(reference) = &self.intent {
+                let permit = super::fences::for_reference(&store.conn, reference)?;
+                for grant in &material.grant_lineage {
+                    for workspace in grant.workspace_bindings.values() {
+                        super::fences::check_workspace_fences(
+                            &store.conn,
+                            workspace,
+                            Some(&permit),
+                        )?;
+                    }
+                }
+                let policy = records::policy(&store.conn, &reference.policy_id)?;
+                let mut selection = policy.selection.clone();
+                // Runtime revisions changed through the authentic accepted chain;
+                // scope/spec/outputs/Native bindings remain exact.
+                selection.expected_task_revision = self.context.task_revision;
+                if encode(&super::approval::selected_bindings(
+                    &self.context,
+                    &selection,
+                )?)? != encode(&policy.bindings)?
+                {
+                    return Err(changed());
+                }
+            }
+            phase = "actor-proof-final-observation";
+            self.observation.recheck()?;
+            if Instant::now() >= deadline {
+                return Err(CoreError::new(
+                    "DEADLINE_EXCEEDED",
+                    "Integration proof expired at admission",
+                ));
+            }
+            Ok(())
+        })();
+        phase_result(phase, result)
     }
 }
 
@@ -824,6 +1013,45 @@ fn observe_target(
 #[cfg(test)]
 mod lease_projection_tests {
     use super::*;
+    #[test]
+    fn fixed_phase_annotation_preserves_original_error_and_numeric_diagnostics() {
+        let original = changed();
+        let annotated =
+            phase_result::<()>("worker-source-inspection", Err(original.clone())).unwrap_err();
+        assert_eq!(annotated.code, original.code);
+        assert_eq!(annotated.message, original.message);
+        assert_eq!(annotated.side_effect_state, original.side_effect_state);
+        assert_eq!(
+            annotated.details_ref.as_deref(),
+            Some("integration-read-phase:worker-source-inspection")
+        );
+        let mut numeric = original;
+        numeric.details_ref = Some("sqlite-code:1".into());
+        assert_eq!(
+            phase_result::<()>("worker-source-inspection", Err(numeric))
+                .unwrap_err()
+                .details_ref
+                .as_deref(),
+            Some("sqlite-code:1")
+        );
+    }
+    #[test]
+    fn additional_proof_queries_share_the_original_byte_budget() {
+        let db = Connection::open_in_memory().unwrap();
+        db.execute_batch("CREATE TABLE proof(value TEXT NOT NULL);")
+            .unwrap();
+        db.execute("INSERT INTO proof VALUES(?1)", ["a".repeat(900_000)])
+            .unwrap();
+        let mut remaining = (1_048_576, 2);
+        let _held =
+            QueryProof::capture(&db, "SELECT value FROM proof", vec![], &mut remaining).unwrap();
+        let result = QueryProof::capture(&db, "SELECT value FROM proof", vec![], &mut remaining);
+        assert_eq!(
+            result.err().expect("aggregate proof must be bounded").code,
+            "RESOURCE_LIMIT"
+        );
+        assert_eq!(remaining, (148_576, 1));
+    }
     #[test]
     fn existing_schema_lease_expiry_column_is_projected_and_rechecked() {
         // Actual predecessor DDL, with only an inert isolated row. This is a

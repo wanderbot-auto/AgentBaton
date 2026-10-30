@@ -399,11 +399,11 @@ impl IntegrationPreparedContext {
         })
     }
     pub(super) fn cas(
-        self,
+        &self,
         cancel: Arc<AtomicBool>,
         deadline: Instant,
         attempt_id: &str,
-    ) -> Result<(Self, agentbaton_workspaces::adoption::IntegrationRecord)> {
+    ) -> Result<agentbaton_workspaces::adoption::ControlledIntegrationResult> {
         let guard = IntegrationReadControl { cancel, deadline };
         guard.check()?;
         if self.validations.len() != self.policy.bindings.validators.len()
@@ -452,12 +452,15 @@ impl IntegrationPreparedContext {
         let evidence = validate_artifacts(&rule, inputs, outputs, None).map_err(|_| changed())?;
         let acceptance = evidence.accept(&rule).map_err(|_| changed())?;
         guard.check()?;
-        let receipt = agentbaton_workspaces::adoption::adopt_local_reference(
+        let control =
+            agentbaton_workspaces::adoption::AdoptionControl::for_request(&guard.cancel, deadline);
+        let receipt = agentbaton_workspaces::adoption::adopt_local_reference_controlled(
             &self.candidate,
             &evidence,
             &acceptance,
+            &control,
         )
         .map_err(|_| changed())?;
-        Ok((self, receipt))
+        Ok(receipt)
     }
 }

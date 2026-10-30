@@ -70,6 +70,7 @@ pub(super) fn raw<T: for<'a> serde::Deserialize<'a>>(
         "integration_policies"=>"SELECT octet_length(document),CASE WHEN octet_length(document)<=1048576 THEN document END FROM integration_policies WHERE id=?1",
         "integrations"=>"SELECT octet_length(document),CASE WHEN octet_length(document)<=1048576 THEN document END FROM integrations WHERE id=?1",
         "integration_attempts"=>"SELECT octet_length(document),CASE WHEN octet_length(document)<=1048576 THEN document END FROM integration_attempts WHERE attempt_id=?1",
+        "dispatch_intents"=>"SELECT octet_length(document),CASE WHEN octet_length(document)<=1048576 THEN document END FROM dispatch_intents WHERE id=?1",
         "tasks"=>"SELECT octet_length(document),CASE WHEN octet_length(document)<=1048576 THEN document END FROM tasks WHERE id=?1",
         "goal_scopes"=>"SELECT octet_length(document),CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_scopes WHERE id=?1",
         "managed_workspaces"=>"SELECT octet_length(document),CASE WHEN octet_length(document)<=1048576 THEN document END FROM managed_workspaces WHERE id=?1",
