@@ -913,7 +913,7 @@ pub(super) fn reserve_ancestors(
     }
     let authority = checked_record(db, &r.id)?;
     let scope = crate::factory::checked_child_goal_scope(db, &authority.origin.factory_scope_id)?;
-    let all = crate::factory::budget_records(db, &scope.root_grant_id, &scope.project_id)?;
+    let all = crate::factory::accounting_records(db, &scope.root_grant_id, &scope.project_id)?;
     for (ancestor, budget) in crate::factory::child_goal_ancestor_budgets(db, &scope, &r.task_id)? {
         let relevant = all
             .iter()

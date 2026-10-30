@@ -1174,7 +1174,7 @@ pub(crate) fn reserve_factory_session(
     // Every ancestor bound is cumulative over actual attempts, not a fresh child budget.
     for ancestor in &ancestors {
         let a = self::binding(db, &r.id, ancestor)?;
-        let old = super::budget::budget_records(db, &c.scope.root_grant_id, &s.project_id)?;
+        let old = super::budget::accounting_records(db, &c.scope.root_grant_id, &s.project_id)?;
         let same = old
             .iter()
             .filter(|x| {
