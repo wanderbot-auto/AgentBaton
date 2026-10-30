@@ -966,15 +966,15 @@ fn assert_closed_chain(
     assert_eq!(run["policy_revision"], policy["revision"]);
     assert_eq!(run["task_id"], f.task["id"]);
     assert_eq!(run["acceptance_ref"], accepted["task_acceptance"]["id"]);
+    let original_acceptance = &accepted["task_acceptance"];
+    let typed: GraphTaskAcceptance = serde_json::from_value(original_acceptance.clone()).unwrap();
+    // Preserve the complete original Value and reject unknown/missing fields.
+    // Core's frozen integration digest contract serializes to Value first;
+    // a struct's declaration-order JSON bytes are not that compact Value.
+    assert_eq!(serde_json::to_value(typed).unwrap(), *original_acceptance);
     assert_eq!(
         run["acceptance_digest"],
-        sha256(
-            &serde_json::to_vec(
-                &serde_json::from_value::<GraphTaskAcceptance>(accepted["task_acceptance"].clone())
-                    .unwrap()
-            )
-            .unwrap()
-        )
+        sha256(&serde_json::to_vec(original_acceptance).unwrap())
     );
     assert_eq!(run["expected_target_head"], f.initial_target);
     assert_eq!(run["target_ref"], TARGET);
