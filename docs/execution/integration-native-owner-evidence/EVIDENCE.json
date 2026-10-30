@@ -88,5 +88,32 @@
         "bytes": 8663
       }
     }
+  },
+  "receipt_scope_cas_fix": {
+    "source": "a8032c528237bd03b3d62ab7b756c96bfffd206b",
+    "p2s": [
+      "nested workspace receipt ID",
+      "ScopeRecord vs Grant revision CAS"
+    ],
+    "pure_tests": 26,
+    "passed": 26,
+    "seconds": 0.092,
+    "old24_test_ast_unchanged": true,
+    "p3_included": false,
+    "actual_bootstrap_os": "NOT_RUN",
+    "evidence": {
+      "controls.log": {
+        "bytes": 6263,
+        "sha256": "49e8bc59927d3c17b8dca2e6b9c357e65c27ff3013aa5829a6a40996b7e4e031"
+      },
+      "PRE_FIX_OBSERVATION.json": {
+        "bytes": 579,
+        "sha256": "0a4922a0e78215d141e0d0a17d12e91fe1b187074f13cdd8276f43f809e55851"
+      },
+      "STATIC_RESULT.json": {
+        "bytes": 263,
+        "sha256": "e0b7b70b44db871f49393bc3d9bbbffb2125552bd14395b33782cedaf37a89f5"
+      }
+    }
   }
 }
