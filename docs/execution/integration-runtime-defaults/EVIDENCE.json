@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "task": "integration-runtime-defaults",
+  "base_commit": "6b889af8b3631da1b055c697fc7ba0a690422d4f",
+  "source_checks": [
+    {
+      "id": "production_change_exact_default_literal",
+      "status": "PASS"
+    },
+    {
+      "id": "new_form_all_stage_paths_existing_shared_factory",
+      "status": "PASS"
+    },
+    {
+      "id": "manual_string_parser_unchanged",
+      "status": "PASS"
+    },
+    {
+      "id": "new_default_payload_all_three_5000",
+      "status": "PASS"
+    },
+    {
+      "id": "visible_default_and_explicit1000_fields",
+      "status": "PASS"
+    },
+    {
+      "id": "explicit_payload_all_three_1000",
+      "status": "PASS"
+    },
+    {
+      "id": "old_policy_exact_full_record_preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "old_policy_all_stage1000_preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "readonly_refresh_no_write",
+      "status": "PASS"
+    },
+    {
+      "id": "original_test_names_preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "two_added_component_test_definitions",
+      "status": "PASS"
+    },
+    {
+      "id": "no_skip_or_any_added",
+      "status": "PASS"
+    },
+    {
+      "id": "ttl_token_cost_preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "source_scope_only_two_files",
+      "status": "PASS"
+    }
+  ],
+  "counts": {
+    "static_source_checks": 14,
+    "passed": 14,
+    "failed": 0,
+    "new_component_tests_written": 2,
+    "author_executed_component_tests": 0
+  },
+  "source_files": [
+    {
+      "path": "apps/desktop/src/integration-form.ts",
+      "sha256": "1c8002112f4a196603bd012de23f4323d22258d533976acdec02b4b3c556330d"
+    },
+    {
+      "path": "apps/desktop/src/TaskIntegration.test.tsx",
+      "sha256": "138c13acd1b25c823c844800478abc282c0dadf205d84f3d60c9bad5662c24eb"
+    }
+  ],
+  "production_delta": "newIntegrationReservation runtime string only:1000->5000",
+  "unchanged_guards": [
+    "editable exact per-stage values",
+    "existing policies and retained requests",
+    "shared Goal/root/project/Factory budgets",
+    "TTL and expiry",
+    "Native full snapshot approval",
+    "output/token/cost bounds",
+    "Core permission and unknown refusal"
+  ],
+  "decision_basis": [
+    {
+      "attribution": "Root reported earlier actual preparation1072/1075ms under smaller selection; not independently timed by this author",
+      "scope": "undersized default motivation only"
+    },
+    {
+      "attribution": "Root actual integration17-runtime-ipc-tests3 RESULT previously independently metadata-checked by this agent; unrelated source/runtime dimension, not execution of this UI delta",
+      "source": "944d49d62bf0db08ff33f36594532709d6548b53",
+      "result_sha256": "1942a64fd11b7bd151df7095b507a57eb73cb5aae0dee8f54b7986c7a5e16472",
+      "summary": "2 positive Unix IPC chains passed13.64s; no performance guarantee, Native OS or Mac proof"
+    }
+  ],
+  "checks_not_run_by_author": [
+    "Node typecheck",
+    "Vitest",
+    "Vite build",
+    "real UI IPC",
+    "Native OS",
+    "macOS",
+    "real Provider"
+  ],
+  "independent_review": "PENDING",
+  "diff_check": "exit0",
+  "formal_pr_approve": false
+}
