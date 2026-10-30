@@ -1,3 +1,5 @@
+Next: preserve verified primitive and failures in a reviewedfeaturePR; freeze independent Core/Native preauthorization, sharedbudget/intent/fence/ownedmergedvalidation/CASrecovery contracts before implementation. Finish unsupportedchange/Unicode/retention/platform paths forfullVAL009; no completedproduct claim.
+
 # Accepted source capture — AB-VAL-009 prerequisite
 
 Base `bc10ee94c667da9535018c37fdf5b128d63126af`; branch `codex/accepted-source-capture`. OWNER-001/002 ACK. AB-START-001 permits implementation; it does not manufacture product Owner approval or authorize this library to merge a branch.

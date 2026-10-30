@@ -1,3 +1,13 @@
+## Exact Git capture validated; original failures retained — 2026-10-30T04:53:28.808547+00:00
+
+Host-only accepted-file capture now constructs exact raw Git commits without editing the original index/files/refs. Actual blob content SHA/length and final leafdiff+tree structure are rechecked; original boundedglobal15s/256files/64MiB remain. Native/Core Owner authorization, mergedcorrectness and actual adoption are not provided by this primitive.
+
+Actual source0720 fullworkspaces147uniqueRust tests plus7compilefaildocs PASS;4nestedhelpers excluded, new5private+13generatedGit=18 are included in147. Originalempty1 is a13subset. Two subsequent test-onlyhex syntax changes retain production bytes; finalaed new5/fmt/strictworkspacealltargetsClippy pass, original1 re-passes695. The147 suite was not relabelled a finalaed rerun.
+
+Original12PASS1FAIL and diagnostic0PASS1FAIL are retained. Root inspected the retainedgeneratedrepository: oldcandidate returnedOk while dropping an unselectedempty subtree, originalHEAD remainedunchanged. Newboundedfulltree audit rejects before object/index writes and checkscandidate too; exactoldUnsafeRepository expectation now passes. OriginalfailedELF/fullgzip/log/source and latergeneratedrepo are retained; initialfixture TempDir cleanup is honestly recorded. Two actualClippy101 testsyntax failures are retained and corrected without loweringwarnings. Independentoriginal/fix/finalsource seals remain separate.
+
+Merged reviewedWSI0644 metadata only, no product source delta. ASCII/unsupportedchange/hostcleanup/Mac/native/remote/liveProvider limitations remain; fullVAL009 and130 stayopen. OWNER001002ACK/main653679d; no CoreGrant/DDL/refadoption/production/signing/spend authorization changed. See ROOT_GIT_CAPTURE_RESULTS.json.
+
 # Checkpoint
 
 Tree `/workspace/.worktrees/accepted-source-capture`, branch `codex/accepted-source-capture`. Source `2784897058dbf81b29432bac096892b01f0fa98d`; source evidence `/workspace/.onboarding/accepted-source-capture-2784897/{SOURCE_MANIFEST.json,STATIC_CHECKS.json,COMMAND_RESULTS.json}`. This is source-ready for independent review, not accepted or runtime-verified.
