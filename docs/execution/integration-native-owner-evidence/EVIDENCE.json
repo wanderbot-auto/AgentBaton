@@ -30,5 +30,63 @@
   },
   "actual_core17_native_os_ci_provider": "NOT_RUN",
   "cargo_target_used": false,
-  "next": "Connect c932 real self-contained bootstrap and --integration runner; source-only contract is not OS acceptance"
+  "next": "Connect c932 real self-contained bootstrap and --integration runner; source-only contract is not OS acceptance",
+  "bootstrap_source_stage": {
+    "source": "18f62a08702dd7609992832201fc5ce3626324d8",
+    "prior_seed_code": "15c55d97fdcb813883fa37e2fb3160540f29c9a0",
+    "core_contract": "c9321ff4fd0275f1cdeda8fc7be2b12930f56474",
+    "native_contract": "128481c6699388a6b2c4ced6d3ac6abae6e3a5f3",
+    "new_pure_tests": 24,
+    "new_passed": 24,
+    "new_seconds": 0.09,
+    "old_owner_pure_tests": 42,
+    "old_passed": 42,
+    "old_seconds": 5.369,
+    "actual_core_explicit_not_run": [
+      "test_real_readonly_sqlite_observation_rejects_authority_change",
+      "test_real_core_grant_contract_binds_independent_approval_and_owner_proposal",
+      "test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready",
+      "test_long_private_temp_parent_uses_short_canonical_real_core_runtime",
+      "test_real_core_factory_preparation_is_schema17_complete_and_never_finalizes_target"
+    ],
+    "actual_seed_native_os_macos_provider": "NOT_RUN",
+    "artifacts": {
+      "corrected-controls.log": {
+        "sha256": "89b8e2b3eb4d2e6779db6a95ddeaee4060cb39303352e740fdf74eb8186161d0",
+        "bytes": 4239
+      },
+      "BOOTSTRAP_STATIC_RESULT.json": {
+        "sha256": "eede94fb78848a6057066eabcfd8c791f19806ee2ec5080a3d0d8415883e0877",
+        "bytes": 1138
+      },
+      "receipt-final-controls.log": {
+        "sha256": "ad5650f78338d6d1785c5c0dfca4483af0105ab255a633c856747575580b0db1",
+        "bytes": 5885
+      },
+      "bootstrap-first-controls.log": {
+        "sha256": "e872165b1102bbc7f45048c084a7293e26e407564799147d2b18c240983900a3",
+        "bytes": 6516
+      },
+      "final-controls.log": {
+        "sha256": "2b02825032cfe078633ff61e1c2b95ba885bb19bd764838864ee6daff28b51e6",
+        "bytes": 1149
+      },
+      "first-controls.log": {
+        "sha256": "4910990573d4b4f509f427be4317eb63ce3054dc22770535150be5bce8fe8843",
+        "bytes": 4239
+      },
+      "bootstrap-corrected-controls.log": {
+        "sha256": "b65aabff1c579cefc9807ae6aad59a043717d6351a1246e884f1f8cbf1544bcb",
+        "bytes": 5669
+      },
+      "STATIC_RESULT.json": {
+        "sha256": "9e567361679fc867d000cbe53aa3509ab49e8863e8aefebe84db9e93b1f2e0fb",
+        "bytes": 907
+      },
+      "old-owner-pure-controls.log": {
+        "sha256": "1aac26273f7e617c6d30da85144f99a94c1a0ba09f7a069a52113658ce163e30",
+        "bytes": 8663
+      }
+    }
+  }
 }
