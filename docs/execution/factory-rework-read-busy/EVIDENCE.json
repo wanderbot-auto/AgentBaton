@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-TSK-010"
+  ],
+  "work_package": "WP08",
+  "source": "39fc920a72f063b955a21a1114494dd7834f716e",
+  "base": "8fe85661e6cf62f23fe681b6567a92fff9ac0d59",
+  "file": "crates/core/tests/fixtures/factory_child_goal_rework.rs",
+  "sha256": "d71d3c5a259b8d1f80a3cc7ab5e04fc0ad7ac7ab0d9434f04675ec6027aba7a2",
+  "prior_failure": {
+    "product_run": 41106104765,
+    "intel_job": 124236232610,
+    "source": "8fe85661e6cf62f23fe681b6567a92fff9ac0d59",
+    "reply_code": "WORKSPACE_BUSY",
+    "retryable": true,
+    "side_effect_state": "not_started",
+    "reply_revision": 137,
+    "passed": 26,
+    "failed": 1,
+    "daemon_result": "ok",
+    "joined": true,
+    "raw_log_sha256": "9e991fb0149e03ff949802f0db2249e102fcba04eb91f68318d59110711896b9",
+    "cause": "exact busy worker refusal only; not prior budget/transport attribution"
+  },
+  "limits": {
+    "shared_retry_budget": 2,
+    "maximum_busy_wait_ms": 5000,
+    "wait_within_half_original_scope_and_observation_remaining": true,
+    "original_observation_deadline_ms": 55000,
+    "original_client_read_timeout_ms": 5000,
+    "scope_ttl_changed": false,
+    "budgets_changed": false
+  },
+  "tests": [
+    "exact_busy_reconciliation_uses_only_original_bound_read_methods",
+    "busy_reconciliation_refuses_other_codes_unknown_effects_and_nonboolean_flags",
+    "busy_wait_cannot_renew_original_deadline_scope_ttl_or_share_a_fresh_retry_pool"
+  ],
+  "source_checks": [
+    "configured rustfmt passed",
+    "git diff --check passed",
+    "original business/runtime body preserved except inert diagnostic vector and separating newline"
+  ],
+  "rust_compile": "not_run",
+  "new_pure_rust_tests": "not_run",
+  "actual_rework": "not_run",
+  "macos": "not_run",
+  "independent_review": "pending",
+  "production_changes": false,
+  "owner_write_retry": false
+}
