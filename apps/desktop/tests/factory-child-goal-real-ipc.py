@@ -38,6 +38,8 @@ sys.modules[_spec.name] = planning
 _spec.loader.exec_module(planning)
 base, support = planning.base, planning.base.support
 require, Refusal, FixedCall = planning.require, planning.Refusal, planning.FixedCall
+_diag_spec=importlib.util.spec_from_file_location('_child_goal_finite_diagnostics',Path(__file__).resolve().parents[3]/'scripts/record-child-goal-ci-evidence.py')
+finite_projection=importlib.util.module_from_spec(_diag_spec);_diag_spec.loader.exec_module(finite_projection)
 # This private support instance only: execution scopes add exactly these fields.
 base.REQUEST_FIELDS = base.REQUEST_FIELDS | {'factory_run_revision', 'child_goal_execution_binding'}
 
@@ -1012,7 +1014,7 @@ def runtime_driver(args, output):
     Each --case owns fresh resources. Private Owner simulation is outside HTTP
     and checks the complete exact server proposal; no real OS consent is claimed.
     """
-    from playwright.sync_api import expect, sync_playwright
+    from playwright.sync_api import expect, sync_playwright, TimeoutError as PlaywrightTimeoutError
     raw_daemon=(args.tools/'batond').resolve(strict=True);raw_cli=(args.tools/'baton').resolve(strict=True)
     frontend=args.frontend.resolve(strict=True);manifest_raw=args.manifest.resolve(strict=True).read_bytes()
     manifest=json.loads(manifest_raw,object_pairs_hook=planning.unique_object)
@@ -1038,8 +1040,13 @@ def runtime_driver(args, output):
     daemon=server=http_thread=browser=playwright=log=reaper=host=workspace=scope=None
     token='';pump=lambda:None;active={};lock=threading.Lock();verified=[];graph_verified=[];record_context={};resources={};bounds=None
     def clean(v):return str(v).replace(token,'[redacted generated Owner token]')if token else str(v)
-    def passed(name,details):report['checks'].append({'id':name,'status':'passed','evidence':details})
-    def fail(stage,error):base.note_failure(report,error,stage,clean)
+    diagnostic_phase='runtime'
+    finite=finite_projection.FiniteRuntimeDiagnostics()
+    def passed(name,details):
+        report['checks'].append({'id':name,'status':'passed','evidence':details});finite.completed(name)
+    def fail(stage,error):
+        finite.failure(error,diagnostic_phase,__file__,Refusal,(PlaywrightTimeoutError,))
+        base.note_failure(report,error,stage,clean)
     def wait(read,predicate,seconds=15):
         end=time.monotonic()+seconds
         while True:
@@ -1081,6 +1088,7 @@ def runtime_driver(args, output):
                         timing['backend_finished']=time.monotonic_ns()
                         wire_recorder.failed(slot,error,'ipc');raise
                     timing['backend_finished']=time.monotonic_ns()
+                    finite.reply(request.method,value)
                     wire_recorder.finish(slot,raw)
                     return value,raw
                 finally:timing['finished']=time.monotonic_ns()
@@ -1429,6 +1437,7 @@ def runtime_driver(args, output):
     except BaseException as error:
         fail('runtime',error);planning.capture_browser_failure(browser,output,report,clean)
     finally:
+        diagnostic_phase='cleanup'
         pump=lambda:None
         if host is not None:
             def diagnostics():
@@ -1549,6 +1558,7 @@ def runtime_driver(args, output):
             report['observations']['retained_private_fixture']=retention
             base.write_private_json(output/'retained-private-fixture.json',retention)
         planning.seal_runtime_report(report,daemon_complete,identities_complete and graph_gone,http_complete,clean)
+        report['finite_diagnostics']=finite.snapshot()
         base.write_private_json(output/'report.json',json.loads(clean(json.dumps(report))))
     print(json.dumps({'status':report['status'],'report':str(output/'report.json'),'checks':len(report['checks']),'screenshots':len(report['screenshots'])}))
     return planning.runtime_exit(report)
