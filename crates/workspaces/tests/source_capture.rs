@@ -558,7 +558,20 @@ fn symlinked_object_storage_is_rejected_before_any_object_write() {
 
 #[test]
 fn unrepresentable_empty_base_subtree_is_rejected_instead_of_silently_removed() {
-    let mut r = Repo::new();
+    // Preserve only this generated repository on panic. No shared Repo/TempDir
+    // behavior changes; normal success still cleans through the original owner.
+    struct PreserveOnPanic(Option<Repo>);
+    impl Drop for PreserveOnPanic {
+        fn drop(&mut self) {
+            if std::thread::panicking() {
+                if let Some(repository) = self.0.take() {
+                    std::mem::forget(repository);
+                }
+            }
+        }
+    }
+    let mut retained = PreserveOnPanic(Some(Repo::new()));
+    let r = retained.0.as_mut().expect("generated fixture is owned");
     let empty = git(&r.root, &["mktree"]);
     let mut raw = b"40000 empty\0".to_vec();
     for pair in empty.as_bytes().chunks_exact(2) {
@@ -590,15 +603,40 @@ fn unrepresentable_empty_base_subtree_is_rejected_instead_of_silently_removed() 
     git(&r.root, &["update-ref", "HEAD", &commit, &r.base]);
     r.base = commit;
     let before = r.original_state();
-    assert!(matches!(
-        capture_source_commit(r.authorize(vec![r.artifact(
-            "a",
-            "selected.txt",
-            b"base selected\n",
-            64
-        )])),
-        Err(WorkspaceError::UnsafeRepository)
-    ));
+    let actual = capture_source_commit(r.authorize(vec![r.artifact(
+        "a",
+        "selected.txt",
+        b"base selected\n",
+        64,
+    )]));
+    // Finite error class or already-public object hashes only. Do not print
+    // raw errors, source paths, selected contents or Owner/IPC data.
+    let diagnostic = match &actual {
+        Ok(captured) => format!(
+            "Ok commit={} tree={} base={}",
+            captured.commit(),
+            captured.tree(),
+            captured.base()
+        ),
+        Err(error) => match error {
+            WorkspaceError::Io(_) => "Err Io",
+            WorkspaceError::InvalidPath => "Err InvalidPath",
+            WorkspaceError::NotRepository => "Err NotRepository",
+            WorkspaceError::UnsafeRepository => "Err UnsafeRepository",
+            WorkspaceError::UnverifiedIndex => "Err UnverifiedIndex",
+            WorkspaceError::Git(_) => "Err Git",
+            WorkspaceError::Dirty => "Err Dirty",
+            WorkspaceError::StaleHead => "Err StaleHead",
+            WorkspaceError::TooLarge => "Err TooLarge",
+            WorkspaceError::NotRegularFile => "Err NotRegularFile",
+            WorkspaceError::ResourceLimit => "Err ResourceLimit",
+        }
+        .to_owned(),
+    };
+    assert!(
+        matches!(actual, Err(WorkspaceError::UnsafeRepository)),
+        "empty-subtree capture actual={diagnostic}; generated_fixture_retained_on_panic=true"
+    );
     assert_eq!(r.original_state(), before);
     assert_eq!(
         git(&r.root, &["rev-parse", &format!("{}^{{tree}}", r.base)]),
