@@ -4,6 +4,11 @@ use agentbaton_desktop::native_review_test_limits::{
 };
 use serde_json::Value;
 use sha2::{Digest, Sha256};
+#[cfg(target_os = "macos")]
+#[path = "integration_database.rs"]
+mod integration_database;
+#[cfg(target_os = "macos")]
+pub(crate) use integration_database::checkpoint as integration_database_checkpoint;
 
 // Evidence limits only: an over-limit observation fails; it is never truncated
 // and used as an eligible title/message. This helper grants no click authority.
@@ -77,12 +82,40 @@ pub fn validate_grant_response(response: &Value, expected: &Value) -> Result<(),
     Ok(())
 }
 
+pub fn fixture_arguments(
+    mut args: impl Iterator<Item = std::ffi::OsString>,
+) -> Result<(std::ffi::OsString, bool, u64), String> {
+    let first = args.next().ok_or("Expected generated host fixture file")?;
+    let integration = first == "--integration";
+    let file = if integration {
+        args.next().ok_or("Expected integration fixture file")?
+    } else {
+        first
+    };
+    if args.next().is_some() {
+        return Err("Unexpected OS fixture argument".into());
+    }
+    Ok((
+        file,
+        integration,
+        if integration { 1_048_576 } else { 65536 },
+    ))
+}
+pub const INTEGRATION_KIND: &str = "native_integration_os_dialog_fixture";
+pub fn is_integration(expected: &Value) -> bool {
+    expected["kind"] == INTEGRATION_KIND
+}
+pub fn is_independent(expected: &Value) -> bool {
+    is_factory(expected) || is_integration(expected)
+}
 pub const FACTORY_KIND: &str = "native_factory_planning_os_dialog_fixture";
 pub fn is_factory(expected: &Value) -> bool {
     expected["kind"] == FACTORY_KIND
 }
 pub fn dialog_title(expected: &Value) -> &'static str {
-    if is_factory(expected) {
+    if is_integration(expected) {
+        agentbaton_desktop::native_integration_test_view::TITLE
+    } else if is_factory(expected) {
         "AgentBaton — Independent Factory approval"
     } else {
         "AgentBaton — Native owner approval"
@@ -258,7 +291,7 @@ pub fn cancel_here(expected: &Value, phase: &str, index: usize) -> Result<bool, 
     if !matches!(phase, "cancel" | "approve") || index >= count {
         return Err("Out of order phase/page".into());
     }
-    if is_factory(expected) {
+    if is_independent(expected) {
         if expected["phase"] != phase {
             return Err("Foreign Factory phase".into());
         }
@@ -292,6 +325,180 @@ pub fn validate_factory_response(response: &Value, expected: &Value) -> Result<(
         || s["revoked"] != false
     {
         return Err("Factory response does not bind exact complete approved scope".into());
+    }
+    Ok(())
+}
+
+/// This test-only descriptor delegates to the real production formatter.
+/// It is not a source of Core approval or a substitute for the final DB check.
+pub fn prepare_integration(expected: &mut Value) -> Result<(), String> {
+    let fields = [
+        "kind",
+        "runtime",
+        "output",
+        "proposal",
+        "invoke",
+        "baseline_sequence",
+        "phase",
+        "cancel_at",
+        "review_nonce",
+        "snapshot_sha256",
+        "outer_message_sha256",
+        "presentation_sha256",
+        "presentation_count",
+    ];
+    if !is_integration(expected)
+        || expected
+            .as_object()
+            .is_none_or(|o| o.len() != fields.len() || fields.iter().any(|k| !o.contains_key(*k)))
+        || !matches!(expected["phase"].as_str(), Some("cancel" | "approve"))
+        || !hex(&expected["review_nonce"], 32)
+        || expected["baseline_sequence"].as_u64().is_none()
+        || expected["invoke"].as_object().is_none_or(|o| o.len() != 2)
+        || expected["invoke"]["idempotencyKey"] != "owner-os-integration"
+        || expected["invoke"]["selection"] != expected["proposal"]["snapshot"]["intent"]
+        || expected["snapshot_sha256"] != digest(&expected["proposal"]["snapshot"])?
+    {
+        return Err("Integration fixture kind/CAS/nonce/complete intent mismatch".into());
+    }
+    let selection = serde_json::from_value(expected["invoke"]["selection"].clone())
+        .map_err(|_| "Invalid typed integration selection")?;
+    let messages = agentbaton_desktop::native_integration_test_view::review_messages(
+        &expected["proposal"],
+        &selection,
+    )?;
+    let hashes: Vec<_> = messages
+        .iter()
+        .map(|m| format!("{:x}", Sha256::digest(m.as_bytes())))
+        .collect();
+    if expected["outer_message_sha256"] != serde_json::json!(hashes) {
+        return Err("Integration outer messages changed".into());
+    }
+    let mut presentation = Vec::new();
+    let mut contexts = Vec::new();
+    for (outer, message) in messages.iter().enumerate() {
+        let inner = mirrored_review_prompts(message)?;
+        for (index, page) in inner.iter().enumerate() {
+            presentation.push(page.clone());
+            contexts.push(serde_json::json!({"outer_index":outer,"outer_count":messages.len(),"inner_index":index,"inner_count":inner.len(),"outer_final":outer+1==messages.len(),"inner_final":index+1==inner.len(),"message_sha256":hashes[outer]}));
+        }
+    }
+    if presentation.len() < 2
+        || presentation.len() > 1024
+        || presentation.iter().any(|p| p.len() > 2048)
+        || expected["presentation_count"].as_u64() != Some(presentation.len() as u64)
+        || expected["cancel_at"]
+            .as_u64()
+            .is_none_or(|n| n >= presentation.len() as u64)
+        || expected["presentation_sha256"] != digest(&serde_json::json!(presentation))?
+    {
+        return Err("Integration full nested display/cancel boundary mismatch".into());
+    }
+    expected["presentation"] = serde_json::json!(presentation);
+    expected["integration_contexts"] = serde_json::json!(contexts);
+    Ok(())
+}
+pub fn validate_integration_identity(
+    value: &Value,
+    expected: &Value,
+    index: usize,
+) -> Result<(), String> {
+    let c = &expected["integration_contexts"][index];
+    if !is_integration(expected)
+        || value["review_nonce"] != expected["review_nonce"]
+        || !hex(&value["review_nonce"], 32)
+        || !c.is_object()
+        || value["integration_page"] != *c
+        || ["outer_index", "outer_count", "inner_index", "inner_count"]
+            .iter()
+            .any(|k| {
+                c[*k].as_u64().is_none() || value["integration_page"][*k].as_u64() != c[*k].as_u64()
+            })
+    {
+        return Err("Integration outer/inner/nonce identity mismatch".into());
+    }
+    Ok(())
+}
+fn integration_counts(value: &Value, policies: u64) -> bool {
+    value.as_object().is_some_and(|v| v.len() == 6)
+        && value["schema_version"].as_u64() == Some(17)
+        && value["sequence"].as_u64().is_some()
+        && value["policies"].as_u64() == Some(policies)
+        && ["runs", "attempts", "ref_fences"]
+            .iter()
+            .all(|k| value[*k].as_u64() == Some(0))
+}
+/// Builds only from two actual readonly query results; no caller pass flag.
+pub fn integration_database_evidence(
+    before: &Value,
+    after: &Value,
+    expected: &Value,
+) -> Result<Value, String> {
+    let flags = [
+        "proposal_matches",
+        "proposal_result_matches",
+        "policy_matches",
+        "owner_event_matches",
+        "policy_event_matches",
+    ];
+    let complete = |v: &Value| {
+        v.as_object().is_some_and(|o| {
+            o.len() == 8
+                && o.contains_key("counts")
+                && o.contains_key("owner_event_sequence")
+                && o.contains_key("policy_event_sequence")
+                && flags.iter().all(|k| v[*k] == true)
+        })
+    };
+    let phase = expected["phase"]
+        .as_str()
+        .filter(|s| matches!(*s, "approve" | "cancel"))
+        .ok_or("Invalid integration evidence phase")?;
+    if !is_integration(expected)
+        || !complete(before)
+        || !complete(after)
+        || !integration_counts(&before["counts"], 0)
+        || before["counts"]["sequence"] != expected["baseline_sequence"]
+        || !before["owner_event_sequence"].is_null()
+        || !before["policy_event_sequence"].is_null()
+        || !integration_counts(&after["counts"], if phase == "approve" { 1 } else { 0 })
+    {
+        return Err("Incomplete independent integration database witness".into());
+    }
+    if phase == "approve" {
+        let old = before["counts"]["sequence"].as_u64().unwrap();
+        let owner = after["owner_event_sequence"]
+            .as_u64()
+            .ok_or("No real Owner event sequence")?;
+        let policy = after["policy_event_sequence"]
+            .as_u64()
+            .ok_or("No real policy event sequence")?;
+        let current = after["counts"]["sequence"].as_u64().unwrap();
+        if !(old < owner && owner < policy && policy <= current) {
+            return Err("Integration Owner/policy event order mismatch".into());
+        }
+    } else if after["counts"] != before["counts"]
+        || !after["owner_event_sequence"].is_null()
+        || !after["policy_event_sequence"].is_null()
+    {
+        return Err("Cancelled integration review changed authority or events".into());
+    }
+    Ok(
+        serde_json::json!({"read_only":true,"phase":phase,"before":before["counts"],"after":after["counts"],"proposal_matches":true,"proposal_result_matches":true,"policy_matches":true,"owner_event_matches":true,"policy_event_matches":true,"owner_event_sequence":after["owner_event_sequence"],"policy_event_sequence":after["policy_event_sequence"]}),
+    )
+}
+pub fn validate_integration_response(response: &Value, expected: &Value) -> Result<(), String> {
+    if !is_integration(expected) {
+        return Err("Wrong integration fixture".into());
+    }
+    let selection = serde_json::from_value(expected["invoke"]["selection"].clone())
+        .map_err(|_| "Invalid integration intent")?;
+    if !agentbaton_desktop::native_integration_test_view::receipt_matches(
+        response,
+        &expected["proposal"],
+        &selection,
+    ) {
+        return Err("Integration response does not bind complete approved policy".into());
     }
     Ok(())
 }
@@ -394,6 +601,8 @@ pub fn validate(
     }
     if is_factory(expected) {
         validate_factory_identity(observed, expected, index)?;
+    } else if is_integration(expected) {
+        validate_integration_identity(observed, expected, index)?;
     }
     let buttons = observed["buttons"]
         .as_array()
@@ -725,5 +934,163 @@ mod factory_tests {
         ] {
             assert!(validate_factory_response(&reply, &e).is_err());
         }
+    }
+}
+
+#[cfg(test)]
+mod integration_controls {
+    use super::*;
+    use serde_json::json;
+    fn expected() -> Value {
+        json!({"kind":INTEGRATION_KIND,"phase":"approve","review_nonce":"a".repeat(32),"presentation":["one","final"],"cancel_at":1,"integration_contexts":[{"outer_index":0,"outer_count":2,"inner_index":0,"inner_count":2,"outer_final":false,"inner_final":false,"message_sha256":"b".repeat(64)}]})
+    }
+    #[test]
+    fn integration_fixture_requires_explicit_mode_and_keeps_old_input_bound() {
+        let old = fixture_arguments(["fixture".into()].into_iter()).unwrap();
+        assert!(!old.1);
+        assert_eq!(old.2, 65536);
+        let new =
+            fixture_arguments(["--integration".into(), "fixture".into()].into_iter()).unwrap();
+        assert!(new.1);
+        assert_eq!(new.2, 1_048_576);
+        assert!(fixture_arguments(["--integration".into()].into_iter()).is_err());
+        assert!(fixture_arguments(
+            ["--integration".into(), "fixture".into(), "extra".into()].into_iter()
+        )
+        .is_err());
+    }
+    #[test]
+    fn integration_nonce_and_outer_inner_identity_cannot_be_swapped_or_retyped() {
+        let expected = expected();
+        let value = json!({"review_nonce":expected["review_nonce"],"integration_page":expected["integration_contexts"][0]});
+        assert!(validate_integration_identity(&value, &expected, 0).is_ok());
+        for (field, bad) in [
+            ("outer_index", json!(1)),
+            ("inner_index", json!(true)),
+            ("outer_count", Value::Null),
+            ("message_sha256", json!("c".repeat(64))),
+        ] {
+            let mut bad_value = value.clone();
+            bad_value["integration_page"][field] = bad;
+            assert!(validate_integration_identity(&bad_value, &expected, 0).is_err());
+        }
+        let mut bad = value.clone();
+        bad["review_nonce"] = json!("c".repeat(32));
+        assert!(validate_integration_identity(&bad, &expected, 0).is_err());
+        assert!(validate_integration_identity(&value, &expected, 1).is_err());
+    }
+    #[test]
+    fn integration_cancel_phase_is_separate_and_cannot_approve_early() {
+        let mut expected = expected();
+        assert!(!cancel_here(&expected, "approve", 0).unwrap());
+        assert!(cancel_here(&expected, "cancel", 0).is_err());
+        expected["phase"] = json!("cancel");
+        assert!(!cancel_here(&expected, "cancel", 0).unwrap());
+        assert!(cancel_here(&expected, "cancel", 1).unwrap());
+        assert!(cancel_here(&expected, "cancel", 2).is_err());
+        expected["cancel_at"] = json!(true);
+        assert!(cancel_here(&expected, "cancel", 1).is_err());
+    }
+    #[test]
+    fn integration_shape_or_renderer_claims_never_substitute_for_typed_core_snapshot() {
+        let mut expected = expected();
+        expected["invoke"] = json!({"selection":{},"idempotencyKey":"owner-os-integration"});
+        assert!(prepare_integration(&mut expected).is_err());
+        assert!(
+            validate_integration_response(&json!({"result":{"approved":true}}), &expected).is_err()
+        );
+        assert_eq!(
+            dialog_title(&expected),
+            agentbaton_desktop::native_integration_test_view::TITLE
+        );
+        assert!(!is_factory(&expected));
+    }
+}
+
+#[cfg(test)]
+mod integration_database_controls {
+    use super::*;
+    use serde_json::json;
+    fn witness(policies: u64, sequence: u64, owner: Value, policy: Value) -> Value {
+        json!({"counts":{"schema_version":17,"sequence":sequence,"policies":policies,"runs":0,"attempts":0,"ref_fences":0},"proposal_matches":true,"proposal_result_matches":true,"policy_matches":true,"owner_event_matches":true,"policy_event_matches":true,"owner_event_sequence":owner,"policy_event_sequence":policy})
+    }
+    #[test]
+    fn integration_mutation_witness_is_distinct_from_unchanged_readonly_group() {
+        let before = witness(0, 10, Value::Null, Value::Null);
+        let after = witness(1, 12, json!(11), json!(12));
+        let expected = json!({"kind":INTEGRATION_KIND,"phase":"approve","baseline_sequence":10});
+        let group = integration_database_evidence(&before, &after, &expected).unwrap();
+        assert_eq!(group["before"]["policies"], 0);
+        assert_eq!(group["after"]["policies"], 1);
+        assert!(group.get("unchanged").is_none());
+        assert_eq!(group["read_only"], true);
+        assert!(integration_database_evidence(&before, &before, &expected).is_err());
+        assert!(integration_database_evidence(
+            &json!({"read_only":true,"unchanged":true}),
+            &after,
+            &expected
+        )
+        .is_err());
+    }
+    #[test]
+    fn integration_approval_db_rejects_partial_types_changed_counts_or_false_checks() {
+        let before = witness(0, 10, Value::Null, Value::Null);
+        let after = witness(1, 12, json!(11), json!(12));
+        let expected = json!({"kind":INTEGRATION_KIND,"phase":"approve","baseline_sequence":10});
+        for (field, bad) in [
+            ("schema_version", json!(16)),
+            ("schema_version", json!(18)),
+            ("schema_version", json!(17.0)),
+            ("policies", json!(true)),
+            ("runs", json!(1)),
+            ("attempts", json!(1)),
+            ("ref_fences", json!(1)),
+        ] {
+            let mut bad_after = after.clone();
+            bad_after["counts"][field] = bad;
+            assert!(integration_database_evidence(&before, &bad_after, &expected).is_err());
+        }
+        for field in [
+            "proposal_matches",
+            "proposal_result_matches",
+            "policy_matches",
+            "owner_event_matches",
+            "policy_event_matches",
+        ] {
+            let mut bad = after.clone();
+            bad[field] = json!(false);
+            assert!(integration_database_evidence(&before, &bad, &expected).is_err());
+            bad.as_object_mut().unwrap().remove(field);
+            assert!(integration_database_evidence(&before, &bad, &expected).is_err());
+        }
+        for (owner, policy) in [
+            (json!(12), json!(11)),
+            (json!(10), json!(12)),
+            (json!(11), json!(13)),
+            (json!(true), json!(12)),
+            (Value::Null, json!(12)),
+        ] {
+            let bad = witness(1, 12, owner, policy);
+            assert!(integration_database_evidence(&before, &bad, &expected).is_err());
+        }
+    }
+    #[test]
+    fn integration_cancel_must_preserve_real_zero_counts_unconsumed_proposal_and_sequence() {
+        let before = witness(0, 10, Value::Null, Value::Null);
+        let expected = json!({"kind":INTEGRATION_KIND,"phase":"cancel","baseline_sequence":10});
+        let group = integration_database_evidence(&before, &before, &expected).unwrap();
+        assert_eq!(group["before"], group["after"]);
+        assert!(integration_database_evidence(
+            &before,
+            &witness(1, 12, json!(11), json!(12)),
+            &expected
+        )
+        .is_err());
+        assert!(integration_database_evidence(
+            &before,
+            &witness(0, 11, Value::Null, Value::Null),
+            &expected
+        )
+        .is_err());
     }
 }
