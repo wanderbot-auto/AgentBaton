@@ -3148,3 +3148,412 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
         assert!(original_command_identity_is_gone(leader));
     }
 }
+
+// Each refusal below uses the same actual FIFO-held validator and max_rounds=3
+// as the positive case. Target mutation happens after real process start, not
+// before stage admission, and no SQL manufactures a pass, permission or stop.
+impl RuntimeFixture {
+    fn drift_refusal_command(&self, candidate: &Value, gate: &ReprepareGate) -> Value {
+        let (ready, release) = gate.paths();
+        let script = "test -s reports/report.txt || exit 21; printf '%s\\n' \"$$\" > \"$1\" || exit 22; IFS= read -r reply < \"$2\" || exit 23; [ \"$reply\" = continue ] || exit 24; exit 7";
+        approved(
+            &self.server,
+            "command_validation_policies.propose",
+            json!({
+                "session_id":candidate["session_id"],"executable":self.validator_program,"mode":"native_executable","script":null,
+                "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
+                "outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],
+                "arguments":["-c",script,"bounded-reprepare-negative",ready,release],"environment":{},"expected_exit_codes":[0],
+                "wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
+                "require":{"filesystem_isolation":false,"network_isolation":false,"process_tree_containment":false,"execution_time_input_immutability":false,"auxiliary_source_immutability":false,"sealed_executable_image":false}
+            }),
+            "drift-refusal-command-definition",
+        )
+    }
+    fn approve_blocked_three_round_integration(&self, definition: &Value) -> Value {
+        let context = rpc(
+            &self.server,
+            "integration_context.get",
+            json!({"task_id":self.task["id"],"goal_scope_id":self.scope["id"]}),
+            None,
+            None,
+        );
+        assert_eq!(self.grant["scope"]["max_attempts"], 12);
+        assert_eq!(self.grant["scope"]["max_duration_ms"], 30_000);
+        let reference = json!({"kind":"command","policy_id":definition["id"],"revision":definition["revision"]});
+        for domain in ["root", "project"] {
+            let limits = &context["bindings"][format!("{domain}_budget")];
+            let usage = &context["shared_usage"][domain];
+            assert_eq!(limits["attempts"], 12);
+            assert_eq!(limits["runtime_ms"], 20_000);
+            assert_eq!(limits["output_bytes"], 8192);
+            assert_eq!(usage["attempts"], 1);
+            assert_eq!(usage["active"], 0);
+            assert!(usage["runtime_ms"].as_u64().unwrap() + 18_000 <= 20_000);
+            assert!(usage["output_bytes"].as_u64().unwrap() + 6912 <= 8192);
+        }
+        let selection = json!({"task_id":self.task["id"],"expected_task_revision":context["task_revision"],"expected_spec_revision":context["bindings"]["spec_revision"],"goal_scope_id":self.scope["id"],"expected_scope_revision":context["bindings"]["goal_scope_revision"],"host_id":"local","target_ref":TARGET,"expected_target_head":self.initial_target,"max_rounds":3,"on_target_advance":"block","ttl_ms":30_000,
+            "stage_reservations":{"preparation":reservation(2000,1024),"validators":[{"validator":reference,"reservation":reservation(2000,256)}],"cas":reservation(2000,1024)}});
+        let proposal = rpc(
+            &self.server,
+            "integration_policies.propose",
+            selection.clone(),
+            Some("blocked-three-round-policy"),
+            None,
+        );
+        assert_eq!(proposal["kind"], "integration");
+        assert_eq!(proposal["snapshot"]["intent"], selection);
+        let policy = private_owner(&self.server, &proposal);
+        assert_eq!(policy["selection"], selection);
+        policy
+    }
+}
+
+#[derive(Clone, Copy)]
+enum DriftRefusal {
+    UnexpectedExit,
+    NonDescendant,
+    BlockPolicy,
+    ExhaustedRounds,
+}
+
+fn assert_real_drift_refusal(case: DriftRefusal) {
+    let mut f = RuntimeFixture::with_attempt_limit(12);
+    let ready = f.owner_ready();
+    let mut gate = ReprepareGate::new(&f.root);
+    let definition = if matches!(case, DriftRefusal::UnexpectedExit) {
+        f.drift_refusal_command(&ready["candidates"][0], &gate)
+    } else {
+        f.reprepare_command_definition(&ready["candidates"][0], &gate)
+    };
+    let original = OriginalCommand::capture(&f, &definition);
+    let accepted = f.accept();
+    user_changes(&f);
+    let before_source = source_image(&f.source());
+    let before_project = source_image(&f.project_root);
+    let policy = if matches!(case, DriftRefusal::BlockPolicy) {
+        f.approve_blocked_three_round_integration(&definition)
+    } else {
+        f.approve_three_round_integration(&definition)
+    };
+    assert_eq!(policy["selection"]["max_rounds"], 3);
+    let start = rpc(
+        &f.server,
+        "integrations.start",
+        json!({"policy_id":policy["id"]}),
+        Some("drift-negative-start"),
+        Some(policy["revision"].clone()),
+    );
+    let id = start["run"]["id"].clone();
+    let rounds = if matches!(case, DriftRefusal::ExhaustedRounds) {
+        3u64
+    } else {
+        1
+    };
+    let mut heads = vec![f.initial_target.clone()];
+    let mut candidates = Vec::new();
+    let mut leaders = Vec::new();
+    for round in 1..=rounds {
+        let (leader, deadline) = gate.next_owned_validator();
+        leaders.push(leader);
+        assert!(Instant::now() < deadline);
+        let live = rpc(
+            &f.server,
+            "integrations.get",
+            json!({"integration_id":id}),
+            None,
+            None,
+        );
+        assert!(Instant::now() < deadline);
+        assert_eq!(live["run"]["active_stage"], "validator");
+        assert_eq!(live["run"]["round"], round);
+        assert_eq!(
+            live["run"]["expected_target_head"],
+            heads[(round - 1) as usize]
+        );
+        let attempt = live["attempts"].as_array().unwrap().last().unwrap();
+        assert_eq!(attempt["kind"], "validator");
+        assert_eq!(attempt["settled"], false);
+        candidates.push(live["run"]["integration_commit"].clone());
+        let next = if matches!(case, DriftRefusal::NonDescendant) {
+            let expected = &heads[(round - 1) as usize];
+            let tree = reprepare_host_git(
+                &f,
+                &["rev-parse", &format!("{expected}^{{tree}}")],
+                deadline,
+            );
+            // A root commit has no parents; the expected non-root baseline
+            // cannot be its ancestor. This rewrites only the owned target ref.
+            let root_commit = reprepare_host_git(
+                &f,
+                &["commit-tree", &tree, "-m", "owned unrelated replacement"],
+                deadline,
+            );
+            reprepare_host_git(
+                &f,
+                &["update-ref", "--no-deref", TARGET, &root_commit, expected],
+                deadline,
+            );
+            root_commit
+        } else {
+            advance_owned_test_target(&f, &heads[(round - 1) as usize], round, deadline)
+        };
+        heads.push(next);
+        gate.release(deadline);
+    }
+    let done = observe(
+        &f.server,
+        "integrations.get",
+        json!({"integration_id":id}),
+        |v| {
+            let state = v["run"]["state"].as_str().unwrap();
+            assert!(
+                !matches!(
+                    state,
+                    "confirmed_local_ref"
+                        | "blocked"
+                        | "cancelled"
+                        | "outcome_unknown"
+                        | "stale_target"
+                ),
+                "expected joined correctness refusal, observed {state}/{}",
+                v["run"]["last_error"]["code"]
+            );
+            state == "failed"
+        },
+    );
+    let run = &done["run"];
+    assert_eq!(run["last_error"]["code"], "VALIDATION_FAILED");
+    assert_eq!(run["round"], rounds);
+    assert_eq!(run["active_stage"], Value::Null);
+    assert_eq!(run["io_completion"], "worker_joined");
+    assert_eq!(run["expected_target_head"], heads[(rounds - 1) as usize]);
+    assert_eq!(run["acceptance_ref"], accepted["task_acceptance"]["id"]);
+    assert_eq!(done["fence"]["state"], "released");
+    // The Host's last changed target remains exact: no CAS may overwrite it.
+    assert_eq!(
+        git(&f.project_root, &["rev-parse", TARGET]),
+        *heads.last().unwrap()
+    );
+    if matches!(case, DriftRefusal::NonDescendant) {
+        assert_eq!(
+            git(
+                &f.project_root,
+                &["rev-list", "--count", heads.last().unwrap()]
+            ),
+            "1"
+        );
+        assert_ne!(heads.last().unwrap(), &f.initial_target);
+    }
+    assert_eq!(source_image(&f.source()), before_source);
+    assert_eq!(source_image(&f.project_root), before_project);
+    let attempts = done["attempts"].as_array().unwrap();
+    assert_eq!(attempts.len(), (rounds * 2) as usize);
+    let db = readonly(&f);
+    original.assert_unchanged(&f, &db);
+    let all = events(&db);
+    let receipts = run["validation_receipts"].as_array().unwrap();
+    assert_eq!(receipts.len(), rounds as usize);
+    for (i, receipt) in receipts.iter().enumerate() {
+        assert_eq!(receipt["round"], i + 1);
+        assert_eq!(receipt["passed"], false);
+        assert_eq!(receipt["stop_confirmed"], true);
+        assert_eq!(receipt["worker_joined"], true);
+        assert_eq!(receipt["integration_commit"], candidates[i]);
+        assert_eq!(receipt["attempt_id"], attempts[i * 2 + 1]["attempt_id"]);
+        let observed = all
+            .iter()
+            .filter(|(_, e)| {
+                e["aggregate_id"] == id
+                    && e["kind"] == "integration.validator_observed"
+                    && e["payload"]["attempt_id"] == receipt["attempt_id"]
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(observed.len(), 1);
+        assert_eq!(observed[0].0, receipt["sequence"].as_u64().unwrap());
+        let view = &observed[0].1["payload"]["view"];
+        assert_eq!(
+            sha256(&serde_json::to_vec(view).unwrap()),
+            receipt["result_digest"]
+        );
+        assert_eq!(view["process_started"], true);
+        assert_eq!(view["passed"], false);
+        assert_eq!(
+            view["exit_code"],
+            if matches!(case, DriftRefusal::UnexpectedExit) {
+                7
+            } else {
+                0
+            }
+        );
+        assert_eq!(view["exit_observed_within_budget"], true);
+        assert_eq!(view["cleanup_completed_within_budget"], true);
+        assert_eq!(view["cleanup"]["owned_leader_reaped"], true);
+        assert_eq!(view["cleanup"]["all_capture_pipes_observed_eof"], true);
+        assert_eq!(view["contract"]["expected_exit_codes"], json!([0]));
+        assert_eq!(
+            view["contract"]["file_contract"]["subject"]["version"]["expected_target_head"],
+            heads[i]
+        );
+    }
+    for (i, attempt) in attempts.iter().enumerate() {
+        assert_eq!(
+            attempt["kind"],
+            if i % 2 == 0 {
+                "preparation"
+            } else {
+                "validator"
+            }
+        );
+        assert_eq!(attempt["round"], i / 2 + 1);
+        assert_eq!(attempt["state"], "finished");
+        assert_eq!(attempt["settled"], true);
+        assert_eq!(attempt["io_completion"], "worker_joined");
+        assert!(attempt["actual_runtime_ms"].as_u64().unwrap() <= 2000);
+        assert!(
+            attempt["actual_output_bytes"].as_u64().unwrap()
+                <= attempt["reservation"]["output_bytes"].as_u64().unwrap()
+        );
+        if i % 2 == 0 {
+            assert_eq!(attempt["actual_output_bytes"], REPORT.len());
+        }
+        let joined = all
+            .iter()
+            .filter(|(_, e)| {
+                e["aggregate_id"] == id
+                    && e["kind"] == "integration.attempt_joined"
+                    && e["payload"]["attempt_id"] == attempt["attempt_id"]
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(joined.len(), 1);
+        assert_eq!(joined[0].1["payload"]["reservation_refunded"], false);
+    }
+    assert!(all
+        .iter()
+        .all(|(_, e)| !(e["aggregate_id"] == id && e["kind"] == "integration.cas_observed")));
+    let advances = all
+        .iter()
+        .filter(|(_, e)| {
+            e["aggregate_id"] == id && e["kind"] == "integration.descendant_target_observed"
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(advances.len(), (rounds - 1) as usize);
+    for (i, (_, event)) in advances.iter().enumerate() {
+        assert_eq!(event["payload"]["from_round"], i + 1);
+        assert_eq!(event["payload"]["next_round"], i + 2);
+        assert_eq!(event["payload"]["from_head"], heads[i]);
+        assert_eq!(event["payload"]["to_head"], heads[i + 1]);
+        assert_eq!(event["payload"]["original_validation_passed"], false);
+    }
+    let graph_cost: String = db
+        .query_row(
+            "SELECT document FROM goal_run_reservations WHERE run_id=?1",
+            [f.graph["run"]["id"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let graph_cost: Value = serde_json::from_str(&graph_cost).unwrap();
+    assert_eq!(graph_cost["settled"], true);
+    let runtime = graph_cost["actual_runtime_ms"].as_u64().unwrap()
+        + attempts
+            .iter()
+            .map(|a| a["actual_runtime_ms"].as_u64().unwrap())
+            .sum::<u64>();
+    let output = graph_cost["actual_output_bytes"].as_u64().unwrap()
+        + attempts
+            .iter()
+            .map(|a| a["actual_output_bytes"].as_u64().unwrap())
+            .sum::<u64>();
+    assert!(runtime > 0 && runtime <= 20_000);
+    assert!(output > 0 && output <= 8192);
+    for domain in ["root", "project"] {
+        assert_eq!(done["shared_usage"][domain]["attempts"], rounds * 2 + 1);
+        assert_eq!(done["shared_usage"][domain]["active"], 0);
+        assert_eq!(done["shared_usage"][domain]["runtime_ms"], runtime);
+        assert_eq!(done["shared_usage"][domain]["output_bytes"], output);
+    }
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM integration_attempts", [], |r| r
+            .get::<_, u64>(0))
+            .unwrap(),
+        rounds * 2
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u64>(0))
+            .unwrap(),
+        rounds * 2 + 1
+    );
+    for scope in [
+        format!(
+            "root:{}",
+            policy["bindings"]["root_task_id"].as_str().unwrap()
+        ),
+        format!(
+            "project:{}",
+            policy["bindings"]["project_id"].as_str().unwrap()
+        ),
+    ] {
+        let counters: (u64, u64) = db
+            .query_row(
+                "SELECT consumed,active FROM budgets WHERE scope=?1",
+                [scope],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(counters, (rounds * 2 + 1, 0));
+    }
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",
+            [],
+            |r| r.get::<_, u64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+            [],
+            |r| r.get::<_, u64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    drop(db);
+    let graph_after = rpc(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":f.graph["run"]["id"]}),
+        None,
+        None,
+    );
+    assert_eq!(graph_after["task_acceptance"], accepted["task_acceptance"]);
+    for leader in &leaders {
+        assert!(original_command_identity_is_gone(leader));
+    }
+    f.server.finish();
+    for leader in &leaders {
+        assert!(original_command_identity_is_gone(leader));
+    }
+}
+
+#[test]
+fn unexpected_exit_with_real_descendant_advance_never_reprepares_or_refunds() {
+    assert_real_drift_refusal(DriftRefusal::UnexpectedExit);
+}
+
+#[test]
+fn non_descendant_rewrite_during_real_validator_never_reprepares_or_refunds() {
+    assert_real_drift_refusal(DriftRefusal::NonDescendant);
+}
+
+#[test]
+fn block_policy_with_three_round_limit_refuses_real_descendant_advance() {
+    assert_real_drift_refusal(DriftRefusal::BlockPolicy);
+}
+
+#[test]
+fn third_real_descendant_advance_exhausts_rounds_without_fourth_preparation_or_cas() {
+    assert_real_drift_refusal(DriftRefusal::ExhaustedRounds);
+}
