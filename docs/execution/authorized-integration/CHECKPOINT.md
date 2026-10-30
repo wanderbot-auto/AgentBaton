@@ -1,5 +1,7 @@
-# Checkpoint e7df3f2
+# Source checkpoint dc12030
 
-Source e7df3f224549d50647ffd82d722e763bf11232a2, parent6ddf31b836fc43c8894b9c7f584c757cdef754a2. Public type source crates/core/src/integration.rs SHA256 beb65473e91ef04b0ec108c18f0218df7813db59a31beeb023cd715ab3523a6f.
+Latest source dc12030f942c2807d98818d853c8ef0499a38d7a. The narrow bootstrap projection correction is independently available as 96012107c8e4594ae7f350e817e9fe630327a563; it does not remove any lease mirror/hash checks. Actual generatedDB SQL preparation confirms the old nonexistent column error and the corrected one-row projection without changing main bytes. WAL was present, so this readonly immutable probe is schema/main-image SQL evidence only. Root's real 26-method bootstrap failure remains a failure; no new context IPC pass has been claimed.
 
-Root may compile that immutable source in a separate validation tree. Author remains sole Core/schema17 writer and continues implementation without Cargo/target writes. Current source contains no runtime success placeholder. Existing SourceCapture checks belong to their original reviewed source, not this Core pipeline.
+Physical fences, historical released-fence receipts, existing metadata/read limits, and a private already-admitted stage read path are separate later commits. The generic Owner completion cannot consume the private stage intent. Queue admission is not yet connected to a complete stage scheduler, watcher, settlement or targets route.
+
+Root's earlier immutable compile/migration/unit outcomes retain their original source attribution. New source tests, library CAS/pipe cases and latest Core pipeline have not been executed by the author. No Cargo/target, Actor, Git product, Native, UI, browser or remote invocation occurred in this checkpoint. Direct rustfmt and diff whitespace checks passed; that is not compile or runtime acceptance.

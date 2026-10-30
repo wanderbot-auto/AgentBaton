@@ -9,3 +9,5 @@ AB-VAL-009 / PRJ-004/005, D18/D19; OWNER-001/002 acknowledged. Root frozen CONTR
 5. Real generated Git/UnixIPC/migration/fault tests under Root's exclusive test lease, independent review, Native/UI integration.
 
 No current result demonstrates FullVAL009 or platform/remote/deletion/Unicode/retention support. No paid Provider calls or product permission upgrades.
+
+Next concrete source steps: retain the private StageTicket across read/join/effect/join under one reservation clock; transactionally authenticate proof and advance dispatch; retain actual candidate/CommandRun handles across fresh per-validator admissions; settle original shared counters once from true owned receipts; journal historical CAS independently of incomplete IO; wire automatic accepted watcher/fixed Owner routes only after those paths exist. Unknown or cancelled work never auto-replays or refunds consumed attempts.
