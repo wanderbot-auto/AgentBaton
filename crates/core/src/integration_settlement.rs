@@ -118,7 +118,15 @@ impl Store {
             .map_err(|_| limited())?
             .max(joined.elapsed_ms);
         let mut output = joined.output_bytes;
-        let mut unknown = !joined.worker_joined || output.is_none();
+        let mut unknown = (!joined.worker_joined && !joined.never_scheduled) || output.is_none();
+        if joined.never_scheduled
+            && (joined.worker_joined
+                || joined.effects_admitted
+                || joined.result.is_ok()
+                || output != Some(0))
+        {
+            return Err(changed());
+        }
         let mut historical_cas = false;
         if let Ok(StageFact::Cas(receipt)) = &joined.result {
             let observed = receipt.record();
@@ -369,14 +377,23 @@ impl Store {
         attempt.view.settled = true;
         attempt.view.actual_runtime_ms = Some(clock_ms);
         attempt.view.actual_output_bytes = Some(output);
-        attempt.view.io_completion = Some(IntegrationIoCompletion::WorkerJoined);
+        let completion = if joined.never_scheduled {
+            IntegrationIoCompletion::NotScheduled
+        } else {
+            IntegrationIoCompletion::WorkerJoined
+        };
+        attempt.view.io_completion = Some(completion);
         attempt.view.last_error = run.last_error.clone();
         attempt.view.receipt_sequence = None;
         let receipt = records::event(
             &tx,
             &run.id,
             run.revision,
-            "integration.attempt_joined",
+            if joined.never_scheduled {
+                "integration.attempt_not_scheduled"
+            } else {
+                "integration.attempt_joined"
+            },
             &json!({"attempt_id":attempt.view.attempt_id,"receipt_digest":sha(&attempt)?,"observed_runtime_ms":clock_ms,"selected_artifact_and_retained_stream_bytes":output,"total_filesystem_output":null,"budget_overrun":overrun,"historical_cas_confirmed":historical_cas,"reservation_refunded":false}),
         )?;
         attempt.view.receipt_sequence = Some(receipt);
@@ -412,7 +429,7 @@ impl Store {
             }
         }
         run.active_stage = None;
-        run.io_completion = Some(IntegrationIoCompletion::WorkerJoined);
+        run.io_completion = Some(completion);
         records::save_run(
             &tx,
             &mut run,
@@ -421,7 +438,7 @@ impl Store {
             } else {
                 "integration.stage_joined"
             },
-            json!({"attempt_id":attempt.view.attempt_id,"worker_joined":true,"budget_overrun":overrun,"historical_cas_confirmed":historical_cas,"new_provider_dispatch":false,"task_accepted":false}),
+            json!({"attempt_id":attempt.view.attempt_id,"worker_joined":joined.worker_joined,"not_scheduled":joined.never_scheduled,"budget_overrun":overrun,"historical_cas_confirmed":historical_cas,"new_provider_dispatch":false,"task_accepted":false}),
         )?;
         fence.active_attempt_id = None;
         fence.revision = fence.revision.checked_add(1).ok_or_else(limited)?;
@@ -444,5 +461,119 @@ impl Store {
             unknown: false,
             next,
         })
+    }
+}
+
+impl Store {
+    /// Internal supervisor stop intent. No witness/expensive hash is needed to
+    /// request stopping already-owned work; failure cannot create a stop proof.
+    pub(crate) fn request_integration_supervisor_stop(
+        &mut self,
+        id: &str,
+        reason: &str,
+    ) -> Result<()> {
+        if !matches!(
+            reason,
+            "CANCEL_REQUESTED"
+                | "DEADLINE_EXCEEDED"
+                | "PERMISSION_DENIED"
+                | "AUTH_REQUIRED"
+                | "INPUT_CHANGED"
+                | "BUDGET_UNKNOWN"
+        ) {
+            return Err(invalid());
+        }
+        let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let mut run = records::run(&tx, id)?;
+        if !run.cancel_requested
+            && !matches!(
+                run.state,
+                IntegrationState::ConfirmedLocalRef
+                    | IntegrationState::Failed
+                    | IntegrationState::Blocked
+                    | IntegrationState::StaleTarget
+                    | IntegrationState::Cancelled
+            )
+        {
+            run.cancel_requested = true;
+            if run.state != IntegrationState::OutcomeUnknown {
+                run.state = IntegrationState::CancelRequested;
+            }
+            records::save_run(
+                &tx,
+                &mut run,
+                "integration.supervisor_stop_requested",
+                json!({"reason_code":reason,"stop_not_confirmed":true,"reservation_refunded":false}),
+            )?;
+        }
+        records::check_metadata_bounds(&tx)?;
+        tx.commit().map_err(db_error)?;
+        Ok(())
+    }
+    pub(super) fn block_integration_continuation(
+        &mut self,
+        ticket: &IntegrationStageTicket,
+        error: &CoreError,
+    ) -> Result<()> {
+        if !matches!(
+            error.code.as_str(),
+            "RESOURCE_LIMIT"
+                | "BUDGET_UNKNOWN"
+                | "PERMISSION_DENIED"
+                | "AUTH_REQUIRED"
+                | "INPUT_CHANGED"
+                | "CANCEL_REQUESTED"
+                | "DEADLINE_EXCEEDED"
+                | "WORKSPACE_BUSY"
+                | "CAPABILITY_UNSUPPORTED"
+                | "CONFIG_CONFLICT"
+        ) {
+            return Err(error.clone());
+        }
+        let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let mut run = records::run(&tx, &ticket.run.id)?;
+        let attempt = budget::attempt(&tx, &ticket.attempt.view.attempt_id)?;
+        let mut fence = fence(&tx, &run)?;
+        if !attempt.view.settled
+            || attempt.view.io_completion != Some(IntegrationIoCompletion::WorkerJoined)
+            || attempt.view.actual_runtime_ms.is_none()
+            || attempt.view.actual_output_bytes.is_none()
+            || run.active_stage.is_some()
+            || fence.active_attempt_id.is_some()
+            || fence.state != "held"
+        {
+            return Err(changed());
+        }
+        let unknown = error.code == "BUDGET_UNKNOWN";
+        run.state = if unknown {
+            IntegrationState::OutcomeUnknown
+        } else if run.cancel_requested {
+            IntegrationState::Cancelled
+        } else {
+            IntegrationState::Blocked
+        };
+        run.last_error = Some(error.clone());
+        records::save_run(
+            &tx,
+            &mut run,
+            "integration.continuation_blocked",
+            json!({"reason_code":error.code,"preceding_attempt_id":attempt.view.attempt_id,"new_attempt_started":false,"reservation_refunded":false}),
+        )?;
+        fence.state = if unknown { "unknown" } else { "released" }.into();
+        fence.revision = fence.revision.checked_add(1).ok_or_else(limited)?;
+        write_fence(
+            &tx,
+            &mut fence,
+            if unknown {
+                "integration.fence_updated"
+            } else {
+                "integration.fence_released"
+            },
+        )?;
+        records::check_metadata_bounds(&tx)?;
+        tx.commit().map_err(db_error)?;
+        Ok(())
     }
 }

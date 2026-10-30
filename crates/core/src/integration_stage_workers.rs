@@ -43,6 +43,7 @@ pub(super) struct JoinedStage {
     pub(super) elapsed_ms: u64,
     pub(super) effects_admitted: bool,
     pub(super) worker_joined: bool,
+    pub(super) never_scheduled: bool,
 }
 pub(super) struct OwnedStage {
     pub(super) ticket: IntegrationStageTicket,
@@ -200,6 +201,7 @@ impl OwnedStage {
                 elapsed_ms,
                 effects_admitted: result.effects_admitted,
                 worker_joined: true,
+                never_scheduled: false,
             },
             Err(_) => JoinedStage {
                 context: None,
@@ -211,6 +213,7 @@ impl OwnedStage {
                 elapsed_ms,
                 effects_admitted: true,
                 worker_joined: true,
+                never_scheduled: false,
             },
         };
         (self.ticket.clone(), joined)
@@ -329,6 +332,24 @@ fn execute(
                 output_bytes,
                 effects_admitted: true,
             }
+        }
+    }
+}
+
+impl JoinedStage {
+    pub(super) fn not_scheduled(
+        ticket: &IntegrationStageTicket,
+        error: CoreError,
+        context: Option<IntegrationPreparedContext>,
+    ) -> Self {
+        Self {
+            context,
+            result: Err(error),
+            output_bytes: Some(0),
+            elapsed_ms: u64::try_from(ticket.queued_at.elapsed().as_millis()).unwrap_or(u64::MAX),
+            effects_admitted: false,
+            worker_joined: false,
+            never_scheduled: true,
         }
     }
 }
