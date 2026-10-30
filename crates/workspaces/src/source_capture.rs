@@ -7,9 +7,11 @@ use crate::{
 };
 use sha2::{Digest, Sha256};
 use std::{
-    collections::BTreeSet,
+    cmp::Ordering as CompareOrdering,
+    collections::{BTreeMap, BTreeSet},
     fs::{self, File, OpenOptions},
     io::{Read, Write},
+    os::fd::{AsRawFd, FromRawFd},
     os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt},
     path::{Component, Path, PathBuf},
     process::{Child, Command, Stdio},
@@ -96,16 +98,324 @@ fn safe_path(path: &Path) -> bool {
     let Some(text) = path.to_str() else {
         return false;
     };
-    if text.is_empty()
-        || !text.is_ascii()
-        || text.len() > MAX_PATH_BYTES
-        || text.chars().any(char::is_control)
-    {
+    if text.is_empty() || text.len() > MAX_PATH_BYTES || text.chars().any(char::is_control) {
         return false;
     }
-    if path.components().any(|c| !matches!(c, Component::Normal(n) if !n.as_encoded_bytes().eq_ignore_ascii_case(b".git"))) { return false; }
+    if path.components().any(|c| !matches!(c, Component::Normal(n) if n.to_str().is_some_and(|name| !focaccia::unicode_full_case_eq(name, ".git")))) { return false; }
     // Components must not normalize aliases (double separators or dot segments).
     path.components().collect::<PathBuf>().as_os_str() == path.as_os_str()
+}
+
+// This key is used only to reject ambiguous selections. Original UTF-8 path
+// bytes remain the sole Git/index/receipt path; no normalization is performed.
+#[derive(Clone, Debug)]
+struct FoldedPath(String);
+impl PartialEq for FoldedPath {
+    fn eq(&self, other: &Self) -> bool {
+        self.cmp(other) == CompareOrdering::Equal
+    }
+}
+impl Eq for FoldedPath {}
+impl PartialOrd for FoldedPath {
+    fn partial_cmp(&self, other: &Self) -> Option<CompareOrdering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for FoldedPath {
+    fn cmp(&self, other: &Self) -> CompareOrdering {
+        focaccia::unicode_full_casecmp(&self.0, &other.0)
+    }
+}
+
+// A descriptor-relative stream never follows an attacker-replaced pathname to
+// enumerate outside the pinned root. Its fd is independent of the held parent.
+struct DirectoryStream(*mut libc::DIR);
+impl DirectoryStream {
+    fn open(directory: &File) -> Result<Self, WorkspaceError> {
+        let fd = unsafe {
+            libc::openat(
+                directory.as_raw_fd(),
+                c".".as_ptr(),
+                libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC,
+            )
+        };
+        if fd < 0 {
+            return Err(std::io::Error::last_os_error().into());
+        }
+        let stream = unsafe { libc::fdopendir(fd) };
+        if stream.is_null() {
+            let error = std::io::Error::last_os_error();
+            unsafe { libc::close(fd) };
+            return Err(error.into());
+        }
+        Ok(Self(stream))
+    }
+    fn next(&mut self) -> Result<Option<Vec<u8>>, WorkspaceError> {
+        // These are exactly the supported local Host platforms. An unsupported
+        // platform fails closed rather than treating an enumeration error as EOF.
+        #[cfg(target_os = "linux")]
+        unsafe {
+            *libc::__errno_location() = 0;
+        }
+        #[cfg(target_os = "macos")]
+        unsafe {
+            *libc::__error() = 0;
+        }
+        #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+        return Err(WorkspaceError::UnsafeRepository);
+        let entry = unsafe { libc::readdir(self.0) };
+        if entry.is_null() {
+            let error = std::io::Error::last_os_error();
+            return if error.raw_os_error() == Some(0) {
+                Ok(None)
+            } else {
+                Err(error.into())
+            };
+        }
+        // A readdir record may be shorter than sizeof(dirent). Bound reads to
+        // this record, never the complete nominal d_name array.
+        let record_len = unsafe { (*entry).d_reclen as usize };
+        let name_offset = std::mem::offset_of!(libc::dirent, d_name);
+        let name_len = record_len
+            .checked_sub(name_offset)
+            .filter(|n| *n > 0 && *n <= MAX_PATH_BYTES)
+            .ok_or(WorkspaceError::InvalidPath)?;
+        let name = unsafe {
+            std::slice::from_raw_parts(std::ptr::addr_of!((*entry).d_name).cast::<u8>(), name_len)
+        };
+        let end = name
+            .iter()
+            .position(|v| *v == 0)
+            .ok_or(WorkspaceError::InvalidPath)?;
+        Ok(Some(name[..end].to_vec()))
+    }
+}
+impl Drop for DirectoryStream {
+    fn drop(&mut self) {
+        unsafe { libc::closedir(self.0) };
+    }
+}
+
+struct DirectoryNames {
+    path: PathBuf,
+    stamp: fs::Metadata,
+    names: Vec<Vec<u8>>,
+}
+struct SelectedAliases {
+    folded: BTreeMap<FoldedPath, String>,
+    identities: BTreeMap<(u64, u64), String>,
+}
+fn open_component(directory: &File, name: &std::ffi::OsStr) -> Result<File, WorkspaceError> {
+    let name =
+        std::ffi::CString::new(name.as_encoded_bytes()).map_err(|_| WorkspaceError::InvalidPath)?;
+    let fd = unsafe {
+        libc::openat(
+            directory.as_raw_fd(),
+            name.as_ptr(),
+            libc::O_RDONLY
+                | libc::O_DIRECTORY
+                | libc::O_NONBLOCK
+                | libc::O_NOFOLLOW
+                | libc::O_CLOEXEC,
+        )
+    };
+    if fd < 0 {
+        return Err(std::io::Error::last_os_error().into());
+    }
+    Ok(unsafe { File::from_raw_fd(fd) })
+}
+fn entry_identity(
+    directory: &File,
+    name: &std::ffi::OsStr,
+) -> Result<Option<(u64, u64)>, WorkspaceError> {
+    let name =
+        std::ffi::CString::new(name.as_encoded_bytes()).map_err(|_| WorkspaceError::InvalidPath)?;
+    let mut metadata = std::mem::MaybeUninit::<libc::stat>::uninit();
+    let result = unsafe {
+        libc::fstatat(
+            directory.as_raw_fd(),
+            name.as_ptr(),
+            metadata.as_mut_ptr(),
+            libc::AT_SYMLINK_NOFOLLOW,
+        )
+    };
+    if result < 0 {
+        let error = std::io::Error::last_os_error();
+        return match error.raw_os_error() {
+            Some(libc::ENOENT | libc::ENOTDIR | libc::ELOOP) => Ok(None),
+            _ => Err(error.into()),
+        };
+    }
+    let metadata = unsafe { metadata.assume_init() };
+    #[cfg(target_os = "macos")]
+    let device = metadata.st_dev as u64;
+    #[cfg(not(target_os = "macos"))]
+    let device = metadata.st_dev;
+    Ok(Some((device, metadata.st_ino)))
+}
+fn existing_identity(root: &File, path: &Path) -> Result<Option<(u64, u64)>, WorkspaceError> {
+    let mut directory = root.try_clone()?;
+    let parts: Vec<_> = path.components().collect();
+    for (index, part) in parts.iter().enumerate() {
+        let Component::Normal(name) = part else {
+            return Err(WorkspaceError::InvalidPath);
+        };
+        if index + 1 == parts.len() {
+            return entry_identity(&directory, name);
+        }
+        match open_component(&directory, name) {
+            Ok(next) => directory = next,
+            Err(WorkspaceError::Io(error))
+                if matches!(
+                    error.raw_os_error(),
+                    Some(libc::ENOENT | libc::ENOTDIR | libc::ELOOP)
+                ) =>
+            {
+                return Ok(None)
+            }
+            Err(error) => return Err(error),
+        }
+    }
+    Err(WorkspaceError::InvalidPath)
+}
+
+fn selected_aliases(
+    capture: &AuthorizedSourceCapture,
+    control: Option<&crate::adoption::AdoptionControl<'_>>,
+) -> Result<SelectedAliases, WorkspaceError> {
+    let mut folded = BTreeMap::new();
+    let mut identities = BTreeMap::new();
+    let mut directories: BTreeMap<(u64, u64), DirectoryNames> = BTreeMap::new();
+    let (mut entries, mut bytes, mut prefix_bytes) = (0usize, 0usize, 0usize);
+    for artifact in &capture.selected {
+        let path = artifact.contract_view().requirement.relative_path;
+        let parts: Vec<_> = path.components().collect();
+        let mut directory = capture.root_fd.try_clone()?;
+        let mut prefix = PathBuf::new();
+        for (index, part) in parts.iter().enumerate() {
+            check_capture_control(capture.deadline, control)?;
+            let Component::Normal(name) = part else {
+                return Err(WorkspaceError::InvalidPath);
+            };
+            let wanted = name.to_str().ok_or(WorkspaceError::InvalidPath)?;
+            let stamp = directory.metadata()?;
+            let key = (stamp.dev(), stamp.ino());
+            if let std::collections::btree_map::Entry::Vacant(entry) = directories.entry(key) {
+                let mut stream = DirectoryStream::open(&directory)?;
+                let mut names = Vec::new();
+                while let Some(name) = stream.next()? {
+                    check_capture_control(capture.deadline, control)?;
+                    if name == b"." || name == b".." {
+                        continue;
+                    }
+                    entries = entries
+                        .checked_add(1)
+                        .ok_or(WorkspaceError::ResourceLimit)?;
+                    bytes = bytes
+                        .checked_add(name.len())
+                        .ok_or(WorkspaceError::ResourceLimit)?;
+                    // Same existing whole-base entry/output bounds, shared over
+                    // every selected parent, with no silent truncation/reset.
+                    if entries > 65_536 || bytes > 4 * 1024 * 1024 {
+                        return Err(WorkspaceError::ResourceLimit);
+                    }
+                    names.push(name);
+                }
+                if !same_stamp(&stamp, &directory.metadata()?) {
+                    return Err(WorkspaceError::InvalidPath);
+                }
+                entry.insert(DirectoryNames {
+                    path: prefix.clone(),
+                    stamp,
+                    names,
+                });
+            }
+            let cached = directories.get(&key).ok_or(WorkspaceError::InvalidPath)?;
+            if !same_stamp(&cached.stamp, &directory.metadata()?) {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            let mut exact_name = false;
+            for actual in &cached.names {
+                check_capture_control(capture.deadline, control)?;
+                if actual == name.as_encoded_bytes() {
+                    exact_name = true;
+                } else if std::str::from_utf8(actual)
+                    .ok()
+                    .is_some_and(|actual| focaccia::unicode_full_case_eq(actual, wanted))
+                {
+                    return Err(WorkspaceError::InvalidPath);
+                }
+            }
+            // Normalizing/case-insensitive hosts must not silently resolve an
+            // approved spelling to a differently spelled directory entry.
+            if !exact_name {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            let identity = entry_identity(&directory, name)?.ok_or(WorkspaceError::InvalidPath)?;
+            prefix.push(name);
+            let text = prefix
+                .to_str()
+                .ok_or(WorkspaceError::InvalidPath)?
+                .to_owned();
+            if !folded.contains_key(&FoldedPath(text.clone())) {
+                prefix_bytes = prefix_bytes
+                    .checked_add(text.len())
+                    .ok_or(WorkspaceError::ResourceLimit)?;
+                if prefix_bytes > 4 * 1024 * 1024 {
+                    return Err(WorkspaceError::ResourceLimit);
+                }
+            }
+            if folded
+                .insert(FoldedPath(text.clone()), text.clone())
+                .is_some_and(|old| old != text)
+                || identities
+                    .insert(identity, text.clone())
+                    .is_some_and(|old| old != text)
+            {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            if index + 1 != parts.len() {
+                directory = open_component(&directory, name)?;
+            }
+        }
+    }
+    for cached in directories.values() {
+        check_capture_control(capture.deadline, control)?;
+        let mut directory = capture.root_fd.try_clone()?;
+        for part in cached.path.components() {
+            check_capture_control(capture.deadline, control)?;
+            let Component::Normal(name) = part else {
+                return Err(WorkspaceError::InvalidPath);
+            };
+            directory = open_component(&directory, name)?;
+        }
+        if !same_stamp(&cached.stamp, &directory.metadata()?) {
+            return Err(WorkspaceError::InvalidPath);
+        }
+    }
+    Ok(SelectedAliases { folded, identities })
+}
+fn cached_identity(
+    capture: &AuthorizedSourceCapture,
+    path: &Path,
+    cache: &mut BTreeMap<PathBuf, Option<(u64, u64)>>,
+    path_bytes: &mut usize,
+    control: Option<&crate::adoption::AdoptionControl<'_>>,
+) -> Result<Option<(u64, u64)>, WorkspaceError> {
+    check_capture_control(capture.deadline, control)?;
+    if let Some(identity) = cache.get(path) {
+        return Ok(*identity);
+    }
+    *path_bytes = path_bytes
+        .checked_add(path.as_os_str().len())
+        .ok_or(WorkspaceError::ResourceLimit)?;
+    if cache.len() >= 65_536 || *path_bytes > 4 * 1024 * 1024 {
+        return Err(WorkspaceError::ResourceLimit);
+    }
+    let identity = existing_identity(&capture.root_fd, path)?;
+    check_capture_control(capture.deadline, control)?;
+    cache.insert(path.to_owned(), identity);
+    Ok(identity)
 }
 fn oid(bytes: Vec<u8>) -> Result<String, WorkspaceError> {
     let s = String::from_utf8(bytes).map_err(|_| WorkspaceError::InvalidPath)?;
@@ -338,23 +648,29 @@ impl AuthorizedSourceCapture {
                     .as_deref()
                     .is_some_and(crate::validation::valid_hash)
                 || !ids.insert(v.requirement.artifact_id)
-                || !paths.insert(
+                || !paths.insert(FoldedPath(
                     v.requirement
                         .relative_path
-                        .to_string_lossy()
-                        .to_ascii_lowercase(),
-                )
+                        .to_str()
+                        .ok_or(WorkspaceError::InvalidPath)?
+                        .to_owned(),
+                ))
             {
                 return Err(WorkspaceError::InvalidPath);
             }
         }
         for path in &paths {
-            for parent in Path::new(path)
+            for parent in Path::new(&path.0)
                 .ancestors()
                 .skip(1)
                 .filter(|p| !p.as_os_str().is_empty())
             {
-                if paths.contains(parent.to_str().ok_or(WorkspaceError::InvalidPath)?) {
+                if paths.contains(&FoldedPath(
+                    parent
+                        .to_str()
+                        .ok_or(WorkspaceError::InvalidPath)?
+                        .to_owned(),
+                )) {
                     return Err(WorkspaceError::InvalidPath);
                 }
             }
@@ -504,11 +820,9 @@ fn check_tree_paths(
     let mut count = 0usize;
     let mut paths = BTreeSet::new();
     let mut trees = Vec::new();
-    let selected: Vec<_> = capture
-        .selected
-        .iter()
-        .map(|a| a.contract_view().requirement.relative_path)
-        .collect();
+    let selected = selected_aliases(capture, control)?;
+    let mut actual = BTreeMap::new();
+    let mut actual_path_bytes = 0usize;
     let mut rows = raw.split(|b| *b == 0);
     while let Some(entry) = rows.next() {
         check_capture_control(deadline, control)?;
@@ -544,8 +858,8 @@ fn check_tree_paths(
         }
         let text =
             std::str::from_utf8(&entry[tab + 1..]).map_err(|_| WorkspaceError::InvalidPath)?;
-        // This slice supports ASCII paths only. Reject the whole base when a
-        // Unicode entry could alias an ASCII selection on a normalizing host.
+        // Keep valid UTF-8 exactly as stored in Git. Unicode case folding is an
+        // ambiguity check only; no NFC/NFD or other rewrite enters the object.
         if !safe_path(Path::new(text)) {
             return Err(WorkspaceError::InvalidPath);
         }
@@ -555,17 +869,47 @@ fn check_tree_paths(
         if fields[0] == "040000" {
             trees.push(text.to_owned());
         }
-        for path in &selected {
-            let wanted = path.to_str().ok_or(WorkspaceError::InvalidPath)?;
-            let base_parts: Vec<_> = text.split('/').collect();
-            let wanted_parts: Vec<_> = wanted.split('/').collect();
-            for (base, wanted) in base_parts.iter().zip(&wanted_parts) {
-                if base.eq_ignore_ascii_case(wanted) && base != wanted {
-                    return Err(WorkspaceError::InvalidPath);
-                }
-                if base != wanted {
-                    break;
-                }
+        let mut prefix = PathBuf::new();
+        for part in Path::new(text).components() {
+            check_capture_control(deadline, control)?;
+            let Component::Normal(name) = part else {
+                return Err(WorkspaceError::InvalidPath);
+            };
+            prefix.push(name);
+            let spelling = prefix.to_str().ok_or(WorkspaceError::InvalidPath)?;
+            if selected
+                .folded
+                .get(&FoldedPath(spelling.to_owned()))
+                .is_some_and(|wanted| wanted != spelling)
+            {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            let identity = cached_identity(
+                capture,
+                &prefix,
+                &mut actual,
+                &mut actual_path_bytes,
+                control,
+            )?;
+            if identity
+                .and_then(|id| selected.identities.get(&id))
+                .is_some_and(|wanted| wanted != spelling)
+            {
+                return Err(WorkspaceError::InvalidPath);
+            }
+            // Some hosts treat additional spellings as .git aliases. Only an
+            // actually observable same-inode lookup is evidence for that host;
+            // absent/non-checkout paths are not invented as FS observations.
+            let reserved = prefix.with_file_name(".git");
+            let git_identity = cached_identity(
+                capture,
+                &reserved,
+                &mut actual,
+                &mut actual_path_bytes,
+                control,
+            )?;
+            if identity.is_some() && identity == git_identity {
+                return Err(WorkspaceError::InvalidPath);
             }
         }
     }

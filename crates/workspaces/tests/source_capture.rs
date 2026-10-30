@@ -459,7 +459,7 @@ fn replaced_source_directory_or_common_directory_after_authorization_is_rejected
 }
 
 #[test]
-fn ascii_case_aliases_and_unicode_selections_or_base_paths_fail_without_user_changes() {
+fn ascii_case_aliases_fail_without_user_changes() {
     let mut case = Repo::new();
     fs::write(case.root.join("BaseCase.txt"), b"base case\n").unwrap();
     git(&case.root, &["add", "BaseCase.txt"]);
@@ -477,34 +477,6 @@ fn ascii_case_aliases_and_unicode_selections_or_base_paths_fail_without_user_cha
     .is_err());
     assert_eq!(case.original_state(), before);
     assert_eq!(fs::read(case.root.join("BaseCase.txt")).unwrap(), original);
-    for name in ["unicode-é.txt", "unicode-e\u{301}.txt"] {
-        let mut r = Repo::new();
-        fs::write(r.root.join(name), b"base named file\n").unwrap();
-        git(&r.root, &["add", "--", name]);
-        git(&r.root, &["commit", "-m", "path guard"]);
-        r.base = git(&r.root, &["rev-parse", "HEAD"]);
-        fs::write(r.root.join("selected.txt"), b"accepted\n").unwrap();
-        let before = r.original_state();
-        assert!(capture_source_commit(r.authorize(vec![r.artifact(
-            "a",
-            "selected.txt",
-            b"accepted\n",
-            64
-        )]))
-        .is_err());
-        assert_eq!(r.original_state(), before);
-        assert_eq!(fs::read(r.root.join(name)).unwrap(), b"base named file\n");
-    }
-    let r = Repo::new();
-    fs::write(r.root.join("é.txt"), b"selected unicode\n").unwrap();
-    let before = r.original_state();
-    assert!(selection(
-        &r,
-        &inspect(&r.root).unwrap(),
-        vec![r.artifact("a", "é.txt", b"selected unicode\n", 64)]
-    )
-    .is_err());
-    assert_eq!(r.original_state(), before);
 }
 #[test]
 fn total_selected_byte_budget_is_shared_and_not_reset_per_artifact() {
@@ -530,6 +502,329 @@ fn total_selected_byte_budget_is_shared_and_not_reset_per_artifact() {
     assert_eq!(r.original_state(), before);
     assert_eq!(fs::metadata(r.root.join("first")).unwrap().len(), SIZE);
     assert_eq!(fs::metadata(r.root.join("second")).unwrap().len(), SIZE);
+}
+
+// The earlier ASCII-only slice rejected valid Unicode even in an unselected
+// base. These real Git cases replace that obsolete restriction without changing
+// any path/identity/byte/authority constraint or the existing ASCII safety case.
+#[test]
+fn utf8_chinese_emoji_spaces_and_combining_names_keep_exact_git_bytes() {
+    let mut r = Repo::new();
+    git(&r.root, &["config", "core.precomposeunicode", "false"]);
+    let names = [
+        "中文目录/报告 😀.txt",
+        "space folder/file name.txt",
+        "组合-e\u{301}.txt",
+    ];
+    for name in names {
+        fs::create_dir_all(r.root.join(name).parent().unwrap()).unwrap();
+        fs::write(r.root.join(name), b"base UTF8\n").unwrap();
+        git(&r.root, &["add", "--", name]);
+    }
+    git(&r.root, &["commit", "-m", "raw UTF8 base"]);
+    r.base = git(&r.root, &["rev-parse", "HEAD"]);
+    let mut artifacts = Vec::new();
+    for (index, name) in names.into_iter().enumerate() {
+        fs::write(r.root.join(name), b"accepted UTF8\n").unwrap();
+        artifacts.push(r.artifact(&format!("unicode-{index}"), name, b"accepted UTF8\n", 64));
+    }
+    fs::write(
+        r.root.join("unselected.txt"),
+        b"owner unselected UTF8 case\n",
+    )
+    .unwrap();
+    git(&r.root, &["add", "unselected.txt"]);
+    let before = r.original_state();
+    let result = capture_source_commit(r.authorize(artifacts)).unwrap();
+    assert_eq!(r.original_state(), before);
+    let raw_names = Command::new("git")
+        .arg("-C")
+        .arg(&r.root)
+        .args(["ls-tree", "-r", "-z", "--name-only", result.commit()])
+        .output()
+        .unwrap();
+    assert!(raw_names.status.success());
+    let raw_names: Vec<_> = raw_names
+        .stdout
+        .split(|b| *b == 0)
+        .filter(|v| !v.is_empty())
+        .collect();
+    for (index, name) in names.into_iter().enumerate() {
+        assert!(raw_names.contains(&name.as_bytes()));
+        assert_eq!(
+            result.selected()[index]
+                .relative_path
+                .as_os_str()
+                .as_encoded_bytes(),
+            name.as_bytes()
+        );
+        let blob = Command::new("git")
+            .arg("-C")
+            .arg(&r.root)
+            .args(["cat-file", "blob", &format!("{}:{name}", result.commit())])
+            .output()
+            .unwrap();
+        assert!(blob.status.success());
+        assert_eq!(blob.stdout, b"accepted UTF8\n");
+        assert_eq!(sha256(&blob.stdout), result.selected()[index].sha256);
+    }
+    assert_eq!(
+        git(
+            &r.root,
+            &["show", &format!("{}:unselected.txt", result.commit())]
+        ),
+        "base unselected"
+    );
+}
+
+#[test]
+fn composed_and_decomposed_names_are_not_silently_normalized() {
+    use std::os::unix::fs::MetadataExt;
+    let r = Repo::new();
+    let composed = "pair-é.txt";
+    let decomposed = "pair-e\u{301}.txt";
+    fs::write(r.root.join(composed), b"exact normalization bytes\n").unwrap();
+    let first = fs::metadata(r.root.join(composed)).unwrap();
+    if let Ok(alias) = fs::metadata(r.root.join(decomposed)) {
+        // This is real observed host alias behavior, not a platform name guess.
+        assert_eq!((first.dev(), first.ino()), (alias.dev(), alias.ino()));
+        let before = r.original_state();
+        assert!(capture_source_commit(r.authorize(vec![
+            r.artifact("nfc", composed, b"exact normalization bytes\n", 64),
+            r.artifact("nfd", decomposed, b"exact normalization bytes\n", 64),
+        ]))
+        .is_err());
+        assert_eq!(r.original_state(), before);
+    } else {
+        fs::write(
+            r.root.join(decomposed),
+            b"different exact normalization bytes\n",
+        )
+        .unwrap();
+        let second = fs::metadata(r.root.join(decomposed)).unwrap();
+        assert_ne!((first.dev(), first.ino()), (second.dev(), second.ino()));
+        let before = r.original_state();
+        let result = capture_source_commit(r.authorize(vec![
+            r.artifact("nfc", composed, b"exact normalization bytes\n", 64),
+            r.artifact(
+                "nfd",
+                decomposed,
+                b"different exact normalization bytes\n",
+                64,
+            ),
+        ]))
+        .unwrap();
+        assert_eq!(r.original_state(), before);
+        for name in [composed, decomposed] {
+            assert!(result.selected().iter().any(|v| v
+                .relative_path
+                .as_os_str()
+                .as_encoded_bytes()
+                == name.as_bytes()));
+            assert!(!git(&r.root, &["show", &format!("{}:{name}", result.commit())]).is_empty());
+        }
+    }
+}
+
+#[test]
+fn unselected_utf8_base_entries_are_preserved_instead_of_rejected() {
+    for name in ["unicode-é.txt", "unicode-e\u{301}.txt"] {
+        let mut r = Repo::new();
+        fs::write(r.root.join(name), b"base named file\n").unwrap();
+        git(&r.root, &["add", "--", name]);
+        git(&r.root, &["commit", "-m", "unselected Unicode base"]);
+        r.base = git(&r.root, &["rev-parse", "HEAD"]);
+        fs::write(r.root.join("selected.txt"), b"accepted\n").unwrap();
+        let before = r.original_state();
+        let unicode_tree_rows = |commit: &str| {
+            let output = Command::new("git")
+                .arg("-C")
+                .arg(&r.root)
+                .args(["ls-tree", "-r", "-z", commit])
+                .output()
+                .unwrap();
+            assert!(output.status.success());
+            output
+                .stdout
+                .split(|b| *b == 0)
+                .filter(|row| row.iter().any(|b| !b.is_ascii()))
+                .map(|row| row.to_vec())
+                .collect::<Vec<_>>()
+        };
+        let raw_before = unicode_tree_rows(&r.base);
+        assert_eq!(raw_before.len(), 1);
+        let result = capture_source_commit(r.authorize(vec![r.artifact(
+            "chosen",
+            "selected.txt",
+            b"accepted\n",
+            64,
+        )]))
+        .unwrap();
+        assert_eq!(unicode_tree_rows(result.commit()), raw_before);
+        assert_eq!(r.original_state(), before);
+        assert_eq!(fs::read(r.root.join(name)).unwrap(), b"base named file\n");
+    }
+}
+
+#[test]
+fn unicode_full_casefold_aliases_are_rejected_even_when_base_is_not_checked_out() {
+    for (base_name, selected_name) in [
+        ("Straße.txt", "STRASSE.txt"),
+        ("sigma-ς.txt", "sigma-σ.txt"),
+    ] {
+        let mut r = Repo::new();
+        fs::write(r.root.join(base_name), b"base casefold\n").unwrap();
+        git(&r.root, &["add", "--", base_name]);
+        git(&r.root, &["commit", "-m", "Unicode full casefold base"]);
+        r.base = git(&r.root, &["rev-parse", "HEAD"]);
+        fs::remove_file(r.root.join(base_name)).unwrap();
+        fs::write(r.root.join(selected_name), b"selected casefold\n").unwrap();
+        let before = r.original_state();
+        assert!(capture_source_commit(r.authorize(vec![r.artifact(
+            "chosen",
+            selected_name,
+            b"selected casefold\n",
+            64
+        )]))
+        .is_err());
+        assert_eq!(r.original_state(), before);
+        assert!(
+            !r.root.join(base_name).exists()
+                || fs::read(r.root.join(base_name)).unwrap() == b"selected casefold\n"
+        );
+        assert_eq!(
+            fs::read(r.root.join(selected_name)).unwrap(),
+            b"selected casefold\n"
+        );
+    }
+}
+
+#[test]
+fn unicode_aliases_within_selection_and_directory_spelling_are_rejected() {
+    for (left, right) in [
+        ("Straße.txt", "STRASSE.txt"),
+        ("sigma-ς.txt", "sigma-σ.txt"),
+        ("Ä/a.txt", "ä/b.txt"),
+    ] {
+        let r = Repo::new();
+        for name in [left, right] {
+            fs::create_dir_all(r.root.join(name).parent().unwrap()).unwrap();
+            fs::write(r.root.join(name), b"same alias payload\n").unwrap();
+        }
+        let before = r.original_state();
+        let items = vec![
+            r.artifact("left", left, b"same alias payload\n", 64),
+            r.artifact("right", right, b"same alias payload\n", 64),
+        ];
+        let result =
+            selection(&r, &inspect(&r.root).unwrap(), items).and_then(capture_source_commit);
+        assert!(result.is_err());
+        assert_eq!(r.original_state(), before);
+    }
+}
+
+#[test]
+fn unicode_selected_pin_changes_links_and_control_paths_still_fail() {
+    let r = Repo::new();
+    let name = "原始😀.txt";
+    fs::write(r.root.join(name), b"accepted original\n").unwrap();
+    let token = r.authorize(vec![r.artifact("chosen", name, b"accepted original\n", 64)]);
+    fs::write(r.root.join(name), b"changed after pin\n").unwrap();
+    let before = r.original_state();
+    assert!(capture_source_commit(token).is_err());
+    assert_eq!(r.original_state(), before);
+    for hard in [false, true] {
+        let linked = if hard {
+            "硬链接😀.txt"
+        } else {
+            "符号链接😀.txt"
+        };
+        if hard {
+            fs::hard_link(r.root.join(name), r.root.join(linked)).unwrap();
+        } else {
+            symlink(name, r.root.join(linked)).unwrap();
+        }
+        let before = r.original_state();
+        assert!(capture_source_commit(r.authorize(vec![r.artifact(
+            "linked",
+            linked,
+            b"changed after pin\n",
+            64
+        )]))
+        .is_err());
+        assert_eq!(r.original_state(), before);
+    }
+    for path in [
+        ".git/config",
+        ".GIT/config",
+        "../穿越.txt",
+        "a/../穿越.txt",
+        "中文\n控制.txt",
+        "中文\u{85}控制.txt",
+    ] {
+        let requirement = ArtifactRequirement {
+            artifact_id: "unsafe".into(),
+            relative_path: path.into(),
+            max_bytes: 64,
+            expected_sha256: Some(sha256(b"unused")),
+        };
+        let result = BoundArtifact::from_approved_root(&r.root, requirement)
+            .and_then(|artifact| selection(&r, &inspect(&r.root).unwrap(), vec![artifact]));
+        assert!(result.is_err(), "unsafe path was selected: {path:?}");
+    }
+}
+
+#[test]
+fn invalid_utf8_base_and_selection_refuse_without_lossy_replacement() {
+    use std::os::unix::ffi::OsStringExt;
+    let mut r = Repo::new();
+    let bad = std::ffi::OsString::from_vec(b"invalid-\xff.txt".to_vec());
+    fs::write(r.root.join(&bad), b"invalid filename\n").unwrap();
+    let add = Command::new("git")
+        .arg("-C")
+        .arg(&r.root)
+        .args(["add", "--"])
+        .arg(&bad)
+        .output()
+        .unwrap();
+    assert!(add.status.success());
+    git(&r.root, &["commit", "-m", "invalid UTF8 base"]);
+    r.base = git(&r.root, &["rev-parse", "HEAD"]);
+    fs::write(r.root.join("selected.txt"), b"accepted\n").unwrap();
+    let before = r.original_state();
+    assert!(capture_source_commit(r.authorize(vec![r.artifact(
+        "chosen",
+        "selected.txt",
+        b"accepted\n",
+        64
+    )]))
+    .is_err());
+    assert_eq!(r.original_state(), before);
+    assert!(BoundArtifact::from_approved_root(
+        &r.root,
+        ArtifactRequirement {
+            artifact_id: "bad".into(),
+            relative_path: bad.into(),
+            max_bytes: 64,
+            expected_sha256: Some(sha256(b"invalid filename\n")),
+        }
+    )
+    .is_err());
+}
+
+#[test]
+fn unicode_path_cap_is_encoded_bytes_not_scalar_count() {
+    let r = Repo::new();
+    let requirement = ArtifactRequirement {
+        artifact_id: "large".into(),
+        relative_path: "界".repeat(1366).into(),
+        max_bytes: 64,
+        expected_sha256: Some(sha256(b"unused")),
+    };
+    let bound = BoundArtifact::from_approved_root(&r.root, requirement).unwrap();
+    let before = r.original_state();
+    assert!(selection(&r, &inspect(&r.root).unwrap(), vec![bound]).is_err());
+    assert_eq!(r.original_state(), before);
 }
 #[test]
 fn symlinked_object_storage_is_rejected_before_any_object_write() {
