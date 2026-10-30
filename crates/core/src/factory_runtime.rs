@@ -2351,3 +2351,120 @@ pub(crate) use child_goal::latest_plan_ref as latest_child_goal_plan_ref;
 mod child_goal_lifecycle;
 
 pub(crate) use child_goal::verify_caller as verify_child_goal_caller;
+
+impl Store {
+    /// Historical delegated ownership plus current original permission, not a
+    /// new Provider-dispatch token. Completed Factory turns may be integrated
+    /// only under the separate integration approval; unknown/cancel stays denied.
+    pub(crate) fn integration_factory_workspace_material(
+        &self,
+        scope_id: &str,
+        task_id: &str,
+    ) -> Result<crate::integration::IntegrationDelegatedMaterial> {
+        let scope = child_goal::checked_scope(&self.conn, scope_id)?;
+        if scope.revoked || scope.expires_at_ms <= ms()? {
+            return Err(denied());
+        }
+        let grant = crate::policy::checked_lineage(&self.conn, &scope.root_grant_id)?;
+        if encode(&grant)? != encode(&scope.bindings.approved_grant)? {
+            return Err(changed());
+        }
+        let factory = run(&self.conn, scope_id)?;
+        let target = binding(&self.conn, &factory.id, task_id)?;
+        let line = lineage(&self.conn, task_id)?;
+        let ancestors = ancestry(&self.conn, task_id)?;
+        let task = Store::factory_child_read_task(&self.conn, task_id)?;
+        if factory.cancel_requested
+            || matches!(
+                factory.state.as_str(),
+                "cancelled" | "outcome_unknown" | "blocked"
+            )
+            || target.handle.cancel_requested
+            || target.scope_id != scope_id
+            || target.grant_id != scope.root_grant_id
+            || target.planning_spec_revision != Some(task.spec_revision)
+            || task.goal != target.request.goal
+            || task.project_id != scope.project_id
+            || matches!(
+                task.state,
+                TaskState::CancelRequested | TaskState::Cancelled | TaskState::OutcomeUnknown
+            )
+            || line.parent_task_id.is_none()
+        {
+            return Err(denied());
+        }
+        child_goal::verify_lineage(
+            &self.conn,
+            &scope,
+            task_id,
+            &ancestors,
+            line.parent_task_id.as_deref(),
+        )?;
+        let delegation = line.delegation_id.as_deref().ok_or_else(denied)?;
+        let raw:Option<String>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM factory_delegations WHERE id=?1 AND scope_id=?2 AND run_id=?3 AND parent_task_id=?4 AND child_task_id=?5 AND grant_id=?6",params![delegation,scope_id,factory.id,line.parent_task_id,task_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?;
+        let raw = raw.ok_or_else(limited)?;
+        let document: Value = decode(&raw)?;
+        let request: FactoryDelegateRequest =
+            serde_json::from_value(document["request"].clone()).map_err(|_| changed())?;
+        let original: FactoryTaskHandle =
+            serde_json::from_value(document["child"].clone()).map_err(|_| changed())?;
+        if encode(&request)? != encode(&target.request)?
+            || original.task_id != task_id
+            || original.delegation_id != delegation
+            || original.factory_scope_id != scope_id
+            || original.root_task_id != scope.root_task_id
+            || original.parent_task_id != line.parent_task_id
+            || original.revision != 1
+            || document["scope_digest"] != scope.contract_digest
+        {
+            return Err(changed());
+        }
+        let seq:Option<i64>=self.conn.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='factory.child_queued' AND json_extract(document,'$.source')='factory_core' AND json_extract(document,'$.payload.child_task_id')=?2 AND json_extract(document,'$.payload.parent_task_id')=?3 AND json_extract(document,'$.payload.caller_session_id')=?4 AND json_extract(document,'$.payload.caller_attempt_id')=?5 AND json_extract(document,'$.payload.caller_fencing_token')=?6 ORDER BY sequence LIMIT 1",params![factory.id,task_id,line.parent_task_id,document["caller_session_id"].as_str().ok_or_else(changed)?,document["caller_attempt_id"].as_str().ok_or_else(changed)?,document["caller_fencing_token"].as_u64().ok_or_else(changed)?],|row|row.get(0)).optional().map_err(db_error)?;
+        let seq = u64::try_from(seq.ok_or_else(denied)?).map_err(|_| changed())?;
+        child_goal::verify_caller(
+            &self.conn,
+            &scope,
+            &factory.id,
+            task_id,
+            (
+                line.parent_task_id.as_deref().ok_or_else(denied)?,
+                document["caller_session_id"].as_str(),
+                document["caller_attempt_id"].as_str(),
+                document["caller_fencing_token"].as_u64(),
+            ),
+            seq,
+        )?;
+        let workspace_id = &target.request.workspace_id;
+        let workspace = scope
+            .bindings
+            .workspaces
+            .iter()
+            .find(|w| &w.id == workspace_id)
+            .ok_or_else(denied)?;
+        let creation:Option<String>=self.conn.query_row("SELECT CASE WHEN octet_length(idempotency_key)<=128 THEN idempotency_key END FROM managed_workspaces WHERE id=?1 AND project_id=?2 AND state='ready' AND octet_length(document)<=1048576 AND document=?3",params![workspace_id,scope.project_id,encode(workspace)?],|row|row.get(0)).map_err(db_error)?;
+        let creation = creation.ok_or_else(changed)?;
+        let created:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='workspace.created' AND json_extract(document,'$.source')='user_action' AND json_extract(document,'$.payload.project_id')=?2 AND sequence<?3)",params![workspace_id,scope.project_id,i64::try_from(seq).map_err(|_|changed())?],|row|row.get(0)).map_err(db_error)?;
+        if !created
+            || workspace
+                .identity
+                .as_ref()
+                .is_none_or(|i| !matches!(i.kind, agentbaton_workspaces::WorkspaceKind::Git { .. }))
+        {
+            return Err(denied());
+        }
+        Ok(crate::integration::IntegrationDelegatedMaterial {
+            factory_scope_id: scope.id,
+            factory_scope_digest: scope.contract_digest,
+            factory_run_id: factory.id,
+            child_spec_revision: task.spec_revision,
+            lineage: line,
+            delegation_event_sequence: seq,
+            delegation_document_digest: sha(&document)?,
+            original_request: request,
+            original_handle: original,
+            workspace_id: workspace_id.clone(),
+            source_base: workspace.base_revision.clone(),
+            managed_creation_ref: creation,
+        })
+    }
+}

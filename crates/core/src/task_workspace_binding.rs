@@ -951,3 +951,35 @@ pub(crate) fn migrate(db: &mut Connection, version: u32) -> Result<()> {
 #[cfg(test)]
 #[path = "task_workspace_binding_tests.rs"]
 mod tests;
+
+/// Database-only existing receipt/journal verification for a separate integration
+/// policy. Filesystem freshness belongs to its request-owned observation worker.
+pub(crate) fn verify_task_binding_for_integration(
+    db: &Connection,
+    task: &Task,
+    workspace: &ManagedWorkspace,
+) -> Result<TaskWorkspaceReservationReceipt> {
+    let binding = task
+        .code_workspace_binding
+        .as_ref()
+        .ok_or_else(unsupported)?;
+    verify_bound_rows(db, task, binding, workspace)?;
+    let r = original_receipt(db, binding)?;
+    if binding.state != TaskWorkspaceBindingState::Ready
+        || binding.managed_pin.is_none()
+        || r.task_id != task.id
+        || r.project_id != task.project_id
+        || r.spec_revision != task.spec_revision
+        || r.workspace_id != workspace.id
+        || workspace.state != "ready"
+        || workspace.base_revision != r.source_pin.head
+    {
+        return Err(changed());
+    }
+    let reserved:Option<i64>=db.query_row("SELECT sequence FROM events WHERE length(CAST(document AS BLOB))<=262144 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='task.workspace_preparation_reserved' AND json_extract(document,'$.source')='user_action' AND json_extract(document,'$.payload.binding_id')=?2 AND json_extract(document,'$.payload.workspace_id')=?3 AND json_extract(document,'$.payload.state')='pending' ORDER BY sequence LIMIT 1",params![task.id,r.binding_id,r.workspace_id],|row|row.get(0)).optional().map_err(db_error)?;
+    let ready:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE length(CAST(document AS BLOB))<=262144 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='task.workspace_preparation_finished' AND json_extract(document,'$.source')='user_action' AND json_extract(document,'$.payload.binding_id')=?2 AND json_extract(document,'$.payload.workspace_id')=?3 AND json_extract(document,'$.payload.state')='ready' AND sequence>?4)",params![task.id,r.binding_id,r.workspace_id,reserved.ok_or_else(changed)?],|row|row.get(0)).map_err(db_error)?;
+    if !ready {
+        return Err(changed());
+    }
+    Ok(r)
+}

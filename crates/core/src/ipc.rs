@@ -1082,7 +1082,7 @@ impl Daemon {
             "system.snapshot" => {
                 empty(&r.params)?;
                 Ok(
-                    json!({"tasks":self.store.list()?,"sequence":self.store.sequence()?,"api_version":API_VERSION}),
+                    json!({"tasks":self.store.list()?,"sequence":self.store.sequence()?,"api_version":API_VERSION,"database_schema_version":self.store.conn.pragma_query_value(None,"user_version",|row|row.get::<_,u32>(0)).map_err(crate::storage::db_error)?}),
                 )
             }
             _ => Err(CoreError::new(

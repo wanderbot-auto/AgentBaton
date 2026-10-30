@@ -1248,7 +1248,7 @@ impl FactoryReadPlan {
         let version: u32 = connection
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version != 16 {
+        if version != 17 {
             return Err(changed());
         }
         // Match the live Actor's exact approved business rows BEFORE filesystem

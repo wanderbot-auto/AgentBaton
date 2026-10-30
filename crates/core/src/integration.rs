@@ -13,6 +13,13 @@ use std::{collections::BTreeMap, path::PathBuf};
 #[path = "integration_store.rs"]
 mod store;
 pub(crate) use store::migrate;
+#[path = "integration_authority.rs"]
+mod authority;
+pub(crate) use authority::{
+    IntegrationDelegatedMaterial, IntegrationScopeMaterial, IntegrationWorkspaceMaterial,
+};
+#[path = "integration_records.rs"]
+mod records;
 
 pub const MAX_INTEGRATION_BYTES: usize = 1_048_576;
 pub const MAX_INTEGRATION_PAGE: u32 = 100;
@@ -110,7 +117,29 @@ pub struct IntegrationGrantBinding {
     pub workspace_bindings: BTreeMap<String, IntegrationGitPin>,
     pub original_document_sha256: String,
 }
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum IntegrationWorkspaceBinding {
+    TaskManaged {
+        receipt: TaskWorkspaceReservationReceipt,
+    },
+    FactoryDelegated {
+        factory_scope_id: String,
+        factory_scope_digest: String,
+        factory_run_id: String,
+        child_spec_revision: u64,
+        lineage: crate::factory::FactoryTaskLineage,
+        delegation_event_sequence: u64,
+        delegation_document_digest: String,
+        original_request: crate::factory::FactoryDelegateRequest,
+        original_handle: crate::factory::FactoryTaskHandle,
+        workspace_id: String,
+        registered_pin: IntegrationGitPin,
+        source_base: String,
+        managed_creation_ref: String,
+    },
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct IntegrationStaticBindings {
     pub task_id: String,
@@ -122,10 +151,11 @@ pub struct IntegrationStaticBindings {
     pub workspace_id: String,
     pub workspace_revision: u64,
     pub source: IntegrationGitPin,
-    pub task_workspace_receipt: TaskWorkspaceReservationReceipt,
+    pub workspace_binding: IntegrationWorkspaceBinding,
     pub goal_scope_id: String,
     pub goal_scope_revision: u64,
     pub goal_scope_digest: String,
+    pub goal_scope_expires_at_ms: i64,
     pub root_task_id: String,
     pub root_grant_id: String,
     pub factory_scope_id: Option<String>,
@@ -359,4 +389,49 @@ pub struct IntegrationRecordCounts {
     pub runs: u64,
     pub attempts: u64,
     pub ref_fences: u64,
+}
+
+/// Pure canonical snapshot digest. This never verifies Owner permission.
+pub fn integration_snapshot_digest(snapshot: &serde_json::Value) -> crate::Result<String> {
+    authority::sha(snapshot)
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct IntegrationTargetQuery {
+    pub task_id: String,
+    pub after_ref: Option<String>,
+    pub limit: Option<u32>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct IntegrationTargetView {
+    pub target_ref: String,
+    pub head: String,
+    pub checked_out: bool,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct IntegrationContextQuery {
+    pub task_id: String,
+    pub goal_scope_id: String,
+}
+/// A recorded preview, never executable authority or a replacement approval.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct IntegrationContextView {
+    pub task_revision: u64,
+    pub bindings: IntegrationStaticBindings,
+    pub as_of_sequence: u64,
+    pub shared_usage: IntegrationSharedUsage,
+    #[serde(deserialize_with = "preview_only")]
+    pub preview_only: bool,
+}
+fn preview_only<'de, D: serde::Deserializer<'de>>(d: D) -> std::result::Result<bool, D::Error> {
+    if bool::deserialize(d)? {
+        Ok(true)
+    } else {
+        Err(serde::de::Error::custom(
+            "integration context is preview only",
+        ))
+    }
 }

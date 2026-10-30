@@ -44,3 +44,11 @@ CREATE INDEX integration_attempts_root ON integration_attempts(root_grant_id,pro
 CREATE INDEX integration_attempts_run ON integration_attempts(integration_id,round,attempt_id);
 CREATE TABLE integration_ref_fences(repository_digest TEXT NOT NULL,target_ref TEXT NOT NULL,integration_id TEXT NOT NULL REFERENCES integrations(id),revision INTEGER NOT NULL CHECK(revision>0),state TEXT NOT NULL CHECK(state IN('held','unknown','released')),document TEXT NOT NULL,PRIMARY KEY(repository_digest,target_ref));
 "#;
+
+impl crate::storage::Store {
+    /// Strict read-only domain counts. Missing/malformed schema is an error,
+    /// never a fabricated zero; FactoryRecordCounts remains unchanged.
+    pub fn integration_record_counts(&self) -> Result<super::IntegrationRecordCounts> {
+        self.conn.query_row("SELECT (SELECT count(*) FROM integration_policies),(SELECT count(*) FROM integrations),(SELECT count(*) FROM integration_attempts),(SELECT count(*) FROM integration_ref_fences)",[],|r|Ok(super::IntegrationRecordCounts{policies:r.get(0)?,runs:r.get(1)?,attempts:r.get(2)?,ref_fences:r.get(3)?})).map_err(db_error)
+    }
+}

@@ -3310,3 +3310,198 @@ mod proposal_size_tests {
         );
     }
 }
+
+impl Store {
+    /// Recorded Goal/Factory provenance only. The integration owner-read worker
+    /// performs filesystem/hash/Git checks; this method grants no execution.
+    pub(crate) fn integration_scope_material(
+        &self,
+        scope_id: &str,
+        task_id: &str,
+    ) -> Result<crate::integration::IntegrationScopeMaterial> {
+        let view = stored_scope_view(&self.conn, scope_id)?;
+        let record: ScopeRecord = raw(&self.conn, "goal_scopes", scope_id)?;
+        let task: Task = raw(&self.conn, "tasks", task_id)?;
+        let project: Project = raw(&self.conn, "projects", &task.project_id)?;
+        let workspace: ManagedWorkspace =
+            raw(&self.conn, "managed_workspaces", &record.refs.workspace.id)?;
+        if view.revoked
+            || view.expires_at_ms <= ms()?
+            || record.revoked
+            || task.id != record.refs.task_id
+            || task.id != view.task_id
+            || task.spec_revision != record.refs.spec_revision
+            || task.goal != record.refs.task_goal
+            || project.id != record.refs.project_id
+            || project.revision != record.refs.project_revision
+            || project.archived
+            || encode(&workspace)? != encode(&record.refs.workspace)?
+            || matches!(
+                task.state,
+                TaskState::CancelRequested | TaskState::Cancelled | TaskState::OutcomeUnknown
+            )
+        {
+            return Err(denied());
+        }
+        let workspace_ownership = if task.code_workspace_binding.is_some() {
+            crate::integration::IntegrationWorkspaceMaterial::TaskManaged(
+                crate::task_workspace_binding::verify_task_binding_for_integration(
+                    &self.conn, &task, &workspace,
+                )?,
+            )
+        } else if let Some(origin) = &record.factory_origin {
+            let delegated =
+                self.integration_factory_workspace_material(&origin.factory_scope_id, &task.id)?;
+            if delegated.workspace_id != workspace.id
+                || delegated.source_base != workspace.base_revision
+            {
+                return Err(changed());
+            }
+            crate::integration::IntegrationWorkspaceMaterial::FactoryDelegated(delegated)
+        } else {
+            return Err(err("CAPABILITY_UNSUPPORTED","Integration requires genuine Task-managed or authenticated Factory-delegated managed Git ownership"));
+        };
+        let grant = crate::policy::checked_lineage(&self.conn, &record.refs.grant_after.id)?;
+        if grant != record.refs.grant_after {
+            return Err(changed());
+        }
+        let mut lineage = Vec::new();
+        let mut current = Some(grant.id.clone());
+        let mut seen = BTreeSet::new();
+        while let Some(id) = current {
+            if lineage.len() >= 256 || !seen.insert(id.clone()) {
+                return Err(changed());
+            }
+            let g = crate::policy::checked_lineage(&self.conn, &id)?;
+            current = g.parent_id.clone();
+            lineage.push(g);
+        }
+        let mut validators = Vec::new();
+        for def in &record.refs.validators {
+            let table = match def.reference.kind {
+                GoalValidatorKind::Integrity => "validation_policies",
+                GoalValidatorKind::Data => "data_validation_policies",
+                GoalValidatorKind::Command => "command_validation_policies",
+            };
+            let live: Value = raw(&self.conn, table, &def.reference.policy_id)?;
+            if live["revoked"] != false
+                || live["revision"] != def.reference.revision
+                || sha(&live)? != def.digest
+                || live != def.definition
+            {
+                return Err(changed());
+            }
+            let artifact =
+                |v: &Value| -> Result<Option<crate::integration::IntegrationArtifactBinding>> {
+                    if v.is_null() {
+                        return Ok(None);
+                    }
+                    Ok(Some(crate::integration::IntegrationArtifactBinding {
+                        canonical_root: serde_json::from_value(v["canonical_root"].clone())
+                            .map_err(|_| changed())?,
+                        root_device: v["root_device"].as_u64().ok_or_else(changed)?.to_string(),
+                        root_inode: v["root_inode"].as_u64().ok_or_else(changed)?.to_string(),
+                        requirement: serde_json::from_value(v["requirement"].clone())
+                            .map_err(|_| changed())?,
+                    }))
+                };
+            validators.push(crate::integration::IntegrationValidatorBinding {
+                reference: def.reference.clone(),
+                rule_id: def.rule_id.clone(),
+                definition_digest: def.digest.clone(),
+                definition_json: encode(&def.definition)?,
+                program: artifact(&def.definition["contract"]["program"])?,
+                script: artifact(&def.definition["contract"]["script"])?,
+            });
+        }
+        let root = root_task(&record).to_owned();
+        let (pc, pa, rc, ra) = counts(&self.conn, &task, &grant)?;
+        let pm = meter(
+            &self.conn,
+            &format!("project:{}", project.id),
+            &record.selection.project_budget,
+            pc,
+        )?;
+        let rm = meter(
+            &self.conn,
+            &format!("root-grant:{}", grant.root_grant_id),
+            &record.selection.root_budget,
+            rc,
+        )?;
+        let project_children:u32=self.conn.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND project_id=?1",[&project.id],|row|row.get(0)).map_err(db_error)?;
+        let root_children:u32=self.conn.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND json_extract(document,'$.root_grant_id')=?1",[&grant.root_grant_id],|row|row.get(0)).map_err(db_error)?;
+        let usage = |m: &MeterLedger, attempts, active, children| {
+            crate::integration::IntegrationBudgetUsage {
+                attempts,
+                active,
+                children,
+                runtime_ms: m.runtime_ms,
+                output_bytes: m.output_bytes,
+                tokens: m.tokens,
+                cost_microunits: m.cost_microunits,
+            }
+        };
+        let origin = record.factory_origin.as_ref();
+        Ok(crate::integration::IntegrationScopeMaterial {
+            task,
+            project,
+            workspace,
+            grant,
+            grant_lineage: lineage,
+            root_task_id: root.clone(),
+            factory_scope_id: origin.map(|x| x.factory_scope_id.clone()),
+            ancestors: origin.map_or_else(|| vec![root], |x| x.ancestors.clone()),
+            scope_id: record.id.clone(),
+            scope_revision: record.revision,
+            scope_digest: record.scope_digest.clone(),
+            root_budget: record.selection.root_budget.clone(),
+            project_budget: record.selection.project_budget.clone(),
+            inputs: record
+                .refs
+                .inputs
+                .iter()
+                .map(|i| {
+                    let mut a = i.artifact.clone();
+                    a.expected_sha256 = Some(i.sha256.clone());
+                    a
+                })
+                .collect(),
+            outputs: record.selection.outputs.clone(),
+            validators,
+            usage: crate::integration::IntegrationSharedUsage {
+                root: usage(&rm, rc, ra, root_children),
+                project: usage(&pm, pc, pa, project_children),
+            },
+            expires_at_ms: view.expires_at_ms,
+            workspace_ownership,
+        })
+    }
+    /// Historical authenticated acceptance is not current filesystem authority.
+    pub(crate) fn integration_verified_acceptance(
+        &self,
+        scope_id: &str,
+        task_id: &str,
+    ) -> Result<Option<GraphTaskAcceptance>> {
+        let task: Task = raw(&self.conn, "tasks", task_id)?;
+        if task.state != TaskState::Accepted {
+            return Ok(None);
+        }
+        let id = task.acceptance_ref.as_ref().ok_or_else(denied)?;
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_acceptances WHERE id=?1",[id],1,MAX_STORED_BYTES)?;
+        let text: String = self
+            .conn
+            .query_row(
+                "SELECT document FROM goal_graph_acceptances WHERE id=?1",
+                [id],
+                |row| row.get(0),
+            )
+            .map_err(db_error)?;
+        let expected: GraphTaskAcceptance = decode(&text)?;
+        let r = run(&self.conn, &expected.run_id)?;
+        let actual = verify_accepted_state(&self.conn, &r)?;
+        if actual.scope_id != scope_id || actual.task_id != task_id || encode(&actual)? != text {
+            return Err(changed());
+        }
+        Ok(Some(actual))
+    }
+}
