@@ -6901,7 +6901,15 @@
         "crates/workspaces/src/command_validation.rs",
         "crates/core/src/command_validation.rs",
         "crates/core/src/command_workers.rs",
-        "apps/desktop/src/CommandValidation.tsx"
+        "apps/desktop/src/CommandValidation.tsx",
+        "crates/core/src/integration.rs",
+        "crates/core/src/integration_reads.rs",
+        "crates/core/src/integration_runtime.rs",
+        "crates/core/src/integration_stage_workers.rs",
+        "crates/core/src/integration_settlement.rs",
+        "crates/workspaces/src/source_capture.rs",
+        "apps/desktop/src/TaskIntegration.tsx",
+        "apps/desktop/src-tauri/src/integration_approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -6909,7 +6917,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
+        "local_integration17_foundation_partial": "passed only source-attributed Core/migration/CAS and proposal preparation; full execution/Native/Mac remain unverified"
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -6929,7 +6938,9 @@
         "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
         "docs/execution/command-core/REVIEW.md",
         "docs/execution/command-integration/EVIDENCE.json",
-        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
+        "docs/execution/integration17-root-evidence/EVIDENCE.json",
+        "docs/execution/integration17-root-evidence/ROOT_CHECKPOINT.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -7007,6 +7018,17 @@
           "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
           "exact_new_mac_ci": "not_run_yet",
           "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
+        },
+        {
+          "slice": "schema17_authorized_integration_foundation_partial",
+          "source": "37492e905f2061e08a13e4569b30de5e14841965",
+          "Core_unit_unique": 179,
+          "source_attributed_migration_and_CAS": "see FOUNDATION_RESULTS; genuine16 ten includes original eight; CAS21 includes focusedfour",
+          "UI": "1059 mocked tests/58files at da997; no actual17 IPC/native proof",
+          "actual_supported_host_bootstrap": "27 real UnixIPCcalls; unconsumed integrationproposal; four tables zero; no targetfinalize",
+          "Native_tests_and_Mac": "not_run",
+          "full_integration": "incomplete; coordinatorP1, controlledpreparation, watcher, merged validators/CAS/recovery pending",
+          "overall_requirement": "incomplete"
         }
       ]
     },
