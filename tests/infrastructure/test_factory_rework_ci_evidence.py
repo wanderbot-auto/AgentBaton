@@ -1026,5 +1026,87 @@ class CaptureTimings(unittest.TestCase):
             reason_code='RESOURCE_LIMIT', automatic_retry=False))
 
 
+class PriorCaptureTimings(unittest.TestCase):
+    setUp = EventProjection.setUp
+    add = EventProjection.add
+    collected = EventProjection.collected
+    events = EventProjection.events
+    capture = EventProjection.capture
+
+    def timed(self, base=100):
+        return dict(self.capture(), **dict(zip(P.CAPTURE_TIMING_FIELDS,
+            (base, 4000, 10, 11, 12, 1))))
+
+    def test_block_keeps_only_two_latest_same_subject_source_before_both_bounds(self):
+        self.add(kind='goal.capture_settled', revision=2, sequence=10, payload=self.timed(100))
+        self.add(kind='goal.capture_settled', revision=4, sequence=20, payload=self.timed(200))
+        self.add(kind='goal.capture_settled', revision=6, sequence=30, payload=self.timed(300))
+        self.add(kind='goal.capture_settled', revision=8, sequence=99, payload=self.timed(400))
+        self.add(kind='goal.capture_settled', revision=10, sequence=40, payload=self.timed(500))
+        self.add(kind='goal.capture_settled', revision=8, sequence=41,
+                 subject='OTHER_'+SECRET, payload=self.timed(600))
+        self.add(kind='goal.capture_settled', revision=8, sequence=42,
+                 source=SECRET, payload=self.timed(700))
+        self.add(sequence=50)
+        before = {p.name: p.read_bytes() for p in self.f.case.iterdir()}
+        result = self.events()
+        self.assertEqual(len(result['events']), 1)
+        self.assertEqual(result['events'][0]['reason_code'], 'RESOURCE_LIMIT')
+        prior = result['prior_capture_settlements']
+        self.assertEqual([x['run_revision'] for x in prior], [4, 6])
+        self.assertEqual([x['event']['producer_elapsed_ms'] for x in prior], [200, 300])
+        for item in prior:
+            self.assertFalse(item['same_observed_revision'])
+            self.assertTrue(item['same_plan_not_established'])
+            self.assertFalse(item['event']['task_accepted'])
+            self.assertEqual(item['event']['capture_timing_status'], 'observed')
+        self.assertEqual(before, {p.name: p.read_bytes() for p in self.f.case.iterdir()})
+
+    def test_missing_old_capture_timings_remain_nullable_not_zero(self):
+        self.add(kind='goal.capture_settled', revision=8, payload=self.capture())
+        self.add()
+        event = self.events()['prior_capture_settlements'][0]['event']
+        self.assertTrue(all(event[k] is None for k in P.CAPTURE_TIMING_FIELDS))
+        self.assertEqual(event['capture_timing_status'], 'not_available')
+
+    def test_duplicate_prior_revision_refuses_ambiguous_history(self):
+        self.add(kind='goal.capture_settled', revision=8, payload=self.timed())
+        self.add(kind='goal.capture_settled', revision=8, payload=self.timed())
+        self.add()
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_selected_invalid_timing_refuses_without_publishing_private_values(self):
+        for field in P.CAPTURE_TIMING_FIELDS:
+            for value in (True, -1, 1.5, 1 << 64, SECRET, {SECRET: SECRET}):
+                with self.subTest(field=field, value_type=type(value).__name__):
+                    self.f.sql('DELETE FROM events')
+                    self.add(kind='goal.capture_settled', revision=8,
+                             payload=dict(self.timed(), **{field: value}))
+                    self.add()
+                    self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
+    def test_non_block_observation_does_not_request_capture_history(self):
+        self.add(kind='goal.capture_settled', revision=8, payload=self.timed())
+        self.add(kind='goal.capture_settled', payload=self.timed())
+        self.assertEqual(self.events()['prior_capture_settlements'], [])
+
+    def test_absent_factory_or_unobserved_reply_never_uses_cleanup_history(self):
+        self.add(kind='goal.capture_settled', revision=8, payload=self.timed())
+        self.add()
+        for changed in (dict(method='factory_runs.get', list_progress=None),
+                        dict(stage='request_begin', reply_object_supplied=False, list_progress=None)):
+            value = observation(); value.update(changed)
+            self.f.write('readonly-observation-last.json', value)
+            result = self.events()
+            self.assertEqual(result['status'], 'pending')
+            self.assertEqual(result['prior_capture_settlements'], [])
+
+    def test_no_prior_capture_is_explicit_empty_not_fabricated(self):
+        self.add()
+        result = self.events()
+        self.assertEqual(result['status'], 'collected_historical_events')
+        self.assertEqual(result['prior_capture_settlements'], [])
+
+
 if __name__ == '__main__':
     unittest.main()

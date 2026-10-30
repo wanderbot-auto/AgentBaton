@@ -428,7 +428,8 @@ def event_fields(event, subject, observed_plan_revision):
 def project_events(conn, observation):
     result = {'status': 'pending', 'code': 'unknown_not_available',
               'snapshot_time': 'post_owned_shutdown_not_deadline_instant',
-              'events': [], 'previous_node_settlement': None}
+              'events': [], 'previous_node_settlement': None,
+              'prior_capture_settlements': []}
     # A global IPC revision or Factory.get run is not a child Graph observation.
     if not (type(observation) is dict
             and observation.get('method') == 'factory_child_goals.list'
@@ -513,6 +514,35 @@ def project_events(conn, observation):
             result['previous_node_settlement'] = {'run_revision': prior_revision,
                 'same_observed_revision': False, 'same_plan_not_established': True,
                 'event': event_fields(event, subject, None)}
+    # A later admission refusal is not a capture event. Retain at most two
+    # earlier capture settlements from this exact private child subject, so
+    # producer/queue/join costs remain observable without relabelling history
+    # as the current revision, same plan, admission verdict or new authority.
+    if any(event['kind'] == 'goal.run_blocked' for event in result['events']):
+        prior = conn.execute(
+            "SELECT sequence,document FROM events WHERE "
+            "json_extract(document,'$.aggregate_id')=? "
+            "AND json_extract(document,'$.source')='goal_core' "
+            "AND json_extract(document,'$.kind')='goal.capture_settled' "
+            "AND json_extract(document,'$.revision')<? AND sequence<? "
+            "ORDER BY sequence DESC LIMIT 2", (subject, revision, first_sequence)).fetchall()
+        revisions = set()
+        for sequence, raw in reversed(prior):
+            integer(sequence, (1 << 63) - 1)
+            need(0 < sequence < first_sequence)
+            event = strict_json(raw)
+            need(type(event) is dict and event.get('aggregate_id') == subject
+                 and event.get('source') == 'goal_core'
+                 and event.get('kind') == 'goal.capture_settled')
+            earlier = integer(event.get('revision'), (1 << 63) - 1)
+            need(0 < earlier < revision and earlier not in revisions)
+            need(len(result['events']) + len(result['prior_capture_settlements'])
+                 < MAX_ASSOCIATED_EVENTS)
+            revisions.add(earlier)
+            result['prior_capture_settlements'].append({
+                'run_revision': earlier, 'same_observed_revision': False,
+                'same_plan_not_established': True,
+                'event': event_fields(event, subject, None)})
     unknown = any(event.get('reason_code') == 'unrecognized' for event in result['events'])
     result['status'] = 'pending' if unknown else 'collected_historical_events'
     result['code'] = 'unrecognized_reason' if unknown else 'same_observed_run_revision'
