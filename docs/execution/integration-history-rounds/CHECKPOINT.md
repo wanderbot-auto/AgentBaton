@@ -27,3 +27,9 @@ The first new fixture in `eb8c67b` was rejected as P2, NOT RUN. Do not run or ac
 Current new test SHA-256: `0729e720dcabecff6214a9e74d42c9f22768f7eb44357bd3e666a8c969c0a9c5`.
 
 Hand off the fixed commit to the same independent reviewer and Root. The previously listed Node commands apply to the fixed immutable source. No author Node, actual provider, Core, browser or IPC process has run. Positive history is an intended consumer DTO fixture, not observed target-advance or native authority evidence. No permission or production behavior changes are part of this revision.
+
+## HR-R2 final source checkpoint
+
+Do not use `81ae125` as validated evidence: its 8-attempt/40000ms limits failed the full three-round reservation precondition. The final test SHA-256 is `7d8952cd888516e0801d528c95607bc76a1e17b94248510b6979ab99fc9bc818`.
+
+Only the new mocked test and these four records changed again. Root-approved fixture limits 12/20000, stage reservations 2000ms and consumed 8/3625/120 are separate; all grant/selection/scope expiry fields use the fixed historical 30s domain. No application authorization was modified. Root should obtain the narrow review closure and run the four new cases plus original TaskIntegration cases on the final immutable revision. No author Node/Cargo/browser/IPC/network execution occurred.

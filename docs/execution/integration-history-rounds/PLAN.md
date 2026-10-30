@@ -19,3 +19,9 @@ ADR: retain the existing folded history and original record order. Each group na
 The initial `eb8c67b` fixture was independently rejected (P2), before Root integration or Node execution. Its completed attempts incorrectly used receipt outcomes as attempt states, and inherited a one-round policy, empty shared ledger and unstarted run/fence fields. Correct only the new test and these four records. Keep the production component and existing tests unchanged.
 
 Use independent three-round consumer DTO mocks: legal `finished` attempts; false/false/true receipt outcomes; three preparation stages, three validators and one CAS; one earlier Graph Work in shared usage. For unknown, retain the first two observed receipts, six attempts including the unsettled third validator, no CAS, unknown fence and no manufactured current receipt. These are consumer-contract fixtures for the intended retained-round history, not proof that Core has executed target drift or approved this policy.
+
+## HR-R2: complete worst-case reservation bounds
+
+Independent follow-up review rejected `81ae125` for its remaining mock budget mismatch: Core approval reserves `(validator_count + 2) * max_rounds` attempts and the sum of all stage reservations times max_rounds. Three rounds of three 5000ms stages require 9 attempts/45000ms, exceeding that revision's 8/40000 limits. Preserve that P2 history.
+
+Use Root's approved fixture-only correction: all three stage reservations 2000ms; root/project limits 12 attempts/20000ms; consumed ledger stays 8 attempts/3625ms/120B. Align selection TTL, policy expiry, bound Goal scope expiry and original grant duration/expiry to a fixed historical 30-second domain. No live permission or existing policy is enlarged.

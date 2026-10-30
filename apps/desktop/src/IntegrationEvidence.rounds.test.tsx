@@ -9,10 +9,11 @@ import type { IntegrationAttemptView,IntegrationPolicy,IntegrationRunView,Integr
 /** Consumer-contract mocks, not observed Core history or approval/target-drift proof. */
 function historyFixture():{policy:IntegrationPolicy;view:IntegrationRunView}{
  const f=integrationFixture();
- const budget={...f.policy.bindings.root_budget,attempts:8,runtime_ms:40000,reworks:2};
- const reservation={...f.reservation,runtime_ms:5000};
+ const budget={...f.policy.bindings.root_budget,attempts:12,runtime_ms:20000,reworks:2};
+ const reservation={...f.reservation,runtime_ms:2000};
+ const expiresAt=Date.parse(f.policy.created_at)+30000;
  // An independent three-round fixture; never mutate the shared one-round policy.
- const policy:IntegrationPolicy={...f.policy,selection:{...f.policy.selection,max_rounds:3,on_target_advance:'bounded_descendant_reprepare',stage_reservations:{preparation:{...reservation},validators:[{validator:f.validator,reservation:{...reservation}}],cas:{...reservation}}},bindings:{...f.policy.bindings,root_budget:{...budget},project_budget:{...budget}}};
+ const policy:IntegrationPolicy={...f.policy,selection:{...f.policy.selection,ttl_ms:30000,max_rounds:3,on_target_advance:'bounded_descendant_reprepare',stage_reservations:{preparation:{...reservation},validators:[{validator:f.validator,reservation:{...reservation}}],cas:{...reservation}}},expires_at_ms:expiresAt,bindings:{...f.policy.bindings,goal_scope_expires_at_ms:expiresAt,grant_lineage:f.policy.bindings.grant_lineage.map(grant=>({...grant,expires_at_ms:expiresAt,scope:{...grant.scope,max_duration_ms:30000}})),root_budget:{...budget},project_budget:{...budget}}};
  const receipt=(attemptId:string,round:number,passed:boolean,commit:string,tree:string,sequence:number):IntegrationValidationReceipt=>({
   attempt_id:attemptId,round,validator:f.validator,definition_digest:'d'.repeat(64),
   integration_commit:commit,integration_tree:tree,result_digest:String(round).repeat(64),passed,
@@ -41,6 +42,8 @@ describe('Integration round history, mocked renderer records only',()=>{
  it.each(['en','zh'] as const)('keeps failed earlier candidates beside the confirmed round in %s',async language=>{
   const {policy,view}=historyFixture(),original=JSON.stringify(view),t=integrationMessages[language];
   expect(policy.selection.max_rounds).toBe(3);expect(view.attempts).toHaveLength(7);
+  expect(policy.bindings.root_budget).toMatchObject({attempts:12,runtime_ms:20000});
+  expect(policy.selection.ttl_ms).toBe(30000);expect(policy.expires_at_ms-Date.parse(policy.created_at)).toBe(30000);
   expect(view.shared_usage.root).toMatchObject({attempts:8,active:0,runtime_ms:3625,output_bytes:120,tokens:null,cost_microunits:null});
   render(<IntegrationRunEvidence view={view} language={language}/>);
   await userEvent.setup().click(screen.getByText(t.receipt,{selector:'summary'}));
