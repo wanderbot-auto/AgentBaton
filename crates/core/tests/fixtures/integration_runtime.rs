@@ -3563,6 +3563,118 @@ fn third_real_descendant_advance_exhausts_rounds_without_fourth_preparation_or_c
 // move the actual approved ref, then withdraw authority before releasing it.
 // They prove running-validator withdrawal with actual drift, not withdrawal
 // after the process has stopped or while the private postprobe is queued.
+fn withdrawal_readonly(runtime: &Path, deadline: Instant) -> Connection {
+    assert!(Instant::now() < deadline, "withdrawal read open deadline");
+    let db = Connection::open_with_flags(
+        runtime.join("baton.sqlite3"),
+        OpenFlags::SQLITE_OPEN_READ_ONLY,
+    )
+    .unwrap();
+    db.busy_timeout(Duration::ZERO).unwrap();
+    db.execute_batch("PRAGMA query_only=ON;").unwrap();
+    assert!(Instant::now() < deadline, "withdrawal read setup deadline");
+    db
+}
+fn withdrawal_live_snapshot(runtime: &Path, id: &Value, deadline: Instant) -> Value {
+    let db = withdrawal_readonly(runtime, deadline);
+    db.execute_batch("BEGIN;").unwrap();
+    let run: String = db.query_row("SELECT CASE WHEN octet_length(document)<=16384 THEN document END FROM integrations WHERE id=?1", [id.as_str().unwrap()], |r| r.get(0)).unwrap();
+    let run: Value = serde_json::from_str(&run).unwrap();
+    assert_eq!(run["id"], *id);
+    let attempts = {
+        let mut q = db.prepare("SELECT CASE WHEN octet_length(document)<=16384 THEN document END FROM integration_attempts WHERE integration_id=?1 ORDER BY round,kind LIMIT 3").unwrap();
+        let rows = q
+            .query_map([id.as_str().unwrap()], |r| r.get::<_, String>(0))
+            .unwrap()
+            .map(|r| {
+                let doc: Value = serde_json::from_str(&r.unwrap()).unwrap();
+                assert_eq!(doc["integration_id"], *id);
+                doc["view"].clone()
+            })
+            .collect::<Vec<_>>();
+        rows
+    };
+    db.execute_batch("ROLLBACK;").unwrap();
+    assert!(
+        Instant::now() < deadline,
+        "withdrawal live snapshot deadline"
+    );
+    json!({"run":run,"attempts":attempts})
+}
+fn wait_withdrawal_commit(
+    runtime: &Path,
+    aggregate: &Value,
+    revision: u64,
+    kind: &str,
+    deadline: Instant,
+) {
+    let db = withdrawal_readonly(runtime, deadline);
+    loop {
+        assert!(
+            Instant::now() < deadline,
+            "withdrawal commit not observed within original Host bound"
+        );
+        // Autocommit SELECT gives a fresh bounded snapshot each time and releases
+        // its read lock before yielding. No Actor RPC, write, migration or cache.
+        let rows = (|| -> rusqlite::Result<Vec<String>> {
+            let mut q = db.prepare("SELECT CASE WHEN octet_length(document)<=16384 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='integration_core' AND json_extract(document,'$.kind')=?2 AND json_extract(document,'$.revision')=?3 LIMIT 2")?;
+            let rows = q
+                .query_map(
+                    rusqlite::params![
+                        aggregate.as_str().unwrap(),
+                        kind,
+                        i64::try_from(revision).unwrap()
+                    ],
+                    |r| r.get::<_, String>(0),
+                )?
+                .collect();
+            rows
+        })();
+        match rows {
+            Ok(rows) => {
+                assert!(rows.len() <= 1, "duplicate exact withdrawal event");
+                if let Some(raw) = rows.first() {
+                    let event: Value = serde_json::from_str(raw).unwrap();
+                    assert_eq!(event["aggregate_id"], *aggregate);
+                    assert_eq!(event["revision"], revision);
+                    assert_eq!(event["kind"], kind);
+                    assert_eq!(event["source"], "integration_core");
+                    if kind == "integration.policy_revoked" {
+                        assert_eq!(event["payload"]["policy_id"], *aggregate);
+                        assert_eq!(event["payload"]["new_dispatch"], false);
+                    } else {
+                        assert_eq!(event["payload"]["new_dispatch"], false);
+                        assert_eq!(event["payload"]["owned_workers_require_join"], true);
+                    }
+                    assert!(
+                        Instant::now() < deadline,
+                        "withdrawal event read exceeded Host bound"
+                    );
+                    return;
+                }
+            }
+            Err(rusqlite::Error::SqliteFailure(code, _))
+                if matches!(
+                    code.code,
+                    rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked
+                ) =>
+            {
+                ()
+            }
+            Err(_) => panic!("withdrawal fresh readonly observation failed"),
+        }
+        std::thread::sleep(Duration::from_millis(1));
+    }
+}
+fn withdrawal_phase(phase: &str, deadline: Instant) {
+    eprintln!(
+        "withdrawal-host-phase={phase} remaining_us={}",
+        deadline
+            .saturating_duration_since(Instant::now())
+            .as_micros()
+    );
+}
+
 fn assert_withdrawal_during_actual_target_drift(revoke: bool) {
     let mut f = RuntimeFixture::with_attempt_limit(12);
     let ready = f.owner_ready();
@@ -3584,13 +3696,10 @@ fn assert_withdrawal_during_actual_target_drift(revoke: bool) {
     let id = start["run"]["id"].clone();
     let (leader, host_deadline) = gate.next_owned_validator();
     assert!(Instant::now() < host_deadline);
-    let live = rpc(
-        &f.server,
-        "integrations.get",
-        json!({"integration_id":id}),
-        None,
-        None,
-    );
+    // Test-host readonly snapshot replaces only this observation RPC. Owner
+    // writes and later terminal/public reads remain actual authenticated IPC.
+    let live = withdrawal_live_snapshot(&f.server.runtime, &id, host_deadline);
+    withdrawal_phase("live_snapshot", host_deadline);
     assert!(Instant::now() < host_deadline);
     assert_eq!(live["run"]["round"], 1);
     assert_eq!(live["run"]["active_stage"], "validator");
@@ -3598,35 +3707,53 @@ fn assert_withdrawal_during_actual_target_drift(revoke: bool) {
     assert_eq!(live["attempts"][1]["settled"], false);
     let advanced = advance_owned_test_target(&f, &f.initial_target, 1, host_deadline);
     assert!(Instant::now() < host_deadline);
-    let withdrawal = if revoke {
-        let revoked = rpc(
-            &f.server,
-            "integration_policies.revoke",
-            json!({"policy_id":policy["id"]}),
-            Some("revoke-during-owned-target-drift"),
-            Some(policy["revision"].clone()),
-        );
-        assert_eq!(revoked["id"], policy["id"]);
-        assert_eq!(revoked["revoked"], true);
-        assert_eq!(revoked["revision"], 2);
-        revoked
+    withdrawal_phase("target_advanced", host_deadline);
+    let frame = if revoke {
+        json!({"method":"integration_policies.revoke","params":{"policy_id":policy["id"]},"idempotency_key":"revoke-during-owned-target-drift","expected_revision":policy["revision"]})
     } else {
-        let cancelled = rpc(
-            &f.server,
-            "integrations.cancel",
-            json!({"integration_id":id}),
-            Some("cancel-during-owned-target-drift"),
-            Some(live["run"]["revision"].clone()),
-        );
-        assert_eq!(cancelled["run"]["cancel_requested"], true);
-        assert_eq!(cancelled["run"]["state"], "cancel_requested");
-        assert_eq!(cancelled["attempts"][1]["settled"], false);
-        cancelled
+        json!({"method":"integrations.cancel","params":{"integration_id":id},"idempotency_key":"cancel-during-owned-target-drift","expected_revision":live["run"]["revision"]})
     };
-    assert!(Instant::now() < host_deadline);
-    // The kernel command may already have been killed by the Actor. Writing
-    // the held FIFO is only a release, never a stop or exit acknowledgement.
-    gate.release(host_deadline);
+    let runtime = f.server.runtime.clone();
+    let request_started = Instant::now();
+    let withdrawal = std::thread::scope(|scope| {
+        // The scope consumes this one original IPC caller on success and panic;
+        // no detached thread, replay or extra product request is introduced.
+        let owner = scope.spawn(|| agentbaton_core::ipc::call(&runtime, frame));
+        let (aggregate, revision, kind) = if revoke {
+            (&policy["id"], 2, "integration.policy_revoked")
+        } else {
+            (
+                &id,
+                live["run"]["revision"]
+                    .as_u64()
+                    .unwrap()
+                    .checked_add(1)
+                    .unwrap(),
+                "integration.cancel_requested",
+            )
+        };
+        wait_withdrawal_commit(&f.server.runtime, aggregate, revision, kind, host_deadline);
+        withdrawal_phase("owner_write_committed", host_deadline);
+        // A committed withdrawal is not a stop acknowledgement. Release stays
+        // inside the original 500ms Host bound; reply delivery need not do so.
+        gate.release(host_deadline);
+        withdrawal_phase("fifo_released", host_deadline);
+        let reply = owner.join().unwrap().unwrap();
+        assert!(
+            request_started.elapsed() < Duration::from_secs(5),
+            "original Owner IPC reply observation expired"
+        );
+        result(reply)
+    });
+    if revoke {
+        assert_eq!(withdrawal["id"], policy["id"]);
+        assert_eq!(withdrawal["revoked"], true);
+        assert_eq!(withdrawal["revision"], 2);
+    } else {
+        assert_eq!(withdrawal["run"]["cancel_requested"], true);
+        assert_eq!(withdrawal["run"]["state"], "cancel_requested");
+        assert_eq!(withdrawal["attempts"][1]["settled"], false);
+    }
     let stopped = observe(
         &f.server,
         "integrations.get",
@@ -3690,6 +3817,10 @@ fn assert_withdrawal_during_actual_target_drift(revoke: bool) {
     );
     assert_eq!(view["process_started"], true);
     assert_eq!(view["passed"], false);
+    assert_ne!(
+        view["reason"], "deadline_exceeded",
+        "deadline expiry is not verification of timely Owner withdrawal"
+    );
     assert_eq!(view["cleanup_completed_within_budget"], true);
     assert_eq!(view["cleanup"]["owned_leader_reaped"], true);
     assert_eq!(view["cleanup"]["all_capture_pipes_observed_eof"], true);
