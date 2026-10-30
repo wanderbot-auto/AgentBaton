@@ -57,7 +57,7 @@ def report():
     next(row for row in value['checks'] if row['id'] == 'WSI-B05').update(execution_authorized=False, confirmed_selection_steps=4, completed_task_get_responses=4)
     next(row for row in value['checks'] if row['id'] == 'WSI-B06').update(execution_authorized=False, prepare_requests=2, response_drops=1,
         parent_refresh_recovery=True, same_component_retained=True, fresh_task_read=True, fresh_scope_lists=True,
-        locked_own_workspace=True, old_tasks_unchanged=True, source_unchanged=True, exact_replay_no_rows=True, no_execution_or_grants=True)
+        locked_own_workspace=True, old_tasks_unchanged=True, old_workspaces_unchanged=True, source_unchanged=True, exact_replay_no_rows=True, no_execution_or_grants=True)
     for name in P.PNG_NAMES:
         kind = 'mobile' if 'mobile' in name else 'desktop'
         value['screenshots'].append({'name': name, 'sha256': P.sha(IMAGES[kind]),
@@ -175,7 +175,7 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
 
     def test_b06_requires_strict_real_recovery_proof_fields_not_truthy_or_old_b05(self):
         fields = ['parent_refresh_recovery', 'same_component_retained', 'fresh_task_read', 'fresh_scope_lists',
-                  'locked_own_workspace', 'old_tasks_unchanged', 'source_unchanged', 'exact_replay_no_rows', 'no_execution_or_grants']
+                  'locked_own_workspace', 'old_tasks_unchanged', 'old_workspaces_unchanged', 'source_unchanged', 'exact_replay_no_rows', 'no_execution_or_grants']
         for field, invalid in [(key, 1) for key in fields] + [('execution_authorized', 0),
                                 ('prepare_requests', 2.0), ('prepare_requests', 1), ('response_drops', True), ('response_drops', 0)]:
             with self.subTest(field=field, invalid=invalid):
@@ -186,6 +186,17 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
         row.pop('same_component_retained'); self.write(value)
         code, result, out = self.run_projection()
         self.assertEqual(code, 0); self.assertEqual(result['status'], 'failed'); self.assert_no_images(out)
+
+    def test_b06_requires_explicit_old_worktree_fs_proof_not_only_old_task_records(self):
+        for missing, value in [(False, False), (False, 1), (True, None)]:
+            report_value = report()
+            proof = next(row for row in report_value['checks'] if row['id'] == 'WSI-B06')
+            if missing:
+                proof.pop('old_workspaces_unchanged')
+            else:
+                proof['old_workspaces_unchanged'] = value
+            self.write(report_value); code, result, out = self.run_projection()
+            self.assertEqual(code, 0); self.assertEqual(result['status'], 'failed'); self.assert_no_images(out)
 
     def test_new_recovery_screenshot_pair_required_and_private_http_fields_not_published(self):
         value = self.write()

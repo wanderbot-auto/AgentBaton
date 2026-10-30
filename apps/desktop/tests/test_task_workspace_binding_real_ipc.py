@@ -380,6 +380,107 @@ class ManagedFixturePathTests(unittest.TestCase):
         self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
 
 
+class ManagedWorktreeImageTests(unittest.TestCase):
+    """Owned bounded temporary trees only; no actual Core or Git process."""
+    def setUp(self):
+        ManagedFixturePathTests.setUp(self)
+
+    def image(self):
+        return self.guard.image(self.binding, 'task-one')
+
+    def test_bytes_empty_directories_and_git_backlink_are_included_but_shared_git_target_is_not(self):
+        (self.work / 'empty').mkdir()
+        (self.work / 'empty-file').touch()
+        (self.work / 'own-output.txt').write_bytes(b'only Task one')
+        common = self.root / 'source' / '.git'
+        (common / 'worktrees').mkdir(parents=True)
+        (self.work / '.git').write_text('gitdir: ' + str(common / 'worktrees' / 'one'))
+        before = self.image()
+        self.assertEqual(set(before), {'.git', 'input.txt', 'empty', 'empty-file', 'own-output.txt'})
+        self.assertEqual(before['.git']['sha256'], h.sha((self.work / '.git').read_bytes()))
+        self.assertEqual(before['empty-file']['bytes'], 0)
+        (common / 'worktrees' / 'third').mkdir()
+        (common / 'worktrees' / 'third' / 'HEAD').write_bytes(b'expected shared metadata growth')
+        self.assertEqual(self.image(), before)
+
+    def test_working_file_backlink_added_removed_or_changed_entry_changes_full_image(self):
+        before = self.image()
+        for name, data in [('input.txt', b'different committed content'), ('.git', b'changed backlink'),
+                           ('own-output.txt', b'new work output')]:
+            (self.work / name).write_bytes(data)
+            after = self.image()
+            self.assertNotEqual(after, before)
+            before = after
+        (self.work / 'input.txt').unlink()
+        self.assertNotEqual(self.image(), before)
+
+    def test_file_directory_and_git_symlinks_refuse_without_hashing_any_external_entry(self):
+        for name in ['linked-file', 'linked-directory', '.git']:
+            if name == '.git':
+                (self.work / name).unlink()
+            target = self.external if name == 'linked-directory' else self.external / 'preserve'
+            (self.work / name).symlink_to(target, target_is_directory=name == 'linked-directory')
+            with patch.object(h, 'file_digest', wraps=h.file_digest) as reader:
+                with self.assertRaises(ValueError):
+                    self.image()
+                self.assertNotIn(name, [call.args[0] for call in reader.call_args_list])
+            (self.work / name).unlink()
+            self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
+
+    def test_hardlink_and_foreign_receipt_refuse_before_content_read(self):
+        import os
+        os.link(self.external / 'preserve', self.work / 'hardlink')
+        with patch.object(h, 'file_digest', wraps=h.file_digest) as reader:
+            with self.assertRaises(ValueError):
+                self.image()
+            self.assertNotIn('hardlink', [call.args[0] for call in reader.call_args_list])
+        bad = copy.deepcopy(self.binding); bad['managed_pin']['canonical_root'] = str(self.external)
+        with self.assertRaises(ValueError):
+            self.guard.image(bad, 'task-one')
+
+    def test_oversized_file_and_entry_list_refuse_before_file_read(self):
+        with (self.work / 'large').open('wb') as stream:
+            stream.truncate(64 * 1024 * 1024 + 1)  # sparse, no large read/write
+        with patch.object(h, 'file_digest', wraps=h.file_digest) as reader:
+            with self.assertRaises(ValueError):
+                self.image()
+            self.assertNotIn('large', [call.args[0] for call in reader.call_args_list])
+        with patch.object(h.os, 'listdir', return_value=['x'] * 4097), patch.object(h, 'file_digest') as reader:
+            with self.assertRaises(ValueError):
+                self.image()
+            reader.assert_not_called()
+
+    def test_file_swapped_to_external_hardlink_before_open_is_refused_before_hashing(self):
+        import os
+        original = h.file_digest
+        def swapped(name, *args, **kwargs):
+            self.assertEqual(name, '.git')  # First exact directory entry.
+            (self.work / name).unlink()
+            os.link(self.external / 'preserve', self.work / name)
+            return original(name, *args, **kwargs)
+        with patch.object(h, 'file_digest', side_effect=swapped), patch.object(h.hashlib, 'sha256', side_effect=AssertionError('No external bytes may be hashed')):
+            with self.assertRaises(ValueError):
+                self.image()
+        self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
+
+    def test_change_after_hash_is_not_a_stable_snapshot(self):
+        original = h.file_digest
+        def changing(name, *args, **kwargs):
+            result = original(name, *args, **kwargs)
+            if name == 'input.txt':
+                (self.work / 'input.txt').write_bytes(b'changed after content hash')
+            return result
+        with patch.object(h, 'file_digest', side_effect=changing):
+            with self.assertRaises(ValueError):
+                self.image()
+
+    def test_existing_digest_default_still_rejects_empty_regular_file(self):
+        (self.work / 'empty').touch()
+        with self.assertRaises(ValueError):
+            h.file_digest(self.work / 'empty')
+        self.assertEqual(self.image()['empty']['sha256'], h.sha(b''))
+
+
 class ExpectedSourceHeadTests(unittest.TestCase):
     # Reuse only the inert filesystem fixture setup, not duplicate its test cases.
     def setUp(self):

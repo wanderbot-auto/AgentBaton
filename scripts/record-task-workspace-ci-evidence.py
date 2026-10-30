@@ -242,7 +242,7 @@ def project(report, report_hash, expected, harness):
                    and type(row.get('response_drops')) is int and row['response_drops'] == 1
                    and all(row.get(key) is True for key in (
                        'parent_refresh_recovery', 'same_component_retained', 'fresh_task_read', 'fresh_scope_lists',
-                       'locked_own_workspace', 'old_tasks_unchanged', 'source_unchanged', 'exact_replay_no_rows',
+                       'locked_own_workspace', 'old_tasks_unchanged', 'old_workspaces_unchanged', 'source_unchanged', 'exact_replay_no_rows',
                        'no_execution_or_grants')))
     scenarios = report.get('scenarios')
     require(type(scenarios) is dict and set(scenarios) == set(CASES))

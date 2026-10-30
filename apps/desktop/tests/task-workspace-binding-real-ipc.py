@@ -83,11 +83,14 @@ def private_json(path, value):
         os.fsync(stream.fileno())
 
 
-def file_digest(path, limit=134_217_728):
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+def file_digest(path, limit=134_217_728, *, dir_fd=None, allow_empty=False, expected_identity=None):
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=dir_fd)
     with os.fdopen(fd, 'rb') as stream:
         before = os.fstat(stream.fileno())
-        require(stat.S_ISREG(before.st_mode) and 0 < before.st_size <= limit)
+        require(stat.S_ISREG(before.st_mode) and (0 if allow_empty else 1) <= before.st_size <= limit)
+        require(expected_identity is None or expected_identity == (
+            before.st_dev, before.st_ino, before.st_mode, before.st_uid, before.st_nlink,
+            before.st_size, before.st_mtime_ns, before.st_ctime_ns))
         h = hashlib.sha256()
         while block := stream.read(1_048_576):
             h.update(block)
@@ -246,6 +249,52 @@ class ManagedFixturePaths:
         path = self.workspace(binding, task_id)
         pin = binding['managed_pin']
         return self.directory_fd(path, (int(pin['device']), int(pin['inode'])))
+
+    def image(self, binding, task_id):
+        """Bounded own-worktree bytes, including the .git file, never its target.
+
+        Shared common-dir refs/worktrees legitimately grow when Task3 is prepared;
+        they are outside these two generated worktree roots and are not traversed.
+        """
+        rows, total = {}, 0
+        def pin(info):
+            return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_nlink,
+                    info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+        def visit(fd, prefix):
+            nonlocal total
+            before = os.fstat(fd)
+            require(stat.S_ISDIR(before.st_mode) and before.st_uid == os.geteuid())
+            names = os.listdir(fd)
+            require(len(names) <= 4096)
+            for name in sorted(names):
+                require(type(name) is str and name not in ('', '.', '..') and '/' not in name)
+                relative = prefix + name
+                require(len(relative.encode()) <= 4096 and len(rows) < 4096)
+                info = os.stat(name, dir_fd=fd, follow_symlinks=False)
+                require(info.st_uid == os.geteuid())
+                if stat.S_ISDIR(info.st_mode):
+                    child = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                    try:
+                        require(pin(os.fstat(child)) == pin(info))
+                        rows[relative] = {'directory': True, 'pin': pin(info)}
+                        visit(child, relative + '/')
+                    finally:
+                        os.close(child)
+                else:
+                    require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1)
+                    total += info.st_size
+                    require(total <= 64 * 1024 * 1024)
+                    rows[relative] = {**file_digest(name, 64 * 1024 * 1024, dir_fd=fd, allow_empty=True, expected_identity=pin(info)), 'pin': pin(info)}
+                require(pin(os.stat(name, dir_fd=fd, follow_symlinks=False)) == pin(info))
+            require(pin(os.fstat(fd)) == pin(before) and sorted(os.listdir(fd)) == sorted(names))
+        fd = self.workspace_fd(binding, task_id)
+        try:
+            visit(fd, '')
+            self.workspace(binding, task_id)
+            require('.git' in rows and rows['.git'].get('directory') is not True)
+            return rows
+        finally:
+            os.close(fd)
 
     def committed_input(self, binding, task_id):
         fd = self.workspace_fd(binding, task_id)
@@ -867,6 +916,7 @@ def run(args, binary, frontend, attribution, output):
         boundary.tasks[third['id']] = third
         entry_before = db_image(runtime)
         old_tasks = [result('tasks.get', {'task_id': task['id']}) for task in tasks]
+        old_workspace_images = [fixture_paths.image(binding, task['id']) for binding, task in zip((b1, b2), tasks)]
         drop.update(task=third['id'], done=False)
         card = page.get_by_test_id('task-card').filter(has_text=third['goal'])
         expect(card).to_have_count(1)
@@ -933,6 +983,8 @@ def run(args, binary, frontend, attribution, output):
         require(db_image(runtime) == third_before_recovery, 'Exact entry recovery changed durable rows/events')
         require(exact(result('tasks.get', {'task_id': third['id']}), third_ready))
         require(all(exact(result('tasks.get', {'task_id': old['id']}), old) for old in old_tasks), 'Entry changed either older Task binding')
+        require([fixture_paths.image(binding, task['id']) for binding, task in zip((b1, b2), tasks)] == old_workspace_images,
+                'Entry changed an older managed worktree file or .git backlink')
         require(source_image(source, git) == baseline_source, 'Entry changed registered Git source')
         require(all(e['method'] in {*READS.values(), 'events.subscribe', 'tasks.get', 'workspaces.resolve', 'workspaces.list', 'grants.list', 'workspaces.prepare_task_git'}
                     for e in report['http'][entry_start:]), 'Entry attempted an execution/authority write')
@@ -940,7 +992,7 @@ def run(args, binary, frontend, attribution, output):
         report['entry_read_proofs'] = {'task': fresh_proof, 'scope': scope_proof}
         passed('WSI-B06', 'unbound Git Task prepares through execution dialog; parent refresh preserves exact-key recovery without execution',
                **replay_proof, parent_refresh_recovery=True, same_component_retained=True, fresh_task_read=True,
-               fresh_scope_lists=True, locked_own_workspace=True, old_tasks_unchanged=True, source_unchanged=True,
+               fresh_scope_lists=True, locked_own_workspace=True, old_tasks_unchanged=True, old_workspaces_unchanged=True, source_unchanged=True,
                exact_replay_no_rows=True, no_execution_or_grants=True)
         dialog.get_by_role('button', name='Close', exact=True).click()
         expect(dialog).to_have_count(0)
