@@ -495,6 +495,12 @@ impl Daemon {
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
             }
+            // A genuinely finished integration stage need not wait behind the
+            // full Factory/Goal frontier scans to consume its original join.
+            // This keeps the existing supervisor/owned-worker pass above and
+            // runs all ordinary stage checks; no armed-policy scan occurs here.
+            self.integration_workers
+                .tick_finished_stage(&mut self.store)?;
             #[cfg(debug_assertions)]
             let factory_clock = Instant::now();
             #[cfg(debug_assertions)]
@@ -502,6 +508,9 @@ impl Daemon {
             self.tick_factory()?;
             #[cfg(debug_assertions)]
             self.trace_goal_stage("factory_tick_end", Some(factory_clock.elapsed()), 0, None);
+            // The original worker may have finished during Factory work.
+            self.integration_workers
+                .tick_finished_stage(&mut self.store)?;
             #[cfg(debug_assertions)]
             let goal_clock = Instant::now();
             #[cfg(debug_assertions)]
