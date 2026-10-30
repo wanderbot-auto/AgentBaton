@@ -526,6 +526,114 @@ pub fn create_isolated(
     inspect(&destination)
 }
 
+/// Same isolated-worktree checks, with the original trusted host stage clock.
+/// Consult control.preparation_io even on Err: private worktree/object effects
+/// may already exist. Nothing resets/removes source or silently retries.
+pub fn create_isolated_controlled(
+    source: &Path,
+    managed_root: &Path,
+    name: &str,
+    commit: &str,
+    control: &adoption::AdoptionControl<'_>,
+) -> Result<WorkspaceIdentity, WorkspaceError> {
+    let control = control.narrowed(Instant::now() + Duration::from_secs(15));
+    control.check()?;
+    if name.is_empty()
+        || name.starts_with('.')
+        || !name
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+        || !is_oid(commit)
+    {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let source = inspect_controlled(source, &control)?;
+    if !matches!(source.kind, WorkspaceKind::Git { .. }) {
+        return Err(WorkspaceError::NotRepository);
+    }
+    control.check()?;
+    let managed_root = fs::canonicalize(managed_root)?;
+    control.check()?;
+    if !managed_root.is_dir() || managed_root.starts_with(&source.canonical_root) {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let destination = managed_root.join(name);
+    if destination.symlink_metadata().is_ok() {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    // Exact original config declaration probes, all under the same control.
+    let includes = output_with_control(
+        git_command(&source.canonical_root).args([
+            "config",
+            "--no-includes",
+            "--get-regexp",
+            "^include(if\\..*)?\\.path$",
+        ]),
+        Some(&control),
+    )?;
+    if includes.status.success() {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    if includes.status.code() != Some(1) {
+        return Err(WorkspaceError::NotRepository);
+    }
+    let partial = output_with_control(
+        git_command(&source.canonical_root).args([
+            "config",
+            "--get-regexp",
+            "^(extensions\\.partialclone|remote\\..*\\.promisor)$",
+        ]),
+        Some(&control),
+    )?;
+    if partial.status.success() || partial.status.code() != Some(1) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    let filters = output_with_control(
+        git_command(&source.canonical_root).args(["config", "--get-regexp", "^filter\\."]),
+        Some(&control),
+    )?;
+    if filters.status.success() || filters.status.code() != Some(1) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    let verified = output_with_control(
+        git_command(&source.canonical_root).args([
+            "rev-parse",
+            "--verify",
+            &format!("{commit}^{{commit}}"),
+        ]),
+        Some(&control),
+    )?;
+    if !verified.status.success()
+        || !String::from_utf8(verified.stdout)
+            .map_err(|_| WorkspaceError::InvalidPath)?
+            .trim()
+            .eq_ignore_ascii_case(commit)
+    {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    control.check()?;
+    control.note_effects();
+    let result = output_with_control(
+        git_command(&source.canonical_root).args([
+            OsStr::new("worktree"),
+            OsStr::new("add"),
+            OsStr::new("--detach"),
+            OsStr::new("--"),
+            destination.as_os_str(),
+            OsStr::new(commit),
+        ]),
+        Some(&control),
+    )?;
+    if !result.status.success() {
+        return Err(WorkspaceError::Git(
+            "controlled isolated checkout rejected".into(),
+        ));
+    }
+    let identity = inspect_controlled(&destination, &control)?;
+    control.check()?;
+    Ok(identity)
+}
+
 /// Check immediately before adoption; this is evidence, not an atomic merge or authorization.
 /// The caller must fence writes and recheck the exact head during the eventual integration.
 pub fn check_adoption(
@@ -811,6 +919,7 @@ pub(crate) fn controlled_output(
     use std::os::unix::process::CommandExt;
     control.check()?;
     let started = Instant::now();
+    control.note_git_attempt();
     let child = command
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
@@ -875,6 +984,7 @@ pub(crate) fn controlled_output(
     };
     stdout.pipe.take();
     stderr.pipe.take();
+    control.note_git_io(&io);
     Ok(ControlledGitOutput {
         output: Output {
             status,
@@ -886,6 +996,25 @@ pub(crate) fn controlled_output(
     })
 }
 
+/// Controlled-only runner sharing the original clock and IO observations.
+/// None preserves the established default runner and result classification.
+fn output_with_control(
+    command: &mut Command,
+    control: Option<&adoption::AdoptionControl<'_>>,
+) -> Result<Output, WorkspaceError> {
+    match control {
+        None => bounded_output(command),
+        Some(control) => {
+            control.check()?;
+            let result = controlled_output(command, control)?;
+            control.check()?;
+            if result.interrupted || !result.io.io_complete() {
+                return Err(WorkspaceError::ResourceLimit);
+            }
+            Ok(result.output)
+        }
+    }
+}
 /// Git-only inspection under one original monotonic control. The ordinary
 /// public inspect API is unchanged. Every existing safety predicate is retained.
 pub(crate) fn inspect_controlled(

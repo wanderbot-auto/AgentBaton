@@ -112,18 +112,70 @@ impl ControlledIntegrationResult {
 pub struct AdoptionControl<'a> {
     cancel: &'a std::sync::atomic::AtomicBool,
     deadline: std::time::Instant,
+    started: std::time::Instant,
+    preparation: std::sync::Arc<std::sync::Mutex<PreparationFacts>>,
 }
+#[derive(Default)]
+struct PreparationFacts {
+    git_calls_attempted: u64,
+    git_calls_complete: u64,
+    stdout_lower_bound: u64,
+    stderr_lower_bound: u64,
+    effects_may_have_started: bool,
+    interrupted: bool,
+    overflow: bool,
+}
+/// Observed scalar preparation facts, not permission, acceptance or an atomic
+/// filesystem snapshot. Missing complete IO remains None, never zero.
+#[derive(Clone, Debug, Serialize)]
+pub struct ControlledPreparationIo {
+    elapsed_ms: u64,
+    git_calls_attempted: u64,
+    git_calls_complete: u64,
+    git_stdout_observed_bytes: Option<u64>,
+    git_stderr_observed_bytes: Option<u64>,
+    effects_may_have_started: bool,
+    interrupted: bool,
+    io_complete: bool,
+}
+impl ControlledPreparationIo {
+    pub fn elapsed_ms(&self) -> u64 {
+        self.elapsed_ms
+    }
+    pub fn git_stdout_observed_bytes(&self) -> Option<u64> {
+        self.git_stdout_observed_bytes
+    }
+    pub fn git_stderr_observed_bytes(&self) -> Option<u64> {
+        self.git_stderr_observed_bytes
+    }
+    pub fn effects_may_have_started(&self) -> bool {
+        self.effects_may_have_started
+    }
+    pub fn io_complete(&self) -> bool {
+        self.io_complete
+    }
+    pub fn interrupted(&self) -> bool {
+        self.interrupted
+    }
+}
+
 impl<'a> AdoptionControl<'a> {
     pub fn for_request(
         cancel: &'a std::sync::atomic::AtomicBool,
         deadline: std::time::Instant,
     ) -> Self {
-        Self { cancel, deadline }
+        Self {
+            cancel,
+            deadline,
+            started: std::time::Instant::now(),
+            preparation: std::sync::Arc::new(std::sync::Mutex::new(PreparationFacts::default())),
+        }
     }
     pub(crate) fn check(&self) -> Result<(), WorkspaceError> {
         if self.cancel.load(std::sync::atomic::Ordering::Acquire)
             || std::time::Instant::now() >= self.deadline
         {
+            self.note_interrupted();
             Err(WorkspaceError::ResourceLimit)
         } else {
             Ok(())
@@ -131,6 +183,83 @@ impl<'a> AdoptionControl<'a> {
     }
     pub(crate) fn deadline(&self) -> std::time::Instant {
         self.deadline
+    }
+    pub(crate) fn narrowed(&self, deadline: std::time::Instant) -> Self {
+        Self {
+            cancel: self.cancel,
+            deadline: self.deadline.min(deadline),
+            started: self.started,
+            preparation: self.preparation.clone(),
+        }
+    }
+    pub(crate) fn note_effects(&self) {
+        self.preparation
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .effects_may_have_started = true;
+    }
+    pub(crate) fn note_git_attempt(&self) {
+        let mut facts = self.preparation.lock().unwrap_or_else(|p| p.into_inner());
+        match facts.git_calls_attempted.checked_add(1) {
+            Some(n) => facts.git_calls_attempted = n,
+            None => facts.overflow = true,
+        }
+    }
+    pub(crate) fn note_git_io(&self, io: &ControlledIntegrationIo) {
+        let mut facts = self.preparation.lock().unwrap_or_else(|p| p.into_inner());
+        facts.interrupted |= io.interrupted;
+        if io.io_complete() {
+            match facts.git_calls_complete.checked_add(1) {
+                Some(n) => facts.git_calls_complete = n,
+                None => facts.overflow = true,
+            }
+        }
+        for (is_stdout, bytes) in [
+            (true, io.stdout_retained_bytes),
+            (false, io.stderr_retained_bytes),
+        ] {
+            if let Some(bytes) = bytes {
+                let before = if is_stdout {
+                    facts.stdout_lower_bound
+                } else {
+                    facts.stderr_lower_bound
+                };
+                match before.checked_add(bytes) {
+                    Some(total) => {
+                        if is_stdout {
+                            facts.stdout_lower_bound = total
+                        } else {
+                            facts.stderr_lower_bound = total
+                        }
+                    }
+                    None => facts.overflow = true,
+                }
+            }
+        }
+    }
+    pub(crate) fn note_interrupted(&self) {
+        self.preparation
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .interrupted = true;
+    }
+    pub fn preparation_io(&self) -> ControlledPreparationIo {
+        let poisoned = self.preparation.is_poisoned();
+        let facts = self.preparation.lock().unwrap_or_else(|p| p.into_inner());
+        let complete =
+            !poisoned && !facts.overflow && facts.git_calls_attempted == facts.git_calls_complete;
+        ControlledPreparationIo {
+            elapsed_ms: u64::try_from(self.started.elapsed().as_millis()).unwrap_or(u64::MAX),
+            git_calls_attempted: facts.git_calls_attempted,
+            git_calls_complete: facts.git_calls_complete,
+            git_stdout_observed_bytes: (complete && facts.git_calls_attempted > 0)
+                .then_some(facts.stdout_lower_bound),
+            git_stderr_observed_bytes: (complete && facts.git_calls_attempted > 0)
+                .then_some(facts.stderr_lower_bound),
+            effects_may_have_started: facts.effects_may_have_started,
+            interrupted: facts.interrupted,
+            io_complete: complete,
+        }
     }
 }
 fn controlled_check(control: Option<&AdoptionControl<'_>>) -> Result<(), AdoptionError> {
@@ -204,6 +333,8 @@ pub struct AuthorizedIntegration {
     source_candidate: String,
     grant_ref: String,
     commit_time_unix: u64,
+    preparation_host_deadline: Option<std::time::Instant>,
+    preparation_deadline: Option<std::time::Instant>,
 }
 impl AuthorizedIntegration {
     /// Host policy must verify the grant's actor, project/repository, destination
@@ -216,6 +347,49 @@ impl AuthorizedIntegration {
         grant_ref: String,
         commit_time_unix: u64,
     ) -> Result<Self, AdoptionError> {
+        Self::from_verified_grant_inner(
+            root,
+            target_ref,
+            expected_target_head,
+            source_candidate,
+            grant_ref,
+            commit_time_unix,
+            None,
+        )
+    }
+    pub fn from_verified_grant_controlled(
+        root: &WorkspaceIdentity,
+        target_ref: String,
+        expected_target_head: String,
+        source_candidate: String,
+        grant_ref: String,
+        commit_time_unix: u64,
+        control: &AdoptionControl<'_>,
+    ) -> Result<Self, AdoptionError> {
+        let narrowed =
+            control.narrowed(std::time::Instant::now() + std::time::Duration::from_secs(15));
+        let mut authorized = Self::from_verified_grant_inner(
+            root,
+            target_ref,
+            expected_target_head,
+            source_candidate,
+            grant_ref,
+            commit_time_unix,
+            Some(&narrowed),
+        )?;
+        authorized.preparation_host_deadline = Some(control.deadline());
+        Ok(authorized)
+    }
+    fn from_verified_grant_inner(
+        root: &WorkspaceIdentity,
+        target_ref: String,
+        expected_target_head: String,
+        source_candidate: String,
+        grant_ref: String,
+        commit_time_unix: u64,
+        control: Option<&AdoptionControl<'_>>,
+    ) -> Result<Self, AdoptionError> {
+        controlled_check(control)?;
         if !matches!(root.kind, WorkspaceKind::Git { .. })
             || !target_ref.starts_with("refs/heads/")
             || !is_oid(&expected_target_head)
@@ -225,7 +399,7 @@ impl AuthorizedIntegration {
         {
             return Err(AdoptionError::InvalidGrant);
         }
-        let current = inspect(&root.canonical_root)?;
+        let current = inspect_bound(&root.canonical_root, control)?;
         let WorkspaceKind::Git {
             common_dir: approved_common,
             ..
@@ -249,8 +423,10 @@ impl AuthorizedIntegration {
         if !common_metadata.is_dir() {
             return Err(AdoptionError::SubjectMismatch);
         }
-        let valid = bounded_output(
+        controlled_check(control)?;
+        let valid = crate::output_with_control(
             git_command(&root.canonical_root).args(["check-ref-format", target_ref.as_str()]),
+            control,
         )?;
         if !valid.status.success() {
             return Err(AdoptionError::InvalidGrant);
@@ -265,6 +441,8 @@ impl AuthorizedIntegration {
             source_candidate,
             grant_ref,
             commit_time_unix,
+            preparation_host_deadline: control.map(|c| c.deadline()),
+            preparation_deadline: control.map(|c| c.deadline()),
         })
     }
 }
@@ -305,21 +483,14 @@ fn bound_git_command(grant: &AuthorizedIntegration) -> std::process::Command {
         .args(["-c", "protocol.allow=never"]);
     command
 }
-fn bound_git_text(grant: &AuthorizedIntegration, args: &[&str]) -> Result<String, AdoptionError> {
-    let output = bounded_output(bound_git_command(grant).args(args))?;
-    if !output.status.success() {
-        return Err(AdoptionError::Conflict);
-    }
-    String::from_utf8(output.stdout)
-        .map(|text| text.trim().to_owned())
-        .map_err(|_| AdoptionError::Conflict)
-}
 fn create_bound_isolated(
     grant: &AuthorizedIntegration,
     managed_root: &Path,
     name: &str,
     commit: &str,
+    control: Option<&AdoptionControl<'_>>,
 ) -> Result<WorkspaceIdentity, AdoptionError> {
+    controlled_check(control)?;
     if name.is_empty()
         || name.starts_with('.')
         || !name
@@ -342,22 +513,26 @@ fn create_bound_isolated(
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
         _ => return Err(WorkspaceError::InvalidPath.into()),
     }
-    verify_repository(grant)?;
-    let output = bounded_output(bound_git_command(grant).args([
-        std::ffi::OsStr::new("worktree"),
-        std::ffi::OsStr::new("add"),
-        std::ffi::OsStr::new("--detach"),
-        std::ffi::OsStr::new("--"),
-        destination.as_os_str(),
-        std::ffi::OsStr::new(commit),
-    ]))?;
+    verify_repository_controlled(grant, control)?;
+    controlled_check(control)?;
+    if let Some(control) = control {
+        control.note_effects();
+    }
+    let output = crate::output_with_control(
+        bound_git_command(grant).args([
+            std::ffi::OsStr::new("worktree"),
+            std::ffi::OsStr::new("add"),
+            std::ffi::OsStr::new("--detach"),
+            std::ffi::OsStr::new("--"),
+            destination.as_os_str(),
+            std::ffi::OsStr::new(commit),
+        ]),
+        control,
+    )?;
     if !output.status.success() {
         return Err(AdoptionError::Conflict);
     }
-    Ok(inspect(&destination)?)
-}
-fn verify_repository(grant: &AuthorizedIntegration) -> Result<WorkspaceIdentity, AdoptionError> {
-    verify_repository_controlled(grant, None)
+    Ok(inspect_bound(&destination, control)?)
 }
 fn verify_repository_controlled(
     grant: &AuthorizedIntegration,
@@ -397,9 +572,6 @@ fn verify_repository_controlled(
     controlled_check(control)?;
     Ok(current)
 }
-fn reject_bound_unsafe_config(grant: &AuthorizedIntegration) -> Result<(), AdoptionError> {
-    reject_bound_unsafe_config_controlled(grant, None)
-}
 fn reject_bound_unsafe_config_controlled(
     grant: &AuthorizedIntegration,
     control: Option<&AdoptionControl<'_>>,
@@ -436,8 +608,12 @@ fn reject_bound_unsafe_config_controlled(
 fn reject_candidate_gitlinks(
     grant: &AuthorizedIntegration,
     candidate: &str,
+    control: Option<&AdoptionControl<'_>>,
 ) -> Result<(), AdoptionError> {
-    let tree = bounded_output(bound_git_command(grant).args(["ls-tree", "-r", "-z", candidate]))?;
+    let tree = crate::output_with_control(
+        bound_git_command(grant).args(["ls-tree", "-r", "-z", candidate]),
+        control,
+    )?;
     if !tree.status.success() {
         return Err(AdoptionError::Conflict);
     }
@@ -458,28 +634,61 @@ pub fn prepare_candidate(
     managed_root: &Path,
     name: &str,
 ) -> Result<PreparedCandidate, AdoptionError> {
-    verify_repository(&grant)?;
-    reject_bound_unsafe_config(&grant)?;
-    let source = bound_git_text(
+    prepare_candidate_inner(grant, managed_root, name, None)
+}
+/// Original construction deadline/cancel continues through candidate creation.
+/// On Err, control.preparation_io preserves possible private object/worktree IO.
+pub fn prepare_candidate_controlled(
+    grant: AuthorizedIntegration,
+    managed_root: &Path,
+    name: &str,
+    control: &AdoptionControl<'_>,
+) -> Result<PreparedCandidate, AdoptionError> {
+    if grant.preparation_host_deadline != Some(control.deadline()) {
+        return Err(AdoptionError::InvalidGrant);
+    }
+    let original = grant
+        .preparation_deadline
+        .ok_or(AdoptionError::InvalidGrant)?;
+    let narrowed = control.narrowed(original);
+    prepare_candidate_inner(grant, managed_root, name, Some(&narrowed))
+}
+fn prepare_candidate_inner(
+    grant: AuthorizedIntegration,
+    managed_root: &Path,
+    name: &str,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<PreparedCandidate, AdoptionError> {
+    verify_repository_controlled(&grant, control)?;
+    reject_bound_unsafe_config_controlled(&grant, control)?;
+    let source = bound_text_controlled(
         &grant,
         &[
             "rev-parse",
             "--verify",
             &format!("{}^{{commit}}", grant.source_candidate),
         ],
+        control,
     )?;
     if source != grant.source_candidate {
         return Err(AdoptionError::SubjectMismatch);
     }
-    reject_candidate_gitlinks(&grant, &grant.source_candidate)?;
-    let merge = bounded_output(bound_git_command(&grant).args([
-        "-c",
-        "merge.renormalize=false",
-        "merge-tree",
-        "--write-tree",
-        grant.expected_target_head.as_str(),
-        grant.source_candidate.as_str(),
-    ]))?;
+    reject_candidate_gitlinks(&grant, &grant.source_candidate, control)?;
+    controlled_check(control)?;
+    if let Some(control) = control {
+        control.note_effects();
+    }
+    let merge = crate::output_with_control(
+        bound_git_command(&grant).args([
+            "-c",
+            "merge.renormalize=false",
+            "merge-tree",
+            "--write-tree",
+            grant.expected_target_head.as_str(),
+            grant.source_candidate.as_str(),
+        ]),
+        control,
+    )?;
     if !merge.status.success() {
         return Err(AdoptionError::Conflict);
     }
@@ -511,8 +720,12 @@ pub fn prepare_candidate(
         commit.args(["-p", grant.source_candidate.as_str()]);
     }
     commit.args(["-m", "AgentBaton isolated integration candidate"]);
-    verify_repository(&grant)?;
-    let written = bounded_output(&mut commit)?;
+    verify_repository_controlled(&grant, control)?;
+    controlled_check(control)?;
+    if let Some(control) = control {
+        control.note_effects();
+    }
+    let written = crate::output_with_control(&mut commit, control)?;
     if !written.status.success() {
         return Err(AdoptionError::Conflict);
     }
@@ -525,9 +738,10 @@ pub fn prepare_candidate(
     }
     // The target may have advanced during object preparation. Do not silently
     // validate against that changed target, even though user files were untouched.
-    verify_repository(&grant)?;
-    let workspace = create_bound_isolated(&grant, managed_root, name, &integration_candidate)?;
-    verify_repository(&grant)?;
+    verify_repository_controlled(&grant, control)?;
+    let workspace =
+        create_bound_isolated(&grant, managed_root, name, &integration_candidate, control)?;
+    verify_repository_controlled(&grant, control)?;
     Ok(PreparedCandidate {
         authorization: grant,
         workspace,
