@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "kind": "integration_runtime_test_source",
-  "status": "SOURCE_ONLY_NOT_COMPILED_OR_RUN",
+  "status": "CURRENT_SOURCE_NOT_COMPILED_OR_RUN; previous exact025 two-positive source passed on Root944d",
   "base": "97f14100f746c24aebf2bf7eba54264d1029c387",
   "tested_source_commit": null,
-  "source_commit": "889fb40bcd059395232aaa1b1577b45f617da955",
+  "source_commit": "77d3f33ad08e2be5ff8c0b1c4009233057ad6e1a",
   "authority": "OWNER-001/002 implementation authorization; private Owner IPC is trusted-test-host only",
   "source": {
     "crates/core/tests/fixtures/integration_runtime.rs": {
-      "bytes": 52371,
-      "sha256": "13c7ab9f5bd17fe361c9ac5fb7e213a41ec1b774101c02bbb4edef842e1344ac"
+      "bytes": 67305,
+      "sha256": "00c2c2c5dcb813049be4e6f6447db042b48d2d7c834d529411d09197e7d73959"
     },
     "crates/core/tests/integration_ipc.rs": {
       "bytes": 8590,
@@ -65,6 +65,26 @@
       ],
       "exit": 0,
       "dimension": "static only"
+    },
+    {
+      "source_commit": "025b59077d807be21d21d670621a03db72bd8e85",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check"
+      ],
+      "exit": 0,
+      "dimension": "test expected digest only; new Rust NOT_RUN"
+    },
+    {
+      "source_commit": "77d3f33ad08e2be5ff8c0b1c4009233057ad6e1a",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check",
+        "new fixture starts with exact025 whole file bytes",
+        "unchanged embedded generatedACP ast.parse"
+      ],
+      "exit": 0,
+      "dimension": "source-only; no new product or Rust execution"
     }
   ],
   "test_sources": [
@@ -77,6 +97,11 @@
       "name": "native_policy_before_task_acceptance_automatically_integrates_once_without_explicit_wake",
       "runtime_result": "NOT_RUN",
       "expected_dimension": "real policy approved while unaccepted, zero preaccept run/stages, automatic accepted watcher, same/new-key convergence without duplicate stages"
+    },
+    {
+      "name": "fresh_merged_correctness_failure_never_admits_cas_and_retains_charged_receipts",
+      "runtime_result": "NOT_RUN",
+      "expected_dimension": "actual exit7/26Bstderr/ownedreap+EOF on fresh merged subject; failure persists, noCAS/noadvance, sharedmeter no refund, no old policy/result rewrite, same/newkey cannot relaunch"
     }
   ],
   "normal_path_sql_mutations": false,
@@ -187,6 +212,37 @@
       },
       "runtime_result": "NOT_RUN_BY_AUTHOR",
       "follow_up": "Root-authorized fresh positive declarations; no production defect claimed"
+    },
+    {
+      "source_commit": "889fb40bcd059395232aaa1b1577b45f617da955",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 52371,
+          "sha256": "13c7ab9f5bd17fe361c9ac5fb7e213a41ec1b774101c02bbb4edef842e1344ac"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "root_actual_source": "12f464a105097ad653b1afdaa66238df0fd3c7bc",
+      "runtime_result": "0PASS2FAIL13.32s at expected acceptance digest",
+      "fix_reason": "test used struct-order bytes; frozen Core converts complete record to Value before compact SHA"
+    },
+    {
+      "source_commit": "025b59077d807be21d21d670621a03db72bd8e85",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 52677,
+          "sha256": "818f63124e7a7edbb206ab37f45339aacee7df8c52288b58049ffd93fcef96a1"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "root_actual_source": "944d49d62bf0db08ff33f36594532709d6548b53",
+      "runtime_result": "2PASS13.64s Root actual; not new negative source pass"
     }
   ],
   "review_followup": {
@@ -195,7 +251,7 @@
     "old_command_result_fixture": "none; strict zero original one-shot results before/after, no source-pass fabrication",
     "original_definition": "actual stored policy rowid/all raw typed columns unchanged, fresh public policy matches actual original finalizer definition",
     "new_observation": "real process_started/exit0/reap/EOF; exact full merged Git subject/new attempt; registered managed candidate cwd/root; fixed input/output SHA+size; approved program/settings/script/environment/enforcement unchanged",
-    "independent_review": "PENDING",
+    "independent_review": "revision025 SOURCE_READY; new77d pending",
     "runtime": "NOT_RUN"
   },
   "root_actual_previous_source": {
@@ -281,5 +337,141 @@
     "ui_default_1000_support": "OPEN",
     "cpu_or_timer_bug_root_cause": "NOT_ESTABLISHED",
     "no_automatic_further_escalation": true
+  },
+  "root_actual_second_source": {
+    "source": "12f464a105097ad653b1afdaa66238df0fd3c7bc",
+    "exact_fixture_sha256": "13c7ab9f5bd17fe361c9ac5fb7e213a41ec1b774101c02bbb4edef842e1344ac",
+    "command": [
+      "env",
+      "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "integration_ipc",
+      "integration_runtime::",
+      "--",
+      "--show-output",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "wrapper_seconds": 37.02434841002105,
+    "summaries": [
+      "test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 2 filtered out; finished in 13.32s"
+    ],
+    "artifacts": {
+      "/workspace/.onboarding/integration17-runtime-ipc-tests2/RESULT.json": {
+        "bytes": 966,
+        "sha256": "a31554760c26a303c923d60102a7d87c86beca7783e8d24713d30aadc41b9035"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests2/INPUTS.json": {
+        "bytes": 16928,
+        "sha256": "786dba11d8a3b2c31d1658b9b4ef6c13d99efb31a59940af8bb3524d6b6508c9"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests2/command.log": {
+        "bytes": 2628,
+        "sha256": "6ae0cf02064b13da4f5ba469af0aad67bb3c6de7bca96e5b7a4589ab0fc9eae0"
+      }
+    },
+    "retained_private_roots": [
+      "/tmp/integration-runtime-Gx7uK9",
+      "/tmp/integration-runtime-NvWEqW"
+    ],
+    "first_failure": "test expected acceptance_digest serialized struct instead of full canonical Value",
+    "not_current_source_pass": true
+  },
+  "readonly_digest_diagnostic": {
+    "dimension": "stopped retained DB original acceptance/run only; no product started",
+    "queries": "mode=ro,query_only,BEGIN; one original goal_graph_acceptances.document and one integrations.document per fixture",
+    "cases": 2,
+    "observed_states": [
+      "confirmed_local_ref",
+      "confirmed_local_ref"
+    ],
+    "complete_original_value_sha_equals_stored_run_digest": [
+      true,
+      true
+    ],
+    "stored_struct_order_raw_sha_differs": [
+      true,
+      true
+    ],
+    "matching_original_acceptance_ref_and_task": [
+      true,
+      true
+    ],
+    "database_inode_size_mtime_ctime_unchanged": [
+      true,
+      true
+    ],
+    "raw_records_or_ids_copied": false,
+    "limitation": "read-only comparison is not a full runtime chain pass or independent authority reconstruction"
+  },
+  "unreached_by_second_run": [
+    "remaining exact target/source snapshots",
+    "original Command raw definition/results unchanged",
+    "new merged Command observation subject/input/output checks",
+    "shared fee/counter checks",
+    "terminal replay/no duplicate assertions"
+  ],
+  "root_actual_third_source": {
+    "source": "944d49d62bf0db08ff33f36594532709d6548b53",
+    "exact_fixture_sha256": "818f63124e7a7edbb206ab37f45339aacee7df8c52288b58049ffd93fcef96a1",
+    "command": [
+      "env",
+      "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "integration_ipc",
+      "integration_runtime::",
+      "--",
+      "--show-output",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "wrapper_seconds": 36.116648090974195,
+    "summaries": [
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 13.64s"
+    ],
+    "source_unchanged": true,
+    "tools_unchanged": true,
+    "artifacts": {
+      "/workspace/.onboarding/integration17-runtime-ipc-tests3/RESULT.json": {
+        "bytes": 961,
+        "sha256": "1942a64fd11b7bd151df7095b507a57eb73cb5aae0dee8f54b7986c7a5e16472"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests3/INPUTS.json": {
+        "bytes": 16928,
+        "sha256": "d983cdb3d2757a61ffaec70a0f81c181376c6c0fcb118ca2e0fb84dee74c808b"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests3/command.log": {
+        "bytes": 1271,
+        "sha256": "6e07447b9705c3aa590cf7a3b4620b0b23e53781fc533b1d2a64cf36207a1e89"
+      }
+    },
+    "scope": "two generated ACP/privateOwner UnixCore17 positives only; not new77d negative/Mac/liveProvider/full pipeline matrix"
+  },
+  "negative_expected_not_observed": {
+    "state": "failed",
+    "code": "VALIDATION_FAILED",
+    "actual_command_exit": 7,
+    "fixed_stderr_bytes": 26,
+    "integration_attempts": 2,
+    "all_shared_attempts": 3,
+    "active": 0,
+    "source_plus_preparation_plus_retained_stream_bytes": 50,
+    "cas_attempts_and_receipts": 0,
+    "target": "original exact HEAD",
+    "samekey": "original stored response, no DB writes",
+    "newkey": "same failed run via existing-run branch, no new attempt",
+    "source_fact": "frozen944d queue_integration_start checks existing run before fresh admission; failed validator branch never returns nextCAS",
+    "unknown_is_not_expected_failure": true,
+    "no_sql_normal_authority_mutation": true
   }
 }
