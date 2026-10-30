@@ -17,3 +17,19 @@ Actually executed: Git status/base/remote reads, isolated feature worktree creat
 The exact-inverse check replaces the single receipt group opening and the single attempt group opening (including only their added direct `round` term/definition) with their original opening tags, then compares the entire component against `git show f193882:apps/desktop/src/IntegrationEvidence.tsx`. Equality preserves all original receipt/status/candidate/actual-null/zero logic and other exported components, rather than treating a new assertion as proof of unchanged behavior.
 
 Four authored component cases: two languages each for retained 1/2-failed plus 3-passed candidates, and unsettled/null measurements alongside actual zero. NOT RUN. No test failure is hidden or reclassified; there is no author runtime result for these cases. Original existing tests were not edited. Mock records do not prove actual backend retention, Git CAS, native approval, private-owner IPC, real providers, browser pixels or macOS desktop behavior.
+
+## P2 correction evidence (supersedes initial test model only)
+
+The table above records the initial sealed source. Initial new test SHA `ca58cf455125109e308b58b4aab5179c8e997386ea27d9a35b71d27ceabdabb7` is retained as the rejected fixture, not a successful execution. Current test SHA-256: `0729e720dcabecff6214a9e74d42c9f22768f7eb44357bd3e666a8c969c0a9c5`.
+
+Fixed baseline source anchors checked statically:
+
+- `integration_store.rs:77`: integration attempt state allowlist; finished, not passed/failed.
+- `integration_budget.rs:130`: settled attempts require finished plus joined/not_scheduled and a separate attempt receipt; unsettled attempts do not have settled measurements or receipts.
+- `integration_settlement.rs:251`: unknown path retains reservation, sets interrupted/no-join and unknown fence, then returns before creating a validation receipt.
+- `integration_settlement.rs:410`: observed validator receipt has Some runtime/output; its validator-observed event precedes the attempt-joined receipt written after line 497.
+- `goal_runtime.rs:2841`: root/project historical shared usage includes the original shared ledger; it is not an empty per-integration counter.
+
+Actually executed pure Python source checks: seven explicit stage rows; kinds prep/validator repeated three times then CAS; total stage runtime plus declared earlier Graph Work = 3625ms and output = 120 bytes; all observed stages fit explicit 5000ms/1024B reservations; max_rounds 3; known observed receipt sequences precede distinct joined sequences; no fabricated unknown receipt; unknown attempt keeps no measurements/joined receipt. These are finite source consistency checks, not a TypeScript execution or native approval verifier.
+
+Production component compared byte-for-byte with `eb8c67b`; existing TaskIntegration tests, locale, DTO types and form compared byte-for-byte with `f193882`. All unchanged. `git diff --check` passed. Four EN/CN mocked cases remain authored NOT RUN. Core target-drift/reprepare implementation, actual runtime, actual ledger settlement, Native approval and macOS are not claimed by this fixture repair.

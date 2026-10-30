@@ -4,29 +4,44 @@ import { describe,expect,it } from 'vitest';
 import { IntegrationRunEvidence } from './IntegrationEvidence';
 import { integrationMessages } from './integration-i18n';
 import { integrationFixture } from './integration-test-fixtures';
-import type { IntegrationAttemptView,IntegrationRunView,IntegrationValidationReceipt } from './integration-types';
+import type { IntegrationAttemptView,IntegrationPolicy,IntegrationRunView,IntegrationValidationReceipt } from './integration-types';
 
-/** Renderer fixtures only: these records do not prove Core/IPC or Git execution. */
-function historyFixture():IntegrationRunView{
+/** Consumer-contract mocks, not observed Core history or approval/target-drift proof. */
+function historyFixture():{policy:IntegrationPolicy;view:IntegrationRunView}{
  const f=integrationFixture();
- const receipt=(attemptId:string,round:number,passed:boolean,commit:string,tree:string):IntegrationValidationReceipt=>({
+ const budget={...f.policy.bindings.root_budget,attempts:8,runtime_ms:40000,reworks:2};
+ const reservation={...f.reservation,runtime_ms:5000};
+ // An independent three-round fixture; never mutate the shared one-round policy.
+ const policy:IntegrationPolicy={...f.policy,selection:{...f.policy.selection,max_rounds:3,on_target_advance:'bounded_descendant_reprepare',stage_reservations:{preparation:{...reservation},validators:[{validator:f.validator,reservation:{...reservation}}],cas:{...reservation}}},bindings:{...f.policy.bindings,root_budget:{...budget},project_budget:{...budget}}};
+ const receipt=(attemptId:string,round:number,passed:boolean,commit:string,tree:string,sequence:number):IntegrationValidationReceipt=>({
   attempt_id:attemptId,round,validator:f.validator,definition_digest:'d'.repeat(64),
-  integration_commit:commit,integration_tree:tree,result_digest:'e'.repeat(64),passed,
+  integration_commit:commit,integration_tree:tree,result_digest:String(round).repeat(64),passed,
   stop_confirmed:true,worker_joined:true,actual_runtime_ms:1025,actual_output_bytes:0,
-  details_ref:`validation-${round}`,sequence:10+round,
+  details_ref:`integration-event:${sequence}`,sequence,
  });
- const receipts=[receipt('first-check',1,false,'a'.repeat(40),'b'.repeat(40)),receipt('second-check',2,false,'c'.repeat(40),'d'.repeat(40)),receipt('final-check',3,true,'e'.repeat(40),'f'.repeat(40))];
- const attempt=(attemptId:string,round:number):IntegrationAttemptView=>({
-  attempt_id:attemptId,round,kind:'validator',validator:f.validator,
-  state:round===3?'passed':'failed',reservation:{...f.reservation},settled:true,
-  actual_runtime_ms:1025,actual_output_bytes:0,io_completion:'worker_joined',last_error:null,receipt_sequence:10+round,
+ const receipts=[receipt('first-check',1,false,'a'.repeat(40),'b'.repeat(40),11),receipt('second-check',2,false,'c'.repeat(40),'d'.repeat(40),21),receipt('final-check',3,true,'e'.repeat(40),'f'.repeat(40),31)];
+ const attempt=(attemptId:string,round:number,kind:IntegrationAttemptView['kind'],runtime:number,output:number,sequence:number):IntegrationAttemptView=>({
+  attempt_id:attemptId,round,kind,validator:kind==='validator'?f.validator:null,
+  state:'finished',reservation:{...reservation},settled:true,
+  actual_runtime_ms:runtime,actual_output_bytes:output,io_completion:'worker_joined',last_error:null,receipt_sequence:sequence,
  });
- return {...f.view,run:{...f.view.run,round:3,state:'confirmed_local_ref',integration_commit:receipts[2].integration_commit,integration_tree:receipts[2].integration_tree,validation_receipts:receipts},attempts:[attempt('first-check',1),attempt('second-check',2),attempt('final-check',3)]};
+ const attempts=[
+  attempt('first-preparation',1,'preparation',100,12,10),attempt('first-check',1,'validator',1025,0,12),
+  attempt('second-preparation',2,'preparation',100,12,20),attempt('second-check',2,'validator',1025,0,22),
+  attempt('final-preparation',3,'preparation',100,12,30),attempt('final-check',3,'validator',1025,0,32),
+  attempt('local-ref-update',3,'cas',50,20,40),
+ ];
+ // One earlier Graph Work (200ms/64B), plus all seven settled integration stages.
+ const usage={attempts:8,active:0,children:0,runtime_ms:200+100+1025+100+1025+100+1025+50,output_bytes:64+12+0+12+0+12+0+20,tokens:null,cost_microunits:null};
+ const view:IntegrationRunView={...f.view,run:{...f.view.run,revision:22,round:3,state:'confirmed_local_ref',source_commit:'1'.repeat(40),source_tree:'2'.repeat(40),integration_commit:receipts[2].integration_commit,integration_tree:receipts[2].integration_tree,active_stage:null,io_completion:'worker_joined',validation_receipts:receipts},attempts,shared_usage:{root:{...usage},project:{...usage}},fence:{...f.view.fence,revision:14,state:'released'}};
+ return {policy,view};
 }
 
 describe('Integration round history, mocked renderer records only',()=>{
  it.each(['en','zh'] as const)('keeps failed earlier candidates beside the confirmed round in %s',async language=>{
-  const view=historyFixture(),original=JSON.stringify(view),t=integrationMessages[language];
+  const {policy,view}=historyFixture(),original=JSON.stringify(view),t=integrationMessages[language];
+  expect(policy.selection.max_rounds).toBe(3);expect(view.attempts).toHaveLength(7);
+  expect(view.shared_usage.root).toMatchObject({attempts:8,active:0,runtime_ms:3625,output_bytes:120,tokens:null,cost_microunits:null});
   render(<IntegrationRunEvidence view={view} language={language}/>);
   await userEvent.setup().click(screen.getByText(t.receipt,{selector:'summary'}));
   expect(screen.getByRole('heading',{name:t.accepted})).toBeVisible();
@@ -42,27 +57,27 @@ describe('Integration round history, mocked renderer records only',()=>{
    const attempt=screen.getByRole('group',{name:`${t.attempts} · ${t.round} ${receipt.round} · ${receipt.attempt_id}`});
    expect(attempt).toBeVisible();
    expect(within(attempt).getByText(String(receipt.round),{selector:'dd',exact:true})).toBeVisible();
-   expect(within(attempt).getByText(`${receipt.passed?'passed':'failed'} · worker_joined · settled`)).toBeVisible();
+   expect(within(attempt).getByText('finished · worker_joined · settled')).toBeVisible();
   }
   expect(JSON.stringify(view)).toBe(original);
  });
 
  it.each(['en','zh'] as const)('preserves an unsettled round and unknown measurements alongside measured zero in %s',async language=>{
-  const history=historyFixture(),t=integrationMessages[language];
-  const pendingReceipt={...history.run.validation_receipts[2],passed:false,stop_confirmed:false,worker_joined:false,actual_runtime_ms:null,actual_output_bytes:null};
-  const pendingAttempt:IntegrationAttemptView={...history.attempts[2],state:'outcome_unknown',settled:false,actual_runtime_ms:null,actual_output_bytes:null,io_completion:null,receipt_sequence:null};
-  const view:IntegrationRunView={...history,run:{...history.run,state:'outcome_unknown',validation_receipts:[history.run.validation_receipts[0],pendingReceipt]},attempts:[history.attempts[0],pendingAttempt]};
+  const {view:history}=historyFixture(),t=integrationMessages[language];
+  const unknown={code:'OUTCOME_UNKNOWN',message:'Mock interrupted validator has no joined receipt',retryable:false,side_effect_state:'unknown',details_ref:null};
+  const pendingAttempt:IntegrationAttemptView={...history.attempts[5],state:'outcome_unknown',settled:false,actual_runtime_ms:null,actual_output_bytes:null,io_completion:'interrupted_no_join_receipt',receipt_sequence:null,last_error:unknown};
+  // Unknown does not manufacture a current validation receipt or a CAS attempt.
+  const usage={attempts:7,active:1,children:0,runtime_ms:null,output_bytes:null,tokens:null,cost_microunits:null};
+  const view:IntegrationRunView={...history,run:{...history.run,revision:21,state:'outcome_unknown',active_stage:'validator',io_completion:'interrupted_no_join_receipt',last_error:unknown,validation_receipts:history.run.validation_receipts.slice(0,2)},attempts:[...history.attempts.slice(0,5),pendingAttempt],shared_usage:{root:{...usage},project:{...usage}},fence:{...history.fence,revision:13,state:'unknown'}};
   const original=JSON.stringify(view);
   render(<IntegrationRunEvidence view={view} language={language}/>);
   await userEvent.setup().click(screen.getByText(t.receipt,{selector:'summary'}));
   expect(screen.getByRole('heading',{name:t.notAccepted})).toBeVisible();
-  const receipt=screen.getByRole('group',{name:`${t.receipt} · ${t.round} 3 · final-check`});
-  expect(within(receipt).getByText('3',{selector:'dd',exact:true})).toBeVisible();
-  expect(within(receipt).getAllByText(t.unknown,{selector:'dd'})).toHaveLength(2);
-  expect(within(receipt).queryByText('0',{selector:'dd',exact:true})).toBeNull();
-  expect(within(receipt).getByText('failed · stop_confirmed=false · worker_joined=false')).toBeVisible();
+  expect(screen.queryByRole('group',{name:`${t.receipt} · ${t.round} 3 · final-check`})).toBeNull();
+  expect(view.attempts).toHaveLength(6);expect(view.attempts.some(value=>value.kind==='cas')).toBe(false);
+  expect(view.shared_usage.root).toMatchObject({attempts:7,active:1,runtime_ms:null,output_bytes:null});
   const attempt=screen.getByRole('group',{name:`${t.attempts} · ${t.round} 3 · final-check`});
-  expect(within(attempt).getByText(`outcome_unknown · ${t.unknown} · unsettled`)).toBeVisible();
+  expect(within(attempt).getByText('outcome_unknown · interrupted_no_join_receipt · unsettled')).toBeVisible();
   expect(within(attempt).getAllByText(t.unknown,{selector:'dd',exact:true})).toHaveLength(2);
   expect(within(attempt).queryByText('0',{selector:'dd',exact:true})).toBeNull();
   for(const label of [t.receipt,t.attempts]){
