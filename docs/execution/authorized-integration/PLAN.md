@@ -20,3 +20,13 @@ Root assigned the full-chain test leaf after97f1410 to a separate test author (o
 
 
 Prioritize actual r1 prepared candidate → r2 pre-effect target observation → r3 preparation (max_rounds≥3), full new correctness validators and unchanged consumed/active/fence semantics. The source-ready repeated-advance fix is not a reason to omit this runtime case.
+
+
+## Root runtime evidence checkpoint — 2026-10-30T13:23:47.441745+00:00
+
+Preserve source-specific compilation, runtime and failed-capacity evidence in [RUNTIME_RESULTS.json](RUNTIME_RESULTS.json) (SHA256 377c580d1f0ed9a68b1ea6144a9625ba90afdb3a33698c6eb32ade343cfc39da). Continue exact current Core/IPC/Factory plus Native/UI/Mac/fault/remaining full-design verification after Root terminal results; no partial library/UI result is full VAL009 or130 acceptance. Root alone updates STATUS/requirements/Bootstrap.
+
+
+## Root b452 terminal and owned-cancel baseline — 2026-10-30T13:33:37.083180+00:00
+
+Record the exact199Core/6IPC b452 success separately from the new d8c owned-cancel0/1 failure; retain original16 records and all older failures. Next admission requires the independently reviewed exact stop correction and actual current full203/fixed7 runs, not borrowed old positives. Native/Mac/fullVAL009/130 remain open.

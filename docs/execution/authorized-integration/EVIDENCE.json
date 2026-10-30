@@ -164,5 +164,29 @@
       "manifest_sha256": "c618aa98156db3b4918e47e15dd3b4769d28566c630c39f52aa90ceb6a2b79e3",
       "execution": "30 inverse/predicate checks; Rust and actual repeated-target advance NOT_RUN; old97 P2 preserved"
     }
+  ],
+  "root_runtime_results_checkpoints": [
+    {
+      "source_checkpoint": "b452e4a31dd4d1c9cce7e35282a9c2c9dcf0ff39",
+      "record": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+      "sha256": "377c580d1f0ed9a68b1ea6144a9625ba90afdb3a33698c6eb32ade343cfc39da",
+      "recorded_at_utc": "2026-10-30T13:23:47.441745+00:00",
+      "dimension": "Root source-specific actual commands and original failures; formatter did not run tests",
+      "full_current_validation": "Root full current Core/IPC in progress; no terminal result included",
+      "full_VAL009_or130_accepted": false,
+      "historical_records_preserved": true
+    },
+    {
+      "source_checkpoint": "d8c3282a72c3b622fcb77c4155208263ee0be7d9",
+      "record": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+      "sha256": "29ba72f709e959692b056091de8209506503fdece9728756e2c8236f5d760c08",
+      "recorded_at_utc": "2026-10-30T13:33:37.083180+00:00",
+      "previous_evidence_commit": "6fddb485777e423e419cc26af8f93322c9a6b268",
+      "previous_record_sha256": "377c580d1f0ed9a68b1ea6144a9625ba90afdb3a33698c6eb32ade343cfc39da",
+      "dimension": "Root b452199Core/6IPC terminal pass and subsequent d8c real owned-cancel0/1 failure, metadata only",
+      "current_acceptance": "notaccepted; f653 proposed/unexecuted and current203/fixed7 not run",
+      "old16_command_records_preserved": true,
+      "full_VAL009_or130_accepted": false
+    }
   ]
 }

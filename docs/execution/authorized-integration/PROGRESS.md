@@ -20,3 +20,21 @@ Root reported composed90a33ce (through e1680c6) workspace all-targets check exit
 
 
 Independent limited source reviews now mark targets486f0fb (adc5/c756; 39 static/model checks, six Rust cases not run) and activation/reprepare86099d8 (b344/c618; 30 inverse/predicate checks) source-ready. The original findings remain preserved. Neither reviewer executed Rust/Git/Actor or signs real consecutive advancement, deadline/cancel behavior or the complete pipeline.
+
+
+## Root executed results, source-bound — 2026-10-30T13:23:47.441745+00:00
+
+[RUNTIME_RESULTS.json](RUNTIME_RESULTS.json) records16 original commands with exact source/input/result/log hashes. Workspaces072 passes175 outer+7compile-fail docs (4nested excluded;16preparation includes old15); Core944 passes185/113.09s (nested1 excluded); full944 IPC4/15.62s includes original runtime2/13.64s. New correctness-failure f7191/6.16s and revoked-policy b221/4.51s are separate targeted runs, not a complete new6 run.
+
+Native5993 all-target feature compile passes; both feature-libtest attempts are capacity-15 without test results. Rootbbac workspace all-target compile passes20.993s; UI45mock/2files3.79s and type/Vite2.045s pass. Initial missing-vitest127 is retained; no new1059full rerun. Original runtime0/2 stage-clock and0/2 test-digest failures, raw ELFs/full-gzip metadata and4 generated postcleanup roots remain separately attributed. Earlier unit TempDirs were not all retained.
+
+Parent059 exact Environment3/Rust/UI/ARM pass but Intel fails (plan2/run11 outcomeunknown,4013/4000 scalar); no rootcause/performance fix, Root17/Mac/package transfer or formal Approve is claimed. Current b452 full Core+completeIPC is in progress with no terminal result included here.
+
+
+## Actual terminal update with new failure — 2026-10-30T13:33:37.083180+00:00
+
+Rootb452 passes199unique Core131.82s (nested1 not additive) and full integrationIPC6/26.26s, wrapper189.016329s; six includes old4 plus correctness-exit7 and revocation cases. This closes only the previous in-progress b452 run.
+
+New d8c cancellation baseline actually observes the exact owned stopped command, accepts cancel_requested while unsettled, then reaches outcome_unknown/OUTCOME_UNKNOWN:0PASS1FAIL6.37s, wrapper29.805423s. Later confirmed-cancel/ledger/ref assertions were not reached; no old6pass covers it. Failed42,853,984B ELF/SHA02a55a... and full9,595,611B gzip/SHA98f357... remain via manifest+metadata, with private post-daemon-cleanup root retained. No DB/Token/rawELF contents copied.
+
+Root-proposed f653 stop-vs-correctness fix is not executed or accepted here. Current full203/fixed7 remain unrun anticipated counts. [RUNTIME_RESULTS.json](RUNTIME_RESULTS.json) SHA256 29ba72f709e959692b056091de8209506503fdece9728756e2c8236f5d760c08; old377c580d record resolves at commit6fddb485777e423e419cc26af8f93322c9a6b268 and all16 old command objects remain unchanged.

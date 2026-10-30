@@ -7,3 +7,15 @@ Root composed90a33ce through e168 compiled workspace all-targets with exit0 (17.
 Root's independent test author now owns integration_ipc.rs plus fixtures/integration_runtime.rs after97f1410, avoiding concurrent edits. Await Root actual immutable compilation/runtime and reviewer feedback; retain every old failed/partial source and exact component result. Current protocol inability or interrupted/unacknowledged operation remains unknown and fenced, with no unsafe fallback/current-head authorship inference. Full VAL009 broader change kinds/Unicode/remote delivery/host cleanup and cross-platform/truejoin/fault/mixed-budget validation remain open.
 
 Independent activation/reprepare source review b3443770/c618aa98 has since closed the old97 repeated-advance false refusal at86099d8. This is a limited source finding closure, not real three-round runtime verification. Targets adc5/c756 remains a separate slice.
+
+
+## Root runtime checkpoint b452e4a — 2026-10-30T13:23:47.441745+00:00
+
+Base b452e4a31dd4d1c9cce7e35282a9c2c9dcf0ff39; evidence branch codex/integration-runtime-evidence; old codex/integration17-root-evidence at 6c6b693986a1bdd0a8a73dd2e89982f3a22b42a1 and all five Foundation files unchanged. [Runtime results](RUNTIME_RESULTS.json) SHA256 377c580d1f0ed9a68b1ea6144a9625ba90afdb3a33698c6eb32ade343cfc39da. This append is metadata only; it does not supersede original source-only/failed records.
+
+Current Root source has composed request-local Factory proof plus all6 IPC case sources, but current full Core/IPC terminal results are not yet included. Root must bind later results to their actual source and keep original failures/limits. PR21 remains draft (Root-reported remote5993/basePR19 versus localb452), ParentPR18 wholeProduct remains Intel-failed; no new installers, merge, release, formal Approve or fullVAL009/130 acceptance. No background continuation is promised by this record.
+
+
+## New terminal and failure checkpoint — 2026-10-30T13:33:37.083180+00:00
+
+[RUNTIME_RESULTS.json](RUNTIME_RESULTS.json) SHA256 29ba72f709e959692b056091de8209506503fdece9728756e2c8236f5d760c08, prior record SHA377c580d1f0ed9a68b1ea6144a9625ba90afdb3a33698c6eb32ade343cfc39da at6fddb485777e423e419cc26af8f93322c9a6b268. b452199Core/6IPC passed; current d8c owned cancellation0/1 failed, so this remains NOTACCEPTED. f653 is a proposed independent-review correction, not merged/executed by this evidence leaf; current full203/fixed7/Mac/Native/package/fullVAL009/130 validation is not claimed. Foundation5/oldbranch and original16 run evidence remain intact.
