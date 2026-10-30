@@ -699,6 +699,8 @@ def current_integration_counts(db):
     assert type(schema) is int and schema == 17
     counts = {}
     for key, table in INTEGRATION_RECORD_TABLES.items():
+        row = db.execute("SELECT type,CASE WHEN length(CAST(sql AS BLOB))<=65536 THEN sql END FROM sqlite_master WHERE name=?", (table,)).fetchone()
+        assert row is not None and row[0] == 'table' and type(row[1]) is str and re.match(r'CREATE\s+TABLE\s', row[1], re.I), 'Actual normal integration table required'
         value = db.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0]
         assert type(value) is int and value == 0, 'Existing fixture must not create integration authority or work'
         counts[key] = value

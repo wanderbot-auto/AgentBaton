@@ -32,9 +32,11 @@ class IntegrationMetadataControls(unittest.TestCase):
 
     def test_each_missing_or_nonzero_domain_refuses_without_factory_shape_changes(self):
         for table in G.INTEGRATION_RECORD_TABLES.values():
-            for bad in ['missing', 'nonzero']:
+            for bad in ['missing', 'nonzero', 'view']:
                 db = self.database()
-                if bad == 'missing': db.execute('DROP TABLE ' + table)
+                if bad in ['missing', 'view']:
+                    db.execute('DROP TABLE ' + table)
+                    if bad == 'view': db.execute('CREATE VIEW '+table+' AS SELECT 0 AS id WHERE 0')
                 else: db.execute('INSERT INTO ' + table + ' VALUES(1)')
                 with self.subTest(table=table, bad=bad), self.assertRaises((sqlite3.OperationalError, AssertionError)):
                     G.current_factory_counts(db)

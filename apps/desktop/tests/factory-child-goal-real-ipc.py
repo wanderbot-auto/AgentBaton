@@ -245,8 +245,10 @@ def self_check():
     # Fake query return controls only, not a SQLite schema or migration surrogate.
     class FakeDB:
         def __init__(self,schema=17,values=None): self.schema,self.values=schema,values or {}
-        def execute(self,query):
+        def execute(self,query,params=()):
             if query=='PRAGMA user_version': value=self.schema
+            elif query.startswith('SELECT type,CASE'):
+                value=('table','CREATE TABLE '+params[0]+'(id INTEGER)')
             else:
                 table=query.split('"')[1]
                 if table in self.values:
@@ -254,7 +256,7 @@ def self_check():
                     if isinstance(value,BaseException): raise value
                 else: value=0
             class Row:
-                def fetchone(self): return (value,)
+                def fetchone(self): return value if type(value)is tuple else (value,)
             return Row()
     counts=support.current_factory_counts(FakeDB())
     assert set(counts)==set(support.FACTORY_RECORD_TABLES) and len(counts)==12 and all(v==0 for v in counts.values())
@@ -268,6 +270,12 @@ def self_check():
             except (AssertionError,RuntimeError): pass
             else: raise AssertionError((table,bad))
             checks.append('count-reject:' + table + ':' + repr(bad))
+    for table in support.INTEGRATION_RECORD_TABLES.values():
+        for bad in [1,None,True,0.0,-1,RuntimeError('missing table or query failure')]:
+            try: support.current_factory_counts(FakeDB(values={table:bad}))
+            except (AssertionError,RuntimeError): pass
+            else: raise AssertionError((table,bad))
+            checks.append('integration-zero-reject:'+table+':'+repr(bad))
     for schema in [12,13,14,15,16,18,15.0,16.0,17.0,True,'15','16','17',None]:
         try: support.current_factory_counts(FakeDB(schema=schema))
         except AssertionError: pass
