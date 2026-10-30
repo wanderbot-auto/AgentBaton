@@ -132,7 +132,23 @@ impl GitRefObservation {
             return Err(changed());
         }
         match &self.refs {
-            Some(tree) => tree.recheck()?,
+            Some(tree) => {
+                tree.recheck()?;
+                // The generic user-tree observer deliberately skips its root
+                // .git marker. No such skip is valid in an admin registry.
+                if self.entry == "worktrees"
+                    && !matches!(
+                        rustix::fs::statat(
+                            tree_root(&tree.root)?,
+                            ".git",
+                            rustix::fs::AtFlags::SYMLINK_NOFOLLOW
+                        ),
+                        Err(rustix::io::Errno::NOENT)
+                    )
+                {
+                    return Err(changed());
+                }
+            }
             None => {
                 if !matches!(
                     rustix::fs::statat(&self.fd, self.entry, rustix::fs::AtFlags::SYMLINK_NOFOLLOW),
@@ -1211,5 +1227,13 @@ mod target_worktree_pin_tests {
         .unwrap();
         fs::write(root.join("worktrees/other/HEAD"), b"ref: refs/heads/x\n").unwrap();
         assert!(present.recheck().is_err());
+        fs::create_dir(root.join("worktrees/.git")).unwrap();
+        assert!(GitRefObservation::capture_named(
+            &root,
+            "worktrees",
+            &control,
+            &mut TreeBudget::default()
+        )
+        .is_err());
     }
 }
