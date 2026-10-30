@@ -1043,7 +1043,7 @@ def runtime_driver(args, output):
     def wait(read,predicate,seconds=15):
         end=time.monotonic()+seconds
         while True:
-            pump();value=read()
+            pump();capture();value=read()
             if predicate(value):return value
             assert time.monotonic()<end,clean(('Bounded observation deadline',value))
             time.sleep(.02)

@@ -402,5 +402,41 @@ class ObserverAckTests(unittest.TestCase):
                 now=lambda:next(clock),pause=lambda _:None)
 
 
+class ChildGoalObserverWaitTests(unittest.TestCase):
+    def functions(self, **changes):
+        path=SUBJECT.with_name('factory-child-goal-real-ipc.py')
+        tree=ast.parse(path.read_text())
+        runtime=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='runtime_driver')
+        nodes=[n for n in runtime.body if isinstance(n,ast.FunctionDef) and n.name in ('wait','capture')]
+        events=[]
+        ns={'host':object(),'workspace':object(),'scope':object(),'record_context':{'run_id':'unit-only-run'},
+            'runtime':None,'verified':[],'graph_verified':[],'output':None,'reaper':None,'time':time,'clean':str,
+            'pump':lambda:events.append('pump'),
+            'base':SimpleNamespace(collect_started_records=lambda *a:events.append('factory_capture')),
+            'collect_graph_records':lambda *a:events.append('graph_capture')}
+        ns.update(changes)
+        exec(compile(ast.Module(body=nodes,type_ignores=[]),str(path),'exec'),ns)
+        return ns,events
+
+    def test_ready_wait_captures_full_bound_record_before_each_read(self):
+        ns,events=self.functions();steps=iter((False,True))
+        def read():
+            self.assertEqual(events[-2:],['factory_capture','graph_capture'])
+            events.append('read');return next(steps)
+        with mock.patch.object(time,'sleep',lambda _:None):
+            self.assertTrue(ns['wait'](read,bool))
+        self.assertEqual(events,['pump','factory_capture','graph_capture','read']*2)
+
+    def test_capture_stays_guarded_and_failure_prevents_read(self):
+        for missing in ({'host':None},{'workspace':None},{'scope':None},{'record_context':{}}):
+            ns,events=self.functions(**missing)
+            self.assertTrue(ns['wait'](lambda:True,bool))
+            self.assertEqual(events,['pump'])
+        def refused(*args):raise AssertionError('unit-only binding refused')
+        ns,events=self.functions(base=SimpleNamespace(collect_started_records=refused))
+        with self.assertRaisesRegex(AssertionError,'binding refused'):
+            ns['wait'](lambda:self.fail('Read must not run after binding refusal'),bool)
+
+
 if __name__ == '__main__':
     unittest.main()

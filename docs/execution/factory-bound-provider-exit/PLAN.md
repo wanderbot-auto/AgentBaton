@@ -1,5 +1,14 @@
 # Previously bound Factory fixture process exit observations
 
+## Shared child-Goal wait correction (source-only)
+
+Root actual67 ACK regression: four existing Factory paths passed4/4/4/9 checks with cleanuptrue. Shared child-goal normal then genuinely failed afterCG01/CG02,19.043s, report `/workspace/.onboarding/pr18-observer-ack-childgoal-normal-browser2/report.json` SHA `eb1688b81ecd55f3158f072a67e376ff34015480174e8efaa593639889c4b37d`. First Factoryroot outcome_unknown after5s is preserved. Read-only private generatedstderr451B/SHA `bf24ddb41412f685731b5389ba3187cd5ddf365378a54c9af295aaddcf6c335b` contains observer_ack_wait and exact `Fixture observation ACK deadline expired`. Original log SHA `ed67d3ab6e47460e22482671a49169bef206bb30f387711cd8b18cdac73a31b5` is Root evidence, not author runtime.
+
+Root authorized one-line shared-consumer correction: `factory-child-goal-real-ipc.py` existing wait now does pump→existing guarded capture→read→predicate. Previously it waited for child-plan-ready before calling capture while provider waited for ACK before producing that plan, a test-observer dependency cycle. Existing capture returns immediately until host/workspace/scope/run_id exist; afterward it uses full strict Factory/Graph collectors. No new RPC/state machine/clock/timeout/permission is introduced. All original29 pure methods remain byte-identical; two additional methods execute actual nested wait/capture AST with inert callbacks, proving per-iteration capture before read, pre-resource guards and binding-error propagation before read. New total31PASS in2.476s/exit0. No real Core/browser/process was run by this author.
+
+Whole child-goal file inverse of the single inserted capture call is byte-equal67 baseline, including every old assertion, Owner/stop/MCP/recovery condition and5s/15s timing. Base ACK script remains frozen67 byte-identical. Evidence `/workspace/.onboarding/factory-bound-provider-exit-source/child-goal-wait/{pure.log,SOURCE_CHECKS.json}`. New actual child-goal normal/cancel/lost-start remains NOT_RUN pending Root; previous four Factory successes do not establish shared child-goal acceptance. Preserve original actual failure and source67 consumer limitation; independent review requested on combined source.
+
+
 ## Observer ACK fixture synchronization (source-only)
 
 Root's c89 actual browser reports remain distinct: normal/unknown each failed after2 checks because a new record had no initial live identity; cancel4PASS and child-planning9PASS were Root executions of the previous source, not this revision. Private report paths are `/workspace/.onboarding/pr18-bound-provider-{normal,unknown,cancel}-browser1/report.json`. Strict initial-live PID/birth/complete argv/PGID and all full Core session/turn/attempt/run/file/hash checks remain mandatory.
