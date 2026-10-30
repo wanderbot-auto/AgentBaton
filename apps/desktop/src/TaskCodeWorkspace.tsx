@@ -12,6 +12,12 @@ type Memory = { active: number; pending: Intent | null; observed: Observation | 
 // Same-document intent retention across task-detail remounts. No background work
 // or persistence of private identity/credentials; the Core receipt remains truth.
 const memories = new Map<string, Memory>();
+// Local unresolved-intent visibility only. Callers cannot read or change the
+// retained request/key, and this says nothing about Core permission or identity.
+export function taskWorkspacePreparationUnresolved(taskId: string): boolean {
+  const saved = memories.get(taskId);
+  return saved?.pending != null || saved?.writing === true;
+}
 const fingerprint = (task: Task) => JSON.stringify([task.id, task.project_id, task.revision, task.spec_revision, task.state]);
 const equal = (left: unknown, right: unknown): boolean => {
   if (left === right) return true;
