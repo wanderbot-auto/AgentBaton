@@ -3328,6 +3328,7 @@ impl Store {
         if view.revoked
             || view.expires_at_ms <= ms()?
             || record.revoked
+            || task.id != task_id
             || task.id != record.refs.task_id
             || task.id != view.task_id
             || task.spec_revision != record.refs.spec_revision
@@ -3483,6 +3484,9 @@ impl Store {
         task_id: &str,
     ) -> Result<Option<GraphTaskAcceptance>> {
         let task: Task = raw(&self.conn, "tasks", task_id)?;
+        if task.id != task_id {
+            return Err(changed());
+        }
         if task.state != TaskState::Accepted {
             return Ok(None);
         }
