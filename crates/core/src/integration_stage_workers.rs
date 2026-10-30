@@ -235,11 +235,24 @@ fn execute(
     match ticket.attempt.view.kind {
         IntegrationStageKind::Preparation => match super::io::prepare(ticket, cancel) {
             Ok(prepared) => {
-                let bytes = ticket
-                    .acceptance
-                    .artifact_refs
-                    .iter()
-                    .try_fold(0u64, |total, artifact| total.checked_add(artifact.bytes));
+                let bytes =
+                    ticket
+                        .policy
+                        .bindings
+                        .outputs
+                        .iter()
+                        .try_fold(0u64, |total, output| {
+                            let mut selected =
+                                ticket.acceptance.artifact_refs.iter().filter(|artifact| {
+                                    artifact.artifact_id == output.artifact.artifact_id
+                                        && artifact.relative_path == output.artifact.relative_path
+                                });
+                            let artifact = selected.next()?;
+                            if selected.next().is_some() {
+                                return None;
+                            }
+                            total.checked_add(artifact.bytes)
+                        });
                 StageReturn {
                     context: Some(prepared),
                     result: Ok(StageFact::Prepared),
