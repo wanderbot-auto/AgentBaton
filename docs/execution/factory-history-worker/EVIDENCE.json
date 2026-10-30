@@ -79,5 +79,12 @@
     "official_finite_zip": 12982199412,
     "official_zip_sha256": "f2969e808988356d3fc7a884ad16d8433f3818833974d0aef27997eb530c3502"
   },
-  "gates": "No formal Approve, performance/Mac/final130 acceptance or production release; Root soleheavy."
+  "gates": "No formal Approve, performance/Mac/final130 acceptance or production release; Root soleheavy.",
+  "root_actual": {
+    "source": "d64964ec9cd9062b73f2a891bb35e7165906c837",
+    "record": "docs/execution/factory-history-worker/ROOT_RESULTS.json",
+    "sha256": "aa6f89ca006b2d713258d62cb7e0b70fc74aeaf17619006fc33f80502ea41671",
+    "Core165_Factory30_sessions58_Clippy_fmt_infra203": "passed_scope_limited",
+    "newMac_CI_and_performance": "not_run"
+  }
 }

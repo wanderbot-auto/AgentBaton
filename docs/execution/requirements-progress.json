@@ -2016,7 +2016,8 @@
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-stop-service/ROOT_RESULTS.json"
+        "docs/execution/goal-stop-service/ROOT_RESULTS.json",
+        "docs/execution/factory-history-worker/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2237,6 +2238,15 @@
           "new_exact_Mac_CI": "not_run_yet",
           "whole_requirement": "incomplete",
           "authority": "hint is scheduling only; original fresh stop/actual receipts and budget/unknown guards unchanged"
+        },
+        {
+          "slice": "dedicated_readonly_factory_history_worker",
+          "source": "d64964ec9cd9062b73f2a891bb35e7165906c837",
+          "evidence": "docs/execution/factory-history-worker/ROOT_RESULTS.json",
+          "local": "165Coreincl12/30Factory/58sessions/203infra/strictClippy/fmt pass",
+          "history_authority": "none; original effect/livechecks unchanged; readonlysameWALsnapshot",
+          "current_Mac_and_performance": "not_run",
+          "whole_requirement": "incomplete"
         }
       ]
     },
@@ -2276,7 +2286,8 @@
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
-        "docs/execution/factory-summary-proof/ROOT_RESULTS.json"
+        "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
+        "docs/execution/factory-history-worker/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2490,6 +2501,15 @@
           "effect_authority": "unchanged original strict; no live/time/FS cache",
           "current_Mac_performance": "not_run",
           "whole_requirement": "incomplete"
+        },
+        {
+          "slice": "dedicated_readonly_factory_history_worker",
+          "source": "d64964ec9cd9062b73f2a891bb35e7165906c837",
+          "evidence": "docs/execution/factory-history-worker/ROOT_RESULTS.json",
+          "local": "165Coreincl12/30Factory/58sessions/203infra/strictClippy/fmt pass",
+          "history_authority": "none; original effect/livechecks unchanged; readonlysameWALsnapshot",
+          "current_Mac_and_performance": "not_run",
+          "whole_requirement": "incomplete"
         }
       ]
     },
@@ -2538,7 +2558,8 @@
         "docs/execution/factory-child-goal-integration/HEAD7AC_TERMINAL_RESULTS.json",
         "docs/execution/factory-child-goal-integration/ATOMIC_RESERVATION_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEADDE0B_TERMINAL_RESULTS.json",
-        "docs/execution/factory-summary-proof/ROOT_RESULTS.json"
+        "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
+        "docs/execution/factory-history-worker/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2756,6 +2777,15 @@
           "local": "153Core incl4/30Factory/58sessions strictClippy/fmt passed",
           "effect_authority": "unchanged original strict; no live/time/FS cache",
           "current_Mac_performance": "not_run",
+          "whole_requirement": "incomplete"
+        },
+        {
+          "slice": "dedicated_readonly_factory_history_worker",
+          "source": "d64964ec9cd9062b73f2a891bb35e7165906c837",
+          "evidence": "docs/execution/factory-history-worker/ROOT_RESULTS.json",
+          "local": "165Coreincl12/30Factory/58sessions/203infra/strictClippy/fmt pass",
+          "history_authority": "none; original effect/livechecks unchanged; readonlysameWALsnapshot",
+          "current_Mac_and_performance": "not_run",
           "whole_requirement": "incomplete"
         }
       ],
