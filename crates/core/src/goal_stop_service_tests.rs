@@ -417,6 +417,44 @@ impl Fixture {
             ""
         );
     }
+    fn no_extra_execution_or_task_acceptance(&self, attempts: i64, since: u64) {
+        assert_eq!(
+            self.daemon
+                .store
+                .conn
+                .query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            attempts,
+            "real reap/settlement must not admit another attempt"
+        );
+        let task = self.daemon.store.get(&self.task.id).unwrap();
+        assert_ne!(task.state, crate::storage::TaskState::Accepted);
+        assert!(task.acceptance_ref.is_none());
+        assert!(task.acceptance_sequence.is_none());
+        assert_eq!(
+            self.daemon
+                .store
+                .conn
+                .query_row(
+                    "SELECT count(*) FROM goal_graph_acceptances WHERE task_id=?1",
+                    [&self.task.id],
+                    |r| r.get::<_, i64>(0)
+                )
+                .unwrap(),
+            0,
+            "a stop must not create an acceptance receipt without accepting its Task"
+        );
+        // Use the actual event-writer kinds, not a frozen journal length:
+        // session.stopped/attempt.stopped/goal.node_settled may legitimately grow.
+        assert_eq!(
+            self.daemon.store.conn.query_row(
+                "SELECT count(*) FROM events WHERE sequence>?1 AND json_extract(document,'$.kind') IN('attempt.prepared','attempt.dispatch_started','goal.run_authorized','goal.node_reserved','goal.node_prompt_queued','session.message_queued','task.accepted')",
+                [i64::try_from(since).unwrap()], |r| r.get::<_, i64>(0)
+            ).unwrap(),
+            0,
+            "stop-only service and actual reap must not dispatch, prompt or accept"
+        );
+    }
     fn stop_requests(&self, id: &str) -> i64 {
         self.daemon.store.conn.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='goal.node_stop_requested' AND json_extract(document,'$.payload.session_id')=?1",[id],|r|r.get(0)).unwrap()
     }
@@ -438,6 +476,7 @@ fn owned_goal_terminal_commit_is_stopped_by_hint_before_an_unrelated_read_withou
         .conn
         .query_row("SELECT count(*) FROM attempts", [], |r| r.get(0))
         .unwrap();
+    let stop_tail = f.daemon.store.sequence().unwrap();
     f.daemon.service_hinted_goal_stops().unwrap();
     assert_eq!(f.stop_requests(&session.id), 1);
     // A real stop was requested, but neither hint nor end_turn can fake its receipt.
@@ -464,6 +503,7 @@ fn owned_goal_terminal_commit_is_stopped_by_hint_before_an_unrelated_read_withou
         attempts
     );
     f.wait_stopped(&session.id);
+    f.no_extra_execution_or_task_acceptance(attempts, stop_tail);
     assert!(!f.daemon.store.get_goal_run(&run.id).unwrap().task_accepted);
     let actual: Option<i64> = f.daemon.store.conn.query_row("SELECT json_extract(document,'$.actual_runtime_ms') FROM goal_run_reservations WHERE attempt_id=?1",[&session.attempt_id],|r|r.get(0)).unwrap();
     assert!(actual.is_some_and(|ms| ms > 0 && ms <= 4000));
@@ -610,6 +650,13 @@ fn pending_goal_cancel_still_uses_the_outer_fresh_sweep_without_a_hint() {
         .turn_state
         .is_none());
     assert!(!f.daemon.supervisor.take_goal_stop_hint());
+    let attempts: i64 = f
+        .daemon
+        .store
+        .conn
+        .query_row("SELECT count(*) FROM attempts", [], |r| r.get(0))
+        .unwrap();
+    let stop_tail = f.daemon.store.sequence().unwrap();
     let current = f.daemon.store.get_goal_run(&run.id).unwrap();
     f.daemon
         .store
@@ -619,6 +666,7 @@ fn pending_goal_cancel_still_uses_the_outer_fresh_sweep_without_a_hint() {
     f.daemon.tick_goals().unwrap();
     assert_eq!(f.stop_requests(&session.id), 1);
     f.wait_stopped(&session.id);
+    f.no_extra_execution_or_task_acceptance(attempts, stop_tail);
     let cancelled = f.daemon.store.get_goal_run(&run.id).unwrap();
     assert!(cancelled.cancel_requested);
     assert!(!cancelled.task_accepted);
