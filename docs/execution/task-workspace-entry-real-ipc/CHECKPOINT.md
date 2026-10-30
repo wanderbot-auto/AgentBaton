@@ -17,3 +17,11 @@ python3 scripts/record-task-workspace-ci-evidence.py \
 ```
 
 The projector may exit0 for a structurally valid failed driver report; retain the separate driver exit as required. Default without --run remains preflight exit2. Actual Node/Core/Actor/browser/Native/Mac/Provider/CI all NOT_RUN by author; source/pure controls do not establish B06 E2E. No claim of all default coding/child isolation/adoption/remote/130 requirements being complete.
+
+## Old-worktree P2 follow-up
+
+New source `bde98d383cacb766f5cb45286cdbffb62b5a622c` follows77+7b01; only the same4 allowed test paths. Original77/old review and initial pure records remain immutable. Root has not yet run this B06 source. Followup_task was used to resume the original NativeReviewer for targeted closure (no new agent); independent review is pending as this document is written. Root should integrate original77 and this source fix together after review, rebuild correct frontend/source/tool evidence, then run the actual6 scenarios once in a fresh output. Count6/PNG8/privacy/CAS/keys and original B01–B05 remain as above.
+
+New source-only evidence lives in /workspace/.onboarding/task-workspace-entry-real-ipc/revision-old-worktree-fs, leaving original manifest/source/pure logs untouched. No actual FS preservation is claimed from the synthetic tests: actual B06 must take/compare both live generated old worktree images before it records the success bool. No current macOS/Native/Provider/installer/whole130 completion claim.
+
+Final source follow-up `af52a0e8a28e609ca0dda1baa3f104c4fe84fa22` includes bde old-worktree image coverage and the additional new-image-only bounded-growth fix. Use this source plus original77 when integrating; do not take bde alone as accepted because its F2 is separately preserved. Original NativeReviewer was resumed via followup_task and has received the new fixed SHA for targeted closure. Final author pure55/37 and source9 are not browser/IPC/Native results.

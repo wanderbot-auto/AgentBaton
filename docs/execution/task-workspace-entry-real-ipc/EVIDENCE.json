@@ -101,5 +101,106 @@
   "public_HTTP_allowlist_unchanged": true,
   "new_permission_or_Core_contract": false,
   "scope_complete": false,
-  "status": "SOURCE_ONLY_PENDING_INDEPENDENT_REVIEW_AND_ROOT_ACTUAL_RUN"
+  "status": "SOURCE_ONLY_PENDING_INDEPENDENT_REVIEW_AND_ROOT_ACTUAL_RUN",
+  "followups": [
+    {
+      "recorded_at": "2026-10-30T02:08:11.777878+00:00",
+      "source_fix": "bde98d383cacb766f5cb45286cdbffb62b5a622c",
+      "reviewed_previous_source": "77d229a0be16c0bd21d12e1a96f8af6f91e05b62",
+      "previous_source_status": "CHANGES_REQUIRED missing old managed-worktree filesystem preservation proof; initial46/36pure not E2E",
+      "new_proof": "both old receipt-bound managed tree images include own .git backlink and workfiles; exact before/after equality",
+      "shared_git_common_dir_unchanged_claimed": false,
+      "existing_task_source_zeroexecution_assertions_retained": true,
+      "original_default_file_digest_semantics_unchanged": true,
+      "source_sha256": {
+        "apps/desktop/tests/task-workspace-binding-real-ipc.py": "6bb002f30788e2ba3e35565c2b1c8187af42cfdfaec4090bb931bb71559bb0fb",
+        "apps/desktop/tests/test_task_workspace_binding_real_ipc.py": "c4d908040f8847548cacd0aec8be98826dbc3c893d4c51dd4e76309a8f8a3504",
+        "scripts/record-task-workspace-ci-evidence.py": "949144b1f1088883a33ffb08f53f2bfbb7b826df4659048c396373f5d48bde52",
+        "tests/infrastructure/test_task_workspace_ci_evidence.py": "1db7ae2c4181331da34826f46cebcd1db40a8c90b1412b0e0a2ff3902497ce8e"
+      },
+      "pure_driver": {
+        "exit": 0,
+        "cases": 54,
+        "new_cases": 8,
+        "seconds": 0.037,
+        "log_sha256": "d2a7ce00baa781daac023fc39f581e748171dbba7deb750d4ef80e2945c4659e"
+      },
+      "source_checks": {
+        "exit": 0,
+        "count": 9,
+        "checks": {
+          "AST_apps/desktop/tests/task-workspace-binding-real-ipc.py": true,
+          "AST_apps/desktop/tests/test_task_workspace_binding_real_ipc.py": true,
+          "AST_scripts/record-task-workspace-ci-evidence.py": true,
+          "AST_tests/infrastructure/test_task_workspace_ci_evidence.py": true,
+          "entire_driver_inverse_equals_original77_all_six_flows_and_readwrite_CAS_and_B01_B05_unchanged": true,
+          "old46_tests_entire_file_preserved_without_removal_or_assertion_changes": true,
+          "entire_projector_only_strengthens_new_B06_private_fs_proof": true,
+          "old36_projector_tests_preserved_only_new_field_required_in_fixture": true,
+          "diffcheck0": true
+        }
+      },
+      "projection_new_case": 1,
+      "actual_browser_NOT_RUN": true,
+      "Native_Node_Cargo_Provider_NOT_RUN": true,
+      "source_only_review_pending": true,
+      "whole_scope_complete": false,
+      "pure_projection": {
+        "exit": 0,
+        "cases": 37,
+        "new_cases": 1,
+        "seconds": 1.263,
+        "log_sha256": "985618451c14a865ba4ae5b23812e723535b0616f35a1ade9ab085f24cb667f9"
+      }
+    },
+    {
+      "recorded_at": "2026-10-30T02:10:19.999937+00:00",
+      "source_fix": "af52a0e8a28e609ca0dda1baa3f104c4fe84fa22",
+      "previous_source": "bde98d383cacb766f5cb45286cdbffb62b5a622c",
+      "previous_review_status": "old worktree P2 substantively covered; new F2 CHANGES_REQUIRED: actual byte reads not bounded during growth",
+      "f2_dimension": "controlled stream counterexample, not actual Core/browser failure",
+      "fix_scope": "expected_identity/new-image digest branch only; all original default callers unchanged",
+      "accepted_total_tree_bytes_max": 67108864,
+      "per_read_bytes_max": 1048576,
+      "overflow_detection_extra_bytes_max": 1,
+      "new_control": "never-EOF injected stream refuses at initial size +1",
+      "source_sha256": {
+        "apps/desktop/tests/task-workspace-binding-real-ipc.py": "69fe15cb5b4b7af33652611c15fcef5101adf480d52d76e7533ca82171186dd8",
+        "apps/desktop/tests/test_task_workspace_binding_real_ipc.py": "d1606d9bc306ee78508cccebfa34261ede71165fe09d258f4abe1a22e993a179",
+        "scripts/record-task-workspace-ci-evidence.py": "949144b1f1088883a33ffb08f53f2bfbb7b826df4659048c396373f5d48bde52",
+        "tests/infrastructure/test_task_workspace_ci_evidence.py": "1db7ae2c4181331da34826f46cebcd1db40a8c90b1412b0e0a2ff3902497ce8e"
+      },
+      "driver_pure": {
+        "exit": 0,
+        "cases": 55,
+        "seconds": 0.04,
+        "new_cases_after_bde": 1,
+        "log_sha256": "c3656820482762d6a2dffcc3d07cca0871ad611e4c489cd12878d94f4f2ee7bd"
+      },
+      "projection_pure": {
+        "exit": 0,
+        "cases": 37,
+        "seconds": 1.274,
+        "log_sha256": "cfdf1b5f76bd2df379bf6269618da7b49ff63d3b5bee7feafa0a158502b02e8d"
+      },
+      "source_controls": {
+        "exit": 0,
+        "count": 9,
+        "checks": {
+          "AST_apps/desktop/tests/task-workspace-binding-real-ipc.py": true,
+          "AST_apps/desktop/tests/test_task_workspace_binding_real_ipc.py": true,
+          "AST_scripts/record-task-workspace-ci-evidence.py": true,
+          "AST_tests/infrastructure/test_task_workspace_ci_evidence.py": true,
+          "entire_driver_inverse_equals_original77_all_six_flows_and_readwrite_CAS_and_B01_B05_unchanged": true,
+          "old46_tests_entire_file_preserved_without_removal_or_assertion_changes": true,
+          "entire_projector_only_strengthens_new_B06_private_fs_proof": true,
+          "old36_projector_tests_preserved_only_new_field_required_in_fixture": true,
+          "diffcheck0": true
+        }
+      },
+      "actual_Core_browser_Native_Node_Cargo_Provider_NOT_RUN": true,
+      "independent_review_pending": true,
+      "whole_scope_complete": false
+    }
+  ]
 }
