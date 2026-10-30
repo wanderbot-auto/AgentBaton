@@ -1,3 +1,23 @@
+## Actor/portable validator and strict fixture ACK ready for new CI — 2026-10-30T01:14:14.382825+00:00
+
+Actual Factory26/Core129, strict workspace/all-target Clippy and format remain accurately source-bound in REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json; all Rust/Cargo bytes are unchanged through cae38. New infrastructure181PASS2.990s. Fixed test-only ACK four actual browser/UnixIPC flows pass4/4/4/9checks with complete cleanup; full childGoal normal/lost-start/cancel pass4/5/4checks (24.170/27.472/15.240s), each actual daemon wait0, bound identities gone and complete cleanup. Root viewed the final normal childGoal PNG. Driver465/cae, historical compiledCore0c78/frontend2d remain separate dimensions, not current rebuilt Core or Mac.
+
+Original first-live failures and childGoal preflight capacity refusal/actual ACK-cycle failure19.043s remain preserved. Existing capture now runs before each childGoal wait read, fixing that test observer dependency without changing5s/production unknown or final assertions. Original67 CHANGES_REQUIRED seal remains; e590 independent31pure/source closure f3ecf04f has no remaining mustfix. Actor and portable source reviews remain separate; no Mac root-cause/performance improvement claimed. See ACTOR_PORTABLE_ACK_RESULTS.json.
+
+Remote PR18 de0b remains Env3/RustPASS/UI+bothMacFAIL; next exact sevenCI, native/build/audit/packages and full130 acceptance are pending. PR19 dependent default GitTask workspace entry focused83 andtype/build pass locally, but independent combination review found same-key recovery visibility P2 under repair; not accepted or merged. main653679d/OWNER001002ACK/no003 and all authorization boundaries unchanged.
+
+## Reviewed local regressions and first-binding race — 2026-10-30T01:00:16.147826+00:00
+
+Actor ready-batch graph service, fixed hash-approved portable shell validator, and strict observer first-binding guard are independently source-reviewed. Actual Factory26PASS90.12s and Core129PASS90.10s (nested helper excluded), infrastructure172, all-workspace/all-target strictClippy and format passed at their separately recorded sources. Original portable first0/1 uid assertion failure/ELF is retained; corrected Mac-only uid assertion passes Linux, not Mac proof.
+
+Actual driverd694 with hash-restored Core0c78/frontend2d: planning9checks/4PNG and cancel4checks/2PNG pass with complete cleanup; normal and unknown each fail after2checks because no prior live verified identity exists when the fixed provider has already exited. Both cleanup_complete=false; daemon actual wait0 does not turn the flow green. A minimal test-only observation ACK is being implemented after full live identity/Core binding, within unchanged original budgets. The strict first-live guard remains.
+
+See REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json. Remote de0b remains Env3/Rust pass, UI/bothMac fail; new exact CI, Native/build/packages and complete130 remain unverified. main653679d freshly fetched, OWNER001/002 ACK with no003. Authority boundaries unchanged; continue implementation/testing.
+
+# de0b CI准确终态：Rust/Environment通过，UI与双Mac失败 — 2026-10-30T00:26:21.941409+00:00
+
+准确de0b/checkout59e174：Env3和Rust通过，UI/双Mac失败。UI已绑定provider在argv读取窗口退出；ARM两轮preflight INPUT_CHANGED无命令退出观察；Intel当前capture未启动、同Goal前置rev11节点4359ms>原4s（same-plan未证）。这些是不同边界，原预算/拒绝不放宽。新窄修独审/真实测试继续，详见[准确终态证据](factory-child-goal-integration/HEADDE0B_TERMINAL_RESULTS.json)。PR18尚未合入，无15/16新包；PR19新c02组合Factory26/192infra/Clippy已过、独立16/native/Mac仍未验收；完整130未完。main653679d/OWNER001002ACK，无新授权。
+
 # schema16新父分支组合真实回归通过 — 2026-10-30T00:10:01.983268+00:00
 
 bc86：Factory26/83.78s、fullinfra192、全workspace/alltargets严格Clippy/fmt通过，new真实joined16快照有限投影通过。初次Cargo编译成功后容量中断原记不通过；同一SHA测试ELF直接执行全26通过且工具16pins不变。exact16/拒15+17/两P2闭合与STATUS双方历史均独审通过，见 [准确组合证据](task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json)。995Node/五真实浏览器场景等仍保各自原source，不冒重跑。Parentde0b Env3过/UI在已绑定进程退出argv窗口FAIL，Rust/双Mac在跑；独立fixture窄修进行中。PR19依赖/draft，无16CI/native/Mac/新包；完整130、默认隔离/child/adoption/remote未完。main653679d/OWNER001002 ACK，无权限扩大。

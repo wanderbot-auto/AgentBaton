@@ -3,7 +3,15 @@
 use super::*;
 use agentbaton_core::{goal_plan::*, goal_store::*};
 use serde_json::Value;
-use std::os::unix::fs::MetadataExt;
+use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
+
+// Same fixed host-reviewed script/argv in both revisions. Only POSIX builtins
+// consume the actual report; bytes arrive through the approved stdin mode.
+const FIXED_REWORK_VALIDATOR_SCRIPT: &[u8] = br#"while IFS= read -r line || [ -n "$line" ]; do
+    [ "$line" = rework-second-valid ] && exit 0
+done < "$1"
+exit 1
+"#;
 
 fn finalize(runtime: &Path, proposal: &Value, key: &str) -> Value {
     mixed_call(
@@ -612,6 +620,58 @@ fn bootstrap_scope(f: &mut Fixture) -> GoalScopeView {
 fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume(
 ) {
     let scenario_started = Instant::now();
+    // Use the already exercised system shell, never a private executable copy
+    // or NativeExecutable shell mode. These checks do not relax library guards.
+    let executable = fs::canonicalize("/bin/sh").unwrap();
+    let mut executable_file = fs::OpenOptions::new()
+        .read(true)
+        .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC)
+        .open(&executable)
+        .unwrap();
+    let program_pin = |m: &fs::Metadata| {
+        (
+            m.dev(),
+            m.ino(),
+            m.len(),
+            m.mode(),
+            m.uid(),
+            m.gid(),
+            m.nlink(),
+            m.mtime(),
+            m.mtime_nsec(),
+            m.ctime(),
+            m.ctime_nsec(),
+        )
+    };
+    let executable_metadata = executable_file.metadata().unwrap();
+    assert!(executable_metadata.is_file());
+    assert_eq!(executable_metadata.nlink(), 1);
+    #[cfg(target_os = "macos")]
+    assert_eq!(executable_metadata.uid(), 0);
+    assert_ne!(executable_metadata.mode() & 0o111, 0);
+    assert_eq!(executable_metadata.mode() & 0o6022, 0);
+    assert!(executable_metadata.len() <= 16 * 1024 * 1024);
+    assert_eq!(
+        program_pin(&executable_metadata),
+        program_pin(&fs::symlink_metadata(&executable).unwrap())
+    );
+    let mut executable_bytes = Vec::new();
+    std::io::Read::read_to_end(
+        &mut std::io::Read::take(&mut executable_file, 16 * 1024 * 1024 + 1),
+        &mut executable_bytes,
+    )
+    .unwrap();
+    assert_eq!(executable_bytes.len() as u64, executable_metadata.len());
+    assert_eq!(
+        program_pin(&executable_metadata),
+        program_pin(&executable_file.metadata().unwrap())
+    );
+    assert_eq!(
+        program_pin(&executable_metadata),
+        program_pin(&fs::symlink_metadata(&executable).unwrap())
+    );
+    let executable_sha = sha256(&executable_bytes);
+    assert_eq!(sha256(&fs::read(&executable).unwrap()), executable_sha);
     let mut f = Fixture::new();
     let companion = PathBuf::from(
         std::env::var_os("AGENTBATON_CHILD_GOAL_COMPANION")
@@ -750,16 +810,49 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         |v| v["run"]["state"] == "awaiting_acceptance",
     );
     assert_eq!(done["nodes"][0]["stop_confirmed"], true);
-    // A deterministic fixed executable consumes the actual selected report:
-    // first contents fail grep, second contents pass. The command, argv and
-    // executable digest are identical for both Graph revisions.
-    let executable = fs::canonicalize("/usr/bin/grep").unwrap();
-    let executable_sha = sha256(&fs::read(&executable).unwrap());
+    // A separate approved SHA script is not another Factory input permission.
+    // The existing command contract binds its exact workspace root/FD identity;
+    // the Graph normalizer excludes script_id from ordinary selected inputs.
+    assert!(!f.selection.inputs.is_empty());
+    let validator_path = workspace_root.join("reports/fixed-rework-validator.sh");
+    let mut validator_file = fs::OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .mode(0o600)
+        .open(&validator_path)
+        .unwrap();
+    std::io::Write::write_all(&mut validator_file, FIXED_REWORK_VALIDATOR_SCRIPT).unwrap();
+    validator_file.sync_all().unwrap();
+    let script_sha = sha256(FIXED_REWORK_VALIDATOR_SCRIPT);
+    assert_eq!(validator_file.metadata().unwrap().nlink(), 1);
+    assert_eq!(validator_file.metadata().unwrap().mode() & 0o7777, 0o600);
+    assert_eq!(sha256(&fs::read(&validator_path).unwrap()), script_sha);
+    let script_requirement = json!({"artifact_id":"rework-fixed-validator-script","relative_path":"reports/fixed-rework-validator.sh","max_bytes":FIXED_REWORK_VALIDATOR_SCRIPT.len(),"expected_sha256":script_sha});
     let p = mixed_call(
         &runtime,
-        json!({"method":"command_validation_policies.propose","params":{"session_id":done["nodes"][0]["session_id"],"executable":executable,"mode":"native_executable","script":null,"inputs":f.selection.inputs,"outputs":f.selection.outputs,"arguments":["-q","-x","rework-second-valid","reports/report.txt"],"environment":{},"expected_exit_codes":[0],"wall_time_ms":1000,"cleanup_time_ms":500,"stdout_limit":512,"stderr_limit":512,"require":agentbaton_core::command_validation::CommandEnforcement::default()},"idempotency_key":"rework-fixed-grep-definition"}),
+        json!({"method":"command_validation_policies.propose","params":{"session_id":done["nodes"][0]["session_id"],"executable":executable,"mode":"posix_sh_stdin","script":script_requirement,"inputs":f.selection.inputs,"outputs":f.selection.outputs,"arguments":["reports/report.txt"],"environment":{},"expected_exit_codes":[0],"wall_time_ms":1000,"cleanup_time_ms":500,"stdout_limit":512,"stderr_limit":512,"require":agentbaton_core::command_validation::CommandEnforcement::default()},"idempotency_key":"rework-fixed-builtin-definition"}),
     );
     let definition = finalize(&runtime, &p, "rework-native-command-definition-consent");
+    let workspace_metadata = fs::metadata(&workspace_root).unwrap();
+    assert_eq!(definition["selection"]["inputs"], json!(f.selection.inputs));
+    assert_eq!(definition["selection"]["mode"], "posix_sh_stdin");
+    assert_eq!(definition["selection"]["script"], script_requirement);
+    assert_eq!(
+        definition["contract"]["script"]["canonical_root"],
+        json!(workspace_root)
+    );
+    assert_eq!(
+        definition["contract"]["script"]["root_device"],
+        workspace_metadata.dev()
+    );
+    assert_eq!(
+        definition["contract"]["script"]["root_inode"],
+        workspace_metadata.ino()
+    );
+    assert_eq!(
+        definition["contract"]["script"]["requirement"],
+        script_requirement
+    );
     mixed_call(
         &runtime,
         json!({"method":"goal_runs.cancel","params":{"run_id":run["id"]},"expected_revision":done["run"]["revision"],"idempotency_key":"rework-source-candidate-cancel"}),
@@ -1058,6 +1151,15 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         "parent-initial\nchild-recovery\nparent-resumed\n"
     );
     assert_eq!(sha256(&fs::read(&executable).unwrap()), executable_sha);
+    assert_eq!(sha256(&fs::read(&validator_path).unwrap()), script_sha);
+    assert_eq!(
+        program_pin(&executable_metadata),
+        program_pin(&executable_file.metadata().unwrap())
+    );
+    assert_eq!(
+        program_pin(&executable_metadata),
+        program_pin(&fs::symlink_metadata(&executable).unwrap())
+    );
     drop(running);
     let db = Connection::open(&f.path).unwrap();
     for (sql,n) in [

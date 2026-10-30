@@ -125,6 +125,69 @@ def write_private_json(path, value):
     return sha(raw)
 
 
+OBSERVER_ACK_CODE = r'''def observer_ack_bytes(value):
+ return (json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True)+'\n').encode()
+def observer_ack_paths(record):
+ path=Path(record);ack=path.with_name('fixture-observed-'+path.stem.removeprefix('fixture-request-')+'.json')
+ return ack,ack.with_name(ack.name+'.ready')
+def observer_ack_absent(record):
+ for path in observer_ack_paths(record):
+  try:os.lstat(path)
+  except FileNotFoundError:continue
+  raise AssertionError('Precreated fixture observation ACK')
+def observer_ack_value(row,record_sha):
+ return {'kind':'generated_fixture_observer_ack','schema_version':1,'record_sha256':record_sha,
+  'request_sha256':row['request_sha256'],'fixture_nonce':row['fixture_nonce'],
+  'native_session_id':row['native_session_id'],'observer_context':row['observer_context'],
+  'owned_provider':row['owned_provider'],'owned_companion':row['owned_companion']}
+def observer_ack_read(record,expected):
+ ack,ready=observer_ack_paths(record)
+ parent=os.open(ack.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  ready_fd=os.open(ready.name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=parent)
+  try:
+   info=os.fstat(ready_fd)
+   assert info.st_uid==os.getuid() and stat.S_IMODE(info.st_mode)==0o700 and not os.listdir(ready_fd)
+   ready_pin=(info.st_dev,info.st_ino)
+  finally:os.close(ready_fd)
+  fd=os.open(ack.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=parent)
+  try:
+   before=os.fstat(fd)
+   assert stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_uid==os.getuid()
+   assert stat.S_IMODE(before.st_mode)==0o600 and before.st_size<=4096
+   raw=os.read(fd,4097);after=os.fstat(fd)
+   fields=('st_dev','st_ino','st_size','st_mtime_ns','st_ctime_ns')
+   assert all(getattr(before,k)==getattr(after,k) for k in fields)
+   assert len(raw)==before.st_size and raw==observer_ack_bytes(expected)
+   return (tuple(getattr(before,k) for k in fields),ready_pin)
+  finally:os.close(fd)
+ finally:os.close(parent)
+def observer_ack_publish(record,value):
+ observer_ack_absent(record)
+ ack,ready=observer_ack_paths(record)
+ raw=observer_ack_bytes(value);assert len(raw)<=4096
+ parent=os.open(ack.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  fd=os.open(ack.name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=parent)
+  with os.fdopen(fd,'wb') as writer:
+   writer.write(raw);writer.flush();os.fsync(writer.fileno())
+  # Only this atomic ready-directory publication exposes the closed complete file.
+  os.mkdir(ready.name,0o700,dir_fd=parent)
+ finally:os.close(parent)
+ return observer_ack_read(record,value)
+def observer_ack_wait(record,row,record_sha,now=time.monotonic_ns,pause=time.sleep):
+ deadline=row['observer_context']['deadline_ns']
+ while True:
+  assert now()<deadline,'Fixture observation ACK deadline expired'
+  try:observer_ack_read(record,observer_ack_value(row,record_sha))
+  except FileNotFoundError:
+   pause(0.005);continue
+  assert now()<deadline,'Fixture observation ACK arrived too late'
+  return
+'''
+exec(OBSERVER_ACK_CODE)
+
+
 def diagnostic_snapshot(runtime, workspace, output, owner_token):
     """Bounded complete readonly transaction, never claims a retained DB copy."""
     result = {'dimension': 'generated-fixture-only readonly query snapshot, NOT retained/replayable SQLite bytes',
@@ -288,6 +351,25 @@ class FixtureControllerReaper:
             self.enabled = False
 
 
+
+def _bound_identity_disappeared(old, fixed, field, before):
+    """Preserve validated history only; absence is NOT a Core stop/join receipt.
+
+    Caller has just revalidated all files, nonce, Core session/turn/attempt and
+    immutable old==fixed. Never bind a new process or accept a reused/live PID.
+    """
+    if old is None or old != fixed or before is None:
+        return False
+    expected = fixed[field]
+    if before['pid'] != expected['pid'] or before['start_ticks'] != expected['start_ticks']:
+        return False
+    try:
+        after = support.proc_identity(expected['pid'])
+    except (FileNotFoundError, ProcessLookupError):
+        after = None
+    return after is None
+
+
 def collect_started_records(runtime, workspace, scope, context, verified, output, reaper=None):
     """A discovery glob cannot authorize cleanup: bind every FD to actual Core text/session."""
     if workspace is None or scope is None: return []
@@ -335,19 +417,37 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
             fixed = {'path':str(path),'sha256':sha(raw),'file_pin':pin,'session_id':session['id'],
                 'attempt_id':session['attempt_id'],'stage':row['stage'],'native_session_id':row['native_session_id'],
                 'owned_provider':dict(row['owned_provider']),'owned_companion':dict(row['owned_companion'])}
+            observer = row.get('observer_context')
+            if observer is not None:
+                assert set(observer)=={'scope_id','attempt_id','task_id','root_task_id','native_session_id','started_ns','deadline_ns'}
+                assert observer['scope_id']==scope['id'] and observer['attempt_id']==attempt['attempt_id']
+                assert observer['task_id']==request['task_id'] and observer['root_task_id']==scope['root_task_id']
+                assert observer['native_session_id']==row['native_session_id']
+                assert type(observer['started_ns']) is int and observer['started_ns']>0
+                assert type(observer['deadline_ns']) is int and observer['deadline_ns']==observer['started_ns']+5_000_000_000
             old = next((r for r in verified if r['path']==fixed['path']),None)
             assert old is None or old==fixed, 'Previously bound generated record changed'
+            if observer is not None:
+                acks=context.setdefault('_observer_acks',{})
+                if old is None:
+                    observer_ack_absent(path)
+                else:
+                    assert str(path) in acks,'Previously bound ACK missing from Host history'
+                    assert observer_ack_read(path,observer_ack_value(row,sha(raw)))==acks[str(path)]
             if reaper is not None and old is not None:
                 reaper.reap(old)  # Only previously bound identities after fresh full Core/record validation.
             for field, expected_argv in [('owned_provider', row['provider_argv']), ('owned_companion', argv)]:
                 expected = row[field]
                 try: current = support.proc_identity(expected['pid'])
                 except (FileNotFoundError, ProcessLookupError): current = None
-                if current is not None and current['start_ticks']==expected['start_ticks']:
+                if current is None:
+                    assert old is not None and old==fixed, 'Previously bound generated record required for an absent initial identity'
+                if current is not None:
+                    assert current['pid']==expected['pid'] and current['start_ticks']==expected['start_ticks'], 'Generated PID identity changed; no argv read'
                     try:
                         with Path('/proc',str(expected['pid']),'cmdline').open('rb') as reader:
                             observed = reader.read(8193)
-                    except FileNotFoundError:
+                    except (FileNotFoundError, ProcessLookupError):
                         observed = None
                     if observed in (None, b'') and field == 'owned_companion' and old is not None and reaper is not None:
                         # A live child can be killed after the early reap check.
@@ -357,6 +457,8 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         except FileNotFoundError: after = None
                         assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait'
                         continue
+                    if observed in (None, b'') and field == 'owned_provider' and _bound_identity_disappeared(old, fixed, field, current):
+                        continue  # Keep the original binding, not a new argv or stop proof.
                     try:
                         assert observed is not None
                         assert len(observed)<=8192 and observed.endswith(b'\0')
@@ -387,13 +489,22 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                             observation['diagnostic_write_error'] = type(error).__name__
                         raise AssertionError('Fixed generated argv guard failed: ' + json.dumps(observation, sort_keys=True))
                     actual = [x.decode() for x in observed[:-1].split(b'\0')]
-                    assert actual[-len(expected_argv):] == expected_argv and os.getpgid(expected['pid'])==expected['pgid']
-                    assert support.proc_identity(expected['pid'])['start_ticks']==expected['start_ticks']
+                    assert actual[-len(expected_argv):] == expected_argv
+                    try:
+                        assert os.getpgid(expected['pid'])==expected['pgid']
+                        assert support.proc_identity(expected['pid'])['start_ticks']==expected['start_ticks']
+                    except (FileNotFoundError, ProcessLookupError):
+                        if _bound_identity_disappeared(old, fixed, field, current):
+                            continue  # Completed argv matched; the known identity has now vanished.
+                        raise
             if old is None:
                 copy = output / ('verified-' + str(pid) + '.json')
                 write_private_json(copy, {'dimension':'verified generated fixture record, not authority from an Agent',
                     'core_session_id':session['id'],'core_attempt_id':session['attempt_id'],'original_file_pin':pin,'record':row})
                 verified.append(fixed)
+                if observer is not None:
+                    assert time.monotonic_ns()<observer['deadline_ns'],'Fixture observer binding exceeded original fixture deadline'
+                    acks[str(path)]=observer_ack_publish(path,observer_ack_value(row,sha(raw)))
             row['request'] = request; discovered.append(row)
         db.rollback()
     return discovered
@@ -833,7 +944,7 @@ def preflight(args):
     return binary, companion, frontend, manifest, raw
 
 
-GENERATED_ACP = r'''import hashlib,json,os,signal,stat,subprocess,sys
+GENERATED_ACP = "import time\nFIXTURE_STARTED_NS=time.monotonic_ns()\nimport hashlib,json,os,signal,stat,subprocess,sys\nfrom pathlib import Path\n" + OBSERVER_ACK_CODE + r'''
 if '--version' in sys.argv:
  print('Generated account-free Factory ACP 1');sys.exit(0)
 settings_path=sys.argv[sys.argv.index('--fixture-settings')+1]
@@ -913,9 +1024,14 @@ try:
     'program_sha256':file_hash(__file__),'settings_sha256':file_hash(settings_path),
     'provider_argv':sys.argv,'companion_argv':[server['command']]+server['args']}
    record_path='reports/fixture-request-'+str(os.getpid())+'.json'
+   observer_ack_absent(record_path)
+   proof['observer_context']={'scope_id':status['factory_scope_id'],'attempt_id':status['attempt_id'],
+    'task_id':c['task_id'],'root_task_id':c['root_task_id'],'native_session_id':native_session_id,
+    'started_ns':FIXTURE_STARTED_NS,'deadline_ns':FIXTURE_STARTED_NS+5_000_000_000}
    record_fd=os.open(record_path+'.tmp',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
    with os.fdopen(record_fd,'w')as f:json.dump(proof,f)
    os.replace(record_path+'.tmp',record_path)
+   observer_ack_wait(record_path,proof,file_hash(record_path))
    with open('reports/fixture-stages.txt','a')as f:f.write(stage+'\n')
    if settings['case']=='cancel':
     assert stage=='parent-initial'

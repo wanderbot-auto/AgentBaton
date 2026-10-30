@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "source_commit": "5adb52ee38ce4d82d45b386df9c952687577cca2",
+  "base": "de0b911328c6703491902970ff608b908e3bf643",
+  "requirements": [
+    "AB-TSK-004",
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-VAL-003",
+    "AB-VAL-007",
+    "AB-SEC-003",
+    "AB-SEC-010"
+  ],
+  "source_manifest": "/workspace/.onboarding/factory-portable-validator-fixture/SOURCE_MANIFEST.json",
+  "source_manifest_sha256": "5d2c9c8c2a9d706ddb8abe38bb3655d14fe88e9e678701974bf05aa7158f54a9",
+  "fixed_script": {
+    "bytes": 113,
+    "sha256": "53987fdb7f802cf81db13c429aa81f1072fbf6ebdfcaac38247fab138e31d17f",
+    "mode": "posix_sh_stdin",
+    "program": "canonical /bin/sh",
+    "arguments": [
+      "reports/report.txt"
+    ],
+    "Factory_inputs_extended": false,
+    "script_separately_owner_approved": true,
+    "actual_core_approval_on_new_source": "NOT_RUN"
+  },
+  "actual_author_checks": [
+    {
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/factory-portable-validator-fixture/semantic-controls.py"
+      ],
+      "exit": 0,
+      "finite_controls": 19,
+      "dimension": "Linux fixed POSIX shell text semantics versus grep; no Core/Mac"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/factory-portable-validator-fixture/static-checks.py"
+      ],
+      "exit": 0,
+      "inverse_entire_original_fixture_equal": true,
+      "provider_byte_equal": true
+    },
+    {
+      "argv": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/core/tests/fixtures/factory_child_goal_rework.rs"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0
+    }
+  ],
+  "original_de0b_facts_path": "/workspace/.onboarding/factory-portable-validator-fixture/ORIGINAL_DE0B_FACTS.json",
+  "original_de0b_facts_sha256": "82074e3526bb178f4ec7cc0bd3eb89a99663189d95325bba729283f45cea926d",
+  "existing_system_sh_mac_positive_dimension": "prior unit and program-only preflight; not new rework success",
+  "mac_grep_metadata": "UNKNOWN_NOT_MEASURED",
+  "intel_second_work_overrun": "KNOWN_REMAINS_STRICT_UNCLOSED",
+  "not_run": [
+    "Cargo/Rust typecheck",
+    "Actor/daemon",
+    "full rework normal/failure",
+    "full Factory26",
+    "Mac/CI"
+  ],
+  "production_schema_locks_permissions_budgets_changed": false,
+  "generated_ACP_byte_equal": true,
+  "independent_review": "PENDING",
+  "root_heavy_lease_used": false,
+  "initial_scalar_note_correction": "An intermediate message said118 script bytes; actual controls/source .len() establish113. No fixed118 budget was coded.",
+  "linux_program_owner_correction": {
+    "source": "02503b417d5848b1d2d3350678d774285287ff1a",
+    "parent": "b03e5f60a0f357d0d74fd06655fa1a71c41bc336",
+    "scope": "exact one-line cfg(target_os=macos) on uid0 fixture assertion",
+    "root_actual_single1": "2502102 compile succeeded; FAIL1010passed1failed0.00s beforeActor uid65534 !=0",
+    "root_result_path": "/workspace/.onboarding/pr18-portable-validator-single1/RESULT.json",
+    "production_protected_program_root_owner_requirement": "macOS-only; Linux sealed-image branch has no uid0 requirement",
+    "one_line_inverse_entire_fixture_equal": true,
+    "other_assertions_and_production_bytes_unchanged": true,
+    "author_checks": [
+      "rustfmt--check0",
+      "gitdiff--check0",
+      "mechanicalinverse0"
+    ],
+    "old19_semantic_controls": "historical unchanged script; not rerun/not Rust proof",
+    "source_manifest_path": "/workspace/.onboarding/factory-portable-validator-platform-correction/SOURCE_MANIFEST.json",
+    "source_manifest_sha256": "0455bc3c0c3728af401f2fd373ab047733c9dd2ac17b689540b7c7246415243c",
+    "author_rust_actor_mac_ci": "NOT_RUN",
+    "independent_review": "PENDING",
+    "root_actual_retry": "PENDING",
+    "root_actual_command_seconds": 18.149465652008075,
+    "root_actual_harness_seconds": 0.0
+  }
+}

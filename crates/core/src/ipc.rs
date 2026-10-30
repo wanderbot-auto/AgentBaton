@@ -475,6 +475,10 @@ impl Daemon {
                 };
                 self.handle_ready_request(job);
                 self.supervisor.tick(&mut self.store)?;
+                // Service captures/validators immediately after owned session
+                // receipts, as in the outer loop. A batch of ready clients
+                // must not defer this work until all sixteen requests finish.
+                self.graph_workers.tick(&mut self.store)?;
                 self.command_workers.tick(&mut self.store)?;
                 self.data_workers.tick(&mut self.store)?;
                 self.finish_data_admission();

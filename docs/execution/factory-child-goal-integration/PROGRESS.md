@@ -1,3 +1,31 @@
+## Actor/portable validator and strict fixture ACK ready for new CI — 2026-10-30T01:14:14.382825+00:00
+
+Actual Factory26/Core129, strict workspace/all-target Clippy and format remain accurately source-bound in REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json; all Rust/Cargo bytes are unchanged through cae38. New infrastructure181PASS2.990s. Fixed test-only ACK four actual browser/UnixIPC flows pass4/4/4/9checks with complete cleanup; full childGoal normal/lost-start/cancel pass4/5/4checks (24.170/27.472/15.240s), each actual daemon wait0, bound identities gone and complete cleanup. Root viewed the final normal childGoal PNG. Driver465/cae, historical compiledCore0c78/frontend2d remain separate dimensions, not current rebuilt Core or Mac.
+
+Original first-live failures and childGoal preflight capacity refusal/actual ACK-cycle failure19.043s remain preserved. Existing capture now runs before each childGoal wait read, fixing that test observer dependency without changing5s/production unknown or final assertions. Original67 CHANGES_REQUIRED seal remains; e590 independent31pure/source closure f3ecf04f has no remaining mustfix. Actor and portable source reviews remain separate; no Mac root-cause/performance improvement claimed. See ACTOR_PORTABLE_ACK_RESULTS.json.
+
+Remote PR18 de0b remains Env3/RustPASS/UI+bothMacFAIL; next exact sevenCI, native/build/audit/packages and full130 acceptance are pending. PR19 dependent default GitTask workspace entry focused83 andtype/build pass locally, but independent combination review found same-key recovery visibility P2 under repair; not accepted or merged. main653679d/OWNER001002ACK/no003 and all authorization boundaries unchanged.
+
+## Reviewed local regressions and first-binding race — 2026-10-30T01:00:16.147826+00:00
+
+Actor ready-batch graph service, fixed hash-approved portable shell validator, and strict observer first-binding guard are independently source-reviewed. Actual Factory26PASS90.12s and Core129PASS90.10s (nested helper excluded), infrastructure172, all-workspace/all-target strictClippy and format passed at their separately recorded sources. Original portable first0/1 uid assertion failure/ELF is retained; corrected Mac-only uid assertion passes Linux, not Mac proof.
+
+Actual driverd694 with hash-restored Core0c78/frontend2d: planning9checks/4PNG and cancel4checks/2PNG pass with complete cleanup; normal and unknown each fail after2checks because no prior live verified identity exists when the fixed provider has already exited. Both cleanup_complete=false; daemon actual wait0 does not turn the flow green. A minimal test-only observation ACK is being implemented after full live identity/Core binding, within unchanged original budgets. The strict first-live guard remains.
+
+See REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json. Remote de0b remains Env3/Rust pass, UI/bothMac fail; new exact CI, Native/build/packages and complete130 remain unverified. main653679d freshly fetched, OWNER001/002 ACK with no003. Authority boundaries unchanged; continue implementation/testing.
+
+## Exact de0b terminal failure evidence — 2026-10-30T00:26:21.941409+00:00
+
+Environment40976684979 all3 and Product40976684974 Rust passed; UI and both Mac failed. Tested checkout59e174dc is not an actual main merge. UI normal/Graph cases passed through command-timeout and Factory normal/cancel/unknown; child-planning CP01/02 passed then a previously-bound provider exited during cmdline read (0B, fresh identity absent). Whole flow and cleanup_complete remain failed/false despite daemon exit0/six identities gone; later childGoal browser cases not run.
+
+ARM22/1/157.77s: both receipts INPUT_CHANGED/not_started_or_preflight_rejected, runtime1375/2862ms, no process/exit observation; postjoin child14852/root16965ms. Intel22/1/172.85s: first receipt INPUT_CHANGED2154ms; currentrev12 capture failed/not_started, precedingrev11 node4359ms over original4s. Previous-node association explicitly does not establish same-plan; postjoin child15766/root18238ms. Scope/observation windows still live. No grep Macstat or unsupported single shared cause/fix is claimed. Existing limits correctly reject overrun and stay unchanged.
+
+See HEADDE0B_TERMINAL_RESULTS.json. Work continues on narrow fixture argv-exit verification, a fixed hash-approved portable validator fixture, and Actor ready-batch graph service; all require actual tests and independent review. Native/build/package gates skipped, no new installer/full130 completion. OWNER001/002/main653679d/authority boundaries unchanged.
+
+## Actor ready-batch graph service candidate
+
+The outer loop already services supervisor→Graph→command→data, while each of up to16 ready clients serviced supervisor→command→data only. Add the same existing Graph tick after each ready handler and supervisor receipt, preserving queue/elapsed/deadline accounting, all live checks and fatal owned-worker cleanup. No witness is retained across handler return and no new authority or concurrency slot is introduced. Independent source review found no blocker; actual Rust regression is pending. This is a scheduling opportunity, not proof that it caused de0b Intel4359ms or that it repairs the Mac failure. A hot ready-batch fairness claim would need separate actual Unix progress evidence; existing safety regression alone will not establish it.
+
 ## Atomic reservation reuse and finite receipt attribution verified locally — 2026-10-29T23:58:13.519671+00:00
 
 Rust b651: actual Factory26PASS88.57s and Core129PASS90.12s; the nested helper1 is not additive. Full workspace/all-target strictClippy and format passed. First Corelib compile capacity interruption executed no tests and remains preserved; successful generated caches were losslessly archived with full SHA roundtrip, then retry passed. The optimization reuses only the complete checked node view inside the same IMMEDIATE reservation; no cross-request cache or budget/Grant/witness/CAS relaxation. Independent runtime source review passed.
