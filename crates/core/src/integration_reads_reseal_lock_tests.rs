@@ -76,7 +76,7 @@ fn competing_writer(root: &Path, path: &Path, sequence: u32) -> String {
     let child = Command::new(std::env::current_exe().unwrap())
         .args([
             "--exact",
-            concat!(module_path!(), "::competing_sqlite_writer_probe"),
+            "integration::reads::reseal_lock_tests::competing_sqlite_writer_probe",
             "--nocapture",
         ])
         .env(PROBE_DB, path)
