@@ -1,3 +1,5 @@
+Next: track exact dependentCI/native outcomes and complete remaining authorized workspace lifecycle/adoption scope. Current six actual local paths pass without newexecution authority.
+
 # Task execution workspace entry
 
 Partial AB-PRJ-002/003/005, AB-SEC-007 and OWNER-002. Base `c02afaf96f0914657a36150a26148b22cb2f0607`, independent `codex/task-execution-workspace-entry`. ACK OWNER-001/002; current AB-START-001 gate authorizes product work, not real Provider/paid/production/signing/license choices. Full Design v0.2/130 requirements and WP01–14 remain in scope.

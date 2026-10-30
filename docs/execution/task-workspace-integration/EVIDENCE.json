@@ -578,5 +578,6 @@
     "Node_prior995": "e313 retained, sourcebytesEqual proof; notcurrentheadreplay",
     "actual_browser_prior5": "builtCore/frontend e313+driver6c, notnewCI"
   },
-  "latest_parent_composition": "PARENT_DE0B_COMPOSED_RESULTS.json"
+  "latest_parent_composition": "PARENT_DE0B_COMPOSED_RESULTS.json",
+  "latest_default_workspace_entry_results": "DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json"
 }

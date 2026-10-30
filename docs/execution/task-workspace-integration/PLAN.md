@@ -1,3 +1,5 @@
+Next: compose the latest reviewed Parent34f after its exact CI outcome, preserve exact16/migrations/Owner boundaries and verify changed production paths; retarget dependentPR19 only after protected parent integration. Continue coding-isolation/adoption/full130 scope; current6 local paths are notNative/Mac/productcompletion.
+
 Next: retain reviewed exact16 composition, consume parent CI and narrow argv-exit harness correction without borrowing old Mac results; after protected parent integration, retarget and execute own exact16 checks/native/packages. Continue remaining full-product requirements.
 
 # Task 工作区集成计划

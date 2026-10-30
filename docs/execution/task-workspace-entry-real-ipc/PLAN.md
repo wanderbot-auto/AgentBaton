@@ -1,3 +1,5 @@
+Next: track exact dependentCI/native outcomes and complete remaining authorized workspace lifecycle/adoption scope. Current six actual local paths pass without newexecution authority.
+
 # Task execution workspace entry: real IPC driver extension
 
 Partial AB-PRJ-002/003/005 and AB-SEC-007, OWNER-002. ACK OWNER-001/002 on base `363e680ef9ee59e8e7d3c02080b19194fe116302`; no new OWNER-003. AB-START-001 permits repository product work, not real Provider/paid resources/production/signing/licensing. Full130 requirements and WP01–14 remain unchanged.

@@ -1,3 +1,11 @@
+## Default coding workspace entry and six actual paths — 2026-10-30T03:29:42.183153+00:00
+
+Fresh draft Git Tasks now enter their own isolated workspace preparation from execution setup. While preparation is unknown/pending, the original same-key recovery stays mounted through parent refresh and new Grant/session remain blocked; after explicit recovery, independent fresh Task/scope reads lock the recorded workspace. Other project kinds/historical views preserve their existing explicit behavior. Root old3counterexamplesFAIL and new3PASS are separately retained; fullNode1016/56 at363 and actualtype/build pass, with productionTS unchanged through this checkpoint. Independent293 review closes that P2.
+
+Actual current115 Core16+frontend rebuilt as a matched pair; driver483 now passes all6 browser/UnixIPC scenarios in8.930s with8PNGs/cleanuptrue/daemonwait0. B06 confirms sameDOM/key lostreply→parentrefresh→explicitrecovery→fresh binding, both earlier working trees/source unchanged and zero new execution authority. Root viewed original07/08. Finite publisher passes strict6/8 and exposes no private history; driver58pure and fullinfrastructure227 pass. Original115 setupFAIL3checks remains: privateTask3 creation needed existingreadonlyAppbarRefresh, not a newproductionpoll or a larger deadline. Originaloldworkingtree/growing-read source findings also remain.
+
+Parentd514 composition f91 independently verified exact16/reject15+17 and93hashes; actualFactory26PASS82.32s/Core156PASS102.95s (nested1notadditive), Rust/Cargo source unchanged through this checkpoint. Rootnew34f inCI is not yet composed here, and no16remote/nativeMac/package result is claimed. See DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json. Full130 and authorization boundaries remain; main653679d/OWNER001002ACK/no003.
+
 # Progress
 
 Recorded 2026-10-30T01:48:34.121539+00:00; source `77d229a0be16c0bd21d12e1a96f8af6f91e05b62`, base `363e680ef9ee59e8e7d3c02080b19194fe116302`, branch codex/task-workspace-entry-real-ipc.
