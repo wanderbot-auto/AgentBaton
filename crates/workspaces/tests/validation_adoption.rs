@@ -903,3 +903,123 @@ fn controlled_actual_cas_records_distinct_complete_io_without_changing_user_file
     assert_eq!(fs::read(repo.root.join(".git/index")).unwrap(), index);
     assert_eq!(fs::read(repo.root.join("file.txt")).unwrap(), bytes);
 }
+
+#[test]
+fn symbolic_targets_are_not_independent_branch_authority() {
+    for referent in ["refs/heads/source", "refs/heads/other"] {
+        let repo = Repository::new();
+        git(&repo.root, &["branch", "other", &repo.base]);
+        git(&repo.root, &["symbolic-ref", "refs/heads/alias", referent]);
+        let before = git(&repo.root, &["show-ref"]);
+        let index = fs::read(repo.root.join(".git/index")).unwrap();
+        let bytes = fs::read(repo.root.join("file.txt")).unwrap();
+        let actual = git(&repo.root, &["rev-parse", referent]);
+        assert!(matches!(
+            AuthorizedIntegration::from_verified_grant(
+                &inspect(&repo.root).unwrap(),
+                "refs/heads/alias".into(),
+                actual,
+                repo.source.clone(),
+                "owner:exact-target".into(),
+                1_700_000_000,
+            ),
+            Err(AdoptionError::InvalidGrant)
+        ));
+        assert_eq!(git(&repo.root, &["show-ref"]), before);
+        assert_eq!(fs::read(repo.root.join(".git/index")).unwrap(), index);
+        assert_eq!(fs::read(repo.root.join("file.txt")).unwrap(), bytes);
+    }
+}
+
+#[test]
+fn symbolic_target_inserted_after_preparation_is_rejected_before_cas() {
+    let repo = Repository::new();
+    let candidate = repo.prepare();
+    let (_, evidence, acceptance) = candidate_validation(&candidate);
+    git(&repo.root, &["branch", "other", &repo.base]);
+    git(
+        &repo.root,
+        &["symbolic-ref", "refs/heads/integration", "refs/heads/other"],
+    );
+    let before = git(&repo.root, &["show-ref"]);
+    let index = fs::read(repo.root.join(".git/index")).unwrap();
+    assert!(matches!(
+        adopt_local_reference(&candidate, &evidence, &acceptance),
+        Err(AdoptionError::InvalidGrant)
+    ));
+    assert_eq!(git(&repo.root, &["show-ref"]), before);
+    assert_eq!(
+        git(&repo.root, &["rev-parse", "refs/heads/other"]),
+        repo.base
+    );
+    assert_eq!(fs::read(repo.root.join(".git/index")).unwrap(), index);
+}
+
+// Generated-Git semantic control for a symbol introduced after the last read.
+// This deliberately tests the exact write primitive rather than claiming an
+// atomic read-to-write lock: only the preapproved slot may be replaced, or CAS
+// must refuse. The referent must never move, whether or not it is checked out.
+#[test]
+fn no_deref_expected_oid_cas_never_updates_a_late_symbolic_referent() {
+    for checked_out in [false, true] {
+        let repo = Repository::new();
+        git(&repo.root, &["branch", "other", &repo.base]);
+        if checked_out {
+            let path = repo.managed.path().join("other-checkout");
+            git(
+                &repo.root,
+                &["worktree", "add", path.to_str().unwrap(), "other"],
+            );
+        }
+        let index = fs::read(repo.root.join(".git/index")).unwrap();
+        git(
+            &repo.root,
+            &["symbolic-ref", "refs/heads/integration", "refs/heads/other"],
+        );
+        let output = Command::new("git")
+            .arg("-C")
+            .arg(&repo.root)
+            .args([
+                "update-ref",
+                "--no-deref",
+                "-m",
+                "AgentBaton validated local adoption",
+                "refs/heads/integration",
+                &repo.source,
+                &repo.base,
+            ])
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .env("GIT_CONFIG_NOSYSTEM", "1")
+            .output()
+            .unwrap();
+        assert_eq!(
+            git(&repo.root, &["rev-parse", "refs/heads/other"]),
+            repo.base
+        );
+        assert_eq!(git(&repo.root, &["rev-parse", "HEAD"]), repo.source);
+        assert_eq!(fs::read(repo.root.join(".git/index")).unwrap(), index);
+        let symbolic = Command::new("git")
+            .arg("-C")
+            .arg(&repo.root)
+            .args(["symbolic-ref", "--quiet", "refs/heads/integration"])
+            .output()
+            .unwrap();
+        if output.status.success() {
+            assert_eq!(symbolic.status.code(), Some(1));
+            assert_eq!(
+                git(&repo.root, &["rev-parse", "refs/heads/integration"]),
+                repo.source
+            );
+        } else {
+            assert!(symbolic.status.success());
+            assert_eq!(
+                String::from_utf8(symbolic.stdout).unwrap().trim(),
+                "refs/heads/other"
+            );
+            assert_eq!(
+                git(&repo.root, &["rev-parse", "refs/heads/integration"]),
+                repo.base
+            );
+        }
+    }
+}

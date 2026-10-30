@@ -465,6 +465,7 @@ impl AuthorizedIntegration {
         if !valid.status.success() {
             return Err(AdoptionError::InvalidGrant);
         }
+        reject_symbolic_target(&root.canonical_root, None, &target_ref, control)?;
         Ok(Self {
             root: root.canonical_root.clone(),
             identity: (root.device, root.inode),
@@ -569,6 +570,30 @@ fn create_bound_isolated(
     }
     Ok(inspect_bound(&destination, control)?)
 }
+// A symbolic target names a different authority slot. Exit 1 alone means a
+// direct ref; other failures must never be interpreted as permission to write.
+fn reject_symbolic_target(
+    root: &Path,
+    grant: Option<&AuthorizedIntegration>,
+    target: &str,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<(), AdoptionError> {
+    controlled_check(control)?;
+    let mut command = match grant {
+        Some(grant) => bound_git_command(grant),
+        None => git_command(root),
+    };
+    let output =
+        crate::output_with_control(command.args(["symbolic-ref", "--quiet", target]), control)?;
+    controlled_check(control)?;
+    if output.status.code() == Some(1) && output.stdout.is_empty() {
+        Ok(())
+    } else if output.status.success() {
+        Err(AdoptionError::InvalidGrant)
+    } else {
+        Err(WorkspaceError::UnsafeRepository.into())
+    }
+}
 fn verify_repository_controlled(
     grant: &AuthorizedIntegration,
     control: Option<&AdoptionControl<'_>>,
@@ -592,6 +617,7 @@ fn verify_repository_controlled(
         return Err(WorkspaceError::Dirty.into());
     }
     reject_bound_unsafe_config_controlled(grant, control)?;
+    reject_symbolic_target(&grant.root, Some(grant), &grant.target_ref, control)?;
     let actual = bound_text_controlled(
         grant,
         &[
@@ -899,6 +925,7 @@ fn adopt_inner(
         grant,
         &[
             "update-ref",
+            "--no-deref",
             "-m",
             "AgentBaton validated local adoption",
             grant.target_ref.as_str(),

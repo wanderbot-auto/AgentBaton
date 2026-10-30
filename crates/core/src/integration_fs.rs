@@ -718,6 +718,20 @@ pub(super) fn git(
     args: &[&std::ffi::OsStr],
     control: &IntegrationReadControl,
 ) -> Result<Vec<u8>> {
+    let (status, bytes) = git_status(root, program, args, control)?;
+    if !status.success() {
+        return Err(changed());
+    }
+    Ok(bytes)
+}
+// Exit status is used only by fixed callers that must distinguish symbolic-ref
+// exit 1 (direct ref) from actual Git errors. All ownership and bounds are shared.
+pub(super) fn git_status(
+    root: &Path,
+    program: &IntegrationProgramPin,
+    args: &[&std::ffi::OsStr],
+    control: &IntegrationReadControl,
+) -> Result<(std::process::ExitStatus, Vec<u8>)> {
     use std::{
         os::unix::ffi::OsStrExt,
         process::{Command, Stdio},
@@ -845,12 +859,9 @@ pub(super) fn git(
     if stdout.truncated || stderr.truncated {
         return Err(limited());
     }
-    if !status.success() {
-        return Err(changed());
-    }
     let out = stdout.bytes;
     control.check()?;
-    Ok(out)
+    Ok((status, out))
 }
 
 pub(super) fn directory_identity(path: &Path) -> Result<(u64, u64)> {

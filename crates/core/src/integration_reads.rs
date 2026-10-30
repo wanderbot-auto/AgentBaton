@@ -968,6 +968,19 @@ fn observe_target(
         &[OsStr::new("check-ref-format"), OsStr::new(&s.target_ref)],
         control,
     )?;
+    let (status, bytes) = super::fs::git_status(
+        root,
+        program,
+        &[
+            OsStr::new("symbolic-ref"),
+            OsStr::new("--quiet"),
+            OsStr::new(&s.target_ref),
+        ],
+        control,
+    )?;
+    if status.code() != Some(1) || !bytes.is_empty() {
+        return Err(changed());
+    }
     let reference = format!("{}^{{commit}}", s.target_ref);
     let bytes = super::fs::git(
         root,
