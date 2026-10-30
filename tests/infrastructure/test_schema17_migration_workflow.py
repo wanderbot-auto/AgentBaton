@@ -56,6 +56,53 @@ def historical_targets(job):
     return targets
 
 
+
+# New UI addition is stripped as its own exact layer BEFORE the older Native
+# positional pins. The old Native/raw-workflow and six-argv pins remain intact.
+BROWSER_CI_BASE_SHA256 = '599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc'
+BROWSER_CI_STEPS = (
+    ('Actual integration frontend with real Core IPC and generated correctness', 27,
+     'e7ee9d2c663f107b0660125901a0060017ea2ab7a535c61d86828efdadb9d748'),
+    ('Retain finite integration browser evidence without private runtime data', 28,
+     '3065cc48dea7cb751aebea051ff9f8d84f4b0c090d003161ddb770043c34a431'),
+)
+
+
+def strip_integration_browser_ci_layer(text):
+    """Reverse ONLY the two exact adjacent UI blocks and one schema literal."""
+    headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
+    indices = []
+    for name, expected_index, expected_sha in BROWSER_CI_STEPS:
+        matches = [i for i, header in enumerate(headers)
+                   if header.group(0) == '      - name: ' + name + '\n']
+        if matches != [expected_index] or expected_index + 1 >= len(headers):
+            raise ValueError('Integration browser CI step count/position changed')
+        block = text[headers[expected_index].start():headers[expected_index + 1].start()]
+        if hashlib.sha256(block.encode()).hexdigest() != expected_sha:
+            raise ValueError('Integration browser CI complete raw block changed')
+        indices.append(expected_index)
+    if indices != [27, 28]:
+        raise ValueError('Integration browser CI adjacency changed')
+    if headers[26].group(0) != '      - name: Actual frontend with real Unix IPC and responsive screenshots\n':
+        raise ValueError('Integration browser CI preceding step changed')
+    if headers[29].group(0) != '      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02\n':
+        raise ValueError('Integration browser CI following artifact step changed')
+    first, end = headers[27].start(), headers[29].start()
+    jobs = list(re.finditer(r'^  [A-Za-z_][A-Za-z0-9_-]*:\n', text, re.MULTILINE))
+    preceding = [header for header in jobs if header.start() < first]
+    if not preceding or preceding[-1].group(0) != '  frontend:\n' or any(first <= h.start() < end for h in jobs):
+        raise ValueError('Integration browser addition must remain in original UI job')
+    result = text[:first] + text[end:]
+    current = "          candidate = {\n              'schema': 17,\n              'git_head': git('rev-parse', 'HEAD'),\n"
+    previous = current.replace("'schema': 17", "'schema': 16")
+    if result.count(current) != 1 or result.count("              'schema': 17,\n") != 1:
+        raise ValueError('One exact existing candidate schema literal is required')
+    result = result.replace(current, previous, 1)
+    if hashlib.sha256(result.encode()).hexdigest() != BROWSER_CI_BASE_SHA256:
+        raise ValueError('Workflow changed outside exact browser blocks/schema literal')
+    return result
+
+
 def strip_approved_native_ci_steps(text):
     """Remove only the exact three approved adjacent desktop step blocks."""
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
@@ -95,6 +142,7 @@ def verify_only_six_historical_target_changes(text):
     object/network lookup. Future workflow changes need their own reviewed
     baseline update; this guard cannot silently normalize tests or permissions.
     """
+    text = strip_integration_browser_ci_layer(text)
     text = strip_approved_native_ci_steps(text)
     workflow = yaml.load(text, Loader=yaml.BaseLoader)
     for lane in ('core', 'desktop'):

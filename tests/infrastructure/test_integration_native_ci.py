@@ -1,5 +1,6 @@
 """CI flow contracts only; no Cargo, Core, Native process or OS dialog runs."""
 import contextlib
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -12,6 +13,8 @@ import unittest
 from unittest import mock
 
 import yaml
+
+from tests.infrastructure.test_schema17_migration_workflow import strip_integration_browser_ci_layer
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / '.github/workflows/product.yml'
@@ -103,6 +106,11 @@ def fake_process(namespace, returns):
 
 
 class IntegrationNativeCiTests(unittest.TestCase):
+    def test_entire_native_workflow_retains_actual_b3_baseline_after_exact_ui_layer(self):
+        restored = strip_integration_browser_ci_layer(WORKFLOW.read_text())
+        self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),
+                         '599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc')
+
     def test_both_mac_lanes_keep_existing_jobs_limits_actions_and_permissions(self):
         document = workflow()
         self.assertEqual(set(document['jobs']), {'core', 'frontend', 'desktop'})

@@ -37,6 +37,7 @@ ROOT = Path(__file__).resolve().parents[3]
 ENDPOINT = '/__test_integration_ipc'
 MAX_BODY, MAX_REPLY, MAX_REVIEW = 270336, 4194304, 1048576
 SAFE = 9007199254740991
+MAX_CHROMIUM_IMAGE = 536870912  # Actual installed browser ELF; other tool caps stay256MiB.
 TARGET = 'refs/heads/integration-browser'
 REPORT, FAILURE_STDERR = b'fixed report', b'fixed correctness failure\n'
 SELECTION_KEYS = frozenset(('task_id', 'expected_task_revision', 'expected_spec_revision',
@@ -178,7 +179,7 @@ def preflight(args):
         and build.get('dirty', False) is False and build.get('tracked_clean', True) is True)
     frontend = args.frontend.resolve(strict=True)
     args.chromium = args.chromium.resolve(strict=True)
-    runtime_tools = {'chromium': pinned_file(args.chromium),
+    runtime_tools = {'chromium': pinned_file(args.chromium, MAX_CHROMIUM_IMAGE),
         'python': pinned_file(Path(sys.executable).resolve(strict=True))}
     require(all(v['uid'] in (0, os.geteuid()) and v['mode'] & 0o022 == 0 for v in runtime_tools.values())
         and os.access(args.chromium, os.X_OK))
@@ -1092,7 +1093,7 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
             require(pinned_file(binary) == attribution['tools']['batond']
                 and pinned_file(companion) == attribution['tools']['baton'] and assets(frontend) == attribution['assets']
                 and source_guard(attribution['source']) == attribution['source_guard']
-                and pinned_file(args.chromium) == attribution['runtime_tools']['chromium']
+                and pinned_file(args.chromium, MAX_CHROMIUM_IMAGE) == attribution['runtime_tools']['chromium']
                 and pinned_file(Path(sys.executable).resolve(strict=True)) == attribution['runtime_tools']['python'])
             return True
         cleanup('tools_assets_unchanged', unchanged_inputs)
