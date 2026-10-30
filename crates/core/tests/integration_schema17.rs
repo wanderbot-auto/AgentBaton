@@ -135,12 +135,10 @@ fn zero_authority(store: &Store, db: &Connection) {
         "factory_scopes",
         "factory_runs",
     ]) {
-        assert_eq!(
-            db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
-                .get::<_, u64>(0))
-                .unwrap(),
-            0
-        );
+        let count: i64 = db
+            .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(u64::try_from(count).expect("Negative domain row count"), 0);
     }
     assert!(!db
         .prepare("PRAGMA foreign_key_check")
