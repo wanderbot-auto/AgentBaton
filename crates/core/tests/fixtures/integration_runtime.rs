@@ -553,7 +553,7 @@ impl RuntimeFixture {
             .unwrap()
             .is_empty());
         let selection = json!({"task_id":self.task["id"],"expected_task_revision":context["task_revision"],"expected_spec_revision":context["bindings"]["spec_revision"],"goal_scope_id":self.scope["id"],"expected_scope_revision":context["bindings"]["goal_scope_revision"],"host_id":"local","target_ref":TARGET,"expected_target_head":self.initial_target,"max_rounds":1,"on_target_advance":"block","ttl_ms":30_000,
-            "stage_reservations":{"preparation":reservation(1000,1024),"validators":[{"validator":reference,"reservation":reservation(1500,256)}],"cas":reservation(500,1024)}});
+            "stage_reservations":{"preparation":reservation(5000,1024),"validators":[{"validator":reference,"reservation":reservation(5000,256)}],"cas":reservation(5000,1024)}});
         let proposal = rpc(
             &self.server,
             "integration_policies.propose",
