@@ -1933,16 +1933,86 @@ mod tests {
             0
         );
     }
+    struct KeepReadonlyFailure(Option<tempfile::TempDir>);
+    impl Drop for KeepReadonlyFailure {
+        fn drop(&mut self) {
+            if std::thread::panicking() {
+                if let Some(root) = self.0.take() {
+                    eprintln!(
+                        "Retained readonly schema test failure: {}",
+                        root.keep().display()
+                    );
+                }
+            }
+        }
+    }
+    // Test-only full logical image: no read-only check may rewrite even an
+    // unrelated row, schema object, version cookie or journal setting.
+    #[derive(PartialEq)]
+    struct ReadonlyImage {
+        schema: Vec<(String, String, String, Option<String>)>,
+        rows: Vec<(String, Vec<Vec<rusqlite::types::Value>>)>,
+        version: u32,
+        schema_version: u32,
+        journal: String,
+    }
+    fn readonly_image(db: &Connection) -> ReadonlyImage {
+        let schema: Vec<(String, String, String, Option<String>)> = db
+            .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
+            .unwrap()
+            .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))
+            .unwrap()
+            .collect::<rusqlite::Result<_>>()
+            .unwrap();
+        let rows = schema
+            .iter()
+            .filter(|r| r.0 == "table")
+            .map(|(_, name, _, _)| {
+                let mut query = db
+                    .prepare(&format!(
+                        "SELECT rowid,* FROM \"{}\" ORDER BY rowid",
+                        name.replace('"', "\"\"")
+                    ))
+                    .unwrap();
+                let width = query.column_count();
+                let rows = query
+                    .query_map([], |row| {
+                        (0..width)
+                            .map(|i| row.get::<_, rusqlite::types::Value>(i))
+                            .collect::<rusqlite::Result<Vec<_>>>()
+                    })
+                    .unwrap()
+                    .collect::<rusqlite::Result<Vec<_>>>()
+                    .unwrap();
+                (name.clone(), rows)
+            })
+            .collect();
+        ReadonlyImage {
+            schema,
+            rows,
+            version: db
+                .pragma_query_value(None, "user_version", |r| r.get(0))
+                .unwrap(),
+            schema_version: db
+                .pragma_query_value(None, "schema_version", |r| r.get(0))
+                .unwrap(),
+            journal: db
+                .pragma_query_value(None, "journal_mode", |r| r.get(0))
+                .unwrap(),
+        }
+    }
     #[test]
-    fn readonly_worker_refuses_old15_and_future17_without_rewriting_database_or_journal() {
-        for version in [15u32, 17u32] {
+    fn readonly_worker_refuses_old15_old16_and_future18_without_rewriting_database_or_journal() {
+        for version in [15u32, 16u32, 18u32] {
             let f = Fixture::new();
             let plan = f.plan();
+            let _retained = KeepReadonlyFailure(Some(f._temp));
             let sequence = f.store.sequence().unwrap();
             f.store
                 .conn
                 .pragma_update(None, "user_version", version)
                 .unwrap();
+            let before = readonly_image(&f.store.conn);
             let deadline = Instant::now() + Duration::from_secs(30);
             let witness = DataInputWitness::restore(
                 vec![],
@@ -1957,6 +2027,7 @@ mod tests {
             assert_eq!(error.code, "INPUT_CHANGED");
             assert_eq!(error.side_effect_state, "not_started");
             assert_eq!(f.store.sequence().unwrap(), sequence);
+            assert!(before == readonly_image(&f.store.conn));
             assert_eq!(
                 f.store
                     .conn
@@ -1970,13 +2041,15 @@ mod tests {
     fn readonly_query_only_connection_refuses_real_writes_without_mutating_schema_or_journal() {
         let f = Fixture::new();
         let plan = f.plan();
+        let _retained = KeepReadonlyFailure(Some(f._temp));
         let sequence = f.store.sequence().unwrap();
         let original_version: u32 = f
             .store
             .conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .unwrap();
-        assert_eq!(original_version, 16);
+        assert_eq!(original_version, 17);
+        let before = readonly_image(&f.store.conn);
         let readonly = plan
             .database
             .open_readonly(Instant::now() + Duration::from_secs(30))
@@ -1991,11 +2064,12 @@ mod tests {
         assert!(readonly
             .execute("INSERT INTO events(document) VALUES('{}')", [])
             .is_err());
-        assert!(readonly.execute_batch("PRAGMA user_version=17;").is_err());
+        assert!(readonly.execute_batch("PRAGMA user_version=18;").is_err());
         assert!(readonly
             .execute_batch("CREATE TABLE cannot_create(value TEXT);")
             .is_err());
         assert_eq!(f.store.sequence().unwrap(), sequence);
+        assert!(before == readonly_image(&f.store.conn));
         assert_eq!(
             f.store
                 .conn
