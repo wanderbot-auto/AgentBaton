@@ -1385,9 +1385,10 @@ fn capture_source_commit_inner(
     // or serialized contract is not fresh evidence after replacement/drift.
     for (a, s) in capture.selected.iter().zip(&selected) {
         check_capture_control(deadline, control)?;
-        let bytes = a.read()?;
+        let bytes = read_controlled_bound(a, deadline, control)?;
         check_capture_control(deadline, control)?;
-        if bytes.len() as u64 != s.bytes || sha256(&bytes) != s.sha256 {
+        if bytes.len() as u64 != s.bytes || controlled_hash(&bytes, deadline, control)? != s.sha256
+        {
             return Err(WorkspaceError::InvalidPath);
         }
     }
@@ -1428,9 +1429,10 @@ fn capture_source_commit_inner(
     capture.verify_tree(&tree, &expected_tree, control)?;
     for (a, s) in capture.selected.iter().zip(&selected) {
         check_capture_control(deadline, control)?;
-        let bytes = a.read()?;
+        let bytes = read_controlled_bound(a, deadline, control)?;
         check_capture_control(deadline, control)?;
-        if bytes.len() as u64 != s.bytes || sha256(&bytes) != s.sha256 {
+        if bytes.len() as u64 != s.bytes || controlled_hash(&bytes, deadline, control)? != s.sha256
+        {
             return Err(WorkspaceError::InvalidPath);
         }
     }
