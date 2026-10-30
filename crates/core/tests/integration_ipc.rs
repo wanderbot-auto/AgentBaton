@@ -209,3 +209,6 @@ fn unmanaged_targets_and_forged_start_parameters_cannot_create_integration_autho
     assert_eq!(f.server.image(), before);
     f.server.finish();
 }
+
+#[path = "fixtures/integration_runtime.rs"]
+mod integration_runtime;
