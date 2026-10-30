@@ -22,14 +22,17 @@ pub(super) fn sequence(db: &Connection) -> Result<u64> {
 /// never truncates history or creates an execution quota; exact historical
 /// replay occurs before new writes, and an over-limit transaction rolls back.
 pub(super) fn check_metadata_bounds(db: &Connection) -> Result<()> {
-    for table in [
-        "integration_policies",
-        "integrations",
-        "integration_attempts",
-        "integration_ref_fences",
+    for (table, key_bytes) in [
+        ("integration_policies", "octet_length(id)"),
+        ("integrations", "octet_length(id)"),
+        ("integration_attempts", "octet_length(attempt_id)"),
+        (
+            "integration_ref_fences",
+            "octet_length(integration_id)+octet_length(repository_digest)+octet_length(target_ref)",
+        ),
     ] {
-        // Names are fixed server constants, not caller identifiers.
-        let sql = format!("SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM {table}");
+        // Names/expressions are fixed server constants, not caller identifiers.
+        let sql = format!("SELECT count(*),COALESCE(sum(octet_length(document)+{key_bytes}),0),COALESCE(max(octet_length(document)),0) FROM {table}");
         let (count, bytes, largest): (i64, i64, i64) = db
             .query_row(&sql, [], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
             .map_err(db_error)?;
@@ -317,17 +320,17 @@ mod metadata_bounds_tests {
             "integration_attempts",
             "integration_ref_fences",
         ] {
-            db.execute_batch(&format!("CREATE TABLE {table}(document TEXT NOT NULL)"))
+            db.execute_batch(&format!("CREATE TABLE {table}(document TEXT NOT NULL,id TEXT NOT NULL DEFAULT '',attempt_id TEXT NOT NULL DEFAULT '',integration_id TEXT NOT NULL DEFAULT '',repository_digest TEXT NOT NULL DEFAULT '',target_ref TEXT NOT NULL DEFAULT '')"))
                 .unwrap();
         }
         let one = "x".repeat(1_048_576);
         for _ in 0..4 {
-            db.execute("INSERT INTO integrations VALUES(?1)", [&one])
+            db.execute("INSERT INTO integrations(document) VALUES(?1)", [&one])
                 .unwrap();
         }
         check_metadata_bounds(&db).unwrap();
         let tx = db.unchecked_transaction().unwrap();
-        tx.execute("INSERT INTO integrations VALUES('x')", [])
+        tx.execute("INSERT INTO integrations(document) VALUES('x')", [])
             .unwrap();
         assert_eq!(
             check_metadata_bounds(&tx).unwrap_err().code,
