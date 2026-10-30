@@ -362,6 +362,8 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                 expected = row[field]
                 try: current = support.proc_identity(expected['pid'])
                 except (FileNotFoundError, ProcessLookupError): current = None
+                if current is None:
+                    assert old is not None and old==fixed, 'Previously bound generated record required for an absent initial identity'
                 if current is not None:
                     assert current['pid']==expected['pid'] and current['start_ticks']==expected['start_ticks'], 'Generated PID identity changed; no argv read'
                     try:

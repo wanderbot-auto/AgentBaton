@@ -284,5 +284,26 @@ class BoundExitTests(unittest.TestCase):
         self.assertEqual(f.proc_calls, [f.provider, f.provider, f.companion, f.companion])
 
 
+    def test_initial_missing_provider_companion_or_both_never_first_binds(self):
+        for i, missing in enumerate(((12124,), (12126,), (12124, 12126))):
+            root = self.root / str(i); root.mkdir(mode=0o700)
+            f = Fixture(root, bound=False)
+            for pid in missing: f.proc_steps[pid] = [None]
+            with self.subTest(missing=missing):
+                with self.assertRaisesRegex(AssertionError, 'Previously bound'):
+                    f.collect()
+                self.assertEqual(f.verified, [])
+                for pid in missing: self.assertNotIn(pid, f.argv_calls)
+                self.assertFalse(list(f.out.glob('verified-*.json')))
+
+    def test_initial_both_missing_retains_exact_previously_verified_history_only(self):
+        f = self.fixture()
+        f.proc_steps = {f.provider: [None], f.companion: [None]}
+        self.retained(f)
+        self.assertEqual(f.argv_calls, [])
+        self.assertEqual(f.pgid_calls, [])
+        self.assertEqual(f.proc_calls, [f.provider, f.companion])
+
+
 if __name__ == '__main__':
     unittest.main()
