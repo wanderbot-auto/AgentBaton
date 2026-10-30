@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "scope": "AB-VAL-009 Linux browser/Core integration test harness; not production Native/OS proof",
+  "base_commit": "bbac3a113bc0ae5024b0709bea335e3da9ac7d35",
+  "branch": "codex/integration-real-browser",
+  "authorized_new_files": [
+    "apps/desktop/tests/integration-real-ipc.py",
+    "tests/infrastructure/test_integration_real_ipc.py",
+    "docs/execution/integration-real-browser/PLAN.md",
+    "docs/execution/integration-real-browser/PROGRESS.md",
+    "docs/execution/integration-real-browser/CHECKPOINT.md",
+    "docs/execution/integration-real-browser/EVIDENCE.json"
+  ],
+  "source_sha256": {
+    "apps/desktop/tests/integration-real-ipc.py": "d85e4505476f56588b7a8691000ef4d26523c1e427fd6cea3ba9b6661b2c69d0",
+    "tests/infrastructure/test_integration_real_ipc.py": "460bc0d751e5363e13eee92df2b69cbd7cef0c15deaf464633a6ec6ed0e9a6e7"
+  },
+  "actual_pure_command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.infrastructure.test_integration_real_ipc",
+    "-q"
+  ],
+  "pure_history": [
+    {
+      "tests": 24,
+      "passed": 23,
+      "failed": 1,
+      "seconds": 0.054,
+      "failure": "test_snapshot_mismatch_consumed_kind_missing_fields_and_extra_fields_refuse",
+      "cause": "symbolic expected definition/proposal alias, corrected with deepcopy; original negative assertion retained"
+    },
+    {
+      "tests": 24,
+      "passed": 24,
+      "failed": 0,
+      "seconds": 0.051
+    },
+    {
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "seconds": 0.081
+    },
+    {
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "seconds": 0.071
+    },
+    {
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "seconds": 0.089
+    },
+    {
+      "tests": 33,
+      "passed": 33,
+      "failed": 0,
+      "seconds": 0.094
+    },
+    {
+      "tests": 34,
+      "passed": 34,
+      "failed": 0,
+      "seconds": 0.118
+    },
+    {
+      "tests": 34,
+      "passed": 34,
+      "failed": 0,
+      "seconds": 0.077
+    }
+  ],
+  "counts": {
+    "unique_pure_tests": 34,
+    "final_passed": 34,
+    "final_failed": 0,
+    "actual_browser_cases_run_by_author": 0,
+    "actual_Core_runs_by_author": 0
+  },
+  "syntax": "AST parse PASS",
+  "whitespace": "git diff --check exit0",
+  "actual_product_checks": {
+    "built_frontend_browser": "NOT_RUN",
+    "real_Core_UnixIPC_cases": "NOT_RUN",
+    "generated_ACP_process": "NOT_RUN",
+    "production_Tauri_Native_formatter": "NOT_RUN",
+    "OS_dialog": "NOT_RUN",
+    "macos_Apple_Silicon": "NOT_RUN",
+    "macos_Intel": "NOT_RUN",
+    "real_Provider_model": "NOT_RUN"
+  },
+  "independent_review": "PENDING",
+  "authority_guards": [
+    "exact twelve-field private expected selection fixed before HTTP",
+    "complete original Core response/proposal/snapshot1MiB",
+    "no HTTP finalization/token/confirmation flags",
+    "actual private consumed original proposal/result check",
+    "real Core RESOURCE_LIMIT/not_started/nonretryable only",
+    "no SQL normal authority or outcome writes",
+    "exact domain CAS/key recovery boundaries",
+    "existing Work4s/root20s/Grant30s unchanged",
+    "unknown token/cost stays null",
+    "source/tool/assets and owned cleanup mandatory before pass"
+  ],
+  "runtime_not_claimed": [
+    "Native OS or macOS",
+    "full negative/cancel/unknown/recovery matrix",
+    "OS sandbox or whole-filesystem quota",
+    "whole product completion"
+  ],
+  "formal_pr_approve": false
+}
