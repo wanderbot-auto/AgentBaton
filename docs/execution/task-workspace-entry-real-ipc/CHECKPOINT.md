@@ -25,3 +25,9 @@ New source `bde98d383cacb766f5cb45286cdbffb62b5a622c` follows77+7b01; only the s
 New source-only evidence lives in /workspace/.onboarding/task-workspace-entry-real-ipc/revision-old-worktree-fs, leaving original manifest/source/pure logs untouched. No actual FS preservation is claimed from the synthetic tests: actual B06 must take/compare both live generated old worktree images before it records the success bool. No current macOS/Native/Provider/installer/whole130 completion claim.
 
 Final source follow-up `af52a0e8a28e609ca0dda1baa3f104c4fe84fa22` includes bde old-worktree image coverage and the additional new-image-only bounded-growth fix. Use this source plus original77 when integrating; do not take bde alone as accepted because its F2 is separately preserved. Original NativeReviewer was resumed via followup_task and has received the new fixed SHA for targeted closure. Final author pure55/37 and source9 are not browser/IPC/Native results.
+
+## Setup-refresh source checkpoint
+
+Final follow-up `50cc98a93a5c61b0738739f1599bdbad03416d7c` is driver+its pure test only, after af52 and own docs. Root's frozen115 Core and frontend may be reused for the next local actual run because production bytes did not change; retain their true115 compilation/build origin and separately record the new driver source/head/hash. Do not relabel those binaries or assets as compiled at50cc/new integration head. A later fresh CI build must bind its actual checkout normally. Expected local preflight input source remains115 when using these frozen115 inputs.
+
+Original actual failure remains whole failed; B06 prepare/recovery was not reached. Original NativeReviewer was resumed with followup_task for exact-source inverse/AST closure. New58 pure results do not prove the new snapshot/UI path. Root must execute actual6/8 in a fresh private output after review, with no threshold weakening.

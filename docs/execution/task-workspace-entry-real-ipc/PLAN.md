@@ -11,3 +11,7 @@ Allow only driver/its pure test, finite public evidence projector/its pure test 
 Independent source review of77 correctly found that comparing old Task JSON plus registered source did not prove either old managed working tree stayed unchanged. Require snapshots of both original receipt/identity-verified generated worktrees around B06, including their .git backlink files and working files. Do not traverse the backlink or claim shared common-dir refs/worktrees unchanged when Task3 is legitimately created. Reuse descriptor-constrained original path guard and file digest, not a new fixture or snapshot platform.
 
 For the new image-only digest branch, bound actual reads rather than relying on the initial file size and a final metadata check. Preserve all old digest callers. Permit at most one overflow-detection byte beyond the initial approved-size observation, reject immediately on growth, and never wait for an unbounded EOF.
+
+## Actual setup failure follow-up
+
+Private fixture setup is not an App UI mutation. After creating the third Task on the idle all-draft canvas, explicitly click its existing Appbar Refresh and require a newly delivered real snapshot containing the exact new Task before the exact one-card assertion. Share the existing15s observation budget; do not add automatic production polling, methods, retries or longer waits.
