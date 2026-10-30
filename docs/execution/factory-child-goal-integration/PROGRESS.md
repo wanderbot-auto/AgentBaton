@@ -1,3 +1,7 @@
+## Actor ready-batch graph service candidate
+
+The outer loop already services supervisor→Graph→command→data, while each of up to16 ready clients serviced supervisor→command→data only. Add the same existing Graph tick after each ready handler and supervisor receipt, preserving queue/elapsed/deadline accounting, all live checks and fatal owned-worker cleanup. No witness is retained across handler return and no new authority or concurrency slot is introduced. Independent source review found no blocker; actual Rust regression is pending. This is a scheduling opportunity, not proof that it caused de0b Intel4359ms or that it repairs the Mac failure. A hot ready-batch fairness claim would need separate actual Unix progress evidence; existing safety regression alone will not establish it.
+
 ## Atomic reservation reuse and finite receipt attribution verified locally — 2026-10-29T23:58:13.519671+00:00
 
 Rust b651: actual Factory26PASS88.57s and Core129PASS90.12s; the nested helper1 is not additive. Full workspace/all-target strictClippy and format passed. First Corelib compile capacity interruption executed no tests and remains preserved; successful generated caches were losslessly archived with full SHA roundtrip, then retry passed. The optimization reuses only the complete checked node view inside the same IMMEDIATE reservation; no cross-request cache or budget/Grant/witness/CAS relaxation. Independent runtime source review passed.
