@@ -125,10 +125,10 @@ fn check_capture_control(
     deadline: Instant,
     control: Option<&crate::adoption::AdoptionControl<'_>>,
 ) -> Result<(), WorkspaceError> {
-    if let Some(control) = control {
-        control.check()?;
+    match control {
+        Some(control) => control.narrowed(deadline).check(),
+        None => check_deadline(deadline),
     }
-    check_deadline(deadline)
 }
 #[cfg(test)]
 fn text_output(deadline: Instant, command: &mut Command) -> Result<Vec<u8>, WorkspaceError> {
