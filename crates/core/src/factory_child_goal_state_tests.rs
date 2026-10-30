@@ -486,3 +486,7 @@ mod authority_tests {
 mod failure_tests {
     include!("factory_child_goal_failure_tests.rs");
 }
+
+mod summary_proof_tests {
+    include!("factory_summary_proof_tests.rs");
+}
