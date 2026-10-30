@@ -848,3 +848,51 @@ fn controlled_source_capture_epoch_or_legacy_consumer_cannot_reset_original_cont
         assert!(!original.preparation_io().effects_may_have_started());
     }
 }
+
+#[test]
+fn source_capture_local_fifteen_second_cap_interrupts_original_epoch_before_host_expiry() {
+    let repo = Repository::new();
+    let cancel = AtomicBool::new(false);
+    // This longer test host allowance distinguishes the existing library15s
+    // cap; no production runtime reservation or library limit is raised.
+    let host_deadline = Instant::now() + Duration::from_secs(60);
+    let original = AdoptionControl::for_request(&cancel, host_deadline);
+    let authorization = source_authorization(
+        &repo,
+        &repo.candidate,
+        vec![selected_artifact(
+            &repo,
+            "selected",
+            "file.txt",
+            b"candidate\n",
+        )],
+        &original,
+    );
+    let after_constructor = Instant::now();
+    let cost = counters(&original);
+    assert!(cost["git_calls_attempted"].as_u64().unwrap() > 0);
+    assert!(!original.preparation_io().interrupted());
+    assert!(!original.preparation_io().effects_may_have_started());
+    let before = files(&repo.root);
+    // The private local deadline starts during construction, so this observed
+    // post-construction +15s is a conservative latest bound. This is not a
+    // guessed Git completion delay, fake clock or large-file timing race.
+    let latest_local_expiry = after_constructor + Duration::from_secs(15);
+    while Instant::now() < latest_local_expiry {
+        std::thread::park_timeout(latest_local_expiry.saturating_duration_since(Instant::now()));
+    }
+    assert!(
+        Instant::now() < host_deadline,
+        "host expiry must not explain local-cap refusal"
+    );
+    assert!(!cancel.load(Ordering::Acquire));
+    assert!(matches!(
+        capture_source_commit_controlled(authorization, &original),
+        Err(WorkspaceError::ResourceLimit)
+    ));
+    // The narrowed local check must update the SAME opaque epoch (6148 fix).
+    assert!(original.preparation_io().interrupted());
+    assert!(!original.preparation_io().effects_may_have_started());
+    unchanged_git_cost(&cost, &counters(&original));
+    assert_eq!(before, files(&repo.root));
+}
