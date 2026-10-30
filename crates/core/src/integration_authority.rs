@@ -87,7 +87,13 @@ pub(super) fn raw<T: for<'a> serde::Deserialize<'a>>(
     if !(1..=MAX_INTEGRATION_BYTES as i64).contains(&size) {
         return Err(limited());
     }
-    decode(&text.ok_or_else(limited)?)
+    let text = text.ok_or_else(limited)?;
+    let shape: serde_json::Value = serde_json::from_str(&text).map_err(|_| changed())?;
+    if !shape.is_object() {
+        return Err(changed());
+    }
+    // Always decode the original text, retaining duplicate-key rejection.
+    decode(&text)
 }
 #[derive(Clone, Serialize)]
 pub(crate) struct IntegrationScopeMaterial {

@@ -22,6 +22,8 @@ pub(crate) use authority::{
 mod approval;
 #[path = "integration_budget.rs"]
 mod budget;
+#[path = "integration_io.rs"]
+mod io;
 #[path = "integration_runtime.rs"]
 mod runtime;
 pub(crate) use runtime::{IntegrationQueueResult, IntegrationStageTicket};

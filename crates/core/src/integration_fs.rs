@@ -370,6 +370,22 @@ pub(super) struct LeafPin {
     stamp: TreeStamp,
 }
 impl LeafPin {
+    pub(super) fn file_pin(&self) -> Result<agentbaton_workspaces::data_workspace::FilePin> {
+        self.recheck()?;
+        let m = self.file.metadata().map_err(|_| changed())?;
+        Ok(agentbaton_workspaces::data_workspace::FilePin {
+            device: m.dev(),
+            inode: m.ino(),
+            bytes: m.len(),
+            uid: m.uid(),
+            gid: m.gid(),
+            mode: m.mode(),
+            mtime: m.mtime(),
+            mtime_nsec: m.mtime_nsec(),
+            ctime: m.ctime(),
+            ctime_nsec: m.ctime_nsec(),
+        })
+    }
     pub(super) fn capture(path: &Path) -> Result<Self> {
         use rustix::fs::{openat, Mode, OFlags};
         let parent = tree_root(path.parent().ok_or_else(changed)?)?;
