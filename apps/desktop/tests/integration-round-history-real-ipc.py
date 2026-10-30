@@ -77,9 +77,12 @@ class RoundHost(D.Host):
             require(params['max_attempts'] == 8 and params['max_duration_ms'] == 30000)
             params['max_attempts'] = 12
         elif method == 'goal_scopes.propose':
+            # Bootstrap aliases the same original budget in both domains.
+            # Validate both original values before mutating either deep copy.
             for domain in ('root_budget', 'project_budget'):
                 require(params[domain]['attempts'] == 8 and params[domain]['runtime_ms'] == 20000
                     and params[domain]['output_bytes'] == 8192)
+            for domain in ('root_budget', 'project_budget'):
                 params[domain]['attempts'] = 12
         elif method == 'command_validation_policies.propose':
             require(params['wall_time_ms'] == params['cleanup_time_ms'] == 500

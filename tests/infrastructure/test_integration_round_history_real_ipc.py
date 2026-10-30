@@ -74,6 +74,19 @@ class HostSelectionTests(unittest.TestCase):
         self.assertEqual(result['root_budget'], {'attempts': 12, 'runtime_ms': 20000, 'output_bytes': 8192})
         self.assertEqual(result['project_budget'], result['root_budget'])
 
+    def test_actual_bootstrap_alias_is_validated_before_either_domain_changes(self):
+        # D.bootstrap intentionally supplies the same budget object twice.
+        budget = {'attempts': 8, 'runtime_ms': 20000, 'output_bytes': 8192,
+            'parallel': 1, 'children': 1, 'reworks': 0, 'tokens': None, 'cost_microunits': None}
+        params = {'root_budget': budget, 'project_budget': budget, 'owner_acceptance_criteria': 'fixed'}
+        result = self.selected('goal_scopes.propose', params)
+        self.assertIs(params['root_budget'], params['project_budget'])
+        self.assertEqual(budget['attempts'], 8)
+        expected = {**budget, 'attempts': 12}
+        self.assertEqual(result['root_budget'], expected)
+        self.assertEqual(result['project_budget'], expected)
+        self.assertEqual(result['owner_acceptance_criteria'], 'fixed')
+
     def test_command_only_changes_original_explicit_arguments_not_caps_or_image(self):
         params = {'wall_time_ms': 500, 'cleanup_time_ms': 500, 'expected_exit_codes': [0], 'mode': 'native_executable',
             'script': None, 'executable': '/owned/fixed-sh', 'arguments': ['-c', 'test -s reports/report.txt'], 'stdout_limit': 128,
