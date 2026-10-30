@@ -9,10 +9,10 @@
     "D18",
     "D19"
   ],
-  "source_commit": "012f4a55c4feb21c6d5b54ad6f4b25bc733dca45",
+  "source_commit": "246955d43786e124be7d88c3071a49e7a7813e6c",
   "baseline": "bfcc942b554113ea6c18133a9a998b22ad574dbe",
   "changed_source": "crates/core/tests/fixtures/integration_runtime.rs",
-  "sha256": "2ce7f418d0dc75ac71005d96702359e668b2fb234f43ca8fc57eab1a2e58b743",
+  "sha256": "e8968ca75e5de1bb2bf5058e3dc26e5f260c16bcfd3f7d2be20f05d54022f7d4",
   "prefix": {
     "bytes": 124496,
     "lines": 3150,
@@ -49,5 +49,6 @@
     "overrun",
     "unknown",
     "input/image pin change"
-  ]
+  ],
+  "source_revision_reason": "Clarified root-commit ancestry comment only; executable test source unchanged from 012f4a5."
 }
