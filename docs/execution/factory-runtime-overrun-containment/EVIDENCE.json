@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "source_commit": "97cd674fd956921b4cc51a36fbe98fde5e98cf19",
+  "base": "d514bf76c15e83b950d9bf869fa557ee2f215861",
+  "requirements": [
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-005",
+    "AB-SEC-003",
+    "AB-SEC-005"
+  ],
+  "source_manifest": "/workspace/.onboarding/factory-runtime-overrun-containment/SOURCE_MANIFEST.json",
+  "source_manifest_sha256": "a402d82d69641485f08bfdc5e87087caddcd995d03116c70f8c55bba6c45a2de",
+  "changed_paths": [
+    "crates/core/src/factory_child_goal_failure_tests.rs",
+    "crates/core/src/factory_child_goal_lifecycle.rs",
+    "crates/core/src/goal_factory.rs",
+    "crates/core/src/goal_runtime.rs",
+    "crates/core/src/goal_store.rs",
+    "crates/core/tests/fixtures/factory_child_goal_overrun_containment.rs",
+    "crates/core/tests/fixtures/factory_child_goal_runtime.rs"
+  ],
+  "production_paths_count": 4,
+  "additional_cfg_test_file_authorized": true,
+  "new_actual_actor_tests": {
+    "count": 4,
+    "status": "NOT_COMPILED_NOT_RUN",
+    "positive": "real owned stop plus explicit post-stop duration/bill override; daemon readable and Owner cancel",
+    "negative": [
+      "missing reservation -> INTERNAL_ERROR/unknown",
+      "missing trusted stop proof -> PERMISSION_DENIED",
+      "oversized node-document guard -> RESOURCE_LIMIT but no typed budgetblock"
+    ]
+  },
+  "author_actual_checks": [
+    {
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/factory-runtime-overrun-containment/static-checks-source97.py"
+      ],
+      "exit": 0,
+      "dimension": "finite static/inverse checks; not Rust execution"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/factory-runtime-overrun-containment/pure-sql-controls-final.py"
+      ],
+      "exit": 0,
+      "distinct_variants": 4,
+      "dimension": "inert generated SQLite tests of exact trigger SQL; not Actor/Core proof"
+    },
+    {
+      "argv": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "allowed Rust source files"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0
+    }
+  ],
+  "initial_source_corrections": [
+    "8f9ab8b668d113b4d0796d340e7dd9d97cd06a75",
+    "ed0d6c11c0b2a9f432f23a986b6aa34669474520",
+    "57d0637f15a1cf95ed1b6e436e2154d705592560",
+    "97cd674fd956921b4cc51a36fbe98fde5e98cf19"
+  ],
+  "known_unclosed": [
+    "natural CI attempt/capture timing cause",
+    "which d514 attempt exceeded original reservation",
+    "Mac portable full rework success",
+    "general resource/authority/DB failure isolation beyond this proved retained-overrun branch"
+  ],
+  "original_failure_log": {
+    "path": "/workspace/.onboarding/pr18-headd514-evidence/arm-job.log",
+    "sha256": "ee44c60478d28d61aa06f8c31c97335a0854478375a56907a5eef8cecce856ec",
+    "group": "22pass1fail159.17s"
+  },
+  "source_diagnosis": {
+    "path": "/workspace/.onboarding/pr18-retained-overrun-source-diagnosis/SOURCE_DIAGNOSIS.json",
+    "sha256": "3d9ba801ac1f3b9c72396e0c9ab7f964bb0e99d46b2c9a0bdb1fd6d75009ebec"
+  },
+  "independent_review": "PENDING",
+  "actual_root_tests": "PENDING",
+  "budgets_permissions_ipc_dto_schema_locks_workflows_changed": false,
+  "opaque_proof_traits": "no Debug/Serialize/Deserialize/Clone",
+  "resource_limit_code_catch": "NONE; successful predicate result only"
+}

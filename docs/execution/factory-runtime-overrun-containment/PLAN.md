@@ -1,0 +1,9 @@
+# Plan
+
+AB-TSK-003/004/005 and AB-SEC-003/005: isolate a confirmed resource rejection so an existing stopped Factory child Goal cannot terminate the daemon merely because its retained measured attempt exceeded its original reservation. Preserve exact stopped-history authentication, per-attempt/root/project budgets, unknown outcomes, Owner controls and no-auto-retry/no-refund semantics. This is not permission for the failed rework to succeed.
+
+Only successfully read retained-overrun facts after the original stopped-failure proof may construct the private typed result. Missing/corrupt/oversize/permission/DB errors propagate normally, even if their code is RESOURCE_LIMIT. No catch of a generic error code or string authorizes a blocked receipt. Recheck the opaque proof and all relevant live references inside the final transaction; block both FactoryRun and the exact target handle, with structured RESOURCE_LIMIT/confirmed referring only to that committed rejection. Do not generate stop proof, TaskAccepted, recovery epoch, new attempt, key or refunded budget.
+
+Allowed production changes are goal_runtime.rs, goal_factory.rs, factory_child_goal_lifecycle.rs and a private goal_store reexport. Tests add one isolated fixture with a two-line include; the separately authorized cfg(test) adaptation preserves old proof/counter assertions. No IPC/DTO/schema/lock/workflow/Provider process guard changes.
+
+Source `97cd674fd956921b4cc51a36fbe98fde5e98cf19` (chain8f9→ed0d→57d→97cd), base `d514bf76c15e83b950d9bf869fa557ee2f215861`, branch `codex/factory-runtime-overrun-containment`, isolated tree `/workspace/.worktrees/factory-runtime-overrun-containment`. SOURCE_MANIFEST `/workspace/.onboarding/factory-runtime-overrun-containment/SOURCE_MANIFEST.json` SHA `a402d82d69641485f08bfdc5e87087caddcd995d03116c70f8c55bba6c45a2de`. Parent owns all heavy/runtime tests; author started no Cargo/Actor/Node/browser/remote/model/subagent.
