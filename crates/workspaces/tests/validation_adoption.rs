@@ -875,3 +875,31 @@ fn controlled_cas_retains_original_custom_merge_driver_refusal() {
         repo.base
     );
 }
+
+#[test]
+fn controlled_actual_cas_records_distinct_complete_io_without_changing_user_files() {
+    use std::{
+        sync::atomic::AtomicBool,
+        time::{Duration, Instant},
+    };
+    let repo = Repository::new();
+    let candidate = repo.prepare();
+    let (_, evidence, acceptance) = candidate_validation(&candidate);
+    let index = fs::read(repo.root.join(".git/index")).unwrap();
+    let bytes = fs::read(repo.root.join("file.txt")).unwrap();
+    let cancel = AtomicBool::new(false);
+    let control = AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(5));
+    let result =
+        adopt_local_reference_controlled(&candidate, &evidence, &acceptance, &control).unwrap();
+    assert_eq!(result.record().state, IntegrationState::ConfirmedLocalRef);
+    assert!(result.io().io_complete());
+    assert_eq!(result.io().owned_leader_reaped(), Some(true));
+    assert_eq!(result.io().read_failed(), Some(false));
+    assert!(!result.io().interrupted());
+    assert_eq!(
+        git(&repo.root, &["rev-parse", "refs/heads/integration"]),
+        candidate.candidate_commit()
+    );
+    assert_eq!(fs::read(repo.root.join(".git/index")).unwrap(), index);
+    assert_eq!(fs::read(repo.root.join("file.txt")).unwrap(), bytes);
+}

@@ -688,94 +688,194 @@ mod raw_ancestry_tests {
 pub(crate) struct ControlledGitOutput {
     pub(crate) output: Output,
     pub(crate) interrupted: bool,
+    pub(crate) io: adoption::ControlledIntegrationIo,
+}
+struct ControlledGitChild {
+    child: std::process::Child,
+    reaped: bool,
+    signal_attempted: bool,
+}
+impl ControlledGitChild {
+    fn finished(&self) -> io::Result<bool> {
+        let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
+        let result = unsafe {
+            libc::waitid(
+                libc::P_PID,
+                libc::id_t::from(self.child.id()),
+                &mut info,
+                libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
+            )
+        };
+        if result < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(unsafe { info.si_pid() } != 0)
+    }
+    fn signal_own_group(&mut self) {
+        // Never reap the leader before group signals end: its unreaped PID
+        // prevents targeting a later unrelated process with a reused number.
+        if !self.reaped && !self.signal_attempted && self.finished().is_ok() {
+            self.signal_attempted = true;
+            if let Ok(pid) = i32::try_from(self.child.id()) {
+                unsafe {
+                    libc::kill(-pid, libc::SIGKILL);
+                }
+            }
+            let _ = self.child.kill();
+        }
+    }
+    fn reap(&mut self) -> io::Result<std::process::ExitStatus> {
+        let status = self.child.wait()?;
+        self.reaped = true;
+        Ok(status)
+    }
+}
+impl Drop for ControlledGitChild {
+    fn drop(&mut self) {
+        if !self.reaped {
+            self.signal_own_group();
+            if self.finished().is_ok() {
+                let _ = self.reap();
+            }
+        }
+    }
+}
+struct ControlledCapture<T> {
+    pipe: Option<T>,
+    bytes: Vec<u8>,
+    eof: bool,
+    failed: bool,
+    truncated: bool,
+}
+impl<T: Read + AsRawFd> ControlledCapture<T> {
+    fn new(pipe: T) -> io::Result<Self> {
+        let fd = pipe.as_raw_fd();
+        let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
+        if flags < 0 || unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(Self {
+            pipe: Some(pipe),
+            bytes: vec![],
+            eof: false,
+            failed: false,
+            truncated: false,
+        })
+    }
+    fn pump(&mut self) -> bool {
+        let Some(pipe) = self.pipe.as_mut() else {
+            return false;
+        };
+        let mut buffer = [0u8; 65536];
+        match pipe.read(&mut buffer) {
+            Ok(0) => {
+                self.eof = true;
+                self.pipe.take();
+                true
+            }
+            Ok(n) => {
+                let remaining = 4_194_304usize.saturating_sub(self.bytes.len());
+                self.bytes.extend_from_slice(&buffer[..remaining.min(n)]);
+                if n > remaining {
+                    self.truncated = true;
+                    self.pipe.take();
+                }
+                true
+            }
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    io::ErrorKind::WouldBlock | io::ErrorKind::Interrupted
+                ) =>
+            {
+                false
+            }
+            Err(_) => {
+                self.failed = true;
+                self.pipe.take();
+                true
+            }
+        }
+    }
 }
 pub(crate) fn controlled_output(
     command: &mut Command,
     control: &adoption::AdoptionControl<'_>,
 ) -> Result<ControlledGitOutput, WorkspaceError> {
+    use std::os::unix::process::CommandExt;
     control.check()?;
-    let mut child = command
+    let started = Instant::now();
+    let child = command
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
+        .process_group(0)
         .spawn()?;
-    let stdout = child.stdout.take().expect("piped stdout");
-    let stderr = child.stderr.take().expect("piped stderr");
-    let read = |stream: Box<dyn Read + Send>| -> io::Result<Vec<u8>> {
-        let mut bytes = Vec::new();
-        stream.take(4_194_305).read_to_end(&mut bytes)?;
-        Ok(bytes)
+    let mut owned = ControlledGitChild {
+        child,
+        reaped: false,
+        signal_attempted: false,
     };
-    let out = match std::thread::Builder::new()
-        .name("integration-git-out".into())
-        .spawn(move || read(Box::new(stdout)))
-    {
-        Ok(thread) => thread,
-        Err(error) => {
-            let _ = child.kill();
-            let _ = child.wait();
-            return Err(WorkspaceError::Io(error));
-        }
-    };
-    let err = match std::thread::Builder::new()
-        .name("integration-git-err".into())
-        .spawn(move || read(Box::new(stderr)))
-    {
-        Ok(thread) => thread,
-        Err(error) => {
-            let _ = child.kill();
-            let _ = child.wait();
-            let _ = out.join();
-            return Err(WorkspaceError::Io(error));
-        }
-    };
-    let deadline = control
-        .deadline()
-        .min(Instant::now() + Duration::from_secs(15));
+    #[cfg(test)]
+    controlled_spawn_hook::apply(owned.child.id());
+    let mut stdout = ControlledCapture::new(owned.child.stdout.take().expect("piped stdout"))?;
+    let mut stderr = ControlledCapture::new(owned.child.stderr.take().expect("piped stderr"))?;
+    let deadline = control.deadline().min(started + Duration::from_secs(15));
     let mut interrupted = false;
-    let mut first_error = None;
-    let status = loop {
-        match child.try_wait() {
-            Ok(Some(status)) => break Some(status),
-            Ok(None) => (),
-            Err(error) => {
-                first_error = Some(error);
-                interrupted = true;
-                let _ = child.kill();
-                break child.wait().ok();
-            }
+    loop {
+        let out_progress = stdout.pump();
+        let err_progress = stderr.pump();
+        if stdout.failed || stderr.failed || stdout.truncated || stderr.truncated {
+            interrupted = true;
+            break;
+        }
+        let finished = match owned.finished() {
+            Ok(value) => value,
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+            Err(error) => return Err(WorkspaceError::Io(error)),
+        };
+        if finished && stdout.eof && stderr.eof {
+            break;
         }
         if control.check().is_err() || Instant::now() >= deadline {
             interrupted = true;
-            let _ = child.kill();
-            break match child.wait() {
-                Ok(status) => Some(status),
-                Err(error) => {
-                    first_error = Some(error);
-                    None
-                }
-            };
+            break;
         }
-        std::thread::sleep(Duration::from_millis(10));
+        if !out_progress && !err_progress {
+            std::thread::sleep(
+                Duration::from_millis(2).min(deadline.saturating_duration_since(Instant::now())),
+            );
+        }
+    }
+    // This always targets our own group before consuming the leader's identity,
+    // including a leader that exited while another inherited pipe stayed open.
+    owned.signal_own_group();
+    let status = owned.reap()?;
+    // Nonblocking bounded final drain only: never invent a new cleanup clock or
+    // wait indefinitely for an escaped descendant. Missing EOF stays unknown.
+    while stdout.pump() {}
+    while stderr.pump() {}
+    let io = adoption::ControlledIntegrationIo {
+        elapsed_ms: u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),
+        stdout_retained_bytes: Some(stdout.bytes.len() as u64),
+        stderr_retained_bytes: Some(stderr.bytes.len() as u64),
+        stdout_eof: stdout.eof,
+        stderr_eof: stderr.eof,
+        owned_leader_reaped: Some(owned.reaped),
+        owned_group_signal_attempted: Some(owned.signal_attempted),
+        interrupted,
+        read_failed: Some(stdout.failed || stderr.failed),
     };
-    // Always consume both actual readers before returning an observation.
-    let stdout = out.join().map_err(|_| WorkspaceError::ResourceLimit);
-    let stderr = err.join().map_err(|_| WorkspaceError::ResourceLimit);
-    if let Some(error) = first_error {
-        return Err(WorkspaceError::Io(error));
-    }
-    let stdout = stdout??;
-    let stderr = stderr??;
-    if stdout.len() > 4_194_304 || stderr.len() > 4_194_304 {
-        return Err(WorkspaceError::ResourceLimit);
-    }
+    stdout.pipe.take();
+    stderr.pipe.take();
     Ok(ControlledGitOutput {
         output: Output {
-            status: status.ok_or(WorkspaceError::ResourceLimit)?,
-            stdout,
-            stderr,
+            status,
+            stdout: stdout.bytes,
+            stderr: stderr.bytes,
         },
         interrupted,
+        io,
     })
 }
 
@@ -905,4 +1005,111 @@ pub(crate) fn inspect_controlled(
             dirty: submodules || !status.stdout.is_empty(),
         },
     })
+}
+
+#[cfg(test)]
+mod controlled_spawn_hook {
+    type Hook = Box<dyn FnOnce(u32)>;
+    std::thread_local! {static HOOK:std::cell::RefCell<Option<Hook>>=std::cell::RefCell::new(None);}
+    pub(super) struct Guard;
+    pub(super) fn install(hook: impl FnOnce(u32) + 'static) -> Guard {
+        HOOK.with(|slot| {
+            assert!(slot.borrow().is_none());
+            *slot.borrow_mut() = Some(Box::new(hook));
+        });
+        Guard
+    }
+    pub(super) fn apply(pid: u32) {
+        let hook = HOOK.with(|slot| slot.borrow_mut().take());
+        if let Some(hook) = hook {
+            hook(pid);
+        }
+    }
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            HOOK.with(|slot| {
+                slot.borrow_mut().take();
+            });
+        }
+    }
+}
+#[cfg(all(test, target_os = "linux"))]
+mod controlled_pipe_tests {
+    use super::*;
+    use std::sync::{
+        atomic::{AtomicBool, Ordering},
+        mpsc, Arc,
+    };
+    #[test]
+    fn exited_leader_with_an_open_inherited_pipe_still_obeys_the_original_deadline() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        let release = root.join("release");
+        let cancel = Arc::new(AtomicBool::new(false));
+        let flag = cancel.clone();
+        let start = Instant::now();
+        let deadline = start + Duration::from_secs(1);
+        let release_file = release.clone();
+        let (done_tx, done_rx) = mpsc::sync_channel(1);
+        let (pid_tx, pid_rx) = mpsc::sync_channel(1);
+        let (ack_tx, ack_rx) = mpsc::sync_channel(1);
+        let owner = std::thread::spawn(move || {
+            // The parent opens the inherited writer before this owned runner can
+            // reap the leader. No potentially reused PID is opened or signalled.
+            let _hook = controlled_spawn_hook::install(move |pid| {
+                pid_tx.send(pid).unwrap();
+                ack_rx.recv_timeout(Duration::from_secs(3)).unwrap();
+            });
+            let control = adoption::AdoptionControl::for_request(&flag, deadline);
+            let result = controlled_output(
+                Command::new("/bin/sh").args([
+                    OsStr::new("-c"),
+                    OsStr::new("while [ ! -f \"$1\" ]; do :; done; exit 0"),
+                    OsStr::new("fixture"),
+                    release_file.as_os_str(),
+                ]),
+                &control,
+            );
+            let _ = done_tx.send(());
+            result
+        });
+        let process = pid_rx.recv_timeout(Duration::from_secs(2));
+        let held_writer = process.ok().and_then(|process| {
+            File::options()
+                .write(true)
+                .open(format!("/proc/{process}/fd/1"))
+                .ok()
+        });
+        let Some(held_writer) = held_writer else {
+            cancel.store(true, Ordering::Release);
+            let _ = ack_tx.send(());
+            let _ = owner.join();
+            panic!("fixture could not retain its own pipe writer");
+        };
+        if fs::write(&release, b"release").is_err() {
+            cancel.store(true, Ordering::Release);
+            drop(held_writer);
+            let _ = ack_tx.send(());
+            let _ = owner.join();
+            panic!("fixture release failed");
+        }
+        let _ = ack_tx.send(());
+        let completed = done_rx.recv_timeout(Duration::from_secs(2));
+        drop(held_writer);
+        let result = owner.join().unwrap().unwrap();
+        assert!(
+            completed.is_ok(),
+            "an open pipe must not cause an unbounded reader join"
+        );
+        assert!(start.elapsed() < Duration::from_secs(3));
+        assert!(
+            result.output.status.success(),
+            "the actual original leader exited0 before the controlled pipe deadline"
+        );
+        assert!(result.interrupted);
+        assert_eq!(result.io.owned_leader_reaped(), Some(true));
+        assert!(!result.io.stdout_eof());
+        assert!(!result.io.io_complete());
+        assert_eq!(result.io.stdout_retained_bytes(), Some(0));
+    }
 }

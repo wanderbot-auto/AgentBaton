@@ -43,6 +43,70 @@ impl std::fmt::Display for AdoptionError {
 }
 impl std::error::Error for AdoptionError {}
 
+/// Observed IO facts, not process-tree containment, permission or an acceptance.
+#[derive(Clone, Debug, Serialize)]
+pub struct ControlledIntegrationIo {
+    pub(crate) elapsed_ms: u64,
+    pub(crate) stdout_retained_bytes: Option<u64>,
+    pub(crate) stderr_retained_bytes: Option<u64>,
+    pub(crate) stdout_eof: bool,
+    pub(crate) stderr_eof: bool,
+    pub(crate) owned_leader_reaped: Option<bool>,
+    pub(crate) owned_group_signal_attempted: Option<bool>,
+    pub(crate) interrupted: bool,
+    pub(crate) read_failed: Option<bool>,
+}
+impl ControlledIntegrationIo {
+    pub fn elapsed_ms(&self) -> u64 {
+        self.elapsed_ms
+    }
+    pub fn stdout_retained_bytes(&self) -> Option<u64> {
+        self.stdout_retained_bytes
+    }
+    pub fn stderr_retained_bytes(&self) -> Option<u64> {
+        self.stderr_retained_bytes
+    }
+    pub fn stdout_eof(&self) -> bool {
+        self.stdout_eof
+    }
+    pub fn stderr_eof(&self) -> bool {
+        self.stderr_eof
+    }
+    pub fn owned_leader_reaped(&self) -> Option<bool> {
+        self.owned_leader_reaped
+    }
+    pub fn owned_group_signal_attempted(&self) -> Option<bool> {
+        self.owned_group_signal_attempted
+    }
+    pub fn interrupted(&self) -> bool {
+        self.interrupted
+    }
+    pub fn read_failed(&self) -> Option<bool> {
+        self.read_failed
+    }
+    /// Only direct-child/stream receipt completeness, never an OS tree sandbox.
+    pub fn io_complete(&self) -> bool {
+        self.owned_leader_reaped == Some(true)
+            && self.stdout_eof
+            && self.stderr_eof
+            && self.read_failed == Some(false)
+    }
+}
+/// Keeps historical ref completion separate from resource/stream uncertainty.
+/// This result cannot be deserialized into any authority or owned-stop proof.
+pub struct ControlledIntegrationResult {
+    record: IntegrationRecord,
+    io: ControlledIntegrationIo,
+}
+impl ControlledIntegrationResult {
+    pub fn record(&self) -> &IntegrationRecord {
+        &self.record
+    }
+    pub fn io(&self) -> &ControlledIntegrationIo {
+        &self.io
+    }
+}
+
 /// Trusted host cancellation/deadline only; this is not an approval token.
 /// It cannot be deserialized and never refreshes any caller clock.
 pub struct AdoptionControl<'a> {
@@ -83,10 +147,26 @@ fn bound_output(
     let mut command = bound_git_command(grant);
     match control {
         Some(c) => crate::controlled_output(command.args(args), c),
-        None => Ok(crate::ControlledGitOutput {
-            output: bounded_output(command.args(args))?,
-            interrupted: false,
-        }),
+        None => {
+            let start = std::time::Instant::now();
+            let output = bounded_output(command.args(args))?;
+            let io = ControlledIntegrationIo {
+                elapsed_ms: u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX),
+                stdout_retained_bytes: Some(output.stdout.len() as u64),
+                stderr_retained_bytes: Some(output.stderr.len() as u64),
+                stdout_eof: true,
+                stderr_eof: true,
+                owned_leader_reaped: Some(true),
+                owned_group_signal_attempted: Some(false),
+                interrupted: false,
+                read_failed: Some(false),
+            };
+            Ok(crate::ControlledGitOutput {
+                output,
+                interrupted: false,
+                io,
+            })
+        }
     }
 }
 fn bound_text_controlled(
@@ -501,7 +581,7 @@ pub fn adopt_local_reference(
     evidence: &ValidationEvidence,
     acceptance: &Acceptance,
 ) -> Result<IntegrationRecord, AdoptionError> {
-    adopt_inner(candidate, evidence, acceptance, None)
+    adopt_inner(candidate, evidence, acceptance, None).map(|result| result.record)
 }
 /// Same independent authority and evidence guards, with one original host clock.
 /// Post-write uncertainty is returned as a record, never a not-started error.
@@ -510,7 +590,7 @@ pub fn adopt_local_reference_controlled(
     evidence: &ValidationEvidence,
     acceptance: &Acceptance,
     control: &AdoptionControl<'_>,
-) -> Result<IntegrationRecord, AdoptionError> {
+) -> Result<ControlledIntegrationResult, AdoptionError> {
     adopt_inner(candidate, evidence, acceptance, Some(control))
 }
 fn adopt_inner(
@@ -518,7 +598,8 @@ fn adopt_inner(
     evidence: &ValidationEvidence,
     acceptance: &Acceptance,
     control: Option<&AdoptionControl<'_>>,
-) -> Result<IntegrationRecord, AdoptionError> {
+) -> Result<ControlledIntegrationResult, AdoptionError> {
+    let started = std::time::Instant::now();
     let grant = &candidate.authorization;
     verify_repository_controlled(grant, control)?;
     if candidate.version_binding() != acceptance.subject().version || !acceptance.matches(evidence)
@@ -585,6 +666,22 @@ fn adopt_inner(
         control,
     )
     .ok();
+    let mut io = result
+        .as_ref()
+        .map(|r| r.io.clone())
+        .unwrap_or(ControlledIntegrationIo {
+            elapsed_ms: 0,
+            stdout_retained_bytes: None,
+            stderr_retained_bytes: None,
+            stdout_eof: false,
+            stderr_eof: false,
+            owned_leader_reaped: None,
+            owned_group_signal_attempted: None,
+            interrupted: true,
+            read_failed: None,
+        });
+    io.elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
+    io.interrupted |= control.is_some_and(|c| c.check().is_err());
     let state = if confirmed_controlled {
         IntegrationState::ConfirmedLocalRef
     } else {
@@ -606,14 +703,17 @@ fn adopt_inner(
             _ => IntegrationState::OutcomeUnknown,
         }
     };
-    Ok(IntegrationRecord {
-        grant_ref: grant.grant_ref.clone(),
-        target_ref: grant.target_ref.clone(),
-        expected_target_head: grant.expected_target_head.clone(),
-        candidate_commit: candidate.integration_candidate.clone(),
-        validation_digest: acceptance.validation_digest().into(),
-        observed_head: observed,
-        state,
+    Ok(ControlledIntegrationResult {
+        record: IntegrationRecord {
+            grant_ref: grant.grant_ref.clone(),
+            target_ref: grant.target_ref.clone(),
+            expected_target_head: grant.expected_target_head.clone(),
+            candidate_commit: candidate.integration_candidate.clone(),
+            validation_digest: acceptance.validation_digest().into(),
+            observed_head: observed,
+            state,
+        },
+        io,
     })
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -831,17 +931,20 @@ mod controlled_completion_tests {
         let result =
             adopt_local_reference_controlled(&candidate, &evidence, &acceptance, &control).unwrap();
         assert!(applied.load(Ordering::Acquire));
-        assert_eq!(result.state, IntegrationState::ConfirmedLocalRef);
+        assert_eq!(result.record().state, IntegrationState::ConfirmedLocalRef);
         assert!(
-            result.observed_head.is_none(),
+            result.record().observed_head.is_none(),
             "cancelled post-write observer must not invent a current ref observation"
         );
         assert_eq!(
             git(&root, &["rev-parse", "refs/heads/integration"]),
             candidate.candidate_commit()
         );
+        assert!(result.io().io_complete());
+        assert!(result.io().interrupted());
         if late {
             assert!(Instant::now() >= deadline);
+            assert!(result.io().elapsed_ms() >= 5000);
         }
     }
     #[test]

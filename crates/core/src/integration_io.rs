@@ -403,7 +403,10 @@ impl IntegrationPreparedContext {
         cancel: Arc<AtomicBool>,
         deadline: Instant,
         attempt_id: &str,
-    ) -> Result<(Self, agentbaton_workspaces::adoption::IntegrationRecord)> {
+    ) -> Result<(
+        Self,
+        agentbaton_workspaces::adoption::ControlledIntegrationResult,
+    )> {
         let guard = IntegrationReadControl { cancel, deadline };
         guard.check()?;
         if self.validations.len() != self.policy.bindings.validators.len()
