@@ -1,0 +1,25 @@
+# Progress
+
+2026-10-30T01:12:30.530035+00:00; source `0acae52965987e1674cd147a770ba5078aa57dc6`.
+
+ManagedSessions fixed taskGet now additionally resolves only an unbound draft's source using existing CodeWorkspacePreparation request/strict parser, exact Task/spec/project revision and local host. The checked needs_git_workspace result displays the original TaskCodeWorkspace entry. Classification pending/error and coding setup required block new Grant/Session and arbitrary workspace selection; errors are visible and the existing refresh explicitly retries readonly checks. The path never calls prepare itself. Project revision/archived status also enters the existing Task-read context.
+
+The reused component optionally opens, retaining default folded/read-lazy Task Details. Its optional one-time readiness notification requires its validated ready binding/current identity observation, no pending intent/writer, mounted/current parent fingerprint and active connection. Successful prepare/retry/exact-key lost-response recovery use the same original implementation. Parent rejects obsolete callbacks by current Task/context/initial epoch and rereads Task plus workspace/Grant lists; a missing/stale list or Task read still prevents admission. There is no implicit Grant, Session, prompt, host/identity change or new worktree call in ManagedSessions.
+
+Directory/data/needs_registered_project remain explicit/manual; historical non-draft does not invoke new preparation. No Task selected retains existing global manual Grant. Existing Core filesystem/admission and Native Owner confirmation remain authoritative. Stored binding/callback/metadata is not current FS proof or execution permission.
+
+Tests: new15 execution-entry cases exercise the real reused component with mocked fixed transport, plus3 notification/autoOpen/recovery cases in TaskCodeWorkspace tests. Existing28 selection and12 SessionWorkbench specs retain all original assertions. Required resolver mocks now use complete typed Directory results; two old explicit-manual fixtures are explicitly Directory rather than coding Git. No production mock fallback, blanket classifier bypass or lower acceptance. Planned focused83=15+28+28+12; all NOT_RUN here.
+
+Python stdlib source/inverse checks and git diffcheck0 actually passed. Entire TaskCodeWorkspace prepare/recovery block and readonly proof reconciliation, ManagedSessions mutate/send/existing session inspection+cancel tail, initial A-B-A block and protected App/API/Native contract files are unchanged. Inverse removes only test fixture additions/new specs to restore original complete old test files. These are source checks, not TypeScript compiler or component execution.
+
+Root-reported earlier UI/browser tests and ongoing CI/harness are other phases, not copied into this unit. No Node/npm/Cargo/browser/Actor/network/GitHub/Provider test or new agent executed.
+
+## Follow-up 2026-10-30T01:35:00.192481+00:00
+
+Initial0aca was not accepted by its first green tests: Root reported focused83 PASS/type+build PASS at integrated4cfd (log hashes 1d8bba6c41eaff5cfd9d79bd64381ed747a1c71e2db568b647bd72403e2b8cae and 3d621a1521d52faa3236c532300b9d5ccfd5561eaee52347c1d8c909950968cd). Independent composition review then found that a parent Refresh removed the only same-key recovery component once Task binding appeared, or while its read was pending. These original results remain phase-specific. “Active connection” in the original notification description means daemon connectivity, not a Provider call or active managed Session.
+
+Test-only ed772ab88d309a2d6a544b1f3138b226369e1e6b adds3 cases (stored ready/pending/outcome_unknown). Root actually ran those against unchanged0aca at297a9ec44547571a8210e07a8b329420aabc7fec:3 FAIL/15 filtered, exit1,5.1142629829992075s, Recover not found at line103. Original log SHA87df27d7582ea59393e3314f37f4274b8437df887782f5fc7f2fca6816d929d7 remains in task-workspace-entry-parent-refresh-counterexample1. No failed record was overwritten or reclassified.
+
+Fix-only 293caf60667c3f09b150694b838bc267c7ab7933 adds a readonly query of the original memories pending/writing flags; no key/intent mutation or new manager. ManagedSessions retains the original entry/component key through parent reads/binding appearance; unresolved intent blocks boundUsable/ACK/Grant/Session and arbitrary workspace choice. Workspace/Grant/Session event handlers query current memory again. Original component reconciliation, request/CAS/key/recovery, A-B-A epochs, callback checks and existing-session cancellation are unchanged. A callback never grants or starts anything.
+
+Actual author checks:24 Python source/inverse/hash assertions and git diffcheck exit0. All4 focused test files, including the3 counterexamples, are byte-equal to ed772ab. Planned focused86=18+28+28+12; new-source typecheck/tests/build/browser/realIPC/Native remain NOT_RUN by this author and pending Root execution/independent review. Do not transfer earlier83 green to this revision.

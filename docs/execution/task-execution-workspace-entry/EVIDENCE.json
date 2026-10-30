@@ -1,0 +1,140 @@
+{
+  "recorded_at": "2026-10-30T01:11:29.299320+00:00",
+  "base": "c02afaf96f0914657a36150a26148b22cb2f0607",
+  "source": "0acae52965987e1674cd147a770ba5078aa57dc6",
+  "dimension": "Python stdlib source/inverse checks only, not TS syntax/typecheck/tests or React scheduling proof",
+  "source_pins": {
+    "apps/desktop/src/ManagedSessions.tsx": "4aa868c1d42b8a5a9cfec0f362f6cfcfdceca93c0e6c8f6e1cfddb9dc878eef4",
+    "apps/desktop/src/ManagedSessionsTaskBinding.test.tsx": "f8ff186dd93d40caca769ba7f8a409bcab0684de4b658eeef9f0422346b4f80f",
+    "apps/desktop/src/ManagedSessionsWorkspaceEntry.test.tsx": "c5b2f91e4c06cd08171ee6cf24a754389c2ba01434555be73569ae370d1b5f0f",
+    "apps/desktop/src/SessionWorkbench.test.tsx": "3d0cd61925b5e21a298b6fb2a0e2d9f2be8ad05c2034bb37786f45a23205dc86",
+    "apps/desktop/src/TaskCodeWorkspace.test.tsx": "9f8b4c46f041c174bb13f2f4d1d0997d44482d36dd3e75eb551cb32593d62267",
+    "apps/desktop/src/TaskCodeWorkspace.tsx": "a50883868ed5843c014e16222a32794c3149478fe7779f233464b6eef62875d7",
+    "apps/desktop/src/task-code-workspace-i18n.ts": "ba27f72c3bdce49f83ddd33c2910aaa8e736d4476f396517e06f673a80024a7e"
+  },
+  "protected_byte_equal": {
+    "App.tsx": "23e59d85507b16ed31bcde44037f1e9289db9277b9ba0cc6fda68dfc073942fb",
+    "api.ts": "9754c337e90ed8900a43ce60afc7ed302ea2a0f3c0a26ee809538ec98fb1f32b",
+    "session-api.ts": "db67e28fc775a96f7d0523cdf9078d2fda9eeb8fe9a8ef7d0a28d20929bdf7a8",
+    "session-i18n.ts": "f5c7e73fb660941d9ce3d0f50c8ed682703b7cca190df7530c7e4a1413172a4b",
+    "task-workspace-binding-wire.ts": "5f505bbabb69b7389af4573615fd1ffc707a2eb1090113ac50e8d9e1e4ab6d62",
+    "workspace-preparation-wire.ts": "2711af2cd310ed985767cd6c58ffe695257d82497695b00472ce9547a82946c7"
+  },
+  "checks": {
+    "ManagedSessions_mutate_send_and_existing_session_tail_unchanged": true,
+    "A_B_A_initial_stamp_block_unchanged": true,
+    "TaskCodeWorkspace_entire_prepare_recover_request_key_state_machine_unchanged": true,
+    "TaskCodeWorkspace_entire_refresh_proof_and_unknown_reconciliation_unchanged": true,
+    "old_test_files_whole_inverse_equal_after_fixture_or_new_specs_removal": true,
+    "no_duplicate_preparation_state_machine_in_ManagedSessions": true,
+    "typed_readonly_resolver_classifies_coding": true,
+    "pending_or_error_classification_blocks_default_fallback": true,
+    "callback_current_identity_observation_and_pending_guards": true,
+    "callback_current_parent_context_then_independent_reads": true,
+    "protected_Core_API_UI_routes_unchanged": true,
+    "diffcheck_exit": 0
+  },
+  "component_cases_declared_NOT_RUN": {
+    "ManagedSessionsWorkspaceEntry.test.tsx": 15,
+    "TaskCodeWorkspace.test.tsx": 28,
+    "ManagedSessionsTaskBinding.test.tsx": 28,
+    "SessionWorkbench.test.tsx": 12
+  },
+  "focused_total_declared_NOT_RUN": 83,
+  "added_specs_NOT_RUN": 18,
+  "NOT_RUN": [
+    "TypeScript syntax/compiler",
+    "83 focused component cases",
+    "full existing frontend suite",
+    "build",
+    "real Core IPC/Actor",
+    "browser",
+    "Native/macOS",
+    "Provider/network/CI"
+  ],
+  "requirements": [
+    "AB-PRJ-002",
+    "AB-PRJ-003",
+    "AB-PRJ-005",
+    "AB-SEC-007",
+    "OWNER-002"
+  ],
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "status": "SOURCE_ONLY_PENDING_INDEPENDENT_REVIEW_AND_ROOT_TESTS",
+  "commands": [
+    {
+      "command": "Python stdlib source/inverse/protected-file assertions",
+      "exit": 0,
+      "dimension": "source only; not TS syntax/type/runtime proof"
+    },
+    {
+      "command": "git diff c02afaf 0acae52 --check",
+      "exit": 0
+    }
+  ],
+  "contract_or_permission_change": false,
+  "new_remote_provider_or_cost": false,
+  "scope_complete": false,
+  "default_coding_child_isolation_adoption_remote_complete": false,
+  "followups": [
+    {
+      "recorded_at": "2026-10-30T01:35:00.192481+00:00",
+      "test_only": "ed772ab88d309a2d6a544b1f3138b226369e1e6b",
+      "source_fix": "293caf60667c3f09b150694b838bc267c7ab7933",
+      "original_source_status": "CHANGES_REQUIRED composition P2 despite Root initial83 green",
+      "root_reported_original_focused": {
+        "cases": 83,
+        "status": "PASS",
+        "seconds": 4.739,
+        "log_sha256": "1d8bba6c41eaff5cfd9d79bd64381ed747a1c71e2db568b647bd72403e2b8cae",
+        "type_build_log_sha256": "3d621a1521d52faa3236c532300b9d5ccfd5561eaee52347c1d8c909950968cd"
+      },
+      "original_counterexample_actual": {
+        "source": "297a9ec44547571a8210e07a8b329420aabc7fec",
+        "exit": 1,
+        "seconds": 5.1142629829992075,
+        "log_sha256": "87df27d7582ea59393e3314f37f4274b8437df887782f5fc7f2fca6816d929d7",
+        "result_sha256": "1b9996770508db3f75c9ebd3d77a0ddcb3b6ad184f65ae4f64575abe6c951186",
+        "reported_cases_failed": 3,
+        "reported_filtered": 15,
+        "root_reported_first_cause": "Recover exact preparation not found; tests line103",
+        "path": "/workspace/.onboarding/task-workspace-entry-parent-refresh-counterexample1"
+      },
+      "fix_only_paths": [
+        "apps/desktop/src/ManagedSessions.tsx",
+        "apps/desktop/src/TaskCodeWorkspace.tsx"
+      ],
+      "source_audit": {
+        "checks": 24,
+        "exit": 0,
+        "dimension": "Python source/inverse/hash assertions only; not TypeScript, React execution, real IPC or authority proof",
+        "source_sha256": {
+          "apps/desktop/src/ManagedSessions.tsx": "cd3234c9892493d41fd852d26d5b8901cf99e702bf182c79e6d77eb9062a0d1d",
+          "apps/desktop/src/TaskCodeWorkspace.tsx": "f6f9ec6ebddfd0ecfea919426a37aebb9e20fe8e3125093920c3ad422a16a6dd",
+          "apps/desktop/src/ManagedSessionsWorkspaceEntry.test.tsx": "bc06c0eb7056c7bf92163eafa9206f3b0546ee814c507c49d5eef1a883925afc",
+          "apps/desktop/src/TaskCodeWorkspace.test.tsx": "9f8b4c46f041c174bb13f2f4d1d0997d44482d36dd3e75eb551cb32593d62267",
+          "apps/desktop/src/ManagedSessionsTaskBinding.test.tsx": "f8ff186dd93d40caca769ba7f8a409bcab0684de4b658eeef9f0422346b4f80f",
+          "apps/desktop/src/SessionWorkbench.test.tsx": "3d0cd61925b5e21a298b6fb2a0e2d9f2be8ad05c2034bb37786f45a23205dc86"
+        }
+      },
+      "planned_focused_NOT_RUN_new_source": 86,
+      "tests_by_file_NOT_RUN_new_source": {
+        "ManagedSessionsWorkspaceEntry.test.tsx": 18,
+        "TaskCodeWorkspace.test.tsx": 28,
+        "ManagedSessionsTaskBinding.test.tsx": 28,
+        "SessionWorkbench.test.tsx": 12
+      },
+      "NOT_RUN": [
+        "author Node/typecheck/focused86/full frontend/build",
+        "new-source actual browser/CoreIPC/Native/macOS/Provider/CI"
+      ],
+      "status": "SOURCE_FROZEN_PENDING_INDEPENDENT_REVIEW_AND_ROOT_TESTS",
+      "public_contract_permission_change": false,
+      "new_key_or_recovery_FSM": false,
+      "scope_complete": false
+    }
+  ]
+}
