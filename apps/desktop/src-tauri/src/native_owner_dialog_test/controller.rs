@@ -419,6 +419,22 @@ pub fn validate_integration_identity(
     }
     Ok(())
 }
+/// Core c932 preserves the original proposal revision for exact finalization
+/// replay; consumption changes only the consumed bit, unlike legacy kinds.
+pub fn integration_consumed_proposal(proposal: &Value, phase: &str) -> Result<Value, String> {
+    if !matches!(phase, "before" | "approve" | "cancel")
+        || proposal["kind"] != "integration"
+        || proposal["consumed"] != false
+        || proposal["revision"].as_u64().is_none_or(|r| r == 0)
+    {
+        return Err("Exact original integration proposal required".into());
+    }
+    let mut value = proposal.clone();
+    if phase == "approve" {
+        value["consumed"] = serde_json::json!(true);
+    }
+    Ok(value)
+}
 fn integration_counts(value: &Value, policies: u64) -> bool {
     value.as_object().is_some_and(|v| v.len() == 6)
         && value["schema_version"].as_u64() == Some(17)
@@ -1092,5 +1108,25 @@ mod integration_database_controls {
             &expected
         )
         .is_err());
+    }
+}
+
+#[cfg(test)]
+mod integration_proposal_revision_controls {
+    use super::*;
+    use serde_json::json;
+    #[test]
+    fn consumption_preserves_original_proposal_revision_and_full_snapshot_for_replay() {
+        let p = json!({"id":"proposal","kind":"integration","revision":7,"consumed":false,"snapshot":{"exact":"全部"}});
+        for phase in ["before", "cancel"] {
+            assert_eq!(integration_consumed_proposal(&p, phase).unwrap(), p);
+        }
+        let after = integration_consumed_proposal(&p, "approve").unwrap();
+        let mut exact = p.clone();
+        exact["consumed"] = json!(true);
+        assert_eq!(after, exact);
+        assert_eq!(after["revision"], 7);
+        assert!(integration_consumed_proposal(&after, "approve").is_err());
+        assert!(integration_consumed_proposal(&p, "other").is_err());
     }
 }

@@ -1,7 +1,7 @@
 //! Feature-only OS fixture witness. Opens existing SQLite strictly read-only;
 //! never migrates, creates authority or returns raw proposals/paths/documents.
-use super::{digest, is_integration};
-use serde_json::{json, Value};
+use super::{digest, integration_consumed_proposal, is_integration};
+use serde_json::Value;
 use std::{
     io::Read,
     path::Path,
@@ -38,7 +38,7 @@ proposal=decode(row[0]);assert proposal['kind']=='integration' and proposal['id'
 assert sha(proposal)==proposal_sha and sha(proposal['snapshot'])==snapshot_sha
 assert type(proposal['revision']) is int and type(proposal['consumed']) is bool
 approved=phase=='approve';assert phase in ('before','approve','cancel')
-assert proposal['consumed'] is approved and proposal['revision']==original_revision+(1 if approved else 0)
+assert proposal['consumed'] is approved and proposal['revision']==original_revision
 assert counts==([1,0,0,0] if approved else [0,0,0,0])
 policy=db.execute('SELECT task_id,spec_revision,goal_scope_id,approval_id,revision,document FROM integration_policies WHERE id=? AND typeof(document)="text" AND length(CAST(document AS BLOB))<=1048576',(proposal_id,)).fetchone()
 owner_sequence=None;policy_sequence=None
@@ -59,9 +59,10 @@ if approved:
     owner_sequence,owner_raw=owner[0];policy_sequence,policy_raw=publication[0]
     owner_event=decode(owner_raw);policy_event=decode(policy_raw)
     assert type(owner_event['sequence']) is int and owner_event['sequence']==0 and type(policy_event['sequence']) is int and policy_event['sequence']==0
-    assert owner_event['source']=='local_owner_confirmation' and type(owner_event['revision']) is int and owner_event['revision']==original_revision+1
-    assert owner_event['payload']['kind']=='integration' and owner_event['payload']['proposal_id']==proposal_id and owner_event['payload']['consumed'] is True
+    assert owner_event['source']=='local_owner_confirmation' and type(owner_event['revision']) is int and owner_event['revision']==original_revision
+    assert sha(owner_event['payload'])==sha(dict(kind='integration',proposal_id=proposal_id,consumed=True))
     assert type(policy_event['revision']) is int and policy_event['revision']==1 and policy_event['payload']['snapshot_digest']==snapshot_sha and policy_event['source']=='integration_core'
+    assert sha(policy_event['payload'])==sha(dict(snapshot_digest=snapshot_sha,owner_sequence=owner_sequence,scope_digest=proposal['snapshot']['bindings']['goal_scope_digest'],binding_digest=proposal['snapshot']['bindings']['binding_digest'],automatic_watch_armed=True))
     assert baseline<owner_sequence<policy_sequence<=sequence
 else: assert not owner and not publication
 out=dict(schema_version=schema,sequence=sequence,**dict(zip(('policies','runs','attempts','ref_fences'),counts)))
@@ -137,16 +138,10 @@ pub(crate) fn checkpoint(
     } else {
         expected["phase"].as_str().ok_or("No integration phase")?
     };
-    let mut proposal = expected["proposal"].clone();
+    let proposal = integration_consumed_proposal(&expected["proposal"], phase)?;
     let revision = proposal["revision"]
         .as_u64()
-        .ok_or("No proposal revision")?;
-    if phase == "approve" {
-        proposal["consumed"] = json!(true);
-        proposal["revision"] = json!(revision
-            .checked_add(1)
-            .ok_or("Proposal revision overflow")?);
-    }
+        .ok_or("No exact proposal revision")?;
     let mut command = Command::new("python3");
     command
         .args(["-I", "-S", "-c", SQL])
