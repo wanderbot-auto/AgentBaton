@@ -250,12 +250,22 @@ impl Store {
         &self,
         ticket: &super::runtime::IntegrationStageTicket,
     ) -> Result<(IntegrationReadPlan, String)> {
+        self.prepare_integration_stage_read_with_database(ticket, None)
+    }
+    fn prepare_integration_stage_read_with_database(
+        &self,
+        ticket: &super::runtime::IntegrationStageTicket,
+        database: Option<DatabasePin>,
+    ) -> Result<(IntegrationReadPlan, String)> {
         let reference = ticket.read_reference();
         let raw = encode(
             &json!({"private_integration_stage":reference.run_id,"attempt":reference.attempt_id,"policy":reference.policy_id}),
         )?;
-        let plan =
-            self.prepare_integration_scope_read(IntegrationReadIntent::Stage(reference), &raw)?;
+        let plan = self.prepare_integration_scope_read_with_database(
+            IntegrationReadIntent::Stage(reference),
+            &raw,
+            database,
+        )?;
         Ok((plan, raw))
     }
     pub(crate) fn prepare_integration_scope_read(
@@ -917,7 +927,8 @@ impl IntegrationReadProof {
         // Only after the old complete proof was checked in the same immediate
         // transaction. Refresh the deliberate own run/dispatch state change;
         // retained FD observations and original deadline never reset.
-        let (plan, expected) = store.prepare_integration_stage_read(ticket)?;
+        let (plan, expected) = store
+            .prepare_integration_stage_read_with_database(ticket, Some(self.database.clone()))?;
         if expected != raw
             || sha(&plan.material)? != self.material_digest
             || sha(&plan.available)? != self.available_digest
