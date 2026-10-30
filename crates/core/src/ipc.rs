@@ -757,6 +757,9 @@ impl Daemon {
             "integration_policies.list"=>{let p:crate::integration::IntegrationListQuery=params(r.params)?;Ok(json!(self.store.list_integration_policies(&p)?))},
             "integration_policies.revoke"=>{let p:crate::integration::IntegrationPolicyId=params(r.params)?;Ok(json!(self.store.revoke_integration_policy(&p.policy_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))},
             "integrations.list"=>{let p:crate::integration::IntegrationListQuery=params(r.params)?;Ok(json!(self.store.list_integrations(&p)?))},
+            "integrations.get"=>{let p:crate::integration::IntegrationRunId=params(r.params)?;Ok(json!(self.store.get_integration(&p.integration_id)?))},
+            "integrations.cancel"=>{let p:crate::integration::IntegrationRunId=params(r.params)?;Ok(json!(self.store.cancel_integration(&p.integration_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))},
+            "integrations.reconcile"=>{let p:crate::integration::IntegrationRunId=params(r.params)?;Ok(json!(self.store.reconcile_integration(&p.integration_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))},
             "connections.register" | "grants.create" => Err(CoreError::new(
                 "AUTH_REQUIRED",
                 "Server proposal and trusted native owner confirmation are required",
