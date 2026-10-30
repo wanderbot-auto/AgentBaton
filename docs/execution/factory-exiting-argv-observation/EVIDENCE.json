@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "base": "fbeb2e96854868735b9c07f27485c5cf8f748502",
+  "source_commit": "9f412458d782d9513427c2575cc7d234918a2f66",
+  "source_hashes": {
+    "apps/desktop/tests/factory-real-ipc.py": "5fe468888f60a2119384a6a75d46a1aee18f00100f981212379510b67a17ce74",
+    "tests/infrastructure/test_factory_exiting_argv_observation.py": "db8db698957cd56cabbc3542a2e79ad9ad976e542961352e209c7fb6429a1fc4",
+    "tests/infrastructure/test_factory_bound_provider_exit.py": "e00b1af4db30f738e0729cb1a2f65b103c498cbcfe0b2f88f2ba250ae67099d5"
+  },
+  "scope": "test-harness observation only; no Core/runtime authority change",
+  "results": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/infrastructure -p test_factory_bound_provider_exit.py -q",
+      "exit_code": 0,
+      "tests": 39,
+      "seconds": 4.737,
+      "attribution": "original suite unchanged; final driver source"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/infrastructure -p test_factory_exiting_argv_observation.py -q",
+      "exit_code": 0,
+      "tests": 11,
+      "seconds": 2.256,
+      "attribution": "final new test and driver source"
+    }
+  ],
+  "unique_tests": 50,
+  "logs": {
+    "new_initial_two_fixture_errors": {
+      "sha256": "e0fa04156d922c667ef0883c8c5a0d7306582575168032b6d9331b2fc840cfb7",
+      "text": "======================================================================\nERROR: test_final_identity_gate_still_rejects_live_empty_and_only_accepts_actual_absence (test_factory_exiting_argv_observation.ExitingArgvObservationTests.test_final_identity_gate_still_rejects_live_empty_and_only_accepts_actual_absence)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/workspace/.worktrees/factory-exiting-argv-observation/apps/desktop/tests/factory-real-ipc.py\", line 649, in inspect_owned_records\n    assert len(raw) <= 8192 and raw.endswith(b'\\0')\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/workspace/.worktrees/factory-exiting-argv-observation/tests/infrastructure/test_factory_exiting_argv_observation.py\", line 150, in test_final_identity_gate_still_rejects_live_empty_and_only_accepts_actual_absence\n    report={'cleanup':[]};self.assertFalse(f.ns['inspect_owned_records'](report,f.verified,1,f.context['provider'],f.context['settings'],f.context['companion'],f.runtime));self.assertFalse(signal_call.called)\n                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/factory-exiting-argv-observation/apps/desktop/tests/factory-real-ipc.py\", line 664, in inspect_owned_records\n    note_failure(report, failure, 'cleanup_owned_identity', clean); complete = False\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/factory-exiting-argv-observation/apps/desktop/tests/factory-real-ipc.py\", line 598, in note_failure\n    'traceback': clean(''.join(traceback.format_exception(type(failure), failure, failure.__traceback__)))}\n                               ^^^^^^^^^\nNameError: name 'traceback' is not defined. Did you forget to import 'traceback'\n\n======================================================================\nERROR: test_pid_birth_parent_pgid_and_uid_changes_are_refused (test_factory_exiting_argv_observation.ExitingArgvObservationTests.test_pid_birth_parent_pgid_and_uid_changes_are_refused)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/workspace/.worktrees/factory-exiting-argv-observation/tests/infrastructure/test_factory_exiting_argv_observation.py\", line 92, in test_pid_birth_parent_pgid_and_uid_changes_are_refused\n    if change=='pid':f.proc_steps[f.provider]=[f.identity(f.provider,pid=54321)]\n                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Fixture.identity() got multiple values for argument 'pid'\n\n----------------------------------------------------------------------\nRan 11 tests in 1.784s\n\nFAILED (errors=2)\n"
+    },
+    "new_intermediate": {
+      "sha256": "6cde05a8ea58816d3c248c7a2c150f093b3c7b89e2e694e9d05a108468293b6f",
+      "text": "----------------------------------------------------------------------\nRan 11 tests in 2.085s\n\nOK\n"
+    },
+    "new_final": {
+      "sha256": "661d2702e399fd70bc3dfa6b0d4becdd7aea2ec18e5e6ff73e71050161b5049b",
+      "text": "----------------------------------------------------------------------\nRan 11 tests in 2.256s\n\nOK\n"
+    },
+    "original_final": {
+      "sha256": "5b5471efb5bae2b9509568fa487da2d6c24c900778019620839b1fdff6cff2f1",
+      "text": "----------------------------------------------------------------------\nRan 39 tests in 4.737s\n\nOK\n"
+    }
+  },
+  "initial_failure_limits": "Two observed test fixture errors, not product failures. No contemporaneous full source hash for that initial WIP; preserved log is not attributed to the final source.",
+  "static_checks": {
+    "outside_collector_module_ast_equal_base": true,
+    "original_test_bytes_equal_base": true,
+    "source_compile_no_main_execution": true,
+    "git_diff_check_exit": 0
+  },
+  "original_ci": {
+    "product_run": 41094992088,
+    "ui_job": 124198320956,
+    "report_path": "/workspace/.onboarding/pr18-headfbeb-evidence/factory-cancel-report.json",
+    "report_sha256": "cc9bcac3e7e0ff05410ae6c8e3ed87690f80da24a8c34c265f16cacca2a0eba0",
+    "zip_id": 12995418473,
+    "zip_bytes": 10188100,
+    "zip_sha256": "59132a007689613c4fc61eb391f943a8ecbfc4891293c1eabb2fcc0b33075dba",
+    "status": "original failed; retained; not reclassified",
+    "limitation": "Later cancel reply is not contemporaneous commit proof at original empty read"
+  },
+  "not_run": [
+    "actual Core or generated provider",
+    "browser cancel",
+    "Cargo/Rust/Node",
+    "CI/macOS",
+    "real kernel proc transition"
+  ],
+  "public_data": "No raw RPC, private DB, provider argv, runtime identities, nonce or original CI report copied."
+}
