@@ -99,6 +99,8 @@
     "source_manifest_sha256": "0455bc3c0c3728af401f2fd373ab047733c9dd2ac17b689540b7c7246415243c",
     "author_rust_actor_mac_ci": "NOT_RUN",
     "independent_review": "PENDING",
-    "root_actual_retry": "PENDING"
+    "root_actual_retry": "PENDING",
+    "root_actual_command_seconds": 18.149465652008075,
+    "root_actual_harness_seconds": 0.0
   }
 }
