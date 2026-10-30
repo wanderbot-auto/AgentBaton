@@ -382,31 +382,71 @@ impl AuthorizedSourceCapture {
         Ok(())
     }
 }
-fn check_base_paths(capture: &AuthorizedSourceCapture) -> Result<(), WorkspaceError> {
+fn check_tree_paths(capture: &AuthorizedSourceCapture, tree: &str) -> Result<(), WorkspaceError> {
     let deadline = capture.deadline;
+    if !is_oid(tree) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
     let raw = text_output(
         deadline,
-        capture
-            .command()
-            .args(["ls-tree", "-r", "-z", "--name-only", capture.base.as_str()]),
+        capture.command().args(["ls-tree", "-r", "-t", "-z", tree]),
     )?;
+    if !raw.is_empty() && raw.last() != Some(&0) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
     let mut count = 0usize;
+    let mut paths = BTreeSet::new();
+    let mut trees = Vec::new();
     let selected: Vec<_> = capture
         .selected
         .iter()
         .map(|a| a.contract_view().requirement.relative_path)
         .collect();
-    for entry in raw.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+    let mut rows = raw.split(|b| *b == 0);
+    while let Some(entry) = rows.next() {
         check_deadline(deadline)?;
+        if entry.is_empty() {
+            if rows.next().is_some() {
+                return Err(WorkspaceError::UnsafeRepository);
+            }
+            break;
+        }
         count += 1;
         if count > 65_536 {
             return Err(WorkspaceError::ResourceLimit);
         }
-        let text = std::str::from_utf8(entry).map_err(|_| WorkspaceError::InvalidPath)?;
+        let tab = entry
+            .iter()
+            .position(|b| *b == b'\t')
+            .filter(|n| *n <= 128)
+            .ok_or(WorkspaceError::UnsafeRepository)?;
+        let header =
+            std::str::from_utf8(&entry[..tab]).map_err(|_| WorkspaceError::UnsafeRepository)?;
+        let fields: Vec<_> = header.split(' ').collect();
+        if fields.len() != 3
+            || !is_oid(fields[2])
+            || fields[2].len() != capture.base.len()
+            || !matches!(
+                (fields[0], fields[1]),
+                ("040000", "tree")
+                    | ("100644" | "100755" | "120000", "blob")
+                    | ("160000", "commit")
+            )
+        {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+        let text =
+            std::str::from_utf8(&entry[tab + 1..]).map_err(|_| WorkspaceError::InvalidPath)?;
         // This slice supports ASCII paths only. Reject the whole base when a
         // Unicode entry could alias an ASCII selection on a normalizing host.
         if !safe_path(Path::new(text)) {
             return Err(WorkspaceError::InvalidPath);
+        }
+        if !paths.insert(text.to_owned()) {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+        if fields[0] == "040000" {
+            trees.push(text.to_owned());
         }
         for path in &selected {
             let wanted = path.to_str().ok_or(WorkspaceError::InvalidPath)?;
@@ -420,6 +460,20 @@ fn check_base_paths(capture: &AuthorizedSourceCapture) -> Result<(), WorkspaceEr
                     break;
                 }
             }
+        }
+    }
+    // Explicit tree entries are observable source data even when a cached Git
+    // index temporarily preserves their OIDs. Never rely on cache-tree state to
+    // detect an empty subtree that subsequent index updates could discard.
+    for tree in trees {
+        check_deadline(deadline)?;
+        let prefix = tree + "/";
+        if !paths
+            .range(prefix.clone()..)
+            .next()
+            .is_some_and(|path| path.starts_with(&prefix))
+        {
+            return Err(WorkspaceError::UnsafeRepository);
         }
     }
     Ok(())
@@ -441,6 +495,7 @@ impl AuthorizedSourceCapture {
         if !is_oid(tree) || expected.is_empty() || expected.len() > MAX_SELECTED_FILES {
             return Err(WorkspaceError::InvalidPath);
         }
+        check_tree_paths(self, tree)?;
         let raw = text_output(
             self.deadline,
             self.command().args([
@@ -700,7 +755,7 @@ pub fn capture_source_commit(
 ) -> Result<CapturedSourceCommit, WorkspaceError> {
     let deadline = capture.deadline;
     capture.recheck()?;
-    check_base_paths(&capture)?;
+    check_tree_paths(&capture, &capture.base)?;
     let scratch = Scratch::create(&capture)?;
     let index = scratch.root.join("index");
     let mut selected = Vec::with_capacity(capture.selected.len());
@@ -1279,6 +1334,35 @@ mod deadline_tests {
         .unwrap())
         .unwrap();
         assert!(capture.verify_tree(&tree, &expected).is_err());
+        // A structurally extra empty tree has no recursive leaf diff. Its
+        // selected file is otherwise exact, so only full tree audit rejects it.
+        let empty = test_git(&capture.root, &["mktree"]);
+        let mut raw_tree = Vec::new();
+        for (header, object) in [
+            (b"40000 empty\0".as_slice(), empty.as_str()),
+            (b"100644 file\0".as_slice(), blob.as_str()),
+        ] {
+            raw_tree.extend_from_slice(header);
+            for pair in object.as_bytes().chunks_exact(2) {
+                raw_tree.push(u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap());
+            }
+        }
+        fs::write(capture.root.join("generated-empty-tree"), raw_tree).unwrap();
+        let extra_empty = test_git(
+            &capture.root,
+            &[
+                "hash-object",
+                "-w",
+                "--no-filters",
+                "-t",
+                "tree",
+                "generated-empty-tree",
+            ],
+        );
+        assert!(matches!(
+            capture.verify_tree(&extra_empty, &expected),
+            Err(WorkspaceError::UnsafeRepository)
+        ));
         assert_eq!(
             fs::read(capture.root.join(".git/index")).unwrap(),
             original_index
