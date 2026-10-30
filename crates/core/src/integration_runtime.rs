@@ -254,18 +254,18 @@ impl Store {
             .into_iter()
             .map(|r| r.view)
             .collect::<Vec<_>>();
-        let current = fence(&self.conn, &run)?;
+        let current = fence(&self.conn, &run)?.ok_or_else(changed)?;
         let view = IntegrationRunView {
             run,
             attempts,
             shared_usage: self.integration_historical_usage(&p)?,
-            fence: current.map(|f| IntegrationFenceView {
-                repository_digest: f.repository_digest,
-                target_ref: f.target_ref,
-                integration_id: f.integration_id,
-                revision: f.revision,
-                state: f.state,
-            }),
+            fence: IntegrationFenceView {
+                repository_digest: current.repository_digest,
+                target_ref: current.target_ref,
+                integration_id: current.integration_id,
+                revision: current.revision,
+                state: current.state,
+            },
         };
         if encode(&view)?.len() > MAX_INTEGRATION_BYTES {
             return Err(limited());
