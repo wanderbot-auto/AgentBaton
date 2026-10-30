@@ -27,3 +27,7 @@ Remaining gates: actual Root browser runs, independent source review, real Tauri
 ## Strict key review correction
 
 Independent review found that checking identifier only when key is not None allowed five mutation forms to forward an explicit null key. The finite bridge must itself require a nonempty typed string for integration approval/revoke/start/cancel/reconcile; Core's later refusal is not a bridge guard. The guard now dispatches by mutation command, unconditionally checks identifier and retains exact same-key payload/domain-revision checks. Read-only get calls retain no key. No new endpoint, Core/Native/UI/authority or replay policy is introduced.
+
+## Focused screenshot capture
+
+Capture-only follow-up to independent review advisory (not an observed browser failure): every shot takes an explicit focus locator, scrolls that exact element and requires to_be_in_viewport(ratio=1), then captures the unchanged viewport. Separate pre-acceptance shots focus Task acceptance pending and the actual armed policy. Desktop and390px mobile each receive separate state and actual receipt PNGs with focus bounding-box metadata. All original DOM/receipt assertions,390px scrollWidth overflow guard, lifetimes, retries and cleanup remain unchanged. No full-page capture, viewport enlargement, CSS change or fake screenshot is used. Root still must view the actual PNGs; a filename or source assertion is not visual proof.

@@ -12,7 +12,7 @@
     "docs/execution/integration-real-browser/EVIDENCE.json"
   ],
   "source_sha256": {
-    "apps/desktop/tests/integration-real-ipc.py": "0c45c55b435f07fac7968642c41a5164e29dba895462012d7a9a6f59e224f2e1",
+    "apps/desktop/tests/integration-real-ipc.py": "77215c1d9071293ff6856a540b70e77646189be1161d611e54a02209000b8ff4",
     "tests/infrastructure/test_integration_real_ipc.py": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2"
   },
   "actual_pure_command": [
@@ -79,6 +79,13 @@
       "failed": 0,
       "seconds": 0.071,
       "note": "original34 included; mutation-key guard regression added"
+    },
+    {
+      "tests": 35,
+      "passed": 35,
+      "failed": 0,
+      "seconds": 0.086,
+      "note": "capture-only source change; same35tests, no mirror image test"
     }
   ],
   "counts": {
@@ -100,7 +107,7 @@
     "macos_Intel": "NOT_RUN",
     "real_Provider_model": "NOT_RUN"
   },
-  "independent_review": "PENDING strict-key P2 revision closure",
+  "independent_review": "PENDING capture-only narrow revision closure",
   "authority_guards": [
     "exact twelve-field private expected selection fixed before HTTP",
     "complete original Core response/proposal/snapshot1MiB",
@@ -139,5 +146,38 @@
     "negative_cases_per_method": 12,
     "new_regression_unique_test_functions": 1,
     "core_later_refusal_not_used_as_bridge_guard": true
+  },
+  "previous_source_sha256_c0fe2b": {
+    "apps/desktop/tests/integration-real-ipc.py": "0c45c55b435f07fac7968642c41a5164e29dba895462012d7a9a6f59e224f2e1",
+    "tests/infrastructure/test_integration_real_ipc.py": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2"
+  },
+  "independent_c0fe_closure": {
+    "source": "c0fe2b96364c33f7253e0c1c8f162c1dfcf37f1d",
+    "verdict": "SOURCE_READY for controlled Root run, not actual browser",
+    "review_sha256": "e675b526efb3e9bc69efe194a89f54e6d1729aa3d165fc3c6d3e493138984b2a",
+    "manifest_sha256": "35cc55d96567b1e97b364b6ba3acc4da27259507ec086d00c29644331b8f8603",
+    "reviewer_actual_pure_tests": 35,
+    "reviewer_pure_seconds": 0.085
+  },
+  "capture_only": {
+    "advisory_not_observed_browser_failure": true,
+    "focus_scroll": "exact passed locator",
+    "viewport_assertion": "to_be_in_viewport(ratio=1)",
+    "metadata": "actual focus bounding box plus unchanged viewport",
+    "pre_acceptance_captures": [
+      "task-pending-before-acceptance",
+      "permission-before-task-acceptance"
+    ],
+    "terminal_captures": [
+      "terminal-state-desktop",
+      "terminal-receipt-desktop",
+      "terminal-state-mobile",
+      "terminal-receipt-mobile"
+    ],
+    "original_dom_assertions_preserved": true,
+    "mobile_width": 390,
+    "mobile_overflow_guard_preserved": true,
+    "full_page_or_viewport_expansion": false,
+    "actual_images_run_or_viewed_by_author": false
   }
 }

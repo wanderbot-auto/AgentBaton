@@ -966,11 +966,14 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         page.on('pageerror', lambda _: page_errors.append('uncaught_browser_error'))
         def pump():
             reviews.service(); page.wait_for_timeout(10)
-        def shot(name):
-            panel.scroll_into_view_if_needed()
+        def shot(name, focus):
+            focus.scroll_into_view_if_needed()
+            expect(focus).to_be_in_viewport(ratio=1)
             path = output / (name + '.png'); page.screenshot(path=str(path))
             report['screenshots'].append({'name': name, 'sha256': digest(path.read_bytes()),
-                'bytes': path.stat().st_size, 'viewport': page.viewport_size, 'dimension': 'Linux Chromium only'})
+                'bytes': path.stat().st_size, 'viewport': page.viewport_size,
+                'focus_box': focus.bounding_box(), 'focus_fully_in_viewport': True,
+                'dimension': 'Linux Chromium only'})
         phase = 'actual_frontend'
         page.goto(server.origin + '/', wait_until='networkidle')
         page.locator('[data-testid="task-card"][data-task-id="' + bounds.task + '"]').click()
@@ -1019,7 +1022,8 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
             and git(fixture['source'], 'rev-parse', TARGET) == fixture['target'])
         checked('complete real pending proposal and consumed receipt matched outside HTTP before TaskAccepted',
             **reviews.completed[0]['facts'])
-        shot('permission-before-task-acceptance')
+        shot('task-pending-before-acceptance', panel.get_by_text('Task acceptance: Task acceptance pending', exact=True))
+        shot('permission-before-task-acceptance', panel.get_by_text('Permission armed; waiting for verified task acceptance. No branch update is confirmed.', exact=True))
         phase = 'real_owner_acceptance_and_watcher'
         accepted = accept_graph(host, fixture)
         require(not any(v['method'] == 'integrations.start' for v in server.calls))
@@ -1044,9 +1048,11 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         if failing: expect(history.get_by_role('alert')).to_contain_text('VALIDATION_FAILED')
         history.get_by_text('Actual validation receipts', exact=True).click()
         expect(history.get_by_text(re.compile(('failed' if failing else 'passed') + ' · stop_confirmed=true · worker_joined=true'))).to_be_visible()
-        shot('terminal-desktop')
+        shot('terminal-state-desktop', history.get_by_text(done['run']['state'], exact=True))
+        shot('terminal-receipt-desktop', history.get_by_text(re.compile(('failed' if failing else 'passed') + ' · stop_confirmed=true · worker_joined=true')))
         page.set_viewport_size({'width': 390, 'height': 844})
-        shot('terminal-mobile')
+        shot('terminal-state-mobile', history.get_by_text(done['run']['state'], exact=True))
+        shot('terminal-receipt-mobile', history.get_by_text(re.compile(('failed' if failing else 'passed') + ' · stop_confirmed=true · worker_joined=true')))
         require(page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'))
         checked('actual built component displays separate Task/integration result and real receipt; desktop/mobile screenshots')
         require(not page_errors and not server.faults)
