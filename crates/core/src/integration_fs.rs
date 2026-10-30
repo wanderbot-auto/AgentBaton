@@ -105,11 +105,11 @@ impl GitRefObservation {
                 if rustix::fs::FileType::from_raw_mode(st.st_mode)
                     == rustix::fs::FileType::Directory =>
             {
-                Some(GitTreeObservation::capture(
-                    &parent.join(entry),
-                    control,
-                    budget,
-                )?)
+                Some(if entry == "worktrees" {
+                    GitTreeObservation::capture_admin(&parent.join(entry), control, budget)?
+                } else {
+                    GitTreeObservation::capture(&parent.join(entry), control, budget)?
+                })
             }
             Err(rustix::io::Errno::NOENT) => None,
             _ => return Err(changed()),
@@ -185,6 +185,21 @@ impl GitTreeObservation {
         control: &IntegrationReadControl,
         budget: &mut TreeBudget,
     ) -> Result<Self> {
+        Self::capture_inner(root, control, budget, false)
+    }
+    fn capture_admin(
+        root: &Path,
+        control: &IntegrationReadControl,
+        budget: &mut TreeBudget,
+    ) -> Result<Self> {
+        Self::capture_inner(root, control, budget, true)
+    }
+    fn capture_inner(
+        root: &Path,
+        control: &IntegrationReadControl,
+        budget: &mut TreeBudget,
+        admin: bool,
+    ) -> Result<Self> {
         use rustix::fs::{fstat, openat, statat, AtFlags, Dir, FileType, Mode, OFlags};
         use std::os::unix::ffi::OsStrExt;
         control.check()?;
@@ -217,7 +232,7 @@ impl GitTreeObservation {
                 }
                 // .git is separately pinned by capture_pins, including its
                 // worktree pointer, HEAD/index/config and common metadata.
-                if i == 0 && name.to_bytes() == b".git" {
+                if !admin && i == 0 && name.to_bytes() == b".git" {
                     continue;
                 }
                 if budget.entries >= MAX_TREE_ENTRIES
@@ -238,10 +253,9 @@ impl GitTreeObservation {
                 )
                 .map_err(|_| changed())?;
                 let kind = FileType::from_raw_mode(st.st_mode);
-                if !matches!(
-                    kind,
-                    FileType::RegularFile | FileType::Directory | FileType::Symlink
-                ) || (kind != FileType::Directory && st.st_nlink != 1)
+                if !(matches!(kind, FileType::RegularFile | FileType::Directory)
+                    || (!admin && kind == FileType::Symlink))
+                    || (kind != FileType::Directory && st.st_nlink != 1)
                 {
                     return Err(changed());
                 }
@@ -1211,5 +1225,37 @@ mod target_worktree_pin_tests {
         .unwrap();
         fs::write(root.join("worktrees/other/HEAD"), b"ref: refs/heads/x\n").unwrap();
         assert!(present.recheck().is_err());
+        fs::create_dir(root.join("worktrees/.git")).unwrap();
+        fs::write(
+            root.join("worktrees/.git/HEAD"),
+            b"ref: refs/heads/admin-entry\n",
+        )
+        .unwrap();
+        let admin_marker = GitRefObservation::capture_named(
+            &root,
+            "worktrees",
+            &control,
+            &mut TreeBudget::default(),
+        )
+        .unwrap();
+        fs::write(root.join("worktrees/.git/HEAD"), b"ref: refs/heads/x\n").unwrap();
+        assert!(
+            admin_marker.recheck().is_err(),
+            "admin directories do not inherit the user-tree .git skip"
+        );
+        fs::remove_file(root.join("worktrees/other/HEAD")).unwrap();
+        fs::write(root.join("external-head"), b"ref: refs/heads/unobserved\n").unwrap();
+        std::os::unix::fs::symlink(
+            root.join("external-head"),
+            root.join("worktrees/other/HEAD"),
+        )
+        .unwrap();
+        assert!(GitRefObservation::capture_named(
+            &root,
+            "worktrees",
+            &control,
+            &mut TreeBudget::default()
+        )
+        .is_err());
     }
 }

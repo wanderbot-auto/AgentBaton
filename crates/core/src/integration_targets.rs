@@ -273,10 +273,11 @@ fn parse_targets(
         return Err(changed());
     }
     let mut checked = BTreeSet::new();
+    let mut roots = BTreeSet::new();
     let mut record = vec![];
     for field in worktrees[..worktrees.len() - 1].split(|b| *b == 0) {
         if field.is_empty() {
-            parse_worktree_record(&record, &mut checked)?;
+            parse_worktree_record(&record, &mut checked, &mut roots)?;
             record.clear();
         } else {
             record.push(field);
@@ -330,13 +331,20 @@ fn parse_targets(
     Ok(targets)
 }
 
-fn parse_worktree_record(fields: &[&[u8]], checked: &mut BTreeSet<String>) -> Result<()> {
+fn parse_worktree_record(
+    fields: &[&[u8]],
+    checked: &mut BTreeSet<String>,
+    roots: &mut BTreeSet<String>,
+) -> Result<()> {
     let root = fields
         .first()
         .and_then(|s| s.strip_prefix(b"worktree "))
         .ok_or_else(changed)?;
     let root = std::str::from_utf8(root).map_err(|_| changed())?;
-    if root.len() > 4096 || !std::path::Path::new(root).is_absolute() {
+    if root.len() > 4096
+        || !std::path::Path::new(root).is_absolute()
+        || !roots.insert(root.to_owned())
+    {
         return Err(changed());
     }
     let mut head = false;
@@ -496,5 +504,8 @@ mod strict_record_tests {
         let mut extra_empty = branches.clone();
         extra_empty.push(b'\n');
         assert!(parse_targets(&extra_empty, valid, &query).is_err());
+        let mut duplicate_root = valid.to_vec();
+        duplicate_root.extend_from_slice(b"worktree /private-generated\0HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0branch refs/heads/other\0\0");
+        assert!(parse_targets(&branches, &duplicate_root, &query).is_err());
     }
 }
