@@ -24,6 +24,73 @@ pub(super) struct StageSettlement {
         Option<crate::goal_store::GoalValidatorRef>,
     )>,
 }
+// Diagnostic facts only. These closed fields cannot change settlement,
+// release authority, reconstruct a worker or expose free-form CoreError data.
+#[derive(serde::Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+enum JoinedErrorCode {
+    DeadlineExceeded,
+    InputChanged,
+    InvalidRequest,
+    InvalidContract,
+    ResourceLimit,
+    PermissionDenied,
+    AuthRequired,
+    StaleRevision,
+    WorkspaceBusy,
+    ConfigConflict,
+    CapabilityUnsupported,
+    EnforcementUnavailable,
+    CancelRequested,
+    OutcomeUnknown,
+    InternalError,
+    BudgetUnknown,
+    #[serde(rename = "unrecognized")]
+    Unrecognized,
+}
+#[derive(serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+enum JoinedErrorEffect {
+    NotStarted,
+    Unknown,
+    Unrecognized,
+}
+#[derive(serde::Serialize)]
+struct JoinedError {
+    code: JoinedErrorCode,
+    retryable: bool,
+    side_effect_state: JoinedErrorEffect,
+}
+fn joined_error(error: Option<&CoreError>) -> Option<JoinedError> {
+    error.map(|error| JoinedError {
+        code: match error.code.as_str() {
+            "DEADLINE_EXCEEDED" => JoinedErrorCode::DeadlineExceeded,
+            "INPUT_CHANGED" => JoinedErrorCode::InputChanged,
+            "INVALID_REQUEST" => JoinedErrorCode::InvalidRequest,
+            "INVALID_CONTRACT" => JoinedErrorCode::InvalidContract,
+            "RESOURCE_LIMIT" => JoinedErrorCode::ResourceLimit,
+            "PERMISSION_DENIED" => JoinedErrorCode::PermissionDenied,
+            "AUTH_REQUIRED" => JoinedErrorCode::AuthRequired,
+            "STALE_REVISION" => JoinedErrorCode::StaleRevision,
+            "WORKSPACE_BUSY" => JoinedErrorCode::WorkspaceBusy,
+            "CONFIG_CONFLICT" => JoinedErrorCode::ConfigConflict,
+            "CAPABILITY_UNSUPPORTED" => JoinedErrorCode::CapabilityUnsupported,
+            "ENFORCEMENT_UNAVAILABLE" => JoinedErrorCode::EnforcementUnavailable,
+            "CANCEL_REQUESTED" => JoinedErrorCode::CancelRequested,
+            "OUTCOME_UNKNOWN" => JoinedErrorCode::OutcomeUnknown,
+            "INTERNAL_ERROR" => JoinedErrorCode::InternalError,
+            "BUDGET_UNKNOWN" => JoinedErrorCode::BudgetUnknown,
+            _ => JoinedErrorCode::Unrecognized,
+        },
+        retryable: error.retryable,
+        side_effect_state: match error.side_effect_state.as_str() {
+            "not_started" => JoinedErrorEffect::NotStarted,
+            "unknown" => JoinedErrorEffect::Unknown,
+            _ => JoinedErrorEffect::Unrecognized,
+        },
+    })
+}
+
 fn fail_unknown(code: &str) -> CoreError {
     let mut error=CoreError::new(code,"Integration retains its original reservation and repository fence until owned IO and journal facts can be reconciled");
     error.side_effect_state = "unknown".into();
@@ -201,7 +268,7 @@ impl Store {
                 &tx,
                 &mut run,
                 "integration.stage_unknown",
-                json!({"attempt_id":attempt.view.attempt_id,"observed_runtime_lower_bound_ms":clock_ms,"historical_cas_confirmed":historical_cas,"worker_thread_joined":joined.worker_joined,"reservation_refunded":false,"effects_admitted":joined.effects_admitted}),
+                json!({"attempt_id":attempt.view.attempt_id,"observed_runtime_lower_bound_ms":clock_ms,"historical_cas_confirmed":historical_cas,"worker_thread_joined":joined.worker_joined,"reservation_refunded":false,"effects_admitted":joined.effects_admitted,"joined_error":joined_error(joined.result.as_ref().err())}),
             )?;
             fence.state = "unknown".into();
             fence.revision = fence.revision.checked_add(1).ok_or_else(limited)?;
@@ -629,5 +696,88 @@ impl Store {
         records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod joined_error_tests {
+    use super::*;
+
+    #[test]
+    fn joined_error_retains_only_exact_known_scalars_with_bounded_serialization() {
+        let mut first = CoreError::new("DEADLINE_EXCEEDED", "PRIVATE_MESSAGE_CANARY_A");
+        first.retryable = true;
+        first.details_ref = Some("PRIVATE_DETAILS_CANARY_A".into());
+        let mut second = first.clone();
+        second.message = "PRIVATE_MESSAGE_CANARY_B".into();
+        second.details_ref = Some("PRIVATE_DETAILS_CANARY_B".into());
+        let expected =
+            json!({"code":"DEADLINE_EXCEEDED","retryable":true,"side_effect_state":"not_started"});
+        assert_eq!(
+            serde_json::to_value(joined_error(Some(&first))).unwrap(),
+            expected
+        );
+        assert_eq!(
+            serde_json::to_value(joined_error(Some(&second))).unwrap(),
+            expected
+        );
+        for code in [
+            "DEADLINE_EXCEEDED",
+            "INPUT_CHANGED",
+            "INVALID_REQUEST",
+            "INVALID_CONTRACT",
+            "RESOURCE_LIMIT",
+            "PERMISSION_DENIED",
+            "AUTH_REQUIRED",
+            "STALE_REVISION",
+            "WORKSPACE_BUSY",
+            "CONFIG_CONFLICT",
+            "CAPABILITY_UNSUPPORTED",
+            "ENFORCEMENT_UNAVAILABLE",
+            "CANCEL_REQUESTED",
+            "OUTCOME_UNKNOWN",
+            "INTERNAL_ERROR",
+            "BUDGET_UNKNOWN",
+        ] {
+            for retryable in [false, true] {
+                for side_effect_state in ["not_started", "unknown"] {
+                    let mut error = CoreError::new(code, "PRIVATE_MESSAGE_CANARY");
+                    error.details_ref = Some("PRIVATE_DETAILS_CANARY".into());
+                    error.retryable = retryable;
+                    error.side_effect_state = side_effect_state.into();
+                    let projected = serde_json::to_value(joined_error(Some(&error))).unwrap();
+                    assert_eq!(
+                        projected,
+                        json!({"code":code,"retryable":retryable,"side_effect_state":side_effect_state})
+                    );
+                    assert_eq!(projected.as_object().unwrap().len(), 3);
+                    let bytes = serde_json::to_vec(&projected).unwrap();
+                    assert!(bytes.len() <= 128);
+                    assert!(!String::from_utf8(bytes).unwrap().contains("CANARY"));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn joined_error_redacts_unknown_fields_and_success_has_no_invented_error() {
+        let canary = "PRIVATE_UNKNOWN_CANARY".repeat(256);
+        let mut error = CoreError::new(&canary, &canary);
+        error.retryable = true;
+        error.details_ref = Some(canary.clone());
+        error.side_effect_state = canary;
+        let expected =
+            json!({"code":"unrecognized","retryable":true,"side_effect_state":"unrecognized"});
+        let projection = serde_json::to_value(joined_error(Some(&error))).unwrap();
+        assert_eq!(projection, expected);
+        let bytes = serde_json::to_vec(&projection).unwrap();
+        assert!(bytes.len() <= 128);
+        assert!(!String::from_utf8(bytes).unwrap().contains("CANARY"));
+        let successful_stage: Result<()> = Ok(());
+        assert_eq!(
+            serde_json::to_value(joined_error(successful_stage.as_ref().err())).unwrap(),
+            serde_json::Value::Null
+        );
+        assert_eq!(serde_json::to_vec(&joined_error(None)).unwrap(), b"null");
     }
 }
