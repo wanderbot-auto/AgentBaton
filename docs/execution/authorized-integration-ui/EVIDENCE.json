@@ -10,7 +10,7 @@
   "dimensions": {
     "source_implemented": "Task Details real integration panel wired to11 typed Native commands; Core runtime completion not claimed",
     "component_tests": "root_actual_da997:43 targeted and1059 full jsdom/mock passed;43 included in1059",
-    "typecheck": "root_actual_a375 passed; exact da997 type+Vite build pending",
+    "typecheck": "root_actual_da997 type+Vite build passed",
     "real_ipc": "not_run",
     "native_macos_arm": "not_run",
     "native_macos_intel": "not_run"
@@ -130,15 +130,41 @@
       "log_sha256": "67d7695aa19a87ca5aa8f2e50f81b2ce5b0d9406baee594d366dcfc9efa40854",
       "source_and_tracked_unchanged": true,
       "targeted43_included_in_full1059": true
+    },
+    {
+      "source": "da997678dbcf698308278b1cc92ce0b91a94c978",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "result": "passed",
+      "exit_code": 0,
+      "wrapper_seconds": 1.6134666280122474,
+      "log_path": ".onboarding/integration17-ui-da997-build1/command.log",
+      "log_sha256": "c7fa5f435e7d4cab306ee28791924a8c0625c7f322783bee5db76235355e0125",
+      "source_and_tracked_unchanged": true,
+      "dimension": "TypeScript/Vite frontend build, not Native/macOS"
     }
   ],
   "independent_review": {
     "context": "data_core_review_resume",
-    "result": "two P2 findings addressed in source; recheck pending",
-    "findings": [
-      "Historical same-task policy revocation must not require current spec",
-      "Get response must match exact requested integration run ID"
-    ]
+    "result": "SOURCE_READY_FOR_CONTROLLED_UI_AND_COMPOSED_VALIDATION",
+    "source": "da997678dbcf698308278b1cc92ce0b91a94c978",
+    "fixed_source_assertions": 23,
+    "reviewer_actual_execution": "Python source/static reads only; no compiler/Node/GUI/product runtime",
+    "closed_findings": [
+      "Historical same-task policy revocation does not require current spec",
+      "Get response exact requested integration run ID required"
+    ],
+    "seals": {
+      "REVIEW.md": "57c0ab021f48a6ac379ed1467ca5b0bb41b90ab63ea075bf36834d86ed16f9a8",
+      "MANIFEST.json": "2e2904eeca288126be29eaaa876ac7c59a6e85047a25bc28668a9a3851806f67",
+      "revision-da99767/REVIEW.md": "18edbd19209a9ef8a32b7058720f3e223491e69a658c7e4d4cb68cb300283524",
+      "revision-da99767/MANIFEST.json": "94681c45dba6cf1804429bfa244f882f42503eca849e988f0bff97bf5ce10ed3"
+    }
   },
   "implementation_source": "da997678dbcf698308278b1cc92ce0b91a94c978"
 }

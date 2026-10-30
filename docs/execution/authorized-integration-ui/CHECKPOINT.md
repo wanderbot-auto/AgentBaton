@@ -4,6 +4,6 @@ Branch codex/authorized-integration-ui, isolated /workspace/.worktrees/authorize
 
 App task Details contains the folded real Integration panel. DTOs match fixed Core a60816d,11 Native bridges, independent Native approval, actual target/context reads, immutable required and explicit optional correctness refs, full stage reservations, actual usage/history, domain CAS, same-key recovery and responsive narrowing controls. Independent reviewer two P2 findings were fixed and their regressions actually passed.
 
-Root actual da997: targeted43PASS and fullfrontend1059unique/58filesPASS;43included, not additive. a375 typecheckPASS; exact da997 type+Vite build and final independent-review status pending. All earlier actual type/test failures remain in PROGRESS/EVIDENCE and private Root logs.
+Root actual da997: targeted43PASS and fullfrontend1059unique/58filesPASS;43included, not additive. Exact da997 type+Vite buildPASS1.613s; final independent UI source review SOURCE_READY with23 fixed-source assertions and bothP2 closed. All earlier actual type/test failures remain in PROGRESS/EVIDENCE and private Root logs.
 
-Remaining: finish independent recheck/build, Root integrate with completed Core/Native schema17 implementation, then actual Unix IPC/full-native Owner and dualmacOS verification. Current success is mocked/jsdom only; no real Provider, signing, production, formalApprove or merge performed by UI author.
+Remaining: Root integrate with completed Core/Native schema17 implementation, then actual Unix IPC/full-native Owner and dualmacOS verification. Current success is mocked/jsdom only; no real Provider, signing, production, formalApprove or merge performed by UI author.

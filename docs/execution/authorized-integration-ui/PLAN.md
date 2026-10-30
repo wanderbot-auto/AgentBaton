@@ -7,3 +7,5 @@ AB-VAL-009 / AB-PRJ-005 / D18-D19; full Design v0.2 remains. Baseline c8128e42b1
 3. Write component and transport tests, then hand exact commits to Root for actual tests and independent review.
 
 Real Provider, new paid resources, production and signing remain closed.
+
+UI source-stage closure: source da997678, actual Root targeted/full frontend and type+Vite build passed; independent UI source review completed with two P2 closures. Composed Core/Native/real IPC/dual Mac acceptance remains a Root integration gate, not replaced by this source-stage closure.
