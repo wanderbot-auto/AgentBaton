@@ -1,5 +1,5 @@
 {
-  "source_commit": "f653ede511e090d5393fb9df642cde0b9981f7c4",
+  "source_commit": "14f912dc31df09591ec4cc6739db56f0ea447217",
   "base": "b452e4a31dd4d1c9cce7e35282a9c2c9dcf0ff39",
   "requirements": [
     "AB-TSK-007",
@@ -8,7 +8,7 @@
   ],
   "source_sha256": {
     "crates/core/src/integration_io.rs": "43a33d15560c5087c6ee34be09f55ae021425dfdc83a3ece10ae0fd64ad97386",
-    "crates/core/src/integration_validator_stop_tests.rs": "b58b71ed8ff9369eae95ca87ec5e6bc0a771c55b0478438de794bfb81a101134",
+    "crates/core/src/integration_validator_stop_tests.rs": "0669b2a105a003a09a7bc3a13bf5eeeced68d582cd190e5ad3e26453310bd46b",
     "crates/core/src/integration_settlement.rs": "24799b656cdfbe50b52357c0705da30e0a37c75fe97067ec9ef622ccd7830c14",
     "crates/core/src/goal_validator_io.rs": "bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57",
     "crates/workspaces/src/command_validation.rs": "356326f248003a31c46ecbaaaf6ab3acab7a3abfde952191bc38c0cd5ffd7171"
@@ -64,5 +64,13 @@
     "--show-output",
     "--test-threads=1"
   ],
-  "baseline_actor_cancel_result": "not_run_by_author; Root separately retains baseline before applying fix"
+  "baseline_actor_cancel_result": "not_run_by_author; Root separately retains baseline before applying fix",
+  "initial_source_commit": "f653ede511e090d5393fb9df642cde0b9981f7c4",
+  "test_only_reason_addendum": {
+    "latest_source": "14f912dc31df09591ec4cc6739db56f0ea447217",
+    "production_sha256": "43a33d15560c5087c6ee34be09f55ae021425dfdc83a3ece10ae0fd64ad97386",
+    "new_cfg_tests_sha256": "0669b2a105a003a09a7bc3a13bf5eeeced68d582cd190e5ad3e26453310bd46b",
+    "test_only_change": "one additional exact RunReason::CancelRequested assertion; original f653/425 records preserved",
+    "execution": "direct rustfmt/diff0 only; Rust/Actor NOT_RUN"
+  }
 }
