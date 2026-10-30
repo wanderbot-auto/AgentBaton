@@ -240,7 +240,8 @@ fn rework_list_progress(result: &Value) -> Value {
 }
 
 // Only this scenario's fixed, already-bound readonly observations may recover
-// from a transport failure. In particular this never retries an Owner write.
+// from a transport failure or an exact retryable not-started busy reply.
+// Both share the original two-retry budget; an Owner write is never retried.
 struct ReworkReadReconciliation {
     scope: String,
     child: Option<String>,
@@ -254,6 +255,7 @@ struct ReworkReadReconciliation {
     method_elapsed_ms: [u64; 3],
     retry_budget: u8,
     errors: Vec<Value>,
+    busy_replies: Vec<Value>,
     evidence: PathBuf,
 }
 impl ReworkReadReconciliation {
@@ -273,6 +275,61 @@ impl ReworkReadReconciliation {
             }
             _ => false,
         }
+    }
+    fn busy_retry_delay(
+        &self,
+        method: &str,
+        params: &Value,
+        reply: &Value,
+        received_before_deadline: bool,
+        clock: (Instant, i64),
+    ) -> Option<Duration> {
+        if !self.permits(method, params)
+            || !received_before_deadline
+            || self.retry_budget == 0
+            || reply.get("result").is_some()
+            || reply["error"]["code"].as_str() != Some("WORKSPACE_BUSY")
+            || reply["error"]["retryable"].as_bool() != Some(true)
+            || reply["error"]["side_effect_state"].as_str() != Some("not_started")
+        {
+            return None;
+        }
+        let scope_remaining_ms = self.scope_expires_at_ms.checked_sub(clock.1)?;
+        let scope_remaining = Duration::from_millis(u64::try_from(scope_remaining_ms).ok()?);
+        let remaining = self
+            .deadline
+            .saturating_duration_since(clock.0)
+            .min(scope_remaining);
+        // This wait consumes the original observation/Scope TTL. At most one
+        // existing client-read timeout, retaining half any shorter remainder.
+        // It never renews the deadline or consumes a fresh transport retry pool.
+        let delay = (remaining / 2).min(Duration::from_secs(5));
+        (delay >= Duration::from_millis(1)).then_some(delay)
+    }
+    fn consume_retry(&mut self) {
+        assert!(
+            self.retry_budget > 0,
+            "the original shared readonly retry budget is exhausted"
+        );
+        self.retry_budget -= 1;
+    }
+    fn record_busy_reply(&mut self, method: &'static str, reply: &Value, delay: Duration) {
+        assert!(self.busy_replies.len() < 2, "at most two finite busy facts");
+        // Called only after strict classification. Never copy the message,
+        // details_ref, request ID, raw result, token, scope or task identifiers.
+        let fact = json!({"method":method,"actual_reply_error_code":"WORKSPACE_BUSY",
+            "retryable":true,"side_effect_state":"not_started",
+            "reply_revision":reply.get("revision").and_then(Value::as_u64),
+            "retry_budget_remaining":self.retry_budget,"wait_ms":delay.as_millis(),
+            "request_was_readonly":true,"write_retried":false});
+        eprintln!("REWORK_READ_BUSY {fact}");
+        self.busy_replies.push(fact);
+        let raw = serde_json::to_vec_pretty(&json!({
+            "dimension":"actual typed not-started busy replies; not transport failures or product latency PASS",
+            "busy_replies":self.busy_replies})).unwrap();
+        assert!(raw.len() <= 4096, "two finite busy facts are bounded");
+        fs::write(self.evidence.join("readonly-busy-reconciliation.json"), raw)
+            .expect("preserve typed busy reply before any bounded re-read");
     }
     // A single overwritten scalar record bounds evidence independently of
     // polling frequency. No raw request, result, credential, ID or Grant is
@@ -365,6 +422,48 @@ impl ReworkReadReconciliation {
                         received_before_deadline,
                         "readonly response arrived after the original observation deadline; scalars={observed}"
                     );
+                    if reply.get("error").is_some() {
+                        let wall_ms = i64::try_from(
+                            std::time::SystemTime::now()
+                                .duration_since(std::time::UNIX_EPOCH)
+                                .unwrap()
+                                .as_millis(),
+                        )
+                        .unwrap();
+                        if let Some(delay) = self.busy_retry_delay(
+                            method,
+                            &params,
+                            &reply,
+                            received_before_deadline,
+                            (Instant::now(), wall_ms),
+                        ) {
+                            self.consume_retry();
+                            self.record_busy_reply(method, &reply, delay);
+                            let before_wait = i64::try_from(
+                                std::time::SystemTime::now()
+                                    .duration_since(std::time::UNIX_EPOCH)
+                                    .unwrap()
+                                    .as_millis(),
+                            )
+                            .unwrap();
+                            assert!(self.deadline.saturating_duration_since(Instant::now()) > delay
+                                && u64::try_from(self.scope_expires_at_ms.saturating_sub(before_wait))
+                                    .is_ok_and(|ms| Duration::from_millis(ms) > delay),
+                                "the bounded busy wait must fit the original remaining observation and Scope TTL");
+                            std::thread::sleep(delay);
+                            let wall_ms = i64::try_from(
+                                std::time::SystemTime::now()
+                                    .duration_since(std::time::UNIX_EPOCH)
+                                    .unwrap()
+                                    .as_millis(),
+                            )
+                            .unwrap();
+                            assert!(Instant::now() < self.deadline
+                                && wall_ms < self.scope_expires_at_ms,
+                                "original observation or Scope TTL expired during bounded busy wait");
+                            continue;
+                        }
+                    }
                     assert!(reply.get("error").is_none(), "{reply}");
                     if method == "factory_child_goals.list" {
                         let progress = rework_list_progress(&reply["result"]);
@@ -391,7 +490,7 @@ impl ReworkReadReconciliation {
                         Instant::now() < self.deadline,
                         "original observation expired after transport failure"
                     );
-                    self.retry_budget -= 1;
+                    self.consume_retry();
                 }
             }
         }
@@ -454,6 +553,7 @@ fn readonly_reconciliation_whitelist_rejects_writes_and_other_bindings() {
         method_elapsed_ms: [0; 3],
         retry_budget: 2,
         errors: vec![],
+        busy_replies: vec![],
         evidence: PathBuf::new(),
     };
     assert!(reads.permits("factory_runs.get", &json!({"scope_id":"scope"})));
@@ -951,6 +1051,7 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         method_elapsed_ms: [0; 3],
         retry_budget: 2,
         errors: vec![],
+        busy_replies: vec![],
         evidence: evidence.clone(),
     };
     eprintln!(
@@ -1425,4 +1526,184 @@ fn generated_rework_provider(connection: &str, workspace: &str) -> String {
   if mcp is not None:mcp.stdin.close();mcp.wait(timeout=1)
 "#);
     script
+}
+
+// Pure decision controls call the same classifier/consumption used above. No
+// IPC, sleep, filesystem access, Provider or generated product process runs.
+fn busy_read_control(now: Instant) -> ReworkReadReconciliation {
+    ReworkReadReconciliation {
+        scope: "bound-scope".into(),
+        child: Some("bound-child".into()),
+        goal: Some("bound-goal".into()),
+        deadline: now + Duration::from_secs(20),
+        origin: now,
+        phase: "whitelist_control",
+        scope_expires_at_ms: 21_000,
+        calls: 0,
+        method_calls: [0; 3],
+        method_elapsed_ms: [0; 3],
+        retry_budget: 2,
+        errors: vec![],
+        busy_replies: vec![],
+        evidence: PathBuf::new(),
+    }
+}
+fn busy_read_reply() -> Value {
+    json!({"error":{"code":"WORKSPACE_BUSY","retryable":true,"side_effect_state":"not_started",
+        "message":"PRIVATE_UNTRUSTED_MESSAGE","details_ref":"PRIVATE_UNTRUSTED_DETAIL"},
+        "revision":137,"request_id":"PRIVATE_UNTRUSTED_REQUEST"})
+}
+
+#[test]
+fn exact_busy_reconciliation_uses_only_original_bound_read_methods() {
+    let now = Instant::now();
+    let reads = busy_read_control(now);
+    let reply = busy_read_reply();
+    for (method, params) in [
+        ("factory_runs.get", json!({"scope_id":"bound-scope"})),
+        (
+            "factory_child_goals.list",
+            json!({"scope_id":"bound-scope","task_id":"bound-child","goal_run_id":null}),
+        ),
+        (
+            "factory_child_goals.get",
+            json!({"scope_id":"bound-scope","task_id":"bound-child","goal_run_id":"bound-goal"}),
+        ),
+    ] {
+        assert_eq!(
+            reads.busy_retry_delay(method, &params, &reply, true, (now, 1000)),
+            Some(Duration::from_secs(5))
+        );
+    }
+    for (method, params) in [
+        ("approvals.finalize", json!({"scope_id":"bound-scope"})),
+        (
+            "factory_child_goals.advance_plan",
+            json!({"scope_id":"bound-scope"}),
+        ),
+        ("factory_runs.get", json!({"scope_id":"foreign"})),
+        (
+            "factory_runs.get",
+            json!({"scope_id":"bound-scope","idempotency_key":"write"}),
+        ),
+        (
+            "factory_child_goals.list",
+            json!({"scope_id":"bound-scope","task_id":"foreign","goal_run_id":null}),
+        ),
+        (
+            "factory_child_goals.get",
+            json!({"scope_id":"bound-scope","task_id":"bound-child","goal_run_id":"foreign"}),
+        ),
+    ] {
+        assert!(reads
+            .busy_retry_delay(method, &params, &reply, true, (now, 1000))
+            .is_none());
+    }
+}
+
+#[test]
+fn busy_reconciliation_refuses_other_codes_unknown_effects_and_nonboolean_flags() {
+    let now = Instant::now();
+    let reads = busy_read_control(now);
+    let params = json!({"scope_id":"bound-scope"});
+    let original = busy_read_reply();
+    let reject = |reply: Value| {
+        assert!(reads
+            .busy_retry_delay("factory_runs.get", &params, &reply, true, (now, 1000))
+            .is_none())
+    };
+    for code in [
+        "RESOURCE_LIMIT",
+        "DEADLINE_EXCEEDED",
+        "PROVIDER_DISCONNECTED",
+        "OUTCOME_UNKNOWN",
+        "BUDGET_UNKNOWN",
+        "INPUT_CHANGED",
+        "arbitrary-private-code",
+    ] {
+        let mut reply = original.clone();
+        reply["error"]["code"] = json!(code);
+        reject(reply);
+    }
+    for flag in [json!(false), Value::Null, json!(1), json!("true")] {
+        let mut reply = original.clone();
+        reply["error"]["retryable"] = flag;
+        reject(reply);
+    }
+    for effect in [
+        json!("unknown"),
+        json!("confirmed"),
+        Value::Null,
+        json!(true),
+    ] {
+        let mut reply = original.clone();
+        reply["error"]["side_effect_state"] = effect;
+        reject(reply);
+    }
+    for missing in ["code", "retryable", "side_effect_state"] {
+        let mut reply = original.clone();
+        reply["error"].as_object_mut().unwrap().remove(missing);
+        reject(reply);
+    }
+    let mut both = original.clone();
+    both["result"] = Value::Null;
+    reject(both);
+    reject(json!({"result":{}}));
+    reject(json!({"error":null}));
+}
+
+#[test]
+fn busy_wait_cannot_renew_original_deadline_scope_ttl_or_share_a_fresh_retry_pool() {
+    let now = Instant::now();
+    let mut reads = busy_read_control(now);
+    let params = json!({"scope_id":"bound-scope"});
+    let reply = busy_read_reply();
+    let original_deadline = reads.deadline;
+    assert!(reads
+        .busy_retry_delay("factory_runs.get", &params, &reply, false, (now, 1000))
+        .is_none());
+    assert!(reads
+        .busy_retry_delay(
+            "factory_runs.get",
+            &params,
+            &reply,
+            true,
+            (original_deadline, 1000)
+        )
+        .is_none());
+    assert!(reads
+        .busy_retry_delay("factory_runs.get", &params, &reply, true, (now, 21_000))
+        .is_none());
+    assert!(reads
+        .busy_retry_delay("factory_runs.get", &params, &reply, true, (now, 21_001))
+        .is_none());
+    assert_eq!(
+        reads.busy_retry_delay("factory_runs.get", &params, &reply, true, (now, 20_000)),
+        Some(Duration::from_millis(500))
+    );
+    assert_eq!(
+        reads.busy_retry_delay(
+            "factory_runs.get",
+            &params,
+            &reply,
+            true,
+            (original_deadline - Duration::from_secs(2), 1000)
+        ),
+        Some(Duration::from_secs(1))
+    );
+    // The existing transport branch and the new busy branch both invoke this
+    // same actual counter method. One transport retry leaves only one busy retry.
+    reads.consume_retry();
+    assert_eq!(reads.retry_budget, 1);
+    assert!(reads
+        .busy_retry_delay("factory_runs.get", &params, &reply, true, (now, 1000))
+        .is_some());
+    reads.consume_retry();
+    assert_eq!(reads.retry_budget, 0);
+    assert!(reads
+        .busy_retry_delay("factory_runs.get", &params, &reply, true, (now, 1000))
+        .is_none());
+    assert_eq!(reads.deadline, original_deadline);
+    assert_eq!(reads.scope_expires_at_ms, 21_000);
+    assert!(reads.errors.is_empty() && reads.busy_replies.is_empty());
 }
