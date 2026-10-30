@@ -632,11 +632,12 @@ fn verify_database(m: &Value, db: &Connection) -> Check {
             "Unexpected old execution/Provider authority"
         );
     }
-    let sequence: u64 = db
+    let sequence: i64 = db
         .query_row("SELECT coalesce(max(sequence),0) FROM events", [], |r| {
             r.get(0)
         })
         .map_err(|_| "Event query failed")?;
+    let sequence = u64::try_from(sequence).map_err(|_| "Negative event sequence")?;
     require!(
         m["final_api_sequence"].as_u64() == Some(sequence)
             && m["final_probe"]["sequence"].as_u64() == Some(sequence),
@@ -807,12 +808,10 @@ fn zero_integration(store: &Store, path: &Path) {
         "goal_graph_capabilities",
         "connections",
     ]) {
-        assert_eq!(
-            db.query_row(&format!("SELECT count(*) FROM {name}"), [], |r| r
-                .get::<_, u64>(0))
-                .unwrap(),
-            0
-        );
+        let count: i64 = db
+            .query_row(&format!("SELECT count(*) FROM {name}"), [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(u64::try_from(count).expect("Negative domain row count"), 0);
     }
     clean_fk(&db);
 }
