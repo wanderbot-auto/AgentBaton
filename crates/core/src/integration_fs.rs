@@ -75,6 +75,7 @@ struct TreeEntry {
 }
 struct GitRefObservation {
     parent: PathBuf,
+    entry: &'static str,
     fd: File,
     stamp: TreeStamp,
     refs: Option<GitTreeObservation>,
@@ -85,19 +86,27 @@ impl GitRefObservation {
         control: &IntegrationReadControl,
         budget: &mut TreeBudget,
     ) -> Result<Self> {
+        Self::capture_named(parent, "refs", control, budget)
+    }
+    fn capture_named(
+        parent: &Path,
+        entry: &'static str,
+        control: &IntegrationReadControl,
+        budget: &mut TreeBudget,
+    ) -> Result<Self> {
         if budget.directories >= MAX_TREE_DIRECTORIES {
             return Err(limited());
         }
         budget.directories += 1;
         let fd = tree_root(parent)?;
         let stamp = tree_stamp(&rustix::fs::fstat(&fd).map_err(|_| changed())?);
-        let refs = match rustix::fs::statat(&fd, "refs", rustix::fs::AtFlags::SYMLINK_NOFOLLOW) {
+        let refs = match rustix::fs::statat(&fd, entry, rustix::fs::AtFlags::SYMLINK_NOFOLLOW) {
             Ok(st)
                 if rustix::fs::FileType::from_raw_mode(st.st_mode)
                     == rustix::fs::FileType::Directory =>
             {
                 Some(GitTreeObservation::capture(
-                    &parent.join("refs"),
+                    &parent.join(entry),
                     control,
                     budget,
                 )?)
@@ -107,6 +116,7 @@ impl GitRefObservation {
         };
         let observed = Self {
             parent: parent.into(),
+            entry,
             fd,
             stamp,
             refs,
@@ -125,7 +135,7 @@ impl GitRefObservation {
             Some(tree) => tree.recheck()?,
             None => {
                 if !matches!(
-                    rustix::fs::statat(&self.fd, "refs", rustix::fs::AtFlags::SYMLINK_NOFOLLOW),
+                    rustix::fs::statat(&self.fd, self.entry, rustix::fs::AtFlags::SYMLINK_NOFOLLOW),
                     Err(rustix::io::Errno::NOENT)
                 ) {
                     return Err(changed());
@@ -469,6 +479,19 @@ pub(super) struct FsObservation {
 }
 impl FsObservation {
     pub(super) fn capture(roots: &[PathBuf], control: &IntegrationReadControl) -> Result<Self> {
+        Self::capture_inner(roots, control, false)
+    }
+    pub(super) fn capture_with_worktrees(
+        roots: &[PathBuf],
+        control: &IntegrationReadControl,
+    ) -> Result<Self> {
+        Self::capture_inner(roots, control, true)
+    }
+    fn capture_inner(
+        roots: &[PathBuf],
+        control: &IntegrationReadControl,
+        include_worktrees: bool,
+    ) -> Result<Self> {
         let mut result = Self {
             trees: vec![],
             refs: vec![],
@@ -516,6 +539,14 @@ impl FsObservation {
                 result
                     .refs
                     .push(GitRefObservation::capture(parent, control, &mut budget)?);
+                if include_worktrees {
+                    result.refs.push(GitRefObservation::capture_named(
+                        parent,
+                        "worktrees",
+                        control,
+                        &mut budget,
+                    )?);
+                }
                 for name in [
                     "HEAD",
                     "index",
@@ -1142,5 +1173,43 @@ mod controlled_inherited_pipe_test {
         drop(held);
         assert_eq!(result.unwrap_err().code, "DEADLINE_EXCEEDED");
         assert!(started.elapsed() < Duration::from_secs(3));
+    }
+}
+
+#[cfg(test)]
+mod target_worktree_pin_tests {
+    use super::*;
+    #[test]
+    fn target_preview_seals_other_worktree_heads_and_missing_registry_entries() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        let control = IntegrationReadControl {
+            cancel: Arc::new(AtomicBool::new(false)),
+            deadline: Instant::now() + Duration::from_secs(3),
+        };
+        let absent = GitRefObservation::capture_named(
+            &root,
+            "worktrees",
+            &control,
+            &mut TreeBudget::default(),
+        )
+        .unwrap();
+        fs::create_dir(root.join("worktrees")).unwrap();
+        fs::create_dir(root.join("worktrees/other")).unwrap();
+        fs::write(
+            root.join("worktrees/other/HEAD"),
+            b"ref: refs/heads/original\n",
+        )
+        .unwrap();
+        assert!(absent.recheck().is_err());
+        let present = GitRefObservation::capture_named(
+            &root,
+            "worktrees",
+            &control,
+            &mut TreeBudget::default(),
+        )
+        .unwrap();
+        fs::write(root.join("worktrees/other/HEAD"), b"ref: refs/heads/x\n").unwrap();
+        assert!(present.recheck().is_err());
     }
 }

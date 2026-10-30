@@ -169,7 +169,7 @@ impl IntegrationTargetPlan {
             material.workspace.root.clone(),
             material.project.identity.canonical_root.clone(),
         ];
-        let mut observation = FsObservation::capture(&roots, &control)?;
+        let mut observation = FsObservation::capture_with_worktrees(&roots, &control)?;
         let (program, pin) = system_git(&control)?;
         observation.add_leaf(pin);
         super::reads::inspect_exact(
@@ -269,18 +269,28 @@ fn parse_targets(
     {
         return Err(limited());
     }
+    if worktrees.len() < 2 || !worktrees.ends_with(&[0, 0]) {
+        return Err(changed());
+    }
     let mut checked = BTreeSet::new();
-    for field in worktrees.split(|b| *b == 0) {
-        if let Some(reference) = field.strip_prefix(b"branch ") {
-            let reference = std::str::from_utf8(reference).map_err(|_| changed())?;
-            if !preview_ref(reference) || !checked.insert(reference.to_owned()) {
-                return Err(changed());
-            }
+    let mut record = vec![];
+    for field in worktrees[..worktrees.len() - 1].split(|b| *b == 0) {
+        if field.is_empty() {
+            parse_worktree_record(&record, &mut checked)?;
+            record.clear();
+        } else {
+            record.push(field);
         }
+    }
+    if !record.is_empty() {
+        return Err(changed());
     }
     let mut targets = vec![];
     let mut previous = None::<String>;
-    for record in branches.split(|b| *b == b'\n').filter(|r| !r.is_empty()) {
+    if branches.is_empty() {
+        return Ok(targets);
+    }
+    for record in branches[..branches.len() - 1].split(|b| *b == b'\n') {
         let fields = record.split(|b| *b == 0).collect::<Vec<_>>();
         if fields.len() != 5 || !fields[4].is_empty() {
             return Err(changed());
@@ -320,6 +330,72 @@ fn parse_targets(
     Ok(targets)
 }
 
+fn parse_worktree_record(fields: &[&[u8]], checked: &mut BTreeSet<String>) -> Result<()> {
+    let root = fields
+        .first()
+        .and_then(|s| s.strip_prefix(b"worktree "))
+        .ok_or_else(changed)?;
+    let root = std::str::from_utf8(root).map_err(|_| changed())?;
+    if root.len() > 4096 || !std::path::Path::new(root).is_absolute() {
+        return Err(changed());
+    }
+    let mut head = false;
+    let mut branch = None;
+    let mut detached = false;
+    let mut bare = false;
+    let mut locked = false;
+    let mut prunable = false;
+    for field in &fields[1..] {
+        if let Some(value) = field.strip_prefix(b"HEAD ") {
+            if head || !super::reads::oid(std::str::from_utf8(value).map_err(|_| changed())?) {
+                return Err(changed());
+            }
+            head = true;
+        } else if let Some(value) = field.strip_prefix(b"branch ") {
+            let value = std::str::from_utf8(value).map_err(|_| changed())?;
+            if branch.is_some() || !preview_ref(value) {
+                return Err(changed());
+            }
+            branch = Some(value.to_owned());
+        } else if *field == b"detached" {
+            if detached {
+                return Err(changed());
+            }
+            detached = true;
+        } else if *field == b"bare" {
+            if bare {
+                return Err(changed());
+            }
+            bare = true;
+        } else if *field == b"locked" || field.starts_with(b"locked ") {
+            if locked {
+                return Err(changed());
+            }
+            locked = true;
+        } else if *field == b"prunable" || field.starts_with(b"prunable ") {
+            if prunable {
+                return Err(changed());
+            }
+            prunable = true;
+        } else {
+            return Err(changed());
+        }
+    }
+    if bare {
+        if head || branch.is_some() || detached {
+            return Err(changed());
+        }
+    } else if !head || (branch.is_some() == detached) {
+        return Err(changed());
+    }
+    if let Some(branch) = branch {
+        if !checked.insert(branch) {
+            return Err(changed());
+        }
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -338,7 +414,7 @@ mod tests {
         let mut branches = branch("refs/heads/alias", "commit", "refs/heads/main");
         branches.extend(branch("refs/heads/main", "commit", ""));
         branches.extend(branch("refs/heads/next", "commit", ""));
-        let worktrees = b"worktree /not-published\0HEAD ignored\0branch refs/heads/main\0\0";
+        let worktrees = b"worktree /not-published\0HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0branch refs/heads/main\0\0";
         let first = parse_targets(&branches, worktrees, &query()).unwrap();
         assert_eq!(first.len(), 1);
         assert_eq!(first[0].target_ref, "refs/heads/main");
@@ -391,12 +467,34 @@ mod tests {
         let branches = branch("refs/heads/branĉh", "commit", "");
         let targets = parse_targets(
             &branches,
-            b"worktree /not-published\0detached\0\0",
+            b"worktree /not-published\0HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0detached\0\0",
             &query(),
         )
         .unwrap();
         assert_eq!(targets[0].target_ref, "refs/heads/branĉh");
         assert!(!targets[0].checked_out);
         assert!(!super::super::reads::valid_ref(&targets[0].target_ref));
+    }
+}
+
+#[cfg(test)]
+mod strict_record_tests {
+    use super::*;
+    #[test]
+    fn malformed_worktree_and_empty_branch_records_are_not_false_unchecked_previews() {
+        let query = IntegrationTargetQuery {
+            task_id: "task".into(),
+            after_ref: None,
+            limit: Some(100),
+        };
+        let branches = format!("refs/heads/main\0{}\0commit\0\0\n", "a".repeat(40)).into_bytes();
+        let valid = b"worktree /private-generated\0HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0branch refs/heads/main\0\0";
+        assert!(parse_targets(&branches, valid, &query).unwrap()[0].checked_out);
+        for malformed in [b"".as_slice(), b"worktree /private-generated\0\0", b"worktree /private-generated\0HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0unknown-state\0\0", b"worktree /private-generated\0HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0branch refs/heads/main\0detached\0\0", b"branch refs/heads/main\0\0"] {
+            assert!(parse_targets(&branches, malformed, &query).is_err());
+        }
+        let mut extra_empty = branches.clone();
+        extra_empty.push(b'\n');
+        assert!(parse_targets(&extra_empty, valid, &query).is_err());
     }
 }

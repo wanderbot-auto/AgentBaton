@@ -17,6 +17,7 @@ use std::{
 
 pub(super) enum StageFact {
     Prepared,
+    TargetAdvanced(ObservedTargetAdvance),
     Validator {
         reference: crate::goal_store::GoalValidatorRef,
         view: serde_json::Value,
@@ -122,7 +123,7 @@ impl OwnedStage {
                             }
                         }
                     });
-                let proof = match read {
+                let mut proof = match read {
                     Ok(proof) => proof,
                     Err(error) => {
                         return StageReturn {
@@ -138,6 +139,15 @@ impl OwnedStage {
                     return StageReturn {
                         context,
                         result: Err(error),
+                        output_bytes: Some(0),
+                        effects_admitted: false,
+                        preparation_io: None,
+                    };
+                }
+                if let Some(advance) = proof.take_target_advance() {
+                    return StageReturn {
+                        context,
+                        result: Ok(StageFact::TargetAdvanced(advance)),
                         output_bytes: Some(0),
                         effects_admitted: false,
                         preparation_io: None,
