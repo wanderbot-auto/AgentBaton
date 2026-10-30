@@ -1,0 +1,42 @@
+{
+  "record_version": 1,
+  "fixed_base": "69edb67f14b8266402e62501bc10565587487245",
+  "foundation_sha256": "b2fb0a06e9f3819028a574d9b352604147411b05d102932bdc6c92f7cc51baca",
+  "foundation_bytes": 110567,
+  "recorded_at_utc": "2026-10-30T10:19:38.752708+00:00",
+  "dimension": "Root-executed, source-attributed Foundation evidence; independent read-only evidence collation, no product rerun",
+  "recorder_product_execution": false,
+  "cargo_target_used": false,
+  "executions_verified": 32,
+  "private_transcripts_copied": false,
+  "raw_database_read_or_copied": false,
+  "retained_elf_and16cache_gzip_stream_hashes_verified": true,
+  "files": {
+    "PLAN.md": {
+      "bytes": 908,
+      "sha256": "2e41d0eb100f0f26ab0fa8c0785d6007bcb9dd63ca3a855d93c74455658d50cc"
+    },
+    "PROGRESS.md": {
+      "bytes": 3734,
+      "sha256": "12cc2546e0c88e5559faf532eff67dfdbab83f69b084fef267b9bcff3e414e09"
+    },
+    "CHECKPOINT.md": {
+      "bytes": 1568,
+      "sha256": "19ade2bfc6970f48b5a1e343c711190cefa86586ab53748f51d61d8b3a513604"
+    },
+    "FOUNDATION_RESULTS.json": {
+      "bytes": 110567,
+      "sha256": "b2fb0a06e9f3819028a574d9b352604147411b05d102932bdc6c92f7cc51baca"
+    }
+  },
+  "not_claimed": [
+    "transfer of374 Core179 pass to later coordinator/current source",
+    "all-target Clippy pass",
+    "full integration runtime pipeline",
+    "Native Rust compiled or OS tests",
+    "MacCI",
+    "realProvider/scientific correctness",
+    "schema17 installer",
+    "full130 complete"
+  ]
+}
