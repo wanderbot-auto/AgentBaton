@@ -69,5 +69,18 @@
     "admission authority from a sample",
     "whole requirement or whole product acceptance",
     "extra approval or spend"
-  ]
+  ],
+  "review_correction": {
+    "source": "d9149a0111dd81776f3853e0e988bb5b0ba7a521",
+    "finding": "P2 static independent review: old private handle thin wrapper has only cfg(test) references after production switches to handle_observed; non-test dead_code expected, not an actual Cargo failure",
+    "correction": "single #[cfg(test)] on the unchanged original thin wrapper; no allow, no test-body/runtime handler/wire change",
+    "ipc_sha256": "0decd6ebb75f7c46b7d9803a1d62c56787ff4860296dca9fa0d91c6abcf802a5",
+    "checks": [
+      "configured rustfmt --check passed",
+      "git diff --check passed",
+      "one-line-only source delta"
+    ],
+    "cargo": "NOT_RUN",
+    "independent_closure": "pending"
+  }
 }
