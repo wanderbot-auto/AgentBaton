@@ -464,3 +464,19 @@ impl IntegrationPreparedContext {
         Ok(receipt)
     }
 }
+
+impl Drop for IntegrationPreparedContext {
+    fn drop(&mut self) {
+        // Also covers unwind inside the owned stage thread before a StageReturn
+        // exists. A best-effort CommandRun destructor is not a joined receipt.
+        for (_, observation) in &mut self.validations {
+            if let Some(command) = &mut observation.command {
+                while command.stop_and_reap_owned_leader().is_err() {
+                    // Preserve the original handle on uncertain OS errors. No
+                    // replacement process, new budget epoch or PASS is created.
+                    std::thread::sleep(std::time::Duration::from_millis(10));
+                }
+            }
+        }
+    }
+}

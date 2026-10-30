@@ -225,7 +225,9 @@ impl Drop for OwnedStage {
         if let Some(thread) = self.thread.take() {
             // Error/unwind also consumes the actual original thread before the
             // manager can release the daemon writer lock. No detached worker.
-            drop(thread.join());
+            if let Ok(returned) = thread.join() {
+                dispose_context(returned.context);
+            }
         }
     }
 }
@@ -350,6 +352,29 @@ impl JoinedStage {
             effects_admitted: false,
             worker_joined: false,
             never_scheduled: true,
+        }
+    }
+}
+
+pub(super) fn dispose_context(context: Option<IntegrationPreparedContext>) {
+    let Some(context) = context else {
+        return;
+    };
+    let packet = Arc::new(Mutex::new(Some(context)));
+    let input = packet.clone();
+    match std::thread::Builder::new()
+        .name("integration-owned-cleanup".into())
+        .spawn(move || {
+            drop(input.lock().unwrap_or_else(|p| p.into_inner()).take());
+        }) {
+        Ok(cleanup) => {
+            let _ = cleanup.join();
+        }
+        Err(_) => {
+            // Only the final ownership/shutdown fallback, never a live Owner
+            // request. Dropping the guarded context actually waits before the
+            // daemon writer lock may be released, even if no thread can start.
+            drop(packet.lock().unwrap_or_else(|p| p.into_inner()).take());
         }
     }
 }

@@ -421,6 +421,49 @@ impl CommandRun {
         }
         Ok(self.view.cleanup.owned_leader_reaped)
     }
+    /// Final ownership cleanup of this exact retained original child only.
+    /// May wait beyond an expired execution budget until the kernel returns a
+    /// real wait receipt. This never backfills timely cleanup, EOF, PASS or any
+    /// descendant-containment claim and does not start/retry a command.
+    pub fn stop_and_reap_owned_leader(&mut self) -> Result<(), CommandError> {
+        let Some(owned) = self.pending.as_mut() else {
+            return Ok(());
+        };
+        if !owned.reaped {
+            // Observe without consuming PID ownership before any group signal.
+            loop {
+                let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
+                let observed = unsafe {
+                    libc::waitid(
+                        libc::P_PID,
+                        owned.child.id() as libc::id_t,
+                        &mut info,
+                        libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
+                    )
+                };
+                if observed >= 0 {
+                    break;
+                }
+                if std::io::Error::last_os_error().kind() != ErrorKind::Interrupted {
+                    return Err(CommandError::Io);
+                }
+            }
+            if !owned.group_signal_sent {
+                let status = unsafe { libc::kill(-(owned.child.id() as i32), libc::SIGKILL) };
+                owned.group_signal_sent = status == 0;
+            }
+            let _ = owned.child.kill();
+            let status = owned.child.wait().map_err(|_| CommandError::Io)?;
+            owned.reaped = true;
+            self.view.exit_code = status.code();
+            self.view.exit_signal = status.signal();
+        }
+        self.view.cleanup.owned_leader_reaped = true;
+        self.view.cleanup.owned_group_signal_sent |= owned.group_signal_sent;
+        self.pending = None;
+        self.refresh_digest();
+        Ok(())
+    }
     pub fn verify_current(&self) -> Result<(), CommandError> {
         cwd_file(&self.view.contract)?;
         #[cfg(target_os = "macos")]
@@ -1423,6 +1466,44 @@ mod absolute_deadline_tests {
         )
         .unwrap();
         (directory, rule)
+    }
+
+    #[test]
+    fn retained_unknown_leader_final_cleanup_really_waits_without_backfilling_pass() {
+        let (_directory, rule) = fixture();
+        let child = Command::new("/bin/sh")
+            .args(["-c", "exec /bin/sleep 30"])
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .process_group(0)
+            .spawn()
+            .unwrap();
+        let pid = child.id();
+        let mut run = initial(&rule, RunReason::CleanupUnknown);
+        run.view.process_started = true;
+        run.view.cleanup.all_capture_pipes_observed_eof = false;
+        run.pending = Some(OwnedChild {
+            child,
+            reaped: false,
+            group_signal_sent: false,
+        });
+        run.stop_and_reap_owned_leader().unwrap();
+        assert!(run.pending.is_none());
+        assert!(run.view.cleanup.owned_leader_reaped);
+        assert!(run.view.exit_signal.is_some() || run.view.exit_code.is_some());
+        assert_eq!(run.view.reason, RunReason::CleanupUnknown);
+        assert!(!run.view.passed);
+        assert!(!run.view.exit_observed_within_budget);
+        assert!(!run.view.cleanup_completed_within_budget);
+        assert!(!run.view.cleanup.all_capture_pipes_observed_eof);
+        #[cfg(target_os = "linux")]
+        assert!(!std::path::Path::new("/proc").join(pid.to_string()).exists());
+        #[cfg(not(target_os = "linux"))]
+        let _ = pid;
+        let digest = run.view.digest.clone();
+        run.stop_and_reap_owned_leader().unwrap();
+        assert_eq!(run.view.digest, digest);
     }
 
     #[test]

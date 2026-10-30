@@ -374,12 +374,15 @@ impl IntegrationWorkers {
     pub(crate) fn join_stages(&mut self) {
         if let Some(worker) = self.stage.take() {
             worker.cancel();
-            drop(worker.join());
+            let (_, mut joined) = worker.join();
+            super::stage_workers::dispose_context(joined.context.take());
         }
         // Actual retained CommandRun ownership is also consumed before the
         // daemon's socket/writer lock is released. Unjournalled effects stay
         // unknown on restart; this destructor does not mint joined receipts.
-        drop(self.retained.take());
+        if let Some((_, mut joined)) = self.retained.take() {
+            super::stage_workers::dispose_context(joined.context.take());
+        }
     }
     pub(crate) fn shutdown_stages(&mut self, store: &mut crate::storage::Store) -> Result<()> {
         self.stop_stages();
