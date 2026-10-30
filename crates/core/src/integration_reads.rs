@@ -684,6 +684,12 @@ fn artifact_pin(
     Ok(())
 }
 impl IntegrationReadProof {
+    pub(crate) fn intent(&self) -> &IntegrationReadIntent {
+        &self.intent
+    }
+    pub(crate) fn context(&self) -> &IntegrationContextView {
+        &self.context
+    }
     pub(super) fn seal_observation(&self) -> Result<()> {
         if Instant::now() >= self.deadline {
             return Err(CoreError::new(

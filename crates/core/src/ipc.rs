@@ -3071,13 +3071,13 @@ impl Daemon {
                     "Integration observation arrived after the original request deadline",
                 ));
             }
-            match &proof.intent {
+            match proof.intent() {
                 Intent::Context(_) => {
                     if request.method != "integration_context.get" {
                         return Err(invalid());
                     }
                     proof.verify(&self.store, &job.raw, job.deadline)?;
-                    Ok(json!(proof.context))
+                    Ok(json!(proof.context()))
                 }
                 Intent::Proposal(_) => {
                     let selection: crate::integration::IntegrationPolicySelection =
