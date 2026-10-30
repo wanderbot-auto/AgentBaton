@@ -5,7 +5,7 @@
     "AB-PRJ-004",
     "AB-PRJ-005"
   ],
-  "source_commit": "dc12030f942c2807d98818d853c8ef0499a38d7a",
+  "source_commit": "e1680c654403eedc155f3c46786627f3cdc4175b",
   "author_checks": {
     "direct_rustfmt": "pass",
     "git_diff_check": "pass",
@@ -22,7 +22,7 @@
     "Mac",
     "remote delivery"
   ],
-  "implementation_status": "in_progress_not_accepted",
+  "implementation_status": "source_wired_not_compiled_or_runtime_accepted",
   "initial_source_commit": "e7df3f224549d50647ffd82d722e763bf11232a2",
   "checkpoints": [
     {
@@ -58,6 +58,46 @@
       "commit": "dc12030f942c2807d98818d853c8ef0499a38d7a",
       "change": "Core private integration Git capture also removes inherited-pipe reader joins; one Linux pipe test source",
       "execution": "source_only_NOT_RUN"
+    },
+    {
+      "commit": "f70cf55",
+      "change": "reject observed symbolic targets and prevent referent writes; partial hardening, late alias slot overwrite remained open by Root actual Git primitive",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "469abb6",
+      "change": "owned bounded targets list",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "f7fd434",
+      "change": "readonly Store complete ephemeral fields and actual schema17",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "2730557",
+      "change": "prepared locked target transaction, exact commit ACK separates success from abort",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "e189094",
+      "change": "joined descendant-target observation, original shared stage settlement and new bounded full preparation round",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "05757c5",
+      "change": "same transaction local15 deadline passed into locked revalidation",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "19e8e29",
+      "change": "actual Owner start and automatic accepted-policy watcher/coordinator",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "e1680c6",
+      "change": "preview linked-worktree admin metadata seal and strict porcelain parser",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
     }
   ],
   "remaining": [
@@ -65,5 +105,19 @@
     "automatic accepted watcher and start/targets runtime routes",
     "full original lineage/fence/validator/CAS and unknown reconciliation fault tests",
     "Native/UI/UnixIPC actual integration and real Mac runtime validation"
+  ],
+  "latest_source_snapshot": {
+    "path": "/workspace/.onboarding/authorized-integration-source-checkpoint-e1680c6/SOURCE.json",
+    "sha256": "836ab329b31f50e64edcd4b33b6fd1a8790153c006a3d16dbcdbf6bc0f0df648"
+  },
+  "remaining_validation": [
+    "all latest Core/library compile and strict Clippy",
+    "Root integration normal/merged-validator failure, auto-start before/after acceptance and delegated Factory path",
+    "actual bounded descendant reprepare and all new-round validators executed again",
+    "cancel/expiry/unknown/CAS crash and durable journal/fence recovery",
+    "mixed shared counters/ledger and zero refund/duplicate effects",
+    "unsupported prepared protocol typed capability classification remains conservative unknown",
+    "Mac/platform behavior",
+    "full VAL009 Unicode/change kinds/remote protected delivery/host cleanup remain open"
   ]
 }

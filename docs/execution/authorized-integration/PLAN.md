@@ -11,3 +11,6 @@ AB-VAL-009 / PRJ-004/005, D18/D19; OWNER-001/002 acknowledged. Root frozen CONTR
 No current result demonstrates FullVAL009 or platform/remote/deletion/Unicode/retention support. No paid Provider calls or product permission upgrades.
 
 Next concrete source steps: retain the private StageTicket across read/join/effect/join under one reservation clock; transactionally authenticate proof and advance dispatch; retain actual candidate/CommandRun handles across fresh per-validator admissions; settle original shared counters once from true owned receipts; journal historical CAS independently of incomplete IO; wire automatic accepted watcher/fixed Owner routes only after those paths exist. Unknown or cancelled work never auto-replays or refunds consumed attempts.
+
+
+Next validation boundary (e1680c6): complete owned targets/start/watch/reprepare and locked CAS are now source-wired. Root must compile and execute immutable sources before any pipeline acceptance. Add real generated-Git/UnixIPC cases for independent policy preapproval/acceptance, new merged validations, exact-target races, descendant rounds, mixed meters, cancellation/unknown and true join. Keep all old failed sources/artifacts and do not attribute previous component passes to these new paths. Full VAL009 unsupported Unicode/change kinds/remote delivery/cleanup remain requirements.
