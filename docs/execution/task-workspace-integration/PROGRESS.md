@@ -1,3 +1,11 @@
+## Parentde0b exact16 composition locally verified — 2026-10-30T00:10:01.983268+00:00
+
+Composed bc86 actual Factory26PASS83.78s, fullinfra192PASS (includes66collector controls), allworkspace/alltargets strictClippy and format passed. Initial Cargo compiled17.86s but the running test group reached the150MiB external reserve; original interrupted logs/ELF/DB remain, not passed. Generated rlib was SHA-roundtrip archived, then the exact unchanged compiled test ELF executed all26 with explicit pinned schema16tools and unchanged source. New actual joined16 snapshot finite CLI passed, as did separate prior16 retained input. No test/threshold/production policy was weakened, and no timer comparison proves a performance gain.
+
+Independent integration review7fa6 confirms entire collector differs from de0b only in exact16, old15/future17 rejection/66controls preserved, and both STATUS histories plus all93manifest paths retained. New parent Runtime b651 source review and P2receipt/ledger closures remain separately bound. Original Core156/migrations/fiveactualbrowser/995Node evidence is not re-labelled as replay. See PARENT_DE0B_COMPOSED_RESULTS.json.
+
+Parentde0b exactEnv3PASS/ProductUIFAIL at strict previously-bound provider cmdline exit race; Rust/bothMac still running. Root is fixing only that harness guard via a separate source tree, no duplicate active CI. PR19 remains dependent/draft/unmerged, no own16CI/native/Mac/installers accepted. Full130/defaultcoding/childisolation/adoption/remote remain. main653679d/OWNER001002 ACK, no new authority.
+
 # 实际进展
 
 2026-10-29T22:23:32.173082+00:00

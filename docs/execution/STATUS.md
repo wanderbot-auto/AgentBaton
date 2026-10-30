@@ -1,3 +1,7 @@
+# schema16新父分支组合真实回归通过 — 2026-10-30T00:10:01.983268+00:00
+
+bc86：Factory26/83.78s、fullinfra192、全workspace/alltargets严格Clippy/fmt通过，new真实joined16快照有限投影通过。初次Cargo编译成功后容量中断原记不通过；同一SHA测试ELF直接执行全26通过且工具16pins不变。exact16/拒15+17/两P2闭合与STATUS双方历史均独审通过，见 [准确组合证据](task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json)。995Node/五真实浏览器场景等仍保各自原source，不冒重跑。Parentde0b Env3过/UI在已绑定进程退出argv窗口FAIL，Rust/双Mac在跑；独立fixture窄修进行中。PR19依赖/draft，无16CI/native/Mac/新包；完整130、默认隔离/child/adoption/remote未完。main653679d/OWNER001002 ACK，无权限扩大。
+
 # 原子预留优化与收据窄修本地验证通过，准备准确 CI — 2026-10-29T23:58:13.519671+00:00
 
 Rust b651真实Factory26/88.57s、Core129/90.12s、全workspace alltargets严格Clippy通过；初次Core编译容量中断保留，重试无中断。新collector e068的原两P2已独审闭合，fullinfra150（含66）与新b651真实join快照CLI通过：r1启动exit1、r2启动exit0，child12746ms/root14744ms。这些Linux数据不证明Mac根因修复，也不是受控性能比较。详见 [准确本地证据](factory-child-goal-integration/ATOMIC_RESERVATION_RESULTS.json)。原7ac双Mac失败保留，新准确七CI/native/构建/包未运行；PR18仍draft，依赖PR19与完整130未完成。main653679d/OWNER001002 ACK，无新授权。

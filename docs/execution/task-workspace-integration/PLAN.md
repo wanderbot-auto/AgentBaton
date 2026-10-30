@@ -1,3 +1,5 @@
+Next: retain reviewed exact16 composition, consume parent CI and narrow argv-exit harness correction without borrowing old Mac results; after protected parent integration, retarget and execute own exact16 checks/native/packages. Continue remaining full-product requirements.
+
 # Task 工作区集成计划
 
 基线 main653679d，依赖 PR18 的 schema15 Goal/Factory；本分支独立schema16，不修改不可变设计。范围对应 AB-PRJ-002/003/005 与 AB-SEC-007 的局部切片。
