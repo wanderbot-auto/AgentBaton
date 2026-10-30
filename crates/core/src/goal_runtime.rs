@@ -1948,7 +1948,12 @@ pub(crate) fn ordinary_session_budget_gate(db: &Connection, project_id: &str) ->
 }
 
 impl Store {
-    pub(crate) fn block_goal_run(&mut self, id: &str, code: &str) -> Result<()> {
+    pub(crate) fn block_goal_run(
+        &mut self,
+        id: &str,
+        code: &str,
+        details_ref: Option<&str>,
+    ) -> Result<()> {
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -1956,12 +1961,13 @@ impl Store {
         let mut r = run(&tx, id)?;
         if matches!(r.state.as_str(), "queued" | "running") {
             r.state = "blocked".into();
-            save_run(
-                &tx,
-                &mut r,
-                "goal.run_blocked",
-                json!({"reason_code":code,"automatic_retry":false,"task_accepted":false}),
-            )?;
+            let mut payload =
+                json!({"reason_code":code,"automatic_retry":false,"task_accepted":false});
+            if let Some(diagnostic) = factory::ancestor_admission_diagnostic(code, details_ref, &r)
+            {
+                payload["budget_admission"] = diagnostic;
+            }
+            save_run(&tx, &mut r, "goal.run_blocked", payload)?;
         }
         tx.commit().map_err(db_error)
     }

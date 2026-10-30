@@ -903,6 +903,87 @@ pub(crate) fn budget_records(
     }
     Ok(result)
 }
+// This optional error detail is finite observation, never an admission token.
+// No IDs, paths, messages, authority or new clock/SQL reads enter this record.
+const ANCESTOR_ADMISSION_PREFIX: &str = "factory-ancestor-budget-v1:";
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum AncestorAdmissionGuard {
+    Attempts,
+    Parallel,
+    Runtime,
+    Output,
+    RuntimeOverflow,
+    OutputOverflow,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct AncestorAdmissionDiagnostic {
+    guard_kind: AncestorAdmissionGuard,
+    run_revision: u64,
+    plan_revision: u64,
+    relevant_count: u64,
+    active_count: u64,
+    attempt_cap: u64,
+    parallel_cap: u64,
+    runtime_accounted_count: u64,
+    output_accounted_count: u64,
+    settled_actual_runtime_ms: Option<u64>,
+    unsettled_reserved_runtime_ms: Option<u64>,
+    requested_runtime_ms: u64,
+    runtime_cap_ms: u64,
+    settled_actual_output_bytes: Option<u64>,
+    unsettled_reserved_output_bytes: Option<u64>,
+    requested_output_bytes: u64,
+    output_cap_bytes: u64,
+    aggregation_complete: bool,
+}
+impl AncestorAdmissionDiagnostic {
+    fn refusal(&self, guard: AncestorAdmissionGuard) -> CoreError {
+        // Keep the original code/message/retryability/side-effect state. Failed
+        // serialization must never change or mask the original refusal.
+        let mut error = limited();
+        let mut detail = self.clone();
+        detail.guard_kind = guard;
+        if let Ok(raw) = serde_json::to_string(&detail) {
+            if raw.len() <= 1024 {
+                error.details_ref = Some(format!("{ANCESTOR_ADMISSION_PREFIX}{raw}"));
+            }
+        }
+        error
+    }
+}
+pub(super) fn ancestor_admission_diagnostic(
+    code: &str,
+    details_ref: Option<&str>,
+    r: &GoalRun,
+) -> Option<Value> {
+    if code != "RESOURCE_LIMIT" {
+        return None;
+    }
+    let raw = details_ref?.strip_prefix(ANCESTOR_ADMISSION_PREFIX)?;
+    if raw.len() > 1024 {
+        return None;
+    }
+    let detail: AncestorAdmissionDiagnostic = serde_json::from_str(raw).ok()?;
+    // Bind the private originating sample to the same current run/plan before
+    // saving it beside the existing blocked event. An old/foreign or malformed
+    // optional observation is omitted; the original block still proceeds.
+    if detail.run_revision != r.revision
+        || detail.plan_revision != r.plan_revision
+        || detail.relevant_count > 100_000
+        || detail.active_count > detail.relevant_count
+        || detail.runtime_accounted_count > detail.relevant_count
+        || detail.output_accounted_count > detail.runtime_accounted_count
+        || (detail.aggregation_complete
+            && (detail.runtime_accounted_count != detail.relevant_count
+                || detail.output_accounted_count != detail.relevant_count))
+    {
+        return None;
+    }
+    serde_json::to_value(detail).ok()
+}
+
 pub(super) fn reserve_ancestors(
     db: &Connection,
     r: &GoalRun,
@@ -921,35 +1002,82 @@ pub(super) fn reserve_ancestors(
                 x.scope_id.as_deref() == Some(scope.id.as_str()) && x.ancestors.contains(&ancestor)
             })
             .collect::<Vec<_>>();
-        if relevant.len() >= budget.attempts as usize
-            || relevant.iter().filter(|x| !x.settled).count() >= budget.parallel as usize
-        {
-            return Err(limited());
+        let active = relevant.iter().filter(|x| !x.settled).count();
+        let mut diagnostic = AncestorAdmissionDiagnostic {
+            guard_kind: AncestorAdmissionGuard::Attempts,
+            run_revision: r.revision,
+            plan_revision: r.plan_revision,
+            relevant_count: relevant.len() as u64,
+            active_count: active as u64,
+            attempt_cap: u64::from(budget.attempts),
+            parallel_cap: u64::from(budget.parallel),
+            runtime_accounted_count: 0,
+            output_accounted_count: 0,
+            // Count guards precede aggregation; missing is deliberately not 0.
+            settled_actual_runtime_ms: None,
+            unsettled_reserved_runtime_ms: None,
+            requested_runtime_ms: reservation.runtime_ms,
+            runtime_cap_ms: budget.runtime_ms,
+            settled_actual_output_bytes: None,
+            unsettled_reserved_output_bytes: None,
+            requested_output_bytes: reservation.output_bytes,
+            output_cap_bytes: budget.output_bytes,
+            aggregation_complete: false,
+        };
+        if relevant.len() >= budget.attempts as usize {
+            return Err(diagnostic.refusal(AncestorAdmissionGuard::Attempts));
         }
+        if active >= budget.parallel as usize {
+            return Err(diagnostic.refusal(AncestorAdmissionGuard::Parallel));
+        }
+        diagnostic.settled_actual_runtime_ms = Some(0);
+        diagnostic.unsettled_reserved_runtime_ms = Some(0);
+        diagnostic.settled_actual_output_bytes = Some(0);
+        diagnostic.unsettled_reserved_output_bytes = Some(0);
         let mut runtime = reservation.runtime_ms;
         let mut output = reservation.output_bytes;
         for previous in relevant {
+            let elapsed = if previous.settled {
+                previous
+                    .actual_runtime_ms
+                    .ok_or_else(|| err("BUDGET_UNKNOWN", "Factory ancestor runtime is unknown"))?
+            } else {
+                previous.reservation.runtime_ms
+            };
+            let total = if previous.settled {
+                &mut diagnostic.settled_actual_runtime_ms
+            } else {
+                &mut diagnostic.unsettled_reserved_runtime_ms
+            };
+            *total = total.and_then(|n| n.checked_add(elapsed));
+            diagnostic.runtime_accounted_count += 1;
             runtime = runtime
-                .checked_add(if previous.settled {
-                    previous.actual_runtime_ms.ok_or_else(|| {
-                        err("BUDGET_UNKNOWN", "Factory ancestor runtime is unknown")
-                    })?
-                } else {
-                    previous.reservation.runtime_ms
-                })
-                .ok_or_else(limited)?;
+                .checked_add(elapsed)
+                .ok_or_else(|| diagnostic.refusal(AncestorAdmissionGuard::RuntimeOverflow))?;
+            let bytes = if previous.settled {
+                previous
+                    .actual_output_bytes
+                    .ok_or_else(|| err("BUDGET_UNKNOWN", "Factory ancestor output is unknown"))?
+            } else {
+                previous.reservation.output_bytes
+            };
+            let total = if previous.settled {
+                &mut diagnostic.settled_actual_output_bytes
+            } else {
+                &mut diagnostic.unsettled_reserved_output_bytes
+            };
+            *total = total.and_then(|n| n.checked_add(bytes));
+            diagnostic.output_accounted_count += 1;
             output = output
-                .checked_add(if previous.settled {
-                    previous.actual_output_bytes.ok_or_else(|| {
-                        err("BUDGET_UNKNOWN", "Factory ancestor output is unknown")
-                    })?
-                } else {
-                    previous.reservation.output_bytes
-                })
-                .ok_or_else(limited)?;
+                .checked_add(bytes)
+                .ok_or_else(|| diagnostic.refusal(AncestorAdmissionGuard::OutputOverflow))?;
         }
-        if runtime > budget.runtime_ms || output > budget.output_bytes {
-            return Err(limited());
+        diagnostic.aggregation_complete = true;
+        if runtime > budget.runtime_ms {
+            return Err(diagnostic.refusal(AncestorAdmissionGuard::Runtime));
+        }
+        if output > budget.output_bytes {
+            return Err(diagnostic.refusal(AncestorAdmissionGuard::Output));
         }
     }
     Ok(())
@@ -2025,4 +2153,113 @@ pub(crate) fn require_queued_unstarted_target(
         return Err(denied());
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod ancestor_admission_tests {
+    use super::*;
+    fn sample() -> AncestorAdmissionDiagnostic {
+        AncestorAdmissionDiagnostic {
+            guard_kind: AncestorAdmissionGuard::Runtime,
+            run_revision: 13,
+            plan_revision: 2,
+            relevant_count: 4,
+            active_count: 0,
+            attempt_cap: 5,
+            parallel_cap: 1,
+            runtime_accounted_count: 4,
+            output_accounted_count: 4,
+            settled_actual_runtime_ms: Some(15_589),
+            unsettled_reserved_runtime_ms: Some(0),
+            requested_runtime_ms: 6000,
+            runtime_cap_ms: 20_000,
+            settled_actual_output_bytes: Some(62),
+            unsettled_reserved_output_bytes: Some(0),
+            requested_output_bytes: 1024,
+            output_cap_bytes: 8192,
+            aggregation_complete: true,
+        }
+    }
+    fn run_sample() -> GoalRun {
+        GoalRun {
+            id: "PRIVATE_RUN_CANARY".into(),
+            scope_id: "PRIVATE_SCOPE_CANARY".into(),
+            project_id: "PRIVATE_PROJECT_CANARY".into(),
+            task_id: "PRIVATE_TASK_CANARY".into(),
+            root_grant_id: "PRIVATE_GRANT_CANARY".into(),
+            plan_revision: 2,
+            plan_digest: "PRIVATE_DIGEST_CANARY".into(),
+            revision: 13,
+            state: "queued".into(),
+            cancel_requested: false,
+            task_accepted: false,
+            created_at: "PRIVATE_DATE_CANARY".into(),
+            updated_at: "PRIVATE_DATE_CANARY".into(),
+        }
+    }
+    #[test]
+    fn optional_admission_details_preserve_original_resource_refusal() {
+        let expected = limited();
+        for guard in [
+            AncestorAdmissionGuard::Attempts,
+            AncestorAdmissionGuard::Parallel,
+            AncestorAdmissionGuard::Runtime,
+            AncestorAdmissionGuard::Output,
+            AncestorAdmissionGuard::RuntimeOverflow,
+            AncestorAdmissionGuard::OutputOverflow,
+        ] {
+            let error = sample().refusal(guard);
+            assert_eq!(error.code, expected.code);
+            assert_eq!(error.message, expected.message);
+            assert_eq!(error.side_effect_state, expected.side_effect_state);
+            assert_eq!(error.retryable, expected.retryable);
+            assert!(error.details_ref.as_ref().unwrap().len() <= 1051);
+            let detail = ancestor_admission_diagnostic(
+                &error.code,
+                error.details_ref.as_deref(),
+                &run_sample(),
+            )
+            .unwrap();
+            assert_eq!(detail["requested_runtime_ms"], 6000);
+            assert_eq!(detail["settled_actual_runtime_ms"], 15_589);
+            assert!(!serde_json::to_string(&detail).unwrap().contains("CANARY"));
+        }
+    }
+    #[test]
+    fn stale_or_nonfinite_admission_detail_is_omitted_without_a_new_error() {
+        let error = sample().refusal(AncestorAdmissionGuard::Runtime);
+        let r = run_sample();
+        for code in ["INPUT_CHANGED", "BUDGET_UNKNOWN", "OUTCOME_UNKNOWN"] {
+            assert!(
+                ancestor_admission_diagnostic(code, error.details_ref.as_deref(), &r).is_none()
+            );
+        }
+        let mut other = r.clone();
+        other.revision += 1;
+        assert!(ancestor_admission_diagnostic(
+            "RESOURCE_LIMIT",
+            error.details_ref.as_deref(),
+            &other
+        )
+        .is_none());
+        other = r.clone();
+        other.plan_revision += 1;
+        assert!(ancestor_admission_diagnostic(
+            "RESOURCE_LIMIT",
+            error.details_ref.as_deref(),
+            &other
+        )
+        .is_none());
+        for raw in [
+            "PRIVATE_PATH_CANARY".to_string(),
+            format!("{ANCESTOR_ADMISSION_PREFIX}{{}}"),
+            format!("{ANCESTOR_ADMISSION_PREFIX}{}", "x".repeat(1025)),
+        ] {
+            assert!(ancestor_admission_diagnostic("RESOURCE_LIMIT", Some(&raw), &r).is_none());
+        }
+        let mut value = serde_json::to_value(sample()).unwrap();
+        value["private_path"] = json!("PRIVATE_PATH_CANARY");
+        let raw = format!("{ANCESTOR_ADMISSION_PREFIX}{value}");
+        assert!(ancestor_admission_diagnostic("RESOURCE_LIMIT", Some(&raw), &r).is_none());
+    }
 }

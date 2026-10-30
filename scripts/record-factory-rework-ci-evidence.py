@@ -375,6 +375,67 @@ def budget_usage(conn):
         return out
 
 
+# Optional original-guard sample, not reconstructed remaining budget/authority.
+ANCESTOR_ADMISSION_GUARDS = frozenset(('attempts', 'parallel', 'runtime', 'output',
+    'runtime_overflow', 'output_overflow'))
+ANCESTOR_ADMISSION_FIELDS = frozenset(('guard_kind', 'run_revision', 'plan_revision',
+    'relevant_count', 'active_count', 'attempt_cap', 'parallel_cap',
+    'runtime_accounted_count', 'output_accounted_count',
+    'settled_actual_runtime_ms', 'unsettled_reserved_runtime_ms',
+    'requested_runtime_ms', 'runtime_cap_ms', 'settled_actual_output_bytes',
+    'unsettled_reserved_output_bytes', 'requested_output_bytes', 'output_cap_bytes',
+    'aggregation_complete'))
+
+
+def ancestor_admission(value):
+    need(type(value) is dict and set(value) == ANCESTOR_ADMISSION_FIELDS)
+    out = {'guard_kind': enum(value['guard_kind'], ANCESTOR_ADMISSION_GUARDS)}
+    for key in ('run_revision', 'plan_revision', 'attempt_cap', 'parallel_cap',
+                'requested_runtime_ms', 'runtime_cap_ms', 'requested_output_bytes', 'output_cap_bytes'):
+        out[key] = integer(value[key])
+    need(out['run_revision'] > 0 and out['plan_revision'] > 0)
+    for key in ('relevant_count', 'active_count', 'runtime_accounted_count', 'output_accounted_count'):
+        out[key] = integer(value[key], 100_000)
+    need(out['active_count'] <= out['relevant_count']
+         and out['output_accounted_count'] <= out['runtime_accounted_count'] <= out['relevant_count'])
+    for key in ('settled_actual_runtime_ms', 'unsettled_reserved_runtime_ms',
+                'settled_actual_output_bytes', 'unsettled_reserved_output_bytes'):
+        out[key] = integer(value[key], nullable=True)
+    out['aggregation_complete'] = boolean(value['aggregation_complete'])
+    if out['guard_kind'] in ('attempts', 'parallel'):
+        need(not out['aggregation_complete'] and out['runtime_accounted_count'] == 0
+             and out['output_accounted_count'] == 0
+             and all(out[key] is None for key in ('settled_actual_runtime_ms',
+                 'unsettled_reserved_runtime_ms', 'settled_actual_output_bytes',
+                 'unsettled_reserved_output_bytes')))
+        if out['guard_kind'] == 'attempts':
+            need(out['relevant_count'] >= out['attempt_cap'])
+        else:
+            need(out['relevant_count'] < out['attempt_cap'] and out['active_count'] >= out['parallel_cap'])
+    elif out['guard_kind'] in ('runtime', 'output'):
+        need(out['aggregation_complete']
+             and out['runtime_accounted_count'] == out['relevant_count']
+             and out['output_accounted_count'] == out['relevant_count'])
+        for key in ('settled_actual_runtime_ms', 'unsettled_reserved_runtime_ms',
+                    'settled_actual_output_bytes', 'unsettled_reserved_output_bytes'):
+            need(out[key] is not None)
+        runtime = integer(out['settled_actual_runtime_ms'] + out['unsettled_reserved_runtime_ms'] + out['requested_runtime_ms'])
+        output = integer(out['settled_actual_output_bytes'] + out['unsettled_reserved_output_bytes'] + out['requested_output_bytes'])
+        need((out['guard_kind'] == 'runtime' and runtime > out['runtime_cap_ms'])
+             or (out['guard_kind'] == 'output' and runtime <= out['runtime_cap_ms'] and output > out['output_cap_bytes']))
+    else:
+        # An overflow stops the original loop. Remaining rows are unobserved,
+        # and a missing partial subtotal is never published as a zero.
+        need(not out['aggregation_complete'] and out['runtime_accounted_count'] > 0)
+        if out['guard_kind'] == 'output_overflow':
+            need(out['output_accounted_count'] == out['runtime_accounted_count'])
+        else:
+            need(out['runtime_accounted_count'] == out['output_accounted_count'] + 1)
+    out['snapshot_time'] = 'original_ancestor_reservation_guard'
+    out['not_an_authority_or_stop_proof'] = True
+    return out
+
+
 def event_fields(event, subject, observed_plan_revision):
     """Exact known scalars only. No arbitrary payload key/value is published."""
     kind = enum(event.get('kind'), EVENT_KINDS)
@@ -388,6 +449,11 @@ def event_fields(event, subject, observed_plan_revision):
         out['reason_code'] = reason if reason in REASON_CODES else 'unrecognized'
         out['automatic_retry'] = boolean(payload.get('automatic_retry'))
         need(out['automatic_retry'] is False and out['task_accepted'] is False)
+        if 'budget_admission' in payload:
+            need(reason == 'RESOURCE_LIMIT')
+            out['budget_admission'] = ancestor_admission(payload['budget_admission'])
+            need(integer(event.get('revision')) == out['budget_admission']['run_revision'] + 1
+                 and observed_plan_revision == out['budget_admission']['plan_revision'])
     elif kind == 'goal.factory_failure_confirmed':
         plan = integer(payload.get('plan_revision'))
         proof = payload.get('proof')
