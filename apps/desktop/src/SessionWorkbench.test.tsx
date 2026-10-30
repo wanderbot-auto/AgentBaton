@@ -8,7 +8,7 @@ import { sessionApi, type ExecutionGrant, type NamedConnection, type ManagedSess
 
 // Only the browser/component transport is mocked. These tests never execute a
 // selected program, copy credentials or call a vendor model.
-vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { taskGet: vi.fn(), workspacesList: vi.fn(), snapshot: vi.fn(), events: vi.fn() } }));
+vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { taskGet: vi.fn(), workspacesResolve: vi.fn(), workspacesList: vi.fn(), snapshot: vi.fn(), events: vi.fn() } }));
 vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), connectionsRegister: vi.fn(), grantsCreate: vi.fn(), grantsList: vi.fn(), grantsRevoke: vi.fn(), sessionsCreate: vi.fn(), sessionsList: vi.fn(), sessionsGet: vi.fn(), sessionsSend: vi.fn(), sessionsCancel: vi.fn() } }));
 const created = '2026-10-27T00:00:00Z';
 const project: Project = { id: 'project-1', name: 'Project', revision: 1, archived: false, created_at: created, updated_at: created, identity: { canonical_root: '/source', device: 1, inode: 2, kind: { kind: 'directory' } } };
@@ -22,6 +22,10 @@ beforeEach(() => {
   vi.resetAllMocks();
   refreshTasks.mockResolvedValue(undefined);
   vi.mocked(api.taskGet).mockImplementation(async id => { if (id !== task.id) throw new Error('Unknown fixture Task'); return { ...task, spec_revision: 1 }; });
+  vi.mocked(api.workspacesResolve).mockImplementation(async selection => {
+    if (selection.task_id !== task.id || selection.expected_task_revision !== task.revision || selection.expected_project_revision !== project.revision || selection.host_id !== 'local') throw new Error('Unknown fixture resolver selection');
+    return { task_id: task.id, task_revision: task.revision, spec_revision: 1, project_id: project.id, project_revision: project.revision, host_id: 'local', source: { canonical_root: project.identity.canonical_root, device: '1', inode: '2', kind: { kind: 'directory' } }, source_head: null, preparation_key: null, state: 'needs_dataset_selection', reason: 'selected_dataset_required', candidates: [], execution_authorized: false, creates_workspace: false };
+  });
   vi.mocked(api.workspacesList).mockResolvedValue([workspace]);
   vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], api_version: 1, sequence: 0 });
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });

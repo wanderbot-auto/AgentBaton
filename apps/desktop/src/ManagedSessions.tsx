@@ -4,6 +4,9 @@ import { sessionApi, type ExecutionGrant, type ManagedSession, type NamedConnect
 import { sessionMessages } from './session-i18n';
 import { messages, type Language } from './i18n';
 import { parseTaskWithWorkspaceBinding } from './task-workspace-binding-wire';
+import { parseCodeWorkspacePreparation, type CodeWorkspacePreparation } from './workspace-preparation-wire';
+import { TaskCodeWorkspace } from './TaskCodeWorkspace';
+import { taskCodeWorkspaceMessages } from './task-code-workspace-i18n';
 
 // Stored binding only locates a workspace; it never proves fresh filesystem
 // identity, a Grant, native Owner consent, or execution admission.
@@ -26,7 +29,7 @@ export function initialTaskSelectionCurrent(applied: string, rendered: string): 
 
 interface Props { language: Language; connected: boolean; projects: Project[]; tasks: Task[]; projectId: string; onProjectChange: (id: string) => void; refreshTasks: () => Promise<void>; initialTaskId?: string }
 export function ManagedSessions({ language, connected, projects, tasks, projectId, onProjectChange, refreshTasks, initialTaskId }: Props) {
-  const t = sessionMessages[language];
+  const t = sessionMessages[language], codeText = taskCodeWorkspaceMessages[language];
   const initialSelectionIdentity = JSON.stringify([projectId, initialTaskId ?? null]);
   const initialSelectionEpoch = useRef({ identity: initialSelectionIdentity, revision: 0 });
   if (initialSelectionEpoch.current.identity !== initialSelectionIdentity) initialSelectionEpoch.current = { identity: initialSelectionIdentity, revision: initialSelectionEpoch.current.revision + 1 };
@@ -52,7 +55,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const [scopeProject, setScopeProject] = useState('');
   const [acknowledgementContext, setAcknowledgementContext] = useState('');
   const [grantContext, setGrantContext] = useState('');
-  const [taskObservation, setTaskObservation] = useState<{ context: string; task: Task } | null>(null);
+  const [taskObservation, setTaskObservation] = useState<{ context: string; task: Task; preparation: CodeWorkspacePreparation | null } | null>(null);
   const [taskReadReady, setTaskReadReady] = useState(false);
   const [taskReading, setTaskReading] = useState(false);
   const taskRequest = useRef(0);
@@ -73,13 +76,20 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const workspace = workspaces.find(record => record.id === workspaceId);
   const connection = connections.find(record => record.id === connectionId);
   const parentTask = tasks.find(record => record.id === taskId);
-  const taskSourceContext = JSON.stringify([initialSelectionStamp, projectId, taskId, parentTask?.revision, parentTask?.spec_revision, parentTask?.state, parentTask?.code_workspace_binding ?? null]);
+  const taskSourceContext = JSON.stringify([initialSelectionStamp, projectId, project?.revision, project?.archived, taskId, parentTask?.revision, parentTask?.spec_revision, parentTask?.state, parentTask?.code_workspace_binding ?? null]);
   const taskSourceCurrent = useRef({ context: taskSourceContext, projectId, connected }); taskSourceCurrent.current = { context: taskSourceContext, projectId, connected };
   const task = taskObservation?.context === taskSourceContext ? taskObservation.task : parentTask;
   const taskFresh = initialSelectionReady && (!taskId || connected && taskReadReady && !taskReading && taskObservation?.context === taskSourceContext);
   const taskContext = JSON.stringify([initialSelectionStamp, projectId, project?.revision, project?.archived, taskId, task?.project_id, task?.revision, task?.spec_revision, task?.state, task?.code_workspace_binding ?? null]);
   const boundChoice = taskId && !task ? null : boundWorkspaceChoice(task, project, projectId, workspaces);
-  const boundUsable = taskFresh && (boundChoice === undefined || typeof boundChoice === 'string' && boundChoice === workspaceId);
+  const preparation = taskObservation?.context === taskSourceContext ? taskObservation.preparation : null;
+  const unboundDraft = !!taskId && task?.state === 'draft' && task.code_workspace_binding == null && !project?.archived;
+  // Only the checked resolver classifies coding; project labels/goal text are
+  // never authority. An unresolved draft cannot fall back to another worktree.
+  const unboundManual = preparation?.state === 'needs_dataset_selection' || preparation?.state === 'needs_registered_project';
+  const unboundBlocked = unboundDraft && !unboundManual;
+  const needsTaskWorkspace = unboundDraft && taskFresh && preparation?.state === 'needs_git_workspace';
+  const boundUsable = taskFresh && !unboundBlocked && (boundChoice === undefined || typeof boundChoice === 'string' && boundChoice === workspaceId);
   const scopeCurrent = connected && scopeReady && scopeProject === projectId;
   const selectionContext = JSON.stringify([taskContext, workspaceId, connectionId, attempts, concurrency, duration]);
   const selectionCurrent = useRef(selectionContext); selectionCurrent.current = selectionContext;
@@ -110,13 +120,21 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
     if (!initialSelectionReady || taskSourceCurrent.current.context !== taskSourceContext || taskSourceCurrent.current.connected !== connected) return;
     const request = ++taskRequest.current; setTaskReadReady(false);
     if (!taskId || !connected) { setTaskReading(false); return; }
-    setTaskReading(true); setAcknowledged(false); setGrantId(''); setGrantContext('');
+    setTaskReading(true); setError(''); setAcknowledged(false); setGrantId(''); setGrantContext('');
     try {
       const record = parseTaskWithWorkspaceBinding(await api.taskGet(taskId), taskId);
       if (request !== taskRequest.current || taskSourceCurrent.current.context !== taskSourceContext || !taskSourceCurrent.current.connected) return;
       const floor = taskFloors.current.get(taskId), binding = record.code_workspace_binding, prior = floor?.code_workspace_binding;
       if (record.project_id !== projectId || record.revision < (parentTask?.revision ?? 0) || floor && (record.revision < floor.revision || prior && (!binding || binding.revision < prior.revision || binding.receipt.request_digest !== prior.receipt.request_digest || binding.receipt.request_key !== prior.receipt.request_key || binding.receipt.binding_id !== prior.receipt.binding_id))) throw new Error(t.scopeStale);
-      taskFloors.current.set(taskId, record); setTaskObservation({ context: taskSourceContext, task: record }); setTaskReadReady(true);
+      let resolved: CodeWorkspacePreparation | null = null;
+      if (record.state === 'draft' && record.code_workspace_binding == null && !project?.archived) {
+        if (record.project_id !== 'local' && (!project || !Number.isSafeInteger(project.revision) || project.revision < 1)) throw new Error(t.scopeStale);
+        const selection = { task_id: record.id, expected_task_revision: record.revision, expected_project_revision: project?.revision ?? 0, host_id: 'local' as const };
+        resolved = parseCodeWorkspacePreparation(await api.workspacesResolve(selection), selection);
+        if (resolved.project_id !== record.project_id || resolved.spec_revision !== record.spec_revision) throw new Error(t.scopeStale);
+      }
+      if (request !== taskRequest.current || taskSourceCurrent.current.context !== taskSourceContext || !taskSourceCurrent.current.connected) return;
+      taskFloors.current.set(taskId, record); setTaskObservation({ context: taskSourceContext, task: record, preparation: resolved }); setTaskReadReady(true);
     } catch (e) { if (request === taskRequest.current && taskSourceCurrent.current.context === taskSourceContext) { setTaskReadReady(false); setError(e instanceof Error ? e.message : String(e)); } }
     finally { if (request === taskRequest.current && taskSourceCurrent.current.context === taskSourceContext) setTaskReading(false); }
   }, [taskSourceContext, taskId, projectId, connected, parentTask?.revision, t.scopeStale, initialSelectionReady]);
@@ -138,13 +156,22 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   useEffect(() => {
     const previous = previousTaskContext.current, changed = previous.context !== taskContext;
     if (changed) { setAcknowledged(false); setGrantId(''); setGrantContext(''); }
-    if (boundChoice !== undefined) {
+    if (taskFresh && unboundBlocked) setWorkspaceId('');
+    else if (boundChoice !== undefined) {
       if (!taskFresh) setWorkspaceId('');
       else if (scopeCurrent) setWorkspaceId(boundChoice ?? '');
       else if (changed) setWorkspaceId('');
     } else if (previous.projectId !== projectId || previous.taskId !== taskId && previous.taskId !== '') setWorkspaceId('');
     previousTaskContext.current = { projectId, taskId, context: taskContext };
-  }, [taskContext, taskId, projectId, boundChoice, scopeCurrent, taskFresh]);
+  }, [taskContext, taskId, projectId, boundChoice, scopeCurrent, taskFresh, unboundBlocked]);
+
+
+  const bindingReady = useCallback((readyTaskId: string) => {
+    if (!initialSelectionReady || readyTaskId !== taskId || taskSourceCurrent.current.context !== taskSourceContext || !taskSourceCurrent.current.connected) return;
+    // Notification is not evidence/authority; obtain our own current Task and
+    // workspace/Grant lists before the existing bound-choice path is usable.
+    void refreshTask(); void refreshScope();
+  }, [initialSelectionReady, taskId, taskSourceContext, refreshTask, refreshScope]);
 
   const refreshEvidence = useCallback(async (id: string) => {
     const request = ++evidenceRequest.current;
@@ -223,13 +250,15 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
     <fieldset disabled={busy || !connected} className="session-scope"><legend>{t.grantTitle}</legend>
       <label htmlFor="session-project">{t.project}</label><select id="session-project" value={projectId} onChange={event => onProjectChange(event.target.value)}><option value="">{t.choose}</option>{projects.filter(record => !record.archived).map(record => <option key={record.id} value={record.id}>{record.name}</option>)}</select>
       <label htmlFor="session-task">{t.task}</label><select id="session-task" value={taskId} onChange={event => setTaskId(event.target.value)}><option value="">{t.choose}</option>{tasks.filter(record => record.project_id === projectId).map(record => <option key={record.id} value={record.id} disabled={record.state !== 'draft'}>{record.goal} ({record.state})</option>)}</select>
-      <label htmlFor="session-workspace">{t.workspace}</label><select id="session-workspace" value={workspaceId} disabled={!initialSelectionReady || !scopeCurrent || boundChoice !== undefined} onChange={event => { if (boundChoice === undefined) setWorkspaceId(event.target.value); }}><option value="">{t.choose}</option>{workspaces.filter(record => record.project_id === projectId).map(record => <option key={record.id} value={record.id} disabled={record.state !== 'ready'}>{record.root} ({record.state})</option>)}</select>
+      <label htmlFor="session-workspace">{t.workspace}</label><select id="session-workspace" value={workspaceId} disabled={!initialSelectionReady || !scopeCurrent || unboundBlocked || boundChoice !== undefined} onChange={event => { if (boundChoice === undefined) setWorkspaceId(event.target.value); }}><option value="">{t.choose}</option>{workspaces.filter(record => record.project_id === projectId).map(record => <option key={record.id} value={record.id} disabled={record.state !== 'ready'}>{record.root} ({record.state})</option>)}</select>
       <label htmlFor="session-connection">{t.connection}</label><select id="session-connection" value={connectionId} onChange={event => setConnectionId(event.target.value)}><option value="">{t.choose}</option>{connections.map(record => <option key={record.id} value={record.id} disabled={record.probe_state !== 'ready'}>{record.name} ({record.probe_state})</option>)}</select>
       <label htmlFor="grant-attempts">{t.attempts}</label><input id="grant-attempts" type="number" min={1} max={100} value={attempts} onChange={event => setAttempts(Number(event.target.value))} />
       <label htmlFor="grant-concurrency">{t.concurrency}</label><input id="grant-concurrency" type="number" min={1} max={attempts} value={concurrency} onChange={event => setConcurrency(Number(event.target.value))} />
       <label htmlFor="grant-duration">{t.duration}</label><input id="grant-duration" type="number" min={1} max={3600} value={duration} onChange={event => setDuration(Number(event.target.value))} />
     </fieldset>
     {task?.code_workspace_binding != null && <p className="hint" role="status">{boundChoice === null || !taskFresh || !scopeCurrent ? t.taskWorkspaceUnavailable : t.taskWorkspaceLocated} {t.taskWorkspaceNotAuthority}</p>}
+    {needsTaskWorkspace && task && <div data-testid="session-task-workspace-entry"><p>{codeText.executionWorkspace}</p><TaskCodeWorkspace key={`${initialSelectionStamp}:${task.id}`} task={task} language={language} connected={connected} autoOpen onBindingReady={bindingReady} /></div>}
+    {unboundDraft && !taskFresh && <p className="hint">{taskReading ? codeText.executionChecking : codeText.executionRetry}</p>}
     <dl><dt>{t.recipient}</dt><dd>{connection ? `${connection.name} · ${connection.provider} · ${connection.identity_ref} (${connection.identity_status})` : t.choose}</dd><dt>{t.writable}</dt><dd>{workspace?.root ?? t.choose}</dd><dt>{t.host}</dt><dd>{connection?.host_id ?? t.unknown}</dd></dl>
     <p>{t.grantHelp}</p><p>{t.advisory}</p><p>{t.nativeConfirmation}</p><p className="hint">{t.noCredentials}</p>
     <label className="acknowledgement"><input type="checkbox" checked={acknowledgedCurrent} disabled={busy || !canGrant} onChange={event => { setAcknowledged(event.target.checked); setAcknowledgementContext(selectionContext); }} />{t.acknowledgement}</label>

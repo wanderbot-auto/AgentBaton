@@ -1,5 +1,6 @@
 export const taskCodeWorkspaceMessages = {
   en: {
+    executionWorkspace: 'Prepare this task’s own code workspace before authorizing execution.', executionChecking: 'Checking this task’s workspace needs…', executionRetry: 'Refresh task records to check workspace requirements.',
     title: 'Task code workspace', refresh: 'Check workspace preparation', prepare: 'Prepare isolated Git workspace for this task', recover: 'Recover the exact preparation', revalidate: 'Revalidate the original binding',
     intro: 'Bind an isolated Git worktree to this task. This does not start an agent or grant execution permission.',
     disconnected: 'Connect to the local daemon to read this task’s workspace.', loading: 'Reading task and project…',
@@ -17,6 +18,7 @@ export const taskCodeWorkspaceMessages = {
     error: 'Workspace preparation failed.', invalid: 'Workspace evidence does not match this task or its observed revisions.', capacity: 'Too many unresolved workspace requests. Reconcile an existing request first.', details: 'Binding and receipt details', bindingId: 'Binding ID', workspaceId: 'Workspace ID', requestDigest: 'Original request digest', sourceDevice: 'Source device', sourceInode: 'Source inode', managedHead: 'Observed workspace revision', observedRoot: 'Observed workspace root',
   },
   zh: {
+    executionWorkspace: '执行授权前，请先准备此任务独立的代码工作区。', executionChecking: '正在检查此任务的工作区需求…', executionRetry: '请刷新任务记录，重新检查工作区需求。',
     title: '任务代码工作区', refresh: '检查工作区准备状态', prepare: '为此任务准备隔离 Git 工作区', recover: '恢复原准备请求', revalidate: '重新核验原绑定',
     intro: '将隔离的 Git 工作树绑定到此任务。此操作不会启动 Agent 或授予执行权限。',
     disconnected: '连接本地守护进程后才能读取任务工作区。', loading: '正在读取任务与项目…',

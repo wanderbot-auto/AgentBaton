@@ -178,6 +178,26 @@ describe('Task code workspace component / mocked fixed daemon transport only', (
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('does not match'));
     expect(recover()).toBeDisabled(); expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce();
   });
+  it('optionally opens read-only and notifies once after its own ready identity observation, without changing default detail behavior', async () => {
+    const user = userEvent.setup(), f = fixture(), notify = vi.fn(); setup(f);
+    vi.mocked(api.workspacesPrepareTaskGit).mockImplementation(async (_, key) => { const view = f.view(key); vi.mocked(api.taskGet).mockResolvedValue({ ...f.task, revision: 3, code_workspace_binding: view.binding }); return view; });
+    render(<TaskCodeWorkspace task={f.task} language="en" connected autoOpen onBindingReady={notify} />);
+    expect(screen.getByTestId('task-code-workspace')).toHaveAttribute('open'); await waitFor(() => expect(prepare()).toBeEnabled()); expect(notify).not.toHaveBeenCalled(); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled();
+    await user.click(prepare()); await waitFor(() => expect(notify).toHaveBeenCalledExactlyOnceWith(f.task.id));
+    await user.click(refresh()); await waitFor(() => expect(refresh()).toBeEnabled()); expect(notify).toHaveBeenCalledOnce(); expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce();
+  });
+  it('does not notify on a stored binding after a lost reply until the original request is explicitly recovered', async () => {
+    const user = userEvent.setup(), f = fixture(), notify = vi.fn(); setup(f);
+    vi.mocked(api.workspacesPrepareTaskGit).mockImplementationOnce(async (_, key) => { const view = f.view(key); vi.mocked(api.taskGet).mockResolvedValue({ ...f.task, revision: 3, code_workspace_binding: view.binding }); throw new Error('reply lost'); }).mockImplementationOnce(async (_, key) => f.view(key));
+    render(<TaskCodeWorkspace task={f.task} language="en" connected autoOpen onBindingReady={notify} />); await waitFor(() => expect(prepare()).toBeEnabled()); await user.click(prepare()); await screen.findByText(/Request outcome unknown/); expect(notify).not.toHaveBeenCalled(); const original = vi.mocked(api.workspacesPrepareTaskGit).mock.calls[0];
+    await user.click(refresh()); await waitFor(() => expect(recover()).toBeEnabled()); expect(notify).not.toHaveBeenCalled(); await user.click(recover()); await waitFor(() => expect(notify).toHaveBeenCalledExactlyOnceWith(f.task.id)); expect(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[1]).toEqual(original);
+  });
+  it('does not notify a completed old request after the component has switched to another Task', async () => {
+    const user = userEvent.setup(), f = fixture(), next = fixture(), notify = vi.fn(), gate = deferred<TaskWorkspaceBindingView>(); setup(f); vi.mocked(api.workspacesPrepareTaskGit).mockReturnValue(gate.promise);
+    const page = render(<TaskCodeWorkspace task={f.task} language="en" connected autoOpen onBindingReady={notify} />); await waitFor(() => expect(prepare()).toBeEnabled()); await user.click(prepare()); const originalKey = vi.mocked(api.workspacesPrepareTaskGit).mock.calls[0][1];
+    vi.mocked(api.taskGet).mockResolvedValue(next.task); vi.mocked(api.workspacesResolve).mockResolvedValue(next.preparation); page.rerender(<TaskCodeWorkspace task={next.task} language="en" connected autoOpen onBindingReady={notify} />);
+    await act(async () => { gate.resolve(f.view(originalKey)); }); expect(notify).not.toHaveBeenCalled();
+  });
   it('uses Chinese task-scoped labels and keyboard activation without an implicit write', async () => {
     const user = userEvent.setup(), f = fixture(); setup(f); render(<TaskCodeWorkspace task={f.task} language="zh" connected />); const summary = screen.getByText('任务代码工作区', { selector: 'summary' }); summary.focus(); await user.keyboard('{Enter}');
     // jsdom need not synthesize native details keyboard behavior; explicit toggle is a DOM event, not a backend success.

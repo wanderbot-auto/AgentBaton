@@ -5,7 +5,7 @@ import { api, DaemonError, type ManagedWorkspace, type Project, type Task } from
 import { ManagedSessions, initialTaskSelectionCurrent } from './ManagedSessions';
 import { sessionApi, type ExecutionGrant, type NamedConnection } from './session-api';
 import type { TaskWorkspaceBinding } from './task-workspace-binding-wire';
-vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { taskGet: vi.fn(), workspacesList: vi.fn(), snapshot: vi.fn(), events: vi.fn() } }));
+vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { taskGet: vi.fn(), workspacesResolve: vi.fn(), workspacesList: vi.fn(), snapshot: vi.fn(), events: vi.fn() } }));
 vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn(), grantsList: vi.fn(), grantsCreate: vi.fn(), grantsRevoke: vi.fn(), sessionsCreate: vi.fn(), sessionsGet: vi.fn(), sessionsSend: vi.fn(), sessionsCancel: vi.fn() } }));
 const date = '2026-10-29T00:00:00Z';
 let serial = 0;
@@ -31,6 +31,10 @@ const refresh = () => screen.getByRole('button', { name: 'Refresh session record
 function deferred<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>(done => { resolve = done; }); return { promise, resolve }; }
 function setup(f: ReturnType<typeof fixture>) {
   vi.mocked(api.taskGet).mockImplementation(async id => { if (id !== f.task.id) throw new Error('Unknown test Task'); return f.task; });
+  vi.mocked(api.workspacesResolve).mockImplementation(async selection => {
+    if (selection.task_id !== f.task.id || selection.expected_task_revision !== f.task.revision || selection.expected_project_revision !== f.project.revision || f.project.identity.kind.kind !== 'directory') throw new Error('Expected explicit directory fixture, not a coding bypass');
+    return { task_id: f.task.id, task_revision: f.task.revision, spec_revision: f.task.spec_revision!, project_id: f.project.id, project_revision: f.project.revision, host_id: 'local', source: { canonical_root: '/source', device: '1', inode: '2', kind: { kind: 'directory' } }, source_head: null, preparation_key: null, state: 'needs_dataset_selection', reason: 'selected_dataset_required', candidates: [], execution_authorized: false, creates_workspace: false };
+  });
   vi.mocked(api.workspacesList).mockResolvedValue([f.other, f.workspace]);
   vi.mocked(api.snapshot).mockResolvedValue({ tasks: [f.task], sequence: 0, api_version: 1 });
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
@@ -142,7 +146,7 @@ describe('Task-bound session selection / mocked fixed read and native transport;
     vi.mocked(api.taskGet).mockResolvedValue({ ...f.task, revision: 2 }); await user.click(refresh()); await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Refresh records after changing')); expect(create()).toBeDisabled();
   });
   it('keeps an unbound legacy Task workspace explicitly user-selected across unrelated readonly refresh', async () => {
-    const user = userEvent.setup(), f = fixture(); f.task = { ...f.task, code_workspace_binding: null }; setup(f); render(element(f));
+    const user = userEvent.setup(), f = fixture(); f.task = { ...f.task, code_workspace_binding: null }; f.project.identity = { ...f.project.identity, kind: { kind: 'directory' } }; setup(f); render(element(f));
     await waitFor(() => expect(workspacePicker()).toBeEnabled()); expect(workspacePicker()).toHaveValue(''); await user.selectOptions(workspacePicker(), f.other.id); await user.click(refresh());
     await waitFor(() => expect(workspacePicker()).toBeEnabled()); expect(workspacePicker()).toHaveValue(f.other.id); expect(sessionApi.grantsCreate).not.toHaveBeenCalled();
   });
@@ -153,7 +157,7 @@ describe('Task-bound session selection / mocked fixed read and native transport;
     expect(sessionApi.grantsCreate).toHaveBeenCalledExactlyOnceWith({ project_id: f.project.id, workspace_id: f.other.id, connection_id: f.connection.id, max_attempts: 1, max_concurrency: 1, max_duration_ms: 60000 }, expect.any(String)); expect(create()).toBeDisabled(); expect(api.taskGet).not.toHaveBeenCalled();
   });
   it('does not replace a user’s manual workspace after a same-Task unbound revision refresh', async () => {
-    const user = userEvent.setup(), f = fixture(); f.task = { ...f.task, code_workspace_binding: null }; setup(f); const page = render(element(f)); await waitFor(() => expect(workspacePicker()).toBeEnabled()); await user.selectOptions(workspacePicker(), f.other.id);
+    const user = userEvent.setup(), f = fixture(); f.task = { ...f.task, code_workspace_binding: null }; f.project.identity = { ...f.project.identity, kind: { kind: 'directory' } }; setup(f); const page = render(element(f)); await waitFor(() => expect(workspacePicker()).toBeEnabled()); await user.selectOptions(workspacePicker(), f.other.id);
     f.task = { ...f.task, revision: 2 }; page.rerender(element(f)); await waitFor(() => expect(api.taskGet).toHaveBeenCalledTimes(2)); expect(workspacePicker()).toHaveValue(f.other.id); expect(sessionApi.sessionsCreate).not.toHaveBeenCalled();
   });
   it('shows the Chinese convenience-only boundary without granting permission on selection', async () => {

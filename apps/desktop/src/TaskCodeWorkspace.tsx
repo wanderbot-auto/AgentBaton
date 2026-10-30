@@ -5,7 +5,7 @@ import { parseTaskWithWorkspaceBinding, parseTaskWorkspaceBindingView, validateT
 import { parseCodeWorkspacePreparation, type CodeWorkspacePreparation } from './workspace-preparation-wire';
 import { taskCodeWorkspaceMessages } from './task-code-workspace-i18n';
 
-type Props = { task: Task; language: Language; connected: boolean };
+type Props = { task: Task; language: Language; connected: boolean; autoOpen?: boolean; onBindingReady?: (taskId: string) => void };
 type Intent = { projectId: string; selection: TaskGitWorkspacePreparation; key: string; uncertain: boolean; reconciled: boolean };
 type Observation = { value: TaskWorkspaceBindingView; at: string };
 type Memory = { active: number; pending: Intent | null; observed: Observation | null; taskFloor: number; bindingFloor: number; receiptFloor: TaskWorkspaceReservationReceipt | null; writing: boolean };
@@ -24,8 +24,8 @@ const unknown = (error: unknown) => !(error instanceof DaemonError) || !['none',
 type Read = { task: Task; project: Project | null; preparation: CodeWorkspacePreparation | null; parentIdentity: string };
 
 export function TaskCodeWorkspace(props: Props) {
-  const [open, setOpen] = useState(false), [started, setStarted] = useState(false);
-  return <details className="task-code-workspace" data-testid="task-code-workspace" onToggle={event => { setOpen(event.currentTarget.open); if (event.currentTarget.open) setStarted(true); }}>
+  const [open, setOpen] = useState(props.autoOpen ?? false), [started, setStarted] = useState(props.autoOpen ?? false);
+  return <details className="task-code-workspace" data-testid="task-code-workspace" open={open} onToggle={event => { setOpen(event.currentTarget.open); if (event.currentTarget.open) setStarted(true); }}>
     <summary>{taskCodeWorkspaceMessages[props.language].title}</summary>
     {started && <WorkspacePanel key={props.task.id} {...props} open={open} />}
   </details>;
@@ -122,6 +122,14 @@ function WorkspacePanel(props: Props & { open: boolean }) {
   }
   const receipt = currentBinding?.receipt ?? observed?.value.original_receipt;
   const revalidated = !!observed && !!currentBinding && equal(observed.value.binding, currentBinding) && !staleBinding && fresh && read?.parentIdentity === fingerprint(props.task);
+  const notifiedObservation = useRef<Observation | null>(null);
+  useEffect(() => {
+    if (!props.onBindingReady || !mounted.current || !current.current.connected || !revalidated || !read || read.parentIdentity !== fingerprint(current.current.task) || !observed || saved.observed !== observed || pending || saved.pending || busy || saved.writing || currentBinding?.state !== 'ready' || notifiedObservation.current === observed) return;
+    // One local notification per successful identity observation. The recipient
+    // must reread its own Task/scope; no proof or permission is transferred.
+    notifiedObservation.current = observed;
+    try { props.onBindingReady(read.task.id); } catch { setError(t.unavailable); }
+  }, [props.onBindingReady, revalidated, read, observed, pending, busy, saved, currentBinding, t.unavailable]);
   return <section aria-label={t.title} aria-busy={loading || busy}>
     <p>{t.intro}</p><button type="button" disabled={!props.connected || loading || busy || saved.writing} onClick={() => void refresh()}>{t.refresh}</button>
     {!props.connected && <p>{t.disconnected}</p>}{loading && <p role={props.open ? 'status' : undefined}>{t.loading}</p>}{error && <p className="error" role={props.open ? 'alert' : undefined}>{error}</p>}{capacity && <p>{t.capacity}</p>}
