@@ -1927,3 +1927,448 @@ fn policy_revoked_before_acceptance_cannot_be_rearmed_by_owner_or_any_start_key(
     assert_eq!(source_image(&f.source()), before_source);
     assert_eq!(source_image(&f.project_root), before_project);
 }
+
+// The observer owns only its short-lived ps subprocess. It never signals a
+// product PID. The observed token is correlation data, never permission.
+struct OwnedPs {
+    child: std::process::Child,
+    reaped: bool,
+}
+impl Drop for OwnedPs {
+    fn drop(&mut self) {
+        if !self.reaped {
+            let _ = self.child.kill();
+            let _ = self.child.wait();
+        }
+    }
+}
+fn bounded_ps(args: &[&str]) -> String {
+    use std::io::Read;
+    use std::os::fd::AsRawFd;
+    fn nonblocking(pipe: &impl AsRawFd) {
+        let fd = pipe.as_raw_fd();
+        let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
+        assert!(flags >= 0);
+        assert_eq!(
+            unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) },
+            0
+        );
+    }
+    fn pump(pipe: &mut impl Read, out: &mut Vec<u8>, cap: usize, deadline: Instant) -> bool {
+        let mut buffer = [0; 8192];
+        loop {
+            assert!(
+                Instant::now() < deadline,
+                "read-only ps observation timed out"
+            );
+            match pipe.read(&mut buffer) {
+                Ok(0) => return true,
+                Ok(n) => {
+                    assert!(out.len() + n <= cap, "read-only ps output bound exceeded");
+                    out.extend_from_slice(&buffer[..n]);
+                }
+                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => return false,
+                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => (),
+                Err(_) => panic!("read-only ps pipe failed"),
+            }
+        }
+    }
+    let deadline = Instant::now() + Duration::from_millis(500);
+    let child = Command::new("ps")
+        .args(args)
+        .env("LC_ALL", "C")
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    let mut owned = OwnedPs {
+        child,
+        reaped: false,
+    };
+    let mut stdout = owned.child.stdout.take().unwrap();
+    let mut stderr = owned.child.stderr.take().unwrap();
+    nonblocking(&stdout);
+    nonblocking(&stderr);
+    let (mut out, mut err) = (Vec::new(), Vec::new());
+    let (mut out_eof, mut err_eof) = (false, false);
+    loop {
+        assert!(
+            Instant::now() < deadline,
+            "read-only ps observation timed out"
+        );
+        if !out_eof {
+            out_eof = pump(&mut stdout, &mut out, 1024 * 1024, deadline);
+        }
+        if !err_eof {
+            err_eof = pump(&mut stderr, &mut err, 4096, deadline);
+        }
+        if let Some(status) = owned.child.try_wait().unwrap() {
+            owned.reaped = true;
+            assert!(status.success(), "read-only ps command returned nonzero");
+            if out_eof && err_eof {
+                break;
+            }
+        }
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    assert!(err.is_empty(), "read-only ps emitted diagnostic output");
+    String::from_utf8(out).unwrap()
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ObservedCommandIdentity {
+    pid: u32,
+    parent: u32,
+    group: u32,
+    uid: u32,
+}
+fn numeric_ps_row(line: &str) -> (ObservedCommandIdentity, &str) {
+    let mut words = line.split_whitespace();
+    let mut number = || words.next().unwrap().parse::<u32>().unwrap();
+    let identity = ObservedCommandIdentity {
+        pid: number(),
+        parent: number(),
+        group: number(),
+        uid: number(),
+    };
+    let state = words.next().unwrap();
+    assert!(words.next().is_none(), "unexpected numeric ps columns");
+    (identity, state)
+}
+fn stopped_command_identity(program: &Path, token: &str) -> ObservedCommandIdentity {
+    let started = Instant::now();
+    let parent = std::process::id();
+    let uid = unsafe { libc::geteuid() };
+    let expected = format!("{} -c kill -STOP \"$$\"; exit 0 {token}", program.display());
+    loop {
+        let numeric = bounded_ps(&["-axo", "pid=,ppid=,pgid=,uid=,stat="]);
+        let mut matches = Vec::new();
+        for line in numeric.lines().filter(|s| !s.trim().is_empty()) {
+            let (identity, state) = numeric_ps_row(line);
+            if identity.parent != parent
+                || identity.uid != uid
+                || identity.pid != identity.group
+                || !state.starts_with('T')
+            {
+                continue;
+            }
+            // Read argv only after numeric ownership matches this test's own
+            // stopped child/process-group leader. Never collect all host argv.
+            let pid = identity.pid.to_string();
+            let full = bounded_ps(&["-p", &pid, "-ww", "-o", "pid=,ppid=,pgid=,uid=,stat=,args="]);
+            let lines = full
+                .lines()
+                .filter(|s| !s.trim().is_empty())
+                .collect::<Vec<_>>();
+            assert_eq!(lines.len(), 1);
+            let mut offset = 0;
+            for _ in 0..5 {
+                while offset < lines[0].len() && lines[0].as_bytes()[offset].is_ascii_whitespace() {
+                    offset += 1;
+                }
+                while offset < lines[0].len() && !lines[0].as_bytes()[offset].is_ascii_whitespace()
+                {
+                    offset += 1;
+                }
+            }
+            let (again, again_state) = numeric_ps_row(&lines[0][..offset]);
+            assert_eq!(again, identity);
+            assert!(again_state.starts_with('T'));
+            let actual = lines[0][offset..].trim_start();
+            if actual == expected {
+                matches.push(identity);
+            }
+        }
+        assert!(
+            matches.len() <= 1,
+            "multiple own leaders matched one approved token"
+        );
+        if let Some(identity) = matches.pop() {
+            // A second independent ownership/state/argv observation immediately
+            // precedes the fresh runtime CAS read and real cancel request.
+            let pid = identity.pid.to_string();
+            let full = bounded_ps(&["-p", &pid, "-ww", "-o", "pid=,ppid=,pgid=,uid=,stat=,args="]);
+            let lines = full
+                .lines()
+                .filter(|s| !s.trim().is_empty())
+                .collect::<Vec<_>>();
+            assert_eq!(lines.len(), 1);
+            let mut offset = 0;
+            for _ in 0..5 {
+                while offset < lines[0].len() && lines[0].as_bytes()[offset].is_ascii_whitespace() {
+                    offset += 1;
+                }
+                while offset < lines[0].len() && !lines[0].as_bytes()[offset].is_ascii_whitespace()
+                {
+                    offset += 1;
+                }
+            }
+            let (again, state) = numeric_ps_row(&lines[0][..offset]);
+            assert_eq!(again, identity);
+            assert!(state.starts_with('T'));
+            assert_eq!(&lines[0][offset..].trim_start(), &expected);
+            return identity;
+        }
+        assert!(
+            started.elapsed() < Duration::from_secs(5),
+            "approved command leader was not observed stopped"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    }
+}
+fn original_command_identity_is_gone(original: &ObservedCommandIdentity) -> bool {
+    // No signal and no argv scan. A different reused PID is not the original
+    // child; the actual joined Core receipt remains the stop proof.
+    !bounded_ps(&["-axo", "pid=,ppid=,pgid=,uid=,stat="])
+        .lines()
+        .filter(|s| !s.trim().is_empty())
+        .any(|line| numeric_ps_row(line).0 == *original)
+}
+impl RuntimeFixture {
+    fn stopping_command_definition(&self, candidate: &Value, token: &str) -> Value {
+        assert!(token
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-'));
+        approved(
+            &self.server,
+            "command_validation_policies.propose",
+            json!({"session_id":candidate["session_id"],"executable":self.validator_program,"mode":"native_executable","script":null,
+            "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
+            "outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],
+            "arguments":["-c","kill -STOP \"$$\"; exit 0",token],"environment":{},"expected_exit_codes":[0],"wall_time_ms":3000,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
+            "require":{"filesystem_isolation":false,"network_isolation":false,"process_tree_containment":false,"execution_time_input_immutability":false,"auxiliary_source_immutability":false,"sealed_executable_image":false}}),
+            "owned-stopped-command-definition",
+        )
+    }
+}
+
+#[test]
+fn cancelling_actual_owned_merged_validator_reaps_without_cas_or_refunding_attempts() {
+    let f = RuntimeFixture::new();
+    let ready = f.owner_ready();
+    let token = format!("integration-cancel-{}", uuid::Uuid::new_v4());
+    let definition = f.stopping_command_definition(&ready["candidates"][0], &token);
+    let original_command = OriginalCommand::capture(&f, &definition);
+    let accepted = f.accept();
+    let before_source = source_image(&f.source());
+    let before_project = source_image(&f.project_root);
+    let policy = f.approve_integration(&definition);
+    let start = rpc(
+        &f.server,
+        "integrations.start",
+        json!({"policy_id":policy["id"]}),
+        Some("cancel-case-start"),
+        Some(policy["revision"].clone()),
+    );
+    let identity = stopped_command_identity(&f.validator_program, &token);
+    let live = rpc(
+        &f.server,
+        "integrations.get",
+        json!({"integration_id":start["run"]["id"]}),
+        None,
+        None,
+    );
+    assert_eq!(live["run"]["active_stage"], "validator");
+    assert_eq!(live["attempts"].as_array().unwrap().len(), 2);
+    assert_eq!(live["attempts"][1]["kind"], "validator");
+    assert_eq!(live["attempts"][1]["settled"], false);
+    let cancel = rpc(
+        &f.server,
+        "integrations.cancel",
+        json!({"integration_id":start["run"]["id"]}),
+        Some("cancel-actual-owned-validator"),
+        Some(live["run"]["revision"].clone()),
+    );
+    assert_eq!(cancel["run"]["state"], "cancel_requested");
+    assert_eq!(cancel["run"]["cancel_requested"], true);
+    assert_eq!(
+        cancel["attempts"][1]["settled"], false,
+        "cancel intent is not a joined stop receipt"
+    );
+    let stopped = observe(
+        &f.server,
+        "integrations.get",
+        json!({"integration_id":start["run"]["id"]}),
+        |v| {
+            let state = v["run"]["state"].as_str().unwrap();
+            assert!(
+                !matches!(
+                    state,
+                    "outcome_unknown"
+                        | "blocked"
+                        | "failed"
+                        | "confirmed_local_ref"
+                        | "stale_target"
+                ),
+                "actual running cancellation did not close: {state}/{}",
+                v["run"]["last_error"]["code"]
+            );
+            state == "cancelled"
+        },
+    );
+    let run = &stopped["run"];
+    assert_eq!(run["cancel_requested"], true);
+    assert_eq!(run["last_error"]["code"], "CANCEL_REQUESTED");
+    assert_eq!(run["active_stage"], Value::Null);
+    assert_eq!(run["io_completion"], "worker_joined");
+    assert_eq!(stopped["fence"]["state"], "released");
+    assert_eq!(run["acceptance_ref"], accepted["task_acceptance"]["id"]);
+    let attempts = stopped["attempts"].as_array().unwrap();
+    assert_eq!(attempts.len(), 2);
+    for attempt in attempts {
+        assert_eq!(attempt["state"], "finished");
+        assert_eq!(attempt["settled"], true);
+        assert_eq!(attempt["io_completion"], "worker_joined");
+        assert!(
+            attempt["actual_runtime_ms"].as_u64().unwrap()
+                <= attempt["reservation"]["runtime_ms"].as_u64().unwrap()
+        );
+    }
+    assert_eq!(attempts[1]["kind"], "validator");
+    assert_eq!(attempts[1]["last_error"]["code"], "CANCEL_REQUESTED");
+    let receipts = run["validation_receipts"].as_array().unwrap();
+    assert_eq!(receipts.len(), 1);
+    let validation = &receipts[0];
+    assert_eq!(validation["passed"], false);
+    assert_eq!(validation["stop_confirmed"], true);
+    assert_eq!(validation["worker_joined"], true);
+    assert_eq!(validation["attempt_id"], attempts[1]["attempt_id"]);
+    assert_eq!(validation["integration_commit"], run["integration_commit"]);
+    assert_eq!(validation["integration_tree"], run["integration_tree"]);
+    let db = readonly(&f);
+    original_command.assert_unchanged(&f, &db);
+    let all = events(&db);
+    let observed = unique_event(&all, "integration.validator_observed", &run["id"]);
+    let view = &observed.1["payload"]["view"];
+    assert_eq!(observed.0, validation["sequence"].as_u64().unwrap());
+    assert_eq!(
+        sha256(&serde_json::to_vec(view).unwrap()),
+        validation["result_digest"]
+    );
+    assert_eq!(
+        view["contract"]["arguments"],
+        definition["contract"]["arguments"]
+    );
+    assert_eq!(view["contract"]["wall_time_ms"], 3000);
+    assert_eq!(view["contract"]["cleanup_time_ms"], 500);
+    assert_eq!(
+        view["contract"]["file_contract"]["subject"]["attempt_id"],
+        validation["attempt_id"]
+    );
+    assert_eq!(
+        view["contract"]["file_contract"]["subject"]["version"]["integration_candidate"],
+        run["integration_commit"]
+    );
+    assert_eq!(
+        view["contract"]["file_contract"]["subject"]["version"]["tree"],
+        run["integration_tree"]
+    );
+    assert_eq!(view["process_started"], true);
+    assert_eq!(view["cancellation_observed"], true);
+    assert_eq!(view["reason"], "cancel_requested");
+    assert_eq!(view["passed"], false);
+    assert_eq!(
+        view["exit_observed_within_budget"], false,
+        "do not invent a natural within-budget success after cancellation"
+    );
+    assert_eq!(view["exit_code"], Value::Null);
+    assert_eq!(view["exit_signal"], libc::SIGKILL);
+    assert_eq!(view["cleanup_completed_within_budget"], true);
+    assert_eq!(view["cleanup"]["owned_leader_reaped"], true);
+    assert_eq!(view["cleanup"]["all_capture_pipes_observed_eof"], true);
+    assert!(
+        view["process_and_cleanup_elapsed_ms"].as_u64().unwrap() < 3000,
+        "this case must cancel before the fixed command wall deadline"
+    );
+    assert!(original_command_identity_is_gone(&identity));
+    assert!(!all
+        .iter()
+        .any(|(_, e)| e["aggregate_id"] == run["id"] && e["kind"] == "integration.cas_observed"));
+    for stage in attempts {
+        let joined = all
+            .iter()
+            .filter(|(_, e)| {
+                e["aggregate_id"] == run["id"]
+                    && e["kind"] == "integration.attempt_joined"
+                    && e["payload"]["attempt_id"] == stage["attempt_id"]
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(joined.len(), 1);
+        assert_eq!(joined[0].1["payload"]["reservation_refunded"], false);
+    }
+    let count = |sql: &str| db.query_row(sql, [], |r| r.get::<_, i64>(0)).unwrap();
+    assert_eq!(count("SELECT count(*) FROM integration_attempts"), 2);
+    assert_eq!(
+        count("SELECT count(*) FROM integration_attempts WHERE kind='cas'"),
+        0
+    );
+    assert_eq!(count("SELECT count(*) FROM attempts"), 3);
+    assert_eq!(
+        count("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'"),
+        0
+    );
+    assert_eq!(
+        count("SELECT count(*) FROM workspace_leases WHERE holder!=''"),
+        0
+    );
+    let raw: String = db
+        .query_row(
+            "SELECT document FROM goal_run_reservations WHERE run_id=?1",
+            [f.graph["run"]["id"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let graph_cost: Value = serde_json::from_str(&raw).unwrap();
+    let runtime = graph_cost["actual_runtime_ms"].as_u64().unwrap()
+        + attempts
+            .iter()
+            .map(|a| a["actual_runtime_ms"].as_u64().unwrap())
+            .sum::<u64>();
+    let output = graph_cost["actual_output_bytes"].as_u64().unwrap()
+        + attempts
+            .iter()
+            .map(|a| a["actual_output_bytes"].as_u64().unwrap())
+            .sum::<u64>();
+    assert_eq!(output, 24);
+    for domain in ["root", "project"] {
+        assert_eq!(stopped["shared_usage"][domain]["attempts"], 3);
+        assert_eq!(stopped["shared_usage"][domain]["active"], 0);
+        assert_eq!(stopped["shared_usage"][domain]["runtime_ms"], runtime);
+        assert_eq!(stopped["shared_usage"][domain]["output_bytes"], output);
+    }
+    drop(db);
+    let image = f.server.image();
+    let replay = rpc(
+        &f.server,
+        "integrations.cancel",
+        json!({"integration_id":run["id"]}),
+        Some("cancel-actual-owned-validator"),
+        Some(live["run"]["revision"].clone()),
+    );
+    assert_eq!(replay, cancel);
+    assert_eq!(f.server.image(), image);
+    let accepted_after = rpc(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":f.graph["run"]["id"]}),
+        None,
+        None,
+    );
+    assert_eq!(accepted_after["task_accepted"], true);
+    assert_eq!(
+        accepted_after["task_acceptance"],
+        accepted["task_acceptance"]
+    );
+    assert_eq!(
+        git(&f.project_root, &["rev-parse", TARGET]),
+        f.initial_target
+    );
+    assert_eq!(source_image(&f.source()), before_source);
+    assert_eq!(source_image(&f.project_root), before_project);
+    // Also consume the actual daemon thread before the final ownership probe.
+    // The same Server/Daemon Drop path handles an earlier assertion panic and
+    // retains its generated root; this is not a separate dynamic panic test.
+    let mut f = f;
+    f.server.finish();
+    assert!(original_command_identity_is_gone(&identity));
+}
