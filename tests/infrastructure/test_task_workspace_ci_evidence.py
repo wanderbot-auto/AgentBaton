@@ -54,7 +54,10 @@ def report():
                               'table_counts': {name: 0 for name in P.TABLES}},
              'screenshots': [], 'http': [{'token': SECRET}], 'error': {'private': SECRET},
              'runtime': {'path': SECRET}, 'raw_report': SECRET}
-    value['checks'][-1].update(execution_authorized=False, confirmed_selection_steps=4, completed_task_get_responses=4)
+    next(row for row in value['checks'] if row['id'] == 'WSI-B05').update(execution_authorized=False, confirmed_selection_steps=4, completed_task_get_responses=4)
+    next(row for row in value['checks'] if row['id'] == 'WSI-B06').update(execution_authorized=False, prepare_requests=2, response_drops=1,
+        parent_refresh_recovery=True, same_component_retained=True, fresh_task_read=True, fresh_scope_lists=True,
+        locked_own_workspace=True, old_tasks_unchanged=True, source_unchanged=True, exact_replay_no_rows=True, no_execution_or_grants=True)
     for name in P.PNG_NAMES:
         kind = 'mobile' if 'mobile' in name else 'desktop'
         value['screenshots'].append({'name': name, 'sha256': P.sha(IMAGES[kind]),
@@ -99,7 +102,7 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
         if output.exists():
             self.assertFalse(any(path.suffix == '.png' for path in output.iterdir()))
 
-    def test_success_is_finite_five_cases_six_images_without_private_payload(self):
+    def test_success_is_finite_six_cases_eight_images_without_private_payload(self):
         original = self.write(); raw = (self.private / 'report.json').read_bytes()
         code, value, output = self.run_projection()
         self.assertEqual(code, 0); self.assertEqual(value['status'], 'passed')
@@ -159,8 +162,42 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
 
     def test_b05_does_not_coerce_boolean_or_numeric_execution_proof(self):
         for key, bad in [('execution_authorized', 0), ('execution_authorized', True), ('confirmed_selection_steps', 4.0), ('completed_task_get_responses', True), ('completed_task_get_responses', 3)]:
-            value = report(); value['checks'][-1][key] = bad; self.write(value)
+            value = report(); next(row for row in value['checks'] if row['id'] == 'WSI-B05')[key] = bad; self.write(value)
             code, result, out = self.run_projection(); self.assertEqual(code, 0); self.assertEqual(result['status'], 'failed'); self.assert_no_images(out)
+
+    def test_historical_five_cases_are_incomplete_or_invalid_never_new_success(self):
+        value = report(); value['checks'] = [r for r in value['checks'] if r['id'] != 'WSI-B06']
+        value['scenarios']['WSI-B06'] = 'NOT_RUN'; self.write(value)
+        code, result, out = self.run_projection()
+        self.assertEqual(code, 0); self.assertEqual(result['status'], 'failed'); self.assert_no_images(out)
+        value['scenarios'].pop('WSI-B06'); self.write(value)
+        self.assertEqual(self.run_projection()[0], 1)
+
+    def test_b06_requires_strict_real_recovery_proof_fields_not_truthy_or_old_b05(self):
+        fields = ['parent_refresh_recovery', 'same_component_retained', 'fresh_task_read', 'fresh_scope_lists',
+                  'locked_own_workspace', 'old_tasks_unchanged', 'source_unchanged', 'exact_replay_no_rows', 'no_execution_or_grants']
+        for field, invalid in [(key, 1) for key in fields] + [('execution_authorized', 0),
+                                ('prepare_requests', 2.0), ('prepare_requests', 1), ('response_drops', True), ('response_drops', 0)]:
+            with self.subTest(field=field, invalid=invalid):
+                value = report(); next(r for r in value['checks'] if r['id'] == 'WSI-B06')[field] = invalid
+                self.write(value); code, result, out = self.run_projection()
+                self.assertEqual(code, 0); self.assertEqual(result['status'], 'failed'); self.assert_no_images(out)
+        value = report(); row = next(r for r in value['checks'] if r['id'] == 'WSI-B06')
+        row.pop('same_component_retained'); self.write(value)
+        code, result, out = self.run_projection()
+        self.assertEqual(code, 0); self.assertEqual(result['status'], 'failed'); self.assert_no_images(out)
+
+    def test_new_recovery_screenshot_pair_required_and_private_http_fields_not_published(self):
+        value = self.write()
+        for name in P.PNG_NAMES[-2:]:
+            (self.private / name).unlink()
+        code, result, out = self.run_projection()
+        self.assertEqual(code, 1); self.assertEqual(result['status'], 'invalid'); self.assert_no_images(out)
+        value['entry_read_proofs'] = {'raw': SECRET, 'key': SECRET}
+        self.write(value)
+        code, result, out = self.run_projection()
+        self.assertEqual(code, 0); self.assertEqual(result['status'], 'passed')
+        self.assertNotIn('entry_read_proofs', result); self.assertNotIn(SECRET, json.dumps(result))
 
     def test_nullable_cleanup_absence_is_not_success(self):
         for name in P.NULL_CLEANUP:

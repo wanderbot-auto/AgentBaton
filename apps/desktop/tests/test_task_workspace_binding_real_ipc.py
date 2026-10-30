@@ -141,7 +141,7 @@ class FixedBoundaryTests(unittest.TestCase):
 
     def test_late_handler_browser_cleanup_failure_never_keeps_passed(self):
         good = {'flow_complete': True, 'http_errors': [], 'page_errors': [], 'cleanup': {'complete': True},
-                'checks': [{'id': f'WSI-B0{i}', 'status': 'passed'} for i in range(1, 6)]}
+                'checks': [{'id': f'WSI-B0{i}', 'status': 'passed'} for i in range(1, 7)]}
         self.assertEqual(h.seal_status(good), 0)
         for change in ({'http_errors': [{'stage': 'late_writer_failure'}]},
                        {'failure': {'stage': 'browser_close'}}, {'cleanup': {'complete': False}},
@@ -502,14 +502,14 @@ class ExpectedSourceHeadTests(unittest.TestCase):
 
 
 class ExecutionDialogTests(unittest.TestCase):
-    def test_success_requires_all_five_exact_checks_and_refuses_historical_four(self):
+    def test_success_requires_all_six_exact_checks_and_refuses_historical_four_or_five(self):
         base = {'flow_complete': True, 'http_errors': [], 'page_errors': [], 'cleanup': {'complete': True},
-                'checks': [{'id': f'WSI-B0{i}', 'status': 'passed'} for i in range(1, 6)]}
+                'checks': [{'id': f'WSI-B0{i}', 'status': 'passed'} for i in range(1, 7)]}
         self.assertEqual(h.seal_status(copy.deepcopy(base)), 0)
-        for checks in (base['checks'][:4], base['checks'][1:], base['checks'] + [base['checks'][0]],
+        for checks in (base['checks'][:4], base['checks'][:5], base['checks'][1:], base['checks'] + [base['checks'][0]],
                        base['checks'][:4]+[{'id': 'WSI-B04', 'status': 'passed'}],
                        base['checks'][:4]+[{'id': 'WSI-B05', 'status': 'failed'}],
-                       base['checks'][:4]+[{'id': 'WSI-B06', 'status': 'passed'}]):
+                       base['checks'][:5]+[{'id': 'WSI-B07', 'status': 'passed'}]):
             report = copy.deepcopy(base)
             report['checks'] = copy.deepcopy(checks)
             self.assertEqual(h.seal_status(report), 1)
@@ -574,6 +574,79 @@ class ExecutionDialogTests(unittest.TestCase):
         bad['code_workspace_binding']['receipt']['task_id'] = 'foreign'
         with self.assertRaises(ValueError):
             h.task_read_projection(bad)
+
+
+class ExecutionEntryRecoveryTests(unittest.TestCase):
+    """Finite receipt/delivery controls; synthetic entries never claim real UI."""
+    def setUp(self):
+        self.binding = {'state': 'ready', 'receipt': {'task_id': 'entry-task', 'workspace_id': 'entry-workspace', 'request_key': 'original-key'}}
+        self.task = {'id': 'entry-task', 'state': 'draft', 'revision': 3, 'code_workspace_binding': self.binding}
+        self.receipt_sha = h.sha(json.dumps(self.binding['receipt'], sort_keys=True).encode())
+        self.rows = [dict(method='workspaces.prepare_task_git', task_id='entry-task', request_sha256='a'*64,
+                          receipt_sha256=self.receipt_sha, result='result', reply_complete=False,
+                          phase='intentional_post_commit_response_drop'),
+                     dict(method='workspaces.prepare_task_git', task_id='entry-task', request_sha256='a'*64,
+                          receipt_sha256=self.receipt_sha, result='result', reply_complete=True, phase='complete')]
+        self.scope = [dict(method='workspaces.list', project_id='project', phase='complete', reply_complete=True,
+                           result='result', scope_projection={'project_id': 'project', 'workspace_ids': ['old-one', 'entry-workspace']}),
+                      dict(method='grants.list', project_id='project', phase='complete', reply_complete=True,
+                           result='result', scope_projection={'project_id': 'project', 'grant_count': 0})]
+
+    def test_exact_original_post_commit_drop_and_one_explicit_replay(self):
+        self.assertEqual(h.confirmed_entry_replay(self.rows, 0, self.task, self.binding),
+                         {'prepare_requests': 2, 'response_drops': 1, 'execution_authorized': False})
+        for rows in (self.rows[:1], self.rows + [copy.deepcopy(self.rows[-1])]):
+            with self.assertRaises(ValueError):
+                h.confirmed_entry_replay(rows, 0, self.task, self.binding)
+        with self.assertRaises(ValueError):
+            h.confirmed_entry_replay(self.rows, 1, self.task, self.binding)
+
+    def test_changed_request_receipt_task_failed_or_undelivered_reply_never_recovery(self):
+        for index, key, value in [(1, 'request_sha256', 'b'*64), (1, 'receipt_sha256', 'b'*64),
+                                   (1, 'task_id', 'foreign'), (1, 'result', 'error'), (1, 'reply_complete', False),
+                                   (1, 'phase', 'headers'), (0, 'phase', 'complete'),
+                                   (0, 'reply_complete', 0), (1, 'reply_complete', 1), (0, 'request_sha256', True)]:
+            with self.subTest(index=index, key=key, value=value):
+                rows = copy.deepcopy(self.rows); rows[index][key] = value
+                with self.assertRaises(ValueError):
+                    h.confirmed_entry_replay(rows, 0, self.task, self.binding)
+
+    def test_task_only_binding_or_accepted_state_never_stands_for_preparation_recovery(self):
+        for state in ['running', 'accepted', 'outcome_unknown', 'cancelled']:
+            task = copy.deepcopy(self.task); task['state'] = state
+            with self.assertRaises(ValueError):
+                h.confirmed_entry_replay(self.rows, 0, task, self.binding)
+        binding = copy.deepcopy(self.binding); binding['receipt']['request_key'] = 'replacement-key'
+        with self.assertRaises(ValueError):
+            h.confirmed_entry_replay(self.rows, 0, self.task, binding)
+
+    def test_scope_delivery_requires_new_completed_own_workspace_and_empty_grants(self):
+        self.assertEqual(set(h.confirmed_dialog_scope_reads(self.scope, 0, 'project', 'entry-workspace')),
+                         {'workspaces.list', 'grants.list'})
+        for start in [1, 2]:
+            self.assertIsNone(h.confirmed_dialog_scope_reads(self.scope, start, 'project', 'entry-workspace'))
+        for index, key, value in [(0, 'reply_complete', False), (1, 'reply_complete', 1), (0, 'phase', 'response_body')]:
+            rows = copy.deepcopy(self.scope); rows[index][key] = value
+            self.assertIsNone(h.confirmed_dialog_scope_reads(rows, 0, 'project', 'entry-workspace'))
+        self.assertIsNone(h.confirmed_dialog_scope_reads(self.scope, 0, 'foreign', 'entry-workspace'))
+
+    def test_fresh_scope_wrong_workspace_duplicate_grant_bool_or_foreign_projection_refused(self):
+        for index, key, value in [(0, 'workspace_ids', ['old-one']),
+                                  (0, 'workspace_ids', ['entry-workspace', 'entry-workspace']),
+                                  (0, 'workspace_ids', [True, 'entry-workspace']),
+                                  (0, 'project_id', 'foreign'), (1, 'grant_count', True),
+                                  (1, 'grant_count', 0.0), (1, 'grant_count', 1)]:
+            with self.subTest(key=key, value=value):
+                rows = copy.deepcopy(self.scope); rows[index]['scope_projection'][key] = value
+                with self.assertRaises(ValueError):
+                    h.confirmed_dialog_scope_reads(rows, 0, 'project', 'entry-workspace')
+
+    def test_latest_scope_inflight_or_error_does_not_reuse_older_success(self):
+        pending = copy.deepcopy(self.scope[0]); pending.update(reply_complete=False, phase='core_call')
+        self.assertIsNone(h.confirmed_dialog_scope_reads(self.scope + [pending], 0, 'project', 'entry-workspace'))
+        pending.update(reply_complete=True, phase='complete', result='error')
+        with self.assertRaises(ValueError):
+            h.confirmed_dialog_scope_reads(self.scope + [pending], 0, 'project', 'entry-workspace')
 
 
 if __name__ == '__main__':

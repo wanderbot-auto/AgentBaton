@@ -403,10 +403,49 @@ def confirmed_dialog_task_read(entries, start, task):
     return latest['task_projection']
 
 
+def confirmed_dialog_scope_reads(entries, start, project_id, workspace_id):
+    """New delivered scope reads, not a parent snapshot or an in-flight reply."""
+    proofs = {}
+    for method in ('workspaces.list', 'grants.list'):
+        matching = [e for e in entries[start:] if e['method'] == method and e.get('project_id') == project_id]
+        if not matching:
+            return None
+        row = matching[-1]
+        if row.get('reply_complete') is not True or row.get('phase') != 'complete':
+            return None
+        require(row.get('result') == 'result')
+        proof = row.get('scope_projection')
+        require(type(proof) is dict and proof.get('project_id') == project_id)
+        if method == 'workspaces.list':
+            require(type(proof.get('workspace_ids')) is list
+                    and all(type(i) is str for i in proof['workspace_ids'])
+                    and proof['workspace_ids'].count(workspace_id) == 1)
+        else:
+            require(type(proof.get('grant_count')) is int and proof['grant_count'] == 0)
+        proofs[method] = proof
+    return proofs
+
+
+def confirmed_entry_replay(entries, start, task, binding):
+    """Only the observed original prepare and its explicit post-loss exact replay."""
+    rows = [e for e in entries[start:] if e['method'] == 'workspaces.prepare_task_git']
+    require(len(rows) == 2 and all(e.get('task_id') == task['id'] for e in rows))
+    first, second = rows
+    digest = sha(json.dumps(binding['receipt'], sort_keys=True).encode())
+    require(type(first.get('request_sha256')) is str and re.fullmatch(r'[0-9a-f]{64}', first['request_sha256'])
+            and first['request_sha256'] == second.get('request_sha256'))
+    require(first.get('phase') == 'intentional_post_commit_response_drop' and first.get('reply_complete') is False
+            and second.get('phase') == 'complete' and second.get('reply_complete') is True
+            and all(e.get('result') == 'result' and e.get('receipt_sha256') == digest for e in rows))
+    require(task['state'] == 'draft' and binding['state'] == 'ready'
+            and binding['receipt']['task_id'] == task['id'] and exact(task['code_workspace_binding'], binding))
+    return {'prepare_requests': 2, 'response_drops': 1, 'execution_authorized': False}
+
+
 def seal_status(report):
     checks = report.get('checks', [])
     good = (report.get('flow_complete') is True and not report.get('failure')
-            and len(checks) == 5 and {c.get('id') for c in checks} == {'WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04', 'WSI-B05'}
+            and len(checks) == 6 and {c.get('id') for c in checks} == {'WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04', 'WSI-B05', 'WSI-B06'}
             and all(c.get('status') == 'passed' for c in checks))
     good = good and not report['http_errors'] and not report['page_errors']
     good = good and report['cleanup'].get('complete') is True
@@ -453,7 +492,7 @@ def run(args, binary, frontend, attribution, output):
     from playwright.sync_api import sync_playwright, expect
     report = {'status': 'failed_or_interrupted', 'baseline': BASE, 'inputs': attribution,
               'harness_sha256': sha(Path(__file__).read_bytes()), 'checks': [], 'screenshots': [],
-              'scenarios': {name: 'NOT_RUN' for name in ('WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04', 'WSI-B05')},
+              'scenarios': {name: 'NOT_RUN' for name in ('WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04', 'WSI-B05', 'WSI-B06')},
               'http': [], 'http_errors': [], 'readonly_aborts': [], 'page_errors': [], 'cleanup': {},
               'not_run': ['macOS Native/WebView/OS Owner dialog', 'Provider/Agent/session',
                           'startup crash recovery', 'Grant/admission/rework'],
@@ -600,7 +639,7 @@ def run(args, binary, frontend, attribution, output):
                     self.send_error(403)
                     return
                 entry = {'method': method, 'phase': 'core_call', 'reply_complete': False,
-                         'task_id': params.get('task_id'),
+                         'task_id': params.get('task_id'), 'project_id': params.get('project_id'),
                          'request_sha256': sha(json.dumps({'method': method, 'params': params, 'key': key, 'revision': revision}, sort_keys=True).encode())}
                 report['http'].append(entry)
                 try:
@@ -611,6 +650,13 @@ def run(args, binary, frontend, attribution, output):
                         require(response['result']['id'] == params['task_id']
                                 and response['result']['project_id'] == project['id'])
                         entry['task_projection'] = task_read_projection(response['result'])
+                    if method in ('workspaces.list', 'grants.list') and 'error' not in response:
+                        records = response['result']
+                        require(type(records) is list and all(type(r) is dict and r.get('project_id') == project['id'] for r in records))
+                        entry['scope_projection'] = ({'project_id': project['id'], 'workspace_ids': [r['id'] for r in records]}
+                                                     if method == 'workspaces.list' else {'project_id': project['id'], 'grant_count': len(records)})
+                    if method == 'workspaces.prepare_task_git' and 'error' not in response:
+                        entry['receipt_sha256'] = sha(json.dumps(response['result']['original_receipt'], sort_keys=True).encode())
                     entry['result'] = 'error' if 'error' in response else 'result'
                     if 'error' in response:
                         entry['error_code'] = response['error']['code']
@@ -811,6 +857,94 @@ def run(args, binary, frontend, attribution, output):
                confirmed_selection_steps=len(report['execution_dialog_reads']),
                completed_task_get_responses=sum(entry['method'] == 'tasks.get' and entry.get('reply_complete') is True
                                                 for entry in report['http'][dialog_start:]), execution_authorized=False)
+        stage = 'unbound_git_task_execution_entry_parent_refresh_recovery'
+        # A third private Owner fixture Task is created only after the old B02
+        # two-Task/two-workspace assertions and readonly B05 are complete. Browser
+        # HTTP remains unable to create Tasks, Grants, Sessions or approvals.
+        page.get_by_role('button', name='Back to tasks', exact=True).click()
+        third = result('tasks.create', {'project_id': project['id'], 'goal': 'Execution entry unbound Git Task fixture 3'}, 'fixture-entry-task-3')
+        require(third['state'] == 'draft' and third.get('code_workspace_binding') is None)
+        boundary.tasks[third['id']] = third
+        entry_before = db_image(runtime)
+        old_tasks = [result('tasks.get', {'task_id': task['id']}) for task in tasks]
+        drop.update(task=third['id'], done=False)
+        card = page.get_by_test_id('task-card').filter(has_text=third['goal'])
+        expect(card).to_have_count(1)
+        card.click()
+        # No Details expansion: this preparation must be entered from the real
+        # execution dialog, using its automatic reuse of TaskCodeWorkspace.
+        dialog, entry_start = open_execution()
+        wait(lambda: confirmed_dialog_task_read(report['http'], entry_start, third), lambda v: v is not None)
+        entry = dialog.get_by_test_id('session-task-workspace-entry')
+        expect(entry).to_have_count(1)
+        panel = entry.get_by_test_id('task-code-workspace')
+        expect(panel).to_have_count(1)
+        require(panel.evaluate('(e)=>e.open'), 'Execution entry did not open the reused preparation component')
+        expect(panel.get_by_role('button', name='Prepare isolated Git workspace for this task', exact=True)).to_be_enabled()
+
+        def entry_execution_blocked():
+            expect(dialog.locator('#session-workspace')).to_be_disabled()
+            expect(dialog.get_by_role('checkbox', name='I authorize this exact recipient, workspace and bounded execution scope.', exact=True)).to_be_disabled()
+            expect(dialog.get_by_role('button', name='Create bounded execution grant', exact=True)).to_be_disabled()
+            expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_be_disabled()
+            no_execution(runtime)
+
+        entry_execution_blocked()
+        require(db_image(runtime) == entry_before, 'Opening an unbound execution entry changed durable rows')
+        require(not [e for e in report['http'][entry_start:] if e['method'] == 'workspaces.prepare_task_git'])
+        click(panel, 'Prepare isolated Git workspace for this task')
+        expect(panel.get_by_text('Request outcome unknown. Check the current Task, then explicitly recover the same request. No automatic retry or new key is used.', exact=True)).to_be_visible()
+        require(drop['done'], 'No actual Core success/transport drop occurred')
+        third_ready = result('tasks.get', {'task_id': third['id']})
+        b3 = third_ready['code_workspace_binding']
+        require(b3['state'] == 'ready' and third_ready['state'] == 'draft'
+                and not third_ready.get('acceptance_ref') and not third_ready.get('acceptance_sequence'))
+        require(b3['receipt']['workspace_id'] not in {b1['receipt']['workspace_id'], b2['receipt']['workspace_id']})
+        fixture_paths.workspace(b3, third['id'])
+        fixture_paths.committed_input(b3, third['id'])
+        third_before_recovery = db_image(runtime)
+        original_panel = panel.element_handle()
+        require(original_panel is not None)
+        refresh_start = len(report['http'])
+        click(dialog, 'Refresh session records')
+        wait(lambda: confirmed_dialog_task_read(report['http'], refresh_start, third_ready), lambda v: v is not None)
+        # Do not click the inner Check button: the actual parent refresh must
+        # preserve the original pending intent and reconcile this same panel.
+        expect(panel.get_by_role('button', name='Recover the exact preparation', exact=True)).to_be_enabled()
+        require(original_panel.evaluate('(e)=>e.isConnected'), 'Parent refresh replaced the original recovery component')
+        expect(panel.get_by_text('Stored binding only; filesystem identity has not been revalidated by this read.', exact=True)).to_be_visible()
+        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_have_count(0)
+        entry_execution_blocked()
+        require(db_image(runtime) == third_before_recovery, 'Parent readonly refresh changed committed preparation')
+        require(len([e for e in report['http'][entry_start:] if e['method'] == 'workspaces.prepare_task_git']) == 1,
+                'Parent refresh retried preparation without explicit intent')
+        shot('07-unbound-entry-parent-refresh-recovery-desktop', dialog)
+        recovery_start = len(report['http'])
+        click(panel, 'Recover the exact preparation')
+        fresh_proof = wait(lambda: confirmed_dialog_task_read(report['http'], recovery_start, third_ready), lambda v: v is not None)
+        scope_proof = wait(lambda: confirmed_dialog_scope_reads(report['http'], recovery_start, project['id'], b3['receipt']['workspace_id']), lambda v: v is not None)
+        expect(dialog.get_by_test_id('session-task-workspace-entry')).to_have_count(0)
+        expect(dialog.locator('#session-workspace')).to_have_value(b3['receipt']['workspace_id'])
+        expect(dialog.locator('#session-workspace')).to_be_disabled()
+        expect(dialog.get_by_text('The task’s stored binding locates this workspace.', exact=False)).to_be_visible()
+        expect(dialog.get_by_text('Stored binding is not fresh filesystem evidence or execution permission. Native Owner confirmation and the Core’s current admission checks still apply.', exact=False)).to_be_visible()
+        entry_execution_blocked()  # No named connection, Grant or Session was created.
+        replay_proof = confirmed_entry_replay(report['http'], entry_start, third_ready, b3)
+        require(db_image(runtime) == third_before_recovery, 'Exact entry recovery changed durable rows/events')
+        require(exact(result('tasks.get', {'task_id': third['id']}), third_ready))
+        require(all(exact(result('tasks.get', {'task_id': old['id']}), old) for old in old_tasks), 'Entry changed either older Task binding')
+        require(source_image(source, git) == baseline_source, 'Entry changed registered Git source')
+        require(all(e['method'] in {*READS.values(), 'events.subscribe', 'tasks.get', 'workspaces.resolve', 'workspaces.list', 'grants.list', 'workspaces.prepare_task_git'}
+                    for e in report['http'][entry_start:]), 'Entry attempted an execution/authority write')
+        shot('08-unbound-entry-exact-recovered-desktop', dialog)
+        report['entry_read_proofs'] = {'task': fresh_proof, 'scope': scope_proof}
+        passed('WSI-B06', 'unbound Git Task prepares through execution dialog; parent refresh preserves exact-key recovery without execution',
+               **replay_proof, parent_refresh_recovery=True, same_component_retained=True, fresh_task_read=True,
+               fresh_scope_lists=True, locked_own_workspace=True, old_tasks_unchanged=True, source_unchanged=True,
+               exact_replay_no_rows=True, no_execution_or_grants=True)
+        dialog.get_by_role('button', name='Close', exact=True).click()
+        expect(dialog).to_have_count(0)
+
         # Restore exactly the selected Task2/panel/desktop state at the original
         # B02->B03 boundary. The original drift and negative checks stay intact.
         page.get_by_role('button', name='Back to tasks', exact=True).click()

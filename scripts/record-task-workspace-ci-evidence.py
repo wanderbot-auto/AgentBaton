@@ -17,11 +17,12 @@ import struct
 import zlib
 
 CONTRACT = 'agentbaton.task-workspace-ci.v1'
-CASES = ('WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04', 'WSI-B05')
+CASES = ('WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04', 'WSI-B05', 'WSI-B06')
 PNG_NAMES = (
     '01-first-task-ready-desktop.png', '02-second-task-exact-recovered-desktop.png',
     '03-drift-invalidates-proof-desktop.png', '04-drift-history-mobile.png',
     '05-task2-bound-execution-desktop.png', '06-task1-bound-execution-mobile.png',
+    '07-unbound-entry-parent-refresh-recovery-desktop.png', '08-unbound-entry-exact-recovered-desktop.png',
 )
 TABLES = tuple('''approval_proposals attempts budgets command_validation_policies
 command_validation_runs command_workspace_fences connections data_validation_policies
@@ -224,9 +225,9 @@ def project(report, report_hash, expected, harness):
     require(type(report) is dict and report.get('status') in ('passed', 'failed', 'failed_or_interrupted'))
     require(digest(report.get('harness_sha256')) == harness)
     source, tools, assets = source_summary(report, expected)
-    require(type(report.get('checks')) is list and len(report['checks']) <= 5)
+    require(type(report.get('checks')) is list and len(report['checks']) <= 6)
     passed = set()
-    b05 = False
+    b05 = b06 = False
     for row in report['checks']:
         require(type(row) is dict and type(row.get('id')) is str and row['id'] in CASES
                 and row['id'] not in passed and row.get('status') == 'passed')
@@ -235,6 +236,14 @@ def project(report, report_hash, expected, harness):
             b05 = (row.get('execution_authorized') is False
                    and type(row.get('confirmed_selection_steps')) is int and row['confirmed_selection_steps'] == 4
                    and type(row.get('completed_task_get_responses')) is int and 4 <= row['completed_task_get_responses'] <= 2048)
+        if row['id'] == 'WSI-B06':
+            b06 = (row.get('execution_authorized') is False
+                   and type(row.get('prepare_requests')) is int and row['prepare_requests'] == 2
+                   and type(row.get('response_drops')) is int and row['response_drops'] == 1
+                   and all(row.get(key) is True for key in (
+                       'parent_refresh_recovery', 'same_component_retained', 'fresh_task_read', 'fresh_scope_lists',
+                       'locked_own_workspace', 'old_tasks_unchanged', 'source_unchanged', 'exact_replay_no_rows',
+                       'no_execution_or_grants')))
     scenarios = report.get('scenarios')
     require(type(scenarios) is dict and set(scenarios) == set(CASES))
     require(all(type(s) is str and s in ('passed', 'NOT_RUN') for s in scenarios.values()))
@@ -244,7 +253,7 @@ def project(report, report_hash, expected, harness):
     cleanup = cleanup_summary(report, tools, assets)
     execution = execution_summary(report)
     complete = (report['status'] == 'passed' and report.get('flow_complete') is True
-                and 'failure' not in report and passed == set(CASES) and b05
+                and 'failure' not in report and passed == set(CASES) and b05 and b06
                 and report['http_errors'] == [] and report['page_errors'] == []
                 and cleanup['complete'] and execution['driver_asserted_no_execution'])
     result = {'contract': CONTRACT, 'metadata_only': True, 'status': 'passed' if complete else 'failed',
@@ -330,7 +339,7 @@ def png_bytes(raw, row, name):
 
 def screenshots(descriptor, report, witnesses):
     rows = report.get('screenshots')
-    require(type(rows) is list and len(rows) == 6)
+    require(type(rows) is list and len(rows) == 8)
     by_name = {}
     for row in rows:
         require(type(row) is dict and type(row.get('name')) is str and row['name'] in PNG_NAMES
