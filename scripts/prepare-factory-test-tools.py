@@ -194,6 +194,11 @@ def main():
         if args.source is None or args.evidence is None:
             parser.error('--source and --evidence are required when preparing tools')
         record = prepare(root, args.source, args.output, args.evidence)
+    # Diagnostic observation only; tool identity remains bound by the existing
+    # checkout, private-file and complete SHA-256 checks, not these byte counts.
+    record['observed_binary_bytes'] = {
+        name: (args.output / name).stat().st_size for name in ('baton', 'batond')
+    }
     print(json.dumps(record, sort_keys=True))
 
 
