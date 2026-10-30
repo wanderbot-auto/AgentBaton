@@ -87,18 +87,18 @@ fn attempts(db: &Connection, run: &str) -> Result<Vec<IntegrationAttemptRecord>>
         .map_err(db_error)?;
     ids.iter().map(|id| budget::attempt(db, id)).collect()
 }
-pub(super) fn fence(db: &Connection, run: &IntegrationRun) -> Result<Option<RefFence>> {
+pub(super) fn fence(db: &Connection, run: &IntegrationRun) -> Result<RefFence> {
     let p = records::policy(db, &run.policy_id)?;
     let row:Option<(String,i64,String,Option<String>)>=db.query_row("SELECT integration_id,revision,state,CASE WHEN octet_length(document)<=1048576 THEN document END FROM integration_ref_fences WHERE repository_digest=?1 AND target_ref=?2",params![p.bindings.repository_digest,run.target_ref],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?))).optional().map_err(db_error)?;
     let Some((id, revision, state, text)) = row else {
         if terminal(run.state) {
-            return Ok(None);
+            return historical_fence(db, run, &p);
         }
         return Err(changed());
     };
     if id != run.id {
         if terminal(run.state) {
-            return Ok(None);
+            return historical_fence(db, run, &p);
         }
         return Err(changed());
     }
@@ -120,7 +120,35 @@ pub(super) fn fence(db: &Connection, run: &IntegrationRun) -> Result<Option<RefF
     {
         return Err(changed());
     }
-    Ok(Some(f))
+    Ok(f)
+}
+fn historical_fence(
+    db: &Connection,
+    run: &IntegrationRun,
+    p: &IntegrationPolicy,
+) -> Result<RefFence> {
+    let row:Option<(i64,Option<String>)>=db.query_row("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='integration_core' AND json_extract(document,'$.kind')='integration.fence_released' ORDER BY sequence DESC LIMIT 1",[&run.id],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
+    let (sequence, text) = row.ok_or_else(changed)?;
+    let event: crate::storage::Event = decode(&text.ok_or_else(limited)?)?;
+    let mut original: RefFence =
+        serde_json::from_value(event.payload["fence"].clone()).map_err(|_| changed())?;
+    if original.receipt_sequence.is_some()
+        || original.integration_id != run.id
+        || original.repository_digest != p.bindings.repository_digest
+        || original.target_ref != run.target_ref
+        || original.revision != event.revision
+        || original.state != "released"
+        || original.active_attempt_id.is_some()
+        || original.common_dir != p.bindings.source.common_dir
+        || original.common_device != p.bindings.source.common_device
+        || original.common_inode != p.bindings.source.common_inode
+        || original.source_workspace_id != p.bindings.workspace_id
+        || event.payload["fence_digest"] != sha(&original)?
+    {
+        return Err(changed());
+    }
+    original.receipt_sequence = Some(u64::try_from(sequence).map_err(|_| changed())?);
+    Ok(original)
 }
 pub(super) fn write_fence(db: &Connection, f: &mut RefFence, kind: &str) -> Result<()> {
     f.receipt_sequence = None;
@@ -129,7 +157,7 @@ pub(super) fn write_fence(db: &Connection, f: &mut RefFence, kind: &str) -> Resu
         &f.integration_id,
         f.revision,
         kind,
-        &json!({"fence_digest":sha(f)?,"state":f.state,"active_attempt_id":f.active_attempt_id}),
+        &json!({"fence_digest":sha(f)?,"state":f.state,"active_attempt_id":f.active_attempt_id,"fence":f}),
     )?;
     f.receipt_sequence = Some(seq);
     db.execute("INSERT INTO integration_ref_fences(repository_digest,target_ref,integration_id,revision,state,document) VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(repository_digest,target_ref) DO UPDATE SET integration_id=excluded.integration_id,revision=excluded.revision,state=excluded.state,document=excluded.document",params![f.repository_digest,f.target_ref,f.integration_id,sql_num(f.revision)?,f.state,encode(f)?]).map_err(db_error)?;
@@ -254,7 +282,7 @@ impl Store {
             .into_iter()
             .map(|r| r.view)
             .collect::<Vec<_>>();
-        let current = fence(&self.conn, &run)?.ok_or_else(changed)?;
+        let current = fence(&self.conn, &run)?;
         let view = IntegrationRunView {
             run,
             attempts,
@@ -379,7 +407,7 @@ impl Store {
             return Err(changed());
         }
         source_idle(&tx, &p)?;
-        let occupied:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM integration_ref_fences WHERE repository_digest=?1 AND target_ref=?2 AND state IN('held','unknown'))",params![p.bindings.repository_digest,p.selection.target_ref],|r|r.get(0)).map_err(db_error)?;
+        let occupied:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM integration_ref_fences WHERE repository_digest=?1 AND state IN('held','unknown'))",params![p.bindings.repository_digest],|r|r.get(0)).map_err(db_error)?;
         if occupied {
             return Err(CoreError::new(
                 "WORKSPACE_BUSY",
@@ -522,16 +550,6 @@ impl Store {
             state: "creating".into(),
             revision: 1,
         };
-        for workspace in [&control, &candidate] {
-            crate::registry::reserve_workspace_row(
-                &tx,
-                workspace,
-                &format!("integration:{}:{}", run.id, workspace.id),
-                &encode(
-                    &json!({"integration_id":run.id,"policy_id":p.id,"role":if workspace.id==control.id {"control"}else{"candidate"}}),
-                )?,
-            )?;
-        }
         // Keep the original monotonic clock, including request queuing and all
         // subsequent read/hash/capture/merge/cleanup work in this same attempt.
         let deadline = queued_at + Duration::from_millis(reservation.runtime_ms);
@@ -553,22 +571,35 @@ impl Store {
                 "Original integration preparation reservation expired before its durable admission",
             ));
         }
+        let ticket = IntegrationStageTicket {
+            policy: p.clone(),
+            run: run.clone(),
+            attempt: attempt.clone(),
+            acceptance,
+            control: control.clone(),
+            candidate: candidate.clone(),
+            managed_root: managed_root.into(),
+            queued_at,
+            deadline,
+        };
+        let permit = super::fences::for_stage(&tx, &ticket)?;
+        for workspace in [&control, &candidate] {
+            crate::registry::reserve_workspace_row_for_integration(
+                &tx,
+                workspace,
+                &format!("integration:{}:{}", run.id, workspace.id),
+                &encode(
+                    &json!({"integration_id":run.id,"policy_id":p.id,"role":if workspace.id==control.id {"control"}else{"candidate"}}),
+                )?,
+                &permit,
+            )?;
+        }
         let view = self.get_integration(&run.id)?;
         records::remember(&tx, &scope, key_id, &payload, &view)?;
         tx.commit().map_err(db_error)?;
         Ok(IntegrationQueueResult {
             view,
-            ticket: Some(IntegrationStageTicket {
-                policy: p,
-                run,
-                attempt,
-                acceptance,
-                control,
-                candidate,
-                managed_root: managed_root.into(),
-                queued_at,
-                deadline,
-            }),
+            ticket: Some(ticket),
         })
     }
     /// Called before generic dispatch recovery: integration uncertainty never
@@ -611,7 +642,7 @@ impl Store {
         };
         for id in fenced {
             let run = records::run(&self.conn, &id)?;
-            fence(&self.conn, &run)?.ok_or_else(changed)?;
+            fence(&self.conn, &run)?;
         }
         let ids = run_ids(&self.conn)?;
         for id in ids {
@@ -623,7 +654,7 @@ impl Store {
                 && !(run.state == IntegrationState::OutcomeUnknown
                     && run.io_completion == Some(IntegrationIoCompletion::InterruptedNoJoinReceipt))
             {
-                let mut held = fence(&tx, &run)?.ok_or_else(changed)?;
+                let mut held = fence(&tx, &run)?;
                 for row in rows.iter_mut().filter(|r| !r.view.settled) {
                     let mut dispatch: DispatchIntent = decode(
                         &tx.query_row(

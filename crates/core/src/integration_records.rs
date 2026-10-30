@@ -106,6 +106,11 @@ pub(super) fn policy(db: &Connection, id: &str) -> Result<IntegrationPolicy> {
         || snapshot.intent != actual.selection
         || sha(&snapshot.bindings)? != sha(&actual.bindings)?
         || actual.snapshot_digest != sha(&proposal.snapshot)?
+        || actual.bindings.repository_digest
+            != super::fences::repository_digest(
+                &actual.bindings.source.common_device,
+                &actual.bindings.source.common_inode,
+            )?
         || encode(&immutable)? != encode(&original)?
     {
         return Err(denied());

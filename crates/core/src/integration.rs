@@ -22,8 +22,11 @@ pub(crate) use authority::{
 mod approval;
 #[path = "integration_budget.rs"]
 mod budget;
+#[path = "integration_fences.rs"]
+mod fences;
 #[path = "integration_io.rs"]
 mod io;
+pub(crate) use fences::{check_workspace_fences, IntegrationFencePermit};
 #[path = "integration_runtime.rs"]
 mod runtime;
 pub(crate) use runtime::{IntegrationQueueResult, IntegrationStageTicket};

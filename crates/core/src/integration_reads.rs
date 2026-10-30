@@ -643,7 +643,7 @@ impl IntegrationReadPlan {
             validators: material.validators.clone(),
             system_git: program,
             repository_digest: sha(
-                &json!({"host":"local","project":material.project.id,"common_dir":source.common_dir,"common_device":source.common_device,"common_inode":source.common_inode}),
+                &json!({"host_id":"local","common_device":source.common_device,"common_inode":source.common_inode}),
             )?,
             binding_digest: String::new(),
         };
