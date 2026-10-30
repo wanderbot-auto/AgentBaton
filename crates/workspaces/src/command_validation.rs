@@ -1409,6 +1409,7 @@ pub struct CommandTargetDriftObservation {
     candidate: String,
     tree: String,
     pins: Vec<DriftPin>,
+    meta_pins: Vec<DriftMetaPin>,
     tree_witness: DriftTree,
 }
 impl CommandTargetDriftObservation {
@@ -1434,6 +1435,9 @@ impl CommandTargetDriftObservation {
     pub fn recheck(&self, cancel: &AtomicBool, deadline: Instant) -> Result<(), CommandError> {
         let control = crate::adoption::AdoptionControl::for_request(cancel, deadline);
         for pin in &self.pins {
+            pin.recheck(&control)?;
+        }
+        for pin in &self.meta_pins {
             pin.recheck(&control)?;
         }
         self.tree_witness.recheck(&control)?;
@@ -1662,12 +1666,116 @@ impl DriftPin {
         drift_check(c)
     }
 }
-// Complete bounded candidate data-tree mutation witness. No content/Git read
-// runs on its final seal. Unsupported symlink/special/multilink entries fail
-// this optional recovery path without changing ordinary validation semantics.
+fn drift_stat_at(
+    parent: &File,
+    name: &std::ffi::CStr,
+    c: &crate::adoption::AdoptionControl<'_>,
+) -> Result<Option<DriftStamp>, CommandError> {
+    drift_check(c)?;
+    let mut stat: libc::stat = unsafe { std::mem::zeroed() };
+    let result = unsafe {
+        libc::fstatat(
+            parent.as_raw_fd(),
+            name.as_ptr(),
+            &mut stat,
+            libc::AT_SYMLINK_NOFOLLOW,
+        )
+    };
+    let missing = result < 0 && std::io::Error::last_os_error().kind() == ErrorKind::NotFound;
+    drift_check(c)?;
+    if missing {
+        return Ok(None);
+    }
+    if result < 0 {
+        return Err(CommandError::InputChanged);
+    }
+    Ok(Some(drift_stat_stamp(&stat)?))
+}
+struct DriftMetaPin {
+    parent: File,
+    parent_path: std::path::PathBuf,
+    parent_stamp: DriftStamp,
+    name: std::ffi::CString,
+    stamp: Option<DriftStamp>,
+}
+impl DriftMetaPin {
+    fn capture(
+        path: &std::path::Path,
+        c: &crate::adoption::AdoptionControl<'_>,
+        directory: bool,
+    ) -> Result<Self, CommandError> {
+        use std::{ffi::CString, os::unix::ffi::OsStrExt};
+        let (parent_path, name) = if path == std::path::Path::new("/") && directory {
+            (path.to_owned(), CString::new(".").unwrap())
+        } else {
+            (
+                path.parent()
+                    .ok_or(CommandError::InvalidContract)?
+                    .to_owned(),
+                CString::new(
+                    path.file_name()
+                        .ok_or(CommandError::InvalidContract)?
+                        .as_bytes(),
+                )
+                .map_err(|_| CommandError::InvalidContract)?,
+            )
+        };
+        let parent = drift_root(&parent_path, c)?;
+        let parent_stamp = drift_stamp(&parent.metadata().map_err(|_| CommandError::InputChanged)?);
+        let stamp = drift_stat_at(&parent, &name, c)?;
+        if let Some(s) = &stamp {
+            let kind = s.mode & drift_stat_number::<_, u32>(libc::S_IFMT)?;
+            if (directory && kind != drift_stat_number::<_, u32>(libc::S_IFDIR)?)
+                || (!directory
+                    && (kind != drift_stat_number::<_, u32>(libc::S_IFREG)? || s.links != 1))
+            {
+                return Err(CommandError::InputChanged);
+            }
+        }
+        let pin = Self {
+            parent,
+            parent_path,
+            parent_stamp,
+            name,
+            stamp,
+        };
+        pin.recheck(c)?;
+        Ok(pin)
+    }
+    fn recheck(&self, c: &crate::adoption::AdoptionControl<'_>) -> Result<(), CommandError> {
+        let now = drift_root(&self.parent_path, c)?;
+        let stamp = drift_stamp(&now.metadata().map_err(|_| CommandError::InputChanged)?);
+        let held = drift_stamp(
+            &self
+                .parent
+                .metadata()
+                .map_err(|_| CommandError::InputChanged)?,
+        );
+        if (stamp.dev, stamp.ino) != (self.parent_stamp.dev, self.parent_stamp.ino)
+            || (held.dev, held.ino) != (self.parent_stamp.dev, self.parent_stamp.ino)
+        {
+            return Err(CommandError::InputChanged);
+        }
+        if self.stamp.is_none() && (stamp != self.parent_stamp || held != self.parent_stamp) {
+            return Err(CommandError::InputChanged);
+        }
+        if drift_stat_at(&now, &self.name, c)? != self.stamp {
+            return Err(CommandError::InputChanged);
+        }
+        drift_check(c)
+    }
+}
+// Complete bounded data-tree metadata witness. Directory descriptors are
+// retained; ordinary undeclared leaves are only fstatat'd, never opened.
+struct DriftTreeDirectory {
+    relative: std::path::PathBuf,
+    fd: File,
+    stamp: DriftStamp,
+    entries: Vec<(std::ffi::CString, DriftStamp)>,
+}
 struct DriftTree {
     root: std::path::PathBuf,
-    entries: Vec<(std::path::PathBuf, DriftStamp, bool)>,
+    directories: Vec<DriftTreeDirectory>,
 }
 impl DriftTree {
     fn capture(
@@ -1675,7 +1783,7 @@ impl DriftTree {
         c: &crate::adoption::AdoptionControl<'_>,
     ) -> Result<Self, CommandError> {
         use std::{
-            ffi::CStr,
+            ffi::{CStr, CString},
             os::{fd::IntoRawFd, unix::ffi::OsStringExt},
         };
         struct Directory(*mut libc::DIR);
@@ -1690,26 +1798,40 @@ impl DriftTree {
             tree: &mut DriftTree,
             relative: &std::path::Path,
             c: &crate::adoption::AdoptionControl<'_>,
-            dirs: &mut usize,
+            entries: &mut usize,
             bytes: &mut usize,
         ) -> Result<(), CommandError> {
             drift_check(c)?;
-            *dirs = dirs.checked_add(1).ok_or(CommandError::InvalidContract)?;
-            if *dirs > 256 || relative.components().count() > 128 {
+            if tree.directories.len() >= 256 || relative.components().count() > 128 {
                 return Err(CommandError::InvalidContract);
             }
-            let path = tree.root.join(relative);
-            let pin = DriftPin::capture(&path, c, true)?;
-            tree.entries.push((relative.into(), pin.stamp, true));
-            let fd = drift_root(&path, c)?.into_raw_fd();
-            let stream = unsafe { libc::fdopendir(fd) };
+            *bytes = bytes
+                .checked_add(relative.as_os_str().len())
+                .ok_or(CommandError::InvalidContract)?;
+            if *bytes > 1_048_576 {
+                return Err(CommandError::InvalidContract);
+            }
+            let fd = drift_root(&tree.root.join(relative), c)?;
+            let stamp = drift_stamp(&fd.metadata().map_err(|_| CommandError::InputChanged)?);
+            let duplicate = fd
+                .try_clone()
+                .map_err(|_| CommandError::InputChanged)?
+                .into_raw_fd();
+            let stream = unsafe { libc::fdopendir(duplicate) };
             if stream.is_null() {
                 unsafe {
-                    libc::close(fd);
+                    libc::close(duplicate);
                 }
                 return Err(CommandError::InputChanged);
             }
             let stream = Directory(stream);
+            let mut directory = DriftTreeDirectory {
+                relative: relative.into(),
+                fd,
+                stamp,
+                entries: Vec::new(),
+            };
+            let mut subdirs = Vec::new();
             loop {
                 drift_check(c)?;
                 #[cfg(target_os = "linux")]
@@ -1734,53 +1856,61 @@ impl DriftTree {
                 {
                     continue;
                 }
-                let child = relative.join(std::ffi::OsString::from_vec(name.to_vec()));
-                *bytes = bytes
-                    .checked_add(child.as_os_str().len())
+                *entries = entries
+                    .checked_add(1)
                     .ok_or(CommandError::InvalidContract)?;
-                if *bytes > 1_048_576 || tree.entries.len() >= 8192 {
+                *bytes = bytes
+                    .checked_add(name.len())
+                    .ok_or(CommandError::InvalidContract)?;
+                if *entries > 8192 || *bytes > 1_048_576 {
                     return Err(CommandError::InvalidContract);
                 }
-
-                let pin = DriftPin::capture(&tree.root.join(&child), c, false);
-                // Opening a directory without O_DIRECTORY is safe; determine
-                // its type from the nofollow descriptor, never lstat through a
-                // potentially replaced/symlink ancestor.
-                let is_directory = match pin {
-                    Ok(pin) => {
-                        tree.entries.push((child.clone(), pin.stamp, false));
-                        false
-                    }
-                    Err(CommandError::InputChanged) => {
-                        let directory = DriftPin::capture(&tree.root.join(&child), c, true)?;
-                        if directory.held.is_none() {
-                            return Err(CommandError::InputChanged);
-                        }
-                        true
-                    }
-                    Err(error) => return Err(error),
-                };
-                if is_directory {
-                    walk(tree, &child, c, dirs, bytes)?;
+                let name = CString::new(name).map_err(|_| CommandError::InvalidContract)?;
+                let child =
+                    drift_stat_at(&directory.fd, &name, c)?.ok_or(CommandError::InputChanged)?;
+                let kind = child.mode & drift_stat_number::<_, u32>(libc::S_IFMT)?;
+                if kind == drift_stat_number::<_, u32>(libc::S_IFDIR)? {
+                    subdirs.push(
+                        relative.join(std::ffi::OsString::from_vec(name.as_bytes().to_vec())),
+                    );
+                } else if kind != drift_stat_number::<_, u32>(libc::S_IFREG)? || child.links != 1 {
+                    return Err(CommandError::InputChanged);
                 }
-                drift_check(c)?;
+                directory.entries.push((name, child));
+            }
+            tree.directories.push(directory);
+            for child in subdirs {
+                walk(tree, &child, c, entries, bytes)?;
             }
             Ok(())
         }
         let mut tree = Self {
             root: root.into(),
-            entries: Vec::new(),
+            directories: Vec::new(),
         };
         walk(&mut tree, std::path::Path::new(""), c, &mut 0, &mut 0)?;
         tree.recheck(c)?;
         Ok(tree)
     }
     fn recheck(&self, c: &crate::adoption::AdoptionControl<'_>) -> Result<(), CommandError> {
-        for (relative, expected, directory) in &self.entries {
+        for directory in &self.directories {
             drift_check(c)?;
-            let pin = DriftPin::capture(&self.root.join(relative), c, *directory)?;
-            if pin.held.is_none() || pin.stamp != *expected {
+            let current = drift_root(&self.root.join(&directory.relative), c)?;
+            if drift_stamp(&current.metadata().map_err(|_| CommandError::InputChanged)?)
+                != directory.stamp
+                || drift_stamp(
+                    &directory
+                        .fd
+                        .metadata()
+                        .map_err(|_| CommandError::InputChanged)?,
+                ) != directory.stamp
+            {
                 return Err(CommandError::InputChanged);
+            }
+            for (name, stamp) in &directory.entries {
+                if drift_stat_at(&current, name, c)?.as_ref() != Some(stamp) {
+                    return Err(CommandError::InputChanged);
+                }
             }
         }
         drift_check(c)
@@ -2029,6 +2159,7 @@ impl CommandRun {
             return Ok(None);
         }
         let mut pins = Vec::new();
+        let mut meta_pins = Vec::new();
         let mut program_bytes = Vec::new();
         let mut total = 0u64;
         for (template, evidence) in contract
@@ -2062,7 +2193,7 @@ impl CommandRun {
             if index >= 128 {
                 return Err(CommandError::InvalidContract);
             }
-            pins.push(DriftPin::capture(ancestor, &c, index > 0)?);
+            meta_pins.push(DriftMetaPin::capture(ancestor, &c, index > 0)?);
         }
         #[cfg(target_os = "macos")]
         if v.protected_program.as_ref()
@@ -2100,13 +2231,13 @@ impl CommandRun {
             common_dir.join("packed-refs"),
             common_dir.join(target_ref),
         ] {
-            pins.push(DriftPin::capture(&path, &c, false)?);
+            meta_pins.push(DriftMetaPin::capture(&path, &c, false)?);
         }
         let git_entry = cwd.canonical_root.join(".git");
         drift_check(&c)?;
         let entry = std::fs::symlink_metadata(&git_entry).map_err(|_| CommandError::CwdChanged)?;
         drift_check(&c)?;
-        pins.push(DriftPin::capture(&git_entry, &c, entry.is_dir())?);
+        meta_pins.push(DriftMetaPin::capture(&git_entry, &c, entry.is_dir())?);
         let tree_witness = DriftTree::capture(&cwd.canonical_root, &c)?;
         let now = crate::inspect_controlled(&cwd.canonical_root, &c)
             .map_err(|_| CommandError::CwdChanged)?;
@@ -2150,6 +2281,7 @@ impl CommandRun {
             candidate: integration_candidate.clone(),
             tree: tree.clone(),
             pins,
+            meta_pins,
             tree_witness,
         };
         observation.recheck(cancel, deadline)?;
@@ -2351,7 +2483,7 @@ mod absolute_deadline_tests {
             &cancel,
             Instant::now() + Duration::from_secs(1),
         );
-        let pin = DriftPin::capture(&ancestor, &control, true).unwrap();
+        let pin = DriftMetaPin::capture(&ancestor, &control, true).unwrap();
         pin.recheck(&control).unwrap();
         let old = fs::metadata(&ancestor).unwrap().mode() & 0o7777;
         fs::set_permissions(
