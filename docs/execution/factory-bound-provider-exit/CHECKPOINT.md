@@ -1,5 +1,18 @@
 # Checkpoint
 
+## Already-bound, not-yet-adopted MCP discovery deferral
+
+Root's same de470 tools/926 diagnostic actual normal failed11.535s, private report `/workspace/.onboarding/pr18-graph-wake-mcp-state-browser1/report.json` SHA `9c601d9320c3e9aa7e1649beaef91201c148ae76d8b71e95712bdda2be1bc809`, log SHA `e13e4a5abe2fa3ee55517c8f9d61a0c898c0c4ef067c42b3790da39a854e404c`. Actual observation was beforeZ/afterZ, samebirth and matchingPGID, after_parent_is_controllerfalse. This proves neither actual adoption nor a controller wait; it does not authorize waiting somebody else's child. All previous failures remain preserved.
+
+Root authorized a narrow test-observer pending case: only after full fresh files/nonce/Core session/turn/attempt/run checks and immutable old==fixed, exact before/after MCP PID/birth, bothZ, both parent!=controller, and successful matchingPGID, break the field loop then skip that whole row from this invocation's fresh discovered results. Prior verified history stays unchanged. No new verified copy, ACK publication, gone/waited/joined/stop/Owner claim or signal is produced. A later ordinary observation must use the unchanged reaper for a genuinely adopted child, then require identity disappearance as before. Live R/S, firstbind, wrong PID/birth/PGID, malformed nonemptyargv, permission error and controller-ownedZ without actual reaper disappearance remain refused. No deadlines, budgets, loops, threads or production source changed.
+
+All callers retain final business/identity conditions. Base final normal still requires3 fresh actual requests; a permanently deferred row cannot fulfill that check. Planning and childGoal observe into original verified history, but original Core terminal/stop receipts and final unchanged inspect_owned_records still reject any surviving same-birth identity. Deferral is never cleanup success. Real reaper/ACK/runtime/final cleanup functions remain byte-identical; removing the three inserted collector blocks gives whole-module926 byte equality.
+
+Pure command `python3 -B -m unittest discover -s tests/infrastructure -p test_factory_bound_provider_exit.py -v`:39PASS in3.544s/exit0. All previous36 classes are byte-identical (the earlier beforeR→afterZ diagnostic still correctly refuses); three added methods cover actual collector deferral with immutable history/files/no ACK/no proof; subsequent injected adoption/known-child wait→gone before fresh discovery; and nine refusal variants for live states/controller-owned/wrongPGID/permission/wrongafterPID/initialbirth/malformedargv/unbound. Injected reaper events are not OS wait evidence or actual product receipts. Existing22+7+2+3+2 controls are retained, not relabelled or counted twice.
+
+Evidence `/workspace/.onboarding/factory-bound-provider-exit-source/deferred-bound-MCP/{pure.log,SOURCE_CHECKS.json}`. New actual normal/cancel/unknown/planning/childGoal and CI remain NOT_RUN by author. Source is pending independent review before Root's controlled real verification. No Actor/daemon/browser/Cargo/Node/network/Provider/process or actual wait/signal was launched here.
+
+
 ## Late MCP state diagnostic only
 
 Root's new inner-hint/de470 actual normal failed10.027s, earlier than Owner UI expect: private report `/workspace/.onboarding/pr18-graph-wake-childgoal-normal-browser1/report.json` SHA `e725d2d7a9abe34002651da188fb75a53a18478d38e8e43392154d5f4ea8c67c`; log SHA `3526ba27122491c8a04e23ea751459846af43c0b1f8c10a7c80aaf5ea4f1aa7e`. Owner read returned in5.794ms, then the original late-MCP survival assertion failed. Its previous evidence lacked after-state/adoption. Do not call this zombie, claim the final Owner5s gate passed, or close the remote CI failure from it.

@@ -436,6 +436,7 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                     assert observer_ack_read(path,observer_ack_value(row,sha(raw)))==acks[str(path)]
             if reaper is not None and old is not None:
                 reaper.reap(old)  # Only previously bound identities after fresh full Core/record validation.
+            deferred_bound_mcp = False
             for field, expected_argv in [('owned_provider', row['provider_argv']), ('owned_companion', argv)]:
                 expected = row[field]
                 try: current = support.proc_identity(expected['pid'])
@@ -463,6 +464,15 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                                 'birth_matches':True,'pgid_matches':None,'pgid_error_type':None}
                             try:late_observation['pgid_matches']=os.getpgid(expected['pid'])==expected['pgid']
                             except Exception as error:late_observation['pgid_error_type']=type(error).__name__
+                        if (old==fixed and after is not None and after['pid']==expected['pid']
+                                and after['start_ticks']==expected['start_ticks']
+                                and current['state']==after['state']=='Z'
+                                and current['parent_pid']!=os.getpid() and after['parent_pid']!=os.getpid()
+                                and late_observation['pgid_matches'] is True):
+                            # This already-bound child is not ours to wait yet. Keep
+                            # history only, not a fresh discovered row or a stop proof.
+                            deferred_bound_mcp = True
+                            break
                         assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait: '+json.dumps(late_observation,sort_keys=True)
                         continue
                     if observed in (None, b'') and field == 'owned_provider' and _bound_identity_disappeared(old, fixed, field, current):
@@ -505,6 +515,8 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         if _bound_identity_disappeared(old, fixed, field, current):
                             continue  # Completed argv matched; the known identity has now vanished.
                         raise
+            if deferred_bound_mcp:
+                continue
             if old is None:
                 copy = output / ('verified-' + str(pid) + '.json')
                 write_private_json(copy, {'dimension':'verified generated fixture record, not authority from an Agent',

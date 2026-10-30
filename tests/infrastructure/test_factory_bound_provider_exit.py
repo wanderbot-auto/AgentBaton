@@ -537,5 +537,59 @@ class BoundMcpLateDiagnosticTests(unittest.TestCase):
         self.assertNotIn('sensitive',str(error.exception));self.assertEqual(f.verified,f.original)
 
 
+class BoundMcpDeferredDiscoveryTests(unittest.TestCase):
+    setUp=BoundExitTests.setUp
+    fixture=BoundExitTests.fixture
+
+    def pending_fixture(self):
+        f=self.fixture();f.argv_overrides[f.companion]=b''
+        f.proc_steps[f.companion]=[f.identity(f.companion,state='Z',parent_pid=f.provider)]
+        return f
+
+    def test_nonadopted_bound_zombie_defers_row_without_changing_history_or_files(self):
+        f=self.pending_fixture();before={str(p):p.read_bytes()for p in f.out.iterdir()}
+        calls=[];rows=f.collect(SimpleNamespace(reap=lambda old:calls.append(old)))
+        self.assertEqual(rows,[]);self.assertEqual(f.verified,f.original);self.assertEqual(len(calls),2)
+        self.assertEqual({str(p):p.read_bytes()for p in f.out.iterdir()},before)
+        self.assertNotIn('stop_confirmed',f.verified[0]);self.assertNotIn('process_reaped',f.verified[0])
+        self.assertFalse(list(f.work.glob('reports/fixture-observed-*')))
+        # Permanent nonadoption remains pending, never a fresh successful discovery.
+        self.assertEqual(f.collect(SimpleNamespace(reap=lambda _:None)),[])
+
+    def test_later_adopted_child_requires_existing_reaper_before_fresh_discovery(self):
+        f=self.pending_fixture();self.assertEqual(f.collect(SimpleNamespace(reap=lambda _:None)),[])
+        f.proc_steps[f.companion]=[f.identity(f.companion,state='Z',parent_pid=os.getpid())]
+        waits=[]
+        def reaper(old):
+            self.assertEqual(old,f.original[0])
+            current=f.proc_steps[f.companion][0]
+            if current is not None and current['state']=='Z'and current['parent_pid']==os.getpid():
+                waits.append(f.companion)  # injected known-child wait; no OS wait/reap claim
+                f.proc_steps[f.companion]=[None]
+        rows=f.collect(SimpleNamespace(reap=reaper))
+        self.assertEqual(waits,[f.companion]);self.assertEqual(len(rows),1)
+        self.assertEqual(f.verified,f.original);self.assertNotIn('stop_confirmed',rows[0])
+
+    def test_pending_never_excuses_live_controller_wrong_identity_or_pgid(self):
+        cases=('before-live','after-live','controller','wrong-pgid','pgid-permission','wrong-after-pid','wrong-initial-birth','malformed-argv','unbound')
+        for index,case in enumerate(cases):
+            root=self.root/str(index);root.mkdir();f=Fixture(root,bound=case!='unbound')
+            f.argv_overrides[f.companion]=b''
+            z=f.identity(f.companion,state='Z',parent_pid=f.provider)
+            f.proc_steps[f.companion]=[dict(z),dict(z)]
+            if case=='before-live':f.proc_steps[f.companion][0]['state']='R'
+            if case=='after-live':f.proc_steps[f.companion][1]['state']='S'
+            if case=='controller':
+                for x in f.proc_steps[f.companion]:x['parent_pid']=os.getpid()
+            if case=='wrong-pgid':f.pgid_overrides[f.companion]=99999
+            if case=='pgid-permission':f.pgid_overrides[f.companion]=PermissionError('not copied')
+            if case=='wrong-after-pid':f.proc_steps[f.companion][1]['pid']=99999
+            if case=='wrong-initial-birth':f.proc_steps[f.companion][0]['start_ticks']='99999'
+            if case=='malformed-argv':f.argv_overrides[f.companion]=b'nonempty-no-NUL'
+            with self.subTest(case=case):
+                with self.assertRaises(AssertionError):f.collect(SimpleNamespace(reap=lambda _:None))
+                self.assertEqual(f.verified,f.original)
+
+
 if __name__ == '__main__':
     unittest.main()
