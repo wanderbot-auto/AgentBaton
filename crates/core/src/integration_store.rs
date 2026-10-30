@@ -70,28 +70,35 @@ impl crate::storage::Store {
     }
 }
 
-fn predecessor_schema(db: &Connection) -> Result<Vec<(String, String, String, String)>> {
-    let (count, bytes):(i64,i64)=db.query_row("SELECT count(*),COALESCE(sum(octet_length(type)+octet_length(name)+octet_length(tbl_name)+COALESCE(octet_length(sql),0)),0) FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%'",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+fn predecessor_schema(db: &Connection) -> Result<Vec<(String, String, String, Option<String>)>> {
+    let (count, bytes):(i64,i64)=db.query_row("SELECT count(*),COALESCE(sum(octet_length(type)+octet_length(name)+octet_length(tbl_name)+COALESCE(octet_length(sql),0)),0) FROM sqlite_schema",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
     if !(1..=256).contains(&count) || !(1..=1048576).contains(&bytes) {
         return Err(CoreError::new(
             "INPUT_CHANGED",
             "Predecessor schema exceeds the fixed definition bound",
         ));
     }
-    let mut statement=db.prepare("SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name").map_err(db_error)?;
+    let mut statement = db
+        .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
+        .map_err(db_error)?;
     let rows = statement
         .query_map([], |r| {
             Ok((
                 r.get::<_, String>(0)?,
                 r.get::<_, String>(1)?,
                 r.get::<_, String>(2)?,
-                r.get::<_, String>(3)?,
+                r.get::<_, Option<String>>(3)?,
             ))
         })
         .map_err(db_error)?
         .collect::<std::result::Result<Vec<_>, _>>()
         .map_err(db_error)?;
-    if rows.iter().filter(|r| r.0 == "table").count() != 55 {
+    if rows
+        .iter()
+        .filter(|r| r.0 == "table" && r.1 != "sqlite_sequence")
+        .count()
+        != 55
+    {
         return Err(CoreError::new(
             "INPUT_CHANGED",
             "Integration predecessor must contain the complete schema16 table set",
@@ -99,7 +106,7 @@ fn predecessor_schema(db: &Connection) -> Result<Vec<(String, String, String, St
     }
     Ok(rows
         .into_iter()
-        .map(|(kind, name, table, sql)| (kind, name, table, normalize_ddl(&sql)))
+        .map(|(kind, name, table, sql)| (kind, name, table, sql.map(|s| normalize_ddl(&s))))
         .collect())
 }
 fn normalize_ddl(sql: &str) -> String {
