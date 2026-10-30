@@ -66,7 +66,7 @@ impl OwnedStage {
         let cancel = Arc::new(AtomicBool::new(false));
         let flag = cancel.clone();
         let (request_tx, requests) = mpsc::sync_channel(1);
-        let (admission, permit_rx) = mpsc::sync_channel(1);
+        let (admission, permit_rx) = mpsc::sync_channel::<Result<IntegrationReadProof>>(1);
         // A failed spawn must return the original candidate/CommandRun handles;
         // dropping a closure is not a successful stop receipt.
         let input = Arc::new(Mutex::new(Some((ticket.clone(), context, plan, raw))));
