@@ -4,12 +4,12 @@
   "status": "SOURCE_ONLY_NOT_COMPILED_OR_RUN",
   "base": "97f14100f746c24aebf2bf7eba54264d1029c387",
   "tested_source_commit": null,
-  "source_commit": "8c41e50af6c05dbc8b6f770004f12c26062ed047",
+  "source_commit": "f053e77a3a946ce222f33045e53cddd28edc4648",
   "authority": "OWNER-001/002 implementation authorization; private Owner IPC is trusted-test-host only",
   "source": {
     "crates/core/tests/fixtures/integration_runtime.rs": {
-      "bytes": 42761,
-      "sha256": "24af7f5be8c7bf931026c365ad90c4da33bad1cf0634fff41ed01c215bae27eb"
+      "bytes": 52370,
+      "sha256": "1e51d8f800da1d00791528fec2c727c4d9b060c49e90c05d14429318240ae5c9"
     },
     "crates/core/tests/integration_ipc.rs": {
       "bytes": 8590,
@@ -46,6 +46,15 @@
       ],
       "exit": 0,
       "dimension": "follow-up format/syntax only; no Rust compilation"
+    },
+    {
+      "source_commit": "f053e77a3a946ce222f33045e53cddd28edc4648",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check"
+      ],
+      "exit": 0,
+      "dimension": "review follow-up source syntax/format only"
     }
   ],
   "test_sources": [
@@ -132,6 +141,34 @@
       },
       "runtime_result": "NOT_RUN",
       "static_correction": "First source erroneously assumed CAS retained streams zero in hardcoded 24B total. Follow-up charges genuine receipt bytes; no actual failure or product fix claimed."
+    },
+    {
+      "source_commit": "8c41e50af6c05dbc8b6f770004f12c26062ed047",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 42761,
+          "sha256": "24af7f5be8c7bf931026c365ad90c4da33bad1cf0634fff41ed01c215bae27eb"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "runtime_result": "NOT_RUN_BY_AUTHOR",
+      "static_review_findings": [
+        "Panic-path retention eprintln could double panic on stderr failure",
+        "No original approved Command row/result comparison and insufficient new merged observation binding"
+      ],
+      "root_inflight_runtime": "Old 8c assembly result is separate and not a pass for f053"
     }
-  ]
+  ],
+  "review_followup": {
+    "findings": "two P2 source-review findings; no actual failure claimed",
+    "source_fix": "f053e77a3a946ce222f33045e53cddd28edc4648",
+    "old_command_result_fixture": "none; strict zero original one-shot results before/after, no source-pass fabrication",
+    "original_definition": "actual stored policy rowid/all raw typed columns unchanged, fresh public policy matches actual original finalizer definition",
+    "new_observation": "real process_started/exit0/reap/EOF; exact full merged Git subject/new attempt; registered managed candidate cwd/root; fixed input/output SHA+size; approved program/settings/script/environment/enforcement unchanged",
+    "independent_review": "PENDING",
+    "runtime": "NOT_RUN"
+  }
 }

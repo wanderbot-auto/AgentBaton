@@ -11,3 +11,9 @@ First case accepts Graph, adds user staged/unstaged/untracked edits only in the 
 Keep Work reservation 4000ms, node limit 5000ms, shared root/project runtime 20000ms and finite Grant/selection TTL 30000ms. Integration reservations are explicitly approved: preparation 1000ms/1024B, fixed Command 1500ms/256B, CAS 500ms/1024B. Observers retain a 5s bound. No source changes to caps, clocks, permissions, Actor or library behavior.
 
 After Root compiles/runs these sources, retain actual failures before making authorized fixture-only corrections. Cancellation, revocation, expired authority, target races, journal failures, restart/unknown reconciliation and mixed roots remain subsequent coverage; these two positive sources do not close full integration or the full 130 requirements.
+
+## Limited review follow-up
+
+Preserve the actual original approved Command row (including rowid and all raw typed columns), and any original one-shot result rows, before integration. Recheck exact unchanged rows and a fresh public policy read afterward. This fixture has no old Command execution result: it asserts zero before/after and does not fabricate a source pass. The merged actual Command observation must independently name its new integration attempt and Git version, use the registered candidate identity as cwd/root, preserve approved program/argv/script/environment/enforcement/limits, and show exact fixed input and accepted output hashes/sizes. Process-start, exit0, owned reap and capture EOF remain actual observations rather than receipt labels alone.
+
+Failure retention logging must never cause a second panic on a closed/broken stderr while unwinding. Ignore only the diagnostic write error; keep the original panic and owned daemon join/drop ordering.
