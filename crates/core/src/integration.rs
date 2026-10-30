@@ -423,6 +423,8 @@ pub struct IntegrationContextView {
     pub bindings: IntegrationStaticBindings,
     pub as_of_sequence: u64,
     pub shared_usage: IntegrationSharedUsage,
+    /// Additional independently approved correctness definitions, never default authority.
+    pub available_validators: Vec<IntegrationValidatorBinding>,
     #[serde(deserialize_with = "preview_only")]
     pub preview_only: bool,
 }
