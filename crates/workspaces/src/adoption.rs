@@ -228,18 +228,29 @@ impl<'a> AdoptionControl<'a> {
         }
     }
     pub(crate) fn note_git_io(&self, io: &ControlledIntegrationIo) {
+        self.note_git_observation(
+            io.io_complete(),
+            io.stdout_retained_bytes,
+            io.stderr_retained_bytes,
+            io.interrupted,
+        );
+    }
+    pub(crate) fn note_git_observation(
+        &self,
+        complete: bool,
+        stdout: Option<u64>,
+        stderr: Option<u64>,
+        interrupted: bool,
+    ) {
         let mut facts = self.preparation.lock().unwrap_or_else(|p| p.into_inner());
-        facts.interrupted |= io.interrupted;
-        if io.io_complete() {
+        facts.interrupted |= interrupted;
+        if complete {
             match facts.git_calls_complete.checked_add(1) {
                 Some(n) => facts.git_calls_complete = n,
                 None => facts.overflow = true,
             }
         }
-        for (is_stdout, bytes) in [
-            (true, io.stdout_retained_bytes),
-            (false, io.stderr_retained_bytes),
-        ] {
+        for (is_stdout, bytes) in [(true, stdout), (false, stderr)] {
             if let Some(bytes) = bytes {
                 let before = if is_stdout {
                     facts.stdout_lower_bound
