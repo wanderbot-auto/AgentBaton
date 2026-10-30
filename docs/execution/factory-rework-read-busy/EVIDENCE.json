@@ -50,5 +50,8 @@
   "macos": "not_run",
   "independent_review": "pending",
   "production_changes": false,
-  "owner_write_retry": false
+  "owner_write_retry": false,
+  "root_actual_results": "ROOT_RESULTS.json",
+  "author_not_run_fields_are_historical": true,
+  "root_actual_state": "full33Factory including3newRustcontrols and actualrework/strictClippy/fmt passed; naturalbusy notobserved; newCI/Mac not_run"
 }

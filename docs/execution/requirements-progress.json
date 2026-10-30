@@ -2299,7 +2299,8 @@
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
         "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
         "docs/execution/factory-history-worker/ROOT_RESULTS.json",
-        "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json"
+        "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json",
+        "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2532,6 +2533,15 @@
           "compiled_Core_and_frontend_for_browser": "4155548fbeca71f238309cff33a248ea1e2d53ca",
           "CI_cause_or_performance_fix": false,
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "strict_bound_readonly_busy_reconciliation_test_fixture",
+          "source": "b025f14a0ae8a7abbac8cbb32b2c06b9c73124b5",
+          "Factory_unique": 33,
+          "new3_included": true,
+          "natural_busy_observed": false,
+          "evidence": "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
+          "coverage": "partial Linux testfixture; not currentMac/CI/fullrequirement acceptance"
         }
       ]
     },
@@ -2582,7 +2592,8 @@
         "docs/execution/factory-child-goal-integration/HEADDE0B_TERMINAL_RESULTS.json",
         "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
         "docs/execution/factory-history-worker/ROOT_RESULTS.json",
-        "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json"
+        "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json",
+        "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2820,6 +2831,15 @@
           "compiled_Core_and_frontend_for_browser": "4155548fbeca71f238309cff33a248ea1e2d53ca",
           "CI_cause_or_performance_fix": false,
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "strict_bound_readonly_busy_reconciliation_test_fixture",
+          "source": "b025f14a0ae8a7abbac8cbb32b2c06b9c73124b5",
+          "Factory_unique": 33,
+          "new3_included": true,
+          "natural_busy_observed": false,
+          "evidence": "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
+          "coverage": "partial Linux testfixture; not currentMac/CI/fullrequirement acceptance"
         }
       ],
       "pr18_repair_observation": {
@@ -2877,7 +2897,8 @@
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-ancestor-admission-diagnostics/ROOT_RESULTS.json"
+        "docs/execution/factory-ancestor-admission-diagnostics/ROOT_RESULTS.json",
+        "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -3034,6 +3055,15 @@
           "slice": "finite_original_ancestor_budget_admission_diagnostics",
           "source": "937b42632221161472d50f6bef68b17439bbd2f4",
           "coverage": "partial;167Core/256infra/1rework actual; failingguard event observation pending"
+        },
+        {
+          "slice": "strict_bound_readonly_busy_reconciliation_test_fixture",
+          "source": "b025f14a0ae8a7abbac8cbb32b2c06b9c73124b5",
+          "Factory_unique": 33,
+          "new3_included": true,
+          "natural_busy_observed": false,
+          "evidence": "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
+          "coverage": "partial Linux testfixture; not currentMac/CI/fullrequirement acceptance"
         }
       ]
     },

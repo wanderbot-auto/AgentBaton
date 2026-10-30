@@ -1,3 +1,9 @@
+## Readonly busy reconciliation locally verified — 2026-10-30T19:15:00.563367+00:00
+
+Source b025/58fad test-only reconciliation passes full33 Factory (new3 strict busy controls and real rework included), strict workspace/alltargets Clippy and format. No natural busy reply occurred in the local actual run; this does not establish Intel resolution. The original2 shared retries,55s observation/Scope TTL/5s reads, exact three readonly bindings and write/business/unknown refusal remain unchanged. See [Root results](factory-rework-read-busy/ROOT_RESULTS.json).
+
+Prior exact8fe Environment3/Rust/UI/AppleSilicon pass; Intel fails26/1 on typed WORKSPACE_BUSY/not_started, with daemon real cleanup joined. Earlier budget/unknown/deadline failures remain distinct. Source independently Ready27checks; new same-source CI/dualMac/packages pending. Full130 remains incomplete; OWNER001002/main653679d ACK, no new authority, formalApprove or production/signing claim.
+
 
 ## Root actual verification — 2026-10-30T18:18:22.756351+00:00
 
