@@ -5,7 +5,12 @@ use agentbaton_workspaces::{
         prepare_candidate, prepare_candidate_controlled, AdoptionControl, AdoptionError,
         AuthorizedIntegration, ControlledPreparationIo,
     },
-    create_isolated_controlled, inspect, WorkspaceError, WorkspaceIdentity,
+    create_isolated_controlled, inspect,
+    source_capture::{
+        capture_source_commit, capture_source_commit_controlled, AuthorizedSourceCapture,
+    },
+    validation::{sha256, ArtifactRequirement, BoundArtifact},
+    WorkspaceError, WorkspaceIdentity,
 };
 use serde_json::Value;
 use std::{
@@ -595,4 +600,251 @@ fn default_uncontrolled_wrappers_keep_existing_candidate_semantics() {
         repo.base
     );
     assert_eq!(before, user_state(&repo.source));
+}
+
+fn selected_artifact(repo: &Repository, id: &str, path: &str, expected: &[u8]) -> BoundArtifact {
+    BoundArtifact::from_approved_root(
+        &repo.source,
+        ArtifactRequirement {
+            artifact_id: id.into(),
+            relative_path: path.into(),
+            max_bytes: 1024,
+            expected_sha256: Some(sha256(expected)),
+        },
+    )
+    .unwrap()
+}
+fn source_authorization(
+    repo: &Repository,
+    base: &str,
+    selected: Vec<BoundArtifact>,
+    control: &AdoptionControl<'_>,
+) -> AuthorizedSourceCapture {
+    AuthorizedSourceCapture::from_verified_selection_controlled(
+        &inspect(&repo.source).unwrap(),
+        base.into(),
+        selected,
+        1_700_000_000,
+        "accepted-selection:generated".into(),
+        "independent-owner:generated".into(),
+        control,
+    )
+    .unwrap()
+}
+
+#[test]
+fn controlled_source_capture_has_exact_selected_tree_and_preserves_all_user_state() {
+    let repo = Repository::new();
+    fs::write(repo.source.join("unselected.txt"), b"base unselected\n").unwrap();
+    git(&repo.source, &["add", "unselected.txt"]);
+    git(
+        &repo.source,
+        &["commit", "-qm", "generated unselected base"],
+    );
+    let base = text(&repo.source, &["rev-parse", "HEAD"]);
+    fs::write(repo.source.join("file.txt"), b"accepted selected\n").unwrap();
+    fs::write(repo.source.join("new-selected.txt"), b"accepted new\n").unwrap();
+    fs::write(repo.source.join("unselected.txt"), b"user staged\n").unwrap();
+    git(&repo.source, &["add", "unselected.txt"]);
+    fs::write(
+        repo.source.join("unselected.txt"),
+        b"user dirty after staging\n",
+    )
+    .unwrap();
+    fs::write(repo.source.join("not-selected.txt"), b"user untracked\n").unwrap();
+    let before = user_state(&repo.source);
+    let cancel = AtomicBool::new(false);
+    let deadline = Instant::now() + Duration::from_secs(15);
+    let control = AdoptionControl::for_request(&cancel, deadline);
+    let authorization = source_authorization(
+        &repo,
+        &base,
+        vec![
+            selected_artifact(&repo, "accepted-file", "file.txt", b"accepted selected\n"),
+            selected_artifact(&repo, "accepted-new", "new-selected.txt", b"accepted new\n"),
+        ],
+        &control,
+    );
+    let constructed = counters(&control);
+    let narrowed = control.narrowed(deadline - Duration::from_millis(1));
+    let captured = capture_source_commit_controlled(authorization, &narrowed).unwrap();
+    assert_eq!(captured.base(), base);
+    assert_eq!(captured.selected().len(), 2);
+    for (id, path, expected) in [
+        (
+            "accepted-file",
+            "file.txt",
+            b"accepted selected\n".as_slice(),
+        ),
+        (
+            "accepted-new",
+            "new-selected.txt",
+            b"accepted new\n".as_slice(),
+        ),
+    ] {
+        let actual = git(
+            &repo.source,
+            &["cat-file", "blob", &format!("{}:{path}", captured.commit())],
+        );
+        assert_eq!(actual, expected);
+        let selected = captured
+            .selected()
+            .iter()
+            .find(|item| item.artifact_id == id)
+            .unwrap();
+        assert_eq!(selected.relative_path, Path::new(path));
+        assert_eq!(selected.sha256, sha256(expected));
+        assert_eq!(selected.bytes, expected.len() as u64);
+        assert_eq!(selected.mode, "100644");
+    }
+    assert_eq!(
+        git(
+            &repo.source,
+            &[
+                "cat-file",
+                "blob",
+                &format!("{}:unselected.txt", captured.commit())
+            ]
+        ),
+        b"base unselected\n"
+    );
+    assert_eq!(
+        text(
+            &repo.source,
+            &["ls-tree", "-r", "--name-only", captured.commit()]
+        ),
+        "file.txt\nnew-selected.txt\nunselected.txt"
+    );
+    assert_eq!(
+        text(
+            &repo.source,
+            &["show", "-s", "--format=%P", captured.commit()]
+        ),
+        base
+    );
+    assert_eq!(
+        text(
+            &repo.source,
+            &["rev-parse", &format!("{}^{{tree}}", captured.commit())]
+        ),
+        captured.tree()
+    );
+    assert_eq!(before, user_state(&repo.source));
+    let after = counters(&control);
+    assert!(
+        after["git_calls_attempted"].as_u64().unwrap()
+            > constructed["git_calls_attempted"].as_u64().unwrap()
+    );
+    assert_eq!(no_elapsed(after), no_elapsed(counters(&narrowed)));
+    assert!(control.preparation_io().effects_may_have_started());
+    assert!(control.preparation_io().io_complete());
+    // This raw commit/selection digest is still no correctness, acceptance,
+    // independent integration-policy approval, ref CAS or remote authority.
+}
+
+#[test]
+fn controlled_source_capture_precancelled_construction_and_consume_never_write() {
+    let repo = Repository::new();
+    let identity = inspect(&repo.source).unwrap();
+    let artifact = selected_artifact(&repo, "selected", "file.txt", b"candidate\n");
+    let before = files(&repo.root);
+    let cancel = AtomicBool::new(true);
+    let control = AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(15));
+    assert!(matches!(
+        AuthorizedSourceCapture::from_verified_selection_controlled(
+            &identity,
+            repo.candidate.clone(),
+            vec![artifact],
+            1_700_000_000,
+            "accepted-selection:generated".into(),
+            "independent-owner:generated".into(),
+            &control,
+        ),
+        Err(WorkspaceError::ResourceLimit)
+    ));
+    assert_eq!(before, files(&repo.root));
+    no_git_started(&control.preparation_io());
+    assert!(control.preparation_io().interrupted());
+
+    let repo = Repository::new();
+    let cancel = AtomicBool::new(false);
+    let deadline = Instant::now() + Duration::from_secs(15);
+    let original = AdoptionControl::for_request(&cancel, deadline);
+    let authorization = source_authorization(
+        &repo,
+        &repo.candidate,
+        vec![selected_artifact(
+            &repo,
+            "selected",
+            "file.txt",
+            b"candidate\n",
+        )],
+        &original,
+    );
+    let before = files(&repo.root);
+    let cost = counters(&original);
+    let narrowed = original.narrowed(deadline - Duration::from_millis(1));
+    cancel.store(true, Ordering::Release);
+    assert!(matches!(
+        capture_source_commit_controlled(authorization, &narrowed),
+        Err(WorkspaceError::ResourceLimit)
+    ));
+    assert_eq!(before, files(&repo.root));
+    unchanged_git_cost(&cost, &counters(&original));
+    assert_eq!(
+        no_elapsed(counters(&original)),
+        no_elapsed(counters(&narrowed))
+    );
+    assert!(original.preparation_io().interrupted());
+    assert!(!original.preparation_io().effects_may_have_started());
+}
+
+#[test]
+fn controlled_source_capture_epoch_or_legacy_consumer_cannot_reset_original_control() {
+    for case in ["new-cancel", "new-metrics", "legacy-consumer"] {
+        let repo = Repository::new();
+        let cancel = AtomicBool::new(false);
+        let deadline = Instant::now() + Duration::from_secs(15);
+        let original = AdoptionControl::for_request(&cancel, deadline);
+        let authorization = source_authorization(
+            &repo,
+            &repo.candidate,
+            vec![selected_artifact(
+                &repo,
+                "selected",
+                "file.txt",
+                b"candidate\n",
+            )],
+            &original,
+        );
+        let before = files(&repo.root);
+        let cost = counters(&original);
+        if case == "legacy-consumer" {
+            assert!(matches!(
+                capture_source_commit(authorization),
+                Err(WorkspaceError::InvalidPath)
+            ));
+        } else {
+            let foreign_cancel = AtomicBool::new(false);
+            if case == "new-cancel" {
+                cancel.store(true, Ordering::Release);
+            }
+            let replacement = AdoptionControl::for_request(
+                if case == "new-cancel" {
+                    &foreign_cancel
+                } else {
+                    &cancel
+                },
+                deadline,
+            );
+            assert!(matches!(
+                capture_source_commit_controlled(authorization, &replacement),
+                Err(WorkspaceError::InvalidPath)
+            ));
+            no_git_started(&replacement.preparation_io());
+        }
+        assert_eq!(before, files(&repo.root));
+        unchanged_git_cost(&cost, &counters(&original));
+        assert!(!original.preparation_io().effects_may_have_started());
+    }
 }
