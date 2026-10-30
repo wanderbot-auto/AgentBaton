@@ -243,7 +243,7 @@ fn process_local_clock_never_mints_a_prepared_job_or_authority() {
         store
             .conn
             .query_row("SELECT count(*) FROM goal_graph_jobs", [], |r| r
-                .get::<_, u64>(0))
+                .get::<_, i64>(0))
             .unwrap(),
         0
     );
@@ -251,7 +251,7 @@ fn process_local_clock_never_mints_a_prepared_job_or_authority() {
         store
             .conn
             .query_row("SELECT count(*) FROM goal_graph_candidates", [], |r| r
-                .get::<_, u64>(0))
+                .get::<_, i64>(0))
             .unwrap(),
         0
     );
