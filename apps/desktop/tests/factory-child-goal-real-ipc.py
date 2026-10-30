@@ -1047,6 +1047,9 @@ def runtime_driver(args, output):
             if predicate(value):return value
             assert time.monotonic()<end,clean(('Bounded observation deadline',value))
             time.sleep(.02)
+    def phase_stamp(phase,edge):
+        assert phase in {'before_owner_read','before_owner_capture','owner_UI_refresh_click','owner_enabled_expect'} and edge in {'start','end'}
+        report.setdefault('owner_phase_stamps',[]).append({'phase':phase,'edge':edge,'monotonic_ns':time.monotonic_ns()})
     def capture():
         if host is None or workspace is None or scope is None or not record_context.get('run_id'):return
         base.collect_started_records(runtime,workspace,scope,record_context,verified,output,reaper)
@@ -1064,15 +1067,23 @@ def runtime_driver(args, output):
         wire_recorder=WireEvidenceRecorder(output,report)
         class ObservedHost(base.PrivateHost):
             def wire(self,call):
+                started=time.monotonic_ns()
                 slot=wire_recorder.begin(call)
+                # Shared timing dict survives the recorder's shallow evidence copies.
+                timing=slot['timing_ns']={'started':started,'backend_started':None,'backend_finished':None,'finished':None}
                 # No recorder lock covers IPC/callbacks. Send exactly the same
                 # immutable request snapshot that the original reply records.
                 request=FixedCall(slot['method'],slot['params'],slot['key'],slot['revision'])
-                try:value,raw=super().wire(request)
-                except BaseException as error:
-                    wire_recorder.failed(slot,error,'ipc');raise
-                wire_recorder.finish(slot,raw)
-                return value,raw
+                try:
+                    timing['backend_started']=time.monotonic_ns()
+                    try:value,raw=super().wire(request)
+                    except BaseException as error:
+                        timing['backend_finished']=time.monotonic_ns()
+                        wire_recorder.failed(slot,error,'ipc');raise
+                    timing['backend_finished']=time.monotonic_ns()
+                    wire_recorder.finish(slot,raw)
+                    return value,raw
+                finally:timing['finished']=time.monotonic_ns()
         host=ObservedHost(runtime);token=host.token
         def approve(method,params,kind,key):
             proposal=host.result(method,params,key);require(proposal['kind']==kind)
@@ -1339,10 +1350,20 @@ def runtime_driver(args, output):
             final_factory=wait(lambda:host.result('factory_runs.get',{'scope_id':scope['id']}),lambda v:v['run']['state']in {'cancelled','blocked'})
             passed('CG04','Actual live Graph cancel reply lost, explicit same-key recovery and actual cancelled view; no TaskAccepted or automatic opposite action')
         else:
-            before_owner=wait(lambda:host.result('factory_child_goals.get',query),lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
-            capture();require(before_owner['details']['task_accepted']is False and before_owner['details']['task_acceptance']is None)
-            goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
-            owner=goal_panel.get_by_role('button',name='Review exact Factory-origin candidate in native dialog',exact=True);expect(owner).to_be_enabled()
+            phase_stamp('before_owner_read','start')
+            try:before_owner=wait(lambda:host.result('factory_child_goals.get',query),lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
+            finally:phase_stamp('before_owner_read','end')
+            phase_stamp('before_owner_capture','start')
+            try:capture()
+            finally:phase_stamp('before_owner_capture','end')
+            require(before_owner['details']['task_accepted']is False and before_owner['details']['task_acceptance']is None)
+            phase_stamp('owner_UI_refresh_click','start')
+            try:goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
+            finally:phase_stamp('owner_UI_refresh_click','end')
+            owner=goal_panel.get_by_role('button',name='Review exact Factory-origin candidate in native dialog',exact=True)
+            phase_stamp('owner_enabled_expect','start')
+            try:expect(owner).to_be_enabled()
+            finally:phase_stamp('owner_enabled_expect','end')
             shot('03-real-owned-candidate-before-owner',goal_panel);owner.click()
             final_view=wait(lambda:host.result('factory_child_goals.get',query),lambda v:v['details']['task_accepted']is True)
             receipt=final_view['details']['task_acceptance'];require(receipt is not None and receipt['run_id']==goal_id)
