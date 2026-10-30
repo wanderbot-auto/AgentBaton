@@ -1,3 +1,10 @@
+
+## Root actual verification — 2026-10-30T18:18:22.756351+00:00
+
+Exact source937b426 passes167 unique Core units (new2 included; nested helper not additive),256 infrastructure controls, strict workspace/all-target Clippy and format. Real generated ACP/Command/UnixIPC failed-validator→rework→Owner→parent-resume passes32.57s;29 other Factory cases were filtered, not run here. Optional typed original ancestor-budget refusal details preserve all limits/error semantics and have independent source/pure review. [Root results](factory-ancestor-admission-diagnostics/ROOT_RESULTS.json) retain commands/source/logSHA and earlier evidence.
+
+Original fbeb Environment3/Rust/ARM passed but wholeProduct failed: legacy UI cancelled-provider empty argv, Intel26/1 blocked/resource-limit at runrev14. Capture2 was3919/4000; postshutdown child15589+newreservation6000 exceeds20k but is not the original admission snapshot. New code adds exact guarded finite observations, not a claimed original rootcause/fix or budget increase. Legacy cancel4checks localpass uses new harness and explicitly older415 compiledCore/frontend; empty-argv branch not actually counted. Exact new remoteCI, current Mac/Native/development packages and full130 remain unverified; no oldpass transfer/noformalApprove/no production/signing/credentials or additional spend.
+
 ## Finite failure diagnostics verified; exact new CI remains pending — 2026-10-30T16:51:58.791357+00:00
 
 Exact source2d42404 infrastructure233 passed after preserving and fixing the two AST dependency failures. A real failed-Command/rework/Owner/parent-resume case passed34.32s; actual new collector read the complete stopped DB and retained missing last-revision evidence as pending. Direct historical helper on the same real successful DB observes cancelled worker stops with completed turns; never treats cancelled as Owner intent or explains Intel. New normal browser diagnostic4checks passed with driver42b/ad400, compiled Core/frontend415 separately attributed.

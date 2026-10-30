@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-30T18:18:22.756351+00:00",
+  "source_commit": "937b42632221161472d50f6bef68b17439bbd2f4",
+  "diagnostic_source": "9e7ce2c031a2800cf2bbb42b2a84e987ed23ddd8",
+  "approval_id": "AB-START-001",
+  "requirements": [
+    "AB-TSK-010",
+    "AB-TSK-012"
+  ],
+  "results": {
+    "pr18-ancestor-diagnostic-core-lib1": {
+      "source": "937b42632221161472d50f6bef68b17439bbd2f4",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 147.32647042698227,
+      "minimum_free_bytes": 288522240,
+      "interruption": null,
+      "log_sha256": "498d4899b51a444c2d86206af2729f385f3210601351cbbc4cd6973252c5641e",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 166 filtered out; finished in 0.00s",
+        "test result: ok. 167 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 122.97s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-ancestor-diagnostic-full-infra1": {
+      "source": "937b42632221161472d50f6bef68b17439bbd2f4",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0,
+      "seconds": 8.12167943600798,
+      "minimum_free_bytes": 306311168,
+      "interruption": null,
+      "log_sha256": "b242ebfc09f5ddf1dc467dfdbfacb251d7c02282f85455284a28bfe6d558a868",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-ancestor-diagnostic-actual-rework1": {
+      "source": "937b42632221161472d50f6bef68b17439bbd2f4",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--exact",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 55.503748717019334,
+      "minimum_free_bytes": 330432512,
+      "interruption": null,
+      "log_sha256": "a021d95605749b2cb51bae7d0529c94b032bfc1769142a06a0560978517247b6",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 29 filtered out; finished in 32.57s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-ancestor-diagnostic-clippy1": {
+      "source": "937b42632221161472d50f6bef68b17439bbd2f4",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 18.362392124981852,
+      "minimum_free_bytes": 559644672,
+      "interruption": null,
+      "log_sha256": "3bd1ac4f34f1a2d15f267d7f73c884a23697ce559d41260600faf55bd778a658",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-ancestor-diagnostic-fmt1": {
+      "source": "937b42632221161472d50f6bef68b17439bbd2f4",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.4068319759971928,
+      "minimum_free_bytes": 318980096,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-exiting-argv-cancel-command1": {
+      "source": "3e882a8d516707b40c991706714eaa4b81885fc8",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+        "apps/desktop/tests/factory-real-ipc.py",
+        "--case",
+        "cancel",
+        "--batond",
+        "/workspace/.onboarding/pr18-head415-preview-frozen1/batond",
+        "--candidate-manifest",
+        "/workspace/.onboarding/pr18-head415-childgoal-candidate1.json",
+        "--frontend",
+        "apps/desktop/dist",
+        "--chromium",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+        "--output",
+        "/workspace/.onboarding/pr18-exiting-argv-cancel-actual1"
+      ],
+      "exit": 0,
+      "seconds": 4.414905671990709,
+      "minimum_free_bytes": 230469632,
+      "interruption": null,
+      "log_sha256": "4469e37218295f2785203f146093225d74fdc964cc0bcb0ab0d8e42dad282fd4",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "dimensions": {
+    "core": "167unique including2new and nestedhelper; nestedresult not additive",
+    "infrastructure": "256pure/static controls, not all product paths",
+    "actual_rework": "1 real generatedACP/fixedCommand/CoreIPC/Owner/parentresume passed32.57s,29filtered; does not prove original budget refusal branch executed",
+    "legacy_cancel_browser": "4checks passed using harness9f/Root3e with compiled Core/frontend415; production parts not current937, deferral branch not specifically observed",
+    "new_rust_diagnostic": "no error code/message/sideeffect/retryability/budget/timeout changes; bounded typed optional detail only"
+  },
+  "independent_source_review": {
+    "status": "SOURCE_READY",
+    "review_sha256": "569c24ca1f04f4fe54f143e7aa99d9b9979c0636eaa685524571e3c983599547",
+    "manifest_sha256": "f215220368e9935db581b6efc2e8569fad6a06c8621bd4bb75ead3bca05d7474",
+    "independent_pure_tests": 92,
+    "static_checks": 28
+  },
+  "retained_remote_failure": {
+    "head": "fbeb2e96854868735b9c07f27485c5cf8f748502",
+    "environment": 41094992451,
+    "environment_conclusion": "all3success",
+    "product": 41094992088,
+    "product_conclusion": "failed",
+    "rust": "success",
+    "arm": "success",
+    "ui": "failure legacyFactorycancel emptyargv before childGoal",
+    "intel": "failure26passed1failed REWORK_REVISION2_TERMINAL plan2 runrevision14 blocked RESOURCE_LIMIT",
+    "artifact": 12995479948,
+    "artifact_sha256": "15b8bde7388f9bae871bed675a59aeec198ab4ed7df146e25dd4e8deedbebfaf",
+    "actual_capture2_ms": 3919,
+    "capture2_cap_ms": 4000,
+    "post_shutdown_child_runtime_ms": 15589,
+    "new_validator_reservation_ms": 6000,
+    "child_runtime_cap_ms": 20000,
+    "inference_boundary": "postshutdown15589+6000>20000 consistent with ancestor admission refusal; original guard/snapshot not captured, not established rootcause; no limits changed"
+  },
+  "remaining": [
+    "new exactCI including UI/Rust/3Environment/dualMac/native/releaseaudit/devpackages",
+    "actual failing ancestor admission event→finite projection with new source not yet observed",
+    "original UI b-empty race not yet reproduced by newcandidate remote",
+    "complete fullDesign130; schema16/17 dependentPRs; Native/current mixedround and remote/Unicode/retention/etc",
+    "no full product acceptance/merge/formalApprove/signing/production permissions inferred"
+  ],
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "authorization_unchanged": true
+}
