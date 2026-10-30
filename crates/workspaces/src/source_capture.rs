@@ -1019,10 +1019,7 @@ impl AuthorizedSourceCapture {
                         if matches!(
                             error.kind(),
                             std::io::ErrorKind::WouldBlock | std::io::ErrorKind::Interrupted
-                        ) =>
-                    {
-                        ()
-                    }
+                        ) => {}
                     Err(error) => {
                         failure = Some(error.into());
                         break;
