@@ -1274,24 +1274,41 @@ def integration_fixture(proposal, invoke, runtime, output, before, source, phase
     return fixture, pages, contexts
 
 
+def run_integration(binary, daemon_path, companion_path, output, cancel_at=None):
+    """Only explicit --kind integration uses the new independent Native route."""
+    path = Path(__file__).with_name('integration-owner-fixture.py')
+    spec = importlib.util.spec_from_file_location('_actual_integration_owner_fixture', path)
+    fixture = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixture)
+    from types import SimpleNamespace
+    return fixture.run(SimpleNamespace(**globals()), binary, daemon_path, companion_path, output, cancel_at)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--daemon', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--kind', choices=['grant', 'factory_planning'], default='grant')
+    parser.add_argument('--kind', choices=['grant', 'factory_planning', 'integration'], default='grant')
     parser.add_argument('--companion', type=Path)
     parser.add_argument('--factory-cancel-at', type=int)
+    parser.add_argument('--integration-cancel-at', type=int)
     args = parser.parse_args()
-    if args.kind == 'factory_planning' and args.companion is None:
-        parser.error('factory_planning requires the matching actual baton companion')
+    if args.kind in ('factory_planning', 'integration') and args.companion is None:
+        parser.error('Independent mode requires the matching actual baton companion')
+    if args.kind != 'integration' and args.integration_cancel_at is not None:
+        parser.error('Integration cancel index cannot alter an old mode')
+    if args.kind == 'integration' and args.factory_cancel_at is not None:
+        parser.error('Factory cancel index is not Integration authority')
     if args.kind == 'grant' and (args.companion is not None or args.factory_cancel_at is not None):
         parser.error('Factory-only options are not Grant fixture authority')
     try:
         if args.kind == 'grant':
             run(args.binary, args.daemon, args.output)
-        else:
+        elif args.kind == 'factory_planning':
             run_factory(args.binary, args.daemon, args.companion, args.output, args.factory_cancel_at)
+        else:
+            run_integration(args.binary, args.daemon, args.companion, args.output, args.integration_cancel_at)
     except Exception as error:
         args.output.mkdir(mode=0o700, parents=True, exist_ok=True)
         save(args.output / 'runner-failure.json', {'status': 'failed_or_not_run', 'error': str(error), 'os': sys.platform})

@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import sys
 import unittest
 from unittest import mock
 
@@ -268,6 +269,113 @@ class IntegrationFinitePublisherControls(unittest.TestCase):
         self.assertEqual(P.main(['--private', str(private), '--output', 'relative.json', '--baseline-sequence', '23']), 1)
         target = root/'target'; target.write_text('original'); (root/'public.json').symlink_to(target)
         self.assertEqual(self.invoke(root, private), 1); self.assertEqual(target.read_text(), 'original')
+
+
+F = load('_integration_actual_seed_source_controls', 'scripts/integration-owner-fixture.py')
+
+
+class IntegrationSeedSourceControls(unittest.TestCase):
+    def test_generated_resource_bootstrap_cannot_finalize_target_or_unknown_approval(self):
+        client = F.ResourceClient(Path('/unexecuted-runtime'), N)
+        with mock.patch.object(F.socket, 'socket', side_effect=AssertionError('must refuse before transport')):
+            for identifier in ['integration-proposal', 'foreign']:
+                with self.assertRaises(ValueError):
+                    client.call('approvals.finalize', {'proposal_id': identifier}, 'proposal:'+identifier, 1)
+            for method in ['integrations.start', 'integration_policies.revoke', 'sessions.send', 'approvals.decline', 'generic_ipc']:
+                with self.assertRaises(ValueError): client.call(method, {})
+            with self.assertRaises(ValueError): client.approved('integration_policies.propose', {}, 'never-auto-approve')
+        self.assertNotIn('integration', F.ResourceClient.PROPOSALS.values())
+
+    def test_private_binary_copy_preserves_source_and_rejects_alias_fifo_or_existing_destination(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve(); source = root/'generated-source'
+            source.write_bytes(b'never executed generated tool bytes'); source.chmod(0o500)
+            before = source.stat(); original = source.read_bytes()
+            observed = F.tool_copy(source, root/'copy')
+            self.assertEqual(observed['sha256'], hashlib.sha256(original).hexdigest())
+            self.assertEqual((root/'copy').stat().st_mode & 0o777, 0o500)
+            self.assertEqual((root/'copy').stat().st_nlink, 1)
+            self.assertEqual(source.read_bytes(), original)
+            self.assertEqual((before.st_dev, before.st_ino, before.st_mode, before.st_mtime_ns, before.st_ctime_ns),
+                (source.stat().st_dev, source.stat().st_ino, source.stat().st_mode, source.stat().st_mtime_ns, source.stat().st_ctime_ns))
+            with self.assertRaises(FileExistsError): F.tool_copy(source, root/'copy')
+            alias = root/'alias'; alias.symlink_to(source)
+            with self.assertRaises(ValueError): F.tool_copy(alias, root/'alias-copy')
+            fifo = root/'fifo'; os.mkfifo(fifo,0o700)
+            with self.assertRaises(ValueError): F.tool_copy(fifo, root/'fifo-copy')
+
+    def test_actual_sqlite_raw_reader_is_readonly_bounded_and_refuses_missing_or_extra_tables(self):
+        import sqlite3
+        H = load('_integration_actual_table_names', 'scripts/prepare-schema16-migration-fixture.py')
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve(); path = root/'baton.sqlite3'
+            with sqlite3.connect(path) as db:
+                db.execute('PRAGMA user_version=17')
+                # Inert count/raw reader fixture, not a genuine Core schema.
+                for table in sorted((*H.SCHEMA_TABLES, *N.INTEGRATION_TABLES)):
+                    if table == 'sqlite_sequence': continue
+                    db.execute('CREATE TABLE '+table+'(sequence INTEGER PRIMARY KEY AUTOINCREMENT,document TEXT)' if table == 'events'
+                        else 'CREATE TABLE '+table+'(id TEXT,document TEXT)')
+                db.execute("INSERT INTO projects VALUES('original',?)", ('原source',))
+            before = path.read_bytes(); value = F.database(root)
+            self.assertEqual(len(value['counts']), 59)
+            self.assertEqual(value['counts']['projects'], 1)
+            self.assertEqual(value['schema_version'], 17)
+            self.assertTrue(value['read_only']); self.assertEqual(path.read_bytes(), before)
+            for old in [16,18]:
+                with sqlite3.connect(path) as db: db.execute('PRAGMA user_version='+str(old))
+                with self.assertRaises(ValueError): F.database(root)
+            with sqlite3.connect(path) as db:
+                db.execute('PRAGMA user_version=17'); db.execute('CREATE TABLE unexpected(id INTEGER)')
+            with self.assertRaises(ValueError): F.database(root)
+            with sqlite3.connect(path) as db:
+                db.execute('DROP TABLE unexpected'); db.execute('DROP TABLE integration_attempts')
+            with self.assertRaises(ValueError): F.database(root)
+
+    def test_raw_predecode_total_limit_refuses_inert_oversize_history(self):
+        import sqlite3
+        H = load('_integration_actual_table_names_large', 'scripts/prepare-schema16-migration-fixture.py')
+        with tempfile.TemporaryDirectory() as raw:
+            root=Path(raw).resolve(); path=root/'baton.sqlite3'
+            with sqlite3.connect(path) as db:
+                db.execute('PRAGMA user_version=17')
+                for table in sorted((*H.SCHEMA_TABLES,*N.INTEGRATION_TABLES)):
+                    if table=='sqlite_sequence':continue
+                    db.execute('CREATE TABLE '+table+'(sequence INTEGER PRIMARY KEY AUTOINCREMENT,document TEXT)' if table=='events' else 'CREATE TABLE '+table+'(id TEXT,document TEXT)')
+                db.execute("INSERT INTO projects VALUES('oversize',zeroblob(8388609))")
+            with self.assertRaisesRegex(ValueError,'raw history'):F.database(root)
+
+    def test_os_run_on_linux_refuses_before_any_process_or_output(self):
+        with tempfile.TemporaryDirectory() as raw:
+            output=Path(raw)/'not-created'
+            with mock.patch.object(F.sys,'platform','linux'),mock.patch.object(F.subprocess,'Popen',side_effect=AssertionError('no product/OS')):
+                with self.assertRaisesRegex(ValueError,'NOT_RUN'):F.run(N,Path('/binary'),Path('/daemon'),Path('/companion'),output)
+            self.assertFalse(output.exists())
+
+    def test_real_cli_branch_requires_explicit_integration_and_cannot_change_old_kind_options(self):
+        import argparse,ast
+        tree=ast.parse((ROOT/'scripts/native-owner-dialog-smoke.py').read_text())
+        actual_main=next(n for n in tree.body if isinstance(n,ast.If) and ast.unparse(n.test)=="__name__ == '__main__'")
+        code=compile(ast.Module(body=actual_main.body,type_ignores=[]),'<actual-driver-cli>','exec')
+        namespace={'argparse':argparse,'Path':Path,'sys':sys,'save':mock.Mock(),
+            'run':mock.Mock(),'run_factory':mock.Mock(),'run_integration':mock.Mock()}
+        base=['script','--binary','/binary','--daemon','/daemon','--output','/unexecuted-output']
+        with mock.patch.object(sys,'argv',base+['--kind','integration','--companion','/companion','--integration-cancel-at','1']):exec(code,namespace)
+        namespace['run_integration'].assert_called_once_with(Path('/binary'),Path('/daemon'),Path('/companion'),Path('/unexecuted-output'),1)
+        namespace['run'].assert_not_called();namespace['run_factory'].assert_not_called()
+        for argv in [base+['--kind','integration'],base+['--kind','grant','--integration-cancel-at','1'],
+                     base+['--kind','integration','--companion','/companion','--factory-cancel-at','1']]:
+            with mock.patch.object(sys,'argv',argv),mock.patch('sys.stderr'),self.assertRaises(SystemExit):exec(code,namespace)
+
+    def test_provider_is_fixed_complete_legacy_contract_without_an_arbitrary_command_or_provider(self):
+        import ast
+        ast.parse(F.PROVIDER)
+        self.assertIn("assert v['schema_version']==1 and v['kind']=='agentbaton_goal_task_request'",F.PROVIDER)
+        self.assertIn("Path('reports/report.txt').write_bytes(b'fixed report')",F.PROVIDER)
+        self.assertIn("'stopReason':'end_turn'",F.PROVIDER)
+        self.assertNotIn('subprocess',F.PROVIDER)
+        self.assertNotIn('requests',F.PROVIDER)
+        self.assertNotIn('approvals.',F.PROVIDER)
 
 
 if __name__ == '__main__':
