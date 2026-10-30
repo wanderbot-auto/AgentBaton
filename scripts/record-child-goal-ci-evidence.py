@@ -74,16 +74,46 @@ DIAGNOSTIC_EFFECTS = frozenset({'not_started','confirmed','unknown'})
 ERROR_CLASSES = frozenset({'assertion','refusal','timeout','os_error','type_error','value_error','runtime_error','other'})
 MAX_DIAGNOSTIC_REPLIES=2048
 MAX_DIAGNOSTIC_BUCKETS=64
+GRAPH_ARGV_REASONS=frozenset({'empty','oversized','missing_nul','argv_mismatch'})
+
+def graph_argv_diagnostic(value):
+    require(type(value)is dict and set(value)=={'reason','previously_bound'})
+    require(type(value['reason'])is str and value['reason']in GRAPH_ARGV_REASONS)
+    require(type(value['previously_bound'])is bool)
+    return value
+
+class GraphProviderArgvFailure(AssertionError):
+    """Fixed scalars only; never retain raw argv or an expected identity."""
+    def __init__(self,reason,previously_bound):
+        self.diagnostic=graph_argv_diagnostic({'reason':reason,'previously_bound':previously_bound})
+        super().__init__('Graph Provider argv guard failed')
+
+def check_graph_provider_argv(raw,expected_argv,previously_bound):
+    """Same nonempty/size/NUL/decoded-argv refusal, with a finite first reason."""
+    require(type(raw)is bytes and type(expected_argv)is list and all(type(v)is str for v in expected_argv))
+    require(len(expected_argv)==3 and type(previously_bound)is bool)
+    if len(raw)==0:raise GraphProviderArgvFailure('empty',previously_bound)
+    if len(raw)>8192:raise GraphProviderArgvFailure('oversized',previously_bound)
+    if not raw.endswith(b'\0'):raise GraphProviderArgvFailure('missing_nul',previously_bound)
+    # Preserve the original strict UTF8 decode and its ValueError classification.
+    if [v.decode()for v in raw[:-1].split(b'\0')][-3:]!=expected_argv:
+        raise GraphProviderArgvFailure('argv_mismatch',previously_bound)
 
 def unobserved_diagnostics():
-    return {'version':1,'failure_class':None,'driver_lines':None,'lines_truncated':None,
+    return {'version':2,'failure_class':None,'driver_lines':None,'lines_truncated':None,
         'phase':None,'last_completed_check':None,'core_replies':{'observation':'unobserved',
-        'captured_count':None,'truncated':None,'unmapped_error_count':None,'errors':None}}
+        'captured_count':None,'truncated':None,'unmapped_error_count':None,'errors':None},
+        'graph_provider_argv':None}
 
 def finite_diagnostics(value):
     if value is None:return unobserved_diagnostics()
-    require(type(value)is dict and set(value)==set(unobserved_diagnostics()))
-    require(type(value['version'])is int and value['version']==1)
+    require(type(value)is dict and type(value.get('version'))is int and value['version']in (1,2))
+    expected=set(unobserved_diagnostics())
+    if value['version']==1:expected.remove('graph_provider_argv')
+    require(set(value)==expected)
+    if value['version']==2 and value['graph_provider_argv']is not None:
+        graph_argv_diagnostic(value['graph_provider_argv'])
+        require(value['failure_class']=='assertion')
     require(value['failure_class']is None or type(value['failure_class'])is str and value['failure_class']in ERROR_CLASSES)
     require(value['phase']is None or type(value['phase'])is str and value['phase']in {'runtime','cleanup'})
     require(value['last_completed_check']is None or type(value['last_completed_check'])is str and value['last_completed_check']in {'CG01','CG02','CG03','CG04','CG05','CG06'})
@@ -155,6 +185,8 @@ class FiniteRuntimeDiagnostics:
                 tb=tb.tb_next
             if tb is not None:truncated=True
             self._value.update(failure_class=kind,driver_lines=lines or None,lines_truncated=truncated,phase=phase)
+            if type(error)is GraphProviderArgvFailure:
+                self._value['graph_provider_argv']=dict(graph_argv_diagnostic(error.diagnostic))
     def snapshot(self):
         with self._lock:
             if self._invalid:return {'version':1,'invalid':True}
@@ -172,13 +204,15 @@ def project(report, candidate, summary, case, exit_code, harness_sha):
         require(type(check)is dict and type(check.get('id'))is str and check['id']in EXPECTED[case] and check['id']not in seen and check.get('status')=='passed')
         seen.add(check['id']);safe.append({'id':check['id'],'status':'passed'})
     cleanup=report.get('cleanup');require(type(cleanup)is list and len(cleanup)<=256 and type(report.get('cleanup_complete'))is bool)
+    diagnostics=finite_diagnostics(report.get('finite_diagnostics'))
     passed=(exit_code==0 and report['status']=='passed' and report['cleanup_complete']is True
-        and not report.get('failure') and report.get('http_unexpected_errors')==[] and seen==EXPECTED[case])
+        and not report.get('failure') and report.get('http_unexpected_errors')==[] and seen==EXPECTED[case]
+        and diagnostics.get('graph_provider_argv')is None)
     return {'contract':'agentbaton.child-goal-ci.v1','case':case,'status':'passed'if passed else 'failed',
         **summary,'harness_sha256':harness_sha,'exit_code':exit_code,'command_state':'unobserved'if exit_code is None else 'returned','checks':safe,
         'cleanup_complete':report['cleanup_complete'],'cleanup_record_count':len(cleanup),
         'failure_kind':'none'if passed else 'runtime_failed','screenshots_published':False,
-        'private_history_published':False,'finite_diagnostics':finite_diagnostics(report.get('finite_diagnostics'))}
+        'private_history_published':False,'finite_diagnostics':diagnostics}
 
 def publish(path,value):
     pending=path.with_name(path.name+'.pending')

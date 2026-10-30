@@ -739,8 +739,8 @@ def collect_graph_records(runtime,workspace,scope,context,verified,output):
             try:current=support.proc_identity(identity['pid'])
             except FileNotFoundError:current=None
             if current is not None and current['start_ticks']==identity['start_ticks']:
-                argv=Path('/proc',str(identity['pid']),'cmdline').read_bytes();assert 0<len(argv)<=8192 and argv.endswith(b'\0')
-                assert [v.decode()for v in argv[:-1].split(b'\0')][-3:]==row['provider_argv']
+                argv=Path('/proc',str(identity['pid']),'cmdline').read_bytes()
+                finite_projection.check_graph_provider_argv(argv,row['provider_argv'],old is not None)
                 assert os.getpgid(identity['pid'])==identity['pgid']
             if old is None:
                 base.write_private_json(output/('verified-graph-'+str(identity['pid'])+'.json'),fixed);verified.append(fixed)
