@@ -1,3 +1,5 @@
+Next: after independentfinite-evidence review, push oneprivatefixture candidate andread all7exactCI/realreworkphase results; preserve allbounds andrepair onlyevidence-supported runtimeissues. Continue dependencyready schema16/SourceCapture/Coreintegration/full130 work.
+
 Next: push one independently reviewed diagnostics-only candidate, read exact CI phases/toolbytes under original budgets, repair only evidence-supported causes, verify both architectures/artifacts before protected integration; compose dependent16 safely and continue all130.
 
 Next: submit one exact reviewed containment/Graph-wake/deferred-observation candidate for all sevenCI, diagnose actual Mac results without increasing declarations or weakening unknown states, then protected integration. Continue the exact-head schema16 six-path workspace-entry UI and full130 scope.
