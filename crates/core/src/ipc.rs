@@ -475,9 +475,7 @@ impl Daemon {
                 // Service owned workers and newly queued captures immediately.
                 // Idle frontier reconciliation remains in the full outer pass;
                 // this wake-up hint does not replace any admission checks.
-                if self.graph_workers.has_workers()
-                    || !self.store.graph_capture_clocks.is_empty()
-                {
+                if self.graph_workers.has_workers() || !self.store.graph_capture_clocks.is_empty() {
                     self.graph_workers.tick(&mut self.store)?;
                 }
                 self.command_workers.tick(&mut self.store)?;
