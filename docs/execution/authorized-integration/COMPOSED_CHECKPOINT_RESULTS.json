@@ -1,0 +1,592 @@
+{
+  "contract": "agentbaton.authorized-integration.composed-checkpoint.v1",
+  "recorded_at": "2026-10-30T19:12:08.121512+00:00",
+  "approval_id": "AB-START-001",
+  "baseline": {
+    "root": "codex/authorized-integration-assembly",
+    "head": "7b9871adc29124d8b22f4ee39b63c135a913fbe7",
+    "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/21",
+    "draft": true,
+    "base": "PR19",
+    "remote_head_root_reported": "77792da462278b0ba812611b473ec631d9e26137",
+    "main_root_reconfirmed": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+    "OWNER": "001/002 ACK; no003 reported",
+    "source_before_metadata": "9ff7fa29a8f9b9e6d8fc7d4784abb706dbb3444c",
+    "head_note": "Historical7b full14 result remains bound to7b; composed Unicode9ff has not yet run new Core/browser checks."
+  },
+  "requirement_ids": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "actual_source_bound_results": {
+    "core226": {
+      "evidence_id": "integration17-composed-core-full-lib1",
+      "dimension": "Linux Rust Core unit tests; nested subprocess helper excluded",
+      "counts": {
+        "unique_outer_passed": 226,
+        "nested_helper_not_additive": 1
+      },
+      "actual_result": {
+        "source": "77792da462278b0ba812611b473ec631d9e26137",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 173.8134217959887,
+        "minimum_free_bytes": 285061120,
+        "interruption": null,
+        "log_sha256": "a6c92aa7e583781b648bbd9275596c1319548444a66f0547a7ae7221f459c9f4",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 225 filtered out; finished in 0.00s",
+          "test result: ok. 226 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 146.11s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-composed-core-full-lib1/RESULT.json",
+        "sha256": "236c7c1343b7a98088bc9136bc31a94f295fe0011e6d101879f2e50f9272ee5c",
+        "bytes": 987
+      },
+      "log": {
+        "path": ".onboarding/integration17-composed-core-full-lib1/command.log",
+        "sha256": "a6c92aa7e583781b648bbd9275596c1319548444a66f0547a7ae7221f459c9f4",
+        "bytes": 35800
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-composed-core-full-lib1/INPUTS.json",
+        "sha256": "2d550b8669b27e8d5030d19ec3346c125b87f3ebe86cce8d04cd24a6b337bb08",
+        "bytes": 17096
+      }
+    },
+    "mocked_ui1069": {
+      "evidence_id": "integration17-composed-frontend-full-tests1",
+      "dimension": "Vitest/jsdom/mock transport; no real IPC or Native proof",
+      "counts": {
+        "tests_passed": 1069,
+        "files_passed": 59
+      },
+      "actual_result": {
+        "source": "77792da462278b0ba812611b473ec631d9e26137",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "test",
+          "--",
+          "--maxWorkers=1"
+        ],
+        "exit": 0,
+        "seconds": 90.92114589200355,
+        "minimum_free_bytes": 301764608,
+        "interruption": null,
+        "log_sha256": "11331d133ae0b57f4ec1c1c3ce8cdcb1dae744475a7a98a67e0f99cd56c39018",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-composed-frontend-full-tests1/RESULT.json",
+        "sha256": "73d9a79c20248c0b4c680704f1f44549a1b53aff5a78de1a35275910e2195bdd",
+        "bytes": 682
+      },
+      "log": {
+        "path": ".onboarding/integration17-composed-frontend-full-tests1/command.log",
+        "sha256": "11331d133ae0b57f4ec1c1c3ce8cdcb1dae744475a7a98a67e0f99cd56c39018",
+        "bytes": 823
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-composed-frontend-full-tests1/INPUTS.json",
+        "sha256": "b4de6469c9d3e13afefd67457a65d417a65f01a9b3fc4823af56b9d165d4bc53",
+        "bytes": 1588
+      }
+    },
+    "workspaces182": {
+      "evidence_id": "integration17-current-workspaces-full-tests1",
+      "dimension": "Linux workspaces library/real Git and owned-process tests; compile-fail documentation separately counted",
+      "counts": {
+        "unique_outer_passed": 182,
+        "compilefail_docs_passed": 7,
+        "nested_helper_not_additive": 4
+      },
+      "actual_result": {
+        "source": "77792da462278b0ba812611b473ec631d9e26137",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-workspaces",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 104.40529590199003,
+        "minimum_free_bytes": 283041792,
+        "interruption": null,
+        "log_sha256": "996d7d95fc64f6d8de486597c30e3032e817e17b24b1b51d4ef0fc815fa004d9",
+        "summaries": [
+          "test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 28.88s",
+          "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.34s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 1.66s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.31s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.32s",
+          "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.97s",
+          "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.92s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s",
+          "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s",
+          "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.27s",
+          "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.75s",
+          "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.53s",
+          "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-current-workspaces-full-tests1/RESULT.json",
+        "sha256": "f771f05b7051da11317cbc5690780c575686f347fc064b835dea5b58aa720871",
+        "bytes": 2303
+      },
+      "log": {
+        "path": ".onboarding/integration17-current-workspaces-full-tests1/command.log",
+        "sha256": "996d7d95fc64f6d8de486597c30e3032e817e17b24b1b51d4ef0fc815fa004d9",
+        "bytes": 31013
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-current-workspaces-full-tests1/INPUTS.json",
+        "sha256": "ab0ca8aa98408c3608aac2aaab6852b243ce04f20e9b5abb0cfc1b029b9fd969",
+        "bytes": 17089
+      }
+    },
+    "real_unix_ipc14": {
+      "evidence_id": "integration17-finished-stage-service-full-ipc1",
+      "dimension": "Linux real generated Unix IPC/Core integration; not OS Owner dialog, live Provider or macOS",
+      "counts": {
+        "unique_passed": 14
+      },
+      "actual_result": {
+        "source": "7b9871adc29124d8b22f4ee39b63c135a913fbe7",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 118.58405311600654,
+        "minimum_free_bytes": 208834560,
+        "interruption": null,
+        "log_sha256": "5a774de0b98de808777816c7ded5ece53fcffdc223f44289cf95dd5a80efd168",
+        "summaries": [
+          "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 95.08s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-finished-stage-service-full-ipc1/RESULT.json",
+        "sha256": "20e21fe553f6eb897182ce6cce0bf8704fff5b3e4760e0621ad276fd0e0e462b",
+        "bytes": 907
+      },
+      "log": {
+        "path": ".onboarding/integration17-finished-stage-service-full-ipc1/command.log",
+        "sha256": "5a774de0b98de808777816c7ded5ece53fcffdc223f44289cf95dd5a80efd168",
+        "bytes": 2779
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-finished-stage-service-full-ipc1/INPUTS.json",
+        "sha256": "554854d6ed5ae8d22fe27106814c037d1674be2397738498d9ad7741f41f3202",
+        "bytes": 17120
+      }
+    }
+  },
+  "retained_new_failed_results": [
+    {
+      "evidence_id": "integration17-committed-withdrawal-full-ipc3",
+      "dimension": "Linux real Unix IPC; original three-round test failed, exact original 2000ms boundary retained",
+      "counts": {
+        "passed": 13,
+        "failed": 1
+      },
+      "actual_result": {
+        "source": "77792da462278b0ba812611b473ec631d9e26137",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 101,
+        "seconds": 112.2501446440001,
+        "minimum_free_bytes": 290435072,
+        "interruption": null,
+        "log_sha256": "15e801596af1c38c22ea6dd71d51d86a10916eca87d6da4dd9ed8617ee9a2686",
+        "summaries": [
+          "test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 89.13s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-committed-withdrawal-full-ipc3/RESULT.json",
+        "sha256": "93d2335fcb673b3e3a856920dfabc524e3a3f3af9eb117d0bae14bc09180db1a",
+        "bytes": 912
+      },
+      "log": {
+        "path": ".onboarding/integration17-committed-withdrawal-full-ipc3/command.log",
+        "sha256": "15e801596af1c38c22ea6dd71d51d86a10916eca87d6da4dd9ed8617ee9a2686",
+        "bytes": 3387
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-committed-withdrawal-full-ipc3/INPUTS.json",
+        "sha256": "99e8c0ec7547539b8025bb7135fbba08a9c239b8ab72b2b249d256c850af87cc",
+        "bytes": 17120
+      },
+      "meaning": "Retained original three-round failure: actual preparation1452/2000ms and validator2004/2000ms; timely stopped exit0 false artifact and owned cleanup did not authorize CAS. No phase timing identified why the original deadline was exceeded; later full14 single pass does not prove a performance root cause."
+    },
+    {
+      "evidence_id": "integration17-round-history-real-command1",
+      "dimension": "Linux built React/Chromium/generated bridge and actual Core17; bootstrap refused before any checks or screenshots",
+      "counts": {
+        "passed_checks": 0,
+        "screenshots": 0
+      },
+      "actual_result": {
+        "source": "3f2e57b61751a1b8516127e789d02bd63ac25c39",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/integration-round-history-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/integration17-rounds-current-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/integration17-rounds-current-frozen1/manifest.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/integration17-rounds-current-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "3f2e57b61751a1b8516127e789d02bd63ac25c39",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/integration17-round-history-real-actual1",
+          "--run"
+        ],
+        "exit": 1,
+        "seconds": 2.005885071994271,
+        "minimum_free_bytes": 355848192,
+        "interruption": null,
+        "log_sha256": "5fc9990c2c20740f7d6a45356c974bc467d352b2b304e16225baecda52906d8d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-round-history-real-command1/RESULT.json",
+        "sha256": "a21d290c9e57aaa98b7cade1267314965b01ce6b5ac9a424ff60070eb383d630",
+        "bytes": 1511
+      },
+      "log": {
+        "path": ".onboarding/integration17-round-history-real-command1/command.log",
+        "sha256": "5fc9990c2c20740f7d6a45356c974bc467d352b2b304e16225baecda52906d8d",
+        "bytes": 94
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-round-history-real-command1/INPUTS.json",
+        "sha256": "aabeb9aa4e99f275f0017f830ca6a582508ca2221656c6c28f1e2007e225c3ad",
+        "bytes": 2417
+      },
+      "meaning": "Generated Python fixture shared the root/project budget object; first mutation changed the later expected original value. Source two-pass validation correction was composed and source/pure reviewed; actual corrected mixed-round browser has not been rerun in this proposal.",
+      "retained_report": {
+        "path": ".onboarding/integration17-round-history-real-actual1/report.json",
+        "sha256": "fe31c447aeb1f678a85ca06cfb72a41498e5529b4d75a4f5b86ca52a16847810",
+        "bytes": 3539
+      },
+      "actual_cleanup": {
+        "browser_closed": true,
+        "playwright_stopped": true,
+        "daemon_joined": {
+          "exit": 0,
+          "joined": true,
+          "forced_kill": false
+        },
+        "owned_gate_thread_joined": {
+          "thread_joined": true
+        },
+        "original_validator_identities_gone_after_daemon_join": true,
+        "private_transcript_saved": true,
+        "tools_assets_sources_unchanged": true
+      }
+    }
+  ],
+  "completion_service_source_review": [
+    {
+      "scope": "original dd1: CHANGES_REQUIRED one P2 fatal propagation ordering",
+      "review": {
+        "path": ".onboarding/integration-finished-stage-service-independent-review/REVIEW.md",
+        "sha256": "3594d037a566e270af05ba171ed22471d8b0abb3ee755d309ae59951bc3af8f8",
+        "bytes": 3069
+      },
+      "manifest": {
+        "path": ".onboarding/integration-finished-stage-service-independent-review/MANIFEST.json",
+        "sha256": "fc31d6fdffce32059b2891b8e72d584aafd9b77a2ff453385180369dd09ea84f",
+        "bytes": 982
+      }
+    },
+    {
+      "scope": "59f correction: Ready, eighteen source assertions; no runtime by reviewer",
+      "review": {
+        "path": ".onboarding/integration-finished-stage-service-independent-review/revision-59f2f30/REVIEW.md",
+        "sha256": "fbb5f5db7f097bdc8cec23909f494bd598340dde310bfbb9a5c1ba7665ee6333",
+        "bytes": 2608
+      },
+      "manifest": {
+        "path": ".onboarding/integration-finished-stage-service-independent-review/revision-59f2f30/MANIFEST.json",
+        "sha256": "237d3fe97b5bd0b99c98dc37c19d251ea60df8a69dc0a5633a3886f54b00901f",
+        "bytes": 928
+      }
+    }
+  ],
+  "parent_precise_ci": {
+    "pr": 18,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/pull/18",
+    "head": "8fe85661e6cf62f23fe681b6567a92fff9ac0d59",
+    "Environment": {
+      "run": 41106104971,
+      "three_lanes": "passed"
+    },
+    "Product": {
+      "run": 41106104765,
+      "conclusion": "failure",
+      "Rust": "passed",
+      "UI": "passed",
+      "AppleSilicon": "passed",
+      "Intel": "failed WORKSPACE_BUSY, retryable=true, side_effect_state=not_started;26 passed/1 failed; daemon cleanup joined"
+    },
+    "provenance": "Root retained fresh gh run view terminal JSON19:12UTC; original earlier in-progress snapshots retained.",
+    "Intel_original_log": {
+      "path": ".onboarding/pr18-head8fe-evidence/intel-job.log",
+      "sha256": "9e991fb0149e03ff949802f0db2249e102fcba04eb91f68318d59110711896b9",
+      "bytes": 203438
+    },
+    "fix_state": "39fc920 independently Ready27source checks, composed Parent58fad19/b025f14; full33 Factory actual is running, not a passed fix or newCI result",
+    "not_transferred": "Schema15 parent CI is not Root schema17 CI or current Mac installer acceptance",
+    "terminal_records": [
+      {
+        "path": ".onboarding/pr18-head8fe-evidence/product-terminal.json",
+        "sha256": "f3d545508c97939d131762f04449b9692e137a48761ff8541f1c5342c10a1d62",
+        "bytes": 10132
+      },
+      {
+        "path": ".onboarding/pr18-head8fe-evidence/environment-terminal.json",
+        "sha256": "6383e3fd1ce540860b486f8680a8cf9a43d7801c5a752f534e31458ead024bc4",
+        "bytes": 6079
+      }
+    ],
+    "fix_review": {
+      "path": ".onboarding/pr18-read-busy-resumed-independent-review/REVIEW.json",
+      "sha256": "e270bce6a39e050a58852fca28383f657d7ebe04739f6d2c7ddd7f5c01a57260",
+      "bytes": 4771
+    }
+  },
+  "separate_unicode_slice": {
+    "branch": "codex/selected-source-unicode-paths",
+    "source": "f45d80826078978bb5021c150a827774dc647e0a",
+    "composition": "Reviewed library source composed into Root9ff7fa29a8f9b9e6d8fc7d4784abb706dbb3444c; earlier actual tests remain bound to separatef45",
+    "actual_source_tests": {
+      "evidence_id": "selected-source-unicode-actual-source-tests1",
+      "dimension": "Linux workspaces source_capture real Git/FS only",
+      "counts": {
+        "passed": 21
+      },
+      "actual_result": {
+        "source": "f45d80826078978bb5021c150a827774dc647e0a",
+        "root": "/workspace/.worktrees/selected-source-unicode-paths",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-workspaces",
+          "--test",
+          "source_capture",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 15.453563392016804,
+        "minimum_free_bytes": 264708096,
+        "interruption": null,
+        "log_sha256": "0583e0d893966013a38a6932fb1b302f653c90dcdb998ab962a06760911aad84",
+        "summaries": [
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.19s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/selected-source-unicode-actual-source-tests1/RESULT.json",
+        "sha256": "a90e90ca69c9b7a8b791427b77d7599b3aa3a3ee17476a054f680c53faedb8d3",
+        "bytes": 908
+      },
+      "log": {
+        "path": ".onboarding/selected-source-unicode-actual-source-tests1/command.log",
+        "sha256": "0583e0d893966013a38a6932fb1b302f653c90dcdb998ab962a06760911aad84",
+        "bytes": 2207
+      },
+      "inputs": {
+        "path": ".onboarding/selected-source-unicode-actual-source-tests1/INPUTS.json",
+        "sha256": "b54ef44751135d2f2bb9a7518f91e97f4b2b825672c96d53fd211accddab0a9b",
+        "bytes": 5468
+      }
+    },
+    "independent_review": {
+      "review": {
+        "path": ".onboarding/selected-source-unicode-independent-review/REVIEW-0fa6dad.json",
+        "sha256": "7043000ec1adf89a8f62bdb002d4deb4ce22c73d50467a3cca723c47c06ad290",
+        "bytes": 3241
+      },
+      "manifest": {
+        "path": ".onboarding/selected-source-unicode-independent-review/MANIFEST-0fa6dad.json",
+        "sha256": "f7ee20d27b0635fb33e270f30586be92de9ec3f1bd322b16d5422782b2a02f2f",
+        "bytes": 369
+      },
+      "state": "Ready after preserving and correcting two P2 findings"
+    },
+    "full_workspaces": {
+      "evidence_id": "selected-source-unicode-full-workspaces1",
+      "actual_result": {
+        "source": "f45d80826078978bb5021c150a827774dc647e0a",
+        "root": "/workspace/.worktrees/selected-source-unicode-paths",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-workspaces",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 111.37439530799747,
+        "minimum_free_bytes": 257355776,
+        "interruption": null,
+        "log_sha256": "f0e836ac4afb00e5fdc287ae491f48046400c32b8ccca4fbe31b14fb163a4f12",
+        "summaries": [
+          "test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 28.87s",
+          "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.38s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 1.68s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.33s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.32s",
+          "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.06s",
+          "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.24s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s",
+          "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s",
+          "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.35s",
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.55s",
+          "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.93s",
+          "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/selected-source-unicode-full-workspaces1/RESULT.json",
+        "sha256": "76d0bc651ce87a4024036de74e189a4c1a4310678d4ed5cdf6e58094670aaec9",
+        "bytes": 2300
+      },
+      "log": {
+        "path": ".onboarding/selected-source-unicode-full-workspaces1/command.log",
+        "sha256": "f0e836ac4afb00e5fdc287ae491f48046400c32b8ccca4fbe31b14fb163a4f12",
+        "bytes": 31583
+      },
+      "inputs": {
+        "path": ".onboarding/selected-source-unicode-full-workspaces1/INPUTS.json",
+        "sha256": "d964fbb038270e75941839e3d595e953bd857fc2a6fdade3b42a14bbaa3e187e",
+        "bytes": 5432
+      },
+      "counts": {
+        "unique_outer_passed": 190,
+        "compilefail_docs_passed": 7,
+        "source_capture21_included": true,
+        "nested_helpers_not_additive": 4
+      }
+    },
+    "remaining": "Composed Core/Command/integration/browser Unicode and both Mac actual execution remain not_run; no product-wide Unicode acceptance."
+  },
+  "remaining_acceptance": [
+    "Full Core/current strict Clippy/fmt/infrastructure on final composed source; prior777 passes stay at777",
+    "Corrected mixed-round actual browser plus existing normal/failure browser using fresh same-head preview tools and frontend builds",
+    "New stopped-target-drift cancel/expiry/unknown/pin/overrun matrix remains incomplete",
+    "Current Native tests, both actual macOS architectures, exact required CI and protected integration",
+    "Current traceable dual-architecture installers with actual hashes/signature/limitations/manual checklist",
+    "All remaining Designv0.2/130 scope including add/delete/adoption/remote/retention; no whole-product acceptance"
+  ],
+  "authority_unchanged": {
+    "formal_GitHub_Approve": "requires exact-PR current user confirmation",
+    "real_product_Provider_model_accounts": "separate approval required",
+    "new_paid_resources_or_accounts": "not authorized",
+    "production_signing_notarization_final_license": "not authorized",
+    "main_force_push_or_protection_bypass": false
+  },
+  "formatter_activity": {
+    "source_or_Git_modified": false,
+    "test_execution": false,
+    "network_query": false,
+    "raw_DB_read": false,
+    "private_content_copied": false,
+    "metadata_only_proposal": true
+  }
+}

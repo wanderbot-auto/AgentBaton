@@ -1,3 +1,11 @@
+## Source-bound integration checkpoint; full product acceptance remains open — 2026-10-30T19:12:08.121512+00:00
+
+Root7b passes all14 actual Linux Unix IPC cases (95.08s), including bounded false,false,true rounds, refusal and Owner withdrawal cases. Earlier source777 separately passes226 unique Core units,1069 mocked UI tests/59files and182 unique Workspaces tests plus7 compile-fail docs; nested helpers and focused subsets are not additive. Keep each result bound to its tested commit. The new owned-completion scheduling service and exact fatal-error propagation correction have independent source closure; one later full14 pass does not establish a performance root cause.
+
+Preserve the earlier13pass/1fail original2000ms deadline result and the mixed-round browser bootstrap refusal (0checks/0screenshots). The shared-budget alias fixture correction is source/pure reviewed, but corrected actual browser execution and new same-head builds remain unrun here. Unicode sourcef45 passes full190 unique Workspaces tests plus7 compile-fail docs (21 source-capture included). Independently reviewed library source is now composed into Root9ff; current Core/Command/UI and bothMac Unicode checks remain unrun. Parent8fe Environment/Rust/UI/AppleSilicon pass; Intel fails26/1 on typed readonly WORKSPACE_BUSY/not_started, distinct from prior budget failures. The exact readonly reconciliation has independent source closure and is composed into Parentb025; full33 Factory actual is running, not a passed fix or newCI result.
+
+PR21 remains a dependent draft based onPR19. Current full Core/strict checks, new real browser, Native/dualMac, exactCI/protected integration/current development installers and full130 requirements remain open. OWNER001002/main653679d freshly ACK by Root; authorization unchanged. No formalApprove, merge, liveProvider, signing or production release claim. See COMPOSED_CHECKPOINT_RESULTS.json for exact source attribution; metadata review pending.
+
 
 ## Actual target-only recovery and bounded refusal verified — 2026-10-30T18:06:34.358084+00:00
 

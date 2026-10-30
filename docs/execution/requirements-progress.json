@@ -229,7 +229,8 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/project-registry/EVIDENCE.json",
-        "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json"
+        "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
+        "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -257,6 +258,30 @@
           "linux_real_ipc_unique": 12,
           "core_unique": 221,
           "coverage": "partial; no new Native/Mac/currentCI/fullrequirement acceptance"
+        },
+        {
+          "slice": "owned_completed_stage_and_committed_owner_withdrawal_bounded_target_drift",
+          "evidence": "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
+          "source_attribution": {
+            "core_unique226": "77792da462278b0ba812611b473ec631d9e26137",
+            "linux_real_ipc14": "7b9871adc29124d8b22f4ee39b63c135a913fbe7",
+            "mocked_ui1069_59files": "77792da462278b0ba812611b473ec631d9e26137",
+            "workspaces_unique182_plus7compilefail": "77792da462278b0ba812611b473ec631d9e26137"
+          },
+          "counts_not_additive": "Nested helper runs and prior focused slices are included, not extra tests",
+          "actual_mixed_round_browser": "bootstrap0checks0screens failed at3f; correction source reviewed but new actual not_run",
+          "Native_OS_Mac_currentCI_installers": "not_run on this composition",
+          "coverage": "partial; full requirement not accepted"
+        },
+        {
+          "slice": "raw_UTF8_selected_source_library_and_full_casefold_alias_guards",
+          "source": "f45d80826078978bb5021c150a827774dc647e0a",
+          "composed_root": "9ff7fa29a8f9b9e6d8fc7d4784abb706dbb3444c",
+          "workspaces_unique": 190,
+          "source_capture21_included": true,
+          "compilefail_docs": 7,
+          "evidence": "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
+          "coverage": "partial Linux library only; composed Core/Command/UI/Mac Unicode not_run"
         }
       ]
     },
@@ -289,7 +314,8 @@
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
-        "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json"
+        "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
+        "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -338,6 +364,30 @@
           "linux_real_ipc_unique": 12,
           "core_unique": 221,
           "coverage": "partial; no new Native/Mac/currentCI/fullrequirement acceptance"
+        },
+        {
+          "slice": "owned_completed_stage_and_committed_owner_withdrawal_bounded_target_drift",
+          "evidence": "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
+          "source_attribution": {
+            "core_unique226": "77792da462278b0ba812611b473ec631d9e26137",
+            "linux_real_ipc14": "7b9871adc29124d8b22f4ee39b63c135a913fbe7",
+            "mocked_ui1069_59files": "77792da462278b0ba812611b473ec631d9e26137",
+            "workspaces_unique182_plus7compilefail": "77792da462278b0ba812611b473ec631d9e26137"
+          },
+          "counts_not_additive": "Nested helper runs and prior focused slices are included, not extra tests",
+          "actual_mixed_round_browser": "bootstrap0checks0screens failed at3f; correction source reviewed but new actual not_run",
+          "Native_OS_Mac_currentCI_installers": "not_run on this composition",
+          "coverage": "partial; full requirement not accepted"
+        },
+        {
+          "slice": "raw_UTF8_selected_source_library_and_full_casefold_alias_guards",
+          "source": "f45d80826078978bb5021c150a827774dc647e0a",
+          "composed_root": "9ff7fa29a8f9b9e6d8fc7d4784abb706dbb3444c",
+          "workspaces_unique": 190,
+          "source_capture21_included": true,
+          "compilefail_docs": 7,
+          "evidence": "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
+          "coverage": "partial Linux library only; composed Core/Command/UI/Mac Unicode not_run"
         }
       ],
       "data_workspace_contribution": {
@@ -7047,7 +7097,8 @@
         "docs/execution/capture-completion-service/ROOT_RESULTS.json",
         "docs/execution/goal-stop-service/ROOT_RESULTS.json",
         "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
-        "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json"
+        "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
+        "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -7174,6 +7225,30 @@
           "linux_real_ipc_unique": 12,
           "core_unique": 221,
           "coverage": "partial; no new Native/Mac/currentCI/fullrequirement acceptance"
+        },
+        {
+          "slice": "owned_completed_stage_and_committed_owner_withdrawal_bounded_target_drift",
+          "evidence": "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
+          "source_attribution": {
+            "core_unique226": "77792da462278b0ba812611b473ec631d9e26137",
+            "linux_real_ipc14": "7b9871adc29124d8b22f4ee39b63c135a913fbe7",
+            "mocked_ui1069_59files": "77792da462278b0ba812611b473ec631d9e26137",
+            "workspaces_unique182_plus7compilefail": "77792da462278b0ba812611b473ec631d9e26137"
+          },
+          "counts_not_additive": "Nested helper runs and prior focused slices are included, not extra tests",
+          "actual_mixed_round_browser": "bootstrap0checks0screens failed at3f; correction source reviewed but new actual not_run",
+          "Native_OS_Mac_currentCI_installers": "not_run on this composition",
+          "coverage": "partial; full requirement not accepted"
+        },
+        {
+          "slice": "raw_UTF8_selected_source_library_and_full_casefold_alias_guards",
+          "source": "f45d80826078978bb5021c150a827774dc647e0a",
+          "composed_root": "9ff7fa29a8f9b9e6d8fc7d4784abb706dbb3444c",
+          "workspaces_unique": 190,
+          "source_capture21_included": true,
+          "compilefail_docs": 7,
+          "evidence": "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
+          "coverage": "partial Linux library only; composed Core/Command/UI/Mac Unicode not_run"
         }
       ]
     },

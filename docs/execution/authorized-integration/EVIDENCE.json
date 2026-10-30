@@ -205,5 +205,7 @@
       "sha256": "1f80c94d80dd115dc4b2f6e8035a5eef7d4b2b6e7f9e8333dac480c8c75b1e0d",
       "dimension": "216Core/7realIPC/357infra/current2browser9checks12PNG; Nativecompileonly; wholeproductincomplete"
     }
-  ]
+  ],
+  "composed_source_bound_checkpoint": "COMPOSED_CHECKPOINT_RESULTS.json",
+  "whole_product_accepted": false
 }
