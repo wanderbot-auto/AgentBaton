@@ -921,25 +921,37 @@ fn adopt_inner(
     }
     verify_repository_controlled(grant, control)?;
     controlled_check(control)?;
-    let result = bound_output(
-        grant,
-        &[
-            "update-ref",
-            "--no-deref",
-            "-m",
-            "AgentBaton validated local adoption",
-            grant.target_ref.as_str(),
-            candidate.integration_candidate.as_str(),
-            grant.expected_target_head.as_str(),
-        ],
-        control,
+    let default_cancel = std::sync::atomic::AtomicBool::new(false);
+    let default_control = AdoptionControl::for_request(
+        &default_cancel,
+        std::time::Instant::now() + std::time::Duration::from_secs(15),
     );
-    // A joined exit0 is an actual update-ref completion receipt. Cancellation
-    // after that completion does not erase history or fabricate a stopped-no-CAS.
+    let transaction_control = control.unwrap_or(&default_control);
     #[cfg(test)]
-    controlled_completion_hook::apply(result.as_ref().is_ok_and(|r| r.output.status.success()));
-    let confirmed_controlled =
-        control.is_some() && result.as_ref().is_ok_and(|r| r.output.status.success());
+    pre_cas_hook::apply();
+    let result = crate::prepared_ref_output(
+        &mut bound_git_command(grant),
+        &grant.target_ref,
+        &candidate.integration_candidate,
+        &grant.expected_target_head,
+        transaction_control,
+        || {
+            verify_repository_controlled(grant, Some(transaction_control))?;
+            if checked_out(grant, Some(transaction_control))? {
+                return Err(AdoptionError::TargetCheckedOut);
+            }
+            controlled_check(Some(transaction_control))
+        },
+    );
+    // Commit ACK plus joined exit0 is the historical write receipt. A joined
+    // abort also exits0, but must never be classified as successful adoption.
+    let confirmed_commit = result.as_ref().is_ok_and(|r| r.commit_acknowledged);
+    let confirmed_abort = result
+        .as_ref()
+        .is_ok_and(|r| r.abort_acknowledged && r.validation_error.is_some());
+    #[cfg(test)]
+    controlled_completion_hook::apply(confirmed_commit);
+    let result = result.map(|r| r.result);
     let observed = bound_text_controlled(
         grant,
         &["rev-parse", "--verify", grant.target_ref.as_str()],
@@ -962,26 +974,14 @@ fn adopt_inner(
         });
     io.elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
     io.interrupted |= control.is_some_and(|c| c.check().is_err());
-    let state = if confirmed_controlled {
+    let state = if confirmed_commit {
         IntegrationState::ConfirmedLocalRef
+    } else if confirmed_abort {
+        IntegrationState::Rejected
     } else {
-        match result {
-            Ok(output)
-                if !output.interrupted
-                    && output.output.status.success()
-                    && observed.as_deref() == Some(&candidate.integration_candidate) =>
-            {
-                IntegrationState::ConfirmedLocalRef
-            }
-            Ok(output)
-                if !output.interrupted
-                    && !output.output.status.success()
-                    && observed.as_deref() == Some(&grant.expected_target_head) =>
-            {
-                IntegrationState::Rejected
-            }
-            _ => IntegrationState::OutcomeUnknown,
-        }
+        // A post-commit disconnect or an unacknowledged protocol step cannot
+        // be repaired by looking at today's target value or a generic exit0.
+        IntegrationState::OutcomeUnknown
     };
     Ok(ControlledIntegrationResult {
         record: IntegrationRecord {
@@ -1085,6 +1085,32 @@ pub fn plan_development_delivery(
 }
 
 #[cfg(test)]
+mod pre_cas_hook {
+    type Hook = Box<dyn FnOnce()>;
+    std::thread_local! { static HOOK: std::cell::RefCell<Option<Hook>> = std::cell::RefCell::new(None); }
+    pub(super) struct Guard;
+    pub(super) fn install(hook: impl FnOnce() + 'static) -> Guard {
+        HOOK.with(|slot| {
+            assert!(slot.borrow().is_none());
+            *slot.borrow_mut() = Some(Box::new(hook));
+        });
+        Guard
+    }
+    pub(super) fn apply() {
+        let hook = HOOK.with(|slot| slot.borrow_mut().take());
+        if let Some(hook) = hook {
+            hook();
+        }
+    }
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            HOOK.with(|slot| {
+                slot.borrow_mut().take();
+            });
+        }
+    }
+}
+#[cfg(test)]
 mod controlled_completion_hook {
     type Hook = Box<dyn FnOnce(bool)>;
     std::thread_local! {static HOOK:std::cell::RefCell<Option<Hook>>=std::cell::RefCell::new(None);}
@@ -1135,6 +1161,100 @@ mod controlled_completion_tests {
             .unwrap();
         assert!(out.status.success());
         String::from_utf8(out.stdout).unwrap().trim().into()
+    }
+    #[test]
+    fn prepared_lock_rechecks_and_aborts_a_late_symbolic_slot_without_overwriting_it() {
+        for checked_out in [false, true] {
+            let temp = tempfile::tempdir().unwrap();
+            let root = temp.path().canonicalize().unwrap();
+            let managed_directory = tempfile::tempdir().unwrap();
+            let managed = managed_directory.path().canonicalize().unwrap();
+            git(&root, &["init", "-b", "source"]);
+            git(&root, &["config", "user.name", "Fixture"]);
+            git(&root, &["config", "user.email", "fixture@example.invalid"]);
+            fs::write(root.join("file.txt"), b"base\n").unwrap();
+            git(&root, &["add", "file.txt"]);
+            git(&root, &["commit", "-m", "base"]);
+            let base = git(&root, &["rev-parse", "HEAD"]);
+            git(&root, &["branch", "integration"]);
+            git(&root, &["branch", "other"]);
+            fs::write(root.join("file.txt"), b"candidate\n").unwrap();
+            git(&root, &["commit", "-am", "candidate"]);
+            let source = git(&root, &["rev-parse", "HEAD"]);
+            if checked_out {
+                let path = managed.join("other-checkout");
+                git(&root, &["worktree", "add", path.to_str().unwrap(), "other"]);
+            }
+            let grant = AuthorizedIntegration::from_verified_grant(
+                &inspect(&root).unwrap(),
+                "refs/heads/integration".into(),
+                base.clone(),
+                source.clone(),
+                "owner:exact-target".into(),
+                1_700_000_000,
+            )
+            .unwrap();
+            let candidate = prepare_candidate(grant, &managed, "candidate").unwrap();
+            let outputs = vec![BoundArtifact::from_approved_root(
+                &candidate.workspace().canonical_root,
+                ArtifactRequirement {
+                    artifact_id: "file".into(),
+                    relative_path: "file.txt".into(),
+                    max_bytes: 4096,
+                    expected_sha256: None,
+                },
+            )
+            .unwrap()];
+            let rule = ApprovedRule::from_verified_policy(
+                "owner:exact-target".into(),
+                "policy:v1".into(),
+                ValidationSubject {
+                    task_id: "task".into(),
+                    attempt_id: "attempt".into(),
+                    spec_revision: 1,
+                    input_revision: "base".into(),
+                    version: candidate.version_binding(),
+                },
+                &[],
+                &outputs,
+                None,
+            )
+            .unwrap();
+            let evidence = validate_artifacts(&rule, vec![], outputs, None).unwrap();
+            let acceptance = evidence.accept(&rule).unwrap();
+            let index = fs::read(root.join(".git/index")).unwrap();
+            let hook_root = root.clone();
+            let _hook = pre_cas_hook::install(move || {
+                git(
+                    &hook_root,
+                    &["symbolic-ref", "refs/heads/integration", "refs/heads/other"],
+                );
+            });
+            let cancel = AtomicBool::new(false);
+            let control =
+                AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(5));
+            let actual =
+                adopt_local_reference_controlled(&candidate, &evidence, &acceptance, &control)
+                    .unwrap();
+            assert_eq!(actual.record().state, IntegrationState::Rejected);
+            assert!(actual.io().io_complete());
+            assert_eq!(
+                git(
+                    &root,
+                    &["symbolic-ref", "--quiet", "refs/heads/integration"]
+                ),
+                "refs/heads/other"
+            );
+            assert_eq!(
+                fs::read(root.join(".git/refs/heads/integration")).unwrap(),
+                b"ref: refs/heads/other\n"
+            );
+            assert!(!root.join(".git/refs/heads/integration.lock").exists());
+            assert_eq!(git(&root, &["rev-parse", "refs/heads/other"]), base);
+            assert_eq!(git(&root, &["rev-parse", "HEAD"]), source);
+            assert_eq!(fs::read(root.join(".git/index")).unwrap(), index);
+            assert_eq!(fs::read(root.join("file.txt")).unwrap(), b"candidate\n");
+        }
     }
     fn completed_cas_remains_historical_success(late: bool) {
         let temp = tempfile::tempdir().unwrap();
