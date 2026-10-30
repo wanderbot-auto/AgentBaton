@@ -738,3 +738,6 @@ fn no_hint_skips_the_stop_scan_instead_of_masking_its_required_failure() {
     );
     assert_eq!(daemon.store.sequence().unwrap(), sequence);
 }
+
+#[path = "factory_history_actor_tests.rs"]
+mod history_actor_tests;

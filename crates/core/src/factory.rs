@@ -506,6 +506,10 @@ pub(crate) use capture::{FactoryCapture, FactoryCapturePlan};
 mod reads;
 pub(crate) use reads::{FactoryReadControl, FactoryReadPlan, FactoryReadWatch, FactoryReadWitness};
 
+#[path = "factory_history_reads.rs"]
+mod history_reads;
+pub(crate) use history_reads::{FactoryHistoryQuery, FactoryHistoryWorkers};
+
 pub(crate) use runtime::{checked_child_goal_scope, live_child_goal_scope, FactoryGoalSource};
 
 pub(crate) use runtime::{

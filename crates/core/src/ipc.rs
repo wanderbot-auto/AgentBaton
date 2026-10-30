@@ -40,6 +40,40 @@ struct Request {
     expected_revision: Option<u64>,
     idempotency_key: Option<String>,
 }
+pub(crate) fn factory_history_query(
+    raw: &str,
+    token: &str,
+) -> Result<Option<(String, crate::factory::FactoryHistoryQuery)>> {
+    let request: Request = match serde_json::from_str(raw) {
+        Ok(request) => request,
+        Err(_) => return Ok(None),
+    };
+    if request.token != token
+        || request.api_version != API_VERSION
+        || request.request_id.is_empty()
+        || request.request_id.len() > 128
+    {
+        return Ok(None);
+    }
+    if !matches!(
+        request.method.as_str(),
+        "factory_child_goals.get" | "factory_child_goals.list"
+    ) {
+        return Ok(None);
+    }
+    // Preserve the original two dispatch arms' None-only read envelope.
+    if request.expected_revision.is_some() || request.idempotency_key.is_some() {
+        return Err(invalid());
+    }
+    let query = params(request.params)?;
+    let query = if request.method == "factory_child_goals.get" {
+        crate::factory::FactoryHistoryQuery::Get(query)
+    } else {
+        crate::factory::FactoryHistoryQuery::List(query)
+    };
+    Ok(Some((request.request_id, query)))
+}
+
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct GoalScopeId {
@@ -365,6 +399,7 @@ impl FactoryQueueClock {
 pub struct Daemon {
     listener: UnixListener,
     store: Store,
+    history_workers: crate::factory::FactoryHistoryWorkers,
     token: String,
     _lock: File,
     socket: PathBuf,
@@ -426,6 +461,7 @@ impl Daemon {
         Ok(Self {
             listener,
             store,
+            history_workers: Default::default(),
             token,
             _lock: lock,
             socket,
@@ -454,6 +490,7 @@ impl Daemon {
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
+            self.history_workers.poll(&self.store);
             self.finish_integration_read();
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
@@ -491,6 +528,7 @@ impl Daemon {
                 self.command_workers.tick(&mut self.store)?;
                 self.data_workers.tick(&mut self.store)?;
                 self.finish_data_admission();
+                self.history_workers.poll(&self.store);
                 self.finish_integration_read();
                 self.tick_integrations()?;
             }
@@ -514,6 +552,7 @@ impl Daemon {
         }
         drop(ready);
         drop(requests);
+        self.history_workers.cancel_owned();
         self.integration_workers.stop_reads();
         if let Some((job, result)) = self.integration_workers.join_reads() {
             // Shutdown consumes the original worker and proof without admitting
@@ -542,6 +581,8 @@ impl Daemon {
         self.command_workers.shutdown(&mut self.store)?;
         self.supervisor.shutdown(&mut self.store)?;
         self.graph_workers.shutdown(&mut self.store)?;
+        self.history_workers.reap_owned_workers();
+        self.history_workers.release_database(&self.store);
         for reader in readers {
             let _ = reader.join();
         }
@@ -1145,6 +1186,7 @@ impl Drop for Daemon {
     fn drop(&mut self) {
         // Error/unwind paths also retain authority until every owned worker is
         // cancelled and joined. Unpersisted outcomes are reconciled on restart.
+        self.history_workers.cancel_owned();
         self.integration_workers.stop_reads();
         self.integration_workers.stop_stages();
         // Consume the actual JoinHandle before unlinking the socket or
@@ -1156,6 +1198,8 @@ impl Drop for Daemon {
         self.data_workers.reap_owned_workers();
         self.command_workers.reap_owned_workers();
         self.supervisor.reap_owned_workers();
+        self.history_workers.reap_owned_workers();
+        self.history_workers.release_database(&self.store);
         let _ = fs::remove_file(&self.socket);
         // `run` has finished before self is dropped. Release this ownership
         // explicitly: duplicated/inherited descriptors can outlive this File.
@@ -2192,6 +2236,23 @@ impl Daemon {
                 }
             }
             Ok(_) => {
+                match factory_history_query(&job.raw, &self.token) {
+                    Ok(Some((request_id, query))) => {
+                        if let Err(failure) =
+                            self.history_workers
+                                .start(&self.store, query, request_id, job)
+                        {
+                            let (error, job) = *failure;
+                            let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                        }
+                        return;
+                    }
+                    Err(error) => {
+                        let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                        return;
+                    }
+                    Ok(None) => {}
+                }
                 let response = self.handle(&job.raw);
                 let _ = job.reply.try_send(response);
             }
