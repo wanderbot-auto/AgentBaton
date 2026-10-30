@@ -1309,21 +1309,235 @@
     }
   ],
   "latest_root_followup": {
-    "recorded_at_utc": "2026-10-30T14:02:49.022114+00:00",
+    "recorded_at_utc": "2026-10-30T15:41:35.235462+00:00",
+    "before_records_commit": "b3ae58596920d20e6c0df185bd7164ec8226d803",
     "branch": "codex/authorized-integration-assembly",
-    "before_records_commit": "f3f5346d4128f5b7faa2f169cb87bf7638e3e6e1",
-    "product_code_revision": "0cee7d57907af547880db1367c0386c4bc108950",
     "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/21",
     "base": "codex/task-workspace-integration",
-    "remote_before_checkpoint": "5993d3695045d000af948b24c60af315afd55b5e",
+    "remote_before_checkpoint": "017684ba87020ed27482c05ca9e9051981ad0ec7",
     "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
     "OWNER_ACK": [
       "OWNER-001",
       "OWNER-002"
     ],
     "commands": {
-      "integration17-validator-stop-core-ipc1": {
-        "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+      "integration17-checkpoint094-infrastructure1": {
+        "source": "09414ea041fe9ad6e73b6fdd1784f8e237e387fe",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 1,
+        "seconds": 9.228596437023953,
+        "summaries": [],
+        "log_sha256": "6fac59919af9100c49dc2458126362dff6c94b3e235204085f8cdab41495a6a4",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "3b07989f4989f6d78f2cc3532d7ccdeddc0a32ba5b870bcf390bfda47f70a9e8",
+        "inputs_sha256": "57d82e4388948d7bea4950a33e229fcab15b6733275e4055af56258d58ba0877"
+      },
+      "integration17-browser357-infrastructure1": {
+        "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 1,
+        "seconds": 9.730758202989819,
+        "summaries": [],
+        "log_sha256": "05741102b81685564b8c6e62decc424311dc0f0da402fc66fd9cf54cd88b3933",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "bfbcbb1abb62bd9b4126ab33dcd4678b5dcabdb12bb5e0c907252da691949bbe",
+        "inputs_sha256": "4dc52609382b8c9df5362c41c808c8fb14cafdcb60abd87613c909ae3eaa8138"
+      },
+      "integration17-browser357-infrastructure2": {
+        "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 0,
+        "seconds": 8.420671964995563,
+        "summaries": [],
+        "log_sha256": "13e95e191e2909766d951932f29407dd2ca84c022bcfb52c359f915e71838ebb",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "e18823eb23d866df9ab0f0d938626d9098c0cfdfa7cc2e11a9a70bccd546dc2d",
+        "inputs_sha256": "4dc52609382b8c9df5362c41c808c8fb14cafdcb60abd87613c909ae3eaa8138"
+      },
+      "integration17-browser4e-tools-build1": {
+        "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 27.802377102983883,
+        "summaries": [],
+        "log_sha256": "298c14d26e985f2e11eb333dbebf00644dc841b68ff5e808e102ba0aa62b68e6",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "ab7f71054d79e118b91619e4656667ab46d3f97a7458ed30867b799b154ebf5e",
+        "inputs_sha256": "5e7816422f1eb622b7c4e99ba7ba59f3bd93ebb52a814435037fb8af11651a8a"
+      },
+      "integration17-browser4e-freeze-command1": {
+        "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/integration17-browser4e-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/integration17-browser4e-freeze-probe1"
+        ],
+        "exit": 0,
+        "seconds": 0.5015188730030786,
+        "summaries": [],
+        "log_sha256": "8f4e3ac919ffb5652694df4c506ef7f896ed6f14531ed1cd7e10f329c39bfa8f",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "396b303c0a35f38a5c38e342f63e2a9ad33b0a96957e19d5aceb8dead556d1b9",
+        "inputs_sha256": "d8455e8b2759365aef52ec2e4c4649ae836c0f38a407a63ef1b92bc11f6bac76"
+      },
+      "integration17-browser4e-frontend-build1": {
+        "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 2.0148544830153696,
+        "summaries": [],
+        "log_sha256": "910f1c85f98d4503e8ae14fc757e23caae3d2cfcd01614f2dfb0dcd62a22d55e",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "bc5db8c99abc4607d17ce5be0baff404bd7b41404bb7fcbcf1a1505d882c6aa6",
+        "inputs_sha256": "230cf11fd952c68b657ae29db3fce26355be104640802a8d61100be81e1ba9da"
+      },
+      "integration17-browser4e-actual-command1": {
+        "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/integration-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/integration17-browser4e-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/integration17-browser4e-frozen1/manifest.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/integration17-browser4e-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/integration17-browser4e-actual1",
+          "--case",
+          "all",
+          "--run"
+        ],
+        "exit": 1,
+        "seconds": 33.71031491400208,
+        "summaries": [],
+        "log_sha256": "521f4511c040bc65f0446682277c9b0bdbf50b2ea233a55de55af52bc67f8db2",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "00eba4d632a89b7fc71074b3f80f60435f62522f530af7c6bd860c6f7cb84268",
+        "inputs_sha256": "5dcf0e4d8411cf27337e16f84c3183ada3da85a36677cf77ace6f42f06246bdf"
+      },
+      "integration17-browser4e-actual-command2": {
+        "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/integration-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/integration17-browser4e-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/integration17-browser4e-frozen1/manifest.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/integration17-browser4e-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/integration17-browser4e-actual2",
+          "--case",
+          "all",
+          "--run"
+        ],
+        "exit": 0,
+        "seconds": 29.518899400980445,
+        "summaries": [],
+        "log_sha256": "a412fbcb4e0552ce74fe4fddadb7e7354f107dc8b6787568167cb9076de4e61d",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "318567c2ab5c275980514c2f474459f153d2d5c0e514f4277d9e097a0e706b2d",
+        "inputs_sha256": "5af40f650676287aaedfefcaca1d88f5c118e348879b7167558a8a44a625d558"
+      },
+      "integration17-actual-labels-node-tests1": {
+        "source": "e0e7937ccc58111cccd6881f0c17eba2d4cef748",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "test",
+          "--",
+          "src/integration-api.test.ts",
+          "src/TaskIntegration.test.tsx",
+          "--maxWorkers=1"
+        ],
+        "exit": 0,
+        "seconds": 5.431699457025388,
+        "summaries": [],
+        "log_sha256": "c167df8952f22141c94897082ff01d2f933bb18b6af3894e4052ea5fb4aa60ce",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "711c31585aa9a942760fe8b044f8a26aff242b53ec87c97de2187ead3b766115",
+        "inputs_sha256": "4eed5c7b033bbeecb2cb0210970ee87c87600ce47c6aeae15774a8f3fdb1936f"
+      },
+      "factory-history17-core-ipc1": {
+        "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
         "command": [
           "env",
           "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
@@ -1340,20 +1554,20 @@
           "--test-threads=1"
         ],
         "exit": 0,
-        "seconds": 198.3801440289826,
+        "seconds": 218.74035596998874,
         "summaries": [
-          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 202 filtered out; finished in 0.00s",
-          "test result: ok. 203 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 132.04s",
-          "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.40s"
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 215 filtered out; finished in 0.01s",
+          "test result: ok. 216 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 149.84s",
+          "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.35s"
         ],
-        "log_sha256": "d37a43806eb62df0cd5e004b39d312b9bb557847128029557314597448e45ce6",
+        "log_sha256": "f9bc38323afd51f6aff615107f4cbf8c8b9a499a834cb8cc2c487cf14d9de68e",
         "source_head_and_tracked_unchanged": true,
         "frozen_tools_unchanged": true,
-        "result_sha256": "1914ac00324184207f40c5be8061aca23798e186fc343fe21100c7309d9fe3ca",
-        "inputs_sha256": "18fbf6d2a2b07b80d7745af1d94c5197239a27c739ae136f3e51ca02c19828e5"
+        "result_sha256": "a736240d1efb0a163603aefe32ff8c41c52151dd3cec867ca6cf7fb6cb85ed7b",
+        "inputs_sha256": "9f9b774a4053d3c4812b16176fd8a448b7a702a39c46e6f06a3a3cdb78673b2a"
       },
-      "integration17-validator-stop-clippy1": {
-        "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+      "factory-history17-clippy1": {
+        "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
         "command": [
           "cargo",
           "clippy",
@@ -1364,17 +1578,17 @@
           "-D",
           "warnings"
         ],
-        "exit": 101,
-        "seconds": 3.014794049988268,
+        "exit": 0,
+        "seconds": 24.812862899998436,
         "summaries": [],
-        "log_sha256": "8bb96b02b4fddbe0323af346b80986534df69d96375136188d891ee99760b4d8",
+        "log_sha256": "7d7c987784f70451b9824ffe6037286dd7c79858a12337e26c5b5f67e2c4c65b",
         "source_head_and_tracked_unchanged": true,
         "frozen_tools_unchanged": true,
-        "result_sha256": "64756e65398b7cdee014b7f95690959b134f8610add9dc4c42cadf5d77973239",
-        "inputs_sha256": "5a867ef5417d137dc8dddbd5c39ea20d53229bdbc6032350923a6ef93295b8bf"
+        "result_sha256": "e8efcf7b3013f1564a50131c90307a6dbd14e943feef961299214f74a200f32b",
+        "inputs_sha256": "ce2677d2af7b07d6e0c328811ade6f90645c873e33ff033e66b029b2e247d706"
       },
-      "integration17-validator-stop-format1": {
-        "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+      "factory-history17-format1": {
+        "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
         "command": [
           "cargo",
           "fmt",
@@ -1382,88 +1596,620 @@
           "--",
           "--check"
         ],
-        "exit": 1,
-        "seconds": 1.4068016709934454,
+        "exit": 0,
+        "seconds": 1.7078883029753342,
         "summaries": [],
-        "log_sha256": "33fea075c14641478adf2a3704752216318f41ce576a221868aacff0f3c400b9",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "source_head_and_tracked_unchanged": true,
         "frozen_tools_unchanged": true,
-        "result_sha256": "18fc2f5e135e952ba418587a0b5efee3060dd307ae668a50e32438322116a130",
-        "inputs_sha256": "8070dafb4ece024073d1a6ab5efedf8675eca0db3567af8f60758e2d097830d5"
+        "result_sha256": "ff28d4db9f504e14413ad4eccd317a9b4b3e49f4a3475fe06047c6048e6f4fe0",
+        "inputs_sha256": "c78adeba595d5287ac540bfe7fa27ab2ff6a0a925d90af18722a231515e29da0"
       },
-      "integration17-validator-stop-clippy2": {
-        "source": "0cee7d57907af547880db1367c0386c4bc108950",
+      "factory-history17-infrastructure1": {
+        "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
         "command": [
-          "cargo",
-          "clippy",
-          "--locked",
-          "--workspace",
-          "--all-targets",
-          "--",
-          "-D",
-          "warnings"
-        ],
-        "exit": 101,
-        "seconds": 16.461638747976394,
-        "summaries": [],
-        "log_sha256": "25579121f4374b2fade2995341bf4179fcb400102bef3cf4ceac3b577eed651a",
-        "source_head_and_tracked_unchanged": true,
-        "frozen_tools_unchanged": true,
-        "result_sha256": "2e458f57fe4c47a40cd3789b930bcbdba813082b7481247f12d744088a3eef0b",
-        "inputs_sha256": "db64e3905a08dcaba5f74d0e106a5ec020f385e1abfd5f082ae2234c39b360a2"
-      },
-      "integration17-source-capture-expression-tests1": {
-        "source": "0cee7d57907af547880db1367c0386c4bc108950",
-        "command": [
-          "cargo",
-          "test",
-          "--locked",
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
           "-p",
-          "agentbaton-workspaces",
-          "--test",
-          "source_capture",
-          "--",
-          "--show-output",
-          "--test-threads=1"
+          "test_*.py"
         ],
         "exit": 0,
-        "seconds": 11.438401366001926,
-        "summaries": [
-          "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.85s"
-        ],
-        "log_sha256": "1759252cdae5ce3084fc4c8bf7f2dd4d16dbb9c387a26d2dbbbbf9933cc3dd32",
+        "seconds": 9.443487979006022,
+        "summaries": [],
+        "log_sha256": "26eed0d7e434f2c96659beb8307418289ac490d2cd576da000bf3034eb43c850",
         "source_head_and_tracked_unchanged": true,
         "frozen_tools_unchanged": true,
-        "result_sha256": "99104dfaf09e9ad738f36c31822f2fad2430de929bba51bfc1fadbc4f90bf9d2",
-        "inputs_sha256": "af87ca2b9446acb2ac636df011a54f7d03dd391d7dbedcd2746af708e6ac182b"
+        "result_sha256": "5528219d5e047d1b08d4df1d4f6caa22127db69bde351308283700a242831d24",
+        "inputs_sha256": "de0bb7bf4cc78f32b57b1162582224ee0b42bb6fe0cb34fc765f18180845ef51"
+      },
+      "factory-history17-native-check1": {
+        "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+        "command": [
+          "env",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "cargo",
+          "check",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--all-targets",
+          "--features",
+          "native-smoke"
+        ],
+        "exit": 0,
+        "seconds": 17.058918358001392,
+        "summaries": [],
+        "log_sha256": "7853da79db09506fbfb179376773f2b652a3286c8ce29acaaaf6f34871f028ff",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "61e259356b6ed39db0f083b9edb504c8c97ee99da4ffdd0f1876e46fcf187bd3",
+        "inputs_sha256": "22a090ca9ab31e24dc81afddea439ed9b06e3963e9114c7428b71d0c6ae7b58e"
+      },
+      "history17-b3-tools-build1": {
+        "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 27.297819369006902,
+        "summaries": [],
+        "log_sha256": "d431f60c330d6a01e2f23a4f242759b6bb04ec7e25759ffe1edd3b0de0b21a4d",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "b05dbf99f11013d6f9ffcc6a2595fa8dd8a2d1b6c0072336055ad37f5d7bed9a",
+        "inputs_sha256": "4a4fb04cb2eeb0d89bc213ec1af35f2e5d98ccdf0f6fe03d65d9496ebcb034ee"
+      },
+      "history17-b3-freeze-command1": {
+        "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/history17-b3-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/history17-b3-freeze-probe1"
+        ],
+        "exit": 0,
+        "seconds": 0.5018647969991434,
+        "summaries": [],
+        "log_sha256": "e72836e1f9bf7a9e156e3f31ae2cc330fa234dd1793d8d6362012108fcf49e9c",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "aaa576c228e10c259bdd8dff876efb643d2868baa49c8a908c97e33bc31ed36a",
+        "inputs_sha256": "112380e9a0753e497e003f1bc1dab7f777640c87e8079c4a1a53e1f75ceea33d"
+      },
+      "history17-b3-frontend-build1": {
+        "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.9114636339945719,
+        "summaries": [],
+        "log_sha256": "b8622afd97753a04e1794a75791c8e3f60d0b0cc205398fc3a55ab6f1ffc4d98",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "2affa3c9df4ffb9f668f23ee11d3b27445bd397dd18fa41333f7434e23b761bf",
+        "inputs_sha256": "e003291468c32079323fc527fa1a9e22b68d2ac6f927e8b419205cdf912f42f7"
+      },
+      "history17-b3-actual-command1": {
+        "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/integration-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/history17-b3-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/history17-b3-frozen1/manifest.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/history17-b3-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "b3ae58596920d20e6c0df185bd7164ec8226d803",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/history17-b3-actual1",
+          "--case",
+          "all",
+          "--run"
+        ],
+        "exit": 0,
+        "seconds": 28.328167116997065,
+        "summaries": [],
+        "log_sha256": "a412fbcb4e0552ce74fe4fddadb7e7354f107dc8b6787568167cb9076de4e61d",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "6a0ddee070955b97b92ffe2bdb21f9089026ceb0cd5d55e85435dd8e6216137f",
+        "inputs_sha256": "70d732880fe0258270dd354fad49b58d9e1b9e6c5063c7bcedc34e02b08f4357"
       }
     },
     "counts": {
-      "source507_Core_unique": 203,
-      "nested_helper_is_included": true,
-      "source507_integration_IPC_unique": 7,
-      "new_stop_four_units_are_included": true,
-      "prior_199_and_six_are_subsets_not_additive": true,
-      "source0cee_source_capture": 13
+      "current_Core_unique": 216,
+      "new_history_13_included": true,
+      "previous_203_subset": true,
+      "nested_helper_included_not_additive": true,
+      "current_real_integration_IPC": 7,
+      "current_infrastructure": 357,
+      "UI_mock_at_e0_same_TS_as_b3": 49,
+      "browser_cases": 2,
+      "browser_checks": 9,
+      "browser_original_PNG": 12
     },
-    "actual_stop": "New clean fixture actual owned self-SIGSTOP process identified before real cancel; request intent is not stop. Exact cancelled/CANCEL_REQUESTED, actual killed/reaped/EOF/joined, exit_observed_within_budget false and passed false; no CAS/target changes and all fees retained. Original d8c unknown remains retained, unmodified and not retried/reconciled as success.",
-    "lint_status": "NOT_PASSED. Initial unusedunit/format fixed by0cee; strictclippy2 then rejects type complexity/large enum/large Err/noop and items after cfgtest modules. Core source-only385487b transparent boxing/alias/exact module moves under independent review, NOT composed or run here. No allow/skip/lint threshold change.",
-    "independent_source_reviews": {
-      "validator_stop_review_sha256": "df2818d97fa21b7b608a5375609f17168f76c5e7ad77ebca6772fb4e8e249c4e",
-      "validator_stop_manifest_sha256": "d23c959c3cfe6c0e956fab682e0be6c5ee98bd4da770f74919a9e35968a5d498",
-      "Native_CI_review_sha256": "b1179cef85e9387f5a2db7ad8c8ed233278228dae3ba32def40f0f7d804dccae",
-      "release_marker_review_sha256": "6303ec2e6a186fad8e4d4853af34f7fdf5b0c3efd71868a48f279b0f82f70f28"
+    "browser": {
+      "normal": {
+        "report_sha256": "e38c0043bcf0939ec03c7ee789b1e92bb2a87610b752735ef94de9f4ed67f123",
+        "dimension": "Linux built React/Chromium + finite TEST bridge + actual Core17 Unix IPC + generated ACP + private trusted test host",
+        "status": "passed",
+        "checks": 5,
+        "chain": {
+          "name": "actual watcher fresh merged Command/owned stop/join/shared fees/source preservation and exact local ref result",
+          "status": "passed",
+          "state": "confirmed_local_ref",
+          "stages": 3,
+          "command_exit": 0,
+          "cas_attempts": 1,
+          "source_and_index_unchanged": true,
+          "original_command_unchanged": true,
+          "actual_owned_reap_and_join": true,
+          "shared_runtime_ms": 3590,
+          "shared_output_bytes": 364,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "cleanup": {
+          "pending_reviews_stopped": true,
+          "browser_closed": true,
+          "playwright_stopped": true,
+          "http_shutdown": true,
+          "http_thread_joined": true,
+          "daemon_joined": {
+            "exit": 0,
+            "joined": true,
+            "forced_kill": false
+          },
+          "private_transcript_saved": true,
+          "tools_assets_unchanged": true,
+          "fixture_removed": true
+        },
+        "screenshots": [
+          {
+            "name": "task-pending-before-acceptance",
+            "bytes": 135679,
+            "sha256": "eb79100fcbfb2822562d1e69fd613f818c21725b37624f3af4306b73b0f2daad",
+            "viewport": {
+              "width": 1440,
+              "height": 1100
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "permission-before-task-acceptance",
+            "bytes": 147084,
+            "sha256": "10c40a3569cb1396bcadf13f93b4c8fe95c83ee8795724f00ecca7b9fbe29706",
+            "viewport": {
+              "width": 1440,
+              "height": 1100
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "terminal-state-desktop",
+            "bytes": 142256,
+            "sha256": "f07e8b5fc1cfd04528b52ee45fc2668fc79c7fcf4178316ead1270569d7de2d6",
+            "viewport": {
+              "width": 1440,
+              "height": 1100
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "terminal-receipt-desktop",
+            "bytes": 143307,
+            "sha256": "c2a68da4a7492638353bf3799f99951ac71d8a827018a0f2f7fb47b0dedbd04c",
+            "viewport": {
+              "width": 1440,
+              "height": 1100
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "terminal-state-mobile",
+            "bytes": 52599,
+            "sha256": "34a2c3c8e693bf96108c3d7917746c2b374c8f5ccbad952903cb2df50a765af8",
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "terminal-receipt-mobile",
+            "bytes": 62435,
+            "sha256": "ddfea08a5383e7f92efb7871330eb9b0ed4302fba1cecfa6730f36437fe022ec",
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "pixel_synchronized": false
+          }
+        ],
+        "not_claimed": [
+          "production Tauri Native formatter",
+          "OS dialog",
+          "macOS",
+          "live Provider/model",
+          "OS sandbox",
+          "whole-filesystem output quota",
+          "complete failure matrix",
+          "whole product completion"
+        ]
+      },
+      "command-failure": {
+        "report_sha256": "700265c53c1d8f293b1245745e11bab75a4eeb250250667a0c5471f691476923",
+        "dimension": "Linux built React/Chromium + finite TEST bridge + actual Core17 Unix IPC + generated ACP + private trusted test host",
+        "status": "passed",
+        "checks": 4,
+        "chain": {
+          "name": "actual watcher fresh merged Command/owned stop/join/shared fees/source preservation and exact local ref result",
+          "status": "passed",
+          "state": "failed",
+          "stages": 2,
+          "command_exit": 7,
+          "cas_attempts": 0,
+          "source_and_index_unchanged": true,
+          "original_command_unchanged": true,
+          "actual_owned_reap_and_join": true,
+          "shared_runtime_ms": 2619,
+          "shared_output_bytes": 50,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "cleanup": {
+          "pending_reviews_stopped": true,
+          "browser_closed": true,
+          "playwright_stopped": true,
+          "http_shutdown": true,
+          "http_thread_joined": true,
+          "daemon_joined": {
+            "exit": 0,
+            "joined": true,
+            "forced_kill": false
+          },
+          "private_transcript_saved": true,
+          "tools_assets_unchanged": true,
+          "fixture_removed": true
+        },
+        "screenshots": [
+          {
+            "name": "task-pending-before-acceptance",
+            "bytes": 135896,
+            "sha256": "691d061f21eb48de01e842a57098cedd8ecb90712f1bb40a82b366d06b1e4109",
+            "viewport": {
+              "width": 1440,
+              "height": 1100
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "permission-before-task-acceptance",
+            "bytes": 145227,
+            "sha256": "e4141cfb07fac38521312d472dce2b20adbace6ce6f0fdad3f240f0afe952129",
+            "viewport": {
+              "width": 1440,
+              "height": 1100
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "terminal-state-desktop",
+            "bytes": 142532,
+            "sha256": "d1fb391b81250abff2404b33da0b00d47536eeba2f16bae947324398475a4310",
+            "viewport": {
+              "width": 1440,
+              "height": 1100
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "terminal-receipt-desktop",
+            "bytes": 142532,
+            "sha256": "d1fb391b81250abff2404b33da0b00d47536eeba2f16bae947324398475a4310",
+            "viewport": {
+              "width": 1440,
+              "height": 1100
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "terminal-state-mobile",
+            "bytes": 51533,
+            "sha256": "dfc1e6ae4331f9fb6e0da34c85dbfa6dc68b6b4ed3717517a3936606587ed0e3",
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "pixel_synchronized": false
+          },
+          {
+            "name": "terminal-receipt-mobile",
+            "bytes": 63610,
+            "sha256": "6fcc1257a324ebf7274a08f214c3cd31abba04bd3570d9cd28c398da3ea351a0",
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "pixel_synchronized": false
+          }
+        ],
+        "not_claimed": [
+          "production Tauri Native formatter",
+          "OS dialog",
+          "macOS",
+          "live Provider/model",
+          "OS sandbox",
+          "whole-filesystem output quota",
+          "complete failure matrix",
+          "whole product completion"
+        ]
+      }
     },
-    "Native_CI": "Sourceea9 adds actual explicit feature lib and two fresh Cancel-to-Approve integration Native policy OS driver calls on both existing Mac lanes. Pure/source review only; actual Native/Mac/new17 packages not_run. Oldchecks/actions/permissions/25&60/requirednames preserved.",
-    "release_audit": "Source890 adds only native_integration_os_dialog_fixture marker. Actual bytecanary old7pass1fail/new8pass by author and independent reviewer; all11old markers preserved. Not a real default-app/MachO/Mac audit.",
-    "browser": "736/c0fe source-only driver under independent review/capture-only update; not composed or executed in this checkpoint. Generated private Owner testhost/browser never claims OS Native or real Provider.",
-    "Parent61": "Environment41063677595 all3 and Product41063677236 Rust/UI success; Intel124089485764 failed26/1 plan2/run12 blocked REWORK_REVISION2_TERMINAL. Official4795B artifact12982199412 ZIP SHAf2969e808988356d3fc7a884ad16d8433f3818833974d0aef27997eb530c3502 has capture4164/4000 producer3745 IO not_started/nojoin. ARM running at last read, wholeProduct not success. Not prior059 same-node4013.",
-    "remaining": [
-      "strictClippy layout fix and actual typed/Core/IPC/Native compile revalidation",
-      "actual exact-source browser normal/failure flow and screenshot inspection",
-      "true OS Native dualMac/release audit and traceable dual installers; exact seven checks before merge",
-      "targetadvance>=3/competition/CAS faults/unknown recovery/mixed budgets; full Unicode/change/remote/cleanup and all130 remain incomplete"
+    "paired_source_and_tools": {
+      "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+      "frontend_build_source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+      "frozen_manifest_sha256": "6569b0aa0a25af620748ed1b48ea522afaa682414dfa3f7b7c1524291dc8d0b2",
+      "binary_sha256": {
+        "batond": "b11d5d6af602e02c5b638ad3d6907589561e7a91591d7c5278c62d151041e55e",
+        "baton": "309e4408f583e0e781bed0f2ac2a68d10e11c74ddf592d5017e190edd643e547"
+      },
+      "actual_empty_probe": {
+        "schema": 17,
+        "query_only": true,
+        "sequence": 0,
+        "zero_tables": {
+          "factory_scopes": 0,
+          "factory_runs": 0,
+          "factory_task_lineage": 0,
+          "factory_delegations": 0,
+          "factory_task_bindings": 0,
+          "factory_attempts": 0,
+          "factory_scoped_handles": 0,
+          "factory_handoffs": 0,
+          "factory_budget_reservations": 0,
+          "factory_child_plan_heads": 0,
+          "factory_child_plan_revisions": 0,
+          "factory_child_goal_runs": 0,
+          "integration_policies": 0,
+          "integrations": 0,
+          "integration_attempts": 0,
+          "integration_ref_fences": 0
+        },
+        "runtime_mode": "0o700",
+        "socket_utf8_bytes": 30,
+        "snapshot_api_version": 1,
+        "snapshot_sequence": 0,
+        "cli_snapshot_exit": 0,
+        "original_daemon_SIGTERM_wait_exit": 0,
+        "sigterm_sent": true,
+        "forced_kill": false
+      },
+      "frontend_build_result_sha256": "2affa3c9df4ffb9f668f23ee11d3b27445bd397dd18fa41333f7434e23b761bf",
+      "engine_before_after_record_sha256": "4574953b847885dea332cca248680f24d24abd720ed88bd0e038543e1fa45bde",
+      "runtime": "Owned copied Python and Chromium launcher; system Chromium ELF separately observed unchanged. Public runtime stdlib linked read-only; no credentials copied. No OS immutability/sandbox claim."
+    },
+    "manual_image_observation": "Root viewed current normal desktop receipt, normal mobile receipt and failed mobile receipt originals. Actual runtime/output labels visible; failed exit7 retains26bytes, zero output visible as0. Capture bbox is before-capture observation, pixel_synchronized:false, not automated visual/OS acceptance.",
+    "prior_failures_retained": [
+      "094 infrastructure321 had missing sparse-tracked JSON and strict old workflow guard rejection. First4e357 still had missing sparse docs after Git re-excluded JSON. Added /docs/execution/ to sparse patterns, retained original rules, materialized tracked records; fixed later357 passes. No discovery/hash guard removed. A later sparse reapplication still omitted707tracked docs despite trailing directory rule; explicit /docs/execution/** inclusion restored all707 without changing tracked bytes. Current design130/14/27/111links and bootstrap93 pass. Directory-only rule was insufficient in the retained noncone pattern set; no persistence claim from it.",
+      "First4e browser failed bothcases before frontend at generatedACP connections probe, no checks/screens. Copied relocatable Python with product-cleared PYTHONHOME lacked normal relative stdlib. Read-only original stdlib link repairs owned test runtime; second4e and currentb3 fresh fixtures pass, old failure reports/private postcleanup fixture retained. No product guard changed.",
+      "Original d8c actual cancellation0/1 outcome_unknown, raw failed ELF/full verified gzip and stopped private fixture remain unmodified. New f653/14f strict owned-stop cases are new fixtures, not retry/reconciliation of old outcome.",
+      "Original strict Clippy/fmt failures remain in previous followup. Reviewed385 boxing/aliases/exact test-module moves and narrow0cee resolve them; currentb3 strict checks pass without allow/skip."
     ],
-    "authority": "AB-START-001 unchanged; no formalApprove/mainmerge/production/signing/liveProvider/newspend granted"
-  }
+    "source_reviews": {
+      "Core_lints": "705663e87e861200ef7a09100696d81d61193e36a4838e12954f0662c0d6011f",
+      "history17_composition": "720de1827353e44714a33f98cb8f01fb2e9bba404e800a647e2e7591ca03e773",
+      "browser_null_key_fix": "e675b526efb3e9bc69efe194a89f54e6d1729aa3d165fc3c6d3e493138984b2a",
+      "browser_capture": "ceefb78454d04f427c308a82e0be5475f64167270d21ba5495a6c5521e37f942",
+      "honest_capture_metadata": "7c1942c695c4058f5a3adc74ecce7227d0f5d1bae478421080f1acf6a371cddb",
+      "actual_usage_labels": "52632ca52964611d4ab33a4bacbafb389d5f3c6e59a6f550a3fe94cce8c25105"
+    },
+    "Native": "Current all-target native-smoke feature cargo check passes; no current local Native unit link/execution or OS GUI acceptance. Two older capacity interruptions remain. Mac new Native CI steps and release audit are source/pure reviewed, not yet executed here.",
+    "Parent18": {
+      "head": "4155548fbeca71f238309cff33a248ea1e2d53ca",
+      "Environment": 41081504594,
+      "Environment_status": "success",
+      "Product": 41081504691,
+      "Product_status": "in_progress at2026-10-30T15:42 read",
+      "prior61": "Product41063677236 failed Intel26/1 REWORK_REVISION2_TERMINAL plan2/run12 blocked, actual capture4164/4000 producer3745 noIOjoin. ARM passed, artifact12983303931 metadataonly. No oldcurrentresult transfer or established CPU/rootcause/Intel repair."
+    },
+    "remaining": [
+      "New browser CI finite publisher/strict layering under source authoring and independent review; no remote current17 checks yet.",
+      "Actual twoMac Native/release audit and traceable dual development installers; exact required checks+independent review before protected merge.",
+      "Real target advance>=3/competition/CAS fault/restart/unknown/mixedbudget matrices; full Unicode/change/adoption/remote/retention and complete130 remain incomplete."
+    ],
+    "authority": "AB-START-001 unchanged. Full product not complete. No formalApprove, production/signing/private Provider/new spend granted."
+  },
+  "root_followup_history": [
+    {
+      "recorded_at_utc": "2026-10-30T14:02:49.022114+00:00",
+      "branch": "codex/authorized-integration-assembly",
+      "before_records_commit": "f3f5346d4128f5b7faa2f169cb87bf7638e3e6e1",
+      "product_code_revision": "0cee7d57907af547880db1367c0386c4bc108950",
+      "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/21",
+      "base": "codex/task-workspace-integration",
+      "remote_before_checkpoint": "5993d3695045d000af948b24c60af315afd55b5e",
+      "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+      "OWNER_ACK": [
+        "OWNER-001",
+        "OWNER-002"
+      ],
+      "commands": {
+        "integration17-validator-stop-core-ipc1": {
+          "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+          "command": [
+            "env",
+            "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+            "cargo",
+            "test",
+            "--locked",
+            "-p",
+            "agentbaton-core",
+            "--lib",
+            "--test",
+            "integration_ipc",
+            "--",
+            "--show-output",
+            "--test-threads=1"
+          ],
+          "exit": 0,
+          "seconds": 198.3801440289826,
+          "summaries": [
+            "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 202 filtered out; finished in 0.00s",
+            "test result: ok. 203 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 132.04s",
+            "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.40s"
+          ],
+          "log_sha256": "d37a43806eb62df0cd5e004b39d312b9bb557847128029557314597448e45ce6",
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "result_sha256": "1914ac00324184207f40c5be8061aca23798e186fc343fe21100c7309d9fe3ca",
+          "inputs_sha256": "18fbf6d2a2b07b80d7745af1d94c5197239a27c739ae136f3e51ca02c19828e5"
+        },
+        "integration17-validator-stop-clippy1": {
+          "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+          "command": [
+            "cargo",
+            "clippy",
+            "--locked",
+            "--workspace",
+            "--all-targets",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "exit": 101,
+          "seconds": 3.014794049988268,
+          "summaries": [],
+          "log_sha256": "8bb96b02b4fddbe0323af346b80986534df69d96375136188d891ee99760b4d8",
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "result_sha256": "64756e65398b7cdee014b7f95690959b134f8610add9dc4c42cadf5d77973239",
+          "inputs_sha256": "5a867ef5417d137dc8dddbd5c39ea20d53229bdbc6032350923a6ef93295b8bf"
+        },
+        "integration17-validator-stop-format1": {
+          "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+          "command": [
+            "cargo",
+            "fmt",
+            "--all",
+            "--",
+            "--check"
+          ],
+          "exit": 1,
+          "seconds": 1.4068016709934454,
+          "summaries": [],
+          "log_sha256": "33fea075c14641478adf2a3704752216318f41ce576a221868aacff0f3c400b9",
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "result_sha256": "18fc2f5e135e952ba418587a0b5efee3060dd307ae668a50e32438322116a130",
+          "inputs_sha256": "8070dafb4ece024073d1a6ab5efedf8675eca0db3567af8f60758e2d097830d5"
+        },
+        "integration17-validator-stop-clippy2": {
+          "source": "0cee7d57907af547880db1367c0386c4bc108950",
+          "command": [
+            "cargo",
+            "clippy",
+            "--locked",
+            "--workspace",
+            "--all-targets",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "exit": 101,
+          "seconds": 16.461638747976394,
+          "summaries": [],
+          "log_sha256": "25579121f4374b2fade2995341bf4179fcb400102bef3cf4ceac3b577eed651a",
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "result_sha256": "2e458f57fe4c47a40cd3789b930bcbdba813082b7481247f12d744088a3eef0b",
+          "inputs_sha256": "db64e3905a08dcaba5f74d0e106a5ec020f385e1abfd5f082ae2234c39b360a2"
+        },
+        "integration17-source-capture-expression-tests1": {
+          "source": "0cee7d57907af547880db1367c0386c4bc108950",
+          "command": [
+            "cargo",
+            "test",
+            "--locked",
+            "-p",
+            "agentbaton-workspaces",
+            "--test",
+            "source_capture",
+            "--",
+            "--show-output",
+            "--test-threads=1"
+          ],
+          "exit": 0,
+          "seconds": 11.438401366001926,
+          "summaries": [
+            "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.85s"
+          ],
+          "log_sha256": "1759252cdae5ce3084fc4c8bf7f2dd4d16dbb9c387a26d2dbbbbf9933cc3dd32",
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "result_sha256": "99104dfaf09e9ad738f36c31822f2fad2430de929bba51bfc1fadbc4f90bf9d2",
+          "inputs_sha256": "af87ca2b9446acb2ac636df011a54f7d03dd391d7dbedcd2746af708e6ac182b"
+        }
+      },
+      "counts": {
+        "source507_Core_unique": 203,
+        "nested_helper_is_included": true,
+        "source507_integration_IPC_unique": 7,
+        "new_stop_four_units_are_included": true,
+        "prior_199_and_six_are_subsets_not_additive": true,
+        "source0cee_source_capture": 13
+      },
+      "actual_stop": "New clean fixture actual owned self-SIGSTOP process identified before real cancel; request intent is not stop. Exact cancelled/CANCEL_REQUESTED, actual killed/reaped/EOF/joined, exit_observed_within_budget false and passed false; no CAS/target changes and all fees retained. Original d8c unknown remains retained, unmodified and not retried/reconciled as success.",
+      "lint_status": "NOT_PASSED. Initial unusedunit/format fixed by0cee; strictclippy2 then rejects type complexity/large enum/large Err/noop and items after cfgtest modules. Core source-only385487b transparent boxing/alias/exact module moves under independent review, NOT composed or run here. No allow/skip/lint threshold change.",
+      "independent_source_reviews": {
+        "validator_stop_review_sha256": "df2818d97fa21b7b608a5375609f17168f76c5e7ad77ebca6772fb4e8e249c4e",
+        "validator_stop_manifest_sha256": "d23c959c3cfe6c0e956fab682e0be6c5ee98bd4da770f74919a9e35968a5d498",
+        "Native_CI_review_sha256": "b1179cef85e9387f5a2db7ad8c8ed233278228dae3ba32def40f0f7d804dccae",
+        "release_marker_review_sha256": "6303ec2e6a186fad8e4d4853af34f7fdf5b0c3efd71868a48f279b0f82f70f28"
+      },
+      "Native_CI": "Sourceea9 adds actual explicit feature lib and two fresh Cancel-to-Approve integration Native policy OS driver calls on both existing Mac lanes. Pure/source review only; actual Native/Mac/new17 packages not_run. Oldchecks/actions/permissions/25&60/requirednames preserved.",
+      "release_audit": "Source890 adds only native_integration_os_dialog_fixture marker. Actual bytecanary old7pass1fail/new8pass by author and independent reviewer; all11old markers preserved. Not a real default-app/MachO/Mac audit.",
+      "browser": "736/c0fe source-only driver under independent review/capture-only update; not composed or executed in this checkpoint. Generated private Owner testhost/browser never claims OS Native or real Provider.",
+      "Parent61": "Environment41063677595 all3 and Product41063677236 Rust/UI success; Intel124089485764 failed26/1 plan2/run12 blocked REWORK_REVISION2_TERMINAL. Official4795B artifact12982199412 ZIP SHAf2969e808988356d3fc7a884ad16d8433f3818833974d0aef27997eb530c3502 has capture4164/4000 producer3745 IO not_started/nojoin. ARM running at last read, wholeProduct not success. Not prior059 same-node4013.",
+      "remaining": [
+        "strictClippy layout fix and actual typed/Core/IPC/Native compile revalidation",
+        "actual exact-source browser normal/failure flow and screenshot inspection",
+        "true OS Native dualMac/release audit and traceable dual installers; exact seven checks before merge",
+        "targetadvance>=3/competition/CAS faults/unknown recovery/mixed budgets; full Unicode/change/remote/cleanup and all130 remain incomplete"
+      ],
+      "authority": "AB-START-001 unchanged; no formalApprove/mainmerge/production/signing/liveProvider/newspend granted"
+    }
+  ]
 }

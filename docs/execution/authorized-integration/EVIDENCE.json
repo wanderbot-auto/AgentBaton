@@ -197,5 +197,13 @@
       "dimension": "actual203Core/7IPC positive and failed/revoked/running-cancel paths passed; sourceCapture13 passed; strictClippy NOT passed; original unknown and failures preserved",
       "full_VAL009_or130_accepted": false
     }
+  ],
+  "root_current_runtime_checkpoints": [
+    {
+      "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+      "record": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+      "sha256": "1f80c94d80dd115dc4b2f6e8035a5eef7d4b2b6e7f9e8333dac480c8c75b1e0d",
+      "dimension": "216Core/7realIPC/357infra/current2browser9checks12PNG; Nativecompileonly; wholeproductincomplete"
+    }
   ]
 }

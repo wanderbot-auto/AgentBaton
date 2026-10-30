@@ -237,7 +237,20 @@
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "current_schema17_accepted_task_fresh_merged_local_ref_and_failed_command",
+          "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+          "Core_unique": 216,
+          "real_integration_IPC": 7,
+          "actual_browser_checks": 9,
+          "screenshots": 12,
+          "Native": "compileonly; OS/Mac not_run",
+          "evidence": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+          "coverage": "partial; full requirement not accepted"
+        }
+      ]
     },
     {
       "id": "AB-PRJ-005",
@@ -298,6 +311,17 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "current_schema17_accepted_task_fresh_merged_local_ref_and_failed_command",
+          "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+          "Core_unique": 216,
+          "real_integration_IPC": 7,
+          "actual_browser_checks": 9,
+          "screenshots": 12,
+          "Native": "compileonly; OS/Mac not_run",
+          "evidence": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+          "coverage": "partial; full requirement not accepted"
         }
       ],
       "data_workspace_contribution": {
@@ -7115,6 +7139,17 @@
           "native_OS_Mac_Provider": "not_run",
           "strict_checks": "Clippyfailed; typedfixpending; notaccepted",
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "current_schema17_accepted_task_fresh_merged_local_ref_and_failed_command",
+          "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+          "Core_unique": 216,
+          "real_integration_IPC": 7,
+          "actual_browser_checks": 9,
+          "screenshots": 12,
+          "Native": "compileonly; OS/Mac not_run",
+          "evidence": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+          "coverage": "partial; full requirement not accepted"
         }
       ]
     },
