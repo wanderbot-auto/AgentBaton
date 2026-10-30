@@ -1,5 +1,16 @@
 # Previously bound Factory fixture process exit observations
 
+## Late MCP state diagnostic only
+
+Root's new inner-hint/de470 actual normal failed10.027s, earlier than Owner UI expect: private report `/workspace/.onboarding/pr18-graph-wake-childgoal-normal-browser1/report.json` SHA `e725d2d7a9abe34002651da188fb75a53a18478d38e8e43392154d5f4ea8c67c`; log SHA `3526ba27122491c8a04e23ea751459846af43c0b1f8c10a7c80aaf5ea4f1aa7e`. Owner read returned in5.794ms, then the original late-MCP survival assertion failed. Its previous evidence lacked after-state/adoption. Do not call this zombie, claim the final Owner5s gate passed, or close the remote CI failure from it.
+
+Authorized change is diagnostic only at that original assertion: if same birth is still present, append finite JSON fields to the existing message prefix: before_state, after_state, after_parent_is_controller, birth_matches, pgid_matches or error-type only. No PID/argv/raw secret/error message is added. The original predicate is AST-identical; live and zombie same-birth still fail. Existing real reaper/wait, old binding requirement, ACK, owner/stop/final gates, budgets and all timeouts remain unchanged. There is no new retry/thread/observer/acceptance path. Removing only this diagnostic block and restoring the original message gives whole-module byte equality to cc791.
+
+Actual pure command: `python3 -B -m unittest discover -s tests/infrastructure -p test_factory_bound_provider_exit.py -v`:36PASS in2.698s/exit0. Previous34 classes are byte-identical; two new tests use the actual collector with own files/SQLite and injected proc/reaper, asserting live and zombie remain refused, actual pre-existing two reaper calls retained, no new stop/reaped claim, and PGID permission error records only its type while original refusal persists. No actual process/reap is simulated as a successful product receipt. Evidence `/workspace/.onboarding/factory-bound-provider-exit-source/late-MCP-state-diagnostic/{pure.log,SOURCE_CHECKS.json}`.
+
+New actual de470 diagnostic is NOT_RUN by author; Root owns one controlled same-tool execution. Original actual failures/capacity refusal and previous limited reviews remain unchanged. No Core/Node/Cargo/browser/Actor/network/Provider source or execution was changed or launched.
+
+
 ## Current-Core Owner-loading timing instrumentation (source-only)
 
 Root's genuine d514/current Core15 normal failed22.367s at Owner-enabled expect, not ACK/argv: private report `/workspace/.onboarding/pr18-d514-current-childgoal-normal-browser1/report.json` SHA `50e60125fc2e881f28abd536b657cc87f2077e0ca5828dc175154668c02a9870`; log SHA `49cb64a52e37cc1134b2035275b9e01367253e9a82e1df998b05d4f18170c28b`. DOM showed child Goal aria-busytrue, cancellation enabled, Owner disabled: loading=true is a sufficient blocking condition while Graph Workcandidate/stoptrue and Ownerawaiting_owner were present. The finite CI d514 normal2/lost3 failures remain separate from old0c78 local successes. No private report/HTML/RPC/DB is copied or made public by this change.

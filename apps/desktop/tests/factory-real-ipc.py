@@ -455,7 +455,15 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         reaper.reap(old)
                         try: after = support.proc_identity(expected['pid'])
                         except FileNotFoundError: after = None
-                        assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait'
+                        late_observation = None
+                        if after is not None and after['start_ticks'] == expected['start_ticks']:
+                            late_observation = {'stage':'bound_MCP_late_wait_still_present',
+                                'before_state':current['state'],'after_state':after['state'],
+                                'after_parent_is_controller':after['parent_pid']==os.getpid(),
+                                'birth_matches':True,'pgid_matches':None,'pgid_error_type':None}
+                            try:late_observation['pgid_matches']=os.getpgid(expected['pid'])==expected['pgid']
+                            except Exception as error:late_observation['pgid_error_type']=type(error).__name__
+                        assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait: '+json.dumps(late_observation,sort_keys=True)
                         continue
                     if observed in (None, b'') and field == 'owned_provider' and _bound_identity_disappeared(old, fixed, field, current):
                         continue  # Keep the original binding, not a new argv or stop proof.

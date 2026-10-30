@@ -509,5 +509,33 @@ class ChildGoalTimingTests(unittest.TestCase):
             self.assertEqual(len(stamps),1);self.assertEqual(stamps[0][1],'end')
 
 
+class BoundMcpLateDiagnosticTests(unittest.TestCase):
+    setUp=BoundExitTests.setUp
+    fixture=BoundExitTests.fixture
+
+    def test_late_live_or_zombie_remains_refused_with_finite_state_diagnostic(self):
+        for index,(state,parent) in enumerate((('S',12124),('Z',os.getpid()))):
+            root=self.root/str(index);root.mkdir();f=Fixture(root)
+            f.argv_overrides[f.companion]=b''
+            f.proc_steps[f.companion]=[f.identity(f.companion,state='R'),f.identity(f.companion,state=state,parent_pid=parent)]
+            calls=[];reaper=SimpleNamespace(reap=lambda old:calls.append(old))
+            with self.assertRaisesRegex(AssertionError,'Bound MCP still exists after late adopted-child wait: ')as error:
+                f.collect(reaper)
+            detail=json.loads(str(error.exception).split(': ',1)[1])
+            self.assertEqual(detail,{'stage':'bound_MCP_late_wait_still_present','before_state':'R','after_state':state,
+                'after_parent_is_controller':parent==os.getpid(),'birth_matches':True,'pgid_matches':True,'pgid_error_type':None})
+            self.assertEqual(len(calls),2);self.assertEqual(f.verified,f.original)
+            self.assertNotIn('stop_confirmed',detail);self.assertNotIn('process_reaped',detail)
+
+    def test_late_pgid_error_type_is_recorded_without_changing_refusal(self):
+        f=self.fixture();f.argv_overrides[f.companion]=b''
+        f.pgid_overrides[f.companion]=PermissionError('sensitive unit message must not be copied')
+        with self.assertRaisesRegex(AssertionError,'Bound MCP still exists after late adopted-child wait: ')as error:
+            f.collect(SimpleNamespace(reap=lambda _:None))
+        detail=json.loads(str(error.exception).split(': ',1)[1])
+        self.assertEqual(detail['pgid_error_type'],'PermissionError');self.assertIsNone(detail['pgid_matches'])
+        self.assertNotIn('sensitive',str(error.exception));self.assertEqual(f.verified,f.original)
+
+
 if __name__ == '__main__':
     unittest.main()
