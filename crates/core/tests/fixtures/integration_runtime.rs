@@ -2106,7 +2106,7 @@ fn stopped_command_identity(program: &Path, token: &str) -> ObservedCommandIdent
             let (again, state) = numeric_ps_row(&lines[0][..offset]);
             assert_eq!(again, identity);
             assert!(state.starts_with('T'));
-            assert_eq!(&lines[0][offset..].trim_start(), &expected);
+            assert_eq!(lines[0][offset..].trim_start(), expected.as_str());
             return identity;
         }
         assert!(
@@ -2229,6 +2229,14 @@ fn cancelling_actual_owned_merged_validator_reaps_without_cas_or_refunding_attem
     let receipts = run["validation_receipts"].as_array().unwrap();
     assert_eq!(receipts.len(), 1);
     let validation = &receipts[0];
+    assert_eq!(
+        validation["validator"],
+        policy["selection"]["stage_reservations"]["validators"][0]["validator"]
+    );
+    assert_eq!(
+        validation["definition_digest"],
+        policy["bindings"]["validators"][0]["definition_digest"]
+    );
     assert_eq!(validation["passed"], false);
     assert_eq!(validation["stop_confirmed"], true);
     assert_eq!(validation["worker_joined"], true);
@@ -2240,6 +2248,22 @@ fn cancelling_actual_owned_merged_validator_reaps_without_cas_or_refunding_attem
     let all = events(&db);
     let observed = unique_event(&all, "integration.validator_observed", &run["id"]);
     let view = &observed.1["payload"]["view"];
+    let cancel_event = unique_event(&all, "integration.cancel_requested", &run["id"]);
+    let dispatched = all
+        .iter()
+        .filter(|(_, e)| {
+            e["aggregate_id"] == run["id"]
+                && e["kind"] == "integration.stage_dispatched"
+                && e["payload"]["kind"] == "validator"
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(dispatched.len(), 1);
+    assert!(dispatched[0].0 < cancel_event.0 && cancel_event.0 < observed.0);
+    let subject = json!({"task_id":f.task["id"],"attempt_id":validation["attempt_id"],"spec_revision":policy["selection"]["expected_spec_revision"],"input_revision":policy["bindings"]["source"]["head"],
+        "version":{"kind":"git","target_ref":TARGET,"expected_target_head":f.initial_target,"source_candidate":run["source_commit"],"integration_candidate":run["integration_commit"],"tree":run["integration_tree"]}});
+    assert_eq!(view["contract"]["file_contract"]["subject"], subject);
+    assert_eq!(view["approval_id"], policy["approval_id"]);
+    assert_eq!(view["policy_revision"], validation["definition_digest"]);
     assert_eq!(observed.0, validation["sequence"].as_u64().unwrap());
     assert_eq!(
         sha256(&serde_json::to_vec(view).unwrap()),
