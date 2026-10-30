@@ -935,12 +935,12 @@ fn adopt_inner(
         &candidate.integration_candidate,
         &grant.expected_target_head,
         transaction_control,
-        || {
-            verify_repository_controlled(grant, Some(transaction_control))?;
-            if checked_out(grant, Some(transaction_control))? {
+        |locked_control| {
+            verify_repository_controlled(grant, Some(locked_control))?;
+            if checked_out(grant, Some(locked_control))? {
                 return Err(AdoptionError::TargetCheckedOut);
             }
-            controlled_check(Some(transaction_control))
+            controlled_check(Some(locked_control))
         },
     );
     // Commit ACK plus joined exit0 is the historical write receipt. A joined

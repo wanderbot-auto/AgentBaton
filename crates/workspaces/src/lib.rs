@@ -1086,7 +1086,7 @@ pub(crate) fn prepared_ref_output(
     candidate: &str,
     expected: &str,
     control: &adoption::AdoptionControl<'_>,
-    validate_locked: impl FnOnce() -> Result<(), adoption::AdoptionError>,
+    validate_locked: impl FnOnce(&adoption::AdoptionControl<'_>) -> Result<(), adoption::AdoptionError>,
 ) -> Result<PreparedRefOutput, WorkspaceError> {
     use std::os::unix::process::CommandExt;
     // The fixed update frame cannot contain another protocol command.
@@ -1146,7 +1146,7 @@ pub(crate) fn prepared_ref_output(
             Some(b"start: ok\nprepare: ok\n"),
         )?;
         bounded.check()?;
-        validation_error = validate_locked().err();
+        validation_error = validate_locked(&bounded).err();
         if validation_error.is_some() {
             ref_transaction_write(&mut stdin, b"abort\n", &bounded)?;
         } else {
