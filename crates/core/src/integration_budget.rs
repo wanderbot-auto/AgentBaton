@@ -46,7 +46,7 @@ pub(crate) struct IntegrationAccounting {
 fn unknown() -> CoreError {
     CoreError::new("BUDGET_UNKNOWN","Integration accounting origin, journal or settlement is incomplete; history was not discarded")
 }
-fn original(mut r: IntegrationAttemptRecord) -> IntegrationAttemptRecord {
+pub(super) fn original(mut r: IntegrationAttemptRecord) -> IntegrationAttemptRecord {
     r.view.state = "prepared".into();
     r.view.settled = false;
     r.view.actual_runtime_ms = None;

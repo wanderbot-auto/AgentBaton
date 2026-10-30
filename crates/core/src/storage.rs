@@ -348,6 +348,7 @@ impl Store {
             graph_capture_clocks: Default::default(),
             factory_recovery_queue_epochs: Vec::new(),
         };
+        store.recover_integrations()?;
         store.recover_dispatches()?;
         store.recover_workspace_creations()?;
         store.recover_task_workspace_bindings()?;
