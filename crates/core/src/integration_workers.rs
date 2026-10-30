@@ -413,15 +413,32 @@ impl IntegrationWorkers {
                 "Joined integration continuation has no exact next stage",
             )
         })?;
-        let context = joined.context.take().ok_or_else(|| {
-            CoreError::new(
-                "OUTCOME_UNKNOWN",
-                "Joined integration candidate handles were lost; no reconstruction or replay",
-            )
-        })?;
-        match store.queue_integration_next_stage(&ticket, &context, kind, validator) {
-            Ok(next) => self.schedule(store, next, Some(context))?,
-            Err(error) => store.block_integration_continuation(&ticket, &error)?,
+        if kind == super::IntegrationStageKind::Preparation {
+            // Reprepare never reuses old correctness observations or handles.
+            // The just-joined readonly stage consumed its original reservation.
+            match store.queue_integration_next_stage(
+                &ticket,
+                joined.context.as_ref(),
+                kind,
+                validator,
+            ) {
+                Ok(next) => {
+                    super::stage_workers::dispose_context(joined.context.take());
+                    self.schedule(store, next, None)?;
+                }
+                Err(error) => store.block_integration_continuation(&ticket, &error)?,
+            }
+        } else {
+            let context = joined.context.take().ok_or_else(|| {
+                CoreError::new(
+                    "OUTCOME_UNKNOWN",
+                    "Joined integration candidate handles were lost; no reconstruction or replay",
+                )
+            })?;
+            match store.queue_integration_next_stage(&ticket, Some(&context), kind, validator) {
+                Ok(next) => self.schedule(store, next, Some(context))?,
+                Err(error) => store.block_integration_continuation(&ticket, &error)?,
+            }
         }
         Ok(())
     }

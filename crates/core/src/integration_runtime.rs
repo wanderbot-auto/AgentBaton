@@ -755,6 +755,13 @@ impl Store {
         if intent.state != IntentState::Prepared {
             return Err(changed());
         }
+        if proof.observed_target_advance().is_some() {
+            // The old reservation pays for its actual readonly preflight. No
+            // stage effects or replacement work are released by this receipt.
+            proof.seal_observation()?;
+            tx.commit().map_err(db_error)?;
+            return Ok(proof);
+        }
         record.view.state = "running".into();
         if tx.execute("UPDATE integration_attempts SET state='running',document=?1 WHERE attempt_id=?2 AND state='prepared'",params![encode(&record)?,record.view.attempt_id]).map_err(db_error)? != 1 { return Err(changed()); }
         intent.state = IntentState::Sent;
@@ -829,7 +836,7 @@ impl Store {
     pub(super) fn queue_integration_next_stage(
         &mut self,
         previous: &IntegrationStageTicket,
-        context: &super::io::IntegrationPreparedContext,
+        context: Option<&super::io::IntegrationPreparedContext>,
         kind: IntegrationStageKind,
         validator: Option<crate::goal_store::GoalValidatorRef>,
     ) -> Result<IntegrationStageTicket> {
@@ -852,21 +859,59 @@ impl Store {
             || run.active_stage.is_some()
             || ref_fence.state != "held"
             || ref_fence.active_attempt_id.is_some()
-            || context.run_id != run.id
-            || context.policy.id != p.id
-            || context.policy.snapshot_digest != p.snapshot_digest
-            || run.integration_commit.as_deref() != Some(context.candidate.candidate_commit())
-            || run.source_commit.as_deref() != Some(context.captured.commit())
+        {
+            return Err(changed());
+        }
+        if let Some(context) = context {
+            if context.run_id != run.id
+                || context.policy.id != p.id
+                || context.policy.snapshot_digest != p.snapshot_digest
+                || run.integration_commit.as_deref() != Some(context.candidate.candidate_commit())
+                || run.source_commit.as_deref() != Some(context.captured.commit())
+            {
+                return Err(changed());
+            }
+        } else if kind != IntegrationStageKind::Preparation
+            || run.source_commit.is_some()
+            || run.integration_commit.is_some()
         {
             return Err(changed());
         }
         source_idle(&tx, &p)?;
         let reservation = match kind {
-            IntegrationStageKind::Preparation => return Err(CoreError::new(
-                "AUTH_REQUIRED",
-                "A new round requires its separate exact descendant-target preparation admission",
-            )),
+            IntegrationStageKind::Preparation => {
+                if validator.is_some()
+                    || p.selection.on_target_advance
+                        != IntegrationTargetAdvance::BoundedDescendantReprepare
+                    || run.round != prior.view.round.checked_add(1).ok_or_else(limited)?
+                    || run.round > p.selection.max_rounds
+                {
+                    return Err(denied());
+                }
+                let mut statement=tx.prepare("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='integration_core' AND json_extract(document,'$.kind')='integration.descendant_target_observed' AND json_extract(document,'$.payload.attempt_id')=?2 ORDER BY sequence LIMIT 2").map_err(db_error)?;
+                let rows = statement
+                    .query_map(params![run.id, prior.view.attempt_id], |r| {
+                        r.get::<_, Option<String>>(0)
+                    })
+                    .map_err(db_error)?
+                    .collect::<std::result::Result<Vec<_>, _>>()
+                    .map_err(db_error)?;
+                if rows.len() != 1 {
+                    return Err(changed());
+                }
+                let event: crate::storage::Event = decode(rows[0].as_deref().ok_or_else(limited)?)?;
+                if event.payload["from_head"] != previous.run.expected_target_head
+                    || event.payload["to_head"] != run.expected_target_head
+                    || event.payload["from_round"] != prior.view.round
+                    || event.payload["next_round"] != run.round
+                    || event.payload["read_worker_joined"] != true
+                {
+                    return Err(changed());
+                }
+                p.selection.stage_reservations.preparation.clone()
+            }
             IntegrationStageKind::Validator => {
+                let context = context.ok_or_else(denied)?;
                 let reference = validator.as_ref().ok_or_else(denied)?;
                 let index = p
                     .selection
@@ -897,6 +942,7 @@ impl Store {
                     .clone()
             }
             IntegrationStageKind::Cas => {
+                let context = context.ok_or_else(denied)?;
                 if validator.is_some()
                     || prior.view.kind != IntegrationStageKind::Validator
                     || context.validations.len() != p.bindings.validators.len()
@@ -914,18 +960,54 @@ impl Store {
         };
         reserve_ancestors(&tx, &p, &reservation)?;
         reserve_counters(&tx, &p)?;
-        let candidate: ManagedWorkspace = raw(&tx, "managed_workspaces", &previous.candidate.id)?;
-        let control: ManagedWorkspace = raw(&tx, "managed_workspaces", &previous.control.id)?;
-        if candidate.state != "ready"
-            || control.state != "ready"
-            || candidate.root != context.candidate.workspace().canonical_root
-            || control.root != context.control.canonical_root
-            || candidate.identity.as_ref() != Some(context.candidate.workspace())
-            || control.identity.as_ref() != Some(&context.control)
-        {
-            return Err(changed());
-        }
-        let binding = derive_binding(&p, &candidate.id, context.candidate.candidate_commit())?;
+        let (candidate, control, binding) = if kind == IntegrationStageKind::Preparation {
+            let stamp = now()?;
+            let control = ManagedWorkspace {
+                id: Uuid::new_v4().to_string(),
+                project_id: p.bindings.project_id.clone(),
+                identity: None,
+                root: previous
+                    .managed_root
+                    .join(format!("integration-{}-r{}-control", run.id, run.round)),
+                base_revision: p.bindings.source.head.clone(),
+                created_at: stamp.clone(),
+                state: "creating".into(),
+                revision: 1,
+            };
+            let candidate = ManagedWorkspace {
+                id: Uuid::new_v4().to_string(),
+                project_id: p.bindings.project_id.clone(),
+                identity: None,
+                root: previous
+                    .managed_root
+                    .join(format!("integration-{}-r{}-candidate", run.id, run.round)),
+                base_revision: run.expected_target_head.clone(),
+                created_at: stamp,
+                state: "creating".into(),
+                revision: 1,
+            };
+            let binding = derive_binding(&p, &p.bindings.workspace_id, &p.bindings.source.head)?;
+            (candidate, control, binding)
+        } else {
+            let context = context.ok_or_else(denied)?;
+            if prior.view.round != run.round {
+                return Err(changed());
+            }
+            let candidate: ManagedWorkspace =
+                raw(&tx, "managed_workspaces", &previous.candidate.id)?;
+            let control: ManagedWorkspace = raw(&tx, "managed_workspaces", &previous.control.id)?;
+            if candidate.state != "ready"
+                || control.state != "ready"
+                || candidate.root != context.candidate.workspace().canonical_root
+                || control.root != context.control.canonical_root
+                || candidate.identity.as_ref() != Some(context.candidate.workspace())
+                || control.identity.as_ref() != Some(&context.control)
+            {
+                return Err(changed());
+            }
+            let binding = derive_binding(&p, &candidate.id, context.candidate.candidate_commit())?;
+            (candidate, control, binding)
+        };
         let attempt_id = Uuid::new_v4().to_string();
         let intent_id = Uuid::new_v4().to_string();
         let dispatch = DispatchIntent {
@@ -1030,6 +1112,20 @@ impl Store {
             queued_at,
             deadline,
         };
+        if kind == IntegrationStageKind::Preparation {
+            let permit = super::fences::for_stage(&tx, &ticket)?;
+            for workspace in [&ticket.control, &ticket.candidate] {
+                crate::registry::reserve_workspace_row_for_integration(
+                    &tx,
+                    workspace,
+                    &format!("integration:{}:{}", ticket.run.id, workspace.id),
+                    &encode(
+                        &json!({"integration_id":ticket.run.id,"policy_id":ticket.policy.id,"round":ticket.run.round,"role":if workspace.id==ticket.control.id {"control"}else{"candidate"}}),
+                    )?,
+                    &permit,
+                )?;
+            }
+        }
         records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(ticket)

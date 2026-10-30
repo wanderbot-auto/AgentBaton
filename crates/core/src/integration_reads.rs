@@ -186,9 +186,21 @@ pub(crate) struct IntegrationReadPlan {
     request_hash: String,
     as_of_sequence: u64,
 }
+// Only the owned read worker can construct this observed ancestry fact. It is
+// neither serializable nor permission to write a different target slot.
+pub(super) struct ObservedTargetAdvance {
+    from: String,
+    to: String,
+}
+impl ObservedTargetAdvance {
+    pub(super) fn heads(&self) -> (&str, &str) {
+        (&self.from, &self.to)
+    }
+}
 pub(crate) struct IntegrationReadProof {
     pub(super) intent: IntegrationReadIntent,
     pub(super) context: IntegrationContextView,
+    target_advance: Option<ObservedTargetAdvance>,
     material_digest: String,
     available_digest: String,
     database: DatabasePin,
@@ -675,9 +687,44 @@ impl IntegrationReadPlan {
                 }
                 IntegrationReadIntent::Context(_) => None,
             };
+            let mut target_advance = None;
             if let Some(selection) = selected {
                 phase = "worker-target-inspection";
-                observe_target(&material.workspace.root, &program, &selection, &control)?;
+                let allow_advance = if let IntegrationReadIntent::Stage(reference) = &self.intent {
+                    let run = records::run(&reader.conn, &reference.run_id)?;
+                    selection.on_target_advance
+                        == IntegrationTargetAdvance::BoundedDescendantReprepare
+                        && run.round < selection.max_rounds
+                } else {
+                    false
+                };
+                let head = observe_target(
+                    &material.workspace.root,
+                    &program,
+                    &selection,
+                    &control,
+                    allow_advance,
+                )?;
+                if head != selection.expected_target_head {
+                    let (status, bytes) = super::fs::git_status(
+                        &material.workspace.root,
+                        &program,
+                        &[
+                            std::ffi::OsStr::new("merge-base"),
+                            std::ffi::OsStr::new("--is-ancestor"),
+                            std::ffi::OsStr::new(&selection.expected_target_head),
+                            std::ffi::OsStr::new(&head),
+                        ],
+                        &control,
+                    )?;
+                    if !status.success() || !bytes.is_empty() {
+                        return Err(changed());
+                    }
+                    target_advance = Some(ObservedTargetAdvance {
+                        from: selection.expected_target_head.clone(),
+                        to: head,
+                    });
+                }
             }
             phase = "worker-final-identity";
             let source = git_pin(&source)?;
@@ -776,6 +823,7 @@ impl IntegrationReadPlan {
             Ok(IntegrationReadProof {
                 intent: self.intent,
                 context,
+                target_advance,
                 material_digest: sha(&material)?,
                 available_digest: sha(&available)?,
                 database: self.database,
@@ -855,6 +903,12 @@ impl IntegrationReadProof {
         reader.conn.execute_batch("ROLLBACK;").map_err(db_error)?;
         Ok(())
     }
+    pub(super) fn observed_target_advance(&self) -> Option<&ObservedTargetAdvance> {
+        self.target_advance.as_ref()
+    }
+    pub(super) fn take_target_advance(&mut self) -> Option<ObservedTargetAdvance> {
+        self.target_advance.take()
+    }
     pub(crate) fn intent(&self) -> &IntegrationReadIntent {
         &self.intent
     }
@@ -928,6 +982,18 @@ impl IntegrationReadProof {
                     }
                 }
                 let policy = records::policy(&store.conn, &reference.policy_id)?;
+                if let Some(advance) = &self.target_advance {
+                    let run = records::run(&store.conn, &reference.run_id)?;
+                    if policy.selection.on_target_advance
+                        != IntegrationTargetAdvance::BoundedDescendantReprepare
+                        || run.round >= policy.selection.max_rounds
+                        || run.expected_target_head != advance.from
+                        || advance.from == advance.to
+                        || !oid(&advance.to)
+                    {
+                        return Err(changed());
+                    }
+                }
                 let mut selection = policy.selection.clone();
                 // Runtime revisions changed through the authentic accepted chain;
                 // scope/spec/outputs/Native bindings remain exact.
@@ -959,7 +1025,8 @@ fn observe_target(
     program: &IntegrationProgramPin,
     s: &IntegrationPolicySelection,
     control: &IntegrationReadControl,
-) -> Result<()> {
+    allow_descendant_observation: bool,
+) -> Result<String> {
     use std::ffi::OsStr;
     selection_shape(s)?;
     super::fs::git(
@@ -995,7 +1062,7 @@ fn observe_target(
     let head = std::str::from_utf8(&bytes)
         .map_err(|_| changed())?
         .trim_end_matches('\n');
-    if head != s.expected_target_head {
+    if !oid(head) || (head != s.expected_target_head && !allow_descendant_observation) {
         return Err(CoreError::new(
             "INPUT_CHANGED",
             "Integration target head changed before approval or stage admission",
@@ -1020,7 +1087,7 @@ fn observe_target(
             ));
         }
     }
-    Ok(())
+    Ok(head.to_owned())
 }
 
 #[cfg(test)]

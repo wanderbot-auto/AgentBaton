@@ -244,6 +244,38 @@ impl Store {
         let mut next = None;
         let mut terminal = true;
         match &joined.result {
+            Ok(StageFact::TargetAdvanced(observed)) => {
+                let (from, to) = observed.heads();
+                if joined.effects_admitted
+                    || from != run.expected_target_head
+                    || from == to
+                    || !super::reads::oid(to)
+                    || policy.selection.on_target_advance
+                        != IntegrationTargetAdvance::BoundedDescendantReprepare
+                    || run.round >= policy.selection.max_rounds
+                {
+                    return Err(changed());
+                }
+                if !overrun && !cancelled && !expired {
+                    let next_round = run.round.checked_add(1).ok_or_else(limited)?;
+                    records::event(
+                        &tx,
+                        &run.id,
+                        run.revision,
+                        "integration.descendant_target_observed",
+                        &json!({
+                            "attempt_id": attempt.view.attempt_id, "from_head":from, "to_head":to,
+                            "from_round":run.round, "next_round":next_round, "read_worker_joined":joined.worker_joined,
+                            "same_approved_ref":true, "new_permission":false,
+                        }),
+                    )?;
+                    run.expected_target_head = to.to_owned();
+                    run.round = next_round;
+                    run.state = IntegrationState::Queued;
+                    next = Some((IntegrationStageKind::Preparation, None));
+                    terminal = false;
+                }
+            }
             Ok(StageFact::Prepared) => {
                 let context = joined.context.as_ref().ok_or_else(changed)?;
                 if context.policy.id != policy.id
