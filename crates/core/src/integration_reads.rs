@@ -1148,6 +1148,10 @@ fn observe_target(
     Ok(head.to_owned())
 }
 
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+#[path = "integration_reads_reseal_lock_tests.rs"]
+mod reseal_lock_tests;
+
 #[cfg(test)]
 mod lease_projection_tests {
     use super::*;
