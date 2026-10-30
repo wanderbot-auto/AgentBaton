@@ -1,0 +1,9 @@
+# Source progress
+
+The shared helper `dd69cdc5bae0d270de4006244d00dc8e63732728`, current wrappers/consumers and five new SQLite test sources `13a467c9a40ffaa2f9b77fb2c96e96a7f66eb3b7`, and SQLite case-insensitive dependency guard correction `185fcfae6d19f1828506e16fdfe316fad5e7c1fc` are committed. No production Rust, migration implementation, archive, lockfile, genuine producer or approval changes were made.
+
+Normal fresh17 fixture callers use explicitly named current wrappers. Old command inverse tests first construct verified empty16, then preserve the original31-case rejection matrix, future17 negative, foreign-key/raw-byte/native-FK and late-caller rollback assertions. Nine ordinary future-version tests now reject18; actual current migration headers and the two session diagnostics require17. Historical raw predecessor versions and backup prefix checks remain unchanged. Future test names were updated accordingly, without removing tests.
+
+The new five Rust test sources cover read-only proof, exact old rows/schema through17-to16-to17 roundtrip,32 internal refusal variants, whole cross-increment caller rollback, nested/committed transaction refusal and unrelated typed BLOB/history preservation. Thirty-two variants are inside a single Rust test, not additional tests. No Rust, actual SQLite, Actor, Provider, browser, Native or macOS execution was performed by this source author.
+
+Configured rustfmt and git diff whitespace checks passed. Forty-seven lightweight source/contract checks passed; these are not product test results. Two editing selectors initially counted preserved future17 controls or missed a no-semicolon spelling, and one case-insensitive edit selector missed rustfmt wrapping; they were corrected before committing source. Those were author editing-script assertions, not compiler or product failures, and do not establish runtime success.
