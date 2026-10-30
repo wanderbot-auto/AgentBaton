@@ -2513,7 +2513,11 @@ impl Daemon {
                     );
                     if let Some(code) = response["error"]["code"].as_str() {
                         if !matches!(code, "STALE_REVISION" | "WORKSPACE_BUSY") {
-                            self.store.block_goal_run(&id, code)?;
+                            self.store.block_goal_run(
+                                &id,
+                                code,
+                                response["error"]["details_ref"].as_str(),
+                            )?;
                         }
                     }
                 }
@@ -2532,7 +2536,7 @@ impl Daemon {
                         Some("INTERNAL_ADVANCE_INTERRUPTED"),
                     );
                     self.store
-                        .block_goal_run(&id, "INTERNAL_ADVANCE_INTERRUPTED")?;
+                        .block_goal_run(&id, "INTERNAL_ADVANCE_INTERRUPTED", None)?;
                 }
             }
         }
