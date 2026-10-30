@@ -165,7 +165,8 @@ mod tests {
                         cancel,
                         thread,
                     }),
-                    ..Default::default()
+                    stage: None,
+                    retained: None,
                 };
                 if unwind {
                     panic!("unit-fixture original first cause");
