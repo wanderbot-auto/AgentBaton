@@ -25,6 +25,13 @@ struct TargetMaterial {
 }
 impl Store {
     fn integration_target_material(&self, task_id: &str) -> Result<TargetMaterial> {
+        let version: u32 = self
+            .conn
+            .pragma_query_value(None, "user_version", |r| r.get(0))
+            .map_err(db_error)?;
+        if version != 17 {
+            return Err(changed());
+        }
         let task: Task = raw(&self.conn, "tasks", task_id)?;
         let project: Project = raw(&self.conn, "projects", &task.project_id)?;
         if task.id != task_id || project.id != task.project_id || project.archived {
@@ -146,7 +153,14 @@ impl IntegrationTargetPlan {
         let control = IntegrationReadControl { cancel, deadline };
         control.check()?;
         let connection = self.database.open_readonly(deadline)?;
-        let reader = Store { conn: connection };
+        let reader = Store {
+            conn: connection,
+            data_input: None,
+            graph_input: None,
+            graph_capture_clocks: Default::default(),
+            factory_recovery_queue_epochs: vec![],
+            factory_read_control: None,
+        };
         let material = reader.integration_target_material(&self.query.task_id)?;
         if sha(&material)? != self.material_digest {
             return Err(changed());
