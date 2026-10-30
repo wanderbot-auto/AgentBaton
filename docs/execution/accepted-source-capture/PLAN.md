@@ -33,3 +33,9 @@ Source49fdf925e9522d869cb0ff8c96c5540177dcdc67 explicitly passes `--ignore-submo
 ## Evidence-first empty-subtree diagnosis
 
 After Root's actual12PASS/1FAIL, only enrich the failed test's bounded result diagnostics and preserve that fixture on panic. Do not broaden its error expectation, change the other tests or patch production before the actual result is known. Exact old results and code remain preserved. Any later explicit-empty-tree refusal must keep all source/index/ref, selected-type/path/Unicode and original resource/deadline guards.
+
+## Confirmed empty-tree loss and explicit structural refusal
+
+Root diagnosticcaf405 actually returned Ok while the exact rejection assertion failed. Subsequent Root read-only inspection of its retained generated repository confirmed the base had an unselected empty040000 subtree and the candidate lacked it; original HEAD stayed base, with no adoption. The private generated path is not published in these records. This is actual synthetic-repository candidate data loss, not merely an unexpected error category and not a user/production repository.
+
+Authorized fix5ccb526 replaces leaf-name-only scanning with bounded ls-tree -r -t -z metadata inspection. Strict NUL/header/mode/type/OID/path parsing preserves path/ASCII/case/4MiB/global15s/65536 bounds; each explicit tree must have a path/ successor or return exact UnsafeRepository. Base inspection is before Scratch creation/object/index writes. The same helper audits final candidate structure in every verify_tree, so recursive leaf diff cannot conceal an extra empty structure. Existing roundtrip, complete selected-diff proof and blob checks remain. Unselected nonempty trees/symlinks/gitlinks keep their previous contract.

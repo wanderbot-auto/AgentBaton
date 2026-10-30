@@ -23,3 +23,9 @@ Use source49fdf925e9522d869cb0ff8c96c5540177dcdc67 and the new49 evidence direct
 Run only `unrepresentable_empty_base_subtree_is_rejected_instead_of_silently_removed` on diagnostic sourcecaf405d (production remains49) under Root's lease. Preserve Root's12/1FAIL and5PASS original logs/failed ELF; do not accept any alternate error or Ok as success. Failed fixture retention is local to this one test, with no public knob; its generated temp repository contains the own `raw-generated-tree` file and is deliberately not auto-cleaned on panic. No private paths are printed.
 
 If actual Ok confirms the source hypothesis, the proposed reversible next patch is only newmodule's bounded base-tree metadata inspection (`ls-tree -r -t -z`, strict mode/type/OID/path, same4MiB/65536/global15s caps) to reject empty subtrees explicitly rather than rely on cache-tree roundtrip. This patch has not been written or approved as a demonstrated fix in this checkpoint. Wait for actual diagnostic evidence; original UnsafeRepository contract stays fixed.
+
+## Final frozen empty-tree fix handoff
+
+Source5ccb52663a3b21d79ac0ffcc9331cb968c2bef2d, with unchanged caf405 diagnostic integration test. Evidence `/workspace/.onboarding/accepted-source-capture-empty-tree-fixed-5ccb526/SOURCE_AND_EVIDENCE.json` binds actual Root diagnostic failure, retained-tree inspection SHA and safe facts, final source hashes and static commands. Root owns original retained generated repo and failed ELF; do not remove them.
+
+Next: independent fixed-source review and Root actual original1 plus13integration/5cfg-unit regression on the complete docs HEAD. Do not change the tree while Root captures source-before/after. This checkpoint is fixed-source pending actual runtime, not accepted. All original caps, authority limits, raw-object-only scope and full AB-VAL-009 followups remain open as before.

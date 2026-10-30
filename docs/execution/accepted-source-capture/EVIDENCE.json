@@ -4,7 +4,7 @@
     "AB-PRJ-004",
     "AB-PRJ-005"
   ],
-  "stage": "root_initial_runtime_failed_pending_one_case_diagnosis",
+  "stage": "explicit_empty_tree_fix_source_frozen_root_runtime_pending",
   "base": "bc10ee94c667da9535018c37fdf5b128d63126af",
   "source_commit": "49fdf925e9522d869cb0ff8c96c5540177dcdc67",
   "source_sha256": {
@@ -184,5 +184,58 @@
       }
     ],
     "source_evidence": "/workspace/.onboarding/accepted-source-capture-empty-base-diagnostic-caf405d/SOURCE_AND_RESULTS.json"
+  },
+  "empty_tree_fix": {
+    "source_commit": "5ccb52663a3b21d79ac0ffcc9331cb968c2bef2d",
+    "source_sha256": {
+      "crates/workspaces/src/lib.rs": "2227d043ceaf878bcefbf594788b9b3e81864d955484e3fe98cbc718fd057b89",
+      "crates/workspaces/src/source_capture.rs": "217a0214de5f3b07e544c20cc09622bbc8b2557ef2227ccca4c6b786dc5d4d06",
+      "crates/workspaces/tests/source_capture.rs": "4ad350e43f9c7ecab5b28b244c9a7f2891e9fbbd63dd633c493e036055d300af"
+    },
+    "actual_source_runtime": "NOT_RUN",
+    "original_diagnostic_summary": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.58s"
+    ],
+    "original_diagnostic_log_sha256": "44cde6747c04a5dddebfc362c3ed0c10343c43fae59f588bfae8f9caf113c6d4",
+    "original_diagnostic_actual_return": "Ok",
+    "root_retained_inspection_sha256": "5fb6dcade766ee5836e9d2ba100c1a674027d362d9732c6ba4ce0edeb2db0e96",
+    "root_retained_safe_facts": {
+      "read_only_git_inspection_only": true,
+      "original_empty_subtree_lost": true,
+      "original_refs_not_adopted": true,
+      "not_production_or_user_data": true
+    },
+    "guard": "strict bounded explicit tree audit; reject empty subtree before capture writes and during candidate verification",
+    "all_original_caps_preserved": true,
+    "source_test_counts": {
+      "integration": 13,
+      "cfg_unit": 5
+    },
+    "actual_author_commands": [
+      {
+        "argv": [
+          "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+          "--edition",
+          "2021",
+          "--check",
+          "crates/workspaces/src/source_capture.rs",
+          "crates/workspaces/tests/source_capture.rs"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "evidence": "/workspace/.onboarding/accepted-source-capture-empty-tree-fixed-5ccb526/SOURCE_AND_EVIDENCE.json"
   }
 }
