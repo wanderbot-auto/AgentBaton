@@ -1,3 +1,11 @@
+## Reviewed local regressions and first-binding race — 2026-10-30T01:00:16.147826+00:00
+
+Actor ready-batch graph service, fixed hash-approved portable shell validator, and strict observer first-binding guard are independently source-reviewed. Actual Factory26PASS90.12s and Core129PASS90.10s (nested helper excluded), infrastructure172, all-workspace/all-target strictClippy and format passed at their separately recorded sources. Original portable first0/1 uid assertion failure/ELF is retained; corrected Mac-only uid assertion passes Linux, not Mac proof.
+
+Actual driverd694 with hash-restored Core0c78/frontend2d: planning9checks/4PNG and cancel4checks/2PNG pass with complete cleanup; normal and unknown each fail after2checks because no prior live verified identity exists when the fixed provider has already exited. Both cleanup_complete=false; daemon actual wait0 does not turn the flow green. A minimal test-only observation ACK is being implemented after full live identity/Core binding, within unchanged original budgets. The strict first-live guard remains.
+
+See REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json. Remote de0b remains Env3/Rust pass, UI/bothMac fail; new exact CI, Native/build/packages and complete130 remain unverified. main653679d freshly fetched, OWNER001/002 ACK with no003. Authority boundaries unchanged; continue implementation/testing.
+
 # de0b CI准确终态：Rust/Environment通过，UI与双Mac失败 — 2026-10-30T00:26:21.941409+00:00
 
 准确de0b/checkout59e174：Env3和Rust通过，UI/双Mac失败。UI已绑定provider在argv读取窗口退出；ARM两轮preflight INPUT_CHANGED无命令退出观察；Intel当前capture未启动、同Goal前置rev11节点4359ms>原4s（same-plan未证）。这些是不同边界，原预算/拒绝不放宽。新窄修独审/真实测试继续，详见[准确终态证据](factory-child-goal-integration/HEADDE0B_TERMINAL_RESULTS.json)。PR18尚未合入，无15/16新包；PR19新c02组合Factory26/192infra/Clippy已过、独立16/native/Mac仍未验收；完整130未完。main653679d/OWNER001002ACK，无新授权。

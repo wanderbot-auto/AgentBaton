@@ -1,3 +1,11 @@
+## Reviewed local regressions and first-binding race — 2026-10-30T01:00:16.147826+00:00
+
+Actor ready-batch graph service, fixed hash-approved portable shell validator, and strict observer first-binding guard are independently source-reviewed. Actual Factory26PASS90.12s and Core129PASS90.10s (nested helper excluded), infrastructure172, all-workspace/all-target strictClippy and format passed at their separately recorded sources. Original portable first0/1 uid assertion failure/ELF is retained; corrected Mac-only uid assertion passes Linux, not Mac proof.
+
+Actual driverd694 with hash-restored Core0c78/frontend2d: planning9checks/4PNG and cancel4checks/2PNG pass with complete cleanup; normal and unknown each fail after2checks because no prior live verified identity exists when the fixed provider has already exited. Both cleanup_complete=false; daemon actual wait0 does not turn the flow green. A minimal test-only observation ACK is being implemented after full live identity/Core binding, within unchanged original budgets. The strict first-live guard remains.
+
+See REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json. Remote de0b remains Env3/Rust pass, UI/bothMac fail; new exact CI, Native/build/packages and complete130 remain unverified. main653679d freshly fetched, OWNER001/002 ACK with no003. Authority boundaries unchanged; continue implementation/testing.
+
 ## Exact de0b terminal failure evidence — 2026-10-30T00:26:21.941409+00:00
 
 Environment40976684979 all3 and Product40976684974 Rust passed; UI and both Mac failed. Tested checkout59e174dc is not an actual main merge. UI normal/Graph cases passed through command-timeout and Factory normal/cancel/unknown; child-planning CP01/02 passed then a previously-bound provider exited during cmdline read (0B, fresh identity absent). Whole flow and cleanup_complete remain failed/false despite daemon exit0/six identities gone; later childGoal browser cases not run.

@@ -1,3 +1,5 @@
+Next: finish and independently review the minimal fixed-provider observation ACK without weakening first-live binding; actually rerun all four browser flows and changed infrastructure controls. Preserve current Rust source-bound passes and original failures, then submit one meaningful exact seven-CI candidate. Continue dependent schema16/default coding workspace entry and full130 scope.
+
 Next: submit the independently reviewed atomic-view/finite-receipt candidate for exact seven CI; diagnose separate Mac outcomes from actual new evidence, preserve original ceilings and failure assertions, then proceed through protected integration and dependent schema16 work. Full scope remains.
 
 # Full-product next execution unit
