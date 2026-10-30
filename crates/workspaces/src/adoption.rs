@@ -115,6 +115,13 @@ pub struct AdoptionControl<'a> {
     started: std::time::Instant,
     preparation: std::sync::Arc<std::sync::Mutex<PreparationFacts>>,
 }
+/// Private resource-controller provenance, never permission or a wire token.
+#[derive(Clone)]
+pub(crate) struct PreparationEpoch {
+    cancel_identity: usize,
+    started: std::time::Instant,
+    facts: std::sync::Arc<std::sync::Mutex<PreparationFacts>>,
+}
 #[derive(Default)]
 struct PreparationFacts {
     git_calls_attempted: u64,
@@ -184,13 +191,28 @@ impl<'a> AdoptionControl<'a> {
     pub(crate) fn deadline(&self) -> std::time::Instant {
         self.deadline
     }
-    pub(crate) fn narrowed(&self, deadline: std::time::Instant) -> Self {
+    pub(crate) fn cancel_identity(&self) -> usize {
+        std::ptr::from_ref(self.cancel) as usize
+    }
+    pub fn narrowed(&self, deadline: std::time::Instant) -> Self {
         Self {
             cancel: self.cancel,
             deadline: self.deadline.min(deadline),
             started: self.started,
             preparation: self.preparation.clone(),
         }
+    }
+    pub(crate) fn epoch(&self) -> PreparationEpoch {
+        PreparationEpoch {
+            cancel_identity: self.cancel_identity(),
+            started: self.started,
+            facts: self.preparation.clone(),
+        }
+    }
+    pub(crate) fn matches_epoch(&self, epoch: &PreparationEpoch) -> bool {
+        self.cancel_identity() == epoch.cancel_identity
+            && self.started == epoch.started
+            && std::sync::Arc::ptr_eq(&self.preparation, &epoch.facts)
     }
     pub(crate) fn note_effects(&self) {
         self.preparation
@@ -335,6 +357,7 @@ pub struct AuthorizedIntegration {
     commit_time_unix: u64,
     preparation_host_deadline: Option<std::time::Instant>,
     preparation_deadline: Option<std::time::Instant>,
+    preparation_epoch: Option<PreparationEpoch>,
 }
 impl AuthorizedIntegration {
     /// Host policy must verify the grant's actor, project/repository, destination
@@ -443,6 +466,7 @@ impl AuthorizedIntegration {
             commit_time_unix,
             preparation_host_deadline: control.map(|c| c.deadline()),
             preparation_deadline: control.map(|c| c.deadline()),
+            preparation_epoch: control.map(AdoptionControl::epoch),
         })
     }
 }
@@ -644,7 +668,14 @@ pub fn prepare_candidate_controlled(
     name: &str,
     control: &AdoptionControl<'_>,
 ) -> Result<PreparedCandidate, AdoptionError> {
-    if grant.preparation_host_deadline != Some(control.deadline()) {
+    if grant
+        .preparation_host_deadline
+        .is_none_or(|original| control.deadline() > original)
+        || !grant
+            .preparation_epoch
+            .as_ref()
+            .is_some_and(|epoch| control.matches_epoch(epoch))
+    {
         return Err(AdoptionError::InvalidGrant);
     }
     let original = grant
