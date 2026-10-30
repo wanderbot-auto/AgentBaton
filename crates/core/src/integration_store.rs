@@ -124,11 +124,17 @@ fn normalize_ddl(sql: &str) -> String {
         } else if matches!(c, '\'' | '"' | '`') {
             quote = Some(c);
             out.push(c);
-        } else if !c.is_ascii_whitespace() {
+        } else if c.is_ascii_whitespace() {
+            // Keep a token separator. Deleting it could equate a NOT NULL
+            // constraint with the different legal type name TEXTNOTNULL.
+            if !out.is_empty() && !out.ends_with(' ') {
+                out.push(' ');
+            }
+        } else {
             out.push(c);
         }
     }
-    out
+    out.trim_end().to_owned()
 }
 
 fn validate_predecessor_tasks(db: &Connection) -> Result<()> {
@@ -156,7 +162,9 @@ fn validate_predecessor_tasks(db: &Connection) -> Result<()> {
         if !value.is_object() {
             return Err(bad());
         }
-        let task: crate::storage::Task = serde_json::from_value(value).map_err(|_| bad())?;
+        // Decode the original text again: Value is only the object-shape check
+        // and would otherwise discard duplicate keys before typed validation.
+        let task: crate::storage::Task = serde_json::from_str(&text).map_err(|_| bad())?;
         if task.id != id || task.revision == 0 || task.spec_revision == 0 {
             return Err(bad());
         }
@@ -172,4 +180,31 @@ fn validate_predecessor_tasks(db: &Connection) -> Result<()> {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod schema_tokens {
+    use super::normalize_ddl;
+    #[test]
+    fn ddl_normalization_preserves_constraint_token_boundaries() {
+        assert_ne!(
+            normalize_ddl("CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL)"),
+            normalize_ddl("CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXTNOTNULL)")
+        );
+        assert_eq!(
+            normalize_ddl("CREATE  TABLE\ntasks(id TEXT PRIMARY KEY, document TEXT NOT NULL)"),
+            normalize_ddl("CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL)")
+        );
+    }
+    #[test]
+    fn quoted_ddl_bytes_are_never_reinterpreted_as_formatting() {
+        assert_ne!(
+            normalize_ddl("CREATE TABLE t(v TEXT CHECK(v='a b'))"),
+            normalize_ddl("CREATE TABLE t(v TEXT CHECK(v='ab'))")
+        );
+        assert_ne!(
+            normalize_ddl("CREATE TABLE t(\"a b\" TEXT)"),
+            normalize_ddl("CREATE TABLE t(\"ab\" TEXT)")
+        );
+    }
 }

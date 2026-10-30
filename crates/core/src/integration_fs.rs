@@ -465,9 +465,28 @@ impl FsObservation {
                 .push(GitTreeObservation::capture(root, control, &mut budget)?);
             let gd = git_directory(root)?;
             check_head_reference(&gd)?;
-            let current = agentbaton_workspaces::inspect(root).map_err(|_| changed())?;
-            let agentbaton_workspaces::WorkspaceKind::Git { common_dir, .. } = current.kind else {
-                return Err(changed());
+            let common_dir = match fs::symlink_metadata(gd.join("commondir")) {
+                Ok(_) => {
+                    let pointer = LeafPin::capture(&gd.join("commondir"))?;
+                    let mut bytes = Vec::new();
+                    pointer
+                        .file
+                        .try_clone()
+                        .map_err(|_| changed())?
+                        .take(4097)
+                        .read_to_end(&mut bytes)
+                        .map_err(|_| changed())?;
+                    pointer.recheck()?;
+                    let text = std::str::from_utf8(&bytes)
+                        .map_err(|_| changed())?
+                        .trim_end_matches(['\n', '\r']);
+                    if bytes.len() > 4096 || text.is_empty() || text.chars().any(char::is_control) {
+                        return Err(changed());
+                    }
+                    gd.join(text).canonicalize().map_err(|_| changed())?
+                }
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => gd.clone(),
+                Err(_) => return Err(changed()),
             };
             if root.join(".git").is_file() {
                 result.leaves.push(LeafPin::capture(&root.join(".git"))?);
@@ -601,6 +620,12 @@ pub(super) fn git(
             "protocol.file.allow=never",
             "-c",
             "submodule.recurse=false",
+            "-c",
+            "core.ignoreStat=false",
+            "-c",
+            "core.trustctime=true",
+            "-c",
+            "core.checkStat=default",
         ])
         .arg("-C")
         .arg(root)
@@ -681,4 +706,200 @@ pub(super) fn directory_identity(path: &Path) -> Result<(u64, u64)> {
     let file = tree_root(path)?;
     let m = file.metadata().map_err(|_| changed())?;
     Ok((m.dev(), m.ino()))
+}
+
+/// Equivalent Git-only inspection guards with the original request deadline.
+pub(super) fn inspect_git(
+    root: &Path,
+    program: &IntegrationProgramPin,
+    control: &IntegrationReadControl,
+) -> Result<agentbaton_workspaces::WorkspaceIdentity> {
+    use std::ffi::OsStr;
+    control.check()?;
+    let text = root.to_str().ok_or_else(changed)?;
+    if !root.is_absolute()
+        || text.len() > 4096
+        || text.chars().any(char::is_control)
+        || root.canonicalize().map_err(|_| changed())? != root
+    {
+        return Err(changed());
+    }
+    let fd = tree_root(root)?;
+    let m = fd.metadata().map_err(|_| changed())?;
+    let run = |args: &[&str]| {
+        let args = args.iter().map(OsStr::new).collect::<Vec<_>>();
+        git(root, program, &args, control)
+    };
+    let config = run(&["config", "--no-includes", "--null", "--list"])?;
+    if !config.is_empty() && config.last() != Some(&0) {
+        return Err(changed());
+    }
+    for record in config.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+        let mut item = record.splitn(2, |b| *b == b'\n');
+        let key = item.next().ok_or_else(changed)?;
+        let value = item.next();
+        if key == b"include.path"
+            || (key.starts_with(b"includeif.") && key.ends_with(b".path"))
+            || key == b"extensions.partialclone"
+            || (key.starts_with(b"remote.") && key.ends_with(b".promisor"))
+            || key.starts_with(b"filter.")
+        {
+            return Err(CoreError::new("PERMISSION_DENIED","Integration repository contains unsupported config indirection, filters or external object sources"));
+        }
+        if key == b"core.sparsecheckout"
+            && !value.is_some_and(|v| {
+                [b"false".as_slice(), b"0", b"off", b"no"]
+                    .iter()
+                    .any(|s| v.eq_ignore_ascii_case(s))
+            })
+        {
+            return Err(changed());
+        }
+    }
+    let metadata = run(&[
+        "rev-parse",
+        "--path-format=absolute",
+        "--show-toplevel",
+        "--git-common-dir",
+        "--verify",
+        "HEAD^{commit}",
+    ])?;
+    let fields = std::str::from_utf8(&metadata)
+        .map_err(|_| changed())?
+        .lines()
+        .collect::<Vec<_>>();
+    if fields.len() != 3
+        || !super::reads::oid(fields[2])
+        || Path::new(fields[0]).canonicalize().map_err(|_| changed())? != root
+    {
+        return Err(changed());
+    }
+    let common_dir = Path::new(fields[1]).canonicalize().map_err(|_| changed())?;
+    let entries = run(&["ls-files", "--cached", "--stage", "-v", "-z"])?;
+    let mut gitlink = false;
+    for entry in entries.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+        if entry.len() < 3 || entry[1] != b' ' || entry[0].is_ascii_lowercase() || entry[0] == b'S'
+        {
+            return Err(changed());
+        }
+        gitlink |= entry[2..].starts_with(b"160000 ");
+    }
+    let status = run(&[
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all",
+        "--ignore-submodules=all",
+    ])?;
+    control.check()?;
+    let now = tree_root(root)?.metadata().map_err(|_| changed())?;
+    if (m.dev(), m.ino()) != (now.dev(), now.ino()) {
+        return Err(changed());
+    }
+    Ok(agentbaton_workspaces::WorkspaceIdentity {
+        canonical_root: root.into(),
+        device: m.dev(),
+        inode: m.ino(),
+        kind: agentbaton_workspaces::WorkspaceKind::Git {
+            common_dir,
+            head: fields[2].into(),
+            dirty: gitlink || !status.is_empty(),
+        },
+    })
+}
+
+#[cfg(test)]
+mod controlled_git_tests {
+    use super::*;
+    use std::{ffi::OsStr, os::unix::fs::PermissionsExt};
+    fn fixture(body: &str) -> (tempfile::TempDir, IntegrationProgramPin) {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let file = root.join("controlled-git");
+        fs::write(&file, format!("#!/bin/sh\n{body}\n")).unwrap();
+        fs::set_permissions(&file, fs::Permissions::from_mode(0o700)).unwrap();
+        let m = file.metadata().unwrap();
+        let bytes = fs::read(&file).unwrap();
+        let program = IntegrationProgramPin {
+            canonical_path: file,
+            device: m.dev().to_string(),
+            inode: m.ino().to_string(),
+            sha256: format!("{:x}", Sha256::digest(&bytes)),
+            bytes: m.len(),
+            uid: m.uid(),
+            mode: m.mode(),
+            links: m.nlink().to_string(),
+        };
+        (dir, program)
+    }
+    #[test]
+    fn expired_request_does_not_spawn_a_git_process() {
+        let (dir, program) = fixture("for arg; do last=\"$arg\"; done; printf started > \"$last\"");
+        let marker = dir.path().join("marker");
+        let control = IntegrationReadControl {
+            cancel: Arc::new(AtomicBool::new(false)),
+            deadline: Instant::now(),
+        };
+        assert_eq!(
+            git(dir.path(), &program, &[marker.as_os_str()], &control)
+                .unwrap_err()
+                .code,
+            "DEADLINE_EXCEEDED"
+        );
+        assert!(!marker.exists());
+    }
+    #[test]
+    fn request_cancel_does_not_spawn_a_git_process() {
+        let (dir, program) = fixture("for arg; do last=\"$arg\"; done; printf started > \"$last\"");
+        let marker = dir.path().join("marker");
+        let control = IntegrationReadControl {
+            cancel: Arc::new(AtomicBool::new(true)),
+            deadline: Instant::now() + Duration::from_secs(5),
+        };
+        assert_eq!(
+            git(dir.path(), &program, &[marker.as_os_str()], &control)
+                .unwrap_err()
+                .code,
+            "CANCEL_REQUESTED"
+        );
+        assert!(!marker.exists());
+    }
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn original_request_deadline_kills_and_reaps_the_owned_git_child() {
+        let (dir, program) = fixture(
+            "for arg; do last=\"$arg\"; done; printf '%s' \"$$\" > \"$last\"; exec /bin/sleep 30",
+        );
+        let marker = dir.path().join("pid");
+        let start = Instant::now();
+        let control = IntegrationReadControl {
+            cancel: Arc::new(AtomicBool::new(false)),
+            deadline: start + Duration::from_millis(200),
+        };
+        assert_eq!(
+            git(dir.path(), &program, &[marker.as_os_str()], &control)
+                .unwrap_err()
+                .code,
+            "DEADLINE_EXCEEDED"
+        );
+        assert!(start.elapsed() < Duration::from_secs(3));
+        let pid: std::num::NonZeroU32 = fs::read_to_string(marker).unwrap().parse().unwrap();
+        assert!(
+            !Path::new("/proc").join(pid.to_string()).exists(),
+            "owned child must be actually reaped before the helper returns"
+        );
+    }
+    #[test]
+    fn git_stdout_has_an_exact_raw_byte_cap() {
+        let (dir, program) = fixture("printf '%4194305s' ''");
+        let control = IntegrationReadControl {
+            cancel: Arc::new(AtomicBool::new(false)),
+            deadline: Instant::now() + Duration::from_secs(5),
+        };
+        assert_eq!(
+            git(dir.path(), &program, &[OsStr::new("bounded")], &control)
+                .unwrap_err()
+                .code,
+            "RESOURCE_LIMIT"
+        );
+    }
 }

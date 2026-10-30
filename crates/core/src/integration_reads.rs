@@ -393,9 +393,10 @@ fn inspect_exact(
     expected: &WorkspaceIdentity,
     base: &str,
     allow_dirty: bool,
+    program: &IntegrationProgramPin,
+    control: &IntegrationReadControl,
 ) -> Result<WorkspaceIdentity> {
-    let current =
-        agentbaton_workspaces::inspect(&expected.canonical_root).map_err(|_| changed())?;
+    let current = super::fs::inspect_git(&expected.canonical_root, program, control)?;
     let (
         WorkspaceKind::Git {
             common_dir: a,
@@ -501,6 +502,8 @@ impl IntegrationReadPlan {
                     pinned,
                     &workspace.base_revision,
                     id == &material.workspace.id,
+                    &program,
+                    &control,
                 )?;
             }
         }
@@ -508,11 +511,19 @@ impl IntegrationReadPlan {
             WorkspaceKind::Git { head, .. } => head,
             _ => return Err(changed()),
         };
-        let project = inspect_exact(&material.project.identity, project_head, false)?;
+        let project = inspect_exact(
+            &material.project.identity,
+            project_head,
+            false,
+            &program,
+            &control,
+        )?;
         let source = inspect_exact(
             material.workspace.identity.as_ref().ok_or_else(changed)?,
             &material.workspace.base_revision,
             true,
+            &program,
+            &control,
         )?;
         for input in &material.inputs {
             artifact_pin(&source, input, &control, &mut observed)?;
