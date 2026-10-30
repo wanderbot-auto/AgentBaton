@@ -28,5 +28,17 @@
     "No Node/Cargo/browser/Actor/product Git execution by UI author",
     "No formal PR approval, merge, production or signing performed",
     "Component test source is mocked and does not prove real IPC or native macOS"
+  ],
+  "root_actual_results": [
+    {
+      "source": "457e6da559a620ebc14b96a7deaee22cfcf55c35",
+      "check": "typecheck",
+      "exit_code": 1,
+      "elapsed_seconds": 0.504,
+      "result": "failed",
+      "first_error": "integration-test-fixtures.ts:15:475 TS1005; missing outer closing brace in Selection fixture",
+      "log_sha256": "1429477592992e1a8863f65623f5f8af9c8c1397639346834737207f2e10722a",
+      "log_path": ".onboarding/integration17-ui-457e-type1/command.log"
+    }
   ]
 }
