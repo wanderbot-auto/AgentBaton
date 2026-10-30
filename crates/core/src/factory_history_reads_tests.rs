@@ -387,3 +387,62 @@ fn original_revoked_history_remains_readonly_and_does_not_supply_effect_authorit
     assert_eq!(unchanged_execution(&f), counts);
     assert_eq!(f.store.sequence().unwrap(), seq);
 }
+
+#[test]
+fn composed_history_requires_exact17_and_preserves_all_integration_tables() {
+    let (f, s, g) = queued();
+    let original_version: u32 = f
+        .store
+        .conn
+        .pragma_query_value(None, "user_version", |row| row.get(0))
+        .unwrap();
+    assert_eq!(original_version, 17);
+    let sequence = f.store.sequence().unwrap();
+    let execution = unchanged_execution(&f);
+    let integration = json!(f.store.integration_record_counts().unwrap());
+    let expected = f.store.get_factory_child_goal(&q(&s, &g)).unwrap();
+    let mut workers = FactoryHistoryWorkers::default();
+    for rejected_version in [15u32, 16u32, 18u32] {
+        f.store
+            .conn
+            .pragma_update(None, "user_version", rejected_version)
+            .unwrap();
+        let receive = start(&mut workers, &f.store, FactoryHistoryQuery::Get(q(&s, &g)));
+        let got = finish(&mut workers, &f.store, receive);
+        assert_eq!(got["error"]["code"], "INPUT_CHANGED");
+        assert_eq!(got["error"]["side_effect_state"], "not_started");
+        assert!(got.get("result").is_none());
+        assert_eq!(got["revision"], 0);
+        assert_eq!(
+            f.store
+                .conn
+                .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
+                .unwrap(),
+            rejected_version
+        );
+        assert_eq!(f.store.sequence().unwrap(), sequence);
+        assert_eq!(unchanged_execution(&f), execution);
+        assert_eq!(
+            json!(f.store.integration_record_counts().unwrap()),
+            integration
+        );
+    }
+    f.store
+        .conn
+        .pragma_update(None, "user_version", original_version)
+        .unwrap();
+    let receive = start(&mut workers, &f.store, FactoryHistoryQuery::Get(q(&s, &g)));
+    let got = finish(&mut workers, &f.store, receive);
+    assert!(got.get("error").is_none());
+    assert_eq!(got["result"], json!(expected));
+    assert_eq!(got["revision"], sequence);
+    assert_eq!(f.store.sequence().unwrap(), sequence);
+    assert_eq!(unchanged_execution(&f), execution);
+    assert_eq!(
+        json!(f.store.integration_record_counts().unwrap()),
+        integration
+    );
+    workers.reap_owned_workers();
+    workers.release_database(&f.store);
+    assert_eq!(workers.database_owners_for_test(), 0);
+}
