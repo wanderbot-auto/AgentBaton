@@ -23,6 +23,7 @@ pub(super) enum StageFact {
         view: serde_json::Value,
         passed: bool,
         stopped: bool,
+        target_probe: Option<Result<Box<super::io::ValidatorTargetDriftProof>>>,
     },
     Cas(agentbaton_workspaces::adoption::ControlledIntegrationResult),
 }
@@ -39,6 +40,7 @@ pub(super) struct StageReadRequest {
 }
 /// Cannot be deserialized or returned before actual owned-thread join.
 pub(super) struct JoinedStage {
+    pub(super) _database_guard: Option<super::reads::DatabasePin>,
     pub(super) context: Option<IntegrationPreparedContext>,
     pub(super) result: Result<StageFact>,
     pub(super) output_bytes: Option<u64>,
@@ -49,6 +51,7 @@ pub(super) struct JoinedStage {
     pub(super) preparation_io: Option<agentbaton_workspaces::adoption::ControlledPreparationIo>,
 }
 pub(super) struct OwnedStage {
+    database_guard: Option<super::reads::DatabasePin>,
     pub(super) ticket: IntegrationStageTicket,
     cancel: Arc<AtomicBool>,
     requests: Receiver<StageReadRequest>,
@@ -66,6 +69,7 @@ impl OwnedStage {
         plan: IntegrationReadPlan,
         raw: String,
     ) -> std::result::Result<Self, Box<StageSpawnFailure>> {
+        let database_guard = Some(plan.database_guard());
         let cancel = Arc::new(AtomicBool::new(false));
         let flag = cancel.clone();
         let (request_tx, requests) = mpsc::sync_channel(1);
@@ -153,10 +157,11 @@ impl OwnedStage {
                         preparation_io: None,
                     };
                 }
-                execute(&ticket, context, flag)
+                execute(&ticket, context, flag, &proof, &raw)
             });
         match thread {
             Ok(thread) => Ok(Self {
+                database_guard,
                 ticket,
                 cancel,
                 requests,
@@ -207,8 +212,10 @@ impl OwnedStage {
         // Include time actually spent joining; the clock began before admission.
         let elapsed_ms = elapsed_ms
             .max(u64::try_from(self.ticket.queued_at.elapsed().as_millis()).unwrap_or(u64::MAX));
+        let database_guard = self.database_guard.take();
         let joined = match result {
             Ok(result) => JoinedStage {
+                _database_guard: database_guard,
                 context: result.context,
                 result: result.result,
                 output_bytes: result.output_bytes,
@@ -219,6 +226,7 @@ impl OwnedStage {
                 preparation_io: result.preparation_io,
             },
             Err(_) => JoinedStage {
+                _database_guard: database_guard,
                 context: None,
                 result: Err(CoreError::new(
                     "OUTCOME_UNKNOWN",
@@ -235,16 +243,21 @@ impl OwnedStage {
         (self.ticket.clone(), joined)
     }
 }
+fn join_owned_stage_on_drop(thread: &mut Option<JoinHandle<StageReturn>>, cancel: &AtomicBool) {
+    // A consumed join has no active thread to stop. Do not manufacture an
+    // Owner cancellation on the proof's original epoch, or reset a real one.
+    if let Some(thread) = thread.take() {
+        cancel.store(true, Ordering::Release);
+        if let Ok(returned) = thread.join() {
+            dispose_context(returned.context);
+        }
+    }
+}
 impl Drop for OwnedStage {
     fn drop(&mut self) {
-        self.cancel();
-        if let Some(thread) = self.thread.take() {
-            // Error/unwind also consumes the actual original thread before the
-            // manager can release the daemon writer lock. No detached worker.
-            if let Ok(returned) = thread.join() {
-                dispose_context(returned.context);
-            }
-        }
+        // Error/unwind consumes the real thread and retained Command handles
+        // before the original raw DB guard and daemon writer lock are released.
+        join_owned_stage_on_drop(&mut self.thread, &self.cancel);
     }
 }
 
@@ -252,6 +265,8 @@ fn execute(
     ticket: &IntegrationStageTicket,
     mut context: Option<IntegrationPreparedContext>,
     cancel: Arc<AtomicBool>,
+    read_proof: &IntegrationReadProof,
+    raw: &str,
 ) -> StageReturn {
     match ticket.attempt.view.kind {
         IntegrationStageKind::Preparation => {
@@ -324,11 +339,17 @@ fn execute(
                             .checked_add(u64::try_from(run.captured_stderr().len()).ok()?)
                     })
                     .unwrap_or(Some(0));
+                // The actual opaque command is already under the context's
+                // unwind guard before any fallible readonly post observation.
+                let target_probe =
+                    retained.probe_validator_target_drift(ticket, read_proof, raw, cancel.clone());
+                let observed = &retained.validations.last().ok_or_else(denied)?.1;
                 let fact = StageFact::Validator {
                     reference: reference.clone(),
                     view: observed.view.clone(),
                     passed: observed.passed,
                     stopped: IntegrationPreparedContext::validation_is_stopped(observed),
+                    target_probe,
                 };
                 Ok((fact, bytes))
             })();
@@ -378,6 +399,7 @@ impl JoinedStage {
         context: Option<IntegrationPreparedContext>,
     ) -> Self {
         Self {
+            _database_guard: None,
             context,
             result: Err(error),
             output_bytes: Some(0),
@@ -410,5 +432,61 @@ pub(super) fn dispose_context(context: Option<IntegrationPreparedContext>) {
             // daemon writer lock may be released, even if no thread can start.
             drop(packet.lock().unwrap_or_else(|p| p.into_inner()).take());
         }
+    }
+}
+
+#[cfg(test)]
+mod target_drift_stage_ownership_tests {
+    use super::*;
+    fn returned() -> StageReturn {
+        StageReturn {
+            context: None,
+            result: Err(CoreError::new("CANCEL_REQUESTED", "owned test completion")),
+            output_bytes: Some(0),
+            effects_admitted: false,
+            preparation_io: None,
+        }
+    }
+    #[test]
+    fn consumed_real_join_does_not_manufacture_cancel() {
+        let cancel = AtomicBool::new(false);
+        let mut thread = Some(std::thread::spawn(returned));
+        drop(thread.take().unwrap().join().unwrap());
+        join_owned_stage_on_drop(&mut thread, &cancel);
+        assert!(!cancel.load(Ordering::Acquire));
+        assert!(thread.is_none());
+    }
+    #[test]
+    fn consumed_real_join_never_resets_owner_cancel() {
+        let cancel = AtomicBool::new(true);
+        let mut thread = Some(std::thread::spawn(returned));
+        drop(thread.take().unwrap().join().unwrap());
+        join_owned_stage_on_drop(&mut thread, &cancel);
+        assert!(cancel.load(Ordering::Acquire));
+        assert!(thread.is_none());
+    }
+    #[test]
+    fn active_drop_requests_cancel_and_consumes_actual_join() {
+        let cancel = Arc::new(AtomicBool::new(false));
+        let flag = cancel.clone();
+        let joined = Arc::new(AtomicBool::new(false));
+        let observed = joined.clone();
+        let (ready, receiving) = mpsc::sync_channel(1);
+        let mut thread = Some(std::thread::spawn(move || {
+            ready.send(()).unwrap();
+            while !flag.load(Ordering::Acquire) {
+                std::thread::yield_now();
+            }
+            observed.store(true, Ordering::Release);
+            returned()
+        }));
+        let readiness = receiving.recv_timeout(Duration::from_secs(1));
+        // Consume the owner even if readiness fails; no test panic can detach
+        // a live flag-waiting thread.
+        join_owned_stage_on_drop(&mut thread, &cancel);
+        assert!(readiness.is_ok());
+        assert!(cancel.load(Ordering::Acquire));
+        assert!(joined.load(Ordering::Acquire));
+        assert!(thread.is_none());
     }
 }

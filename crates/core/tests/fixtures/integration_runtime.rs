@@ -2855,14 +2855,12 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
     original.assert_unchanged(&f, &db);
     let all = events(&db);
     let attempts = done["attempts"].as_array().unwrap();
-    assert_eq!(attempts.len(), 9);
+    assert_eq!(attempts.len(), 7);
     let expected_kinds = [
         "preparation",
         "validator",
-        "cas",
         "preparation",
         "validator",
-        "cas",
         "preparation",
         "validator",
         "cas",
@@ -2870,7 +2868,7 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
     let mut attempt_ids = std::collections::BTreeSet::new();
     for (i, attempt) in attempts.iter().enumerate() {
         assert_eq!(attempt["kind"], expected_kinds[i]);
-        assert_eq!(attempt["round"], u64::try_from(i / 3 + 1).unwrap());
+        assert_eq!(attempt["round"], u64::try_from((i / 2 + 1).min(3)).unwrap());
         assert_eq!(attempt["state"], "finished");
         assert_eq!(attempt["settled"], true);
         assert_eq!(attempt["io_completion"], "worker_joined");
@@ -2893,16 +2891,13 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
         assert_eq!(joined.len(), 1);
         assert_eq!(joined[0].1["payload"]["reservation_refunded"], false);
         assert_eq!(joined[0].0, attempt["receipt_sequence"].as_u64().unwrap());
-        if i == 2 || i == 5 {
-            assert_eq!(attempt["actual_output_bytes"], 0);
-        }
     }
     let receipts = run["validation_receipts"].as_array().unwrap();
     assert_eq!(receipts.len(), 3);
     for (i, receipt) in receipts.iter().enumerate() {
         let round = u64::try_from(i + 1).unwrap();
         assert_eq!(receipt["round"], round);
-        assert_eq!(receipt["attempt_id"], attempts[i * 3 + 1]["attempt_id"]);
+        assert_eq!(receipt["attempt_id"], attempts[i * 2 + 1]["attempt_id"]);
         assert_eq!(
             receipt["validator"],
             policy["selection"]["stage_reservations"]["validators"][0]["validator"]
@@ -2911,7 +2906,9 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
             receipt["definition_digest"],
             policy["bindings"]["validators"][0]["definition_digest"]
         );
-        assert_eq!(receipt["passed"], true);
+        // Continuous-target validation MUST retain false for r1/r2.
+        // Only the final stable candidate is a correctness pass and CAS input.
+        assert_eq!(receipt["passed"], i == 2);
         assert_eq!(receipt["stop_confirmed"], true);
         assert_eq!(receipt["worker_joined"], true);
         assert_eq!(receipt["integration_commit"], candidates[i]);
@@ -2939,7 +2936,15 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
         assert_eq!(view["cleanup_completed_within_budget"], true);
         assert_eq!(view["cleanup"]["owned_leader_reaped"], true);
         assert_eq!(view["cleanup"]["all_capture_pipes_observed_eof"], true);
-        assert_eq!(view["passed"], true);
+        assert_eq!(view["passed"], i == 2);
+        assert_eq!(
+            view["reason"],
+            if i < 2 {
+                "artifact_contract_failed"
+            } else {
+                "exited"
+            }
+        );
         assert_eq!(view["goal_io"]["state"], "observed");
         assert_eq!(view["approval_id"], policy["approval_id"]);
         assert_eq!(view["policy_revision"], receipt["definition_digest"]);
@@ -3006,9 +3011,19 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
         assert_eq!(advance.1["payload"]["to_head"], heads[i + 1]);
         assert_eq!(advance.1["payload"]["read_worker_joined"], true);
         assert_eq!(advance.1["payload"]["new_permission"], false);
+        assert_eq!(advance.1["payload"]["stopped_validator_target_only"], true);
+        assert_eq!(advance.1["payload"]["original_validation_passed"], false);
+        assert_eq!(
+            advance.1["payload"]["validation_sequence"],
+            receipts[i]["sequence"]
+        );
+        assert_eq!(
+            advance.1["payload"]["validation_result_digest"],
+            receipts[i]["result_digest"]
+        );
         assert_eq!(
             advance.1["payload"]["attempt_id"],
-            attempts[i * 3 + 2]["attempt_id"]
+            attempts[i * 2 + 1]["attempt_id"]
         );
         assert!(receipts[i]["sequence"].as_u64().unwrap() < advance.0);
     }
@@ -3043,7 +3058,7 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
             .map(|a| a["actual_output_bytes"].as_u64().unwrap())
             .sum::<u64>();
     for domain in ["root", "project"] {
-        assert_eq!(done["shared_usage"][domain]["attempts"], 10);
+        assert_eq!(done["shared_usage"][domain]["attempts"], 8);
         assert_eq!(done["shared_usage"][domain]["active"], 0);
         assert_eq!(done["shared_usage"][domain]["runtime_ms"], runtime);
         assert_eq!(done["shared_usage"][domain]["output_bytes"], output);
@@ -3059,7 +3074,7 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
     assert_eq!(
         db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        10
+        8
     );
     assert_eq!(
         db.query_row(
@@ -3096,7 +3111,7 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
                 |r| Ok((r.get(0)?, r.get(1)?)),
             )
             .unwrap();
-        assert_eq!(counters, (10, 0));
+        assert_eq!(counters, (8, 0));
     }
     drop(db);
     let stable = f.server.image();

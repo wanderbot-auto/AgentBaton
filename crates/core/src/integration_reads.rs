@@ -25,10 +25,11 @@ fn phase_result<T>(phase: &'static str, result: Result<T>) -> Result<T> {
         error
     })
 }
+#[derive(Clone)]
 pub(super) struct DatabasePin {
     path: PathBuf,
-    file: File,
-    parent: File,
+    file: Arc<File>,
+    parent: Arc<File>,
     device: u64,
     inode: u64,
     parent_device: u64,
@@ -71,8 +72,8 @@ impl DatabasePin {
         }
         Ok(Self {
             path,
-            file,
-            parent,
+            file: Arc::new(file),
+            parent: Arc::new(parent),
             device: m.dev(),
             inode: m.ino(),
             parent_device: p.dev(),
@@ -262,6 +263,14 @@ impl Store {
         intent: IntegrationReadIntent,
         raw_request: &str,
     ) -> Result<IntegrationReadPlan> {
+        self.prepare_integration_scope_read_with_database(intent, raw_request, None)
+    }
+    fn prepare_integration_scope_read_with_database(
+        &self,
+        intent: IntegrationReadIntent,
+        raw_request: &str,
+        database: Option<DatabasePin>,
+    ) -> Result<IntegrationReadPlan> {
         let mut phase = "actor-request-admission";
         let result = (|| {
             if raw_request.len() > MAX_INTEGRATION_BYTES {
@@ -343,7 +352,13 @@ impl Store {
             Ok(IntegrationReadPlan {
                 intent,
                 queries,
-                database: DatabasePin::capture(&self.conn)?,
+                database: match database {
+                    Some(pin) => {
+                        pin.recheck()?;
+                        pin
+                    }
+                    None => DatabasePin::capture(&self.conn)?,
+                },
                 request_hash: sha(&raw_request)?,
                 as_of_sequence: records::sequence(&self.conn)?,
                 material,
@@ -837,7 +852,62 @@ fn artifact_pin(
     observed.add_leaf(pin);
     Ok(())
 }
+impl IntegrationReadPlan {
+    pub(super) fn database_guard(&self) -> DatabasePin {
+        self.database.clone()
+    }
+}
 impl IntegrationReadProof {
+    /// Same original privately admitted ticket, readonly only. Reuse its raw
+    /// DB descriptor owner; never open/drop a second untracked raw DB FD.
+    pub(super) fn fresh_after_validator(
+        &self,
+        ticket: &super::runtime::IntegrationStageTicket,
+        raw: &str,
+        cancel: Arc<AtomicBool>,
+    ) -> Result<IntegrationReadProof> {
+        let control = IntegrationReadControl {
+            cancel: cancel.clone(),
+            deadline: ticket.deadline,
+        };
+        control.check()?;
+        if self.deadline != ticket.deadline || sha(&raw)? != self.request_hash {
+            return Err(changed());
+        }
+        let reader = Store {
+            conn: self.database.open_readonly(ticket.deadline)?,
+            data_input: None,
+            graph_input: None,
+            graph_capture_clocks: Default::default(),
+            factory_recovery_queue_epochs: vec![],
+            factory_read_control: None,
+        };
+        let version: u32 = reader
+            .conn
+            .pragma_query_value(None, "user_version", |r| r.get(0))
+            .map_err(db_error)?;
+        if version != 17 {
+            return Err(changed());
+        }
+        let plan = reader.prepare_integration_scope_read_with_database(
+            IntegrationReadIntent::Stage(ticket.read_reference()),
+            raw,
+            Some(self.database.clone()),
+        )?;
+        // Reject changed business provenance before touching its proposed FS
+        // roots. This is not a cached permission or a new deadline/nonce.
+        if sha(&plan.material)? != self.material_digest
+            || sha(&plan.available)? != self.available_digest
+            || plan.request_hash != self.request_hash
+        {
+            return Err(changed());
+        }
+        reader.conn.execute_batch("ROLLBACK").map_err(db_error)?;
+        control.check()?;
+        let proof = plan.execute(cancel.clone(), ticket.deadline)?;
+        proof.verify_on_worker(raw, cancel, ticket.deadline)?;
+        Ok(proof)
+    }
     pub(super) fn reseal_stage_after_own_transition(
         &mut self,
         store: &Store,

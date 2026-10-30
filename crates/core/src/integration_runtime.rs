@@ -63,6 +63,20 @@ impl IntegrationStageTicket {
         }
     }
 }
+// Causal provenance only, not a cached fresh FS/authority proof. New work
+// still runs its own complete read/admission after reserving the next stage.
+pub(super) enum IntegrationReprepareCause<'a> {
+    BeforeEffects(&'a super::reads::ObservedTargetAdvance),
+    StoppedValidator(&'a super::io::ValidatorTargetDriftProof),
+}
+impl IntegrationReprepareCause<'_> {
+    fn heads(&self) -> (&str, &str) {
+        match self {
+            Self::BeforeEffects(v) => v.heads(),
+            Self::StoppedValidator(v) => v.heads(),
+        }
+    }
+}
 pub(crate) struct IntegrationQueueResult {
     pub(crate) view: IntegrationRunView,
     pub(crate) ticket: Option<IntegrationStageTicket>,
@@ -839,7 +853,11 @@ impl Store {
         context: Option<&super::io::IntegrationPreparedContext>,
         kind: IntegrationStageKind,
         validator: Option<crate::goal_store::GoalValidatorRef>,
+        cause: Option<IntegrationReprepareCause<'_>>,
     ) -> Result<IntegrationStageTicket> {
+        if kind != IntegrationStageKind::Preparation && cause.is_some() {
+            return Err(denied());
+        }
         let queued_at = Instant::now();
         let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Immediate)
             .map_err(db_error)?;
@@ -881,6 +899,21 @@ impl Store {
         source_idle(&tx, &p)?;
         let reservation = match kind {
             IntegrationStageKind::Preparation => {
+                let cause = cause.as_ref().ok_or_else(denied)?;
+                if cause.heads()
+                    != (
+                        previous.run.expected_target_head.as_str(),
+                        run.expected_target_head.as_str(),
+                    )
+                {
+                    return Err(changed());
+                }
+                if let IntegrationReprepareCause::StoppedValidator(proof) = cause {
+                    if prior.view.kind != IntegrationStageKind::Validator {
+                        return Err(changed());
+                    }
+                    proof.binds_previous(previous, context.ok_or_else(changed)?)?;
+                }
                 if validator.is_some()
                     || p.selection.on_target_advance
                         != IntegrationTargetAdvance::BoundedDescendantReprepare
@@ -912,6 +945,9 @@ impl Store {
                 p.selection.stage_reservations.preparation.clone()
             }
             IntegrationStageKind::Validator => {
+                if cause.is_some() {
+                    return Err(denied());
+                }
                 let context = context.ok_or_else(denied)?;
                 let reference = validator.as_ref().ok_or_else(denied)?;
                 let index = p

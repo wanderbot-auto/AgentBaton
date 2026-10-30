@@ -353,6 +353,18 @@ impl IntegrationWorkers {
                 joined.context.as_ref(),
                 kind,
                 validator,
+                match joined.result.as_ref().ok() {
+                    Some(super::stage_workers::StageFact::TargetAdvanced(proof)) => Some(
+                        super::runtime::IntegrationReprepareCause::BeforeEffects(proof),
+                    ),
+                    Some(super::stage_workers::StageFact::Validator {
+                        target_probe: Some(Ok(proof)),
+                        ..
+                    }) => Some(super::runtime::IntegrationReprepareCause::StoppedValidator(
+                        proof,
+                    )),
+                    _ => None,
+                },
             ) {
                 Ok(next) => {
                     super::stage_workers::dispose_context(joined.context.take());
@@ -367,7 +379,8 @@ impl IntegrationWorkers {
                     "Joined integration candidate handles were lost; no reconstruction or replay",
                 )
             })?;
-            match store.queue_integration_next_stage(&ticket, Some(&context), kind, validator) {
+            match store.queue_integration_next_stage(&ticket, Some(&context), kind, validator, None)
+            {
                 Ok(next) => self.schedule(store, next, Some(context))?,
                 Err(error) => store.block_integration_continuation(&ticket, &error)?,
             }

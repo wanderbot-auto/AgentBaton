@@ -112,6 +112,56 @@ fn update_attempt(
     }
     Ok(())
 }
+struct ValidatorFactRef<'a> {
+    reference: &'a crate::goal_store::GoalValidatorRef,
+    view: &'a serde_json::Value,
+    passed: bool,
+    stopped: bool,
+    worker_joined: bool,
+}
+fn record_validator(
+    db: &rusqlite::Connection,
+    policy: &IntegrationPolicy,
+    run: &mut IntegrationRun,
+    attempt: &budget::IntegrationAttemptRecord,
+    fact: ValidatorFactRef<'_>,
+    usage: (Option<u64>, Option<u64>),
+) -> Result<()> {
+    if attempt.view.validator.as_ref() != Some(fact.reference) {
+        return Err(changed());
+    }
+    let definition = policy
+        .bindings
+        .validators
+        .iter()
+        .find(|v| v.reference == *fact.reference)
+        .ok_or_else(changed)?;
+    let digest = sha(fact.view)?;
+    let sequence = records::event(
+        db,
+        &run.id,
+        run.revision,
+        "integration.validator_observed",
+        &json!({"attempt_id":attempt.view.attempt_id,"round":run.round,"validator":fact.reference,"definition_digest":definition.definition_digest,"integration_commit":run.integration_commit,"integration_tree":run.integration_tree,"result_digest":digest,"view":fact.view,"passed":fact.passed,"stop_confirmed":fact.stopped,"worker_joined":fact.worker_joined}),
+    )?;
+    run.validation_receipts.push(IntegrationValidationReceipt {
+        attempt_id: attempt.view.attempt_id.clone(),
+        round: run.round,
+        validator: fact.reference.clone(),
+        definition_digest: definition.definition_digest.clone(),
+        integration_commit: run.integration_commit.clone().ok_or_else(changed)?,
+        integration_tree: run.integration_tree.clone().ok_or_else(changed)?,
+        result_digest: digest,
+        passed: fact.passed,
+        stop_confirmed: fact.stopped,
+        worker_joined: fact.worker_joined,
+        actual_runtime_ms: usage.0,
+        actual_output_bytes: usage.1,
+        details_ref: format!("integration-event:{sequence}"),
+        sequence,
+    });
+    Ok(())
+}
 fn persist_workspaces(
     tx: &Transaction<'_>,
     ticket: &IntegrationStageTicket,
@@ -183,6 +233,38 @@ impl Store {
             return Err(changed());
         }
         let mut intent: DispatchIntent = raw(&tx, "dispatch_intents", &attempt.intent_id)?;
+        // This is the original Validator's post-observation, not admission of
+        // a replacement effect. Verify before our own row/event mutations and
+        // sample the same original queue clock only AFTER this complete check.
+        let mut target_verified = false;
+        let mut target_probe_error = None;
+        if let Ok(StageFact::Validator {
+            view,
+            passed: false,
+            stopped: true,
+            target_probe: Some(probe),
+            ..
+        }) = &joined.result
+        {
+            match probe {
+                Ok(proof) if joined.worker_joined && joined.effects_admitted => {
+                    let context = joined.context.as_ref().ok_or_else(changed)?;
+                    match proof.verify(self, ticket, context, view) {
+                        Ok(())
+                            if policy.selection.on_target_advance
+                                == IntegrationTargetAdvance::BoundedDescendantReprepare
+                                && run.round < policy.selection.max_rounds =>
+                        {
+                            target_verified = true
+                        }
+                        Ok(()) => (),
+                        Err(error) => target_probe_error = Some(error),
+                    }
+                }
+                Ok(_) => return Err(changed()),
+                Err(error) => target_probe_error = Some(error.clone()),
+            }
+        }
         let clock_ms = u64::try_from(ticket.queued_at.elapsed().as_millis())
             .map_err(|_| limited())?
             .max(joined.elapsed_ms);
@@ -248,6 +330,37 @@ impl Store {
                 "OUTCOME_UNKNOWN" | "INTERNAL_ERROR" | "BUDGET_UNKNOWN"
             );
         }
+        if let Some(error) = &target_probe_error {
+            unknown |= matches!(
+                error.code.as_str(),
+                "OUTCOME_UNKNOWN" | "INTERNAL_ERROR" | "BUDGET_UNKNOWN"
+            );
+        }
+        // A failed postprobe cannot erase the actual original false command
+        // receipt, its joined observation or its already consumed reservation.
+        if let Ok(StageFact::Validator {
+            reference,
+            view,
+            passed,
+            stopped,
+            target_probe: Some(_),
+        }) = &joined.result
+        {
+            record_validator(
+                &tx,
+                &policy,
+                &mut run,
+                &attempt,
+                ValidatorFactRef {
+                    reference,
+                    view,
+                    passed: *passed,
+                    stopped: *stopped,
+                    worker_joined: joined.worker_joined,
+                },
+                (Some(clock_ms), output),
+            )?;
+        }
         if unknown {
             attempt.view.state = "outcome_unknown".into();
             attempt.view.io_completion = Some(IntegrationIoCompletion::InterruptedNoJoinReceipt);
@@ -268,7 +381,7 @@ impl Store {
                 &tx,
                 &mut run,
                 "integration.stage_unknown",
-                json!({"attempt_id":attempt.view.attempt_id,"observed_runtime_lower_bound_ms":clock_ms,"historical_cas_confirmed":historical_cas,"worker_thread_joined":joined.worker_joined,"reservation_refunded":false,"effects_admitted":joined.effects_admitted,"joined_error":joined_error(joined.result.as_ref().err())}),
+                json!({"attempt_id":attempt.view.attempt_id,"observed_runtime_lower_bound_ms":clock_ms,"historical_cas_confirmed":historical_cas,"worker_thread_joined":joined.worker_joined,"reservation_refunded":false,"effects_admitted":joined.effects_admitted,"joined_error":joined_error(joined.result.as_ref().err().or(target_probe_error.as_ref()))}),
             )?;
             fence.state = "unknown".into();
             fence.revision = fence.revision.checked_add(1).ok_or_else(limited)?;
@@ -389,40 +502,24 @@ impl Store {
                 view,
                 passed,
                 stopped,
+                target_probe,
             }) => {
-                if attempt.view.validator.as_ref() != Some(reference) {
-                    return Err(changed());
+                if target_probe.is_none() {
+                    record_validator(
+                        &tx,
+                        &policy,
+                        &mut run,
+                        &attempt,
+                        ValidatorFactRef {
+                            reference,
+                            view,
+                            passed: *passed,
+                            stopped: *stopped,
+                            worker_joined: joined.worker_joined,
+                        },
+                        (Some(clock_ms), Some(output)),
+                    )?;
                 }
-                let definition = policy
-                    .bindings
-                    .validators
-                    .iter()
-                    .find(|v| v.reference == *reference)
-                    .ok_or_else(changed)?;
-                let digest = sha(view)?;
-                let sequence = records::event(
-                    &tx,
-                    &run.id,
-                    run.revision,
-                    "integration.validator_observed",
-                    &json!({"attempt_id":attempt.view.attempt_id,"round":run.round,"validator":reference,"definition_digest":definition.definition_digest,"integration_commit":run.integration_commit,"integration_tree":run.integration_tree,"result_digest":digest,"view":view,"passed":passed,"stop_confirmed":stopped,"worker_joined":joined.worker_joined}),
-                )?;
-                run.validation_receipts.push(IntegrationValidationReceipt {
-                    attempt_id: attempt.view.attempt_id.clone(),
-                    round: run.round,
-                    validator: reference.clone(),
-                    definition_digest: definition.definition_digest.clone(),
-                    integration_commit: run.integration_commit.clone().ok_or_else(changed)?,
-                    integration_tree: run.integration_tree.clone().ok_or_else(changed)?,
-                    result_digest: digest,
-                    passed: *passed,
-                    stop_confirmed: *stopped,
-                    worker_joined: joined.worker_joined,
-                    actual_runtime_ms: Some(clock_ms),
-                    actual_output_bytes: Some(output),
-                    details_ref: format!("integration-event:{sequence}"),
-                    sequence,
-                });
                 if *passed && *stopped {
                     let position = policy
                         .selection
@@ -448,6 +545,32 @@ impl Store {
                     );
                     terminal = false;
                     run.state = IntegrationState::Validating;
+                } else if target_verified && !overrun && !cancelled && !expired {
+                    let Some(Ok(proof)) = target_probe else {
+                        return Err(changed());
+                    };
+                    let (from, to) = proof.heads();
+                    let next_round = run.round.checked_add(1).ok_or_else(limited)?;
+                    let receipt = run.validation_receipts.last().ok_or_else(changed)?;
+                    records::event(
+                        &tx,
+                        &run.id,
+                        run.revision,
+                        "integration.descendant_target_observed",
+                        &json!({"attempt_id":attempt.view.attempt_id,
+                            "from_head":from,"to_head":to,"from_round":run.round,
+                            "next_round":next_round,"read_worker_joined":joined.worker_joined,
+                            "same_approved_ref":true,"new_permission":false,
+                            "stopped_validator_target_only":true,
+                            "validation_sequence":receipt.sequence,
+                            "validation_result_digest":receipt.result_digest,
+                            "original_validation_passed":false}),
+                    )?;
+                    run.expected_target_head = to.to_owned();
+                    run.round = next_round;
+                    run.state = IntegrationState::Queued;
+                    next = Some((IntegrationStageKind::Preparation, None));
+                    terminal = false;
                 } else {
                     run.state = IntegrationState::Failed;
                     run.last_error = Some(CoreError::new(

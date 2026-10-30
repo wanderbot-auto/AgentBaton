@@ -13,6 +13,7 @@ use agentbaton_workspaces::{
     },
     validation::{
         validate_artifacts, ApprovedRule, ArtifactRequirement, BoundArtifact, ValidationSubject,
+        VersionBinding,
     },
     WorkspaceIdentity, WorkspaceKind,
 };
@@ -281,6 +282,174 @@ pub(super) fn prepare(
     }
     IntegrationPreparationOutcome { result, io }
 }
+/// Not a receipt or a retry flag. Only the original owned Validator can pair
+/// its actual opaque Command observation with a new complete readonly proof.
+pub(super) struct ValidatorTargetDriftProof {
+    command: agentbaton_workspaces::command_validation::CommandTargetDriftObservation,
+    read: super::reads::IntegrationReadProof,
+    raw: String,
+    view_digest: String,
+    cancel: Arc<AtomicBool>,
+    output_pins: Vec<LeafPin>,
+}
+impl ValidatorTargetDriftProof {
+    pub(super) fn heads(&self) -> (&str, &str) {
+        (self.command.from_head(), self.command.to_head())
+    }
+    pub(super) fn binds_previous(
+        &self,
+        ticket: &IntegrationStageTicket,
+        context: &IntegrationPreparedContext,
+    ) -> Result<()> {
+        let observed = &context.validations.last().ok_or_else(changed)?.1;
+        if observed.passed
+            || context.run_id != ticket.run.id
+            || context.policy.id != ticket.policy.id
+            || self.command.from_head() != ticket.run.expected_target_head
+            || sha(&observed.view)? != self.view_digest
+            || self.command.contract_digest()
+                != observed
+                    .command
+                    .as_ref()
+                    .ok_or_else(changed)?
+                    .view()
+                    .contract_digest
+        {
+            return Err(changed());
+        }
+        Ok(())
+    }
+    pub(super) fn verify(
+        &self,
+        store: &crate::storage::Store,
+        ticket: &IntegrationStageTicket,
+        context: &IntegrationPreparedContext,
+        view: &Value,
+    ) -> Result<()> {
+        let control = IntegrationReadControl {
+            cancel: self.cancel.clone(),
+            deadline: ticket.deadline,
+        };
+        control.check()?;
+        let observation = &context.validations.last().ok_or_else(changed)?.1;
+        let command = observation.command.as_ref().ok_or_else(changed)?;
+        let current = command.view();
+        if observation.passed
+            || !IntegrationPreparedContext::validation_is_stopped(observation)
+            || observation.view != *view
+            || sha(view)? != self.view_digest
+            || view["goal_io"]["state"] != "observed"
+            || current.contract_digest != self.command.contract_digest()
+            || current.contract.cwd != *context.candidate.workspace()
+            || self.command.candidate() != context.candidate.candidate_commit()
+            || context.policy.id != ticket.policy.id
+            || context.policy.snapshot_digest != ticket.policy.snapshot_digest
+            || context.run_id != ticket.run.id
+            || self.command.target_ref() != ticket.run.target_ref
+            || self.command.from_head() != ticket.run.expected_target_head
+            || !matches!(self.read.intent(),super::reads::IntegrationReadIntent::Stage(reference) if reference==&ticket.read_reference())
+        {
+            return Err(changed());
+        }
+        let VersionBinding::Git {
+            tree,
+            expected_target_head,
+            ..
+        } = context.candidate.version_binding()
+        else {
+            return Err(changed());
+        };
+        if tree != self.command.tree() || expected_target_head != self.command.from_head() {
+            return Err(changed());
+        }
+        let advance = self.read.observed_target_advance().ok_or_else(changed)?;
+        if advance.heads() != self.heads() {
+            return Err(changed());
+        }
+        self.read.verify(store, &self.raw, ticket.deadline)?;
+        self.command
+            .recheck(&self.cancel, ticket.deadline)
+            .map_err(crate::command_validation::command_error)?;
+        // Retained worker-opened descriptors only: final Actor validation
+        // does not open/close a new regular leaf while owning SQLite's lock.
+        for pin in &self.output_pins {
+            control.check()?;
+            pin.recheck()?;
+        }
+        self.read.seal_observation()?;
+        control.check()
+    }
+}
+impl IntegrationPreparedContext {
+    pub(super) fn probe_validator_target_drift(
+        &self,
+        ticket: &IntegrationStageTicket,
+        initial: &super::reads::IntegrationReadProof,
+        raw: &str,
+        cancel: Arc<AtomicBool>,
+    ) -> Option<Result<Box<ValidatorTargetDriftProof>>> {
+        if self.policy.selection.on_target_advance
+            != IntegrationTargetAdvance::BoundedDescendantReprepare
+            || ticket.run.round >= self.policy.selection.max_rounds
+        {
+            return None;
+        }
+        let observation = &self.validations.last()?.1;
+        if observation.passed
+            || !Self::validation_is_stopped(observation)
+            || observation.view["goal_io"]["state"] != "observed"
+        {
+            return None;
+        }
+        let command = observation.command.as_ref()?;
+        // The actual Run is already retained by self.validations. None means
+        // not target-only; it never means permission to continue or CAS.
+        let observed = match command.observe_stopped_target_drift(&cancel, ticket.deadline) {
+            Ok(Some(observed)) => observed,
+            Ok(None) => return None,
+            Err(error) => return Some(Err(crate::command_validation::command_error(error))),
+        };
+        Some((|| {
+            let read = initial.fresh_after_validator(ticket, raw, cancel.clone())?;
+            let advance = read.observed_target_advance().ok_or_else(changed)?;
+            if advance.heads() != (observed.from_head(), observed.to_head()) {
+                return Err(changed());
+            }
+            let control = IntegrationReadControl {
+                cancel: cancel.clone(),
+                deadline: ticket.deadline,
+            };
+            let mut output_pins = Vec::new();
+            for (output, expected) in &self.outputs {
+                control.check()?;
+                let pin = LeafPin::capture(
+                    &self
+                        .candidate
+                        .workspace()
+                        .canonical_root
+                        .join(&output.relative_path),
+                )?;
+                if pin.file_pin()? != *expected {
+                    return Err(changed());
+                }
+                output_pins.push(pin);
+            }
+            observed
+                .recheck(&cancel, ticket.deadline)
+                .map_err(crate::command_validation::command_error)?;
+            control.check()?;
+            Ok(Box::new(ValidatorTargetDriftProof {
+                command: observed,
+                read,
+                raw: raw.into(),
+                view_digest: sha(&observation.view)?,
+                cancel,
+                output_pins,
+            }))
+        })())
+    }
+}
+
 impl IntegrationPreparedContext {
     pub(super) fn validation(
         &self,
