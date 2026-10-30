@@ -69,6 +69,23 @@
       "log_sha256": "72d2640ecbb04f5db861d5fd9bc4a27ca0b6f4801e7dfd13e44c2b996a889532",
       "log_path": ".onboarding/integration17-ui-7e1a-tests1/command.log",
       "failure": "Global unknown-text count included folded approved-limit details; replaced with dimension-specific actual-usage assertions."
+    },
+    {
+      "source": "a375a577021e2ef7398ce1c916a9c942ac2acf3d",
+      "check": "typecheck",
+      "result": "passed",
+      "elapsed_seconds": 1.407
+    },
+    {
+      "source": "a375a577021e2ef7398ce1c916a9c942ac2acf3d",
+      "check": "targeted integration-api and TaskIntegration Vitest",
+      "result": "failed",
+      "passed": 42,
+      "failed": 1,
+      "unique_tests": 43,
+      "log_sha256": "1b05263b309c869aa3785459692d3a4e4fa4e4e969dab1a6ff4b0d736f2a622d",
+      "log_path": ".onboarding/integration17-ui-a375-tests1/command.log",
+      "failure": "Remaining global explanation query matched stage-reservation and shared-usage paragraphs; now scoped to actual Shared budget details. Explicit dimension and P2 regressions passed."
     }
   ],
   "independent_review": {
