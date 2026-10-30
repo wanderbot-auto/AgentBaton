@@ -54,8 +54,9 @@ describe('Integration round history, mocked renderer records only',()=>{
    expect(within(group).getByText(t.round,{selector:'dt'})).toBeVisible();
    expect(within(group).getByText(String(receipt.round),{selector:'dd',exact:true})).toBeVisible();
    expect(within(group).getByText(receipt.passed?'passed · stop_confirmed=true · worker_joined=true':'failed · stop_confirmed=true · worker_joined=true')).toBeVisible();
-   expect(within(group).getByText(receipt.integration_commit,{exact:false})).toBeVisible();
-   expect(within(group).getByText(receipt.integration_tree,{exact:false})).toBeVisible();
+   const candidate=within(group).getByText(t.candidate,{selector:'dt'}).nextElementSibling;
+   expect(candidate).toBeVisible();
+   expect(candidate?.textContent).toBe(receipt.integration_commit+receipt.integration_tree);
    for(const other of view.run.validation_receipts.filter(value=>value.round!==receipt.round))expect(within(group).queryByText(other.integration_commit,{exact:false})).toBeNull();
    const attempt=screen.getByRole('group',{name:`${t.attempts} · ${t.round} ${receipt.round} · ${receipt.attempt_id}`});
    expect(attempt).toBeVisible();

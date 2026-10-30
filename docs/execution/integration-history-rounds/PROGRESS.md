@@ -27,3 +27,9 @@ The first P2 repair closed the illegal attempt-state and missing-history issues 
 Final mocked LIMITS: 12 attempts and 20000ms in each root/project budget; PREAUTHORIZED stage RESERVATIONS: 2000ms each, max_rounds=3; observed USAGE remains 8 attempts, 0 active, 3625ms/120B. Worst case 9 reserved attempts plus earlier Graph Work fits 12; 18000ms plus Graph's 200ms fits 20000ms. Worst output reservation 9216B plus Graph64B fits the unchanged 1048576B limit. Existing 1025ms validators fit each 2000ms reservation. These quantities remain distinct.
 
 Fixture selection TTL, policy expiry, Goal scope expiry and grant duration/expiry now share the original historical created/approved time plus 30000ms. This is a historical mocked policy domain, not a fresh live grant. Remaining round, candidate, unknown/no-new-receipt, sequence, ledger and null/zero assertions are preserved. Product and original tests are unchanged. Static bound/arithmetic checks and diff checks pass; all four mocked component cases remain NOT RUN.
+
+## HR-R3 actual test failure and narrow fix
+
+Root's exact f12 integration typecheck passed in 1.2067s (Root-reported). Its Node command covered the original integration API/TaskIntegration tests and the four new cases: 53 total, 51 passed/2 failed. All original 49 and the new two unknown cases passed. Only the normal-history EN/CN cases failed at the ambiguous tree substring query; this is a real retained test failure, not evidence of an incorrect product candidate mapping.
+
+The revision keeps the existing round-2 `d*40` tree and `d*64` definition digest, scopes to the candidate label's associated definition, and asserts exact complete commit+tree text. All other new assertions/fixture values and production/original tests are unchanged. Source-only exact-inverse and diff checks passed; the revised four cases have NOT RUN. The prior 51/2 result is not a pass for this new source.

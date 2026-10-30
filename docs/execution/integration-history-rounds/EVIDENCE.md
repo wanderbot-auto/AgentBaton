@@ -49,3 +49,14 @@ Fixed Core `integration_approval.rs:90` through line 110 multiplies all stage re
 - Production component remains byte-identical to `eb8c67b`; original TaskIntegration tests, locale and DTO types remain byte-identical to `f193882`. `git diff --check` passes.
 
 These checks are static, not TypeScript/Vitest or Core approval execution. Four mocked renderer cases remain authored NOT RUN. Original sealed commits, the two review failures and their evidence remain available; no actual UI/IPC/macOS result is transferred to this revision.
+
+## HR-R3 retained actual failure and exact candidate-query fix
+
+Root integrated source `f12c08ff2c8b53a89c568b5067be9b1925c29813`, tree `fc022bce0c8add46ff86d503388c72b56b0e427d`, had the exact b1 test SHA `7d8952cd888516e0801d528c95607bc76a1e17b94248510b6979ab99fc9bc818` (independently byte-compared). Root reported typecheck PASS in 1.2067s. Read-only RESULT/INPUTS/log checks confirmed:
+
+- Command: `npm --prefix apps/desktop test -- src/integration-api.test.ts src/TaskIntegration.test.tsx src/IntegrationEvidence.rounds.test.tsx --maxWorkers=1`.
+- Actual exit 1, wrapper duration 5.418315960007021s, source/tracked files and frozen tools unchanged.
+- Log `/workspace/.onboarding/integration17-history-rounds-node-tests1/command.log`, SHA-256 `92e0d6a32c9cd83db8f6eb487b36bf59499b0ceda4b4b26d2597b03fc7319187` (read-only rehashed).
+- Summary 53 tests: 51 passed, 2 failed; 2 normal-history language cases failed at line 58, `getByText(tree,{exact:false})`, because round-2 `d*40` also matches the preserved definition digest `d*64`. Original 49 and new unknown2 passed. No source-mapping defect or database observation is inferred from that query error.
+
+New test SHA-256 `efee53a8dac53e955595da5f6aabc7d5e0a7bf86238047b7b6488624b1e8b139` selects the candidate `dt` inside its receipt group, requires the associated `dd` visible and its entire textContent equal to commit+tree. Collision data remains unchanged. Reversing only this query change exactly restores b1's test. All other round/status/isolation/null assertions are byte-preserved; production component, original TaskIntegration/API tests, locale and DTO types are unchanged. Static exact-inverse/boundary/diff checks pass. No author Node execution; revised cases NOT RUN. Prior actual results remain attached solely to f12/b1, not this fix.

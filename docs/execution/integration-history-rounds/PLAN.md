@@ -25,3 +25,7 @@ Use independent three-round consumer DTO mocks: legal `finished` attempts; false
 Independent follow-up review rejected `81ae125` for its remaining mock budget mismatch: Core approval reserves `(validator_count + 2) * max_rounds` attempts and the sum of all stage reservations times max_rounds. Three rounds of three 5000ms stages require 9 attempts/45000ms, exceeding that revision's 8/40000 limits. Preserve that P2 history.
 
 Use Root's approved fixture-only correction: all three stage reservations 2000ms; root/project limits 12 attempts/20000ms; consumed ledger stays 8 attempts/3625ms/120B. Align selection TTL, policy expiry, bound Goal scope expiry and original grant duration/expiry to a fixed historical 30-second domain. No live permission or existing policy is enlarged.
+
+## HR-R3: resolve a real mock-test query ambiguity
+
+Root executed the fixed b1 fixture on integrated `f12c08ff2c8b53a89c568b5067be9b1925c29813`. Its new normal EN/CN cases failed because the round-2 tree `d` repeated 40 times also matches the prefix of the original definition digest `d` repeated 64 times. Preserve both colliding values. Select the existing candidate term within the receipt group, then assert its associated definition contains the exact full commit+tree pair. Keep all round/status/other-candidate isolation/unknown assertions and all production bytes.
