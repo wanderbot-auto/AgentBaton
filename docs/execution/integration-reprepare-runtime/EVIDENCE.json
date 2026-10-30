@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "work_unit": "integration-reprepare-runtime",
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "base_commit": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+  "source_commit": "6b530bfb3755496fd1f2d4cd40c4f7e6b7b48bf4",
+  "initial_not_run_source": {
+    "source": "937b5ed9bb4a58a4bb9a6f74c0e1cd7b11fda8d1",
+    "status": "NOT_RUN; Root static diagnosis found grant max_attempts read from wrong JSON domain",
+    "old_manifest_path": "/workspace/.onboarding/integration-reprepare-runtime-937b5ed/MANIFEST.json",
+    "old_manifest_sha256": "9cde7c56516612f3082bd7dfffcdd423671b126e5faa00ddf91a8047243d7026",
+    "fix": "nested scope.max_attempts, plus exact scope.max_duration_ms30000 assertion"
+  },
+  "manifest": {
+    "path": "/workspace/.onboarding/integration-reprepare-runtime-6b530bf/MANIFEST.json",
+    "sha256": "42a89ed756963ec764d19a975aa5d8437ac9baaeb0421ea8f6cac467149e23ea"
+  },
+  "source_path": "crates/core/tests/fixtures/integration_runtime.rs",
+  "executed": [
+    {
+      "command": "python3 /workspace/.onboarding/integration-reprepare-runtime-work/check.py",
+      "exit_code": 0,
+      "static_assertions": 44
+    },
+    {
+      "command": "absolute standalone rustfmt --edition2021 --config skip_children=true [fixture]",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "test_source_only": {
+    "original_target_cases_preserved": 7,
+    "new_cases": 1,
+    "planned_rounds": 3,
+    "planned_validator_processes": 3,
+    "planned_Integration_attempts": 9,
+    "planned_total_attempts": 10,
+    "new_separate_approved_attempt_limit": 12,
+    "unchanged_old_attempt_limit": 8,
+    "shared_runtime_ms": 20000,
+    "Grant_lifetime_ms": 30000,
+    "stage_runtime_ms": 2000,
+    "Command_wall_ms": 1000,
+    "Command_cleanup_ms": 500,
+    "observation_ms": 5000,
+    "Host_Git_sub_bound_ms": 500,
+    "actual_Rust_passes": 0
+  },
+  "root_commands": "/workspace/.onboarding/integration-reprepare-runtime-6b530bf/ROOT_COMMANDS.json",
+  "not_run": [
+    "Cargo/Clippy/Rust",
+    "Actor/Daemon/UnixIPC",
+    "generated Git",
+    "FIFO/program/ps",
+    "macOS"
+  ]
+}
