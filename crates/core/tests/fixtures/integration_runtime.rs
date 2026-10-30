@@ -3652,14 +3652,11 @@ fn assert_withdrawal_during_actual_target_drift(revoke: bool) {
     assert_eq!(run["id"], id);
     assert_eq!(run["round"], 1);
     assert_eq!(run["expected_target_head"], f.initial_target);
-    assert_eq!(
-        run["last_error"]["code"],
-        if revoke {
-            "PERMISSION_DENIED"
-        } else {
-            "CANCEL_REQUESTED"
-        }
-    );
+    // Revocation requests the same owned stop machinery, setting the retained
+    // cancel flag before settlement. The original denial reason belongs to
+    // the supervisor event below, not to the terminal cancellation code.
+    assert_eq!(run["last_error"]["code"], "CANCEL_REQUESTED");
+    assert_eq!(run["cancel_requested"], true);
     assert_eq!(run["active_stage"], Value::Null);
     assert_eq!(run["io_completion"], "worker_joined");
     assert_eq!(run["acceptance_ref"], accepted["task_acceptance"]["id"]);
@@ -3710,6 +3707,18 @@ fn assert_withdrawal_during_actual_target_drift(revoke: bool) {
     } else {
         unique_event(&all, "integration.cancel_requested", &id)
     };
+    if revoke {
+        let supervisor_stop = unique_event(&all, "integration.supervisor_stop_requested", &id);
+        assert_eq!(
+            supervisor_stop.1["payload"]["reason_code"],
+            "PERMISSION_DENIED"
+        );
+        assert_eq!(supervisor_stop.1["payload"]["stop_not_confirmed"], true);
+        assert_eq!(supervisor_stop.1["payload"]["reservation_refunded"], false);
+        assert!(withdrawal_event.0 < supervisor_stop.0 && supervisor_stop.0 < observed.0);
+        assert_eq!(withdrawal["revoked"], true);
+        assert_eq!(withdrawal["revision"], 2);
+    }
     let dispatched = all
         .iter()
         .filter(|(_, e)| {
