@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-PRJ-004",
+    "AB-PRJ-005",
+    "AB-VAL-009"
+  ],
+  "source_commit": "8d8f24c413875290db377a1b76a1ca005b6ca88d",
+  "dependency_commit": "949cf1ea4aa74230c1caf0cae93efa5a1e8b9521",
+  "baseline_product": "77792da462278b0ba812611b473ec631d9e26137",
+  "state": "source_only_runtime_not_run",
+  "source_hashes": {
+    "source_capture.rs": "93a090f6328b32a595c31736327133a85b32b14e830094ef6d175a94db3e177c",
+    "source_capture_tests.rs": "78f033e66ff3703a4585ee7a1743bb38d43c830f8a2fea54329f85d8bcc02920"
+  },
+  "static_checks": {
+    "raw_object_capture_and_all_private_unit_test_tail_byte_exact": true,
+    "old_ascii_case_guard_body_byte_exact_after_name_change": true,
+    "old_test_entrypoints_preserved_except_explicit_obsolete_ascii_slice_name": true,
+    "selection_count_256_unchanged": true,
+    "selection_bytes_64MiB_unchanged": true,
+    "original_15s_duration_occurrences_unchanged": true,
+    "no_new_public_declaration_or_serde_witness": true,
+    "full_casefold_mature_library_no_handwritten_table": true,
+    "no_unicode_normalization_dependency_or_output_rewrite": true,
+    "readdir_real_record_length_bound": true,
+    "no_regular_leaf_open_for_alias_identity": true,
+    "changed_only_two_allowed_source_paths": true
+  },
+  "author_commands": [
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 crates/workspaces/src/source_capture.rs crates/workspaces/tests/source_capture.rs",
+      "exit": 0,
+      "dimension": "source formatting only"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "dimension": "source whitespace only"
+    }
+  ],
+  "new_actual_git_fixture_test_declarations": 8,
+  "old_ascii_security_body": "byte_preserved_under_narrower_name",
+  "historical_valid_unicode_blanket_refusal": "superseded by approved full UTF8 contract; prior source retained in Git",
+  "runtime": {
+    "cargo_compile": "NOT_RUN",
+    "workspaces_real_git": "NOT_RUN",
+    "core_unicode_capture": "NOT_RUN",
+    "command_unicode": "NOT_RUN",
+    "integration_unicode": "NOT_RUN",
+    "browser_unicode": "NOT_RUN",
+    "macos_arm64": "NOT_RUN",
+    "macos_intel": "NOT_RUN"
+  },
+  "limits": {
+    "selected_files": 256,
+    "selected_bytes": 67108864,
+    "global_capture_seconds": 15,
+    "encoded_path_bytes": 4096,
+    "alias_audit_directory_entries": 65536,
+    "alias_audit_name_bytes": 4194304,
+    "alias_audit_prefix_cache_bytes": 4194304
+  },
+  "not_claimed": [
+    "production authority",
+    "actual FS collation on unobserved hosts",
+    "Unicode normalization rewrite",
+    "OS sandbox or kernel I/O preemption",
+    "product-wide Unicode completion"
+  ],
+  "source_manifest_sha256": "17fee5e06b173823c1be16f0a6fa4537f19049284f3a7d97383203434e17ee37"
+}

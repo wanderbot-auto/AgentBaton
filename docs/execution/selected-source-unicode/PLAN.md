@@ -1,0 +1,7 @@
+# Selected-source UTF-8 path capture
+
+Requirements AB-PRJ-004, AB-PRJ-005 and AB-VAL-009; Design v0.2 docs/06 §4, D18/D19. Baseline77792da462278b0ba812611b473ec631d9e26137; root-owned dependency commit949cf1ea4aa74230c1caf0cae93efa5a1e8b9521; source8d8f24c413875290db377a1b76a1ca005b6ca88d. This work changes only the selected-source library and its generated Git fixture tests, with separate records. It does not grant acceptance, integration, ref, remote or production authority.
+
+Permit valid UTF-8 file paths as their exact encoded bytes, including Chinese, emoji, spaces and combining characters. Keep invalid UTF-8, control characters, reserved .git, traversal, separator/dot aliases, selected-file overlap, symlink/hardlink, pin, byte/count and original deadline rejection. Detect full Unicode casefold collisions through a fixed mature library and real observable host spelling/inode aliases through descriptor-relative metadata. Never silently normalize, replace or rewrite file names.
+
+Root alone runs Cargo and all product/real Git tests. Author runs source/rustfmt/static checks only. Independent review plus actual Linux and both Mac results remain required before product acceptance. Existing ASCII safety tests and all other old test entrypoints remain; the obsolete blanket Unicode-refusal slice is explicitly migrated to positive exact-byte coverage rather than retained as a new product restriction.
