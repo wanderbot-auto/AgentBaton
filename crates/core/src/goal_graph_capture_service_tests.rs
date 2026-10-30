@@ -156,7 +156,7 @@ fn original_expired_deadline_is_not_refreshed_by_worker_start() {
     prepared.deadline = queued_at;
     std::thread::sleep(Duration::from_millis(10));
     let outcome = observe_capture_worker(queued_at, || prepared.execute());
-    assert_eq!(outcome.result.err().unwrap().code, "DEADLINE_EXCEEDED");
+    assert_eq!(outcome.result.err().unwrap().code, "TIMEOUT");
     assert!(outcome.timing.started_queue_ms >= 10);
 }
 
