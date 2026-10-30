@@ -15,6 +15,7 @@ import re
 import sqlite3
 import stat
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
 from unittest import mock
@@ -28,14 +29,15 @@ def load_collector():
     names = {'sha', 'bounded_file', 'write_private_json', '_bound_identity_disappeared', 'collect_started_records'}
     tree = ast.parse(SUBJECT.read_text(), filename=str(SUBJECT))
     nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names
-             or isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'REQUEST_FIELDS' for t in node.targets)]
+             or isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id in ('REQUEST_FIELDS','OBSERVER_ACK_CODE') for t in node.targets)]
     support_tree = ast.parse(SUPPORT.read_text(), filename=str(SUPPORT))
     support_nodes = [n for n in support_tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))
                      and n.name in ('BoundaryRefusal', 'require', 'unique_object')]
     ns = {'hashlib': hashlib, 'json': json, 'os': os, 'Path': Path, 're': re,
-          'sqlite3': sqlite3, 'stat': stat, 'MAX_HTTP_BYTES': 270336}
+          'sqlite3': sqlite3, 'stat': stat, 'time':time, 'MAX_HTTP_BYTES': 270336}
     exec(compile(ast.Module(body=support_nodes, type_ignores=[]), str(SUPPORT), 'exec'), ns)
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SUBJECT), 'exec'), ns)
+    exec(ns['OBSERVER_ACK_CODE'],ns)
     return ns
 
 
@@ -303,6 +305,101 @@ class BoundExitTests(unittest.TestCase):
         self.assertEqual(f.argv_calls, [])
         self.assertEqual(f.pgid_calls, [])
         self.assertEqual(f.proc_calls, [f.provider, f.companion])
+
+
+class ObserverAckTests(unittest.TestCase):
+    setUp=BoundExitTests.setUp
+    fixture=BoundExitTests.fixture
+    def marked(self):
+        f=self.fixture(False)
+        start=time.monotonic_ns()
+        f.row['observer_context']={'scope_id':'unit-scope','attempt_id':'unit-attempt',
+            'task_id':'unit-root','root_task_id':'unit-root','native_session_id':f.row['native_session_id'],
+            'started_ns':start,'deadline_ns':start+5_000_000_000}
+        f.path.write_text(json.dumps(f.row))
+        return f
+
+    def test_ack_requires_full_first_live_binding_then_matches_exact_bytes(self):
+        f=self.marked(); f.collect()
+        self.assertEqual(f.argv_calls,[f.provider,f.companion])
+        self.assertEqual(f.pgid_calls,[f.provider,f.companion])
+        self.assertEqual(len(f.verified),1)
+        value=f.ns['observer_ack_value'](f.row,f.ns['sha'](f.path.read_bytes()))
+        f.ns['observer_ack_read'](f.path,value)
+        f.ns['observer_ack_wait'](f.path,f.row,value['record_sha256'])
+        # The exact old binding can remain after disappearance; no reissued ACK.
+        f.proc_steps={f.provider:[None],f.companion:[None]}
+        f.collect();self.assertEqual(len(f.verified),1)
+
+    def test_unbound_gone_never_publishes_ack(self):
+        f=self.marked();f.proc_steps[f.provider]=[None]
+        with self.assertRaises(AssertionError):f.collect()
+        self.assertEqual(f.verified,[])
+        self.assertFalse(any(p.exists() for p in f.ns['observer_ack_paths'](f.path)))
+
+    def test_precreated_ack_or_ready_is_rejected_before_kernel_reads(self):
+        for i,which in enumerate((0,1)):
+            root=self.root/str(i);root.mkdir()
+            f=Fixture(root,False);start=time.monotonic_ns()
+            f.row['observer_context']={'scope_id':'unit-scope','attempt_id':'unit-attempt','task_id':'unit-root',
+                'root_task_id':'unit-root','native_session_id':f.row['native_session_id'],
+                'started_ns':start,'deadline_ns':start+5_000_000_000}
+            f.path.write_text(json.dumps(f.row))
+            path=f.ns['observer_ack_paths'](f.path)[which]
+            path.write_bytes(b'forged') if which==0 else path.mkdir(mode=0o700)
+            with self.assertRaises(AssertionError):f.collect()
+            self.assertEqual(f.argv_calls,[]);self.assertEqual(f.verified,[])
+
+    def test_wrong_context_or_expired_context_never_acknowledges(self):
+        for i,field in enumerate(('attempt_id','scope_id','deadline_ns')):
+            root=self.root/str(i);root.mkdir();f=Fixture(root,False)
+            start=time.monotonic_ns()-6_000_000_000 if field=='deadline_ns' else time.monotonic_ns()
+            f.row['observer_context']={'scope_id':'unit-scope','attempt_id':'unit-attempt','task_id':'unit-root',
+                'root_task_id':'unit-root','native_session_id':f.row['native_session_id'],
+                'started_ns':start,'deadline_ns':start+5_000_000_000}
+            if field!='deadline_ns':f.row['observer_context'][field]='foreign'
+            f.path.write_text(json.dumps(f.row))
+            with self.assertRaises(AssertionError):f.collect()
+            self.assertFalse(any(p.exists() for p in f.ns['observer_ack_paths'](f.path)))
+
+    def test_changed_ack_wrong_hash_duplicate_publish_and_nonprivate_file_reject(self):
+        f=self.marked();f.collect()
+        value=f.ns['observer_ack_value'](f.row,f.ns['sha'](f.path.read_bytes()))
+        with self.assertRaises(AssertionError):f.ns['observer_ack_publish'](f.path,value)
+        wrong=copy.deepcopy(value);wrong['record_sha256']='0'*64
+        with self.assertRaises(AssertionError):f.ns['observer_ack_read'](f.path,wrong)
+        ack,ready=f.ns['observer_ack_paths'](f.path)
+        ack.chmod(0o644)
+        with self.assertRaises(AssertionError):f.ns['observer_ack_read'](f.path,value)
+        ack.chmod(0o600);ack.write_bytes(b'changed')
+        with self.assertRaises(AssertionError):f.collect()
+
+    def test_symlink_hardlink_nonregular_and_incomplete_publication_reject(self):
+        f=self.marked();value=f.ns['observer_ack_value'](f.row,f.ns['sha'](f.path.read_bytes()))
+        ack,ready=f.ns['observer_ack_paths'](f.path)
+        # Complete ACK bytes without the atomic ready publication are not consumable.
+        ack.write_bytes(f.ns['observer_ack_bytes'](value));ack.chmod(0o600)
+        with self.assertRaises(FileNotFoundError):f.ns['observer_ack_read'](f.path,value)
+        ready.mkdir(mode=0o700)
+        linked=ack.with_name('linked');os.link(ack,linked)
+        with self.assertRaises(AssertionError):f.ns['observer_ack_read'](f.path,value)
+        linked.unlink();ack.unlink();ack.symlink_to(f.path)
+        with self.assertRaises(OSError):f.ns['observer_ack_read'](f.path,value)
+        ack.unlink();os.mkfifo(ack,0o600)
+        with self.assertRaises(AssertionError):f.ns['observer_ack_read'](f.path,value)
+
+    def test_missing_observer_expiry_late_ack_and_interruption_never_succeed(self):
+        f=self.marked();deadline=f.row['observer_context']['deadline_ns']
+        clock=iter((deadline-1,deadline))
+        with self.assertRaises(AssertionError):
+            f.ns['observer_ack_wait'](f.path,f.row,'0'*64,now=lambda:next(clock),pause=lambda _:None)
+        with self.assertRaises(SystemExit):
+            f.ns['observer_ack_wait'](f.path,f.row,'0'*64,now=lambda:deadline-1,
+                pause=lambda _:(_ for _ in ()).throw(SystemExit(143)))
+        f.collect();clock=iter((deadline-1,deadline))
+        with self.assertRaises(AssertionError):
+            f.ns['observer_ack_wait'](f.path,f.row,f.ns['sha'](f.path.read_bytes()),
+                now=lambda:next(clock),pause=lambda _:None)
 
 
 if __name__ == '__main__':
