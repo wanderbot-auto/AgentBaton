@@ -1092,6 +1092,8 @@ pub struct Supervisor {
     sender: SyncSender<Outcome>,
     runtime: PathBuf,
     launch_clocks: HashMap<String, Instant>,
+    // Process-local service hint, never permission or a stop/join receipt.
+    goal_stop_hint: bool,
 }
 impl Supervisor {
     pub fn new(runtime: &Path) -> Self {
@@ -1103,7 +1105,11 @@ impl Supervisor {
             sender,
             runtime: runtime.into(),
             launch_clocks: HashMap::new(),
+            goal_stop_hint: false,
         }
+    }
+    pub(crate) fn take_goal_stop_hint(&mut self) -> bool {
+        std::mem::take(&mut self.goal_stop_hint)
     }
     fn environment(&self, c: &ProviderConnection) -> Result<BTreeMap<OsString, OsString>> {
         use std::os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt};
@@ -1615,6 +1621,18 @@ impl Supervisor {
                         "provider_runtime",
                     )?;
                     tx.commit().map_err(db_error)?;
+                    // Only an owned worker's correlated, committed Goal turn
+                    // can request earlier service. The Actor must still run
+                    // the complete fresh Goal stop policy before signalling it.
+                    if self.workers.contains_key(&id)
+                        && matches!(
+                            state.as_str(),
+                            "completed" | "cancelled" | "interrupted" | "outcome_unknown"
+                        )
+                        && crate::goal_store::owns_session(&store.conn, &id)?
+                    {
+                        self.goal_stop_hint = true;
+                    }
                 }
                 Ok(Outcome::Failure(id, reason)) => {
                     store.session_failure(&id, &reason)?;

@@ -472,6 +472,9 @@ impl Daemon {
                 };
                 self.handle_ready_request(job);
                 self.supervisor.tick(&mut self.store)?;
+                // A committed owned Goal terminal turn may need its original
+                // stop-only policy now; this never selects or admits new work.
+                self.service_hinted_goal_stops()?;
                 // Service owned workers and newly queued captures immediately.
                 // Idle frontier reconciliation remains in the full outer pass;
                 // this wake-up hint does not replace any admission checks.
@@ -2288,10 +2291,22 @@ impl Daemon {
             code,
         );
     }
-    fn tick_goals(&mut self) -> Result<()> {
+    fn service_goal_stop_requests(&mut self) -> Result<()> {
         for id in self.store.goal_stop_requests()? {
             self.supervisor.cancel(&id);
         }
+        Ok(())
+    }
+    fn service_hinted_goal_stops(&mut self) -> Result<()> {
+        if self.supervisor.take_goal_stop_hint() {
+            self.service_goal_stop_requests()?;
+        }
+        Ok(())
+    }
+    fn tick_goals(&mut self) -> Result<()> {
+        // This mandatory outer sweep remains fresh even without any hint.
+        let _ = self.supervisor.take_goal_stop_hint();
+        self.service_goal_stop_requests()?;
         #[cfg(debug_assertions)]
         self.trace_goal_stage("goal_after_stops", None, 0, None);
         if let Some((id, receiver)) = self.goal_pending.take() {
