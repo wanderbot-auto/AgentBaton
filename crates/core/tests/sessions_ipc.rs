@@ -1,6 +1,6 @@
 //! Real generated fixture child only. No vendor executable, identity, model or network is invoked.
 #[path = "fixtures/pre_factory_schema.rs"]
-mod pre_factory_schema;
+pub mod pre_factory_schema;
 use agentbaton_core::ipc::{call, Daemon};
 use serde_json::{json, Value};
 use std::{
@@ -3403,7 +3403,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        16
+        17
     );
     assert!(db
         .query_row(
@@ -3558,7 +3558,7 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
             .collect()
     };
     let before_projection = legacy_snapshot();
-    pre_factory_schema::remove_empty_factory_increment(&db).unwrap();
+    pre_factory_schema::remove_empty_current_factory_increment(&db).unwrap();
     assert_eq!(legacy_snapshot(),before_projection,"the historical projection must not rewrite any legacy row, including counters and consumed meters");
     let evidence = json!({"kind":"test_only_empty_factory_historical_projection","goal_run_id":run["id"],"session_id":session_id,"attempt_id":attempt_id,"server_shutdown_joined":true,"raw_goal_run":raw_run,"raw_goal_node":raw_node,"raw_goal_reservation":original_reservation,"raw_owned_stop_receipt":stop_receipt,"raw_legacy_meter_receipts":meter_receipts,"legacy_tables_compared":before_projection.iter().map(|row|row.0.clone()).collect::<Vec<_>>(),"factory_shared_rows_before":0,"deleted_receipt_rows":0,"complete_old_session_budget_upgrade_compatibility":"not_established"});
     let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
@@ -3762,8 +3762,8 @@ impl GraphOwnerGrantClock {
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
         assert_eq!(
-            version, 16,
-            "This Factory integration fixture must link exact schema16"
+            version, 17,
+            "This Factory integration fixture must link exact current schema17"
         );
         let raw: String = db
             .query_row(

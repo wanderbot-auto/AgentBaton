@@ -1,5 +1,7 @@
 //! Store17 persistence contract. Synthetic malformed predecessors below are
 //! negatives only; genuine source16 data is tested by integration_actual16_migration.
+#[path = "fixtures/pre_factory_schema.rs"]
+pub mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::{types::Value as SqlValue, Connection, OpenFlags};
 use serde_json::json;
@@ -264,4 +266,260 @@ fn synthetic_late_ddl_conflict_rolls_back_all_prior17_ddl_version_and_wal_bytes(
         assert!(!image(&keeper).rows.contains_key(name));
     }
     preserved_backup(&before, root.path());
+}
+
+// These are generated test-only inverses, never genuine historical producers.
+fn empty_current_fixture() -> (Retained, PathBuf, Connection) {
+    let (root, path) = fixture();
+    let mut store = Store::open(&path).unwrap();
+    store
+        .create("local", "Preserve original Task bytes", "inverse-original")
+        .unwrap();
+    drop(store);
+    let db = Connection::open(&path).unwrap();
+    let raw: String = db
+        .query_row("SELECT document FROM tasks LIMIT 1", [], |row| row.get(0))
+        .unwrap();
+    let pretty =
+        serde_json::to_string_pretty(&serde_json::from_str::<serde_json::Value>(&raw).unwrap())
+            .unwrap()
+            + "\n";
+    db.execute("UPDATE tasks SET document=?1", [&pretty])
+        .unwrap();
+    db.pragma_update(None, "foreign_keys", true).unwrap();
+    (root, path, db)
+}
+fn inverse_settings(db: &Connection) -> Vec<SqlValue> {
+    [
+        "foreign_keys",
+        "defer_foreign_keys",
+        "query_only",
+        "synchronous",
+    ]
+    .into_iter()
+    .map(|name| db.pragma_query_value(None, name, |row| row.get(0)).unwrap())
+    .collect()
+}
+#[test]
+fn controlled_empty17_inverse_preserves_all_predecessor_rows_and_exact_schema_then_upgrades() {
+    use pre_factory_schema::pre_integration_schema::{
+        remove_empty_integration17, verify_empty_integration17, INTEGRATION17_TABLES,
+    };
+    let (root, path, db) = empty_current_fixture();
+    let before = image(&db);
+    db.pragma_update(None, "query_only", true).unwrap();
+    verify_empty_integration17(&db).unwrap();
+    assert!(
+        image(&db) == before,
+        "readonly proof cannot modify even a schema cookie"
+    );
+    db.pragma_update(None, "query_only", false).unwrap();
+    let settings = inverse_settings(&db);
+    remove_empty_integration17(&db).unwrap();
+    let after = image(&db);
+    let expected_schema: Schema = before
+        .schema
+        .iter()
+        .filter(|row| !INTEGRATION17_TABLES.contains(&row.2.as_str()))
+        .cloned()
+        .collect();
+    let expected_rows: BTreeMap<_, _> = before
+        .rows
+        .iter()
+        .filter(|(name, _)| !INTEGRATION17_TABLES.contains(&name.as_str()))
+        .map(|(name, rows)| (name.clone(), rows.clone()))
+        .collect();
+    assert_eq!(after.version, 16);
+    assert!(
+        after.schema == expected_schema && after.rows == expected_rows,
+        "exactly the four empty domains may disappear"
+    );
+    assert_eq!(after.application_id, before.application_id);
+    assert_eq!(after.journal, before.journal);
+    assert_eq!(inverse_settings(&db), settings);
+    assert!(db.is_autocommit());
+    drop(db);
+    let store = Store::open(&path).unwrap();
+    let db = ro(&path);
+    let restored = image(&db);
+    assert_eq!(restored.version, 17);
+    assert!(
+        restored.schema == before.schema && restored.rows == before.rows,
+        "known synthetic16 roundtrip preserves all raw rows and original DDL"
+    );
+    verify_empty_integration17(&db).unwrap();
+    assert_eq!(store.integration_record_counts().unwrap().policies, 0);
+    assert_eq!(backups(root.path()).len(), 1);
+}
+#[test]
+fn controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_dependencies() {
+    use pre_factory_schema::pre_integration_schema::{
+        remove_empty_integration17, INTEGRATION17_TABLES,
+    };
+    let mut variants: Vec<(String, String)> = vec![];
+    for version in [0, 15, 16, 18] {
+        variants.push((
+            format!("version{version}"),
+            format!("PRAGMA user_version={version};"),
+        ));
+    }
+    for table in INTEGRATION17_TABLES {
+        variants.push((format!("missing:{table}"), format!("DROP TABLE {table};")));
+        variants.push((
+            format!("column:{table}"),
+            format!("ALTER TABLE {table} ADD COLUMN unknown_fixture_field TEXT;"),
+        ));
+        variants.push((
+            format!("index:{table}"),
+            format!("CREATE INDEX unknown_domain_index ON {table}(rowid);"),
+        ));
+        variants.push((format!("trigger:{table}"),format!("CREATE TRIGGER unknown_domain_trigger AFTER INSERT ON {table} BEGIN SELECT 1; END;")));
+    }
+    for index in [
+        "integration_policies_task",
+        "integrations_task",
+        "integration_attempts_root",
+        "integration_attempts_run",
+    ] {
+        variants.push((
+            format!("missing_index:{index}"),
+            format!("DROP INDEX {index};"),
+        ));
+    }
+    variants.extend([
+        ("external_view".into(),"CREATE VIEW fixture_external_view AS SELECT * FROM integrations;".into()),
+        ("incoming_fk".into(),"CREATE TABLE fixture_incoming(id TEXT REFERENCES integrations(id));".into()),
+        ("unknown_increment".into(),"CREATE TABLE integration_future_extension(raw BLOB);".into()),
+        ("nonempty:policies".into(),"INSERT INTO integration_policies VALUES('p','t',1,'s','a',1,'{}');".into()),
+        ("nonempty:runs".into(),"INSERT INTO integrations VALUES('r','p','t',1,'queued',1,'{}');".into()),
+        ("nonempty:attempts".into(),"INSERT INTO integration_attempts VALUES('a','r',1,'preparation','integration','t','g','p','prepared','{}');".into()),
+        ("nonempty:fences".into(),"INSERT INTO integration_ref_fences VALUES('repo','refs/heads/generated','r',1,'held','{}');".into()),
+    ]);
+    for (variant, sql) in variants {
+        let (_root, path, db) = empty_current_fixture();
+        // Malformed rows here are bounded refusal inputs only, never authority.
+        db.pragma_update(None, "foreign_keys", false).unwrap();
+        let sql = if variant.starts_with("index:") {
+            sql.replace("(rowid)", "(document)")
+        } else {
+            sql
+        };
+        db.execute_batch(&sql).unwrap();
+        db.pragma_update(None, "foreign_keys", true).unwrap();
+        db.execute_batch("PRAGMA wal_checkpoint(TRUNCATE);")
+            .unwrap();
+        let before = image(&db);
+        let settings = inverse_settings(&db);
+        let main = fs::read(&path).unwrap();
+        let error = remove_empty_integration17(&db).expect_err(&variant);
+        if variant.starts_with("nonempty:") {
+            assert_eq!(error, "nonempty Integration17 history");
+        }
+        assert!(
+            image(&db) == before,
+            "refused inverse changed logical image: {variant}"
+        );
+        assert_eq!(inverse_settings(&db), settings, "{variant}");
+        assert!(
+            fs::read(&path).unwrap() == main,
+            "refused inverse changed main bytes: {variant}"
+        );
+        assert!(db.is_autocommit(), "{variant}");
+    }
+}
+#[test]
+fn controlled_current17_then_original_factory_inverse_keeps_one_rollback_boundary() {
+    let (_root, path, db) = empty_current_fixture();
+    db.execute_batch(
+        "CREATE TABLE fixture_caller_collision(sentinel TEXT);PRAGMA wal_checkpoint(TRUNCATE);",
+    )
+    .unwrap();
+    let before = image(&db);
+    let main = fs::read(&path).unwrap();
+    let settings = inverse_settings(&db);
+    db.pragma_update(None, "foreign_keys", false).unwrap();
+    let mut reached_late_collision = false;
+    let generated = (|| -> rusqlite::Result<()> {
+        let transaction = db.unchecked_transaction()?;
+        pre_factory_schema::remove_empty_current_child_goal_increment(&transaction)?;
+        assert_eq!(
+            transaction.pragma_query_value::<u32, _>(None, "user_version", |row| row.get(0))?,
+            14
+        );
+        reached_late_collision = true;
+        transaction.execute_batch("CREATE TABLE fixture_caller_collision(sentinel TEXT);")?;
+        transaction.commit()
+    })();
+    db.pragma_update(None, "foreign_keys", true).unwrap();
+    assert!(
+        reached_late_collision,
+        "both known inverse increments must run before the deliberate caller fault"
+    );
+    let exact_collision = match generated {
+        Err(rusqlite::Error::SqliteFailure(error, Some(message))) => {
+            error.extended_code == rusqlite::ffi::SQLITE_ERROR
+                && message == "table fixture_caller_collision already exists"
+        }
+        Err(rusqlite::Error::SqlInputError {
+            error,
+            msg,
+            sql,
+            offset,
+        }) => {
+            error.extended_code == rusqlite::ffi::SQLITE_ERROR
+                && msg == "table fixture_caller_collision already exists"
+                && sql == "CREATE TABLE fixture_caller_collision(sentinel TEXT);"
+                && offset == 13
+        }
+        _ => false,
+    };
+    assert!(exact_collision);
+    assert!(
+        image(&db) == before,
+        "caller failure must restore17, every Integration object and old raw history"
+    );
+    assert_eq!(inverse_settings(&db), settings);
+    assert!(fs::read(&path).unwrap() == main);
+    assert!(db.is_autocommit());
+}
+#[test]
+fn controlled_empty17_outer_refuses_nested_and_inner_refuses_committed_transactions() {
+    use pre_factory_schema::pre_integration_schema::{
+        remove_empty_integration17, remove_empty_integration17_in_transaction,
+    };
+    let (_root, _path, db) = empty_current_fixture();
+    let transaction = db.unchecked_transaction().unwrap();
+    let before = image(&transaction);
+    assert!(remove_empty_integration17(&transaction).is_err());
+    assert!(image(&transaction) == before);
+    transaction.execute_batch("COMMIT").unwrap();
+    let before = image(&transaction);
+    assert!(remove_empty_integration17_in_transaction(&transaction).is_err());
+    assert!(image(&transaction) == before);
+}
+
+#[test]
+fn controlled_empty17_inverse_preserves_unrelated_unknown_schema_and_typed_bytes() {
+    use pre_factory_schema::pre_integration_schema::{
+        remove_empty_integration17, INTEGRATION17_TABLES,
+    };
+    let (_root, _path, db) = empty_current_fixture();
+    db.execute_batch("CREATE TABLE fixture_original(raw BLOB,txt TEXT,whole INTEGER,real_value REAL,nothing_value TEXT);INSERT INTO fixture_original VALUES(x'00ffdeadbeef','untouched',37,1.25,NULL);").unwrap();
+    let before = image(&db);
+    remove_empty_integration17(&db).unwrap();
+    let after = image(&db);
+    let expected_schema: Schema = before
+        .schema
+        .into_iter()
+        .filter(|row| !INTEGRATION17_TABLES.contains(&row.2.as_str()))
+        .collect();
+    let expected_rows: BTreeMap<_, _> = before
+        .rows
+        .into_iter()
+        .filter(|(name, _)| !INTEGRATION17_TABLES.contains(&name.as_str()))
+        .collect();
+    assert!(after.schema == expected_schema && after.rows == expected_rows);
+    // This extra table is a controlled generated preservation input only. It
+    // is not a genuine predecessor accepted by production's exact55-table gate.
+    assert_eq!(after.version, 16);
 }
