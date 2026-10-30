@@ -2459,13 +2459,13 @@ impl ReprepareGate {
             assert_eq!(fd.mode() & 0o7777, 0o600);
         }
     }
-    fn next_owned_validator(&mut self) -> ObservedCommandIdentity {
+    fn next_owned_validator(&mut self) -> (ObservedCommandIdentity, Instant) {
         use std::io::Read;
         // Same five-second observation boundary as the existing fixture, not
-        // a renewal of the Command's independently enforced 1000ms wall clock.
+        // a renewal of the Command's independently enforced 500ms wall clock.
         let deadline = Instant::now() + Duration::from_secs(5);
         let mut bytes = Vec::new();
-        loop {
+        let host_deadline = loop {
             assert!(
                 Instant::now() < deadline,
                 "owned FIFO ready observation expired"
@@ -2478,7 +2478,7 @@ impl ReprepareGate {
                     assert!(bytes.len() + n <= 32, "bounded numeric ready marker");
                     bytes.extend_from_slice(&part[..n]);
                     if bytes.ends_with(b"\n") {
-                        break;
+                        break Instant::now() + Duration::from_millis(500);
                     }
                 }
                 Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {}
@@ -2486,7 +2486,7 @@ impl ReprepareGate {
                 Err(_) => panic!("owned FIFO read failed"),
             }
             std::thread::sleep(Duration::from_millis(1));
-        }
+        };
         let text = std::str::from_utf8(&bytes)
             .unwrap()
             .strip_suffix('\n')
@@ -2494,7 +2494,15 @@ impl ReprepareGate {
         assert!(!text.is_empty() && text.bytes().all(|c| c.is_ascii_digit()));
         let pid: u32 = text.parse().unwrap();
         assert!(pid > 1);
+        assert!(
+            Instant::now() < host_deadline,
+            "Host bound expired before ps"
+        );
         let numeric = bounded_ps(&["-p", &pid.to_string(), "-o", "pid=,ppid=,pgid=,uid=,stat="]);
+        assert!(
+            Instant::now() < host_deadline,
+            "Host bound expired after ps"
+        );
         let rows = numeric
             .lines()
             .filter(|s| !s.trim().is_empty())
@@ -2510,10 +2518,15 @@ impl ReprepareGate {
         assert_eq!(identity.group, pid);
         assert_eq!(identity.uid, unsafe { libc::geteuid() });
         assert!(!state.starts_with('Z'));
-        identity
+        (identity, host_deadline)
     }
-    fn release(&mut self) {
+    fn release(&mut self, host_deadline: Instant) {
+        assert!(Instant::now() < host_deadline, "Host release bound expired");
         self.check_pins();
+        assert!(
+            Instant::now() < host_deadline,
+            "Host release pin check expired"
+        );
         // One PIPE_BUF-small nonblocking write; never waits for a failed child.
         assert_eq!(self.release.write(b"continue\n").unwrap(), 9);
     }
@@ -2531,7 +2544,7 @@ impl RuntimeFixture {
                 "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
                 "outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],
                 "arguments":["-c",script,"bounded-reprepare",ready,release],"environment":{},"expected_exit_codes":[0],
-                "wall_time_ms":1000,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
+                "wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
                 "require":{"filesystem_isolation":false,"network_isolation":false,"process_tree_containment":false,"execution_time_input_immutability":false,"auxiliary_source_immutability":false,"sealed_executable_image":false}
             }),
             "reprepare-command-definition",
@@ -2619,7 +2632,8 @@ fn reprepare_host_git(f: &RuntimeFixture, args: &[&str], deadline: Instant) -> S
     );
     let stdout = tempfile::NamedTempFile::new_in(&f.root).unwrap();
     let stderr = tempfile::NamedTempFile::new_in(&f.root).unwrap();
-    let child = Command::new("git")
+    let mut command = Command::new("git");
+    command
         .arg("-C")
         .arg(&f.project_root)
         .env("GIT_CONFIG_GLOBAL", "/dev/null")
@@ -2637,9 +2651,12 @@ fn reprepare_host_git(f: &RuntimeFixture, args: &[&str], deadline: Instant) -> S
         .args(args)
         .stdin(std::process::Stdio::null())
         .stdout(stdout.as_file().try_clone().unwrap())
-        .stderr(stderr.as_file().try_clone().unwrap())
-        .spawn()
-        .unwrap();
+        .stderr(stderr.as_file().try_clone().unwrap());
+    assert!(
+        Instant::now() < deadline,
+        "Host bound expired before Git spawn"
+    );
+    let child = command.spawn().unwrap();
     let mut owned = OwnedPs {
         child,
         reaped: false,
@@ -2742,13 +2759,22 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
     for round in 1u64..=3 {
         // Receiving from this actually executed approved command is the
         // synchronization point. Poll sleeps only yield; they never pick races.
-        leaders.push(gate.next_owned_validator());
+        let (leader, host_deadline) = gate.next_owned_validator();
+        leaders.push(leader);
+        assert!(
+            Instant::now() < host_deadline,
+            "Host bound expired before get"
+        );
         let live = rpc(
             &f.server,
             "integrations.get",
             json!({"integration_id":id}),
             None,
             None,
+        );
+        assert!(
+            Instant::now() < host_deadline,
+            "Host bound expired after get"
         );
         assert_eq!(live["run"]["round"], round);
         assert_eq!(live["run"]["active_stage"], "validator");
@@ -2771,9 +2797,8 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
                 .to_owned(),
         );
         captured.push(live["run"]["source_commit"].as_str().unwrap().to_owned());
-        // This is a further finite Host sub-bound, not a new Command clock.
-        // Core independently keeps its original 1000+500ms Command deadline.
-        let host_deadline = Instant::now() + Duration::from_millis(500);
+        // The same Host bound started at actual ready reception before ps/get.
+        // Core independently enforces the approved 500+500ms Command deadline.
         if round < 3 {
             heads.push(advance_owned_test_target(
                 &f,
@@ -2783,7 +2808,7 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
             ));
         }
         assert!(Instant::now() < host_deadline, "Host release bound expired");
-        gate.release();
+        gate.release(host_deadline);
     }
     let done = terminal(&f);
     let run = &done["run"];
