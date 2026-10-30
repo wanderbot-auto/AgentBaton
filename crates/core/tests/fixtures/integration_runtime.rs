@@ -3657,8 +3657,7 @@ fn wait_withdrawal_commit(
                 if matches!(
                     code.code,
                     rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked
-                ) =>
-            {}
+                ) => {}
             Err(_) => panic!("withdrawal fresh readonly observation failed"),
         }
         std::thread::sleep(Duration::from_millis(1));
