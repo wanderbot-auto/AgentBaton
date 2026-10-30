@@ -1085,6 +1085,12 @@ class PriorCaptureTimings(unittest.TestCase):
                     self.add()
                     self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
 
+    def test_selected_revision_duplicate_outside_publication_window_also_refuses(self):
+        for revision in (6, 6, 8):
+            self.add(kind='goal.capture_settled', revision=revision, payload=self.timed())
+        self.add()
+        self.assertEqual(self.collected()['cases'][0]['status'], 'invalid')
+
     def test_non_block_observation_does_not_request_capture_history(self):
         self.add(kind='goal.capture_settled', revision=8, payload=self.timed())
         self.add(kind='goal.capture_settled', payload=self.timed())

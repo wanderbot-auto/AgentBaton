@@ -536,6 +536,16 @@ def project_events(conn, observation):
                  and event.get('kind') == 'goal.capture_settled')
             earlier = integer(event.get('revision'), (1 << 63) - 1)
             need(0 < earlier < revision and earlier not in revisions)
+            # LIMIT bounds publication, not uniqueness: a duplicate of this
+            # selected revision may lie just outside the two-row window.
+            duplicates = conn.execute(
+                "SELECT count(*) FROM events WHERE "
+                "json_extract(document,'$.aggregate_id')=? "
+                "AND json_extract(document,'$.source')='goal_core' "
+                "AND json_extract(document,'$.kind')='goal.capture_settled' "
+                "AND json_extract(document,'$.revision')=? AND sequence<?",
+                (subject, earlier, first_sequence)).fetchone()[0]
+            need(duplicates == 1)
             need(len(result['events']) + len(result['prior_capture_settlements'])
                  < MAX_ASSOCIATED_EVENTS)
             revisions.add(earlier)
