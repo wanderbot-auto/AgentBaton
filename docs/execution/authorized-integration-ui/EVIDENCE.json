@@ -49,6 +49,34 @@
       "first_error": "readonly fixture field mutation; explicit Intent narrowing needed",
       "log_sha256": "91c8d7439fe8c34c8444af1731b06f9c51f9bc7a431416dc8386180ffb5a4193",
       "log_path": ".onboarding/integration17-ui-05a8-type1/command.log"
+    },
+    {
+      "source": "7e1aa8b4957728d52c33f5a682371e5a9342f3e0",
+      "check": "typecheck",
+      "result": "passed",
+      "elapsed_seconds": 1.307,
+      "log_sha256_prefix": "642536",
+      "note": "Full digest retained by Root; do not expand this prefix into fabricated full hash."
+    },
+    {
+      "source": "7e1aa8b4957728d52c33f5a682371e5a9342f3e0",
+      "check": "targeted integration-api and TaskIntegration Vitest",
+      "result": "failed",
+      "passed": 40,
+      "failed": 1,
+      "unique_tests": 41,
+      "wrapper_seconds": 3.411,
+      "log_sha256": "72d2640ecbb04f5db861d5fd9bc4a27ca0b6f4801e7dfd13e44c2b996a889532",
+      "log_path": ".onboarding/integration17-ui-7e1a-tests1/command.log",
+      "failure": "Global unknown-text count included folded approved-limit details; replaced with dimension-specific actual-usage assertions."
     }
-  ]
+  ],
+  "independent_review": {
+    "context": "data_core_review_resume",
+    "result": "two P2 findings addressed in source; recheck pending",
+    "findings": [
+      "Historical same-task policy revocation must not require current spec",
+      "Get response must match exact requested integration run ID"
+    ]
+  }
 }

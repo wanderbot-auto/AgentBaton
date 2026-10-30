@@ -1,10 +1,10 @@
 import type { Language } from './i18n';
-import { integrationMessages } from './integration-i18n';
+import { integrationMessages, integrationUsageLabels } from './integration-i18n';
 import type { IntegrationPolicy, IntegrationRunView, IntegrationSharedUsage, IntegrationStaticBindings } from './integration-types';
 
 export function IntegrationBudget({bindings,usage,language}:{bindings:IntegrationStaticBindings;usage:IntegrationSharedUsage;language:Language}){
- const t=integrationMessages[language],value=(v:number|null)=>v===null?t.unknown:String(v);
- return <details><summary>{t.budget}</summary><p>{t.quota}</p>{(['root','project'] as const).map(kind=><section key={kind} aria-label={`${t.budget} ${t[kind]}`}><h3>{t[kind]}</h3><dl><dt>{t.attempts}</dt><dd>{usage[kind].attempts} / {usage[kind].active}</dd><dt>{t.children}</dt><dd>{usage[kind].children}</dd><dt>{t.runtime}</dt><dd>{value(usage[kind].runtime_ms)}</dd><dt>{t.output}</dt><dd>{value(usage[kind].output_bytes)}</dd><dt>{t.tokens}</dt><dd>{value(usage[kind].tokens)}</dd><dt>{t.cost}</dt><dd>{value(usage[kind].cost_microunits)}</dd></dl><details><summary>{t.limits}</summary><dl>{Object.entries(bindings[kind==='root'?'root_budget':'project_budget']).map(([key,v])=><div key={key}><dt>{key}</dt><dd>{v===null?t.unknown:v}</dd></div>)}</dl></details></section>)}</details>;
+ const t=integrationMessages[language],u=integrationUsageLabels[language],value=(v:number|null)=>v===null?t.unknown:String(v);
+ return <details><summary>{t.budget}</summary><p>{t.quota}</p>{(['root','project'] as const).map(kind=><section key={kind} aria-label={`${t.budget} ${t[kind]}`}><h3>{t[kind]}</h3><dl aria-label={`${t.usage} ${t[kind]}`}><dt>{t.attempts}</dt><dd>{usage[kind].attempts} / {usage[kind].active}</dd><dt>{t.children}</dt><dd>{usage[kind].children}</dd><dt>{u.runtime_ms}</dt><dd>{value(usage[kind].runtime_ms)}</dd><dt>{u.output_bytes}</dt><dd>{value(usage[kind].output_bytes)}</dd><dt>{u.tokens}</dt><dd>{value(usage[kind].tokens)}</dd><dt>{u.cost_microunits}</dt><dd>{value(usage[kind].cost_microunits)}</dd></dl><details><summary>{t.limits}</summary><dl>{Object.entries(bindings[kind==='root'?'root_budget':'project_budget']).map(([key,v])=><div key={key}><dt>{key}</dt><dd>{v===null?t.unknown:v}</dd></div>)}</dl></details></section>)}</details>;
 }
 export function IntegrationPolicyDetails({policy,language}:{policy:IntegrationPolicy;language:Language}){
  const t=integrationMessages[language],b=policy.bindings;
