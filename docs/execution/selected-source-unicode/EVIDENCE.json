@@ -89,5 +89,15 @@
     "cargo": "NOT_RUN",
     "runtime": "NOT_RUN",
     "manifest_sha256": "4eab0e470a1fce08c6e445eb31af765f1b068c4d3209c593858ab0698c632ddb"
+  },
+  "independent_source_review_0fa": {
+    "source": "0fa6dad9bc474731c0d8778745b458b8dbc47945",
+    "verdict": "SOURCE_READY",
+    "review_sha256": "7043000ec1adf89a8f62bdb002d4deb4ce22c73d50467a3cca723c47c06ad290",
+    "manifest_sha256": "f7ee20d27b0635fb33e270f30586be92de9ec3f1bd322b16d5422782b2a02f2f",
+    "scope": "independent static source review only; old8d CHANGES_REQUIRED retained",
+    "cargo": "NOT_RUN",
+    "runtime": "NOT_RUN",
+    "macos": "NOT_RUN"
   }
 }
