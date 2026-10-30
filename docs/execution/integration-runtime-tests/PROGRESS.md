@@ -1,0 +1,10 @@
+# Progress
+
+- Read fixed `97f1410` integration DTOs, approval/read/admission/settlement paths, existing `integration_ipc.rs`, Graph runtime and existing actual Owner fixture. Confirmed with Core that explicit start and automatic watcher converge rather than grant exclusive trigger ownership.
+- Added source `19c402e9ad05ce4b4271b750b64c5effc942dd6b`. Only two test paths changed; existing `integration_ipc.rs` is the exact baseline byte prefix plus the three-line child-module registration. Both old test functions and their helpers remain intact.
+- Generated ACP validates the actual complete Graph TaskRequest key set and workspace/attempt/plan bindings, writes a real report and returns a real protocol result. The source requires the real stopped/reaped/captured chain before Owner acceptance and real Task acceptance projection.
+- Added independent trusted-host private approval of fixed local-shell Command definition and exact Integration snapshot. No SQL authority or pass insertion; SQL is read-only/query-only and used only for receipts/counters/history evidence.
+- Assertions cover accepted/source/target/candidate/definition hashes, one fresh joined validator, three distinct joined integration stages, exact CAS receipt, source index/files/refs, immutable Graph history, shared four-attempt totals and no refunds. Expected 24B is the declared-artifact plus retained-stream domain, not total filesystem writes.
+- Failures during construction and tests retain the owned TempDir; teardown joins the daemon first. Success cleans its own generated roots. The test command must explicitly select supported single-link system Git via PATH; no test mutates global environment or falls back silently.
+- Author actual checks: rustfmt and rustfmt --check; generated Python body ast.parse; exact original-test-prefix comparison; git diff --check. All passed. These are static/syntax checks, not a Rust compile or runtime pass.
+- Cargo, generated Git fixture, Actor, browser, OS dialogs, CI and real Provider: NOT_RUN by this author. Root will execute the fixed source and attribute each result to the actual integrated production baseline.
