@@ -129,20 +129,31 @@ pub(super) fn attempt(db: &Connection, id: &str) -> Result<IntegrationAttemptRec
     }
     if actual.view.settled {
         if actual.view.state != "finished"
-            || actual.view.io_completion != Some(IntegrationIoCompletion::WorkerJoined)
+            || !matches!(
+                actual.view.io_completion,
+                Some(IntegrationIoCompletion::WorkerJoined | IntegrationIoCompletion::NotScheduled)
+            )
             || intent.1 != "stopped"
+        {
+            return Err(unknown());
+        }
+        if actual.view.io_completion == Some(IntegrationIoCompletion::NotScheduled)
+            && (actual.view.actual_output_bytes != Some(0) || dispatch.executor_instance.is_some())
         {
             return Err(unknown());
         }
         let sequence = actual.view.receipt_sequence.ok_or_else(unknown)?;
         let mut settled = actual.clone();
         settled.view.receipt_sequence = None;
-        let valid:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE sequence=?1 AND sequence>?2 AND octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?3 AND json_extract(document,'$.source')='integration_core' AND json_extract(document,'$.kind')='integration.attempt_joined' AND json_extract(document,'$.payload.attempt_id')=?4 AND json_extract(document,'$.payload.receipt_digest')=?5)",params![sql_num(sequence)?,prepared,actual.integration_id,id,sha(&settled)?],|r|r.get(0)).map_err(db_error)?;
+        let valid:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE sequence=?1 AND sequence>?2 AND octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?3 AND json_extract(document,'$.source')='integration_core' AND json_extract(document,'$.kind')=?6 AND json_extract(document,'$.payload.attempt_id')=?4 AND json_extract(document,'$.payload.receipt_digest')=?5)",params![sql_num(sequence)?,prepared,actual.integration_id,id,sha(&settled)?,if actual.view.io_completion==Some(IntegrationIoCompletion::NotScheduled) {"integration.attempt_not_scheduled"}else{"integration.attempt_joined"}],|r|r.get(0)).map_err(db_error)?;
         if !valid {
             return Err(unknown());
         }
     } else if actual.view.state == "finished"
-        || actual.view.io_completion == Some(IntegrationIoCompletion::WorkerJoined)
+        || matches!(
+            actual.view.io_completion,
+            Some(IntegrationIoCompletion::WorkerJoined | IntegrationIoCompletion::NotScheduled)
+        )
         || actual.view.receipt_sequence.is_some()
         || actual.view.actual_runtime_ms.is_some()
         || actual.view.actual_output_bytes.is_some()

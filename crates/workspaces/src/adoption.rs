@@ -618,10 +618,7 @@ fn adopt_inner(
             let observed = crate::inspect_controlled(&candidate.workspace.canonical_root, c)?;
             match &observed.kind {
                 WorkspaceKind::Git { head, dirty, .. }
-                    if head == &candidate.integration_candidate && !dirty =>
-                {
-                    ()
-                }
+                    if head == &candidate.integration_candidate && !dirty => {}
                 _ => return Err(AdoptionError::SubjectMismatch),
             }
             observed

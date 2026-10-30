@@ -2,12 +2,12 @@
 //! a result is consumed with the original request, nonce and monotonic deadline.
 use super::{authority::*, fs::*, records, *};
 use crate::{
-    storage::{db_error, decode, encode, Store},
+    storage::{db_error, encode, Store},
     CoreError, Result,
 };
 use agentbaton_workspaces::{WorkspaceIdentity, WorkspaceKind};
-use rusqlite::{Connection, OpenFlags, OptionalExtension};
-use serde_json::{json, Value};
+use rusqlite::{Connection, OpenFlags};
+use serde_json::json;
 use std::{
     fs::{self, File, OpenOptions},
     os::unix::fs::{MetadataExt, OpenOptionsExt},
