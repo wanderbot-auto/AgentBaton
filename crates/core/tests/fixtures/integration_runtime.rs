@@ -1345,3 +1345,361 @@ fn native_policy_before_task_acceptance_automatically_integrates_once_without_ex
     assert_eq!(original, done);
     assert_start_replay(&f, &policy, &original, &done);
 }
+
+impl RuntimeFixture {
+    fn failing_command_definition(&self, candidate: &Value) -> Value {
+        // A separately reviewed fixed command, not a forged validation result.
+        // Only the actual process exit makes this correctness check fail.
+        approved(
+            &self.server,
+            "command_validation_policies.propose",
+            json!({"session_id":candidate["session_id"],"executable":self.validator_program,"mode":"native_executable","script":null,
+            "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
+            "outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],
+            "arguments":["-c","printf '%s\\n' 'fixed correctness failure' >&2; exit 7"],"environment":{},"expected_exit_codes":[0],"wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
+            "require":{"filesystem_isolation":false,"network_isolation":false,"process_tree_containment":false,"execution_time_input_immutability":false,"auxiliary_source_immutability":false,"sealed_executable_image":false}}),
+            "failing-correctness-definition",
+        )
+    }
+}
+
+#[test]
+fn fresh_merged_correctness_failure_never_admits_cas_and_retains_charged_receipts() {
+    const STDERR: &[u8] = b"fixed correctness failure\n";
+    let f = RuntimeFixture::new();
+    let ready = f.owner_ready();
+    let definition = f.failing_command_definition(&ready["candidates"][0]);
+    let original_command = OriginalCommand::capture(&f, &definition);
+    let accepted = f.accept();
+    user_changes(&f);
+    let before_source = source_image(&f.source());
+    let before_project = source_image(&f.project_root);
+    let policy = f.approve_integration(&definition);
+    let first = rpc(
+        &f.server,
+        "integrations.start",
+        json!({"policy_id":policy["id"]}),
+        Some("failed-explicit-start"),
+        Some(policy["revision"].clone()),
+    );
+    let failed = observe(
+        &f.server,
+        "integrations.get",
+        json!({"integration_id":first["run"]["id"]}),
+        |v| {
+            let state = v["run"]["state"].as_str().unwrap();
+            assert!(
+                !matches!(
+                    state,
+                    "confirmed_local_ref"
+                        | "blocked"
+                        | "stale_target"
+                        | "cancelled"
+                        | "outcome_unknown"
+                ),
+                "expected actual correctness failure, observed {state}/{}",
+                v["run"]["last_error"]["code"]
+            );
+            state == "failed"
+        },
+    );
+    let run = &failed["run"];
+    assert_eq!(run["last_error"]["code"], "VALIDATION_FAILED");
+    assert_eq!(run["round"], 1);
+    assert_eq!(run["active_stage"], Value::Null);
+    assert_eq!(run["io_completion"], "worker_joined");
+    assert_eq!(run["acceptance_ref"], accepted["task_acceptance"]["id"]);
+    assert_eq!(run["policy_id"], policy["id"]);
+    assert_eq!(run["policy_revision"], policy["revision"]);
+    assert_eq!(failed["fence"]["state"], "released");
+    assert_eq!(
+        git(&f.project_root, &["rev-parse", TARGET]),
+        f.initial_target
+    );
+    let candidate = run["integration_commit"].as_str().unwrap();
+    assert_ne!(candidate, f.initial_target);
+    assert_eq!(
+        git(
+            &f.source(),
+            &["rev-parse", &format!("{candidate}^{{tree}}")]
+        ),
+        run["integration_tree"].as_str().unwrap()
+    );
+    assert_eq!(
+        git(
+            &f.source(),
+            &["show", &format!("{candidate}:reports/report.txt")]
+        ),
+        "fixed report"
+    );
+    assert_eq!(source_image(&f.source()), before_source);
+    assert_eq!(source_image(&f.project_root), before_project);
+    let attempts = failed["attempts"].as_array().unwrap();
+    assert_eq!(attempts.len(), 2);
+    assert_ne!(attempts[0]["attempt_id"], attempts[1]["attempt_id"]);
+    for (kind, attempt) in ["preparation", "validator"].into_iter().zip(attempts) {
+        assert_eq!(attempt["kind"], kind);
+        assert_eq!(attempt["state"], "finished");
+        assert_eq!(attempt["settled"], true);
+        assert_eq!(attempt["io_completion"], "worker_joined");
+        assert!(
+            attempt["actual_runtime_ms"].as_u64().unwrap()
+                <= attempt["reservation"]["runtime_ms"].as_u64().unwrap()
+        );
+        assert!(
+            attempt["actual_output_bytes"].as_u64().unwrap()
+                <= attempt["reservation"]["output_bytes"].as_u64().unwrap()
+        );
+    }
+    assert_eq!(attempts[0]["last_error"], Value::Null);
+    assert_eq!(attempts[0]["actual_output_bytes"], REPORT.len());
+    assert_eq!(attempts[1]["last_error"]["code"], "VALIDATION_FAILED");
+    assert_eq!(attempts[1]["actual_output_bytes"], STDERR.len());
+    let validations = run["validation_receipts"].as_array().unwrap();
+    assert_eq!(validations.len(), 1);
+    let validation = &validations[0];
+    assert_eq!(validation["attempt_id"], attempts[1]["attempt_id"]);
+    assert_eq!(
+        validation["validator"],
+        policy["selection"]["stage_reservations"]["validators"][0]["validator"]
+    );
+    assert_eq!(
+        validation["definition_digest"],
+        policy["bindings"]["validators"][0]["definition_digest"]
+    );
+    assert_eq!(validation["passed"], false);
+    assert_eq!(validation["stop_confirmed"], true);
+    assert_eq!(validation["worker_joined"], true);
+    assert_eq!(validation["integration_commit"], run["integration_commit"]);
+    assert_eq!(validation["integration_tree"], run["integration_tree"]);
+    assert_eq!(
+        validation["actual_runtime_ms"],
+        attempts[1]["actual_runtime_ms"]
+    );
+    assert_eq!(validation["actual_output_bytes"], STDERR.len());
+    let db = readonly(&f);
+    original_command.assert_unchanged(&f, &db);
+    let all = events(&db);
+    let observed = unique_event(&all, "integration.validator_observed", &run["id"]);
+    assert_eq!(observed.0, validation["sequence"].as_u64().unwrap());
+    assert_eq!(observed.1["payload"]["passed"], false);
+    assert_eq!(observed.1["payload"]["stop_confirmed"], true);
+    assert_eq!(observed.1["payload"]["worker_joined"], true);
+    let view = &observed.1["payload"]["view"];
+    assert_eq!(
+        sha256(&serde_json::to_vec(view).unwrap()),
+        validation["result_digest"]
+    );
+    assert_eq!(view["process_started"], true);
+    assert_eq!(view["exit_code"], 7);
+    assert_eq!(view["exit_signal"], Value::Null);
+    assert_eq!(view["reason"], "exited");
+    assert_eq!(view["passed"], false);
+    assert_eq!(view["exit_observed_within_budget"], true);
+    assert_eq!(view["cleanup_completed_within_budget"], true);
+    assert_eq!(view["cleanup"]["owned_leader_reaped"], true);
+    assert_eq!(view["cleanup"]["all_capture_pipes_observed_eof"], true);
+    assert_eq!(view["stderr"]["captured_bytes"], STDERR.len());
+    assert_eq!(view["stderr"]["observed_bytes_at_least"], STDERR.len());
+    assert_eq!(view["stderr"]["sha256_of_captured"], sha256(STDERR));
+    assert_eq!(view["stderr"]["truncated"], false);
+    assert_eq!(view["stderr"]["eof_observed"], true);
+    assert_eq!(view["stdout"]["captured_bytes"], 0);
+    assert_eq!(view["goal_io"]["state"], "observed");
+    assert_eq!(view["task_acceptance"], "not_established");
+    assert_eq!(view["integration_authorized"], false);
+    let subject = json!({"task_id":f.task["id"],"attempt_id":validation["attempt_id"],"spec_revision":policy["selection"]["expected_spec_revision"],"input_revision":policy["bindings"]["source"]["head"],
+        "version":{"kind":"git","target_ref":TARGET,"expected_target_head":f.initial_target,"source_candidate":run["source_commit"],"integration_candidate":run["integration_commit"],"tree":run["integration_tree"]}});
+    assert_eq!(view["contract"]["file_contract"]["subject"], subject);
+    assert_eq!(view["file_integrity"]["subject"], subject);
+    assert_eq!(
+        view["file_integrity"]["policy_contract"],
+        view["contract"]["file_contract"]
+    );
+    assert_eq!(
+        view["file_integrity"]["passed"], true,
+        "artifact integrity is not command correctness"
+    );
+    for field in [
+        "arguments",
+        "mode",
+        "script",
+        "argv0",
+        "environment_sha256",
+        "expected_exit_codes",
+        "wall_time_ms",
+        "cleanup_time_ms",
+        "stdout_limit",
+        "stderr_limit",
+        "require",
+    ] {
+        assert_eq!(view["contract"][field], definition["contract"][field]);
+    }
+    let cwd = &view["contract"]["cwd"];
+    assert_ne!(cwd["canonical_root"], f.workspace["root"]);
+    let raw: String = db
+        .query_row(
+            "SELECT document FROM managed_workspaces WHERE root=?1",
+            [cwd["canonical_root"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let managed: Value = serde_json::from_str(&raw).unwrap();
+    assert_eq!(managed["identity"], *cwd);
+    assert_eq!(managed["base_revision"], run["integration_commit"]);
+    for (id, collection, bytes) in [
+        ("fixed-input", "inputs", b"baseline".as_slice()),
+        ("report", "outputs", REPORT),
+    ] {
+        let artifact = observed_artifact(&view["file_integrity"][collection], id);
+        assert_eq!(artifact["expected_sha256"], sha256(bytes));
+        assert_eq!(artifact["observed_sha256"], sha256(bytes));
+        assert_eq!(artifact["size"], bytes.len());
+        assert_eq!(artifact["state"], "passed");
+        assert_eq!(artifact["root_device"], cwd["device"]);
+        assert_eq!(artifact["root_inode"], cwd["inode"]);
+    }
+    assert!(!all
+        .iter()
+        .any(|(_, e)| e["aggregate_id"] == run["id"] && e["kind"] == "integration.cas_observed"));
+    for stage in attempts {
+        let joined = all
+            .iter()
+            .filter(|(_, e)| {
+                e["aggregate_id"] == run["id"]
+                    && e["kind"] == "integration.attempt_joined"
+                    && e["payload"]["attempt_id"] == stage["attempt_id"]
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(joined.len(), 1);
+        assert_eq!(joined[0].0, stage["receipt_sequence"].as_u64().unwrap());
+        assert_eq!(joined[0].1["payload"]["reservation_refunded"], false);
+    }
+    let count = |sql: &str| db.query_row(sql, [], |r| r.get::<_, i64>(0)).unwrap();
+    assert_eq!(count("SELECT count(*) FROM integrations"), 1);
+    assert_eq!(count("SELECT count(*) FROM integration_attempts"), 2);
+    assert_eq!(
+        count("SELECT count(*) FROM integration_attempts WHERE kind='cas'"),
+        0
+    );
+    assert_eq!(count("SELECT count(*) FROM attempts"), 3);
+    assert_eq!(
+        count("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'"),
+        0
+    );
+    assert_eq!(
+        count("SELECT count(*) FROM workspace_leases WHERE holder!=''"),
+        0
+    );
+    let raw: String = db
+        .query_row(
+            "SELECT document FROM goal_run_reservations WHERE run_id=?1",
+            [f.graph["run"]["id"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let graph_cost: Value = serde_json::from_str(&raw).unwrap();
+    assert_eq!(graph_cost["settled"], true);
+    let runtime = graph_cost["actual_runtime_ms"].as_u64().unwrap()
+        + attempts
+            .iter()
+            .map(|a| a["actual_runtime_ms"].as_u64().unwrap())
+            .sum::<u64>();
+    let output = graph_cost["actual_output_bytes"].as_u64().unwrap()
+        + attempts
+            .iter()
+            .map(|a| a["actual_output_bytes"].as_u64().unwrap())
+            .sum::<u64>();
+    assert_eq!(output, 24 + STDERR.len() as u64);
+    for domain in ["root", "project"] {
+        assert_eq!(failed["shared_usage"][domain]["attempts"], 3);
+        assert_eq!(failed["shared_usage"][domain]["active"], 0);
+        assert_eq!(failed["shared_usage"][domain]["runtime_ms"], runtime);
+        assert_eq!(failed["shared_usage"][domain]["output_bytes"], output);
+    }
+    for scope in [
+        format!(
+            "root:{}",
+            policy["bindings"]["root_task_id"].as_str().unwrap()
+        ),
+        format!(
+            "project:{}",
+            policy["bindings"]["project_id"].as_str().unwrap()
+        ),
+    ] {
+        let counters: (i64, i64) = db
+            .query_row(
+                "SELECT consumed,active FROM budgets WHERE scope=?1",
+                [scope],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(counters, (3, 0));
+    }
+    drop(db);
+    let graph_after = rpc(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":f.graph["run"]["id"]}),
+        None,
+        None,
+    );
+    for field in [
+        "run",
+        "candidates",
+        "validations",
+        "owner_decisions",
+        "task_acceptance",
+    ] {
+        assert_eq!(graph_after[field], accepted[field]);
+    }
+    assert_eq!(
+        graph_after["task_accepted"], true,
+        "integration correctness failure cannot erase historical Task acceptance"
+    );
+    let image = f.server.image();
+    let replay = rpc(
+        &f.server,
+        "integrations.start",
+        json!({"policy_id":policy["id"]}),
+        Some("failed-explicit-start"),
+        Some(policy["revision"].clone()),
+    );
+    assert_eq!(replay, first);
+    assert_eq!(f.server.image(), image);
+    // Frozen queue_integration_start resolves an existing run before fresh
+    // admission, even for a new key. It cannot issue a new stage or skip failure.
+    let existing = rpc(
+        &f.server,
+        "integrations.start",
+        json!({"policy_id":policy["id"]}),
+        Some("new-key-cannot-retry-correctness"),
+        Some(policy["revision"].clone()),
+    );
+    assert_eq!(existing, failed);
+    let after_key = f.server.image();
+    let again = rpc(
+        &f.server,
+        "integrations.start",
+        json!({"policy_id":policy["id"]}),
+        Some("new-key-cannot-retry-correctness"),
+        Some(policy["revision"].clone()),
+    );
+    assert_eq!(again, failed);
+    assert_eq!(f.server.image(), after_key);
+    let after = rpc(
+        &f.server,
+        "integrations.get",
+        json!({"integration_id":run["id"]}),
+        None,
+        None,
+    );
+    assert_eq!(after, failed);
+    assert_eq!(f.server.image(), after_key);
+    assert_eq!(
+        git(&f.project_root, &["rev-parse", TARGET]),
+        f.initial_target
+    );
+    assert_eq!(source_image(&f.source()), before_source);
+    assert_eq!(source_image(&f.project_root), before_project);
+}
