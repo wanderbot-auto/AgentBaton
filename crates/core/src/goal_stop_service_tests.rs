@@ -65,10 +65,35 @@ fn git(root: &Path, args: &[&str]) -> String {
     );
     String::from_utf8(result.stdout).unwrap().trim().into()
 }
+// Field/local declaration order keeps this wrapper after the Daemon. A panic
+// therefore retains only after any constructed Daemon has cancelled/joined its
+// owned workers and closed its Store. This is not a panic-instant DB snapshot.
+struct RetainedDirectory(Option<tempfile::TempDir>);
+impl RetainedDirectory {
+    fn path(&self) -> &Path {
+        self.0.as_ref().expect("live test directory").path()
+    }
+}
+impl Drop for RetainedDirectory {
+    fn drop(&mut self) {
+        if std::thread::panicking() {
+            if let Some(directory) = self.0.take() {
+                let path = directory.keep();
+                // Evidence logging must not replace the original panic.
+                use std::io::Write;
+                let _ = writeln!(
+                    std::io::stderr().lock(),
+                    "Retained failed Goal stop fixture after owned cleanup: {}",
+                    path.display()
+                );
+            }
+        }
+    }
+}
 struct Fixture {
     // The daemon must reap its real owned processes before the private tree goes.
     daemon: Daemon,
-    _directory: tempfile::TempDir,
+    _directory: RetainedDirectory,
     task: Task,
     workspace: ManagedWorkspace,
     connection: String,
@@ -76,11 +101,13 @@ struct Fixture {
 }
 impl Fixture {
     fn new(hold: bool) -> Self {
-        let directory = tempfile::Builder::new()
-            .prefix("ab-stop-")
-            .permissions(fs::Permissions::from_mode(0o700))
-            .tempdir_in(Path::new("/tmp").canonicalize().unwrap())
-            .unwrap();
+        let directory = RetainedDirectory(Some(
+            tempfile::Builder::new()
+                .prefix("ab-stop-")
+                .permissions(fs::Permissions::from_mode(0o700))
+                .tempdir_in(Path::new("/tmp").canonicalize().unwrap())
+                .unwrap(),
+        ));
         let base = directory.path();
         let source = base.join("s");
         fs::create_dir(&source).unwrap();
@@ -417,6 +444,31 @@ impl Fixture {
             ""
         );
     }
+    fn pending_turn_before(&self, id: &str) -> Option<String> {
+        let state = self.daemon.store.get_session(id).unwrap().turn_state;
+        // send_goal_session commits managed turn_state=running while its
+        // session_turns row is pending; neither representation is a terminal turn.
+        assert_eq!(state.as_deref(), Some("running"));
+        self.assert_pending_turn_unchanged(id, &state);
+        state
+    }
+    fn assert_pending_turn_unchanged(&self, id: &str, before: &Option<String>) {
+        let current = self.daemon.store.get_session(id).unwrap().turn_state;
+        assert_eq!(current.as_ref(), before.as_ref());
+        let rows: (i64, i64, i64) = self.daemon.store.conn.query_row(
+            "SELECT count(*),COALESCE(sum(state='pending'),0),COALESCE(sum(state='ended'),0) FROM session_turns WHERE session_id=?1",
+            [id], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?))
+        ).unwrap();
+        assert_eq!(rows, (1, 1, 0));
+        assert_eq!(
+            self.daemon.store.conn.query_row(
+                "SELECT count(*) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.turn_ended'",
+                [id], |r| r.get::<_, i64>(0)
+            ).unwrap(),
+            0,
+            "no terminal event may be persisted for this pending turn"
+        );
+    }
     fn no_extra_execution_or_task_acceptance(&self, attempts: i64, since: u64) {
         assert_eq!(
             self.daemon
@@ -570,6 +622,7 @@ fn ordinary_ready_and_completed_turn_do_not_hint_or_automatically_stop() {
 fn failed_terminal_turn_transaction_publishes_no_hint_or_false_stop() {
     let mut f = Fixture::new(false);
     let (_run, session) = f.goal_session();
+    let turn_before = f.pending_turn_before(&session.id);
     f.daemon.store.conn.execute_batch("CREATE TRIGGER refuse_terminal_turn BEFORE INSERT ON events WHEN json_extract(NEW.document,'$.kind')='session.turn_ended' BEGIN SELECT RAISE(ABORT,'owned test terminal persistence fault'); END;").unwrap();
     let sequence = f.daemon.store.sequence().unwrap();
     let until = Instant::now() + Duration::from_secs(5);
@@ -587,13 +640,7 @@ fn failed_terminal_turn_transaction_publishes_no_hint_or_false_stop() {
     };
     assert_eq!(error.code, "INTERNAL_ERROR");
     assert_eq!(f.daemon.store.sequence().unwrap(), sequence);
-    assert!(f
-        .daemon
-        .store
-        .get_session(&session.id)
-        .unwrap()
-        .turn_state
-        .is_none());
+    f.assert_pending_turn_unchanged(&session.id, &turn_before);
     assert!(!f.daemon.supervisor.take_goal_stop_hint());
     assert_eq!(f.stop_requests(&session.id), 0);
     assert_ne!(
@@ -636,19 +683,14 @@ fn committed_hint_does_not_bypass_current_goal_node_provenance() {
 fn pending_goal_cancel_still_uses_the_outer_fresh_sweep_without_a_hint() {
     let mut f = Fixture::new(true);
     let (run, session) = f.goal_session();
+    let turn_before = f.pending_turn_before(&session.id);
     let until = Instant::now() + Duration::from_secs(5);
     while f.daemon.store.conn.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.update'",[&session.id],|r|r.get::<_,i64>(0)).unwrap()==0 {
         f.daemon.supervisor.tick(&mut f.daemon.store).unwrap();
         assert!(Instant::now()<until,"real pending prompt must be observed");
         std::thread::sleep(Duration::from_millis(5));
     }
-    assert!(f
-        .daemon
-        .store
-        .get_session(&session.id)
-        .unwrap()
-        .turn_state
-        .is_none());
+    f.assert_pending_turn_unchanged(&session.id, &turn_before);
     assert!(!f.daemon.supervisor.take_goal_stop_hint());
     let attempts: i64 = f
         .daemon
@@ -674,10 +716,12 @@ fn pending_goal_cancel_still_uses_the_outer_fresh_sweep_without_a_hint() {
 
 #[test]
 fn no_hint_skips_the_stop_scan_instead_of_masking_its_required_failure() {
-    let directory = tempfile::Builder::new()
-        .permissions(fs::Permissions::from_mode(0o700))
-        .tempdir_in(Path::new("/tmp").canonicalize().unwrap())
-        .unwrap();
+    let directory = RetainedDirectory(Some(
+        tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir_in(Path::new("/tmp").canonicalize().unwrap())
+            .unwrap(),
+    ));
     let mut daemon = Daemon::bind(&directory.path().join("r")).unwrap();
     // Empty owned DB corruption is only a read-path probe; no authority is built.
     daemon
