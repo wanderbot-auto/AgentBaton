@@ -1,3 +1,9 @@
+## Parent674d schema16 actual regression — 2026-10-30T06:44:24.923165+00:00
+
+Exact2e preserves strict16 and both reviewed histories; merge source audit176 assertions/72 pure Python is separate from product tests. Actual2e Core166PASS104.19s (nested helper excluded), Factory30PASS105.45s, infrastructure241PASS, format and strict workspace/all-targets Clippy pass. First Factory build capacity SIGTERM/-15 ran no tests; full result/log and subsequent lossless cache archive68 are retained before unchanged-source retry. Explicit16 immutable tools are separately pinned before/after; generic runner INPUT15 is not the actual overridden16 environment.
+
+Historicalbc10 six real browser/UnixIPC paths/8 PNGs PASS9.039s and frontend1016/56 retain original source attribution. Production TS/Native/Task binding/migration bytes are unchanged; no new2e paired browser, Native, Mac or package pass is claimed. Parent60ba Environment/Rust/UI passed, Intel failed Factory rework revision2/resource admission; ARM still running at this record. Parent CI is not schema16 evidence. PR20 SourceCapture and ongoing Core17 integration remain separate. Exact16 CI/native/dual-Mac artifacts and full130 acceptance remain open; OWNER001002 ACK and authority boundaries unchanged. See PARENT_674D_COMPOSED_RESULTS.json.
+
 ## Reviewed Parent34f composition verified on schema16 — 2026-10-30T04:13:18.951553+00:00
 
 Exact bc10 keeps the reviewed Parent34f containment/Graph-service/fixture fixes and the Task schema16/default-entry recovery. Only STATUS/manifest conflicts needed explicit resolution; both histories and93 actual hashes are preserved. Independent source/merge audit is sealed (6226c9d3be91/6f3b9e32858b);2047 Git/source assertions are not product tests.

@@ -589,5 +589,15 @@
     "browser_paths": 6,
     "original_pngs": 8,
     "not_a_sum": true
+  },
+  "latest_parent_674d_composed_results": "PARENT_674D_COMPOSED_RESULTS.json",
+  "latest_counts_parent674d": {
+    "Core": 166,
+    "Core_nested_helper_not_additive": 1,
+    "Factory": 30,
+    "infrastructure": 241,
+    "format": "passed",
+    "workspace_all_targets_clippy": "passed",
+    "not_a_sum": true
   }
 }
