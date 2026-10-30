@@ -494,6 +494,8 @@ pub(crate) use runtime::{
 
 #[path = "factory_budget.rs"]
 mod budget;
+#[cfg(test)]
+pub(crate) use budget::budget_records;
 pub(crate) use budget::{accounting_records, FactoryReservation, SharedAccountingKind};
 
 #[path = "factory_capture.rs"]

@@ -1078,7 +1078,7 @@ impl Store {
             {
                 return Err(changed());
             }
-            if task.state == crate::TaskState::Accepted {
+            if task.state == crate::storage::TaskState::Accepted {
                 result.push(policy);
             }
         }
