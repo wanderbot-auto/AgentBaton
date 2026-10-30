@@ -274,12 +274,29 @@ fn execute(
         },
         IntegrationStageKind::Validator => {
             let result = (|| {
-                let reference = ticket.attempt.view.validator.as_ref().ok_or_else(denied)?;
+                let reference = ticket
+                    .attempt
+                    .view
+                    .validator
+                    .as_ref()
+                    .ok_or_else(denied)?
+                    .clone();
+                // Reserve before any command may start; place its returned real
+                // handle under the context's unwind guard before further work.
+                context
+                    .as_mut()
+                    .ok_or_else(denied)?
+                    .validations
+                    .try_reserve(1)
+                    .map_err(|_| limited())?;
                 let prepared = context
                     .as_ref()
                     .ok_or_else(denied)?
-                    .validation(reference, &ticket.attempt.view.attempt_id)?;
+                    .validation(&reference, &ticket.attempt.view.attempt_id)?;
                 let observed = prepared.execute(&cancel, ticket.deadline)?;
+                let retained = context.as_mut().ok_or_else(denied)?;
+                retained.validations.push((reference.clone(), observed));
+                let observed = &retained.validations.last().ok_or_else(denied)?.1;
                 let bytes = observed
                     .command
                     .as_ref()
@@ -295,11 +312,6 @@ fn execute(
                     passed: observed.passed,
                     stopped: IntegrationPreparedContext::validation_is_stopped(&observed),
                 };
-                context
-                    .as_mut()
-                    .ok_or_else(denied)?
-                    .validations
-                    .push((reference.clone(), observed));
                 Ok((fact, bytes))
             })();
             match result {
