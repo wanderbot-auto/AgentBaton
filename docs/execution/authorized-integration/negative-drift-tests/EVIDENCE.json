@@ -50,5 +50,26 @@
     "unknown",
     "input/image pin change"
   ],
-  "source_revision_reason": "Clarified root-commit ancestry comment only; executable test source unchanged from 012f4a5."
+  "source_revision_reason": "Clarified root-commit ancestry comment only; executable test source unchanged from 012f4a5.",
+  "later_root_compilation": {
+    "source": "84c530459fa165ad14f36bac0ace01eb9462f309",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "integration_ipc",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 101,
+    "seconds": 24.775575706997188,
+    "log_sha256": "bc5dc2dd17d26f11508ac51421e262c0960ef14b73b0846e5d8156e7082f0cc1",
+    "outcome": "failed before test execution: rusqlite does not implement FromSql for u64; six errors in new test counter reads",
+    "fix_source": "3f05ee88b0002e3c20db014ceabaf95d5901f244",
+    "fix_description": "Use supported i64 SQLite reads and checked conversion of bounded expected counts; exact assertions unchanged",
+    "fixed_execution": "not_run_by_author; Root owns execution"
+  }
 }

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "decisions": [
+    "D18",
+    "D19"
+  ],
+  "source_commit": "e2b620d20cc75b470dec623ee9c5349e1cd78c66",
+  "parent": "3f05ee88b0002e3c20db014ceabaf95d5901f244",
+  "file": "crates/core/tests/fixtures/integration_runtime.rs",
+  "sha256": "788c3871badfc21532fc19bb7bbedb9cc6a445e0c4308921ad41b1754a9d89c0",
+  "prefix": {
+    "bytes": 141075,
+    "lines": 3559,
+    "sha256": "c48172b62780dbf91ee8d081f3bcb0adaed58124ca3ed11cae586719e07a9813",
+    "unchanged": true
+  },
+  "tests": [
+    "owner_cancel_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+    "owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas"
+  ],
+  "phase": "actual running-validator FIFO; descendant advance precedes Owner withdrawal; private stopped-command postprobe not held or claimed",
+  "checks": [
+    "suffix rustfmt passed",
+    "prefix byte equality passed",
+    "git diff --check passed"
+  ],
+  "rust_compile": "not_run_by_author",
+  "actual_ipc": "not_run_by_author",
+  "macos": "not_run",
+  "review": "pending",
+  "clocks_and_budgets_changed": false,
+  "production_changes": false,
+  "remaining": [
+    "withdrawal after validator stop/postprobe queued",
+    "input/image pins",
+    "expiry",
+    "overrun",
+    "unknown"
+  ]
+}
