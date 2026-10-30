@@ -1124,6 +1124,10 @@ impl Drop for Daemon {
     fn drop(&mut self) {
         // Error/unwind paths also retain authority until every owned worker is
         // cancelled and joined. Unpersisted outcomes are reconciled on restart.
+        self.integration_workers.stop_reads();
+        // Consume the actual JoinHandle before unlinking the socket or
+        // unlocking writer.lock, including early error/unwind paths.
+        drop(self.integration_workers.join_reads());
         self.graph_workers.reap_owned_workers();
         self.data_workers.reap_owned_workers();
         self.command_workers.reap_owned_workers();

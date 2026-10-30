@@ -94,15 +94,10 @@ fn predecessor_schema(db: &Connection) -> Result<Vec<(String, String, String, Op
         .map_err(db_error)?
         .collect::<std::result::Result<Vec<_>, _>>()
         .map_err(db_error)?;
-    if rows
-        .iter()
-        .filter(|r| r.0 == "table" && r.1 != "sqlite_sequence")
-        .count()
-        != 55
-    {
+    if rows.iter().filter(|r| r.0 == "table").count() != 55 {
         return Err(CoreError::new(
             "INPUT_CHANGED",
-            "Integration predecessor must contain the complete schema16 table set",
+            "Integration predecessor must contain all 55 schema16 tables including sqlite_sequence",
         ));
     }
     Ok(rows

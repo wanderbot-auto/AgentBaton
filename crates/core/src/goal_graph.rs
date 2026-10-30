@@ -3605,14 +3605,28 @@ impl Store {
                         && a.root_device == identity.device
                         && a.root_inode == identity.inode
                 };
+                let program_id =
+                    definition["contract"]["program"]["requirement"]["artifact_id"].as_str();
+                let script_id =
+                    definition["contract"]["script"]["requirement"]["artifact_id"].as_str();
+                // Program/script have their own exact original bindings; neither
+                // is silently promoted into an ordinary Goal input requirement.
                 // Unsupported contracts are not offered as selectable permissions.
                 if !contract.outputs.iter().all(|a| {
                     same_root(a) && material.outputs.iter().any(|o| o.artifact == a.requirement)
-                }) || !contract.inputs.iter().all(|a| {
-                    same_root(a)
-                        && a.requirement.expected_sha256.is_some()
-                        && material.inputs.contains(&a.requirement)
-                }) {
+                }) || !contract
+                    .inputs
+                    .iter()
+                    .filter(|a| {
+                        Some(a.requirement.artifact_id.as_str()) != program_id
+                            && Some(a.requirement.artifact_id.as_str()) != script_id
+                    })
+                    .all(|a| {
+                        same_root(a)
+                            && a.requirement.expected_sha256.is_some()
+                            && material.inputs.contains(&a.requirement)
+                    })
+                {
                     continue;
                 }
                 let artifact =

@@ -20,8 +20,11 @@ pub(crate) use authority::{
 };
 #[path = "integration_approval.rs"]
 mod approval;
+#[path = "integration_budget.rs"]
+mod budget;
 #[path = "integration_workers.rs"]
 mod workers;
+pub(crate) use budget::{accounting_records, IntegrationAccounting};
 pub(crate) use workers::IntegrationWorkers;
 #[path = "integration_fs.rs"]
 mod fs;
