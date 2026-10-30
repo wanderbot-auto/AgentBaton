@@ -1,9 +1,10 @@
 import { request } from './api';
-import { parseIntegrationPolicy, parseIntegrationReconciliation, parseIntegrationRun, parseIntegrationRunView, parseIntegrationTargets, validateIntegrationSelection } from './integration-wire';
+import { parseIntegrationContext, parseIntegrationPolicy, parseIntegrationReconciliation, parseIntegrationRun, parseIntegrationRunView, parseIntegrationTargets, validateIntegrationSelection } from './integration-wire';
 import type { IntegrationPolicySelection } from './integration-types';
 
 const page={limit:100};
 export const integrationApi={
+ context:async(taskId:string,goalScopeId:string)=>parseIntegrationContext(await request<unknown>('integration_context_get',{taskId,goalScopeId})),
  approve:async(selection:IntegrationPolicySelection,idempotencyKey:string)=>parseIntegrationPolicy(await request<unknown>('integration_policy_approve',{selection:validateIntegrationSelection(selection),idempotencyKey})),
  targets:async(taskId:string,afterRef?:string)=>parseIntegrationTargets(await request<unknown>('integration_targets_list',{taskId,...page,...(afterRef?{afterRef}:{})})),
  policy:async(policyId:string)=>parseIntegrationPolicy(await request<unknown>('integration_policies_get',{policyId})),

@@ -1,5 +1,9 @@
 # Progress
 
-Read AGENTS, gate, approval/runbook/goal, OWNER inbox and quiet-canvas implementation. Read immutable Core6dd public types and coordinated the ten Native exports with its separate implementer. Added typed transport/guards and component-only fixtures/test source, plus strict schema17 snapshot validation and existing fixture field updates. No tests or builds executed.
+OWNER-001/002 ACK; AB-VAL-009 / AB-PRJ-005 / D18-D19. Initial typed source533e1b7 is followed by a focused TaskIntegration panel in the existing Task Details tab, folded initially. It uses11 actual typed Native bridges including Root-frozen integration_context_get, actual target refs/HEAD, complete server-required validator references and stage reservations, Native-only approval before TaskAccepted, existing-policy wake, revoke/cancel/reconcile and actual receipt/shared-usage history.
 
-Root chose an authoritative read-only integration context for exact Goal validator references; current policy revisions or parsed rule IDs must not substitute for original approved references. Waiting for that frozen shape while continuing the panel. The Native/Core workspace-binding union and scope-expiry projection are also pending.
+Adapted immutable Core e7df3f224549d50647ffd82d722e763bf11232a2: workspace_binding task_managed/factory_delegated union, goal_scope_expires_at_ms, independent context preview, actual schema17/API1. Preserved pending exact selection/revision/key through parent refresh and Task A→B→A; in-flight state subscribers handle remounts; read floors and immediate parent fingerprint invalidation prevent stale new writes. Native/Core own finalization and all permissions.
+
+Transport/component test source covers refusal, expiry, checked-out refs, unknown usage/response, exact-key recovery, task races, cancellation, current-ref versus historical proof, readonly source/definition text, malformed records and schema16/18 rejection. Only git diff --check executed and passed; Node/typecheck/component/browser/Core/Native/macOS tests NOT RUN by this author.
+
+New Root/Core a60816d available_validators context delta arrived after e7df adaptation: implementing explicit optional already-Native-approved correctness selection next, preserving immutable required rules and original Goal scope. Full product and real IPC/native acceptance remain open.

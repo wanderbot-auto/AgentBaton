@@ -8,12 +8,20 @@
     "D19"
   ],
   "dimensions": {
-    "source_implemented": "typed transport and strict projection guards, panel in progress",
+    "source_implemented": "Task Details real integration panel wired to11 typed Native commands; Core runtime completion not claimed",
     "component_tests": "source written, not_run",
     "typecheck": "not_run",
     "real_ipc": "not_run",
     "native_macos_arm": "not_run",
     "native_macos_intel": "not_run"
   },
-  "constraints": "Root owns heavy toolchain/test execution; author has not run Node, Cargo, browser, Actor or Git product operations."
+  "constraints": "Root owns heavy toolchain/test execution; author has not run Node, Cargo, browser, Actor or Git product operations.",
+  "typed_contract": "e7df3f224549d50647ffd82d722e763bf11232a2",
+  "static_checks": [
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "pending_contract_delta": "a60816d available_validators"
 }
