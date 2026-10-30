@@ -288,6 +288,25 @@ class FixtureControllerReaper:
             self.enabled = False
 
 
+
+def _bound_identity_disappeared(old, fixed, field, before):
+    """Preserve validated history only; absence is NOT a Core stop/join receipt.
+
+    Caller has just revalidated all files, nonce, Core session/turn/attempt and
+    immutable old==fixed. Never bind a new process or accept a reused/live PID.
+    """
+    if old is None or old != fixed or before is None:
+        return False
+    expected = fixed[field]
+    if before['pid'] != expected['pid'] or before['start_ticks'] != expected['start_ticks']:
+        return False
+    try:
+        after = support.proc_identity(expected['pid'])
+    except (FileNotFoundError, ProcessLookupError):
+        after = None
+    return after is None
+
+
 def collect_started_records(runtime, workspace, scope, context, verified, output, reaper=None):
     """A discovery glob cannot authorize cleanup: bind every FD to actual Core text/session."""
     if workspace is None or scope is None: return []
@@ -343,11 +362,12 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                 expected = row[field]
                 try: current = support.proc_identity(expected['pid'])
                 except (FileNotFoundError, ProcessLookupError): current = None
-                if current is not None and current['start_ticks']==expected['start_ticks']:
+                if current is not None:
+                    assert current['pid']==expected['pid'] and current['start_ticks']==expected['start_ticks'], 'Generated PID identity changed; no argv read'
                     try:
                         with Path('/proc',str(expected['pid']),'cmdline').open('rb') as reader:
                             observed = reader.read(8193)
-                    except FileNotFoundError:
+                    except (FileNotFoundError, ProcessLookupError):
                         observed = None
                     if observed in (None, b'') and field == 'owned_companion' and old is not None and reaper is not None:
                         # A live child can be killed after the early reap check.
@@ -357,6 +377,8 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         except FileNotFoundError: after = None
                         assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait'
                         continue
+                    if observed in (None, b'') and field == 'owned_provider' and _bound_identity_disappeared(old, fixed, field, current):
+                        continue  # Keep the original binding, not a new argv or stop proof.
                     try:
                         assert observed is not None
                         assert len(observed)<=8192 and observed.endswith(b'\0')
@@ -387,8 +409,14 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                             observation['diagnostic_write_error'] = type(error).__name__
                         raise AssertionError('Fixed generated argv guard failed: ' + json.dumps(observation, sort_keys=True))
                     actual = [x.decode() for x in observed[:-1].split(b'\0')]
-                    assert actual[-len(expected_argv):] == expected_argv and os.getpgid(expected['pid'])==expected['pgid']
-                    assert support.proc_identity(expected['pid'])['start_ticks']==expected['start_ticks']
+                    assert actual[-len(expected_argv):] == expected_argv
+                    try:
+                        assert os.getpgid(expected['pid'])==expected['pgid']
+                        assert support.proc_identity(expected['pid'])['start_ticks']==expected['start_ticks']
+                    except (FileNotFoundError, ProcessLookupError):
+                        if _bound_identity_disappeared(old, fixed, field, current):
+                            continue  # Completed argv matched; the known identity has now vanished.
+                        raise
             if old is None:
                 copy = output / ('verified-' + str(pid) + '.json')
                 write_private_json(copy, {'dimension':'verified generated fixture record, not authority from an Agent',
