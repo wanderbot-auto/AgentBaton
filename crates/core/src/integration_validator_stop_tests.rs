@@ -237,6 +237,7 @@ fn cancelled_owned_stopped_shell(hold_capture_writer: bool) {
     let view = run.view();
     assert!(view.process_started);
     assert!(view.cancellation_observed);
+    assert_eq!(view.reason, RunReason::CancelRequested);
     assert!(!view.exit_observed_within_budget);
     assert!(!view.passed);
     assert!(view.cleanup.owned_leader_reaped);
