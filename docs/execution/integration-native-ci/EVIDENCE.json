@@ -1,0 +1,102 @@
+{
+  "workstream": "integration-native-ci",
+  "requirement": "AB-VAL-009",
+  "role": "author implementation; independent review pending",
+  "baseline": "b22b6d4835ecb86ea52a8e2c194ff28ff6e4b0e2",
+  "source_commit": "ea9bcd12fc78016922c86b40ed84108dbf918b70",
+  "branch": "codex/integration-native-ci",
+  "recorded_at_utc": "2026-10-30T13:25:31.903374+00:00",
+  "code": {
+    ".github/workflows/product.yml": {
+      "sha256": "599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc",
+      "bytes": 41458
+    },
+    "tests/infrastructure/test_integration_native_ci.py": {
+      "sha256": "c90638e86d40dd41f793898fe12ab4c2319cd2f45b75f36d10bd24c074ec0c32",
+      "bytes": 17088
+    }
+  },
+  "workflow_changes": {
+    "new_steps": 3,
+    "new_lines": 103,
+    "old_steps_commands_byte_preserved": true,
+    "remove_three_steps_whole_workflow_byte_equal": true,
+    "all_old_parsed_yaml_equal": true,
+    "baseline_workflow_sha256": "d0e0dac00daeb1876c4160e138947a989c4a820387966c699d8ec8f1090bb21c",
+    "mac_matrix": [
+      "macos-15",
+      "macos-15-intel"
+    ],
+    "mac_timeout_minutes": 60,
+    "Rust_timeout_minutes": 25,
+    "permissions": {
+      "contents": "read"
+    },
+    "existing_default_Native_test_command_unchanged": true,
+    "feature_library_configuration_added": true,
+    "unique_Rust_test_count_claimed": false
+  },
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 tests/infrastructure/test_integration_native_ci.py",
+      "exit": 0,
+      "tests": 17,
+      "seconds": 0.99,
+      "dimension": "pure source/owned-temp files; subprocesses mocked, no Native/Core"
+    },
+    {
+      "command": "inline Python compile + test AST/YAML + full baseline inverse",
+      "exit": 0,
+      "inline_programs_compiled_not_executed": 2,
+      "test_ast_parsed": true,
+      "old_parsed_workflow_equal": true
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "pure_coverage": [
+    "both matrix lanes and fixed original commands",
+    "explicit missing feature-lib configuration",
+    "existing always upload and release audit",
+    "two actual CLI argument vectors",
+    "nonzero/exception driver fail with second case still attempted",
+    "new private directory cannot overwrite old entries",
+    "canonical RunnerTemp symlink alias",
+    "both driver and projection exits required",
+    "missing/invalid/bool/float/overflow evidence fails closed",
+    "Native report symlink refusal",
+    "private canary not passed to public finite status",
+    "Cancel then approval semantics, not cancel-only"
+  ],
+  "existing_consumer": "scripts/record-integration-owner-ci-evidence.py",
+  "privacy": {
+    "raw_root": "canonical RUNNER_TEMP/agentbaton-native-integration; not public artifact input",
+    "directory_mode": "0700",
+    "log_and_status_mode": "0600",
+    "public_new_outputs": [
+      "integration-last-page.json",
+      "integration-first-page.json",
+      "integration-execution.json"
+    ],
+    "raw_snapshot_DB_RPC_Grant_token_uploaded": false,
+    "visual_review_established": false,
+    "collector_independent_attestation": false
+  },
+  "known_baseline_gap": "native-audit-release.sh existing regex has no separate native_integration_os_dialog_fixture literal; Root notified, scanner outside allowed paths. Existing command/isolation unchanged.",
+  "actual_native_core_browser_CI_execution": false,
+  "not_run": [
+    "Cargo/compiler/feature-lib Rust",
+    "Core/Actor/daemon fixture",
+    "Native app/OS dialog",
+    "macOS ARM/Intel",
+    "Node/browser",
+    "CI",
+    "real Provider/model",
+    "TaskAccepted integration pipeline or CAS",
+    "human visual review",
+    "full130 acceptance"
+  ],
+  "next": "separate independent review, Root actual CI; retain failures; no formalApprove or push by author"
+}
