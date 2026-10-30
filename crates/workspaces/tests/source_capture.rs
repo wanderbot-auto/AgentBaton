@@ -768,48 +768,94 @@ fn unicode_selected_pin_changes_links_and_control_paths_still_fail() {
             max_bytes: 64,
             expected_sha256: Some(sha256(b"unused")),
         };
-        let result = BoundArtifact::from_approved_root(&r.root, requirement)
-            .and_then(|artifact| selection(&r, &inspect(&r.root).unwrap(), vec![artifact]));
-        assert!(result.is_err(), "unsafe path was selected: {path:?}");
+        match BoundArtifact::from_approved_root(&r.root, requirement) {
+            Ok(artifact) => assert!(
+                selection(&r, &inspect(&r.root).unwrap(), vec![artifact]).is_err(),
+                "unsafe path was selected: {path:?}"
+            ),
+            Err(agentbaton_workspaces::validation::ValidationError::InvalidContract) => {}
+            Err(error) => panic!("unexpected invalid path fixture error: {error:?}"),
+        }
     }
 }
 
 #[test]
 fn invalid_utf8_base_and_selection_refuse_without_lossy_replacement() {
+    use std::io::Write;
     use std::os::unix::ffi::OsStringExt;
     let mut r = Repo::new();
     let bad = std::ffi::OsString::from_vec(b"invalid-\xff.txt".to_vec());
-    fs::write(r.root.join(&bad), b"invalid filename\n").unwrap();
-    let add = Command::new("git")
+    // Host filesystems need not represent invalid UTF-8 names. The actual Git
+    // tree stores raw bytes independently; never count an earlier FS refusal
+    // as evidence that the source-capture guard ran.
+    let blob_input = r.root.join("generated-blob-input");
+    fs::write(&blob_input, b"invalid filename\n").unwrap();
+    let blob = git(
+        &r.root,
+        &["hash-object", "-w", "--no-filters", "generated-blob-input"],
+    );
+    let base_tree = Command::new("git")
         .arg("-C")
         .arg(&r.root)
-        .args(["add", "--"])
-        .arg(&bad)
+        .args(["ls-tree", "-z", &r.base])
         .output()
         .unwrap();
-    assert!(add.status.success());
-    git(&r.root, &["commit", "-m", "invalid UTF8 base"]);
-    r.base = git(&r.root, &["rev-parse", "HEAD"]);
+    assert!(base_tree.status.success());
+    let mut input = tempfile::NamedTempFile::new_in(&r.root).unwrap();
+    input.write_all(&base_tree.stdout).unwrap();
+    input
+        .write_all(format!("100644 blob {blob}\t").as_bytes())
+        .unwrap();
+    input.write_all(bad.as_encoded_bytes()).unwrap();
+    input.write_all(&[0]).unwrap();
+    input.flush().unwrap();
+    let tree = Command::new("git")
+        .arg("-C")
+        .arg(&r.root)
+        .args(["mktree", "-z"])
+        .stdin(fs::File::open(input.path()).unwrap())
+        .output()
+        .unwrap();
+    assert!(tree.status.success());
+    let tree = String::from_utf8(tree.stdout).unwrap();
+    let commit = git(
+        &r.root,
+        &[
+            "commit-tree",
+            tree.trim_end_matches('\n'),
+            "-p",
+            &r.base,
+            "-m",
+            "raw invalid UTF8 base",
+        ],
+    );
+    git(&r.root, &["update-ref", "HEAD", &commit, &r.base]);
+    r.base = commit;
     fs::write(r.root.join("selected.txt"), b"accepted\n").unwrap();
     let before = r.original_state();
-    assert!(capture_source_commit(r.authorize(vec![r.artifact(
+    let capability = r.authorize(vec![r.artifact(
         "chosen",
         "selected.txt",
         b"accepted\n",
-        64
-    )]))
-    .is_err());
+        64,
+    )]);
+    assert!(matches!(
+        capture_source_commit(capability),
+        Err(WorkspaceError::InvalidPath)
+    ));
     assert_eq!(r.original_state(), before);
-    assert!(BoundArtifact::from_approved_root(
-        &r.root,
-        ArtifactRequirement {
-            artifact_id: "bad".into(),
-            relative_path: bad.into(),
-            max_bytes: 64,
-            expected_sha256: Some(sha256(b"invalid filename\n")),
-        }
-    )
-    .is_err());
+    assert!(matches!(
+        BoundArtifact::from_approved_root(
+            &r.root,
+            ArtifactRequirement {
+                artifact_id: "bad".into(),
+                relative_path: bad.into(),
+                max_bytes: 64,
+                expected_sha256: Some(sha256(b"invalid filename\n")),
+            }
+        ),
+        Err(agentbaton_workspaces::validation::ValidationError::InvalidContract)
+    ));
 }
 
 #[test]

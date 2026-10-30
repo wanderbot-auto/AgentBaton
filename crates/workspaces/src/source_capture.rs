@@ -253,17 +253,29 @@ fn entry_identity(
     let device = metadata.st_dev;
     Ok(Some((device, metadata.st_ino)))
 }
-fn existing_identity(root: &File, path: &Path) -> Result<Option<(u64, u64)>, WorkspaceError> {
+fn existing_identity(
+    root: &File,
+    path: &Path,
+    deadline: Instant,
+    control: Option<&crate::adoption::AdoptionControl<'_>>,
+) -> Result<Option<(u64, u64)>, WorkspaceError> {
+    check_capture_control(deadline, control)?;
     let mut directory = root.try_clone()?;
+    check_capture_control(deadline, control)?;
     let parts: Vec<_> = path.components().collect();
     for (index, part) in parts.iter().enumerate() {
+        check_capture_control(deadline, control)?;
         let Component::Normal(name) = part else {
             return Err(WorkspaceError::InvalidPath);
         };
         if index + 1 == parts.len() {
-            return entry_identity(&directory, name);
+            let identity = entry_identity(&directory, name);
+            check_capture_control(deadline, control)?;
+            return identity;
         }
-        match open_component(&directory, name) {
+        let next = open_component(&directory, name);
+        check_capture_control(deadline, control)?;
+        match next {
             Ok(next) => directory = next,
             Err(WorkspaceError::Io(error))
                 if matches!(
@@ -412,7 +424,7 @@ fn cached_identity(
     if cache.len() >= 65_536 || *path_bytes > 4 * 1024 * 1024 {
         return Err(WorkspaceError::ResourceLimit);
     }
-    let identity = existing_identity(&capture.root_fd, path)?;
+    let identity = existing_identity(&capture.root_fd, path, capture.deadline, control)?;
     check_capture_control(capture.deadline, control)?;
     cache.insert(path.to_owned(), identity);
     Ok(identity)
