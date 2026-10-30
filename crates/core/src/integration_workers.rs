@@ -25,6 +25,7 @@ pub(crate) struct IntegrationWorkers {
     reader: Option<ReadWorker>,
     target_reader: Option<TargetWorker>,
     armed_after: Option<String>,
+    armed_queue_epochs: std::collections::BTreeMap<String, Instant>,
     stage: Option<super::stage_workers::OwnedStage>,
     retained: Option<(
         super::runtime::IntegrationStageTicket,
@@ -265,6 +266,7 @@ mod tests {
                     stage: None,
                     retained: None,
                     armed_after: None,
+                    armed_queue_epochs: Default::default(),
                 };
                 if unwind {
                     panic!("unit-fixture original first cause");
@@ -312,8 +314,14 @@ impl IntegrationWorkers {
         if self.has_workers() && !store.integration_existing_run(policy_id)? {
             return Err(CoreError::new("WORKSPACE_BUSY","The bounded integration worker is already retained by original work; no new intent was admitted"));
         }
+        let queued_at = self
+            .armed_queue_epochs
+            .get(policy_id)
+            .copied()
+            .map_or(queued_at, |first| first.min(queued_at));
         let queued =
             store.queue_integration_start(policy_id, revision, key, managed_root, queued_at)?;
+        self.armed_queue_epochs.remove(policy_id);
         if let Some(ticket) = queued.ticket {
             self.schedule(store, ticket, None)?;
         }
@@ -446,22 +454,40 @@ impl IntegrationWorkers {
         &mut self,
         store: &mut crate::storage::Store,
         managed_root: &std::path::Path,
+        allow_start: bool,
     ) -> Result<()> {
-        if self.has_workers() {
-            return Ok(());
-        }
+        // Timing observations are not cached permission. Observe accepted
+        // policies even while another original worker holds capacity, retaining
+        // the first monotonic queue epoch rather than renewing it on each tick.
         let (policies, next) = store.armed_integration_policies(self.armed_after.as_deref())?;
         self.armed_after = next;
         for policy in policies {
+            self.armed_queue_epochs
+                .entry(policy.id)
+                .or_insert_with(Instant::now);
+        }
+        if !allow_start || self.has_workers() {
+            return Ok(());
+        }
+        let ids = self.armed_queue_epochs.keys().cloned().collect::<Vec<_>>();
+        for id in ids {
+            // Native policy/revision/live acceptance/fences/budgets are read
+            // afresh by start, not reconstructed from the timing map.
+            let policy = store.get_integration_policy(&id)?;
+            if policy.revoked
+                || policy.expires_at_ms <= super::authority::ms()?
+                || store.integration_existing_run(&id)?
+            {
+                self.armed_queue_epochs.remove(&id);
+                continue;
+            }
             let key = format!("automatic-integration:{}", policy.id);
-            match self.start(
-                store,
-                &policy.id,
-                policy.revision,
-                &key,
-                managed_root,
-                Instant::now(),
-            ) {
+            let queued_at = self
+                .armed_queue_epochs
+                .get(&id)
+                .copied()
+                .ok_or_else(super::authority::changed)?;
+            match self.start(store, &id, policy.revision, &key, managed_root, queued_at) {
                 Ok(_) => return Ok(()),
                 Err(error)
                     if matches!(

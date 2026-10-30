@@ -472,6 +472,7 @@ impl Daemon {
             self.tick_goals()?;
             #[cfg(debug_assertions)]
             self.trace_goal_stage("goal_tick_end", Some(goal_clock.elapsed()), 0, None);
+            self.tick_integrations()?;
             for _ in 0..16 {
                 let Ok(job) = ready.try_recv() else {
                     break;
@@ -488,6 +489,7 @@ impl Daemon {
                 self.data_workers.tick(&mut self.store)?;
                 self.finish_data_admission();
                 self.finish_integration_read();
+                self.tick_integrations()?;
             }
             readers.retain(|reader| !reader.is_finished());
             match self.listener.accept() {
@@ -768,6 +770,7 @@ impl Daemon {
             "integration_policies.get"=>{let p:crate::integration::IntegrationPolicyId=params(r.params)?;Ok(json!(self.store.get_integration_policy(&p.policy_id)?))},
             "integration_policies.list"=>{let p:crate::integration::IntegrationListQuery=params(r.params)?;Ok(json!(self.store.list_integration_policies(&p)?))},
             "integration_policies.revoke"=>{let p:crate::integration::IntegrationPolicyId=params(r.params)?;Ok(json!(self.store.revoke_integration_policy(&p.policy_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))},
+            "integrations.start"=>Err(CoreError::new("AUTH_REQUIRED","Integration start requires its original queued Owner request")),
             "integrations.list"=>{let p:crate::integration::IntegrationListQuery=params(r.params)?;Ok(json!(self.store.list_integrations(&p)?))},
             "integrations.get"=>{let p:crate::integration::IntegrationRunId=params(r.params)?;Ok(json!(self.store.get_integration(&p.integration_id)?))},
             "integrations.cancel"=>{let p:crate::integration::IntegrationRunId=params(r.params)?;Ok(json!(self.store.cancel_integration(&p.integration_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))},
@@ -1946,6 +1949,19 @@ impl Daemon {
             return;
         }
         if job.factory_dispatch.is_none() {
+            match self.integration_start_for_request(&job.raw, job.deadline) {
+                Err(error) => {
+                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    return;
+                }
+                Ok(Some(view)) => {
+                    let _ = job
+                        .reply
+                        .try_send(self.ready_success(&job.raw, json!(view)));
+                    return;
+                }
+                Ok(None) => (),
+            }
             match self.integration_targets_for_request(&job.raw) {
                 Err(error) => {
                     let _ = job.reply.try_send(self.ready_error(&job.raw, error));
@@ -3085,6 +3101,76 @@ impl Daemon {
         }
         self.store
             .prepare_integration_scope_read(intent, raw)
+            .map(Some)
+    }
+    fn tick_integrations(&mut self) -> Result<()> {
+        // Keep supervisor/parent stop reconciliation before this call. Only new
+        // admission waits for other workers; existing owned work must always be
+        // cancellable and genuinely joined/settled.
+        self.integration_workers.tick_stages(&mut self.store)?;
+        let idle = !self.supervisor.has_workers()
+            && !self.command_workers.has_workers()
+            && !self.data_workers.has_workers()
+            && !self.graph_workers.has_workers()
+            && self.factory_pending.is_none()
+            && self.goal_pending.is_none();
+        self.integration_workers
+            .tick_armed(&mut self.store, &self.managed_root, idle)
+    }
+    fn integration_start_for_request(
+        &mut self,
+        raw: &str,
+        deadline: Instant,
+    ) -> Result<Option<crate::integration::IntegrationRunView>> {
+        let request: Request = match serde_json::from_str(raw) {
+            Ok(r) => r,
+            Err(_) => return Ok(None),
+        };
+        if request.method != "integrations.start"
+            || request.token != self.token
+            || request.api_version != API_VERSION
+        {
+            return Ok(None);
+        }
+        if request.request_id.is_empty() || request.request_id.len() > 128 {
+            return Err(invalid());
+        }
+        let params: crate::integration::IntegrationPolicyId = params(request.params)?;
+        let revision = request.expected_revision.ok_or_else(invalid)?;
+        let key = request.idempotency_key.as_deref().ok_or_else(invalid)?;
+        if let Some(view) = self
+            .store
+            .integration_start_replay(&params.policy_id, revision, key)?
+        {
+            return Ok(Some(view));
+        }
+        if !self.store.integration_existing_run(&params.policy_id)?
+            && (self.supervisor.has_workers()
+                || self.command_workers.has_workers()
+                || self.data_workers.has_workers()
+                || self.graph_workers.has_workers()
+                || self.factory_pending.is_some()
+                || self.goal_pending.is_some())
+        {
+            return Err(CoreError::new(
+                "WORKSPACE_BUSY",
+                "Stop active source writers before starting independent integration work",
+            ));
+        }
+        // ReadyRequest's original socket admission clock is exactly deadline-60s;
+        // it is not a fresh clock started after queuing, DB setup or API checks.
+        let queued_at = deadline
+            .checked_sub(Duration::from_secs(60))
+            .ok_or_else(invalid)?;
+        self.integration_workers
+            .start(
+                &mut self.store,
+                &params.policy_id,
+                revision,
+                key,
+                &self.managed_root,
+                queued_at,
+            )
             .map(Some)
     }
     fn integration_targets_for_request(
