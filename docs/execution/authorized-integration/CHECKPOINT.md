@@ -1,6 +1,6 @@
 # Source checkpoint 86099d8
 
-Source HEAD 86099d83eaf69c719a104a6cfd19e9a1ab63705d, clean before these records. [SOURCE.json](/workspace/.onboarding/authorized-integration-source-checkpoint-86099d8/SOURCE.json) SHA256 9348b1836e5983998dfef9126ac3114dd44b7eeee75dbde31029555fe4aa6ec0. Previous e168 snapshot remains unchanged. Latest source includes complete owned target/start/watch/stage continuation wiring, prepared locked CAS and bounded descendant reprepare; this does not constitute execution acceptance.
+Source HEAD 86099d83eaf69c719a104a6cfd19e9a1ab63705d, clean before these records. Local-only source snapshot `/workspace/.onboarding/authorized-integration-source-checkpoint-86099d8/SOURCE.json` SHA256 9348b1836e5983998dfef9126ac3114dd44b7eeee75dbde31029555fe4aa6ec0 is retained in the execution workspace, not published as a repository artifact. Previous e168 snapshot remains unchanged. Latest source includes complete owned target/start/watch/stage continuation wiring, prepared locked CAS and bounded descendant reprepare; this does not constitute execution acceptance.
 
 Root composed90a33ce through e168 compiled workspace all-targets with exit0 (17.371s). Subsequent targets metadata/parser repairs, obsolete-intent cleanup, repeat-advance fix and two new IPC test sources have author rustfmt/diff checks only. No author Cargo/Actor/Git product/Node/browser/Native/Mac/remote execution occurred. Independent targets review has no remaining must-fix only for that fixed slice; it does not sign activation, reprepare or CAS.
 
