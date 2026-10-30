@@ -574,7 +574,7 @@ fn unrepresentable_empty_base_subtree_is_rejected_instead_of_silently_removed() 
     let r = retained.0.as_mut().expect("generated fixture is owned");
     let empty = git(&r.root, &["mktree"]);
     let mut raw = b"40000 empty\0".to_vec();
-    for pair in empty.as_bytes().chunks_exact(2) {
+    for pair in empty.as_bytes().as_chunks::<2>().0 {
         raw.push(u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap());
     }
     fs::write(r.root.join("raw-generated-tree"), raw).unwrap();
