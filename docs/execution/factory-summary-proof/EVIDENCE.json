@@ -1,0 +1,50 @@
+{
+  "source_commit": "29c27ef365038df079ced96668c209c23c0f4b62",
+  "base": "059f96b0a1b008f560554731ad77cef2fa6a6d95",
+  "requirements": [
+    "AB-SEC-007",
+    "Goal/Factory rework readonly integrity"
+  ],
+  "author_validation": {
+    "rustfmt": "PASS",
+    "git_diff_check": "PASS",
+    "bounded_static_checks": 18,
+    "rust": "NOT_COMPILED / NOT_RUN",
+    "actor_provider_os_performance": "NOT_RUN"
+  },
+  "source_sha256": {
+    "crates/core/src/goal_factory.rs": "5084ce1d4f1ae06c02d176b9cba7cce8788816f5bc00c2dc19b305775e4137a4",
+    "crates/core/src/factory_child_goal_state_tests.rs": "4efbd8ee63e6ca040b8ee638ded238db0ac2d03520f5f3e893055289433e6aba",
+    "crates/core/src/factory_summary_proof_tests.rs": "0f84cdfbd03b2e46d8ad9d9fc1a7256403d3c267394171e3e798639319cb8050"
+  },
+  "static_checks_sha256": "b59d39f283c76b6e094415853d89bd1dd89c58d80845d3629c28960190c7de3c",
+  "strict_preserved": "whole goal_factory inverse equals base; original state test prefix unchanged",
+  "new_tests": 4,
+  "corruption_variants": [
+    "64-byte wrong digest",
+    "relational node count mismatch",
+    "authorization event source",
+    "saved plan raw bytes",
+    "Goal root Grant binding",
+    "failed label without real stopped failure proof"
+  ],
+  "test_cfg_only_accessors": [
+    "factory_summary_strict_reference_for_test",
+    "factory_summary_snapshot_pair_for_test"
+  ],
+  "existing_transaction": "original strict path, no snapshot/bundle reuse",
+  "runtime_constraints_unchanged": true,
+  "root_followup_command": "cargo test --locked -p agentbaton-core --lib summary_proof_tests -- --show-output --test-threads=1",
+  "intel059": {
+    "evidence_type": "official finite projection/log readonly inspection",
+    "log_sha256": "1ce510d364e70fb5f92bf640a3fcc365180eb7f7dfb0ccf65343cc4d9646b666",
+    "finite_sha256": "8361ed10aa87a4aac1e2b2b9b8a4dce0363155292324f326e9969dc7f33b18eb",
+    "outcome": "plan2/run11 outcome_unknown; node settlement4013/4000ms overrun; daemon ok and joined",
+    "list_calls": 25,
+    "list_cumulative_elapsed_ms": 29187,
+    "last_list_elapsed_ms": 1467,
+    "causal_relationship_to_overrun": "NOT_ESTABLISHED",
+    "current_capture_phase": "NOT_AVAILABLE"
+  },
+  "gates": "Independent review and Root actual tests/performance remain pending; not a Mac acceptance or measured speed claim."
+}
