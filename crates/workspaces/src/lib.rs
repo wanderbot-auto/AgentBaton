@@ -526,6 +526,114 @@ pub fn create_isolated(
     inspect(&destination)
 }
 
+/// Same isolated-worktree checks, with the original trusted host stage clock.
+/// Consult control.preparation_io even on Err: private worktree/object effects
+/// may already exist. Nothing resets/removes source or silently retries.
+pub fn create_isolated_controlled(
+    source: &Path,
+    managed_root: &Path,
+    name: &str,
+    commit: &str,
+    control: &adoption::AdoptionControl<'_>,
+) -> Result<WorkspaceIdentity, WorkspaceError> {
+    let control = control.narrowed(Instant::now() + Duration::from_secs(15));
+    control.check()?;
+    if name.is_empty()
+        || name.starts_with('.')
+        || !name
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+        || !is_oid(commit)
+    {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let source = inspect_controlled(source, &control)?;
+    if !matches!(source.kind, WorkspaceKind::Git { .. }) {
+        return Err(WorkspaceError::NotRepository);
+    }
+    control.check()?;
+    let managed_root = fs::canonicalize(managed_root)?;
+    control.check()?;
+    if !managed_root.is_dir() || managed_root.starts_with(&source.canonical_root) {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let destination = managed_root.join(name);
+    if destination.symlink_metadata().is_ok() {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    // Exact original config declaration probes, all under the same control.
+    let includes = output_with_control(
+        git_command(&source.canonical_root).args([
+            "config",
+            "--no-includes",
+            "--get-regexp",
+            "^include(if\\..*)?\\.path$",
+        ]),
+        Some(&control),
+    )?;
+    if includes.status.success() {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    if includes.status.code() != Some(1) {
+        return Err(WorkspaceError::NotRepository);
+    }
+    let partial = output_with_control(
+        git_command(&source.canonical_root).args([
+            "config",
+            "--get-regexp",
+            "^(extensions\\.partialclone|remote\\..*\\.promisor)$",
+        ]),
+        Some(&control),
+    )?;
+    if partial.status.success() || partial.status.code() != Some(1) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    let filters = output_with_control(
+        git_command(&source.canonical_root).args(["config", "--get-regexp", "^filter\\."]),
+        Some(&control),
+    )?;
+    if filters.status.success() || filters.status.code() != Some(1) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    let verified = output_with_control(
+        git_command(&source.canonical_root).args([
+            "rev-parse",
+            "--verify",
+            &format!("{commit}^{{commit}}"),
+        ]),
+        Some(&control),
+    )?;
+    if !verified.status.success()
+        || !String::from_utf8(verified.stdout)
+            .map_err(|_| WorkspaceError::InvalidPath)?
+            .trim()
+            .eq_ignore_ascii_case(commit)
+    {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    control.check()?;
+    control.note_effects();
+    let result = output_with_control(
+        git_command(&source.canonical_root).args([
+            OsStr::new("worktree"),
+            OsStr::new("add"),
+            OsStr::new("--detach"),
+            OsStr::new("--"),
+            destination.as_os_str(),
+            OsStr::new(commit),
+        ]),
+        Some(&control),
+    )?;
+    if !result.status.success() {
+        return Err(WorkspaceError::Git(
+            "controlled isolated checkout rejected".into(),
+        ));
+    }
+    let identity = inspect_controlled(&destination, &control)?;
+    control.check()?;
+    Ok(identity)
+}
+
 /// Check immediately before adoption; this is evidence, not an atomic merge or authorization.
 /// The caller must fence writes and recheck the exact head during the eventual integration.
 pub fn check_adoption(
@@ -811,6 +919,7 @@ pub(crate) fn controlled_output(
     use std::os::unix::process::CommandExt;
     control.check()?;
     let started = Instant::now();
+    control.note_git_attempt();
     let child = command
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
@@ -875,6 +984,7 @@ pub(crate) fn controlled_output(
     };
     stdout.pipe.take();
     stderr.pipe.take();
+    control.note_git_io(&io);
     Ok(ControlledGitOutput {
         output: Output {
             status,
@@ -886,6 +996,243 @@ pub(crate) fn controlled_output(
     })
 }
 
+// Prepared local-ref transaction; no caller-controlled protocol is accepted.
+// The validate callback runs only after Git acknowledges prepare while keeping
+// the target lock, so cooperative ref writers cannot replace its type between
+// this check and commit. This is not protection from arbitrary same-UID writes.
+pub(crate) struct PreparedRefOutput {
+    pub(crate) result: ControlledGitOutput,
+    pub(crate) commit_acknowledged: bool,
+    pub(crate) abort_acknowledged: bool,
+    pub(crate) validation_error: Option<adoption::AdoptionError>,
+}
+fn ref_transaction_poll(
+    owned: &ControlledGitChild,
+    stdout: &mut ControlledCapture<std::process::ChildStdout>,
+    stderr: &mut ControlledCapture<std::process::ChildStderr>,
+    control: &adoption::AdoptionControl<'_>,
+    expected_ack: Option<&[u8]>,
+) -> Result<(), WorkspaceError> {
+    loop {
+        let progress = stdout.pump() | stderr.pump();
+        if stdout.truncated || stderr.truncated {
+            return Err(WorkspaceError::TooLarge);
+        }
+        if stdout.failed || stderr.failed {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+        if let Some(expected) = expected_ack {
+            if stdout.bytes == expected {
+                return Ok(());
+            }
+            if !expected.starts_with(&stdout.bytes) {
+                return Err(WorkspaceError::UnsafeRepository);
+            }
+        }
+        let finished = match owned.finished() {
+            Ok(value) => value,
+            Err(e) if e.kind() == io::ErrorKind::Interrupted => false,
+            Err(e) => return Err(e.into()),
+        };
+        if finished && stdout.eof && stderr.eof {
+            return if expected_ack.is_none() {
+                Ok(())
+            } else {
+                Err(WorkspaceError::Git(
+                    "prepared ref protocol unavailable or refused".into(),
+                ))
+            };
+        }
+        control.check()?;
+        if !progress {
+            std::thread::sleep(
+                Duration::from_millis(2)
+                    .min(control.deadline().saturating_duration_since(Instant::now())),
+            );
+        }
+    }
+}
+fn ref_transaction_write(
+    stdin: &mut std::process::ChildStdin,
+    frame: &[u8],
+    control: &adoption::AdoptionControl<'_>,
+) -> Result<(), WorkspaceError> {
+    use std::io::Write;
+    let mut remaining = frame;
+    while !remaining.is_empty() {
+        control.check()?;
+        match stdin.write(remaining) {
+            Ok(0) => return Err(WorkspaceError::UnsafeRepository),
+            Ok(n) => remaining = &remaining[n..],
+            Err(e)
+                if matches!(
+                    e.kind(),
+                    io::ErrorKind::WouldBlock | io::ErrorKind::Interrupted
+                ) =>
+            {
+                std::thread::sleep(
+                    Duration::from_millis(2)
+                        .min(control.deadline().saturating_duration_since(Instant::now())),
+                );
+            }
+            Err(e) => return Err(e.into()),
+        }
+    }
+    Ok(())
+}
+pub(crate) fn prepared_ref_output(
+    command: &mut Command,
+    target: &str,
+    candidate: &str,
+    expected: &str,
+    control: &adoption::AdoptionControl<'_>,
+    validate_locked: impl FnOnce() -> Result<(), adoption::AdoptionError>,
+) -> Result<PreparedRefOutput, WorkspaceError> {
+    use std::os::unix::process::CommandExt;
+    // The fixed update frame cannot contain another protocol command.
+    if !target.starts_with("refs/heads/")
+        || target.chars().any(char::is_control)
+        || target.len() > 4096
+        || !is_oid(candidate)
+        || !is_oid(expected)
+    {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    control.check()?;
+    let started = Instant::now();
+    let bounded = control.narrowed(started + Duration::from_secs(15));
+    control.note_git_attempt();
+    let child = command
+        .args([
+            "update-ref",
+            "--no-deref",
+            "--stdin",
+            "-m",
+            "AgentBaton validated local adoption",
+        ])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .process_group(0)
+        .spawn()?;
+    let mut owned = ControlledGitChild {
+        child,
+        reaped: false,
+        signal_attempted: false,
+    };
+    let mut stdin = owned.child.stdin.take().expect("piped stdin");
+    let flags = unsafe { libc::fcntl(stdin.as_raw_fd(), libc::F_GETFL) };
+    if flags < 0
+        || unsafe { libc::fcntl(stdin.as_raw_fd(), libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0
+    {
+        return Err(io::Error::last_os_error().into());
+    }
+    let mut stdout = ControlledCapture::new(owned.child.stdout.take().expect("piped stdout"))?;
+    let mut stderr = ControlledCapture::new(owned.child.stderr.take().expect("piped stderr"))?;
+    let mut commit_may_have_been_sent = false;
+    let mut validation_error = None;
+    let mut interrupted = false;
+    let operation = (|| -> Result<(), WorkspaceError> {
+        ref_transaction_write(
+            &mut stdin,
+            format!("start\nupdate {target} {candidate} {expected}\nprepare\n").as_bytes(),
+            &bounded,
+        )?;
+        ref_transaction_poll(
+            &owned,
+            &mut stdout,
+            &mut stderr,
+            &bounded,
+            Some(b"start: ok\nprepare: ok\n"),
+        )?;
+        bounded.check()?;
+        validation_error = validate_locked().err();
+        if validation_error.is_some() {
+            ref_transaction_write(&mut stdin, b"abort\n", &bounded)?;
+        } else {
+            // Mark before the first possible byte; failed/partial commit writes
+            // must retain unknown history instead of reporting not_started.
+            bounded.check()?;
+            commit_may_have_been_sent = true;
+            ref_transaction_write(&mut stdin, b"commit\n", &bounded)?;
+        }
+        Ok(())
+    })();
+    if operation.is_err() {
+        interrupted = true;
+    }
+    drop(stdin);
+    if operation.is_ok()
+        && ref_transaction_poll(&owned, &mut stdout, &mut stderr, &bounded, None).is_err()
+    {
+        interrupted = true;
+    }
+    // Keep the unreaped leader identity until all owned-group signals end.
+    owned.signal_own_group();
+    let status = owned.reap()?;
+    while stdout.pump() {}
+    while stderr.pump() {}
+    let complete = !stdout.truncated
+        && !stderr.truncated
+        && !stdout.failed
+        && !stderr.failed
+        && stdout.eof
+        && stderr.eof;
+    let commit_acknowledged = commit_may_have_been_sent
+        && status.success()
+        && stdout.bytes == b"start: ok\nprepare: ok\ncommit: ok\n";
+    let abort_acknowledged = !commit_may_have_been_sent
+        && status.success()
+        && complete
+        && stdout.bytes == b"start: ok\nprepare: ok\nabort: ok\n";
+    interrupted |= bounded.check().is_err();
+    let io = adoption::ControlledIntegrationIo {
+        elapsed_ms: u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),
+        stdout_retained_bytes: Some(stdout.bytes.len() as u64),
+        stderr_retained_bytes: Some(stderr.bytes.len() as u64),
+        stdout_eof: stdout.eof,
+        stderr_eof: stderr.eof,
+        owned_leader_reaped: Some(owned.reaped),
+        owned_group_signal_attempted: Some(owned.signal_attempted),
+        interrupted,
+        read_failed: Some(stdout.failed || stderr.failed || stdout.truncated || stderr.truncated),
+    };
+    control.note_git_io(&io);
+    Ok(PreparedRefOutput {
+        result: ControlledGitOutput {
+            output: Output {
+                status,
+                stdout: stdout.bytes,
+                stderr: stderr.bytes,
+            },
+            interrupted,
+            io,
+        },
+        commit_acknowledged,
+        abort_acknowledged,
+        validation_error,
+    })
+}
+
+/// Controlled-only runner sharing the original clock and IO observations.
+/// None preserves the established default runner and result classification.
+fn output_with_control(
+    command: &mut Command,
+    control: Option<&adoption::AdoptionControl<'_>>,
+) -> Result<Output, WorkspaceError> {
+    match control {
+        None => bounded_output(command),
+        Some(control) => {
+            control.check()?;
+            let result = controlled_output(command, control)?;
+            control.check()?;
+            if result.interrupted || !result.io.io_complete() {
+                return Err(WorkspaceError::ResourceLimit);
+            }
+            Ok(result.output)
+        }
+    }
+}
 /// Git-only inspection under one original monotonic control. The ordinary
 /// public inspect API is unchanged. Every existing safety predicate is retained.
 pub(crate) fn inspect_controlled(

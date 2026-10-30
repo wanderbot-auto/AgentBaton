@@ -30,6 +30,7 @@ struct StageReturn {
     result: Result<StageFact>,
     output_bytes: Option<u64>,
     effects_admitted: bool,
+    preparation_io: Option<agentbaton_workspaces::adoption::ControlledPreparationIo>,
 }
 pub(super) struct StageReadRequest {
     pub(super) proof: IntegrationReadProof,
@@ -44,6 +45,7 @@ pub(super) struct JoinedStage {
     pub(super) effects_admitted: bool,
     pub(super) worker_joined: bool,
     pub(super) never_scheduled: bool,
+    pub(super) preparation_io: Option<agentbaton_workspaces::adoption::ControlledPreparationIo>,
 }
 pub(super) struct OwnedStage {
     pub(super) ticket: IntegrationStageTicket,
@@ -128,6 +130,7 @@ impl OwnedStage {
                             result: Err(error),
                             output_bytes: Some(0),
                             effects_admitted: false,
+                            preparation_io: None,
                         }
                     }
                 };
@@ -137,6 +140,7 @@ impl OwnedStage {
                         result: Err(error),
                         output_bytes: Some(0),
                         effects_admitted: false,
+                        preparation_io: None,
                     };
                 }
                 execute(&ticket, context, flag)
@@ -202,6 +206,7 @@ impl OwnedStage {
                 effects_admitted: result.effects_admitted,
                 worker_joined: true,
                 never_scheduled: false,
+                preparation_io: result.preparation_io,
             },
             Err(_) => JoinedStage {
                 context: None,
@@ -214,6 +219,7 @@ impl OwnedStage {
                 effects_admitted: true,
                 worker_joined: true,
                 never_scheduled: false,
+                preparation_io: None,
             },
         };
         (self.ticket.clone(), joined)
@@ -225,7 +231,9 @@ impl Drop for OwnedStage {
         if let Some(thread) = self.thread.take() {
             // Error/unwind also consumes the actual original thread before the
             // manager can release the daemon writer lock. No detached worker.
-            drop(thread.join());
+            if let Ok(returned) = thread.join() {
+                dispose_context(returned.context);
+            }
         }
     }
 }
@@ -236,48 +244,67 @@ fn execute(
     cancel: Arc<AtomicBool>,
 ) -> StageReturn {
     match ticket.attempt.view.kind {
-        IntegrationStageKind::Preparation => match super::io::prepare(ticket, cancel) {
-            Ok(prepared) => {
-                let bytes =
-                    ticket
-                        .policy
-                        .bindings
-                        .outputs
-                        .iter()
-                        .try_fold(0u64, |total, output| {
-                            let mut selected =
-                                ticket.acceptance.artifact_refs.iter().filter(|artifact| {
-                                    artifact.artifact_id == output.artifact.artifact_id
-                                        && artifact.relative_path == output.artifact.relative_path
-                                });
-                            let artifact = selected.next()?;
-                            if selected.next().is_some() {
-                                return None;
-                            }
-                            total.checked_add(artifact.bytes)
-                        });
-                StageReturn {
-                    context: Some(prepared),
-                    result: Ok(StageFact::Prepared),
-                    output_bytes: bytes,
-                    effects_admitted: true,
+        IntegrationStageKind::Preparation => {
+            let observed = super::io::prepare(ticket, cancel);
+            match observed.result {
+                Ok(prepared) => {
+                    let bytes = if observed.io.io_complete() {
+                        prepared
+                            .outputs
+                            .iter()
+                            .try_fold(0u64, |total, (_, pin)| total.checked_add(pin.bytes))
+                    } else {
+                        None
+                    };
+                    StageReturn {
+                        context: Some(prepared),
+                        result: Ok(StageFact::Prepared),
+                        output_bytes: bytes,
+                        effects_admitted: true,
+                        preparation_io: Some(observed.io.clone()),
+                    }
                 }
+                Err(error) => StageReturn {
+                    context,
+                    result: Err(error),
+                    output_bytes: if !observed.io.effects_may_have_started()
+                        && observed.io.io_complete()
+                    {
+                        Some(0)
+                    } else {
+                        None
+                    },
+                    effects_admitted: true,
+                    preparation_io: Some(observed.io.clone()),
+                },
             }
-            Err(error) => StageReturn {
-                context,
-                result: Err(error),
-                output_bytes: None,
-                effects_admitted: true,
-            },
-        },
+        }
         IntegrationStageKind::Validator => {
             let result = (|| {
-                let reference = ticket.attempt.view.validator.as_ref().ok_or_else(denied)?;
+                let reference = ticket
+                    .attempt
+                    .view
+                    .validator
+                    .as_ref()
+                    .ok_or_else(denied)?
+                    .clone();
+                // Reserve before any command may start; place its returned real
+                // handle under the context's unwind guard before further work.
+                context
+                    .as_mut()
+                    .ok_or_else(denied)?
+                    .validations
+                    .try_reserve(1)
+                    .map_err(|_| limited())?;
+                let stored_reference = reference.clone();
                 let prepared = context
                     .as_ref()
                     .ok_or_else(denied)?
-                    .validation(reference, &ticket.attempt.view.attempt_id)?;
+                    .validation(&reference, &ticket.attempt.view.attempt_id)?;
                 let observed = prepared.execute(&cancel, ticket.deadline)?;
+                let retained = context.as_mut().ok_or_else(denied)?;
+                retained.validations.push((stored_reference, observed));
+                let observed = &retained.validations.last().ok_or_else(denied)?.1;
                 let bytes = observed
                     .command
                     .as_ref()
@@ -291,13 +318,8 @@ fn execute(
                     reference: reference.clone(),
                     view: observed.view.clone(),
                     passed: observed.passed,
-                    stopped: IntegrationPreparedContext::validation_is_stopped(&observed),
+                    stopped: IntegrationPreparedContext::validation_is_stopped(observed),
                 };
-                context
-                    .as_mut()
-                    .ok_or_else(denied)?
-                    .validations
-                    .push((reference.clone(), observed));
                 Ok((fact, bytes))
             })();
             match result {
@@ -306,12 +328,14 @@ fn execute(
                     result: Ok(fact),
                     output_bytes,
                     effects_admitted: true,
+                    preparation_io: None,
                 },
                 Err(error) => StageReturn {
                     context,
                     result: Err(error),
                     output_bytes: None,
                     effects_admitted: true,
+                    preparation_io: None,
                 },
             }
         }
@@ -331,6 +355,7 @@ fn execute(
                 result: result.map(StageFact::Cas),
                 output_bytes,
                 effects_admitted: true,
+                preparation_io: None,
             }
         }
     }
@@ -350,6 +375,30 @@ impl JoinedStage {
             effects_admitted: false,
             worker_joined: false,
             never_scheduled: true,
+            preparation_io: None,
+        }
+    }
+}
+
+pub(super) fn dispose_context(context: Option<IntegrationPreparedContext>) {
+    let Some(context) = context else {
+        return;
+    };
+    let packet = Arc::new(Mutex::new(Some(context)));
+    let input = packet.clone();
+    match std::thread::Builder::new()
+        .name("integration-owned-cleanup".into())
+        .spawn(move || {
+            drop(input.lock().unwrap_or_else(|p| p.into_inner()).take());
+        }) {
+        Ok(cleanup) => {
+            let _ = cleanup.join();
+        }
+        Err(_) => {
+            // Only the final ownership/shutdown fallback, never a live Owner
+            // request. Dropping the guarded context actually waits before the
+            // daemon writer lock may be released, even if no thread can start.
+            drop(packet.lock().unwrap_or_else(|p| p.into_inner()).take());
         }
     }
 }
