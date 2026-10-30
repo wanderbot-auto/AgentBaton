@@ -1016,6 +1016,57 @@ def wire_recording_self_check(output):
         'capacity_controls':{'full':exhausted_report,'low_disk':low_report,'backend_marker_calls':marker['calls'],'peak_captured_plus_reserved_bytes':recorder._peak,'low_disk_input':'synthetic numeric capacity input only, not actual disk exhaustion'},
         'original_Root_missing_second_raw':'not reconstructed; original FAIL remains unchanged'}
 
+def bound_child_goal_query(query,bounds):
+    """Only the already-started child Graph's original read binding is eligible."""
+    require(type(query)is dict and set(query)=={'scope_id','task_id','goal_run_id'})
+    require(all(identifier(query[key])for key in query))
+    require(query['scope_id']==bounds.scope_id and query['task_id']in bounds.tasks)
+    require(bounds.goal_runs.get(query['goal_run_id'])==query['task_id'])
+    return copy.deepcopy(query)
+
+
+def exact_pending_child_goal_read(reply):
+    """Closed current Core reply only; error text is never authority."""
+    if type(reply)is not dict or set(reply)!={'request_id','error','revision','warnings'}:return False
+    if not(type(reply['request_id'])is str and 0<len(reply['request_id'])<=128
+           and type(reply['revision'])is int and 0<=reply['revision']<2**64
+           and type(reply['warnings'])is list and not reply['warnings']):return False
+    error=reply['error']
+    return (type(error)is dict and set(error)=={'code','message','retryable','side_effect_state','details_ref'}
+        and type(error['code'])is str and error['code']=='WORKSPACE_BUSY'
+        and type(error['retryable'])is bool and error['retryable']is True
+        and type(error['side_effect_state'])is str and error['side_effect_state']=='not_started'
+        and type(error['message'])is str and (error['details_ref']is None or type(error['details_ref'])is str))
+
+
+def wait_bound_child_goal(host,bounds,query,predicate,*,pump,capture):
+    """Existing15s/20ms observation, never replaying an Owner or start write.
+
+    A strict not-started busy reply is a pending read in the original polling
+    loop. Existing wire/recorder5s limits and raw/finite capture remain intact.
+    A read may return after its socket/recorder waits; it cannot pass late.
+    """
+    end=time.monotonic()+15
+    fixed=bound_child_goal_query(query,bounds)
+    while True:
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        pump();capture()
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        require(support.exact_json_value(bound_child_goal_query(query,bounds),fixed))
+        value,_=host.wire(FixedCall('factory_child_goals.get',copy.deepcopy(fixed),None,None))
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        require(type(value)is dict)
+        if 'error'in value:
+            assert exact_pending_child_goal_read(value),{'method':'factory_child_goals.get','response':value}
+        else:
+            result=value['result']
+            if predicate(result):
+                require(time.monotonic()<end,'Bound child Goal observation expired')
+                return result
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        time.sleep(.02)
+
+
 def runtime_driver(args, output):
     """Real built UI / authenticated Core15 / generated processes, never a mock.
 
@@ -1333,6 +1384,9 @@ def runtime_driver(args, output):
         started=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and not r.get('response',{}).get('error')and r.get('response')],lambda v:len(v)==1)[0]
         initial=started['response']['result'];goal_id=initial['goal']['run']['id'];bounds.goal_runs[goal_id]=child['task_id']
         assert support.exact_json_value(initial['plan'],saved['reference'])and initial['goal']['task_accepted']is False
+        query={'scope_id':scope['id'],'task_id':child['task_id'],'goal_run_id':goal_id}
+        def wait_child_goal(predicate):
+            return wait_bound_child_goal(host,bounds,query,predicate,pump=pump,capture=capture)
         assert not (wroot/'reports/release-parent').exists();base.write_private_json(wroot/'reports/release-parent',{'committed_goal_run_id':goal_id,'actual_start_reply_sha256':started['original_reply_sha256']})
         if args.case=='lost-start':
             assert fault['used'];expect(goal_panel.get_by_role('status').filter(has_text='Outcome unknown')).to_be_visible()
@@ -1342,13 +1396,12 @@ def runtime_driver(args, output):
             calls=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and r.get('response_complete')],lambda v:len(v)==1)
             recovered=calls[0];assert (recovered['params'],recovered['key'],recovered['revision'])==(started['params'],started['key'],started['revision'])
             assert support.exact_json_value(recovered['response']['result'],initial)
-            wait(lambda:host.result('factory_child_goals.get',{'scope_id':scope['id'],'task_id':child['task_id'],'goal_run_id':goal_id}),lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
+            wait_child_goal(lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
             changed=copy.deepcopy(started['params']);changed['request']['expected_factory_run_revision']+=1
             denied('factory_child_goals.start',changed,started['key'],started['revision'],'CONFIG_CONFLICT')
             passed('CG03','Actual committed start reply lost; no auto replay; explicit exact-key/payload/CAS recovery returns original receipt; changed payload conflicts')
-        query={'scope_id':scope['id'],'task_id':child['task_id'],'goal_run_id':goal_id}
         if args.case=='cancel':
-            wait(lambda:host.result('factory_child_goals.get',query),lambda v:any(n['session_id']for n in v['details']['nodes']))
+            wait_child_goal(lambda v:any(n['session_id']for n in v['details']['nodes']))
             wait(lambda:(capture(),len(graph_verified))[1],lambda count:count==1)
             # Exercise cancellation from the first checked summary while full
             # artifact reads may still be loading; do not insert another full read.
@@ -1359,7 +1412,7 @@ def runtime_driver(args, output):
             recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled();recover.click()
             cancels=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.cancel'and r.get('response')],lambda v:len(v)==2)
             assert (cancels[0]['params'],cancels[0]['key'],cancels[0]['revision'])==(cancels[1]['params'],cancels[1]['key'],cancels[1]['revision'])
-            final_view=wait(lambda:host.result('factory_child_goals.get',query),lambda v:v['details']['run']['state']=='cancelled')
+            final_view=wait_child_goal(lambda v:v['details']['run']['state']=='cancelled')
             assert final_view['details']['task_accepted']is False and final_view['details']['task_acceptance']is None
             family=host.result('factory_runs.get',{'scope_id':scope['id']})
             if family['run']['state']not in {'cancelled','completed'}:host.result('factory_runs.cancel',{'scope_id':scope['id']},'cg:final-parent-cancel',family['run']['revision'])
@@ -1367,7 +1420,7 @@ def runtime_driver(args, output):
             passed('CG04','Actual live Graph cancel reply lost, explicit same-key recovery and actual cancelled view; no TaskAccepted or automatic opposite action')
         else:
             phase_stamp('before_owner_read','start')
-            try:before_owner=wait(lambda:host.result('factory_child_goals.get',query),lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
+            try:before_owner=wait_child_goal(lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
             finally:phase_stamp('before_owner_read','end')
             phase_stamp('before_owner_capture','start')
             try:capture()
@@ -1381,7 +1434,7 @@ def runtime_driver(args, output):
             try:expect(owner).to_be_enabled()
             finally:phase_stamp('owner_enabled_expect','end')
             shot('03-real-owned-candidate-before-owner',goal_panel);owner.click()
-            final_view=wait(lambda:host.result('factory_child_goals.get',query),lambda v:v['details']['task_accepted']is True)
+            final_view=wait_child_goal(lambda v:v['details']['task_accepted']is True)
             receipt=final_view['details']['task_acceptance'];require(receipt is not None and receipt['run_id']==goal_id)
             final_factory=wait(lambda:host.result('factory_runs.get',{'scope_id':scope['id']}),lambda v:v['run']['state']=='completed')
             require((wroot/'reports/fixture-stages.txt').read_text()=='parent-initial\nparent-resumed\n')
