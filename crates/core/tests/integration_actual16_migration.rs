@@ -1194,3 +1194,215 @@ fn genuine16_rehashed_database_tamper_cannot_replace_actual_rpc_task_receipts() 
     assert!(backups(f.root()).is_empty());
     f.original_unchanged();
 }
+
+#[test]
+fn genuine16_whitespace_colliding_declared_type_cannot_remove_not_null_before17() {
+    let f = fixture();
+    let keeper = Connection::open(&f.db).unwrap();
+    keeper
+        .execute_batch("PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;")
+        .unwrap();
+    let before = image(&keeper);
+    assert_eq!(before.version, 16);
+    let original_sql: String = keeper
+        .query_row(
+            "SELECT sql FROM sqlite_schema WHERE type='table' AND name='tasks'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let original_column: (String, i64) = keeper
+        .query_row(
+            "SELECT type,\"notnull\" FROM pragma_table_info('tasks') WHERE name='document'",
+            [],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(original_column, ("TEXT".to_string(), 1i64));
+    assert_eq!(original_sql.matches("document TEXT NOT NULL").count(), 1);
+    let weak_sql = original_sql.replacen("document TEXT NOT NULL", "document TEXTNOTNULL", 1);
+    // The old whitespace-deleting comparator equated these byte-distinct DDLs.
+    // SQLite instead parses TEXTNOTNULL as one legal declared type token.
+    let collapsed = |sql: &str| {
+        sql.chars()
+            .filter(|c| !c.is_whitespace())
+            .collect::<String>()
+    };
+    assert_eq!(collapsed(&original_sql), collapsed(&weak_sql));
+    assert_ne!(original_sql, weak_sql);
+    let editor = Connection::open(&f.db).unwrap();
+    editor.pragma_update(None, "writable_schema", true).unwrap();
+    assert!(editor
+        .pragma_query_value(None, "writable_schema", |r| r.get::<_, bool>(0))
+        .unwrap());
+    assert_eq!(
+        editor
+            .execute(
+                "UPDATE sqlite_schema SET sql=?1 WHERE type='table' AND name='tasks'",
+                [&weak_sql]
+            )
+            .unwrap(),
+        1
+    );
+    editor
+        .pragma_update(None, "writable_schema", false)
+        .unwrap();
+    assert!(!editor
+        .pragma_query_value(None, "writable_schema", |r| r.get::<_, bool>(0))
+        .unwrap());
+    drop(editor);
+    // A fresh connection must parse the actual edited sqlite_schema. The separate
+    // original owner connection remains alive solely to preserve committed WAL for comparison.
+    let observer = ro(&f.db);
+    let weak_column: (String, i64) = observer
+        .query_row(
+            "SELECT type,\"notnull\" FROM pragma_table_info('tasks') WHERE name='document'",
+            [],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(weak_column, ("TEXTNOTNULL".to_string(), 0i64));
+    clean_fk(&observer);
+    let mutated = image(&observer);
+    let mut expected_schema = before.schema.clone();
+    let tasks = expected_schema
+        .iter_mut()
+        .find(|r| r.0 == "table" && r.1 == "tasks")
+        .unwrap();
+    assert_eq!(tasks.3.as_ref(), Some(&original_sql));
+    tasks.3 = Some(weak_sql);
+    equal(
+        &expected_schema,
+        &mutated.schema,
+        &f.db,
+        "Only the owned Task DDL text changed in the negative copy",
+    );
+    equal(
+        &before.rows,
+        &mutated.rows,
+        &f.db,
+        "All55 original raw tables/counters/receipts remain exact before rejection",
+    );
+    assert_eq!(mutated.version, before.version);
+    assert_eq!(mutated.schema_version, before.schema_version);
+    assert_eq!(mutated.application_id, before.application_id);
+    assert_eq!(mutated.journal, before.journal);
+    let wal = f.db.with_file_name("actual.sqlite3-wal");
+    let wal_raw = fs::read(&wal).unwrap();
+    let main_raw = fs::read(&f.db).unwrap();
+    assert!(wal_raw.len() > 32);
+    // Do not rehash or certify the weaker copy as a new producer fixture.
+    reject_unchanged(&f, Some("INPUT_CHANGED"));
+    equal(
+        &main_raw,
+        &fs::read(&f.db).unwrap(),
+        &f.db,
+        "Refusal changed main file bytes",
+    );
+    equal(
+        &wal_raw,
+        &fs::read(&wal).unwrap(),
+        &f.db,
+        "Refusal changed committed weak-DDL WAL frames",
+    );
+    equal(
+        &mutated,
+        &image(&observer),
+        &f.db,
+        "Refusal changed the weak predecessor image",
+    );
+    f.original_unchanged();
+}
+
+#[test]
+fn genuine16_duplicate_known_task_field_in_original_json_text_is_not_collapsed_for17() {
+    let f = fixture();
+    let keeper = Connection::open(&f.db).unwrap();
+    keeper
+        .execute_batch("PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;")
+        .unwrap();
+    let before = image(&keeper);
+    let id = f.manifest["tasks"][2]["id"].as_str().unwrap();
+    let raw: String = keeper
+        .query_row("SELECT document FROM tasks WHERE id=?1", [id], |r| r.get(0))
+        .unwrap();
+    assert_eq!(raw.matches("\"id\":").count(), 1);
+    let original: Task = serde_json::from_str(&raw).unwrap();
+    assert_eq!(original.id, id);
+    assert!(original.code_workspace_binding.is_none());
+    // Insert directly into the original raw text. Only the ID string literal
+    // is encoded; the document is never Value-normalized or reserialized.
+    let id_literal = serde_json::to_string(id).unwrap();
+    let duplicate = format!("{{\"id\":{id_literal},{}", raw.strip_prefix('{').unwrap());
+    assert_eq!(duplicate.matches("\"id\":").count(), 2);
+    assert_eq!(
+        serde_json::from_str::<Value>(&duplicate).unwrap(),
+        serde_json::from_str::<Value>(&raw).unwrap()
+    );
+    assert!(
+        serde_json::from_str::<Task>(&duplicate).is_err(),
+        "Typed Task decoding must reject a duplicate known field"
+    );
+    assert_eq!(
+        keeper
+            .execute(
+                "UPDATE tasks SET document=?1 WHERE id=?2",
+                params![duplicate, id]
+            )
+            .unwrap(),
+        1
+    );
+    let mutated = image(&keeper);
+    let mut expected_rows = before.rows.clone();
+    let row = expected_rows
+        .get_mut("tasks")
+        .unwrap()
+        .iter_mut()
+        .find(|row| row.get(1) == Some(&SqlValue::Text(id.into())))
+        .unwrap();
+    assert_eq!(row.get(2), Some(&SqlValue::Text(raw)));
+    row[2] = SqlValue::Text(duplicate);
+    equal(
+        &expected_rows,
+        &mutated.rows,
+        &f.db,
+        "Only one raw Task document cell changed; other55-table history stays exact",
+    );
+    equal(
+        &before.schema,
+        &mutated.schema,
+        &f.db,
+        "Duplicate JSON negative changed no DDL",
+    );
+    assert_eq!(mutated.version, before.version);
+    assert_eq!(mutated.schema_version, before.schema_version);
+    assert_eq!(mutated.application_id, before.application_id);
+    assert_eq!(mutated.journal, before.journal);
+    clean_fk(&keeper);
+    let wal = f.db.with_file_name("actual.sqlite3-wal");
+    let wal_raw = fs::read(&wal).unwrap();
+    let main_raw = fs::read(&f.db).unwrap();
+    assert!(wal_raw.len() > 32);
+    // The authentic producer manifest/input remains untouched. This is solely
+    // a disposable malformed genuine16 copy, never a synthetic success input.
+    reject_unchanged(&f, Some("INPUT_CHANGED"));
+    equal(
+        &main_raw,
+        &fs::read(&f.db).unwrap(),
+        &f.db,
+        "Duplicate refusal changed main bytes",
+    );
+    equal(
+        &wal_raw,
+        &fs::read(&wal).unwrap(),
+        &f.db,
+        "Duplicate refusal changed committed WAL",
+    );
+    equal(
+        &mutated,
+        &image(&keeper),
+        &f.db,
+        "Duplicate refusal changed old image/version",
+    );
+    f.original_unchanged();
+}
