@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "source_commit": "e7df3f224549d50647ffd82d722e763bf11232a2",
+  "author_checks": {
+    "direct_rustfmt": "pass",
+    "git_diff_check": "pass"
+  },
+  "not_run": [
+    "cargo check",
+    "Rust tests",
+    "Actor/Unix IPC",
+    "Git product tests",
+    "Native",
+    "UI",
+    "browser",
+    "Mac",
+    "remote delivery"
+  ],
+  "implementation_status": "in_progress_not_accepted"
+}
