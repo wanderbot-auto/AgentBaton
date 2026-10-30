@@ -1,3 +1,7 @@
+# de0b CI准确终态：Rust/Environment通过，UI与双Mac失败 — 2026-10-30T00:26:21.941409+00:00
+
+准确de0b/checkout59e174：Env3和Rust通过，UI/双Mac失败。UI已绑定provider在argv读取窗口退出；ARM两轮preflight INPUT_CHANGED无命令退出观察；Intel当前capture未启动、同Goal前置rev11节点4359ms>原4s（same-plan未证）。这些是不同边界，原预算/拒绝不放宽。新窄修独审/真实测试继续，详见[准确终态证据](factory-child-goal-integration/HEADDE0B_TERMINAL_RESULTS.json)。PR18尚未合入，无15/16新包；PR19新c02组合Factory26/192infra/Clippy已过、独立16/native/Mac仍未验收；完整130未完。main653679d/OWNER001002ACK，无新授权。
+
 # 原子预留优化与收据窄修本地验证通过，准备准确 CI — 2026-10-29T23:58:13.519671+00:00
 
 Rust b651真实Factory26/88.57s、Core129/90.12s、全workspace alltargets严格Clippy通过；初次Core编译容量中断保留，重试无中断。新collector e068的原两P2已独审闭合，fullinfra150（含66）与新b651真实join快照CLI通过：r1启动exit1、r2启动exit0，child12746ms/root14744ms。这些Linux数据不证明Mac根因修复，也不是受控性能比较。详见 [准确本地证据](factory-child-goal-integration/ATOMIC_RESERVATION_RESULTS.json)。原7ac双Mac失败保留，新准确七CI/native/构建/包未运行；PR18仍draft，依赖PR19与完整130未完成。main653679d/OWNER001002 ACK，无新授权。

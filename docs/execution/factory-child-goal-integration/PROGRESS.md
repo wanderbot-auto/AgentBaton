@@ -1,3 +1,11 @@
+## Exact de0b terminal failure evidence — 2026-10-30T00:26:21.941409+00:00
+
+Environment40976684979 all3 and Product40976684974 Rust passed; UI and both Mac failed. Tested checkout59e174dc is not an actual main merge. UI normal/Graph cases passed through command-timeout and Factory normal/cancel/unknown; child-planning CP01/02 passed then a previously-bound provider exited during cmdline read (0B, fresh identity absent). Whole flow and cleanup_complete remain failed/false despite daemon exit0/six identities gone; later childGoal browser cases not run.
+
+ARM22/1/157.77s: both receipts INPUT_CHANGED/not_started_or_preflight_rejected, runtime1375/2862ms, no process/exit observation; postjoin child14852/root16965ms. Intel22/1/172.85s: first receipt INPUT_CHANGED2154ms; currentrev12 capture failed/not_started, precedingrev11 node4359ms over original4s. Previous-node association explicitly does not establish same-plan; postjoin child15766/root18238ms. Scope/observation windows still live. No grep Macstat or unsupported single shared cause/fix is claimed. Existing limits correctly reject overrun and stay unchanged.
+
+See HEADDE0B_TERMINAL_RESULTS.json. Work continues on narrow fixture argv-exit verification, a fixed hash-approved portable validator fixture, and Actor ready-batch graph service; all require actual tests and independent review. Native/build/package gates skipped, no new installer/full130 completion. OWNER001/002/main653679d/authority boundaries unchanged.
+
 ## Actor ready-batch graph service candidate
 
 The outer loop already services supervisor→Graph→command→data, while each of up to16 ready clients serviced supervisor→command→data only. Add the same existing Graph tick after each ready handler and supervisor receipt, preserving queue/elapsed/deadline accounting, all live checks and fatal owned-worker cleanup. No witness is retained across handler return and no new authority or concurrency slot is introduced. Independent source review found no blocker; actual Rust regression is pending. This is a scheduling opportunity, not proof that it caused de0b Intel4359ms or that it repairs the Mac failure. A hot ready-batch fairness claim would need separate actual Unix progress evidence; existing safety regression alone will not establish it.

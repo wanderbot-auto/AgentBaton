@@ -1,3 +1,11 @@
+## Exact de0b terminal failure evidence — 2026-10-30T00:26:21.941409+00:00
+
+Environment40976684979 all3 and Product40976684974 Rust passed; UI and both Mac failed. Tested checkout59e174dc is not an actual main merge. UI normal/Graph cases passed through command-timeout and Factory normal/cancel/unknown; child-planning CP01/02 passed then a previously-bound provider exited during cmdline read (0B, fresh identity absent). Whole flow and cleanup_complete remain failed/false despite daemon exit0/six identities gone; later childGoal browser cases not run.
+
+ARM22/1/157.77s: both receipts INPUT_CHANGED/not_started_or_preflight_rejected, runtime1375/2862ms, no process/exit observation; postjoin child14852/root16965ms. Intel22/1/172.85s: first receipt INPUT_CHANGED2154ms; currentrev12 capture failed/not_started, precedingrev11 node4359ms over original4s. Previous-node association explicitly does not establish same-plan; postjoin child15766/root18238ms. Scope/observation windows still live. No grep Macstat or unsupported single shared cause/fix is claimed. Existing limits correctly reject overrun and stay unchanged.
+
+See HEADDE0B_TERMINAL_RESULTS.json. Work continues on narrow fixture argv-exit verification, a fixed hash-approved portable validator fixture, and Actor ready-batch graph service; all require actual tests and independent review. Native/build/package gates skipped, no new installer/full130 completion. OWNER001/002/main653679d/authority boundaries unchanged.
+
 ## Atomic reservation reuse and finite receipt attribution verified locally — 2026-10-29T23:58:13.519671+00:00
 
 Rust b651: actual Factory26PASS88.57s and Core129PASS90.12s; the nested helper1 is not additive. Full workspace/all-target strictClippy and format passed. First Corelib compile capacity interruption executed no tests and remains preserved; successful generated caches were losslessly archived with full SHA roundtrip, then retry passed. The optimization reuses only the complete checked node view inside the same IMMEDIATE reservation; no cross-request cache or budget/Grant/witness/CAS relaxation. Independent runtime source review passed.
