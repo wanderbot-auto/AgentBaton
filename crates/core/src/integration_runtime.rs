@@ -34,6 +34,7 @@ pub(super) struct RefFence {
     pub(super) active_attempt_id: Option<String>,
     pub(super) receipt_sequence: Option<u64>,
 }
+#[derive(Clone)]
 pub(crate) struct IntegrationStageTicket {
     pub(super) policy: IntegrationPolicy,
     pub(super) run: IntegrationRun,
@@ -47,7 +48,7 @@ pub(crate) struct IntegrationStageTicket {
 }
 /// Created only from an already admitted private stage ticket. It is never a
 /// wire input, deserializable capability, or a replacement for live DB checks.
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub(crate) struct IntegrationStageReadRef {
     pub(super) run_id: String,
     pub(super) attempt_id: String,
@@ -712,4 +713,63 @@ impl Store {
         }
         Ok(())
     }
+}
+
+impl Store {
+    pub(crate) fn admit_integration_stage_effect(
+        &mut self,
+        ticket: &IntegrationStageTicket,
+        mut proof: super::reads::IntegrationReadProof,
+        raw: &str,
+    ) -> Result<super::reads::IntegrationReadProof> {
+        let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        if !matches!(proof.intent(),super::reads::IntegrationReadIntent::Stage(reference) if reference==&ticket.read_reference())
+        {
+            return Err(denied());
+        }
+        proof.verify(self, raw, ticket.deadline)?;
+        let policy = records::policy(&tx, &ticket.policy.id)?;
+        let _ = live_policy(self, &policy)?;
+        let mut run = records::run(&tx, &ticket.run.id)?;
+        let mut record = budget::attempt(&tx, &ticket.attempt.view.attempt_id)?;
+        let current = fence(&tx, &run)?;
+        if run.cancel_requested
+            || run.state == IntegrationState::OutcomeUnknown
+            || record.view.state != "prepared"
+            || record.view.settled
+            || current.state != "held"
+            || current.active_attempt_id.as_deref() != Some(record.view.attempt_id.as_str())
+            || run.active_stage != Some(record.view.kind)
+        {
+            return Err(changed());
+        }
+        let mut intent: DispatchIntent = raw_dispatch(&tx, &record.intent_id)?;
+        if intent.state != IntentState::Prepared {
+            return Err(changed());
+        }
+        record.view.state = "running".into();
+        if tx.execute("UPDATE integration_attempts SET state='running',document=?1 WHERE attempt_id=?2 AND state='prepared'",params![encode(&record)?,record.view.attempt_id]).map_err(db_error)? != 1 { return Err(changed()); }
+        intent.state = IntentState::Sent;
+        intent.executor_instance = Some(format!("integration:{}", record.view.attempt_id));
+        if tx.execute("UPDATE dispatch_intents SET state='sent',executor_instance=?1,document=?2 WHERE id=?3 AND state='prepared'",params![intent.executor_instance,encode(&intent)?,record.intent_id]).map_err(db_error)?!=1 { return Err(changed()); }
+        run.state = match record.view.kind {
+            IntegrationStageKind::Preparation => IntegrationState::Capturing,
+            IntegrationStageKind::Validator => IntegrationState::Validating,
+            IntegrationStageKind::Cas => IntegrationState::CasPrepared,
+        };
+        records::save_run(
+            &tx,
+            &mut run,
+            "integration.stage_dispatched",
+            json!({"attempt_id":record.view.attempt_id,"kind":record.view.kind,"new_provider_dispatch":false,"original_deadline_retained":true}),
+        )?;
+        proof.reseal_stage_after_own_transition(self, ticket, raw)?;
+        records::check_metadata_bounds(&tx)?;
+        tx.commit().map_err(db_error)?;
+        Ok(proof)
+    }
+}
+fn raw_dispatch(db: &Connection, id: &str) -> Result<DispatchIntent> {
+    raw(db, "dispatch_intents", id)
 }

@@ -30,6 +30,8 @@ pub(crate) use fences::{check_workspace_fences, IntegrationFencePermit};
 #[path = "integration_runtime.rs"]
 mod runtime;
 pub(crate) use runtime::{IntegrationQueueResult, IntegrationStageTicket};
+#[path = "integration_stage_workers.rs"]
+mod stage_workers;
 #[path = "integration_workers.rs"]
 mod workers;
 pub(crate) use budget::{accounting_records, IntegrationAccounting};

@@ -769,6 +769,48 @@ fn artifact_pin(
     Ok(())
 }
 impl IntegrationReadProof {
+    pub(super) fn reseal_stage_after_own_transition(
+        &mut self,
+        store: &Store,
+        ticket: &super::runtime::IntegrationStageTicket,
+        raw: &str,
+    ) -> Result<()> {
+        // Only after the old complete proof was checked in the same immediate
+        // transaction. Refresh the deliberate own run/dispatch state change;
+        // retained FD observations and original deadline never reset.
+        let (plan, expected) = store.prepare_integration_stage_read(ticket)?;
+        if expected != raw
+            || sha(&plan.material)? != self.material_digest
+            || sha(&plan.available)? != self.available_digest
+            || plan.request_hash != self.request_hash
+        {
+            return Err(changed());
+        }
+        self.queries = plan.queries;
+        self.seal_observation()?;
+        Ok(())
+    }
+    pub(super) fn verify_on_worker(
+        &self,
+        raw: &str,
+        cancel: Arc<AtomicBool>,
+        deadline: Instant,
+    ) -> Result<()> {
+        let control = IntegrationReadControl { cancel, deadline };
+        control.check()?;
+        let reader = Store {
+            conn: self.database.open_readonly(deadline)?,
+            data_input: None,
+            graph_input: None,
+            graph_capture_clocks: Default::default(),
+            factory_recovery_queue_epochs: vec![],
+            factory_read_control: None,
+        };
+        self.verify(&reader, raw, deadline)?;
+        control.check()?;
+        reader.conn.execute_batch("ROLLBACK;").map_err(db_error)?;
+        Ok(())
+    }
     pub(crate) fn intent(&self) -> &IntegrationReadIntent {
         &self.intent
     }
@@ -823,7 +865,12 @@ impl IntegrationReadProof {
             crate::policy::observe_grant_bindings(&store.conn, grant)?;
         }
         if let IntegrationReadIntent::Stage(reference) = &self.intent {
-            let _permit = super::fences::for_reference(&store.conn, reference)?;
+            let permit = super::fences::for_reference(&store.conn, reference)?;
+            for grant in &material.grant_lineage {
+                for workspace in grant.workspace_bindings.values() {
+                    super::fences::check_workspace_fences(&store.conn, workspace, Some(&permit))?;
+                }
+            }
             let policy = records::policy(&store.conn, &reference.policy_id)?;
             let mut selection = policy.selection.clone();
             // Runtime revisions changed through the authentic accepted chain;

@@ -399,14 +399,11 @@ impl IntegrationPreparedContext {
         })
     }
     pub(super) fn cas(
-        self,
+        &self,
         cancel: Arc<AtomicBool>,
         deadline: Instant,
         attempt_id: &str,
-    ) -> Result<(
-        Self,
-        agentbaton_workspaces::adoption::ControlledIntegrationResult,
-    )> {
+    ) -> Result<agentbaton_workspaces::adoption::ControlledIntegrationResult> {
         let guard = IntegrationReadControl { cancel, deadline };
         guard.check()?;
         if self.validations.len() != self.policy.bindings.validators.len()
@@ -464,6 +461,6 @@ impl IntegrationPreparedContext {
             &control,
         )
         .map_err(|_| changed())?;
-        Ok((self, receipt))
+        Ok(receipt)
     }
 }
