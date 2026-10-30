@@ -1,0 +1,105 @@
+{
+  "recorded_at": "2026-10-30T01:48:34.121539+00:00",
+  "base": "363e680ef9ee59e8e7d3c02080b19194fe116302",
+  "source": "77d229a0be16c0bd21d12e1a96f8af6f91e05b62",
+  "requirements": [
+    "AB-PRJ-002",
+    "AB-PRJ-003",
+    "AB-PRJ-005",
+    "AB-SEC-007",
+    "OWNER-002"
+  ],
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "dimension": "source and pure Python/inert synthetic protocol/file/PNG metadata controls only",
+  "source_sha256": {
+    "apps/desktop/tests/task-workspace-binding-real-ipc.py": "2cf725f99de2c24ed1e93572d0107085c2f952400506aa6f15308d753832af52",
+    "apps/desktop/tests/test_task_workspace_binding_real_ipc.py": "d4905a193a719a05864131c2099e74e8fd6e0f0375cc6511961df3858f7c0b59",
+    "scripts/record-task-workspace-ci-evidence.py": "6ffa7216fe4c186ce6cc901f04979bb86060c2199d67d2c3a69ae9c83b6a57a2",
+    "tests/infrastructure/test_task_workspace_ci_evidence.py": "f2078b51e452127d072116ba467e5ed54f10d55847bce01c745025ebb2bdd504"
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "apps/desktop/tests",
+        "-p",
+        "test_task_workspace_binding_real_ipc.py",
+        "-v"
+      ],
+      "exit": 0,
+      "cases": 46,
+      "new_cases": 6,
+      "seconds": 0.027,
+      "log_sha256": "e6ba6f23b5abe69d28d7391136e8d3b7bbf77d8ddea57b568c1f72276ef4458d"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_task_workspace_ci_evidence.py",
+        "-v"
+      ],
+      "exit": 0,
+      "cases": 36,
+      "new_cases": 3,
+      "seconds": 1.299,
+      "log_sha256": "75a0e81816101818b9136b8de07d78d5c3a1549841a4c461d7a05bc13defd02d"
+    },
+    {
+      "command": "python3 /workspace/.onboarding/task-workspace-entry-real-ipc/check_preservation.py",
+      "exit": 0,
+      "assertions": 11
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "preservation": {
+    "AST_apps/desktop/tests/task-workspace-binding-real-ipc.py": true,
+    "AST_apps/desktop/tests/test_task_workspace_binding_real_ipc.py": true,
+    "AST_scripts/record-task-workspace-ci-evidence.py": true,
+    "AST_tests/infrastructure/test_task_workspace_ci_evidence.py": true,
+    "entire_driver_inverse_equal_base_B01_B05_all_assertions_cleanup_deadlines_privacy_whitelist": true,
+    "entire_projection_inverse_equal_base_including_all_privacy_FD_PNG_and_cleanup_validation": true,
+    "old40_driver_tests_full_inverse_equal_only_stricter_six_case_updates": true,
+    "old33_projection_tests_full_inverse_equal_with_explicit_B05_fixture_lookup": true,
+    "public_HTTP_allowlist_entire_Boundary_unchanged": true,
+    "only_four_allowed_test_paths_changed": true,
+    "diffcheck0": true
+  },
+  "scenario_NOT_RUN": {
+    "WSI-B01": "NOT_RUN this fixed source",
+    "WSI-B02": "NOT_RUN this fixed source",
+    "WSI-B03": "NOT_RUN this fixed source",
+    "WSI-B04": "NOT_RUN this fixed source",
+    "WSI-B05": "NOT_RUN this fixed source",
+    "WSI-B06": "NOT_RUN this fixed source"
+  },
+  "NOT_RUN": [
+    "Node/typecheck/frontend build",
+    "actual Core16/Unix Actor/browser B01\u2013B06",
+    "actual screenshot review",
+    "Native/macOS dual architecture",
+    "Provider/CI"
+  ],
+  "expected_required_checks": 6,
+  "expected_fixed_screenshots": 8,
+  "public_summary_excludes_raw_private": true,
+  "public_HTTP_allowlist_unchanged": true,
+  "new_permission_or_Core_contract": false,
+  "scope_complete": false,
+  "status": "SOURCE_ONLY_PENDING_INDEPENDENT_REVIEW_AND_ROOT_ACTUAL_RUN"
+}
