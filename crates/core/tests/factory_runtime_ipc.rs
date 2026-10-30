@@ -1878,8 +1878,8 @@ fn run_data_mode(mode: &str) {
             .unwrap()
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        16,
-        "Do not use an old schema15 daemon as evidence for current Core16 tests"
+        17,
+        "Current Core17 tests require an exact schema17 daemon"
     );
     let rpc = |method: &str, params: Value, key: Option<&str>, rev: Option<u64>| -> Value {
         let mut request = json!({"method":method,"params":params});
