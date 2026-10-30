@@ -26,19 +26,19 @@ jobs:
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy14-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Build genuine schema15 Task history for the required migration gate
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy15-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy15-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy15-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy15-fixture"
       - name: Build genuine schema16 workspace history for the required migration gate
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy16-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 scripts/generate-schema16-migration-fixture.py --frozen "$RUNNER_TEMP/agentbaton-legacy16-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy16-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy16-fixture"
       - name: Workspace tests with actual generated native-wire capture
         env:
@@ -397,19 +397,19 @@ jobs:
           set -euo pipefail
           # Freeze the original native14 pair before normal17 overwrites target.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy14-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Build genuine schema15 Task history for the required migration gate
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy15-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy15-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy15-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy15-fixture"
       - name: Build genuine schema16 workspace history for the required migration gate
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy16-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 scripts/generate-schema16-migration-fixture.py --frozen "$RUNNER_TEMP/agentbaton-legacy16-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy16-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy16-fixture"
       - name: Core and native host tests
         env:
