@@ -871,12 +871,13 @@ impl Store {
             {
                 return Err(changed());
             }
-        } else if kind != IntegrationStageKind::Preparation
-            || run.source_commit.is_some()
-            || run.integration_commit.is_some()
-        {
+        } else if kind != IntegrationStageKind::Preparation {
             return Err(changed());
         }
+        // A preparation read can advance again before constructing a context.
+        // Retained prior-round commit fields are history, never a substitute
+        // for handles or validation. Only the exact joined advance journal
+        // below authorizes another preparation; Validator/CAS still require it.
         source_idle(&tx, &p)?;
         let reservation = match kind {
             IntegrationStageKind::Preparation => {
