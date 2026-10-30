@@ -289,13 +289,14 @@ fn execute(
                     .validations
                     .try_reserve(1)
                     .map_err(|_| limited())?;
+                let stored_reference = reference.clone();
                 let prepared = context
                     .as_ref()
                     .ok_or_else(denied)?
                     .validation(&reference, &ticket.attempt.view.attempt_id)?;
                 let observed = prepared.execute(&cancel, ticket.deadline)?;
                 let retained = context.as_mut().ok_or_else(denied)?;
-                retained.validations.push((reference.clone(), observed));
+                retained.validations.push((stored_reference, observed));
                 let observed = &retained.validations.last().ok_or_else(denied)?.1;
                 let bytes = observed
                     .command
@@ -310,7 +311,7 @@ fn execute(
                     reference: reference.clone(),
                     view: observed.view.clone(),
                     passed: observed.passed,
-                    stopped: IntegrationPreparedContext::validation_is_stopped(&observed),
+                    stopped: IntegrationPreparedContext::validation_is_stopped(observed),
                 };
                 Ok((fact, bytes))
             })();
