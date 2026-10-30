@@ -1,0 +1,87 @@
+{
+  "requirement_ids": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "stage": "source_implemented_runtime_not_run",
+  "base": "bc10ee94c667da9535018c37fdf5b128d63126af",
+  "source_commit": "2784897058dbf81b29432bac096892b01f0fa98d",
+  "source_sha256": {
+    "crates/workspaces/src/lib.rs": "2227d043ceaf878bcefbf594788b9b3e81864d955484e3fe98cbc718fd057b89",
+    "crates/workspaces/src/source_capture.rs": "5f91cb3d5abcc5d88ecb841ed25b1f9cac7e3168834fa6d8c76fd2a008039ac6",
+    "crates/workspaces/tests/source_capture.rs": "17931da3eea88c4bae9dd19fbd421722cef1252f2c4b7bbcb12ae7f8c09861c4"
+  },
+  "authority": "trusted host must verify accepted receipt and independent integration policy; this library authenticates neither",
+  "actual_command_results": [
+    {
+      "name": "static-checks",
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/accepted-source-capture-2784897/static-checks.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e592aabfb1b60bde3011a0999fac841cc860e2ad32a5b07250404fe15fdb4276",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "rustfmt",
+      "argv": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/workspaces/src/source_capture.rs",
+        "crates/workspaces/tests/source_capture.rs"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "test_source_counts": {
+    "integration": 13,
+    "cfg_unit": 1,
+    "executed": 0
+  },
+  "not_run": [
+    "Rust compilation",
+    "Cargo tests",
+    "real generated Git fixture execution",
+    "Actor/IPC",
+    "Clippy",
+    "Mac ARM/Intel",
+    "adoption/CAS",
+    "Provider/model",
+    "remote"
+  ],
+  "caps": {
+    "selected_files": 256,
+    "selected_total_bytes": 67108864,
+    "relative_path_bytes": 4096,
+    "base_entries": 65536,
+    "object_metadata_entries": 65536,
+    "global_original_deadline_ms": 15000,
+    "individual_existing_git_limit_ms": 15000
+  },
+  "limitations": [
+    "ASCII selected and entire base only; Unicode remains full-scope followup",
+    "scratch and unreferenced objects retained; no recursive cleanup",
+    "blocking kernel I/O is not forcibly interrupted",
+    "no TaskAccepted/Grant/adoption authority",
+    "no new Core schema/DTO/API/permissions"
+  ],
+  "artifact_directory": "/workspace/.onboarding/accepted-source-capture-2784897",
+  "source_only_checks_do_not_prove_runtime": true
+}
