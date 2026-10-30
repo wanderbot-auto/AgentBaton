@@ -2,7 +2,7 @@
 use super::*;
 use std::{
     fs,
-    os::unix::fs::{symlink, MetadataExt},
+    os::unix::fs::{symlink, MetadataExt, PermissionsExt},
     sync::{
         atomic::{AtomicBool, Ordering},
         mpsc, Arc,
@@ -11,7 +11,10 @@ use std::{
 };
 
 fn fixture() -> (tempfile::TempDir, evidence::PreparedCandidateCapture) {
-    let temp = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let temp = tempfile::Builder::new()
+        .permissions(fs::Permissions::from_mode(0o700))
+        .tempdir_in(std::env::temp_dir().canonicalize().unwrap())
+        .unwrap();
     fs::write(temp.path().join("report.txt"), b"actual capture\n").unwrap();
     let metadata = fs::metadata(temp.path()).unwrap();
     let root = agentbaton_workspaces::WorkspaceIdentity {
@@ -290,4 +293,27 @@ fn owned_graph_drop_really_cancels_and_joins_the_wrapped_reader() {
     assert!(workers.has_workers());
     drop(workers);
     assert!(done.load(Ordering::SeqCst));
+}
+
+#[test]
+fn nonprivate_directory_mode_alone_is_rejected_by_actual_capture() {
+    let (temp, prepared) = fixture();
+    let before = fs::metadata(temp.path()).unwrap();
+    let report = temp.path().join("report.txt");
+    let original_bytes = fs::read(&report).unwrap();
+    assert_eq!(before.mode() & 0o7777, 0o700);
+    assert_eq!(before.uid(), rustix::process::geteuid().as_raw());
+    assert_eq!(original_bytes, b"actual capture\n");
+    // Alter only this test-owned root's mode, never global umask or production.
+    fs::set_permissions(temp.path(), fs::Permissions::from_mode(0o755)).unwrap();
+    let changed_root = fs::metadata(temp.path()).unwrap();
+    assert_eq!(changed_root.mode() & 0o7777, 0o755);
+    assert_eq!(
+        (changed_root.dev(), changed_root.ino(), changed_root.uid()),
+        (before.dev(), before.ino(), before.uid())
+    );
+    assert_eq!(fs::read(&report).unwrap(), original_bytes);
+    let outcome = observe_capture_worker(Instant::now(), || prepared.execute());
+    assert_eq!(outcome.result.err().unwrap().code, "INPUT_CHANGED");
+    assert_eq!(fs::read(&report).unwrap(), original_bytes);
 }
