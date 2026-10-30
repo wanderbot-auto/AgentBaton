@@ -490,3 +490,7 @@ mod failure_tests {
 mod summary_proof_tests {
     include!("factory_summary_proof_tests.rs");
 }
+
+mod history_worker_tests {
+    include!("factory_history_reads_tests.rs");
+}
