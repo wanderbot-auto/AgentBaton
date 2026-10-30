@@ -760,9 +760,7 @@ impl GraphWorkers {
         if self.has_workers() || self.stopping {
             return Ok(());
         }
-        // A persisted prepared capture has already consumed its producer's
-        // reservation. Start its exact checked read before unrelated frontier
-        // scans; the full reconciliation below is retained, not used as authority.
+        store.reconcile_graph_frontiers()?;
         raw_collection_budget(&store.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(state)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE state='prepared' AND json_extract(document,'$.job_kind') IS NULL",[],1,MAX_STORED_BYTES)?;
         let doc: Option<String> = store
             .conn
@@ -773,19 +771,15 @@ impl GraphWorkers {
             )
             .optional()
             .map_err(db_error)?;
-        let Some(doc) = doc else {
-            return store.reconcile_graph_frontiers();
-        };
+        let Some(doc) = doc else { return Ok(()) };
         let origin: CaptureOrigin = decode(&doc)?;
         let Some(queued_at) = store.graph_capture_clocks.remove(&origin.id) else {
-            store.reconcile_graph_frontiers()?;
             store.mark_graph_capture_unknown(&origin)?;
             return Ok(());
         };
         let prepared = match store.prepare_graph_capture_worker(&origin, queued_at) {
             Ok(p) => p,
             Err(error) => {
-                store.reconcile_graph_frontiers()?;
                 store.finish_graph_capture(
                     &origin,
                     CaptureCompletion::NotStarted(error),
@@ -818,21 +812,17 @@ impl GraphWorkers {
                     &self.captures.get(&id).ok_or_else(changed)?.origin,
                 )?;
             }
-            Err(_) => {
-                store.reconcile_graph_frontiers()?;
-                store.finish_graph_capture(
-                    &origin,
-                    CaptureCompletion::NotStarted(err(
-                        "RESOURCE_LIMIT",
-                        "Owned graph evidence worker could not start",
-                    )),
-                    false,
-                    queued_at.elapsed(),
-                )?;
-                return Ok(());
-            }
+            Err(_) => store.finish_graph_capture(
+                &origin,
+                CaptureCompletion::NotStarted(err(
+                    "RESOURCE_LIMIT",
+                    "Owned graph evidence worker could not start",
+                )),
+                false,
+                queued_at.elapsed(),
+            )?,
         }
-        store.reconcile_graph_frontiers()
+        Ok(())
     }
     pub(crate) fn shutdown(&mut self, store: &mut Store) -> Result<()> {
         self.stopping = true;
