@@ -1,3 +1,5 @@
+Next: push one independently reviewed diagnostics-only candidate, read exact CI phases/toolbytes under original budgets, repair only evidence-supported causes, verify both architectures/artifacts before protected integration; compose dependent16 safely and continue all130.
+
 Next: submit one exact reviewed containment/Graph-wake/deferred-observation candidate for all sevenCI, diagnose actual Mac results without increasing declarations or weakening unknown states, then protected integration. Continue the exact-head schema16 six-path workspace-entry UI and full130 scope.
 
 Next: submit the independently reviewed Actor/portable-validator/strict-ACK candidate for one exact seven-check CI, read dual-Mac finite evidence and all downstream native/package gates, and repair actual failures. In parallel close the dependent schema16 workspace-entry recovery UI review, run complete UI and actual IPC, then continue full130 scope.

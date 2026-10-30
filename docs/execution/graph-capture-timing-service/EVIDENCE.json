@@ -101,5 +101,14 @@
     "First source edit script AssertionError due formatted .get line break; b830 only restored order; next a645 fixes both count sites",
     "Original a067 scheduling candidate not accepted; final source withdrawn optimization",
     "Independent static test-code mismatch: underlying capture check returns TIMEOUT, not DEADLINE_EXCEEDED. Test-only8af fixes exact expectation; a645 was NOT_RUN and no runtime failure is claimed."
-  ]
+  ],
+  "root_actual_validation": {
+    "record": "../factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
+    "Rust_source_byte_equal": "8af8ade",
+    "executed_at_source": "6deb4ab",
+    "Core_including_new9": 138,
+    "Factory": 30,
+    "sessionsIPC": 58,
+    "not_a_performance_or_Macfix_proof": true
+  }
 }
