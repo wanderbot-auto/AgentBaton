@@ -41,5 +41,38 @@
     "expiry",
     "overrun",
     "unknown"
+  ],
+  "root_failure_and_source_corrections": [
+    {
+      "source": "211c8182a13704e15325d434e6418fee5c43fe1e",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "owner_",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 49.758418518991675,
+      "summaries": [
+        "test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 24.66s"
+      ],
+      "log_sha256": "6edf9595058d30ebf3a06537607a723144947eb7b7f0165a946e1c73a72b247c",
+      "failed_case": "owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+      "observed": "terminal last_error CANCEL_REQUESTED, original test expected PERMISSION_DENIED",
+      "retained_fixture": "/tmp/integration-runtime-f9E2xA",
+      "root_reports_failed_raw_elf_retained": true,
+      "classification": "test expectation misread existing supervisor-stop/settlement semantics; not a production defect claim",
+      "fix_source": "9434d035d5a322f9d548d1baa27aa0e85b955c94",
+      "fix_file_sha256": "36c919478bd984fe14644b1d01ada9c175ec6ca54126db8a96d783491e731a4b",
+      "fixed_rust_execution": "not_run_by_author"
+    }
   ]
 }
