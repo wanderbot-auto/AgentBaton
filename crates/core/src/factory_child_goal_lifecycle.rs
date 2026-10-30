@@ -52,7 +52,7 @@ impl Store {
                             scope_id,
                             &b.handle.task_id,
                             goal_id,
-                            proof,
+                            *proof,
                         )?;
                         return Ok(());
                     }

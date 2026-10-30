@@ -1366,7 +1366,7 @@ pub(crate) fn accepted_stop(db: &Connection, id: &str) -> Result<bool> {
 pub(crate) enum FactoryGoalFailureStatus {
     Pending,
     Confirmed,
-    RetainedOverrun(FactoryGoalRetainedOverrun),
+    RetainedOverrun(Box<FactoryGoalRetainedOverrun>),
 }
 
 /// Constructed only after genuine stopped-failure proof and successful budget
@@ -1430,12 +1430,12 @@ impl Store {
         // retained overruns do not become permission to start a fresh attempt.
         if retained_overrun(&tx, &r.root_grant_id, &r.project_id)? {
             let record = checked_record(&tx, &r.id)?;
-            return Ok(FactoryGoalFailureStatus::RetainedOverrun(
+            return Ok(FactoryGoalFailureStatus::RetainedOverrun(Box::new(
                 FactoryGoalRetainedOverrun {
                     goal: r,
                     factory_scope_id: record.origin.factory_scope_id,
                 },
-            ));
+            )));
         }
         r.state = "failed".into();
         let revision = r.plan_revision;
