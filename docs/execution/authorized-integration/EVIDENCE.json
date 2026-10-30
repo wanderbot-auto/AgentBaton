@@ -187,6 +187,15 @@
       "current_acceptance": "notaccepted; f653 proposed/unexecuted and current203/fixed7 not run",
       "old16_command_records_preserved": true,
       "full_VAL009_or130_accepted": false
+    },
+    {
+      "source_checkpoint": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+      "followup_code": "0cee7d57907af547880db1367c0386c4bc108950",
+      "record": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+      "sha256": "5a5c2564f157247465ce7d0a1b5a34de44bd1ddb3c3898bc6a2ac786066735aa",
+      "recorded_at_utc": "2026-10-30T14:02:49.022114+00:00",
+      "dimension": "actual203Core/7IPC positive and failed/revoked/running-cancel paths passed; sourceCapture13 passed; strictClippy NOT passed; original unknown and failures preserved",
+      "full_VAL009_or130_accepted": false
     }
   ]
 }

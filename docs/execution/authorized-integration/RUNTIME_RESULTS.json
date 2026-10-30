@@ -1307,5 +1307,163 @@
       ],
       "formatter_dimension": "metadata-only append; no Cargo/Actor/Node/Git product/network/rawDB/ELF execution"
     }
-  ]
+  ],
+  "latest_root_followup": {
+    "recorded_at_utc": "2026-10-30T14:02:49.022114+00:00",
+    "branch": "codex/authorized-integration-assembly",
+    "before_records_commit": "f3f5346d4128f5b7faa2f169cb87bf7638e3e6e1",
+    "product_code_revision": "0cee7d57907af547880db1367c0386c4bc108950",
+    "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/21",
+    "base": "codex/task-workspace-integration",
+    "remote_before_checkpoint": "5993d3695045d000af948b24c60af315afd55b5e",
+    "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+    "OWNER_ACK": [
+      "OWNER-001",
+      "OWNER-002"
+    ],
+    "commands": {
+      "integration17-validator-stop-core-ipc1": {
+        "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--show-output",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 198.3801440289826,
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 202 filtered out; finished in 0.00s",
+          "test result: ok. 203 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 132.04s",
+          "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.40s"
+        ],
+        "log_sha256": "d37a43806eb62df0cd5e004b39d312b9bb557847128029557314597448e45ce6",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "1914ac00324184207f40c5be8061aca23798e186fc343fe21100c7309d9fe3ca",
+        "inputs_sha256": "18fbf6d2a2b07b80d7745af1d94c5197239a27c739ae136f3e51ca02c19828e5"
+      },
+      "integration17-validator-stop-clippy1": {
+        "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 101,
+        "seconds": 3.014794049988268,
+        "summaries": [],
+        "log_sha256": "8bb96b02b4fddbe0323af346b80986534df69d96375136188d891ee99760b4d8",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "64756e65398b7cdee014b7f95690959b134f8610add9dc4c42cadf5d77973239",
+        "inputs_sha256": "5a867ef5417d137dc8dddbd5c39ea20d53229bdbc6032350923a6ef93295b8bf"
+      },
+      "integration17-validator-stop-format1": {
+        "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 1,
+        "seconds": 1.4068016709934454,
+        "summaries": [],
+        "log_sha256": "33fea075c14641478adf2a3704752216318f41ce576a221868aacff0f3c400b9",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "18fc2f5e135e952ba418587a0b5efee3060dd307ae668a50e32438322116a130",
+        "inputs_sha256": "8070dafb4ece024073d1a6ab5efedf8675eca0db3567af8f60758e2d097830d5"
+      },
+      "integration17-validator-stop-clippy2": {
+        "source": "0cee7d57907af547880db1367c0386c4bc108950",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 101,
+        "seconds": 16.461638747976394,
+        "summaries": [],
+        "log_sha256": "25579121f4374b2fade2995341bf4179fcb400102bef3cf4ceac3b577eed651a",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "2e458f57fe4c47a40cd3789b930bcbdba813082b7481247f12d744088a3eef0b",
+        "inputs_sha256": "db64e3905a08dcaba5f74d0e106a5ec020f385e1abfd5f082ae2234c39b360a2"
+      },
+      "integration17-source-capture-expression-tests1": {
+        "source": "0cee7d57907af547880db1367c0386c4bc108950",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-workspaces",
+          "--test",
+          "source_capture",
+          "--",
+          "--show-output",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 11.438401366001926,
+        "summaries": [
+          "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.85s"
+        ],
+        "log_sha256": "1759252cdae5ce3084fc4c8bf7f2dd4d16dbb9c387a26d2dbbbbf9933cc3dd32",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "result_sha256": "99104dfaf09e9ad738f36c31822f2fad2430de929bba51bfc1fadbc4f90bf9d2",
+        "inputs_sha256": "af87ca2b9446acb2ac636df011a54f7d03dd391d7dbedcd2746af708e6ac182b"
+      }
+    },
+    "counts": {
+      "source507_Core_unique": 203,
+      "nested_helper_is_included": true,
+      "source507_integration_IPC_unique": 7,
+      "new_stop_four_units_are_included": true,
+      "prior_199_and_six_are_subsets_not_additive": true,
+      "source0cee_source_capture": 13
+    },
+    "actual_stop": "New clean fixture actual owned self-SIGSTOP process identified before real cancel; request intent is not stop. Exact cancelled/CANCEL_REQUESTED, actual killed/reaped/EOF/joined, exit_observed_within_budget false and passed false; no CAS/target changes and all fees retained. Original d8c unknown remains retained, unmodified and not retried/reconciled as success.",
+    "lint_status": "NOT_PASSED. Initial unusedunit/format fixed by0cee; strictclippy2 then rejects type complexity/large enum/large Err/noop and items after cfgtest modules. Core source-only385487b transparent boxing/alias/exact module moves under independent review, NOT composed or run here. No allow/skip/lint threshold change.",
+    "independent_source_reviews": {
+      "validator_stop_review_sha256": "df2818d97fa21b7b608a5375609f17168f76c5e7ad77ebca6772fb4e8e249c4e",
+      "validator_stop_manifest_sha256": "d23c959c3cfe6c0e956fab682e0be6c5ee98bd4da770f74919a9e35968a5d498",
+      "Native_CI_review_sha256": "b1179cef85e9387f5a2db7ad8c8ed233278228dae3ba32def40f0f7d804dccae",
+      "release_marker_review_sha256": "6303ec2e6a186fad8e4d4853af34f7fdf5b0c3efd71868a48f279b0f82f70f28"
+    },
+    "Native_CI": "Sourceea9 adds actual explicit feature lib and two fresh Cancel-to-Approve integration Native policy OS driver calls on both existing Mac lanes. Pure/source review only; actual Native/Mac/new17 packages not_run. Oldchecks/actions/permissions/25&60/requirednames preserved.",
+    "release_audit": "Source890 adds only native_integration_os_dialog_fixture marker. Actual bytecanary old7pass1fail/new8pass by author and independent reviewer; all11old markers preserved. Not a real default-app/MachO/Mac audit.",
+    "browser": "736/c0fe source-only driver under independent review/capture-only update; not composed or executed in this checkpoint. Generated private Owner testhost/browser never claims OS Native or real Provider.",
+    "Parent61": "Environment41063677595 all3 and Product41063677236 Rust/UI success; Intel124089485764 failed26/1 plan2/run12 blocked REWORK_REVISION2_TERMINAL. Official4795B artifact12982199412 ZIP SHAf2969e808988356d3fc7a884ad16d8433f3818833974d0aef27997eb530c3502 has capture4164/4000 producer3745 IO not_started/nojoin. ARM running at last read, wholeProduct not success. Not prior059 same-node4013.",
+    "remaining": [
+      "strictClippy layout fix and actual typed/Core/IPC/Native compile revalidation",
+      "actual exact-source browser normal/failure flow and screenshot inspection",
+      "true OS Native dualMac/release audit and traceable dual installers; exact seven checks before merge",
+      "targetadvance>=3/competition/CAS faults/unknown recovery/mixed budgets; full Unicode/change/remote/cleanup and all130 remain incomplete"
+    ],
+    "authority": "AB-START-001 unchanged; no formalApprove/mainmerge/production/signing/liveProvider/newspend granted"
+  }
 }

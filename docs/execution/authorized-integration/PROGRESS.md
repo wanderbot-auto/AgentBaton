@@ -38,3 +38,10 @@ Rootb452 passes199unique Core131.82s (nested1 not additive) and full integration
 New d8c cancellation baseline actually observes the exact owned stopped command, accepts cancel_requested while unsettled, then reaches outcome_unknown/OUTCOME_UNKNOWN:0PASS1FAIL6.37s, wrapper29.805423s. Later confirmed-cancel/ledger/ref assertions were not reached; no old6pass covers it. Failed42,853,984B ELF/SHA02a55a... and full9,595,611B gzip/SHA98f357... remain via manifest+metadata, with private post-daemon-cleanup root retained. No DB/Token/rawELF contents copied.
 
 Root-proposed f653 stop-vs-correctness fix is not executed or accepted here. Current full203/fixed7 remain unrun anticipated counts. [RUNTIME_RESULTS.json](RUNTIME_RESULTS.json) SHA256 29ba72f709e959692b056091de8209506503fdece9728756e2c8236f5d760c08; old377c580d record resolves at commit6fddb485777e423e419cc26af8f93322c9a6b268 and all16 old command objects remain unchanged.
+
+
+## Root execution checkpoint 2026-10-30T14:02:49.022114+00:00
+
+Source507 passes203 unique Core units (new4 stop controls/nestedhelper included) and7 real Unix integration IPC cases, including two normal chains, failed correctness, prior revocation and actual running cancellation. Source0cee source-capture13 passed after no-op/style corrections. Original d8c cancellation unknown0/1 and failed ELF/private stopped fixture remain; no old outcome is reclassified or retried.
+
+StrictClippy remains failed (all original logs retained); Core385 typed layout/cfg module ordering fix is under independent review, not composed or runtime verified here. No warning suppression or lowered acceptance. New Native CI and release marker canary are source/pure reviewed, not OS/Mac or real release proof. Actual browser/OS Native/dualMac/packages/full130 remain incomplete. Full commands and source/INPUTS/RESULT/log hashes are in RUNTIME_RESULTS.json. Parent61 Intel capture4164/4000 now fails; no reuse of old059 cause or green. Main653679d/OWNER001002 ACK, permissions unchanged.

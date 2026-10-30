@@ -30,3 +30,10 @@ Preserve source-specific compilation, runtime and failed-capacity evidence in [R
 ## Root b452 terminal and owned-cancel baseline — 2026-10-30T13:33:37.083180+00:00
 
 Record the exact199Core/6IPC b452 success separately from the new d8c owned-cancel0/1 failure; retain original16 records and all older failures. Next admission requires the independently reviewed exact stop correction and actual current full203/fixed7 runs, not borrowed old positives. Native/Mac/fullVAL009/130 remain open.
+
+
+## Root execution checkpoint 2026-10-30T14:02:49.022114+00:00
+
+Source507 passes203 unique Core units (new4 stop controls/nestedhelper included) and7 real Unix integration IPC cases, including two normal chains, failed correctness, prior revocation and actual running cancellation. Source0cee source-capture13 passed after no-op/style corrections. Original d8c cancellation unknown0/1 and failed ELF/private stopped fixture remain; no old outcome is reclassified or retried.
+
+StrictClippy remains failed (all original logs retained); Core385 typed layout/cfg module ordering fix is under independent review, not composed or runtime verified here. No warning suppression or lowered acceptance. New Native CI and release marker canary are source/pure reviewed, not OS/Mac or real release proof. Actual browser/OS Native/dualMac/packages/full130 remain incomplete. Full commands and source/INPUTS/RESULT/log hashes are in RUNTIME_RESULTS.json. Parent61 Intel capture4164/4000 now fails; no reuse of old059 cause or green. Main653679d/OWNER001002 ACK, permissions unchanged.

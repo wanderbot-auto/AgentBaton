@@ -2065,7 +2065,8 @@
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/authorized-integration/RUNTIME_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2277,6 +2278,17 @@
           "evidence": "docs/execution/factory-child-goal-integration/IO_LOCAL_ACCEPTANCE.json",
           "coverage": "partial Linux generated fixture; actual cancel/workerjoined; not midcopy/partialwrite/OSstop/Native/Provider/macOS/complete cleanup/full product",
           "actual": "8checks/unrun0; independent source P2 closed630;73pure"
+        },
+        {
+          "slice": "schema17_real_integration_and_confirmed_owned_command_cancellation_partial",
+          "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+          "Core_unique": 203,
+          "integration_IPC_unique": 7,
+          "nested_and_prior_subset_not_additive": true,
+          "validation": "normal automatic/explicit localCAS, failed freshcorrectness noCAS, preacceptrevoke and real runningcancel stop/reap/EOF/no refund; original unknown retained",
+          "native_OS_Mac_Provider": "not_run",
+          "strict_checks": "Clippyfailed; typedfixpending; notaccepted",
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -2315,7 +2327,8 @@
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/authorized-integration/RUNTIME_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2520,6 +2533,17 @@
           "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
           "status": "partial dimension only; notwhole requirement acceptance",
           "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "schema17_real_integration_and_confirmed_owned_command_cancellation_partial",
+          "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+          "Core_unique": 203,
+          "integration_IPC_unique": 7,
+          "nested_and_prior_subset_not_additive": true,
+          "validation": "normal automatic/explicit localCAS, failed freshcorrectness noCAS, preacceptrevoke and real runningcancel stop/reap/EOF/no refund; original unknown retained",
+          "native_OS_Mac_Provider": "not_run",
+          "strict_checks": "Clippyfailed; typedfixpending; notaccepted",
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -2833,7 +2857,8 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/authorized-integration/RUNTIME_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2985,6 +3010,17 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "schema17_real_integration_and_confirmed_owned_command_cancellation_partial",
+          "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+          "Core_unique": 203,
+          "integration_IPC_unique": 7,
+          "nested_and_prior_subset_not_additive": true,
+          "validation": "normal automatic/explicit localCAS, failed freshcorrectness noCAS, preacceptrevoke and real runningcancel stop/reap/EOF/no refund; original unknown retained",
+          "native_OS_Mac_Provider": "not_run",
+          "strict_checks": "Clippyfailed; typedfixpending; notaccepted",
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -6969,7 +7005,8 @@
         "docs/execution/integration17-root-evidence/ROOT_CHECKPOINT.json",
         "docs/execution/factory-child-goal-integration/PRIOR_CAPTURE_AND_HEAD60BA_RESULTS.json",
         "docs/execution/capture-completion-service/ROOT_RESULTS.json",
-        "docs/execution/goal-stop-service/ROOT_RESULTS.json"
+        "docs/execution/goal-stop-service/ROOT_RESULTS.json",
+        "docs/execution/authorized-integration/RUNTIME_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -7067,6 +7104,17 @@
           "new_exact_Mac_CI": "not_run_yet",
           "whole_requirement": "incomplete",
           "authority": "hint is scheduling only; original fresh stop/actual receipts and budget/unknown guards unchanged"
+        },
+        {
+          "slice": "schema17_real_integration_and_confirmed_owned_command_cancellation_partial",
+          "source": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+          "Core_unique": 203,
+          "integration_IPC_unique": 7,
+          "nested_and_prior_subset_not_additive": true,
+          "validation": "normal automatic/explicit localCAS, failed freshcorrectness noCAS, preacceptrevoke and real runningcancel stop/reap/EOF/no refund; original unknown retained",
+          "native_OS_Mac_Provider": "not_run",
+          "strict_checks": "Clippyfailed; typedfixpending; notaccepted",
+          "overall_requirement": "incomplete"
         }
       ]
     },
