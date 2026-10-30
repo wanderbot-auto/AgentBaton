@@ -42,6 +42,9 @@ mod fs;
 #[path = "integration_reads.rs"]
 mod reads;
 pub(crate) use reads::{IntegrationReadIntent, IntegrationReadPlan, IntegrationReadProof};
+#[path = "integration_targets.rs"]
+mod targets;
+pub(crate) use targets::{IntegrationTargetPlan, IntegrationTargetProof};
 #[path = "integration_records.rs"]
 mod records;
 

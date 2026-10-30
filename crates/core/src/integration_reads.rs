@@ -25,7 +25,7 @@ fn phase_result<T>(phase: &'static str, result: Result<T>) -> Result<T> {
         error
     })
 }
-struct DatabasePin {
+pub(super) struct DatabasePin {
     path: PathBuf,
     file: File,
     parent: File,
@@ -35,7 +35,7 @@ struct DatabasePin {
     parent_inode: u64,
 }
 impl DatabasePin {
-    fn capture(db: &Connection) -> Result<Self> {
+    pub(super) fn capture(db: &Connection) -> Result<Self> {
         let path = PathBuf::from(db.path().ok_or_else(changed)?);
         if !path.is_absolute()
             || path.as_os_str().len() > 4096
@@ -79,7 +79,7 @@ impl DatabasePin {
             parent_inode: p.ino(),
         })
     }
-    fn open_readonly(&self, deadline: Instant) -> Result<Connection> {
+    pub(super) fn open_readonly(&self, deadline: Instant) -> Result<Connection> {
         self.recheck()?;
         let connection = Connection::open_with_flags(
             &self.path,
@@ -98,7 +98,7 @@ impl DatabasePin {
             .map_err(db_error)?;
         Ok(connection)
     }
-    fn recheck(&self) -> Result<()> {
+    pub(super) fn recheck(&self) -> Result<()> {
         let held = self.file.metadata().map_err(|_| changed())?;
         let p = self.parent.metadata().map_err(|_| changed())?;
         let current = fs::symlink_metadata(&self.path).map_err(|_| changed())?;
@@ -458,7 +458,7 @@ fn git_pin(identity: &WorkspaceIdentity) -> Result<IntegrationGitPin> {
         head: head.clone(),
     })
 }
-fn inspect_exact(
+pub(super) fn inspect_exact(
     expected: &WorkspaceIdentity,
     base: &str,
     allow_dirty: bool,

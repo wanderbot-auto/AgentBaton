@@ -522,6 +522,16 @@ impl Daemon {
                 ),
             ));
         }
+        if let Some((job, result)) = self.integration_workers.join_targets() {
+            drop(result);
+            let _ = job.reply.try_send(self.ready_error(
+                &job.raw,
+                CoreError::new(
+                    "CANCEL_REQUESTED",
+                    "Daemon stopped before integration targets observation admission",
+                ),
+            ));
+        }
         self.integration_workers.shutdown_stages(&mut self.store)?;
         self.data_workers.shutdown(&mut self.store)?;
         self.command_workers.shutdown(&mut self.store)?;
@@ -753,6 +763,7 @@ impl Daemon {
                 let key=r.idempotency_key.ok_or_else(invalid)?;
                 self.store.integration_proposal_replay(&selection,&key)?.map(|p|json!(p)).ok_or_else(||CoreError::new("AUTH_REQUIRED","A request-owned integration observation is required before proposing authority"))
             },
+            "integration_targets.list"=>Err(CoreError::new("AUTH_REQUIRED","Integration targets require their request-owned observation")),
             "integration_context.get"=>Err(CoreError::new("AUTH_REQUIRED","Integration context requires its request-owned observation")),
             "integration_policies.get"=>{let p:crate::integration::IntegrationPolicyId=params(r.params)?;Ok(json!(self.store.get_integration_policy(&p.policy_id)?))},
             "integration_policies.list"=>{let p:crate::integration::IntegrationListQuery=params(r.params)?;Ok(json!(self.store.list_integration_policies(&p)?))},
@@ -1133,6 +1144,7 @@ impl Drop for Daemon {
         // Consume the actual JoinHandle before unlinking the socket or
         // unlocking writer.lock, including early error/unwind paths.
         drop(self.integration_workers.join_reads());
+        drop(self.integration_workers.join_targets());
         self.integration_workers.join_stages();
         self.graph_workers.reap_owned_workers();
         self.data_workers.reap_owned_workers();
@@ -1934,6 +1946,20 @@ impl Daemon {
             return;
         }
         if job.factory_dispatch.is_none() {
+            match self.integration_targets_for_request(&job.raw) {
+                Err(error) => {
+                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    return;
+                }
+                Ok(Some(plan)) => {
+                    if let Err(failure) = self.integration_workers.defer_targets(plan, job) {
+                        let (error, job) = *failure;
+                        let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    }
+                    return;
+                }
+                Ok(None) => (),
+            }
             match self.integration_read_for_request(&job.raw) {
                 Err(error) => {
                     let _ = job.reply.try_send(self.ready_error(&job.raw, error));
@@ -3061,7 +3087,63 @@ impl Daemon {
             .prepare_integration_scope_read(intent, raw)
             .map(Some)
     }
+    fn integration_targets_for_request(
+        &self,
+        raw: &str,
+    ) -> Result<Option<crate::integration::IntegrationTargetPlan>> {
+        let request: Request = match serde_json::from_str(raw) {
+            Ok(r) => r,
+            Err(_) => return Ok(None),
+        };
+        if request.method != "integration_targets.list"
+            || request.token != self.token
+            || request.api_version != API_VERSION
+        {
+            return Ok(None);
+        }
+        if request.request_id.is_empty() || request.request_id.len() > 128 {
+            return Err(invalid());
+        }
+        if self.supervisor.has_workers()
+            || self.command_workers.has_workers()
+            || self.data_workers.has_workers()
+            || self.graph_workers.has_workers()
+        {
+            return Err(CoreError::new(
+                "WORKSPACE_BUSY",
+                "Stop active source writers before reading integration targets",
+            ));
+        }
+        self.store
+            .prepare_integration_targets_read(params(request.params)?, raw)
+            .map(Some)
+    }
+    fn finish_integration_targets(&mut self) {
+        let Some((job, result)) = self.integration_workers.poll_targets() else {
+            return;
+        };
+        let response = (|| -> Result<Value> {
+            let request: Request = serde_json::from_str(&job.raw).map_err(|_| invalid())?;
+            if request.token != self.token
+                || request.api_version != API_VERSION
+                || request.method != "integration_targets.list"
+            {
+                return Err(CoreError::new(
+                    "AUTH_REQUIRED",
+                    "Integration targets request authentication changed",
+                ));
+            }
+            let proof = result?;
+            Ok(json!(proof.verify(&self.store, &job.raw, job.deadline)?))
+        })();
+        let response = match response {
+            Ok(value) => self.ready_success(&job.raw, value),
+            Err(error) => self.ready_error(&job.raw, error),
+        };
+        let _ = job.reply.try_send(response);
+    }
     fn finish_integration_read(&mut self) {
+        self.finish_integration_targets();
         let Some((job, result)) = self.integration_workers.poll_read() else {
             return;
         };

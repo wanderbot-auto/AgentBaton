@@ -15,9 +15,15 @@ struct ReadWorker {
     cancel: Arc<AtomicBool>,
     thread: JoinHandle<Result<IntegrationReadProof>>,
 }
+struct TargetWorker {
+    request: crate::ipc::ReadyRequest,
+    cancel: Arc<AtomicBool>,
+    thread: JoinHandle<Result<super::IntegrationTargetProof>>,
+}
 #[derive(Default)]
 pub(crate) struct IntegrationWorkers {
     reader: Option<ReadWorker>,
+    target_reader: Option<TargetWorker>,
     armed_after: Option<String>,
     stage: Option<super::stage_workers::OwnedStage>,
     retained: Option<(
@@ -27,7 +33,10 @@ pub(crate) struct IntegrationWorkers {
 }
 impl IntegrationWorkers {
     pub(crate) fn has_workers(&self) -> bool {
-        self.reader.is_some() || self.stage.is_some() || self.retained.is_some()
+        self.reader.is_some()
+            || self.target_reader.is_some()
+            || self.stage.is_some()
+            || self.retained.is_some()
     }
     pub(crate) fn defer_read(
         &mut self,
@@ -98,7 +107,92 @@ impl IntegrationWorkers {
         });
         Some((worker.request, result))
     }
+    pub(crate) fn defer_targets(
+        &mut self,
+        plan: super::IntegrationTargetPlan,
+        request: crate::ipc::ReadyRequest,
+    ) -> std::result::Result<(), Box<(CoreError, crate::ipc::ReadyRequest)>> {
+        if self.has_workers() || Instant::now() >= request.deadline {
+            let error = if Instant::now() >= request.deadline {
+                CoreError::new(
+                    "DEADLINE_EXCEEDED",
+                    "Integration targets request expired before scheduling",
+                )
+            } else {
+                CoreError::new(
+                    "WORKSPACE_BUSY",
+                    "The bounded integration I/O worker is already owned",
+                )
+            };
+            return Err(Box::new((error, request)));
+        }
+        let cancel = Arc::new(AtomicBool::new(false));
+        let flag = cancel.clone();
+        let deadline = request.deadline;
+        let thread = match std::thread::Builder::new()
+            .name("integration-targets".into())
+            .spawn(move || plan.execute(flag, deadline))
+        {
+            Ok(thread) => thread,
+            Err(_) => {
+                return Err(Box::new((
+                    CoreError::new(
+                        "RESOURCE_LIMIT",
+                        "Cannot start owned integration targets reader",
+                    ),
+                    request,
+                )))
+            }
+        };
+        self.target_reader = Some(TargetWorker {
+            request,
+            cancel,
+            thread,
+        });
+        Ok(())
+    }
+    pub(crate) fn poll_targets(
+        &mut self,
+    ) -> Option<(
+        crate::ipc::ReadyRequest,
+        Result<super::IntegrationTargetProof>,
+    )> {
+        let worker = self.target_reader.as_ref()?;
+        if Instant::now() >= worker.request.deadline {
+            worker.cancel.store(true, Ordering::Release);
+        }
+        if !worker.thread.is_finished() {
+            return None;
+        }
+        let worker = self.target_reader.take()?;
+        let result = worker.thread.join().unwrap_or_else(|_| {
+            Err(CoreError::new(
+                "INTERNAL_ERROR",
+                "Owned integration targets reader panicked",
+            ))
+        });
+        Some((worker.request, result))
+    }
+    pub(crate) fn join_targets(
+        &mut self,
+    ) -> Option<(
+        crate::ipc::ReadyRequest,
+        Result<super::IntegrationTargetProof>,
+    )> {
+        let worker = self.target_reader.take()?;
+        worker.cancel.store(true, Ordering::Release);
+        let result = worker.thread.join().unwrap_or_else(|_| {
+            Err(CoreError::new(
+                "INTERNAL_ERROR",
+                "Owned integration targets reader panicked during shutdown",
+            ))
+        });
+        Some((worker.request, result))
+    }
     pub(crate) fn stop_reads(&mut self) {
+        if let Some(worker) = &self.target_reader {
+            worker.cancel.store(true, Ordering::Release);
+        }
         if let Some(worker) = &self.reader {
             worker.cancel.store(true, Ordering::Release);
         }
@@ -123,6 +217,7 @@ impl Drop for IntegrationWorkers {
         self.stop_reads();
         self.stop_stages();
         drop(self.join_reads());
+        drop(self.join_targets());
         self.join_stages();
     }
 }
@@ -166,6 +261,7 @@ mod tests {
                         cancel,
                         thread,
                     }),
+                    target_reader: None,
                     stage: None,
                     retained: None,
                     armed_after: None,
