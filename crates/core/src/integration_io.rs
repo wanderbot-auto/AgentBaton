@@ -416,9 +416,29 @@ impl IntegrationPreparedContext {
     pub(super) fn validation_is_stopped(observation: &GoalValidatorObservation) -> bool {
         observation.command.as_ref().is_none_or(|run| {
             let view = run.view();
+            use agentbaton_workspaces::command_validation::RunReason;
+            if !view.process_started {
+                // The opaque producer returns these exact paths before spawn.
+                // No child/pipes existed: do not manufacture reap/EOF facts or
+                // require the natural-exit/PASS observation for a nonexistent child.
+                return matches!(
+                    view.reason,
+                    RunReason::CancelledBeforeSpawn | RunReason::DeadlineExceeded
+                );
+            }
+            // Known stopped is distinct from correctness/PASS. A cancelled or
+            // failed command can be reaped with complete capture under its
+            // original cleanup cap, without a timely natural exit. Those PASS
+            // predicates remain enforced by the original command evidence.
             view.cleanup.owned_leader_reaped
                 && view.cleanup_completed_within_budget
-                && view.exit_observed_within_budget
+                && view.cleanup.all_capture_pipes_observed_eof
+                && view.stdout.eof_observed
+                && view.stderr.eof_observed
+                && !matches!(
+                    view.reason,
+                    RunReason::CleanupUnknown | RunReason::CancelledBeforeSpawn
+                )
         })
     }
     pub(super) fn cas(
@@ -503,3 +523,7 @@ impl Drop for IntegrationPreparedContext {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "integration_validator_stop_tests.rs"]
+mod validator_stop_tests;
