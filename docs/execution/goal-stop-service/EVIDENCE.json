@@ -1,0 +1,81 @@
+{
+  "actual_product_processes_started": 0,
+  "actual_tests_run": 0,
+  "authority_notes": [
+    "hint is private coalesced process-local scheduling signal only",
+    "complete fresh stop predicate remains unchanged",
+    "hint cannot admit/retry/join/refund/release lease/renew budget or create epoch",
+    "original unconditional outer sweep survives lost or absent hints",
+    "failed transaction or provenance remains fail-closed; original fatal owned cleanup retained",
+    "only actual WorkerReceipt confirms stop and can queue capture"
+  ],
+  "base": "8c292ae9edb0741a1629783ad9ac297a1f941f9e",
+  "commands": [
+    {
+      "command": "rustfmt --edition 2021 --config skip_children=true --check crates/core/src/ipc.rs crates/core/src/sessions.rs crates/core/src/goal_stop_service_tests.rs",
+      "dimension": "format only; no Cargo or type compilation",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "dimension": "whitespace only",
+      "exit": 0
+    },
+    {
+      "command": "author finite source/inverse and ast.parse of fixed Provider with HOLD=True/False",
+      "count": 24,
+      "dimension": "source-only; no Provider executed",
+      "exit": 0
+    }
+  ],
+  "expected_test_filter": "cargo test --locked -p agentbaton-core --lib goal_stop_service_tests -- --show-output --test-threads=1",
+  "new_test_functions": [
+    "owned_goal_terminal_commit_is_stopped_by_hint_before_an_unrelated_read_without_admission",
+    "ordinary_ready_and_completed_turn_do_not_hint_or_automatically_stop",
+    "failed_terminal_turn_transaction_publishes_no_hint_or_false_stop",
+    "committed_hint_does_not_bypass_current_goal_node_provenance",
+    "pending_goal_cancel_still_uses_the_outer_fresh_sweep_without_a_hint",
+    "no_hint_skips_the_stop_scan_instead_of_masking_its_required_failure"
+  ],
+  "not_run": [
+    "Rust compilation",
+    "6 new tests",
+    "Core/Factory/sessions IPC suites",
+    "actual Daemon.run readybatch fairness/latency",
+    "Intel/ARM CI",
+    "model calls",
+    "OS dialog"
+  ],
+  "prior_actual_failure": {
+    "capture_actual_ms": 4362,
+    "capture_worker_not_started": true,
+    "method_phase_cause": "unknown",
+    "original_reservation_ms": 4000,
+    "performance_fixed": false,
+    "producer_ms": 4005,
+    "review": "/workspace/.onboarding/pr18-head8c292-source-diagnosis/REVIEW.md",
+    "review_sha256": "efb2b539a19e672d511afab4b1eb2b57c465cfa38dd7c4982d797ef00ab14935",
+    "subject": "8c292ae9edb0741a1629783ad9ac297a1f941f9e"
+  },
+  "production_commit": "071083a340632ca780c817970e64837281080096",
+  "requirement_scope": [
+    "AB-GOL existing Goal/Factory stop service",
+    "AB-VAL-009"
+  ],
+  "source_author_not_independent_reviewer": true,
+  "source_sha256": {
+    "crates/core/src/goal_stop_service_tests.rs": "745ff4e527279a8e606ad100c079ce52a6bbf28a47b728faf431280915e462c4",
+    "crates/core/src/ipc.rs": "202b22b2d8f32427ef449c513c3b91f43c124b1193c428062bad1945944c8102",
+    "crates/core/src/sessions.rs": "5d7190c7a7f3a7c15ebf9d28344b9b563196dae257475440046fcad2e834729b"
+  },
+  "source_static": {
+    "all_pass": true,
+    "artifact": "/workspace/.onboarding/goal-stop-service-source/STATIC_CHECKS.json",
+    "count": 24,
+    "first_check_pattern_error": "/workspace/.onboarding/goal-stop-service-source/STATIC_CHECKS_FIRST_PATTERN_ERROR.json",
+    "full_ipc_inverse": "/workspace/.onboarding/goal-stop-service-source/IPC_INVERSE.rs",
+    "full_sessions_inverse": "/workspace/.onboarding/goal-stop-service-source/SESSIONS_INVERSE.rs"
+  },
+  "test_commit": "bac24a63b74aa1e253061c73ffcdac91be1385fe",
+  "test_dimension": "actual Native Core proposal/finalizer/version probe/approved Goal and generated ACP/owned Supervisor threads; direct private Actor helpers, not Daemon.run/Unix socket or OS dialog"
+}
