@@ -228,7 +228,8 @@
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -249,6 +250,13 @@
           "Native": "compileonly; OS/Mac not_run",
           "evidence": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
           "coverage": "partial; full requirement not accepted"
+        },
+        {
+          "slice": "bounded_target_only_drift_false_receipts_and_three_real_rounds",
+          "source": "e39bcff2eeffd92e879588c620e0972c8ebdc109",
+          "linux_real_ipc_unique": 12,
+          "core_unique": 221,
+          "coverage": "partial; no new Native/Mac/currentCI/fullrequirement acceptance"
         }
       ]
     },
@@ -280,7 +288,8 @@
         "docs/execution/task-workspace-integration/EVIDENCE.json",
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
+        "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -322,6 +331,13 @@
           "Native": "compileonly; OS/Mac not_run",
           "evidence": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
           "coverage": "partial; full requirement not accepted"
+        },
+        {
+          "slice": "bounded_target_only_drift_false_receipts_and_three_real_rounds",
+          "source": "e39bcff2eeffd92e879588c620e0972c8ebdc109",
+          "linux_real_ipc_unique": 12,
+          "core_unique": 221,
+          "coverage": "partial; no new Native/Mac/currentCI/fullrequirement acceptance"
         }
       ],
       "data_workspace_contribution": {
@@ -7030,7 +7046,8 @@
         "docs/execution/factory-child-goal-integration/PRIOR_CAPTURE_AND_HEAD60BA_RESULTS.json",
         "docs/execution/capture-completion-service/ROOT_RESULTS.json",
         "docs/execution/goal-stop-service/ROOT_RESULTS.json",
-        "docs/execution/authorized-integration/RUNTIME_RESULTS.json"
+        "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+        "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -7150,6 +7167,13 @@
           "Native": "compileonly; OS/Mac not_run",
           "evidence": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
           "coverage": "partial; full requirement not accepted"
+        },
+        {
+          "slice": "bounded_target_only_drift_false_receipts_and_three_real_rounds",
+          "source": "e39bcff2eeffd92e879588c620e0972c8ebdc109",
+          "linux_real_ipc_unique": 12,
+          "core_unique": 221,
+          "coverage": "partial; no new Native/Mac/currentCI/fullrequirement acceptance"
         }
       ]
     },

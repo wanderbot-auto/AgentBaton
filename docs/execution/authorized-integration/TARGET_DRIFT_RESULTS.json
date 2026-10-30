@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-30T18:06:34.358084+00:00",
+  "approval_id": "AB-START-001",
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "implementation_source": "e39bcff2eeffd92e879588c620e0972c8ebdc109",
+  "core_source": "08fbc4856a17ee84f4df42530dc02fff7620e1a8",
+  "library_source": "775d723b243e7613d6731e1e6054e3e54ceea093",
+  "actual_results": {
+    "core_full221": {
+      "source": "d44c743d93d311ca465c310cc87377425275e829",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_core-9ef2531d503686d6",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 146.00729510898236,
+      "minimum_free_bytes": 215138304,
+      "interruption": null,
+      "log_sha256": "3f89356dbc4ffe068029affcdf8cb1086a78cba6bb25957427e863af1c7332a8",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 220 filtered out; finished in 0.00s",
+        "test result: ok. 221 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 145.95s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "linux_real_unix_ipc12": {
+      "source": "e39bcff2eeffd92e879588c620e0972c8ebdc109",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "/workspace/.onboarding/integration17-target-drift-full-ipc2/failed-integration-ipc-elf",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 78.52840167999966,
+      "minimum_free_bytes": 388300800,
+      "interruption": null,
+      "log_sha256": "08e00391f23dbb6a6c529e21ad9e4a9824f1eba6924f02661e66717e719a4a9d",
+      "summaries": [
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 78.48s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "mock_ui53": {
+      "source": "e1a3f80007e2c2f45b17aa5e50333ee3619a2227",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "src/integration-api.test.ts",
+        "src/TaskIntegration.test.tsx",
+        "src/IntegrationEvidence.rounds.test.tsx",
+        "--maxWorkers=1"
+      ],
+      "exit": 0,
+      "seconds": 5.417968163994374,
+      "minimum_free_bytes": 229961728,
+      "interruption": null,
+      "log_sha256": "ec5e364893bb7c1f8c93598674a647213b67ddeb7a8464846e8c79c1f88c6721",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "binary_provenance": {
+    "core_unit_elf_sha256": "a2626fb33f784a1106868be5f70a49dbf490c3ad7f94c23e38862789d901267b",
+    "core_compile": "integration17-core-drift-owned-stage-units1 compiled current source; first filter0 is not a test pass",
+    "ipc_elf_sha256": "d0c79c21992fb2fcf3904350bb943b3b866943d4d5134edcdceef99fe89d037e",
+    "ipc_compile_source": "e39bcff2eeffd92e879588c620e0972c8ebdc109",
+    "same_compiled_ipc_elf_used_for_failed_default_path_and_passed_supported_path": true,
+    "supported_path": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+    "git_identity_distinction": {
+      "default_path": "/usr/local/bin/git",
+      "default_nlink": 147,
+      "supported_path": "/usr/bin/git",
+      "supported_nlink": 1
+    },
+    "external_companion": "existing frozen schema15 tools unchanged, not relabeled current17; embedded actual Core is changed source"
+  },
+  "meaningful_assertions": [
+    "three actual rounds keep false,false,true validator receipts; only final round permits single exact CAS",
+    "actual descendant advance after real process starts; original500+500ms command/2s stage/20s shared/30s Grant unchanged",
+    "expected exit7, unrelated root rewrite, block+max3 and max3 exhaustion refuse reprepare/fourth round/CAS as applicable",
+    "all attempts and real runtime/output remain charged; Graph acceptance and source/index retained",
+    "three new thread lifecycle units are included in full221; nested helper is not additive"
+  ],
+  "retained_current_failures": [
+    {
+      "source": "d44c743d93d311ca465c310cc87377425275e829",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "stage_workers::tests",
+        "--",
+        "--nocapture"
+      ],
+      "exit": -15,
+      "seconds": 21.57883685900015,
+      "minimum_free_bytes": 155893760,
+      "interruption": "external_capacity_time_or_log_bound",
+      "log_sha256": "14cc1bb5502dd12031b7c6df3ed5170d99e33c8ff643af2651282f37fea9d969",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "84c530459fa165ad14f36bac0ace01eb9462f309",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 24.775575706997188,
+      "minimum_free_bytes": 280125440,
+      "interruption": null,
+      "log_sha256": "bc5dc2dd17d26f11508ac51421e262c0960ef14b73b0846e5d8156e7082f0cc1",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "e39bcff2eeffd92e879588c620e0972c8ebdc109",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 53.84737942900392,
+      "minimum_free_bytes": 216932352,
+      "interruption": null,
+      "log_sha256": "d7f5d1971748b9df3eb3a31a6d5865ef0a9335529224b55bbb66f190e5f77500",
+      "summaries": [
+        "test result: FAILED. 1 passed; 11 failed; 0 ignored; 0 measured; 0 filtered out; finished in 30.19s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  ],
+  "zero_matched_runs": [
+    "integration17-core-drift-owned-stage-units1",
+    "integration17-core-drift-stage-lifecycle-units2"
+  ],
+  "independent_source_reviews": [
+    {
+      "scope": "Core08 closure, originalCAS/fees/cancel preserved",
+      "manifest_sha256": "e7f5ce08e0072c115915860ee04e7ab6d0ac8ceaace7894ffc9f263872e406fd"
+    },
+    {
+      "scope": "fournegative final246",
+      "manifest_sha256": "98bd5cac58ce7a547c4ca660fc557201287fd0f14ad9326ffc6cdb381bd9cc82"
+    }
+  ],
+  "parent_exact_ci": {
+    "pr": 18,
+    "head": "fbeb2e96854868735b9c07f27485c5cf8f748502",
+    "product_run": 41094992088,
+    "Rust": "passed",
+    "AppleSilicon": "passed",
+    "Intel": "failed REWORK_REVISION2_TERMINAL plan2 runrevision14 blocked; actual budget reason not yet localized to exact guard",
+    "UI": "failed legacy Factory cancellation empty argv; childGoal not reached",
+    "whole_product": "failed"
+  },
+  "not_run_or_incomplete": [
+    "new actual drift+Owner withdrawal cases not yet compiled/run",
+    "new rawDB descriptor crossprocess lock experiments not yet compiled/run",
+    "changed-pins/expiry/overrun/unknown during new stopped-target-drift recovery path",
+    "new mixedround real frontend IPC/Native/macOS/dualarchitectures/release audit/development installers",
+    "exact new required CI; protected integration; full130 including Unicode/change/adoption/remote/retention",
+    "real Provider test accounts/calls blocked by separate authorization; signing/production not authorized"
+  ],
+  "prior_failures": "Original three-round unknown/deadline/artifact failures and prior library reviews remain unchanged; no old unknown replay/refund or transfer of old CI passes"
+}
