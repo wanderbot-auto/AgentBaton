@@ -2926,3 +2926,7 @@ impl Daemon {
             .try_send(self.factory_ready_error(&job.raw, error));
     }
 }
+
+#[cfg(test)]
+#[path = "goal_stop_service_tests.rs"]
+mod goal_stop_service_tests;
