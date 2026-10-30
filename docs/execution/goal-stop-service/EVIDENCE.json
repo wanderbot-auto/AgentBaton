@@ -46,6 +46,44 @@
     "model calls",
     "OS dialog"
   ],
+  "post_reap_assertion_fix": {
+    "actual_Rust_compilation_or_execution": false,
+    "actual_Task_fields_from_storage": "Task.state, acceptance_ref:Option<String>, acceptance_sequence:Option<u64>",
+    "assertions_after_both_real_reaps": [
+      "all attempts count equals original pre-stop count",
+      "fresh Task.state != Accepted",
+      "fresh Task.acceptance_ref None",
+      "fresh Task.acceptance_sequence None",
+      "goal_graph_acceptances for actual Task count0",
+      "after pre-stop sequence no fixed admission/accepted event kinds"
+    ],
+    "event_kinds_from_actual_writer_sources": [
+      "attempt.prepared",
+      "attempt.dispatch_started",
+      "goal.run_authorized",
+      "goal.node_reserved",
+      "goal.node_prompt_queued",
+      "session.message_queued",
+      "task.accepted"
+    ],
+    "independent_closure": "requested from integration_ui; not inferred from author checks",
+    "legitimate_stop_settlement_journal_growth_allowed": true,
+    "note_original_source_sha256_record": "Historical bac24 hashes remain above; this fixed test SHA is the latest test-only boundary.",
+    "old_review_result": "CHANGES_REQUIRED P2; independent261e/cfb7 original sealed history retained",
+    "old_source": "bac24a63b74aa1e253061c73ffcdac91be1385fe",
+    "original_caps_unchanged": true,
+    "original_test_assertions_preserved": true,
+    "production_bytes_unchanged": true,
+    "source": "ce6ff35689860ff6f2105d282026c9f321a753f8",
+    "source_checks": {
+      "all_pass": true,
+      "artifact": "/workspace/.onboarding/goal-stop-service-source/POST_REAP_ASSERTION_CHECKS.json",
+      "count": 13,
+      "full_test_inverse": "/workspace/.onboarding/goal-stop-service-source/POST_REAP_TEST_INVERSE.rs"
+    },
+    "test_functions_still": 6,
+    "test_sha256": "26f949a967f8e70799db40ab746de2694f4df89f0b4fe5e89d093c78fcad3c01"
+  },
   "prior_actual_failure": {
     "capture_actual_ms": 4362,
     "capture_worker_not_started": true,

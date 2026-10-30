@@ -7,3 +7,9 @@ Independent reviewer should inspect the commit-after-hint ordering, owns-worker/
 Root next command (new6-function library target only, when an exclusive lease is granted): `cargo test --locked -p agentbaton-core --lib goal_stop_service_tests -- --show-output --test-threads=1`. Then actual full Core/Factory/sessions IPC/strict Clippy/format, precise current tool/source provenance and exact CI. Existing Factory normal/rework/unknown/cancel/overrun checks must remain. No Cargo/actual process lease is held by this author.
 
 Do not interpret these helper-level actual-owned-process tests as Daemon.run/Unix/socket, full Graph capture or Native OS tests; those remain separate Root validation. Do not broaden timers/approval/authority if a test fails. The new service only targets the post-commit terminal-stop gap; prelaunch/provider/earlier Actor delay or cleanup can still exhaust the original4s.
+
+## Latest fixed test boundary
+
+Use production071083a340632ca780c817970e64837281080096 + original cfg/tests bac24a63b74aa1e253061c73ffcdac91be1385fe + test-only correction ce6ff35689860ff6f2105d282026c9f321a753f8. Old bac24 assertion coverage is CHANGES_REQUIRED (independent261e/cfb7 seal retained). The corrected6-function source has not been compiled or executed by author.
+
+The normal and pending-cancel cases both assert global Task receipt/state and no new attempts **after** actual process reap/lease release, without suppressing normal settlement journal growth. Source hashes/current correction are in EVIDENCE.post_reap_assertion_fix and own POST_REAP_ASSERTION_CHECKS.json. Root's pending exact6/Core/Factory/sessionsIPC execution remains required; independent source closure must not be read as a test pass. This change leaves the entire product byte-equivalent to071/bac and does not claim Intel performance improvement.

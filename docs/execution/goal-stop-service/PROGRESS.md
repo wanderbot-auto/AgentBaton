@@ -7,3 +7,9 @@ Tests sourcebac24a63b74aa1e253061c73ffcdac91be1385fe adds only cfg(test) registr
 Twenty-four finite source/order/full-file inverse/Provider AST checks pass. The first exact-string check missed rustfmt's line break around probe_state != ready; its false artifact is retained and the same source passed a whitespace-aware check. This was a checking-script pattern error, not a Rust compile or product failure. rustfmt(skip_children=true) and git diff --check pass. Source review corrected a potential u64 FromSql annotation to i64 before freeze; no compiler was run.
 
 NOT_COMPILED/NOT_RUN by author: all6 new tests, Daemon.run/Unix-loop timing, full Core/Factory/sessions IPC, Clippy, real Intel/ARM and latency benefit. Existing8c292/030 failures and prior failed a067 ordering proposal remain intact. No Cargo, Actor/Provider/Node/browser/network command or product Git operation was executed by this author; only the unit source describes future generated-process/Git fixture operations.
+
+## Fixed test evidence P2 (source only)
+
+New ce6ff35689860ff6f2105d282026c9f321a753f8 changes only goal_stop_service_tests.rs (+48/0). Reviewer bac24 CHANGES_REQUIRED remains recorded; the original source29 controls did not prove these missing assertions and were never actual Rust evidence. Both real-reap sites now recheck all attempts and actual Task acceptance state/receipt fields plus receipt table; a bounded sequence tail explicitly rejects new execution/acceptance events. Original GoalRun/actual-runtime≤4000/reap/lease assertions remain.
+
+Thirteen new finite source checks pass, including complete test inverse byte equality with bac24 and unchanged production071. Rustfmt/diff pass. Still6 functions, all NOT_COMPILED/NOT_RUN by author; no actual failing product run is asserted from this source-review finding. Integration_ui has the exact new leaf for independent narrow closure. No production source, time, cap, new authority or Root file changed.
