@@ -45,6 +45,23 @@ pub(crate) struct IntegrationStageTicket {
     pub(super) queued_at: Instant,
     pub(super) deadline: Instant,
 }
+/// Created only from an already admitted private stage ticket. It is never a
+/// wire input, deserializable capability, or a replacement for live DB checks.
+#[derive(Clone)]
+pub(crate) struct IntegrationStageReadRef {
+    pub(super) run_id: String,
+    pub(super) attempt_id: String,
+    pub(super) policy_id: String,
+}
+impl IntegrationStageTicket {
+    pub(super) fn read_reference(&self) -> IntegrationStageReadRef {
+        IntegrationStageReadRef {
+            run_id: self.run.id.clone(),
+            attempt_id: self.attempt.view.attempt_id.clone(),
+            policy_id: self.policy.id.clone(),
+        }
+    }
+}
 pub(crate) struct IntegrationQueueResult {
     pub(crate) view: IntegrationRunView,
     pub(crate) ticket: Option<IntegrationStageTicket>,

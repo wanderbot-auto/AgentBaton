@@ -19,7 +19,7 @@ fn frame<T: serde::Serialize>(value: &T) -> Result<()> {
     }
     Ok(())
 }
-fn selected_bindings(
+pub(super) fn selected_bindings(
     context: &IntegrationContextView,
     s: &IntegrationPolicySelection,
 ) -> Result<IntegrationStaticBindings> {

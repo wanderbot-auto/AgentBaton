@@ -3108,7 +3108,7 @@ impl Daemon {
                         job.deadline,
                     )
                 }
-                Intent::Start { .. } => Err(CoreError::new(
+                Intent::Start { .. } | Intent::Stage(_) => Err(CoreError::new(
                     "AUTH_REQUIRED",
                     "Only the private integration stage admission may consume this observation",
                 )),

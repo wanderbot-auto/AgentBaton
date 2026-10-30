@@ -15,21 +15,29 @@ pub(super) fn for_stage(
     db: &Connection,
     ticket: &runtime::IntegrationStageTicket,
 ) -> Result<IntegrationFencePermit> {
-    let record = budget::attempt(db, &ticket.attempt.view.attempt_id)?;
-    if record.integration_id != ticket.run.id
+    for_reference(db, &ticket.read_reference())
+}
+pub(super) fn for_reference(
+    db: &Connection,
+    reference: &runtime::IntegrationStageReadRef,
+) -> Result<IntegrationFencePermit> {
+    let record = budget::attempt(db, &reference.attempt_id)?;
+    if record.integration_id != reference.run_id
         || record.view.settled
-        || record.policy_id != ticket.policy.id
+        || record.policy_id != reference.policy_id
     {
         return Err(denied());
     }
+    let policy = records::policy(db, &record.policy_id)?;
     let permit = IntegrationFencePermit {
         integration_id: record.integration_id,
         attempt_id: record.view.attempt_id,
-        repository_digest: ticket.policy.bindings.repository_digest.clone(),
+        repository_digest: policy.bindings.repository_digest,
     };
     permit.verify(db)?;
     Ok(permit)
 }
+
 impl IntegrationFencePermit {
     fn verify(&self, db: &Connection) -> Result<()> {
         let record = budget::attempt(db, &self.attempt_id)?;
@@ -37,11 +45,16 @@ impl IntegrationFencePermit {
         let policy = records::policy(db, &run.policy_id)?;
         let scope: serde_json::Value = raw(db, "goal_scopes", &policy.selection.goal_scope_id)?;
         let fence = runtime::fence(db, &run)?;
+        let now = ms()?;
         if policy.revoked
             || policy.expires_at_ms <= ms()?
             || scope["revoked"] != false
             || scope["revision"] != policy.bindings.goal_scope_revision
             || record.view.settled
+            || !matches!(record.view.state.as_str(), "prepared" | "running")
+            || scope["expires_at_ms"]
+                .as_i64()
+                .is_none_or(|expiry| expiry <= now)
             || record.integration_id != run.id
             || run.cancel_requested
             || run.state == IntegrationState::OutcomeUnknown

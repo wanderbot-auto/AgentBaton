@@ -165,6 +165,7 @@ pub(crate) enum IntegrationReadIntent {
     Proposal(IntegrationPolicySelection),
     Finalize { proposal_id: String, revision: u64 },
     Start { policy_id: String, revision: u64 },
+    Stage(super::runtime::IntegrationStageReadRef),
 }
 pub(crate) struct IntegrationReadPlan {
     intent: IntegrationReadIntent,
@@ -223,6 +224,18 @@ fn projection(
     Ok(result)
 }
 impl Store {
+    pub(crate) fn prepare_integration_stage_read(
+        &self,
+        ticket: &super::runtime::IntegrationStageTicket,
+    ) -> Result<(IntegrationReadPlan, String)> {
+        let reference = ticket.read_reference();
+        let raw = encode(
+            &json!({"private_integration_stage":reference.run_id,"attempt":reference.attempt_id,"policy":reference.policy_id}),
+        )?;
+        let plan =
+            self.prepare_integration_scope_read(IntegrationReadIntent::Stage(reference), &raw)?;
+        Ok((plan, raw))
+    }
     pub(crate) fn prepare_integration_scope_read(
         &self,
         intent: IntegrationReadIntent,
@@ -259,6 +272,11 @@ impl Store {
                     serde_json::from_value(p.snapshot).map_err(|_| changed())?;
                 (s.intent.task_id, s.intent.goal_scope_id)
             }
+            IntegrationReadIntent::Stage(reference) => {
+                let _permit = super::fences::for_reference(&self.conn, reference)?;
+                let policy = records::policy(&self.conn, &reference.policy_id)?;
+                (policy.selection.task_id, policy.selection.goal_scope_id)
+            }
             IntegrationReadIntent::Start {
                 policy_id,
                 revision,
@@ -292,6 +310,29 @@ impl Store {
                 vec![policy_id.clone()],
                 &mut remaining,
             )?);
+        }
+        if let IntegrationReadIntent::Stage(reference) = &intent {
+            for (sql, id) in [
+                (
+                    "SELECT document AS value FROM integration_policies WHERE id=?1",
+                    reference.policy_id.clone(),
+                ),
+                (
+                    "SELECT document AS value FROM integrations WHERE id=?1",
+                    reference.run_id.clone(),
+                ),
+                (
+                    "SELECT document AS value FROM integration_attempts WHERE attempt_id=?1",
+                    reference.attempt_id.clone(),
+                ),
+            ] {
+                queries.push(QueryProof::capture(
+                    &self.conn,
+                    sql,
+                    vec![id],
+                    &mut remaining,
+                )?);
+            }
         }
         Ok(IntegrationReadPlan {
             intent,
@@ -463,6 +504,12 @@ impl IntegrationReadPlan {
         if sha(&material)? != sha(&self.material)? || sha(&available)? != sha(&self.available)? {
             return Err(changed());
         }
+        let stage_permit = match &self.intent {
+            IntegrationReadIntent::Stage(reference) => {
+                Some(super::fences::for_reference(&reader.conn, reference)?)
+            }
+            _ => None,
+        };
         let mut roots = std::collections::BTreeSet::new();
         roots.insert(material.project.identity.canonical_root.clone());
         for grant in &material.grant_lineage {
@@ -484,15 +531,26 @@ impl IntegrationReadPlan {
             control.check()?;
             let first_ws = grant.scope.workspace_ids.first().ok_or_else(denied)?;
             let first_conn = grant.scope.connection_ids.first().ok_or_else(denied)?;
-            if crate::policy::validate_grant_live_from_with_data(
-                &reader.conn,
-                &grant.id,
-                &grant.project_id,
-                first_ws,
-                first_conn,
-                None,
-            )? != *grant
-            {
+            let current = if let Some(permit) = &stage_permit {
+                crate::policy::validate_grant_for_integration(
+                    &reader.conn,
+                    &grant.id,
+                    &grant.project_id,
+                    first_ws,
+                    first_conn,
+                    permit,
+                )?
+            } else {
+                crate::policy::validate_grant_live_from_with_data(
+                    &reader.conn,
+                    &grant.id,
+                    &grant.project_id,
+                    first_ws,
+                    first_conn,
+                    None,
+                )?
+            };
+            if current != *grant {
                 return Err(changed());
             }
             for c in &grant.scope.connection_ids {
@@ -571,6 +629,12 @@ impl IntegrationReadPlan {
             }
             IntegrationReadIntent::Start { policy_id, .. } => {
                 Some(records::policy(&reader.conn, policy_id)?.selection)
+            }
+            IntegrationReadIntent::Stage(reference) => {
+                let mut selection = records::policy(&reader.conn, &reference.policy_id)?.selection;
+                let run = records::run(&reader.conn, &reference.run_id)?;
+                selection.expected_target_head = run.expected_target_head;
+                Some(selection)
             }
             IntegrationReadIntent::Context(_) => None,
         };
@@ -757,6 +821,21 @@ impl IntegrationReadProof {
         }
         for grant in &material.grant_lineage {
             crate::policy::observe_grant_bindings(&store.conn, grant)?;
+        }
+        if let IntegrationReadIntent::Stage(reference) = &self.intent {
+            let _permit = super::fences::for_reference(&store.conn, reference)?;
+            let policy = records::policy(&store.conn, &reference.policy_id)?;
+            let mut selection = policy.selection.clone();
+            // Runtime revisions changed through the authentic accepted chain;
+            // scope/spec/outputs/Native bindings remain exact.
+            selection.expected_task_revision = self.context.task_revision;
+            if encode(&super::approval::selected_bindings(
+                &self.context,
+                &selection,
+            )?)? != encode(&policy.bindings)?
+            {
+                return Err(changed());
+            }
         }
         self.observation.recheck()?;
         if Instant::now() >= deadline {
