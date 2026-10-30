@@ -186,16 +186,19 @@ pub(crate) struct IntegrationReadProof {
     request_hash: String,
     deadline: Instant,
 }
-fn projection(db: &Connection, material: &IntegrationScopeMaterial) -> Result<Vec<QueryProof>> {
+fn projection(
+    db: &Connection,
+    material: &IntegrationScopeMaterial,
+    remaining: &mut (usize, usize),
+) -> Result<Vec<QueryProof>> {
     let mut result = vec![];
-    let mut remaining = (4_194_304, 100_000);
     for grant in &material.grant_lineage {
         for id in &grant.scope.connection_ids {
             result.push(QueryProof::capture(
                 db,
                 "SELECT document AS value FROM connections WHERE id=?1",
                 vec![id.clone()],
-                &mut remaining,
+                remaining,
             )?);
         }
         for id in &grant.scope.workspace_ids {
@@ -203,19 +206,19 @@ fn projection(db: &Connection, material: &IntegrationScopeMaterial) -> Result<Ve
                 db,
                 "SELECT document AS value FROM managed_workspaces WHERE id=?1",
                 vec![id.clone()],
-                &mut remaining,
+                remaining,
             )?);
         }
     }
     for(scope,sql)in[(format!("root:{}",material.root_task_id),"SELECT json_array(total_limit,parallel_limit,consumed,active) AS value FROM budgets WHERE scope=?1"),(format!("project:{}",material.project.id),"SELECT json_array(total_limit,parallel_limit,consumed,active) AS value FROM budgets WHERE scope=?1")] {
-  result.push(QueryProof::capture(db,sql,vec![scope],&mut remaining)?);
+  result.push(QueryProof::capture(db,sql,vec![scope],remaining)?);
  }
-    result.push(QueryProof::capture(db,"SELECT json_array(id,state,document) AS value FROM dispatch_intents WHERE json_extract(document,'$.root_task_id')=?1 ORDER BY id",vec![material.root_task_id.clone()],&mut remaining)?);
+    result.push(QueryProof::capture(db,"SELECT json_array(id,state,document) AS value FROM dispatch_intents WHERE json_extract(document,'$.root_task_id')=?1 ORDER BY id",vec![material.root_task_id.clone()],remaining)?);
     result.push(QueryProof::capture(
         db,
         LEASE_PROJECTION,
         vec![encode(&material.grant.scope.workspace_ids)?],
-        &mut remaining,
+        remaining,
     )?);
     Ok(result)
 }
@@ -277,16 +280,17 @@ impl Store {
             selection_cas(s, &material)?;
         }
         let available = self.integration_available_validators(&material)?;
-        let mut queries = projection(&self.conn, &material)?;
+        let mut remaining = (4_194_304, 100_000);
+        let mut queries = projection(&self.conn, &material, &mut remaining)?;
         if let IntegrationReadIntent::Finalize { proposal_id, .. } = &intent {
-            queries.push(QueryProof::capture(&self.conn,"SELECT json_array(document,COALESCE(result,'null')) AS value FROM approval_proposals WHERE id=?1",vec![proposal_id.clone()],&mut(1_048_576,2))?);
+            queries.push(QueryProof::capture(&self.conn,"SELECT json_array(document,COALESCE(result,'null')) AS value FROM approval_proposals WHERE id=?1",vec![proposal_id.clone()],&mut remaining)?);
         }
         if let IntegrationReadIntent::Start { policy_id, .. } = &intent {
             queries.push(QueryProof::capture(
                 &self.conn,
                 "SELECT document AS value FROM integration_policies WHERE id=?1",
                 vec![policy_id.clone()],
-                &mut (1_048_576, 2),
+                &mut remaining,
             )?);
         }
         Ok(IntegrationReadPlan {
@@ -824,6 +828,23 @@ fn observe_target(
 #[cfg(test)]
 mod lease_projection_tests {
     use super::*;
+    #[test]
+    fn additional_proof_queries_share_the_original_byte_budget() {
+        let db = Connection::open_in_memory().unwrap();
+        db.execute_batch("CREATE TABLE proof(value TEXT NOT NULL);")
+            .unwrap();
+        db.execute("INSERT INTO proof VALUES(?1)", ["a".repeat(900_000)])
+            .unwrap();
+        let mut remaining = (1_048_576, 2);
+        let _held =
+            QueryProof::capture(&db, "SELECT value FROM proof", vec![], &mut remaining).unwrap();
+        let result = QueryProof::capture(&db, "SELECT value FROM proof", vec![], &mut remaining);
+        assert_eq!(
+            result.err().expect("aggregate proof must be bounded").code,
+            "RESOURCE_LIMIT"
+        );
+        assert_eq!(remaining, (148_576, 1));
+    }
     #[test]
     fn existing_schema_lease_expiry_column_is_projected_and_rechecked() {
         // Actual predecessor DDL, with only an inert isolated row. This is a

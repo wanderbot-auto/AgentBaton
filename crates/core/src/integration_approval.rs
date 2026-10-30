@@ -184,6 +184,7 @@ impl Store {
         // All business rows and held observations are still checked under this
         // immediate transaction, after constructing the exact review frame.
         proof.verify(self, raw_request, deadline)?;
+        records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(proposal)
     }
@@ -307,6 +308,7 @@ impl Store {
             &json!({"snapshot_digest":policy.snapshot_digest,"owner_sequence":owner_sequence,"scope_digest":policy.bindings.goal_scope_digest,"binding_digest":policy.bindings.binding_digest,"automatic_watch_armed":true}),
         )?;
         proof.seal_observation()?;
+        records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         serde_json::to_value(policy).map_err(|_| invalid())
     }

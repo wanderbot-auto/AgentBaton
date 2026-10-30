@@ -334,6 +334,7 @@ impl Store {
         }
         let view = self.get_integration(id)?;
         records::remember(&tx, &scope, key_id, &payload, &view)?;
+        records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(view)
     }
@@ -366,6 +367,7 @@ impl Store {
             historical_cas_confirmed: historical,
         };
         records::remember(&tx, &scope, key_id, &payload, &result)?;
+        records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(result)
     }
@@ -395,6 +397,7 @@ impl Store {
         if let Some(id) = existing {
             let view = self.get_integration(&id)?;
             records::remember(&tx, &scope, key_id, &payload, &view)?;
+            records::check_metadata_bounds(&tx)?;
             tx.commit().map_err(db_error)?;
             return Ok(IntegrationQueueResult { view, ticket: None });
         }
@@ -596,6 +599,7 @@ impl Store {
         }
         let view = self.get_integration(&run.id)?;
         records::remember(&tx, &scope, key_id, &payload, &view)?;
+        records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         Ok(IntegrationQueueResult {
             view,
@@ -686,6 +690,7 @@ impl Store {
                     json!({"replayed":false,"task_acceptance_unchanged":true,"resources_released":false}),
                 )?;
             }
+            records::check_metadata_bounds(&tx)?;
             tx.commit().map_err(db_error)?;
         }
         Ok(())
