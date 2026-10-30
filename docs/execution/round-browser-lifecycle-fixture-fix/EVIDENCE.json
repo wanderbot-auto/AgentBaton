@@ -218,5 +218,7 @@
     "independent_review": "pending",
     "runtime": "not_run by source author",
     "recorded_at": "2026-10-30T22:58:17.435194+00:00"
-  }
+  },
+  "root_matched_schema17_results": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+  "author_not_run_fields_are_historical": true
 }

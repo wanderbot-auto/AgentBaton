@@ -209,5 +209,6 @@
   "composed_source_bound_checkpoint": "COMPOSED_CHECKPOINT_RESULTS.json",
   "whole_product_accepted": false,
   "root_resumed_actual_results": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
-  "author_not_run_fields_are_historical": true
+  "author_not_run_fields_are_historical": true,
+  "root_matched_schema17_results": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json"
 }

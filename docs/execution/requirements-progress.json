@@ -231,7 +231,8 @@
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
         "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
-        "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json"
+        "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
+        "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -295,6 +296,18 @@
           "Native_Mac_currentCI_installers": "not_run",
           "evidence": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
           "coverage": "partial; full requirement not accepted"
+        },
+        {
+          "slice": "actual_three_round_UI_history_same_source_and_matched_schema17_Factory",
+          "source_attribution": {
+            "browser3checks7PNG": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+            "infrastructure446": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+            "Factory30": "3e75380865968f1f3331912064130aa958341268"
+          },
+          "earlier_false_receipts_retained": true,
+          "shared_actual_attempts": 8,
+          "evidence": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+          "coverage": "partial Linux generatedACP/privateOwner; currentmigrations/Native/Mac/requiredCI/installers/fullrequirement notaccepted"
         }
       ]
     },
@@ -329,7 +342,8 @@
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
         "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
         "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
-        "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json"
+        "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
+        "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -414,6 +428,18 @@
           "Native_Mac_currentCI_installers": "not_run",
           "evidence": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
           "coverage": "partial; full requirement not accepted"
+        },
+        {
+          "slice": "actual_three_round_UI_history_same_source_and_matched_schema17_Factory",
+          "source_attribution": {
+            "browser3checks7PNG": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+            "infrastructure446": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+            "Factory30": "3e75380865968f1f3331912064130aa958341268"
+          },
+          "earlier_false_receipts_retained": true,
+          "shared_actual_attempts": 8,
+          "evidence": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+          "coverage": "partial Linux generatedACP/privateOwner; currentmigrations/Native/Mac/requiredCI/installers/fullrequirement notaccepted"
         }
       ],
       "data_workspace_contribution": {
@@ -7125,7 +7151,8 @@
         "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
         "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
         "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
-        "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json"
+        "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
+        "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -7288,6 +7315,18 @@
           "Native_Mac_currentCI_installers": "not_run",
           "evidence": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
           "coverage": "partial; full requirement not accepted"
+        },
+        {
+          "slice": "actual_three_round_UI_history_same_source_and_matched_schema17_Factory",
+          "source_attribution": {
+            "browser3checks7PNG": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+            "infrastructure446": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+            "Factory30": "3e75380865968f1f3331912064130aa958341268"
+          },
+          "earlier_false_receipts_retained": true,
+          "shared_actual_attempts": 8,
+          "evidence": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+          "coverage": "partial Linux generatedACP/privateOwner; currentmigrations/Native/Mac/requiredCI/installers/fullrequirement notaccepted"
         }
       ]
     },

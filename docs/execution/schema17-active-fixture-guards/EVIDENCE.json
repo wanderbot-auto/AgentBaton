@@ -92,5 +92,7 @@
       "action": "Initial docs git add was refused because the new unit directory was outside sparse patterns; added that exact sparse pattern and retried",
       "dimension": "no product/source/test failure; no prior records overwritten"
     }
-  ]
+  ],
+  "root_matched_schema17_results": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+  "author_not_run_fields_are_historical": true
 }
