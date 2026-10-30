@@ -574,6 +574,45 @@ impl Store {
     /// Called before generic dispatch recovery: integration uncertainty never
     /// rewrites the already accepted Task into a Provider dispatch outcome.
     pub(crate) fn recover_integrations(&mut self) -> Result<()> {
+        // Validate every origin even if it has no active run. No orphan policy,
+        // reservation or fence is treated as absent/zero merely by filtering.
+        let (count,bytes):(i64,i64)=self.conn.query_row("SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)),0) FROM integration_policies",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+        if !(0..=100000).contains(&count) || !(0..=4194304).contains(&bytes) {
+            return Err(limited());
+        }
+        let policies = {
+            let mut q = self
+                .conn
+                .prepare("SELECT id FROM integration_policies ORDER BY id")
+                .map_err(db_error)?;
+            let rows = q
+                .query_map([], |r| r.get::<_, String>(0))
+                .map_err(db_error)?
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .map_err(db_error)?;
+            rows
+        };
+        for id in policies {
+            records::policy(&self.conn, &id)?;
+        }
+        let _ = budget::accounting_records(&self.conn, "", "")?;
+        let (count,bytes):(i64,i64)=self.conn.query_row("SELECT count(*),COALESCE(sum(octet_length(document)),0) FROM integration_ref_fences",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+        if !(0..=100000).contains(&count) || !(0..=4194304).contains(&bytes) {
+            return Err(limited());
+        }
+        let fenced = {
+            let mut q=self.conn.prepare("SELECT integration_id FROM integration_ref_fences ORDER BY repository_digest,target_ref").map_err(db_error)?;
+            let rows = q
+                .query_map([], |r| r.get::<_, String>(0))
+                .map_err(db_error)?
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .map_err(db_error)?;
+            rows
+        };
+        for id in fenced {
+            let run = records::run(&self.conn, &id)?;
+            fence(&self.conn, &run)?.ok_or_else(changed)?;
+        }
         let ids = run_ids(&self.conn)?;
         for id in ids {
             let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Immediate)
