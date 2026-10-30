@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "kind": "integration_runtime_test_source",
+  "status": "SOURCE_ONLY_NOT_COMPILED_OR_RUN",
+  "base": "97f14100f746c24aebf2bf7eba54264d1029c387",
+  "tested_source_commit": null,
+  "source_commit": "889fb40bcd059395232aaa1b1577b45f617da955",
+  "authority": "OWNER-001/002 implementation authorization; private Owner IPC is trusted-test-host only",
+  "source": {
+    "crates/core/tests/fixtures/integration_runtime.rs": {
+      "bytes": 52371,
+      "sha256": "13c7ab9f5bd17fe361c9ac5fb7e213a41ec1b774101c02bbb4edef842e1344ac"
+    },
+    "crates/core/tests/integration_ipc.rs": {
+      "bytes": 8590,
+      "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+    }
+  },
+  "author_actual_checks": [
+    {
+      "command": "rustfmt --edition 2021 <two permitted test paths>",
+      "exit": 0,
+      "dimension": "format/syntax only"
+    },
+    {
+      "command": "rustfmt --edition 2021 --check <two permitted test paths>",
+      "exit": 0
+    },
+    {
+      "command": "Python ast.parse(exact embedded generated ACP body)",
+      "result": "PASS; not executed"
+    },
+    {
+      "command": "assert current integration_ipc == git show 97f1410:integration_ipc + exact 3-line module include",
+      "result": "PASS; both existing tests/helper bytes unchanged"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "source_commit": "8c41e50af6c05dbc8b6f770004f12c26062ed047",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check"
+      ],
+      "exit": 0,
+      "dimension": "follow-up format/syntax only; no Rust compilation"
+    },
+    {
+      "source_commit": "f053e77a3a946ce222f33045e53cddd28edc4648",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check"
+      ],
+      "exit": 0,
+      "dimension": "review follow-up source syntax/format only"
+    },
+    {
+      "source_commit": "889fb40bcd059395232aaa1b1577b45f617da955",
+      "commands": [
+        "rustfmt --edition 2021 --check <two test paths>",
+        "git diff --check",
+        "inverse exactly three stage runtime literals gives f053 whole fixture bytes"
+      ],
+      "exit": 0,
+      "dimension": "static only"
+    }
+  ],
+  "test_sources": [
+    {
+      "name": "accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_source",
+      "runtime_result": "NOT_RUN",
+      "expected_dimension": "actual Graph Owner acceptance, independent Integration authority, new merged correctness, controlled capture/merge/CAS, dirty unselected/index preservation, shared receipts and replay"
+    },
+    {
+      "name": "native_policy_before_task_acceptance_automatically_integrates_once_without_explicit_wake",
+      "runtime_result": "NOT_RUN",
+      "expected_dimension": "real policy approved while unaccepted, zero preaccept run/stages, automatic accepted watcher, same/new-key convergence without duplicate stages"
+    }
+  ],
+  "normal_path_sql_mutations": false,
+  "fixture_expected_constants": {
+    "work_reservation_ms": 4000,
+    "node_runtime_limit_ms": 5000,
+    "root_runtime_ms": 20000,
+    "project_runtime_ms": 20000,
+    "grant_lifetime_ms": 30000,
+    "integration_ttl_ms": 30000,
+    "observer_ms": 5000,
+    "stage_runtime_ms": [
+      5000,
+      5000,
+      5000
+    ],
+    "expected_total_attempts": 4,
+    "expected_integration_attempts": 3,
+    "source_and_preparation_artifact_subtotal_bytes": 24,
+    "expected_total_output_formula": "24 + actual joined CAS stdout_retained_bytes + stderr_retained_bytes; all must be known and fully ledger-charged",
+    "fixed_command_wall_time_ms": 500,
+    "fixed_command_cleanup_time_ms": 500
+  },
+  "expected_measures_are_not_results": true,
+  "proposed_root_command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--test",
+    "integration_ipc",
+    "integration_runtime::",
+    "--",
+    "--show-output",
+    "--test-threads=1"
+  ],
+  "required_environment": {
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_TARGET_DIR": "Root existing lease only",
+    "PATH": "Root explicitly selects supported single-link system Git for whole test command; no in-test global override"
+  },
+  "not_run": [
+    "Rust compile/tests",
+    "generated Git fixture",
+    "Actor/product",
+    "browser",
+    "OS dialogs/macOS",
+    "CI",
+    "real Provider/models",
+    "delivery"
+  ],
+  "remaining": [
+    "compile and actual positive results",
+    "cancellation/revocation/expiry",
+    "unknown/journal failure/recovery",
+    "target/CAS races",
+    "shared mixed roots and full execution matrix",
+    "full AB-VAL-009 and full product"
+  ],
+  "preservation": "Generated TempDir kept on panic including setup; daemon joined before cleanup. No previous evidence changed.",
+  "source_history": [
+    {
+      "source_commit": "19c402e9ad05ce4b4271b750b64c5effc942dd6b",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 42761,
+          "sha256": "24af7f5be8c7bf931026c365ad90c4da33bad1cf0634fff41ed01c215bae27eb"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "runtime_result": "NOT_RUN",
+      "static_correction": "First source erroneously assumed CAS retained streams zero in hardcoded 24B total. Follow-up charges genuine receipt bytes; no actual failure or product fix claimed."
+    },
+    {
+      "source_commit": "8c41e50af6c05dbc8b6f770004f12c26062ed047",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 42761,
+          "sha256": "24af7f5be8c7bf931026c365ad90c4da33bad1cf0634fff41ed01c215bae27eb"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "runtime_result": "NOT_RUN_BY_AUTHOR",
+      "static_review_findings": [
+        "Panic-path retention eprintln could double panic on stderr failure",
+        "No original approved Command row/result comparison and insufficient new merged observation binding"
+      ],
+      "root_inflight_runtime": "Old 8c assembly result is separate and not a pass for f053"
+    },
+    {
+      "source_commit": "f053e77a3a946ce222f33045e53cddd28edc4648",
+      "source": {
+        "crates/core/tests/fixtures/integration_runtime.rs": {
+          "bytes": 52370,
+          "sha256": "1e51d8f800da1d00791528fec2c727c4d9b060c49e90c05d14429318240ae5c9"
+        },
+        "crates/core/tests/integration_ipc.rs": {
+          "bytes": 8590,
+          "sha256": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c"
+        }
+      },
+      "runtime_result": "NOT_RUN_BY_AUTHOR",
+      "follow_up": "Root-authorized fresh positive declarations; no production defect claimed"
+    }
+  ],
+  "review_followup": {
+    "findings": "two P2 source-review findings; no actual failure claimed",
+    "source_fix": "f053e77a3a946ce222f33045e53cddd28edc4648",
+    "old_command_result_fixture": "none; strict zero original one-shot results before/after, no source-pass fabrication",
+    "original_definition": "actual stored policy rowid/all raw typed columns unchanged, fresh public policy matches actual original finalizer definition",
+    "new_observation": "real process_started/exit0/reap/EOF; exact full merged Git subject/new attempt; registered managed candidate cwd/root; fixed input/output SHA+size; approved program/settings/script/environment/enforcement unchanged",
+    "independent_review": "PENDING",
+    "runtime": "NOT_RUN"
+  },
+  "root_actual_previous_source": {
+    "source": "d0fab8b3426605b415e2500ce4528b380d20e5da",
+    "fixture_source": "8c41e50af6c05dbc8b6f770004f12c26062ed047",
+    "command": [
+      "env",
+      "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "integration_ipc",
+      "integration_runtime::",
+      "--",
+      "--show-output",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "wrapper_seconds": 34.438629665994085,
+    "summaries": [
+      "test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 2 filtered out; finished in 9.42s"
+    ],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "artifacts": {
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/RESULT.json": {
+        "bytes": 966,
+        "sha256": "21c72ac4f850c41ed3f179925ac143642d6fa2a413ab60d0cc6e77444e582e8e"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/FINITE_RUNTIME_FAILURE.json": {
+        "bytes": 3542,
+        "sha256": "ad4d87bfc6ed21618d7e5c4881de8b30ea34e3cd81b5255309d6116eba58578f"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/FINITE_STAGE_TIMING.json": {
+        "bytes": 2036,
+        "sha256": "27be25d15c82d6975b657a6cca3d82a914470466dde66e682307da21440ff719"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/INPUTS.json": {
+        "bytes": 16928,
+        "sha256": "c98ec40d54833711b6001506a275244e11a8e3c2a2ba1711981b87d6cd86b5a5"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/command.log": {
+        "bytes": 2381,
+        "sha256": "41772007b981cbea19cc36a63628d5ad221a89d71e2805f8f32d3b2f3030ee5e"
+      },
+      "/workspace/.onboarding/integration17-runtime-ipc-tests1/failed-elf/MANIFEST.json": {
+        "bytes": 582,
+        "sha256": "2ae8896218c2a766f54c3145f18c650adc4ca3acc59e780e64c3c1787294d518"
+      }
+    },
+    "safe_actual_facts": [
+      {
+        "fixture": "integration-runtime-Mqtmag",
+        "observed_runtime_lower_bound_ms": 1072,
+        "worker_thread_joined": true,
+        "effects_admitted": true,
+        "reservation_refunded": false
+      },
+      {
+        "fixture": "integration-runtime-p6gTLY",
+        "observed_runtime_lower_bound_ms": 1075,
+        "worker_thread_joined": true,
+        "effects_admitted": true,
+        "reservation_refunded": false
+      }
+    ],
+    "retained_private_roots": [
+      "/tmp/integration-runtime-Mqtmag",
+      "/tmp/integration-runtime-p6gTLY"
+    ],
+    "retention_limit": "Raw DB not read/copied by this author; original failed ELF identity is referenced via Root manifest, not independently rehashed here",
+    "not_a_current_source_pass": true
+  },
+  "adr_001": {
+    "choice": "new explicit Native selection stage runtime5000/5000/5000 only",
+    "not_a_performance_fix": true,
+    "new_declaration_runtime": "NOT_RUN",
+    "unchanged": "Root/project20k;Grant/TTL30k;Work4k;actualCmd500+500;alloutput reservations/RPC/observer/assertions",
+    "unknown_old_run_retried": false,
+    "ui_default_1000_support": "OPEN",
+    "cpu_or_timer_bug_root_cause": "NOT_ESTABLISHED",
+    "no_automatic_further_escalation": true
+  }
+}
