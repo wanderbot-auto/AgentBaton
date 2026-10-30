@@ -18,10 +18,15 @@ struct ReadWorker {
 #[derive(Default)]
 pub(crate) struct IntegrationWorkers {
     reader: Option<ReadWorker>,
+    stage: Option<super::stage_workers::OwnedStage>,
+    retained: Option<(
+        super::runtime::IntegrationStageTicket,
+        super::stage_workers::JoinedStage,
+    )>,
 }
 impl IntegrationWorkers {
     pub(crate) fn has_workers(&self) -> bool {
-        self.reader.is_some()
+        self.reader.is_some() || self.stage.is_some() || self.retained.is_some()
     }
     pub(crate) fn defer_read(
         &mut self,
@@ -115,7 +120,9 @@ impl IntegrationWorkers {
 impl Drop for IntegrationWorkers {
     fn drop(&mut self) {
         self.stop_reads();
+        self.stop_stages();
         drop(self.join_reads());
+        self.join_stages();
     }
 }
 #[cfg(test)]
@@ -158,6 +165,7 @@ mod tests {
                         cancel,
                         thread,
                     }),
+                    ..Default::default()
                 };
                 if unwind {
                     panic!("unit-fixture original first cause");
@@ -186,5 +194,207 @@ mod tests {
     #[test]
     fn read_unwind_drop_retains_ownership_until_actual_join() {
         retain_until_join(true);
+    }
+}
+
+impl IntegrationWorkers {
+    pub(crate) fn start(
+        &mut self,
+        store: &mut crate::storage::Store,
+        policy_id: &str,
+        revision: u64,
+        key: &str,
+        managed_root: &std::path::Path,
+        queued_at: Instant,
+    ) -> Result<super::IntegrationRunView> {
+        if let Some(view) = store.integration_start_replay(policy_id, revision, key)? {
+            return Ok(view);
+        }
+        if self.has_workers() && !store.integration_existing_run(policy_id)? {
+            return Err(CoreError::new("WORKSPACE_BUSY","The bounded integration worker is already retained by original work; no new intent was admitted"));
+        }
+        let queued =
+            store.queue_integration_start(policy_id, revision, key, managed_root, queued_at)?;
+        if let Some(ticket) = queued.ticket {
+            self.schedule(store, ticket, None)?;
+        }
+        // The exact original start response is the durable queued view, never a
+        // fabricated completed integration. Fixed get returns later real state.
+        Ok(queued.view)
+    }
+    fn schedule(
+        &mut self,
+        store: &mut crate::storage::Store,
+        ticket: super::runtime::IntegrationStageTicket,
+        context: Option<super::io::IntegrationPreparedContext>,
+    ) -> Result<()> {
+        let (plan, raw) = match store.prepare_integration_stage_read(&ticket) {
+            Ok(value) => value,
+            Err(error) => {
+                self.retained = Some((
+                    ticket.clone(),
+                    super::stage_workers::JoinedStage::not_scheduled(&ticket, error, context),
+                ));
+                return Ok(());
+            }
+        };
+        match super::stage_workers::OwnedStage::spawn(ticket.clone(), context, plan, raw) {
+            Ok(worker) => self.stage = Some(worker),
+            Err(failure) => {
+                self.retained = Some((
+                    ticket.clone(),
+                    super::stage_workers::JoinedStage::not_scheduled(
+                        &ticket,
+                        failure.error,
+                        failure.context,
+                    ),
+                ))
+            }
+        }
+        Ok(())
+    }
+    pub(crate) fn tick_stages(&mut self, store: &mut crate::storage::Store) -> Result<()> {
+        if let Some(worker) = &self.stage {
+            let stop = store.integration_stage_stop_reason(&worker.ticket);
+            let reason = match stop {
+                Ok(reason) => reason,
+                Err(ref error)
+                    if matches!(
+                        error.code.as_str(),
+                        "PERMISSION_DENIED" | "AUTH_REQUIRED" | "INPUT_CHANGED" | "BUDGET_UNKNOWN"
+                    ) =>
+                {
+                    Some(error.code.as_str())
+                }
+                Err(error) => {
+                    worker.cancel();
+                    return Err(error);
+                }
+            };
+            if let Some(reason) = reason {
+                worker.cancel();
+                store.request_integration_supervisor_stop(&worker.ticket.run.id, reason)?;
+            }
+            if let Some(request) = worker.take_read_request()? {
+                let result = store.admit_integration_stage_effect(
+                    &worker.ticket,
+                    request.proof,
+                    &request.raw,
+                );
+                worker.admit(result);
+            }
+        }
+        if self.stage.as_ref().is_some_and(|worker| worker.finished()) {
+            let worker = self
+                .stage
+                .take()
+                .expect("checked original integration worker");
+            self.retained = Some(worker.join());
+        }
+        let Some((ticket, joined)) = self.retained.as_ref() else {
+            return Ok(());
+        };
+        // Unknown outcomes remain owned and readable, not replayed by tick.
+        if store.get_integration(&ticket.run.id)?.run.state
+            == super::IntegrationState::OutcomeUnknown
+        {
+            return Ok(());
+        }
+        let settled = store.settle_integration_stage(ticket, joined)?;
+        if settled.unknown {
+            return Ok(());
+        }
+        let (ticket, mut joined) = self.retained.take().expect("settled original completion");
+        if settled.terminal {
+            return Ok(());
+        }
+        let (kind, validator) = settled.next.ok_or_else(|| {
+            CoreError::new(
+                "INTERNAL_ERROR",
+                "Joined integration continuation has no exact next stage",
+            )
+        })?;
+        let context = joined.context.take().ok_or_else(|| {
+            CoreError::new(
+                "OUTCOME_UNKNOWN",
+                "Joined integration candidate handles were lost; no reconstruction or replay",
+            )
+        })?;
+        match store.queue_integration_next_stage(&ticket, &context, kind, validator) {
+            Ok(next) => self.schedule(store, next, Some(context))?,
+            Err(error) => store.block_integration_continuation(&ticket, &error)?,
+        }
+        Ok(())
+    }
+    pub(crate) fn tick_armed(
+        &mut self,
+        store: &mut crate::storage::Store,
+        managed_root: &std::path::Path,
+    ) -> Result<()> {
+        if self.has_workers() {
+            return Ok(());
+        }
+        for policy in store.armed_integration_policies()? {
+            let key = format!("automatic-integration:{}", policy.id);
+            match self.start(
+                store,
+                &policy.id,
+                policy.revision,
+                &key,
+                managed_root,
+                Instant::now(),
+            ) {
+                Ok(_) => return Ok(()),
+                Err(error)
+                    if matches!(
+                        error.code.as_str(),
+                        "AUTH_REQUIRED"
+                            | "PERMISSION_DENIED"
+                            | "STALE_REVISION"
+                            | "INPUT_CHANGED"
+                            | "WORKSPACE_BUSY"
+                            | "RESOURCE_LIMIT"
+                            | "BUDGET_UNKNOWN"
+                            | "DEADLINE_EXCEEDED"
+                    ) =>
+                {
+                    ()
+                }
+                Err(error) => return Err(error),
+            }
+        }
+        Ok(())
+    }
+    pub(crate) fn stop_stages(&self) {
+        if let Some(worker) = &self.stage {
+            worker.cancel();
+        }
+    }
+    pub(crate) fn join_stages(&mut self) {
+        if let Some(worker) = self.stage.take() {
+            worker.cancel();
+            drop(worker.join());
+        }
+        // Actual retained CommandRun ownership is also consumed before the
+        // daemon's socket/writer lock is released. Unjournalled effects stay
+        // unknown on restart; this destructor does not mint joined receipts.
+        drop(self.retained.take());
+    }
+    pub(crate) fn shutdown_stages(&mut self, store: &mut crate::storage::Store) -> Result<()> {
+        self.stop_stages();
+        if let Some(worker) = self.stage.take() {
+            let stopped = store
+                .request_integration_supervisor_stop(&worker.ticket.run.id, "CANCEL_REQUESTED");
+            self.retained = Some(worker.join());
+            stopped?;
+            let (ticket, joined) = self.retained.as_ref().expect("joined shutdown stage");
+            if store.get_integration(&ticket.run.id)?.run.state
+                != super::IntegrationState::OutcomeUnknown
+            {
+                let _ = store.settle_integration_stage(ticket, joined)?;
+            }
+        }
+        self.join_stages();
+        Ok(())
     }
 }

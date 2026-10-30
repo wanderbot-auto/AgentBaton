@@ -75,21 +75,23 @@ fn persist_workspaces(
     Ok(())
 }
 impl Store {
-    pub(crate) fn integration_stage_should_stop(
+    pub(crate) fn integration_stage_stop_reason(
         &self,
         ticket: &IntegrationStageTicket,
-    ) -> Result<bool> {
+    ) -> Result<Option<&'static str>> {
         let run = records::run(&self.conn, &ticket.run.id)?;
         let policy = records::policy(&self.conn, &ticket.policy.id)?;
-        if run.cancel_requested
-            || policy.revoked
-            || policy.expires_at_ms <= ms()?
-            || std::time::Instant::now() >= ticket.deadline
-        {
-            return Ok(true);
+        if run.cancel_requested {
+            return Ok(Some("CANCEL_REQUESTED"));
+        }
+        if policy.revoked || policy.expires_at_ms <= ms()? {
+            return Ok(Some("PERMISSION_DENIED"));
+        }
+        if std::time::Instant::now() >= ticket.deadline {
+            return Ok(Some("DEADLINE_EXCEEDED"));
         }
         let _ = super::fences::for_stage(&self.conn, ticket)?;
-        Ok(false)
+        Ok(None)
     }
     pub(super) fn settle_integration_stage(
         &mut self,

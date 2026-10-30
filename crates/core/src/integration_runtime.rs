@@ -1035,3 +1035,53 @@ impl Store {
         Ok(ticket)
     }
 }
+
+impl Store {
+    pub(crate) fn integration_start_replay(
+        &self,
+        policy_id: &str,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<Option<IntegrationRunView>> {
+        let payload = encode(&json!({"policy_id":policy_id,"expected_revision":revision}))?;
+        records::replay(
+            &self.conn,
+            &format!("integration:{policy_id}:start"),
+            key_id,
+            &payload,
+        )
+    }
+    pub(crate) fn integration_existing_run(&self, policy_id: &str) -> Result<bool> {
+        let policy = records::policy(&self.conn, policy_id)?;
+        self.conn.query_row("SELECT EXISTS(SELECT 1 FROM integrations WHERE policy_id=?1 AND task_id=?2 AND spec_revision=?3)",params![policy.id,policy.selection.task_id,sql_num(policy.selection.expected_spec_revision)?],|r|r.get(0)).map_err(db_error)
+    }
+    pub(crate) fn armed_integration_policies(&self) -> Result<Vec<IntegrationPolicy>> {
+        records::check_metadata_bounds(&self.conn)?;
+        let mut statement=self.conn.prepare("SELECT p.id FROM integration_policies p WHERE NOT EXISTS(SELECT 1 FROM integrations r WHERE r.policy_id=p.id AND r.task_id=p.task_id AND r.spec_revision=p.spec_revision) ORDER BY p.id LIMIT 101").map_err(db_error)?;
+        let ids = statement
+            .query_map([], |r| r.get::<_, String>(0))
+            .map_err(db_error)?
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map_err(db_error)?;
+        if ids.len() > 100 {
+            return Err(limited());
+        }
+        let mut result = Vec::new();
+        for id in ids {
+            let policy = records::policy(&self.conn, &id)?;
+            if policy.revoked || policy.expires_at_ms <= ms()? {
+                continue;
+            }
+            let task: crate::storage::Task = raw(&self.conn, "tasks", &policy.selection.task_id)?;
+            if task.id != policy.selection.task_id
+                || task.spec_revision != policy.selection.expected_spec_revision
+            {
+                return Err(changed());
+            }
+            if task.state == crate::TaskState::Accepted {
+                result.push(policy);
+            }
+        }
+        Ok(result)
+    }
+}
