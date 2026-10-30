@@ -6,7 +6,7 @@ use std::{
     fs::{self, File, OpenOptions},
     io,
     io::Read,
-    os::fd::AsRawFd,
+    os::fd::AsFd,
     os::unix::fs::{MetadataExt, OpenOptionsExt},
     path::{Path, PathBuf},
     sync::{
@@ -606,19 +606,18 @@ struct ControlledGitChild {
 }
 impl ControlledGitChild {
     fn finished(&self) -> io::Result<bool> {
-        let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
-        let result = unsafe {
-            libc::waitid(
-                libc::P_PID,
-                libc::id_t::from(self.child.id()),
-                &mut info,
-                libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
-            )
-        };
-        if result < 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(unsafe { info.si_pid() } != 0)
+        let raw = i32::try_from(self.child.id())
+            .map_err(|_| io::Error::from(io::ErrorKind::InvalidData))?;
+        let pid = rustix::process::Pid::from_raw(raw)
+            .ok_or_else(|| io::Error::from(io::ErrorKind::InvalidData))?;
+        rustix::process::waitid(
+            rustix::process::WaitId::Pid(pid),
+            rustix::process::WaitIdOptions::EXITED
+                | rustix::process::WaitIdOptions::NOHANG
+                | rustix::process::WaitIdOptions::NOWAIT,
+        )
+        .map(|status| status.is_some())
+        .map_err(io::Error::from)
     }
     fn signal_own_group(&mut self) {
         // Never reap the leader before group signals end: its unreaped PID
@@ -632,8 +631,8 @@ impl ControlledGitChild {
         if !self.reaped && !self.signal_attempted && original_child_is_owned {
             self.signal_attempted = true;
             if let Ok(pid) = i32::try_from(self.child.id()) {
-                unsafe {
-                    libc::kill(-pid, libc::SIGKILL);
+                if let Some(pid) = rustix::process::Pid::from_raw(pid) {
+                    let _ = rustix::process::kill_process_group(pid, rustix::process::Signal::Kill);
                 }
             }
             let _ = self.child.kill();
@@ -662,13 +661,11 @@ struct ControlledCapture<T> {
     failed: bool,
     truncated: bool,
 }
-impl<T: Read + AsRawFd> ControlledCapture<T> {
+impl<T: Read + AsFd> ControlledCapture<T> {
     fn new(pipe: T) -> io::Result<Self> {
-        let fd = pipe.as_raw_fd();
-        let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
-        if flags < 0 || unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0 {
-            return Err(io::Error::last_os_error());
-        }
+        let flags = rustix::fs::fcntl_getfl(&pipe).map_err(io::Error::from)?;
+        rustix::fs::fcntl_setfl(&pipe, flags | rustix::fs::OFlags::NONBLOCK)
+            .map_err(io::Error::from)?;
         Ok(Self {
             pipe: Some(pipe),
             bytes: vec![],
