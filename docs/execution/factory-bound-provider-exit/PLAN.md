@@ -1,0 +1,13 @@
+# Previously bound Factory fixture process exit observations
+
+Baseline PR18 feature head `de0b911328c6703491902970ff608b908e3bf643`; independent branch `codex/factory-bound-provider-exit`, tree `/workspace/.worktrees/factory-bound-provider-exit`. This is a test-harness change, not Core/business/DDL or permission work. AGENTS, execution gate, AB-START-001, GOAL/RUNBOOK and OWNER-001/002 read/ACK. Real Provider identity/model calls, spending, production, signing, license and extra remote access remain closed.
+
+Requirements: WP08 / AB-TSK-009 authorized autonomous progress and AB-TSK-011 fixed plan revisions. This slice repairs the observer used by their real child-planning acceptance, preserving complete plan/Core-session/turn/attempt/file bindings and all subsequent acceptance/stop checks. It does not itself implement or accept those full requirements.
+
+Allowed paths only: `apps/desktop/tests/factory-real-ipc.py`, new `tests/infrastructure/test_factory_bound_provider_exit.py`, this unit's PLAN/PROGRESS/CHECKPOINT/EVIDENCE. No Core/UI/API/Native/schema/locks/CI/globalSTATUS/authorization changes; no extra agents or paid API.
+
+Decision: retain immutable known fixture history when an observation loses that already-bound process. The collector must freshly validate program/settings/companion hashes, record FD/path/mode/nonce/body hash, actual session-turn request and Factory run/attempt relationships, then establish old==fixed. Only after matching the original PID/start may an empty/missing provider argv and a fresh exact absence preserve that old binding. This is not a successful argv observation, process join, confirmed stop, Owner decision or new authority. Do not accept a still-present live/Z/reused PID or unknown/permission/parse error as absent.
+
+After complete bounded NUL-terminated argv and exact suffix match, missing getpgid/final stat may similarly preserve only a previously bound identity after another exact absence observation. Wrong PGID, changed birth, bad suffix, nonempty truncated or oversized argv still fail. A present initial PID with foreign birth is now explicitly refused before argv read (approved related fail-closed tightening); current=None historical path is unchanged. MCP empty-argv late reaper/real known-PID wait and all Runtime/Owner/stop/cleanup assertions remain unchanged.
+
+Execution sequence: inspect exact private CI failure; run identical deterministic regression tests against old source and retain red control; apply narrow observer change; run same tests and source inverse checks; independent review; Root alone performs real Core/browser/CI validation. No sleeps, retries, deadline/cap increases or production changes.
