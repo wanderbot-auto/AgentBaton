@@ -1,3 +1,11 @@
+## Request-local Factory summary proof verified; exact CI pending — 2026-10-30T13:21:13.227918+00:00
+
+Read-only get/list now validates immutable SQL history once inside one owned Deferred request snapshot; existing caller transactions and all effect/live/time/FS checks retain original strict behavior. Source07d8c1d passes153Core (focused4/nestedhelper included),30Factory,58sessions IPC, strict workspace/all-target Clippy and format. Independent source/model review has no remaining must-fix. No speedup or Intel repair is established. See [Root results](factory-summary-proof/ROOT_RESULTS.json).
+
+Exact previous059 Environment3/Rust/UI/ARM pass; Intel26/1 fails REWORK_OUTCOME_UNKNOWN plan2/run11 with same-node4013/4000ms/stopconfirmedtrue. No current capture timings/join proof; this differs from prior8c observationdeadline. Official finite ZIP12977285190 retained, ARM12977736978 metadata-only, no new dual installers. New candidate exact checks remain required and old results never transfer.
+
+Core17 separate branch now has two real normal integration paths and fresh-validator-failure/revocation negatives at their attributed commits, mocked45UI/type-build and owned-stop composition; its current full199/6IPC is running. Native feature compile passed5993; actual local Native tests capacity-interrupted before execution. Full130/Native/Mac/remote/Unicode/change/cleanup delivery remains open. Main653679d/OWNER001002 freshly ACK/no003; permissions unchanged, no formal Approve.
+
 ## Owned Goal stop service verified locally; exact new CI remains required — 2026-10-30T11:59:41.191738+00:00
 
 Sourcee6c43c4 (production071 unchanged) passes149unique Core tests,30Factory and58actual sessions IPC, strict workspace/all-target Clippy and format. The focused6 are included in149; nested helper is not additive. A private hint after committed owned Goal terminal turns services the original complete fresh stop policy in the ready batch; original outer sweep, all admission/capture order,4s/20s budgets and accounting remain. Original4PASS/2FAIL tests and full failedELF are retained; strict running/pending and actual post-reap Task/receipt/attempt/event assertions now pass. Old failed TempDirs auto-cleaned, with no false oldDB retention claim.

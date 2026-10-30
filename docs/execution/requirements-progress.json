@@ -1230,7 +1230,8 @@
         "docs/execution/factory-child-goal-integration/CONTAINMENT_WAKE_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEADD514_TERMINAL_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json",
+        "docs/execution/factory-summary-proof/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1456,6 +1457,15 @@
           "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
           "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
           "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
+        },
+        {
+          "slice": "request_scoped_readonly_factory_history_proof",
+          "source": "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+          "evidence": "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
+          "local": "153Core incl4/30Factory/58sessions strictClippy/fmt passed",
+          "effect_authority": "unchanged original strict; no live/time/FS cache",
+          "current_Mac_performance": "not_run",
+          "whole_requirement": "incomplete"
         }
       ],
       "pr18_repair_observation": {
@@ -2005,7 +2015,8 @@
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-stop-service/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2217,6 +2228,15 @@
           "evidence": "docs/execution/factory-child-goal-integration/IO_LOCAL_ACCEPTANCE.json",
           "coverage": "partial Linux generated fixture; actual cancel/workerjoined; not midcopy/partialwrite/OSstop/Native/Provider/macOS/complete cleanup/full product",
           "actual": "8checks/unrun0; independent source P2 closed630;73pure"
+        },
+        {
+          "slice": "owned_goal_terminal_stop_service",
+          "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
+          "evidence": "docs/execution/goal-stop-service/ROOT_RESULTS.json",
+          "local": "149Core incl6,30Factory,58sessionsIPC,strictClippy/fmt passed",
+          "new_exact_Mac_CI": "not_run_yet",
+          "whole_requirement": "incomplete",
+          "authority": "hint is scheduling only; original fresh stop/actual receipts and budget/unknown guards unchanged"
         }
       ]
     },
@@ -2255,7 +2275,8 @@
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-summary-proof/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2460,6 +2481,15 @@
           "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
           "status": "partial dimension only; notwhole requirement acceptance",
           "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "request_scoped_readonly_factory_history_proof",
+          "source": "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+          "evidence": "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
+          "local": "153Core incl4/30Factory/58sessions strictClippy/fmt passed",
+          "effect_authority": "unchanged original strict; no live/time/FS cache",
+          "current_Mac_performance": "not_run",
+          "whole_requirement": "incomplete"
         }
       ]
     },
@@ -2507,7 +2537,8 @@
         "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEAD7AC_TERMINAL_RESULTS.json",
         "docs/execution/factory-child-goal-integration/ATOMIC_RESERVATION_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/HEADDE0B_TERMINAL_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/HEADDE0B_TERMINAL_RESULTS.json",
+        "docs/execution/factory-summary-proof/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2717,6 +2748,15 @@
           "actual_generated_Unix_Core15_browser": "CG01/02/04/06 pass; cleanuptrue; actual joined stop; no TaskAccepted",
           "coverage": "partial; not real Provider/model, Native OS/Mac or full product",
           "evidence": "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json"
+        },
+        {
+          "slice": "request_scoped_readonly_factory_history_proof",
+          "source": "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+          "evidence": "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
+          "local": "153Core incl4/30Factory/58sessions strictClippy/fmt passed",
+          "effect_authority": "unchanged original strict; no live/time/FS cache",
+          "current_Mac_performance": "not_run",
+          "whole_requirement": "incomplete"
         }
       ],
       "pr18_repair_observation": {
@@ -4637,15 +4677,6 @@
           "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
           "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
           "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
-        },
-        {
-          "slice": "owned_goal_terminal_stop_service",
-          "source": "e6c43c494f97d43b58b087a3c8b89d85bc57e41f",
-          "evidence": "docs/execution/goal-stop-service/ROOT_RESULTS.json",
-          "local": "149Core incl6,30Factory,58sessionsIPC,strictClippy/fmt passed",
-          "new_exact_Mac_CI": "not_run_yet",
-          "whole_requirement": "incomplete",
-          "authority": "hint is scheduling only; original fresh stop/actual receipts and budget/unknown guards unchanged"
         }
       ],
       "pr18_repair_observation": {
