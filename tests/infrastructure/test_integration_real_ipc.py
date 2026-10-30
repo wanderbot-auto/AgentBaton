@@ -139,6 +139,24 @@ class FiniteBoundaryTests(unittest.TestCase):
             wrong = dict(args, caller=True)
             with self.assertRaises(D.Refusal): b.route(envelope(name, wrong))
 
+    def test_all_mutations_unconditionally_require_exact_nonempty_string_keys(self):
+        methods = [('integration_policy_approve', {'selection': selection(), 'idempotencyKey': 'original'})]
+        for name, (_, camel, _, _) in D.WRITES.items():
+            methods.append((name, {camel: 'record', 'expectedRevision': 1, 'idempotencyKey': 'original'}))
+        self.assertEqual(len(methods), 5)
+        for name, valid in methods:
+            b = boundary(); b.policies.add('record'); b.runs.add('record')
+            self.assertEqual(b.route(envelope(name, valid))[2], 'original')
+            missing = dict(valid); del missing['idempotencyKey']
+            with self.subTest(command=name, key='missing'), self.assertRaises(D.Refusal): b.route(envelope(name, missing))
+            for bad in [None, '', True, False, 0, 1, 1.0, float('nan'), [], {}, 'contains whitespace']:
+                args = dict(valid, idempotencyKey=bad)
+                with self.subTest(command=name, key=repr(bad)), self.assertRaises(D.Refusal): b.route(envelope(name, args))
+        # The fix must not demand mutation keys for ordinary typed reads.
+        b = boundary(); b.policies.add('record'); b.runs.add('record')
+        for name, (_, camel, _, _) in D.ID_READS.items():
+            self.assertIsNone(b.route(envelope(name, {camel: 'record'}))[2])
+
     def test_foreign_lists_cannot_register_ids(self):
         b = boundary()
         with self.assertRaises(D.Refusal): b.observe('integration_policies.list', {'result': [

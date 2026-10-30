@@ -12,8 +12,8 @@
     "docs/execution/integration-real-browser/EVIDENCE.json"
   ],
   "source_sha256": {
-    "apps/desktop/tests/integration-real-ipc.py": "d85e4505476f56588b7a8691000ef4d26523c1e427fd6cea3ba9b6661b2c69d0",
-    "tests/infrastructure/test_integration_real_ipc.py": "460bc0d751e5363e13eee92df2b69cbd7cef0c15deaf464633a6ec6ed0e9a6e7"
+    "apps/desktop/tests/integration-real-ipc.py": "0c45c55b435f07fac7968642c41a5164e29dba895462012d7a9a6f59e224f2e1",
+    "tests/infrastructure/test_integration_real_ipc.py": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2"
   },
   "actual_pure_command": [
     "python3",
@@ -72,11 +72,18 @@
       "passed": 34,
       "failed": 0,
       "seconds": 0.077
+    },
+    {
+      "tests": 35,
+      "passed": 35,
+      "failed": 0,
+      "seconds": 0.071,
+      "note": "original34 included; mutation-key guard regression added"
     }
   ],
   "counts": {
-    "unique_pure_tests": 34,
-    "final_passed": 34,
+    "unique_pure_tests": 35,
+    "final_passed": 35,
     "final_failed": 0,
     "actual_browser_cases_run_by_author": 0,
     "actual_Core_runs_by_author": 0
@@ -93,7 +100,7 @@
     "macos_Intel": "NOT_RUN",
     "real_Provider_model": "NOT_RUN"
   },
-  "independent_review": "PENDING",
+  "independent_review": "PENDING strict-key P2 revision closure",
   "authority_guards": [
     "exact twelve-field private expected selection fixed before HTTP",
     "complete original Core response/proposal/snapshot1MiB",
@@ -112,5 +119,25 @@
     "OS sandbox or whole-filesystem quota",
     "whole product completion"
   ],
-  "formal_pr_approve": false
+  "formal_pr_approve": false,
+  "previous_source_sha256_73662b3": {
+    "apps/desktop/tests/integration-real-ipc.py": "d85e4505476f56588b7a8691000ef4d26523c1e427fd6cea3ba9b6661b2c69d0",
+    "tests/infrastructure/test_integration_real_ipc.py": "460bc0d751e5363e13eee92df2b69cbd7cef0c15deaf464633a6ec6ed0e9a6e7"
+  },
+  "strict_key_p2": {
+    "original_source": "73662b3abf21a827717355f86e55b0b90c2ef8ad",
+    "original_reproduction_dimension": "five pure Boundary.route calls only; Host/Core/browser never called",
+    "old_mutations_accepting_null": [
+      "integration_policy_approve",
+      "integration_policies_revoke",
+      "integrations_start",
+      "integrations_cancel",
+      "integrations_reconcile"
+    ],
+    "old_forwarded_key": null,
+    "fix": "unconditional identifier(key) by mutation command; read-only keys remain None",
+    "negative_cases_per_method": 12,
+    "new_regression_unique_test_functions": 1,
+    "core_later_refusal_not_used_as_bridge_guard": true
+  }
 }

@@ -290,7 +290,7 @@ class Boundary:
         else:
             # Includes approvals.*, renderer authority, generic/session/task writes.
             raise Refusal('Command outside fixed integration boundary')
-        if key is not None:
+        if command == 'integration_policy_approve' or command in WRITES:
             require(identifier(key))
             with self.lock:
                 prior = self.writes.get((command, key))
