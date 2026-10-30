@@ -191,9 +191,12 @@ fn failed_blocked_unknown_or_cancel_labels_cannot_mint_failure_or_rework_permiss
         let before = unchanged_execution(&f);
         let seq = f.store.sequence().unwrap();
         assert!(
-            !f.store
-                .confirm_factory_child_goal_failure(&g.goal.run.id)
-                .unwrap(),
+            matches!(
+                f.store
+                    .confirm_factory_child_goal_failure(&g.goal.run.id)
+                    .unwrap(),
+                crate::goal_store::FactoryGoalFailureStatus::Pending
+            ),
             "{state}"
         );
         assert!(
@@ -227,7 +230,8 @@ fn fabricated_failed_node_stop_and_measurements_cannot_replace_owned_stop_eviden
         let error = f
             .store
             .confirm_factory_child_goal_failure(&g.goal.run.id)
-            .unwrap_err();
+            .err()
+            .expect("corrupt stop evidence must remain an error");
         assert_eq!(error.code, "INPUT_CHANGED", "claimed_stop={confirmed}");
         assert!(crate::goal_store::reserve_factory_child_goal_rework(
             &f.store.conn,
