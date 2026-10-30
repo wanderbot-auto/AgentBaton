@@ -6,6 +6,7 @@ pub mod adoption;
 pub mod command_validation;
 pub mod data_workspace;
 pub mod deterministic;
+pub mod source_capture;
 pub mod validation;
 
 use serde::{Deserialize, Serialize};

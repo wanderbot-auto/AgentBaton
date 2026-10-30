@@ -1,0 +1,243 @@
+{
+  "requirement_ids": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "stage": "explicit_empty_tree_fix_source_frozen_root_runtime_pending",
+  "base": "bc10ee94c667da9535018c37fdf5b128d63126af",
+  "source_commit": "49fdf925e9522d869cb0ff8c96c5540177dcdc67",
+  "source_sha256": {
+    "crates/workspaces/src/lib.rs": "2227d043ceaf878bcefbf594788b9b3e81864d955484e3fe98cbc718fd057b89",
+    "crates/workspaces/src/source_capture.rs": "1481a9399cce916568f3fb09d1a8fca3f0f345800923c53358ebcd490c3cbf31",
+    "crates/workspaces/tests/source_capture.rs": "6e4b708b0d7420e4c66d852d54fcec7b0e8bde1d3a382e6a5ed5135146dfb168"
+  },
+  "authority": "trusted host must verify accepted receipt and independent integration policy; this library authenticates neither",
+  "actual_command_results": [
+    {
+      "name": "static-checks",
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/accepted-source-capture-49fdf92/static-checks.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "c75ab765aa103939a7acbf4dd7ae6eb113c2ccc857d9b99f7808330d0ccaa5c4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "rustfmt",
+      "argv": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/workspaces/src/source_capture.rs",
+        "crates/workspaces/tests/source_capture.rs"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "test_source_counts": {
+    "integration": 13,
+    "cfg_unit": 5,
+    "executed": 0
+  },
+  "not_run": [
+    "Rust compilation",
+    "Cargo tests",
+    "real generated Git fixture execution",
+    "Actor/IPC",
+    "Clippy",
+    "Mac ARM/Intel",
+    "adoption/CAS",
+    "Provider/model",
+    "remote"
+  ],
+  "caps": {
+    "selected_files": 256,
+    "selected_total_bytes": 67108864,
+    "relative_path_bytes": 4096,
+    "base_entries": 65536,
+    "object_metadata_entries": 65536,
+    "global_original_deadline_ms": 15000,
+    "individual_existing_git_limit_ms": 15000
+  },
+  "limitations": [
+    "ASCII selected and entire base only; Unicode remains full-scope followup",
+    "scratch and unreferenced objects retained; no recursive cleanup",
+    "blocking kernel I/O is not forcibly interrupted",
+    "no TaskAccepted/Grant/adoption authority",
+    "no new Core schema/DTO/API/permissions"
+  ],
+  "artifact_directory": "/workspace/.onboarding/accepted-source-capture-49fdf92",
+  "source_only_checks_do_not_prove_runtime": true,
+  "history": {
+    "initial_source": "2784897058dbf81b29432bac096892b01f0fa98d",
+    "initial_source_sha256": {
+      "crates/workspaces/src/lib.rs": "2227d043ceaf878bcefbf594788b9b3e81864d955484e3fe98cbc718fd057b89",
+      "crates/workspaces/src/source_capture.rs": "5f91cb3d5abcc5d88ecb841ed25b1f9cac7e3168834fa6d8c76fd2a008039ac6",
+      "crates/workspaces/tests/source_capture.rs": "17931da3eea88c4bae9dd19fbd421722cef1252f2c4b7bbcb12ae7f8c09861c4"
+    },
+    "initial_artifacts": "/workspace/.onboarding/accepted-source-capture-2784897",
+    "initial_independent_verdict": "changes_required",
+    "initial_independent_artifacts": "/workspace/.onboarding/accepted-source-capture-independent-review",
+    "initial_independent_artifact_sha256": {
+      "REVIEW.md": "f478adad066086a7fa25e457174d74d6f9779f827affeb71cf1625e54845e7ee",
+      "MANIFEST.json": "6e6f6657b47c0226ac419b9ddc848c66a0c49f6422115aed52cdba08b9d55682",
+      "RAW_RACE_RESULT.json": "72af1cb8dd671939eb401c11e5fc43baccba06a1b272da9e12023625cad83c5f",
+      "raw_race_countercontrol.py": "0b7835a1d94fb7b6749b45785be69b3b1e3900094a88f6eaeba209cfc46b9cbe"
+    }
+  },
+  "fix_dimensions": [
+    "full raw metadata excluding atime",
+    "bounded actual Git blob stream SHA256/exact length, real child wait/reader joins before return",
+    "strict entire tree-vs-base selected allowlist and exact commit tree proof"
+  ],
+  "runtime_claims": {
+    "Rust_compilation": false,
+    "Git_tests": false,
+    "kill_wait_join_experiment": false,
+    "Clippy": false,
+    "Mac": false,
+    "full_adoption": false
+  },
+  "source_history": [
+    {
+      "source": "2784897058dbf81b29432bac096892b01f0fa98d",
+      "status": "changes_required_static_and_pure_counterexample_not_runtime",
+      "artifacts": "/workspace/.onboarding/accepted-source-capture-2784897"
+    },
+    {
+      "source": "4811d9b935b7c6a92113152d843470eb1d906355",
+      "status": "blob_and_tree_fix_source_not_run",
+      "artifacts": "/workspace/.onboarding/accepted-source-capture-4811d9b"
+    },
+    {
+      "source": "49fdf925e9522d869cb0ff8c96c5540177dcdc67",
+      "status": "explicit_submodule_observation_fixed_source_not_run",
+      "artifacts": "/workspace/.onboarding/accepted-source-capture-49fdf92"
+    }
+  ],
+  "submodule_config_note": "defensive explicit flag; prior diff-tree config-adoption semantics NOT_RUN, not a reproduced bypass",
+  "root_actual_execution_initial": {
+    "unit1": {
+      "artifact_directory": "/workspace/.onboarding/accepted-source-capture-unit1",
+      "result_sha256": "20d1f1459f51b932b450c8ebfc2f74a690550e18becdab1c06d254fb1120b1ab",
+      "command_log_sha256": "b5a02d5775054c243b5b199bc58ae82fa5fb9ed594bb4e42bb8855da85eb9be4",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 1.25s"
+      ]
+    },
+    "integration1": {
+      "artifact_directory": "/workspace/.onboarding/accepted-source-capture-integration1",
+      "result_sha256": "72737db01e223f0b585e7595db620bf6eba7568f7102751ef1960dd4bb286121",
+      "command_log_sha256": "28644cecae5c7f12087e91bbaf8a177a86807415d5fc2b0e304f9b6385302e61",
+      "exit": 101,
+      "summaries": [
+        "test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.89s"
+      ]
+    }
+  },
+  "diagnostic_revision": {
+    "source_commit": "caf405d7e3fc25183cc3cf5cad0147031aac67c4",
+    "production_unchanged_from": "49fdf925e9522d869cb0ff8c96c5540177dcdc67",
+    "test_file_sha256": "4ad350e43f9c7ecab5b28b244c9a7f2891e9fbbd63dd633c493e036055d300af",
+    "actual_diagnostic_case": "NOT_RUN",
+    "expectation": "exact Err UnsafeRepository",
+    "retention": "only own generated Repo on panic; no raw paths printed",
+    "author_commands": [
+      {
+        "argv": [
+          "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+          "--edition",
+          "2021",
+          "--check",
+          "crates/workspaces/tests/source_capture.rs"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "source_evidence": "/workspace/.onboarding/accepted-source-capture-empty-base-diagnostic-caf405d/SOURCE_AND_RESULTS.json"
+  },
+  "empty_tree_fix": {
+    "source_commit": "5ccb52663a3b21d79ac0ffcc9331cb968c2bef2d",
+    "source_sha256": {
+      "crates/workspaces/src/lib.rs": "2227d043ceaf878bcefbf594788b9b3e81864d955484e3fe98cbc718fd057b89",
+      "crates/workspaces/src/source_capture.rs": "217a0214de5f3b07e544c20cc09622bbc8b2557ef2227ccca4c6b786dc5d4d06",
+      "crates/workspaces/tests/source_capture.rs": "4ad350e43f9c7ecab5b28b244c9a7f2891e9fbbd63dd633c493e036055d300af"
+    },
+    "actual_source_runtime": "NOT_RUN",
+    "original_diagnostic_summary": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.58s"
+    ],
+    "original_diagnostic_log_sha256": "44cde6747c04a5dddebfc362c3ed0c10343c43fae59f588bfae8f9caf113c6d4",
+    "original_diagnostic_actual_return": "Ok",
+    "root_retained_inspection_sha256": "5fb6dcade766ee5836e9d2ba100c1a674027d362d9732c6ba4ce0edeb2db0e96",
+    "root_retained_safe_facts": {
+      "read_only_git_inspection_only": true,
+      "original_empty_subtree_lost": true,
+      "original_refs_not_adopted": true,
+      "not_production_or_user_data": true
+    },
+    "guard": "strict bounded explicit tree audit; reject empty subtree before capture writes and during candidate verification",
+    "all_original_caps_preserved": true,
+    "source_test_counts": {
+      "integration": 13,
+      "cfg_unit": 5
+    },
+    "actual_author_commands": [
+      {
+        "argv": [
+          "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+          "--edition",
+          "2021",
+          "--check",
+          "crates/workspaces/src/source_capture.rs",
+          "crates/workspaces/tests/source_capture.rs"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "evidence": "/workspace/.onboarding/accepted-source-capture-empty-tree-fixed-5ccb526/SOURCE_AND_EVIDENCE.json"
+  },
+  "root_actual_results": "ROOT_GIT_CAPTURE_RESULTS.json",
+  "root_actual_source_attribution": "Full147Rust+7docs actually source0720. Finalaed differs only two equivalent test-hex iterators; original1 rerun at695, new5 rerun atfinalaed, finalfmt/strictworkspacealltargetsClippy actually finalaed. No finalaed full147 rerun claimed. All production methods remain byte-equal5ccb."
+}

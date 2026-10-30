@@ -1,3 +1,13 @@
+## Exact Git capture validated; original failures retained — 2026-10-30T04:53:28.808547+00:00
+
+Host-only accepted-file capture now constructs exact raw Git commits without editing the original index/files/refs. Actual blob content SHA/length and final leafdiff+tree structure are rechecked; original boundedglobal15s/256files/64MiB remain. Native/Core Owner authorization, mergedcorrectness and actual adoption are not provided by this primitive.
+
+Actual source0720 fullworkspaces147uniqueRust tests plus7compilefaildocs PASS;4nestedhelpers excluded, new5private+13generatedGit=18 are included in147. Originalempty1 is a13subset. Two subsequent test-onlyhex syntax changes retain production bytes; finalaed new5/fmt/strictworkspacealltargetsClippy pass, original1 re-passes695. The147 suite was not relabelled a finalaed rerun.
+
+Original12PASS1FAIL and diagnostic0PASS1FAIL are retained. Root inspected the retainedgeneratedrepository: oldcandidate returnedOk while dropping an unselectedempty subtree, originalHEAD remainedunchanged. Newboundedfulltree audit rejects before object/index writes and checkscandidate too; exactoldUnsafeRepository expectation now passes. OriginalfailedELF/fullgzip/log/source and latergeneratedrepo are retained; initialfixture TempDir cleanup is honestly recorded. Two actualClippy101 testsyntax failures are retained and corrected without loweringwarnings. Independentoriginal/fix/finalsource seals remain separate.
+
+Merged reviewedWSI0644 metadata only, no product source delta. ASCII/unsupportedchange/hostcleanup/Mac/native/remote/liveProvider limitations remain; fullVAL009 and130 stayopen. OWNER001002ACK/main653679d; no CoreGrant/DDL/refadoption/production/signing/spend authorization changed. See ROOT_GIT_CAPTURE_RESULTS.json.
+
 ## Reviewed Parent34f composition verified on schema16 — 2026-10-30T04:13:18.951553+00:00
 
 Exact bc10 keeps the reviewed Parent34f containment/Graph-service/fixture fixes and the Task schema16/default-entry recovery. Only STATUS/manifest conflicts needed explicit resolution; both histories and93 actual hashes are preserved. Independent source/merge audit is sealed (6226c9d3be91/6f3b9e32858b);2047 Git/source assertions are not product tests.
