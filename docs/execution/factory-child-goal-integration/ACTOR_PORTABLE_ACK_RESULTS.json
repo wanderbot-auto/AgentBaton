@@ -1,0 +1,552 @@
+{
+  "recorded_at": "2026-10-30T01:14:14.382825+00:00",
+  "source_head": "cae38cf2aec8ba206106e8c94b1c4a25b05e5a82",
+  "approval": "AB-START-001",
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "rust_regressions": "REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json: Factory26 ef31, Core129 d694, strict all-target workspace Clippy/fmt d694; all crates and Cargo source byte-unchanged through current head. No new Rust replay claimed.",
+  "source_changes": {
+    "actor": "09c7012c2085ea1f0efe0d26e9e5a6af34e1f73e",
+    "portable_validator_author": "02503b417d5848b1d2d3350678d774285287ff1a",
+    "ACK_author": "67c6fb52361f3a1a3366af0af3ef300c07ac4fdd",
+    "shared_consumer_author": "e5904beaba761b53e68f4c4fc07a76d76d7154f1"
+  },
+  "independent_reviews": {
+    "old_metadata": {
+      "review_sha256": "91d3c638be6a7c13f1733d4af06eaab2a4cee11d74bfd29eb23285658f005c11",
+      "manifest_sha256": "15052db8b7d59629e9051bf46e3974cc96a64e5e39621c6c30db10c16387e544",
+      "scope": "ACCEPTABLE for61d/d694 evidence only"
+    },
+    "original_ACK": {
+      "review_sha256": "7f3bb2be342905ec4540850ef02a8a92aa11629ccead41591b7f97a6b252bc57",
+      "manifest_sha256": "a951a9321f430854f15509a035e651a681a93d41d1d45bb640aeeec94c38afec",
+      "scope": "CHANGES_REQUIRED shared childGoal observer cycle; retained"
+    },
+    "closed_ACK": {
+      "review_sha256": "f3ecf04fb15297f1cb7a1e263a1ae3cde7c99ca510569f2360dba5ca5eba621f",
+      "manifest_sha256": "b7fa930e64823073f279507113e55c072408dfeb54608413e4a86001321c04e6",
+      "scope": "SOURCE_READY; independent31pure, not real product replay"
+    }
+  },
+  "actual_infrastructure": {
+    "command": {
+      "source": "cae38cf2aec8ba206106e8c94b1c4a25b05e5a82",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure"
+      ],
+      "exit": 0,
+      "seconds": 3.2073689089738764,
+      "minimum_free_bytes": 295698432,
+      "interruption": null,
+      "log_sha256": "6706a50c8e3b99c8fa5a239ba4b949126d2868a26341852b5f4e3010f524b860",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "passed": 181,
+    "test_seconds": 2.99
+  },
+  "actual_browser_flows": {
+    "normal": {
+      "actual_command": {
+        "source": "4651825284387c8e485ef3fe9c8ff87474007494",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--case",
+          "normal",
+          "--output",
+          "/workspace/.onboarding/pr18-observer-ack-normal-browser1",
+          "--candidate-manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--batond",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools/batond",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist"
+        ],
+        "exit": 0,
+        "seconds": 4.311603010020917,
+        "minimum_free_bytes": 277524480,
+        "interruption": null,
+        "log_sha256": "1f484853e3fec7496b34889c7a54082edef07055eff97c450f005e327b77b2a6",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "d28d7f5766bc188218bd4d89c1bf39061e7e82223316d69e9a07400db1b631fa",
+      "report_bytes": 228519,
+      "status": "passed",
+      "passed_checks": 4,
+      "screenshots": 2,
+      "cleanup_complete": true,
+      "cleanup": [
+        {
+          "action": "HTTP thread join"
+        },
+        {
+          "action": "HTTP handlers joined"
+        },
+        {
+          "action": "private daemon waited",
+          "exitcode": 0,
+          "forced_sigkill": false
+        },
+        {
+          "action": "fixed previously verified generated identities inspected",
+          "actual_bound_records": 3,
+          "actual_bound_identities": 6,
+          "inspected_identities": 6,
+          "complete": true
+        }
+      ]
+    },
+    "unknown": {
+      "actual_command": {
+        "source": "4651825284387c8e485ef3fe9c8ff87474007494",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--case",
+          "unknown",
+          "--output",
+          "/workspace/.onboarding/pr18-observer-ack-unknown-browser1",
+          "--candidate-manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--batond",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools/batond",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist"
+        ],
+        "exit": 0,
+        "seconds": 3.6128012409899384,
+        "minimum_free_bytes": 276914176,
+        "interruption": null,
+        "log_sha256": "23dc9f8caec83006e0c0612de08632d34a095f587c800400bc9bd3e130a2b831",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "4ef2085a8b037a75dae5c7eece2054f9f4ae3a2e3dbafa7ced1fc662e078964d",
+      "report_bytes": 178969,
+      "status": "passed",
+      "passed_checks": 4,
+      "screenshots": 2,
+      "cleanup_complete": true,
+      "cleanup": [
+        {
+          "action": "HTTP thread join"
+        },
+        {
+          "action": "HTTP handlers joined"
+        },
+        {
+          "action": "private daemon waited",
+          "exitcode": 0,
+          "forced_sigkill": false
+        },
+        {
+          "action": "fixed previously verified generated identities inspected",
+          "actual_bound_records": 1,
+          "actual_bound_identities": 2,
+          "inspected_identities": 2,
+          "complete": true
+        }
+      ]
+    },
+    "cancel": {
+      "actual_command": {
+        "source": "4651825284387c8e485ef3fe9c8ff87474007494",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--case",
+          "cancel",
+          "--output",
+          "/workspace/.onboarding/pr18-observer-ack-cancel-browser1",
+          "--candidate-manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--batond",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools/batond",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist"
+        ],
+        "exit": 0,
+        "seconds": 3.911515923013212,
+        "minimum_free_bytes": 276119552,
+        "interruption": null,
+        "log_sha256": "78d25aa8290112211bfb2fe5e4854b4a4d98f198148bd24f7db457060e73629b",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "d90b5a30e463e9fb779723232158ace897e76db7978c94172cf9215ba1b0f349",
+      "report_bytes": 230213,
+      "status": "passed",
+      "passed_checks": 4,
+      "screenshots": 2,
+      "cleanup_complete": true,
+      "cleanup": [
+        {
+          "action": "HTTP thread join"
+        },
+        {
+          "action": "HTTP handlers joined"
+        },
+        {
+          "action": "private daemon waited",
+          "exitcode": 0,
+          "forced_sigkill": false
+        },
+        {
+          "action": "fixed previously verified generated identities inspected",
+          "actual_bound_records": 1,
+          "actual_bound_identities": 2,
+          "inspected_identities": 2,
+          "complete": true
+        }
+      ]
+    },
+    "childplanning": {
+      "actual_command": {
+        "source": "4651825284387c8e485ef3fe9c8ff87474007494",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-child-planning-real-ipc.py",
+          "--run",
+          "--tools",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--output",
+          "/workspace/.onboarding/pr18-observer-ack-childplanning-browser1"
+        ],
+        "exit": 0,
+        "seconds": 13.23484146501869,
+        "minimum_free_bytes": 273924096,
+        "interruption": null,
+        "log_sha256": "69587a5453679f02f52766e64806371cbc4d8c05b373290cda8c39f5c88e1156",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "9decd01a332b582b2fbd8721b4496524d66148164a985ebeae8e692e72d3b81c",
+      "report_bytes": 1440985,
+      "status": "passed",
+      "passed_checks": 9,
+      "screenshots": 4,
+      "cleanup_complete": true,
+      "cleanup": [
+        {
+          "action": "HTTP serve and handler join",
+          "confirmed": true
+        },
+        {
+          "action": "private daemon actual wait",
+          "exitcode": 0
+        },
+        {
+          "action": "fixed previously verified generated identities inspected",
+          "actual_bound_records": 3,
+          "actual_bound_identities": 6,
+          "inspected_identities": 6,
+          "complete": true
+        }
+      ]
+    },
+    "childgoal-normal": {
+      "actual_command": {
+        "source": "cae38cf2aec8ba206106e8c94b1c4a25b05e5a82",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "normal",
+          "--tools",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--output",
+          "/workspace/.onboarding/pr18-observer-ack-childgoal-normal-browser3"
+        ],
+        "exit": 0,
+        "seconds": 24.169668547983747,
+        "minimum_free_bytes": 287178752,
+        "interruption": null,
+        "log_sha256": "98531b8372914a7a51c2f8480b68e703ce01819bcd7d7dde06bbbe7841a4be65",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "615d074860d71cb5417df53878c11175e0e05f748f4ceeff79b473df538c442e",
+      "report_bytes": 3290751,
+      "status": "passed",
+      "passed_checks": 4,
+      "screenshots": 4,
+      "cleanup_complete": true,
+      "cleanup": [
+        {
+          "action": "HTTP_serve_and_handler_join",
+          "confirmed": true
+        },
+        {
+          "action": "actual_private_daemon_wait",
+          "exitcode": 0
+        },
+        {
+          "action": "fixed previously verified generated identities inspected",
+          "actual_bound_records": 2,
+          "actual_bound_identities": 4,
+          "inspected_identities": 4,
+          "complete": true
+        },
+        {
+          "action": "bound_Graph_provider_identity_gone",
+          "confirmed": true
+        },
+        {
+          "action": "all_persisted_sessions_match_bound_stopped_processes",
+          "confirmed": true
+        }
+      ]
+    },
+    "childgoal-lost-start": {
+      "actual_command": {
+        "source": "cae38cf2aec8ba206106e8c94b1c4a25b05e5a82",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "lost-start",
+          "--tools",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--output",
+          "/workspace/.onboarding/pr18-observer-ack-childgoal-lost-start-browser1"
+        ],
+        "exit": 0,
+        "seconds": 27.472228186001303,
+        "minimum_free_bytes": 272904192,
+        "interruption": null,
+        "log_sha256": "5a1a7008b93e41355802006f18aec6e9588c4bf97b76bd153360e619585f0827",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "e49d33bcf94351a22a61d69fa2f17459c4697d58f03bf729367c994aaa4a50e9",
+      "report_bytes": 3748249,
+      "status": "passed",
+      "passed_checks": 5,
+      "screenshots": 4,
+      "cleanup_complete": true,
+      "cleanup": [
+        {
+          "action": "HTTP_serve_and_handler_join",
+          "confirmed": true
+        },
+        {
+          "action": "actual_private_daemon_wait",
+          "exitcode": 0
+        },
+        {
+          "action": "fixed previously verified generated identities inspected",
+          "actual_bound_records": 2,
+          "actual_bound_identities": 4,
+          "inspected_identities": 4,
+          "complete": true
+        },
+        {
+          "action": "bound_Graph_provider_identity_gone",
+          "confirmed": true
+        },
+        {
+          "action": "all_persisted_sessions_match_bound_stopped_processes",
+          "confirmed": true
+        }
+      ]
+    },
+    "childgoal-cancel": {
+      "actual_command": {
+        "source": "cae38cf2aec8ba206106e8c94b1c4a25b05e5a82",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "cancel",
+          "--tools",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--output",
+          "/workspace/.onboarding/pr18-observer-ack-childgoal-cancel-browser1"
+        ],
+        "exit": 0,
+        "seconds": 15.240490633994341,
+        "minimum_free_bytes": 297918464,
+        "interruption": null,
+        "log_sha256": "4933b323d62ebc362b525b1694f816039173521ab8467c3949de16d8b24cdb9f",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "6d31bd8cb8724e9bd942acbefba582e0ca3660cfb76e3ddb3a50afdadc190891",
+      "report_bytes": 2075450,
+      "status": "passed",
+      "passed_checks": 4,
+      "screenshots": 3,
+      "cleanup_complete": true,
+      "cleanup": [
+        {
+          "action": "HTTP_serve_and_handler_join",
+          "confirmed": true
+        },
+        {
+          "action": "actual_private_daemon_wait",
+          "exitcode": 0
+        },
+        {
+          "action": "fixed previously verified generated identities inspected",
+          "actual_bound_records": 1,
+          "actual_bound_identities": 2,
+          "inspected_identities": 2,
+          "complete": true
+        },
+        {
+          "action": "bound_Graph_provider_identity_gone",
+          "confirmed": true
+        },
+        {
+          "action": "all_persisted_sessions_match_bound_stopped_processes",
+          "confirmed": true
+        }
+      ]
+    }
+  },
+  "preserved_failures": {
+    "earlier_normal_and_unknown": "REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json; strict first-live guard initial0/prior0 refusal, each2checks/cleanupfalse, unchanged originals",
+    "childgoal_capacity_preflight": {
+      "command": {
+        "source": "4651825284387c8e485ef3fe9c8ff87474007494",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "normal",
+          "--tools",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--output",
+          "/workspace/.onboarding/pr18-observer-ack-childgoal-normal-browser1"
+        ],
+        "exit": 1,
+        "seconds": 0.30102176099899225,
+        "minimum_free_bytes": 272449536,
+        "interruption": null,
+        "log_sha256": "99192b542b642ea757231345b42294247a7476a0d6df0b4d160451d18085f37f",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "dimension": "External capacity guard refused before private daemon or product execution; not product pass/failure"
+    },
+    "childgoal_original_ACK_cycle": {
+      "command": {
+        "source": "4651825284387c8e485ef3fe9c8ff87474007494",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "normal",
+          "--tools",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--output",
+          "/workspace/.onboarding/pr18-observer-ack-childgoal-normal-browser2"
+        ],
+        "exit": 1,
+        "seconds": 19.04348378200666,
+        "minimum_free_bytes": 296656896,
+        "interruption": null,
+        "log_sha256": "ed67d3ab6e47460e22482671a49169bef206bb30f387711cd8b18cdac73a31b5",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "eb1688b81ecd55f3158f072a67e376ff34015480174e8efaa593639889c4b37d",
+      "passed_checks": 2,
+      "cleanup_complete": false,
+      "finite_failure": "Generated stderr confirms Fixture observation ACK deadline expired; subsequent bounded observation saw root outcome_unknown. Driver waited for ready before capture, fixed by invoking existing guarded capture before each wait read. Original product unknown state/5s deadline unchanged."
+    }
+  },
+  "browser_attribution": {
+    "compiled_core": "0c78e8517dd4655551c3d19b258a92028997317c",
+    "frontend": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+    "manifest": "pr18-shared-meter-regression1/manifest.json",
+    "dimension": "Linux Chromium / actual authenticated Unix IPC / fixed generated ACP+MCP with no account/model. Each actual driver head remains recorded; no new current Core binary or macOS claim.",
+    "viewed_by_root": "childgoal-normal-browser3/04-persisted-final-graph-and-factory.png",
+    "viewed_sha256": "51e7fd9d47524e3df2ed537962b4e88788f00439bec5399d65078682ca3579a9"
+  },
+  "safety": [
+    "ACK is emitted only after full first-live PID/birth/argv/PGID and Core request/session/attempt/run/file binding; it is fixture synchronization, not stop/join/Owner authority.",
+    "Fixed shared helper uses exact payload, nofollow/single-link/mode/size/FD pins and original Host history. Generated provider5s startup bound does not extend original shorter budgets.",
+    "Original22 guard methods retained, nine new ACK/nested-driver controls; original runtime/HTTP/reaper/cleanup/final assertions remain.",
+    "Core ready-batch service and fixed hash-approved portable validator retain all original authority/input/timeout/budget/failure guards. Mac root cause/latency improvement remain unproved."
+  ],
+  "capacity_preservation": [
+    "Successful generated Core129 and Factory26 ELFs losslessly gzip archived with SHA roundtrip in private batches48/49; original failing ELF/DB/source and immutable15/16 tools untouched.",
+    "Previous schema16 e313 frontend byte archive saved before next independent UI build; no artifact presented as an installer."
+  ],
+  "remote_status": "PR18 remote de0b exact Env3/Rust pass, UI/dualMac fail. New exact sevenCI/native/build/audit/packages not yet run; no result transfer. PR19 dependent UI nextslice under independent review, not accepted.",
+  "not_claimed": [
+    "Full130/WP01-14 completion",
+    "Mac fix, current schema15/16 installers or Native acceptance",
+    "Real Provider/model calls/private identities, new spend/resources, production/signing/license selection/formal GitHub Approve"
+  ]
+}

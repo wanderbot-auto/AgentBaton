@@ -1223,7 +1223,8 @@
         "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
         "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1511,7 +1512,8 @@
         "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
         "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1802,7 +1804,8 @@
         "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
         "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -3080,7 +3083,8 @@
         "docs/execution/factory-child-goal-integration/HEAD7AC_TERMINAL_RESULTS.json",
         "docs/execution/factory-child-goal-integration/ATOMIC_RESERVATION_RESULTS.json",
         "docs/execution/factory-child-goal-integration/HEADDE0B_TERMINAL_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -4323,7 +4327,8 @@
         "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
         "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/ACTOR_PORTABLE_ACK_RESULTS.json"
       ],
       "limitations": [],
       "verified_slices": [

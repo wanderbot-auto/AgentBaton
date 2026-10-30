@@ -1,3 +1,11 @@
+## Actor/portable validator and strict fixture ACK ready for new CI — 2026-10-30T01:14:14.382825+00:00
+
+Actual Factory26/Core129, strict workspace/all-target Clippy and format remain accurately source-bound in REVIEWED_LOCAL_AND_FIRST_BINDING_RESULTS.json; all Rust/Cargo bytes are unchanged through cae38. New infrastructure181PASS2.990s. Fixed test-only ACK four actual browser/UnixIPC flows pass4/4/4/9checks with complete cleanup; full childGoal normal/lost-start/cancel pass4/5/4checks (24.170/27.472/15.240s), each actual daemon wait0, bound identities gone and complete cleanup. Root viewed the final normal childGoal PNG. Driver465/cae, historical compiledCore0c78/frontend2d remain separate dimensions, not current rebuilt Core or Mac.
+
+Original first-live failures and childGoal preflight capacity refusal/actual ACK-cycle failure19.043s remain preserved. Existing capture now runs before each childGoal wait read, fixing that test observer dependency without changing5s/production unknown or final assertions. Original67 CHANGES_REQUIRED seal remains; e590 independent31pure/source closure f3ecf04f has no remaining mustfix. Actor and portable source reviews remain separate; no Mac root-cause/performance improvement claimed. See ACTOR_PORTABLE_ACK_RESULTS.json.
+
+Remote PR18 de0b remains Env3/RustPASS/UI+bothMacFAIL; next exact sevenCI, native/build/audit/packages and full130 acceptance are pending. PR19 dependent default GitTask workspace entry focused83 andtype/build pass locally, but independent combination review found same-key recovery visibility P2 under repair; not accepted or merged. main653679d/OWNER001002ACK/no003 and all authorization boundaries unchanged.
+
 ## Reviewed local regressions and first-binding race — 2026-10-30T01:00:16.147826+00:00
 
 Actor ready-batch graph service, fixed hash-approved portable shell validator, and strict observer first-binding guard are independently source-reviewed. Actual Factory26PASS90.12s and Core129PASS90.10s (nested helper excluded), infrastructure172, all-workspace/all-target strictClippy and format passed at their separately recorded sources. Original portable first0/1 uid assertion failure/ELF is retained; corrected Mac-only uid assertion passes Linux, not Mac proof.
