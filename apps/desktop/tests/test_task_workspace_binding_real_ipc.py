@@ -775,5 +775,47 @@ class ExecutionEntryRecoveryTests(unittest.TestCase):
             h.confirmed_dialog_scope_reads(self.scope + [pending], 0, 'project', 'entry-workspace')
 
 
+class NewCanvasSnapshotTests(unittest.TestCase):
+    """Only actual completed snapshot projection may acknowledge private setup."""
+    def setUp(self):
+        self.task = {'id': 'new-third', 'revision': 1, 'spec_revision': 1, 'project_id': 'fixture', 'state': 'draft', 'goal': 'unique third'}
+        self.row = {'method': 'system.snapshot', 'phase': 'complete', 'reply_complete': True, 'result': 'result',
+                    'snapshot_task_projections': [h.task_read_projection(self.task)]}
+
+    def test_requires_new_completed_snapshot_not_prior_canvas_task_get_or_inflight_reply(self):
+        self.assertEqual(h.confirmed_canvas_snapshot([self.row], 0, self.task), h.task_read_projection(self.task))
+        self.assertIsNone(h.confirmed_canvas_snapshot([self.row], 1, self.task))
+        self.assertIsNone(h.confirmed_canvas_snapshot([], 0, self.task))
+        task_get = copy.deepcopy(self.row); task_get['method'] = 'tasks.get'
+        self.assertIsNone(h.confirmed_canvas_snapshot([task_get], 0, self.task))
+        for key, value in [('phase', 'response_body'), ('reply_complete', False), ('reply_complete', 1)]:
+            pending = copy.deepcopy(self.row); pending[key] = value
+            self.assertIsNone(h.confirmed_canvas_snapshot([self.row, pending], 0, self.task))
+
+    def test_missing_third_keeps_waiting_but_wrong_changed_or_duplicate_projection_refuses(self):
+        missing = copy.deepcopy(self.row); missing['snapshot_task_projections'] = []
+        self.assertIsNone(h.confirmed_canvas_snapshot([missing], 0, self.task))
+        for change in ['revision', 'goal', 'binding', 'duplicate', 'foreign_sha', 'bool_revision']:
+            row = copy.deepcopy(self.row)
+            changed = copy.deepcopy(self.task)
+            if change == 'revision': changed['revision'] = 2
+            if change == 'goal': changed['goal'] = 'another task intent'
+            if change == 'binding': changed['code_workspace_binding'] = {'receipt': {'task_id': changed['id'], 'workspace_id': 'unexpected'}}
+            if change in ['revision', 'goal', 'binding']:
+                row['snapshot_task_projections'] = [h.task_read_projection(changed)]
+            if change == 'duplicate': row['snapshot_task_projections'] *= 2
+            if change == 'foreign_sha': row['snapshot_task_projections'][0]['task_sha256'] = 'f'*64
+            if change == 'bool_revision': row['snapshot_task_projections'][0]['revision'] = True
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                h.confirmed_canvas_snapshot([row], 0, self.task)
+
+    def test_latest_snapshot_error_or_invalid_projection_cannot_reuse_previous_success(self):
+        for key, value in [('result', 'error'), ('snapshot_task_projections', None),
+                           ('snapshot_task_projections', [True]), ('snapshot_task_projections', [{}]*33)]:
+            row = copy.deepcopy(self.row); row[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                h.confirmed_canvas_snapshot([self.row, row], 0, self.task)
+
+
 if __name__ == '__main__':
     unittest.main()

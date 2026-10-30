@@ -449,6 +449,25 @@ def task_read_projection(task):
             'task_sha256': sha(json.dumps(task, sort_keys=True).encode())}
 
 
+def confirmed_canvas_snapshot(entries, start, task):
+    """Explicit post-setup App refresh must really deliver this exact new Task."""
+    rows = [entry for entry in entries[start:] if entry['method'] == 'system.snapshot']
+    if not rows:
+        return None
+    latest = rows[-1]
+    if latest.get('reply_complete') is not True or latest.get('phase') != 'complete':
+        return None
+    require(latest.get('result') == 'result')
+    tasks = latest.get('snapshot_task_projections')
+    require(type(tasks) is list and len(tasks) <= 32 and all(type(row) is dict for row in tasks))
+    matching = [row for row in tasks if row.get('task_id') == task['id']]
+    if not matching:
+        return None
+    require(len(matching) == 1 and exact(matching[0], task_read_projection(task)),
+            'New canvas snapshot Task differs from real private setup')
+    return matching[0]
+
+
 def confirmed_dialog_task_read(entries, start, task):
     """Require a new, fully delivered real TaskGet; never infer from snapshot/old UI state."""
     relevant = [entry for entry in entries[start:] if entry['method'] == 'tasks.get' and entry['task_id'] == task['id']]
@@ -709,6 +728,10 @@ def run(args, binary, frontend, attribution, output):
                         require(response['result']['id'] == params['task_id']
                                 and response['result']['project_id'] == project['id'])
                         entry['task_projection'] = task_read_projection(response['result'])
+                    if method == 'system.snapshot' and 'error' not in response:
+                        records = response['result']['tasks']
+                        require(type(records) is list and len(records) <= 32)
+                        entry['snapshot_task_projections'] = [task_read_projection(task) for task in records]
                     if method in ('workspaces.list', 'grants.list') and 'error' not in response:
                         records = response['result']
                         require(type(records) is list and all(type(r) is dict and r.get('project_id') == project['id'] for r in records))
@@ -929,7 +952,17 @@ def run(args, binary, frontend, attribution, output):
         old_workspace_images = [fixture_paths.image(binding, task['id']) for binding, task in zip((b1, b2), tasks)]
         drop.update(task=third['id'], done=False)
         card = page.get_by_test_id('task-card').filter(has_text=third['goal'])
-        expect(card).to_have_count(1)
+        # Private setup is not a UI action; the all-draft idle canvas does not
+        # poll. Use its existing readonly Refresh before expecting the new card.
+        canvas_start = len(report['http'])
+        canvas_deadline = time.monotonic() + 15
+        click(page.locator('.appbar'), 'Refresh')
+        wait(lambda: confirmed_canvas_snapshot(report['http'], canvas_start, third), lambda value: value is not None,
+             seconds=max(0, canvas_deadline - time.monotonic()))
+        canvas_remaining = canvas_deadline - time.monotonic()
+        require(canvas_remaining > 0, 'Canvas setup observation deadline')
+        expect(card).to_have_count(1, timeout=max(1, int(canvas_remaining * 1000)))
+        require(time.monotonic() <= canvas_deadline, 'Canvas setup observation deadline')
         card.click()
         # No Details expansion: this preparation must be entered from the real
         # execution dialog, using its automatic reuse of TaskCodeWorkspace.
