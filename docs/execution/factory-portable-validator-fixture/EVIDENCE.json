@@ -79,5 +79,26 @@
   "generated_ACP_byte_equal": true,
   "independent_review": "PENDING",
   "root_heavy_lease_used": false,
-  "initial_scalar_note_correction": "An intermediate message said118 script bytes; actual controls/source .len() establish113. No fixed118 budget was coded."
+  "initial_scalar_note_correction": "An intermediate message said118 script bytes; actual controls/source .len() establish113. No fixed118 budget was coded.",
+  "linux_program_owner_correction": {
+    "source": "02503b417d5848b1d2d3350678d774285287ff1a",
+    "parent": "b03e5f60a0f357d0d74fd06655fa1a71c41bc336",
+    "scope": "exact one-line cfg(target_os=macos) on uid0 fixture assertion",
+    "root_actual_single1": "2502102 compile succeeded; FAIL1010passed1failed0.00s beforeActor uid65534 !=0",
+    "root_result_path": "/workspace/.onboarding/pr18-portable-validator-single1/RESULT.json",
+    "production_protected_program_root_owner_requirement": "macOS-only; Linux sealed-image branch has no uid0 requirement",
+    "one_line_inverse_entire_fixture_equal": true,
+    "other_assertions_and_production_bytes_unchanged": true,
+    "author_checks": [
+      "rustfmt--check0",
+      "gitdiff--check0",
+      "mechanicalinverse0"
+    ],
+    "old19_semantic_controls": "historical unchanged script; not rerun/not Rust proof",
+    "source_manifest_path": "/workspace/.onboarding/factory-portable-validator-platform-correction/SOURCE_MANIFEST.json",
+    "source_manifest_sha256": "0455bc3c0c3728af401f2fd373ab047733c9dd2ac17b689540b7c7246415243c",
+    "author_rust_actor_mac_ci": "NOT_RUN",
+    "independent_review": "PENDING",
+    "root_actual_retry": "PENDING"
+  }
 }
