@@ -40,4 +40,4 @@ export interface IntegrationFenceView {repository_digest:string;target_ref:strin
 export interface IntegrationRunView {run:IntegrationRun;attempts:IntegrationAttemptView[];shared_usage:IntegrationSharedUsage;fence:IntegrationFenceView}
 export interface IntegrationReconciliation {integration:IntegrationRunView;observed_target_head:string|null;observation_scope:string;historical_cas_confirmed:boolean}
 export interface IntegrationTarget {target_ref:string;head:string;checked_out:boolean}
-export interface IntegrationContextView {task_revision:number;bindings:IntegrationStaticBindings;as_of_sequence:number;shared_usage:IntegrationSharedUsage;preview_only:true}
+export interface IntegrationContextView {task_revision:number;bindings:IntegrationStaticBindings;available_validators:IntegrationValidatorBinding[];as_of_sequence:number;shared_usage:IntegrationSharedUsage;preview_only:true}

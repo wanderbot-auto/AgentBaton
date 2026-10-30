@@ -7,3 +7,7 @@ Adapted immutable Core e7df3f224549d50647ffd82d722e763bf11232a2: workspace_bindi
 Transport/component test source covers refusal, expiry, checked-out refs, unknown usage/response, exact-key recovery, task races, cancellation, current-ref versus historical proof, readonly source/definition text, malformed records and schema16/18 rejection. Only git diff --check executed and passed; Node/typecheck/component/browser/Core/Native/macOS tests NOT RUN by this author.
 
 New Root/Core a60816d available_validators context delta arrived after e7df adaptation: implementing explicit optional already-Native-approved correctness selection next, preserving immutable required rules and original Goal scope. Full product and real IPC/native acceptance remain open.
+
+Adapted immutable Core a60816d available_validators: context guards reject duplicate refs; UI explicitly selects optional correctness definitions from the server list, keeps all required output rules, and reserves every selected validator. No default optional approval, rule-id parsing, arbitrary JSON or renderer-supplied pass flag. Final Native approval remains independent.
+
+Self-inspection corrected a multi-round history boundary: only the current round must bind the confirmed merged candidate; older actual candidate receipts remain visible and are not mislabeled as the final candidate. Added regression test source for this distinction and for obsolete/fabricated workspace-binding records. Immediate task fingerprint invalidation and readonly schema checks remain strict.

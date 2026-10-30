@@ -16,12 +16,17 @@
     "native_macos_intel": "not_run"
   },
   "constraints": "Root owns heavy toolchain/test execution; author has not run Node, Cargo, browser, Actor or Git product operations.",
-  "typed_contract": "e7df3f224549d50647ffd82d722e763bf11232a2",
+  "typed_contract": "a60816d",
   "static_checks": [
     {
       "command": "git diff --check",
       "result": "passed"
     }
   ],
-  "pending_contract_delta": "a60816d available_validators"
+  "actual_tests_run_by_author": [],
+  "scope_limits": [
+    "No Node/Cargo/browser/Actor/product Git execution by UI author",
+    "No formal PR approval, merge, production or signing performed",
+    "Component test source is mocked and does not prove real IPC or native macOS"
+  ]
 }
