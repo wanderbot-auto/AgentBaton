@@ -18,6 +18,8 @@ use std::{
 
 const REPORT: &[u8] = b"fixed report";
 const TARGET: &str = "refs/heads/integration";
+const DEFAULT_REPORT_PATH: &str = "reports/report.txt";
+const UNICODE_REPORT_PATH: &str = "reports/报告 😀 cafe\u{301}.txt";
 
 struct RuntimeFixture {
     // Explicit Drop joins the daemon before deleting its authenticated roots.
@@ -32,6 +34,7 @@ struct RuntimeFixture {
     validator_program: PathBuf,
     scope: Value,
     graph: Value,
+    report_path: &'static str,
 }
 // This guard exists before fixture setup, so construction failures retain the
 // same generated roots too. It never touches user Git or another test's files.
@@ -151,6 +154,22 @@ for line in sys.stdin:
     fs::set_permissions(&script, fs::Permissions::from_mode(0o700)).unwrap();
     script
 }
+// The default generated ACP remains byte-for-byte unchanged. This Unicode
+// variant changes only its fixed literal report filename before the real
+// connection probe/approval binds the complete executable image.
+fn unicode_provider(root: &Path, report_path: &str) -> PathBuf {
+    let script = provider(root);
+    let original = fs::read_to_string(&script).unwrap();
+    assert_eq!(original.matches("'reports/report.txt'").count(), 2);
+    let path_literal = serde_json::to_string(report_path).unwrap();
+    fs::write(
+        &script,
+        original.replace("'reports/report.txt'", &path_literal),
+    )
+    .unwrap();
+    script
+}
+
 fn budget() -> BudgetLimits {
     BudgetLimits {
         attempts: 8,
@@ -176,6 +195,9 @@ impl RuntimeFixture {
         Self::with_attempt_limit(8)
     }
     fn with_attempt_limit(max_attempts: u32) -> Self {
+        Self::with_report_path(max_attempts, DEFAULT_REPORT_PATH)
+    }
+    fn with_report_path(max_attempts: u32, report_path: &'static str) -> Self {
         let directory = tempfile::Builder::new()
             .prefix("integration-runtime-")
             .permissions(fs::Permissions::from_mode(0o700))
@@ -201,7 +223,11 @@ impl RuntimeFixture {
         );
         git(&project_root, &["branch", "integration"]);
         let initial_target = git(&project_root, &["rev-parse", TARGET]);
-        let script = provider(&root);
+        let script = if report_path == DEFAULT_REPORT_PATH {
+            provider(&root)
+        } else {
+            unicode_provider(&root, report_path)
+        };
         // A private, single-link image of a fixed local shell is approved by
         // the real Command policy. Do not relax system-program identity gates.
         let validator_program = root.join("fixed-sh");
@@ -295,7 +321,7 @@ impl RuntimeFixture {
             grant_id:grant["id"].as_str().unwrap().into(),expected_grant_revision:grant["revision"].as_u64().unwrap(),
             max_nodes:2,new_max_children:1,new_max_depth:1,root_budget:reprepare_budget(max_attempts),project_budget:reprepare_budget(max_attempts),
             inputs:vec![ArtifactRequirement {artifact_id:"fixed-input".into(),relative_path:"inputs/file".into(),max_bytes:1024,expected_sha256:Some(sha256(b"baseline"))}],
-            outputs:vec![GoalOutputSelection {artifact:ArtifactRequirement {artifact_id:"report".into(),relative_path:"reports/report.txt".into(),max_bytes:1024,expected_sha256:None},validators:vec![]}],
+            outputs:vec![GoalOutputSelection {artifact:ArtifactRequirement {artifact_id:"report".into(),relative_path:report_path.into(),max_bytes:1024,expected_sha256:None},validators:vec![]}],
             writable_prefixes:vec!["reports".into()],owner_acceptance_criteria:"Owner must accept the exact captured generated report, separately from process success".into(),
         };
         let scope = approved(
@@ -337,7 +363,7 @@ impl RuntimeFixture {
             required_validators: view.contracts[&contract].clone(),
             side_effect: SideEffect::WorkspaceWrite,
             write_set: vec![WriteTarget::Workspace {
-                path: "reports/report.txt".into(),
+                path: report_path.into(),
             }],
             budget: BudgetLimits {
                 attempts: 1,
@@ -415,6 +441,7 @@ impl RuntimeFixture {
             validator_program,
             scope,
             graph,
+            report_path,
         }
     }
     fn source(&self) -> PathBuf {
@@ -459,19 +486,31 @@ impl RuntimeFixture {
         assert_eq!(request["plan_digest"], c["plan_digest"]);
         assert!(request["task_binding"].is_object());
         assert_eq!(
-            fs::read(self.source().join("reports/report.txt")).unwrap(),
+            fs::read(self.source().join(self.report_path)).unwrap(),
             REPORT
         );
         d
     }
     fn command_definition(&self, candidate: &Value) -> Value {
+        let arguments = if self.report_path == DEFAULT_REPORT_PATH {
+            json!(["-c", "test -s reports/report.txt"])
+        } else {
+            // The filename is an argv value, not shell source. Keep the same
+            // reviewed predicate, wall/cleanup limits and expected exit code.
+            json!([
+                "-c",
+                "test -s \"$1\"",
+                "integration-fixed-validator",
+                self.report_path
+            ])
+        };
         approved(
             &self.server,
             "command_validation_policies.propose",
             json!({"session_id":candidate["session_id"],"executable":self.validator_program,"mode":"native_executable","script":null,
             "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
-            "outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],
-            "arguments":["-c","test -s reports/report.txt"],"environment":{},"expected_exit_codes":[0],"wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
+            "outputs":[{"artifact_id":"report","relative_path":self.report_path,"max_bytes":1024,"expected_sha256":null}],
+            "arguments":arguments,"environment":{},"expected_exit_codes":[0],"wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
             "require":{"filesystem_isolation":false,"network_isolation":false,"process_tree_containment":false,"execution_time_input_immutability":false,"auxiliary_source_immutability":false,"sealed_executable_image":false}}),
             "correctness-definition",
         )
@@ -876,7 +915,7 @@ fn assert_merged_command(
             "inputs/file",
             b"baseline".as_slice(),
         ),
-        ("report", "outputs", "outputs", "reports/report.txt", REPORT),
+        ("report", "outputs", "outputs", f.report_path, REPORT),
     ] {
         let bound = exact_artifact(&contract["file_contract"][collection], id);
         let old = exact_artifact(&original_contract["file_contract"][original_collection], id);
@@ -1001,24 +1040,37 @@ fn assert_closed_chain(
     );
     // New commits/objects are expected; the sole selected content difference
     // is the exact accepted report, not staged or unstaged unselected edits.
+    if f.report_path == DEFAULT_REPORT_PATH {
+        assert_eq!(
+            git(
+                &f.source(),
+                &["diff", "--name-only", &f.initial_target, commit]
+            ),
+            "reports/report.txt"
+        );
+    } else {
+        // NUL delimitation inspects raw Git path bytes; default quoted display
+        // must not turn UTF-8/NFD spelling into a false filename comparison.
+        assert_eq!(
+            git(
+                &f.source(),
+                &["diff", "--name-only", "-z", &f.initial_target, commit]
+            )
+            .as_bytes(),
+            [f.report_path.as_bytes(), b"\0"].concat()
+        );
+    }
     assert_eq!(
         git(
             &f.source(),
-            &["diff", "--name-only", &f.initial_target, commit]
-        ),
-        "reports/report.txt"
-    );
-    assert_eq!(
-        git(
-            &f.source(),
-            &["show", &format!("{commit}:reports/report.txt")]
+            &["show", &format!("{commit}:{}", f.report_path)]
         ),
         "fixed report"
     );
     assert_eq!(
         git(
             &f.source(),
-            &["show", &format!("{captured}:reports/report.txt")]
+            &["show", &format!("{captured}:{}", f.report_path)]
         ),
         "fixed report"
     );
@@ -1265,6 +1317,215 @@ fn assert_start_replay(f: &RuntimeFixture, policy: &Value, original: &Value, ter
         .unwrap();
     assert_eq!(count, 3);
     drop(db);
+}
+
+#[test]
+fn unicode_accepted_artifact_fresh_command_and_exact_cas_preserve_raw_utf8_path() {
+    let f = RuntimeFixture::with_report_path(8, UNICODE_REPORT_PATH);
+    let ready = f.owner_ready();
+    assert_eq!(
+        ready["candidates"][0]["artifacts"][0]["relative_path"],
+        UNICODE_REPORT_PATH
+    );
+    let definition = f.command_definition(&ready["candidates"][0]);
+    let original_command = OriginalCommand::capture(&f, &definition);
+    let accepted = f.accept();
+    user_changes(&f);
+    let before_source = source_image(&f.source());
+    let before_project = source_image(&f.project_root);
+    let policy = f.approve_integration(&definition);
+    let start = rpc(
+        &f.server,
+        "integrations.start",
+        json!({"policy_id":policy["id"]}),
+        Some("unicode-explicit-start"),
+        Some(policy["revision"].clone()),
+    );
+    // All original fresh subject/Command, real join, exact CAS, source/index
+    // preservation, distinct receipts and shared budget checks still apply.
+    let done = assert_closed_chain(
+        &f,
+        &policy,
+        &accepted,
+        &original_command,
+        &before_source,
+        &before_project,
+    );
+    assert_eq!(start["run"]["id"], done["run"]["id"]);
+    assert_start_replay(&f, &policy, &start, &done);
+    let captured = done["run"]["source_commit"].as_str().unwrap();
+    let merged = done["run"]["integration_commit"].as_str().unwrap();
+    let expected = [UNICODE_REPORT_PATH.as_bytes(), b"\0"].concat();
+    for commit in [captured, merged] {
+        assert_eq!(
+            git(
+                &f.source(),
+                &["diff", "--name-only", "-z", &f.initial_target, commit]
+            )
+            .as_bytes(),
+            expected,
+            "capture and merged tree must preserve raw UTF-8 including NFD"
+        );
+    }
+}
+
+#[test]
+fn unicode_accepted_artifact_replaced_inode_is_refused_without_validator_or_cas() {
+    let f = RuntimeFixture::with_report_path(8, UNICODE_REPORT_PATH);
+    let ready = f.owner_ready();
+    let definition = f.command_definition(&ready["candidates"][0]);
+    let original_command = OriginalCommand::capture(&f, &definition);
+    let accepted = f.accept();
+    let report = f.source().join(UNICODE_REPORT_PATH);
+    let old = fs::metadata(&report).unwrap();
+    let retained = f.source().join("reports/owner-retained-original");
+    // Retain the old inode so even an FS that promptly reuses inode numbers
+    // cannot turn this into a same-file write. Bytes and spelling are equal;
+    // the authentic accepted FilePin must still prevent importing a replacement.
+    fs::rename(&report, &retained).unwrap();
+    fs::write(&report, REPORT).unwrap();
+    let replacement = fs::metadata(&report).unwrap();
+    assert_ne!(
+        (old.dev(), old.ino()),
+        (replacement.dev(), replacement.ino())
+    );
+    assert_eq!(fs::read(&report).unwrap(), fs::read(&retained).unwrap());
+    let before_source = source_image(&f.source());
+    let before_project = source_image(&f.project_root);
+    let policy = f.approve_integration(&definition);
+    let start = rpc(
+        &f.server,
+        "integrations.start",
+        json!({"policy_id":policy["id"]}),
+        Some("unicode-replaced-pin-start"),
+        Some(policy["revision"].clone()),
+    );
+    let refused = observe(
+        &f.server,
+        "integrations.get",
+        json!({"integration_id":start["run"]["id"]}),
+        |d| {
+            let state = d["run"]["state"].as_str().unwrap();
+            assert!(
+                !matches!(
+                    state,
+                    "confirmed_local_ref"
+                        | "blocked"
+                        | "cancelled"
+                        | "outcome_unknown"
+                        | "stale_target"
+                ),
+                "expected exact changed-pin refusal, observed {state}: {}",
+                d["run"]["last_error"]["code"]
+            );
+            state == "failed"
+        },
+    );
+    let run = &refused["run"];
+    assert_eq!(run["last_error"]["code"], "INPUT_CHANGED");
+    assert_eq!(run["acceptance_ref"], accepted["task_acceptance"]["id"]);
+    assert_eq!(run["round"], 1);
+    assert_eq!(run["active_stage"], Value::Null);
+    assert_eq!(run["io_completion"], "worker_joined");
+    assert_eq!(run["source_commit"], Value::Null);
+    assert_eq!(run["integration_commit"], Value::Null);
+    assert!(run["validation_receipts"].as_array().unwrap().is_empty());
+    assert_eq!(refused["fence"]["state"], "released");
+    let attempts = refused["attempts"].as_array().unwrap();
+    assert_eq!(attempts.len(), 1);
+    let preparation = &attempts[0];
+    assert_eq!(preparation["kind"], "preparation");
+    assert_eq!(preparation["state"], "finished");
+    assert_eq!(preparation["settled"], true);
+    assert_eq!(preparation["io_completion"], "worker_joined");
+    assert_eq!(preparation["last_error"]["code"], "INPUT_CHANGED");
+    assert_eq!(preparation["actual_output_bytes"], 0);
+    assert!(
+        preparation["actual_runtime_ms"].as_u64().unwrap()
+            <= preparation["reservation"]["runtime_ms"].as_u64().unwrap()
+    );
+    assert_eq!(
+        git(&f.project_root, &["rev-parse", TARGET]),
+        f.initial_target
+    );
+    assert_eq!(source_image(&f.source()), before_source);
+    assert_eq!(source_image(&f.project_root), before_project);
+    let after = rpc(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":f.graph["run"]["id"]}),
+        None,
+        None,
+    );
+    for field in [
+        "run",
+        "candidates",
+        "validations",
+        "owner_decisions",
+        "task_acceptance",
+    ] {
+        assert_eq!(after[field], accepted[field]);
+    }
+    let db = readonly(&f);
+    original_command.assert_unchanged(&f, &db);
+    let all = events(&db);
+    assert_eq!(
+        all.iter()
+            .filter(|(_, e)| e["kind"] == "integration.attempt_joined"
+                && e["aggregate_id"] == run["id"])
+            .count(),
+        1
+    );
+    let joined = unique_event(&all, "integration.attempt_joined", &run["id"]);
+    assert_eq!(joined.1["payload"]["attempt_id"], preparation["attempt_id"]);
+    assert_eq!(joined.1["payload"]["budget_overrun"], false);
+    assert_eq!(joined.1["payload"]["reservation_refunded"], false);
+    for kind in ["integration.cas_observed", "integration.validator_observed"] {
+        assert!(!all
+            .iter()
+            .any(|(_, e)| e["kind"] == kind && e["aggregate_id"] == run["id"]));
+    }
+    let source_reservation: String = db
+        .query_row(
+            "SELECT document FROM goal_run_reservations WHERE run_id=?1",
+            [f.graph["run"]["id"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let source_reservation: Value = serde_json::from_str(&source_reservation).unwrap();
+    assert_eq!(source_reservation["settled"], true);
+    for domain in ["root", "project"] {
+        let usage = &refused["shared_usage"][domain];
+        assert_eq!(usage["attempts"], 2);
+        assert_eq!(usage["active"], 0);
+        assert_eq!(usage["output_bytes"], REPORT.len());
+        assert_eq!(
+            usage["runtime_ms"].as_u64().unwrap(),
+            source_reservation["actual_runtime_ms"].as_u64().unwrap()
+                + preparation["actual_runtime_ms"].as_u64().unwrap()
+        );
+        assert_eq!(usage["tokens"], Value::Null);
+        assert_eq!(usage["cost_microunits"], Value::Null);
+    }
+    for scope in [
+        format!(
+            "root:{}",
+            policy["bindings"]["root_task_id"].as_str().unwrap()
+        ),
+        format!(
+            "project:{}",
+            policy["bindings"]["project_id"].as_str().unwrap()
+        ),
+    ] {
+        let counters: (i64, i64) = db
+            .query_row(
+                "SELECT consumed,active FROM budgets WHERE scope=?1",
+                [scope],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(counters, (2, 0));
+    }
 }
 
 #[test]
