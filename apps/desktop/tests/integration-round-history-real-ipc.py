@@ -440,11 +440,8 @@ def run_case(args, binary, companion, frontend, attribution):
         phase = 'real_owner_acceptance_and_owned_target_advances'
         gate.start(fixture, daemon.pid)
         accepted = D.accept_graph(host, fixture)
-        # Core's watcher may already have started the policy. The UI action must
-        # return that same run, never create a second attempt domain or retry.
-        panel.get_by_role('button', name='Refresh integration records').click()
-        expect(panel.get_by_role('button', name='Check accepted task for the same run')).to_be_enabled()
-        panel.get_by_role('button', name='Check accepted task for the same run').click()
+        # Observe the independent watcher before refreshing expensive context:
+        # an active owned stage can correctly make that context WORKSPACE_BUSY.
         def read_terminal():
             gate.healthy()
             runs = host.result('integrations.list', {'task_id': bounds.task}); require(len(runs) <= 1)
@@ -455,6 +452,12 @@ def run_case(args, binary, companion, frontend, attribution):
                 'Three-round runtime did not establish expected confirmation')
             return value['run']['state'] == 'confirmed_local_ref'
         done = D.observe(read_terminal, finished, pump=pump)
+        require(not any(a['method'] == 'integrations.start' for a in host.audit))
+        # After the watcher confirms the run, retain the real UI freshness
+        # guard and prove its explicit check returns that same completed run.
+        panel.get_by_role('button', name='Refresh integration records').click()
+        expect(panel.get_by_role('button', name='Check accepted task for the same run')).to_be_enabled()
+        panel.get_by_role('button', name='Check accepted task for the same run').click()
         starts = [a for a in host.audit if a['method'] == 'integrations.start']
         require(len(starts) == 1 and starts[0]['response']['result']['run']['id'] == done['run']['id'])
         facts = terminal_evidence(host, fixture, accepted, policy, done, gate)

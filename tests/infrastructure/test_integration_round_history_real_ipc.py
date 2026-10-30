@@ -138,5 +138,38 @@ class GateControls(unittest.TestCase):
             with self.assertRaises(R.D.Refusal): R.original_gone(identity)
 
 
+class DriverLifecycleOrderTests(unittest.TestCase):
+    @staticmethod
+    def assert_order(source):
+        observe = "        done = D.observe(read_terminal, finished, pump=pump)\n"
+        refresh = "        panel.get_by_role('button', name='Refresh integration records').click()\n"
+        enabled = "        expect(panel.get_by_role('button', name='Check accepted task for the same run')).to_be_enabled()\n"
+        wake = "        panel.get_by_role('button', name='Check accepted task for the same run').click()\n"
+        accepted = source.index('        accepted = D.accept_graph(host, fixture)\n')
+        observed = source.index(observe, accepted)
+        refreshed = source.index(refresh, accepted)
+        checked = source.index(enabled, accepted)
+        written = source.index(wake, accepted)
+        audit = source.index("        starts = [a for a in host.audit if a['method'] == 'integrations.start']\n", accepted)
+        assert accepted < observed < refreshed < checked < written < audit
+        assert source.count(wake) == 1
+        assert "require(not any(a['method'] == 'integrations.start' for a in host.audit))" in source[observed:refreshed]
+        assert "require(len(starts) == 1 and starts[0]['response']['result']['run']['id'] == done['run']['id'])" in source[audit:]
+
+    def test_watcher_terminal_precedes_fresh_ui_same_run_check(self):
+        source = (ROOT / 'apps/desktop/tests/integration-round-history-real-ipc.py').read_text()
+        self.assert_order(source)
+
+    def test_active_context_ui_order_cannot_satisfy_the_terminal_precondition(self):
+        source = (ROOT / 'apps/desktop/tests/integration-round-history-real-ipc.py').read_text()
+        block = ("        panel.get_by_role('button', name='Refresh integration records').click()\n"
+            "        expect(panel.get_by_role('button', name='Check accepted task for the same run')).to_be_enabled()\n"
+            "        panel.get_by_role('button', name='Check accepted task for the same run').click()\n")
+        self.assertEqual(source.count(block), 1)
+        inverse = source.replace(block, '', 1).replace('        def read_terminal():\n', block + '        def read_terminal():\n', 1)
+        with self.assertRaises(AssertionError):
+            self.assert_order(inverse)
+
+
 if __name__ == '__main__':
     unittest.main()
