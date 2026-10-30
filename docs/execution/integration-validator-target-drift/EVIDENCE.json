@@ -9,7 +9,7 @@
     "OWNER-001",
     "OWNER-002"
   ],
-  "source_commit": "1af2a8acb77902696dd6907639af5cc20b6ec1f8",
+  "source_commit": "08fbc4856a17ee84f4df42530dc02fff7620e1a8",
   "library_source": "775d723b243e7613d6731e1e6054e3e54ceea093",
   "base": "fc8fbd10815051c4f3e1587a7e31c2f7a69c1ee4",
   "author_validation": {
@@ -72,5 +72,17 @@
     "Recovery tree bounds 8192entries/256directories/1MiB names+paths/depth128; unsupported recovery trees reject",
     "No fullVAL009/realProvider/Mac/performance claim",
     "Kernel filesystem stalls not claimed interruptible; no descendant containment expansion"
-  ]
+  ],
+  "initial_source_commit": "1af2a8acb77902696dd6907639af5cc20b6ec1f8",
+  "raw_db_reseal_correction": {
+    "source_commit": "08fbc4856a17ee84f4df42530dc02fff7620e1a8",
+    "parent": "8a7127f147c23203c1ff344096fb3d0339432634",
+    "scope": "integration_reads.rs only; private descriptor-sharing builder; original row/material/request checks unchanged",
+    "finding_dimension": "static source path, no dynamic lock experiment",
+    "rustfmt_check_exit": 0,
+    "git_diff_check_exit": 0,
+    "rust": "NOT_RUN",
+    "initial_manifest_sha256": "81a9cafcecaa599fb8b90bed016d7291ea747d8cdf2e42016338b9e92abed1d6",
+    "initial_artifact_frozen_bindings": "/workspace/.onboarding/integration-validator-target-drift-core-source/frozen-1af2a8a-records/BINDINGS.json"
+  }
 }
