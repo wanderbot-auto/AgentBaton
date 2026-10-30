@@ -5,7 +5,7 @@
     "AB-PRJ-004",
     "AB-PRJ-005"
   ],
-  "source_commit": "e1680c654403eedc155f3c46786627f3cdc4175b",
+  "source_commit": "86099d83eaf69c719a104a6cfd19e9a1ab63705d",
   "author_checks": {
     "direct_rustfmt": "pass",
     "git_diff_check": "pass",
@@ -98,6 +98,26 @@
       "commit": "e1680c6",
       "change": "preview linked-worktree admin metadata seal and strict porcelain parser",
       "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "09c82a1",
+      "change": "reject duplicate worktree roots"
+    },
+    {
+      "commit": "486f0fb",
+      "change": "complete no-symlink admin metadata mode; no user-tree guard change"
+    },
+    {
+      "commit": "aaca1b8",
+      "change": "two generated Git/private Unix IPC preview and refusal tests, NOT_RUN"
+    },
+    {
+      "commit": "97f1410",
+      "change": "remove unused pre-coordinator private Start read intent; real start remains actual owned coordinator"
+    },
+    {
+      "commit": "86099d8",
+      "change": "allow repeated joined descendant preparation observations without prior handles; exact event/round/policy/stop/shared-meter guards unchanged"
     }
   ],
   "remaining": [
@@ -107,8 +127,8 @@
     "Native/UI/UnixIPC actual integration and real Mac runtime validation"
   ],
   "latest_source_snapshot": {
-    "path": "/workspace/.onboarding/authorized-integration-source-checkpoint-e1680c6/SOURCE.json",
-    "sha256": "836ab329b31f50e64edcd4b33b6fd1a8790153c006a3d16dbcdbf6bc0f0df648"
+    "path": "/workspace/.onboarding/authorized-integration-source-checkpoint-86099d8/SOURCE.json",
+    "sha256": "9348b1836e5983998dfef9126ac3114dd44b7eeee75dbde31029555fe4aa6ec0"
   },
   "remaining_validation": [
     "all latest Core/library compile and strict Clippy",
@@ -119,5 +139,14 @@
     "unsupported prepared protocol typed capability classification remains conservative unknown",
     "Mac/platform behavior",
     "full VAL009 Unicode/change kinds/remote protected delivery/host cleanup remain open"
-  ]
+  ],
+  "root_reported_composed_check": {
+    "source": "90a33ce49dd98bdeb81b3197a8b34b9072ab70aa (composition through e1680c6)",
+    "command": "cargo check --locked --workspace --all-targets",
+    "exit": 0,
+    "elapsed_seconds": 17.371,
+    "log_sha256": "8da63de57b816930be824e978aef5271657612fb741043d52bc573a52b00e138",
+    "scope": "compilation only; not latest860 or integration execution"
+  },
+  "test_ownership": "Root assigned integration_ipc.rs and new fixtures/integration_runtime.rs to independent test-only author after97; Core writer will not edit those paths concurrently"
 }

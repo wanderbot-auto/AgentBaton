@@ -14,3 +14,6 @@ Next concrete source steps: retain the private StageTicket across read/join/effe
 
 
 Next validation boundary (e1680c6): complete owned targets/start/watch/reprepare and locked CAS are now source-wired. Root must compile and execute immutable sources before any pipeline acceptance. Add real generated-Git/UnixIPC cases for independent policy preapproval/acceptance, new merged validations, exact-target races, descendant rounds, mixed meters, cancellation/unknown and true join. Keep all old failed sources/artifacts and do not attribute previous component passes to these new paths. Full VAL009 unsupported Unicode/change kinds/remote delivery/cleanup remain requirements.
+
+
+Root assigned the full-chain test leaf after97f1410 to a separate test author (only integration_ipc.rs and fixtures/integration_runtime.rs). Core production writer will not modify those test files concurrently. Validate explicit start and automatic watcher convergence on one policy/Task/spec run, real Graph acceptance, every required and extra approved merged validator, source/index/ref preservation and failures; previous preview-only cases do not count as this flow.
