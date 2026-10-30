@@ -68,7 +68,8 @@ pub fn verify_empty_integration17(db: &Connection) -> Result<(), String> {
     // Unknown domain extensions and incoming dependencies cannot be silently
     // left in a fake schema16. Unrelated user tables/rows/DDL remain untouched.
     for object in all.iter().filter(|object| !is_domain(object)) {
-        if object.1.starts_with("integration_") || object.1.starts_with("integrations") {
+        let name = object.1.to_ascii_lowercase();
+        if name.starts_with("integration_") || name.starts_with("integrations") {
             return Err("unknown Integration17 domain object".into());
         }
         if matches!(object.0.as_str(), "trigger" | "view")
@@ -90,7 +91,10 @@ pub fn verify_empty_integration17(db: &Connection) -> Result<(), String> {
                 .query_map([], |row| row.get::<_, String>(2))
                 .map_err(|_| REFUSED.to_owned())?
             {
-                if INTEGRATION17_TABLES.contains(&target.map_err(|_| REFUSED.to_owned())?.as_str())
+                let target = target.map_err(|_| REFUSED.to_owned())?;
+                if INTEGRATION17_TABLES
+                    .iter()
+                    .any(|name| target.eq_ignore_ascii_case(name))
                 {
                     return Err("incoming Integration17 foreign key".into());
                 }

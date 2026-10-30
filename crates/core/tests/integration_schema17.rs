@@ -389,6 +389,7 @@ fn controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_
     variants.extend([
         ("external_view".into(),"CREATE VIEW fixture_external_view AS SELECT * FROM integrations;".into()),
         ("incoming_fk".into(),"CREATE TABLE fixture_incoming(id TEXT REFERENCES integrations(id));".into()),
+        ("incoming_fk_ascii_case".into(),"CREATE TABLE fixture_incoming(id TEXT REFERENCES INTEGRATIONS(id));".into()),
         ("unknown_increment".into(),"CREATE TABLE integration_future_extension(raw BLOB);".into()),
         ("nonempty:policies".into(),"INSERT INTO integration_policies VALUES('p','t',1,'s','a',1,'{}');".into()),
         ("nonempty:runs".into(),"INSERT INTO integrations VALUES('r','p','t',1,'queued',1,'{}');".into()),
