@@ -102,11 +102,37 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 16 {
+        if version > 17 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
+        }
+        if version > 0 && version < 17 {
+            let backup = path.with_extension(format!("pre-v17-{}.sqlite3", Uuid::new_v4()));
+            let file = OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .mode(0o600)
+                .open(&backup)
+                .map_err(|_| {
+                    CoreError::new(
+                        "INTERNAL_ERROR",
+                        "Cannot create integration migration backup",
+                    )
+                })?;
+            file.set_permissions(
+                <std::fs::Permissions as std::os::unix::fs::PermissionsExt>::from_mode(0o600),
+            )
+            .map_err(|_| {
+                CoreError::new(
+                    "INTERNAL_ERROR",
+                    "Cannot secure integration migration backup",
+                )
+            })?;
+            drop(file);
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
         }
         if version > 0 && version < 16 {
             let backup = path.with_extension(format!("pre-v16-{}.sqlite3", Uuid::new_v4()));
@@ -309,6 +335,7 @@ impl Store {
         crate::goal_store::migrate_graph(&mut conn, version)?;
         crate::factory::migrate(&mut conn, version)?;
         crate::task_workspace_binding::migrate(&mut conn, version)?;
+        crate::integration::migrate(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
