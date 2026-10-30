@@ -67,5 +67,14 @@
     "six timing fields and null semantics",
     "original reservation/budget/deadline/unknown/cancel/refund rules",
     "public API/schema/dependencies/locks/permissions"
-  ]
+  ],
+  "root_actual_results": "ROOT_RESULTS.json",
+  "root_counts_by_dimension": {
+    "capture": 14,
+    "Core": 143,
+    "capture_included_in_Core": true,
+    "nested_helper_not_additive": 1,
+    "Factory": 30,
+    "not_a_sum": true
+  }
 }

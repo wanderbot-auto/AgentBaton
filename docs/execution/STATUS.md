@@ -1,3 +1,9 @@
+## Root actual source0b647 verification — 2026-10-30T09:33:57.321236+00:00
+
+Source-only proposal is now actually compiled and exercised:14 capture controls PASS.15s; fullCore143PASS92.19s (14included; nestedhelper1 excluded); Factory30PASS114.35s; strict workspace/alltargetsClippy and format pass. Embedded ChildGoal/rework Daemon is the changed source with real generated ACP/fixedCommand/UnixIPC/stopped-owner-parent chain; legacy external cases retain original15frozen tools, not a new model or OS run. Independent source inverse18checks has no mustfix (bffffcd001aa/7367d884d959).
+
+Only completed owned handles are re-polled after authentic mark-started, preserving original reconcile/prepare/spawn/admission order, clocks, fullproof and fees. New4unit controls cannot fabricate successful authority; actualFactory chain is separate. Parent030 remote still failed Intel4063/4000 (3434+629; workerfinished356, join629);273ms method attribution is NOT established (the observed interval is273ms, not CPU). New exact dualMac/Product checks must validate this candidate; localpass is not Intelresolution. Priorfailures/a067withdrawal/history remain. Full130 and separateCore17pipeline/native/remote/delivery scope continues. See ROOT_RESULTS.json.
+
 ## Head60ba terminal evidence and bounded prior capture diagnostics — 2026-10-30T07:25:23.797598+00:00
 
 Exact60ba Environment3/Rust/UI/ARM pass; Intel Factory26pass/1fail199.45s, revision2 blocked/runrev14 RESOURCE_LIMIT with daemonok/joinedtrue. WholeProduct41012469123 failed. Same-child postshutdown14527ms+next6000ms>20000ms is an ancestor-admission candidate, not an observed exact firstguard or CPU/capture-phase cause. Existing collector selected only Graphrev14 block; missing6timings does not prove earlier captureevents absent. Suite199.45s is not a stage time.

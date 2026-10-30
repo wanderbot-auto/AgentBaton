@@ -1,3 +1,5 @@
+Next: retain actual0b64714/143/30/strictClippy/fmt plus source review; execute exact remote dualMac/native/UI/build/audit/package gates and diagnose any realfailure without changing budgets. Continue full130 and separateCore17 integration.
+
 # Capture completion service — bounded post-start poll
 
 Scope: Goal/Factory bounded rework and original stop/cancel/budget safeguards (AB-TSK-009/011, AB-VAL-003/007, AB-SEC-007 source slice). Base030a4f5ab406eec26adcd81463fa1c82d9752360; isolated tree/branch capture-completion-service. Only goal_graph.rs, its existing capture_service_tests file and these four records may change. No schema, public IPC, Cargo, lock, permission, reservation or timeout changes.
