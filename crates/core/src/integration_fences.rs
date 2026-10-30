@@ -52,9 +52,8 @@ impl IntegrationFencePermit {
             || scope["revision"] != policy.bindings.goal_scope_revision
             || record.view.settled
             || !matches!(record.view.state.as_str(), "prepared" | "running")
-            || scope["expires_at_ms"]
-                .as_i64()
-                .is_none_or(|expiry| expiry <= now)
+            || policy.bindings.goal_scope_expires_at_ms <= now
+            || scope["scope_digest"] != policy.bindings.goal_scope_digest
             || record.integration_id != run.id
             || run.cancel_requested
             || run.state == IntegrationState::OutcomeUnknown
