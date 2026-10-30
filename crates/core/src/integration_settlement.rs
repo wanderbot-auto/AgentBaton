@@ -191,6 +191,26 @@ impl Store {
             || policy.expires_at_ms <= ms()?
             || policy.bindings.goal_scope_expires_at_ms <= ms()?;
         let cancelled = run.cancel_requested;
+        if let Ok(StageFact::Validator { .. } | StageFact::Cas(_)) = &joined.result {
+            let context = joined.context.as_ref().ok_or_else(changed)?;
+            let agentbaton_workspaces::validation::VersionBinding::Git {
+                integration_candidate,
+                tree,
+                ..
+            } = context.candidate.version_binding()
+            else {
+                return Err(changed());
+            };
+            if context.policy.id != policy.id
+                || context.policy.snapshot_digest != policy.snapshot_digest
+                || context.run_id != run.id
+                || run.source_commit.as_deref() != Some(context.captured.commit())
+                || run.integration_commit.as_deref() != Some(integration_candidate.as_str())
+                || run.integration_tree.as_deref() != Some(tree.as_str())
+            {
+                return Err(changed());
+            }
+        }
         let mut next = None;
         let mut terminal = true;
         match &joined.result {

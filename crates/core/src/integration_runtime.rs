@@ -376,7 +376,7 @@ impl Store {
                 "Integration changed before reconciliation",
             ));
         }
-        let historical = integration.run.state == IntegrationState::ConfirmedLocalRef;
+        let historical = historical_cas_confirmed(&tx, &integration.run)?;
         let result = IntegrationReconciliation {
             integration,
             observed_target_head: None,
@@ -772,4 +772,45 @@ impl Store {
 }
 fn raw_dispatch(db: &Connection, id: &str) -> Result<DispatchIntent> {
     raw(db, "dispatch_intents", id)
+}
+
+fn historical_cas_confirmed(db: &Connection, run: &IntegrationRun) -> Result<bool> {
+    let policy = records::policy(db, &run.policy_id)?;
+    let mut statement=db.prepare("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='integration_core' AND json_extract(document,'$.kind')='integration.cas_observed' AND json_type(document,'$.payload.historical_cas_confirmed')='true' ORDER BY sequence LIMIT 2").map_err(db_error)?;
+    let events = statement
+        .query_map([&run.id], |r| {
+            Ok((r.get::<_, i64>(0)?, r.get::<_, Option<String>>(1)?))
+        })
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    if events.len() > 1 {
+        return Err(changed());
+    }
+    let Some((sequence, text)) = events.into_iter().next() else {
+        if run.state == IntegrationState::ConfirmedLocalRef {
+            return Err(changed());
+        }
+        return Ok(false);
+    };
+    let event: crate::storage::Event = crate::storage::decode(&text.ok_or_else(limited)?)?;
+    let attempt_id = event.payload["attempt_id"].as_str().ok_or_else(changed)?;
+    let attempt = budget::attempt(db, attempt_id)?;
+    let record: &serde_json::Value = &event.payload["record"];
+    if attempt.integration_id != run.id
+        || attempt.view.kind != IntegrationStageKind::Cas
+        || attempt.view.round != run.round
+        || event.revision > run.revision
+        || event.payload["round"] != run.round
+        || event.payload["historical_cas_confirmed"] != true
+        || record["state"] != "confirmed_local_ref"
+        || record["grant_ref"] != policy.approval_id
+        || record["target_ref"] != run.target_ref
+        || record["expected_target_head"] != run.expected_target_head
+        || record["candidate_commit"].as_str() != run.integration_commit.as_deref()
+        || sequence <= 0
+    {
+        return Err(changed());
+    }
+    Ok(true)
 }
