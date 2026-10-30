@@ -367,6 +367,57 @@ class IntegrationSeedSourceControls(unittest.TestCase):
                      base+['--kind','integration','--companion','/companion','--factory-cancel-at','1']]:
             with mock.patch.object(sys,'argv',argv),mock.patch('sys.stderr'),self.assertRaises(SystemExit):exec(code,namespace)
 
+    def test_raw_postapproval_requires_complete_result_and_exact_c932_two_event_transaction(self):
+        # Inert records only. No Core authority or accepted Task is manufactured.
+        from types import SimpleNamespace
+        H=load('_integration_receipt_names','scripts/prepare-schema16-migration-fixture.py')
+        tables=sorted((*H.SCHEMA_TABLES,*N.INTEGRATION_TABLES))
+        columns={t:['id','document'] for t in tables}
+        columns.update(events=['sequence','document'],approval_proposals=['id','document','result'],
+            integration_policies=['id','task_id','spec_revision','goal_scope_id','approval_id','revision','document'])
+        p=proposal();p['snapshot']['intent']={'task_id':'fixture-task','expected_spec_revision':1,'goal_scope_id':'fixture-scope'}
+        p['snapshot']['bindings']={'goal_scope_digest':'a'*64,'binding_digest':'b'*64}
+        rows={t:[] for t in tables}
+        rows['projects']=[[1,'original-project','原文']]
+        rows['approval_proposals']=[[1,p['id'],json.dumps(p),None]]
+        rows['events']=[[23,23,json.dumps({'sequence':0,'kind':'old-private-history'})]]
+        before={'read_only':True,'schema_version':17,'columns':columns,'counts':{t:len(rows[t]) for t in tables},'rows':rows,'sequence':23}
+        policy={'id':p['id'],'approval_id':p['id'],'revision':1,'selection':p['snapshot']['intent'],
+            'bindings':p['snapshot']['bindings'],'snapshot_digest':N.digest(p['snapshot']),'revoked':False}
+        after=copy.deepcopy(before);after['sequence']=25
+        after['rows']['approval_proposals']=[[1,p['id'],json.dumps(dict(p,consumed=True)),json.dumps(policy)]]
+        after['rows']['integration_policies']=[[1,p['id'],'fixture-task',1,'fixture-scope',p['id'],1,json.dumps(policy)]]
+        events=[{'sequence':0,'aggregate_id':p['id'],'revision':1,'kind':'approval.confirmed','source':'local_owner_confirmation',
+            'payload':{'kind':'integration','proposal_id':p['id'],'consumed':True}},
+            {'sequence':0,'aggregate_id':p['id'],'revision':1,'kind':'integration.policy_approved','source':'integration_core',
+            'payload':{'snapshot_digest':policy['snapshot_digest'],'owner_sequence':24,'scope_digest':'a'*64,'binding_digest':'b'*64,'automatic_watch_armed':True}}]
+        after['rows']['events'] += [[24,24,json.dumps(events[0])],[25,25,json.dumps(events[1])]]
+        after['counts']={t:len(after['rows'][t]) for t in tables}
+        reply=json.loads(json.dumps({'result':policy}))
+        self.assertIsNone(F.approved_error(N,after,before,p,reply))
+        for path,bad in [('result',dict(policy,revision=True)),('other-history','changed'),('proposal-revision',2),
+                         ('owner-source','user_action'),('owner-revision',True),('owner-consumed',1),
+                         ('policy-source','local_owner_confirmation'),('policy-owner-seq',24.0),('policy-watch',1),
+                         ('policy-digest','0'*64),('extra-event',26),('run-count',1)]:
+            a=copy.deepcopy(after);r=json.loads(json.dumps(reply))
+            if path=='result':r['result']=bad
+            elif path=='other-history':a['rows']['projects'][0][-1]=bad
+            elif path=='proposal-revision':
+                q=json.loads(a['rows']['approval_proposals'][0][2]);q['revision']=bad;a['rows']['approval_proposals'][0][2]=json.dumps(q)
+            elif path.startswith('owner-'):
+                e=json.loads(a['rows']['events'][-2][-1])
+                if path=='owner-consumed':e['payload']['consumed']=bad
+                else:e[path.removeprefix('owner-')]=bad
+                a['rows']['events'][-2][-1]=json.dumps(e)
+            elif path.startswith('policy-'):
+                e=json.loads(a['rows']['events'][-1][-1])
+                if path=='policy-source':e['source']=bad
+                else:e['payload'][{'policy-owner-seq':'owner_sequence','policy-watch':'automatic_watch_armed','policy-digest':'snapshot_digest'}[path]]=bad
+                a['rows']['events'][-1][-1]=json.dumps(e)
+            elif path=='extra-event':a['rows']['events'].append([26,26,json.dumps(events[-1])])
+            elif path=='run-count':a['counts']['integrations']=bad
+            self.assertIsNotNone(F.approved_error(N,a,before,p,r),path)
+
     def test_provider_is_fixed_complete_legacy_contract_without_an_arbitrary_command_or_provider(self):
         import ast
         ast.parse(F.PROVIDER)
