@@ -617,6 +617,7 @@ impl Daemon {
         }
         Ok(())
     }
+    #[cfg(test)]
     fn handle(&mut self, raw: &str) -> Value {
         self.handle_observed(raw).wire
     }
