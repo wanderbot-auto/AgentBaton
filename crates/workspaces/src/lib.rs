@@ -714,7 +714,13 @@ impl ControlledGitChild {
     fn signal_own_group(&mut self) {
         // Never reap the leader before group signals end: its unreaped PID
         // prevents targeting a later unrelated process with a reused number.
-        if !self.reaped && !self.signal_attempted && self.finished().is_ok() {
+        let original_child_is_owned = match self.finished() {
+            Ok(_) => true,
+            // waitid(WNOWAIT) did not consume the child on EINTR. Keep its
+            // original identity and deliver cleanup instead of waiting live.
+            Err(error) => error.kind() == io::ErrorKind::Interrupted,
+        };
+        if !self.reaped && !self.signal_attempted && original_child_is_owned {
             self.signal_attempted = true;
             if let Ok(pid) = i32::try_from(self.child.id()) {
                 unsafe {
@@ -734,7 +740,7 @@ impl Drop for ControlledGitChild {
     fn drop(&mut self) {
         if !self.reaped {
             self.signal_own_group();
-            if self.finished().is_ok() {
+            if self.signal_attempted || self.finished().is_ok() {
                 let _ = self.reap();
             }
         }
@@ -831,7 +837,8 @@ pub(crate) fn controlled_output(
         }
         let finished = match owned.finished() {
             Ok(value) => value,
-            Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+            // A signal cannot skip the original deadline/cancel check.
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => false,
             Err(error) => return Err(WorkspaceError::Io(error)),
         };
         if finished && stdout.eof && stderr.eof {
@@ -1051,13 +1058,16 @@ mod controlled_pipe_tests {
         let deadline = start + Duration::from_secs(1);
         let release_file = release.clone();
         let (done_tx, done_rx) = mpsc::sync_channel(1);
-        let (pid_tx, pid_rx) = mpsc::sync_channel(1);
+        let (writer_tx, writer_rx) = mpsc::sync_channel(1);
         let (ack_tx, ack_rx) = mpsc::sync_channel(1);
         let owner = std::thread::spawn(move || {
             // The parent opens the inherited writer before this owned runner can
             // reap the leader. No potentially reused PID is opened or signalled.
             let _hook = controlled_spawn_hook::install(move |pid| {
-                pid_tx.send(pid).unwrap();
+                let writer = File::options()
+                    .write(true)
+                    .open(format!("/proc/{pid}/fd/1"));
+                writer_tx.send(writer).unwrap();
                 ack_rx.recv_timeout(Duration::from_secs(3)).unwrap();
             });
             let control = adoption::AdoptionControl::for_request(&flag, deadline);
@@ -1073,13 +1083,10 @@ mod controlled_pipe_tests {
             let _ = done_tx.send(());
             result
         });
-        let process = pid_rx.recv_timeout(Duration::from_secs(2));
-        let held_writer = process.ok().and_then(|process| {
-            File::options()
-                .write(true)
-                .open(format!("/proc/{process}/fd/1"))
-                .ok()
-        });
+        let held_writer = writer_rx
+            .recv_timeout(Duration::from_secs(2))
+            .ok()
+            .and_then(Result::ok);
         let Some(held_writer) = held_writer else {
             cancel.store(true, Ordering::Release);
             let _ = ack_tx.send(());
