@@ -1,0 +1,9 @@
+# Progress
+
+Contract source27fcbc8 added5 helpers plus strict finite publisher and16 new pure controls. A diagnostic quote edit introduced SyntaxError and the shell then committed despite that error; final-controls.log and that commit remain preserved. Fix6a3ee577c42afca4486e90931ae0f729ef64f67e corrects only the string quote. Final16 pure tests PASS0.038s against fixed Native e3d36d8 production formatter SHA f119e9cbe0f804cdefc0178e1c41a2be598870f1f3cb18ce3eda12bd6f128caf. No runtime/OS success is implied.
+
+Actual finite controls exercise all checkpoint/count/schema/bool/int/float/sequence-order fields; missing/extra/unknown/read_only flags; Cancel zero mutation; full UTF8 snapshot reconstruction with original template-looking content; exact page/title/nonce/layout/context bindings; retained1MiB Native fixture/16KiB outer/2048-byte inner/1024-page limits; fixed private files using FD/nofollow/uid/mode/nlink/size/current-leaf pins; symlink/hardlink/FIFO/parent-alias/duplicate JSON/floats/unknown argv canary/existing output rejection. Publisher does not claim independent pixels, cleanup or authority.
+
+Inverse removal of only added top-level nodes yields the exact previous complete driver AST; all39 original function/class ASTs unchanged, not55. First inverse probe accidentally removed old INTEGRATION_TABLES too and failed; corrected probe compares names to baseline rather than changing source. Source parse and diff checks PASS.
+
+Core c932 and Native descriptor code now confirm13fields and owner-before-policy order; future new actual Core response uses consumed=true with unchanged proposal revision, not Factory+1. Native writer owns its narrow response adaptation. Current helper contract does not guess either CAS. Full self-contained bootstrap/entrypoint and actualCore17/Native17/Mac remain NOT_RUN.

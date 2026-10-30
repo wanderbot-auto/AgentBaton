@@ -1,0 +1,34 @@
+{
+  "source_commit": "6a3ee577c42afca4486e90931ae0f729ef64f67e",
+  "base": "4475256c615c1df4ac8bebeb88b8620f3ee3dd42",
+  "pure": {
+    "tests": 16,
+    "passed": 16,
+    "seconds": 0.038
+  },
+  "old_function_classes_ast_equal": 39,
+  "old_complete_module_ast_equal": true,
+  "native_formatter_source": "e3d36d8e39452fea7d7fb974f2ce2c6517479cc2",
+  "native_formatter_sha256": "f119e9cbe0f804cdefc0178e1c41a2be598870f1f3cb18ce3eda12bd6f128caf",
+  "artifacts": {
+    "corrected-controls.log": {
+      "sha256": "89b8e2b3eb4d2e6779db6a95ddeaee4060cb39303352e740fdf74eb8186161d0",
+      "bytes": 4239
+    },
+    "final-controls.log": {
+      "sha256": "2b02825032cfe078633ff61e1c2b95ba885bb19bd764838864ee6daff28b51e6",
+      "bytes": 1149
+    },
+    "first-controls.log": {
+      "sha256": "4910990573d4b4f509f427be4317eb63ce3054dc22770535150be5bce8fe8843",
+      "bytes": 4239
+    },
+    "STATIC_RESULT.json": {
+      "sha256": "9e567361679fc867d000cbe53aa3509ab49e8863e8aefebe84db9e93b1f2e0fb",
+      "bytes": 907
+    }
+  },
+  "actual_core17_native_os_ci_provider": "NOT_RUN",
+  "cargo_target_used": false,
+  "next": "Connect c932 real self-contained bootstrap and --integration runner; source-only contract is not OS acceptance"
+}
