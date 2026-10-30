@@ -148,5 +148,21 @@
     "log_sha256": "8da63de57b816930be824e978aef5271657612fb741043d52bc573a52b00e138",
     "scope": "compilation only; not latest860 or integration execution"
   },
-  "test_ownership": "Root assigned integration_ipc.rs and new fixtures/integration_runtime.rs to independent test-only author after97; Core writer will not edit those paths concurrently"
+  "test_ownership": "Root assigned integration_ipc.rs and new fixtures/integration_runtime.rs to independent test-only author after97; Core writer will not edit those paths concurrently",
+  "independent_source_reviews": [
+    {
+      "slice": "targets through486f0fb",
+      "status": "SOURCE_READY",
+      "review_sha256": "adc5b563a0985502d5530d0c240ea848333324b33e753dd87d41b05cfafcb192",
+      "manifest_sha256": "c7566f8348e7e5b58a9a6a1257a8f4f7233278e847995744d8f1430173d6f6ef",
+      "execution": "39 static/model checks; six Rust source cases NOT_RUN; not activation/reprepare/CAS acceptance"
+    },
+    {
+      "slice": "activation/reprepare through86099d8",
+      "status": "SOURCE_READY",
+      "review_sha256": "b344377076568246585f9fa2007abab43ffcac73088d1fe3657a6d4ff7bdeb26",
+      "manifest_sha256": "c618aa98156db3b4918e47e15dd3b4769d28566c630c39f52aa90ceb6a2b79e3",
+      "execution": "30 inverse/predicate checks; Rust and actual repeated-target advance NOT_RUN; old97 P2 preserved"
+    }
+  ]
 }
