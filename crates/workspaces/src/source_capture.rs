@@ -451,6 +451,7 @@ impl AuthorizedSourceCapture {
                 "-z",
                 "--no-renames",
                 "--no-ext-diff",
+                "--ignore-submodules=none",
                 self.base.as_str(),
                 tree,
             ]),
@@ -1284,5 +1285,125 @@ mod deadline_tests {
         );
         assert_eq!(test_git(&capture.root, &["show-ref"]), refs);
         assert_eq!(fs::read(capture.root.join("file")).unwrap(), b"base\n");
+    }
+
+    #[test]
+    fn configured_submodule_ignore_cannot_hide_foreign_private_index_gitlink_change() {
+        // This locks the fixed verifier contract; it is not a claim that an old
+        // diff-tree plumbing invocation actually obeyed porcelain config.
+        let (_temp, previous) = verifier_fixture();
+        let root = previous.root.clone();
+        test_git(
+            &root,
+            &[
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                "160000",
+                previous.base.as_str(),
+                "unselected-submodule",
+            ],
+        );
+        test_git(&root, &["commit", "-m", "base with unselected gitlink"]);
+        let base = test_git(&root, &["rev-parse", "HEAD"]);
+        test_git(&root, &["config", "diff.ignoreSubmodules", "all"]);
+        let workspace = crate::inspect(&root).unwrap();
+        let item = BoundArtifact::from_approved_root(
+            &root,
+            crate::validation::ArtifactRequirement {
+                artifact_id: "file".into(),
+                relative_path: "file".into(),
+                max_bytes: 128,
+                expected_sha256: Some(sha256(b"base\n")),
+            },
+        )
+        .unwrap();
+        let capture = AuthorizedSourceCapture::from_verified_selection(
+            &workspace,
+            base.clone(),
+            vec![item],
+            1_700_000_000,
+            "selection".into(),
+            "owner-policy".into(),
+        )
+        .unwrap();
+        let raw = root.join("generated-raw");
+        fs::write(&raw, b"approved\n").unwrap();
+        let blob = test_git(
+            &root,
+            &["hash-object", "-w", "--no-filters", raw.to_str().unwrap()],
+        );
+        let old = test_git(&root, &["rev-parse", &format!("{base}:file")]);
+        let expected = [ExpectedTreeEntry {
+            path: "file".into(),
+            mode: "100644".into(),
+            blob: blob.clone(),
+            base_mode: "100644".into(),
+            base_blob: old,
+        }];
+        let private = tempfile::tempdir().unwrap();
+        let index = private.path().join("private-index");
+        let original_index = fs::read(root.join(".git/index")).unwrap();
+        let refs = test_git(&root, &["show-ref"]);
+        text_output(
+            capture.deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["read-tree", base.as_str()]),
+        )
+        .unwrap();
+        text_output(
+            capture.deadline,
+            capture.command().env("GIT_INDEX_FILE", &index).args([
+                "update-index",
+                "--cacheinfo",
+                "100644",
+                blob.as_str(),
+                "file",
+            ]),
+        )
+        .unwrap();
+        let preserved = oid(text_output(
+            capture.deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["write-tree"]),
+        )
+        .unwrap())
+        .unwrap();
+        capture.verify_tree(&preserved, &expected).unwrap();
+        assert_eq!(
+            test_git(
+                &root,
+                &["rev-parse", &format!("{preserved}:unselected-submodule")]
+            ),
+            previous.base
+        );
+        text_output(
+            capture.deadline,
+            capture.command().env("GIT_INDEX_FILE", &index).args([
+                "update-index",
+                "--cacheinfo",
+                "160000",
+                base.as_str(),
+                "unselected-submodule",
+            ]),
+        )
+        .unwrap();
+        let tampered = oid(text_output(
+            capture.deadline,
+            capture
+                .command()
+                .env("GIT_INDEX_FILE", &index)
+                .args(["write-tree"]),
+        )
+        .unwrap())
+        .unwrap();
+        assert!(capture.verify_tree(&tampered, &expected).is_err());
+        assert_eq!(fs::read(root.join(".git/index")).unwrap(), original_index);
+        assert_eq!(test_git(&root, &["show-ref"]), refs);
+        assert_eq!(test_git(&root, &["config", "diff.ignoreSubmodules"]), "all");
     }
 }
