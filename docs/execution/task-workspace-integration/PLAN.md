@@ -1,3 +1,5 @@
+Next: preserve verified bc10 composition, incorporate later independently reviewed Parent diagnostics at a safe boundary, retarget only after protected parent integration, then run exact16 CI/native/build/audit/packages. Continue full coding adoption/remote/130 scope; no16installer accepted.
+
 Next: compose the latest reviewed Parent34f after its exact CI outcome, preserve exact16/migrations/Owner boundaries and verify changed production paths; retarget dependentPR19 only after protected parent integration. Continue coding-isolation/adoption/full130 scope; current6 local paths are notNative/Mac/productcompletion.
 
 Next: retain reviewed exact16 composition, consume parent CI and narrow argv-exit harness correction without borrowing old Mac results; after protected parent integration, retarget and execute own exact16 checks/native/packages. Continue remaining full-product requirements.
