@@ -98,7 +98,22 @@ fn workspace_binding_matches(
                 && receipt.project_id == b.project_id
                 && receipt.host_id == selection.host_id
                 && receipt.spec_revision == b.spec_revision
-                && receipt.managed_root == b.source.canonical_root
+                && opaque(&receipt.workspace_id)
+                && matches!(
+                    std::path::Path::new(&receipt.workspace_id)
+                        .components()
+                        .collect::<Vec<_>>()
+                        .as_slice(),
+                    [std::path::Component::Normal(_)]
+                )
+                && receipt.managed_root.is_absolute()
+                && !receipt.managed_root.components().any(|c| {
+                    matches!(
+                        c,
+                        std::path::Component::CurDir | std::path::Component::ParentDir
+                    )
+                })
+                && receipt.managed_root.join(&receipt.workspace_id) == b.source.canonical_root
         }
         IntegrationWorkspaceBinding::FactoryDelegated {
             factory_scope_id,
@@ -513,7 +528,7 @@ mod typed_review_tests {
     // DTO-shape fixture only: this does not mint a Native/Core capability.
     fn proposal() -> Value {
         let s = super::tests::selection();
-        let pin = json!({"canonical_root":"/generated/managed","device":"9007199254740993","inode":"18446744073709551615","common_dir":"/generated/source/.git","common_device":"1","common_inode":"2","head":"a".repeat(40)});
+        let pin = json!({"canonical_root":"/generated/managed/workspace","device":"9007199254740993","inode":"18446744073709551615","common_dir":"/generated/source/.git","common_device":"1","common_inode":"2","head":"a".repeat(40)});
         let original_pin = json!({"canonical_root":"/generated/source","device":"9007199254740993","inode":"2","common_dir":"/generated/source/.git","head":"a".repeat(40)});
         let artifact = json!({"artifact_id":"output","relative_path":"report.json","max_bytes":4096,"expected_sha256":null});
         let validator = json!({"kind":"data","policy_id":"data","revision":1});
@@ -610,6 +625,45 @@ mod typed_review_tests {
             duplicate["snapshot"]["bindings"]["validators"][0]
         ]);
         assert!(review_messages(&json!({"result":duplicate}), &selection).is_err());
+    }
+    #[test]
+    fn task_managed_receipt_binds_exact_safe_child_instead_of_managed_parent_or_prefix() {
+        let p = proposal();
+        let selection = super::tests::selection();
+        assert_eq!(
+            p["snapshot"]["bindings"]["workspace_binding"]["receipt"]["managed_root"],
+            "/generated/managed"
+        );
+        assert_eq!(
+            p["snapshot"]["bindings"]["source"]["canonical_root"],
+            "/generated/managed/workspace"
+        );
+        assert!(review_messages(&json!({"result":p}), &selection).is_ok());
+        for root in [
+            "/generated/managed",
+            "/generated/managed-other/workspace",
+            "/generated/managed/foreign",
+            "/foreign/workspace",
+        ] {
+            let mut bad = p.clone();
+            bad["snapshot"]["bindings"]["source"]["canonical_root"] = json!(root);
+            assert!(review_messages(&json!({"result":bad}), &selection).is_err());
+        }
+        for id in [
+            ".",
+            "..",
+            "../outside",
+            "/outside",
+            "workspace/child",
+            "workspace\\child",
+        ] {
+            let mut bad = p.clone();
+            bad["snapshot"]["bindings"]["workspace_id"] = json!(id);
+            bad["snapshot"]["bindings"]["workspace_binding"]["receipt"]["workspace_id"] = json!(id);
+            let derived = std::path::Path::new("/generated/managed").join(id);
+            bad["snapshot"]["bindings"]["source"]["canonical_root"] = json!(derived);
+            assert!(review_messages(&json!({"result":bad}), &selection).is_err());
+        }
     }
     #[test]
     fn factory_delegated_workspace_keeps_original_lineage_without_fake_task_receipt() {
