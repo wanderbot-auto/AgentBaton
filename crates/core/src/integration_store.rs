@@ -162,7 +162,9 @@ fn validate_predecessor_tasks(db: &Connection) -> Result<()> {
         if !value.is_object() {
             return Err(bad());
         }
-        let task: crate::storage::Task = serde_json::from_value(value).map_err(|_| bad())?;
+        // Decode the original text again: Value is only the object-shape check
+        // and would otherwise discard duplicate keys before typed validation.
+        let task: crate::storage::Task = serde_json::from_str(&text).map_err(|_| bad())?;
         if task.id != id || task.revision == 0 || task.spec_revision == 0 {
             return Err(bad());
         }

@@ -3532,7 +3532,7 @@ impl Store {
                 "command",
             ),
         ] {
-            let check=format!("SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM {table} WHERE json_extract(document,'$.project_id')=?1 AND workspace_id=?2 AND json_extract(document,'$.revoked')=0");
+            let check=format!("SELECT count(*),COALESCE(sum(octet_length(id)+octet_length(task_id)+octet_length(session_id)+octet_length(attempt_id)+octet_length(workspace_id)+octet_length(approval_id)+octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM {table} WHERE json_extract(document,'$.project_id')=?1 AND workspace_id=?2 AND json_extract(document,'$.revoked')=0");
             let (count, bytes, max): (i64, i64, i64) = self
                 .conn
                 .query_row(
@@ -3547,17 +3547,43 @@ impl Store {
             {
                 return Err(limited());
             }
-            let sql=format!("SELECT document FROM {table} WHERE json_extract(document,'$.project_id')=?1 AND workspace_id=?2 AND json_extract(document,'$.revoked')=0 ORDER BY id");
+            let sql=format!("SELECT id,task_id,session_id,attempt_id,workspace_id,approval_id,document FROM {table} WHERE json_extract(document,'$.project_id')=?1 AND workspace_id=?2 AND json_extract(document,'$.revoked')=0 ORDER BY id");
             let mut statement = self.conn.prepare(&sql).map_err(db_error)?;
             let rows = statement
                 .query_map(params![material.project.id, material.workspace.id], |r| {
-                    r.get::<_, String>(0)
+                    Ok((
+                        r.get::<_, String>(0)?,
+                        r.get::<_, String>(1)?,
+                        r.get::<_, String>(2)?,
+                        r.get::<_, String>(3)?,
+                        r.get::<_, String>(4)?,
+                        r.get::<_, String>(5)?,
+                        r.get::<_, String>(6)?,
+                    ))
                 })
                 .map_err(db_error)?
                 .collect::<std::result::Result<Vec<_>, _>>()
                 .map_err(db_error)?;
-            for text in rows {
+            for (row_id, row_task, row_session, row_attempt, row_workspace, row_approval, text) in
+                rows
+            {
                 let definition: Value = decode(&text)?;
+                if !definition.is_object()
+                    || definition["id"].as_str() != Some(row_id.as_str())
+                    || definition["task_id"].as_str() != Some(row_task.as_str())
+                    || definition["session_id"].as_str() != Some(row_session.as_str())
+                    || definition["attempt_id"].as_str() != Some(row_attempt.as_str())
+                    || definition["workspace_id"].as_str() != Some(row_workspace.as_str())
+                    || definition["approval_id"].as_str() != Some(row_approval.as_str())
+                {
+                    return Err(changed());
+                }
+                // Original typed policy decoding rejects duplicate/foreign fields.
+                if kind == GoalValidatorKind::Data {
+                    let _: crate::data_validation::DataValidationPolicy = decode(&text)?;
+                } else {
+                    let _: crate::command_validation::CommandValidationPolicy = decode(&text)?;
+                }
                 let reference = GoalValidatorRef {
                     kind: kind.clone(),
                     policy_id: definition["id"].as_str().ok_or_else(changed)?.into(),
@@ -3597,6 +3623,14 @@ impl Store {
                 }
                 let contract: agentbaton_workspaces::validation::ValidationPolicyContractView =
                     serde_json::from_value(file.clone()).map_err(|_| changed())?;
+                let source_task: Task = raw(&self.conn, "tasks", &row_task)?;
+                if source_task.id != row_task
+                    || contract.subject.task_id != source_task.id
+                    || contract.subject.spec_revision != source_task.spec_revision
+                    || contract.subject.input_revision != material.workspace.base_revision
+                {
+                    return Err(changed());
+                }
                 if contract.outputs.is_empty()
                     || contract.outputs.len() > 16
                     || contract.inputs.len() > 16
