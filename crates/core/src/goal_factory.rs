@@ -1009,7 +1009,94 @@ fn summary(db: &Connection, id: &str) -> Result<FactoryChildGoalSummary> {
         },
     })
 }
+// Only immutable SQL history is reused, within an owned request read
+// transaction. This is not a live-scope/permission cache or an execution token.
+// The lifetime prevents the material from escaping its particular snapshot.
+struct ReadonlySummaryProof<'read, 'db> {
+    snapshot: &'read rusqlite::Transaction<'db>,
+    record: DerivedRecord,
+    goal: GoalRun,
+    plan: FactoryChildPlanRef,
+}
+impl<'read, 'db> ReadonlySummaryProof<'read, 'db> {
+    fn read(snapshot: &'read rusqlite::Transaction<'db>, id: &str) -> Result<Self> {
+        let record = checked_record(snapshot, id)?;
+        let goal = run(snapshot, id)?;
+        // These are the original capability's complete record/run bindings.
+        // No GraphAuthority is constructed or returned by this readonly path.
+        if goal.scope_id != record.scope_id
+            || goal.task_id != record.initial_run.task_id
+            || goal.project_id != record.initial_run.project_id
+            || goal.root_grant_id != record.initial_run.root_grant_id
+        {
+            return Err(changed());
+        }
+        let plan = adopted_plan(snapshot, &goal, &record)?;
+        if goal.state == "failed" {
+            // Full original stopped-failure verification remains fresh; no
+            // stop, receipt, validator or acceptance predicate is cached.
+            verify_confirmed_failure(snapshot, &goal)?;
+        }
+        Ok(Self {
+            snapshot,
+            record,
+            goal,
+            plan,
+        })
+    }
+    fn into_summary(self) -> Result<FactoryChildGoalSummary> {
+        let ledger_revision = sequence(self.snapshot)?;
+        Ok(FactoryChildGoalSummary {
+            authority_kind: "factory_child_goal_execution_v1".into(),
+            factory_scope_id: self.record.origin.factory_scope_id,
+            factory_run_id: self.record.origin.factory_run_id,
+            factory_root_task_id: self.record.origin.root_task_id,
+            parent_task_id: self.record.origin.parent_task_id,
+            task_id: self.goal.task_id.clone(),
+            plan: self.plan,
+            execution_policy_digest: self.record.origin.execution_policy_digest,
+            goal: GraphRunSummary {
+                graph_contract_version: 1,
+                task_accepted: self.goal.task_accepted,
+                run: self.goal,
+                ledger_revision,
+            },
+        })
+    }
+}
+fn readonly_summary_snapshot(db: &Connection) -> Result<Option<rusqlite::Transaction<'_>>> {
+    if db.is_autocommit() {
+        // A request owns this Deferred read snapshot through complete rendering.
+        // An existing caller transaction always retains the original strict
+        // path, including callers that just wrote or later mutate their rows.
+        rusqlite::Transaction::new_unchecked(db, TransactionBehavior::Deferred)
+            .map(Some)
+            .map_err(db_error)
+    } else {
+        Ok(None)
+    }
+}
 impl Store {
+    #[cfg(test)]
+    pub(crate) fn factory_summary_strict_reference_for_test(
+        &self,
+        id: &str,
+    ) -> Result<FactoryChildGoalSummary> {
+        summary(&self.conn, id)
+    }
+    #[cfg(test)]
+    pub(crate) fn factory_summary_snapshot_pair_for_test(
+        &self,
+        id: &str,
+    ) -> Result<(FactoryChildGoalSummary, FactoryChildGoalSummary)> {
+        let snapshot =
+            rusqlite::Transaction::new_unchecked(&self.conn, TransactionBehavior::Deferred)
+                .map_err(db_error)?;
+        let strict = summary(&snapshot, id)?;
+        let reused = ReadonlySummaryProof::read(&snapshot, id)?.into_summary()?;
+        snapshot.commit().map_err(db_error)?;
+        Ok((strict, reused))
+    }
     pub fn list_factory_child_goals(
         &self,
         query: &crate::factory::FactoryChildGoalQuery,
@@ -1019,6 +1106,7 @@ impl Store {
         }
         key(&query.scope_id)?;
         key(&query.task_id)?;
+        let snapshot = readonly_summary_snapshot(&self.conn)?;
         crate::factory::checked_child_goal_scope(&self.conn, &query.scope_id)?;
         raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(goal_run_id)+octet_length(task_id)),0),COALESCE(max(octet_length(document)),0) FROM factory_child_goal_runs WHERE factory_scope_id=?1 AND task_id=?2",params![query.scope_id,query.task_id],1,MAX_STORED_BYTES)?;
         let mut q=self.conn.prepare("SELECT goal_run_id FROM factory_child_goal_runs WHERE factory_scope_id=?1 AND task_id=?2 ORDER BY rowid").map_err(db_error)?;
@@ -1029,9 +1117,16 @@ impl Store {
             .map_err(db_error)?;
         let mut values = Vec::new();
         for id in ids {
-            values.push(summary(&self.conn, &id.map_err(db_error)?)?);
+            let id = id.map_err(db_error)?;
+            values.push(match snapshot.as_ref() {
+                Some(snapshot) => ReadonlySummaryProof::read(snapshot, &id)?.into_summary()?,
+                None => summary(&self.conn, &id)?,
+            });
         }
         if encode(&json!({"request_id":"\0".repeat(128),"result":values,"revision":u64::MAX,"warnings":[]}))?.len()>MAX_STORED_BYTES as usize{return Err(limited());}
+        if let Some(snapshot) = snapshot {
+            snapshot.commit().map_err(db_error)?;
+        }
         Ok(values)
     }
     pub fn get_factory_child_goal(
@@ -1040,12 +1135,16 @@ impl Store {
     ) -> Result<crate::factory::FactoryChildGoalView> {
         key(&query.scope_id)?;
         key(&query.task_id)?;
+        let snapshot = readonly_summary_snapshot(&self.conn)?;
         crate::factory::checked_child_goal_scope(&self.conn, &query.scope_id)?;
         let id=match &query.goal_run_id {
             Some(id)=>id.clone(),
             None=>self.conn.query_row("SELECT goal_run_id FROM factory_child_goal_runs WHERE factory_scope_id=?1 AND task_id=?2 ORDER BY rowid DESC LIMIT 1",params![query.scope_id,query.task_id],|r|r.get(0)).optional().map_err(db_error)?.ok_or_else(||err("NOT_FOUND","No saved child Goal run exists for this target"))?,
         };
-        let summary = summary(&self.conn, &id)?;
+        let summary = match snapshot.as_ref() {
+            Some(snapshot) => ReadonlySummaryProof::read(snapshot, &id)?.into_summary()?,
+            None => summary(&self.conn, &id)?,
+        };
         if summary.factory_scope_id != query.scope_id || summary.task_id != query.task_id {
             return Err(denied());
         }
@@ -1063,6 +1162,9 @@ impl Store {
             > MAX_STORED_BYTES as usize
         {
             return Err(limited());
+        }
+        if let Some(snapshot) = snapshot {
+            snapshot.commit().map_err(db_error)?;
         }
         Ok(view)
     }
