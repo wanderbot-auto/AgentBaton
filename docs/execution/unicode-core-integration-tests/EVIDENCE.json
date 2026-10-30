@@ -64,5 +64,7 @@
     "production sandbox guarantee",
     "new fee/authority/retry",
     "background continuation"
-  ]
+  ],
+  "root_resumed_actual_results": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
+  "author_not_run_fields_are_historical": true
 }

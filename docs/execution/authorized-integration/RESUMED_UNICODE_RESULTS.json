@@ -1,0 +1,1044 @@
+{
+  "contract": "agentbaton.integration.resumed-unicode-results.v1",
+  "recorded_at": "2026-10-30T22:47:18.806827+00:00",
+  "source_before_metadata": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+  "PR": 21,
+  "approval_id": "AB-START-001",
+  "actual_passed": {
+    "integration17-unicode-composed-core-full1": {
+      "actual_result": {
+        "source": "796bb90907fa1510281525b1076d4e5592ad93c6",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 172.02088566601742,
+        "minimum_free_bytes": 247812096,
+        "interruption": null,
+        "log_sha256": "3479011fe48752529fd84ec614e4e625b8193765a05c2131d1e70e9b4917878d",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 225 filtered out; finished in 0.00s",
+          "test result: ok. 226 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 144.68s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-composed-core-full1/RESULT.json",
+        "sha256": "39530c8edc5815f3a102a938ccf92771534f08b57f5239b67952b5c78b01674d",
+        "bytes": 988
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-composed-core-full1/command.log",
+        "sha256": "3479011fe48752529fd84ec614e4e625b8193765a05c2131d1e70e9b4917878d",
+        "bytes": 35800
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-composed-core-full1/INPUTS.json",
+        "sha256": "ddc0a733bf840e99cfe0929cbb952e7c5efc04c8fd3b2c4f1bd200b11b3e39ff",
+        "bytes": 17096
+      }
+    },
+    "integration17-unicode-full-ipc2": {
+      "actual_result": {
+        "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 129.61028199497377,
+        "minimum_free_bytes": 265945088,
+        "interruption": null,
+        "log_sha256": "282223677c1bc423eed3ea33697d9a329d3a5cac58ca736421a7b5482471c033",
+        "summaries": [
+          "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 106.40s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-full-ipc2/RESULT.json",
+        "sha256": "7f70e022fb884ce2d8e19dc5f78cf6cff6380c4c63c3e81cbe6cfd03f3cca6da",
+        "bytes": 908
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-full-ipc2/command.log",
+        "sha256": "282223677c1bc423eed3ea33697d9a329d3a5cac58ca736421a7b5482471c033",
+        "bytes": 2998
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-full-ipc2/INPUTS.json",
+        "sha256": "9f01a5b8f52934e7dbfdd8afa61b6d95046edc42f981c028084e02582eda99df",
+        "bytes": 17120
+      }
+    },
+    "integration17-unicode-current-clippy3": {
+      "actual_result": {
+        "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 25.5421595289954,
+        "minimum_free_bytes": 267948032,
+        "interruption": null,
+        "log_sha256": "09d20a8a2a9a5ffb14fd7e334fb143b052a3d6968e0008ad9288d9e507e974d1",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-current-clippy3/RESULT.json",
+        "sha256": "827fb88dfd915f306d36787c7c1b499104e7ff889810357a2054b7b658033d3d",
+        "bytes": 779
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-current-clippy3/command.log",
+        "sha256": "09d20a8a2a9a5ffb14fd7e334fb143b052a3d6968e0008ad9288d9e507e974d1",
+        "bytes": 701
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-current-clippy3/INPUTS.json",
+        "sha256": "6c4fd011bac9979080e0434bbca88bc596182d6b4b264545976aa06e874e4d58",
+        "bytes": 17099
+      }
+    },
+    "integration17-unicode-current-fmt2": {
+      "actual_result": {
+        "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "seconds": 2.140764103969559,
+        "minimum_free_bytes": 269987840,
+        "interruption": null,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-current-fmt2/RESULT.json",
+        "sha256": "0482a8f0c227c232047f444cf9108119cc19228793eb0cdad127b5e36f5411ab",
+        "bytes": 723
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-current-fmt2/command.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-current-fmt2/INPUTS.json",
+        "sha256": "273601fa0190e0e1c3340133a28e4e9948bbfbefd985fa36cce519d66aa8d862",
+        "bytes": 17042
+      }
+    },
+    "integration17-unicode-current-frontend-build1": {
+      "actual_result": {
+        "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 2.9298295219778083,
+        "minimum_free_bytes": 269971456,
+        "interruption": null,
+        "log_sha256": "8b5da7fa30f515a59ca146808d869e90b0f2afeccac202a1c49543c1fac66eda",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-current-frontend-build1/RESULT.json",
+        "sha256": "cbeb1d7be7a04d561ad94b52eed59b6fdfbb6356cec2065bdab29ede54ce2083",
+        "bytes": 663
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-current-frontend-build1/command.log",
+        "sha256": "8b5da7fa30f515a59ca146808d869e90b0f2afeccac202a1c49543c1fac66eda",
+        "bytes": 984
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-current-frontend-build1/INPUTS.json",
+        "sha256": "31cf34e1449ccbbe758356e7310969946cfb8c26aca53766ba549562116fa268",
+        "bytes": 1568
+      }
+    },
+    "integration17-unicode-current-preview-build1": {
+      "actual_result": {
+        "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton",
+          "--features",
+          "agentbaton-core/preview-evidence"
+        ],
+        "exit": 0,
+        "seconds": 21.896812694962136,
+        "minimum_free_bytes": 236019712,
+        "interruption": null,
+        "log_sha256": "5ad8f1d703d72db7b6709d9e641fa071531130e3365064b83026dc05df4d6bb4",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-current-preview-build1/RESULT.json",
+        "sha256": "3bfc7eaa47597f7c4f62d446f6797fb65d86c123da77a2026b0fa88196f652a5",
+        "bytes": 815
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-current-preview-build1/command.log",
+        "sha256": "5ad8f1d703d72db7b6709d9e641fa071531130e3365064b83026dc05df4d6bb4",
+        "bytes": 701
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-current-preview-build1/INPUTS.json",
+        "sha256": "70bc07d9a2dd8d22aa7e7566155fc301f47fb26383b52526c8e6c2b0902da232",
+        "bytes": 17133
+      }
+    },
+    "integration17-unicode-current-freeze-command1": {
+      "actual_result": {
+        "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "python",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/integration17-unicode-current-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/integration17-unicode-current-probe1"
+        ],
+        "exit": 0,
+        "seconds": 0.4014200299861841,
+        "minimum_free_bytes": 267100160,
+        "interruption": null,
+        "log_sha256": "ccd6e0a9ebdd7ffbb06045768930c0fe3689b24f621978bed3e582149b582e30",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-current-freeze-command1/RESULT.json",
+        "sha256": "ef93f81bd82f87e5afa148c8dd68b71a21784f4a08e217105806f2e693f6a3f1",
+        "bytes": 924
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-current-freeze-command1/command.log",
+        "sha256": "ccd6e0a9ebdd7ffbb06045768930c0fe3689b24f621978bed3e582149b582e30",
+        "bytes": 1775
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-current-freeze-command1/INPUTS.json",
+        "sha256": "526329d66f537e87310df6bf7c8b96aa1d2225588b5b8f5ff3bfaa04163bba41",
+        "bytes": 1829
+      }
+    },
+    "integration17-unicode-original-browser-command1": {
+      "actual_result": {
+        "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/integration-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/integration17-unicode-current-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/integration17-unicode-current-frozen1/manifest.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/integration17-unicode-current-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "8a6708e63fb22cb41178310451b19861ff2ceed1",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/integration17-unicode-original-browser-actual1",
+          "--case",
+          "all",
+          "--run"
+        ],
+        "exit": 0,
+        "seconds": 23.90437911800109,
+        "minimum_free_bytes": 261586944,
+        "interruption": null,
+        "log_sha256": "a412fbcb4e0552ce74fe4fddadb7e7354f107dc8b6787568167cb9076de4e61d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-original-browser-command1/RESULT.json",
+        "sha256": "b15f0085d7de767310d59a5dfe3b8a74da9eaab8b6d2694ec519b11007c42e83",
+        "bytes": 1531
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-original-browser-command1/command.log",
+        "sha256": "a412fbcb4e0552ce74fe4fddadb7e7354f107dc8b6787568167cb9076de4e61d",
+        "bytes": 89
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-original-browser-command1/INPUTS.json",
+        "sha256": "3211238342055dd374571cc130b0e8b8740afa9fccaa2b4e7bd6fd39aa32a8a8",
+        "bytes": 2437
+      }
+    },
+    "integration17-unicode-current-infra1": {
+      "actual_result": {
+        "source": "796bb90907fa1510281525b1076d4e5592ad93c6",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 0,
+        "seconds": 12.843718050018651,
+        "minimum_free_bytes": 362393600,
+        "interruption": null,
+        "log_sha256": "35b99f2513b9891463228e32d6c3acaee87bf75f6619c65798b15872fa6d70d7",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-current-infra1/RESULT.json",
+        "sha256": "a1ce76f1985cbfc76344c1b9dd56f3004a4657a4cd9e4aa2d998b2bb5a09fa83",
+        "bytes": 713
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-current-infra1/command.log",
+        "sha256": "35b99f2513b9891463228e32d6c3acaee87bf75f6619c65798b15872fa6d70d7",
+        "bytes": 1665
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-current-infra1/INPUTS.json",
+        "sha256": "d66d34153214f47585eb143d01ab947110ed465aabc1ea53015614aeb0163d72",
+        "bytes": 1618
+      }
+    },
+    "selected-source-unicode-full-workspaces1": {
+      "actual_result": {
+        "source": "f45d80826078978bb5021c150a827774dc647e0a",
+        "root": "/workspace/.worktrees/selected-source-unicode-paths",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-workspaces",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 111.37439530799747,
+        "minimum_free_bytes": 257355776,
+        "interruption": null,
+        "log_sha256": "f0e836ac4afb00e5fdc287ae491f48046400c32b8ccca4fbe31b14fb163a4f12",
+        "summaries": [
+          "test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 28.87s",
+          "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.38s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 1.68s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.33s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.32s",
+          "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.06s",
+          "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.24s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s",
+          "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s",
+          "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.35s",
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.55s",
+          "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.93s",
+          "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/selected-source-unicode-full-workspaces1/RESULT.json",
+        "sha256": "76d0bc651ce87a4024036de74e189a4c1a4310678d4ed5cdf6e58094670aaec9",
+        "bytes": 2300
+      },
+      "log": {
+        "path": ".onboarding/selected-source-unicode-full-workspaces1/command.log",
+        "sha256": "f0e836ac4afb00e5fdc287ae491f48046400c32b8ccca4fbe31b14fb163a4f12",
+        "bytes": 31583
+      },
+      "inputs": {
+        "path": ".onboarding/selected-source-unicode-full-workspaces1/INPUTS.json",
+        "sha256": "d964fbb038270e75941839e3d595e953bd857fc2a6fdade3b42a14bbaa3e187e",
+        "bytes": 5432
+      }
+    }
+  },
+  "retained_failed": {
+    "integration17-unicode-current-clippy1": {
+      "actual_result": {
+        "source": "796bb90907fa1510281525b1076d4e5592ad93c6",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 101,
+        "seconds": 15.961216332041658,
+        "minimum_free_bytes": 310185984,
+        "interruption": null,
+        "log_sha256": "7ae9a4321d5d293d48f3c50921dc82d8d7bff2d932b66c85ce7bc5d8a4e350be",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-current-clippy1/RESULT.json",
+        "sha256": "c9a6b0bc34ff3e9a14f122129aea8727f98bb0967e6a60889da8513fb44ba247",
+        "bytes": 783
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-current-clippy1/command.log",
+        "sha256": "7ae9a4321d5d293d48f3c50921dc82d8d7bff2d932b66c85ce7bc5d8a4e350be",
+        "bytes": 1172
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-current-clippy1/INPUTS.json",
+        "sha256": "3c620f6991813a28344d95c3f88df08149b931694916b0e9352b1a28b8e87d24",
+        "bytes": 17099
+      }
+    },
+    "integration17-unicode-current-fmt1": {
+      "actual_result": {
+        "source": "f120f931d2c0a6af5fa089ef66f09a19314c33b2",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 1,
+        "seconds": 1.303448181017302,
+        "minimum_free_bytes": 283975680,
+        "interruption": null,
+        "log_sha256": "1489d6453ac13c2ff3c4bafce742214e070254ca0038d5a7ac103097435111d2",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-current-fmt1/RESULT.json",
+        "sha256": "4515f3af0578f5e8b576ca758f0e17a82ee3d9952c2187f468fe50e06a780067",
+        "bytes": 723
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-current-fmt1/command.log",
+        "sha256": "1489d6453ac13c2ff3c4bafce742214e070254ca0038d5a7ac103097435111d2",
+        "bytes": 483
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-current-fmt1/INPUTS.json",
+        "sha256": "252e8a5a89480ce911bf3959c8db0b86f25c3abf3a1a1d30772b8b445737f169",
+        "bytes": 17042
+      }
+    },
+    "integration17-unicode-full-ipc1": {
+      "actual_result": {
+        "source": "8c2fb1c1e74fe3b1e76ea06e87813f5895ce9514",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 101,
+        "seconds": 125.28295886598062,
+        "minimum_free_bytes": 204562432,
+        "interruption": null,
+        "log_sha256": "7a1ffa0a633f4e42f58b9dc794038517bcbcacd9e16c187da4b81044f9bacfd1",
+        "summaries": [
+          "test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 102.41s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-full-ipc1/RESULT.json",
+        "sha256": "758dc9e1764c6b8b57c8fee64d6237dced18540714573cd430f3378f03a110d5",
+        "bytes": 914
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-full-ipc1/command.log",
+        "sha256": "7a1ffa0a633f4e42f58b9dc794038517bcbcacd9e16c187da4b81044f9bacfd1",
+        "bytes": 10261
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-full-ipc1/INPUTS.json",
+        "sha256": "024d8cc8e83aefd53b98eba5561fb8e475862025d73661823664839167c7cff8",
+        "bytes": 17120
+      }
+    },
+    "integration17-unicode-round-browser-command1": {
+      "actual_result": {
+        "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/integration-round-history-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/integration17-unicode-current-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/integration17-unicode-current-frozen1/manifest.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/integration17-unicode-current-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "8a6708e63fb22cb41178310451b19861ff2ceed1",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/integration17-unicode-round-browser-actual1",
+          "--run"
+        ],
+        "exit": 1,
+        "seconds": 13.34124509000685,
+        "minimum_free_bytes": 266137600,
+        "interruption": null,
+        "log_sha256": "5fc9990c2c20740f7d6a45356c974bc467d352b2b304e16225baecda52906d8d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/integration17-unicode-round-browser-command1/RESULT.json",
+        "sha256": "ce93d64f54d994c914c4878f85e993058b70488a40e2fa22ae25fc2968615ced",
+        "bytes": 1517
+      },
+      "log": {
+        "path": ".onboarding/integration17-unicode-round-browser-command1/command.log",
+        "sha256": "5fc9990c2c20740f7d6a45356c974bc467d352b2b304e16225baecda52906d8d",
+        "bytes": 94
+      },
+      "inputs": {
+        "path": ".onboarding/integration17-unicode-round-browser-command1/INPUTS.json",
+        "sha256": "9e1b40a48e1d48741f6b9b6e3c10129d47f9f7005c03c29340eea29cf800a06d",
+        "bytes": 2423
+      }
+    }
+  },
+  "counts_by_source_not_additive": {
+    "Core796": 226,
+    "real_Unix_IPC8a": 16,
+    "Unicode_new2_included_in_16": true,
+    "Workspaces_f45": 190,
+    "compilefail_docs_f45": 7,
+    "source_capture21_included_in_190": true,
+    "original_browser8a": {
+      "normal_checks": 5,
+      "failure_checks": 4,
+      "original_screenshots": 12,
+      "cases": 2,
+      "daemon_exit": 0,
+      "forced_kill": false
+    },
+    "infrastructure796": 438,
+    "prior_mocked_UI777": 1069,
+    "prior_mocked_files": 59
+  },
+  "dimension": "Linux real Core/Unix IPC/Git/generated ACP/private test Owner host/browser; explicit preview-evidence tool build, not Native OS/real Provider/Mac/package acceptance",
+  "failure_explanations": {
+    "strict_lint": "redundant unit expression; one-line removal plus canonical formatting, original failures preserved; no lint suppression",
+    "new_IPC_replay": "initial unicode-explicit-start differed from existing helper explicit-start; actual chain passed before replay failure. Same-key literal corrected; full16 then passed including final raw Git UTF8/NFD checks. Original failed ELF/fixture preserved.",
+    "new_round_browser": "1check0screens, UIwake expected enabled during actual active integration lock; private transcript context/targets WORKSPACE_BUSY. Product guard preserved. After test interruption original daemon exited0/joined/noKILL/gatejoined but third preparation has interrupted_no_join_receipt/outcome_unknown with original fence/reservation retained; not a successful product confirmation or replay."
+  },
+  "retained_failure_fixtures": [
+    "/tmp/integration-runtime-ICFxDX",
+    "/tmp/ab-round-ui-o57kfz6f"
+  ],
+  "source_reviews": {
+    "original_unicode_core": {
+      "path": ".onboarding/unicode-core-independent-review1/REVIEW.json",
+      "sha256": "9a929e3d3c01385deca26ba8d266880447707111c5fb07e2dbc38d6d7e59cd41",
+      "bytes": 3036
+    },
+    "replay_key_closure_and_review_erratum": {
+      "path": ".onboarding/unicode-core-replay-key-independent-review/REVIEW.json",
+      "sha256": "7516648eb07f6c2cfe6f12ed6c5935f5d4619eab866147d7d11f6b803c4e96ee",
+      "bytes": 5104
+    }
+  },
+  "browser_records": {
+    "normal": {
+      "report": {
+        "path": ".onboarding/integration17-unicode-original-browser-actual1/normal/report.json",
+        "sha256": "4476560335fba5ffc258c4943eb22eb6d33d3e4344165a22fa7fb694f3c2a20a",
+        "bytes": 8344
+      },
+      "checks": [
+        {
+          "name": "real managed Task/Graph before Task acceptance; visible new5s draft; optional original Command selected",
+          "status": "passed"
+        },
+        {
+          "name": "actual Core RESOURCE_LIMIT for oversized default output; no target/fence/policy/run/attempt authority",
+          "status": "passed"
+        },
+        {
+          "name": "complete real pending proposal and consumed receipt matched outside HTTP before TaskAccepted",
+          "status": "passed",
+          "proposal_sha256": "c7414749db45ae91255a1be0cf3475e7e627c18c3d246d0c8f2f0abf9c387f97",
+          "snapshot_sha256": "6e85e8b08a83fe92875dacaf490db7846026b366cdebd76990595d69e034eb3e",
+          "proposal_bytes": 12483,
+          "snapshot_bytes": 12299,
+          "whole_response_bytes": 12574,
+          "whole_response_sha256": "c9f2b043ba9f2d44b8ba61303b7b625ecdbc016db3d8f35510e45a5056725ef1"
+        },
+        {
+          "name": "actual watcher fresh merged Command/owned stop/join/shared fees/source preservation and exact local ref result",
+          "status": "passed",
+          "state": "confirmed_local_ref",
+          "stages": 3,
+          "command_exit": 0,
+          "cas_attempts": 1,
+          "source_and_index_unchanged": true,
+          "original_command_unchanged": true,
+          "actual_owned_reap_and_join": true,
+          "shared_runtime_ms": 3122,
+          "shared_output_bytes": 364,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        {
+          "name": "actual built component displays separate Task/integration result and real receipt; desktop/mobile screenshots",
+          "status": "passed"
+        }
+      ],
+      "screenshots": [
+        {
+          "name": "task-pending-before-acceptance",
+          "sha256": "5f0c282788bebef748f25dbdc1c816b4fa8060532967789d2a161919c4313746",
+          "bytes": 135205,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 340,
+            "y": 539.390625,
+            "width": 740,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "permission-before-task-acceptance",
+          "sha256": "a378ab92b6700f61525d6f941b8a9b060167fcb6c2b907eaccbaa1767c5a9665",
+          "bytes": 146964,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 340,
+            "y": 708.28125,
+            "width": 740,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-state-desktop",
+          "sha256": "92aa37c55b7b1d6fa801032514cf1838b0af9652e3292dce6d786d27235aea77",
+          "bytes": 139192,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 537.546875,
+            "y": 279.171875,
+            "width": 542.453125,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-receipt-desktop",
+          "sha256": "763f31ae4d45ab1fdd58459bb807c86a0927e795b7a8f014b5e518d8db888fb1",
+          "bytes": 140283,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 746.125,
+            "y": 800.171875,
+            "width": 333.875,
+            "height": 42
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-state-mobile",
+          "sha256": "feccd046331d4ac97692ac6422ac245ca66965c5c923ee473e34ee4cbca2d8b4",
+          "bytes": 52663,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "focus_box_before_capture_observation": {
+            "x": 16,
+            "y": 337.453125,
+            "width": 358,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-receipt-mobile",
+          "sha256": "82e962a32cac2c5a9bdfc7961e1f1eb057a0558656bbf1cb85ac7767135f5a93",
+          "bytes": 57781,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "focus_box_before_capture_observation": {
+            "x": 16,
+            "y": 337.453125,
+            "width": 358,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        }
+      ],
+      "cleanup": {
+        "pending_reviews_stopped": true,
+        "browser_closed": true,
+        "playwright_stopped": true,
+        "http_shutdown": true,
+        "http_thread_joined": true,
+        "daemon_joined": {
+          "exit": 0,
+          "joined": true,
+          "forced_kill": false
+        },
+        "private_transcript_saved": true,
+        "tools_assets_unchanged": true,
+        "fixture_removed": true
+      }
+    },
+    "command-failure": {
+      "report": {
+        "path": ".onboarding/integration17-unicode-original-browser-actual1/command-failure/report.json",
+        "sha256": "a03901473719565b7030bc4009167f30166619dc38a687324e98c08f7f14d055",
+        "bytes": 8181
+      },
+      "checks": [
+        {
+          "name": "real managed Task/Graph before Task acceptance; visible new5s draft; optional original Command selected",
+          "status": "passed"
+        },
+        {
+          "name": "complete real pending proposal and consumed receipt matched outside HTTP before TaskAccepted",
+          "status": "passed",
+          "proposal_sha256": "d92286e58655b5f174c320074744c9e6e95e1d0566a9eb548327445b558365a7",
+          "snapshot_sha256": "83e646f78e54e6e716c7a4dfff3589d5efe231f6061f06d70223762b39018f23",
+          "proposal_bytes": 12543,
+          "snapshot_bytes": 12359,
+          "whole_response_bytes": 12634,
+          "whole_response_sha256": "84174fd7e7d30568c721bf67406136d73311e29c5838b361e8f414e2e9f0ea62"
+        },
+        {
+          "name": "actual watcher fresh merged Command/owned stop/join/shared fees/source preservation and exact local ref result",
+          "status": "passed",
+          "state": "failed",
+          "stages": 2,
+          "command_exit": 7,
+          "cas_attempts": 0,
+          "source_and_index_unchanged": true,
+          "original_command_unchanged": true,
+          "actual_owned_reap_and_join": true,
+          "shared_runtime_ms": 2136,
+          "shared_output_bytes": 50,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        {
+          "name": "actual built component displays separate Task/integration result and real receipt; desktop/mobile screenshots",
+          "status": "passed"
+        }
+      ],
+      "screenshots": [
+        {
+          "name": "task-pending-before-acceptance",
+          "sha256": "5b6ea2ea4b223e55e95f9b19a6cfdb8e4042db4f8ebf1004fa10724efb87fbd0",
+          "bytes": 135436,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 340,
+            "y": 510.390625,
+            "width": 740,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "permission-before-task-acceptance",
+          "sha256": "bd7ec1fede0901740c0bd125db12c9e3af7aecc0b2673e93a1182f041a013a20",
+          "bytes": 137152,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 340,
+            "y": 708.28125,
+            "width": 740,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-state-desktop",
+          "sha256": "69d1730fb3cec5232f613c3589bfa866733bc81ad9d9eb3f9d87de768c9baa9a",
+          "bytes": 140428,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 537.546875,
+            "y": 244.171875,
+            "width": 542.453125,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-receipt-desktop",
+          "sha256": "69d1730fb3cec5232f613c3589bfa866733bc81ad9d9eb3f9d87de768c9baa9a",
+          "bytes": 140428,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 736.6875,
+            "y": 800.171875,
+            "width": 343.3125,
+            "height": 42
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-state-mobile",
+          "sha256": "4f444fdab2f4d7a46d8546bcbd6a88716be3fd0368133b797073d4e28babda0c",
+          "bytes": 51645,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "focus_box_before_capture_observation": {
+            "x": 16,
+            "y": 337.453125,
+            "width": 358,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-receipt-mobile",
+          "sha256": "51681f5d8d3deac97ad15e027ef7d95cf21d4a688a0bdf7caabe126d496d1998",
+          "bytes": 60381,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "focus_box_before_capture_observation": {
+            "x": 16,
+            "y": 337.453125,
+            "width": 358,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        }
+      ],
+      "cleanup": {
+        "pending_reviews_stopped": true,
+        "browser_closed": true,
+        "playwright_stopped": true,
+        "http_shutdown": true,
+        "http_thread_joined": true,
+        "daemon_joined": {
+          "exit": 0,
+          "joined": true,
+          "forced_kill": false
+        },
+        "private_transcript_saved": true,
+        "tools_assets_unchanged": true,
+        "fixture_removed": true
+      }
+    }
+  },
+  "root_viewed_original_images": [
+    "normal/terminal-receipt-desktop.png",
+    "normal/terminal-receipt-mobile.png",
+    "command-failure/terminal-state-mobile.png"
+  ],
+  "Parent_exact_latest_terminal": {
+    "head": "71fd73958dd6b340bf030c0e747cd392fa82cc72",
+    "Environment": 41113871366,
+    "Product": 41113871143,
+    "result": "Environment3/Rust/AppleSilicon passed; Intel rework plan2/run14blocked29pass1fail and UI childcancel Graphargv assertion failed",
+    "terminal_files": [
+      {
+        "path": ".onboarding/pr18-head71f-evidence/product-terminal.json",
+        "sha256": "b579905e9876775ed84ef2301f875f4330b374f3114ff26a5d337751032f403b",
+        "bytes": 10277
+      },
+      {
+        "path": ".onboarding/pr18-head71f-evidence/environment-terminal.json",
+        "sha256": "2196835e86f172321bc437e6cf761ecb45336966e7ea34df91c5888aa9f65737",
+        "bytes": 6079
+      }
+    ],
+    "private_source_followup": "independently reviewed finite argv diagnostics and private Goal admission diagnostic transfer composed locally; first fullCore compile E0599 retained; blocking testadapter corrected/reviewed; new fullCore running at090df57, not passed or newCI"
+  },
+  "remaining": [
+    "actual three-round browser source order correction/review/new sameHEAD builds and fresh fixture",
+    "current Native OS and actual dualmacOS/schema17 CI/release-control audit/installers",
+    "broader source change kinds/remote/adoption/retention and full130 requirements",
+    "live product Provider identity/calls and signing remain separately gated"
+  ],
+  "whole_product_accepted": false,
+  "owner": "main653679d OWNER001002 ACK/no003; runtime restored original executor; authorization unchanged"
+}

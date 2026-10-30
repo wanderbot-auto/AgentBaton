@@ -230,7 +230,8 @@
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
-        "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json"
+        "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
+        "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -282,6 +283,18 @@
           "compilefail_docs": 7,
           "evidence": "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
           "coverage": "partial Linux library only; composed Core/Command/UI/Mac Unicode not_run"
+        },
+        {
+          "slice": "raw_UTF8_NFD_real_Core_Command_exact_CAS_and_changed_pin_refusal",
+          "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+          "real_IPC": 16,
+          "new2_included": true,
+          "original_actual_browser_checks": 9,
+          "original_screenshots": 12,
+          "mixed_round_browser": "failed1check0screens; order correction pending",
+          "Native_Mac_currentCI_installers": "not_run",
+          "evidence": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
+          "coverage": "partial; full requirement not accepted"
         }
       ]
     },
@@ -315,7 +328,8 @@
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
         "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
-        "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json"
+        "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
+        "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -388,6 +402,18 @@
           "compilefail_docs": 7,
           "evidence": "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
           "coverage": "partial Linux library only; composed Core/Command/UI/Mac Unicode not_run"
+        },
+        {
+          "slice": "raw_UTF8_NFD_real_Core_Command_exact_CAS_and_changed_pin_refusal",
+          "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+          "real_IPC": 16,
+          "new2_included": true,
+          "original_actual_browser_checks": 9,
+          "original_screenshots": 12,
+          "mixed_round_browser": "failed1check0screens; order correction pending",
+          "Native_Mac_currentCI_installers": "not_run",
+          "evidence": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
+          "coverage": "partial; full requirement not accepted"
         }
       ],
       "data_workspace_contribution": {
@@ -7098,7 +7124,8 @@
         "docs/execution/goal-stop-service/ROOT_RESULTS.json",
         "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
         "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
-        "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json"
+        "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
+        "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -7249,6 +7276,18 @@
           "compilefail_docs": 7,
           "evidence": "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
           "coverage": "partial Linux library only; composed Core/Command/UI/Mac Unicode not_run"
+        },
+        {
+          "slice": "raw_UTF8_NFD_real_Core_Command_exact_CAS_and_changed_pin_refusal",
+          "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+          "real_IPC": 16,
+          "new2_included": true,
+          "original_actual_browser_checks": 9,
+          "original_screenshots": 12,
+          "mixed_round_browser": "failed1check0screens; order correction pending",
+          "Native_Mac_currentCI_installers": "not_run",
+          "evidence": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
+          "coverage": "partial; full requirement not accepted"
         }
       ]
     },
