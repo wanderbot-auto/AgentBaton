@@ -3282,7 +3282,7 @@ fn assert_real_drift_refusal(case: DriftRefusal) {
                 &["rev-parse", &format!("{expected}^{{tree}}")],
                 deadline,
             );
-            // A root commit has no parents; the expected non-root baseline
+            // A distinct root commit has no parents, so the approved baseline
             // cannot be its ancestor. This rewrites only the owned target ref.
             let root_commit = reprepare_host_git(
                 &f,
