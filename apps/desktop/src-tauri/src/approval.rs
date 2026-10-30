@@ -10,6 +10,7 @@ pub enum ApprovalKind {
     Goal,
     DataWorkspace,
     GoalExecution,
+    Integration,
 }
 impl ApprovalKind {
     pub fn proposal_method(&self) -> &'static str {
@@ -22,6 +23,7 @@ impl ApprovalKind {
             Self::Goal => "goal_scopes.propose",
             Self::DataWorkspace => "data_workspaces.propose",
             Self::GoalExecution => "goal_runs.propose",
+            Self::Integration => "integration_policies.propose",
         }
     }
     fn kind(&self) -> &'static str {
@@ -34,6 +36,7 @@ impl ApprovalKind {
             Self::Goal => "goal",
             Self::DataWorkspace => "data_workspace",
             Self::GoalExecution => "goal_execution",
+            Self::Integration => "integration",
         }
     }
     fn action(&self) -> &'static str {
@@ -49,6 +52,7 @@ impl ApprovalKind {
             Self::CommandValidation => "Approve ONE run of this exact server-resolved fixed command, executable/script hashes, literal argv, constant environment, working directory, file contracts and time/capture limits. The program can access this user's resources. No OS filesystem/network sandbox, descendant containment, immutable inputs or scientific correctness is promised. Retained output limits are not filesystem quotas. Strict unsupported requirements must deny before spawn. Command results never accept the task, authorize Git integration or production release.\n\n仅批准该精确固定命令的一次运行。请完整核对程序/脚本哈希、参数、环境、工作目录及限额；不保证系统隔离或后代进程收容，命令结果不代表任务、Git 或生产验收。",
             Self::Goal => "Approve this separate Goal scope against the EXACT original root grant revision. Review grant_before and grant_after: only the displayed child/depth orchestration ceilings and grant revision change. Connection, environment, identity, host, workspace, recipients and execution ceilings MUST NOT expand. Review real project/root consumed, active and children counters; shared consumption is retained, never reset. Approval requires no active or unknown execution. Historical runtime/output/token/cost may be unknown and must never be advertised as zero. Owner acceptance criteria define a future review rule, NOT a passed receipt or Task acceptance. This version stores and previews plans only: no reservation, dispatch, model call, Git integration or production release occurs.\n\n独立 Goal 原生确认：核对原根授予版本及新增子任务/深度上限，其他连接、身份、主机、工作区、接收方和执行限额不可扩张。真实共享已消耗/活动计数不重置；历史未计量保持未知。验收条件不是通过凭据；本单元仅保存和预览计划，不预留或派发。",
             Self::GoalExecution => "Authorize execution within this SERVER-resolved Goal scope, exact initial plan and shared cumulative limits. Only safe plan revisions inside this same scope may advance without another confirmation. Existing connection, identity, host, input and workspace permissions MUST NOT expand. This does not grant child workspace creation, an OS filesystem/network sandbox, a filesystem output quota, Task acceptance, integration or production release. Reserved bounds are not measured usage; unknown effects block automatic replay.\n\n独立 Goal 执行批准：完整核对原有身份、主机、输入、工作区及共享累计限额；仅同范围内的安全计划修订可继续。不得创建新工作区或扩大权限；预留量不等于实测，节点完成不等于任务验收，未知副作用不能自动重放。",
+            Self::Integration => "Independent local integration requires its complete typed Native snapshot review; old execution or Goal approval never grants branch permission.",
             Self::DataWorkspace => "Approve ONE exact selected-file dataset copy from the server-resolved registered source to its host-managed destination. Review the project, preview revision, every file path, actual SHA-256/bytes, dataset revision and destination in the COMPLETE snapshot. Preview verification alone does not authorize copying. No original source writes, Git initialization, scripts, model calls or execution grant. Selected-file before/after observations are NOT an atomic whole-directory freeze, continuous immutability, DLP or an OS filesystem sandbox. Cancellation is a request; completed or partial copies can remain and must be reconciled, never silently replayed or deleted.\n\n独立数据工作区原生批准：完整核对项目、预览版本、所选文件路径/实际哈希/字节、数据集版本及后台目标。仅批准该精确副本，不修改原源、不初始化 Git、不执行脚本或模型、不授予执行权限；不保证整目录冻结、DLP 或系统隔离。取消请求不等于已停止或删除。",
         }
     }
@@ -462,6 +466,9 @@ pub fn confirm_and_finalize(
         return refused(
             "Server returned a malformed error before approval; no approval was finalized",
         );
+    }
+    if matches!(kind, ApprovalKind::Integration) {
+        return refused("Integration requires the dedicated complete typed Native review; generic approval cannot grant it");
     }
     let Some(proposal) = response.get("result") else {
         return refused("Server returned no approval proposal; no approval was finalized");
