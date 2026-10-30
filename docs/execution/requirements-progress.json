@@ -2300,7 +2300,8 @@
         "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
         "docs/execution/factory-history-worker/ROOT_RESULTS.json",
         "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json",
-        "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json"
+        "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
+        "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2542,6 +2543,18 @@
           "natural_busy_observed": false,
           "evidence": "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
           "coverage": "partial Linux testfixture; not currentMac/CI/fullrequirement acceptance"
+        },
+        {
+          "slice": "private_same_job_admission_diagnostic_and_strict_graph_argv_finite_projection",
+          "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+          "Core": 170,
+          "new3_included": true,
+          "Factory": 33,
+          "infrastructure": 269,
+          "actual_child_cancel_checks": 4,
+          "screenshots": 3,
+          "evidence": "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
+          "coverage": "partial Linux source-bound; originalCI refusal not naturally reproduced, currentMac/CI/whole requirement not accepted"
         }
       ]
     },
@@ -2593,7 +2606,8 @@
         "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
         "docs/execution/factory-history-worker/ROOT_RESULTS.json",
         "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json",
-        "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json"
+        "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
+        "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2840,6 +2854,18 @@
           "natural_busy_observed": false,
           "evidence": "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
           "coverage": "partial Linux testfixture; not currentMac/CI/fullrequirement acceptance"
+        },
+        {
+          "slice": "private_same_job_admission_diagnostic_and_strict_graph_argv_finite_projection",
+          "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+          "Core": 170,
+          "new3_included": true,
+          "Factory": 33,
+          "infrastructure": 269,
+          "actual_child_cancel_checks": 4,
+          "screenshots": 3,
+          "evidence": "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
+          "coverage": "partial Linux source-bound; originalCI refusal not naturally reproduced, currentMac/CI/whole requirement not accepted"
         }
       ],
       "pr18_repair_observation": {
@@ -2898,7 +2924,8 @@
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-ancestor-admission-diagnostics/ROOT_RESULTS.json",
-        "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json"
+        "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
+        "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -3064,6 +3091,18 @@
           "natural_busy_observed": false,
           "evidence": "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
           "coverage": "partial Linux testfixture; not currentMac/CI/fullrequirement acceptance"
+        },
+        {
+          "slice": "private_same_job_admission_diagnostic_and_strict_graph_argv_finite_projection",
+          "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+          "Core": 170,
+          "new3_included": true,
+          "Factory": 33,
+          "infrastructure": 269,
+          "actual_child_cancel_checks": 4,
+          "screenshots": 3,
+          "evidence": "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
+          "coverage": "partial Linux source-bound; originalCI refusal not naturally reproduced, currentMac/CI/whole requirement not accepted"
         }
       ]
     },

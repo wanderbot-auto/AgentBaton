@@ -151,5 +151,7 @@
     "successful Core daemon or Graph join",
     "full requirement acceptance",
     "new execution permission"
-  ]
+  ],
+  "root_actual_results": "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
+  "author_not_run_fields_are_historical": true
 }
