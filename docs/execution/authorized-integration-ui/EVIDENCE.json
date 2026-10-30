@@ -9,8 +9,8 @@
   ],
   "dimensions": {
     "source_implemented": "Task Details real integration panel wired to11 typed Native commands; Core runtime completion not claimed",
-    "component_tests": "source written, not_run",
-    "typecheck": "not_run",
+    "component_tests": "root_actual_da997:43 targeted and1059 full jsdom/mock passed;43 included in1059",
+    "typecheck": "root_actual_a375 passed; exact da997 type+Vite build pending",
     "real_ipc": "not_run",
     "native_macos_arm": "not_run",
     "native_macos_intel": "not_run"
@@ -86,6 +86,50 @@
       "log_sha256": "1b05263b309c869aa3785459692d3a4e4fa4e4e969dab1a6ff4b0d736f2a622d",
       "log_path": ".onboarding/integration17-ui-a375-tests1/command.log",
       "failure": "Remaining global explanation query matched stage-reservation and shared-usage paragraphs; now scoped to actual Shared budget details. Explicit dimension and P2 regressions passed."
+    },
+    {
+      "source": "da997678dbcf698308278b1cc92ce0b91a94c978",
+      "tree": "69afffe97b591cbcdd30216c59ae48ab5f3f1590",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "src/integration-api.test.ts",
+        "src/TaskIntegration.test.tsx",
+        "--maxWorkers=1"
+      ],
+      "result": "passed",
+      "exit_code": 0,
+      "unique_tests": 43,
+      "wrapper_seconds": 3.712992643006146,
+      "dimension": "jsdom/mock frontend and typed transport, not real Core/Native/macOS",
+      "log_path": ".onboarding/integration17-ui-da997-tests1/command.log",
+      "log_sha256": "fcb238d88f34c57d1af0b3d941f6d99a9c3c43440b003bb615814d5beac7f840",
+      "source_and_tracked_unchanged": true,
+      "targeted43_included_in_full1059": true
+    },
+    {
+      "source": "da997678dbcf698308278b1cc92ce0b91a94c978",
+      "tree": "69afffe97b591cbcdd30216c59ae48ab5f3f1590",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "--maxWorkers=1"
+      ],
+      "result": "passed",
+      "exit_code": 0,
+      "unique_tests": 1059,
+      "wrapper_seconds": 83.11405036199722,
+      "dimension": "jsdom/mock frontend and typed transport, not real Core/Native/macOS",
+      "log_path": ".onboarding/integration17-ui-da997-fulltests1/command.log",
+      "log_sha256": "67d7695aa19a87ca5aa8f2e50f81b2ce5b0d9406baee594d366dcfc9efa40854",
+      "source_and_tracked_unchanged": true,
+      "targeted43_included_in_full1059": true
     }
   ],
   "independent_review": {
@@ -95,5 +139,6 @@
       "Historical same-task policy revocation must not require current spec",
       "Get response must match exact requested integration run ID"
     ]
-  }
+  },
+  "implementation_source": "da997678dbcf698308278b1cc92ce0b91a94c978"
 }
