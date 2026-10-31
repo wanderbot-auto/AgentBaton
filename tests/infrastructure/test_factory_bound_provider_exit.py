@@ -410,11 +410,16 @@ class ChildGoalObserverWaitTests(unittest.TestCase):
         runtime=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='runtime_driver')
         nodes=[n for n in runtime.body if isinstance(n,ast.FunctionDef) and n.name in ('wait','capture')]
         events=[]
+        def graph_capture(*args):
+            self.assertEqual(len(args),7)
+            self.assertIs(args[-1],ns['finite'])
+            events.append('graph_capture')
         ns={'host':object(),'workspace':object(),'scope':object(),'record_context':{'run_id':'unit-only-run'},
             'runtime':None,'verified':[],'graph_verified':[],'output':None,'reaper':None,'time':time,'clean':str,
+            'finite':object(),
             'pump':lambda:events.append('pump'),
             'base':SimpleNamespace(collect_started_records=lambda *a:events.append('factory_capture')),
-            'collect_graph_records':lambda *a:events.append('graph_capture')}
+            'collect_graph_records':graph_capture}
         ns.update(changes)
         exec(compile(ast.Module(body=nodes,type_ignores=[]),str(path),'exec'),ns)
         return ns,events
@@ -504,22 +509,28 @@ class ChildGoalTimingTests(unittest.TestCase):
 
     def test_all_seven_actual_phase_blocks_keep_end_stamp_on_failure(self):
         path,runtime=self.nodes()
-        blocks=[n for n in ast.walk(runtime)if isinstance(n,ast.Try)and len(n.finalbody)==1
-            and isinstance(n.finalbody[0],ast.Expr)and isinstance(n.finalbody[0].value,ast.Call)
-            and isinstance(n.finalbody[0].value.func,ast.Name)and n.finalbody[0].value.func.id=='phase_stamp']
+        def is_stamp(statement):
+            return (isinstance(statement,ast.Expr)and isinstance(statement.value,ast.Call)
+                and isinstance(statement.value.func,ast.Name)and statement.value.func.id=='phase_stamp')
+        # All seven blocks remain. Two now record v3 clock metadata before the
+        # same end stamp, so select the actual stamp rather than a one-line body.
+        blocks=[n for n in ast.walk(runtime)if isinstance(n,ast.Try)and any(is_stamp(s)for s in n.finalbody)]
         expected={'before_owner_read','before_owner_capture','owner_UI_refresh_click','owner_enabled_expect',
             'owner_click','owner_receipt_observe','owner_core_acceptance'}
         self.assertEqual(len(blocks),7)
         names=[]
         for block in blocks:
-            end=block.finalbody[0].value
+            stamps=[statement for statement in block.finalbody if is_stamp(statement)]
+            self.assertEqual(len(stamps),1)
+            self.assertIs(stamps[0],block.finalbody[-1])
+            end=stamps[0].value
             self.assertEqual(len(end.args),2);self.assertFalse(end.keywords)
             self.assertIsInstance(end.args[0],ast.Constant);self.assertIsInstance(end.args[1],ast.Constant)
             self.assertEqual(end.args[1].value,'end');names.append(end.args[0].value)
         self.assertEqual(set(names),expected);self.assertEqual(len(set(names)),7)
         for name,block in zip(names,blocks):
             with self.subTest(phase=name):
-                stamps=[];calls=[];original=RuntimeError('original unit failure')
+                stamps=[];calls=[];metadata=[];original=RuntimeError('original unit failure')
                 def refuse(*a,**k):calls.append((a,k));raise original
                 button=SimpleNamespace(click=refuse);trace=object()
                 query={'scope_id':'scope','task_id':'child','goal_run_id':'graph'}
@@ -528,11 +539,17 @@ class ChildGoalTimingTests(unittest.TestCase):
                     'goal_panel':SimpleNamespace(get_by_role=lambda *a,**k:button),'owner':button,
                     'expect':lambda _:SimpleNamespace(to_be_enabled=refuse),
                     'wait_goal_owner_binding':refuse,'report':{'goal_owner_binding':trace},
+                    'finite':SimpleNamespace(owner_refresh_click_finished=lambda tick:metadata.append(('click_finished',tick)),
+                        owner_refresh_end=lambda tick:metadata.append(('window_finished',tick))),
+                    'time':SimpleNamespace(monotonic_ns=lambda:456),
                     'query':query,'owner_deadline':123.0,'pump':pump}
                 with self.assertRaisesRegex(RuntimeError,'original unit failure')as error:
                     exec(compile(ast.Module(body=[block],type_ignores=[]),str(path),'exec'),ns)
                 self.assertIs(error.exception,original)
                 self.assertEqual(stamps,[(name,'end')]);self.assertEqual(len(calls),1)
+                expected_metadata={'owner_UI_refresh_click':[('click_finished',456)],
+                    'owner_enabled_expect':[('window_finished',456)]}
+                self.assertEqual(metadata,expected_metadata.get(name,[]))
                 if name=='owner_receipt_observe':
                     self.assertEqual(len(calls[0][0]),2);self.assertIs(calls[0][0][0],trace);self.assertIs(calls[0][0][1],query)
                     self.assertEqual(calls[0][1],{'deadline':123.0,'pump':pump,'capture':refuse})

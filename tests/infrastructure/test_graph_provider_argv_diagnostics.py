@@ -28,6 +28,16 @@ def observed(reason='empty',bound=True):
     return recorder
 
 
+def legacy_unobserved(version):
+    # Historical inputs must be exact historical shapes, independent of the
+    # current producer's v3 defaults. Do not silently carry new fields backward.
+    value={'version':version,'failure_class':None,'driver_lines':None,'lines_truncated':None,
+        'phase':None,'last_completed_check':None,'core_replies':{'observation':'unobserved',
+        'captured_count':None,'truncated':None,'unmapped_error_count':None,'errors':None}}
+    if version==2:value['graph_provider_argv']=None
+    return value
+
+
 class GraphProviderArgvDiagnosticsTests(unittest.TestCase):
     def test_original_success_accepts_exact_last_three_with_interpreter_prefix(self):
         for argv in [EXPECTED,['python',*EXPECTED]]:
@@ -79,20 +89,37 @@ class GraphProviderArgvDiagnosticsTests(unittest.TestCase):
                 self.assertEqual(kind(lambda:original(raw)),kind(lambda:P.check_graph_provider_argv(raw,EXPECTED,True)))
 
     def test_version1_stays_exact_and_cannot_smuggle_new_field(self):
-        value=P.unobserved_diagnostics();value['version']=1;value.pop('graph_provider_argv')
+        value=legacy_unobserved(1)
         self.assertEqual(P.finite_diagnostics(value),value)
         bad=copy.deepcopy(value);bad['graph_provider_argv']={'reason':'empty','previously_bound':True}
         with self.assertRaises(P.Refused):P.finite_diagnostics(bad)
         bad=copy.deepcopy(value);bad['extra']=SECRET
         with self.assertRaises(P.Refused):P.finite_diagnostics(bad)
+        for field in ('owner_refresh','graph_provider_identity'):
+            bad=copy.deepcopy(value);bad[field]=None
+            with self.assertRaises(P.Refused):P.finite_diagnostics(bad)
 
     def test_version2_requires_its_exact_field_and_explicit_unobserved_null(self):
-        value=P.unobserved_diagnostics();self.assertEqual(value['version'],2)
+        value=legacy_unobserved(2);self.assertEqual(value['version'],2)
         self.assertIsNone(P.finite_diagnostics(value)['graph_provider_argv'])
         for version in [True,2.0,'2',3]:
             bad=copy.deepcopy(value);bad['version']=version
             with self.assertRaises(P.Refused):P.finite_diagnostics(bad)
         bad=copy.deepcopy(value);bad.pop('graph_provider_argv')
+        with self.assertRaises(P.Refused):P.finite_diagnostics(bad)
+        for field in ('owner_refresh','graph_provider_identity'):
+            bad=copy.deepcopy(value);bad[field]=None
+            with self.assertRaises(P.Refused):P.finite_diagnostics(bad)
+
+    def test_current_version3_requires_its_exact_new_fields_without_weakening_legacy_shapes(self):
+        value=P.unobserved_diagnostics();self.assertEqual(value['version'],3)
+        self.assertEqual(P.finite_diagnostics(value),value)
+        self.assertIsNone(value['graph_provider_argv']);self.assertIsNone(value['graph_provider_identity'])
+        self.assertEqual(value['owner_refresh']['observation'],'unobserved')
+        for field in ('graph_provider_argv','owner_refresh','graph_provider_identity'):
+            bad=copy.deepcopy(value);bad.pop(field)
+            with self.assertRaises(P.Refused):P.finite_diagnostics(bad)
+        bad=copy.deepcopy(value);bad['raw_argv']=SECRET
         with self.assertRaises(P.Refused):P.finite_diagnostics(bad)
 
     def test_exact_finite_fields_types_and_reason_vocabulary_refuse_private_data(self):

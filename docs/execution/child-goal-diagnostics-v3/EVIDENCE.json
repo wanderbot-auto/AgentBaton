@@ -8,6 +8,24 @@
   },
   "pure_validation": {"command": "python3 -m unittest discover -s tests/infrastructure -p 'test_child_goal_*diagnostics*.py' -v", "exit_code": 0, "passed": 24, "failed": 0, "new_v3_controls": 11, "existing_controls": 13, "reported_seconds": 0.265, "actual_SQL_or_Core_or_browser_executed": false},
   "review_closure": {"reviewed_commit": "90e6ca2bd841a6bed693fe55d4deac951e91812e", "same_identity_requires_explicit_true": true, "nonnull_click_window_endpoints_ordered": true, "partial_null_unknown_preserved": true, "harness_changed_by_closure": false, "independent_rereview": "pending"},
+  "legacy_control_adaptation": {
+    "base": "effb68639ffb7a6935dc4de95074422ba7df0411",
+    "source_sha256": {
+      "tests/infrastructure/test_factory_bound_provider_exit.py": "4573b0a20d1c7f77b146b652580311422a508e858eca36ead7b507e30ae4a9bd",
+      "tests/infrastructure/test_graph_provider_argv_diagnostics.py": "261c5931985c44661af513a61db1b1c7e189c462e636bf5be06b335b86788ba5"
+    },
+    "scope": "tests and unit docs only; harness/projector/product unchanged",
+    "phase_count": 7,
+    "phase_failure_exception_identity_and_end_stamp_coverage": "all seven preserved",
+    "historical_exact_v1_v2_negative_controls": "preserved and extended against v3-field smuggling",
+    "pure_commands": [
+      {"command": "python3 -m unittest discover -s tests/infrastructure -p test_graph_provider_argv_diagnostics.py -v", "exit_code": 0, "passed": 14, "failed": 0, "seconds": 0.044},
+      {"command": "python3 -m unittest discover -s tests/infrastructure -p test_factory_bound_provider_exit.py -k ChildGoal -v", "exit_code": 0, "passed": 5, "failed": 0, "seconds": 0.313}
+    ],
+    "original_full_infra": {"cases": 295, "failures": 2, "errors": 2, "log": "/workspace/.onboarding/pr18-diagnostics-v3-full-infra1/command.log", "status": "preserved failed"},
+    "full_infra_or_SQLite_Core_browser_network_executed_here": false,
+    "independent_review": "pending"
+  },
   "git_diff_check": "passed",
   "legacy_input_versions_compatible": [1, 2],
   "app_source_epoch": "always null; not observable",
