@@ -79,6 +79,53 @@ def grant_fixture(key=None, parent=None, depth=0):
     return (key,origin['project'],parent,encoded(doc))
 
 
+# Exact reviewed Main settled-stop outer layer. Restore the complete reviewed
+# Root1f20 projector before the original optional-budget inverse below. This
+# source fixture is not executed as SQL or used to infer a runtime stop/cause.
+_SETTLED_STOP_LAYER = json.loads(r'''
+{
+  "path": "scripts/record-factory-rework-ci-evidence.py",
+  "target_stage": "ours",
+  "merged_sha256": "9c93630e3d011d6471995d3a041698e6fb3588152ca109f5e50a5de80c0cb8e9",
+  "restored_sha256": "4fabf510c197725d6eba9b3c7e128a15af42c96eeca5ff30ebde1c481e07ce0c",
+  "edits": [
+    {
+      "start": 802,
+      "end": 867,
+      "expected": "# Historical sender vocabulary, never a cause classifier or stop authenticator.\nSESSION_STOP_REASONS = frozenset(('cancelled','duration_limit','provider_protocol_or_timeout_failure',\n    'provider_prompt_failed','session_creation_failed','initialization_failed','launch_cancelled_or_timeout',\n    'provider_configuration_unsupported','local_launch_failed_before_worker_start',\n    'factory_launch_binding_changed','factory_preflight_cancelled_or_deadline',\n    'data_observation_expired_before_worker','data_changed_or_request_deadline_before_spawn',\n    'event_backpressure','duplicate_worker_turn','supervisor_disconnected'))\nTERMINAL_TURN_STATES = frozenset(('completed','cancelled','interrupted','outcome_unknown'))\n\ndef settled_session_stop(conn, subject, revision, settled_sequence, event):\n    \"\"\"Finite same-reservation/session history, not authority or causal proof.\n\n    project_events has already guarded the complete events table's schema,\n    JSON, count and aggregate bytes. No new table, live writer or action enters.\n    \"\"\"\n    out={'status':'unavailable','stop_reason':None,'process_reaped':None,\n         'no_process_started':None,'turn_status':'unavailable','turn_completed':None,\n         'completed_turn_count':None,'turn_completed_basis':'derived_from_same_session_turn_state'}\n    def ident(value):return type(value)is str and 0<len(value.encode())<=512\n    def original(row,kind,source,aggregate):\n        sequence,raw=row\n        if type(sequence)is not int or not 0<sequence<settled_sequence:return None\n        value=strict_json(raw)\n        if not(type(value)is dict and value.get('kind')==kind and value.get('source')==source and value.get('aggregate_id')==aggregate and type(value.get('revision'))is int and value['revision']>0 and type(value.get('payload'))is dict):return None\n        return value\n    payload=event.get('payload')\n    if not(type(payload)is dict and event.get('kind')=='goal.node_settled' and event.get('source')=='goal_core' and event.get('aggregate_id')==subject and type(event.get('revision'))is int and event['revision']==revision):return out\n    session,attempt,node=(payload.get(k)for k in ('session_id','attempt_id','node_id'))\n    if not all(ident(k)for k in (subject,session,attempt,node)):return out\n    # Session IDs are unique. A second earlier reservation of this session,\n    # even claiming another run/attempt, cannot be silently ignored.\n    rows=conn.execute(\"SELECT sequence,document FROM events WHERE json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.payload.session_id')=? AND sequence<? ORDER BY sequence LIMIT 2\",(session,settled_sequence)).fetchall()\n    if len(rows)>1:out['status']='ambiguous';return out\n    if not rows:return out\n    reserved=original(rows[0],'goal.node_reserved','goal_core',subject)\n    if reserved is None or reserved['revision']>revision:return out\n    bound=reserved['payload']\n    if not all(type(bound.get(k))is str and bound[k]==v for k,v in [('session_id',session),('attempt_id',attempt),('node_id',node)]):return out\n    if bound.get('task_accepted')is not False or type(bound.get('plan_revision'))is not int or bound['plan_revision']<=0:return out\n    reserved_sequence=rows[0][0]\n    rows=conn.execute(\"SELECT sequence,document FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.aggregate_id')=? AND sequence>? AND sequence<? ORDER BY sequence LIMIT 2\",(session,reserved_sequence,settled_sequence)).fetchall()\n    if len(rows)>1:out['status']='ambiguous';return out\n    if not rows:return out\n    stopped=original(rows[0],'session.stopped','baton_supervisor',session)\n    if stopped is None:return out\n    stop=stopped['payload']\n    if not(type(stop.get('reason'))is str and type(stop.get('process_reaped'))is bool and type(stop.get('no_process_started'))is bool and stop.get('task_accepted')is False):return out\n    out.update(status='observed',stop_reason=stop['reason']if stop['reason']in SESSION_STOP_REASONS else 'unrecognized',process_reaped=stop['process_reaped'],no_process_started=stop['no_process_started'])\n    stop_sequence=rows[0][0]\n    # A source-supplied terminal turn state is distinct from the stop reason.\n    # Even 'cancelled' worker stops can follow an actually completed Goal turn.\n    where=\"json_extract(document,'$.kind')='session.turn_ended' AND json_extract(document,'$.aggregate_id')=?\"\n    count=conn.execute('SELECT count(*) FROM events WHERE '+where,(session,)).fetchone()[0]\n    if type(count)is not int or count<0:return out\n    if count>1:out['turn_status']='ambiguous';return out\n    if count==0:out.update(turn_status='observed',turn_completed=False,completed_turn_count=0);return out\n    row=conn.execute('SELECT sequence,document FROM events WHERE '+where+' LIMIT 1',(session,)).fetchone()\n    ended=original(row,'session.turn_ended','provider_runtime',session)\n    if ended is None or not reserved_sequence<row[0]<stop_sequence:return out\n    turn=ended['payload'];state=turn.get('turn_state')\n    if type(state)is not str or state not in TERMINAL_TURN_STATES or turn.get('task_accepted')is not False:return out\n    completed=state=='completed'\n    out.update(turn_status='observed',turn_completed=completed,completed_turn_count=1 if completed else 0)\n    return out\n\n",
+      "replacement": ""
+    },
+    {
+      "start": 915,
+      "end": 916,
+      "expected": "    result['settled_session_stops'] = []\n",
+      "replacement": ""
+    },
+    {
+      "start": 932,
+      "end": 935,
+      "expected": "        if kind == 'goal.node_settled':\n            result['settled_session_stops'].append({'node_settlement_ordinal':projected['ordinal'],\n                **settled_session_stop(conn, subject, revision, sequence, event)})\n",
+      "replacement": ""
+    }
+  ]
+}
+''')
+
+
+def strip_settled_stop_layer(text):
+    if type(text)is not str or hashlib.sha256(text.encode()).hexdigest()!=_SETTLED_STOP_LAYER['merged_sha256']:
+        raise AssertionError('Unknown settled-stop composition source refused')
+    lines=text.splitlines(keepends=True)
+    for edit in reversed(_SETTLED_STOP_LAYER['edits']):
+        if ''.join(lines[edit['start']:edit['end']])!=edit['expected']:
+            raise AssertionError('Exact settled-stop inverse anchor refused')
+        lines[edit['start']:edit['end']]=edit['replacement'].splitlines(keepends=True)
+    restored=''.join(lines)
+    if hashlib.sha256(restored.encode()).hexdigest()!=_SETTLED_STOP_LAYER['restored_sha256']:
+        raise AssertionError('Complete original Root projector inverse refused')
+    return restored
+
+
 class PureRecordBinding(unittest.TestCase):
     def setUp(self): self.origin, _, _ = origin_fixture()
 
@@ -484,7 +531,21 @@ class OptionalReaderControls(unittest.TestCase):
                 self.assertNotIn(SECRET,encoded(value))
 
     def test_existing_projector_source_restores_exact_base_by_removing_only_new_helper_and_field(self):
-        text=(ROOT/'scripts/record-factory-rework-ci-evidence.py').read_text()
+        current=(ROOT/'scripts/record-factory-rework-ci-evidence.py').read_text()
+        text=strip_settled_stop_layer(current)
+        self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),
+            '4fabf510c197725d6eba9b3c7e128a15af42c96eeca5ff30ebde1c481e07ce0c')
+        for changed in (current+'\n# unknown source region\n',
+                current.replace('MAX_ATTEMPT_BUDGET_ROWS = 32','MAX_ATTEMPT_BUDGET_ROWS = 33',1),
+                current.replace("if len(rows)>1:out['status']='ambiguous';return out",
+                                "if len(rows)>1:out['status']='observed';return out",1)):
+            with self.assertRaises(AssertionError):strip_settled_stop_layer(changed)
+        for slot in ('anchor','final'):
+            bad=copy.deepcopy(_SETTLED_STOP_LAYER)
+            if slot=='anchor':bad['edits'][0]['expected']+='changed anchor'
+            else:bad['restored_sha256']='0'*64
+            with mock.patch.dict(_SETTLED_STOP_LAYER,bad,clear=True),self.assertRaises(AssertionError):
+                strip_settled_stop_layer(current)
         start=text.index('MAX_ATTEMPT_BUDGET_ROWS = 32\n');end=text.index('# Optional original-guard sample',start)
         field="                    'attempt_budget_observations': attempt_budget_observations(conn),\n"
         self.assertEqual(text.count(field),1)
