@@ -224,6 +224,9 @@ impl Fixture {
         }
     }
     fn goal_session(&mut self) -> (GoalRun, ManagedSession) {
+        self.goal_session_with_graph(false)
+    }
+    fn goal_session_with_graph(&mut self, graph: bool) -> (GoalRun, ManagedSession) {
         let limits = BudgetLimits {
             attempts: 4,
             parallel: 1,
@@ -349,24 +352,37 @@ impl Fixture {
                 0,
             )
             .unwrap();
-        let proposal = self
-            .daemon
-            .store
-            .propose_goal_run(
-                &GoalRunSelection {
+        let ledger = self.daemon.store.sequence().unwrap();
+        let proposal = if graph {
+            self.daemon.store.propose_goal_graph_run(
+                &crate::goal_store::GraphRunSelection {
                     scope_id: scope.id,
                     expected_plan_revision: 1,
-                    expected_ledger_revision: self.daemon.store.sequence().unwrap(),
+                    expected_ledger_revision: ledger,
                 },
                 "execute",
             )
+        } else {
+            self.daemon.store.propose_goal_run(
+                &GoalRunSelection {
+                    scope_id: scope.id,
+                    expected_plan_revision: 1,
+                    expected_ledger_revision: ledger,
+                },
+                "execute",
+            )
+        }
+        .unwrap();
+        let approved = self
+            .daemon
+            .store
+            .finalize_proposal(&proposal.id, proposal.revision)
             .unwrap();
-        let run: GoalRun = serde_json::from_value(
-            self.daemon
-                .store
-                .finalize_proposal(&proposal.id, proposal.revision)
-                .unwrap(),
-        )
+        let run: GoalRun = serde_json::from_value(if graph {
+            approved["run"].clone()
+        } else {
+            approved
+        })
         .unwrap();
         let session = self
             .daemon
@@ -907,3 +923,6 @@ fn actual_outer_run_services_committed_owned_turn_before_later_graph_failure_wit
 fn actual_outer_run_rechecks_corrupt_goal_provenance_before_later_graph_failure() {
     outer_run_terminal_hint_fault_boundary(true);
 }
+
+#[path = "goal_capture_frontier_fault_tests.rs"]
+mod capture_frontier_fault_tests;

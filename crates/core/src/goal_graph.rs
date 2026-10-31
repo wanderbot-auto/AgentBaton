@@ -698,11 +698,15 @@ struct CaptureWorker {
     unknown_recorded: bool,
     queued_at: std::time::Instant,
 }
+#[cfg(test)]
+type CaptureReadProbe = Box<dyn FnOnce(bool, std::sync::Arc<std::sync::atomic::AtomicBool>) + Send>;
 #[derive(Default)]
 pub(crate) struct GraphWorkers {
     captures: std::collections::HashMap<String, CaptureWorker>,
     stopping: bool,
     validators: validators::ValidatorWorkers,
+    #[cfg(test)]
+    capture_read_probe: Option<CaptureReadProbe>,
 }
 impl GraphWorkers {
     pub(crate) fn start_validation(
@@ -744,7 +748,7 @@ impl GraphWorkers {
     }
     fn mark_started_capture_and_poll(&mut self, store: &mut Store, id: &str) -> Result<()> {
         store.mark_graph_capture_started(&self.captures.get(id).ok_or_else(changed)?.origin)?;
-        // The original frontier/origin checks and durable start receipt have
+        // The original fresh origin checks and durable start receipt have
         // succeeded. Observe a fast owned read's real join before unrelated
         // Actor work, without renewing or discounting its original clock.
         self.poll_finished_captures(store)
@@ -810,9 +814,22 @@ impl GraphWorkers {
         };
         let cancel = prepared.cancelled.clone();
         let deadline = prepared.deadline;
+        #[cfg(test)]
+        let probe = self.capture_read_probe.take();
+        #[cfg(test)]
+        let probe_cancel = cancel.clone();
         let thread = std::thread::Builder::new()
             .name("baton-goal-evidence".into())
-            .spawn(move || observe_capture_worker(queued_at, || prepared.execute()));
+            .spawn(move || {
+                observe_capture_worker(queued_at, || {
+                    let result = prepared.execute();
+                    #[cfg(test)]
+                    if let Some(probe) = probe {
+                        probe(result.is_ok(), probe_cancel);
+                    }
+                    result
+                })
+            });
         match thread {
             Ok(thread) => {
                 let id = origin.id.clone();
@@ -3143,8 +3160,15 @@ impl Drop for GraphWorkers {
 
 #[cfg(test)]
 impl GraphWorkers {
-    /// An owned cancellation-observing reader fixture, not a Provider, Goal
-    /// candidate, approval or accepted output. Only tests can install it.
+    /// Test-only observation after real file I/O; never compiled into normal libraries.
+    pub(crate) fn install_capture_read_probe(
+        &mut self,
+        probe: impl FnOnce(bool, std::sync::Arc<std::sync::atomic::AtomicBool>) + Send + 'static,
+    ) {
+        assert!(self.capture_read_probe.is_none());
+        self.capture_read_probe = Some(Box::new(probe));
+    }
+    /// An owned cancellation-observing reader fixture, not an approval.
     pub(crate) fn install_drop_fixture(
         &mut self,
         root: std::path::PathBuf,
