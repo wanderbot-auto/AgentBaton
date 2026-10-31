@@ -19,7 +19,7 @@ vi.mock('./goal-graph-api',()=>({goalGraphApi:{approveNode:vi.fn(),rejectNode:vi
 const t=childGoalMessages.en;
 type Fixture=Awaited<ReturnType<typeof childGoalFixture>>;
 beforeEach(()=>vi.resetAllMocks());
-afterEach(()=>vi.useRealTimers());
+afterEach(()=>activeReadonlyClock?.restore());
 function records(f:Fixture,initial:FactoryChildGoalView|null=null){
  const state={view:initial,task:structuredClone(f.task),grant:structuredClone(f.grant)};
  vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(state.task)],sequence:1000,api_version:1}));
@@ -308,8 +308,63 @@ it('keeps an unknown Native Owner decision pending instead of permitting an oppo
  await act(async()=>full.resolve(structuredClone(state.view!)));await waitFor(()=>expect(screen.getByRole('button',{name:t.recover})).toBeEnabled());expect(screen.getByRole('button',{name:t.cancel})).toBeDisabled();expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();
 });
 
-// Readonly polling recovery controls use the original one-second timer with a
-// fake clock. Metadata/transport mocks establish no Core or old-CI root cause.
+// Only the product's 1000ms polling timeout uses this local manual scheduler.
+// RTL/user-event 0ms drains and native SHA completion retain real scheduling.
+// These controls establish no Core execution or old-CI root cause.
+type PollTimerHandle=ReturnType<typeof globalThis.setTimeout>;
+type ReadonlyClock={advance:(milliseconds:number)=>Promise<void>;restore:()=>void};
+const realReadonlyTimeout=globalThis.setTimeout.bind(globalThis),realReadonlyClearTimeout=globalThis.clearTimeout.bind(globalThis),realReadonlyNow=performance.now.bind(performance);
+let activeReadonlyClock:ReadonlyClock|null=null;
+function installReadonlyClock(){
+ expect(activeReadonlyClock).toBeNull();
+ let now=0,nextHandle=-1;
+ const pendingTimers=new Map<PollTimerHandle,{at:number;fire:()=>void}>();
+ const timeout=vi.spyOn(globalThis,'setTimeout').mockImplementation(((...args:Parameters<typeof globalThis.setTimeout>)=>{
+  const [handler,delay,...values]=args;
+  if(delay!==1000||typeof handler!=='function')return Reflect.apply(realReadonlyTimeout,globalThis,args) as PollTimerHandle;
+  const handle=nextHandle-- as unknown as PollTimerHandle;
+  pendingTimers.set(handle,{at:now+1000,fire:()=>{Reflect.apply(handler,globalThis,values);}});return handle;
+ }) as typeof globalThis.setTimeout);
+ const clear=vi.spyOn(globalThis,'clearTimeout').mockImplementation(((...args:Parameters<typeof globalThis.clearTimeout>)=>{
+  if(!pendingTimers.delete(args[0] as PollTimerHandle))Reflect.apply(realReadonlyClearTimeout,globalThis,args);
+ }) as typeof globalThis.clearTimeout);
+ const clock:ReadonlyClock={
+  async advance(milliseconds){
+   const end=now+milliseconds;
+   for(;;){
+    const next=[...pendingTimers].filter(([,timer])=>timer.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];
+    if(!next)break;
+    now=next[1].at;pendingTimers.delete(next[0]);next[1].fire();await Promise.resolve();
+   }
+   now=end;
+  },
+  restore(){pendingTimers.clear();timeout.mockRestore();clear.mockRestore();activeReadonlyClock=null;},
+ };
+ activeReadonlyClock=clock;
+}
+async function advanceReadonlyClock(milliseconds:number){
+ expect(activeReadonlyClock).not.toBeNull();await activeReadonlyClock!.advance(milliseconds);
+}
+async function observeReadonly(assertion:()=>void){
+ // Same 1000ms observation bound as RTL's default, using a captured real timer
+ // so observing async work never advances or consumes a product polling slot.
+ const end=realReadonlyNow()+1000;let last:unknown;
+ for(;;){
+  try{assertion();return;}catch(error){last=error;}
+  if(realReadonlyNow()>=end)throw last;
+  await act(async()=>{await new Promise<void>(resolve=>realReadonlyTimeout(resolve,0));});
+ }
+}
+async function readonlyFindByRole(role:'alert'){
+ await observeReadonly(()=>expect(screen.getByRole(role)).toBeInTheDocument());return screen.getByRole(role);
+}
+async function readonlyFindByTestId(id:string){
+ await observeReadonly(()=>expect(screen.getByTestId(id)).toBeInTheDocument());return screen.getByTestId(id);
+}
+async function openReadonlyPoll(user:ReturnType<typeof userEvent.setup>){
+ await user.click(screen.getByText(/^Factory child Goal execution ·/,{selector:'summary'}));
+ await readonlyFindByTestId('factory-child-goal-panel');await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
+}
 const readonlyBusy=()=>new DaemonError('WORKSPACE_BUSY','One readonly history read is already running','not_started',true);
 function expectNoGoalWrites(){
  expect(factoryChildGoalApi.start).not.toHaveBeenCalled();expect(factoryChildGoalApi.advancePlan).not.toHaveBeenCalled();
@@ -317,47 +372,46 @@ function expectNoGoalWrites(){
 }
 async function openPollingFixture(){
  const f=await childGoalFixture(),state=records(f,f.makeView(f.plan,1,'running'));
- // Keep real intervals for Testing Library/async SHA reads; only the product
- // timeout and user-event's explicit advances use the fake clock.
- vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
- const user=userEvent.setup({advanceTimers:vi.advanceTimersByTime});
+ installReadonlyClock();const user=userEvent.setup();
  const rendered=render(<FactoryChildGoals {...props(f)} parentReadIdentity="poll-origin"/>);
- await open(user);await screen.findByTestId('goal-graph-history');
- await waitFor(()=>expect(screen.getByTestId('factory-child-goal-panel')).toHaveAttribute('aria-busy','false'));
+ await openReadonlyPoll(user);await readonlyFindByTestId('goal-graph-history');
+ await observeReadonly(()=>expect(screen.getByTestId('factory-child-goal-panel')).toHaveAttribute('aria-busy','false'));
  return {f,state,user,rendered};
 }
 async function nextReadonlyPoll(){
- await act(async()=>{await vi.advanceTimersByTimeAsync(1000);});
- await waitFor(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
+ const before=vi.mocked(factoryChildGoalApi.list).mock.calls.length;
+ await act(async()=>{await advanceReadonlyClock(999);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(before);
+ await act(async()=>{await advanceReadonlyClock(1);});
+ await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
 }
 it('recovers a typed not-started readonly Busy through a new complete read without authorizing stale writes',async()=>{
  const {f,state}=await openPollingFixture();vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());
- await nextReadonlyPoll();expect(await screen.findByRole('alert')).toHaveTextContent('readonly history');
+ await nextReadonlyPoll();expect(await readonlyFindByRole('alert')).toHaveTextContent('readonly history');
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expect(screen.getByRole('button',{name:t.start})).toBeDisabled();expect(screen.getByRole('button',{name:t.advance})).toBeDisabled();expect(screen.getByRole('button',{name:t.cancel})).toBeDisabled();expectNoGoalWrites();
  state.view=f.ownerReady();await nextReadonlyPoll();
- await waitFor(()=>expect(screen.getByRole('button',{name:t.owner})).toBeEnabled());
+ await observeReadonly(()=>expect(screen.getByRole('button',{name:t.owner})).toBeEnabled());
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(3);expect(screen.queryByRole('alert')).toBeNull();expectNoGoalWrites();
 });
 it('does not create a polling source from an initial Busy without a complete known run',async()=>{
  const f=await childGoalFixture();records(f,f.makeView(f.plan,1,'running'));vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());
- vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});const user=userEvent.setup({advanceTimers:vi.advanceTimersByTime});
- render(<FactoryChildGoals {...props(f)} parentReadIdentity="poll-origin"/>);await open(user);await screen.findByRole('alert');
- await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});expect(factoryChildGoalApi.list).toHaveBeenCalledOnce();expect(factoryChildGoalApi.get).not.toHaveBeenCalled();expectNoGoalWrites();
+ installReadonlyClock();const user=userEvent.setup();
+ render(<FactoryChildGoals {...props(f)} parentReadIdentity="poll-origin"/>);await openReadonlyPoll(user);await readonlyFindByRole('alert');
+ await act(async()=>{await advanceReadonlyClock(10000);});expect(factoryChildGoalApi.list).toHaveBeenCalledOnce();expect(factoryChildGoalApi.get).not.toHaveBeenCalled();expectNoGoalWrites();
 });
 it('keeps a nonpolling Owner candidate stale after manual Busy instead of adding an automatic read source',async()=>{
- const f=await childGoalFixture();records(f,f.ownerReady());vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
- const user=userEvent.setup({advanceTimers:vi.advanceTimersByTime});render(<FactoryChildGoals {...props(f)} parentReadIdentity="poll-origin"/>);
- await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.owner})).toBeEnabled());
- vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());await user.click(screen.getByRole('button',{name:t.refresh}));await screen.findByRole('alert');
- expect(screen.getByRole('button',{name:t.owner})).toBeDisabled();await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ const f=await childGoalFixture();records(f,f.ownerReady());installReadonlyClock();
+ const user=userEvent.setup();render(<FactoryChildGoals {...props(f)} parentReadIdentity="poll-origin"/>);
+ await openReadonlyPoll(user);await observeReadonly(()=>expect(screen.getByRole('button',{name:t.owner})).toBeEnabled());
+ vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());await user.click(screen.getByRole('button',{name:t.refresh}));await readonlyFindByRole('alert');
+ expect(screen.getByRole('button',{name:t.owner})).toBeDisabled();await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('shares the original twenty automatic reads across Busy recovery and requires explicit manual refresh to reset it',async()=>{
  const {user}=await openPollingFixture();vi.mocked(factoryChildGoalApi.list).mockRejectedValue(readonlyBusy());
  for(let i=0;i<20;i++)await nextReadonlyPoll();
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(21);expect(screen.getByText(t.paused)).toBeInTheDocument();
- await act(async()=>{await vi.advanceTimersByTimeAsync(60000);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(21);expectNoGoalWrites();
- await user.click(screen.getByRole('button',{name:t.refresh}));await screen.findByRole('alert');
+ await act(async()=>{await advanceReadonlyClock(60000);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(21);expectNoGoalWrites();
+ await user.click(screen.getByRole('button',{name:t.refresh}));await readonlyFindByRole('alert');
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(22);expect(screen.queryByText(t.paused)).toBeNull();
  await nextReadonlyPoll();expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(23);expectNoGoalWrites();
 });
@@ -374,51 +428,51 @@ const readonlyReadFailures:readonly [string,()=>Error][]=[
  ['untyped lookalike',()=>Object.assign(new Error('not a typed Core error'),{code:'WORKSPACE_BUSY',retryable:true,sideEffectState:'not_started'})],
 ];
 it.each(readonlyReadFailures)('does not automatically retry %s after a known polling snapshot',async(_name,error)=>{
- await openPollingFixture();vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(error());await nextReadonlyPoll();await screen.findByRole('alert');
- const calls=vi.mocked(factoryChildGoalApi.list).mock.calls.length;await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ await openPollingFixture();vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(error());await nextReadonlyPoll();await readonlyFindByRole('alert');
+ const calls=vi.mocked(factoryChildGoalApi.list).mock.calls.length;await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(calls);expectNoGoalWrites();
 });
 it('does not continue after an invalid readonly result even with an older running snapshot',async()=>{
  const {state}=await openPollingFixture();vi.mocked(factoryChildGoalApi.list).mockResolvedValueOnce([{...structuredClone(state.view!.summary),factory_scope_id:'foreign-scope'}]);
- await nextReadonlyPoll();await screen.findByRole('alert');await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it.each(['grant-revoked','task-specification'])('does not attach Busy recovery after observing changed %s authority',async changed=>{
  const {state}=await openPollingFixture();
  if(changed==='grant-revoked')state.grant={...state.grant,revoked:true};else state.task={...state.task,revision:2,spec_revision:2};
- vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());await nextReadonlyPoll();await screen.findByRole('alert');
- await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
+ vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());await nextReadonlyPoll();await readonlyFindByRole('alert');
+ await act(async()=>{await advanceReadonlyClock(10000);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not resume an old running Goal after a new list observes Owner-ready and a later context read is Busy',async()=>{
  const {f,state}=await openPollingFixture();state.view=f.ownerReady();vi.mocked(factoryChildPlanApi.context).mockRejectedValueOnce(readonlyBusy());
- await nextReadonlyPoll();await screen.findByRole('alert');await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not reuse the old context after observing a newer planning head and a later plan read is Busy',async()=>{
  const {f}=await openPollingFixture();await f.nextPlan();vi.mocked(factoryChildPlanApi.get).mockRejectedValueOnce(readonlyBusy());
- await nextReadonlyPoll();await screen.findByRole('alert');await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not reuse an old head after a verified same-context raw binding changes and the later Goal read is Busy',async()=>{
  const {f}=await openPollingFixture(),changed=await f.view(1,f.plan.plan_json+'\n');
  vi.mocked(factoryChildPlanApi.get).mockResolvedValueOnce(changed);vi.mocked(factoryChildGoalApi.get).mockRejectedValueOnce(readonlyBusy());
- await nextReadonlyPoll();await screen.findByRole('alert');await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not resume the old running view after a newer full view is Owner-ready and its referenced plan read is Busy',async()=>{
  const {f}=await openPollingFixture();vi.mocked(factoryChildGoalApi.get).mockResolvedValueOnce(f.ownerReady());
  vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision!==undefined)throw readonlyBusy();return structuredClone(f.plan);});
- await nextReadonlyPoll();await screen.findByRole('alert');await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not reuse a changed partial initial plan when the following adopted-plan read is Busy',async()=>{
  const f=await childGoalFixture(),adopted=await f.nextPlan();records(f,f.makeView(adopted,3,'running'));
- vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});const user=userEvent.setup({advanceTimers:vi.advanceTimersByTime});
- render(<FactoryChildGoals {...props(f,adopted)} parentReadIdentity="poll-origin"/>);await open(user);await screen.findByTestId('goal-graph-history');
- await waitFor(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
+ installReadonlyClock();const user=userEvent.setup();
+ render(<FactoryChildGoals {...props(f,adopted)} parentReadIdentity="poll-origin"/>);await openReadonlyPoll(user);await readonlyFindByTestId('goal-graph-history');
+ await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
  const changed=await f.view(1,f.plan.plan_json+'\n');
  vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision===1)return structuredClone(changed);if(revision===2)throw readonlyBusy();return structuredClone(adopted);});
- await nextReadonlyPoll();await screen.findByRole('alert');await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it.each(['expired','revoked'])('preserves existing fresh readonly polling after a complete %s history read',async mode=>{
@@ -426,7 +480,7 @@ it.each(['expired','revoked'])('preserves existing fresh readonly polling after 
  try{
   if(mode==='expired')clock.mockReturnValue(Math.max(f.scope.expires_at_ms,state.grant.expires_at_ms)+1);
   else{f.scope.revoked=true;f.scope.revision=2;state.grant={...state.grant,revoked:true};}
-  await user.click(screen.getByRole('button',{name:t.refresh}));await waitFor(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
+  await user.click(screen.getByRole('button',{name:t.refresh}));await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
   expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);await nextReadonlyPoll();
   expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(3);expectNoGoalWrites();
  }finally{clock.mockRestore();}
@@ -434,30 +488,30 @@ it.each(['expired','revoked'])('preserves existing fresh readonly polling after 
 it('does not attach an asynchronous Busy failure to a changed parent identity',async()=>{
  const {f,rendered}=await openPollingFixture();let reject!:(error:unknown)=>void;
  vi.mocked(factoryChildGoalApi.list).mockImplementationOnce(()=>new Promise<FactoryChildGoalSummary[]>((_resolve,fail)=>{reject=fail;}));
- await act(async()=>{await vi.advanceTimersByTimeAsync(1000);});await waitFor(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2));
+ await act(async()=>{await advanceReadonlyClock(1000);});await observeReadonly(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2));
  rendered.rerender(<FactoryChildGoals {...props(f)} parentReadIdentity="changed-parent"/>);
- await act(async()=>reject(readonlyBusy()));await screen.findByRole('alert');
- await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
+ await act(async()=>reject(readonlyBusy()));await readonlyFindByRole('alert');
+ await act(async()=>{await advanceReadonlyClock(10000);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not let an older rejected epoch replace a newer complete parent read',async()=>{
  const {f,rendered}=await openPollingFixture();let reject!:(error:unknown)=>void;
  vi.mocked(factoryChildGoalApi.list).mockImplementationOnce(()=>new Promise<FactoryChildGoalSummary[]>((_resolve,fail)=>{reject=fail;}));
- await act(async()=>{await vi.advanceTimersByTimeAsync(1000);});await waitFor(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2));
+ await act(async()=>{await advanceReadonlyClock(1000);});await observeReadonly(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2));
  rendered.rerender(<FactoryChildGoals {...props(f,null)} parentReadIdentity="new-parent"/>);
- await waitFor(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(3));await waitFor(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
+ await observeReadonly(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(3));await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
  await act(async()=>reject(readonlyBusy()));expect(screen.queryByRole('alert')).toBeNull();
  await nextReadonlyPoll();expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(4);expectNoGoalWrites();
 });
 it('does not poll after disconnection or an unready parent even when the last failure was exact Busy',async()=>{
  const {f,rendered}=await openPollingFixture();vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());await nextReadonlyPoll();
  rendered.rerender(<FactoryChildGoals {...props(f)} connected={false} parentReady={false} parentReadIdentity="poll-origin"/>);
- await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
+ await act(async()=>{await advanceReadonlyClock(10000);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not restart reads or repeat a write while cancellation outcome is unknown',async()=>{
  const {user}=await openPollingFixture();vi.mocked(factoryChildGoalApi.cancel).mockRejectedValueOnce(new Error('lost cancel reply'));
- await user.click(screen.getByRole('button',{name:t.cancel}));await waitFor(()=>expect(screen.getByRole('status')).toHaveTextContent(t.pending));
- vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());await user.click(screen.getByRole('button',{name:t.refresh}));await screen.findByRole('alert');
- const calls=vi.mocked(factoryChildGoalApi.list).mock.calls.length;await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ await user.click(screen.getByRole('button',{name:t.cancel}));await observeReadonly(()=>expect(screen.getByRole('status')).toHaveTextContent(t.pending));
+ vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());await user.click(screen.getByRole('button',{name:t.refresh}));await readonlyFindByRole('alert');
+ const calls=vi.mocked(factoryChildGoalApi.list).mock.calls.length;await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(calls);expect(factoryChildGoalApi.cancel).toHaveBeenCalledOnce();
  expect(factoryChildGoalApi.start).not.toHaveBeenCalled();expect(factoryChildGoalApi.advancePlan).not.toHaveBeenCalled();expect(goalGraphApi.approveNode).not.toHaveBeenCalled();expect(goalGraphApi.rejectNode).not.toHaveBeenCalled();
 });

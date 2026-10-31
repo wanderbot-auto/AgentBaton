@@ -1,0 +1,13 @@
+{
+  "dimension": "test-only scheduling source adaptation; Node execution not run",
+  "base": "1270c8c6875ad4ceecd373a77cf33260f2ac2e18",
+  "source_sha256": {"apps/desktop/src/FactoryChildGoals.test.tsx": "9d386c209e3217e6b35970c1976ac66b6ccc1424a7193be47538a595f0d4fd42"},
+  "unchanged_from_127": ["apps/desktop/src/FactoryChildGoals.tsx", "apps/desktop/src/api.ts", "apps/desktop/src/api.test.ts", "apps/desktop/vite.config.ts", "apps/desktop/src/test-setup.ts"],
+  "static_validation": {"git_diff_check": "passed", "original_assertion_occurrences_preserved": 231, "removed_original_assertions": 0, "original_case_declaration_names_and_order_preserved": true, "old_55_case_prefix_unchanged_except_clock_cleanup": true, "global_fake_timers_removed": true},
+  "clock_contract": {"virtual_callback_delay_ms": 1000, "explicit_step_ms": [999, 1], "observation_real_bound_ms": 1000, "real_zero_delay_drains": true, "native_sha_uses_real_scheduling": true, "global_jest_bridge": false, "product_read_budget_changed": false, "test_5000ms_timeout_changed": false},
+  "original_root_run": {"log": "/workspace/.onboarding/pr18-poll-recovery-127-type-focused1/command.log", "log_sha256": "03f74b8cc6bfbd368b24ce1579d87dbf2528019322731d1e1ad0b4658c40bdc6", "natural_exit_code": 1, "wrapper_seconds": 146.821, "vitest_seconds": 145.07, "typecheck": "passed", "test_count": 93, "passed": 65, "failed": 28, "failed_cases": "all new component cases at unchanged5000ms timeout", "component_old_passed": 55, "api_passed": 10, "interrupted": false},
+  "actual_dependency_source_findings": {"rtl_async_wrapper": "awaits a zero-delay timer after callback; only global Jest triggers advance(0)", "user_event": "uses RTL asyncWrapper; its configured advance covers internal wait rather than the subsequent wrapper drain", "vitest_config": "jsdom/setup only; no global Jest bridge or custom test timeout"},
+  "root_pending_commands_from_apps_desktop": ["npm run typecheck", "npm test -- src/FactoryChildGoals.test.tsx -t 'recovers a typed not-started readonly Busy' --reporter=verbose", "npm test -- src/FactoryChildGoals.test.tsx src/api.test.ts"],
+  "independent_review": "pending",
+  "not_run": ["Node/typecheck of clock adaptation", "focused positive/full test execution", "Core", "browser", "SQL", "Provider/native/macOS", "network", "CI", "push"]
+}
