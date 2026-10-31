@@ -111,6 +111,16 @@ describe('in-app Task notifications', () => {
     const original = screen.getByText(/Original observation/).closest('details');
     expect(original).toHaveAttribute('open');
     expect(api.events).toHaveBeenCalledWith(0);
+    // The same source must reposition History again after the user scrolls away.
+    const originalRow = document.getElementById('journal-event-event-100')!;
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(originalRow, 'scrollIntoView', { configurable: true, value: scrollIntoView });
+    await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
+    await user.click(screen.getByText('Sources (1)'));
+    await user.click(within(screen.getByRole('dialog')).getByText('session.outcome_unknown'));
+    await user.click(screen.getByRole('button', { name: 'View loaded original event' }));
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith({ block: 'nearest' }));
+    expect(original).toHaveAttribute('open');
     await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
     await user.click(screen.getByRole('button', { name: 'Open task' }));
     expect(screen.getByTestId('task-thread')).toHaveAttribute('data-task-id', task.id);
