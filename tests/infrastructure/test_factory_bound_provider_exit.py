@@ -512,7 +512,7 @@ class ChildGoalTimingTests(unittest.TestCase):
             stamps=[]
             def refuse(*a,**k):raise RuntimeError('original unit failure')
             button=SimpleNamespace(click=refuse)
-            ns={'phase_stamp':lambda *a:stamps.append(a),'wait':refuse,'capture':refuse,
+            ns={'phase_stamp':lambda *a:stamps.append(a),'wait':refuse,'wait_child_goal':refuse,'capture':refuse,
                 'goal_panel':SimpleNamespace(get_by_role=lambda *a,**k:button),'owner':object(),
                 'expect':lambda _:SimpleNamespace(to_be_enabled=refuse)}
             with self.assertRaisesRegex(RuntimeError,'original unit failure'):
