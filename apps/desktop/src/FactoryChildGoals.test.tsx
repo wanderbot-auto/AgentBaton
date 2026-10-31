@@ -312,7 +312,7 @@ it('keeps an unknown Native Owner decision pending instead of permitting an oppo
 // RTL/user-event 0ms drains and native SHA completion retain real scheduling.
 // These controls establish no Core execution or old-CI root cause.
 type PollTimerHandle=ReturnType<typeof globalThis.setTimeout>;
-type ReadonlyClock={advance:(milliseconds:number)=>Promise<void>;restore:()=>void};
+type ReadonlyClock={advance:(milliseconds:number)=>Promise<void>;nextDelay:()=>number|null;restore:()=>void};
 const realReadonlyTimeout=globalThis.setTimeout.bind(globalThis),realReadonlyClearTimeout=globalThis.clearTimeout.bind(globalThis),realReadonlyNow=performance.now.bind(performance);
 let activeReadonlyClock:ReadonlyClock|null=null;
 function installReadonlyClock(){
@@ -329,6 +329,7 @@ function installReadonlyClock(){
   if(!pendingTimers.delete(args[0] as PollTimerHandle))Reflect.apply(realReadonlyClearTimeout,globalThis,args);
  }) as typeof globalThis.clearTimeout);
  const clock:ReadonlyClock={
+  nextDelay:()=>pendingTimers.size?Math.min(...[...pendingTimers.values()].map(timer=>timer.at-now)):null,
   async advance(milliseconds){
    const end=now+milliseconds;
    for(;;){
@@ -384,8 +385,12 @@ async function openPollingFixture(){
 }
 async function nextReadonlyPoll(){
  const before=vi.mocked(factoryChildGoalApi.list).mock.calls.length;
+ // Observe the real effect's registration before advancing its interval. An
+ // enabled button alone can still describe the preceding completed read.
+ await observeReadonly(()=>expect(activeReadonlyClock!.nextDelay()).toBe(1000));
  await act(async()=>{await advanceReadonlyClock(999);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(before);
  await act(async()=>{await advanceReadonlyClock(1);});
+ await observeReadonly(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(before+1));
  await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
 }
 it('recovers a typed not-started readonly Busy through a new complete read without authorizing stale writes',async()=>{
@@ -485,6 +490,21 @@ it('does not reuse a changed partial initial plan when the following adopted-pla
  vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision===1)return structuredClone(changed);if(revision===2)throw readonlyBusy();return structuredClone(head);});
  await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
+});
+it('schedules the original readonly interval only after a delayed complete revoked history read',async()=>{
+ const {f,state,user}=await openPollingFixture(),reply=deferredCancelValue<FactoryChildGoalSummary[]>();
+ f.scope.revoked=true;f.scope.revision=2;state.grant={...state.grant,revoked:true};
+ vi.mocked(factoryChildGoalApi.list).mockImplementationOnce(()=>reply.promise);
+ try{
+  await user.click(screen.getByRole('button',{name:t.refresh}));
+  await observeReadonly(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2));
+  await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeDisabled());
+  expect(activeReadonlyClock!.nextDelay()).toBeNull();
+  await act(async()=>{await advanceReadonlyClock(10000);});
+  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
+ }finally{await act(async()=>{reply.resolve([structuredClone(state.view!.summary)]);});}
+ await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
+ await nextReadonlyPoll();expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(3);expectNoGoalWrites();
 });
 it.each(['expired','revoked'])('preserves existing fresh readonly polling after a complete %s history read',async mode=>{
  const {f,state,user}=await openPollingFixture(),clock=vi.spyOn(Date,'now');
