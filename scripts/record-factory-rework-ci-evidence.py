@@ -538,6 +538,13 @@ def graph_attempt_budget_fact(origin, row, nodes, events, factory_mirror_count):
     return attempt, attempt_budget_metrics(value, reservation, 'graph_' + kind, bucket_revision(revision))
 
 
+def factory_attempt_stop_confirmed(value):
+    # This field alone is updated by SQL json_set with a Rust bool bound through
+    # rusqlite as integer 0/1; other booleans and numeric metrics stay strict.
+    need(type(value) is bool or (type(value) is int and value in (0, 1)))
+    return bool(value)
+
+
 def factory_attempt_budget_fact(origin, row, attempts, sessions):
     attempt, scope, root_task, project, raw = row
     for key in (attempt, scope, root_task, project): attempt_budget_key(key)
@@ -562,7 +569,7 @@ def factory_attempt_budget_fact(origin, row, attempts, sessions):
     actual = strict_json(a_raw)
     need(all(actual[k] == v for k, v in (('session_id', session), ('attempt_id', attempt),
         ('scope_id', scope), ('run_id', origin['factory']), ('task_id', task), ('root_task_id', root_task))))
-    need(boolean(actual['stop_confirmed']) == boolean(value['settled']))
+    need(factory_attempt_stop_confirmed(actual['stop_confirmed']) == boolean(value['settled']))
     s_id, s_task, s_project, s_root, s_raw = sessions[0]
     need((s_id, s_task, s_project, s_root) == (session, task, project, origin['root']))
     doc = strict_json(s_raw)

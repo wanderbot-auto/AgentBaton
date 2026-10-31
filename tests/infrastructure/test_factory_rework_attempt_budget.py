@@ -56,7 +56,7 @@ def factory_fixture(actual=2400, settled=True):
         measurement_scope='selected_artifacts_no_validator_streams',filesystem_total_bytes=None,
         captured_provider_message_bytes=None,provider_message_capture_complete=False)
     attempt_doc = dict(session_id=session,attempt_id=attempt,scope_id=origin['scope'],run_id=origin['factory'],
-        task_id=origin['child'],root_task_id=origin['root_task'],stop_confirmed=settled)
+        task_id=origin['child'],root_task_id=origin['root_task'],stop_confirmed=int(settled))
     session_doc = dict(id=session,task_id=origin['child'],project_id=origin['project'],root_grant_id=origin['root'],attempt_id=attempt)
     return (attempt,origin['scope'],origin['root_task'],origin['project'],encoded(value)), [
         (session,attempt,origin['scope'],origin['factory'],origin['child'],origin['root_task'],encoded(declared),encoded(attempt_doc))],[
@@ -130,6 +130,27 @@ class PureRecordBinding(unittest.TestCase):
         aa=copy.deepcopy(attempts);declared=json.loads(aa[0][6]);declared['tokens']=False
         aa[0]=(*aa[0][:6],encoded(declared),aa[0][7])
         with self.assertRaises(P.Invalid):P.factory_attempt_budget_fact(self.origin,row,aa,sessions)
+
+    def test_factory_stop_confirmed_production_integer_and_boolean_encodings_bind_strict_settlement(self):
+        for settled, raw in ((True, 1), (False, 0), (True, True), (False, False)):
+            row,attempts,sessions=factory_fixture(settled=settled)
+            doc=json.loads(attempts[0][-1]);doc['stop_confirmed']=raw
+            attempts[0]=(*attempts[0][:-1],encoded(doc))
+            with self.subTest(settled=settled,raw_type=type(raw).__name__):
+                fact=P.factory_attempt_budget_fact(self.origin,row,attempts,sessions)[1]
+                self.assertIs(fact['settled'],settled)
+        for settled,raw in ((True,0),(False,1)):
+            row,attempts,sessions=factory_fixture(settled=settled)
+            doc=json.loads(attempts[0][-1]);doc['stop_confirmed']=raw
+            attempts[0]=(*attempts[0][:-1],encoded(doc))
+            with self.assertRaises(P.Invalid):P.factory_attempt_budget_fact(self.origin,row,attempts,sessions)
+        # The compatibility is local to this production field.
+        for raw in (0,1):
+            with self.assertRaises(P.Invalid):P.boolean(raw)
+            row,attempts,sessions=factory_fixture()
+            doc=json.loads(row[-1]);doc['settled']=raw
+            with self.assertRaises(P.Invalid):
+                P.factory_attempt_budget_fact(self.origin,(*row[:-1],encoded(doc)),attempts,sessions)
 
     def test_complete_production_reservation_shapes_reject_extra_and_missing_fields(self):
         row,nodes,events=graph_fixture();factory,attempts,sessions=factory_fixture()
@@ -330,6 +351,26 @@ class OptionalReaderControls(unittest.TestCase):
                 shadow[-1]=conn.attempts[0][-1];conn.attempts.append(shadow)
             value=P.attempt_budget_observations(conn)
             with self.subTest(kind=kind):
+                self.assertEqual(value['status'],'pending');self.assertEqual(value['records'],[])
+                self.assertNotIn(SECRET,encoded(value))
+
+    def test_factory_stop_integer_encoding_whole_optional_positive_and_bad_values_refuse_all_rows(self):
+        for settled,raw in ((True,1),(False,0),(True,True),(False,False)):
+            conn=ScriptedConnection();conn.factory,conn.attempts,conn.sessions=factory_fixture(settled=settled)
+            conn.factory_rows=[conn.factory]
+            doc=json.loads(conn.attempts[0][-1]);doc['stop_confirmed']=raw
+            conn.attempts[0]=(*conn.attempts[0][:-1],encoded(doc))
+            value=P.attempt_budget_observations(conn)
+            with self.subTest(settled=settled,raw_type=type(raw).__name__):
+                self.assertEqual(value['status'],'collected_bound_record_facts')
+                self.assertEqual(len(value['records']),2);self.assertIs(value['records'][1]['settled'],settled)
+        for bad in (2,-1,'1','0',1.0,0.0,None,[],{},0):
+            conn=ScriptedConnection()
+            self.assertEqual(P.attempt_budget_observations(conn)['status'],'collected_bound_record_facts')
+            doc=json.loads(conn.attempts[0][-1]);doc['stop_confirmed']=bad
+            conn.attempts[0]=(*conn.attempts[0][:-1],encoded(doc))
+            value=P.attempt_budget_observations(conn)
+            with self.subTest(bad=bad):
                 self.assertEqual(value['status'],'pending');self.assertEqual(value['records'],[])
                 self.assertNotIn(SECRET,encoded(value))
 
