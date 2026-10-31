@@ -293,7 +293,7 @@
       "checks": 2,
       "dimension": "Linux Chromium/generated ACP/private test Owner, not production Tauri Native, OS Owner dialog, macOS or live Provider",
       "diagnosis": {
-        "first_failure": "collect_graph_records assertion on empty proc cmdline after an originally bound Graph provider; no stop inferred",
+        "first_failure": "collect_graph_records /proc cmdline length-or-NUL-terminator assertion; actual bytes, length and terminator were not retained, so exact cause is unknown; no stop inferred",
         "actual_cancel_calls": 1,
         "injected_reply_loss_faults": 1,
         "cleanup_complete": false,
@@ -430,7 +430,7 @@
       "ui_artifact_sha256": "4f09bf22024ede2d09369ef05c5b25ccb08e772b172e75055503ad494bc5bc22"
     }
   },
-  "next": "new exact Root candidate CI for ARM/Intel/setup diagnosis while preserving known local cancel failure; independently diagnose collector empty-argv race, then merge reviewed Root corrections into dependent notification branch after previous candidate terminal",
+  "next": "new exact Root candidate CI for ARM/Intel/setup diagnosis while preserving known local cancel failure; independently diagnose collector cmdline-observation refusal (actual failed bytes unrecorded), then merge reviewed Root corrections into dependent notification branch after previous candidate terminal",
   "unrun": [
     "new candidate remote Environment/Product",
     "new schema17 Native and macOS integration acceptance/installers",
