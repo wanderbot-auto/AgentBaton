@@ -218,8 +218,8 @@ async fn open_workspace_terminal(
     runtime: tauri::State<'_, Runtime>,
     window: tauri::WebviewWindow,
     request: Value,
-) -> Value {
-    workspace_open::handoff(runtime.directory.clone(), window, request).await
+) -> Result<Value, String> {
+    Ok(workspace_open::handoff(runtime.directory.clone(), window, request).await)
 }
 
 #[tauri::command]
