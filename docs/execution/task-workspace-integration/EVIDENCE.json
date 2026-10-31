@@ -614,5 +614,12 @@
     "review_sha256": "ecb381308d1886562bf64914e7fb5c10e2b6806c3ec96a4334c607a000853a7b",
     "metadata_review_sha256": "763d18f2962bafe78bf5f8aace65d9b1f0fa90c05cb43cef47e91bf780fc9a33",
     "CI": "pending new exact PR19 checks"
+  },
+  "latest_unread_response_fixture": {
+    "source": "8bc17f4397a8554b53223a0f1c63595f705ecf77",
+    "evidence": "UNREAD_RESPONSE_RESULTS.json",
+    "sha256": "b01b1c97a55983bd8f44ea542a914da6128a41e3e7881b9451a918b6b5ae73b6",
+    "review_sha256": "daac8866237dd826f09ad371f80204ce2247eae99055e829ab9b100bdafdc205",
+    "dimension": "4 actual Linux Unix IPC cases; no Mac acceptance"
   }
 }

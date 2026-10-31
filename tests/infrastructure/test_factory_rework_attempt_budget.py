@@ -112,7 +112,36 @@ _SETTLED_STOP_LAYER = json.loads(r'''
 ''')
 
 
+# Reviewed historical association is stripped before the untouched original
+# stop/budget inverse. These are source bytes only, never a historical runtime.
+_PRIOR_STOP_LAYER = json.loads(r'''
+{
+  "input_sha256": "0d833619de5a8556b27ff3212e8be2a086dbc8663a279a68c92af260a67decfd",
+  "restored_sha256": "9c93630e3d011d6471995d3a041698e6fb3588152ca109f5e50a5de80c0cb8e9",
+  "expected": "                'event': event_fields(event, subject, None),\n                # Correlate only this earlier settlement's exact reservation\n                # and session. It remains historical, never a current-plan\n                # observation, causal conclusion or stop authority.\n                'settled_session_stop': settled_session_stop(\n                    conn, subject, prior_revision, prior[0][0], event)}",
+  "replacement": "                'event': event_fields(event, subject, None)}"
+}
+''')
+
+def strip_prior_stop_layer(text):
+    if type(text) is not str:
+        raise AssertionError('Unknown prior stop source type')
+    digest = hashlib.sha256(text.encode()).hexdigest()
+    if digest == _PRIOR_STOP_LAYER['restored_sha256']:
+        return text
+    if digest != _PRIOR_STOP_LAYER['input_sha256']:
+        raise AssertionError('Unknown prior stop whole source')
+    expected = _PRIOR_STOP_LAYER['expected']
+    if text.count(expected) != 1:
+        raise AssertionError('Unknown prior stop exact anchor')
+    restored = text.replace(expected, _PRIOR_STOP_LAYER['replacement'], 1)
+    if hashlib.sha256(restored.encode()).hexdigest() != _PRIOR_STOP_LAYER['restored_sha256']:
+        raise AssertionError('Unknown prior stop restored whole source')
+    return restored
+
+
 def strip_settled_stop_layer(text):
+    text = strip_prior_stop_layer(text)
     if type(text)is not str or hashlib.sha256(text.encode()).hexdigest()!=_SETTLED_STOP_LAYER['merged_sha256']:
         raise AssertionError('Unknown settled-stop composition source refused')
     lines=text.splitlines(keepends=True)
@@ -552,6 +581,29 @@ class OptionalReaderControls(unittest.TestCase):
         restored=(text[:start]+text[end:]).replace(field,'',1)
         self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),
             'ca0be16d4b9d7f1383280123a6eb702d11492d4226db83c810f854c588f00f53')
+
+
+class PriorStopSourceComposition(unittest.TestCase):
+    def test_new_whole_source_restores_exact_old_stop_layer_and_all_original_guards(self):
+        current=(ROOT/'scripts/record-factory-rework-ci-evidence.py').read_text()
+        self.assertEqual(hashlib.sha256(current.encode()).hexdigest(),_PRIOR_STOP_LAYER['input_sha256'])
+        restored=strip_prior_stop_layer(current)
+        self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),_SETTLED_STOP_LAYER['merged_sha256'])
+        self.assertEqual(strip_prior_stop_layer(restored),restored)
+        self.assertEqual(hashlib.sha256(strip_settled_stop_layer(current).encode()).hexdigest(),_SETTLED_STOP_LAYER['restored_sha256'])
+
+    def test_unknown_source_or_changed_association_cannot_hide_in_outer_layer(self):
+        current=(ROOT/'scripts/record-factory-rework-ci-evidence.py').read_text()
+        for changed in [current+'\n# unknown region\n',current.replace('prior_revision, prior[0][0], event','prior_revision, prior[0][0] + 1, event',1),current.replace('MAX_ATTEMPT_BUDGET_ROWS = 32','MAX_ATTEMPT_BUDGET_ROWS = 33',1)]:
+            self.assertNotEqual(current,changed)
+            with self.assertRaises(AssertionError):strip_settled_stop_layer(changed)
+
+    def test_changed_input_final_or_exact_anchor_never_restores_old_guard(self):
+        current=(ROOT/'scripts/record-factory-rework-ci-evidence.py').read_text()
+        for key in ['input_sha256','restored_sha256','expected','replacement']:
+            bad=copy.deepcopy(_PRIOR_STOP_LAYER)
+            bad[key]+=' changed'
+            with mock.patch.dict(_PRIOR_STOP_LAYER,bad,clear=True),self.assertRaises(AssertionError):strip_settled_stop_layer(current)
 
 
 class ProjectDBGuardComposition(unittest.TestCase):

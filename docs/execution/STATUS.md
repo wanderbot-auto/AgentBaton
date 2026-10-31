@@ -1,3 +1,13 @@
+## Task dropped-response fixture verifies exact durable recovery — 2026-10-31
+
+Source8bc17f4 passes4 real UnixIPC cases with independently reviewed31-check fixture transport correction. The complete original frame is sent, the response is never read, and its descriptor is dropped after the original5s separate durable-state observation; original stable payload/key/CAS and no-authority checks remain. [Evidence](task-workspace-integration/UNREAD_RESPONSE_RESULTS.json). This does not establish BSD failure cause or current Mac acceptance. Remote846 Environment41238532911 passes; Product41238532886 is a different still-pending candidate. No duplicate run/new push until it terminates; full130 remains incomplete.
+
+## PR19 historical stop association and bootstrap correction verified locally — 2026-10-31
+
+The reviewed diagnostic extension retains strict historical/not-same-plan labels, original bounds and all runtime permission/budget guards. Exact4cc7967 passes366 infrastructure tests; independent review bdd4c11 covers64 source checks and102 generated SQLite cases, with its one guard-blocked old FIFO case explicitly excluded; Root separately passes all103 collector cases. All93 bootstrap files verify after the reviewed STATUS digest correction. [Evidence](factory-rework-stop-correlation/EVIDENCE.json).
+
+Previous exact60a5 Environment41192343803 failed stale STATUS digest. Product41192343794 is terminal failed: Rust/UI pass, ARM Task IPC3pass1fail bounded dropped-write observation, Intel Factory29pass1fail plan2/run12blocked. These are separate open failures; the diagnostic extension does not establish their cause or fix product behavior. No current Mac acceptance, installers or full130 completion is claimed. Main7ecf/OWNER001/002 and all authority restrictions remain.
+
 ## Root21 same-refresh planning reuse verified — 2026-10-31
 
 Ordinary merge889 plus the one-field schema17 test mock fix3ec preserves the reviewed production optimization and all strict17, Owner, raw/shape/epoch, deadline and shared-budget rules. FullUI1146/64 and infrastructure678 pass at889. Its original TS2322 test-mock failure remains;3ec type/build and19 focused cases pass. Fresh matching3ec normal Core17/CLI and React pass actual child-Goal normal/cancel/lost-start4/4/5 checks with cleanup and three finite projections. Direct integration frontend normal/failing-command passes5/4 checks and12 original PNGs; daemon exit0/joined/no forced kill, browser/HTTP cleanup and fixture removal observed. This direct driver is not a whole CI wrapper result. [Source-bound evidence](root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json).
