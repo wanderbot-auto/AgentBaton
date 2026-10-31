@@ -174,7 +174,7 @@ jobs:
           set -euo pipefail
           rustup toolchain install stable --profile minimal
           cargo test --locked -p agentbaton-core --features preview-evidence --lib evidence_gate -- --nocapture --test-threads=1
-          cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence
+          CARGO_PROFILE_DEV_DEBUG=0 cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence
           python3 -m venv artifacts/browser-venv
           artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt
           artifacts/browser-venv/bin/python -m playwright install --with-deps chromium
@@ -199,7 +199,7 @@ jobs:
               'dirty': False,
               'cargo_features': ['agentbaton-core/preview-evidence'],
               'binaries': {name: hashlib.sha256(pathlib.Path('target/debug', name).read_bytes()).hexdigest() for name in ['batond', 'baton']},
-              'scope': 'CI-built Linux debug evidence candidate; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact',
+              'scope': 'CI-built Linux dev evidence candidate; only this UI preview tool build sets CARGO_PROFILE_DEV_DEBUG=0 (debuginfo=0); dev opt-level/debug_assertions/panic defaults and existing package overrides are unchanged; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact',
           }
           pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
           async def chromium_executable_path():
