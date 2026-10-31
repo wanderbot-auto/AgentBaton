@@ -1,0 +1,7 @@
+# Root handoff
+
+Branch `codex/parent15-child-goal-diagnostics-v3`; worktree `/tmp/parent15-child-goal-diagnostics-v3`; base Parent15 `7af5672c3c4ac0b252bb0fa66e8f857783d06226`. Only harness/projector/pure controls and these unit documents changed. Exact source hashes are in EVIDENCE.json. Root owns independent review and real execution.
+
+Preserve PR18 Product run `41163775724`, UI job `124426814580`: normal FAILED after CG01/02, old driver line1593, one typed list Busy, cleanup=false; cancel FAILED after CG01/02 at old lines1568/1257/1268/823, empty argv with previously_bound=true and an INPUT_CHANGED context reply, cleanup=false; lost-start PASSED five checks with cleanup=true. Source/compiled source was synthetic `5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3`, not a main merge. Old harness SHA256 `705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271` and UI job log SHA256 `4f9df076b715ffdd5022513dda27159bfddda12f3614a002aff79acc8d0661c4` remain evidence of that failed run, not this change.
+
+New v3 diagnostics cannot retroactively supply App epoch, exact click causality, initial process metadata or stop/join fields absent from the old finite summaries. No old failure was relabeled. Actual browser/native/macOS, SQL adapter execution, CI, network and push were not run here. The separate Root17 diagnostic security correction remains tracked by its own commits and independent reviewer.

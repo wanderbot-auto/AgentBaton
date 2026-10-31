@@ -1,0 +1,9 @@
+# Finite source observations implemented; real execution pending
+
+Finite diagnostics v3 preserves v1/v2 inputs and strictly rejects unknown v3 fields. Owner diagnostics expose only fixed read-method/error vocabularies, exact-query matching, bounded counts and monotonic request endpoints. Click-return time and window-end time are distinct; App refresh completion remains null. `source_epoch`, `full_fresh` and `loading` stay null, `pending_kind` stays unobserved, and click causality stays not established. A scope/task-only list count never publishes an error as belonging to the exact Goal.
+
+The harness samples initial process UID/PGID/PPID/start-ticks before and after the original argv read, retaining a private baseline only when both actual samples match the original bound PID/birth and effective UID. On empty argv, v3 exposes only comparisons or absent/changed/unobserved states. Actual identifiers remain private. The original argv guard still rejects empty bytes, including when identity and durable-cancel diagnostics are true.
+
+The cancellation predicate checks the observed original request/CAS/key, same scope/factory-run/task/Goal source, row/document mirrors and the exact stored idempotency payload/receipt. No observed request yields null; observed missing/inconsistent rows yield false; unavailable reads yield null. It uses the existing readonly snapshot, so false does not exclude a later commit. True means committed matching cancellation intent only, never confirmed stop. No new wire call, retry, signal or wait was added.
+
+Python pure controls passed 22/22 in 0.246s: 9 new v3 controls plus 13 existing finite controls. They use source AST, in-memory tuples and metadata dictionaries; no actual SQL/Core/browser/process test ran. `git diff --check` passed. Root independent review and actual execution remain pending.
