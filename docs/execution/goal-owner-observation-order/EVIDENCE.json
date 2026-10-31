@@ -50,5 +50,37 @@
     "original per-wire waits and late-success refusal",
     "original Native candidate/authority checks and evidence writes",
     "no automatic write replay or client/worker/TTL/budget change"
-  ]
+  ],
+  "compatibility_review_closure": {
+    "reviewed_commit": "bd607353124876bd87639c2dc91b8bb92bf34335",
+    "prior_status": "CHANGES_REQUIRED",
+    "findings": [
+      "existing phase controls expected4 rather than new7 blocks and lacked new runtime dependencies",
+      "existing readonly AST loader did not load new actual deadline helper"
+    ],
+    "harness_source_unchanged": true,
+    "scope": "two explicitly approved infrastructure test files plus dedicated docs",
+    "result": "/workspace/.onboarding/goal-owner-observation-order-pure1/COMPATIBILITY.json",
+    "result_sha256": "8e514bdd1d6282b6e2622ae1c2e1d03aab01084034ea6d1b5020448dbe4c1e4e",
+    "actual_pure_commands": [
+      {
+        "command": "PYTHONPATH=tests/infrastructure python3 -m unittest test_factory_bound_provider_exit.ChildGoalTimingTests -v",
+        "exit_code": 0,
+        "tests": 3,
+        "result": "passed; includes7 phase RuntimeError/finally subcases"
+      },
+      {
+        "command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_bound_readonly_wait.py -v",
+        "exit_code": 0,
+        "tests": 15,
+        "result": "passed; all original testcase bodies structurally unchanged"
+      }
+    ],
+    "original_readonly_class_AST_equal": true,
+    "test_source_sha256": {
+      "tests/infrastructure/test_child_goal_bound_readonly_wait.py": "957496b0a787d5979a34c28bc5250356e01170e66cfda232a610dd0d063ba14d",
+      "tests/infrastructure/test_factory_bound_provider_exit.py": "66a89c55369f31979682ab3a1f4cf1ee435cdd4ac850a4dd1e21fe9d428c5fc7"
+    },
+    "status": "compatibility source fixed; independent re-review/runtime pending"
+  }
 }
