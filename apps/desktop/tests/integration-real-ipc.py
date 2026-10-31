@@ -15,6 +15,7 @@ import copy
 from functools import partial
 import hashlib
 import http.server
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -196,6 +197,29 @@ def source_guard(expected):
     tracked = subprocess.check_output(['git', 'show', 'HEAD:apps/desktop/tests/integration-real-ipc.py'], cwd=ROOT)
     require(tracked == Path(__file__).read_bytes(), 'Driver must match the exact tracked source')
     return {'head': head, 'tracked_clean': True, 'driver_sha256': digest(tracked)}
+
+
+def notification_probe_source(expected):
+    # Fixed repository path only; never accept a module/path from CLI or HTTP.
+    relative = 'apps/desktop/tests/task_notifications_real_ipc_probe.py'
+    require(subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip() == expected
+        and subprocess.check_output(['git', 'status', '--porcelain=v1', '--untracked-files=no'], cwd=ROOT) == b'')
+    path = Path(__file__).with_name('task_notifications_real_ipc_probe.py')
+    pin = pinned_file(path, MAX_REVIEW)
+    raw = path.read_bytes()
+    tracked = subprocess.check_output(['git', 'show', 'HEAD:' + relative], cwd=ROOT)
+    require(raw == tracked and digest(raw) == pin['sha256'])
+    return {'source': expected, 'relative_path': relative, 'sha256': pin['sha256'], 'bytes': pin['bytes']}
+
+
+def load_notification_probe(expected):
+    record = notification_probe_source(expected)
+    path = Path(__file__).with_name('task_notifications_real_ipc_probe.py')
+    spec = importlib.util.spec_from_file_location('_fixed_task_notifications_real_ipc_probe', path)
+    require(spec is not None and spec.loader is not None)
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    require(notification_probe_source(expected) == record)
+    return module, record
 
 
 def reservation(value):
@@ -928,6 +952,12 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         'not_claimed': ['production Tauri Native formatter', 'OS dialog', 'macOS', 'live Provider/model',
             'OS sandbox', 'whole-filesystem output quota', 'complete failure matrix', 'whole product completion'],
         'checks': [], 'screenshots': [], 'cleanup': {}, 'inputs': attribution}
+    notification_probe = getattr(args, '_notification_probe', None) if not failing else None
+    notification_report = None
+    notification_passed = False
+    if notification_probe is not None:
+        notification_output = output / 'notification-probe'; notification_output.mkdir(mode=0o700)
+        notification_report = notification_probe.pending_report(attribution['source'], args._notification_probe_source)
     private = output / 'private'; private.mkdir(mode=0o700)
     root = Path(tempfile.mkdtemp(prefix='ab-integ-ui-', dir='/tmp')).resolve(); root.chmod(0o700)
     runtime = root / 'r'; runtime.mkdir(mode=0o700)
@@ -1058,6 +1088,10 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         shot('terminal-receipt-mobile', history.get_by_text(re.compile(('failed' if failing else 'passed') + ' · stop_confirmed=true · worker_joined=true')))
         require(page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'))
         checked('actual built component displays separate Task/integration result and real receipt; desktop/mobile screenshots')
+        if notification_probe is not None:
+            phase = 'notification_probe'
+            require(notification_probe.run_probe(page, host, bounds, fixture, accepted, server,
+                notification_report, notification_output, private_json), 'Real notification probe failed')
         require(not page_errors and not server.faults)
         report['http_method_counts'] = dict(Counter(v['method'] for v in server.calls))
         report['readonly_reply_aborts'] = len(server.aborts)
@@ -1095,6 +1129,8 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
                 and source_guard(attribution['source']) == attribution['source_guard']
                 and pinned_file(args.chromium, MAX_CHROMIUM_IMAGE) == attribution['runtime_tools']['chromium']
                 and pinned_file(Path(sys.executable).resolve(strict=True)) == attribution['runtime_tools']['python'])
+            if notification_probe is not None:
+                require(notification_probe_source(attribution['source']) == args._notification_probe_source)
             return True
         cleanup('tools_assets_unchanged', unchanged_inputs)
         if server is not None and server.faults:
@@ -1107,7 +1143,10 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
             report['fixture_retained_privately'] = root.exists()
         report['status'] = 'passed' if passed and not cleanup_errors else 'failed_or_interrupted'
         private_json(output / 'report.json', report)
-    return report['status'] == 'passed'
+        if notification_probe is not None:
+            notification_passed = notification_probe.seal_report(notification_report, report)
+            private_json(notification_output / 'report.json', notification_report)
+    return report['status'] == 'passed' and (notification_probe is None or notification_passed)
 
 
 def main():
@@ -1120,6 +1159,8 @@ def main():
     parser.add_argument('--chromium', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--case', choices=('normal', 'command-failure', 'all'), default='all')
+    parser.add_argument('--notification-probe', action='store_true',
+        help='After the original normal-case checks only, observe real in-app notification UI with existing read-only IPC')
     parser.add_argument('--run', action='store_true')
     args = parser.parse_args()
     args.output.mkdir(mode=0o700, parents=True, exist_ok=False)
@@ -1136,7 +1177,9 @@ def main():
         return 2
     try:
         from playwright.sync_api import sync_playwright  # noqa: F401; dependency check only
-    except ImportError as error:
+        if args.notification_probe and args.case != 'command-failure':
+            args._notification_probe, args._notification_probe_source = load_notification_probe(args.expected_source_head)
+    except (ImportError, Refusal, OSError) as error:
         private_json(args.output / 'report.json', {'status': 'preflight_refused', 'actual_runtime': 'NOT_RUN',
             'kind': type(error).__name__, 'no_process_token_or_listener': True})
         return 2
