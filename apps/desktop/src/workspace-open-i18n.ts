@@ -1,6 +1,6 @@
 export const workspaceOpenMessages = {
   en: {
-    title: 'Open a workspace in Terminal', source: 'Project source', isolated: 'Isolated workspace', target: 'Directory to open', terminal: 'External terminal', terminalName: 'macOS Terminal',
+    capacity: 'Check earlier uncertain handoffs before opening more directories.', title: 'Open a workspace in Terminal', source: 'Project source', isolated: 'Isolated workspace', target: 'Directory to open', terminal: 'External terminal', terminalName: 'macOS Terminal',
     refresh: 'Refresh directory choices', open: 'Open selected directory', loading: 'Reading registered directories…', pending: 'Directory handoff pending. Do not repeat it.',
     unknown: 'The handoff outcome is unknown. Terminal may have opened. Check it, then refresh before another explicit action.',
     accepted: 'OS handoff accepted. The terminal’s window and working directory have not been observed.', refused: 'The directory handoff was refused.',
@@ -9,7 +9,7 @@ export const workspaceOpenMessages = {
     recorded: 'Recorded directory; Native checks the current filesystem identity at the click.', unsupported_platform: 'This terminal handoff is available on macOS.', invalid_selection: 'The selection is invalid.', stale_context: 'The project or workspace changed. Refresh its records.', directory_changed: 'The directory identity changed.', native_window_invalid: 'The calling app window is no longer valid.', opener_unavailable: 'The system opener is unavailable.', opener_failed: 'The system opener did not confirm the handoff.', opener_timeout: 'The system opener did not confirm within five seconds.', transport_unknown: 'The handoff reply could not be verified.',
   },
   zh: {
-    title: '在终端中打开工作区', source: '项目源目录', isolated: '隔离工作区', target: '要打开的目录', terminal: '外部终端', terminalName: 'macOS 终端',
+    capacity: '请先检查此前结果未知的交接，再打开更多目录。', title: '在终端中打开工作区', source: '项目源目录', isolated: '隔离工作区', target: '要打开的目录', terminal: '外部终端', terminalName: 'macOS 终端',
     refresh: '刷新目录选项', open: '打开所选目录', loading: '正在读取已登记目录…', pending: '目录交接待定，请勿重复操作。',
     unknown: '交接结果未知，终端可能已经打开。请先检查终端，再刷新后明确操作。',
     accepted: '操作系统已接受交接；尚未观察终端窗口或工作目录。', refused: '目录交接被拒绝。',

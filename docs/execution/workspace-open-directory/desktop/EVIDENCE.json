@@ -11,12 +11,12 @@
     "sha256": "ef4e134f8300a8a8ff7f58de213f059beef3e7e3981db3cdfd76910cba0cd442"
   },
   "source_sha256": {
-    "apps/desktop/src/ExternalWorkspaceOpen.tsx": "903200367fee3093189703ce6ce294675bdc0c7a78d0e6adba2c5efecdd19a5e",
+    "apps/desktop/src/ExternalWorkspaceOpen.tsx": "536b37cb16e792adabcfd2d7fc20585d131c521d4da2b8132d0b4acad523ff61",
     "apps/desktop/src/ExternalWorkspaceOpen.test.tsx": "134cdc89886236b66257bd4acc9009bbe179891834b9d46f9d89ed97f6c7bb97",
     "apps/desktop/src/workspace-open-api.ts": "68b663f33179c3daeefe418755b0412992b924f079c350996d4bed97a35ab152",
     "apps/desktop/src/workspace-open-api.test.ts": "64716df8910e761485936902c179a9c27ef37e2a9e49a7a5d5f9860d08dbc3f0",
     "apps/desktop/src/workspace-open-wire.ts": "00e618cf18775507c664dd82465049872a3f9a198f521ed62ce12ff71f6b5245",
-    "apps/desktop/src/workspace-open-i18n.ts": "b77ae3014963d9ba7ef2a80bf708f3104229a681b9d7f2c3b7c6d4eaed872bc9",
+    "apps/desktop/src/workspace-open-i18n.ts": "0cc42bd99e5d34f377e7935c63233de57bc59f672bd42b0db80a32e85f08434a",
     "apps/desktop/src-tauri/src/workspace_open.rs": "f6b31a1ca45537e95f7c5899c726a74115461cd3eaa9fbab57ab4449e250389f",
     "tests/infrastructure/test_workspace_open_desktop_contract.py": "d24a8f7feca024dc59b78efc1a3454258e956d18db3969a7a65a854c28afa905"
   },

@@ -68,6 +68,7 @@ export function ExternalWorkspaceOpen(props: Props) {
     <button type="button" disabled={!props.open || !props.connected || !!props.blocked || busy || loading || outstanding.size > 0} onClick={() => void refresh(true)}>{t.refresh}</button>
     {loading && <p role={props.open ? 'status' : undefined}>{t.loading}</p>}{busy && <p role={props.open ? 'status' : undefined}>{t.pending}</p>}
     {unknown && !busy && <p role={props.open ? 'status' : undefined}>{t.unknown}</p>}
+    {capacity && <p>{t.capacity}</p>}
     {failed && <p role={props.open ? 'alert' : undefined}>{t.readFailed}</p>}
     <label>{t.target}<select aria-label={t.target} value={selected} disabled={disabled} onChange={event => {
       if (busy || writing.current || loading) return;
