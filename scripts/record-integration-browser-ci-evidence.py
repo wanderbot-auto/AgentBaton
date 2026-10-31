@@ -378,7 +378,7 @@ def driver_preflight_diagnostic(private, expected):
 
 # Closed observations from a failed real runtime report. These never satisfy
 # collect(), publish screenshots, or imply acceptance/cleanup success.
-RUNTIME_STAGES = ('startup', 'actual_frontend', 'actual_default_budget_refusal',
+RUNTIME_STAGES = ('startup', 'real_private_graph_bootstrap', 'actual_frontend', 'actual_default_budget_refusal',
     'private_independent_review', 'real_owner_acceptance_and_watcher')
 RUNTIME_EXCEPTIONS = ('Refusal', 'AssertionError', 'TimeoutError', 'Error',
     'OSError', 'FileNotFoundError', 'PermissionError', 'BrokenPipeError',

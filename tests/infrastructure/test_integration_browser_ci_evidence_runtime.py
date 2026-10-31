@@ -18,7 +18,7 @@ E, HEAD, SECRET = F.E, F.HEAD, F.SECRET
 
 
 RUNTIME_LAYER_MARKER = '# Closed observations from a failed real runtime report. These never satisfy\n'
-RUNTIME_LAYER_SHA256 = 'a7d93f3c628a51212e7712c79a710388e9d27ea63da1ce05960304503f6e48c9'
+RUNTIME_LAYER_SHA256 = '8e83d2e102d8770baccf68ed22c0168c6d12f293952bfa61680ddd17bda470fb'
 RUNTIME_BASE_PROJECTOR_SHA256 = '06d5222af1d9901173f0ed7ff291895e6fe2049151459a8143d6ec73a3fc9315'
 RUNTIME_MAIN_LINE = "            summary['runtime_failure'] = runtime_failure_diagnostic(args.private, args.expected_source_head)\n"
 
@@ -131,6 +131,25 @@ class RuntimeFailureProjection(unittest.TestCase):
             self.assertEqual(sibling['completed_checks'], 0)
             self.assertIsNone(sibling['last_completed_check'])
             self.assertTrue(all(v is None for v in sibling['cleanup_observations'].values()))
+
+    def test_bootstrap_failure_before_frontend_keeps_zero_check_progress_observable(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            private = failed_seed(Path(temporary).resolve())
+            def change(value):
+                value['failure'] = {'stage': 'real_private_graph_bootstrap', 'kind': 'Refusal'}
+                value['checks'] = []
+                value['screenshots'] = []
+                value['cleanup'] = {'daemon_joined': {'exit': 0, 'joined': True, 'forced_kill': False}}
+            self.mutate(private, 'driver/normal/report.json', change)
+            observed = self.diagnostic(private)
+            self.assertEqual(observed['status'], 'observed')
+            case = observed['cases'][0]
+            self.assertEqual(case['phase'], 'real_private_graph_bootstrap')
+            self.assertEqual(case['completed_checks'], 0)
+            self.assertIsNone(case['last_completed_check'])
+            self.assertIsNone(case['cleanup_observations']['browser_closed'])
+            self.assertEqual(case['cleanup_observations']['daemon_joined'],
+                {'exit': 0, 'joined': True, 'forced_kill': False})
 
     def test_missing_or_error_cleanup_never_claims_success_and_nonzero_is_retained(self):
         for variant in ['missing', 'false', 'error', 'nonzero', 'forced', 'unjoined']:
