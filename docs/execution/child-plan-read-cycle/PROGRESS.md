@@ -1,0 +1,9 @@
+# Progress
+
+Implemented private parentReadGeneration wiring, semantic source scheduling, immediate verified-token/readIdentity write gating and epoch/token stale-reply rejection. Parent1s/20-read behavior is unchanged. Full read validation and immutable floors remain; equal clones do not refetch within a cycle, while the next cycle always reads potential MCP-only history. Current-source refs also protect submit entry and original receipt validation; new-submit entry rechecks scope/pinned Grant expiry rather than relying on an earlier rendered timestamp.
+
+Separated read errors and persistent submission notices. Existing unknown/pending original bytes/key/CAS and explicit recovery are unchanged. New guard rejection sends no request and does not mutate pending; submission notice survives read refresh. Added generated mocked component sources for hold ordering, same-value clones/new-cycle history, late replies, full parent identity changes, negative permission/state/disconnect inputs, action-time expiry, denial persistence, unknown duplicate intent/exact recovery and late committed receipt after revocation. Added real parent component wiring test with mocked transport.
+
+Only git diff whitespace/scope/source checks have run. TypeScript compilation, Node/Vitest, browser, IPC, SQL, Cargo, native and CI are not_run by this author. No tests were removed or weakened. Root must independently review and execute all original safety regressions plus new sources. New tests are mocked DTO/React contracts and do not prove Core permission or real IPC.
+
+Static source inventory: two new test files declare17 expanded cases total (16 child contracts plus1 real-parent/mock-transport wiring case). This is source inventory only, not an executed test count. The original parent/child test files are unchanged.

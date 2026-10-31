@@ -1,0 +1,63 @@
+{
+  "base_commit": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+  "branch": "codex/child-plan-read-cycle",
+  "requirement_ids": [
+    "AB-TSK-004",
+    "AB-TSK-008",
+    "AB-TSK-011",
+    "AB-SEC-001"
+  ],
+  "authority": "Root approved narrow UI implementation; source/static-only child, no additional authority",
+  "source_sha256": {
+    "apps/desktop/src/FactoryRuntime.tsx": "87455db8e315837852cd87e83117dc945c342716afd7f0e822c7a176fde4df10",
+    "apps/desktop/src/FactoryChildPlans.tsx": "b327d18bdef69a4d276f8dcf34a21d1e6368347823ed652bdd4906c75d74bef4",
+    "apps/desktop/src/FactoryChildPlans.read-cycle.test.tsx": "d793ac0b0e8b515bae6ffb21739ad247eda0b46c275b68e8d00be437cdab3672",
+    "apps/desktop/src/FactoryRuntime.read-cycle.test.tsx": "49caa5c3f6ca19c27661bcbcf54089b7fb9423b3d5b1fd11f2b5910d62df5010"
+  },
+  "checks": [
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "manual allowed-path and original safety-test preservation review",
+      "result": "only approved components/new directly related tests/docs; original tests untouched"
+    },
+    {
+      "command": "parse dedicated EVIDENCE.json and inspect current gate",
+      "result": "valid JSON; AB-START-001/product=true/provider=false"
+    }
+  ],
+  "runtime_status": "not_run",
+  "not_run": [
+    "TypeScript typecheck",
+    "Node/Vitest old/new components",
+    "actual browser/DOM",
+    "actual IPC/SQLite",
+    "Cargo",
+    "network/CI",
+    "Native/macOS",
+    "Provider",
+    "independent review"
+  ],
+  "context_evidence": {
+    "actual_report": "/workspace/.onboarding/pr18-cp08-planning-diagnostic-actual1/report.json",
+    "sha256": "01a1082e16bb8bf88c2c1b6e0c63042e07ef7ed2ade03052f86d7443f7ada021",
+    "executor": "Root",
+    "result": "9checks4PNG cleanup passed at old source; same-head pre-click jitter observed",
+    "limitation": "not verification of this change, not reproduction/proof of CI52 cause"
+  },
+  "unchanged_contracts": [
+    "original parent polling cadence/cap",
+    "full shape/raw-hash/immutable-floor proofs",
+    "read-only descendant provenance",
+    "Core grants/TTL/CAS/budgets",
+    "unknown original raw/key/CAS and explicit exact recovery",
+    "no automatic mutation/replay"
+  ],
+  "test_source_inventory": {
+    "child_expanded_cases": 16,
+    "parent_wiring_cases": 1,
+    "status": "source only; not_run"
+  }
+}
