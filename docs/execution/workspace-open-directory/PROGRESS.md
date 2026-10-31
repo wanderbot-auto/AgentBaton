@@ -1,3 +1,9 @@
+## Root8b composition verified locally — 2026-10-31
+
+Exact11ce6fd combines Root8b with the existing directory handoff. Independent source review16ba7984 verifies335 source checks/8 pure checks, preserving raw-frame Owner validation and Root actor/admission flow. Actual272 Core,7 real Unix IPC,126 Linux Native,1193 UI/67files and686 infrastructure tests pass. Workspace/Native all-target Clippy, type/build and format checks pass. All10 result/log hashes and unchanged-source/frozen-tool checks are in [COMPOSED_ROOT8B_RESULTS.json](COMPOSED_ROOT8B_RESULTS.json).
+
+The unpublished9e3 merge metadata-marker error is retained in Git history and corrected by ordinary11ce before these checks; no feature push or Mac result is attributed to it. Linux/mocked UI checks do not establish complete macOS Terminal handoff. Actual dual-Mac target-directory observation, new feature CI/installers and manual acceptance remain not run. Full130 and authority limits are unchanged.
+
 ## Directory handoff local regressions verified — 2026-10-31T08:26:17.624062+00:00
 
 AB-SES-009 is implemented through an Owner-only Core directory context, fixed Native Terminal argv and the actual Task workspace UI. Actual current local246 Core,126 Linux Native library,1116 UI/62files and594 infrastructure tests pass at the source commits recorded in [ROOT_LOCAL_RESULTS.json](ROOT_LOCAL_RESULTS.json). The new11 Core and9 focused Native cases are subsets. Strict workspace/all-target and Native Clippy, type/build and formatter checks pass. The readonly fixture fix rechecks all6 mounted paths without changing assertions; previous5/1 mounted failure, TS2540 and formatter failure remain retained.

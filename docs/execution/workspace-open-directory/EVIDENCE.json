@@ -22,5 +22,11 @@
     "sha256": "f2c1acc04a43c6a83aadb84250cc170028a678bca405f7237d7e98518e58d61f",
     "source": "8ac3062617c35aa06a97de4ad3cc6dcb46d7e4bf"
   },
-  "latest_recorded_at": "2026-10-31T08:26:36.471776+00:00"
+  "latest_recorded_at": "2026-10-31T08:26:36.471776+00:00",
+  "composed_root8b_actual": {
+    "source": "11ce6fdadf11a51f3571c11f41756a99367c4b16",
+    "path": "docs/execution/workspace-open-directory/COMPOSED_ROOT8B_RESULTS.json",
+    "sha256": "50222afb8affd7ec6f2e752c0f01bbc9946deaf80bbacd9e72a7ac8706d2d595",
+    "independent_source_review_sha256": "16ba7984a490a05dc275df3151f757f18c2d3e1180f4e00b03c60164311eda64"
+  }
 }
