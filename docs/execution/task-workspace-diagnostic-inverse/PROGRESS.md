@@ -1,0 +1,11 @@
+# Progress
+
+This task began only after a native follow-up woke the idle source agent. Earlier messages sent while idle had not performed implementation; no earlier completion is inferred.
+
+Root source `74cf31745ff6333cf6e88a86eaa8c52608738d61` full infrastructure run exited1 after13.9336s:478 passing and four errors out of482, under022. Retained log SHA-256 is `4847e5a9e638210b604cec854a417823c895980e6e2f85702ad1e8fd43417315`. The strict old whole-workflow test correctly rejected the newly approved3dc diagnostic layer; the new20 diagnostic tests were not the failing cases. The four corresponding source checks were independently reproduced before any edit and retained as an actual failed run.
+
+The new inverse helper accepts only the exact reviewed3dc complete function (10800 UTF8 bytes, SHA-256 `4cd9ae4b6ec58defa7ddfd693c9e567bfa972596ceb0500fbabea35a2b852bf9`) with exactly one original definition and call. It restores only that range using the exact pre-diagnostic55a9 function (4189 bytes, SHA-256 `28da00e8807fd758282b8e9beebe005fd669daf8618b0ac41e77dda0d8e72b20`) from a nonexecuted text fixture. Then the original whole-workflow browser/native/six-argv validation still runs. Both original full-workflow hashes and all old source-test bodies remain unchanged. Removing the new helper and its one invocation reproduces the entire baseline source file exactly.
+
+Nine new source-test methods cover closed diagnostic fields/types/publication,128MiB/owner/NoFollow/copy identity/hash/mode guards, strict exits/argv/failure raise, missing/duplicate/reordered definitions/calls, exact function moves, raw-byte edits, tampered/missing old fixture and outside permissions/actions/timeouts/concurrency/checks/retention. An unchanged function moved as a unit can satisfy its local hash; the ORIGINAL whole-workflow digest must and does still reject its changed position.
+
+The related pure source/YAML selection passed24 tests under022, including all four originally failing checks and the nine new methods. The initial nine-method run is contained in that24 and is not additive. No original57 diagnostic/projector rerun, complete infrastructure run, Core/SQLite/Cargo, browser, network or new CI was executed by this author. TaskWorkspace report-missing's actual cause remains unknown.

@@ -1,0 +1,57 @@
+          def run_task_workspace_evidence():
+              import os
+              private = pathlib.Path(os.environ['RUNNER_TEMP']) / 'task-workspace-browser-private'
+              private.mkdir(mode=0o700, exist_ok=False)
+              driver_exit = projection_exit = None
+              try:
+                  import stat
+                  tools = private / 'tools'
+                  tools.mkdir(mode=0o700, exist_ok=False)
+                  for name in ('batond', 'baton'):
+                      source_fd = os.open(pathlib.Path('target/debug') / name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+                      with os.fdopen(source_fd, 'rb') as source:
+                          before = os.fstat(source.fileno())
+                          if not (stat.S_ISREG(before.st_mode) and before.st_uid == os.getuid() and not before.st_mode & 0o022 and 0 < before.st_size <= 134217728):
+                              raise OSError('Built tool metadata refused')
+                          target_fd = os.open(tools / name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+                          digest = hashlib.sha256()
+                          copied = 0
+                          with os.fdopen(target_fd, 'wb') as target:
+                              while block := source.read(1048576):
+                                  copied += len(block)
+                                  if copied > before.st_size:
+                                      raise OSError('Built tool changed')
+                                  digest.update(block)
+                                  target.write(block)
+                              after = os.fstat(source.fileno())
+                              stamp = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_gid, value.st_nlink, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+                              if copied != before.st_size or stamp(before) != stamp(after) or digest.hexdigest() != candidate['binaries'][name]:
+                                  raise OSError('Built tool digest or identity changed')
+                              target.flush()
+                              os.fsync(target.fileno())
+                              os.fchmod(target.fileno(), 0o500)
+                  with os.fdopen(os.open(private / 'driver.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      driver_exit = subprocess.run([
+                          sys.executable, 'apps/desktop/tests/task-workspace-binding-real-ipc.py', '--run',
+                          '--batond', str(tools / 'batond'),
+                          '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
+                          '--frontend', 'apps/desktop/dist',
+                          '--frontend-build-record', 'artifacts/ui-browser/frontend-build-record.json',
+                          '--expected-source-head', candidate['git_head'],
+                          '--output', str(private / 'driver'), '--chromium', chromium,
+                      ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
+              except (OSError, subprocess.SubprocessError):
+                  pass
+              finally:
+                  try:
+                      with os.fdopen(os.open(private / 'projection.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                          projection_exit = subprocess.run([
+                              sys.executable, 'scripts/record-task-workspace-ci-evidence.py',
+                              '--private', str(private / 'driver'),
+                              '--output', str(pathlib.Path('artifacts/ui-browser/task-workspace-binding').absolute()),
+                              '--expected-source-head', candidate['git_head'],
+                          ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
+                  except (OSError, subprocess.SubprocessError):
+                      pass
+              if driver_exit != 0 or projection_exit != 0:
+                  raise RuntimeError('Task workspace driver or finite evidence projection failed')

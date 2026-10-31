@@ -1,0 +1,100 @@
+{
+  "baseline": "94338f052dfe562a14db56c96210f5e8647665ae",
+  "requirement_ids": [
+    "AB-SEC-007"
+  ],
+  "dimension": "exact reviewed-source reverse normalization, not product behavior or runtime acceptance",
+  "original_failed_root": {
+    "source": "74cf31745ff6333cf6e88a86eaa8c52608738d61",
+    "directory": "/workspace/.onboarding/integration17-task-workspace-finite-diagnostic-infra1",
+    "exit": 1,
+    "passed": 478,
+    "errors": 4,
+    "total": 482,
+    "umask": "022",
+    "log_sha256": "4847e5a9e638210b604cec854a417823c895980e6e2f85702ad1e8fd43417315"
+  },
+  "local_before": {
+    "baseline": "94338f052dfe562a14db56c96210f5e8647665ae",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.infrastructure.test_integration_browser_ci.WorkflowSource.test_same_existing_jobs_checks_limits_actions_and_raw_whole_baseline_preserved",
+      "tests.infrastructure.test_integration_native_ci.IntegrationNativeCiTests.test_entire_native_workflow_retains_actual_b3_baseline_after_exact_ui_layer",
+      "tests.infrastructure.test_schema17_migration_workflow.Genuine16WorkflowWiring.test_exact_six_argument_reverse_normalization_retains_the_entire_old_workflow",
+      "tests.infrastructure.test_schema17_migration_workflow.Genuine16WorkflowWiring.test_reviewed_native_blocks_refuse_changed_duplicate_missing_or_moved_steps"
+    ],
+    "exit": 1,
+    "meaning": "reproduced four original strict source/YAML baseline errors before any edit; no product execution",
+    "log_sha256": "3597107cf34334659cf89be1961b9e9d6d0a56e2b1d31c377e3e43205e84369d",
+    "original_root_batch": "/workspace/.onboarding/integration17-task-workspace-finite-diagnostic-infra1",
+    "original_root_result": "478 passed,4ERROR of482 under022; preserved"
+  },
+  "actual_related_pure": {
+    "baseline": "94338f052dfe562a14db56c96210f5e8647665ae",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.infrastructure.test_schema17_migration_workflow.Genuine16WorkflowWiring",
+      "tests.infrastructure.test_integration_browser_ci.WorkflowSource",
+      "tests.infrastructure.test_integration_native_ci.IntegrationNativeCiTests.test_entire_native_workflow_retains_actual_b3_baseline_after_exact_ui_layer",
+      "tests.infrastructure.test_task_workspace_ci_launch_diagnostic_inverse.TaskWorkspaceDiagnosticInverse"
+    ],
+    "umask": "022",
+    "exit": 0,
+    "summary": [
+      "",
+      "----------------------------------------------------------------------",
+      "Ran 24 tests in 0.559s",
+      "",
+      "OK"
+    ],
+    "log_sha256": "4ef551cc39232f1c4f0fe57a7d625ff434a01925af11498a3d5a47719e9c9c84",
+    "dimension": "pure source/YAML/inverse controls only; original4errors closed; no product or workflow execution",
+    "new_inverse_tests": 9,
+    "new_initial9_pass_is_not_additive": true,
+    "not_run": [
+      "full infrastructure suite",
+      "original57 diagnostic/projector rerun",
+      "Cargo/Core/SQLite",
+      "Node/browser",
+      "CI/network"
+    ]
+  },
+  "static_checks": {
+    "baseline": "94338f052dfe562a14db56c96210f5e8647665ae",
+    "status": "source_checks_passed_not_full_infra_or_product",
+    "inverse_original_helper_whole_file_exact": true,
+    "all_old_whole_workflow_pins_and_old_test_bodies_unchanged": true,
+    "workflow_harness_projector_and_original_diagnostic_tests_unchanged": true,
+    "new_normalization": "only complete raw3dc function SHA+one exact def/call; restore exact pinned55a9 function then all original browser/native/sixargv/fullbyte guards",
+    "no_runtime_git_or_network": true,
+    "original_function_bytes": 4189,
+    "source_sha256": {
+      "tests/infrastructure/test_schema17_migration_workflow.py": "ea25576d9711e27614ae135ecf9b4eac41e110b19506d2d0c411d2e28cdcb165",
+      "tests/infrastructure/fixtures/task_workspace_launch_diagnostics/pre_diagnostics_function.py.txt": "28da00e8807fd758282b8e9beebe005fd669daf8618b0ac41e77dda0d8e72b20",
+      "tests/infrastructure/test_task_workspace_ci_launch_diagnostic_inverse.py": "68a1756a1be480d86ce77f809b0ab9584ece4f34a6835049175d5991b576f5af"
+    },
+    "not_run": [
+      "full infra",
+      "original57 diagnostic rerun",
+      "Cargo/Core/SQLite",
+      "Node/browser",
+      "CI/network"
+    ]
+  },
+  "git_diff_check": "passed",
+  "independent_review": "pending",
+  "not_run": [
+    "complete infrastructure suite",
+    "original57 diagnostic/projector rerun",
+    "Cargo/Core/SQLite",
+    "Node/browser",
+    "new CI/macOS/network"
+  ],
+  "cause_of_report_missing": "not_established"
+}

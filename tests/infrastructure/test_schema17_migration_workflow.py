@@ -68,8 +68,40 @@ BROWSER_CI_STEPS = (
 )
 
 
+# Exact reviewed TaskWorkspace diagnostic layer. The old browser/native/raw
+# workflow pins below are unchanged. No runtime git or network lookup is used.
+APPROVED_TASK_WORKSPACE_DIAGNOSTIC_SOURCE = '3dc7f0f231fd63dcf829cc7b1e6d0488b0743313'
+APPROVED_TASK_WORKSPACE_DIAGNOSTIC_FUNCTION_SHA256 = '4cd9ae4b6ec58defa7ddfd693c9e567bfa972596ceb0500fbabea35a2b852bf9'
+PRE_DIAGNOSTIC_TASK_WORKSPACE_FUNCTION_SHA256 = '28da00e8807fd758282b8e9beebe005fd669daf8618b0ac41e77dda0d8e72b20'
+PRE_DIAGNOSTIC_TASK_WORKSPACE_FUNCTION_BYTES = 4189
+
+
+def strip_approved_task_workspace_launch_diagnostics(text):
+    """Restore only the complete exact reviewed function, never arbitrary AST."""
+    definition = '          def run_task_workspace_evidence():\n'
+    call = '          run_task_workspace_evidence()\n'
+    if text.count(definition) != 1 or text.count(call) != 1:
+        raise ValueError('One exact reviewed TaskWorkspace definition/call required')
+    start, end = text.index(definition), text.index(call)
+    if end <= start:
+        raise ValueError('Reviewed TaskWorkspace call must follow its definition')
+    reviewed = text[start:end]
+    if hashlib.sha256(reviewed.encode('utf-8')).hexdigest() != APPROVED_TASK_WORKSPACE_DIAGNOSTIC_FUNCTION_SHA256:
+        raise ValueError('Reviewed TaskWorkspace diagnostic function bytes changed')
+    fixture = ROOT / 'tests/infrastructure/fixtures/task_workspace_launch_diagnostics/pre_diagnostics_function.py.txt'
+    try:
+        original = fixture.read_bytes()
+    except OSError:
+        raise ValueError('Pinned original TaskWorkspace function unavailable') from None
+    if (len(original) != PRE_DIAGNOSTIC_TASK_WORKSPACE_FUNCTION_BYTES
+            or hashlib.sha256(original).hexdigest() != PRE_DIAGNOSTIC_TASK_WORKSPACE_FUNCTION_SHA256):
+        raise ValueError('Pinned original TaskWorkspace function bytes changed')
+    return text[:start] + original.decode('utf-8') + text[end:]
+
+
 def strip_integration_browser_ci_layer(text):
-    """Reverse ONLY the two exact adjacent UI blocks and one schema literal."""
+    """Restore the reviewed diagnostic layer, then exact UI blocks/schema."""
+    text = strip_approved_task_workspace_launch_diagnostics(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
     indices = []
     for name, expected_index, expected_sha in BROWSER_CI_STEPS:
