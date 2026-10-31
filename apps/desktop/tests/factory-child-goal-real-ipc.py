@@ -444,6 +444,7 @@ def self_check():
         else:raise AssertionError(name)
         checks.append('pure-lost-start-observation-refuses:'+name)
 
+    checks.extend(goal_owner_observation_self_check(source))
     return {'status':'passed','count':len(checks),'checks':checks,
         'dimension':'pure Python fixed-boundary and fake-query-return controls; NO Core/SQLite migration/browser/OS approval/process execution'}
 
@@ -498,6 +499,85 @@ def lost_start_observation_self_check(source):
 EXEC_PLAN_HELPER = planning.PLAN_HELPER.replace(
     "'side_effect':'advisory_read_only','write_set':[]",
     "'side_effect':'workspace_write','write_set':[{'kind':'workspace','path':p}for p in ctx['edit_context']['writable_prefixes']]")
+
+
+def goal_owner_observation_self_check(source):
+    """Synthetic clocks/receipts only; no IPC, SQLite, process or browser."""
+    import ast
+    global time
+    checks=[];original_time=time
+    class Clock:
+        def __init__(self):self.value=0.0
+        def monotonic(self):return self.value
+        def monotonic_ns(self):return int(self.value*1_000_000_000)
+        def sleep(self,seconds):self.value+=seconds
+    query={'scope_id':'scope','task_id':'child','goal_run_id':'graph'}
+    bounds=Bounds('project','root','scope','factory',{'child'},{'graph':'child'})
+    payload={'selection':{'run_id':'graph','node_id':'owner-report','expected_plan_revision':1,'expected_ledger_revision':11},'expectedRevision':5,'idempotencyKey':'one-owner-intent'}
+    reply={'request_id':'request','result':{'graph_contract_version':1,'approval_id':'approval','owner_decision_id':'decision','run_id':'graph','node_id':'owner-report','plan_revision':1,'run_revision':6,'decision':'accepted','task_accepted':True},'revision':12,'warnings':[]}
+    def completed():
+        trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1);begin_goal_owner_binding(trace,payload);complete_goal_owner_binding(trace,reply);return trace
+    def refused(action):
+        try:action()
+        except Refusal:return
+        raise AssertionError('Invalid Owner observation accepted')
+    try:
+        time=Clock();trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1);calls=[]
+        def pump():
+            if time.value>=12 and trace['state']=='not_entered':begin_goal_owner_binding(trace,payload);complete_goal_owner_binding(trace,reply)
+        end=child_observation_deadline();observed=wait_goal_owner_binding(trace,query,deadline=end,pump=pump,capture=lambda:None)
+        class Host:
+            def wire(self,call):
+                assert observed['state']=='completed'and trace['call_count']==1
+                assert call.method=='factory_child_goals.get'and call.key is None and call.revision is None
+                calls.append(time.value);time.sleep(.5)
+                return {'result':{'details':{'task_accepted':True}}},b'synthetic-unit-only'
+        view=wait_bound_child_goal(Host(),bounds,query,lambda v:v['details']['task_accepted']is True,pump=lambda:None,capture=lambda:None,deadline=end)
+        assert view['details']['task_accepted']is True and len(calls)==1 and calls[0]>=12 and time.value<15
+        checks.append('one-shared15s-end-receipt-before-one-independent-read-no-early-worker-competition')
+        for label,mutate in [
+            ('never-entered',lambda t:None),('entered-no-receipt',lambda t:begin_goal_owner_binding(t,payload)),
+            ('failed',lambda t:t.update(state='failed',error_type='OriginalError')),
+            ('unknown',lambda t:t.update(state='outcome_unknown')),
+        ]:
+            time=Clock();trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1);mutate(trace)
+            refused(lambda:wait_goal_owner_binding(trace,query,deadline=15,pump=lambda:None,capture=lambda:None))
+            assert not calls[1:];checks.append('owner-observation-refuses:'+label)
+        for label,mutate in [
+            ('foreign-scope',lambda t:t.update(scope_id='other')),('foreign-task',lambda t:t.update(task_id='other')),
+            ('foreign-run',lambda t:t.update(run_id='other')),('foreign-node',lambda t:t.update(node_id='other')),
+            ('duplicate-call',lambda t:t.update(call_count=2)),('bool-call',lambda t:t.update(call_count=True)),
+            ('unarmed',lambda t:t.update(armed=False)),('missing-key-proof',lambda t:t.update(key_sha256=None)),
+            ('missing-raw-proof',lambda t:t.update(reply_sha256=None)),('missing-receipt',lambda t:t.update(receipt=None)),
+            ('bool-accepted',lambda t:t['receipt'].update(task_accepted=1)),('wrong-plan',lambda t:t['receipt'].update(plan_revision=2)),
+        ]:
+            time=Clock();trace=completed();mutate(trace)
+            refused(lambda:wait_goal_owner_binding(trace,query,deadline=15,pump=lambda:None,capture=lambda:None));checks.append('owner-observation-refuses:'+label)
+        time=Clock();trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1)
+        def late():time.sleep(15);begin_goal_owner_binding(trace,payload);complete_goal_owner_binding(trace,reply)
+        refused(lambda:wait_goal_owner_binding(trace,query,deadline=15,pump=late,capture=lambda:None));checks.append('receipt-at-original-deadline-cannot-pass')
+        time=Clock();time.value=14.8;trace=completed();observed=wait_goal_owner_binding(trace,query,deadline=15,pump=lambda:None,capture=lambda:None)
+        refused(lambda:wait_bound_child_goal(Host(),bounds,query,lambda v:True,pump=lambda:None,capture=lambda:None,deadline=15));checks.append('late-independent-Core-reply-cannot-reset-or-pass-original-deadline')
+        for deadline in [True,False,16,float('inf'),float('nan'),0,-1]:
+            time=Clock();refused(lambda:child_observation_deadline(deadline));checks.append('deadline-refuses:'+str(deadline))
+        time=Clock();trace=completed();refused(lambda:arm_goal_owner_binding(trace,query,1));refused(lambda:begin_goal_owner_binding(trace,payload));checks.append('old-or-duplicate-Native-binding-cannot-be-rearmed-for-this-click')
+    finally:time=original_time
+    tree=ast.parse(source);runtime=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    owner_clicks=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and isinstance(n.func.value,ast.Name)and n.func.value.id=='owner'and n.func.attr=='click'];assert len(owner_clicks)==1
+    assignments=[n for n in ast.walk(runtime)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='owner_deadline'for t in n.targets)];assert len(assignments)==1
+    assert ast.dump(assignments[0].value)==ast.dump(ast.parse('time.monotonic()+15',mode='eval').body)
+    receipt_calls=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='wait_goal_owner_binding'];assert len(receipt_calls)==1
+    final_calls=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='wait_child_goal'and any(k.arg=='deadline'for k in n.keywords)];assert len(final_calls)==1
+    assert owner_clicks[0].lineno<assignments[0].lineno<receipt_calls[0].lineno<final_calls[0].lineno
+    arms=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='arm_goal_owner_binding'];assert len(arms)==1 and arms[0].lineno<owner_clicks[0].lineno
+    wrapper=next(n for n in ast.walk(runtime)if isinstance(n,ast.FunctionDef)and n.name=='wait_child_goal')
+    assert len(wrapper.body)==1 and isinstance(wrapper.body[0],ast.Return)
+    forwarded=wrapper.body[0].value
+    assert isinstance(forwarded,ast.Call)and isinstance(forwarded.func,ast.Name)and forwarded.func.id=='wait_bound_child_goal'
+    assert [ast.dump(k.value)for k in forwarded.keywords if k.arg=='deadline']==[ast.dump(ast.Name(id='deadline',ctx=ast.Load()))]
+    for call in [receipt_calls[0],final_calls[0]]:assert [ast.dump(k.value)for k in call.keywords if k.arg=='deadline']==[ast.dump(ast.Name(id='owner_deadline',ctx=ast.Load()))]
+    checks.append('runtime-AST-one-click-then-one-end-receipt-before-Core-with-identical-end')
+    return checks
 
 
 def upfront_work_budget_self_check(program,case='normal'):
@@ -1039,14 +1119,87 @@ def exact_pending_child_goal_read(reply):
         and type(error['message'])is str and (error['details_ref']is None or type(error['details_ref'])is str))
 
 
-def wait_bound_child_goal(host,bounds,query,predicate,*,pump,capture):
+def child_observation_deadline(deadline=None):
+    now=time.monotonic()
+    if deadline is None:return now+15
+    require(type(deadline)in {int,float}and now<deadline<=now+15,'Bound child Goal observation expired')
+    return deadline
+
+
+def new_goal_owner_binding():
+    return {'call_count':0,'state':'not_entered','armed':False,'click_sequence':0,'armed_ns':None,'scope_id':None,'task_id':None,'expected_run_id':None,'expected_plan_revision':None,'started_ns':None,'finished_ns':None,
+        'request_sha256':None,'key_sha256':None,'run_id':None,'node_id':None,'plan_revision':None,'expected_revision':None,
+        'receipt':None,'reply_sha256':None,'error_type':None}
+
+
+def arm_goal_owner_binding(trace,query,plan_revision):
+    require(trace==new_goal_owner_binding(),'No earlier or duplicate Goal Owner binding may satisfy this click')
+    require(type(query)is dict and set(query)=={'scope_id','task_id','goal_run_id'}and all(identifier(v)for v in query.values())and positive(plan_revision))
+    trace.update(armed=True,click_sequence=1,armed_ns=time.monotonic_ns(),scope_id=query['scope_id'],task_id=query['task_id'],expected_run_id=query['goal_run_id'],expected_plan_revision=plan_revision)
+
+
+def begin_goal_owner_binding(trace,payload):
+    trace['call_count']+=1
+    trace.update(state='entered',started_ns=time.monotonic_ns())
+    require(trace['armed']is True and trace['click_sequence']==1 and trace['call_count']==1,'Only one explicit armed Goal Owner binding is expected')
+    require(type(payload)is dict and set(payload)=={'selection','expectedRevision','idempotencyKey'})
+    selection=payload['selection']
+    require(type(selection)is dict and set(selection)=={'run_id','node_id','expected_plan_revision','expected_ledger_revision'})
+    require(identifier(selection['run_id'])and selection['run_id']==trace['expected_run_id']and selection['node_id']=='owner-report')
+    require(positive(payload['expectedRevision'])and positive(selection['expected_plan_revision'])and selection['expected_plan_revision']==trace['expected_plan_revision']and positive(selection['expected_ledger_revision']))
+    require(type(payload['idempotencyKey'])is str and planning.KEY.fullmatch(payload['idempotencyKey']))
+    raw=json.dumps(payload,sort_keys=True,separators=(',',':'),allow_nan=False).encode('utf-8')
+    require(len(raw)<=planning.MAX_WIRE)
+    trace.update(request_sha256=base.sha(raw),key_sha256=base.sha(payload['idempotencyKey'].encode()),run_id=selection['run_id'],node_id=selection['node_id'],plan_revision=selection['expected_plan_revision'],expected_revision=payload['expectedRevision'])
+
+
+def complete_goal_owner_binding(trace,reply):
+    require(trace['call_count']==1 and trace['state']=='entered')
+    require(type(reply)is dict and set(reply)=={'request_id','result','revision','warnings'})
+    result=reply['result']
+    require(type(result)is dict and set(result)=={'approval_id','decision','graph_contract_version','node_id','owner_decision_id','plan_revision','run_id','run_revision','task_accepted'})
+    require(type(result['graph_contract_version'])is int and result['graph_contract_version']==1)
+    require(result['run_id']==trace['run_id']and result['node_id']==trace['node_id']and type(result['plan_revision'])is int and result['plan_revision']==trace['plan_revision'])
+    require(result['decision']=='accepted'and result['task_accepted']is True and positive(result['run_revision'])and result['run_revision']>trace['expected_revision'])
+    require(identifier(result['approval_id'])and identifier(result['owner_decision_id']))
+    raw=json.dumps(reply,sort_keys=True,separators=(',',':'),allow_nan=False).encode('utf-8')
+    require(len(raw)<=planning.MAX_WIRE)
+    trace.update(state='completed',finished_ns=time.monotonic_ns(),receipt=copy.deepcopy(result),reply_sha256=base.sha(raw))
+
+
+def wait_goal_owner_binding(trace,query,*,deadline,pump,capture):
+    """Observe this one Native call without issuing competing Core history reads.
+
+    Completion is only a receipt observation. The independent Core acceptance
+    read still follows, within the same original absolute15s deadline.
+    """
+    end=child_observation_deadline(deadline)
+    require(type(query)is dict and set(query)=={'scope_id','task_id','goal_run_id'}and all(identifier(v)for v in query.values()))
+    goal_id=query['goal_run_id']
+    while True:
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        pump();capture()
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        require(trace['call_count']in {0,1}and type(trace['call_count'])is int,'Goal Owner binding duplicated')
+        require(trace['state']in {'not_entered','entered','completed'},'Goal Owner binding did not complete; do not replay')
+        if trace['state']=='completed':
+            require(trace['armed']is True and trace['click_sequence']==1 and trace['scope_id']==query['scope_id']and trace['task_id']==query['task_id']and trace['call_count']==1 and trace['expected_run_id']==goal_id and trace['run_id']==goal_id and trace['node_id']=='owner-report')
+            require(all(type(trace[k])is str and re.fullmatch('[a-f0-9]{64}',trace[k])for k in ['key_sha256','request_sha256','reply_sha256']))
+            require(type(trace['started_ns'])is int and type(trace['finished_ns'])is int and trace['finished_ns']>=trace['started_ns']>=trace['armed_ns'])
+            receipt=trace['receipt']
+            require(type(receipt)is dict and receipt.get('run_id')==goal_id and receipt.get('node_id')=='owner-report'and receipt.get('task_accepted')is True and receipt.get('decision')=='accepted'and type(receipt.get('plan_revision'))is int and receipt['plan_revision']==trace['expected_plan_revision'])
+            return copy.deepcopy(trace)
+        time.sleep(.02)
+
+
+def wait_bound_child_goal(host,bounds,query,predicate,*,pump,capture,deadline=None):
     """Existing15s/20ms observation, never replaying an Owner or start write.
 
     A strict not-started busy reply is a pending read in the original polling
     loop. Existing wire/recorder5s limits and raw/finite capture remain intact.
     A read may return after its socket/recorder waits; it cannot pass late.
     """
-    end=time.monotonic()+15
+    end=child_observation_deadline(deadline)
     fixed=bound_child_goal_query(query,bounds)
     while True:
         require(time.monotonic()<end,'Bound child Goal observation expired')
@@ -1090,7 +1243,7 @@ def runtime_driver(args, output):
     report={'status':'failed_or_interrupted','dimension':'actual built React/Linux Chromium/fixed test-only adapter/authenticated Unix Core15/generated account-free ACP/MCP7',
         'case':args.case,'capacity_preflight':{'free_bytes':free,'guard_bytes':200*1024*1024,'private_tool_copy_bytes':raw_daemon.stat().st_size+raw_cli.stat().st_size,'evidence_allowance_bytes':32*1024*1024},'candidate':manifest,'manifest_sha256':base.sha(manifest_raw),'harness_sha256':base.sha(source),
         'support_sha256':old_support,'frontend_assets':assets,'checks':[],'http':[],'faults':[],'private_owner_reviews':[],
-        'screenshots':[],'observations':{},'cleanup':[],'http_unexpected_errors':[],'readonly_aborts':[],'cleanup_complete':False,
+        'screenshots':[],'observations':{},'goal_owner_binding':new_goal_owner_binding(),'cleanup':[],'http_unexpected_errors':[],'readonly_aborts':[],'cleanup_complete':False,
         'not_claimed':['native OS Owner dialog','macOS','native WebView','real Provider/model','OS sandbox','unknown meters as zero','all recovery/adoption paths','advance_plan end-to-end','real Validator execution (validators[] in these cases)','whole product completion']}
     # Explicit ownership: no TemporaryDirectory/finalizer may erase a failed
     # runtime or files still referenced by unknown/live processes.
@@ -1114,7 +1267,8 @@ def runtime_driver(args, output):
             assert time.monotonic()<end,clean(('Bounded observation deadline',value))
             time.sleep(.02)
     def phase_stamp(phase,edge):
-        assert phase in {'before_owner_read','before_owner_capture','owner_UI_refresh_click','owner_enabled_expect'} and edge in {'start','end'}
+        assert phase in {'before_owner_read','before_owner_capture','owner_UI_refresh_click','owner_enabled_expect','owner_click','owner_receipt_observe','owner_core_acceptance'} and edge in {'start','end'}
+        assert len(report.get('owner_phase_stamps',[]))<14
         report.setdefault('owner_phase_stamps',[]).append({'phase':phase,'edge':edge,'monotonic_ns':time.monotonic_ns()})
     def capture():
         if host is None or workspace is None or scope is None or not record_context.get('run_id'):return
@@ -1277,7 +1431,7 @@ def runtime_driver(args, output):
         http_thread=threading.Thread(target=server.serve_forever);http_thread.start()
         playwright=sync_playwright().start();browser=playwright.chromium.launch(executable_path=args.chromium,headless=True,args=['--no-sandbox'])
         context=browser.new_context(viewport={'width':1488,'height':1400},locale='en-US');context.set_default_timeout(15000)
-        def private_owner(_source,command,payload):
+        def private_owner_impl(_source,command,payload):
             nonlocal scope
             require(type(payload)is dict)
             if command=='factory_scope_approve':
@@ -1307,6 +1461,19 @@ def runtime_driver(args, output):
                 require(not reply.get('error')and reply['result']['task_accepted']is True)
             base.write_private_json(output/('private-owner-'+uuid.uuid4().hex+'.json'),{'response':reply,'original_sha256':base.sha(raw)})
             return reply
+        def private_owner(_source,command,payload):
+            if command!='goal_node_approve':return private_owner_impl(_source,command,payload)
+            trace=report['goal_owner_binding']
+            try:
+                begin_goal_owner_binding(trace,payload)
+                reply=private_owner_impl(_source,command,payload)
+                complete_goal_owner_binding(trace,reply)
+                return reply
+            except BaseException as error:
+                # Binding failure says nothing about a committed effect. Keep
+                # the original error/wires; never retry or call it not_started.
+                trace.update(state='failed',finished_ns=time.monotonic_ns(),error_type=type(error).__name__[:64])
+                raise
         context.expose_binding('__private_child_goal_owner',private_owner)
         context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{if(command==='factory_scope_approve'||command==='goal_node_approve')return window.__private_child_goal_owner(command,args);const r=await fetch('/__test_child_goal_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw new Error('Fixed child Goal test bridge refused request');return r.json();}};""")
         context.route('**/*',lambda route:route.continue_()if route.request.url.startswith(url+'/')else route.abort())
@@ -1385,8 +1552,8 @@ def runtime_driver(args, output):
         initial=started['response']['result'];goal_id=initial['goal']['run']['id'];bounds.goal_runs[goal_id]=child['task_id']
         assert support.exact_json_value(initial['plan'],saved['reference'])and initial['goal']['task_accepted']is False
         query={'scope_id':scope['id'],'task_id':child['task_id'],'goal_run_id':goal_id}
-        def wait_child_goal(predicate):
-            return wait_bound_child_goal(host,bounds,query,predicate,pump=pump,capture=capture)
+        def wait_child_goal(predicate,*,deadline=None):
+            return wait_bound_child_goal(host,bounds,query,predicate,pump=pump,capture=capture,deadline=deadline)
         assert not (wroot/'reports/release-parent').exists();base.write_private_json(wroot/'reports/release-parent',{'committed_goal_run_id':goal_id,'actual_start_reply_sha256':started['original_reply_sha256']})
         if args.case=='lost-start':
             assert fault['used'];expect(goal_panel.get_by_role('status').filter(has_text='Outcome unknown')).to_be_visible()
@@ -1433,8 +1600,23 @@ def runtime_driver(args, output):
             phase_stamp('owner_enabled_expect','start')
             try:expect(owner).to_be_enabled()
             finally:phase_stamp('owner_enabled_expect','end')
-            shot('03-real-owned-candidate-before-owner',goal_panel);owner.click()
-            final_view=wait_child_goal(lambda v:v['details']['task_accepted']is True)
+            shot('03-real-owned-candidate-before-owner',goal_panel)
+            arm_goal_owner_binding(report['goal_owner_binding'],bound_child_goal_query(query,bounds),before_owner['details']['run']['plan_revision'])
+            phase_stamp('owner_click','start')
+            try:owner.click()
+            finally:phase_stamp('owner_click','end')
+            # The old final wait began here. Both stages share that one15s end;
+            # do not compete with this intent's mandatory UI readonly preflight.
+            owner_deadline=time.monotonic()+15
+            report['observations']['owner_acceptance_deadline']={'limit_seconds':15,'deadline_monotonic':owner_deadline}
+            phase_stamp('owner_receipt_observe','start')
+            try:owner_binding=wait_goal_owner_binding(report['goal_owner_binding'],query,deadline=owner_deadline,pump=pump,capture=capture)
+            finally:phase_stamp('owner_receipt_observe','end')
+            phase_stamp('owner_core_acceptance','start')
+            try:final_view=wait_child_goal(lambda v:v['details']['task_accepted']is True,deadline=owner_deadline)
+            finally:phase_stamp('owner_core_acceptance','end')
+            require(report['goal_owner_binding']['call_count']==1 and report['goal_owner_binding']['state']=='completed')
+            require(all(owner_binding[k]==report['goal_owner_binding'][k]for k in ['key_sha256','request_sha256','reply_sha256','expected_run_id','scope_id','task_id']))
             receipt=final_view['details']['task_acceptance'];require(receipt is not None and receipt['run_id']==goal_id)
             final_factory=wait(lambda:host.result('factory_runs.get',{'scope_id':scope['id']}),lambda v:v['run']['state']=='completed')
             require((wroot/'reports/fixture-stages.txt').read_text()=='parent-initial\nparent-resumed\n')
