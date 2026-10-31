@@ -53,6 +53,8 @@ impl Drop for RunningDaemon {
                 .workspace
                 .join("reports/goal-deadline-started")
                 .is_file());
+            report["deadline_parent_stages"] =
+                retain_deadline_parent_stages(&self.workspace, &self.evidence);
             fs::write(
                 self.evidence.join("owned-cleanup.json"),
                 serde_json::to_vec_pretty(&report)?,
@@ -70,6 +72,37 @@ impl Drop for RunningDaemon {
             self.evidence.display()
         );
     }
+}
+// This is only a bounded private observation. Missing/invalid stage evidence
+// cannot establish a reached stage, an owned Goal, a stop or a timeout cause.
+fn retain_deadline_parent_stages(workspace: &Path, evidence: &Path) -> serde_json::Value {
+    use std::io::Read;
+    let source = workspace.join("reports/goal-deadline-parent-stages.json");
+    let file = match fs::File::open(source) {
+        Ok(file) => file,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            return json!({"state":"unobserved"});
+        }
+        Err(_) => return json!({"state":"read_error"}),
+    };
+    let mut raw = Vec::new();
+    if file.take(16385).read_to_end(&mut raw).is_err() {
+        return json!({"state":"read_error"});
+    }
+    if raw.len() > 16384 {
+        return json!({"state":"oversized"});
+    }
+    if serde_json::from_slice::<serde_json::Value>(&raw).is_err() {
+        return json!({"state":"invalid_json"});
+    }
+    let destination = evidence.join("deadline-parent-stages.json");
+    if fs::write(&destination, &raw)
+        .and_then(|()| fs::set_permissions(&destination, fs::Permissions::from_mode(0o600)))
+        .is_err()
+    {
+        return json!({"state":"write_error"});
+    }
+    json!({"state":"retained","bytes":raw.len(),"sha256":sha256(&raw)})
 }
 #[test]
 fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume() {
@@ -537,5 +570,55 @@ fn child_goal_provider(
             include_str!("factory_child_planning_acp.py")
         ),
     );
+    if deadline_probe {
+        script = script.replace(
+            "mcp=None;mid=0",
+            &format!(
+                "{}\nmcp=None;mid=0",
+                include_str!("factory_child_goal_deadline_diagnostics.py")
+            ),
+        );
+        // Observe each reply before the original assertions, without changing
+        // them, adding a retry or treating a child unknown as an owned Goal.
+        script = script.replace(
+            "result=json.loads(mcp.stdout.readline());assert 'error' not in result,result",
+            "result=json.loads(mcp.stdout.readline());deadline_envelope_reply(result,rpc=True);assert 'error' not in result,result",
+        );
+        script = script.replace(
+            " result=mcp_call('tools/call',{'name':name,'arguments':args})\n actual=json.loads(result['content'][0]['text']);assert 'error' not in actual,actual",
+            " result=mcp_call('tools/call',{'name':name,'arguments':args});deadline_tools_reply(result)\n actual=json.loads(result['content'][0]['text']);deadline_envelope_reply(actual,rpc=False);assert 'error' not in actual,actual",
+        );
+        for (original, observed) in [
+            (
+                "status=tool('get_task_status',{'task_id':c['task_id']})",
+                "status=deadline_tool('parent_task_status','get_task_status',{'task_id':c['task_id']})",
+            ),
+            (
+                "child=tool('delegate_task',{'goal':'Produce and accept only the actual fixed child report'",
+                "child=deadline_tool('delegate_child','delegate_task',{'goal':'Produce and accept only the actual fixed child report'",
+            ),
+            (
+                "childstatus=tool('get_task_status',{'task_id':child['task_id']});ctx=",
+                "childstatus=deadline_tool('child_planning_status','get_task_status',{'task_id':child['task_id']});ctx=",
+            ),
+            (
+                "saved=tool('submit_child_plan',{'task_id':child['task_id'],",
+                "saved=deadline_tool('submit_child_plan','submit_child_plan',{'task_id':child['task_id'],",
+            ),
+            (
+                "childstatus=tool('get_task_status',{'task_id':child['task_id']})\n   queued=",
+                "childstatus=deadline_tool('child_execution_status','get_task_status',{'task_id':child['task_id']})\n   queued=",
+            ),
+            (
+                "queued=tool('execute_child_goal'",
+                "queued=deadline_tool('execute_child_goal','execute_child_goal'",
+            ),
+        ] {
+            // A changed fixture must fail generation instead of silently
+            // omitting its diagnostic hook. This does not widen any outcome.
+            assert_eq!(script.matches(original).count(), 1, "{original}");
+            script = script.replace(original, observed);
+        }
+    }
     script
 }

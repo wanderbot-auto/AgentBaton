@@ -1,0 +1,28 @@
+{
+  "dimension": "bounded generated-fixture stage/reply diagnostics plus pure source controls; no actual Core/process run",
+  "base": "7ee2437db08695347650a28f445cb0034b5f3f58",
+  "preceding_helper_commit": "6be4d71",
+  "source_sha256": {
+    "crates/core/tests/fixtures/factory_child_goal_runtime.rs": "acc226b4925ed1a9079f8a834df560b450b16406177a77999487a9cfbecdd54d",
+    "crates/core/tests/fixtures/factory_child_goal_deadline_diagnostics.py": "a7bba0289523f82c932fbdee8c6c9a375f0d6bceef96c4d9bf71717fe1771db1",
+    "tests/infrastructure/test_child_goal_deadline_diagnostics.py": "2c5dfc298b3b411ccd71e16f9a47734981df9b99f885a609bd6b543d72c2ced9"
+  },
+  "pure_validation": {
+    "command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_deadline_diagnostics.py -v",
+    "exit_code": 0,
+    "passed": 7,
+    "failed": 0,
+    "reported_seconds": 0.021,
+    "dimension": "in-memory Python/source and finite metadata only"
+  },
+  "git_diff_check": "passed",
+  "records_limit": 32,
+  "private_marker_bytes_limit": 16384,
+  "diagnostic_added_wire_calls": 0,
+  "diagnostic_added_retries": 0,
+  "diagnostic_added_sleeps": 0,
+  "original_assertions_changed": false,
+  "owned_goal_premise_changed": false,
+  "original_failure": {"run": 41162216164, "job": 124422036740, "passed": 25, "failed": 2, "log_sha256": "1bc77449a04bb02eff3de01128caba671acfeed3e1ce8d1a7e0327d51cfecfdb", "deadline_owned_goal_evidence": "not established"},
+  "not_run": ["independent review", "Rust format/compile", "actual current Factory suite", "Node", "browser", "SQL", "network", "CI", "push"]
+}
