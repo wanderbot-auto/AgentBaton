@@ -262,6 +262,52 @@ def collect(private, expected):
         os.close(fd)
 
 
+SETUP_STAGES = ('tracked_source_guard', 'paired_record_read', 'driver_import', 'paired_record_decode',
+    'paired_metadata_guard', 'private_records', 'private_tools', 'copy_batond', 'copy_baton',
+    'schema_probe', 'chromium_discovery', 'chromium_pin', 'driver_log_open', 'driver_run', 'driver_returned')
+SETUP_EXCEPTIONS = ('import_error', 'os_error', 'value_error', 'key_error', 'type_error',
+    'attribute_error', 'other_exception')
+
+
+def setup_diagnostic(private, expected):
+    """Strict independent finite setup projection; never read logs/runtime/DB."""
+    unavailable = {'status': 'unavailable', 'failure_kind': 'missing_or_invalid_setup_diagnostic'}
+    try:
+        fd = P.directory(private, private=True)
+        try:
+            witnesses = []
+            value = P.decode(P.regular_bytes(fd, 'setup-diagnostic.json', 4096, witnesses=witnesses))
+            status = P.decode(P.regular_bytes(fd, 'status.json', MAX_STATUS, witnesses=witnesses))
+            require(type(value) is dict and set(value) == {'source', 'stage', 'exception_kind',
+                'browser_discovered', 'browser_pinned', 'traceback_bytes'} and value['source'] == expected)
+            require(type(status) is dict and set(status) == {'source', 'driver_exit', 'probe_passed'}
+                and status['source'] == expected and type(status['probe_passed']) is bool)
+            stage, exception = value['stage'], value['exception_kind']
+            require(type(stage) is str and stage in SETUP_STAGES
+                and (exception is None or type(exception) is str and exception in SETUP_EXCEPTIONS))
+            require(all(type(value[key]) is bool for key in ('browser_discovered', 'browser_pinned')))
+            position = SETUP_STAGES.index(stage)
+            require(status['probe_passed'] is (position > SETUP_STAGES.index('schema_probe'))
+                and value['browser_discovered'] is (position > SETUP_STAGES.index('chromium_discovery'))
+                and value['browser_pinned'] is (position > SETUP_STAGES.index('chromium_pin')))
+            trace_size = number(value['traceback_bytes'], 0, 16384)
+            exit_code = status['driver_exit']
+            if stage == 'driver_returned':
+                require(exception is None and type(exit_code) is int and -255 <= exit_code <= 255 and trace_size == 0)
+            else:
+                require(exception in SETUP_EXCEPTIONS and exit_code is None and trace_size > 0)
+            P.same_directory(private, fd)
+            for name, original_pin in witnesses:
+                require(P.pin(os.stat(name, dir_fd=fd, follow_symlinks=False)) == original_pin)
+            return {'status': 'observed', 'stage': stage, 'exception_kind': exception,
+                'probe_passed': status['probe_passed'], 'browser_discovered': value['browser_discovered'],
+                'browser_pinned': value['browser_pinned'], 'driver_exit': exit_code, 'traceback_bytes': trace_size}
+        finally:
+            os.close(fd)
+    except (ValueError, OSError, KeyError, TypeError, OverflowError):
+        return unavailable
+
+
 def publish(output, summary, payloads):
     require(Path(output).is_absolute() and '..' not in Path(output).parts)
     parent = P.directory(Path(output).parent)
@@ -309,6 +355,8 @@ def main(argv=None):
             summary, payloads = failure(args.expected_source_head, 'missing_private_evidence'), {}
         except (ValueError, OSError, KeyError, TypeError, OverflowError):
             summary, payloads = failure(args.expected_source_head, 'invalid_failed_or_incomplete_private_evidence'), {}
+        if summary['status'] != 'passed':
+            summary['setup_diagnostic'] = setup_diagnostic(args.private, args.expected_source_head)
         publish(args.output, summary, payloads)
         return 0 if summary['status'] == 'passed' else 1
     except (ValueError, OSError, KeyError, TypeError, OverflowError):

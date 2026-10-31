@@ -532,32 +532,48 @@ jobs:
                   raise ValueError('Private integration root refused')
               source = git('rev-parse', 'HEAD')
               status = {'source': source, 'driver_exit': None, 'probe_passed': False}
+              diagnostic = {'source': source, 'stage': 'tracked_source_guard', 'exception_kind': None,
+                            'browser_discovered': False, 'browser_pinned': False, 'traceback_bytes': 0}
               try:
                   if git('status', '--porcelain', '--untracked-files=no'):
                       raise ValueError('Tracked integration source changed')
+                  diagnostic['stage'] = 'paired_record_read'
                   manifest_raw = pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').read_bytes()
                   build_raw = pathlib.Path('artifacts/ui-browser/frontend-build-record.json').read_bytes()
+                  diagnostic['stage'] = 'driver_import'
                   module = source_driver()
+                  diagnostic['stage'] = 'paired_record_decode'
                   manifest, build = module.decode(manifest_raw), module.decode(build_raw)
+                  diagnostic['stage'] = 'paired_metadata_guard'
                   if not (type(manifest.get('schema')) is int and manifest['schema'] == 17 and manifest['git_head'] == source
                           and manifest.get('dirty') is False and build['source'] == source and type(build['exit']) is int
                           and build['exit'] == 0 and build['source_head_and_tracked_unchanged'] is True):
                       raise ValueError('Paired integration source/build metadata refused')
+                  diagnostic['stage'] = 'private_records'
                   for name, raw in [('candidate.json', manifest_raw), ('frontend-build-record.json', build_raw)]:
                       with os.fdopen(os.open(private / name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as stream:
                           stream.write(raw)
                           stream.flush()
                           os.fsync(stream.fileno())
+                  diagnostic['stage'] = 'private_tools'
                   tools = private / 'tools'
                   tools.mkdir(mode=0o700)
                   for name in ('batond', 'baton'):
+                      diagnostic['stage'] = 'copy_' + name
                       copy_tool(pathlib.Path('target/debug') / name, tools / name, manifest['binaries'][name])
+                  diagnostic['stage'] = 'schema_probe'
                   actual_schema_probe(module, tools, private, source)
                   status['probe_passed'] = True
+                  diagnostic['stage'] = 'chromium_discovery'
                   chromium = chromium_path()
+                  diagnostic['browser_discovered'] = True
                   # Real installed browser ELF; no launcher/wrapper or copied Python layout.
+                  diagnostic['stage'] = 'chromium_pin'
                   module.pinned_file(chromium, module.MAX_CHROMIUM_IMAGE)
+                  diagnostic['browser_pinned'] = True
+                  diagnostic['stage'] = 'driver_log_open'
                   with os.fdopen(os.open(private / 'driver.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      diagnostic['stage'] = 'driver_run'
                       status['driver_exit'] = subprocess.run([
                           sys.executable, 'apps/desktop/tests/integration-real-ipc.py', '--run', '--case', 'all',
                           '--batond', str(tools / 'batond'), '--candidate-manifest', str(private / 'candidate.json'),
@@ -565,16 +581,22 @@ jobs:
                           '--frontend', 'apps/desktop/dist', '--frontend-build-record', str(private / 'frontend-build-record.json'),
                           '--expected-source-head', source, '--chromium', str(chromium), '--output', str(private / 'driver'),
                       ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
+                  diagnostic['stage'] = 'driver_returned'
               except Exception as error:
+                  kinds = ((ImportError, 'import_error'), (OSError, 'os_error'), (ValueError, 'value_error'),
+                           (KeyError, 'key_error'), (TypeError, 'type_error'), (AttributeError, 'attribute_error'))
+                  diagnostic['exception_kind'] = next((tag for kind, tag in kinds if isinstance(error, kind)), 'other_exception')
                   # Bounded traceback only, never locals or public diagnostics.
                   raw = ''.join(traceback.TracebackException.from_exception(error, capture_locals=False).format()).encode('utf-8', 'backslashreplace')
                   raw = raw[:16384].decode('utf-8', 'ignore').encode('utf-8')
+                  diagnostic['traceback_bytes'] = len(raw)
                   with os.fdopen(os.open(private / 'setup-error.traceback.txt', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
                       log.write(raw)
                       log.flush()
                       os.fsync(log.fileno())
               finally:
                   private_json(private / 'status.json', status)
+                  private_json(private / 'setup-diagnostic.json', diagnostic)
               return 0 if type(status['driver_exit']) is int and status['driver_exit'] == 0 and status['probe_passed'] is True else 1
 
           if __name__ == '__main__':
