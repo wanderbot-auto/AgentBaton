@@ -82,5 +82,28 @@
       "tests/infrastructure/test_factory_bound_provider_exit.py": "66a89c55369f31979682ab3a1f4cf1ee435cdd4ac850a4dd1e21fe9d428c5fc7"
     },
     "status": "compatibility source fixed; independent re-review/runtime pending"
+  },
+  "Root_actual_source_bound_results": {
+    "file": "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
+    "sha256": "5cbbcf60389f7f839a96044c4add29300c0f948acca6ab0f5458c71542955ce1",
+    "harness_source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+    "compiled_Core_and_frontend_source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+    "normal": {
+      "checks": 4,
+      "PNG": 4,
+      "cleanup": true
+    },
+    "cancel": {
+      "checks": 4,
+      "PNG": 3,
+      "cleanup": true
+    },
+    "loststart": {
+      "checks": 5,
+      "PNG": 4,
+      "cleanup": true
+    },
+    "new_exact_CI": "not_run",
+    "oldfailures": "retained separately"
   }
 }

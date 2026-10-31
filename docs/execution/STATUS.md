@@ -1,3 +1,9 @@
+## Parent15 Owner observation and read-cycle verified locally — 2026-10-31T03:09:30.745908+00:00
+
+Reviewed outerGoalstophint service/Core033182+Factory33 and UI589919/55 preserve source attribution. Sameactual9fCore/frontend with ec5harness pass normal4checks4PNG, cancel4/3, loststart5/4 and completecleanup; ec5infra284/fmt pass. Old9f15stimeout/cleanupfalse and bd twoinfracontrol failures remainfailed; only exact dependenttestloaders corrected. No original4s/15s/TTL/Grant/singleworker/rawreference/CAS budget or permission relaxed.
+
+RemoteParent52 Environment3/Rust/ARMpass, Intel/UI failures retained; oldIntel4028producer/4653actual>4000 remains unproven resolved by localpass. Next exactnewCI/dualMacNative/audit/installers/protectedintegration/full130 remainopen. [Current source-bound results](owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json). SeparateRoot17/notifications work continues, not composed into this15 record. Main653679d OWNER001002ACK/no003; formalApprove/privateProvider/newspend/signing/production unchanged.
+
 ## Root verified queued Owner read candidate — 2026-10-31T00:21:23.878308+00:00
 
 Product source cbb16c7 passes 180 Core units, 33 actual Factory IPC cases, strict workspace/alltargets Clippy/fmt, same-source frontend/explicit preview builds and normal actual Chromium/Unix IPC (4 checks, 4 original PNGs, cleanup complete, daemon exit0). Root viewed the original final TaskAccepted/Graph/Factory screenshot. Test-only b183c86 fixes the extracted timing namespace; all284 infrastructure cases then pass. Preserve the prior284-case NameError log, not a product timeout failure.

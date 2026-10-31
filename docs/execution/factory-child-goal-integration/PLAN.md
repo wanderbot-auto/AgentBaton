@@ -49,3 +49,8 @@ head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项
 ## 新准确CI前置准备
 
 2026-10-29T23:16:01.259869+00:00：a866实际checkout9937终态EnvUbuntu/UI过，其余5失败；Rust r2blocked14(25/1/94.83s)、ARMfailed16(22/1/150.92s)、Intelblocked10(22/1/205.98s)，均原55内coherent，原因未明不归同因。后续Mac桌面/包跳过。absolute输入de786与aliasfixture1e均独审闭合；六kind有限event dd887独审40+7控，Root40pure/真旧保留input有效postjoin但历史关联unknown/infra124过。原Rust和断言逐字保留，旧错误都留，下一精确7CI才验证Mac/失败原因。见A866_PRODUCT_TERMINAL_RESULTS.json与EVENT_DIAGNOSTICS_RESULTS.json。
+
+
+## Outer stop/read-cycle and same-click Owner observation verified — 2026-10-31T03:09:30.745908+00:00
+
+Source033 Core182/Factory33/Clippy and source589 UI919/55 retain exact attribution; ec5harness uses actual9f Core/frontend bytes. Normal4checks4PNG, cancel4checks3PNG, loststart5checks4PNG allpass with completeownedcleanup; fullinfra284/fmt pass. Keep original9f timeout/cleanupfalse, bd pure1fail1error, firstcapacitypreflightrefusal and old52remoteIntel/UI failures. No original4s/15s/TTL/permission/singleworker change. New exactsevenCI/Mac/audit/installers/protectedintegration/full130 remain open. See ../owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json SHA256 5cbbcf60389f7f839a96044c4add29300c0f948acca6ab0f5458c71542955ce1.
