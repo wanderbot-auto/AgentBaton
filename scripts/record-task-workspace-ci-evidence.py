@@ -263,7 +263,38 @@ def project(report, report_hash, expected, harness):
               'cases': [{'id': key, 'status': 'passed' if key in passed else 'NOT_RUN'} for key in CASES],
               'cleanup': cleanup, 'no_execution': execution, 'screenshots_published': False,
               'private_history_published': False}
+    if not complete:
+        observation = failure_observation(report, len(passed))
+        if observation is not None:
+            result['runtime_failure'] = observation
     return result
+
+
+# Closed observations only; these do not establish a passing driver or cleanup.
+FAILURE_STAGES = ('daemon_start', 'private_owner_fixture', 'built_ui', 'normal_first_task',
+    'second_task_post_commit_transport_loss', 'task_bound_execution_dialog_selection',
+    'unbound_git_task_execution_entry_parent_refresh_recovery',
+    'filesystem_drift_and_proof_invalidation', 'http_permission_negatives',
+    'browser_close', 'playwright_stop', 'http_shutdown', 'http_close_and_handlers_join',
+    'http_thread', 'daemon_stop', 'log_close', 'tools_after', 'assets_after',
+    'temporary_cleanup', 'input_hashes_changed')
+FAILURE_KINDS = ('AssertionError', 'ValueError', 'TimeoutError', 'Error', 'OSError',
+    'FileNotFoundError', 'PermissionError', 'BrokenPipeError', 'ConnectionResetError',
+    'ConnectionRefusedError', 'KeyError', 'TypeError', 'AttributeError', 'JSONDecodeError',
+    'KeyboardInterrupt', 'SystemExit', 'RuntimeError', 'NotImplementedError',
+    'UnboundLocalError', 'NameError', 'TimeoutExpired', 'RecursionError', 'OverflowError')
+
+
+def failure_observation(report, completed):
+    if report['status'] not in ('failed', 'failed_or_interrupted'):
+        return None
+    detail = report.get('failure')
+    if not (type(detail) is dict and set(detail) == {'stage', 'kind'}
+            and type(detail['stage']) is str and detail['stage'] in FAILURE_STAGES
+            and type(detail['kind']) is str and detail['kind'] in FAILURE_KINDS):
+        return None
+    return {'stage': detail['stage'], 'exception_kind': detail['kind'],
+            'completed_cases': completed, 'observation_only': True}
 
 
 def png_pixels(raw, ranges, width, height, channels):
