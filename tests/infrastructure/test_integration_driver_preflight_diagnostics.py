@@ -308,6 +308,8 @@ class ExactOriginalSourceControls(unittest.TestCase):
         self.assertEqual(set(D.DRIVER_RUNTIME_CHECKS), E.DRIVER_RUNTIME_CHECKS)
 
     def restore_driver(self, text):
+        from tests.infrastructure.integration_screenshot_failure_fixture import strip_screenshot_driver_layer
+        text = strip_screenshot_driver_layer(text)
         start, end = text.index('DRIVER_PREFLIGHT_STAGES = '), text.index('def preflight(')
         self.assertEqual(sha(text[start:end].encode()), '51cc52c0a3c2c42e03288a1933f3f7091c1fbaa3a0b8e1c6015d9f992f3bab99')
         text = text[:start] + text[end:]

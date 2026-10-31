@@ -408,10 +408,27 @@ def failed_cleanup_observation(value):
     return observed
 
 
+def failed_screenshot_observation(report):
+    if 'active_screenshot' not in report:
+        return None
+    require(report['status'] == 'failed_or_interrupted')
+    detail, completed = report['active_screenshot'], report['screenshots']
+    require(type(detail) is dict and set(detail) == {'name', 'step'}
+        and type(detail['name']) is str and detail['name'] in NAMES
+        and type(detail['step']) is str
+        and detail['step'] in ('scroll', 'viewport', 'bounding_box', 'capture', 'record')
+        and len(completed) < len(NAMES))
+    require([row.get('name') if type(row) is dict else None for row in completed] == list(NAMES[:len(completed)])
+        and detail['name'] == NAMES[len(completed)])
+    expected_phase = 'private_independent_review' if len(completed) < 2 else 'real_owner_acceptance_and_watcher'
+    require(report['failure']['stage'] == expected_phase)
+    return {'name': detail['name'], 'step': detail['step'], 'completed_screenshots': len(completed)}
+
+
 def runtime_report_observation(report, case, expected, manifest_hash, build_hash, harness):
     required = {'case', 'status', 'dimension', 'not_claimed', 'checks', 'screenshots', 'cleanup', 'inputs'}
     optional = {'failure', 'browser_version', 'http_method_counts', 'readonly_reply_aborts',
-        'http_faults', 'fixture_retained_privately'}
+        'http_faults', 'fixture_retained_privately', 'active_screenshot'}
     require(type(report) is dict and required <= set(report) <= required | optional
         and report['case'] == ('command_exit7' if case == 'command-failure' else 'normal')
         and report['dimension'] == DIMENSION and report['not_claimed'] == NOT_CLAIMED)
@@ -450,7 +467,8 @@ def runtime_report_observation(report, case, expected, manifest_hash, build_hash
             number(row['shared_runtime_ms'], 1, 20000); number(row['shared_output_bytes'], 1, 8192)
     return {'case': case, 'report_status': report['status'], 'phase': phase, 'exception_kind': exception,
         'completed_checks': len(checks), 'last_completed_check': names[len(checks) - 1] if checks else None,
-        'cleanup_observations': failed_cleanup_observation(report['cleanup'])}, source
+        'cleanup_observations': failed_cleanup_observation(report['cleanup']),
+        'screenshot_observation': failed_screenshot_observation(report)}, source
 
 
 def runtime_failure_diagnostic(private, expected):

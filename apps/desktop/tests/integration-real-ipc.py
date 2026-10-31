@@ -1056,15 +1056,21 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         def pump():
             reviews.service(); page.wait_for_timeout(10)
         def shot(name, focus):
+            report['active_screenshot'] = {'name': name, 'step': 'scroll'}
             focus.scroll_into_view_if_needed()
+            report['active_screenshot']['step'] = 'viewport'
             expect(focus).to_be_in_viewport(ratio=1)
+            report['active_screenshot']['step'] = 'bounding_box'
             focus_box_before_capture = focus.bounding_box()
+            report['active_screenshot']['step'] = 'capture'
             path = output / (name + '.png'); page.screenshot(path=str(path))
+            report['active_screenshot']['step'] = 'record'
             report['screenshots'].append({'name': name, 'sha256': digest(path.read_bytes()),
                 'bytes': path.stat().st_size, 'viewport': page.viewport_size,
                 'focus_box_before_capture_observation': focus_box_before_capture,
                 'focus_viewport_asserted_before_capture': True, 'pixel_synchronized': False,
                 'dimension': 'Linux Chromium only'})
+            del report['active_screenshot']
         phase = 'actual_frontend'
         page.goto(server.origin + '/', wait_until='networkidle')
         page.locator('[data-testid="task-card"][data-task-id="' + bounds.task + '"]').click()
