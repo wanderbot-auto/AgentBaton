@@ -11,3 +11,7 @@ Core interface bound to candidate5d7ac35fba06efedc07bc2c3ef4d386e31245795; no Co
 ## Bounded caller observation closure
 
 Retain independent f566 CHANGES_REQUIRED: locked Wry getter blocks on an unbounded reply when URL is read directly on a worker. URL reads now execute only inside a main-thread read-only job. The worker uses a strict5s observation deadline with recv_timeout; cancellation/deadline checks revoke unexecuted and late jobs, and no callback carries handoff/Core authority. Original CallerOwner, all13 other Native functions and opener5s deadline remain byte-identical. Added4 Rust channel/fake-clock tests (NOT_RUN);8 Python source controls and rustfmt pass. Root compile and independent closure review remain required.
+
+## Root076 mount integration tests (NOT_RUN)
+
+Added only a new six-case real-mount component test and own docs. Source/ready directory opening remains independently Owner-validated when code preparation is refused, dirty, non-code or pending; shared TaskCodeWorkspace mount is Root-owned and unchanged here. Project/task switch cases reject old catalog/Native success and require explicit current selection. A task-remount settlement subscription gap is source-inferred only and preserved as a real test expectation pending Root reproduction; the private render-only fix proposal is not applied.

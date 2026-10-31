@@ -18,7 +18,8 @@
     "apps/desktop/src/workspace-open-wire.ts": "00e618cf18775507c664dd82465049872a3f9a198f521ed62ce12ff71f6b5245",
     "apps/desktop/src/workspace-open-i18n.ts": "0cc42bd99e5d34f377e7935c63233de57bc59f672bd42b0db80a32e85f08434a",
     "apps/desktop/src-tauri/src/workspace_open.rs": "e317fe58db8332185a100b1ec0c8ea2b415e89ee2c209d67dc14b70c9e41056b",
-    "tests/infrastructure/test_workspace_open_desktop_contract.py": "d65ad89325fec4c5ad2e4d875920a1e2023a2f8882e285920445a05feebf1c5a"
+    "tests/infrastructure/test_workspace_open_desktop_contract.py": "d65ad89325fec4c5ad2e4d875920a1e2023a2f8882e285920445a05feebf1c5a",
+    "apps/desktop/src/ExternalWorkspaceOpen.integration.test.tsx": "fc6e38683753f275f79080e8d25f9f2cf9a00dffcc71e42879470d9c69d98016"
   },
   "protected_unchanged_sha256": {
     "apps/desktop/src/TaskCodeWorkspace.tsx": "f6f9ec6ebddfd0ecfea919426a37aebb9e20fe8e3125093920c3ad422a16a6dd",
@@ -159,6 +160,34 @@
     "locked_dependency_sources_sha256": {
       "/workspace/.toolchains/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.12.5/src/webview/webview_window.rs": "5cf28b52b0ed7179926b1087df08d8765bf2c31805fb532f9260908a57422230",
       "/workspace/.toolchains/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-2.12.3/src/lib.rs": "ec343fc347aff1fb5327100df2541992e47eb6be1ddb55102170e2253b9c6d59"
+    }
+  },
+  "mount_integration_tests": {
+    "expected_Root_mount": "076fcb19654859ee974e3e3dee05ad8ba02b5b5e",
+    "test_file": "apps/desktop/src/ExternalWorkspaceOpen.integration.test.tsx",
+    "test_sha256": "fc6e38683753f275f79080e8d25f9f2cf9a00dffcc71e42879470d9c69d98016",
+    "authored_cases": 6,
+    "execution": "NOT_RUN",
+    "actual_mount": "TaskCodeWorkspace -> ExternalWorkspaceOpen, no child/API mock; only daemon metadata and Native transport mocked",
+    "scope_rationale": "Independent directory-only Owner action must not inherit code-preparation fresh/resolve/pending gates; props task identity drives child epoch",
+    "coverage": [
+      "dirty resolver refused but explicit source opens",
+      "non-code data preparation unavailable but ready data directory opens",
+      "pending binding never prepared/adopted but independent ready data directory opens",
+      "old parent read cannot override new props project; old catalog discarded",
+      "old Native accepted reply rejected after project switch; manual new target only",
+      "old Native accepted reply rejected after task.id remount; manual refresh gate should recover without incidental parent rerender"
+    ],
+    "zero_effect_assertions": "code preparation button remains disabled/absent; no prepareTaskGit/createWorkspace; no automatic Native invoke; exact current ID/revision/terminal request only",
+    "shared_hooks_changed_by_author": false,
+    "potential_source_gap": "Unobservable module-global outstanding settlement after old child unmount can keep new child manual refresh disabled until unrelated render. Source inference only, Root repro required; not an actual FAIL.",
+    "private_fix_proposal": {
+      "path": "/tmp/workspace-open-flight-settlement-proposal.patch",
+      "sha256": "1a0cac8a4573afa516edd04eb64fe47d765f9a49d96654b10bfae0b6300fa7fe",
+      "git_apply_check": "PASS",
+      "applied": false,
+      "execution": "NOT_RUN",
+      "scope": "module-local render notification only; no auto read/open/retry and no gate/result/identity/capacity change"
     }
   }
 }

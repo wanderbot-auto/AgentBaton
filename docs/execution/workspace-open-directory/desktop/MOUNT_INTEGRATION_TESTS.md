@@ -1,0 +1,11 @@
+# Independent directory action in the real Task workspace mount
+
+Expected Root mount076fcb19654859ee974e3e3dee05ad8ba02b5b5e: `<ExternalWorkspaceOpen task={props.task} ... open={props.open} />`, without the code-preparation `disabled/pending` gate. This is consistent with the directory-only contract: an Owner can explicitly select a registered source/ready Git-data directory even when code preparation is dirty, non-code, pending or refused. Existing code-preparation and execution gates are unchanged. Passing stale `read.task` would hide a new props project epoch.
+
+New ExternalWorkspaceOpen.integration.test.tsx mounts the actual TaskCodeWorkspace and actual external child/API/wire. Only daemon record methods and Tauri transport are mocked. Six authored cases cover dirty-resolver refusal, a valid non-code directory, valid pending binding, old catalog after a stale parent read, and old Native reply after project switch or task-id remount. They preserve disabled/zero-write code-preparation assertions, exact single current Native request, no automatic replay, and no claim that a previously dispatched handoff is rolled back.
+
+All six are NOT_RUN here; the author branch intentionally leaves Root-owned TaskCodeWorkspace unchanged. Root must compose its076 mount before running them. No Node/Cargo/browser/OS/SQLite/process was run for these cases.
+
+A separate existing source-level issue is deliberately exposed by the task-remount sequence: a new child can see the module-global pending flight, while the old unmounted child's eventual settlement deletes it without notifying the new child to render. The test flushes the parent's stale-read refusal before settlement so incidental renders cannot mask a disabled manual-refresh control. This is a source inference, not an executed failure. Root will reproduce before authorizing a product closure.
+
+Private proposal `/tmp/workspace-open-flight-settlement-proposal.patch` adds only module-local render subscriptions on pending/settled flight transitions, using React useSyncExternalStore. It performs no reads, handoff, retry, identity/result migration or persistence; existing fresh/readIdentity/epoch and32-uncertainty bound stay unchanged. The proposal is NOT_APPLIED and NOT_RUN; do not treat it as accepted source.
