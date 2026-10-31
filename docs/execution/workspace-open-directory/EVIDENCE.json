@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-31T06:27:37.737063+00:00",
+  "requirement": "AB-SES-009",
+  "baseline": "e874b123d3e7f329a551e21922baf1a7a643548f",
+  "status": "implementation_in_progress_not_runtime_verified",
+  "audit_sha256": "89aebfe4d288ccaa66620d6cc73e93d200d51b431afadbb1963423f35f2c0194",
+  "contract_sha256": "f69f86163757e21a312253960c43b38285e316f8ca8f36f2110528e4577e7973",
+  "actual_feature_tests": [],
+  "not_run": [
+    "Core feature compilation/tests",
+    "UI/Native feature compilation/tests",
+    "real UnixIPC feature scenarios",
+    "actual Mac Terminal handoff",
+    "actual target directory observation",
+    "manual acceptance"
+  ],
+  "scope": "Only opens selected registered directory; no Agent start/session transfer/approval sync. Full130 goal remains unchanged."
+}
