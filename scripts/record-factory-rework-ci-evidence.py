@@ -410,6 +410,94 @@ def attempt_budget_reservation(value):
     return value
 
 
+GRAPH_RESERVATION_FIELDS = frozenset(('run_id', 'node_id', 'plan_revision', 'ancestors',
+    'reservation', 'settled', 'actual_runtime_ms', 'actual_output_bytes', 'tokens', 'cost_microunits'))
+FACTORY_RESERVATION_FIELDS = frozenset(('authority_kind', 'scope_id', 'run_id', 'root_task_id',
+    'root_grant_id', 'project_id', 'task_id', 'session_id', 'attempt_id', 'ancestors', 'queued_ms',
+    'reservation', 'settled', 'actual_runtime_ms', 'actual_output_bytes', 'measurement_scope',
+    'filesystem_total_bytes', 'captured_provider_message_bytes', 'provider_message_capture_complete'))
+RUNTIME_NODE_FIELDS = frozenset(('node', 'plan_revision', 'state', 'session_id', 'attempt_id',
+    'started_at_ms', 'stop_confirmed', 'actual_runtime_ms', 'actual_output_bytes', 'tokens', 'cost_microunits'))
+
+
+def attempt_budget_ancestors(value, maximum, empty=False):
+    need(type(value) is list and (0 if empty else 1) <= len(value) <= maximum)
+    for key in value: attempt_budget_key(key)
+    need(len(set(value)) == len(value))
+
+
+def graph_reservation_document(raw):
+    value = strict_json(raw)
+    # Graph ReservationRecord does not deny unknown Rust fields. This optional
+    # diagnostic deliberately accepts only its complete known serialized shape.
+    need(type(value) is dict and set(value) == GRAPH_RESERVATION_FIELDS)
+    attempt_budget_key(value['run_id']); attempt_budget_key(value['node_id'])
+    need(integer(value['plan_revision']) > 0)
+    attempt_budget_ancestors(value['ancestors'], MAX_ROWS, empty=True)
+    attempt_budget_reservation(value['reservation']); boolean(value['settled'])
+    for key in ('actual_runtime_ms', 'actual_output_bytes', 'tokens', 'cost_microunits'):
+        integer(value[key], nullable=True)
+    return value
+
+
+def factory_reservation_document(raw):
+    value = strict_json(raw)
+    # FactoryReservation has serde deny_unknown_fields. Require its complete
+    # known serialized shape; incomplete historical metadata stays unavailable.
+    need(type(value) is dict and set(value) == FACTORY_RESERVATION_FIELDS)
+    enum(value['authority_kind'], ('factory_task', 'legacy_shared_session'))
+    for key in ('scope_id', 'run_id'):
+        if value[key] is not None: attempt_budget_key(value[key])
+    for key in ('root_task_id', 'root_grant_id', 'project_id', 'task_id', 'session_id', 'attempt_id'):
+        attempt_budget_key(value[key])
+    attempt_budget_ancestors(value['ancestors'], 33)
+    integer(value['queued_ms']); attempt_budget_reservation(value['reservation']); boolean(value['settled'])
+    for key in ('actual_runtime_ms', 'actual_output_bytes', 'filesystem_total_bytes', 'captured_provider_message_bytes'):
+        integer(value[key], nullable=True)
+    enum(value['measurement_scope'], ('selected_artifacts_no_validator_streams', 'empty_selected_artifacts_no_validator_streams'))
+    need(value['filesystem_total_bytes'] is None and boolean(value['provider_message_capture_complete']) is False)
+    return value
+
+
+def attempt_budget_node(row, origin):
+    run, node_id, revision, attempt, session, state, raw = row
+    need(run == origin['goal']); attempt_budget_key(node_id); need(integer(revision) > 0)
+    node = strict_json(raw)
+    need(type(node) is dict and set(node) == RUNTIME_NODE_FIELDS)
+    need(node['node']['id'] == node_id and type(node['plan_revision']) is int
+        and node['plan_revision'] == revision and node['attempt_id'] == attempt and node['session_id'] == session
+        and enum(state, NODE_STATES) == enum(node['state'], NODE_STATES))
+    enum(node['node']['kind'], ('work', 'validate', 'owner_approval', 'summary'))
+    attempt_budget_reservation(node['node']['reservation']); boolean(node['stop_confirmed'])
+    integer(node['started_at_ms'], (1 << 63) - 1, nullable=True, signed=True)
+    for key in ('actual_runtime_ms', 'actual_output_bytes', 'tokens', 'cost_microunits'):
+        integer(node[key], nullable=True)
+    if attempt is not None: attempt_budget_key(attempt)
+    else: need(session is None)
+    if session is not None: attempt_budget_key(session)
+    return node
+
+
+def graph_budget_source_sets(origin, nodes, events):
+    node_attempts, event_attempts = set(), set()
+    need(len(nodes) <= MAX_ROWS and len(events) <= MAX_EVENT_ROWS)
+    for row in nodes:
+        node = attempt_budget_node(row, origin)
+        attempt = node['attempt_id']
+        if attempt is not None:
+            need(attempt not in node_attempts); node_attempts.add(attempt)
+    for sequence, raw in events:
+        need(integer(sequence, (1 << 63) - 1) > 0)
+        event = strict_json(raw); payload = event['payload']
+        need(event['aggregate_id'] == origin['goal'] and event['source'] == 'goal_core'
+             and event['kind'] == 'goal.node_reserved')
+        attempt = attempt_budget_key(payload['attempt_id']); attempt_budget_key(payload['node_id'])
+        need(integer(payload['plan_revision']) > 0); attempt_budget_reservation(payload['reservation'])
+        if payload['session_id'] is not None: attempt_budget_key(payload['session_id'])
+        need(attempt not in event_attempts); event_attempts.add(attempt)
+    return node_attempts, event_attempts
+
+
 def attempt_budget_metrics(value, reservation, kind, revision):
     settled = boolean(value['settled'])
     actual = integer(value['actual_runtime_ms'], nullable=True)
@@ -424,14 +512,14 @@ def attempt_budget_metrics(value, reservation, kind, revision):
 def graph_attempt_budget_fact(origin, row, nodes, events, factory_mirror_count):
     attempt, run, node_id, raw = row
     for key in (attempt, run, node_id): attempt_budget_key(key)
-    value = strict_json(raw)
+    value = graph_reservation_document(raw)
     need(run == origin['goal'] and value['run_id'] == run and value['node_id'] == node_id)
     revision = integer(value['plan_revision']); need(revision > 0)
     reservation = attempt_budget_reservation(value['reservation'])
     need(type(factory_mirror_count) is int and factory_mirror_count == 0 and len(nodes) == len(events) == 1)
-    nr, nn, rev, na, session, node_raw = nodes[0]
+    nr, nn, rev, na, session, state, node_raw = nodes[0]
     need((nr, nn, rev, na) == (run, node_id, revision, attempt) and type(rev) is int)
-    node = strict_json(node_raw)
+    node = attempt_budget_node(nodes[0], origin)
     need(node['node']['id'] == node_id and node['plan_revision'] == revision
          and type(node['plan_revision']) is int and node['attempt_id'] == attempt
          and node['session_id'] == session and attempt_budget_reservation(node['node']['reservation']) == reservation)
@@ -453,7 +541,7 @@ def graph_attempt_budget_fact(origin, row, nodes, events, factory_mirror_count):
 def factory_attempt_budget_fact(origin, row, attempts, sessions):
     attempt, scope, root_task, project, raw = row
     for key in (attempt, scope, root_task, project): attempt_budget_key(key)
-    value = strict_json(raw)
+    value = factory_reservation_document(raw)
     ancestors = value['ancestors']
     need(type(ancestors) is list and 0 < len(ancestors) <= 33)
     for key in ancestors: attempt_budget_key(key)
@@ -516,29 +604,48 @@ def attempt_budget_observations(conn):
             attempt, fact = result
             need(attempt not in seen and len(records) < MAX_ATTEMPT_BUDGET_ROWS)
             seen.add(attempt); records.append({'ordinal': len(records) + 1, **fact})
-        for row in conn.execute('SELECT attempt_id,run_id,node_id,document FROM goal_run_reservations WHERE run_id=? ORDER BY attempt_id', (origin['goal'],)):
+        graph_rows = conn.execute('SELECT attempt_id,run_id,node_id,document FROM goal_run_reservations '
+            "WHERE run_id=? OR json_extract(document,'$.run_id')=? ORDER BY attempt_id", (origin['goal'], origin['goal'])).fetchall()
+        need(len(graph_rows) <= MAX_ATTEMPT_BUDGET_ROWS)
+        graph_attempts = [attempt_budget_key(row[0]) for row in graph_rows]
+        need(len(set(graph_attempts)) == len(graph_attempts))
+        source_nodes = conn.execute('SELECT run_id,node_id,plan_revision,attempt_id,session_id,state,document '
+            'FROM goal_run_nodes WHERE run_id=? ORDER BY plan_revision,node_id', (origin['goal'],)).fetchall()
+        source_events = conn.execute("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id')=? "
+            "AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.node_reserved' "
+            "ORDER BY sequence", (origin['goal'],)).fetchall()
+        node_attempts, event_attempts = graph_budget_source_sets(origin, source_nodes, source_events)
+        need(set(graph_attempts) == node_attempts == event_attempts)
+        for row in graph_rows:
             attempt, run, node, raw = row
-            value = strict_json(raw); revision = integer(value['plan_revision'])
-            nodes = conn.execute('SELECT run_id,node_id,plan_revision,attempt_id,session_id,document '
-                'FROM goal_run_nodes WHERE run_id=? AND node_id=? AND plan_revision=? AND attempt_id=? LIMIT 2',
-                (run, node, revision, attempt)).fetchall()
-            events = conn.execute("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id')=? "
-                "AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.node_reserved' "
-                "AND json_extract(document,'$.payload.attempt_id')=? ORDER BY sequence LIMIT 2", (run, attempt)).fetchall()
-            mirrored = conn.execute('SELECT count(*) FROM factory_budget_reservations WHERE attempt_id=?', (attempt,)).fetchone()[0]
+            value = graph_reservation_document(raw); revision = integer(value['plan_revision'])
+            # Check the complete same-attempt set, including JSON/column conflicts
+            # and foreign-run rows that a narrower tuple WHERE would hide.
+            nodes = conn.execute('SELECT run_id,node_id,plan_revision,attempt_id,session_id,state,document '
+                "FROM goal_run_nodes WHERE attempt_id=? OR json_extract(document,'$.attempt_id')=? LIMIT 2",
+                (attempt, attempt)).fetchall()
+            events = conn.execute("SELECT sequence,document FROM events WHERE "
+                "json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.node_reserved' "
+                "AND json_extract(document,'$.payload.attempt_id')=? ORDER BY sequence LIMIT 2", (attempt,)).fetchall()
+            mirrored = conn.execute('SELECT count(*) FROM factory_budget_reservations '
+                "WHERE attempt_id=? OR json_extract(document,'$.attempt_id')=?", (attempt, attempt)).fetchone()[0]
             add(graph_attempt_budget_fact(origin, row, nodes, events, mirrored))
         for row in conn.execute('SELECT attempt_id,scope_id,root_task_id,project_id,document '
-                'FROM factory_budget_reservations WHERE scope_id=? ORDER BY attempt_id', (origin['scope'],)):
-            value = strict_json(row[4])
+                "FROM factory_budget_reservations WHERE scope_id=? OR json_extract(document,'$.scope_id')=? ORDER BY attempt_id", (origin['scope'], origin['scope'])):
+            value = factory_reservation_document(row[4])
             ancestors = value['ancestors']; need(type(ancestors) is list and len(ancestors) <= 33)
             if origin['child'] not in ancestors: continue
+            graph_mirrors = conn.execute('SELECT count(*) FROM goal_run_reservations WHERE attempt_id=?', (row[0],)).fetchone()[0]
+            need(type(graph_mirrors) is int and graph_mirrors == 0)
             attempts = conn.execute('SELECT session_id,attempt_id,scope_id,run_id,task_id,root_task_id,reservation,document '
-                'FROM factory_attempts WHERE attempt_id=? LIMIT 2', (row[0],)).fetchall()
-            sessions = conn.execute('SELECT id,task_id,project_id,root_grant_id,document FROM sessions WHERE id=? LIMIT 2',
-                (value['session_id'],)).fetchall()
+                "FROM factory_attempts WHERE attempt_id=? OR json_extract(document,'$.attempt_id')=? OR session_id=? OR json_extract(document,'$.session_id')=? LIMIT 2",
+                (row[0], row[0], value['session_id'], value['session_id'])).fetchall()
+            sessions = conn.execute('SELECT id,task_id,project_id,root_grant_id,document FROM sessions '
+                "WHERE id=? OR json_extract(document,'$.attempt_id')=? LIMIT 2",
+                (value['session_id'], row[0])).fetchall()
             add(factory_attempt_budget_fact(origin, row, attempts, sessions))
-        need(records)
-        out.update(status='collected_bound_record_facts', code='original_row_node_event_or_session_fields_match', records=records)
+        out.update(status='collected_bound_record_facts',
+            code='original_row_node_event_or_session_fields_match' if records else 'no_selected_attempt_sources', records=records)
         return out
     except (Invalid, sqlite3.Error, ValueError, KeyError, TypeError, IndexError, OverflowError):
         return out
