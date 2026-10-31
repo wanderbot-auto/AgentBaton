@@ -272,7 +272,8 @@ class ChromiumImageBounds(unittest.TestCase):
         self.assertEqual(inspect.signature(d.pinned_file).parameters['limit'].default,268435456)
         source=(ROOT/'apps/desktop/tests/integration-real-ipc.py').read_text()
         self.assertEqual(source.count('pinned_file(args.chromium, MAX_CHROMIUM_IMAGE)'),2)
-        self.assertIn("'python': pinned_file(Path(sys.executable).resolve(strict=True))",source)
+        self.assertIn("python_record = pinned_file(Path(sys.executable).resolve(strict=True))",source)
+        self.assertIn("runtime_tools = {'chromium': chromium_record, 'python': python_record}",source)
 
     def test_virtual_image_above_256_below_512_accepts_complete_read_but_above512_refuses(self):
         # Synthetic logical file: reused1MiB byte blocks and a fake hash avoid

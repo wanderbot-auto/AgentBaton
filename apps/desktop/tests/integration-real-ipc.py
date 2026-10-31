@@ -154,36 +154,124 @@ def assets(frontend):
     return result
 
 
-def preflight(args):
+DRIVER_PREFLIGHT_STAGES = ('expected_source_head', 'core_paths', 'core_tool_pins',
+    'core_executable_guard', 'core_owner_mode_guard', 'candidate_read', 'candidate_size_guard',
+    'candidate_decode', 'candidate_schema_guard', 'candidate_source_guard', 'candidate_clean_guard',
+    'candidate_tool_hash_guard', 'frontend_record_read', 'frontend_record_size_guard',
+    'frontend_record_decode', 'frontend_record_guard', 'frontend_resolve', 'chromium_resolve',
+    'runtime_chromium_pin', 'runtime_python_pin', 'runtime_owner_mode_guard', 'source_guard',
+    'frontend_assets', 'run_required', 'playwright_import')
+DRIVER_PREFLIGHT_EXCEPTIONS = ('refusal', 'import_error', 'os_error', 'value_error', 'key_error',
+    'type_error', 'attribute_error', 'interrupted', 'system_exit', 'other_exception')
+DRIVER_RUNTIME_CHECKS = ('chromium_owner_allowed', 'chromium_mode_allowed',
+    'python_owner_allowed', 'python_mode_allowed')
+
+
+def new_driver_preflight_diagnostic(args):
+    # This is the declared expected source, not proof that source_guard passed.
+    head = args.expected_source_head
+    source = head if type(head) is str and re.fullmatch('[a-f0-9]{40}', head) else None
+    try:
+        driver = digest(Path(__file__).read_bytes())
+    except OSError:
+        driver = None
+    return {'version': 1, 'declared_source': source, 'driver_sha256': driver,
+        'stage': 'expected_source_head', 'exception_kind': None,
+        'run_requested': args.run, 'runtime_case_entered': False,
+        'runtime_checks': dict.fromkeys(DRIVER_RUNTIME_CHECKS)}
+
+
+def driver_preflight_stage(diagnostic, stage):
+    if diagnostic is not None:
+        diagnostic['stage'] = stage
+
+
+def driver_runtime_checks(diagnostic, runtime_tools):
+    if diagnostic is None:
+        return
+    # Facts from the already-read pins only. Do not repeat an OS permission
+    # check or replace/short-circuit any original guard evaluation.
+    try:
+        facts = {name + '_owner_allowed': value['uid'] in (0, os.geteuid())
+            for name, value in runtime_tools.items()}
+        facts.update({name + '_mode_allowed': value['mode'] & 0o022 == 0
+            for name, value in runtime_tools.items()})
+    except (KeyError, TypeError, AttributeError, ValueError):
+        return
+    diagnostic['runtime_checks'] = facts
+
+
+def retain_driver_preflight_diagnostic(output, diagnostic, error=None):
+    value = copy.deepcopy(diagnostic)
+    if error is not None:
+        kinds = ((Refusal, 'refusal'), (ImportError, 'import_error'), (OSError, 'os_error'),
+            (ValueError, 'value_error'), (KeyError, 'key_error'), (TypeError, 'type_error'),
+            (AttributeError, 'attribute_error'), (KeyboardInterrupt, 'interrupted'),
+            (SystemExit, 'system_exit'))
+        value['exception_kind'] = next((tag for kind, tag in kinds if isinstance(error, kind)), 'other_exception')
+    # Best effort, after the original private report. Missing diagnostics are
+    # unavailable; an instrumentation failure never changes the original exit2.
+    try:
+        private_json(output / 'preflight-diagnostic.json', value)
+    except (OSError, ValueError, TypeError):
+        pass
+
+
+def preflight(args, diagnostic=None):
+    driver_preflight_stage(diagnostic, 'expected_source_head')
     head = args.expected_source_head
     require(type(head) is str and re.fullmatch('[a-f0-9]{40}', head) is not None)
+    driver_preflight_stage(diagnostic, 'core_paths')
     binary = args.batond.absolute()
     companion = binary.with_name('baton')
+    driver_preflight_stage(diagnostic, 'core_tool_pins')
     tools = {k: pinned_file(v) for k, v in [('batond', binary), ('baton', companion)]}
+    driver_preflight_stage(diagnostic, 'core_executable_guard')
     require(all(os.access(p, os.X_OK) for p in (binary, companion)))
+    driver_preflight_stage(diagnostic, 'core_owner_mode_guard')
     require(all(v['uid'] in (0, os.geteuid()) and v['mode'] & 0o022 == 0 for v in tools.values()))
+    driver_preflight_stage(diagnostic, 'candidate_read')
     manifest_raw = args.candidate_manifest.read_bytes()
+    driver_preflight_stage(diagnostic, 'candidate_size_guard')
     require(len(manifest_raw) <= 2097152)
+    driver_preflight_stage(diagnostic, 'candidate_decode')
     manifest = decode(manifest_raw)
+    driver_preflight_stage(diagnostic, 'candidate_schema_guard')
     require(type(manifest.get('schema')) is int and manifest['schema'] == 17)
+    driver_preflight_stage(diagnostic, 'candidate_source_guard')
     aliases = [manifest[k] for k in ('source_head', 'git_head', 'compiled_core_source_head') if k in manifest]
     require(aliases and all(v == head for v in aliases))
+    driver_preflight_stage(diagnostic, 'candidate_clean_guard')
     require(manifest.get('dirty', False) is False and manifest.get('tracked_clean', True) is True)
+    driver_preflight_stage(diagnostic, 'candidate_tool_hash_guard')
     require(all(manifest['binaries'][k] == tools[k]['sha256'] for k in tools))
+    driver_preflight_stage(diagnostic, 'frontend_record_read')
     build_raw = args.frontend_build_record.read_bytes()
+    driver_preflight_stage(diagnostic, 'frontend_record_size_guard')
     require(len(build_raw) <= MAX_REVIEW)
+    driver_preflight_stage(diagnostic, 'frontend_record_decode')
     build = decode(build_raw)
+    driver_preflight_stage(diagnostic, 'frontend_record_guard')
     require(build.get('source') == head and type(build.get('exit')) is int and build['exit'] == 0
         and build.get('command') == ['npm', '--prefix', 'apps/desktop', 'run', 'build']
         and build.get('source_head_and_tracked_unchanged') is True
         and build.get('dirty', False) is False and build.get('tracked_clean', True) is True)
+    driver_preflight_stage(diagnostic, 'frontend_resolve')
     frontend = args.frontend.resolve(strict=True)
+    driver_preflight_stage(diagnostic, 'chromium_resolve')
     args.chromium = args.chromium.resolve(strict=True)
-    runtime_tools = {'chromium': pinned_file(args.chromium, MAX_CHROMIUM_IMAGE),
-        'python': pinned_file(Path(sys.executable).resolve(strict=True))}
+    driver_preflight_stage(diagnostic, 'runtime_chromium_pin')
+    chromium_record = pinned_file(args.chromium, MAX_CHROMIUM_IMAGE)
+    driver_preflight_stage(diagnostic, 'runtime_python_pin')
+    python_record = pinned_file(Path(sys.executable).resolve(strict=True))
+    runtime_tools = {'chromium': chromium_record, 'python': python_record}
+    driver_preflight_stage(diagnostic, 'runtime_owner_mode_guard')
+    driver_runtime_checks(diagnostic, runtime_tools)
     require(all(v['uid'] in (0, os.geteuid()) and v['mode'] & 0o022 == 0 for v in runtime_tools.values())
         and os.access(args.chromium, os.X_OK))
+    driver_preflight_stage(diagnostic, 'source_guard')
     source = source_guard(head)
+    driver_preflight_stage(diagnostic, 'frontend_assets')
     return binary, companion, frontend, {'source': head, 'tools': tools, 'assets': assets(frontend),
         'manifest_sha256': digest(manifest_raw), 'build_record_sha256': digest(build_raw),
         'driver_sha256': digest(Path(__file__).read_bytes()), 'source_guard': source, 'runtime_tools': runtime_tools}
@@ -1125,20 +1213,26 @@ def main():
     args.output.mkdir(mode=0o700, parents=True, exist_ok=False)
     require(stat.S_IMODE(args.output.stat().st_mode) == 0o700 and args.output.stat().st_uid == os.geteuid()
         and not args.output.is_symlink())
+    diagnostic = new_driver_preflight_diagnostic(args)
     try:
-        binary, companion, frontend, attribution = preflight(args)
+        binary, companion, frontend, attribution = preflight(args, diagnostic)
     except BaseException as error:
         private_json(args.output / 'report.json', {'status': 'preflight_refused', 'actual_runtime': 'NOT_RUN',
             'kind': type(error).__name__, 'no_process_token_or_listener': True})
+        retain_driver_preflight_diagnostic(args.output, diagnostic, error)
         return 2
     if not args.run:
         private_json(args.output / 'report.json', {'status': 'NOT_RUN', 'reason': '--run required', 'inputs': attribution})
+        driver_preflight_stage(diagnostic, 'run_required')
+        retain_driver_preflight_diagnostic(args.output, diagnostic)
         return 2
     try:
+        driver_preflight_stage(diagnostic, 'playwright_import')
         from playwright.sync_api import sync_playwright  # noqa: F401; dependency check only
     except ImportError as error:
         private_json(args.output / 'report.json', {'status': 'preflight_refused', 'actual_runtime': 'NOT_RUN',
             'kind': type(error).__name__, 'no_process_token_or_listener': True})
+        retain_driver_preflight_diagnostic(args.output, diagnostic, error)
         return 2
     result = True
     for case in (('normal', 'command-failure') if args.case == 'all' else (args.case,)):
