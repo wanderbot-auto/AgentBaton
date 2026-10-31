@@ -10,4 +10,3 @@ Original failure is not reclassified or replayed. Source-only result requires in
 # Root AST timing-fixture recovery — 2026-10-31
 
 The full 284-case infrastructure run at cbb16c7 retained one NameError in the extracted four-phase timing fixture: its injected namespace omitted the newly bound `wait_child_goal`. The fixture now injects the same original failing callable under that name, retaining the RuntimeError and `finally` end-stamp assertions for all four actual blocks. No runtime helper, observation deadline, retry count or product behavior changes. Actual rerun and independent review remain required; original failed log SHA-256 caf597c0ad7c24bd09f8b626500f5ec6d66f79eb9ac7e39a26a006b0352bc7fe is retained.
-
