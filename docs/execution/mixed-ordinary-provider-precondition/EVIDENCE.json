@@ -1,0 +1,32 @@
+{
+  "work_id": "mixed-ordinary-provider-precondition",
+  "base_commit": "accc1aeb4cf33e770a623824a56651b5f30e0eb8",
+  "branch": "codex/mixed-ordinary-provider-precondition",
+  "worktree": "/tmp/mixed-ordinary-provider-precondition",
+  "authority": "AB-START-001; Root test-precondition-only delegation",
+  "source_sha256": {"crates/core/tests/factory_runtime_ipc.rs": "cb5de282125ac02394a301ab43bce35f163496120e78ea21265cc31b1fa9272a"},
+  "existing_failure": {
+    "product_run": 41168426054,
+    "arm_job": 124440924635,
+    "source": "784afd593f81ac62e638f16dbcf065de4b6fcde9",
+    "log": "/workspace/.onboarding/notifications-784-ci/arm-product.log",
+    "log_sha256": "9645feb2812029b1278795535a388890e36881eadfe249be86c4582347b94255",
+    "core": {"passed": 225, "failed": 0},
+    "factory_runtime_ipc": {"passed": 26, "failed": 1},
+    "test": "mixed_live_ordinary_owned_process_blocks_factory_dispatch_without_refunding_shared_budget",
+    "assertion": "factory_runtime_ipc.rs:1300 captured_provider_message_bytes > 0",
+    "preserved": true,
+    "exact_runtime_interleaving_proven": false
+  },
+  "source_cause": "running is recorded before any generated Provider update receipt is required; the old test readiness condition omitted the message evidence required at settlement",
+  "change": "inside the original busy mixed_wait require same created session, running and positive session.update payload byte sum; move existing Connection::open before this wait with unchanged open flags; added SQL is SELECT only",
+  "guards": {"same_wait_seconds": 5, "same_pause_ms": 5, "additional_waits": 0, "additional_sleeps": 0, "additional_connections": 0, "later_states_accepted_as_ready": false, "final_assertions_and_counters_and_joins_byte_identical": true, "production_changed": false, "generated_ACP_changed": false},
+  "verification": [
+    {"command": "python3 /tmp/mixed-ordinary-provider-precondition-source-check.py", "exit_code": 0, "source_controls_passed": 7, "script_sha256": "ec2146058c08dfc001b834242bb522e71f3fbe4bfa0dcedfbb689f93ea054667", "result": "/tmp/mixed-ordinary-provider-precondition-source-check.json", "result_sha256": "85a09be01701cf4233bc84d297313e2939d8de1f8a689752599fe2de0d939134", "dimension": "pure source-text preservation only"},
+    {"command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --config skip_children=true --check crates/core/tests/factory_runtime_ipc.rs", "exit_code": 0, "dimension": "single-file formatting/parser only; no compilation"},
+    {"command": "git diff --check", "exit_code": 0}
+  ],
+  "not_run": ["SQL", "Cargo/Rust tests", "generated process/Core", "Node/browser", "native/macOS", "network/CI/push", "independent review"],
+  "root_pending": ["independent source review", "focused actual test", "complete factory_runtime_ipc target", "actual Mac evidence"],
+  "formal_approval": false
+}

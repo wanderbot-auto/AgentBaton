@@ -1201,19 +1201,24 @@ fn mixed_ordinary_then_goal(
         runtime,
         json!({"method":"sessions.send","params":{"session_id":ready["id"],"text":prompt},"expected_revision":ready["revision"],"idempotency_key":"mixed-ordinary-prompt"}),
     );
+    let db = Connection::open(path).unwrap();
     let current = mixed_wait(
         runtime,
         "sessions.get",
         json!({"session_id":ready["id"]}),
         |s| {
             if busy {
-                s["state"] == "running"
+                // send records running before the generated Provider's chunk
+                // arrives. Observe its real bytes within this same wait before
+                // testing contention and cancelling the owned process.
+                s["id"] == created["id"]
+                    && s["state"] == "running"
+                    && db.query_row("SELECT COALESCE(sum(octet_length(json_extract(document,'$.payload.update'))),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.update'",[created["id"].as_str().unwrap()],|r|r.get::<_,i64>(0)).unwrap()>0
             } else {
                 s["state"] == "ready" && s["turn_state"] == "completed"
             }
         },
     );
-    let db = Connection::open(path).unwrap();
     let before_attempts: i64 = db
         .query_row("SELECT count(*) FROM attempts", [], |r| r.get(0))
         .unwrap();

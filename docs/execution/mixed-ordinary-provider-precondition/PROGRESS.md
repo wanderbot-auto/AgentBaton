@@ -1,0 +1,9 @@
+# Source evidence and minimal fixture change
+
+The notif784 ARM log SHA-256 is `9645feb2812029b1278795535a388890e36881eadfe249be86c4582347b94255`. Product run41168426054, ARM job124440924635: Core225 passed; Factory target26 passed/1 failed. The first failure is `mixed_live_ordinary_owned_process_blocks_factory_dispatch_without_refunding_shared_budget` at `factory_runtime_ipc.rs:1300`: final `captured_provider_message_bytes > 0`. This evidence is separate from the older7ee integration_ipc INPUT_CHANGED failures.
+
+Source establishes the precondition gap: `sessions.rs:915` records running during send; the generated ACP emits `session/update` at fixture line229 and then holds without a turn response. Waiting only for running can therefore permit cancellation before that update has been stored. This log has no exact scheduling trace, so it does not prove the complete runtime interleaving.
+
+The patch moves the existing Connection::open before the current mixed_wait and adds only the busy predicate's exact-session positive-update byte condition. Its SELECT expression is byte-identical to `factory_budget.rs:240`'s captured-provider-message measurement. No SQL write, new connection, second wait, sleep, timeout, later-state shortcut or expectation change was added. The nonbusy completed-turn predicate is unchanged.
+
+Seven pure source controls pass: restoring only this predicate and the connection position recovers every baseline source byte; the final assertion/counter/join suffix and original wait helper are byte-identical; duration/wait/pause counts and all test entry points are unchanged; the generated ACP is unchanged; and the observation query binds the same created session and matches settlement. Rustfmt format/parser check and git diff --check passed. These are source observations only, not Rust/SQLite/macOS test results.
