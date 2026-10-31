@@ -1,0 +1,9 @@
+# Product source implemented; validation pending
+
+`DaemonError` now carries optional readonly retryability. The request adapter forwards only an actual boolean from the existing wire field; missing/malformed flags become undefined, and existing three-argument callers remain undefined. No other API consumer gained retry behavior.
+
+The panel retains one complete polling snapshot, bound to its exact parent identity and active Goal. A refresh captures that source and its starting epoch. Only exact typed Busy can retain readonly recovery, and only while the source object, parent identity, epoch, connection, authority and no-pending/no-write conditions still match. Scope/Grant changes and changed Task specification/goal observed before a later Busy close recovery. Timer callbacks recheck binding before reading. No stale observation sets fresh true; only the original complete validated refresh does so.
+
+Successful reads and Busy rereads share the original automatic counter and 1000ms interval. At twenty reads the panel pauses; it does not renew the counter. An explicit manual refresh retains the original reset rule. Nonpolling candidates, missing initial evidence, nonexact errors, unknown writes, changed identity/epoch and disconnection do not create recovery. The independent fresh-summary cancellation path and all write gates remain unchanged.
+
+Added 21 component mock cases and 7 transport cases cover successful recovery, stale write gates, twenty-read/manual behavior, missing/nonpolling sources, the error matrix, changed remote authority, asynchronous parent/epoch changes, disconnection and unknown cancellation without automatic writes. Node/typecheck and these tests are NOT_RUN here. `git diff --check` passed; this is source work awaiting Root review and execution, not a runtime pass.

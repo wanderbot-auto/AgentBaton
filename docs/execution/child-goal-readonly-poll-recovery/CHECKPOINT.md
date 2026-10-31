@@ -1,0 +1,7 @@
+# Independent product handoff
+
+Worktree `/tmp/child-goal-readonly-poll-recovery`; branch `codex/child-goal-readonly-poll-recovery`; base `16a968d240f7680bf44332aafd7f3c98aae457a0`. Changed paths are limited to `FactoryChildGoals.tsx`, its component test, `api.ts`, its existing test and this unit's documents. Source hashes and pending commands are in EVIDENCE.json.
+
+Root should independently review the captured epoch/parent/source binding, strict Busy classification, unchanged independent cancellation path and shared twenty-read budget, then run Node typecheck and the two focused test files. Existing component tests must also pass. All Node/Rust/Core/browser/SQL/network/CI/push execution is NOT_RUN by this subagent for this product change.
+
+The remote PR18 head7af normal failure established only an Owner-button wait failure and one list Busy in finite diagnostics; it did not establish that Busy caused the click failure. Its synthetic source was `5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3`, not a main merge. Original normal/cancel failure evidence remains intact. Later diagnostic-only browser/full-infra passes belong to Root's separately composed commits and do not validate this new product source. Component mocks establish neither real Provider behavior nor native/macOS support.

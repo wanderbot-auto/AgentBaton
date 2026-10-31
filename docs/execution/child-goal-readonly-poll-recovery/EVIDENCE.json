@@ -1,0 +1,20 @@
+{
+  "dimension": "product source and authored mock controls; Node/runtime not run",
+  "base": "16a968d240f7680bf44332aafd7f3c98aae457a0",
+  "source_sha256": {
+    "apps/desktop/src/FactoryChildGoals.tsx": "23e9524e6ad4a33c791fcf9a0e20252d1990b8ec15a0b1b0b266d914f13f661c",
+    "apps/desktop/src/FactoryChildGoals.test.tsx": "6bcd9ebe114789dc228cde1838477b7e0ac2c29b4df16dca4e5aa7e4b47f3904",
+    "apps/desktop/src/api.ts": "12f3c694a6e039b6378d09757bccdfde44eb84b7fbf7882c787306c019bff4bc",
+    "apps/desktop/src/api.test.ts": "110b05b30081cae7a3474806b824ea444309c2b100ae40ef7a43d4b162710584"
+  },
+  "git_diff_check": "passed",
+  "authored_component_cases": 21,
+  "authored_transport_cases": 7,
+  "node_tests": "not_run; Root owns execution",
+  "typecheck": "not_run",
+  "independent_review": "pending Root",
+  "pending_commands_from_apps_desktop": ["npm run typecheck", "npm test -- src/FactoryChildGoals.test.tsx src/api.test.ts"],
+  "retry_contract": {"typed_error_required": true, "code": "WORKSPACE_BUSY", "retryable": true, "side_effect_state": "not_started", "legacy_retryable_default": "undefined", "automatic_read_limit": 20, "interval_ms": 1000, "new_retry_budget": false, "new_timeout": false, "automatic_write": false, "stale_freshness_upgrade": false, "independent_cancel_summary_path_changed": false},
+  "old_remote_normal_failure": {"source_head": "7af5672c3c4ac0b252bb0fa66e8f857783d06226", "synthetic_source": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3", "observed": "Owner-button wait failed; one list Busy; causal link not established", "root_cause_claimed": false, "old_failures_relabelled": false},
+  "not_run": ["Node", "Rust", "Core", "browser", "SQL", "Provider/native/macOS", "network", "CI", "push"]
+}
