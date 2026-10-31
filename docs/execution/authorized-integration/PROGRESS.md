@@ -95,3 +95,8 @@ Source107f72 actual58sessions/Factory30/integrationIPC16, genuine14six/15five/16
 ## First precise CI recovery 2026-10-31T02:17:44.819536+00:00
 
 Keepba Environmentall3 andProductall4 failures. Linux newadmission1/Core229/command14/strictClippy/fullinfra491 pass, b4data21 remains source-bound. All actual commands, corrected fixture semantics, unresolvedUIreport cause and failed482/4error evidence are in FIRST_CI_CORRECTIONS.json SHA256 f32733a81f0fbb1e4767513b33eb5e509c74d40cc4660e305992bae3e0dad0a4. New preciseCI/dualMac/Native/packages/full130 remain open; no guard/budget/requiredcheck removed.
+
+
+## fbd exact CI terminal and local recovery — 2026-10-31T02:52:01.931546+00:00
+
+fbd Environment3PASS; Productall4FAIL: Rust/bothMac execution6/1 original v1 fixture differs from historical production NOTNULL; UI pre-driver measured140798744>original128MiB. Latercollectors secondary. Correctedcurrent9ed execution8/strictClippy/fmt and501infra PASS; samefbd explicitdebug0 build42149952daemon, same-head frontend+TaskWorkspace6actualchecks8PNG pass/cleanuptrue. No wholeCI/Mac acceptance claimed. See HEADFBD_CI_AND_LOCAL_RECOVERY.json SHA256 28530521d72609728aa00ae1f765bc0587932bc885840fa86d6465f163838841. NewexactCI and full130 remain open. OWNER001002/main653679dACK, no formalApprove or authority expansion.

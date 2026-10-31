@@ -1,3 +1,9 @@
+## Root17 exact fbd failures diagnosed; local fixes verified — 2026-10-31T02:52:01.931546+00:00
+
+fbd Environment41159796739 all3PASS; Product41159799252 all4FAIL. Rust/bothMac first failure is the old v1 synthetic fixture missing real production NOTNULL (execution6/1); Apple Silicon Core225 passed before it. UI driver was not launched: actual140798744-byte daemon exceeds unchanged128MiB guard. Oldba failure attribution stays distinct.
+
+Localcurrent9ed execution8/strictClippy/fmt and fullinfra501 pass. Samefbd debug0 actualbuild42149952-byte daemon, frontend and TaskWorkspace6realIPCchecks/8PNG pass with cleanupcomplete. Profile-only/testfixture fixes are independently reviewed; no production guards/budgets relaxed. [Exact evidence](authorized-integration/HEADFBD_CI_AND_LOCAL_RECOVERY.json). Newhead CI/dualMacNative/audit/installers/protectedintegration/full130 remain open. Separate notification1d source reviewed/types1088UI andbuild pass; not composed here or accepted Native. ParentOwnerharness ec5 lost-start actualpassed with exact9f tools/frontend and confirmedcleanup; currentharness normal/cancel stillunrun. Main653679d OWNER001002ACK/no003; permissions unchanged.
+
 ## First Root17 CI failures retained; local fixture corrections verified — 2026-10-31T02:17:44.819536+00:00
 
 Exactba first Environment41154588435 failedall3 (positive12PNG fixture; local explicit0022 reproduces private intermediate0755, CI umask/mode not retained); Product41154588518 failedall4: Rust current-schema16 assertion, bothMac canonical runtime fixture, UI TaskWorkspace report_missing. Do not count later evidence-collector errors as firstcause. CurrentLinux corrected admission1, fullCore229+command14 and strict alltargets/3legacyfeatureClippy pass; data21 remains bound tob4 failedmixedbatch. Explicitumask0022 fullinfra491 passes after preserved482/4ERROR strictworkflow-layer refusal. See [first CI corrections](authorized-integration/FIRST_CI_CORRECTIONS.json).
