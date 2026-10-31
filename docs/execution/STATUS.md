@@ -1,3 +1,9 @@
+## Integration screenshot observation and canonical fixture verified — 2026-10-31
+
+Reviewed sourcefffb combines the unchanged Parent canonical test fixture with closed failure-only screenshot observations. Exactfffb infrastructure715, real Unix IPC5, normal Core17/CLI/frontend build/freeze and direct actual browser normal5/failing4 with12 original PNGs pass; clean owned shutdown and absent success marker verified. [Evidence](integration-browser-failure-observation/EVIDENCE.json).
+
+Remote e509 Environment/Rust pass; UI normal remains failed after3 checks at private_independent_review/AssertionError, command-failure passes4; exact screenshot operation was not retained. DualMac still runs at this observation. Local success does not prove the remote cause resolved or replace Mac/native/current installer acceptance. No budget, assertion, source guard or original publishing rule weakened; full130 remains incomplete.
+
 ## Exact readonly observations and retained CI failures — 2026-10-31
 
 At ea0d49,84 FactoryChildGoals tests pass after observing actual timer registration and exact subsequent reads; the original1000ms interval/observation limits,20-read product bound and no-write controls remain. At29e2,default fullUI1147/64 passes with maxWorkers2 only; original deadlines/isolation remain. Same29e2 normal Core17/React with actual owned installed Chromium ELF passes direct integration normal5/failing4 and12original PNGs, both owned clean shutdowns/cleanup. These local results do not diagnose or replace a7 remote failures.
