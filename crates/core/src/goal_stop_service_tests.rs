@@ -405,7 +405,11 @@ impl Fixture {
             !self.daemon.supervisor.take_goal_stop_hint(),
             "Ready is not a terminal Goal outcome"
         );
-        let run = self.daemon.store.get_goal_run(&run.id).unwrap();
+        let run = if graph {
+            self.daemon.store.goal_graph_details(&run.id).unwrap().run
+        } else {
+            self.daemon.store.get_goal_run(&run.id).unwrap()
+        };
         let (id, text) = self
             .daemon
             .store
