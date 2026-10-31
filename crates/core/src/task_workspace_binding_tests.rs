@@ -742,21 +742,8 @@ fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future18() {
     let f = Fixture::new(false);
     let path = f.path.clone();
     let parent = f.root.path().to_path_buf();
-    // Keep this modified migration input if any later assertion panics.
-    struct KeepFailed(Option<TempDir>);
-    impl Drop for KeepFailed {
-        fn drop(&mut self) {
-            if std::thread::panicking() {
-                if let Some(root) = self.0.take() {
-                    eprintln!(
-                        "Retained synthetic15 migration failure: {}",
-                        root.keep().display()
-                    );
-                }
-            }
-        }
-    }
-    let _retained = KeepFailed(Some(f.root));
+    // The shared guard retains this modified migration input on assertion failure.
+    let _retained = f.root;
     let before = image(&f.store.conn);
     let exact = |db: &Connection| {
         let schema: Vec<(String, String, String, Option<String>)> = db
