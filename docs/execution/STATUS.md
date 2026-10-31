@@ -1,3 +1,9 @@
+## Parent18 merged; schema16 current regression verified — 2026-10-31T08:03:57.927916+00:00
+
+PR18 was normally protected-squash merged as7ecf0c5 after exact ae42 checks and independent review. PR19 source23d normally merges original ae42 and keeps strict16 history reads (15/17 refused). Actual210 Core (11history subset),33 Factory,58sessions,9Task targets,6genuine14 and5fresh genuine15 migrations pass; strict workspace/alltargets and migration Clippy/fmt pass. Type/build and1069 UI/59files plus342 infrastructure pass. All6 actual Chromium/React→normalCore16 UnixIPC scenarios/8originalPNG pass with genuine daemon wait0/cleanupcomplete; Root inspected2 originals. No NativeMac/Provider result is inferred.
+
+Preserve old stale-helper5failure, sparse-checkout342/1failure and initial0matched filter. Complete checkout source/index unchanged; fresh genuine15 input came from immutable original old15 binaries. [Exact commands and evidence](task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json). PR19 retarget/ancestry marker and exact new CI/dualMac/installers remain pending. Owner001/002 ACK/no003; full130 incomplete and all authority limits unchanged.
+
 ## Readonly Goal polling recovers safely; local regression checked — 2026-10-31T05:42:21.877135+00:00
 
 New source fdf0d2c preserves the original20-read/one-second limit and enables readonly recovery only for exact typed retryable/not_started Busy from the same validated source. Actions remain stale until the complete view is checked. Type checks,954 UI tests/55 files, frontend build, fresh same-source Core/CLI and296 infrastructure checks passed. Real Linux Core/browser normal4, cancel4 and lost-start5 checks passed with cleanup. [Exact evidence](child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json) SHA256 b2e991398b436dc7aeee102676c246bb43eba4b79a20eef35c60962b813839dd. Targeted93 overlaps full954; their counts are not added. Original65/28 timeout and92/1 selector failures remain.

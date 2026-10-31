@@ -73,7 +73,8 @@
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
+        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -104,6 +105,13 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "parent_ae42_schema16_task_workspace_composition",
+          "source": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+          "evidence": "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+          "dimension": "Local actual Rust/migration/React/UnixIPC only; Native/Mac/current CI pending",
+          "coverage": "partial"
         }
       ],
       "data_workspace_contribution": {
@@ -158,7 +166,8 @@
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
+        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -189,6 +198,13 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "parent_ae42_schema16_task_workspace_composition",
+          "source": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+          "evidence": "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+          "dimension": "Local actual Rust/migration/React/UnixIPC only; Native/Mac/current CI pending",
+          "coverage": "partial"
         }
       ],
       "data_workspace_contribution": {
@@ -273,7 +289,8 @@
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
+        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -304,6 +321,13 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "parent_ae42_schema16_task_workspace_composition",
+          "source": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+          "evidence": "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+          "dimension": "Local actual Rust/migration/React/UnixIPC only; Native/Mac/current CI pending",
+          "coverage": "partial"
         }
       ],
       "data_workspace_contribution": {
@@ -5078,7 +5102,8 @@
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
+        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json"
       ],
       "limitations": [
         "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open.",
@@ -5112,6 +5137,13 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "parent_ae42_schema16_task_workspace_composition",
+          "source": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+          "evidence": "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+          "dimension": "Local actual Rust/migration/React/UnixIPC only; Native/Mac/current CI pending",
+          "coverage": "partial"
         }
       ],
       "task_workspace_binding_contribution": {

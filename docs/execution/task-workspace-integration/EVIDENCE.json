@@ -599,5 +599,12 @@
     "format": "passed",
     "workspace_all_targets_clippy": "passed",
     "not_a_sum": true
+  },
+  "latest_parent_ae42_record": {
+    "source": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+    "evidence": "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+    "sha256": "9fce2ec1e09a7ac9b80eec4073cb81f49bedb8e2cb0874c1efc996ac4ce56deb",
+    "parent_PR18": "merged protected squash7ecf0c5; current feature PR19 CI pending",
+    "coverage": "partial; current Linux actual tests/UnixIPC only"
   }
 }
