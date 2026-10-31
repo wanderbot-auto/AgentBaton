@@ -188,22 +188,60 @@ fn malformed_config_and_original_cancel_or_deadline_never_admit_a_read() {
     }
 }
 #[test]
-fn config_values_are_not_keys_and_key_subsections_keep_original_meaning() {
+fn nul_separated_key_subsections_keep_original_meaning() {
     assert_eq!(
-        bound_config_categories(
-            b"core.note\ninclude.path\nmerge.evil.driver\0user.name\nfilter.x\0"
-        )
-        .unwrap(),
+        bound_config_categories(b"core.note\0user.name\0").unwrap(),
         [false; 4]
     );
-    assert_eq!(bound_config_categories(b"includeif.gitdir:/unused/.path\0merge.Mixed.driver\nfalse\0filter.Mixed.clean\nfalse\0remote.Mixed.promisor\nfalse\0").unwrap(),[true;4]);
+    assert_eq!(bound_config_categories(b"includeif.gitdir:/unused/.path\0merge.Mixed.driver\0filter.Mixed.clean\0remote.Mixed.promisor\0").unwrap(),[true;4]);
     assert_eq!(
-        bound_config_categories(
-            b"remote.notpromisor\ntrue\0x.include.path\nfalse\0core.note\n\xff\0"
-        )
-        .unwrap(),
+        bound_config_categories(b"remote.notpromisor\0x.include.path\0").unwrap(),
         [false; 4]
     );
     assert_eq!(bound_config_categories(b"").unwrap(), [false; 4]);
-    assert!(bound_config_categories(b"core.note\nmissing-final-NUL").is_err());
+    assert!(bound_config_categories(b"core.note-missing-final-NUL").is_err());
+}
+#[test]
+fn actual_multiline_values_are_never_mistaken_for_executable_config_keys() {
+    let (_temp, grant) = repository();
+    git(
+        &grant.root,
+        &[
+            "config",
+            "fixture.note",
+            "include.path\nmerge.fixture.driver\nfilter.fixture.clean\nremote.fixture.promisor",
+        ],
+    );
+    let cancel = AtomicBool::new(false);
+    let control = AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(15));
+    assert_eq!(
+        kind(reject_bound_unsafe_config_controlled(
+            &grant,
+            Some(&control)
+        )),
+        "safe"
+    );
+    assert_eq!(kind(previous_four_query_guard(&grant)), "safe");
+    assert_eq!(control.preparation.lock().unwrap().git_calls_attempted, 1);
+}
+#[test]
+fn actual_empty_subsection_config_declarations_preserve_the_original_refusal() {
+    use std::io::Write;
+    for raw in [
+        b"\n[remote \"\"]\n promisor = false\n".as_slice(),
+        b"\n[includeIf \"\"]\n path = /no/such/file\n".as_slice(),
+    ] {
+        let (_temp, grant) = repository();
+        let mut file = fs::OpenOptions::new()
+            .append(true)
+            .open(grant.common_dir.join("config"))
+            .unwrap();
+        file.write_all(raw).unwrap();
+        file.sync_all().unwrap();
+        assert_eq!(
+            kind(reject_bound_unsafe_config_controlled(&grant, None)),
+            "unsafe"
+        );
+        assert_eq!(kind(previous_four_query_guard(&grant)), "unsafe");
+    }
 }

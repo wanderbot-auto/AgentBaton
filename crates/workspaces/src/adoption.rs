@@ -638,13 +638,10 @@ fn bound_config_categories(bytes: &[u8]) -> Result<[bool; 4], AdoptionError> {
         return Err(WorkspaceError::UnsafeRepository.into());
     }
     let mut forbidden = [false; 4];
-    for record in bytes.split(|byte| *byte == 0).filter(|row| !row.is_empty()) {
-        // Git -z config lists use LF between key/value and NUL between rows.
-        // Values (including LF or non-UTF8 bytes) are never interpreted as keys.
-        let key = record
-            .split(|byte| *byte == b'\n')
-            .next()
-            .unwrap_or_default();
+    // --name-only -z emits only complete NUL-separated keys. Values never
+    // enter this parser, so embedded newlines or arbitrary value bytes cannot
+    // masquerade as a configuration declaration.
+    for key in bytes.split(|byte| *byte == 0).filter(|row| !row.is_empty()) {
         forbidden[0] |= key == b"include.path"
             || (key.starts_with(b"includeif.")
                 && key.ends_with(b".path")
@@ -667,7 +664,7 @@ fn reject_bound_unsafe_config_controlled(
     controlled_check(control)?;
     let result = bound_output(
         grant,
-        &["config", "--no-includes", "--null", "--list"],
+        &["config", "--no-includes", "--null", "--name-only", "--list"],
         control,
     )?;
     controlled_check(control)?;
