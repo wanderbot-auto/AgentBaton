@@ -17,8 +17,11 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     fs::{self, File, Metadata, OpenOptions},
     io::Write,
-    os::unix::fs::{MetadataExt, OpenOptionsExt},
-    path::{Path, PathBuf},
+    os::unix::{
+        ffi::OsStrExt,
+        fs::{MetadataExt, OpenOptionsExt},
+    },
+    path::{Component, Path, PathBuf},
     time::Duration,
 };
 
@@ -28,6 +31,8 @@ const MAX_DOCUMENT: usize = 65_536;
 const MAX_INPUT: usize = 262_144;
 const MAX_OUTPUT: usize = 16_384;
 const MAX_DATABASE: u64 = 64 * 1024 * 1024;
+const MAX_ANCESTORS: usize = 64;
+const MAX_PATH_BYTES: usize = 4096;
 const PREFIX: &[u8] = b"INTEGRATION_STAGE_FAILURE ";
 const UNKNOWN: &str = "integration.stage_unknown";
 const PREPARATION: &str = "integration.preparation_io_observed";
@@ -516,6 +521,24 @@ struct Pin {
     metadata: Metadata,
 }
 impl Pin {
+    fn ancestor(path: &Path) -> Checked<Self> {
+        let file = OpenOptions::new()
+            .read(true)
+            .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC | libc::O_DIRECTORY)
+            .open(path)
+            .map_err(|_| ())?;
+        let metadata = file.metadata().map_err(|_| ())?;
+        require(metadata.is_dir())?;
+        // Ancestors include / and shared /tmp: their ownership/mode is not
+        // private-fixture ownership. Every identity AND mutation fact is pinned.
+        let pin = Self {
+            path: path.into(),
+            file,
+            metadata,
+        };
+        pin.check()?;
+        Ok(pin)
+    }
     fn open(path: &Path, directory: bool) -> Checked<Self> {
         let file = OpenOptions::new()
             .read(true)
@@ -555,6 +578,38 @@ impl Pin {
         )
     }
 }
+struct Ancestors {
+    pins: Vec<Pin>,
+}
+impl Ancestors {
+    fn capture(runtime: &Path) -> Checked<Self> {
+        require(runtime.is_absolute() && runtime.as_os_str().as_bytes().len() <= MAX_PATH_BYTES)?;
+        let mut current = PathBuf::new();
+        let mut pins = Vec::new();
+        for part in runtime.components() {
+            require(pins.len() < MAX_ANCESTORS)?;
+            match part {
+                Component::RootDir if pins.is_empty() => current.push(part.as_os_str()),
+                Component::Normal(name) if !pins.is_empty() => current.push(name),
+                _ => return Err(()),
+            }
+            pins.push(Pin::ancestor(&current)?);
+        }
+        // Do not silently normalize '.', '..', repeated separators or aliases.
+        require(!pins.is_empty() && current.as_os_str() == runtime.as_os_str())?;
+        Ok(Self { pins })
+    }
+    fn check(&self) -> Checked<()> {
+        require(!self.pins.is_empty() && self.pins.len() <= MAX_ANCESTORS)?;
+        for pin in &self.pins {
+            // same() includes each parent's mtime/ctime at nanosecond precision.
+            // Renaming a child away and back still mutates that parent edge.
+            // Shared /tmp or / mutations are refused too, without an exemption.
+            pin.check()?;
+        }
+        Ok(())
+    }
+}
 fn no_journal(runtime: &Path) -> Checked<()> {
     // immutable read ignores journals: refuse any journal instead of omitting it.
     for name in [
@@ -570,7 +625,6 @@ fn no_journal(runtime: &Path) -> Checked<()> {
     Ok(())
 }
 fn uri(path: &Path) -> Checked<String> {
-    use std::os::unix::ffi::OsStrExt;
     require(path.is_absolute())?;
     let mut text = String::from("file:");
     for byte in path.as_os_str().as_bytes() {
@@ -591,9 +645,12 @@ fn collect(runtime: &Path, b: &Binding) -> Checked<Value> {
             && identifier(&b.policy)
             && fs::canonicalize(runtime).map_err(|_| ())? == runtime,
     )?;
+    let ancestors = Ancestors::capture(runtime)?;
+    ancestors.check()?;
     let directory = Pin::open(runtime, true)?;
     let database = Pin::open(&runtime.join("baton.sqlite3"), false)?;
     no_journal(runtime)?;
+    ancestors.check()?;
     let db = Connection::open_with_flags(
         uri(&database.path)?,
         OpenFlags::SQLITE_OPEN_READ_ONLY
@@ -601,6 +658,7 @@ fn collect(runtime: &Path, b: &Binding) -> Checked<Value> {
             | OpenFlags::SQLITE_OPEN_NO_MUTEX,
     )
     .map_err(|_| ())?;
+    ancestors.check()?;
     db.busy_timeout(Duration::ZERO).map_err(|_| ())?;
     db.execute_batch("PRAGMA query_only=ON; BEGIN;")
         .map_err(|_| ())?;
@@ -679,6 +737,7 @@ fn collect(runtime: &Path, b: &Binding) -> Checked<Value> {
     database.check()?;
     directory.check()?;
     no_journal(runtime)?;
+    ancestors.check()?;
     require(fs::canonicalize(runtime).map_err(|_| ())? == runtime)?;
     Ok(value)
 }

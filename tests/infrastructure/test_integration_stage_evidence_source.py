@@ -1,6 +1,8 @@
 """Source/inverse checks only; these do not execute Rust or SQLite."""
 import hashlib
+import os
 import re
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -41,6 +43,67 @@ def fields(text, name):
 
 
 class IntegrationStageEvidenceSourceTests(unittest.TestCase):
+    def test_real_filesystem_ancestor_swapback_old_pins_pass_new_guard_refuses(self):
+        # Synthetic regular-file opening witness only: no SQLite or product.
+        def facts(info):
+            return (info.st_dev, info.st_ino, info.st_uid, info.st_gid,
+                    info.st_mode, info.st_nlink, info.st_size,
+                    info.st_mtime_ns, info.st_ctime_ns)
+        with tempfile.TemporaryDirectory(prefix='arm-stage-ancestor-model-') as text:
+            base = Path(text).resolve(strict=True)
+            original, foreign, parked = (base / name for name in ('original', 'foreign', 'parked'))
+            for root, byte in ((original, b'A'), (foreign, b'B')):
+                runtime = root / 'nested/runtime'
+                runtime.mkdir(parents=True, mode=0o700)
+                (runtime / 'baton.sqlite3').write_bytes(byte * 100)
+                (runtime / 'baton.sqlite3').chmod(0o600)
+            runtime = original / 'nested/runtime'
+            database = runtime / 'baton.sqlite3'
+            descriptors = []
+            try:
+                for path in [*reversed(runtime.parents), runtime, database]:
+                    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+                    if path != database:
+                        flags |= os.O_DIRECTORY
+                    descriptor = os.open(path, flags)
+                    descriptors.append((path, descriptor, facts(os.fstat(descriptor))))
+                original.rename(parked)
+                foreign.rename(original)
+                pathname_bytes = database.read_bytes()
+                held_bytes = os.read(descriptors[-1][1], 100)
+                original.rename(foreign)
+                parked.rename(original)
+                self.assertEqual(pathname_bytes, b'B' * 100)
+                self.assertEqual(held_bytes, b'A' * 100)
+                for path, fd, before in descriptors[-2:]:
+                    self.assertEqual(facts(os.fstat(fd)), before)
+                    self.assertEqual(facts(path.lstat()), before)
+                self.assertEqual(runtime.resolve(strict=True), runtime)
+                parent = next(pin for pin in descriptors if pin[0] == base)
+                self.assertNotEqual(facts(os.fstat(parent[1])), parent[2])
+                # Root-to-runtime includes shared ancestors; no prefix exemption.
+                self.assertEqual(descriptors[0][0], Path('/'))
+                self.assertTrue(any(facts(os.fstat(fd)) != before
+                                    or facts(path.lstat()) != before
+                                    for path, fd, before in descriptors))
+            finally:
+                for _, fd, _ in descriptors:
+                    os.close(fd)
+
+    def test_ancestor_mutation_guard_surrounds_sqlite_path_reader(self):
+        source = MODULE.read_text()
+        collector = source.split('fn collect(', 1)[1]
+        self.assertLess(collector.index('Ancestors::capture(runtime)?'), collector.index('Connection::open_with_flags'))
+        self.assertIn('ancestors.check()?;', collector.split('drop(db);', 1)[1])
+        self.assertEqual(collector.count('ancestors.check()?;'), 4)
+        ancestors = source.split('impl Ancestors {', 1)[1].split('fn no_journal(', 1)[0]
+        self.assertIn('Component::RootDir if pins.is_empty()', ancestors)
+        self.assertIn('pins.push(Pin::ancestor(&current)?)', ancestors)
+        self.assertIn('for pin in &self.pins', ancestors)
+        self.assertIn('pin.check()?;', ancestors)
+        for required in ['MAX_ANCESTORS: usize = 64', 'MAX_PATH_BYTES: usize = 4096', 'a.mtime_nsec()', 'a.ctime_nsec()', 'b.mtime_nsec()', 'b.ctime_nsec()']:
+            self.assertIn(required, source)
+
     def test_whole_fixture_inverse_exact_e874(self):
         self.assertEqual(hashlib.sha256(fixture_inverse(FIXTURE.read_text()).encode()).hexdigest(), '149693770c6c6bce56def9b9b8a8fe43f8fc7c0657fb31adef45595b64813e06')
 
@@ -103,7 +166,7 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
         source = RUST_TEST.read_text()
         for required in ['must not read', 'PRIVATE_CANARY_DO_NOT_PUBLISH', 'other-attempt', 'foreign', '33', '65', 'worker_thread_joined', 'git_stdout_observed_bytes', 'source_commit', 'unrecognized', 'server.finish()', 'result.is_ok()']:
             self.assertIn(required, source)
-        self.assertEqual(source.count('#[test]'), 9)
+        self.assertEqual(source.count('#[test]'), 10)
 
 
 if __name__ == '__main__':

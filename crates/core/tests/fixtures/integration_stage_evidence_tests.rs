@@ -1,6 +1,54 @@
 use super::*;
 const CANARY: &str = "PRIVATE_CANARY_DO_NOT_PUBLISH";
 #[test]
+fn ancestor_swap_back_keeps_old_pins_but_new_parent_mutation_guard_refuses() {
+    use std::io::Read;
+    use std::os::unix::fs::PermissionsExt;
+    let temp = tempfile::tempdir().unwrap();
+    let base = fs::canonicalize(temp.path()).unwrap();
+    let original = base.join("original");
+    let foreign = base.join("foreign");
+    for (root, byte) in [(&original, b'A'), (&foreign, b'B')] {
+        let runtime = root.join("nested/runtime");
+        fs::create_dir_all(&runtime).unwrap();
+        fs::set_permissions(&runtime, fs::Permissions::from_mode(0o700)).unwrap();
+        let database = runtime.join("baton.sqlite3");
+        fs::write(&database, [byte; 100]).unwrap();
+        fs::set_permissions(database, fs::Permissions::from_mode(0o600)).unwrap();
+    }
+    let runtime = original.join("nested/runtime");
+    let old_runtime = Pin::open(&runtime, true).unwrap();
+    let old_database = Pin::open(&runtime.join("baton.sqlite3"), false).unwrap();
+    let ancestors = Ancestors::capture(&runtime).unwrap();
+    let parent_pin = ancestors.pins.iter().find(|pin| pin.path == base).unwrap();
+    let parked = base.join("parked");
+    fs::rename(&original, &parked).unwrap();
+    fs::rename(&foreign, &original).unwrap();
+    let pathname_bytes = fs::read(runtime.join("baton.sqlite3")).unwrap();
+    let mut held_bytes = Vec::new();
+    (&old_database.file).read_to_end(&mut held_bytes).unwrap();
+    fs::rename(&original, &foreign).unwrap();
+    fs::rename(&parked, &original).unwrap();
+    assert_eq!(pathname_bytes, vec![b'B'; 100]);
+    assert_eq!(held_bytes, vec![b'A'; 100]);
+    assert!(old_runtime.check().is_ok());
+    assert!(old_database.check().is_ok());
+    assert_eq!(fs::canonicalize(&runtime).unwrap(), runtime);
+    // This specific parent changed, independently of other shared /tmp users.
+    let now = parent_pin.file.metadata().unwrap();
+    assert_ne!(
+        (
+            parent_pin.metadata.mtime(),
+            parent_pin.metadata.mtime_nsec(),
+            parent_pin.metadata.ctime(),
+            parent_pin.metadata.ctime_nsec()
+        ),
+        (now.mtime(), now.mtime_nsec(), now.ctime(), now.ctime_nsec())
+    );
+    assert!(parent_pin.check().is_err());
+    assert!(ancestors.check().is_err());
+}
+#[test]
 fn private_pins_refuse_aliases_replacement_special_files_and_journals() {
     use std::os::unix::{
         ffi::OsStrExt,
