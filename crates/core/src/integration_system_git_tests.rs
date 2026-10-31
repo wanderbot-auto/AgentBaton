@@ -63,7 +63,8 @@ fn system_git_policy_allows_only_the_exact_apple_entry_on_the_protected_root_sna
 
 #[test]
 fn system_git_policy_refuses_writable_unknown_data_or_non_snapshot_mounts() {
-    let mutations: &[(&str, fn(&mut AppleSystemVolume))] = &[
+    type VolumeMutation = (&'static str, fn(&mut AppleSystemVolume));
+    let mutations: &[VolumeMutation] = &[
         ("vfs writable", |v| v.readonly = false),
         ("inconsistent vfs flags", |v| v.vfs_flags = 0),
         ("mount writable", |v| v.flags &= !0x0000_0001),
@@ -95,7 +96,8 @@ fn system_git_policy_refuses_writable_unknown_data_or_non_snapshot_mounts() {
 
 #[test]
 fn system_git_policy_refuses_user_owned_writable_nonregular_or_unlinked_images() {
-    let mutations: &[(&str, fn(&mut AppleFileIdentity))] = &[
+    type FileMutation = (&'static str, fn(&mut AppleFileIdentity));
+    let mutations: &[FileMutation] = &[
         ("user owner", |f| f.uid = 501),
         ("group write", |f| f.mode |= 0o020),
         ("world write", |f| f.mode |= 0o002),
