@@ -366,7 +366,8 @@
         "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
         "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+        "docs/execution/workspace-open-directory/WORKSPACE_DRIVER_SCOPE_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -6698,7 +6699,8 @@
       },
       "evidence": [
         "docs/execution/workspace-open-directory/ROOT_LOCAL_RESULTS.json",
-        "docs/execution/workspace-open-directory/COMPOSED_CAPTURE_RESULTS.json"
+        "docs/execution/workspace-open-directory/COMPOSED_CAPTURE_RESULTS.json",
+        "docs/execution/workspace-open-directory/WORKSPACE_DRIVER_SCOPE_RESULTS.json"
       ],
       "limitations": [
         "Core7 UnixIPC, mocked UI transport tests and Linux Native library are separate dimensions; real end-to-end UI→Native→Core→OS not accepted",
