@@ -11,3 +11,7 @@ Composed source d8d8f0b8005b2aa27f354ad2404344d8f5a3f908: 522 infrastructure tes
 ## Root platform composition verified — 2026-10-31T06:41:12.403981+00:00
 
 Merged784+e874 at898; fulltypes/UI1088 and infrastructure600 pass after retained sparse-checkout first failure. Fresh same898 Core/frontend with exact full flagged CI wrapper passes normal/failure9 and notification6,16original PNGs total, cleanup confirmed. See COMPOSED_ROOT_E874_RESULTS.json SHA256 305a2be71a664987c2f4bee6e04dce34b1c9b3b9304c6c565c711fbc8d8e2651. Old784 CI failures remain. Shared CI Python permissions need preparation correction before the new exact platform run; Native/full130 remain open.
+
+## Capture composition follow-up — 2026-10-31
+
+Pre-metadata head ddf93a212ce207fa09207dba840276db51654860 on codex/task-notification-aggregation, draftPR22; oldremote784 must be read in full before guarded push. No new exact remote run yet. Next: independent seven-file evidence and b369 metadata composition review, one normal push, one existing Environment/Product dispatch each because base is a feature branch; exact dual-Mac/native/current installer results remain open. Full130 scope and all authority limits remain.

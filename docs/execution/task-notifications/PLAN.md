@@ -5,3 +5,7 @@ Implement AB-SES-007 with real existing Task/session/event reads, one Task notic
 Source 287b7d5831ce7b06d33b91578e8c54d5d69289fa; EVIDENCE.json SHA256 6737e0503564b479fd27af5fec58af6d8638c0c8c7af3c87495957c4efd31dea. Full Designv0.2/130 scope and AB-START-001 unchanged.
 
 Completed local implementation/source review/types/UI/build/pairedCore+frontend/actualallintegrationandnotify/finiteprojection. Next publish reviewed dependentPR, run exactCIincludingnewprobe, verify bothMacNative and continue all remaining130 requirements.
+
+## Capture composition follow-up — 2026-10-31
+
+Compose reviewed Root capture/runtime diagnostics and worker-bound tests while retaining notification UI/read-only bridge. Correct only the exact test composition inverse, then bind actual normal Core17/frontend/probe evidence before a new candidate CI.

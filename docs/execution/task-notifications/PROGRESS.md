@@ -11,3 +11,7 @@ Composed setup diagnostics and notification CI inverses without changing any his
 ## Root platform composition verified — 2026-10-31T06:41:12.403981+00:00
 
 Merged784+e874 at898; fulltypes/UI1088 and infrastructure600 pass after retained sparse-checkout first failure. Fresh same898 Core/frontend with exact full flagged CI wrapper passes normal/failure9 and notification6,16original PNGs total, cleanup confirmed. See COMPOSED_ROOT_E874_RESULTS.json SHA256 305a2be71a664987c2f4bee6e04dce34b1c9b3b9304c6c565c711fbc8d8e2651. Old784 CI failures remain. Shared CI Python permissions need preparation correction before the new exact platform run; Native/full130 remain open.
+
+## Capture composition follow-up — 2026-10-31
+
+b369 defaultUI1166/66files passes. Its complete infrastructure721/1 fails at the old full-workflow inverse; strict test-onlyddf fix retains6d82 and original negatives. ddf infrastructure724/type-build/normalCore17/CLI/freeze and direct integration normal5/failed-command4+notification6/16originalPNG pass with clean owned shutdown. Independent composition/source reviews are retained. Main viewed actual DND mobile PNG; no Mac or OS notification claim.

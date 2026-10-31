@@ -1,3 +1,9 @@
+## Notification capture composition verified locally — 2026-10-31
+
+Notificationb369 defaultUI1166/66files passed; infrastructure721/1 failed at a composition inverse and the planned build did not run. Reviewed test-onlyddf restores the exact old e874 workflow after both approved layers, preserving6d82 and all original negative assertions. ddf complete infrastructure724, frontend type/build and normal Core17/CLI build/freeze pass. Same-source direct real IPC/browser integration normal5/command-failure4 and notification6 pass with16 original PNGs and clean owned shutdown. [Source-bound evidence](task-notifications/COMPOSED_CAPTURE_RESULTS.json).
+
+No new exact Notification CI, Native/macOS, OS/background delivery,100 real repeats, current installers or full130 completion claimed. Root/Directory CI failures remain distinct. Next: independent evidence review, one candidate push/check pair, then continue dependency-ready full development.
+
 ## Exact readonly observations and retained CI failures — 2026-10-31
 
 At ea0d49,84 FactoryChildGoals tests pass after observing actual timer registration and exact subsequent reads; the original1000ms interval/observation limits,20-read product bound and no-write controls remain. At29e2,default fullUI1147/64 passes with maxWorkers2 only; original deadlines/isolation remain. Same29e2 normal Core17/React with actual owned installed Chromium ELF passes direct integration normal5/failing4 and12original PNGs, both owned clean shutdowns/cleanup. These local results do not diagnose or replace a7 remote failures.
