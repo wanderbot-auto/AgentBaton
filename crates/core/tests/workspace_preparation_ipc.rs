@@ -120,7 +120,11 @@ impl Fixture {
         assert_eq!(root.path().parent(), Some(parent.as_path()));
         assert_eq!(root.path().canonicalize().unwrap().as_path(), root.path());
         assert_eq!(
-            fs::symlink_metadata(root.path()).unwrap().permissions().mode() & 0o777,
+            fs::symlink_metadata(root.path())
+                .unwrap()
+                .permissions()
+                .mode()
+                & 0o777,
             0o700
         );
         let source = root.path().join("source");
@@ -408,7 +412,10 @@ fn aliased_runtime_parent_is_refused_without_creating_state() {
     };
     assert_eq!(error.code, "PERMISSION_DENIED");
     assert_eq!(error.side_effect_state, "not_started");
-    assert_eq!(error.message, "Runtime paths must not contain symbolic links");
+    assert_eq!(
+        error.message,
+        "Runtime paths must not contain symbolic links"
+    );
     assert!(!actual.join("runtime").exists());
     assert_eq!(fs::read_link(alias).unwrap(), actual);
 }
