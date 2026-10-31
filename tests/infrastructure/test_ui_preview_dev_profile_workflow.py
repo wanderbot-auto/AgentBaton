@@ -64,7 +64,7 @@ class UiPreviewDevProfileWorkflow(unittest.TestCase):
     def test_exact_two_line_inverse_keeps_all_older_complete_source_pins(self):
         self.assertEqual(H.APPROVED_UI_PREVIEW_PROFILE_BASE, 'fbd5b3103794cc163ae91d9f3407fe2dfb90ea49')
         restored = H.strip_approved_ui_preview_profile(self.text)
-        self.assertEqual(restored, self.text.replace(H.UI_PREVIEW_BUILD_AFTER, H.UI_PREVIEW_BUILD_BEFORE, 1).replace(H.UI_PREVIEW_SCOPE_AFTER, H.UI_PREVIEW_SCOPE_BEFORE, 1))
+        self.assertEqual(restored, H.strip_private_browser_python(self.text).replace(H.UI_PREVIEW_BUILD_AFTER, H.UI_PREVIEW_BUILD_BEFORE, 1).replace(H.UI_PREVIEW_SCOPE_AFTER, H.UI_PREVIEW_SCOPE_BEFORE, 1))
         self.assertEqual(H.BASELINE_PRODUCT_SHA256, '4b7543d61e8846248e1b7474ff6fe15d64068612fadbd44f6fe7585933a3378d')
         self.assertEqual(H.BROWSER_CI_BASE_SHA256, '599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc')
         self.assertEqual(H.APPROVED_TASK_WORKSPACE_DIAGNOSTIC_FUNCTION_SHA256, '4cd9ae4b6ec58defa7ddfd693c9e567bfa972596ceb0500fbabea35a2b852bf9')
