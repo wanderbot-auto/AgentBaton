@@ -4,7 +4,7 @@
   "unit": "desktop/UI/Native directory-only handoff",
   "base": "e874b123d3e7f329a551e21922baf1a7a643548f",
   "branch": "codex/workspace-open-desktop",
-  "status": "source_implemented_shared_hooks_and_Root_execution_pending",
+  "status": "selected_mounted_component_API_47_passed_at_Root087_Native_full_chain_pending",
   "authority": "AB-START-001 and Root bounded workspace-open contract; no real OS handoff authorized to this worker",
   "contract": {
     "path": "/workspace/.onboarding/workspace-open-contract-v1.json",
@@ -93,32 +93,52 @@
       "source_proof": "/tmp/workspace-open-window-bound-source-proof.json",
       "source_proof_sha256": "75188f929defa46cb9a7d1e42340c7d536d0a51867aea8f536f9b50fc4c8100d",
       "native_runtime": "NOT_RUN"
+    },
+    {
+      "kind": "Root actual mounted integration plus existing component/API",
+      "source": "08723aefacd6ab7a8d8db6cba19e2521e8df51ff",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "src/ExternalWorkspaceOpen.integration.test.tsx",
+        "src/ExternalWorkspaceOpen.test.tsx",
+        "src/workspace-open-api.test.ts"
+      ],
+      "exit": 0,
+      "seconds": 2.50845175399445,
+      "tests": 47,
+      "files": 3,
+      "mounted_cases": 6,
+      "existing_component_API_cases": 41,
+      "RESULT": "/workspace/.onboarding/workspace-open-mounted-integration-fixed1/RESULT.json",
+      "RESULT_sha256": "169f7c5afe7404398e4722e5625ffd260ac4280734cac4c133dce34459cdf73f",
+      "INPUTS_sha256": "f92514ad17851ede196b40b216a9f17b47c21a3662d74a90eb8a858a2ab3d131",
+      "log_sha256": "1fa418d7e9305df293c972e0b1d80a198343487b4e374a088b5e875ab9101c2d",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "dimension": "Actual Node/React mocked-daemon+Tauri-transport tests; no true CoreIPC, Native terminal, OS handoff or target-directory evidence"
     }
   ],
-  "authored_NOT_RUN": {
-    "API_wire": "exact source/managed request, forbidden fields, unsafe revisions, terminal/UUID, u64/path/context mismatch, result contradiction, transport no retry, dirty source and ready data/list refusal matrix",
-    "component": "explicit choice/oneflight, unknown manual recovery, disconnect/task/project/revision/close/blocked stale reply matrix, stale choices, remount uncertainty, bilingual refusal, no raw errors",
-    "native_pure_tests": 9,
-    "native_scope": "closed DTO/error context, true main origin, exact argv/env with special text, zero exit and strict time/status matrix; no real spawn"
-  },
   "not_run": [
-    "Node/typecheck/UI tests",
+    "typecheck/full UI suite beyond selected47",
     "Cargo/native compile/tests",
-    "actual Core/SQLite/IPC",
+    "true Core-to-Native IPC/handoff chain",
     "OS process/opener/Terminal",
     "browser",
     "native main lifecycle integration",
-    "Darwin target-directory observation",
+    "Darwin target-directory observation/manual smoke",
     "network/CI/push",
     "Provider/model calls",
-    "formal Approve/merge"
+    "formal Approve/merge/full130acceptance"
   ],
   "remaining": [
-    "Root compose Core DTO/helper exports and narrow shared hooks",
-    "independent source review",
-    "Root types/focused/full UI and Native compilation/tests",
-    "real UnixIPC read/no-write before-after evidence",
-    "actual dualMac handoff and observed target directory or explicit NOT_RUN/manual record"
+    "Root type/full UI/native compilation and runtime checks",
+    "fresh real OwnerIPC-to-Native no-write before-after evidence",
+    "actual dualMac handoff and observed target directory/manual smoke or explicit NOT_RUN",
+    "full130 requirement acceptance remains incomplete"
   ],
   "acceptance": {
     "native_handoff_pass": false,
@@ -167,7 +187,7 @@
     "test_file": "apps/desktop/src/ExternalWorkspaceOpen.integration.test.tsx",
     "test_sha256": "fc6e38683753f275f79080e8d25f9f2cf9a00dffcc71e42879470d9c69d98016",
     "authored_cases": 6,
-    "execution": "Root sourcefde0429 actual6:5PASS/1FAIL3.210s; new closure NOT_RUN",
+    "execution": "Rootfde0429 mounted6:5PASS/1FAIL3.210s retained; Root08723ae mounted6+existing41:47PASS2.508s",
     "actual_mount": "TaskCodeWorkspace -> ExternalWorkspaceOpen, no child/API mock; only daemon metadata and Native transport mocked",
     "scope_rationale": "Independent directory-only Owner action must not inherit code-preparation fresh/resolve/pending gates; props task identity drives child epoch",
     "coverage": [
@@ -180,13 +200,13 @@
     ],
     "zero_effect_assertions": "code preparation button remains disabled/absent; no prepareTaskGit/createWorkspace; no automatic Native invoke; exact current ID/revision/terminal request only",
     "shared_hooks_changed_by_author": false,
-    "potential_source_gap": "Root actually reproduced the task-remount disabled manual-refresh failure atfde0429. Original failure retained; module-local notification closure implemented after authorization, not yet executed.",
+    "potential_source_gap": "Actually reproduced atRootfde0429; fixed module5d529 composed atRoot08723ae passes original mounted6 and existing41. Original failure is retained; true IPC/Native/terminal observation not established.",
     "private_fix_proposal": {
       "path": "/tmp/workspace-open-flight-settlement-proposal.patch",
       "sha256": "1a0cac8a4573afa516edd04eb64fe47d765f9a49d96654b10bfae0b6300fa7fe",
       "git_apply_check": "PASS",
       "applied": true,
-      "execution": "NOT_RUN",
+      "execution": "Applied module5d529; selected47 actualPASS atRoot08723ae; worker did not run Node",
       "scope": "module-local render notification only; no auto read/open/retry and no gate/result/identity/capacity change"
     }
   },
@@ -211,7 +231,38 @@
     "source_proof": "/tmp/workspace-open-flight-settlement-source-proof.json",
     "source_proof_sha256": "ac52d30169358648c2127ea0853022e3918e6cc9913581c456442b8774bae31c",
     "static_inverse_matches_complete_base_component": true,
-    "Node_types_UI_runtime": "NOT_RUN",
-    "next": "Root actual6+41/type execution and independent fixed-source review; do not call the retained failure passed."
+    "Node_types_UI_runtime": "Root08723ae actual selected47PASS; typecheck/fullUI/Native not established by this command",
+    "next": "Root type/fullUI/native/trueIPC/manualMac/full130 validation remains; retainedfde failure is not rewritten",
+    "independent_source_review": {
+      "path": "/tmp/workspace-open-flight-5d-independent-review.json",
+      "sha256": "0c47839f68915f2aa04d28e85a77d1754546a80e904df95ed004bc89ef00ad92",
+      "status": "SOURCE_READY",
+      "candidate": "5d529df2fd7da7e5232f5b6ef279d960046b61cc",
+      "checks_passed": 9,
+      "blocking_findings": [],
+      "formal_approval": false,
+      "dimension": "source/pure only; actual Root47 recorded separately"
+    },
+    "actual_Root_fixed_result": {
+      "source": "08723aefacd6ab7a8d8db6cba19e2521e8df51ff",
+      "tests": 47,
+      "mounted_cases": 6,
+      "existing_cases": 41,
+      "files": 3,
+      "exit": 0,
+      "seconds": 2.50845175399445,
+      "RESULT_sha256": "169f7c5afe7404398e4722e5625ffd260ac4280734cac4c133dce34459cdf73f",
+      "INPUTS_sha256": "f92514ad17851ede196b40b216a9f17b47c21a3662d74a90eb8a858a2ab3d131",
+      "log_sha256": "1fa418d7e9305df293c972e0b1d80a198343487b4e374a088b5e875ab9101c2d",
+      "reviewed_module_sha256": "91398f5d97a396e61c47f1655d2e84508038a7e92b1f25cc4c7a680442e01b5d",
+      "original_test_sha256_unchanged": "fc6e38683753f275f79080e8d25f9f2cf9a00dffcc71e42879470d9c69d98016"
+    }
+  },
+  "authored_test_scope": {
+    "API_wire": "exact source/managed request, forbidden fields, unsafe revisions, terminal/UUID, u64/path/context mismatch, result contradiction, transport no retry, dirty source and ready data/list refusal matrix",
+    "component": "explicit choice/oneflight, unknown manual recovery, disconnect/task/project/revision/close/blocked stale reply matrix, stale choices, remount uncertainty, bilingual refusal, no raw errors",
+    "native_pure_tests": 9,
+    "native_scope": "closed DTO/error context, true main origin, exact argv/env with special text, zero exit and strict time/status matrix; no real spawn",
+    "execution": "Selected component/API/mounted47 actualPASS atRoot087; Native9 pure tests still NOT_RUN in this evidence"
   }
 }
