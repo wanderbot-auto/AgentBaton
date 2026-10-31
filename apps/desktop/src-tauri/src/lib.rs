@@ -88,35 +88,37 @@ async fn confirm_proposed(
 }
 
 #[tauri::command]
-async fn background_service_status(runtime: tauri::State<'_, Runtime>) -> Value {
+async fn background_service_status(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
     let directory = runtime.directory.clone();
-    tauri::async_runtime::spawn_blocking(move || background_service::status(&directory))
-        .await
-        .unwrap_or_else(|_| background_service::observation_failed())
+    Ok(
+        tauri::async_runtime::spawn_blocking(move || background_service::status(&directory))
+            .await
+            .unwrap_or_else(|_| background_service::observation_failed()),
+    )
 }
 #[tauri::command]
 async fn background_service_enable(
     window: tauri::WebviewWindow,
     runtime: tauri::State<'_, Runtime>,
-) -> Value {
+) -> Result<Value, String> {
     let directory = runtime.directory.clone();
-    tauri::async_runtime::spawn_blocking(move || {
+    Ok(tauri::async_runtime::spawn_blocking(move || {
         background_service::change(window, directory, background_service::Action::Enable)
     })
     .await
-    .unwrap_or_else(|_| background_service::mutation_unknown())
+    .unwrap_or_else(|_| background_service::mutation_unknown()))
 }
 #[tauri::command]
 async fn background_service_disable(
     window: tauri::WebviewWindow,
     runtime: tauri::State<'_, Runtime>,
-) -> Value {
+) -> Result<Value, String> {
     let directory = runtime.directory.clone();
-    tauri::async_runtime::spawn_blocking(move || {
+    Ok(tauri::async_runtime::spawn_blocking(move || {
         background_service::change(window, directory, background_service::Action::Disable)
     })
     .await
-    .unwrap_or_else(|_| background_service::mutation_unknown())
+    .unwrap_or_else(|_| background_service::mutation_unknown()))
 }
 
 #[tauri::command]
