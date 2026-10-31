@@ -23,6 +23,9 @@ use uuid::Uuid;
 #[path = "goal_runtime_diagnostics.rs"]
 pub(crate) mod goal_diagnostics;
 
+#[path = "task_workspace_binding_ipc.rs"]
+mod task_binding_wire;
+
 pub const API_VERSION: u32 = 1;
 const MAX_FRAME: u64 = 1_048_576;
 #[derive(Deserialize)]
@@ -769,6 +772,7 @@ impl Daemon {
                 "projects.import"
                     | "projects.reassociate"
                     | "workspaces.create"
+                    | "workspaces.prepare_task_git"
                     | "connections.propose"
                     | "grants.propose"
                     | "goal_scopes.propose"
@@ -1228,6 +1232,25 @@ impl Daemon {
                     &self.managed_root,
                     &key
                 )?))
+            }
+            "workspaces.prepare_task_git" => {
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.as_deref().ok_or_else(invalid)?;
+                if revision == 0 || key.is_empty() || key.len() > 256 { return Err(invalid()); }
+                let p: task_binding_wire::PrepareTaskGit = params(r.params)?;
+                // No outer current-Task CAS: the Store recognizes the immutable
+                // same-key receipt first, then freshly validates the binding.
+                Ok(json!(self.store.prepare_task_git_workspace(
+                    &p.with_task_revision(revision), &self.managed_root, key,
+                )?))
+            }
+            "workspaces.resolve" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::CodeWorkspacePreparationRequest = params(r.params)?;
+                let preparation = self.store.resolve_code_workspace_preparation(&p)?;
+                Ok(json!(crate::workspace_resolution::CodeWorkspacePreparationWire::from(preparation)))
             }
             "workspaces.list" => {
                 let p: ProjectId = params(r.params)?;
@@ -2679,6 +2702,7 @@ impl Daemon {
         {
             return json!({"request_id":id,"error":CoreError::new("AUTH_REQUIRED","Scoped Factory callers cannot access owner approval, configuration or arbitrary IPC"),"revision":0,"warnings":[]});
         }
+        // workspaces.resolve is an owner IPC read, never a scoped companion tool.
         let caller = match self
             .store
             .authenticate_factory_handle(&request.handle_id, &request.scoped_token)
@@ -3155,6 +3179,10 @@ impl Daemon {
             .try_send(self.factory_ready_error(&job.raw, error));
     }
 }
+
+#[cfg(test)]
+#[path = "task_workspace_binding_ipc_tests.rs"]
+mod task_binding_bridge_tests;
 
 #[cfg(test)]
 #[path = "goal_stop_service_tests.rs"]

@@ -1248,7 +1248,7 @@ impl FactoryReadPlan {
         let version: u32 = connection
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version != 15 {
+        if version != 16 {
             return Err(changed());
         }
         // Match the live Actor's exact approved business rows BEFORE filesystem
@@ -1934,6 +1934,39 @@ mod tests {
         );
     }
     #[test]
+    fn readonly_worker_refuses_old15_and_future17_without_rewriting_database_or_journal() {
+        for version in [15u32, 17u32] {
+            let f = Fixture::new();
+            let plan = f.plan();
+            let sequence = f.store.sequence().unwrap();
+            f.store
+                .conn
+                .pragma_update(None, "user_version", version)
+                .unwrap();
+            let deadline = Instant::now() + Duration::from_secs(30);
+            let witness = DataInputWitness::restore(
+                vec![],
+                agentbaton_workspaces::validation::sha256(f.raw.as_bytes()),
+                deadline,
+            )
+            .unwrap();
+            let error = plan
+                .execute(witness, Arc::new(AtomicBool::new(false)), deadline)
+                .err()
+                .expect("old and future schemas must not yield a current read witness");
+            assert_eq!(error.code, "INPUT_CHANGED");
+            assert_eq!(error.side_effect_state, "not_started");
+            assert_eq!(f.store.sequence().unwrap(), sequence);
+            assert_eq!(
+                f.store
+                    .conn
+                    .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+                    .unwrap(),
+                version
+            );
+        }
+    }
+    #[test]
     fn readonly_query_only_connection_refuses_real_writes_without_mutating_schema_or_journal() {
         let f = Fixture::new();
         let plan = f.plan();
@@ -1943,7 +1976,7 @@ mod tests {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .unwrap();
-        assert_eq!(original_version, 15);
+        assert_eq!(original_version, 16);
         let readonly = plan
             .database
             .open_readonly(Instant::now() + Duration::from_secs(30))
@@ -1958,7 +1991,7 @@ mod tests {
         assert!(readonly
             .execute("INSERT INTO events(document) VALUES('{}')", [])
             .is_err());
-        assert!(readonly.execute_batch("PRAGMA user_version=16;").is_err());
+        assert!(readonly.execute_batch("PRAGMA user_version=17;").is_err());
         assert!(readonly
             .execute_batch("CREATE TABLE cannot_create(value TEXT);")
             .is_err());

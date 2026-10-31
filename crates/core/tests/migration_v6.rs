@@ -48,7 +48,7 @@ fn v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup() {
         connection
             .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
             .unwrap(),
-        15
+        16
     );
     assert_eq!(
         connection

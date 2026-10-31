@@ -42,7 +42,7 @@ def observation():
 def database(path):
     # Exact relevant real column names; generated minimal rows, not a product DB.
     conn = sqlite3.connect(path)
-    conn.executescript('''PRAGMA user_version=15;
+    conn.executescript('''PRAGMA user_version=16;
 CREATE TABLE factory_child_goal_runs(goal_run_id TEXT PRIMARY KEY,document TEXT);
 CREATE TABLE goal_runs(id TEXT PRIMARY KEY,state TEXT,document TEXT);
 CREATE TABLE goal_run_nodes(run_id TEXT,plan_revision INTEGER,state TEXT,document TEXT);
@@ -228,7 +228,8 @@ class Projection(unittest.TestCase):
 
     def test_unknown_states_types_and_schema_refused_without_leaking(self):
         for sql, params in [
-            ('PRAGMA user_version=16', ()),
+            ('PRAGMA user_version=15', ()),
+            ('PRAGMA user_version=17', ()),
             ('UPDATE goal_runs SET state=?', (SECRET,)),
             ('UPDATE goal_runs SET state=?', ('running',)),
             ("UPDATE goal_run_nodes SET document=json_set(document,'$.plan_revision',1.5)", ()),
@@ -632,7 +633,7 @@ class EventProjection(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertLessEqual(len(stdout.getvalue().encode()), P.MAX_PUBLIC)
         self.assertNotIn(SECRET, stdout.getvalue())
-        self.assertEqual(P.SCHEMA, 15)
+        self.assertEqual(P.SCHEMA, 16)
 
 
 class ValidationObservations(unittest.TestCase):

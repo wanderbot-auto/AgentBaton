@@ -1,0 +1,123 @@
+{
+  "status": "SOURCE_READY",
+  "fixed_commit": "8ea3efdc086392a368a5e97692669791f720be23",
+  "parent": "3bb8a50eb1dac2e8c577e8e5bf8279939ee61cf6",
+  "root_cherry": "4f2fcfd",
+  "path": "tests/infrastructure/test_factory_bound_provider_exit.py",
+  "sha256": "648794734bbfbf1ab6c9c1dd66cefcc84f3e02ccb1487ec1c7a50aee09d411a8",
+  "independent_checks_passed": 34,
+  "checks": [
+    "provided proof fixed SHA",
+    "candidate parent exact",
+    "one file only",
+    "actual fixed commit contents",
+    "actual Root cherry file same bytes",
+    "before SHA exact",
+    "after SHA exact",
+    "original138 assertions",
+    "all original assertion AST calls preserved",
+    "one additional assertion only",
+    "same original method set",
+    "only intended finally-phase test method changes",
+    "all other negative tests byte exact",
+    "no skipped/expectedfailure tests",
+    "inverse exact candidate slice 556",
+    "inverse exact candidate slice 548",
+    "inverse exact candidate slice 544",
+    "inverse exact candidate slice 534",
+    "inverse exact candidate slice 511",
+    "entire file inverse equals actual3bb base",
+    "original/new phase invariant self.assertEqual(len(blocks),7)",
+    "original/new phase invariant self.assertEqual(len(stamps),1)",
+    "original/new phase invariant self.assertIs(stamps[0],block.finalbody[-1])",
+    "original/new phase invariant self.assertIs(error.exception,original)",
+    "original/new phase invariant self.assertEqual(stamps,[(name,'end')]);self.assertEqual(len(calls),1)",
+    "original/new phase invariant self.assertEqual(metadata,expected_metadata.get(name,[]))",
+    "original/new phase invariant self.assertEqual(samples,[('end',None,456)]if name=='owner_enabled_expect'else [])",
+    "actual helper AST loaded without replacing body",
+    "fake finite only observes sampler result",
+    "no no-op sample helper binding",
+    "production harness unchanged from3bb",
+    "actual reviewed helper fixed SHA",
+    "independent58 purePASS/no actual forbidden calls",
+    "final fixed SHA stable"
+  ],
+  "inverse_edits": [
+    {
+      "start": 511,
+      "end": 513,
+      "expected": "        tree=ast.parse(path.read_text())\n        sample_helper=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='sample_owner_ui')\n",
+      "replacement": ""
+    },
+    {
+      "start": 534,
+      "end": 535,
+      "expected": "                stamps=[];calls=[];metadata=[];samples=[];original=RuntimeError('original unit failure')\n",
+      "replacement": "                stamps=[];calls=[];metadata=[];original=RuntimeError('original unit failure')\n"
+    },
+    {
+      "start": 544,
+      "end": 546,
+      "expected": "                        owner_refresh_end=lambda tick:metadata.append(('window_finished',tick)),\n                        owner_ui_sample=lambda slot,raw,tick:samples.append((slot,raw,tick))),\n",
+      "replacement": "                        owner_refresh_end=lambda tick:metadata.append(('window_finished',tick))),\n"
+    },
+    {
+      "start": 548,
+      "end": 549,
+      "expected": "                exec(compile(ast.Module(body=[sample_helper],type_ignores=[]),str(path),'exec'),ns)\n",
+      "replacement": ""
+    },
+    {
+      "start": 556,
+      "end": 559,
+      "expected": "                # This fake panel has no evaluate_all: the real helper must\n                # record unavailable raw=None without replacing the exception.\n                self.assertEqual(samples,[('end',None,456)]if name=='owner_enabled_expect'else [])\n",
+      "replacement": ""
+    }
+  ],
+  "pure": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "modules": [
+      "tests.infrastructure.test_child_goal_finite_diagnostics",
+      "tests.infrastructure.test_child_goal_diagnostics_v3",
+      "tests.infrastructure.test_child_goal_bound_readonly_wait",
+      "tests.infrastructure.test_child_goal_diagnostics_v4",
+      "tests.infrastructure.test_factory_bound_provider_exit.ChildGoalObserverWaitTests",
+      "tests.infrastructure.test_factory_bound_provider_exit.ChildGoalTimingTests"
+    ],
+    "tests_run": 58,
+    "failures": [],
+    "errors": [],
+    "passed": true,
+    "forbidden_actual_calls": [],
+    "seconds": 4.145252963004168,
+    "scope": "pure test closure only; SQL/process/PID/FIFO/network blocked",
+    "not_run": [
+      "whole infrastructure suite",
+      "SQL-backed tests",
+      "actual lifecycle/browser/Provider/CI"
+    ]
+  },
+  "must_fix": [],
+  "findings": [
+    "Exactly one extracted phase test is adapted to load the actual unchanged top-level sampler AST; no no-op helper or catch wraps the original failing block.",
+    "All138 original assertion AST calls,7-phase selection/end stamps/original exception identity/one business call and original negative methods remain; one assertion observes end/raw=None/456 only for Owner expectation.",
+    "Actual Root cherry file matches fixed author candidate bytes. Product harness is byte exact to3bb; this change does not alter product behavior."
+  ],
+  "retained_failure_evidence": {
+    "log_sha256": "975a76127ad2f5a4861a8a21111b4901e84afa1671333261dbbf7151030b5a84",
+    "retained": "Root fullinfra original356:355PASS1ERROR; missing extracted sample_owner_ui namespace, not product failure"
+  },
+  "not_run": [
+    "full356 infrastructure rerun",
+    "actual SQL/process/PID/FIFO/Provider",
+    "Node/Cargo/browser/network",
+    "actual product regression/CI"
+  ],
+  "no_candidate_or_Root_or_index_modification": true,
+  "artifacts": {
+    "pure_json_sha256": "0d722a5d12ccadd7ac60e6900ff083da0edef9ec1292cf1a1df9a9731c241651",
+    "proof_sha256": "1f9b801e1bbc24f0c39c19d14fa3d5eb6d08bf6ff1e30f1c1a3ccbc570db1dd6",
+    "audit_script": "/tmp/owner-ui-v4-timing-independent-review/audit.py",
+    "pure_script": "/tmp/owner-ui-v4-timing-independent-review/run_pure.py"
+  }
+}

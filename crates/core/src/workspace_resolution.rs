@@ -1,0 +1,386 @@
+//! Read-only preparation for a new code task. This is not execution or copy authority.
+use crate::registry::ManagedWorkspace;
+use crate::storage::{db_error, decode, encode, Store, TaskState};
+use crate::{CoreError, Result};
+use agentbaton_workspaces::{inspect, WorkspaceError, WorkspaceIdentity, WorkspaceKind};
+use rusqlite::{params, Connection, Transaction, TransactionBehavior};
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use std::path::{Path, PathBuf};
+
+const MAX_DOCUMENT_BYTES: i64 = 262_144;
+const MAX_CANDIDATE_BYTES: i64 = 4_194_304;
+const MAX_CANDIDATES: i64 = 1000;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct CodeWorkspacePreparationRequest {
+    pub task_id: String,
+    pub expected_task_revision: u64,
+    pub expected_project_revision: u64,
+    pub host_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum CodeWorkspacePreparationState {
+    NeedsRegisteredProject,
+    NeedsGitWorkspace,
+    NeedsDatasetSelection,
+    Blocked,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum CodeWorkspacePreparationReason {
+    RegisteredProjectRequired,
+    IsolatedGitWorkspaceRequired,
+    SelectedDatasetRequired,
+    TaskNotDraft,
+}
+
+/// Recorded metadata only: no Task assignment, freshness or availability proof.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct CodeWorkspaceCandidateInfo {
+    pub workspace_id: String,
+    pub revision: u64,
+    pub root: PathBuf,
+    pub recorded_state: String,
+    pub has_unreconciled_lease: bool,
+    pub assigned_to_task: bool,
+    pub identity_revalidated: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct CodeWorkspacePreparation {
+    pub task_id: String,
+    pub task_revision: u64,
+    pub spec_revision: u64,
+    pub project_id: String,
+    pub project_revision: Option<u64>,
+    pub host_id: String,
+    /// Exact Rust filesystem integers; future JS consumers must keep these opaque.
+    pub source: Option<WorkspaceIdentity>,
+    pub source_head: Option<String>,
+    /// Deduplication suggestion, never a Grant, Task assignment or filesystem capability.
+    pub preparation_key: Option<String>,
+    pub state: CodeWorkspacePreparationState,
+    pub reason: CodeWorkspacePreparationReason,
+    pub candidates: Vec<CodeWorkspaceCandidateInfo>,
+    pub execution_authorized: bool,
+    pub creates_workspace: bool,
+}
+
+/// Renderer-only projection. Filesystem u64 values become decimal TEXT here, before
+/// any JSON/JavaScript number conversion. Existing registry wire formats stay unchanged.
+#[derive(Debug, Serialize)]
+pub(crate) struct CodeWorkspacePreparationWire {
+    task_id: String,
+    task_revision: u64,
+    spec_revision: u64,
+    project_id: String,
+    project_revision: Option<u64>,
+    host_id: String,
+    source: Option<CodeWorkspaceIdentityWire>,
+    source_head: Option<String>,
+    preparation_key: Option<String>,
+    state: CodeWorkspacePreparationState,
+    reason: CodeWorkspacePreparationReason,
+    candidates: Vec<CodeWorkspaceCandidateInfo>,
+    execution_authorized: bool,
+    creates_workspace: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct CodeWorkspaceIdentityWire {
+    canonical_root: PathBuf,
+    device: String,
+    inode: String,
+    kind: WorkspaceKind,
+}
+
+impl From<CodeWorkspacePreparation> for CodeWorkspacePreparationWire {
+    fn from(value: CodeWorkspacePreparation) -> Self {
+        Self {
+            task_id: value.task_id,
+            task_revision: value.task_revision,
+            spec_revision: value.spec_revision,
+            project_id: value.project_id,
+            project_revision: value.project_revision,
+            host_id: value.host_id,
+            source: value.source.map(|source| CodeWorkspaceIdentityWire {
+                canonical_root: source.canonical_root,
+                device: source.device.to_string(),
+                inode: source.inode.to_string(),
+                kind: source.kind,
+            }),
+            source_head: value.source_head,
+            preparation_key: value.preparation_key,
+            state: value.state,
+            reason: value.reason,
+            candidates: value.candidates,
+            execution_authorized: value.execution_authorized,
+            creates_workspace: value.creates_workspace,
+        }
+    }
+}
+
+fn changed() -> CoreError {
+    CoreError::new(
+        "INPUT_CHANGED",
+        "Code preparation references are inconsistent; refresh before preparing",
+    )
+}
+
+fn bounded_document(db: &Connection, sql: &str, id: &str) -> Result<()> {
+    let size: Option<i64> = db
+        .query_row(sql, [id], |row| row.get(0))
+        .map_err(db_error)?;
+    if size.is_some_and(|n| n <= 0 || n > MAX_DOCUMENT_BYTES) {
+        return Err(CoreError::new(
+            "RESOURCE_LIMIT",
+            "Code preparation document exceeds its read bound",
+        ));
+    }
+    Ok(())
+}
+
+fn source_error(error: WorkspaceError) -> CoreError {
+    match error {
+        WorkspaceError::UnsafeRepository => CoreError::new(
+            "PERMISSION_DENIED",
+            "Repository inspection requires an explicit supported policy",
+        ),
+        WorkspaceError::TooLarge | WorkspaceError::ResourceLimit => CoreError::new(
+            "RESOURCE_LIMIT",
+            "Source inspection exceeded its bounded resources",
+        ),
+        _ => changed(),
+    }
+}
+
+fn candidates(db: &Connection, project_id: &str) -> Result<Vec<CodeWorkspaceCandidateInfo>> {
+    let (count, bytes, maximum): (i64, i64, i64) = db.query_row(
+        "SELECT count(*),COALESCE(sum(length(CAST(document AS BLOB))),0),COALESCE(max(length(CAST(document AS BLOB))),0) FROM managed_workspaces WHERE project_id=?1",
+        [project_id], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+    ).map_err(db_error)?;
+    if count > MAX_CANDIDATES || bytes > MAX_CANDIDATE_BYTES || maximum > MAX_DOCUMENT_BYTES {
+        return Err(CoreError::new(
+            "RESOURCE_LIMIT",
+            "Code preparation candidate metadata exceeds its read bound",
+        ));
+    }
+    let mut statement = db.prepare(
+        "SELECT m.id,m.project_id,m.state,m.root,m.document,EXISTS(SELECT 1 FROM workspace_leases l WHERE l.resource=m.id AND l.holder!='') FROM managed_workspaces m WHERE m.project_id=?1 ORDER BY m.id LIMIT 1000",
+    ).map_err(db_error)?;
+    let rows = statement
+        .query_map([project_id], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, String>(4)?,
+                row.get::<_, bool>(5)?,
+            ))
+        })
+        .map_err(db_error)?;
+    rows.map(|row| {
+        let (id, owner, state, root, raw, held) = row.map_err(db_error)?;
+        let workspace: ManagedWorkspace = decode(&raw)?;
+        if workspace.id != id
+            || workspace.project_id != owner
+            || owner != project_id
+            || workspace.state != state
+            || workspace.root.as_path() != Path::new(&root)
+            || !matches!(state.as_str(), "ready" | "creating" | "outcome_unknown")
+            || workspace.revision == 0
+            || !workspace.root.is_absolute()
+            || workspace
+                .identity
+                .as_ref()
+                .is_some_and(|pin| pin.canonical_root != workspace.root)
+            || (state == "ready" && workspace.identity.is_none())
+        {
+            return Err(changed());
+        }
+        Ok(CodeWorkspaceCandidateInfo {
+            workspace_id: id,
+            revision: workspace.revision,
+            root: workspace.root,
+            recorded_state: state,
+            has_unreconciled_lease: held,
+            assigned_to_task: false,
+            identity_revalidated: false,
+        })
+    })
+    .collect()
+}
+
+impl Store {
+    /// Explicit code preparation only; no IPC endpoint, routing dispatch or new authority.
+    /// The read transaction keeps relational references consistent. Source observations and
+    /// candidate metadata must be revalidated by the existing create/approval/dispatch paths.
+    pub fn resolve_code_workspace_preparation(
+        &self,
+        request: &CodeWorkspacePreparationRequest,
+    ) -> Result<CodeWorkspacePreparation> {
+        if request.task_id.is_empty()
+            || request.task_id.len() > 128
+            || request.expected_task_revision == 0
+        {
+            return Err(CoreError::new(
+                "INVALID_REQUEST",
+                "A bounded Task reference and revision are required",
+            ));
+        }
+        if request.host_id != "local" {
+            return Err(CoreError::new(
+                "CAPABILITY_UNSUPPORTED",
+                "Code preparation supports only the existing local host",
+            ));
+        }
+        let tx = Transaction::new_unchecked(&self.conn, TransactionBehavior::Deferred)
+            .map_err(db_error)?;
+        bounded_document(
+            &tx,
+            "SELECT (SELECT length(CAST(document AS BLOB)) FROM tasks WHERE id=?1)",
+            &request.task_id,
+        )?;
+        let task = self.get(&request.task_id)?;
+        if task.id != request.task_id || task.spec_revision == 0 {
+            return Err(changed());
+        }
+        if task.revision != request.expected_task_revision {
+            return Err(CoreError::new(
+                "STALE_REVISION",
+                "Task changed; refresh code preparation",
+            ));
+        }
+        let mut result = CodeWorkspacePreparation {
+            task_id: task.id.clone(),
+            task_revision: task.revision,
+            spec_revision: task.spec_revision,
+            project_id: task.project_id.clone(),
+            project_revision: None,
+            host_id: "local".into(),
+            source: None,
+            source_head: None,
+            preparation_key: None,
+            state: CodeWorkspacePreparationState::NeedsRegisteredProject,
+            reason: CodeWorkspacePreparationReason::RegisteredProjectRequired,
+            candidates: vec![],
+            execution_authorized: false,
+            creates_workspace: false,
+        };
+        // A personal draft's project marker is not a Host, path, HOME or cwd.
+        if task.project_id == "local" {
+            tx.rollback().map_err(db_error)?;
+            return Ok(result);
+        }
+        bounded_document(
+            &tx,
+            "SELECT (SELECT length(CAST(document AS BLOB)) FROM projects WHERE id=?1)",
+            &task.project_id,
+        )?;
+        let project = self.get_project(&task.project_id)?;
+        if project.id != task.project_id || project.revision == 0 {
+            return Err(changed());
+        }
+        // Registry stores these pins separately as canonical path/decimal u64 TEXT.
+        // A same-ID document alone must not redirect even a preparation read.
+        let (root, device, inode): (Option<String>, Option<String>, Option<String>) = tx
+            .query_row(
+                "SELECT CASE WHEN length(CAST(root AS BLOB))<=?2 THEN root END,CASE WHEN length(CAST(device AS BLOB))<=20 THEN device END,CASE WHEN length(CAST(inode AS BLOB))<=20 THEN inode END FROM projects WHERE id=?1",
+                params![task.project_id, MAX_DOCUMENT_BYTES],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .map_err(db_error)?;
+        let expected_device = project.identity.device.to_string();
+        let expected_inode = project.identity.inode.to_string();
+        if root.as_deref() != project.identity.canonical_root.to_str()
+            || root.is_none()
+            || device.as_deref() != Some(expected_device.as_str())
+            || inode.as_deref() != Some(expected_inode.as_str())
+        {
+            let mut error = changed();
+            error.details_ref = Some("code-workspace-project-pin".into());
+            return Err(error);
+        }
+        if project.revision != request.expected_project_revision {
+            return Err(CoreError::new(
+                "STALE_REVISION",
+                "Project changed; refresh code preparation",
+            ));
+        }
+        if project.archived {
+            return Err(CoreError::new(
+                "PERMISSION_DENIED",
+                "Archived project cannot prepare code execution",
+            ));
+        }
+        let current = inspect(&project.identity.canonical_root).map_err(source_error)?;
+        if current.canonical_root != project.identity.canonical_root
+            || current.device != project.identity.device
+            || current.inode != project.identity.inode
+        {
+            return Err(changed());
+        }
+        match (&project.identity.kind, &current.kind) {
+            (WorkspaceKind::Directory, WorkspaceKind::Directory) => {
+                result.state = CodeWorkspacePreparationState::NeedsDatasetSelection;
+                result.reason = CodeWorkspacePreparationReason::SelectedDatasetRequired;
+            }
+            (
+                WorkspaceKind::Git {
+                    common_dir: old, ..
+                },
+                WorkspaceKind::Git {
+                    common_dir, head, ..
+                },
+            ) if old == common_dir => {
+                result.state = CodeWorkspacePreparationState::NeedsGitWorkspace;
+                result.reason = CodeWorkspacePreparationReason::IsolatedGitWorkspaceRequired;
+                result.source_head = Some(head.clone());
+                // Deliberately exclude dirty bytes: an exact HEAD worktree never includes them.
+                let key = encode(&(
+                    "code-preparation.v1",
+                    &task.id,
+                    task.revision,
+                    task.spec_revision,
+                    &project.id,
+                    project.revision,
+                    "local",
+                    &current.canonical_root,
+                    current.device,
+                    current.inode,
+                    common_dir,
+                    head,
+                ))?;
+                result.preparation_key =
+                    Some(format!("code-prep:{:x}", Sha256::digest(key.as_bytes())));
+            }
+            _ => return Err(changed()),
+        }
+        result.project_revision = Some(project.revision);
+        result.source = Some(current);
+        result.candidates = candidates(&tx, &project.id)?;
+        if !matches!(task.state, TaskState::Draft) {
+            result.state = CodeWorkspacePreparationState::Blocked;
+            result.reason = CodeWorkspacePreparationReason::TaskNotDraft;
+            result.preparation_key = None;
+        }
+        tx.rollback().map_err(db_error)?;
+        Ok(result)
+    }
+}
+
+#[cfg(test)]
+#[path = "workspace_resolution_tests.rs"]
+mod tests;
+
+#[cfg(test)]
+#[path = "workspace_preparation_wire_tests.rs"]
+mod wire_tests;

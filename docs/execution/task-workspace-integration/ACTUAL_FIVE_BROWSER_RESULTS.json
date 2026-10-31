@@ -1,0 +1,122 @@
+{
+  "recorded_at": "2026-10-29T22:31:20.443289+00:00",
+  "harness_author_source": "ae6ce8778078a96f905671ae5a207ac66662a623",
+  "harness_integrated_source": "6c0908e598381a387a3e5b3207f3a7115905d73c",
+  "compiled_Core_and_frontend_source": "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+  "report_sha256": "fbd7185216814f0f1c99252cbc1b9270c6c6e08995ce2a44403b51c158b8d287",
+  "actual_run": {
+    "source": "6c0908e598381a387a3e5b3207f3a7115905d73c",
+    "root": "/workspace/.worktrees/task-workspace-integration",
+    "command": [
+      "python3",
+      "apps/desktop/tests/task-workspace-binding-real-ipc.py",
+      "--run",
+      "--batond",
+      "/workspace/.onboarding/task-bound-session-schema16-frozen/batond",
+      "--candidate-manifest",
+      "/workspace/.onboarding/task-bound-session-schema16-frozen/manifest.json",
+      "--frontend",
+      "/workspace/.worktrees/task-workspace-integration/apps/desktop/dist",
+      "--frontend-build-record",
+      "/workspace/.onboarding/task-bound-session-build2/RESULT.json",
+      "--expected-source-head",
+      "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+      "--output",
+      "/workspace/.onboarding/task-bound-session-browser-five-actual-evidence1",
+      "--chromium",
+      "/usr/bin/chromium"
+    ],
+    "exit": 0,
+    "seconds": 7.020026099984534,
+    "minimum_free_bytes": 282619904,
+    "interruption": null,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "checks": [
+    {
+      "id": "WSI-B01",
+      "status": "passed"
+    },
+    {
+      "distinct_task_workspaces": true,
+      "id": "WSI-B02",
+      "status": "passed"
+    },
+    {
+      "completed_task_get_responses": 6,
+      "confirmed_selection_steps": 4,
+      "execution_authorized": false,
+      "id": "WSI-B05",
+      "status": "passed"
+    },
+    {
+      "id": "WSI-B03",
+      "status": "passed"
+    },
+    {
+      "id": "WSI-B04",
+      "status": "passed"
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "01-first-task-ready-desktop.png",
+      "bytes": 117027,
+      "sha256": "cc39cbb3b1938652edb207f7eab4f2d7dec5db0d6823869b47ae8d92dc79f017"
+    },
+    {
+      "name": "02-second-task-exact-recovered-desktop.png",
+      "bytes": 116831,
+      "sha256": "0903bcf26118f50efc5330051da7aac75361dcd7eaa9ec13683a1db7df782326"
+    },
+    {
+      "name": "03-drift-invalidates-proof-desktop.png",
+      "bytes": 130938,
+      "sha256": "d45ec9b4770f922c1b5dd5c1b24ab7aa5d5277bcbf5d9038fd987d45a3b3d625"
+    },
+    {
+      "name": "04-drift-history-mobile.png",
+      "bytes": 52135,
+      "sha256": "a060a73cb65777bdcd61eff7144e91c47485ae42ffe771f9aa5d04d0d116300d"
+    },
+    {
+      "name": "05-task2-bound-execution-desktop.png",
+      "bytes": 179150,
+      "sha256": "efefa9c3ef63750c944a43d4c9d0f35d4e79c7a8b54d109c9318865eb3d71550"
+    },
+    {
+      "name": "06-task1-bound-execution-mobile.png",
+      "bytes": 49661,
+      "sha256": "d2a7db4ff6f28b465afe1816d9204bbfd9374ff3f42ddd451f5c5d20a5d45581"
+    }
+  ],
+  "Root_visually_inspected": [
+    "05-task2-bound-execution-desktop.png",
+    "06-task1-bound-execution-mobile.png"
+  ],
+  "cleanup": {
+    "complete": true,
+    "owned_daemon_wait_exit": 0,
+    "owned_daemon_reaped": true,
+    "HTTP_thread_alive_after_join": false,
+    "HTTP_handlers_joined": true,
+    "browser_and_Playwright_closed": true,
+    "temp_cleanup": true,
+    "tools_and_assets_unchanged": true
+  },
+  "review": {
+    "sha256": "09074a847b7784dff5fb22613eca35881247951858935748d1fc3e962ce1f573",
+    "manifest_sha256": "3c990a4515def5e075f9faefb0a5bc0466fb1409c5629b352d58657f609b8e8b",
+    "dimension": "Independent source and40pure+8boundedcontrols; not independent product replay"
+  },
+  "limitations": [
+    "Actual LinuxChromium/builtApp/UnixCore only; not macOS native, Provider, grant/session execution or complete130 acceptance",
+    "Task selection compares sorted encoded JSON Value hash, not original Unix bytes as authority",
+    "CI private driver-output upload boundary P2 found separately; Root local generated evidence remains private; safe projection fix required before current CI",
+    "Prior four-case success remains historical, not relabelled five-case success"
+  ]
+}

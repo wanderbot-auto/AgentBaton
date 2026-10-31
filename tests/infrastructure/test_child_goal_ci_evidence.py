@@ -20,7 +20,7 @@ exec(compile(Path(P.__file__).read_bytes(),P.__file__,'exec'),P.__dict__)
 SECRET='PRIVATE_SENTINEL_TOKEN_GRANT_RPC_HTML'
 
 def inputs(case='normal'):
-    m={'schema':15,'dirty':False,'git_head':'a'*40,'source_head':'a'*40,'compiled_core_source_head':'a'*40,
+    m={'schema':16,'dirty':False,'git_head':'a'*40,'source_head':'a'*40,'compiled_core_source_head':'a'*40,
        'binaries':{'batond':'b'*64,'baton':'c'*64},'frontend_assets':{SECRET+'.html':'d'*64}}
     raw=json.dumps(m).encode();candidate,summary=P.candidate_summary(raw)
     r={'case':case,'status':'passed','candidate':candidate,'manifest_sha256':P.sha(raw),'harness_sha256':'e'*64,
@@ -98,7 +98,7 @@ class ChildGoalProjectionTests(unittest.TestCase):
 
     def test_candidate_json_types_cannot_coerce_schema_dirty_or_nested_values(self):
         _,m,s,r=inputs()
-        for key,value in [('schema',15.0),('dirty',0),('schema',True)]:
+        for key,value in [('schema',15),('schema',17),('schema',15.0),('schema',16.0),('schema','16'),('dirty',0),('schema',True)]:
             bad=copy.deepcopy(r);bad['candidate'][key]=value
             with self.subTest(key=key,value=value),self.assertRaises(P.Refused):P.project(bad,m,s,'normal',0,'e'*64)
         for left,right in [({'v':[False]},{'v':[0]}),({'v':[1]},{'v':[1.0]}),([1,2],[2,1]),({'x':1},{'y':1}),(0.0,-0.0),({True:1},{1:1})]:
@@ -131,7 +131,11 @@ class ChildGoalProjectionTests(unittest.TestCase):
                 self.assertFalse(path.exists());self.assertTrue(path.with_name('summary.json.pending').exists())
 
     def _private_ci_program(self,canonical=True):
-        source=(ROOT/'.github/workflows/product.yml').read_text().split('          import os\n',1)[1].split('\n          PY',1)[0]
+        lines=(ROOT/'.github/workflows/product.yml').read_text().splitlines()
+        starts=[index for index,line in enumerate(lines[:-1])
+                if line == '          import os' and lines[index+1].startswith('          child_goal_private = ')]
+        self.assertEqual(len(starts),1,'Select the actual top-level child-Goal orchestration block')
+        source='\n'.join(lines[starts[0]+1:]).split('\n          PY',1)[0]
         if not canonical:
             # Negative control: removing production canonicalization must fail
             # the same exact private-root assertion, rather than widening it.

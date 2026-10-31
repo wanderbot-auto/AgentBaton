@@ -116,10 +116,13 @@ function ChildGoalPanel(props:Props&{open:boolean}){
     const listed=rows.find(row=>row.goal.run.id===id),floor=saved.floors.get(id);
     if(!listed||!childGoalViewShape(view,scope,target,family,context,task)||!childGoalSummaryMeetsFloor(view.summary,listed)||floor?.origin&&floor.origin!==JSON.stringify(view.origin)||floor?.details&&!graphDetailsMeetFloor(view.details,{summary:floor.summary.goal,details:floor.details}))throw new Error(t.invalid);
     if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&!!source.snapshot.view&&sameActivePollingGoal(view.summary,source.snapshot.view.summary);
-    initial=await factoryChildPlanApi.get(scope.id,target.task_id,view.origin.initial_plan.revision);
+    // This refresh already verified head against this exact context/scope/task.
+    // Reuse only a complete immutable reference match; the validation loop below
+    // still checks shape, reference and raw bytes for both historical roles.
+    initial=head&&childGoalRefSame(head.reference,view.origin.initial_plan)?head:await factoryChildPlanApi.get(scope.id,target.task_id,view.origin.initial_plan.revision);
     if(!mounted.current||stamp!==epoch.current)return null;
     if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&factorySame(initial,source.snapshot.initial);
-    adopted=childGoalRefSame(view.origin.initial_plan,view.summary.plan)?initial:await factoryChildPlanApi.get(scope.id,target.task_id,view.summary.plan.revision);
+    adopted=childGoalRefSame(view.origin.initial_plan,view.summary.plan)?initial:head&&childGoalRefSame(head.reference,view.summary.plan)?head:await factoryChildPlanApi.get(scope.id,target.task_id,view.summary.plan.revision);
     for(const [plan,ref] of [[initial,view.origin.initial_plan],[adopted,view.summary.plan]] as const){if(!childViewShape(plan,context,scope)||!childGoalRefSame(plan.reference,ref))throw new Error(t.invalid);await verifyChildRaw(plan);}
     if(!childGoalSavedReferencesMatch(view,initial,adopted))throw new Error(t.invalid);
    }
@@ -240,7 +243,13 @@ function ChildGoalPanel(props:Props&{open:boolean}){
   }else if(fresh&&!loading&&data)void send(op,data);
  }
  const view=data?.view;
- return <section aria-label={t.title} data-testid="factory-child-goal-panel" aria-busy={busy||loading}>
+ // Read-only renderer diagnostics, never input to any action or authority check.
+ return <section aria-label={t.title} data-testid="factory-child-goal-panel" aria-busy={busy||loading}
+  data-cg-diagnostic="owner-ui-v4" data-cg-epoch={epoch.current} data-cg-fresh={fresh} data-cg-loading={loading}
+  data-cg-pending-kind={pending?.kind??'none'} data-cg-pending-unknown={pending?String(pending.unknown):'none'}
+  data-cg-capacity={capacity} data-cg-connected={connected} data-cg-busy={busy} data-cg-cancel-reading={cancelReading}
+  data-cg-disabled={disabled} data-cg-has-view={!!view} data-cg-summary-fresh={summaryFresh}
+  data-cg-parent-ready={props.parentReady} data-cg-parent-refresh-only={props.parentRefreshOnly===true}>
   <p>{t.separate}</p><p>{t.remaining}</p><p>{t.cancelHint}</p>{summary&&<p>{summary.scope.id} · r{summary.scope.revision} · {summary.scope.revoked?(language==='zh'?'已撤销':'revoked'):summary.scope.expires_at_ms<=Date.now()?(language==='zh'?'已到期':'expired'):(language==='zh'?'范围尚未到期':'scope not expired')} · {summary.scope.expires_at_ms}</p>}{capacity&&<p>{t.limited}</p>}
   <button type="button" disabled={!connected||busy||loading} onClick={()=>void refresh()}>{t.refresh}</button>
   {error&&<p role="alert">{error}</p>}{pending&&<><p role="status">{pending.unknown?t.pending:t.ack}</p>{pending.unknown&&<button type="button" disabled={!connected||busy||cancelReading||capacity||!pending.reconciled||(pending.kind==='cancel'?(!summaryFresh||!summary||!checkedSummary||checkedSummary.stamp!==epoch.current):(!fresh||loading||!data))} onClick={recover}>{t.recover}</button>}</>}{paused&&<p>{t.paused}</p>}
@@ -256,7 +265,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    {view.details.run.state==='failed'&&(data.scope.bindings.child_goal_execution?.policy.root_budget.reworks??0)>0&&<p>{t.failedGate}</p>}
    <GoalGraphExecutionHistory view={view.details} language={language} task={data.task} scope={childGoalEvidenceContext(view.summary,data.context)}/>
    <details><summary>{t.details}</summary><pre>{JSON.stringify({...view.details,validations:view.details.validations.map(item=>item.observation_json===undefined?item:(({observation:_derived,...rest})=>rest)(item))},null,2)}</pre></details>
-   {view.details.nodes.filter(node=>node.plan_revision===view.details.run.plan_revision&&node.node.kind==='owner_approval'&&node.state==='awaiting_owner').map(node=><div className="goal-graph-actions" key={node.node.id}><span>{node.node.goal}</span><button type="button" disabled={disabled||!live(data)||!graphCanReviewOwner(view.details,node)} onClick={()=>void act('owner',node.node.id)}>{t.owner}</button><button type="button" disabled={disabled||!live(data)||!graphCanReviewOwner(view.details,node)} onClick={()=>void act('reject',node.node.id)}>{t.reject}</button></div>)}
+   {view.details.nodes.filter(node=>node.plan_revision===view.details.run.plan_revision&&node.node.kind==='owner_approval'&&node.state==='awaiting_owner').map(node=><div className="goal-graph-actions" key={node.node.id}><span>{node.node.goal}</span><button type="button" disabled={disabled||!live(data)||!graphCanReviewOwner(view.details,node)} onClick={()=>void act('owner',node.node.id)} data-cg-owner-control="review">{t.owner}</button><button type="button" disabled={disabled||!live(data)||!graphCanReviewOwner(view.details,node)} onClick={()=>void act('reject',node.node.id)}>{t.reject}</button></div>)}
   </>}
   <p>{t.noReplay}</p><p>{t.notAccepted}</p>
  </section>;

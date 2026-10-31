@@ -779,6 +779,7 @@ impl Store {
             revision: 1,
             acceptance_ref: None,
             acceptance_sequence: None,
+            code_workspace_binding: None,
             created_at: timestamp.clone(),
             updated_at: timestamp,
         };

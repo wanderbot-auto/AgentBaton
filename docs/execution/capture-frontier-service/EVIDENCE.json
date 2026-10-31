@@ -1,0 +1,517 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T21:21:05.155131+00:00",
+  "source": "96e95d0692c086d530f3e215544504a53f23476b",
+  "requirements": [
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-010",
+    "AB-TSK-012"
+  ],
+  "production_change_origin": "2ed72e9e11ea39c951b6977bc0e8753164be7977",
+  "source_sha256": {
+    "crates/core/src/goal_graph.rs": "d31b1d8daee0b17d767686b16080161223c6da9875e27a23996b58f4571fa862",
+    "crates/core/src/goal_stop_service_tests.rs": "1b895fd3b21e8fc07272e353d0c75c22bceecd6f297d59b4a4e289f6f57dfb74",
+    "crates/core/src/goal_capture_frontier_fault_tests.rs": "bf58973be4f951f90c68a19f649b21755bbee68a0e2d25956e76e92a597161ee"
+  },
+  "change": "Service an already persisted owned capture before the full frontier sweep, still within the same Actor tick before any subsequent dispatch. Original validators/poll/cancel/deadline/slot/stopping prefix and original job service remain. All nonfatal helper returns rejoin the mandatory full sweep; all fatal errors propagate with original owned handles retained for cancellation and true join. No queue-clock reset, discounted work, new authority, widened reservation, cached origin or removed validation.",
+  "diagnosis": {
+    "head": "84686534d9761b6ca033aa814c95ba7e145e6f82",
+    "Product": 41238532886,
+    "Intel_finite_sha256": "7b265a132cbc5a52fcfe12c06c9e11916ed7b2ed71f0123f84d177cc7986cef8",
+    "independent_diagnosis_sha256": "ced624d41e337df12431f86c2358d86893993f8effcaafc0a736aeca12362883",
+    "observed": "Producer3563ms+capture queue529ms=4092>4000; actual read <1ms, worker423start424complete529join. Extra queue comprises multiple phases, not proven pure Actor idle. Prior same-run node has separate revision/not-same-plan labels.",
+    "limit": "This source change removes one avoidable ordering delay; no claim that it fixes every old Intel budget or ARM missing-entry failure."
+  },
+  "independent_reviews": {
+    "original2ed": {
+      "status": "CHANGES_REQUIRED",
+      "sha256": "62ee59805090898e4cae6894c1803a721fcbdfa25a9aa0036f75b474ff4843fb",
+      "reason": "37 source checks passed; new late-frontier lifecycle regression absent, so existing210/33/14 did not close acceptance."
+    },
+    "regression96": {
+      "status": "SOURCE_READY",
+      "sha256": "907ca53a30bcb969a88709ffa2e043b75681404e70018eb1959e1052d628a306",
+      "scope": "Fixed source, normal/release cfg(test) isolation and meaningful new fault regression; execution is separately pinned below."
+    }
+  },
+  "actual": {
+    "pr19-capture-priority-normal-build1": {
+      "result": {
+        "source": "2ed72e9e11ea39c951b6977bc0e8753164be7977",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 18.157750078011304,
+        "minimum_free_bytes": 3088162816,
+        "interruption": null,
+        "log_sha256": "3635a1cb7a4971021b024271c6c30b2acdc69877e4a0044f7836af27953fda5d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "626090351ab3a1c3a459471296048cc1bfa1b1e5d6c509d29d43dbbb71f62a7f",
+      "inputs_sha256": "375282d5371420fefb223d492871072cb1ed9f31f42e21d056f49eed5aad0d22"
+    },
+    "pr19-capture-priority-normal-freeze1": {
+      "result": {
+        "source": "2ed72e9e11ea39c951b6977bc0e8753164be7977",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/pr19-capture-priority-normal-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/pr19-capture-priority-normal-probe1"
+        ],
+        "exit": 0,
+        "seconds": 0.3014398110099137,
+        "minimum_free_bytes": 3055718400,
+        "interruption": null,
+        "log_sha256": "340ba19c55f9fe5f789e83000990f14c09da9afb3d93744ee038d2346530981a",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "0070c904f8f59ede9b88b466a619b4b1457a07cd851266bf87a1a5c6d648e8a5",
+      "inputs_sha256": "7d678ee47c3f17f90dd565ac1ad46cdc738e42ccdf75b645fa16ddc905c26cb8"
+    },
+    "pr19-capture-priority-full-core1": {
+      "result": {
+        "source": "2ed72e9e11ea39c951b6977bc0e8753164be7977",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-capture-priority-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 165.5382402400137,
+        "minimum_free_bytes": 3055382528,
+        "interruption": null,
+        "log_sha256": "e3026084116f847afdddff434ca95cb530359026872031bc63ec5f85dca23a94",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 209 filtered out; finished in 0.00s",
+          "test result: ok. 210 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 143.90s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "f0c52fefeea18b5188c726a4ab9caadc9a69378b73d815e9d29000f3117505c5",
+      "inputs_sha256": "20d0b79deee907661ca8f5fe591abfa2e7e0dbe2f2369ddfc55bcfb56a7250c7"
+    },
+    "pr19-capture-priority-full-factory1": {
+      "result": {
+        "source": "2ed72e9e11ea39c951b6977bc0e8753164be7977",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-capture-priority-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 120.18076255603228,
+        "minimum_free_bytes": 3046653952,
+        "interruption": null,
+        "log_sha256": "443a4dd0f7a704b57a08db4a6fadf1c7cc0923c44bc8bb2619649f51494b2af0",
+        "summaries": [
+          "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 101.15s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "6af091ef673843dcfb231d0f9b8df6cb23492672a148d06567517dfaf1dd0007",
+      "inputs_sha256": "309619cf0fe6edcf8f6657258157115575a2d4fb25ba97ca1c74efdde07e9da2"
+    },
+    "pr19-capture-priority-native-goal-ipc1": {
+      "result": {
+        "source": "2ed72e9e11ea39c951b6977bc0e8753164be7977",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-capture-priority-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "sessions_ipc",
+          "actual_graph",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 97.0564469799865,
+        "minimum_free_bytes": 3045888000,
+        "interruption": null,
+        "log_sha256": "5db2c0787859092dd52b918f56f1fa0aefb03634fbd6bb7eac1a82a6d09a01ab",
+        "summaries": [
+          "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 44 filtered out; finished in 77.67s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "2cd5514d6a027dce52ed6a708806b1f7bf2974b9849e8568c19bd2fa213d0514",
+      "inputs_sha256": "4f434d97d8cd362706c7d1decbecb6976c552b733ff16ea64b208ee8ef82a0a8"
+    },
+    "pr19-capture-priority-workspace-clippy1": {
+      "result": {
+        "source": "2ed72e9e11ea39c951b6977bc0e8753164be7977",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 16.551260739041027,
+        "minimum_free_bytes": 3045863424,
+        "interruption": null,
+        "log_sha256": "9e35edbbc91573b4ac0ff47f19ae4c23ad610de855169bf63f6de1cdbacb71f6",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "c56c9b3c0c8151e0b2b3aafe3b5f4f82bb2e5ed68d0a09363660e9371fc4144a",
+      "inputs_sha256": "0f0d56bff9be4d540f0b0ea1b0f6faf355fa86f4e5774c3d107f085627962f5b"
+    },
+    "pr19-capture-frontier-fault-regression3": {
+      "result": {
+        "source": "7abc927f9bfd806e5bc45525a764c982facb9dd7",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-capture-priority-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "capture_frontier_fault_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 24.674189469020348,
+        "minimum_free_bytes": 3045609472,
+        "interruption": null,
+        "log_sha256": "e1ade5859709a886f1078270723ade866875ed095fc6c4773ef0b665a235e5c6",
+        "summaries": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 5.04s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "ef491668d25fc0d875eeb2389f4cc82034d379b628e6d996ed6a9ac0a5b0a1cd",
+      "inputs_sha256": "69e5ea9cc96eaa32673b1e09a22669d4e695bd06ec9a85feff918139bbf48688"
+    },
+    "pr19-capture-frontier-fault-regression4": {
+      "result": {
+        "source": "81f7b7a6dc84ec34251358a346394ea047eeefcf",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-capture-priority-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "capture_frontier_fault_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 28.60644840198802,
+        "minimum_free_bytes": 3045515264,
+        "interruption": null,
+        "log_sha256": "d6380d999dbc9a27cced58c9f5e743b0f412436c503183d5b477048e3158ee03",
+        "summaries": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 5.02s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "ff6beda5caa23eb0804f59553efa1a3121ceef271d356fdba99747a378eb0074",
+      "inputs_sha256": "e28f7212650f10701cc430872baa5bb6f89066698647db7019fa1263d535d1dc"
+    },
+    "pr19-capture-frontier-old-stop-regressions1": {
+      "result": {
+        "source": "96e95d0692c086d530f3e215544504a53f23476b",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-capture-priority-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "ipc::goal_stop_service_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 34.72643339802744,
+        "minimum_free_bytes": 3045462016,
+        "interruption": null,
+        "log_sha256": "75e4f0f05736887edbfe09654b8ea918dc1371a6e06fd267e16539af5b985c4d",
+        "summaries": [
+          "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 200 filtered out; finished in 13.93s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "0c48a18296b915534e08411d3268a08851c38dfa2cbc8dcdc347f71030fb4311",
+      "inputs_sha256": "4c3afc2dba565de11ece7cb3ce89a78f4e8038b02fb5e1b34c90e0901ed1a698"
+    },
+    "pr19-capture-frontier-old-reader-regressions1": {
+      "result": {
+        "source": "96e95d0692c086d530f3e215544504a53f23476b",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "capture_service_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 21.070889031980187,
+        "minimum_free_bytes": 3045433344,
+        "interruption": null,
+        "log_sha256": "65bcfd150dd6925775b212f801776f6c714914627ad257fbee7c14747fe6e2de",
+        "summaries": [
+          "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 198 filtered out; finished in 0.17s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "762d6c4f91d76e857687545e99bae309fd0a509b590187f4f79a061688cc9550",
+      "inputs_sha256": "860e02fee48fcfdad271a8e4c0c2e417da4440bf6d5afcb8dfb43a77b6596f13"
+    },
+    "pr19-capture-frontier-clippy1": {
+      "result": {
+        "source": "96e95d0692c086d530f3e215544504a53f23476b",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 16.360033656994347,
+        "minimum_free_bytes": 3045408768,
+        "interruption": null,
+        "log_sha256": "3e858d8ba40cc2f059895d36c31f02c78a635856def76d12a20f5e49cf09f110",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "f435ab91c5e7b26b0b3dd145b0d3c21ef69e9b06d5908ea003d6c2fb59f1dc53",
+      "inputs_sha256": "4d5f25673b1cd7a6ebff0df8bfea94f469a16da77a416e18baf578b9522b2fa6"
+    },
+    "pr19-capture-frontier-normal-build1": {
+      "result": {
+        "source": "96e95d0692c086d530f3e215544504a53f23476b",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 16.777197461982723,
+        "minimum_free_bytes": 3045294080,
+        "interruption": null,
+        "log_sha256": "d4306f3cc22ca40b1a340e81425fa0f29bb6952a29f2635625079bc0c576933d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "36c907c3788c095598808ae09702e5ac087623ba2e4adf9f56f837627caccfaf",
+      "inputs_sha256": "93ea187baca3de9689d3fb9de6b3055709b958182de6640314fb6450bdd13aa6"
+    }
+  },
+  "test_dimensions": {
+    "new_fault_cases": "Two tests/four paths: original real Graph approval, Provider turn, stop/reap, prepared capture; actual file read held by test-only channel until later malformed unrelated frontier triggers original fatal Drop. Join callback verifies writer still locked before flagging done. No prepared job, missing process clock and negatively expired original clock must still reach full frontier refusal; no new attempts/candidates/acceptance/refund.",
+    "instrumentation": "Probe+read checkpoint compiled exclusively with cfg(test). Normal library/release has no test probe or receiver. External5s test alarm is not a product deadline extension or timing/performance evidence. Original4s reservation remains. Successor bind uses normal unknown-outcome recovery without replay and checks attempts unchanged.",
+    "counts": "210 at2ed excludes its nested1 helper; 33Factory/14nativeGoal at2ed are separate integration targets. Focused2 are included in current96 module12; do not sum repeated runs. Current96 oldreader14 are a separate module, not full212Core acceptance.",
+    "mock_vs_real": "Generated account-free ACP/private trusted Core confirmation, actual processes/files/SQLite/UnixIPC/ownership; not live Provider models or native OS dialogs/macOS."
+  },
+  "preserved_failures": {
+    "147_first": {
+      "actual": {
+        "result": {
+          "source": "147d41fe2d6bafe85b49fe54f414c1e9ee6b6cf2",
+          "root": "/workspace/.worktrees/task-workspace-integration",
+          "command": [
+            "env",
+            "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+            "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-capture-priority-normal-frozen1",
+            "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+            "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+            "cargo",
+            "test",
+            "--locked",
+            "-p",
+            "agentbaton-core",
+            "--lib",
+            "capture_frontier_fault_tests",
+            "--",
+            "--nocapture"
+          ],
+          "exit": 101,
+          "seconds": 22.406210337008815,
+          "minimum_free_bytes": 3045728256,
+          "interruption": null,
+          "log_sha256": "2a4659125b0c8106b24beb1aee4e5f4319467675db8726326310055b2308c12a",
+          "summaries": [
+            "test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 210 filtered out; finished in 2.11s"
+          ],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        },
+        "result_sha256": "b3ffc42b42c4ebad417df5c4dac743d7c2dd177f348d3a59f775827e7a5b5bc1",
+        "inputs_sha256": "6b7fce5be37fdf1ca7a9259d00b56c6a8d74842fcfca214b9e3c34be77302ce4"
+      },
+      "cause": "Test fixture called legacy get_goal_run on versioned Graph; production correctly refused CAPABILITY_UNSUPPORTED before fault case."
+    },
+    "f9_second": {
+      "actual": {
+        "result": {
+          "source": "f9e56f4091999dc3f5b43c5f20e9e6151e6d4362",
+          "root": "/workspace/.worktrees/task-workspace-integration",
+          "command": [
+            "env",
+            "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+            "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-capture-priority-normal-frozen1",
+            "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+            "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-capture-priority-normal-frozen1/baton",
+            "cargo",
+            "test",
+            "--locked",
+            "-p",
+            "agentbaton-core",
+            "--lib",
+            "capture_frontier_fault_tests",
+            "--",
+            "--nocapture"
+          ],
+          "exit": 101,
+          "seconds": 23.370230623986572,
+          "minimum_free_bytes": 3045666816,
+          "interruption": null,
+          "log_sha256": "18dc2d083ff61a4e9aa09466c278769f9b5a76c55b99f68f0cb57369ead3cc41",
+          "summaries": [
+            "test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 210 filtered out; finished in 2.40s"
+          ],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        },
+        "result_sha256": "efa236220d5e7e749446e9c3d1c93eaede8d30afebced1f7a25eb8f4157ca97c",
+        "inputs_sha256": "34f3e7a2a0aaa09af7923c7e7d49b5bd86c528c4a5bf541b55eb7c63fb4ae2db"
+      },
+      "cause": "Malformed other-run fixture used queued state in same scope; original unique-running-scope index correctly refused before fault case. Changed only test state to awaiting_acceptance within original frontier set; no index/guard relaxed."
+    }
+  },
+  "not_run": [
+    "exact new remote CI/current dualMac/native product checks",
+    "full212 Core at96 (earlier210 and changed modules are separately pinned)",
+    "current96 Factory full target (source2ed full33 is not relabelled)",
+    "current development packages or manual Mac acceptance"
+  ],
+  "full130_complete": false
+}

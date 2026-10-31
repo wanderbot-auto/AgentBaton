@@ -1,0 +1,98 @@
+# 调查证据（非新增产品测试）
+
+## 来源与命令
+
+只读基线 `8c178088d7213f625695a9d31a5b6d31cc342a42`。实际运行：`rg`/`rg --files`定位、`sed`读取、Python JSON解析需求/静态日志、`git show/rev-parse/diff`固定blob对比。新增独立docs worktree后始终保持该基线，没有对导入的用户项目执行Git操作。工作树自身四docs提交属于获准本仓库可逆文档工作，不是产品测试。
+
+两次只读exec最初遇transport disconnected；之后 `git status --porcelain --untracked-files=no` exit0且clean，继续原worktree。最早搜索不存在的旧UI文件名后改读实际App.tsx/ManagedSessions.tsx，未将搜索退出码称作测试失败。没有新增Cargo/npm/Provider/浏览器命令。
+
+## 需求与代码入口（本基线）
+
+| 需求/链路 | 实际源码位置 | 本次能证明的范围 |
+| --- | --- | --- |
+| PRJ-002导入 | `crates/workspaces/src/lib.rs:401 inspect`；`registry.rs:292 import_project` | Git/Directory实际身份；不执行内容/初始化Git；local registry，不是远程host支持 |
+| PRJ-003移动 | `lib.rs:449 reassociate`；`registry.rs:425 reassociate_project`；`Projects.tsx`重关联表单 | 同device/inode/kind、CAS、幂等及历史，不是跨FS/host或自动修复活跃Git worktree |
+| Git隔离 | `lib.rs:470 create_isolated`；`registry.rs:462 create_workspace`；`ipc.rs`workspaces.create | exact commit、detached/private/outside-source、持久意图/unknown，不代表Task默认联通 |
+| Directory隔离 | `data_workspaces.rs:396 propose_data_workspace`、453 finalize、697 finish_data_copy、1254 require_data_input_from；`workspaces/src/data_workspace.rs`；`Projects.tsx`内DataWorkspaces | 已批准选定数据的真实copy/witness/managed registry；不是普通Directory任意写授权 |
+| Task入口 | `storage.rs:29 Task`、307 create_registered；`ipc.rs:1024 tasks.create`；`App.tsx:135 createTask` | 只建draft，未含默认workspace准备 |
+| 执行绑定 | `execution.rs:14 ExecutionBinding`；`sessions.rs:364 create_session`、create_session_inner、1270 workspace；`policy.rs:338 validate_registered`；`ManagedSessions.tsx` | 现成workspace+连接+Grant人工选择，真实lease/fencing/身份检查；非完整任务Router |
+| Router/Factory边界 | `routes.rs`；`factory_store.rs:129 limits`、560 start_contract；`factory_child_goal.rs:81`；`factory_child_plan.rs` | route是协议路由；Factory workspace数量固定1，所有new-workspace字段false，不能创建新权威 |
+
+行号仅定位固定源，函数名为恢复锚点。FS device/inode均u64，UI不可通过JSON.stringify/浮点重构作精确授权比较。
+
+## 已有真实测试证据：重新审阅，不重新执行
+
+原件：`/workspace/.onboarding/pr17-c43-ci/rust-job.log`，209,838 bytes，SHA-256 `93f4ba238559c2c793b25e70d9124f216ed07933e62d7a79e0552d006df92548`。本次只读现存log，未下载/重跑。原log真实checkout `c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce`、tree `061b5baac8b51051e57767c43ca10cf66cc03f24`；本地feature `c43ea68695039296be76efb9e8e2ac2d1052fd6e`的完整tree与它相同。c69临时merge Git对象本地已不可取，未fetch或假称直接读取该对象；以原checkout log与完整tree一致性绑定已存在feature blobs。
+
+| 原log组/定位 | 实际历史结果 | 关键覆盖 |
+| --- | --- | --- |
+| project_ipc，约889–898行 | 3PASS/0ignored，0.86s | imported_projects_isolated_workspace_restart_and_archive_use_real_ipc；invalid_registry_requests_and_stale_head_do_not_create_workspaces；simultaneous_clients_reuse_identical_workspace_creation_key |
+| registry，约900–914行 | 10PASS/0ignored，3.39s | Directory持久导入；move/replacement/CAS/archive；source HEAD/dirty保留；creating最终持久化失败unknown且不再checkout；lease重启/旧fence/目录替换/rollback |
+| workspaces safety，约1240–1270行 | 23PASS/0ignored，3.22s | detached互不串写；无脚本导入；hooks/filters/隐藏index/sparse拒绝；移动与替换；路径/符号链接/大小限制 |
+
+三个组共36个历史测试函数，不是本次新增36测试，更不是当前15完整集成结果。以下五文件以固定Git blob逐字核验：c43与本8c完全相等；不据此移签其余已变化的Core/Session/Factory行为。
+
+| 文件 | 本基线SHA-256（与已测c43同字节） |
+| --- | --- |
+| `crates/core/src/registry.rs` | `2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45` |
+| `crates/workspaces/src/lib.rs` | `352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26` |
+| `crates/core/tests/registry.rs` | `9355f135a16a3f4cb2a2523053f11bc3442d640101be7f5e2b04926891f60e19` |
+| `crates/workspaces/tests/safety.rs` | `cc5fe6204309fc5a7a678e38830f63e24f30efc1a91faa449ffad6c82afa9b59` |
+| `crates/core/tests/project_ipc.rs` | `9b38de8f283a706730edb49060c11124ad6341111ac0e76abdb07930884205f8` |
+
+同一个旧官方log还明确通过 `actual_non_git_preview_owner_approval_copy_registry_and_same_key_are_durable`、`ready_copy_survives_deleted_original_and_restart_without_touching_model_budgets`、`non_git_real_grant_generated_acp_stop_and_data_json_contract_are_bound_to_actual_copy`。它们证明已有实际数据隔离链并非Mock，但其完整当前源未在本调查做同字节移签，不汇总到本次或36数目。历史保护集成/双Mac限制另见 `docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md`；那里旧DMG、签名及OS/Provider限制不变，不能充当新工作流的Mac验收。
+
+`requirements-progress.json`的三个条目仍partial/implementing，并有历史分片与残留旧措辞；本单元不修改它、不把“registry仍待做”的历史措辞覆盖现有源码，也不把已有分片当完整默认隔离验收。原specs specified保持设计快照语义。
+
+## 本单元验证与未运行
+
+调查阶段只做文档范围、引用和固定SHA/文件一致性检查。Root随后另行批准WSI-1实现，新增源与待执行测试如下；UI/default-task/并发/移动链产品测试仍NOT_RUN。真实Provider/远程Host/OS沙箱/实际新Mac安装与运行/最低OS/签名/最终许可证未验，也未增加资金或身份权限。只有真实执行测试、独审、准确CI后才能新增验证分片。
+
+## WSI-1实现源冻结：dedee373bd9f587de87ebe545ecaa88916a7d2b9
+
+| 路径 | 范围 |
+| --- | --- |
+| `crates/core/src/workspace_resolution.rs` | private模块、public Rust DTO及Store只读方法；有界读快照、现有inspect/get、无SQL/FS写操作、两授权/创建false、候选不分配 |
+| `crates/core/src/workspace_resolution_tests.rs` | 9真实Store/Git/Directory测试函数源；不调用Provider/Actor/模型；Root后续执行临时Git夹具 |
+| `crates/core/src/lib.rs` | 五行模块登记/DTO re-export，无IPC或Native入口 |
+
+冻结SHA-256：resolver `824207ee69dce76abbbda02d879208d35b0c8c321565aeaf7f6eb3030f6e4fdf`；专属tests `09f08818482f7a26dbb7bc101f20935b2469a46a5da0a4835c35b4a12b2ad3ab`；lib `84d11315f989aa93c3dd2c9388d83a19c4571a5d991c3dc6a9d98b468dc857d1`。格式器实际版本 `rustfmt 1.10.0-stable (58cf8f9c35 2026-10-13)`；不是rustc/Cargo运行记录。
+
+实际作者命令：`/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt --edition 2021 --config skip_children=true`对上述三文件applied；同参数`--check` exit0；`git diff --cached --check` exit0；Python只核三路径、request四字段、无INSERT/UPDATE/DELETE/create/Command标记和9个test函数，exit0。这不是执行Rust单元测试或编译证明，亦不是独立review。未对lib递归格式化其它模块。
+
+计划由Root在取得共享target窗口后真实运行（本作者**未运行**）：`cargo test --offline --locked -p agentbaton-core --lib workspace_resolution::tests -- --nocapture --test-threads=1`；再按实际集成范围执行strict Clippy/format及必要回归。不得记录0selected为9PASS，也不得将此模块的纯/Store结果冒充真实Provider、默认Task UI或Mac链路。
+
+测试源码覆盖持久所有table值及sqlite_sequence、源/managed文件与空目录不变；候选foreign关联/root/identity/oversize拒绝，lease过UTC仍busy，stable key跟task/project/HEAD而不混dirty字节；personal project marker不映射host/path；cancelled Task只返回blocked。上述都是待执行断言，不是假造成功receipt。Factory new_workspace=false、原Grant/budget/DDL和现创建/复制原语全未修改。
+
+## F1历史阻塞与新关系pin源修复
+
+旧dedee源独审目录 `.onboarding/workspace-isolation-wsi1-independent-review/revision-dedee373`：REVIEW SHA `3b10f8fe6cd663bee9a13c191abbe4ad80c9f77bf53264ec35abeeb222cdc1a1`，MANIFEST SHA `a92ff9c92fe011b407112a6dac14037bd8539e5e2736b117220bdd7337fcd0e3`。F1是源码确认的准备引用一致性缺口，不是已经执行的旧Rust FAIL：相同Project ID/revision的document替换为另一个真实目录时，旧resolver未核关系root/device/inode。旧BLOCKED结论及所有原件保留。
+
+修复源commit `7a04d67a8a12bb3cc74088470560679346230ddc`只改以下两文件：
+
+| 路径 | 当前SHA-256 |
+| --- | --- |
+| `crates/core/src/workspace_resolution.rs` | `939330a14d5feb482eb6d311e149b98315ad61dc3fefdc8813d2ddada9c2b722` |
+| `crates/core/src/workspace_resolution_tests.rs` | `9ef80a87597f4e0e09c1f25ccd2c631c40aa851d8126e53fa8e9eb4ffcd9cd74` |
+
+lib SHA仍为上文84d11315，无模块/wire变更。关系pin使用CASE有界读取root<=262144B/device+inode各<=20B并以原u64十进制字符串精确比较；不采用浮点或默认零，不一致在inspect之前INPUT_CHANGED/not_started/code-workspace-project-pin。新增真实Store test源码 `project_document_and_relational_source_pins_must_agree_before_inspection` 包含document_only/root_column/device_column/inode_column四个fresh夹具case；所有row/sequence、source/managed与foreign目录不变断言保留。总10fn未编译/未执行。
+
+实际作者命令：选择性rustfmt两文件applied、同参数--check exit0；git diff --cached --check exit0；Python静态逆改将新import与pin块去除后整个resolver与parent逐字相等，tests旧9fn整文件为新文件前缀，exit0。这些只是有限源检查。未运行Cargo、用户项目Git、Node、Actor、Provider、Native或新工具链安装。
+
+新独审目录 `.onboarding/workspace-isolation-wsi1-independent-review/revision-7a04d67a`：REVIEW SHA `3606846a596cc831c55fe7825b604e8e120caa52a098c21563612af0def7c73d`，MANIFEST SHA `d352bafe651642bdb2d2f7736b3f8328994f9eb3658590f0d1883f2fe03bef46`。独审16个standalone SQLite内存精确SQL/比较有限控exit0，原resolver inverse/旧9test保持均通过，限定SOURCE_READY_FOR_ROOT_CONTROLLED_TESTS。它没有执行真实Store/Rust，不能将16加到10测试或移签产品。后续Root真实targeted结果必须另记录准确源码/命令/计数；当前完整默认Task隔离/WSI-2/3/UI/真实IPC/Mac仍未验。
+
+## Root实际WSI-1 lib测试：10PASS（精确5c70c314）
+
+执行者Root，源码head `5c70c314d22f55396c6d5905a89742b0f54bec50`，源码leaf仍7a04。原件目录 `/workspace/.onboarding/workspace-isolation-wsi1-targeted1`。实际命令：`/workspace/.toolchains/cargo/bin/cargo test --offline --locked -p agentbaton-core --lib workspace_resolution::tests -- --nocapture --test-threads=1`。RESULTS.json记录exit0、wrapper25.261956398986513s、minimum_free_bytes442630144、interruption=null；原Rust结果10passed/0failed/0ignored/0measured/128filtered/test3.54s。不是0selected、不是累计历史计数，F1新test函数也实际ok。编译日志test-profile阶段21.69s，不与wrapper或test时长互相替代。
+
+command-0.log SHA-256 `0bd8fe867596acde75ea463cd772dec8a7288f86aa44534cdca3f6e473e831af`；作者本次Python只读实核该SHA==RESULTS声明、SOURCE_BEFORE.json==SOURCE_AFTER.json、TOOLS_BEFORE_AFTER.json的before==after且equal=true，exit0。工具清单包含normal-debug baton/batond与fresh15frozen baton/batond四路径：各CLI SHA `0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f`，各daemon SHA `5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984` 前后不变。仅lib测试，没有把这些工具当WSI新IPC可执行产物。
+
+该结果验证真实临时Store/Git/Directory测试断言，包括F1四坏row变体及零写快照。它不是Actor/Provider、默认Task准备/分配、IPC/Native/TS、Mac或完整Core验收。原源冻结时NOT_RUN和dedee BLOCKED仍属真实历史；strict Clippy与完整产品需求仍待后续。
+
+## Root strict libClippy真实FAIL与借用比较修复
+
+原件 `/workspace/.onboarding/workspace-isolation-wsi1-lib-clippy1/{RESULTS.json,command-0.log}`；精确source00f9917319311699b19a1ddd76460b74258b9c2f。Root命令 `/workspace/.toolchains/cargo/bin/cargo clippy --offline --locked -p agentbaton-core --lib -- -D warnings`，exit101、wrapper12.035460552986478s、minimum_free_bytes497750016、interruption=null。唯一编译拒绝cmp_owned在resolver143行临时PathBuf比较；log SHA `d872b233a0bb0ea7cc8c4dc281651347b2bbc66389cd0559c0350d07770604d4` 作者只读实核匹配RESULTS，未重跑。原10个Store测试通过不等于lint通过，历史base8c alltargets问题也不能作为本次失败归因。
+
+新源码leaf `3e4c0e7df1bc3dc586ccd5a9ec34adb5e64fb29c` 仅resolver import由PathBuf改{Path,PathBuf}，比较由workspace.root != PathBuf::from(root)改workspace.root.as_path() != Path::new(&root)。两边借用原路径作相同Path比较，不新分配、不改规范化/FS/SQL/权限。resolver SHA `52d37b359ab91bbca1051ecf54d5b89076a84ec6516d071addfba15bc4d7af1b`；tests仍9ef80a87597f4e0e09c1f25ccd2c631c40aa851d8126e53fa8e9eb4ffcd9cd74，lib仍84d11315f989aa93c3dd2c9388d83a19c4571a5d991c3dc6a9d98b468dc857d1。
+
+作者实际选择性rustfmt --check、Python两site逆替整文件逐字恢复parent及唯一源码路径检查、git diff --check均exit0。未加allow/降lint/跳测试，未运行Cargo或产品。新source独审及Clippy/targeted仍待Root真实执行；旧目标10PASS不能自动移签。本次仅等价lint修复，不接WSI2a IPC，也不令Factory/MCP companion拥有新读取权限。

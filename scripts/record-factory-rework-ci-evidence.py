@@ -17,7 +17,7 @@ import sys
 import tempfile
 
 CONTRACT = 'agentbaton.factory-rework-progress.v1'
-SCHEMA = 15
+SCHEMA = 16
 MAX_DB = 16 * 1024 * 1024
 MAX_CASES = 16
 MAX_ENTRIES = 64
@@ -648,7 +648,12 @@ def project_events(conn, observation):
             need(integer(event.get('revision'), (1 << 63) - 1) == prior_revision)
             result['previous_node_settlement'] = {'run_revision': prior_revision,
                 'same_observed_revision': False, 'same_plan_not_established': True,
-                'event': event_fields(event, subject, None)}
+                'event': event_fields(event, subject, None),
+                # Correlate only this earlier settlement's exact reservation
+                # and session. It remains historical, never a current-plan
+                # observation, causal conclusion or stop authority.
+                'settled_session_stop': settled_session_stop(
+                    conn, subject, prior_revision, prior[0][0], event)}
     # A later admission refusal is not a capture event. Retain at most two
     # earlier capture settlements from this exact private child subject, so
     # producer/queue/join costs remain observable without relabelling history
