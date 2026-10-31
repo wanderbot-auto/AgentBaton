@@ -1,3 +1,9 @@
+## Readonly Goal polling recovers safely; local regression checked — 2026-10-31T05:42:21.877135+00:00
+
+New source fdf0d2c preserves the original20-read/one-second limit and enables readonly recovery only for exact typed retryable/not_started Busy from the same validated source. Actions remain stale until the complete view is checked. Type checks,954 UI tests/55 files, frontend build, fresh same-source Core/CLI and296 infrastructure checks passed. Real Linux Core/browser normal4, cancel4 and lost-start5 checks passed with cleanup. [Exact evidence](child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json) SHA256 b2e991398b436dc7aeee102676c246bb43eba4b79a20eef35c60962b813839dd. Targeted93 overlaps full954; their counts are not added. Original65/28 timeout and92/1 selector failures remain.
+
+New exact PR18 CI/Native and installers remain pending. Previous7af both Mac lanes passed but UI failed. Separate Root21 accc has Environment3 success, Product Rust success but UI preflight and both Mac failures; notification784 also remains failed. Full Design v0.2 is incomplete and all existing authority limits remain.
+
 ## Parent15 Owner observation and read-cycle verified locally — 2026-10-31T03:09:30.745908+00:00
 
 Reviewed outerGoalstophint service/Core033182+Factory33 and UI589919/55 preserve source attribution. Sameactual9fCore/frontend with ec5harness pass normal4checks4PNG, cancel4/3, loststart5/4 and completecleanup; ec5infra284/fmt pass. Old9f15stimeout/cleanupfalse and bd twoinfracontrol failures remainfailed; only exact dependenttestloaders corrected. No original4s/15s/TTL/Grant/singleworker/rawreference/CAS budget or permission relaxed.
