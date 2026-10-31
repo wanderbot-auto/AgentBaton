@@ -56,5 +56,12 @@
     "Core/Cargo/SQL/product processes",
     "Native/macOS/CI/network"
   ],
-  "next": "Independent review then Root sole actual execution; no formal Approve"
+  "next": "Independent review then Root sole actual execution; no formal Approve",
+  "latest_Root_actual": {
+    "source": "4f2fcfdae1c4ae020574587f060dd356d1d9f3ae",
+    "compiled_source": "ea62e2873431484aab352bc4bcaae3f15b758f35",
+    "path": "docs/execution/child-goal-owner-ui-v4/ROOT_RESULTS.json",
+    "sha256": "c50c9c68fda4700908556f54dcdfe1769c45384fc8b6fdde516b9704ed5bf037",
+    "not_MAC_or_full_product_acceptance": true
+  }
 }

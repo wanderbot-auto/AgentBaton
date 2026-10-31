@@ -2439,7 +2439,8 @@
         "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
-        "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json"
+        "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json",
+        "docs/execution/child-goal-owner-ui-v4/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -4215,7 +4216,8 @@
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
-        "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json"
+        "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json",
+        "docs/execution/child-goal-owner-ui-v4/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
@@ -4258,7 +4260,8 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/provider-adapters/EVIDENCE.json",
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
-        "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json"
+        "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json",
+        "docs/execution/child-goal-owner-ui-v4/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",

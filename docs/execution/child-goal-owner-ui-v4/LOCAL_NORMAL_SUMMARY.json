@@ -1,0 +1,164 @@
+{
+  "contract": "agentbaton.child-goal-ci.v1",
+  "case": "normal",
+  "status": "passed",
+  "schema": 16,
+  "source_head": "ea62e2873431484aab352bc4bcaae3f15b758f35",
+  "compiled_core_source_head": "ea62e2873431484aab352bc4bcaae3f15b758f35",
+  "manifest_sha256": "b2cc024418aff0422f25b215de1e05e8784b0cb3c0a7fdcf2e5fc0cba0abece5",
+  "tools_sha256": {
+    "batond": "23ec86c384c474d20e759f54f34920c27f655e10a39065311fbbe1f594eeb066",
+    "baton": "7e35167228f5717f699807d220811099989926f164380480c7fd8000f318bf83"
+  },
+  "frontend_asset_count": 3,
+  "frontend_assets_sha256": "52b798bec119937ade6ce13e9c62bc7c6577bb15b7a80af45dc1f700aba28ba7",
+  "harness_sha256": "b959489950486874cf9730b9877dc36ee6c0121688dbc3fd9ef567138279268d",
+  "exit_code": 0,
+  "command_state": "returned",
+  "checks": [
+    {
+      "id": "CG01",
+      "status": "passed"
+    },
+    {
+      "id": "CG02",
+      "status": "passed"
+    },
+    {
+      "id": "CG05",
+      "status": "passed"
+    },
+    {
+      "id": "CG06",
+      "status": "passed"
+    }
+  ],
+  "cleanup_complete": true,
+  "cleanup_record_count": 5,
+  "failure_kind": "none",
+  "screenshots_published": false,
+  "private_history_published": false,
+  "finite_diagnostics": {
+    "version": 4,
+    "failure_class": null,
+    "driver_lines": null,
+    "lines_truncated": null,
+    "phase": null,
+    "last_completed_check": "CG06",
+    "core_replies": {
+      "observation": "observed",
+      "captured_count": 290,
+      "truncated": false,
+      "unmapped_error_count": 0,
+      "errors": [
+        {
+          "method": "factory_child_goals.start",
+          "code": "AUTH_REQUIRED",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 1
+        },
+        {
+          "method": "factory_scopes.propose",
+          "code": "AUTH_REQUIRED",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 2
+        },
+        {
+          "method": "factory_runs.get",
+          "code": "NOT_FOUND",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 1
+        },
+        {
+          "method": "factory_child_goals.start",
+          "code": "STALE_REVISION",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 2
+        }
+      ]
+    },
+    "graph_provider_argv": null,
+    "owner_refresh": {
+      "observation": "observed",
+      "source_epoch": null,
+      "started_ns": 308298648573102,
+      "click_finished_ns": 308302087516029,
+      "finished_ns": 308304950115069,
+      "refresh_completed": null,
+      "full_fresh": null,
+      "loading": null,
+      "pending_kind": "unobserved",
+      "correlation": "temporal_only",
+      "click_causality": "not_established",
+      "reads": [
+        {
+          "method": "factory_child_goals.get",
+          "binding": "scope_task_run",
+          "started_ns": 308300668417568,
+          "finished_ns": 308301165906454,
+          "reply_class": "result",
+          "error": null
+        },
+        {
+          "method": "factory_child_goals.get",
+          "binding": "scope_task_run",
+          "started_ns": 308303956785650,
+          "finished_ns": 308304329356563,
+          "reply_class": "result",
+          "error": null
+        }
+      ],
+      "scope_task_only_read_count": 2,
+      "truncated": false
+    },
+    "graph_provider_identity": null,
+    "owner_ui_state": {
+      "source": "renderer_local_untrusted",
+      "authority": "none",
+      "begin": {
+        "observation": "unobserved",
+        "sampled_ns": null,
+        "epoch": null,
+        "fresh": null,
+        "loading": null,
+        "capacity": null,
+        "connected": null,
+        "busy": null,
+        "cancel_reading": null,
+        "disabled": null,
+        "has_view": null,
+        "summary_fresh": null,
+        "parent_ready": null,
+        "parent_refresh_only": null,
+        "pending_kind": null,
+        "pending_unknown": null,
+        "owner_present": null,
+        "owner_disabled": null
+      },
+      "end": {
+        "observation": "observed",
+        "sampled_ns": 308304949946016,
+        "epoch": 6,
+        "fresh": true,
+        "loading": false,
+        "capacity": false,
+        "connected": true,
+        "busy": false,
+        "cancel_reading": false,
+        "disabled": false,
+        "has_view": true,
+        "summary_fresh": true,
+        "parent_ready": true,
+        "parent_refresh_only": false,
+        "pending_kind": "none",
+        "pending_unknown": null,
+        "owner_present": true,
+        "owner_disabled": false
+      }
+    }
+  }
+}
