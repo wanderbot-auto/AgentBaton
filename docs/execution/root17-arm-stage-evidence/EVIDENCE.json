@@ -1,0 +1,107 @@
+{
+  "base": "e874b123d3e7f329a551e21922baf1a7a643548f",
+  "scope": "test-only failure observation of existing integration records after the original Actor join",
+  "approval": "AB-START-001; OWNER-001/002 acknowledged; no new authority or formal approval",
+  "source_hashes": {
+    "crates/core/tests/integration_ipc.rs": "bf89eb10ad51b55578d2455e877d47aab8151a73292639ed77bc558852f1f8b1",
+    "crates/core/tests/fixtures/integration_runtime.rs": "f2dc88af2ede9507b01e118200319dd4760750745a1793d864188f8318e61761",
+    "crates/core/tests/fixtures/integration_stage_evidence.rs": "01182e11b127e13d99b5fb84cf7ec70472d650f068c35e078a3ba64f17284256",
+    "crates/core/tests/fixtures/integration_stage_evidence_tests.rs": "7b69cad3d6891c330d60619d373ff86b118e7f7974ed04dbff50367e17b0cd83",
+    "tests/infrastructure/test_integration_stage_evidence_source.py": "74ea821dd162c1b0374a347ff314664a244ad63e44b26389d54847f5c72f006a"
+  },
+  "whole_file_inverse_sha256": {
+    "crates/core/tests/fixtures/integration_runtime.rs": "149693770c6c6bce56def9b9b8a8fe43f8fc7c0657fb31adef45595b64813e06",
+    "crates/core/tests/integration_ipc.rs": "90fe84ccdecccddcdb6b8d0530fcbf29dad8d9390c0ac3bfc7200e93a469aabb"
+  },
+  "original_failure": {
+    "run": 41176611805,
+    "platform": "macos-15-arm",
+    "integration_passed": 8,
+    "integration_failed": 12,
+    "seconds": 238.32,
+    "raw_log_sha256": "0a5b90545a83f6b15b7b7a3c5e72833dcf21909278afcd4e7fdef79c0340225b",
+    "root_cause": "unestablished",
+    "apple_system_policy_test": "passed; not a measurement of Git operation performance"
+  },
+  "official_native_summary": {
+    "bytes": 419,
+    "sha256": "6a3121cf53339c66e327e23492bb0a4131112e10878a13054bf6439e6a3bb78d",
+    "status": "failed",
+    "dimension": "Owner approval gate; no failed runtime integration stage snapshot"
+  },
+  "verification": {
+    "python_source_only": {
+      "status": "passed",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_seconds": 0.012584,
+      "prohibited_execution_events": [],
+      "actual_sql": false,
+      "product_process": false,
+      "rust_execution": "not_run",
+      "log_sha256": "19d9839c21c558fe557dce324a0a1a7c59c4915f6541e5ece0ce6d435e511fc9",
+      "inputs_sha256": "254fa38ec972feef988a8f08951ed1e0fe27061eebfde2a604dbf5968f72c81f"
+    },
+    "result_path": "/tmp/root17-arm-stage-evidence-checks/RESULT.json",
+    "result_sha256": "6b68fb69351afcbc01be6938cb192c2ad3bb46e7b37a6ad535b9923beb53e1ed",
+    "inputs_path": "/tmp/root17-arm-stage-evidence-checks/INPUTS.json",
+    "log_path": "/tmp/root17-arm-stage-evidence-checks/command.log",
+    "rustfmt": "passed --check on all four Rust test files; no Cargo execution",
+    "rust_controls": {
+      "authored": 9,
+      "status": "not_run",
+      "coverage": [
+        "join/binding gating without reader access",
+        "original finish/join/panic lifecycle",
+        "complete production record shapes",
+        "unknown vs absent event facts",
+        "column/JSON run/attempt/event binding",
+        "unknown/duplicate/missing/type/range rejection",
+        "private canary non-disclosure",
+        "row/document/output bounds",
+        "private regular pins, symlinks, hardlinks, FIFO, replacement, permissions, journals and URI encoding"
+      ]
+    },
+    "actual_sql": "not_run",
+    "cargo": "not_run",
+    "linux_original_runtime_cases": "not_run",
+    "dual_mac_runtime": "not_run",
+    "independent_review": "pending",
+    "git_diff_check": "passed"
+  },
+  "limits": {
+    "attempts": 32,
+    "events": 64,
+    "document_bytes": 65536,
+    "aggregate_document_bytes": 262144,
+    "database_bytes": 67108864,
+    "public_line_bytes_including_prefix_newline": 16384
+  },
+  "claims": {
+    "measurement_not_authority": true,
+    "post_owned_shutdown_not_failure_instant": true,
+    "process_stop_proven": false,
+    "collection_success_is_test_success": false,
+    "normal_behavior_changed": false,
+    "production_changed": false,
+    "workflow_changed": false,
+    "new_rpc_or_store_open": false,
+    "new_stop_join_or_budget": false
+  },
+  "prior_source_check_failure_retained": {
+    "tests": 11,
+    "failed": 3,
+    "cause": "Incorrect expected field count (16 vs real14), whitespace-sensitive assertion, and pre-final Rust control count; corrected source-only checks, not product conditions"
+  },
+  "not_completed": [
+    "Root cause",
+    "actual bounded SQL adapter validation",
+    "exact Linux and dual-Mac product validation",
+    "full130",
+    "real Provider",
+    "remote",
+    "signing",
+    "production release"
+  ]
+}
