@@ -10,10 +10,13 @@ use std::{
     thread::JoinHandle,
     time::{Duration, Instant},
 };
+#[path = "factory_child_goal_deadline_evidence.rs"]
+mod deadline_evidence;
 #[path = "factory_child_goal_overrun_containment.rs"]
 mod overrun_containment;
 #[path = "factory_child_goal_rework.rs"]
 mod rework;
+use deadline_evidence::retain_deadline_parent_stages;
 struct RunningDaemon {
     stop: Arc<AtomicBool>,
     thread: Option<JoinHandle<agentbaton_core::Result<()>>>,
@@ -72,37 +75,6 @@ impl Drop for RunningDaemon {
             self.evidence.display()
         );
     }
-}
-// This is only a bounded private observation. Missing/invalid stage evidence
-// cannot establish a reached stage, an owned Goal, a stop or a timeout cause.
-fn retain_deadline_parent_stages(workspace: &Path, evidence: &Path) -> serde_json::Value {
-    use std::io::Read;
-    let source = workspace.join("reports/goal-deadline-parent-stages.json");
-    let file = match fs::File::open(source) {
-        Ok(file) => file,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-            return json!({"state":"unobserved"});
-        }
-        Err(_) => return json!({"state":"read_error"}),
-    };
-    let mut raw = Vec::new();
-    if file.take(16385).read_to_end(&mut raw).is_err() {
-        return json!({"state":"read_error"});
-    }
-    if raw.len() > 16384 {
-        return json!({"state":"oversized"});
-    }
-    if serde_json::from_slice::<serde_json::Value>(&raw).is_err() {
-        return json!({"state":"invalid_json"});
-    }
-    let destination = evidence.join("deadline-parent-stages.json");
-    if fs::write(&destination, &raw)
-        .and_then(|()| fs::set_permissions(&destination, fs::Permissions::from_mode(0o600)))
-        .is_err()
-    {
-        return json!({"state":"write_error"});
-    }
-    json!({"state":"retained","bytes":raw.len(),"sha256":sha256(&raw)})
 }
 #[test]
 fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume() {

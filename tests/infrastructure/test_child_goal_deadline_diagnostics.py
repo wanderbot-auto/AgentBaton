@@ -71,6 +71,25 @@ def generated_source():
 
 
 class DeadlineDiagnosticsTests(unittest.TestCase):
+    def test_rust_collector_keeps_closed_projection_and_nonblocking_pinned_read_boundary(self):
+        source = (FIXTURES / 'factory_child_goal_deadline_evidence.rs').read_text()
+        for required in ('O_NOFOLLOW', 'O_NONBLOCK', 'O_DIRECTORY', 'libc::openat',
+                         'info.uid() == uid', 'info.nlink() == 1', '0o600',
+                         'take(MAX_BYTES + 1)', 'file.metadata()', 'fs::symlink_metadata',
+                         'serde_json::from_slice(raw)', 'serde_json::to_vec(&marker)',
+                         'output.write_all(&safe)', 'marker.records.len() > 32'):
+            self.assertIn(required, source)
+        self.assertNotIn('fs::copy', source)
+        self.assertNotIn('output.write_all(&raw)', source)
+        for name in ('Marker', 'Record'):
+            self.assertRegex(source, r'#\[serde\(deny_unknown_fields\)\]\s*struct ' + name)
+        stages = re.search(r'enum Stage \{(.*?)\}', source, re.S)[1]
+        stages = {re.sub(r'(?<!^)(?=[A-Z])', '_', value).lower()
+                  for value in re.findall(r'^\s*(\w+),', stages, re.M)}
+        self.assertEqual(stages, helper()[0]['DEADLINE_STAGES'])
+        runtime = (FIXTURES / 'factory_child_goal_runtime.rs').read_text()
+        self.assertLess(runtime.index('thread.join()'), runtime.index('retain_deadline_parent_stages(&self.workspace'))
+
     def test_actual_source_hooks_are_unique_and_generated_python_compiles(self):
         source = generated_source()
         tree = ast.parse(source)

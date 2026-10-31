@@ -3,16 +3,17 @@
   "base": "7ee2437db08695347650a28f445cb0034b5f3f58",
   "preceding_helper_commit": "6be4d71",
   "source_sha256": {
-    "crates/core/tests/fixtures/factory_child_goal_runtime.rs": "acc226b4925ed1a9079f8a834df560b450b16406177a77999487a9cfbecdd54d",
+    "crates/core/tests/fixtures/factory_child_goal_runtime.rs": "a3fed3479775153fba80e63d6be0d68816848c04bb4e8d48428e8d1c5f7994f3",
+    "crates/core/tests/fixtures/factory_child_goal_deadline_evidence.rs": "1bef294b7a36e78de58fb7f8b55bf373b6aa32edd1337bab86b738bef34d8aa6",
     "crates/core/tests/fixtures/factory_child_goal_deadline_diagnostics.py": "a7bba0289523f82c932fbdee8c6c9a375f0d6bceef96c4d9bf71717fe1771db1",
-    "tests/infrastructure/test_child_goal_deadline_diagnostics.py": "2c5dfc298b3b411ccd71e16f9a47734981df9b99f885a609bd6b543d72c2ced9"
+    "tests/infrastructure/test_child_goal_deadline_diagnostics.py": "15f342b7a7c63155806725631d59e26a1d127dc2dc2a27613e5a8de34743fb8c"
   },
   "pure_validation": {
     "command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_deadline_diagnostics.py -v",
     "exit_code": 0,
-    "passed": 7,
+    "passed": 8,
     "failed": 0,
-    "reported_seconds": 0.021,
+    "reported_seconds": 0.024,
     "dimension": "in-memory Python/source and finite metadata only"
   },
   "git_diff_check": "passed",
@@ -24,5 +25,6 @@
   "original_assertions_changed": false,
   "owned_goal_premise_changed": false,
   "original_failure": {"run": 41162216164, "job": 124422036740, "passed": 25, "failed": 2, "log_sha256": "1bc77449a04bb02eff3de01128caba671acfeed3e1ce8d1a7e0327d51cfecfdb", "deadline_owned_goal_evidence": "not established"},
-  "not_run": ["independent review", "Rust format/compile", "actual current Factory suite", "Node", "browser", "SQL", "network", "CI", "push"]
+  "independent_review_correction": {"reviewed_commit": "c8b6190", "original_collector": "rejected: arbitrary valid JSON copy and blocking/following open", "corrected_collector": "pinned nofollow nonblocking regular private single-link input; duplicate/unknown-field refusing typed scalar projection; no raw copy", "new_rust_pure_controls": 4, "rust_pure_execution": "not_run", "rustfmt": "passed under explicit Root authorization", "rereview": "pending"},
+  "not_run": ["independent re-review", "Rust compile and four new Rust pure controls", "actual current Factory suite", "Node", "browser", "SQL", "network", "CI", "push"]
 }
