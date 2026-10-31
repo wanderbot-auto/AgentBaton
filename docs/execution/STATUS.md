@@ -1,3 +1,9 @@
+## Actual846 failures and860 test observer checkpoint — 2026-10-31
+
+Exact846 Environment41238532911 passes all3; Product41238532886 is terminal failed despite Rust/UI pass. ARM Core209/1 fails on an unidentified symlink_metadata NotFound entry, distinct from the earlier dropped-write IPC failure. Intel Factory29/1 is plan2/run12blocked with real4092ms runtime above unchanged4000ms: producer3563ms, capture queue529ms, actual worker0ms. These observations do not establish a shared cause, pure Actor idle, or a permission to discount costs. Native acceptance/build/installers remain blocked.
+
+Reviewed860 test-only closed diagnostics retain only generated roots on panic and still fail on missing entries. Exact860 Core13 and infrastructure366 pass; prior8bc real UnixIPC4 remains source-bound. No refusal, budget, authority, migration or assertion was removed. [Source-bound evidence](task-workspace-integration/OBSERVER_AND_HEAD846_RESULTS.json). Next: source-trace capture preparation/frontier costs, make a reviewed bounded change only if justified, then one exact remote candidate; preserve all failed logs. Full130 remains incomplete.
+
 ## Task dropped-response fixture verifies exact durable recovery — 2026-10-31
 
 Source8bc17f4 passes4 real UnixIPC cases with independently reviewed31-check fixture transport correction. The complete original frame is sent, the response is never read, and its descriptor is dropped after the original5s separate durable-state observation; original stable payload/key/CAS and no-authority checks remain. [Evidence](task-workspace-integration/UNREAD_RESPONSE_RESULTS.json). This does not establish BSD failure cause or current Mac acceptance. Remote846 Environment41238532911 passes; Product41238532886 is a different still-pending candidate. No duplicate run/new push until it terminates; full130 remains incomplete.

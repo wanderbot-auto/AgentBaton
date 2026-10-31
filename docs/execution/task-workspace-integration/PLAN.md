@@ -1,3 +1,5 @@
+Next: diagnose exact846 capture queue and ARM missing-entry fixture separately; retain original4s reservation and all path/refusal checks. New860 observer gives evidence, not a diagnosed fix.
+
 Current integration: finish documented squash ancestry, retarget PR19 main, read exact CI and dual-Mac evidence; retain all remaining approved scope. Local regression is recorded in PARENT_AE42_COMPOSED_RESULTS.json.
 
 Next: retain exact2e actual166/30/241 and reviewed composition; complete parent CI diagnosis, then exact schema16 remote/native/dual-architecture verification after protected parent integration. Continue independent authorized Core17 integration; no16 installer acceptance.
