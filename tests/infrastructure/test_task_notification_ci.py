@@ -98,7 +98,10 @@ class NotificationWorkflowInverse(unittest.TestCase):
             with self.subTest(old=old), self.assertRaises(ValueError): W.verify_only_six_historical_target_changes(text.replace(old, new, 1))
 
     def test_exact_step_cannot_move_duplicate_disappear_or_hide_an_extra_job(self):
-        text = WORKFLOW.read_text(); headers = list(re.finditer(r'^      - .*\n', text, re.M))
+        text = W.strip_integration_setup_diagnostics(WORKFLOW.read_text())
+        self.assertEqual(hashlib.sha256(W.strip_task_notification_ci_layer(text).encode()).hexdigest(),
+            '2571ca962ee7eca8ef0b679b86bd939187d69427d83fce3d5ca18c885fc18d23')
+        headers = list(re.finditer(r'^      - .*\n', text, re.M))
         start, end = headers[29].start(), headers[30].start(); block = text[start:end]
         for changed in [text[:start] + text[end:], text[:start] + block + block + text[end:],
             text[:start] + block.replace('if: always()', 'if: success()') + text[end:],
