@@ -1298,7 +1298,8 @@
     "All local runtime evidence here is Linux dev/testdebug0; explicit preview-feature builds and generated ACP/private Owner fixtures do not establish real Provider, Tauri Native or macOS acceptance.",
     "Root21 remains dependent onPR19; no current Root17 remote CI/protected integration/installers or full130 acceptance claimed.",
     "MacOS dual architectures, Native lifecycle/private dialog, release-control audit and actual packages still require their own exact-candidate evidence.",
-    "Full130 requirement statuses remain partial; preserve failed history, unknown outcomes and all authorization restrictions."
+    "Full130 requirement statuses remain partial; preserve failed history, unknown outcomes and all authorization restrictions.",
+    "Factory/IPC/sessions use schema-matched external companions frozen at9b; their linked Core is107. The generic wrapper default schema15 pin check is not a matched17 tool check; exact command overrides and separately rechecked9b hashes establish attribution."
   ],
   "Core_production_unit_source_equivalence": {
     "checked_paths": [
@@ -1312,5 +1313,21 @@
       "Cargo.lock"
     ],
     "git_diff_empty": true
+  },
+  "component_attribution": {
+    "linked_Core": "Factory30/IPC16/sessions58 execute Core107; Core229 unit source92b6 has byte-equivalent production/unit sources",
+    "actual_command_tools": {
+      "source": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+      "schema": 17,
+      "directory": "/workspace/.onboarding/integration17-shared-ack-frozen1",
+      "manifest_sha256": "89501415790e558248653cd50fb1d559b30ff7785f196045ccdf5c76fcbd0b9f",
+      "binaries": {
+        "batond": "c8e9186bfaf78ec00685e4d0174b716b117ad86eef1b5767f41a9c6cdbf63600",
+        "baton": "bd3769c79fa6c1b0e59bc7147c0be1e658222a989027e5984741a4124fd80273"
+      },
+      "current_hashes_match_original_frozen_manifest": true
+    },
+    "wrapper_default_pins": "INPUTS env/default frozen_tools and RESULT frozen_tools_unchanged refer to the generic old schema15 Baa pair. Explicit command env overrides choose schema17 9b tools for Factory/IPC/sessions; the generic flag alone is not an assertion about those overridden tools.",
+    "same_source_browser": "Only browser cases bind both Core107 and frontend107 with explicit preview build, fresh freeze/probe and exact source107. No9b tool is relabelled as107."
   }
 }

@@ -80,7 +80,7 @@
   "root_actual_verification": {
     "source": "107f72cd150cbbf11b58c55eddc4e95fc3a76bbc",
     "result_ref": "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json",
-    "sha256": "78c56e50638b9ed5414d9488e5b67f9e02d9e9ce315265214eca2b5ca3d87d99",
+    "sha256": "f7216d194980bc31ca7f154d4969cdbf100f5f08e4982ee4823dc07847989a99",
     "dimension": "Actual Linux only; independent source review and all retained failures remain separate; not Native/Mac/full acceptance"
   }
 }
