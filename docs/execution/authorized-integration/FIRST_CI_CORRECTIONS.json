@@ -279,7 +279,8 @@
       "ui_artifact": 13025090990,
       "ui_zip_sha256": "7df245ecd97c2087f72b68bbecf1dc155716f9be69177e0e343767a33fc1ac6f",
       "rust_log_sha256": "469ce961d7208b31626707a8f82406cce11d344954a7b6ca7534860dca6ddf2c",
-      "intel_log_sha256": "97ebf98cff292ac81f7fcbf9d15b7ad3fadfc4b8b7fec46926fb17ade309453d"
+      "intel_log_sha256": "97ebf98cff292ac81f7fcbf9d15b7ad3fadfc4b8b7fec46926fb17ade309453d",
+      "environment_terminal_sha256": "f15367be7ed5935b2ccc708e3bb20ec902f0871547e957495c6664cc7ea1df9d"
     }
   },
   "corrections": [
