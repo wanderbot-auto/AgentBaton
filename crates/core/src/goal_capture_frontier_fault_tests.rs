@@ -100,7 +100,7 @@ fn frontier_fault_after_capture_path(path: CapturePath) {
         )
         .unwrap();
     f.daemon.store.conn.execute(
-        "INSERT INTO goal_runs(id,scope_id,project_id,task_id,revision,state,document) VALUES(?1,?2,?3,?4,1,'queued','{}')",
+        "INSERT INTO goal_runs(id,scope_id,project_id,task_id,revision,state,document) VALUES(?1,?2,?3,?4,1,'awaiting_acceptance','{}')",
         rusqlite::params![foreign.id, run.scope_id, run.project_id, run.task_id],
     ).unwrap();
     f.daemon
