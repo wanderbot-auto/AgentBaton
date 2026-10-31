@@ -486,6 +486,37 @@ def fixed_form_control(container, caption, tag):
     return control
 
 
+def install_submission_probe(button):
+    """Observe one real click; never invoke handlers or retry a mutation."""
+    button.evaluate("""button=>{
+      const region=button.closest('section'),events=[];let omitted=0,last='';
+      const snapshot=kind=>{
+        const direct=[...region.children].filter(e=>e.tagName==='P');
+        const state={disabled:button.disabled,connected:button.isConnected,
+          head:direct.find(e=>e.textContent.startsWith('Current plan head:'))?.textContent.slice(0,200)??null,
+          alerts:direct.filter(e=>e.getAttribute('role')==='alert').slice(0,4).map(e=>e.textContent.slice(0,400)),
+          pending:[...region.querySelectorAll('button')].some(e=>e.textContent==='Recover the exact plan submission'),
+          draft_chars:region.querySelector(':scope > label > textarea')?.value.length??null};
+        const identity=JSON.stringify(state);if(kind==='mutation'&&identity===last)return;last=identity;
+        if(events.length<32)events.push({kind,utc_ms:Date.now(),...state});else ++omitted;
+      };
+      const onEvent=event=>{if(event.target instanceof Element&&event.target.closest('button')===button){snapshot(event.type);queueMicrotask(()=>snapshot(event.type+'-after'));}};
+      const names=['pointerdown','pointerup','click'];names.forEach(name=>region.addEventListener(name,onEvent,true));
+      const observer=new MutationObserver(()=>snapshot('mutation'));
+      observer.observe(region,{subtree:true,attributes:true,childList:true,characterData:true});
+      region.__batonSubmissionProbe={events,get omitted(){return omitted;},finish(){snapshot('finished');observer.disconnect();names.forEach(name=>region.removeEventListener(name,onEvent,true));}};
+      snapshot('armed');
+    }""")
+
+
+def finish_submission_probe(button):
+    return button.evaluate("""button=>{
+      const region=button.closest('section'),probe=region.__batonSubmissionProbe;
+      probe.finish();const result={events:probe.events,omitted:probe.omitted};
+      delete region.__batonSubmissionProbe;return result;
+    }""")
+
+
 def capture_browser_failure(browser, output, report, clean=str):
     if browser is None:return
     try:page=browser.contexts[0].pages[0]
@@ -1135,8 +1166,45 @@ def runtime_driver(args, output, manifest):
         root_region.get_by_role('button', name='Discard local draft', exact=True).click()
         raw4 = next_raw(stored, 'Actual lost-response UI revision four')
         draft.fill(raw4); faults['drop_next_submit'] = True
-        root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-        expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Submission outcome unknown\.(?:\s|$)'))).to_contain_text('Submission outcome unknown.')
+        store_button = root_region.get_by_role('button', name='Store next plan revision', exact=True)
+        diagnostic = {'raw_sha256': sha(raw4.encode()), 'armed_utc_ms': int(time.time()*1000),
+            'submit_count_before': sum(r['method']=='factory_child_plans.submit' for r in report['http']),
+            'single_click_only': True}
+        report['observations']['CP08_submission_transition'] = diagnostic
+        install_submission_probe(store_button)
+        def original_request(request):
+            if request.method!='POST' or request.url!=url+'/__test_child_plan_ipc': return False
+            try: envelope=request.post_data_json
+            except (ValueError, TypeError): return False
+            return (type(envelope) is dict and envelope.get('command')=='factory_child_plans_submit'
+                and type(envelope.get('args')) is dict and envelope['args'].get('scopeId')==scope['id']
+                and envelope['args'].get('taskId')==task['id'] and envelope['args'].get('planJson')==raw4
+                and envelope['args'].get('expectedPlanRevision')==3
+                and envelope['args'].get('expectedRevision')==scope['revision'])
+        browser_requests = []; browser_request_count = 0
+        def observe_original_request(request):
+            nonlocal browser_request_count
+            if original_request(request):
+                browser_request_count += 1
+                if len(browser_requests)>=4: return
+                browser_requests.append({'browser_request_sha256': sha(request.post_data.encode()),
+                    'host_observed_utc_ms': int(time.time()*1000)})
+        page.on('request', observe_original_request)
+        try:
+            # Observe without adding any wait, invoking handlers, or retrying.
+            # The existing single click and5s unknown assertion stay intact.
+            store_button.click()
+            expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Submission outcome unknown\.(?:\s|$)'))).to_contain_text('Submission outcome unknown.')
+            assert browser_request_count==1, ('Expected exactly one raw4 browser POST', browser_request_count, browser_requests)
+        finally:
+            page.remove_listener('request', observe_original_request)
+            diagnostic['matching_browser_requests'] = browser_requests
+            diagnostic['matching_browser_request_count'] = browser_request_count
+            diagnostic['fault_still_armed'] = faults['drop_next_submit']
+            diagnostic['submit_count_after'] = sum(r['method']=='factory_child_plans.submit' for r in report['http'])
+            diagnostic['deliberate_drop_count'] = sum(bool(r.get('actual_committed_reply_deliberately_dropped')) for r in report['http'])
+            try: diagnostic['click_and_DOM'] = finish_submission_probe(store_button)
+            except BaseException as error: diagnostic['capture_error'] = clean(error)
         lost = [r for r in report['http'] if r.get('actual_committed_reply_deliberately_dropped')]
         assert len(lost) == 1 and lost[0]['params']['plan_json'] == raw4
         assert lost[0]['host_observed_utc_ms']<min(scope['expires_at_ms'],grant['expires_at_ms'])

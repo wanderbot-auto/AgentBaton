@@ -1,0 +1,9 @@
+# Checkpoint
+
+Worktree `/workspace/.worktrees/pr18-cp08-submit-diagnostics`, branch codex/pr18-cp08-submit-diagnostics, base52dd3463efa3c104c58cf5e82bf752302384c189. Changed only planning harness and this directory. No PR/remote actions or production TypeScript/IPC changes.
+
+Root next: independently review closed observer fields and unchanged single-click/unknown/replay invariants; run actual planning with provenance bound to the reused compiled Core body and separately rebuilt frontend, not a claim of rebuilding exact CI52. If CP08 fails, compare pointer event disabled states/direct alerts, matching browser POST count, HTTP trace and fault state before choosing product changes. Keep child Goal normal/cancel/lost-start as not_run until actually reached.
+
+TS55 silent-return guard: inflight, disconnected, not fresh, memory capacity, missing context, a different saved pending key, or nonrecovery without writable policy. TS56 local parse refusal sets denied, while refresh28 clears error. Local refresh28 withdraws freshness;42 restores it;45/46 depend on object identity of scope/target. Parent FactoryRuntime54/56 withdraws readiness on each poll,85 replaces objects,87 restores readiness,93 polls every1s. These are plausible interleavings, not a proven event-level root cause.
+
+Candidate product routes, not implemented: (A) stabilize local refresh using complete semantic read fingerprints while retaining parent/current authority guards; risk is omitting a relevant field or mistaking equality for new authority. (B) explicitly coordinate one fresh exact-intent gesture against starting automatic polls, retaining every Core authority/TTL/CAS check, cancel path and keyboard handling; risks are gesture lock cleanup and delaying revocation observation. Neither may queue/replay mutations automatically. A not_sent explanation for silent guards is safer observability but cannot satisfy the required CP08 lost-response acceptance itself.
