@@ -2204,7 +2204,8 @@
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
-        "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json"
+        "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json",
+        "docs/execution/child-goal-plan-read-reuse/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2288,7 +2289,8 @@
         "docs/execution/finite-failure-diagnostics-root/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
-        "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json"
+        "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json",
+        "docs/execution/child-goal-plan-read-reuse/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2600,7 +2602,8 @@
         "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
         "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json",
         "docs/execution/child-goal-owner-ui-v4/ROOT_RESULTS.json",
-        "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json"
+        "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json",
+        "docs/execution/child-goal-plan-read-reuse/ROOT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
