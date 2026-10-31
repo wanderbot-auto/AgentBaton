@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-29T19:38:41.492715+00:00",
+  "base": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+  "source_commit": "1109d1ae87b00ba2aa3358da671a6acde80525b6",
+  "source_file": "crates/core/tests/sessions_ipc.rs",
+  "source_sha256": "679c48ef2115a98a79ff8b1b63841cf484263cb18e0656af714482f28a43b668",
+  "scope": "test-only exact oversize refusal assertions in two existing tests",
+  "role": "author; independent source review pending",
+  "original_run": {
+    "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+    "result": "56 passed; 2 failed; 0 ignored",
+    "exit_code": 101,
+    "test_seconds": 195.11,
+    "wrapper_seconds": 198.08683708999888,
+    "log_path": "/workspace/.onboarding/schema15-selected-real-regression1/sessions_ipc/command.log",
+    "log_sha256": "3aa67f9dbcdf8fbb66dd133bb9b058b348e12463a27ac9bcbb9c8c15c6e1b732",
+    "failing_elf_retained_by_root": true,
+    "unchanged": true
+  },
+  "diagnosis": {
+    "earlier_stage": "factory_context_for_request -> prepare_factory_goal_read_for_request -> goal_store::raw(approval_proposals)",
+    "limit_bytes": 1048576,
+    "predicate": "octet_length(document)<=?2",
+    "refusal_code": "NOT_FOUND",
+    "side_effect_state": "not_started",
+    "message": "Goal record is unavailable or exceeds its raw-byte bound",
+    "before_kind_classification": true,
+    "not_production_authority_bypass": true,
+    "before_later_RESOURCE_LIMIT_gate": true
+  },
+  "checks": [
+    {
+      "command": "python3 -B /workspace/.onboarding/schema15-concurrent-review-assertions/static_proof.py",
+      "exit_code": 0,
+      "dimension": "mechanical source/log proof only"
+    },
+    {
+      "command": "/workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --check /workspace/.worktrees/schema15-concurrent-review-assertions/crates/core/tests/sessions_ipc.rs",
+      "exit_code": 0,
+      "dimension": "standalone source formatting/parse, not Cargo compilation"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "invariants": {
+    "complete_test_file_inverse_byte_equal": true,
+    "only_two_target_assertion_blocks_changed": true,
+    "common_error_allowlist_not_broadened": true,
+    "all_DB_writes_counts_budgets_permissions_checks_preserved": true,
+    "no_production_CI_lock_or_authorization_changes": true
+  },
+  "unrun": [
+    "Rust compile",
+    "two exact fixed tests",
+    "full sessions_ipc",
+    "all other targets",
+    "Mac/native GUI",
+    "live Provider"
+  ],
+  "local_artifacts": {
+    "/workspace/.onboarding/schema15-concurrent-review-assertions/assertion-before.txt": {
+      "sha256": "672cefa3403001c52698dff4b95efab063a4ead965d58c8582eda608482201ee",
+      "bytes": 498
+    },
+    "/workspace/.onboarding/schema15-concurrent-review-assertions/assertion-after.txt": {
+      "sha256": "b092d2d9e9f388168cb6ea38a038f404999726b3c48ca2ea5f70207e69f395c7",
+      "bytes": 968
+    },
+    "/workspace/.onboarding/schema15-concurrent-review-assertions/static_proof.py": {
+      "sha256": "377612b2938921cf394e300d1399b852e8e47af4d3a7629a87b277773be04fd8",
+      "bytes": 4948
+    },
+    "/workspace/.onboarding/schema15-concurrent-review-assertions/STATIC_PROOF.json": {
+      "sha256": "a59180dd287dc125e89bd873bbd7be980a2d61d1b845d44afbc02b0cd2603c0c",
+      "bytes": 2035
+    },
+    "/workspace/.onboarding/schema15-concurrent-review-assertions/static-proof.log": {
+      "sha256": "130bd9e52d16678a79595aa72e3a52386ad3bd3e81376ba7d20f7f6ffb3ad804",
+      "bytes": 111
+    },
+    "/workspace/.onboarding/schema15-concurrent-review-assertions/rustfmt-check.log": {
+      "sha256": "ff4d4f6fe753fcbc5e86a231ea2e8eb2ab546a884d5aa7c3b545dfae4f45d6fd",
+      "bytes": 99
+    }
+  },
+  "bounded_read_source_hashes": {
+    "crates/core/src/goal_store.rs": {
+      "sha256": "3dd18953672c4836d964fbc7ebe9c8813760e6f8ba4e6260b6298b39bd82fb39",
+      "bytes": 105722
+    },
+    "crates/core/src/goal_factory.rs": {
+      "sha256": "28de5b6194ab8a71d69a3134a4f44849809ae2e58b29b6302eff71ab4d4fb36c",
+      "bytes": 87572
+    },
+    "crates/core/src/ipc.rs": {
+      "sha256": "ce6b7f45ca8c25c79350c4286376522444680fc8a4f814b25ce709da1d92cc1f",
+      "bytes": 130483
+    },
+    "crates/core/src/goal_runtime.rs": {
+      "sha256": "405564b27d0bdede1d10a60ac5a41c835e5f09b2912fd90c248d64996bae65db",
+      "bytes": 160760
+    }
+  },
+  "capacity": {
+    "disk_observed_before_worktree": "349MiB free",
+    "worktree": "sparse, only test source and own records",
+    "unknown_file_deletion": false
+  }
+}

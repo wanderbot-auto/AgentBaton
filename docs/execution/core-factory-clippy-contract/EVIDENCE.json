@@ -1,0 +1,124 @@
+{
+  "dimension": "author source-only mechanical lint maintenance; independent review/actual strict Clippy pending",
+  "recorded_at_utc": "2026-10-29T15:16:50.370083+00:00",
+  "base": "a915be0e6d6d394ffbc100cbaf0fe517c0934eaa",
+  "source_commit": "97d2e0410a869c669d7ec9bd85ea1a025493ec79",
+  "branch": "codex/core-factory-clippy-contract",
+  "source_equivalence": {
+    "base": "a915be0e6d6d394ffbc100cbaf0fe517c0934eaa",
+    "source_commit": "97d2e0410a869c669d7ec9bd85ea1a025493ec79",
+    "only_allowed_source_paths": [
+      "crates/core/src/goal_plan.rs",
+      "crates/core/src/goal_store.rs",
+      "crates/core/src/goal_factory.rs"
+    ],
+    "proof": {
+      "crates/core/src/goal_plan.rs": {
+        "old_argument_count": 8,
+        "new_argument_count": 7,
+        "guard_conditions_and_order_and_body_bytes_identical": true,
+        "only_new_statement": "let (approval, approval_revision) = approval",
+        "before_sha256": "724573e80d4fca997884abb5db1ba2eb5c2ee03714a51fc997eefcf4f6c68a97",
+        "after_sha256": "4cc1ed777aba2328c5b13306552cd667b0ce4926acc89009ce505f0939b37433"
+      },
+      "crates/core/src/goal_store.rs": {
+        "one_callsite_tuple_groups_same_approval_id_revision_expressions_in_same_order": true,
+        "before_sha256": "494991f241af8311c37d8c0ecc6e2fd096057e85503c967f3f6fe9903c510cc8",
+        "after_sha256": "3dd18953672c4836d964fbc7ebe9c8813760e6f8ba4e6260b6298b39bd82fb39"
+      },
+      "crates/core/src/goal_factory.rs": {
+        "exactly_two_redundant_borrows_removed_in_existing_borrowed_parameter_function": true,
+        "all_queries_predicates_order_and_other_bytes_unchanged": true,
+        "before_sha256": "4e6c0c9b5be3c41c87ac845c101beba083b15c8290e59c43fe6a74aeb39f96ae",
+        "after_sha256": "6041c6bbe32996ed44e6e4e099ab99866cd393ac2c3dd180ef900ee305623b74"
+      }
+    },
+    "original_Clippy_error_log_sha256": "2188d1a88916318e6b598fccd3b66adf313fe246d3d8b894e47fec34e2b34ae3",
+    "original_errors": [
+      "too_many_arguments 8/7",
+      "needless_borrow twice"
+    ],
+    "Cargo_build_check_test_Clippy_NOT_RUN": true,
+    "no_product_or_DB_execution": true,
+    "source_equivalence_is_not_typechecking_or_Clippy_pass": true
+  },
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "/workspace/.onboarding/core-factory-clippy-contract/check_equivalence.py"
+      ],
+      "exit": 0,
+      "dimension": "mechanical source inverse/fingerprints, not compiler",
+      "log": "equivalence-frozen-source.log"
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--check",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "/workspace/.worktrees/core-factory-clippy-contract/crates/core/src/goal_plan.rs",
+        "/workspace/.worktrees/core-factory-clippy-contract/crates/core/src/goal_store.rs",
+        "/workspace/.worktrees/core-factory-clippy-contract/crates/core/src/goal_factory.rs"
+      ],
+      "exit": 0,
+      "dimension": "standalone formatter/parser, not Cargo",
+      "log": "rustfmt-check.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "dimension": "whitespace diff check",
+      "log": "diff-check.log"
+    }
+  ],
+  "original_Root_actual_Clippy_failure": {
+    "source": "a915be0e6d6d394ffbc100cbaf0fe517c0934eaa",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "clippy",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--features",
+      "actual-legacy-migration-tests",
+      "--test",
+      "factory_child_goal_legacy_migration",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 101,
+    "seconds": 10.024855435010977,
+    "minimum_free_bytes": 1415897088,
+    "interruption": null,
+    "log_sha256": "2188d1a88916318e6b598fccd3b66adf313fe246d3d8b894e47fec34e2b34ae3",
+    "summaries": []
+  },
+  "not_run": [
+    "Cargo",
+    "Rust typecheck/build/tests",
+    "strict Clippy after correction",
+    "feature migration regression",
+    "database execution",
+    "Native/macOS",
+    "Provider"
+  ],
+  "scope_exclusions": [
+    "author rework fixtures",
+    "DDL",
+    "lockfiles",
+    "Root worktree/STATUS",
+    "remote operations",
+    "lint allow/skip"
+  ],
+  "review_status": "pending independent context; source proof is not actual Clippy success"
+}

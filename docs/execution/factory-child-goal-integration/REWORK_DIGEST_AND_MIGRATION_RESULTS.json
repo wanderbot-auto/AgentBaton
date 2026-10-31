@@ -1,0 +1,165 @@
+{
+  "recorded_at": "2026-10-29T15:10:17.648651+00:00",
+  "scope": "Partial Design v0.2 implementation; full130 incomplete; not Mac or live Provider acceptance",
+  "historical_digest": {
+    "root_source": "360fc19153958efc5a25826d731cf6bd2ca5c487",
+    "original_wrong_filter": [
+      {
+        "source": "360fc19153958efc5a25826d731cf6bd2ca5c487",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "goal_factory_adoption::tests::recorded_actual_rework",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 17.8522189760115,
+        "minimum_free_bytes": 1665904640,
+        "interruption": null,
+        "log_sha256": "299aaf5f41fbbd794f99fa2f4be14b7f894c5f81d7bd4fe39926b04a03dff1bc",
+        "summaries": [
+          "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 125 filtered out; finished in 0.00s"
+        ]
+      }
+    ],
+    "actual_correct_filter": [
+      {
+        "source": "360fc19153958efc5a25826d731cf6bd2ca5c487",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "recorded_actual_rework",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.20172384000034072,
+        "minimum_free_bytes": 1720893440,
+        "interruption": null,
+        "log_sha256": "14f312c688152e4cdde11de2631784beff80a98e3e5ecf43fb345c9b00e3fdf0",
+        "summaries": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 123 filtered out; finished in 0.02s"
+        ]
+      }
+    ],
+    "dimension": "Recorded finite public fields and in-memory SQLite history reader, two functions with fourteen corruptions; no new Actor",
+    "independent_review_sha256": "2f196ca9c79a897c86194cced8e908fd5b7def8c0223b9f372757820510d02a0",
+    "packet_temporal_hash_limitation": "Original collector did not include JSON; current blob verified exact, no invented before/after packet sampling"
+  },
+  "rework_runtime3": {
+    "results": [
+      {
+        "source": "360fc19153958efc5a25826d731cf6bd2ca5c487",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "-vv",
+          "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+          "--",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 101,
+        "seconds": 46.617098114977125,
+        "minimum_free_bytes": 1420394496,
+        "interruption": null,
+        "log_sha256": "fcf8c6029074149605814950c0182cbb515ebc90631289cc7bcb8088f714a025",
+        "summaries": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 23 filtered out; finished in 28.30s"
+        ]
+      }
+    ],
+    "status": "FAILED",
+    "observed": "Same Graph revision2 adopted, revision2 Work candidate; first real fixed Command exited1 with process_started, joined worker, leader reaped and stdout/stderr EOF. Event133 RESOURCE_LIMIT prevented second Validator. Child runtime18372 + next reservation4000 exceeds original20000; root/project each20021+4000 remain below30000. Complete flow FAILED; second Command exit0/Owner acceptance/parent resume NOT_RUN.",
+    "tool_restore": "guard2 original normal Cargo CLI inode, all aliases and metadata restored exactly",
+    "private_original_retained": true
+  },
+  "previous_runtime2_correction": "Validator preflight DEADLINE_EXCEEDED; grep did not start. Upfront fresh Validator reservation4s is not a modification of that old approval.",
+  "native_migration_portability": {
+    "root_source": "a915be0e6d6d394ffbc100cbaf0fe517c0934eaa",
+    "consumer": [
+      {
+        "source": "a915be0e6d6d394ffbc100cbaf0fe517c0934eaa",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--features",
+          "actual-legacy-migration-tests",
+          "--test",
+          "factory_child_goal_legacy_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 18.450541860976955,
+        "minimum_free_bytes": 1387855872,
+        "interruption": null,
+        "log_sha256": "1ee03e47b2041dbd6be36f5d159b70174a703e2fbce5398e27f143b6a4ca814c",
+        "summaries": [
+          "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.61s"
+        ]
+      }
+    ],
+    "dimension": "Actual Linux migration of retained genuine nonempty schema14 history; six functions, not actual Darwin",
+    "clippy": [
+      {
+        "source": "a915be0e6d6d394ffbc100cbaf0fe517c0934eaa",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "clippy",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--features",
+          "actual-legacy-migration-tests",
+          "--test",
+          "factory_child_goal_legacy_migration",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 101,
+        "seconds": 10.024855435010977,
+        "minimum_free_bytes": 1415897088,
+        "interruption": null,
+        "log_sha256": "2188d1a88916318e6b598fccd3b66adf313fe246d3d8b894e47fec34e2b34ae3",
+        "summaries": []
+      }
+    ],
+    "clippy_failure": "three production lints: from_verified_factory eight arguments, two needless borrows; fixes pending",
+    "actual_mac": "NOT_RUN"
+  },
+  "browser": "Two previous normal runs FAILED; source856 capture revision under independent review. Lost-start and cancel NOT_RUN.",
+  "next": [
+    "Identify precise RESOURCE_LIMIT layer and actual first Command result",
+    "Fix strict lint findings and integrate independently reviewed capture",
+    "Fresh actual normal/lost-start/cancel, full Rust/UI/Native regressions and exact CI dual Mac",
+    "New schema15 installers and remaining full product requirements pending"
+  ]
+}

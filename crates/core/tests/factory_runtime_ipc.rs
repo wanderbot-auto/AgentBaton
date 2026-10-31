@@ -129,6 +129,7 @@ impl Fixture {
         };
         let selection = FactoryScopeSelection {
             child_planning_policy: None,
+            child_goal_execution_policy: None,
             root_task_id: task.id,
             expected_task_revision: task.revision,
             grant_id: grant.id,
@@ -1877,8 +1878,8 @@ fn run_data_mode(mode: &str) {
             .unwrap()
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        14,
-        "Do not use an old schema13 daemon as evidence for current Core14 tests"
+        15,
+        "Do not use an old schema14 daemon as evidence for current Core15 tests"
     );
     let rpc = |method: &str, params: Value, key: Option<&str>, rev: Option<u64>| -> Value {
         let mut request = json!({"method":method,"params":params});
@@ -2426,3 +2427,6 @@ fn run_data_mode(mode: &str) {
         );
     }
 }
+
+#[path = "fixtures/factory_child_goal_runtime.rs"]
+mod child_goal_runtime;

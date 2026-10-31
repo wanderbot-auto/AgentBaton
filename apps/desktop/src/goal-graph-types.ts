@@ -4,7 +4,7 @@
 // references only are sent to Native, never these renderer-parsed pins.
 import type { WorkspaceIdentity } from './api';
 import type { GoalRun } from './goal-execution-api';
-import type { GoalPlanNode } from './goal-api';
+import type { GoalPlanNode, GoalScope } from './goal-api';
 export type GraphRun=Omit<GoalRun,'task_accepted'>&{readonly task_accepted:boolean};
 export interface GraphArtifactReference {
   candidate_id:string;artifact_id:string;contract_id:string;producer_node_id:string;producer_attempt_id:string;
@@ -32,3 +32,7 @@ export interface GraphOwnerDecisionResult {graph_contract_version:number;approva
 export interface GraphTaskAcceptance {
   id:string;graph_contract_version:number;task_id:string;task_revision:number;spec_revision:number;project_id:string;run_id:string;scope_id:string;root_grant_id:string;plan_revision:number;plan_digest:string;input_revision:string;workspace_id:string;capability_digest:string;criterion_digest:string;artifact_refs:GraphArtifactReference[];validation_ids:string[];owner_decision_ids:string[];accepted_at:string;sequence:number;source:string;
 }
+
+/** Readonly projection fields used by evidence validators/presentation only.
+ * This has no approval API, Grant capability, TTL or mutable execution binding. */
+export type GraphEvidenceContext=Pick<GoalScope,'id'|'root_grant_id'|'workspace_id'|'goal'|'input_revision'|'outputs'|'required_acceptance_rules'|'edit_context'>;

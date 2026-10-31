@@ -1,0 +1,79 @@
+{
+  "source": "a7d1953db527bfea150713c39ee66f3f76e0bbb7",
+  "scope": "Final static/preflight only; not remoteCI/native/package acceptance",
+  "runs": [
+    {
+      "source": "a7d1953db527bfea150713c39ee66f3f76e0bbb7",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0,
+      "seconds": 1.102722662006272,
+      "minimum_free_bytes": 358899712,
+      "interruption": null,
+      "log_sha256": "9cf6bd0de7c2ce0c7516812914b09b333429c69c2bfe5f6bf9627dd2c3fde7b3",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "a7d1953db527bfea150713c39ee66f3f76e0bbb7",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "scripts/validate_design.py"
+      ],
+      "exit": 0,
+      "seconds": 0.30136075799237005,
+      "minimum_free_bytes": 358932480,
+      "interruption": null,
+      "log_sha256": "f60c1df785838b0a8332b2ac614e8368c88db168027621f67e63647b28569361",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "a7d1953db527bfea150713c39ee66f3f76e0bbb7",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "scripts/validate_infrastructure.py"
+      ],
+      "exit": 0,
+      "seconds": 0.10074232998886146,
+      "minimum_free_bytes": 358940672,
+      "interruption": null,
+      "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  ],
+  "observed_counts": {
+    "infrastructure_python": 84,
+    "baseline_requirements": 130,
+    "answered_questions_preserved": 27,
+    "work_packages": 14,
+    "bootstrap_integrity_files": 93
+  },
+  "integration_boundary": {
+    "latest_main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+    "OWNER001002": "ACK no003",
+    "remote_PR18_before_new_push": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
+    "remote_old_checkout": "17334580ec1af21a9f63bf313c39b0a88c1bcc49",
+    "old_failed_checks_not_transferred": true
+  },
+  "new_candidate": "next branch push; exact SHA/check URLs recorded in PR18 and private checkpoint, all7 must run anew",
+  "no_formal_Approve_or_merge_or_release_submitted": true
+}

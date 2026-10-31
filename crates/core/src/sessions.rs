@@ -40,6 +40,39 @@ use std::{
 use time::OffsetDateTime;
 use uuid::Uuid;
 
+// Unit-test-only, one-shot fault injection at the exact atomic boundary. No
+// product build, feature, IPC request or Provider can install this callback.
+#[cfg(test)]
+pub(crate) mod goal_reservation_fault_fixture {
+    use super::{Connection, Task};
+    type Fault = Box<dyn FnOnce(&Connection, &mut Task)>;
+    std::thread_local! {
+        static FAULT: std::cell::RefCell<Option<Fault>> = std::cell::RefCell::new(None);
+    }
+    pub(crate) struct Guard(std::marker::PhantomData<std::rc::Rc<()>>);
+    pub(crate) fn install(fault: impl FnOnce(&Connection, &mut Task) + 'static) -> Guard {
+        FAULT.with(|slot| {
+            let mut slot = slot.borrow_mut();
+            assert!(slot.is_none(), "no nested reservation fault fixture");
+            *slot = Some(Box::new(fault));
+        });
+        Guard(std::marker::PhantomData)
+    }
+    pub(super) fn apply(db: &Connection, task: &mut Task) {
+        let fault = FAULT.with(|slot| slot.borrow_mut().take());
+        if let Some(fault) = fault {
+            fault(db, task);
+        }
+    }
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            FAULT.with(|slot| {
+                let _ = slot.borrow_mut().take();
+            });
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProviderConnection {
@@ -370,6 +403,8 @@ impl Store {
         goal: Option<crate::goal_store::GoalDispatchContext>,
         factory: Option<crate::factory::FactoryDispatchContext>,
     ) -> Result<ManagedSession> {
+        #[cfg(debug_assertions)]
+        let mut factory_phase_clock = factory.as_ref().map(|_| Instant::now());
         let (task_id, workspace_id, connection_id, grant_id, expected_revision, key) = request;
         key_valid(key)?;
         let payload = encode(
@@ -417,7 +452,15 @@ impl Store {
             .map_err(db_error)?;
         let mut task: Task =
             decode(&raw.ok_or_else(|| CoreError::new("NOT_FOUND", "Task does not exist"))?)?;
-        if factory.is_none() && crate::factory::is_factory_task(&tx, &task.id)? {
+        let factory_goal_root = goal
+            .as_ref()
+            .map(|context| crate::goal_store::factory_goal_session_root(&tx, context, &task.id))
+            .transpose()?
+            .flatten();
+        if factory.is_none()
+            && factory_goal_root.is_none()
+            && crate::factory::is_factory_task(&tx, &task.id)?
+        {
             return Err(CoreError::new(
                 "AUTH_REQUIRED",
                 "Factory descendants require their private Factory dispatch context",
@@ -426,7 +469,7 @@ impl Store {
         let canonical_root = if let Some(context) = factory.as_ref() {
             context.root_task_id().to_owned()
         } else {
-            task.id.clone()
+            factory_goal_root.unwrap_or_else(|| task.id.clone())
         };
         if task.revision != expected_revision {
             return Err(CoreError::new(
@@ -465,6 +508,17 @@ impl Store {
                 "Selected executable changed; register and approve it again",
             )
         })?;
+        #[cfg(debug_assertions)]
+        if let Some(clock) = factory_phase_clock.as_mut() {
+            crate::ipc::goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(clock.elapsed()),
+                [false; 6],
+                5,
+                None,
+            );
+            *clock = Instant::now();
+        }
         let busy:i64=tx.query_row("SELECT count(*) FROM sessions WHERE workspace_id=?1 AND state NOT IN('stopped','failed')",[workspace_id],|r|r.get(0)).map_err(db_error)?;
         let lease: Option<(String, i64)> = tx
             .query_row(
@@ -526,6 +580,13 @@ impl Store {
                 "RESOURCE_LIMIT",
                 "Local supervisor concurrency limit reached",
             ));
+        }
+        if let Some(context) = goal.as_ref() {
+            crate::goal_store::preflight_factory_goal_reservation(
+                &tx,
+                context,
+                self.data_input.as_ref(),
+            )?;
         }
         for scope in [
             format!("project:{}", task.project_id),
@@ -638,8 +699,35 @@ impl Store {
                 self.data_input.as_ref(),
                 self.graph_input.as_ref(),
             )?;
+            #[cfg(test)]
+            goal_reservation_fault_fixture::apply(&tx, &mut task);
+            if task.state == TaskState::OutcomeUnknown
+                && crate::goal_store::reserved_factory_goal_task_continuation(
+                    &tx,
+                    context,
+                    &session,
+                    self.data_input.as_ref(),
+                )?
+            {
+                // The old generic unknown projection represented an actually
+                // joined, normally completed Factory handoff. Only this fully
+                // verified new derived reservation continues the Task; this is
+                // neither a worker-start receipt nor a general unknown retry.
+                task.state = TaskState::Running;
+            }
         }
         if let Some(context) = factory.as_ref() {
+            #[cfg(debug_assertions)]
+            if let Some(clock) = factory_phase_clock.as_mut() {
+                crate::ipc::goal_diagnostics::emit(
+                    "factory_admission_phase",
+                    Some(clock.elapsed()),
+                    [false; 6],
+                    6,
+                    None,
+                );
+                *clock = Instant::now();
+            }
             crate::factory::reserve_factory_session(
                 &tx,
                 context,
@@ -647,6 +735,17 @@ impl Store {
                 &intent.binding,
                 self.data_input.as_ref(),
             )?;
+            #[cfg(debug_assertions)]
+            if let Some(clock) = factory_phase_clock.as_mut() {
+                crate::ipc::goal_diagnostics::emit(
+                    "factory_admission_phase",
+                    Some(clock.elapsed()),
+                    [false; 6],
+                    7,
+                    None,
+                );
+                *clock = Instant::now();
+            }
         } else if goal.is_none() {
             Store::reserve_ordinary_shared_budget(&tx, &session, &grant, &canonical_root)?;
         }
@@ -665,7 +764,27 @@ impl Store {
             json!({"task_id":task.id,"attempt_id":intent.attempt_id,"intent_id":intent.id,"binding":intent.binding,"fencing_token":session.fencing_token,"identity_status":"unknown","history_capture":{"normalized_updates":true,"raw_protocol":false,"stderr":false,"completeness":"partial"}}),
             "user_action",
         )?;
+        if let Some(context) = goal.as_ref() {
+            crate::goal_store::seal_factory_goal_read(
+                &tx,
+                context,
+                &session.attempt_id,
+                &session.intent_id,
+                Some(&session),
+                self.data_input.as_ref(),
+            )?;
+        }
         tx.commit().map_err(db_error)?;
+        #[cfg(debug_assertions)]
+        if let Some(clock) = factory_phase_clock {
+            crate::ipc::goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(clock.elapsed()),
+                [false; 6],
+                8,
+                None,
+            );
+        }
         Ok(session)
     }
     pub fn send_session(
@@ -973,6 +1092,8 @@ pub struct Supervisor {
     sender: SyncSender<Outcome>,
     runtime: PathBuf,
     launch_clocks: HashMap<String, Instant>,
+    // Process-local service hint, never permission or a stop/join receipt.
+    goal_stop_hint: bool,
 }
 impl Supervisor {
     pub fn new(runtime: &Path) -> Self {
@@ -984,7 +1105,11 @@ impl Supervisor {
             sender,
             runtime: runtime.into(),
             launch_clocks: HashMap::new(),
+            goal_stop_hint: false,
         }
+    }
+    pub(crate) fn take_goal_stop_hint(&mut self) -> bool {
+        std::mem::take(&mut self.goal_stop_hint)
     }
     fn environment(&self, c: &ProviderConnection) -> Result<BTreeMap<OsString, OsString>> {
         use std::os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt};
@@ -1496,6 +1621,18 @@ impl Supervisor {
                         "provider_runtime",
                     )?;
                     tx.commit().map_err(db_error)?;
+                    // Only an owned worker's correlated, committed Goal turn
+                    // can request earlier service. The Actor must still run
+                    // the complete fresh Goal stop policy before signalling it.
+                    if self.workers.contains_key(&id)
+                        && matches!(
+                            state.as_str(),
+                            "completed" | "cancelled" | "interrupted" | "outcome_unknown"
+                        )
+                        && crate::goal_store::owns_session(&store.conn, &id)?
+                    {
+                        self.goal_stop_hint = true;
+                    }
                 }
                 Ok(Outcome::Failure(id, reason)) => {
                     store.session_failure(&id, &reason)?;
@@ -1788,7 +1925,26 @@ fn run_worker_inner(
                     turn_completed = Some(state);
                 }
                 Ok(None) => {}
-                Err(_) => break "provider_protocol_or_timeout_failure",
+                Err(error) => {
+                    #[cfg(debug_assertions)]
+                    crate::ipc::goal_diagnostics::emit(
+                        "provider_prompt_failure",
+                        Some(started.elapsed()),
+                        [
+                            error.kind == agentbaton_providers::transport::FailureKind::Timeout,
+                            started.elapsed() >= duration,
+                            pending,
+                            false,
+                            false,
+                            false,
+                        ],
+                        crate::ipc::goal_diagnostics::provider_failure_tag(error.kind),
+                        None,
+                    );
+                    // Preserve the original public reason/state and deadline.
+                    let _ = error;
+                    break "provider_protocol_or_timeout_failure";
+                }
             }
         } else {
             std::thread::sleep(Duration::from_millis(5));

@@ -118,7 +118,8 @@ CREATE TABLE factory_budget_reservations(attempt_id TEXT PRIMARY KEY REFERENCES 
 PRAGMA user_version=13;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
-    super::runtime::migrate_child_planning(db, version)
+    super::runtime::migrate_child_planning(db, version)?;
+    super::runtime::migrate_child_goals(db, version)
 }
 
 pub(super) fn ms() -> Result<i64> {
@@ -152,8 +153,16 @@ pub(super) fn limits(selection: &FactoryScopeSelection, grant: &ExecutionGrant) 
     {
         return Err(invalid());
     }
-    if selection.capabilities.child_goal_execution || selection.capabilities.create_workspace {
+    if selection.capabilities.create_workspace {
         return Err(CoreError::new("CAPABILITY_UNSUPPORTED","This Factory contract only dispatches fixed handoffs in existing approved workspaces; child Goal/planning and new-workspace authority are not implemented"));
+    }
+    if selection.capabilities.child_goal_execution
+        != selection.child_goal_execution_policy.is_some()
+    {
+        return Err(invalid());
+    }
+    if let Some(policy) = &selection.child_goal_execution_policy {
+        super::runtime::child_goal_limits(selection, policy, grant)?;
     }
     if selection.capabilities.child_planning && selection.child_planning_policy.is_none() {
         return Err(CoreError::new("CAPABILITY_UNSUPPORTED","Old Factory snapshots grant no child planning policy; review a new complete Native Factory scope"));
@@ -173,8 +182,8 @@ pub(super) fn limits(selection: &FactoryScopeSelection, grant: &ExecutionGrant) 
                 .max_duration_ms
                 .saturating_mul(u64::from(grant.scope.max_attempts))
         || selection.root_budget.children > selection.max_total_nodes - 1
-        || selection.root_budget.reworks != 0
-        || selection.project_budget.reworks != 0
+        || (!selection.capabilities.child_goal_execution
+            && (selection.root_budget.reworks != 0 || selection.project_budget.reworks != 0))
         || selection.root_budget.tokens.is_some()
         || selection.root_budget.cost_microunits.is_some()
         || selection.project_budget.tokens.is_some()
@@ -244,6 +253,11 @@ pub(super) fn companion_controlled(
             "Baton MCP companion must be a bounded non-writable-by-group/world regular executable",
         ));
     }
+    #[cfg(debug_assertions)]
+    let diagnostic_started =
+        crate::ipc::goal_diagnostics::hashing_enabled().then(std::time::Instant::now);
+    #[cfg(debug_assertions)]
+    let mut diagnostic_hash_elapsed = std::time::Duration::ZERO;
     let mut observed = 0u64;
     let mut hasher = Sha256::new();
     let mut chunk = [0u8; 64 * 1024];
@@ -262,7 +276,13 @@ pub(super) fn companion_controlled(
         if observed > 128 * 1024 * 1024 {
             return Err(limited());
         }
+        #[cfg(debug_assertions)]
+        let diagnostic_update = diagnostic_started.map(|_| std::time::Instant::now());
         hasher.update(&chunk[..n]);
+        #[cfg(debug_assertions)]
+        if let Some(clock) = diagnostic_update {
+            diagnostic_hash_elapsed = diagnostic_hash_elapsed.saturating_add(clock.elapsed());
+        }
     }
     let current = std::fs::symlink_metadata(path).map_err(|_| changed())?;
     if observed != before.len()
@@ -289,9 +309,35 @@ pub(super) fn companion_controlled(
     {
         return Err(changed());
     }
+    #[cfg(debug_assertions)]
+    let diagnostic_finalize = diagnostic_started.map(|_| std::time::Instant::now());
+    let executable_sha256 = format!("{:x}", hasher.finalize());
+    #[cfg(debug_assertions)]
+    if let Some(clock) = diagnostic_finalize {
+        diagnostic_hash_elapsed = diagnostic_hash_elapsed.saturating_add(clock.elapsed());
+    }
+    #[cfg(debug_assertions)]
+    if let Some(clock) = diagnostic_started {
+        let diagnostic_total = clock.elapsed();
+        let bytes = usize::try_from(observed).unwrap_or(usize::MAX);
+        crate::ipc::goal_diagnostics::emit(
+            "companion_sha256",
+            Some(diagnostic_hash_elapsed),
+            [false; 6],
+            bytes,
+            None,
+        );
+        crate::ipc::goal_diagnostics::emit(
+            "companion_read_hash",
+            Some(diagnostic_total),
+            [false; 6],
+            bytes,
+            None,
+        );
+    }
     Ok(FactoryCompanionBinding {
         executable: canonical,
-        executable_sha256: format!("{:x}", hasher.finalize()),
+        executable_sha256,
         argument_template: vec!["factory-mcp".into(), "${SESSION_HANDLE_FILE}".into()],
         credential_transport: "private_0600_file_reference".into(),
         global_daemon_token_available: false,
@@ -485,7 +531,10 @@ impl Store {
         let root_request = json!({"schema_version":1,"kind":"agentbaton_factory_task_request","goal":task.goal,"root_task_id":task.id,"inputs":inputs,"outputs":outputs,"root_budget":selection.root_budget,"capabilities":selection.capabilities});
         let child_planning =
             super::runtime::resolve_child_planning_binding(&self.conn, selection, &workspaces[0])?;
+        let child_goal_execution =
+            super::runtime::resolve_child_goal_binding(selection, &grant, child_planning.as_ref())?;
         Ok(FactoryScopeBindings {
+            child_goal_execution,
             child_planning,
             project,
             root_task: task,
@@ -909,7 +958,16 @@ impl Store {
             .map_err(db_error)? as u64;
         let child_plan_heads=self.conn.query_row("SELECT count(*) FROM factory_child_plan_heads p JOIN factory_scopes s ON s.id=p.scope_id WHERE s.root_task_id=?1",[root_task_id],|r|r.get::<_,i64>(0)).map_err(db_error)? as u64;
         let child_plan_revisions=self.conn.query_row("SELECT count(*) FROM factory_child_plan_revisions p JOIN factory_scopes s ON s.id=p.scope_id WHERE s.root_task_id=?1",[root_task_id],|r|r.get::<_,i64>(0)).map_err(db_error)? as u64;
+        let child_goal_runs = self
+            .conn
+            .query_row(
+                "SELECT count(*) FROM factory_child_goal_runs WHERE root_task_id=?1",
+                [root_task_id],
+                |r| r.get::<_, i64>(0),
+            )
+            .map_err(db_error)?;
         Ok(FactoryRecordCounts {
+            child_goal_runs: u64::try_from(child_goal_runs).map_err(|_| changed())?,
             child_plan_heads,
             child_plan_revisions,
             scopes,

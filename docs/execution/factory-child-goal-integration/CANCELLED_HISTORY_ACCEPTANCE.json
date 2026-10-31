@@ -1,0 +1,199 @@
+{
+  "recorded_at": "2026-10-29T18:18:35.262134+00:00",
+  "source_head": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+  "reviewed_UI_sources": [
+    "ac03b997623036a1313dd64f810a03a6e9b8cc0d",
+    "6b8c6dbfd43dec16ae9a3119280f7eb7f98cdfb7"
+  ],
+  "actual_UI": [
+    {
+      "source": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "seconds": 1.166999199980637,
+      "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    {
+      "source": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+      "command": [
+        "npm",
+        "run",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 30.598293027986074,
+      "log_sha256": "37caa45a5117120fe050320a215c54118e60ee85d56afc4ee8f3ea5ece60d7e2"
+    },
+    {
+      "source": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 1.4271329760085791,
+      "log_sha256": "6ad8925792deab5b591bc13c3b162c5a989a7878e32b0ca623f69f2d661d30a0"
+    }
+  ],
+  "test_summary": {
+    "passed": 901,
+    "files": 52,
+    "new_cancelled_history_tests_executed": 29,
+    "types_and_build": "exit0"
+  },
+  "actual_browser_cancel": {
+    "source": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+    "command": [
+      "python3",
+      "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "--run",
+      "--case",
+      "cancel",
+      "--tools",
+      "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+      "--manifest",
+      "/workspace/.onboarding/factory-child-goal-browser-cancelled-history1/manifest.json",
+      "--frontend",
+      "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+      "--output",
+      "/workspace/.onboarding/factory-child-goal-browser-cancelled-history1/cancel"
+    ],
+    "exit": 0,
+    "seconds": 20.52527220698539,
+    "minimum_free_bytes": 461082624,
+    "interruption": null,
+    "log_sha256": "3310e3b44efb11627c1b7ef2257c4b31164055b7bbb0a6435d5a792687ad91da",
+    "report_sha256": "e4029919aa3bc6d55d3de6cf3596da4e4bc2e048f0eac17b819949112410b7ab",
+    "status": "passed",
+    "checks": 4,
+    "screenshots": 3,
+    "cleanup_complete": true,
+    "source_tools_assets_before_after_equal": true,
+    "guard_scope": "180s external test controller only; original product Grant/Scope/runtime and per-stage15s unchanged",
+    "dimensions": "actual React/Linux Chromium/authenticated Unix Core15/generated ACP+MCP/private Owner fixture; not OS dialog or real Provider account"
+  },
+  "passed_checks": [
+    {
+      "id": "CG01",
+      "status": "passed",
+      "evidence": "Separate actual Native fixture establishes original Grant ceiling; old false and excess policy requests denied without DB/journal/attempt mutation"
+    },
+    {
+      "id": "CG02",
+      "status": "passed",
+      "evidence": "Complete private-Owner-approved UI scope; all Factory/Graph/session/attempt/dispatch/reservation execution domains0, inactive leases, only explicit unused Native metadata remains"
+    },
+    {
+      "id": "CG04",
+      "status": "passed",
+      "evidence": "Actual live Graph cancel reply lost, explicit same-key recovery and actual cancelled view; no TaskAccepted or automatic opposite action"
+    },
+    {
+      "id": "CG06",
+      "status": "passed",
+      "evidence": "Factory-bound Native-confirmed grant3 unchanged after Factory approval, both explicit Native revision histories retained; one derived run/one immutable saved ref, shared3(or2 cancellation) attempts consumed with active0, no refund/new identity/hidden Native Graph approval, actual owned-stop journal and unchanged source"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "/workspace/.onboarding/factory-child-goal-browser-cancelled-history1/cancel/01-complete-explicit-execution-policy.png",
+      "sha256": "66c49e6880a79b8c615b0f918f238bcbcd7d9c6a7774b3b41a48144cee37e5be",
+      "dimension": "Linux Chromium, NOT Native/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/factory-child-goal-browser-cancelled-history1/cancel/02-exact-saved-raw-reference-before-start.png",
+      "sha256": "85079996eef4aeee5e23962f4a61f42b22ba62d0d9c52e234e734c038ef55d64",
+      "dimension": "Linux Chromium, NOT Native/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/factory-child-goal-browser-cancelled-history1/cancel/04-persisted-final-graph-and-factory.png",
+      "sha256": "719cc053d9e1772147185933a42cdb069a77111e1e92266fdc0918dbebbf33f7",
+      "dimension": "Linux Chromium, NOT Native/macOS"
+    }
+  ],
+  "visual_inspection": {
+    "root_viewed": [
+      "04-persisted-final-graph-and-factory.png"
+    ],
+    "other_two": "SHA-256 only, not visually reviewed",
+    "observation": "Cancellation recorded/r4 and fixed-work cancelled; owner-report not started, no TaskAccepted; persisted history remains mounted and write buttons disabled",
+    "dimension": "Linux Chromium generated fixture, not Home2N or Native/macOS"
+  },
+  "provenance": {
+    "schema": 15,
+    "source_head": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+    "compiled_core_source_head": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+    "compiled_core_tree": "fabfe01e74189f4986ea8c133f32a5f1ed52006b",
+    "compiled_core_subtree": "979ff2acfdf18c17c6ebc757dc70462f85ad2167",
+    "binaries": {
+      "batond": "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984",
+      "baton": "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f"
+    },
+    "frontend_assets": {
+      "index.html": "dd038a1fa7399173448c65111c5d55741b1fb23f794051e2c194fd52f4061a90",
+      "assets/index-DczAmFjL.css": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944",
+      "assets/index-Dyf_bEt8.js": "4e58b7ddfd542e46455ca2d92161c71dbefbf540b2c5833368eced2130acec0f"
+    },
+    "frontend_build_source_head": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+    "frontend_exact_ui_source": "1137efd1441d758cb4059db7506088be3f9f3879",
+    "frontend_build_evidence": "factory-cancelled-history-ui-regression1",
+    "frontend_current_source_equal_reviewed_ui": true,
+    "harness_source_commit": "961253c77baefed45780b0f2241c81f2d8d0834a",
+    "harness_sha256": "a47b511073cb6ab5db1fef4ccdc0d798c7f565d7884d1b1697bc62e865b59393",
+    "native_os_or_live_provider_claimed": false,
+    "core_production_inputs_diff_from_compiled_source": [],
+    "exact_all_changed_paths_from_compiled_core": [
+      "BOOTSTRAP_MANIFEST.json",
+      "apps/desktop/src/FactoryRuntime.cancelled-history.test.tsx",
+      "apps/desktop/src/factory-guards.ts",
+      "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "docs/execution/STATUS.md",
+      "docs/execution/child-goal-summary-cancel/CHECKPOINT.md",
+      "docs/execution/child-goal-summary-cancel/EVIDENCE.json",
+      "docs/execution/child-goal-summary-cancel/PLAN.md",
+      "docs/execution/child-goal-summary-cancel/PROGRESS.md",
+      "docs/execution/factory-cancelled-history-ui/CHECKPOINT.md",
+      "docs/execution/factory-cancelled-history-ui/EVIDENCE.json",
+      "docs/execution/factory-cancelled-history-ui/PLAN.md",
+      "docs/execution/factory-cancelled-history-ui/PROGRESS.md",
+      "docs/execution/factory-child-goal-core/CHECKPOINT.md",
+      "docs/execution/factory-child-goal-core/EVIDENCE.json",
+      "docs/execution/factory-child-goal-core/PLAN.md",
+      "docs/execution/factory-child-goal-core/PROGRESS.md",
+      "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json",
+      "docs/execution/factory-child-goal-integration/CHECKPOINT.md",
+      "docs/execution/factory-child-goal-integration/PROGRESS.md",
+      "docs/execution/requirements-progress.json"
+    ],
+    "tools_directory": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+    "core_tool_recompiled_for_this_UI_build": false,
+    "core_actual_rebuild_evidence": "factory-budget-history-cache-current-preflight1"
+  },
+  "validation_dimensions": "Actual React/authenticated Unix Core15/generated account-free ACP+MCP/private Owner fixture; no real Provider/model or OS dialog claim",
+  "independent_review": {
+    "previous_integration": "factory15-integration-961253c-independent-review: SOURCE_READY_FOR_CI, known history failure retained at that source",
+    "original_guard": "factory-cancelled-history-ac03-independent-review: CHANGES_REQUIRED unsupported continuation shape",
+    "fixed_guard": "factory-cancelled-history-ac03-independent-review/revision-6b8c6db: SOURCE_READY",
+    "new_actual_run_audit": "pending independent final seal at record time; Root original report/log/PNG verified"
+  },
+  "failure_history": [
+    "BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json preserves original invalid-digest fixture failure, legitimate stale-CAS refusal and later CG04-pass/whole-run-history-failure",
+    "Original ac03 unsupported continuation accepted by readonly branch; 6b fix rejects it; old mutation/CAS/unknown gates unchanged",
+    "No old report, failure ELF, raw reply or private database rewritten/deleted"
+  ],
+  "product_and_infrastructure_boundary": {
+    "Core_latest_full129": "baa72ac actual pass, code inputs unchanged through current UI-only correction; no sum with nested helper",
+    "strict_workspace": "961 actual alltargets Clippy exit0; no Rust changed after",
+    "infrastructure_last_validators": "bootstrap93/design130/WP14/27answers/static infrastructure passed2026-10-29T18:01:15Z, not product runtime checks",
+    "WSI1_next": "7a source ten real tests passed; 3e borrowed-path Clippy fix independently ready, new-source revalidation pending; separate workstream not imported",
+    "CI": "New PR, seven required checks and both Mac schema15/native/build/package lanes not yet run at this checkpoint",
+    "local_Native": "Repaired290b runner independently source-ready; not executed because bounded storage cannot satisfy staging and safe rebuild capacity; CI Mac native lanes remain required",
+    "protected_rule_introspection": "Current integration token received HTTP403 reading main required_status_checks and review-protection settings. Read attempts stopped; no account/scope switch or bypass. Existing seven check names/config preserved; exact PR results and GitHub enforcement still required."
+  },
+  "full_scope": "All130/WP01-WP14 continue; this is one validated slice, not full completion; production/realProvider/privateidentity/newspend/signing/license/formalApprove remain separately gated"
+}

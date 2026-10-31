@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Built Factory UI -> fixed test HTTP -> actual authenticated Core14 Unix IPC.
+"""Built Factory UI -> fixed test HTTP -> actual authenticated Core15 Unix IPC.
 
 Owner review/finalization and resource creation exist only in the private host
 fixture. Generated ACP/MCP is an account-free test program, never a real model.
@@ -46,7 +46,7 @@ MUTATIONS = frozenset({'factory_runs.start', 'factory_runs.cancel'})
 READS = frozenset({'system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
     'workspaces.list', 'grants.list', 'events.subscribe', 'goal_scopes.list',
     'factory_scopes.get', 'factory_scopes.list', 'factory_runs.get'})
-PENDING = ('Root immutable matching schema14 batond and sibling baton with manifest hashes',
+PENDING = ('Root immutable matching schema15 batond and sibling baton with manifest hashes',
     'Root actual composed built Factory frontend and asset hashes',
     'Core-author confirmation of actual Factory runtime/ledger and private MCP contract')
 
@@ -123,6 +123,69 @@ def write_private_json(path, value):
     with os.fdopen(fd, 'wb') as writer:
         writer.write(raw)
     return sha(raw)
+
+
+OBSERVER_ACK_CODE = r'''def observer_ack_bytes(value):
+ return (json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True)+'\n').encode()
+def observer_ack_paths(record):
+ path=Path(record);ack=path.with_name('fixture-observed-'+path.stem.removeprefix('fixture-request-')+'.json')
+ return ack,ack.with_name(ack.name+'.ready')
+def observer_ack_absent(record):
+ for path in observer_ack_paths(record):
+  try:os.lstat(path)
+  except FileNotFoundError:continue
+  raise AssertionError('Precreated fixture observation ACK')
+def observer_ack_value(row,record_sha):
+ return {'kind':'generated_fixture_observer_ack','schema_version':1,'record_sha256':record_sha,
+  'request_sha256':row['request_sha256'],'fixture_nonce':row['fixture_nonce'],
+  'native_session_id':row['native_session_id'],'observer_context':row['observer_context'],
+  'owned_provider':row['owned_provider'],'owned_companion':row['owned_companion']}
+def observer_ack_read(record,expected):
+ ack,ready=observer_ack_paths(record)
+ parent=os.open(ack.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  ready_fd=os.open(ready.name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=parent)
+  try:
+   info=os.fstat(ready_fd)
+   assert info.st_uid==os.getuid() and stat.S_IMODE(info.st_mode)==0o700 and not os.listdir(ready_fd)
+   ready_pin=(info.st_dev,info.st_ino)
+  finally:os.close(ready_fd)
+  fd=os.open(ack.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=parent)
+  try:
+   before=os.fstat(fd)
+   assert stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_uid==os.getuid()
+   assert stat.S_IMODE(before.st_mode)==0o600 and before.st_size<=4096
+   raw=os.read(fd,4097);after=os.fstat(fd)
+   fields=('st_dev','st_ino','st_size','st_mtime_ns','st_ctime_ns')
+   assert all(getattr(before,k)==getattr(after,k) for k in fields)
+   assert len(raw)==before.st_size and raw==observer_ack_bytes(expected)
+   return (tuple(getattr(before,k) for k in fields),ready_pin)
+  finally:os.close(fd)
+ finally:os.close(parent)
+def observer_ack_publish(record,value):
+ observer_ack_absent(record)
+ ack,ready=observer_ack_paths(record)
+ raw=observer_ack_bytes(value);assert len(raw)<=4096
+ parent=os.open(ack.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  fd=os.open(ack.name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=parent)
+  with os.fdopen(fd,'wb') as writer:
+   writer.write(raw);writer.flush();os.fsync(writer.fileno())
+  # Only this atomic ready-directory publication exposes the closed complete file.
+  os.mkdir(ready.name,0o700,dir_fd=parent)
+ finally:os.close(parent)
+ return observer_ack_read(record,value)
+def observer_ack_wait(record,row,record_sha,now=time.monotonic_ns,pause=time.sleep):
+ deadline=row['observer_context']['deadline_ns']
+ while True:
+  assert now()<deadline,'Fixture observation ACK deadline expired'
+  try:observer_ack_read(record,observer_ack_value(row,record_sha))
+  except FileNotFoundError:
+   pause(0.005);continue
+  assert now()<deadline,'Fixture observation ACK arrived too late'
+  return
+'''
+exec(OBSERVER_ACK_CODE)
 
 
 def diagnostic_snapshot(runtime, workspace, output, owner_token):
@@ -288,8 +351,74 @@ class FixtureControllerReaper:
             self.enabled = False
 
 
+
+def _bound_identity_disappeared(old, fixed, field, before):
+    """Preserve validated history only; absence is NOT a Core stop/join receipt.
+
+    Caller has just revalidated all files, nonce, Core session/turn/attempt and
+    immutable old==fixed. Never bind a new process or accept a reused/live PID.
+    """
+    if old is None or old != fixed or before is None:
+        return False
+    expected = fixed[field]
+    if before['pid'] != expected['pid'] or before['start_ticks'] != expected['start_ticks']:
+        return False
+    try:
+        after = support.proc_identity(expected['pid'])
+    except (FileNotFoundError, ProcessLookupError):
+        after = None
+    return after is None
+
+
 def collect_started_records(runtime, workspace, scope, context, verified, output, reaper=None):
     """A discovery glob cannot authorize cleanup: bind every FD to actual Core text/session."""
+    def cancel_row(connection):
+        table=connection.execute("SELECT type,sql FROM sqlite_master WHERE name='factory_runs'").fetchone()
+        if not(table is not None and table[0]=='table' and type(table[1])is str and re.match(r'CREATE\s+TABLE\s',table[1],re.I)):return False
+        rows=connection.execute("SELECT revision,CASE WHEN length(state)<=32 THEN state END,CASE WHEN length(CAST(document AS BLOB)) BETWEEN 1 AND 262144 THEN document END FROM factory_runs WHERE id=? AND scope_id=? AND root_task_id=? LIMIT 2",(context['run_id'],scope['id'],scope['root_task_id'])).fetchall()
+        if len(rows)!=1:return False
+        revision,state,raw=rows[0]
+        if not(type(revision)is int and revision>0 and state in ('cancel_requested','cancelled') and type(raw)is str):return False
+        value=json.loads(raw,object_pairs_hook=unique_object)
+        return (type(value)is dict and value.get('id')==context['run_id'] and value.get('scope_id')==scope['id']
+            and value.get('root_task_id')==scope['root_task_id'] and type(value.get('revision'))is int
+            and value['revision']==revision and value.get('state')==state and value.get('cancel_requested')is True)
+    cancellation_proof = None
+    def committed_cancel(connection):
+        nonlocal cancellation_proof
+        if cancellation_proof is not None:return cancellation_proof
+        cancellation_proof = False
+        try:
+            if cancel_row(connection):cancellation_proof=True;return True
+            # The original read transaction may predate the actual cancel commit.
+            # One fresh read-only snapshot, no RPC/retry/new outer deadline.
+            fresh=sqlite3.connect('file:'+str(runtime/'baton.sqlite3')+'?mode=ro',uri=True,timeout=2)
+            try:
+                fresh.execute('PRAGMA query_only=ON');fresh.execute('BEGIN')
+                cancellation_proof=cancel_row(fresh)
+                return cancellation_proof
+            finally:fresh.close()
+        except (sqlite3.Error,ValueError,TypeError,KeyError,AssertionError):return False
+    def same_bound_empty_provider(connection,old,fixed,current):
+        if old is None or old!=fixed:return False
+        parents=context.get('_verified_provider_parents')
+        if not(type(parents)is dict and len(parents)<=8 and fixed['path']in parents):return False
+        prior=parents[fixed['path']];expected=fixed['owned_provider']
+        if not(type(prior)is dict and set(prior)=={'pid','pgid','start_ticks','parent_pid'} and type(prior['pid'])is int and type(prior['pgid'])is int and type(prior['start_ticks'])is str and all(prior[k]==expected[k]for k in ('pid','pgid','start_ticks'))):return False
+        if not committed_cancel(connection):return False
+        assert type(prior['parent_pid'])is int and prior['parent_pid']>0
+        assert type(current['pid'])is int and type(current['parent_pid'])is int and type(current['start_ticks'])is str and current['pid']==prior['pid'] and current['start_ticks']==prior['start_ticks'] and current['parent_pid']==prior['parent_pid'], 'Previously bound provider parent/identity changed'
+        try:
+            before_uid=Path('/proc',str(expected['pid'])).stat().st_uid
+            assert type(before_uid)is int and before_uid==os.geteuid(), 'Bound provider UID changed'
+            assert os.getpgid(expected['pid'])==prior['pgid'], 'Bound provider PGID changed'
+            after=support.proc_identity(expected['pid'])
+            assert type(after['pid'])is int and type(after['parent_pid'])is int and type(after['start_ticks'])is str and after['pid']==prior['pid'] and after['start_ticks']==prior['start_ticks'] and after['parent_pid']==prior['parent_pid'], 'Bound provider identity changed during empty argv read'
+            after_uid=Path('/proc',str(expected['pid'])).stat().st_uid
+            assert type(after_uid)is int and after_uid==before_uid
+            assert os.getpgid(expected['pid'])==prior['pgid']
+        except (FileNotFoundError,ProcessLookupError):return False
+        return True
     if workspace is None or scope is None: return []
     directory = Path(workspace['root']) / 'reports'
     if not directory.exists(): return []
@@ -335,19 +464,40 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
             fixed = {'path':str(path),'sha256':sha(raw),'file_pin':pin,'session_id':session['id'],
                 'attempt_id':session['attempt_id'],'stage':row['stage'],'native_session_id':row['native_session_id'],
                 'owned_provider':dict(row['owned_provider']),'owned_companion':dict(row['owned_companion'])}
+            observer = row.get('observer_context')
+            if observer is not None:
+                assert set(observer)=={'scope_id','attempt_id','task_id','root_task_id','native_session_id','started_ns','deadline_ns'}
+                assert observer['scope_id']==scope['id'] and observer['attempt_id']==attempt['attempt_id']
+                assert observer['task_id']==request['task_id'] and observer['root_task_id']==scope['root_task_id']
+                assert observer['native_session_id']==row['native_session_id']
+                assert type(observer['started_ns']) is int and observer['started_ns']>0
+                assert type(observer['deadline_ns']) is int and observer['deadline_ns']==observer['started_ns']+5_000_000_000
             old = next((r for r in verified if r['path']==fixed['path']),None)
             assert old is None or old==fixed, 'Previously bound generated record changed'
+            if observer is not None:
+                acks=context.setdefault('_observer_acks',{})
+                if old is None:
+                    observer_ack_absent(path)
+                else:
+                    assert str(path) in acks,'Previously bound ACK missing from Host history'
+                    assert observer_ack_read(path,observer_ack_value(row,sha(raw)))==acks[str(path)]
             if reaper is not None and old is not None:
                 reaper.reap(old)  # Only previously bound identities after fresh full Core/record validation.
+            deferred_bound_mcp = False
+            deferred_bound_provider = False
+            first_provider_parent = None
             for field, expected_argv in [('owned_provider', row['provider_argv']), ('owned_companion', argv)]:
                 expected = row[field]
                 try: current = support.proc_identity(expected['pid'])
                 except (FileNotFoundError, ProcessLookupError): current = None
-                if current is not None and current['start_ticks']==expected['start_ticks']:
+                if current is None:
+                    assert old is not None and old==fixed, 'Previously bound generated record required for an absent initial identity'
+                if current is not None:
+                    assert current['pid']==expected['pid'] and current['start_ticks']==expected['start_ticks'], 'Generated PID identity changed; no argv read'
                     try:
                         with Path('/proc',str(expected['pid']),'cmdline').open('rb') as reader:
                             observed = reader.read(8193)
-                    except FileNotFoundError:
+                    except (FileNotFoundError, ProcessLookupError):
                         observed = None
                     if observed in (None, b'') and field == 'owned_companion' and old is not None and reaper is not None:
                         # A live child can be killed after the early reap check.
@@ -355,8 +505,32 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         reaper.reap(old)
                         try: after = support.proc_identity(expected['pid'])
                         except FileNotFoundError: after = None
-                        assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait'
+                        late_observation = None
+                        if after is not None and after['start_ticks'] == expected['start_ticks']:
+                            late_observation = {'stage':'bound_MCP_late_wait_still_present',
+                                'before_state':current['state'],'after_state':after['state'],
+                                'after_parent_is_controller':after['parent_pid']==os.getpid(),
+                                'birth_matches':True,'pgid_matches':None,'pgid_error_type':None}
+                            try:late_observation['pgid_matches']=os.getpgid(expected['pid'])==expected['pgid']
+                            except Exception as error:late_observation['pgid_error_type']=type(error).__name__
+                        if (old==fixed and after is not None and after['pid']==expected['pid']
+                                and after['start_ticks']==expected['start_ticks']
+                                and current['state']==after['state']=='Z'
+                                and current['parent_pid']!=os.getpid() and after['parent_pid']!=os.getpid()
+                                and late_observation['pgid_matches'] is True):
+                            # This already-bound child is not ours to wait yet. Keep
+                            # history only, not a fresh discovered row or a stop proof.
+                            deferred_bound_mcp = True
+                            break
+                        assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait: '+json.dumps(late_observation,sort_keys=True)
                         continue
+                    if observed == b'' and field == 'owned_provider' and same_bound_empty_provider(db,old,fixed,current):
+                        # Historical binding only: no fresh discovery/ACK/update,
+                        # no signal, no inference of argv validity or stop/join.
+                        deferred_bound_provider = True
+                        continue
+                    if observed in (None, b'') and field == 'owned_provider' and _bound_identity_disappeared(old, fixed, field, current):
+                        continue  # Keep the original binding, not a new argv or stop proof.
                     try:
                         assert observed is not None
                         assert len(observed)<=8192 and observed.endswith(b'\0')
@@ -387,13 +561,32 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                             observation['diagnostic_write_error'] = type(error).__name__
                         raise AssertionError('Fixed generated argv guard failed: ' + json.dumps(observation, sort_keys=True))
                     actual = [x.decode() for x in observed[:-1].split(b'\0')]
-                    assert actual[-len(expected_argv):] == expected_argv and os.getpgid(expected['pid'])==expected['pgid']
-                    assert support.proc_identity(expected['pid'])['start_ticks']==expected['start_ticks']
+                    assert actual[-len(expected_argv):] == expected_argv
+                    try:
+                        assert os.getpgid(expected['pid'])==expected['pgid']
+                        checked_identity = support.proc_identity(expected['pid'])
+                        assert checked_identity['start_ticks']==expected['start_ticks']
+                        if field == 'owned_provider':
+                            assert checked_identity['pid']==expected['pid'] and type(checked_identity['parent_pid'])is int and checked_identity['parent_pid']>0
+                            first_provider_parent = checked_identity['parent_pid']
+                    except (FileNotFoundError, ProcessLookupError):
+                        if _bound_identity_disappeared(old, fixed, field, current):
+                            continue  # Completed argv matched; the known identity has now vanished.
+                        raise
+            if deferred_bound_mcp or deferred_bound_provider:
+                continue
             if old is None:
                 copy = output / ('verified-' + str(pid) + '.json')
                 write_private_json(copy, {'dimension':'verified generated fixture record, not authority from an Agent',
                     'core_session_id':session['id'],'core_attempt_id':session['attempt_id'],'original_file_pin':pin,'record':row})
                 verified.append(fixed)
+                if observer is not None:
+                    assert time.monotonic_ns()<observer['deadline_ns'],'Fixture observer binding exceeded original fixture deadline'
+                    acks[str(path)]=observer_ack_publish(path,observer_ack_value(row,sha(raw)))
+                assert first_provider_parent is not None
+                parents=context.setdefault('_verified_provider_parents',{})
+                assert type(parents)is dict and len(parents)<8 and fixed['path']not in parents
+                parents[fixed['path']]={**fixed['owned_provider'],'parent_pid':first_provider_parent}
             row['request'] = request; discovered.append(row)
         db.rollback()
     return discovered
@@ -491,6 +684,149 @@ def verify_attempt_budgets(rows, task_id, project_id, expected_attempts, expecte
     for row in rows:
         assert type(row['consumed']) is int and row['consumed'] == expected_attempts, ('Cumulative attempts must not refund/reset', row, expected_attempts)
         assert type(row['active']) is int and row['active'] == expected_active, ('Exact observed active count required', row, expected_active)
+
+
+
+def verify_legacy_factory_shared_budget(db, scope, grant, run, expected_attempts):
+    """Terminal isolated-fixture proof: shared meters are not Goal authority.
+
+    Only goal_ledgers may be populated. Every other legacy Goal table, including
+    immutable Goal-grant history, stays empty. Read-only; no missing/unknown
+    usage is substituted with zero and no cumulative attempt is refunded.
+    """
+    def exact(left, right):
+        assert support.exact_json_value(left, right), 'Typed source snapshot mismatch'
+    def number(value, minimum=0):
+        assert type(value) is int and minimum <= value <= 18446744073709551615
+        return value
+    def document(raw):
+        assert type(raw) is str and len(raw.encode()) <= 1_048_576
+        value = json.loads(raw, object_pairs_hook=unique_object)
+        assert type(value) is dict
+        return value
+    def rows(table):
+        cursor = db.execute('SELECT * FROM "' + table + '"')
+        result = [dict(zip([c[0] for c in cursor.description], row)) for row in cursor]
+        assert len(result) <= 128
+        return result
+    assert type(expected_attempts) is int and 1 <= expected_attempts <= 3
+    assert scope['selection']['capabilities']['child_goal_execution'] is False
+    exact(scope['bindings']['approved_grant'], grant)
+    assert scope['root_grant_id'] == grant['id'] == grant['root_grant_id']
+    assert grant['parent_id'] is None and grant['scope']['max_children'] == 0
+    assert run['scope_id'] == scope['id'] and run['root_task_id'] == scope['root_task_id']
+    assert run['project_id'] == scope['project_id'] == grant['project_id']
+    assert run['state'] in {'completed', 'cancelled', 'outcome_unknown'}
+    assert run['active_session_id'] is None
+    for table in sorted(support.LEGACY_GOAL_TABLES):
+        if table != 'goal_ledgers':
+            assert db.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0] == 0, ('Unexpected Goal authority/history', table)
+    grants = rows('execution_grants')
+    assert len(grants) == 1 and grants[0]['id'] == grant['id']
+    exact(document(grants[0]['document']), grant)
+    scopes = rows('factory_scopes'); runs = rows('factory_runs')
+    assert len(scopes) == len(runs) == 1
+    exact(document(scopes[0]['document']), scope)
+    exact(document(runs[0]['document']), run)
+    reservations = rows('factory_budget_reservations')
+    attempts = rows('attempts'); factory_attempts = rows('factory_attempts')
+    sessions = rows('sessions'); intents = rows('dispatch_intents')
+    assert all(len(group) == expected_attempts for group in [reservations, attempts, factory_attempts, sessions, intents])
+    def indexed(group, key):
+        result = {r[key]: r for r in group}
+        assert len(result) == len(group)
+        return result
+    by_attempt = indexed(attempts, 'id'); by_factory = indexed(factory_attempts, 'attempt_id')
+    by_session = indexed(sessions, 'id'); by_intent = indexed(intents, 'attempt_id')
+    lineage = indexed(rows('factory_task_lineage'), 'task_id')
+    events = [(number(seq, 1), document(raw)) for seq, raw in db.execute('SELECT sequence,document FROM events ORDER BY sequence')]
+    runtime = output = 0
+    for row in reservations:
+        r = document(row['document']); aid = r['attempt_id']; sid = r['session_id']
+        assert row['attempt_id'] == aid and row['scope_id'] == r['scope_id'] == scope['id']
+        assert row['root_task_id'] == r['root_task_id'] == scope['root_task_id']
+        assert row['project_id'] == r['project_id'] == scope['project_id']
+        assert r['authority_kind'] == 'factory_task' and r['run_id'] == run['id']
+        assert r['root_grant_id'] == grant['id'] and r['settled'] is True
+        assert r['measurement_scope'] == 'selected_artifacts_no_validator_streams'
+        assert r['filesystem_total_bytes'] is None and r['provider_message_capture_complete'] is False
+        number(r['captured_provider_message_bytes'])
+        reservation = r['reservation']
+        assert set(reservation) == {'runtime_ms', 'output_bytes', 'tokens', 'cost_microunits'}
+        number(reservation['runtime_ms'], 1); number(reservation['output_bytes'])
+        assert reservation['tokens'] is reservation['cost_microunits'] is None
+        assert number(r['queued_ms']) < reservation['runtime_ms']
+        runtime += number(r['actual_runtime_ms']); output += number(r['actual_output_bytes'])
+        a = by_attempt[aid]; f = by_factory[aid]; session = by_session[sid]; intent = by_intent[aid]
+        sd = document(session['document']); fd = document(f['document'])
+        assert a['task_id'] == f['task_id'] == session['task_id'] == r['task_id']
+        assert a['root_task_id'] == f['root_task_id'] == scope['root_task_id']
+        assert f['scope_id'] == scope['id'] and f['run_id'] == run['id'] and f['session_id'] == sid
+        assert fd['attempt_id'] == aid and fd['session_id'] == sid
+        # Core json_set with rusqlite bool parameters stores JSON integers.
+        assert type(fd['stop_confirmed']) is int and fd['stop_confirmed'] == 1
+        assert type(fd['never_started']) is int and fd['never_started'] == 0
+        exact(document(f['reservation']), reservation)
+        assert sd['id'] == sid and sd['attempt_id'] == aid and sd['intent_id'] == intent['id']
+        assert sd['task_id'] == r['task_id'] and session['state'] == sd['state'] == 'stopped'
+        assert session['grant_id'] == session['root_grant_id'] == grant['id']
+        assert session['project_id'] == scope['project_id'] and intent['state'] == 'stopped'
+        assert session['workspace_id'] in scope['selection']['workspace_ids']
+        assert session['connection_id'] in scope['selection']['connection_ids']
+        intent_document = document(intent['document'])
+        assert intent_document['id'] == intent['id'] and intent_document['attempt_id'] == aid
+        assert intent_document['task_id'] == r['task_id'] and intent_document['root_task_id'] == scope['root_task_id']
+        assert intent_document['state'] == 'stopped'
+        binding = document(a['binding'])
+        exact(intent_document['binding'], binding)
+        assert binding['policy_revision'] == grant['id'] + ':' + str(grant['revision'])
+        assert binding['workspace_id'] == session['workspace_id'] and binding['connection_id'] == session['connection_id']
+        approved_connection = next(c for c in scope['bindings']['connections'] if c['id'] == session['connection_id'])
+        for key in ['environment_id', 'identity_ref', 'host_id', 'capability_snapshot_id']:
+            assert binding[key] == approved_connection[key]
+        assert binding['config_revision'] == approved_connection['config_revision']
+        assert r['ancestors'][0] == r['task_id'] and r['ancestors'][-1] == scope['root_task_id']
+        assert len(r['ancestors']) == len(set(r['ancestors']))
+        for index, ancestor in enumerate(r['ancestors']):
+            link = lineage[ancestor]
+            assert link['root_task_id'] == scope['root_task_id'] and link['scope_id'] == scope['id']
+            assert link['parent_task_id'] == (r['ancestors'][index + 1] if index + 1 < len(r['ancestors']) else None)
+        approved_workspace = next(w for w in scope['bindings']['workspaces'] if w['id'] == session['workspace_id'])
+        assert binding['input_revision'] == approved_workspace['base_revision']
+        stopped = [(seq, e) for seq, e in events if e['kind'] == 'session.stopped' and e['aggregate_id'] == sid]
+        settled = [(seq, e) for seq, e in events if e['kind'] == 'shared_budget.session_settled' and e['aggregate_id'] == sid]
+        assert len(stopped) == len(settled) == 1 and stopped[0][0] < settled[0][0]
+        assert stopped[0][1]['source'] == 'baton_supervisor'
+        assert stopped[0][1]['payload']['process_reaped'] is True
+        assert stopped[0][1]['payload']['no_process_started'] is False
+        assert settled[0][1]['source'] == 'budget_core'
+        exact(settled[0][1]['payload'], {'attempt_id': aid, 'stopped': True, 'never_started': False,
+            'runtime_ms': r['actual_runtime_ms'], 'selected_artifact_bytes': r['actual_output_bytes'],
+            'measurement_scope': r['measurement_scope'], 'filesystem_total_bytes': None, 'task_accepted': False})
+    # These fixtures never take a failed preflight branch; do not hide a charge.
+    assert not any(e['kind'] == 'factory.preflight_finished' for _, e in events)
+    keys = {'project:' + scope['project_id']: scope['selection']['project_budget'],
+        'root-grant:' + grant['id']: scope['selection']['root_budget']}
+    meters = rows('goal_ledgers')
+    assert len(meters) == 2 and {r['scope'] for r in meters} == set(keys)
+    for row in meters:
+        meter = document(row['document'])
+        assert set(meter) == {'limits', 'observed_attempts', 'runtime_ms', 'output_bytes', 'tokens', 'cost_microunits'}
+        exact(meter['limits'], keys[row['scope']])
+        assert number(meter['observed_attempts'], 1) == expected_attempts
+        assert number(meter['runtime_ms']) == runtime and number(meter['output_bytes']) == output
+        assert meter['tokens'] is meter['cost_microunits'] is None
+        assert runtime <= meter['limits']['runtime_ms'] and output <= meter['limits']['output_bytes']
+    budgets = rows('budgets')
+    verify_attempt_budgets(budgets, scope['root_task_id'], scope['project_id'], expected_attempts)
+    for row in budgets:
+        limits = scope['selection']['project_budget' if row['scope'].startswith('project:') else 'root_budget']
+        assert type(row['total_limit']) is int and row['total_limit'] == limits['attempts']
+        assert type(row['parallel_limit']) is int and row['parallel_limit'] == limits['parallel']
+    return {'shared_meter_rows': 2, 'observed_attempts': expected_attempts,
+        'active': 0, 'runtime_ms': runtime, 'selected_artifact_bytes': output,
+        'structural_goal_tables_empty': True, 'goal_grant_revisions_empty': True,
+        'filesystem_total_bytes': None, 'provider_message_capture_complete': False}
 
 
 def confirmed_start_response(entries, scope, project_id, task_id):
@@ -676,7 +1012,7 @@ def preflight(args):
     binary = args.batond.resolve(strict=True)
     raw = args.candidate_manifest.resolve(strict=True).read_bytes()
     manifest = json.loads(raw, object_pairs_hook=unique_object)
-    assert type(manifest.get('schema')) is int and manifest['schema'] == 14, 'Only integer schema14 candidate is Factory runtime evidence'
+    assert type(manifest.get('schema')) is int and manifest['schema'] == 15, 'Only integer schema15 candidate is Factory runtime evidence'
     companion = binary.with_name('baton').resolve(strict=True)
     for name, path in [('batond', binary), ('baton', companion)]:
         assert manifest['binaries'][name] == sha(path.read_bytes()), (name, 'frozen binary SHA mismatch')
@@ -690,7 +1026,7 @@ def preflight(args):
     return binary, companion, frontend, manifest, raw
 
 
-GENERATED_ACP = r'''import hashlib,json,os,signal,stat,subprocess,sys
+GENERATED_ACP = "import time\nFIXTURE_STARTED_NS=time.monotonic_ns()\nimport hashlib,json,os,signal,stat,subprocess,sys\nfrom pathlib import Path\n" + OBSERVER_ACK_CODE + r'''
 if '--version' in sys.argv:
  print('Generated account-free Factory ACP 1');sys.exit(0)
 settings_path=sys.argv[sys.argv.index('--fixture-settings')+1]
@@ -770,9 +1106,14 @@ try:
     'program_sha256':file_hash(__file__),'settings_sha256':file_hash(settings_path),
     'provider_argv':sys.argv,'companion_argv':[server['command']]+server['args']}
    record_path='reports/fixture-request-'+str(os.getpid())+'.json'
+   observer_ack_absent(record_path)
+   proof['observer_context']={'scope_id':status['factory_scope_id'],'attempt_id':status['attempt_id'],
+    'task_id':c['task_id'],'root_task_id':c['root_task_id'],'native_session_id':native_session_id,
+    'started_ns':FIXTURE_STARTED_NS,'deadline_ns':FIXTURE_STARTED_NS+5_000_000_000}
    record_fd=os.open(record_path+'.tmp',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
    with os.fdopen(record_fd,'w')as f:json.dump(proof,f)
    os.replace(record_path+'.tmp',record_path)
+   observer_ack_wait(record_path,proof,file_hash(record_path))
    with open('reports/fixture-stages.txt','a')as f:f.write(stage+'\n')
    if settings['case']=='cancel':
     assert stage=='parent-initial'
@@ -956,6 +1297,11 @@ def runtime_driver(args, output, attribution, prepared):
                 return collect_started_records(runtime, workspace, scope, record_context, verified_records, output, controller_reaper)
             observe_records = observe
             assert host.result('sessions.list', {}) == []
+            with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
+                db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
+                for table in sorted(support.LEGACY_GOAL_TABLES):
+                    assert db.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0] == 0, ('Approval must not initialize Goal authority or meters', table)
+                db.rollback()
             stale, _ = host.wire(FixedCall('factory_runs.start', {'scope_id': scope['id']}, 'factory:wrong-cas', scope['revision'] + 1))
             report['observations']['actual_wrong_start_CAS_refusal'] = stale
             assert stale['error']['code'] == 'STALE_REVISION' and host.result('sessions.list', {}) == []
@@ -1118,8 +1464,16 @@ def runtime_driver(args, output, attribution, prepared):
                         assert len({r['owned_provider']['pid'] for r in parent}) == 2
                         assert parent[0]['request']['task_id'] == parent[1]['request']['task_id'] == task['id']
                     with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
+                        db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
                         report['observations']['actual_sqlite_schema'] = db.execute('PRAGMA user_version').fetchone()[0]
-                        assert report['observations']['actual_sqlite_schema'] == 14
+                        assert report['observations']['actual_sqlite_schema'] == 15
+                        counts = support.current_factory_counts(db)
+                        report['observations']['factory_record_counts'] = counts
+                        assert counts['child_goal_runs'] == counts['child_plan_heads'] == counts['child_plan_revisions'] == 0
+                        report['observations']['legacy_goal_table_counts'] = {table: db.execute(
+                            'SELECT count(*) FROM "' + table + '"').fetchone()[0] for table in sorted(support.LEGACY_GOAL_TABLES)}
+                        report['observations']['shared_goal_meters'] = verify_legacy_factory_shared_budget(
+                            db, scope, grant, detail['run'], 3 if args.case == 'normal' else 1)
                         attempts = db.execute('SELECT count(*) FROM factory_attempts').fetchone()[0]
                         assert attempts == (3 if args.case == 'normal' else 1)
                         assert db.execute('SELECT count(*) FROM execution_grants').fetchone()[0] == 1
@@ -1566,7 +1920,7 @@ def main():
     args = parser.parse_args()
     assert sum([args.self_check, args.fixture_self_check, args.cleanup_self_check, args.diagnostic_self_check, bool(args.case)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
-    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 14}
+    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 15}
     if args.self_check:
         report = {**attribution, **boundary_self_check()}
         (output / 'boundary-checks.json').write_text(json.dumps(report, indent=2) + '\n')

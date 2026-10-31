@@ -3238,22 +3238,30 @@ fn actual_goal_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_autho
         let code = response["error"]["code"]
             .as_str()
             .expect("all corrupt/foreign authority must be refused");
-        assert!(
-            matches!(
-                code,
-                "WORKSPACE_BUSY"
-                    | "RESOURCE_LIMIT"
-                    | "INPUT_CHANGED"
-                    | "PERMISSION_DENIED"
-                    | "INVALID_REQUEST"
-            ),
-            "{mode}: {response}"
-        );
+        if mode == "oversize" {
+            // The derived-Goal preflight bounds the stored proposal before
+            // classifying its kind or reaching the concurrent-review route.
+            assert_eq!(code, "NOT_FOUND", "{mode}: {response}");
+            assert_eq!(response["error"]["side_effect_state"], "not_started");
+            assert_eq!(
+                response["error"]["message"],
+                "Goal record is unavailable or exceeds its raw-byte bound"
+            );
+        } else {
+            assert!(
+                matches!(
+                    code,
+                    "WORKSPACE_BUSY"
+                        | "RESOURCE_LIMIT"
+                        | "INPUT_CHANGED"
+                        | "PERMISSION_DENIED"
+                        | "INVALID_REQUEST"
+                ),
+                "{mode}: {response}"
+            );
+        }
         if mode == "renderer_kind" {
             assert_eq!(code, "INVALID_REQUEST");
-        }
-        if mode == "oversize" {
-            assert_eq!(code, "RESOURCE_LIMIT");
         }
         if matches!(mode, "unknown_id" | "wrong_doc_id" | "wrong_stored_kind") {
             assert_eq!(code, "WORKSPACE_BUSY");
@@ -3395,7 +3403,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        14
+        15
     );
     assert!(db
         .query_row(
@@ -3754,8 +3762,8 @@ impl GraphOwnerGrantClock {
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
         assert_eq!(
-            version, 14,
-            "This Factory integration fixture must link exact schema14"
+            version, 15,
+            "This Factory integration fixture must link exact schema15"
         );
         let raw: String = db
             .query_row(
@@ -5971,22 +5979,30 @@ fn actual_graph_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_auth
         let code = response["error"]["code"]
             .as_str()
             .expect("all corrupt/foreign authority must be refused");
-        assert!(
-            matches!(
-                code,
-                "WORKSPACE_BUSY"
-                    | "RESOURCE_LIMIT"
-                    | "INPUT_CHANGED"
-                    | "PERMISSION_DENIED"
-                    | "INVALID_REQUEST"
-            ),
-            "{mode}: {response}"
-        );
+        if mode == "oversize" {
+            // The derived-Goal preflight bounds the stored proposal before
+            // classifying its kind or reaching the concurrent-review route.
+            assert_eq!(code, "NOT_FOUND", "{mode}: {response}");
+            assert_eq!(response["error"]["side_effect_state"], "not_started");
+            assert_eq!(
+                response["error"]["message"],
+                "Goal record is unavailable or exceeds its raw-byte bound"
+            );
+        } else {
+            assert!(
+                matches!(
+                    code,
+                    "WORKSPACE_BUSY"
+                        | "RESOURCE_LIMIT"
+                        | "INPUT_CHANGED"
+                        | "PERMISSION_DENIED"
+                        | "INVALID_REQUEST"
+                ),
+                "{mode}: {response}"
+            );
+        }
         if mode == "renderer_kind" {
             assert_eq!(code, "INVALID_REQUEST");
-        }
-        if mode == "oversize" {
-            assert_eq!(code, "RESOURCE_LIMIT");
         }
         if matches!(mode, "unknown_id" | "wrong_doc_id" | "wrong_stored_kind") {
             assert_eq!(code, "WORKSPACE_BUSY");

@@ -22,6 +22,8 @@ struct ScopedCredential {
     /// Server-written private handle metadata, not a tools/call parameter.
     #[serde(default)]
     child_planning: bool,
+    #[serde(default)]
+    child_goal_execution: bool,
 }
 fn denied() -> CoreError {
     CoreError::new(
@@ -134,7 +136,14 @@ fn call(
             | "get_task_result"
             | "cancel_task"
             | "submit_child_plan"
+            | "execute_child_goal"
+            | "advance_child_goal"
     ) {
+        return Err(denied());
+    }
+    if matches!(name, "execute_child_goal" | "advance_child_goal")
+        && (!credential.child_goal_execution || !credential.child_planning)
+    {
         return Err(denied());
     }
     let request = json!({"api_version":1,"request_id":uuid::Uuid::new_v4().to_string(),"handle_id":credential.handle_id,"scoped_token":credential.scoped_token,"method":name,"params":args,"idempotency_key":key,"expected_revision":revision});
@@ -188,6 +197,24 @@ fn tools(child_planning: bool) -> Value {
         tools.as_array_mut().expect("fixed tools array").push(json!({"name":"submit_child_plan","description":"Store a complete bounded versioned GoalPlan for this caller or its same-Factory descendant under an explicitly approved child planning policy. Returns immutable plan metadata, never execution or acceptance.","inputSchema":{"type":"object","properties":{"task_id":{"type":"string","minLength":1,"maxLength":128},"plan_json":{"type":"string","minLength":1,"maxLength":262144},"expected_plan_revision":{"type":"integer","minimum":0,"maximum":255},"idempotency_key":{"type":"string","minLength":1,"maxLength":128}},"required":["task_id","plan_json","expected_plan_revision","idempotency_key"],"additionalProperties":false}}));
     }
     tools
+}
+fn execution_tools(planning: bool, execution: bool) -> Value {
+    let mut list = tools(planning);
+    if planning && execution {
+        let plan = json!({"type":"object","properties":{"id":{"type":"string"},"scope_id":{"type":"string"},"run_id":{"type":"string"},"task_id":{"type":"string"},"revision":{"type":"integer","minimum":1,"maximum":256},"raw_sha256":{"type":"string"},"plan_digest":{"type":"string"},"receipt_sequence":{"type":"integer","minimum":1}},"required":["id","scope_id","run_id","task_id","revision","raw_sha256","plan_digest","receipt_sequence"],"additionalProperties":false});
+        let submission = json!({"type":"object","properties":{"task_id":{"type":"string","minLength":1,"maxLength":128},"plan":plan,"expected_factory_run_revision":{"type":"integer","minimum":1}},"required":["task_id","plan","expected_factory_run_revision"],"additionalProperties":false});
+        let mut execute = submission.clone();
+        execute["properties"]["idempotency_key"] =
+            json!({"type":"string","minLength":1,"maxLength":128});
+        execute["required"]
+            .as_array_mut()
+            .expect("schema array")
+            .push(json!("idempotency_key"));
+        let list = list.as_array_mut().expect("fixed tools array");
+        list.push(json!({"name":"execute_child_goal","description":"Queue the exact saved plan in its original Factory target under a separately Native-approved execution policy and unchanged original Grant. Waits for the real planner stop; candidates are not acceptance.","inputSchema":execute}));
+        list.push(json!({"name":"advance_child_goal","description":"Explicitly adopt a newer exact saved plan in the SAME child Graph after confirmed all-stop failure or before any attempt. Retains all original budgets, history and independent Owner acceptance.","inputSchema":{"type":"object","properties":{"goal_run_id":{"type":"string"},"request":submission,"expected_goal_run_revision":{"type":"integer","minimum":1},"idempotency_key":{"type":"string","minLength":1,"maxLength":128}},"required":["goal_run_id","request","expected_goal_run_revision","idempotency_key"],"additionalProperties":false}}));
+    }
+    list
 }
 /// The trusted host passes only a server-created0600 handle file. No owner IPC
 /// command, generic shell, arbitrary MCP server or global credential is exposed.
@@ -258,9 +285,9 @@ pub fn run(path: &Path) -> Result<()> {
                     )
                 }
                 "ping" if initialized => Ok(json!({})),
-                "tools/list" if initialized => {
-                    Ok(json!({"tools":tools(credential.child_planning)}))
-                }
+                "tools/list" if initialized => Ok(
+                    json!({"tools":execution_tools(credential.child_planning,credential.child_goal_execution)}),
+                ),
                 "tools/call" if initialized => {
                     let params = &request["params"];
                     let name = params["name"].as_str().unwrap_or("");
@@ -352,5 +379,50 @@ mod child_planning_contract_tests {
         let mut bad = raw;
         bad["global_owner_token"] = json!("unavailable");
         assert!(serde_json::from_value::<ScopedCredential>(bad).is_err());
+    }
+}
+
+#[cfg(test)]
+mod child_goal_contract_tests {
+    use super::*;
+    #[test]
+    fn execution_adds_exact_two_tools_only_after_both_server_capabilities() {
+        assert_eq!(execution_tools(false, false), tools(false));
+        assert_eq!(execution_tools(true, false), tools(true));
+        assert_eq!(execution_tools(false, true), tools(false));
+        let seven = execution_tools(true, true);
+        let seven = seven.as_array().unwrap();
+        assert_eq!(&seven[..5], tools(true).as_array().unwrap());
+        assert_eq!(seven.len(), 7);
+        assert_eq!(seven[5]["name"], "execute_child_goal");
+        assert_eq!(seven[6]["name"], "advance_child_goal");
+        let example = crate::factory::FactoryChildPlanRef {
+            id: "p".into(),
+            scope_id: "s".into(),
+            run_id: "r".into(),
+            task_id: "t".into(),
+            revision: 1,
+            plan_digest: "a".repeat(64),
+            raw_sha256: "b".repeat(64),
+            receipt_sequence: 1,
+        };
+        let actual = serde_json::to_value(example)
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>();
+        let schema = seven[5]["inputSchema"]["properties"]["plan"]["required"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_str().unwrap().to_owned())
+            .collect::<std::collections::BTreeSet<_>>();
+        assert_eq!(schema, actual);
+        assert_eq!(
+            seven[5]["inputSchema"]["properties"]["plan"]["additionalProperties"],
+            false
+        );
     }
 }

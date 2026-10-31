@@ -1,0 +1,576 @@
+{
+  "recorded_at_utc": "2026-10-29T18:47:04.172379+00:00",
+  "source": "29a7c98b43476cb32deb4379fe0ff22577093f4f",
+  "base": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
+  "original_report_sha256": "f51e5e608323ee477495665ff55e3d08717d17cdddda002fa3117b2f9f5330f9",
+  "original_status": "incomplete_race_coverage",
+  "original_checks_passed": 8,
+  "source_audit": {
+    "recorded_at_utc": "2026-10-29T18:46:02.398783+00:00",
+    "base": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
+    "whole_driver_inverse_to_original": true,
+    "bounds_unchanged": {
+      "fixture_bytes": 33554432,
+      "selection_max_file_bytes": 67108864,
+      "selection_max_total_bytes": 67108864,
+      "selection_max_files": 4,
+      "Core_IO_deadline_seconds": 30,
+      "driver_terminal_observation_seconds": 35
+    },
+    "whole_inverse_preserves": [
+      "owner_fixture",
+      "existing_ACK_refresh",
+      "all_normal_copy_cancel_drift_code",
+      "samekey_replay",
+      "drop_remount",
+      "terminal_worker_join",
+      "verified_unrun_exit2",
+      "source_unchanged_assertions",
+      "all_production_components_Core_and_CI"
+    ],
+    "compile": "PASS2 files; in memory, no imports/cache",
+    "private_files_copied": false,
+    "product_execution": "NOT_RUN",
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "a62210952ae87e64c8466305391e56d7684a25bdeb933cb42962e67f7558b2f8",
+        "bytes": 57532
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "0adadde2c7225ececf743e1f33fffcdc56b45f0284775f49757f67a79434ca1b",
+        "bytes": 9306
+      }
+    }
+  },
+  "pure_driver_tests": {
+    "command": [
+      "python3",
+      "-B",
+      "apps/desktop/tests/test_data_preview_browser_timing.py"
+    ],
+    "initial_exit": 0,
+    "initial_count": 9,
+    "initial_seconds": 0.018,
+    "retained_log_exit": 0,
+    "retained_log_count": 9,
+    "retained_log_seconds": 0.019,
+    "retained_log_sha256": "b1e2df9be5b3e954c2d2d25efcf39cb02fe4e10735e67c33a5bb9488485289d7",
+    "dimension": "actual extracted Python handler; in-memory transport sentinels; no business success DTO claim"
+  },
+  "diff_check": "PASS",
+  "browser_Node_Cargo_Core_Actor": "NOT_RUN",
+  "original_verified_not_promoted": true,
+  "cancel_hit_guaranteed": false,
+  "production_hook_added": false,
+  "private_raw_files_copied": false,
+  "IPC_abort_phase_follow_up": {
+    "recorded_at_utc": "2026-10-29T18:51:49.737444+00:00",
+    "source": "68449fecfb306b25affa05ff90e29caaa95b229b",
+    "previous_source": "29a7c98b43476cb32deb4379fe0ff22577093f4f",
+    "scope": "test-only adapter diagnostics, not Core production bug",
+    "exact_whole_driver_inverse": true,
+    "all_original_9_test_methods_byte_preserved": true,
+    "test_count": 11,
+    "new_tests": 2,
+    "new_paths_exercised": "both IPC exceptions plus both postIPC HTTP writer exceptions",
+    "pure_tests": "PASS twice; initial0.022s, retained-log timing in file",
+    "compile_files": 2,
+    "compile": "PASS",
+    "diff_check": "PASS",
+    "no_HTTP_reply_change_for_IPC_aborts": true,
+    "no_new_IPC_call_or_retry": true,
+    "old_seal_payload_unchanged": true,
+    "original_reviewer_counterprobe": {
+      "IPC_ABORT_RESULT.json": {
+        "sha256": "5b365016ccd1d5ca47495429e7916483ecb313ca0d5dec7f73d16889cd0b5bc0",
+        "bytes": 885
+      },
+      "ipc-abort-probe.log": {
+        "sha256": "75378bfe21250d606686d1664852dd23dd539b5dfd057e50947c70f2b472b943",
+        "bytes": 165
+      }
+    },
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "2aef0272fddb51697d9f3823781805da57d4812690bd37e1b19f45f757a79a16",
+        "git_blob": "10b60710fa7c14142cc5778ead1c2837454054a8"
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+        "git_blob": "aefa32b0b065be9c0c9edbf09f27c0698faf5fd1"
+      }
+    },
+    "product_Node_Cargo_browser_Actor": "NOT_RUN",
+    "retained_log_sha256": "107c5c58a93f234b4eedbc7bbb493a73524fe2a57bbb091eeefd5b5404a89d38"
+  },
+  "explicit_preview_evidence_follow_up": {
+    "recorded_at_utc": "2026-10-29T19:17:20.783524+00:00",
+    "base_source": "68449fecfb306b25affa05ff90e29caaa95b229b",
+    "entire_driver_inverse_to_base": true,
+    "all_original_11_timing_tests_entire_file_byte_equal": true,
+    "new_private_file_tests": 14,
+    "pure_test_total": 25,
+    "new_cases_dimension": "private owned filesystem and extracted helper/control only; no Core/browser",
+    "compile_3_files": "PASS in memory; no imports/cache",
+    "default_mode": "no prepare/read gate branches executed; original natural race/exit2 preserved",
+    "evidence_mode": "before_scan cooperation; private ready proves exact worker/selection, not public authority",
+    "bounds": {
+      "fixture_bytes": 33554432,
+      "max_file_bytes": 67108864,
+      "max_total_bytes": 67108864,
+      "max_files": 4,
+      "Core_deadline_seconds": 30,
+      "ready_observation_seconds": 15
+    },
+    "product_Core_Node_Cargo_browser_Actor": "NOT_RUN",
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "7901a93e65a9a828703056d5a35903c6660280483688f4a5a8dd9e4a442d3b73",
+        "bytes": 67031
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+        "bytes": 11477
+      },
+      "apps/desktop/tests/test_data_preview_evidence.py": {
+        "sha256": "0f6a8257ca4a4d28855e8c781bd85991fbba8999a8405dddf8379c3447c66b0d",
+        "bytes": 10017
+      }
+    },
+    "log_map": {
+      "timing-tests.log": {
+        "sha256": "039285a02e89d424569abf4caa1882cf4cb7cf577912ccc53ef08fae5f78aa3f",
+        "bytes": 110
+      },
+      "private-file-tests.log": {
+        "sha256": "f633ad8e738512bb7562a43fab273ab65cdc5a224925052dd0e38b5bd4931a80",
+        "bytes": 113
+      }
+    },
+    "source_commit": "e552a37d207ff310a11b9aac6e58740a73522bba",
+    "protocol": {
+      "config_filename": ".agentbaton-preview-evidence-v1.json",
+      "ready_filename": ".agentbaton-preview-evidence-ready-v1.json",
+      "ready_exact_keys": [
+        "schema_version",
+        "gate",
+        "stage",
+        "nonce",
+        "descriptor_sha256",
+        "preview_id",
+        "project_id"
+      ],
+      "stage": "before_scan",
+      "nondefault_Core_feature": "preview-evidence",
+      "ready_required_not_manifest_inferred": true,
+      "private_files_uploaded": false,
+      "direct_release_supported": false
+    },
+    "Core_peer_confirmed": "Config confirms CANCEL_REQUESTED/DEADLINE_EXCEEDED mapping and thread.join-before-preview_finished; source freeze/actual build pending",
+    "product_execution": "NOT_RUN"
+  },
+  "absolute_ready_deadline_follow_up": {
+    "recorded_at_utc": "2026-10-29T19:23:28.849844+00:00",
+    "base_source": "e552a37d207ff310a11b9aac6e58740a73522bba",
+    "entire_driver_inverse_to_base": true,
+    "original_25_tests_both_files_entire_byte_equal": true,
+    "new_deadline_test_count": 11,
+    "total_pure_test_count": 36,
+    "compile_4_files": "PASS in memory; no imports/cache",
+    "global_wait_and_natural_race": "whole-driver inverse unchanged",
+    "deadline": "single absolute15 seconds; before pump/read and before successful return; missing/partial retries share deadline",
+    "original_counterprobe": {
+      "DEADLINE_RESULT.json": {
+        "sha256": "8b3840aec5cae795535261d360d87968a612fe178badfc949918b20d12b868f1",
+        "bytes": 341
+      },
+      "deadline_probe.py": {
+        "sha256": "0c7b22192528df381187638808046939ba15042efb1dec2833972713c06a2937",
+        "bytes": 1756
+      }
+    },
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "992426b6a666b484e2a964bcc77d5e33df05b7b9fb48c3cfc00edc9ba782c85a",
+        "bytes": 67877
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+        "bytes": 11477
+      },
+      "apps/desktop/tests/test_data_preview_evidence.py": {
+        "sha256": "0f6a8257ca4a4d28855e8c781bd85991fbba8999a8405dddf8379c3447c66b0d",
+        "bytes": 10017
+      },
+      "apps/desktop/tests/test_data_preview_evidence_deadline.py": {
+        "sha256": "39fb024352e2d6ef4dffe96eecf97b9cf60a18ca775678357e464bc5091b48e3",
+        "bytes": 6112
+      }
+    },
+    "logs": {
+      "timing-tests.log": {
+        "sha256": "293eda1681e8fb9f72107b88b85eb61f4e2e3e338d5c4536b6ccd3315262eb6c",
+        "bytes": 110
+      },
+      "private-file-tests.log": {
+        "sha256": "b287d0d1d60d3c3d4629e9139a735eefeb89b6d695d48d00e70404daa6a8692a",
+        "bytes": 113
+      },
+      "deadline-tests.log": {
+        "sha256": "0adb4bb2fc99792d5812c425591f723bd2f2510012b129bcb0f611abbffe1fff",
+        "bytes": 110
+      }
+    },
+    "actual_Core_Node_Cargo_Actor_browser": "NOT_RUN",
+    "test_dimension": "controlled clock + private owned actual marker/functions, not actual OS scheduling failure",
+    "source_commit": "11ab56b4bd0798b3c071db48d3333410c0e84f68",
+    "old_e552_reviewer_finding": "controlled clock only; not actual product failure",
+    "late_observation_rejected": true,
+    "hard_OS_IO_interruption_claimed": false,
+    "Core_budget_and_natural_race_unchanged": true
+  },
+  "event_document_schema_follow_up": {
+    "recorded_at_utc": "2026-10-29T19:41:35.944705+00:00",
+    "base_source": "11ab56b4bd0798b3c071db48d3333410c0e84f68",
+    "entire_driver_inverse_outside_commitment_function": true,
+    "all_original_36_tests_three_files_entire_byte_equal": true,
+    "new_inert_SQLite_test_count": 11,
+    "total_pure_test_count": 47,
+    "compile_5_files": "PASS in memory",
+    "source_schema_binding": {
+      "Core_commit": "39245be",
+      "events_columns": [
+        "sequence",
+        "document"
+      ],
+      "revision_kind_payload_aggregate_id": "JSON fields inside document",
+      "storage_source_sha256": "60996f4587d4d021496e6ae6897b12c9937d1dd4cf1e2002ecadc0494762a1d2"
+    },
+    "original_actual_failure": {
+      "report_sha256": "7306414b3aab19644743180cbabca18df05221a716fd9da692142611a9744326",
+      "log_sha256": "3184c2dbb3d8126c9b65842f7066a8c8b40f20ec882f78c44dbf7606675d5ea6",
+      "status": "failed_or_interrupted",
+      "checks_passed": 4,
+      "failure_type": "OperationalError",
+      "failure_message": "no such column: revision",
+      "actual_ready_recorded": true,
+      "retained_DB_read": false,
+      "retained_DB_available": false,
+      "old_driver_Root392_byte_matches_base": true,
+      "daemon_sha256": "c6021f97fccbe4682a8e90b5a0d618becfe3616038b5ee0e7c35ee5c24034a27",
+      "original_report_unmodified": true
+    },
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "69328710c620ca9477d46a9645a86761567cdbae31a0f3fc96d125b32612c7ec",
+        "bytes": 68493
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+        "bytes": 11477
+      },
+      "apps/desktop/tests/test_data_preview_evidence.py": {
+        "sha256": "0f6a8257ca4a4d28855e8c781bd85991fbba8999a8405dddf8379c3447c66b0d",
+        "bytes": 10017
+      },
+      "apps/desktop/tests/test_data_preview_evidence_deadline.py": {
+        "sha256": "39fb024352e2d6ef4dffe96eecf97b9cf60a18ca775678357e464bc5091b48e3",
+        "bytes": 6112
+      },
+      "apps/desktop/tests/test_data_preview_commitments.py": {
+        "sha256": "0a49dc0e5d225bbcf692197794d6624ab8d4307629f86a187d9dcbce548ecd64",
+        "bytes": 7187
+      }
+    },
+    "log_map": {
+      "timing-tests.log": {
+        "sha256": "5d6a2ed72d8a1044039f59b095e83dd79012334938689baf3ff6307d63217d0d",
+        "bytes": 110
+      },
+      "private-file-tests.log": {
+        "sha256": "98e2c1e6dafa9adb3a4f63f209231ed30ebe6a2630338bfd8598bb714b880db7",
+        "bytes": 113
+      },
+      "deadline-tests.log": {
+        "sha256": "82f73b7d31ec97aeccbbafc9010eeab3c8220fb6ade75955854be5e7e4a88692",
+        "bytes": 110
+      },
+      "journal-tests.log": {
+        "sha256": "c31e811c47f992d66e20f9b41cd43f0634edac76521e17dbdc11a485fe59c061",
+        "bytes": 110
+      }
+    },
+    "private_raw_DB_RPC_Grant_copied": false,
+    "actual_Core_Node_Cargo_browser_Actor": "NOT_RUN",
+    "unit_scope": "inert exact2column SQLite event table, not migration15 or real worker join",
+    "source_commit": "d39e78626694abd97a3ad32197f307f6415bffea",
+    "inert_SQLite_not_migration_or_worker_evidence": true,
+    "original_actual_gated_failure_preserved": true
+  },
+  "copy_evidence_follow_up": {
+    "recorded_at_utc": "2026-10-29T20:07:15.136819+00:00",
+    "initial_copy_source": "cd57963d82abf47e89a0f1eff2eb8fc3907eda10",
+    "initial_source_stage": {
+      "recorded_at_utc": "2026-10-29T19:55:21.040187+00:00",
+      "base_source": "d39e78626694abd97a3ad32197f307f6415bffea",
+      "whole_driver_copy_additions_inverse": true,
+      "preview_helpers_and_behavior_byte_preserved": true,
+      "all_original_47_tests_four_files_entire_byte_equal": true,
+      "new_copy_test_count": 16,
+      "total_pure_test_count": 63,
+      "compile_6_files": "PASS in memory",
+      "feature_default": "original natural race; no private config/read without flag",
+      "explicit_flag": "both independent startup descriptors and strictly matched real ready required",
+      "deadline": "existing absolute15 observer reused, original Core30 includes prior scan, not reset",
+      "new_copy_dimension": "gated_before_copy; no midcopy/partial/OSreap claim",
+      "original_copy_receipt_and_UI_CAS": "unchanged; gated mode additionally demands real cancelled/worker_joined/original copy_finished/no destination",
+      "original_run2": {
+        "report_sha256": "0c297309aa01cc335c6e14cca86bb59c1319857924c8be6890faca3405d65c98",
+        "status": "incomplete_race_coverage",
+        "checks_passed": 8,
+        "unrun": [
+          "Copy request was exercised but no cancelled/worker_joined terminal receipt was observed; actual Ready/failed/unknown is preserved without promoting it to confirmed cancellation"
+        ],
+        "preview_cancel_commitment": {
+          "cancel_requested_sequence": 12,
+          "finished_sequence": 13,
+          "terminal_revision": 3,
+          "worker_join_evidence": "preview_finished after thread.join in the pinned Core producer",
+          "stage": "gated_before_scan",
+          "mid_read_cancellation_claimed": false,
+          "OS_process_reap_claimed": false
+        },
+        "copy_requested_through_UI": true,
+        "copy_terminal_state": "ready",
+        "copy_terminal_cancel_requested": false,
+        "copy_io_completion": "worker_joined",
+        "whole_success_claimed": false
+      },
+      "source_map": {
+        "apps/desktop/tests/data-workspace-real-ipc.py": {
+          "sha256": "83440831897ae1e439f95d13f529ef7fab138181c34640e5f98ac9174ca80a97",
+          "bytes": 77053
+        },
+        "apps/desktop/tests/test_data_preview_browser_timing.py": {
+          "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+          "bytes": 11477
+        },
+        "apps/desktop/tests/test_data_preview_evidence.py": {
+          "sha256": "0f6a8257ca4a4d28855e8c781bd85991fbba8999a8405dddf8379c3447c66b0d",
+          "bytes": 10017
+        },
+        "apps/desktop/tests/test_data_preview_evidence_deadline.py": {
+          "sha256": "39fb024352e2d6ef4dffe96eecf97b9cf60a18ca775678357e464bc5091b48e3",
+          "bytes": 6112
+        },
+        "apps/desktop/tests/test_data_preview_commitments.py": {
+          "sha256": "0a49dc0e5d225bbcf692197794d6624ab8d4307629f86a187d9dcbce548ecd64",
+          "bytes": 7187
+        },
+        "apps/desktop/tests/test_data_copy_evidence.py": {
+          "sha256": "c6b5478506cef9579db4be60131ab49d34345e8367448768012e0c0836df2031",
+          "bytes": 16765
+        }
+      },
+      "log_map": {
+        "copy-tests.log": {
+          "sha256": "9ce01e6bd96cf0c77c4bb986771d797cd66ad2d1863cf1963cb71c905c3d3ff3",
+          "bytes": 115
+        },
+        "preview-deadline-tests.log": {
+          "sha256": "d2fb41082e408e2f5f8300e0c9aff827e840b3ea83198866cf636f19a4657296",
+          "bytes": 110
+        },
+        "preview-journal-tests.log": {
+          "sha256": "5d6a2ed72d8a1044039f59b095e83dd79012334938689baf3ff6307d63217d0d",
+          "bytes": 110
+        },
+        "preview-private-tests.log": {
+          "sha256": "f633ad8e738512bb7562a43fab273ab65cdc5a224925052dd0e38b5bd4931a80",
+          "bytes": 113
+        },
+        "timing-tests.log": {
+          "sha256": "eb415a59e21c0a977f3222b774d2913fad2c6faacf6b862e57bf55b374dd5f74",
+          "bytes": 110
+        }
+      },
+      "actual_Core_Node_Cargo_Actor_browser": "NOT_RUN",
+      "private_DB_RPC_Grant_config_ready_copied": false
+    },
+    "Core_protocol_static_map": {
+      "recorded_at_utc": "2026-10-29T19:59:14.197757+00:00",
+      "Core_author_source": "2c5ffcc5b26e44c5f4dd2c85b4ca25a3616756e0",
+      "actual_Root_source": "9cfcc94a54ff82d7dd8da1490ab137380c50eb08",
+      "copy_source_map": {
+        "crates/core/src/copy_evidence_gate.rs": {
+          "Core_author_sha256": "af95c655bb068df2e0a3431980e5efbb07b6f63a979f083897f20a8f30036229",
+          "actual_Root_sha256": "af95c655bb068df2e0a3431980e5efbb07b6f63a979f083897f20a8f30036229",
+          "byte_equal": true
+        },
+        "crates/core/src/data_workspace_workers.rs": {
+          "Core_author_sha256": "b64fe8e31541469d186fd5738b823d69b76511e1153571c6a5ec971a0c7218ed",
+          "actual_Root_sha256": "b64fe8e31541469d186fd5738b823d69b76511e1153571c6a5ec971a0c7218ed",
+          "byte_equal": true
+        }
+      },
+      "old_preview_source_preserved": {
+        "crates/core/src/preview_evidence_gate.rs": {
+          "sha256": "0b36e29eac2b47e315fe338542f742a844a2835de52822ccad89144fae0dc62d",
+          "unchanged_from_Core_parent": true
+        },
+        "crates/core/src/preview_evidence_gate_tests.rs": {
+          "sha256": "f241a90ddaae986005118fd9fe5e1e1c0761efd8ca3367e4c4a3ceadb5d5a9a0",
+          "unchanged_from_Core_parent": true
+        }
+      },
+      "descriptor_fields": [
+        "schema_version",
+        "nonce",
+        "source",
+        "files",
+        "limits"
+      ],
+      "ready_fields": [
+        "schema_version",
+        "gate",
+        "stage",
+        "nonce",
+        "descriptor_sha256",
+        "creation_id",
+        "project_id"
+      ],
+      "static_protocol_matches_driver": true,
+      "gate_stage": "authorized record plus reverified snapshot plus managedroot before create_controlled; original deadline not reset",
+      "Core_tests_at_author_freeze": "NOT_RUN; later Root execution separate"
+    },
+    "subsequent_actual_Root_run3": {
+      "recorded_at_utc": "2026-10-29T19:59:14.208516+00:00",
+      "executor": "Root; author readonly file/hash/source verification, no rerun",
+      "source": "9cfcc94a54ff82d7dd8da1490ab137380c50eb08",
+      "driver_source": "cd57963d82abf47e89a0f1eff2eb8fc3907eda10",
+      "driver_blob_equal": true,
+      "daemon_sha256": "6f5100d35f139162e335fef8c842f80daa55640690fa91f8df6e1256dc2f90e0",
+      "harness_sha256": "83440831897ae1e439f95d13f529ef7fab138181c34640e5f98ac9174ca80a97",
+      "result_path": "/workspace/.onboarding/pr18-data-preview-copy-gated-run3/RESULTS.json",
+      "report_sha256": "0d6e0c26fb966d5058bd4447f6d65dfd43e7ab9c092cb8c66750504cb1afc305",
+      "log_sha256": "5135801a4644d2fc6e506b131d30669039cada106c64617f8fa03130dd6db058",
+      "exit": 0,
+      "seconds": 7.851287469005911,
+      "status": "passed",
+      "checks_passed": 8,
+      "unrun": [],
+      "dimension": "actual React/Linux Chromium/authenticated Unix schema15; host Owner fixture outsideHTTP not native dialog/Provider/Mac",
+      "limits": "original32MiB regular input/64MiB4files/30s unchanged; private explicit before-scan and before-copy waits only; original cancel and join",
+      "source_tools_frontend_unchanged": true,
+      "preview_cancel_commitment": {
+        "cancel_requested_sequence": 12,
+        "finished_sequence": 13,
+        "terminal_revision": 3,
+        "worker_join_evidence": "preview_finished after thread.join in the pinned Core producer",
+        "stage": "gated_before_scan",
+        "mid_read_cancellation_claimed": false,
+        "OS_process_reap_claimed": false
+      },
+      "copy_cancel_commitment": {
+        "stage": "gated_before_copy",
+        "finished_sequence": 20,
+        "terminal_revision": 3,
+        "worker_joined": true,
+        "original_copy_finished_matched": true,
+        "mid_copy_cancellation_claimed": false,
+        "partial_copy_claimed": false,
+        "OS_process_reap_claimed": false
+      },
+      "screenshots_count": 6,
+      "screenshots_all_hash_verified": true,
+      "screenshots_author_visual_review": false,
+      "cleanup_status": "No explicit cleanup/cleanup_complete fields in report or RESULTS; no complete-cleanup claim, Root final verification pending",
+      "private_raw_files_copied": false
+    },
+    "subsequent_copy_boundary_correction": {
+      "recorded_at_utc": "2026-10-29T20:05:06.054148+00:00",
+      "base_source": "cd57963d82abf47e89a0f1eff2eb8fc3907eda10",
+      "entire_driver_boundary_inverse_to_base": true,
+      "original_completion_receipt_and_natural_paths_byte_unchanged": true,
+      "all_original_63_tests_five_files_entire_byte_equal": true,
+      "new_boundary_tests": 10,
+      "total_pure_tests": 73,
+      "compile_7_files": "PASS in memory",
+      "revision_rule": "terminal/Event/persisted creation+Event JSON real int1..u64MAX and exactcurrent equality; strict duplicate-key rawJSON",
+      "absence_rule": "lstat only FileNotFoundError with errnoENOENT proves absence; any entry or unknown error refuses",
+      "new_test_dimension": "private filesystem + inert actual events document/receipt schema; not product/OS sandbox",
+      "original_counterprobe": {
+        "receipt_boundary_probe.py": {
+          "sha256": "850b6d3bac90ee274b35eb01c33bfcace0c847617677d5d00e4d723ba772496c",
+          "bytes": 2047
+        },
+        "RECEIPT_BOUNDARY_RESULT.json": {
+          "sha256": "995758b837ea5c950e5460d1e320624cbdf11529dea72ce26e8f9eb70581f75a",
+          "bytes": 831
+        }
+      },
+      "source_map": {
+        "apps/desktop/tests/data-workspace-real-ipc.py": {
+          "sha256": "f0bccca61b56b84e4edf150325c4aa466e7baddc2d757fd281e53a917833af70",
+          "bytes": 79137
+        },
+        "apps/desktop/tests/test_data_preview_browser_timing.py": {
+          "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+          "bytes": 11477
+        },
+        "apps/desktop/tests/test_data_preview_evidence.py": {
+          "sha256": "0f6a8257ca4a4d28855e8c781bd85991fbba8999a8405dddf8379c3447c66b0d",
+          "bytes": 10017
+        },
+        "apps/desktop/tests/test_data_preview_evidence_deadline.py": {
+          "sha256": "39fb024352e2d6ef4dffe96eecf97b9cf60a18ca775678357e464bc5091b48e3",
+          "bytes": 6112
+        },
+        "apps/desktop/tests/test_data_preview_commitments.py": {
+          "sha256": "0a49dc0e5d225bbcf692197794d6624ab8d4307629f86a187d9dcbce548ecd64",
+          "bytes": 7187
+        },
+        "apps/desktop/tests/test_data_copy_evidence.py": {
+          "sha256": "c6b5478506cef9579db4be60131ab49d34345e8367448768012e0c0836df2031",
+          "bytes": 16765
+        },
+        "apps/desktop/tests/test_data_copy_evidence_boundaries.py": {
+          "sha256": "b9e2dbb0bf020c16cc9632a9616b0e3ed9d5a5041b4021ec2d95facf6224759c",
+          "bytes": 7882
+        }
+      },
+      "log_map": {
+        "boundary-tests.log": {
+          "sha256": "d1a695921180d2a7bcf6bc0ccc995996e16090220b9ec042ff12a1ee40bf771d",
+          "bytes": 109
+        },
+        "copy-tests.log": {
+          "sha256": "0673a0ff7cb84c6637a1827073b806cbc5281558a5c532316aca56bc6d89afd0",
+          "bytes": 115
+        },
+        "preview-deadline-tests.log": {
+          "sha256": "82f73b7d31ec97aeccbbafc9010eeab3c8220fb6ade75955854be5e7e4a88692",
+          "bytes": 110
+        },
+        "preview-journal-tests.log": {
+          "sha256": "039285a02e89d424569abf4caa1882cf4cb7cf577912ccc53ef08fae5f78aa3f",
+          "bytes": 110
+        },
+        "preview-private-tests.log": {
+          "sha256": "3b82a5edb3bd49215f35f4dc7214845621b4788fb7d7ded298f1465ff900db15",
+          "bytes": 113
+        },
+        "timing-tests.log": {
+          "sha256": "293eda1681e8fb9f72107b88b85eb61f4e2e3e338d5c4536b6ccd3315262eb6c",
+          "bytes": 110
+        }
+      },
+      "actual_Core_Node_Cargo_Actor_browser": "NOT_RUN",
+      "Root9cf_run3_still_genuine_old_source_8PASS": true,
+      "old_findings_not_run3_cause": true,
+      "source_commit": "630ff6445e5382ae01416b91f580eea2485943c5"
+    },
+    "actual_run3_preserved_not_new_source_result": true,
+    "no_complete_cleanup_claim": true
+  }
+}

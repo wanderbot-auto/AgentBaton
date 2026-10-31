@@ -1,4 +1,6 @@
-//! Actual private SQLite12->13 upgrade, raw-document backup and rollback.
+//! Controlled generated SQLite12->13 increment followed by current15.
+#[path = "fixtures/pre_factory_schema.rs"]
+mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::Connection;
 use std::{
@@ -6,7 +8,6 @@ use std::{
     os::unix::fs::{OpenOptionsExt, PermissionsExt},
     path::PathBuf,
 };
-const DROP_FACTORY:&str="DROP TABLE factory_child_plan_heads;DROP TABLE factory_child_plan_revisions;DROP TABLE factory_scoped_handles;DROP TABLE factory_handoffs;DROP TABLE factory_budget_reservations;DROP TABLE factory_attempts;DROP TABLE factory_delegations;DROP TABLE factory_task_bindings;DROP TABLE factory_task_lineage;DROP TABLE factory_runs;DROP TABLE factory_scopes;";
 fn prior() -> (tempfile::TempDir, PathBuf, String) {
     let d = tempfile::Builder::new()
         .permissions(fs::Permissions::from_mode(0o700))
@@ -27,7 +28,7 @@ fn prior() -> (tempfile::TempDir, PathBuf, String) {
         .unwrap();
     drop(s);
     let c = Connection::open(&p).unwrap();
-    c.execute_batch(DROP_FACTORY).unwrap();
+    pre_factory_schema::remove_empty_factory_increment(&c).unwrap();
     c.execute_batch("PRAGMA user_version=12;CREATE TABLE original_bytes(raw BLOB);INSERT INTO original_bytes VALUES(x'00ffdeadbeef');").unwrap();
     let raw: String = c
         .query_row("SELECT document FROM tasks WHERE id=?1", [task.id], |r| {
@@ -64,7 +65,7 @@ fn schema12_upgrade_preserves_exact_task_bytes_and_private_readable_backup_witho
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        14
+        15
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -145,10 +146,10 @@ fn factory_migration_collision_rolls_back_all_new_tables_and_preserves_unknown_o
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema15_is_refused_without_mutation_or_factory_backup() {
+fn future_schema16_is_refused_without_mutation_or_factory_backup() {
     let (d, p, _) = prior();
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=15;").unwrap();
+    c.execute_batch("PRAGMA user_version=16;").unwrap();
     drop(c);
     let before = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");

@@ -1,0 +1,164 @@
+{
+  "source_commit": "b97501c2719b0eaf0a459e79d09fd771a7231b03",
+  "superseded_source": "9c81ea53422ebd55337076e9d8c450a2c726c1c0",
+  "superseded_result_scope": "Original26+38 actual exits0 retained;99999 positive is an incomplete/incorrect specification, not Core/runtime proof.",
+  "contract_commit": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
+  "source_field_sha256": {
+    "apps/desktop/src-tauri/src/approval.rs": "145dc98f9c8529418085145c7450758c2da9cd91b29675f676720e22f64a5a8c",
+    "apps/desktop/src-tauri/src/lib.rs": "42436040fe18ce7b990d437197c63ff482789bd3e2ea72e884b1c6ad5b333c30",
+    "apps/desktop/src-tauri/src/native_parent.rs": "6808c8202fd7ef1593f2e449124119289fcab60fb8317624a4a08597958758ae",
+    "apps/desktop/src-tauri/Cargo.toml": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49",
+    "apps/desktop/src-tauri/Cargo.lock": "4fd256434d2bb3c0903919bc6474f8a3712be2a27eab1651d42e63f7b876a93c",
+    "crates/core/src/factory.rs": "0b80ec7dd55bd004ed30ccffe1ed2d902540d7652791006b304981038bcc11bc"
+  },
+  "full_contract_source_sha256": {
+    "crates/core/src/goal_plan.rs": {
+      "path": "INPUT-4ff-goal_plan.rs",
+      "sha256": "724573e80d4fca997884abb5db1ba2eb5c2ee03714a51fc997eefcf4f6c68a97",
+      "bytes": 84867
+    },
+    "crates/core/src/factory_child_goal.rs": {
+      "path": "INPUT-4ff-factory_child_goal.rs",
+      "sha256": "ef4dbd7af24d11ae0dd34a87ae9f9a9ab4444c1a750389ca573c60b1fd0adbb5",
+      "bytes": 24908
+    },
+    "crates/core/src/factory_store.rs": {
+      "path": "INPUT-4ff-factory_store.rs",
+      "sha256": "d95315375abbbf0bc847a4bd01d39babf1c4213f19bcb3b52faed558f5cf0e42",
+      "bytes": 45451
+    },
+    "docs/execution/factory-child-goal-core/WIRE_CONTRACT.md": {
+      "path": "INPUT-4ff-WIRE_CONTRACT.md",
+      "sha256": "eee0273cf11ee8a63ae7599dc135cce95c1372a541cfdcb727e382d4282978de",
+      "bytes": 8841
+    }
+  },
+  "source_before_after_equal": true,
+  "commands": [
+    {
+      "name": "corrected-static-boundaries",
+      "argv": [
+        "python",
+        "-B",
+        "/workspace/.onboarding/factory-child-goal-native/reworks/cap-erratum/check_source.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native",
+      "start_UTC": "2026-10-29T08:41:28.870397+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "corrected-static-boundaries.stdout",
+        "sha256": "998f7aa85a9d113e3e23b9bfba32bb6ac4f313f782059a0d0b7a3100ad452b00",
+        "bytes": 153
+      },
+      "stderr": {
+        "path": "corrected-static-boundaries.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "rustfmt",
+      "argv": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "apps/desktop/src-tauri/src/approval.rs",
+        "apps/desktop/src-tauri/src/lib.rs"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native",
+      "start_UTC": "2026-10-29T08:41:37.167338+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "rustfmt.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "rustfmt.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "diffcheck",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "6c5f5c24ccc1591ee86585ab09dc0cd3c50582b7",
+        "b97501c2719b0eaf0a459e79d09fd771a7231b03"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native",
+      "start_UTC": "2026-10-29T08:41:37.644804+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "diffcheck.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "diffcheck.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "cumulative-diffcheck",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "2a3d6ae88f93fa074ada32973ed7a400cf500e89",
+        "b97501c2719b0eaf0a459e79d09fd771a7231b03"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native",
+      "start_UTC": "2026-10-29T08:41:37.650704+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "cumulative-diffcheck.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "cumulative-diffcheck.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ],
+  "checks": {
+    "static": 27,
+    "arithmetic_specification": 17,
+    "not_product_execution": true
+  },
+  "Rust_tests": {
+    "prior13": "NOT_RUN",
+    "five_reworks_tests_including_one_corrected": "NOT_RUN",
+    "new_tests_added_this_correction": 0,
+    "library101_markers_are_not_passes": true
+  },
+  "failures_retained": {
+    "owned_scanner_interrupted": 130,
+    "first_cached_checker_wrong_diff_baseline": 1,
+    "prior99999_positive_invalidated_not_deleted": true
+  },
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "sha256": "d6bb278475a934b8019b3b3a781858d2751d06ae567e073442a0d5c7b0064996",
+    "bytes": 97111,
+    "members": 35,
+    "all_regular_safe_paths_and_roundtrip_equal": true,
+    "manifest_sha256": "0c8e8311568dcc74338f25fed2c6b69a5e11fe13af79f25bf9fdd943f8ce0178"
+  },
+  "not_run": [
+    "Cargo/Rust type/tests/Clippy",
+    "Core15/IPC/ledger/actual reworks",
+    "Node/browser",
+    "macOS/AppKit",
+    "CI",
+    "Provider",
+    "packages"
+  ],
+  "integration_constraint": "Keep later Root c0a constant bridge; integrate deltas, not whole old lib.rs."
+}

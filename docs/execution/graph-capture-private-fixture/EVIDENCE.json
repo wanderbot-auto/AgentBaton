@@ -1,0 +1,63 @@
+{
+  "baseline": "4344f645c095275290bd306a0d32f68e403cafd3",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "mechanism": "tempfile3.27 default dir0777 filtered by umask; Directory root requires0700",
+  "CI_actual_root_mode": "not_recorded",
+  "Root_local_reproduction": "pending",
+  "author_cargo": "NOT_RUN",
+  "implementation": "test_only_candidate_frozen",
+  "source_commit": "f6074de9510cc8ccb35b930ba397547641737bf8",
+  "source_sha256": "a73407ef832eeb0211d122b9b46ee5b88bc2ea75a6f5192554ea2dbfe2c5199a",
+  "checks_run": [
+    {
+      "command": "rustfmt --edition2021 --config skip_children=true --check crates/core/src/goal_graph_capture_service_tests.rs",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "inverse original9 source comparison",
+      "result": "all original bytes match after only constructor/import/newtest normalization"
+    }
+  ],
+  "new_test": "nonprivate_directory_mode_alone_is_rejected_by_actual_capture",
+  "total_test_functions": 10,
+  "actual_test_execution": "NOT_RUN",
+  "production_files_changed": [],
+  "global_umask_changed": false,
+  "static_artifact": {
+    "path": "/workspace/.onboarding/graph-capture-private-fixture/STATIC_CHECKS.json",
+    "sha256": "8db827633a15b26292c104c8d400d55005d6b6e5607b4170251404f16b5b9109"
+  },
+  "tempfile_source_proof": {
+    "src/lib.rs": "d182721b62c126916b73bb4865ced5d3637bd1a4a77d27ea9e9708973e5f9493",
+    "src/dir/mod.rs": "d144325a6528a9a6e7c78a42e0eec42ee401c3b834ef5851376323725756f219",
+    "src/dir/imp/unix.rs": "fd1f2162b5fd741f6395c8ef0b34c2430fe9ffb1414bc381c17d5193828e3806"
+  },
+  "Root_next_not_executed": [
+    "cargo test --locked -p agentbaton-core --lib capture_service_tests -- --test-threads=1 (controlled child umask022)",
+    "same exact filter under child umask002",
+    "same exact filter under child umask077",
+    "independent source review and exact dualMac CI"
+  ],
+  "CI_original_failure": {
+    "run": 41004930335,
+    "test": "real_capture_thread_observes_queue_start_completion_and_later_join",
+    "observed_error": "INPUT_CHANGED",
+    "count": "137 passed/1 failed as reported by Root",
+    "raw_failure_records": "retained by Root; no author rewrite"
+  },
+  "runtime_root_cause": "source-supported candidate; await Root localbefore directory mode/failure evidence",
+  "scope": "fixture portability only; no permission expansion or product success claim",
+  "root_actual_validation": {
+    "record": "../factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json",
+    "before": "source4344 childumask0220/1 INPUT_CHANGED",
+    "after": "source674d10samecasesunder022/002/077PASS;full139022PASS;fmt/strictClippyPASS",
+    "newexactMacCI": "pending_not_run_yet"
+  }
+}

@@ -22,6 +22,12 @@ jobs:
           python-version: '3.12'
       - run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
       - run: cargo fmt --all -- --check
+      - name: Build genuine schema14 history for the required migration gate
+        run: |
+          set -euo pipefail
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Workspace tests with actual generated native-wire capture
         env:
           RUST_TEST_THREADS: '1'
@@ -30,13 +36,22 @@ jobs:
           mkdir -p artifacts/provider-contract
           # Planning integration tests require matching normal tools before tests.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema14-tools"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema15-tools"
           export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+          export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           cargo build --workspace --locked --bins
           python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output "$AGENTBATON_FACTORY_TEST_TOOLS" --evidence artifacts/provider-contract/factory-test-tools
           AGENTBATON_TEST_SCHEMA_CAPTURE="$GITHUB_WORKSPACE/artifacts/provider-contract/wire.ndjson" cargo test --workspace --locked
           python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS"
-          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION
+          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION AGENTBATON_CHILD_GOAL_COMPANION
+      - name: Migrate genuine nonempty schema14 history with corruption and rollback controls
+        env:
+          AGENTBATON_ACTUAL_SCHEMA14_FIXTURE: ${{ runner.temp }}/agentbaton-legacy14-fixture
+          RUST_TEST_THREADS: '1'
+        run: |
+          set -euo pipefail
+          cargo test --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- --nocapture --test-threads=1
+          cargo clippy --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- -D warnings
       - name: Validate captured messages against hash-pinned official native schema
         run: |
           set -euo pipefail
@@ -52,6 +67,21 @@ jobs:
           AGENTBATON_OWNER_FIXTURE_DAEMON: ${{ github.workspace }}/target/debug/batond
         run: python3 apps/desktop/src-tauri/tests/test_native_owner_dialog.py
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Retain bounded migration metadata without private history
+        if: always()
+        run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/provider-contract/legacy-migration
+      - name: Retain finite rework progress without private runtime data
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, sys
+          output = pathlib.Path('artifacts/provider-contract')
+          output.mkdir(parents=True, exist_ok=True)
+          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
+          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+          with os.fdopen(fd, 'wb') as report:
+              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -77,11 +107,21 @@ jobs:
         working-directory: apps/desktop
       - run: npm run typecheck && npm test && npm run build
         working-directory: apps/desktop
+      - name: Preview transport timing and failure contracts
+        run: |
+          python3 apps/desktop/tests/test_data_preview_browser_timing.py
+          python3 apps/desktop/tests/test_data_preview_evidence.py
+          python3 apps/desktop/tests/test_data_preview_evidence_deadline.py
+          python3 apps/desktop/tests/test_data_preview_commitments.py
+          python3 apps/desktop/tests/test_data_copy_evidence.py
+          python3 apps/desktop/tests/test_data_copy_evidence_boundaries.py
+          python3 apps/desktop/tests/test_factory_shared_goal_meters.py
       - name: Real daemon and browser test dependencies
         run: |
           set -euo pipefail
           rustup toolchain install stable --profile minimal
-          cargo build --locked --bin batond --bin baton
+          cargo test --locked -p agentbaton-core --features preview-evidence --lib evidence_gate -- --nocapture --test-threads=1
+          cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence
           python3 -m venv artifacts/browser-venv
           artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt
           artifacts/browser-venv/bin/python -m playwright install --with-deps chromium
@@ -92,7 +132,7 @@ jobs:
           artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/approved-commands
           artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/goal-planning
           artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --structured-editor --output artifacts/ui-browser/goal-plan-editor
-          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
+          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --preview-evidence --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
           artifacts/browser-venv/bin/python - <<'PY'
           import asyncio, hashlib, json, pathlib, subprocess, sys
           from playwright.async_api import async_playwright
@@ -100,12 +140,13 @@ jobs:
               return subprocess.check_output(['git', *args], text=True).strip()
           assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
           candidate = {
-              'schema': 14,
+              'schema': 15,
               'git_head': git('rev-parse', 'HEAD'),
               'git_tree': git('rev-parse', 'HEAD^{tree}'),
               'dirty': False,
+              'cargo_features': ['agentbaton-core/preview-evidence'],
               'binaries': {name: hashlib.sha256(pathlib.Path('target/debug', name).read_bytes()).hexdigest() for name in ['batond', 'baton']},
-              'scope': 'CI-built Linux debug candidate; actual schema checked by read-only SQLite in the harness; acceptance pending',
+              'scope': 'CI-built Linux debug evidence candidate; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact',
           }
           pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
           async def chromium_executable_path():
@@ -163,6 +204,45 @@ jobs:
               '--manifest', str(planning_manifest), '--chromium', chromium,
               '--output', 'artifacts/ui-browser/factory-child-planning',
           ], check=True)
+          import os
+          child_goal_private = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True) / 'agentbaton-child-goal-ci'
+          child_goal_private.mkdir(mode=0o700, exist_ok=False)
+          child_goal_failures = []
+          for case in ['normal', 'lost-start', 'cancel']:
+              result = {'case': case, 'driver_exit_code': None, 'projection_exit_code': None}
+              try:
+                  with os.fdopen(os.open(child_goal_private / (case + '.driver.log'), os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      try:
+                          subprocess.run([
+                              sys.executable, 'apps/desktop/tests/factory-child-goal-real-ipc.py',
+                              '--run', '--case', case,
+                              '--tools', 'target/debug', '--frontend', str(frontend),
+                              '--manifest', str(planning_manifest), '--chromium', chromium,
+                              '--output', str(child_goal_private / case),
+                          ], check=True, stdout=log, stderr=subprocess.STDOUT)
+                          result['driver_exit_code'] = 0
+                      except subprocess.CalledProcessError as failure:
+                          result['driver_exit_code'] = failure.returncode
+              except (OSError, subprocess.SubprocessError):
+                  result['driver_failure_kind'] = 'launch_or_log_failed'
+              try:
+                  with os.fdopen(os.open(child_goal_private / (case + '.projection.log'), os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      try:
+                          subprocess.run([
+                              sys.executable, 'scripts/record-child-goal-ci-evidence.py',
+                              '--private-dir', str(child_goal_private / case), '--case', case,
+                              '--manifest', str(planning_manifest), '--exit-code', 'unobserved' if result['driver_exit_code'] is None else str(result['driver_exit_code']),
+                              '--output', 'artifacts/ui-browser/factory-child-goal-' + case,
+                          ], check=True, stdout=log, stderr=subprocess.STDOUT)
+                          result['projection_exit_code'] = 0
+                      except subprocess.CalledProcessError as failure:
+                          result['projection_exit_code'] = failure.returncode
+              except (OSError, subprocess.SubprocessError):
+                  result['projection_failure_kind'] = 'launch_or_log_failed'
+              if result['driver_exit_code'] != 0 or result['projection_exit_code'] != 0:
+                  child_goal_failures.append(result)
+          if child_goal_failures:
+              raise SystemExit('Factory child Goal runtime checks failed: ' + json.dumps(child_goal_failures))
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
@@ -199,6 +279,13 @@ jobs:
           npm run typecheck
           npm test
           npm run build
+      - name: Build genuine native schema14 history for the required migration gate
+        run: |
+          set -euo pipefail
+          # Freeze the original native14 pair before normal15 overwrites target.
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Core and native host tests
         env:
           # Each fixture owns real Git/SQLite/process work. Keep the original
@@ -208,18 +295,27 @@ jobs:
           set -euo pipefail
           # Planning integration tests require matching normal tools before tests.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema14-tools"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema15-tools"
           export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+          export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           cargo build --workspace --locked --bins
           python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output "$AGENTBATON_FACTORY_TEST_TOOLS" --evidence artifacts/native-smoke/factory-test-tools
           cargo test --workspace --locked -- --show-output
           python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS"
-          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION
+          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION AGENTBATON_CHILD_GOAL_COMPANION
           cargo build --locked --bin batond --bin baton
           python3 scripts/smoke-local-product.py
           cargo build --release --locked --bin batond --bin baton
           bash scripts/prepare-desktop-sidecars.sh
           cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml
+      - name: Migrate genuine native schema14 history with corruption and rollback controls
+        env:
+          AGENTBATON_ACTUAL_SCHEMA14_FIXTURE: ${{ runner.temp }}/agentbaton-legacy14-fixture
+          RUST_TEST_THREADS: '1'
+        run: |
+          set -euo pipefail
+          cargo test --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- --nocapture --test-threads=1
+          cargo clippy --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- -D warnings
       - name: Actual macOS WebView and daemon lifecycle acceptance
         run: |
           set -euo pipefail
@@ -235,6 +331,21 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/native-owner-dialog-smoke.py --kind factory_planning --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --companion target/debug/baton --output artifacts/native-smoke/factory-planning-owner-dialog
+      - name: Retain bounded native migration metadata without private history
+        if: always()
+        run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration
+      - name: Retain finite rework progress without private runtime data
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, sys
+          output = pathlib.Path('artifacts/native-smoke')
+          output.mkdir(parents=True, exist_ok=True)
+          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
+          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+          with os.fdopen(fd, 'wb') as report:
+              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

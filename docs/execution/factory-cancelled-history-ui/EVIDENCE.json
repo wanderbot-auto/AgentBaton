@@ -1,0 +1,236 @@
+{
+  "recorded_at_utc": "2026-10-29T18:09:03.880865+00:00",
+  "source_commit": "ac03b997623036a1313dd64f810a03a6e9b8cc0d",
+  "base": "5fd328f5267141a0779ccc3b2773e2c83e5f340d",
+  "source_map": {
+    "apps/desktop/src/FactoryRuntime.cancelled-history.test.tsx": {
+      "sha256": "761a969b4721b7aeda7931e02d7cc15f5411352a643e2ece4b96c86c7d1cb10f",
+      "git_blob": "dd3dbe62800cfea7134f0d2d014e185952fbd452"
+    },
+    "apps/desktop/src/factory-guards.ts": {
+      "sha256": "52136555a08144d21b46ea26bbdf3f7e26e1be843b2e083d30e7d99e48114374",
+      "git_blob": "924739b0325035c589991951e4520932f58147cc"
+    }
+  },
+  "original_case": {
+    "report_sha256": "27cacba15b85d13cf6fbbcec09aeb4c954a976206a783e55d86bdaec78b92c36",
+    "whole_status": "failed_or_interrupted",
+    "checks": [
+      [
+        "CG01",
+        "passed"
+      ],
+      [
+        "CG02",
+        "passed"
+      ],
+      [
+        "CG04",
+        "passed"
+      ]
+    ],
+    "cleanup_complete": false,
+    "CG06": "NOT_RUN",
+    "compiled_core_source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+    "frontend_build_source": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+    "harness_source": "961253c77baefed45780b0f2241c81f2d8d0834a"
+  },
+  "finite_terminal_projection": [
+    {
+      "wire_sequence": 197,
+      "sha256": "031249dae2a5a33593469c839973de33f739641a9a91123968bfc3f656dc574e",
+      "ledger_revision": 61,
+      "run_state": "cancelled",
+      "run_revision": 7,
+      "active_task_and_session_null": true,
+      "all_handles_confirmed_stop": true,
+      "all_waiting_parents_confirmed_stop": true,
+      "child": {
+        "state": "cancelled",
+        "revision": 5,
+        "attempt_id": null,
+        "confirmed_stop": true,
+        "result_available": false,
+        "cancel_requested": true
+      }
+    },
+    {
+      "wire_sequence": 204,
+      "sha256": "9a2fa11237e409d753021437579d5a6a38b1ddfe4877b6b0add8e8d530d74d56",
+      "ledger_revision": 61,
+      "run_state": "cancelled",
+      "run_revision": 7,
+      "active_task_and_session_null": true,
+      "all_handles_confirmed_stop": true,
+      "all_waiting_parents_confirmed_stop": true,
+      "child": {
+        "state": "cancelled",
+        "revision": 5,
+        "attempt_id": null,
+        "confirmed_stop": true,
+        "result_available": false,
+        "cancel_requested": true
+      }
+    },
+    {
+      "wire_sequence": 255,
+      "sha256": "7bf10d0ac5c82424e3c897c40fcfc397cde967d4c07f5a446fc8860dfcd5be52",
+      "ledger_revision": 61,
+      "run_state": "cancelled",
+      "run_revision": 7,
+      "active_task_and_session_null": true,
+      "all_handles_confirmed_stop": true,
+      "all_waiting_parents_confirmed_stop": true,
+      "child": {
+        "state": "cancelled",
+        "revision": 5,
+        "attempt_id": null,
+        "confirmed_stop": true,
+        "result_available": false,
+        "cancel_requested": true
+      }
+    }
+  ],
+  "preservation": {
+    "exact_whole_guard_inverse_to_base": true,
+    "original_artifacts_before_after_equal": true,
+    "original_file_count": 487,
+    "all_other_product_source_same_base": true,
+    "original_guard_tests_unchanged": true,
+    "compiled_core_cancel_producer_byte_matches_base": true,
+    "core_producer_sha256": "9e188e0c84295a162e8aced99c18af18f950f8bd1a7cdc6ee8b0466a3eece48a"
+  },
+  "new_cases_source_only": 28,
+  "checks": {
+    "python_audit": "PASS",
+    "git_diff_check": "PASS",
+    "typecheck": "NOT_RUN",
+    "vitest": "NOT_RUN",
+    "build": "NOT_RUN",
+    "Core_IPC": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "Native_OS": "NOT_RUN"
+  },
+  "evidence_directory": "/workspace/.onboarding/factory-cancelled-history-ui",
+  "raw_DB_RPC_Grant_copied": false,
+  "Native_macOS_real_Provider": "NOT_RUN",
+  "screenshots": "not visually re-reviewed; original hashes retained",
+  "follow_up_supported_continuation": {
+    "recorded_at_utc": "2026-10-29T18:12:03.606088+00:00",
+    "source_commit": "6b8c6dbfd43dec16ae9a3119280f7eb7f98cdfb7",
+    "previous_tests_byte_preserved": 28,
+    "new_independent_negative_cases": 1,
+    "total_source_cases": 29,
+    "runtime_delta": "factoryRunSupported(v.run) additionally required for derivedCancelled",
+    "python_inverse": "PASS",
+    "diff_check": "PASS",
+    "Node_types_build_browser_Core_Native": "NOT_RUN",
+    "previous_seal_immutable": true,
+    "evidence_directory": "/workspace/.onboarding/factory-cancelled-history-ui/revision-6b8c6db"
+  },
+  "subsequent_actual_Root_validation": {
+    "recorded_at_utc": "2026-10-29T18:17:21.626112+00:00",
+    "executor": "Root; this author read and verified terminal files only",
+    "source_head": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+    "reviewed_source": "6b8c6dbfd43dec16ae9a3119280f7eb7f98cdfb7",
+    "two_changed_source_blobs_match_root": true,
+    "Node": {
+      "results_path": "/workspace/.onboarding/factory-cancelled-history-ui-regression1/RESULTS.json",
+      "commands": [
+        {
+          "source": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+          "command": [
+            "npm",
+            "run",
+            "typecheck"
+          ],
+          "exit": 0,
+          "seconds": 1.166999199980637,
+          "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+        },
+        {
+          "source": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+          "command": [
+            "npm",
+            "run",
+            "test"
+          ],
+          "exit": 0,
+          "seconds": 30.598293027986074,
+          "log_sha256": "37caa45a5117120fe050320a215c54118e60ee85d56afc4ee8f3ea5ece60d7e2"
+        },
+        {
+          "source": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "exit": 0,
+          "seconds": 1.4271329760085791,
+          "log_sha256": "6ad8925792deab5b591bc13c3b162c5a989a7878e32b0ca623f69f2d661d30a0"
+        }
+      ],
+      "tests_passed": 901,
+      "test_files_passed": 52,
+      "new_29_cases_executed_in_full_suite": true
+    },
+    "browser": {
+      "result_path": "/workspace/.onboarding/factory-child-goal-browser-cancelled-history1/cancel-RESULT.json",
+      "report_path": "/workspace/.onboarding/factory-child-goal-browser-cancelled-history1/cancel/report.json",
+      "log_sha256": "3310e3b44efb11627c1b7ef2257c4b31164055b7bbb0a6435d5a792687ad91da",
+      "report_sha256": "e4029919aa3bc6d55d3de6cf3596da4e4bc2e048f0eac17b819949112410b7ab",
+      "exit": 0,
+      "seconds": 20.52527220698539,
+      "status": "passed",
+      "checks": [
+        [
+          "CG01",
+          "passed"
+        ],
+        [
+          "CG02",
+          "passed"
+        ],
+        [
+          "CG04",
+          "passed"
+        ],
+        [
+          "CG06",
+          "passed"
+        ]
+      ],
+      "cleanup_complete": true,
+      "dimensions": "actual React/Linux Chromium/authenticated Unix Core15/generated ACP+MCP/private Owner fixture; not OS dialog or real Provider account",
+      "compiled_core_source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+      "frontend_build_source": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+      "harness_source": "961253c77baefed45780b0f2241c81f2d8d0834a",
+      "source_tools_assets_before_after_equal": true,
+      "final_graph_state": "cancelled",
+      "final_factory_state": "cancelled",
+      "task_accepted": false,
+      "screenshots": [
+        {
+          "name": "01-complete-explicit-execution-policy.png",
+          "sha256": "66c49e6880a79b8c615b0f918f238bcbcd7d9c6a7774b3b41a48144cee37e5be"
+        },
+        {
+          "name": "02-exact-saved-raw-reference-before-start.png",
+          "sha256": "85079996eef4aeee5e23962f4a61f42b22ba62d0d9c52e234e734c038ef55d64"
+        },
+        {
+          "name": "04-persisted-final-graph-and-factory.png",
+          "sha256": "719cc053d9e1772147185933a42cdb069a77111e1e92266fdc0918dbebbf33f7"
+        }
+      ],
+      "screenshot_review": "All3 hashes verified by this author; Root viewed final04 and reported Cancellation recorded/r4, Owner not_started, no TaskAccepted and mounted history; remaining2 hash-only. Author did not visually re-review."
+    },
+    "limitations": [
+      "Linux Chromium/generated ACP+MCP/private Owner fixture; not Native OS dialog/macOS/real Provider",
+      "No new CI or macOS packages claimed here",
+      "Complete130-requirement Designv0.2 not complete"
+    ],
+    "prior_history": "Original source-phase NOT_RUN, first-summary whole FAIL/cleanupfalse and ac03 unsupported-continuation P2 remain immutable historical phases."
+  }
+}

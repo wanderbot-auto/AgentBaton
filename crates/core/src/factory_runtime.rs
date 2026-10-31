@@ -13,6 +13,10 @@ use uuid::Uuid;
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct TaskBinding {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    child_goal_run_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    child_goal_recovery: Option<Value>,
     handle: FactoryTaskHandle,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     planning_spec_revision: Option<u64>,
@@ -341,6 +345,8 @@ impl Store {
             depth: 0,
         };
         let b = TaskBinding {
+            child_goal_run_id: None,
+            child_goal_recovery: None,
             planning_spec_revision: s
                 .selection
                 .capabilities
@@ -653,7 +659,9 @@ impl Store {
             || request.output_artifact_ids.is_empty()
             || request.output_artifact_ids.len() > 16
             || !request.budget.narrower(&caller.task.request.budget)
-            || request.budget.reworks != 0
+            || (request.budget.reworks != 0
+                && (!caller.scope.selection.capabilities.child_goal_execution
+                    || caller.scope.bindings.child_goal_execution.is_none()))
             || request.budget.tokens.is_some()
             || request.budget.cost_microunits.is_some()
         {
@@ -788,6 +796,8 @@ impl Store {
             result_available: false,
         };
         let child = TaskBinding {
+            child_goal_run_id: None,
+            child_goal_recovery: None,
             planning_spec_revision: caller
                 .scope
                 .selection
@@ -865,6 +875,15 @@ impl Store {
             result["child_planning_context"] =
                 json!(child_plan::recorded_context(&self.conn, &caller.scope, &b)?);
         }
+        if caller.scope.selection.capabilities.child_goal_execution {
+            result["factory_run_revision"] = json!(caller.run.revision);
+            result["child_goal_execution_binding"] = json!(caller
+                .scope
+                .bindings
+                .child_goal_execution
+                .as_ref()
+                .ok_or_else(denied)?);
+        }
         check_wire(
             &json!({"request_id":"\0".repeat(128),"result":result,"revision":u64::MAX,"warnings":[]}),
         )?;
@@ -892,8 +911,31 @@ impl Store {
             &json!({"request_id":"\0".repeat(128),"result":result,"revision":u64::MAX,"warnings":[]}),
         )?;
         result.task = b.handle.clone();
+        let mut value = json!(result);
+        if caller.scope.selection.capabilities.child_goal_execution {
+            if let Some(id) = &b.child_goal_run_id {
+                let view = self.get_factory_child_goal(&FactoryChildGoalQuery {
+                    scope_id: caller.scope.id.clone(),
+                    task_id: b.handle.task_id.clone(),
+                    goal_run_id: Some(id.clone()),
+                })?;
+                let plan = self.get_factory_child_plan(&FactoryChildPlanQuery {
+                    scope_id: caller.scope.id.clone(),
+                    task_id: b.handle.task_id.clone(),
+                    plan_revision: Some(view.summary.plan.revision),
+                })?;
+                if plan.reference != view.summary.plan {
+                    return Err(changed());
+                }
+                value["child_goal"] = json!(view);
+                value["child_goal_plan"] = json!(plan);
+            }
+        }
+        check_wire(
+            &json!({"request_id":"\0".repeat(128),"result":value,"revision":u64::MAX,"warnings":[]}),
+        )?;
         Ok(FactoryToolOutcome {
-            result: json!(result),
+            result: value,
             stops: vec![],
         })
     }
@@ -985,6 +1027,19 @@ impl Store {
                     stops.push(session_id.clone());
                 }
             }
+            if let Some(goal_id) = &b.child_goal_run_id {
+                let (stopped, goal_stops) =
+                    crate::goal_store::request_factory_child_goal_stop(&tx, goal_id)?;
+                stops.extend(goal_stops);
+                b.handle.confirmed_stop =
+                    stopped && child_goal_lifecycle::planner_stop_confirmed(&tx, &b)?;
+                b.handle.state = if stopped && b.handle.confirmed_stop {
+                    "cancelled"
+                } else {
+                    "cancel_requested"
+                }
+                .into();
+            }
             save_binding(&tx, &mut b)?;
             if b.handle.task_id == id {
                 returned = b.handle.clone();
@@ -1050,6 +1105,10 @@ pub(crate) fn reserve_factory_session(
             != format!("{}:{}", c.scope.root_grant_id, c.scope.root_grant_revision)
     {
         return Err(denied());
+    }
+    if let Some(goal_id) = &b.child_goal_run_id {
+        let recovery = b.child_goal_recovery.as_ref().ok_or_else(denied)?;
+        crate::goal_store::verify_factory_child_goal_recovery(db, goal_id, recovery)?;
     }
     let ancestors = ancestry(db, &s.task_id)?;
     let output_bytes = b
@@ -1231,14 +1290,22 @@ impl Store {
             return Err(limited());
         }
         for id in ids {
+            self.reconcile_factory_child_goals(&id)?;
             let s = scope(&self.conn, &id)?;
             let mut r = run(&self.conn, &id)?;
+            // Reconciliation can complete a root-target Graph by projecting
+            // its exact already-accepted history. Never reinterpret that
+            // terminal result as a new live-admission failure and cancel it.
+            if r.state == "completed" {
+                continue;
+            }
             let authorized = base_live(&self.conn, &s).is_ok();
             let all = bindings(&self.conn, &r)?;
             if r.cancel_requested || !authorized {
                 let tx = self.conn.transaction().map_err(db_error)?;
                 r.cancel_requested = true;
                 let mut active = None;
+                let mut graph_pending = false;
                 for mut b in all {
                     b.handle.cancel_requested = true;
                     if let Some(session) = &b.session_id {
@@ -1258,10 +1325,26 @@ impl Store {
                         b.handle.state = "cancelled".into();
                         b.handle.confirmed_stop = true;
                     }
+                    if let Some(goal_id) = &b.child_goal_run_id {
+                        let (stopped, goal_stops) =
+                            crate::goal_store::request_factory_child_goal_stop(&tx, goal_id)?;
+                        graph_pending |= !stopped;
+                        if let Some(session) = goal_stops.first() {
+                            active = Some(session.clone());
+                        }
+                        b.handle.confirmed_stop =
+                            stopped && child_goal_lifecycle::planner_stop_confirmed(&tx, &b)?;
+                        b.handle.state = if stopped && b.handle.confirmed_stop {
+                            "cancelled"
+                        } else {
+                            "cancel_requested"
+                        }
+                        .into();
+                    }
                     b.handle.revision += 1;
                     save_binding(&tx, &mut b)?;
                 }
-                r.state = if active.is_some() {
+                r.state = if active.is_some() || graph_pending {
                     "cancel_requested"
                 } else {
                     "cancelled"
@@ -1271,12 +1354,21 @@ impl Store {
                     &tx,
                     &mut r,
                     "factory.run_stop_requested",
-                    json!({"authorized":authorized,"stop_confirmed":active.is_none()}),
+                    json!({"authorized":authorized,"stop_confirmed":active.is_none()&&!graph_pending}),
                 )?;
                 tx.commit().map_err(db_error)?;
                 if let Some(id) = active {
                     return Ok(Some(FactoryAction::Stop(id)));
                 }
+                continue;
+            }
+            // Reconciliation may just have discovered an unknown/blocked
+            // outcome in this same tick. Preserve cancellation/expiry cleanup
+            // above, but never admit another sibling from that run below.
+            if matches!(
+                r.state.as_str(),
+                "cancelled" | "blocked" | "outcome_unknown"
+            ) {
                 continue;
             }
             if let Some(session_id) = r.active_session_id.clone() {
@@ -1354,6 +1446,7 @@ impl Store {
                     b.handle.state.as_str(),
                     "queued" | "blocked_on_live_parent" | "resuming"
                 ) && b.session_id.is_none()
+                    && (b.child_goal_run_id.is_none() || b.child_goal_recovery.is_some())
                     && !b.handle.cancel_requested
             }) {
                 let mut b = b.clone();
@@ -1447,7 +1540,7 @@ impl Store {
                 |row| row.get(0),
             )
             .map_err(db_error)?;
-        let can_wait = normal && children > 0;
+        let can_wait = normal && (children > 0 || b.child_goal_run_id.is_some());
         if normal && (!missing || can_wait) {
             b.handle.state = if can_wait {
                 "waiting_child"
@@ -1583,6 +1676,11 @@ impl Store {
         let mut credential = json!({"schema_version":1,"handle_id":record.id,"socket_path":runtime.join("batond.sock"),"scoped_token":token});
         if s.selection.capabilities.child_planning && s.bindings.child_planning.is_some() {
             credential["child_planning"] = json!(true);
+        }
+        if s.selection.capabilities.child_goal_execution
+            && s.bindings.child_goal_execution.is_some()
+        {
+            credential["child_goal_execution"] = json!(true);
         }
         let bytes = encode(&credential)?;
         let tx = self
@@ -1735,7 +1833,24 @@ impl FactoryMcpLaunch {
         if self.scope.expires_at_ms <= ms()? {
             return Err(denied());
         }
+        #[cfg(debug_assertions)]
+        let diagnostic_started =
+            crate::ipc::goal_diagnostics::hashing_enabled().then(std::time::Instant::now);
+        #[cfg(debug_assertions)]
+        let diagnostic_image_bytes = diagnostic_started
+            .and_then(|_| std::fs::metadata(&self.scope.bindings.companion.executable).ok())
+            .map_or(0, |m| usize::try_from(m.len()).unwrap_or(usize::MAX));
         let input_pins = recheck_external(&self.scope)?;
+        #[cfg(debug_assertions)]
+        if let Some(clock) = diagnostic_started {
+            crate::ipc::goal_diagnostics::emit(
+                "mcp_external_recheck",
+                Some(clock.elapsed()),
+                [false; 6],
+                diagnostic_image_bytes,
+                None,
+            );
+        }
         let mut unique = std::collections::BTreeMap::new();
         for artifact in &self.handoff {
             if let Some(old) = unique.insert(
@@ -1782,6 +1897,8 @@ impl FactoryMcpLaunch {
             &self.scope.bindings.companion.executable_sha256,
         )
         .map_err(|_| changed())?;
+        #[cfg(debug_assertions)]
+        let diagnostic_provider = diagnostic_started.map(|_| std::time::Instant::now());
         let approved = agentbaton_providers::ApprovedFactoryMcp::from_verified_host(
             &self.scope.bindings.companion.executable,
             &digest,
@@ -1789,6 +1906,16 @@ impl FactoryMcpLaunch {
             &self.scope.approval_id,
         )
         .map_err(|_| changed())?;
+        #[cfg(debug_assertions)]
+        if let Some(clock) = diagnostic_provider {
+            crate::ipc::goal_diagnostics::emit(
+                "mcp_provider_verify",
+                Some(clock.elapsed()),
+                [false; 6],
+                diagnostic_image_bytes,
+                None,
+            );
+        }
         input_pins.verify(true)?;
         Ok(approved)
     }
@@ -1851,6 +1978,24 @@ fn task_prompt(db: &Connection, s: &FactoryScope, b: &TaskBinding) -> Result<Str
     let mut value = json!({"schema_version":1,"kind":"agentbaton_factory_task_request","task_id":b.handle.task_id,"root_task_id":s.root_task_id,"parent_task_id":b.handle.parent_task_id,"goal":b.request.goal,"input_artifacts":s.bindings.inputs.iter().filter(|a|b.request.input_artifact_ids.contains(&a.contract.requirement.artifact_id)).collect::<Vec<_>>(),"output_artifacts":s.bindings.outputs.iter().filter(|a|b.request.output_artifact_ids.contains(&a.requirement.artifact_id)).collect::<Vec<_>>(),"handoff_result":singleton,"handoff_results":b.handoff_results,"handoff_digest":b.handoff_digest,"context_continuation":"new_attempt_explicit_handoff_only","acceptance_state":"not_established"});
     if s.selection.capabilities.child_planning {
         value["child_planning_context"] = json!(child_plan::recorded_context(db, s, b)?);
+    }
+    if let Some(context) = &b.child_goal_recovery {
+        crate::goal_store::verify_factory_child_goal_recovery(
+            db,
+            b.child_goal_run_id.as_deref().ok_or_else(changed)?,
+            context,
+        )?;
+        value["child_goal_recovery"] = context.clone();
+        value["child_goal_recovery"]["observations_method"] = json!("get_task_result");
+        value["child_goal_recovery"]["observations_task_id"] = json!(b.handle.task_id);
+    }
+    if s.selection.capabilities.child_goal_execution {
+        value["factory_run_revision"] = json!(run(db, &s.id)?.revision);
+        value["child_goal_execution_binding"] = json!(s
+            .bindings
+            .child_goal_execution
+            .as_ref()
+            .ok_or_else(denied)?);
     }
     let text = encode(&value)?;
     // Preserve the existing Provider text bound; additionally check the complete
@@ -2170,3 +2315,38 @@ pub(super) fn child_planning_limits(
 ) -> Result<()> {
     child_plan::policy_limits(s, p)
 }
+
+#[path = "factory_child_goal.rs"]
+mod child_goal;
+pub(super) use child_goal::{
+    policy_limits as child_goal_limits, resolve_binding as resolve_child_goal_binding,
+};
+
+pub(super) use child_goal::migrate as migrate_child_goals;
+
+pub(crate) use child_goal::{
+    checked_scope as checked_child_goal_scope, live_scope as live_child_goal_scope,
+    FactoryGoalSource,
+};
+
+pub(crate) use child_goal::{
+    checked_plan as checked_child_goal_plan, policy_live as child_goal_policy_live,
+    verify_lineage as verify_child_goal_lineage,
+};
+
+pub(crate) use child_goal::source_is_current as factory_goal_source_is_current;
+
+pub(crate) use child_goal::ancestor_budgets as child_goal_ancestor_budgets;
+
+pub(crate) use child_goal::verify_target_request as verify_child_goal_target_request;
+
+pub(crate) use child_goal::mark_queued as mark_child_goal_queued;
+
+pub(crate) use child_goal::expected_policy as expected_child_goal_policy;
+
+pub(crate) use child_goal::latest_plan_ref as latest_child_goal_plan_ref;
+
+#[path = "factory_child_goal_lifecycle.rs"]
+mod child_goal_lifecycle;
+
+pub(crate) use child_goal::verify_caller as verify_child_goal_caller;

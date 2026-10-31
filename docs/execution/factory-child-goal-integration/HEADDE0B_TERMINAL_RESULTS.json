@@ -1,0 +1,775 @@
+{
+  "recorded_at": "2026-10-30T00:26:21.941409+00:00",
+  "head": "de0b911328c6703491902970ff608b908e3bf643",
+  "tested_merge_checkout": "59e174dc46c5929288e0995c67d68c8aa796dd66",
+  "checkout_verified_in": [
+    "ui.log",
+    "arm.log",
+    "intel.log",
+    "actual UI report harness_git_head"
+  ],
+  "actual_main_merge": false,
+  "environment": {
+    "run": 40976684979,
+    "all3": "success"
+  },
+  "product": {
+    "run": 40976684974,
+    "jobs": [
+      {
+        "id": 123806348958,
+        "name": "Product / Rust",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-10-29T23:58:43Z",
+        "completed_at": "2026-10-30T00:11:11Z",
+        "html_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40976684974/job/123806348958",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run rustup toolchain install stable --profile minimal --component rustfmt,clippy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run cargo fmt --all -- --check",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build genuine schema14 history for the required migration gate",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Workspace tests with actual generated native-wire capture",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Migrate genuine nonempty schema14 history with corruption and rollback controls",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate captured messages against hash-pinned official native schema",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Native evidence runner and artifact audit failure contracts",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Native Owner runner contracts against actual Core database",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run cargo clippy --workspace --all-targets --locked -- -D warnings",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Retain bounded migration metadata without private history",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Retain finite rework progress without private runtime data",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 123806349231,
+        "name": "Product / UI",
+        "status": "completed",
+        "conclusion": "failure",
+        "started_at": "2026-10-29T23:58:43Z",
+        "completed_at": "2026-10-30T00:02:34Z",
+        "html_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40976684974/job/123806349231",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run npm ci --ignore-scripts --no-audit --no-fund",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run npm run typecheck && npm test && npm run build",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Preview transport timing and failure contracts",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Real daemon and browser test dependencies",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Actual frontend with real Unix IPC and responsive screenshots",
+            "status": "completed",
+            "conclusion": "failure"
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 123806349267,
+        "name": "Product / macos-15",
+        "status": "completed",
+        "conclusion": "failure",
+        "started_at": "2026-10-29T23:58:48Z",
+        "completed_at": "2026-10-30T00:14:19Z",
+        "html_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40976684974/job/123806349267",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Toolchain",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Frontend dependencies and validation",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build genuine native schema14 history for the required migration gate",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Core and native host tests",
+            "status": "completed",
+            "conclusion": "failure"
+          },
+          {
+            "name": "Migrate genuine native schema14 history with corruption and rollback controls",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Actual macOS WebView and daemon lifecycle acceptance",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Actual native Owner Grant dialog and private database acceptance",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Actual Native Factory planning approval and unchanged Grant evidence",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Retain bounded native migration metadata without private history",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Retain finite rework progress without private runtime data",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build desktop UI and application",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Audit the actual default release application for test controls",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Package development application and evidence",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 123806349436,
+        "name": "Product / macos-15-intel",
+        "status": "completed",
+        "conclusion": "failure",
+        "started_at": "2026-10-29T23:58:44Z",
+        "completed_at": "2026-10-30T00:14:28Z",
+        "html_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40976684974/job/123806349436",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Toolchain",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Frontend dependencies and validation",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build genuine native schema14 history for the required migration gate",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Core and native host tests",
+            "status": "completed",
+            "conclusion": "failure"
+          },
+          {
+            "name": "Migrate genuine native schema14 history with corruption and rollback controls",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Actual macOS WebView and daemon lifecycle acceptance",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Actual native Owner Grant dialog and private database acceptance",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Actual Native Factory planning approval and unchanged Grant evidence",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Retain bounded native migration metadata without private history",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Retain finite rework progress without private runtime data",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build desktop UI and application",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Audit the actual default release application for test controls",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Package development application and evidence",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "ui": {
+    "artifact_id": 12942389756,
+    "report_sha256": "efd220fe67eab6a7b1c9bc17830f9499c0f6129323774a9b708e7a0a956b08cb",
+    "log_sha256": "8421018675a913426c730d96249e7bcc00fe51099e3443c996bb95da926d2bfb",
+    "checks_passed": [
+      "CP01",
+      "CP02"
+    ],
+    "failing_stage": "factory-child-planning / collect_started_records fixed_generated_argv_before_acceptance",
+    "previously_bound": true,
+    "field": "owned_provider",
+    "identity_before_state": "R",
+    "cmdline_bytes": 0,
+    "identity_after": null,
+    "daemon_actual_wait_exit": 0,
+    "original_six_identities_gone_after_cleanup": true,
+    "workflow_cleanup_complete": false,
+    "whole_flow": "failed_or_interrupted",
+    "later_child_goal_flows": "not_run"
+  },
+  "mac_safe_projections": [
+    {
+      "architecture": "arm",
+      "artifact_id": 12943059133,
+      "projection_sha256": "a81d2340df9b196d2d3735a4ce344ecee816de38fc7f58f93af202cbbb0da04a",
+      "job_log_sha256": "72b35b3ef2a2de264bfc8bb64b45c288a4925c802f8fc89a17acf49ef8e09026",
+      "projection": {
+        "cases": [
+          {
+            "actor_thread_joined": true,
+            "code": "FINITE_PROJECTION_COLLECTED",
+            "daemon_result": "ok",
+            "last_readonly_observation": {
+              "approved_scope_remaining_ms": 30700,
+              "call_elapsed_ms": 1404,
+              "call_number": 32,
+              "configured_actor_request_budget_ms": 60000,
+              "configured_client_read_timeout_ms": 5000,
+              "list_progress": {
+                "cancel_requested": false,
+                "failure_code": "REWORK_REVISION2_TERMINAL",
+                "plan_digest_matches": true,
+                "plan_revision": 2,
+                "run_plan_revision": 2,
+                "run_revision": 16,
+                "run_state": "failed",
+                "run_task_accepted": false,
+                "summary_count": 1,
+                "task_accepted": false
+              },
+              "method": "factory_child_goals.list",
+              "method_calls": {
+                "factory_child_goals.get": 0,
+                "factory_child_goals.list": 26,
+                "factory_runs.get": 6
+              },
+              "method_total_elapsed_ms": {
+                "factory_child_goals.get": 0,
+                "factory_child_goals.list": 23384,
+                "factory_runs.get": 540
+              },
+              "node_count": null,
+              "observation_overdue_ms": 0,
+              "observation_remaining_ms": 29707,
+              "phase": "wait_rework_awaiting_owner",
+              "plan_revision": null,
+              "received_before_original_deadline": true,
+              "reply_is_error": false,
+              "reply_object_supplied": true,
+              "reply_revision": 141,
+              "run_completed": null,
+              "run_outcome_unknown": null,
+              "run_revision": null,
+              "scenario_elapsed_ms": 32678,
+              "stage": "response_received",
+              "wall_ms": 1793319203662
+            },
+            "post_shutdown": {
+              "associated_events": {
+                "code": "same_observed_run_revision",
+                "events": [
+                  {
+                    "failure_ref_count": 3,
+                    "kind": "goal.factory_failure_confirmed",
+                    "ordinal": 1,
+                    "plan_revision": 2,
+                    "reservation_refunded": false,
+                    "task_accepted": false
+                  }
+                ],
+                "observed_plan_revision": 2,
+                "observed_run_revision": 16,
+                "previous_node_settlement": null,
+                "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+                "status": "collected_historical_events"
+              },
+              "budget_usage": {
+                "child": {
+                  "settled_actual_runtime_ms": 14852,
+                  "settled_count": 5,
+                  "settled_runtime_unknown": false,
+                  "unsettled_count": 0,
+                  "unsettled_reserved_runtime_ms": 0
+                },
+                "code": "existing_ledger_and_child_records",
+                "not_an_authority_or_admission_verdict": true,
+                "project": {
+                  "actual_runtime_ms": 16965,
+                  "observed_attempts": 7,
+                  "runtime_unknown": false
+                },
+                "root": {
+                  "actual_runtime_ms": 16965,
+                  "observed_attempts": 7,
+                  "runtime_unknown": false
+                },
+                "snapshot_time": "post_owned_shutdown_not_admission_instant",
+                "status": "collected_post_shutdown_budget_facts"
+              },
+              "child_graph_count": 1,
+              "node_counts": {
+                "1:owner_approval:not_started": 1,
+                "1:validate:failed": 1,
+                "1:work:candidate": 1,
+                "2:owner_approval:not_started": 1,
+                "2:validate:failed": 1,
+                "2:work:candidate": 1
+              },
+              "runs": [
+                {
+                  "cancel_requested": false,
+                  "plan_revision": "2",
+                  "state": "failed",
+                  "task_accepted": false
+                }
+              ],
+              "schema": 15,
+              "validation_counts": {
+                "1:failed:passed_false:stopped_true:worker_joined": 1,
+                "2:failed:passed_false:stopped_true:worker_joined": 1
+              },
+              "validation_observations": {
+                "1": {
+                  "actual_runtime_ms": 1375,
+                  "error_code": "INPUT_CHANGED",
+                  "exit_code": null,
+                  "goal_io_state": "not_started_or_preflight_rejected",
+                  "process_started": null
+                },
+                "2": {
+                  "actual_runtime_ms": 2862,
+                  "error_code": "INPUT_CHANGED",
+                  "exit_code": null,
+                  "goal_io_state": "not_started_or_preflight_rejected",
+                  "process_started": null
+                }
+              }
+            },
+            "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+            "status": "collected_post_shutdown",
+            "test_panicking": true
+          }
+        ],
+        "code": "FINITE_PROJECTION_COLLECTED",
+        "contract": "agentbaton.factory-rework-progress.v1",
+        "not_a_product_or_test_pass": true,
+        "status": "collected_post_shutdown"
+      }
+    },
+    {
+      "architecture": "intel",
+      "artifact_id": 12943461914,
+      "projection_sha256": "0a6364f10d8032258e18d7b59aca221cd30ea259abae02c976203a70b99e866f",
+      "job_log_sha256": "85cf593cdb0e4ae22afb1918272b20d4cdfe1695e907e21f2252535e75b51eba",
+      "projection": {
+        "cases": [
+          {
+            "actor_thread_joined": true,
+            "code": "FINITE_PROJECTION_COLLECTED",
+            "daemon_result": "ok",
+            "last_readonly_observation": {
+              "approved_scope_remaining_ms": 28960,
+              "call_elapsed_ms": 1728,
+              "call_number": 27,
+              "configured_actor_request_budget_ms": 60000,
+              "configured_client_read_timeout_ms": 5000,
+              "list_progress": {
+                "cancel_requested": false,
+                "failure_code": "REWORK_REVISION2_TERMINAL",
+                "plan_digest_matches": true,
+                "plan_revision": 2,
+                "run_plan_revision": 2,
+                "run_revision": 12,
+                "run_state": "blocked",
+                "run_task_accepted": false,
+                "summary_count": 1,
+                "task_accepted": false
+              },
+              "method": "factory_child_goals.list",
+              "method_calls": {
+                "factory_child_goals.get": 0,
+                "factory_child_goals.list": 21,
+                "factory_runs.get": 6
+              },
+              "method_total_elapsed_ms": {
+                "factory_child_goals.get": 0,
+                "factory_child_goals.list": 25956,
+                "factory_runs.get": 557
+              },
+              "node_count": null,
+              "observation_overdue_ms": 0,
+              "observation_remaining_ms": 27683,
+              "phase": "wait_rework_awaiting_owner",
+              "plan_revision": null,
+              "received_before_original_deadline": true,
+              "reply_is_error": false,
+              "reply_object_supplied": true,
+              "reply_revision": 128,
+              "run_completed": null,
+              "run_outcome_unknown": null,
+              "run_revision": null,
+              "scenario_elapsed_ms": 33920,
+              "stage": "response_received",
+              "wall_ms": 1793319208653
+            },
+            "post_shutdown": {
+              "associated_events": {
+                "code": "same_observed_run_revision",
+                "events": [
+                  {
+                    "actual_output_bytes": null,
+                    "actual_runtime_ms": 4359,
+                    "capture_state": "failed",
+                    "capture_worker_joined": false,
+                    "io_completion": "not_started",
+                    "kind": "goal.capture_settled",
+                    "ordinal": 1,
+                    "producer_stop_confirmed": true,
+                    "task_accepted": false
+                  }
+                ],
+                "observed_plan_revision": 2,
+                "observed_run_revision": 12,
+                "previous_node_settlement": {
+                  "event": {
+                    "actual_output_bytes": null,
+                    "actual_runtime_ms": 4359,
+                    "budget_overrun": true,
+                    "kind": "goal.node_settled",
+                    "node_state": "candidate",
+                    "observed_runtime_lower_bound_ms": 4359,
+                    "stop_confirmed": true,
+                    "task_accepted": false
+                  },
+                  "run_revision": 11,
+                  "same_observed_revision": false,
+                  "same_plan_not_established": true
+                },
+                "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+                "status": "collected_historical_events"
+              },
+              "budget_usage": {
+                "child": {
+                  "settled_actual_runtime_ms": 15766,
+                  "settled_count": 4,
+                  "settled_runtime_unknown": false,
+                  "unsettled_count": 0,
+                  "unsettled_reserved_runtime_ms": 0
+                },
+                "code": "existing_ledger_and_child_records",
+                "not_an_authority_or_admission_verdict": true,
+                "project": {
+                  "actual_runtime_ms": 18238,
+                  "observed_attempts": 6,
+                  "runtime_unknown": false
+                },
+                "root": {
+                  "actual_runtime_ms": 18238,
+                  "observed_attempts": 6,
+                  "runtime_unknown": false
+                },
+                "snapshot_time": "post_owned_shutdown_not_admission_instant",
+                "status": "collected_post_shutdown_budget_facts"
+              },
+              "child_graph_count": 1,
+              "node_counts": {
+                "1:owner_approval:not_started": 1,
+                "1:validate:failed": 1,
+                "1:work:candidate": 1,
+                "2:owner_approval:not_started": 1,
+                "2:validate:not_started": 1,
+                "2:work:candidate": 1
+              },
+              "runs": [
+                {
+                  "cancel_requested": false,
+                  "plan_revision": "2",
+                  "state": "blocked",
+                  "task_accepted": false
+                }
+              ],
+              "schema": 15,
+              "validation_counts": {
+                "1:failed:passed_false:stopped_true:worker_joined": 1
+              },
+              "validation_observations": {
+                "1": {
+                  "actual_runtime_ms": 2154,
+                  "error_code": "INPUT_CHANGED",
+                  "exit_code": null,
+                  "goal_io_state": "not_started_or_preflight_rejected",
+                  "process_started": null
+                },
+                "2": null
+              }
+            },
+            "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+            "status": "collected_post_shutdown",
+            "test_panicking": true
+          }
+        ],
+        "code": "FINITE_PROJECTION_COLLECTED",
+        "contract": "agentbaton.factory-rework-progress.v1",
+        "not_a_product_or_test_pass": true,
+        "status": "collected_post_shutdown"
+      }
+    }
+  ],
+  "limitations": [
+    "Runtime b651 local checks did not establish a Mac repair; this exact candidate still failed both architectures.",
+    "ARM receipts report INPUT_CHANGED/preflight without process/exit observations. No direct Mac grep stat; hardlink explanation remains an unproved hypothesis.",
+    "Intel previous-node4359ms exceeds original4000ms; postjoin event association explicitly does not establish same plan. Correct budget refusal is preserved, not accepted as success.",
+    "Budget totals are post-owned-shutdown facts, not admission-instant or fresh authority checks.",
+    "Later native/build/audit/package gates skipped; no new schema15/16 installer."
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-TSK-010"
+  ],
+  "work_package": "WP08",
+  "approval_id": "AB-START-001",
+  "base": "f55a805a952f84dc65e83c5e33f98e975871c3f1",
+  "source": "6b2e399f4e235484aa58970413295d060bc786ce",
+  "state": "source_only_runtime_not_run",
+  "source_hashes": {
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": "1d636144f6aaa5492947e6d28eb2ce8d99eba8f4d54318dafb71baa4d291f559",
+    "tests/infrastructure/test_child_goal_bound_readonly_wait.py": "e478e9affb70f5ae5ce13860654d6e856841ae259e9f8d9f4eee3486555658c9"
+  },
+  "actual_pure": {
+    "new": 15,
+    "combined": 54,
+    "original39_included": true,
+    "new15_included": true,
+    "dimension": "Python closed observation/publisher/classification controls; no real Core/browser or account"
+  },
+  "static": {
+    "baseline_f55_driver_sha256": "94a76318d3c352a0608fd799b1c910f7cb005d295fe2e272fb2e161c417fd941",
+    "current_driver_sha256": "1d636144f6aaa5492947e6d28eb2ce8d99eba8f4d54318dafb71baa4d291f559",
+    "inverse_exact_original_driver": true,
+    "original_generic_wait_ast_unchanged": true,
+    "original_PrivateHost_file_exact": true,
+    "original_toplevel_prefix_and_all_postacceptance_business_suffix": true,
+    "same_five_original_get_poll_sites": true,
+    "new_get_method_fixed_literal_no_method_parameter": true,
+    "none_key_revision_FixedCall": true,
+    "one_original_15s_absolute_deadline": true,
+    "original_20ms_poll_cadence": true,
+    "no_transport_exception_recovery": true,
+    "deadline_checks_before_and_after_each_observation_and_success": true,
+    "no_calls_to_start_cancel_approval_or_owner_click_in_helper": true,
+    "no_new_Thread_Socket_Filesystem_read_in_helper": true,
+    "strict_error_code_and_bool_effect": true,
+    "no_extra_version_or_ttl_or_runtime_budget_mutation": true,
+    "new_pure_tests": 15,
+    "combined_pure_tests": 54,
+    "no_product_execution": true,
+    "at": "2026-10-30T23:34:12.433378+00:00"
+  },
+  "evidence_hashes": {
+    "STATIC.json": "a1b0adee61213ede2c421bcee4d2c82d96d5a2fceec08ba1b1b5491cf3960708",
+    "RUN_RESULTS.json": "730bd23263383efdb01c291120469e9bb50fbaade7603b658f8b219c040f4e71",
+    "new-pure1.log": "69657ed2026063e75647dd3fad11e8dc41cedc2cdb3653af002c72e49eb04c3b",
+    "all-pure1.log": "f0611073ff5c7ac70edcd868affad217b148fdaff36b12b644c83263d0de4e35",
+    "all-pure2.log": "641468aa616ceb2bdf2b369e5a0cbd66527afaf81fd09dd73588f44ddd9e63cf",
+    "DRIVER_INVERSE.py": "94a76318d3c352a0608fd799b1c910f7cb005d295fe2e272fb2e161c417fd941"
+  },
+  "prior_actual_CI": {
+    "PR": 18,
+    "head": "f55a805a952f84dc65e83c5e33f98e975871c3f1",
+    "synthetic_checkout": "3c09965161af7944376b50c0dec9b9ca1b983c18",
+    "product": 41143055493,
+    "job": 124361646570,
+    "case": "normal",
+    "first_error": "post-Owner-click TaskAccepted read, driver1376→wait1053→lambda1376→PrivateHost.result assertion on exact typed WORKSPACE_BUSY",
+    "captured_reply_count": 238,
+    "get_busy_count": 1,
+    "graph_provider_argv": null,
+    "passed_checks": [
+      "CG01",
+      "CG02"
+    ],
+    "cleanup_complete": false,
+    "ui_artifact": 13019057825,
+    "ui_zip_sha256": "faeaee946dbe4c1439eb8709d7c97a6c744980362d6f9cb66121164c47014e4b",
+    "diagnosis_sha256": "a8c7adc13e2ca9b9ebf455c9708c7de1c11b7759b4c72693fda14213e2ec6818"
+  },
+  "limits": {
+    "same_original_poll_sites": 5,
+    "original_seconds_per_site": 15,
+    "new_observation_phases": 0,
+    "poll_seconds": 0.02,
+    "wire_socket_seconds": 5,
+    "recorder_wait_seconds": 5,
+    "write_retries": 0,
+    "Owner_click_repeated": false,
+    "scope_TTL_changed": false,
+    "budgets_changed": false,
+    "generic_Host_result_changed": false,
+    "acceptance_requires_before_original_deadline": true,
+    "kernel_wait_preemption_claim": false
+  },
+  "retained_author_setup_failure": "Combined54 first1fail2errors because sparse checkout omitted unchanged workflow; all-pure1.log retained; adding original workflow gives all54pass without source/test assertion edits.",
+  "not_run": [
+    "actual Core",
+    "Rust compilation",
+    "browser normal/cancel/lost-start",
+    "macOS",
+    "real Provider/model",
+    "exact new CI"
+  ],
+  "independent_review": "pending",
+  "whole_product_accepted": false
+}

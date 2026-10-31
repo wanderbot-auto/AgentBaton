@@ -1,0 +1,364 @@
+{
+  "recorded_at": "2026-10-30T01:00:16.147826+00:00",
+  "reviewed_local_head": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+  "approval": "AB-START-001",
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "source_changes": {
+    "actor": "09c7012c2085ea1f0efe0d26e9e5a6af34e1f73e",
+    "portable_validator_author": "02503b417d5848b1d2d3350678d774285287ff1a",
+    "observer_author": "c89a5f20f1dfee4e21a194295e02981006665ca8"
+  },
+  "source_reviews": {
+    "actor_sha256": "91f58fd9461297ebf9761f79d2055b7a5ef4711f02dc4664caab0acd6081c305",
+    "portable_sha256": "579802dfeb3993c7eaf75fc50a87ce0e27142b902e9341a8ad8c6f6cc8d063d4",
+    "observer_sha256": "c302721cf1f89fdbe7d6f1758c435b6a8f024018ed1ed55fdb39a768a6a39c60"
+  },
+  "actual_commands": {
+    "pr18-portable-validator-single1": {
+      "source": "2502102058fc576461b927fd057c2b13f90bacfe",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 18.149465652008075,
+      "minimum_free_bytes": 245301248,
+      "interruption": null,
+      "log_sha256": "605402501acd4ba52efb299670281e3480c48a0a53815064d4de552f791a666f",
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 25 filtered out; finished in 0.00s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-portable-validator-single2": {
+      "source": "33b9f3cbce400f53c1a6bd47eae35fcc714543d2",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 35.50208078400465,
+      "minimum_free_bytes": 326037504,
+      "interruption": null,
+      "log_sha256": "e5365b46ad39f2312b388d0498b8c5a3d49ca43d4217467ee1499c918e2a1493",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 25 filtered out; finished in 33.82s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-fairness-portable-fullfactory1": {
+      "source": "ef31a0bb3bd2a4f286697ec4a3f1a7ec09965725",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 90.2441383919795,
+      "minimum_free_bytes": 324747264,
+      "interruption": null,
+      "log_sha256": "a6de170b4024b0f9bb6be315571bc569a1c230643d32e29bb8b86566f1ec4708",
+      "summaries": [
+        "test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 90.12s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-fairness-portable-core1": {
+      "source": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 107.06287473900011,
+      "minimum_free_bytes": 269393920,
+      "interruption": null,
+      "log_sha256": "fdc483181bec5b6187829d8d46d27023bb8cb757268f871b0e840fbf11cbc413",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 128 filtered out; finished in 0.00s",
+        "test result: ok. 129 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 90.10s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-bound-provider-infrastructure1": {
+      "source": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure"
+      ],
+      "exit": 0,
+      "seconds": 3.4109564009995665,
+      "minimum_free_bytes": 324702208,
+      "interruption": null,
+      "log_sha256": "2167704dd4aa6f3008a4e4038653cab2125458123830e5185e6e7620ee31ee9a",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-fairness-portable-clippy1": {
+      "source": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 10.84106213299674,
+      "minimum_free_bytes": 282726400,
+      "interruption": null,
+      "log_sha256": "8959d924876cb3f3eb119a139f2bee5712a8f84f0bfcdc16b6e4cef403b81dc7",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "pr18-fairness-portable-format1": {
+      "source": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.2044568240235094,
+      "minimum_free_bytes": 281198592,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "actual_browser_flows": {
+    "childplanning": {
+      "command_result": {
+        "source": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-child-planning-real-ipc.py",
+          "--run",
+          "--tools",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--output",
+          "/workspace/.onboarding/pr18-bound-provider-childplanning-browser1"
+        ],
+        "exit": 0,
+        "seconds": 13.741648905008333,
+        "minimum_free_bytes": 282738688,
+        "interruption": null,
+        "log_sha256": "64b45d5f5707b576328d41fbf4b6355684b99ae160a7cbb699b76df64250fd2c",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "7abc70f1353086b71efa48b292867ba7a12b28d4dbe20759f4c486a81d900fb8",
+      "status": "passed",
+      "passed_checks": 9,
+      "screenshots": 4,
+      "cleanup_complete": true,
+      "failure_message": null,
+      "daemon_exitcodes": [
+        0
+      ]
+    },
+    "normal": {
+      "command_result": {
+        "source": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--case",
+          "normal",
+          "--output",
+          "/workspace/.onboarding/pr18-bound-provider-normal-browser1",
+          "--candidate-manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--batond",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools/batond",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist"
+        ],
+        "exit": 1,
+        "seconds": 4.010258656024234,
+        "minimum_free_bytes": 282505216,
+        "interruption": null,
+        "log_sha256": "b48421ebcbd04a4fcb16117e4d5ff47c06181f0cc1ee9d98d7d7537b4be84e63",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "23abce93cc4509c4f254c04a3a1fff4d57a2e6ed5a9777fd6c377349a48768f1",
+      "status": "failed_or_interrupted",
+      "passed_checks": 2,
+      "screenshots": 2,
+      "cleanup_complete": false,
+      "failure_message": "Previously bound generated record required for an absent initial identity",
+      "daemon_exitcodes": [
+        0
+      ]
+    },
+    "cancel": {
+      "command_result": {
+        "source": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--case",
+          "cancel",
+          "--output",
+          "/workspace/.onboarding/pr18-bound-provider-cancel-browser1",
+          "--candidate-manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--batond",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools/batond",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist"
+        ],
+        "exit": 0,
+        "seconds": 3.9114306610135827,
+        "minimum_free_bytes": 282001408,
+        "interruption": null,
+        "log_sha256": "19642b12a2242f15b7ba848be74b92a51a1a63ba3980bbd0e84b95df6aa629e5",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "e5585d1f469d9c5370173f28f19c1a327818cb45f7585716967735015ee0ad97",
+      "status": "passed",
+      "passed_checks": 4,
+      "screenshots": 2,
+      "cleanup_complete": true,
+      "failure_message": null,
+      "daemon_exitcodes": [
+        0
+      ]
+    },
+    "unknown": {
+      "command_result": {
+        "source": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--case",
+          "unknown",
+          "--output",
+          "/workspace/.onboarding/pr18-bound-provider-unknown-browser1",
+          "--candidate-manifest",
+          "/workspace/.onboarding/pr18-shared-meter-regression1/manifest.json",
+          "--batond",
+          "/workspace/.onboarding/childplanning-schema15-restored-0c78-tools/batond",
+          "--frontend",
+          "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist"
+        ],
+        "exit": 1,
+        "seconds": 3.311049529002048,
+        "minimum_free_bytes": 281333760,
+        "interruption": null,
+        "log_sha256": "60e03b1a73d62e727e97d4352f2a25705e4e75032fb6275bed68ea6986668aeb",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "report_sha256": "045086f51a6c3ac103583a87c4dcc225c741336251865fa2c96f98c512e2f4fb",
+      "status": "failed_or_interrupted",
+      "passed_checks": 2,
+      "screenshots": 2,
+      "cleanup_complete": false,
+      "failure_message": "Previously bound generated record required for an absent initial identity",
+      "daemon_exitcodes": [
+        0
+      ]
+    }
+  },
+  "browser_attribution": {
+    "driver_head": "d69461d136877265b1face5e4bec4a6aacdeeec8",
+    "compiled_core": "0c78e8517dd4655551c3d19b258a92028997317c",
+    "frontend": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+    "dimension": "Linux Chromium / actual Core Unix IPC / fixed account-free generated ACP/MCP; exact historical restored binary hashes, not rebuilt current Core or macOS"
+  },
+  "findings": [
+    "Full Factory26 passed90.12s, Core129 passed90.10s; nested helper1 is not additive. Infrastructure172, strict all-target workspace Clippy and format passed at separately recorded sources.",
+    "First portable fixture run compiled but failed0/1 on an added Linux uid0 assertion; the original failing ELF/log are retained. Mac-only uid0 assertion follows existing platform policy, all other pins remain. Subsequent single and full26 passed on Linux; Mac repair unproved.",
+    "Observer source review closes the pre-existing initial-absent/unbound acceptance gap. New real normal/unknown tests now correctly refuse that unbound history, exposing a fast fixed-provider first-observation race. Planning9 and cancel4 pass with complete cleanup, other two fail after2 checks with cleanup false. No failure is relabelled.",
+    "A minimal generated-fixture observation ACK is under implementation, within original time budgets and only after full live binding. No new authority or relaxation of first-live guard."
+  ],
+  "not_claimed": [
+    "No Mac root-cause proof, performance gain or current native/build/package verification.",
+    "Exact remote de0b remains Environment3/Rust pass, UI/both Mac fail. No result transferred to a new CI candidate.",
+    "No full130 completion, real Provider test, new credentials, spending, signing, production release or formal GitHub Approve."
+  ]
+}

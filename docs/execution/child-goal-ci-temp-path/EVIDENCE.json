@@ -1,0 +1,86 @@
+{
+  "unit": "child-goal-ci-temp-path",
+  "authorization": "AB-START-001",
+  "baseline": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
+  "source_commit": "ee58cc8fae7af28a466bf9b49d22497cffc449ab",
+  "branch": "codex/child-goal-ci-temp-path",
+  "worktree": "/workspace/.worktrees/child-goal-ci-temp-path",
+  "host": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "python": "3.12.14"
+  },
+  "actual_remote_failure": {
+    "pr": 18,
+    "head": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
+    "environment_run": 40929728562,
+    "arm_job": 123644651065,
+    "log": "/workspace/.onboarding/pr18-head79-environment-failure/mac15-full.log",
+    "log_sha256": "2920b445461bca404f0b67c99f3f37693e43cae5a72876be74932f4fb9fed123",
+    "reported_tests": 82,
+    "reported_failure_subtests": 2,
+    "assertion": "output.is_relative_to(self.root/agentbaton-child-goal-ci)",
+    "limitation": "Actual temporary directory names not printed; exact Darwin symlink mapping not observed"
+  },
+  "checks": [
+    {
+      "command": "python3 -B /workspace/.onboarding/child-goal-ci-temp-path/reproduce_old_alias.py",
+      "result": "OLD_ASSERTION_REPRODUCED",
+      "exit": 0,
+      "old_function_count": 1,
+      "expected_old_failure_subtests": 2,
+      "real_product_processes": 0,
+      "frozen_log_sha256": "2e869b6db5a04c07d9b9c8c30d7fa21049ee9459fc07029e66c19705f0b5c73a"
+    },
+    {
+      "command": "python3 -B -m unittest discover -s tests/infrastructure -p test_child_goal_ci_evidence.py -v",
+      "result": "PASS",
+      "exit": 0,
+      "tests": 13,
+      "seconds": 0.102,
+      "log": "/workspace/.onboarding/child-goal-ci-temp-path/TESTS.log",
+      "log_sha256": "d157d21dfded3b3687fbc754742c60bdf57d873c143360b5fe6c014ec027a5f6"
+    },
+    {
+      "command": "Python AST comparison of baseline frozen source with implementation",
+      "result": "PASS",
+      "unchanged_old_methods": [
+        "test_candidate_json_types_cannot_coerce_schema_dirty_or_nested_values",
+        "test_cli_publishes_only_summary_preserving_private_raw_originals",
+        "test_duplicate_json_keys_and_nonprivate_or_oversized_input_are_refused",
+        "test_fifo_and_unix_socket_are_rejected_without_waiting_for_a_writer",
+        "test_final_publish_failure_never_exposes_passed_final_name",
+        "test_missing_preflight_symlink_and_bad_json_remain_failed_and_private",
+        "test_nonzero_or_late_error_cleanup_or_missing_check_never_passes",
+        "test_only_explicit_fields_leave_all_three_synthetic_case_reports",
+        "test_unknown_duplicate_or_wrong_case_check_is_refused_without_raw_error",
+        "test_wrong_manifest_source_tools_harness_or_report_case_is_refused"
+      ]
+    },
+    {
+      "command": "git diff --check and git diff --cached --check",
+      "result": "PASS",
+      "exit": 0
+    }
+  ],
+  "source_sha256": {
+    "test": "6c103b70e009989b273fbc419d5598e88b6d62d5ed2d1470a79c168dfe5fb80b",
+    "workflow": "be7ab871bd72c49f6a0f664bf809d08432e193762363cf4f300e9d4cd8be0ba0",
+    "projector": "43ed3934e92b3fdd47c3c04298104e462386fecf773c8025a7a7ece7567895cd",
+    "harness": "a47b511073cb6ab5db1fef4ccdc0d798c7f565d7884d1b1697bc62e865b59393"
+  },
+  "not_run": [
+    "full infrastructure suite",
+    "new-head Environment/Product CI",
+    "actual macOS",
+    "browser",
+    "Core",
+    "Native",
+    "Provider",
+    "Cargo",
+    "Node",
+    "actual private DB",
+    "shared target"
+  ],
+  "integration": "Root independent review and exact-new-candidate Mac CI required; original failures retained"
+}

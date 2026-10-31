@@ -292,6 +292,21 @@ impl Store {
                 self.data_input.as_ref(),
             )?
         {
+            #[cfg(debug_assertions)]
+            crate::ipc::goal_diagnostics::emit(
+                "dispatch_task_rejected",
+                None,
+                [
+                    task.state == TaskState::OutcomeUnknown,
+                    task.state == TaskState::Running,
+                    task.state == TaskState::Draft,
+                    task.state == TaskState::Accepted,
+                    task.state == TaskState::Cancelled,
+                    task.state == TaskState::CancelRequested,
+                ],
+                usize::try_from(task.revision).unwrap_or(usize::MAX),
+                Some("PERMISSION_DENIED"),
+            );
             return Err(CoreError::new(
                 "PERMISSION_DENIED",
                 "Task no longer permits dispatch",

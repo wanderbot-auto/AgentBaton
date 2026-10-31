@@ -1,0 +1,103 @@
+{
+  "dimension": "recorded actual Core writer proof/digest reader control, not a new worker or all-stop authority. Event91 has only required four payload fields; Event92 needs every explicitly enumerated scalar/ref for its unchanged Event digest. Event104 supplies only previous ref and four digest/order refs. No DB, RPC, Grant, capabilities or authentication material.",
+  "source_commit": "7755fb669e41afe6c1df56565a3d9855ffdafcf5",
+  "source_evidence": ".onboarding/factory-child-goal-command-rework-runtime2",
+  "events": [
+    {
+      "sequence": 91,
+      "document": {
+        "sequence": 0,
+        "event_id": "231d7667-fcf0-4a67-8b2e-7a9b224810d5",
+        "aggregate_id": "47f95413-daec-44a6-8b91-c854c319e6a8",
+        "revision": 8,
+        "kind": "goal.factory_failure_confirmed",
+        "occurred_at": "2026-10-29T14:37:41.819410618Z",
+        "source": "goal_core",
+        "payload": {
+          "plan_revision": 1,
+          "plan_digest": "3795251cfd65b6bdeabd1e0134963874840e08db23f57468f33e2a15641b10e2",
+          "proof_digest": "726b2c1f664ece97b364b91f13ab87925448a0a20f5852363b1d2d74eb36f35a",
+          "proof": {
+            "run_id": "47f95413-daec-44a6-8b91-c854c319e6a8",
+            "plan_revision": 1,
+            "plan_digest": "3795251cfd65b6bdeabd1e0134963874840e08db23f57468f33e2a15641b10e2",
+            "failure_refs": [
+              "capture-or-validator:b6f0f61e-6ed7-4a59-b6fc-60b36104d004",
+              "node:1:validate-report",
+              "validation:c9fcdead-9a4f-48e4-aa7c-0ec4d991b7aa"
+            ],
+            "nodes_digest": "ad5de77fa6544dcabb73c9b78750799cee94638c0acd7c6cd1b8c0cee29e8bff",
+            "jobs_digest": "a2cc100ff0022cd8a3efada60297faeda8a3940d0f7373ca0d0061020af74a64",
+            "receipts_digest": "bc599efe2129e870a3b9994c8bde797142480695c07be57b9913cf02b6b0373d",
+            "receipt_cursor": 90
+          }
+        }
+      },
+      "original_source_document_sha256": "18c47402e9c67fe2f7404819606f38245fe978d13a4bbd953263327da4bbd9ba"
+    },
+    {
+      "sequence": 92,
+      "document": {
+        "sequence": 0,
+        "event_id": "28291f66-50da-49dc-9af7-fd396cfcb0eb",
+        "aggregate_id": "47f95413-daec-44a6-8b91-c854c319e6a8",
+        "revision": 8,
+        "kind": "goal.factory_rework_reserved",
+        "occurred_at": "2026-10-29T14:37:41.972994451Z",
+        "source": "goal_core",
+        "payload": {
+          "ancestors": [
+            "f78248e5-21df-4991-aaa5-fceafa5d0048",
+            "2cf58ebd-ded1-4e4b-9a5f-7e0c2858bd7a"
+          ],
+          "cumulative_consumption_reset": false,
+          "execution_policy_digest": "e3064e672219bac24546176372c2d684f84924937e9e48aa9d3c325dd5706ba7",
+          "factory_scope_id": "bd208024-b161-4344-8a1f-c37c65fdb623",
+          "failure_proof_digest": "726b2c1f664ece97b364b91f13ab87925448a0a20f5852363b1d2d74eb36f35a",
+          "failure_receipt_sequence": 91,
+          "plan_digest": "3795251cfd65b6bdeabd1e0134963874840e08db23f57468f33e2a15641b10e2",
+          "plan_revision": 1,
+          "planner_attempt_started": false,
+          "project_id": "4fbadf09-ad4d-400b-bdf1-6e06a4b90f77",
+          "reservation_refunded": false,
+          "root_grant_id": "39350ecc-fb8b-4f90-b72b-08cc7a257af9",
+          "task_id": "f78248e5-21df-4991-aaa5-fceafa5d0048"
+        }
+      },
+      "original_source_document_sha256": "80649755659181a4ed24f8d1ff3aa662d3914db628e3f8b425cb6838b0cc2040"
+    }
+  ],
+  "run": {
+    "id": "47f95413-daec-44a6-8b91-c854c319e6a8",
+    "scope_id": "5a781c71-e620-4eb0-89c9-759ce4f293e4",
+    "project_id": "4fbadf09-ad4d-400b-bdf1-6e06a4b90f77",
+    "task_id": "f78248e5-21df-4991-aaa5-fceafa5d0048",
+    "root_grant_id": "39350ecc-fb8b-4f90-b72b-08cc7a257af9",
+    "plan_revision": 2,
+    "plan_digest": "2eddace701c9965fb6a084bceab3c2c5a142e6d99d69541a78392ae91481c3a0",
+    "revision": 9,
+    "state": "queued",
+    "cancel_requested": false,
+    "task_accepted": false,
+    "created_at": "2026-10-29T14:37:35.664796291Z",
+    "updated_at": "2026-10-29T14:37:46.32985306Z"
+  },
+  "initial_receipt_sequence": 55,
+  "adoption_sequence": 104,
+  "previous_plan": {
+    "id": "e0c24619-a0b6-4e3e-97ea-6f54e55a990f",
+    "plan_digest": "3795251cfd65b6bdeabd1e0134963874840e08db23f57468f33e2a15641b10e2",
+    "raw_sha256": "0d0246d7a46e55e2d70eb094ff07fc51cbbf8ade0772032d10ab0f4b0f2dc707",
+    "receipt_sequence": 52,
+    "revision": 1,
+    "run_id": "7387a683-b29e-4b04-81e7-256096aabcd8",
+    "scope_id": "bd208024-b161-4344-8a1f-c37c65fdb623",
+    "task_id": "f78248e5-21df-4991-aaa5-fceafa5d0048"
+  },
+  "rework_context": {
+    "rework_receipt_sequence": 92,
+    "rework_receipt_digest": "80649755659181a4ed24f8d1ff3aa662d3914db628e3f8b425cb6838b0cc2040",
+    "failure_receipt_sequence": 91,
+    "failure_proof_digest": "726b2c1f664ece97b364b91f13ab87925448a0a20f5852363b1d2d74eb36f35a"
+  }
+}

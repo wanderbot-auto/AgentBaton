@@ -122,6 +122,7 @@ impl Fixture {
         };
         let selection = FactoryScopeSelection {
             child_planning_policy: None,
+            child_goal_execution_policy: None,
             root_task_id: task.id,
             expected_task_revision: task.revision,
             grant_id: grant.id,
@@ -238,31 +239,120 @@ fn unsupported_factory_capabilities_and_cross_project_or_unapproved_targets_neve
 {
     let mut f = Fixture::new();
     let baseline = f.selection.clone();
-    for field in ["child_planning", "child_goal_execution", "create_workspace"] {
+    // Read the complete generated fixture, including raw documents, rowids,
+    // journal, proposal/idempotency keys and all authority/permission rows.
+    // A rejected request may neither append nor mutate any of them.
+    fn snapshot(db: &Connection) -> Vec<(String, Vec<Vec<rusqlite::types::Value>>)> {
+        let names = db
+            .prepare("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")
+            .unwrap()
+            .query_map([], |row| row.get::<_, String>(0))
+            .unwrap()
+            .map(Result::unwrap)
+            .collect::<Vec<_>>();
+        names
+            .into_iter()
+            .map(|name| {
+                let quoted = name.replace('"', "\"\"");
+                let mut statement = db
+                    .prepare(&format!("SELECT rowid,* FROM \"{quoted}\" ORDER BY rowid"))
+                    .unwrap();
+                let columns = statement.column_count();
+                let rows = statement
+                    .query_map([], |row| {
+                        (0..columns)
+                            .map(|column| row.get::<_, rusqlite::types::Value>(column))
+                            .collect::<rusqlite::Result<Vec<_>>>()
+                    })
+                    .unwrap()
+                    .map(Result::unwrap)
+                    .collect();
+                (name, rows)
+            })
+            .collect()
+    }
+    let db =
+        Connection::open_with_flags(&f.path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    db.pragma_update(None, "query_only", true).unwrap();
+    let before = snapshot(&db);
+    for (field, code) in [
+        // Exact existing branches: no policy does not upgrade an old scope.
+        ("child_planning", "CAPABILITY_UNSUPPORTED"),
+        ("child_goal_execution", "INVALID_REQUEST"),
+        ("create_workspace", "CAPABILITY_UNSUPPORTED"),
+    ] {
         let mut v = json!(baseline);
         v["capabilities"][field] = json!(true);
         let forged: FactoryScopeSelection = serde_json::from_value(v).unwrap();
-        assert_eq!(
-            f.store
-                .propose_factory_scope(&forged, field, &f.companion)
-                .unwrap_err()
-                .code,
-            "CAPABILITY_UNSUPPORTED"
+        let error = f
+            .store
+            .propose_factory_scope(&forged, field, &f.companion)
+            .unwrap_err();
+        assert_eq!(error.code, code, "{field}");
+        assert_eq!(error.side_effect_state, "not_started", "{field}");
+        assert!(
+            snapshot(&db) == before,
+            "{field} refusal changed generated history or authority"
         );
     }
+    // A complete plan-only policy still cannot confer execution authority.
+    // The execution capability requires its own independent policy.
+    let mut missing_execution = baseline.clone();
+    missing_execution.capabilities.child_planning = true;
+    missing_execution.capabilities.child_goal_execution = true;
+    missing_execution.child_planning_policy = Some(FactoryChildPlanningPolicy {
+        max_nodes: 4,
+        max_revisions: 2,
+        max_plan_bytes: 262144,
+        outputs: baseline
+            .outputs
+            .iter()
+            .cloned()
+            .map(
+                |artifact| agentbaton_core::goal_store::GoalOutputSelection {
+                    artifact,
+                    validators: vec![],
+                },
+            )
+            .collect(),
+        writable_prefixes: vec!["reports/report.txt".into()],
+        owner_acceptance_criteria:
+            "Review the exact generated output; planning alone does not authorize execution".into(),
+    });
+    assert!(missing_execution.child_goal_execution_policy.is_none());
+    let error = f
+        .store
+        .propose_factory_scope(
+            &missing_execution,
+            "complete-planning-missing-execution",
+            &f.companion,
+        )
+        .unwrap_err();
+    assert_eq!(error.code, "INVALID_REQUEST");
+    assert_eq!(error.side_effect_state, "not_started");
+    assert!(
+        snapshot(&db) == before,
+        "missing execution policy changed generated history or authority"
+    );
     let mut bad = baseline.clone();
     bad.connection_ids = vec!["unapproved".into()];
-    assert_eq!(
-        f.store
-            .propose_factory_scope(&bad, "bad-connection", &f.companion)
-            .unwrap_err()
-            .code,
-        "AUTH_REQUIRED"
+    let error = f
+        .store
+        .propose_factory_scope(&bad, "bad-connection", &f.companion)
+        .unwrap_err();
+    assert_eq!(error.code, "AUTH_REQUIRED");
+    assert_eq!(error.side_effect_state, "not_started");
+    assert!(
+        snapshot(&db) == before,
+        "unapproved connection changed generated history or authority"
     );
     let mut v = json!(baseline);
     v["caller_id"] = json!("administrator");
     assert!(serde_json::from_value::<FactoryScopeSelection>(v).is_err());
-    let db = Connection::open(&f.path).unwrap();
+    assert!(
+        snapshot(&db) == before,
+        "forged caller field changed generated history or authority"
+    );
     assert_eq!(db.query_row("SELECT count(*) FROM approval_proposals WHERE json_extract(document,'$.kind')='factory'",[],|r|r.get::<_,u32>(0)).unwrap(),0);
 }
 #[test]

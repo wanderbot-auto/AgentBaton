@@ -1,0 +1,61 @@
+{
+  "recorded_at": "2026-10-29T22:21:34.361300+00:00",
+  "head": "72735c2f34f5e7d582eb8913a047b993b7d48e5d",
+  "base": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "actual_test_checkout": "b17a004dbf4d49596480ff796a7e4af549bca02b",
+  "checkout_evidence": "Completed Intel log checkout lines158/161, not an actual main merge",
+  "environment_run": 40961152800,
+  "product_run": 40961152550,
+  "checks": {
+    "Environment / ubuntu-24.04": "success",
+    "Environment / macos-15": "success",
+    "Environment / macos-15-intel": "success",
+    "Product / Rust": "success",
+    "Product / UI": "success",
+    "Product / macos-15": "failure",
+    "Product / macos-15-intel": "failure"
+  },
+  "mac_failures": {
+    "arm": {
+      "job": 123753945413,
+      "log_sha256": "060840d0edcd42f485fe0076ff22eb953ddecc113e7d95899e964cc367456635",
+      "failed_test": "actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+      "observed": {
+        "group_passed": 21,
+        "group_failed": 1,
+        "group_seconds": 182.13,
+        "list_calls": 107,
+        "factory_get_calls": 4,
+        "full_get_calls": 0,
+        "list_total_elapsed_ms": 50327,
+        "late_call_elapsed_ms": 332,
+        "late_by_ms": 210,
+        "grant_remaining_ms": 955
+      }
+    },
+    "intel": {
+      "job": 123753945125,
+      "log_sha256": "63f6adac2adf006d71e1fe73c90296f0bee6202ce728b7daf6146a86eaada58a",
+      "failed_test": "actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+      "observed": {
+        "group_passed": 21,
+        "group_failed": 1,
+        "group_seconds": 201.06,
+        "list_calls": 71,
+        "factory_get_calls": 7,
+        "full_get_calls": 0,
+        "list_total_elapsed_ms": 52406,
+        "late_call_elapsed_ms": 503,
+        "late_by_ms": 361,
+        "grant_remaining_ms": 960
+      }
+    }
+  },
+  "unchanged_contract": "55s observation/60s Grant/30s runtime/5s client/60s Actor; original final assertions",
+  "limitations": [
+    "Both failures occurred before Owner full-history read, zero fullget; response array progress was not projected by this diagnostic. No proven Grant expiry, RPC timeout, deadlock or CPU root cause.",
+    "Native/WebView/Owner/release audit/build/package subsequent gates skipped; no current schema15 installer.",
+    "Rust/UI successes prove only their own dimensions; full130/WP01-14 remains incomplete.",
+    "Next fixture progress projection and safe post-join collector require source review, actual tests and exact next CI. No rawDB/RPC/ID/token upload."
+  ]
+}

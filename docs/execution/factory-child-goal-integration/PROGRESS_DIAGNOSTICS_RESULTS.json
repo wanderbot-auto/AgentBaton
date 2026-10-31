@@ -1,0 +1,222 @@
+{
+  "recorded_at": "2026-10-29T22:42:51.936548+00:00",
+  "fixture_author_source": "4d00b9cfd4174fcdf8c90ec2a2fee4422ae2361b",
+  "collector_fixed_source": "51723cdb4b015ac50add469ac9c52c1c2f4b9156",
+  "Root_Rust_actual_source": "3faa976c80bc12e7a4ac7c21cbd64cfcd48b4968",
+  "Root_collector_actual_source": "3fba013639db7eab0cf99b35cfb2e0c87cae590a",
+  "Root_CI_fixed_source": "c4b4bb061c53dd4cf11daa368abb7fb7d7eee85b",
+  "unchanged": "Original55s observation/60s Grant/30s runtime/5s client/60s Actor/retry2/10ms polling/3readonlymethods; complete original Owner/Validator/Graph/parent/budget final assertions; no production scheduling or permission change",
+  "actual_commands": [
+    {
+      "record": "pr18-rework-progress-single1",
+      "source": "3faa976c80bc12e7a4ac7c21cbd64cfcd48b4968",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 53.25727865000954,
+      "minimum_free_bytes": 176537600,
+      "interruption": null,
+      "log_sha256": "4b84b0f6529146b3edf84ee37d2c24b8c7d3693cb2d98a7bc9c1ce4bbab9821c",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 25 filtered out; finished in 34.39s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-progress-full-factory1",
+      "source": "3faa976c80bc12e7a4ac7c21cbd64cfcd48b4968",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 91.54311710601905,
+      "minimum_free_bytes": 167739392,
+      "interruption": null,
+      "log_sha256": "0cd81a5570a5de72baa426e442cbb87b25fcf61f52514c77ed4b6a5a9544d75e",
+      "summaries": [
+        "test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 91.45s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-progress-clippy1",
+      "source": "3faa976c80bc12e7a4ac7c21cbd64cfcd48b4968",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 1.0028960169875063,
+      "minimum_free_bytes": 233730048,
+      "interruption": null,
+      "log_sha256": "f17d168ac196e9a6bc9ffc74dcc2b749153512896705306432b47b452aae3e16",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-progress-collector-pure2",
+      "source": "3fba013639db7eab0cf99b35cfb2e0c87cae590a",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_factory_rework_ci_evidence.py"
+      ],
+      "exit": 0,
+      "seconds": 0.20102430702536367,
+      "minimum_free_bytes": 231899136,
+      "interruption": null,
+      "log_sha256": "ccdc4b4a04e92e134354b3846a52adebaeac06acb21d1add1173aed30b670894",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-progress-collector-actual2",
+      "source": "3fba013639db7eab0cf99b35cfb2e0c87cae590a",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "scripts/record-factory-rework-ci-evidence.py",
+        "--evidence-root",
+        "/workspace/.onboarding/pr18-rework-progress-collector-actual-input2"
+      ],
+      "exit": 0,
+      "seconds": 0.10085589601658285,
+      "minimum_free_bytes": 231849984,
+      "interruption": null,
+      "log_sha256": "de077161b9a6855ff7f1118956ae9f49a2fb572cc9e10760de20cc73fc5af3ee",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-progress-format1",
+      "source": "a740ed50a3583eb158439b00da4b9d1b9edb2c6d",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.2098864389990922,
+      "minimum_free_bytes": 231407616,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-progress-infrastructure1",
+      "source": "a740ed50a3583eb158439b00da4b9d1b9edb2c6d",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0,
+      "seconds": 1.1026735750201624,
+      "minimum_free_bytes": 231407616,
+      "interruption": null,
+      "log_sha256": "796a790dab4fe5724af95b02f343dea2235a09e2b279acf8d68f3352d6b632a4",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  ],
+  "counts_by_dimension_not_additive": {
+    "single_rework": 1,
+    "full_Factory_including_new_projection_Rust_control": 26,
+    "collector_pure": 22,
+    "full_infrastructure": 106
+  },
+  "actual_retained_input_projection": {
+    "status": "collected_post_shutdown",
+    "code": "FINITE_PROJECTION_COLLECTED",
+    "not_a_product_or_test_pass": true,
+    "input_copy": "Exact current joined-fixture four-file private copy; source security stamps and SHA unchanged, no receipt/DB rewrite. Historical44 directories unchanged, no retroactive receipts.",
+    "copy_manifest_sha256": "d02aafa1ff6ec487c2565e0e1d01bfd1353627573a2f354afbb0e3bc51c7a0ae",
+    "projection_sha256": "de077161b9a6855ff7f1118956ae9f49a2fb572cc9e10760de20cc73fc5af3ee",
+    "limitations": "post-owned-shutdown is not deadline-instant or generic SQLite/process-stop proof; originalActor/Provider outcomes remain exact fixture assertions"
+  },
+  "reviews": {
+    "original_4d_changes_required": "d960ad962e808260230cd588a554c322a189055c6aa54e8dc28ad813aacb2597",
+    "original_manifest": "330af7a607ecff29a574d7e6c8e1f85707ebf09e402be234e3ea3e6823a13df7",
+    "fixed_51723_source_ready": "c863f134f4d9de76b69226141248775d263532103dba17e9ce57f8464149d9ec",
+    "fixed_manifest": "3d4e5004c7bfc5e24ca23acb769960a77d515e8fc76b3bbae36e5cf6f50c5a58",
+    "CI_fixed_c4_source_ready": "84a4a6290da434172202a52666868edc7f8ed5a3b67457c9f3337804c2f91ae3",
+    "CI_manifest": "65c146fe649e531e740a24d559764e0ed5c0f60ce3a6b82de32f704278be8dd0",
+    "review_dimensions": "Independent22pure+16inertserializedlimit/CLIcontrols+sourceinverse/RAII; independent12actual-YAMLblockmock controls; no independent Actor/Mac run"
+  },
+  "retained_failures": [
+    "Exact727 Environment3/Rust/UI success but bothMac rework55s fail, later desktop/build/package skipped; HEAD727_CI_RESULTS.json retained",
+    "Original4d compact cap permitted139849B pretty stdout and CLI unknownargument echo; fixed51723, exact original controls retained",
+    "Root6556 CI path literal two missing quotes found pre-push by independent extraction SyntaxError; fixedc4,12mockcontrols pass, old6556 evidence retained",
+    "Root copywrapper1 compared fullfstat including atime, stopped before complete input; partial input correctly projected pending. Original evidence unchanged; newcopy2 excludes onlyatime and verifies all security stamps/hash beforeafter",
+    "All olderbe12/3b, capacity stops, failedELFs/DBs/tools preserved"
+  ],
+  "remote_state": "Latest remotePR18 still727 draft/open/unmerged; no new CI from this metadata commit yet; next exact seven checks and dualMac native/release/build/package required",
+  "no_claim": [
+    "No demonstrated root-cause repair for Mac55s observation failure",
+    "No speed improvement claim vs previous32.71/34.30/35.47; local34.39 is different run",
+    "No schema15 installer accepted, no schema16 platform acceptance",
+    "Full130/WP01-14 not complete; Provider/privateidentity/newspend/production/sign/license/formalApprove unchanged"
+  ]
+}

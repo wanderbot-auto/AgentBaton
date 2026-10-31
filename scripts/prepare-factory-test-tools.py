@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import sqlite3
+import stat
 import subprocess
 import tempfile
 import time
@@ -15,8 +16,15 @@ FACTORY_TABLES = (
     'factory_scopes', 'factory_runs', 'factory_task_lineage',
     'factory_delegations', 'factory_task_bindings', 'factory_attempts',
     'factory_scoped_handles', 'factory_handoffs', 'factory_budget_reservations',
-    'factory_child_plan_heads', 'factory_child_plan_revisions',
+    'factory_child_plan_heads', 'factory_child_plan_revisions', 'factory_child_goal_runs',
 )
+
+
+def verify_private_tool(path):
+    metadata = path.lstat()
+    if (not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1
+            or stat.S_IMODE(metadata.st_mode) != 0o500 or metadata.st_uid != os.geteuid()):
+        raise ValueError('Frozen tool must be an owned regular single-link mode0500 file')
 
 
 def sha256(path):
@@ -40,8 +48,8 @@ def observe_database(runtime):
         conn.execute('PRAGMA query_only=ON')
         conn.execute('BEGIN')
         schema = conn.execute('PRAGMA user_version').fetchone()[0]
-        if type(schema) is not int or schema != 14:
-            raise ValueError('Prepared daemon did not create exact schema14')
+        if type(schema) is not int or schema != 15:
+            raise ValueError('Prepared daemon did not create exact schema15')
         counts = {name: conn.execute('SELECT count(*) FROM ' + name).fetchone()[0]
                   for name in FACTORY_TABLES}
         sequence = conn.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]
@@ -53,7 +61,7 @@ def observe_database(runtime):
 
 def probe(tools, evidence):
     # /tmp resolves to /private/tmp on macOS. Keep AF_UNIX below its path bound.
-    with tempfile.TemporaryDirectory(prefix='ab14-', dir='/tmp') as temporary:
+    with tempfile.TemporaryDirectory(prefix='ab15-', dir='/tmp') as temporary:
         runtime = Path(temporary).resolve(strict=True)
         runtime.chmod(0o700)
         socket_bytes = len(str(runtime / 'batond.sock').encode('utf-8'))
@@ -128,6 +136,7 @@ def prepare(root, source, output, evidence):
         frozen = output / name
         shutil.copyfile(original, frozen)
         frozen.chmod(0o500)
+        verify_private_tool(frozen)
         if sha256(frozen) != hashes[name]:
             raise ValueError('Frozen executable bytes differ from current prebuild')
     try:
@@ -137,9 +146,11 @@ def prepare(root, source, output, evidence):
         raise
     if source_identity(root) != identity:
         raise ValueError('Checkout changed during test-tool probe')
+    for name in hashes:
+        verify_private_tool(output / name)
     if any(sha256(source / name) != value or sha256(output / name) != value for name, value in hashes.items()):
         raise ValueError('Test tools changed during preparation')
-    record = {**identity, 'schema': 14, 'source_directory': str(source),
+    record = {**identity, 'schema': 15, 'source_directory': str(source),
               'frozen_directory': str(output), 'binaries': hashes,
               'source_binaries_after': {name: sha256(source / name) for name in hashes},
               'frozen_binaries_after': {name: sha256(output / name) for name in hashes},
@@ -154,14 +165,16 @@ def verify(root, tools):
     if not tools.is_absolute():
         raise ValueError('Frozen tool directory must be absolute')
     record = json.loads((tools / 'manifest.json').read_text())
-    if type(record.get('schema')) is not int or record['schema'] != 14:
-        raise ValueError('Frozen tool manifest must be exact schema14')
+    if type(record.get('schema')) is not int or record['schema'] != 15:
+        raise ValueError('Frozen tool manifest must be exact schema15')
     if record.get('frozen_directory') != str(tools.resolve(strict=True)):
         raise ValueError('Frozen tool directory changed')
     if any(record.get(key) != value for key, value in source_identity(root).items()):
         raise ValueError('Frozen tools are not from the current clean checkout')
     if set(record.get('binaries', {})) != {'batond', 'baton'}:
         raise ValueError('Frozen manifest must bind both normal product tools')
+    for name in record['binaries']:
+        verify_private_tool(tools / name)
     if any(sha256(tools / name) != value for name, value in record['binaries'].items()):
         raise ValueError('Frozen tool bytes changed while running tests')
     return record
@@ -181,6 +194,11 @@ def main():
         if args.source is None or args.evidence is None:
             parser.error('--source and --evidence are required when preparing tools')
         record = prepare(root, args.source, args.output, args.evidence)
+    # Diagnostic observation only; tool identity remains bound by the existing
+    # checkout, private-file and complete SHA-256 checks, not these byte counts.
+    record['observed_binary_bytes'] = {
+        name: (args.output / name).stat().st_size for name in ('baton', 'batond')
+    }
     print(json.dumps(record, sort_keys=True))
 
 

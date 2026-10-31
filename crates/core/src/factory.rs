@@ -41,6 +41,119 @@ pub struct FactoryScopeSelection {
     /// Missing in schema13/old receipts; omission keeps their exact bytes stable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub child_planning_policy: Option<FactoryChildPlanningPolicy>,
+    /// Separate explicit execution consent. Old planning-only receipts omit it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub child_goal_execution_policy: Option<FactoryChildGoalExecutionPolicy>,
+}
+/// Execution permission remains within the original immutable Grant ceilings.
+/// It does not amend that Grant, create a workspace, or accept any candidate.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalExecutionPolicy {
+    pub max_nodes: u32,
+    pub max_runs_per_task: u32,
+    pub max_total_runs: u32,
+    pub root_budget: BudgetLimits,
+    pub project_budget: BudgetLimits,
+    pub require_owner_acceptance: bool,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalExecutionBinding {
+    pub schema_version: u32,
+    pub authority_kind: String,
+    pub policy: FactoryChildGoalExecutionPolicy,
+    pub planning_policy_digest: String,
+    pub root_grant_id: String,
+    pub root_grant_revision: u64,
+    pub original_max_children: u32,
+    pub original_max_depth: u32,
+    pub graph_contract_version: u32,
+    pub definition_digest: String,
+    pub new_workspace_authorized: bool,
+}
+/// A complete saved reference is compared to its immutable server row; IDs and
+/// plan text from the caller never become execution authority.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalSubmission {
+    pub task_id: String,
+    pub plan: FactoryChildPlanRef,
+    pub expected_factory_run_revision: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalStart {
+    pub scope_id: String,
+    pub request: FactoryChildGoalSubmission,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalQuery {
+    pub scope_id: String,
+    pub task_id: String,
+    #[serde(default)]
+    pub goal_run_id: Option<String>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalCancel {
+    pub scope_id: String,
+    pub task_id: String,
+    pub goal_run_id: String,
+    pub expected_goal_run_revision: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalAdvance {
+    pub scope_id: String,
+    pub goal_run_id: String,
+    pub request: FactoryChildGoalSubmission,
+    pub expected_goal_run_revision: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalSummary {
+    pub authority_kind: String,
+    pub factory_scope_id: String,
+    pub factory_run_id: String,
+    pub factory_root_task_id: String,
+    pub parent_task_id: Option<String>,
+    pub task_id: String,
+    pub plan: FactoryChildPlanRef,
+    pub execution_policy_digest: String,
+    pub goal: crate::goal_store::GraphRunSummary,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalView {
+    pub summary: FactoryChildGoalSummary,
+    pub origin: FactoryChildGoalOriginView,
+    pub details: crate::goal_store::GraphRunDetails,
+}
+/// Fixed scoped adoption request: caller identity and Factory scope are supplied
+/// by the private credential, never by Agent parameters.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalAdvanceSubmission {
+    pub goal_run_id: String,
+    pub request: FactoryChildGoalSubmission,
+    pub expected_goal_run_revision: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalOriginView {
+    pub factory_scope_id: String,
+    pub factory_scope_digest: String,
+    pub factory_run_id: String,
+    pub factory_root_task_id: String,
+    pub parent_task_id: Option<String>,
+    pub ancestors: Vec<String>,
+    pub original_native_approval_id: String,
+    pub root_grant_id: String,
+    pub root_grant_revision: u64,
+    pub initial_plan: FactoryChildPlanRef,
+    pub execution_binding: FactoryChildGoalExecutionBinding,
 }
 /// Narrow selection within existing Factory artifacts/connections/workspaces.
 /// This uses Goal's exact output/validator references, never a second plan DSL.
@@ -268,6 +381,8 @@ pub struct FactoryGuarantees {
 pub struct FactoryScopeBindings {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub child_planning: Option<FactoryChildPlanningBinding>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub child_goal_execution: Option<FactoryChildGoalExecutionBinding>,
     pub project: crate::registry::Project,
     pub root_task: Task,
     pub approved_grant: ExecutionGrant,
@@ -355,6 +470,7 @@ pub(crate) fn companion_path() -> crate::Result<std::path::PathBuf> {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct FactoryRecordCounts {
+    pub child_goal_runs: u64,
     pub child_plan_heads: u64,
     pub child_plan_revisions: u64,
     pub scopes: u64,
@@ -387,3 +503,27 @@ pub(crate) use capture::{FactoryCapture, FactoryCapturePlan};
 #[path = "factory_reads.rs"]
 mod reads;
 pub(crate) use reads::{FactoryReadControl, FactoryReadPlan, FactoryReadWatch, FactoryReadWitness};
+
+#[path = "factory_history_reads.rs"]
+mod history_reads;
+pub(crate) use history_reads::{FactoryHistoryQuery, FactoryHistoryWorkers};
+
+pub(crate) use runtime::{checked_child_goal_scope, live_child_goal_scope, FactoryGoalSource};
+
+pub(crate) use runtime::{
+    checked_child_goal_plan, child_goal_policy_live, verify_child_goal_lineage,
+};
+
+pub(crate) use runtime::factory_goal_source_is_current;
+
+pub(crate) use runtime::child_goal_ancestor_budgets;
+
+pub(crate) use runtime::verify_child_goal_target_request;
+
+pub(crate) use runtime::mark_child_goal_queued;
+
+pub(crate) use runtime::expected_child_goal_policy;
+
+pub(crate) use runtime::latest_child_goal_plan_ref;
+
+pub(crate) use runtime::verify_child_goal_caller;

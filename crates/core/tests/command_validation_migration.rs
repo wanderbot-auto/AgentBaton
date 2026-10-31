@@ -66,7 +66,7 @@ fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_a
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        14
+        15
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -144,10 +144,10 @@ fn command_migration_failure_rolls_back_tables_and_version_retains_unknown_data(
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema15_refused_without_touching_bytes() {
+fn future_schema16_refused_without_touching_bytes() {
     let (_d, p) = fixture();
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=15;").unwrap();
+    c.execute_batch("PRAGMA user_version=16;").unwrap();
     drop(c);
     let raw = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
@@ -159,7 +159,7 @@ fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
         .permissions(fs::Permissions::from_mode(0o700))
         .tempdir()
         .unwrap();
-    let database = directory.path().join("fresh-schema13.sqlite3");
+    let database = directory.path().join("fresh-schema15.sqlite3");
     drop(
         fs::OpenOptions::new()
             .create_new(true)
@@ -173,13 +173,117 @@ fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
     (directory, database, connection)
 }
 
+// No Debug implementation: a failed equality must not dump raw fixture rows.
+type FixtureSchemaObject = (String, String, String, Option<String>);
+type FixtureTableRows = (String, Vec<Vec<rusqlite::types::Value>>);
+#[derive(PartialEq)]
+struct FixtureLogicalSnapshot {
+    schema: Vec<FixtureSchemaObject>,
+    rows: Vec<FixtureTableRows>,
+    pragmas: Vec<(&'static str, rusqlite::types::Value)>,
+    autocommit: bool,
+}
+
+fn fixture_logical_snapshot(connection: &Connection) -> FixtureLogicalSnapshot {
+    let schema: Vec<FixtureSchemaObject> = connection
+        .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
+        .unwrap()
+        .query_map([], |row| {
+            Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+        })
+        .unwrap()
+        .map(|row| row.unwrap())
+        .collect();
+    let mut rows = Vec::new();
+    for (_, name, _, _) in schema.iter().filter(|row| row.0 == "table") {
+        // All tables in these isolated fixtures have rowids. Include internal
+        // sqlite_sequence too, and quote even the generated identifiers.
+        let quoted = format!("\"{}\"", name.replace('"', "\"\""));
+        let mut statement = connection
+            .prepare(&format!("SELECT rowid,* FROM {quoted} ORDER BY rowid"))
+            .unwrap();
+        let columns = statement.column_count();
+        let data = statement
+            .query_map([], |row| {
+                (0..columns)
+                    .map(|column| row.get::<_, rusqlite::types::Value>(column))
+                    .collect::<rusqlite::Result<Vec<_>>>()
+            })
+            .unwrap()
+            .map(|row| row.unwrap())
+            .collect();
+        rows.push((name.clone(), data));
+    }
+    let pragmas = [
+        "user_version",
+        "schema_version",
+        "application_id",
+        "foreign_keys",
+        "journal_mode",
+        "defer_foreign_keys",
+        "query_only",
+        "synchronous",
+    ]
+    .into_iter()
+    .map(|name| {
+        let value = connection
+            .pragma_query_value(None, name, |row| row.get::<_, rusqlite::types::Value>(0))
+            .unwrap();
+        (name, value)
+    })
+    .collect();
+    FixtureLogicalSnapshot {
+        schema,
+        rows,
+        pragmas,
+        autocommit: connection.is_autocommit(),
+    }
+}
+
 #[test]
-fn fixture_inverse_removes_only_empty_factory_increment_and_preserves_legacy_schema_and_bytes() {
+fn fixture_inverse_restores_native_identity_fks_and_preserves_other_schema_and_bytes() {
     let (_directory, _database, connection) = fresh_factory_fixture();
-    connection
-        .execute_batch("CREATE TABLE fixture_unknown(raw BLOB);INSERT INTO fixture_unknown VALUES(x'00ffdeadbeef');PRAGMA foreign_keys=ON;")
-        .unwrap();
+    connection.execute_batch("CREATE TABLE fixture_unknown(raw BLOB);INSERT INTO fixture_unknown VALUES(x'00ffdeadbeef');PRAGMA foreign_keys=ON;").unwrap();
     type SchemaObject = (String, String, String, Option<String>);
+    type Column = (i64, String, String, i64, Option<String>, i64);
+    type ForeignKey = (String, String, Option<String>, String, String, String);
+    let native_shape = |table: &str| -> (Vec<Column>, Vec<ForeignKey>) {
+        let columns = connection
+            .prepare(&format!("PRAGMA table_info({table})"))
+            .unwrap()
+            .query_map([], |r| {
+                Ok((
+                    r.get(0)?,
+                    r.get(1)?,
+                    r.get(2)?,
+                    r.get(3)?,
+                    r.get(4)?,
+                    r.get(5)?,
+                ))
+            })
+            .unwrap()
+            .map(|row| row.unwrap())
+            .collect();
+        let mut foreign: Vec<ForeignKey> = connection
+            .prepare(&format!("PRAGMA foreign_key_list({table})"))
+            .unwrap()
+            .query_map([], |r| {
+                Ok((
+                    r.get(2)?,
+                    r.get(3)?,
+                    r.get(4)?,
+                    r.get(5)?,
+                    r.get(6)?,
+                    r.get(7)?,
+                ))
+            })
+            .unwrap()
+            .map(|row| row.unwrap())
+            .collect();
+        foreign.sort();
+        (columns, foreign)
+    };
+    let before_native = ["goal_scopes", "goal_runs"].map(&native_shape);
     let before: Vec<SchemaObject> = connection
         .prepare("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name")
         .unwrap()
@@ -187,6 +291,16 @@ fn fixture_inverse_removes_only_empty_factory_increment_and_preserves_legacy_sch
         .unwrap()
         .map(|row| row.unwrap())
         .filter(|row| !pre_factory_schema::FACTORY_TABLES.contains(&row.2.as_str()))
+        .map(|mut row| {
+            // Preserve the complete sqlite_master comparison, changing ONLY
+            // the two intentional Native id->proposal FK restorations.
+            if row.0 == "table" && matches!(row.1.as_str(), "goal_scopes" | "goal_runs") {
+                let sql = row.3.as_ref().unwrap();
+                assert!(sql.starts_with(&format!("CREATE TABLE \"{}\"(id TEXT PRIMARY KEY,",row.1)));
+                row.3 = Some(sql.replacen("(id TEXT PRIMARY KEY,", "(id TEXT PRIMARY KEY REFERENCES approval_proposals(id),", 1));
+            }
+            row
+        })
         .collect();
     pre_factory_schema::remove_empty_factory_increment(&connection).unwrap();
     assert_eq!(
@@ -199,10 +313,31 @@ fn fixture_inverse_removes_only_empty_factory_increment_and_preserves_legacy_sch
         .prepare("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name")
         .unwrap()
         .query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?, row.get::<_, Option<String>>(3)?)))
-        .unwrap()
-        .map(|row| row.unwrap())
-        .collect();
+        .unwrap().map(|row|row.unwrap()).collect();
     assert_eq!(after, before);
+    for (table, (columns, mut foreign)) in
+        ["goal_scopes", "goal_runs"].into_iter().zip(before_native)
+    {
+        assert!(!foreign.iter().any(|f| f.1 == "id"));
+        foreign.push((
+            "approval_proposals".into(),
+            "id".into(),
+            Some("id".into()),
+            "NO ACTION".into(),
+            "NO ACTION".into(),
+            "NONE".into(),
+        ));
+        foreign.sort();
+        assert_eq!(native_shape(table), (columns, foreign), "{table}");
+    }
+    assert!(connection
+        .pragma_query_value::<bool, _>(None, "foreign_keys", |r| r.get(0))
+        .unwrap());
+    assert!(!connection
+        .prepare("PRAGMA foreign_key_check")
+        .unwrap()
+        .exists([])
+        .unwrap());
     assert_eq!(
         connection
             .query_row("SELECT raw FROM fixture_unknown", [], |row| row
@@ -216,23 +351,156 @@ fn fixture_inverse_removes_only_empty_factory_increment_and_preserves_legacy_sch
 fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_any_bytes() {
     for variant in [
         "nonempty_legacy_reservation",
+        "nonempty_child_goal",
         "missing_table",
+        "missing_child_goal_table",
         "wrong_version",
+        "old_current14",
+        "factory_extra_column",
+        "factory_extra_index",
+        "native_scope_extra_column",
+        "native_run_extra_index",
+        "late_rebuild_collision",
+        "missing_native_proposal_fk",
     ] {
         let (_directory, database, connection) = fresh_factory_fixture();
+        connection
+            .pragma_update(None, "foreign_keys", true)
+            .unwrap();
         match variant {
-            // Deliberate malformed-data injection in this new negative fixture only;
-            // restore FK enforcement BEFORE asking the guard to reject deletion.
+            // Explicit private malformed-data fixtures only. Restore FK before
+            // asking the helper to reject, never manufacture a successful run.
             "nonempty_legacy_reservation" => connection.execute_batch("PRAGMA foreign_keys=OFF;INSERT INTO factory_budget_reservations(attempt_id,scope_id,root_task_id,project_id,document) VALUES('generated-unreconciled',NULL,'generated-root','generated-project',json_object('authority_kind','legacy_shared_session'));PRAGMA foreign_keys=ON;").unwrap(),
+            "nonempty_child_goal" => connection.execute_batch("PRAGMA foreign_keys=OFF;INSERT INTO factory_child_goal_runs VALUES('run','scope','factory-scope','factory-run','task','root',NULL,'plan',1,1,printf('%064d',0),'{}');PRAGMA foreign_keys=ON;").unwrap(),
             "missing_table" => connection.execute_batch("DROP TABLE factory_scoped_handles;").unwrap(),
+            "missing_child_goal_table" => connection.execute_batch("DROP TABLE factory_child_goal_runs;").unwrap(),
             "wrong_version" => connection.execute_batch("PRAGMA user_version=12;").unwrap(),
+            "old_current14" => connection.execute_batch("PRAGMA user_version=14;").unwrap(),
+            "factory_extra_column" => connection.execute_batch("ALTER TABLE factory_budget_reservations ADD COLUMN unknown_fixture_field TEXT;").unwrap(),
+            "factory_extra_index" => connection.execute_batch("CREATE INDEX unknown_factory_index ON factory_runs(state);").unwrap(),
+            "native_scope_extra_column" => connection.execute_batch("ALTER TABLE goal_scopes ADD COLUMN unknown_fixture_field TEXT;").unwrap(),
+            "native_run_extra_index" => connection.execute_batch("CREATE INDEX unknown_fixture_index ON goal_runs(task_id);").unwrap(),
+            // Inert raw schema corruption, NOT a Native approval or a usable
+            // Store fixture. All existing15 FKs hold; restoring the native
+            // proposal FK must fail late and roll back the whole inverse.
+            "missing_native_proposal_fk" => connection.execute_batch("INSERT INTO tasks VALUES('inert-task','{}');INSERT INTO projects VALUES('inert-project','{}','fixture-dev','fixture-ino','/inert-private-fixture');INSERT INTO execution_grants VALUES('inert-grant','inert-project',NULL,'{}');INSERT INTO goal_scopes VALUES('missing-proposal','inert-task','inert-grant',1,0,'{}');").unwrap(),
+            "late_rebuild_collision" => connection.execute_batch("CREATE TABLE goal_runs_pre_factory(sentinel BLOB);").unwrap(),
             _ => unreachable!(),
         }
+        if variant == "missing_native_proposal_fk" {
+            assert!(!connection
+                .prepare("PRAGMA foreign_key_check")
+                .unwrap()
+                .exists([])
+                .unwrap());
+        }
+        // Main-file bytes alone miss committed WAL changes. Read the entire
+        // logical database on this same connection after variant setup.
+        assert!(connection.is_autocommit(), "{variant}");
+        let logical_before = fixture_logical_snapshot(&connection);
         let before = fs::read(&database).unwrap();
         assert!(
             pre_factory_schema::remove_empty_factory_increment(&connection).is_err(),
             "{variant}"
         );
-        assert_eq!(fs::read(&database).unwrap(), before, "{variant}");
+        let logical_after = fixture_logical_snapshot(&connection);
+        assert!(
+            logical_after == logical_before,
+            "logical rollback: {variant}"
+        );
+        assert!(
+            fs::read(&database).unwrap() == before,
+            "main-file rollback: {variant}"
+        );
+        assert!(connection.is_autocommit(), "{variant}");
+        assert!(
+            connection
+                .pragma_query_value::<bool, _>(None, "foreign_keys", |r| r.get(0))
+                .unwrap(),
+            "{variant}"
+        );
     }
+}
+
+#[test]
+fn fixture_inverse_caller_failure_rolls_back_complete_wal_database_and_pragmas() {
+    let (_directory, database, connection) = fresh_factory_fixture();
+    connection.execute_batch("CREATE TABLE fixture_caller_collision(raw BLOB);INSERT INTO fixture_caller_collision VALUES(x'00ffdeadbeef');PRAGMA foreign_keys=ON;").unwrap();
+    assert_eq!(
+        connection
+            .pragma_query_value::<String, _>(None, "journal_mode", |r| r.get(0))
+            .unwrap(),
+        "wal"
+    );
+    let logical_before = fixture_logical_snapshot(&connection);
+    let before = fs::read(&database).unwrap();
+    let foreign_keys: bool = connection
+        .pragma_query_value(None, "foreign_keys", |r| r.get(0))
+        .unwrap();
+    connection
+        .pragma_update(None, "foreign_keys", false)
+        .unwrap();
+    let mut reached_caller_ddl = false;
+    let mut inner_version = None;
+    let generated = (|| -> rusqlite::Result<()> {
+        let transaction = connection.unchecked_transaction()?;
+        pre_factory_schema::remove_empty_child_goal_increment(&transaction)?;
+        let version: u32 = transaction.pragma_query_value(None, "user_version", |r| r.get(0))?;
+        inner_version = Some(version);
+        if version != 14 {
+            return Err(rusqlite::Error::InvalidQuery);
+        }
+        reached_caller_ddl = true;
+        transaction.execute_batch("DROP TABLE factory_child_plan_heads;DROP TABLE factory_child_plan_revisions;PRAGMA user_version=13;CREATE TABLE fixture_caller_collision(sentinel TEXT);")?;
+        transaction.commit()
+    })();
+    let restored = connection.pragma_update(None, "foreign_keys", foreign_keys);
+    assert_eq!(
+        inner_version,
+        Some(14),
+        "inner inverse must complete before the caller fault"
+    );
+    assert!(
+        reached_caller_ddl,
+        "must test the caller's late failure, not an early guard"
+    );
+    // Bundled modern SQLite reports prepare-time token offsets through SqlInputError.
+    let fixed_collision = match &generated {
+        Err(rusqlite::Error::SqliteFailure(error, Some(message))) => {
+            error.extended_code == rusqlite::ffi::SQLITE_ERROR
+                && message == "table fixture_caller_collision already exists"
+        }
+        Err(rusqlite::Error::SqlInputError {
+            error,
+            msg,
+            sql,
+            offset,
+        }) => {
+            error.extended_code == rusqlite::ffi::SQLITE_ERROR
+                && msg == "table fixture_caller_collision already exists"
+                && sql == "CREATE TABLE fixture_caller_collision(sentinel TEXT);"
+                && *offset == 13
+        }
+        _ => false,
+    };
+    assert!(fixed_collision, "expected the fixed caller DDL collision");
+    restored.unwrap();
+    let logical_after = fixture_logical_snapshot(&connection);
+    assert!(
+        logical_after == logical_before,
+        "caller failure must restore all logical history"
+    );
+    assert!(
+        fs::read(&database).unwrap() == before,
+        "caller failure must preserve main-file bytes"
+    );
+    assert!(connection.is_autocommit());
+    assert!(connection
+        .pragma_query_value::<bool, _>(None, "foreign_keys", |r| r.get(0))
+        .unwrap());
+    assert!(!connection
+        .prepare("PRAGMA foreign_key_check")
+        .unwrap()
+        .exists([])
+        .unwrap());
 }

@@ -58,7 +58,7 @@ fn live_definition(
     db: &Connection,
     record: &ScopeRecord,
     rule: &str,
-    p: &ApprovalProposal,
+    p: &GraphAuthority,
 ) -> Result<ResolvedValidator> {
     let def = record
         .refs
@@ -105,7 +105,7 @@ fn normalized_io(
     producer: &GraphCandidateReceipt,
     refs: &[GraphArtifactReference],
     def: &ResolvedValidator,
-    p: &ApprovalProposal,
+    p: &GraphAuthority,
     reservation: &AttemptReservation,
 ) -> Result<PreparedGoalValidator> {
     if refs.is_empty()
@@ -246,7 +246,7 @@ fn normalized_io(
         }
     };
     Ok(PreparedGoalValidator {
-        approval_id: p.id.clone(),
+        approval_id: p.approval_id().into(),
         definition_revision: def.digest.clone(),
         subject,
         workspace: record.refs.workspace.identity.clone().ok_or_else(changed)?,
@@ -313,7 +313,7 @@ impl Store {
                 consumed.push(item);
             }
         }
-        let binding = scope_view(&record, &scope)?.binding;
+        let binding = scope_view(&self.conn, &record, &scope)?.binding;
         let task = self.get(&r.task_id)?;
         let lease = self
             .workspace_lease(&record.refs.workspace.id)?
@@ -328,7 +328,7 @@ impl Store {
             id: Uuid::new_v4().to_string(),
             attempt_id: Uuid::new_v4().to_string(),
             task_id: r.task_id.clone(),
-            root_task_id: r.task_id.clone(),
+            root_task_id: root_task(&record).into(),
             state: crate::execution::IntentState::Prepared,
             executor_instance: None,
             binding: binding.clone(),
@@ -362,9 +362,10 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
+        preflight_factory_goal_reservation(&tx, &context, self.data_input.as_ref())?;
         for key in [
             format!("project:{}", r.project_id),
-            format!("root:{}", r.task_id),
+            format!("root:{}", root_task(&record)),
         ] {
             if tx.execute("UPDATE budgets SET consumed=consumed+1,active=active+1 WHERE scope=?1 AND consumed<total_limit AND active<parallel_limit",[key]).map_err(db_error)?!=1{return Err(err("RESOURCE_LIMIT","Shared project/root attempt budget is exhausted"));}
         }
@@ -373,7 +374,7 @@ impl Store {
             params![
                 intent.attempt_id,
                 r.task_id,
-                r.task_id,
+                root_task(&record),
                 encode(&binding)?,
                 format!(
                     "goal-validator:{}:{}:{}",
@@ -392,6 +393,7 @@ impl Store {
             &context,
             GoalAttemptTarget {
                 attempt_id: &intent.attempt_id,
+                intent_id: &intent.id,
                 task_id: &r.task_id,
                 grant_id: &r.root_grant_id,
                 session: None,
@@ -435,6 +437,14 @@ impl Store {
             "goal.validator_prepared",
             json!({"job_id":origin.id,"origin_digest":sha(&origin)?,"node_id":origin.node_id,"attempt_id":origin.attempt_id,"intent_id":origin.intent_id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"definition_digest":origin.definition_digest,"reservation":origin.reservation,"executor_started":false,"task_accepted":false}),
         )?;
+        seal_factory_goal_read(
+            &tx,
+            &context,
+            &origin.attempt_id,
+            &origin.intent_id,
+            None,
+            self.data_input.as_ref(),
+        )?;
         tx.commit().map_err(db_error)?;
         Ok(Some(PreparedGraphValidation {
             origin,
@@ -476,6 +486,7 @@ impl ValidatorWorkers {
                 queued_at.elapsed(),
             );
         }
+        store.consume_factory_validator_read(&origin)?;
         // The irreversible boundary is durable before any thread or child can
         // execute. A failed thread constructor is a distinct not-started proof.
         store.mark_dispatch_started(&origin.intent_id, &origin.id)?;
@@ -1259,4 +1270,62 @@ pub(super) fn node_job_id(db: &Connection, r: &GoalRun, n: &RuntimeNode) -> Resu
     )
     .optional()
     .map_err(db_error)
+}
+
+impl Store {
+    fn consume_factory_validator_read(&self, origin: &ValidatorOrigin) -> Result<()> {
+        let (r, _) = self.checked_validator_origin(origin)?;
+        if !factory::marked_run(&self.conn, &r.id)? {
+            return Ok(());
+        }
+        let n = node_records(&self.conn, &r.id)?
+            .into_iter()
+            .find(|n| n.node.id == origin.node_id)
+            .ok_or_else(changed)?;
+        factory::consume_committed_read(
+            &self.conn,
+            &r,
+            &n,
+            &origin.attempt_id,
+            &origin.intent_id,
+            None,
+            self.data_input.as_ref(),
+        )
+    }
+}
+
+pub(super) fn verify_pending_factory_validator(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    attempt: &str,
+    intent: &str,
+) -> Result<()> {
+    let id:String=db.query_row("SELECT id FROM goal_graph_jobs WHERE run_id=?1 AND node_id=?2 AND attempt_id=?3 AND state='prepared'",params![r.id,n.node.id,attempt],|row|row.get(0)).map_err(db_error)?;
+    let (o, state) = origin_record(db, &id)?;
+    let scope: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
+    let lease: Option<(String, i64)> = db
+        .query_row(
+            "SELECT holder,fencing_token FROM workspace_leases WHERE resource=?1",
+            [&o.workspace_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .optional()
+        .map_err(db_error)?;
+    if state != "prepared"
+        || o.run_id != r.id
+        || o.node_id != n.node.id
+        || o.plan_revision != r.plan_revision
+        || o.plan_digest != r.plan_digest
+        || o.attempt_id != attempt
+        || o.intent_id != intent
+        || o.workspace_id != n.node.workspace_id
+        || o.reservation != n.node.reservation
+        || scope.refs.workspace.identity.as_ref() != Some(&o.root)
+        || sha(&checked_capability(db, r)?.snapshot)? != o.capability_digest
+        || lease != Some((String::new(), sql_num(o.writer_epoch)?))
+    {
+        return Err(changed());
+    }
+    Ok(())
 }

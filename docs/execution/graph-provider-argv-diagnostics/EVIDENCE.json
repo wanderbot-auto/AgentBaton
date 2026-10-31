@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-TSK-010"
+  ],
+  "work_package": "WP08",
+  "recorded_at": "2026-10-30T22:38:43.830736+00:00",
+  "baseline": "71fd73958dd6b340bf030c0e747cd392fa82cc72",
+  "source_commit": "ebd79d1fde6ef0b4858b562b71ba31f984be2735",
+  "tests_commit": "95622051e468370ed53b0bb9fe0abcae3939bac1",
+  "state": "source_and_pure_projection_verified; actual_runtime_not_run",
+  "prior_ci": {
+    "product_run": 41113871143,
+    "UI_job": 124262920963,
+    "candidate": "71fd73958dd6b340bf030c0e747cd392fa82cc72",
+    "synthetic_checkout": "ccbe6b9757337c0c7cdba3f76be759b6ec6e4aa1",
+    "summary_artifact": 13004897903,
+    "zip_sha256": "9ac47ce15b4344d0ab70b3884181c6e06a1a2f7c61207896eec51fab474dcc1d",
+    "confirmed": "Graph argv compound assertion at old driver742 during post-child-cancel observation; CG01/CG02 only; cleanup_complete=false",
+    "not_proven": "Exact argv empty/oversized/NUL reason and actual join states not public; not a natural empty-argv reproduction"
+  },
+  "source_sha256": {
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": "94a76318d3c352a0608fd799b1c910f7cb005d295fe2e272fb2e161c417fd941",
+    "scripts/record-child-goal-ci-evidence.py": "8318ec242e91f15a1c5beee6e471f55903fd63305affa605d67edd83dc7e3b3b",
+    "tests/infrastructure/test_graph_provider_argv_diagnostics.py": "f4e3d1073d93ea0f31e25542f48a25a62c53603e02f323715967df6d067f4ee1"
+  },
+  "changes": {
+    "driver": "Only exact old argv bounds/NUL/decoded-last3 guard call replaced; all other driver bytes unchanged",
+    "fixed_reason_vocabulary": [
+      "empty",
+      "oversized",
+      "missing_nul",
+      "argv_mismatch"
+    ],
+    "previously_bound": "strict bool derived from old is not None after original old==fixed check",
+    "finite_version": 2,
+    "legacy_version1": "Original exact fields/types/caps/vocabulary remain accepted; extra v2 field on v1 refused",
+    "new_fields": "graph_provider_argv null or exact reason/previously_bound fields; no raw argv, IDs, paths, message or token",
+    "acceptance": "Failure still AssertionError; strict UTF8 decode failure keeps ValueError class; new positive argv failure metadata cannot claim pass even with contradictory green report",
+    "no_new_IO_or_cancel_inference": true,
+    "no_retry_or_deferral": true,
+    "original_identity_PGID_checks_unchanged": true,
+    "budgets_timeouts_permissions_unchanged": true
+  },
+  "actual_pure_results": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_graph_provider_argv_diagnostics.py"
+      ],
+      "exit": 0,
+      "test_count": 13,
+      "seconds": 0.1442853449843824,
+      "log": "/workspace/.onboarding/graph-provider-argv-diagnostics-source1/new-13-final.log",
+      "sha256": "ee1db5279c9a044fc58a4198a02cacb2fa57db913251f82c638f925fa9b4cb77"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_child_goal_finite_diagnostics.py"
+      ],
+      "exit": 0,
+      "test_count": 13,
+      "seconds": 0.19898648897651583,
+      "log": "/workspace/.onboarding/graph-provider-argv-diagnostics-source1/old-finite-13-final.log",
+      "sha256": "c429da3bc1701a81e712cef2bcd1ddd3aa5c126576b967245f67132c8c24026d"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_child_goal_ci_evidence.py"
+      ],
+      "exit": 0,
+      "test_count": 13,
+      "seconds": 0.24144404398975894,
+      "log": "/workspace/.onboarding/graph-provider-argv-diagnostics-source1/old-publisher-13-final.log",
+      "sha256": "ac023c0a6fff8d0080e9601dc95608d1e582a2fda612489d1d51892a68d02da0"
+    }
+  ],
+  "pure_total": 39,
+  "static_checks": {
+    "original_driver_bytes_except_exact_guard_call": true,
+    "no_new_runtime_IO": true,
+    "guard_helpers_static_no_IO": true,
+    "original_versions_and_keys_checked_explicitly": true,
+    "original_finite_recorder_methods_except_failure_AST_unchanged": true,
+    "original_reply_vocabulary_and_caps_AST_unchanged": true
+  },
+  "private_local_records": {
+    "run_results": {
+      "path": "/workspace/.onboarding/graph-provider-argv-diagnostics-source1/RUN_RESULTS.json",
+      "sha256": "bafb3dd5c2c180c28b4b344d9f2c5c35ccf5a7f37ffd95ae2d0523a49d774aa5"
+    },
+    "static_checks": {
+      "path": "/workspace/.onboarding/graph-provider-argv-diagnostics-source1/STATIC_CHECKS.json",
+      "sha256": "d0fbd91da367190b1913a0ea5c7533c7a84c4beab8cd6cdf6833425aece93d0b"
+    }
+  },
+  "initial_failure": {
+    "kind": "author SyntaxError missing closing parenthesis before any product execution",
+    "recorded_import_failure_runs": [
+      {
+        "path": "/workspace/.onboarding/graph-provider-argv-diagnostics-source1/new-tests.log",
+        "sha256": "b6cf31b6359166e40bbd41d2d44e6d291272948ff6492a2781eeee44ff59e29e"
+      },
+      {
+        "path": "/workspace/.onboarding/graph-provider-argv-diagnostics-source1/old-finite-tests.log",
+        "sha256": "f5ac1a6cc7aeb026425a3ce286a3299e6d1199fe2024b7e71c19a7c72355bceb"
+      },
+      {
+        "path": "/workspace/.onboarding/graph-provider-argv-diagnostics-source1/old-publisher-tests.log",
+        "sha256": "cfcc134dcf2ec61faced389e034f60db1fd0b249b1111c0126aa279b561f3903"
+      }
+    ],
+    "retained": true,
+    "corrected_before_final_39_tests": true
+  },
+  "runtime": {
+    "Core": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "Actor": "NOT_RUN",
+    "generated_Agent_fixture": "NOT_RUN",
+    "Mac_ARM": "NOT_RUN",
+    "Mac_Intel": "NOT_RUN",
+    "CI": "NOT_RUN"
+  },
+  "review": "independent review pending; author checks are not independent review",
+  "not_claimed": [
+    "fixed UI cancellation race",
+    "natural empty argv reproduction",
+    "successful Core daemon or Graph join",
+    "full requirement acceptance",
+    "new execution permission"
+  ],
+  "root_actual_results": "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
+  "author_not_run_fields_are_historical": true
+}

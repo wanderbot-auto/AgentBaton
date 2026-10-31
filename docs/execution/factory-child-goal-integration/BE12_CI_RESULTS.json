@@ -1,0 +1,82 @@
+{
+  "recorded_at": "2026-10-29T21:23:38.990411+00:00",
+  "head": "be12ec41bc9700d116381994cf787064e30e2ddb",
+  "actual_checkout": "70e9596443ffad7e308e20dd3bab07d2c9483b17",
+  "base": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "Environment": {
+    "run": 40954313788,
+    "result": "all3SUCCESS"
+  },
+  "Product": {
+    "run": 40954313798,
+    "UI": "SUCCESS",
+    "Rust": {
+      "job": 123730300802,
+      "result": "FAILURE",
+      "prior_Factory_runtime": "25PASS/102.52s including rework; not remote timing root-cause resolution",
+      "failed_target": "factory_scope",
+      "group": "10PASS1FAIL/9.67s",
+      "test": "unsupported_factory_capabilities_and_cross_project_or_unapproved_targets_never_create_proposals",
+      "location": "crates/core/tests/factory_scope.rs:246",
+      "expected": "CAPABILITY_UNSUPPORTED",
+      "observed": "INVALID_REQUEST",
+      "dynamic_field": "not printed; do not infer direct observed loop field",
+      "source_interpretation": "Current production distinct missing planning/execution policies; exact test-only contract8028043 independently reviewed and local11PASS/Clippy; newCI NOT_RUN"
+    },
+    "ARM": {
+      "job": 123730301228,
+      "result": "FAILURE",
+      "group": "21PASS1FAIL/192.76s",
+      "original55s_read_observation": {
+        "phase": "wait_rework_awaiting_owner",
+        "method": "factory_child_goals.get",
+        "call_number": 68,
+        "call_elapsed_ms": 825,
+        "overdue_ms": 768,
+        "scenario_elapsed_ms": 61962,
+        "scope_remaining_ms": 930,
+        "plan_revision": 2,
+        "node_count": 6,
+        "reply_is_error": false
+      }
+    },
+    "Intel": {
+      "job": 123730301506,
+      "result": "FAILURE",
+      "group": "21PASS1FAIL/202.05s",
+      "original55s_read_observation": {
+        "phase": "wait_rework_awaiting_owner",
+        "method": "factory_runs.get",
+        "call_number": 63,
+        "call_elapsed_ms": 527,
+        "overdue_ms": 127,
+        "scenario_elapsed_ms": 61518,
+        "scope_remaining_ms": 1376,
+        "run_revision": 8,
+        "run_completed": false,
+        "run_outcome_unknown": false,
+        "reply_is_error": false
+      }
+    },
+    "Mac_following_native_WebView_Owner_build_audit_package": "SKIPPED; no new installer"
+  },
+  "logs": {
+    "rust": {
+      "sha256": "f8534b3abc35f632b0f41e088c807668781e050f3cdc51dd983cd6010928230b",
+      "bytes": 77894
+    },
+    "arm": {
+      "sha256": "f9823a2badb081742f0e43b7b4688e71f099e3d221acf8e5ed2af0a6282c599f",
+      "bytes": 170473
+    },
+    "intel": {
+      "sha256": "bfde4e9dcbfab8c95145a8a92f50d7f741a62effb08dd624e778a9b2806ddf22",
+      "bytes": 194651
+    }
+  },
+  "limits": [
+    "Both Mac failures crossed test observation clock before Owner milestone; replies under5s and scopes still unexpired. This does not prove all latency cause or Owner readiness.",
+    "Fixture repeatedly serializes overlapping Factory/summary/fullview; bounded reduction being implemented, no production performance/rootcause claim. Original55/60/30/5/60 unchanged.",
+    "Full130 still partial; no formalApprove/merge/newProvider/account/spend/production/signing/license"
+  ]
+}

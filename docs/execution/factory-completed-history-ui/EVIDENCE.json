@@ -1,0 +1,187 @@
+{
+  "recorded_at": "2026-10-29T16:31:42.357086+00:00",
+  "source_commit": "ed20558be57b153272a0c7c7189e739a7c2b1475",
+  "base": "20c568dc575189b5c07bb18dd7e7f39f66982534",
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-011"
+  ],
+  "authorization": "AB-START-001; ACK OWNER-001/002; Root necessary guard path explicitly added",
+  "status": "INDEPENDENT_SOURCE_READY_FOR_ROOT_TESTS_ALL_NEW_EXECUTION_NOT_RUN",
+  "actual_original_result": "FAIL",
+  "actual_business_phase": "CG05 PASSED; distinct from final history DOM failure",
+  "actual_business_finite": {
+    "child_Task_state": "accepted",
+    "child_Task_revision": 5,
+    "acceptance_sequence": 67,
+    "Task_reference_matches_real_Graph_acceptance": true,
+    "Graph_task_accepted": true,
+    "Factory_child_handoff_acceptance_state": "task_accepted",
+    "handoff_validation_ref_matches_acceptance": true,
+    "original_scope_and_execution_policy_and_origin_match": true
+  },
+  "original_report_sha256": "2f0d6909e1a779e46ab680e5cdc8f10bf1526ae76508d1ce6c8aff216a7754cc",
+  "actual_compiled_core_source": "63638a2b4852ee1a5bebe0cfee8e8d93b2ffc1a6",
+  "completed_family_projections": [
+    {
+      "http_index": 211,
+      "run_revision": 9,
+      "run_state": "completed",
+      "active_session": false,
+      "active_task": false,
+      "root": {
+        "revision": 19,
+        "state": "result_available",
+        "attempt_present": true,
+        "confirmed_stop": true,
+        "result_available": true
+      },
+      "derived_child": {
+        "revision": 4,
+        "state": "result_available",
+        "attempt_id": null,
+        "confirmed_stop": true,
+        "result_available": true,
+        "cancel_requested": false,
+        "scope_and_root_and_parent_match": true
+      }
+    },
+    {
+      "http_index": 222,
+      "run_revision": 9,
+      "run_state": "completed",
+      "active_session": false,
+      "active_task": false,
+      "root": {
+        "revision": 19,
+        "state": "result_available",
+        "attempt_present": true,
+        "confirmed_stop": true,
+        "result_available": true
+      },
+      "derived_child": {
+        "revision": 4,
+        "state": "result_available",
+        "attempt_id": null,
+        "confirmed_stop": true,
+        "result_available": true,
+        "cancel_requested": false,
+        "scope_and_root_and_parent_match": true
+      }
+    },
+    {
+      "http_index": 232,
+      "run_revision": 9,
+      "run_state": "completed",
+      "active_session": false,
+      "active_task": false,
+      "root": {
+        "revision": 19,
+        "state": "result_available",
+        "attempt_present": true,
+        "confirmed_stop": true,
+        "result_available": true
+      },
+      "derived_child": {
+        "revision": 4,
+        "state": "result_available",
+        "attempt_id": null,
+        "confirmed_stop": true,
+        "result_available": true,
+        "cancel_requested": false,
+        "scope_and_root_and_parent_match": true
+      }
+    }
+  ],
+  "exact_old_guard_refusals": [
+    {
+      "http_index": 211,
+      "old_refused_expression": "t.attempt_id===null && t.confirmed_stop",
+      "refused_row": "exact accepted derived child",
+      "count": 1
+    },
+    {
+      "http_index": 222,
+      "old_refused_expression": "t.attempt_id===null && t.confirmed_stop",
+      "refused_row": "exact accepted derived child",
+      "count": 1
+    },
+    {
+      "http_index": 232,
+      "old_refused_expression": "t.attempt_id===null && t.confirmed_stop",
+      "refused_row": "exact accepted derived child",
+      "count": 1
+    }
+  ],
+  "scope_expired_at_failure_PNG": true,
+  "grant_read_count": 1,
+  "source_map": {
+    "apps/desktop/src/FactoryChildGoals.tsx": {
+      "sha256": "bc084dea16c10fddfb7ab837b0e6d7e593dbb5a51a207d30045f90863659d5bc",
+      "bytes": 24604,
+      "git_blob": "2cb714ffe998499d8798c5e83d108886aef31e17"
+    },
+    "apps/desktop/src/FactoryRuntime.completed-history.test.tsx": {
+      "sha256": "0c7a8e5670d2feae5d04034da8f07b54ac35f289eaa2e79bf188fb34c8ad2c77",
+      "bytes": 5117,
+      "git_blob": "f16b893e7de397739d423f4ad0fc29d787612f6e"
+    },
+    "apps/desktop/src/FactoryRuntime.tsx": {
+      "sha256": "94304febcdafcddb3413ca10c25cc6590f11ce608e568193e7306ad9752b0a7e",
+      "bytes": 20241,
+      "git_blob": "8611420cae47135ac4be2463b03cd2417662cee0"
+    },
+    "apps/desktop/src/factory-guards.test.ts": {
+      "sha256": "ae397e70b7952b54c705af96241b8bf30d8c753589edaba38687b8f0823273f4",
+      "bytes": 10946,
+      "git_blob": "f6549f0410e64e0e5b488fbd134400e801987449"
+    },
+    "apps/desktop/src/factory-guards.ts": {
+      "sha256": "0167b9d18f0822d5176dff071b0e710647f4a1f4e77a896f123fc695332eba00",
+      "bytes": 19680,
+      "git_blob": "5507b6774a0cf35e7865d5613f74298f14895054"
+    }
+  },
+  "static_checks": {
+    "Root_readonly_call_scope_parameter_only": true,
+    "ChildGoal_readonly_call_scope_parameter_only": true,
+    "all_other_original_task_shape_and_terminal_lineage_checks_unchanged": true,
+    "old_three_argument_contract_stays_strict": true,
+    "mutable_permission_live_CAS_send_intent_cancel_unchanged": true,
+    "no_provider_attempt_fabricated": true,
+    "git_diff_check_exit": 0
+  },
+  "new_tests": {
+    "guard_cases": 20,
+    "component_cases": 5,
+    "execution": "NOT_RUN"
+  },
+  "new_execution_not_run": [
+    "typecheck",
+    "focused/full Node",
+    "build",
+    "actual browser",
+    "Cargo/Core/Actor",
+    "Native OS/Provider/CI"
+  ],
+  "originals_preserved": {
+    "count": 616,
+    "wire_sha_count": 328,
+    "capturefailure": 0,
+    "capacityrejection": 0,
+    "private_DB_RPC_Grant_copied": false
+  },
+  "independent_directory": "/workspace/.onboarding/factory-completed-history-ui",
+  "independent_review": {
+    "status": "SOURCE_READY_FOR_ROOT_TESTS",
+    "source": "ed20558be57b153272a0c7c7189e739a7c2b1475",
+    "static_inverse_formula_checks": 53,
+    "exit": 0,
+    "diff_check_exit": 0,
+    "must_fix": [],
+    "types_Node_browser": "NOT_RUN",
+    "report": "/workspace/.onboarding/factory-completed-history-ed20558-independent-review/REVIEW.md",
+    "report_sha256": "9bb8a564cbe642fd18d52370f045f0e968eb1791bd202ba2eb72df9c0552e42c",
+    "manifest_sha256": "1c499b43af7f4c26a12b066d155128d70b1e48bea4971d2a14ed9e3e1a3317a9"
+  }
+}

@@ -6,3 +6,8 @@ exclude = ["tools/environment-smoke", "apps/desktop/src-tauri"]
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+# Keep complete executable/input integrity verification practical in dev/tests.
+# Test inherits dev; release already optimizes this unchanged SHA-256 library.
+[profile.dev.package.sha2]
+opt-level = 3

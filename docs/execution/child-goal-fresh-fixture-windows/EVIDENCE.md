@@ -1,0 +1,11 @@
+# Evidence
+
+Finite previous actual evidence (private originals retained): normal CG01/CG02/CG05 passed, overall failed on later history/shape timeout. Lost-start CG03 reconciliation passed, overall failed: original Grant expiry1793290537714ms, DB sequence75 dispatch at16:15:37.709061977Z, sequence76 correct grant_revoked_or_expired stop at16:15:37.715454278Z. DB column sequence is authoritative; stored event JSON's sequence placeholder is not substituted for it.
+
+Cancel DB sequence58 settled at16:20:31.236121935Z after4001ms, state outcome_unknown with stop_confirmed true. Actual cancel event sequence60 was16:20:32.331154191Z, approximately1095ms later. No cancelled assertion is weakened to accept that response. Full data/Grant/RPC stays private; original SHA digests and limited timing evidence are in OLD_TIMING_EVIDENCE.json.
+
+Actual pure command `python3 -B apps/desktop/tests/factory-child-goal-real-ipc.py --self-check --output /workspace/.onboarding/child-goal-fresh-fixture-windows/self-check1`: exit0,316 fixed-boundary/fake-query/source checks passed; report explicitly NO Core/SQLite migration/browser/OS approval/process execution. It constructs all three actual generated plan source blocks using synthetic contexts, checks unchanged ceilings/context, exact saved raw UTF8/SHA guard, Owner1000 ordering and cancel-only initial10s/12s declarations. Negative old30s wall and cancel4s/5s mutations fail.
+
+Default CLI was executed only without --run: pending_dependencies/NOT_RUN.json, exit2. AST proof main is byte-structure unchanged. Runtime driver AST equals20c baseline after normalizing exactly three initial60000 literals back to30000. Generated ACP entire bytes equal baseline after normalizing exactly the two mode-specific declarations, proving all parent gates, response waits, normal behavior and underlying helper controls remain intact. AST/source checker expected filename was corrected from report.json to self-check.json; this is a source-check error, not product success/failure.
+
+No actual new Native approval, browser/daemon/Actor, storage migration, Cargo, npm or runtime case executed. Root's independent review and actual exclusive rerun remain required. No guarantee that a new fixture fits observed timing; any remaining expiry, unknown or unjoined result must fail honestly.

@@ -1,0 +1,90 @@
+{
+  "requirement_ids": [
+    "AB-TSK-004",
+    "AB-TSK-008",
+    "AB-TSK-011",
+    "AB-SEC-001"
+  ],
+  "base_commit": "52dd3463efa3c104c58cf5e82bf752302384c189",
+  "ci": {
+    "run": 41149970320,
+    "job": 124383908356,
+    "artifact": 13022786566,
+    "zip_sha256": "8d1727d8f53f5ea97e1584168930709e89aa9eebd538a4a21fd585986ab72eac",
+    "zip_hash_verified_by": "Root; not repeated by child",
+    "retained_report": "/workspace/.onboarding/pr18-head52-evidence/factory-child-planning/report.json",
+    "report_sha256": "998359f22f49a7928fd8b945032069fb4d75724982a0501ced7ada21811d772c",
+    "actual_manifest_merge_checkout": "5db377584938f67c173e27de3578ee2715fb6aad",
+    "actual_manifest_tree": "fac5f569091bf4d0a3c3e2bb233ebec5673a4e75"
+  },
+  "actual_evidence": {
+    "passed_check_ids": [
+      "CP01",
+      "CP02",
+      "CP03",
+      "CP04",
+      "CP05",
+      "CP06",
+      "CP07"
+    ],
+    "screenshots": 4,
+    "http_total": 198,
+    "submit_total": 6,
+    "raw4_submits": 0,
+    "deliberate_drops": 0,
+    "incomplete_responses": 0,
+    "http_unexpected_errors": [],
+    "readonly_aborts": [],
+    "last_submit_utc_ms": 1793406555754,
+    "last_http_utc_ms": 1793406560905,
+    "earliest_approval_expiry_ms": 1793406575885,
+    "plan_revisions_final": 5,
+    "child_goal_runs_final": 0,
+    "failure": "runtime_driver1139 unknown root alert absent; later child Goal suites never ran"
+  },
+  "hypothesis": "single click may be swallowed by freshness/disabled transition or a local guard/refusal; retained report lacks event-level proof",
+  "changes": "bounded passive click/DOM/request evidence; no waits/timeout changes or automatic mutation/replay; original acceptance assertions retained",
+  "static_checks": [
+    {
+      "command": "ast.parse(harness text); no import/module execution",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "not_run": [
+    "harness self-checks",
+    "browser",
+    "actual IPC/SQLite",
+    "Cargo",
+    "product TypeScript fixes/tests",
+    "network/CI",
+    "native/macOS",
+    "real Provider",
+    "independent review"
+  ],
+  "scope": "source-only diagnostic; not product completion or a proven race fix",
+  "prior_candidate_source_sha256": "47c7db83ad0958085a0a916e56c5b985266caab8ed9a96f90e8775dbbc06644c",
+  "candidate_source_sha256": "58a415a097cd5bf73ca32de053565bcc07b556a4d8e4ba244ebe117fdd2e7278",
+  "review_closure": {
+    "prior_commit": "8e914819c4958f81a66c8dc2276e7d5775cc156a",
+    "prior_status": "CHANGES_REQUIRED",
+    "findings": [
+      "Locator cleanup could add default15s wait on detached button",
+      "permissive JSON matching could collapse duplicate keys or match extra fields"
+    ],
+    "source_changes": [
+      "immediate unique page.evaluate_handle install; direct retained JSHandle finish",
+      "independent bounded exception capture at install/callback/remove/finish/dispose; original error preserved",
+      "bounded unique-key finite JSON plus existing exact decode_envelope and raw4 scope/task/CAS match"
+    ],
+    "new_pure_self_check_source": {
+      "positive": 1,
+      "negative": 9,
+      "status": "not_run"
+    },
+    "status": "source closure awaiting independent re-review/runtime"
+  }
+}

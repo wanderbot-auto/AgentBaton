@@ -1,0 +1,611 @@
+{
+  "recorded_at": "2026-10-30T04:32:57.910319+00:00",
+  "integration_head_before_metadata": "0b3d4f9e33cd9a8b660258b024259810c62adc4e",
+  "approval": "AB-START-001",
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "implementation": "diagnostics only: same queued_at thread start/return/join metrics; original producer+max(queue,captured elapsed) accounting/reconcile/admission/fresh authority/unknown/Drop unchanged; priority optimization withdrawn",
+  "reviewed_source": {
+    "Rust": "8af8ade4ef298f677b821a920b6771017351bf11",
+    "projection": "84853a94a6b2830db0f1ece3fca5e37314b19eaf",
+    "stdout_tool_sizes": "0caa8c9ab9d1c3e53f2287cc503fc94fa19af951"
+  },
+  "independent_reviews": {
+    "capture_source": {
+      "review_sha256": "3c9442de01b167767c43409c079d71c62ee4dffae23e15550280e205bda19ed7",
+      "manifest_sha256": "c92669d0d401bf45e344213490e27b3a9d94d7bb8abae7e0b86ca691ac37bc38",
+      "dimension": "independent source/pure/static; actual Root runtime attributed separately"
+    },
+    "finite_projection": {
+      "review_sha256": "278036ac6891950a8471668e6bd6c5fc2c5747a56fb6756881573eee8121e7a7",
+      "manifest_sha256": "7ed7ef2db7b1b01d1d21452fd382842ba7b096ea45430ad33f8a4cbbecf86b9a",
+      "dimension": "independent source/pure/static; actual Root runtime attributed separately"
+    },
+    "tool_bytes": {
+      "review_sha256": "7b7595bd53b870c3d864c84d3868941fdc2abe1f3b3b2baf60f6920d1b8e41ae",
+      "manifest_sha256": "1c76aa41a6c4009a68f818c37097496f92eb265a2a3257edfc28c9c628a942a3",
+      "dimension": "independent source/pure/static; actual Root runtime attributed separately"
+    }
+  },
+  "actual_commands": {
+    "units1": {
+      "source": "6deb4ab2c8398cfd8af5353c47dca1eda4575e6c",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "capture_service_tests",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 15.54928135900991,
+      "minimum_free_bytes": 187813888,
+      "interruption": null,
+      "log_sha256": "92243a771f8741a3f0ec07279a54d2fd79427c7eb9b18540285bc824eef279f0",
+      "summaries": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 129 filtered out; finished in 0.11s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "core1": {
+      "source": "6deb4ab2c8398cfd8af5353c47dca1eda4575e6c",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 91.01316885900451,
+      "minimum_free_bytes": 209641472,
+      "interruption": null,
+      "log_sha256": "4c944dd53a70ded360ec161f2646f5fdb096ff775bcbf6c4dbf3bb7606361c1e",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 137 filtered out; finished in 0.00s",
+        "test result: ok. 138 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 90.91s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "factory1": {
+      "source": "6deb4ab2c8398cfd8af5353c47dca1eda4575e6c",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 128.47558641500655,
+      "minimum_free_bytes": 180563968,
+      "interruption": null,
+      "log_sha256": "2ed6de40d87ae3542edaf7638c43407a04ddf1def1649220de6311c297cab271",
+      "summaries": [
+        "test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 113.05s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "sessions1": {
+      "source": "6deb4ab2c8398cfd8af5353c47dca1eda4575e6c",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 192.81135606300086,
+      "minimum_free_bytes": 171204608,
+      "interruption": null,
+      "log_sha256": "3f54f573b4d51bb5eacf92fbea50c875f476d3fe00a6185043151fe5ecf2ed48",
+      "summaries": [
+        "test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 190.08s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "format1": {
+      "source": "6deb4ab2c8398cfd8af5353c47dca1eda4575e6c",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.0026994259969797,
+      "minimum_free_bytes": 209850368,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "clippy1": {
+      "source": "6deb4ab2c8398cfd8af5353c47dca1eda4575e6c",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 10.943156124005327,
+      "minimum_free_bytes": 209379328,
+      "interruption": null,
+      "log_sha256": "4921158190904d9e0eb77342be0efe838be54a28315497e63a4a05b3d599a6e9",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "infrastructure1": {
+      "source": "6deb4ab2c8398cfd8af5353c47dca1eda4575e6c",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 4.814020382007584,
+      "minimum_free_bytes": 209788928,
+      "interruption": null,
+      "log_sha256": "670b73fc31313117a46c58bdb9a06c2ab2bac83d11daaec754ee6ea3223c4a02",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "infrastructure2": {
+      "source": "0b3d4f9e33cd9a8b660258b024259810c62adc4e",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 4.7105567599937785,
+      "minimum_free_bytes": 170536960,
+      "interruption": null,
+      "log_sha256": "46b544588ac6b943baac76f8ec8c663ff6141cf574ad18967424289611f5dcfb",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "unique_counts_by_dimension": {
+    "Core": 138,
+    "new_nine_included_in_Core138": 9,
+    "Core_nested_helper_not_added": 1,
+    "Factory": 30,
+    "retained_overrun_four_included_in_Factory30": 4,
+    "sessions_IPC": 58,
+    "infrastructure": 195,
+    "not_a_sum": true
+  },
+  "actual_original_limit_controls": "Full58 includes actual_capture_prestart_queue_exhaustion_never_spawns_or_claims_an_io_join plus normal/Owner/cancel/revoke/timeout/unknown; original4/6/30/55/60 and5s boundaries preserved",
+  "actual_capture_phase_events": {
+    "source": "6deb4ab2c8398cfd8af5353c47dca1eda4575e6c",
+    "dimension": "post_owned_shutdown_historical_stored_capture_events_with_exact_job_origin; generated_local_ACP_not_realProvider_or_Mac",
+    "actual_factory_test_exit": 0,
+    "not_a_separate_test_or_pass": true,
+    "not_a_performance_or_root_cause_conclusion": true,
+    "raw_database_not_published": true,
+    "original_last_readonly_observation_preserved": true,
+    "captures": [
+      {
+        "plan_revision_from_exact_stored_job_origin": 1,
+        "binding": "event_job_id_to_private_origin_run_exact_match; not_last_IPC_observation_or_admission_instant",
+        "event": {
+          "kind": "goal.capture_settled",
+          "task_accepted": false,
+          "actual_runtime_ms": 1340,
+          "actual_output_bytes": 21,
+          "capture_state": "completed",
+          "capture_worker_joined": true,
+          "producer_stop_confirmed": true,
+          "producer_elapsed_ms": 1176,
+          "runtime_reservation_ms": 4000,
+          "capture_worker_started_queue_ms": 128,
+          "capture_worker_completed_queue_ms": 128,
+          "capture_join_observed_queue_ms": 164,
+          "capture_worker_elapsed_ms": 0,
+          "capture_timing_status": "observed",
+          "io_completion": "worker_joined"
+        }
+      },
+      {
+        "plan_revision_from_exact_stored_job_origin": 2,
+        "binding": "event_job_id_to_private_origin_run_exact_match; not_last_IPC_observation_or_admission_instant",
+        "event": {
+          "kind": "goal.capture_settled",
+          "task_accepted": false,
+          "actual_runtime_ms": 2447,
+          "actual_output_bytes": 20,
+          "capture_state": "completed",
+          "capture_worker_joined": true,
+          "producer_stop_confirmed": true,
+          "producer_elapsed_ms": 2054,
+          "runtime_reservation_ms": 4000,
+          "capture_worker_started_queue_ms": 224,
+          "capture_worker_completed_queue_ms": 225,
+          "capture_join_observed_queue_ms": 393,
+          "capture_worker_elapsed_ms": 0,
+          "capture_timing_status": "observed",
+          "io_completion": "worker_joined"
+        }
+      }
+    ]
+  },
+  "actual_capture_phase_projection_sha256": "8096065b12fac6793d1d4996c9984004a9274f76362fdbfe3f7d26b8199a927f",
+  "event_dimensions": "Actual persisted events bound to exact private stored job origins after owned shutdown, not the final IPC observation or admission-time snapshot. Original final readonly observation and rawDB are retained privately. Integer flooring can yield worker_elapsed0 while queue timestamp difference1; no fabricated zero for missing observations. This is not a separate test pass or controlled speedup.",
+  "earlier_UI_evidence": "Prior exact34f UI CI and f22 currentCore7 Linux browser paths remain source-attributed historical evidence. No new frontend changes; no UI/browser/Mac results relabelled as this diagnostic candidate. New exact CI still required.",
+  "previous_exact_remote34f": {
+    "head": "34f8b23d4fdd529caf4f7da6f949604f2746e0e9",
+    "Environment_run": 40996509853,
+    "Environment": "all3passed",
+    "Product_run": 40996509874,
+    "Product": "failure",
+    "UI": "success",
+    "Rust": "success",
+    "ARM": "success",
+    "Intel": "failure",
+    "synthetic_checkout": {
+      "observed_at": "2026-10-30T03:47:25.961602+00:00",
+      "head": "34f8b23d4fdd529caf4f7da6f949604f2746e0e9",
+      "head_tree": "4eae1aca1af3feb5b0181fb95d92e18b347ce4a2",
+      "ci_synthetic_checkout": "8f791778038edc09cc4175b4c7ee7ea6082cf8f3",
+      "synthetic_tree": "4eae1aca1af3feb5b0181fb95d92e18b347ce4a2",
+      "synthetic_parents": "653679db60d5c68f7e3c5b5e146ef58aed10de23 34f8b23d4fdd529caf4f7da6f949604f2746e0e9",
+      "not_an_actual_main_merge": true,
+      "same_tree": true
+    },
+    "ARM_actual_steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "success"
+      },
+      {
+        "name": "Toolchain",
+        "conclusion": "success"
+      },
+      {
+        "name": "Frontend dependencies and validation",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build genuine native schema14 history for the required migration gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Core and native host tests",
+        "conclusion": "success"
+      },
+      {
+        "name": "Migrate genuine native schema14 history with corruption and rollback controls",
+        "conclusion": "success"
+      },
+      {
+        "name": "Actual macOS WebView and daemon lifecycle acceptance",
+        "conclusion": "success"
+      },
+      {
+        "name": "Actual native Owner Grant dialog and private database acceptance",
+        "conclusion": "success"
+      },
+      {
+        "name": "Actual Native Factory planning approval and unchanged Grant evidence",
+        "conclusion": "success"
+      },
+      {
+        "name": "Retain bounded native migration metadata without private history",
+        "conclusion": "success"
+      },
+      {
+        "name": "Retain finite rework progress without private runtime data",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build desktop UI and application",
+        "conclusion": "success"
+      },
+      {
+        "name": "Audit the actual default release application for test controls",
+        "conclusion": "success"
+      },
+      {
+        "name": "Package development application and evidence",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ],
+    "ARM_public_job_log_sha256": "f2b50e68d1558ed27b38cbd9830c81f43dcd975ce82a8e997254137832e9a0c8",
+    "Intel_public_job_log_sha256": "2ab2581777498e0b053a8c78eb70161e2f9470fdc2d669a8e3916c1843406301",
+    "Intel_post_owned_shutdown_projection": {
+      "cases": [
+        {
+          "actor_thread_joined": true,
+          "code": "FINITE_PROJECTION_COLLECTED",
+          "daemon_result": "ok",
+          "last_readonly_observation": {
+            "approved_scope_remaining_ms": 26364,
+            "call_elapsed_ms": 1569,
+            "call_number": 32,
+            "configured_actor_request_budget_ms": 60000,
+            "configured_client_read_timeout_ms": 5000,
+            "list_progress": {
+              "cancel_requested": false,
+              "failure_code": "REWORK_REVISION2_TERMINAL",
+              "plan_digest_matches": true,
+              "plan_revision": 2,
+              "run_plan_revision": 2,
+              "run_revision": 12,
+              "run_state": "blocked",
+              "run_task_accepted": false,
+              "summary_count": 1,
+              "task_accepted": false
+            },
+            "method": "factory_child_goals.list",
+            "method_calls": {
+              "factory_child_goals.get": 0,
+              "factory_child_goals.list": 26,
+              "factory_runs.get": 6
+            },
+            "method_total_elapsed_ms": {
+              "factory_child_goals.get": 0,
+              "factory_child_goals.list": 28169,
+              "factory_runs.get": 509
+            },
+            "node_count": null,
+            "observation_overdue_ms": 0,
+            "observation_remaining_ms": 25038,
+            "phase": "wait_rework_awaiting_owner",
+            "plan_revision": null,
+            "received_before_original_deadline": true,
+            "reply_is_error": false,
+            "reply_object_supplied": true,
+            "reply_revision": 130,
+            "run_completed": null,
+            "run_outcome_unknown": null,
+            "run_revision": null,
+            "scenario_elapsed_ms": 36791,
+            "stage": "response_received",
+            "wall_ms": 1793331223863
+          },
+          "post_shutdown": {
+            "associated_events": {
+              "code": "same_observed_run_revision",
+              "events": [
+                {
+                  "actual_output_bytes": 20,
+                  "actual_runtime_ms": 4231,
+                  "capture_state": "failed",
+                  "capture_worker_joined": true,
+                  "io_completion": "worker_joined",
+                  "kind": "goal.capture_settled",
+                  "ordinal": 1,
+                  "producer_stop_confirmed": true,
+                  "task_accepted": false
+                }
+              ],
+              "observed_plan_revision": 2,
+              "observed_run_revision": 12,
+              "previous_node_settlement": {
+                "event": {
+                  "actual_output_bytes": 20,
+                  "actual_runtime_ms": 4231,
+                  "budget_overrun": true,
+                  "kind": "goal.node_settled",
+                  "node_state": "candidate",
+                  "observed_runtime_lower_bound_ms": 4231,
+                  "stop_confirmed": true,
+                  "task_accepted": false
+                },
+                "run_revision": 11,
+                "same_observed_revision": false,
+                "same_plan_not_established": true
+              },
+              "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+              "status": "collected_historical_events"
+            },
+            "budget_usage": {
+              "child": {
+                "settled_actual_runtime_ms": 17003,
+                "settled_count": 4,
+                "settled_runtime_unknown": false,
+                "unsettled_count": 0,
+                "unsettled_reserved_runtime_ms": 0
+              },
+              "code": "existing_ledger_and_child_records",
+              "not_an_authority_or_admission_verdict": true,
+              "project": {
+                "actual_runtime_ms": 19088,
+                "observed_attempts": 6,
+                "runtime_unknown": false
+              },
+              "root": {
+                "actual_runtime_ms": 19088,
+                "observed_attempts": 6,
+                "runtime_unknown": false
+              },
+              "snapshot_time": "post_owned_shutdown_not_admission_instant",
+              "status": "collected_post_shutdown_budget_facts"
+            },
+            "child_graph_count": 1,
+            "node_counts": {
+              "1:owner_approval:not_started": 1,
+              "1:validate:failed": 1,
+              "1:work:candidate": 1,
+              "2:owner_approval:not_started": 1,
+              "2:validate:not_started": 1,
+              "2:work:candidate": 1
+            },
+            "runs": [
+              {
+                "cancel_requested": false,
+                "plan_revision": "2",
+                "state": "blocked",
+                "task_accepted": false
+              }
+            ],
+            "schema": 15,
+            "validation_counts": {
+              "1:failed:passed_false:stopped_true:worker_joined": 1
+            },
+            "validation_observations": {
+              "1": {
+                "actual_runtime_ms": 2463,
+                "error_code": null,
+                "exit_code": 1,
+                "goal_io_state": "observed",
+                "process_started": true
+              },
+              "2": null
+            }
+          },
+          "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+          "status": "collected_post_shutdown",
+          "test_panicking": true
+        }
+      ],
+      "code": "FINITE_PROJECTION_COLLECTED",
+      "contract": "agentbaton.factory-rework-progress.v1",
+      "not_a_product_or_test_pass": true,
+      "status": "collected_post_shutdown"
+    },
+    "Intel_projection_sha256": "5f3dce5489faf1c2b11677d1c27b5d2b0499b8aeb57a955c72bbc955fd2e90db",
+    "not_a_unique_root_cause": "Intel actualcapture4231/4000 blockedr2/daemonok joined, distinct from oldd514ARMdaemonfatal. Missing oldphase metrics preclude worker/Actor attribution; existing empty validators map does not scan closed validation history."
+  },
+  "ARM_development_artifact": {
+    "artifact_id": 12953590846,
+    "artifact_zip_bytes": 9888198,
+    "artifact_zip_sha256": "162447eab8afe7f2b90ec677ca3b65e39f10ba6c68c6a597df2f7bba3584c233",
+    "Product_run": 40996509874,
+    "PR_head": "34f8b23d4fdd529caf4f7da6f949604f2746e0e9",
+    "tested_synthetic_checkout": "8f791778038edc09cc4175b4c7ee7ea6082cf8f3",
+    "synthetic_same_tree_as_head": true,
+    "not_main_merge": true,
+    "architecture": "arm64",
+    "dmg_filename": "AgentBaton-arm64-8f791778038edc09cc4175b4c7ee7ea6082cf8f3-development.dmg",
+    "dmg_bytes": 9956395,
+    "dmg_sha256": "5c745c15e017e32e359affa962f1bd910fac5fe8870f3fb973ee298eb80cc25f",
+    "matches_packaged_SHA256SUMS": true,
+    "UDIF_koly_footer_verified": true,
+    "build_record_sha256": "f95bd91620ba9bba5860dbb96f45d5aad15be352f44b3c85a4aec6c777ef7042",
+    "manual_acceptance_document_sha256": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+    "signature_status": "CI build-record reports adhoc linker-signed / no TeamIdentifier; no DeveloperID/notarization; not independently codesign-verified on Linux",
+    "macOS_actually_tested": "15.8.2; no minimumOS/manualinstallation claim",
+    "verification_dimension": "Downloaded exact GitHub artifact; bounded ZIP entries/no traversal/no symlinks; DMGstreamSHA and UDIF footer; no Macmount/install/run on Linux",
+    "Intel_current_candidate": "failed; no development installer produced",
+    "whole_schema15_delivery_accepted": false,
+    "retained_initial_helper_error": "First comparison expected bare checksum filename; packaged SHA256SUMS legitimately uses ./ prefix. Exact bytes/hash unchanged; canonical safe relative path comparison now verifies. This was helper assertion, not artifact corruption or product test failure."
+  },
+  "no_new_dual_arch_delivery_accepted": true,
+  "tool_profile_investigation": {
+    "review_sha256": "6d88ca615a7ea594264026bfe5e84db9393b1a844bb1ded10c40f079b7d59a99",
+    "manifest_sha256": "8461cbb216191c8619e815a5e382f1cf6ea4bdedd198fd1845f5550260878290",
+    "finding": "34f CI dev/test unoptimized+debuginfo vs recorded localdebug0; Mac frozenmanifest lacks bytes, not everyFactoryget/list/status hashescompanion; no causal/CPUcost claim",
+    "next_observation": "new exactCI logs fixed observed_binary_bytes after toolverification success; diagnostic only, persisted manifest and authority unchanged"
+  },
+  "retained_failures": [
+    "a067 priority reordering and SQLcount type findings / a645TIMEOUT expectation were static NOT_RUN findings, corrected before Root compilation; all original seals retained",
+    "original d514 UI/ARM/Intel failures remain retained; 34f Intel remains actualfailure",
+    "author-only docs cherry conflicts resolved only after original ours291/fullincoming0c exactblob proof; stages retained privately",
+    "ARM checksum helper first compared bare filename to legal ./ prefix; corrected safe canonical relative comparison without changing expectedhash/artifact; not package corruption"
+  ],
+  "current_other_work": "Dependent PR19 pushed0644 contains reviewed34f+schema16 matched6IPC paths, own16CI/Mac notrun. Accepted-source-capture separate unintegrated worktree has real5cfgPASS/12of13integrationPASS plus actualemptytreefailure and retaineddiagnosticrepo; repair ongoing, not counted as completed Root code.",
+  "pending": [
+    "new exact diagnostic candidate CI including bothMac native/build/audit/package",
+    "Inspector actual phase evidence and safe source optimization only if supported",
+    "Intel development package and all new dualarchitecture artifact acceptance",
+    "parent protected integration then own exactschema16 CI/retarget",
+    "full130 requirements incl Core authorized integration/adoption/remote/realProvider externalacceptance"
+  ],
+  "authority_unchanged": [
+    "no liveProvider/privateidentity credentials",
+    "no paidresources/topups/newhosts",
+    "no production/DeveloperID/notarization/finallicense",
+    "no formal GitHubApprove; exactPR current confirmation remains required"
+  ],
+  "not_product_complete": true
+}

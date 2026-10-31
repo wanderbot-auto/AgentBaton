@@ -19,6 +19,9 @@ use std::{
     time::{Duration, Instant},
 };
 use uuid::Uuid;
+#[cfg(debug_assertions)]
+#[path = "goal_runtime_diagnostics.rs"]
+pub(crate) mod goal_diagnostics;
 
 pub const API_VERSION: u32 = 1;
 const MAX_FRAME: u64 = 1_048_576;
@@ -34,6 +37,40 @@ struct Request {
     expected_revision: Option<u64>,
     idempotency_key: Option<String>,
 }
+pub(crate) fn factory_history_query(
+    raw: &str,
+    token: &str,
+) -> Result<Option<(String, crate::factory::FactoryHistoryQuery)>> {
+    let request: Request = match serde_json::from_str(raw) {
+        Ok(request) => request,
+        Err(_) => return Ok(None),
+    };
+    if request.token != token
+        || request.api_version != API_VERSION
+        || request.request_id.is_empty()
+        || request.request_id.len() > 128
+    {
+        return Ok(None);
+    }
+    if !matches!(
+        request.method.as_str(),
+        "factory_child_goals.get" | "factory_child_goals.list"
+    ) {
+        return Ok(None);
+    }
+    // Preserve the original two dispatch arms' None-only read envelope.
+    if request.expected_revision.is_some() || request.idempotency_key.is_some() {
+        return Err(invalid());
+    }
+    let query = params(request.params)?;
+    let query = if request.method == "factory_child_goals.get" {
+        crate::factory::FactoryHistoryQuery::Get(query)
+    } else {
+        crate::factory::FactoryHistoryQuery::List(query)
+    };
+    Ok(Some((request.request_id, query)))
+}
+
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct GoalScopeId {
@@ -284,11 +321,143 @@ fn private_file(path: &Path) -> Result<File> {
         .open(path)
         .map_err(|_| CoreError::new("PERMISSION_DENIED", "Cannot open private runtime state"))
 }
+// Only the owned automatic Goal lane receives this non-serializable envelope.
+// Socket and Factory callers retain the original JSON Value byte-for-byte.
+pub(crate) struct GoalAdvanceReply {
+    wire: Value,
+    admission: Option<crate::goal_store::GoalAdmissionObservation>,
+}
+impl GoalAdvanceReply {
+    pub(crate) fn new(
+        wire: Value,
+        admission: Option<crate::goal_store::GoalAdmissionObservation>,
+    ) -> Self {
+        Self { wire, admission }
+    }
+    pub(crate) fn into_parts(self) -> (Value, Option<crate::goal_store::GoalAdmissionObservation>) {
+        (self.wire, self.admission)
+    }
+}
+pub(crate) enum ReadyReply {
+    Wire(SyncSender<Value>),
+    Goal(SyncSender<GoalAdvanceReply>),
+}
+impl ReadyReply {
+    // Existing delayed-frame tests use blocking SyncSender::send. Preserve
+    // its wait/disconnect behavior; the plain wire carries no observation.
+    #[cfg(test)]
+    pub(crate) fn send(&self, wire: Value) -> std::result::Result<(), mpsc::SendError<Value>> {
+        match self {
+            Self::Wire(sender) => sender.send(wire),
+            Self::Goal(sender) => sender
+                .send(GoalAdvanceReply::new(wire, None))
+                .map_err(|mpsc::SendError(reply)| mpsc::SendError(reply.wire)),
+        }
+    }
+    pub(crate) fn try_send(
+        &self,
+        wire: Value,
+    ) -> std::result::Result<(), mpsc::TrySendError<Value>> {
+        self.try_send_observed(GoalAdvanceReply::new(wire, None))
+    }
+    pub(crate) fn try_send_observed(
+        &self,
+        reply: GoalAdvanceReply,
+    ) -> std::result::Result<(), mpsc::TrySendError<Value>> {
+        match self {
+            Self::Wire(sender) => sender.try_send(reply.wire),
+            Self::Goal(sender) => sender.try_send(reply).map_err(|error| match error {
+                mpsc::TrySendError::Full(reply) => mpsc::TrySendError::Full(reply.wire),
+                mpsc::TrySendError::Disconnected(reply) => {
+                    mpsc::TrySendError::Disconnected(reply.wire)
+                }
+            }),
+        }
+    }
+}
+
+// Preserve the original recorded-intent recovery reference and all error fields.
+// The optional observation remains a same-reply Rust value, never a wire token.
+pub(crate) fn recorded_goal_dispatch_error(
+    run_id: &str,
+    receipt: &Value,
+    mut error: CoreError,
+    admission: &mut Option<crate::goal_store::GoalAdmissionObservation>,
+) -> CoreError {
+    *admission = crate::goal_store::GoalAdmissionObservation::capture(run_id, &error);
+    if error.side_effect_state == "not_started" {
+        error.side_effect_state = "confirmed".into();
+    }
+    error.details_ref = receipt["intent_id"]
+        .as_str()
+        .map(|id| format!("recorded-goal-advance:{id}"));
+    error
+}
+
 pub(crate) struct ReadyRequest {
     pub(crate) raw: String,
-    pub(crate) reply: SyncSender<Value>,
+    pub(crate) reply: ReadyReply,
     pub(crate) deadline: Instant,
     pub(crate) factory_dispatch: Option<crate::factory::FactoryDispatchTicket>,
+}
+// A single turn owns at most the existing FIFO head while Factory/Goal ticks
+// run. This is request custody, not cached data or authority. An early Owner
+// read consumes one of the same sixteen admissions as the later drain.
+struct ReadyTurn {
+    head: Option<ReadyRequest>,
+    served: usize,
+}
+impl ReadyTurn {
+    fn queue_head(ready: &Receiver<ReadyRequest>, token: &str) -> (Self, Option<ReadyRequest>) {
+        match ready.try_recv() {
+            Ok(job) if queued_owner_factory_run_read(&job, token) => (
+                Self {
+                    head: None,
+                    served: 1,
+                },
+                Some(job),
+            ),
+            head => (
+                Self {
+                    head: head.ok(),
+                    served: 0,
+                },
+                None,
+            ),
+        }
+    }
+    fn next(&mut self, ready: &Receiver<ReadyRequest>) -> Option<ReadyRequest> {
+        if self.served == 16 {
+            return None;
+        }
+        let job = self.head.take().or_else(|| ready.try_recv().ok())?;
+        self.served += 1;
+        Some(job)
+    }
+}
+fn queued_owner_factory_run_read(job: &ReadyRequest, token: &str) -> bool {
+    #[derive(Deserialize)]
+    struct TypedScopeEnvelope {
+        params: FactoryScopeId,
+    }
+    if job.factory_dispatch.is_some() {
+        return false;
+    }
+    let Ok(request) = serde_json::from_str::<Request>(&job.raw) else {
+        return false;
+    };
+    request.api_version == API_VERSION
+        && request.token == token
+        && !request.request_id.is_empty()
+        && request.request_id.len() <= 128
+        && request.method == "factory_runs.get"
+        && request.expected_revision.is_none()
+        && request.idempotency_key.is_none()
+        // Parse the original bytes: going through Value would erase duplicate
+        // scope_id keys before the closed typed params can reject them.
+        && serde_json::from_str::<TypedScopeEnvelope>(&job.raw)
+            .map(|envelope| envelope.params)
+            .is_ok()
 }
 fn configure_accepted_stream(stream: &UnixStream) -> std::io::Result<()> {
     // BSD/Darwin can inherit O_NONBLOCK from the listener. Deadline-based frame
@@ -306,7 +475,7 @@ fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
             let (reply, receive): (_, Receiver<Value>) = mpsc::sync_channel(1);
             let job = ReadyRequest {
                 raw,
-                reply,
+                reply: ReadyReply::Wire(reply),
                 deadline: Instant::now() + Duration::from_secs(60),
                 factory_dispatch: None,
             };
@@ -326,9 +495,40 @@ fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
         let _ = stream.write_all(&output);
     }
 }
+struct FactoryQueueClock {
+    queued_at: Instant,
+    recovery_round: Option<u32>,
+}
+impl FactoryQueueClock {
+    fn initial(queued_at: Instant) -> Self {
+        Self {
+            queued_at,
+            recovery_round: None,
+        }
+    }
+    fn record_recovery(
+        clocks: &mut std::collections::HashMap<String, Self>,
+        task: String,
+        round: u32,
+        queued_at: Instant,
+    ) {
+        let current = clocks.entry(task).or_insert_with(|| Self {
+            queued_at,
+            recovery_round: Some(round),
+        });
+        if current.recovery_round.is_none_or(|old| round > old) {
+            *current = Self {
+                queued_at,
+                recovery_round: Some(round),
+            };
+        }
+    }
+}
+
 pub struct Daemon {
     listener: UnixListener,
     store: Store,
+    history_workers: crate::factory::FactoryHistoryWorkers,
     token: String,
     _lock: File,
     socket: PathBuf,
@@ -336,8 +536,8 @@ pub struct Daemon {
     supervisor: Supervisor,
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
-    goal_pending: Option<(String, Receiver<Value>)>,
-    factory_queue_clocks: std::collections::HashMap<String, Instant>,
+    goal_pending: Option<(String, Receiver<GoalAdvanceReply>)>,
+    factory_queue_clocks: std::collections::HashMap<String, FactoryQueueClock>,
     factory_pending: Option<(String, Receiver<Value>)>,
     factory_fatal_error: Option<CoreError>,
     graph_workers: crate::goal_store::GraphWorkers,
@@ -389,6 +589,7 @@ impl Daemon {
         Ok(Self {
             listener,
             store,
+            history_workers: Default::default(),
             token,
             _lock: lock,
             socket,
@@ -404,28 +605,50 @@ impl Daemon {
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
+        #[cfg(debug_assertions)]
+        let _diagnostic_flush = goal_diagnostics::FlushOnDrop::enter();
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage("actor_run_enter", None, 0, None);
         let (requests, ready) = mpsc::sync_channel::<ReadyRequest>(16);
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
             self.supervisor.tick(&mut self.store)?;
+            // A terminal owned Goal turn committed by this outer service pass
+            // must reach the original fresh stop policy before expensive ticks.
+            // This hint selects no new work and is never a stop/join receipt.
+            self.service_hinted_goal_stops()?;
             self.graph_workers.tick(&mut self.store)?;
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
+            self.history_workers.poll(&self.store);
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
             }
-            self.tick_factory()?;
-            self.tick_goals()?;
-            for _ in 0..16 {
-                let Ok(job) = ready.try_recv() else {
-                    break;
-                };
+            // Inspect only the FIFO head after the original worker/fatal pass.
+            // Other methods retain their position until the original drain.
+            let (mut turn, early_read) = ReadyTurn::queue_head(&ready, &self.token);
+            if let Some(job) = early_read {
                 self.handle_ready_request(job);
-                self.supervisor.tick(&mut self.store)?;
-                self.command_workers.tick(&mut self.store)?;
-                self.data_workers.tick(&mut self.store)?;
-                self.finish_data_admission();
+                self.service_after_early_owner_read()?;
+            }
+            #[cfg(debug_assertions)]
+            let factory_clock = Instant::now();
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("factory_tick_begin", None, 0, None);
+            self.tick_factory()?;
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("factory_tick_end", Some(factory_clock.elapsed()), 0, None);
+            #[cfg(debug_assertions)]
+            let goal_clock = Instant::now();
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("goal_tick_begin", None, 0, None);
+            self.tick_goals()?;
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("goal_tick_end", Some(goal_clock.elapsed()), 0, None);
+            while let Some(job) = turn.next(&ready) {
+                self.handle_ready_request(job);
+                self.service_after_ready_request()?;
             }
             readers.retain(|reader| !reader.is_finished());
             match self.listener.accept() {
@@ -447,33 +670,81 @@ impl Daemon {
         }
         drop(ready);
         drop(requests);
+        self.history_workers.cancel_owned();
         self.data_workers.shutdown(&mut self.store)?;
         self.command_workers.shutdown(&mut self.store)?;
         self.supervisor.shutdown(&mut self.store)?;
         self.graph_workers.shutdown(&mut self.store)?;
+        self.history_workers.reap_owned_workers();
+        self.history_workers.release_database(&self.store);
         for reader in readers {
             let _ = reader.join();
         }
         Ok(())
     }
+    fn service_after_early_owner_read(&mut self) -> Result<()> {
+        self.service_after_ready_request()?;
+        // The same worker service can retain a fatal Factory error.
+        // Propagate it before doing any further Factory/Goal work.
+        if let Some(error) = self.factory_fatal_error.take() {
+            return Err(error);
+        }
+        Ok(())
+    }
+    fn service_after_ready_request(&mut self) -> Result<()> {
+        self.supervisor.tick(&mut self.store)?;
+        // A committed owned Goal terminal turn may need its original
+        // stop-only policy now; this never selects or admits new work.
+        self.service_hinted_goal_stops()?;
+        // Service owned workers and newly queued captures immediately.
+        // Idle frontier reconciliation remains in the full outer pass;
+        // this wake-up hint does not replace any admission checks.
+        if self.graph_workers.has_workers() || !self.store.graph_capture_clocks.is_empty() {
+            self.graph_workers.tick(&mut self.store)?;
+        }
+        self.command_workers.tick(&mut self.store)?;
+        self.data_workers.tick(&mut self.store)?;
+        self.finish_data_admission();
+        self.history_workers.poll(&self.store);
+        Ok(())
+    }
+    #[cfg(test)]
     fn handle(&mut self, raw: &str) -> Value {
+        self.handle_observed(raw).wire
+    }
+    fn handle_observed(&mut self, raw: &str) -> GoalAdvanceReply {
+        #[cfg(debug_assertions)]
+        let diagnostic_clock = Instant::now();
         let request = serde_json::from_str::<Request>(raw);
         let id = request.as_ref().ok().map(|r| r.request_id.clone());
         let authenticated = request.as_ref().is_ok_and(|r| r.token == self.token);
+        let mut admission = None;
         let result = request
             .map_err(|_| invalid())
-            .and_then(|r| self.dispatch(r));
+            .and_then(|r| self.dispatch(r, &mut admission));
         let revision = if authenticated {
             self.store.sequence().unwrap_or(0)
         } else {
             0
         };
-        match result {
+        let response = match result {
             Ok(value) => json!({"request_id":id,"result":value,"revision":revision,"warnings":[]}),
             Err(error) => json!({"request_id":id,"error":error,"revision":revision,"warnings":[]}),
-        }
+        };
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "request_handled",
+            Some(diagnostic_clock.elapsed()),
+            goal_diagnostics::method_tag(raw),
+            response["error"]["code"].as_str(),
+        );
+        GoalAdvanceReply::new(response, admission)
     }
-    fn dispatch(&mut self, r: Request) -> Result<Value> {
+    fn dispatch(
+        &mut self,
+        r: Request,
+        admission: &mut Option<crate::goal_store::GoalAdmissionObservation>,
+    ) -> Result<Value> {
         if r.token != self.token {
             return Err(CoreError::new(
                 "AUTH_REQUIRED",
@@ -561,7 +832,7 @@ impl Daemon {
                     }
                     if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send(&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
                 })();
-                if let Err(mut error)=action {if error.side_effect_state=="not_started"{error.side_effect_state="confirmed".into();}error.details_ref=receipt["intent_id"].as_str().map(|id|format!("recorded-goal-advance:{id}"));return Err(error);}Ok(receipt)
+                if let Err(error)=action {return Err(recorded_goal_dispatch_error(&p.run_id,&receipt,error,admission));}Ok(receipt)
             }
             "factory_runs.start" => {
                 let p: FactoryScopeId = params(r.params)?;
@@ -569,7 +840,7 @@ impl Daemon {
                 let key=r.idempotency_key.ok_or_else(invalid)?;
                 let replay=self.store.factory_start_replay(&p.scope_id,revision,&key)?.is_some();
                 let run=self.store.start_factory_run(&p.scope_id,revision,&key)?;
-                if !replay && run.state=="queued" {self.factory_queue_clocks.entry(run.root_task_id.clone()).or_insert_with(Instant::now);}
+                if !replay && run.state=="queued" {self.factory_queue_clocks.entry(run.root_task_id.clone()).or_insert_with(||FactoryQueueClock::initial(Instant::now()));}
                 Ok(json!(run))
             }
             "factory_runs.get" => {
@@ -587,6 +858,11 @@ impl Daemon {
             "factory_child_plans.get"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildPlanQuery=params(r.params)?;Ok(json!(self.store.get_factory_child_plan(&p)?))}
             "factory_child_plans.list"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildPlanQuery=params(r.params)?;Ok(json!(self.store.list_factory_child_plans(&p)?))}
             "factory_child_plans.submit"=>{let p:crate::factory::FactoryChildPlanUpdate=params(r.params)?;Ok(json!(self.store.submit_factory_child_plan(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "factory_child_goals.start"=>{let p:crate::factory::FactoryChildGoalStart=params(r.params)?;Ok(json!(self.store.start_factory_child_goal(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "factory_child_goals.get"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildGoalQuery=params(r.params)?;Ok(json!(self.store.get_factory_child_goal(&p)?))}
+            "factory_child_goals.list"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildGoalQuery=params(r.params)?;Ok(json!(self.store.list_factory_child_goals(&p)?))}
+            "factory_child_goals.advance_plan"=>{let p:crate::factory::FactoryChildGoalAdvance=params(r.params)?;Ok(json!(self.store.advance_factory_child_goal(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "factory_child_goals.cancel"=>{let p:crate::factory::FactoryChildGoalCancel=params(r.params)?;let (receipt,stops)=self.store.cancel_factory_child_goal_with_stops(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;for id in stops{self.supervisor.cancel(&id);}Ok(json!(receipt))}
             "factory_scopes.get"=>{let p:FactoryScopeId=params(r.params)?;Ok(json!(self.store.get_factory_scope(&p.scope_id)?))}
             "factory_scopes.list"=>{let p:FactoryRootTaskId=params(r.params)?;Ok(json!(self.store.list_factory_scopes(&p.root_task_id)?))}
             "factory_scopes.revoke"=>{let p:FactoryScopeId=params(r.params)?;let record=self.store.revoke_factory_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;self.data_workers.cancel_factory(&p.scope_id);Ok(json!(record))}
@@ -1003,10 +1279,13 @@ impl Drop for Daemon {
     fn drop(&mut self) {
         // Error/unwind paths also retain authority until every owned worker is
         // cancelled and joined. Unpersisted outcomes are reconciled on restart.
+        self.history_workers.cancel_owned();
         self.graph_workers.reap_owned_workers();
         self.data_workers.reap_owned_workers();
         self.command_workers.reap_owned_workers();
         self.supervisor.reap_owned_workers();
+        self.history_workers.reap_owned_workers();
+        self.history_workers.release_database(&self.store);
         let _ = fs::remove_file(&self.socket);
         // `run` has finished before self is dropped. Release this ownership
         // explicitly: duplicated/inherited descriptors can outlive this File.
@@ -1283,6 +1562,61 @@ impl Daemon {
         }
         let mut ids = Vec::new();
         match request.method.as_str() {
+            "factory_child_goals.start" | "factory_child_goals.advance_plan" => {
+                let (scope, task, namespace, payload) = if request.method
+                    == "factory_child_goals.start"
+                {
+                    let p: crate::factory::FactoryChildGoalStart = params(request.params.clone())?;
+                    (
+                        p.scope_id.clone(),
+                        p.request.task_id.clone(),
+                        format!(
+                            "factory:{}:owner:{}:child-goal:start",
+                            p.scope_id, p.request.task_id
+                        ),
+                        serde_json::to_string(&(
+                            request.expected_revision.ok_or_else(invalid)?,
+                            &p,
+                        ))
+                        .map_err(|_| invalid())?,
+                    )
+                } else {
+                    let p: crate::factory::FactoryChildGoalAdvance =
+                        params(request.params.clone())?;
+                    (
+                        p.scope_id.clone(),
+                        p.request.task_id.clone(),
+                        format!(
+                            "factory:{}:owner:{}:child-goal:advance",
+                            p.scope_id, p.request.task_id
+                        ),
+                        serde_json::to_string(&(
+                            request.expected_revision.ok_or_else(invalid)?,
+                            &p,
+                        ))
+                        .map_err(|_| invalid())?,
+                    )
+                };
+                if self
+                    .store
+                    .factory_child_goal_action_replay(
+                        &namespace,
+                        request.idempotency_key.as_deref().ok_or_else(invalid)?,
+                        &payload,
+                    )?
+                    .is_some()
+                {
+                    return Ok(vec![]);
+                }
+                let _ = task;
+                ids.extend(
+                    self.store
+                        .get_factory_scope(&scope)?
+                        .selection
+                        .workspace_ids,
+                );
+            }
+
             "factory_child_plans.context" | "factory_child_plans.submit" => {
                 let scope_id = request
                     .params
@@ -1660,27 +1994,37 @@ impl Daemon {
         raw: &str,
     ) -> Result<Option<crate::factory::FactoryReadPlan>> {
         let request: Request = serde_json::from_str(raw).map_err(|_| invalid())?;
-        if request.token != self.token
-            || request.api_version != API_VERSION
-            || !matches!(
-                request.method.as_str(),
-                "factory_scopes.propose"
-                    | "factory_runs.start"
-                    | "approvals.finalize"
-                    | "factory_child_plans.context"
-                    | "factory_child_plans.submit"
-            )
-        {
+        if request.token != self.token || request.api_version != API_VERSION {
             return Ok(None);
         }
-        let plan = self.store.prepare_factory_owner_read(
+        let derived = self.store.prepare_factory_goal_read_for_request(
             &request.method,
             &request.params,
             request.expected_revision,
             request.idempotency_key.as_deref(),
             raw,
-            None,
         )?;
+        let plan = if derived.is_some() {
+            derived
+        } else if matches!(
+            request.method.as_str(),
+            "factory_scopes.propose"
+                | "factory_runs.start"
+                | "approvals.finalize"
+                | "factory_child_plans.context"
+                | "factory_child_plans.submit"
+        ) {
+            self.store.prepare_factory_owner_read(
+                &request.method,
+                &request.params,
+                request.expected_revision,
+                request.idempotency_key.as_deref(),
+                raw,
+                None,
+            )?
+        } else {
+            None
+        };
         if plan.is_some() {
             if (!plan.as_ref().is_some_and(|p| p.is_child_planning())
                 && (self.supervisor.has_workers()
@@ -1710,6 +2054,13 @@ impl Daemon {
         )
     }
     fn ready_error(&self, raw: &str, error: CoreError) -> Value {
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "ready_error",
+            None,
+            goal_diagnostics::method_tag(raw),
+            Some(&error.code),
+        );
         let request_id = serde_json::from_str::<Value>(raw)
             .ok()
             .and_then(|v| v["request_id"].as_str().map(str::to_owned));
@@ -1731,6 +2082,8 @@ impl Daemon {
             return;
         }
         if let Some(ticket) = job.factory_dispatch.as_ref() {
+            #[cfg(debug_assertions)]
+            let phase_clock = Instant::now();
             let watch = (ticket.scope_id().to_owned(), ticket.scope_revision());
             let contexts = {
                 if !ticket.for_request(&job.raw) {
@@ -1742,15 +2095,33 @@ impl Daemon {
                     self.store.factory_ticket_data_contexts(ticket)
                 }
             };
+            #[cfg(debug_assertions)]
+            goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(phase_clock.elapsed()),
+                [false; 6],
+                1,
+                contexts.as_ref().err().map(|error| error.code.as_str()),
+            );
             match contexts {
                 Err(error) => self.finish_factory_ticket_error(job, error),
                 Ok(contexts) if !contexts.is_empty() => {
+                    #[cfg(debug_assertions)]
+                    let phase_clock = Instant::now();
                     if let Err(failure) = self.data_workers.defer(contexts, None, None, job) {
                         let (error, job) = *failure;
                         self.finish_factory_ticket_error(job, error);
                     } else {
                         self.data_workers.watch_factory(&watch.0, watch.1);
                     }
+                    #[cfg(debug_assertions)]
+                    goal_diagnostics::emit(
+                        "factory_admission_phase",
+                        Some(phase_clock.elapsed()),
+                        [false; 6],
+                        2,
+                        None,
+                    );
                 }
                 Ok(_) => self.execute_factory_ticket(job),
             }
@@ -1773,6 +2144,8 @@ impl Daemon {
                             | "get_task_result"
                             | "cancel_task"
                             | "submit_child_plan"
+                            | "execute_child_goal"
+                            | "advance_child_goal"
                     )
                 {
                     return Err(CoreError::new(
@@ -1789,6 +2162,24 @@ impl Daemon {
                         &request.handle_id,
                         &request.scoped_token,
                         &p,
+                        &job.raw,
+                    )?)
+                } else if matches!(
+                    request.method.as_str(),
+                    "execute_child_goal" | "advance_child_goal"
+                ) {
+                    let task = if request.method == "execute_child_goal" {
+                        params::<crate::factory::FactoryChildGoalSubmission>(request.params)?
+                            .task_id
+                    } else {
+                        params::<crate::factory::FactoryChildGoalAdvanceSubmission>(request.params)?
+                            .request
+                            .task_id
+                    };
+                    Some(self.store.prepare_factory_scoped_child_goal_read(
+                        &request.handle_id,
+                        &request.scoped_token,
+                        &task,
                         &job.raw,
                     )?)
                 } else {
@@ -1821,21 +2212,63 @@ impl Daemon {
             return;
         }
 
+        #[cfg(debug_assertions)]
+        let factory_clock = Instant::now();
         let factory = match self.factory_context_for_request(&job.raw) {
             Ok(plan) => plan,
             Err(error) => {
+                #[cfg(debug_assertions)]
+                self.trace_goal_stage(
+                    "factory_preflight",
+                    Some(factory_clock.elapsed()),
+                    goal_diagnostics::method_tag(&job.raw),
+                    Some(&error.code),
+                );
                 let _ = job.reply.try_send(self.ready_error(&job.raw, error));
                 return;
             }
         };
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "factory_preflight",
+            Some(factory_clock.elapsed()),
+            goal_diagnostics::method_tag(&job.raw),
+            None,
+        );
+        #[cfg(debug_assertions)]
+        let graph_clock = Instant::now();
         let graph = match self.graph_context_for_request(&job.raw) {
             Ok(g) => g,
             Err(error) => {
+                #[cfg(debug_assertions)]
+                self.trace_goal_stage(
+                    "graph_preflight",
+                    Some(graph_clock.elapsed()),
+                    goal_diagnostics::method_tag(&job.raw),
+                    Some(&error.code),
+                );
                 let _ = job.reply.try_send(self.ready_error(&job.raw, error));
                 return;
             }
         };
-        match self.data_contexts_for_request(&job.raw) {
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "graph_preflight",
+            Some(graph_clock.elapsed()),
+            goal_diagnostics::method_tag(&job.raw),
+            None,
+        );
+        #[cfg(debug_assertions)]
+        let data_clock = Instant::now();
+        let contexts = self.data_contexts_for_request(&job.raw);
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "data_context",
+            Some(data_clock.elapsed()),
+            goal_diagnostics::method_tag(&job.raw),
+            contexts.as_ref().err().map(|e| e.code.as_str()),
+        );
+        match contexts {
             Err(error) => {
                 let _ = job.reply.try_send(self.ready_error(&job.raw, error));
             }
@@ -1846,8 +2279,25 @@ impl Daemon {
                 }
             }
             Ok(_) => {
-                let response = self.handle(&job.raw);
-                let _ = job.reply.try_send(response);
+                match factory_history_query(&job.raw, &self.token) {
+                    Ok(Some((request_id, query))) => {
+                        if let Err(failure) =
+                            self.history_workers
+                                .start(&self.store, query, request_id, job)
+                        {
+                            let (error, job) = *failure;
+                            let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                        }
+                        return;
+                    }
+                    Err(error) => {
+                        let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                        return;
+                    }
+                    Ok(None) => {}
+                }
+                let response = self.handle_observed(&job.raw);
+                let _ = job.reply.try_send_observed(response);
             }
         }
     }
@@ -1856,6 +2306,15 @@ impl Daemon {
         let Some(completed) = self.data_workers.take_admission() else {
             return;
         };
+        #[cfg(debug_assertions)]
+        if let CompletedDataRequest::Input(job, result) = &completed {
+            self.trace_goal_stage(
+                "input_read_done",
+                None,
+                goal_diagnostics::method_tag(&job.raw),
+                result.as_ref().as_ref().err().map(|e| e.code.as_str()),
+            );
+        }
         match completed {
             CompletedDataRequest::Input(job, result) => match *result {
                 Err(error) => {
@@ -1960,10 +2419,10 @@ impl Daemon {
                             }
                         }
                     } else {
-                        let response = self.handle(&job.raw);
+                        let response = self.handle_observed(&job.raw);
                         self.store.data_input = None;
                         self.store.graph_input = None;
-                        let _ = job.reply.try_send(response);
+                        let _ = job.reply.try_send_observed(response);
                     }
                 }
             },
@@ -2031,40 +2490,126 @@ struct GoalRunId {
     run_id: String,
 }
 impl Daemon {
-    fn tick_goals(&mut self) -> Result<()> {
+    #[cfg(debug_assertions)]
+    fn trace_goal_stage(
+        &self,
+        stage: &'static str,
+        elapsed: Option<Duration>,
+        count: usize,
+        code: Option<&str>,
+    ) {
+        let (worker, retained) = self.data_workers.diagnostic_worker_state();
+        goal_diagnostics::emit(
+            stage,
+            elapsed,
+            [
+                worker,
+                retained,
+                self.graph_workers.has_workers(),
+                self.goal_pending.is_some(),
+                self.factory_pending.is_some(),
+                self.supervisor.has_workers(),
+            ],
+            count,
+            code,
+        );
+    }
+    fn service_goal_stop_requests(&mut self) -> Result<()> {
         for id in self.store.goal_stop_requests()? {
             self.supervisor.cancel(&id);
         }
+        Ok(())
+    }
+    fn service_hinted_goal_stops(&mut self) -> Result<()> {
+        if self.supervisor.take_goal_stop_hint() {
+            self.service_goal_stop_requests()?;
+        }
+        Ok(())
+    }
+    fn tick_goals(&mut self) -> Result<()> {
+        // This mandatory outer sweep remains fresh even without any hint.
+        let _ = self.supervisor.take_goal_stop_hint();
+        self.service_goal_stop_requests()?;
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage("goal_after_stops", None, 0, None);
         if let Some((id, receiver)) = self.goal_pending.take() {
             match receiver.try_recv() {
                 Ok(response) => {
+                    let (response, admission) = response.into_parts();
+                    #[cfg(debug_assertions)]
+                    if response["error"]["code"] == "BUDGET_UNKNOWN" {
+                        goal_diagnostics::emit(
+                            "goal_budget_denied",
+                            None,
+                            [false; 6],
+                            goal_diagnostics::budget_reason_tag(
+                                response["error"]["message"].as_str(),
+                            ),
+                            Some("BUDGET_UNKNOWN"),
+                        );
+                    }
+                    #[cfg(debug_assertions)]
+                    self.trace_goal_stage(
+                        "goal_pending_reply",
+                        None,
+                        0,
+                        response["error"]["code"].as_str(),
+                    );
                     if let Some(code) = response["error"]["code"].as_str() {
                         if !matches!(code, "STALE_REVISION" | "WORKSPACE_BUSY") {
-                            self.store.block_goal_run(&id, code)?;
+                            self.store.block_goal_run_observed(
+                                &id,
+                                code,
+                                response["error"]["details_ref"].as_str(),
+                                admission.as_ref(),
+                            )?;
                         }
                     }
                 }
                 Err(std::sync::mpsc::TryRecvError::Empty) => {
                     self.goal_pending = Some((id, receiver));
+                    #[cfg(debug_assertions)]
+                    self.trace_goal_stage("goal_pending_empty", None, 0, None);
                     return Ok(());
                 }
                 Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                    #[cfg(debug_assertions)]
+                    self.trace_goal_stage(
+                        "goal_pending_disconnect",
+                        None,
+                        0,
+                        Some("INTERNAL_ADVANCE_INTERRUPTED"),
+                    );
                     self.store
-                        .block_goal_run(&id, "INTERNAL_ADVANCE_INTERRUPTED")?;
+                        .block_goal_run(&id, "INTERNAL_ADVANCE_INTERRUPTED", None)?;
                 }
             }
         }
         if self.data_workers.has_workers() || self.graph_workers.has_workers() {
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("goal_lane_busy", None, 0, None);
             return Ok(());
         }
         let mut next = None;
         for r in self.store.active_goal_runs()? {
-            if self.store.goal_run_needs_advance(&r.id)? {
+            #[cfg(debug_assertions)]
+            let ready_clock = Instant::now();
+            let needs = self.store.goal_run_needs_advance(&r.id);
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage(
+                "goal_needs_advance",
+                Some(ready_clock.elapsed()),
+                usize::from(needs.as_ref().is_ok_and(|b| *b)),
+                needs.as_ref().err().map(|e| e.code.as_str()),
+            );
+            if needs? {
                 next = Some(r);
                 break;
             }
         }
         let Some(run) = next else { return Ok(()) };
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage("goal_selected", None, 1, None);
         let ledger = self.store.sequence()?;
         let method = if self.store.is_goal_graph_run(&run.id)? {
             "goal_graph_runs.dispatch"
@@ -2076,7 +2621,7 @@ impl Daemon {
         self.goal_pending = Some((run.id, receive));
         self.handle_ready_request(ReadyRequest {
             raw,
-            reply,
+            reply: ReadyReply::Goal(reply),
             deadline: Instant::now() + Duration::from_secs(60),
             factory_dispatch: None,
         });
@@ -2128,6 +2673,8 @@ impl Daemon {
                     | "get_task_result"
                     | "cancel_task"
                     | "submit_child_plan"
+                    | "execute_child_goal"
+                    | "advance_child_goal"
             )
         {
             return json!({"request_id":id,"error":CoreError::new("AUTH_REQUIRED","Scoped Factory callers cannot access owner approval, configuration or arbitrary IPC"),"revision":0,"warnings":[]});
@@ -2178,6 +2725,28 @@ impl Daemon {
                     &request.idempotency_key.ok_or_else(invalid)?,
                 )
             }
+            "execute_child_goal" => {
+                if request.expected_revision.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::factory::FactoryChildGoalSubmission = params(request.params)?;
+                self.store.factory_execute_child_goal(
+                    caller,
+                    &p,
+                    &request.idempotency_key.ok_or_else(invalid)?,
+                )
+            }
+            "advance_child_goal" => {
+                if request.expected_revision.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::factory::FactoryChildGoalAdvanceSubmission = params(request.params)?;
+                self.store.factory_advance_child_goal(
+                    caller,
+                    &p,
+                    &request.idempotency_key.ok_or_else(invalid)?,
+                )
+            }
             "cancel_task" => {
                 let p: crate::factory::FactoryTaskRequest = params(request.params)?;
                 self.store.factory_cancel_task(
@@ -2195,7 +2764,7 @@ impl Daemon {
                     if let Some(task) = outcome.result["task_id"].as_str() {
                         self.factory_queue_clocks
                             .entry(task.to_owned())
-                            .or_insert_with(Instant::now);
+                            .or_insert_with(|| FactoryQueueClock::initial(Instant::now()));
                     }
                 }
                 for session in outcome.stops {
@@ -2236,7 +2805,26 @@ impl Daemon {
         {
             return Ok(());
         }
-        let Some(action) = self.store.next_factory_action()? else {
+        #[cfg(debug_assertions)]
+        let phase_clock = Instant::now();
+        let action = self.store.next_factory_action()?;
+        #[cfg(debug_assertions)]
+        goal_diagnostics::emit(
+            "factory_phase",
+            Some(phase_clock.elapsed()),
+            [false; 6],
+            1,
+            None,
+        );
+        for (task, round, queued_at) in self.store.factory_recovery_queue_epochs.drain(..) {
+            FactoryQueueClock::record_recovery(
+                &mut self.factory_queue_clocks,
+                task,
+                round,
+                queued_at,
+            );
+        }
+        let Some(action) = action else {
             return Ok(());
         };
         match action {
@@ -2246,7 +2834,17 @@ impl Daemon {
                 text,
                 context,
             } => {
+                #[cfg(debug_assertions)]
+                let phase_clock = Instant::now();
                 let (raw, ticket) = context.prompt_ticket(session_id, text)?;
+                #[cfg(debug_assertions)]
+                goal_diagnostics::emit(
+                    "factory_phase",
+                    Some(phase_clock.elapsed()),
+                    [false; 6],
+                    5,
+                    None,
+                );
                 self.schedule_factory_ticket(raw, ticket);
             }
             crate::factory::FactoryAction::Launch(context) => {
@@ -2254,8 +2852,19 @@ impl Daemon {
                 let queued = self
                     .factory_queue_clocks
                     .remove(&task)
+                    .map(|clock| clock.queued_at)
                     .unwrap_or_else(Instant::now);
+                #[cfg(debug_assertions)]
+                let phase_clock = Instant::now();
                 let (raw, ticket) = context.ticket(queued)?;
+                #[cfg(debug_assertions)]
+                goal_diagnostics::emit(
+                    "factory_phase",
+                    Some(phase_clock.elapsed()),
+                    [false; 6],
+                    5,
+                    None,
+                );
                 self.schedule_factory_ticket(raw, ticket);
             }
         }
@@ -2267,6 +2876,88 @@ impl Daemon {
 mod factory_queue_deadline_tests {
     use super::*;
     use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn a_new_recovery_attempt_counts_its_queue_not_the_old_graph_interval() {
+        let base = Instant::now();
+        let prepared = base + Duration::from_secs(7);
+        let verified_and_committed = prepared + Duration::from_millis(400);
+        let observed = base + Duration::from_secs(8);
+        let mut clocks = std::collections::HashMap::new();
+        clocks.insert("child".into(), FactoryQueueClock::initial(base));
+        FactoryQueueClock::record_recovery(&mut clocks, "child".into(), 1, prepared);
+        let clock = clocks.remove("child").unwrap();
+        assert_eq!(clock.recovery_round, Some(1));
+        assert_eq!(
+            observed.duration_since(clock.queued_at),
+            Duration::from_secs(1)
+        );
+        assert_eq!(observed.duration_since(base), Duration::from_secs(8));
+        assert_eq!(
+            observed.duration_since(verified_and_committed),
+            Duration::from_millis(600)
+        );
+        assert!(
+            observed.duration_since(clock.queued_at)
+                > observed.duration_since(verified_and_committed),
+            "the new attempt must also count its pre-commit preparation and authority checks"
+        );
+        // Neither side is free: the new preparation/wait remains charged;
+        // the prior Graph interval remains in its own unchanged reservations.
+        assert!(observed.duration_since(clock.queued_at) > Duration::ZERO);
+    }
+
+    #[test]
+    fn same_or_older_recovery_round_cannot_renew_real_wait_or_deadline() {
+        let base = Instant::now();
+        let mut clocks = std::collections::HashMap::new();
+        FactoryQueueClock::record_recovery(&mut clocks, "child".into(), 2, base);
+        FactoryQueueClock::record_recovery(
+            &mut clocks,
+            "child".into(),
+            2,
+            base + Duration::from_secs(3),
+        );
+        FactoryQueueClock::record_recovery(
+            &mut clocks,
+            "child".into(),
+            1,
+            base + Duration::from_secs(4),
+        );
+        let clock = clocks.get("child").unwrap();
+        assert_eq!(clock.recovery_round, Some(2));
+        assert_eq!(clock.queued_at, base);
+        assert_eq!(
+            (base + Duration::from_secs(5)).duration_since(clock.queued_at),
+            Duration::from_secs(5)
+        );
+        assert!(
+            (base + Duration::from_millis(1500)).duration_since(clock.queued_at)
+                > Duration::from_millis(1200)
+        );
+    }
+
+    #[test]
+    fn recovery_epoch_changes_only_its_task_and_initial_queue_replays_keep_it() {
+        let base = Instant::now();
+        let prepared = base + Duration::from_secs(2);
+        let mut clocks = std::collections::HashMap::new();
+        clocks.insert("other".into(), FactoryQueueClock::initial(base));
+        clocks.insert("child".into(), FactoryQueueClock::initial(base));
+        FactoryQueueClock::record_recovery(&mut clocks, "child".into(), 1, prepared);
+        clocks
+            .entry("child".into())
+            .or_insert_with(|| FactoryQueueClock::initial(base + Duration::from_secs(5)));
+        assert_eq!(clocks["other"].queued_at, base);
+        assert_eq!(clocks["other"].recovery_round, None);
+        assert_eq!(clocks["child"].queued_at, prepared);
+        assert_eq!(clocks["child"].recovery_round, Some(1));
+        assert_eq!(
+            (base + Duration::from_secs(8)).duration_since(clocks["child"].queued_at),
+            Duration::from_secs(6)
+        );
+    }
+
     #[test]
     fn expired_scoped_queue_request_is_rejected_before_authentication_or_any_mutation() {
         let temp = tempfile::Builder::new()
@@ -2285,7 +2976,7 @@ mod factory_queue_deadline_tests {
             let (send, recv) = std::sync::mpsc::sync_channel(1);
             let deadline = Instant::now();
             std::thread::sleep(Duration::from_millis(2));
-            daemon.handle_ready_request(ReadyRequest{raw:json!({"api_version":1,"request_id":"generated-expired-scoped","handle_id":"missing-generated","scoped_token":"0".repeat(64),"method":method,"params":{},"expected_revision":1,"idempotency_key":"never-admit"}).to_string(),reply:send,deadline,factory_dispatch:None});
+            daemon.handle_ready_request(ReadyRequest{raw:json!({"api_version":1,"request_id":"generated-expired-scoped","handle_id":"missing-generated","scoped_token":"0".repeat(64),"method":method,"params":{},"expected_revision":1,"idempotency_key":"never-admit"}).to_string(),reply:ReadyReply::Wire(send),deadline,factory_dispatch:None});
             let response = recv.recv_timeout(Duration::from_secs(1)).unwrap();
             assert_eq!(
                 response["error"]["code"], "RESOURCE_LIMIT",
@@ -2332,12 +3023,22 @@ impl Daemon {
         let scope = ticket.scope_id().to_owned();
         let (reply, receive) = mpsc::sync_channel(1);
         self.factory_pending = Some((scope, receive));
+        #[cfg(debug_assertions)]
+        let phase_clock = Instant::now();
         self.handle_ready_request(ReadyRequest {
             raw,
-            reply,
+            reply: ReadyReply::Wire(reply),
             deadline: Instant::now() + Duration::from_secs(60),
             factory_dispatch: Some(ticket),
         });
+        #[cfg(debug_assertions)]
+        goal_diagnostics::emit(
+            "factory_phase",
+            Some(phase_clock.elapsed()),
+            [false; 6],
+            6,
+            None,
+        );
     }
     fn execute_factory_ticket(&mut self, mut job: ReadyRequest) {
         let Some(ticket) = job.factory_dispatch.take() else {
@@ -2372,6 +3073,8 @@ impl Daemon {
                 return Ok(json!({"session_id":id,"turn_queued":queued,"task_accepted":false}));
             }
             let context = ticket.into_context();
+            #[cfg(debug_assertions)]
+            let phase_clock = Instant::now();
             let (task, workspace, connection, grant) = context.request();
             let args = (
                 task.to_owned(),
@@ -2391,11 +3094,29 @@ impl Daemon {
                 ),
                 context,
             )?;
+            #[cfg(debug_assertions)]
+            goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(phase_clock.elapsed()),
+                [false; 6],
+                3,
+                None,
+            );
+            #[cfg(debug_assertions)]
+            let phase_clock = Instant::now();
             if let Err(error) = self.supervisor.launch(&mut self.store, &s.id) {
                 self.store.factory_launch_error(&s.id, error)?;
                 self.supervisor
                     .record_local_launch_failure(&mut self.store, &s.id)?;
             }
+            #[cfg(debug_assertions)]
+            goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(phase_clock.elapsed()),
+                [false; 6],
+                4,
+                None,
+            );
             Ok(json!({"session_id":s.id,"attempt_id":s.attempt_id,"task_accepted":false}))
         })();
         let response = match result {
@@ -2434,3 +3155,11 @@ impl Daemon {
             .try_send(self.factory_ready_error(&job.raw, error));
     }
 }
+
+#[cfg(test)]
+#[path = "goal_stop_service_tests.rs"]
+mod goal_stop_service_tests;
+
+#[cfg(test)]
+#[path = "ipc_owner_read_queue_tests.rs"]
+mod owner_read_queue_tests;

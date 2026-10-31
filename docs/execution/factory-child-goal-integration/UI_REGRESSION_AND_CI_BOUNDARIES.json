@@ -1,0 +1,185 @@
+{
+  "recorded_at": "2026-10-29T15:20:30.454825+00:00",
+  "ui": {
+    "results": [
+      {
+        "source": "d64b6f61cad8cea09e165eeeabed201dd1a32688",
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "exit": 0,
+        "seconds": 1.2913827039883472,
+        "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+      },
+      {
+        "source": "d64b6f61cad8cea09e165eeeabed201dd1a32688",
+        "command": [
+          "npm",
+          "run",
+          "test"
+        ],
+        "exit": 0,
+        "seconds": 29.528980075003346,
+        "log_sha256": "bd2d426806983ecbacccd83ea8553b5b27433951190df585cab5dea01b093338"
+      },
+      {
+        "source": "d64b6f61cad8cea09e165eeeabed201dd1a32688",
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.9819885260076262,
+        "log_sha256": "03f39cb84f93e19e24eb6fa89d5a948992e91814917f30596e6184551ca94cc8"
+      }
+    ],
+    "actual_tests": "802 passed /48 files",
+    "earlier_attempt": "regression1 typecheck exit127 tsc missing; locked npm ci109 packages then real rerun",
+    "dimension": "Real React component/unit tests and Vite build; not browser/Native acceptance"
+  },
+  "infrastructure": {
+    "results": [
+      {
+        "command": [
+          "python3",
+          "scripts/verify_bootstrap_manifest.py"
+        ],
+        "exit": 0,
+        "seconds": 0.06448260199977085,
+        "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/validate_design.py"
+        ],
+        "exit": 0,
+        "seconds": 0.31589478498790413,
+        "log_sha256": "7fae6dcb22973274abeb0c67b0df32e50b19fc7a605da990e1384f0245100c2f"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/validate_infrastructure.py"
+        ],
+        "exit": 0,
+        "seconds": 0.11481724501936696,
+        "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 1.2196722679946106,
+        "log_sha256": "70aa4f631b7df1e6d09d1ee3ebccc6a47fe540e8d592cecad6f0e2d8a95c4876"
+      }
+    ],
+    "actual_python_tests": 71,
+    "source_head": "310425717a75af714a58157116b6c839fa3a1d63"
+  },
+  "migration_strict_clippy": [
+    {
+      "source": "2b47e3b92be882debb23c0363f09802d14dea0c6",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-legacy-migration-tests",
+        "--test",
+        "factory_child_goal_legacy_migration",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 0.3017198329907842,
+      "minimum_free_bytes": 1209458688,
+      "interruption": null,
+      "log_sha256": "b80307c89895f474a383e47b0b2159ab6f4560272e5e4fdf8650057250d46bd1",
+      "summaries": []
+    }
+  ],
+  "full_core_lib_interrupted": {
+    "results": [
+      {
+        "source": "2b47e3b92be882debb23c0363f09802d14dea0c6",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": -15,
+        "seconds": 90.04095500698895,
+        "minimum_free_bytes": 1154265088,
+        "interruption": "90s_deadline",
+        "log_sha256": "3d1be0276418ad5323772825ab2f37cd7a7c16d3d18aa02c6af4a922f4ac1b9a",
+        "summaries": []
+      }
+    ],
+    "status": "INTERRUPTED_NOT_PASS",
+    "reason": "External evidence collector90s SIGTERM before suite completion; no complete test summary. Per-product deadlines unchanged. New source suite will use bounded300s external collector."
+  },
+  "browser": {
+    "source": "310425717a75af714a58157116b6c839fa3a1d63",
+    "command": [
+      "python3",
+      "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "--run",
+      "--case",
+      "normal",
+      "--tools",
+      "/workspace/.onboarding/factory-rework-historical-digest-preflight1/frozen",
+      "--manifest",
+      "/workspace/.onboarding/factory-child-goal-browser-capture-fixed1/manifest.json",
+      "--frontend",
+      "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+      "--output",
+      "/workspace/.onboarding/factory-child-goal-browser-capture-fixed1/normal"
+    ],
+    "exit": 1,
+    "seconds": 7.577461145003326,
+    "minimum_free_bytes": 1411981312,
+    "interruption": null,
+    "log_sha256": "d8f361d4a588d49c17dec1b9184c5e6d5f5b5a3bd559a8806166a1fd784cf656",
+    "report_sha256": "8c42932c593d23f90f4fb08196e9dc81dbaa69d100b9ef7c63fb2554dd05e5bf",
+    "status": "failed_or_interrupted",
+    "checks": 2,
+    "screenshots": 2,
+    "cleanup_complete": false,
+    "source_tools_assets_before_after_equal": true,
+    "guard_scope": "180s external test controller only; original product Grant/Scope/runtime and per-stage15s unchanged",
+    "dimensions": "actual React/Linux Chromium/authenticated Unix Core15/generated ACP+MCP/private Owner fixture; not OS dialog or real Provider account"
+  },
+  "browser_failure": "Exact child row immediately checked while actual UI Refresh still loading. All64 replies captured,0capturefail,0reject; whole case FAILED,cleanupfalse originals retained. Exact asynchronous wait fix pending.",
+  "ci_privacy_review": {
+    "source": "928526056aff8ce8fd22349e9d78314d168ab403",
+    "status": "BLOCKED_NOT_IMPORTED",
+    "finding": "Full private generated runtime database/raw RPC/Owner/Grant output would fall under always public artifact root. Author moving originals into private RUNNER_TEMP and providing finite white-list public evidence; no original files deleted."
+  },
+  "remaining": "Source review queueepoch, fresh full rework, browser3, full regression, dual Mac CI and new15 installers. Full130 incomplete."
+}

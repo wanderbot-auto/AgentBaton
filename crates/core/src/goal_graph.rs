@@ -3,12 +3,15 @@
 use super::*;
 #[path = "goal_evidence.rs"]
 mod evidence;
+#[path = "goal_graph_stop.rs"]
+mod stop;
 #[path = "goal_graph_validators.rs"]
 mod validators;
 pub use evidence::{
     GraphArtifactReference, GraphCandidateReceipt, GraphInputBinding, GraphOwnerDecision,
     GraphValidationReceipt, GRAPH_CONTRACT_VERSION, MAX_GRAPH_REVIEW_BYTES,
 };
+pub(super) use stop::{stopped_failure, stopped_graph};
 pub(crate) use validators::PreparedGraphValidation;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -117,6 +120,8 @@ pub struct GraphTaskAcceptance {
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct GraphRunBinding {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub factory_origin: Option<crate::factory::FactoryChildGoalOriginView>,
     pub run_id: String,
     pub scope_id: String,
     pub task_id: String,
@@ -186,6 +191,9 @@ pub struct GraphExecutionSnapshot {
 /// Presence is enough to reject a legacy interpretation, never to grant graph
 /// authority. Positive graph access separately verifies its immutable capability.
 pub(super) fn is_graph_run(db: &Connection, id: &str) -> Result<bool> {
+    if factory::marked_run(db, id)? {
+        return Ok(true);
+    }
     key(id)?;
     db.query_row(
         "SELECT EXISTS(SELECT 1 FROM goal_graph_capabilities WHERE run_id=?1)",
@@ -198,9 +206,27 @@ pub(super) fn require_legacy_run(db: &Connection, id: &str) -> Result<()> {
     if is_graph_run(db, id)? {
         return Err(err("CAPABILITY_UNSUPPORTED", "This is a versioned graph run; legacy candidate-only methods cannot read, replay or mutate its authority"));
     }
-    Ok(())
+    let r = run(db, id)?;
+    factory::verify_native_run(db, &r, false)
 }
 
+/// Distinct runtime authority value: this is never a fabricated proposal.
+pub(super) enum GraphAuthorityIssuer {
+    NativeGoal { approval_id: String },
+    FactoryScope { scope_id: String },
+}
+pub(super) struct GraphAuthority {
+    pub(super) issuer: GraphAuthorityIssuer,
+    pub(super) snapshot: Value,
+}
+impl GraphAuthority {
+    fn approval_id(&self) -> &str {
+        match &self.issuer {
+            GraphAuthorityIssuer::NativeGoal { approval_id } => approval_id,
+            GraphAuthorityIssuer::FactoryScope { scope_id } => scope_id,
+        }
+    }
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct GraphCapability {
@@ -209,10 +235,17 @@ struct GraphCapability {
     approval_id: String,
     snapshot_digest: String,
 }
-pub(super) fn checked_capability(db: &Connection, r: &GoalRun) -> Result<ApprovalProposal> {
+pub(super) fn checked_capability(db: &Connection, r: &GoalRun) -> Result<GraphAuthority> {
+    if factory::marked_run(db, &r.id)? {
+        return factory::capability(db, r);
+    }
     raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(run_id)+octet_length(approval_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],1,MAX_STORED_BYTES)?;
-    let stored: Option<Option<String>> = db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],|row|row.get(0)).optional().map_err(db_error)?;
-    let cap: GraphCapability = decode(&stored.ok_or_else(denied)?.ok_or_else(limited)?)?;
+    let stored:Option<(String,String,i64,Option<String>)>=db.query_row("SELECT run_id,approval_id,version,CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?))).optional().map_err(db_error)?;
+    let (run_id, approval_id, version, document) = stored.ok_or_else(denied)?;
+    let cap: GraphCapability = decode(&document.ok_or_else(limited)?)?;
+    if run_id != cap.run_id || approval_id != cap.approval_id || version != i64::from(cap.version) {
+        return Err(changed());
+    }
     let (p, result) = native_confirmation(db, &r.id, "goal_graph_execution")?;
     if cap.version != GRAPH_CONTRACT_VERSION
         || cap.run_id != r.id
@@ -242,7 +275,10 @@ pub(super) fn checked_capability(db: &Connection, r: &GoalRun) -> Result<Approva
         return Err(denied());
     }
     verify_plan_advances(db, r, &p, initial, authorized.ok_or_else(denied)?)?;
-    Ok(p)
+    Ok(GraphAuthority {
+        issuer: GraphAuthorityIssuer::NativeGoal { approval_id: p.id },
+        snapshot: p.snapshot,
+    })
 }
 
 pub(super) fn persist_capability(db: &Connection, p: &ApprovalProposal) -> Result<()> {
@@ -294,7 +330,9 @@ PRAGMA user_version=12;").map_err(db_error)?;
     }
     Ok(())
 }
-fn definition_permissions(record: &ScopeRecord) -> Result<Vec<GraphDefinitionReusePermission>> {
+pub(super) fn definition_permissions(
+    record: &ScopeRecord,
+) -> Result<Vec<GraphDefinitionReusePermission>> {
     let mut definitions = Vec::new();
     for validator in &record.refs.validators {
         let action = match validator.reference.kind {
@@ -441,8 +479,8 @@ impl Store {
     }
     pub fn list_goal_graph_runs(&self, task_id: &str) -> Result<Vec<GraphRunSummary>> {
         key(task_id)?;
-        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(r.document)+octet_length(r.id)+octet_length(g.document)),0),COALESCE(max(octet_length(r.document)),0) FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.task_id=?1",[task_id],256,MAX_STORED_BYTES)?;
-        let mut q=self.conn.prepare("SELECT r.id FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.task_id=?1 ORDER BY r.rowid DESC LIMIT 257").map_err(db_error)?;
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(r.document)+octet_length(r.id)+COALESCE(octet_length(g.document),0)+COALESCE(octet_length(f.document),0)),0),COALESCE(max(octet_length(r.document)),0) FROM goal_runs r LEFT JOIN goal_graph_capabilities g ON g.run_id=r.id LEFT JOIN factory_child_goal_runs f ON f.goal_run_id=r.id WHERE (g.run_id IS NOT NULL OR f.goal_run_id IS NOT NULL) AND r.task_id=?1",[task_id],256,MAX_STORED_BYTES)?;
+        let mut q=self.conn.prepare("SELECT r.id FROM goal_runs r LEFT JOIN goal_graph_capabilities g ON g.run_id=r.id LEFT JOIN factory_child_goal_runs f ON f.goal_run_id=r.id WHERE (g.run_id IS NOT NULL OR f.goal_run_id IS NOT NULL) AND r.task_id=?1 ORDER BY r.rowid DESC LIMIT 257").map_err(db_error)?;
         let ids = q
             .query_map([task_id], |r| r.get::<_, String>(0))
             .map_err(db_error)?
@@ -571,15 +609,91 @@ struct CaptureOrigin {
     runtime_reservation_ms: u64,
     consumed_inputs: Vec<GraphInputBinding>,
 }
+// Private monotonic observations, never deserialized or accepted as authority.
+#[derive(Clone, Copy)]
+struct CaptureWorkerTiming {
+    started_queue_ms: u64,
+    completed_queue_ms: u64,
+    elapsed_ms: u64,
+}
+struct CaptureWorkerObservation {
+    result: Result<evidence::CapturedCandidate>,
+    timing: CaptureWorkerTiming,
+}
+fn capture_millis(duration: std::time::Duration) -> u64 {
+    u64::try_from(duration.as_millis()).unwrap_or(u64::MAX)
+}
+fn observe_capture_worker(
+    queued_at: std::time::Instant,
+    execute: impl FnOnce() -> Result<evidence::CapturedCandidate>,
+) -> CaptureWorkerObservation {
+    let started = std::time::Instant::now();
+    let result = execute();
+    let completed = std::time::Instant::now();
+    CaptureWorkerObservation {
+        result,
+        timing: CaptureWorkerTiming {
+            started_queue_ms: capture_millis(started.saturating_duration_since(queued_at)),
+            completed_queue_ms: capture_millis(completed.saturating_duration_since(queued_at)),
+            elapsed_ms: capture_millis(completed.saturating_duration_since(started)),
+        },
+    }
+}
+#[derive(Serialize)]
+struct CaptureSettlementTiming {
+    producer_elapsed_ms: u64,
+    runtime_reservation_ms: u64,
+    capture_worker_started_queue_ms: Option<u64>,
+    capture_worker_completed_queue_ms: Option<u64>,
+    capture_join_observed_queue_ms: Option<u64>,
+    capture_worker_elapsed_ms: Option<u64>,
+}
+impl CaptureSettlementTiming {
+    fn observed(
+        origin: &CaptureOrigin,
+        worker: Option<CaptureWorkerTiming>,
+        joined: bool,
+        observed_ms: u64,
+    ) -> Self {
+        Self {
+            producer_elapsed_ms: origin.elapsed_at_stop_ms,
+            runtime_reservation_ms: origin.runtime_reservation_ms,
+            capture_worker_started_queue_ms: worker.map(|w| w.started_queue_ms),
+            capture_worker_completed_queue_ms: worker.map(|w| w.completed_queue_ms),
+            capture_join_observed_queue_ms: joined.then_some(observed_ms),
+            capture_worker_elapsed_ms: worker.map(|w| w.elapsed_ms),
+        }
+    }
+}
 enum CaptureCompletion {
     NotStarted(CoreError),
-    Joined(Box<Result<evidence::CapturedCandidate>>),
+    Joined {
+        result: Box<Result<evidence::CapturedCandidate>>,
+        timing: Option<CaptureWorkerTiming>,
+    },
     UnjoinedUnknown,
+}
+impl CaptureCompletion {
+    fn joined(outcome: std::thread::Result<CaptureWorkerObservation>) -> Self {
+        match outcome {
+            Ok(observed) => Self::Joined {
+                result: Box::new(observed.result),
+                timing: Some(observed.timing),
+            },
+            Err(_) => Self::Joined {
+                result: Box::new(Err(err(
+                    "OUTCOME_UNKNOWN",
+                    "Owned evidence worker panicked after an unknown partial observation",
+                ))),
+                timing: None,
+            },
+        }
+    }
 }
 struct CaptureWorker {
     origin: CaptureOrigin,
     cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
-    thread: std::thread::JoinHandle<Result<evidence::CapturedCandidate>>,
+    thread: std::thread::JoinHandle<CaptureWorkerObservation>,
     deadline: std::time::Instant,
     unknown_recorded: bool,
     queued_at: std::time::Instant,
@@ -607,8 +721,9 @@ impl GraphWorkers {
     pub(crate) fn has_workers(&self) -> bool {
         !self.captures.is_empty() || self.validators.has_workers()
     }
-    pub(crate) fn tick(&mut self, store: &mut Store) -> Result<()> {
-        self.validators.tick(store)?;
+    // Poll only handles that are already finished. The caller still owns every
+    // other handle; no thread wait or admission/frontier work happens here.
+    fn poll_finished_captures(&mut self, store: &mut Store) -> Result<()> {
         let finished: Vec<_> = self
             .captures
             .iter()
@@ -617,23 +732,26 @@ impl GraphWorkers {
             .collect();
         for id in finished {
             let w = self.captures.remove(&id).ok_or_else(changed)?;
-            let result = w
-                .thread
-                .join()
-                .map_err(|_| {
-                    err(
-                        "OUTCOME_UNKNOWN",
-                        "Owned evidence worker panicked after an unknown partial observation",
-                    )
-                })
-                .and_then(|r| r);
+            let completion = CaptureCompletion::joined(w.thread.join());
             store.finish_graph_capture(
                 &w.origin,
-                CaptureCompletion::Joined(Box::new(result)),
+                completion,
                 w.unknown_recorded,
                 w.queued_at.elapsed(),
             )?;
         }
+        Ok(())
+    }
+    fn mark_started_capture_and_poll(&mut self, store: &mut Store, id: &str) -> Result<()> {
+        store.mark_graph_capture_started(&self.captures.get(id).ok_or_else(changed)?.origin)?;
+        // The original frontier/origin checks and durable start receipt have
+        // succeeded. Observe a fast owned read's real join before unrelated
+        // Actor work, without renewing or discounting its original clock.
+        self.poll_finished_captures(store)
+    }
+    pub(crate) fn tick(&mut self, store: &mut Store) -> Result<()> {
+        self.validators.tick(store)?;
+        self.poll_finished_captures(store)?;
         for w in self.captures.values_mut() {
             let r = run(&store.conn, &w.origin.run_id)?;
             if r.cancel_requested
@@ -688,7 +806,7 @@ impl GraphWorkers {
         let deadline = prepared.deadline;
         let thread = std::thread::Builder::new()
             .name("baton-goal-evidence".into())
-            .spawn(move || prepared.execute());
+            .spawn(move || observe_capture_worker(queued_at, || prepared.execute()));
         match thread {
             Ok(thread) => {
                 let id = origin.id.clone();
@@ -703,9 +821,7 @@ impl GraphWorkers {
                         queued_at,
                     },
                 );
-                store.mark_graph_capture_started(
-                    &self.captures.get(&id).ok_or_else(changed)?.origin,
-                )?;
+                self.mark_started_capture_and_poll(store, &id)?;
             }
             Err(_) => store.finish_graph_capture(
                 &origin,
@@ -956,9 +1072,9 @@ impl Store {
         was_unknown: bool,
         queue_elapsed: std::time::Duration,
     ) -> Result<()> {
-        let (mut result, capture_joined) = match completion {
-            CaptureCompletion::NotStarted(e) => (Err(e), false),
-            CaptureCompletion::Joined(r) => (*r, true),
+        let (mut result, capture_joined, worker_timing) = match completion {
+            CaptureCompletion::NotStarted(e) => (Err(e), false, None),
+            CaptureCompletion::Joined { result, timing } => (*result, true, timing),
             CaptureCompletion::UnjoinedUnknown => return self.mark_graph_capture_unknown(origin),
         };
         let (r, n, record) = self.verify_capture_origin(origin)?;
@@ -1100,12 +1216,19 @@ impl Store {
             }
             .into();
         }
-        save_run(
-            &tx,
-            &mut current,
-            "goal.capture_settled",
-            json!({"job_id":origin.id,"state":state,"io_completion":if capture_joined {"worker_joined"}else{"not_started"},"capture_worker_joined":capture_joined,"producer_stop_confirmed":true,"actual_runtime_ms":elapsed,"actual_output_bytes":output_bytes,"task_accepted":false}),
-        )?;
+        let mut payload = json!({"job_id":origin.id,"state":state,"io_completion":if capture_joined {"worker_joined"}else{"not_started"},"capture_worker_joined":capture_joined,"producer_stop_confirmed":true,"actual_runtime_ms":elapsed,"actual_output_bytes":output_bytes,"task_accepted":false});
+        let timing = serde_json::to_value(CaptureSettlementTiming::observed(
+            origin,
+            worker_timing,
+            capture_joined,
+            observed,
+        ))
+        .map_err(|_| changed())?;
+        payload
+            .as_object_mut()
+            .ok_or_else(changed)?
+            .extend(timing.as_object().ok_or_else(changed)?.clone());
+        save_run(&tx, &mut current, "goal.capture_settled", payload)?;
         tx.commit().map_err(db_error)
     }
 }
@@ -1544,10 +1667,10 @@ fn rules_satisfied(
     without_owner: bool,
 ) -> bool {
     node.required_validators.iter().all(|rule| {
-        if rule == INPUT_RULE {
+        if rule == input_rule(record) {
             return true;
         } // Capture committed exact approved input SHA values.
-        if rule == OWNER_RULE {
+        if rule == owner_rule(record) {
             return without_owner
                 || refs.iter().all(|a| {
                     owners.iter().any(|o| {
@@ -1932,7 +2055,7 @@ fn node_acceptance_snapshot(
     let ready = graph_ready_node(db, r, &nodes, &candidates)?.ok_or_else(denied)?;
     if ready.node.id != s.node_id
         || ready.node.kind != NodeKind::OwnerApproval
-        || !matches!(&ready.node.executor,Executor::Owner{rule_id} if rule_id==OWNER_RULE)
+        || !matches!(&ready.node.executor,Executor::Owner{rule_id} if rule_id==owner_rule(&record))
     {
         return Err(denied());
     }
@@ -1955,6 +2078,7 @@ fn node_acceptance_snapshot(
         graph_contract_version: 1,
         intent: s.clone(),
         run_binding: GraphRunBinding {
+            factory_origin: factory::origin_view(db, r)?,
             run_id: r.id.clone(),
             scope_id: r.scope_id.clone(),
             task_id: r.task_id.clone(),
@@ -1971,9 +2095,12 @@ fn node_acceptance_snapshot(
         },
         node: ready.node.clone(),
         criterion: GraphCriterionBinding {
-            rule_id: OWNER_RULE.into(),
+            rule_id: owner_rule(&record).into(),
             criterion_text: record.selection.owner_acceptance_criteria.clone(),
-            criterion_digest: sha(&(OWNER_RULE, &record.selection.owner_acceptance_criteria))?,
+            criterion_digest: sha(&(
+                owner_rule(&record),
+                &record.selection.owner_acceptance_criteria
+            ))?,
             artifact_ids: refs.iter().map(|a| a.artifact_id.clone()).collect()
         },
         candidate_refs: refs,
@@ -2194,7 +2321,10 @@ impl Store {
             plan_revision: r.plan_revision,
             plan_digest: r.plan_digest.clone(),
             node_id: n.node.id.clone(),
-            rule_id: OWNER_RULE.into(),
+            rule_id: p.snapshot["criterion"]["rule_id"]
+                .as_str()
+                .ok_or_else(changed)?
+                .into(),
             criterion_digest: p.snapshot["criterion"]["criterion_digest"]
                 .as_str()
                 .ok_or_else(changed)?
@@ -2343,9 +2473,9 @@ pub(super) fn verify_intrinsic_node(db: &Connection, r: &GoalRun, n: &RuntimeNod
 }
 impl Store {
     fn reconcile_graph_frontiers(&mut self) -> Result<()> {
-        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(r.id)+octet_length(r.document)+octet_length(g.document)),0),COALESCE(max(octet_length(r.document)),0) FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.state IN('queued','running','awaiting_acceptance')",[],256,MAX_STORED_BYTES)?;
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(r.id)+octet_length(r.document)+COALESCE(octet_length(g.document),0)+COALESCE(octet_length(f.document),0)),0),COALESCE(max(octet_length(r.document)),0) FROM goal_runs r LEFT JOIN goal_graph_capabilities g ON g.run_id=r.id LEFT JOIN factory_child_goal_runs f ON f.goal_run_id=r.id WHERE (g.run_id IS NOT NULL OR f.goal_run_id IS NOT NULL) AND r.state IN('queued','running','awaiting_acceptance')",[],256,MAX_STORED_BYTES)?;
         let ids = {
-            let mut q=self.conn.prepare("SELECT r.id FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.state IN('queued','running','awaiting_acceptance') ORDER BY r.rowid").map_err(db_error)?;
+            let mut q=self.conn.prepare("SELECT r.id FROM goal_runs r LEFT JOIN goal_graph_capabilities g ON g.run_id=r.id LEFT JOIN factory_child_goal_runs f ON f.goal_run_id=r.id WHERE (g.run_id IS NOT NULL OR f.goal_run_id IS NOT NULL) AND r.state IN('queued','running','awaiting_acceptance') ORDER BY r.rowid").map_err(db_error)?;
             let rows = q
                 .query_map([], |row| row.get::<_, String>(0))
                 .map_err(db_error)?
@@ -2534,7 +2664,10 @@ fn maybe_accept_task(
         input_revision: record.refs.workspace.base_revision.clone(),
         workspace_id: record.refs.workspace.id.clone(),
         capability_digest: sha(&checked_capability(db, r)?.snapshot)?,
-        criterion_digest: sha(&(OWNER_RULE, &record.selection.owner_acceptance_criteria))?,
+        criterion_digest: sha(&(
+            owner_rule(&record),
+            &record.selection.owner_acceptance_criteria,
+        ))?,
         artifact_refs: refs,
         validation_ids: validations
             .iter()
@@ -2860,7 +2993,7 @@ fn node_acceptance_state(
             .node
             .required_validators
             .iter()
-            .any(|v| v != OWNER_RULE && v != INPUT_RULE)
+            .any(|v| v != owner_rule(&record) && v != input_rule(&record))
             && rules_satisfied(&record, &n.node, &refs, validations, owners, true)
         {
             "validated"
@@ -3021,15 +3154,18 @@ impl GraphWorkers {
         };
         let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
         let flag = cancel.clone();
+        let queued_at = std::time::Instant::now();
         let thread = std::thread::spawn(move || {
-            while !flag.load(std::sync::atomic::Ordering::SeqCst) {
-                std::thread::sleep(std::time::Duration::from_millis(1));
-            }
-            checked();
-            Err(err(
-                "CANCEL_REQUESTED",
-                "Controlled owned reader observed cancellation",
-            ))
+            observe_capture_worker(queued_at, || {
+                while !flag.load(std::sync::atomic::Ordering::SeqCst) {
+                    std::thread::sleep(std::time::Duration::from_millis(1));
+                }
+                checked();
+                Err(err(
+                    "CANCEL_REQUESTED",
+                    "Controlled owned reader observed cancellation",
+                ))
+            })
         });
         let origin = CaptureOrigin {
             id: "drop-reader-fixture".into(),
@@ -3057,11 +3193,15 @@ impl GraphWorkers {
                 thread,
                 deadline: std::time::Instant::now() + std::time::Duration::from_secs(30),
                 unknown_recorded: false,
-                queued_at: std::time::Instant::now(),
+                queued_at,
             },
         );
     }
 }
+
+#[cfg(test)]
+#[path = "goal_graph_capture_service_tests.rs"]
+mod capture_service_tests;
 
 pub(super) fn ready_dispatch_node<'a>(
     db: &Connection,
@@ -3120,6 +3260,16 @@ pub(super) fn prompt_validation_contracts(
         contracts.push(json!({"rule_id":def.rule_id,"definition_digest":def.digest,"artifacts":artifacts,"context":context,"current_subject":{"task_id":record.refs.task_id,"attempt_id":session.attempt_id,"spec_revision":record.refs.spec_revision,"input_revision":record.refs.workspace.base_revision,"version":version},"task_acceptance":"not_established"}));
     }
     Ok(json!(contracts))
+}
+
+pub(super) fn verify_pending_factory_validator(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    attempt: &str,
+    intent: &str,
+) -> Result<()> {
+    validators::verify_pending_factory_validator(db, r, n, attempt, intent)
 }
 
 #[cfg(test)]

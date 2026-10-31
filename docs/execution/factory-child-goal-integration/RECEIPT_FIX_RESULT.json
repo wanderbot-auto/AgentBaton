@@ -1,0 +1,111 @@
+{
+  "recorded_at": "2026-10-29T12:27:49.686845+00:00",
+  "root_head": "52cb4218127ffd2a3aad5e00312f1371e9a93604",
+  "receipt_fix_root": "3385ed0ac01da2c24c942d31d95b9241ef8786a1",
+  "production_change": "one reservation SQL parameter uses actual event writer Value encoding; all predicates/write ordering unchanged",
+  "actual_normal": {
+    "source": "3385ed0ac01da2c24c942d31d95b9241ef8786a1",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "factory_runtime_ipc",
+      "-vv",
+      "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume",
+      "--",
+      "--exact",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 35.398552832979476,
+    "minimum_free_bytes": 1930854400,
+    "interruption": null,
+    "log_sha256": "35b4f382a4f4a9a3d9e9669a80658a6aaf37579b1d33a6148aab07a1f49980ea",
+    "summaries": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 21 filtered out; finished in 16.50s"
+    ]
+  },
+  "observed": {
+    "tag8_absent": true,
+    "first_goal_reply": "success",
+    "second_goal_reply": "RESOURCE_LIMIT",
+    "real_sessions": 2,
+    "goal_reservations": 1,
+    "events": 56,
+    "prompt_utf8_bytes": 3673,
+    "node_reserved_runtime_ms": 1000,
+    "node_final_runtime_ms": 1003,
+    "node_output_bytes": null,
+    "node_state": "outcome_unknown",
+    "stop_confirmed": true,
+    "task_accepted": false,
+    "actor_join": "ok",
+    "timing_launch_to_prompt_ms": 1178.382,
+    "worker_try_send_variant": "not retained; Disconnected is source/timing inference, not a directly saved enum"
+  },
+  "upcoming": "Normal test must explicitly choose its initial reservation within already approved ceilings; preserve separate original1s timeout negative, all production runtime/capture/unknown checks unchanged. No after-approval budget increase.",
+  "unit_actual": {
+    "receipt_tests": {
+      "source": "52cb4218127ffd2a3aad5e00312f1371e9a93604",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "reservation_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 21.859309605992166,
+      "minimum_free_bytes": 1880727552,
+      "interruption": null,
+      "log_sha256": "7fb1df927b8d20fd892f5ea699dc267862da66e73dada5efde2ddc234ed27b27",
+      "summaries": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 115 filtered out; finished in 3.29s"
+      ]
+    },
+    "failure_label_tests": {
+      "source": "52cb4218127ffd2a3aad5e00312f1371e9a93604",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "failure_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 8.12879582401365,
+      "minimum_free_bytes": 1934778368,
+      "interruption": null,
+      "log_sha256": "3281debae6d48a1b3a044baac1861eb85749fc5f8acf518d79cf06b0ef55205e",
+      "summaries": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 115 filtered out; finished in 7.96s"
+      ]
+    },
+    "dimension": "actual Core Store/SQLite and read-worker body; no Supervisor/process in these four units"
+  },
+  "old_tests": {
+    "wrong_filter_zero": "build only, not a regression PASS",
+    "8173_old_source": "actual0/2 INPUT_CHANGED from earlier empty-counter phase, not old tag8 regression reproduction; failed ELF retained",
+    "a28_savepoint": "source review BLOCKED, corrected fresh per-case fixtures; not an actual old Rust run"
+  },
+  "open_boundary": "Owner-first Root Goal with no existing generic budget row may be incorrectly rejected by exact own-reservation phase. Not repaired by test fixture preapproval; real product boundary remains pending.",
+  "full_product": "incomplete",
+  "browser_mac_new_ci": "not_run"
+}

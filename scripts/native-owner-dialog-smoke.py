@@ -28,7 +28,7 @@ import time
 import uuid
 
 
-# Exact schema14 tables: never substitute old test DDL or silently skip absent
+# Exact schema15 tables: never substitute old test DDL or silently skip absent
 # tables. Every Goal store/runtime/graph table is empty in this Grant-only probe.
 GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
                'goal_plan_revisions', 'goal_plan_proposals', 'goal_ledgers',
@@ -39,7 +39,7 @@ GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
 FACTORY_TABLES = ('factory_scopes', 'factory_runs', 'factory_task_lineage',
                   'factory_task_bindings', 'factory_delegations', 'factory_attempts',
                   'factory_scoped_handles', 'factory_handoffs', 'factory_budget_reservations',
-                  'factory_child_plan_heads', 'factory_child_plan_revisions')
+                  'factory_child_plan_heads', 'factory_child_plan_revisions', 'factory_child_goal_runs')
 ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES, *FACTORY_TABLES)
 
 
@@ -136,7 +136,7 @@ def json_exact(left, right):
 def pending_error(value, proposal, sequence):
     if (type(sequence) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 15)
             or type(value.get('sequence')) is not int or not json_exact(value['sequence'], sequence)
             or not json_exact(value.get('proposal'), proposal) or proposal.get('kind') != 'grant'
             or proposal.get('consumed') is not False or value.get('proposal_result') is not None
@@ -174,7 +174,7 @@ def approved_error(value, proposal, baseline, response):
     current = value.get('proposal', {})
     if (type(baseline) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 15)
             or not isinstance(grants, list) or len(grants) != 1
             or current.get('id') != proposal['id'] or not json_exact(current.get('snapshot'), proposal['snapshot'])
             or current.get('kind') != 'grant' or current.get('consumed') is not True
@@ -742,7 +742,7 @@ def prepare_factory(generated):
     initial = database(generated['runtime'], p['id'])
     if error := pending_error(initial, p, initial['sequence']):
         raise ValueError(error)
-    # Exact live14/30zero BEFORE any enclosing Grant finalization.
+    # Exact live15/31zero BEFORE any enclosing Grant finalization.
     client = FactoryBootstrapClient(generated['client'], p)
     grant = client.request('approvals.finalize', {'proposal_id': p['id']}, 'proposal:' + p['id'], p['revision'])
     intent = p['snapshot']['intent']
@@ -878,7 +878,7 @@ def factory_database(runtime, proposal_id):
 def factory_pending_error(value, fixture, before):
     proposal = fixture['proposal']
     if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int
-            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
+            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 15)
             or not json_exact(value.get('sequence'), before['sequence'])
             or proposal.get('kind') != 'factory' or proposal.get('consumed') is not False
             or not json_exact(value.get('proposal'), proposal) or value.get('proposal_result') is not None
@@ -905,7 +905,7 @@ def factory_approved_error(value, fixture, before, response):
     counts = {name: int(name == 'factory_scopes') for name in ZERO_TABLES}
     if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0 or not isinstance(scope, dict) or response.get('error') is not None
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 15)
             or not json_exact(value.get('sequence'), before['sequence'] + 1)
             or not json_exact(value.get('proposal'), current)
             or not json_exact(value.get('proposal_result'), scope)
@@ -1012,7 +1012,7 @@ def _run_factory_pinned(binary, daemon_path, companion_path, output, cancel_at, 
             raise ValueError('Normal tool input must not be a symlink')
         raw = raw.resolve(strict=True)
         if not raw.is_file():
-            raise ValueError('Need actual matching normal14 tools')
+            raise ValueError('Need actual matching normal15 tools')
         destination = installed / name
         data = raw.read_bytes()
         destination.write_bytes(data)

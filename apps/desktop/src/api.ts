@@ -61,14 +61,15 @@ interface Envelope<T> {
   warnings: string[];
 }
 export class DaemonError extends Error {
-  constructor(public code: string, message: string, public sideEffectState: string) {
+  constructor(public code: string, message: string, public sideEffectState: string, public readonly retryable?: boolean) {
     super(message);
   }
 }
 export async function request<T>(command: string, args?: Record<string, unknown>): Promise<T> {
   const envelope = await invoke<Envelope<T>>(command, args);
   if (envelope.error) {
-    throw new DaemonError(envelope.error.code, envelope.error.message, envelope.error.side_effect_state);
+    throw new DaemonError(envelope.error.code, envelope.error.message, envelope.error.side_effect_state,
+      typeof envelope.error.retryable === 'boolean' ? envelope.error.retryable : undefined);
   }
   if (envelope.result === undefined) throw new Error('Daemon returned no result');
   return envelope.result;

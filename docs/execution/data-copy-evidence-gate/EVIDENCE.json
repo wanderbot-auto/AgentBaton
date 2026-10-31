@@ -1,0 +1,173 @@
+{
+  "source_commit": "2c5ffcc5b26e44c5f4dd2c85b4ca25a3616756e0",
+  "base": "7d1566566a4c20c00c76c4d6a98eea35a101af95",
+  "scope": "Authored nondefault before-copy evidence adapter, not authority or actual acceptance",
+  "schema": 15,
+  "feature": "existing agentbaton-core/preview-evidence, nondefault/release-prohibited",
+  "source_snapshot": {
+    "source_commit": "2c5ffcc5b26e44c5f4dd2c85b4ca25a3616756e0",
+    "base": "7d1566566a4c20c00c76c4d6a98eea35a101af95",
+    "schema": 15,
+    "feature": "existing nondefault preview-evidence; copy extension only",
+    "files": [
+      {
+        "path": "crates/core/src/copy_evidence_gate.rs",
+        "bytes": 10543,
+        "sha256": "af95c655bb068df2e0a3431980e5efbb07b6f63a979f083897f20a8f30036229"
+      },
+      {
+        "path": "crates/core/src/copy_evidence_gate_tests.rs",
+        "bytes": 17502,
+        "sha256": "c2c2c097e63cc7cde9a23041c48e1b247be94b37d69bc7a45a907af8fb5a3f1f"
+      },
+      {
+        "path": "crates/core/src/data_workspace_workers.rs",
+        "bytes": 29761,
+        "sha256": "b64fe8e31541469d186fd5738b823d69b76511e1153571c6a5ec971a0c7218ed"
+      },
+      {
+        "path": "scripts/native-audit-release.sh",
+        "bytes": 1152,
+        "sha256": "6d2ac974bd2f85d22feb5cd15cf9247f4f82613c85d05ab20f369a025ef689df"
+      }
+    ],
+    "preview_files_byte_identical": [
+      {
+        "path": "crates/core/src/preview_evidence_gate.rs",
+        "unchanged_bytes": 10624,
+        "sha256": "0b36e29eac2b47e315fe338542f742a844a2835de52822ccad89144fae0dc62d"
+      },
+      {
+        "path": "crates/core/src/preview_evidence_gate_tests.rs",
+        "unchanged_bytes": 15412,
+        "sha256": "f241a90ddaae986005118fd9fe5e1e1c0761efd8ca3367e4c4a3ceadb5d5a9a0"
+      }
+    ],
+    "deps_locks_permissions_public_IPC_schema_changed": false
+  },
+  "archive": {
+    "path": "docs/execution/data-copy-evidence-gate/EVIDENCE.tar.gz",
+    "bytes": 19108,
+    "sha256": "699cf88d5520bf1f1b0a17be223193bbcc6078a0f5360ac6d22b13c7c8105fa8",
+    "members": 21,
+    "all_regular_safe_unique_full_hash_roundtrip": true
+  },
+  "manifest_sha256": "f869cf8565115d0cbd85c730d6280e347d4381022289b3d15e46acf527a983b3",
+  "actual_checks": [
+    {
+      "argv": [
+        "/workspace/.toolchains/cargo/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/core/src/data_workspace_workers.rs",
+        "crates/core/src/copy_evidence_gate.rs",
+        "crates/core/src/copy_evidence_gate_tests.rs"
+      ],
+      "cwd": "/workspace/.worktrees/data-copy-evidence-gate",
+      "exit": 0,
+      "stdout": "fmt-check.stdout",
+      "stderr": "fmt-check.stderr",
+      "scope": "source/format only"
+    },
+    {
+      "argv": [
+        "bash",
+        "-n",
+        "scripts/native-audit-release.sh"
+      ],
+      "cwd": "/workspace/.worktrees/data-copy-evidence-gate",
+      "exit": 0,
+      "stdout": "shell-syntax.stdout",
+      "stderr": "shell-syntax.stderr",
+      "scope": "source/format only"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "7d1566566a4c20c00c76c4d6a98eea35a101af95",
+        "2c5ffcc5b26e44c5f4dd2c85b4ca25a3616756e0"
+      ],
+      "cwd": "/workspace/.worktrees/data-copy-evidence-gate",
+      "exit": 0,
+      "stdout": "diff-check.stdout",
+      "stderr": "diff-check.stderr",
+      "scope": "source/format only"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/workspace/.onboarding/data-copy-evidence-gate/check_inert.py"
+      ],
+      "exit": 0,
+      "stdout": "inert.stdout",
+      "stderr": "inert.stderr",
+      "scope": "10 inert/static methods, includes all11 old+preview+copy marker subcases; no product execution"
+    }
+  ],
+  "test_matrix": {
+    "source": "2c5ffcc5b26e44c5f4dd2c85b4ca25a3616756e0",
+    "actual": {
+      "rustfmt_check": 0,
+      "bash_syntax": 0,
+      "diff_check": 0,
+      "python_inert": "10 methods PASS,11 original+preview+copy marker subcases included; own inert text only"
+    },
+    "new_Rust_source_only_NOT_COMPILED_NOT_RUN": [
+      "missing/off/startup immutable/no descriptor path opening",
+      "malformed/duplicate/unknown/schema/nonce/canonicalu64/source/relativefiles/limit rejection",
+      "config symlink/FIFO/hardlink/nonprivate/oversize/parent rejection",
+      "mismatched source/files/SHA/ID/policy never publishes or consumes",
+      "real waiting thread exact before_copy ready and cancellation-only release; once-only replay",
+      "original timeout, collision preserved/no overwrite",
+      "cancel/expired before ready and replaced-runtime FD mismatch",
+      "real Store+original preview verified+Owner trusted finalization fixture+authorized copy worker\u2192beforecopy\u2192original cancel\u2192join\u2192copy_finished/io_completion; same-key receipt/read replay no new sequence/worker; source unchanged"
+    ],
+    "preview_code_and_8tests": "exact base7d bytes; previous actual evidence is not relabelled as copy evidence",
+    "pending": [
+      "independent source review",
+      "Core feature/default and release negative compilation",
+      "eight new Rust actual tests",
+      "combined new Python copy adapter and feature daemon actual run",
+      "actual default/release marker inspection",
+      "new CI/Mac/packages"
+    ],
+    "not_claimed": [
+      "new Rust/runtime PASS",
+      "partial write/mid-copy or OS stop",
+      "new read/copy/Grant authority",
+      "full130 completed"
+    ],
+    "old_run": "exit2/8checks; actual preview cancellation passed; copy UI requested true once but terminal ready/r2/cancel_requestedfalse/worker_joined won. Not confirmed copy cancellation, original preserved."
+  },
+  "original_actual_result": {
+    "source": "7d1566566a4c20c00c76c4d6a98eea35a101af95",
+    "result_path": "/workspace/.onboarding/pr18-data-preview-gated-run2/RESULTS.json",
+    "result_sha256": "d07eab30378d2581aec7b8a5a779f52595d56bdc341bae741c10eb3a101df732",
+    "report_path": "/workspace/.onboarding/pr18-data-preview-gated-run2/evidence/report.json",
+    "report_sha256": "0c297309aa01cc335c6e14cca86bb59c1319857924c8be6890faca3405d65c98",
+    "exit": 2,
+    "seconds": 7.330348099989351,
+    "checks": 8,
+    "copy_observed": {
+      "requested_through_ui": true,
+      "ready_race_exercised": true,
+      "terminal_state": "ready",
+      "revision": 2,
+      "cancel_requested": false,
+      "io_completion": "worker_joined",
+      "cancel_specific_receipt_observed": false
+    },
+    "correction": "Original requestedfalse description withdrawn: UI cancellation actually requested once; ready committed first. Exact request/finish relative time is not inferred. This is not confirmed copy cancellation.",
+    "preview_cancel_evidence": "Root actual preview cancelled with two ordered events; not retested or transferred to new copy seam",
+    "original_report_untouched": true,
+    "raw_report_DB_RPC_Grant_copied": false,
+    "new_copy_gate_actual_run": "NOT_RUN"
+  },
+  "independent_review": "Root assigned fixed2c5 review; pending at this authored freeze",
+  "Cargo_Node_Actor_browser_or_product_run": false,
+  "new_permissions_locks_schema_public_IPC": false
+}

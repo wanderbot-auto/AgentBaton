@@ -1,0 +1,109 @@
+{
+  "base_commit": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+  "branch": "codex/goal-owner-observation-order",
+  "authority": "Root approved harness-only observation-order correction; no product/API/permissions/budget changes",
+  "source_sha256": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271",
+  "original_failure": {
+    "executor": "Root",
+    "report": "/workspace/.onboarding/pr18-read-cycle-integrated-goal-lost-start-actual1/report.json",
+    "report_sha256": "eae475fd54b78aecc52624291bcf7783b185f28bbe423f4f9b3691b7b1165ac7",
+    "DOM_sha256": "558df366a235434d01264ae0bad544e1a128cd4236a1d516c8d8591b04de2c5b",
+    "passed": [
+      "CG01",
+      "CG02",
+      "CG03"
+    ],
+    "failure": "original15s final acceptance observation expired; no final Native Goal proposal/finalize",
+    "UI_busy_wire": 230,
+    "UI_busy_wire_sha256": "3fd02bbff5fec0ad2cb5ef2f5b2eb721b65c03abdd3fcd83635e9669e9937298",
+    "overlapping_driver_get": 229,
+    "limitation": "original click event itself not traced; preflight Busy is directly observed; no SQL needed or performed",
+    "retention": "all original evidence/database/fixture unchanged"
+  },
+  "verification": {
+    "command": "python3 /workspace/.onboarding/goal-owner-observation-order-pure1/check.py",
+    "exit_code": 0,
+    "count": 41,
+    "result": "/workspace/.onboarding/goal-owner-observation-order-pure1/RESULT.json",
+    "result_sha256": "00880472dbf7ead1ca049c3f51e4c03808f7c8e6813807c32b34925085ffd119",
+    "dimension": "actual source functions extracted with AST; fake clocks/receipts/host only; no full harness import, SQL, browser, process, Provider or runtime acceptance",
+    "initial_adapter_failure": "ATTEMPTS.json retains NameError; adapter corrected without product source change"
+  },
+  "static_checks": [
+    "AST parse passed",
+    "git diff --check passed"
+  ],
+  "actual_runtime": "not_run",
+  "not_run": [
+    "full harness module import/self-check",
+    "actual browser/DOM/IPC/daemon/SQLite",
+    "Node/Cargo",
+    "network/CI",
+    "macOS/OS Native",
+    "real Provider",
+    "independent review"
+  ],
+  "invariants": [
+    "single original Owner click",
+    "same original15s absolute end across both stages",
+    "Native signal never replaces independent Core acceptance",
+    "original per-wire waits and late-success refusal",
+    "original Native candidate/authority checks and evidence writes",
+    "no automatic write replay or client/worker/TTL/budget change"
+  ],
+  "compatibility_review_closure": {
+    "reviewed_commit": "bd607353124876bd87639c2dc91b8bb92bf34335",
+    "prior_status": "CHANGES_REQUIRED",
+    "findings": [
+      "existing phase controls expected4 rather than new7 blocks and lacked new runtime dependencies",
+      "existing readonly AST loader did not load new actual deadline helper"
+    ],
+    "harness_source_unchanged": true,
+    "scope": "two explicitly approved infrastructure test files plus dedicated docs",
+    "result": "/workspace/.onboarding/goal-owner-observation-order-pure1/COMPATIBILITY.json",
+    "result_sha256": "8e514bdd1d6282b6e2622ae1c2e1d03aab01084034ea6d1b5020448dbe4c1e4e",
+    "actual_pure_commands": [
+      {
+        "command": "PYTHONPATH=tests/infrastructure python3 -m unittest test_factory_bound_provider_exit.ChildGoalTimingTests -v",
+        "exit_code": 0,
+        "tests": 3,
+        "result": "passed; includes7 phase RuntimeError/finally subcases"
+      },
+      {
+        "command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_bound_readonly_wait.py -v",
+        "exit_code": 0,
+        "tests": 15,
+        "result": "passed; all original testcase bodies structurally unchanged"
+      }
+    ],
+    "original_readonly_class_AST_equal": true,
+    "test_source_sha256": {
+      "tests/infrastructure/test_child_goal_bound_readonly_wait.py": "957496b0a787d5979a34c28bc5250356e01170e66cfda232a610dd0d063ba14d",
+      "tests/infrastructure/test_factory_bound_provider_exit.py": "66a89c55369f31979682ab3a1f4cf1ee435cdd4ac850a4dd1e21fe9d428c5fc7"
+    },
+    "status": "compatibility source fixed; independent re-review/runtime pending"
+  },
+  "Root_actual_source_bound_results": {
+    "file": "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
+    "sha256": "5cbbcf60389f7f839a96044c4add29300c0f948acca6ab0f5458c71542955ce1",
+    "harness_source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+    "compiled_Core_and_frontend_source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+    "normal": {
+      "checks": 4,
+      "PNG": 4,
+      "cleanup": true
+    },
+    "cancel": {
+      "checks": 4,
+      "PNG": 3,
+      "cleanup": true
+    },
+    "loststart": {
+      "checks": 5,
+      "PNG": 4,
+      "cleanup": true
+    },
+    "new_exact_CI": "not_run",
+    "oldfailures": "retained separately"
+  }
+}

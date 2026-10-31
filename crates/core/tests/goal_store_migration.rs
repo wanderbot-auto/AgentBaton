@@ -63,7 +63,7 @@ fn actual_schema8_upgrade_preserves_raw_rows_and_private_reopenable_backup() {
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        14
+        15
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -148,10 +148,10 @@ fn migration9_failure_rolls_back_schema_and_preserves_unknown_goal_named_table()
     assert_eq!(backups(dir.path()).len(), 1);
 }
 #[test]
-fn actual_future_schema15_is_rejected_without_modifying_bytes() {
+fn actual_future_schema16_is_rejected_without_modifying_bytes() {
     let (_dir, db, _) = schema8();
     let c = Connection::open(&db).unwrap();
-    c.execute_batch("PRAGMA user_version=15;").unwrap();
+    c.execute_batch("PRAGMA user_version=16;").unwrap();
     drop(c);
     let before = fs::read(&db).unwrap();
     assert_eq!(Store::open(&db).err().unwrap().code, "VERSION_UNSUPPORTED");

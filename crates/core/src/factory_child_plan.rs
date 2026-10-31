@@ -88,10 +88,7 @@ pub(crate) fn resolve_binding(
     let Some(p) = &s.child_planning_policy else {
         return Ok(None);
     };
-    if !s.capabilities.child_planning
-        || s.capabilities.child_goal_execution
-        || s.capabilities.create_workspace
-    {
+    if !s.capabilities.child_planning || s.capabilities.create_workspace {
         return Err(denied());
     }
     policy_limits(s, p)?;
@@ -137,7 +134,6 @@ fn approved_binding(s: &FactoryScope) -> Result<&FactoryChildPlanningBinding> {
         .ok_or_else(denied)?;
     let b = s.bindings.child_planning.as_ref().ok_or_else(denied)?;
     if !s.selection.capabilities.child_planning
-        || s.selection.capabilities.child_goal_execution
         || s.selection.capabilities.create_workspace
         || b.schema_version != 1
         || b.authority_kind != AUTHORITY
@@ -160,7 +156,7 @@ fn approved_binding(s: &FactoryScope) -> Result<&FactoryChildPlanningBinding> {
     }
     Ok(b)
 }
-fn host_policy(s: &FactoryScope, b: &TaskBinding) -> Result<HostGoalPolicy> {
+pub(super) fn host_policy(s: &FactoryScope, b: &TaskBinding) -> Result<HostGoalPolicy> {
     let binding = approved_binding(s)?;
     let p = &binding.policy;
     let w = s
@@ -349,7 +345,7 @@ fn stored_budget(db: &Connection, scope_id: &str, task_id: &str) -> Result<()> {
     }
     Ok(())
 }
-fn row(
+pub(super) fn row(
     db: &Connection,
     scope_id: &str,
     task_id: &str,
@@ -474,7 +470,7 @@ pub(super) fn latest_reference(
 ) -> Result<Option<FactoryChildPlanRef>> {
     Ok(head(db, scope_id, task_id)?.map(|v| v.reference))
 }
-fn mutable_target(db: &Connection, s: &FactoryScope, b: &TaskBinding) -> Result<()> {
+pub(super) fn mutable_target(db: &Connection, s: &FactoryScope, b: &TaskBinding) -> Result<()> {
     base_live(db, s)?;
     let current = binding(db, &b.run_id, &b.handle.task_id)?;
     if current.handle.revision != b.handle.revision
@@ -498,6 +494,7 @@ fn mutable_target(db: &Connection, s: &FactoryScope, b: &TaskBinding) -> Result<
                 | "starting"
                 | "running"
                 | "waiting_child"
+                | "waiting_goal"
                 | "resuming"
         )
         || matches!(
@@ -510,10 +507,30 @@ fn mutable_target(db: &Connection, s: &FactoryScope, b: &TaskBinding) -> Result<
     {
         return Err(denied());
     }
+    if b.handle.state == "waiting_goal" {
+        if task.state != TaskState::Draft
+            || b.session_id.is_some()
+            || b.handle.attempt_id.is_some()
+            || b.handle.confirmed_stop
+            || b.handle.result_available
+            || b.turn_sent
+            || b.stop_reason.is_some()
+            || b.child_goal_recovery.is_some()
+        {
+            return Err(denied());
+        }
+        crate::goal_store::require_factory_queued_unstarted_goal(
+            db,
+            b.child_goal_run_id.as_deref().ok_or_else(denied)?,
+            &s.id,
+            &b.run_id,
+            &task.id,
+        )?;
+    }
     require_planning_task_state(db, s, b, &task)?;
     Ok(())
 }
-fn require_planning_task_state(
+pub(super) fn require_planning_task_state(
     db: &Connection,
     s: &FactoryScope,
     b: &TaskBinding,
@@ -522,6 +539,14 @@ fn require_planning_task_state(
     if task.state != TaskState::OutcomeUnknown {
         return Ok(());
     }
+    require_normal_factory_handoff(db, s, b, task)
+}
+pub(super) fn require_normal_factory_handoff(
+    db: &Connection,
+    s: &FactoryScope,
+    b: &TaskBinding,
+    task: &crate::storage::Task,
+) -> Result<()> {
     let current_run = run(db, &s.id)?;
     if current_run.cancel_requested
         || !matches!(
@@ -667,7 +692,10 @@ pub(super) fn recorded_context(
     Ok(view)
 }
 impl Store {
-    fn factory_child_read_task(db: &Connection, id: &str) -> Result<crate::storage::Task> {
+    pub(super) fn factory_child_read_task(
+        db: &Connection,
+        id: &str,
+    ) -> Result<crate::storage::Task> {
         let raw:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM tasks WHERE id=?1",[id],|r|r.get(0)).optional().map_err(db_error)?;
         decode(&raw.flatten().ok_or_else(changed)?)
     }
@@ -711,7 +739,10 @@ impl Store {
         mutable_target(&self.conn, &caller.scope, &target)?;
         self.prepare_factory_child_plan_read(&caller.scope, raw)
     }
-    fn require_factory_child_plan_observation(&self, scope: &FactoryScope) -> Result<()> {
+    pub(super) fn require_factory_child_plan_observation(
+        &self,
+        scope: &FactoryScope,
+    ) -> Result<()> {
         if !self
             .data_input
             .as_ref()

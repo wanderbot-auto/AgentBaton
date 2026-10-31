@@ -21,6 +21,14 @@ use std::{
     time::{Duration, Instant},
 };
 const IO_BUDGET: Duration = Duration::from_secs(30);
+#[cfg(all(feature = "preview-evidence", not(debug_assertions)))]
+compile_error!("preview-evidence is debug-only and must never enter release applications");
+#[cfg(feature = "preview-evidence")]
+#[path = "copy_evidence_gate.rs"]
+mod copy_evidence_gate;
+#[cfg(feature = "preview-evidence")]
+#[path = "preview_evidence_gate.rs"]
+mod preview_evidence_gate;
 type ReadResult<T> = Box<Result<T>>;
 type DataChecked = (
     crate::data_validation::CheckedDataValidation,
@@ -79,6 +87,10 @@ pub(crate) struct DataWorkspaceWorkers {
     runtime_directory: std::fs::File,
     worker: Option<Worker>,
     retained: Option<(String, Output, bool, Option<crate::ipc::ReadyRequest>)>,
+    #[cfg(feature = "preview-evidence")]
+    preview_evidence: Option<Arc<preview_evidence_gate::PreviewEvidenceGate>>,
+    #[cfg(feature = "preview-evidence")]
+    copy_evidence: Option<Arc<copy_evidence_gate::CopyEvidenceGate>>,
 }
 fn cancelled() -> CoreError {
     CoreError::new(
@@ -101,11 +113,21 @@ impl DataWorkspaceWorkers {
             .map_err(|_| {
                 CoreError::new("PERMISSION_DENIED", "Cannot pin private runtime directory")
             })?;
+        #[cfg(feature = "preview-evidence")]
+        let preview_evidence =
+            preview_evidence_gate::PreviewEvidenceGate::load(runtime, &runtime_directory)?;
+        #[cfg(feature = "preview-evidence")]
+        let copy_evidence =
+            copy_evidence_gate::CopyEvidenceGate::load(runtime, &runtime_directory)?;
         let workers = Self {
             runtime_root: runtime.into(),
             runtime_directory,
             worker: None,
             retained: None,
+            #[cfg(feature = "preview-evidence")]
+            preview_evidence,
+            #[cfg(feature = "preview-evidence")]
+            copy_evidence,
         };
         workers.runtime_privacy_pin()?;
         Ok(workers)
@@ -137,6 +159,10 @@ impl DataWorkspaceWorkers {
     }
     pub(crate) fn has_workers(&self) -> bool {
         self.worker.is_some() || self.retained.is_some()
+    }
+    #[cfg(debug_assertions)]
+    pub(crate) fn diagnostic_worker_state(&self) -> (bool, bool) {
+        (self.worker.is_some(), self.retained.is_some())
     }
     pub(crate) fn cancel(&self, id: &str) {
         if let Some(w) = self.worker.as_ref().filter(|w| w.id == id) {
@@ -203,6 +229,10 @@ impl DataWorkspaceWorkers {
         let project_reference = (project.id.clone(), project.revision);
         let chosen = record.selection.clone();
         let approval = record.id.clone();
+        #[cfg(feature = "preview-evidence")]
+        let preview_evidence = self.preview_evidence.clone();
+        #[cfg(feature = "preview-evidence")]
+        let evidence_project = record.project_id.clone();
         let scheduled = self.spawn(&record.id, true, move |cancel, deadline| {
             Output::preview((|| {
                 if cancel.load(Ordering::Relaxed) {
@@ -226,6 +256,18 @@ impl DataWorkspaceWorkers {
                 }
                 let control = CopyControl::new(cancel, deadline)
                     .exclude_directory(excluded_runtime.0, excluded_runtime.1);
+                #[cfg(feature = "preview-evidence")]
+                if let Some(gate) = preview_evidence {
+                    // A delay only, after host/source verification and before scanning.
+                    // This is the real worker's original cancel/deadline, never Actor wait.
+                    gate.wait(
+                        &contract.approval_reference,
+                        &evidence_project,
+                        &contract,
+                        cancel,
+                        deadline,
+                    )?;
+                }
                 let snapshot =
                     verify_dataset_controlled(&approved, &control).map_err(data_error)?;
                 Ok(snapshot.view())
@@ -265,6 +307,8 @@ impl DataWorkspaceWorkers {
             }
         };
         let project_reference = (project.id.clone(), project.revision);
+        #[cfg(feature = "preview-evidence")]
+        let copy_evidence = self.copy_evidence.clone();
         let result = self.spawn(id, false, move |cancel, deadline| {
             Output::copy(copy_exact(
                 &record,
@@ -272,6 +316,8 @@ impl DataWorkspaceWorkers {
                 cancel,
                 deadline,
                 excluded_runtime,
+                #[cfg(feature = "preview-evidence")]
+                copy_evidence,
             ))
         });
         if let Err(error) = &result {
@@ -446,9 +492,19 @@ impl DataWorkspaceWorkers {
             error.side_effect_state = "not_started".into();
             return Err(Box::new((error, job)));
         }
+        #[cfg(debug_assertions)]
+        let diagnostic_tag = crate::ipc::goal_diagnostics::method_tag(&job.raw);
         let worker = self.worker.as_mut().unwrap();
         worker.pending = Some(job);
         worker.factory_owner_watch = factory_watch;
+        #[cfg(debug_assertions)]
+        crate::ipc::goal_diagnostics::emit(
+            "input_read_issued",
+            None,
+            [true, false, false, false, false, false],
+            diagnostic_tag,
+            None,
+        );
         Ok(())
     }
     pub(crate) fn validate_data(
@@ -615,6 +671,9 @@ fn copy_exact(
     cancel: &AtomicBool,
     deadline: Instant,
     excluded_runtime: (u64, u64),
+    #[cfg(feature = "preview-evidence")] copy_evidence: Option<
+        Arc<copy_evidence_gate::CopyEvidenceGate>,
+    >,
 ) -> Result<agentbaton_workspaces::data_workspace::DataWorkspaceCreation> {
     if cancel.load(Ordering::Relaxed) {
         return Err(cancelled());
@@ -652,6 +711,18 @@ fn copy_exact(
             "INPUT_CHANGED",
             "Host-managed root was replaced before copying",
         ));
+    }
+    #[cfg(feature = "preview-evidence")]
+    if let Some(gate) = copy_evidence {
+        // The original Owner-bound record, reverified source snapshot and managed
+        // root already passed. Only this worker's original cancel/deadline waits.
+        gate.wait(
+            &record.id,
+            &record.project_id,
+            &record.snapshot.contract,
+            cancel,
+            deadline,
+        )?;
     }
     create_data_workspace_controlled(&snapshot, &root, &record.id, &control).map_err(data_error)
 }

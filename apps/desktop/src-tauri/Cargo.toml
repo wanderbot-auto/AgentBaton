@@ -51,3 +51,8 @@ features = ["std", "NSGeometry", "NSString", "NSArray", "NSObject"]
 name = "agentbaton-native-owner-dialog-smoke"
 path = "src/bin/native_owner_dialog_smoke.rs"
 required-features = ["native-smoke"]
+
+# Keep complete executable/input integrity verification practical in dev/tests.
+# Test inherits dev; release already optimizes this unchanged SHA-256 library.
+[profile.dev.package.sha2]
+opt-level = 3

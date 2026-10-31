@@ -2,6 +2,9 @@
 //! scope/plan constructors stay private and cannot be populated from IPC labels.
 use super::*;
 
+#[path = "goal_factory.rs"]
+pub(super) mod factory;
+
 #[path = "goal_graph.rs"]
 mod graph;
 pub(crate) use graph::{
@@ -295,12 +298,7 @@ PRAGMA user_version=11;").map_err(db_error)?;
     Ok(())
 }
 fn connection_summary(refs: &GoalRefs) -> Result<Value> {
-    let id = refs
-        .grant_after
-        .scope
-        .connection_ids
-        .first()
-        .ok_or_else(changed)?;
+    let id = refs.connection["id"].as_str().ok_or_else(changed)?;
     let binding = refs
         .grant_after
         .connection_bindings
@@ -363,7 +361,7 @@ fn snapshot_base(
     require_metered_capabilities(&plan.proposal)?;
     // A complete plan is reviewed; neither IDs nor a digest-only surrogate grant
     // unseen nodes or permissions. Large owner reviews must use a separate UI design.
-    let v = json!({"intent":s,"scope":scope_view(&r,&scope)?,"root_grant":r.refs.grant_after,"existing_connection":connection_summary(&r.refs)?,"plan":plan,"execution":"bounded_existing_workspace_only","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"warning":"Approve autonomous execution of this plan and later validated versions within this exact Goal scope, fixed inputs/capabilities and shared cumulative budgets. Each version requires exact Store compare-and-swap and retained lineage. No new workspace, identity, host or recipient is granted. Node completion is only candidate evidence. Unknown effects and budget overrun block further execution. Output accounting observes declared selected artifacts at stop; it is not an OS filesystem quota."});
+    let v = json!({"intent":s,"scope":scope_view(db,&r,&scope)?,"root_grant":r.refs.grant_after,"existing_connection":connection_summary(&r.refs)?,"plan":plan,"execution":"bounded_existing_workspace_only","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"warning":"Approve autonomous execution of this plan and later validated versions within this exact Goal scope, fixed inputs/capabilities and shared cumulative budgets. Each version requires exact Store compare-and-swap and retained lineage. No new workspace, identity, host or recipient is granted. Node completion is only candidate evidence. Unknown effects and budget overrun block further execution. Output accounting observes declared selected artifacts at stop; it is not an OS filesystem quota."});
     Ok(v)
 }
 fn snapshot(
@@ -463,7 +461,7 @@ impl Store {
         }
         if plan.proposal.revision != s.expected_plan_revision
             || p.snapshot["plan"] != json!(plan)
-            || p.snapshot["scope"] != json!(scope_view(&scope_record, &scope)?)
+            || p.snapshot["scope"] != json!(scope_view(&tx, &scope_record, &scope)?)
             || p.snapshot["root_grant"] != json!(scope_record.refs.grant_after)
             || p.snapshot["existing_connection"] != connection_summary(&scope_record.refs)?
         {
@@ -566,14 +564,14 @@ impl Store {
         key(task_id)?;
         raw_collection_budget(
             &self.conn,
-            "SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id)",
+            "SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id) AND NOT EXISTS(SELECT 1 FROM factory_child_goal_runs f WHERE f.goal_run_id=goal_runs.id)",
             [task_id],
             256,
             MAX_STORED_BYTES,
         )?;
         let mut q = self
             .conn
-            .prepare("SELECT id FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id) ORDER BY rowid DESC LIMIT 257")
+            .prepare("SELECT id FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id) AND NOT EXISTS(SELECT 1 FROM factory_child_goal_runs f WHERE f.goal_run_id=goal_runs.id) ORDER BY rowid DESC LIMIT 257")
             .map_err(db_error)?;
         let ids = q
             .query_map([task_id], |r| r.get::<_, String>(0))
@@ -583,7 +581,12 @@ impl Store {
         if ids.len() > 256 {
             return Err(limited());
         }
-        ids.iter().map(|id| run(&self.conn, id)).collect()
+        ids.iter()
+            .map(|id| {
+                graph::require_legacy_run(&self.conn, id)?;
+                run(&self.conn, id)
+            })
+            .collect()
     }
     pub fn cancel_goal_run(&mut self, id: &str, revision: u64, key_id: &str) -> Result<GoalRun> {
         self.record_goal_cancel(id, revision, key_id)
@@ -605,6 +608,9 @@ impl Store {
         graph: bool,
     ) -> Result<(GoalRun, bool)> {
         key(key_id)?;
+        if graph && factory::marked_run(&self.conn, id)? {
+            return Err(denied());
+        }
         if graph {
             graph::checked_capability(&self.conn, &run(&self.conn, id)?)?;
         } else {
@@ -683,7 +689,7 @@ pub(crate) fn permits_continuing_task(
     db: &Connection,
     intent: &crate::execution::DispatchIntent,
 ) -> Result<bool> {
-    db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes n JOIN sessions s ON s.id=n.session_id JOIN goal_runs r ON r.id=n.run_id WHERE json_extract(s.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping')) OR EXISTS(SELECT 1 FROM goal_graph_jobs j JOIN goal_run_nodes n ON n.attempt_id=j.attempt_id AND n.run_id=j.run_id JOIN goal_runs r ON r.id=j.run_id JOIN goal_graph_capabilities c ON c.run_id=r.id WHERE json_extract(j.document,'$.job_kind')='validator' AND json_extract(j.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping'))",params![intent.id,intent.task_id],|r|r.get(0)).map_err(db_error)
+    db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes n JOIN sessions s ON s.id=n.session_id JOIN goal_runs r ON r.id=n.run_id WHERE json_extract(s.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping')) OR EXISTS(SELECT 1 FROM goal_graph_jobs j JOIN goal_run_nodes n ON n.attempt_id=j.attempt_id AND n.run_id=j.run_id JOIN goal_runs r ON r.id=j.run_id WHERE (EXISTS(SELECT 1 FROM goal_graph_capabilities c WHERE c.run_id=r.id) OR EXISTS(SELECT 1 FROM factory_child_goal_runs f WHERE f.goal_run_id=r.id)) AND json_extract(j.document,'$.job_kind')='validator' AND json_extract(j.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping'))",params![intent.id,intent.task_id],|r|r.get(0)).map_err(db_error)
 }
 
 fn checked_runtime_scope(
@@ -699,6 +705,9 @@ fn checked_runtime_scope_at(
     data: Option<&crate::data_workspaces::DataInputWitness>,
     require_head: bool,
 ) -> Result<(ScopeRecord, ApprovedGoalScope)> {
+    if factory::marked_run(db, &r.id)? {
+        return factory::live_scope(db, r, data, require_head);
+    }
     let graph = graph::is_graph_run(db, &r.id)?;
     let kind = if graph {
         "goal_graph_execution"
@@ -792,7 +801,7 @@ fn checked_runtime_scope_at(
             return Err(changed());
         }
     }
-    let scope = approved_scope(&task, &record)?;
+    let scope = approved_scope(db, &task, &record)?;
     let (_, plan) = current_plan(db, &r.scope_id, &scope)?;
     require_output_mappings(&record.selection, &plan.proposal)?;
     require_metered_capabilities(&plan.proposal)?;
@@ -803,6 +812,9 @@ fn checked_runtime_scope_at(
 }
 // This metadata can only pause scheduling; it cannot authorize a new plan.
 fn adopted_plan_is_current_head(db: &Connection, r: &GoalRun) -> Result<bool> {
+    if !factory::adopted_head_is_current(db, r)? {
+        return Ok(false);
+    }
     db.query_row("SELECT EXISTS(SELECT 1 FROM goal_plan_heads WHERE scope_id=?1 AND revision=?2 AND digest=?3)",params![r.scope_id,sql_num(r.plan_revision)?,r.plan_digest],|row|row.get(0)).map_err(db_error)
 }
 fn local_goal_slot_is_occupied(db: &Connection) -> Result<bool> {
@@ -938,6 +950,11 @@ fn reservations(db: &Connection, root: &str, project: &str) -> Result<Vec<Reserv
         .map(|x| decode(&x.ok_or_else(limited)?))
         .collect::<Result<Vec<ReservationRecord>>>()?;
     for shared in crate::factory::budget_records(db, root, project)? {
+        // These are the very same Goal rows already materialized above. Their
+        // Factory ancestry projection must never charge the common ledger twice.
+        if shared.authority_kind == "factory_child_goal" {
+            continue;
+        }
         records.push(ReservationRecord {
             shared_root_grant_id: Some(shared.root_grant_id.clone()),
             run_id: format!("shared-session:{}", shared.attempt_id),
@@ -963,6 +980,31 @@ fn reserve_meter(
     active: &[&ReservationRecord],
 ) -> Result<()> {
     let mut m = meter(db, key_id, limits, before_count)?;
+    #[cfg(debug_assertions)]
+    {
+        let flags = [
+            m.runtime_ms.is_some(),
+            m.output_bytes.is_some(),
+            m.tokens.is_some(),
+            m.cost_microunits.is_some(),
+            key_id.starts_with("project:"),
+            before_count > m.observed_attempts,
+        ];
+        crate::ipc::goal_diagnostics::emit(
+            "goal_meter_before",
+            None,
+            flags,
+            before_count as usize,
+            None,
+        );
+        crate::ipc::goal_diagnostics::emit(
+            "goal_meter_observed",
+            None,
+            flags,
+            m.observed_attempts as usize,
+            None,
+        );
+    }
     let runtime = m
         .runtime_ms
         .ok_or_else(|| err("BUDGET_UNKNOWN", "Historical actual runtime is unknown"))?;
@@ -1032,6 +1074,7 @@ pub(crate) fn reserve_session(
         c,
         GoalAttemptTarget {
             attempt_id: &s.attempt_id,
+            intent_id: &s.intent_id,
             task_id: &s.task_id,
             grant_id: &s.grant_id,
             session: Some(s),
@@ -1043,9 +1086,85 @@ pub(crate) fn reserve_session(
 }
 struct GoalAttemptTarget<'a> {
     attempt_id: &'a str,
+    intent_id: &'a str,
     task_id: &'a str,
     grant_id: &'a str,
     session: Option<&'a crate::sessions::ManagedSession>,
+}
+/// Full strict readset consumption before generic attempt counters/rows are
+/// changed, inside the SAME SQLite transaction. Native/ordinary paths retain
+/// their original checks and never acquire the Factory phase exception.
+pub(crate) fn preflight_factory_goal_reservation(
+    db: &Connection,
+    c: &GoalDispatchContext,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    if !factory::marked_run(db, &c.run.id)? {
+        return Ok(());
+    }
+    let current = run(db, &c.run.id)?;
+    if current.revision != c.run.revision
+        || current.plan_revision != c.run.plan_revision
+        || current.plan_digest != c.run.plan_digest
+        || current.task_id != c.run.task_id
+        || current.root_grant_id != c.run.root_grant_id
+        || current.cancel_requested
+        || sequence(db)? != c.ledger_revision
+    {
+        return Err(changed());
+    }
+    checked_runtime_scope(db, &current, data)?;
+    let n = node_records(db, &current.id)?
+        .into_iter()
+        .find(|n| n.node.id == c.node.id)
+        .ok_or_else(changed)?;
+    if n.node != c.node
+        || n.state != "not_started"
+        || n.session_id.is_some()
+        || n.attempt_id.is_some()
+    {
+        return Err(changed());
+    }
+    Ok(())
+}
+/// Opaque same-handler proof of the exact already-committed attempt. Only
+/// Goal runtime constructs it from current durable source, never wire labels.
+pub(crate) struct GoalCommittedRead {
+    fingerprint: Value,
+}
+impl GoalCommittedRead {
+    pub(crate) fn fingerprint(&self) -> &Value {
+        &self.fingerprint
+    }
+}
+/// Only the atomic reservation code constructs this phase token. No wire or
+/// legacy/native caller can request a relaxed business-read comparison.
+pub(crate) struct GoalReservationRead<'a> {
+    context: &'a GoalDispatchContext,
+    attempt_id: &'a str,
+    intent_id: &'a str,
+    session: Option<&'a crate::sessions::ManagedSession>,
+    binding: &'a ExecutionBinding,
+}
+impl GoalReservationRead<'_> {
+    pub(crate) fn run(&self) -> &GoalRun {
+        &self.context.run
+    }
+    pub(crate) fn node(&self) -> &PlanNode {
+        &self.context.node
+    }
+    pub(crate) fn attempt_id(&self) -> &str {
+        self.attempt_id
+    }
+    pub(crate) fn intent_id(&self) -> &str {
+        self.intent_id
+    }
+    pub(crate) fn session(&self) -> Option<&crate::sessions::ManagedSession> {
+        self.session
+    }
+    pub(crate) fn binding(&self) -> &ExecutionBinding {
+        self.binding
+    }
 }
 fn reserve_attempt(
     db: &Connection,
@@ -1066,22 +1185,34 @@ fn reserve_attempt(
             "Goal dispatch changed before atomic reservation",
         ));
     }
-    let (scope, approved) = checked_runtime_scope(db, &r, data)?;
-    if graph::is_graph_run(db, &r.id)? {
-        graph::require_attempt_read(db, &r, &c.node, graph_input, target.session)?;
-    }
     let nodes = node_records(db, &r.id)?;
     let mut n = nodes
-        .into_iter()
+        .iter()
         .find(|n| n.node.id == c.node.id && n.state == "not_started")
+        .cloned()
         .ok_or_else(changed)?;
     if n.node != c.node || target.task_id != r.task_id || target.grant_id != r.root_grant_id {
         return Err(changed());
     }
+    let phase = GoalReservationRead {
+        context: c,
+        attempt_id: target.attempt_id,
+        intent_id: target.intent_id,
+        session: target.session,
+        binding,
+    };
+    let (scope, approved) = if factory::marked_run(db, &r.id)? {
+        factory::live_scope_for_reservation(db, &r, data, &phase)?
+    } else {
+        checked_runtime_scope(db, &r, data)?
+    };
+    if graph::is_graph_run(db, &r.id)? {
+        graph::require_attempt_read(db, &r, &c.node, graph_input, target.session)?;
+    }
     let expected = match &n.node.executor {
         Executor::Connection { binding, .. } => binding.as_ref().clone(),
         Executor::Validator { .. } if graph::is_graph_run(db, &r.id)? => {
-            scope_view(&scope, &approved)?.binding
+            scope_view(db, &scope, &approved)?.binding
         }
         _ => return Err(denied()),
     };
@@ -1138,6 +1269,10 @@ fn reserve_attempt(
         &n.node.reservation,
         &root_active,
     )?;
+    // All node rows and their plan/session/receipt bindings were checked above
+    // in this same atomic reservation. No node or run is written until after
+    // the ancestor checks; reuse that checked view instead of revalidating the
+    // complete plan history once per ancestor. Never cache it across requests.
     let mut ancestors = vec![n.node.id.clone()];
     let mut parent = n.node.parent_id.clone();
     while let Some(p) = parent {
@@ -1145,15 +1280,12 @@ fn reserve_attempt(
             return Err(changed());
         }
         ancestors.push(p.clone());
-        let old = node_records(db, &r.id)?
-            .into_iter()
-            .find(|x| x.node.id == p)
-            .ok_or_else(changed)?;
-        parent = old.node.parent_id;
+        let old = nodes.iter().find(|x| x.node.id == p).ok_or_else(changed)?;
+        parent = old.node.parent_id.clone();
     }
     for ancestor in &ancestors {
-        let budget = node_records(db, &r.id)?
-            .into_iter()
+        let budget = &nodes
+            .iter()
             .find(|x| &x.node.id == ancestor)
             .ok_or_else(changed)?
             .node
@@ -1248,6 +1380,7 @@ fn reserve_attempt(
             ));
         }
     }
+    factory::reserve_ancestors(db, &r, &n.node.reservation)?;
     let receipt = ReservationRecord {
         shared_root_grant_id: None,
         run_id: r.id.clone(),
@@ -1278,11 +1411,44 @@ fn reserve_attempt(
     n.started_at_ms = Some(ms()?);
     save_node(db, &r.id, &n)?;
     r.state = "running".into();
-    let payload = json!({"node_id":n.node.id,"attempt_id":target.attempt_id,"session_id":target.session.map(|s|&s.id),"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"reservation":n.node.reservation,"actual_runtime_ms":null,"actual_output_bytes":null,"tokens":null,"cost_microunits":null,"task_accepted":false});
+    let mut payload = json!({"node_id":n.node.id,"attempt_id":target.attempt_id,"session_id":target.session.map(|s|&s.id),"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"reservation":n.node.reservation,"actual_runtime_ms":null,"actual_output_bytes":null,"tokens":null,"cost_microunits":null,"task_accepted":false});
+    if factory::marked_run(db, &r.id)? {
+        let original = data.and_then(|d| d.factory.as_ref()).ok_or_else(denied)?;
+        payload["factory_read_request_sha256"] = json!(original.request_hash());
+        payload["factory_dispatch_intent_id"] = json!(target.intent_id);
+        payload["factory_reservation_digest"] = json!(sha(&receipt)?);
+    }
     save_run(db, &mut r, "goal.node_reserved", payload)?;
     Ok(())
 }
 
+pub(crate) fn seal_factory_goal_read(
+    db: &Connection,
+    c: &GoalDispatchContext,
+    attempt_id: &str,
+    intent_id: &str,
+    session: Option<&crate::sessions::ManagedSession>,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    if !factory::marked_run(db, &c.run.id)? {
+        return Ok(());
+    }
+    let r = run(db, &c.run.id)?;
+    if r.revision != c.run.revision.checked_add(1).ok_or_else(limited)?
+        || r.plan_revision != c.run.plan_revision
+        || r.plan_digest != c.run.plan_digest
+    {
+        return Err(changed());
+    }
+    let n = node_records(db, &r.id)?
+        .into_iter()
+        .find(|n| n.node.id == c.node.id)
+        .ok_or_else(changed)?;
+    if n.node != c.node {
+        return Err(changed());
+    }
+    factory::seal_committed_read(db, &r, &n, attempt_id, intent_id, session, data)
+}
 impl Store {
     pub(crate) fn goal_session_duration(&self, id: &str) -> Result<Option<u64>> {
         if !owns_session(&self.conn, id)? {
@@ -1290,8 +1456,22 @@ impl Store {
         }
         let (run_id,doc):(String,String)=self.conn.query_row("SELECT run_id,document FROM goal_run_nodes WHERE session_id=?1 AND octet_length(document)<=262144",[id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
         let r = run(&self.conn, &run_id)?;
-        checked_runtime_scope(&self.conn, &r, self.data_input.as_ref())?;
         let n: RuntimeNode = decode(&doc)?;
+        if factory::marked_run(&self.conn, &r.id)? {
+            let session = self.get_session(id)?;
+            factory::consume_committed_read(
+                &self.conn,
+                &r,
+                &n,
+                &session.attempt_id,
+                &session.intent_id,
+                Some(&session),
+                self.data_input.as_ref(),
+            )?;
+        } else {
+            checked_runtime_scope(&self.conn, &r, self.data_input.as_ref())?;
+        }
+
         if n.session_id.as_deref() != Some(id) || n.state != "reserved" || r.cancel_requested {
             return Err(denied());
         }
@@ -1345,7 +1525,7 @@ impl Store {
         } else {
             json!(record.refs.inputs)
         };
-        let mut task_request = json!({"schema_version":1,"kind":"agentbaton_goal_task_request","goal":n.node.goal,"node":n.node,"run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"workspace":{"id":record.refs.workspace.id,"canonical_root":record.refs.workspace.root,"input_revision":record.refs.workspace.base_revision},"inputs":inputs,"outputs":record.selection.outputs,"policy":{"requested":record.refs.grant_after.scope,"enforced":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false}},"lineage":{"root_task_id":r.task_id,"parent_node_id":n.node.parent_id,"attempt_id":s.attempt_id},"budget":{"reservation":n.node.reservation,"limits":n.node.budget},"idempotency_key":key,"return_location":{"run_id":r.id,"node_id":n.node.id,"attempt_id":s.attempt_id}});
+        let mut task_request = json!({"schema_version":1,"kind":"agentbaton_goal_task_request","goal":n.node.goal,"node":n.node,"run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"workspace":{"id":record.refs.workspace.id,"canonical_root":record.refs.workspace.root,"input_revision":record.refs.workspace.base_revision},"inputs":inputs,"outputs":record.selection.outputs,"policy":{"requested":record.refs.grant_after.scope,"enforced":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false}},"lineage":{"root_task_id":root_task(&record),"parent_node_id":n.node.parent_id,"attempt_id":s.attempt_id},"budget":{"reservation":n.node.reservation,"limits":n.node.budget},"idempotency_key":key,"return_location":{"run_id":r.id,"node_id":n.node.id,"attempt_id":s.attempt_id}});
         // The new graph capability owns these versioned bindings. Legacy v1
         // requests retain their original exact sixteen-field contract.
         if is_graph {
@@ -1410,7 +1590,8 @@ impl Store {
         let mut stop = Vec::new();
         for mut r in self.active_goal_runs()? {
             let task = self.get(&r.task_id)?;
-            let revoked = crate::policy::checked_lineage(&self.conn, &r.root_grant_id).is_err();
+            let revoked = crate::policy::checked_lineage(&self.conn, &r.root_grant_id).is_err()
+                || !factory::run_live(&self.conn, &r.id)?;
             let cancel = r.cancel_requested
                 || r.state == "blocked"
                 || revoked
@@ -1703,6 +1884,12 @@ impl Store {
                 .transaction_with_behavior(TransactionBehavior::Immediate)
                 .map_err(db_error)?;
             let mut r = run(&tx, &id)?;
+            if graph::is_graph_run(&tx, &r.id)? {
+                graph::checked_capability(&tx, &r)?;
+            } else {
+                factory::verify_native_run(&tx, &r, false)?;
+            }
+
             r.state = "outcome_unknown".into();
             let nodes = node_records(&tx, &id)?;
             if nodes
@@ -1761,7 +1948,30 @@ pub(crate) fn ordinary_session_budget_gate(db: &Connection, project_id: &str) ->
 }
 
 impl Store {
-    pub(crate) fn block_goal_run(&mut self, id: &str, code: &str) -> Result<()> {
+    // Test-only bridge to the real original guard; no authority/receipt is minted.
+    #[cfg(test)]
+    pub(crate) fn test_factory_ancestor_refusal(
+        &self,
+        id: &str,
+        reservation: &AttemptReservation,
+    ) -> Result<()> {
+        factory::reserve_ancestors(&self.conn, &run(&self.conn, id)?, reservation)
+    }
+    pub(crate) fn block_goal_run(
+        &mut self,
+        id: &str,
+        code: &str,
+        details_ref: Option<&str>,
+    ) -> Result<()> {
+        self.block_goal_run_observed(id, code, details_ref, None)
+    }
+    pub(crate) fn block_goal_run_observed(
+        &mut self,
+        id: &str,
+        code: &str,
+        details_ref: Option<&str>,
+        observation: Option<&factory::GoalAdmissionObservation>,
+    ) -> Result<()> {
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -1769,12 +1979,15 @@ impl Store {
         let mut r = run(&tx, id)?;
         if matches!(r.state.as_str(), "queued" | "running") {
             r.state = "blocked".into();
-            save_run(
-                &tx,
-                &mut r,
-                "goal.run_blocked",
-                json!({"reason_code":code,"automatic_retry":false,"task_accepted":false}),
-            )?;
+            let mut payload =
+                json!({"reason_code":code,"automatic_retry":false,"task_accepted":false});
+            if let Some(diagnostic) = observation
+                .and_then(|sample| sample.for_run(code, &r))
+                .or_else(|| factory::ancestor_admission_diagnostic(code, details_ref, &r))
+            {
+                payload["budget_admission"] = diagnostic;
+            }
+            save_run(&tx, &mut r, "goal.run_blocked", payload)?;
         }
         tx.commit().map_err(db_error)
     }
@@ -2017,6 +2230,9 @@ impl Store {
         graph: bool,
     ) -> Result<GoalRun> {
         key(key_id)?;
+        if factory::marked_run(&self.conn, &p.run_id)? {
+            return Err(denied());
+        }
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -2075,7 +2291,7 @@ impl Store {
                     record.selection.root_budget.reworks,
                 ),
             ] {
-                let used:u32=tx.query_row("SELECT count(*) FROM events e JOIN goal_runs g ON g.id=json_extract(e.document,'$.aggregate_id') WHERE octet_length(e.document)<=1048576 AND json_extract(e.document,'$.kind')='goal.run_plan_advanced' AND json_extract(e.document,'$.source')='goal_core' AND json_extract(e.document,'$.payload.rework')=1 AND ((?1=1 AND g.project_id=?2) OR (?1=0 AND json_extract(g.document,'$.root_grant_id')=?2))",params![project,id],|row|row.get(0)).map_err(db_error)?;
+                let used = factory::shared_reworks(&tx, project, id)?;
                 if used >= max {
                     return Err(err(
                         "RESOURCE_LIMIT",
@@ -2321,13 +2537,16 @@ fn trusted_session_stop(
     Ok(sequence)
 }
 
-fn refuse_retained_overrun(db: &Connection, root: &str, project: &str) -> Result<()> {
-    if reservations(db, root, project)?.iter().any(|r| {
+fn retained_overrun(db: &Connection, root: &str, project: &str) -> Result<bool> {
+    Ok(reservations(db, root, project)?.iter().any(|r| {
         r.actual_runtime_ms
             .is_some_and(|n| n > r.reservation.runtime_ms)
             || r.actual_output_bytes
                 .is_some_and(|n| n > r.reservation.output_bytes)
-    }) {
+    }))
+}
+fn refuse_retained_overrun(db: &Connection, root: &str, project: &str) -> Result<()> {
+    if retained_overrun(db, root, project)? {
         return Err(err("RESOURCE_LIMIT","Retained actual execution exceeded a declared per-attempt reservation; reconcile the budget before any new dispatch"));
     }
     Ok(())
@@ -2811,6 +3030,32 @@ mod tests {
             scope,
             run,
         }
+    }
+    #[test]
+    fn confirmed_native_legacy_list_preserves_exact_readonly_history() {
+        // Real Native Grant/scope/execution receipts with the existing explicit
+        // synthetic ready connection; no Provider or worker is started here.
+        let f = fixture(4);
+        let before = f.store.sequence().unwrap();
+        let exact = f.store.get_goal_run(&f.run.id).unwrap();
+        let listed = f.store.list_goal_runs(&f.run.task_id).unwrap();
+        assert_eq!(listed.len(), 1);
+        assert_eq!(json!(listed[0]), json!(exact));
+        assert_eq!(f.store.sequence().unwrap(), before);
+        assert_eq!(
+            f.store
+                .conn
+                .query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
+        assert_eq!(
+            f.store
+                .conn
+                .query_row("SELECT count(*) FROM sessions", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
     }
     fn reserve(f: &mut Fixture) -> crate::sessions::ManagedSession {
         let p = GoalRunDispatch {
