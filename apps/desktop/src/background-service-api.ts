@@ -59,7 +59,8 @@ export function parseBackgroundReceipt(value: unknown, operation: BackgroundOper
         requireWire(operation !== 'status' && row.code === 'cancelled' && row.side_effect_state === 'not_started');
         break;
       case 'refused':
-        requireWire(oneOf(row.code, refusedCodes) && row.side_effect_state === 'not_started');
+        requireWire(oneOf(row.code, refusedCodes) && row.side_effect_state === 'not_started'
+          && (operation !== 'status' || oneOf(row.login_registration, ['conflict', 'unknown'])));
         break;
       case 'partial':
         requireWire(operation !== 'status' && oneOf(row.code, ['partial_commit', 'reconcile_required'])

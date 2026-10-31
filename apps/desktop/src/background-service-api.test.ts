@@ -48,6 +48,20 @@ describe('Closed background registration wire', () => {
       expect(actionableBackgroundReceipt(parseBackgroundReceipt(value, 'enable'))).toBe(false);
     }
   });
+  it('rejects known registration states on status refusal while preserving all four write refusal observations', () => {
+    for (const registration of ['disabled', 'enabled_next_login', 'conflict', 'unknown']) {
+      const value = wire({ outcome: 'refused', code: 'unsafe_path', login_registration: registration });
+      if (registration === 'disabled' || registration === 'enabled_next_login') {
+        expect(() => parseBackgroundReceipt(value, 'status')).toThrow(BackgroundServiceError);
+      } else {
+        expect(parseBackgroundReceipt(value, 'status').login_registration).toBe(registration);
+      }
+      for (const operation of ['enable', 'disable'] as const) {
+        expect(parseBackgroundReceipt(value, operation).login_registration).toBe(registration);
+        expect(actionableBackgroundReceipt(parseBackgroundReceipt(value, operation))).toBe(false);
+      }
+    }
+  });
   it('allows only the requested applied or no-change write result', () => {
     for (const operation of ['enable', 'disable'] as const) {
       const registration = operation === 'enable' ? 'enabled_next_login' : 'disabled';

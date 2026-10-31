@@ -55,7 +55,7 @@ describe('Quiet optional background settings', () => {
   it.each([wire({ platform: 'unsupported', mechanism: 'unsupported', login_registration: 'unknown', outcome: 'unsupported', code: 'unsupported_platform' }),
     wire({ login_registration: 'unknown', outcome: 'unsupported', code: 'unsupported_installation' }),
     wire({ login_registration: 'conflict', outcome: 'refused', code: 'ownership_conflict' }),
-    wire({ login_registration: 'disabled', outcome: 'refused', code: 'unsafe_path' }),
+    wire({ login_registration: 'unknown', outcome: 'refused', code: 'unsafe_path' }),
   ])('keeps unsupported or unsafe observations non-actionable', async value => {
     vi.mocked(invoke).mockResolvedValue(value);
     render(<BackgroundServiceSettings language="en" />); const panel = await open();
