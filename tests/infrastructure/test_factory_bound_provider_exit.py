@@ -509,6 +509,8 @@ class ChildGoalTimingTests(unittest.TestCase):
 
     def test_all_seven_actual_phase_blocks_keep_end_stamp_on_failure(self):
         path,runtime=self.nodes()
+        tree=ast.parse(path.read_text())
+        sample_helper=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='sample_owner_ui')
         def is_stamp(statement):
             return (isinstance(statement,ast.Expr)and isinstance(statement.value,ast.Call)
                 and isinstance(statement.value.func,ast.Name)and statement.value.func.id=='phase_stamp')
@@ -530,7 +532,7 @@ class ChildGoalTimingTests(unittest.TestCase):
         self.assertEqual(set(names),expected);self.assertEqual(len(set(names)),7)
         for name,block in zip(names,blocks):
             with self.subTest(phase=name):
-                stamps=[];calls=[];metadata=[];original=RuntimeError('original unit failure')
+                stamps=[];calls=[];metadata=[];samples=[];original=RuntimeError('original unit failure')
                 def refuse(*a,**k):calls.append((a,k));raise original
                 button=SimpleNamespace(click=refuse);trace=object()
                 query={'scope_id':'scope','task_id':'child','goal_run_id':'graph'}
@@ -540,9 +542,11 @@ class ChildGoalTimingTests(unittest.TestCase):
                     'expect':lambda _:SimpleNamespace(to_be_enabled=refuse),
                     'wait_goal_owner_binding':refuse,'report':{'goal_owner_binding':trace},
                     'finite':SimpleNamespace(owner_refresh_click_finished=lambda tick:metadata.append(('click_finished',tick)),
-                        owner_refresh_end=lambda tick:metadata.append(('window_finished',tick))),
+                        owner_refresh_end=lambda tick:metadata.append(('window_finished',tick)),
+                        owner_ui_sample=lambda slot,raw,tick:samples.append((slot,raw,tick))),
                     'time':SimpleNamespace(monotonic_ns=lambda:456),
                     'query':query,'owner_deadline':123.0,'pump':pump}
+                exec(compile(ast.Module(body=[sample_helper],type_ignores=[]),str(path),'exec'),ns)
                 with self.assertRaisesRegex(RuntimeError,'original unit failure')as error:
                     exec(compile(ast.Module(body=[block],type_ignores=[]),str(path),'exec'),ns)
                 self.assertIs(error.exception,original)
@@ -550,6 +554,9 @@ class ChildGoalTimingTests(unittest.TestCase):
                 expected_metadata={'owner_UI_refresh_click':[('click_finished',456)],
                     'owner_enabled_expect':[('window_finished',456)]}
                 self.assertEqual(metadata,expected_metadata.get(name,[]))
+                # This fake panel has no evaluate_all: the real helper must
+                # record unavailable raw=None without replacing the exception.
+                self.assertEqual(samples,[('end',None,456)]if name=='owner_enabled_expect'else [])
                 if name=='owner_receipt_observe':
                     self.assertEqual(len(calls[0][0]),2);self.assertIs(calls[0][0][0],trace);self.assertIs(calls[0][0][1],query)
                     self.assertEqual(calls[0][1],{'deadline':123.0,'pump':pump,'capture':refuse})

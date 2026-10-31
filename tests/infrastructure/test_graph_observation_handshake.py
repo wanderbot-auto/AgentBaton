@@ -969,6 +969,8 @@ _COMPOSED_DRIVER_INVERSES = {'ours': {'path': 'apps/desktop/tests/factory-child-
 def strip_composed_outer_layer(text, side='ours'):
     if type(text)is not str or type(side)is not str or side not in _COMPOSED_DRIVER_INVERSES:
         raise AssertionError('Exact composed driver inverse arguments refused')
+    from tests.infrastructure.test_child_goal_diagnostics_v4 import strip_owner_ui_v4_outer_layer
+    text=strip_owner_ui_v4_outer_layer(text)
     fixture=_COMPOSED_DRIVER_INVERSES[side]
     digest=sha(text.encode())
     if digest==fixture['restored_sha256']:
