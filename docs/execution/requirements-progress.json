@@ -2293,7 +2293,8 @@
         "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json",
         "docs/execution/child-goal-plan-read-reuse/ROOT_RESULTS.json",
         "docs/execution/root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json",
-        "docs/execution/fresh-bound-config/EVIDENCE.json"
+        "docs/execution/fresh-bound-config/EVIDENCE.json",
+        "docs/execution/task-workspace-integration/OBSERVER_AND_HEAD846_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2608,7 +2609,8 @@
         "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json",
         "docs/execution/child-goal-plan-read-reuse/ROOT_RESULTS.json",
         "docs/execution/root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json",
-        "docs/execution/fresh-bound-config/EVIDENCE.json"
+        "docs/execution/fresh-bound-config/EVIDENCE.json",
+        "docs/execution/task-workspace-integration/OBSERVER_AND_HEAD846_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",

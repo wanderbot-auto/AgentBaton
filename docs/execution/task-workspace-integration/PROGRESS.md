@@ -1,3 +1,9 @@
+## Actual846 failures and860 test observer checkpoint — 2026-10-31
+
+Exact846 Environment41238532911 passes all3; Product41238532886 is terminal failed despite Rust/UI pass. ARM Core209/1 fails on an unidentified symlink_metadata NotFound entry, distinct from the earlier dropped-write IPC failure. Intel Factory29/1 is plan2/run12blocked with real4092ms runtime above unchanged4000ms: producer3563ms, capture queue529ms, actual worker0ms. These observations do not establish a shared cause, pure Actor idle, or a permission to discount costs. Native acceptance/build/installers remain blocked.
+
+Reviewed860 test-only closed diagnostics retain only generated roots on panic and still fail on missing entries. Exact860 Core13 and infrastructure366 pass; prior8bc real UnixIPC4 remains source-bound. No refusal, budget, authority, migration or assertion was removed. [Source-bound evidence](OBSERVER_AND_HEAD846_RESULTS.json). Next: source-trace capture preparation/frontier costs, make a reviewed bounded change only if justified, then one exact remote candidate; preserve all failed logs. Full130 remains incomplete.
+
 ## Explicit commit-with-unread-response fixture — 2026-10-31
 
 Exact8bc17f4 passes all4 Task binding real UnixIPC cases; independent review daac8866 checks31 source predicates and exact whole-file inverse. Keep the original5s durable observation and every stable-payload/CAS/receipt/no-execution assertion. [Source-bound evidence](UNREAD_RESPONSE_RESULTS.json). No Mac or production-root-cause claim. Remote846 Environment has passed; its Product remains a separate candidate and local8bc has not been pushed.

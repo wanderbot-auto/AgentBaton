@@ -773,7 +773,13 @@ impl GraphWorkers {
         if self.has_workers() || self.stopping {
             return Ok(());
         }
-        store.reconcile_graph_frontiers()?;
+        // A persisted capture already belongs to a stopped producer. Service its
+        // original fresh checks and owned read before an unrelated full sweep;
+        // the same Actor call still reconciles every frontier before dispatch.
+        self.service_prepared_capture(store)?;
+        store.reconcile_graph_frontiers()
+    }
+    fn service_prepared_capture(&mut self, store: &mut Store) -> Result<()> {
         raw_collection_budget(&store.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(state)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE state='prepared' AND json_extract(document,'$.job_kind') IS NULL",[],1,MAX_STORED_BYTES)?;
         let doc: Option<String> = store
             .conn
