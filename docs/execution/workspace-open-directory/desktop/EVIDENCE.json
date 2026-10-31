@@ -17,8 +17,8 @@
     "apps/desktop/src/workspace-open-api.test.ts": "64716df8910e761485936902c179a9c27ef37e2a9e49a7a5d5f9860d08dbc3f0",
     "apps/desktop/src/workspace-open-wire.ts": "00e618cf18775507c664dd82465049872a3f9a198f521ed62ce12ff71f6b5245",
     "apps/desktop/src/workspace-open-i18n.ts": "0cc42bd99e5d34f377e7935c63233de57bc59f672bd42b0db80a32e85f08434a",
-    "apps/desktop/src-tauri/src/workspace_open.rs": "f6b31a1ca45537e95f7c5899c726a74115461cd3eaa9fbab57ab4449e250389f",
-    "tests/infrastructure/test_workspace_open_desktop_contract.py": "d24a8f7feca024dc59b78efc1a3454258e956d18db3969a7a65a854c28afa905"
+    "apps/desktop/src-tauri/src/workspace_open.rs": "e317fe58db8332185a100b1ec0c8ea2b415e89ee2c209d67dc14b70c9e41056b",
+    "tests/infrastructure/test_workspace_open_desktop_contract.py": "d65ad89325fec4c5ad2e4d875920a1e2023a2f8882e285920445a05feebf1c5a"
   },
   "protected_unchanged_sha256": {
     "apps/desktop/src/TaskCodeWorkspace.tsx": "f6f9ec6ebddfd0ecfea919426a37aebb9e20fe8e3125093920c3ad422a16a6dd",
@@ -61,7 +61,8 @@
       "exit": 0,
       "log": "/tmp/workspace-open-desktop-pure-e874.log",
       "log_sha256": "48b65be5a061c5fcee3b8997b4f7efb209f76dd8774f796a5337d3fd5a079910",
-      "dimension": "source-only controls; not TS/Rust/OS behavior"
+      "dimension": "source-only controls; not TS/Rust/OS behavior",
+      "source": "f566f3e62b047b43525de16be31c74437f4d1d7f (retained initial source controls)"
     },
     {
       "kind": "rustfmt module parsing/format",
@@ -80,12 +81,23 @@
       "status": "PASS",
       "command": "git diff --cached --check",
       "exit": 0
+    },
+    {
+      "kind": "bounded caller getter closure source controls",
+      "tests": 8,
+      "exit": 0,
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.infrastructure.test_workspace_open_desktop_contract -v",
+      "log": "/tmp/workspace-open-desktop-window-bound-pure.log",
+      "log_sha256": "aabca19a391a7b48c89ffd35c159b9750c957b8bd661b901c96c72c916242558",
+      "source_proof": "/tmp/workspace-open-window-bound-source-proof.json",
+      "source_proof_sha256": "75188f929defa46cb9a7d1e42340c7d536d0a51867aea8f536f9b50fc4c8100d",
+      "native_runtime": "NOT_RUN"
     }
   ],
   "authored_NOT_RUN": {
     "API_wire": "exact source/managed request, forbidden fields, unsafe revisions, terminal/UUID, u64/path/context mismatch, result contradiction, transport no retry, dirty source and ready data/list refusal matrix",
     "component": "explicit choice/oneflight, unknown manual recovery, disconnect/task/project/revision/close/blocked stale reply matrix, stale choices, remount uncertainty, bilingual refusal, no raw errors",
-    "native_pure_tests": 5,
+    "native_pure_tests": 9,
     "native_scope": "closed DTO/error context, true main origin, exact argv/env with special text, zero exit and strict time/status matrix; no real spawn"
   },
   "not_run": [
@@ -113,5 +125,40 @@
     "whole_requirement_complete": false,
     "formal_approve": false
   },
-  "core_candidate": "5d7ac35fba06efedc07bc2c3ef4d386e31245795"
+  "core_candidate": "5d7ac35fba06efedc07bc2c3ef4d386e31245795",
+  "retained_blocking_review": {
+    "source": "f566f3e62b047b43525de16be31c74437f4d1d7f",
+    "status": "CHANGES_REQUIRED",
+    "path": "/tmp/workspace-open-native-review/F566_WORKSPACE_NATIVE_CHANGES_REQUIRED.review.json",
+    "sha256": "6ab48beeadc95eeaac5f3a314c42c10caa62bc846ad0a88fd828943be337fb74",
+    "issue": "worker-thread WebviewWindow.url passes through locked Wry getter rx.recv without timeout; UI queue stall could leave request indefinitely pending",
+    "original_review_reclassified": false
+  },
+  "caller_getter_closure": {
+    "scope": "Native own module + own source controls/docs only; all UI/API/Core/sharedhooks unchanged",
+    "implementation": "read-only URL sample executed by run_on_main_thread; worker sync_channel recv_timeout uses one5s observation deadline; queued job cancelled on return, checks active and deadline before getter and after read; try_send cannot block; callback has no Core/pin/finalize/opener authority",
+    "late_callback": "expired/unexecuted callback cannot sample URL after cancellation or cause any handoff; late sample false even if received",
+    "original_unchanged_functions": [
+      "request_selection",
+      "context_frame",
+      "fresh_context",
+      "trusted_origin",
+      "closed_result",
+      "handoff_sync",
+      "opener_command",
+      "completed",
+      "owned_slot",
+      "clear_previous_owned_opener",
+      "retain_after_interruption",
+      "opener_usable",
+      "open_directory"
+    ],
+    "added_Rust_pure_tests": 4,
+    "Rust_execution": "NOT_RUN",
+    "remaining": "independent fixed-hash closure review and Root actual compile/tests",
+    "locked_dependency_sources_sha256": {
+      "/workspace/.toolchains/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.12.5/src/webview/webview_window.rs": "5cf28b52b0ed7179926b1087df08d8765bf2c31805fb532f9260908a57422230",
+      "/workspace/.toolchains/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-2.12.3/src/lib.rs": "ec343fc347aff1fb5327100df2541992e47eb6be1ddb55102170e2253b9c6d59"
+    }
+  }
 }

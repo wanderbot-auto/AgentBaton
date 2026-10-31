@@ -61,12 +61,66 @@ fn trusted_origin(label: &str, scheme: &str, host: Option<&str>, port: Option<u1
                 && host == Some("127.0.0.1")
                 && port == Some(1420))
 }
+type WindowReadJob = Box<dyn FnOnce() + Send + 'static>;
+fn observe_window_until(
+    deadline: std::time::Instant,
+    now: impl Fn() -> std::time::Instant + Clone + Send + 'static,
+    dispatch: impl FnOnce(WindowReadJob) -> Result<(), ()>,
+    observe: impl FnOnce() -> bool + Send + 'static,
+) -> bool {
+    use std::sync::{mpsc, Arc};
+    if now() >= deadline {
+        return false;
+    }
+    let active = Arc::new(AtomicBool::new(true));
+    struct Observation(Arc<AtomicBool>);
+    impl Drop for Observation {
+        fn drop(&mut self) {
+            self.0.store(false, Ordering::Release);
+        }
+    }
+    let _observation = Observation(active.clone());
+    let sample_now = now.clone();
+    let (sender, receiver) = mpsc::sync_channel(1);
+    // This queued job can only sample the caller. It cannot fetch Core
+    // context, validate a directory, finalize or start the OS handoff.
+    if dispatch(Box::new(move || {
+        if !active.load(Ordering::Acquire) || sample_now() >= deadline {
+            return;
+        }
+        let trusted = observe();
+        let timely = active.load(Ordering::Acquire) && sample_now() < deadline;
+        let _ = sender.try_send(trusted && timely);
+    }))
+    .is_err()
+    {
+        return false;
+    }
+    let Some(remaining) = deadline
+        .checked_duration_since(now())
+        .filter(|d| !d.is_zero())
+    else {
+        return false;
+    };
+    receiver
+        .recv_timeout(remaining)
+        .is_ok_and(|trusted| trusted && now() < deadline)
+}
 fn trusted_window(window: &WebviewWindow) -> bool {
-    window.url().is_ok_and(|url| {
-        url.username().is_empty()
-            && url.password().is_none()
-            && trusted_origin(window.label(), url.scheme(), url.host_str(), url.port())
-    })
+    use std::time::{Duration, Instant};
+    let caller = window.clone();
+    observe_window_until(
+        Instant::now() + Duration::from_secs(5),
+        Instant::now,
+        |read| window.run_on_main_thread(read).map_err(|_| ()),
+        move || {
+            caller.url().is_ok_and(|url| {
+                url.username().is_empty()
+                    && url.password().is_none()
+                    && trusted_origin(caller.label(), url.scheme(), url.host_str(), url.port())
+            })
+        },
+    )
 }
 fn closed_result(value: &Value) -> bool {
     let Some(v) = value.as_object() else {
@@ -351,6 +405,105 @@ mod tests {
         ] {
             assert!(!trusted_origin(label, scheme, host, port));
         }
+    }
+    #[test]
+    fn window_observation_zero_deadline_or_dispatch_failure_refuses_without_reading() {
+        use std::sync::Arc;
+        use std::time::{Duration, Instant};
+        let reads = Arc::new(AtomicBool::new(false));
+        let sample = reads.clone();
+        assert!(!observe_window_until(
+            Instant::now(),
+            Instant::now,
+            |_| panic!("Expired observation must not be dispatched"),
+            move || {
+                sample.store(true, Ordering::Release);
+                true
+            }
+        ));
+        let sample = reads.clone();
+        assert!(!observe_window_until(
+            Instant::now() + Duration::from_secs(1),
+            Instant::now,
+            |_| Err(()),
+            move || {
+                sample.store(true, Ordering::Release);
+                true
+            }
+        ));
+        assert!(!reads.load(Ordering::Acquire));
+    }
+    #[test]
+    fn unexecuted_or_late_main_callback_has_no_read_or_handoff_authority() {
+        use std::sync::{Arc, Mutex};
+        use std::time::{Duration, Instant};
+        let queued: Arc<Mutex<Option<WindowReadJob>>> = Arc::new(Mutex::new(None));
+        let captured = queued.clone();
+        let reads = Arc::new(AtomicBool::new(false));
+        let sample = reads.clone();
+        let start = Instant::now();
+        assert!(!observe_window_until(
+            start + Duration::from_millis(1),
+            move || start,
+            move |read| {
+                *captured.lock().unwrap() = Some(read);
+                Ok(())
+            },
+            move || {
+                sample.store(true, Ordering::Release);
+                true
+            }
+        ));
+        assert!(!reads.load(Ordering::Acquire));
+        // Run the actual captured job after the receiver refused. Its lifetime
+        // guard is revoked: it does not even invoke the readonly URL sampler.
+        queued.lock().unwrap().take().unwrap()();
+        assert!(!reads.load(Ordering::Acquire));
+    }
+    #[test]
+    fn immediate_main_observation_can_succeed_without_opening_anything() {
+        use std::time::{Duration, Instant};
+        let start = Instant::now();
+        assert!(observe_window_until(
+            start + Duration::from_secs(1),
+            move || start,
+            |read| {
+                read();
+                Ok(())
+            },
+            || true
+        ));
+        assert!(!observe_window_until(
+            start + Duration::from_secs(1),
+            move || start,
+            |read| {
+                read();
+                Ok(())
+            },
+            || false
+        ));
+    }
+    #[test]
+    fn sampler_that_finishes_at_deadline_cannot_restore_trust_or_renew_window() {
+        use std::sync::{atomic::AtomicU64, Arc};
+        use std::time::{Duration, Instant};
+        let start = Instant::now();
+        let elapsed = Arc::new(AtomicU64::new(0));
+        let clock = elapsed.clone();
+        let sample = elapsed.clone();
+        assert!(!observe_window_until(
+            start + Duration::from_millis(10),
+            move || start + Duration::from_millis(clock.load(Ordering::Acquire)),
+            |read| {
+                read();
+                Ok(())
+            },
+            move || {
+                sample.store(10, Ordering::Release);
+                true
+            }
+        ));
+        assert_eq!(elapsed.load(Ordering::Acquire), 10);
     }
     #[test]
     fn separate_absolute_directory_argument_and_empty_child_environment_survive_special_text() {

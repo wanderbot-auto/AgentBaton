@@ -44,7 +44,9 @@ class WorkspaceOpenDesktopBoundary(unittest.TestCase):
         self.assertIn('ACTIVE', handoff)
 
     def test_no_detached_or_unbounded_reaper_and_no_terminal_signal(self):
-        self.assertEqual(NATIVE.count('Duration::from_secs(5)'), 1)
+        opener = NATIVE[NATIVE.index('fn open_directory('):NATIVE.index('\n#[cfg(test)]\nmod tests')]
+        self.assertEqual(opener.count('Duration::from_secs(5)'), 1)
+        self.assertNotIn('observe_window_until', opener)
         self.assertNotIn('.wait()', NATIVE)
         self.assertNotIn('thread::spawn', NATIVE)
         self.assertNotIn('killpg', NATIVE)
@@ -54,6 +56,23 @@ class WorkspaceOpenDesktopBoundary(unittest.TestCase):
         self.assertIn('Instant::now() < deadline', NATIVE)
         self.assertIn('unknown("opener_timeout")', NATIVE)
         self.assertIn('unknown("opener_failed")', NATIVE)
+
+    def test_window_getter_only_runs_in_revocable_bounded_main_callback(self):
+        observer = NATIVE[NATIVE.index('fn observe_window_until('):NATIVE.index('fn closed_result(')]
+        trusted = observer[observer.index('fn trusted_window('):]
+        self.assertIn('window.run_on_main_thread(read)', trusted)
+        self.assertIn('move ||', trusted)
+        self.assertIn('caller.url()', trusted)
+        self.assertEqual(trusted.count('Duration::from_secs(5)'), 1)
+        self.assertEqual(NATIVE.count('.url()'), 1)
+        self.assertIn('receiver.recv_timeout(remaining)', re.sub(r'\s+', '', observer))
+        self.assertIn('sender.try_send(trusted && timely)', observer)
+        self.assertIn('active.load(Ordering::Acquire)', observer)
+        self.assertIn('self.0.store(false, Ordering::Release)', observer)
+        self.assertIn('sample_now() >= deadline', observer)
+        self.assertIn('sample_now() < deadline', observer)
+        for forbidden in ('ipc::call(', 'pin_open_context(', 'open_directory(', '.finalize(', '.spawn()'):
+            self.assertNotIn(forbidden, observer)
 
     def test_renderer_only_invokes_one_closed_native_request_and_never_passes_path(self):
         self.assertEqual(API.count("invoke<unknown>("), 1)

@@ -7,3 +7,7 @@ Native uses Core strict DTOs plus the agreed public pin_open_context helper, wit
 Root hooks are a separate private patch /tmp/workspace-open-desktop-hooks-e874.patch, not edits to shared files. Added API/wire/component/native pure negative test source; runtime execution remains Root-owned.
 
 Core interface bound to candidate5d7ac35fba06efedc07bc2c3ef4d386e31245795; no Core source or dependency changed here.
+
+## Bounded caller observation closure
+
+Retain independent f566 CHANGES_REQUIRED: locked Wry getter blocks on an unbounded reply when URL is read directly on a worker. URL reads now execute only inside a main-thread read-only job. The worker uses a strict5s observation deadline with recv_timeout; cancellation/deadline checks revoke unexecuted and late jobs, and no callback carries handoff/Core authority. Original CallerOwner, all13 other Native functions and opener5s deadline remain byte-identical. Added4 Rust channel/fake-clock tests (NOT_RUN);8 Python source controls and rustfmt pass. Root compile and independent closure review remain required.
