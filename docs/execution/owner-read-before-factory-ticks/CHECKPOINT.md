@@ -15,3 +15,8 @@ Decision: after the original supervisor/finished-worker/history/fatal pass, dequ
 Consequence: dequeue frees one slot in the existing bounded channel earlier, including when a non-read is held; this is a small explicit enqueue-timing change. There is no new slot quota or persistent authority/data cache. It cannot help a socket not yet accepted, interrupt an active tick, guarantee a client latency, or establish the f55 failure cause. The original listener stays at the end of the turn.
 
 The early request uses the exact original post-request services. Those services can retain a fatal admission error, so the new early path immediately takes and returns that original error before more Factory/Goal ticks. Normal drain and Drop/join/socket semantics are retained. This is error propagation, not a fallback or new business permission.
+
+
+## Root actual checkpoint 2026-10-31T00:21:23.878308+00:00
+
+Actual source cbb16c7: Core180, Factory33, strictClippy/fmt and same-source normal browser4checks/4PNG pass. Test-only b183c86 fullinfra284 pass after retained NameError. Exact commands, immutable log/result/input hashes and f55 failed CI are in ROOT_RESULTS.json (SHA256 3a2e5cd21f2a3b00967b69e0543ab8348484f1c2af69ace2626a2760a7ebf627). New exact CI, dualMac/Native/audit/installer and full130 acceptance remain open; no deadline, retry, budget or authority expansion.

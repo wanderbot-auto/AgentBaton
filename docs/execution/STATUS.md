@@ -1,3 +1,9 @@
+## Root verified queued Owner read candidate — 2026-10-31T00:21:23.878308+00:00
+
+Product source cbb16c7 passes 180 Core units, 33 actual Factory IPC cases, strict workspace/alltargets Clippy/fmt, same-source frontend/explicit preview builds and normal actual Chromium/Unix IPC (4 checks, 4 original PNGs, cleanup complete, daemon exit0). Root viewed the original final TaskAccepted/Graph/Factory screenshot. Test-only b183c86 fixes the extracted timing namespace; all284 infrastructure cases then pass. Preserve the prior284-case NameError log, not a product timeout failure.
+
+PR18 f55 Product41143055493 remains failed: ARM/Rust pass; Intel original bounded readonly reconciliation exhausted after Owner decision; UI normal typedWORKSPACE_BUSY fails while cancel/lost-start pass. New queued-head service and bounded poll do not enlarge any retry/deadline/Scope/budget authority. Local passes do not prove Intel root cause or new Mac/CI/installer acceptance. See [source-bound results](owner-read-before-factory-ticks/ROOT_RESULTS.json). Main653679d/OWNER001002 ACK, no003; formalApprove, production, spending and credentials remain separately restricted.
+
 ## Private Goal diagnostic handoff locally verified — 2026-10-30T23:08:56.158078+00:00
 
 Exact090df57 passes170 unique Core (new3 real Store/SQLite controls included),33 Factory (real rework and prior3busy controls included),269 infrastructure, strict workspace/alltargets Clippy/fmt and same-head frontend/explicit preview builds. Actual paired Core15/React childcancel passes4checks/3originalPNG, real daemonexit0/cleanupcomplete and finite publication; Root viewed original04. New diagnostics do not change public wire/recovery, budgets, permissions, stop/unknown or retry semantics. See [Root results](goal-admission-observation-handoff/ROOT_RESULTS.json).

@@ -7,3 +7,8 @@ Original post-request statements and comments were moved to one private helper w
 Rustfmt and static byte comparisons ran successfully. New Rust tests are authored, not compiled or executed by this source author. No Cargo, Actor, SQLite, browser, Provider or network work ran in this work unit. Root must independently review and actually execute focused and product regressions.
 
 Diagnostic source limitation: f55 Intel's final read used 5004 ms and exhausted the existing shared two-retry pool after one classified busy and one earlier transport retry. Retained post-shutdown child acceptance/validator success does not prove the parent was complete at the failed observation. Queue delay is an unproved candidate, not a diagnosed cause. CI used dev/test debuginfo, but the observed CI CLI was smaller than the local Linux fixture; no debug-symbol/hash explanation is established.
+
+
+## Root actual checkpoint 2026-10-31T00:21:23.878308+00:00
+
+Actual source cbb16c7: Core180, Factory33, strictClippy/fmt and same-source normal browser4checks/4PNG pass. Test-only b183c86 fullinfra284 pass after retained NameError. Exact commands, immutable log/result/input hashes and f55 failed CI are in ROOT_RESULTS.json (SHA256 3a2e5cd21f2a3b00967b69e0543ab8348484f1c2af69ace2626a2760a7ebf627). New exact CI, dualMac/Native/audit/installer and full130 acceptance remain open; no deadline, retry, budget or authority expansion.

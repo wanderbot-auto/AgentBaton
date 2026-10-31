@@ -9,3 +9,8 @@ Requirements: preserve Owner/Scoped authority, local IPC framing, bounded schedu
 4. Author focused FIFO, admission-count, envelope, actual handler, expiry and retained-error test sources. Root executes and obtains independent review before integration.
 
 No new request, channel, worker, cache, quota, timeout, retry, Scope lifetime or public API. No latency or root-cause claim from source review alone.
+
+
+## Root actual checkpoint 2026-10-31T00:21:23.878308+00:00
+
+Actual source cbb16c7: Core180, Factory33, strictClippy/fmt and same-source normal browser4checks/4PNG pass. Test-only b183c86 fullinfra284 pass after retained NameError. Exact commands, immutable log/result/input hashes and f55 failed CI are in ROOT_RESULTS.json (SHA256 3a2e5cd21f2a3b00967b69e0543ab8348484f1c2af69ace2626a2760a7ebf627). New exact CI, dualMac/Native/audit/installer and full130 acceptance remain open; no deadline, retry, budget or authority expansion.

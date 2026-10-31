@@ -16,3 +16,8 @@ Actual source-author checks:
 Rust source tests are in `crates/core/src/ipc_owner_read_queue_tests.rs`. Root should run `cargo test -p agentbaton-core --lib ipc::owner_read_queue_tests` in its complete controlled workspace, then the relevant existing IPC, Goal stop, Factory history/runtime/rework suites. This author did not execute Cargo or any test. The retained-fatal tests inject an explicit error at the actual post-request boundary; they do not claim to manufacture a real failing data-admission worker. End-to-end data admission and real cancellation/join behavior require the existing runtime suites.
 
 Independent review, Rust compilation/tests, native/UI validation and same-candidate Intel/ARM CI remain pending. Static evidence does not prove responsiveness or product acceptance.
+
+
+## Root actual checkpoint 2026-10-31T00:21:23.878308+00:00
+
+Actual source cbb16c7: Core180, Factory33, strictClippy/fmt and same-source normal browser4checks/4PNG pass. Test-only b183c86 fullinfra284 pass after retained NameError. Exact commands, immutable log/result/input hashes and f55 failed CI are in ROOT_RESULTS.json (SHA256 3a2e5cd21f2a3b00967b69e0543ab8348484f1c2af69ace2626a2760a7ebf627). New exact CI, dualMac/Native/audit/installer and full130 acceptance remain open; no deadline, retry, budget or authority expansion.
