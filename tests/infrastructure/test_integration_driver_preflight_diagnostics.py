@@ -307,7 +307,74 @@ class ExactOriginalSourceControls(unittest.TestCase):
         self.assertEqual(D.DRIVER_PREFLIGHT_EXCEPTIONS, E.DRIVER_PREFLIGHT_EXCEPTIONS)
         self.assertEqual(set(D.DRIVER_RUNTIME_CHECKS), E.DRIVER_RUNTIME_CHECKS)
 
+    def restore_notification_layer(self, text):
+        # Complete Feature 784 additions are inverted before the unchanged Root
+        # preflight inverse. Both whole-file variants are exact; no region is
+        # ignored. The fragments below match 7ee -> 784 source differences.
+        root_sha = '91ee42eb4112cab21f1ae3fba57e00743af1542dd4b3ef98833562605e43352a'
+        if sha(text.encode()) == root_sha:
+            return text
+        self.assertEqual(sha(text.encode()), '55f8144175c0a1d0809da7c95c66339c535a6f8e6d90ece9d11ecb89227df993')
+        start, end = text.index('def notification_probe_bytes('), text.index('def reservation(')
+        self.assertEqual(sha(text[start:end].encode()), '19e92d98fca381d2ba9e1d975fa44cbd34e663f80ace11c32b2a9d788559aed4')
+        text = text[:start] + text[end:]
+        self.assertEqual(text.count('import types\n'), 1)
+        text = text.replace('import types\n', '', 1)
+        replacements = [['main',
+          '96af72e536750e4e42e14a9d98ce32d140c5f237621d9621264232636133e58e',
+          'ab5a5c5e683102bcea96122510010565c4ae17bb6d9ab121dc4209edb561bf26',
+          [["    parser.add_argument('--notification-probe', action='store_true',\n"
+            "        help='After the original normal-case checks only, observe real in-app notification UI with "
+            "existing read-only IPC')\n",
+            ''],
+           ["        if args.notification_probe and args.case != 'command-failure':\n"
+            '            args._notification_probe, args._notification_probe_source = '
+            'load_notification_probe(args.expected_source_head)\n'
+            '    except (ImportError, Refusal, OSError) as error:\n',
+            '    except ImportError as error:\n']]],
+         ['run_case',
+          '6214095e2ced2896cbfd001351bd06d664c7df260d6ec751bd5d60e4d5c74fd8',
+          '95245679bcd0d4954c9f35fb5b1c684f89241f7ab00057ff2ebb5adfb51c5a25',
+          [["    notification_probe = getattr(args, '_notification_probe', None) if not failing else None\n"
+            '    notification_report = None\n'
+            '    notification_passed = False\n'
+            '    if notification_probe is not None:\n'
+            "        notification_output = output / 'notification-probe'; "
+            'notification_output.mkdir(mode=0o700)\n'
+            "        notification_report = notification_probe.pending_report(attribution['source'], "
+            'args._notification_probe_source)\n',
+            ''],
+           ['        if notification_probe is not None:\n'
+            "            phase = 'notification_probe'\n"
+            '            require(notification_probe.run_probe(page, host, bounds, fixture, accepted, server,\n'
+            "                notification_report, notification_output, private_json), 'Real notification probe "
+            "failed')\n",
+            ''],
+           ['            if notification_probe is not None:\n'
+            "                require(notification_probe_source(attribution['source']) == "
+            'args._notification_probe_source)\n',
+            ''],
+           ['        if notification_probe is not None:\n'
+            '            notification_passed = notification_probe.seal_report(notification_report, report)\n'
+            "            private_json(notification_output / 'report.json', notification_report)\n"
+            "    return report['status'] == 'passed' and (notification_probe is None or notification_passed)",
+            "    return report['status'] == 'passed'"]]]]
+        for name, combined_sha, root_function_sha, changes in replacements:
+            node = next(n for n in ast.parse(text).body if isinstance(n, ast.FunctionDef) and n.name == name)
+            changed = ast.get_source_segment(text, node)
+            self.assertEqual(sha(changed.encode()), combined_sha)
+            original = changed
+            for after, before in changes:
+                self.assertEqual(original.count(after), 1)
+                original = original.replace(after, before, 1)
+            self.assertEqual(sha(original.encode()), root_function_sha)
+            self.assertEqual(text.count(changed), 1)
+            text = text.replace(changed, original, 1)
+        self.assertEqual(sha(text.encode()), root_sha)
+        return text
+
     def restore_driver(self, text):
+        text = self.restore_notification_layer(text)
         start, end = text.index('DRIVER_PREFLIGHT_STAGES = '), text.index('def preflight(')
         self.assertEqual(sha(text[start:end].encode()), '51cc52c0a3c2c42e03288a1933f3f7091c1fbaa3a0b8e1c6015d9f992f3bab99')
         text = text[:start] + text[end:]
@@ -332,6 +399,33 @@ class ExactOriginalSourceControls(unittest.TestCase):
         addition = "            summary['driver_preflight'] = driver_preflight_diagnostic(args.private, args.expected_source_head)\n"
         self.assertEqual(text.count(addition), 1); text = text.replace(addition, '', 1)
         self.assertEqual(sha(text.encode()), '0f1de4bc3e2ff73bd88764069d3b5b345a3c8af5b2c4ff36259ad5c85e10a167')
+
+    def test_root_and_feature_composed_variants_both_restore_the_entire_original_driver(self):
+        combined = DRIVER.read_text()
+        root = self.restore_notification_layer(combined)
+        self.assertNotEqual(combined, root)
+        self.assertEqual(sha(root.encode()), '91ee42eb4112cab21f1ae3fba57e00743af1542dd4b3ef98833562605e43352a')
+        for text in (combined, root):
+            self.assertEqual(sha(self.restore_driver(text).encode()),
+                '1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e')
+
+    def test_notification_layer_refuses_missing_duplicate_unknown_or_changed_function_bytes(self):
+        source = DRIVER.read_text()
+        changes = [("    parser.add_argument('--notification-probe', action='store_true',\n", ''),
+            ("'--notification-probe'", "'--notification-probe-unknown'"),
+            ("'--notification-probe'", "'--notification-probe', '--notification-probe'"),
+            ('import types\n', ''),
+            ('def notification_probe_bytes(expected):', 'def notification_probe_bytes(expected, extra=None):'),
+            ("if args.notification_probe and args.case != 'command-failure':", 'if args.notification_probe:'),
+            ("notification_probe.seal_report(notification_report, report)", 'True'),
+            ("retain_driver_preflight_diagnostic(args.output, diagnostic, error)", 'print(error)'),
+            ("MAX_CHROMIUM_IMAGE = 536870912", "MAX_CHROMIUM_IMAGE = 1073741824")]
+        for before, after in changes:
+            self.assertIn(before, source)
+            with self.subTest(before=before), self.assertRaises(AssertionError):
+                self.restore_driver(source.replace(before, after, 1))
+        with self.assertRaises(AssertionError):
+            self.restore_driver(source + '\nUNKNOWN_OUTSIDE_CHANGE = True\n')
 
     def test_all_original_guard_expressions_and_pin_call_arguments_are_unchanged(self):
         before = ast.parse((FIXTURES / 'original_preflight.py.txt').read_text()).body[0]

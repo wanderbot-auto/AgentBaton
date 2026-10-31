@@ -1,3 +1,9 @@
+## Notification capture composition verified locally — 2026-10-31
+
+Notificationb369 defaultUI1166/66files passed; infrastructure721/1 failed at a composition inverse and the planned build did not run. Reviewed test-onlyddf restores the exact old e874 workflow after both approved layers, preserving6d82 and all original negative assertions. ddf complete infrastructure724, frontend type/build and normal Core17/CLI build/freeze pass. Same-source direct real IPC/browser integration normal5/command-failure4 and notification6 pass with16 original PNGs and clean owned shutdown. [Source-bound evidence](task-notifications/COMPOSED_CAPTURE_RESULTS.json).
+
+No new exact Notification CI, Native/macOS, OS/background delivery,100 real repeats, current installers or full130 completion claimed. Root/Directory CI failures remain distinct. Next: independent evidence review, one candidate push/check pair, then continue dependency-ready full development.
+
 ## Exact readonly observations and retained CI failures — 2026-10-31
 
 At ea0d49,84 FactoryChildGoals tests pass after observing actual timer registration and exact subsequent reads; the original1000ms interval/observation limits,20-read product bound and no-write controls remain. At29e2,default fullUI1147/64 passes with maxWorkers2 only; original deadlines/isolation remain. Same29e2 normal Core17/React with actual owned installed Chromium ELF passes direct integration normal5/failing4 and12original PNGs, both owned clean shutdowns/cleanup. These local results do not diagnose or replace a7 remote failures.
@@ -70,6 +76,12 @@ Ordinary merge of fd24203 and PR19 b55c44a preserves strict17, all integration s
 
 Independent source reviews cover the fixed five typed Rust files, four history/stop/wire files and thirteen document resolutions, five Python merges and four source-test locator adaptations. Complete inverse proofs preserve both source histories. Scoped pure87 passes with zero actual calls; earlier78/4/4 and83/4 outcomes remain. These source/pure checks do not validate the new merged runtime. [Evidence and exact pending checks](root21-main-alignment/EVIDENCE.json). Owner001/002 ACK; full130 and all authority limits remain.
 
+## Notification composition898 verified locally; CI interpreter preparation pending — 2026-10-31T06:41:12.403981+00:00
+
+ExactRoot e874 merged with Feature784, four source/test conflicts independently reviewed. Infrastructure600, full UI1088/typecheck and fresh same898 Core/frontend builds pass; the entire original flagged CI wrapper passes integration9 and notifications6 with16 original PNGs, one Task notice/12 natural events/10 inspected sources and confirmed cleanup. [Evidence](task-notifications/COMPOSED_ROOT_E874_RESULTS.json), SHA256 305a2be71a664987c2f4bee6e04dce34b1c9b3b9304c6c565c711fbc8d8e2651. The first sparse checkout test failure is retained; materialization changed no source/index or existing dependency link.
+
+New Feature CI awaits the shared private Python preparation correction after Root e874 retained actual python_mode_allowed=false before any integration business case. Do not weaken that guard or transfer Linux/old results to new Mac acceptance. All existing130 requirement states and permissions remain; full product work continues.
+
 ## Root17 product and diagnostics verified locally; exact Mac CI pending — 2026-10-31T06:21:02.745312+00:00
 
 Source0fbc passes Core235, workspaces194+7docs and integrationIPC20. Source7e passes strict Core/workspaces all-targets Clippy after retained two test type-complexity failures. Fresh7e Core/frontend/private empty probe and corrected0af harness pass actual Linux normal4/cancel4/lost-start5, all cleanup confirmed. The original7e ACK missing-hashlib failure and incomplete cleanup remain retained; source-only checks had masked that dependency. Full composed82c infrastructure586 and format pass. [Exact evidence](authorized-integration/PLATFORM_CLOSURE_RESULTS.json), SHA256 d76e816d670f9d213d88830275d24f5d640f1c55e008c5d52b98da94f20b055b.
@@ -95,6 +107,16 @@ Parent 7af Environment 41163775698 PASS; Product 41163775724 FAIL despite Rust a
 All 130 requirement states remain unchanged. New exact reviewed CI/current Native/dualMac/Root development packages, protected integration and broader product acceptance remain open; real Provider, formal Approve, signing and production remain separately gated. Main 653679d; OWNER-001/002 ACK, no OWNER-003; no authority expansion.
 
 Notification 784 Environment 41168423931 separately retains both Mac jobs failed with 15 errors each in an unresolved temporary-root positive fixture; Ubuntu passed. The test-only canonical-root correction and alias-parent refusal control pass 10 pure Linux tests. Projector/source pins are unchanged; corrected Mac/full-infrastructure/new CI execution remains not run.
+
+## Notification CI composition checked — 2026-10-31T04:22:15.795036+00:00
+
+Source d8d8f0b8005b2aa27f354ad2404344d8f5a3f908 passes 522 infrastructure checks after fixing a reviewer-found negative-test blind spot. Original workflow hashes, negative guards and runtime source287 remain intact. [Composition evidence](task-notifications/COMPOSED_SOURCE_VALIDATION.json) SHA256 ec53b9bd8d538eee3348d62d4402319652a50478568fe7fdc4c1c53e74739a25. The earlier 31-test failure is retained. Exact feature CI is next. Parent7af Product41163775724 is terminal: Rust and both Mac lanes passed, UI normal/cancel failed, lost-start passed; the overall run failed. Root7ee ARM/Intel/UI failures remain separately open. Full Design v0.2 is incomplete.
+
+## Task notifications connected and locally verified — 2026-10-31T04:07:31.636146+00:00
+
+AB-SES-007 nowimplementing: actualTask/session/journal observations aggregate tooneTasknotice with exactsources, boundedconflict/futureseq guards, explicitDND and safeTask/Historynavigation. Same287actualCore/frontend fullwrapper passes original9checks12PNG plusindependent6notificationchecks4PNG,12naturalassociatedevents→1notice;100repeat onlycomponentfixture. Types/UI1088/61/build and513infra+13probecontrols pass. [Exactevidence](task-notifications/EVIDENCE.json) SHA 6737e0503564b479fd27af5fec58af6d8638c0c8c7af3c87495957c4efd31dea; Rootviewed2newplaintext originals.
+
+NewfeatureexactCI/Native/bothMac/installationremainopen; localbrowseradapterreplacesCIbundledELFdiscovery anddoesnotexplain Root7eeCIsetupfailure. Root7ee Env3/Rustpass butUI/ARM/Intelfail remain; Parent7af Env3/Rustpass/UI normal+cancelfail, loststartpass, bothMaclastobservedrunning. Alloriginalbounds/authority/failedrecords/full130scope remain. Main653 OWNER001002ACK/no003, noformalApprove/privateProvider/newspend/signing/production.
 
 ## Root17 exact fbd failures diagnosed; local fixes verified — 2026-10-31T02:52:01.931546+00:00
 

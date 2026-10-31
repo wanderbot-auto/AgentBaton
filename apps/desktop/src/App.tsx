@@ -16,6 +16,7 @@ import { TaskIntegration } from './TaskIntegration';
 import { FactoryRuntime } from './FactoryRuntime';
 import { Icon, type IconName } from './Icons';
 import { earlierEventWindow, type WindowReplacement } from './event-window';
+import { TaskNotifications } from './TaskNotifications';
 
 type View = 'work' | 'tasks' | 'capabilities' | 'history' | 'quick';
 type Filter = 'all' | 'active' | 'attention' | 'drafts' | 'done';
@@ -54,6 +55,13 @@ export function App() {
   const [eventPageMore, setEventPageMore] = useState(false);
   const [windowReplacement, setWindowReplacement] = useState<WindowReplacement>(null);
   const [byteLimitedPage, setByteLimitedPage] = useState(false);
+  const [tasksFresh, setTasksFresh] = useState(false);
+  const [sessionsFresh, setSessionsFresh] = useState(false);
+  const [eventsFresh, setEventsFresh] = useState(false);
+  const [eventGapObserved, setEventGapObserved] = useState(false);
+  const [eventSequence, setEventSequence] = useState<number | null>(null);
+  const [focusedEventId, setFocusedEventId] = useState<string>();
+  const [focusedEventRequest, setFocusedEventRequest] = useState(0);
   const eventRequestCursor = useRef<number | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<string>();
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
@@ -75,11 +83,12 @@ export function App() {
   const stateText = (state: string) => Object.hasOwn(t, state) ? t[state as keyof typeof t] : `${t.unknown}: ${state}`;
   const refresh = useCallback(async (silent = false) => {
     const request = ++refreshSequence.current;
+    setTasksFresh(false); setSessionsFresh(false); setEventsFresh(false);
     if (!silent) setStatus('connecting');
     try {
       const snapshot = await api.snapshot();
       if (request !== refreshSequence.current) return;
-      setTasks(snapshot.tasks); setStatus('connected');
+      setTasks(snapshot.tasks); setTasksFresh(true); setStatus('connected');
       const cursor = eventRequestCursor.current ?? Math.max(0, snapshot.sequence - 100);
       const [history, projectRecords, nextConnections, nextSessions] = await Promise.allSettled([api.events(cursor), api.projectsList(), sessionApi.connectionsList(), sessionApi.sessionsList()]);
       if (request !== refreshSequence.current) return;
@@ -93,13 +102,15 @@ export function App() {
       }
       if (history.status === 'fulfilled') {
         const batch = history.value;
+        setEventSequence(batch.sequence);
         setEvents(earlierEventWindow(batch.events, []).events); setWindowReplacement(null); setByteLimitedPage(!!batch.byte_limited); setEarliestCursor(cursor);
         setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence);
-        if (batch.gap) failures.push(messages[language].eventGap);
+        setEventsFresh(!batch.gap);
+        if (batch.gap) { setEventGapObserved(true); failures.push(messages[language].eventGap); }
       }
       if (projectRecords.status === 'fulfilled') setProjects(projectRecords.value);
       if (nextConnections.status === 'fulfilled') setConnections(nextConnections.value);
-      if (nextSessions.status === 'fulfilled') setSessions(nextSessions.value);
+      if (nextSessions.status === 'fulfilled') { setSessions(nextSessions.value); setSessionsFresh(true); }
       setError(failures.join(' '));
     } catch (e) {
       if (request !== refreshSequence.current) return;
@@ -123,7 +134,7 @@ export function App() {
   }, []);
   useEffect(() => {
     function shortcut(event: KeyboardEvent) {
-      if (dialog) return;
+      if (dialog || document.querySelector('[role="dialog"][aria-modal="true"]')) return;
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setQuery(''); setDialog('search'); }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'n') { event.preventDefault(); newTask(); }
       if (event.key === 'Escape' && selectedId && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) setSelectedId(undefined);
@@ -173,14 +184,17 @@ export function App() {
   async function loadEarlier() {
     setBusy(true);
     const request = ++refreshSequence.current;
+    setEventsFresh(false);
     try {
       const cursor = Math.max(0, earliestCursor - 100), batch = await api.events(cursor);
       if (request !== refreshSequence.current) return;
-      if (batch.gap) { setError(t.eventGap); return; }
+      if (batch.gap) { setEventGapObserved(true); setError(t.eventGap); return; }
       const older = batch.events.filter(event => event.sequence <= earliestCursor);
-      if (!older.length) { setError(t.eventGap); return; }
+      if (!older.length) { setEventGapObserved(true); setError(t.eventGap); return; }
       const window = earlierEventWindow(older, events);
+      setEventSequence(batch.sequence);
       setEvents(window.events); setWindowReplacement(window.reason); setByteLimitedPage(!!batch.byte_limited); setEarliestCursor(cursor); eventRequestCursor.current = cursor;
+      setEventsFresh(true);
       if (window.replaced || batch.byte_limited) { setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence); }
     } catch (e) { showError(e); }
     finally { setBusy(false); }
@@ -188,15 +202,19 @@ export function App() {
   async function loadNextEvents() {
     setBusy(true);
     const request = ++refreshSequence.current;
+    setEventsFresh(false);
     try {
       const cursor = nextEventCursor, batch = await api.events(cursor);
       if (request !== refreshSequence.current) return;
-      if (batch.gap || (batch.next_cursor <= cursor && batch.sequence > cursor)) { setError(t.eventGap); return; }
+      if (batch.gap || (batch.next_cursor <= cursor && batch.sequence > cursor)) { setEventGapObserved(true); setError(t.eventGap); return; }
+      setEventSequence(batch.sequence);
       setEvents(earlierEventWindow(batch.events, []).events); setWindowReplacement(null); setByteLimitedPage(!!batch.byte_limited); setEarliestCursor(cursor); setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence); eventRequestCursor.current = cursor;
+      setEventsFresh(true);
     } catch (e) { showError(e); }
     finally { setBusy(false); }
   }
   function openTask(id: string) { eventRequestCursor.current = undefined; setSelectedId(id); setGoal(''); setTab('conversation'); setView('tasks'); setDialog(null); setMobileNav(false); createKey.current = null; }
+  function viewNotificationEvent(eventId: string) { setFocusedEventId(eventId); setFocusedEventRequest(current => current + 1); setView('history'); setSelectedId(undefined); setDialog(null); setMobileNav(false); }
   function navigate(next: View) { if (next !== 'history') eventRequestCursor.current = undefined; setView(next); setSelectedId(undefined); setMobileNav(false); setGoal(''); createKey.current = null; }
   const filtered = tasks.filter(task => (!projectId || task.project_id === projectId) && (filter === 'all' || (filter === 'active' ? activeStates.has(task.state) : filter === 'attention' ? attentionStates.has(task.state) : filter === 'drafts' ? task.state === 'draft' : finishedStates.has(task.state))));
   const taskEvents = selected ? events.filter(event => event.aggregate_id === selected.id || selectedSessions.some(session => session.id === event.aggregate_id)) : [];
@@ -207,7 +225,7 @@ export function App() {
   const dialogTitle = dialog === 'projects' ? c.projectSettings : dialog === 'execution' ? c.execution : dialog === 'search' ? c.searchTasks : dialog === 'conversion' ? c.convertTitle : c.settings;
   const eventPager = <>{windowReplacement && <p role="status">{windowReplacement === 'bytes' ? t.windowBudget : t.windowLimit}</p>}{byteLimitedPage && <p role="status">{t.bytePageLimit}</p>}{eventPageMore && <div className="event-page-controls"><p className="hint">{t.eventPageMore}</p><button onClick={() => void loadNextEvents()} disabled={busy || status !== 'connected'}>{t.nextEvents}</button></div>}</>;
   return <div className={`shell${navCollapsed ? ' nav-collapsed' : ''}${mobileNav ? ' mobile-nav-open' : ''}`}>
-    <header className="appbar"><div className="brand"><svg className="brandmark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 19 11 4h5L8 19Zm9 1 7-13h4l-7 13Z" /></svg><span>AgentBaton</span></div><button className="icon-button nav-toggle" aria-label={c.toggleNav} aria-expanded={mobileLayout ? mobileNav : !navCollapsed} onClick={() => { if (mobileLayout) setMobileNav(value => !value); else setNavCollapsed(value => !value); }}><Icon name="panel" /></button><div className="location"><span>{c.personal}</span><span className="location-divider">/</span><button onClick={() => setDialog('projects')}>{projectId ? projectName(projectId) : c.allProjects}</button></div><span className={`connection ${status}`} role="status"><span className="status-dot" />{t[status]}</span><button className="icon-button" aria-label={t.refresh} disabled={busy} onClick={() => void refresh()}><Icon name="refresh" /></button></header>
+    <header className="appbar"><div className="brand"><svg className="brandmark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 19 11 4h5L8 19Zm9 1 7-13h4l-7 13Z" /></svg><span>AgentBaton</span></div><button className="icon-button nav-toggle" aria-label={c.toggleNav} aria-expanded={mobileLayout ? mobileNav : !navCollapsed} onClick={() => { if (mobileLayout) setMobileNav(value => !value); else setNavCollapsed(value => !value); }}><Icon name="panel" /></button><div className="location"><span>{c.personal}</span><span className="location-divider">/</span><button onClick={() => setDialog('projects')}>{projectId ? projectName(projectId) : c.allProjects}</button></div><span className={`connection task-notifications-connection ${status}`} role="status"><span className="status-dot" />{t[status]}</span><TaskNotifications tasks={tasks} sessions={sessions} events={events} language={language} observation={{ connected: status === 'connected', tasksFresh, sessionsFresh, eventsFresh, eventSequence, eventLimited: eventGapObserved || earliestCursor > 0 || eventPageMore || byteLimitedPage || windowReplacement !== null }} onOpenTask={openTask} onViewEvent={viewNotificationEvent} /><button className="icon-button" aria-label={t.refresh} disabled={busy} onClick={() => void refresh()}><Icon name="refresh" /></button></header>
     {mobileNav && <button className="mobile-nav-dismiss" aria-label={c.close} onClick={() => setMobileNav(false)} />}
     <aside className="sidebar"><div className="sidebar-top"><button className="new-button" aria-label={c.newTask} title={c.newTask} onClick={newTask}><Icon name="plus" /><span>{c.newTask}</span><kbd>⌘ N</kbd></button><button className="nav-item" aria-label={c.search} title={c.search} onClick={() => { setQuery(''); setDialog('search'); }}><Icon name="search" /><span>{c.search}</span><kbd>⌘ K</kbd></button></div><nav aria-label={language === 'zh' ? '主导航' : 'Main navigation'}>{nav.map(([item, icon, label]) => <button className="nav-item" key={item} aria-current={view === item ? 'page' : undefined} onClick={() => navigate(item)} title={label}><Icon name={icon} /><span>{label}</span></button>)}</nav><div className="sidebar-projects"><div className="sidebar-label">{t.projects}</div><button className="nav-item" onClick={() => setDialog('projects')} title={c.projectSettings}><Icon name="plus" /><span>{c.projectSettings}</span></button>{projects.filter(project => !project.archived).map(project => <button className="nav-item" key={project.id} aria-pressed={projectId === project.id} onClick={() => { setProjectId(current => current === project.id ? '' : project.id); navigate('work'); }} title={project.name}><Icon name="folder" /><span>{project.name}</span></button>)}</div><div className="sidebar-bottom"><button className="nav-item" aria-current={view === 'quick' ? 'page' : undefined} onClick={() => navigate('quick')} title={c.quick}><Icon name="chat" /><span>{c.quick}</span></button><label className="language"><span>{t.language}</span><select aria-label={t.language} value={language} onChange={event => setLanguage(event.target.value as Language)}><option value="en">English</option><option value="zh">简体中文</option></select></label><button className="nav-item" onClick={() => setDialog('settings')} title={c.settings}><Icon name="settings" /><span>{c.settings}</span></button></div></aside>
     <main className="main"><div className={`page-scroll${showingCanvas ? ' has-composer' : ''}`}><div className="canvas">
@@ -229,7 +247,7 @@ export function App() {
         {tab === 'details' && <div className="task-details"><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projectName(selected.project_id)}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{c.retained}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || !['draft','running','outcome_unknown'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><TaskCodeWorkspace key={`code-workspace-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /><GoalPlanning key={`goal-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /><TaskIntegration key={`integration-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /><FactoryRuntime key={`factory-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /></div>}
       </div></section>}
       {view === 'capabilities' && <><div className="page-heading"><h1>{t.capabilities}</h1></div><Connections language={language} connected={status === 'connected'} compact /><section className="capability-empty"><h2>{c.capabilitySources}</h2><p>{c.noCapabilitySources}</p><p className="hint">{c.provenance}</p></section></>}
-      {view === 'history' && <><div className="page-heading"><h1>{t.history}</h1></div><EventList events={events} title={t.evidence} empty={t.noEvents} />{eventPager}{earliestCursor > 0 && <><p>{events.length >= 500 ? t.windowLimit : t.moreEvents}</p><button onClick={() => void loadEarlier()} disabled={busy || status !== 'connected'}>{t.earlier}</button></>}</>}
+      {view === 'history' && <><div className="page-heading"><h1>{t.history}</h1></div><EventList events={events} title={t.evidence} empty={t.noEvents} focusedEventId={focusedEventId} focusRequest={focusedEventRequest} />{eventPager}{earliestCursor > 0 && <><p>{events.length >= 500 ? t.windowLimit : t.moreEvents}</p><button onClick={() => void loadEarlier()} disabled={busy || status !== 'connected'}>{t.earlier}</button></>}</>}
       {view === 'quick' && <section className="quick-thread"><h1>{c.quickTitle}</h1><p>{c.quickHelp}</p><label htmlFor="quick-summary">{c.quickContext}</label><textarea id="quick-summary" value={quickSummary} maxLength={8192} rows={6} onChange={event => setQuickSummary(event.target.value)} placeholder={c.quickPlaceholder} /><div className="quick-actions"><button disabled title={c.quickHelp}>{c.send} · {c.unavailable}</button><button className="primary" disabled={busy || status !== 'connected' || !quickSummary.trim()} onClick={() => { setConversionSummary(quickSummary); createKey.current = null; setDialog('conversion'); }}>{c.convert}</button></div></section>}
     </div></div>
     {showingCanvas && <div className="composer-wrap"><form className="composer" data-testid="goal-composer" onSubmit={selected ? sendTaskMessage : createTask}><label className="sr-only" htmlFor="goal">{selected ? c.message : t.goal}</label><textarea ref={composer} data-testid="goal-input" id="goal" disabled={busy || (!!selected && (!readySession || uncertainTaskSend))} value={goal} maxLength={selected ? 16384 : 8192} onChange={event => { setGoal(event.target.value); createKey.current = null; }} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } }} placeholder={selected ? c.messagePlaceholder : c.goalPlaceholder} required rows={2} /><div className="composer-controls"><div className="composer-left"><button className="icon-button" type="button" disabled title={c.attachmentUnavailable} aria-label={c.attachment}><Icon name="plus" /></button><label className="composer-project"><Icon name="folder" /><span className="sr-only">{t.project}</span><select disabled={busy || !!selected} value={selected?.project_id ?? projectId} onChange={event => { setProjectId(event.target.value); createKey.current = null; }}><option value="">{t.localDrafts}</option>{projects.map(project => <option key={project.id} value={project.id} disabled={project.archived}>{project.name}{project.archived ? ` (${t.archived})` : ''}</option>)}</select></label><span className="composer-divider" /><button type="button" className="text-button execution-choice" disabled={!selected} aria-label={c.connectionChoice} title={selected ? c.execution : c.automaticUnavailable} onClick={() => setDialog('execution')}><Icon name="capabilities" /><span>{selectedConnection?.name ?? (selected ? c.selectedConnection : c.automaticUnavailable)}</span></button></div><button type="submit" className="send-button primary" aria-label={selected ? c.send : t.create} disabled={busy || status !== 'connected' || !goal.trim() || (selected ? !readySession || uncertainTaskSend : projects.some(project => project.id === projectId && project.archived))}><Icon name="send" /></button></div></form><div className="composer-foot"><span>{selected ? uncertainTaskSend ? c.unsent : !readySession ? c.sessionRequired : selectedConnection?.name : c.draftHint}</span><span>{c.enterHint}</span></div></div>}
@@ -243,6 +261,7 @@ export function App() {
     </ContextDialog>}
   </div>;
 }
-function EventList({ events, title, empty }: { events: JournalEvent[]; title: string; empty: string }) {
-  return <section className="events"><h2>{title}</h2>{events.length ? <ol>{events.map(event => <li key={event.event_id}><details><summary><span>{event.kind}</span> <time>{event.occurred_at}</time> <span>#{event.sequence}</span></summary><pre>{JSON.stringify(event.payload, null, 2)}</pre></details></li>)}</ol> : <p>{empty}</p>}</section>;
+function EventList({ events, title, empty, focusedEventId, focusRequest = 0 }: { events: JournalEvent[]; title: string; empty: string; focusedEventId?: string; focusRequest?: number }) {
+  useEffect(() => { if (focusedEventId) document.getElementById(`journal-event-${focusedEventId}`)?.scrollIntoView?.({ block: 'nearest' }); }, [focusedEventId, focusRequest]);
+  return <section className="events"><h2>{title}</h2>{events.length ? <ol>{events.map(event => <li id={`journal-event-${event.event_id}`} key={event.event_id}><details open={event.event_id === focusedEventId || undefined}><summary><span>{event.kind}</span> <time>{event.occurred_at}</time> <span>#{event.sequence}</span></summary><pre>{JSON.stringify(event.payload, null, 2)}</pre></details></li>)}</ol> : <p>{empty}</p>}</section>;
 }
