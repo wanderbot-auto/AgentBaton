@@ -1,3 +1,7 @@
+Current integration: finish documented squash ancestry, retarget PR19 main, read exact CI and dual-Mac evidence; retain all remaining approved scope. Local regression is recorded in PARENT_AE42_COMPOSED_RESULTS.json.
+
+Next: retain exact2e actual166/30/241 and reviewed composition; complete parent CI diagnosis, then exact schema16 remote/native/dual-architecture verification after protected parent integration. Continue independent authorized Core17 integration; no16 installer acceptance.
+
 Next: preserve verified bc10 composition, incorporate later independently reviewed Parent diagnostics at a safe boundary, retarget only after protected parent integration, then run exact16 CI/native/build/audit/packages. Continue full coding adoption/remote/130 scope; no16installer accepted.
 
 Next: compose the latest reviewed Parent34f after its exact CI outcome, preserve exact16/migrations/Owner boundaries and verify changed production paths; retarget dependentPR19 only after protected parent integration. Continue coding-isolation/adoption/full130 scope; current6 local paths are notNative/Mac/productcompletion.

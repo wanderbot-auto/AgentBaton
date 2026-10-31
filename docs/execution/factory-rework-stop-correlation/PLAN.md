@@ -1,0 +1,11 @@
+# Finite rework stop/turn correlation
+
+Basead400f09b6f55601d600099de68b7d6ca00406dd. Independent branchcodex/factory-rework-stop-correlation. Evidence-only slice for AB-TSK-007/008/009 and AB-VAL-009; not completed requirements, stop authentication, admission or causal diagnosis. Original OWNER-001/002 and development boundary stay unchanged.
+
+Modify only the existing rework collector, one new synthetic SQLite test module, and these four records. No production/Rust fixture/workflow/schema/locks/targets/budgets/PASS/stop/fence/refund/history changes. Original80 tests remain byte-identical. The Rust fixture already retains the complete owned-joined main DB; no new producer or raw upload is needed.
+
+After existing full events schema/JSON/count4096/aggregate4MiB/row1MiB guards, associate each already-selected same-run/exact-revision goal.node_settled with its internal session/attempt/node. Require one earlier goal_core goal.node_reserved with that session and exact run/node/attempt; reserved<stop<settlement. Require one prior same-session baton_supervisor session.stopped. No latest-row fallback. Missing/null/foreign/invalid original fields stay unavailable; multiple reservations/stops stay ambiguous. Unknown stop reason becomes the fixed unrecognized enum; strict booleans never coerce numbers.
+
+Actual writer sessions.rs1619 emits provider_runtime/session.turn_ended payload.turn_state, not a stored turn_completed boolean. Derive public turn_completed/count only from a unique legal terminal state in the same reservation/stop window; mark its basis derived_from_same_session_turn_state. A complete unique stop window with zero matching turn events yields observed0/false; unknown/missing state, wrong source/order or multiple turns never fabricate0/completion. Stop reason cancelled can follow an actually completed Goal; it does not identify an Owner cancellation or TaskAccepted.
+
+Publish the added settled_session_stops list separately from old event dictionaries. Existing observed/current/prior labels remain exact, including same_plan_not_established. Correlation does not establish a different plan binding or infer why REWORK_OUTCOME_UNKNOWN occurred. Parent's4013/4000 observation alone is not an unknown/capture cause.

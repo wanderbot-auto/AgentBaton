@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_PURE_COMPOSITION_READY_FOR_INDEPENDENT_REVIEW",
+  "root_HEAD": "fcc208989ffc24c75cbf4377b560a7e1e25ed195",
+  "MERGE_HEAD": "c67569856050fd40195b540b4bb71d3406e0e907",
+  "merge_base": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+  "real_automerge_tree": "94c473760e472342644e0019c15122371348dffe",
+  "author_changed_paths": [
+    "tests/infrastructure/test_child_goal_diagnostics_v4.py",
+    "tests/infrastructure/test_graph_observation_handshake.py"
+  ],
+  "all_five_files": {
+    "tests/infrastructure/test_child_goal_diagnostics_v4.py": {
+      "sha256": "2349c21be4ad4f611778dcdef0f5ca8935a035245e8951c2a03999a8cfa47ac8",
+      "unchanged_from_auto_merge": false
+    },
+    "tests/infrastructure/test_graph_observation_handshake.py": {
+      "sha256": "cb526006e376bafc6ba9a75d37a176335d1fdf18f5d27813fc25ad01a228e084",
+      "unchanged_from_auto_merge": false
+    },
+    "tests/infrastructure/test_graph_identity_observation.py": {
+      "sha256": "558fbfb98e124d633821dcc2587320237a72aade3137d9625607bf09187d3f73",
+      "unchanged_from_auto_merge": true
+    },
+    "tests/infrastructure/test_graph_provider_argv_diagnostics.py": {
+      "sha256": "b1a912a64b20e5f20ca400858791d8edc70fa17bac09ec5cc02a4c277fa24963",
+      "unchanged_from_auto_merge": true
+    },
+    "tests/infrastructure/test_child_goal_diagnostics_v3.py": {
+      "sha256": "10f28d84968b3bbca0ed9ee40cdd9bb9086dfaac752f9331a7f850130f038454",
+      "unchanged_from_auto_merge": true
+    }
+  },
+  "five_file_index_unchanged": true,
+  "no_add_commit_merge_or_Root_docs_edits": true,
+  "source_invariants": {
+    "new_v4_layer_strips_to_complete_immutable_fcc_Root17_files": {
+      "apps/desktop/src/FactoryChildGoals.tsx": {
+        "actual_merged_sha256": "57a6899da9526ae6289cafe54509fd2da5cae8146ca748a4640f3b042f7d3281",
+        "v4_stripped_full_Root_fcc_sha256": "7c386d3262f90876f0c72d9b12ff1ba25020a0510a70d18c08c6cf4dce1dc267",
+        "reconstructed_full_Parent_c675_sha256": "57a6899da9526ae6289cafe54509fd2da5cae8146ca748a4640f3b042f7d3281",
+        "Root_and_Parent_whole_byte_equal": true,
+        "current_source_same_as_actual_automerge": true
+      },
+      "apps/desktop/tests/factory-child-goal-real-ipc.py": {
+        "actual_merged_sha256": "dd80aebe8fba1c1a031b10e77bdfba64d8d1d349819521fb2deb36a02435cd9d",
+        "v4_stripped_full_Root_fcc_sha256": "9acadb5d494e7cd055b871530867fc273bff9588384beeb9415ffbdaa68c2610",
+        "reconstructed_full_Parent_c675_sha256": "b959489950486874cf9730b9877dc36ee6c0121688dbc3fd9ef567138279268d",
+        "Root_and_Parent_whole_byte_equal": true,
+        "current_source_same_as_actual_automerge": true
+      },
+      "scripts/record-child-goal-ci-evidence.py": {
+        "actual_merged_sha256": "9907ea6815187bf57de2dd2706f2bc6f4c47456a5ff6c979e896d65b6ba7b768",
+        "v4_stripped_full_Root_fcc_sha256": "b51d1c3d4f371c6e1c908e7cd4be308f6c6f6262e2bcccbe1a073df2c545ae14",
+        "reconstructed_full_Parent_c675_sha256": "44d55431fad475248094fabd50cab3543241530dee37537276fa140fb0463f1a",
+        "Root_and_Parent_whole_byte_equal": true,
+        "current_source_same_as_actual_automerge": true
+      }
+    },
+    "Parent_three_file_inverse_exact": true,
+    "all_original_14_v4_test_methods_AST_unchanged": 14,
+    "new_pure_controls": 3,
+    "original_parent_LAYERS_literal_bytes_unchanged_sha256": "40c09ee216b24318d58228aa068631ed76ebb5f23648bdceeff132f6a42d3da1",
+    "old_95572_byte_handshake_test_inverse_remove_only_two_delegation_lines_recovers_full_file_sha256": "2915840fa4814d6acb29a828c7d109ad5ba02f3c6f105ec04e89f9a79b5f2fc4",
+    "embedded_95KiB_file_mapping_bytes_unchanged_sha256": "88c90339663f2533a3194777927e39f67154086325753b5fbb74d56f2f944173",
+    "embedded_mapping_size": 75184,
+    "three_other_original_guard_files_byte_unchanged": true,
+    "old_historical_Root_and_Parent_targets_and_all_prior_negative_assertions_unchanged": true,
+    "historical_Parent_schema16_text_never_executed": "Source-only counterfactual proof; current P module and all runtime fixtures stay strict17. No old collector is imported/compiled/run."
+  },
+  "protected_compiled_product_inputs": {
+    "prefixes": [
+      "crates",
+      "apps/cli",
+      "apps/daemon",
+      "apps/desktop/src-tauri",
+      "Cargo.toml",
+      "Cargo.lock",
+      ".github/workflows"
+    ],
+    "all_tracked_file_bytes_and_index_equal_fcc": true,
+    "actual_files_hashed_against_Root_git_blob": 222,
+    "crates_tree": "40564a48f4245fb744f8fc146492352bfd274c3b",
+    "native_tree": "34bb4cad59208a5451a604f951f8db65e993be4c",
+    "workflow_tree": "647351e4f1b233fa9f71be4b20b6e32da5a202d4",
+    "limit": "No actual binary/build/compiled-source-head validation. This proves tracked source inputs only."
+  },
+  "actual_pure_runs": {
+    "before": {
+      "tests": 62,
+      "errors": 0,
+      "failures": 5,
+      "seconds": 2.649063105985988,
+      "log_sha256": "81de6ff71f9d749aa5d6f74ca005c43e20b0ce8f89658525420ebd554eef904b",
+      "log": "/tmp/root21-c675-test-composition/before.log",
+      "failed_tests": [
+        "test_child_goal_diagnostics_v4.V4DiagnosticsTests.test_full_source_inverse_preserves_all_original_ui_harness_projector_bytes",
+        "test_graph_observation_handshake.SourceControls.test_exact_handshake_layer_inverse_preserves_all_old_harness_business_budget_and_cleanup",
+        "test_graph_identity_observation.OriginalHarnessSourceBoundary.test_exact_inverse_preserves_all_original_business_sql_schema_time_and_cleanup_source",
+        "test_graph_provider_argv_diagnostics.GraphProviderArgvDiagnosticsTests.test_driver_call_remains_within_existing_identity_and_pgid_guards",
+        "test_child_goal_diagnostics_v3.V3DiagnosticsTests.test_cancel_observation_never_replays_or_turns_absence_into_false_stop"
+      ],
+      "forbidden_actual_calls": "sqlite3.connect/subprocess.Popen/os.fork/kill/killpg/waitpid/socket.socket patched to refusal"
+    },
+    "intermediate_test_control_failure_retained": {
+      "tests": 104,
+      "errors": 0,
+      "failures": 1,
+      "seconds": 6.803023990010843,
+      "log_sha256": "29b7b48a3ed6708b0de83cb300b5ca6e21ccddef2cf257f73c33cee7194246d1",
+      "log": "/tmp/root21-c675-test-composition/after.log",
+      "failed_tests": [
+        "test_child_goal_diagnostics_v4.V4DiagnosticsTests.test_outer_inverse_rejects_unknown_guard_schema_wait_helper_or_missing_endpoint"
+      ],
+      "forbidden_actual_calls": "sqlite3.connect/subprocess.Popen/os.fork/kill/killpg/waitpid/socket.socket patched to refusal"
+    },
+    "first_passing": {
+      "tests": 104,
+      "errors": 0,
+      "failures": 0,
+      "seconds": 7.655304193962365,
+      "log_sha256": "f50ccd90bed7d2cb498e42bc21dcabcae9857b6e34ff274cede500e00cce1cf7",
+      "log": "/tmp/root21-c675-test-composition/final.log",
+      "failed_tests": [],
+      "forbidden_actual_calls": "sqlite3.connect/subprocess.Popen/os.fork/kill/killpg/waitpid/socket.socket patched to refusal"
+    },
+    "final_verified_with_Parent_negative_controls": {
+      "tests": 104,
+      "errors": 0,
+      "failures": 0,
+      "seconds": 6.180952119990252,
+      "log_sha256": "d7868de15400bd5139245a58a140e9aa5372489189b013f82724a3d27fdece81",
+      "log": "/tmp/root21-c675-test-composition/verified.log",
+      "failed_tests": [],
+      "forbidden_actual_calls": "sqlite3.connect/subprocess.Popen/os.fork/kill/killpg/waitpid/socket.socket patched to refusal"
+    }
+  },
+  "negative_controls": "Both exact Parent and Root17 full-file variants; unknown outside/layer changes, helper/cardinality weakening, schema17 rollback,15s expansion, not_verified weakening, lost v4 optin/missing duplicate/reordered endpoints all refuse; Root17 manifest16/15/18/float/bool refuse; v4 retains original v3 refusal/graph_argv failure and cannot make original failure pass.",
+  "patch_sha256": "247f01a25cc03038b91309383b59674f65f64ee943085f1b3ccd67f697af2c99",
+  "not_run": [
+    "Node/Cargo/browser/SQL/product processes/network/CI",
+    "full infrastructure or actual paired-source wrapper",
+    "Root merge commit or staging"
+  ],
+  "next": "Independent review the two modified tests, then Root stages/resolves own metadata and runs full infrastructure/mounted/typed/build plus fresh schema17 paired-source actuals as needed."
+}

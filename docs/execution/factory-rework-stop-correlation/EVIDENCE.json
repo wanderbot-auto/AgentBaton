@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "base": "ad400f09b6f55601d600099de68b7d6ca00406dd",
+  "initial_pure_attempt": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/infrastructure",
+      "-p",
+      "test_factory_rework_stop_correlation.py",
+      "-v"
+    ],
+    "exit": 1,
+    "tests": 15,
+    "failures": 2,
+    "source": {
+      "scripts/record-factory-rework-ci-evidence.py": "0b52b543c6f9b9ecee9e08389a35cddc13826885c6ac4e9415a9ea90e98a89f6",
+      "tests/infrastructure/test_factory_rework_stop_correlation.py": "9b29a6e6f2b2ca394b9739f3d9309d62a5a0c25a65c6827684bd29bf542296d9"
+    },
+    "failure_details": [
+      {
+        "test": "test_bad_json_duplicate_keys_and_existing_source_schema_guards_remain_strict",
+        "observed": "collected_post_shutdown",
+        "expected": "invalid",
+        "cause": "author duplicate-key fixture removed selection source/aggregate fields, so it was not a selected stop row"
+      },
+      {
+        "test": "test_unknown_missing_or_nonterminal_turn_is_unavailable_not_completed stateNone",
+        "observed": "observed zero",
+        "expected": "unavailable",
+        "cause": "populate(None) intentionally omitted the entire turn event instead of inserting an existing event with null turn_state"
+      }
+    ],
+    "scope": "pure author fixture-construction mistakes, not product or CI reproduction; first raw run remains in tool transcript"
+  },
+  "final_pure_commands": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_factory_rework_ci_evidence.py",
+        "-v"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "test_boolean_negative_and_overflow_metrics_are_rejected (test_factory_rework_ci_evidence.BudgetProjection.test_boolean_negative_and_overflow_metrics_are_rejected) ... ok\ntest_duplicate_attempt_across_original_tables_is_not_double_counted (test_factory_rework_ci_evidence.BudgetProjection.test_duplicate_attempt_across_original_tables_is_not_double_counted) ... ok\ntest_existing_ledgers_and_child_recovery_are_separate_without_graph_mirror (test_factory_rework_ci_evidence.BudgetProjection.test_existing_ledgers_and_child_recovery_are_separate_without_graph_mirror) ... ok\ntest_legacy_row_other_scope_and_other_goal_do_not_charge_this_child (test_factory_rework_ci_evidence.BudgetProjection.test_legacy_row_other_scope_and_other_goal_do_not_charge_this_child) ... ok\ntest_missing_table_ledger_or_binding_is_pending_never_zero (test_factory_rework_ci_evidence.BudgetProjection.test_missing_table_ledger_or_binding_is_pending_never_zero) ... ok\ntest_row_budget_and_view_are_refused_before_materializing (test_factory_rework_ci_evidence.BudgetProjection.test_row_budget_and_view_are_refused_before_materializing) ... ok\ntest_unknown_runtime_is_null_pending_not_refunded_zero (test_factory_rework_ci_evidence.BudgetProjection.test_unknown_runtime_is_null_pending_not_refunded_zero) ... ok\ntest_wrong_root_project_scope_task_and_duplicate_ancestor_are_refused (test_factory_rework_ci_evidence.BudgetProjection.test_wrong_root_project_scope_task_and_duplicate_ancestor_are_refused) ... ok\ntest_exact_six_timings_project_without_changing_runtime_or_input (test_factory_rework_ci_evidence.CaptureTimings.test_exact_six_timings_project_without_changing_runtime_or_input) ... ok\ntest_failed_or_not_started_with_unknown_timings_never_implies_join (test_factory_rework_ci_evidence.CaptureTimings.test_failed_or_not_started_with_unknown_timings_never_implies_join) ... ok\ntest_historical_absent_null_and_partial_fields_preserve_unknown (test_factory_rework_ci_evidence.CaptureTimings.test_historical_absent_null_and_partial_fields_preserve_unknown) ... ok\ntest_partial_malformed_values_use_existing_invalid_path_without_secret (test_factory_rework_ci_evidence.CaptureTimings.test_partial_malformed_values_use_existing_invalid_path_without_secret) ... ok\ntest_timing_keys_on_other_event_kinds_do_not_expand_whitelist (test_factory_rework_ci_evidence.CaptureTimings.test_timing_keys_on_other_event_kinds_do_not_expand_whitelist) ... ok\ntest_unknown_nested_keys_are_not_forwarded_as_timing_evidence (test_factory_rework_ci_evidence.CaptureTimings.test_unknown_nested_keys_are_not_forwarded_as_timing_evidence) ... ok\ntest_absent_or_factory_get_observation_never_uses_cleanup_revision (test_factory_rework_ci_evidence.EventProjection.test_absent_or_factory_get_observation_never_uses_cleanup_revision) ... ok\ntest_all_six_event_kinds_emit_only_known_scalars_in_sequence_order (test_factory_rework_ci_evidence.EventProjection.test_all_six_event_kinds_emit_only_known_scalars_in_sequence_order) ... ok\ntest_associated_event_limit_never_truncates (test_factory_rework_ci_evidence.EventProjection.test_associated_event_limit_never_truncates) ... ok\ntest_boolean_number_state_and_sequence_corruption_refused (test_factory_rework_ci_evidence.EventProjection.test_boolean_number_state_and_sequence_corruption_refused) ... ok\ntest_capture_prior_node_is_separate_and_never_called_same_plan (test_factory_rework_ci_evidence.EventProjection.test_capture_prior_node_is_separate_and_never_called_same_plan) ... ok\ntest_confirmed_failure_exact_observed_revision_counts_not_private_proof (test_factory_rework_ci_evidence.EventProjection.test_confirmed_failure_exact_observed_revision_counts_not_private_proof) ... ok\ntest_duplicate_event_and_duplicate_prior_node_are_rejected (test_factory_rework_ci_evidence.EventProjection.test_duplicate_event_and_duplicate_prior_node_are_rejected) ... ok\ntest_events_table_schema_and_document_bounds_are_checked (test_factory_rework_ci_evidence.EventProjection.test_events_table_schema_and_document_bounds_are_checked) ... ok\ntest_failure_confirmation_foreign_plan_subject_empty_and_overflow_refused (test_factory_rework_ci_evidence.EventProjection.test_failure_confirmation_foreign_plan_subject_empty_and_overflow_refused) ... ok\ntest_global_event_row_budget_is_checked_before_event_materialization (test_factory_rework_ci_evidence.EventProjection.test_global_event_row_budget_is_checked_before_event_materialization) ... ok\ntest_later_sequence_is_not_presented_as_previous_settlement (test_factory_rework_ci_evidence.EventProjection.test_later_sequence_is_not_presented_as_previous_settlement) ... ok\ntest_previous_node_invalid_sequence_is_not_normalized (test_factory_rework_ci_evidence.EventProjection.test_previous_node_invalid_sequence_is_not_normalized) ... ok\ntest_public_stdout_cap_and_cli_redaction_remain_global (test_factory_rework_ci_evidence.EventProjection.test_public_stdout_cap_and_cli_redaction_remain_global) ... ok\ntest_same_goal_revision_only_not_bootstrap_or_rev1_or_wrong_source (test_factory_rework_ci_evidence.EventProjection.test_same_goal_revision_only_not_bootstrap_or_rev1_or_wrong_source) ... ok\ntest_selected_duplicate_json_and_invalid_json_are_refused (test_factory_rework_ci_evidence.EventProjection.test_selected_duplicate_json_and_invalid_json_are_refused) ... ok\ntest_unknown_reason_is_unrecognized_pending_not_raw_message (test_factory_rework_ci_evidence.EventProjection.test_unknown_reason_is_unrecognized_pending_not_raw_message) ... ok\ntest_zero_events_and_missing_table_are_explicit_pending (test_factory_rework_ci_evidence.EventProjection.test_zero_events_and_missing_table_are_explicit_pending) ... ok\ntest_max_scalar_under_original_4k_cap (test_factory_rework_ci_evidence.FiniteScalars.test_max_scalar_under_original_4k_cap) ... ok\ntest_missing_null_run_is_not_false_and_array_empty_is_valid (test_factory_rework_ci_evidence.FiniteScalars.test_missing_null_run_is_not_false_and_array_empty_is_valid) ... ok\ntest_rev1_failure_permitted_but_rev2_terminal_and_unknown_are_fixed (test_factory_rework_ci_evidence.FiniteScalars.test_rev1_failure_permitted_but_rev2_terminal_and_unknown_are_fixed) ... ok\ntest_rust_projection_and_original_safety_order_are_present (test_factory_rework_ci_evidence.FiniteScalars.test_rust_projection_and_original_safety_order_are_present) ... ok\ntest_typed_bool_enum_extra_field_and_raw_result_not_accepted (test_factory_rework_ci_evidence.FiniteScalars.test_typed_bool_enum_extra_field_and_raw_result_not_accepted) ... ok\ntest_absent_factory_or_unobserved_reply_never_uses_cleanup_history (test_factory_rework_ci_evidence.PriorCaptureTimings.test_absent_factory_or_unobserved_reply_never_uses_cleanup_history) ... ok\ntest_block_keeps_only_two_latest_same_subject_source_before_both_bounds (test_factory_rework_ci_evidence.PriorCaptureTimings.test_block_keeps_only_two_latest_same_subject_source_before_both_bounds) ... ok\ntest_duplicate_prior_revision_refuses_ambiguous_history (test_factory_rework_ci_evidence.PriorCaptureTimings.test_duplicate_prior_revision_refuses_ambiguous_history) ... ok\ntest_missing_old_capture_timings_remain_nullable_not_zero (test_factory_rework_ci_evidence.PriorCaptureTimings.test_missing_old_capture_timings_remain_nullable_not_zero) ... ok\ntest_no_prior_capture_is_explicit_empty_not_fabricated (test_factory_rework_ci_evidence.PriorCaptureTimings.test_no_prior_capture_is_explicit_empty_not_fabricated) ... ok\ntest_non_block_observation_does_not_request_capture_history (test_factory_rework_ci_evidence.PriorCaptureTimings.test_non_block_observation_does_not_request_capture_history) ... ok\ntest_selected_invalid_timing_refuses_without_publishing_private_values (test_factory_rework_ci_evidence.PriorCaptureTimings.test_selected_invalid_timing_refuses_without_publishing_private_values) ... ok\ntest_selected_revision_duplicate_outside_publication_window_also_refuses (test_factory_rework_ci_evidence.PriorCaptureTimings.test_selected_revision_duplicate_outside_publication_window_also_refuses) ... ok\ntest_actual_array_projection_and_post_shutdown_are_different_observations (test_factory_rework_ci_evidence.Projection.test_actual_array_projection_and_post_shutdown_are_different_observations) ... ok\ntest_actual_pretty_stdout_budget_including_newline_is_enforced (test_factory_rework_ci_evidence.Projection.test_actual_pretty_stdout_budget_including_newline_is_enforced) ... ok\ntest_bad_json_duplicate_fields_and_nonfinite_refused (test_factory_rework_ci_evidence.Projection.test_bad_json_duplicate_fields_and_nonfinite_refused) ... ok\ntest_case_count_and_symlink_ancestor_rejected (test_factory_rework_ci_evidence.Projection.test_case_count_and_symlink_ancestor_rejected) ... ok\ntest_db_row_count_and_file_replacement_after_read_refused (test_factory_rework_ci_evidence.Projection.test_db_row_count_and_file_replacement_after_read_refused) ... ok\ntest_file_symlink_hardlink_fifo_and_mode_rejected_without_blocking (test_factory_rework_ci_evidence.Projection.test_file_symlink_hardlink_fifo_and_mode_rejected_without_blocking) ... ok\ntest_fixture_canonicalizes_owned_temp_alias_but_collector_still_refuses_it (test_factory_rework_ci_evidence.Projection.test_fixture_canonicalizes_owned_temp_alias_but_collector_still_refuses_it) ... ok\ntest_forged_sha_or_bool_bytecount_refused (test_factory_rework_ci_evidence.Projection.test_forged_sha_or_bool_bytecount_refused) ... ok\ntest_invalid_cli_never_echoes_argv_or_exception (test_factory_rework_ci_evidence.Projection.test_invalid_cli_never_echoes_argv_or_exception) ... ok\ntest_missing_incomplete_or_sidecar_snapshot_is_not_complete (test_factory_rework_ci_evidence.Projection.test_missing_incomplete_or_sidecar_snapshot_is_not_complete) ... ok\ntest_missing_root_case_and_scalar_are_pending_not_pass (test_factory_rework_ci_evidence.Projection.test_missing_root_case_and_scalar_are_pending_not_pass) ... ok\ntest_no_join_or_daemon_error_never_reads_db (test_factory_rework_ci_evidence.Projection.test_no_join_or_daemon_error_never_reads_db) ... ok\ntest_private_directory_symlink_alias_and_modes_refused (test_factory_rework_ci_evidence.Projection.test_private_directory_symlink_alias_and_modes_refused) ... ok\ntest_public_cli_exit_is_not_a_test_pass_and_failure_has_no_raw_message (test_factory_rework_ci_evidence.Projection.test_public_cli_exit_is_not_a_test_pass_and_failure_has_no_raw_message) ... ok\ntest_size_and_entry_count_limits (test_factory_rework_ci_evidence.Projection.test_size_and_entry_count_limits) ... ok\ntest_sql_row_limits_and_no_view_evaluation (test_factory_rework_ci_evidence.Projection.test_sql_row_limits_and_no_view_evaluation) ... ok\ntest_uid_and_identity_change_rejected (test_factory_rework_ci_evidence.Projection.test_uid_and_identity_change_rejected) ... ok\ntest_unknown_states_types_and_schema_refused_without_leaking (test_factory_rework_ci_evidence.Projection.test_unknown_states_types_and_schema_refused_without_leaking) ... ok\ntest_duplicate_missing_history_is_still_ambiguous_not_last_row_wins (test_factory_rework_ci_evidence.ReceiptBindingCorrection.test_duplicate_missing_history_is_still_ambiguous_not_last_row_wins) ... ok\ntest_duplicate_root_or_project_ledger_is_rejected_even_if_values_equal (test_factory_rework_ci_evidence.ReceiptBindingCorrection.test_duplicate_root_or_project_ledger_is_rejected_even_if_values_equal) ... ok\ntest_exact_valid_binding_preserves_real_zero_exit_and_unique_ledger (test_factory_rework_ci_evidence.ReceiptBindingCorrection.test_exact_valid_binding_preserves_real_zero_exit_and_unique_ledger) ... ok\ntest_foreign_selected_document_is_rejected_not_published_as_this_goal (test_factory_rework_ci_evidence.ReceiptBindingCorrection.test_foreign_selected_document_is_rejected_not_published_as_this_goal) ... ok\ntest_missing_historical_run_id_is_unavailable_not_fabricated_zero (test_factory_rework_ci_evidence.ReceiptBindingCorrection.test_missing_historical_run_id_is_unavailable_not_fabricated_zero) ... ok\ntest_present_null_or_non_string_run_is_not_missing_history (test_factory_rework_ci_evidence.ReceiptBindingCorrection.test_present_null_or_non_string_run_is_not_missing_history) ... ok\ntest_absent_validation_rows_leave_two_explicit_nulls (test_factory_rework_ci_evidence.ValidationObservations.test_absent_validation_rows_leave_two_explicit_nulls) ... ok\ntest_actual_command_exit_one_and_zero_are_distinct_not_inferred_from_join (test_factory_rework_ci_evidence.ValidationObservations.test_actual_command_exit_one_and_zero_are_distinct_not_inferred_from_join) ... ok\ntest_duplicate_json_key_in_selected_receipt_is_rejected (test_factory_rework_ci_evidence.ValidationObservations.test_duplicate_json_key_in_selected_receipt_is_rejected) ... ok\ntest_duplicate_same_revision_receipts_are_not_arbitrarily_selected (test_factory_rework_ci_evidence.ValidationObservations.test_duplicate_same_revision_receipts_are_not_arbitrarily_selected) ... ok\ntest_exit_code_is_exact_signed_i32_not_unbounded (test_factory_rework_ci_evidence.ValidationObservations.test_exit_code_is_exact_signed_i32_not_unbounded) ... ok\ntest_joined_preflight_rejection_has_unknown_process_not_false (test_factory_rework_ci_evidence.ValidationObservations.test_joined_preflight_rejection_has_unknown_process_not_false) ... ok\ntest_later_revision_is_not_published_as_a_third_observation (test_factory_rework_ci_evidence.ValidationObservations.test_later_revision_is_not_published_as_a_third_observation) ... ok\ntest_missing_and_explicit_false_start_are_different (test_factory_rework_ci_evidence.ValidationObservations.test_missing_and_explicit_false_start_are_different) ... ok\ntest_other_goal_receipt_cannot_fill_selected_revision (test_factory_rework_ci_evidence.ValidationObservations.test_other_goal_receipt_cannot_fill_selected_revision) ... ok\ntest_post_command_io_failure_retains_real_exit_zero (test_factory_rework_ci_evidence.ValidationObservations.test_post_command_io_failure_retains_real_exit_zero) ... ok\ntest_scalar_types_are_strict_and_invalid_never_copies_message (test_factory_rework_ci_evidence.ValidationObservations.test_scalar_types_are_strict_and_invalid_never_copies_message) ... ok\ntest_unknown_state_and_code_are_fixed_unrecognized_without_canary (test_factory_rework_ci_evidence.ValidationObservations.test_unknown_state_and_code_are_fixed_unrecognized_without_canary) ... ok\n\n----------------------------------------------------------------------\nRan 80 tests in 0.462s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_factory_rework_stop_correlation.py",
+        "-v"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "test_bad_json_duplicate_keys_and_existing_source_schema_guards_remain_strict (test_factory_rework_stop_correlation.StopCorrelationTests.test_bad_json_duplicate_keys_and_existing_source_schema_guards_remain_strict) ... ok\ntest_cross_run_attempt_node_session_or_sender_never_supplies_stop (test_factory_rework_stop_correlation.StopCorrelationTests.test_cross_run_attempt_node_session_or_sender_never_supplies_stop) ... ok\ntest_direct_synthetic_readonly_transaction_does_not_change_original_db (test_factory_rework_stop_correlation.StopCorrelationTests.test_direct_synthetic_readonly_transaction_does_not_change_original_db) ... ok\ntest_duplicate_reservation_or_stop_is_ambiguous_not_latest (test_factory_rework_stop_correlation.StopCorrelationTests.test_duplicate_reservation_or_stop_is_ambiguous_not_latest) ... ok\ntest_exact_bound_completed_turn_and_cancelled_reason_are_distinct_facts (test_factory_rework_stop_correlation.StopCorrelationTests.test_exact_bound_completed_turn_and_cancelled_reason_are_distinct_facts) ... ok\ntest_foreign_turn_cannot_supply_completed_for_bound_session (test_factory_rework_stop_correlation.StopCorrelationTests.test_foreign_turn_cannot_supply_completed_for_bound_session) ... ok\ntest_missing_reservation_or_stop_is_unavailable_not_zero_or_false (test_factory_rework_stop_correlation.StopCorrelationTests.test_missing_reservation_or_stop_is_unavailable_not_zero_or_false) ... ok\ntest_multiple_turns_and_illegal_window_never_choose_one (test_factory_rework_stop_correlation.StopCorrelationTests.test_multiple_turns_and_illegal_window_never_choose_one) ... ok\ntest_never_started_and_reaped_are_separate_exact_booleans (test_factory_rework_stop_correlation.StopCorrelationTests.test_never_started_and_reaped_are_separate_exact_booleans) ... ok\ntest_null_or_absent_original_binding_is_unavailable (test_factory_rework_stop_correlation.StopCorrelationTests.test_null_or_absent_original_binding_is_unavailable) ... ok\ntest_other_closed_terminal_states_do_not_become_completed (test_factory_rework_stop_correlation.StopCorrelationTests.test_other_closed_terminal_states_do_not_become_completed) ... ok\ntest_reserved_before_stop_before_settlement_is_required (test_factory_rework_stop_correlation.StopCorrelationTests.test_reserved_before_stop_before_settlement_is_required) ... ok\ntest_strict_stop_booleans_never_coerce_numeric_or_null (test_factory_rework_stop_correlation.StopCorrelationTests.test_strict_stop_booleans_never_coerce_numeric_or_null) ... ok\ntest_unknown_missing_or_nonterminal_turn_is_unavailable_not_completed (test_factory_rework_stop_correlation.StopCorrelationTests.test_unknown_missing_or_nonterminal_turn_is_unavailable_not_completed) ... ok\ntest_unknown_stop_reason_is_closed_unrecognized_without_secret (test_factory_rework_stop_correlation.StopCorrelationTests.test_unknown_stop_reason_is_closed_unrecognized_without_secret) ... ok\ntest_wrong_turn_sender_does_not_fabricate_observed_zero (test_factory_rework_stop_correlation.StopCorrelationTests.test_wrong_turn_sender_does_not_fabricate_observed_zero) ... ok\ntest_zero_completed_is_observed_only_after_unique_reservation_stop_window (test_factory_rework_stop_correlation.StopCorrelationTests.test_zero_completed_is_observed_only_after_unique_reservation_stop_window) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.171s\n\nOK\n"
+    }
+  ],
+  "inverse_whole_collector_byte_equal_to_base": true,
+  "original80_test_file_byte_equal_to_base": true,
+  "syntax_compile": "PASS",
+  "source_commit": "28773f2105ed2a3a12fb0ccabfe2eae0ac3059b9",
+  "source": {
+    "scripts/record-factory-rework-ci-evidence.py": {
+      "bytes": 46382,
+      "sha256": "0b52b543c6f9b9ecee9e08389a35cddc13826885c6ac4e9415a9ea90e98a89f6"
+    },
+    "tests/infrastructure/test_factory_rework_stop_correlation.py": {
+      "bytes": 11934,
+      "sha256": "d20eeaa0b586c78b56b0bafb8d2e76cc862770d1781eb6954606c9b6a27443d0"
+    }
+  },
+  "requirements": [
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-VAL-009"
+  ],
+  "evidence_only": true,
+  "unique_pure_methods": {
+    "original_unchanged": 80,
+    "new": 17,
+    "total": 97
+  },
+  "preserved": {
+    "event_count_max": 4096,
+    "event_total_bytes_max": 4194304,
+    "event_row_bytes_max": 1048576,
+    "all_original_predicates": "inverse wholecollector byte proof",
+    "historical_labels": "unchanged; no new same-plan claim",
+    "original_tests": "wholefile byte-identical"
+  },
+  "association": {
+    "settlement": "already selected exactrun/revision goal_core goal.node_settled",
+    "reservation": "unique earlier goal_core goal.node_reserved; exact internalrun/node/attempt/session",
+    "stop": "unique earlier baton_supervisor session.stopped samebound session",
+    "sequence": "reserved<stop<settlement",
+    "turn": "unique legal provider_runtime session.turn_ended in same window",
+    "writer_original_field": "payload.turn_state enum, not storedbool",
+    "public_basis": "derived_from_same_session_turn_state",
+    "unavailable": "missing/null/foreign/badtype/illegalwindow",
+    "ambiguous": "multiple reservation/stop/turn",
+    "unknown_reason": "unrecognized enum, never original string",
+    "zero": "only actual zero turn rows inside complete unique bound stop history",
+    "not_inferred": [
+      "Owner cancellation from worker reason",
+      "TaskAccepted",
+      "same observed plan",
+      "cause of unknown/capture",
+      "new authority"
+    ]
+  },
+  "privacy": {
+    "raw_ids_text_paths_params": false,
+    "unrecognized_strings_published": false
+  },
+  "database_controls": {
+    "synthetic_only": true,
+    "before_after_rawbytes_identity_timestamps": "every successful collection",
+    "direct_readonly_immutable_query_only_transaction": "PASS",
+    "attempted_CREATE": "refused",
+    "source_hash_unchanged": "PASS",
+    "failed_unit_tempdb_retention": "not archived; TemporaryDirectory automatic cleanup; failing summary/sourcehashes retained"
+  },
+  "not_run": [
+    "actual CI collector on new candidate",
+    "Core/Cargo/Actor/browser",
+    "Native/Mac/real Provider",
+    "network",
+    "production or budget changes"
+  ],
+  "interpretation_limit": "measurement only; Intel415 REWORK_OUTCOME_UNKNOWN is a fixture tag and4013/4000 cannot be treated as unknown cause"
+}

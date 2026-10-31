@@ -1,0 +1,97 @@
+{
+  "base_commit": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+  "branch": "codex/child-plan-read-cycle",
+  "requirement_ids": [
+    "AB-TSK-004",
+    "AB-TSK-008",
+    "AB-TSK-011",
+    "AB-SEC-001"
+  ],
+  "authority": "Root approved narrow UI implementation; source/static-only child, no additional authority",
+  "source_sha256": {
+    "apps/desktop/src/FactoryRuntime.tsx": "87455db8e315837852cd87e83117dc945c342716afd7f0e822c7a176fde4df10",
+    "apps/desktop/src/FactoryChildPlans.tsx": "b833b7b6b0984c57a1c3508e365fe8de77a975ddfa59d6edf1fb068445abfc70",
+    "apps/desktop/src/FactoryChildPlans.read-cycle.test.tsx": "121255bd4d6ee36ec4b680b50e02de8e0e1ee948708811c91c1063bc16e0a7ce",
+    "apps/desktop/src/FactoryRuntime.read-cycle.test.tsx": "49caa5c3f6ca19c27661bcbcf54089b7fb9423b3d5b1fd11f2b5910d62df5010",
+    "apps/desktop/src/FactoryChildPlans.publication-window.test.tsx": "53ff3d98afc3abddd2077c490302216cc751f5859ff12b4de9e922f179022597"
+  },
+  "checks": [
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "manual allowed-path and original safety-test preservation review",
+      "result": "only approved components/new directly related tests/docs; original tests untouched"
+    },
+    {
+      "command": "parse dedicated EVIDENCE.json and inspect current gate",
+      "result": "valid JSON; AB-START-001/product=true/provider=false"
+    }
+  ],
+  "runtime_status": "not_run",
+  "not_run": [
+    "TypeScript typecheck",
+    "Node/Vitest old/new components",
+    "actual browser/DOM",
+    "actual IPC/SQLite",
+    "Cargo",
+    "network/CI",
+    "Native/macOS",
+    "Provider",
+    "independent review"
+  ],
+  "context_evidence": {
+    "actual_report": "/workspace/.onboarding/pr18-cp08-planning-diagnostic-actual1/report.json",
+    "sha256": "01a1082e16bb8bf88c2c1b6e0c63042e07ef7ed2ade03052f86d7443f7ada021",
+    "executor": "Root",
+    "result": "9checks4PNG cleanup passed at old source; same-head pre-click jitter observed",
+    "limitation": "not verification of this change, not reproduction/proof of CI52 cause"
+  },
+  "unchanged_contracts": [
+    "original parent polling cadence/cap",
+    "full shape/raw-hash/immutable-floor proofs",
+    "read-only descendant provenance",
+    "Core grants/TTL/CAS/budgets",
+    "unknown original raw/key/CAS and explicit exact recovery",
+    "no automatic mutation/replay"
+  ],
+  "test_source_inventory": {
+    "child_expanded_cases": 17,
+    "parent_wiring_cases": 1,
+    "status": "source only; not_run"
+  },
+  "prior_fab_source_sha256": {
+    "apps/desktop/src/FactoryRuntime.tsx": "87455db8e315837852cd87e83117dc945c342716afd7f0e822c7a176fde4df10",
+    "apps/desktop/src/FactoryChildPlans.tsx": "b327d18bdef69a4d276f8dcf34a21d1e6368347823ed652bdd4906c75d74bef4",
+    "apps/desktop/src/FactoryChildPlans.read-cycle.test.tsx": "d793ac0b0e8b515bae6ffb21739ad247eda0b46c275b68e8d00be437cdab3672",
+    "apps/desktop/src/FactoryRuntime.read-cycle.test.tsx": "49caa5c3f6ca19c27661bcbcf54089b7fb9423b3d5b1fd11f2b5910d62df5010"
+  },
+  "review_closure": {
+    "reviewed_commit": "fab152b5be8e3eb94882426a7148415c6ec792d6",
+    "status": "source closure; re-review and Node execution pending",
+    "finding": "trustedRead ref/finally can precede React context/head publication; cached ready could permit obsolete CAS (Core still rejects)",
+    "fix": [
+      "synchronous current ready withdrawal at read start",
+      "submit rechecks verified token and full live source/context/head fingerprint",
+      "new completed-proof record publishes even when DTO/token references equal"
+    ],
+    "regression_source": "controlled mocked state publication; new full proof and finally finished before one old-DOM click; zero API, then identical cached read can resume one new explicit current-CAS intent",
+    "scope": "no Core/IPC/authority/poll/budget/unknown recovery change"
+  },
+  "root_actual_validation_9b": {
+    "executor": "Root, not source author",
+    "source_commit": "9b1c3c2040524f6a84c6d0f9bb7b86cd9f45b4be",
+    "frontend_build": "passed; parent-reported build2 1.606s",
+    "ui_files": 55,
+    "ui_tests": 919,
+    "passed": 918,
+    "failed": 1,
+    "log": "/workspace/.onboarding/pr18-child-plan-cycle-all-ui-tests1/command.log",
+    "log_sha256": "21f9a9c2db06e4a9d9185de8037a7867a40ec45653fcafd693dc916a186d8f09",
+    "failure": "new unknown recovery case queried global alert, matching legitimate submission unknown plus nested editor warning",
+    "test_only_correction": "exact-task region/direct p alert/unique unknown prefix; full pending text and exact raw/key/CAS preserved; no direct submission alert after explicit recovery; exactly2API total",
+    "corrected_runtime_status": "not_run",
+    "product_source_bytes": "unchanged from9b1c3c"
+  }
+}

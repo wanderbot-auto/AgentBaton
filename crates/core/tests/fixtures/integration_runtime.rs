@@ -2,6 +2,8 @@
 //! approvals.finalize caller below is a trusted test host, not an OS dialog.
 //! No normal-path authority, acceptance, pass, lease or stop is inserted by SQL.
 use super::{diagnostics, git, result, Server};
+#[path = "integration_stage_evidence.rs"]
+mod stage_evidence;
 use agentbaton_core::{goal_plan::*, goal_store::*};
 use agentbaton_workspaces::validation::{sha256, ArtifactRequirement};
 use rusqlite::{types::Value as SqlValue, Connection, OpenFlags};
@@ -55,6 +57,12 @@ impl Drop for RetainedDirectory {
 impl Drop for RuntimeFixture {
     fn drop(&mut self) {
         self.server.finish();
+        stage_evidence::finish(
+            &self.server.runtime,
+            self.server.join_outcome,
+            self.task["id"].as_str(),
+            std::thread::panicking(),
+        );
     }
 }
 
@@ -72,7 +80,9 @@ fn rpc(
     if let Some(revision) = cas {
         frame["expected_revision"] = revision;
     }
-    result(server.request(frame))
+    let reply = server.request(frame);
+    stage_evidence::observe_reply(&server.runtime, method, &reply);
+    result(reply)
 }
 fn private_owner(server: &Server, proposal: &Value) -> Value {
     assert!(proposal["id"].as_str().is_some_and(|s| !s.is_empty()));

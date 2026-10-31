@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_DIAGNOSIS_ROOT_CAUSE_UNKNOWN",
+  "PR": 19,
+  "Product_run": 41183987127,
+  "UI_job": 124487022593,
+  "feature_source": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+  "comparison_Main": "ae42fcdc55473ef1574f1844432c19395c7373a6",
+  "CI_synthetic_checkout": "102308006b13814f076a4186f94264941c97f355",
+  "equal_complete_tree": "0f96e16655819b2e0f0959be0d5a7196fff74c28",
+  "artifact": {
+    "id": 13036421914,
+    "zip_sha256": "2b218599ac3560c0344488b41e7aa4cfc13150b52b297bda0c527b16b23218b0",
+    "summary_sha256": "8f57c748e79c32cab53e348008ab795c578a6eba87d626c3ee6845b6bc622d99",
+    "job_log_sha256": "1a7b7d66ea3af54d2b1e195b1f8d094f8baaee51decd19657478dbc0c109434a"
+  },
+  "facts": {
+    "case": "normal",
+    "schema": 16,
+    "declared_and_compiled_source": "102308006b13814f076a4186f94264941c97f355",
+    "harness_sha256": "7dc4732f18be492fddcc49bb989f233cd4fc409bb11de33a7951f7d5cf36e338",
+    "checks_passed": [
+      "CG01",
+      "CG02"
+    ],
+    "exact_failure": {
+      "line": 1697,
+      "statement": "try:expect(owner).to_be_enabled()",
+      "Owner_exact_label": "Review exact Factory-origin candidate in native dialog",
+      "position": "after backend awaiting_owner observation/refresh click; before Owner click and private Owner decision",
+      "default_expect": "No explicit override; Playwright default5s, distinct from context15s, consistent with observed after-click5.002s",
+      "Owner_absent_vs_disabled": "unobserved; finite assertion line cannot distinguish"
+    },
+    "cleanup": {
+      "complete": false,
+      "record_count": 5,
+      "individual_stop_results": "not supplied; no particular live/gone/join conclusion"
+    },
+    "owner_window_ms": {
+      "window_ms": 5050.468039,
+      "click_ms": 48.045274,
+      "after_click_expect_ms": 5002.422765,
+      "get_start_ms": 3681.161919,
+      "get_duration_ms": 630.195102,
+      "get_finish_ms": 4311.357021,
+      "window_remaining_after_get_ms": 739.111018,
+      "limits": "Same harness monotonic clock only; exact request params, not UI epoch/click causality."
+    },
+    "window_exact_get": {
+      "count": 1,
+      "binding": "scope_task_run",
+      "reply_class": "result",
+      "not_established": "UI full refresh completion or which click/epoch caused this read"
+    },
+    "scope_task_only_read_count": 1,
+    "Busy": {
+      "method": "factory_child_goals.list",
+      "code": "WORKSPACE_BUSY",
+      "retryable": true,
+      "side_effect_state": "not_started",
+      "count": 1,
+      "scope": "all178 Core replies across direct host and HTTP, potentially including cleanup; no error time or run/epoch bound",
+      "click_cause": "not established"
+    },
+    "UI_state_not_observed": [
+      "source_epoch",
+      "refresh_completed",
+      "full_fresh",
+      "loading",
+      "pending_kind"
+    ],
+    "correlation": "temporal_only"
+  },
+  "source_path": {
+    "UI_refresh": "FactoryChildGoals.readSummary awaits parallel scope/family/snapshot/grants then list; refresh awaits context, head get+raw SHA, exact Goal get with API validation-text checks, floor/origin/details checks, initial/adopted plan reads+SHA, saved-reference consistency, then setData/setFresh and receipt reconciliation. A successful get is an intermediate read.",
+    "Owner_gate": "Requires rendered full view/current owner node plus no capacity/disconnect/notfresh/busy/loading/cancelReading/pending, live parent/scope/Grant/task and graphCanReviewOwner. Any of these may keep it absent/disabled; current evidence does not identify which.",
+    "API": "factoryChildGoalApi fixed camelCase commands -> test-only strict HTTP adapter -> fixed scope/task[/run] snake_case Owner methods. Real Native command path is separate and not run by browser fixture.",
+    "Actor": "factory_history_query -> one owned readonly FactoryHistoryWorker; Busy is returned if worker exists OR Actor connection is not autocommit. Schema16, original deadline, query-only DB pin and full historical predicates remain.",
+    "after_get_remaining_work": "Initial plan read, optional adopted plan read, raw SHA verification, floor/source-epoch checks, publication and pending acknowledgement reconciliation still follow the exact Goal get."
+  },
+  "comparison": {
+    "unchanged_UI_API_guards": {
+      "apps/desktop/src/FactoryChildGoals.tsx": "7c386d3262f90876f0c72d9b12ff1ba25020a0510a70d18c08c6cf4dce1dc267",
+      "apps/desktop/src/FactoryRuntime.tsx": "87455db8e315837852cd87e83117dc945c342716afd7f0e822c7a176fde4df10",
+      "apps/desktop/src/FactoryChildPlans.tsx": "b833b7b6b0984c57a1c3508e365fe8de77a975ddfa59d6edf1fb068445abfc70",
+      "apps/desktop/src/factory-api.ts": "a976bf09ae9d60eb6180eed53e06f57b7f752901b51f7bea83b463c5011e2f84",
+      "apps/desktop/src/factory-child-goal.ts": "aeb8c9d1d67bc601d45ec8f13dd4186845798e341c7e074d1045302e19c2bdde",
+      "apps/desktop/src/factory-child-plan.ts": "ea206becb96f756e515ead33b1fc4cd293fd47684a15414e932e8ff93580a267",
+      "apps/desktop/src/goal-graph-guards.ts": "ca84911bc56e19f40561341c2a009238683fa0f58c6cb873ddb3f3f67f2631a5"
+    },
+    "Owner_harness_refresh_assert_block": "exact ae42 bytes",
+    "history_reader": "only15\u219216 schema discriminator",
+    "finite_projector": "only15\u219216 candidate/summary discriminator; owner v3 observability unchanged",
+    "Task16_relevant_changes": "Optional Task binding/migration/workspace preparation added; Factory-created Tasks default None. No Task-binding admission error is observed here.",
+    "eliminated_initial_hypothesis": "App TaskCodeWorkspace defaults autoOpen=false/started=false and this harness never expands it. Missing tasks_get/workspaces_resolve in strict adapter is a latent coverage issue only; do not claim new Actor load from this default mount or widen allowlist as a fix.",
+    "stale_labels_noncausal": "runtime_driver docstring/dimension still says Core15, while enforced/official schema is16. This label is stale, not evidence of wrong runtime."
+  },
+  "hypotheses": [
+    {
+      "name": "Full current refresh tail did not finish inside original Owner observation window",
+      "support": "get completes4.311s into5.050s;0.739s remains for serial tail and publication",
+      "unproved": "same clicked epoch, tail durations and actual full-fresh state"
+    },
+    {
+      "name": "A floor/epoch/pending/parent/graph guard kept control unavailable",
+      "support": "These explicit gates are source-present; get result alone does not satisfy them",
+      "unproved": "exact false gate/abandoned stage/catch branch"
+    },
+    {
+      "name": "Concurrent readonly observations/Busy or superseded refresh delayed completion",
+      "support": "one typed Busy exists; bounded one-worker service and UI polls exist",
+      "unproved": "Busy timing, request lineage, whether it is within this Owner window at all"
+    }
+  ],
+  "concrete_diagnostic_gap": "V3 intentionally forces epoch/full-fresh/loading/pending to unobserved. It logs only exact gets, and counts list without its outcome/time. It cannot isolate a refresh tail, abandonment or false Owner gate; never fill these values by temporal arithmetic.",
+  "minimal_verifiable_Root_repro": [
+    {
+      "step": 1,
+      "action": "Fresh isolated clean exact102308, or b55 with explicit same-tree attribution, matching actual schema16 Core+FE and real manifest hashes. Never reuse schema17 Root21 tools or relabel an existing source."
+    },
+    {
+      "step": 2,
+      "action": "Root sole executor runs only original normal once with unchanged5s expectation/15s context, original business budgets and strict adapter. CI bundled Chromium preferred; local installed-browser adaptation must be explicitly recorded.",
+      "argv": [
+        "artifacts/browser-venv/bin/python",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "normal",
+        "--tools",
+        "target/debug",
+        "--frontend",
+        "apps/desktop/dist",
+        "--manifest",
+        "artifacts/ui-browser/factory-child-planning-candidate.json",
+        "--chromium",
+        "<explicit browser>",
+        "--output",
+        "<fresh private output>"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Retain complete private original report/Owner phase stamps and existing per-wire timing/ordinals plus cleanup facts. A local pass is a separate result and never reclassifies this CI FAIL."
+    },
+    {
+      "step": 4,
+      "action": "If needed, separately authorize only closed diagnostic fields: actual UI read epoch/stage/completion/fresh/loading/pending-kind and Owner presence/disabled-reason bits; bounded read summaries for parallel/list/context/head/exactget/initial/adopted stages. Keep clock domains explicit. No request/authority fields, raw IDs/paths, retry, wait expansion or semantic gate change."
+    },
+    {
+      "step": 5,
+      "action": "Use mounted controls with deferred plan-tail completion after successful get, one superseded epoch and one exact typed list Busy under original pending/receipt rules. Verify controls stay closed until valid full snapshot and only explicit manual action can proceed. Mock controls diagnose branch behavior, not real Core/CI latency."
+    }
+  ],
+  "new_separate_local_actual": {
+    "source": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+    "RESULT_sha256": "7bfb42c3147348774506db0a2c6f26f084667150a313058c19e4d945ebfb4a3c",
+    "exit": 0,
+    "seconds": 25.8867268920294,
+    "log_sha256": "491c5be3cf7fc2989b368d050e9ecfd1dce37934b770362ba15969a174b9025e",
+    "attribution": "Root reports same23d Core16+FE byte-equivalent b55 product path; verify paired inputs independently before source-equivalence claim.",
+    "interpretation": "Local normal PASS is separate; no old CI cause or successful CI claim."
+  },
+  "excluded_causes_not_established": [
+    "Root21 Python mode/owner",
+    "Provider/model",
+    "resource/runtime budget cap",
+    "Task16 feature automatically generated competing workspace reads",
+    "Busy1 proves this click failed",
+    "cleanupfalse proves a particular stop/live identity"
+  ],
+  "review_execution": "source/read-only artifact analysis only",
+  "not_run": [
+    "SQL/Rust/Node/browser/product process/network/CI",
+    "rerun or source/index mutation"
+  ],
+  "source_tree_advanced_by_Root_only": "b3b3426 later Task workspace IPC fixture patch; all diagnosis source pinned to immutable b55/102308 blobs."
+}

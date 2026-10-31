@@ -1,0 +1,382 @@
+{
+  "recorded_at": "2026-10-31T07:31:15.553803+00:00",
+  "helper_source": "c3032c511c42440ac69ca848564e2ecc1f5bf379",
+  "root_cherry": "87c1134eff8829e908de56a825732b4976bde97d",
+  "helper_sha256": "0a64845d47ba537a4c20cb88852205cec2c4d9e33eea3c276954f579c5f10173",
+  "actual_commands": {
+    "ci-private-browser-c303-actual-venv1": {
+      "source": "c3032c511c42440ac69ca848564e2ecc1f5bf379",
+      "exit": 1,
+      "seconds": 0.10061386798042804,
+      "log_sha256": "7f030f7ce0f42f03c6c685e5b5570eab16bb2bfd1b5f8b836dcd4098346a883e",
+      "interruption": null,
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "9acc2727fb63a916b53a2aeac61b7478b626d900a9000ee6e55ae415ead5069e",
+      "inputs_sha256": "122c6e8be174e57e9d890cc727ffb7c9c2ae9f75dfdb672e6934a83f09ca3e6d"
+    },
+    "ci-private-browser-c303-actual-venv2": {
+      "source": "c3032c511c42440ac69ca848564e2ecc1f5bf379",
+      "exit": 0,
+      "seconds": 2.006066690024454,
+      "log_sha256": "2d5d3df5c7b7c4180b38fa6afa5dd2ed2fce18527d94f5ecbe3b6589b6aa2839",
+      "interruption": null,
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "1fc09c655cfd7984b05a925599de542615c35c7b3a74e982140e739a482742ba",
+      "inputs_sha256": "3bab49954d35609017add3965b8a30d8e2208e81368a4fdbc07671aa07e2e2c1"
+    },
+    "ci-private-browser-c303-pinned-dependencies1": {
+      "source": "c3032c511c42440ac69ca848564e2ecc1f5bf379",
+      "exit": 0,
+      "seconds": 3.709513848007191,
+      "log_sha256": "1f52ae9f3c45ece087013445b2f187897478087ea65500a97f039bfdc707924c",
+      "interruption": null,
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "5eb1f62a210b01828ee6a9bc810fe019ca8705349b1c4fb75f1b3a252c13c9da",
+      "inputs_sha256": "e86d6fd377c2373aca6e473015d36fe29374c13eb3d23d877b0df71eb1bc8088"
+    },
+    "ci-private-browser-c303-real-preflight1": {
+      "source": "c3032c511c42440ac69ca848564e2ecc1f5bf379",
+      "exit": 0,
+      "seconds": 0.6020323599805124,
+      "log_sha256": "263a63335c6135b2dbe4c9d9de8045d07056225ec9ca5cf37c6628f982f36b70",
+      "interruption": null,
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "404b308ca375a0537f5d0ff22be1a53120867d319c3c10e2820a468ec26a417f",
+      "inputs_sha256": "dfe89707abd8c4b6e41e4fe70849d68e2140521d1695d9093535f29f15c86de9"
+    },
+    "ci-private-browser-c303-full-wrapper1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 26.379647745983675,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interruption": null,
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "02d3452d7ee822c82f91a16ba5275f142dc5d36dcf6908820d2396c932a82127",
+      "inputs_sha256": "9e5b3120b30f32924e1f85846cfe0bb606845ab7a6ddd0c8fc99b420563318ca"
+    },
+    "ci-private-browser-c303-integration-projection1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 0.20088762004161254,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interruption": null,
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "4006e3668e7268c5297b7b89e6017560102037f0f5c55425c0ca1b700c196efe",
+      "inputs_sha256": "be8864b68062bc9731ca1e9a03bb101917f43c4fff796656e70355aea4b9a5b5"
+    },
+    "ci-private-browser-c303-notification-projection1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 0.301135670975782,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interruption": null,
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "849c5c331f2eb83110016a783d4656492aaccf5512f7840035c1160ee9dbb1d0",
+      "inputs_sha256": "f23fd2574031d76f174f909381cfd3f36d4b75b899bd620d603f88856902de0f"
+    }
+  },
+  "local_source_adapter": {
+    "sha256": "920a8723953a977b8fa0ab5fc2726cfe6e36297aab3c27a49ae02dc89ef01c10",
+    "scope": "Configured cloud SDK files map to UID65534; original helper correctly refused before creating output. Root created a separate owned byte-identical SDK interpreter and a readonly SDK standard-library link. No source permission changes, auth/home copying or guard weakening. This is an explicit local adapter, not an assertion of GitHub toolcache UID/mode."
+  },
+  "original_preflight_control": {
+    "status": "passed",
+    "scope": "Actual stdlib/SSL/venv/Playwright1.62 imports and exact original898 preflight; private prepared Python is0500, temporarily controlled0775 owned copy is correctly refused by original runtime guard; bytes unchanged/mode restored0500. Rejection is a negative test, not product success."
+  },
+  "full_wrapper": {
+    "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+    "compiled_core_frontend_source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+    "helper_sha256": "020e20d8a7d269c9b473977acc3679d5c43c1c38a45aaedf3f9a2c23097c7440",
+    "scope": "Complete original flagged898 wrapper7functions with newly prepared copied-venv interpreter; only local Chromium discovery adapter. No new source/build relabel.",
+    "integration_finite_sha256": "1133e84ab4499f149bc7c8e66e0b29afbf5f5c5c670228e83cc23d7ce30051c2",
+    "integration_finite": {
+      "contract": "agentbaton.integration-browser-ci.v1",
+      "status": "passed",
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "driver_sha256": "55f8144175c0a1d0809da7c95c66339c535a6f8e6d90ece9d11ecb89227df993",
+      "manifest_sha256": "f7d3a43c2733c20911ca342cbfc135c27179152ddb207b7b25ad9579a262f723",
+      "build_record_sha256": "e77bc745b0f89cf34208277dc1a3d2631985b0370cd95a992a01e74ee9162522",
+      "tools_sha256": {
+        "batond": "10516d79f927448b871ac1427f5bb5a8b025d2ccbd7c1ad6cc46ec1f49b2c635",
+        "baton": "d0e026163a8282f7fd13846343d6d08dd3537ea1d51fedaf11fbae863739b35f"
+      },
+      "runtime_tools_sha256": {
+        "chromium": "2c8d32d29dc6781c35ae196ea83299d507ac88fc339301abe74672feda299779",
+        "python": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+      },
+      "asset_count": 3,
+      "assets_sha256": "0399a21e53e42e00e8698a6b53620ee37b46b4782d67d5c4011327c4d073eb5c",
+      "cases": [
+        {
+          "case": "normal",
+          "status": "passed",
+          "checks": 5,
+          "terminal": {
+            "state": "confirmed_local_ref",
+            "stages": 3,
+            "cas_attempts": 1,
+            "command_exit": 0,
+            "shared_runtime_ms": 3028,
+            "shared_output_bytes": 364,
+            "tokens": null,
+            "cost_microunits": null
+          },
+          "automatic_watcher_without_start": true,
+          "cleanup": {
+            "owned_daemon_exit": 0,
+            "joined": true,
+            "http_handlers_joined": true,
+            "browser_closed": true,
+            "source_tools_assets_unchanged": true,
+            "fixture_removed": true
+          }
+        },
+        {
+          "case": "command-failure",
+          "status": "passed",
+          "checks": 4,
+          "terminal": {
+            "state": "failed",
+            "stages": 2,
+            "cas_attempts": 0,
+            "command_exit": 7,
+            "shared_runtime_ms": 2199,
+            "shared_output_bytes": 50,
+            "tokens": null,
+            "cost_microunits": null
+          },
+          "automatic_watcher_without_start": true,
+          "cleanup": {
+            "owned_daemon_exit": 0,
+            "joined": true,
+            "http_handlers_joined": true,
+            "browser_closed": true,
+            "source_tools_assets_unchanged": true,
+            "fixture_removed": true
+          }
+        }
+      ],
+      "checks": 9,
+      "actual_schema_probe": {
+        "api_version": 1,
+        "database_schema_version": 17,
+        "joined": true
+      },
+      "private_history_published": false,
+      "screenshots_published": true,
+      "screenshots": [
+        {
+          "name": "normal-task-pending-before-acceptance.png",
+          "sha256": "9762dd69d5151c0759c1cfe47a244371820422f031760a9b75ed7eaa37cc25dd",
+          "bytes": 135220,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "normal-permission-before-task-acceptance.png",
+          "sha256": "0b5df460e16fb7a1bff2b0d6a132367ea643007e45b5b47f5892d033d69f04ae",
+          "bytes": 147632,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "normal-terminal-state-desktop.png",
+          "sha256": "d8a20f363d857af50a29de8d7e0312735843e585446b4b7f614276a83fdb715d",
+          "bytes": 140035,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "normal-terminal-receipt-desktop.png",
+          "sha256": "14a5c02fefcdf80dadc7456dbd6b8651e6f7b8858611f75e45f78896188aa9f3",
+          "bytes": 141096,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "normal-terminal-state-mobile.png",
+          "sha256": "cb901e6bf447731684146737e2177970676a5193c98d4897312cbbabdd688787",
+          "bytes": 52757,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "normal-terminal-receipt-mobile.png",
+          "sha256": "ba67db7d3a19caca13d8fa2c7c05737375717e9bd6c3f8451bf4ee6a3db3440a",
+          "bytes": 57039,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "command-failure-task-pending-before-acceptance.png",
+          "sha256": "e0a07c54f0c46370a7cb47f617ae5afd93f710d4f5d9f9abac5589926481c875",
+          "bytes": 135007,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "command-failure-permission-before-task-acceptance.png",
+          "sha256": "3869b879ff5897eff99d355797d97e65066e58cbe609a6be7baaf0eacf34db8b",
+          "bytes": 147187,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "command-failure-terminal-state-desktop.png",
+          "sha256": "9437a0d0128fc55f59f46315b068d6220bfe758ec29660c5388e923741660467",
+          "bytes": 141198,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "command-failure-terminal-receipt-desktop.png",
+          "sha256": "ddfc77a9fbaa27c73d36bb4d4e6a75766beced411978be8ece1cd08b9b8beac1",
+          "bytes": 141982,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "command-failure-terminal-state-mobile.png",
+          "sha256": "61307423224b5fc93cea149c791a9e58aa6fdd510eb4bbcc659951170793781f",
+          "bytes": 51968,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "command-failure-terminal-receipt-mobile.png",
+          "sha256": "02aa29ccd633946ac255987cef3fdbe0ad6c615a15afb5b26ec84f50a328ac8c",
+          "bytes": 61117,
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "visual_review": "not_performed_by_projector",
+      "pixel_synchronized": false,
+      "not_claimed": [
+        "production Tauri Native formatter",
+        "OS dialog",
+        "macOS",
+        "live Provider/model",
+        "OS sandbox",
+        "whole-filesystem output quota",
+        "complete failure matrix",
+        "whole product completion"
+      ]
+    },
+    "notification_finite_sha256": "18e58bcdc0a3ea19a286849004ad4a9f95851ae638af5b4dc1298019ccd7a60d",
+    "notification_finite": {
+      "contract": "agentbaton.task-notifications-ci.v1",
+      "status": "passed",
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "checks": 6,
+      "task_notices": 1,
+      "naturally_observed_events": 12,
+      "inspected_event_count": 10,
+      "synthetic_repeated_events": 0,
+      "original_event_payload_matched": true,
+      "same_task_navigation": true,
+      "modal_shortcuts": 4,
+      "dnd_ui_reload": true,
+      "bridge_read_counts": {
+        "system.snapshot": 3,
+        "projects.list": 2,
+        "connections.list": 2,
+        "sessions.list": 2,
+        "events.subscribe": 2,
+        "tasks.get": 1,
+        "integration_policies.list": 1,
+        "integrations.list": 1,
+        "goal_scopes.list": 1,
+        "integrations.get": 1,
+        "integration_context.get": 1,
+        "integration_targets.list": 1
+      },
+      "private_read_counts": {
+        "system.snapshot": 3,
+        "projects.list": 2,
+        "connections.list": 2,
+        "sessions.list": 2,
+        "events.subscribe": 2,
+        "tasks.get": 1,
+        "integration_policies.list": 1,
+        "integrations.list": 1,
+        "goal_scopes.list": 1,
+        "integrations.get": 1,
+        "integration_context.get": 1,
+        "integration_targets.list": 1
+      },
+      "actual_reply_sha256": "e405d3df54ed425a27c6a974cbe9c96a8822925c49dcc0d7b196a93a2cdde83d",
+      "cleanup": {
+        "owned_daemon_exit": 0,
+        "joined": true,
+        "http_handlers_joined": true,
+        "browser_closed": true,
+        "source_tools_assets_unchanged": true,
+        "fixture_removed": true
+      },
+      "probe_source_sha256": "1567444210aea42b2ebadcc8d15ac06a3bedd94eabb40a91da39cdaa85c11c22",
+      "driver_sha256": "55f8144175c0a1d0809da7c95c66339c535a6f8e6d90ece9d11ecb89227df993",
+      "manifest_sha256": "f7d3a43c2733c20911ca342cbfc135c27179152ddb207b7b25ad9579a262f723",
+      "build_record_sha256": "e77bc745b0f89cf34208277dc1a3d2631985b0370cd95a992a01e74ee9162522",
+      "assets_sha256": "0399a21e53e42e00e8698a6b53620ee37b46b4782d67d5c4011327c4d073eb5c",
+      "probe_report_sha256": "e0a1f0661d6d0dca750d9be0d19c99cefafdada8e88c9dca4b50e952c1dd184a",
+      "screenshots": [
+        {
+          "name": "accepted-task-desktop.png",
+          "sha256": "5590e754228f26937ea02e0f62919783bc0610946908551bb63358272ec9f464",
+          "bytes": 122011,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "real-source-desktop.png",
+          "sha256": "0190006d270d7ca1defd3a6a2dea58aaf02aa3fe735a18701ef478e5fb96002b",
+          "bytes": 138913,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "original-journal-desktop.png",
+          "sha256": "6ed41dfd4ec4e4caeba2fa2a4b320d7e9a48fb790216901b332c274962dcdac3",
+          "bytes": 177162,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "dnd-mobile.png",
+          "sha256": "e9ad10d91eedcea3a8822afffb9e6384d2236fa157fedc181661971d4d0cc7a0",
+          "bytes": 46050,
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "screenshots_published": true,
+      "private_history_published": false,
+      "visual_review": "not_performed_by_projector",
+      "pixel_synchronized": false,
+      "not_claimed": [
+        "production Tauri IPC",
+        "macOS Native",
+        "live Provider/model",
+        "OS notifications",
+        "background notification delivery",
+        "100 real repeated events",
+        "whole product completion"
+      ]
+    }
+  },
+  "independent_source_review_sha256": "37d0468d8b8e7b8ae2da4f484a408ee0016710f4f1df9529cb7f0dca2e8072c4",
+  "not_run": [
+    "New exact GitHub-hosted CI after this preparation change",
+    "new Mac integration/runtime acceptance",
+    "whole130 acceptance"
+  ],
+  "original_failure": {
+    "run": 41176611805,
+    "head": "e874b123d3e7f329a551e21922baf1a7a643548f",
+    "artifact": 13033301936,
+    "archive_sha256": "2f48169337f8481bd45d54f5330bef02b853a27273941a18ddb6c8aa347c00e8",
+    "finite_sha256": "fbbee753965b0c6f841aa66747ef93c898e471411f5532619d108b50d17a548a",
+    "fact": "runtime_owner_mode_guard,python_owner_allowed true/python_mode_allowed false,driver2,business runtime not entered; exact original permission bits/path unobserved. Oldaccc guard cause remains unknown."
+  }
+}

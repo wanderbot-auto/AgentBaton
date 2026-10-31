@@ -589,5 +589,30 @@
     "browser_paths": 6,
     "original_pngs": 8,
     "not_a_sum": true
+  },
+  "latest_parent_674d_composed_results": "PARENT_674D_COMPOSED_RESULTS.json",
+  "latest_counts_parent674d": {
+    "Core": 166,
+    "Core_nested_helper_not_additive": 1,
+    "Factory": 30,
+    "infrastructure": 241,
+    "format": "passed",
+    "workspace_all_targets_clippy": "passed",
+    "not_a_sum": true
+  },
+  "latest_parent_ae42_record": {
+    "source": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+    "evidence": "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+    "sha256": "9fce2ec1e09a7ac9b80eec4073cb81f49bedb8e2cb0874c1efc996ac4ce56deb",
+    "parent_PR18": "merged protected squash7ecf0c5; current feature PR19 CI pending",
+    "coverage": "partial; current Linux actual tests/UnixIPC only"
+  },
+  "latest_safe_squash_ancestry": {
+    "marker": "19e9eb275e4e76ada50f93d036003e3ffa2b2ba1",
+    "proof": "docs/execution/task-workspace-integration/SQUASH_ANCESTRY_ACTUAL_PROOF.json",
+    "proof_sha256": "7cda860997816741e81df8c1d8c2df4d43c0fd7ced21d9be0e8a0281373b2e5c",
+    "review_sha256": "ecb381308d1886562bf64914e7fb5c10e2b6806c3ec96a4334c607a000853a7b",
+    "metadata_review_sha256": "763d18f2962bafe78bf5f8aace65d9b1f0fa90c05cb43cef47e91bf780fc9a33",
+    "CI": "pending new exact PR19 checks"
   }
 }

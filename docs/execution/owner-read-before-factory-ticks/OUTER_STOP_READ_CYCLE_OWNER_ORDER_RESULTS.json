@@ -1,0 +1,1354 @@
+{
+  "recorded_at": "2026-10-31T03:09:30.745908+00:00",
+  "status": "source_bound_local_progress_exact_new_CI_required",
+  "approval": "AB-START-001 Designv0.2 full130/WP01-14 unchanged",
+  "historical9f_source_bound_results": {
+    "contract": "agentbaton.pr18-local-evidence-summary-draft.v1",
+    "status": "draft_for_Root_review_not_acceptance",
+    "prepared_at": "2026-10-31T02:26:20.565664+00:00",
+    "target_local_source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+    "pull_request": "https://github.com/wanderbot-auto/AgentBaton/pull/18",
+    "overall": "incomplete; current lost-start failed and cleanup_complete false; no current CI or complete product acceptance",
+    "source_attribution": {
+      "old_source033_checks": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+      "old_source589_UI919": "58997cbe661676404d8ced732932f1a57bb38e00",
+      "same9f_build_and_realIPC": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+      "component_provenance_sha256": "c120c3e0e2743c9b834ea630747762b00a88f34bd116f357c59b8decfee44c66",
+      "independently_read_local_git_diffs": [
+        {
+          "command": [
+            "git",
+            "diff",
+            "--name-only",
+            "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+            "9f70bede88506f0d35b0a00a433e49f391c4efae",
+            "--",
+            "crates",
+            "apps/daemon",
+            "apps/cli",
+            "Cargo.toml",
+            "Cargo.lock"
+          ],
+          "exit": 0,
+          "changed_paths": []
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "--name-only",
+            "58997cbe661676404d8ced732932f1a57bb38e00",
+            "9f70bede88506f0d35b0a00a433e49f391c4efae",
+            "--",
+            "apps/desktop/src",
+            "apps/desktop/package.json",
+            "apps/desktop/package-lock.json",
+            "apps/desktop/tsconfig.json",
+            "apps/desktop/vite.config.ts"
+          ],
+          "exit": 0,
+          "changed_paths": []
+        }
+      ],
+      "equivalence_limit": "byte equality only for listed paths; does not turn older command executions into tests run at9f"
+    },
+    "previous_source_Rust_and_infra_checks": [
+      {
+        "evidence_directory": "pr18-outer-hint-full-core1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 156.60613687097793,
+        "log_sha256": "56906ef7a68e7d7fac916a0a156416bd082239c93bc1ea48f23cdb7270130e1f",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 181 filtered out; finished in 0.00s",
+          "test result: ok. 182 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 128.07s"
+        ],
+        "verified_total": 182,
+        "nested_result": {
+          "passed": 1,
+          "filtered_out": 181,
+          "add_to_total": false,
+          "meaning": "same invocation contains a nested test process;182 remains the recorded full-library total"
+        }
+      },
+      {
+        "evidence_directory": "pr18-outer-hint-full-factory1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 137.39139516896103,
+        "log_sha256": "99c7c76b36f2f8eb00f2e1dccec0af9192230e0a6b0ffa02b0e0c3ede0279bf1",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [
+          "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 112.24s"
+        ],
+        "verified_total": 33
+      },
+      {
+        "evidence_directory": "pr18-outer-hint-clippy1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "clippy",
+          "--workspace",
+          "--all-targets",
+          "--locked",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 27.988830956979655,
+        "log_sha256": "acb9244a9ce9ce9b3bd63d8e693621159a5f246f60ffcd6b4e58fceaaca046c9",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": []
+      },
+      {
+        "evidence_directory": "pr18-outer-hint-fmt1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "seconds": 1.0029009590507485,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": []
+      },
+      {
+        "evidence_directory": "pr18-outer-hint-infra1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 0,
+        "seconds": 9.521187185018789,
+        "log_sha256": "59a8588aff56a4506589a55fc03b952f6652a86a79b77fbfc607fc873b7906fa",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [],
+        "verified_total": 284
+      }
+    ],
+    "previous_source_UI_checks": [
+      {
+        "evidence_directory": "pr18-child-plan-cycle-types-build3",
+        "source": "58997cbe661676404d8ced732932f1a57bb38e00",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.5072142099961638,
+        "log_sha256": "9a65c315e24454957aff4d1bffa34b2dfc9d7b54e10cf642df8df73763e1ce44",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [],
+        "verified_build": "TypeScript noEmit and Vite build completed"
+      },
+      {
+        "evidence_directory": "pr18-child-plan-cycle-all-ui-tests2",
+        "source": "58997cbe661676404d8ced732932f1a57bb38e00",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "test",
+          "--",
+          "--maxWorkers=2"
+        ],
+        "exit": 0,
+        "seconds": 40.219298029027414,
+        "log_sha256": "97253546d3c8cd1eb48dd1c52ab2dc2e272f8df687af91ebe5a587956f93adc8",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [],
+        "verified_tests": 919,
+        "verified_test_files": 55
+      }
+    ],
+    "same9f_builds": [
+      {
+        "evidence_directory": "pr18-read-cycle-integrated-preview-build1",
+        "source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton",
+          "--features",
+          "agentbaton-core/preview-evidence"
+        ],
+        "exit": 0,
+        "seconds": 24.76699898496736,
+        "log_sha256": "fe29ba3d92f9a2750fa54e408ebf168a7bb04d8b16b22d9cda1fe3fc8a57cbe9",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": []
+      },
+      {
+        "evidence_directory": "pr18-read-cycle-integrated-frontend-build1",
+        "source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.7066003839718178,
+        "log_sha256": "9239bb6084d3e3cd583658a914e6ca88d07596f4f2c8cefb6760094123be3c77",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": []
+      }
+    ],
+    "same9f_candidate": {
+      "schema": 15,
+      "git_head": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+      "git_tree": "c5912327742f7f22cbe3fcc67790bc481eed1231",
+      "dirty": false,
+      "compiled_core_source_head": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+      "cargo_features": [
+        "agentbaton-core/preview-evidence"
+      ],
+      "binary_sha256": {
+        "batond": "7acee823093c813297f3e5be4ab282b622706478b9294ee36e68172b2d753257",
+        "baton": "6c8ccfa3d78d704566148ce39ac08eb98dad1bf4e1b75b84ad0c4189ca3d842f"
+      },
+      "frontend_assets_sha256": {
+        "assets/index-CfNOtG9F.js": "374111818e6925ba2fe02b165487ab2c44fc011db91793f8260b450103e7abfa",
+        "assets/index-DczAmFjL.css": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944",
+        "index.html": "7b7d8aeb412c531180f1df22738a5f5e4b515c334409bab864c3b51350cde8ad"
+      },
+      "freeze_manifest_sha256": "fd1cfc9cfaf58fb91bd9ce512c66c7c8ba995b56dba1699c7bea865633743188",
+      "dimension": "Actual Linux same-source explicit preview-evidence tools/frontend; generated ACP/private testOwner, not Native OS/Mac/liveProvider"
+    },
+    "same9f_real_IPC_cases": [
+      {
+        "evidence_directory": "pr18-read-cycle-integrated-planning-command1",
+        "source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-planning-real-ipc.py",
+          "--run",
+          "--tools",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-frozen1",
+          "--frontend",
+          "apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-candidate1.json",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-planning-actual1"
+        ],
+        "exit": 0,
+        "seconds": 12.354595826007426,
+        "log_sha256": "c688a4b751e91b3760cf301cd518f0c2731af7464f78a48241346d6c12827514",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [],
+        "case": "planning",
+        "dimension": "Linux Chromium actual frontend with authenticated Unix IPC and generated account-free ACP; private testOwner only; not native macOS/liveProvider",
+        "report_status": "passed",
+        "completed_checks": 9,
+        "listed_pngs": 4,
+        "png_file_hashes_verified": 4,
+        "cleanup": {
+          "cleanup_complete": true,
+          "http_handler_join_confirmed": true,
+          "http_active_empty": true,
+          "daemon_wait_exit": 0,
+          "identity_inspection_complete": true,
+          "workflow_successful_before_cleanup": true,
+          "required_records_for_success": 3,
+          "actual_bound_records": 3,
+          "required_identities_for_success": 6,
+          "actual_bound_identities": 6,
+          "all_inspected_original_identities_gone": true,
+          "identity_cleanup_signals_sent": false,
+          "subreaper_restored": true
+        },
+        "harness_sha256": "58a415a097cd5bf73ca32de053565bcc07b556a4d8e4ba244ebe117fdd2e7278"
+      },
+      {
+        "evidence_directory": "pr18-read-cycle-integrated-goal-normal-command1",
+        "source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "normal",
+          "--tools",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-frozen1",
+          "--frontend",
+          "apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-candidate1.json",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-goal-normal-actual1"
+        ],
+        "exit": 0,
+        "seconds": 26.48123003198998,
+        "log_sha256": "2dee68f932209bfdf49db6bda58c56cb5f56a9a264ab4b13bdc9daf76f0e4562",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [],
+        "case": "goal-normal",
+        "dimension": "Linux Chromium actual frontend with authenticated Unix IPC and generated account-free ACP; private testOwner only; not native macOS/liveProvider",
+        "report_status": "passed",
+        "completed_checks": 4,
+        "listed_pngs": 4,
+        "png_file_hashes_verified": 4,
+        "cleanup": {
+          "cleanup_complete": true,
+          "http_handler_join_confirmed": true,
+          "http_active_empty": true,
+          "daemon_wait_exit": 0,
+          "identity_inspection_complete": true,
+          "workflow_successful_before_cleanup": true,
+          "required_records_for_success": 2,
+          "actual_bound_records": 2,
+          "required_identities_for_success": 4,
+          "actual_bound_identities": 4,
+          "all_inspected_original_identities_gone": true,
+          "identity_cleanup_signals_sent": false,
+          "subreaper_restored": true,
+          "bound_graph_provider_identity_gone_confirmed": true,
+          "persisted_sessions_match_stopped_processes_confirmed": true
+        },
+        "harness_sha256": "1d636144f6aaa5492947e6d28eb2ce8d99eba8f4d54318dafb71baa4d291f559"
+      },
+      {
+        "evidence_directory": "pr18-read-cycle-integrated-goal-cancel-command1",
+        "source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "cancel",
+          "--tools",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-frozen1",
+          "--frontend",
+          "apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-candidate1.json",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-goal-cancel-actual1"
+        ],
+        "exit": 0,
+        "seconds": 16.953476283990312,
+        "log_sha256": "25b0f7fae37e9d26a5a8590480c066175730a59989f19b699f14b1532382201d",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [],
+        "case": "goal-cancel",
+        "dimension": "Linux Chromium actual frontend with authenticated Unix IPC and generated account-free ACP; private testOwner only; not native macOS/liveProvider",
+        "report_status": "passed",
+        "completed_checks": 4,
+        "listed_pngs": 3,
+        "png_file_hashes_verified": 3,
+        "cleanup": {
+          "cleanup_complete": true,
+          "http_handler_join_confirmed": true,
+          "http_active_empty": true,
+          "daemon_wait_exit": 0,
+          "identity_inspection_complete": true,
+          "workflow_successful_before_cleanup": true,
+          "required_records_for_success": 1,
+          "actual_bound_records": 1,
+          "required_identities_for_success": 2,
+          "actual_bound_identities": 2,
+          "all_inspected_original_identities_gone": true,
+          "identity_cleanup_signals_sent": false,
+          "subreaper_restored": true,
+          "bound_graph_provider_identity_gone_confirmed": true,
+          "persisted_sessions_match_stopped_processes_confirmed": true
+        },
+        "harness_sha256": "1d636144f6aaa5492947e6d28eb2ce8d99eba8f4d54318dafb71baa4d291f559"
+      },
+      {
+        "evidence_directory": "pr18-read-cycle-integrated-goal-lost-start-command1",
+        "source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "lost-start",
+          "--tools",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-frozen1",
+          "--frontend",
+          "apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-candidate1.json",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-goal-lost-start-actual1"
+        ],
+        "exit": 1,
+        "seconds": 35.53349835902918,
+        "log_sha256": "678518b3ca52821754cfff4fe30bfe2f6668d44aac9757d8c21172fe6ff60218",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [],
+        "case": "goal-lost-start",
+        "dimension": "Linux Chromium actual frontend with authenticated Unix IPC and generated account-free ACP; private testOwner only; not native macOS/liveProvider",
+        "report_status": "failed_or_interrupted",
+        "completed_checks": 3,
+        "listed_pngs": 4,
+        "png_file_hashes_verified": 4,
+        "cleanup": {
+          "cleanup_complete": false,
+          "http_handler_join_confirmed": true,
+          "http_active_empty": true,
+          "daemon_wait_exit": 0,
+          "identity_inspection_complete": false,
+          "workflow_successful_before_cleanup": false,
+          "required_records_for_success": 2,
+          "actual_bound_records": 1,
+          "required_identities_for_success": 4,
+          "actual_bound_identities": 2,
+          "all_inspected_original_identities_gone": true,
+          "identity_cleanup_signals_sent": false,
+          "subreaper_restored": true,
+          "bound_graph_provider_identity_gone_confirmed": true,
+          "persisted_sessions_match_stopped_processes_confirmed": true
+        },
+        "harness_sha256": "1d636144f6aaa5492947e6d28eb2ce8d99eba8f4d54318dafb71baa4d291f559",
+        "first_failure": {
+          "stage": "runtime",
+          "type": "BoundaryRefusal",
+          "closed_reason": "Bound child Goal observation expired",
+          "original_observation_limit_seconds": 15,
+          "wait_subject": "final child Goal task_accepted predicate",
+          "cleanup_still_incomplete": true,
+          "cause": "not established by retained scalar report; do not equate with older Intel blocked or UI cancel failures"
+        }
+      }
+    ],
+    "retained_previous_local_failures": [
+      {
+        "evidence_directory": "pr18-child-plan-cycle-all-ui-tests1",
+        "source": "9b1c3c2040524f6a84c6d0f9bb7b86cd9f45b4be",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "test",
+          "--",
+          "--maxWorkers=2"
+        ],
+        "exit": 1,
+        "seconds": 40.37392962700687,
+        "log_sha256": "21f9a9c2db06e4a9d9185de8037a7867a40ec45653fcafd693dc916a186d8f09",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [],
+        "first_failure": {
+          "type": "TestingLibraryElementError",
+          "closed_reason": "Found multiple elements with the role alert",
+          "affected_test_file": "src/FactoryChildPlans.read-cycle.test.tsx",
+          "dimension": "test locator ambiguity; not a product pass"
+        },
+        "passed_tests": 918,
+        "failed_tests": 1,
+        "total_tests": 919,
+        "passed_files": 54,
+        "failed_files": 1,
+        "total_files": 55
+      },
+      {
+        "evidence_directory": "pr18-child-plan-cycle-types-build1",
+        "source": "9b1c3c2040524f6a84c6d0f9bb7b86cd9f45b4be",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 254,
+        "seconds": 0.3010189440101385,
+        "log_sha256": "ff5daea01bfc29f8700c7fb9672e167ed51100a26ace092efe7660bee89fb340",
+        "interruption": null,
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged_as_runner_pinned": true,
+        "test_summaries": [],
+        "first_failure": {
+          "type": "ENOENT",
+          "operation": "open apps/desktop/package.json",
+          "stage": "before TypeScript/Vite build",
+          "context": "Root-recorded sparse checkout package omission; retained log directly proves missing package file",
+          "not_a_compiler_failure": true
+        }
+      }
+    ],
+    "previous_exact52_remote_terminal_jobs": [
+      {
+        "source": "52dd3463efa3c104c58cf5e82bf752302384c189",
+        "run": 41149970320,
+        "evidence_basis": "cached GitHub jobs endpoint; each exact job terminal verified, not transferred to9f",
+        "jobs": [
+          {
+            "name": "Product / Rust",
+            "status": "completed",
+            "conclusion": "success",
+            "completed_at": "2026-10-31T00:38:01Z",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970320/job/124383908196",
+            "first_failed_step": null
+          },
+          {
+            "name": "Product / macos-15-intel",
+            "status": "completed",
+            "conclusion": "failure",
+            "completed_at": "2026-10-31T00:49:30Z",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970320/job/124383908298",
+            "first_failed_step": "Core and native host tests"
+          },
+          {
+            "name": "Product / UI",
+            "status": "completed",
+            "conclusion": "failure",
+            "completed_at": "2026-10-31T00:29:25Z",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970320/job/124383908356",
+            "first_failed_step": "Actual frontend with real Unix IPC and responsive screenshots"
+          },
+          {
+            "name": "Product / macos-15",
+            "status": "completed",
+            "conclusion": "success",
+            "completed_at": "2026-10-31T01:09:17Z",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970320/job/124383908368",
+            "first_failed_step": null
+          }
+        ],
+        "no_current_candidate_credit": true
+      },
+      {
+        "source": "52dd3463efa3c104c58cf5e82bf752302384c189",
+        "run": 41149970304,
+        "evidence_basis": "cached GitHub jobs endpoint; each exact job terminal verified, not transferred to9f",
+        "jobs": [
+          {
+            "name": "Environment / ubuntu-24.04",
+            "status": "completed",
+            "conclusion": "success",
+            "completed_at": "2026-10-31T00:24:55Z",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970304/job/124383908215",
+            "first_failed_step": null
+          },
+          {
+            "name": "Environment / macos-15",
+            "status": "completed",
+            "conclusion": "success",
+            "completed_at": "2026-10-31T00:25:00Z",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970304/job/124383908246",
+            "first_failed_step": null
+          },
+          {
+            "name": "Environment / macos-15-intel",
+            "status": "completed",
+            "conclusion": "success",
+            "completed_at": "2026-10-31T00:26:27Z",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970304/job/124383908344",
+            "first_failed_step": null
+          }
+        ],
+        "no_current_candidate_credit": true
+      }
+    ],
+    "Root_recorded_dimension_limited_visual_checks": [
+      {
+        "case": "normal",
+        "image_sha256": "f604a8aa422c72348a8c0965c7bd37ac81af03d25d41c928bc86bea81ba3b03a",
+        "root_recorded_visual_review": true,
+        "dimension": "Linux Chromium real IPC, not macOS Native",
+        "root_observation": "Actual Task accepted and child Goal accepted",
+        "summarizer_did_not_claim_independent_visual_review": true
+      },
+      {
+        "case": "cancel",
+        "image_sha256": "d021ab39417b76fbd2cb1118afb40eee60cab4288f85cc3ffc95967048d937e8",
+        "root_recorded_visual_review": true,
+        "dimension": "Linux Chromium real IPC, not macOS Native",
+        "root_observation": "Actual cancellation recorded and Task acceptance pending",
+        "summarizer_did_not_claim_independent_visual_review": true
+      }
+    ],
+    "unverified": [
+      "new9f GitHub CI status not queried or established by these local records",
+      "independent source review of9f not established by this summary task",
+      "macOS Native/liveProvider validation at9f not performed here",
+      "lost-start actual cause not established",
+      "installer contents/signature/SHA delivery not verified in this summary"
+    ],
+    "input_JSON_sha256": {
+      "pr18-outer-hint-full-core1/RESULT.json": "cd1ee71c3341937feb6c632e0e2ff1ed49a8557ab369d8b9b0c5fc3b070b8ed8",
+      "pr18-outer-hint-full-core1/INPUTS.json": "533c75f5fdec69f719a63089a478437a63129d48810a109df996d10b9552d30d",
+      "pr18-outer-hint-full-factory1/RESULT.json": "3a43db6d6dc8a9e75066a8915a9f2fd2028f77d4f87722ea0ee8aa9638eb3c07",
+      "pr18-outer-hint-full-factory1/INPUTS.json": "a6d98e87ff3e265fb4ce867ee192ab0444b689df91105d663c84254680d417c0",
+      "pr18-outer-hint-clippy1/RESULT.json": "08d77c1492cf0e072515171c32ab7b2619a0bbc945715efd16d5f3fe7d0da579",
+      "pr18-outer-hint-clippy1/INPUTS.json": "278aef19e857f79f31c9a164a02ab94085b66de0da109f854ea6b81b7ddd71be",
+      "pr18-outer-hint-fmt1/RESULT.json": "1b130704fb03613467dcb5c3ab714a1a8e22fb58316a0c549facf2f71b98413a",
+      "pr18-outer-hint-fmt1/INPUTS.json": "869d8d8cf977398deb20887a71c377f7db1fb47108e9e0eadcb7c46414934991",
+      "pr18-outer-hint-infra1/RESULT.json": "7e166f2df25b82fc91a1af79f6bb121cc663fde4512d2a45dc0c2af2fb4011cb",
+      "pr18-outer-hint-infra1/INPUTS.json": "bffefe707baf00845d50a2ae7dd1c8a3187f9c78b8f7f8d150de2a69ffefc3e9",
+      "pr18-child-plan-cycle-types-build3/RESULT.json": "6fbcd806bec932c46b21c53dcde7b4ccca2a5ecfe0025cfee7bcac1e00483f4f",
+      "pr18-child-plan-cycle-types-build3/INPUTS.json": "12910c86b24fb63fb62f8b866010c6017933effb0a3c15633f7596446a578082",
+      "pr18-child-plan-cycle-all-ui-tests2/RESULT.json": "05623ec1f360cdf210d6126c6b242acdf4e362879efbe32f291924b546656cbf",
+      "pr18-child-plan-cycle-all-ui-tests2/INPUTS.json": "36043ddf5af84a604e4d2cde98d850debdee78a141971efe3165037ecbd6c9a1",
+      "pr18-read-cycle-integrated-component-provenance1.json": "c120c3e0e2743c9b834ea630747762b00a88f34bd116f357c59b8decfee44c66",
+      "pr18-read-cycle-integrated-candidate1.json": "d33b1c82d14817a69a6a264a357b5c60bfdc3474fdb65fd4839cc546364b266c",
+      "pr18-read-cycle-integrated-frozen1/manifest.json": "fd1cfc9cfaf58fb91bd9ce512c66c7c8ba995b56dba1699c7bea865633743188",
+      "pr18-read-cycle-integrated-preview-build1/RESULT.json": "5f87dff5e0eedd8c7832bd682569e5f6d8b8ba125184208cb040651136a6904f",
+      "pr18-read-cycle-integrated-preview-build1/INPUTS.json": "57d8aa91bb552de6e60522a6943a54d760e8b1d0d41efd795f3869d7628dd3b6",
+      "pr18-read-cycle-integrated-frontend-build1/RESULT.json": "256e1968b9f4cc023e8fb8c2ed52cdbd4e2518d40c66f2e417aff69c3914f118",
+      "pr18-read-cycle-integrated-frontend-build1/INPUTS.json": "5cd6fbd11e2f19d46abb3eb72c5616216bf66c96e011f1998e8eedf02ea1d57e",
+      "pr18-read-cycle-integrated-planning-command1/RESULT.json": "af8cb8896582055a6386436e601d5fea82bfe3b8783389c113c136458d63ed1f",
+      "pr18-read-cycle-integrated-planning-command1/INPUTS.json": "790581334d12d094b97894872c908d25428da6a60da7a2df033d6770d1b72bf6",
+      "pr18-read-cycle-integrated-planning-actual1/report.json": "71ee17f66b6e9445fd9cad942a38a4f6cc13e123fe352540977223e1d19dd8e7",
+      "pr18-read-cycle-integrated-goal-normal-command1/RESULT.json": "b110500f4e2a80e8a459163eadd7dd209b931b585135d207f3b858d88ab16ae4",
+      "pr18-read-cycle-integrated-goal-normal-command1/INPUTS.json": "7a0be659da242842c238927fa9512a8e4a09345fdef4bfe3f6e0d3a54b4caa85",
+      "pr18-read-cycle-integrated-goal-normal-actual1/report.json": "382625f451f9306c07adde7b8f2ed8478b6bcb84b738097a91cb6ad72422545d",
+      "pr18-read-cycle-integrated-goal-cancel-command1/RESULT.json": "00577439c0355d7545626436d66a4540c1b7f70172dd86221c506eb023c70b60",
+      "pr18-read-cycle-integrated-goal-cancel-command1/INPUTS.json": "061c1070544c8045e4298865cbc93516f9ea20a930c14c2a73f2e71aa6e9a80b",
+      "pr18-read-cycle-integrated-goal-cancel-actual1/report.json": "9171e2fc64650dcc7a4ffc869aa3d75b6ec4692d9fa126f9bfe3cfc7333b23e8",
+      "pr18-read-cycle-integrated-goal-lost-start-command1/RESULT.json": "8ffa3e156d9750372f151f50685339cd0651b33601383a93345bc3bcc1e53f8c",
+      "pr18-read-cycle-integrated-goal-lost-start-command1/INPUTS.json": "b330243edb2037bf606c009c516cf8a6012034cb5d6c95058fa26e6abaa4eb77",
+      "pr18-read-cycle-integrated-goal-lost-start-actual1/report.json": "eae475fd54b78aecc52624291bcf7783b185f28bbe423f4f9b3691b7b1165ac7",
+      "pr18-child-plan-cycle-all-ui-tests1/RESULT.json": "6b5f80c3b963a6e1aabbf694a5d69a07171309127ee5190e673e862b27c449bb",
+      "pr18-child-plan-cycle-all-ui-tests1/INPUTS.json": "8bcd8d073eaf9e9a76836d5bbc4c79e58892d15e86c098bc4c1a63932eee856f",
+      "pr18-child-plan-cycle-types-build1/RESULT.json": "81a52575ab72ae41a2c4e69dd185e2f4e50d34108d6c8a69b10a421dd92e0e63",
+      "pr18-child-plan-cycle-types-build1/INPUTS.json": "ffaa78f2991b72b70dfa716cdaccf9d3a3a3df8202852bd46a797642870853f0",
+      "pr18-head52-evidence/product-terminal.json": "54c6a5a1154ac2c323e20af25fc9ca4ce6bc4452bc8efd37822285f1c0b981a9",
+      "pr18-head52-evidence/environment-terminal.json": "a2bc929a36a599cb72b4459da3ff746e9069467de51fb6474e7a6d9e5711d4b4",
+      "pr18-9f-root-viewed-final-screenshots.json": "bd80a3136f695126618bee28b8d5cdd3f4107217c1fb8d72be7a5b8cc0c79d5e"
+    },
+    "summary_task_operations": "read retained JSON/logs/PNG hashes and local git diff only; no product/tree/docs modifications, no Cargo/Node/SQL/browser/network/subagents"
+  },
+  "new_ec5_harness_results": {
+    "contract": "agentbaton.pr18-component-evidence-summary-draft.v1",
+    "status": "draft_for_Root_public_leaf_and_independent_review_not_acceptance",
+    "prepared_at": "2026-10-31T03:03:52.001637+00:00",
+    "target_local_harness_source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+    "actual_compiled_Core_and_frontend_source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+    "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/18",
+    "overall": "three local Owner-order cases passed with complete cleanup; full130/native dual-Mac/newParentCI/installers remain open",
+    "component_provenance": {
+      "equivalence_record_sha256": "5897edf3c741864788ff7627f74df587a5531d1921cc23ed05837ca0ac12c8be",
+      "exact_runtime_diff_command": [
+        "git",
+        "diff",
+        "--name-only",
+        "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+        "--",
+        "crates",
+        "apps/desktop/src",
+        "apps/desktop/package.json",
+        "apps/desktop/package-lock.json",
+        "apps/desktop/vite.config.ts",
+        "apps/daemon",
+        "apps/cli",
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "runtime_changed_paths": [],
+      "harness_original_author": "bd607353124876bd87639c2dc91b8bb92bf34335",
+      "compatibility_closure": "ec4ccd8503707335cfedee774751925a1fdca168",
+      "harness_sha256_at_bd_ec4_ec5": {
+        "bd607353124876bd87639c2dc91b8bb92bf34335": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271",
+        "ec4ccd8503707335cfedee774751925a1fdca168": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271",
+        "ec5ec3452939a29631031e6f5f2f24d4ad2319b8": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271"
+      },
+      "compatibility_diff_command": [
+        "git",
+        "diff",
+        "--name-only",
+        "ec4ccd8503707335cfedee774751925a1fdca168",
+        "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+        "--",
+        "tests/infrastructure/test_child_goal_bound_readonly_wait.py",
+        "tests/infrastructure/test_factory_bound_provider_exit.py"
+      ],
+      "compatibility_changed_paths": [],
+      "candidate_git_head": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+      "candidate_sha256": "d33b1c82d14817a69a6a264a357b5c60bfdc3474fdb65fd4839cc546364b266c",
+      "freeze_manifest_sha256": "fd1cfc9cfaf58fb91bd9ce512c66c7c8ba995b56dba1699c7bea865633743188",
+      "cargo_features": [
+        "agentbaton-core/preview-evidence"
+      ],
+      "limit": "ec5 harness used retained actual9f Core/tools/Frontend; no ec5 build or relabelled manifest"
+    },
+    "new_preflight_refusal_retained": {
+      "source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "lost-start",
+        "--tools",
+        "/workspace/.onboarding/pr18-read-cycle-integrated-frozen1",
+        "--frontend",
+        "apps/desktop/dist",
+        "--manifest",
+        "/workspace/.onboarding/pr18-read-cycle-integrated-candidate1.json",
+        "--chromium",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+        "--output",
+        "/workspace/.onboarding/pr18-owner-order-lost-start-actual1"
+      ],
+      "exit": 1,
+      "seconds": 0.3011481760186143,
+      "interruption": null,
+      "log_sha256": "7ef7c3a345210ddac53ba8db868e9b8edf7b59347ca1a11c58d9da9957a4dfaa",
+      "source_head_and_tracked_unchanged": true,
+      "evidence_directory": "pr18-owner-order-lost-start-command1",
+      "status": "preflight_refused_not_runtime",
+      "runtime_started": false,
+      "report_present": false,
+      "screenshot_files": 0,
+      "first_failure": {
+        "type": "BoundaryRefusal",
+        "closed_reason": "Keep200MiB guard plus exact private tools and bounded evidence allowance",
+        "minimum_free_formula": "200MiB + exact private tool-copy bytes +32MiB evidence allowance"
+      },
+      "cleanup_receipt": "not applicable; stopped before runtime/report creation",
+      "not_reclassified_as_pass": true
+    },
+    "capacity_recovery": {
+      "archive_record": "integration17-b7-frozen1-cold-binary-archive1.json",
+      "archive_record_sha256": "7242ecda46a189bdf637e17ce85b0f0dac9e8e635d58724f41d0d274c3a42103",
+      "original_binary_bytes": 38913528,
+      "archive_bytes": 9900031,
+      "logical_net_recovery_bytes": 29013497,
+      "archive_sha256": "0366801bc100fa828d2ba51ffd93b38007bef460b8a4e35016e05af6c4a5c5d9",
+      "decompressed_binary_sha256": "00585b9228e1010ea6a3aacfa5153257b7a18608a304243a8dce7a4c7583681c",
+      "both_hashes_independently_stream_verified": true,
+      "recorded_no_active_executable_identity_at_archive": true,
+      "current_processes_not_reinspected": true,
+      "original_binary_archived_not_at_old_executable_path": true,
+      "historical_manifest_referenced_by_record": "/workspace/.onboarding/integration17-b7-frozen1/manifest.json",
+      "historical_manifest_currently_present": false,
+      "historical_manifest_limitation": "Root correction confirms source_manifest path was assumed without inspection at archive time; not retained/verified provenance and cannot establish a historical source commit. Original record remains preserved; real archive/decompressed byte hash/mode/no-active-executable observation are distinct.",
+      "restore_instruction": "gzip -dc archive to temporary file, verify original_sha256, chmod original_mode, rename to original path before historical tool reuse",
+      "restore_limit": "restored executable has new inode; obtain required fresh preparation/witness before historical reuse; never replay ambiguous operations",
+      "current9f_binary_and_manifest_hashes_reverified": true,
+      "DB_note": "archiver recorded DB/log/source/current tools unchanged; summarizer did not open/read DBs",
+      "meaning": "capacity recovery after unchanged200MiB+tools+32MiB guard; no budget/TTL/permission/cancellation/safety threshold changed",
+      "provenance_correction_record": "integration17-b7-frozen1-cold-binary-archive1-provenance-correction.json",
+      "provenance_correction_sha256": "5d549bc465694d2a152f3e54ee34f911808898c832d9c90ea3b4c96a04aa69a9",
+      "historical_source_commit_from_assumed_pointer": "not established",
+      "lossless_bytes_are_not_runtime_or_source_provenance_acceptance": true
+    },
+    "new_ec5_runtime_cases": [
+      {
+        "source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "lost-start",
+          "--tools",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-frozen1",
+          "--frontend",
+          "apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-candidate1.json",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/pr18-owner-order-lost-start-actual2"
+        ],
+        "exit": 0,
+        "seconds": 26.973674255015794,
+        "interruption": null,
+        "log_sha256": "be60347b901bc6fe16f349852c6076ba4995d04aac3c9fc1aa0868e5c173945a",
+        "source_head_and_tracked_unchanged": true,
+        "evidence_directory": "pr18-owner-order-lost-start-command2",
+        "case": "lost-start",
+        "harness_source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+        "compiled_Core_and_frontend_source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "dimension": "Linux Chromium real Unix IPC/generated ACP/private testOwner; not macOS Native/liveProvider",
+        "report_status": "passed",
+        "completed_checks": 5,
+        "png_files": 4,
+        "all_listed_png_hashes_verified": true,
+        "harness_sha256": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271",
+        "capacity_preflight": {
+          "free_bytes": 307421184,
+          "guard_bytes": 209715200,
+          "private_tool_copy_bytes": 38306232,
+          "evidence_allowance_bytes": 33554432
+        },
+        "cleanup": {
+          "complete": true,
+          "http_join_confirmed": true,
+          "http_active_empty": true,
+          "daemon_actual_wait_exit": 0,
+          "inspected_identity_complete": true,
+          "required_records": 2,
+          "bound_records": 2,
+          "required_identities": 4,
+          "bound_identities": 4,
+          "all_inspected_original_identities_gone": true,
+          "cleanup_identity_signals_sent": false,
+          "bound_graph_provider_identity_gone": true,
+          "persisted_sessions_match_stopped_processes": true,
+          "controller_subreaper_restored": true
+        }
+      },
+      {
+        "source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "normal",
+          "--tools",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-frozen1",
+          "--frontend",
+          "apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-candidate1.json",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/pr18-owner-order-normal-actual1"
+        ],
+        "exit": 0,
+        "seconds": 24.376000992953777,
+        "interruption": null,
+        "log_sha256": "a1d487e1f00975ecb3d956a94cc115c7c5fa95fe440a3ecbcea842303c3146c0",
+        "source_head_and_tracked_unchanged": true,
+        "evidence_directory": "pr18-owner-order-normal-command1",
+        "case": "normal",
+        "harness_source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+        "compiled_Core_and_frontend_source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "dimension": "Linux Chromium real Unix IPC/generated ACP/private testOwner; not macOS Native/liveProvider",
+        "report_status": "passed",
+        "completed_checks": 4,
+        "png_files": 4,
+        "all_listed_png_hashes_verified": true,
+        "harness_sha256": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271",
+        "capacity_preflight": {
+          "free_bytes": 296263680,
+          "guard_bytes": 209715200,
+          "private_tool_copy_bytes": 38306232,
+          "evidence_allowance_bytes": 33554432
+        },
+        "cleanup": {
+          "complete": true,
+          "http_join_confirmed": true,
+          "http_active_empty": true,
+          "daemon_actual_wait_exit": 0,
+          "inspected_identity_complete": true,
+          "required_records": 2,
+          "bound_records": 2,
+          "required_identities": 4,
+          "bound_identities": 4,
+          "all_inspected_original_identities_gone": true,
+          "cleanup_identity_signals_sent": false,
+          "bound_graph_provider_identity_gone": true,
+          "persisted_sessions_match_stopped_processes": true,
+          "controller_subreaper_restored": true
+        }
+      },
+      {
+        "source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "cancel",
+          "--tools",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-frozen1",
+          "--frontend",
+          "apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-read-cycle-integrated-candidate1.json",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/pr18-owner-order-cancel-actual1"
+        ],
+        "exit": 0,
+        "seconds": 16.24928142101271,
+        "interruption": null,
+        "log_sha256": "49bc23de76e08f99068a68488d89fb1a844836c57634cab4f648d4c1cd54c291",
+        "source_head_and_tracked_unchanged": true,
+        "evidence_directory": "pr18-owner-order-cancel-command1",
+        "case": "cancel",
+        "harness_source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+        "compiled_Core_and_frontend_source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "dimension": "Linux Chromium real Unix IPC/generated ACP/private testOwner; not macOS Native/liveProvider",
+        "report_status": "passed",
+        "completed_checks": 4,
+        "png_files": 3,
+        "all_listed_png_hashes_verified": true,
+        "harness_sha256": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271",
+        "capacity_preflight": {
+          "free_bytes": 286298112,
+          "guard_bytes": 209715200,
+          "private_tool_copy_bytes": 38306232,
+          "evidence_allowance_bytes": 33554432
+        },
+        "cleanup": {
+          "complete": true,
+          "http_join_confirmed": true,
+          "http_active_empty": true,
+          "daemon_actual_wait_exit": 0,
+          "inspected_identity_complete": true,
+          "required_records": 1,
+          "bound_records": 1,
+          "required_identities": 2,
+          "bound_identities": 2,
+          "all_inspected_original_identities_gone": true,
+          "cleanup_identity_signals_sent": false,
+          "bound_graph_provider_identity_gone": true,
+          "persisted_sessions_match_stopped_processes": true,
+          "controller_subreaper_restored": true
+        }
+      }
+    ],
+    "new_ec5_full_infra": {
+      "source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0,
+      "seconds": 10.824592607968953,
+      "interruption": null,
+      "log_sha256": "b27d74309e51d00e52b0e560f45873a2fe56ca29d637151263640505928c97ac",
+      "source_head_and_tracked_unchanged": true,
+      "evidence_directory": "pr18-owner-order-full-infra1",
+      "verified_tests": 284
+    },
+    "current_format_attestation": {
+      "source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+      "Root_attested_exit": 0,
+      "basis": "Root current direct message states SourcecodeFMT tool execution atParentec5",
+      "standalone_result_log_hash": "unavailable; no invented command argv/log"
+    },
+    "current_retained9f_tool_hash_attestation": [
+      {
+        "role": "batond",
+        "bytes": 35478632,
+        "sha256": "7acee823093c813297f3e5be4ab282b622706478b9294ee36e68172b2d753257",
+        "hash_checked_without_execution": true
+      },
+      {
+        "role": "baton",
+        "bytes": 2827600,
+        "sha256": "6c8ccfa3d78d704566148ce39ac08eb98dad1bf4e1b75b84ad0c4189ca3d842f",
+        "hash_checked_without_execution": true
+      }
+    ],
+    "independent_source_review": {
+      "subject": "ec4ccd8503707335cfedee774751925a1fdca168",
+      "status": "SOURCE_READY_PURE_BOUNDARIES_VERIFIED_RUNTIME_REQUIRED",
+      "review_sha256": "01635006de70f1290ec2bc7e075d243cb7ada82507e3a6b35d385f680db7ed48",
+      "reviewed_harness_sha256": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271",
+      "static_checks": 23,
+      "original_pure_controls18": {
+        "subject": "ec4ccd8503707335cfedee774751925a1fdca168",
+        "tests_run": 18,
+        "failures": 0,
+        "errors": 0,
+        "passed": true,
+        "sqlite3_connect_prohibited": true,
+        "log_sha256": "629db5683e7b295f0e07497216877ac4277d1f83a471c766e2ff3082bf7efd3e",
+        "dimension": "15original readonly+3timing pure AST controls only; no SQL/Core/browser"
+      },
+      "authored_fake_clock_controls41_not_producttests": {
+        "checks": 41,
+        "source_sha256": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271",
+        "dimension": "Fake clocks/receipts/host plus source mutation checks; not41 producttests"
+      },
+      "original_two_control_failure_preserved": {
+        "subject": "bd607353124876bd87639c2dc91b8bb92bf34335",
+        "status": "CHANGES_REQUIRED",
+        "tests_run": 2,
+        "failures": 1,
+        "errors": 1,
+        "failure_assertion": "7 != 4 phase blocks",
+        "loader_error": "NameError: name 'child_observation_deadline' is not defined",
+        "sqlite3_connect_prohibited": true,
+        "dimension": "Original two pure source AST unit controls on fixed Git snapshots; no product/SQL/browser/Core/process"
+      },
+      "formal_GitHub_Approve": false,
+      "limit": "source/pure review is distinct from subsequent ec5 real runtime tests"
+    },
+    "old9f_failed_loststart_retained": {
+      "source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+      "report_sha256": "eae475fd54b78aecc52624291bcf7783b185f28bbe423f4f9b3691b7b1165ac7",
+      "status": "failed_or_interrupted",
+      "completed_checks": 3,
+      "listed_pngs": 4,
+      "cleanup_complete": false,
+      "command_exit": 1,
+      "log_sha256": "678518b3ca52821754cfff4fe30bfe2f6668d44aac9757d8c21172fe6ff60218",
+      "first_failure": {
+        "stage": "runtime",
+        "type": "BoundaryRefusal",
+        "closed_reason": "Bound child Goal observation expired",
+        "original_observation_limit_seconds": 15,
+        "wait_subject": "final child Goal task_accepted predicate",
+        "cleanup_still_incomplete": true,
+        "cause": "not established by retained scalar report; do not equate with older Intel blocked or UI cancel failures"
+      },
+      "old_summary_path": "/workspace/.onboarding/pr18-9f-evidence-summary-draft.json",
+      "old_summary_unchanged_sha256": "0ecc877b07deee6e3146f903ab6b2f535992026394652e03b482778040960715",
+      "not_relabelled_or_replayed": true
+    },
+    "historical_checks_not_ec5_reruns": [
+      {
+        "evidence_directory": "pr18-outer-hint-full-core1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "log_sha256": "56906ef7a68e7d7fac916a0a156416bd082239c93bc1ea48f23cdb7270130e1f",
+        "verified_total": 182,
+        "nested_result": {
+          "passed": 1,
+          "filtered_out": 181,
+          "add_to_total": false,
+          "meaning": "same invocation contains a nested test process;182 remains the recorded full-library total"
+        }
+      },
+      {
+        "evidence_directory": "pr18-outer-hint-full-factory1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "log_sha256": "99c7c76b36f2f8eb00f2e1dccec0af9192230e0a6b0ffa02b0e0c3ede0279bf1",
+        "verified_total": 33
+      },
+      {
+        "evidence_directory": "pr18-outer-hint-clippy1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "clippy",
+          "--workspace",
+          "--all-targets",
+          "--locked",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "log_sha256": "acb9244a9ce9ce9b3bd63d8e693621159a5f246f60ffcd6b4e58fceaaca046c9"
+      },
+      {
+        "evidence_directory": "pr18-outer-hint-fmt1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "evidence_directory": "pr18-outer-hint-infra1",
+        "source": "033a7b2918c5af0637f7381c47b7a0c49d1afc63",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 0,
+        "log_sha256": "59a8588aff56a4506589a55fc03b952f6652a86a79b77fbfc607fc873b7906fa",
+        "verified_total": 284
+      },
+      {
+        "evidence_directory": "pr18-child-plan-cycle-types-build3",
+        "source": "58997cbe661676404d8ced732932f1a57bb38e00",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "log_sha256": "9a65c315e24454957aff4d1bffa34b2dfc9d7b54e10cf642df8df73763e1ce44"
+      },
+      {
+        "evidence_directory": "pr18-child-plan-cycle-all-ui-tests2",
+        "source": "58997cbe661676404d8ced732932f1a57bb38e00",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "test",
+          "--",
+          "--maxWorkers=2"
+        ],
+        "exit": 0,
+        "log_sha256": "97253546d3c8cd1eb48dd1c52ab2dc2e272f8df687af91ebe5a587956f93adc8",
+        "verified_tests": 919,
+        "verified_test_files": 55
+      }
+    ],
+    "old52_remote_terminal_evidence": [
+      {
+        "source": "52dd3463efa3c104c58cf5e82bf752302384c189",
+        "run": 41149970320,
+        "jobs": [
+          {
+            "name": "Product / Rust",
+            "conclusion": "success",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970320/job/124383908196"
+          },
+          {
+            "name": "Product / macos-15-intel",
+            "conclusion": "failure",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970320/job/124383908298"
+          },
+          {
+            "name": "Product / UI",
+            "conclusion": "failure",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970320/job/124383908356"
+          },
+          {
+            "name": "Product / macos-15",
+            "conclusion": "success",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970320/job/124383908368"
+          }
+        ],
+        "old_evidence_not_current_ec5_CI": true
+      },
+      {
+        "source": "52dd3463efa3c104c58cf5e82bf752302384c189",
+        "run": 41149970304,
+        "jobs": [
+          {
+            "name": "Environment / ubuntu-24.04",
+            "conclusion": "success",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970304/job/124383908215"
+          },
+          {
+            "name": "Environment / macos-15",
+            "conclusion": "success",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970304/job/124383908246"
+          },
+          {
+            "name": "Environment / macos-15-intel",
+            "conclusion": "success",
+            "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41149970304/job/124383908344"
+          }
+        ],
+        "old_evidence_not_current_ec5_CI": true
+      }
+    ],
+    "counting_rule": "no totals combining old/new cases, focused/nested/static/pure controls;182 already includes its nested observation; current284infra is an actual ec5 run, not inferred from Rust/FE equivalence",
+    "remaining_and_authority": {
+      "Parent_remote_head_by_Root_current_confirmation": "52dd3463efa3c104c58cf5e82bf752302384c189",
+      "ec5_Parent_changes_pushed": false,
+      "new_ec5_Parent_CI_run": "not run/established; unrelated Root branch CI receives noParent credit",
+      "fresh_remote_query_by_summarizer": false,
+      "local_Parent_remote_tracking_ref": "not configured; no network fallback",
+      "formal_PR_Approve_done": false,
+      "current_ec5_macOS_dual_arch_Native": "not run",
+      "current_ec5_installers": "open; no binary/signature/hash delivery acceptance claimed",
+      "complete130_requirement_goal": "open; these are finite partial evidence slices"
+    },
+    "input_JSON_sha256": {
+      "pr18-9f-evidence-summary-draft.json": "0ecc877b07deee6e3146f903ab6b2f535992026394652e03b482778040960715",
+      "pr18-owner-order-integrated-runtime-equivalence1.json": "5897edf3c741864788ff7627f74df587a5531d1921cc23ed05837ca0ac12c8be",
+      "pr18-read-cycle-integrated-candidate1.json": "d33b1c82d14817a69a6a264a357b5c60bfdc3474fdb65fd4839cc546364b266c",
+      "goal-owner-bd60735-independent-review/closure-ec4ccd8/REVIEW.json": "01635006de70f1290ec2bc7e075d243cb7ada82507e3a6b35d385f680db7ed48",
+      "goal-owner-bd60735-independent-review/ORIGINAL_CONTROLS_FAILURE.json": "606a79b5673631905be0757d5ebda2c4b9a8519677dc4d9a62db0ec44a7fcac6",
+      "pr18-owner-order-lost-start-command1/RESULT.json": "80a5e53f8f5af5c1d66c1c3c9ba4c5dc0c0e6ad15bf5671d45eaad662b2f8400",
+      "pr18-owner-order-lost-start-command1/INPUTS.json": "beea2b67a8cb4331af0c37a6b85558845a1c25a5b6a616b5f8f2cf2e1ad45614",
+      "pr18-owner-order-lost-start-command2/RESULT.json": "836e8acae9c5981c02576b3f1e46ca300721676ac4602b43d78085303aeff0ac",
+      "pr18-owner-order-lost-start-command2/INPUTS.json": "660d2ed3898cf3afd9b5b1514e036863bcc654a0f7ea047a6b90a36832bc8011",
+      "pr18-owner-order-lost-start-actual2/report.json": "fd57fbf8386198da59a5ec765edbf063516eed6668e87238a003342f89aa582a",
+      "pr18-owner-order-normal-command1/RESULT.json": "70e6284a233dddeece9c7ed73feefc9a2479e632d46b274199aff717f28034e2",
+      "pr18-owner-order-normal-command1/INPUTS.json": "531f98d7fb22e6d62cba585c1fdbf35ad832f70e855ea04e75f09d6c8a8c4231",
+      "pr18-owner-order-normal-actual1/report.json": "baba5c278c3b5f0b349f9441ec68b68051d3f1d0d0d0478cb22f0036033da947",
+      "pr18-owner-order-cancel-command1/RESULT.json": "c42e0620d07c47c16e80ecac7b10f6f79023336a8b2021691bdf07b0d48bcd57",
+      "pr18-owner-order-cancel-command1/INPUTS.json": "a788746e06f6451ddbef66e56ee8a21aa26823430b7ec98f2af1bc7aa395259a",
+      "pr18-owner-order-cancel-actual1/report.json": "121bc9e74cb96b1ace8f8588334189eeb7bb65ebff2d0720f3c23b75e2480d68",
+      "pr18-owner-order-full-infra1/RESULT.json": "821cacd993a70609d63d83b967ecf7d3008ff96255526ede34ab76db2c8337e8",
+      "pr18-owner-order-full-infra1/INPUTS.json": "afd6f72a44b1d4092a76dcc9189eedf7f27e65fe6ebca1d43562ccf008c04fcc",
+      "integration17-b7-frozen1-cold-binary-archive1.json": "7242ecda46a189bdf637e17ce85b0f0dac9e8e635d58724f41d0d274c3a42103",
+      "pr18-read-cycle-integrated-frozen1/manifest.json": "fd1cfc9cfaf58fb91bd9ce512c66c7c8ba995b56dba1699c7bea865633743188",
+      "pr18-read-cycle-integrated-goal-lost-start-actual1/report.json": "eae475fd54b78aecc52624291bcf7783b185f28bbe423f4f9b3691b7b1165ac7",
+      "pr18-head52-evidence/product-terminal.json": "54c6a5a1154ac2c323e20af25fc9ca4ce6bc4452bc8efd37822285f1c0b981a9",
+      "pr18-head52-evidence/environment-terminal.json": "a2bc929a36a599cb72b4459da3ff746e9069467de51fb6474e7a6d9e5711d4b4",
+      "integration17-b7-frozen1-cold-binary-archive1-provenance-correction.json": "5d549bc465694d2a152f3e54ee34f911808898c832d9c90ea3b4c96a04aa69a9"
+    },
+    "summary_task_actions": "read-only JSON/log/source/PNG and bounded file/gzip-stream hashes; no repository/publicdocs edits, no Cargo/Node/browser/SQL/network/agents; old9f draft untouched"
+  },
+  "summary_input_hashes": {
+    "historical9f": "0ecc877b07deee6e3146f903ab6b2f535992026394652e03b482778040960715",
+    "new_ec5": "62c1eb02f33bb2a2b8a313b222509ff4903e873a646aa064154defa328468eea"
+  },
+  "current_summary": {
+    "product_Core_checks": "033a7b2 source182Core includingnested,33Factory,strictClippy/fmt and284infra; not rerun/relabelled at ec5",
+    "UI_checks": "58997cb source919/55type/build; UI/Core byteequivalence to actual9fbuilds; not an ec5compile",
+    "browser": "ec5harness/actual9fCore+frontend: normal4checks4PNG, cancel4checks3PNG, loststart5checks4PNG allpassed/cleanuptrue; cases overlap, not13unique productrequirements",
+    "newinfra": "actual ec5full284PASS plus fmtRoottoolattestation",
+    "oldfailures": "old9f loststart3checks then15s timeout/cleanupfalse remains failed; initial ec5preflight capacity refusal started no runtime; bd pure1fail1error preserved then precise compat closure",
+    "capacity": "cold binary compressed/decompressed bytehashverified; source_manifest pointer was assumed and missing, correction retained; historicalsourceprovenance not proven by it; no budget/limit change",
+    "CI": "remotePR18 still52dd346 at record; Environment41149970304all3success, Product41149970320Rust/ARMsuccessIntel/UIfail; no ec5CI yet",
+    "Intel_limit": "old52producer4028ms/actual4653ms>original4000; new localpasses and outerstopservice do not prove exact Intel cause or resolution",
+    "remaining": "exactnewsevenCI, dualmacNative/application/audit/installers/protectedintegration/full130 unaccepted; actualProvider/signing/newspend/production remain closed; formalApprove not performed"
+  }
+}

@@ -1,0 +1,311 @@
+{
+  "recorded_at": "2026-10-30T06:44:24.923165+00:00",
+  "source": "2e202515772fa7feebf25c845b6e530633526fe1",
+  "source_tree": "fc81c0ffeb06a9dab6d53afeca6695a7ba60db24",
+  "parent": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+  "approval": "AB-START-001",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "composition_review": {
+    "review_sha256": "141589141b896f0a22da9066323b017aeb8a2c4b4aebbbefb59f3f45fdfafe64",
+    "manifest_sha256": "fc746a7f21ff823582f99a34b85714a23e6706a61380cec52ce4ea778bb7e6a9",
+    "source_assertions": 176,
+    "pure_python": 72,
+    "not_product_test_counts": true
+  },
+  "composition_resolution": {
+    "rule": "new actual/pending header + exact incomingprefix + completeours; base all lines preserved insertions-only",
+    "incoming": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+    "ours": "0644ea9d8c10d075fef6b139bd9d7d363d5cc4fb",
+    "new_header_bytes": 944,
+    "incoming_prefix_bytes": 2137,
+    "base_bytes": 145410,
+    "ours_bytes": 157043,
+    "merged_bytes": 160124,
+    "merged_sha256": "44010e6e7cd00eddbaec5933d1d6f784f4e156673987ed3c2846e8e11055295e",
+    "other_manifest_fields_equal": true,
+    "all_manifest_actual_hashes": 93
+  },
+  "actual_commands": {
+    "core1": {
+      "source": "2e202515772fa7feebf25c845b6e530633526fe1",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "env",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/task-bound-session-schema16-frozen",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/task-bound-session-schema16-frozen/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/task-bound-session-schema16-frozen/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 120.31248699501157,
+      "minimum_free_bytes": 221294592,
+      "interruption": null,
+      "log_sha256": "0619e4dcdcd97002b13be993bbddec41897a68b4d73de1e71ac9e489cace4737",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 165 filtered out; finished in 0.00s",
+        "test result: ok. 166 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 104.19s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "factory1": {
+      "source": "2e202515772fa7feebf25c845b6e530633526fe1",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "env",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/task-bound-session-schema16-frozen",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/task-bound-session-schema16-frozen/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/task-bound-session-schema16-frozen/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": -15,
+      "seconds": 16.653610223002033,
+      "minimum_free_bytes": 126754816,
+      "interruption": "external_capacity_time_or_log_bound",
+      "log_sha256": "fca7ba77401b7a4e4e524fa8c115196d98e6a8fa4e2447a8a21c2eb45ab28c86",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "factory2": {
+      "source": "2e202515772fa7feebf25c845b6e530633526fe1",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "env",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/task-bound-session-schema16-frozen",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/task-bound-session-schema16-frozen/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/task-bound-session-schema16-frozen/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 107.39420136698755,
+      "minimum_free_bytes": 463298560,
+      "interruption": null,
+      "log_sha256": "8970f07a70a28c28a968be6df8c895ce1970aa564ca49724127a68d9e4934229",
+      "summaries": [
+        "test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 105.45s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "infrastructure1": {
+      "source": "2e202515772fa7feebf25c845b6e530633526fe1",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 5.412018016009824,
+      "minimum_free_bytes": 427556864,
+      "interruption": null,
+      "log_sha256": "ca363316d9eb292c4e8e30c0a2740134c25ba339caa2114fe4fe057be47f1ec4",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "format1": {
+      "source": "2e202515772fa7feebf25c845b6e530633526fe1",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.1044756509945728,
+      "minimum_free_bytes": 427589632,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "clippy1": {
+      "source": "2e202515772fa7feebf25c845b6e530633526fe1",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 12.041248880006606,
+      "minimum_free_bytes": 427315200,
+      "interruption": null,
+      "log_sha256": "1f25ced9b6014566dbb2360a4862f1e2c6347a6d107c93aec19dfda801156fca",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "unique_counts_by_dimension": {
+    "Core": 166,
+    "Core_nested_helper_not_additive": 1,
+    "Factory": 30,
+    "infrastructure": 241,
+    "format": "passed",
+    "workspace_all_targets_clippy": "passed",
+    "not_a_sum": true
+  },
+  "capacity_failure": {
+    "first_Factory": "capacity SIGTERM while building; no tests executed, original -15/result/log retained",
+    "lossless_cache_archive": "generated-native-only-library-cache-archive68/MANIFEST.json; 118 Native-only generated rlibs full gzip/SHA roundtrip; failed ELF/source/DB/frozen tools untouched",
+    "retry": "same source, unchanged tests and bounds; Factory30 passed105.45s"
+  },
+  "schema16_actual_tool_pins": {
+    "Core": {
+      "before": {
+        "observed_at": "2026-10-30T05:30:53.446423+00:00",
+        "observation_time": "before_core",
+        "actual_env_override_in_command": "schema16frozen; generic runner default INPUT env/pins are15 and do not override explicit env command",
+        "existing_historical_immutable16_hashes_matched": true,
+        "tools": {
+          "batond": {
+            "sha256": "621c43a1eed9db2621cbef3f339b43e7a585c49e6ad49e7027bfb950708de225",
+            "bytes": 35582728,
+            "mode": 320,
+            "nlink": 1
+          },
+          "baton": {
+            "sha256": "055ab354897519591528b59e8052f9eda821eae8e539064e4c82bb0247cb8f50",
+            "bytes": 2832344,
+            "mode": 320,
+            "nlink": 1
+          }
+        }
+      },
+      "after": {
+        "observed_at": "2026-10-30T05:32:54.177794+00:00",
+        "observation_time": "after_core",
+        "actual_env_override_in_command": "schema16frozen; generic runner default INPUT env/pins are15 and do not override explicit env command",
+        "existing_historical_immutable16_hashes_matched": true,
+        "tools": {
+          "batond": {
+            "sha256": "621c43a1eed9db2621cbef3f339b43e7a585c49e6ad49e7027bfb950708de225",
+            "bytes": 35582728,
+            "mode": 320,
+            "nlink": 1
+          },
+          "baton": {
+            "sha256": "055ab354897519591528b59e8052f9eda821eae8e539064e4c82bb0247cb8f50",
+            "bytes": 2832344,
+            "mode": 320,
+            "nlink": 1
+          }
+        }
+      }
+    },
+    "Factory_retry": {
+      "before": {
+        "observed_at": "2026-10-30T05:39:33.872963+00:00",
+        "observation_time": "before_factory_after_capacity_archive",
+        "actual_env_override_in_command": "schema16frozen; generic runner default INPUT env/pins are15 and do not override explicit env command",
+        "existing_historical_immutable16_hashes_matched": true,
+        "tools": {
+          "batond": {
+            "sha256": "621c43a1eed9db2621cbef3f339b43e7a585c49e6ad49e7027bfb950708de225",
+            "bytes": 35582728,
+            "mode": 320,
+            "nlink": 1
+          },
+          "baton": {
+            "sha256": "055ab354897519591528b59e8052f9eda821eae8e539064e4c82bb0247cb8f50",
+            "bytes": 2832344,
+            "mode": 320,
+            "nlink": 1
+          }
+        }
+      },
+      "after": {
+        "observed_at": "2026-10-30T05:41:21.656837+00:00",
+        "observation_time": "after_factory",
+        "actual_env_override_in_command": "schema16frozen; generic runner default INPUT env/pins are15 and do not override explicit env command",
+        "existing_historical_immutable16_hashes_matched": true,
+        "tools": {
+          "batond": {
+            "sha256": "621c43a1eed9db2621cbef3f339b43e7a585c49e6ad49e7027bfb950708de225",
+            "bytes": 35582728,
+            "mode": 320,
+            "nlink": 1
+          },
+          "baton": {
+            "sha256": "055ab354897519591528b59e8052f9eda821eae8e539064e4c82bb0247cb8f50",
+            "bytes": 2832344,
+            "mode": 320,
+            "nlink": 1
+          }
+        }
+      }
+    },
+    "generic_runner_default15": "Actual16 explicit command env and separately observed immutable pins take precedence; original15 pins also unchanged."
+  },
+  "historical_not_reexecuted": {
+    "browser": "bc10 matched Core/frontend six real Unix IPC browser paths/8 PNGs pass9.039s, cleanuptrue/daemonwait0; unchanged productionTS/Native/Task-binding/migration bytes; not relabelled2e test",
+    "frontend": "1016 tests/56 files prior source363; no new Node/browser execution here",
+    "migrations": "genuine14/15 to16 original results preserved, not relabelled",
+    "current_root_CI": "60ba exact Environment41012469144 success; Product41012469123 Rust/UI success, Intel rework revision2blocked/RESOURCE_LIMIT, ARM still running at record time; not schema16 evidence",
+    "prior_failures": "Root4344 INPUT_CHANGED across3 platforms and originalumask022 failure preserved; local fixed0700/actual0755 negative included10 in166; original budgets/security checks unchanged"
+  },
+  "pending": [
+    "exact schema16 remote checks/native/dual Mac packages and artifact verification",
+    "new paired2e Core/frontend browser build not run; historicalbc10 remains explicit",
+    "PR20 SourceCapture prerequisite not composed into this branch; separatePR20 and ongoingCore17 integration",
+    "full130 and remaining local/remote/adoption/cleanup product acceptance"
+  ],
+  "authority_closed": [
+    "live product Provider/model/private identity",
+    "new spend/resources/hosts",
+    "production/signing/notarization/final license",
+    "formal GitHub Approve without current exactPR user confirmation"
+  ],
+  "not_product_complete": true
+}

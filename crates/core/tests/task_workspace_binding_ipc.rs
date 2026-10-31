@@ -108,7 +108,26 @@ struct Fixture {
 }
 impl Fixture {
     fn new(repository: bool) -> Self {
-        let root = tempfile::tempdir().unwrap();
+        use std::os::unix::fs::PermissionsExt;
+        // Darwin's default temporary parent can contain /var -> /private/var.
+        // Keep the fixture on a short canonical parent; the production daemon
+        // must continue to reject runtime paths containing symbolic links.
+        let parent = Path::new("/tmp").canonicalize().unwrap();
+        let root = tempfile::Builder::new()
+            .prefix("ab-twbi-")
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir_in(&parent)
+            .unwrap();
+        assert_eq!(root.path().parent(), Some(parent.as_path()));
+        assert_eq!(root.path().canonicalize().unwrap().as_path(), root.path());
+        assert_eq!(
+            fs::symlink_metadata(root.path())
+                .unwrap()
+                .permissions()
+                .mode()
+                & 0o777,
+            0o700
+        );
         let source = root.path().join("source");
         fs::create_dir(&source).unwrap();
         fs::create_dir(source.join("empty")).unwrap();

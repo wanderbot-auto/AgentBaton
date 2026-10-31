@@ -800,6 +800,71 @@ def event_fields(event, subject, observed_plan_revision):
     return out
 
 
+# Historical sender vocabulary, never a cause classifier or stop authenticator.
+SESSION_STOP_REASONS = frozenset(('cancelled','duration_limit','provider_protocol_or_timeout_failure',
+    'provider_prompt_failed','session_creation_failed','initialization_failed','launch_cancelled_or_timeout',
+    'provider_configuration_unsupported','local_launch_failed_before_worker_start',
+    'factory_launch_binding_changed','factory_preflight_cancelled_or_deadline',
+    'data_observation_expired_before_worker','data_changed_or_request_deadline_before_spawn',
+    'event_backpressure','duplicate_worker_turn','supervisor_disconnected'))
+TERMINAL_TURN_STATES = frozenset(('completed','cancelled','interrupted','outcome_unknown'))
+
+def settled_session_stop(conn, subject, revision, settled_sequence, event):
+    """Finite same-reservation/session history, not authority or causal proof.
+
+    project_events has already guarded the complete events table's schema,
+    JSON, count and aggregate bytes. No new table, live writer or action enters.
+    """
+    out={'status':'unavailable','stop_reason':None,'process_reaped':None,
+         'no_process_started':None,'turn_status':'unavailable','turn_completed':None,
+         'completed_turn_count':None,'turn_completed_basis':'derived_from_same_session_turn_state'}
+    def ident(value):return type(value)is str and 0<len(value.encode())<=512
+    def original(row,kind,source,aggregate):
+        sequence,raw=row
+        if type(sequence)is not int or not 0<sequence<settled_sequence:return None
+        value=strict_json(raw)
+        if not(type(value)is dict and value.get('kind')==kind and value.get('source')==source and value.get('aggregate_id')==aggregate and type(value.get('revision'))is int and value['revision']>0 and type(value.get('payload'))is dict):return None
+        return value
+    payload=event.get('payload')
+    if not(type(payload)is dict and event.get('kind')=='goal.node_settled' and event.get('source')=='goal_core' and event.get('aggregate_id')==subject and type(event.get('revision'))is int and event['revision']==revision):return out
+    session,attempt,node=(payload.get(k)for k in ('session_id','attempt_id','node_id'))
+    if not all(ident(k)for k in (subject,session,attempt,node)):return out
+    # Session IDs are unique. A second earlier reservation of this session,
+    # even claiming another run/attempt, cannot be silently ignored.
+    rows=conn.execute("SELECT sequence,document FROM events WHERE json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.payload.session_id')=? AND sequence<? ORDER BY sequence LIMIT 2",(session,settled_sequence)).fetchall()
+    if len(rows)>1:out['status']='ambiguous';return out
+    if not rows:return out
+    reserved=original(rows[0],'goal.node_reserved','goal_core',subject)
+    if reserved is None or reserved['revision']>revision:return out
+    bound=reserved['payload']
+    if not all(type(bound.get(k))is str and bound[k]==v for k,v in [('session_id',session),('attempt_id',attempt),('node_id',node)]):return out
+    if bound.get('task_accepted')is not False or type(bound.get('plan_revision'))is not int or bound['plan_revision']<=0:return out
+    reserved_sequence=rows[0][0]
+    rows=conn.execute("SELECT sequence,document FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.aggregate_id')=? AND sequence>? AND sequence<? ORDER BY sequence LIMIT 2",(session,reserved_sequence,settled_sequence)).fetchall()
+    if len(rows)>1:out['status']='ambiguous';return out
+    if not rows:return out
+    stopped=original(rows[0],'session.stopped','baton_supervisor',session)
+    if stopped is None:return out
+    stop=stopped['payload']
+    if not(type(stop.get('reason'))is str and type(stop.get('process_reaped'))is bool and type(stop.get('no_process_started'))is bool and stop.get('task_accepted')is False):return out
+    out.update(status='observed',stop_reason=stop['reason']if stop['reason']in SESSION_STOP_REASONS else 'unrecognized',process_reaped=stop['process_reaped'],no_process_started=stop['no_process_started'])
+    stop_sequence=rows[0][0]
+    # A source-supplied terminal turn state is distinct from the stop reason.
+    # Even 'cancelled' worker stops can follow an actually completed Goal turn.
+    where="json_extract(document,'$.kind')='session.turn_ended' AND json_extract(document,'$.aggregate_id')=?"
+    count=conn.execute('SELECT count(*) FROM events WHERE '+where,(session,)).fetchone()[0]
+    if type(count)is not int or count<0:return out
+    if count>1:out['turn_status']='ambiguous';return out
+    if count==0:out.update(turn_status='observed',turn_completed=False,completed_turn_count=0);return out
+    row=conn.execute('SELECT sequence,document FROM events WHERE '+where+' LIMIT 1',(session,)).fetchone()
+    ended=original(row,'session.turn_ended','provider_runtime',session)
+    if ended is None or not reserved_sequence<row[0]<stop_sequence:return out
+    turn=ended['payload'];state=turn.get('turn_state')
+    if type(state)is not str or state not in TERMINAL_TURN_STATES or turn.get('task_accepted')is not False:return out
+    completed=state=='completed'
+    out.update(turn_status='observed',turn_completed=completed,completed_turn_count=1 if completed else 0)
+    return out
+
 def project_events(conn, observation):
     result = {'status': 'pending', 'code': 'unknown_not_available',
               'snapshot_time': 'post_owned_shutdown_not_deadline_instant',
@@ -848,6 +913,7 @@ def project_events(conn, observation):
         return result
     seen = set()
     first_sequence = None
+    result['settled_session_stops'] = []
     for sequence, raw in conn.execute('SELECT sequence,document FROM events WHERE ' + where +
                                       ' ORDER BY sequence LIMIT 17', params):
         integer(sequence, (1 << 63) - 1)
@@ -864,6 +930,9 @@ def project_events(conn, observation):
         projected = event_fields(event, subject, observed['plan_revision'])
         projected['ordinal'] = len(result['events']) + 1
         result['events'].append(projected)
+        if kind == 'goal.node_settled':
+            result['settled_session_stops'].append({'node_settlement_ordinal':projected['ordinal'],
+                **settled_session_stop(conn, subject, revision, sequence, event)})
     # A capture settlement can follow a prior work settlement. Keep that event
     # distinct: its earlier run revision does NOT prove the same plan revision.
     if any(event['kind'] == 'goal.capture_settled' for event in result['events']):

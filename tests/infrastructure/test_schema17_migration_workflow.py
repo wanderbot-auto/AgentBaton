@@ -79,8 +79,35 @@ UI_PREVIEW_SCOPE_BEFORE = 'CI-built Linux debug evidence candidate; preview-evid
 UI_PREVIEW_SCOPE_AFTER = 'CI-built Linux dev evidence candidate; only this UI preview tool build sets CARGO_PROFILE_DEV_DEBUG=0 (debuginfo=0); dev opt-level/debug_assertions/panic defaults and existing package overrides are unchanged; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact'
 
 
+PRIVATE_BROWSER_PYTHON_BEFORE = '          python3 -m venv artifacts/browser-venv\n'
+PRIVATE_BROWSER_PYTHON_AFTER = '          python3 scripts/prepare-browser-runtime.py --output artifacts/browser-venv\n'
+PRIVATE_BROWSER_BUILD_STEP_SHA256 = '30ec3a29323f835e235254015eadf8375b4e9e9f1b113210dce5b0e46d1df1cc'
+
+
+def strip_private_browser_python(text):
+    """Reverse only the complete pinned browser dependency step's one command."""
+    headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
+    title = '      - name: Real daemon and browser test dependencies\n'
+    if [i for i, h in enumerate(headers) if h.group(0) == title] != [25] or len(headers) <= 26:
+        raise ValueError('Private browser dependency step count/position changed')
+    if headers[26].group(0) != '      - name: Actual frontend with real Unix IPC and responsive screenshots\n':
+        raise ValueError('Private browser dependency neighbor changed')
+    start, end = headers[25].start(), headers[26].start()
+    block = text[start:end]
+    digest = hashlib.sha256(block.encode()).hexdigest()
+    if digest == APPROVED_UI_PREVIEW_PROFILE_BUILD_STEP_SHA256:
+        return text
+    if digest != PRIVATE_BROWSER_BUILD_STEP_SHA256 or block.count(PRIVATE_BROWSER_PYTHON_AFTER) != 1:
+        raise ValueError('Private browser dependency complete reviewed bytes changed')
+    original = block.replace(PRIVATE_BROWSER_PYTHON_AFTER, PRIVATE_BROWSER_PYTHON_BEFORE, 1)
+    if hashlib.sha256(original.encode()).hexdigest() != APPROVED_UI_PREVIEW_PROFILE_BUILD_STEP_SHA256:
+        raise ValueError('Private browser exact one-command inverse changed')
+    return text[:start] + original + text[end:]
+
+
 def strip_approved_ui_preview_profile(text):
     """Reverse only the exact reviewed UI build step and candidate scope."""
+    text = strip_private_browser_python(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
     name = '      - name: Real daemon and browser test dependencies\n'
     matches = [i for i, h in enumerate(headers) if h.group(0) == name]
@@ -153,6 +180,7 @@ INTEGRATION_SETUP_ORIGINAL_BYTES = 9731
 
 def strip_integration_setup_diagnostics(text):
     """Replace only a complete pinned step with its complete pinned original."""
+    text = strip_private_browser_python(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
     title = '      - name: Actual integration frontend with real Core IPC and generated correctness\n'
     if [i for i, header in enumerate(headers) if header.group(0) == title] != [27] or len(headers) <= 28:

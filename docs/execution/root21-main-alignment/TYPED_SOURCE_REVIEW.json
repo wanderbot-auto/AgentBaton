@@ -1,0 +1,313 @@
+{
+  "status": "SOURCE_READY",
+  "review_scope": "Five fixed source files of Main typed / Root17 integration composition; not approval of retired reviewer-authored5810 compound implementation",
+  "root_head": "fd24203cff5ee6c0aa9a1dcf6e8dfb2d93688375",
+  "merge_head": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+  "fixed_manifest": [
+    {
+      "path": "crates/core/src/goal_factory.rs",
+      "sha256": "8311dbdd428c4a6b03909077bb57284ad5a31f05495bebdcefdae575bc940244",
+      "bytes": 104774
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "sha256": "bf94f9c458e0cb1fd5d9059df6a88f5f58fa00881ddf640427effed8d56c8878",
+      "bytes": 166612
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sha256": "ad1902e0db6e9be5468a1a9016d46d3c8dd645e1c09b709c116259069cfd3974",
+      "bytes": 159515
+    },
+    {
+      "path": "crates/core/src/goal_admission_detail_codec_tests.rs",
+      "sha256": "62e15b9521828e72c285112ec1f62253d63f7135eacc2c07efdcbab6c9ca94c3",
+      "bytes": 11066
+    },
+    {
+      "path": "crates/core/src/goal_admission_detail_store_tests.rs",
+      "sha256": "bbf94ff1d5554a6fd70a95126029a286e4e5cc9807ecee0129338bf08c0db124",
+      "bytes": 9718
+    }
+  ],
+  "source_proof_sha256": "8a0beba8a37802f1765bf93d2d82dae3a87dcf77f74f6f7227b762a8fc4586f7",
+  "independent_checks_passed": 96,
+  "checks": [
+    "source proof fixed SHA",
+    "ADR fixed SHA",
+    "mapping fixed SHA",
+    "fixed source crates/core/src/goal_factory.rs",
+    "fixed source crates/core/src/goal_runtime.rs",
+    "fixed source crates/core/src/ipc.rs",
+    "fixed source crates/core/src/goal_admission_detail_codec_tests.rs",
+    "fixed source crates/core/src/goal_admission_detail_store_tests.rs",
+    "goal_factory.rs inverse file is full Main bytes",
+    "goal_factory.rs existing Root bytes at merged line1028",
+    "goal_factory.rs existing Root bytes at merged line2296",
+    "goal_factory.rs independently recomputed complete hunk inventory",
+    "goal_runtime.rs inverse file is full Main bytes",
+    "goal_runtime.rs existing Root bytes at merged line952",
+    "goal_runtime.rs existing Root bytes at merged line955",
+    "goal_runtime.rs existing Root bytes at merged line960",
+    "goal_runtime.rs existing Root bytes at merged line2618",
+    "goal_runtime.rs existing Root bytes at merged line2632",
+    "goal_runtime.rs existing Root bytes at merged line2738",
+    "goal_runtime.rs existing Root bytes at merged line3981",
+    "goal_runtime.rs independently recomputed complete hunk inventory",
+    "ipc.rs inverse file is full Main bytes",
+    "ipc.rs existing Root bytes at merged line547",
+    "ipc.rs existing Root bytes at merged line609",
+    "ipc.rs existing Root bytes at merged line630",
+    "ipc.rs existing Root bytes at merged line634",
+    "ipc.rs existing Root bytes at merged line654",
+    "ipc.rs existing Root bytes at merged line669",
+    "ipc.rs existing Root bytes at merged line673",
+    "ipc.rs existing Root bytes at merged line697",
+    "ipc.rs existing Root bytes at merged line982",
+    "ipc.rs existing Root bytes at merged line1351",
+    "ipc.rs existing Root bytes at merged line1366",
+    "ipc.rs existing Root bytes at merged line2173",
+    "ipc.rs existing Root bytes at merged line3297",
+    "ipc.rs independently recomputed complete hunk inventory",
+    "Main Factory function exact capture",
+    "Main Factory function exact for_run",
+    "Main Factory function exact ancestor_admission_diagnostic",
+    "Main Factory function exact refusal",
+    "Root original ancestor guard and order exact",
+    "Root accounting function exact reservations",
+    "Root accounting function exact reserve_shared_execution_meter",
+    "Root accounting function exact settle_shared_execution_meter",
+    "Root accounting function exact reserve_shared_meter_fields",
+    "Root accounting function exact settle_shared_meter_fields",
+    "Root accounting function exact reserve_integration_execution_meter",
+    "Root accounting function exact settle_integration_execution_meter",
+    "Root accounting function exact integration_historical_usage",
+    "Main runtime function exact block_goal_run",
+    "Main runtime function exact block_goal_run_observed",
+    "Main runtime function exact test_factory_ancestor_refusal",
+    "Main IPC function exact service_after_early_owner_read",
+    "Main IPC function exact service_after_ready_request",
+    "Main IPC function exact recorded_goal_dispatch_error",
+    "Main IPC function exact handle_observed",
+    "Main IPC function exact tick_goals",
+    "Main IPC function exact queued_owner_factory_run_read",
+    "Root integration IPC function exact integration_read_for_request",
+    "Root integration IPC function exact tick_integrations",
+    "Root integration IPC function exact integration_start_for_request",
+    "Root integration IPC function exact integration_targets_for_request",
+    "Root integration IPC function exact finish_integration_targets",
+    "Root integration IPC function exact finish_integration_read",
+    "ordinary plus deferred data completions both observed",
+    "only automatic Goal constructs Goal lane",
+    "early helper has no integration scheduling service_after_early_owner_read",
+    "early helper has no integration scheduling service_after_ready_request",
+    "Main FIFO head/counter/eligibility exact",
+    "complete outer stop/owned/fatal/finished/FIFO/factory/goal/integration/drain order",
+    "normal shutdown complete Root bytes exact",
+    "Drop integration stop/join before graph reaping",
+    "compound encoder/policy absent",
+    "no conflict markers crates/core/src/goal_factory.rs",
+    "no conflict markers crates/core/src/goal_runtime.rs",
+    "no conflict markers crates/core/src/ipc.rs",
+    "no conflict markers crates/core/src/goal_admission_detail_codec_tests.rs",
+    "no conflict markers crates/core/src/goal_admission_detail_store_tests.rs",
+    "seven properties authored",
+    "three Store tests authored",
+    "same complete ten-table before-after count function",
+    "same controlled finite diagnostic fixture",
+    "same original event query/uniqueness helper",
+    "Store invariant retained assert_eq!(detail_test_counts(&f.store), counts);",
+    "Store invariant retained assert_eq!(replay, receipt);",
+    "Store invariant retained assert_eq!(again, receipt);",
+    "Store invariant retained assert_eq!(json!(after), json!(before));",
+    "Store invariant retained sequence + 1",
+    "Store invariant retained observation.is_some(),",
+    "Store invariant retained owned.as_ref()",
+    "Store no skip flags",
+    "stable final SHA crates/core/src/goal_factory.rs",
+    "stable final SHA crates/core/src/goal_runtime.rs",
+    "stable final SHA crates/core/src/ipc.rs",
+    "stable final SHA crates/core/src/goal_admission_detail_codec_tests.rs",
+    "stable final SHA crates/core/src/goal_admission_detail_store_tests.rs"
+  ],
+  "complete_difference_inventory": {
+    "crates/core/src/goal_factory.rs": [
+      {
+        "kind": "replace",
+        "parent_line": 1028,
+        "merged_line": 1028,
+        "removed_lines": 1,
+        "added_lines": 1
+      },
+      {
+        "kind": "insert",
+        "parent_line": 2296,
+        "merged_line": 2296,
+        "removed_lines": 0,
+        "added_lines": 1
+      }
+    ],
+    "crates/core/src/goal_runtime.rs": [
+      {
+        "kind": "replace",
+        "parent_line": 952,
+        "merged_line": 952,
+        "removed_lines": 1,
+        "added_lines": 1
+      },
+      {
+        "kind": "replace",
+        "parent_line": 955,
+        "merged_line": 955,
+        "removed_lines": 1,
+        "added_lines": 1
+      },
+      {
+        "kind": "replace",
+        "parent_line": 960,
+        "merged_line": 960,
+        "removed_lines": 2,
+        "added_lines": 9
+      },
+      {
+        "kind": "replace",
+        "parent_line": 2611,
+        "merged_line": 2618,
+        "removed_lines": 41,
+        "added_lines": 9
+      },
+      {
+        "kind": "replace",
+        "parent_line": 2657,
+        "merged_line": 2632,
+        "removed_lines": 25,
+        "added_lines": 7
+      },
+      {
+        "kind": "insert",
+        "parent_line": 2781,
+        "merged_line": 2738,
+        "removed_lines": 0,
+        "added_lines": 174
+      },
+      {
+        "kind": "insert",
+        "parent_line": 3850,
+        "merged_line": 3981,
+        "removed_lines": 0,
+        "added_lines": 1
+      }
+    ],
+    "crates/core/src/ipc.rs": [
+      {
+        "kind": "insert",
+        "parent_line": 547,
+        "merged_line": 547,
+        "removed_lines": 0,
+        "added_lines": 1
+      },
+      {
+        "kind": "insert",
+        "parent_line": 608,
+        "merged_line": 609,
+        "removed_lines": 0,
+        "added_lines": 1
+      },
+      {
+        "kind": "insert",
+        "parent_line": 628,
+        "merged_line": 630,
+        "removed_lines": 0,
+        "added_lines": 1
+      },
+      {
+        "kind": "insert",
+        "parent_line": 631,
+        "merged_line": 634,
+        "removed_lines": 0,
+        "added_lines": 6
+      },
+      {
+        "kind": "insert",
+        "parent_line": 645,
+        "merged_line": 654,
+        "removed_lines": 0,
+        "added_lines": 8
+      },
+      {
+        "kind": "insert",
+        "parent_line": 652,
+        "merged_line": 669,
+        "removed_lines": 0,
+        "added_lines": 1
+      },
+      {
+        "kind": "insert",
+        "parent_line": 655,
+        "merged_line": 673,
+        "removed_lines": 0,
+        "added_lines": 2
+      },
+      {
+        "kind": "insert",
+        "parent_line": 677,
+        "merged_line": 697,
+        "removed_lines": 0,
+        "added_lines": 24
+      },
+      {
+        "kind": "insert",
+        "parent_line": 938,
+        "merged_line": 982,
+        "removed_lines": 0,
+        "added_lines": 16
+      },
+      {
+        "kind": "replace",
+        "parent_line": 1291,
+        "merged_line": 1351,
+        "removed_lines": 1,
+        "added_lines": 1
+      },
+      {
+        "kind": "insert",
+        "parent_line": 1306,
+        "merged_line": 1366,
+        "removed_lines": 0,
+        "added_lines": 7
+      },
+      {
+        "kind": "insert",
+        "parent_line": 2106,
+        "merged_line": 2173,
+        "removed_lines": 0,
+        "added_lines": 43
+      },
+      {
+        "kind": "insert",
+        "parent_line": 3187,
+        "merged_line": 3297,
+        "removed_lines": 0,
+        "added_lines": 262
+      }
+    ]
+  },
+  "must_fix": [],
+  "source_findings": [
+    "Sole nonserializable Main typed observation carries original bounded guard beside unchanged wire marker; private observation never gains authority.",
+    "Root ancestor/accounting/integration functions are byte exact; Main capture/parser/wrapper/FIFO/worker helpers are byte exact.",
+    "Early Owner service retains Main workers only, without new armed integration scan; ordinary Root integration and normal/error ownership joins remain.",
+    "7 typed properties and3 real Store-path tests are authored with original counters/replay/one block event; retired protocol properties explicitly N/A, nullable/reachable-branch predicates explicitly not adopted."
+  ],
+  "limitations": [
+    "No Cargo, Rust compilation/tests, actual SQL, Node, browser, product process, network or CI executed by reviewer.",
+    "SOURCE_READY is source review only; combined scheduling/runtime behavior requires Root actual tests.",
+    "Other history/docs/Python files and integration_workers ReadyReply constructor adaptation are outside these five fixed files.",
+    "Original Intel failure remains failed;29ms remains a candidate, not original guard proof.",
+    "No formal GitHub Approve or merge authorization provided."
+  ],
+  "review_artifact_paths": {
+    "author_ADR": "/tmp/root21-typed-merge-five-proof/ADR-DRAFT.md",
+    "author_mapping": "/tmp/root21-typed-merge-five-proof/TEST-MAPPING.json"
+  }
+}

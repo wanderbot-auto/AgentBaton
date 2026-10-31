@@ -2,8 +2,9 @@
   "source_commit": "29c27ef365038df079ced96668c209c23c0f4b62",
   "base": "059f96b0a1b008f560554731ad77cef2fa6a6d95",
   "requirements": [
-    "AB-SEC-007",
-    "Goal/Factory rework readonly integrity"
+    "AB-TSK-009",
+    "AB-TSK-003",
+    "AB-TSK-008"
   ],
   "author_validation": {
     "rustfmt": "PASS",
@@ -46,5 +47,15 @@
     "causal_relationship_to_overrun": "NOT_ESTABLISHED",
     "current_capture_phase": "NOT_AVAILABLE"
   },
-  "gates": "Independent review and Root actual tests/performance remain pending; not a Mac acceptance or measured speed claim."
+  "gates": "Independent review and Root actual tests/performance remain pending; not a Mac acceptance or measured speed claim.",
+  "historical_author_requirement_mapping": [
+    "AB-SEC-007",
+    "Goal/Factory rework readonly integrity"
+  ],
+  "root_actual": {
+    "path": "docs/execution/factory-summary-proof/ROOT_RESULTS.json",
+    "sha256": "07677b8d31f7d68ebf7ac76f828cf098a50d824d0d4799175600b2ebe4aac374",
+    "source": "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+    "status": "153Core/30Factory/58sessions strictClippy/fmt passed; focused4included; no current CI/performance/native/Mac acceptance"
+  }
 }
