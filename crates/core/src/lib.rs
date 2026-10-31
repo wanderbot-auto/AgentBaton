@@ -8,6 +8,7 @@ pub mod execution;
 pub mod goal_plan;
 pub mod goal_store;
 mod goal_validator_io;
+pub mod integration;
 pub mod ipc;
 pub mod policy;
 pub mod registry;

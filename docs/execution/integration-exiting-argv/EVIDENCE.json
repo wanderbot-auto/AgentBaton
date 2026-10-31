@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "requirements": [
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-VAL-009"
+  ],
+  "base": "d44c743d93d311ca465c310cc87377425275e829",
+  "source_commit": "819826b2f76b59d50b1e99dcb6dcaafcc7fde1c2",
+  "parent_source_commit": "9f412458d782d9513427c2575cc7d234918a2f66",
+  "scope": "schema17 test harness source composition only",
+  "source_hashes": {
+    "harness": "cc2f83cb616e2208e9c7e7a19ba3a11fcf5f332be90eb08a78ce31421dd5ba15",
+    "collector": "1b9ab9bd6d3c9945a832799fe58d1d4d458e7923ef05629210f6f2650f891975",
+    "prefix": "b6d686e240f4e155f059968d44ab677741c9c306f981cf5285d331dbdece855b",
+    "suffix": "ea11d51a2c890be158ef3f923b6fcfd79535c0e9293ba60a6cd51aa96153893b",
+    "old39": "e00b1af4db30f738e0729cb1a2f65b103c498cbcfe0b2f88f2ba250ae67099d5",
+    "new11": "db8db698957cd56cabbc3542a2e79ad9ad976e542961352e209c7fb6429a1fc4"
+  },
+  "exact_source_checks": {
+    "only_collector_function_changed": true,
+    "collector_exact_parent_source": true,
+    "new11_test_exact_parent_source": true,
+    "old39_test_bytes_unchanged": true,
+    "strict17_and_integration_table_guards_outside_modified_function_bytes_unchanged": true
+  },
+  "source_manifest_sha256": "bfd73d6a9886bf41c1a4f50f9140f080145fe4b1e9cbf9f169e7ad6ea3bfcf6a",
+  "results": [
+    {
+      "command": "python3 -m unittest discover -s tests/infrastructure -p 'test_factory_exiting_argv_observation.py' -v",
+      "exit_code": 0,
+      "tests": 11,
+      "seconds": 2.25
+    },
+    {
+      "command": "python3 -m unittest discover -s tests/infrastructure -p 'test_factory_bound_provider_exit.py' -v",
+      "exit_code": 0,
+      "tests": 39,
+      "seconds": 4.547
+    }
+  ],
+  "test_output_retention": "Full command outputs are in the native tool execution record; no standalone stdout log was created by this source-only author. Root full-suite evidence remains required.",
+  "unique_pure_tests": 50,
+  "not_run": [
+    "Core runtime",
+    "browser",
+    "Native",
+    "macOS",
+    "actual cancelled empty argv branch",
+    "Cargo",
+    "Node",
+    "CI"
+  ],
+  "limitations": "Injected proc/UID/argv only; no live empty argv race or actual runtime claim. No public raw DB, nonce, argv, private report or runtime identity included."
+}

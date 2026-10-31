@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T06:15:14.932817+00:00",
+  "base": "accc1aeb4cf33e770a623824a56651b5f30e0eb8",
+  "status": "production_session_grant_binding_correction_pure_passed_independent_review_and_actual_projection_pending",
+  "scope": "existing finite projector/one pure test file/unit docs only",
+  "source_sha256": {
+    "scripts/record-factory-rework-ci-evidence.py": "4fabf510c197725d6eba9b3c7e128a15af42c96eeca5ff30ebde1c481e07ce0c",
+    "tests/infrastructure/test_factory_rework_attempt_budget.py": "a2eb6da89e4607c27a02ee88774397616355c48905fabb61ec6c2e15eefc8092"
+  },
+  "original_projector_full_inverse_sha256": "ca0be16d4b9d7f1383280123a6eb702d11492d4226db83c810f854c588f00f53",
+  "retained_Intel_failure": {
+    "run_head": "784afd593f81ac62e638f16dbcf065de4b6fcde9",
+    "Product_run": 41168426054,
+    "Intel_job": 124440924453,
+    "Core_passed": 225,
+    "Factory_passed": 26,
+    "Factory_failed": 1,
+    "raw_log_sha256": "27bdc725b89d9d95f92f706603f68507f8740034eeadfb0fea51aea8c0e90ad7",
+    "official_artifact_id": 13031046592,
+    "downloaded_zip_bytes": 6590,
+    "downloaded_zip_sha256": "62c88a6e5fda97682712a07f72c1bb7dc7c35011ff527a867722a43983c025df",
+    "finite_summary_sha256": "1443de807bf854257d6248f74dc940d20b4cbfcb8e9b109d5fab5d11085f469c",
+    "finite_facts": {
+      "observed_run_revision": 14,
+      "observed_plan_revision": 2,
+      "run_state": "blocked",
+      "failure_code": "REWORK_REVISION2_TERMINAL",
+      "associated_reason": "RESOURCE_LIMIT",
+      "previous_node_settlement": null,
+      "prior_capture_actual_and_reserved_ms": [
+        [
+          3017,
+          4000
+        ],
+        [
+          3909,
+          4000
+        ]
+      ],
+      "prior_capture_same_plan_not_established": true,
+      "validation1_actual_runtime_ms": 2883,
+      "validation1_exit": 1,
+      "validation2_receipt": null,
+      "child_settled_count": 4,
+      "child_settled_actual_runtime_ms": 15793,
+      "root_project_observed_attempts": 6,
+      "root_project_actual_runtime_ms": 18359
+    },
+    "unknown": "Which original per-attempt record exceeded its runtime/output reservation, or which original admission guard fired, is not established. Numeric differences are not identity bindings.",
+    "raw_DB_read_or_reprojected_by_this_author": false
+  },
+  "new_projection_boundaries": {
+    "coverage": "selected-child original Graph and Factory-descendant records only",
+    "other_root_project_records_not_projected": true,
+    "max_records_per_case": 32,
+    "private_ID_path_raw_JSON_SQL_or_error_output": false,
+    "derived_mirror_double_counted": false,
+    "actuals_unknown_remain_null": true,
+    "partial_or_ambiguous_records": "pending; no partial rows",
+    "admission_stop_authority_or_test_verdict": false,
+    "product_or_fixture_budget_change": false,
+    "missing_reverse_coverage_or_same_attempt_conflict": "pending; no partial rows",
+    "valid_empty_selected_sources": "collected_bound_record_facts / no_selected_attempt_sources / records=[]"
+  },
+  "pure_validation": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/infrastructure -p test_factory_rework_attempt_budget.py",
+    "exit": 0,
+    "tests": 22,
+    "seconds": 0.043,
+    "dimension": "pure dictionaries/scripted cursors plus original project_db with sqlite3.connect replaced by FakeDB; no real SQLite engine",
+    "existing_source_full_inverse": "passed",
+    "diff_check": "passed",
+    "existing_outer_early_schema_and_late_event_guards": "refusal preserved and fake connection closed",
+    "original_cc80_ten_controls": "historical; not an acceptance result",
+    "production_stop_encoding": "true/1 and false/0 collected; mismatch or 2/-1/string/float/null/container pending with no partial rows",
+    "previous_b718_seventeen_controls": "historical; not an acceptance result",
+    "production_session_grant": "production-shaped 17/14-field fixtures; derived, multi-level and direct-root positive; missing/conflicting/duplicate/cyclic/depth/terminal negatives pending with no partial rows",
+    "previous_9b2_nineteen_controls": "historical; actual optional result remained pending"
+  },
+  "not_run": [
+    "existing generated SQLite fixture suite",
+    "actual SQLite/database projection",
+    "Core/Cargo/Node/browser/process execution",
+    "network/CI",
+    "actual new Intel/ARM source checks",
+    "formal product approval"
+  ],
+  "next": [
+    "Independent review of every row-binding predicate and no-ID finite output.",
+    "Root applicable existing suite and actual projection on a fresh owned joined snapshot.",
+    "Keep original Intel failure and admission-versus-retained-overrun cause unknown until exact new facts bind it."
+  ],
+  "prior_review": {
+    "commit": "cc80a481d73402b87134cce09b8c09c6cf442c8d",
+    "disposition": "CHANGES_REQUIRED_not_accepted",
+    "blockers": [
+      "Incomplete or extra reservation fields could be collected.",
+      "Existing selected Graph node/reserved-event attempts could lack reservation coverage and leave Factory-only partial output."
+    ],
+    "correction": [
+      "Complete known serialized Graph10/Factory19/RuntimeNode11 schemas; Factory production denies unknown fields, Graph diagnostic alone is closed.",
+      "Reverse selected Graph source coverage and all-same-attempt node/event/session lookup before exact tuple binding.",
+      "Column/JSON conflicts and cross-kind original reservation mirrors refuse the entire optional block.",
+      "Legitimate never-reserved and empty selected sources remain finite positives."
+    ]
+  },
+  "production_encoding_review": {
+    "commit": "b7181c4362f9babddcee343b7a3155c5e0156b2b",
+    "disposition": "CHANGES_REQUIRED_not_accepted",
+    "review_sha256": "3c0c6728cbd6ae7ab74813f3d8fc97d83b8e4810b7c05f3a4fcd3ac02f3d5f02",
+    "pure_reproduction_sha256": "80e21fdeb57d380eeac2ffa2a80aef02a392c7a7ab24407de0ab997c0f258ded",
+    "finding": "Factory attempt document.stop_confirmed SQL json_set parameter is Rust bool bound as integer0/1 by locked rusqlite0.38; boolean-only decoder rejected production-shaped integer1.",
+    "source_reference": "crates/core/src/factory_runtime.rs:1586",
+    "correction": "Only Factory attempt stop_confirmed accepts JSON bool or exact integer0/1, compared with strictly boolean reservation.settled.",
+    "other_boolean_and_metric_guards_unchanged": true,
+    "real_SQLite_executed": false
+  },
+  "retained_Root_actual_9b2_projection": {
+    "projector_candidate": "9b2f8cc9dd110599684872ca4eb6357b129d358e",
+    "actual_test_source": "6565d1c0895b207b8283cb0608e340bf49c314c9",
+    "actual_factory_test_passed": 37,
+    "owned_byte_copy_proof_sha256": "07f5f73afa1701cea9608079a68b4e4d9bef0aedd92ffbe53f8cce343648a0eb",
+    "projection_sha256": "7606caa58c32382a27654f452778ba91b8048c47ced8ea8b5c83fc3838bce8e5",
+    "fixed_location_trace_sha256": "e5db6dbcea393408d8ad62e7a82f588c8c0490846394d17c29f7b582dfed8779",
+    "overall_status": "collected_post_shutdown",
+    "optional_status": "pending",
+    "optional_records": [],
+    "failure_location": "factory_attempt_budget_fact line576 KeyError",
+    "finding": "Production ManagedSession has grant_id and no root_grant_id; the SQL table has both columns.",
+    "not_old_Intel_failure_reconstruction": true
+  },
+  "production_session_source_proof": {
+    "inspected_candidate": "9b2f8cc9dd110599684872ca4eb6357b129d358e",
+    "actual_source": "6565d1c0895b207b8283cb0608e340bf49c314c9",
+    "source_files_byte_identical_between_these_commits": true,
+    "source_sha256": {
+      "crates/core/src/sessions.rs": "57b32f08d276e0658c4f35861ff0b2754b87190722c9ed4c250feee6d247cd5c",
+      "crates/core/src/storage.rs": "f27658a59946ac4bd2d528c6e9be5c3bf8a06d18ee00bed83f54dc9ac4ac080a",
+      "crates/core/src/policy.rs": "a6c77d591498ed0a88e964ca6638f9ae8900ebb062625556c2a1ab42a661d9a2"
+    },
+    "source_references": [
+      "sessions.rs ManagedSession 17-field definition and separate INSERT grant/root columns",
+      "storage.rs sessions and execution_grants table definitions",
+      "policy.rs ExecutionGrant 14-field definition and stored lineage identity/depth bound"
+    ],
+    "binding": "JSON session grant_id equals sessions.grant_id; sessions.root_grant_id equals selected origin root; original grant columns/documents form a bounded consistent chain ending at that root.",
+    "derived_grant_equals_root_required": false,
+    "max_original_grant_rows_per_selected_session": 33,
+    "authorization_expiry_revocation_or_scope_revalidated": false,
+    "private_grant_fields_emitted": false
+  }
+}

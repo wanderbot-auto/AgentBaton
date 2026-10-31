@@ -737,16 +737,84 @@ fn replaced_workspace_and_cleared_binding_history_cannot_reassign_or_repeat_crea
 }
 
 #[test]
-fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future17() {
+fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future18() {
     // A local shape control, NOT a genuine old15-binary fixture; Root supplies that separately.
     let f = Fixture::new(false);
-    let before = image(&f.store.conn);
-    f.store
-        .conn
-        .pragma_update(None, "user_version", 15u32)
-        .unwrap();
     let path = f.path.clone();
     let parent = f.root.path().to_path_buf();
+    // The shared guard retains this modified migration input on assertion failure.
+    let _retained = f.root;
+    let before = image(&f.store.conn);
+    let exact = |db: &Connection| {
+        let schema: Vec<(String, String, String, Option<String>)> = db
+            .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
+            .unwrap()
+            .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))
+            .unwrap()
+            .collect::<rusqlite::Result<_>>()
+            .unwrap();
+        let mut rows = image(db);
+        for (table, values) in &mut rows {
+            let mut query = db
+                .prepare(&format!("SELECT rowid,* FROM {table} ORDER BY rowid"))
+                .unwrap();
+            let width = query.column_count();
+            *values = query
+                .query_map([], |r| {
+                    (0..width)
+                        .map(|i| r.get::<_, SqlValue>(i))
+                        .collect::<rusqlite::Result<Vec<_>>>()
+                })
+                .unwrap()
+                .collect::<rusqlite::Result<_>>()
+                .unwrap();
+        }
+        (schema, rows)
+    };
+    let current_exact = exact(&f.store.conn);
+    assert_eq!(
+        f.store
+            .conn
+            .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+            .unwrap(),
+        17
+    );
+    // Synthetic shape only, never labelled as an actual old15 binary result.
+    // Child-before-parent removal is permitted ONLY while these four domains
+    // are genuinely empty, in this own fixture's single transaction.
+    let tx = rusqlite::Transaction::new_unchecked(
+        &f.store.conn,
+        rusqlite::TransactionBehavior::Immediate,
+    )
+    .unwrap();
+    assert_eq!(
+        tx.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+            .unwrap(),
+        17
+    );
+    for table in [
+        "integration_ref_fences",
+        "integration_attempts",
+        "integrations",
+        "integration_policies",
+    ] {
+        let count: i64 = tx
+            .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(
+            count, 0,
+            "nonempty integration history must never be erased"
+        );
+    }
+    let semantic:i64=tx.query_row("SELECT count(*) FROM tasks WHERE json_type(document,'$.code_workspace_binding') IS NOT NULL",[],|r|r.get(0)).unwrap();
+    assert_eq!(
+        semantic, 0,
+        "old15 predecessor must have no new semantic field, including null"
+    );
+    tx.execute_batch("DROP TABLE integration_ref_fences; DROP TABLE integration_attempts; DROP TABLE integrations; DROP TABLE integration_policies; PRAGMA user_version=15;").unwrap();
+    tx.commit().unwrap();
+    let old_before = image(&f.store.conn);
+    let old_exact = exact(&f.store.conn);
     drop(f.store);
     let store = Store::open(&path).unwrap();
     assert_eq!(
@@ -754,35 +822,33 @@ fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future17() {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        16
+        17
     );
     assert!(before == image(&store.conn));
-    let backups: Vec<_> = fs::read_dir(&parent)
-        .unwrap()
-        .map(|e| e.unwrap().path())
-        .filter(|p| {
-            p.file_name()
-                .unwrap()
-                .to_string_lossy()
-                .contains("pre-v16-")
-        })
-        .collect();
-    assert_eq!(backups.len(), 1);
-    assert_eq!(fs::metadata(&backups[0]).unwrap().mode() & 0o777, 0o600);
-    let backup =
-        Connection::open_with_flags(&backups[0], rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
-            .unwrap();
-    assert_eq!(
-        backup
-            .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
-            .unwrap(),
-        15
-    );
-    assert!(before == image(&backup));
-    drop(backup);
+    assert!(current_exact == exact(&store.conn));
+    for prefix in ["pre-v16-", "pre-v17-"] {
+        let backups: Vec<_> = fs::read_dir(&parent)
+            .unwrap()
+            .map(|e| e.unwrap().path())
+            .filter(|p| p.file_name().unwrap().to_string_lossy().contains(prefix))
+            .collect();
+        assert_eq!(backups.len(), 1);
+        assert_eq!(fs::metadata(&backups[0]).unwrap().mode() & 0o777, 0o600);
+        let backup =
+            Connection::open_with_flags(&backups[0], rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
+                .unwrap();
+        assert_eq!(
+            backup
+                .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+                .unwrap(),
+            15
+        );
+        assert!(old_before == image(&backup));
+        assert!(old_exact == exact(&backup));
+    }
     store
         .conn
-        .pragma_update(None, "user_version", 17u32)
+        .pragma_update(None, "user_version", 18u32)
         .unwrap();
     drop(store);
     let original = fs::read(&path).unwrap();

@@ -341,6 +341,7 @@ fn validate_registered(
     scope: &GrantScope,
     check_input: bool,
     data: Option<&crate::data_workspaces::DataInputWitness>,
+    integration: Option<&crate::integration::IntegrationFencePermit>,
 ) -> Result<(
     BTreeMap<String, GrantedConnection>,
     BTreeMap<String, WorkspaceIdentity>,
@@ -381,6 +382,7 @@ fn validate_registered(
                 "Workspace identity has not been confirmed",
             )
         })?;
+        crate::integration::check_workspace_fences(conn, &pinned, integration)?;
         if matches!(pinned.kind, WorkspaceKind::Directory) {
             crate::data_workspaces::require_data_input_from(conn, &workspace, data)?;
             workspaces.insert(id.clone(), pinned);
@@ -462,7 +464,7 @@ pub(crate) fn grant_proposal_refs_with_data(
         max_depth: 0,
         max_children: 0,
     };
-    let (connections, _) = validate_registered(conn, project_id, &scope, true, data)?;
+    let (connections, _) = validate_registered(conn, project_id, &scope, true, data, None)?;
     let project: Project = read_document(conn, "projects", project_id)?;
     let workspace: ManagedWorkspace = read_document(conn, "managed_workspaces", workspace_id)?;
     let connection: Value = read_document(conn, "connections", connection_id)?;
@@ -657,7 +659,7 @@ pub(crate) fn validate_grant_from_with_data(
         workspace_id,
         connection_id,
         true,
-        data,
+        (data, None),
     )
 }
 
@@ -679,7 +681,7 @@ pub(crate) fn validate_grant_live_from_with_data(
         workspace_id,
         connection_id,
         false,
-        data,
+        (data, None),
     )
 }
 
@@ -690,8 +692,12 @@ fn validate_grant_inner(
     workspace_id: &str,
     connection_id: &str,
     check_input: bool,
-    data: Option<&crate::data_workspaces::DataInputWitness>,
+    observations: (
+        Option<&crate::data_workspaces::DataInputWitness>,
+        Option<&crate::integration::IntegrationFencePermit>,
+    ),
 ) -> Result<ExecutionGrant> {
+    let (data, integration) = observations;
     let grant = checked_lineage(conn, grant_id)?;
     if grant.id != grant_id
         || grant.project_id != project_id
@@ -706,8 +712,14 @@ fn validate_grant_inner(
             "Dispatch is outside the approved project, workspace or connection",
         ));
     }
-    let (connections, workspaces) =
-        validate_registered(conn, project_id, &grant.scope, check_input, data)?;
+    let (connections, workspaces) = validate_registered(
+        conn,
+        project_id,
+        &grant.scope,
+        check_input,
+        data,
+        integration,
+    )?;
     if connections != grant.connection_bindings || workspaces != grant.workspace_bindings {
         return Err(CoreError::new("INPUT_CHANGED","Approved connection, account, environment or workspace binding changed; obtain a new grant"));
     }
@@ -798,8 +810,14 @@ impl Store {
         if let Some(old) = replay(&tx, &idem_scope, key, &payload)? {
             return Ok(old);
         }
-        let (connection_bindings, workspace_bindings) =
-            validate_registered(&tx, project_id, &scope, true, self.data_input.as_ref())?;
+        let (connection_bindings, workspace_bindings) = validate_registered(
+            &tx,
+            project_id,
+            &scope,
+            true,
+            self.data_input.as_ref(),
+            None,
+        )?;
         let id = Uuid::new_v4().to_string();
         let expires_at_ms = milliseconds()?
             .checked_add(scope.max_duration_ms as i64)
@@ -1021,6 +1039,7 @@ impl Store {
             &scope,
             true,
             self.data_input.as_ref(),
+            None,
         )?;
         for (id, binding) in &connection_bindings {
             if parent.connection_bindings.get(id) != Some(binding) {
@@ -1117,6 +1136,27 @@ pub(crate) fn observe_grant_bindings(conn: &Connection, grant: &ExecutionGrant) 
         }
     }
     Ok(())
+}
+
+/// Only a privately authenticated integration stage may read through its own
+/// physical-repository fence; this does not change the original Grant scope.
+pub(crate) fn validate_grant_for_integration(
+    db: &Connection,
+    grant_id: &str,
+    project_id: &str,
+    workspace_id: &str,
+    connection_id: &str,
+    permit: &crate::integration::IntegrationFencePermit,
+) -> Result<ExecutionGrant> {
+    validate_grant_inner(
+        db,
+        grant_id,
+        project_id,
+        workspace_id,
+        connection_id,
+        false,
+        (None, Some(permit)),
+    )
 }
 
 #[cfg(test)]

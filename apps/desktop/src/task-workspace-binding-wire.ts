@@ -76,6 +76,8 @@ function receipt(v: unknown): v is TaskWorkspaceReservationReceipt {
   return exact(v, receiptKeys) && v.version === 1 && component(v.binding_id) && component(v.workspace_id) && text(v.task_id, 128) && text(v.project_id, 128) && v.project_id !== 'local' && v.host_id === 'local' &&
     positive(v.original_task_revision) && positive(v.reserved_task_revision) && v.reserved_task_revision === v.original_task_revision + 1 && positive(v.spec_revision) && positive(v.project_revision) && pin(v.source_pin) && absolute(v.managed_root) && preparationKey(v.preparation_key) && text(v.request_key, 256) && hex(v.request_digest, [64]) && text(v.created_at, 128);
 }
+/** Read-only shape reuse; Core alone verifies receipt provenance and authority. */
+export const taskWorkspaceReceiptShape = receipt;
 function sameReceipt(a: TaskWorkspaceReservationReceipt, b: TaskWorkspaceReservationReceipt): boolean {
   // Core verifies the digest against original bytes. Here it remains an opaque
   // reference and is bound to the identical receipt, never re-encoded as authority.

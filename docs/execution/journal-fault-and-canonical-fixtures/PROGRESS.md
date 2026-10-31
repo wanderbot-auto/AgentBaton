@@ -1,0 +1,7 @@
+# Progress
+
+Root's b4 command target really ran13pass/1fail while Data21passed. The intentional unknown terminal-fault trigger survives worker/store drop; current schema17 correctly rejects it at Store::open. The fixture now proves that rejection without any data/event/fence/DDL/marker change, removes precisely that test trigger, and then retains the entire original restart, same-key unknown result and no second marker write path. A final exact fence-row assertion strengthens the original pre-restart fence check. Production schema rejection is unchanged.
+
+The ba4612a ARM Core225 run really had224pass/1fail: the owned-Data IPC unit supplied a default Darwin temp path containing a symlink. Only that fixture's root construction now uses canonical /tmp, short ab-twb prefix and0700, with canonical-root/parent/mode assertions. Everything from source creation through actual worker, WORKSPACE_BUSY refusal, read-only Task status, exact table image and owned shutdown remains byte-identical. Linux /tmp parent metadata was inspected read-only; no Darwin path or product test ran here.
+
+Twenty-four pure source/byte checks and rustfmt/diff checks pass. Removing only the new command assertions restores its entire old file byte-for-byte. Restoring only the original temp-root statement restores the complete old IPC test file byte-for-byte. No test is skipped and no timeout, budget or refusal threshold changes.

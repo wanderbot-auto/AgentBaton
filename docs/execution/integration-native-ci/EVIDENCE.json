@@ -1,0 +1,183 @@
+{
+  "workstream": "integration-native-ci",
+  "requirement": "AB-VAL-009",
+  "role": "author implementation; independent review pending",
+  "baseline": "b22b6d4835ecb86ea52a8e2c194ff28ff6e4b0e2",
+  "source_commit": "ea9bcd12fc78016922c86b40ed84108dbf918b70",
+  "branch": "codex/integration-native-ci",
+  "recorded_at_utc": "2026-10-30T13:25:31.903374+00:00",
+  "code": {
+    ".github/workflows/product.yml": {
+      "sha256": "599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc",
+      "bytes": 41458
+    },
+    "tests/infrastructure/test_integration_native_ci.py": {
+      "sha256": "c90638e86d40dd41f793898fe12ab4c2319cd2f45b75f36d10bd24c074ec0c32",
+      "bytes": 17088
+    }
+  },
+  "workflow_changes": {
+    "new_steps": 3,
+    "new_lines": 103,
+    "old_steps_commands_byte_preserved": true,
+    "remove_three_steps_whole_workflow_byte_equal": true,
+    "all_old_parsed_yaml_equal": true,
+    "baseline_workflow_sha256": "d0e0dac00daeb1876c4160e138947a989c4a820387966c699d8ec8f1090bb21c",
+    "mac_matrix": [
+      "macos-15",
+      "macos-15-intel"
+    ],
+    "mac_timeout_minutes": 60,
+    "Rust_timeout_minutes": 25,
+    "permissions": {
+      "contents": "read"
+    },
+    "existing_default_Native_test_command_unchanged": true,
+    "feature_library_configuration_added": true,
+    "unique_Rust_test_count_claimed": false
+  },
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 tests/infrastructure/test_integration_native_ci.py",
+      "exit": 0,
+      "tests": 17,
+      "seconds": 0.99,
+      "dimension": "pure source/owned-temp files; subprocesses mocked, no Native/Core"
+    },
+    {
+      "command": "inline Python compile + test AST/YAML + full baseline inverse",
+      "exit": 0,
+      "inline_programs_compiled_not_executed": 2,
+      "test_ast_parsed": true,
+      "old_parsed_workflow_equal": true
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "pure_coverage": [
+    "both matrix lanes and fixed original commands",
+    "explicit missing feature-lib configuration",
+    "existing always upload and release audit",
+    "two actual CLI argument vectors",
+    "nonzero/exception driver fail with second case still attempted",
+    "new private directory cannot overwrite old entries",
+    "canonical RunnerTemp symlink alias",
+    "both driver and projection exits required",
+    "missing/invalid/bool/float/overflow evidence fails closed",
+    "Native report symlink refusal",
+    "private canary not passed to public finite status",
+    "Cancel then approval semantics, not cancel-only"
+  ],
+  "existing_consumer": "scripts/record-integration-owner-ci-evidence.py",
+  "privacy": {
+    "raw_root": "canonical RUNNER_TEMP/agentbaton-native-integration; not public artifact input",
+    "directory_mode": "0700",
+    "log_and_status_mode": "0600",
+    "public_new_outputs": [
+      "integration-last-page.json",
+      "integration-first-page.json",
+      "integration-execution.json"
+    ],
+    "raw_snapshot_DB_RPC_Grant_token_uploaded": false,
+    "visual_review_established": false,
+    "collector_independent_attestation": false
+  },
+  "known_baseline_gap": "native-audit-release.sh existing regex has no separate native_integration_os_dialog_fixture literal; Root notified, scanner outside allowed paths. Existing command/isolation unchanged.",
+  "actual_native_core_browser_CI_execution": false,
+  "not_run": [
+    "Cargo/compiler/feature-lib Rust",
+    "Core/Actor/daemon fixture",
+    "Native app/OS dialog",
+    "macOS ARM/Intel",
+    "Node/browser",
+    "CI",
+    "real Provider/model",
+    "TaskAccepted integration pipeline or CAS",
+    "human visual review",
+    "full130 acceptance"
+  ],
+  "next": "separate independent review, Root actual CI; retain failures; no formalApprove or push by author",
+  "baseline_guard_revision": {
+    "role": "authorized author follow-up; independent review pending",
+    "source_commit": "c592c47d95e865f8644aa44f4de1c5dbb07be186",
+    "baseline": "09414ea041fe9ad6e73b6fdd1784f8e237e387fe",
+    "branch": "codex/native-ci-baseline-guard",
+    "recorded_at_utc": "2026-10-30T14:21:27.411028+00:00",
+    "code_path": "tests/infrastructure/test_schema17_migration_workflow.py",
+    "code_sha256": "4276083b085a20055cc7cd080f060b5b75eaf5d1ef28b78ddc30c8ec6cce529d",
+    "workflow_changed": false,
+    "approved_native_ci_source": "ea9bcd12fc78016922c86b40ed84108dbf918b70",
+    "raw_block_pins": [
+      {
+        "name": "Native library tests with smoke features",
+        "position_zero_based": 42,
+        "bytes": 250,
+        "sha256": "e03239832ab58f2c1a37d3f75fca37644fcf17076bd023b41570ae8c9c0aa46f"
+      },
+      {
+        "name": "Actual Native integration approval and early cancellation",
+        "position_zero_based": 43,
+        "bytes": 2297,
+        "sha256": "0c4e0ccdb9cc5f9e3a8168e6edb865772a75c2c8b629bfb3ba1bfad91710d5e5"
+      },
+      {
+        "name": "Retain finite Native integration evidence without private snapshots",
+        "position_zero_based": 44,
+        "bytes": 4098,
+        "sha256": "0d6868d45c646b8ddf689dbb287712fce1ab493e59fba3f8d385d64010915135"
+      }
+    ],
+    "raw_blocks_ea9_and_094_exact": true,
+    "original_BASELINE_PRODUCT_SHA256": "4b7543d61e8846248e1b7474ff6fe15d64068612fadbd44f6fe7585933a3378d",
+    "original_helpers_and_sixargv_verifier_preserved": true,
+    "old_class_methods_byte_preserved": 11,
+    "old_tests_preserved": 9,
+    "new_negative_test_methods": 1,
+    "new_negative_subcases": 17,
+    "old_local_control": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 tests/infrastructure/test_schema17_migration_workflow.py",
+      "exit": 1,
+      "tests": 9,
+      "passed": 8,
+      "errors": 1,
+      "seconds": 0.361,
+      "exception": "ValueError",
+      "message": "Workflow changed outside the approved six target arguments"
+    },
+    "original_Root_full_suite_failure_retained": ".onboarding/integration17-checkpoint094-infrastructure1",
+    "final_checks": [
+      {
+        "command": "PYTHONDONTWRITEBYTECODE=1 python3 tests/infrastructure/test_schema17_migration_workflow.py",
+        "exit": 0,
+        "tests": 10,
+        "seconds": 0.502
+      },
+      {
+        "command": "PYTHONDONTWRITEBYTECODE=1 python3 tests/infrastructure/test_integration_native_ci.py",
+        "exit": 0,
+        "tests": 17,
+        "seconds": 0.972
+      },
+      {
+        "command": "AST method/helper inverse + insertion-only + unchanged workflow bytes",
+        "exit": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit": 0
+      }
+    ],
+    "documentation_materialization": "Initial record append found EVIDENCE.json omitted by sparse checkout; materialized only that authorized file from exact094 Git object, then appended this new field. Three markdown appends were retained once. No product or source failure.",
+    "runtime_git_or_network_dependency": false,
+    "not_run": [
+      "complete infrastructure suite",
+      "Cargo/Core/Actor",
+      "Mac/Native",
+      "Node/browser",
+      "CI/network"
+    ],
+    "next": "separate Root independent review and exact combined infrastructure run; no CI trigger by author"
+  }
+}

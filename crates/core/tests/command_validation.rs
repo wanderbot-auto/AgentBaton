@@ -98,8 +98,8 @@ impl Fixture {
                 .unwrap()
                 .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
                 .unwrap(),
-            16,
-            "CI fixture must link exact schema16 source"
+            17,
+            "CI fixture must link exact schema17 source"
         );
         let project = store
             .import_project(&source, "Synthetic project", "import")
@@ -760,6 +760,50 @@ fn terminal_journal_failure_never_frees_fence_or_reexecutes_after_restart() {
     );
     drop(workers);
     drop(f.store);
+    let snapshot = |sql: &str| {
+        let mut statement = connection.prepare(sql).unwrap();
+        let width = statement.column_count();
+        let rows = statement
+            .query_map([], |row| {
+                (0..width)
+                    .map(|column| row.get::<_, rusqlite::types::Value>(column))
+                    .collect::<rusqlite::Result<Vec<_>>>()
+            })
+            .unwrap();
+        rows.collect::<rusqlite::Result<Vec<_>>>().unwrap()
+    };
+    let record_sql = "SELECT rowid,* FROM command_validation_runs ORDER BY rowid";
+    let event_sql = "SELECT rowid,* FROM events ORDER BY rowid";
+    let fence_sql = "SELECT rowid,* FROM command_workspace_fences ORDER BY rowid";
+    let schema_sql = "SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name";
+    let before_record = snapshot(record_sql);
+    let before_events = snapshot(event_sql);
+    let before_fences = snapshot(fence_sql);
+    let before_schema = snapshot(schema_sql);
+    // The injected unknown trigger is itself an invalid current schema. Prove
+    // strict cold-open refusal before removing only this test fault, then run
+    // the original restart/unknown/fence contract against the complete schema.
+    let refused = Store::open(&f.db)
+        .err()
+        .expect("Injected terminal-journal trigger must prevent cold reopen");
+    assert_eq!(refused.code, "INPUT_CHANGED");
+    assert_eq!(refused.side_effect_state, "not_started");
+    assert_eq!(snapshot(record_sql), before_record);
+    assert_eq!(snapshot(event_sql), before_events);
+    assert_eq!(snapshot(fence_sql), before_fences);
+    assert_eq!(snapshot(schema_sql), before_schema);
+    assert_eq!(fs::read(f.root.join("marker")).unwrap(), b"x");
+    connection
+        .execute_batch("DROP TRIGGER reject_terminal_command;")
+        .unwrap();
+    let restored_schema: Vec<_> = before_schema
+        .into_iter()
+        .filter(|row| row[1] != rusqlite::types::Value::Text("reject_terminal_command".into()))
+        .collect();
+    assert_eq!(snapshot(schema_sql), restored_schema);
+    assert_eq!(snapshot(record_sql), before_record);
+    assert_eq!(snapshot(event_sql), before_events);
+    assert_eq!(snapshot(fence_sql), before_fences);
     f.store = Store::open(&f.db).unwrap();
     let mut workers = CommandWorkers::default();
     assert_eq!(
@@ -767,6 +811,7 @@ fn terminal_journal_failure_never_frees_fence_or_reexecutes_after_restart() {
         "outcome_unknown"
     );
     assert_eq!(fs::read(f.root.join("marker")).unwrap(), b"x");
+    assert_eq!(snapshot(fence_sql), before_fences);
 }
 #[test]
 fn actual_daemon_shutdown_retires_owned_command_before_writer_rebind() {

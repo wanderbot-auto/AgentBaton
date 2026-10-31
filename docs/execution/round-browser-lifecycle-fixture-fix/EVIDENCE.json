@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "base": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+  "source_commit": "e2b6ddb69302199523bdaa85a5634ebc1eedfd60",
+  "state": "source_pure_verified_runtime_not_run",
+  "source_hashes": {
+    "apps/desktop/tests/integration-round-history-real-ipc.py": "7b377df9ae634f8074fd8ce2edc0c46a7b4b59b96275040a3fa8aa3fb3ec765f",
+    "tests/infrastructure/test_integration_round_history_real_ipc.py": "849eee3082efddb8a4ccc49e27977a636c4292d3f52b94a252fc10d3b7969c61"
+  },
+  "static": {
+    "checks": 13,
+    "all_passed": true,
+    "record": "/workspace/.onboarding/round-browser-lifecycle-fixture-fix-source1/STATIC.json",
+    "sha256": "11ee444f7d5203f7d19729bc5657aa0f9e0562e8bdda47a74289286baa8cfa54"
+  },
+  "actual_pure": {
+    "base": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+    "dimension": "pure/static only; no Core/Actor/browser/Provider or product Git execution",
+    "retained_first_publisher_import_failure": {
+      "log": "/workspace/.onboarding/round-browser-lifecycle-fixture-fix-source1/test_integration_browser_ci_evidence.py.log",
+      "sha256": "2c078093d6e3bbdcc3e5ca178eb839684f605b442d1b2a1a617ad01aeb0a9ace",
+      "cause": "Sparse checkout omitted unchanged record-task-workspace-ci-evidence.py dependency; no source change to repair import"
+    },
+    "results": [
+      {
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_integration_round_history_real_ipc.py",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 0.12984560301993042,
+        "tests": 12,
+        "log_sha256": "72e87320a37a34e65f518489b4428c35e83f9cca439853448ddeb275e254dad8",
+        "log": "/workspace/.onboarding/round-browser-lifecycle-fixture-fix-source1/retry2/test_integration_round_history_real_ipc.py.log"
+      },
+      {
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_integration_real_ipc.py",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 0.1894387769862078,
+        "tests": 35,
+        "log_sha256": "13e172755b827e9caeb53c8d13dabdac916c1e2308a6dcbd343e8bc2a49415cb",
+        "log": "/workspace/.onboarding/round-browser-lifecycle-fixture-fix-source1/retry2/test_integration_real_ipc.py.log"
+      },
+      {
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_integration_browser_ci_evidence.py",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 0.6129543950082734,
+        "tests": 18,
+        "log_sha256": "8f70099c43fdcf0976efc22ee5404d9babd3df59f5d3d2e582efd7dfb8408e67",
+        "log": "/workspace/.onboarding/round-browser-lifecycle-fixture-fix-source1/retry2/test_integration_browser_ci_evidence.py.log"
+      }
+    ],
+    "unique_pure_tests": 65
+  },
+  "pure_results_sha256": "d88356efef6b39c0e94f3787f5fc4352029212041e4c20f112158d01d53d0647",
+  "prior_actual_root_failure": {
+    "source": "8a6708e63fb22cb41178310451b19861ff2ceed1",
+    "checks": 1,
+    "screenshots": 0,
+    "status": "failed_or_interrupted",
+    "report_sha256": "0c809089c125dadc307f13cbccaaef2cc2a8be5257fd9fada794b49c8f79cf7e",
+    "failure_trace_sha256": "ee96b510443e5284852f185ded18bb38fcfd40d20068a55b236ecb1afd89dfb7",
+    "first_failed_expectation": "pre-terminal UI wake enabled",
+    "same_original_context_target_guard": "WORKSPACE_BUSY remains refusal; no product freshness change",
+    "retained_fixture_not_replayed": true,
+    "third_preparation_state": "Root reports outcome_unknown/unsettled fence retained after cleanup; not reclassified"
+  },
+  "unchanged": [
+    "product UI freshness",
+    "Core/IPC/authority",
+    "all time and budget bounds",
+    "all FIFO gate/identity/stop helpers",
+    "original observation call and predicates",
+    "false,false,true/7stage/8charge/soleCAS assertions",
+    "original same-run audit and history/screenshots suffix",
+    "original two-case driver/CI guard/workflow/publisher"
+  ],
+  "independent_review": "pending",
+  "runtime": {
+    "Core": "not_run",
+    "browser": "not_run",
+    "Node": "not_run",
+    "macos": "not_run",
+    "live_provider": "not_authorized"
+  },
+  "recorded_at": "2026-10-30T22:47:01.580517+00:00",
+  "async_same_run_reply_correction": {
+    "source_commit": "7fd3f7bf57d3b4a55f2e9e6bc4525715f440cfad",
+    "parent": "e2ce662c1d91b4c05b7d0817c8b65392f5ebcb2d",
+    "source_sha256": "ce34490f3d110f0abebcd118f537e267f2c60f2ea707e4e05c86b56481ec2127",
+    "tests_sha256": "3b0e7b495a30c06d61d97278f75bfdfa99299db8368f827933068950bc99c137",
+    "original_absolute_bound_seconds": 15,
+    "deadline_created_once_before_terminal_observation": true,
+    "both_waits_consume_remaining_bound": true,
+    "late_read_and_late_observe_return_refused": true,
+    "post_ui_final_exact_one_same_id_assertion_unchanged": true,
+    "reads_only_completed_host_audit_under_original_lock": true,
+    "new_start_requests": 0,
+    "new_retry_budget": 0,
+    "static": {
+      "count": 11,
+      "all_passed": true,
+      "record": "/workspace/.onboarding/round-browser-same-run-reply-source1/STATIC.json",
+      "sha256": "764e2ff837cf80c55eda7e9a436f6976a500f57b00fde1113393ac9b8cd10104"
+    },
+    "actual_pure": {
+      "base": "e2ce662c1d91b4c05b7d0817c8b65392f5ebcb2d",
+      "dimension": "pure audit/deadline/static controls only; no Core/Actor/browser or product Git fixture execution",
+      "results": [
+        {
+          "command": [
+            "python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests/infrastructure",
+            "-p",
+            "test_integration_round_history_real_ipc.py",
+            "-v"
+          ],
+          "exit": 0,
+          "seconds": 0.18861295899841934,
+          "tests": 18,
+          "log_sha256": "9627b78d3d78be535a5352eaecad3826c976c09408b01aa8215543772090eec5",
+          "log": "/workspace/.onboarding/round-browser-same-run-reply-source1/test_integration_round_history_real_ipc.py.log"
+        },
+        {
+          "command": [
+            "python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests/infrastructure",
+            "-p",
+            "test_integration_real_ipc.py",
+            "-v"
+          ],
+          "exit": 0,
+          "seconds": 0.246144299977459,
+          "tests": 35,
+          "log_sha256": "5796349f651c91ebeda8e7a786b64e35ba05b1d30034f088002002a58f465b88",
+          "log": "/workspace/.onboarding/round-browser-same-run-reply-source1/test_integration_real_ipc.py.log"
+        },
+        {
+          "command": [
+            "python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests/infrastructure",
+            "-p",
+            "test_integration_browser_ci_evidence.py",
+            "-v"
+          ],
+          "exit": 0,
+          "seconds": 0.7406172679620795,
+          "tests": 18,
+          "log_sha256": "2c3a62fbba1b833218eae742b178b9c351dab4d706ea1f23e644cbe01323ce84",
+          "log": "/workspace/.onboarding/round-browser-same-run-reply-source1/test_integration_browser_ci_evidence.py.log"
+        }
+      ],
+      "unique_pure_tests": 71,
+      "retained_static_selector_failure": "/workspace/.onboarding/round-browser-same-run-reply-source1/FIRST_STATIC_FAILURE.json"
+    },
+    "results_sha256": "2079f8280bfc87bc10f33a8f4cf5018dd235da1eaccbb6a773e71c41a03ac4da",
+    "retained_static_selector_failure": {
+      "path": "/workspace/.onboarding/round-browser-same-run-reply-source1/FIRST_STATIC_FAILURE.json",
+      "sha256": "3f1ea5a1fb87c16f1e69df1b5393c8449963cdcaf518599e163a6980986f9375",
+      "dimension": "verifier selector only; no product/runtime failure"
+    },
+    "retained_actual_root_failure": {
+      "source": "7c0a4b8be9a3ed59ff3327234fc5566a24add563",
+      "status": "failed_or_interrupted",
+      "checks": 1,
+      "screenshots": 0,
+      "report_sha256": "6f4d1804b5f64804ccafd06fb84c7ebbd357588d6a6a02646aec054206cdbb96",
+      "failure_sha256": "40b98de805ff4ca6fa133e8e84304d9ad215059064fb91f64536754055bd398e",
+      "first_failed_assertion": "immediate len(starts)==1 and same-id after async UI click",
+      "late_transcript_and_confirmed_DB_fact_attribution": "Root inspected final actual transcript and retained DB; not reexecuted by source author",
+      "retained_fixture": "/tmp/ab-round-ui-0cqag2f6",
+      "not_replayed": true
+    },
+    "independent_review": "pending",
+    "runtime": "not_run by source author",
+    "recorded_at": "2026-10-30T22:58:17.435194+00:00"
+  },
+  "root_matched_schema17_results": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+  "author_not_run_fields_are_historical": true
+}

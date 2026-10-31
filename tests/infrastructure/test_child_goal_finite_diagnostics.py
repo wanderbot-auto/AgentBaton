@@ -28,7 +28,11 @@ class ChildGoalFiniteDiagnosticsTests(unittest.TestCase):
     def test_absent_and_no_reply_are_explicitly_unobserved(self):
         self.assertEqual(P.finite_diagnostics(None),P.unobserved_diagnostics())
         self.assertEqual(P.FiniteRuntimeDiagnostics().snapshot(),P.unobserved_diagnostics())
-        _,m,s,r=OLD.inputs();value=P.project(r,m,s,'normal',0,'e'*64)
+        _,m,s,r=OLD.inputs();self.assertIs(type(m['schema']),int);self.assertEqual(m['schema'],17)
+        for rejected_schema in (15,16,18):
+            bad=copy.deepcopy(m);bad['schema']=rejected_schema
+            with self.assertRaises(P.Refused):P.candidate_summary(json.dumps(bad).encode())
+        value=P.project(r,m,s,'normal',0,'e'*64)
         self.assertEqual(value['status'],'passed')
         self.assertIsNone(value['finite_diagnostics']['failure_class'])
         self.assertIsNone(value['finite_diagnostics']['core_replies']['errors'])
@@ -133,5 +137,98 @@ class ChildGoalFiniteDiagnosticsTests(unittest.TestCase):
         value,original=env['ObservedHost']().wire(call)
         self.assertIs(value,response);self.assertIs(original,raw);self.assertIs(recorder.received,raw);self.assertEqual(len(calls),1)
         self.assertNotIn(SECRET,json.dumps(P.finite_diagnostics(finite.snapshot())))
+
+class StrongGraphFiniteBridgeTests(unittest.TestCase):
+    def helpers(self):
+        path=ROOT/'apps/desktop/tests/factory-child-goal-real-ipc.py'
+        nodes=[n for n in ast.parse(path.read_text()).body if isinstance(n,ast.FunctionDef)and n.name in
+            {'graph_finite_observation','graph_empty_identity_diagnostic','bind_graph_observation'}]
+        writes=[];ack=mock.Mock()
+        def require(value,*args):
+            if not value:raise ValueError('Strong Graph observation refused')
+        env={'finite_projection':P,'require':require,'publish_graph_binding_ack':ack,
+            'base':types.SimpleNamespace(write_private_json=lambda path,value:writes.append(copy.deepcopy(value)))}
+        exec(compile(ast.Module(body=nodes,type_ignores=[]),str(path),'exec'),env)
+        return env,writes,ack
+
+    def samples(self,kind='empty',after=None):
+        known={'pid':2001,'ppid':2000,'uid':1000,'pgid':2001,'start_ticks':'98765'}
+        sample={'observation':'observed',**known,'state':'S'}
+        return known,{'argv':{'kind':kind,'bytes':0},'before':sample,'after':after or copy.deepcopy(sample)}
+
+    def test_closed_argv_setter_retains_first_and_refuses_private_or_nonboolean_input(self):
+        good={'reason':'empty','previously_bound':True}
+        recorder=P.FiniteRuntimeDiagnostics();recorder.graph_argv(good);good['reason']=SECRET
+        recorder.graph_argv({'reason':'argv_mismatch','previously_bound':False})
+        actual_failure(recorder)
+        self.assertEqual(P.finite_diagnostics(recorder.snapshot())['graph_provider_argv'],{'reason':'empty','previously_bound':True})
+        for value in [{'reason':SECRET,'previously_bound':True},{'reason':'empty','previously_bound':1},
+                      {'reason':'empty','previously_bound':None},{'reason':'empty','previously_bound':False,'raw':SECRET}]:
+            recorder=P.FiniteRuntimeDiagnostics()
+            with self.assertRaises(P.Refused):recorder.graph_argv(value)
+            self.assertNotIn(SECRET,json.dumps(recorder.snapshot()))
+
+    def test_empty_refusal_projects_only_existing_samples_and_one_readonly_cancel_observation(self):
+        env,_,_=self.helpers();known,observation=self.samples();recorder=P.FiniteRuntimeDiagnostics();cancel=mock.Mock(return_value=True)
+        env['graph_finite_observation'](recorder,known,{'kind':'not_verified'},observation,cancel)
+        cancel.assert_called_once_with();actual_failure(recorder);value=P.finite_diagnostics(recorder.snapshot())
+        self.assertEqual(value['graph_provider_argv'],{'reason':'empty','previously_bound':True})
+        self.assertEqual(value['graph_provider_identity']['after_read'],'same')
+        self.assertIs(value['graph_provider_identity']['known_same_identity'],True)
+        self.assertIs(value['graph_provider_identity']['exact_cancel_durable'],True)
+        for forbidden in ('pid','ppid','uid','pgid','start_ticks','stop_proved','raw'):
+            self.assertNotIn('"'+forbidden+'"',json.dumps(value))
+
+    def test_finite_projection_never_excuses_initial_refusal_or_publishes_ack(self):
+        env,writes,ack=self.helpers();_,observation=self.samples();recorder=P.FiniteRuntimeDiagnostics()
+        env['observe_graph_identity']=mock.Mock(return_value=({'kind':'not_verified','binding':None,'stop_proved':False},observation))
+        with self.assertRaisesRegex(ValueError,'Strong Graph observation refused')as original:
+            env['bind_graph_observation']({'path':'record','owned_provider':{'pid':2001}},[],None,{},Path('/synthetic'),recorder)
+        recorder.failure(original.exception,'runtime',__file__,ValueError)
+        env['observe_graph_identity'].assert_called_once();ack.assert_not_called()
+        self.assertFalse(any(v.get('stop_proved')is True for v in writes))
+        value=P.finite_diagnostics(recorder.snapshot());self.assertEqual(value['graph_provider_identity']['initial_binding'],'unobserved')
+        self.assertEqual(value['graph_provider_argv'],{'reason':'empty','previously_bound':False})
+
+    def test_previously_bound_terminal_sample_remains_observation_without_argv_failure_or_new_ack(self):
+        env,writes,ack=self.helpers();known,observation=self.samples(after={'observation':'observed','pid':2001,'ppid':2000,'uid':1000,'pgid':2001,'start_ticks':'98765','state':'Z'})
+        recorder=P.FiniteRuntimeDiagnostics();result={'kind':'repeat_terminal','binding':None,'stop_proved':False}
+        env['observe_graph_identity']=mock.Mock(return_value=(result,observation))
+        context={'_graph_provider_identities':{'record':copy.deepcopy(known)}}
+        env['bind_graph_observation']({'path':'record','owned_provider':{'pid':2001}},[],{'path':'record'},context,Path('/synthetic'),recorder)
+        ack.assert_not_called();env['observe_graph_identity'].assert_called_once()
+        self.assertEqual(context['_graph_provider_identities'],{'record':known})
+        value=P.finite_diagnostics(recorder.snapshot());self.assertIsNone(value['graph_provider_argv'])
+        self.assertEqual(value['graph_provider_identity']['initial_binding'],'verified')
+        self.assertFalse(any(v.get('stop_proved')is True for v in writes))
+
+    def test_v3_can_report_original_refusal_but_legacy_v2_and_all_success_classes_stay_closed(self):
+        recorder=P.FiniteRuntimeDiagnostics();recorder.graph_argv({'reason':'empty','previously_bound':True})
+        recorder.failure(ValueError('Original bounded Graph refusal'),'runtime',__file__,ValueError)
+        value=P.finite_diagnostics(recorder.snapshot());self.assertEqual(value['failure_class'],'refusal')
+        legacy=copy.deepcopy(value);legacy['version']=2;legacy.pop('owner_refresh');legacy.pop('graph_provider_identity')
+        with self.assertRaises(P.Refused):P.finite_diagnostics(legacy)
+        legacy['failure_class']='assertion';self.assertEqual(P.finite_diagnostics(legacy),legacy)
+        for kind in (None,'os_error','runtime_error','value_error'):
+            changed=copy.deepcopy(value);changed['failure_class']=kind
+            with self.assertRaises(P.Refused):P.finite_diagnostics(changed)
+        _,manifest,snapshot,report=OLD.inputs();report['finite_diagnostics']=value
+        projected=P.project(report,manifest,snapshot,'normal',0,'e'*64)
+        self.assertEqual(projected['status'],'failed');self.assertNotEqual(projected['failure_kind'],None)
+
+    def test_other_argv_refusals_stay_closed_and_no_new_read_or_unknown_inference_occurs(self):
+        env,_,_=self.helpers();cancel=mock.Mock(side_effect=AssertionError('Unexpected cancel read'))
+        for kind,reason in [('oversize','oversized'),('missing_nul','missing_nul'),('mismatch','argv_mismatch')]:
+            known,observation=self.samples(kind);recorder=P.FiniteRuntimeDiagnostics()
+            env['graph_finite_observation'](recorder,known,{'kind':'not_verified'},observation,cancel)
+            actual_failure(recorder);value=P.finite_diagnostics(recorder.snapshot());self.assertIsNone(value['graph_provider_identity'])
+            self.assertEqual(value['graph_provider_argv'],{'reason':reason,'previously_bound':True})
+        for kind in ('unobserved','not_read','invalid_utf8','valid'):
+            known,observation=self.samples(kind);recorder=P.FiniteRuntimeDiagnostics()
+            env['graph_finite_observation'](recorder,known,{'kind':'not_verified'},observation,cancel)
+            self.assertIsNone(recorder.snapshot()['graph_provider_argv']);self.assertIsNone(recorder.snapshot()['graph_provider_identity'])
+        known,observation=self.samples();env['graph_finite_observation'](None,known,{'kind':'not_verified'},observation,cancel)
+        cancel.assert_not_called()
+
 
 if __name__=='__main__':unittest.main()

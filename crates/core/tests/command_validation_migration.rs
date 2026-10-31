@@ -1,5 +1,5 @@
 #[path = "fixtures/pre_factory_schema.rs"]
-mod pre_factory_schema;
+pub mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::{params, Connection};
 use std::{
@@ -27,7 +27,7 @@ fn fixture() -> (tempfile::TempDir, PathBuf) {
         .unwrap();
     drop(s);
     let c = Connection::open(&p).unwrap();
-    pre_factory_schema::remove_empty_factory_increment(&c).unwrap();
+    pre_factory_schema::remove_empty_current_factory_increment(&c).unwrap();
     c.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;CREATE TABLE original_blob(bytes BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=7;").unwrap();
     let raw: String = c
         .query_row("SELECT document FROM tasks WHERE id=?1", [&t.id], |r| {
@@ -66,7 +66,7 @@ fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_a
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        16
+        17
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -144,10 +144,10 @@ fn command_migration_failure_rolls_back_tables_and_version_retains_unknown_data(
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema17_refused_without_touching_bytes() {
+fn future_schema18_refused_without_touching_bytes() {
     let (_d, p) = fixture();
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=17;").unwrap();
+    c.execute_batch("PRAGMA user_version=18;").unwrap();
     drop(c);
     let raw = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
@@ -174,6 +174,9 @@ fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
         .unwrap();
     drop(store);
     let connection = Connection::open(&database).unwrap();
+    // Preserve the original strict16 inverse controls after the separately
+    // verified, empty17 ->16 fixture-only inverse.
+    pre_factory_schema::pre_integration_schema::remove_empty_integration17(&connection).unwrap();
     (directory, database, connection)
 }
 

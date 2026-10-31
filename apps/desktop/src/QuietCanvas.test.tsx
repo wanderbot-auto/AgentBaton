@@ -15,7 +15,7 @@ const draft: Task = { id: 'draft-id', goal: 'A recorded local draft', state: 'dr
 const running: Task = { ...draft, id: 'running-id', goal: 'A recorded running task', state: 'running' };
 beforeEach(() => {
   vi.resetAllMocks(); localStorage.clear(); localStorage.setItem('agentbaton.language', 'en');
-  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [draft, running], sequence: 1, api_version: 1 });
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [draft, running], sequence: 1, api_version:1,database_schema_version:17 });
   vi.mocked(api.projectsList).mockResolvedValue([]);
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 1, sequence: 1, gap: false });
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);
@@ -41,7 +41,7 @@ describe('Quiet Canvas product UI with mocked transport', () => {
   });
 
   it('renders unknown prototype-named states as data without interpreting inherited object properties', async () => {
-    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...draft, state: 'constructor' }], sequence: 0, api_version: 1 });
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...draft, state: 'constructor' }], sequence: 0, api_version:1,database_schema_version:17 });
     render(<App />);
     expect(await screen.findByText('Unknown status: constructor')).toBeVisible();
     expect(screen.getAllByTestId('task-card')).toHaveLength(1);

@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "work_unit": "integration-apple-system-git",
+  "base_commit": "426cd1e530f8894cb38fff6c0386ae0451dea478",
+  "branch": "codex/integration-apple-system-git",
+  "worktree": "/tmp/integration-apple-system-git",
+  "dimension": "implemented; source preservation/format verified; Rust and native runtime NOT_RUN",
+  "requirements": [
+    "AB-VAL-009",
+    "AB-VAL-010",
+    "AB-VAL-011",
+    "macOS support"
+  ],
+  "provenance": {
+    "product_run": "41169977095",
+    "arm_job": "124445631271",
+    "raw_log": "/workspace/.onboarding/root17-accc-ci/arm-product.log",
+    "raw_log_sha256": "ccf2cb12b8b91c9b1312dceed90c39441372aa59e6314728a774fb43a244bdb5",
+    "observed_integration_result": {
+      "passed": 5,
+      "failed": 15
+    },
+    "context_error": "INPUT_CHANGED",
+    "phase": "integration-read-phase:worker-system-git-pin",
+    "path_first_git": {
+      "canonical": "/opt/homebrew/Cellar/git/2.56.0_1/bin/git",
+      "uid": 501,
+      "links": 1
+    },
+    "apple_git": {
+      "canonical": "/usr/bin/git",
+      "uid": 0,
+      "links": 78
+    },
+    "causal_limit": "Explains source/leaf policy incompatibility; does not establish absence of additional failures or prove candidate Mac success."
+  },
+  "implementation": {
+    "mac_program_source": "Shared fixed /usr/bin/git, Core pin and all production workspace private-builder callers; no fallback",
+    "generic_leaf_guard": "Original regular-file + nlink == 1 capture and full recheck/digest unchanged; Apple proof is a separate private entry point",
+    "proof": "Held fstatfs/fstatvfs readonly local root APFS snapshot, root owner, exact mountpoint/system disk source; leaf and all three held/named ancestors must match complete captured volume facts and metadata on recheck",
+    "child_environment": "Shared inherited/explicit selector removal, Mac standard system PATH, no global changes",
+    "launcher_limit": "Entry-point pin is not a digest of the default OS-selected Apple developer toolchain or an OS sandbox",
+    "unchanged": [
+      "Linux PATH source",
+      "existing full serialized program pin",
+      "existing argv/limits/deadline/cancellation/capture/reap",
+      "workspace capture/adoption/CAS algorithms",
+      "locks",
+      "migrations",
+      "protocol",
+      "integration positive/refusal tests"
+    ]
+  },
+  "source_sha256": {
+    "crates/core/src/integration_fs.rs": "bb4e93ffdc54506f597fa4bfac8ac4a2e52afa616ceccaa33757a0c6f0ff0599",
+    "crates/core/src/integration_system_git_tests.rs": "092d0fc135e8a192dfdbef39fcc9a52fbbdbecc97a598edf02a07f36203c1159",
+    "crates/workspaces/src/lib.rs": "75e15b8e15de2014972fec8bf7c654b050d81527e411372576f9143c58f018fa",
+    "crates/workspaces/src/system_git_tests.rs": "cbcf431b23276d344ed61fa5e50672fbcada7db22c9c82d85bbbcc34e8a6f885"
+  },
+  "validation": [
+    {
+      "kind": "python_source_controls",
+      "status": "PASS",
+      "count": 10,
+      "command": "python3 /tmp/integration-apple-system-git-source-check.py",
+      "script_sha256": "666bed054db9584b22d307c8b788210eaa8bc3cdc2b0b0b9e88226904e19ff6e",
+      "result_path": "/tmp/integration-apple-system-git-source-check.json",
+      "result_sha256": "1f62a12923fd3fe7700323e0a11b5d4dc46ff35a867ac67a91288b2b06d38b3a",
+      "checks": [
+        "original full stamp and NOFOLLOW directory primitive unchanged: fn tree_stamp(",
+        "original full stamp and NOFOLLOW directory primitive unchanged: fn tree_root(",
+        "generic LeafPin::capture retains every original byte including regular-file and nlink==1 guards",
+        "existing held/path stamp recheck and bounded full digest unchanged; Apple proof is additive",
+        "Core Git argv/ownership/capture/limits/cancellation/reap remain byte-identical outside shared environment setup",
+        "non-macOS PATH search and generic pin retained; full serialized program pin fields/digest unchanged",
+        "workspace builder preserves all original local Git argv/flags and algorithms; only platform source/environment setup changes",
+        "production source-capture/adoption commands delegate to the shared workspace builder; their source is unmodified",
+        "existing positive/refusal/deadline/inherited-pipe/worktree tests preserved byte-for-byte",
+        "Apple-only fixed entry point uses held-FD filesystem proof and path/ancestor proof rechecks without PATH fallback"
+      ],
+      "limit": "Compares exact base source and additive guard wiring only; not Rust execution, simulation of Mac, or compilation."
+    },
+    {
+      "kind": "rustfmt",
+      "status": "PASS",
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --config skip_children=true --check crates/core/src/integration_fs.rs crates/core/src/integration_system_git_tests.rs crates/workspaces/src/lib.rs crates/workspaces/src/system_git_tests.rs",
+      "exit_code": 0
+    },
+    {
+      "kind": "git_diff_check",
+      "status": "PASS",
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "authored_tests": {
+    "core_portable_policy_and_private_files": 6,
+    "core_darwin_native_constant": 1,
+    "workspace_pure_command": 4,
+    "total": 11,
+    "execution": "NOT_RUN",
+    "limit": "Policy models do not prove real mount/kernel behavior; private-file test requires actual test execution."
+  },
+  "offline_api_sources": {
+    "locked_rustix": "1.1.5",
+    "locked_libc": "0.2.191",
+    "rustix_native_syscalls_sha256": "965e467c1badf61755656f28e462a9fb29a4c686e10b12e0e4fa3a22e4431a86",
+    "limit": "Only local locked source inspection; Darwin compile is NOT_RUN."
+  },
+  "not_run": [
+    "Rust compilation/Cargo tests",
+    "Darwin compilation",
+    "actual protected Mac mount proof",
+    "product/fixture Git subprocesses",
+    "workspace/integration runtime",
+    "SQL",
+    "Node/browser",
+    "network/CI"
+  ],
+  "root_pending": [
+    "independent source review",
+    "Core system_git_policy_tests",
+    "workspaces system_git_tests",
+    "relevant full workspace capture/adoption/inspect/isolation regressions",
+    "integration normal/refusal/runtime regressions",
+    "exact candidate Apple Silicon and Intel CI"
+  ],
+  "acceptance": {
+    "formal_approve": false,
+    "mac_pass": false,
+    "merge_authorized_by_this_evidence": false,
+    "overall_product_complete": false
+  }
+}

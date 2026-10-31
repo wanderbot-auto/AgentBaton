@@ -1,6 +1,6 @@
 //! Real generated fixture child only. No vendor executable, identity, model or network is invoked.
 #[path = "fixtures/pre_factory_schema.rs"]
-mod pre_factory_schema;
+pub mod pre_factory_schema;
 use agentbaton_core::ipc::{call, Daemon};
 use serde_json::{json, Value};
 use std::{
@@ -3403,7 +3403,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        16
+        17
     );
     assert!(db
         .query_row(
@@ -3532,7 +3532,11 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
             .query_map([], |row| row.get::<_, String>(0))
             .unwrap()
             .map(|row| row.unwrap())
-            .filter(|name| !pre_factory_schema::FACTORY_TABLES.contains(&name.as_str()))
+            .filter(|name| {
+                !pre_factory_schema::FACTORY_TABLES.contains(&name.as_str())
+                    && !pre_factory_schema::pre_integration_schema::INTEGRATION17_TABLES
+                        .contains(&name.as_str())
+            })
             .collect();
         names
             .into_iter()
@@ -3557,8 +3561,12 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
             })
             .collect()
     };
+    // Prove the four exact new domains are empty before excluding them from
+    // the historical row projection. The old-version read below never calls
+    // this current17-only verifier and still compares every retained old row.
+    pre_factory_schema::pre_integration_schema::verify_empty_integration17(&db).unwrap();
     let before_projection = legacy_snapshot();
-    pre_factory_schema::remove_empty_factory_increment(&db).unwrap();
+    pre_factory_schema::remove_empty_current_factory_increment(&db).unwrap();
     assert_eq!(legacy_snapshot(),before_projection,"the historical projection must not rewrite any legacy row, including counters and consumed meters");
     let evidence = json!({"kind":"test_only_empty_factory_historical_projection","goal_run_id":run["id"],"session_id":session_id,"attempt_id":attempt_id,"server_shutdown_joined":true,"raw_goal_run":raw_run,"raw_goal_node":raw_node,"raw_goal_reservation":original_reservation,"raw_owned_stop_receipt":stop_receipt,"raw_legacy_meter_receipts":meter_receipts,"legacy_tables_compared":before_projection.iter().map(|row|row.0.clone()).collect::<Vec<_>>(),"factory_shared_rows_before":0,"deleted_receipt_rows":0,"complete_old_session_budget_upgrade_compatibility":"not_established"});
     let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
@@ -3762,8 +3770,8 @@ impl GraphOwnerGrantClock {
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
         assert_eq!(
-            version, 16,
-            "This Factory integration fixture must link exact schema16"
+            version, 17,
+            "This Factory integration fixture must link exact current schema17"
         );
         let raw: String = db
             .query_row(
@@ -4264,9 +4272,17 @@ fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_wit
     drop(db);
     {
         let control = agentbaton_core::storage::Store::open(&frozen).unwrap();
+        let original_task = control.get(task_id).unwrap();
         assert_eq!(
-            control.get(task_id).unwrap().state,
+            original_task.state,
             agentbaton_core::storage::TaskState::Accepted
+        );
+        // Scenario uses workspaces.create directly: this historical fixture has
+        // no Task-managed binding. A foreign project still must fail all four
+        // durable acceptance guards, but does not violate a nonexistent receipt.
+        assert!(
+            original_task.code_workspace_binding.is_none(),
+            "legacy accepted fixture unexpectedly acquired a Task-managed binding"
         );
         assert!(control.goal_graph_details(run_id).unwrap().task_accepted);
     }
@@ -4292,6 +4308,10 @@ fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_wit
     for (name, sql) in cases {
         let path = f.root.join(format!("tampered-{name}.sqlite3"));
         std::fs::copy(&frozen, &path).unwrap();
+        // Exercise the original history guards after a valid startup. Current
+        // schema17 also rejects a mismatched Task row ID during a cold open;
+        // that separate boundary must not hide these four read/replay checks.
+        let mut store = agentbaton_core::storage::Store::open(&path).unwrap();
         let db = rusqlite::Connection::open(&path).unwrap();
         if name == "task-project" {
             db.execute(
@@ -4312,34 +4332,69 @@ fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_wit
             .try_into()
             .unwrap();
         drop(db);
-        let mut store = agentbaton_core::storage::Store::open(&path).unwrap();
-        assert!(
-            store.get(task_id).is_err(),
-            "{name}: generic accepted read borrowed damaged evidence"
-        );
-        assert!(
-            store.list().is_err(),
-            "{name}: list borrowed damaged accepted evidence"
-        );
-        assert!(
-            store.goal_graph_details(run_id).is_err(),
-            "{name}: Graph accepted read borrowed damaged evidence"
-        );
-        assert!(
-            store
-                .finalize_proposal(
-                    proposal["id"].as_str().unwrap(),
-                    proposal["revision"].as_u64().unwrap()
-                )
-                .is_err(),
-            "{name}: historical finalize borrowed damaged result/evidence"
-        );
-        assert_eq!(
-            store.sequence().unwrap(),
-            seq,
-            "{name}: rejection created events"
-        );
-        eprintln!("ACCEPTED_HISTORY_CONTROL {name} refused without mutation");
+        let refused_history = |store: &mut agentbaton_core::storage::Store, boundary: &str| {
+            assert!(
+                store.get(task_id).is_err(),
+                "{name}: generic accepted read borrowed damaged evidence"
+            );
+            assert!(
+                store.list().is_err(),
+                "{name}: list borrowed damaged accepted evidence"
+            );
+            assert!(
+                store.goal_graph_details(run_id).is_err(),
+                "{name}: Graph accepted read borrowed damaged evidence"
+            );
+            assert!(
+                store
+                    .finalize_proposal(
+                        proposal["id"].as_str().unwrap(),
+                        proposal["revision"].as_u64().unwrap()
+                    )
+                    .is_err(),
+                "{name}: historical finalize borrowed damaged result/evidence"
+            );
+            assert_eq!(
+                store.sequence().unwrap(),
+                seq,
+                "{name}: rejection created events"
+            );
+            eprintln!("ACCEPTED_HISTORY_CONTROL {name} {boundary} refused without mutation");
+        };
+        refused_history(&mut store, "already-open");
+        drop(store);
+        if name == "task-id" {
+            let bytes = std::fs::read(&path).unwrap();
+            let sidecars = ["-wal", "-shm"].map(|suffix| {
+                let sidecar = PathBuf::from(format!("{}{suffix}", path.display()));
+                (sidecar.clone(), std::fs::read(sidecar).ok())
+            });
+            let error = match agentbaton_core::storage::Store::open(&path) {
+                Ok(_) => panic!("{name}: cold open borrowed a mismatched Task row ID"),
+                Err(error) => error,
+            };
+            assert_eq!(error.code, "INPUT_CHANGED", "{name}: {error:?}");
+            assert_eq!(error.side_effect_state, "not_started");
+            assert_eq!(
+                error.message,
+                "Integration migration refuses malformed predecessor Task records"
+            );
+            assert_eq!(
+                std::fs::read(&path).unwrap(),
+                bytes,
+                "{name}: cold rejection changed database bytes"
+            );
+            for (sidecar, before) in sidecars {
+                assert_eq!(
+                    std::fs::read(sidecar).ok(),
+                    before,
+                    "{name}: cold rejection changed journal bytes"
+                );
+            }
+        } else {
+            let mut reopened = agentbaton_core::storage::Store::open(&path).unwrap();
+            refused_history(&mut reopened, "cold-open");
+        }
     }
 }
 

@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "baseline": "1eb4c0d79282eed98f87fc9e4f6df56919f3e77a",
+  "source_commit": "79f86c9136490317a197bbf5331e4c4496530fc2",
+  "state": "source_only_runtime_not_run",
+  "source_hashes": {
+    "new_driver": "b4090826bf780a07ded23132df725c1eb8004cf43f7753ef1a5b06c95b5c5e15",
+    "new_tests": "ea553a1693a9565abb65898923ba3401662409607990f7b06a78785c2ed3054e"
+  },
+  "unchanged_source_hashes": {
+    "apps/desktop/tests/integration-real-ipc.py": {
+      "unchanged": true,
+      "sha256": "1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e"
+    },
+    ".github/workflows/product.yml": {
+      "unchanged": true,
+      "sha256": "d57073b8b9e923228cf7329a1a7ceae5ee75ee088a9e77c777a48e88805db974"
+    },
+    "scripts/record-integration-browser-ci-evidence.py": {
+      "unchanged": true,
+      "sha256": "4329a748b5cf941ad97a8db0c4bdbdd885547eddd63d126d3611f52b37ee1c41"
+    },
+    "tests/infrastructure/test_integration_browser_ci.py": {
+      "unchanged": true,
+      "sha256": "119c758b93ffd6c505cd3e97a3ba67bd7cb9eeba7ce7f4160f2fb4198842bb67"
+    },
+    "tests/infrastructure/test_integration_browser_ci_evidence.py": {
+      "unchanged": true,
+      "sha256": "a3967a5fcfe44b86a08435b415fb67003bc286a40ddee5c7535da5757e4e30fd"
+    },
+    "tests/infrastructure/test_integration_real_ipc.py": {
+      "unchanged": true,
+      "sha256": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2"
+    }
+  },
+  "author_validation": {
+    "source_compile_no_execution": "PASS",
+    "git_diff_check": "PASS",
+    "pure_results": [
+      {
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_integration_round_history_real_ipc.py",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 0.22737553899060003,
+        "log_sha256": "dcaba764b9fca4b78cb835e7251752cc825737fcfb68f54b3a5bf33d29a93e1a",
+        "tests": 9,
+        "test_seconds": 0.005
+      },
+      {
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_integration_real_ipc.py",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 0.29010294601903297,
+        "log_sha256": "478eb4fee39b07518d1affe8a49e2e186772c3f74cf04f9dbf68d01a78c88f67",
+        "tests": 35,
+        "test_seconds": 0.102
+      },
+      {
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_integration_browser_ci_evidence.py",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 0.7334478560078423,
+        "log_sha256": "8464eac9070d7d05bfe12ffd9682523634e7888f4893735e88e871d3fa726981",
+        "tests": 18,
+        "test_seconds": 0.541
+      }
+    ],
+    "unique_pure_tests": 62
+  },
+  "runtime": {
+    "cargo": "NOT_RUN",
+    "node": "NOT_RUN",
+    "actual_three_round_core_ipc": "NOT_RUN",
+    "actual_browser_dom": "NOT_RUN",
+    "screenshots": "NOT_RUN",
+    "native_mac": "NOT_RUN",
+    "real_provider": "NOT_AUTHORIZED"
+  },
+  "limitations": [
+    "Source-only new driver; no runtime success is inferred from pure tests.",
+    "Same500ms Host/Command caps,20s shared runtime,30s Grant/permission and2s stages remain honestly fail-able.",
+    "The new12-attempt fixture does not change original8-attempt cases.",
+    "Watcher may create the run; UI start must observe/reuse that same run, not assert creation provenance.",
+    "No CI/workflow/publisher change or default publication.",
+    "Standalone evidence is not whole product acceptance."
+  ],
+  "private_source_manifest_sha256": "d86ce4ce76e60260dfae82c17da435a5ba4110fa2c6a79e945e86008c0e6eda8",
+  "private_pure_results_sha256": "bc948b74a7ef85124deb9bf5c2927eb375f0b2da158ca68d3ac876045a8983d0",
+  "budget_alias_correction": {
+    "source_commit": "8a61a258ce168d4662d6cad5fb6c0fc202176549",
+    "source_hashes": {
+      "apps/desktop/tests/integration-round-history-real-ipc.py": "835980a82ce37480af7b298f52e3d9d404d24566c4a291975c0e32e8ba6ae4c4",
+      "tests/infrastructure/test_integration_round_history_real_ipc.py": "56b12409161405fbb0f93acfb883c2ab94f0657f36d1e0b8ee2163ee5bb31d8e"
+    },
+    "preserved_actual_failure": {
+      "source": "3f2e57b61751a1b8516127e789d02bd63ac25c39",
+      "exit": 1,
+      "seconds": 2.005885071994271,
+      "checks": 0,
+      "screenshots": 0,
+      "log_sha256": "5fc9990c2c20740f7d6a45356c974bc467d352b2b304e16225baecda52906d8d",
+      "report_sha256": "fe31c447aeb1f678a85ca06cfb72a41498e5529b4d75a4f5b86ca52a16847810",
+      "stage": "real_three_round_fixture",
+      "kind": "Refusal",
+      "status": "failed_or_interrupted",
+      "dimension": "bootstrap failed; no mixed-round/browser acceptance"
+    },
+    "regression_before_fix": {
+      "tests": 10,
+      "passed": 9,
+      "errors": 1,
+      "log_sha256": "98772260dce5c102c3a41b60f4723e8a9b204d48870a6069c6176793c9b650e1"
+    },
+    "pure_after_fix": {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_integration_round_history_real_ipc.py",
+        "-v"
+      ],
+      "exit": 0,
+      "wrapper_seconds": 0.14323841899749823,
+      "log_sha256": "96f7de37d45394865a668d6b5c723b30697199036581e9a913180a50e56be71a",
+      "tests": 10,
+      "test_seconds": 0.004
+    },
+    "actual_fixed_core_browser": "NOT_RUN",
+    "unchanged_contract": "Both original domain8/20k/8192 checks retained and run before either mutation; other keys and headroom unchanged."
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "scope": "AB-VAL-009 Linux browser/Core integration test harness; not production Native/OS proof",
+  "base_commit": "bbac3a113bc0ae5024b0709bea335e3da9ac7d35",
+  "branch": "codex/integration-real-browser",
+  "authorized_new_files": [
+    "apps/desktop/tests/integration-real-ipc.py",
+    "tests/infrastructure/test_integration_real_ipc.py",
+    "docs/execution/integration-real-browser/PLAN.md",
+    "docs/execution/integration-real-browser/PROGRESS.md",
+    "docs/execution/integration-real-browser/CHECKPOINT.md",
+    "docs/execution/integration-real-browser/EVIDENCE.json"
+  ],
+  "source_sha256": {
+    "apps/desktop/tests/integration-real-ipc.py": "14c6f5bfa643ff15338fe96213e018065e0cfd579d81fdd05a229ff105ad149b",
+    "tests/infrastructure/test_integration_real_ipc.py": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2"
+  },
+  "actual_pure_command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.infrastructure.test_integration_real_ipc",
+    "-q"
+  ],
+  "pure_history": [
+    {
+      "tests": 24,
+      "passed": 23,
+      "failed": 1,
+      "seconds": 0.054,
+      "failure": "test_snapshot_mismatch_consumed_kind_missing_fields_and_extra_fields_refuse",
+      "cause": "symbolic expected definition/proposal alias, corrected with deepcopy; original negative assertion retained"
+    },
+    {
+      "tests": 24,
+      "passed": 24,
+      "failed": 0,
+      "seconds": 0.051
+    },
+    {
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "seconds": 0.081
+    },
+    {
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "seconds": 0.071
+    },
+    {
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "seconds": 0.089
+    },
+    {
+      "tests": 33,
+      "passed": 33,
+      "failed": 0,
+      "seconds": 0.094
+    },
+    {
+      "tests": 34,
+      "passed": 34,
+      "failed": 0,
+      "seconds": 0.118
+    },
+    {
+      "tests": 34,
+      "passed": 34,
+      "failed": 0,
+      "seconds": 0.077
+    },
+    {
+      "tests": 35,
+      "passed": 35,
+      "failed": 0,
+      "seconds": 0.071,
+      "note": "original34 included; mutation-key guard regression added"
+    },
+    {
+      "tests": 35,
+      "passed": 35,
+      "failed": 0,
+      "seconds": 0.086,
+      "note": "capture-only source change; same35tests, no mirror image test"
+    },
+    {
+      "tests": 35,
+      "passed": 35,
+      "failed": 0,
+      "seconds": 0.077,
+      "note": "bbox timing metadata only; same35 controls/no mirror test"
+    }
+  ],
+  "counts": {
+    "unique_pure_tests": 35,
+    "final_passed": 35,
+    "final_failed": 0,
+    "actual_browser_cases_run_by_author": 0,
+    "actual_Core_runs_by_author": 0
+  },
+  "syntax": "AST parse PASS",
+  "whitespace": "git diff --check exit0",
+  "actual_product_checks": {
+    "built_frontend_browser": "NOT_RUN",
+    "real_Core_UnixIPC_cases": "NOT_RUN",
+    "generated_ACP_process": "NOT_RUN",
+    "production_Tauri_Native_formatter": "NOT_RUN",
+    "OS_dialog": "NOT_RUN",
+    "macos_Apple_Silicon": "NOT_RUN",
+    "macos_Intel": "NOT_RUN",
+    "real_Provider_model": "NOT_RUN"
+  },
+  "independent_review": "PENDING metadata-only observation timing leaf",
+  "authority_guards": [
+    "exact twelve-field private expected selection fixed before HTTP",
+    "complete original Core response/proposal/snapshot1MiB",
+    "no HTTP finalization/token/confirmation flags",
+    "actual private consumed original proposal/result check",
+    "real Core RESOURCE_LIMIT/not_started/nonretryable only",
+    "no SQL normal authority or outcome writes",
+    "exact domain CAS/key recovery boundaries",
+    "existing Work4s/root20s/Grant30s unchanged",
+    "unknown token/cost stays null",
+    "source/tool/assets and owned cleanup mandatory before pass"
+  ],
+  "runtime_not_claimed": [
+    "Native OS or macOS",
+    "full negative/cancel/unknown/recovery matrix",
+    "OS sandbox or whole-filesystem quota",
+    "whole product completion"
+  ],
+  "formal_pr_approve": false,
+  "previous_source_sha256_73662b3": {
+    "apps/desktop/tests/integration-real-ipc.py": "d85e4505476f56588b7a8691000ef4d26523c1e427fd6cea3ba9b6661b2c69d0",
+    "tests/infrastructure/test_integration_real_ipc.py": "460bc0d751e5363e13eee92df2b69cbd7cef0c15deaf464633a6ec6ed0e9a6e7"
+  },
+  "strict_key_p2": {
+    "original_source": "73662b3abf21a827717355f86e55b0b90c2ef8ad",
+    "original_reproduction_dimension": "five pure Boundary.route calls only; Host/Core/browser never called",
+    "old_mutations_accepting_null": [
+      "integration_policy_approve",
+      "integration_policies_revoke",
+      "integrations_start",
+      "integrations_cancel",
+      "integrations_reconcile"
+    ],
+    "old_forwarded_key": null,
+    "fix": "unconditional identifier(key) by mutation command; read-only keys remain None",
+    "negative_cases_per_method": 12,
+    "new_regression_unique_test_functions": 1,
+    "core_later_refusal_not_used_as_bridge_guard": true
+  },
+  "previous_source_sha256_c0fe2b": {
+    "apps/desktop/tests/integration-real-ipc.py": "0c45c55b435f07fac7968642c41a5164e29dba895462012d7a9a6f59e224f2e1",
+    "tests/infrastructure/test_integration_real_ipc.py": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2"
+  },
+  "independent_c0fe_closure": {
+    "source": "c0fe2b96364c33f7253e0c1c8f162c1dfcf37f1d",
+    "verdict": "SOURCE_READY for controlled Root run, not actual browser",
+    "review_sha256": "e675b526efb3e9bc69efe194a89f54e6d1729aa3d165fc3c6d3e493138984b2a",
+    "manifest_sha256": "35cc55d96567b1e97b364b6ba3acc4da27259507ec086d00c29644331b8f8603",
+    "reviewer_actual_pure_tests": 35,
+    "reviewer_pure_seconds": 0.085
+  },
+  "capture_only": {
+    "advisory_not_observed_browser_failure": true,
+    "focus_scroll": "exact passed locator",
+    "viewport_assertion": "to_be_in_viewport(ratio=1)",
+    "metadata": "one bounding box observation after full viewport assertion and before capture; no pixel-frame synchrony",
+    "pre_acceptance_captures": [
+      "task-pending-before-acceptance",
+      "permission-before-task-acceptance"
+    ],
+    "terminal_captures": [
+      "terminal-state-desktop",
+      "terminal-receipt-desktop",
+      "terminal-state-mobile",
+      "terminal-receipt-mobile"
+    ],
+    "original_dom_assertions_preserved": true,
+    "mobile_width": 390,
+    "mobile_overflow_guard_preserved": true,
+    "full_page_or_viewport_expansion": false,
+    "actual_images_run_or_viewed_by_author": false
+  },
+  "previous_source_sha256_b1882df": {
+    "apps/desktop/tests/integration-real-ipc.py": "77215c1d9071293ff6856a540b70e77646189be1161d611e54a02209000b8ff4",
+    "tests/infrastructure/test_integration_real_ipc.py": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2"
+  },
+  "independent_b188_closure": {
+    "source": "b1882df02815f70d04ec6cae5548b4af83b19086",
+    "verdict": "SOURCE_READY only",
+    "review_sha256": "ceefb78454d04f427c308a82e0be5475f64167270d21ba5495a6c5521e37f942",
+    "manifest_sha256": "9e1351610ff1dee8f979f9dc6270c653bc351e980e81b9938ed7d40ed7bdc5a5",
+    "reviewer_pure_tests": 35,
+    "reviewer_pure_seconds": 0.093
+  },
+  "bbox_timing_metadata": {
+    "sample_before_capture": true,
+    "viewport_asserted_before_capture": true,
+    "pixel_synchronized": false,
+    "original_b188_sample": "independent after-capture observation, may differ from actual pixels",
+    "original_4e_records_or_pngs_changed": false,
+    "root_prior_actual_pngs_viewed": true,
+    "new_images_run_or_viewed_by_author": false,
+    "production_labels_touched": false
+  },
+  "root_prior_browser_reference": {
+    "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+    "entry": ".onboarding/integration17-browser4e-actual2",
+    "attribution": "Root reported, not this author execution or new-source acceptance",
+    "normal_checks": 5,
+    "failure_checks": 4,
+    "pngs_each": 6,
+    "seconds": 29.519,
+    "original_first_probe_failures_preserved": true
+  },
+  "author_metadata_edit_history": [
+    {
+      "exit": 1,
+      "cause": "tracked EVIDENCE.json absent from sparse checkout after branch switch; first edit wrote three MD updates then stopped, no product execution",
+      "resolution": "loaded immutable b188 EVIDENCE with git show, preserved history, wrote only authorized EVIDENCE; no sparse rules changed"
+    }
+  ]
+}

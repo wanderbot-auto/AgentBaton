@@ -1,0 +1,9 @@
+# Source checkpoint
+
+Added two actual parent/child SQLite lock test sources and one exact-libtest child probe. A real Store supplies its default WAL database; a separate mode selects DELETE explicitly. The parent retains the original DatabasePin, opens a real immediate transaction, observes a competing child BUSY before and after the same pin Arc clone/drop used by corrected reseal, then requires the child to acquire after commit. The DELETE raw-FD-close control remains a distinct test.
+
+The child runs only the exact private test helper in the current test binary, opens its own SQLite connection with no create permission, sets busy timeout to zero, and only BEGIN/ROLLBACKs. No rows are written by the child. The parent owns and waits the original child; a five-second test observation boundary kills/waits that same child on panic. Private regular logs/result files and a retained-on-panic directory preserve failures. The helper adds one inert test count in ordinary suite runs; it is not a product endpoint.
+
+Source-only rustfmt and git diff --check passed. An initial rustfmt invocation without this environment's configured RUSTUP_HOME failed trying to create the read-only default rustup home; the corrected command used /workspace/.toolchains/rustup and passed. No Cargo compile, SQLite child, provider, daemon, Node, browser or native product process was run by the author. These remain NOT_RUN.
+
+Root source review identified that module_path!() includes the crate prefix, unlike libtest exact names. Final source fixes the child selector to the explicit crate-relative test name. The old selector was never executed; actual compilation/execution remains NOT_RUN. A sparse-checkout add option syntax mistake was corrected before staging these records; it did not modify tests or production behavior.

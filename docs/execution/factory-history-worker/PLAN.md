@@ -1,3 +1,5 @@
+Current Root17/main composition is pending new runtime verification. Both historical source records below are retained with their original scope and timestamps.
+
 # Fixed Factory history worker
 
 Requirements: AB-TSK-009/003/008 readonly Factory progress, AB-TSK-007 confirmed stop/cancellation responsiveness, AB-VAL-009 retained proof integrity. Partial implementation only. This is not a schema migration (AB-SEC-007), new authority, budget change or Intel repair acceptance.

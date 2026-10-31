@@ -1,0 +1,74 @@
+{
+  "base_commit": "f379e0a7a6456831543aace7846a163c0a001d29",
+  "scope": "One actual Mac system descriptor/volume diagnostic test; no production change",
+  "status": "source_and_format_checked_runtime_NOT_RUN",
+  "test_path": "crates/core/src/integration_system_git_tests.rs",
+  "test_sha256": "853219b19886019e96d7fb4053465cff36b2f012f0278853cfc3e9858d4666a2",
+  "old_test_prefix_sha256": "092d0fc135e8a192dfdbef39fcc9a52fbbdbecc97a598edf02a07f36203c1159",
+  "source_checks": {
+    "status": "PASS",
+    "count": 7,
+    "checks": [
+      "Exactly one added Mac-only test; existing test file prefix byte-identical to f379e0a, preserving all 11 existing tests across both crates",
+      "No process execution, environment reads/writes, sleep, resolver or arbitrary Debug formatting in added source",
+      "One fixed five-second test control; no wait/retry/new product budget or reset",
+      "Actual fixed-path read-only NOFOLLOW descriptor APIs, all three ancestor policies, production proof and held system pin/recheck are required",
+      "All opened ancestor facts precede policy assertions; errors are ignored as values and converted only to fixed failure stages, never accepted",
+      "Diagnostic values limited to literal roles/stages, system metadata integers and policy booleans; no raw mount source/path or error data is printed",
+      "Only test file plus own unit docs changed; production policies and budgets byte-identical to f379e0a"
+    ]
+  },
+  "rustfmt": {
+    "status": "PASS",
+    "edition": "2021",
+    "skip_children": true,
+    "exit_code": 0
+  },
+  "git_diff_check": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "diagnostic_policy": {
+    "roles": [
+      "git",
+      "root",
+      "usr",
+      "usr_bin"
+    ],
+    "paths_opened": [
+      "/usr/bin/git",
+      "/",
+      "/usr",
+      "/usr/bin"
+    ],
+    "format": "fixed literal stages/roles, integer system-file/mount metadata, readonly/local/rootfs/snapshot/apfs/root-mount/system-source/permissions policy booleans",
+    "no_raw_errors_or_mount_source": true,
+    "test_control_seconds": 5,
+    "original_product_control": "unchanged",
+    "failure_semantics": "Fail the test if any existing policy/proof/pin/recheck fails; no refusal treated as success"
+  },
+  "authored_new_tests": {
+    "mac_only_actual_descriptor_and_pin": 1,
+    "execution": "NOT_RUN",
+    "existing_tests_unchanged": 11
+  },
+  "not_run": [
+    "Rust/Cargo compilation or test execution",
+    "Actual Mac filesystem observation",
+    "Git or other product/test subprocess execution",
+    "SQL",
+    "Node/browser",
+    "network/CI"
+  ],
+  "root_pending": [
+    "independent source review",
+    "Darwin compilation",
+    "actual Apple Silicon and Intel CI test execution",
+    "existing positive/refusal/runtime regression matrix"
+  ],
+  "acceptance": {
+    "mac_pass": false,
+    "linux_pass_proves_mac": false,
+    "formal_approve": false
+  }
+}

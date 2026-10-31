@@ -1,0 +1,7 @@
+# Source-ready checkpoint
+
+Complete source `abd6d4e1d7e262e5bfc0a4b52d843f5c6ce81525`; base `e0e7937ccc58111cccd6881f0c17eba2d4cef748`; branch `codex/history17-composition`; worktree `/workspace/.worktrees/authorized-integration`. Source composition commit `442feb1a2707959d37913e8bbaa38186cad0813d` and inherited Parent records commit `9cae70ff3e2b7d7a1fc35b2a900e5c7ef102e9d7` precede the exact17 adapter. This checkpoint's records are separate from source.
+
+Immutable manifest `/workspace/.onboarding/factory-history17-composition-abd6d4e/MANIFEST.json` SHA256 `322b087947bb7138f55cea80e2c20ade14db3e29e93e7a4db0a4a8e7bd7d3f14`. IPC stage1/2/3, original conflicts, exact hunk union and final IPC are inside the same directory. Final IPC SHA256 `883e087811a5afea3dbc495b7aec9a32342a1467e6de8a3519a810f83fcbe7ed`. PRODUCTION_DELTA.json binds every tracked Core src before/after, including test-only source files, and SOURCE_CHECKS.json binds all41 checks.
+
+Root should independently review and run workspace compile/strict Clippy, complete Core and7 IPC targets, Native typed build checks and Factory regression. The additional schema test may increase the expected unique Core count by one; no runtime count is certified here. The actual readonly SQLite thread, interrupt/join/StrongFD behavior, current17 negative paths, preserved Integration lifecycle, macOS and latency still require their respective actual runs. All original deadlines, original tests and full product scope remain open to those validations.

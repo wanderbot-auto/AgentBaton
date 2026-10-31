@@ -19,7 +19,7 @@ type Fixture=Awaited<ReturnType<typeof childGoalFixture>>;
 beforeEach(()=>vi.resetAllMocks());
 function records(f:Fixture,initial:FactoryChildGoalView|null=null){
  const state={view:initial,task:structuredClone(f.task),grant:structuredClone(f.grant)};
- vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(state.task)],sequence:1000,api_version:1}));
+ vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(state.task)],sequence:1000,api_version:1,database_schema_version:17}));
  vi.mocked(sessionApi.grantsList).mockImplementation(async()=>[structuredClone(state.grant)]);
  vi.mocked(factoryApi.get).mockImplementation(async()=>structuredClone(f.scope));vi.mocked(factoryApi.run).mockImplementation(async()=>structuredClone(f.detail));
  vi.mocked(factoryChildPlanApi.context).mockImplementation(async()=>structuredClone(f.context));vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_s,_t,revision)=>{const p=f.plans.get(revision??f.context.current_plan_revision);if(!p)throw new DaemonError('NOT_FOUND','missing original saved plan','not_started');return structuredClone(p);});

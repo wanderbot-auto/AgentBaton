@@ -24,6 +24,8 @@ libc = "0.2"
 [features]
 # Explicit genuine schema15 input gate; missing input is a hard test failure.
 actual-schema15-migration-tests = []
+# Explicit genuine schema16 input gate; missing input is a hard test failure.
+actual-schema16-migration-tests = []
 actual-legacy-migration-tests = []
 # Non-default, debug-only deterministic evidence seam. Never product authority.
 preview-evidence = []
@@ -37,3 +39,8 @@ required-features = ["actual-legacy-migration-tests"]
 name = "task_workspace_actual15_migration"
 path = "tests/task_workspace_actual15_migration.rs"
 required-features = ["actual-schema15-migration-tests"]
+
+[[test]]
+name = "integration_actual16_migration"
+path = "tests/integration_actual16_migration.rs"
+required-features = ["actual-schema16-migration-tests"]

@@ -42,12 +42,14 @@ def observation():
 def database(path):
     # Exact relevant real column names; generated minimal rows, not a product DB.
     conn = sqlite3.connect(path)
-    conn.executescript('''PRAGMA user_version=16;
+    conn.executescript('''PRAGMA user_version=17;
 CREATE TABLE factory_child_goal_runs(goal_run_id TEXT PRIMARY KEY,document TEXT);
 CREATE TABLE goal_runs(id TEXT PRIMARY KEY,state TEXT,document TEXT);
 CREATE TABLE goal_run_nodes(run_id TEXT,plan_revision INTEGER,state TEXT,document TEXT);
 CREATE TABLE goal_graph_validations(run_id TEXT,plan_revision INTEGER,document TEXT);
 ''')
+    for table in P.INTEGRATION_TABLES:
+        conn.execute('CREATE TABLE '+table+'(id INTEGER)')
     conn.execute('INSERT INTO factory_child_goal_runs VALUES(?,?)', (SECRET, '{}'))
     conn.execute('INSERT INTO goal_runs VALUES(?,?,?)', (SECRET, 'cancelled', json.dumps({
         'plan_revision': 2, 'state': 'cancelled', 'task_accepted': False, 'cancel_requested': True,
@@ -229,7 +231,8 @@ class Projection(unittest.TestCase):
     def test_unknown_states_types_and_schema_refused_without_leaking(self):
         for sql, params in [
             ('PRAGMA user_version=15', ()),
-            ('PRAGMA user_version=17', ()),
+            ('PRAGMA user_version=16', ()),
+            ('PRAGMA user_version=18', ()),
             ('UPDATE goal_runs SET state=?', (SECRET,)),
             ('UPDATE goal_runs SET state=?', ('running',)),
             ("UPDATE goal_run_nodes SET document=json_set(document,'$.plan_revision',1.5)", ()),
@@ -351,6 +354,23 @@ class Projection(unittest.TestCase):
             self.assertEqual(exit_code, 1 if missing else 0)
             self.assertTrue(out['not_a_product_or_test_pass'])
             self.assertNotIn(SECRET, capture.getvalue())
+
+
+    def test_all_four_integration_tables_are_explicit_zero_metadata(self):
+        result = self.collect()['cases'][0]['post_shutdown']
+        self.assertEqual(result['schema'], 17)
+        self.assertEqual(result['integration_counts'], {name: 0 for name in P.INTEGRATION_TABLES})
+        self.assertEqual(len(result['integration_counts']), 4)
+
+    def test_missing_nonzero_and_view_integration_tables_are_not_silently_zero(self):
+        for name in P.INTEGRATION_TABLES:
+            for bad in ['missing', 'nonzero', 'view']:
+                self.f.db.unlink(); database(self.f.db); self.f.receipt()
+                if bad == 'nonzero': self.f.sql('INSERT INTO '+name+' VALUES(1)')
+                else:
+                    self.f.sql('DROP TABLE '+name)
+                    if bad == 'view': self.f.sql('CREATE VIEW '+name+' AS SELECT 0 AS id WHERE 0')
+                with self.subTest(name=name, bad=bad): self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
 
 
 class FiniteScalars(unittest.TestCase):
@@ -633,7 +653,7 @@ class EventProjection(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertLessEqual(len(stdout.getvalue().encode()), P.MAX_PUBLIC)
         self.assertNotIn(SECRET, stdout.getvalue())
-        self.assertEqual(P.SCHEMA, 16)
+        self.assertEqual(P.SCHEMA, 17)
 
 
 class ValidationObservations(unittest.TestCase):

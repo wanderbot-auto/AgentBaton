@@ -1201,19 +1201,24 @@ fn mixed_ordinary_then_goal(
         runtime,
         json!({"method":"sessions.send","params":{"session_id":ready["id"],"text":prompt},"expected_revision":ready["revision"],"idempotency_key":"mixed-ordinary-prompt"}),
     );
+    let db = Connection::open(path).unwrap();
     let current = mixed_wait(
         runtime,
         "sessions.get",
         json!({"session_id":ready["id"]}),
         |s| {
             if busy {
-                s["state"] == "running"
+                // send records running before the generated Provider's chunk
+                // arrives. Observe its real bytes within this same wait before
+                // testing contention and cancelling the owned process.
+                s["id"] == created["id"]
+                    && s["state"] == "running"
+                    && db.query_row("SELECT COALESCE(sum(octet_length(json_extract(document,'$.payload.update'))),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.update'",[created["id"].as_str().unwrap()],|r|r.get::<_,i64>(0)).unwrap()>0
             } else {
                 s["state"] == "ready" && s["turn_state"] == "completed"
             }
         },
     );
-    let db = Connection::open(path).unwrap();
     let before_attempts: i64 = db
         .query_row("SELECT count(*) FROM attempts", [], |r| r.get(0))
         .unwrap();
@@ -1754,6 +1759,141 @@ fn actual_large_data_read_owner_revoke_is_responsive_until_release_and_true_join
 fn actual_large_data_read_scope_expiry_cancels_without_inventing_kernel_interruption() {
     run_data_mode("read_gate_expiry");
 }
+// Daemon::bind publishes its socket before creating/writing session.token.
+// Its current generated token is two canonical UUID strings (36 + 36 bytes).
+// This is fixture readiness only; call() retains all original checks and errors.
+#[derive(Clone, Copy)]
+struct DataRuntimeTokenMetadata {
+    regular: bool,
+    uid: u32,
+    mode: u32,
+    links: u64,
+    bytes: u64,
+}
+fn data_runtime_ready_metadata(
+    socket_present: bool,
+    token: Option<DataRuntimeTokenMetadata>,
+    expected_uid: u32,
+) -> bool {
+    socket_present
+        && token.is_some_and(|token| {
+            token.regular
+                && token.uid == expected_uid
+                && token.mode == 0o600
+                && token.links == 1
+                && token.bytes == 72
+        })
+}
+fn data_runtime_ready(runtime: &Path) -> bool {
+    use std::os::unix::fs::MetadataExt;
+    let token = fs::symlink_metadata(runtime.join("session.token"))
+        .ok()
+        .map(|metadata| DataRuntimeTokenMetadata {
+            regular: metadata.is_file(),
+            uid: metadata.uid(),
+            mode: metadata.mode() & 0o7777,
+            links: metadata.nlink(),
+            bytes: metadata.len(),
+        });
+    data_runtime_ready_metadata(
+        runtime.join("batond.sock").exists(),
+        token,
+        rustix::process::geteuid().as_raw(),
+    )
+}
+fn data_runtime_rpc_diagnostic(
+    method: &str,
+    error: &agentbaton_core::CoreError,
+) -> (&'static str, &'static str, &'static str) {
+    let method = match method {
+        "approvals.finalize" => "approvals.finalize",
+        "connections.list" => "connections.list",
+        "connections.propose" => "connections.propose",
+        "data_workspace_previews.get" => "data_workspace_previews.get",
+        "data_workspace_previews.start" => "data_workspace_previews.start",
+        "data_workspaces.get" => "data_workspaces.get",
+        "data_workspaces.propose" => "data_workspaces.propose",
+        "factory_child_plans.context" => "factory_child_plans.context",
+        "factory_child_plans.get" => "factory_child_plans.get",
+        "factory_runs.cancel" => "factory_runs.cancel",
+        "factory_runs.get" => "factory_runs.get",
+        "factory_runs.start" => "factory_runs.start",
+        "factory_scopes.propose" => "factory_scopes.propose",
+        "grants.propose" => "grants.propose",
+        "projects.import" => "projects.import",
+        "tasks.create" => "tasks.create",
+        "tasks.get" => "tasks.get",
+        _ => "other_method",
+    };
+    let code = match error.code.as_str() {
+        "PERMISSION_DENIED" => "PERMISSION_DENIED",
+        "PROVIDER_DISCONNECTED" => "PROVIDER_DISCONNECTED",
+        "INVALID_REQUEST" => "INVALID_REQUEST",
+        "RESOURCE_LIMIT" => "RESOURCE_LIMIT",
+        _ => "other_error",
+    };
+    let effect = match error.side_effect_state.as_str() {
+        "not_started" => "not_started",
+        "confirmed" => "confirmed",
+        "unknown" => "unknown",
+        _ => "other_effect",
+    };
+    (method, code, effect)
+}
+
+#[test]
+fn generated_data_runtime_readiness_rejects_socket_only_partial_or_nonprivate_tokens() {
+    let valid = DataRuntimeTokenMetadata {
+        regular: true,
+        uid: 42,
+        mode: 0o600,
+        links: 1,
+        bytes: 72,
+    };
+    assert!(!data_runtime_ready_metadata(true, None, 42));
+    for bytes in [0, 1, 36, 71, 73] {
+        assert!(!data_runtime_ready_metadata(
+            true,
+            Some(DataRuntimeTokenMetadata { bytes, ..valid }),
+            42,
+        ));
+    }
+    for token in [
+        DataRuntimeTokenMetadata {
+            regular: false,
+            ..valid
+        },
+        DataRuntimeTokenMetadata { uid: 43, ..valid },
+        DataRuntimeTokenMetadata {
+            mode: 0o640,
+            ..valid
+        },
+        DataRuntimeTokenMetadata {
+            mode: 0o4600,
+            ..valid
+        },
+        DataRuntimeTokenMetadata { links: 2, ..valid },
+    ] {
+        assert!(!data_runtime_ready_metadata(true, Some(token), 42));
+    }
+    assert!(!data_runtime_ready_metadata(false, Some(valid), 42));
+    assert!(data_runtime_ready_metadata(true, Some(valid), 42));
+}
+#[test]
+fn generated_data_runtime_failure_diagnostic_never_projects_unbounded_error_or_request_text() {
+    let mut error = agentbaton_core::CoreError::new("PERMISSION_DENIED", "PRIVATE_CANARY");
+    assert_eq!(
+        data_runtime_rpc_diagnostic("projects.import", &error),
+        ("projects.import", "PERMISSION_DENIED", "not_started"),
+    );
+    error.code = "PRIVATE_CANARY".into();
+    error.side_effect_state = "PRIVATE_CANARY".into();
+    assert_eq!(
+        data_runtime_rpc_diagnostic("PRIVATE_CANARY", &error),
+        ("other_method", "other_error", "other_effect"),
+    );
+}
+
 fn run_data_mode(mode: &str) {
     use agentbaton_core::ipc::call;
     use serde_json::Value;
@@ -1856,10 +1996,10 @@ fn run_data_mode(mode: &str) {
     }
     let mut daemon = OwnedDaemon(command.spawn().unwrap(), mode.starts_with("read_gate_"));
     let ready = Instant::now() + Duration::from_secs(5);
-    while !runtime.join("batond.sock").exists() {
+    while !data_runtime_ready(&runtime) {
         assert!(
             Instant::now() < ready,
-            "generated installed daemon did not bind"
+            "generated installed daemon private runtime/token readiness not observed"
         );
         assert!(daemon.0.try_wait().unwrap().is_none());
         std::thread::sleep(Duration::from_millis(5));
@@ -1878,8 +2018,8 @@ fn run_data_mode(mode: &str) {
             .unwrap()
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        16,
-        "Do not use an old schema15 daemon as evidence for current Core16 tests"
+        17,
+        "Current Core17 tests require an exact schema17 daemon"
     );
     let rpc = |method: &str, params: Value, key: Option<&str>, rev: Option<u64>| -> Value {
         let mut request = json!({"method":method,"params":params});
@@ -1889,7 +2029,11 @@ fn run_data_mode(mode: &str) {
         if let Some(rev) = rev {
             request["expected_revision"] = json!(rev);
         }
-        let response = call(&runtime, request).unwrap();
+        let response = call(&runtime, request).unwrap_or_else(|error| {
+            let (method, code, effect) = data_runtime_rpc_diagnostic(method, &error);
+            eprintln!("DATA_FIXTURE_RPC_FAILURE method={method} code={code} side_effect_state={effect}");
+            panic!("Generated data fixture Owner IPC failed; no request or private error text projected");
+        });
         assert!(response.get("error").is_none(), "{method}: {response}");
         response["result"].clone()
     };

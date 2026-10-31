@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "task": "integration-actual-labels",
+  "base_commit": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+  "branch": "codex/integration-actual-labels",
+  "source_files": [
+    {
+      "path": "apps/desktop/src/IntegrationEvidence.tsx",
+      "sha256": "ac75ae65fcaef8aec05e8ead11febd81f0956dee501f1630929633f4697aff74"
+    },
+    {
+      "path": "apps/desktop/src/integration-i18n.ts",
+      "sha256": "0a6fdc21d2b113274492619b5ba5e6ae4c5ef38c4fd75752cc4ab0b7e0fc5e87"
+    },
+    {
+      "path": "apps/desktop/src/TaskIntegration.test.tsx",
+      "sha256": "c860df5c006ca1e2e0ed2b1dd47dc502d3a3913dbc164c2d6a16a106efa3b577"
+    }
+  ],
+  "source_checks": [
+    {
+      "id": "component_exact_label_only_delta",
+      "status": "PASS"
+    },
+    {
+      "id": "both_receipt_attempt_actual_label_sites",
+      "status": "PASS"
+    },
+    {
+      "id": "zero_unknown_rendering_unchanged",
+      "status": "PASS"
+    },
+    {
+      "id": "locale_only_two_new_pairs",
+      "status": "PASS"
+    },
+    {
+      "id": "form_reservation_labels_preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "four_en_zh_success_failure_cases",
+      "status": "PASS"
+    },
+    {
+      "id": "all_old_tests_full_source_preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "same_view_has_approved_5000_and_actual",
+      "status": "PASS"
+    },
+    {
+      "id": "both_rendered_value_sequences_exact",
+      "status": "PASS"
+    },
+    {
+      "id": "reserved_dt_not_used_for_actual",
+      "status": "PASS"
+    },
+    {
+      "id": "form_5000_and_output_default_unchanged",
+      "status": "PASS"
+    },
+    {
+      "id": "policy_full_bytes_unchanged",
+      "status": "PASS"
+    },
+    {
+      "id": "exact_allowed_source_scope",
+      "status": "PASS"
+    }
+  ],
+  "counts": {
+    "pure_source_checks": 13,
+    "passed": 13,
+    "failed": 0,
+    "new_mocked_component_cases_written": 4,
+    "author_executed_component_cases": 0
+  },
+  "production_delta": "four existing receipt/attempt dt labels and EN/CN independent actual labels only",
+  "unchanged": [
+    "actual measurements and zero/null handling",
+    "new draft5000 and form reservation labels",
+    "approved policy values",
+    "Core/Native/types/budget/TTL/permission guards",
+    "driver and screenshots",
+    "existing test assertions and locks"
+  ],
+  "root_prior_evidence_attribution": {
+    "source": "4e0239f1f65ac18dea01042548bce3b486cfce9b",
+    "entry": ".onboarding/integration17-browser4e-actual2",
+    "scope": "Root-reported earlier real Linux/browser cases, not this new source",
+    "normal_checks": 5,
+    "failure_checks": 4,
+    "pngs_each": 6,
+    "wrapper_seconds": 29.519,
+    "prior_bootstrap_failures_preserved": true,
+    "os_dialog_or_mac_proof": false
+  },
+  "checks_not_run_by_author": [
+    "Node typecheck",
+    "Vitest",
+    "build",
+    "Core/Cargo",
+    "actual browser",
+    "OS Native",
+    "macOS",
+    "real Provider"
+  ],
+  "independent_review": "PENDING",
+  "whitespace": "git diff --check exit0",
+  "formal_pr_approve": false
+}

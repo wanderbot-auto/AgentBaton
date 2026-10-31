@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Schema16 real child-Goal browser/Unix IPC harness, not native/Provider proof.
+"""Schema17 real child-Goal browser/Unix IPC harness, not native/Provider proof.
 
 The five Owner calls preserve the frozen camelCase/snake_case wire contract.
 Default and --self-check start no listener, daemon, browser or subprocess.
 Explicit --run requires Root runtime readiness and exclusive execution lease;
-all successful business receipts then come from the supplied real Core16.
+all successful business receipts then come from the supplied real Core17.
 Private Owner simulation is test-only and never an actual OS confirmation.
 """
 from __future__ import annotations
@@ -232,12 +232,12 @@ def self_check():
             self.reads += 1
             return b'pure manifest-control bytes, not executable'
     binary = ManifestBinary()
-    manifest = {'schema':16,'binaries':{'batond':base.sha(binary.read_bytes())},'source_head':'a'*40}
+    manifest = {'schema':17,'binaries':{'batond':base.sha(binary.read_bytes())},'source_head':'a'*40}
     before = binary.reads
     assert support.verify_candidate(binary,json.dumps(manifest).encode()) == manifest
     assert binary.reads == before + 1
-    checks.append('integer16-manifest-positive-pure-bytes-only')
-    for bad in [12,13,14,15,17,True,15.0,16.0,'15','16',None]:
+    checks.append('integer17-manifest-positive-pure-bytes-only')
+    for bad in [12,13,14,15,16,18,True,15.0,16.0,17.0,'15','16','17',None]:
         before=binary.reads
         try: support.verify_candidate(binary,json.dumps({**manifest,'schema':bad}).encode())
         except AssertionError: pass
@@ -246,9 +246,11 @@ def self_check():
         checks.append('manifest-reject-before-binary-read:' + repr(bad))
     # Fake query return controls only, not a SQLite schema or migration surrogate.
     class FakeDB:
-        def __init__(self,schema=16,values=None): self.schema,self.values=schema,values or {}
-        def execute(self,query):
+        def __init__(self,schema=17,values=None): self.schema,self.values=schema,values or {}
+        def execute(self,query,params=()):
             if query=='PRAGMA user_version': value=self.schema
+            elif query.startswith('SELECT type,CASE'):
+                value=('table','CREATE TABLE '+params[0]+'(id INTEGER)')
             else:
                 table=query.split('"')[1]
                 if table in self.values:
@@ -256,7 +258,7 @@ def self_check():
                     if isinstance(value,BaseException): raise value
                 else: value=0
             class Row:
-                def fetchone(self): return (value,)
+                def fetchone(self): return value if type(value)is tuple else (value,)
             return Row()
     counts=support.current_factory_counts(FakeDB())
     assert set(counts)==set(support.FACTORY_RECORD_TABLES) and len(counts)==12 and all(v==0 for v in counts.values())
@@ -270,7 +272,13 @@ def self_check():
             except (AssertionError,RuntimeError): pass
             else: raise AssertionError((table,bad))
             checks.append('count-reject:' + table + ':' + repr(bad))
-    for schema in [12,13,14,15,17,15.0,16.0,True,'15','16',None]:
+    for table in support.INTEGRATION_RECORD_TABLES.values():
+        for bad in [1,None,True,0.0,-1,RuntimeError('missing table or query failure')]:
+            try: support.current_factory_counts(FakeDB(values={table:bad}))
+            except (AssertionError,RuntimeError): pass
+            else: raise AssertionError((table,bad))
+            checks.append('integration-zero-reject:'+table+':'+repr(bad))
+    for schema in [12,13,14,15,16,18,15.0,16.0,17.0,True,'15','16','17',None]:
         try: support.current_factory_counts(FakeDB(schema=schema))
         except AssertionError: pass
         else: raise AssertionError(schema)
@@ -301,7 +309,7 @@ def self_check():
         for bad in [False,None,1]:
             assert not fixture_cleanup_permitted(**{**gates,key:bad})
             checks.append('retain-private-directory:'+key+':'+repr(bad))
-    snapshot={'schema':16,'factory_counts':{key:2 if key=='scopes'else 0 for key in support.FACTORY_RECORD_TABLES},
+    snapshot={'schema':17,'factory_counts':{key:2 if key=='scopes'else 0 for key in support.FACTORY_RECORD_TABLES},
         'tables':{table:{'count':PREAPPROVAL_COUNTS.get(table,0),'sha256':'a'*64}for table in PREAPPROVAL_ZERO_TABLES|PREAPPROVAL_COUNTS.keys()|{'events'}},
         'sequence':1,'active_workspace_leases':0,'active_dispatch_intents':0}
     verify_approval_did_not_execute(snapshot);checks.append('pure-approval-zero-execution-domain-positive')
@@ -421,16 +429,18 @@ def self_check():
         checks.append('pure-exact-child-wait-refuses:'+name)
 
     checks.extend(lost_start_observation_self_check(source))
-    recovery_line="            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled(timeout=15000);recover.click()\n"
+    recovery_line="            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True)\n            wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)\n            recover.click()\n"
     assert source.count(recovery_line)==1
-    for name,replacement in {
-        'implicit-default5s':recovery_line.replace('(timeout=15000)','()'),
-        'expanded16s':recovery_line.replace('timeout=15000','timeout=16000'),
-        'zero-observation':recovery_line.replace('timeout=15000','timeout=0'),
-        'inexact-recovery-locator':recovery_line.replace('exact=True','exact=False'),
-        'click-before-enabled':recovery_line.replace('expect(recover).to_be_enabled(timeout=15000);recover.click()','recover.click();expect(recover).to_be_enabled(timeout=15000)'),
-    }.items():
-        mutated=source.replace(recovery_line,replacement);assert mutated!=source
+    observation_call="wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)"
+    mutations={
+        'implicit-default5s':source.replace(recovery_line,recovery_line.replace(observation_call,'expect(recover).to_be_enabled()')),
+        'expanded16s':source.replace('deadline=time.monotonic()+15\n    def read_enabled','deadline=time.monotonic()+16\n    def read_enabled'),
+        'zero-observation':source.replace('deadline=time.monotonic()+15\n    def read_enabled','deadline=time.monotonic()+0\n    def read_enabled'),
+        'inexact-recovery-locator':source.replace(recovery_line,recovery_line.replace('exact=True','exact=False')),
+        'click-before-enabled':source.replace(recovery_line,recovery_line.replace('            '+observation_call+'\n            recover.click()','            recover.click()\n            '+observation_call)),
+    }
+    for name,mutated in mutations.items():
+        assert mutated!=source
         try:lost_start_observation_self_check(mutated)
         except AssertionError:pass
         else:raise AssertionError(name)
@@ -481,8 +491,15 @@ def lost_start_observation_self_check(source):
         any(isinstance(t,ast.Name)and t.id=='recover'for t in n.targets)]
     assert len(indices)==1
     expected=ast.parse("recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True)\n"
-        'expect(recover).to_be_enabled(timeout=15000)\nrecover.click()\n').body
+        'wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)\nrecover.click()\n').body
     assert [ast.dump(n,include_attributes=False)for n in body[indices[0]:indices[0]+3]]==[ast.dump(n,include_attributes=False)for n in expected]
+    helper=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)and n.name=='wait_graph_recovery_enabled')
+    end=helper.body[1]
+    assert isinstance(end,ast.Assign)and ast.unparse(end.targets[0])=='deadline'and ast.unparse(end.value)=='time.monotonic() + 15'
+    calls=[n for n in ast.walk(helper)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='wait']
+    assert len(calls)==1 and [(k.arg,ast.unparse(k.value))for k in calls[0].keywords]==[('seconds','15')]
+    probes=[n for n in ast.walk(helper)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='is_enabled']
+    assert len(probes)==1 and [(k.arg,ast.unparse(k.value))for k in probes[0].keywords]==[('timeout','min(20, remaining)')]
     return ['pure-lost-start-exact-recovery-after-bounded15s-read-observation']
 
 
@@ -657,6 +674,160 @@ def fixture_window_source_self_check(source=None):
     return ['pure-fresh-Native-Grant-and-Scope-wall60000-effective-root-project30000']
 
 
+GRAPH_OBSERVATION_ACK_CODE = r'''
+import hashlib,selectors,stat
+
+def graph_ack_identity(value):
+ fields={'pid','ppid','start_ticks','uid','pgid'}
+ assert type(value)is dict and set(value)==fields
+ assert all(type(value[k])is int for k in ('pid','ppid','uid','pgid'))
+ assert value['pid']>1 and value['ppid']>0 and value['uid']>=0 and value['pgid']==value['pid']
+ assert type(value['start_ticks'])is str and 0<len(value['start_ticks'])<=32 and value['start_ticks'].isascii() and value['start_ticks'].isdigit()
+ return value
+
+def graph_ack_bytes(nonce,identity):
+ graph_ack_identity(identity)
+ assert type(nonce)is str and len(nonce)==32 and all(c in '0123456789abcdef'for c in nonce)
+ metadata=hashlib.sha256(json.dumps(identity,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+ value={'contract':'graph-observation-ack.v1','nonce':nonce,'pid':identity['pid'],
+  'start_ticks':identity['start_ticks'],'metadata_sha256':metadata}
+ raw=(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode()
+ assert 0<len(raw)<=4096
+ return raw
+
+def graph_ack_name(nonce,identity):
+ graph_ack_bytes(nonce,identity)
+ return 'graph-'+nonce+'-'+str(identity['pid'])+'-'+identity['start_ticks']+'.fifo'
+
+def graph_ack_noinherit(fd):
+ try:
+  os.set_inheritable(fd,False)
+  assert os.get_inheritable(fd)is False
+  return fd
+ except BaseException:os.close(fd);raise
+
+def graph_ack_directory(path,pin=None):
+ path=Path(path);assert path.is_absolute() and '..'not in path.parts
+ flags=os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC
+ fd=graph_ack_noinherit(os.open('/',flags))
+ try:
+  for part in path.parts[1:]:
+   nxt=graph_ack_noinherit(os.open(part,flags,dir_fd=fd));os.close(fd);fd=nxt
+  info=os.fstat(fd)
+  assert stat.S_ISDIR(info.st_mode) and info.st_uid==os.geteuid() and stat.S_IMODE(info.st_mode)==0o700
+  actual=[info.st_dev,info.st_ino,info.st_uid,stat.S_IMODE(info.st_mode)]
+  if pin is not None:
+   assert type(pin)is list and len(pin)==4 and all(type(v)is int for v in pin) and actual==pin
+  return fd,actual
+ except BaseException:os.close(fd);raise
+
+def graph_ack_fifo_pin(info):
+ assert stat.S_ISFIFO(info.st_mode) and stat.S_IMODE(info.st_mode)==0o600
+ assert info.st_uid==os.geteuid() and info.st_nlink==1
+ return (info.st_dev,info.st_ino,info.st_mode,info.st_uid,info.st_nlink)
+
+def graph_ack_self_identity():
+ with open('/proc/self/stat','rb')as stream:raw=stream.read(4097)
+ assert len(raw)<=4096
+ tail=raw.rsplit(b')',1)[1].split();assert len(tail)>=20
+ return graph_ack_identity({'pid':os.getpid(),'ppid':int(tail[1]),'start_ticks':tail[19].decode('ascii'),
+  'uid':os.geteuid(),'pgid':os.getpgid(0)})
+
+def graph_ack_prepare(settings,request,started_ns):
+ # This is part of the original producing attempt, not a fresh observation budget.
+ reservation=request['budget']['reservation'];assert reservation==request['node']['reservation']
+ runtime=reservation['runtime_ms'];assert type(runtime)is int
+ assert settings['case']in ('normal','lost-start','cancel') and runtime==(10000 if settings['case']=='cancel'else 4000)
+ assert type(started_ns)is int and started_ns>0
+ deadline=started_ns+runtime*1_000_000
+ assert time.monotonic_ns()<deadline,'Graph observation ACK original attempt deadline expired'
+ identity=graph_ack_self_identity();nonce=settings['nonce'];name=graph_ack_name(nonce,identity)
+ parent,pin=graph_ack_directory(settings['graph_observation_directory'],settings['graph_observation_directory_pin'])
+ fd=None
+ try:
+  os.mkfifo(name,0o600,dir_fd=parent)
+  before=graph_ack_fifo_pin(os.stat(name,dir_fd=parent,follow_symlinks=False))
+  fd=graph_ack_noinherit(os.open(name,os.O_RDWR|os.O_NONBLOCK|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent))
+  assert before==graph_ack_fifo_pin(os.fstat(fd))==graph_ack_fifo_pin(os.stat(name,dir_fd=parent,follow_symlinks=False))
+  return {'fd':fd,'parent':parent,'name':name,'pin':before,'deadline_ns':deadline,
+   'nonce':nonce,'identity':identity,'directory_pin':pin}
+ except BaseException:
+  if fd is not None:os.close(fd)
+  os.close(parent);raise
+
+def graph_ack_wait(channel):
+ expected=graph_ack_bytes(channel['nonce'],channel['identity']);raw=b''
+ assert os.get_inheritable(channel['fd'])is False
+ with selectors.DefaultSelector()as selector:
+  selector.register(channel['fd'],selectors.EVENT_READ)
+  while True:
+   remaining=channel['deadline_ns']-time.monotonic_ns()
+   assert remaining>0,'Graph observation ACK original attempt deadline expired'
+   events=selector.select(remaining/1_000_000_000)
+   assert time.monotonic_ns()<channel['deadline_ns'],'Graph observation ACK arrived too late'
+   if not events:continue
+   assert len(events)==1 and events[0][0].fd==channel['fd']
+   block=os.read(channel['fd'],4097-len(raw));assert block,'Graph observation ACK pipe closed'
+   raw+=block;assert len(raw)<=4096
+   assert channel['pin']==graph_ack_fifo_pin(os.fstat(channel['fd']))==graph_ack_fifo_pin(os.stat(channel['name'],dir_fd=channel['parent'],follow_symlinks=False))
+   if b'\n'in raw:
+    assert raw==expected,'Graph observation ACK binding refused'
+    assert graph_ack_self_identity()==channel['identity'],'Graph observation identity changed'
+    assert time.monotonic_ns()<channel['deadline_ns'],'Graph observation ACK verification arrived too late'
+    return
+
+def graph_ack_close(channel):
+ try:os.close(channel['fd'])
+ finally:os.close(channel['parent'])
+'''
+exec(GRAPH_OBSERVATION_ACK_CODE)
+
+
+def publish_graph_binding_ack(fixed,context):
+    """Root host only, after actual strong initial binding; repeat never calls."""
+    identity=context['_graph_provider_identities'].get(fixed['path'])
+    require(graph_valid_identity(identity) and identity['uid']==os.geteuid()
+        and all(identity[k]==fixed['owned_provider'][k]for k in ('pid','pgid','start_ticks')))
+    sent=context.setdefault('_graph_observation_ack_sent',set())
+    require(fixed['path']not in sent,'Graph observation ACK already sent')
+    raw=graph_ack_bytes(context['nonce'],identity);name=graph_ack_name(context['nonce'],identity)
+    parent,pin=graph_ack_directory(context['graph_observation_directory'],context['graph_observation_directory_pin'])
+    fd=None
+    try:
+        before=graph_ack_fifo_pin(os.stat(name,dir_fd=parent,follow_symlinks=False))
+        fd=graph_ack_noinherit(os.open(name,os.O_WRONLY|os.O_NONBLOCK|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent))
+        require(before==graph_ack_fifo_pin(os.fstat(fd)))
+        require(len(raw)<=os.fpathconf(fd,'PC_PIPE_BUF'))
+        receipt=name[:-5]+'.ack.json'
+        output=graph_ack_noinherit(os.open(receipt,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=parent))
+        with os.fdopen(output,'wb')as stream:
+            stream.write(raw);stream.flush();os.fsync(stream.fileno())
+        require(os.write(fd,raw)==len(raw),'Graph observation ACK pipe write incomplete')
+        require(before==graph_ack_fifo_pin(os.stat(name,dir_fd=parent,follow_symlinks=False)))
+        check,actual=graph_ack_directory(context['graph_observation_directory'],pin);os.close(check)
+        require(actual==pin);sent.add(fixed['path'])
+    finally:
+        if fd is not None:os.close(fd)
+        os.close(parent)
+
+
+def wait_graph_recovery_enabled(locator,assert_enabled,timeout_error,*,wait):
+    """Keep capture active during the original15s readonly enabled observation."""
+    deadline=time.monotonic()+15
+    def read_enabled():
+        remaining=int((deadline-time.monotonic())*1000)
+        require(remaining>0,'Original recovery enabled observation expired')
+        try:enabled=locator.is_enabled(timeout=min(20,remaining))
+        except timeout_error:return False
+        require(type(enabled)is bool and time.monotonic()<deadline)
+        if enabled:
+            remaining=int((deadline-time.monotonic())*1000)
+            require(remaining>0);assert_enabled(remaining)
+            require(time.monotonic()<deadline,'Recovery enabled assertion arrived too late')
+        return enabled
+    return wait(read_enabled,lambda value:value is True,seconds=15)
+
+
 def generated_acp():
     text = base.GENERATED_ACP
     graph_new = r'''   if not servers:
@@ -677,14 +848,18 @@ def generated_acp():
     assert c['outputs'][0]['artifact']['artifact_id']=='report-child'
     assert c['outputs'][0]['artifact']['relative_path']=='reports/report-child.txt'
     assert len(c['outputs'])==1
-    proof={'request_text':raw,'request_sha256':hashlib.sha256(raw.encode()).hexdigest(),
-     'owned_provider':identity(os.getpid()),'fixture_nonce':settings['nonce'],
-     'native_session_id':native_session_id,'program_sha256':file_hash(__file__),
-     'settings_sha256':file_hash(settings_path),'provider_argv':sys.argv,'mcp_servers':[]}
-    record='reports/graph-request-'+str(os.getpid())+'.json'
-    fd=os.open(record+'.tmp',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
-    with os.fdopen(fd,'w')as f:json.dump(proof,f)
-    os.replace(record+'.tmp',record)
+    graph_channel=graph_ack_prepare(settings,c,FIXTURE_STARTED_NS)
+    try:
+     proof={'request_text':raw,'request_sha256':hashlib.sha256(raw.encode()).hexdigest(),
+      'owned_provider':identity(os.getpid()),'fixture_nonce':settings['nonce'],
+      'native_session_id':native_session_id,'program_sha256':file_hash(__file__),
+      'settings_sha256':file_hash(settings_path),'provider_argv':sys.argv,'mcp_servers':[]}
+     record='reports/graph-request-'+str(os.getpid())+'.json'
+     fd=os.open(record+'.tmp',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+     with os.fdopen(fd,'w')as f:json.dump(proof,f)
+     os.replace(record+'.tmp',record)
+     graph_ack_wait(graph_channel)
+    finally:graph_ack_close(graph_channel)
     output=c['outputs'][0]['artifact']['relative_path']
     fd=os.open(output,os.O_WRONLY|os.O_CREAT|os.O_TRUNC|os.O_NOFOLLOW,0o600)
     with os.fdopen(fd,'wb')as f:f.write(b'fixed child Goal report\n')
@@ -725,7 +900,7 @@ def generated_acp():
 '''
     # This is a separate test program and never receives a native Provider login.
     replacements = [
-        ('mcp=None;mid=0', EXEC_PLAN_HELPER + '\nmcp=None;mid=0'),
+        ('mcp=None;mid=0', EXEC_PLAN_HELPER + '\n' + GRAPH_OBSERVATION_ACK_CODE + '\nmcp=None;mid=0'),
         ("servers=request['params']['mcpServers'];assert len(servers)==1", "servers=request['params']['mcpServers']\n"+graph_new+"   assert len(servers)==1"),
         ("['delegate_task','get_task_status','get_task_result','cancel_task']", "['delegate_task','get_task_status','get_task_result','cancel_task','submit_child_plan','execute_child_goal','advance_child_goal']"),
         ("   assert set(c)==", graph_prompt+"   assert set(c)=="),
@@ -771,7 +946,7 @@ def database_snapshot(runtime):
     with sqlite3.connect((runtime/'baton.sqlite3').as_uri()+'?mode=ro',uri=True)as db:
         db.execute('PRAGMA query_only=ON');db.execute('BEGIN')
         counts=support.current_factory_counts(db)
-        tables=set(support.FACTORY_RECORD_TABLES.values())|support.LEGACY_GOAL_TABLES|{'events','attempts','sessions','dispatch_intents','workspace_leases','budgets','execution_grants'}
+        tables=set(support.FACTORY_RECORD_TABLES.values())|set(support.INTEGRATION_RECORD_TABLES.values())|support.LEGACY_GOAL_TABLES|{'events','attempts','sessions','dispatch_intents','workspace_leases','budgets','execution_grants'}
         result={};total=0
         for table in sorted(tables):
             rows=db.execute('SELECT * FROM "'+table+'" ORDER BY rowid').fetchall();assert len(rows)<=2048
@@ -780,7 +955,155 @@ def database_snapshot(runtime):
         sequence=db.execute('SELECT COALESCE(max(sequence),0)FROM events').fetchone()[0]
         active_leases=db.execute("SELECT count(*)FROM workspace_leases WHERE holder!=''").fetchone()[0]
         active_intents=db.execute("SELECT count(*)FROM dispatch_intents WHERE state!='stopped'").fetchone()[0];db.rollback()
-    return {'schema':16,'factory_counts':counts,'tables':result,'sequence':sequence,'active_workspace_leases':active_leases,'active_dispatch_intents':active_intents}
+    return {'schema':17,'factory_counts':counts,'tables':result,'sequence':sequence,'active_workspace_leases':active_leases,'active_dispatch_intents':active_intents}
+
+
+GRAPH_IDENTITY_FIELDS = ('pid', 'ppid', 'start_ticks', 'uid', 'pgid')
+GRAPH_LIVE_STATES = frozenset(('R', 'S', 'D', 'T', 't', 'I', 'P', 'W'))
+GRAPH_TERMINAL_STATES = frozenset(('Z', 'X', 'x'))
+
+
+def graph_identity_sample(pid):
+    """Bounded readonly metadata only; absent and unobserved stay distinct."""
+    try:
+        value = support.proc_identity(pid)
+        return {'observation': 'observed', 'pid': value['pid'], 'ppid': value['parent_pid'],
+            'start_ticks': value['start_ticks'], 'uid': Path('/proc', str(pid)).stat().st_uid,
+            'pgid': os.getpgid(pid), 'state': value['state']}
+    except (FileNotFoundError, ProcessLookupError):
+        return {'observation': 'absent'}
+    except (OSError, ValueError, TypeError, KeyError, AssertionError):
+        return {'observation': 'unobserved'}
+
+
+def graph_valid_identity(value):
+    return (type(value) is dict and set(value) == set(GRAPH_IDENTITY_FIELDS)
+        and all(type(value[k]) is int for k in ('pid', 'ppid', 'uid', 'pgid'))
+        and value['pid'] > 1 and value['ppid'] > 0 and value['uid'] >= 0 and value['pgid'] == value['pid']
+        and type(value['start_ticks']) is str and re.fullmatch('[0-9]{1,32}', value['start_ticks']) is not None)
+
+
+def graph_sample_identity(value):
+    if not (type(value) is dict and set(value) == {'observation', 'state'} | set(GRAPH_IDENTITY_FIELDS)
+            and value['observation'] == 'observed' and type(value['state']) is str
+            and value['state'] in GRAPH_LIVE_STATES | GRAPH_TERMINAL_STATES):
+        return None
+    identity = {key: value[key] for key in GRAPH_IDENTITY_FIELDS}
+    return identity if graph_valid_identity(identity) else None
+
+
+def graph_argv_observation(raw, expected):
+    """Finite grammar observation; no raw arguments/messages leave this helper."""
+    if type(raw) is not bytes:
+        return {'kind': 'unobserved', 'bytes': None}
+    size = len(raw)
+    if size > 8192: return {'kind': 'oversize', 'bytes': 8193}
+    if size == 0: return {'kind': 'empty', 'bytes': 0}
+    if not raw.endswith(b'\0'): return {'kind': 'missing_nul', 'bytes': size}
+    try: argv = [value.decode('utf-8') for value in raw[:-1].split(b'\0')]
+    except UnicodeDecodeError: return {'kind': 'invalid_utf8', 'bytes': size}
+    valid = (type(expected) is list and len(expected) == 3
+        and all(type(value) is str and value for value in expected) and argv[-3:] == expected)
+    return {'kind': 'valid' if valid else 'mismatch', 'bytes': size}
+
+
+def graph_binding_decision(expected, known, before, argv, after, uid):
+    """Retain an initial binding only; no branch proves business stop or join."""
+    refused = {'kind': 'not_verified', 'binding': None, 'stop_proved': False}
+    if not (type(expected) is dict and set(expected) == {'pid', 'pgid', 'start_ticks'}
+            and type(uid) is int and uid >= 0): return refused
+    sample_before, sample_after = graph_sample_identity(before), graph_sample_identity(after)
+    def matches(value):
+        return (value is not None and value['uid'] == uid
+            and all(type(value[k]) is type(expected[k]) and value[k] == expected[k] for k in expected))
+    if not (type(argv) is dict and set(argv) == {'kind', 'bytes'}): return refused
+    kind, size = argv['kind'], argv['bytes']
+    if kind in ('not_read', 'unobserved'):
+        if size is not None: return refused
+    elif not (kind in ('valid', 'empty', 'oversize', 'missing_nul', 'invalid_utf8', 'mismatch')
+            and type(size) is int and 0 <= size <= 8193): return refused
+    if kind == 'valid' and not 0 < size <= 8192: return refused
+    if kind == 'empty' and size != 0: return refused
+    if kind in ('oversize', 'missing_nul', 'invalid_utf8', 'mismatch'): return refused
+    if known is None:
+        if (matches(sample_before) and sample_before == sample_after and kind == 'valid'
+                and before['state'] in GRAPH_LIVE_STATES and after['state'] in GRAPH_LIVE_STATES):
+            return {'kind': 'initial_live', 'binding': copy.deepcopy(sample_before), 'stop_proved': False}
+        return refused
+    if not (graph_valid_identity(known) and matches(known)): return refused
+    before_absent = type(before) is dict and before == {'observation': 'absent'}
+    after_absent = type(after) is dict and after == {'observation': 'absent'}
+    if sample_before is None and not before_absent: return refused
+    if sample_after is None and not after_absent: return refused
+    if after_absent:
+        result = 'repeat_absent'
+    elif sample_after['pid'] == known['pid'] and sample_after['start_ticks'] != known['start_ticks']:
+        result = 'repeat_replaced'
+    elif sample_before == sample_after == known:
+        if after['state'] in GRAPH_TERMINAL_STATES:
+            if kind not in ('valid', 'empty', 'not_read'): return refused
+            result = 'repeat_terminal'
+        elif before['state'] in GRAPH_LIVE_STATES and kind == 'valid':
+            result = 'repeat_live'
+        else: return refused
+    else: return refused
+    return {'kind': result, 'binding': None, 'stop_proved': False}
+
+
+def observe_graph_identity(expected, expected_argv, known):
+    """Two metadata samples surround a bounded read of only a bound live PID."""
+    before = graph_identity_sample(expected['pid'])
+    identity = graph_sample_identity(before)
+    argv = {'kind': 'not_read', 'bytes': None}
+    if (identity is not None and before['state'] in GRAPH_LIVE_STATES and identity['uid'] == os.geteuid()
+            and all(identity[k] == expected[k] for k in expected) and (known is None or identity == known)):
+        try:
+            with Path('/proc', str(expected['pid']), 'cmdline').open('rb') as stream:
+                raw = stream.read(8193)
+        except OSError: raw = None
+        argv = graph_argv_observation(raw, expected_argv)
+    after = graph_identity_sample(expected['pid'])
+    result = graph_binding_decision(expected, known, before, argv, after, os.geteuid())
+    return result, {'kind': result['kind'], 'before': before, 'argv': argv, 'after': after,
+        'initial_binding_verified': known is not None, 'stop_proved': False}
+
+
+def bind_graph_observation(fixed, expected_argv, old, context, output, finite=None, cancel_durable=None):
+    """First observation must prove live identity; repeat never creates one."""
+    history = context.setdefault('_graph_provider_identities', {})
+    known = history.get(fixed['path'])
+    require((old is None) == (known is None), 'Graph initial binding coverage not verified')
+    result, observation = observe_graph_identity(fixed['owned_provider'], expected_argv, known)
+    seen = context.setdefault('_graph_provider_observation_kinds', set())
+    key = (fixed['path'], result['kind'])
+    if key not in seen:
+        require(len(seen) < 12, 'Bounded Graph observation kinds exceeded')
+        base.write_private_json(output / ('observed-graph-' + str(fixed['owned_provider']['pid']) + '-' + result['kind'] + '.json'), observation)
+        seen.add(key)
+    graph_finite_observation(finite, known, result, observation, cancel_durable)
+    require(result['kind'] != 'not_verified', 'Graph process observation not verified')
+    if old is None:
+        require(result['kind'] == 'initial_live' and graph_valid_identity(result['binding']) and len(history) < 2)
+        base.write_private_json(output / ('verified-graph-identity-' + str(fixed['owned_provider']['pid']) + '.json'), result['binding'])
+        history[fixed['path']] = result['binding']
+        publish_graph_binding_ack(fixed,context)
+    else:
+        require(result['kind'] in ('repeat_live', 'repeat_absent', 'repeat_replaced', 'repeat_terminal')
+            and result['binding'] is None)
+
+
+def graph_finite_observation(finite, known, result, observation, cancel_durable):
+    """Project the existing two samples; never re-read a PID or change its guard."""
+    if finite is None:return
+    kind=observation['argv']['kind']
+    if kind=='empty':
+        durable=cancel_durable()if cancel_durable is not None else None
+        finite.graph_identity(graph_empty_identity_diagnostic(known,observation['before'],observation['after'],durable))
+    reasons={'empty':'empty','oversize':'oversized','missing_nul':'missing_nul','mismatch':'argv_mismatch'}
+    # A previously strong-bound terminal/absent observation remains only that
+    # observation. Finite argv failure describes an original guard refusal.
+    if result['kind']=='not_verified'and kind in reasons:
+        finite.graph_argv({'reason':reasons[kind],'previously_bound':known is not None})
 
 
 def graph_identity_snapshot(pid,current=None):
@@ -904,22 +1227,8 @@ def collect_graph_records(runtime,workspace,scope,context,verified,output,finite
             fixed={'path':str(path),'sha256':base.sha(raw),'file_pin':pin,'owned_provider':identity,
                 'session_id':session['id'],'attempt_id':session['attempt_id'],'run_id':request['run_id'],'request':request}
             old=next((v for v in verified if v['path']==fixed['path']),None);assert old is None or old==fixed
-            try:current=support.proc_identity(identity['pid'])
-            except FileNotFoundError:current=None
-            if current is not None and current['start_ticks']==identity['start_ticks']:
-                identity_before=graph_identity_snapshot(identity['pid'],current)
-                argv=Path('/proc',str(identity['pid']),'cmdline').read_bytes()
-                identity_after=graph_identity_snapshot(identity['pid'])
-                history=context.setdefault('_graph_provider_identities',{})
-                if argv==b''and finite is not None:
-                    finite.graph_identity(graph_empty_identity_diagnostic(history.get(fixed['path']),identity_before,identity_after,
-                        observe_exact_graph_cancel(db,scope,context,fixed)))
-                finite_projection.check_graph_provider_argv(argv,row['provider_argv'],old is not None)
-                assert os.getpgid(identity['pid'])==identity['pgid']
-                initial=graph_identity_initial(identity,identity_before,identity_after,os.geteuid())
-                if fixed['path']not in history and initial is not None and len(history)<2:
-                    history[fixed['path']]=initial
-                    base.write_private_json(output/('verified-graph-identity-'+str(identity['pid'])+'.json'),initial)
+            bind_graph_observation(fixed,row['provider_argv'],old,context,output,finite,
+                lambda:observe_exact_graph_cancel(db,scope,context,fixed))
             if old is None:
                 base.write_private_json(output/('verified-graph-'+str(identity['pid'])+'.json'),fixed);verified.append(fixed)
         db.rollback()
@@ -927,7 +1236,7 @@ def collect_graph_records(runtime,workspace,scope,context,verified,output,finite
 
 PREAPPROVAL_COUNTS = {'factory_scopes':2,'goal_scopes':1,'goal_grant_revisions':2,
     'goal_ledgers':2,'execution_grants':1,'workspace_leases':0,'budgets':2}
-PREAPPROVAL_ZERO_TABLES = (frozenset(support.FACTORY_RECORD_TABLES.values())|support.LEGACY_GOAL_TABLES|
+PREAPPROVAL_ZERO_TABLES = (frozenset(support.FACTORY_RECORD_TABLES.values())|frozenset(support.INTEGRATION_RECORD_TABLES.values())|support.LEGACY_GOAL_TABLES|
     {'attempts','sessions','dispatch_intents'}) - PREAPPROVAL_COUNTS.keys()
 
 
@@ -935,7 +1244,7 @@ def verify_approval_did_not_execute(snapshot):
     # These are actual SQL observations at runtime. Unit dictionaries below
     # exercise refusal only; no count becomes a synthetic Core receipt.
     require(type(snapshot)is dict and set(snapshot)=={'schema','factory_counts','tables','sequence','active_workspace_leases','active_dispatch_intents'})
-    require(type(snapshot['schema'])is int and snapshot['schema']==16)
+    require(type(snapshot['schema'])is int and snapshot['schema']==17)
     require(type(snapshot['factory_counts'])is dict and set(snapshot['factory_counts'])==set(support.FACTORY_RECORD_TABLES))
     require(type(snapshot['tables'])is dict and set(snapshot['tables'])==PREAPPROVAL_ZERO_TABLES|PREAPPROVAL_COUNTS.keys()|{'events'})
     require(planning.safe_integer(snapshot['sequence']))
@@ -1354,7 +1663,7 @@ def runtime_driver(args, output):
     raw_daemon=(args.tools/'batond').resolve(strict=True);raw_cli=(args.tools/'baton').resolve(strict=True)
     frontend=args.frontend.resolve(strict=True);manifest_raw=args.manifest.resolve(strict=True).read_bytes()
     manifest=json.loads(manifest_raw,object_pairs_hook=planning.unique_object)
-    require(type(manifest['schema'])is int and manifest['schema']==16)
+    require(type(manifest['schema'])is int and manifest['schema']==17)
     require(all(re.fullmatch('[a-f0-9]{40}',manifest[k])for k in ['source_head','compiled_core_source_head']))
     require(manifest['binaries']['batond']==base.sha(raw_daemon.read_bytes()) and manifest['binaries']['baton']==base.sha(raw_cli.read_bytes()))
     files=list(frontend.rglob('*'));require(len(files)<=4096 and not any(p.is_symlink()for p in files))
@@ -1464,9 +1773,15 @@ def runtime_driver(args, output):
         assert grant['id']==original_grant['id'] and grant['revision']>original_grant['revision'] and grant['scope']['max_children']==3 and grant['scope']['max_depth']==1
         report['observations']['explicit_original_grant_ceiling']={'initial_children0':original_grant,'separate_native_goal_scope':native_scope,'effective_original_grant':grant}
         task=host.result('tasks.create',{'project_id':project['id'],'goal':'Execute and review the exact saved child Goal report, then resume the original parent'},'cg:root-task')
-        settings_value={'case':args.case,'task_id':task['id'],'connection_id':cid,'workspace_id':workspace['id'],'companion':str(companion),'nonce':uuid.uuid4().hex}
+        graph_observation_directory=root/'graph-observation'
+        graph_observation_directory.mkdir(mode=0o700)
+        require(not graph_observation_directory.is_relative_to(wroot.resolve(strict=True))
+            and not graph_observation_directory.is_relative_to(source_root.resolve(strict=True)))
+        graph_directory_fd,graph_directory_pin=graph_ack_directory(graph_observation_directory)
+        os.close(graph_directory_fd)
+        settings_value={'graph_observation_directory':str(graph_observation_directory),'graph_observation_directory_pin':graph_directory_pin,'case':args.case,'task_id':task['id'],'connection_id':cid,'workspace_id':workspace['id'],'companion':str(companion),'nonce':uuid.uuid4().hex}
         base.write_private_json(settings,settings_value)
-        record_context.update(nonce=settings_value['nonce'],program_sha256=base.sha(provider.read_bytes()),settings_sha256=base.sha(settings.read_bytes()),connection_id=cid,provider=str(provider),settings=str(settings),companion=str(companion),companion_sha256=base.sha(companion.read_bytes()))
+        record_context.update(graph_observation_directory=str(graph_observation_directory),graph_observation_directory_pin=graph_directory_pin,nonce=settings_value['nonce'],program_sha256=base.sha(provider.read_bytes()),settings_sha256=base.sha(settings.read_bytes()),connection_id=cid,provider=str(provider),settings=str(settings),companion=str(companion),companion_sha256=base.sha(companion.read_bytes()))
         outputs=[{'artifact_id':key,'relative_path':'reports/'+key+'.txt','max_bytes':4096,'expected_sha256':None}for key in ['report-child','report-parent']]
         selection={'root_task_id':task['id'],'expected_task_revision':task['revision'],'grant_id':grant['id'],'expected_grant_revision':grant['revision'],'connection_ids':[cid],'workspace_ids':[workspace['id']],
             'inputs':inputs,'outputs':outputs,'recipients':[],'max_depth':2,'max_children':3,'max_total_nodes':4,'root_budget':copy.deepcopy(budget),'project_budget':copy.deepcopy(budget),'ttl_ms':60000,
@@ -1686,7 +2001,9 @@ def runtime_driver(args, output):
             assert fault['used'];expect(goal_panel.get_by_role('status').filter(has_text='Outcome unknown')).to_be_visible()
             assert len([r for r in report['http']if r['method']=='factory_child_goals.start'])==1
             goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
-            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled(timeout=15000);recover.click()
+            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True)
+            wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)
+            recover.click()
             calls=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and r.get('response_complete')],lambda v:len(v)==1)
             recovered=calls[0];assert (recovered['params'],recovered['key'],recovered['revision'])==(started['params'],started['key'],started['revision'])
             assert support.exact_json_value(recovered['response']['result'],initial)
@@ -1819,7 +2136,7 @@ def runtime_driver(args, output):
         if host is not None:
             def diagnostics():
                 info,_=base.diagnostic_snapshot(runtime,workspace,output,token);report['observations']['final_diagnostics']=info
-                require(info['complete']is True and info['schema']==16)
+                require(info['complete']is True and info['schema']==17)
                 if scope is not None:report['observations']['last_actual_SQL_snapshot']=database_snapshot(runtime)
             base.cleanup_call(report,'readonly_failure_diagnostics',diagnostics,clean)
         if scope is not None and host is not None:
@@ -1964,11 +2281,11 @@ def main():
             raise
     value=self_check() if args.self_check else {'status':'pending_dependencies','actual_runtime':'not_run',
         'runtime_driver':'source_implemented_not_run','implemented_cases':['normal','lost-start','cancel'],'matrix':MATRIX,'pending':[
-            'Core16 exact lifecycle success/failure/stop-chain fixtures and independent review',
-            'Fresh immutable Core16 tools/source manifest and composed frontend assets',
+            'Core17 exact lifecycle success/failure/stop-chain fixtures and independent review',
+            'Fresh immutable Core17 tools/source manifest and composed frontend assets',
             'Independent review of real browser driver; Root exclusive browser/daemon lease',
             'Additional permission/budget/unknown/adoption/recovery matrix beyond these three cases remains pending']}
-    value.update(schema_required=16,harness_sha256=base.sha(Path(__file__).read_bytes()),
+    value.update(schema_required=17,harness_sha256=base.sha(Path(__file__).read_bytes()),
         support_sha256=base.sha(PLANNING_PATH.read_bytes()))
     base.write_private_json(out/('self-check.json' if args.self_check else 'NOT_RUN.json'),value)
     print(json.dumps(value));return 0 if args.self_check else 2

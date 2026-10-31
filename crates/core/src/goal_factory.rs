@@ -1025,7 +1025,7 @@ pub(super) fn reserve_ancestors(
     }
     let authority = checked_record(db, &r.id)?;
     let scope = crate::factory::checked_child_goal_scope(db, &authority.origin.factory_scope_id)?;
-    let all = crate::factory::budget_records(db, &scope.root_grant_id, &scope.project_id)?;
+    let all = crate::factory::accounting_records(db, &scope.root_grant_id, &scope.project_id)?;
     for (ancestor, budget) in crate::factory::child_goal_ancestor_budgets(db, &scope, &r.task_id)? {
         let relevant = all
             .iter()
@@ -2293,4 +2293,5 @@ mod ancestor_admission_tests {
         let raw = format!("{ANCESTOR_ADMISSION_PREFIX}{value}");
         assert!(ancestor_admission_diagnostic("RESOURCE_LIMIT", Some(&raw), &r).is_none());
     }
+    include!("goal_admission_detail_codec_tests.rs");
 }

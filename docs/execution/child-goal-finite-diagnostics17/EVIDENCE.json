@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "scope": "schema17composition of Parent finite diagnostics only",
+  "Root_base": "53e2c1b0432c4e7d96d44fc8205450114709e08d",
+  "branch": "codex/child-goal-finite-diagnostics17",
+  "Parent_source": "f8225a4b6a592753eccfab76ca3a83811031bec9",
+  "Parent_metadata": "455646e",
+  "source_cherry_pick": "445216385142904d3b6b5656e5bfb0a99453140e",
+  "metadata_cherry_pick": "dd1057ea7f2714440ca9c1d01cba43cc8bc9edd3",
+  "text_conflicts": false,
+  "source_files": [
+    {
+      "path": "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "sha256": "10079c36f6c5fb6e0bb08fcf2ca644ba0d2cbc1a9c63ec5a5bcdfb1482cc4c10"
+    },
+    {
+      "path": "scripts/record-child-goal-ci-evidence.py",
+      "sha256": "51c2aee9491f5df4b37ce00044b62e42e1cd39ffe2b75db9144ae3583b6b9653"
+    },
+    {
+      "path": "tests/infrastructure/test_child_goal_finite_diagnostics.py",
+      "sha256": "bc53cb04b3806ee1a1c7bd9fee713dd62f6963879939d90c364b0ea646b57287"
+    }
+  ],
+  "whole_file_inverse": [
+    {
+      "path": "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "Parent_exact_diagnostic_hunks": 6,
+      "Root53e_byte_equal_after_inverse": true,
+      "Root53e_sha256": "83ca71b1b0d22904632fbf4de3502e87696bae8d4d045045387e303132e3fd24",
+      "composed_sha256": "10079c36f6c5fb6e0bb08fcf2ca644ba0d2cbc1a9c63ec5a5bcdfb1482cc4c10"
+    },
+    {
+      "path": "scripts/record-child-goal-ci-evidence.py",
+      "Parent_exact_diagnostic_hunks": 4,
+      "Root53e_byte_equal_after_inverse": true,
+      "Root53e_sha256": "0482c55d8cb73f378191ead07ec86609992d1dc0c945b78786e51d8f2d23ee35",
+      "composed_sha256": "51c2aee9491f5df4b37ce00044b62e42e1cd39ffe2b75db9144ae3583b6b9653"
+    }
+  ],
+  "new_test_only_adaptation": "explicit integer17 positive;15/16/18 candidate refusal; all Parent diagnostics byte-identical",
+  "old13_test_file": {
+    "path": "tests/infrastructure/test_child_goal_ci_evidence.py",
+    "sha256": "0cd914f4724b14d0db9abbad3cfab043caefb3e422231999d9e5eeeb88c3746d",
+    "Root53e_byte_equal": true
+  },
+  "Parent_records_unchanged": [
+    {
+      "path": "docs/execution/child-goal-finite-diagnostics/PLAN.md",
+      "sha256": "af0117eca3f1aae0cf611fe7610bd28889ad3effedf6c6899c4b20ddb48dadc2",
+      "Parent455_byte_equal": true
+    },
+    {
+      "path": "docs/execution/child-goal-finite-diagnostics/PROGRESS.md",
+      "sha256": "594bc521ecd475913b5abc9b21f794ff3cda04469963bfdb0c92327de61ba47a",
+      "Parent455_byte_equal": true
+    },
+    {
+      "path": "docs/execution/child-goal-finite-diagnostics/CHECKPOINT.md",
+      "sha256": "795a7494abc40c9e50e613e04371d1b66dcd1821a3c9c69f21698e48ecde0ccd",
+      "Parent455_byte_equal": true
+    },
+    {
+      "path": "docs/execution/child-goal-finite-diagnostics/EVIDENCE.json",
+      "sha256": "caea96b0c46450f18c799dffdb84f0fecdfbb67ea9e6b68fea60384637f35d54",
+      "Parent455_byte_equal": true
+    }
+  ],
+  "actual_pure_checks": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.infrastructure.test_child_goal_ci_evidence",
+        "tests.infrastructure.test_child_goal_finite_diagnostics",
+        "-q"
+      ],
+      "tests": 26,
+      "old": 13,
+      "new": 13,
+      "exit": 0,
+      "seconds": 0.243
+    },
+    {
+      "command": [
+        "python3",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--self-check",
+        "--output",
+        "<new private temporary output>"
+      ],
+      "exit": 0,
+      "status": "passed",
+      "schema_required": 17,
+      "count": 362,
+      "seconds": 1.428222057002131,
+      "stdout_sha256": "66d800a07ea249ee70efbfc9b97b06ae1977114eb85d8e3cdb21337db35fab77",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_runtime": "NOT_RUN; self-check does not execute products",
+      "temporary_output": "removed after successful pure check"
+    }
+  ],
+  "counts_nonadditive": true,
+  "prior_handoff_expected_selfcheck": 322,
+  "actual_Root17_selfcheck": 362,
+  "actual_CoreError_DTO_source": "crates/core/src/lib.rs:37 code/message/retryable/side_effect_state/details_ref, observed source only",
+  "Parent_prior_runtime_attribution": {
+    "Root_reported_combination": [
+      "f8225a4",
+      "ad400f0"
+    ],
+    "compiled_Core_frontend_source": "4155548fbeca71f238309cff33a248ea1e2d53ca",
+    "frozen_schema": 15,
+    "normal_checks": 4,
+    "seconds": 34.938,
+    "projector": "Root reported passed",
+    "not_revalidated_by_author": true,
+    "not_transferable_to_new17": true,
+    "ad400f0_imported": false
+  },
+  "syntax": "AST PASS",
+  "whitespace": "git diff --check exit0",
+  "unchanged": [
+    "strict17 schema/API/version/IPC controls",
+    "schema15/16/18 refusals",
+    "Root integration-zero guards",
+    "runtimewait/pass/retry/budget/cleanup",
+    "RootCore/UI/CI/profile/locks/status",
+    "Parent sealed EVIDENCE"
+  ],
+  "not_run": [
+    "actual Core/Actor/Unix IPC",
+    "browser/Node/Cargo/CI",
+    "schema17 runtime/migration",
+    "OS/macOS",
+    "live Provider/network"
+  ],
+  "independent_review": "PENDING",
+  "formal_pr_approve": false
+}

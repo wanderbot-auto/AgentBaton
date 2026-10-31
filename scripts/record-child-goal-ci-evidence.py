@@ -54,7 +54,7 @@ def strict_json_equal(left,right):
     return False
 
 def candidate_summary(raw):
-    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==16 and m.get('dirty')is False)
+    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==17 and m.get('dirty')is False)
     for key in ('git_head','source_head','compiled_core_source_head'):
         require(type(m.get(key))is str and re.fullmatch('[0-9a-f]{40}',m[key])is not None)
     require(m['git_head']==m['source_head']==m['compiled_core_source_head'])
@@ -62,7 +62,7 @@ def candidate_summary(raw):
     for value in tools.values():require(type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None)
     assets=m.get('frontend_assets');require(type(assets)is dict and 0<len(assets)<=4096)
     for key,value in assets.items():require(type(key)is str and type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None)
-    summary={'schema':16,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],
+    summary={'schema':17,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],
         'manifest_sha256':sha(raw),'tools_sha256':{'batond':tools['batond'],'baton':tools['baton']},
         'frontend_asset_count':len(assets),'frontend_assets_sha256':sha(json.dumps(assets,sort_keys=True,separators=(',',':')).encode())}
     return m,summary
@@ -188,7 +188,7 @@ def finite_diagnostics(value):
     require(set(value)==expected)
     if value['version']>=2 and value['graph_provider_argv']is not None:
         graph_argv_diagnostic(value['graph_provider_argv'])
-        require(value['failure_class']=='assertion')
+        require(value['failure_class']in ({'assertion','refusal'}if value['version']==3 else {'assertion'}))
     if value['version']==3:
         owner_refresh_diagnostic(value['owner_refresh'])
         if value['graph_provider_identity']is not None:graph_identity_diagnostic(value['graph_provider_identity'])
@@ -250,6 +250,10 @@ class FiniteRuntimeDiagnostics:
                     else:kind='unmapped_error'
                 elif 'result'in reply:kind='result'
             window['reads'].append({'method':method,'binding':'scope_task_run','started_ns':started_ns,'finished_ns':finished_ns,'reply_class':kind,'error':error})
+    def graph_argv(self,value):
+        with self._lock:
+            if self._value['graph_provider_argv']is None:
+                self._value['graph_provider_argv']=dict(graph_argv_diagnostic(value))
     def graph_identity(self,value):
         with self._lock:
             if self._value['graph_provider_identity']is None:

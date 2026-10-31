@@ -239,7 +239,9 @@ fn v1_migration_preserves_records_and_produces_private_restorable_backup() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("db");
     let conn = Connection::open(&path).unwrap();
-    conn.execute_batch("CREATE TABLE tasks(id TEXT PRIMARY KEY,document TEXT NOT NULL);CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,document TEXT NOT NULL);CREATE TABLE idempotency(scope TEXT,key TEXT,payload TEXT,result TEXT,PRIMARY KEY(scope,key)); PRAGMA user_version=1;").unwrap();
+    // Exact production v1 DDL from storage.rs in 03878121b649bcc90d0f35ace740f5bfbc10fe82.
+    // The original hand-written fixture omitted all four idempotency NOT NULL constraints.
+    conn.execute_batch("CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL); CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, document TEXT NOT NULL); CREATE TABLE idempotency(scope TEXT NOT NULL, key TEXT NOT NULL, payload TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(scope,key)); PRAGMA user_version=1;").unwrap();
     let task = serde_json::json!({"id":"legacy","project_id":"p","goal":"keep me","state":"draft","revision":1,"created_at":"2026-10-27T00:00:00Z","updated_at":"2026-10-27T00:00:00Z"});
     conn.execute(
         "INSERT INTO tasks VALUES(?1,?2)",
@@ -277,4 +279,119 @@ fn v1_migration_preserves_records_and_produces_private_restorable_backup() {
             .unwrap(),
         1
     );
+}
+
+#[test]
+fn weakened_v1_fixture_is_rejected_and_its_generated_schema16_remains_inert() {
+    use rusqlite::{types::Value as SqlValue, OpenFlags};
+    use std::{collections::BTreeMap, os::unix::fs::PermissionsExt};
+
+    #[derive(Debug, PartialEq)]
+    struct Image {
+        version: u32,
+        schema: Vec<(String, String, String, Option<String>)>,
+        rows: BTreeMap<String, Vec<Vec<SqlValue>>>,
+    }
+    fn image(db: &Connection) -> Image {
+        let schema: Vec<(String, String, String, Option<String>)> = db
+            .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
+            .unwrap()
+            .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))
+            .unwrap()
+            .map(Result::unwrap)
+            .collect();
+        let mut rows = BTreeMap::new();
+        for (_, name, _, _) in schema.iter().filter(|r| r.0 == "table") {
+            let quoted = name.replace('"', "\"\"");
+            let mut query = db
+                .prepare(&format!("SELECT rowid,* FROM \"{quoted}\" ORDER BY rowid"))
+                .unwrap();
+            let width = query.column_count();
+            let values = query
+                .query_map([], |r| {
+                    (0..width)
+                        .map(|i| r.get::<_, SqlValue>(i))
+                        .collect::<rusqlite::Result<Vec<_>>>()
+                })
+                .unwrap()
+                .map(Result::unwrap)
+                .collect();
+            rows.insert(name.clone(), values);
+        }
+        Image {
+            version: db
+                .pragma_query_value(None, "user_version", |r| r.get(0))
+                .unwrap(),
+            schema,
+            rows,
+        }
+    }
+
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("db");
+    let conn = Connection::open(&path).unwrap();
+    // Keep the former positive fixture as a malformed negative, not a historical producer.
+    conn.execute_batch("CREATE TABLE tasks(id TEXT PRIMARY KEY,document TEXT NOT NULL);CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,document TEXT NOT NULL);CREATE TABLE idempotency(scope TEXT,key TEXT,payload TEXT,result TEXT,PRIMARY KEY(scope,key)); PRAGMA user_version=1;").unwrap();
+    let task = serde_json::json!({"id":"legacy","project_id":"p","goal":"keep me","state":"draft","revision":1,"created_at":"2026-10-27T00:00:00Z","updated_at":"2026-10-27T00:00:00Z"});
+    conn.execute(
+        "INSERT INTO tasks VALUES(?1,?2)",
+        params!["legacy", task.to_string()],
+    )
+    .unwrap();
+    let original = image(&conn);
+    assert_eq!(original.version, 1);
+    drop(conn);
+
+    let error = Store::open(&path).err().expect("weakened v1 must fail");
+    assert_eq!(error.code, "INPUT_CHANGED");
+    let db = Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    let generated = image(&db);
+    // Older migrations commit before integration validates the predecessor.
+    // This generated, malformed schema16 is not genuine historical schema16 evidence.
+    assert_eq!(generated.version, 16);
+    for (table, rows) in &original.rows {
+        assert_eq!(generated.rows.get(table), Some(rows));
+    }
+    assert!(generated
+        .schema
+        .iter()
+        .all(|(_, name, _, _)| !name.starts_with("integration")));
+    for (table, rows) in &generated.rows {
+        if !original.rows.contains_key(table) {
+            assert!(rows.is_empty(), "unexpected authority/data in {table}");
+        }
+    }
+    drop(db);
+
+    let backups: Vec<_> = std::fs::read_dir(dir.path())
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.file_name().unwrap().to_string_lossy().contains("pre-v7"))
+        .collect();
+    assert_eq!(backups.len(), 1);
+    assert_eq!(
+        std::fs::metadata(&backups[0]).unwrap().permissions().mode() & 0o777,
+        0o600
+    );
+    let backup =
+        Connection::open_with_flags(&backups[0], OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    assert_eq!(image(&backup), original);
+    assert_eq!(
+        backup
+            .query_row("SELECT document FROM tasks WHERE id='legacy'", [], |r| {
+                r.get::<_, String>(0)
+            })
+            .unwrap(),
+        task.to_string()
+    );
+    drop(backup);
+
+    // Cold-open the actually generated16 state: refusal must leave all rows,
+    // DDL and user_version unchanged and must create no integration authority.
+    let error = Store::open(&path)
+        .err()
+        .expect("generated16 must still fail");
+    assert_eq!(error.code, "INPUT_CHANGED");
+    let db = Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    assert_eq!(image(&db), generated);
 }

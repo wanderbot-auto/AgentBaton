@@ -1,0 +1,1 @@
+Complete current-source compile, meaningful normal/failure regression, independent closure, exact CI/dualMac artifacts, then continue all approved dependency-ready work. Keep SourceReady and actual verification separate.

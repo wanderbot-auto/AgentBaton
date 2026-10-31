@@ -1,0 +1,47 @@
+{
+  "base": "e874b123d3e7f329a551e21922baf1a7a643548f",
+  "scope": "source_only",
+  "checks_passed": 23,
+  "checks": [
+    "full_factory_inverse_equals_fixed_base_including_all_admission_guards",
+    "full_ipc_inverse_is_exact_original_one_line_wrapper",
+    "ipc_wrapper_uses_same_actual_receipt_selected_run_and_requested_revision",
+    "full_runtime_inverse_is_only_existing_cfg_test_module_include",
+    "runtime_include_is_inside_existing_cfg_test_module",
+    "pure_codec_wrapper_has_no_.conn",
+    "pure_codec_wrapper_has_no_Connection",
+    "pure_codec_wrapper_has_no_SELECT ",
+    "pure_codec_wrapper_has_no_INSERT ",
+    "pure_codec_wrapper_has_no_UPDATE ",
+    "pure_codec_wrapper_has_no_DELETE ",
+    "pure_codec_wrapper_has_no_event(",
+    "pure_codec_wrapper_has_no_now(",
+    "pure_codec_wrapper_has_no_std::fs",
+    "pure_codec_wrapper_has_no_std::process",
+    "pure_codec_wrapper_has_no_thread::",
+    "compound_cap_4096",
+    "inner_cap_1024_precedes_serde_decode",
+    "strict_four_field_compound_schema",
+    "required_nullable_metrics_all_four",
+    "seven_codec_test_cases_authored_not_executed",
+    "three_real_store_test_cases_authored_not_executed",
+    "store_tests_call_production_admit_wrapper_dto_and_existing_block"
+  ],
+  "source_sha256": {
+    "crates/core/src/goal_factory.rs": "b79e08d4be147a5d51141932da8d560fd34171069a9d8cd928f3b984a5068007",
+    "crates/core/src/ipc.rs": "80f4c555bc3985c7cf355d2a7d4c5a1d297dc33e5cc8788fa4037680f1c218d2",
+    "crates/core/src/goal_runtime.rs": "82659386e3d3fc1a3452c6f0845df5796e881ba8d21598bf4ab9ce6c648db1c5",
+    "crates/core/src/goal_admission_detail_codec_tests.rs": "98e011b23fe808fc3064c04f65837f22dd9e4b63257301fb689aecce28a4b5ce",
+    "crates/core/src/goal_admission_detail_store_tests.rs": "9254f0970bf3ec13464a6f2c976e7762c5aac1c409e1847aa913912a3a07b335"
+  },
+  "not_run": [
+    "Rust compilation and tests",
+    "SQL/Store test execution",
+    "product processes",
+    "Node",
+    "browser",
+    "network",
+    "macOS Intel or ARM",
+    "CI"
+  ]
+}

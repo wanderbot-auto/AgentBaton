@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "base": "accc1aeb4cf33e770a623824a56651b5f30e0eb8",
+  "status": "author_implemented_pure_verified_independent_review_and_Root_runtime_pending",
+  "scope": "driver preflight/main finite observation plus failure-only finite projection; no workflow/product/guard/normal-or-command-failure assertion changes",
+  "original_CI_observation": {
+    "Product": 41169977095,
+    "UI_job": 124445631238,
+    "ui_artifact": 13030563171,
+    "artifact_zip_sha256_supplied_by_Root": "86766791f0ef81838432b90bab1c98658df4bdff744350e9766854352db38a02",
+    "finite_summary_sha256": "056f66fc54b7c45f1db49f190d56cd61be2970effc72ea69c9c72938d27c436f",
+    "source": "accc1aeb4cf33e770a623824a56651b5f30e0eb8",
+    "status": "failed",
+    "setup_diagnostic": {
+      "status": "observed",
+      "stage": "driver_returned",
+      "exception_kind": null,
+      "probe_passed": true,
+      "browser_discovered": true,
+      "browser_pinned": true,
+      "driver_exit": 2,
+      "traceback_bytes": 0
+    },
+    "limit": "Only wrapper driver_returned/exit2 is directly established. Exact preflight guard/dependency/argument failure cause remains unknown; separate from old7ee and local installed-browser adapter evidence."
+  },
+  "private_diagnostic": {
+    "name": "driver/preflight-diagnostic.json",
+    "closed_stages": 25,
+    "exception_categories": 10,
+    "facts": "declared expected head and current driver SHA; four optional ownership/mode booleans derived only from already-read runtime pins; no path/UID/mode/raw message/traceback",
+    "runtime_case_entered": false,
+    "meaning": "Written only on the current invocation pre-runtime exit2 paths after its original private report. This is not external authority, SourceGuard success, OS-sandbox evidence or proof about other processes.",
+    "unavailable": "Argument parsing/output initialization failures remain unobserved; diagnostic I/O failure preserves original exit/report and becomes unavailable."
+  },
+  "projection_boundary": {
+    "requires": "private canonical0700 directories; safe regular0600 singlelink bounded4096-byte JSON; status exact3fields/source/typed exit2/probeTrue; current driver hash; closed fields/stages/exceptions/bool facts and coherent run/import outcome; stable file/directory witnesses",
+    "failure_stays_failed": true,
+    "successful_projection_unchanged": true,
+    "raw_private_report_read": false,
+    "unknown_extra_duplicate_nan_wrong_types_or_links": "unavailable, never publish raw text"
+  },
+  "source_inverse": {
+    "original_driver_sha256": "1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e",
+    "original_projector_sha256": "0f1de4bc3e2ff73bd88764069d3b5b345a3c8af5b2c4ff36259ad5c85e10a167",
+    "mechanism": "Pin complete new helper block/preflight/main and complete original function fixtures; whole-file inverse restores every original byte. Projector inverse removes only complete pinned diagnostic block and one failure-only assignment. Original require ASTs/pin arguments and actual successful preflight values/pin order are identical.",
+    "original_caps": "Core/Python256MiB, Chromium512MiB, owner/mode/source/metadata/guard conditions and normal/failure9checks unchanged."
+  },
+  "validation": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 /tmp/integration-driver-preflight-diagnostics-checks/run_pure.py",
+    "base": "accc1aeb4cf33e770a623824a56651b5f30e0eb8",
+    "exit": 0,
+    "tests": 108,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 3.117363763973117,
+    "dimension": "pure synthetic/fs/AST; actual SQL/process/socket calls prohibited",
+    "modules": [
+      "tests.infrastructure.test_integration_driver_preflight_diagnostics",
+      "tests.infrastructure.test_integration_real_ipc",
+      "tests.infrastructure.test_integration_browser_ci",
+      "tests.infrastructure.test_integration_browser_ci_evidence",
+      "tests.infrastructure.test_integration_setup_diagnostics",
+      "tests.infrastructure.test_schema17_migration_workflow"
+    ],
+    "log_sha256": "e615d427cfe9223f57bf5ca5b5f21f25be7365abd7975d4bf8ffced57f09814b",
+    "RESULT_sha256": "292bc5af9898642297c8f9cd84b54877ce13da1c5514b9f5ce1298abc203a8db",
+    "runner_sha256": "7fb0f697585d4ddb160a982e2632a655d7c509bb9f825e461486d6e452e56412",
+    "source_changed_after_final_test": false
+  },
+  "preserved_author_attempts": [
+    {
+      "kind": "initial related suite",
+      "tests": 104,
+      "failures": 1,
+      "cause": "Old source substring expected inline Python pin. Pins were split solely to distinguish Chromium/Python stages; related assertion now checks the exact same Python pin call plus exact runtime_tools mapping. Original cap assertions untouched.",
+      "log_sha256": "cf57971d2beadb341209ceb1b45215b4e090ee133321241f93a40bc9591c373a"
+    },
+    {
+      "kind": "runner setup",
+      "errors": 6,
+      "cause": "External runner initially lacked repository in sys.path; fixed runner import path, no source changes.",
+      "log_sha256": "27b39b46f6f55697dca597e3a60616529874481a3cd2ccd1ae09b6f617df9745",
+      "RESULT_sha256": "71da6eb005c56790af5ff701dbe2525533ce0be024a786ab687006fb02bdb2e1"
+    },
+    {
+      "kind": "sparse metadata path setup",
+      "exit": 129,
+      "cause": "git sparse-checkout add does not accept --no-cone on this installed Git; existing non-cone mode was retained and add rerun without unsupported flag."
+    }
+  ],
+  "source_sha256": {
+    "apps/desktop/tests/integration-real-ipc.py": "91ee42eb4112cab21f1ae3fba57e00743af1542dd4b3ef98833562605e43352a",
+    "scripts/record-integration-browser-ci-evidence.py": "06d5222af1d9901173f0ed7ff291895e6fe2049151459a8143d6ec73a3fc9315",
+    "tests/infrastructure/test_integration_driver_preflight_diagnostics.py": "2880983daddebcb80136632cc592f364a212df8162b9ce13659ced8c47d0d096",
+    "tests/infrastructure/test_integration_browser_ci.py": "224c67bb815933af244c594e370cffd7f05b383b0b55de73505ce6bdcd906cca",
+    "tests/infrastructure/fixtures/integration_driver_preflight_diagnostics/original_preflight.py.txt": "a829d3b9185b174ac137a972f77a17ef4eb918acc52603593b256d74af2f7de2",
+    "tests/infrastructure/fixtures/integration_driver_preflight_diagnostics/original_main.py.txt": "d2b170c7bdb5e22983ff006070887169a2c8fdcc48b329d0a2fb2938af54a7fe"
+  },
+  "not_run": [
+    "Core/SQL",
+    "real subprocess or socket",
+    "Node/Cargo/browser",
+    "actual full wrapper",
+    "CI/network",
+    "macOS",
+    "Provider calls",
+    "independent review"
+  ],
+  "next": "Independent source review; Root actual full wrapper/new exact CI using original flags and guards. Do not infer current or old CI root cause from pure controls.",
+  "formal_approval": false
+}

@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-005",
+    "AB-TSK-008",
+    "AB-TSK-010"
+  ],
+  "baseline": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+  "source": "185fcfae6d19f1828506e16fdfe316fad5e7c1fc",
+  "source_chain": [
+    "dd69cdc5bae0d270de4006244d00dc8e63732728",
+    "13a467c9a40ffaa2f9b77fb2c96e96a7f66eb3b7",
+    "185fcfae6d19f1828506e16fdfe316fad5e7c1fc"
+  ],
+  "scope": "test-only controlled empty17 inverse and active current migration consumers; genuine historical producers and production unchanged",
+  "source_hashes": {
+    "crates/core/tests/command_validation_migration.rs": "c503290a7b70ffb50f59b32daf09053fe3afe0ecb428bbf277ecd35de6a69fc9",
+    "crates/core/tests/data_workspace_migration.rs": "eff5285496aed6bc89a73a53d7e8b44fe68f16bee51911ed68a5f92308dd28b4",
+    "crates/core/tests/factory_child_plan_migration.rs": "f52b611926eb2fb872542b790a948fe3789ba50648f4e29a35a60cd310f81423",
+    "crates/core/tests/factory_migration.rs": "ff036ea44d9d9201277dcb8e7cd0399dc9ba1aa680c0a0a71f69e9cca7361f23",
+    "crates/core/tests/fixtures/pre_factory_schema.rs": "1cafc336a51b28e97d964230c9c09a9f7f50f8ae153e97515f0b5a967d13711f",
+    "crates/core/tests/fixtures/pre_integration_schema.rs": "5a9de4590df3fe2037338f07bf449f771097e25211f57eae0adeed6c7ef0e204",
+    "crates/core/tests/goal_graph_migration.rs": "ee0603946851b67ee889ac6e0d52f358c02cd5a8017ed01c2dcf08370c98999b",
+    "crates/core/tests/goal_runtime_migration.rs": "01f9d4658d62d8c2a630f6abc7f23d02d7d0f711f0597c288294e2cd4e95487c",
+    "crates/core/tests/goal_store_migration.rs": "d13114c2e7169d4f42fadab0212d007f5efc58b8999158ba1e9491ba38bb2f32",
+    "crates/core/tests/integration_schema17.rs": "62d5aa6b8d12bf53dd1460359afa7a557c22e76c8f5385601c454c0920eeda83",
+    "crates/core/tests/migration_v3.rs": "0567ae8a2f4ea039ea73af1509ef6c39e26ac48daeb520a2ff93cbd24f2e7627",
+    "crates/core/tests/migration_v5.rs": "6034ffed13eff7ce26840d4d5f65cb0eda3747ff657f5cebb7a7dc4a327013c0",
+    "crates/core/tests/migration_v6.rs": "cec81ec486b0d2a9e16d73c88ba66364b64dd0a184bf514cbaa344944516174f",
+    "crates/core/tests/migration_v7.rs": "9755448e722ffdf8101a7d7740c1372d1b1463c197cd28a2c2b35aaa3332a332",
+    "crates/core/tests/sessions_ipc.rs": "75dd34fc6448d688e61d7803b73a361815849edab356df966c25c351dfec2b7f",
+    "crates/core/tests/storage.rs": "70186dca20c462dfe78ac5804d647b779e9da002b1609f907620c5742d77a1d1"
+  },
+  "static_checks": {
+    "count": 47,
+    "all_passed": true,
+    "path": "/workspace/.onboarding/schema17-inverse-current-migrations-source1/STATIC-FINAL.json",
+    "sha256": "b905a7adf79c07734b6979cb832a23ebbecf33422a3ece672030eee0e6a707be",
+    "dimension": "lightweight source/byte/contract only"
+  },
+  "author_checks": [
+    {
+      "command": "configured rustfmt --edition2021 affected test files",
+      "exit": 0,
+      "dimension": "format"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "dimension": "whitespace"
+    }
+  ],
+  "source_test_additions": {
+    "Rust_tests": 5,
+    "negative_variants_within_one_test": 32,
+    "not_additive": true
+  },
+  "original_strict16_negative_controls": "preserved; isolated fresh constructor explicitly verifies/removes empty17 first",
+  "future_tests": "strict18; historical16-inverse future17 remains unchanged",
+  "runtime": {
+    "Cargo_compile": "NOT_RUN",
+    "Rust_SQLite_tests": "NOT_RUN",
+    "full_affected_migrations": "NOT_RUN",
+    "Actor": "NOT_RUN",
+    "genuine14_15_consumer": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "Native": "NOT_RUN",
+    "macOS": "NOT_RUN",
+    "CI": "NOT_RUN"
+  },
+  "Root_required_command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--test",
+    "integration_schema17",
+    "--test",
+    "command_validation_migration",
+    "--test",
+    "migration_v3",
+    "--test",
+    "migration_v5",
+    "--test",
+    "migration_v6",
+    "--test",
+    "migration_v7",
+    "--test",
+    "storage",
+    "--test",
+    "data_workspace_migration",
+    "--test",
+    "goal_store_migration",
+    "--test",
+    "goal_runtime_migration",
+    "--test",
+    "goal_graph_migration",
+    "--test",
+    "factory_migration",
+    "--test",
+    "factory_child_plan_migration",
+    "--test",
+    "sessions_ipc",
+    "--",
+    "--nocapture"
+  ],
+  "no_new_permissions": true,
+  "whole_requirement_accepted": false,
+  "independent_session_projection_correction": {
+    "source": "7f55a4f583902b4cf5f6618198a034bed1889b22",
+    "previous_source": "306f46a78ad42385e2174f278b062e308546dbab",
+    "file": "crates/core/tests/sessions_ipc.rs",
+    "sha256": "4c0cdcacf7577a9675ed48f8795d06a99eb119b4a36d4571158df3c47d8807df",
+    "finding": "static P2; not an executed runtime failure",
+    "static_checks": {
+      "count": 8,
+      "all_passed": true,
+      "path": "/workspace/.onboarding/schema17-inverse-current-migrations-source1/STATIC-7f55a4f.json",
+      "sha256": "d3134b66bf64fb2de2b05c15739520cb9f4bc50ad974fcd420fad0e3029acab1"
+    },
+    "old_full_projection_equality_and_raw_history_suffix": "byte_preserved",
+    "runtime": "NOT_RUN",
+    "independent_closure": "pending"
+  }
+}

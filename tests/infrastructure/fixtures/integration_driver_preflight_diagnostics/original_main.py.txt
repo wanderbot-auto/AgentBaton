@@ -1,0 +1,36 @@
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--batond', type=Path, required=True)
+    parser.add_argument('--candidate-manifest', type=Path, required=True)
+    parser.add_argument('--frontend', type=Path, required=True)
+    parser.add_argument('--frontend-build-record', type=Path, required=True)
+    parser.add_argument('--expected-source-head', required=True)
+    parser.add_argument('--chromium', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--case', choices=('normal', 'command-failure', 'all'), default='all')
+    parser.add_argument('--run', action='store_true')
+    args = parser.parse_args()
+    args.output.mkdir(mode=0o700, parents=True, exist_ok=False)
+    require(stat.S_IMODE(args.output.stat().st_mode) == 0o700 and args.output.stat().st_uid == os.geteuid()
+        and not args.output.is_symlink())
+    try:
+        binary, companion, frontend, attribution = preflight(args)
+    except BaseException as error:
+        private_json(args.output / 'report.json', {'status': 'preflight_refused', 'actual_runtime': 'NOT_RUN',
+            'kind': type(error).__name__, 'no_process_token_or_listener': True})
+        return 2
+    if not args.run:
+        private_json(args.output / 'report.json', {'status': 'NOT_RUN', 'reason': '--run required', 'inputs': attribution})
+        return 2
+    try:
+        from playwright.sync_api import sync_playwright  # noqa: F401; dependency check only
+    except ImportError as error:
+        private_json(args.output / 'report.json', {'status': 'preflight_refused', 'actual_runtime': 'NOT_RUN',
+            'kind': type(error).__name__, 'no_process_token_or_listener': True})
+        return 2
+    result = True
+    for case in (('normal', 'command-failure') if args.case == 'all' else (args.case,)):
+        output = args.output / case; output.mkdir(mode=0o700)
+        result = run_case(args, binary, companion, frontend, attribution, output, case == 'command-failure') and result
+    print(json.dumps({'status': 'passed' if result else 'failed_or_interrupted', 'dimension': 'Linux/browser/generatedACP/private_test_host_not_OS'}))
+    return 0 if result else 1

@@ -1,0 +1,140 @@
+{
+  "verdict": "FIVE_PY_SOURCE_READY_WITH_AUTHORED_FOUR_SOURCE_TEST_LOCATOR_CLOSURE",
+  "head": "fd24203cff5ee6c0aa9a1dcf6e8dfb2d93688375",
+  "incoming": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+  "formal_approval": false,
+  "author_five_paths_independently_checked": [
+    {
+      "path": "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "sha256": "9acadb5d494e7cd055b871530867fc273bff9588384beeb9415ffbdaa68c2610",
+      "both_full_inverses_equal_actual_Git": true,
+      "unknown_source_refused": true,
+      "changed_Root_top_level": [
+        "bind_graph_observation",
+        "collect_graph_records",
+        "runtime_driver"
+      ]
+    },
+    {
+      "path": "scripts/record-child-goal-ci-evidence.py",
+      "sha256": "b51d1c3d4f371c6e1c908e7cd4be308f6c6f6262e2bcccbe1a073df2c545ae14",
+      "both_full_inverses_equal_actual_Git": true,
+      "unknown_source_refused": true,
+      "changed_Root_top_level": [
+        "FiniteRuntimeDiagnostics",
+        "finite_diagnostics",
+        "project",
+        "unobserved_diagnostics"
+      ]
+    },
+    {
+      "path": "scripts/record-factory-rework-ci-evidence.py",
+      "sha256": "9c93630e3d011d6471995d3a041698e6fb3588152ca109f5e50a5de80c0cb8e9",
+      "both_full_inverses_equal_actual_Git": true,
+      "unknown_source_refused": true,
+      "changed_Root_top_level": [
+        "project_events"
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_child_goal_finite_diagnostics.py",
+      "sha256": "ed393e95b7ca6f6af59300ec34c7052384d3fd44b4bced90a51369d690ed3661",
+      "both_full_inverses_equal_actual_Git": true,
+      "unknown_source_refused": true,
+      "changed_Root_top_level": []
+    },
+    {
+      "path": "tests/infrastructure/test_factory_bound_provider_exit.py",
+      "sha256": "4573b0a20d1c7f77b146b652580311422a508e858eca36ead7b507e30ae4a9bd",
+      "both_full_inverses_equal_actual_Git": true,
+      "unknown_source_refused": true,
+      "changed_Root_top_level": [
+        "ChildGoalObserverWaitTests",
+        "ChildGoalTimingTests"
+      ]
+    }
+  ],
+  "authored_test_patches": [
+    {
+      "path": "tests/infrastructure/test_graph_identity_observation.py",
+      "before_sha256": "7189122ed4fd05246b422fadec7c680f02f63e9fa431adfcb077d6dcc4f8f4a2",
+      "after_sha256": "558fbfb98e124d633821dcc2587320237a72aade3137d9625607bf09187d3f73",
+      "patch_path": "/tmp/root21-source-location-test-closure/test_graph_identity_observation.py.patch",
+      "patch_sha256": "ac084d5a1c7c840ba1be6956f9c71d5ffcadf45332d301a3f8fbdc8b68b95b2d"
+    },
+    {
+      "path": "tests/infrastructure/test_graph_observation_handshake.py",
+      "before_sha256": "4c9a692c3f35bf7bcd6bb5fe3a81d48761dba35891c99808a30f24b51a11e191",
+      "after_sha256": "2915840fa4814d6acb29a828c7d109ad5ba02f3c6f105ec04e89f9a79b5f2fc4",
+      "patch_path": "/tmp/root21-source-location-test-closure/test_graph_observation_handshake.py.patch",
+      "patch_sha256": "eeecc21fe130598ee58be585d6aeffd7515919623f808a1e548376b9d22b5944"
+    },
+    {
+      "path": "tests/infrastructure/test_graph_provider_argv_diagnostics.py",
+      "before_sha256": "261c5931985c44661af513a61db1b1c7e189c462e636bf5be06b335b86788ba5",
+      "after_sha256": "b1a912a64b20e5f20ca400858791d8edc70fa17bac09ec5cc02a4c277fa24963",
+      "patch_path": "/tmp/root21-source-location-test-closure/test_graph_provider_argv_diagnostics.py.patch",
+      "patch_sha256": "f92b84ab4fa4948d38a6874af2ca200605cfadaebc62477a7de4e38c07e71308"
+    },
+    {
+      "path": "tests/infrastructure/test_child_goal_diagnostics_v3.py",
+      "before_sha256": "3809ec747d48eee7e63e547c917f95f0bc15f4c5500ab2ff8527c83baf9e9dce",
+      "after_sha256": "10f28d84968b3bbca0ed9ee40cdd9bb9086dfaac752f9331a7f850130f038454",
+      "patch_path": "/tmp/root21-source-location-test-closure/test_child_goal_diagnostics_v3.py.patch",
+      "patch_sha256": "d085e8be04350c86ebb5ed7725885d7fb24da9af5ffe09cd9f5a7dfae135c0ed"
+    }
+  ],
+  "inline_test_inverse_data_exact_author_fixture": true,
+  "historical_collectors_executed": false,
+  "guard_equivalence_is_source_only": true,
+  "pure_87": {
+    "stage": "Root21-normal-merge-source-only",
+    "modules": [
+      "tests.infrastructure.test_child_goal_finite_diagnostics",
+      "tests.infrastructure.test_child_goal_diagnostics_v3",
+      "tests.infrastructure.test_graph_provider_argv_diagnostics",
+      "tests.infrastructure.test_graph_observation_handshake",
+      "tests.infrastructure.test_graph_identity_observation",
+      "tests.infrastructure.test_child_goal_bound_readonly_wait",
+      "tests.infrastructure.test_factory_bound_provider_exit.ChildGoalObserverWaitTests",
+      "tests.infrastructure.test_factory_bound_provider_exit.ChildGoalTimingTests"
+    ],
+    "tests_run": 87,
+    "failures": 0,
+    "errors": 0,
+    "successful": true,
+    "seconds": 6.870027458004188,
+    "forbidden_actual_calls": [],
+    "failure_ids": [],
+    "error_ids": [],
+    "not_run": [
+      "SQL-backed BoundExitTests/ObserverAckTests/rework stop-correlation",
+      "actual FIFO/PID sampling/spawn/signals",
+      "Node/Cargo/browser",
+      "network"
+    ]
+  },
+  "pure_log_sha256": "f4d094b381b0c9c943ff59d62ef8354b1396165c27323d053620f632d503ed32",
+  "prior_first_and_second_results_retained": [
+    {
+      "path": "/tmp/root21-source-location-test-closure/pure-first.json",
+      "sha256": "7a4bd0e6b1ffe75c4dcd24f0b2faab83f6f49c4d42647842f8da06032cfb823f"
+    },
+    {
+      "path": "/tmp/root21-source-location-test-closure/pure-first.log",
+      "sha256": "9cffc03005e8c977d253f1ca0eadb80c7ca2b6663182816a683e58d2399fdc1a"
+    },
+    {
+      "path": "/tmp/root21-source-location-test-closure/pure-second.json",
+      "sha256": "7d5e572e73bdd9513591f87e28e5e5b9d7f4328ede449ce7c0ccadd7ed1ccdb5"
+    },
+    {
+      "path": "/tmp/root21-source-location-test-closure/pure-second.log",
+      "sha256": "345a007dfcf1f42d4124b16987bc0eceb07e939897b603a69eed78c3f26f2ba0"
+    }
+  ],
+  "other_Root_files_index_or_git_history_modified": false,
+  "actual_SQL_process_FIFO_browser_Cargo_Node_network": "NOT_RUN",
+  "self_authorship_limit": "Five Python sources independently reviewed; four source-location test changes authored here and require Root/final independent acceptance, not self-approval",
+  "script_sha256": "b6ff081a8f6042bfce7639d566205f27bcdd07944fff6904c39cd7745caad932"
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "unit": "factory-history17-composition",
+  "base_commit": "e0e7937ccc58111cccd6881f0c17eba2d4cef748",
+  "source_commit": "abd6d4e1d7e262e5bfc0a4b52d843f5c6ce81525",
+  "parent_source": "4e9e20d25c7b104c57cffc51a92de3a2eff82a71",
+  "parent_docs": "afeb061178225e08229922073bda22f173037437",
+  "composed_source_cherry_pick": "442feb1a2707959d37913e8bbaa38186cad0813d",
+  "composed_docs_cherry_pick": "9cae70ff3e2b7d7a1fc35b2a900e5c7ef102e9d7",
+  "manifest": {
+    "path": "/workspace/.onboarding/factory-history17-composition-abd6d4e/MANIFEST.json",
+    "sha256": "322b087947bb7138f55cea80e2c20ade14db3e29e93e7a4db0a4a8e7bd7d3f14"
+  },
+  "executed": [
+    {
+      "command": "python3 /workspace/.onboarding/factory-history17-composition-work/check.py",
+      "exit": 0,
+      "assertions": 41
+    },
+    {
+      "command_record": "/workspace/.onboarding/factory-history17-composition-abd6d4e/FORMAT_CHECK.json",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "conflicts": {
+    "file": "crates/core/src/ipc.rs",
+    "hunks": 4,
+    "inputs": "/workspace/.onboarding/factory-history17-composition-abd6d4e/CONFLICT_INPUTS.json",
+    "resolution": "/workspace/.onboarding/factory-history17-composition-abd6d4e/CONFLICT_RESOLUTION.json",
+    "final_sha256": "883e087811a5afea3dbc495b7aec9a32342a1467e6de8a3519a810f83fcbe7ed"
+  },
+  "production_delta": "/workspace/.onboarding/factory-history17-composition-abd6d4e/PRODUCTION_DELTA.json",
+  "checks": "/workspace/.onboarding/factory-history17-composition-abd6d4e/SOURCE_CHECKS.json",
+  "tests": {
+    "parent_history_body_byte_identical": 10,
+    "parent_actor_unix_body_byte_identical": 2,
+    "added_schema17_test_not_run": 1
+  },
+  "not_run": [
+    "Cargo check",
+    "Clippy",
+    "Rust tests",
+    "Actor/Unix IPC",
+    "Native build/OS",
+    "performance comparison"
+  ],
+  "claims": {
+    "schema_migration_change": false,
+    "permission_budget_or_deadline_change": false,
+    "Root_status_or_other_author_edit": false,
+    "runtime_pass_for_composition": false,
+    "performance_improvement": false
+  }
+}

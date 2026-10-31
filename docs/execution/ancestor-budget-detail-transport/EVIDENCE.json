@@ -1,0 +1,48 @@
+{
+  "base": "e874b123d3e7f329a551e21922baf1a7a643548f",
+  "kind": "implementation_source_checkpoint",
+  "requirement_context": "Existing Factory child Goal ancestor budget refusal observability; no behavior repair",
+  "commands": [
+    {
+      "command": "python3 docs/execution/ancestor-budget-detail-transport/source-audit.py",
+      "exit_code": 0,
+      "checks_passed": 23,
+      "scope": "static_source_only"
+    },
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --check crates/core/src/goal_factory.rs crates/core/src/goal_admission_detail_codec_tests.rs crates/core/src/goal_admission_detail_store_tests.rs",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "rust_tests_authored_not_run": {
+    "codec": 7,
+    "real_store_path": 3,
+    "existing_diagnostic_tests_retained": 2
+  },
+  "not_run": [
+    "Rust compilation and tests",
+    "SQL/Store test execution",
+    "product processes",
+    "Node",
+    "browser",
+    "network",
+    "macOS Intel or ARM",
+    "CI"
+  ],
+  "source_audit_sha256": "30c89e880d8f52c4456641a7da29cfeab9f66cadfa65ad7afaaae4a7c17df6c3",
+  "original_intel_failure": {
+    "path": "/workspace/.onboarding/root17-e874-ci/intel-native-selected/factory-rework-progress.json",
+    "sha256": "d5a1cedda4ab1619d893ee6e9e0c0c4e648d5bdfda1898cda3de0fe272b0291b",
+    "state": "blocked",
+    "code": "RESOURCE_LIMIT",
+    "cleanup_joined": true,
+    "candidate_overage_ms": 29,
+    "original_guard_proven": false
+  },
+  "independent_review": "pending_root_assignment",
+  "acceptance": "not_accepted_until_real_tests_and_independent_review"
+}

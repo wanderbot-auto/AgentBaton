@@ -43,6 +43,319 @@ impl std::fmt::Display for AdoptionError {
 }
 impl std::error::Error for AdoptionError {}
 
+/// Observed IO facts, not process-tree containment, permission or an acceptance.
+#[derive(Clone, Debug, Serialize)]
+pub struct ControlledIntegrationIo {
+    pub(crate) elapsed_ms: u64,
+    pub(crate) stdout_retained_bytes: Option<u64>,
+    pub(crate) stderr_retained_bytes: Option<u64>,
+    pub(crate) stdout_eof: bool,
+    pub(crate) stderr_eof: bool,
+    pub(crate) owned_leader_reaped: Option<bool>,
+    pub(crate) owned_group_signal_attempted: Option<bool>,
+    pub(crate) interrupted: bool,
+    pub(crate) read_failed: Option<bool>,
+}
+impl ControlledIntegrationIo {
+    pub fn elapsed_ms(&self) -> u64 {
+        self.elapsed_ms
+    }
+    pub fn stdout_retained_bytes(&self) -> Option<u64> {
+        self.stdout_retained_bytes
+    }
+    pub fn stderr_retained_bytes(&self) -> Option<u64> {
+        self.stderr_retained_bytes
+    }
+    pub fn stdout_eof(&self) -> bool {
+        self.stdout_eof
+    }
+    pub fn stderr_eof(&self) -> bool {
+        self.stderr_eof
+    }
+    pub fn owned_leader_reaped(&self) -> Option<bool> {
+        self.owned_leader_reaped
+    }
+    pub fn owned_group_signal_attempted(&self) -> Option<bool> {
+        self.owned_group_signal_attempted
+    }
+    pub fn interrupted(&self) -> bool {
+        self.interrupted
+    }
+    pub fn read_failed(&self) -> Option<bool> {
+        self.read_failed
+    }
+    /// Only direct-child/stream receipt completeness, never an OS tree sandbox.
+    pub fn io_complete(&self) -> bool {
+        self.owned_leader_reaped == Some(true)
+            && self.stdout_eof
+            && self.stderr_eof
+            && self.read_failed == Some(false)
+    }
+}
+/// Keeps historical ref completion separate from resource/stream uncertainty.
+/// This result cannot be deserialized into any authority or owned-stop proof.
+pub struct ControlledIntegrationResult {
+    record: IntegrationRecord,
+    io: ControlledIntegrationIo,
+}
+impl ControlledIntegrationResult {
+    pub fn record(&self) -> &IntegrationRecord {
+        &self.record
+    }
+    pub fn io(&self) -> &ControlledIntegrationIo {
+        &self.io
+    }
+}
+
+/// Trusted host cancellation/deadline only; this is not an approval token.
+/// It cannot be deserialized and never refreshes any caller clock.
+pub struct AdoptionControl<'a> {
+    cancel: &'a std::sync::atomic::AtomicBool,
+    deadline: std::time::Instant,
+    started: std::time::Instant,
+    preparation: std::sync::Arc<std::sync::Mutex<PreparationFacts>>,
+}
+/// Private resource-controller provenance, never permission or a wire token.
+#[derive(Clone)]
+pub(crate) struct PreparationEpoch {
+    cancel_identity: usize,
+    started: std::time::Instant,
+    facts: std::sync::Arc<std::sync::Mutex<PreparationFacts>>,
+}
+#[derive(Default)]
+struct PreparationFacts {
+    git_calls_attempted: u64,
+    git_calls_complete: u64,
+    stdout_lower_bound: u64,
+    stderr_lower_bound: u64,
+    effects_may_have_started: bool,
+    interrupted: bool,
+    overflow: bool,
+}
+/// Observed scalar preparation facts, not permission, acceptance or an atomic
+/// filesystem snapshot. Missing complete IO remains None, never zero.
+#[derive(Clone, Debug, Serialize)]
+pub struct ControlledPreparationIo {
+    elapsed_ms: u64,
+    git_calls_attempted: u64,
+    git_calls_complete: u64,
+    git_stdout_observed_bytes: Option<u64>,
+    git_stderr_observed_bytes: Option<u64>,
+    effects_may_have_started: bool,
+    interrupted: bool,
+    io_complete: bool,
+}
+impl ControlledPreparationIo {
+    pub fn elapsed_ms(&self) -> u64 {
+        self.elapsed_ms
+    }
+    pub fn git_stdout_observed_bytes(&self) -> Option<u64> {
+        self.git_stdout_observed_bytes
+    }
+    pub fn git_stderr_observed_bytes(&self) -> Option<u64> {
+        self.git_stderr_observed_bytes
+    }
+    pub fn effects_may_have_started(&self) -> bool {
+        self.effects_may_have_started
+    }
+    pub fn io_complete(&self) -> bool {
+        self.io_complete
+    }
+    pub fn interrupted(&self) -> bool {
+        self.interrupted
+    }
+}
+
+impl<'a> AdoptionControl<'a> {
+    pub fn for_request(
+        cancel: &'a std::sync::atomic::AtomicBool,
+        deadline: std::time::Instant,
+    ) -> Self {
+        Self {
+            cancel,
+            deadline,
+            started: std::time::Instant::now(),
+            preparation: std::sync::Arc::new(std::sync::Mutex::new(PreparationFacts::default())),
+        }
+    }
+    pub(crate) fn check(&self) -> Result<(), WorkspaceError> {
+        if self.cancel.load(std::sync::atomic::Ordering::Acquire)
+            || std::time::Instant::now() >= self.deadline
+        {
+            self.note_interrupted();
+            Err(WorkspaceError::ResourceLimit)
+        } else {
+            Ok(())
+        }
+    }
+    pub(crate) fn deadline(&self) -> std::time::Instant {
+        self.deadline
+    }
+    pub(crate) fn cancel_identity(&self) -> usize {
+        std::ptr::from_ref(self.cancel) as usize
+    }
+    pub fn narrowed(&self, deadline: std::time::Instant) -> Self {
+        Self {
+            cancel: self.cancel,
+            deadline: self.deadline.min(deadline),
+            started: self.started,
+            preparation: self.preparation.clone(),
+        }
+    }
+    pub(crate) fn epoch(&self) -> PreparationEpoch {
+        PreparationEpoch {
+            cancel_identity: self.cancel_identity(),
+            started: self.started,
+            facts: self.preparation.clone(),
+        }
+    }
+    pub(crate) fn matches_epoch(&self, epoch: &PreparationEpoch) -> bool {
+        self.cancel_identity() == epoch.cancel_identity
+            && self.started == epoch.started
+            && std::sync::Arc::ptr_eq(&self.preparation, &epoch.facts)
+    }
+    pub(crate) fn note_effects(&self) {
+        self.preparation
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .effects_may_have_started = true;
+    }
+    pub(crate) fn note_git_attempt(&self) {
+        let mut facts = self.preparation.lock().unwrap_or_else(|p| p.into_inner());
+        match facts.git_calls_attempted.checked_add(1) {
+            Some(n) => facts.git_calls_attempted = n,
+            None => facts.overflow = true,
+        }
+    }
+    pub(crate) fn note_git_io(&self, io: &ControlledIntegrationIo) {
+        self.note_git_observation(
+            io.io_complete(),
+            io.stdout_retained_bytes,
+            io.stderr_retained_bytes,
+            io.interrupted,
+        );
+    }
+    pub(crate) fn note_git_observation(
+        &self,
+        complete: bool,
+        stdout: Option<u64>,
+        stderr: Option<u64>,
+        interrupted: bool,
+    ) {
+        let mut facts = self.preparation.lock().unwrap_or_else(|p| p.into_inner());
+        facts.interrupted |= interrupted;
+        if complete {
+            match facts.git_calls_complete.checked_add(1) {
+                Some(n) => facts.git_calls_complete = n,
+                None => facts.overflow = true,
+            }
+        }
+        for (is_stdout, bytes) in [(true, stdout), (false, stderr)] {
+            if let Some(bytes) = bytes {
+                let before = if is_stdout {
+                    facts.stdout_lower_bound
+                } else {
+                    facts.stderr_lower_bound
+                };
+                match before.checked_add(bytes) {
+                    Some(total) => {
+                        if is_stdout {
+                            facts.stdout_lower_bound = total
+                        } else {
+                            facts.stderr_lower_bound = total
+                        }
+                    }
+                    None => facts.overflow = true,
+                }
+            }
+        }
+    }
+    pub(crate) fn note_interrupted(&self) {
+        self.preparation
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .interrupted = true;
+    }
+    pub fn preparation_io(&self) -> ControlledPreparationIo {
+        let poisoned = self.preparation.is_poisoned();
+        let facts = self.preparation.lock().unwrap_or_else(|p| p.into_inner());
+        let complete =
+            !poisoned && !facts.overflow && facts.git_calls_attempted == facts.git_calls_complete;
+        ControlledPreparationIo {
+            elapsed_ms: u64::try_from(self.started.elapsed().as_millis()).unwrap_or(u64::MAX),
+            git_calls_attempted: facts.git_calls_attempted,
+            git_calls_complete: facts.git_calls_complete,
+            git_stdout_observed_bytes: (complete && facts.git_calls_attempted > 0)
+                .then_some(facts.stdout_lower_bound),
+            git_stderr_observed_bytes: (complete && facts.git_calls_attempted > 0)
+                .then_some(facts.stderr_lower_bound),
+            effects_may_have_started: facts.effects_may_have_started,
+            interrupted: facts.interrupted,
+            io_complete: complete,
+        }
+    }
+}
+fn controlled_check(control: Option<&AdoptionControl<'_>>) -> Result<(), AdoptionError> {
+    if let Some(c) = control {
+        c.check()?;
+    }
+    Ok(())
+}
+fn bound_output(
+    grant: &AuthorizedIntegration,
+    args: &[&str],
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<crate::ControlledGitOutput, WorkspaceError> {
+    let mut command = bound_git_command(grant);
+    match control {
+        Some(c) => crate::controlled_output(command.args(args), c),
+        None => {
+            let start = std::time::Instant::now();
+            let output = bounded_output(command.args(args))?;
+            let io = ControlledIntegrationIo {
+                elapsed_ms: u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX),
+                stdout_retained_bytes: Some(output.stdout.len() as u64),
+                stderr_retained_bytes: Some(output.stderr.len() as u64),
+                stdout_eof: true,
+                stderr_eof: true,
+                owned_leader_reaped: Some(true),
+                owned_group_signal_attempted: Some(false),
+                interrupted: false,
+                read_failed: Some(false),
+            };
+            Ok(crate::ControlledGitOutput {
+                output,
+                interrupted: false,
+                io,
+            })
+        }
+    }
+}
+fn bound_text_controlled(
+    grant: &AuthorizedIntegration,
+    args: &[&str],
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<String, AdoptionError> {
+    controlled_check(control)?;
+    let result = bound_output(grant, args, control)?;
+    controlled_check(control)?;
+    if result.interrupted || !result.output.status.success() {
+        return Err(AdoptionError::Conflict);
+    }
+    String::from_utf8(result.output.stdout)
+        .map(|s| s.trim().to_owned())
+        .map_err(|_| AdoptionError::Conflict)
+}
+fn inspect_bound(
+    root: &Path,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<WorkspaceIdentity, WorkspaceError> {
+    match control {
+        Some(c) => crate::inspect_controlled(root, c),
+        None => inspect(root),
+    }
+}
+
 pub struct AuthorizedIntegration {
     root: PathBuf,
     identity: (u64, u64),
@@ -53,6 +366,9 @@ pub struct AuthorizedIntegration {
     source_candidate: String,
     grant_ref: String,
     commit_time_unix: u64,
+    preparation_host_deadline: Option<std::time::Instant>,
+    preparation_deadline: Option<std::time::Instant>,
+    preparation_epoch: Option<PreparationEpoch>,
 }
 impl AuthorizedIntegration {
     /// Host policy must verify the grant's actor, project/repository, destination
@@ -65,6 +381,49 @@ impl AuthorizedIntegration {
         grant_ref: String,
         commit_time_unix: u64,
     ) -> Result<Self, AdoptionError> {
+        Self::from_verified_grant_inner(
+            root,
+            target_ref,
+            expected_target_head,
+            source_candidate,
+            grant_ref,
+            commit_time_unix,
+            None,
+        )
+    }
+    pub fn from_verified_grant_controlled(
+        root: &WorkspaceIdentity,
+        target_ref: String,
+        expected_target_head: String,
+        source_candidate: String,
+        grant_ref: String,
+        commit_time_unix: u64,
+        control: &AdoptionControl<'_>,
+    ) -> Result<Self, AdoptionError> {
+        let narrowed =
+            control.narrowed(std::time::Instant::now() + std::time::Duration::from_secs(15));
+        let mut authorized = Self::from_verified_grant_inner(
+            root,
+            target_ref,
+            expected_target_head,
+            source_candidate,
+            grant_ref,
+            commit_time_unix,
+            Some(&narrowed),
+        )?;
+        authorized.preparation_host_deadline = Some(control.deadline());
+        Ok(authorized)
+    }
+    fn from_verified_grant_inner(
+        root: &WorkspaceIdentity,
+        target_ref: String,
+        expected_target_head: String,
+        source_candidate: String,
+        grant_ref: String,
+        commit_time_unix: u64,
+        control: Option<&AdoptionControl<'_>>,
+    ) -> Result<Self, AdoptionError> {
+        controlled_check(control)?;
         if !matches!(root.kind, WorkspaceKind::Git { .. })
             || !target_ref.starts_with("refs/heads/")
             || !is_oid(&expected_target_head)
@@ -74,7 +433,7 @@ impl AuthorizedIntegration {
         {
             return Err(AdoptionError::InvalidGrant);
         }
-        let current = inspect(&root.canonical_root)?;
+        let current = inspect_bound(&root.canonical_root, control)?;
         let WorkspaceKind::Git {
             common_dir: approved_common,
             ..
@@ -98,12 +457,15 @@ impl AuthorizedIntegration {
         if !common_metadata.is_dir() {
             return Err(AdoptionError::SubjectMismatch);
         }
-        let valid = bounded_output(
+        controlled_check(control)?;
+        let valid = crate::output_with_control(
             git_command(&root.canonical_root).args(["check-ref-format", target_ref.as_str()]),
+            control,
         )?;
         if !valid.status.success() {
             return Err(AdoptionError::InvalidGrant);
         }
+        reject_symbolic_target(&root.canonical_root, None, &target_ref, control)?;
         Ok(Self {
             root: root.canonical_root.clone(),
             identity: (root.device, root.inode),
@@ -114,6 +476,9 @@ impl AuthorizedIntegration {
             source_candidate,
             grant_ref,
             commit_time_unix,
+            preparation_host_deadline: control.map(|c| c.deadline()),
+            preparation_deadline: control.map(|c| c.deadline()),
+            preparation_epoch: control.map(AdoptionControl::epoch),
         })
     }
 }
@@ -154,21 +519,14 @@ fn bound_git_command(grant: &AuthorizedIntegration) -> std::process::Command {
         .args(["-c", "protocol.allow=never"]);
     command
 }
-fn bound_git_text(grant: &AuthorizedIntegration, args: &[&str]) -> Result<String, AdoptionError> {
-    let output = bounded_output(bound_git_command(grant).args(args))?;
-    if !output.status.success() {
-        return Err(AdoptionError::Conflict);
-    }
-    String::from_utf8(output.stdout)
-        .map(|text| text.trim().to_owned())
-        .map_err(|_| AdoptionError::Conflict)
-}
 fn create_bound_isolated(
     grant: &AuthorizedIntegration,
     managed_root: &Path,
     name: &str,
     commit: &str,
+    control: Option<&AdoptionControl<'_>>,
 ) -> Result<WorkspaceIdentity, AdoptionError> {
+    controlled_check(control)?;
     if name.is_empty()
         || name.starts_with('.')
         || !name
@@ -191,22 +549,57 @@ fn create_bound_isolated(
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
         _ => return Err(WorkspaceError::InvalidPath.into()),
     }
-    verify_repository(grant)?;
-    let output = bounded_output(bound_git_command(grant).args([
-        std::ffi::OsStr::new("worktree"),
-        std::ffi::OsStr::new("add"),
-        std::ffi::OsStr::new("--detach"),
-        std::ffi::OsStr::new("--"),
-        destination.as_os_str(),
-        std::ffi::OsStr::new(commit),
-    ]))?;
+    verify_repository_controlled(grant, control)?;
+    controlled_check(control)?;
+    if let Some(control) = control {
+        control.note_effects();
+    }
+    let output = crate::output_with_control(
+        bound_git_command(grant).args([
+            std::ffi::OsStr::new("worktree"),
+            std::ffi::OsStr::new("add"),
+            std::ffi::OsStr::new("--detach"),
+            std::ffi::OsStr::new("--"),
+            destination.as_os_str(),
+            std::ffi::OsStr::new(commit),
+        ]),
+        control,
+    )?;
     if !output.status.success() {
         return Err(AdoptionError::Conflict);
     }
-    Ok(inspect(&destination)?)
+    Ok(inspect_bound(&destination, control)?)
 }
-fn verify_repository(grant: &AuthorizedIntegration) -> Result<WorkspaceIdentity, AdoptionError> {
-    let current = inspect(&grant.root)?;
+// A symbolic target names a different authority slot. Exit 1 alone means a
+// direct ref; other failures must never be interpreted as permission to write.
+fn reject_symbolic_target(
+    root: &Path,
+    grant: Option<&AuthorizedIntegration>,
+    target: &str,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<(), AdoptionError> {
+    controlled_check(control)?;
+    let mut command = match grant {
+        Some(grant) => bound_git_command(grant),
+        None => git_command(root),
+    };
+    let output =
+        crate::output_with_control(command.args(["symbolic-ref", "--quiet", target]), control)?;
+    controlled_check(control)?;
+    if output.status.code() == Some(1) && output.stdout.is_empty() {
+        Ok(())
+    } else if output.status.success() {
+        Err(AdoptionError::InvalidGrant)
+    } else {
+        Err(WorkspaceError::UnsafeRepository.into())
+    }
+}
+fn verify_repository_controlled(
+    grant: &AuthorizedIntegration,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<WorkspaceIdentity, AdoptionError> {
+    controlled_check(control)?;
+    let current = inspect_bound(&grant.root, control)?;
     if (current.device, current.inode) != grant.identity {
         return Err(AdoptionError::SubjectMismatch);
     }
@@ -223,39 +616,68 @@ fn verify_repository(grant: &AuthorizedIntegration) -> Result<WorkspaceIdentity,
     if matches!(current.kind, WorkspaceKind::Git { dirty: true, .. }) {
         return Err(WorkspaceError::Dirty.into());
     }
-    reject_bound_unsafe_config(grant)?;
-    let actual = bound_git_text(
+    reject_bound_unsafe_config_controlled(grant, control)?;
+    reject_symbolic_target(&grant.root, Some(grant), &grant.target_ref, control)?;
+    let actual = bound_text_controlled(
         grant,
         &[
             "rev-parse",
             "--verify",
             &format!("{}^{{commit}}", grant.target_ref),
         ],
+        control,
     )?;
     if actual != grant.expected_target_head {
         return Err(AdoptionError::StaleHead);
     }
+    controlled_check(control)?;
     Ok(current)
 }
-fn reject_bound_unsafe_config(grant: &AuthorizedIntegration) -> Result<(), AdoptionError> {
-    // Counterfactual checkout contexts can enable includeIf rules absent from
-    // the linked root. Refuse indirection rather than audit only one context.
-    for (pattern, merge) in [
-        ("^include(if\\..*)?\\.path$", false),
-        ("^merge\\.", true),
-        ("^filter\\.", false),
-        (
-            "^(extensions\\.partialclone|remote\\..*\\.promisor)$",
-            false,
-        ),
-    ] {
-        let config = bounded_output(bound_git_command(grant).args([
-            "config",
-            "--no-includes",
-            "--get-regexp",
-            pattern,
-        ]))?;
-        if config.status.success() || config.status.code() != Some(1) {
+fn bound_config_categories(bytes: &[u8]) -> Result<[bool; 4], AdoptionError> {
+    if !bytes.is_empty() && bytes.last() != Some(&0) {
+        return Err(WorkspaceError::UnsafeRepository.into());
+    }
+    let mut forbidden = [false; 4];
+    // --name-only -z emits only complete NUL-separated keys. Values never
+    // enter this parser, so embedded newlines or arbitrary value bytes cannot
+    // masquerade as a configuration declaration.
+    for key in bytes.split(|byte| *byte == 0).filter(|row| !row.is_empty()) {
+        forbidden[0] |= key == b"include.path"
+            || (key.starts_with(b"includeif.")
+                && key.ends_with(b".path")
+                && key.len() >= b"includeif.".len() + b".path".len());
+        forbidden[1] |= key.starts_with(b"merge.");
+        forbidden[2] |= key.starts_with(b"filter.");
+        forbidden[3] |= key == b"extensions.partialclone"
+            || (key.starts_with(b"remote.")
+                && key.ends_with(b".promisor")
+                && key.len() >= b"remote.".len() + b".promisor".len());
+    }
+    Ok(forbidden)
+}
+fn reject_bound_unsafe_config_controlled(
+    grant: &AuthorizedIntegration,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<(), AdoptionError> {
+    // One fresh bounded read at EACH original audit boundary. No include is
+    // followed, no result is cached across inspections, stages or admission.
+    controlled_check(control)?;
+    let result = bound_output(
+        grant,
+        &["config", "--no-includes", "--null", "--name-only", "--list"],
+        control,
+    )?;
+    controlled_check(control)?;
+    if result.interrupted || !result.output.status.success() {
+        return Err(WorkspaceError::UnsafeRepository.into());
+    }
+    let forbidden = bound_config_categories(&result.output.stdout)?;
+    // Preserve original include -> merge -> filter -> partial-clone precedence
+    // and cancellation/deadline checkpoints for every original category.
+    for (refused, merge) in forbidden.into_iter().zip([false, true, false, false]) {
+        controlled_check(control)?;
+        controlled_check(control)?;
+        if refused {
             return Err(if merge {
                 AdoptionError::UnsafeMergeDriver
             } else {
@@ -265,11 +687,16 @@ fn reject_bound_unsafe_config(grant: &AuthorizedIntegration) -> Result<(), Adopt
     }
     Ok(())
 }
+
 fn reject_candidate_gitlinks(
     grant: &AuthorizedIntegration,
     candidate: &str,
+    control: Option<&AdoptionControl<'_>>,
 ) -> Result<(), AdoptionError> {
-    let tree = bounded_output(bound_git_command(grant).args(["ls-tree", "-r", "-z", candidate]))?;
+    let tree = crate::output_with_control(
+        bound_git_command(grant).args(["ls-tree", "-r", "-z", candidate]),
+        control,
+    )?;
     if !tree.status.success() {
         return Err(AdoptionError::Conflict);
     }
@@ -290,28 +717,68 @@ pub fn prepare_candidate(
     managed_root: &Path,
     name: &str,
 ) -> Result<PreparedCandidate, AdoptionError> {
-    verify_repository(&grant)?;
-    reject_bound_unsafe_config(&grant)?;
-    let source = bound_git_text(
+    prepare_candidate_inner(grant, managed_root, name, None)
+}
+/// Original construction deadline/cancel continues through candidate creation.
+/// On Err, control.preparation_io preserves possible private object/worktree IO.
+pub fn prepare_candidate_controlled(
+    grant: AuthorizedIntegration,
+    managed_root: &Path,
+    name: &str,
+    control: &AdoptionControl<'_>,
+) -> Result<PreparedCandidate, AdoptionError> {
+    if grant
+        .preparation_host_deadline
+        .is_none_or(|original| control.deadline() > original)
+        || !grant
+            .preparation_epoch
+            .as_ref()
+            .is_some_and(|epoch| control.matches_epoch(epoch))
+    {
+        return Err(AdoptionError::InvalidGrant);
+    }
+    let original = grant
+        .preparation_deadline
+        .ok_or(AdoptionError::InvalidGrant)?;
+    let narrowed = control.narrowed(original);
+    prepare_candidate_inner(grant, managed_root, name, Some(&narrowed))
+}
+fn prepare_candidate_inner(
+    grant: AuthorizedIntegration,
+    managed_root: &Path,
+    name: &str,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<PreparedCandidate, AdoptionError> {
+    verify_repository_controlled(&grant, control)?;
+    reject_bound_unsafe_config_controlled(&grant, control)?;
+    let source = bound_text_controlled(
         &grant,
         &[
             "rev-parse",
             "--verify",
             &format!("{}^{{commit}}", grant.source_candidate),
         ],
+        control,
     )?;
     if source != grant.source_candidate {
         return Err(AdoptionError::SubjectMismatch);
     }
-    reject_candidate_gitlinks(&grant, &grant.source_candidate)?;
-    let merge = bounded_output(bound_git_command(&grant).args([
-        "-c",
-        "merge.renormalize=false",
-        "merge-tree",
-        "--write-tree",
-        grant.expected_target_head.as_str(),
-        grant.source_candidate.as_str(),
-    ]))?;
+    reject_candidate_gitlinks(&grant, &grant.source_candidate, control)?;
+    controlled_check(control)?;
+    if let Some(control) = control {
+        control.note_effects();
+    }
+    let merge = crate::output_with_control(
+        bound_git_command(&grant).args([
+            "-c",
+            "merge.renormalize=false",
+            "merge-tree",
+            "--write-tree",
+            grant.expected_target_head.as_str(),
+            grant.source_candidate.as_str(),
+        ]),
+        control,
+    )?;
     if !merge.status.success() {
         return Err(AdoptionError::Conflict);
     }
@@ -343,8 +810,12 @@ pub fn prepare_candidate(
         commit.args(["-p", grant.source_candidate.as_str()]);
     }
     commit.args(["-m", "AgentBaton isolated integration candidate"]);
-    verify_repository(&grant)?;
-    let written = bounded_output(&mut commit)?;
+    verify_repository_controlled(&grant, control)?;
+    controlled_check(control)?;
+    if let Some(control) = control {
+        control.note_effects();
+    }
+    let written = crate::output_with_control(&mut commit, control)?;
     if !written.status.success() {
         return Err(AdoptionError::Conflict);
     }
@@ -357,9 +828,10 @@ pub fn prepare_candidate(
     }
     // The target may have advanced during object preparation. Do not silently
     // validate against that changed target, even though user files were untouched.
-    verify_repository(&grant)?;
-    let workspace = create_bound_isolated(&grant, managed_root, name, &integration_candidate)?;
-    verify_repository(&grant)?;
+    verify_repository_controlled(&grant, control)?;
+    let workspace =
+        create_bound_isolated(&grant, managed_root, name, &integration_candidate, control)?;
+    verify_repository_controlled(&grant, control)?;
     Ok(PreparedCandidate {
         authorization: grant,
         workspace,
@@ -385,9 +857,17 @@ pub struct IntegrationRecord {
     pub observed_head: Option<String>,
     pub state: IntegrationState,
 }
-fn checked_out(grant: &AuthorizedIntegration) -> Result<bool, AdoptionError> {
-    let worktrees =
-        bounded_output(bound_git_command(grant).args(["worktree", "list", "--porcelain", "-z"]))?;
+fn checked_out(
+    grant: &AuthorizedIntegration,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<bool, AdoptionError> {
+    controlled_check(control)?;
+    let result = bound_output(grant, &["worktree", "list", "--porcelain", "-z"], control)?;
+    controlled_check(control)?;
+    if result.interrupted {
+        return Err(WorkspaceError::ResourceLimit.into());
+    }
+    let worktrees = result.output;
     if !worktrees.status.success() {
         return Err(AdoptionError::Conflict);
     }
@@ -405,17 +885,49 @@ pub fn adopt_local_reference(
     evidence: &ValidationEvidence,
     acceptance: &Acceptance,
 ) -> Result<IntegrationRecord, AdoptionError> {
+    adopt_inner(candidate, evidence, acceptance, None).map(|result| result.record)
+}
+/// Same independent authority and evidence guards, with one original host clock.
+/// Post-write uncertainty is returned as a record, never a not-started error.
+pub fn adopt_local_reference_controlled(
+    candidate: &PreparedCandidate,
+    evidence: &ValidationEvidence,
+    acceptance: &Acceptance,
+    control: &AdoptionControl<'_>,
+) -> Result<ControlledIntegrationResult, AdoptionError> {
+    adopt_inner(candidate, evidence, acceptance, Some(control))
+}
+fn adopt_inner(
+    candidate: &PreparedCandidate,
+    evidence: &ValidationEvidence,
+    acceptance: &Acceptance,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<ControlledIntegrationResult, AdoptionError> {
+    let started = std::time::Instant::now();
     let grant = &candidate.authorization;
-    verify_repository(grant)?;
+    verify_repository_controlled(grant, control)?;
     if candidate.version_binding() != acceptance.subject().version || !acceptance.matches(evidence)
     {
         return Err(AdoptionError::SubjectMismatch);
     }
+    controlled_check(control)?;
     evidence.verify_current()?;
-    let current = check_adoption(
-        &candidate.workspace.canonical_root,
-        &candidate.integration_candidate,
-    )?;
+    controlled_check(control)?;
+    let current = match control {
+        None => check_adoption(
+            &candidate.workspace.canonical_root,
+            &candidate.integration_candidate,
+        )?,
+        Some(c) => {
+            let observed = crate::inspect_controlled(&candidate.workspace.canonical_root, c)?;
+            match &observed.kind {
+                WorkspaceKind::Git { head, dirty, .. }
+                    if head == &candidate.integration_candidate && !dirty => {}
+                _ => return Err(AdoptionError::SubjectMismatch),
+            }
+            observed
+        }
+    };
     if (current.device, current.inode) != (candidate.workspace.device, candidate.workspace.inode) {
         return Err(AdoptionError::SubjectMismatch);
     }
@@ -426,43 +938,84 @@ pub fn adopt_local_reference(
         return Err(AdoptionError::SubjectMismatch);
     }
 
-    if checked_out(grant)? {
+    if checked_out(grant, control)? {
         return Err(AdoptionError::TargetCheckedOut);
     }
-    verify_repository(grant)?;
-    let result = bounded_output(bound_git_command(grant).args([
-        "update-ref",
-        "-m",
-        "AgentBaton validated local adoption",
-        grant.target_ref.as_str(),
-        candidate.integration_candidate.as_str(),
-        grant.expected_target_head.as_str(),
-    ]));
-    let observed =
-        bound_git_text(grant, &["rev-parse", "--verify", grant.target_ref.as_str()]).ok();
-    let state = match result {
-        Ok(output)
-            if output.status.success()
-                && observed.as_deref() == Some(&candidate.integration_candidate) =>
-        {
-            IntegrationState::ConfirmedLocalRef
-        }
-        Ok(output)
-            if !output.status.success()
-                && observed.as_deref() == Some(&grant.expected_target_head) =>
-        {
-            IntegrationState::Rejected
-        }
-        _ => IntegrationState::OutcomeUnknown,
+    verify_repository_controlled(grant, control)?;
+    controlled_check(control)?;
+    let default_cancel = std::sync::atomic::AtomicBool::new(false);
+    let default_control = AdoptionControl::for_request(
+        &default_cancel,
+        std::time::Instant::now() + std::time::Duration::from_secs(15),
+    );
+    let transaction_control = control.unwrap_or(&default_control);
+    #[cfg(test)]
+    pre_cas_hook::apply();
+    let result = crate::prepared_ref_output(
+        &mut bound_git_command(grant),
+        &grant.target_ref,
+        &candidate.integration_candidate,
+        &grant.expected_target_head,
+        transaction_control,
+        |locked_control| {
+            verify_repository_controlled(grant, Some(locked_control))?;
+            if checked_out(grant, Some(locked_control))? {
+                return Err(AdoptionError::TargetCheckedOut);
+            }
+            controlled_check(Some(locked_control))
+        },
+    );
+    // Commit ACK plus joined exit0 is the historical write receipt. A joined
+    // abort also exits0, but must never be classified as successful adoption.
+    let confirmed_commit = result.as_ref().is_ok_and(|r| r.commit_acknowledged);
+    let confirmed_abort = result
+        .as_ref()
+        .is_ok_and(|r| r.abort_acknowledged && r.validation_error.is_some());
+    #[cfg(test)]
+    controlled_completion_hook::apply(confirmed_commit);
+    let result = result.map(|r| r.result);
+    let observed = bound_text_controlled(
+        grant,
+        &["rev-parse", "--verify", grant.target_ref.as_str()],
+        control,
+    )
+    .ok();
+    let mut io = result
+        .as_ref()
+        .map(|r| r.io.clone())
+        .unwrap_or(ControlledIntegrationIo {
+            elapsed_ms: 0,
+            stdout_retained_bytes: None,
+            stderr_retained_bytes: None,
+            stdout_eof: false,
+            stderr_eof: false,
+            owned_leader_reaped: None,
+            owned_group_signal_attempted: None,
+            interrupted: true,
+            read_failed: None,
+        });
+    io.elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
+    io.interrupted |= control.is_some_and(|c| c.check().is_err());
+    let state = if confirmed_commit {
+        IntegrationState::ConfirmedLocalRef
+    } else if confirmed_abort {
+        IntegrationState::Rejected
+    } else {
+        // A post-commit disconnect or an unacknowledged protocol step cannot
+        // be repaired by looking at today's target value or a generic exit0.
+        IntegrationState::OutcomeUnknown
     };
-    Ok(IntegrationRecord {
-        grant_ref: grant.grant_ref.clone(),
-        target_ref: grant.target_ref.clone(),
-        expected_target_head: grant.expected_target_head.clone(),
-        candidate_commit: candidate.integration_candidate.clone(),
-        validation_digest: acceptance.validation_digest().into(),
-        observed_head: observed,
-        state,
+    Ok(ControlledIntegrationResult {
+        record: IntegrationRecord {
+            grant_ref: grant.grant_ref.clone(),
+            target_ref: grant.target_ref.clone(),
+            expected_target_head: grant.expected_target_head.clone(),
+            candidate_commit: candidate.integration_candidate.clone(),
+            validation_digest: acceptance.validation_digest().into(),
+            observed_head: observed,
+            state,
+        },
+        io,
     })
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -552,3 +1105,280 @@ pub fn plan_development_delivery(
         effect_state: DeliveryEffectState::NotDispatched,
     })
 }
+
+#[cfg(test)]
+mod pre_cas_hook {
+    type Hook = Box<dyn FnOnce()>;
+    std::thread_local! { static HOOK: std::cell::RefCell<Option<Hook>> = std::cell::RefCell::new(None); }
+    pub(super) struct Guard;
+    pub(super) fn install(hook: impl FnOnce() + 'static) -> Guard {
+        HOOK.with(|slot| {
+            assert!(slot.borrow().is_none());
+            *slot.borrow_mut() = Some(Box::new(hook));
+        });
+        Guard
+    }
+    pub(super) fn apply() {
+        let hook = HOOK.with(|slot| slot.borrow_mut().take());
+        if let Some(hook) = hook {
+            hook();
+        }
+    }
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            HOOK.with(|slot| {
+                slot.borrow_mut().take();
+            });
+        }
+    }
+}
+#[cfg(test)]
+mod controlled_completion_hook {
+    type Hook = Box<dyn FnOnce(bool)>;
+    std::thread_local! {static HOOK:std::cell::RefCell<Option<Hook>>=std::cell::RefCell::new(None);}
+    pub(super) struct Guard;
+    pub(super) fn install(hook: impl FnOnce(bool) + 'static) -> Guard {
+        HOOK.with(|slot| {
+            assert!(slot.borrow().is_none());
+            *slot.borrow_mut() = Some(Box::new(hook));
+        });
+        Guard
+    }
+    pub(super) fn apply(joined_success: bool) {
+        let hook = HOOK.with(|slot| slot.borrow_mut().take());
+        if let Some(hook) = hook {
+            hook(joined_success);
+        }
+    }
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            HOOK.with(|slot| {
+                slot.borrow_mut().take();
+            });
+        }
+    }
+}
+#[cfg(test)]
+mod controlled_completion_tests {
+    use super::*;
+    use crate::validation::{
+        validate_artifacts, ApprovedRule, ArtifactRequirement, BoundArtifact, ValidationSubject,
+    };
+    use std::{
+        process::Command,
+        sync::{
+            atomic::{AtomicBool, Ordering},
+            Arc,
+        },
+        time::{Duration, Instant},
+    };
+    fn git(root: &Path, args: &[&str]) -> String {
+        let out = Command::new("git")
+            .arg("-C")
+            .arg(root)
+            .args(args)
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .env("GIT_CONFIG_NOSYSTEM", "1")
+            .output()
+            .unwrap();
+        assert!(out.status.success());
+        String::from_utf8(out.stdout).unwrap().trim().into()
+    }
+    #[test]
+    fn prepared_lock_rechecks_and_aborts_a_late_symbolic_slot_without_overwriting_it() {
+        for checked_out in [false, true] {
+            let temp = tempfile::tempdir().unwrap();
+            let root = temp.path().canonicalize().unwrap();
+            let managed_directory = tempfile::tempdir().unwrap();
+            let managed = managed_directory.path().canonicalize().unwrap();
+            git(&root, &["init", "-b", "source"]);
+            git(&root, &["config", "user.name", "Fixture"]);
+            git(&root, &["config", "user.email", "fixture@example.invalid"]);
+            fs::write(root.join("file.txt"), b"base\n").unwrap();
+            git(&root, &["add", "file.txt"]);
+            git(&root, &["commit", "-m", "base"]);
+            let base = git(&root, &["rev-parse", "HEAD"]);
+            git(&root, &["branch", "integration"]);
+            git(&root, &["branch", "other"]);
+            fs::write(root.join("file.txt"), b"candidate\n").unwrap();
+            git(&root, &["commit", "-am", "candidate"]);
+            let source = git(&root, &["rev-parse", "HEAD"]);
+            if checked_out {
+                let path = managed.join("other-checkout");
+                git(&root, &["worktree", "add", path.to_str().unwrap(), "other"]);
+            }
+            let grant = AuthorizedIntegration::from_verified_grant(
+                &inspect(&root).unwrap(),
+                "refs/heads/integration".into(),
+                base.clone(),
+                source.clone(),
+                "owner:exact-target".into(),
+                1_700_000_000,
+            )
+            .unwrap();
+            let candidate = prepare_candidate(grant, &managed, "candidate").unwrap();
+            let outputs = vec![BoundArtifact::from_approved_root(
+                &candidate.workspace().canonical_root,
+                ArtifactRequirement {
+                    artifact_id: "file".into(),
+                    relative_path: "file.txt".into(),
+                    max_bytes: 4096,
+                    expected_sha256: None,
+                },
+            )
+            .unwrap()];
+            let rule = ApprovedRule::from_verified_policy(
+                "owner:exact-target".into(),
+                "policy:v1".into(),
+                ValidationSubject {
+                    task_id: "task".into(),
+                    attempt_id: "attempt".into(),
+                    spec_revision: 1,
+                    input_revision: "base".into(),
+                    version: candidate.version_binding(),
+                },
+                &[],
+                &outputs,
+                None,
+            )
+            .unwrap();
+            let evidence = validate_artifacts(&rule, vec![], outputs, None).unwrap();
+            let acceptance = evidence.accept(&rule).unwrap();
+            let index = fs::read(root.join(".git/index")).unwrap();
+            let hook_root = root.clone();
+            let _hook = pre_cas_hook::install(move || {
+                git(
+                    &hook_root,
+                    &["symbolic-ref", "refs/heads/integration", "refs/heads/other"],
+                );
+            });
+            let cancel = AtomicBool::new(false);
+            let control =
+                AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(5));
+            let actual =
+                adopt_local_reference_controlled(&candidate, &evidence, &acceptance, &control)
+                    .unwrap();
+            assert_eq!(actual.record().state, IntegrationState::Rejected);
+            assert!(actual.io().io_complete());
+            assert_eq!(
+                git(
+                    &root,
+                    &["symbolic-ref", "--quiet", "refs/heads/integration"]
+                ),
+                "refs/heads/other"
+            );
+            assert_eq!(
+                fs::read(root.join(".git/refs/heads/integration")).unwrap(),
+                b"ref: refs/heads/other\n"
+            );
+            assert!(!root.join(".git/refs/heads/integration.lock").exists());
+            assert_eq!(git(&root, &["rev-parse", "refs/heads/other"]), base);
+            assert_eq!(git(&root, &["rev-parse", "HEAD"]), source);
+            assert_eq!(fs::read(root.join(".git/index")).unwrap(), index);
+            assert_eq!(fs::read(root.join("file.txt")).unwrap(), b"candidate\n");
+        }
+    }
+    fn completed_cas_remains_historical_success(late: bool) {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        let managed_directory = tempfile::tempdir().unwrap();
+        let managed = managed_directory.path().canonicalize().unwrap();
+        git(&root, &["init", "-b", "source"]);
+        git(&root, &["config", "user.name", "Fixture"]);
+        git(&root, &["config", "user.email", "fixture@example.invalid"]);
+        fs::write(root.join("file.txt"), b"base\n").unwrap();
+        git(&root, &["add", "file.txt"]);
+        git(&root, &["commit", "-m", "base"]);
+        let base = git(&root, &["rev-parse", "HEAD"]);
+        git(&root, &["branch", "integration"]);
+        fs::write(root.join("file.txt"), b"candidate\n").unwrap();
+        git(&root, &["commit", "-am", "candidate"]);
+        let source = git(&root, &["rev-parse", "HEAD"]);
+        let grant = AuthorizedIntegration::from_verified_grant(
+            &inspect(&root).unwrap(),
+            "refs/heads/integration".into(),
+            base,
+            source,
+            "owner:controlled-fixture".into(),
+            1_700_000_000,
+        )
+        .unwrap();
+        let candidate = prepare_candidate(grant, &managed, "candidate").unwrap();
+        let outputs = vec![BoundArtifact::from_approved_root(
+            &candidate.workspace().canonical_root,
+            ArtifactRequirement {
+                artifact_id: "file".into(),
+                relative_path: "file.txt".into(),
+                max_bytes: 4096,
+                expected_sha256: None,
+            },
+        )
+        .unwrap()];
+        let rule = ApprovedRule::from_verified_policy(
+            "owner:controlled-fixture".into(),
+            "policy:v1".into(),
+            ValidationSubject {
+                task_id: "task".into(),
+                attempt_id: "attempt".into(),
+                spec_revision: 1,
+                input_revision: "base".into(),
+                version: candidate.version_binding(),
+            },
+            &[],
+            &outputs,
+            None,
+        )
+        .unwrap();
+        let evidence = validate_artifacts(&rule, vec![], outputs, None).unwrap();
+        let acceptance = evidence.accept(&rule).unwrap();
+        let cancel = Arc::new(AtomicBool::new(false));
+        let applied = Arc::new(AtomicBool::new(false));
+        let deadline = Instant::now() + Duration::from_secs(5);
+        let signal = cancel.clone();
+        let proof = applied.clone();
+        let _guard = controlled_completion_hook::install(move |joined_success| {
+            assert!(
+                joined_success,
+                "the fixture only acts after the real update-ref child/readers joined with exit0"
+            );
+            if late {
+                while Instant::now() < deadline {
+                    std::thread::park_timeout(deadline.saturating_duration_since(Instant::now()));
+                }
+            }
+            signal.store(true, Ordering::Release);
+            proof.store(true, Ordering::Release);
+        });
+        let control = AdoptionControl::for_request(&cancel, deadline);
+        let result =
+            adopt_local_reference_controlled(&candidate, &evidence, &acceptance, &control).unwrap();
+        assert!(applied.load(Ordering::Acquire));
+        assert_eq!(result.record().state, IntegrationState::ConfirmedLocalRef);
+        assert!(
+            result.record().observed_head.is_none(),
+            "cancelled post-write observer must not invent a current ref observation"
+        );
+        assert_eq!(
+            git(&root, &["rev-parse", "refs/heads/integration"]),
+            candidate.candidate_commit()
+        );
+        assert!(result.io().io_complete());
+        assert!(result.io().interrupted());
+        if late {
+            assert!(Instant::now() >= deadline);
+            assert!(result.io().elapsed_ms() >= 5000);
+        }
+    }
+    #[test]
+    fn joined_update_ref_success_survives_subsequent_cancel() {
+        completed_cas_remains_historical_success(false);
+    }
+    #[test]
+    fn joined_update_ref_success_survives_late_receipt_handling() {
+        completed_cas_remains_historical_success(true);
+    }
+}
+
+#[cfg(test)]
+#[path = "adoption_config_batch_tests.rs"]
+mod config_batch_tests;

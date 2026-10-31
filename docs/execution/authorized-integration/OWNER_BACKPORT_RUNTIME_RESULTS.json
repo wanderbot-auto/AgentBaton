@@ -1,0 +1,442 @@
+{
+  "recorded_at": "2026-10-31T04:43:29.606399+00:00",
+  "source": "6a4649b3f69d8273d0d6b5bae4506b58ad97d43b",
+  "compiled_core_and_frontend_source": "6ca8c2968cfde74c03f68903152429c5f6103877",
+  "candidate_sha256": "b70ea51ce321dd59bbf56d4fdc24e35d6e44c51b2e95805d62d4b05ef84078ac",
+  "runtime_source_proof_sha256": "7886d5a6d563df2e9600cb7c997b02c50d70ed800a015847fb93c2a6659f5c8a",
+  "scope": "same 6ca Core/frontend fresh builds; later source changes only browser harness, pure tests and metadata. Original frozen107 files reused after equality to fresh outputs, original manifest not relabeled. Owner observation ordering backported without changing schema17/DDL/zero-table guards, wire or original absolute15s deadline.",
+  "commands": {
+    "root17-canonical-setup-full-infra1": {
+      "result_sha256": "f7db8df5554464253f8540f3b969f52faa1b5662c1f885c3e192fc3a3e773e62",
+      "inputs_sha256": "5129f75cd34a3b9ace7fb0c205438e95b9ec8445657becd9bdbb0e7f14b7c022",
+      "log_sha256": "c246a2a618b49d938bb1779edf9a3771836a83029228d8c339353f93be3e2cb8",
+      "source": "6ca8c2968cfde74c03f68903152429c5f6103877",
+      "exit": 0,
+      "seconds": 14.233554501959588,
+      "interruption": null,
+      "infrastructure_count": 523,
+      "scope": "actual returned command; runtime failure stays failure, projection correctness is separate"
+    },
+    "root17-resumed-preview-build1": {
+      "result_sha256": "b48d49213e07d3d764696518000e9649fdbbe1bfe3c65a82346aac29563c9be2",
+      "inputs_sha256": "6f706a7defa0a34a102d9c9fb94794088f6298eb847ecedf83bc6c8e5990ba4b",
+      "log_sha256": "58be89ac38029fc1ddd8a7181be41897ae1baa4022ee18d388e11ff5217b40fb",
+      "source": "6ca8c2968cfde74c03f68903152429c5f6103877",
+      "exit": 0,
+      "seconds": 30.41266401502071,
+      "interruption": null,
+      "infrastructure_count": null,
+      "scope": "actual returned command; runtime failure stays failure, projection correctness is separate"
+    },
+    "root17-resumed-frontend-build1": {
+      "result_sha256": "c7613abefc045b3f8dfdf03741919404bd5b91559d5074486d2773ed7e2ea6ea",
+      "inputs_sha256": "189c53558936d6a9bf2aac1476dfe792ecd300e6dc5b3de7d2c1bd30b41b8916",
+      "log_sha256": "e08859a767f5032a5165cad172cc7aecf672c45d2c803eba25030c7c31dd0d5c",
+      "source": "6ca8c2968cfde74c03f68903152429c5f6103877",
+      "exit": 0,
+      "seconds": 1.8318556360318325,
+      "interruption": null,
+      "infrastructure_count": null,
+      "scope": "actual returned command; runtime failure stays failure, projection correctness is separate"
+    },
+    "root17-owner-backport-full-infra1": {
+      "result_sha256": "975d4467269900fabdba47695e4ef806490057623ec8d6cf7121cc49e38792a1",
+      "inputs_sha256": "d2c9d4d2eb985e3044ba50e8e38f9ab96e0e8515ab2be247abe886f4c504a119",
+      "log_sha256": "a47dd109e0da5e86dfa133a8426b8da6c33152e621a9e42aa25e3235af7f1ccd",
+      "source": "6a4649b3f69d8273d0d6b5bae4506b58ad97d43b",
+      "exit": 0,
+      "seconds": 14.54694259801181,
+      "interruption": null,
+      "infrastructure_count": 523,
+      "scope": "actual returned command; runtime failure stays failure, projection correctness is separate"
+    },
+    "root17-owner-backport-normal-command1": {
+      "result_sha256": "c336a18a32067a95c9ab0f8ee4e96425b7afec3cfc529303e08da7c6a29a2d8d",
+      "inputs_sha256": "f96c5da4340594cc3678995f4d905863db12a8eb64f6340d0f9a940e69c1164a",
+      "log_sha256": "6fb3971e04b6c4f7d881625384fe3f5509d4c73cb91df26ead6ac471ecf079cf",
+      "source": "6a4649b3f69d8273d0d6b5bae4506b58ad97d43b",
+      "exit": 0,
+      "seconds": 23.569545304053463,
+      "interruption": null,
+      "infrastructure_count": null,
+      "scope": "actual returned command; runtime failure stays failure, projection correctness is separate"
+    },
+    "root17-owner-backport-cancel-command1": {
+      "result_sha256": "a471cff5d0b72eef52ffdd2b678aad6b363df5edcf04f7db7ca5989255578612",
+      "inputs_sha256": "12cd722803adb45d94fca14177cd594468a19769ba6ff431a6ecc17f02966776",
+      "log_sha256": "3a38e8111890d13d03d0cf7fc1b73a484a3229800a66451617fe161940cf9834",
+      "source": "6a4649b3f69d8273d0d6b5bae4506b58ad97d43b",
+      "exit": 1,
+      "seconds": 14.847758402989712,
+      "interruption": null,
+      "infrastructure_count": null,
+      "scope": "actual returned command; runtime failure stays failure, projection correctness is separate"
+    },
+    "root17-owner-backport-lost-start-command1": {
+      "result_sha256": "9d655242bc3b5a2bccd54e566ab7c5c57dbba88b467c17049dcd2bd0d1c701f2",
+      "inputs_sha256": "d261946eae92962ea9afd5efcf5a90244a203a23ca4f861c8790dc97ee7320c5",
+      "log_sha256": "7ab6485835761400c83e4236c130ca72ce0de57ad2f497e7a87913559acc2540",
+      "source": "6a4649b3f69d8273d0d6b5bae4506b58ad97d43b",
+      "exit": 0,
+      "seconds": 27.377117096970323,
+      "interruption": null,
+      "infrastructure_count": null,
+      "scope": "actual returned command; runtime failure stays failure, projection correctness is separate"
+    },
+    "root17-owner-backport-normal-cancel-projection1": {
+      "result_sha256": "de6b803dc0ba686c3f3214125298f8e34508f68e995f41bbfbbb21c0ad2667d8",
+      "inputs_sha256": "ef9edf846f339b9e860d05eb4e8730089c5a1dcc5de5638154eec79ec2906d78",
+      "log_sha256": "456b3a6e0000095b92e0790d1de89b26f486ee16003e9b5343f2c61eff8c2640",
+      "source": "6a4649b3f69d8273d0d6b5bae4506b58ad97d43b",
+      "exit": 0,
+      "seconds": 0.20086643303511664,
+      "interruption": null,
+      "infrastructure_count": null,
+      "scope": "actual returned command; runtime failure stays failure, projection correctness is separate"
+    },
+    "root17-owner-backport-lost-start-projection1": {
+      "result_sha256": "6f65f5c632d4d42c36d034ac3957330a113e2812f59b7c728fd9af8b6c9804e8",
+      "inputs_sha256": "be5ca8f9995eaeeb3bdb5476a4e309ffa9da11f74588e68970a00b874114c61c",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "6a4649b3f69d8273d0d6b5bae4506b58ad97d43b",
+      "exit": 0,
+      "seconds": 0.10071041295304894,
+      "interruption": null,
+      "infrastructure_count": null,
+      "scope": "actual returned command; runtime failure stays failure, projection correctness is separate"
+    }
+  },
+  "cases": {
+    "normal": {
+      "summary_sha256": "317ae148145592ca88515757343cfad1f3af1a231b0070e0eafee6b47f7a3945",
+      "private_report_sha256": "3ef41b4e8197a7103a2afa3ee7194e475c33ebd83a54bccbf8eb1879807fd590",
+      "summary": {
+        "contract": "agentbaton.child-goal-ci.v1",
+        "case": "normal",
+        "status": "passed",
+        "schema": 17,
+        "source_head": "6ca8c2968cfde74c03f68903152429c5f6103877",
+        "compiled_core_source_head": "6ca8c2968cfde74c03f68903152429c5f6103877",
+        "manifest_sha256": "b70ea51ce321dd59bbf56d4fdc24e35d6e44c51b2e95805d62d4b05ef84078ac",
+        "tools_sha256": {
+          "batond": "56afd1aab24fd99b76ac73b26f98eefdd5765b56e8eee6f7a48cc0045271d756",
+          "baton": "de47f8c956b5ddf6755a01338f4c377043b67305176114e0b00ca7949f3107bd"
+        },
+        "frontend_asset_count": 3,
+        "frontend_assets_sha256": "ddfb2c947dffadd3215abf58f70c9a900bc4b16e4d072e4dbea1d774df299f50",
+        "harness_sha256": "40607488a0f0e82a0146ba98b70267c1f828b9403d9e5b7336af2bca17b96419",
+        "exit_code": 0,
+        "command_state": "returned",
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 5,
+        "failure_kind": "none",
+        "screenshots_published": false,
+        "private_history_published": false,
+        "finite_diagnostics": {
+          "version": 1,
+          "failure_class": null,
+          "driver_lines": null,
+          "lines_truncated": null,
+          "phase": null,
+          "last_completed_check": "CG06",
+          "core_replies": {
+            "observation": "observed",
+            "captured_count": 269,
+            "truncated": false,
+            "unmapped_error_count": 0,
+            "errors": [
+              {
+                "method": "factory_child_goals.start",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_scopes.propose",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_runs.get",
+                "code": "NOT_FOUND",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_child_goals.start",
+                "code": "STALE_REVISION",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              }
+            ]
+          }
+        }
+      },
+      "checks": 4,
+      "dimension": "Linux Chromium/generated ACP/private test Owner, not production Tauri Native, OS Owner dialog, macOS or live Provider"
+    },
+    "cancel": {
+      "summary_sha256": "311a86c59951a75721541655db6104994ee95a181b912e54307ac1b65e3b9fa4",
+      "private_report_sha256": "242b62c6680bcde096f04282ee4e8ecfbca2d9e13bcc788b58a417d904bf77e0",
+      "summary": {
+        "contract": "agentbaton.child-goal-ci.v1",
+        "case": "cancel",
+        "status": "failed",
+        "schema": 17,
+        "source_head": "6ca8c2968cfde74c03f68903152429c5f6103877",
+        "compiled_core_source_head": "6ca8c2968cfde74c03f68903152429c5f6103877",
+        "manifest_sha256": "b70ea51ce321dd59bbf56d4fdc24e35d6e44c51b2e95805d62d4b05ef84078ac",
+        "tools_sha256": {
+          "batond": "56afd1aab24fd99b76ac73b26f98eefdd5765b56e8eee6f7a48cc0045271d756",
+          "baton": "de47f8c956b5ddf6755a01338f4c377043b67305176114e0b00ca7949f3107bd"
+        },
+        "frontend_asset_count": 3,
+        "frontend_assets_sha256": "ddfb2c947dffadd3215abf58f70c9a900bc4b16e4d072e4dbea1d774df299f50",
+        "harness_sha256": "40607488a0f0e82a0146ba98b70267c1f828b9403d9e5b7336af2bca17b96419",
+        "exit_code": 1,
+        "command_state": "returned",
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": false,
+        "cleanup_record_count": 5,
+        "failure_kind": "runtime_failed",
+        "screenshots_published": false,
+        "private_history_published": false,
+        "finite_diagnostics": {
+          "version": 1,
+          "failure_class": "assertion",
+          "driver_lines": [
+            1576,
+            1265,
+            1276,
+            830
+          ],
+          "lines_truncated": false,
+          "phase": "runtime",
+          "last_completed_check": "CG02",
+          "core_replies": {
+            "observation": "observed",
+            "captured_count": 163,
+            "truncated": false,
+            "unmapped_error_count": 0,
+            "errors": [
+              {
+                "method": "factory_child_goals.start",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_scopes.propose",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_runs.get",
+                "code": "NOT_FOUND",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_child_goals.start",
+                "code": "STALE_REVISION",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_child_plans.context",
+                "code": "INPUT_CHANGED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              }
+            ]
+          }
+        }
+      },
+      "checks": 2,
+      "dimension": "Linux Chromium/generated ACP/private test Owner, not production Tauri Native, OS Owner dialog, macOS or live Provider",
+      "diagnosis": {
+        "first_failure": "collect_graph_records /proc cmdline length-or-NUL-terminator assertion; actual bytes, length and terminator were not retained, so exact cause is unknown; no stop inferred",
+        "actual_cancel_calls": 1,
+        "injected_reply_loss_faults": 1,
+        "cleanup_complete": false,
+        "daemon_exitcodes": [
+          0
+        ],
+        "failure_does_not_become_pass": true,
+        "private_directory_retained": true
+      }
+    },
+    "lost-start": {
+      "summary_sha256": "8d366ba7330204be22f0f4eeefda41b843047af9aafbbe2c2230e370e5e84601",
+      "private_report_sha256": "21a203966861110c367fb3b3694762dac7fe57dea21df1d1b3804598d5ae4d52",
+      "summary": {
+        "contract": "agentbaton.child-goal-ci.v1",
+        "case": "lost-start",
+        "status": "passed",
+        "schema": 17,
+        "source_head": "6ca8c2968cfde74c03f68903152429c5f6103877",
+        "compiled_core_source_head": "6ca8c2968cfde74c03f68903152429c5f6103877",
+        "manifest_sha256": "b70ea51ce321dd59bbf56d4fdc24e35d6e44c51b2e95805d62d4b05ef84078ac",
+        "tools_sha256": {
+          "batond": "56afd1aab24fd99b76ac73b26f98eefdd5765b56e8eee6f7a48cc0045271d756",
+          "baton": "de47f8c956b5ddf6755a01338f4c377043b67305176114e0b00ca7949f3107bd"
+        },
+        "frontend_asset_count": 3,
+        "frontend_assets_sha256": "ddfb2c947dffadd3215abf58f70c9a900bc4b16e4d072e4dbea1d774df299f50",
+        "harness_sha256": "40607488a0f0e82a0146ba98b70267c1f828b9403d9e5b7336af2bca17b96419",
+        "exit_code": 0,
+        "command_state": "returned",
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG03",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 5,
+        "failure_kind": "none",
+        "screenshots_published": false,
+        "private_history_published": false,
+        "finite_diagnostics": {
+          "version": 1,
+          "failure_class": null,
+          "driver_lines": null,
+          "lines_truncated": null,
+          "phase": null,
+          "last_completed_check": "CG06",
+          "core_replies": {
+            "observation": "observed",
+            "captured_count": 310,
+            "truncated": false,
+            "unmapped_error_count": 0,
+            "errors": [
+              {
+                "method": "factory_child_goals.start",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_scopes.propose",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_runs.get",
+                "code": "NOT_FOUND",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_child_goals.start",
+                "code": "STALE_REVISION",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_child_goals.start",
+                "code": "CONFIG_CONFLICT",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              }
+            ]
+          }
+        }
+      },
+      "checks": 5,
+      "dimension": "Linux Chromium/generated ACP/private test Owner, not production Tauri Native, OS Owner dialog, macOS or live Provider"
+    }
+  },
+  "reviews": {
+    "ROOT_23273DD_RESUMED_METADATA.review.json": "2656c3cb81274e76e053f4a8d58f13b618b6bd4526535bddfe51dc97cef15c65",
+    "ROOT_25230DE_E5DCDB4_CANONICAL_FIXTURE.review.json": "b0cd80adc30c20b259bde25740f990799e1837285b40e95aa5564e2f33dd2fe4",
+    "ROOT17_BCFDB6E_OWNER_OBSERVATION_BACKPORT.review.json": "9278f5f89d6c630432aa7309de0a01734805484fbb975868667ef8ac54817014"
+  },
+  "projector_classification": "normal and lost-start projection exited0; failed cancel projection exited1 and retained failed status. Combined projection verifier exit0 means classification matched, never that cancel passed.",
+  "retained_remote_failures": {
+    "root7ee": {
+      "head": "7ee2437db08695347650a28f445cb0034b5f3f58",
+      "Environment": 41162213991,
+      "Product": 41162216164,
+      "status": "Product failed; Rust passed, ARM integration INPUT_CHANGED, Intel deadline and rework Busy, UI integration setup unknown. New local checks do not fix or erase these results."
+    },
+    "notifications784": {
+      "head": "784afd593f81ac62e638f16dbcf065de4b6fcde9",
+      "PR": 22,
+      "Environment": 41168423931,
+      "Product": 41168426054,
+      "status_at_record": "Environment Ubuntu success, both Mac15 fixture errors; UI normal/cancel passed, lost-start failed and downstream integration/notification probe skipped. Rust and both Product Mac lanes still running.",
+      "ui_artifact": 13030536073,
+      "ui_artifact_sha256": "4f09bf22024ede2d09369ef05c5b25ccb08e772b172e75055503ad494bc5bc22"
+    }
+  },
+  "next": "new exact Root candidate CI for ARM/Intel/setup diagnosis while preserving known local cancel failure; independently diagnose collector cmdline-observation refusal (actual failed bytes unrecorded), then merge reviewed Root corrections into dependent notification branch after previous candidate terminal",
+  "unrun": [
+    "new candidate remote Environment/Product",
+    "new schema17 Native and macOS integration acceptance/installers",
+    "manual desktop installation",
+    "live Provider calls"
+  ],
+  "full_130_complete": false,
+  "authority": "AB-START-001 unchanged; main653679d OWNER001/002 acknowledged, no003; no formal Approve/new spending/credentials/signing/production"
+}

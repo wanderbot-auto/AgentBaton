@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "source_commit": "86099d83eaf69c719a104a6cfd19e9a1ab63705d",
+  "author_checks": {
+    "direct_rustfmt": "pass",
+    "git_diff_check": "pass",
+    "scope": "direct rustfmt and git diff --check on each changed source boundary; no Cargo/Actor/Git product tests"
+  },
+  "not_run": [
+    "cargo check",
+    "Rust tests",
+    "Actor/Unix IPC",
+    "Git product tests",
+    "Native",
+    "UI",
+    "browser",
+    "Mac",
+    "remote delivery"
+  ],
+  "implementation_status": "source_wired_not_compiled_or_runtime_accepted",
+  "initial_source_commit": "e7df3f224549d50647ffd82d722e763bf11232a2",
+  "checkpoints": [
+    {
+      "commit": "96012107c8e4594ae7f350e817e9fe630327a563",
+      "change": "actual workspace_leases expires_at projection and same real predecessor-schema proof invalidation test",
+      "execution": "new Rust source NOT_RUN; independent generatedDB immutable-main EXPLAIN/preparation only",
+      "readonly_diagnosis": "/workspace/.onboarding/integration17-context-lease-column-diagnosis/RESULT.json",
+      "wal_caveat": "WAL present; no latest complete history claim"
+    },
+    {
+      "commit": "141cf9a",
+      "change": "physical common identity fencing, strict all-row mirrors and original released-fence journal history",
+      "execution": "source_only_NOT_RUN"
+    },
+    {
+      "commit": "0aba0b1",
+      "predecessor": "a7b138b",
+      "change": "atomic retained metadata 4MiB limits including identity bytes and original shared query-proof budget",
+      "execution": "two new inert SQLite Rust regression sources NOT_RUN"
+    },
+    {
+      "commit": "b9d5c17",
+      "change": "private admitted-stage observation origin and own-fence permit; no wire stage endpoint",
+      "execution": "source_only_NOT_RUN"
+    },
+    {
+      "commit": "f8d03fabbf5dbd60e38a302c0552d8b9e56ff240",
+      "followup": "ca56751",
+      "change": "controlled library CAS original-deadline nonblocking capture and independent IO facts; EINTR and owned test-FD source correction",
+      "execution": "new Rust/pipe/generatedGit tests NOT_RUN by author"
+    },
+    {
+      "commit": "dc12030f942c2807d98818d853c8ef0499a38d7a",
+      "change": "Core private integration Git capture also removes inherited-pipe reader joins; one Linux pipe test source",
+      "execution": "source_only_NOT_RUN"
+    },
+    {
+      "commit": "f70cf55",
+      "change": "reject observed symbolic targets and prevent referent writes; partial hardening, late alias slot overwrite remained open by Root actual Git primitive",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "469abb6",
+      "change": "owned bounded targets list",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "f7fd434",
+      "change": "readonly Store complete ephemeral fields and actual schema17",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "2730557",
+      "change": "prepared locked target transaction, exact commit ACK separates success from abort",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "e189094",
+      "change": "joined descendant-target observation, original shared stage settlement and new bounded full preparation round",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "05757c5",
+      "change": "same transaction local15 deadline passed into locked revalidation",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "19e8e29",
+      "change": "actual Owner start and automatic accepted-policy watcher/coordinator",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "e1680c6",
+      "change": "preview linked-worktree admin metadata seal and strict porcelain parser",
+      "validation": "NOT_COMPILED / NOT_RUN by author"
+    },
+    {
+      "commit": "09c82a1",
+      "change": "reject duplicate worktree roots"
+    },
+    {
+      "commit": "486f0fb",
+      "change": "complete no-symlink admin metadata mode; no user-tree guard change"
+    },
+    {
+      "commit": "aaca1b8",
+      "change": "two generated Git/private Unix IPC preview and refusal tests, NOT_RUN"
+    },
+    {
+      "commit": "97f1410",
+      "change": "remove unused pre-coordinator private Start read intent; real start remains actual owned coordinator"
+    },
+    {
+      "commit": "86099d8",
+      "change": "allow repeated joined descendant preparation observations without prior handles; exact event/round/policy/stop/shared-meter guards unchanged"
+    }
+  ],
+  "remaining": [
+    "actual owned stage scheduler/effect execution and transactional settlement",
+    "automatic accepted watcher and start/targets runtime routes",
+    "full original lineage/fence/validator/CAS and unknown reconciliation fault tests",
+    "Native/UI/UnixIPC actual integration and real Mac runtime validation"
+  ],
+  "latest_source_snapshot": {
+    "path": "/workspace/.onboarding/authorized-integration-source-checkpoint-86099d8/SOURCE.json",
+    "sha256": "9348b1836e5983998dfef9126ac3114dd44b7eeee75dbde31029555fe4aa6ec0"
+  },
+  "remaining_validation": [
+    "all latest Core/library compile and strict Clippy",
+    "Root integration normal/merged-validator failure, auto-start before/after acceptance and delegated Factory path",
+    "actual bounded descendant reprepare and all new-round validators executed again",
+    "cancel/expiry/unknown/CAS crash and durable journal/fence recovery",
+    "mixed shared counters/ledger and zero refund/duplicate effects",
+    "unsupported prepared protocol typed capability classification remains conservative unknown",
+    "Mac/platform behavior",
+    "full VAL009 Unicode/change kinds/remote protected delivery/host cleanup remain open"
+  ],
+  "root_reported_composed_check": {
+    "source": "90a33ce49dd98bdeb81b3197a8b34b9072ab70aa (composition through e1680c6)",
+    "command": "cargo check --locked --workspace --all-targets",
+    "exit": 0,
+    "elapsed_seconds": 17.371,
+    "log_sha256": "8da63de57b816930be824e978aef5271657612fb741043d52bc573a52b00e138",
+    "scope": "compilation only; not latest860 or integration execution"
+  },
+  "test_ownership": "Root assigned integration_ipc.rs and new fixtures/integration_runtime.rs to independent test-only author after97; Core writer will not edit those paths concurrently",
+  "independent_source_reviews": [
+    {
+      "slice": "targets through486f0fb",
+      "status": "SOURCE_READY",
+      "review_sha256": "adc5b563a0985502d5530d0c240ea848333324b33e753dd87d41b05cfafcb192",
+      "manifest_sha256": "c7566f8348e7e5b58a9a6a1257a8f4f7233278e847995744d8f1430173d6f6ef",
+      "execution": "39 static/model checks; six Rust source cases NOT_RUN; not activation/reprepare/CAS acceptance"
+    },
+    {
+      "slice": "activation/reprepare through86099d8",
+      "status": "SOURCE_READY",
+      "review_sha256": "b344377076568246585f9fa2007abab43ffcac73088d1fe3657a6d4ff7bdeb26",
+      "manifest_sha256": "c618aa98156db3b4918e47e15dd3b4769d28566c630c39f52aa90ceb6a2b79e3",
+      "execution": "30 inverse/predicate checks; Rust and actual repeated-target advance NOT_RUN; old97 P2 preserved"
+    }
+  ],
+  "root_runtime_results_checkpoints": [
+    {
+      "source_checkpoint": "b452e4a31dd4d1c9cce7e35282a9c2c9dcf0ff39",
+      "record": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+      "sha256": "377c580d1f0ed9a68b1ea6144a9625ba90afdb3a33698c6eb32ade343cfc39da",
+      "recorded_at_utc": "2026-10-30T13:23:47.441745+00:00",
+      "dimension": "Root source-specific actual commands and original failures; formatter did not run tests",
+      "full_current_validation": "Root full current Core/IPC in progress; no terminal result included",
+      "full_VAL009_or130_accepted": false,
+      "historical_records_preserved": true
+    },
+    {
+      "source_checkpoint": "d8c3282a72c3b622fcb77c4155208263ee0be7d9",
+      "record": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+      "sha256": "29ba72f709e959692b056091de8209506503fdece9728756e2c8236f5d760c08",
+      "recorded_at_utc": "2026-10-30T13:33:37.083180+00:00",
+      "previous_evidence_commit": "6fddb485777e423e419cc26af8f93322c9a6b268",
+      "previous_record_sha256": "377c580d1f0ed9a68b1ea6144a9625ba90afdb3a33698c6eb32ade343cfc39da",
+      "dimension": "Root b452199Core/6IPC terminal pass and subsequent d8c real owned-cancel0/1 failure, metadata only",
+      "current_acceptance": "notaccepted; f653 proposed/unexecuted and current203/fixed7 not run",
+      "old16_command_records_preserved": true,
+      "full_VAL009_or130_accepted": false
+    },
+    {
+      "source_checkpoint": "507d3acf16f4d0c81a5867c1c90de51460a528cd",
+      "followup_code": "0cee7d57907af547880db1367c0386c4bc108950",
+      "record": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+      "sha256": "5a5c2564f157247465ce7d0a1b5a34de44bd1ddb3c3898bc6a2ac786066735aa",
+      "recorded_at_utc": "2026-10-30T14:02:49.022114+00:00",
+      "dimension": "actual203Core/7IPC positive and failed/revoked/running-cancel paths passed; sourceCapture13 passed; strictClippy NOT passed; original unknown and failures preserved",
+      "full_VAL009_or130_accepted": false
+    }
+  ],
+  "root_current_runtime_checkpoints": [
+    {
+      "source": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+      "record": "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+      "sha256": "1f80c94d80dd115dc4b2f6e8035a5eef7d4b2b6e7f9e8333dac480c8c75b1e0d",
+      "dimension": "216Core/7realIPC/357infra/current2browser9checks12PNG; Nativecompileonly; wholeproductincomplete"
+    }
+  ],
+  "composed_source_bound_checkpoint": "COMPOSED_CHECKPOINT_RESULTS.json",
+  "whole_product_accepted": false,
+  "root_resumed_actual_results": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
+  "author_not_run_fields_are_historical": true,
+  "root_matched_schema17_results": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+  "root21_resumed_diagnostics_results": {
+    "path": "docs/execution/authorized-integration/RESUMED_ROOT21_DIAGNOSTICS_RESULTS.json",
+    "sha256": "b740d3ffac13df9ba489f0c7080c7348ac75299ee29af0abfead8350a2fbcc53",
+    "metadata_base": "3bb658b6780062e7492aa182af37f62a2e1b20e8",
+    "tested_sources": {
+      "Factory37_and_IPC20": "e4b635c6d960d0a959f498dabd638fdb38bcada4",
+      "strict_two_target_Clippy_and_infra522": "3bb658b6780062e7492aa182af37f62a2e1b20e8"
+    },
+    "whole_product_accepted": false,
+    "requirements_state_changed": false,
+    "scope": "Finite metadata/raw hashes only; original failures and source attribution retained"
+  }
+}

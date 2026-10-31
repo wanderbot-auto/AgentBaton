@@ -56,7 +56,7 @@ export interface JournalEvent {
   payload: unknown;
   source: string;
 }
-export interface Snapshot { tasks: Task[]; sequence: number; api_version: number }
+export interface Snapshot { tasks: Task[]; sequence: number; api_version: number; database_schema_version: number }
 export interface EventBatch { events: JournalEvent[]; next_cursor: number; sequence: number; gap: boolean; page_bytes?: number; byte_limited?: boolean }
 interface Envelope<T> {
   result?: T;
@@ -86,7 +86,7 @@ export const api = {
     const selected = validateTaskGitWorkspacePreparation(selection, idempotencyKey);
     return parseTaskWorkspaceBindingView(await request<unknown>('workspaces_prepare_task_git', { selection: selected, idempotencyKey }), selected, idempotencyKey);
   },
-  snapshot: async () => {const value=await request<Snapshot>('system_snapshot');if(value.tasks.some(task=>task.state==='accepted'&&(!taskHasAcceptanceProjection(task)||!Number.isSafeInteger(value.sequence)||task.acceptance_sequence!>value.sequence)))throw new Error('Invalid accepted Task projection');return value;},
+  snapshot: async () => {const value=await request<Snapshot>('system_snapshot');if(value.api_version!==1||value.database_schema_version!==17||!Array.isArray(value.tasks)||!Number.isSafeInteger(value.sequence)||value.sequence<0)throw new Error('Unsupported database schema or snapshot contract');if(value.tasks.some(task=>task.state==='accepted'&&(!taskHasAcceptanceProjection(task)||!Number.isSafeInteger(value.sequence)||task.acceptance_sequence!>value.sequence)))throw new Error('Invalid accepted Task projection');return value;},
   create: (goal: string, idempotencyKey: string, projectId?: string) => request<Task>('tasks_create', { goal, idempotencyKey, ...(projectId ? { projectId } : {}) }),
   cancel: (task: Task, idempotencyKey: string) => request<Task>('tasks_cancel', { taskId: task.id, expectedRevision: task.revision, idempotencyKey }),
   events: (cursor: number) => request<EventBatch>('events_subscribe', { cursor, limit: 100 }),

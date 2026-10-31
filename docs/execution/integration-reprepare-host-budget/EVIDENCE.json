@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "unit": "integration-reprepare-host-budget",
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "base_commit": "53e2c1b0432c4e7d96d44fc8205450114709e08d",
+  "source_commit": "55c68245a9416b8db06db957d29deeabd369dd88",
+  "prior_P2": {
+    "source": "06c065b1be36de6330d31698feb0ac17146cf047",
+    "manifest": "/workspace/.onboarding/integration-reprepare-host-budget-06c065b/MANIFEST.json",
+    "manifest_sha256": "c59793b07a11ad0f0317ac4692e535945bdb607d1c86fa55941070f3a2facec4",
+    "finding": "FIFO write had no same-deadline return check; four-line source55 delta adds it. Root actual third run uses old06/c1b and must remain separately attributed."
+  },
+  "source_path": "crates/core/tests/fixtures/integration_runtime.rs",
+  "manifest": {
+    "path": "/workspace/.onboarding/integration-reprepare-host-budget-55c6824/MANIFEST.json",
+    "sha256": "20d997115f4d23eb9f960753a00ab55279fad4ef8ebd4be4f1c5a411fc496584"
+  },
+  "direct_error_readonly_evidence": {
+    "path": "/workspace/.onboarding/integration-reprepare-runtime-direct-deadline-diagnosis/MANIFEST.json",
+    "sha256": "c71a8816be9a34f27765cf03230c49c97cfd3f696d12c05cfc1d4630626c4eb9"
+  },
+  "executed": [
+    {
+      "command": "python3 /workspace/.onboarding/integration-reprepare-host-budget-work/check.py",
+      "exit_code": 0,
+      "static_model_assertions": 50
+    },
+    {
+      "command": "standalone absolute rustfmt --edition2021 --config skip_children=true [fixture]",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "limits": {
+    "new_Command_wall_ms": 500,
+    "cleanup_ms": 500,
+    "unchanged_stage_ms": 2000,
+    "unchanged_shared_ms": 20000,
+    "unchanged_Grant_ms": 30000,
+    "unchanged_observation_ms": 5000,
+    "Host_one_epoch_ms": 500
+  },
+  "unchanged_old_target_cases": 7,
+  "new_test_count_added_this_leaf": 0,
+  "actual_Rust_tests_by_author": 0,
+  "Root_third_fresh_running_source": "06c/c1b, not final55",
+  "not_run": [
+    "Cargo/Clippy/Rust final55",
+    "generated Git/FIFO/ps",
+    "Actor/Daemon/UnixIPC",
+    "Native/macOS/browser"
+  ],
+  "root_commands": "/workspace/.onboarding/integration-reprepare-host-budget-55c6824/ROOT_COMMANDS.json"
+}
