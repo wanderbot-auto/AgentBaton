@@ -73,7 +73,11 @@ def seed(root):
 class NotificationWorkflowInverse(unittest.TestCase):
     def test_exact_inverse_restores_entire_prior_workflow_and_all_historical_pins(self):
         text = WORKFLOW.read_text()
-        restored = W.strip_task_notification_ci_layer(text)
+        # The independently pinned setup layer is composed before this layer.
+        setup_restored = W.strip_integration_setup_diagnostics(text)
+        self.assertEqual(hashlib.sha256(setup_restored.encode()).hexdigest(),
+            "cedf02dd804568c13adffe3a06d0d3ee7691b133961414aa62e1ef892055e4da")
+        restored = W.strip_task_notification_ci_layer(setup_restored)
         self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), '2571ca962ee7eca8ef0b679b86bd939187d69427d83fce3d5ca18c885fc18d23')
         W.verify_only_six_historical_target_changes(text)
         self.assertEqual(W.BASELINE_PRODUCT_SHA256, '4b7543d61e8846248e1b7474ff6fe15d64068612fadbd44f6fe7585933a3378d')

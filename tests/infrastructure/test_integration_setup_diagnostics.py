@@ -167,7 +167,10 @@ class FiniteSetupProjection(unittest.TestCase):
 class ExactDiagnosticSourceInverse(unittest.TestCase):
     def test_complete_step_restores_exact7ee_and_all_older_whole_workflow_pins(self):
         text = F.WORKFLOW.read_text()
-        self.assertEqual(hashlib.sha256(W.strip_integration_setup_diagnostics(text).encode()).hexdigest(),
+        setup_restored = W.strip_integration_setup_diagnostics(text)
+        self.assertEqual(hashlib.sha256(setup_restored.encode()).hexdigest(),
+            'cedf02dd804568c13adffe3a06d0d3ee7691b133961414aa62e1ef892055e4da')
+        self.assertEqual(hashlib.sha256(W.strip_task_notification_ci_layer(setup_restored).encode()).hexdigest(),
             '2571ca962ee7eca8ef0b679b86bd939187d69427d83fce3d5ca18c885fc18d23')
         W.verify_only_six_historical_target_changes(text)
         original = (ROOT / 'tests/infrastructure/fixtures/integration_setup_diagnostics/pre_diagnostics_step.yml.txt').read_text()
@@ -186,10 +189,13 @@ class ExactDiagnosticSourceInverse(unittest.TestCase):
 
     def test_exact_complete_flagged_step_restores765_driver_before_its_original_inverse(self):
         text = F.WORKFLOW.read_text()
-        flagged = text.replace(W.INTEGRATION_SETUP_NOTIFICATION_ANCHOR,
-            W.INTEGRATION_SETUP_NOTIFICATION_FLAG + W.INTEGRATION_SETUP_NOTIFICATION_ANCHOR, 1)
+        # The real notification workflow is already flagged; construct the
+        # standalone diagnostic variant with exactly that reviewed flag removed.
+        self.assertEqual(text.count(W.INTEGRATION_SETUP_NOTIFICATION_FLAG), 1)
+        flagged = text
+        unflagged = text.replace(W.INTEGRATION_SETUP_NOTIFICATION_FLAG, '', 1)
         restored = W.strip_integration_setup_diagnostics(flagged)
-        original = W.strip_integration_setup_diagnostics(text)
+        original = W.strip_integration_setup_diagnostics(unflagged)
         self.assertEqual(restored, original.replace(W.INTEGRATION_SETUP_NOTIFICATION_ANCHOR,
             W.INTEGRATION_SETUP_NOTIFICATION_FLAG + W.INTEGRATION_SETUP_NOTIFICATION_ANCHOR, 1))
         headers = list(re.finditer(r'^      - .*\n', restored, re.M))
