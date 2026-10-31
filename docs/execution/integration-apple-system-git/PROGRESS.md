@@ -9,3 +9,7 @@ Completed validation: 10 Python source preservation/wiring controls, rustfmt che
 OWNER-001/002 authority read and preserved. Overall product/native acceptance remains open. Root owns independent review, tests, composition and CI.
 
 Test-only diagnostic follow-up: `actual_apple_git_system_volume_and_held_pin_pass_the_production_policy` is macOS-only and NOT_RUN. It prints fixed roles/stages plus numeric system-file metadata and volume-policy booleans; no raw mount source, arbitrary error text, environment or credentials. It logs all three ancestor observations before policy assertions, then validates production proof capture/recheck and `system_git` pin/recheck under one five-second test control. A failed trust condition remains a test failure. See `MAC_DIAGNOSTIC_EVIDENCE.json` for source-only checks; Linux cannot execute or validate this Mac test.
+
+## Root composed verification — 2026-10-31T06:21:02.745312+00:00
+
+See [PLATFORM_CLOSURE_RESULTS](../authorized-integration/PLATFORM_CLOSURE_RESULTS.json) SHA256 d76e816d670f9d213d88830275d24f5d640f1c55e008c5d52b98da94f20b055b for exact sources, actual commands, preserved failures, independent reviews and pending platform dimensions. This supplements historical source-only records; no full requirement/native/Provider acceptance is implied.

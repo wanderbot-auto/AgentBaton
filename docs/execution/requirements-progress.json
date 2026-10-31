@@ -2458,7 +2458,8 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
+        "local_platform_closure_partial": "Actual Linux slices only, exact sources/dimensions in PLATFORM_CLOSURE_RESULTS; old failures retained, new Mac/native/Provider/full requirement acceptance not established."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -2470,7 +2471,8 @@
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
-        "docs/execution/authorized-integration/RUNTIME_RESULTS.json"
+        "docs/execution/authorized-integration/RUNTIME_RESULTS.json",
+        "docs/execution/authorized-integration/PLATFORM_CLOSURE_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -4099,12 +4101,14 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance",
+        "local_platform_closure_partial": "Actual Linux slices only, exact sources/dimensions in PLATFORM_CLOSURE_RESULTS; old failures retained, new Mac/native/Provider/full requirement acceptance not established."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/authorized-integration/PLATFORM_CLOSURE_RESULTS.json"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
@@ -4138,14 +4142,16 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance",
+        "local_platform_closure_partial": "Actual Linux slices only, exact sources/dimensions in PLATFORM_CLOSURE_RESULTS; old failures retained, new Mac/native/Provider/full requirement acceptance not established."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/authorized-integration/PLATFORM_CLOSURE_RESULTS.json"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
@@ -7140,7 +7146,8 @@
         "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
         "local_integration17_foundation_partial": "passed only source-attributed Core/migration/CAS and proposal preparation; full execution/Native/Mac remain unverified",
         "head60ba_terminal_prior_capture_diagnostics": "Exact60ba Env/Rust/UI/ARM pass Intel reworkRESOURCE_LIMIT fail; wholeProduct failed. c170 diagnostic-only80pure/203infra(80subset), duplicate-windowfinding closed; no runtimebudgetfix/newCI/Mac claim. Core17/UI/source16 preparation partialseparate; fullscope pending.",
-        "capture_completion_service": "0b647 actual14capture/143Core(14included)/30Factory/strictClippy/fmt passed,18sourceassertions separate; originalfee/caps/authority unchanged. ExactnewdualMac/Native/UI/packaging pending, not Intelperformance/fullscope completion."
+        "capture_completion_service": "0b647 actual14capture/143Core(14included)/30Factory/strictClippy/fmt passed,18sourceassertions separate; originalfee/caps/authority unchanged. ExactnewdualMac/Native/UI/packaging pending, not Intelperformance/fullscope completion.",
+        "local_platform_closure_partial": "Actual Linux slices only, exact sources/dimensions in PLATFORM_CLOSURE_RESULTS; old failures retained, new Mac/native/Provider/full requirement acceptance not established."
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -7173,7 +7180,8 @@
         "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
         "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json",
         "docs/execution/authorized-integration/FIRST_CI_CORRECTIONS.json",
-        "docs/execution/authorized-integration/HEADFBD_CI_AND_LOCAL_RECOVERY.json"
+        "docs/execution/authorized-integration/HEADFBD_CI_AND_LOCAL_RECOVERY.json",
+        "docs/execution/authorized-integration/PLATFORM_CLOSURE_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -7385,7 +7393,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
+        "local_platform_closure_partial": "Actual Linux slices only, exact sources/dimensions in PLATFORM_CLOSURE_RESULTS; old failures retained, new Mac/native/Provider/full requirement acceptance not established."
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -7394,7 +7403,8 @@
         "docs/execution/data-contract-validation/EVIDENCE.json",
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/authorized-integration/PLATFORM_CLOSURE_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -7452,7 +7462,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
+        "local_platform_closure_partial": "Actual Linux slices only, exact sources/dimensions in PLATFORM_CLOSURE_RESULTS; old failures retained, new Mac/native/Provider/full requirement acceptance not established."
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -7472,7 +7483,8 @@
         "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
         "docs/execution/command-core/REVIEW.md",
         "docs/execution/command-integration/EVIDENCE.json",
-        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
+        "docs/execution/authorized-integration/PLATFORM_CLOSURE_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",

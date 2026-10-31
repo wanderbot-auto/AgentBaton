@@ -11,3 +11,7 @@ The initial cc80a48 was not accepted: review found permissive reservation shapes
 The b7181c4 correction also remains an unaccepted historical candidate: review found the Factory SQL-updated stop_confirmed integer encoding was rejected by its boolean-only check. A field-specific bool-or-exact-0/1 follow-up now passes 19 pure controls (0.023s), including no-partial refusal controls and the unchanged original source inverse. It has not been run on a real joined database or CI source; Root execution and independent review remain required.
 
 Root actual 9b2f8cc projection on a retained completed 6565d1c Factory snapshot collected overall but retained pending optional records due to a nonexistent ManagedSession JSON root_grant_id field. The new candidate binds the real JSON grant_id to its SQL column, preserves SQL root identity, and checks only bounded original grant ancestry association. Twenty-two pure tests pass (0.043s); corrected actual projection remains not run and independent review pending. This is not a reconstruction of the old Intel failure or a current grant authorization decision.
+
+## Root composed verification — 2026-10-31T06:21:02.745312+00:00
+
+See [PLATFORM_CLOSURE_RESULTS](../authorized-integration/PLATFORM_CLOSURE_RESULTS.json) SHA256 d76e816d670f9d213d88830275d24f5d640f1c55e008c5d52b98da94f20b055b for exact sources, actual commands, preserved failures, independent reviews and pending platform dimensions. This supplements historical source-only records; no full requirement/native/Provider acceptance is implied.

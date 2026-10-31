@@ -7,3 +7,7 @@ Source establishes the precondition gap: `sessions.rs:915` records running durin
 The patch moves the existing Connection::open before the current mixed_wait and adds only the busy predicate's exact-session positive-update byte condition. Its SELECT expression is byte-identical to `factory_budget.rs:240`'s captured-provider-message measurement. No SQL write, new connection, second wait, sleep, timeout, later-state shortcut or expectation change was added. The nonbusy completed-turn predicate is unchanged.
 
 Seven pure source controls pass: restoring only this predicate and the connection position recovers every baseline source byte; the final assertion/counter/join suffix and original wait helper are byte-identical; duration/wait/pause counts and all test entry points are unchanged; the generated ACP is unchanged; and the observation query binds the same created session and matches settlement. Rustfmt format/parser check and git diff --check passed. These are source observations only, not Rust/SQLite/macOS test results.
+
+## Root composed verification — 2026-10-31T06:21:02.745312+00:00
+
+See [PLATFORM_CLOSURE_RESULTS](../authorized-integration/PLATFORM_CLOSURE_RESULTS.json) SHA256 d76e816d670f9d213d88830275d24f5d640f1c55e008c5d52b98da94f20b055b for exact sources, actual commands, preserved failures, independent reviews and pending platform dimensions. This supplements historical source-only records; no full requirement/native/Provider acceptance is implied.
