@@ -346,6 +346,9 @@ mod engine {
         Err(Code::HomeUnavailable)
     }
 
+    type DirectoryIdentity = (u64, u64, u32, u32);
+    type DirectoryChainIdentity = Vec<DirectoryIdentity>;
+
     #[derive(Clone, Debug, PartialEq, Eq)]
     struct Pin {
         device: u64,
@@ -370,7 +373,7 @@ mod engine {
                 changed: (m.ctime(), m.ctime_nsec()),
             }
         }
-        fn directory_identity(&self) -> (u64, u64, u32, u32) {
+        fn directory_identity(&self) -> DirectoryIdentity {
             (self.device, self.inode, self.uid, self.mode)
         }
     }
@@ -476,7 +479,7 @@ mod engine {
             }
             Ok(())
         }
-        fn identities(&self) -> Vec<(u64, u64, u32, u32)> {
+        fn identities(&self) -> DirectoryChainIdentity {
             self.pins.iter().map(Pin::directory_identity).collect()
         }
     }
@@ -564,8 +567,8 @@ mod engine {
         enabled: bool,
         receipt: Option<Leaf>,
         plist: Option<Leaf>,
-        directories: Vec<Option<Vec<(u64, u64, u32, u32)>>>,
-        runtime_directory: Vec<(u64, u64, u32, u32)>,
+        directories: Vec<Option<DirectoryChainIdentity>>,
+        runtime_directory: DirectoryChainIdentity,
         binaries: Vec<Pin>,
     }
     impl Snapshot {
