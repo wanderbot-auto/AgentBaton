@@ -21,14 +21,15 @@ function ChildPlanPanel({scope,target,run,language,connected,parentReady,parentR
  const t=childPlanMessages[language],identity=`${scope.id}:${target.task_id}`;
  const [saved]=useState(()=>{const prior=memory.get(identity);if(prior)return prior;const value:Saved={pending:null,refs:new Map(),scopeRevision:scope.revision,targetRevision:target.revision,head:0,planId:null};if(memory.size<64)memory.set(identity,value);return value;});
  const capacity=memory.get(identity)!==saved;
- const [context,setContext]=useState<FactoryChildPlanningContext|null>(null),[history,setHistory]=useState<FactoryChildPlanRef[]>([]),[head,setHead]=useState<FactoryChildPlanView|null>(null),[selected,setSelected]=useState<FactoryChildPlanView|null>(null),[raw,setRaw]=useState(saved.pending?.raw??''),[base,setBase]=useState<number|null>(saved.pending?.planRevision??null),[pending,setPending]=useState<Pending|null>(saved.pending),[fresh,setFresh]=useState(false),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[error,setError]=useState(''),[verifiedToken,setVerifiedToken]=useState(''),[notice,setNotice]=useState<SubmissionNotice|null>(saved.pending?{kind:'unknown'}:null);
+ // A new proof record publishes even when cached DTO/token values are equal.
+ const [context,setContext]=useState<FactoryChildPlanningContext|null>(null),[history,setHistory]=useState<FactoryChildPlanRef[]>([]),[head,setHead]=useState<FactoryChildPlanView|null>(null),[selected,setSelected]=useState<FactoryChildPlanView|null>(null),[raw,setRaw]=useState(saved.pending?.raw??''),[base,setBase]=useState<number|null>(saved.pending?.planRevision??null),[pending,setPending]=useState<Pending|null>(saved.pending),[fresh,setFresh]=useState(false),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[error,setError]=useState(''),[verifiedRead,setVerifiedRead]=useState<{token:string}>({token:''}),[notice,setNotice]=useState<SubmissionNotice|null>(saved.pending?{kind:'unknown'}:null);
  const sourceToken=factorySafeFingerprint([connected,parentReadGeneration,parentReadIdentity,scope,target,run]);
  const mounted=useRef(true),epoch=useRef(0),inflight=useRef(false),reading=useRef(false),trustedRead=useRef('');
- const current=useRef({scope,target,run,connected,parentReady,sourceToken,context,head,ready:false,loading,changed:false});
+ const current=useRef({scope,target,run,connected,parentReady,sourceToken,context,head,verifiedToken:verifiedRead.token,ready:false,loading,changed:false});
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;++epoch.current;};},[]);
  function remember(p:Pending|null,expectedKey?:string){if(expectedKey!==undefined&&saved.pending?.key!==expectedKey)return;saved.pending=p;if(mounted.current)setPending(p);}
  const refresh=useCallback(async()=>{
-  const source=current.current,token=source.sourceToken,stamp=++epoch.current;reading.current=true;setFresh(false);setError('');
+  const source=current.current,token=source.sourceToken,stamp=++epoch.current;current.current.ready=false;reading.current=true;setFresh(false);setError('');
   const stillCurrent=()=>mounted.current&&stamp===epoch.current&&token===current.current.sourceToken;
   if(!source.connected){reading.current=false;trustedRead.current='';setError(t.disconnected);setLoading(false);return;}setLoading(true);
   try{
@@ -46,7 +47,7 @@ function ChildPlanPanel({scope,target,run,language,connected,parentReady,parentR
    saved.planId=latest?.proposal.plan_id??saved.planId;saved.head=refs.length;saved.scopeRevision=scope.revision;saved.targetRevision=target.revision;
    for(const ref of refs)saved.refs.set(ref.revision,factorySafeFingerprint(ref));
    trustedRead.current=factorySafeFingerprint([scope,target,run,c,latest]);
-   setContext(c);setHistory(refs);setHead(latest);setSelected(latest);setVerifiedToken(token);setFresh(true);
+   setContext(c);setHistory(refs);setHead(latest);setSelected(latest);setVerifiedRead({token});setFresh(true);
   }catch(e){if(stillCurrent()){trustedRead.current='';setError(`${t.invalid} ${e instanceof Error?e.message:''}`);}}
   finally{if(mounted.current&&stamp===epoch.current){reading.current=false;setLoading(false);}}
  },[saved,t]);
@@ -57,14 +58,15 @@ function ChildPlanPanel({scope,target,run,language,connected,parentReady,parentR
  const readIdentity=factorySafeFingerprint([scope,target,run,context,head]);
  const childRefreshOnly=(parentReady||parentRefreshOnly)&&!capacity&&connected&&!busy&&!pending&&(fresh||loading)&&trustedRead.current===readIdentity&&(loading||parentRefreshOnly);
  const changed=!!context&&base!==null&&base!==context.current_plan_revision;
- const ready=fresh&&!reading.current&&verifiedToken===sourceToken&&trustedRead.current===readIdentity;
- current.current={scope,target,run,connected,parentReady,sourceToken,context,head,ready,loading,changed};
+ const ready=fresh&&!reading.current&&verifiedRead.token===sourceToken&&trustedRead.current===readIdentity;
+ current.current={scope,target,run,connected,parentReady,sourceToken,context,head,verifiedToken:verifiedRead.token,ready,loading,changed};
  const disabled=capacity||!connected||busy||loading||!ready||!!pending||!writable||changed;
  const noticeText=notice?.kind==='unknown'?t.pending:notice?.kind==='denied'?`${t.denied}: ${notice.text}`:notice?.kind==='existing'?(language==='zh'?'本次未新增提交。请先核对原提交的结果。':'No additional submission was sent. Check the existing submission’s outcome first.'):notice?.kind==='not_sent'?(language==='zh'?'本次未发送计划。请刷新记录并检查草稿后再提交。':'No submission was sent. Refresh the records and review the draft before submitting.'):'';
  async function select(ref:FactoryChildPlanRef){if(!context||loading||busy)return;const stamp=++epoch.current,token=current.current.sourceToken;reading.current=true;setLoading(true);try{const view=await factoryChildPlanApi.get(scope.id,target.task_id,ref.revision);if(!childViewShape(view,context,scope)||!factorySame(ref,view.reference)||view.proposal.plan_id!==head?.proposal.plan_id)throw new Error(t.invalid);await verifyChildRaw(view);if(mounted.current&&stamp===epoch.current&&token===current.current.sourceToken)setSelected(view);}catch(e){if(mounted.current&&stamp===epoch.current){trustedRead.current='';setFresh(false);setError(t.invalid);}}finally{if(mounted.current&&stamp===epoch.current){reading.current=false;setLoading(false);}}}
  async function submit(op:Pending){
   const source=current.current;
-  if(inflight.current||reading.current||!source.connected||!source.ready||source.loading||capacity||!source.context||saved.pending!==null&&saved.pending.key!==op.key||(!op.unknown&&(!newSubmissionAllowed(source)||source.changed||op.scopeRevision!==source.scope.revision||op.planRevision!==source.context.current_plan_revision))){setNotice({kind:saved.pending?.unknown?'unknown':inflight.current||saved.pending?'existing':'not_sent'});return;}
+  // Recheck the live proof: read refs can publish before React state commits.
+  if(inflight.current||reading.current||!source.connected||!source.ready||source.verifiedToken!==source.sourceToken||trustedRead.current!==factorySafeFingerprint([source.scope,source.target,source.run,source.context,source.head])||source.loading||capacity||!source.context||saved.pending!==null&&saved.pending.key!==op.key||(!op.unknown&&(!newSubmissionAllowed(source)||source.changed||op.scopeRevision!==source.scope.revision||op.planRevision!==source.context.current_plan_revision))){setNotice({kind:saved.pending?.unknown?'unknown':inflight.current||saved.pending?'existing':'not_sent'});return;}
   const {scope,target,context,head}=source;
   if(!op.unknown){try{parseFactoryChildPlan(op.raw,context,scope,head);}catch(e){setNotice({kind:'denied',text:`${e instanceof DaemonError?`${e.code} · ${e.sideEffectState} · `:''}${e instanceof Error?e.message:''}`});return;}}
   trustedRead.current='';inflight.current=true;remember({...op,unknown:false});setBusy(true);setError('');setNotice(null);

@@ -10,9 +10,10 @@
   "authority": "Root approved narrow UI implementation; source/static-only child, no additional authority",
   "source_sha256": {
     "apps/desktop/src/FactoryRuntime.tsx": "87455db8e315837852cd87e83117dc945c342716afd7f0e822c7a176fde4df10",
-    "apps/desktop/src/FactoryChildPlans.tsx": "b327d18bdef69a4d276f8dcf34a21d1e6368347823ed652bdd4906c75d74bef4",
+    "apps/desktop/src/FactoryChildPlans.tsx": "b833b7b6b0984c57a1c3508e365fe8de77a975ddfa59d6edf1fb068445abfc70",
     "apps/desktop/src/FactoryChildPlans.read-cycle.test.tsx": "d793ac0b0e8b515bae6ffb21739ad247eda0b46c275b68e8d00be437cdab3672",
-    "apps/desktop/src/FactoryRuntime.read-cycle.test.tsx": "49caa5c3f6ca19c27661bcbcf54089b7fb9423b3d5b1fd11f2b5910d62df5010"
+    "apps/desktop/src/FactoryRuntime.read-cycle.test.tsx": "49caa5c3f6ca19c27661bcbcf54089b7fb9423b3d5b1fd11f2b5910d62df5010",
+    "apps/desktop/src/FactoryChildPlans.publication-window.test.tsx": "53ff3d98afc3abddd2077c490302216cc751f5859ff12b4de9e922f179022597"
   },
   "checks": [
     {
@@ -56,8 +57,26 @@
     "no automatic mutation/replay"
   ],
   "test_source_inventory": {
-    "child_expanded_cases": 16,
+    "child_expanded_cases": 17,
     "parent_wiring_cases": 1,
     "status": "source only; not_run"
+  },
+  "prior_fab_source_sha256": {
+    "apps/desktop/src/FactoryRuntime.tsx": "87455db8e315837852cd87e83117dc945c342716afd7f0e822c7a176fde4df10",
+    "apps/desktop/src/FactoryChildPlans.tsx": "b327d18bdef69a4d276f8dcf34a21d1e6368347823ed652bdd4906c75d74bef4",
+    "apps/desktop/src/FactoryChildPlans.read-cycle.test.tsx": "d793ac0b0e8b515bae6ffb21739ad247eda0b46c275b68e8d00be437cdab3672",
+    "apps/desktop/src/FactoryRuntime.read-cycle.test.tsx": "49caa5c3f6ca19c27661bcbcf54089b7fb9423b3d5b1fd11f2b5910d62df5010"
+  },
+  "review_closure": {
+    "reviewed_commit": "fab152b5be8e3eb94882426a7148415c6ec792d6",
+    "status": "source closure; re-review and Node execution pending",
+    "finding": "trustedRead ref/finally can precede React context/head publication; cached ready could permit obsolete CAS (Core still rejects)",
+    "fix": [
+      "synchronous current ready withdrawal at read start",
+      "submit rechecks verified token and full live source/context/head fingerprint",
+      "new completed-proof record publishes even when DTO/token references equal"
+    ],
+    "regression_source": "controlled mocked state publication; new full proof and finally finished before one old-DOM click; zero API, then identical cached read can resume one new explicit current-CAS intent",
+    "scope": "no Core/IPC/authority/poll/budget/unknown recovery change"
   }
 }
