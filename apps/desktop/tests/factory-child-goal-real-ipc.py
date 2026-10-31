@@ -1068,7 +1068,7 @@ def observe_graph_identity(expected, expected_argv, known):
         'initial_binding_verified': known is not None, 'stop_proved': False}
 
 
-def bind_graph_observation(fixed, expected_argv, old, context, output):
+def bind_graph_observation(fixed, expected_argv, old, context, output, finite=None, cancel_durable=None):
     """First observation must prove live identity; repeat never creates one."""
     history = context.setdefault('_graph_provider_identities', {})
     known = history.get(fixed['path'])
@@ -1080,6 +1080,7 @@ def bind_graph_observation(fixed, expected_argv, old, context, output):
         require(len(seen) < 12, 'Bounded Graph observation kinds exceeded')
         base.write_private_json(output / ('observed-graph-' + str(fixed['owned_provider']['pid']) + '-' + result['kind'] + '.json'), observation)
         seen.add(key)
+    graph_finite_observation(finite, known, result, observation, cancel_durable)
     require(result['kind'] != 'not_verified', 'Graph process observation not verified')
     if old is None:
         require(result['kind'] == 'initial_live' and graph_valid_identity(result['binding']) and len(history) < 2)
@@ -1091,7 +1092,109 @@ def bind_graph_observation(fixed, expected_argv, old, context, output):
             and result['binding'] is None)
 
 
-def collect_graph_records(runtime,workspace,scope,context,verified,output):
+def graph_finite_observation(finite, known, result, observation, cancel_durable):
+    """Project the existing two samples; never re-read a PID or change its guard."""
+    if finite is None:return
+    kind=observation['argv']['kind']
+    if kind=='empty':
+        durable=cancel_durable()if cancel_durable is not None else None
+        finite.graph_identity(graph_empty_identity_diagnostic(known,observation['before'],observation['after'],durable))
+    reasons={'empty':'empty','oversize':'oversized','missing_nul':'missing_nul','mismatch':'argv_mismatch'}
+    # A previously strong-bound terminal/absent observation remains only that
+    # observation. Finite argv failure describes an original guard refusal.
+    if result['kind']=='not_verified'and kind in reasons:
+        finite.graph_argv({'reason':reasons[kind],'previously_bound':known is not None})
+
+
+def graph_identity_snapshot(pid,current=None):
+    """One readonly sample; never signal, wait, retry or infer owned stop."""
+    try:
+        value=support.proc_identity(pid)if current is None else current
+        return {'observation':'observed','pid':value['pid'],'ppid':value['parent_pid'],
+            'start_ticks':value['start_ticks'],'uid':Path('/proc',str(pid)).stat().st_uid,
+            'pgid':os.getpgid(pid)}
+    except (FileNotFoundError,ProcessLookupError):return {'observation':'absent'}
+    except (OSError,ValueError,TypeError,KeyError,AssertionError):return {'observation':'unobserved'}
+
+
+def graph_identity_initial(expected,before,after,uid):
+    fields={'observation','pid','ppid','start_ticks','uid','pgid'}
+    if not(type(before)is dict and type(after)is dict and set(before)==set(after)==fields):return None
+    if before!=after or before['observation']!='observed'or type(uid)is not int:return None
+    if not(all(type(before[k])is int for k in ('pid','ppid','uid','pgid'))and before['ppid']>0):return None
+    if type(before['start_ticks'])is not str or re.fullmatch('[0-9]+',before['start_ticks'])is None:return None
+    if not(before['uid']==uid and all(before[k]==expected[k]for k in ('pid','pgid','start_ticks'))):return None
+    return copy.deepcopy(before)
+
+
+def graph_empty_identity_diagnostic(known,before,after,cancel_durable):
+    value={'initial_binding':'verified'if known is not None else 'unobserved',
+        'empty_read_observed':True,'known_same_identity':None,'uid_matches':None,
+        'pgid_matches':None,'ppid_matches':None,'start_ticks_match':None,
+        'after_read':'unobserved','exact_cancel_durable':cancel_durable}
+    if after.get('observation')=='absent':value['after_read']='absent'
+    if known is not None and before.get('observation')==after.get('observation')=='observed':
+        value.update({name:before[key]==after[key]==known[key]for name,key in
+            [('uid_matches','uid'),('pgid_matches','pgid'),('ppid_matches','ppid'),('start_ticks_match','start_ticks')]})
+        same=all(value[k]is True for k in ('uid_matches','pgid_matches','ppid_matches','start_ticks_match'))and before['pid']==after['pid']==known['pid']
+        value.update(known_same_identity=same,after_read='same'if same else 'changed')
+    return finite_projection.graph_identity_diagnostic(value)
+
+
+def remember_graph_cancel(context,call):
+    if call.method!='factory_child_goals.cancel':return
+    snapshot={'params':copy.deepcopy(call.params),'revision':call.revision,'key':call.key}
+    previous=context.get('_graph_cancel_request')
+    if previous is None:context['_graph_cancel_request']=snapshot
+    elif not support.exact_json_value(previous,snapshot):context['_graph_cancel_request_conflict']=True
+
+
+def exact_graph_cancel_rows(scope,factory_run_id,fixed,call,origin_rows,run_rows,idem_rows):
+    """Pure tuple/document binding predicate; committed intent proves no stop."""
+    try:
+        p=call['params'];run_id=fixed['run_id'];task_id=fixed['request']['task_binding']['task_id']
+        if not(type(p)is dict and set(p)=={'scope_id','task_id','goal_run_id','expected_goal_run_revision'}):return False
+        if not(p['scope_id']==scope['id']and p['task_id']==task_id and p['goal_run_id']==run_id):return False
+        if not(type(call['revision'])is int and call['revision']>0 and type(p['expected_goal_run_revision'])is int and p['expected_goal_run_revision']>0):return False
+        if type(call['key'])is not str or planning.KEY.fullmatch(call['key'])is None:return False
+        if not(len(origin_rows)==len(run_rows)==len(idem_rows)==1):return False
+        goal,goal_scope,fscope,frun,task,root,raw=origin_rows[0]
+        if not all(type(value)is str and value for value in (goal,goal_scope,fscope,frun,task,root)):return False
+        record=json.loads(raw,object_pairs_hook=planning.unique_object)
+        if not((goal,fscope,frun,task,root)==(run_id,scope['id'],factory_run_id,task_id,scope['root_task_id'])):return False
+        origin=record['origin'];initial=record['initial_run']
+        if not(record['run_id']==run_id and record['scope_id']==goal_scope and initial['id']==run_id and initial['scope_id']==goal_scope and initial['task_id']==task_id):return False
+        if not(origin['factory_scope_id']==fscope and origin['factory_run_id']==frun and origin['root_task_id']==root):return False
+        rid,rscope,rtask,revision,state,raw=run_rows[0];current=json.loads(raw,object_pairs_hook=planning.unique_object)
+        if not((rid,rscope,rtask)==(run_id,goal_scope,task_id)and type(revision)is int and type(current['revision'])is int and revision==current['revision']and state==current['state']):return False
+        if not(current['id']==rid and current['scope_id']==rscope and current['task_id']==rtask and current['cancel_requested']is True and current['task_accepted']is False):return False
+        if state not in {'cancel_requested','cancelled','outcome_unknown'}:return False
+        payload,raw=idem_rows[0];payload=json.loads(payload,object_pairs_hook=planning.unique_object);receipt=json.loads(raw,object_pairs_hook=planning.unique_object)
+        if not support.exact_json_value(payload,[call['revision'],p]):return False
+        if not(receipt['factory_scope_id']==fscope and receipt['factory_run_id']==frun and receipt['factory_root_task_id']==root and receipt['task_id']==task_id):return False
+        result=receipt['goal']['run']
+        return (result['id']==run_id and result['scope_id']==goal_scope and result['task_id']==task_id
+            and receipt['goal']['task_accepted']is False and result['cancel_requested']is True and result['task_accepted']is False
+            and result['state']in {'cancel_requested','cancelled','outcome_unknown'}
+            and type(result['revision'])is int and p['expected_goal_run_revision']<result['revision']<=revision)
+    except (ValueError,TypeError,KeyError,IndexError,Refusal):return False
+
+
+def observe_exact_graph_cancel(db,scope,context,fixed):
+    call=context.get('_graph_cancel_request')
+    if call is None:return None
+    if context.get('_graph_cancel_request_conflict'):return False
+    try:
+        run_id=fixed['run_id'];task_id=fixed['request']['task_binding']['task_id']
+        origin=db.execute("SELECT goal_run_id,goal_scope_id,factory_scope_id,factory_run_id,task_id,root_task_id,CASE WHEN length(CAST(document AS BLOB))<=1048576 THEN document END FROM factory_child_goal_runs WHERE goal_run_id=? LIMIT 2",[run_id]).fetchall()
+        current=db.execute("SELECT id,scope_id,task_id,revision,state,CASE WHEN length(CAST(document AS BLOB))<=1048576 THEN document END FROM goal_runs WHERE id=? LIMIT 2",[run_id]).fetchall()
+        namespace='factory:'+scope['id']+':owner:'+task_id+':child-goal:cancel'
+        idem=db.execute("SELECT CASE WHEN length(CAST(payload AS BLOB))<=1048576 THEN payload END,CASE WHEN length(CAST(result AS BLOB))<=1048576 THEN result END FROM idempotency WHERE scope=? AND key=? LIMIT 2",[namespace,call['key']]).fetchall()
+        return exact_graph_cancel_rows(scope,context['run_id'],fixed,call,origin,current,idem)
+    except (sqlite3.Error,OSError,ValueError,TypeError,KeyError):return None
+
+
+def collect_graph_records(runtime,workspace,scope,context,verified,output,finite=None):
     """Bind saved generated identities to actual Core text/session/node/attempt."""
     directory=Path(workspace['root'])/'reports'
     if not directory.exists():return
@@ -1124,7 +1227,8 @@ def collect_graph_records(runtime,workspace,scope,context,verified,output):
             fixed={'path':str(path),'sha256':base.sha(raw),'file_pin':pin,'owned_provider':identity,
                 'session_id':session['id'],'attempt_id':session['attempt_id'],'run_id':request['run_id'],'request':request}
             old=next((v for v in verified if v['path']==fixed['path']),None);assert old is None or old==fixed
-            bind_graph_observation(fixed,row['provider_argv'],old,context,output)
+            bind_graph_observation(fixed,row['provider_argv'],old,context,output,finite,
+                lambda:observe_exact_graph_cancel(db,scope,context,fixed))
             if old is None:
                 base.write_private_json(output/('verified-graph-'+str(identity['pid'])+'.json'),fixed);verified.append(fixed)
         db.rollback()
@@ -1568,7 +1672,7 @@ def runtime_driver(args, output):
     def capture():
         if host is None or workspace is None or scope is None or not record_context.get('run_id'):return
         base.collect_started_records(runtime,workspace,scope,record_context,verified,output,reaper)
-        collect_graph_records(runtime,workspace,scope,record_context,graph_verified,output)
+        collect_graph_records(runtime,workspace,scope,record_context,graph_verified,output,finite)
     try:
         report['controller_reaper']={};reaper=base.FixtureControllerReaper(report['controller_reaper']);reaper.enable()
         report['private_installation']={}
@@ -1712,7 +1816,10 @@ def runtime_driver(args, output):
                     except Refusal as error:self.send_error(error.status);return
                     trace={'method':call.method,'params':call.params,'key':call.key,'revision':call.revision,'request_sha256':base.sha(raw),'response_complete':False}
                     with lock:active[identity]=call.method;report['http'].append(trace)
-                    stage='core_call';value,reply=host.wire(call);require(len(reply)<=planning.MAX_WIRE)
+                    stage='core_call';read_started=time.monotonic_ns()
+                    remember_graph_cancel(record_context,call)
+                    value,reply=host.wire(call);read_finished=time.monotonic_ns();require(len(reply)<=planning.MAX_WIRE)
+                    finite.owner_refresh_reply(call.method,call.params,value,read_started,read_finished)
                     path=output/('core-reply-'+uuid.uuid4().hex+'.json');path.write_bytes(reply);path.chmod(0o600)
                     trace.update(response=value,original_reply_path=str(path),original_reply_sha256=base.sha(reply));observe(call,value)
                     if call.method==fault['method']and not fault['used']:
@@ -1897,12 +2004,17 @@ def runtime_driver(args, output):
             finally:phase_stamp('before_owner_capture','end')
             require(before_owner['details']['task_accepted']is False and before_owner['details']['task_acceptance']is None)
             phase_stamp('owner_UI_refresh_click','start')
+            finite.owner_refresh_begin(bound_child_goal_query(query,bounds),time.monotonic_ns())
             try:goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
-            finally:phase_stamp('owner_UI_refresh_click','end')
+            finally:
+                finite.owner_refresh_click_finished(time.monotonic_ns())
+                phase_stamp('owner_UI_refresh_click','end')
             owner=goal_panel.get_by_role('button',name='Review exact Factory-origin candidate in native dialog',exact=True)
             phase_stamp('owner_enabled_expect','start')
             try:expect(owner).to_be_enabled()
-            finally:phase_stamp('owner_enabled_expect','end')
+            finally:
+                finite.owner_refresh_end(time.monotonic_ns())
+                phase_stamp('owner_enabled_expect','end')
             shot('03-real-owned-candidate-before-owner',goal_panel)
             arm_goal_owner_binding(report['goal_owner_binding'],bound_child_goal_query(query,bounds),before_owner['details']['run']['plan_revision'])
             phase_stamp('owner_click','start')

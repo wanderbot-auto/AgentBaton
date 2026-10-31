@@ -1955,11 +1955,29 @@ pub(crate) fn ordinary_session_budget_gate(db: &Connection, project_id: &str) ->
 }
 
 impl Store {
+    // Test-only bridge to the real original guard; no authority/receipt is minted.
+    #[cfg(test)]
+    pub(crate) fn test_factory_ancestor_refusal(
+        &self,
+        id: &str,
+        reservation: &AttemptReservation,
+    ) -> Result<()> {
+        factory::reserve_ancestors(&self.conn, &run(&self.conn, id)?, reservation)
+    }
     pub(crate) fn block_goal_run(
         &mut self,
         id: &str,
         code: &str,
         details_ref: Option<&str>,
+    ) -> Result<()> {
+        self.block_goal_run_observed(id, code, details_ref, None)
+    }
+    pub(crate) fn block_goal_run_observed(
+        &mut self,
+        id: &str,
+        code: &str,
+        details_ref: Option<&str>,
+        observation: Option<&factory::GoalAdmissionObservation>,
     ) -> Result<()> {
         let tx = self
             .conn
@@ -1970,7 +1988,9 @@ impl Store {
             r.state = "blocked".into();
             let mut payload =
                 json!({"reason_code":code,"automatic_retry":false,"task_accepted":false});
-            if let Some(diagnostic) = factory::ancestor_admission_diagnostic(code, details_ref, &r)
+            if let Some(diagnostic) = observation
+                .and_then(|sample| sample.for_run(code, &r))
+                .or_else(|| factory::ancestor_admission_diagnostic(code, details_ref, &r))
             {
                 payload["budget_admission"] = diagnostic;
             }

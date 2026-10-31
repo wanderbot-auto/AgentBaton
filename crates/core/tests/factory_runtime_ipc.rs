@@ -1863,10 +1863,7 @@ fn generated_data_runtime_readiness_rejects_socket_only_partial_or_nonprivate_to
             regular: false,
             ..valid
         },
-        DataRuntimeTokenMetadata {
-            uid: 43,
-            ..valid
-        },
+        DataRuntimeTokenMetadata { uid: 43, ..valid },
         DataRuntimeTokenMetadata {
             mode: 0o640,
             ..valid
@@ -1875,10 +1872,7 @@ fn generated_data_runtime_readiness_rejects_socket_only_partial_or_nonprivate_to
             mode: 0o4600,
             ..valid
         },
-        DataRuntimeTokenMetadata {
-            links: 2,
-            ..valid
-        },
+        DataRuntimeTokenMetadata { links: 2, ..valid },
     ] {
         assert!(!data_runtime_ready_metadata(true, Some(token), 42));
     }

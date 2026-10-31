@@ -1,0 +1,91 @@
+{
+  "baseline": "52dd3463efa3c104c58cf5e82bf752302384c189",
+  "requirements": [
+    "AB-TSK-007",
+    "AB-TSK-010",
+    "AB-TSK-012",
+    "AB-ACP-005"
+  ],
+  "exact_failed_ci_diagnosis": {
+    "baseline": "52dd3463efa3c104c58cf5e82bf752302384c189",
+    "product_run": 41149970320,
+    "intel_job": 124383908298,
+    "official_artifact_id": 13023138320,
+    "official_zip_sha256": "d35b695aaecd937dbcf01ababfd0967c5a2c3a028919fd135d900a91e8e5efb2",
+    "finite_projection_sha256": "9f3539f9f9a73458f64dcbc983391d655564c29bbc6f16e7b82a4da14e046697",
+    "observed_failure": "REWORK_REVISION2_TERMINAL before Owner acceptance; revision2 run12 blocked;29passed1failed",
+    "producer_receipt_elapsed_ms": 4028,
+    "runtime_reservation_ms": 4000,
+    "recorded_queue_component_ms": 625,
+    "settled_actual_ms": 4653,
+    "worker_started": false,
+    "producer_elapsed_is_not_provider_compute_only": true,
+    "source_proven_guard": "remaining=max(4000-4028,0)=0; original capture worker admission refuses, must remain refused",
+    "insufficient_evidence": [
+      "prelaunch/config/queue components",
+      "worker init/session-ready/prompt/turn-completion components",
+      "terminal-turn observed/committed delay",
+      "stop-policy service and actual cancel/reap durations",
+      "exact stop reason and same-producer segment timing"
+    ],
+    "separate_source_gap": "outer supervisor.tick may commit hint; graph/command/data/history and Factory tick occur before full Goal stop sweep; ready-request path already handles same hint immediately",
+    "no_causal_claim": "source gap is real but artifact does not establish it caused4028; no Intel pass guarantee",
+    "source_hashes": {
+      "crates/core/src/goal_graph.rs": "7cffe531ddae9cda472051d0eb51d2f7bf1acdad7cc7bc9b8030442ae1efaf9f",
+      "crates/core/src/goal_runtime.rs": "33a7ee3a941399b7e52a39e463e78fe737f61449e72cd09dbc0dff0a894a1dae",
+      "crates/core/src/sessions.rs": "5d7190c7a7f3a7c15ebf9d28344b9b563196dae257475440046fcad2e834729b",
+      "crates/core/src/ipc.rs": "b4cfd1faf38090efacfef3368b8715b3805bb92a197c9e98d0726b97a4efeb62",
+      "crates/core/src/factory_budget.rs": "d97a0dee937d2a79e1613c69b44ad9235003daed94e2344a02272163e725fb95",
+      "crates/providers/src/process_io.rs": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+      "crates/core/tests/fixtures/factory_child_goal_rework.rs": "d71d3c5a259b8d1f80a3cc7ab5e04fc0ad7ac7ab0d9434f04675ec6027aba7a2",
+      "crates/core/tests/fixtures/factory_child_goal_rework_acp.py": "d946ac8a0badb34315e5e334cda6604c86587b3ec5998d0037fa97276dae9fef"
+    },
+    "not_run": [
+      "Cargo",
+      "SQLite",
+      "IPC",
+      "browser",
+      "CI",
+      "network"
+    ]
+  },
+  "source_checks": {
+    "baseline": "52dd3463efa3c104c58cf5e82bf752302384c189",
+    "status": "source_only_checks_passed_not_runtime",
+    "production_inverse_exact": true,
+    "production_addition": "one call to existing service_hinted_goal_stops immediately after outer supervisor.tick; comments only otherwise",
+    "original6_direct_helper_test_bodies_and_history_module_declaration_unchanged": true,
+    "test_sources_added": 2,
+    "test_fault": "one FK-valid deliberately undecodable CaptureOrigin row in private fixture DB; not authority/worker",
+    "proof_assertions": [
+      "actual original Daemon.run",
+      "actual owned generated ACP pid alive before run and ESRCH after synchronous error cleanup",
+      "positive unique fresh-policy stop request before exact downstream strict-decode failure",
+      "negative exact INPUT_CHANGED provenance refusal before downstream failure",
+      "no new attempts/prompts/acceptance or fake session/attempt stop receipts",
+      "unpersisted stop leaves original workspace lease fenced"
+    ],
+    "source_sha256": {
+      "crates/core/src/ipc.rs": "7ca89a5c0b96923f1c5d47788801b4fcfce78fa7c0aed654a1a782484449da30",
+      "crates/core/src/goal_stop_service_tests.rs": "8b98083affc471cec3bc28671f7a2fa9452c65d0897b5cddd7fc85c384f8b804"
+    },
+    "not_run": [
+      "Cargo",
+      "SQLite",
+      "IPC",
+      "browser",
+      "CI",
+      "network"
+    ]
+  },
+  "actual_author_checks": {
+    "rustfmt_edition2021": "passed",
+    "git_diff_check": "passed"
+  },
+  "runtime_candidate": "not_run",
+  "independent_review": "pending",
+  "new_test_names": [
+    "actual_outer_run_services_committed_owned_turn_before_later_graph_failure_without_false_join",
+    "actual_outer_run_rechecks_corrupt_goal_provenance_before_later_graph_failure"
+  ]
+}

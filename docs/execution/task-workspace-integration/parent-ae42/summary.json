@@ -1,0 +1,173 @@
+{
+  "contract": "agentbaton.task-workspace-ci.v1",
+  "metadata_only": true,
+  "status": "passed",
+  "failure_kind": "none",
+  "source_head": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+  "compiled_core_source_head": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+  "frontend_build_head": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+  "manifest_sha256": "09a487024d3cf6f7ab97b7f26d87405aa0814990ec504ef8dbba1a734c53bcda",
+  "frontend_build_record_sha256": "4c164f6aae6c7e7aa8e249132d655ffcc3e2d500edd51f538cca756608142f59",
+  "tools_sha256": {
+    "baton": "7e35167228f5717f699807d220811099989926f164380480c7fd8000f318bf83",
+    "batond": "23ec86c384c474d20e759f54f34920c27f655e10a39065311fbbe1f594eeb066"
+  },
+  "frontend_asset_count": 3,
+  "frontend_assets_sha256": "f9ddf3345a2b5a1b95224fe2ac3299d54083d209f6a57d7723d9f577f83aea32",
+  "harness_sha256": "667a188f945e6a96a0859e2f776dde5b3a8dce71e40ae7e3b6731ef60b06fabd",
+  "report_sha256": "b6f82a58bf36a079be4bc3dede19c798852d791a946f3726f00381e3847e3deb",
+  "cases": [
+    {
+      "id": "WSI-B01",
+      "status": "passed"
+    },
+    {
+      "id": "WSI-B02",
+      "status": "passed"
+    },
+    {
+      "id": "WSI-B03",
+      "status": "passed"
+    },
+    {
+      "id": "WSI-B04",
+      "status": "passed"
+    },
+    {
+      "id": "WSI-B05",
+      "status": "passed"
+    },
+    {
+      "id": "WSI-B06",
+      "status": "passed"
+    }
+  ],
+  "cleanup": {
+    "complete": true,
+    "daemon_joined": true,
+    "http_joined": true,
+    "nullable_cleanup_complete": true,
+    "input_hashes_unchanged": true
+  },
+  "no_execution": {
+    "schema": 16,
+    "driver_asserted_no_execution": true,
+    "table_counts": {
+      "approval_proposals": 0,
+      "attempts": 0,
+      "budgets": 0,
+      "command_validation_policies": 0,
+      "command_validation_runs": 0,
+      "command_workspace_fences": 0,
+      "connections": 0,
+      "data_validation_policies": 0,
+      "data_validation_runs": 0,
+      "data_workspace_creations": 0,
+      "data_workspace_previews": 0,
+      "data_workspace_receipts": 0,
+      "dispatch_intents": 0,
+      "events": 16,
+      "execution_grants": 0,
+      "factory_attempts": 0,
+      "factory_budget_reservations": 0,
+      "factory_child_goal_runs": 0,
+      "factory_child_plan_heads": 0,
+      "factory_child_plan_revisions": 0,
+      "factory_delegations": 0,
+      "factory_handoffs": 0,
+      "factory_runs": 0,
+      "factory_scoped_handles": 0,
+      "factory_scopes": 0,
+      "factory_task_bindings": 0,
+      "factory_task_lineage": 0,
+      "goal_external_action_journal": 0,
+      "goal_grant_revisions": 0,
+      "goal_graph_acceptances": 0,
+      "goal_graph_candidates": 0,
+      "goal_graph_capabilities": 0,
+      "goal_graph_jobs": 0,
+      "goal_graph_owner_decisions": 0,
+      "goal_graph_validations": 0,
+      "goal_ledgers": 0,
+      "goal_node_evidence": 0,
+      "goal_plan_heads": 0,
+      "goal_plan_proposals": 0,
+      "goal_plan_revisions": 0,
+      "goal_run_nodes": 0,
+      "goal_run_reservations": 0,
+      "goal_runs": 0,
+      "goal_scopes": 0,
+      "idempotency": 7,
+      "managed_workspaces": 3,
+      "projects": 1,
+      "session_runtime_snapshots": 0,
+      "session_turns": 0,
+      "sessions": 0,
+      "sqlite_sequence": 1,
+      "tasks": 3,
+      "validation_policies": 0,
+      "validation_runs": 0,
+      "workspace_leases": 0
+    }
+  },
+  "screenshots_published": true,
+  "private_history_published": false,
+  "screenshots": [
+    {
+      "name": "01-first-task-ready-desktop.png",
+      "sha256": "a4e156deccc747eff53d760412d9e2c8fff6625a131a7176e6b448742f316d1a",
+      "bytes": 116445,
+      "width": 1440,
+      "height": 1100
+    },
+    {
+      "name": "02-second-task-exact-recovered-desktop.png",
+      "sha256": "c6dc79b1c911e56d5962b43fbf593d27117d6ba105ec35c2b501a1a66801987d",
+      "bytes": 116724,
+      "width": 1440,
+      "height": 1100
+    },
+    {
+      "name": "03-drift-invalidates-proof-desktop.png",
+      "sha256": "a2df882b75dd8853978c15d3e09e72dfb208d30d9a3f223aca6474bcaa6a4d37",
+      "bytes": 129879,
+      "width": 1440,
+      "height": 1100
+    },
+    {
+      "name": "04-drift-history-mobile.png",
+      "sha256": "a060a73cb65777bdcd61eff7144e91c47485ae42ffe771f9aa5d04d0d116300d",
+      "bytes": 52135,
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "05-task2-bound-execution-desktop.png",
+      "sha256": "09281fb327dbe2c7c4e8bd83d2ff23fe1e5ee9b6f3cc562fb8e0d4a6ca36a29a",
+      "bytes": 179952,
+      "width": 1440,
+      "height": 1100
+    },
+    {
+      "name": "06-task1-bound-execution-mobile.png",
+      "sha256": "19142a06096dc6cd3b0fda1f135818a03b581eb7139c93f348d96245859c230e",
+      "bytes": 49851,
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "07-unbound-entry-parent-refresh-recovery-desktop.png",
+      "sha256": "03db7d255f43b683e1e909d8c1ec0b564f904aee73660bfb8292b75f826a22be",
+      "bytes": 157614,
+      "width": 1440,
+      "height": 1100
+    },
+    {
+      "name": "08-unbound-entry-exact-recovered-desktop.png",
+      "sha256": "a78428254ad6378e2b6ccdecb7a92ab62a6afe6c73f3ef5ed103d28f86c7fb4f",
+      "bytes": 182511,
+      "width": 1440,
+      "height": 1100
+    }
+  ]
+}

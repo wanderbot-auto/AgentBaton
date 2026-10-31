@@ -1,3 +1,9 @@
+## Root17 source composition ready; product regression still pending — 2026-10-31T08:47:38.421618+00:00
+
+Ordinary merge of fd24203 and PR19 b55c44a preserves strict17, all integration storage/accounting and real worker stop/join paths while inheriting Main Owner FIFO and its single private GoalAdvanceReply diagnostic. The unpublished passing compound candidate is explicitly superseded; its245 Core result stays historical. Seven applicable typed-property controls and three Store controls replace representation-specific tests with the mapping retained. No budget, permission, unknown-result policy or baseline safety assertion is weakened.
+
+Independent source reviews cover the fixed five typed Rust files, four history/stop/wire files and thirteen document resolutions, five Python merges and four source-test locator adaptations. Complete inverse proofs preserve both source histories. Scoped pure87 passes with zero actual calls; earlier78/4/4 and83/4 outcomes remain. These source/pure checks do not validate the new merged runtime. [Evidence and exact pending checks](root21-main-alignment/EVIDENCE.json). Owner001/002 ACK; full130 and all authority limits remain.
+
 ## Root17 product and diagnostics verified locally; exact Mac CI pending — 2026-10-31T06:21:02.745312+00:00
 
 Source0fbc passes Core235, workspaces194+7docs and integrationIPC20. Source7e passes strict Core/workspaces all-targets Clippy after retained two test type-complexity failures. Fresh7e Core/frontend/private empty probe and corrected0af harness pass actual Linux normal4/cancel4/lost-start5, all cleanup confirmed. The original7e ACK missing-hashlib failure and incomplete cleanup remain retained; source-only checks had masked that dependency. Full composed82c infrastructure586 and format pass. [Exact evidence](authorized-integration/PLATFORM_CLOSURE_RESULTS.json), SHA256 d76e816d670f9d213d88830275d24f5d640f1c55e008c5d52b98da94f20b055b.
@@ -103,6 +109,77 @@ Parent PR18 current8c292 Environment/Rust/UI passed; Intel failed26/1 with first
 
 Reviewed Parent674d adds diagnostic fields and an explicit private0700 test fixture while preserving production checks/budgets. Parent4344 exactEnvironment3/UI pass; Rust/ARM/Intel fail the same newpositivecapture INPUT_CHANGED (137/1), preventing later Factory/native/build stages and secondarily failing required rework evidence collection. Root reproduced originalfailure with childumask022; explicitprivatefixture gives10 controls passed under022/002/077 and full139Core passed under022. OriginalCI/inputchanged guard/failedELF remain; this is not a newMac/oldIntel4231 fix claim. New combinedschema16 tests/CI/native/packages have not run; priorbc10 30/156/235/6IPC8PNG retain source attribution. PR20 acceptedfileprimitive is separately reviewed/pushed225 but NOT composed here. OWNER001002ACK/main653679d; authority unchanged.
 
+## PR19 exact-main ancestry verified; own CI next — 2026-10-31T08:16:48.963781+00:00
+
+The reviewed content integration23d and local regressions remain source-bound. Protected main7ecf exactly equals approved Parent18 ae42's complete tree; a genuine prior merge already included ae42. After a separate reviewed ADR/proof commit, marker19e9 records7ecf ancestry with exactly zero file changes and an identical immediate before/after tree. Independent after-review ecb381308d1886562bf64914e7fb5c10e2b6806c3ec96a4334c607a000853a7b confirms ordered parents and ancestry. [Actual proof](task-workspace-integration/SQUASH_ANCESTRY_ACTUAL_PROOF.json) retains the earlier Owner digest-label correction; raw and normalized text hashes are explicit. No Owner instruction changed.
+
+PR19 will be retargeted to main and pushed normally for its own exact-candidate Environment/Product/native/dualMac checks. These are pending, and Parent18's successful packages do not certify schema16. Full130 and all permission limits remain unchanged; no formalApprove or protected-main action was performed by this marker.
+
+## Parent18 merged; schema16 current regression verified — 2026-10-31T08:03:57.927916+00:00
+
+PR18 was normally protected-squash merged as7ecf0c5 after exact ae42 checks and independent review. PR19 source23d normally merges original ae42 and keeps strict16 history reads (15/17 refused). Actual210 Core (11history subset),33 Factory,58sessions,9Task targets,6genuine14 and5fresh genuine15 migrations pass; strict workspace/alltargets and migration Clippy/fmt pass. Type/build and1069 UI/59files plus342 infrastructure pass. All6 actual Chromium/React→normalCore16 UnixIPC scenarios/8originalPNG pass with genuine daemon wait0/cleanupcomplete; Root inspected2 originals. No NativeMac/Provider result is inferred.
+
+Preserve old stale-helper5failure, sparse-checkout342/1failure and initial0matched filter. Complete checkout source/index unchanged; fresh genuine15 input came from immutable original old15 binaries. [Exact commands and evidence](task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json). PR19 retarget/ancestry marker and exact new CI/dualMac/installers remain pending. Owner001/002 ACK/no003; full130 incomplete and all authority limits unchanged.
+
+## Readonly Goal polling recovers safely; local regression checked — 2026-10-31T05:42:21.877135+00:00
+
+New source fdf0d2c preserves the original20-read/one-second limit and enables readonly recovery only for exact typed retryable/not_started Busy from the same validated source. Actions remain stale until the complete view is checked. Type checks,954 UI tests/55 files, frontend build, fresh same-source Core/CLI and296 infrastructure checks passed. Real Linux Core/browser normal4, cancel4 and lost-start5 checks passed with cleanup. [Exact evidence](child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json) SHA256 b2e991398b436dc7aeee102676c246bb43eba4b79a20eef35c60962b813839dd. Targeted93 overlaps full954; their counts are not added. Original65/28 timeout and92/1 selector failures remain.
+
+New exact PR18 CI/Native and installers remain pending. Previous7af both Mac lanes passed but UI failed. Separate Root21 accc has Environment3 success, Product Rust success but UI preflight and both Mac failures; notification784 also remains failed. Full Design v0.2 is incomplete and all existing authority limits remain.
+
+## Parent15 Owner observation and read-cycle verified locally — 2026-10-31T03:09:30.745908+00:00
+
+Reviewed outerGoalstophint service/Core033182+Factory33 and UI589919/55 preserve source attribution. Sameactual9fCore/frontend with ec5harness pass normal4checks4PNG, cancel4/3, loststart5/4 and completecleanup; ec5infra284/fmt pass. Old9f15stimeout/cleanupfalse and bd twoinfracontrol failures remainfailed; only exact dependenttestloaders corrected. No original4s/15s/TTL/Grant/singleworker/rawreference/CAS budget or permission relaxed.
+
+RemoteParent52 Environment3/Rust/ARMpass, Intel/UI failures retained; oldIntel4028producer/4653actual>4000 remains unproven resolved by localpass. Next exactnewCI/dualMacNative/audit/installers/protectedintegration/full130 remainopen. [Current source-bound results](owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json). SeparateRoot17/notifications work continues, not composed into this15 record. Main653679d OWNER001002ACK/no003; formalApprove/privateProvider/newspend/signing/production unchanged.
+
+## Root verified queued Owner read candidate — 2026-10-31T00:21:23.878308+00:00
+
+Product source cbb16c7 passes 180 Core units, 33 actual Factory IPC cases, strict workspace/alltargets Clippy/fmt, same-source frontend/explicit preview builds and normal actual Chromium/Unix IPC (4 checks, 4 original PNGs, cleanup complete, daemon exit0). Root viewed the original final TaskAccepted/Graph/Factory screenshot. Test-only b183c86 fixes the extracted timing namespace; all284 infrastructure cases then pass. Preserve the prior284-case NameError log, not a product timeout failure.
+
+PR18 f55 Product41143055493 remains failed: ARM/Rust pass; Intel original bounded readonly reconciliation exhausted after Owner decision; UI normal typedWORKSPACE_BUSY fails while cancel/lost-start pass. New queued-head service and bounded poll do not enlarge any retry/deadline/Scope/budget authority. Local passes do not prove Intel root cause or new Mac/CI/installer acceptance. See [source-bound results](owner-read-before-factory-ticks/ROOT_RESULTS.json). Main653679d/OWNER001002 ACK, no003; formalApprove, production, spending and credentials remain separately restricted.
+
+## Private Goal diagnostic handoff locally verified — 2026-10-30T23:08:56.158078+00:00
+
+Exact090df57 passes170 unique Core (new3 real Store/SQLite controls included),33 Factory (real rework and prior3busy controls included),269 infrastructure, strict workspace/alltargets Clippy/fmt and same-head frontend/explicit preview builds. Actual paired Core15/React childcancel passes4checks/3originalPNG, real daemonexit0/cleanupcomplete and finite publication; Root viewed original04. New diagnostics do not change public wire/recovery, budgets, permissions, stop/unknown or retry semantics. See [Root results](goal-admission-observation-handoff/ROOT_RESULTS.json).
+
+Retain original429a compileE0599 before any tests: old delayed-frame test uses blocking send; a minimal cfg(test) adapter preserves blocking/error payload semantics and old tests. Static unused-wrapper P2 and review omissions are recorded, not called actual compiler results. This passing browser did not reproduce argv refusal, and no natural ancestor denial occurred in the passing rework; new exact CI/dualMac/packages and Intel budget outcome remain pending. Prior71f Env3/Rust/ARMpass Intel29/1/UIcancel failures remain source-bound. Full130 incomplete; OWNER001002/main653679d freshly ACK/no003, authorization unchanged.
+
+## Readonly busy reconciliation locally verified — 2026-10-30T19:15:00.563367+00:00
+
+Source b025/58fad test-only reconciliation passes full33 Factory (new3 strict busy controls and real rework included), strict workspace/alltargets Clippy and format. No natural busy reply occurred in the local actual run; this does not establish Intel resolution. The original2 shared retries,55s observation/Scope TTL/5s reads, exact three readonly bindings and write/business/unknown refusal remain unchanged. See [Root results](factory-rework-read-busy/ROOT_RESULTS.json).
+
+Prior exact8fe Environment3/Rust/UI/AppleSilicon pass; Intel fails26/1 on typed WORKSPACE_BUSY/not_started, with daemon real cleanup joined. Earlier budget/unknown/deadline failures remain distinct. Source independently Ready27checks; new same-source CI/dualMac/packages pending. Full130 remains incomplete; OWNER001002/main653679d ACK, no new authority, formalApprove or production/signing claim.
+
+
+## Root actual verification — 2026-10-30T18:18:22.756351+00:00
+
+Exact source937b426 passes167 unique Core units (new2 included; nested helper not additive),256 infrastructure controls, strict workspace/all-target Clippy and format. Real generated ACP/Command/UnixIPC failed-validator→rework→Owner→parent-resume passes32.57s;29 other Factory cases were filtered, not run here. Optional typed original ancestor-budget refusal details preserve all limits/error semantics and have independent source/pure review. [Root results](factory-ancestor-admission-diagnostics/ROOT_RESULTS.json) retain commands/source/logSHA and earlier evidence.
+
+Original fbeb Environment3/Rust/ARM passed but wholeProduct failed: legacy UI cancelled-provider empty argv, Intel26/1 blocked/resource-limit at runrev14. Capture2 was3919/4000; postshutdown child15589+newreservation6000 exceeds20k but is not the original admission snapshot. New code adds exact guarded finite observations, not a claimed original rootcause/fix or budget increase. Legacy cancel4checks localpass uses new harness and explicitly older415 compiledCore/frontend; empty-argv branch not actually counted. Exact new remoteCI, current Mac/Native/development packages and full130 remain unverified; no oldpass transfer/noformalApprove/no production/signing/credentials or additional spend.
+
+## Finite failure diagnostics verified; exact new CI remains pending — 2026-10-30T16:51:58.791357+00:00
+
+Exact source2d42404 infrastructure233 passed after preserving and fixing the two AST dependency failures. A real failed-Command/rework/Owner/parent-resume case passed34.32s; actual new collector read the complete stopped DB and retained missing last-revision evidence as pending. Direct historical helper on the same real successful DB observes cancelled worker stops with completed turns; never treats cancelled as Owner intent or explains Intel. New normal browser diagnostic4checks passed with driver42b/ad400, compiled Core/frontend415 separately attributed.
+
+Original Parent415 Env3/Rust/ARM succeeded, UI and Intel failed; Intel25/2 has Work4013/4000 outcome_unknown, not prior61 capture4164/4000 blocked. ARM development artifact12992712996 is metadata-only; no dual deliverable or signature claim. New exact candidate CI remains required, no local pass substitutes for it.
+
+Commands, hashes, original failures, evidence dimensions, closed authority and next actions: [ROOT_RESULTS.json](finite-failure-diagnostics-root/ROOT_RESULTS.json), SHA256 `510fbef3e660b4060aa23ee2f0f412bc79b434b10046e30dbba7359f06105a9a`. No raw DB, credentials, Owner proposals or private messages published. Separate schema17 latest405infra does not prove its target-drift feature/Native/Mac gates.
+
+## Dedicated readonly history worker passed local regressions; exact Mac CI pending — 2026-10-30T15:23:35.312072+00:00
+
+Source6acd/d649 keeps Factory history get/list off the Actor thread using one owned readonly WAL request worker. Original complete history checks and snapshot revision remain; originalwrite/livechecks/deadlines/4s20s/fees/PASS/admission ordering do not change. Actor retains raw database pin until genuine join outside a writer transaction; ownSQLinterrupt andshutdown paths are covered. Actual165Core(new12/nestedincluded),30Factory,58sessions UnixIPC,203infrastructure, strictClippy/fmt passed at recorded sources. See [Root results](factory-history-worker/ROOT_RESULTS.json).
+
+Prior61 exact Environment3/Rust/UI/ARM pass; Intel26/1 fails plan2/run12 blocked REWORK_REVISION2_TERMINAL, capture4164/4000 producer3745 IO not_started/nojoin. OfficialfiniteZIP12982199412 kept; readonlyelapsed is not CPUcausality and postshutdownusage is not exactadmission. No measured Intelrepair. ARM12983303931 is metadataonly/noIntelpackage; newcandidate checks anddualNative/Mac/installers pending. Core17 separately has203/7passed priorcode,357infra/Nativefeaturecompile andtwo realbrowser flows9checks12PNG at4e; actualusage labels were corrected and49mock tests pass, latestreadonlyhistory17 composition still in freshregression. No Root17/NativeOS/Provider result transfer. Full130 andallauthoritygates unchanged; main653679d/OWNER001002ACK/no003.
+
+## Request-local Factory summary proof verified; exact CI pending — 2026-10-30T13:21:13.227918+00:00
+
+Read-only get/list now validates immutable SQL history once inside one owned Deferred request snapshot; existing caller transactions and all effect/live/time/FS checks retain original strict behavior. Source07d8c1d passes153Core (focused4/nestedhelper included),30Factory,58sessions IPC, strict workspace/all-target Clippy and format. Independent source/model review has no remaining must-fix. No speedup or Intel repair is established. See [Root results](factory-summary-proof/ROOT_RESULTS.json).
+
+Exact previous059 Environment3/Rust/UI/ARM pass; Intel26/1 fails REWORK_OUTCOME_UNKNOWN plan2/run11 with same-node4013/4000ms/stopconfirmedtrue. No current capture timings/join proof; this differs from prior8c observationdeadline. Official finite ZIP12977285190 retained, ARM12977736978 metadata-only, no new dual installers. New candidate exact checks remain required and old results never transfer.
+
+Core17 separate branch now has two real normal integration paths and fresh-validator-failure/revocation negatives at their attributed commits, mocked45UI/type-build and owned-stop composition; its current full199/6IPC is running. Native feature compile passed5993; actual local Native tests capacity-interrupted before execution. Full130/Native/Mac/remote/Unicode/change/cleanup delivery remains open. Main653679d/OWNER001002 freshly ACK/no003; permissions unchanged, no formal Approve.
+
 ## Owned Goal stop service verified locally; exact new CI remains required — 2026-10-30T11:59:41.191738+00:00
 
 Sourcee6c43c4 (production071 unchanged) passes149unique Core tests,30Factory and58actual sessions IPC, strict workspace/all-target Clippy and format. The focused6 are included in149; nested helper is not additive. A private hint after committed owned Goal terminal turns services the original complete fresh stop policy in the ready batch; original outer sweep, all admission/capture order,4s/20s budgets and accounting remain. Original4PASS/2FAIL tests and full failedELF are retained; strict running/pending and actual post-reap Task/receipt/attempt/event assertions now pass. Old failed TempDirs auto-cleaned, with no false oldDB retention claim.
@@ -132,6 +209,15 @@ Root reproduced originalpositivefailure atsource4344 with onlychildumask022:0PAS
 Actual source674d10controlsPASS under022/002/077 (same10, not30unique); fullCore139PASS90.33s under022 includes10/nestedhelperexcluded; format andstrictworkspacealltargetsClippy pass. OriginalfailedrawELF38,566,240B SHAc44e16ee…ea86/fullgzip/log/source retained. Actual4344 frozenCLI/daemon sizes are recorded, not CPUtime or oldIntelcause. NewexactMac/7CI stillpending. See PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json.
 
 PR19 local2e preservesexact16 andisbeingvalidated; PR20 acceptedfileprimitive draft isindependent/partial. Continue Corebranchpreauthorization/ownedintegration/sharedbudget/full130; OWNER001002ACK/main653679d; authority unchanged.
+## Parent674d schema16 actual regression — 2026-10-30T06:44:24.923165+00:00
+
+Exact2e preserves strict16 and both reviewed histories; merge source audit176 assertions/72 pure Python is separate from product tests. Actual2e Core166PASS104.19s (nested helper excluded), Factory30PASS105.45s, infrastructure241PASS, format and strict workspace/all-targets Clippy pass. First Factory build capacity SIGTERM/-15 ran no tests; full result/log and subsequent lossless cache archive68 are retained before unchanged-source retry. Explicit16 immutable tools are separately pinned before/after; generic runner INPUT15 is not the actual overridden16 environment.
+
+Historicalbc10 six real browser/UnixIPC paths/8 PNGs PASS9.039s and frontend1016/56 retain original source attribution. Production TS/Native/Task binding/migration bytes are unchanged; no new2e paired browser, Native, Mac or package pass is claimed. Parent60ba Environment/Rust/UI passed, Intel failed Factory rework revision2/resource admission; ARM still running at this record. Parent CI is not schema16 evidence. PR20 SourceCapture and ongoing Core17 integration remain separate. Exact16 CI/native/dual-Mac artifacts and full130 acceptance remain open; OWNER001002 ACK and authority boundaries unchanged. See PARENT_674D_COMPOSED_RESULTS.json.
+
+## Schema16 composed with reviewed capture diagnostics/private fixture — 2026-10-30T05:23:58.379076+00:00
+
+Reviewed Parent674d adds diagnostic fields and an explicit private0700 test fixture while preserving production checks/budgets. Parent4344 exactEnvironment3/UI pass; Rust/ARM/Intel fail the same newpositivecapture INPUT_CHANGED (137/1), preventing later Factory/native/build stages and secondarily failing required rework evidence collection. Root reproduced originalfailure with childumask022; explicitprivatefixture gives10 controls passed under022/002/077 and full139Core passed under022. OriginalCI/inputchanged guard/failedELF remain; this is not a newMac/oldIntel4231 fix claim. New combinedschema16 tests/CI/native/packages have not run; priorbc10 30/156/235/6IPC8PNG retain source attribution. PR20 acceptedfileprimitive is separately reviewed/pushed225 but NOT composed here. OWNER001002ACK/main653679d; authority unchanged.
 
 ## Capture timing diagnostic validated; exact34f CI retained — 2026-10-30T04:32:57.910319+00:00
 

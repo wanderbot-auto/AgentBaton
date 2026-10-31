@@ -524,7 +524,7 @@ mod tests {
                     reader: Some(ReadWorker {
                         request: crate::ipc::ReadyRequest {
                             raw: "{}".into(),
-                            reply,
+                            reply: crate::ipc::ReadyReply::Wire(reply),
                             deadline: Instant::now() + Duration::from_secs(60),
                             factory_dispatch: None,
                         },

@@ -1,0 +1,19 @@
+{
+  "dimension": "one component-test locator correction and bounded failure diagnostics; execution pending",
+  "base": "1722a8aaac44e2bce888e921c21bd92a0af41154",
+  "source_sha256": {"apps/desktop/src/FactoryChildGoals.test.tsx": "869e84ff63cdca3deffd98fab66b3ec0aa1b55887dded8f54b85fe569025d6bf"},
+  "source_findings": {"history_status": "GoalGraphExecutionHistory.tsx:18 always renders accepted/acceptance-pending status", "parent_status": "FactoryChildGoals.tsx:246 adds unknown pending status", "old_query": "global unique status query is ambiguous after unknown cancellation with complete history", "original_call_or_count_actually_recorded": false},
+  "stronger_assertions": ["cancel button enabled before click", "no preexisting cancel call", "one history status before click", "one exact original cancel scope/task/Goal/revision/key call", "two statuses after unknown reply", "exactly one status equals pending text", "original pending-text assertion", "unknown-state alert", "original subsequent no-auto-read/no-repeat-write assertions"],
+  "observation_bound_ms": 1000,
+  "before_and_after_deadline_guards_preserved": true,
+  "last_assertion_retained_as_error_cause": true,
+  "test_5000ms_timeout_changed": false,
+  "product_or_API_source_changed": false,
+  "case_names_or_order_changed": false,
+  "git_diff_check": "passed",
+  "root_172_results": {"typecheck": "passed", "single_positive": "passed", "positive_log_sha256": "5b5fc3c120599a05504f7292aa385b6ffbc9fd71e91a7141a207a417ce14e0f3", "full_passed": 92, "full_failed": 1, "full_total": 93, "vitest_seconds": 7.00, "wrapper_seconds": 7.620, "full_log_sha256": "c3135fafbc90dbf123be7513a0844770ec040c599a0b311f524ecdd237a9d9fe", "failed_case": "unknown cancel status observation at unchanged1000ms bound"},
+  "earlier_127_log_sha256_preserved": "03f74b8cc6bfbd368b24ce1579d87dbf2528019322731d1e1ad0b4658c40bdc6",
+  "independent_review": "pending",
+  "root_next": ["typecheck", "one unknown-cancel case verbose", "all93 focused tests"],
+  "not_run_here": ["Node/typecheck of this correction", "Core", "SQL", "browser", "Provider/native/macOS", "network", "CI", "push"]
+}

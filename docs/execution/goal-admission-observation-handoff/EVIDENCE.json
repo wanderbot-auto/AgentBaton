@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-TSK-010"
+  ],
+  "approval": "AB-START-001",
+  "base": "71fd73958dd6b340bf030c0e747cd392fa82cc72",
+  "source": "9942d2de833d183a486a00d0de6960e09209f23b",
+  "state": "source_only_independent_review_and_runtime_pending",
+  "source_files": {
+    "crates/core/src/ipc.rs": "50c7419461a1e3145df696d315e902a3b77e87a2f741cb71d6cd32301a525e49",
+    "crates/core/src/goal_factory.rs": "1ef5e80c2c76281e22b68e5deb277e730c79067a9c5cde8b72f13b251af804f1",
+    "crates/core/src/goal_runtime.rs": "33a7ee3a941399b7e52a39e463e78fe737f61449e72cd09dbc0dff0a894a1dae",
+    "crates/core/src/goal_store.rs": "a9098461cac749ed27305f89c15b0936a802810212482c081a1f83fc4b6af90b",
+    "crates/core/src/factory_history_reads_tests.rs": "796b5e6eb33244a288adac6424db82c761d48fa5657a00adfd1cc8a1cc39d969",
+    "crates/core/src/factory_child_goal_reservation_tests.rs": "32c2bcd3d5e003f67f8579d016d6e7db3dc6906e4f707e9a23b05d2728c19cb8"
+  },
+  "static_checks": {
+    "count": 26,
+    "all_pass": true,
+    "sha256": "c1cbd6d40fbb9409cbcd044609c8c7fc5f765513495db1e17caf15b50bedabad"
+  },
+  "commands": [
+    {
+      "command": "configured rustfmt --edition2021 six source files",
+      "exit": 0,
+      "dimension": "format only"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "dimension": "whitespace only"
+    }
+  ],
+  "original_ci_diagnosis_sha256": "cd6b45c98f8fe598def0e19289f383d12ee19d769adc50766decee6fb2ef541f",
+  "private_envelope": {
+    "existing_channel_only": true,
+    "no_global_cache": true,
+    "external_wire_fields_unchanged": true,
+    "recorded_advance_recovery_ref_unchanged": true,
+    "original_error_fields_and_state_transform_unchanged": true,
+    "original_reserve_ancestors_admit_reserve_meter_reserve_attempt_byte_exact": true,
+    "opaque_not_clone_or_serde": true,
+    "same_run_revision_plan_required": true,
+    "no_added_production_db_write": true,
+    "no_added_production_clock": true
+  },
+  "new_tests": [
+    "original_guard_sample_survives_recorded_intent_and_owned_reply_into_blocked_event",
+    "private_guard_observation_cannot_cross_run_or_relabel_a_stale_revision",
+    "public_wire_reply_drops_private_observation_and_keeps_original_value"
+  ],
+  "test_scope": "real Core/SQLite approvals+intent+original negative guard+production wrapper+private reply+blocked event; not full Actor/process/Provider scheduling",
+  "negative_inputs": "oversized reservation argument and corrupted opaque revision/plan/run samples; no authority bypass or changed approved cap",
+  "not_run": [
+    "Cargo compilation",
+    "new three Rust tests",
+    "full Core",
+    "Factory real IPC",
+    "Actor/Provider/process/browser",
+    "macOS AppleSilicon and Intel",
+    "same-source CI"
+  ],
+  "not_claimed": [
+    "Intel exact budget guard identification",
+    "performance fix",
+    "admission authority from a sample",
+    "whole requirement or whole product acceptance",
+    "extra approval or spend"
+  ],
+  "review_correction": {
+    "source": "d9149a0111dd81776f3853e0e988bb5b0ba7a521",
+    "finding": "P2 static independent review: old private handle thin wrapper has only cfg(test) references after production switches to handle_observed; non-test dead_code expected, not an actual Cargo failure",
+    "correction": "single #[cfg(test)] on the unchanged original thin wrapper; no allow, no test-body/runtime handler/wire change",
+    "ipc_sha256": "0decd6ebb75f7c46b7d9803a1d62c56787ff4860296dca9fa0d91c6abcf802a5",
+    "checks": [
+      "configured rustfmt --check passed",
+      "git diff --check passed",
+      "one-line-only source delta"
+    ],
+    "cargo": "NOT_RUN",
+    "independent_closure": "pending"
+  },
+  "root_compile_correction": {
+    "source": "04de1f8136c86288b7c479127ca826441c4a728d",
+    "prior_source_root": "429a6f7",
+    "actual_failure": "E0599 original delayed-frame test still invokes blocking request.reply.send(Value); ReadyReply initially preserved only try_send; no tests executed in that failed Root compile",
+    "retained_log_sha256": "d9cff462d2d1a33fe7416f5aff9845000ed55e034bc1c3f4fde9a3bf6afaba9c",
+    "correction": "#[cfg(test)] ReadyReply::send directly invokes original Wire SyncSender::send and adapts Goal sender with a diagnostic-free envelope, preserving blocking and SendError<Value> payload semantics",
+    "original_test_body": "unchanged; not converted to try_send",
+    "checks": [
+      "configured rustfmt --check passed",
+      "git diff --check passed",
+      "only test adapter source added"
+    ],
+    "runtime": "author not_run; Root actual retry pending",
+    "independent_closure": "pending"
+  },
+  "root_actual_results": "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
+  "author_not_run_fields_are_historical": true
+}

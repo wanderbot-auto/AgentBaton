@@ -1,0 +1,214 @@
+{
+  "contract": "agentbaton.factory-summary-proof.root-results.v1",
+  "recorded_at_utc": "2026-10-30T13:21:13.227918+00:00",
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "before_records_commit": "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+  "author_source": "29c27ef365038df079ced96668c209c23c0f4b62",
+  "composed_source": "4c0cf4594b8094a184bdfe8170bbec0f0b0eb4a4",
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-003",
+    "AB-TSK-008"
+  ],
+  "requirement_mapping_correction": "Original author AB-SEC-007 denotes database migration and is not evidence for this readonly optimization; retained in historical_author_requirement_mapping. Existing owned-stop-service slice moved from erroneous AB-SEC-005 artifact isolation to AB-TSK-007 cancellation/confirmed stop, without changing 130 IDs/statuses or design.",
+  "source_sha256": {
+    "crates/core/src/goal_factory.rs": "5084ce1d4f1ae06c02d176b9cba7cce8788816f5bc00c2dc19b305775e4137a4",
+    "crates/core/src/factory_child_goal_state_tests.rs": "4efbd8ee63e6ca040b8ee638ded238db0ac2d03520f5f3e893055289433e6aba",
+    "crates/core/src/factory_summary_proof_tests.rs": "0f84cdfbd03b2e46d8ad9d9fc1a7256403d3c267394171e3e798639319cb8050"
+  },
+  "scope": "get/list only owned Deferred SQL request snapshot; existing caller transaction original strict fallback, complete original failed-stop/detail/origin proof retained. No cross-request/global/time/FS/live authority cache. Effects/PASS/admission/caps unchanged.",
+  "commands": {
+    "factory-summary-proof-tests1": {
+      "source": "4c0cf4594b8094a184bdfe8170bbec0f0b0eb4a4",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "summary_proof_tests",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 35.01843391699367,
+      "minimum_free_bytes": 253788160,
+      "interruption": null,
+      "log_sha256": "27474b1c60530e32c821095db28a2ba385e50c7da70bf03aaef07f63ea7d92d5",
+      "summaries": [
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 149 filtered out; finished in 11.56s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "8a0cb9e774119ad21900048ebac0b4d10dcbfae37dfb38d59146ec688ce5de05",
+      "inputs_sha256": "80257c05b24df16d26c7817e86a8d7e5c825fbc109c66dc3d8d3daf739540223"
+    },
+    "factory-summary-proof-core1": {
+      "source": "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 133.92993264098186,
+      "minimum_free_bytes": 260210688,
+      "interruption": null,
+      "log_sha256": "fc5c8dd0348adcfdbb6d7f3d988218535825ff4a0720d6d2c66bee46cf434deb",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 152 filtered out; finished in 0.00s",
+        "test result: ok. 153 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 110.68s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "1bd5f0f07ec7bf0d27153f5eeda3a608cdc07175171d03913553cc87b30502e4",
+      "inputs_sha256": "9a8a54ff79e7ebd17d664c1dd47fb8fa2ae37f2f4ff8c787fdefcc04ca52fa0a"
+    },
+    "factory-summary-proof-factory-sessions1": {
+      "source": "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 350.32077444001334,
+      "minimum_free_bytes": 312545280,
+      "interruption": null,
+      "log_sha256": "bacb2f2c6692e65899dd0171a064ab9348abf382ae898483c84d9acdfbd6d50a",
+      "summaries": [
+        "test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 125.27s",
+        "test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 202.26s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "1487e2b6204fd35598a58b8acd06969da2ed3feb6a896452ffb209570aa831df",
+      "inputs_sha256": "beae79347f6f2ff8e056f70f1a6622ce66375f75ede9c70da6714bb7f6961582"
+    },
+    "factory-summary-proof-clippy1": {
+      "source": "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 17.665675678028492,
+      "minimum_free_bytes": 301182976,
+      "interruption": null,
+      "log_sha256": "a39787a7050fa0c65ea3bf170d869832c7c71fbc0e61338c4055a52212f0a02d",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "fed6a48a84542c9d414478bea106a2a74125a8a37de4eee133e48b1ba0273c0d",
+      "inputs_sha256": "2d56a55ebd30c866150bee747736be444b1ac2a052b8d217998dbc151c41a0cf"
+    },
+    "factory-summary-proof-format1": {
+      "source": "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.2035412609984633,
+      "minimum_free_bytes": 302284800,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "c3eba53e9723426f1672a4b1bffd5a4d8f86afc1903504e11f16c660de080dce",
+      "inputs_sha256": "aded6cc8208ced070aa2cd2d78851cbc0702016de9bc4dfc85bd9a9d55290075"
+    }
+  },
+  "counts": {
+    "focused_four_are_included_in_Core153": true,
+    "Core_unique": 153,
+    "nested_helper_is_included": true,
+    "Factory_unique": 30,
+    "sessions_IPC_unique": 58,
+    "no_new_full_UI_or_Native_execution": true
+  },
+  "independent_source_review": {
+    "conclusion": "SOURCE_READY limited source; no must-fix",
+    "review_sha256": "ca80f121c2518780669923a30fbd4c7f2462fd819318139167f2898f4cdd573f",
+    "manifest_sha256": "d9133c16057988ba95403632337c20a29d6e322c1fdf2e26b7cb257916781eb3",
+    "static_inverse_checks": 25,
+    "inert_SQLite_assertions": 10,
+    "reviewer_actual_Rust_Actor_performance": "not_run"
+  },
+  "prior_exact_CI": {
+    "head": "059f96b0a1b008f560554731ad77cef2fa6a6d95",
+    "environment_run": 41052745610,
+    "environment": "all3success",
+    "product_run": 41052745514,
+    "product": "failed",
+    "jobs": [
+      {
+        "id": 124052572061,
+        "name": "Product / Rust",
+        "conclusion": "success"
+      },
+      {
+        "id": 124052572293,
+        "name": "Product / macos-15",
+        "conclusion": "success"
+      },
+      {
+        "id": 124052572316,
+        "name": "Product / UI",
+        "conclusion": "success"
+      },
+      {
+        "id": 124052572355,
+        "name": "Product / macos-15-intel",
+        "conclusion": "failure"
+      }
+    ],
+    "intel_finite_artifact": 12977285190,
+    "intel_finite_zip_sha256": "1c5448264ff233672f0435588c50a24104dc0c76bba9e8fb6ecae99160095f5b",
+    "intel_finite_zip_bytes": 4653,
+    "actual_failure": "Factory26pass1fail REWORK_OUTCOME_UNKNOWN plan2/run11; same node4013/4000ms stopconfirmedtrue/output21bytes, taskacceptancefalse; daemon ok and joined. No current capture timings or capturejoin proof.",
+    "causal_relationship_to_duplicate_SQL_reads": "not_established",
+    "ARM_development_artifact": 12977736978,
+    "ARM_artifact_verification": "metadata only ZIP9891113B; not downloaded/hashed/installed; no current Intel installer or dual delivery",
+    "checkout": "77327ba3e5d12d3fadf057790156c1acf56c4717 synthetic PR candidate, not main merge",
+    "history": "prior8c observation-deadline and prior030 completed-capture join observations remain separately attributed"
+  },
+  "new_candidate_CI": "not_run; old CI cannot transfer to a new records/source commit",
+  "remaining": [
+    "Exact new seven required checks including Intel runtime/native/release audit/package; no performance or Macfix claim",
+    "Core17 schema17 composition and full negative/realUIIPC/Native/Mac separate dependent work",
+    "Full Designv0.2 130 requirements remain incomplete; separate privateProvider/signing/production/newspend gates unchanged"
+  ],
+  "authority": "AB-START-001 unchanged; no formal Approve/main merge/release/credentials/spend added"
+}

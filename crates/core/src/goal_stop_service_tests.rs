@@ -1,5 +1,6 @@
 //! Real Core approvals, generated account-free ACP and owned Supervisor threads.
-//! Tests drive private Actor helpers directly; no OS dialog or Daemon.run claim.
+//! Original cases drive private Actor helpers; outer-order fault cases execute
+//! actual Daemon.run with its real owned worker. No OS dialog or model calls.
 use super::*;
 use crate::{
     goal_plan::*,
@@ -101,6 +102,9 @@ struct Fixture {
 }
 impl Fixture {
     fn new(hold: bool) -> Self {
+        Self::with_stop_probe(hold, false)
+    }
+    fn with_stop_probe(hold: bool, stop_probe: bool) -> Self {
         let directory = RetainedDirectory(Some(
             tempfile::Builder::new()
                 .prefix("ab-stop-")
@@ -135,13 +139,21 @@ impl Fixture {
             .unwrap();
         assert!(python.status.success());
         let executable = base.join("provider");
+        let provider = if stop_probe {
+            PROVIDER.replace(
+                " elif method=='session/new':\n",
+                " elif method=='session/new':\n  os.makedirs('reports',exist_ok=True)\n  with open('reports/stop-probe.pid','w')as out:out.write(str(os.getpid()))\n",
+            )
+        } else {
+            PROVIDER.to_owned()
+        };
         fs::write(
             &executable,
             format!(
                 "#!{}\nHOLD={}\n{}",
                 String::from_utf8(python.stdout).unwrap().trim(),
                 if hold { "True" } else { "False" },
-                PROVIDER
+                provider
             ),
         )
         .unwrap();
@@ -741,3 +753,157 @@ fn no_hint_skips_the_stop_scan_instead_of_masking_its_required_failure() {
 
 #[path = "factory_history_actor_tests.rs"]
 mod history_actor_tests;
+
+// Run the actual outer loop with a real committed owned terminal turn. The
+// deliberate later graph fault makes service ordering observable: the old loop
+// fails before asking for stop; the new loop must first apply fresh Goal policy.
+fn outer_run_terminal_hint_fault_boundary(corrupt_provenance: bool) {
+    let mut f = Fixture::with_stop_probe(false, true);
+    let (run, session) = f.goal_session();
+    f.wait_turn(&session.id);
+    assert!(f.daemon.supervisor.owns(&session.id));
+    assert_eq!(f.stop_requests(&session.id), 0);
+    assert_ne!(
+        f.daemon.store.get_session(&session.id).unwrap().state,
+        "stopped"
+    );
+    let pid = rustix::process::Pid::from_raw(
+        fs::read_to_string(f.workspace.root.join("reports/stop-probe.pid"))
+            .unwrap()
+            .parse::<i32>()
+            .unwrap(),
+    )
+    .unwrap();
+    assert!(
+        rustix::process::test_kill_process(pid).is_ok(),
+        "the generated Provider process must actually be alive before Actor service"
+    );
+    let attempts: i64 = f
+        .daemon
+        .store
+        .conn
+        .query_row("SELECT count(*) FROM attempts", [], |row| row.get(0))
+        .unwrap();
+    let since = f.daemon.store.sequence().unwrap();
+    if corrupt_provenance {
+        assert_eq!(f.daemon.store.conn.execute(
+            "UPDATE goal_run_nodes SET document=json_set(document,'$.node.goal','foreign unapproved replacement') WHERE session_id=?1",
+            [&session.id],
+        ).unwrap(), 1);
+    }
+    // This is a classic approved Goal, so graph frontier reconciliation does
+    // not select it before the prepared-capture decoder below. Preserve the
+    // schema and FKs: the deliberate malformed document is test data only.
+    assert_eq!(f.daemon.store.conn.query_row(
+        "SELECT (SELECT count(*) FROM goal_graph_capabilities WHERE run_id=?1)+(SELECT count(*) FROM factory_child_goal_runs WHERE goal_run_id=?1)",
+        [&run.id], |row| row.get::<_, i64>(0),
+    ).unwrap(), 0);
+    assert_eq!(f.daemon.store.conn.execute(
+        "INSERT INTO goal_graph_jobs(id,run_id,node_id,plan_revision,state,attempt_id,workspace_id,document) VALUES('generated-stop-following-stage-fault',?1,'produce-report',1,'prepared',?2,?3,'{}')",
+        rusqlite::params![run.id, session.attempt_id, f.workspace.id],
+    ).unwrap(), 1);
+    assert!(
+        !f.daemon
+            .store
+            .conn
+            .prepare("PRAGMA foreign_key_check")
+            .unwrap()
+            .exists([])
+            .unwrap(),
+        "the test-only fault must not break unrelated FKs"
+    );
+    // The fresh stop guard only counts this row; the next graph tick reaches
+    // the original strict CaptureOrigin decoder, which must refuse its bytes.
+    let Fixture {
+        daemon,
+        _directory,
+        task,
+        workspace,
+        ..
+    } = f;
+    let database = _directory.path().join("r/baton.sqlite3");
+    let error = daemon.run(Arc::new(AtomicBool::new(false))).unwrap_err();
+    assert_eq!(
+        error.code,
+        if corrupt_provenance {
+            "INPUT_CHANGED"
+        } else {
+            "INTERNAL_ERROR"
+        }
+    );
+    assert_eq!(
+        error.message,
+        if corrupt_provenance {
+            "Goal approval, task specification, connection, workspace or input snapshot changed; review a new Goal scope"
+        } else {
+            "Stored record is invalid; restore or export the database"
+        }
+    );
+    assert_eq!(error.side_effect_state, "not_started");
+    assert_eq!(
+        rustix::process::test_kill_process(pid),
+        Err(rustix::io::Errno::SRCH),
+        "run-error cleanup must actually cancel and reap its original owned Provider"
+    );
+    // Inspect the retained test database without reopening/recovering Store:
+    // process teardown is real, but unpersisted stop outcomes remain fenced.
+    let db =
+        rusqlite::Connection::open_with_flags(database, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
+            .unwrap();
+    let stops: i64 = db.query_row(
+        "SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='goal.node_stop_requested' AND json_extract(document,'$.payload.session_id')=?1",
+        [&session.id], |row| row.get(0),
+    ).unwrap();
+    assert_eq!(stops, if corrupt_provenance { 0 } else { 1 });
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |row| row
+            .get::<_, i64>(0))
+            .unwrap(),
+        attempts
+    );
+    assert_eq!(db.query_row(
+        "SELECT count(*) FROM events WHERE sequence>?1 AND json_extract(document,'$.kind') IN('session.stopped','attempt.stopped','attempt.prepared','attempt.dispatch_started','goal.run_authorized','goal.node_reserved','goal.node_prompt_queued','session.message_queued','task.accepted')",
+        [i64::try_from(since).unwrap()], |row| row.get::<_, i64>(0),
+    ).unwrap(), 0, "stop service/error cleanup must not invent a receipt, new dispatch, prompt or acceptance");
+    let stored_task: Task = serde_json::from_str(
+        &db.query_row(
+            "SELECT document FROM tasks WHERE id=?1",
+            [&task.id],
+            |row| row.get::<_, String>(0),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_ne!(stored_task.state, crate::storage::TaskState::Accepted);
+    assert!(stored_task.acceptance_ref.is_none());
+    assert!(stored_task.acceptance_sequence.is_none());
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM goal_graph_acceptances WHERE task_id=?1",
+            [&task.id],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT holder FROM workspace_leases WHERE resource=?1",
+            [&workspace.id],
+            |row| row.get::<_, String>(0),
+        )
+        .unwrap(),
+        session.id,
+        "without a persisted joined receipt the workspace stays fenced"
+    );
+}
+
+#[test]
+fn actual_outer_run_services_committed_owned_turn_before_later_graph_failure_without_false_join() {
+    outer_run_terminal_hint_fault_boundary(false);
+}
+
+#[test]
+fn actual_outer_run_rechecks_corrupt_goal_provenance_before_later_graph_failure() {
+    outer_run_terminal_hint_fault_boundary(true);
+}

@@ -88,8 +88,14 @@
     "branch": "codex/root17-owner-observation-backport",
     "worktree": "/tmp/root17-owner-observation-backport",
     "transplants": [
-      {"original": "bd607353124876bd87639c2dc91b8bb92bf34335", "backport": "43ad6e0a932d814b8a6a27abdfce9b0d493b910f"},
-      {"original": "ec4ccd8503707335cfedee774751925a1fdca168", "backport": "fcda4fcf1d6a197e0c8342660e1b77ed35929a8f"}
+      {
+        "original": "bd607353124876bd87639c2dc91b8bb92bf34335",
+        "backport": "43ad6e0a932d814b8a6a27abdfce9b0d493b910f"
+      },
+      {
+        "original": "ec4ccd8503707335cfedee774751925a1fdca168",
+        "backport": "fcda4fcf1d6a197e0c8342660e1b77ed35929a8f"
+      }
     ],
     "source_sha256": {
       "apps/desktop/tests/factory-child-goal-real-ipc.py": "40607488a0f0e82a0146ba98b70267c1f828b9403d9e5b7336af2bca17b96419",
@@ -97,16 +103,59 @@
       "tests/infrastructure/test_factory_bound_provider_exit.py": "66a89c55369f31979682ab3a1f4cf1ee435cdd4ac850a4dd1e21fe9d428c5fc7"
     },
     "pure_checks": [
-      {"command": "python3 /tmp/root17-owner-observation-pure/check.py", "exit_code": 0, "passed_controls": 45, "result": "/tmp/root17-owner-observation-pure/RESULT.json", "result_sha256": "2338e282008d87f164a8bcd493fd2d3de3744a32d703005121af03d4a18615d2", "script_sha256": "6969360baa1cc274745ef411a66db831f8af950e07969a7c06e32c1630296953"},
-      {"command": "python3 apps/desktop/tests/factory-child-goal-real-ipc.py --self-check --output /tmp/root17-owner-observation-pure/harness-selfcheck", "exit_code": 0, "passed_controls": 390, "schema_required": 17, "result_sha256": "4f7c7354ba45579ed5e7a60175337a9812e37d9e05ba7acbba2f026b283a4aeb"},
-      {"command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_bound_readonly_wait.py -v", "exit_code": 0, "passed": 15},
-      {"command": "python3 -m unittest discover -s tests/infrastructure -p test_factory_bound_provider_exit.py -k ChildGoal -v", "exit_code": 0, "passed": 5, "SQL_classes_executed": false},
-      {"command": "python3 -m unittest discover -s tests/infrastructure -p test_schema17_migration_workflow.py -v", "exit_code": 0, "passed": 10},
-      {"command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_finite_diagnostics.py -v", "exit_code": 0, "passed": 13},
-      {"command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_deadline_diagnostics.py -v", "exit_code": 0, "passed": 8},
-      {"command": "ast.parse all Python in apps/desktop/tests + tests/infrastructure + scripts", "exit_code": 0, "parsed_sources": 73, "result_sha256": "dd66e1cba3b21731b1d554e1835877d6f51d37c619789cc269daccd46cc259f1"}
+      {
+        "command": "python3 /tmp/root17-owner-observation-pure/check.py",
+        "exit_code": 0,
+        "passed_controls": 45,
+        "result": "/tmp/root17-owner-observation-pure/RESULT.json",
+        "result_sha256": "2338e282008d87f164a8bcd493fd2d3de3744a32d703005121af03d4a18615d2",
+        "script_sha256": "6969360baa1cc274745ef411a66db831f8af950e07969a7c06e32c1630296953"
+      },
+      {
+        "command": "python3 apps/desktop/tests/factory-child-goal-real-ipc.py --self-check --output /tmp/root17-owner-observation-pure/harness-selfcheck",
+        "exit_code": 0,
+        "passed_controls": 390,
+        "schema_required": 17,
+        "result_sha256": "4f7c7354ba45579ed5e7a60175337a9812e37d9e05ba7acbba2f026b283a4aeb"
+      },
+      {
+        "command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_bound_readonly_wait.py -v",
+        "exit_code": 0,
+        "passed": 15
+      },
+      {
+        "command": "python3 -m unittest discover -s tests/infrastructure -p test_factory_bound_provider_exit.py -k ChildGoal -v",
+        "exit_code": 0,
+        "passed": 5,
+        "SQL_classes_executed": false
+      },
+      {
+        "command": "python3 -m unittest discover -s tests/infrastructure -p test_schema17_migration_workflow.py -v",
+        "exit_code": 0,
+        "passed": 10
+      },
+      {
+        "command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_finite_diagnostics.py -v",
+        "exit_code": 0,
+        "passed": 13
+      },
+      {
+        "command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_deadline_diagnostics.py -v",
+        "exit_code": 0,
+        "passed": 8
+      },
+      {
+        "command": "ast.parse all Python in apps/desktop/tests + tests/infrastructure + scripts",
+        "exit_code": 0,
+        "parsed_sources": 73,
+        "result_sha256": "dd66e1cba3b21731b1d554e1835877d6f51d37c619789cc269daccd46cc259f1"
+      }
     ],
-    "initial_cli_attempt": {"command": "python3 apps/desktop/tests/factory-child-goal-real-ipc.py --self-check", "exit_code": 2, "reason": "required --output missing; no self-check executed; corrected invocation passed"},
+    "initial_cli_attempt": {
+      "command": "python3 apps/desktop/tests/factory-child-goal-real-ipc.py --self-check",
+      "exit_code": 2,
+      "reason": "required --output missing; no self-check executed; corrected invocation passed"
+    },
     "Root17_schema_DDL_zero_tables_AST_equal_to_base": true,
     "original_Owner_validation_wire_recorder_AST_equal_to_base": true,
     "git_diff_check": "passed",
@@ -123,7 +172,129 @@
       "root_cause": "not established by finite summary; preserve original failure"
     },
     "actual_Root17_runtime": "not_run",
-    "not_run_here": ["SQLite-based schema17 metadata controls", "full infrastructure execution", "Core/browser/IPC", "Cargo/Node", "network/CI/push", "independent review"],
+    "not_run_here": [
+      "SQLite-based schema17 metadata controls",
+      "full infrastructure execution",
+      "Core/browser/IPC",
+      "Cargo/Node",
+      "network/CI/push",
+      "independent review"
+    ],
     "formal_approval": false
-  }
+  },
+  "retained_b55_parent_evidence": {
+    "source": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+    "raw_original_sha256": "4de7549875119ab9c75b443b08f24a9a0f4addbf2d92e7e8e9a5c75d0fa402b3",
+    "scope": "Historical incoming source evidence, not new Root17 runtime or CI acceptance",
+    "record": {
+      "base_commit": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+      "branch": "codex/goal-owner-observation-order",
+      "authority": "Root approved harness-only observation-order correction; no product/API/permissions/budget changes",
+      "source_sha256": "705640cebc5260285bc654ddd84830051dda678b87744cdff1db70847a8aa271",
+      "original_failure": {
+        "executor": "Root",
+        "report": "/workspace/.onboarding/pr18-read-cycle-integrated-goal-lost-start-actual1/report.json",
+        "report_sha256": "eae475fd54b78aecc52624291bcf7783b185f28bbe423f4f9b3691b7b1165ac7",
+        "DOM_sha256": "558df366a235434d01264ae0bad544e1a128cd4236a1d516c8d8591b04de2c5b",
+        "passed": [
+          "CG01",
+          "CG02",
+          "CG03"
+        ],
+        "failure": "original15s final acceptance observation expired; no final Native Goal proposal/finalize",
+        "UI_busy_wire": 230,
+        "UI_busy_wire_sha256": "3fd02bbff5fec0ad2cb5ef2f5b2eb721b65c03abdd3fcd83635e9669e9937298",
+        "overlapping_driver_get": 229,
+        "limitation": "original click event itself not traced; preflight Busy is directly observed; no SQL needed or performed",
+        "retention": "all original evidence/database/fixture unchanged"
+      },
+      "verification": {
+        "command": "python3 /workspace/.onboarding/goal-owner-observation-order-pure1/check.py",
+        "exit_code": 0,
+        "count": 41,
+        "result": "/workspace/.onboarding/goal-owner-observation-order-pure1/RESULT.json",
+        "result_sha256": "00880472dbf7ead1ca049c3f51e4c03808f7c8e6813807c32b34925085ffd119",
+        "dimension": "actual source functions extracted with AST; fake clocks/receipts/host only; no full harness import, SQL, browser, process, Provider or runtime acceptance",
+        "initial_adapter_failure": "ATTEMPTS.json retains NameError; adapter corrected without product source change"
+      },
+      "static_checks": [
+        "AST parse passed",
+        "git diff --check passed"
+      ],
+      "actual_runtime": "not_run",
+      "not_run": [
+        "full harness module import/self-check",
+        "actual browser/DOM/IPC/daemon/SQLite",
+        "Node/Cargo",
+        "network/CI",
+        "macOS/OS Native",
+        "real Provider",
+        "independent review"
+      ],
+      "invariants": [
+        "single original Owner click",
+        "same original15s absolute end across both stages",
+        "Native signal never replaces independent Core acceptance",
+        "original per-wire waits and late-success refusal",
+        "original Native candidate/authority checks and evidence writes",
+        "no automatic write replay or client/worker/TTL/budget change"
+      ],
+      "compatibility_review_closure": {
+        "reviewed_commit": "bd607353124876bd87639c2dc91b8bb92bf34335",
+        "prior_status": "CHANGES_REQUIRED",
+        "findings": [
+          "existing phase controls expected4 rather than new7 blocks and lacked new runtime dependencies",
+          "existing readonly AST loader did not load new actual deadline helper"
+        ],
+        "harness_source_unchanged": true,
+        "scope": "two explicitly approved infrastructure test files plus dedicated docs",
+        "result": "/workspace/.onboarding/goal-owner-observation-order-pure1/COMPATIBILITY.json",
+        "result_sha256": "8e514bdd1d6282b6e2622ae1c2e1d03aab01084034ea6d1b5020448dbe4c1e4e",
+        "actual_pure_commands": [
+          {
+            "command": "PYTHONPATH=tests/infrastructure python3 -m unittest test_factory_bound_provider_exit.ChildGoalTimingTests -v",
+            "exit_code": 0,
+            "tests": 3,
+            "result": "passed; includes7 phase RuntimeError/finally subcases"
+          },
+          {
+            "command": "python3 -m unittest discover -s tests/infrastructure -p test_child_goal_bound_readonly_wait.py -v",
+            "exit_code": 0,
+            "tests": 15,
+            "result": "passed; all original testcase bodies structurally unchanged"
+          }
+        ],
+        "original_readonly_class_AST_equal": true,
+        "test_source_sha256": {
+          "tests/infrastructure/test_child_goal_bound_readonly_wait.py": "957496b0a787d5979a34c28bc5250356e01170e66cfda232a610dd0d063ba14d",
+          "tests/infrastructure/test_factory_bound_provider_exit.py": "66a89c55369f31979682ab3a1f4cf1ee435cdd4ac850a4dd1e21fe9d428c5fc7"
+        },
+        "status": "compatibility source fixed; independent re-review/runtime pending"
+      },
+      "Root_actual_source_bound_results": {
+        "file": "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
+        "sha256": "5cbbcf60389f7f839a96044c4add29300c0f948acca6ab0f5458c71542955ce1",
+        "harness_source": "ec5ec3452939a29631031e6f5f2f24d4ad2319b8",
+        "compiled_Core_and_frontend_source": "9f70bede88506f0d35b0a00a433e49f391c4efae",
+        "normal": {
+          "checks": 4,
+          "PNG": 4,
+          "cleanup": true
+        },
+        "cancel": {
+          "checks": 4,
+          "PNG": 3,
+          "cleanup": true
+        },
+        "loststart": {
+          "checks": 5,
+          "PNG": 4,
+          "cleanup": true
+        },
+        "new_exact_CI": "not_run",
+        "oldfailures": "retained separately"
+      }
+    }
+  },
+  "root21_composition_pending": "Current merge of fd24203 + b55c44a needs new exact source review, runtime, Native/Mac and CI evidence. Historical passes are not transferred."
 }

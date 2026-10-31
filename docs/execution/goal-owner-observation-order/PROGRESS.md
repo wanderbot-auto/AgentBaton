@@ -1,3 +1,5 @@
+Current Root17/main composition is pending new runtime verification. Both historical source records below are retained with their original scope and timestamps.
+
 # Progress
 
 Implemented harness-only binding lifecycle observation and shared final deadline. Original private Owner implementation body, all prior pure self-check statements and raw recorder/ObservedHost bodies are structurally unchanged; the callback wrapper adds no extra Core call. A fresh trace is armed for one exact scope/task/run/node/plan. Its entered/completed/failed states retain key/request/reply hashes, timestamps, bounded typed result and error type. Receipt observation performs no Core get/list; the subsequent independent acceptance read keeps the same end and original late-response checks.
@@ -18,3 +20,8 @@ Actual Root17 source helpers and the real callback wrapper passed 45 synthetic-c
 Targeted pure unittest results: bound readonly15/15, SQL-free ChildGoal timing/wait5/5, schema17 workflow source10/10, finite diagnostics13/13, generated deadline diagnostics8/8. AST parse passed for all73 Python sources in apps/desktop/tests, tests/infrastructure and scripts. No SQLite connection, actual Core/browser/process/Provider, Cargo/Node, network, CI or push was performed. The actual SQLite-based schema17 metadata controls and complete infrastructure execution remain for Root.
 
 Retained notif784 Product41168426054/UI artifact13030536073 observations: normal/cancel summaries passed; lost-start failed after CG01/02/03, cleanup=false, finite refusal at old driver1437/1389/1057, one typed factory_child_goals.get WORKSPACE_BUSY. The artifact and selected summary hashes are recorded separately in the backport evidence; they do not prove this round's failure was caused by the already-known pre-receipt read competition. No existing result is relabeled.
+
+
+## Outer stop/read-cycle and same-click Owner observation verified — 2026-10-31T03:09:30.745908+00:00
+
+Source033 Core182/Factory33/Clippy and source589 UI919/55 retain exact attribution; ec5harness uses actual9f Core/frontend bytes. Normal4checks4PNG, cancel4checks3PNG, loststart5checks4PNG allpass with completeownedcleanup; fullinfra284/fmt pass. Keep original9f timeout/cleanupfalse, bd pure1fail1error, firstcapacitypreflightrefusal and old52remoteIntel/UI failures. No original4s/15s/TTL/permission/singleworker change. New exactsevenCI/Mac/audit/installers/protectedintegration/full130 remain open. See ../owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json SHA256 5cbbcf60389f7f839a96044c4add29300c0f948acca6ab0f5458c71542955ce1.

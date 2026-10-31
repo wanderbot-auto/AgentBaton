@@ -18,7 +18,7 @@ fn job(deadline: Instant) -> (crate::ipc::ReadyRequest, mpsc::Receiver<serde_jso
     (
         crate::ipc::ReadyRequest {
             raw: "private-test-read".into(),
-            reply,
+            reply: crate::ipc::ReadyReply::Wire(reply),
             deadline,
             factory_dispatch: None,
         },
@@ -442,6 +442,120 @@ fn composed_history_requires_exact17_and_preserves_all_integration_tables() {
         json!(f.store.integration_record_counts().unwrap()),
         integration
     );
+    workers.reap_owned_workers();
+    workers.release_database(&f.store);
+    assert_eq!(workers.database_owners_for_test(), 0);
+}
+
+// PR19 binding-row controls composed with the current schema17 history reader.
+// These existing rows remain in tasks/managed_workspaces/idempotency/events;
+// no TaskBinding table is introduced. Root Integration17 controls remain above.
+fn schema17_binding_and_event_rows(
+    f: &Fixture,
+) -> Vec<(&'static str, Vec<Vec<rusqlite::types::Value>>)> {
+    let mut image = Vec::new();
+    for table in ["tasks", "managed_workspaces", "idempotency", "events"] {
+        let mut statement = f
+            .store
+            .conn
+            .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
+            .unwrap();
+        let columns = statement.column_count();
+        let rows = statement
+            .query_map([], |row| {
+                (0..columns)
+                    .map(|index| row.get::<_, rusqlite::types::Value>(index))
+                    .collect::<std::result::Result<Vec<_>, _>>()
+            })
+            .unwrap()
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .unwrap();
+        assert!(!rows.is_empty(), "existing schema17 fixture rows required");
+        image.push((table, rows));
+    }
+    image
+}
+
+#[test]
+fn history_requires_exact17_and_preserves_existing_task_binding_rows_and_events() {
+    let (f, scope, goal) = queued();
+    let version: u32 = f
+        .store
+        .conn
+        .pragma_query_value(None, "user_version", |row| row.get(0))
+        .unwrap();
+    assert_eq!(version, 17, "Store must supply the real current schema");
+    let sequence = f.store.sequence().unwrap();
+    let execution = unchanged_execution(&f);
+    let rows = schema17_binding_and_event_rows(&f);
+    let query = q(&scope, &goal);
+    let expected = f.store.get_factory_child_goal(&query).unwrap();
+    let mut workers = FactoryHistoryWorkers::default();
+    workers.readonly_next_for_test();
+    let receive = start(
+        &mut workers,
+        &f.store,
+        FactoryHistoryQuery::Get(query.clone()),
+    );
+    let reply = finish(&mut workers, &f.store, receive);
+    assert!(reply.get("error").is_none());
+    assert_eq!(reply["result"], json!(expected));
+    assert_eq!(reply["revision"], sequence);
+    assert_eq!(f.store.sequence().unwrap(), sequence);
+    assert_eq!(unchanged_execution(&f), execution);
+    assert!(rows == schema17_binding_and_event_rows(&f));
+
+    for wrong_version in [15u32, 16u32, 18u32] {
+        // This changes only the version discriminator of an owned current
+        // fixture; it is not an old/future schema migration simulation.
+        f.store
+            .conn
+            .pragma_update(None, "user_version", wrong_version)
+            .unwrap();
+        let receive = start(
+            &mut workers,
+            &f.store,
+            FactoryHistoryQuery::Get(query.clone()),
+        );
+        let reply = finish(&mut workers, &f.store, receive);
+        assert_eq!(reply["error"]["code"], "INPUT_CHANGED");
+        assert_eq!(reply["error"]["side_effect_state"], "not_started");
+        assert_eq!(reply["error"]["retryable"], false);
+        assert!(reply.get("result").is_none());
+        assert_eq!(reply["revision"], 0);
+        assert_eq!(
+            f.store
+                .conn
+                .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
+                .unwrap(),
+            wrong_version
+        );
+        assert_eq!(f.store.sequence().unwrap(), sequence);
+        assert_eq!(unchanged_execution(&f), execution);
+        assert!(rows == schema17_binding_and_event_rows(&f));
+        assert!(f.store.conn.is_autocommit());
+    }
+
+    f.store
+        .conn
+        .pragma_update(None, "user_version", version)
+        .unwrap();
+    let mut list_query = query;
+    list_query.goal_run_id = None;
+    let expected = f.store.list_factory_child_goals(&list_query).unwrap();
+    let receive = start(
+        &mut workers,
+        &f.store,
+        FactoryHistoryQuery::List(list_query),
+    );
+    let reply = finish(&mut workers, &f.store, receive);
+    assert!(reply.get("error").is_none());
+    assert_eq!(reply["result"], json!(expected));
+    assert_eq!(reply["revision"], sequence);
+    assert_eq!(f.store.sequence().unwrap(), sequence);
+    assert_eq!(unchanged_execution(&f), execution);
+    assert!(rows == schema17_binding_and_event_rows(&f));
+    assert!(f.store.conn.is_autocommit());
     workers.reap_owned_workers();
     workers.release_database(&f.store);
     assert_eq!(workers.database_owners_for_test(), 0);

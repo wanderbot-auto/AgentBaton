@@ -1,0 +1,82 @@
+{
+  "status": "SOURCE_AUTHORED_NOT_RUST_TESTED",
+  "retired_candidate": "5810e9c08a8e98159fd8e074591f53408d5adbfa",
+  "root_historical_commit": "fd24203cff5ee6c0aa9a1dcf6e8dfb2d93688375",
+  "historical_actual": "fullCore245 PASS remains preserved, not new-source PASS",
+  "old7_compound_tests": "NOT_APPLICABLE after explicit retirement; no ignore/skip attributes; relevant semantic controls migrated as follows",
+  "mapping": [
+    {
+      "old": "recorded_admission_transports_original_guard_and_marker_without_authority_fields",
+      "new": [
+        "typed_admission_preserves_original_guard_and_exact_legacy_wrapper"
+      ],
+      "keeps": "source guard payload, no IDs/private fields, exact old CoreError bytes; typed sample separate from wire"
+    },
+    {
+      "old": "recorded_non_guard_errors_keep_the_exact_original_error_wrapper_bytes",
+      "new": [
+        "typed_non_guard_errors_keep_exact_original_wrapper_bytes_without_a_sample"
+      ],
+      "keeps": "all original code/state/plain-malformed-reference/receipt variants; byte-exact old wrapper and no private observation"
+    },
+    {
+      "old": "recorded_encoder_requires_the_actual_closed_receipt_run_and_revision",
+      "new": [
+        "typed_observation_cannot_cross_run_revision_plan_or_refusal_code",
+        "real_recorded_intent_error_wrapper_reaches_existing_block_event_without_new_dispatch"
+      ],
+      "keeps": "actual Store-generated receipt, foreign run/current run and plan binding, same owned response and replay",
+      "not_applicable": "outer JSON receipt grammar/UUID encoding; no new receipt authority parser"
+    },
+    {
+      "old": "recorded_decoder_refuses_foreign_stale_extra_missing_and_duplicate_bindings_whole",
+      "new": [
+        "typed_observation_cannot_cross_run_revision_plan_or_refusal_code",
+        "typed_inner_sample_rejects_duplicates_extras_and_invalid_finite_counts",
+        "recorded_wire_cannot_recreate_the_private_owned_observation"
+      ],
+      "keeps": "foreign/stale/plan omission, duplicate/extra inner rejection, no public wire reconstruction",
+      "not_applicable": "outer separator/version/missing suffix/intent UUID comparisons"
+    },
+    {
+      "old": "recorded_guard_has_required_nullable_fields_and_rejects_inner_duplicates_or_extras",
+      "new": [
+        "typed_inner_sample_rejects_duplicates_extras_and_invalid_finite_counts"
+      ],
+      "keeps": "inner duplicate/extra rejection both at capture and consumption plus invalid finite counts",
+      "intentionally_not_adopted": "missing nullable != null rule; Main Option semantics preserved"
+    },
+    {
+      "old": "recorded_transport_retains_all_six_original_guard_branch_shapes",
+      "new": [
+        "typed_observation_preserves_all_six_original_guard_constructor_outputs"
+      ],
+      "keeps": "six original diagnostic constructors/output values and unchanged CoreError refusal fields via typed sample",
+      "limitation": "source samples call actual Core error constructors, not all six actual DB admission guard branches; no runtime claim",
+      "intentionally_not_adopted": "transportable_admission_detail extra budget-branch replay predicates"
+    },
+    {
+      "old": "recorded_admission_bounds_apply_before_optional_decoding_without_truncation",
+      "new": [
+        "typed_admission_bounds_apply_before_decode_without_truncation"
+      ],
+      "keeps": "inner exact1024/1025 boundary capture+consumption, no truncation, empty/512/513 run-ID boundary, prefix refusal",
+      "not_applicable": "compound4KiB outer limit"
+    }
+  ],
+  "store3": [
+    {
+      "test": "real_recorded_intent_error_wrapper_reaches_existing_block_event_without_new_dispatch",
+      "preserved": "actual receipt/requested revision; typed owned Goal channel consumed once; block event original reason/false automatic_retry/false accepted; run+plan revision;14029/6000/20000; no IDs; sequence+1; ten counts; all other run fields; same receipt replay/no second intent"
+    },
+    {
+      "test": "real_block_keeps_resource_refusal_but_omits_a_foreign_optional_recorded_sample",
+      "preserved": "foreign typed observation is actually present before consumption, omitted for target run; original resource block still happens; sequence+1/ten counts unchanged"
+    },
+    {
+      "test": "real_legacy_recorded_intent_still_replays_without_an_optional_guard_sample",
+      "preserved": "plain error no observation; exact old serialized CoreError; original block; same intent replay; sequence+1/ten counts unchanged"
+    }
+  ],
+  "Main_unmodified_controls": "goal_factory original2 tests and actual original ancestor refusal -> receipt -> owned Goal reply -> blocked event, foreign/stale/plan/no sample, public Wire drops sample tests remain inherited; no new actual execution claimed"
+}

@@ -224,7 +224,9 @@ class MockedCollectorControls(unittest.TestCase):
 
 class OriginalHarnessSourceBoundary(unittest.TestCase):
     def restore(self, text):
-        from tests.infrastructure.test_graph_observation_handshake import strip_handshake_layer
+        from tests.infrastructure.test_graph_observation_handshake import strip_composed_outer_layer, strip_handshake_layer
+        text = strip_composed_outer_layer(text, 'ours')
+        self.assertEqual(sha(text.encode()), '4b0332152c2dff9e4d4d7df94dede8ce23b0735c1b76adbef14398c142811b88')
         text = strip_handshake_layer(text)
         start = text.index('GRAPH_IDENTITY_FIELDS = '); end = text.index('def collect_graph_records(', start)
         helpers = text[start:end]

@@ -324,11 +324,143 @@ fn private_file(path: &Path) -> Result<File> {
         .open(path)
         .map_err(|_| CoreError::new("PERMISSION_DENIED", "Cannot open private runtime state"))
 }
+// Only the owned automatic Goal lane receives this non-serializable envelope.
+// Socket and Factory callers retain the original JSON Value byte-for-byte.
+pub(crate) struct GoalAdvanceReply {
+    wire: Value,
+    admission: Option<crate::goal_store::GoalAdmissionObservation>,
+}
+impl GoalAdvanceReply {
+    pub(crate) fn new(
+        wire: Value,
+        admission: Option<crate::goal_store::GoalAdmissionObservation>,
+    ) -> Self {
+        Self { wire, admission }
+    }
+    pub(crate) fn into_parts(self) -> (Value, Option<crate::goal_store::GoalAdmissionObservation>) {
+        (self.wire, self.admission)
+    }
+}
+pub(crate) enum ReadyReply {
+    Wire(SyncSender<Value>),
+    Goal(SyncSender<GoalAdvanceReply>),
+}
+impl ReadyReply {
+    // Existing delayed-frame tests use blocking SyncSender::send. Preserve
+    // its wait/disconnect behavior; the plain wire carries no observation.
+    #[cfg(test)]
+    pub(crate) fn send(&self, wire: Value) -> std::result::Result<(), mpsc::SendError<Value>> {
+        match self {
+            Self::Wire(sender) => sender.send(wire),
+            Self::Goal(sender) => sender
+                .send(GoalAdvanceReply::new(wire, None))
+                .map_err(|mpsc::SendError(reply)| mpsc::SendError(reply.wire)),
+        }
+    }
+    pub(crate) fn try_send(
+        &self,
+        wire: Value,
+    ) -> std::result::Result<(), mpsc::TrySendError<Value>> {
+        self.try_send_observed(GoalAdvanceReply::new(wire, None))
+    }
+    pub(crate) fn try_send_observed(
+        &self,
+        reply: GoalAdvanceReply,
+    ) -> std::result::Result<(), mpsc::TrySendError<Value>> {
+        match self {
+            Self::Wire(sender) => sender.try_send(reply.wire),
+            Self::Goal(sender) => sender.try_send(reply).map_err(|error| match error {
+                mpsc::TrySendError::Full(reply) => mpsc::TrySendError::Full(reply.wire),
+                mpsc::TrySendError::Disconnected(reply) => {
+                    mpsc::TrySendError::Disconnected(reply.wire)
+                }
+            }),
+        }
+    }
+}
+
+// Preserve the original recorded-intent recovery reference and all error fields.
+// The optional observation remains a same-reply Rust value, never a wire token.
+pub(crate) fn recorded_goal_dispatch_error(
+    run_id: &str,
+    receipt: &Value,
+    mut error: CoreError,
+    admission: &mut Option<crate::goal_store::GoalAdmissionObservation>,
+) -> CoreError {
+    *admission = crate::goal_store::GoalAdmissionObservation::capture(run_id, &error);
+    if error.side_effect_state == "not_started" {
+        error.side_effect_state = "confirmed".into();
+    }
+    error.details_ref = receipt["intent_id"]
+        .as_str()
+        .map(|id| format!("recorded-goal-advance:{id}"));
+    error
+}
+
 pub(crate) struct ReadyRequest {
     pub(crate) raw: String,
-    pub(crate) reply: SyncSender<Value>,
+    pub(crate) reply: ReadyReply,
     pub(crate) deadline: Instant,
     pub(crate) factory_dispatch: Option<crate::factory::FactoryDispatchTicket>,
+}
+// A single turn owns at most the existing FIFO head while Factory/Goal ticks
+// run. This is request custody, not cached data or authority. An early Owner
+// read consumes one of the same sixteen admissions as the later drain.
+struct ReadyTurn {
+    head: Option<ReadyRequest>,
+    served: usize,
+}
+impl ReadyTurn {
+    fn queue_head(ready: &Receiver<ReadyRequest>, token: &str) -> (Self, Option<ReadyRequest>) {
+        match ready.try_recv() {
+            Ok(job) if queued_owner_factory_run_read(&job, token) => (
+                Self {
+                    head: None,
+                    served: 1,
+                },
+                Some(job),
+            ),
+            head => (
+                Self {
+                    head: head.ok(),
+                    served: 0,
+                },
+                None,
+            ),
+        }
+    }
+    fn next(&mut self, ready: &Receiver<ReadyRequest>) -> Option<ReadyRequest> {
+        if self.served == 16 {
+            return None;
+        }
+        let job = self.head.take().or_else(|| ready.try_recv().ok())?;
+        self.served += 1;
+        Some(job)
+    }
+}
+fn queued_owner_factory_run_read(job: &ReadyRequest, token: &str) -> bool {
+    #[derive(Deserialize)]
+    struct TypedScopeEnvelope {
+        params: FactoryScopeId,
+    }
+    if job.factory_dispatch.is_some() {
+        return false;
+    }
+    let Ok(request) = serde_json::from_str::<Request>(&job.raw) else {
+        return false;
+    };
+    request.api_version == API_VERSION
+        && request.token == token
+        && !request.request_id.is_empty()
+        && request.request_id.len() <= 128
+        && request.method == "factory_runs.get"
+        && request.expected_revision.is_none()
+        && request.idempotency_key.is_none()
+        // Parse the original bytes: going through Value would erase duplicate
+        // scope_id keys before the closed typed params can reject them.
+        && serde_json::from_str::<TypedScopeEnvelope>(&job.raw)
+            .map(|envelope| envelope.params)
+            .is_ok()
 }
 fn configure_accepted_stream(stream: &UnixStream) -> std::io::Result<()> {
     // BSD/Darwin can inherit O_NONBLOCK from the listener. Deadline-based frame
@@ -346,7 +478,7 @@ fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
             let (reply, receive): (_, Receiver<Value>) = mpsc::sync_channel(1);
             let job = ReadyRequest {
                 raw,
-                reply,
+                reply: ReadyReply::Wire(reply),
                 deadline: Instant::now() + Duration::from_secs(60),
                 factory_dispatch: None,
             };
@@ -407,7 +539,7 @@ pub struct Daemon {
     supervisor: Supervisor,
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
-    goal_pending: Option<(String, Receiver<Value>)>,
+    goal_pending: Option<(String, Receiver<GoalAdvanceReply>)>,
     factory_queue_clocks: std::collections::HashMap<String, FactoryQueueClock>,
     factory_pending: Option<(String, Receiver<Value>)>,
     factory_fatal_error: Option<CoreError>,
@@ -486,6 +618,10 @@ impl Daemon {
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
             self.supervisor.tick(&mut self.store)?;
+            // A terminal owned Goal turn committed by this outer service pass
+            // must reach the original fresh stop policy before expensive ticks.
+            // This hint selects no new work and is never a stop/join receipt.
+            self.service_hinted_goal_stops()?;
             self.graph_workers.tick(&mut self.store)?;
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
@@ -501,6 +637,13 @@ impl Daemon {
             // runs all ordinary stage checks; no armed-policy scan occurs here.
             self.integration_workers
                 .tick_finished_stage(&mut self.store)?;
+            // Inspect only the FIFO head after the original worker/fatal pass.
+            // Other methods retain their position until the original drain.
+            let (mut turn, early_read) = ReadyTurn::queue_head(&ready, &self.token);
+            if let Some(job) = early_read {
+                self.handle_ready_request(job);
+                self.service_after_early_owner_read()?;
+            }
             #[cfg(debug_assertions)]
             let factory_clock = Instant::now();
             #[cfg(debug_assertions)]
@@ -524,25 +667,9 @@ impl Daemon {
             #[cfg(debug_assertions)]
             self.trace_goal_stage("goal_tick_end", Some(goal_clock.elapsed()), 0, None);
             self.tick_integrations()?;
-            for _ in 0..16 {
-                let Ok(job) = ready.try_recv() else {
-                    break;
-                };
+            while let Some(job) = turn.next(&ready) {
                 self.handle_ready_request(job);
-                self.supervisor.tick(&mut self.store)?;
-                // A committed owned Goal terminal turn may need its original
-                // stop-only policy now; this never selects or admits new work.
-                self.service_hinted_goal_stops()?;
-                // Service owned workers and newly queued captures immediately.
-                // Idle frontier reconciliation remains in the full outer pass;
-                // this wake-up hint does not replace any admission checks.
-                if self.graph_workers.has_workers() || !self.store.graph_capture_clocks.is_empty() {
-                    self.graph_workers.tick(&mut self.store)?;
-                }
-                self.command_workers.tick(&mut self.store)?;
-                self.data_workers.tick(&mut self.store)?;
-                self.finish_data_admission();
-                self.history_workers.poll(&self.store);
+                self.service_after_ready_request()?;
                 self.finish_integration_read();
                 self.tick_integrations()?;
             }
@@ -602,15 +729,46 @@ impl Daemon {
         }
         Ok(())
     }
+    fn service_after_early_owner_read(&mut self) -> Result<()> {
+        self.service_after_ready_request()?;
+        // The same worker service can retain a fatal Factory error.
+        // Propagate it before doing any further Factory/Goal work.
+        if let Some(error) = self.factory_fatal_error.take() {
+            return Err(error);
+        }
+        Ok(())
+    }
+    fn service_after_ready_request(&mut self) -> Result<()> {
+        self.supervisor.tick(&mut self.store)?;
+        // A committed owned Goal terminal turn may need its original
+        // stop-only policy now; this never selects or admits new work.
+        self.service_hinted_goal_stops()?;
+        // Service owned workers and newly queued captures immediately.
+        // Idle frontier reconciliation remains in the full outer pass;
+        // this wake-up hint does not replace any admission checks.
+        if self.graph_workers.has_workers() || !self.store.graph_capture_clocks.is_empty() {
+            self.graph_workers.tick(&mut self.store)?;
+        }
+        self.command_workers.tick(&mut self.store)?;
+        self.data_workers.tick(&mut self.store)?;
+        self.finish_data_admission();
+        self.history_workers.poll(&self.store);
+        Ok(())
+    }
+    #[cfg(test)]
     fn handle(&mut self, raw: &str) -> Value {
+        self.handle_observed(raw).wire
+    }
+    fn handle_observed(&mut self, raw: &str) -> GoalAdvanceReply {
         #[cfg(debug_assertions)]
         let diagnostic_clock = Instant::now();
         let request = serde_json::from_str::<Request>(raw);
         let id = request.as_ref().ok().map(|r| r.request_id.clone());
         let authenticated = request.as_ref().is_ok_and(|r| r.token == self.token);
+        let mut admission = None;
         let result = request
             .map_err(|_| invalid())
-            .and_then(|r| self.dispatch(r));
+            .and_then(|r| self.dispatch(r, &mut admission));
         let revision = if authenticated {
             self.store.sequence().unwrap_or(0)
         } else {
@@ -627,9 +785,13 @@ impl Daemon {
             goal_diagnostics::method_tag(raw),
             response["error"]["code"].as_str(),
         );
-        response
+        GoalAdvanceReply::new(response, admission)
     }
-    fn dispatch(&mut self, r: Request) -> Result<Value> {
+    fn dispatch(
+        &mut self,
+        r: Request,
+        admission: &mut Option<crate::goal_store::GoalAdmissionObservation>,
+    ) -> Result<Value> {
         if r.token != self.token {
             return Err(CoreError::new(
                 "AUTH_REQUIRED",
@@ -718,7 +880,7 @@ impl Daemon {
                     }
                     if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send(&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
                 })();
-                if let Err(error)=action {return Err(Store::recorded_goal_advance_error(error,&receipt,&p.run_id,revision));}Ok(receipt)
+                if let Err(error)=action {return Err(recorded_goal_dispatch_error(&p.run_id,&receipt,error,admission));}Ok(receipt)
             }
             "factory_runs.start" => {
                 let p: FactoryScopeId = params(r.params)?;
@@ -2267,8 +2429,8 @@ impl Daemon {
                     }
                     Ok(None) => {}
                 }
-                let response = self.handle(&job.raw);
-                let _ = job.reply.try_send(response);
+                let response = self.handle_observed(&job.raw);
+                let _ = job.reply.try_send_observed(response);
             }
         }
     }
@@ -2390,10 +2552,10 @@ impl Daemon {
                             }
                         }
                     } else {
-                        let response = self.handle(&job.raw);
+                        let response = self.handle_observed(&job.raw);
                         self.store.data_input = None;
                         self.store.graph_input = None;
-                        let _ = job.reply.try_send(response);
+                        let _ = job.reply.try_send_observed(response);
                     }
                 }
             },
@@ -2506,6 +2668,7 @@ impl Daemon {
         if let Some((id, receiver)) = self.goal_pending.take() {
             match receiver.try_recv() {
                 Ok(response) => {
+                    let (response, admission) = response.into_parts();
                     #[cfg(debug_assertions)]
                     if response["error"]["code"] == "BUDGET_UNKNOWN" {
                         goal_diagnostics::emit(
@@ -2527,10 +2690,11 @@ impl Daemon {
                     );
                     if let Some(code) = response["error"]["code"].as_str() {
                         if !matches!(code, "STALE_REVISION" | "WORKSPACE_BUSY") {
-                            self.store.block_goal_run(
+                            self.store.block_goal_run_observed(
                                 &id,
                                 code,
                                 response["error"]["details_ref"].as_str(),
+                                admission.as_ref(),
                             )?;
                         }
                     }
@@ -2590,7 +2754,7 @@ impl Daemon {
         self.goal_pending = Some((run.id, receive));
         self.handle_ready_request(ReadyRequest {
             raw,
-            reply,
+            reply: ReadyReply::Goal(reply),
             deadline: Instant::now() + Duration::from_secs(60),
             factory_dispatch: None,
         });
@@ -2946,7 +3110,7 @@ mod factory_queue_deadline_tests {
             let (send, recv) = std::sync::mpsc::sync_channel(1);
             let deadline = Instant::now();
             std::thread::sleep(Duration::from_millis(2));
-            daemon.handle_ready_request(ReadyRequest{raw:json!({"api_version":1,"request_id":"generated-expired-scoped","handle_id":"missing-generated","scoped_token":"0".repeat(64),"method":method,"params":{},"expected_revision":1,"idempotency_key":"never-admit"}).to_string(),reply:send,deadline,factory_dispatch:None});
+            daemon.handle_ready_request(ReadyRequest{raw:json!({"api_version":1,"request_id":"generated-expired-scoped","handle_id":"missing-generated","scoped_token":"0".repeat(64),"method":method,"params":{},"expected_revision":1,"idempotency_key":"never-admit"}).to_string(),reply:ReadyReply::Wire(send),deadline,factory_dispatch:None});
             let response = recv.recv_timeout(Duration::from_secs(1)).unwrap();
             assert_eq!(
                 response["error"]["code"], "RESOURCE_LIMIT",
@@ -2997,7 +3161,7 @@ impl Daemon {
         let phase_clock = Instant::now();
         self.handle_ready_request(ReadyRequest {
             raw,
-            reply,
+            reply: ReadyReply::Wire(reply),
             deadline: Instant::now() + Duration::from_secs(60),
             factory_dispatch: Some(ticket),
         });
@@ -3395,3 +3559,7 @@ impl Daemon {
 #[cfg(test)]
 #[path = "goal_stop_service_tests.rs"]
 mod goal_stop_service_tests;
+
+#[cfg(test)]
+#[path = "ipc_owner_read_queue_tests.rs"]
+mod owner_read_queue_tests;

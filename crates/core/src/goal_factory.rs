@@ -906,16 +906,6 @@ pub(crate) fn budget_records(
 // This optional error detail is finite observation, never an admission token.
 // No IDs, paths, messages, authority or new clock/SQL reads enter this record.
 const ANCESTOR_ADMISSION_PREFIX: &str = "factory-ancestor-budget-v1:";
-const RECORDED_ADVANCE_PREFIX: &str = "recorded-goal-advance:";
-const RECORDED_ADMISSION_SEPARATOR: &str = "|budget-admission-v1:";
-const MAX_RECORDED_ADMISSION_BYTES: usize = 4096;
-// A nullable sample is still a required field of the complete constructor's
-// encoding. In particular, missing and observed-null are not interchangeable.
-fn required_admission_metric<'de, D: serde::Deserializer<'de>>(
-    decoder: D,
-) -> std::result::Result<Option<u64>, D::Error> {
-    Option::<u64>::deserialize(decoder)
-}
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 enum AncestorAdmissionGuard {
@@ -938,15 +928,11 @@ struct AncestorAdmissionDiagnostic {
     parallel_cap: u64,
     runtime_accounted_count: u64,
     output_accounted_count: u64,
-    #[serde(deserialize_with = "required_admission_metric")]
     settled_actual_runtime_ms: Option<u64>,
-    #[serde(deserialize_with = "required_admission_metric")]
     unsettled_reserved_runtime_ms: Option<u64>,
     requested_runtime_ms: u64,
     runtime_cap_ms: u64,
-    #[serde(deserialize_with = "required_admission_metric")]
     settled_actual_output_bytes: Option<u64>,
-    #[serde(deserialize_with = "required_admission_metric")]
     unsettled_reserved_output_bytes: Option<u64>,
     requested_output_bytes: u64,
     output_cap_bytes: u64,
@@ -967,156 +953,34 @@ impl AncestorAdmissionDiagnostic {
         error
     }
 }
-
-#[derive(Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct RecordedAdmissionDetail {
+// This observation has no Clone/Serialize/Deserialize implementation and owns
+// only one exact dispatch's bounded original sample. It cannot admit execution.
+pub(crate) struct GoalAdmissionObservation {
     run_id: String,
-    run_revision: u64,
-    intent_id: String,
-    original_guard: String,
+    details_ref: String,
 }
-
-fn original_admission_detail(value: &str) -> Option<AncestorAdmissionDiagnostic> {
-    let raw = value.strip_prefix(ANCESTOR_ADMISSION_PREFIX)?;
-    if raw.len() > 1024 {
-        return None;
+impl GoalAdmissionObservation {
+    pub(crate) fn capture(run_id: &str, error: &CoreError) -> Option<Self> {
+        if error.code != "RESOURCE_LIMIT" || run_id.is_empty() || run_id.len() > 512 {
+            return None;
+        }
+        let details_ref = error.details_ref.as_deref()?;
+        let raw = details_ref.strip_prefix(ANCESTOR_ADMISSION_PREFIX)?;
+        if raw.len() > 1024 {
+            return None;
+        }
+        // Reject arbitrary details at capture as well as at consumption.
+        let _: AncestorAdmissionDiagnostic = serde_json::from_str(raw).ok()?;
+        Some(Self {
+            run_id: run_id.to_owned(),
+            details_ref: details_ref.to_owned(),
+        })
     }
-    serde_json::from_str(raw).ok()
-}
-fn canonical_advance_intent(value: &str) -> bool {
-    value.len() == 36 && Uuid::parse_str(value).is_ok_and(|id| id.to_string() == value)
-}
-fn finite_admission_detail(detail: &AncestorAdmissionDiagnostic) -> bool {
-    detail.run_revision > 0
-        && detail.plan_revision > 0
-        && detail.relevant_count <= 100_000
-        && detail.active_count <= detail.relevant_count
-        && detail.runtime_accounted_count <= detail.relevant_count
-        && detail.output_accounted_count <= detail.runtime_accounted_count
-        && (!detail.aggregation_complete
-            || (detail.runtime_accounted_count == detail.relevant_count
-                && detail.output_accounted_count == detail.relevant_count))
-}
-// Transport only a sample reachable at an original constructor branch. This
-// validation never re-runs admission or turns a sample into authority.
-fn transportable_admission_detail(detail: &AncestorAdmissionDiagnostic) -> bool {
-    if !finite_admission_detail(detail) {
-        return false;
-    }
-    let runtime = detail
-        .settled_actual_runtime_ms
-        .zip(detail.unsettled_reserved_runtime_ms)
-        .and_then(|(a, b)| a.checked_add(b))
-        .and_then(|n| n.checked_add(detail.requested_runtime_ms));
-    let output = detail
-        .settled_actual_output_bytes
-        .zip(detail.unsettled_reserved_output_bytes)
-        .and_then(|(a, b)| a.checked_add(b))
-        .and_then(|n| n.checked_add(detail.requested_output_bytes));
-    let aggregation_reached =
-        detail.relevant_count < detail.attempt_cap && detail.active_count < detail.parallel_cap;
-    match detail.guard_kind {
-        AncestorAdmissionGuard::Attempts | AncestorAdmissionGuard::Parallel => {
-            !detail.aggregation_complete
-                && detail.runtime_accounted_count == 0
-                && detail.output_accounted_count == 0
-                && detail.settled_actual_runtime_ms.is_none()
-                && detail.unsettled_reserved_runtime_ms.is_none()
-                && detail.settled_actual_output_bytes.is_none()
-                && detail.unsettled_reserved_output_bytes.is_none()
-                && match detail.guard_kind {
-                    AncestorAdmissionGuard::Attempts => detail.relevant_count >= detail.attempt_cap,
-                    _ => {
-                        detail.relevant_count < detail.attempt_cap
-                            && detail.active_count >= detail.parallel_cap
-                    }
-                }
+    pub(super) fn for_run(&self, code: &str, r: &GoalRun) -> Option<Value> {
+        if self.run_id != r.id {
+            return None;
         }
-        AncestorAdmissionGuard::Runtime => {
-            aggregation_reached
-                && detail.aggregation_complete
-                && runtime.is_some_and(|n| n > detail.runtime_cap_ms)
-                && output.is_some()
-        }
-        AncestorAdmissionGuard::Output => {
-            aggregation_reached
-                && detail.aggregation_complete
-                && runtime.is_some_and(|n| n <= detail.runtime_cap_ms)
-                && output.is_some_and(|n| n > detail.output_cap_bytes)
-        }
-        AncestorAdmissionGuard::RuntimeOverflow => {
-            aggregation_reached
-                && !detail.aggregation_complete
-                && detail.runtime_accounted_count > 0
-                && detail.output_accounted_count.checked_add(1)
-                    == Some(detail.runtime_accounted_count)
-                && runtime.is_none()
-                && detail.settled_actual_output_bytes.is_some()
-                && detail.unsettled_reserved_output_bytes.is_some()
-        }
-        AncestorAdmissionGuard::OutputOverflow => {
-            aggregation_reached
-                && !detail.aggregation_complete
-                && detail.runtime_accounted_count > 0
-                && detail.output_accounted_count == detail.runtime_accounted_count
-                && runtime.is_some()
-                && output.is_none()
-        }
-    }
-}
-impl Store {
-    /// Preserve the original recorded-intent error contract. An optional
-    /// source-created finite guard may travel beside it, never replace it.
-    /// This pure wrapper reads no Store, clock, filesystem or authority cache.
-    pub(crate) fn recorded_goal_advance_error(
-        mut error: CoreError,
-        receipt: &Value,
-        selected_run_id: &str,
-        requested_run_revision: u64,
-    ) -> CoreError {
-        if error.side_effect_state == "not_started" {
-            error.side_effect_state = "confirmed".into();
-        }
-        let legacy = receipt["intent_id"]
-            .as_str()
-            .map(|intent| format!("{RECORDED_ADVANCE_PREFIX}{intent}"));
-        let compound = (|| -> Option<String> {
-            let intent = receipt["intent_id"].as_str()?;
-            let fields = receipt.as_object()?;
-            if error.code != "RESOURCE_LIMIT"
-                || !canonical_advance_intent(intent)
-                || !id(selected_run_id)
-                || requested_run_revision == 0
-                || fields.len() != 7
-                || receipt["run_id"].as_str() != Some(selected_run_id)
-                || receipt["requested_run_revision"].as_u64() != Some(requested_run_revision)
-                || receipt["requested_ledger_revision"].as_u64().is_none()
-                || receipt["observation"] != "advance_intent_recorded"
-                || receipt["execution_state_requires_get"] != true
-                || receipt["task_accepted"] != false
-            {
-                return None;
-            }
-            let original = error.details_ref.as_deref()?;
-            let detail = original_admission_detail(original)?;
-            if detail.run_revision != requested_run_revision
-                || !transportable_admission_detail(&detail)
-            {
-                return None;
-            }
-            let suffix = serde_json::to_string(&RecordedAdmissionDetail {
-                run_id: selected_run_id.into(),
-                run_revision: requested_run_revision,
-                intent_id: intent.into(),
-                original_guard: original.into(),
-            })
-            .ok()?;
-            let reference = format!("{}{RECORDED_ADMISSION_SEPARATOR}{suffix}", legacy.as_ref()?);
-            (reference.len() <= MAX_RECORDED_ADMISSION_BYTES).then_some(reference)
-        })();
-        error.details_ref = compound.or(legacy);
-        error
+        ancestor_admission_diagnostic(code, Some(&self.details_ref), r)
     }
 }
 
@@ -1128,37 +992,23 @@ pub(super) fn ancestor_admission_diagnostic(
     if code != "RESOURCE_LIMIT" {
         return None;
     }
-    let reference = details_ref?;
-    let detail = if reference.starts_with(ANCESTOR_ADMISSION_PREFIX) {
-        original_admission_detail(reference)?
-    } else {
-        if reference.len() > MAX_RECORDED_ADMISSION_BYTES {
-            return None;
-        }
-        let tail = reference.strip_prefix(RECORDED_ADVANCE_PREFIX)?;
-        let (intent, raw) = tail.split_once(RECORDED_ADMISSION_SEPARATOR)?;
-        if !canonical_advance_intent(intent) || raw.contains(RECORDED_ADMISSION_SEPARATOR) {
-            return None;
-        }
-        let wrapped: RecordedAdmissionDetail = serde_json::from_str(raw).ok()?;
-        if wrapped.run_id != r.id
-            || wrapped.run_revision != r.revision
-            || wrapped.intent_id != intent
-        {
-            return None;
-        }
-        let detail = original_admission_detail(&wrapped.original_guard)?;
-        if !transportable_admission_detail(&detail) {
-            return None;
-        }
-        detail
-    };
+    let raw = details_ref?.strip_prefix(ANCESTOR_ADMISSION_PREFIX)?;
+    if raw.len() > 1024 {
+        return None;
+    }
+    let detail: AncestorAdmissionDiagnostic = serde_json::from_str(raw).ok()?;
     // Bind the private originating sample to the same current run/plan before
     // saving it beside the existing blocked event. An old/foreign or malformed
     // optional observation is omitted; the original block still proceeds.
     if detail.run_revision != r.revision
         || detail.plan_revision != r.plan_revision
-        || !finite_admission_detail(&detail)
+        || detail.relevant_count > 100_000
+        || detail.active_count > detail.relevant_count
+        || detail.runtime_accounted_count > detail.relevant_count
+        || detail.output_accounted_count > detail.runtime_accounted_count
+        || (detail.aggregation_complete
+            && (detail.runtime_accounted_count != detail.relevant_count
+                || detail.output_accounted_count != detail.relevant_count))
     {
         return None;
     }

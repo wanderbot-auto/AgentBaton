@@ -1,6 +1,6 @@
 # Factory summary proof — bounded readonly optimization
 
-Requirement boundary: AB-SEC-007 and Goal/Factory rework readonly integrity. This package does not change execution authority, scheduling, permissions or acceptance. Root explicitly authorized the three source paths and these four records. Base: `059f96b0a1b008f560554731ad77cef2fa6a6d95`.
+Requirement boundary: AB-TSK-009/AB-TSK-003/AB-TSK-008 and Goal/Factory rework readonly integrity. Original author AB-SEC-007 mapping was incorrect: this package does not test database migration. This package does not change execution authority, scheduling, permissions or acceptance. Root explicitly authorized the three source paths and these four records. Base: `059f96b0a1b008f560554731ad77cef2fa6a6d95`.
 
 ## Problem and evidence boundary
 
@@ -26,3 +26,8 @@ The original capability, strict summary, live scope, policy/expiry/revocation, F
 Write four actual Core/SQLite tests using existing genuine approved queued/adoption fixtures; do not manufacture approval or stop success. Compare serialized summaries and complete public Views against original strict behavior, verify real r2 adoption and immutable initial ref, reject six deliberate row/history corruptions, and prove caller-transaction writes plus later requests cannot reuse a prior result. Preserve original tests and assertions.
 
 Author runs only rustfmt, diff and bounded source/API inspection. Root owns compilation, selected tests, Core/Factory/sessions IPC/Clippy and exact performance/CI evidence. Independent source review is required. Preserve every previous Intel failure and distinguish old source results from this source. No Mac fix or measured improvement before actual evidence.
+
+
+## Root actual checkpoint 2026-10-30T13:21:13.227918+00:00
+
+Source07d8c1d (author29c) passes153 unique Core tests,30 Factory,58 sessions Unix IPC, strict workspace/all-target Clippy and format; focused4/nestedhelper are included. Source review ca80f121/d9133c16 is limited independent source/model review. Prior059 Env3/Rust/UI/ARM success and Intel4013/4000 plan2/run11 unknown failure remain; new exact CI is not run. No performance/Intelfix/Mac or full130 acceptance. See ROOT_RESULTS.json for complete commands, source/result/input/log hashes and boundaries. AB-SEC-007 author mapping was corrected; no migration claim.

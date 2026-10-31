@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "before_records_commit": "2d424044de882f2497370b174ed0d31a5b8bd945",
+  "record": "ROOT_RESULTS.json",
+  "sha256": "510fbef3e660b4060aa23ee2f0f412bc79b434b10046e30dbba7359f06105a9a",
+  "status": "local_diagnostic_paths_verified_exact_new_CI_pending",
+  "whole_product": "incomplete",
+  "raw_private_history_published": false
+}

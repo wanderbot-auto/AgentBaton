@@ -1,3 +1,5 @@
+Current Root17/main composition is pending new runtime verification. Both historical source records below are retained with their original scope and timestamps.
+
 # Checkpoint
 
 Source `4e9e20d25c7b104c57cffc51a92de3a2eff82a71`.
@@ -24,3 +26,8 @@ Suggested Root commands, not run here:
 Use Root's current offline/resource/source/tool guards. The10 service controls cover complete DTO/list bytes, true readonly write refusal, real concurrent WAL cancellation, empty-list revision, retryable saturation, new-call digest corruption, original pre-expired request, actual SQLITE_INTERRUPT acknowledgement with concurrent Core write/Actor transaction unaffected, deadline interruption, panic/shutdown resource retention and real revocation preserving original effect refusal. Two Actor controls reuse exact approved4s/20s/30s generated ACP fixture and actual reaped-process/lease/Task/receipt/attempt/event assertions. No claim of Daemon.run, complete FactoryGraph or Mac from those two.
 
 Root must then select current-source full Core, Factory/sessions daemon regression, strict Clippy/fmt and exact future CI/Mac. No assertions, deadlines or budgets may be loosened to hide a failure. A schema17 composition needs an explicit exact-schema delta and corresponding evidence; this source is schema15 Parent61 only.
+
+
+## Root actual checkpoint 2026-10-30T15:23:35.312072+00:00
+
+Source6acd/d649 compiled and passed165 unique Core tests (new10+2/nestedhelper included),30Factory123.57s,58sessions206.66s, strictworkspace/alltargetsClippy/fmt and203infrastructure. Two held-history Unix/ACP tests are manualActor+strictmissingFactoryScope; fullnormalDaemon coverage is the separately attributed fullFactory/sessions targets. Original61 Env/Rust/UI/ARM pass and Intelcapture4164/4000 failure remain, no CPUrootcause/speedup/repair claim. Independent42 sourcechecks are not another productexecution. New exact sevenCI/Native/Mac/packages pending; full130 incomplete. ROOT_RESULTS.json binds argv/source/INPUTS/RESULT/logSHA and limitations.

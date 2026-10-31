@@ -74,16 +74,117 @@ DIAGNOSTIC_EFFECTS = frozenset({'not_started','confirmed','unknown'})
 ERROR_CLASSES = frozenset({'assertion','refusal','timeout','os_error','type_error','value_error','runtime_error','other'})
 MAX_DIAGNOSTIC_REPLIES=2048
 MAX_DIAGNOSTIC_BUCKETS=64
+GRAPH_ARGV_REASONS=frozenset({'empty','oversized','missing_nul','argv_mismatch'})
+
+def graph_argv_diagnostic(value):
+    require(type(value)is dict and set(value)=={'reason','previously_bound'})
+    require(type(value['reason'])is str and value['reason']in GRAPH_ARGV_REASONS)
+    require(type(value['previously_bound'])is bool)
+    return value
+
+class GraphProviderArgvFailure(AssertionError):
+    """Fixed scalars only; never retain raw argv or an expected identity."""
+    def __init__(self,reason,previously_bound):
+        self.diagnostic=graph_argv_diagnostic({'reason':reason,'previously_bound':previously_bound})
+        super().__init__('Graph Provider argv guard failed')
+
+def check_graph_provider_argv(raw,expected_argv,previously_bound):
+    """Same nonempty/size/NUL/decoded-argv refusal, with a finite first reason."""
+    require(type(raw)is bytes and type(expected_argv)is list and all(type(v)is str for v in expected_argv))
+    require(len(expected_argv)==3 and type(previously_bound)is bool)
+    if len(raw)==0:raise GraphProviderArgvFailure('empty',previously_bound)
+    if len(raw)>8192:raise GraphProviderArgvFailure('oversized',previously_bound)
+    if not raw.endswith(b'\0'):raise GraphProviderArgvFailure('missing_nul',previously_bound)
+    # Preserve the original strict UTF8 decode and its ValueError classification.
+    if [v.decode()for v in raw[:-1].split(b'\0')][-3:]!=expected_argv:
+        raise GraphProviderArgvFailure('argv_mismatch',previously_bound)
+
+def unobserved_owner_refresh():
+    return {'observation':'unobserved','source_epoch':None,'started_ns':None,
+        'click_finished_ns':None,'finished_ns':None,'refresh_completed':None,
+        'full_fresh':None,'loading':None,'pending_kind':'unobserved',
+        'correlation':'temporal_only','click_causality':'not_established',
+        'reads':[],'scope_task_only_read_count':0,'truncated':False}
+
+def nullable_bool(value):
+    return value is None or type(value)is bool
+
+def diagnostic_error(value):
+    require(type(value)is dict and set(value)=={'method','code','retryable','side_effect_state'})
+    require(type(value['method'])is str and value['method']in DIAGNOSTIC_METHODS)
+    require(type(value['code'])is str and value['code']in DIAGNOSTIC_CODES)
+    require(type(value['retryable'])is bool and type(value['side_effect_state'])is str and value['side_effect_state']in DIAGNOSTIC_EFFECTS)
+    return value
+
+def owner_refresh_diagnostic(value):
+    require(type(value)is dict and set(value)==set(unobserved_owner_refresh()))
+    require(type(value['observation'])is str and value['observation']in {'unobserved','observed'})
+    # App epoch/freshness/loading/pending have no direct observable DOM source.
+    # Harness sequence numbers and a returned click are never substitutes.
+    require(all(value[k]is None for k in ('source_epoch','refresh_completed','full_fresh','loading')))
+    require(value['pending_kind']=='unobserved' and value['correlation']=='temporal_only' and value['click_causality']=='not_established')
+    require(type(value['reads'])is list and len(value['reads'])<=64 and type(value['truncated'])is bool)
+    require(type(value['scope_task_only_read_count'])is int and 0<=value['scope_task_only_read_count']<=2048)
+    for key in ('started_ns','click_finished_ns','finished_ns'):
+        require(value[key]is None or type(value[key])is int and 0<value[key]<2**63)
+    start=value['started_ns']
+    if value['observation']=='unobserved':
+        require(value==unobserved_owner_refresh());return value
+    require(start is not None)
+    require(all(value[k]is None or value[k]>=start for k in ('click_finished_ns','finished_ns')))
+    if value['click_finished_ns']is not None and value['finished_ns']is not None:
+        require(value['click_finished_ns']<=value['finished_ns'])
+    for row in value['reads']:
+        require(type(row)is dict and set(row)=={'method','binding','started_ns','finished_ns','reply_class','error'})
+        require(row['method']=='factory_child_goals.get' and row['binding']=='scope_task_run')
+        require(type(row['started_ns'])is int and type(row['finished_ns'])is int and start<=row['started_ns']<=row['finished_ns']<2**63)
+        require(value['finished_ns']is None or row['finished_ns']<=value['finished_ns'])
+        require(type(row['reply_class'])is str and row['reply_class']in {'result','error','unmapped_error','malformed'})
+        if row['reply_class']=='error':
+            require(diagnostic_error(row['error'])['method']==row['method'])
+        else:require(row['error']is None)
+    return value
+
+def graph_identity_diagnostic(value):
+    fields={'initial_binding','empty_read_observed','known_same_identity','uid_matches',
+        'pgid_matches','ppid_matches','start_ticks_match','after_read','exact_cancel_durable'}
+    require(type(value)is dict and set(value)==fields)
+    require(type(value['initial_binding'])is str and value['initial_binding']in {'unobserved','verified'})
+    require(value['empty_read_observed']is True)
+    require(all(nullable_bool(value[k])for k in fields-{'initial_binding','empty_read_observed','after_read'}))
+    require(type(value['after_read'])is str and value['after_read']in {'unobserved','same','absent','changed'})
+    if value['initial_binding']=='unobserved':
+        require(all(value[k]is None for k in ('known_same_identity','uid_matches','pgid_matches','ppid_matches','start_ticks_match')))
+        require(value['after_read']in {'unobserved','absent'})
+    if value['after_read']in {'unobserved','absent'}:
+        require(all(value[k]is None for k in ('known_same_identity','uid_matches','pgid_matches','ppid_matches','start_ticks_match')))
+    if value['after_read']=='changed':require(value['known_same_identity']is False)
+    if value['after_read']=='same' or value['known_same_identity']is True:
+        require(value['known_same_identity']is True)
+        require(value['initial_binding']=='verified' and value['after_read']=='same')
+        require(all(value[k]is True for k in ('uid_matches','pgid_matches','ppid_matches','start_ticks_match')))
+    return value
 
 def unobserved_diagnostics():
-    return {'version':1,'failure_class':None,'driver_lines':None,'lines_truncated':None,
+    return {'version':3,'failure_class':None,'driver_lines':None,'lines_truncated':None,
         'phase':None,'last_completed_check':None,'core_replies':{'observation':'unobserved',
-        'captured_count':None,'truncated':None,'unmapped_error_count':None,'errors':None}}
+        'captured_count':None,'truncated':None,'unmapped_error_count':None,'errors':None},
+        'graph_provider_argv':None,'owner_refresh':unobserved_owner_refresh(),
+        'graph_provider_identity':None}
 
 def finite_diagnostics(value):
     if value is None:return unobserved_diagnostics()
-    require(type(value)is dict and set(value)==set(unobserved_diagnostics()))
-    require(type(value['version'])is int and value['version']==1)
+    require(type(value)is dict and type(value.get('version'))is int and value['version']in (1,2,3))
+    expected=set(unobserved_diagnostics())
+    if value['version']<3:expected-= {'owner_refresh','graph_provider_identity'}
+    if value['version']==1:expected.remove('graph_provider_argv')
+    require(set(value)==expected)
+    if value['version']>=2 and value['graph_provider_argv']is not None:
+        graph_argv_diagnostic(value['graph_provider_argv'])
+        require(value['failure_class']in ({'assertion','refusal'}if value['version']==3 else {'assertion'}))
+    if value['version']==3:
+        owner_refresh_diagnostic(value['owner_refresh'])
+        if value['graph_provider_identity']is not None:graph_identity_diagnostic(value['graph_provider_identity'])
     require(value['failure_class']is None or type(value['failure_class'])is str and value['failure_class']in ERROR_CLASSES)
     require(value['phase']is None or type(value['phase'])is str and value['phase']in {'runtime','cleanup'})
     require(value['last_completed_check']is None or type(value['last_completed_check'])is str and value['last_completed_check']in {'CG01','CG02','CG03','CG04','CG05','CG06'})
@@ -110,7 +211,46 @@ def finite_diagnostics(value):
 class FiniteRuntimeDiagnostics:
     """Observe returned Core dictionaries only; no error-text parsing or IO."""
     def __init__(self):
-        self._lock=threading.Lock();self._value=unobserved_diagnostics();self._buckets={};self._invalid=False
+        self._lock=threading.Lock();self._value=unobserved_diagnostics();self._buckets={};self._invalid=False;self._owner_query=None
+    def owner_refresh_begin(self,query,started_ns):
+        with self._lock:
+            require(type(query)is dict and set(query)=={'scope_id','task_id','goal_run_id'} and all(type(v)is str and v for v in query.values()))
+            self._owner_query=dict(query);self._value['owner_refresh']=unobserved_owner_refresh()
+            self._value['owner_refresh'].update(observation='observed',started_ns=started_ns)
+    def owner_refresh_click_finished(self,finished_ns):
+        with self._lock:self._value['owner_refresh']['click_finished_ns']=finished_ns
+    def owner_refresh_end(self,finished_ns):
+        with self._lock:self._value['owner_refresh']['finished_ns']=finished_ns
+    def owner_refresh_reply(self,method,params,reply,started_ns,finished_ns):
+        with self._lock:
+            window=self._value['owner_refresh'];query=self._owner_query
+            if query is None or window['finished_ns']is not None or started_ns<window['started_ns']:return
+            # list lacks a run argument: count its scope/task match but never
+            # associate its error with this exact Goal or infer click causality.
+            scope_task={k:query[k]for k in ('scope_id','task_id')}
+            if method=='factory_child_goals.list' and (strict_json_equal(params,scope_task)or strict_json_equal(params,{**scope_task,'goal_run_id':None})):
+                if window['scope_task_only_read_count']>=2048:window['truncated']=True
+                else:window['scope_task_only_read_count']+=1
+                return
+            if method!='factory_child_goals.get' or not strict_json_equal(params,query):return
+            if len(window['reads'])>=64:window['truncated']=True;return
+            kind='malformed';error=None
+            if type(reply)is dict:
+                if 'error'in reply:
+                    raw=reply['error']
+                    if type(raw)is dict and type(raw.get('code'))is str and raw['code']in DIAGNOSTIC_CODES and type(raw.get('retryable'))is bool and type(raw.get('side_effect_state'))is str and raw['side_effect_state']in DIAGNOSTIC_EFFECTS:
+                        error={'method':method,**{k:raw[k]for k in ('code','retryable','side_effect_state')}};kind='error'
+                    else:kind='unmapped_error'
+                elif 'result'in reply:kind='result'
+            window['reads'].append({'method':method,'binding':'scope_task_run','started_ns':started_ns,'finished_ns':finished_ns,'reply_class':kind,'error':error})
+    def graph_argv(self,value):
+        with self._lock:
+            if self._value['graph_provider_argv']is None:
+                self._value['graph_provider_argv']=dict(graph_argv_diagnostic(value))
+    def graph_identity(self,value):
+        with self._lock:
+            if self._value['graph_provider_identity']is None:
+                self._value['graph_provider_identity']=dict(graph_identity_diagnostic(value))
     def completed(self,check):
         with self._lock:
             if type(check)is not str or check not in {'CG01','CG02','CG03','CG04','CG05','CG06'}:self._invalid=True
@@ -155,6 +295,8 @@ class FiniteRuntimeDiagnostics:
                 tb=tb.tb_next
             if tb is not None:truncated=True
             self._value.update(failure_class=kind,driver_lines=lines or None,lines_truncated=truncated,phase=phase)
+            if type(error)is GraphProviderArgvFailure:
+                self._value['graph_provider_argv']=dict(graph_argv_diagnostic(error.diagnostic))
     def snapshot(self):
         with self._lock:
             if self._invalid:return {'version':1,'invalid':True}
@@ -172,13 +314,15 @@ def project(report, candidate, summary, case, exit_code, harness_sha):
         require(type(check)is dict and type(check.get('id'))is str and check['id']in EXPECTED[case] and check['id']not in seen and check.get('status')=='passed')
         seen.add(check['id']);safe.append({'id':check['id'],'status':'passed'})
     cleanup=report.get('cleanup');require(type(cleanup)is list and len(cleanup)<=256 and type(report.get('cleanup_complete'))is bool)
+    diagnostics=finite_diagnostics(report.get('finite_diagnostics'))
     passed=(exit_code==0 and report['status']=='passed' and report['cleanup_complete']is True
-        and not report.get('failure') and report.get('http_unexpected_errors')==[] and seen==EXPECTED[case])
+        and not report.get('failure') and report.get('http_unexpected_errors')==[] and seen==EXPECTED[case]
+        and diagnostics.get('graph_provider_argv')is None)
     return {'contract':'agentbaton.child-goal-ci.v1','case':case,'status':'passed'if passed else 'failed',
         **summary,'harness_sha256':harness_sha,'exit_code':exit_code,'command_state':'unobserved'if exit_code is None else 'returned','checks':safe,
         'cleanup_complete':report['cleanup_complete'],'cleanup_record_count':len(cleanup),
         'failure_kind':'none'if passed else 'runtime_failed','screenshots_published':False,
-        'private_history_published':False,'finite_diagnostics':finite_diagnostics(report.get('finite_diagnostics'))}
+        'private_history_published':False,'finite_diagnostics':diagnostics}
 
 def publish(path,value):
     pending=path.with_name(path.name+'.pending')

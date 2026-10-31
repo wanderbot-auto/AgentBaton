@@ -74,31 +74,42 @@ fn real_recorded_intent_error_wrapper_reaches_existing_block_event_without_new_d
     let original = controlled_admission_error(&before);
     // Call the exact production error wrapper used by the IPC dispatch branch,
     // then round-trip its actual CoreError DTO like the pending response path.
-    let wrapped = Store::recorded_goal_advance_error(
-        original.clone(),
-        &receipt,
+    let mut observation = None;
+    let wrapped = crate::ipc::recorded_goal_dispatch_error(
         &request.run_id,
-        before.revision,
+        &receipt,
+        original.clone(),
+        &mut observation,
     );
-    let transported: CoreError =
-        serde_json::from_slice(&serde_json::to_vec(&wrapped).unwrap()).unwrap();
+    let wire = json!({"error": wrapped});
+    let (send, receive) = std::sync::mpsc::sync_channel(1);
+    crate::ipc::ReadyReply::Goal(send)
+        .try_send_observed(crate::ipc::GoalAdvanceReply::new(wire.clone(), observation))
+        .unwrap();
+    let (received, owned) = receive.try_recv().unwrap().into_parts();
+    assert_eq!(received, wire);
+    assert!(receive.try_recv().is_err(), "owned reply is consumed once");
+    let transported: CoreError = serde_json::from_value(received["error"].clone()).unwrap();
     assert_eq!(transported.code, original.code);
     assert_eq!(transported.message, original.message);
     assert_eq!(transported.retryable, original.retryable);
     assert_eq!(transported.side_effect_state, "confirmed");
-    assert!(transported
-        .details_ref
-        .as_ref()
-        .unwrap()
-        .starts_with(&format!(
-            "recorded-goal-advance:{}|budget-admission-v1:",
-            receipt["intent_id"].as_str().unwrap()
-        )));
+    assert_eq!(
+        transported.details_ref.as_deref(),
+        Some(
+            format!(
+                "recorded-goal-advance:{}",
+                receipt["intent_id"].as_str().unwrap()
+            )
+            .as_str()
+        )
+    );
     f.store
-        .block_goal_run(
+        .block_goal_run_observed(
             &before.id,
             &transported.code,
             transported.details_ref.as_deref(),
+            owned.as_ref(),
         )
         .unwrap();
     let event = blocked_detail_event(&f.store, &before.id);
@@ -151,21 +162,36 @@ fn real_block_keeps_resource_refusal_but_omits_a_foreign_optional_recorded_sampl
         .store
         .admit_goal_advance(&request, before.revision, "foreign-detail-intent")
         .unwrap();
-    let error = Store::recorded_goal_advance_error(
-        controlled_admission_error(&before),
+    let mut observation = None;
+    let wrapped = crate::ipc::recorded_goal_dispatch_error(
+        "foreign-recorded-run",
         &receipt,
-        &request.run_id,
-        before.revision,
+        controlled_admission_error(&before),
+        &mut observation,
     );
-    let reference = error.details_ref.unwrap();
-    let (legacy, raw) = reference.split_once("|budget-admission-v1:").unwrap();
-    let mut value: Value = serde_json::from_str(raw).unwrap();
-    value["run_id"] = json!("foreign-recorded-run");
-    let foreign = format!("{legacy}|budget-admission-v1:{value}");
+    assert!(
+        observation.is_some(),
+        "exercise an actual foreign typed sample"
+    );
+    assert_eq!(
+        wrapped.details_ref.as_deref(),
+        Some(
+            format!(
+                "recorded-goal-advance:{}",
+                receipt["intent_id"].as_str().unwrap()
+            )
+            .as_str()
+        )
+    );
     let sequence = f.store.sequence().unwrap();
     let counts = detail_test_counts(&f.store);
     f.store
-        .block_goal_run(&before.id, "RESOURCE_LIMIT", Some(&foreign))
+        .block_goal_run_observed(
+            &before.id,
+            "RESOURCE_LIMIT",
+            wrapped.details_ref.as_deref(),
+            observation.as_ref(),
+        )
         .unwrap();
     let event = blocked_detail_event(&f.store, &before.id);
     assert!(event["payload"].get("budget_admission").is_none());
@@ -189,12 +215,14 @@ fn real_legacy_recorded_intent_still_replays_without_an_optional_guard_sample() 
         .admit_goal_advance(&request, before.revision, "legacy-detail-intent")
         .unwrap();
     let original = CoreError::new("RESOURCE_LIMIT", "Original plain refusal");
-    let wrapped = Store::recorded_goal_advance_error(
-        original.clone(),
-        &receipt,
+    let mut observation = None;
+    let wrapped = crate::ipc::recorded_goal_dispatch_error(
         &request.run_id,
-        before.revision,
+        &receipt,
+        original.clone(),
+        &mut observation,
     );
+    assert!(observation.is_none());
     let mut old = original;
     old.side_effect_state = "confirmed".into();
     old.details_ref = Some(format!(
@@ -208,7 +236,12 @@ fn real_legacy_recorded_intent_still_replays_without_an_optional_guard_sample() 
     let sequence = f.store.sequence().unwrap();
     let counts = detail_test_counts(&f.store);
     f.store
-        .block_goal_run(&before.id, &wrapped.code, wrapped.details_ref.as_deref())
+        .block_goal_run_observed(
+            &before.id,
+            &wrapped.code,
+            wrapped.details_ref.as_deref(),
+            observation.as_ref(),
+        )
         .unwrap();
     assert!(blocked_detail_event(&f.store, &before.id)["payload"]
         .get("budget_admission")

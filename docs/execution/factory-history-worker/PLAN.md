@@ -1,3 +1,5 @@
+Current Root17/main composition is pending new runtime verification. Both historical source records below are retained with their original scope and timestamps.
+
 # Fixed Factory history worker
 
 Requirements: AB-TSK-009/003/008 readonly Factory progress, AB-TSK-007 confirmed stop/cancellation responsiveness, AB-VAL-009 retained proof integrity. Partial implementation only. This is not a schema migration (AB-SEC-007), new authority, budget change or Intel repair acceptance.
@@ -39,3 +41,8 @@ Normal ticks keep all original Supervisor/capture/frontier/admission/effect orde
 10 cfg Core/SQLite/owned-thread controls plus2 real Unix/socket_worker/generated ACP/manually driven Actor controls are source-only here. The latter uses an honestly missing Factory scope for strict error/held-read fairness, and separate genuine Native Goal approval/owned session/real stop; it is not one full derived Factory Goal flow or Daemon.run/Mac. Normal complete derived DTO/WAL behavior is covered by the10 service controls. Original fixture bodies/assertions remain unchanged.
 
 Root owns compilation, selected tests, complete Core/Factory/sessions IPC/strict Clippy/fmt and actual exact Mac comparison. Require independent source review first. No original failure or old green can transfer to this source. No budget/timeout/authority reduction, performance success, Mac delivery or formal Approve is implied.
+
+
+## Root actual checkpoint 2026-10-30T15:23:35.312072+00:00
+
+Source6acd/d649 compiled and passed165 unique Core tests (new10+2/nestedhelper included),30Factory123.57s,58sessions206.66s, strictworkspace/alltargetsClippy/fmt and203infrastructure. Two held-history Unix/ACP tests are manualActor+strictmissingFactoryScope; fullnormalDaemon coverage is the separately attributed fullFactory/sessions targets. Original61 Env/Rust/UI/ARM pass and Intelcapture4164/4000 failure remain, no CPUrootcause/speedup/repair claim. Independent42 sourcechecks are not another productexecution. New exact sevenCI/Native/Mac/packages pending; full130 incomplete. ROOT_RESULTS.json binds argv/source/INPUTS/RESULT/logSHA and limitations.
