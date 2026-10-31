@@ -373,8 +373,8 @@ fn weakened_v1_fixture_is_rejected_and_its_generated_schema16_remains_inert() {
         std::fs::metadata(&backups[0]).unwrap().permissions().mode() & 0o777,
         0o600
     );
-    let backup = Connection::open_with_flags(&backups[0], OpenFlags::SQLITE_OPEN_READ_ONLY)
-        .unwrap();
+    let backup =
+        Connection::open_with_flags(&backups[0], OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
     assert_eq!(image(&backup), original);
     assert_eq!(
         backup
@@ -388,7 +388,9 @@ fn weakened_v1_fixture_is_rejected_and_its_generated_schema16_remains_inert() {
 
     // Cold-open the actually generated16 state: refusal must leave all rows,
     // DDL and user_version unchanged and must create no integration authority.
-    let error = Store::open(&path).err().expect("generated16 must still fail");
+    let error = Store::open(&path)
+        .err()
+        .expect("generated16 must still fail");
     assert_eq!(error.code, "INPUT_CHANGED");
     let db = Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
     assert_eq!(image(&db), generated);
