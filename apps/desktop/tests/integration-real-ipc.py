@@ -15,7 +15,6 @@ import copy
 from functools import partial
 import hashlib
 import http.server
-import importlib.util
 import json
 import os
 from pathlib import Path
@@ -32,6 +31,7 @@ import tempfile
 import threading
 import time
 import traceback
+import types
 import uuid
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -199,25 +199,34 @@ def source_guard(expected):
     return {'head': head, 'tracked_clean': True, 'driver_sha256': digest(tracked)}
 
 
-def notification_probe_source(expected):
+def notification_probe_bytes(expected):
     # Fixed repository path only; never accept a module/path from CLI or HTTP.
     relative = 'apps/desktop/tests/task_notifications_real_ipc_probe.py'
     require(subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip() == expected
         and subprocess.check_output(['git', 'status', '--porcelain=v1', '--untracked-files=no'], cwd=ROOT) == b'')
     path = Path(__file__).with_name('task_notifications_real_ipc_probe.py')
     pin = pinned_file(path, MAX_REVIEW)
-    raw = path.read_bytes()
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, 'rb') as stream:
+        raw = stream.read(MAX_REVIEW + 1)
     tracked = subprocess.check_output(['git', 'show', 'HEAD:' + relative], cwd=ROOT)
-    require(raw == tracked and digest(raw) == pin['sha256'])
-    return {'source': expected, 'relative_path': relative, 'sha256': pin['sha256'], 'bytes': pin['bytes']}
+    require(0 < len(raw) <= MAX_REVIEW and len(raw) == pin['bytes']
+        and raw == tracked and digest(raw) == pin['sha256'])
+    return {'source': expected, 'relative_path': relative, 'sha256': pin['sha256'], 'bytes': pin['bytes']}, raw
+
+
+def notification_probe_source(expected):
+    return notification_probe_bytes(expected)[0]
 
 
 def load_notification_probe(expected):
-    record = notification_probe_source(expected)
+    record, raw = notification_probe_bytes(expected)
     path = Path(__file__).with_name('task_notifications_real_ipc_probe.py')
-    spec = importlib.util.spec_from_file_location('_fixed_task_notifications_real_ipc_probe', path)
-    require(spec is not None and spec.loader is not None)
-    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    # Compile the exact reviewed bytes. SourceFileLoader may instead execute an
+    # untracked timestamp/size-matching .pyc even when the .py hash is correct.
+    module = types.ModuleType('_fixed_task_notifications_real_ipc_probe')
+    module.__file__ = str(path)
+    exec(compile(raw, str(path), 'exec'), module.__dict__)
     require(notification_probe_source(expected) == record)
     return module, record
 

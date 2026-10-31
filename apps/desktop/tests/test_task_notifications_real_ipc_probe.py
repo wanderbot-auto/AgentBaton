@@ -3,8 +3,11 @@ import ast
 import copy
 import hashlib
 import importlib.util
+from importlib.machinery import SourceFileLoader
 import json
+import marshal
 from pathlib import Path
+import struct
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -168,6 +171,32 @@ class OriginalFlowPreserved(unittest.TestCase):
         source = PATH.with_name('integration-real-ipc.py').read_text()
         self.assertIn("with_name('task_notifications_real_ipc_probe.py')", source)
         self.assertNotIn("add_argument('--probe-path'", source)
+
+    def test_matching_forged_bytecode_cache_cannot_replace_the_actual_pinned_raw_execution(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / 'task_notifications_real_ipc_probe.py'
+            raw = b"PINNED_RAW = 'reviewed'\n"
+            path.write_bytes(raw)
+            info = path.stat()
+            forged = compile("FORGED_CACHE_WAS_EXECUTED = True\n", str(path), 'exec')
+            cache = Path(importlib.util.cache_from_source(str(path)))
+            cache.parent.mkdir()
+            cache.write_bytes(importlib.util.MAGIC_NUMBER
+                + struct.pack('<III', 0, int(info.st_mtime), len(raw)) + marshal.dumps(forged))
+            # A real legacy loader consumes this valid cache despite pinned .py bytes.
+            control = {}
+            exec(SourceFileLoader('_forged_cache_control', str(path)).get_code('_forged_cache_control'), control)
+            self.assertIs(control['FORGED_CACHE_WAS_EXECUTED'], True)
+            self.assertNotIn('PINNED_RAW', control)
+            head = 'a' * 40
+            with patch.object(D, '__file__', str(path.with_name('integration-real-ipc.py'))), \
+                patch.object(D.subprocess, 'check_output', side_effect=[head + '\n', b'', raw] * 2):
+                actual, record = D.load_notification_probe(head)
+            self.assertEqual(actual.PINNED_RAW, 'reviewed')
+            self.assertFalse(hasattr(actual, 'FORGED_CACHE_WAS_EXECUTED'))
+            self.assertEqual(actual.__name__, '_fixed_task_notifications_real_ipc_probe')
+            self.assertEqual(actual.__file__, str(path))
+            self.assertEqual(record['sha256'], hashlib.sha256(raw).hexdigest())
 
 
 class OriginalProjectorContract(unittest.TestCase):
