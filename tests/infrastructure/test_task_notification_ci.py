@@ -254,6 +254,55 @@ class FiniteNotificationProjector(unittest.TestCase):
         for values in ([b'M modified'], [b'', b'changed']):
             with mock.patch.object(N.subprocess, 'check_output', side_effect=values), self.assertRaises(N.Refused): N.expected_probe(HEAD)
 
+    def test_normal_source_or_read_counts_cannot_detach_after_complete_parent_collection(self):
+        for variant in ('tools', 'assets', 'runtime', 'reads'):
+            with self.subTest(variant=variant), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve(); private, probe = seed(root)
+                original_collect = N.E.collect
+                def changed(*args):
+                    result = original_collect(*args)
+                    path = private / 'driver/normal/report.json'; value = json.loads(path.read_text())
+                    if variant == 'tools': value['inputs']['tools']['batond']['sha256'] = '0' * 64
+                    elif variant == 'assets': value['inputs']['assets']['index.html']['sha256'] = '0' * 64
+                    elif variant == 'runtime': value['inputs']['runtime_tools']['python']['sha256'] = '0' * 64
+                    else: value['http_method_counts']['system.snapshot'] += 1
+                    F.write(path, value)
+                    return result
+                with mock.patch.object(N.E, 'collect', side_effect=changed):
+                    self.assertEqual(self.project(private, root / 'public'), 1)
+                self.assertEqual({path.name for path in (root / 'public').iterdir()}, {'summary.json'})
+
+    def test_probe_directory_report_or_png_cannot_change_after_validation(self):
+        for variant in ('directory', 'report', 'png'):
+            with self.subTest(variant=variant), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve(); private, probe = seed(root)
+                if variant == 'directory':
+                    original_collect = N.E.collect
+                    def changed(*args):
+                        result = original_collect(*args)
+                        probe.rename(root / 'original-probe')
+                        probe.mkdir(mode=0o700)
+                        return result
+                    context = mock.patch.object(N.E, 'collect', side_effect=changed)
+                elif variant == 'report':
+                    original_summary = N.report_summary
+                    def changed(*args):
+                        result = original_summary(*args)
+                        path = probe / 'report.json'; path.write_bytes(path.read_bytes() + b' ')
+                        return result
+                    context = mock.patch.object(N, 'report_summary', side_effect=changed)
+                else:
+                    original_png = N.P.png_bytes
+                    def changed(raw, row, name):
+                        result = original_png(raw, row, name)
+                        if name == 'accepted-task-desktop.png':
+                            path = probe / name; path.write_bytes(path.read_bytes() + b' ')
+                        return result
+                    context = mock.patch.object(N.P, 'png_bytes', side_effect=changed)
+                with context:
+                    self.assertEqual(self.project(private, root / 'public'), 1)
+                self.assertEqual({path.name for path in (root / 'public').iterdir()}, {'summary.json'})
+
 
 if __name__ == '__main__':
     unittest.main()

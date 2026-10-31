@@ -138,9 +138,6 @@ def report_summary(report, expected, source_pin, base):
 def collect(private, expected):
     sha(expected, 40)
     source_pin = expected_probe(expected)
-    # Enforce the complete unchanged original collector, including both cases,
-    # their original PNGs, source/build/schema metadata, HTTP and owned cleanup.
-    parent, _ = E.collect(private, expected)
     base_path = Path(private) / 'driver/normal'
     path = base_path / 'notification-probe'
     root_fd = P.directory(private, private=True)
@@ -149,16 +146,26 @@ def collect(private, expected):
     try:
         base_fd = P.directory(base_path, private=True)
         fd = P.directory(path, private=True)
-        # Re-read parent witnesses so later changes cannot detach the new probe
-        # from the paired source/build and complete original normal report.
+        # Keep witnesses across the entire parent collection, not only after it.
+        # Even a later individually valid normal report must not replace this one.
+        root_raws = {name: P.regular_bytes(root_fd, name, maximum, witnesses=root_witnesses)
+            for name, maximum in (('candidate.json', E.MAX_REPORT), ('frontend-build-record.json', E.MAX_REPORT),
+                ('status.json', E.MAX_STATUS), ('schema-probe.json', E.MAX_STATUS))}
+        original_base_raw = P.regular_bytes(base_fd, 'report.json', E.MAX_REPORT, witnesses=base_witnesses)
+        probe_raw = P.regular_bytes(fd, 'report.json', MAX_REPORT, witnesses=witnesses)
+        # Enforce the complete unchanged original collector, including both cases,
+        # their original PNGs, source/build/schema metadata, HTTP and owned cleanup.
+        parent, _ = E.collect(private, expected)
         for name, key in (('candidate.json', 'manifest_sha256'), ('frontend-build-record.json', 'build_record_sha256')):
-            raw = P.regular_bytes(root_fd, name, E.MAX_REPORT, witnesses=root_witnesses)
-            require(raw_sha(raw) == parent[key])
+            require(raw_sha(root_raws[name]) == parent[key])
         base_raw = P.regular_bytes(base_fd, 'report.json', E.MAX_REPORT, witnesses=base_witnesses)
+        require(base_raw == original_base_raw)
         base = P.decode(base_raw)
-        E.report_summary(base, 'normal', expected, parent['manifest_sha256'], parent['build_record_sha256'], parent['driver_sha256'])
-        raw = P.regular_bytes(fd, 'report.json', MAX_REPORT, witnesses=witnesses)
-        report = P.decode(raw)
+        reread_summary, reread_source = E.report_summary(base, 'normal', expected,
+            parent['manifest_sha256'], parent['build_record_sha256'], parent['driver_sha256'])
+        require(reread_summary == parent['cases'][0]
+            and reread_source == {key: parent[key] for key in reread_source})
+        report = P.decode(probe_raw)
         facts = report_summary(report, expected, source_pin, base)
         rows = report['screenshots']; require(type(rows) is list and len(rows) == 4)
         payloads, images, total = {}, [], 0
@@ -187,7 +194,7 @@ def collect(private, expected):
         return {'contract': CONTRACT, 'status': 'passed', 'source': expected, **facts,
             'probe_source_sha256': source_pin['sha256'], 'driver_sha256': parent['driver_sha256'],
             'manifest_sha256': parent['manifest_sha256'], 'build_record_sha256': parent['build_record_sha256'],
-            'assets_sha256': parent['assets_sha256'], 'probe_report_sha256': raw_sha(raw),
+            'assets_sha256': parent['assets_sha256'], 'probe_report_sha256': raw_sha(probe_raw),
             'screenshots': images, 'screenshots_published': True, 'private_history_published': False,
             'visual_review': 'not_performed_by_projector', 'pixel_synchronized': False, 'not_claimed': NOT_CLAIMED}, payloads
     finally:
