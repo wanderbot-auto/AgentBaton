@@ -12,7 +12,7 @@ use std::{
     collections::BTreeMap,
     fs,
     io::Write,
-    os::unix::fs::{MetadataExt, PermissionsExt},
+    os::unix::fs::{MetadataExt, OpenOptionsExt, PermissionsExt},
     path::{Path, PathBuf},
     process::Command,
     time::{Duration, Instant},

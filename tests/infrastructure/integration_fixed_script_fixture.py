@@ -5,10 +5,14 @@ The historical observer inverses and whole-source digests remain downstream.
 import hashlib
 import json
 
-FIXED_SCRIPT_INPUT_SHA256 = '76c645b271aec1b6c8cbb0c68a661702fafb9fee3af1f36da6323094377586ae'
+FIXED_SCRIPT_INPUT_SHA256 = '4fa5b264825980fb2cfe150ed94607854541c71577766587072a202ea60ad30e'
 FIXED_SCRIPT_RESTORED_SHA256 = 'f2dc88af2ede9507b01e118200319dd4760750745a1793d864188f8318e61761'
 _FIXED_SCRIPT_EDITS = json.loads(r'''
 [
+  [
+    "    collections::BTreeMap,\n    fs,\n    io::Write,\n    os::unix::fs::{MetadataExt, OpenOptionsExt, PermissionsExt},\n    path::{Path, PathBuf},\n    process::Command,\n    time::{Duration, Instant},\n",
+    "    collections::BTreeMap,\n    fs,\n    io::Write,\n    os::unix::fs::{MetadataExt, PermissionsExt},\n    path::{Path, PathBuf},\n    process::Command,\n    time::{Duration, Instant},\n"
+  ],
   [
     "const TARGET: &str = \"refs/heads/integration\";\nconst DEFAULT_REPORT_PATH: &str = \"reports/report.txt\";\nconst UNICODE_REPORT_PATH: &str = \"reports/报告 😀 cafe\\u{301}.txt\";\n\n// Fixed scripts are ordinary baseline files, selected separately by exact SHA.\n// The protected system shell remains subject to the original Command gates.\nconst FIXED_VALIDATOR_SCRIPTS: [(&str, &str); 5] = [\n    (\"normal\", \"test -s \\\"$1\\\"\"),\n    (\"failure\", \"printf '%s\\\\n' 'fixed correctness failure' >&2; exit 7\"),\n    (\"stop\", \"kill -STOP \\\"$$\\\"; exit 0\"),\n    (\"reprepare\", \"test -s reports/report.txt || exit 21; printf '%s\\\\n' \\\"$$\\\" > \\\"$1\\\" || exit 22; IFS= read -r reply < \\\"$2\\\" || exit 23; [ \\\"$reply\\\" = continue ] || exit 24\"),\n    (\"drift\", \"test -s reports/report.txt || exit 21; printf '%s\\\\n' \\\"$$\\\" > \\\"$1\\\" || exit 22; IFS= read -r reply < \\\"$2\\\" || exit 23; [ \\\"$reply\\\" = continue ] || exit 24; exit 7\"),\n];\n\nstruct RuntimeFixture {\n    // Explicit Drop joins the daemon before deleting its authenticated roots.\n",
     "const TARGET: &str = \"refs/heads/integration\";\nconst DEFAULT_REPORT_PATH: &str = \"reports/report.txt\";\nconst UNICODE_REPORT_PATH: &str = \"reports/报告 😀 cafe\\u{301}.txt\";\n\nstruct RuntimeFixture {\n    // Explicit Drop joins the daemon before deleting its authenticated roots.\n"
