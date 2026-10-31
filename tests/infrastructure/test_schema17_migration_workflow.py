@@ -68,6 +68,48 @@ BROWSER_CI_STEPS = (
 )
 
 
+# Approved UI-only dev-debuginfo delta, normalized before the older diagnostic
+# and whole-workflow layers. These raw-source pins authorize no arbitrary edits.
+APPROVED_UI_PREVIEW_PROFILE_BASE = 'fbd5b3103794cc163ae91d9f3407fe2dfb90ea49'
+APPROVED_UI_PREVIEW_PROFILE_BUILD_STEP_SHA256 = '7ea6ff61070a94e8e12f7c7da31954fed8356d7d5953b2d109564d82f72ef0c5'
+APPROVED_UI_PREVIEW_PROFILE_CANDIDATE_SHA256 = '22801a9a25f763b0d26bcace5224b5d449ed6425758594fab791831dc380031f'
+UI_PREVIEW_BUILD_BEFORE = '          cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence\n'
+UI_PREVIEW_BUILD_AFTER = '          CARGO_PROFILE_DEV_DEBUG=0 cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence\n'
+UI_PREVIEW_SCOPE_BEFORE = 'CI-built Linux debug evidence candidate; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact'
+UI_PREVIEW_SCOPE_AFTER = 'CI-built Linux dev evidence candidate; only this UI preview tool build sets CARGO_PROFILE_DEV_DEBUG=0 (debuginfo=0); dev opt-level/debug_assertions/panic defaults and existing package overrides are unchanged; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact'
+
+
+def strip_approved_ui_preview_profile(text):
+    """Reverse only the exact reviewed UI build step and candidate scope."""
+    headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
+    name = '      - name: Real daemon and browser test dependencies\n'
+    matches = [i for i, h in enumerate(headers) if h.group(0) == name]
+    if matches != [25] or len(headers) <= 27:
+        raise ValueError('Reviewed UI preview build step count/position changed')
+    if headers[26].group(0) != '      - name: Actual frontend with real Unix IPC and responsive screenshots\n':
+        raise ValueError('Reviewed UI preview build neighbor changed')
+    build_start, build_end = headers[25].start(), headers[26].start()
+    build = text[build_start:build_end]
+    if hashlib.sha256(build.encode('utf-8')).hexdigest() != APPROVED_UI_PREVIEW_PROFILE_BUILD_STEP_SHA256:
+        raise ValueError('Reviewed UI preview build complete raw block changed')
+    definition = '          candidate = {\n'
+    write = "          pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\\n')\n"
+    if text.count(definition) != 1 or text.count(write) != 1:
+        raise ValueError('One exact reviewed UI preview candidate required')
+    start, end = text.index(definition), text.index(write) + len(write)
+    if not headers[26].start() < start < end < headers[27].start():
+        raise ValueError('Reviewed UI preview candidate position changed')
+    candidate = text[start:end]
+    if hashlib.sha256(candidate.encode('utf-8')).hexdigest() != APPROVED_UI_PREVIEW_PROFILE_CANDIDATE_SHA256:
+        raise ValueError('Reviewed UI preview candidate complete raw block changed')
+    if build.count(UI_PREVIEW_BUILD_AFTER) != 1 or candidate.count(UI_PREVIEW_SCOPE_AFTER) != 1:
+        raise ValueError('Reviewed UI preview profile literals changed')
+    # Replace the later span first; every byte outside these two precise edits
+    # still passes through all existing raw-workflow pins below unchanged.
+    text = text[:start] + candidate.replace(UI_PREVIEW_SCOPE_AFTER, UI_PREVIEW_SCOPE_BEFORE, 1) + text[end:]
+    return text[:build_start] + build.replace(UI_PREVIEW_BUILD_AFTER, UI_PREVIEW_BUILD_BEFORE, 1) + text[build_end:]
+
+
 # Exact reviewed TaskWorkspace diagnostic layer. The old browser/native/raw
 # workflow pins below are unchanged. No runtime git or network lookup is used.
 APPROVED_TASK_WORKSPACE_DIAGNOSTIC_SOURCE = '3dc7f0f231fd63dcf829cc7b1e6d0488b0743313'
@@ -101,6 +143,7 @@ def strip_approved_task_workspace_launch_diagnostics(text):
 
 def strip_integration_browser_ci_layer(text):
     """Restore the reviewed diagnostic layer, then exact UI blocks/schema."""
+    text = strip_approved_ui_preview_profile(text)
     text = strip_approved_task_workspace_launch_diagnostics(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
     indices = []
