@@ -111,7 +111,7 @@ pub(super) fn finish(
     let value = diagnostic(actor, observed, task, |b| collect(runtime, b));
     // Never mask the original failure with a diagnostic write/serialization error.
     if let Ok(bytes) = serde_json::to_vec(&value) {
-        if bytes.len() + PREFIX.len() + 1 <= MAX_OUTPUT {
+        if bytes.len() + PREFIX.len() < MAX_OUTPUT {
             let mut line = Vec::with_capacity(bytes.len() + PREFIX.len() + 1);
             line.extend_from_slice(PREFIX);
             line.extend_from_slice(&bytes);
@@ -484,7 +484,7 @@ fn project(
     result["run_round"] = json!(run.round);
     result["active_stage"] = serde_json::to_value(run.active_stage).map_err(|_| ())?;
     result["run_last_error"] = error_projection(run.last_error.as_ref());
-    require(serde_json::to_vec(&result).map_err(|_| ())?.len() + PREFIX.len() + 1 <= MAX_OUTPUT)?;
+    require(serde_json::to_vec(&result).map_err(|_| ())?.len() + PREFIX.len() < MAX_OUTPUT)?;
     Ok(result)
 }
 
