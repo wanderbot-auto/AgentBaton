@@ -191,15 +191,13 @@ fn frontier_fault_after_capture_path(path: CapturePath) {
             assert!(reservation["actual_runtime_ms"].as_u64().unwrap() >= 5000);
         }
     }
-    assert_eq!(
-        db.query_row(
+    assert!(!db
+        .query_row(
             "SELECT json_extract(document,'$.consumed') FROM approval_proposals WHERE id=?1",
             [&foreign.id],
             |r| r.get::<_, bool>(0)
         )
-        .unwrap(),
-        false
-    );
+        .unwrap());
     assert_eq!(
         db.query_row("SELECT count(*) FROM goal_graph_acceptances", [], |r| r
             .get::<_, i64>(0))
