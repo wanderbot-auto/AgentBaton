@@ -1,3 +1,13 @@
+## Notification CI composition checked — 2026-10-31T04:22:15.795036+00:00
+
+Source d8d8f0b8005b2aa27f354ad2404344d8f5a3f908 passes 522 infrastructure checks after fixing a reviewer-found negative-test blind spot. Original workflow hashes, negative guards and runtime source287 remain intact. [Composition evidence](task-notifications/COMPOSED_SOURCE_VALIDATION.json) SHA256 ec53b9bd8d538eee3348d62d4402319652a50478568fe7fdc4c1c53e74739a25. The earlier 31-test failure is retained. Exact feature CI is next. Parent7af Product41163775724 is terminal: Rust and both Mac lanes passed, UI normal/cancel failed, lost-start passed; the overall run failed. Root7ee ARM/Intel/UI failures remain separately open. Full Design v0.2 is incomplete.
+
+## Task notifications connected and locally verified — 2026-10-31T04:07:31.636146+00:00
+
+AB-SES-007 nowimplementing: actualTask/session/journal observations aggregate tooneTasknotice with exactsources, boundedconflict/futureseq guards, explicitDND and safeTask/Historynavigation. Same287actualCore/frontend fullwrapper passes original9checks12PNG plusindependent6notificationchecks4PNG,12naturalassociatedevents→1notice;100repeat onlycomponentfixture. Types/UI1088/61/build and513infra+13probecontrols pass. [Exactevidence](task-notifications/EVIDENCE.json) SHA 6737e0503564b479fd27af5fec58af6d8638c0c8c7af3c87495957c4efd31dea; Rootviewed2newplaintext originals.
+
+NewfeatureexactCI/Native/bothMac/installationremainopen; localbrowseradapterreplacesCIbundledELFdiscovery anddoesnotexplain Root7eeCIsetupfailure. Root7ee Env3/Rustpass butUI/ARM/Intelfail remain; Parent7af Env3/Rustpass/UI normal+cancelfail, loststartpass, bothMaclastobservedrunning. Alloriginalbounds/authority/failedrecords/full130scope remain. Main653 OWNER001002ACK/no003, noformalApprove/privateProvider/newspend/signing/production.
+
 ## Root17 exact fbd failures diagnosed; local fixes verified — 2026-10-31T02:52:01.931546+00:00
 
 fbd Environment41159796739 all3PASS; Product41159799252 all4FAIL. Rust/bothMac first failure is the old v1 synthetic fixture missing real production NOTNULL (execution6/1); Apple Silicon Core225 passed before it. UI driver was not launched: actual140798744-byte daemon exceeds unchanged128MiB guard. Oldba failure attribution stays distinct.

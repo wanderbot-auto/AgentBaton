@@ -141,8 +141,84 @@ def strip_approved_task_workspace_launch_diagnostics(text):
     return text[:start] + original.decode('utf-8') + text[end:]
 
 
+TASK_NOTIFICATION_DRIVER_SHA256 = 'df3ddde5681355b95ae69e79bdaae674a6531f68c438102007dde0ca82d5727d'
+TASK_NOTIFICATION_STEP_SHA256 = 'c169dafdc25322aeb3f648081f79795f6ae7f89245c15559679e181aec1d4a8d'
+TASK_NOTIFICATION_FLAG = "                          '--notification-probe',\n"
+
+
+def strip_task_notification_ci_layer(text):
+    """Reverse only the complete reviewed notification step and one argv flag."""
+    headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
+    title = '      - name: Retain finite task notification evidence without private runtime data\n'
+    if [i for i, header in enumerate(headers) if header.group(0) == title] != [29] or len(headers) <= 30:
+        raise ValueError('Notification CI step count/position changed')
+    if (headers[27].group(0) != '      - name: Actual integration frontend with real Core IPC and generated correctness\n'
+            or headers[28].group(0) != '      - name: Retain finite integration browser evidence without private runtime data\n'
+            or headers[30].group(0) != '      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02\n'):
+        raise ValueError('Notification CI original neighbors changed')
+    driver = text[headers[27].start():headers[28].start()]
+    addition = text[headers[29].start():headers[30].start()]
+    if (hashlib.sha256(driver.encode()).hexdigest() != TASK_NOTIFICATION_DRIVER_SHA256
+            or hashlib.sha256(addition.encode()).hexdigest() != TASK_NOTIFICATION_STEP_SHA256
+            or text.count(TASK_NOTIFICATION_FLAG) != 1 or driver.count(TASK_NOTIFICATION_FLAG) != 1):
+        raise ValueError('Notification CI exact reviewed raw bytes changed')
+    original = driver.replace(TASK_NOTIFICATION_FLAG, '', 1)
+    if hashlib.sha256(original.encode()).hexdigest() != BROWSER_CI_STEPS[0][2]:
+        raise ValueError('Notification flag inverse did not restore the original driver')
+    jobs = list(re.finditer(r'^  [A-Za-z_][A-Za-z0-9_-]*:\n', text, re.MULTILINE))
+    preceding = [header for header in jobs if header.start() < headers[27].start()]
+    if (not preceding or preceding[-1].group(0) != '  frontend:\n'
+            or any(headers[27].start() <= header.start() < headers[30].start() for header in jobs)):
+        raise ValueError('Notification CI must remain in the original frontend job')
+    # Every other byte still passes through all older raw-whole-workflow pins.
+    text = text[:headers[29].start()] + text[headers[30].start():]
+    return text[:headers[27].start()] + original + text[headers[28].start():]
+
+
+# Exact integration setup diagnostic layer; older whole-workflow pins remain.
+INTEGRATION_SETUP_STEP_SHA256 = 'dd33c3a86f61185a9cefb2e313ea228830c8679bc3efb0807eaf80568d3ae003'
+INTEGRATION_SETUP_NOTIFICATION_STEP_SHA256 = '1c98001b8fd0a1f95f2e3c0d0100c76240f0082168be7a4beaabfeac0e8c733e'
+INTEGRATION_SETUP_ORIGINAL_NOTIFICATION_SHA256 = 'df3ddde5681355b95ae69e79bdaae674a6531f68c438102007dde0ca82d5727d'
+INTEGRATION_SETUP_NOTIFICATION_FLAG = "                          '--notification-probe',\n"
+INTEGRATION_SETUP_NOTIFICATION_ANCHOR = "                          '--frontend', 'apps/desktop/dist', '--frontend-build-record', str(private / 'frontend-build-record.json'),\n"
+INTEGRATION_SETUP_ORIGINAL_SHA256 = 'a1db5e7447f25ac6dd8f7a3fff8005e071971cb75c0aee109ace816b23ece680'
+INTEGRATION_SETUP_ORIGINAL_BYTES = 9731
+
+
+def strip_integration_setup_diagnostics(text):
+    """Replace only a complete pinned step with its complete pinned original."""
+    headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
+    title = '      - name: Actual integration frontend with real Core IPC and generated correctness\n'
+    if [i for i, header in enumerate(headers) if header.group(0) == title] != [27] or len(headers) <= 28:
+        raise ValueError('Integration setup step count/position changed')
+    start, end = headers[27].start(), headers[28].start()
+    step_sha = hashlib.sha256(text[start:end].encode()).hexdigest()
+    if step_sha not in (INTEGRATION_SETUP_STEP_SHA256, INTEGRATION_SETUP_NOTIFICATION_STEP_SHA256):
+        raise ValueError('Integration setup complete reviewed bytes changed')
+    fixture = ROOT / 'tests/infrastructure/fixtures/integration_setup_diagnostics/pre_diagnostics_step.yml.txt'
+    try:
+        original = fixture.read_bytes()
+    except OSError:
+        raise ValueError('Pinned original integration setup step unavailable') from None
+    if len(original) != INTEGRATION_SETUP_ORIGINAL_BYTES or hashlib.sha256(original).hexdigest() != INTEGRATION_SETUP_ORIGINAL_SHA256:
+        raise ValueError('Pinned original integration setup step changed')
+    restored = original.decode('utf-8')
+    if step_sha == INTEGRATION_SETUP_NOTIFICATION_STEP_SHA256:
+        # Restore the entire independently pinned pre-diagnostic flagged step.
+        # Integration must then apply the original notification inverse next.
+        if restored.count(INTEGRATION_SETUP_NOTIFICATION_ANCHOR) != 1:
+            raise ValueError('Exact original notification insertion point changed')
+        restored = restored.replace(INTEGRATION_SETUP_NOTIFICATION_ANCHOR,
+            INTEGRATION_SETUP_NOTIFICATION_FLAG + INTEGRATION_SETUP_NOTIFICATION_ANCHOR, 1)
+        if hashlib.sha256(restored.encode()).hexdigest() != INTEGRATION_SETUP_ORIGINAL_NOTIFICATION_SHA256:
+            raise ValueError('Complete original notification step inverse changed')
+    return text[:start] + restored + text[end:]
+
+
 def strip_integration_browser_ci_layer(text):
     """Restore the reviewed diagnostic layer, then exact UI blocks/schema."""
+    text = strip_integration_setup_diagnostics(text)
+    text = strip_task_notification_ci_layer(text)
     text = strip_approved_ui_preview_profile(text)
     text = strip_approved_task_workspace_launch_diagnostics(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))

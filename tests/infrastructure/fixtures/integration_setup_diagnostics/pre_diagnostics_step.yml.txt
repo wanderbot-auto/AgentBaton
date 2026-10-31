@@ -1,0 +1,142 @@
+      - name: Actual integration frontend with real Core IPC and generated correctness
+        id: integration_browser_driver
+        run: |
+          set -euo pipefail
+          umask 077
+          artifacts/browser-venv/bin/python - <<'INTEGRATION_BROWSER'
+          import asyncio, hashlib, importlib.util, json, os, pathlib, signal, stat, subprocess, sys, time, traceback
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          def chromium_path():
+              from playwright.async_api import async_playwright
+              async def read():
+                  async with async_playwright() as browser:
+                      return pathlib.Path(browser.chromium.executable_path).resolve(strict=True)
+              return asyncio.run(read())
+
+          def private_json(path, value):
+              with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'w') as stream:
+                  json.dump(value, stream, allow_nan=False)
+                  stream.write('\n')
+                  stream.flush()
+                  os.fsync(stream.fileno())
+
+          def source_driver():
+              path = pathlib.Path('apps/desktop/tests/integration-real-ipc.py')
+              spec = importlib.util.spec_from_file_location('_ci_integration_driver', path)
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+
+          def copy_tool(source, destination, expected):
+              stamp = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_nlink,
+                                    value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+              with os.fdopen(os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as stream:
+                  before = os.fstat(stream.fileno())
+                  if not (stat.S_ISREG(before.st_mode) and before.st_uid == os.geteuid()
+                          and not before.st_mode & 0o022 and 0 < before.st_size <= 268435456):
+                      raise ValueError('Built integration tool metadata refused')
+                  with os.fdopen(os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as output:
+                      digest, copied = hashlib.sha256(), 0
+                      while block := stream.read(min(1048576, before.st_size - copied + 1)):
+                          copied += len(block)
+                          if copied > before.st_size:
+                              raise ValueError('Built integration tool grew')
+                          digest.update(block)
+                          output.write(block)
+                      if copied != before.st_size or stamp(before) != stamp(os.fstat(stream.fileno())) or digest.hexdigest() != expected:
+                          raise ValueError('Built integration tool identity or SHA changed')
+                      output.flush()
+                      os.fsync(output.fileno())
+                      os.fchmod(output.fileno(), 0o500)
+              if stamp(before) != stamp(os.stat(source, follow_symlinks=False)):
+                  raise ValueError('Built integration tool path changed')
+
+          def actual_schema_probe(module, tools, private, source):
+              runtime = private / 'probe-runtime'
+              runtime.mkdir(mode=0o700)
+              snapshot = None
+              with os.fdopen(os.open(private / 'probe.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                  process = subprocess.Popen([str(tools / 'batond')], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)},
+                                             stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+                  try:
+                      deadline = time.monotonic() + 10
+                      while not ((runtime / 'session.token').is_file() and (runtime / 'batond.sock').exists()):
+                          if process.poll() is not None or time.monotonic() >= deadline:
+                              raise ValueError('Actual schema probe did not start')
+                          time.sleep(.02)
+                      snapshot = module.Host(runtime).result('system.snapshot', {})
+                      if not (type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 17
+                              and type(snapshot.get('api_version')) is int and snapshot['api_version'] == 1):
+                          raise ValueError('Actual Core schema probe refused')
+                  finally:
+                      if process.poll() is None:
+                          process.send_signal(signal.SIGTERM)
+                      try:
+                          exit_code = process.wait(timeout=10)
+                      except subprocess.TimeoutExpired:
+                          process.kill()
+                          process.wait(timeout=5)
+                          raise ValueError('Forced probe kill is not successful cleanup')
+                      if type(exit_code) is not int or exit_code != 0:
+                          raise ValueError('Actual schema probe failed cleanup')
+              private_json(private / 'schema-probe.json', {'source': source, 'api_version': snapshot['api_version'],
+                           'database_schema_version': snapshot['database_schema_version'], 'daemon_exit': 0, 'joined': True})
+
+          def run_integration_browser():
+              temporary = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True)
+              private = temporary / 'agentbaton-integration-browser-ci'
+              private.mkdir(mode=0o700, exist_ok=False)
+              if stat.S_IMODE(private.stat().st_mode) != 0o700 or private.stat().st_uid != os.geteuid():
+                  raise ValueError('Private integration root refused')
+              source = git('rev-parse', 'HEAD')
+              status = {'source': source, 'driver_exit': None, 'probe_passed': False}
+              try:
+                  if git('status', '--porcelain', '--untracked-files=no'):
+                      raise ValueError('Tracked integration source changed')
+                  manifest_raw = pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').read_bytes()
+                  build_raw = pathlib.Path('artifacts/ui-browser/frontend-build-record.json').read_bytes()
+                  module = source_driver()
+                  manifest, build = module.decode(manifest_raw), module.decode(build_raw)
+                  if not (type(manifest.get('schema')) is int and manifest['schema'] == 17 and manifest['git_head'] == source
+                          and manifest.get('dirty') is False and build['source'] == source and type(build['exit']) is int
+                          and build['exit'] == 0 and build['source_head_and_tracked_unchanged'] is True):
+                      raise ValueError('Paired integration source/build metadata refused')
+                  for name, raw in [('candidate.json', manifest_raw), ('frontend-build-record.json', build_raw)]:
+                      with os.fdopen(os.open(private / name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as stream:
+                          stream.write(raw)
+                          stream.flush()
+                          os.fsync(stream.fileno())
+                  tools = private / 'tools'
+                  tools.mkdir(mode=0o700)
+                  for name in ('batond', 'baton'):
+                      copy_tool(pathlib.Path('target/debug') / name, tools / name, manifest['binaries'][name])
+                  actual_schema_probe(module, tools, private, source)
+                  status['probe_passed'] = True
+                  chromium = chromium_path()
+                  # Real installed browser ELF; no launcher/wrapper or copied Python layout.
+                  module.pinned_file(chromium, module.MAX_CHROMIUM_IMAGE)
+                  with os.fdopen(os.open(private / 'driver.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      status['driver_exit'] = subprocess.run([
+                          sys.executable, 'apps/desktop/tests/integration-real-ipc.py', '--run', '--case', 'all',
+                          '--batond', str(tools / 'batond'), '--candidate-manifest', str(private / 'candidate.json'),
+                          '--frontend', 'apps/desktop/dist', '--frontend-build-record', str(private / 'frontend-build-record.json'),
+                          '--expected-source-head', source, '--chromium', str(chromium), '--output', str(private / 'driver'),
+                      ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
+              except Exception as error:
+                  # Bounded traceback only, never locals or public diagnostics.
+                  raw = ''.join(traceback.TracebackException.from_exception(error, capture_locals=False).format()).encode('utf-8', 'backslashreplace')
+                  raw = raw[:16384].decode('utf-8', 'ignore').encode('utf-8')
+                  with os.fdopen(os.open(private / 'setup-error.traceback.txt', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      log.write(raw)
+                      log.flush()
+                      os.fsync(log.fileno())
+              finally:
+                  private_json(private / 'status.json', status)
+              return 0 if type(status['driver_exit']) is int and status['driver_exit'] == 0 and status['probe_passed'] is True else 1
+
+          if __name__ == '__main__':
+              raise SystemExit(run_integration_browser())
+          INTEGRATION_BROWSER
