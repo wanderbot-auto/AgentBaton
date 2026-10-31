@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T22:50:27.569925+00:00",
+  "role": "Main-agent-assigned record author; independent review pending",
+  "record_head": "fdd82794a421c5766616bc4afb27e75c8f4d405e",
+  "ci_source_head": "e509b2192020a12dc5474f0a0070846182a9cc5f",
+  "pull_request": "https://github.com/wanderbot-auto/AgentBaton/pull/21",
+  "scope": "Exact e509 terminal remote observations; no new product execution, source, permission, fee or clock change",
+  "runs": {
+    "environment": {
+      "id": 41246131296,
+      "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41246131296",
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 124669858164,
+          "name": "Environment / macos-15",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124669858308,
+          "name": "Environment / macos-15-intel",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124669858311,
+          "name": "Environment / ubuntu-24.04",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    "product": {
+      "id": 41246133682,
+      "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41246133682",
+      "status": "completed",
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "job": 124669865501,
+          "name": "Product / macos-15",
+          "status": "completed",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Core and native host tests",
+            "Retain finite Native integration evidence without private snapshots"
+          ],
+          "skipped_steps": [
+            "Migrate genuine native schema14 history with corruption and rollback controls",
+            "Migrate genuine nonempty schema15 Task history with corruption and receipt controls",
+            "Migrate genuine nonempty schema16 workspace history with corruption and receipt controls",
+            "Actual macOS WebView and daemon lifecycle acceptance",
+            "Actual native Owner Grant dialog and private database acceptance",
+            "Actual Native Factory planning approval and unchanged Grant evidence",
+            "Native library tests with smoke features",
+            "Actual Native integration approval and early cancellation",
+            "Build desktop UI and application",
+            "Audit the actual default release application for test controls",
+            "Package development application and evidence",
+            "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+          ]
+        },
+        {
+          "job": 124669865688,
+          "name": "Product / UI",
+          "status": "completed",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Actual integration frontend with real Core IPC and generated correctness",
+            "Retain finite integration browser evidence without private runtime data"
+          ],
+          "skipped_steps": [
+            "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+          ]
+        },
+        {
+          "job": 124669865698,
+          "name": "Product / macos-15-intel",
+          "status": "completed",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Core and native host tests",
+            "Retain finite Native integration evidence without private snapshots"
+          ],
+          "skipped_steps": [
+            "Migrate genuine native schema14 history with corruption and rollback controls",
+            "Migrate genuine nonempty schema15 Task history with corruption and receipt controls",
+            "Migrate genuine nonempty schema16 workspace history with corruption and receipt controls",
+            "Actual macOS WebView and daemon lifecycle acceptance",
+            "Actual native Owner Grant dialog and private database acceptance",
+            "Actual Native Factory planning approval and unchanged Grant evidence",
+            "Native library tests with smoke features",
+            "Actual Native integration approval and early cancellation",
+            "Build desktop UI and application",
+            "Audit the actual default release application for test controls",
+            "Package development application and evidence",
+            "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+          ]
+        },
+        {
+          "job": 124669865736,
+          "name": "Product / Rust",
+          "status": "completed",
+          "conclusion": "success",
+          "failed_steps": [],
+          "skipped_steps": []
+        }
+      ]
+    }
+  },
+  "terminal_api_records": {
+    "product_run": {
+      "path": "/workspace/.onboarding/pr21-e509b219-ci/terminal-run.json",
+      "sha256": "6615fcb86acbd18361662d3f08c03a97cf8f486e8bd41f1572e5750ae74dcc1a"
+    },
+    "product_jobs": {
+      "path": "/workspace/.onboarding/pr21-e509b219-ci/terminal-jobs.json",
+      "sha256": "999cb333621312d812f64637e0600c355aaa356741bc1ae8c5fc202f829add89"
+    },
+    "environment_run": {
+      "path": "/workspace/.onboarding/pr21-e509b219-ci/terminal-environment-run.json",
+      "sha256": "63dbcbd6e34e3b1194085b8052593cc3e1d8b33845475ea38832c25c1d5c1f85"
+    },
+    "environment_jobs": {
+      "path": "/workspace/.onboarding/pr21-e509b219-ci/terminal-environment-jobs.json",
+      "sha256": "f0176553472b966d510bacc3abd02b6cee3408908bb07e69fe490b9ac2cb9933"
+    }
+  },
+  "UI": {
+    "job": 124669865688,
+    "artifact": 13058964911,
+    "finite_summary": {
+      "path": "/workspace/.onboarding/pr21-e509b219-ci/integration-browser-summary.json",
+      "sha256": "883e0a84e1272cdb07ee3cadea6c2545a2851dada5d3604469b15fb4128cfc0d"
+    },
+    "status": "failed",
+    "normal": {
+      "status": "failed_or_interrupted",
+      "phase": "private_independent_review",
+      "exception_kind": "AssertionError",
+      "completed_checks": 3,
+      "last_completed_check": "complete real pending proposal and consumed receipt matched outside HTTP before TaskAccepted",
+      "cleanup_observations": {
+        "browser_closed": true,
+        "daemon_joined": {
+          "exit": 0,
+          "joined": true,
+          "forced_kill": false
+        },
+        "fixture_removed": null,
+        "http_shutdown": true,
+        "http_thread_joined": true,
+        "pending_reviews_stopped": true,
+        "playwright_stopped": true,
+        "private_transcript_saved": true,
+        "tools_assets_unchanged": true
+      }
+    },
+    "command_failure": {
+      "status": "passed",
+      "completed_checks": 4,
+      "cleanup_observations": {
+        "browser_closed": true,
+        "daemon_joined": {
+          "exit": 0,
+          "joined": true,
+          "forced_kill": false
+        },
+        "fixture_removed": true,
+        "http_shutdown": true,
+        "http_thread_joined": true,
+        "pending_reviews_stopped": true,
+        "playwright_stopped": true,
+        "private_transcript_saved": true,
+        "tools_assets_unchanged": true
+      }
+    },
+    "screenshot_identity_and_operation": "Unknown in this original source; do not infer a specific screenshot or viewport operation.",
+    "screenshot_publication": false,
+    "normal_fixture_removed": "Not observed (null); not claimed."
+  },
+  "Intel": {
+    "job": 124669865698,
+    "raw_log": {
+      "path": "/workspace/.onboarding/pr21-e509b219-ci/intel-product.log",
+      "sha256": "29e567d99939ca793148a3462aefe8a9a437b4dbc2b63e1b821d944575cc4a99"
+    },
+    "failed_target": "factory_runtime_ipc",
+    "passed": 35,
+    "failed": 1,
+    "failure": "REWORK_REVISION2_TERMINAL",
+    "plan_revision": 2,
+    "run_revision": 12,
+    "run_state": "blocked",
+    "task_accepted": false,
+    "owned_cleanup": {
+      "daemon_result": "ok",
+      "joined": true
+    },
+    "finite_artifact": 13060651358,
+    "finite_projection": {
+      "path": "/workspace/.onboarding/pr21-e509b219-ci/intel-factory-rework-progress.json",
+      "sha256": "4c28e8fbb557bf1336124bbb0916fea7e49c576022cb04dd06a82a57f4530e7e"
+    },
+    "same_observed_revision_capture": {
+      "actual_output_bytes": 20,
+      "actual_runtime_ms": 4088,
+      "capture_join_observed_queue_ms": 323,
+      "capture_state": "failed",
+      "capture_timing_status": "observed",
+      "capture_worker_completed_queue_ms": 226,
+      "capture_worker_elapsed_ms": 0,
+      "capture_worker_joined": true,
+      "capture_worker_started_queue_ms": 226,
+      "io_completion": "worker_joined",
+      "kind": "goal.capture_settled",
+      "ordinal": 1,
+      "producer_elapsed_ms": 3765,
+      "producer_stop_confirmed": true,
+      "runtime_reservation_ms": 4000,
+      "task_accepted": false
+    },
+    "original_bound_attempt_records": [
+      {
+        "actual_output_bytes": 20,
+        "actual_runtime_ms": 4088,
+        "declared_output_bytes": 1024,
+        "declared_runtime_ms": 4000,
+        "ordinal": 1,
+        "output_exceeds_declared": false,
+        "plan_revision": "2",
+        "record_kind": "graph_work",
+        "runtime_exceeds_declared": true,
+        "settled": true
+      },
+      {
+        "actual_output_bytes": 21,
+        "actual_runtime_ms": 2706,
+        "declared_output_bytes": 1024,
+        "declared_runtime_ms": 4000,
+        "ordinal": 2,
+        "output_exceeds_declared": false,
+        "plan_revision": "1",
+        "record_kind": "graph_work",
+        "runtime_exceeds_declared": false,
+        "settled": true
+      },
+      {
+        "actual_output_bytes": 0,
+        "actual_runtime_ms": 3173,
+        "declared_output_bytes": 1024,
+        "declared_runtime_ms": 6000,
+        "ordinal": 3,
+        "output_exceeds_declared": false,
+        "plan_revision": "1",
+        "record_kind": "graph_validate",
+        "runtime_exceeds_declared": false,
+        "settled": true
+      },
+      {
+        "actual_output_bytes": 21,
+        "actual_runtime_ms": 6856,
+        "declared_output_bytes": 4096,
+        "declared_runtime_ms": 14121,
+        "ordinal": 4,
+        "output_exceeds_declared": false,
+        "plan_revision": null,
+        "record_kind": "factory_task",
+        "runtime_exceeds_declared": false,
+        "settled": true
+      }
+    ],
+    "post_shutdown_budget_usage": {
+      "child": {
+        "settled_actual_runtime_ms": 16823,
+        "settled_count": 4,
+        "settled_runtime_unknown": false,
+        "unsettled_count": 0,
+        "unsettled_reserved_runtime_ms": 0
+      },
+      "code": "existing_ledger_and_child_records",
+      "not_an_authority_or_admission_verdict": true,
+      "project": {
+        "actual_runtime_ms": 19628,
+        "observed_attempts": 6,
+        "runtime_unknown": false
+      },
+      "root": {
+        "actual_runtime_ms": 19628,
+        "observed_attempts": 6,
+        "runtime_unknown": false
+      },
+      "snapshot_time": "post_owned_shutdown_not_admission_instant",
+      "status": "collected_post_shutdown_budget_facts"
+    },
+    "interpretation": [
+      "Revision2 graph_work actual4088 exceeds its original declared4000. This is a direct per-attempt overrun, not only aggregate child-cap arithmetic.",
+      "4088=producer3765+join-observed queue323. Capture own I/O elapsed0 and start/completion226 do not allow queue/preparation/wait costs to be discarded.",
+      "Other original records: revision1 graph_work2706/4000; revision1 graph_validate3173/6000; factory_task6856/14121. Factory_task is the observed kind, not a proven recovery planner or a single Git duration.",
+      "Child settled16823 across4 records and root/project19628 across6 attempts are post-shutdown observations. No refunds, moved origins or wider4s/6s/20s limits.",
+      "The source-only diagnosis and local profile do not prove a unique Mac performance cause or a fix."
+    ]
+  },
+  "ARM": {
+    "job": 124669865501,
+    "raw_log": {
+      "path": "/workspace/.onboarding/pr21-e509b219-ci/arm-product.log",
+      "sha256": "da94d83a058eb41efcaa266bc3a30af704f421efdd2b149b72e74931c7cb912f"
+    },
+    "failed_target": "integration_ipc",
+    "passed": 18,
+    "failed": 12,
+    "first_final_failure": {
+      "test": "integration_runtime::accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_source",
+      "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+      "line": 1080,
+      "column": 13,
+      "observed_failure": "outcome_unknown"
+    },
+    "failure_observation_counts": {
+      "outcome_unknown": 4,
+      "fifo_ready_observation_expired": 7,
+      "command_leader_stop_not_observed": 1
+    },
+    "failed_cases": [
+      {
+        "test": "integration_runtime::accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_source",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 1080,
+        "column": 13,
+        "observed_failure": "outcome_unknown"
+      },
+      {
+        "test": "integration_runtime::block_policy_with_three_round_limit_refuses_real_descendant_advance",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 2827,
+        "column": 13,
+        "observed_failure": "fifo_ready_observation_expired"
+      },
+      {
+        "test": "integration_runtime::cancelling_actual_owned_merged_validator_reaps_without_cas_or_refunding_attempts",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 2473,
+        "column": 9,
+        "observed_failure": "command_leader_stop_not_observed"
+      },
+      {
+        "test": "integration_runtime::fresh_merged_correctness_failure_never_admits_cas_and_retains_charged_receipts",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 1752,
+        "column": 13,
+        "observed_failure": "outcome_unknown"
+      },
+      {
+        "test": "integration_runtime::native_policy_before_task_acceptance_automatically_integrates_once_without_explicit_wake",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 1080,
+        "column": 13,
+        "observed_failure": "outcome_unknown"
+      },
+      {
+        "test": "integration_runtime::non_descendant_rewrite_during_real_validator_never_reprepares_or_refunds",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 2827,
+        "column": 13,
+        "observed_failure": "fifo_ready_observation_expired"
+      },
+      {
+        "test": "integration_runtime::owner_cancel_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 2827,
+        "column": 13,
+        "observed_failure": "fifo_ready_observation_expired"
+      },
+      {
+        "test": "integration_runtime::owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 2827,
+        "column": 13,
+        "observed_failure": "fifo_ready_observation_expired"
+      },
+      {
+        "test": "integration_runtime::third_real_descendant_advance_exhausts_rounds_without_fourth_preparation_or_cas",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 2827,
+        "column": 13,
+        "observed_failure": "fifo_ready_observation_expired"
+      },
+      {
+        "test": "integration_runtime::three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descendant_advances",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 2827,
+        "column": 13,
+        "observed_failure": "fifo_ready_observation_expired"
+      },
+      {
+        "test": "integration_runtime::unexpected_exit_with_real_descendant_advance_never_reprepares_or_refunds",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 2827,
+        "column": 13,
+        "observed_failure": "fifo_ready_observation_expired"
+      },
+      {
+        "test": "integration_runtime::unicode_accepted_artifact_fresh_command_and_exact_cas_preserve_raw_utf8_path",
+        "source_file": "crates/core/tests/fixtures/integration_runtime.rs",
+        "line": 1080,
+        "column": 13,
+        "observed_failure": "outcome_unknown"
+      }
+    ],
+    "interpretation": [
+      "Final failed list is used; controlled panic tests outside it are not treated as failures.",
+      "OUTCOME_UNKNOWN, owned FIFO-ready observation expiry, and unobserved command-leader stop are distinct observed failures, not a shared root-cause conclusion.",
+      "Independent ARM diagnosis remains in progress; current cause is not established. Preserve actual unknown/freshness/owned-stop/budget/permission refusals."
+    ]
+  },
+  "existing_local_evidence_retained": {
+    "path": "/workspace/.worktrees/authorized-integration-validation/docs/execution/integration-browser-failure-observation/EVIDENCE.json",
+    "sha256": "bec8b5be45410b64984d468e055e0f1ff02a662eb395bbc9d675fd00c665a567",
+    "source_head": "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+    "summary": "715 infrastructure,5 actual Unix IPC, matching normalCore17/CLI/frontend build/freeze and direct browser normal5/failing4/12 original PNGs remain at their original source. No rerun or transfer to a new metadata/CI head.",
+    "previous_metadata_review": {
+      "path": "/tmp/root-closed-shot-metadata-independent-review/REVIEW.json",
+      "sha256": "0f4ec7afa1963997b63fcc57edd14135fbc4eed6a411588b2f6c1222a47dd67a",
+      "reviewed_head": "fdd82794a421c5766616bc4afb27e75c8f4d405e",
+      "checks": 633,
+      "decision": "SOURCE_READY",
+      "limit": "That review covers earlier fdd metadata, not this new terminal-results edit."
+    }
+  },
+  "preserved_unchanged": {
+    "docs/execution/integration-browser-failure-observation/EVIDENCE.json": "bec8b5be45410b64984d468e055e0f1ff02a662eb395bbc9d675fd00c665a567",
+    "docs/execution/requirements-progress.json": "c5330c8136bde7668fe2eb3e38176071b9b4063ae0fb5ed135431ab645efea3f"
+  },
+  "limits": [
+    "The prior in-progress observations in EVIDENCE/earlier prose remain historical; this terminal record supersedes their current-state wording only.",
+    "Exact e509 Product is failed. No successful exact new Root CI, dual-Mac Native acceptance, release-control audit or development installer is established by this record.",
+    "Both failing Mac jobs skipped later migrations, actual WebView/Owner/Factory/native-integration acceptance, default application build/release audit and development packaging as listed in retained jobs. This does not erase earlier individual Core tests that ran.",
+    "Full Designv0.2/all130/WP01-14 remains incomplete; requirement states and old evidence are unchanged.",
+    "No formal Approve, product Provider/model account calls, extra paid resources, signing/notarization, license or production authorization added."
+  ]
+}

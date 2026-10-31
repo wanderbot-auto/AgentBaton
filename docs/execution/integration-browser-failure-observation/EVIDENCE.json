@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T22:26:42.781197+00:00",
+  "record_head": "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+  "requirements": [
+    "AB-PRJ-002",
+    "AB-PRJ-003",
+    "AB-PRJ-005",
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-010",
+    "AB-TSK-012"
+  ],
+  "actual_results": [
+    {
+      "directory": "/workspace/.onboarding/root-closed-shot-full-infrastructure1",
+      "result_sha256": "115dd496f489002b4a768f0d0b4e0ed3d061f98bde4454321652466bcf9ffd17",
+      "inputs_sha256": "4d74a1b46ee4b28c80581ee01da7e198c6612dcf8c741b750427ae49a443e01e",
+      "tree": "8812140bdc86ad990a918cb82552334b7752a5bb",
+      "test_count": 715,
+      "result": {
+        "source": "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 19.850421386014204,
+        "minimum_free_bytes": 1649074176,
+        "interruption": null,
+        "log_sha256": "765bf65dab85f4e836099da6e5b1116a3e519d36dfb2d1e96dafa08e371eabd0",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/root-canonical-preparation-ipc1",
+      "result_sha256": "6d76cd825debb589d0fb97edd826311864591292e745c3fba08e4bd8a153df3a",
+      "inputs_sha256": "6048b0b198f3589974416cb6a01b9d18bf3465bdde18d795a94f9b02fe8d15f4",
+      "tree": "8812140bdc86ad990a918cb82552334b7752a5bb",
+      "test_count": 5,
+      "result": {
+        "source": "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "workspace_preparation_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 22.061984914005734,
+        "minimum_free_bytes": 1649020928,
+        "interruption": null,
+        "log_sha256": "8484f371393dcf8d2ab6a996cfcb582ca2c135f2651f174d5e547b7f49114c7b",
+        "summaries": [
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.09s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/root-closed-shot-normal-build1",
+      "result_sha256": "a2c195308a35bc206f5b2d1b41fd0c233044fb8080b064ed8278ba5e5edf2f98",
+      "inputs_sha256": "22bf9282efa9faf9bb9255feb4f9a76644b84df5322a94f0b3eec422a20f895b",
+      "tree": "8812140bdc86ad990a918cb82552334b7752a5bb",
+      "test_count": null,
+      "result": {
+        "source": "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 22.678395586030092,
+        "minimum_free_bytes": 1393643520,
+        "interruption": null,
+        "log_sha256": "f413e4402555192b3dcf5a2a590a5af73187a7f97cbc49ce9e3c09d877a009fd",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/root-closed-shot-normal-freeze1",
+      "result_sha256": "0de1b1e5a70546a0b6288924d554668f759c10e1ab70dfefa909985b2f64f018",
+      "inputs_sha256": "4a6c671b6d7184112b9417d0e6874e36815b1add1ddac9a181aa8def076d3d36",
+      "tree": "8812140bdc86ad990a918cb82552334b7752a5bb",
+      "test_count": null,
+      "result": {
+        "source": "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/root-closed-shot-normal-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/root-closed-shot-normal-freeze-evidence1"
+        ],
+        "exit": 0,
+        "seconds": 0.40183257299941033,
+        "minimum_free_bytes": 1348341760,
+        "interruption": null,
+        "log_sha256": "16eba5997e681c7aeda482f034e90ec67414a505c7c4576c94856fe6507d52e6",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/root-closed-shot-frontend-build1",
+      "result_sha256": "5a35e01a1b75b9b367c4c0d700dac5d18a74052d27b211412b510ad212628ab1",
+      "inputs_sha256": "36b18f52ccc781ddbcaa9513bafe8f652149ae6b383e1fb7e596e088b0cff55b",
+      "tree": "8812140bdc86ad990a918cb82552334b7752a5bb",
+      "test_count": null,
+      "result": {
+        "source": "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.7120517150033265,
+        "minimum_free_bytes": 1348313088,
+        "interruption": null,
+        "log_sha256": "629b96e5ec8fa723f022604298652ab60431aceb118e7e7f474e4b7aebcf5a6b",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/root-closed-shot-browser1",
+      "result_sha256": "12108c0ab94ff7f377c9f4afeed14f0e102d99fdb4cf8bcb1b5dae72a49e1cc9",
+      "inputs_sha256": "073b70300df527a67b47f869dda3c94b4485fd303a7bf1e49e90d07d3ed3bd9b",
+      "tree": "8812140bdc86ad990a918cb82552334b7752a5bb",
+      "test_count": null,
+      "result": {
+        "source": "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-closed-shot-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/integration-real-ipc.py",
+          "--run",
+          "--case",
+          "all",
+          "--batond",
+          "/workspace/.onboarding/root-closed-shot-normal-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/root-closed-shot-candidate1.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/root-closed-shot-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+          "--chromium",
+          "/workspace/.onboarding/root29-owned-chromium-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/root-closed-shot-browser1-private"
+        ],
+        "exit": 0,
+        "seconds": 23.172223578963894,
+        "minimum_free_bytes": 1096474624,
+        "interruption": null,
+        "log_sha256": "a412fbcb4e0552ce74fe4fddadb7e7354f107dc8b6787568167cb9076de4e61d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "/tmp/preparation-canonical-fixture-independent-review/REVIEW.json",
+      "sha256": "29b892004c44bf2bb8fd9820faba9901a78d5e422c7e77b02669c54ff9441b3a"
+    },
+    {
+      "path": "/tmp/integration-shot-diagnostic-independent-review/REVIEW.json",
+      "sha256": "1e003e2c7a60cd335dd8b7d4cba1692bc3c056d8d3d7508993b1778648c710d6"
+    }
+  ],
+  "source_composition": {
+    "parent_fixture_exact": "7bd647dc4f32af33c41fdc24806d684b84f4ff38",
+    "shot_six_files_exact": "0043d078a6e1899c9e9d61174e10ab2f55a7003f",
+    "only_changed_source_paths": [
+      "apps/desktop/tests/integration-real-ipc.py",
+      "crates/core/tests/workspace_preparation_ipc.rs",
+      "scripts/record-integration-browser-ci-evidence.py",
+      "tests/infrastructure/integration_screenshot_failure_fixture.py",
+      "tests/infrastructure/test_integration_browser_ci_evidence_runtime.py",
+      "tests/infrastructure/test_integration_driver_preflight_diagnostics.py",
+      "tests/infrastructure/test_integration_screenshot_failure.py"
+    ],
+    "no_product_runtime_native_or_workflow_change": true,
+    "root_rework_projector": "Unchanged. Initial equality proof stopped before importing Parent fee helper because Root has schema17/per-attempt extensions; no overwrite or blind backport."
+  },
+  "author_evidence": {
+    "path": "/tmp/integration-shot-diagnostic-implementation/RESULTS.json",
+    "sha256": "ba01ac554cd8c25857dceef960ca4cc4fb719550e4ffaf9dc5e0710a07b49de8",
+    "scope": "140 pure Python tests; original44 missing fixture parent errors retained, then61 and140 passed. Independent memory controls exercised closed shot operations only, not actual Browser/Mac failures."
+  },
+  "browser": {
+    "source": "fffb58f942dc9b2e42ce25462b6c51966c4cce35",
+    "cases": [
+      {
+        "case": "normal",
+        "report_sha256": "721036d6d1c2474a94e099a2cd5a820d0aee7c47054c70c8d50096e5d3d80508",
+        "status": "passed",
+        "checks": 5,
+        "original_pngs": 6,
+        "active_screenshot_on_success": false,
+        "cleanup": {
+          "pending_reviews_stopped": true,
+          "browser_closed": true,
+          "playwright_stopped": true,
+          "http_shutdown": true,
+          "http_thread_joined": true,
+          "daemon_joined": {
+            "exit": 0,
+            "joined": true,
+            "forced_kill": false
+          },
+          "private_transcript_saved": true,
+          "tools_assets_unchanged": true,
+          "fixture_removed": true
+        }
+      },
+      {
+        "case": "command-failure",
+        "report_sha256": "15a3163208d6a03e51de3c4b359bc24966e8ed4e790260faf08f258dccd8f770",
+        "status": "passed",
+        "checks": 4,
+        "original_pngs": 6,
+        "active_screenshot_on_success": false,
+        "cleanup": {
+          "pending_reviews_stopped": true,
+          "browser_closed": true,
+          "playwright_stopped": true,
+          "http_shutdown": true,
+          "http_thread_joined": true,
+          "daemon_joined": {
+            "exit": 0,
+            "joined": true,
+            "forced_kill": false
+          },
+          "private_transcript_saved": true,
+          "tools_assets_unchanged": true,
+          "fixture_removed": true
+        }
+      }
+    ],
+    "manifest_sha256": "7ec7c81c64f0b5d314325f21c8576957f78c1fe5673b56e2aca3a6a978eb317c",
+    "runtime": "Owned installed actual Chromium ELF+assets/owned Python, fresh generated local ACP and independent test Owner. Direct real driver, not whole CI wrapper.",
+    "limit": "Both successful reports remove marker. This validates current successful flow, not the cause or fix of old remote assertion."
+  },
+  "remote_observation": {
+    "head": "e509b2192020a12dc5474f0a0070846182a9cc5f",
+    "environment": {
+      "run": 41246131296,
+      "result": "success_all3"
+    },
+    "product": {
+      "run": 41246133682,
+      "state": "in_progress_at_recording",
+      "Rust": "success",
+      "ARM": "in_progress_Core_native",
+      "Intel": "in_progress_Core_native",
+      "UI": "failure"
+    },
+    "UI": {
+      "job": 124669865688,
+      "artifact": 13058964911,
+      "zip_sha256": "7ec9eb1aff6fb95fd185cb7580223acbebfdd63b148c44daf1d6eb37627c1bb4",
+      "summary_sha256": "883e0a84e1272cdb07ee3cadea6c2545a2851dada5d3604469b15fb4128cfc0d",
+      "normal": "failed/private_independent_review/AssertionError/checks3 after consumed receipt verification",
+      "command_failure": "passed/checks4",
+      "screenshot_identity_and_operation": "Not retained by this old source. Do not infer which screenshot or viewport operation failed.",
+      "cleanup": "browser closed; daemon0/joined/no kill; HTTP/pending reviews/Playwright/tools joined/unchanged. Normal fixture_removed missing, not claimed."
+    }
+  },
+  "limits": [
+    "No remote result relabeled as new metadata-head acceptance. Prior a7 distinct failures remain retained in earlier evidence.",
+    "No successful current Mac/Native/installer result claimed; exact current dual-Mac remains in progress.",
+    "Original screenshot/assertion/ratio/timeout/authority/budget/publishing logic unchanged. Only fixed name/step/completed count can be projected; unknown/private/unsafe remains unavailable; failure still1/zeroPNG.",
+    "Full130 remains incomplete. No formal Approve, private Provider/model/account, extra spending, signing, license or production authorization added."
+  ]
+}

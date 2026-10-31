@@ -108,7 +108,25 @@ struct Fixture {
 }
 impl Fixture {
     fn new(repository: bool) -> Self {
-        let root = tempfile::tempdir().unwrap();
+        use std::os::unix::fs::PermissionsExt;
+        // Darwin's default temporary parent can contain /var -> /private/var.
+        // Prepare a short canonical fixture; do not change daemon path admission.
+        let parent = Path::new("/tmp").canonicalize().unwrap();
+        let root = tempfile::Builder::new()
+            .prefix("ab-wpi-")
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir_in(&parent)
+            .unwrap();
+        assert_eq!(root.path().parent(), Some(parent.as_path()));
+        assert_eq!(root.path().canonicalize().unwrap().as_path(), root.path());
+        assert_eq!(
+            fs::symlink_metadata(root.path())
+                .unwrap()
+                .permissions()
+                .mode()
+                & 0o777,
+            0o700
+        );
         let source = root.path().join("source");
         fs::create_dir(&source).unwrap();
         fs::create_dir(source.join("empty")).unwrap();
@@ -374,4 +392,30 @@ fn companion_role_and_wrong_owner_token_cannot_obtain_source_reads() {
     assert!(managed == files(&f.server.runtime.join("workspaces")));
     // The method allowlist is checked before handle authentication. No handle/token
     // is created merely for this denial control; live scoped-handle tests remain separate.
+}
+
+#[test]
+fn aliased_runtime_parent_is_refused_without_creating_state() {
+    use std::os::unix::fs::symlink;
+    let parent = Path::new("/tmp").canonicalize().unwrap();
+    let root = tempfile::Builder::new()
+        .prefix("ab-wpi-link-")
+        .tempdir_in(parent)
+        .unwrap();
+    let actual = root.path().join("actual");
+    fs::create_dir(&actual).unwrap();
+    let alias = root.path().join("alias");
+    symlink(&actual, &alias).unwrap();
+    let error = match Daemon::bind(&alias.join("runtime")) {
+        Ok(_) => panic!("symlinked parent must not be admitted"),
+        Err(error) => error,
+    };
+    assert_eq!(error.code, "PERMISSION_DENIED");
+    assert_eq!(error.side_effect_state, "not_started");
+    assert_eq!(
+        error.message,
+        "Runtime paths must not contain symbolic links"
+    );
+    assert!(!actual.join("runtime").exists());
+    assert_eq!(fs::read_link(alias).unwrap(), actual);
 }

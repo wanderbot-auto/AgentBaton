@@ -1,3 +1,15 @@
+## PR21 exact e509 terminal failures retained — 2026-10-31
+
+Environment41246131296 passed all3; Product41246133682 is terminal failed: Rust passed, UI normal failed after3 checks at private_independent_review/AssertionError while command-failure passed4; its screenshot operation remains unknown. Intel Factory35/1 failed at plan2/run12blocked: directly bound work4088 exceeds4000 (producer3765+queue323, no discount). ARM integration18/12 includes OUTCOME_UNKNOWN, FIFO-ready expiry and unobserved command-leader stop; a common cause is not established. [Terminal source-bound evidence](integration-browser-failure-observation/CI_TERMINAL_RESULTS.json).
+
+These supersede earlier running observations. fffb local715infra/5IPC/normal5+failing4/12PNG and fdd633-check metadata review remain tied to their original sources, not a new candidate pass. Both Mac Native acceptance/default application audit/development packaging after the failures were skipped; full130 remains incomplete. Next: independently review this record, retain separate diagnostics, then one guarded reviewed candidate push/check pair. No budgets, clocks, failure assertions or permissions changed.
+
+## Integration screenshot observation and canonical fixture verified — 2026-10-31
+
+Reviewed sourcefffb combines the unchanged Parent canonical test fixture with closed failure-only screenshot observations. Exactfffb infrastructure715, real Unix IPC5, normal Core17/CLI/frontend build/freeze and direct actual browser normal5/failing4 with12 original PNGs pass; clean owned shutdown and absent success marker verified. [Evidence](integration-browser-failure-observation/EVIDENCE.json).
+
+Remote e509 Environment/Rust pass; UI normal remains failed after3 checks at private_independent_review/AssertionError, command-failure passes4; exact screenshot operation was not retained. DualMac still runs at this observation. Local success does not prove the remote cause resolved or replace Mac/native/current installer acceptance. No budget, assertion, source guard or original publishing rule weakened; full130 remains incomplete.
+
 ## Notification capture composition verified locally — 2026-10-31
 
 Notificationb369 defaultUI1166/66files passed; infrastructure721/1 failed at a composition inverse and the planned build did not run. Reviewed test-onlyddf restores the exact old e874 workflow after both approved layers, preserving6d82 and all original negative assertions. ddf complete infrastructure724, frontend type/build and normal Core17/CLI build/freeze pass. Same-source direct real IPC/browser integration normal5/command-failure4 and notification6 pass with16 original PNGs and clean owned shutdown. [Source-bound evidence](task-notifications/COMPOSED_CAPTURE_RESULTS.json).

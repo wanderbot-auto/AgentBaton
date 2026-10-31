@@ -25,6 +25,8 @@ RUNTIME_MAIN_LINE = "            summary['runtime_failure'] = runtime_failure_di
 
 def strip_runtime_failure_projection(text):
     """Undo only the complete reviewed failed-runtime layer, then match all base bytes."""
+    from tests.infrastructure.integration_screenshot_failure_fixture import strip_screenshot_projector_layer
+    text = strip_screenshot_projector_layer(text)
     if text.count(RUNTIME_LAYER_MARKER) != 1 or text.count(RUNTIME_MAIN_LINE) != 1:
         raise ValueError('Runtime projection layer count changed')
     start = text.index(RUNTIME_LAYER_MARKER)
