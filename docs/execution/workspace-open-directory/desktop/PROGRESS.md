@@ -15,3 +15,7 @@ Retain independent f566 CHANGES_REQUIRED: locked Wry getter blocks on an unbound
 ## Root076 mount integration tests (NOT_RUN)
 
 Added only a new six-case real-mount component test and own docs. Source/ready directory opening remains independently Owner-validated when code preparation is refused, dirty, non-code or pending; shared TaskCodeWorkspace mount is Root-owned and unchanged here. Project/task switch cases reject old catalog/Native success and require explicit current selection. A task-remount settlement subscription gap is source-inferred only and preserved as a real test expectation pending Root reproduction; the private render-only fix proposal is not applied.
+
+## Flight settlement notification closure (source only)
+
+Preserve Root actualfde0429 six-case result5PASS/1FAIL, specifically the task-remount manual-refresh gate. Applied only the authorized module-local render subscription proposal; no API/Core/Native/sharedhook/test changes, no automatic read/open/retry, no identity/result migration or gate/unknown32 relaxation. Complete component inverse matchesc7 before the narrow subscription additions. Runtime validation and independent review are Root-owned and pending.

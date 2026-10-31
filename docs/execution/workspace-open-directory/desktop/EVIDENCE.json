@@ -11,7 +11,7 @@
     "sha256": "ef4e134f8300a8a8ff7f58de213f059beef3e7e3981db3cdfd76910cba0cd442"
   },
   "source_sha256": {
-    "apps/desktop/src/ExternalWorkspaceOpen.tsx": "536b37cb16e792adabcfd2d7fc20585d131c521d4da2b8132d0b4acad523ff61",
+    "apps/desktop/src/ExternalWorkspaceOpen.tsx": "91398f5d97a396e61c47f1655d2e84508038a7e92b1f25cc4c7a680442e01b5d",
     "apps/desktop/src/ExternalWorkspaceOpen.test.tsx": "134cdc89886236b66257bd4acc9009bbe179891834b9d46f9d89ed97f6c7bb97",
     "apps/desktop/src/workspace-open-api.ts": "68b663f33179c3daeefe418755b0412992b924f079c350996d4bed97a35ab152",
     "apps/desktop/src/workspace-open-api.test.ts": "64716df8910e761485936902c179a9c27ef37e2a9e49a7a5d5f9860d08dbc3f0",
@@ -167,7 +167,7 @@
     "test_file": "apps/desktop/src/ExternalWorkspaceOpen.integration.test.tsx",
     "test_sha256": "fc6e38683753f275f79080e8d25f9f2cf9a00dffcc71e42879470d9c69d98016",
     "authored_cases": 6,
-    "execution": "NOT_RUN",
+    "execution": "Root sourcefde0429 actual6:5PASS/1FAIL3.210s; new closure NOT_RUN",
     "actual_mount": "TaskCodeWorkspace -> ExternalWorkspaceOpen, no child/API mock; only daemon metadata and Native transport mocked",
     "scope_rationale": "Independent directory-only Owner action must not inherit code-preparation fresh/resolve/pending gates; props task identity drives child epoch",
     "coverage": [
@@ -180,14 +180,38 @@
     ],
     "zero_effect_assertions": "code preparation button remains disabled/absent; no prepareTaskGit/createWorkspace; no automatic Native invoke; exact current ID/revision/terminal request only",
     "shared_hooks_changed_by_author": false,
-    "potential_source_gap": "Unobservable module-global outstanding settlement after old child unmount can keep new child manual refresh disabled until unrelated render. Source inference only, Root repro required; not an actual FAIL.",
+    "potential_source_gap": "Root actually reproduced the task-remount disabled manual-refresh failure atfde0429. Original failure retained; module-local notification closure implemented after authorization, not yet executed.",
     "private_fix_proposal": {
       "path": "/tmp/workspace-open-flight-settlement-proposal.patch",
       "sha256": "1a0cac8a4573afa516edd04eb64fe47d765f9a49d96654b10bfae0b6300fa7fe",
       "git_apply_check": "PASS",
-      "applied": false,
+      "applied": true,
       "execution": "NOT_RUN",
       "scope": "module-local render notification only; no auto read/open/retry and no gate/result/identity/capacity change"
     }
+  },
+  "flight_settlement_closure": {
+    "base": "c7ebf701fb64ae64f8bff1f27805164fef05d6d8",
+    "authorized": "Root real6case repro then explicit module-only settlement notification authorization",
+    "retained_failure": {
+      "source": "fde042968891cea879f55038cf92025d0cc608ac",
+      "RESULT": "/workspace/.onboarding/workspace-open-mounted-integration-first1/RESULT.json",
+      "RESULT_sha256": "6da07bbf950988f4ce351bf258383459bfca7fb087f90fa389b586172f111af1",
+      "log": "/workspace/.onboarding/workspace-open-mounted-integration-first1/command.log",
+      "log_sha256": "07f223c83d88a1fec5867b993a790de0047ad6a43991472352220d654887f0a0",
+      "exit": 1,
+      "seconds": 3.210330812027678,
+      "passed": 5,
+      "failed": 1,
+      "test": "rejects old Native reply after task switch, releases only the UI flight gate, and requires a new explicit current selection",
+      "original_reclassified": false
+    },
+    "implementation": "Exact private proposal1a0cac applied. Module-local useSyncExternalStore subscription snapshots only outstanding.size; notification after add/delete only; cleanup deletes same listener. Render can unlock manual-refresh control after old component unmount settles.",
+    "unchanged": "All API/Core/Native/shared mount/tests, readIdentity/fresh/epoch/request/cancel/result guards, unknown32 capacity and old-reply nonmigration remain exact. No choices/read/open/retry/timer effects in listeners.",
+    "source_proof": "/tmp/workspace-open-flight-settlement-source-proof.json",
+    "source_proof_sha256": "ac52d30169358648c2127ea0853022e3918e6cc9913581c456442b8774bae31c",
+    "static_inverse_matches_complete_base_component": true,
+    "Node_types_UI_runtime": "NOT_RUN",
+    "next": "Root actual6+41/type execution and independent fixed-source review; do not call the retained failure passed."
   }
 }

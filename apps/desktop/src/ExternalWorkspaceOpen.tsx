@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { Task } from './api';
 import type { Language } from './i18n';
 import { workspaceOpenApi, type WorkspaceOpenChoice } from './workspace-open-api';
@@ -9,10 +9,16 @@ type Props = { task: Task; language: Language; connected: boolean; open: boolean
 // Same-document uncertainty only. A remount cannot turn an unresolved handoff
 // into permission to resend. Neither set stores a path, credential or authority.
 const outstanding = new Set<string>(), uncertain = new Set<string>();
+// Module-local render notifications only; no read, handoff or retry callbacks.
+const flightListeners = new Set<() => void>();
+const flightSnapshot = () => outstanding.size;
+const subscribeFlight = (listener: () => void) => { flightListeners.add(listener); return () => { flightListeners.delete(listener); }; };
+const notifyFlight = () => { for (const listener of flightListeners) listener(); };
 const key = (p: Props) => JSON.stringify([p.task.id, p.task.project_id]);
 const identity = (p: Props) => JSON.stringify([p.task.id, p.task.project_id, p.task.revision, p.task.spec_revision, p.task.state, p.open, p.connected, !!p.blocked]);
 export function ExternalWorkspaceOpen(props: Props) {
   const t = workspaceOpenMessages[props.language];
+  useSyncExternalStore(subscribeFlight, flightSnapshot, flightSnapshot);
   const current = useRef(props); current.current = props;
   const mounted = useRef(true), epoch = useRef(0), writing = useRef(false);
   const [choices, setChoices] = useState<WorkspaceOpenChoice[]>([]), [selected, setSelected] = useState('');
@@ -46,7 +52,7 @@ export function ExternalWorkspaceOpen(props: Props) {
     if (disabled || !selected || writing.current || outstanding.size > 0 || unknown && !retryChecked || readIdentity !== expected) return;
     const choice = choices.find(v => JSON.stringify(v.selection) === selected); if (!choice) return;
     const selection = validateWorkspaceOpenSelection(choice.selection), stamp = ++epoch.current, priorUnknown = uncertain.has(operationKey);
-    writing.current = true; outstanding.add(operationKey); uncertain.add(operationKey);
+    writing.current = true; outstanding.add(operationKey); uncertain.add(operationKey); notifyFlight();
     setBusy(true); setUnknown(true); setResult(null); setFresh(false); setRetryChecked(false);
     try {
       const value = await workspaceOpenApi.open({ selection, terminal: 'macos_terminal' });
@@ -56,7 +62,7 @@ export function ExternalWorkspaceOpen(props: Props) {
     } catch {
       if (valid(stamp, expected)) setResult({ status: 'outcome_unknown', code: 'transport_unknown' });
     } finally {
-      writing.current = false; outstanding.delete(operationKey);
+      writing.current = false; outstanding.delete(operationKey); notifyFlight();
       // Old replies are never displayed as current success/refusal. Preserve
       // uncertainty under their original context; no automatic reconciliation.
       if (mounted.current) { setBusy(false); setUnknown(uncertain.has(key(current.current))); }
