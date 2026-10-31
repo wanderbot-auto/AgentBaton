@@ -100,3 +100,8 @@ Keepba Environmentall3 andProductall4 failures. Linux newadmission1/Core229/comm
 ## fbd exact CI terminal and local recovery — 2026-10-31T02:52:01.931546+00:00
 
 fbd Environment3PASS; Productall4FAIL: Rust/bothMac execution6/1 original v1 fixture differs from historical production NOTNULL; UI pre-driver measured140798744>original128MiB. Latercollectors secondary. Correctedcurrent9ed execution8/strictClippy/fmt and501infra PASS; samefbd explicitdebug0 build42149952daemon, same-head frontend+TaskWorkspace6actualchecks8PNG pass/cleanuptrue. No wholeCI/Mac acceptance claimed. See HEADFBD_CI_AND_LOCAL_RECOVERY.json SHA256 28530521d72609728aa00ae1f765bc0587932bc885840fa86d6465f163838841. NewexactCI and full130 remain open. OWNER001002/main653679dACK, no formalApprove or authority expansion.
+
+
+## Resumed Root21 diagnostics — 2026-10-31T04:25:04.125892+00:00
+
+New finite leaf `RESUMED_ROOT21_DIAGNOSTICS_RESULTS.json`, SHA256 `1df539f5d78b72fadafef1ac2351e28dabbe38e84e06bbe67754af1cdacd49cb`, records actual e4 Factory 37 / IPC 20, original e4 strict Clippy failure, 3bb two-target strict Clippy and522 infrastructure pass; all raw record/log hashes were compared with local originals. It also binds final 7ee / Parent 7af terminal API records, four distinct Root failure classes, original review rejections/closures and both official Parent development-package checksum summaries. Product/CI/test sources and all 130 requirement states are unchanged; this author performed read-only metadata/source/hash validation only. Root exact new CI/current Mac/Native/installer/full product acceptance remains pending.

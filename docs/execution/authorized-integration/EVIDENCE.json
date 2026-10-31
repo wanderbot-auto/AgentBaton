@@ -210,5 +210,17 @@
   "whole_product_accepted": false,
   "root_resumed_actual_results": "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
   "author_not_run_fields_are_historical": true,
-  "root_matched_schema17_results": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json"
+  "root_matched_schema17_results": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+  "root21_resumed_diagnostics_results": {
+    "path": "docs/execution/authorized-integration/RESUMED_ROOT21_DIAGNOSTICS_RESULTS.json",
+    "sha256": "1df539f5d78b72fadafef1ac2351e28dabbe38e84e06bbe67754af1cdacd49cb",
+    "metadata_base": "3bb658b6780062e7492aa182af37f62a2e1b20e8",
+    "tested_sources": {
+      "Factory37_and_IPC20": "e4b635c6d960d0a959f498dabd638fdb38bcada4",
+      "strict_two_target_Clippy_and_infra522": "3bb658b6780062e7492aa182af37f62a2e1b20e8"
+    },
+    "whole_product_accepted": false,
+    "requirements_state_changed": false,
+    "scope": "Finite metadata/raw hashes only; original failures and source attribution retained"
+  }
 }

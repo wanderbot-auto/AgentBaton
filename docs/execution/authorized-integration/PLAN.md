@@ -59,3 +59,8 @@ Keepba Environmentall3 andProductall4 failures. Linux newadmission1/Core229/comm
 ## fbd exact CI terminal and local recovery — 2026-10-31T02:52:01.931546+00:00
 
 fbd Environment3PASS; Productall4FAIL: Rust/bothMac execution6/1 original v1 fixture differs from historical production NOTNULL; UI pre-driver measured140798744>original128MiB. Latercollectors secondary. Correctedcurrent9ed execution8/strictClippy/fmt and501infra PASS; samefbd explicitdebug0 build42149952daemon, same-head frontend+TaskWorkspace6actualchecks8PNG pass/cleanuptrue. No wholeCI/Mac acceptance claimed. See HEADFBD_CI_AND_LOCAL_RECOVERY.json SHA256 28530521d72609728aa00ae1f765bc0587932bc885840fa86d6465f163838841. NewexactCI and full130 remain open. OWNER001002/main653679dACK, no formalApprove or authority expansion.
+
+
+## Resumed diagnostic evidence boundary — 2026-10-31T04:25:04.125892+00:00
+
+Record source-bound Linux target results, retained exact CI failures and independent source-review closures in a new finite evidence leaf, preserving older leaves and failed outcomes. Update only this workstream's metadata, STATUS and its existing bootstrap hash. Root reviews before integration; new exact CI, original unknown UI/ARM/deadline cause and current platform/package acceptance stay next. No product/test/workflow or requirement-state changes belong to this metadata package.

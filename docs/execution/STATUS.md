@@ -1,3 +1,13 @@
+## Root21 resumed Linux diagnostics verified; exact new CI pending — 2026-10-31T04:25:04.125892+00:00
+
+Source e4b635c passes the complete Factory target (37 tests) and integration IPC target (20 tests) (16 actual IPC cases plus 4 diagnostic controls). Their commands select retained schema17 companions whose manifest source is 9b69589; these are not newly rebuilt e4/3bb subprocess tools. Source 3bb658b passes strict Clippy for those same two test targets and full infrastructure (522 tests). Keep the original e4 Clippy exit101/manual_c_str_literals failure; the reviewed correction uses a typed C string in test-only marker-retention openat. No workspace/all-targets Clippy or new same-head browser/Mac pass is implied. [Finite results](authorized-integration/RESUMED_ROOT21_DIAGNOSTICS_RESULTS.json), SHA256 `1df539f5d78b72fadafef1ac2351e28dabbe38e84e06bbe67754af1cdacd49cb`.
+
+Exact 7ee Environment 41162213991 PASS; Product 41162216164 FAIL, Rust PASS. Preserve four separate failure classes: UI integration wrapper first cause unknown after earlier frontend passed; Apple Silicon integration 1 passed / 15 failed, strict INPUT_CHANGED with cause unknown; Intel one-second deadline never reached the owned-review premise; separate Intel rework readonly WORKSPACE_BUSY / not_started (Factory 25 passed / 2 failed overall). The new bounded setup/IPC/deadline diagnostics and Busy fixture have Linux/source evidence, not a diagnosed Mac fix. Original failed fixtures and unknown outcomes stay retained.
+
+Parent 7af Environment 41163775698 PASS; Product 41163775724 FAIL despite Rust and both Mac PASS. UI normal/cancel fail after CG02; lost-start passes 5 checks with cleanup. Synthetic checkout 5432aa3 is not a protected-main merge. Official ARM 13029575540 and Intel 13030325572 development DMGs have Root-verified archive/DMG checksums; CI records ARM ad hoc and Intel unsigned. Linux archive verification does not establish native installation, trusted signing or manual acceptance.
+
+All 130 requirement states remain unchanged. New exact reviewed CI/current Native/dualMac/Root development packages, protected integration and broader product acceptance remain open; real Provider, formal Approve, signing and production remain separately gated. Main 653679d; OWNER-001/002 ACK, no OWNER-003; no authority expansion.
+
 ## Root17 exact fbd failures diagnosed; local fixes verified — 2026-10-31T02:52:01.931546+00:00
 
 fbd Environment41159796739 all3PASS; Product41159799252 all4FAIL. Rust/bothMac first failure is the old v1 synthetic fixture missing real production NOTNULL (execution6/1); Apple Silicon Core225 passed before it. UI driver was not launched: actual140798744-byte daemon exceeds unchanged128MiB guard. Oldba failure attribution stays distinct.
