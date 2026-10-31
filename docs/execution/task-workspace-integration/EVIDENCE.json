@@ -606,5 +606,13 @@
     "sha256": "9fce2ec1e09a7ac9b80eec4073cb81f49bedb8e2cb0874c1efc996ac4ce56deb",
     "parent_PR18": "merged protected squash7ecf0c5; current feature PR19 CI pending",
     "coverage": "partial; current Linux actual tests/UnixIPC only"
+  },
+  "latest_safe_squash_ancestry": {
+    "marker": "19e9eb275e4e76ada50f93d036003e3ffa2b2ba1",
+    "proof": "docs/execution/task-workspace-integration/SQUASH_ANCESTRY_ACTUAL_PROOF.json",
+    "proof_sha256": "7cda860997816741e81df8c1d8c2df4d43c0fd7ced21d9be0e8a0281373b2e5c",
+    "review_sha256": "ecb381308d1886562bf64914e7fb5c10e2b6806c3ec96a4334c607a000853a7b",
+    "metadata_review_sha256": "763d18f2962bafe78bf5f8aace65d9b1f0fa90c05cb43cef47e91bf780fc9a33",
+    "CI": "pending new exact PR19 checks"
   }
 }

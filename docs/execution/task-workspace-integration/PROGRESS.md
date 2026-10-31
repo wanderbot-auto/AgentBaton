@@ -1,3 +1,9 @@
+## PR19 exact-main ancestry verified; own CI next — 2026-10-31T08:16:48.963781+00:00
+
+The reviewed content integration23d and local regressions remain source-bound. Protected main7ecf exactly equals approved Parent18 ae42's complete tree; a genuine prior merge already included ae42. After a separate reviewed ADR/proof commit, marker19e9 records7ecf ancestry with exactly zero file changes and an identical immediate before/after tree. Independent after-review ecb381308d1886562bf64914e7fb5c10e2b6806c3ec96a4334c607a000853a7b confirms ordered parents and ancestry. [Actual proof](SQUASH_ANCESTRY_ACTUAL_PROOF.json) retains the earlier Owner digest-label correction; raw and normalized text hashes are explicit. No Owner instruction changed.
+
+PR19 will be retargeted to main and pushed normally for its own exact-candidate Environment/Product/native/dualMac checks. These are pending, and Parent18's successful packages do not certify schema16. Full130 and all permission limits remain unchanged; no formalApprove or protected-main action was performed by this marker.
+
 ## Parent18 merged; schema16 current regression verified — 2026-10-31T08:03:57.927916+00:00
 
 PR18 was normally protected-squash merged as7ecf0c5 after exact ae42 checks and independent review. PR19 source23d normally merges original ae42 and keeps strict16 history reads (15/17 refused). Actual210 Core (11history subset),33 Factory,58sessions,9Task targets,6genuine14 and5fresh genuine15 migrations pass; strict workspace/alltargets and migration Clippy/fmt pass. Type/build and1069 UI/59files plus342 infrastructure pass. All6 actual Chromium/React→normalCore16 UnixIPC scenarios/8originalPNG pass with genuine daemon wait0/cleanupcomplete; Root inspected2 originals. No NativeMac/Provider result is inferred.
