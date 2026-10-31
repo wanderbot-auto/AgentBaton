@@ -761,17 +761,38 @@
     {
       "id": "AB-SES-007",
       "work_package": "WP10",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/TaskNotifications.tsx",
+        "apps/desktop/src/task-notifications-model.ts",
+        "apps/desktop/src/task-notifications-i18n.ts",
+        "apps/desktop/src/task-notifications.css"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed listed frontend1088/61 and pure513+13 at287;19newcases,not wholeproductacceptance",
+        "integration": "passed same287Core/frontend Linux/generatedACP/privateOwner fullwrapper;6notifychecks/12naturalevents→1notice/4PNG/completeownedcleanup; notNative/Provider/CI",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/task-notifications/EVIDENCE.json"
+      ],
+      "limitations": [
+        "New precise remote CI notyetrun for this feature; Native/macOS AppleSilicon/Intel and product installation acceptance remain notrun.",
+        "Only application notifications while UI fetches; no OSnotification delivery/background/DNDOS claims.",
+        "Current projections do not independently expose auth/quota/config drift; no such state inferred from text. Other full design requirements remain.",
+        "Actual tests use generated ACP/privateOwner host; realProvider/accounts/models/signing/production/newspend remain separately gated.",
+        "This feature remains part of full130 development, not wholeproduct completion or mainmerge."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "apps/desktop/src/task-notifications-model.test.ts",
+        "apps/desktop/src/TaskNotifications.test.tsx",
+        "apps/desktop/tests/task_notifications_real_ipc_probe.py",
+        "tests/infrastructure/test_task_notification_ci.py"
+      ]
     },
     {
       "id": "AB-SES-008",

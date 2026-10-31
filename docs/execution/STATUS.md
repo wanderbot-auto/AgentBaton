@@ -1,3 +1,9 @@
+## Task notifications connected and locally verified — 2026-10-31T04:07:31.636146+00:00
+
+AB-SES-007 nowimplementing: actualTask/session/journal observations aggregate tooneTasknotice with exactsources, boundedconflict/futureseq guards, explicitDND and safeTask/Historynavigation. Same287actualCore/frontend fullwrapper passes original9checks12PNG plusindependent6notificationchecks4PNG,12naturalassociatedevents→1notice;100repeat onlycomponentfixture. Types/UI1088/61/build and513infra+13probecontrols pass. [Exactevidence](task-notifications/EVIDENCE.json) SHA 6737e0503564b479fd27af5fec58af6d8638c0c8c7af3c87495957c4efd31dea; Rootviewed2newplaintext originals.
+
+NewfeatureexactCI/Native/bothMac/installationremainopen; localbrowseradapterreplacesCIbundledELFdiscovery anddoesnotexplain Root7eeCIsetupfailure. Root7ee Env3/Rustpass butUI/ARM/Intelfail remain; Parent7af Env3/Rustpass/UI normal+cancelfail, loststartpass, bothMaclastobservedrunning. Alloriginalbounds/authority/failedrecords/full130scope remain. Main653 OWNER001002ACK/no003, noformalApprove/privateProvider/newspend/signing/production.
+
 ## Root17 exact fbd failures diagnosed; local fixes verified — 2026-10-31T02:52:01.931546+00:00
 
 fbd Environment41159796739 all3PASS; Product41159799252 all4FAIL. Rust/bothMac first failure is the old v1 synthetic fixture missing real production NOTNULL (execution6/1); Apple Silicon Core225 passed before it. UI driver was not launched: actual140798744-byte daemon exceeds unchanged128MiB guard. Oldba failure attribution stays distinct.
