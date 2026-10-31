@@ -1,0 +1,165 @@
+{
+  "recorded_at": "2026-10-31T10:10:12.322675+00:00",
+  "source_head": "7fbd28a78f1fe1e102596f7c8829637f2bc7414d",
+  "scope": "Root21 UI/type and strict infrastructure closure; not new Core/native/macOS/CI acceptance",
+  "commands": {
+    "root21-v4-composed-full-ui1": {
+      "source": "a196ccf15e3c3a29e556cb5dd3bd8f65d08a94cb",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 34.17392040998675,
+      "minimum_free_bytes": 3387617280,
+      "interruption": null,
+      "log_sha256": "7c71ad4b28ad4d6ec5b46d44f54649b5e2d68d0432f97ad801c5e869dac95f25",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "result_sha256": "ee0ab60c71d9efa888bb3872072e6ec2781c25ef5885369140ba4674fbc7aa85"
+    },
+    "root21-v4-composed-type-build1": {
+      "source": "a196ccf15e3c3a29e556cb5dd3bd8f65d08a94cb",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "exit": 1,
+      "seconds": 1.8146332899923436,
+      "minimum_free_bytes": 3388379136,
+      "interruption": null,
+      "log_sha256": "3f1b5319316a57a86d7b2d9d7b9a958f5475e96af70942b28f8a82e52d17a281",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "result_sha256": "ec75de747d3d3f817706c23ad88d4b9f9cf6fbcc757ad58fa64fcf61bf53b898"
+    },
+    "root21-v4-composed-type-build-fixed2": {
+      "source": "66fb45211158ade300c09f6bd4a14d591738d18a",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 2.0446601359872147,
+      "minimum_free_bytes": 3387449344,
+      "interruption": null,
+      "log_sha256": "9b32d7584860625f073a7a66f866bc576255a602e3e2f93ad4b7fb7af15f2e19",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "result_sha256": "a9a2f0acf2dc213836c29edf26df5bbb035fb5488982f24da2365718eec391df"
+    },
+    "root21-v4-composed-mounted-five2": {
+      "source": "66fb45211158ade300c09f6bd4a14d591738d18a",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "src/FactoryChildGoals.owner-ui-diagnostics.test.tsx"
+      ],
+      "exit": 0,
+      "seconds": 2.51387651899131,
+      "minimum_free_bytes": 3387404288,
+      "interruption": null,
+      "log_sha256": "84b03279d685a4d8ad2c62dec42954dd93098b29bdeaae3ad2a88a6a00b88175",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "result_sha256": "76ae39a5e97240e74da25eacd9c254a402e1acd03a22035e62439f64c78c448b"
+    },
+    "root21-v4-composed-full-infra1": {
+      "source": "66fb45211158ade300c09f6bd4a14d591738d18a",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit": 1,
+      "seconds": 18.842482634994667,
+      "minimum_free_bytes": 3386630144,
+      "interruption": null,
+      "log_sha256": "85c03362961703d3632f18117d10e24f17034deef9807a3fa00fe2ec0036b1fa",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "result_sha256": "0086e7c94c7de7e9b9fb7697d30d7a877d38d0f12fcbff0258f9cc4d6252dd20"
+    },
+    "root21-v4-composed-full-infra-fixed2": {
+      "source": "7fbd28a78f1fe1e102596f7c8829637f2bc7414d",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 18.454726574011147,
+      "minimum_free_bytes": 3312398336,
+      "interruption": null,
+      "log_sha256": "4e18bd3290bf96d8376b547b687c83f16615a555d98bf8186560b45f83fe295c",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "result_sha256": "3bbc05d61291a7796988e76e02509e62d5e9f1e977c6dbbebad644d61759691d"
+    }
+  },
+  "source_reviews": {
+    "two_locator_tests": {
+      "sha256": "2e5edb7cdba0e63a45003e2cc324faf8523169c20f69659e40ee0af62b7a57cd",
+      "scope": "53 source checks/13 negative/26 pure, production unchanged"
+    },
+    "production_and_old_locator_reviews": "retained EVIDENCE.json"
+  },
+  "counts": {
+    "full_ui": 1127,
+    "ui_files": 63,
+    "fixed_mounted": 5,
+    "full_infrastructure": 674,
+    "original_infrastructure": {
+      "passed": 671,
+      "failed": 3
+    }
+  },
+  "not_run": [
+    "matched current17 actual browser",
+    "new exact CI",
+    "current Native/macOS dual architecture and installers",
+    "live Provider",
+    "full130 acceptance"
+  ]
+}
