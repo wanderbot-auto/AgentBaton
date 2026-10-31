@@ -237,7 +237,7 @@
     "finite_diagnostics": {
       "file": "task-workspace-launch-3dc-independent-review/REVIEW.json",
       "sha256": "5be8ee37e6e694370c8fdda986c12f88d97ef54461a502b79674b1e091892521",
-      "status": null,
+      "status": "SOURCE_READY",
       "dimension": "independent source/pure review, not macOS execution"
     },
     "canonical_and_journal": {
@@ -259,7 +259,7 @@
       "id": 41154588435,
       "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41154588435",
       "conclusion": "failed all3; 461cases one positive12PNG fixture failure",
-      "first_cause": "Synthetic driver directory inherited0755 under common umask0022; production private0700guard correctly refused. Explicit seed directory700 closes the fixture; production guard remains."
+      "first_cause": "Retained CI log proves the positive12PNG fixture failed; actual runner umask and intermediate mode were not recorded. Local reproduction under explicit umask0022 identifies inherited0755 synthetic driver directory and correct production private0700 refusal. Explicit seed directory0700 fixes the fixture without changing production guard."
     },
     "Product": {
       "id": 41154588518,
@@ -277,7 +277,9 @@
       "arm_log_sha256": "397991b573a639fe93fef2fbbe27e9c9acc4a21cd67ceb3d1075030d33833375",
       "ui_log_sha256": "7c45ca8beb5d0a0d8fc6c81f6c7b478835063d8fb3d2db62c14546fe0957e7b2",
       "ui_artifact": 13025090990,
-      "ui_zip_sha256": "7df245ecd97c2087f72b68bbecf1dc155716f9be69177e0e343767a33fc1ac6f"
+      "ui_zip_sha256": "7df245ecd97c2087f72b68bbecf1dc155716f9be69177e0e343767a33fc1ac6f",
+      "rust_log_sha256": "469ce961d7208b31626707a8f82406cce11d344954a7b6ca7534860dca6ddf2c",
+      "intel_log_sha256": "97ebf98cff292ac81f7fcbf9d15b7ad3fadfc4b8b7fec46926fb17ade309453d"
     }
   },
   "corrections": [
