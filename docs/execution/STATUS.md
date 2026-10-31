@@ -1,3 +1,9 @@
+## Root17 observation backport checked; cancellation remains failed — 2026-10-31T04:43:29.606399+00:00
+
+Fresh source6ca Core/frontend builds and source6a 523 infrastructure tests passed. Actual Linux child-Goal normal4 and lost-start5 checks passed with cleanup. Cancel failed after2 checks on empty Graph provider cmdline; the failure and cleanup=false remain, even though daemon exited0. The finite projector correctly kept cancel failed. [Exact evidence](authorized-integration/OWNER_BACKPORT_RUNTIME_RESULTS.json) SHA256 f5d83d6f6269cbf5ddf9641879dcf4513a6c0074e5c64d20cb1b9a3c2959baff.
+
+This draft candidate is ready for exact platform diagnosis, not integration acceptance. ARM INPUT_CHANGED, Intel deadline/rework, UI setup and cancellation failures remain open. Notification PR22 source784 has Ubuntu Environment success, Mac fixture errors and a separate UI lost-start failure; integration/notification CI probes were skipped. Parent7af has both Mac lanes passed but overall UI failure. Full Design v0.2 is incomplete; existing authority limits remain unchanged.
+
 ## Root21 resumed Linux diagnostics verified; exact new CI pending — 2026-10-31T04:25:04.125892+00:00
 
 Source e4b635c passes the complete Factory target (37 tests) and integration IPC target (20 tests) (16 actual IPC cases plus 4 diagnostic controls). Their commands select retained schema17 companions whose manifest source is 9b69589; these are not newly rebuilt e4/3bb subprocess tools. Source 3bb658b passes strict Clippy for those same two test targets and full infrastructure (522 tests). Keep the original e4 Clippy exit101/manual_c_str_literals failure; the reviewed correction uses a typed C string in test-only marker-retention openat. No workspace/all-targets Clippy or new same-head browser/Mac pass is implied. [Finite results](authorized-integration/RESUMED_ROOT21_DIAGNOSTICS_RESULTS.json), SHA256 `b740d3ffac13df9ba489f0c7080c7348ac75299ee29af0abfead8350a2fbcc53`.
