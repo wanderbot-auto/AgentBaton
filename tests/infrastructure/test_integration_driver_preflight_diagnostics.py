@@ -324,7 +324,9 @@ class ExactOriginalSourceControls(unittest.TestCase):
     def test_full_original_driver_and_projector_restore_exactly_no_region_ignored(self):
         self.assertEqual(sha(self.restore_driver(DRIVER.read_text()).encode()),
             '1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e')
-        text = PROJECTOR.read_text(); start, end = text.index('DRIVER_PREFLIGHT_STAGES = '), text.index('def publish(')
+        from tests.infrastructure.test_integration_browser_ci_evidence_runtime import strip_runtime_failure_projection
+        text = strip_runtime_failure_projection(PROJECTOR.read_text())
+        start, end = text.index('DRIVER_PREFLIGHT_STAGES = '), text.index('def publish(')
         self.assertEqual(sha(text[start:end].encode()), '4911cd73dde7031b417fa35ae14d2eddd902d58eb780860254170ca65f43eac1')
         text = text[:start] + text[end:]
         addition = "            summary['driver_preflight'] = driver_preflight_diagnostic(args.private, args.expected_source_head)\n"
