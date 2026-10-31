@@ -120,6 +120,10 @@ pub(super) fn prepare(
     ticket: &IntegrationStageTicket,
     cancel: Arc<AtomicBool>,
 ) -> IntegrationPreparationOutcome {
+    #[cfg(debug_assertions)]
+    if let Some(trace) = &ticket.phase_observation {
+        trace.before_control(super::stage_workers::phase_observation::Phase::PrepareEntered);
+    }
     let host_control =
         agentbaton_workspaces::adoption::AdoptionControl::for_request(&cancel, ticket.deadline);
     let mut result = (|| {
@@ -163,6 +167,12 @@ pub(super) fn prepare(
         }
         let commit_time =
             u64::try_from(ticket.attempt.prepared_at_ms / 1000).map_err(|_| invalid())?;
+        #[cfg(debug_assertions)]
+        mark_preparation_phase(
+            ticket,
+            &host_control,
+            super::stage_workers::phase_observation::Phase::SourceAuthorize,
+        );
         let approved = AuthorizedSourceCapture::from_verified_selection_controlled(
             &source,
             policy.bindings.source.head.clone(),
@@ -174,6 +184,12 @@ pub(super) fn prepare(
         )
         .map_err(|_| changed())?;
         guard.check()?;
+        #[cfg(debug_assertions)]
+        mark_preparation_phase(
+            ticket,
+            &host_control,
+            super::stage_workers::phase_observation::Phase::SourceCapture,
+        );
         let captured =
             capture_source_commit_controlled(approved, &host_control).map_err(|e| match e {
                 agentbaton_workspaces::WorkspaceError::ResourceLimit
@@ -190,6 +206,12 @@ pub(super) fn prepare(
             .file_name()
             .and_then(|s| s.to_str())
             .ok_or_else(changed)?;
+        #[cfg(debug_assertions)]
+        mark_preparation_phase(
+            ticket,
+            &host_control,
+            super::stage_workers::phase_observation::Phase::ControlIsolate,
+        );
         let control = agentbaton_workspaces::create_isolated_controlled(
             &source.canonical_root,
             &ticket.managed_root,
@@ -199,6 +221,12 @@ pub(super) fn prepare(
         )
         .map_err(|_| changed())?;
         guard.check()?;
+        #[cfg(debug_assertions)]
+        mark_preparation_phase(
+            ticket,
+            &host_control,
+            super::stage_workers::phase_observation::Phase::IntegrationAuthorize,
+        );
         let approved = AuthorizedIntegration::from_verified_grant_controlled(
             &control,
             ticket.run.target_ref.clone(),
@@ -215,6 +243,12 @@ pub(super) fn prepare(
             .file_name()
             .and_then(|s| s.to_str())
             .ok_or_else(changed)?;
+        #[cfg(debug_assertions)]
+        mark_preparation_phase(
+            ticket,
+            &host_control,
+            super::stage_workers::phase_observation::Phase::CandidatePrepare,
+        );
         let candidate = agentbaton_workspaces::adoption::prepare_candidate_controlled(
             approved,
             &ticket.managed_root,
@@ -233,6 +267,12 @@ pub(super) fn prepare(
             _ => changed(),
         })?;
         guard.check()?;
+        #[cfg(debug_assertions)]
+        mark_preparation_phase(
+            ticket,
+            &host_control,
+            super::stage_workers::phase_observation::Phase::ArtifactIntegrity,
+        );
         let workspace = candidate.workspace();
         let mut outputs = vec![];
         for output in &policy.bindings.outputs {
@@ -277,6 +317,12 @@ pub(super) fn prepare(
         })
     })();
     let io = host_control.preparation_io();
+    #[cfg(debug_assertions)]
+    mark_preparation_phase(
+        ticket,
+        &host_control,
+        super::stage_workers::phase_observation::Phase::PreparationReturned,
+    );
     if let Ok(context) = result.as_mut() {
         context.preparation_io = Some(io.clone());
     }
@@ -696,3 +742,14 @@ impl Drop for IntegrationPreparedContext {
 #[cfg(test)]
 #[path = "integration_validator_stop_tests.rs"]
 mod validator_stop_tests;
+
+#[cfg(debug_assertions)]
+fn mark_preparation_phase(
+    ticket: &IntegrationStageTicket,
+    control: &agentbaton_workspaces::adoption::AdoptionControl<'_>,
+    phase: super::stage_workers::phase_observation::Phase,
+) {
+    if let Some(trace) = &ticket.phase_observation {
+        trace.control(phase, control.try_preparation_phase_snapshot());
+    }
+}

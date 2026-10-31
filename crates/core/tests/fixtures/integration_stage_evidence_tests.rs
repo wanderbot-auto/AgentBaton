@@ -416,3 +416,143 @@ fn observation_conflicts_are_sticky_and_only_successful_replies_bind() {
     );
     assert!(!OBSERVED.with(|v| v.borrow().contains_key(root)));
 }
+
+#[cfg(debug_assertions)]
+mod preparation_phase_observation_tests {
+    use super::*;
+    fn trace() -> Value {
+        let names = [
+            "worker_entered",
+            "read_proof_ready",
+            "actor_admission_received",
+            "worker_proof_verified",
+            "prepare_entered",
+            "source_authorize",
+            "source_capture",
+            "control_isolate",
+            "integration_authorize",
+            "candidate_prepare",
+            "artifact_integrity",
+            "preparation_returned",
+            "owned_join_observed",
+        ];
+        let samples = names.iter().enumerate().map(|(i,name)| {
+            let (original, control, attempted, complete) = if i < 5 {
+                (i as u64 * 10, None, None, None)
+            } else if i < 11 {
+                let n = (i - 4) as u64;
+                (1000 + n * 100, Some(400 + n * 100), Some(n.min(4)), Some(n.min(3)))
+            } else {
+                (if i==11 {2000} else {2003}, Some(1881), Some(4), Some(3))
+            };
+            json!({"phase":name,"original_elapsed_ms":original,"control_elapsed_ms":control,
+                "git_calls_attempted":attempted,"git_calls_complete":complete,
+                "counter_snapshot":if i<5 {"before_control"} else if i==12 {"historical_preparation_returned"} else {"actual_control_observation"}})
+        }).collect::<Vec<_>>();
+        json!({"contract":"agentbaton.integration-preparation-phases.v1","samples":samples})
+    }
+    fn with_trace(events: &[(i64, String)], trace: Value) -> Vec<(i64, String)> {
+        let mut events = events.to_vec();
+        events[0].1 = mutate_text(&events[0].1, |v| v["payload"]["phase_observation"] = trace);
+        events
+    }
+    #[test]
+    fn valid_closed_phases_extend_only_existing_failure_evidence() {
+        let (b, run, rows, events) = fixture();
+        let base = project(&b, &run, &rows, &events).unwrap();
+        let mut observed = project(&b, &run, &rows, &with_trace(&events, trace())).unwrap();
+        let phase = observed["rows"][0]
+            .as_object_mut()
+            .unwrap()
+            .remove("preparation_phase_observation")
+            .unwrap();
+        assert_eq!(phase, trace());
+        assert_eq!(observed, base);
+        assert_eq!(observed["rows"][0]["actual_output_bytes"], Value::Null);
+        assert!(!observed.to_string().contains(CANARY));
+        // Early/unscheduled/panic paths keep the original missing event. No
+        // trace can turn an absent event into Some(io) or a completion receipt.
+        let no_preparation = vec![events[1].clone()];
+        let missing = project(&b, &run, &rows, &no_preparation).unwrap();
+        assert!(missing["rows"][0]["preparation_io"].is_null());
+        assert!(missing["rows"][0]
+            .get("preparation_phase_observation")
+            .is_none());
+    }
+    #[test]
+    fn unknown_private_duplicate_decreasing_and_oversized_phases_preserve_exact_base() {
+        let (b, run, rows, events) = fixture();
+        let base = project(&b, &run, &rows, &events).unwrap();
+        for mutation in 0..15 {
+            let mut bad = trace();
+            match mutation {
+                0 => bad["private_path"] = json!(CANARY),
+                1 => bad["samples"][5]["phase"] = json!(CANARY),
+                2 => bad["samples"][5]["phase"] = json!("prepare_entered"),
+                3 => bad["samples"][6]["original_elapsed_ms"] = json!(1),
+                4 => bad["samples"][6]["control_elapsed_ms"] = json!(1),
+                5 => bad["samples"][6]["git_calls_complete"] = json!(3),
+                6 => bad["samples"][0]["git_calls_attempted"] = json!(0),
+                7 => bad["samples"][12]["git_calls_attempted"] = json!(5),
+                8 => bad["samples"][5]["control_elapsed_ms"] = json!(-1),
+                9 => bad["samples"][5]["counter_snapshot"] = json!("before_control"),
+                10 => bad["samples"].as_array_mut().unwrap().push(Value::Null),
+                11 => bad["samples"][5]["private"] = json!("X".repeat(4097)),
+                12 => bad["samples"][11]["git_calls_attempted"] = json!(5),
+                13 => bad["samples"][11] = Value::Null,
+                _ => {
+                    bad["samples"][0]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("control_elapsed_ms");
+                }
+            }
+            assert_eq!(
+                project(&b, &run, &rows, &with_trace(&events, bad)).unwrap(),
+                base,
+                "mutation {mutation}"
+            );
+        }
+        let mut duplicated = with_trace(&events, trace());
+        duplicated[0].1 = duplicated[0].1.replacen(
+            "\"phase\":\"source_capture\"",
+            "\"phase\":\"source_capture\",\"phase\":\"source_capture\"",
+            1,
+        );
+        assert!(
+            project(&b, &run, &rows, &duplicated).is_err(),
+            "original Unique rejects duplicate JSON keys even in optional data"
+        );
+        let mut invalid_base = with_trace(&events, trace());
+        invalid_base[0].1 = mutate_text(&invalid_base[0].1, |v| {
+            v["payload"]["io"]["io_complete"] = json!(true)
+        });
+        assert!(
+            project(&b, &run, &rows, &invalid_base).is_err(),
+            "optional data cannot salvage invalid original facts"
+        );
+    }
+    #[test]
+    fn optional_phase_byte_pressure_never_erases_valid_original_rows() {
+        let (b, run, rows, events) = fixture();
+        let mut many = Vec::new();
+        let mut base_events = Vec::new();
+        let mut traced_events = Vec::new();
+        for index in 0..10 {
+            let mut row = rows[0].clone();
+            row.id = format!("attempt-{index}");
+            row.document = mutate_text(&row.document, |v| v["view"]["attempt_id"] = json!(row.id));
+            let mut event: Value = serde_json::from_str(&events[0].1).unwrap();
+            event["payload"]["attempt_id"] = json!(row.id);
+            base_events.push(((index + 1) as i64, event.to_string()));
+            event["payload"]["phase_observation"] = trace();
+            traced_events.push(((index + 1) as i64, event.to_string()));
+            many.push(row);
+        }
+        let base = project(&b, &run, &many, &base_events).unwrap();
+        assert_eq!(project(&b, &run, &many, &traced_events).unwrap(), base);
+        assert!(serde_json::to_vec(&base).unwrap().len() + PREFIX.len() < MAX_OUTPUT);
+        assert_eq!(base["rows"].as_array().unwrap().len(), 10);
+        assert!(project(&b, &" ".repeat(MAX_DOCUMENT + 1), &many, &traced_events).is_err());
+    }
+}

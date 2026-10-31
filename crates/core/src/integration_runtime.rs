@@ -45,6 +45,9 @@ pub(crate) struct IntegrationStageTicket {
     pub(super) managed_root: PathBuf,
     pub(super) queued_at: Instant,
     pub(super) deadline: Instant,
+    #[cfg(debug_assertions)]
+    pub(super) phase_observation:
+        Option<std::sync::Arc<super::stage_workers::phase_observation::Trace>>,
 }
 /// Created only from an already admitted private stage ticket. It is never a
 /// wire input, deserializable capability, or a replacement for live DB checks.
@@ -623,6 +626,10 @@ impl Store {
             managed_root: managed_root.into(),
             queued_at,
             deadline,
+            #[cfg(debug_assertions)]
+            phase_observation: Some(std::sync::Arc::new(
+                super::stage_workers::phase_observation::Trace::new(queued_at),
+            )),
         };
         let permit = super::fences::for_stage(&tx, &ticket)?;
         for workspace in [&control, &candidate] {
@@ -1148,6 +1155,12 @@ impl Store {
             managed_root: previous.managed_root.clone(),
             queued_at,
             deadline,
+            #[cfg(debug_assertions)]
+            phase_observation: (kind == IntegrationStageKind::Preparation).then(|| {
+                std::sync::Arc::new(super::stage_workers::phase_observation::Trace::new(
+                    queued_at,
+                ))
+            }),
         };
         if kind == IntegrationStageKind::Preparation {
             let permit = super::fences::for_stage(&tx, &ticket)?;

@@ -408,6 +408,8 @@ fn project(
     }
     let mut unknown = BTreeMap::new();
     let mut preparation = BTreeMap::new();
+    #[cfg(debug_assertions)]
+    let mut phases = BTreeMap::new();
     let mut sequences = BTreeSet::new();
     for (sequence, text) in events {
         let e: Event = parse(text)?;
@@ -441,7 +443,16 @@ fn project(
                     .is_none(),
             )?;
         } else if e.kind == PREPARATION {
-            let p: PreparationEvent = decode(e.payload)?;
+            let payload = e.payload;
+            #[cfg(debug_assertions)]
+            let (payload, phase_raw) = {
+                let mut payload = payload;
+                let phase = payload
+                    .as_object_mut()
+                    .and_then(|object| object.remove("phase_observation"));
+                (payload, phase)
+            };
+            let p: PreparationEvent = decode(payload)?;
             let a = attempts.get(&p.attempt_id).ok_or(())?;
             require(
                 a.view.kind == agentbaton_core::integration::IntegrationStageKind::Preparation
@@ -457,6 +468,10 @@ fn project(
                     && (p.io.git_stderr_observed_bytes.is_some()
                         == (p.io.io_complete && p.io.git_calls_attempted > 0)),
             )?;
+            #[cfg(debug_assertions)]
+            if let Some(trace) = phase_raw.and_then(|raw| validate_preparation_phases(raw, &p.io)) {
+                phases.insert(p.attempt_id.clone(), trace);
+            }
             require(preparation.insert(p.attempt_id, p.io).is_none())?;
         } else {
             return Err(());
@@ -485,6 +500,25 @@ fn project(
     result["active_stage"] = serde_json::to_value(run.active_stage).map_err(|_| ())?;
     result["run_last_error"] = error_projection(run.last_error.as_ref());
     require(serde_json::to_vec(&result).map_err(|_| ())?.len() + PREFIX.len() < MAX_OUTPUT)?;
+    #[cfg(debug_assertions)]
+    {
+        // The original complete projection is already valid. Optional
+        // observations may never erase its facts or enlarge its public bound.
+        let mut candidate = result.clone();
+        for (ordinal, (id, _)) in attempts.iter().enumerate() {
+            if let Some(trace) = phases.remove(id) {
+                if let Ok(trace) = serde_json::to_value(trace) {
+                    candidate["rows"][ordinal]["preparation_phase_observation"] = trace;
+                }
+            }
+        }
+        if serde_json::to_vec(&candidate)
+            .ok()
+            .is_some_and(|bytes| bytes.len() + PREFIX.len() < MAX_OUTPUT)
+        {
+            result = candidate;
+        }
+    }
     Ok(result)
 }
 
@@ -745,3 +779,128 @@ fn collect(runtime: &Path, b: &Binding) -> Checked<Value> {
 #[cfg(test)]
 #[path = "integration_stage_evidence_tests.rs"]
 mod tests;
+
+#[cfg(debug_assertions)]
+#[derive(Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
+struct PreparationPhases {
+    contract: String,
+    samples: Vec<Option<PreparationPhaseSample>>,
+}
+#[cfg(debug_assertions)]
+#[derive(Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
+struct PreparationPhaseSample {
+    phase: PreparationPhase,
+    original_elapsed_ms: u64,
+    control_elapsed_ms: Option<u64>,
+    git_calls_attempted: Option<u64>,
+    git_calls_complete: Option<u64>,
+    counter_snapshot: PreparationCounterSnapshot,
+}
+#[cfg(debug_assertions)]
+#[derive(Clone, Copy, Deserialize, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+enum PreparationPhase {
+    WorkerEntered,
+    ReadProofReady,
+    ActorAdmissionReceived,
+    WorkerProofVerified,
+    PrepareEntered,
+    SourceAuthorize,
+    SourceCapture,
+    ControlIsolate,
+    IntegrationAuthorize,
+    CandidatePrepare,
+    ArtifactIntegrity,
+    PreparationReturned,
+    OwnedJoinObserved,
+}
+#[cfg(debug_assertions)]
+#[derive(PartialEq, Eq, Deserialize, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+enum PreparationCounterSnapshot {
+    BeforeControl,
+    ActualControlObservation,
+    HistoricalPreparationReturned,
+}
+#[cfg(debug_assertions)]
+fn validate_preparation_phases(raw: Value, io: &PreparationIo) -> Option<PreparationPhases> {
+    if serde_json::to_vec(&raw).ok()?.len() > 4096 {
+        return None;
+    }
+    let trace: PreparationPhases = decode(raw).ok()?;
+    if trace.contract != "agentbaton.integration-preparation-phases.v1" || trace.samples.len() != 13
+    {
+        return None;
+    }
+    let returned = trace.samples[11].as_ref()?;
+    if returned.git_calls_attempted != Some(io.git_calls_attempted)
+        || returned.git_calls_complete != Some(io.git_calls_complete)
+        || returned
+            .control_elapsed_ms
+            .is_none_or(|n| n < io.elapsed_ms)
+    {
+        return None;
+    }
+    let mut previous: Option<(usize, &PreparationPhaseSample)> = None;
+    for (index, sample) in trace.samples.iter().enumerate() {
+        let Some(sample) = sample else {
+            continue;
+        };
+        if sample.phase as usize != index {
+            return None;
+        }
+        let ordered = match previous {
+            None => index == 0,
+            Some((last, _)) => index == last + 1 || (index == 11 && (4..11).contains(&last)),
+        };
+        if !ordered
+            || previous.is_some_and(|(_, p)| p.original_elapsed_ms > sample.original_elapsed_ms)
+        {
+            return None;
+        }
+        if index <= 4 {
+            if sample.control_elapsed_ms.is_some()
+                || sample.git_calls_attempted.is_some()
+                || sample.git_calls_complete.is_some()
+                || sample.counter_snapshot != PreparationCounterSnapshot::BeforeControl
+            {
+                return None;
+            }
+        } else {
+            let (control, attempted, complete) = sample
+                .control_elapsed_ms
+                .zip(sample.git_calls_attempted)
+                .zip(sample.git_calls_complete)
+                .map(|((a, b), c)| (a, b, c))?;
+            if control > sample.original_elapsed_ms
+                || complete > attempted
+                || previous.is_some_and(|(_, p)| {
+                    p.control_elapsed_ms.is_some_and(|n| n > control)
+                        || p.git_calls_attempted.is_some_and(|n| n > attempted)
+                        || p.git_calls_complete.is_some_and(|n| n > complete)
+                })
+            {
+                return None;
+            }
+            if index == 12 {
+                let returned = trace.samples[11].as_ref()?;
+                if sample.counter_snapshot
+                    != PreparationCounterSnapshot::HistoricalPreparationReturned
+                    || sample.control_elapsed_ms != returned.control_elapsed_ms
+                    || sample.git_calls_attempted != returned.git_calls_attempted
+                    || sample.git_calls_complete != returned.git_calls_complete
+                {
+                    return None;
+                }
+            } else if sample.counter_snapshot
+                != PreparationCounterSnapshot::ActualControlObservation
+            {
+                return None;
+            }
+        }
+        previous = Some((index, sample));
+    }
+    (previous.map(|(index, _)| index) == Some(12)).then_some(trace)
+}

@@ -284,12 +284,23 @@ impl Store {
                 return Err(changed());
             }
             unknown |= !io.io_complete();
+            let payload = json!({"attempt_id":attempt.view.attempt_id,"io":io,"measurement_not_authority":true,"whole_filesystem_output":null});
+            #[cfg(debug_assertions)]
+            let payload = {
+                let mut payload = payload;
+                if joined.result.is_err() || !io.io_complete() || joined.output_bytes.is_none() {
+                    if let Some(trace) = &ticket.phase_observation {
+                        trace.extend_event(&mut payload);
+                    }
+                }
+                payload
+            };
             records::event(
                 &tx,
                 &run.id,
                 run.revision,
                 "integration.preparation_io_observed",
-                &json!({"attempt_id":attempt.view.attempt_id,"io":io,"measurement_not_authority":true,"whole_filesystem_output":null}),
+                &payload,
             )?;
         }
 

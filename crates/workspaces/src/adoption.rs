@@ -294,6 +294,20 @@ impl<'a> AdoptionControl<'a> {
             io_complete: complete,
         }
     }
+
+    /// Debug observation only. Never wait on, repair or mutate original facts.
+    #[cfg(debug_assertions)]
+    pub fn try_preparation_phase_snapshot(&self) -> Option<(u64, u64, u64)> {
+        let facts = self.preparation.try_lock().ok()?;
+        if facts.overflow || facts.git_calls_complete > facts.git_calls_attempted {
+            return None;
+        }
+        Some((
+            u64::try_from(self.started.elapsed().as_millis()).ok()?,
+            facts.git_calls_attempted,
+            facts.git_calls_complete,
+        ))
+    }
 }
 fn controlled_check(control: Option<&AdoptionControl<'_>>) -> Result<(), AdoptionError> {
     if let Some(c) = control {
@@ -1382,3 +1396,70 @@ mod controlled_completion_tests {
 #[cfg(test)]
 #[path = "adoption_config_batch_tests.rs"]
 mod config_batch_tests;
+
+#[cfg(all(test, debug_assertions))]
+mod preparation_phase_sampler_tests {
+    use super::*;
+    use std::sync::atomic::AtomicBool;
+    use std::time::{Duration, Instant};
+
+    #[test]
+    fn held_facts_are_never_waited_on_or_repaired_by_diagnostic_sampler() {
+        let cancel = AtomicBool::new(false);
+        let control =
+            AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(5));
+        let before = control.preparation_io();
+        let held = control.preparation.lock().unwrap();
+        assert!(control.try_preparation_phase_snapshot().is_none());
+        drop(held);
+        let after = control.preparation_io();
+        assert_eq!(before.git_calls_attempted, after.git_calls_attempted);
+        assert_eq!(before.git_calls_complete, after.git_calls_complete);
+        assert_eq!(
+            before.effects_may_have_started,
+            after.effects_may_have_started
+        );
+        assert_eq!(before.interrupted, after.interrupted);
+        assert_eq!(before.io_complete, after.io_complete);
+        assert!(control.check().is_ok());
+    }
+    #[test]
+    fn actual_poison_and_overflow_stay_unavailable_without_mutating_original_facts() {
+        let cancel = AtomicBool::new(false);
+        let control =
+            AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(5));
+        let facts = control.preparation.clone();
+        assert!(std::thread::spawn(move || {
+            let _held = facts.lock().unwrap();
+            panic!("controlled phase sampler poison");
+        })
+        .join()
+        .is_err());
+        assert!(control.try_preparation_phase_snapshot().is_none());
+        assert!(control.preparation.is_poisoned());
+        // The original final snapshot keeps its original poison semantics.
+        assert!(!control.preparation_io().io_complete());
+        let clean = AdoptionControl::for_request(&cancel, Instant::now() + Duration::from_secs(5));
+        clean.preparation.lock().unwrap().overflow = true;
+        assert!(clean.try_preparation_phase_snapshot().is_none());
+        assert!(clean.preparation.lock().unwrap().overflow);
+        assert!(!clean.preparation_io().io_complete());
+    }
+    #[test]
+    fn scalar_sample_preserves_actual_original_deadline_and_cancellation() {
+        let cancel = AtomicBool::new(false);
+        let control = AdoptionControl::for_request(&cancel, Instant::now());
+        assert!(matches!(
+            control.check(),
+            Err(WorkspaceError::ResourceLimit)
+        ));
+        let (_, attempted, complete) = control.try_preparation_phase_snapshot().unwrap();
+        assert_eq!((attempted, complete), (0, 0));
+        assert!(control.preparation_io().interrupted());
+        assert!(!control.preparation_io().effects_may_have_started());
+        assert!(matches!(
+            control.check(),
+            Err(WorkspaceError::ResourceLimit)
+        ));
+    }
+}
