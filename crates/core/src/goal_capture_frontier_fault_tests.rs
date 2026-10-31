@@ -37,14 +37,16 @@ fn frontier_fault_after_capture_path(path: CapturePath) {
             let read = read_done.clone();
             let joined = joined_before_unlock.clone();
             let runtime = f._directory.path().join("r");
-            f.daemon
-                .graph_workers
-                .install_capture_read_probe(move |success, cancel| {
+            let (read_ready, original_read) = std::sync::mpsc::channel();
+            f.daemon.graph_workers.install_capture_read_probe(
+                original_read,
+                move |success, cancel| {
                     assert!(
                         success,
                         "the original approved capture must actually read its files"
                     );
                     read.store(true, Ordering::SeqCst);
+                    read_ready.send(()).unwrap();
                     // Keep this real completed read owned until fatal teardown. No
                     // sleep chooses a race; this alarm only bounds a broken test.
                     let until = Instant::now() + Duration::from_secs(5);
@@ -59,7 +61,8 @@ fn frontier_fault_after_capture_path(path: CapturePath) {
                     // Only set after all worker assertions, so an ignored join
                     // panic cannot masquerade as successful owned cleanup.
                     joined.store(true, Ordering::SeqCst);
-                });
+                },
+            );
         }
         CapturePath::NoPreparedJob => {
             assert_eq!(
@@ -205,7 +208,17 @@ fn frontier_fault_after_capture_path(path: CapturePath) {
     );
     drop(db);
     // The original owned drop has fully released the writer only after join.
+    // This also invokes ordinary unknown-outcome recovery; it is not a
+    // replay of any failed fixture or proof of a successful capture receipt.
     let successor = Daemon::bind(&runtime).unwrap();
+    assert_eq!(
+        successor
+            .store
+            .conn
+            .query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
+            .unwrap(),
+        attempts
+    );
     drop(successor);
 }
 

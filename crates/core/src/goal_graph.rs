@@ -707,6 +707,8 @@ pub(crate) struct GraphWorkers {
     validators: validators::ValidatorWorkers,
     #[cfg(test)]
     capture_read_probe: Option<CaptureReadProbe>,
+    #[cfg(test)]
+    capture_read_ready: Option<std::sync::mpsc::Receiver<()>>,
 }
 impl GraphWorkers {
     pub(crate) fn start_validation(
@@ -748,6 +750,14 @@ impl GraphWorkers {
     }
     fn mark_started_capture_and_poll(&mut self, store: &mut Store, id: &str) -> Result<()> {
         store.mark_graph_capture_started(&self.captures.get(id).ok_or_else(changed)?.origin)?;
+        // Only the test fixture may hold a real completed read across the
+        // later fault. Normal libraries contain no checkpoint or receiver.
+        #[cfg(test)]
+        if let Some(ready) = self.capture_read_ready.take() {
+            ready
+                .recv_timeout(std::time::Duration::from_secs(5))
+                .map_err(|_| err("RESOURCE_LIMIT", "Test capture checkpoint was not reached"))?;
+        }
         // The original fresh origin checks and durable start receipt have
         // succeeded. Observe a fast owned read's real join before unrelated
         // Actor work, without renewing or discounting its original clock.
@@ -3163,10 +3173,12 @@ impl GraphWorkers {
     /// Test-only observation after real file I/O; never compiled into normal libraries.
     pub(crate) fn install_capture_read_probe(
         &mut self,
+        ready: std::sync::mpsc::Receiver<()>,
         probe: impl FnOnce(bool, std::sync::Arc<std::sync::atomic::AtomicBool>) + Send + 'static,
     ) {
         assert!(self.capture_read_probe.is_none());
         self.capture_read_probe = Some(Box::new(probe));
+        self.capture_read_ready = Some(ready);
     }
     /// An owned cancellation-observing reader fixture, not an approval.
     pub(crate) fn install_drop_fixture(
