@@ -1,3 +1,9 @@
+## Root21 same-refresh planning reuse verified — 2026-10-31
+
+Ordinary merge889 plus the one-field schema17 test mock fix3ec preserves the reviewed production optimization and all strict17, Owner, raw/shape/epoch, deadline and shared-budget rules. FullUI1146/64 and infrastructure678 pass at889. Its original TS2322 test-mock failure remains;3ec type/build and19 focused cases pass. Fresh matching3ec normal Core17/CLI and React pass actual child-Goal normal/cancel/lost-start4/4/5 checks with cleanup and three finite projections. Direct integration frontend normal/failing-command passes5/4 checks and12 original PNGs; daemon exit0/joined/no forced kill, browser/HTTP cleanup and fixture removal observed. This direct driver is not a whole CI wrapper result. [Source-bound evidence](root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json).
+
+Metadata-only merge649 keeps all product/test/workflow bytes equal3ec and retains both branches' status/evidence histories. Current Root CI/Native/dualMac/installers/full130 remain open. Parent60a5 exact Environment41192343803/Product41192343794 are running; priorc675 UI/ARM/Intel failures stay separate and Intel reservation refusal remains unresolved. No authority expansion or formalApprove.
+
 ## Root21 composed UI and infrastructure verified — 2026-10-31
 
 At source a196, all1127 UI cases in63 files passed; the initial type/build failure was a missing schema17 field in a new test mock. The one-field66fb fix passes type/build and5 focused mounted cases. At7fbd, all674 infrastructure checks pass after independently reviewed strict whole-source locator adaptations; original671/3 and type failure logs remain retained. No product budget, schema, path, authority or stop/join guard changed in this closure.
