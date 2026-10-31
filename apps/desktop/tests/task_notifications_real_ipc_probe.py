@@ -221,7 +221,7 @@ def run_probe(page, host, bounds, fixture, accepted, server, report, output, wri
         expect(row).to_have_count(1, timeout=remaining_ms(deadline))
         expect(row).to_have_attribute('data-task-id', bounds.task, timeout=remaining_ms(deadline))
         visible(row.get_by_text('Task accepted', exact=True))
-        visible(row.get_by_text('Current Task projection', exact=True))
+        visible(row.get_by_text('Latest task status', exact=True))
         checked(CHECKS[1], notices=1, naturally_observed_events=len(mapped), synthetic_repeated_events=0)
         screenshot(PNG_NAMES[0], row.get_by_text('Task accepted', exact=True))
         bounded(lambda: row.get_by_text('Sources (' + str(len(mapped)) + ')', exact=True).click())

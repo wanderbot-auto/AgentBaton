@@ -147,7 +147,7 @@ describe('in-app Task notifications', () => {
     await act(async () => resolveOld(snapshot([{ ...task, state: 'accepted' }])));
     await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
     expect(screen.getByTestId('task-notification')).toHaveTextContent('Task failed');
-    expect(screen.getByTestId('task-notification')).toHaveTextContent('Current Task projection');
+    expect(screen.getByTestId('task-notification')).toHaveTextContent('Latest task status');
     expect(screen.getByText('Session observations are old or unavailable.')).toBeVisible();
     expect(screen.getByText('Event observations are old or unavailable.')).toBeVisible();
     expect(screen.getByText(/Evidence is limited/)).toBeVisible();
