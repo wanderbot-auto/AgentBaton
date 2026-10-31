@@ -77,6 +77,9 @@ def report(case, manifest_raw, build_raw):
 
 def seed(root):
     private = root / 'private'; private.mkdir(mode=0o700)
+    # mkdir(parents=True) applies mode only to the leaf directory. Create this
+    # intermediate private boundary explicitly, independently of the CI umask.
+    (private / 'driver').mkdir(mode=0o700)
     manifest = {'schema': 17, 'git_head': HEAD, 'dirty': False, 'binaries': {'batond': 'b'*64, 'baton': 'c'*64}}
     build = {'source': HEAD, 'command': ['npm', '--prefix', 'apps/desktop', 'run', 'build'],
         'exit': 0, 'source_head_and_tracked_unchanged': True}
@@ -116,6 +119,20 @@ class ProjectionControls(unittest.TestCase):
                     self.assertEqual((output/(case+'-'+name+'.png')).read_bytes(),
                         (private/'driver'/case/(name+'.png')).read_bytes())
             self.assertTrue(all(stat.S_IMODE(p.stat().st_mode) == 0o600 for p in output.iterdir()))
+
+    def test_private_driver_fixture_and_complete_projection_under_both_umasks(self):
+        for mask in (0o022, 0o077):
+            with self.subTest(umask=oct(mask)), tempfile.TemporaryDirectory() as temporary:
+                previous = os.umask(mask)
+                try:
+                    root = Path(temporary).resolve(); private = seed(root); output = root / 'public'
+                    for directory in (private, private / 'driver', *(private / 'driver' / case for case in E.CASES)):
+                        self.assertEqual(stat.S_IMODE(directory.stat().st_mode), 0o700)
+                    self.assertEqual(self.project(private, output), 0)
+                    self.assertEqual({p.name for p in output.iterdir()}, E.PUBLIC_NAMES | {'summary.json'})
+                    self.assertEqual(json.loads((output / 'summary.json').read_text())['checks'], 9)
+                finally:
+                    os.umask(previous)
 
     def test_failed_skipped_or_unobserved_step_cannot_publish_old_pass(self):
         for outcome in ['failure', 'skipped', 'cancelled', 'unobserved']:
@@ -159,10 +176,11 @@ class ProjectionControls(unittest.TestCase):
                 self.assertEqual(self.project(private,root/'public'),1)
 
     def test_private_path_mode_symlink_hardlink_and_world_readable_reports_refuse(self):
-        for variant in ['root-mode','report-mode','report-symlink','report-hardlink','directory-symlink']:
+        for variant in ['root-mode','driver-mode','report-mode','report-symlink','report-hardlink','directory-symlink']:
             with self.subTest(variant=variant),tempfile.TemporaryDirectory() as temporary:
                 root=Path(temporary).resolve();private=seed(root);q=private/'status.json'
                 if variant=='root-mode':private.chmod(0o755)
+                elif variant=='driver-mode':(private/'driver').chmod(0o755)
                 elif variant=='report-mode':q.chmod(0o644)
                 elif variant=='report-symlink':
                     raw=q.read_bytes();q.unlink();write(root/'outside',raw);q.symlink_to(root/'outside')

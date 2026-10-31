@@ -1,0 +1,79 @@
+{
+  "base": "ba4612a6d7dc6e23b1bb1cfa22fbf9ce32a89947",
+  "branch": "codex/integration-projection-umask-fixture",
+  "requirement_ids": [
+    "AB-SEC-007"
+  ],
+  "dimension": "Synthetic finite JSON/black-PNG projection unit only; no actual product/browser or visual acceptance",
+  "original_remote_failure": {
+    "run": 41154588435,
+    "Ubuntu_job": 124398474390,
+    "log": "/workspace/.onboarding/root17-ba4612a-ci/environment-ubuntu.log",
+    "sha256": "ef71411b532a24ee1202db9d718fa4c35a749c438d84295efed0e306eb555452",
+    "observed": "461 tests,460 pass/1 positive fixture failure; actual CI runner umask not present in retained log"
+  },
+  "reproduced_defect": {
+    "Cloud_observed_umask": "0077",
+    "umask0022_intermediate_driver_mode": "0755",
+    "normal_leaf_mode": "0700",
+    "failed_guard": "record-integration-browser-ci-evidence.py collect -> P.directory(private/driver, private=True) requires0700",
+    "reason": "Path.mkdir(mode=0700, parents=True) applies supplied mode to leaf only; missing intermediate parents use default permissions filtered by umask",
+    "correction": "seed explicitly creates private/driver with0700, before any nested file write"
+  },
+  "actual_evidence": {
+    "candidate-077.log": {
+      "sha256": "feffbec548213f3ade849071b437b309803e18aecbcfb35a41f02990127f5213",
+      "bytes": 3796
+    },
+    "unsafe-driver-mutation.log": {
+      "sha256": "0f8ab80042693acb311b9d8cdc99279bb2555b7cdc4d94f7ed478ed04517fe4e",
+      "bytes": 2867
+    },
+    "baseline-022-diagnostic.log": {
+      "sha256": "3eaee2b6e0ff733cafc797dbcb39d042da9ae54f6838744b4d7fd539c218faa6",
+      "bytes": 911
+    },
+    "baseline-077.log": {
+      "sha256": "8972af2daade4c86f0c5dbe21a25e39acef2805d3d1c266922e82a5d9f00e59e",
+      "bytes": 3591
+    },
+    "baseline-022.log": {
+      "sha256": "79ad34fcf9408ae5d503e0dc14218ec3427f05df6dd6216af9ecb5b3ebac4355",
+      "bytes": 4304
+    },
+    "candidate-022.log": {
+      "sha256": "c098b0b953b971d086dbd346461555f4b81000c3f66dadd67bda8ee89fd592fe",
+      "bytes": 3796
+    },
+    "BASELINE.json": {
+      "sha256": "9aa93fbf891b213fd6a2bdb5eb37f45e159487decc3ff7ffdb74d2acc20a26ae",
+      "bytes": 910
+    },
+    "CANDIDATE_PURE_RESULTS.json": {
+      "sha256": "77b206fb4bacbaec2c6ce57f9a83a90ce84ac45545e2365ee98c99c1d56c8744",
+      "bytes": 1119
+    }
+  },
+  "unchanged_guards": [
+    "projector and shared path reader byte-identical to base",
+    "exact source/harness/build/manifest bindings",
+    "complete twelve original PNG validation/copy and finite summary-only failures",
+    "strict private ownership/mode/symlink/hardlink checks",
+    "cleanup and unknown/failure rejection"
+  ],
+  "not_run": [
+    "full infrastructure suite",
+    "Cargo or SQLite",
+    "Core/Actor/real Unix IPC",
+    "browser or screenshots",
+    "CI/network/macOS",
+    "real Provider"
+  ],
+  "product_run_not_restarted": 41154588518,
+  "source_sha256": "573e7f8192d7ac2123cf093854b046b0a229b8aa85a46d36ca73feb8f3fd1226",
+  "unchanged_source_sha256": {
+    "scripts/record-integration-browser-ci-evidence.py": "4329a748b5cf941ad97a8db0c4bdbdd885547eddd63d126d3611f52b37ee1c41",
+    "scripts/record-task-workspace-ci-evidence.py": "d30279722e2967da93bb52d62c2db4c03a04e83c4287cebb517e15c629244f61",
+    "apps/desktop/tests/integration-real-ipc.py": "1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e"
+  }
+}
