@@ -53,5 +53,11 @@
     "raw_failure_records": "retained by Root; no author rewrite"
   },
   "runtime_root_cause": "source-supported candidate; await Root localbefore directory mode/failure evidence",
-  "scope": "fixture portability only; no permission expansion or product success claim"
+  "scope": "fixture portability only; no permission expansion or product success claim",
+  "root_actual_validation": {
+    "record": "../factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json",
+    "before": "source4344 childumask0220/1 INPUT_CHANGED",
+    "after": "source674d10samecasesunder022/002/077PASS;full139022PASS;fmt/strictClippyPASS",
+    "newexactMacCI": "pending_not_run_yet"
+  }
 }

@@ -36,6 +36,14 @@ function acknowledgedStart(op:Intent|null,read:ReadSummary,runId?:string):boolea
 const cancelIdentity=(p:Props)=>factorySafeFingerprint([childGoalScopeFingerprint(p.scope),p.scope.project_id,p.target.task_id,p.target.root_task_id,p.target.parent_task_id,p.target.factory_scope_id,p.run.id,p.run.scope_id]);
 
 type Snapshot={scope:FactoryScope;family:FactoryRunDetails;target:FactoryTaskHandle;task:Task;context:FactoryChildPlanningContext;head:FactoryChildPlanView|null;rows:FactoryChildGoalSummary[];view:FactoryChildGoalView|null;initial:FactoryChildPlanView|null;adopted:FactoryChildPlanView|null;grant:ExecutionGrant|null};
+type PollSource={parent:string;snapshot:Snapshot};
+type ReadonlyPollRetry={stamp:number;source:PollSource};
+const exactReadonlyBusy=(error:unknown)=>error instanceof DaemonError&&error.code==='WORKSPACE_BUSY'&&error.retryable===true&&error.sideEffectState==='not_started';
+const sameActivePollingGoal=(next:FactoryChildGoalSummary,known:FactoryChildGoalSummary)=>next.goal.run.id===known.goal.run.id&&graphRunPolling(next.goal)&&childGoalRefSame(next.plan,known.plan)&&next.goal.run.cancel_requested===known.goal.run.cancel_requested;
+// Old evidence authorizes only the next bounded read. It cannot make a stale
+// view fresh, establish a new run, or relax any existing write/Owner gate.
+const snapshotPollingGoal=(v:Snapshot)=>!!v.view&&graphRunPolling(v.view.summary.goal)&&v.rows.some(row=>row.goal.run.id===v.view!.summary.goal.run.id&&graphRunPolling(row.goal));
+const pollingSnapshotReady=(v:Snapshot,p:Props)=>parentReadReady(p)&&snapshotPollingGoal(v)&&!v.scope.revoked&&v.scope.expires_at_ms>Date.now()&&!!v.grant&&!v.grant.revoked&&v.grant.revision===v.scope.root_grant_revision&&v.grant.expires_at_ms>Date.now()&&!v.family.run.cancel_requested&&!['cancelled','completed','blocked','outcome_unknown'].includes(v.family.run.state)&&!v.target.cancel_requested&&taskAllowsExecution(v.task)&&v.task.spec_revision===v.context.goal.spec_revision;
 
 export function FactoryChildGoals(props:Props){
  const t=childGoalMessages[props.language],[open,setOpen]=useState(false),[started,setStarted]=useState(false);
@@ -48,6 +56,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
  const capacity=memories.get(identity)!==saved;
  const [summary,setSummary]=useState<ReadSummary|null>(null),[summaryFresh,setSummaryFresh]=useState(false),[data,setData]=useState<Snapshot|null>(null),[pending,setPending]=useState(saved.pending),[fresh,setFresh]=useState(false),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[cancelReading,setCancelReading]=useState(false),[error,setError]=useState(''),[tick,setTick]=useState(0),[paused,setPaused]=useState(false);
  const summaryRead=useRef<{stamp:number;value:ReadSummary}|null>(null);
+ const pollSource=useRef<PollSource|null>(null),readonlyPollRetry=useRef<ReadonlyPollRetry|null>(null),pollAuthority=useRef<{stamp:number;same:boolean|null}|null>(null);
  const current=useRef(props),mounted=useRef(true),epoch=useRef(0),writing=useRef(false),writeOwner=useRef<string|null>(null),cancelReadInFlight=useRef(false),reads=useRef(0),choice=useRef('');current.current=props;
  useEffect(()=>{mounted.current=true;++saved.active;return()=>{mounted.current=false;--saved.active;++epoch.current;};},[saved]);
  function remember(op:Intent|null){saved.pending=op;if(mounted.current)setPending(op);}
@@ -59,9 +68,18 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    if(!root||!task||!factoryScopeShape(scope,root)||childGoalScopeFingerprint(scope)!==saved.scope||childGoalScopeFingerprint(p.scope)!==saved.scope||scope.revision<saved.scopeRevision||!factoryDetailsShape(family,root,scope.id,scope)||family.run.id!==p.run.id||family.run.revision<saved.factoryRevision||task.revision<saved.taskRevision||task.revision===saved.taskRevision&&saved.taskFingerprint!==JSON.stringify(task))throw new Error(t.invalid);
    const target=family.tasks.find(task=>task.task_id===p.target.task_id);
    if(!target||target.parent_task_id!==p.target.parent_task_id||target.root_task_id!==scope.root_task_id||!scope.bindings.child_goal_execution||!Array.isArray(grants))throw new Error(t.invalid);
+   const source=pollSource.current,grant=grants.find(g=>g.id===scope.root_grant_id)??null;
+   if(source&&pollAuthority.current?.stamp===stamp){
+    const known=source.snapshot;
+    pollAuthority.current.same=factorySame(scope,known.scope)&&factorySame(grant,known.grant)&&task.id===known.task.id&&task.project_id===known.task.project_id&&task.spec_revision===known.task.spec_revision&&task.goal===known.task.goal&&taskAllowsExecution(task)&&family.run.id===known.family.run.id&&!family.run.cancel_requested&&!['cancelled','completed','blocked','outcome_unknown'].includes(family.run.state)&&!target.cancel_requested;
+   }
    const rows=await factoryChildGoalApi.list(scope.id,target.task_id);
    if(!childGoalHistoryShape(rows,scope,target,family,null,task))throw new Error(t.invalid);
    for(const [id,floor] of saved.floors){const row=rows.find(row=>row.goal.run.id===id);if(!row||!childGoalSummaryMeetsFloor(row,floor.summary))throw new Error(t.invalid);}
+   if(source&&pollAuthority.current?.stamp===stamp){
+    const known=source.snapshot.view,row=rows.find(item=>item.goal.run.id===known?.summary.goal.run.id);
+    pollAuthority.current.same=pollAuthority.current.same===true&&!!known&&!!row&&sameActivePollingGoal(row,known.summary);
+   }
    if(!mounted.current||stamp!==epoch.current)return null;
    const trusted:ReadSummary={scope,family,target,task,rows,grant:grants.find(g=>g.id===scope.root_grant_id)??null};summaryRead.current={stamp,value:trusted};setSummary(trusted);setSummaryFresh(true);
    for(const row of rows){const floor=saved.floors.get(row.goal.run.id);saved.floors.set(row.goal.run.id,{summary:structuredClone(row),details:floor?.details??null,origin:floor?.origin??null});}
@@ -75,7 +93,8 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    return trusted;
  },[saved,t]);
  const refresh=useCallback(async(manual=true):Promise<Snapshot|null>=>{
-  if(manual){reads.current=0;setPaused(false);}const stamp=++epoch.current;setFresh(false);setSummaryFresh(false);setError('');
+  if(manual){reads.current=0;setPaused(false);}const stamp=++epoch.current,parent=parentIdentity(current.current),source=pollSource.current;
+  readonlyPollRetry.current=null;pollAuthority.current={stamp,same:null};setFresh(false);setSummaryFresh(false);setError('');
   if(!current.current.connected){setError(t.disconnected);return null;}setLoading(true);
   try{
    const trusted=await readSummary(stamp);if(!trusted)return null;
@@ -83,10 +102,12 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    const context=await factoryChildPlanApi.context(scope.id,target.task_id);
    if(!mounted.current||stamp!==epoch.current)return null;
    if(!childContextShape(context,scope,target)||context.run_id!==family.run.id)throw new Error(t.invalid);
+   if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&factorySame(context,source.snapshot.context);
    let head:FactoryChildPlanView|null=null;
    try{head=await factoryChildPlanApi.get(scope.id,target.task_id);if(!mounted.current||stamp!==epoch.current)return null;if(!childViewShape(head,context,scope)||head.reference.revision!==context.current_plan_revision)throw new Error(t.invalid);await verifyChildRaw(head);}
    catch(e){if(!(context.current_plan_revision===0&&e instanceof DaemonError&&e.code==='NOT_FOUND'&&e.sideEffectState==='not_started'))throw e;}
    if(!mounted.current||stamp!==epoch.current)return null;
+   if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&factorySame(head,source.snapshot.head);
    const op=saved.pending,id=op?.receipt?.runId??op?.goalRunId??(rows.some(row=>row.goal.run.id===choice.current)?choice.current:rows.at(-1)?.goal.run.id);
    let view:FactoryChildGoalView|null=null,initial:FactoryChildPlanView|null=null,adopted:FactoryChildPlanView|null=null;
    if(id){
@@ -94,8 +115,10 @@ function ChildGoalPanel(props:Props&{open:boolean}){
     if(!mounted.current||stamp!==epoch.current)return null;
     const listed=rows.find(row=>row.goal.run.id===id),floor=saved.floors.get(id);
     if(!listed||!childGoalViewShape(view,scope,target,family,context,task)||!childGoalSummaryMeetsFloor(view.summary,listed)||floor?.origin&&floor.origin!==JSON.stringify(view.origin)||floor?.details&&!graphDetailsMeetFloor(view.details,{summary:floor.summary.goal,details:floor.details}))throw new Error(t.invalid);
+    if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&!!source.snapshot.view&&sameActivePollingGoal(view.summary,source.snapshot.view.summary);
     initial=await factoryChildPlanApi.get(scope.id,target.task_id,view.origin.initial_plan.revision);
     if(!mounted.current||stamp!==epoch.current)return null;
+    if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&factorySame(initial,source.snapshot.initial);
     adopted=childGoalRefSame(view.origin.initial_plan,view.summary.plan)?initial:await factoryChildPlanApi.get(scope.id,target.task_id,view.summary.plan.revision);
     for(const [plan,ref] of [[initial,view.origin.initial_plan],[adopted,view.summary.plan]] as const){if(!childViewShape(plan,context,scope)||!childGoalRefSame(plan.reference,ref))throw new Error(t.invalid);await verifyChildRaw(plan);}
     if(!childGoalSavedReferencesMatch(view,initial,adopted))throw new Error(t.invalid);
@@ -105,6 +128,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    for(const row of nextRows){const before=saved.floors.get(row.goal.run.id);saved.floors.set(row.goal.run.id,{summary:structuredClone(row),details:view?.summary.goal.run.id===row.goal.run.id?structuredClone(view.details):before?.details??null,origin:view?.summary.goal.run.id===row.goal.run.id?JSON.stringify(view.origin):before?.origin??null});}
    saved.scopeRevision=scope.revision;saved.factoryRevision=family.run.revision;saved.taskRevision=task.revision;saved.taskFingerprint=JSON.stringify(task);choice.current=id??'';
    const snapshot:Snapshot={scope,family,target,task,context,head,rows:nextRows,view,initial,adopted,grant:trusted.grant};setData(snapshot);setFresh(true);
+   pollSource.current=parentIdentity(current.current)===parent&&snapshotPollingGoal(snapshot)?{parent,snapshot}:null;
    if(op){
     const r=op.receipt,detail=view?.details;
     const decision=r?.decisionId?detail?.owner_decisions.find(item=>item.id===r.decisionId):null;
@@ -112,11 +136,25 @@ function ChildGoalPanel(props:Props&{open:boolean}){
     if(matches)remember(null);else remember({...op,reconciled:true});
    }
    return snapshot;
-  }catch(e){if(mounted.current&&stamp===epoch.current){setFresh(false);setError(`${t.invalid} ${e instanceof Error?e.message:''}`);}return null;}
+  }catch(e){if(mounted.current&&stamp===epoch.current){
+   const eligible=exactReadonlyBusy(e)&&source!==null&&pollSource.current===source&&source.parent===parent&&parentIdentity(current.current)===parent&&current.current.connected&&!saved.pending&&!writing.current&&!cancelReadInFlight.current&&pollAuthority.current?.stamp===stamp&&pollAuthority.current.same!==false&&pollingSnapshotReady(source.snapshot,current.current);
+   readonlyPollRetry.current=eligible&&reads.current<20?{stamp,source}:null;if(!eligible)pollSource.current=null;
+   if(eligible&&reads.current>=20)setPaused(true);
+   setFresh(false);setError(`${t.invalid} ${e instanceof Error?e.message:''}`);
+  }return null;}
   finally{if(mounted.current&&stamp===epoch.current){setLoading(false);setTick(n=>n+1);}}
  },[identity,connected,saved,t,readSummary]);
  useEffect(()=>{if(open)void refresh();},[open,refresh,props.selected?.reference.id,props.selected?.reference.revision]);
- useEffect(()=>{if(!open||!connected||!fresh||loading||busy||pending||!data?.rows.some(row=>graphRunPolling(row.goal)))return;if(reads.current>=20){setPaused(true);return;}const timer=setTimeout(()=>{++reads.current;void refresh(false);},1000);return()=>clearTimeout(timer);},[open,connected,fresh,loading,busy,pending,data,tick,refresh]);
+ const pollParent=parentIdentity(props);
+ useEffect(()=>{
+  const source=pollSource.current,retry=readonlyPollRetry.current,stamp=epoch.current,recovering=!fresh;
+  if(!open||!connected||loading||busy||pending||!source||source.parent!==pollParent||!snapshotPollingGoal(source.snapshot)||recovering&&!(retry?.stamp===stamp&&retry.source===source&&pollingSnapshotReady(source.snapshot,current.current)))return;
+  if(reads.current>=20){setPaused(true);return;}
+  const timer=setTimeout(()=>{
+   if(!mounted.current||stamp!==epoch.current||pollSource.current!==source||parentIdentity(current.current)!==pollParent||!current.current.connected||saved.pending||writing.current||cancelReadInFlight.current||recovering&&!pollingSnapshotReady(source.snapshot,current.current))return;
+   ++reads.current;void refresh(false);
+  },1000);return()=>clearTimeout(timer);
+ },[open,connected,fresh,loading,busy,pending,data,tick,refresh,pollParent,props.parentReady,props.parentRefreshOnly]);
  const disabled=capacity||!connected||!fresh||busy||loading||cancelReading||!!pending;
  const checkedSummary=summaryRead.current;
  const cancelDisabled=capacity||!connected||!summaryFresh||busy||cancelReading||!checkedSummary||checkedSummary.stamp!==epoch.current||!!pending&&!acknowledgedStart(pending,checkedSummary.value);

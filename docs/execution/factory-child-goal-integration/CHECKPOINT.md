@@ -1,3 +1,21 @@
+## Head60ba terminal evidence and bounded prior capture diagnostics — 2026-10-30T07:25:23.797598+00:00
+
+Exact60ba Environment3/Rust/UI/ARM pass; Intel Factory26pass/1fail199.45s, revision2 blocked/runrev14 RESOURCE_LIMIT with daemonok/joinedtrue. WholeProduct41012469123 failed. Same-child postshutdown14527ms+next6000ms>20000ms is an ancestor-admission candidate, not an observed exact firstguard or CPU/capture-phase cause. Existing collector selected only Graphrev14 block; missing6timings does not prove earlier captureevents absent. Suite199.45s is not a stage time.
+
+Newc170 diagnostic-only2Pythonfiles preserve actual runtime/source/budgets and safely publish at most2 earlier captures after a selectedblock, same private subject/source with strict revision+sequence bounds, explicit notsameplan,6nullable scalars and no authority. Reviewer found96d79green missed duplicate(6,6,8) outsideLIMIT2; added full eligible-revision uniqueness and unchangedcounterexample, final80pure/203infra pass (80included). Independent final review10staticchecks/80pure sealed 629abb505c45/bc36fbc9abf7; originalfailedreview retained. No optimization or Intelbudgetfix is claimed.
+
+Actual60ba ARM artifact12959388051 ZIP9888487 SHA334dff971cb0c9320653f6c79d5c2a4a2893d08815d6f2491bcb4493f9ea916d contains9956398B DMG SHAf4d34ad8c7ae3cf3fa50a81f0355bf480fec88e1df4c60a3ba4be234dbedafe5, packagedSUMS/UDIFfooter verified. CIbuildrecord reports adhoc/linkersigned/noTeam; RootLinux does not independently verifycodesign or Macmanualinstallation. Synthetic9dde exact tree equals60ba, not mainmerge. Intelpackage absent, no dualacceptance. ParallelCore17 compile/UI1059+build and actualsource16fixture preparation are separately attributed partial progress; runtime/migration/realIPC/Native/Mac/full130 remain open. OWNER001002 ACK; see PRIOR_CAPTURE_AND_HEAD60BA_RESULTS.json.
+
+## Explicit private capture fixture verified across umasks — 2026-10-30T05:33:21.571679+00:00
+
+Exact4344 Environment3/UIpass; Product41004930335 fails Rust/ARM/Intel at the same newpositivecapture INPUT_CHANGED (137passed/1failed each). LaterFactoryrework/native/build/package stages do notexecute; all3 finitecollectors honestly retain exit1/NO_RETAINED_REWORK_CASE/0cases. Their secondary refusal is not an independentproduct rootcause. No oldIntel4231ms attribution or newinstaller is inferred from this run.
+
+Root reproduced originalpositivefailure atsource4344 with onlychildumask022:0PASS1FAIL137filtered/.05s. tempfile defaultDirBuilder0777 is narrowedbyumask while Directory evidence roots requireexact0700/euid. Sourcef607 requestsprivate0700 beforecreation, adds actual0755root refusal, keepsoriginal9functions andallproduction guards/fees/deadlines unchanged. ExistingRoot0700was not directly logged inCI, so no observedCI0755 claim.
+
+Actual source674d10controlsPASS under022/002/077 (same10, not30unique); fullCore139PASS90.33s under022 includes10/nestedhelperexcluded; format andstrictworkspacealltargetsClippy pass. OriginalfailedrawELF38,566,240B SHAc44e16ee…ea86/fullgzip/log/source retained. Actual4344 frozenCLI/daemon sizes are recorded, not CPUtime or oldIntelcause. NewexactMac/7CI stillpending. See PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json.
+
+PR19 local2e preservesexact16 andisbeingvalidated; PR20 acceptedfileprimitive draft isindependent/partial. Continue Corebranchpreauthorization/ownedintegration/sharedbudget/full130; OWNER001002ACK/main653679d; authority unchanged.
+
 ## Capture timing diagnostic validated; exact34f CI retained — 2026-10-30T04:32:57.910319+00:00
 
 Diagnostics-only source8af (Root6deb actual execution) preserves original reconcile/admission, fresh authority, producer+queue runtime accounting, unknown and owned Drop. Proposed priority reordering was withdrawn; static SQLcount/TIMEOUT findings were fixed before compiling, never recorded as actual test failures. Independent capture/projection/tool-size reviews are sealed; no performance or Macfix claim.
@@ -198,3 +216,8 @@ head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项
 ## 新准确CI前置准备
 
 2026-10-29T23:16:01.259869+00:00：a866实际checkout9937终态EnvUbuntu/UI过，其余5失败；Rust r2blocked14(25/1/94.83s)、ARMfailed16(22/1/150.92s)、Intelblocked10(22/1/205.98s)，均原55内coherent，原因未明不归同因。后续Mac桌面/包跳过。absolute输入de786与aliasfixture1e均独审闭合；六kind有限event dd887独审40+7控，Root40pure/真旧保留input有效postjoin但历史关联unknown/infra124过。原Rust和断言逐字保留，旧错误都留，下一精确7CI才验证Mac/失败原因。见A866_PRODUCT_TERMINAL_RESULTS.json与EVENT_DIAGNOSTICS_RESULTS.json。
+
+
+## Outer stop/read-cycle and same-click Owner observation verified — 2026-10-31T03:09:30.745908+00:00
+
+Source033 Core182/Factory33/Clippy and source589 UI919/55 retain exact attribution; ec5harness uses actual9f Core/frontend bytes. Normal4checks4PNG, cancel4checks3PNG, loststart5checks4PNG allpass with completeownedcleanup; fullinfra284/fmt pass. Keep original9f timeout/cleanupfalse, bd pure1fail1error, firstcapacitypreflightrefusal and old52remoteIntel/UI failures. No original4s/15s/TTL/permission/singleworker change. New exactsevenCI/Mac/audit/installers/protectedintegration/full130 remain open. See ../owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json SHA256 5cbbcf60389f7f839a96044c4add29300c0f948acca6ab0f5458c71542955ce1.

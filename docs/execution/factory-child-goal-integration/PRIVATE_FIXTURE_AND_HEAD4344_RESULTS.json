@@ -1,0 +1,319 @@
+{
+  "recorded_at": "2026-10-30T05:33:21.571679+00:00",
+  "head_before_metadata": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "approval": "AB-START-001",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "source": "f6074de9510cc8ccb35b930ba397547641737bf8",
+  "scope": "test fixture only: Builder.requests explicit0700 before creation, samecanonicalparent andoriginal9fn; one extra actual0755-root rejection control. Production root/euid/FD/path/pin/INPUT_CHANGED checks and all deadlines/budgets unchanged. No globalumask change.",
+  "independent_source_review": {
+    "review_sha256": "ee52e8031cdc8d6e176e7a5584eab0c110ba64a24a3f0a0df8f0302607442dc2",
+    "manifest_sha256": "f478fddd1f99c56e638c0095f2a7828f1f627e4999342a4ead86c4ebfd1dfa9b",
+    "static_checks": 13,
+    "dimension": "source/defaulttempfilecode/bitmodel plus boundedread of Root beforefailure; not newruntime executed byreviewer"
+  },
+  "actual_commands": {
+    "umask022-before1": {
+      "source": "4344f645c095275290bd306a0d32f68e403cafd3",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "bash",
+        "-c",
+        "umask 022; exec cargo test --locked -p agentbaton-core --lib real_capture_thread_observes_queue_start_completion_and_later_join -- --show-output --test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 18.157104040990816,
+      "minimum_free_bytes": 178262016,
+      "interruption": null,
+      "log_sha256": "e51e94f09ed8ae6425304eb8f44ac49f2ead97ec69d622d0103f193ef63a2604",
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 137 filtered out; finished in 0.05s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "umask022-after1": {
+      "source": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "bash",
+        "-c",
+        "umask 022; exec cargo test --locked -p agentbaton-core --lib capture_service_tests -- --show-output --test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 14.93615567899542,
+      "minimum_free_bytes": 169246720,
+      "interruption": null,
+      "log_sha256": "36a8f389aa89fc199f494ce464a8775f05e19d4eaacfc1179b0eea4ac071fc22",
+      "summaries": [
+        "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 129 filtered out; finished in 0.09s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "umask002-after1": {
+      "source": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "bash",
+        "-c",
+        "umask 002; exec cargo test --locked -p agentbaton-core --lib capture_service_tests -- --show-output --test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 0.20120290899649262,
+      "minimum_free_bytes": 186441728,
+      "interruption": null,
+      "log_sha256": "6020673127bee6a5d756949dcbfaf5b82f9ede115bfa0d55a68a7ed7dbf6fb23",
+      "summaries": [
+        "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 129 filtered out; finished in 0.09s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "umask077-after1": {
+      "source": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "bash",
+        "-c",
+        "umask 077; exec cargo test --locked -p agentbaton-core --lib capture_service_tests -- --show-output --test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 0.20089536099112593,
+      "minimum_free_bytes": 186425344,
+      "interruption": null,
+      "log_sha256": "e7248013425fc5c74c26dabde10d21f770e3985ce8bb91b11b6718d5e61367d5",
+      "summaries": [
+        "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 129 filtered out; finished in 0.09s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "core-umask022-after1": {
+      "source": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "bash",
+        "-c",
+        "umask 022; exec cargo test --locked -p agentbaton-core --lib -- --show-output --test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 90.41599791499902,
+      "minimum_free_bytes": 186306560,
+      "interruption": null,
+      "log_sha256": "5f9734e08e32306958ee1a7919cecb5844144c7a8fea954fef9a763627164116",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 138 filtered out; finished in 0.00s",
+        "test result: ok. 139 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 90.33s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "format1": {
+      "source": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.102841827989323,
+      "minimum_free_bytes": 186269696,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "clippy1": {
+      "source": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 11.946034355001757,
+      "minimum_free_bytes": 186195968,
+      "interruption": null,
+      "log_sha256": "cb107802e124e67f5f06a4000ab98e3ceeb6a8d433d5b0e909cee0ca33d653c3",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "unique_counts_by_dimension": {
+    "controlled_fixture_cases": 10,
+    "same10_executed_under": [
+      "022",
+      "002",
+      "077"
+    ],
+    "not30_unique": true,
+    "fullCore139_includes10": 139,
+    "nested_helper_not_added": 1,
+    "before_control": "originalpositive0passed1failed137filtered source4344 underchildumask022",
+    "not_a_sum": true
+  },
+  "mechanism_and_limits": "tempfile3.27 defaultpermissionsNone leavesDirBuilder0777 reducedbyumask; productionDirectory root requires exact0700+euid. Changing onlychildumask022 reproduced the sameoriginalINPUT_CHANGED; explicit700 constructor makes controlled022/002/077 matrixpass with0755 stillrejected. Original CI/root-directory permissions were not printed, so no direct CI0755 observation claimed. NewexactMac CI stillrequired.",
+  "failed_local_full_ELF": {
+    "bytes": 38566240,
+    "sha256": "c44e16ee778ebad55e2165066174fb8c8cc689963e2a4e7e8a1596ea7d06ea86",
+    "full0500singlelink_raw_retained": true,
+    "gzip_roundtrip_verified": true,
+    "moved_only_known_completed_generated_target_to_private_evidence": true
+  },
+  "exact4344CI": {
+    "head": "4344f645c095275290bd306a0d32f68e403cafd3",
+    "Environment_run": 41004930048,
+    "Environment": "all3success",
+    "Product_run": 41004930335,
+    "Product": "failure",
+    "UI": "success",
+    "Rust": "failure",
+    "ARM": "failure",
+    "Intel": "failure",
+    "synthetic_checkout": {
+      "head": "4344f645c095275290bd306a0d32f68e403cafd3",
+      "synthetic": "fc3b384712d78bc14b5442ed2858f5df226a6e25",
+      "head_tree": "36ae93405d051ce5d2c834b0effbe336573a607b",
+      "synthetic_tree": "36ae93405d051ce5d2c834b0effbe336573a607b",
+      "not_main_merge": true
+    },
+    "primary_failures": [
+      {
+        "name": "arm-job.log",
+        "bytes": 109183,
+        "sha256": "12dbd8d3751551006ee53f7ab3786f82c60367b9311f8077342bf1c09a19e4e6",
+        "suite_summary": "test result: FAILED. 137 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 395.15s",
+        "suite_duration_not_a_capture_phase": true,
+        "primary_failure": "new capture fixture positive returned INPUT_CHANGED"
+      },
+      {
+        "name": "intel-job.log",
+        "bytes": 126097,
+        "sha256": "4ef1c455c7fdfa444b85333d39a60840ba012ccaddad057e0ea38f3ee6aa9288",
+        "suite_summary": "test result: FAILED. 137 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 381.77s",
+        "suite_duration_not_a_capture_phase": true,
+        "primary_failure": "new capture fixture positive returned INPUT_CHANGED"
+      },
+      {
+        "name": "rust-job.log",
+        "bytes": 65370,
+        "sha256": "22aaf1b3c1f161eccb4f4714785fd2503776e616b6eb820689a74a68d6335502",
+        "suite_summary": "test result: FAILED. 137 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 99.65s",
+        "suite_duration_not_a_capture_phase": true,
+        "primary_failure": "new capture fixture positive returned INPUT_CHANGED"
+      }
+    ],
+    "finite_projection_artifacts": [
+      {
+        "platform": "rust",
+        "zip_sha256": "92a6fafdafb6698e7715ef64883e7acb161021a5665750f011505b988f96c8c8",
+        "zip_bytes": 3264,
+        "projection": {
+          "contract": "agentbaton.factory-rework-progress.v1",
+          "status": "pending",
+          "code": "NO_RETAINED_REWORK_CASE",
+          "not_a_product_or_test_pass": true
+        },
+        "case_count": 0,
+        "projection_sha256": "46f8fe81b3f48287f2dacf898daf8ff6bed3dcf125d45aab322d8b40ca83a155"
+      },
+      {
+        "platform": "arm",
+        "zip_sha256": "1ed330d1b797a64cae16b9afa9626dc9154ffae4b4e3aeed732e3a0ca0f7b20e",
+        "zip_bytes": 3490,
+        "projection": {
+          "contract": "agentbaton.factory-rework-progress.v1",
+          "status": "pending",
+          "code": "NO_RETAINED_REWORK_CASE",
+          "not_a_product_or_test_pass": true
+        },
+        "case_count": 0,
+        "projection_sha256": "46f8fe81b3f48287f2dacf898daf8ff6bed3dcf125d45aab322d8b40ca83a155"
+      },
+      {
+        "platform": "intel",
+        "zip_sha256": "5bbdcd3de0438d998bce441751d1075e194b8239dc705dfb56d04979f3553108",
+        "zip_bytes": 3488,
+        "projection": {
+          "contract": "agentbaton.factory-rework-progress.v1",
+          "status": "pending",
+          "code": "NO_RETAINED_REWORK_CASE",
+          "not_a_product_or_test_pass": true
+        },
+        "case_count": 0,
+        "projection_sha256": "46f8fe81b3f48287f2dacf898daf8ff6bed3dcf125d45aab322d8b40ca83a155"
+      }
+    ],
+    "secondary_evidence_failure": "All3 collectors keep exit1/pendingNO_RETAINED_REWORK_CASE with0cases after Core unit failure prevents laterFactoryrework execution. Requiredcollector refused missingevidence; not weakened tosuccess.",
+    "later_native_build_package_stages": "not_run/skipped; no new4344 developmentinstaller",
+    "oldIntel4231": "This CI gate failure prevents measuring that rework. Neither suite elapsed nor INPUT_CHANGED proves old per-attempt4231ms cause."
+  },
+  "actual_CI_observed_tool_bytes": [
+    {
+      "job": "rust-job.log",
+      "observed_binary_bytes": [
+        {
+          "baton": 86926392,
+          "batond": 121194088
+        }
+      ],
+      "size_not_a_CPU_time_or_4231ms_root_cause": true
+    },
+    {
+      "job": "arm-job.log",
+      "observed_binary_bytes": [
+        {
+          "baton": 1920072,
+          "batond": 40036872
+        }
+      ],
+      "size_not_a_CPU_time_or_4231ms_root_cause": true
+    },
+    {
+      "job": "intel-job.log",
+      "observed_binary_bytes": [
+        {
+          "baton": 1883864,
+          "batond": 39646960
+        }
+      ],
+      "size_not_a_CPU_time_or_4231ms_root_cause": true
+    }
+  ],
+  "tool_size_interpretation": "Real sizes differ acrossOS/architectures/buildprofiles; counts are not CPUtime, hashfrequency or a controlledA/B. Inparticular Maccompanion1.9MB does notsupport claiming largerMacCLI caused4231ms. No causalperformance claim.",
+  "historical_dimensions": "Previous source6deb fullFactory30/sessionsIPC58/infra195 and production sourcebyteequal remain separately attributed. Only testfixture changed; those product suites not relabelled newlocal reruns. NewexactCI runs allrequiredchecks.",
+  "current_other_work": "PR19 local2e20251 includes reviewedParent674d/schema16; combined166Core run inprogress, not borrowedfromRoot139. PR20 draft225 contains acceptedfileGitprimitive with147Rust+7docs source0720, finalaedClippy; Coreauthorizedintegration remainsnext work.",
+  "pending": [
+    "newexact sevenCI checks on thisprivatefixture fix including bothMac native/build/package and actualrework timings",
+    "oldIntel4s reservation failure diagnosis underoriginalbounds",
+    "newdualarchitecture installationartifact verification/manualacceptance",
+    "schema16/acceptedfile/Coreauthorizedintegration/full130 scope"
+  ],
+  "authority_unchanged": [
+    "no realProvider/privatecredentials ornewpaidresources/hosts",
+    "no production/DeveloperID/notarization/finallicense",
+    "no formalGitHubApprove; exactPR currentconfirmation remainsrequired"
+  ],
+  "not_product_complete": true
+}

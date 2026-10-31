@@ -338,6 +338,20 @@ def self_check():
     assert not exact_json({'child_planning':True},{'child_planning':1})
     assert not exact_json({'revision':1},{'revision':1.0})
     checks.extend(['private-Owner-bool-int-distinct','private-Owner-int-float-distinct'])
+    exact=copy.deepcopy(good);exact['args']['expectedPlanRevision']=3
+    exact_raw=json.dumps(exact)
+    assert cp08_submission_request_hash(exact_raw,b,'{}','root',1)==sha(exact_raw.encode())
+    malformed=[exact_raw.replace('"command":','"command":"factory_child_plans_submit","command":',1),
+        exact_raw.replace('"expectedRevision": 1','"expectedRevision": 1,"expectedRevision": 1'),
+        exact_raw.replace('"expectedRevision": 1','"expectedRevision": true'),
+        exact_raw.replace('"expectedPlanRevision": 3','"expectedPlanRevision": 3.0'),
+        exact_raw.replace('"idempotencyKey": "fixed"','"idempotencyKey": NaN'),
+        json.dumps({**exact,'extra':True}),
+        json.dumps({**exact,'args':{**exact['args'],'extra':True}}),
+        ' '*(MAX_WIRE+1),exact_raw+' trailing']
+    for raw in malformed:
+        assert cp08_submission_request_hash(raw,b,'{}','root',1) is None
+    checks.append('CP08-exact-request-rejects-duplicate-extra-bool-float-nonfinite-and-oversize')
     program = generated_acp(); assert 'submit_child_plan' in program
     checks.append('generated-ACP-compiled-not-executed')
     return {'status': 'passed', 'checks': checks, 'count': len(checks),
@@ -484,6 +498,59 @@ def fixed_form_control(container, caption, tag):
     control=labels.locator(':scope > '+tag)
     assert control.count()==1
     return control
+
+
+def install_submission_probe(page, task_id):
+    """Observe current DOM immediately; never wait, invoke or retry a click."""
+    return page.evaluate_handle("""taskId=>{
+      const regions=[...document.querySelectorAll('[data-testid="factory-runtime"] section[aria-label="Child task plans"]')].filter(region=>region.parentElement?.querySelector(':scope > summary')?.textContent==='Child task plans · '+taskId);
+      if(regions.length!==1)throw new Error('DiagnosticRegionMissing');
+      const region=regions[0],buttons=[...region.children].filter(e=>e.tagName==='BUTTON'&&e.textContent==='Store next plan revision');
+      if(buttons.length!==1)throw new Error('DiagnosticButtonMissing');
+      const button=buttons[0],events=[],errors=[];let omitted=0,last='';
+      const takeSnapshot=kind=>{
+        const direct=[...region.children].filter(e=>e.tagName==='P');
+        const state={disabled:button.disabled,connected:button.isConnected,
+          head:direct.find(e=>e.textContent.startsWith('Current plan head:'))?.textContent.slice(0,200)??null,
+          alerts:direct.filter(e=>e.getAttribute('role')==='alert').slice(0,4).map(e=>e.textContent.slice(0,400)),
+          pending:[...region.querySelectorAll('button')].some(e=>e.textContent==='Recover the exact plan submission'),
+          draft_chars:region.querySelector(':scope > label > textarea')?.value.length??null};
+        const identity=JSON.stringify(state);if(kind==='mutation'&&identity===last)return;last=identity;
+        if(events.length<32)events.push({kind,utc_ms:Date.now(),...state});else ++omitted;
+      };
+      const snapshot=kind=>{try{takeSnapshot(kind);}catch(error){if(errors.length<4)errors.push({stage:kind,type:String(error?.name??'Error').slice(0,64)});}};
+      const onEvent=event=>{if(event.target instanceof Element&&event.target.closest('button')===button){snapshot(event.type);queueMicrotask(()=>snapshot(event.type+'-after'));}};
+      const names=['pointerdown','pointerup','click'];names.forEach(name=>region.addEventListener(name,onEvent,true));
+      const observer=new MutationObserver(()=>snapshot('mutation'));
+      observer.observe(region,{subtree:true,attributes:true,childList:true,characterData:true});
+      const probe={events,errors,get omitted(){return omitted;},finish(){try{snapshot('finished');}finally{observer.disconnect();names.forEach(name=>region.removeEventListener(name,onEvent,true));}}};
+      snapshot('armed');return probe;
+    }""", task_id)
+
+
+def finish_submission_probe(handle):
+    # The handle holds only the diagnostic closure. Even a detached/replaced
+    # button is inspected directly, never resolved again through a Locator.
+    return handle.evaluate("""probe=>{
+      probe.finish();return {events:probe.events,omitted:probe.omitted,errors:probe.errors};
+    }""")
+
+
+def cp08_submission_request_hash(raw, bounds, raw4, task_id, scope_revision):
+    """Closed passive match; never interpret duplicate keys as an exact call."""
+    if type(raw) is not str or not 0<len(raw)<=MAX_WIRE: return None
+    try:
+        encoded=raw.encode('utf-8')
+        if len(encoded)>MAX_WIRE: return None
+        envelope=json.loads(raw,object_pairs_hook=unique_object,
+            parse_constant=lambda _: (_ for _ in ()).throw(ValueError('Nonfinite JSON')))
+        if type(envelope) is not dict or set(envelope)!={'command','args'}: return None
+        call=decode_envelope(envelope,bounds)
+    except (ValueError,UnicodeError,Refusal,RecursionError): return None
+    if (call.method!='factory_child_plans.submit' or call.revision!=scope_revision
+            or call.params!={'scope_id':bounds.scope_id,'task_id':task_id,
+                'plan_json':raw4,'expected_plan_revision':3}): return None
+    return sha(encoded)
 
 
 def capture_browser_failure(browser, output, report, clean=str):
@@ -1135,8 +1202,58 @@ def runtime_driver(args, output, manifest):
         root_region.get_by_role('button', name='Discard local draft', exact=True).click()
         raw4 = next_raw(stored, 'Actual lost-response UI revision four')
         draft.fill(raw4); faults['drop_next_submit'] = True
-        root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-        expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Submission outcome unknown\.(?:\s|$)'))).to_contain_text('Submission outcome unknown.')
+        store_button = root_region.get_by_role('button', name='Store next plan revision', exact=True)
+        diagnostic = {'raw_sha256': sha(raw4.encode()), 'armed_utc_ms': int(time.time()*1000),
+            'submit_count_before': sum(r['method']=='factory_child_plans.submit' for r in report['http']),
+            'single_click_only': True}
+        report['observations']['CP08_submission_transition'] = diagnostic
+        diagnostic_errors = []; probe = None; listener_installed = False
+        def note_diagnostic_error(stage, error):
+            if len(diagnostic_errors)<4:
+                diagnostic_errors.append({'stage':stage,'type':type(error).__name__[:64]})
+        try: probe=install_submission_probe(page,task['id'])
+        except BaseException as error: note_diagnostic_error('install',error)
+        browser_requests = []; browser_request_count = 0
+        def observe_original_request(request):
+            nonlocal browser_request_count
+            try:
+                if request.method!='POST' or request.url!=url+'/__test_child_plan_ipc': return
+                digest=cp08_submission_request_hash(request.post_data,bounds,raw4,task['id'],scope['revision'])
+                if digest is None: return
+                browser_request_count += 1
+                if len(browser_requests)<4:
+                    browser_requests.append({'browser_request_sha256':digest,
+                        'host_observed_utc_ms':int(time.time()*1000)})
+            except BaseException as error: note_diagnostic_error('request_callback',error)
+        try:
+            page.on('request',observe_original_request);listener_installed=True
+        except BaseException as error: note_diagnostic_error('listener_install',error)
+        try:
+            # Observe without adding any wait, invoking handlers, or retrying.
+            # The existing single click and5s unknown assertion stay intact.
+            store_button.click()
+            expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Submission outcome unknown\.(?:\s|$)'))).to_contain_text('Submission outcome unknown.')
+        finally:
+            if listener_installed:
+                try: page.remove_listener('request',observe_original_request)
+                except BaseException as error: note_diagnostic_error('listener_remove',error)
+            diagnostic['matching_browser_requests'] = browser_requests
+            diagnostic['matching_browser_request_count'] = browser_request_count
+            diagnostic['fault_still_armed'] = faults['drop_next_submit']
+            diagnostic['submit_count_after'] = sum(r['method']=='factory_child_plans.submit' for r in report['http'])
+            diagnostic['deliberate_drop_count'] = sum(bool(r.get('actual_committed_reply_deliberately_dropped')) for r in report['http'])
+            diagnostic['capture_missing'] = probe is None
+            if probe is not None:
+                try: diagnostic['click_and_DOM'] = finish_submission_probe(probe)
+                except BaseException as error: note_diagnostic_error('finish',error)
+                try: probe.dispose()
+                except BaseException as error: note_diagnostic_error('dispose',error)
+            diagnostic['errors'] = diagnostic_errors
+        # An original click/unknown failure propagates before these diagnostic
+        # checks. Observation errors never replace it during finally cleanup.
+        assert not diagnostic_errors, ('CP08 diagnostic errors',diagnostic_errors)
+        assert not diagnostic.get('click_and_DOM',{}).get('errors'), ('CP08 DOM diagnostic errors',diagnostic)
+        assert browser_request_count==1, ('Expected exactly one raw4 browser POST',browser_request_count,browser_requests)
         lost = [r for r in report['http'] if r.get('actual_committed_reply_deliberately_dropped')]
         assert len(lost) == 1 and lost[0]['params']['plan_json'] == raw4
         assert lost[0]['host_observed_utc_ms']<min(scope['expires_at_ms'],grant['expires_at_ms'])

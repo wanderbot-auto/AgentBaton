@@ -1,0 +1,401 @@
+{
+  "contract": "agentbaton.queued-owner-read.root-results.v1",
+  "recorded_at": "2026-10-31T00:21:23.878308+00:00",
+  "PR": 18,
+  "product_source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+  "test_fixture_source": "b183c86f0a4763c10883838369258f8e881a8d19",
+  "source_author": "30269172bc8801360f40a148442a1fc447bf8452",
+  "actual_passed": {
+    "pr18-owner-read-priority-full-core1": {
+      "result": {
+        "source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 151.68208403297467,
+        "minimum_free_bytes": 979177472,
+        "interruption": null,
+        "log_sha256": "29366d03f26e7e8b59ea3dca4e76f240d52616c716f41bfb254cff85046e3ad3",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 179 filtered out; finished in 0.00s",
+          "test result: ok. 180 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 126.63s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "1b2b25f19560c969def61829e3bc9dee725d6fa8197d550e21a3ea9c1e74c1e7",
+      "inputs_sha256": "6ba1d9597005650e39dc31f2c89f5762e2e226a19b5a5ff866eb0103916fa09c",
+      "log_bytes": 30404
+    },
+    "pr18-owner-read-priority-full-factory1": {
+      "result": {
+        "source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 135.08632526698057,
+        "minimum_free_bytes": 987455488,
+        "interruption": null,
+        "log_sha256": "b0d1947072ba2b409e7e2d392973ce8298628d1e8f746158c810eb3cd56b035b",
+        "summaries": [
+          "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 108.26s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "7b9d4ea85aec52c1c5755c0ec06c2ed9be9b568d0d4bf534751e67cbcec7f15f",
+      "inputs_sha256": "df683817c85368ba9c67b83a5dd5ff1358ce03ee3ca9bfc73ab93908cf2c72fa",
+      "log_bytes": 10338
+    },
+    "pr18-owner-read-priority-clippy1": {
+      "result": {
+        "source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "clippy",
+          "--workspace",
+          "--all-targets",
+          "--locked",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 28.287649506004527,
+        "minimum_free_bytes": 986431488,
+        "interruption": null,
+        "log_sha256": "4dbc6d66d04d7f708f4fa31d862a6b6a6894270a33c202974848c88e47e2bc22",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "68075c26adebfb96c71c4f702145d4c5c81806d5eaee120baf95c9d3aad5b4c4",
+      "inputs_sha256": "a701a1ff238aef6cc44445e9f02369894384fc3806b30b3e73bfc529e1a03a38",
+      "log_bytes": 665
+    },
+    "pr18-owner-read-priority-fmt1": {
+      "result": {
+        "source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "seconds": 1.10386243800167,
+        "minimum_free_bytes": 987418624,
+        "interruption": null,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "4530e58e075bc18c5298609a3ff02022cc274078a224ad9e9cb28607d8b919be",
+      "inputs_sha256": "e65060033c655a2d93cc50b5ee451289e1c2845316fe119e490cc824cd256910",
+      "log_bytes": 0
+    },
+    "pr18-owner-read-priority-frontend-build1": {
+      "result": {
+        "source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.611365438962821,
+        "minimum_free_bytes": 987402240,
+        "interruption": null,
+        "log_sha256": "6cb7a2db5120cfb7fccdec65ded758fd023a2fc6e4b62d23e5229de47196aed8",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "de3ea6e44736ca23cc541f54b7764abda3f26e62b616155c665f8840b7471b11",
+      "inputs_sha256": "e8bca57f70f6213def167d9eea8e307b3fc83b0ffc68cfa9c28169b2362b900d",
+      "log_bytes": 984
+    },
+    "pr18-owner-read-priority-preview-build1": {
+      "result": {
+        "source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton",
+          "--features",
+          "agentbaton-core/preview-evidence"
+        ],
+        "exit": 0,
+        "seconds": 22.97574197599897,
+        "minimum_free_bytes": 987234304,
+        "interruption": null,
+        "log_sha256": "fd111b22fab5ad40fd64bf581307fa719d58c0dd4c1ea63b6dc480861461ffab",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "4b1a7069e05e2fad0b314ff41482b747acd05ee5eb7aecc6fd97fcd12a54258d",
+      "inputs_sha256": "9481b408f65ef274cf0446b4016329f66b75709681e202514b66892b3d617cd6",
+      "log_bytes": 665
+    },
+    "pr18-owner-read-priority-freeze-command1": {
+      "result": {
+        "source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/pr18-owner-read-priority-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/pr18-owner-read-priority-probe1"
+        ],
+        "exit": 0,
+        "seconds": 0.40151373896514997,
+        "minimum_free_bytes": 1084981248,
+        "interruption": null,
+        "log_sha256": "83ba70bfb435185dfd140454fa1c34a0dd9360541192e8fb4fcc63f22a157cbd",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "fcc45e2dd8a253d724a16a7ee01c88748bb6b242d880d360e2391268fe04a8ab",
+      "inputs_sha256": "c9992c16de10c7d0c795206ecf0d81fb3284c50509b759017b77c24cc5c665f3",
+      "log_bytes": 1668
+    },
+    "pr18-owner-read-priority-normal-command1": {
+      "result": {
+        "source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "normal",
+          "--tools",
+          "/workspace/.onboarding/pr18-owner-read-priority-frozen1",
+          "--frontend",
+          "apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-owner-read-priority-childgoal-candidate1.json",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/pr18-owner-read-priority-normal-actual1"
+        ],
+        "exit": 0,
+        "seconds": 25.08699690795038,
+        "minimum_free_bytes": 1078366208,
+        "interruption": null,
+        "log_sha256": "4fc46465c0a14f31c405a08f0cb2bef7c8a80ca26146f67fe9e812025f5b0331",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "7d4e7c78e5ebd8240593051a8c41a1f967ae2b646a7d2be8c1379f9220f003be",
+      "inputs_sha256": "aa3ae18685538d3b84bb5663c7c7376dac5692b81f861559e1b80d4ca81f2019",
+      "log_bytes": 140
+    },
+    "pr18-owner-read-priority-infra2": {
+      "result": {
+        "source": "b183c86f0a4763c10883838369258f8e881a8d19",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 0,
+        "seconds": 11.429745052009821,
+        "minimum_free_bytes": 1056849920,
+        "interruption": null,
+        "log_sha256": "51408495aed71cdbfbc7b7efef6d109c80e7fb22f5492841f44ebfe5441e5cee",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "5273056cdb92af7fda19d7d07f5dc93e00050d023d017203e862a6c607ae49de",
+      "inputs_sha256": "b09f71940c86a51f369103adeb5c7296a9019ddfb4c825f8fbce41635fb3017e",
+      "log_bytes": 385
+    }
+  },
+  "source_review": {
+    "sha256": "a227d1f099b771fecd51037fec02263ca023c04edc7c7c37b463327fad05f25a",
+    "status": "SOURCE_READY",
+    "static_checks": 38,
+    "pure_fifo_quota_models": 5611,
+    "not_runtime_latency_evidence": true
+  },
+  "browser": {
+    "dimension": "Linux Chromium + actual Unix IPC; generated ACP and private Owner fixture; not live Provider, Native OS dialog or macOS",
+    "report_sha256": "ebe799f0b9b586e23b36099cfea0be17ed8b9de019ef15ee5e0d33353bab3c41",
+    "checks": [
+      {
+        "id": "CG01",
+        "status": "passed"
+      },
+      {
+        "id": "CG02",
+        "status": "passed"
+      },
+      {
+        "id": "CG05",
+        "status": "passed"
+      },
+      {
+        "id": "CG06",
+        "status": "passed"
+      }
+    ],
+    "screenshots": [
+      {
+        "path": "01-complete-explicit-execution-policy.png",
+        "sha256": "d26c139cbc4d3387e2f528dccd49b64505d6276da494ffde74adc3b64ffcaa65",
+        "dimension": "Linux Chromium, NOT Native/macOS"
+      },
+      {
+        "path": "02-exact-saved-raw-reference-before-start.png",
+        "sha256": "2f6019d9cb7103b1e610700da0d9a351cd3036d00c9ab8e5963cba2036925ac3",
+        "dimension": "Linux Chromium, NOT Native/macOS"
+      },
+      {
+        "path": "03-real-owned-candidate-before-owner.png",
+        "sha256": "b6c718e5c4c803b2e8dd1ee37410b3649917f1ebad8339ae02fe4015233faa57",
+        "dimension": "Linux Chromium, NOT Native/macOS"
+      },
+      {
+        "path": "04-persisted-final-graph-and-factory.png",
+        "sha256": "869dca60104c1ba036e4f8f35a434c942a1fc22b50830a239257e339e83d947a",
+        "dimension": "Linux Chromium, NOT Native/macOS"
+      }
+    ],
+    "root_viewed_original": [
+      "04-persisted-final-graph-and-factory.png"
+    ],
+    "cleanup_complete": true,
+    "actual_daemon_exit": 0,
+    "candidate_manifest_sha256": "8569ff23d199a9c2d7d034bfc926b1c19fb33282244e3a996ad4813464ba4530"
+  },
+  "preserved_local_failure": {
+    "result": {
+      "source": "cbb16c717b84735b5a317ef936a7e34a68934695",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 1,
+      "seconds": 10.525012730038725,
+      "minimum_free_bytes": 1074884608,
+      "interruption": null,
+      "log_sha256": "caf597c0ad7c24bd09f8b626500f5ec6d66f79eb9ac7e39a26a006b0352bc7fe",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "result_sha256": "dd966a81a7af39c27001b17c91b2e722cb9427416f2a910e415728d7e516e6d4",
+    "inputs_sha256": "22123b64780c6e951559b9f889b1bf4125f87323e86d6429ea01a9cc0dd77c74",
+    "log_bytes": 1396
+  },
+  "exact_remote_failed_candidate": {
+    "head": "f55a805a952f84dc65e83c5e33f98e975871c3f1",
+    "run": 41143055493,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41143055493",
+    "conclusion": "failure",
+    "Rust": "success",
+    "Apple_Silicon": "success",
+    "Intel": "failure: original fixed readonly reconciliation pool exhausted after Owner decision returned; no extension or new write",
+    "UI": "normal failed on post-Owner bound get with typed WORKSPACE_BUSY; cancel and lost-start passed",
+    "finite_evidence": "post-owned-shutdown accepted child graph is diagnostic, not a deadline-time product/test pass",
+    "intel_artifact": 13019844978,
+    "intel_zip_sha256": "8d177b06cb29ac9423eddd1998c0cd28a44d2285cec7deb3d4e17db34c12b04c",
+    "ui_artifact": 13019057825,
+    "ui_zip_sha256": "faeaee946dbe4c1439eb8709d7c97a6c744980362d6f9cb66121164c47014e4b"
+  },
+  "limits": [
+    "Source-bound test fixture correction after cbb changes only one Python namespace binding and dedicated progress; product/frontend bytes remain cbb. Actual next CI must test its own new candidate.",
+    "No causal Intel latency claim: queue/handler/delivery segment timing was not retained. Early read only sees an already queued FIFO head; does not scan past writes.",
+    "Original shared two-reconciliation pool, 5s client read, 55s observation deadline, Scope TTL and all budget/unknown/permission checks unchanged.",
+    "No new CI, macOS Native/audit/installers, merge, formal GitHub Approve, signing, production or full130 acceptance is claimed.",
+    "Parent33 Factory cases differ from Root17 assembly30; nested Core helper is included in 180, not additional."
+  ],
+  "preserved_review_format_failure": {
+    "source": "b183c86f0a4763c10883838369258f8e881a8d19",
+    "command": "git diff --check cbb16c7..b183c86",
+    "exit": 2,
+    "diagnosis": "one extra blank line at EOF in child-goal-bound-readonly-wait/PROGRESS.md; only final whitespace trimmed",
+    "review_sha256": "a5e1056857036105387f5448808f32cf592639d1fee7dab082d605c6dfdae75e"
+  }
+}

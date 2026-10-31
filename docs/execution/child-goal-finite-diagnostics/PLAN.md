@@ -1,0 +1,11 @@
+# Finite child-Goal failure diagnostics
+
+Base4155548fbeca71f238309cff33a248ea1e2d53ca, schema15; branchcodex/child-goal-finite-diagnostics. Scope is evidence for AB-TSK-007 (cancel intent vs stop), AB-TSK-008 (unknown recovery), AB-TSK-009 (Goal progression), AB-VAL-009 (authorized validated integration), not completion of these requirements. OWNER-001/002 implementation authorization remains; no real Provider/signing/release/paid authority is added.
+
+Only the existing browser driver, finite projector, a new pure test file and these four records change. Preserve all13 old projection tests byte-for-byte. Add no retries, waits, budgets, approvals, actions, cleanup behavior, public messages, raw traceback, paths, argv, IDs, tokens, snapshots or DB content. This leaf does not infer CI root cause from local successes or source models.
+
+Use a small independent metadata lock after ObservedHost.wire directly returns its original Core response. Count captured replies up to2048; aggregate at most64 fixed method/code/retryable/side-effect tuples. Validate CoreError's actual five-field shape, retain only allowlisted metadata, never message/details_ref. Unknown strings become unmapped counts without public string copies. Bucket/reply overflow is explicitly truncated, not silently error-free. Malformed typed observations invalidate the projection. Metadata locking covers no socket/file/callback work.
+
+On the first driver-caught failure retain only a fixed exception class enum and numeric lines whose traceback filename is exactly this driver. Runtime/cleanup phase follows the actual control-flow boundary; the last completed CG check is a fixed identifier. Error text is never parsed for code/class. Raw private failure capture and original first-cause behavior stay intact. Missing diagnostic values stay null/unobserved rather than success or none.
+
+The projector strictly validates the new finite object, rejects unknown fields/types/NaN/duplicate keys or buckets/overflowing numbers, and preserves its original passed predicate and all old summary fields. No owner duration additions in this slice. Pure/inert tests verify privacy/refusal/bounds/concurrency and the exact wire hook's single call and unchanged original reply; they do not prove a Core/browser/CI run.

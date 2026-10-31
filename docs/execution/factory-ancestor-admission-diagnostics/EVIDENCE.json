@@ -1,0 +1,107 @@
+{
+  "contract": "agentbaton.execution-source-evidence.v1",
+  "base": "3e882a8d516707b40c991706714eaa4b81885fc8",
+  "source_commit": "9e7ce2c031a2800cf2bbb42b2a84e987ed23ddd8",
+  "status": "implemented_source_only_runtime_not_run",
+  "changes": [
+    "crates/core/src/goal_factory.rs",
+    "crates/core/src/goal_runtime.rs",
+    "crates/core/src/ipc.rs",
+    "scripts/record-factory-rework-ci-evidence.py",
+    "tests/infrastructure/test_factory_ancestor_admission_diagnostics.py"
+  ],
+  "verification": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_factory_ancestor_admission_diagnostics.py",
+        "-v"
+      ],
+      "exit": 0,
+      "log_sha256": "319cb720d805d11e207be2400111ba8f8d32f0878df1da0e7eeea89d54f5258b"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_factory_rework_ci_evidence.py"
+      ],
+      "exit": 0,
+      "log_sha256": "26b14829c804ee52553d8dc13b0bf96df76a0dd6da96a34609386b2aa7b69404"
+    },
+    {
+      "command": [
+        "/workspace/.toolchains/cargo/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/core/src/goal_factory.rs",
+        "crates/core/src/goal_runtime.rs",
+        "crates/core/src/ipc.rs"
+      ],
+      "exit": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "counts": {
+    "new_pure_field_and_generated_sqlite_tests_passed": 12,
+    "old_unchanged_pure_tests_passed": 80,
+    "new_rust_unit_sources_not_run": 2
+  },
+  "old_test_file": {
+    "path": "tests/infrastructure/test_factory_rework_ci_evidence.py",
+    "byte_unchanged": true,
+    "sha256": "fbe2510383ee469315a119c8fbffc9b87be94248abe39a3fad1810fdfa4405f0"
+  },
+  "source_sha256": {
+    "crates/core/src/goal_factory.rs": "d0b48ec3f0fd79d81acf293215cd952c8f6d21ab91831fcd666a28b692df5880",
+    "crates/core/src/goal_runtime.rs": "863e3036c1de5120d65c6f694e8e64d30249d774fd9fab5e791ea328ffe91a46",
+    "crates/core/src/ipc.rs": "a00cfe9b3a3c5b132c67ee7e5afd9e9afb0d7079d6c879e6e14394f94e6ad0ed",
+    "scripts/record-factory-rework-ci-evidence.py": "87c8a373b349b48a8b0220fdc8d0c07e57be1bc11a8ea899eaf8fafb863b5438",
+    "tests/infrastructure/test_factory_ancestor_admission_diagnostics.py": "1f0fa84dbe9eb33ad30e9572584f20ffb1026214aa61b6abd589db4d1ac4921d"
+  },
+  "not_run": [
+    "Rust compilation/unit tests",
+    "actual Core ancestor-budget failure",
+    "actual rework with this source",
+    "UI/native/macOS",
+    "remote CI for this source",
+    "independent review"
+  ],
+  "historical_ci": {
+    "head": "fbeb2e96854868735b9c07f27485c5cf8f748502",
+    "run": 41094992088,
+    "intel_job": 124198322532,
+    "artifact": 12995479948,
+    "zip_sha256": "15b8bde7388f9bae871bed675a59aeec198ab4ed7df146e25dd4e8deedbebfaf",
+    "status": "failed; exact original admission branch not established by old finite evidence"
+  },
+  "limits_unchanged": true,
+  "new_ipc_or_retries": false,
+  "authority_or_task_acceptance": false,
+  "initial_rustfmt_failure": {
+    "command": "/workspace/.toolchains/cargo/bin/rustfmt --edition 2021 [three modified Rust files] without RUSTUP_HOME",
+    "error": "could not create home directory: /home/agent/.rustup: Read-only file system (os error30)",
+    "resolution": "existing approved CARGO_HOME/RUSTUP_HOME command-only selectors; subsequent rustfmt --check0"
+  }
+}

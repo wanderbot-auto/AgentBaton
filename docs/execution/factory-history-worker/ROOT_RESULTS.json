@@ -1,0 +1,218 @@
+{
+  "contract": "agentbaton.factory-history-worker.root-results.v1",
+  "recorded_at_utc": "2026-10-30T15:23:35.312072+00:00",
+  "before_records_commit": "d64964ec9cd9062b73f2a891bb35e7165906c837",
+  "author_source": "4e9e20d25c7b104c57cffc51a92de3a2eff82a71",
+  "composed_source": "6acd4eb825d24f3329b476e428adc886c2f1eb53",
+  "schema": 15,
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "OWNER_ACK": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "commands": {
+    "factory-history-worker-tests1": {
+      "source": "6acd4eb825d24f3329b476e428adc886c2f1eb53",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "history_worker_tests",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 38.3297765479947,
+      "log_sha256": "3219d0ab32389639b9b10295269896cb32df3deef997e99f4792f83e428731c8",
+      "summaries": [
+        "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 155 filtered out; finished in 12.72s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "142c529c0bdf13bd1c85a1b688458b941fd92fb675d1c73d5ffcadf0548b3536",
+      "inputs_sha256": "42fe7bf516e28b4ee062a2ae9aa260560104db5428f1a0f702dcfda3ba1757fe"
+    },
+    "factory-history-actor-tests1": {
+      "source": "6acd4eb825d24f3329b476e428adc886c2f1eb53",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "history_actor_tests",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 28.499339930014685,
+      "log_sha256": "a3273604decd571050e805a471c2dc5b8c16cf8a0400814f9385ac9485209f26",
+      "summaries": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 163 filtered out; finished in 2.32s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "09747ee169c1620675af4d9e0ad46f97603c70b27eaf09155574c2cc045487c4",
+      "inputs_sha256": "a2026c9cba01c38afbbc6263d912cb912959b64251a19dbd2e046a73eb755410"
+    },
+    "factory-history-worker-core-factory-sessions1": {
+      "source": "d64964ec9cd9062b73f2a891bb35e7165906c837",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--test",
+        "factory_runtime_ipc",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 492.62606955398223,
+      "log_sha256": "0f71a37ff2f5a692a4f07b43e60da4ec3c970bb9493a4324e3b18699998aafc0",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 164 filtered out; finished in 0.00s",
+        "test result: ok. 165 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 127.53s",
+        "test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 123.57s",
+        "test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 206.66s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "2db78289ccd339b5afae84788bbdf5ab687cad19d61a2980c4de95d87d32ef54",
+      "inputs_sha256": "e3bf984147e12167b1e312746bbf5d32c1f735a4fe4c86916b9a711ad22b1468"
+    },
+    "factory-history-worker-clippy1": {
+      "source": "6acd4eb825d24f3329b476e428adc886c2f1eb53",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 21.084947974974057,
+      "log_sha256": "2ce44c04fbca68f9c6175352dbca6b952a908b6f89b6d0154929df24811bc21b",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "caeb8b8764e265cc40b6f48991368020e31fff7ed015ff4ad35332a563d7f30c",
+      "inputs_sha256": "ded8483a4e4e9241551bbd101c05a55ff03b95514191187c4f32a90a8ef1d67e"
+    },
+    "factory-history-worker-format1": {
+      "source": "d64964ec9cd9062b73f2a891bb35e7165906c837",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.7059393969830126,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "46c65da65b00776e7a1afdde47fa879725951239c05fff61c66fdc731daeb08b",
+      "inputs_sha256": "b2e53f86262e852f24b265cad14f4ce3eb0d893c1bfce86863ec2f582f5e15bd"
+    },
+    "factory-history-worker-infrastructure1": {
+      "source": "d64964ec9cd9062b73f2a891bb35e7165906c837",
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0,
+      "seconds": 6.921054875012487,
+      "log_sha256": "e2e7274cfa6f0a36dfe064da06037d7b9965584af526cdd9755ffd398013d574",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "6ae036737f251e8718d1314e2009173fb0222883b5167c1de2fffd72aae29cfd",
+      "inputs_sha256": "581f48374881568cb06b37587f2832804c4f00810b8cd11b373862b08f4a7619"
+    }
+  },
+  "counts": {
+    "full_Core_unique": 165,
+    "history_service_10_and_manual_Unix_Actor_2_are_included": true,
+    "nested_helper_is_included": true,
+    "Factory_unique": 30,
+    "sessions_IPC_unique": 58,
+    "infrastructure": 203
+  },
+  "scope": "Only fixed Owner socket get/list dispatch to dedicated one owned readonly history slot; no pending queue/synchronous fallback, retryable busy/not_started. Original complete SQL/history/stopped proof in readonly live WAL snapshot; same snapshot frame revision. No effects/live/time/FS authority cache, no Store::open/migration/recovery on reader. Original deadlines, Goal stop/capture/admission and4s/20s limits remain.",
+  "ownership": "Actor strongly owns raw database identity resource; worker borrows Arc, own SQL interrupt; actual thread joined and Actor autocommit before final raw FD close, preserving writer locks and original shutdown/unlock order. This does not assert kernel stalls are preemptible or whole escaped-descendant containment.",
+  "dimensions": "Core/SQLite/owned-thread normal and inverse cases; two generated ACP/real UnixStream/socket_worker/manual handle_ready_request cases are missingFactoryScope strict refusal fairness tests, not fullDaemon.run normalFactory. The separately executed full30Factory/58sessions cover actual existing Daemon paths; legacy external toolcases retain frozen15, not a new rebuilt external CLI. No UI/Native/Provider/Mac/performance execution claim.",
+  "independent_review": {
+    "review_sha256": "78085086ef826f545519b1d27afb536904604268a2e812eb5ddd6b3bbf08f715",
+    "manifest_sha256": "959bc6bab5b42b640686418e4ff0550a18715c092aa046a407cde86a119fc46c",
+    "source_only_checks": 42,
+    "conclusion": "SOURCE_READY limitedfixedParent15 slice; no mustfix, reviewer did not run product"
+  },
+  "prior_exact_CI": {
+    "head": "61c0fce36c1819d136b91c6349e8d86031156f8d",
+    "Product": 41063677236,
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "id": 124089485487,
+        "name": "Product / UI",
+        "conclusion": "success"
+      },
+      {
+        "id": 124089485630,
+        "name": "Product / macos-15",
+        "conclusion": "success"
+      },
+      {
+        "id": 124089485764,
+        "name": "Product / macos-15-intel",
+        "conclusion": "failure"
+      },
+      {
+        "id": 124089485855,
+        "name": "Product / Rust",
+        "conclusion": "success"
+      }
+    ],
+    "Environment": 41063677595,
+    "Environment_status": "all3success previouslyread",
+    "Intel_artifact": 12982199412,
+    "ZIP_bytes": 4795,
+    "ZIP_sha256": "f2969e808988356d3fc7a884ad16d8433f3818833974d0aef27997eb530c3502",
+    "finite_sha256": "1aefb3e3ae5150491d1cd1ff7a0907814f0a8b814553932aacc6796cb5349aba",
+    "Intel": "Factory26pass1fail; REWORK_REVISION2_TERMINAL plan2/run12 blocked, acceptancefalse; capture4164/4000 producer3745 IO not_started/nojoin; originalobservation22.418s andscope23.935s remained; daemon ok/joined",
+    "no_causal_claim": "839ms readonlycall and30.849s cumulative are not CPU phases;419ms formula remainder is not a measured phase. Does not establish readblocking caused this overrun or this patch fixesIntel. Postshutdown child18.225/root21.245 are not an exact admission verdict.",
+    "ARM_artifact": 12983303931,
+    "ARM_verification": "metadataonlyZIP9896225B; notdownloaded/hashed/installed; noIntelpackage/dualacceptance",
+    "checkout": "4a52fc1294fab901f5266af425356bea050cccbc syntheticCIcheckout, not mainmerge"
+  },
+  "new_CI": "not_run fornewcandidate; old results do not transfer",
+  "remaining": [
+    "Exactsevenrequiredchecks/dualMac/native/releaseaudit/packages before anyprotectedmerge",
+    "Core17 composition has its own schema17 adaptation/source reviews and needs currentactualregression; no result transfer",
+    "fullDesignv0.2/130 and Unicode/change/remote/retention/delivery remain incomplete"
+  ],
+  "authorization": "AB-START-001 unchanged, noformalApprove/production/signing/liveProvider/newspend"
+}

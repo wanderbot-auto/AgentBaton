@@ -1,0 +1,11 @@
+# Independent product handoff
+
+Worktree `/tmp/child-goal-readonly-poll-recovery`; branch `codex/child-goal-readonly-poll-recovery`; base `16a968d240f7680bf44332aafd7f3c98aae457a0`. Changed paths are limited to `FactoryChildGoals.tsx`, its component test, `api.ts`, its existing test and this unit's documents. Source hashes and pending commands are in EVIDENCE.json.
+
+Root should independently review the captured epoch/parent/source binding, strict Busy classification, unchanged independent cancellation path and shared twenty-read budget, then run Node typecheck and the two focused test files. Existing component tests must also pass. All Node/Rust/Core/browser/SQL/network/CI/push execution is NOT_RUN by this subagent for this product change.
+
+The remote PR18 head7af normal failure established only an Owner-button wait failure and one list Busy in finite diagnostics; it did not establish that Busy caused the click failure. Its synthetic source was `5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3`, not a main merge. Original normal/cancel failure evidence remains intact. Later diagnostic-only browser/full-infra passes belong to Root's separately composed commits and do not validate this new product source. Component mocks establish neither real Provider behavior nor native/macOS support.
+
+Candidate `0dd7512` is followed by review closure `24da254` and a final initial/adopted-read closure. The audit covers rows/context/head/view and returned initial evidence before allowing a later Core Busy to reuse old evidence. Original fresh readonly polling semantics for expired/revoked history and complete plan/raw validation order remain. Source hashes and 28+7 authored (unexecuted) case counts are updated in EVIDENCE.json. No protocol, Actor, independent cancellation-summary or write-gate change was added by the closures. Await final fixed-hash independent re-review and Root Node execution before acceptance.
+
+Current branch codex/factory-child-goal-integration source fdf0d2c; same-source Core/frontend candidate8085497118f5060613460113668cdfd58fcdba5f99bbde5e92e143e3334dd444 and three real browser/IPC cases passed. Next independent evidence review/finalstatic/push PR18 exact CI; Native/new installers not yet verified. See ACTUAL_RESULTS.json SHA256 b2e991398b436dc7aeee102676c246bb43eba4b79a20eef35c60962b813839dd.

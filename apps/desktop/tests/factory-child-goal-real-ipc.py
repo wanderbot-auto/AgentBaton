@@ -38,6 +38,8 @@ sys.modules[_spec.name] = planning
 _spec.loader.exec_module(planning)
 base, support = planning.base, planning.base.support
 require, Refusal, FixedCall = planning.require, planning.Refusal, planning.FixedCall
+_diag_spec=importlib.util.spec_from_file_location('_child_goal_finite_diagnostics',Path(__file__).resolve().parents[3]/'scripts/record-child-goal-ci-evidence.py')
+finite_projection=importlib.util.module_from_spec(_diag_spec);_diag_spec.loader.exec_module(finite_projection)
 # This private support instance only: execution scopes add exactly these fields.
 base.REQUEST_FIELDS = base.REQUEST_FIELDS | {'factory_run_revision', 'child_goal_execution_binding'}
 
@@ -434,6 +436,7 @@ def self_check():
         else:raise AssertionError(name)
         checks.append('pure-lost-start-observation-refuses:'+name)
 
+    checks.extend(goal_owner_observation_self_check(source))
     return {'status':'passed','count':len(checks),'checks':checks,
         'dimension':'pure Python fixed-boundary and fake-query-return controls; NO Core/SQLite migration/browser/OS approval/process execution'}
 
@@ -488,6 +491,85 @@ def lost_start_observation_self_check(source):
 EXEC_PLAN_HELPER = planning.PLAN_HELPER.replace(
     "'side_effect':'advisory_read_only','write_set':[]",
     "'side_effect':'workspace_write','write_set':[{'kind':'workspace','path':p}for p in ctx['edit_context']['writable_prefixes']]")
+
+
+def goal_owner_observation_self_check(source):
+    """Synthetic clocks/receipts only; no IPC, SQLite, process or browser."""
+    import ast
+    global time
+    checks=[];original_time=time
+    class Clock:
+        def __init__(self):self.value=0.0
+        def monotonic(self):return self.value
+        def monotonic_ns(self):return int(self.value*1_000_000_000)
+        def sleep(self,seconds):self.value+=seconds
+    query={'scope_id':'scope','task_id':'child','goal_run_id':'graph'}
+    bounds=Bounds('project','root','scope','factory',{'child'},{'graph':'child'})
+    payload={'selection':{'run_id':'graph','node_id':'owner-report','expected_plan_revision':1,'expected_ledger_revision':11},'expectedRevision':5,'idempotencyKey':'one-owner-intent'}
+    reply={'request_id':'request','result':{'graph_contract_version':1,'approval_id':'approval','owner_decision_id':'decision','run_id':'graph','node_id':'owner-report','plan_revision':1,'run_revision':6,'decision':'accepted','task_accepted':True},'revision':12,'warnings':[]}
+    def completed():
+        trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1);begin_goal_owner_binding(trace,payload);complete_goal_owner_binding(trace,reply);return trace
+    def refused(action):
+        try:action()
+        except Refusal:return
+        raise AssertionError('Invalid Owner observation accepted')
+    try:
+        time=Clock();trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1);calls=[]
+        def pump():
+            if time.value>=12 and trace['state']=='not_entered':begin_goal_owner_binding(trace,payload);complete_goal_owner_binding(trace,reply)
+        end=child_observation_deadline();observed=wait_goal_owner_binding(trace,query,deadline=end,pump=pump,capture=lambda:None)
+        class Host:
+            def wire(self,call):
+                assert observed['state']=='completed'and trace['call_count']==1
+                assert call.method=='factory_child_goals.get'and call.key is None and call.revision is None
+                calls.append(time.value);time.sleep(.5)
+                return {'result':{'details':{'task_accepted':True}}},b'synthetic-unit-only'
+        view=wait_bound_child_goal(Host(),bounds,query,lambda v:v['details']['task_accepted']is True,pump=lambda:None,capture=lambda:None,deadline=end)
+        assert view['details']['task_accepted']is True and len(calls)==1 and calls[0]>=12 and time.value<15
+        checks.append('one-shared15s-end-receipt-before-one-independent-read-no-early-worker-competition')
+        for label,mutate in [
+            ('never-entered',lambda t:None),('entered-no-receipt',lambda t:begin_goal_owner_binding(t,payload)),
+            ('failed',lambda t:t.update(state='failed',error_type='OriginalError')),
+            ('unknown',lambda t:t.update(state='outcome_unknown')),
+        ]:
+            time=Clock();trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1);mutate(trace)
+            refused(lambda:wait_goal_owner_binding(trace,query,deadline=15,pump=lambda:None,capture=lambda:None))
+            assert not calls[1:];checks.append('owner-observation-refuses:'+label)
+        for label,mutate in [
+            ('foreign-scope',lambda t:t.update(scope_id='other')),('foreign-task',lambda t:t.update(task_id='other')),
+            ('foreign-run',lambda t:t.update(run_id='other')),('foreign-node',lambda t:t.update(node_id='other')),
+            ('duplicate-call',lambda t:t.update(call_count=2)),('bool-call',lambda t:t.update(call_count=True)),
+            ('unarmed',lambda t:t.update(armed=False)),('missing-key-proof',lambda t:t.update(key_sha256=None)),
+            ('missing-raw-proof',lambda t:t.update(reply_sha256=None)),('missing-receipt',lambda t:t.update(receipt=None)),
+            ('bool-accepted',lambda t:t['receipt'].update(task_accepted=1)),('wrong-plan',lambda t:t['receipt'].update(plan_revision=2)),
+        ]:
+            time=Clock();trace=completed();mutate(trace)
+            refused(lambda:wait_goal_owner_binding(trace,query,deadline=15,pump=lambda:None,capture=lambda:None));checks.append('owner-observation-refuses:'+label)
+        time=Clock();trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1)
+        def late():time.sleep(15);begin_goal_owner_binding(trace,payload);complete_goal_owner_binding(trace,reply)
+        refused(lambda:wait_goal_owner_binding(trace,query,deadline=15,pump=late,capture=lambda:None));checks.append('receipt-at-original-deadline-cannot-pass')
+        time=Clock();time.value=14.8;trace=completed();observed=wait_goal_owner_binding(trace,query,deadline=15,pump=lambda:None,capture=lambda:None)
+        refused(lambda:wait_bound_child_goal(Host(),bounds,query,lambda v:True,pump=lambda:None,capture=lambda:None,deadline=15));checks.append('late-independent-Core-reply-cannot-reset-or-pass-original-deadline')
+        for deadline in [True,False,16,float('inf'),float('nan'),0,-1]:
+            time=Clock();refused(lambda:child_observation_deadline(deadline));checks.append('deadline-refuses:'+str(deadline))
+        time=Clock();trace=completed();refused(lambda:arm_goal_owner_binding(trace,query,1));refused(lambda:begin_goal_owner_binding(trace,payload));checks.append('old-or-duplicate-Native-binding-cannot-be-rearmed-for-this-click')
+    finally:time=original_time
+    tree=ast.parse(source);runtime=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    owner_clicks=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and isinstance(n.func.value,ast.Name)and n.func.value.id=='owner'and n.func.attr=='click'];assert len(owner_clicks)==1
+    assignments=[n for n in ast.walk(runtime)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='owner_deadline'for t in n.targets)];assert len(assignments)==1
+    assert ast.dump(assignments[0].value)==ast.dump(ast.parse('time.monotonic()+15',mode='eval').body)
+    receipt_calls=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='wait_goal_owner_binding'];assert len(receipt_calls)==1
+    final_calls=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='wait_child_goal'and any(k.arg=='deadline'for k in n.keywords)];assert len(final_calls)==1
+    assert owner_clicks[0].lineno<assignments[0].lineno<receipt_calls[0].lineno<final_calls[0].lineno
+    arms=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='arm_goal_owner_binding'];assert len(arms)==1 and arms[0].lineno<owner_clicks[0].lineno
+    wrapper=next(n for n in ast.walk(runtime)if isinstance(n,ast.FunctionDef)and n.name=='wait_child_goal')
+    assert len(wrapper.body)==1 and isinstance(wrapper.body[0],ast.Return)
+    forwarded=wrapper.body[0].value
+    assert isinstance(forwarded,ast.Call)and isinstance(forwarded.func,ast.Name)and forwarded.func.id=='wait_bound_child_goal'
+    assert [ast.dump(k.value)for k in forwarded.keywords if k.arg=='deadline']==[ast.dump(ast.Name(id='deadline',ctx=ast.Load()))]
+    for call in [receipt_calls[0],final_calls[0]]:assert [ast.dump(k.value)for k in call.keywords if k.arg=='deadline']==[ast.dump(ast.Name(id='owner_deadline',ctx=ast.Load()))]
+    checks.append('runtime-AST-one-click-then-one-end-receipt-before-Core-with-identical-end')
+    return checks
 
 
 def upfront_work_budget_self_check(program,case='normal'):
@@ -701,7 +783,95 @@ def database_snapshot(runtime):
     return {'schema':16,'factory_counts':counts,'tables':result,'sequence':sequence,'active_workspace_leases':active_leases,'active_dispatch_intents':active_intents}
 
 
-def collect_graph_records(runtime,workspace,scope,context,verified,output):
+def graph_identity_snapshot(pid,current=None):
+    """One readonly sample; never signal, wait, retry or infer owned stop."""
+    try:
+        value=support.proc_identity(pid)if current is None else current
+        return {'observation':'observed','pid':value['pid'],'ppid':value['parent_pid'],
+            'start_ticks':value['start_ticks'],'uid':Path('/proc',str(pid)).stat().st_uid,
+            'pgid':os.getpgid(pid)}
+    except (FileNotFoundError,ProcessLookupError):return {'observation':'absent'}
+    except (OSError,ValueError,TypeError,KeyError,AssertionError):return {'observation':'unobserved'}
+
+
+def graph_identity_initial(expected,before,after,uid):
+    fields={'observation','pid','ppid','start_ticks','uid','pgid'}
+    if not(type(before)is dict and type(after)is dict and set(before)==set(after)==fields):return None
+    if before!=after or before['observation']!='observed'or type(uid)is not int:return None
+    if not(all(type(before[k])is int for k in ('pid','ppid','uid','pgid'))and before['ppid']>0):return None
+    if type(before['start_ticks'])is not str or re.fullmatch('[0-9]+',before['start_ticks'])is None:return None
+    if not(before['uid']==uid and all(before[k]==expected[k]for k in ('pid','pgid','start_ticks'))):return None
+    return copy.deepcopy(before)
+
+
+def graph_empty_identity_diagnostic(known,before,after,cancel_durable):
+    value={'initial_binding':'verified'if known is not None else 'unobserved',
+        'empty_read_observed':True,'known_same_identity':None,'uid_matches':None,
+        'pgid_matches':None,'ppid_matches':None,'start_ticks_match':None,
+        'after_read':'unobserved','exact_cancel_durable':cancel_durable}
+    if after.get('observation')=='absent':value['after_read']='absent'
+    if known is not None and before.get('observation')==after.get('observation')=='observed':
+        value.update({name:before[key]==after[key]==known[key]for name,key in
+            [('uid_matches','uid'),('pgid_matches','pgid'),('ppid_matches','ppid'),('start_ticks_match','start_ticks')]})
+        same=all(value[k]is True for k in ('uid_matches','pgid_matches','ppid_matches','start_ticks_match'))and before['pid']==after['pid']==known['pid']
+        value.update(known_same_identity=same,after_read='same'if same else 'changed')
+    return finite_projection.graph_identity_diagnostic(value)
+
+
+def remember_graph_cancel(context,call):
+    if call.method!='factory_child_goals.cancel':return
+    snapshot={'params':copy.deepcopy(call.params),'revision':call.revision,'key':call.key}
+    previous=context.get('_graph_cancel_request')
+    if previous is None:context['_graph_cancel_request']=snapshot
+    elif not support.exact_json_value(previous,snapshot):context['_graph_cancel_request_conflict']=True
+
+
+def exact_graph_cancel_rows(scope,factory_run_id,fixed,call,origin_rows,run_rows,idem_rows):
+    """Pure tuple/document binding predicate; committed intent proves no stop."""
+    try:
+        p=call['params'];run_id=fixed['run_id'];task_id=fixed['request']['task_binding']['task_id']
+        if not(type(p)is dict and set(p)=={'scope_id','task_id','goal_run_id','expected_goal_run_revision'}):return False
+        if not(p['scope_id']==scope['id']and p['task_id']==task_id and p['goal_run_id']==run_id):return False
+        if not(type(call['revision'])is int and call['revision']>0 and type(p['expected_goal_run_revision'])is int and p['expected_goal_run_revision']>0):return False
+        if type(call['key'])is not str or planning.KEY.fullmatch(call['key'])is None:return False
+        if not(len(origin_rows)==len(run_rows)==len(idem_rows)==1):return False
+        goal,goal_scope,fscope,frun,task,root,raw=origin_rows[0]
+        if not all(type(value)is str and value for value in (goal,goal_scope,fscope,frun,task,root)):return False
+        record=json.loads(raw,object_pairs_hook=planning.unique_object)
+        if not((goal,fscope,frun,task,root)==(run_id,scope['id'],factory_run_id,task_id,scope['root_task_id'])):return False
+        origin=record['origin'];initial=record['initial_run']
+        if not(record['run_id']==run_id and record['scope_id']==goal_scope and initial['id']==run_id and initial['scope_id']==goal_scope and initial['task_id']==task_id):return False
+        if not(origin['factory_scope_id']==fscope and origin['factory_run_id']==frun and origin['root_task_id']==root):return False
+        rid,rscope,rtask,revision,state,raw=run_rows[0];current=json.loads(raw,object_pairs_hook=planning.unique_object)
+        if not((rid,rscope,rtask)==(run_id,goal_scope,task_id)and type(revision)is int and type(current['revision'])is int and revision==current['revision']and state==current['state']):return False
+        if not(current['id']==rid and current['scope_id']==rscope and current['task_id']==rtask and current['cancel_requested']is True and current['task_accepted']is False):return False
+        if state not in {'cancel_requested','cancelled','outcome_unknown'}:return False
+        payload,raw=idem_rows[0];payload=json.loads(payload,object_pairs_hook=planning.unique_object);receipt=json.loads(raw,object_pairs_hook=planning.unique_object)
+        if not support.exact_json_value(payload,[call['revision'],p]):return False
+        if not(receipt['factory_scope_id']==fscope and receipt['factory_run_id']==frun and receipt['factory_root_task_id']==root and receipt['task_id']==task_id):return False
+        result=receipt['goal']['run']
+        return (result['id']==run_id and result['scope_id']==goal_scope and result['task_id']==task_id
+            and receipt['goal']['task_accepted']is False and result['cancel_requested']is True and result['task_accepted']is False
+            and result['state']in {'cancel_requested','cancelled','outcome_unknown'}
+            and type(result['revision'])is int and p['expected_goal_run_revision']<result['revision']<=revision)
+    except (ValueError,TypeError,KeyError,IndexError,Refusal):return False
+
+
+def observe_exact_graph_cancel(db,scope,context,fixed):
+    call=context.get('_graph_cancel_request')
+    if call is None:return None
+    if context.get('_graph_cancel_request_conflict'):return False
+    try:
+        run_id=fixed['run_id'];task_id=fixed['request']['task_binding']['task_id']
+        origin=db.execute("SELECT goal_run_id,goal_scope_id,factory_scope_id,factory_run_id,task_id,root_task_id,CASE WHEN length(CAST(document AS BLOB))<=1048576 THEN document END FROM factory_child_goal_runs WHERE goal_run_id=? LIMIT 2",[run_id]).fetchall()
+        current=db.execute("SELECT id,scope_id,task_id,revision,state,CASE WHEN length(CAST(document AS BLOB))<=1048576 THEN document END FROM goal_runs WHERE id=? LIMIT 2",[run_id]).fetchall()
+        namespace='factory:'+scope['id']+':owner:'+task_id+':child-goal:cancel'
+        idem=db.execute("SELECT CASE WHEN length(CAST(payload AS BLOB))<=1048576 THEN payload END,CASE WHEN length(CAST(result AS BLOB))<=1048576 THEN result END FROM idempotency WHERE scope=? AND key=? LIMIT 2",[namespace,call['key']]).fetchall()
+        return exact_graph_cancel_rows(scope,context['run_id'],fixed,call,origin,current,idem)
+    except (sqlite3.Error,OSError,ValueError,TypeError,KeyError):return None
+
+
+def collect_graph_records(runtime,workspace,scope,context,verified,output,finite=None):
     """Bind saved generated identities to actual Core text/session/node/attempt."""
     directory=Path(workspace['root'])/'reports'
     if not directory.exists():return
@@ -737,9 +907,19 @@ def collect_graph_records(runtime,workspace,scope,context,verified,output):
             try:current=support.proc_identity(identity['pid'])
             except FileNotFoundError:current=None
             if current is not None and current['start_ticks']==identity['start_ticks']:
-                argv=Path('/proc',str(identity['pid']),'cmdline').read_bytes();assert 0<len(argv)<=8192 and argv.endswith(b'\0')
-                assert [v.decode()for v in argv[:-1].split(b'\0')][-3:]==row['provider_argv']
+                identity_before=graph_identity_snapshot(identity['pid'],current)
+                argv=Path('/proc',str(identity['pid']),'cmdline').read_bytes()
+                identity_after=graph_identity_snapshot(identity['pid'])
+                history=context.setdefault('_graph_provider_identities',{})
+                if argv==b''and finite is not None:
+                    finite.graph_identity(graph_empty_identity_diagnostic(history.get(fixed['path']),identity_before,identity_after,
+                        observe_exact_graph_cancel(db,scope,context,fixed)))
+                finite_projection.check_graph_provider_argv(argv,row['provider_argv'],old is not None)
                 assert os.getpgid(identity['pid'])==identity['pgid']
+                initial=graph_identity_initial(identity,identity_before,identity_after,os.geteuid())
+                if fixed['path']not in history and initial is not None and len(history)<2:
+                    history[fixed['path']]=initial
+                    base.write_private_json(output/('verified-graph-identity-'+str(identity['pid'])+'.json'),initial)
             if old is None:
                 base.write_private_json(output/('verified-graph-'+str(identity['pid'])+'.json'),fixed);verified.append(fixed)
         db.rollback()
@@ -1006,13 +1186,137 @@ def wire_recording_self_check(output):
         'capacity_controls':{'full':exhausted_report,'low_disk':low_report,'backend_marker_calls':marker['calls'],'peak_captured_plus_reserved_bytes':recorder._peak,'low_disk_input':'synthetic numeric capacity input only, not actual disk exhaustion'},
         'original_Root_missing_second_raw':'not reconstructed; original FAIL remains unchanged'}
 
+def bound_child_goal_query(query,bounds):
+    """Only the already-started child Graph's original read binding is eligible."""
+    require(type(query)is dict and set(query)=={'scope_id','task_id','goal_run_id'})
+    require(all(identifier(query[key])for key in query))
+    require(query['scope_id']==bounds.scope_id and query['task_id']in bounds.tasks)
+    require(bounds.goal_runs.get(query['goal_run_id'])==query['task_id'])
+    return copy.deepcopy(query)
+
+
+def exact_pending_child_goal_read(reply):
+    """Closed current Core reply only; error text is never authority."""
+    if type(reply)is not dict or set(reply)!={'request_id','error','revision','warnings'}:return False
+    if not(type(reply['request_id'])is str and 0<len(reply['request_id'])<=128
+           and type(reply['revision'])is int and 0<=reply['revision']<2**64
+           and type(reply['warnings'])is list and not reply['warnings']):return False
+    error=reply['error']
+    return (type(error)is dict and set(error)=={'code','message','retryable','side_effect_state','details_ref'}
+        and type(error['code'])is str and error['code']=='WORKSPACE_BUSY'
+        and type(error['retryable'])is bool and error['retryable']is True
+        and type(error['side_effect_state'])is str and error['side_effect_state']=='not_started'
+        and type(error['message'])is str and (error['details_ref']is None or type(error['details_ref'])is str))
+
+
+def child_observation_deadline(deadline=None):
+    now=time.monotonic()
+    if deadline is None:return now+15
+    require(type(deadline)in {int,float}and now<deadline<=now+15,'Bound child Goal observation expired')
+    return deadline
+
+
+def new_goal_owner_binding():
+    return {'call_count':0,'state':'not_entered','armed':False,'click_sequence':0,'armed_ns':None,'scope_id':None,'task_id':None,'expected_run_id':None,'expected_plan_revision':None,'started_ns':None,'finished_ns':None,
+        'request_sha256':None,'key_sha256':None,'run_id':None,'node_id':None,'plan_revision':None,'expected_revision':None,
+        'receipt':None,'reply_sha256':None,'error_type':None}
+
+
+def arm_goal_owner_binding(trace,query,plan_revision):
+    require(trace==new_goal_owner_binding(),'No earlier or duplicate Goal Owner binding may satisfy this click')
+    require(type(query)is dict and set(query)=={'scope_id','task_id','goal_run_id'}and all(identifier(v)for v in query.values())and positive(plan_revision))
+    trace.update(armed=True,click_sequence=1,armed_ns=time.monotonic_ns(),scope_id=query['scope_id'],task_id=query['task_id'],expected_run_id=query['goal_run_id'],expected_plan_revision=plan_revision)
+
+
+def begin_goal_owner_binding(trace,payload):
+    trace['call_count']+=1
+    trace.update(state='entered',started_ns=time.monotonic_ns())
+    require(trace['armed']is True and trace['click_sequence']==1 and trace['call_count']==1,'Only one explicit armed Goal Owner binding is expected')
+    require(type(payload)is dict and set(payload)=={'selection','expectedRevision','idempotencyKey'})
+    selection=payload['selection']
+    require(type(selection)is dict and set(selection)=={'run_id','node_id','expected_plan_revision','expected_ledger_revision'})
+    require(identifier(selection['run_id'])and selection['run_id']==trace['expected_run_id']and selection['node_id']=='owner-report')
+    require(positive(payload['expectedRevision'])and positive(selection['expected_plan_revision'])and selection['expected_plan_revision']==trace['expected_plan_revision']and positive(selection['expected_ledger_revision']))
+    require(type(payload['idempotencyKey'])is str and planning.KEY.fullmatch(payload['idempotencyKey']))
+    raw=json.dumps(payload,sort_keys=True,separators=(',',':'),allow_nan=False).encode('utf-8')
+    require(len(raw)<=planning.MAX_WIRE)
+    trace.update(request_sha256=base.sha(raw),key_sha256=base.sha(payload['idempotencyKey'].encode()),run_id=selection['run_id'],node_id=selection['node_id'],plan_revision=selection['expected_plan_revision'],expected_revision=payload['expectedRevision'])
+
+
+def complete_goal_owner_binding(trace,reply):
+    require(trace['call_count']==1 and trace['state']=='entered')
+    require(type(reply)is dict and set(reply)=={'request_id','result','revision','warnings'})
+    result=reply['result']
+    require(type(result)is dict and set(result)=={'approval_id','decision','graph_contract_version','node_id','owner_decision_id','plan_revision','run_id','run_revision','task_accepted'})
+    require(type(result['graph_contract_version'])is int and result['graph_contract_version']==1)
+    require(result['run_id']==trace['run_id']and result['node_id']==trace['node_id']and type(result['plan_revision'])is int and result['plan_revision']==trace['plan_revision'])
+    require(result['decision']=='accepted'and result['task_accepted']is True and positive(result['run_revision'])and result['run_revision']>trace['expected_revision'])
+    require(identifier(result['approval_id'])and identifier(result['owner_decision_id']))
+    raw=json.dumps(reply,sort_keys=True,separators=(',',':'),allow_nan=False).encode('utf-8')
+    require(len(raw)<=planning.MAX_WIRE)
+    trace.update(state='completed',finished_ns=time.monotonic_ns(),receipt=copy.deepcopy(result),reply_sha256=base.sha(raw))
+
+
+def wait_goal_owner_binding(trace,query,*,deadline,pump,capture):
+    """Observe this one Native call without issuing competing Core history reads.
+
+    Completion is only a receipt observation. The independent Core acceptance
+    read still follows, within the same original absolute15s deadline.
+    """
+    end=child_observation_deadline(deadline)
+    require(type(query)is dict and set(query)=={'scope_id','task_id','goal_run_id'}and all(identifier(v)for v in query.values()))
+    goal_id=query['goal_run_id']
+    while True:
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        pump();capture()
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        require(trace['call_count']in {0,1}and type(trace['call_count'])is int,'Goal Owner binding duplicated')
+        require(trace['state']in {'not_entered','entered','completed'},'Goal Owner binding did not complete; do not replay')
+        if trace['state']=='completed':
+            require(trace['armed']is True and trace['click_sequence']==1 and trace['scope_id']==query['scope_id']and trace['task_id']==query['task_id']and trace['call_count']==1 and trace['expected_run_id']==goal_id and trace['run_id']==goal_id and trace['node_id']=='owner-report')
+            require(all(type(trace[k])is str and re.fullmatch('[a-f0-9]{64}',trace[k])for k in ['key_sha256','request_sha256','reply_sha256']))
+            require(type(trace['started_ns'])is int and type(trace['finished_ns'])is int and trace['finished_ns']>=trace['started_ns']>=trace['armed_ns'])
+            receipt=trace['receipt']
+            require(type(receipt)is dict and receipt.get('run_id')==goal_id and receipt.get('node_id')=='owner-report'and receipt.get('task_accepted')is True and receipt.get('decision')=='accepted'and type(receipt.get('plan_revision'))is int and receipt['plan_revision']==trace['expected_plan_revision'])
+            return copy.deepcopy(trace)
+        time.sleep(.02)
+
+
+def wait_bound_child_goal(host,bounds,query,predicate,*,pump,capture,deadline=None):
+    """Existing15s/20ms observation, never replaying an Owner or start write.
+
+    A strict not-started busy reply is a pending read in the original polling
+    loop. Existing wire/recorder5s limits and raw/finite capture remain intact.
+    A read may return after its socket/recorder waits; it cannot pass late.
+    """
+    end=child_observation_deadline(deadline)
+    fixed=bound_child_goal_query(query,bounds)
+    while True:
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        pump();capture()
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        require(support.exact_json_value(bound_child_goal_query(query,bounds),fixed))
+        value,_=host.wire(FixedCall('factory_child_goals.get',copy.deepcopy(fixed),None,None))
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        require(type(value)is dict)
+        if 'error'in value:
+            assert exact_pending_child_goal_read(value),{'method':'factory_child_goals.get','response':value}
+        else:
+            result=value['result']
+            if predicate(result):
+                require(time.monotonic()<end,'Bound child Goal observation expired')
+                return result
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        time.sleep(.02)
+
+
 def runtime_driver(args, output):
     """Real built UI / authenticated Core15 / generated processes, never a mock.
 
     Each --case owns fresh resources. Private Owner simulation is outside HTTP
     and checks the complete exact server proposal; no real OS consent is claimed.
     """
-    from playwright.sync_api import expect, sync_playwright
+    from playwright.sync_api import expect, sync_playwright, TimeoutError as PlaywrightTimeoutError
     raw_daemon=(args.tools/'batond').resolve(strict=True);raw_cli=(args.tools/'baton').resolve(strict=True)
     frontend=args.frontend.resolve(strict=True);manifest_raw=args.manifest.resolve(strict=True).read_bytes()
     manifest=json.loads(manifest_raw,object_pairs_hook=planning.unique_object)
@@ -1029,7 +1333,7 @@ def runtime_driver(args, output):
     report={'status':'failed_or_interrupted','dimension':'actual built React/Linux Chromium/fixed test-only adapter/authenticated Unix Core15/generated account-free ACP/MCP7',
         'case':args.case,'capacity_preflight':{'free_bytes':free,'guard_bytes':200*1024*1024,'private_tool_copy_bytes':raw_daemon.stat().st_size+raw_cli.stat().st_size,'evidence_allowance_bytes':32*1024*1024},'candidate':manifest,'manifest_sha256':base.sha(manifest_raw),'harness_sha256':base.sha(source),
         'support_sha256':old_support,'frontend_assets':assets,'checks':[],'http':[],'faults':[],'private_owner_reviews':[],
-        'screenshots':[],'observations':{},'cleanup':[],'http_unexpected_errors':[],'readonly_aborts':[],'cleanup_complete':False,
+        'screenshots':[],'observations':{},'goal_owner_binding':new_goal_owner_binding(),'cleanup':[],'http_unexpected_errors':[],'readonly_aborts':[],'cleanup_complete':False,
         'not_claimed':['native OS Owner dialog','macOS','native WebView','real Provider/model','OS sandbox','unknown meters as zero','all recovery/adoption paths','advance_plan end-to-end','real Validator execution (validators[] in these cases)','whole product completion']}
     # Explicit ownership: no TemporaryDirectory/finalizer may erase a failed
     # runtime or files still referenced by unknown/live processes.
@@ -1038,8 +1342,13 @@ def runtime_driver(args, output):
     daemon=server=http_thread=browser=playwright=log=reaper=host=workspace=scope=None
     token='';pump=lambda:None;active={};lock=threading.Lock();verified=[];graph_verified=[];record_context={};resources={};bounds=None
     def clean(v):return str(v).replace(token,'[redacted generated Owner token]')if token else str(v)
-    def passed(name,details):report['checks'].append({'id':name,'status':'passed','evidence':details})
-    def fail(stage,error):base.note_failure(report,error,stage,clean)
+    diagnostic_phase='runtime'
+    finite=finite_projection.FiniteRuntimeDiagnostics()
+    def passed(name,details):
+        report['checks'].append({'id':name,'status':'passed','evidence':details});finite.completed(name)
+    def fail(stage,error):
+        finite.failure(error,diagnostic_phase,__file__,Refusal,(PlaywrightTimeoutError,))
+        base.note_failure(report,error,stage,clean)
     def wait(read,predicate,seconds=15):
         end=time.monotonic()+seconds
         while True:
@@ -1048,12 +1357,13 @@ def runtime_driver(args, output):
             assert time.monotonic()<end,clean(('Bounded observation deadline',value))
             time.sleep(.02)
     def phase_stamp(phase,edge):
-        assert phase in {'before_owner_read','before_owner_capture','owner_UI_refresh_click','owner_enabled_expect'} and edge in {'start','end'}
+        assert phase in {'before_owner_read','before_owner_capture','owner_UI_refresh_click','owner_enabled_expect','owner_click','owner_receipt_observe','owner_core_acceptance'} and edge in {'start','end'}
+        assert len(report.get('owner_phase_stamps',[]))<14
         report.setdefault('owner_phase_stamps',[]).append({'phase':phase,'edge':edge,'monotonic_ns':time.monotonic_ns()})
     def capture():
         if host is None or workspace is None or scope is None or not record_context.get('run_id'):return
         base.collect_started_records(runtime,workspace,scope,record_context,verified,output,reaper)
-        collect_graph_records(runtime,workspace,scope,record_context,graph_verified,output)
+        collect_graph_records(runtime,workspace,scope,record_context,graph_verified,output,finite)
     try:
         report['controller_reaper']={};reaper=base.FixtureControllerReaper(report['controller_reaper']);reaper.enable()
         report['private_installation']={}
@@ -1081,6 +1391,7 @@ def runtime_driver(args, output):
                         timing['backend_finished']=time.monotonic_ns()
                         wire_recorder.failed(slot,error,'ipc');raise
                     timing['backend_finished']=time.monotonic_ns()
+                    finite.reply(request.method,value)
                     wire_recorder.finish(slot,raw)
                     return value,raw
                 finally:timing['finished']=time.monotonic_ns()
@@ -1190,7 +1501,10 @@ def runtime_driver(args, output):
                     except Refusal as error:self.send_error(error.status);return
                     trace={'method':call.method,'params':call.params,'key':call.key,'revision':call.revision,'request_sha256':base.sha(raw),'response_complete':False}
                     with lock:active[identity]=call.method;report['http'].append(trace)
-                    stage='core_call';value,reply=host.wire(call);require(len(reply)<=planning.MAX_WIRE)
+                    stage='core_call';read_started=time.monotonic_ns()
+                    remember_graph_cancel(record_context,call)
+                    value,reply=host.wire(call);read_finished=time.monotonic_ns();require(len(reply)<=planning.MAX_WIRE)
+                    finite.owner_refresh_reply(call.method,call.params,value,read_started,read_finished)
                     path=output/('core-reply-'+uuid.uuid4().hex+'.json');path.write_bytes(reply);path.chmod(0o600)
                     trace.update(response=value,original_reply_path=str(path),original_reply_sha256=base.sha(reply));observe(call,value)
                     if call.method==fault['method']and not fault['used']:
@@ -1210,7 +1524,7 @@ def runtime_driver(args, output):
         http_thread=threading.Thread(target=server.serve_forever);http_thread.start()
         playwright=sync_playwright().start();browser=playwright.chromium.launch(executable_path=args.chromium,headless=True,args=['--no-sandbox'])
         context=browser.new_context(viewport={'width':1488,'height':1400},locale='en-US');context.set_default_timeout(15000)
-        def private_owner(_source,command,payload):
+        def private_owner_impl(_source,command,payload):
             nonlocal scope
             require(type(payload)is dict)
             if command=='factory_scope_approve':
@@ -1240,6 +1554,19 @@ def runtime_driver(args, output):
                 require(not reply.get('error')and reply['result']['task_accepted']is True)
             base.write_private_json(output/('private-owner-'+uuid.uuid4().hex+'.json'),{'response':reply,'original_sha256':base.sha(raw)})
             return reply
+        def private_owner(_source,command,payload):
+            if command!='goal_node_approve':return private_owner_impl(_source,command,payload)
+            trace=report['goal_owner_binding']
+            try:
+                begin_goal_owner_binding(trace,payload)
+                reply=private_owner_impl(_source,command,payload)
+                complete_goal_owner_binding(trace,reply)
+                return reply
+            except BaseException as error:
+                # Binding failure says nothing about a committed effect. Keep
+                # the original error/wires; never retry or call it not_started.
+                trace.update(state='failed',finished_ns=time.monotonic_ns(),error_type=type(error).__name__[:64])
+                raise
         context.expose_binding('__private_child_goal_owner',private_owner)
         context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{if(command==='factory_scope_approve'||command==='goal_node_approve')return window.__private_child_goal_owner(command,args);const r=await fetch('/__test_child_goal_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw new Error('Fixed child Goal test bridge refused request');return r.json();}};""")
         context.route('**/*',lambda route:route.continue_()if route.request.url.startswith(url+'/')else route.abort())
@@ -1317,6 +1644,9 @@ def runtime_driver(args, output):
         started=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and not r.get('response',{}).get('error')and r.get('response')],lambda v:len(v)==1)[0]
         initial=started['response']['result'];goal_id=initial['goal']['run']['id'];bounds.goal_runs[goal_id]=child['task_id']
         assert support.exact_json_value(initial['plan'],saved['reference'])and initial['goal']['task_accepted']is False
+        query={'scope_id':scope['id'],'task_id':child['task_id'],'goal_run_id':goal_id}
+        def wait_child_goal(predicate,*,deadline=None):
+            return wait_bound_child_goal(host,bounds,query,predicate,pump=pump,capture=capture,deadline=deadline)
         assert not (wroot/'reports/release-parent').exists();base.write_private_json(wroot/'reports/release-parent',{'committed_goal_run_id':goal_id,'actual_start_reply_sha256':started['original_reply_sha256']})
         if args.case=='lost-start':
             assert fault['used'];expect(goal_panel.get_by_role('status').filter(has_text='Outcome unknown')).to_be_visible()
@@ -1326,13 +1656,12 @@ def runtime_driver(args, output):
             calls=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and r.get('response_complete')],lambda v:len(v)==1)
             recovered=calls[0];assert (recovered['params'],recovered['key'],recovered['revision'])==(started['params'],started['key'],started['revision'])
             assert support.exact_json_value(recovered['response']['result'],initial)
-            wait(lambda:host.result('factory_child_goals.get',{'scope_id':scope['id'],'task_id':child['task_id'],'goal_run_id':goal_id}),lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
+            wait_child_goal(lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
             changed=copy.deepcopy(started['params']);changed['request']['expected_factory_run_revision']+=1
             denied('factory_child_goals.start',changed,started['key'],started['revision'],'CONFIG_CONFLICT')
             passed('CG03','Actual committed start reply lost; no auto replay; explicit exact-key/payload/CAS recovery returns original receipt; changed payload conflicts')
-        query={'scope_id':scope['id'],'task_id':child['task_id'],'goal_run_id':goal_id}
         if args.case=='cancel':
-            wait(lambda:host.result('factory_child_goals.get',query),lambda v:any(n['session_id']for n in v['details']['nodes']))
+            wait_child_goal(lambda v:any(n['session_id']for n in v['details']['nodes']))
             wait(lambda:(capture(),len(graph_verified))[1],lambda count:count==1)
             # Exercise cancellation from the first checked summary while full
             # artifact reads may still be loading; do not insert another full read.
@@ -1343,7 +1672,7 @@ def runtime_driver(args, output):
             recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled();recover.click()
             cancels=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.cancel'and r.get('response')],lambda v:len(v)==2)
             assert (cancels[0]['params'],cancels[0]['key'],cancels[0]['revision'])==(cancels[1]['params'],cancels[1]['key'],cancels[1]['revision'])
-            final_view=wait(lambda:host.result('factory_child_goals.get',query),lambda v:v['details']['run']['state']=='cancelled')
+            final_view=wait_child_goal(lambda v:v['details']['run']['state']=='cancelled')
             assert final_view['details']['task_accepted']is False and final_view['details']['task_acceptance']is None
             family=host.result('factory_runs.get',{'scope_id':scope['id']})
             if family['run']['state']not in {'cancelled','completed'}:host.result('factory_runs.cancel',{'scope_id':scope['id']},'cg:final-parent-cancel',family['run']['revision'])
@@ -1351,21 +1680,41 @@ def runtime_driver(args, output):
             passed('CG04','Actual live Graph cancel reply lost, explicit same-key recovery and actual cancelled view; no TaskAccepted or automatic opposite action')
         else:
             phase_stamp('before_owner_read','start')
-            try:before_owner=wait(lambda:host.result('factory_child_goals.get',query),lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
+            try:before_owner=wait_child_goal(lambda v:any(n['node']['id']=='owner-report'and n['state']=='awaiting_owner'for n in v['details']['nodes']))
             finally:phase_stamp('before_owner_read','end')
             phase_stamp('before_owner_capture','start')
             try:capture()
             finally:phase_stamp('before_owner_capture','end')
             require(before_owner['details']['task_accepted']is False and before_owner['details']['task_acceptance']is None)
             phase_stamp('owner_UI_refresh_click','start')
+            finite.owner_refresh_begin(bound_child_goal_query(query,bounds),time.monotonic_ns())
             try:goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
-            finally:phase_stamp('owner_UI_refresh_click','end')
+            finally:
+                finite.owner_refresh_click_finished(time.monotonic_ns())
+                phase_stamp('owner_UI_refresh_click','end')
             owner=goal_panel.get_by_role('button',name='Review exact Factory-origin candidate in native dialog',exact=True)
             phase_stamp('owner_enabled_expect','start')
             try:expect(owner).to_be_enabled()
-            finally:phase_stamp('owner_enabled_expect','end')
-            shot('03-real-owned-candidate-before-owner',goal_panel);owner.click()
-            final_view=wait(lambda:host.result('factory_child_goals.get',query),lambda v:v['details']['task_accepted']is True)
+            finally:
+                finite.owner_refresh_end(time.monotonic_ns())
+                phase_stamp('owner_enabled_expect','end')
+            shot('03-real-owned-candidate-before-owner',goal_panel)
+            arm_goal_owner_binding(report['goal_owner_binding'],bound_child_goal_query(query,bounds),before_owner['details']['run']['plan_revision'])
+            phase_stamp('owner_click','start')
+            try:owner.click()
+            finally:phase_stamp('owner_click','end')
+            # The old final wait began here. Both stages share that one15s end;
+            # do not compete with this intent's mandatory UI readonly preflight.
+            owner_deadline=time.monotonic()+15
+            report['observations']['owner_acceptance_deadline']={'limit_seconds':15,'deadline_monotonic':owner_deadline}
+            phase_stamp('owner_receipt_observe','start')
+            try:owner_binding=wait_goal_owner_binding(report['goal_owner_binding'],query,deadline=owner_deadline,pump=pump,capture=capture)
+            finally:phase_stamp('owner_receipt_observe','end')
+            phase_stamp('owner_core_acceptance','start')
+            try:final_view=wait_child_goal(lambda v:v['details']['task_accepted']is True,deadline=owner_deadline)
+            finally:phase_stamp('owner_core_acceptance','end')
+            require(report['goal_owner_binding']['call_count']==1 and report['goal_owner_binding']['state']=='completed')
+            require(all(owner_binding[k]==report['goal_owner_binding'][k]for k in ['key_sha256','request_sha256','reply_sha256','expected_run_id','scope_id','task_id']))
             receipt=final_view['details']['task_acceptance'];require(receipt is not None and receipt['run_id']==goal_id)
             final_factory=wait(lambda:host.result('factory_runs.get',{'scope_id':scope['id']}),lambda v:v['run']['state']=='completed')
             require((wroot/'reports/fixture-stages.txt').read_text()=='parent-initial\nparent-resumed\n')
@@ -1429,6 +1778,7 @@ def runtime_driver(args, output):
     except BaseException as error:
         fail('runtime',error);planning.capture_browser_failure(browser,output,report,clean)
     finally:
+        diagnostic_phase='cleanup'
         pump=lambda:None
         if host is not None:
             def diagnostics():
@@ -1549,6 +1899,7 @@ def runtime_driver(args, output):
             report['observations']['retained_private_fixture']=retention
             base.write_private_json(output/'retained-private-fixture.json',retention)
         planning.seal_runtime_report(report,daemon_complete,identities_complete and graph_gone,http_complete,clean)
+        report['finite_diagnostics']=finite.snapshot()
         base.write_private_json(output/'report.json',json.loads(clean(json.dumps(report))))
     print(json.dumps({'status':report['status'],'report':str(output/'report.json'),'checks':len(report['checks']),'screenshots':len(report['screenshots'])}))
     return planning.runtime_exit(report)
