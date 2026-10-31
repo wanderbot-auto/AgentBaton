@@ -799,7 +799,7 @@ def run(args, binary, frontend, attribution, output):
             panel = page.get_by_test_id('task-code-workspace')
             require(not panel.evaluate('(e)=>e.open'))
             panel.locator(':scope > summary').click()
-            expect(panel.locator('section')).to_have_attribute('aria-busy', 'false')
+            expect(panel.locator(':scope > section')).to_have_attribute('aria-busy', 'false')
             return panel
 
         def click(panel, label):
