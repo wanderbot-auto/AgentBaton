@@ -173,10 +173,7 @@ fn compatible_schema(
                 }
                 // Metadata is inspected without selecting/evaluating opaque
                 // rows or interpolating their identifiers as executable SQL.
-                let ordinary: bool = db.query_row(
-                    "SELECT EXISTS(SELECT 1 FROM pragma_table_list WHERE schema='main' AND name=?1 AND type='table')",
-                    [name], |r| r.get(0),
-                ).map_err(db_error)?;
+                let ordinary = ordinary_main_table(db, name)?;
                 let dependencies: bool = db.query_row(
                     "SELECT EXISTS(SELECT 1 FROM pragma_foreign_key_list(?1,'main')) OR EXISTS(SELECT 1 FROM pragma_table_xinfo(?1,'main') WHERE hidden<>0)",
                     [name], |r| r.get(0),
@@ -210,6 +207,22 @@ fn compatible_schema(
         }
     }
     Ok(true)
+}
+
+// Direct PRAGMA syntax cannot resolve to an opaque ordinary table named
+// pragma_table_list. Never let untrusted legacy rows supply schema metadata.
+fn ordinary_main_table(db: &Connection, name: &str) -> Result<bool> {
+    let mut statement = db.prepare("PRAGMA main.table_list").map_err(db_error)?;
+    let mut rows = statement.query([]).map_err(db_error)?;
+    while let Some(row) = rows.next().map_err(db_error)? {
+        let schema: String = row.get(0).map_err(db_error)?;
+        let table: String = row.get(1).map_err(db_error)?;
+        let kind: String = row.get(2).map_err(db_error)?;
+        if schema == "main" && table == name {
+            return Ok(kind == "table");
+        }
+    }
+    Ok(false)
 }
 
 fn normalize_ddl(sql: &str) -> String {

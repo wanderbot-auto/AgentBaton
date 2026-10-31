@@ -25,7 +25,7 @@
     "result": "could not create /home/agent/.rustup: read-only filesystem; corrected workspace toolchain env, no escalation"
   },
   "new_test_source": {
-    "functions": 4,
+    "functions": 5,
     "generated_negative_variants": 20,
     "negative_versions": [
       16,
@@ -42,7 +42,7 @@
     "network/remote/CI",
     "macOS/native",
     "real Provider",
-    "independent review"
+    "independent re-review of P2 patch"
   ],
   "authority": "AB-START-001; source author static-only task; no permission changes",
   "requirement_ids": [
@@ -50,7 +50,15 @@
     "AB-COR-002"
   ],
   "source_sha256": {
-    "crates/core/src/integration_store.rs": "422e8603041ab829c6e70fc2540a18f3743df21434ffe74af054ddac98ab1283",
-    "crates/core/tests/integration_schema17.rs": "882446a4ee1d7bd869118f8adb4c1f3c1cbd91aec96f3964c588d6822d85a08c"
+    "crates/core/src/integration_store.rs": "0ca5326c0d818e08fb8d2f9448839f0d0537b705915374a941ba33aa9f9fee08",
+    "crates/core/tests/integration_schema17.rs": "f0874d4b09ec14dacce01ee2e2b04e1c1398f36db04313778db820b67c2df0fb"
+  },
+  "review_feedback": {
+    "severity": "P2",
+    "finding": "ordinary opaque pragma_table_list could shadow unparenthesized SELECT metadata source",
+    "fix": "direct PRAGMA main.table_list; same-name ordinary content remains opaque",
+    "negative_source": "RTREE virtual/shadow type forgery, versions16 and17",
+    "positive_source": "harmless same-name ordinary table preserved across16 migration and17 reopen",
+    "status": "implemented_source; re-review and execution pending"
   }
 }

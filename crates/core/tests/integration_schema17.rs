@@ -538,6 +538,8 @@ fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and17_reopen(
     db.execute_batch(r#"
         CREATE TABLE original_blob(bytes BLOB, raw TEXT UNIQUE, n INTEGER, r REAL, absent TEXT);
         CREATE INDEX original_blob_bytes ON original_blob(bytes);
+        CREATE TABLE pragma_table_list(schema TEXT,name TEXT,type TEXT);
+        INSERT INTO pragma_table_list VALUES('main','untrusted_claim','table');
         INSERT INTO original_blob(rowid,bytes,raw,n,r,absent)
           VALUES(47,x'00ffdeadbeef',' {"authority_kind":"integration","approved":true} ',37,1.25,NULL);
         CREATE TABLE "opaque""; SELECT"(bytes BLOB);
@@ -726,4 +728,35 @@ fn opaque16_at_object_budget_refuses_additive17_overflow_atomically() {
     assert_eq!(fs::read(&path).unwrap(), raw);
     assert_eq!(fs::read(&wal).unwrap(), wal_raw);
     preserved_backup(&before, root.path());
+}
+
+#[test]
+fn opaque_named_pragma_table_list_cannot_forge_virtual_or_shadow_table_metadata() {
+    use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
+    for version in [16, 17] {
+        let (root, path, db) = empty_current_fixture();
+        if version == 16 {
+            remove_empty_integration17(&db).unwrap();
+        }
+        // RTREE virtual/shadow tables have ordinary-looking columns without
+        // generated/hidden columns or FKs. Only trusted table-kind metadata
+        // establishes that they cannot qualify for opaque-table preservation.
+        db.execute_batch("CREATE VIRTUAL TABLE opaque_rtree USING rtree(id,x0,x1); INSERT INTO opaque_rtree VALUES(47,1,2); CREATE TABLE pragma_table_list(schema TEXT,name TEXT,type TEXT); INSERT INTO pragma_table_list SELECT 'main',name,'table' FROM sqlite_schema WHERE type='table'; PRAGMA wal_autocheckpoint=0; PRAGMA wal_checkpoint(TRUNCATE); UPDATE tasks SET document=document || ' ';").unwrap();
+        let before = image(&db);
+        let raw = fs::read(&path).unwrap();
+        let wal = path.with_file_name("state.sqlite3-wal");
+        let wal_raw = fs::read(&wal).unwrap();
+        let error = Store::open(&path)
+            .err()
+            .expect("legacy rows cannot forge virtual/shadow metadata");
+        assert_eq!(error.code, "INPUT_CHANGED");
+        assert!(before == image(&db));
+        assert_eq!(fs::read(&path).unwrap(), raw);
+        assert_eq!(fs::read(&wal).unwrap(), wal_raw);
+        if version == 16 {
+            preserved_backup(&before, root.path());
+        } else {
+            assert!(backups(root.path()).is_empty());
+        }
+    }
 }

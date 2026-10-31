@@ -7,3 +7,5 @@ Baseline: `4f962940533241fdec74b96a87c01a99788a62ee`; branch `codex/opaque-legac
 3. Keep256-object/1MiB definition bounds, full FK check, typed Task validation, transaction and private backup boundaries. Check the resulting17 schema budget before commit too.
 4. Add generated compatibility positives and security/rollback negatives. Preserve the original schema7 positive unchanged; do not label generated inputs genuine historical producers.
 5. Source author runs formatting/static checks only. Root owns independent review, original schema7 regression, actual SQLite/Cargo migration tests and CI.
+
+6. Address independent P2 metadata-source shadowing: use direct trusted PRAGMA table-kind output and test forged RTREE metadata plus harmless same-name ordinary preservation.
