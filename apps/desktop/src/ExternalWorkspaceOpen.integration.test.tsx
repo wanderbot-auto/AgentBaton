@@ -28,7 +28,7 @@ function fixture(mode: Mode = 'dirty_resolver_refused') {
   const number = ++serial;
   const project: Project = { id: PROJECT, name: 'Registered source', revision: 3, archived: false, created_at: date, updated_at: date,
     identity: { canonical_root: '/source dirty', device: 1, inode: 2, kind: { kind: 'git', common_dir: '/source dirty/.git', head: 'a'.repeat(40), dirty: true } } };
-  const task: Task = { id: `workspace-open-mounted-${number}`, project_id: PROJECT, goal: 'Keep the existing task', state: 'draft', revision: 1, spec_revision: 2, created_at: date, updated_at: date };
+  let task: Task = { id: `workspace-open-mounted-${number}`, project_id: PROJECT, goal: 'Keep the existing task', state: 'draft', revision: 1, spec_revision: 2, created_at: date, updated_at: date };
   const rows: ManagedWorkspace[] = [
     { id: GIT, project_id: PROJECT, revision: 4, root: '/managed/git', state: 'ready', base_revision: 'a'.repeat(40), created_at: date, identity: { canonical_root: '/managed/git', device: 1, inode: 3, kind: { kind: 'git', common_dir: '/source dirty/.git', head: 'a'.repeat(40), dirty: true } } },
     { id: DATA, project_id: PROJECT, revision: 5, root: '/managed/data', state: 'ready', base_revision: '', created_at: date, identity: { canonical_root: '/managed/data', device: 1, inode: 4, kind: { kind: 'directory' } } },
@@ -40,8 +40,7 @@ function fixture(mode: Mode = 'dirty_resolver_refused') {
     const preparation: CodeWorkspacePreparation = { task_id: task.id, task_revision: 1, spec_revision: 2, project_id: PROJECT, project_revision: 3, host_id: 'local', source: { canonical_root: '/source data', device: '1', inode: '2', kind: { kind: 'directory' } }, source_head: null, preparation_key: null, state: 'needs_dataset_selection', reason: 'selected_dataset_required', candidates: [], execution_authorized: false, creates_workspace: false };
     vi.mocked(api.workspacesResolve).mockResolvedValue(preparation);
   } else if (mode === 'pending_binding') {
-    task.revision = 2;
-    task.code_workspace_binding = { state: 'pending', revision: 1, managed_pin: null, receipt: { version: 1, binding_id: `binding-${number}`, workspace_id: PENDING, task_id: task.id, project_id: PROJECT, host_id: 'local', original_task_revision: 1, reserved_task_revision: 2, spec_revision: 2, project_revision: 3, source_pin: { canonical_root: '/source dirty', device: '1', inode: '2', common_dir: '/source dirty/.git', head: 'a'.repeat(40) }, managed_root: '/managed', preparation_key: 'code-prep:' + 'b'.repeat(64), request_key: `pending-${number}`, request_digest: 'c'.repeat(64), created_at: date } };
+    task = { ...task, revision: 2, code_workspace_binding: { state: 'pending', revision: 1, managed_pin: null, receipt: { version: 1, binding_id: `binding-${number}`, workspace_id: PENDING, task_id: task.id, project_id: PROJECT, host_id: 'local', original_task_revision: 1, reserved_task_revision: 2, spec_revision: 2, project_revision: 3, source_pin: { canonical_root: '/source dirty', device: '1', inode: '2', common_dir: '/source dirty/.git', head: 'a'.repeat(40) }, managed_root: '/managed', preparation_key: 'code-prep:' + 'b'.repeat(64), request_key: `pending-${number}`, request_digest: 'c'.repeat(64), created_at: date } } };
   }
   vi.mocked(api.taskGet).mockResolvedValue(task);
   vi.mocked(api.projectsList).mockResolvedValue([project]);
