@@ -69,7 +69,26 @@ fn six_body_fields_map_only_envelope_task_cas_and_reject_numeric_or_extra_identi
 
 #[test]
 fn real_owned_data_io_pending_reap_blocks_new_preparation_but_not_readonly_task_status() {
-    let root = tempfile::tempdir().unwrap();
+    use std::os::unix::fs::PermissionsExt;
+    // Darwin's default temporary parent can contain /var -> /private/var.
+    // Create a short owned fixture beneath the canonical /tmp parent instead;
+    // production runtime symlink refusal remains unchanged.
+    let parent = std::path::Path::new("/tmp").canonicalize().unwrap();
+    let root = tempfile::Builder::new()
+        .prefix("ab-twb-")
+        .permissions(std::fs::Permissions::from_mode(0o700))
+        .tempdir_in(&parent)
+        .unwrap();
+    assert_eq!(root.path().parent(), Some(parent.as_path()));
+    assert_eq!(root.path().canonicalize().unwrap().as_path(), root.path());
+    assert_eq!(
+        std::fs::symlink_metadata(root.path())
+            .unwrap()
+            .permissions()
+            .mode()
+            & 0o7777,
+        0o700
+    );
     let source = root.path().join("data");
     std::fs::create_dir(&source).unwrap();
     std::fs::write(source.join("input"), "bounded actual data\n").unwrap();
