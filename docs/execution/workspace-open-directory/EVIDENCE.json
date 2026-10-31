@@ -2,17 +2,25 @@
   "recorded_at": "2026-10-31T06:27:37.737063+00:00",
   "requirement": "AB-SES-009",
   "baseline": "e874b123d3e7f329a551e21922baf1a7a643548f",
-  "status": "implementation_in_progress_not_runtime_verified",
+  "status": "local_slices_verified_Native_macOS_end_to_end_not_accepted",
   "audit_sha256": "89aebfe4d288ccaa66620d6cc73e93d200d51b431afadbb1963423f35f2c0194",
   "contract_sha256": "f69f86163757e21a312253960c43b38285e316f8ca8f36f2110528e4577e7973",
-  "actual_feature_tests": [],
-  "not_run": [
-    "Core feature compilation/tests",
-    "UI/Native feature compilation/tests",
-    "real UnixIPC feature scenarios",
-    "actual Mac Terminal handoff",
-    "actual target directory observation",
-    "manual acceptance"
+  "actual_feature_tests": [
+    {
+      "evidence": "docs/execution/workspace-open-directory/ROOT_LOCAL_RESULTS.json",
+      "scope": "source-bound local dimensions and historical actual Core UnixIPC; no Mac acceptance"
+    }
   ],
-  "scope": "Only opens selected registered directory; no Agent start/session transfer/approval sync. Full130 goal remains unchanged."
+  "not_run": [
+    "actual UI -> Native -> Core -> OS end-to-end",
+    "Apple Silicon and Intel Terminal target-directory observation and manual desktop acceptance",
+    "new exact feature CI and development installers"
+  ],
+  "scope": "Only opens selected registered directory; no Agent start/session transfer/approval sync. Full130 goal remains unchanged.",
+  "latest_Root_actual_record": {
+    "path": "docs/execution/workspace-open-directory/ROOT_LOCAL_RESULTS.json",
+    "sha256": "f2c1acc04a43c6a83aadb84250cc170028a678bca405f7237d7e98518e58d61f",
+    "source": "8ac3062617c35aa06a97de4ad3cc6dcb46d7e4bf"
+  },
+  "latest_recorded_at": "2026-10-31T08:26:36.471776+00:00"
 }

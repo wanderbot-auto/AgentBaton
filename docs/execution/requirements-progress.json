@@ -6364,17 +6364,44 @@
     {
       "id": "AB-SES-009",
       "work_package": "WP10",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/workspace_open.rs",
+        "crates/core/src/ipc.rs",
+        "apps/desktop/src/ExternalWorkspaceOpen.tsx",
+        "apps/desktop/src-tauri/src/workspace_open.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_directory_handoff_slice": "passed only listed source-bound Core, IPC, mocked UI and Linux Native tests; macOS end-to-end not run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/workspace-open-directory/ROOT_LOCAL_RESULTS.json"
+      ],
+      "limitations": [
+        "Core7 UnixIPC, mocked UI transport tests and Linux Native library are separate dimensions; real end-to-end UI→Native→Core→OS not accepted",
+        "No actual macOS Terminal handoff or target directory observation yet",
+        "No actual dual-Mac WebView/native acceptance, new feature CI/installers or manual acceptance"
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/src/workspace_open_tests.rs",
+        "crates/core/tests/workspace_open_ipc.rs",
+        "apps/desktop/src/ExternalWorkspaceOpen.integration.test.tsx",
+        "apps/desktop/src-tauri/src/workspace_open.rs"
+      ],
+      "verified_slices": [
+        {
+          "slice": "directory_only_context_UI_Native_local",
+          "source": "8ac3062617c35aa06a97de4ad3cc6dcb46d7e4bf",
+          "evidence": "docs/execution/workspace-open-directory/ROOT_LOCAL_RESULTS.json",
+          "coverage": "partial; actual macOS/OS/manual not accepted"
+        }
+      ]
     },
     {
       "id": "AB-SES-010",
