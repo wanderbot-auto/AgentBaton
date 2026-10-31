@@ -1,0 +1,7 @@
+# Progress
+
+The existing projector gains optional `attempt_budget_observations` inside `post_shutdown`. Graph rows must match their original run/node/plan/attempt columns, historical node reservation/settlement values and one matching `goal.node_reserved` event. A raw Factory mirror of that attempt is rejected. Selected Factory descendants must match their original attempt reservation and session/task/root/project fields. IDs remain internal; original records are not summed or replaced with the runtime-derived accounting mirror.
+
+Public fields are ordinal, closed record kind, plan-revision bucket, settled boolean, original stored per-attempt runtime/output limits, nullable actual values and nullable `actual > declared` comparisons. Factory planner records receive no inferred plan revision. At most 32 records are emitted; duplicate attempts, missing/ambiguous bindings, bad types or bounds return a pending block with no partial records. The projection does not cover other root/project records or establish admission, stop or authority.
+
+Ten pure controls pass, including positive original-row bindings before negative mutations, mirrored/duplicate/foreign records, bool/int confusion, unknown actual values, exact row-cap positive and negative controls, no private ID leakage and mocked readonly-cursor behavior. Removing only the helper addition and one optional field restores the complete original projector hash. No SQLite or product execution was performed here.

@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T05:13:41.222420+00:00",
+  "base": "accc1aeb4cf33e770a623824a56651b5f30e0eb8",
+  "status": "pure_record_and_mocked_reader_controls_passed_independent_review_and_actual_projection_pending",
+  "scope": "existing finite projector/one pure test file/unit docs only",
+  "source_sha256": {
+    "scripts/record-factory-rework-ci-evidence.py": "ab2e2345cf271a0c330687587295b71b816942fdbdd9da1eca13bc8ec27d7f41",
+    "tests/infrastructure/test_factory_rework_attempt_budget.py": "041d0d668dbbefd78918215b89210415317a11fabfa9b1a1ae324840b143b650"
+  },
+  "original_projector_full_inverse_sha256": "ca0be16d4b9d7f1383280123a6eb702d11492d4226db83c810f854c588f00f53",
+  "retained_Intel_failure": {
+    "run_head": "784afd593f81ac62e638f16dbcf065de4b6fcde9",
+    "Product_run": 41168426054,
+    "Intel_job": 124440924453,
+    "Core_passed": 225,
+    "Factory_passed": 26,
+    "Factory_failed": 1,
+    "raw_log_sha256": "27bdc725b89d9d95f92f706603f68507f8740034eeadfb0fea51aea8c0e90ad7",
+    "official_artifact_id": 13031046592,
+    "downloaded_zip_bytes": 6590,
+    "downloaded_zip_sha256": "62c88a6e5fda97682712a07f72c1bb7dc7c35011ff527a867722a43983c025df",
+    "finite_summary_sha256": "1443de807bf854257d6248f74dc940d20b4cbfcb8e9b109d5fab5d11085f469c",
+    "finite_facts": {
+      "observed_run_revision": 14,
+      "observed_plan_revision": 2,
+      "run_state": "blocked",
+      "failure_code": "REWORK_REVISION2_TERMINAL",
+      "associated_reason": "RESOURCE_LIMIT",
+      "previous_node_settlement": null,
+      "prior_capture_actual_and_reserved_ms": [
+        [
+          3017,
+          4000
+        ],
+        [
+          3909,
+          4000
+        ]
+      ],
+      "prior_capture_same_plan_not_established": true,
+      "validation1_actual_runtime_ms": 2883,
+      "validation1_exit": 1,
+      "validation2_receipt": null,
+      "child_settled_count": 4,
+      "child_settled_actual_runtime_ms": 15793,
+      "root_project_observed_attempts": 6,
+      "root_project_actual_runtime_ms": 18359
+    },
+    "unknown": "Which original per-attempt record exceeded its runtime/output reservation, or which original admission guard fired, is not established. Numeric differences are not identity bindings.",
+    "raw_DB_read_or_reprojected_by_this_author": false
+  },
+  "new_projection_boundaries": {
+    "coverage": "selected-child original Graph and Factory-descendant records only",
+    "other_root_project_records_not_projected": true,
+    "max_records_per_case": 32,
+    "private_ID_path_raw_JSON_SQL_or_error_output": false,
+    "derived_mirror_double_counted": false,
+    "actuals_unknown_remain_null": true,
+    "partial_or_ambiguous_records": "pending; no partial rows",
+    "admission_stop_authority_or_test_verdict": false,
+    "product_or_fixture_budget_change": false
+  },
+  "pure_validation": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/infrastructure -p test_factory_rework_attempt_budget.py",
+    "exit": 0,
+    "tests": 10,
+    "seconds": 0.006,
+    "dimension": "pure dicts and scripted cursor only; sqlite3.connect not called",
+    "existing_source_full_inverse": "passed",
+    "diff_check": "passed"
+  },
+  "not_run": [
+    "existing generated SQLite fixture suite",
+    "actual SQLite/database projection",
+    "Core/Cargo/Node/browser/process execution",
+    "network/CI",
+    "actual new Intel/ARM source checks",
+    "formal product approval"
+  ],
+  "next": [
+    "Independent review of every row-binding predicate and no-ID finite output.",
+    "Root applicable existing suite and actual projection on a fresh owned joined snapshot.",
+    "Keep original Intel failure and admission-versus-retained-overrun cause unknown until exact new facts bind it."
+  ]
+}

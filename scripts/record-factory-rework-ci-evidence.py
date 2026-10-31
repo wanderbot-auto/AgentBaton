@@ -376,6 +376,174 @@ def budget_usage(conn):
         return out
 
 
+MAX_ATTEMPT_BUDGET_ROWS = 32
+
+
+def attempt_budget_origin(origin_row, current_rows):
+    """Internal binding keys only; none are returned in the public projection."""
+    need(type(origin_row) in (list, tuple) and len(origin_row) == 4)
+    goal, scope, child, raw = origin_row
+    for key in (goal, scope, child): attempt_budget_key(key)
+    record = strict_json(raw)
+    initial, origin = record['initial_run'], record['origin']
+    need(record['run_id'] == goal and initial['id'] == goal and initial['task_id'] == child
+         and origin['factory_scope_id'] == scope and origin['initial_plan']['task_id'] == child)
+    root, project, factory, root_task = initial['root_grant_id'], initial['project_id'], origin['factory_run_id'], origin['root_task_id']
+    for key in (root, project, factory, root_task): attempt_budget_key(key)
+    need(len(current_rows) == 1)
+    current = strict_json(current_rows[0][0])
+    need(current['id'] == goal and current['task_id'] == child
+         and current['root_grant_id'] == root and current['project_id'] == project)
+    return {'goal': goal, 'scope': scope, 'child': child, 'root': root,
+            'project': project, 'factory': factory, 'root_task': root_task}
+
+
+def attempt_budget_key(value):
+    need(type(value) is str and 0 < len(value.encode('utf-8')) <= 512 and '\0' not in value)
+    return value
+
+
+def attempt_budget_reservation(value):
+    need(type(value) is dict and set(value) == {'runtime_ms', 'output_bytes', 'tokens', 'cost_microunits'})
+    for key in ('runtime_ms', 'output_bytes'): integer(value[key])
+    for key in ('tokens', 'cost_microunits'): integer(value[key], nullable=True)
+    return value
+
+
+def attempt_budget_metrics(value, reservation, kind, revision):
+    settled = boolean(value['settled'])
+    actual = integer(value['actual_runtime_ms'], nullable=True)
+    output = integer(value['actual_output_bytes'], nullable=True)
+    return {'record_kind': kind, 'plan_revision': revision, 'settled': settled,
+        'declared_runtime_ms': reservation['runtime_ms'], 'actual_runtime_ms': actual,
+        'declared_output_bytes': reservation['output_bytes'], 'actual_output_bytes': output,
+        'runtime_exceeds_declared': None if actual is None else actual > reservation['runtime_ms'],
+        'output_exceeds_declared': None if output is None else output > reservation['output_bytes']}
+
+
+def graph_attempt_budget_fact(origin, row, nodes, events, factory_mirror_count):
+    attempt, run, node_id, raw = row
+    for key in (attempt, run, node_id): attempt_budget_key(key)
+    value = strict_json(raw)
+    need(run == origin['goal'] and value['run_id'] == run and value['node_id'] == node_id)
+    revision = integer(value['plan_revision']); need(revision > 0)
+    reservation = attempt_budget_reservation(value['reservation'])
+    need(type(factory_mirror_count) is int and factory_mirror_count == 0 and len(nodes) == len(events) == 1)
+    nr, nn, rev, na, session, node_raw = nodes[0]
+    need((nr, nn, rev, na) == (run, node_id, revision, attempt) and type(rev) is int)
+    node = strict_json(node_raw)
+    need(node['node']['id'] == node_id and node['plan_revision'] == revision
+         and type(node['plan_revision']) is int and node['attempt_id'] == attempt
+         and node['session_id'] == session and attempt_budget_reservation(node['node']['reservation']) == reservation)
+    if session is not None: attempt_budget_key(session)
+    kind = enum(node['node']['kind'], ('work', 'validate', 'owner_approval', 'summary'))
+    need(boolean(node['stop_confirmed']) == boolean(value['settled']))
+    for key in ('actual_runtime_ms', 'actual_output_bytes', 'tokens', 'cost_microunits'):
+        need(integer(node[key], nullable=True) == integer(value[key], nullable=True))
+    sequence, event_raw = events[0]
+    integer(sequence, (1 << 63) - 1); need(sequence > 0)
+    event = strict_json(event_raw); payload = event['payload']
+    need(event['aggregate_id'] == run and event['source'] == 'goal_core' and event['kind'] == 'goal.node_reserved'
+         and payload['attempt_id'] == attempt and payload['node_id'] == node_id
+         and type(payload['plan_revision']) is int and payload['plan_revision'] == revision
+         and payload['session_id'] == session and attempt_budget_reservation(payload['reservation']) == reservation)
+    return attempt, attempt_budget_metrics(value, reservation, 'graph_' + kind, bucket_revision(revision))
+
+
+def factory_attempt_budget_fact(origin, row, attempts, sessions):
+    attempt, scope, root_task, project, raw = row
+    for key in (attempt, scope, root_task, project): attempt_budget_key(key)
+    value = strict_json(raw)
+    ancestors = value['ancestors']
+    need(type(ancestors) is list and 0 < len(ancestors) <= 33)
+    for key in ancestors: attempt_budget_key(key)
+    need(len(set(ancestors)) == len(ancestors))
+    if origin['child'] not in ancestors: return None
+    need(value['authority_kind'] == 'factory_task' and scope == origin['scope'] == value['scope_id']
+         and root_task == origin['root_task'] == value['root_task_id']
+         and project == origin['project'] == value['project_id']
+         and value['root_grant_id'] == origin['root'] and value['run_id'] == origin['factory']
+         and value['attempt_id'] == attempt and value['task_id'] in ancestors)
+    session, task = attempt_budget_key(value['session_id']), attempt_budget_key(value['task_id'])
+    reservation = attempt_budget_reservation(value['reservation'])
+    need(len(attempts) == len(sessions) == 1)
+    a_session, a_attempt, a_scope, a_run, a_task, a_root, a_reservation, a_raw = attempts[0]
+    need((a_session, a_attempt, a_scope, a_run, a_task, a_root) ==
+         (session, attempt, scope, origin['factory'], task, root_task))
+    need(attempt_budget_reservation(strict_json(a_reservation)) == reservation)
+    actual = strict_json(a_raw)
+    need(all(actual[k] == v for k, v in (('session_id', session), ('attempt_id', attempt),
+        ('scope_id', scope), ('run_id', origin['factory']), ('task_id', task), ('root_task_id', root_task))))
+    need(boolean(actual['stop_confirmed']) == boolean(value['settled']))
+    s_id, s_task, s_project, s_root, s_raw = sessions[0]
+    need((s_id, s_task, s_project, s_root) == (session, task, project, origin['root']))
+    doc = strict_json(s_raw)
+    need(all(doc[k] == v for k, v in (('id', session), ('task_id', task), ('project_id', project),
+        ('root_grant_id', origin['root']), ('attempt_id', attempt))))
+    return attempt, attempt_budget_metrics(value, reservation, 'factory_task', None)
+
+
+def attempt_budget_observations(conn):
+    """Optional post-join row comparisons, never Core authentication/admission.
+
+    Only original selected-child Graph rows and Factory descendant rows are
+    projected. No runtime-derived mirror or other root/project record is summed.
+    Missing source bindings remain unavailable, never inferred from subtotals.
+    """
+    out = {'status': 'pending', 'code': 'missing_or_inconsistent_attempt_bindings',
+        'snapshot_time': 'post_owned_shutdown_not_admission_instant',
+        'coverage': 'selected_child_original_graph_and_factory_descendant_records_only',
+        'other_root_project_records_not_projected': True,
+        'not_an_admission_stop_or_authority_verdict': True, 'records': []}
+    try:
+        for table in ('factory_child_goal_runs', 'goal_runs', 'goal_run_reservations', 'goal_run_nodes',
+                      'factory_budget_reservations', 'factory_attempts', 'sessions', 'events'):
+            schema = conn.execute('SELECT type,sql FROM sqlite_master WHERE name=?', (table,)).fetchone()
+            need(schema is not None and schema[0] == 'table' and type(schema[1]) is str
+                 and re.match(r'CREATE\s+TABLE\s', schema[1], re.I))
+            count, total, maximum = conn.execute(
+                f'SELECT count(*),coalesce(sum(length(CAST(document AS BLOB))),0),'
+                f'coalesce(max(length(CAST(document AS BLOB))),0) FROM {table}').fetchone()
+            integer(count, MAX_EVENT_ROWS if table == 'events' else MAX_ROWS)
+            integer(total, 4 * 1024 * 1024); integer(maximum, 1024 * 1024)
+        origins = conn.execute('SELECT goal_run_id,factory_scope_id,task_id,document FROM factory_child_goal_runs LIMIT 2').fetchall()
+        need(len(origins) == 1)
+        origin = attempt_budget_origin(origins[0], conn.execute(
+            'SELECT document FROM goal_runs WHERE id=? LIMIT 2', (origins[0][0],)).fetchall())
+        records, seen = [], set()
+        def add(result):
+            if result is None: return
+            attempt, fact = result
+            need(attempt not in seen and len(records) < MAX_ATTEMPT_BUDGET_ROWS)
+            seen.add(attempt); records.append({'ordinal': len(records) + 1, **fact})
+        for row in conn.execute('SELECT attempt_id,run_id,node_id,document FROM goal_run_reservations WHERE run_id=? ORDER BY attempt_id', (origin['goal'],)):
+            attempt, run, node, raw = row
+            value = strict_json(raw); revision = integer(value['plan_revision'])
+            nodes = conn.execute('SELECT run_id,node_id,plan_revision,attempt_id,session_id,document '
+                'FROM goal_run_nodes WHERE run_id=? AND node_id=? AND plan_revision=? AND attempt_id=? LIMIT 2',
+                (run, node, revision, attempt)).fetchall()
+            events = conn.execute("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id')=? "
+                "AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.node_reserved' "
+                "AND json_extract(document,'$.payload.attempt_id')=? ORDER BY sequence LIMIT 2", (run, attempt)).fetchall()
+            mirrored = conn.execute('SELECT count(*) FROM factory_budget_reservations WHERE attempt_id=?', (attempt,)).fetchone()[0]
+            add(graph_attempt_budget_fact(origin, row, nodes, events, mirrored))
+        for row in conn.execute('SELECT attempt_id,scope_id,root_task_id,project_id,document '
+                'FROM factory_budget_reservations WHERE scope_id=? ORDER BY attempt_id', (origin['scope'],)):
+            value = strict_json(row[4])
+            ancestors = value['ancestors']; need(type(ancestors) is list and len(ancestors) <= 33)
+            if origin['child'] not in ancestors: continue
+            attempts = conn.execute('SELECT session_id,attempt_id,scope_id,run_id,task_id,root_task_id,reservation,document '
+                'FROM factory_attempts WHERE attempt_id=? LIMIT 2', (row[0],)).fetchall()
+            sessions = conn.execute('SELECT id,task_id,project_id,root_grant_id,document FROM sessions WHERE id=? LIMIT 2',
+                (value['session_id'],)).fetchall()
+            add(factory_attempt_budget_fact(origin, row, attempts, sessions))
+        need(records)
+        out.update(status='collected_bound_record_facts', code='original_row_node_event_or_session_fields_match', records=records)
+        return out
+    except (Invalid, sqlite3.Error, ValueError, KeyError, TypeError, IndexError, OverflowError):
+        return out
+
+
 # Optional original-guard sample, not reconstructed remaining budget/authority.
 ANCESTOR_ADMISSION_GUARDS = frozenset(('attempts', 'parallel', 'runtime', 'output',
     'runtime_overflow', 'output_overflow'))
@@ -712,6 +880,7 @@ def project_db(raw, observation=None):
                     'validation_counts': dict(sorted(validations.items())),
                     'validation_observations': validation_observations(conn, selected),
                     'budget_usage': budget_usage(conn),
+                    'attempt_budget_observations': attempt_budget_observations(conn),
                     'associated_events': project_events(conn, observation)}
         finally:
             conn.close()
