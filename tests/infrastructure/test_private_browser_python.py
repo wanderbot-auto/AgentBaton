@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import sqlite3
 import stat
 import subprocess
@@ -171,11 +172,53 @@ class PrivateCopies(unittest.TestCase):
             chmod.assert_not_called()
 
 
+E874_WORKFLOW_SHA256 = '6d82c3f8799925f89b8a13e395356066995680c7d131d10345c2d6e64fd0bc3d'
+NOTIFICATION_BEFORE_PRIVATE_PYTHON_SHA256 = '989e9bd106fe1860433669ff18ae61bdce695e1718ea97f33117896d98cbc5f7'
+
+
+def strip_composed_notification_layer(text):
+    """Recover the complete old Root workflow, preserving its original pin.
+
+    The notification input pin is an additional closed composition, not a new
+    expected baseline. Both complete notification blocks and the final entire
+    e874 workflow must match their independently retained original bytes.
+    """
+    digest = hashlib.sha256(text.encode()).hexdigest()
+    if digest == E874_WORKFLOW_SHA256:
+        return text
+    if digest != NOTIFICATION_BEFORE_PRIVATE_PYTHON_SHA256:
+        raise ValueError('Unknown private-Python/notification workflow composition')
+    headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
+    neighbors = {
+        27: '      - name: Actual integration frontend with real Core IPC and generated correctness\n',
+        28: '      - name: Retain finite integration browser evidence without private runtime data\n',
+        29: '      - name: Retain finite task notification evidence without private runtime data\n',
+        30: '      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02\n',
+    }
+    if len(headers) <= 30 or any(headers[index].group(0) != title for index, title in neighbors.items()):
+        raise ValueError('Notification workflow positions or neighbors changed')
+    start, end = headers[27].start(), headers[28].start()
+    added_start, added_end = headers[29].start(), headers[30].start()
+    driver, added = text[start:end], text[added_start:added_end]
+    if (hashlib.sha256(driver.encode()).hexdigest() != W.INTEGRATION_SETUP_NOTIFICATION_STEP_SHA256
+            or hashlib.sha256(added.encode()).hexdigest() != W.TASK_NOTIFICATION_STEP_SHA256
+            or text.count(W.TASK_NOTIFICATION_FLAG) != 1 or driver.count(W.TASK_NOTIFICATION_FLAG) != 1):
+        raise ValueError('Complete reviewed notification blocks changed')
+    original_driver = driver.replace(W.TASK_NOTIFICATION_FLAG, '', 1)
+    if hashlib.sha256(original_driver.encode()).hexdigest() != W.INTEGRATION_SETUP_STEP_SHA256:
+        raise ValueError('Notification flag inverse changed original integration guards')
+    restored = text[:added_start] + text[added_end:]
+    restored = restored[:start] + original_driver + restored[end:]
+    if hashlib.sha256(restored.encode()).hexdigest() != E874_WORKFLOW_SHA256:
+        raise ValueError('Notification inverse changed the complete e874 workflow')
+    return restored
+
+
 class ExactWorkflowLayer(unittest.TestCase):
     def test_single_command_inverse_restores_entire_e874_workflow_and_all_old_pins(self):
         text=(ROOT/'.github/workflows/product.yml').read_text()
         old=W.strip_private_browser_python(text)
-        self.assertEqual(hashlib.sha256(old.encode()).hexdigest(),'6d82c3f8799925f89b8a13e395356066995680c7d131d10345c2d6e64fd0bc3d')
+        self.assertEqual(hashlib.sha256(strip_composed_notification_layer(old).encode()).hexdigest(),'6d82c3f8799925f89b8a13e395356066995680c7d131d10345c2d6e64fd0bc3d')
         self.assertEqual(old,text.replace(W.PRIVATE_BROWSER_PYTHON_AFTER,W.PRIVATE_BROWSER_PYTHON_BEFORE,1))
         W.verify_only_six_historical_target_changes(text)
         W.verify_only_six_historical_target_changes(old)
@@ -191,6 +234,54 @@ class ExactWorkflowLayer(unittest.TestCase):
                 W.verify_only_six_historical_target_changes(text.replace(before,after,1))
         with self.assertRaises(ValueError):
             W.verify_only_six_historical_target_changes(text.replace(W.PRIVATE_BROWSER_PYTHON_AFTER,W.PRIVATE_BROWSER_PYTHON_AFTER*2,1))
+
+    def test_composed_inverse_preserves_original_driver_and_old_workflow_without_git_objects(self):
+        composed = W.strip_private_browser_python((ROOT/'.github/workflows/product.yml').read_text())
+        restored = strip_composed_notification_layer(composed)
+        self.assertEqual(hashlib.sha256(composed.encode()).hexdigest(), NOTIFICATION_BEFORE_PRIVATE_PYTHON_SHA256)
+        self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), E874_WORKFLOW_SHA256)
+        self.assertEqual(strip_composed_notification_layer(restored), restored)
+        self.assertNotIn(W.TASK_NOTIFICATION_FLAG, restored)
+        self.assertNotIn('      - name: Retain finite task notification evidence without private runtime data\n', restored)
+        start = restored.index('      - name: Actual integration frontend with real Core IPC and generated correctness\n')
+        end = restored.index('      - name: Retain finite integration browser evidence without private runtime data\n', start)
+        self.assertEqual(hashlib.sha256(restored[start:end].encode()).hexdigest(), W.INTEGRATION_SETUP_STEP_SHA256)
+
+    def test_composed_layer_rejects_changed_missing_duplicate_moved_or_raw_edited_notification(self):
+        text = W.strip_private_browser_python((ROOT/'.github/workflows/product.yml').read_text())
+        self.assertEqual(hashlib.sha256(strip_composed_notification_layer(text).encode()).hexdigest(), E874_WORKFLOW_SHA256)
+        title = '      - name: Retain finite task notification evidence without private runtime data\n'
+        start = text.index(title); end = text.index('      - uses:', start)
+        addition = text[start:end]; without = text[:start] + text[end:]
+        variants = [
+            text.replace(W.TASK_NOTIFICATION_FLAG, '', 1),
+            text.replace(W.TASK_NOTIFICATION_FLAG, W.TASK_NOTIFICATION_FLAG * 2, 1),
+            text.replace("'--notification-probe',", "'--notification-probe', '--approve-all',", 1),
+            without,
+            text[:start] + addition + addition + text[end:],
+            text[:start] + addition.replace('\n', '\r\n') + text[end:],
+            text[:start] + addition.replace('if: always()', 'if: success()', 1) + text[end:],
+            text[:start] + addition.replace("'--driver-step-outcome', outcome,", "'--driver-step-outcome', 'success',", 1) + text[end:],
+            without.replace('      - name: Retain finite integration browser evidence without private runtime data\n',
+                addition + '      - name: Retain finite integration browser evidence without private runtime data\n', 1),
+        ]
+        for index, changed in enumerate(variants):
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                strip_composed_notification_layer(changed)
+
+    def test_composition_cannot_hide_changes_to_either_complete_workflow(self):
+        composed = W.strip_private_browser_python((ROOT/'.github/workflows/product.yml').read_text())
+        original = strip_composed_notification_layer(composed)
+        for label, text in [('composed', composed), ('original', original)]:
+            self.assertEqual(hashlib.sha256(strip_composed_notification_layer(text).encode()).hexdigest(), E874_WORKFLOW_SHA256)
+            for before, after in [('contents: read', 'contents: write'),
+                    ('timeout-minutes: 20', 'timeout-minutes: 21'),
+                    ('--require-hashes', '--no-deps'), ('134217728', '268435456')]:
+                self.assertIn(before, text)
+                with self.subTest(layer=label, before=before), self.assertRaises(ValueError):
+                    strip_composed_notification_layer(text.replace(before, after, 1))
+            with self.subTest(layer=label, change='extra outside byte'), self.assertRaises(ValueError):
+                strip_composed_notification_layer(text + '# unknown workflow byte\n')
 
 
 if __name__=='__main__':unittest.main()
