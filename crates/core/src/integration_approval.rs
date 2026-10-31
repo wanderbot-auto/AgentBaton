@@ -439,22 +439,28 @@ mod request_domain_tests {
     fn malformed_duplicate_unknown_and_oversized_integration_fallback_never_finalize() {
         let root = tempfile::tempdir().unwrap();
         let mut store = Store::open(&root.path().join("baton.sqlite3")).unwrap();
-        let original = proposal("guarded", "integration");
-        let duplicate = original.replace(
-            "\"kind\":\"integration\"",
-            "\"kind\":\"integration\",\"kind\":\"grant\"",
-        );
-        let unknown = original.replacen('{', "{\"caller_authorized\":true,", 1);
-        let oversized = format!(
-            "{original}{}",
-            " ".repeat(MAX_INTEGRATION_BYTES + 1 - original.len())
-        );
-        for (id, text) in [
-            ("malformed", "{\"kind\":\"integration\"".into()),
-            ("duplicate-kind", duplicate),
-            ("unknown-authority", unknown),
-            ("oversized", oversized),
+        for id in [
+            "malformed",
+            "duplicate-kind",
+            "unknown-authority",
+            "oversized",
         ] {
+            // Each original document matches its row: only the named corruption
+            // may explain refusal, never an unrelated record-identity mismatch.
+            let original = proposal(id, "integration");
+            let text = match id {
+                "malformed" => original[..original.len() - 1].to_owned(),
+                "duplicate-kind" => original.replace(
+                    "\"kind\":\"integration\"",
+                    "\"kind\":\"integration\",\"kind\":\"grant\"",
+                ),
+                "unknown-authority" => original.replacen('{', "{\"caller_authorized\":true,", 1),
+                "oversized" => format!(
+                    "{original}{}",
+                    " ".repeat(MAX_INTEGRATION_BYTES + 1 - original.len())
+                ),
+                _ => unreachable!(),
+            };
             put(&store, id, &text);
             let before = documents(&store);
             let sequence = store.sequence().unwrap();
@@ -465,10 +471,18 @@ mod request_domain_tests {
                     .is_none(),
                 "{id}"
             );
-            assert!(
-                store.finalize_proposal(id, 1).is_err(),
-                "{id}: fallback granted authority"
-            );
+            let error = store.finalize_proposal(id, 1).unwrap_err();
+            if id == "oversized" {
+                assert_eq!(error.code, "RESOURCE_LIMIT", "{id}: {error:?}");
+                assert_eq!(error.message, "Integration record or shared resource bound exceeded; no history was truncated");
+            } else {
+                assert_eq!(error.code, "INTERNAL_ERROR", "{id}: {error:?}");
+                assert_eq!(
+                    error.message,
+                    "Stored record is invalid; restore or export the database"
+                );
+            }
+            assert_eq!(error.side_effect_state, "not_started", "{id}: {error:?}");
             unchanged(&store, sequence, &before);
         }
     }

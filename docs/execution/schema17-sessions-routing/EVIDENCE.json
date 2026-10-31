@@ -51,5 +51,20 @@
   "requirement_ids": [
     "AB-SEC-001",
     "AB-SEC-007"
-  ]
+  ],
+  "review_test_correction": {
+    "status": "source_only_not_runtime",
+    "identity": "each original ApprovalProposal.id equals its row id before named corruption",
+    "first_three_expected": [
+      "INTERNAL_ERROR",
+      "Stored record is invalid; restore or export the database",
+      "not_started"
+    ],
+    "one_mib_plus_one_expected": [
+      "RESOURCE_LIMIT",
+      "Integration record or shared resource bound exceeded; no history was truncated",
+      "not_started"
+    ],
+    "production_changed": false
+  }
 }

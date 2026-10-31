@@ -9,3 +9,5 @@ The accepted-history tamper test now opens a valid Store before external corrupt
 Three unit-test sources cover domain routing, malformed/duplicate/unknown/oversized fallback refusal and original exact-byte/native-finalizer/ID boundaries. Existing concurrent-review expectations are unchanged.
 
 Only source/static checks and rustfmt were executed by the author. Compilation, SQLite, actual IPC and CI remain unrun for this candidate.
+
+Independent review identified two weaknesses in the new negative-test source: documents shared an unrelated `guarded` identity, and finalization checked only a generic error. The correction constructs each corruption from a document matching its row ID and requires the exact original `INTERNAL_ERROR`/stored-record-invalid refusal for malformed/duplicate-key/unknown-field cases, or Integration `RESOURCE_LIMIT`/raw-bound refusal for one-MiB-plus-one. All four require `not_started` and the original no-mutation assertions. Production source is unchanged by this correction. These assertions remain uncompiled/unexecuted until Root validation.
