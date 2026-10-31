@@ -59,6 +59,7 @@ export function App() {
   const [sessionsFresh, setSessionsFresh] = useState(false);
   const [eventsFresh, setEventsFresh] = useState(false);
   const [eventGapObserved, setEventGapObserved] = useState(false);
+  const [eventSequence, setEventSequence] = useState<number | null>(null);
   const [focusedEventId, setFocusedEventId] = useState<string>();
   const [focusedEventRequest, setFocusedEventRequest] = useState(0);
   const eventRequestCursor = useRef<number | undefined>(undefined);
@@ -101,6 +102,7 @@ export function App() {
       }
       if (history.status === 'fulfilled') {
         const batch = history.value;
+        setEventSequence(batch.sequence);
         setEvents(earlierEventWindow(batch.events, []).events); setWindowReplacement(null); setByteLimitedPage(!!batch.byte_limited); setEarliestCursor(cursor);
         setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence);
         setEventsFresh(!batch.gap);
@@ -132,7 +134,7 @@ export function App() {
   }, []);
   useEffect(() => {
     function shortcut(event: KeyboardEvent) {
-      if (dialog) return;
+      if (dialog || document.querySelector('[role="dialog"][aria-modal="true"]')) return;
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setQuery(''); setDialog('search'); }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'n') { event.preventDefault(); newTask(); }
       if (event.key === 'Escape' && selectedId && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) setSelectedId(undefined);
@@ -190,6 +192,7 @@ export function App() {
       const older = batch.events.filter(event => event.sequence <= earliestCursor);
       if (!older.length) { setEventGapObserved(true); setError(t.eventGap); return; }
       const window = earlierEventWindow(older, events);
+      setEventSequence(batch.sequence);
       setEvents(window.events); setWindowReplacement(window.reason); setByteLimitedPage(!!batch.byte_limited); setEarliestCursor(cursor); eventRequestCursor.current = cursor;
       setEventsFresh(true);
       if (window.replaced || batch.byte_limited) { setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence); }
@@ -204,6 +207,7 @@ export function App() {
       const cursor = nextEventCursor, batch = await api.events(cursor);
       if (request !== refreshSequence.current) return;
       if (batch.gap || (batch.next_cursor <= cursor && batch.sequence > cursor)) { setEventGapObserved(true); setError(t.eventGap); return; }
+      setEventSequence(batch.sequence);
       setEvents(earlierEventWindow(batch.events, []).events); setWindowReplacement(null); setByteLimitedPage(!!batch.byte_limited); setEarliestCursor(cursor); setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence); eventRequestCursor.current = cursor;
       setEventsFresh(true);
     } catch (e) { showError(e); }
@@ -221,7 +225,7 @@ export function App() {
   const dialogTitle = dialog === 'projects' ? c.projectSettings : dialog === 'execution' ? c.execution : dialog === 'search' ? c.searchTasks : dialog === 'conversion' ? c.convertTitle : c.settings;
   const eventPager = <>{windowReplacement && <p role="status">{windowReplacement === 'bytes' ? t.windowBudget : t.windowLimit}</p>}{byteLimitedPage && <p role="status">{t.bytePageLimit}</p>}{eventPageMore && <div className="event-page-controls"><p className="hint">{t.eventPageMore}</p><button onClick={() => void loadNextEvents()} disabled={busy || status !== 'connected'}>{t.nextEvents}</button></div>}</>;
   return <div className={`shell${navCollapsed ? ' nav-collapsed' : ''}${mobileNav ? ' mobile-nav-open' : ''}`}>
-    <header className="appbar"><div className="brand"><svg className="brandmark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 19 11 4h5L8 19Zm9 1 7-13h4l-7 13Z" /></svg><span>AgentBaton</span></div><button className="icon-button nav-toggle" aria-label={c.toggleNav} aria-expanded={mobileLayout ? mobileNav : !navCollapsed} onClick={() => { if (mobileLayout) setMobileNav(value => !value); else setNavCollapsed(value => !value); }}><Icon name="panel" /></button><div className="location"><span>{c.personal}</span><span className="location-divider">/</span><button onClick={() => setDialog('projects')}>{projectId ? projectName(projectId) : c.allProjects}</button></div><span className={`connection task-notifications-connection ${status}`} role="status"><span className="status-dot" />{t[status]}</span><TaskNotifications tasks={tasks} sessions={sessions} events={events} language={language} observation={{ connected: status === 'connected', tasksFresh, sessionsFresh, eventsFresh, eventLimited: eventGapObserved || earliestCursor > 0 || eventPageMore || byteLimitedPage || windowReplacement !== null }} onOpenTask={openTask} onViewEvent={viewNotificationEvent} /><button className="icon-button" aria-label={t.refresh} disabled={busy} onClick={() => void refresh()}><Icon name="refresh" /></button></header>
+    <header className="appbar"><div className="brand"><svg className="brandmark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 19 11 4h5L8 19Zm9 1 7-13h4l-7 13Z" /></svg><span>AgentBaton</span></div><button className="icon-button nav-toggle" aria-label={c.toggleNav} aria-expanded={mobileLayout ? mobileNav : !navCollapsed} onClick={() => { if (mobileLayout) setMobileNav(value => !value); else setNavCollapsed(value => !value); }}><Icon name="panel" /></button><div className="location"><span>{c.personal}</span><span className="location-divider">/</span><button onClick={() => setDialog('projects')}>{projectId ? projectName(projectId) : c.allProjects}</button></div><span className={`connection task-notifications-connection ${status}`} role="status"><span className="status-dot" />{t[status]}</span><TaskNotifications tasks={tasks} sessions={sessions} events={events} language={language} observation={{ connected: status === 'connected', tasksFresh, sessionsFresh, eventsFresh, eventSequence, eventLimited: eventGapObserved || earliestCursor > 0 || eventPageMore || byteLimitedPage || windowReplacement !== null }} onOpenTask={openTask} onViewEvent={viewNotificationEvent} /><button className="icon-button" aria-label={t.refresh} disabled={busy} onClick={() => void refresh()}><Icon name="refresh" /></button></header>
     {mobileNav && <button className="mobile-nav-dismiss" aria-label={c.close} onClick={() => setMobileNav(false)} />}
     <aside className="sidebar"><div className="sidebar-top"><button className="new-button" aria-label={c.newTask} title={c.newTask} onClick={newTask}><Icon name="plus" /><span>{c.newTask}</span><kbd>⌘ N</kbd></button><button className="nav-item" aria-label={c.search} title={c.search} onClick={() => { setQuery(''); setDialog('search'); }}><Icon name="search" /><span>{c.search}</span><kbd>⌘ K</kbd></button></div><nav aria-label={language === 'zh' ? '主导航' : 'Main navigation'}>{nav.map(([item, icon, label]) => <button className="nav-item" key={item} aria-current={view === item ? 'page' : undefined} onClick={() => navigate(item)} title={label}><Icon name={icon} /><span>{label}</span></button>)}</nav><div className="sidebar-projects"><div className="sidebar-label">{t.projects}</div><button className="nav-item" onClick={() => setDialog('projects')} title={c.projectSettings}><Icon name="plus" /><span>{c.projectSettings}</span></button>{projects.filter(project => !project.archived).map(project => <button className="nav-item" key={project.id} aria-pressed={projectId === project.id} onClick={() => { setProjectId(current => current === project.id ? '' : project.id); navigate('work'); }} title={project.name}><Icon name="folder" /><span>{project.name}</span></button>)}</div><div className="sidebar-bottom"><button className="nav-item" aria-current={view === 'quick' ? 'page' : undefined} onClick={() => navigate('quick')} title={c.quick}><Icon name="chat" /><span>{c.quick}</span></button><label className="language"><span>{t.language}</span><select aria-label={t.language} value={language} onChange={event => setLanguage(event.target.value as Language)}><option value="en">English</option><option value="zh">简体中文</option></select></label><button className="nav-item" onClick={() => setDialog('settings')} title={c.settings}><Icon name="settings" /><span>{c.settings}</span></button></div></aside>
     <main className="main"><div className={`page-scroll${showingCanvas ? ' has-composer' : ''}`}><div className="canvas">

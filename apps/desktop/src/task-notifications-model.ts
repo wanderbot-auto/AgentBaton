@@ -9,6 +9,7 @@ export interface NotificationObservation {
   sessionsFresh: boolean;
   eventsFresh: boolean;
   eventLimited: boolean;
+  eventSequence: number | null;
 }
 export type NotificationCategory = 'accepted' | 'failed' | 'unknown' | 'cancelRequested' | 'approval' | 'acceptanceUnverified' | 'sessionAttention' | 'observed';
 /** Metadata only. Payloads/text never supply task identity, authority or status. */
@@ -22,7 +23,7 @@ export interface NotificationEventSource {
   source: string;
   occurredAt: string;
 }
-export interface NotificationEvidence { refs: NotificationEventSource[]; limited: boolean }
+export interface NotificationEvidence { refs: NotificationEventSource[]; limited: boolean; conflictedIds: string[]; navigationBlocked: boolean }
 export interface TaskNotification {
   taskId: string;
   goal: string;
@@ -59,28 +60,43 @@ function boundedProjections(tasks: Task[], sessions: ManagedSession[]) {
 }
 
 /** Retain bounded references across page replacement; absence never means resolved. */
-export function retainNotificationEvidence(previous: NotificationEvidence, tasks: Task[], sessions: ManagedSession[], events: JournalEvent[]): NotificationEvidence {
+export function retainNotificationEvidence(previous: NotificationEvidence, tasks: Task[], sessions: ManagedSession[], events: JournalEvent[], eventSequence: number | null): NotificationEvidence {
   const { taskMap, sessionMap, limited: projectionLimited } = boundedProjections(tasks, sessions);
   let limited = previous.limited || projectionLimited || events.length > NOTIFICATION_LIMITS.events;
+  let navigationBlocked = previous.navigationBlocked || previous.conflictedIds.length > NOTIFICATION_LIMITS.events;
+  const conflictedIds = new Set(previous.conflictedIds.slice(-NOTIFICATION_LIMITS.events));
+  const seenIds = new Set<string>();
+  function conflict(id: string) {
+    limited = true;
+    if (conflictedIds.has(id)) return;
+    if (conflictedIds.size < NOTIFICATION_LIMITS.events) conflictedIds.add(id);
+    else navigationBlocked = true; // Fail closed if the bounded conflict registry fills.
+  }
   const refs = new Map<string, NotificationEventSource>();
   for (const ref of previous.refs.slice(-NOTIFICATION_LIMITS.events)) refs.set(ref.eventId, ref);
   if (previous.refs.length > NOTIFICATION_LIMITS.events) limited = true;
+  const upperBoundValid = Number.isSafeInteger(eventSequence) && eventSequence !== null && eventSequence >= 0;
   for (const event of events.slice(-NOTIFICATION_LIMITS.events)) {
+    if (!idValid(event.event_id)) { limited = true; continue; }
+    // Even duplicate metadata may hide differing raw payloads. Never choose one
+    // original by ID when more than one record with that ID was observed.
+    if (seenIds.has(event.event_id)) conflict(event.event_id);
+    seenIds.add(event.event_id);
+    if (!upperBoundValid || !revisionValid(event.sequence) || event.sequence > eventSequence! || !revisionValid(event.revision) || typeof event.kind !== 'string' || event.kind.length > 128) { limited = true; if (refs.has(event.event_id)) conflict(event.event_id); continue; }
     const session = sessionMap.get(event.aggregate_id);
     const taskId = taskMap.has(event.aggregate_id) ? event.aggregate_id : session?.task_id;
-    if (!taskId) continue;
-    if (!idValid(event.event_id) || !revisionValid(event.sequence) || !revisionValid(event.revision) || typeof event.kind !== 'string' || event.kind.length > 128) { limited = true; continue; }
+    if (!taskId) { if (refs.has(event.event_id)) conflict(event.event_id); continue; }
     const ref: NotificationEventSource = { taskId, ...(session ? { sessionId: session.id } : {}), eventId: event.event_id, sequence: event.sequence, revision: event.revision, kind: event.kind, source: notificationText(event.source), occurredAt: notificationText(event.occurred_at, 80) };
     const existing = refs.get(ref.eventId);
     if (existing) {
-      if (existing.taskId !== ref.taskId || existing.sequence !== ref.sequence || existing.kind !== ref.kind || existing.revision !== ref.revision || existing.sessionId !== ref.sessionId || existing.source !== ref.source) limited = true;
+      if (existing.taskId !== ref.taskId || existing.sequence !== ref.sequence || existing.kind !== ref.kind || existing.revision !== ref.revision || existing.sessionId !== ref.sessionId || existing.source !== ref.source || existing.occurredAt !== ref.occurredAt) conflict(ref.eventId);
       continue;
     }
     refs.set(ref.eventId, ref);
   }
   const ordered = [...refs.values()].sort((a, b) => a.sequence - b.sequence);
   if (ordered.length > NOTIFICATION_LIMITS.events) limited = true;
-  return { refs: ordered.slice(-NOTIFICATION_LIMITS.events), limited };
+  return { refs: ordered.slice(-NOTIFICATION_LIMITS.events), limited, conflictedIds: [...conflictedIds], navigationBlocked };
 }
 
 export function aggregateTaskNotifications(tasks: Task[], sessions: ManagedSession[], evidence: NotificationEvidence, observation: NotificationObservation): { rows: TaskNotification[]; limited: boolean } {

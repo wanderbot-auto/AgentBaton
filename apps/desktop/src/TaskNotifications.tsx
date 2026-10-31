@@ -17,7 +17,7 @@ interface TaskNotificationsProps {
   onViewEvent: (eventId: string) => void;
 }
 const preferenceKey = 'agentbaton.notifications.doNotDisturb';
-const emptyEvidence: NotificationEvidence = { refs: [], limited: false };
+const emptyEvidence: NotificationEvidence = { refs: [], limited: false, conflictedIds: [], navigationBlocked: false };
 
 /** In-app observation surface only. No OS notification, execution or approval API. */
 export function TaskNotifications({ tasks, sessions, events, language, observation, onOpenTask, onViewEvent }: TaskNotificationsProps) {
@@ -29,10 +29,10 @@ export function TaskNotifications({ tasks, sessions, events, language, observati
     try { return { enabled: localStorage.getItem(preferenceKey) === 'true', windowOnly: false }; }
     catch { return { enabled: false, windowOnly: true }; }
   });
-  const evidence = retainNotificationEvidence(retained, tasks, sessions, events);
+  const evidence = retainNotificationEvidence(retained, tasks, sessions, events, observation.eventSequence);
   useEffect(() => {
-    setRetained(previous => retainNotificationEvidence(previous, tasks, sessions, events));
-  }, [tasks, sessions, events]);
+    setRetained(previous => retainNotificationEvidence(previous, tasks, sessions, events, observation.eventSequence));
+  }, [tasks, sessions, events, observation.eventSequence]);
   const model = aggregateTaskNotifications(tasks, sessions, evidence, observation);
   const pages = Math.max(1, Math.ceil(model.rows.length / NOTIFICATION_LIMITS.rows));
   const currentPage = Math.min(page, pages - 1);
@@ -56,7 +56,7 @@ export function TaskNotifications({ tasks, sessions, events, language, observati
         {!observation.sessionsFresh && <p className="hint">{t.sessionsStale}</p>}
         {!observation.eventsFresh && <p className="hint">{t.eventsStale}</p>}
         {(model.limited || observation.eventLimited || !observation.eventsFresh || !observation.connected) && <p className="hint">{t.limited}</p>}
-        {!model.rows.length ? <p>{t.empty}</p> : <ul className="task-notifications-list">{model.rows.slice(currentPage * NOTIFICATION_LIMITS.rows, (currentPage + 1) * NOTIFICATION_LIMITS.rows).map(row => <Notice key={row.taskId} row={row} language={language} observation={observation} events={events} onOpenTask={id => { setOpen(false); onOpenTask(id); }} onViewEvent={id => { setOpen(false); onViewEvent(id); }} />)}</ul>}
+        {!model.rows.length ? <p>{t.empty}</p> : <ul className="task-notifications-list">{model.rows.slice(currentPage * NOTIFICATION_LIMITS.rows, (currentPage + 1) * NOTIFICATION_LIMITS.rows).map(row => <Notice key={row.taskId} row={row} language={language} observation={observation} events={events} evidence={evidence} onOpenTask={id => { setOpen(false); onOpenTask(id); }} onViewEvent={id => { setOpen(false); onViewEvent(id); }} />)}</ul>}
         {pages > 1 && <Pager page={currentPage} pages={pages} language={language} onChange={setPage} />}
       </div>
     </ContextDialog>}
@@ -68,7 +68,7 @@ function Pager({ page, pages, language, onChange }: { page: number; pages: numbe
   return <div className="task-notifications-pager"><button type="button" disabled={page === 0} onClick={() => onChange(page - 1)}>{t.previous}</button><span>{t.page} {page + 1} / {pages}</span><button type="button" disabled={page + 1 >= pages} onClick={() => onChange(page + 1)}>{t.next}</button></div>;
 }
 
-function Notice({ row, language, observation, events, onOpenTask, onViewEvent }: { row: TaskNotification; language: Language; observation: NotificationObservation; events: JournalEvent[]; onOpenTask: (id: string) => void; onViewEvent: (id: string) => void }) {
+function Notice({ row, language, observation, events, evidence, onOpenTask, onViewEvent }: { row: TaskNotification; language: Language; observation: NotificationObservation; events: JournalEvent[]; evidence: NotificationEvidence; onOpenTask: (id: string) => void; onViewEvent: (id: string) => void }) {
   const t = taskNotificationMessages[language];
   const [sourcePage, setSourcePage] = useState(0);
   const [sessionPage, setSessionPage] = useState(0);
@@ -85,8 +85,10 @@ function Notice({ row, language, observation, events, onOpenTask, onViewEvent }:
       {row.sessions.length > 0 && <><p className="hint">{t.sessionOnly}{!observation.sessionsFresh || !observation.connected ? ` ${t.sessionsStale}` : ''}</p><ul>{row.sessions.slice(currentSessionPage * NOTIFICATION_LIMITS.sources, (currentSessionPage + 1) * NOTIFICATION_LIMITS.sources).map(session => <li key={session.id}>{t.sessionProjection}: <code>{session.id}</code> · {t.revision} {session.revision} · {t.state}: <code>{session.state}{session.turnState ? ` / ${session.turnState}` : ''}</code> · {t.updated}: {session.updatedAt}</li>)}</ul>{sessionPages > 1 && <Pager page={currentSessionPage} pages={sessionPages} language={language} onChange={setSessionPage} />}</>}
       <h3>{t.events}</h3><p className="hint">{t.eventOnly}</p>
       {row.sources.length ? <ol>{row.sources.slice(currentSourcePage * NOTIFICATION_LIMITS.sources, (currentSourcePage + 1) * NOTIFICATION_LIMITS.sources).map(source => {
-        const loaded = events.slice(-NOTIFICATION_LIMITS.events).some(event => event.event_id === source.eventId && event.aggregate_id === (source.sessionId ?? source.taskId) && event.sequence === source.sequence && event.revision === source.revision && event.kind === source.kind && event.source === source.source);
-        return <li key={source.eventId}><details><summary><code>{source.kind}</code> · #{source.sequence}</summary><dl><dt>{t.eventId}</dt><dd>{source.eventId}</dd><dt>{t.aggregate}</dt><dd>{source.sessionId ?? source.taskId}</dd><dt>{t.origin}</dt><dd>{source.source || '—'}</dd><dt>{t.revision}</dt><dd>{source.revision}</dd><dt>{t.updated}</dt><dd>{source.occurredAt}</dd></dl>{loaded ? <button type="button" onClick={() => onViewEvent(source.eventId)}>{t.viewEvent}</button> : <p className="hint">{t.outsideWindow}</p>}</details></li>;
+        const originals = events.slice(-NOTIFICATION_LIMITS.events).filter(event => event.event_id === source.eventId);
+        const conflicting = evidence.navigationBlocked || evidence.conflictedIds.includes(source.eventId) || originals.length > 1;
+        const loaded = !conflicting && originals.length === 1 && originals[0].aggregate_id === (source.sessionId ?? source.taskId) && originals[0].sequence === source.sequence && originals[0].revision === source.revision && originals[0].kind === source.kind && originals[0].source === source.source && originals[0].occurred_at === source.occurredAt;
+        return <li key={source.eventId}><details><summary><code>{source.kind}</code> · #{source.sequence}</summary><dl><dt>{t.eventId}</dt><dd>{source.eventId}</dd><dt>{t.aggregate}</dt><dd>{source.sessionId ?? source.taskId}</dd><dt>{t.origin}</dt><dd>{source.source || '—'}</dd><dt>{t.revision}</dt><dd>{source.revision}</dd><dt>{t.updated}</dt><dd>{source.occurredAt}</dd></dl>{loaded ? <button type="button" onClick={() => onViewEvent(source.eventId)}>{t.viewEvent}</button> : <p className="hint">{conflicting ? t.conflictingSource : t.outsideWindow}</p>}</details></li>;
       })}</ol> : <p className="hint">{t.noEvents}</p>}
       {sourcePages > 1 && <Pager page={currentSourcePage} pages={sourcePages} language={language} onChange={setSourcePage} />}
     </details>

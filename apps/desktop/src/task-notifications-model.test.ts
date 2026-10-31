@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { JournalEvent, Task } from './api';
 import type { ManagedSession } from './session-api';
-import { aggregateTaskNotifications, NOTIFICATION_LIMITS, retainNotificationEvidence, type NotificationObservation } from './task-notifications-model';
+import { aggregateTaskNotifications, NOTIFICATION_LIMITS, retainNotificationEvidence as retainEvidence, type NotificationEvidence, type NotificationObservation } from './task-notifications-model';
 
 const task: Task = { id: 'task-1', project_id: 'project-1', goal: 'Review real evidence', state: 'running', revision: 3, created_at: '2026-10-31T00:00:00Z', updated_at: '2026-10-31T00:02:00Z' };
 const session: ManagedSession = { id: 'session-1', task_id: task.id, project_id: 'project-1', workspace_id: 'workspace-1', connection_id: 'connection-1', grant_id: 'grant-1', state: 'ready', revision: 3, native_session_id: null, created_at: task.created_at, updated_at: task.updated_at, last_error: null, turn_state: null };
-const observation: NotificationObservation = { connected: true, tasksFresh: true, sessionsFresh: true, eventsFresh: true, eventLimited: false };
+const observation: NotificationObservation = { connected: true, tasksFresh: true, sessionsFresh: true, eventsFresh: true, eventLimited: false, eventSequence: 10000 };
 const event = (sequence: number, overrides: Partial<JournalEvent> = {}): JournalEvent => ({ sequence, event_id: `event-${sequence}`, aggregate_id: session.id, revision: sequence, kind: 'session.outcome_unknown', occurred_at: task.updated_at, source: 'baton_supervisor', payload: { reason: 'failed' }, ...overrides });
-const empty = { refs: [], limited: false };
+const empty: NotificationEvidence = { refs: [], limited: false, conflictedIds: [], navigationBlocked: false };
+const retainNotificationEvidence = (previous: NotificationEvidence, tasks: Task[], sessions: ManagedSession[], events: JournalEvent[], eventSequence: number | null = 10000) => retainEvidence(previous, tasks, sessions, events, eventSequence);
 
 describe('Task notification observation model', () => {
   it('aggregates 100 repeated events into one Task notice and retains every real reference', () => {
@@ -75,6 +76,49 @@ describe('Task notification observation model', () => {
     expect(bounded.rows).toHaveLength(NOTIFICATION_LIMITS.tasks);
     expect(bounded.rows.every(row => row.goal.length === 160)).toBe(true);
     const malformed = retainNotificationEvidence(empty, [task], [session], [event(1, { event_id: 'x'.repeat(257) }), event(0), event(2, { kind: 'x'.repeat(129) })]);
-    expect(malformed).toEqual({ refs: [], limited: true });
+    expect(malformed).toEqual({ ...empty, limited: true });
+  });
+
+  it('retains event ID conflicts across pages, including changed times and duplicate metadata', () => {
+    const otherTask = { ...task, id: 'task-2' };
+    const first = retainNotificationEvidence(empty, [task, otherTask], [session], [event(1)]);
+    const conflict = retainNotificationEvidence(first, [task, otherTask], [session], [event(2, { event_id: 'event-1', aggregate_id: otherTask.id }), event(1)]);
+    expect(conflict.conflictedIds).toEqual(['event-1']);
+    expect(conflict.refs).toHaveLength(1);
+    expect(conflict.refs[0]).toMatchObject({ taskId: task.id, sessionId: session.id, sequence: 1 });
+    const laterPage = retainNotificationEvidence(conflict, [task], [session], [event(1)]);
+    expect(laterPage.conflictedIds).toEqual(['event-1']);
+    expect(laterPage.limited).toBe(true);
+    expect(retainNotificationEvidence(first, [task], [session], [event(1, { occurred_at: '2026-10-31T01:00:00Z' })]).conflictedIds).toEqual(['event-1']);
+    expect(retainNotificationEvidence(empty, [task], [session], [event(1), event(1)]).conflictedIds).toEqual(['event-1']);
+    // Re-observing one identical record on a later refresh is ordinary replay.
+    expect(retainNotificationEvidence(first, [task], [session], [event(1)]).conflictedIds).toEqual([]);
+  });
+
+  it('bounds sticky conflicts and disables all source navigation if their registry fills', () => {
+    const events = Array.from({ length: NOTIFICATION_LIMITS.events }, (_, index) => event(index + 1));
+    const first = retainNotificationEvidence(empty, [task], [session], events);
+    const conflicts = retainNotificationEvidence(first, [task], [session], events.map(record => ({ ...record, source: 'changed' })));
+    expect(conflicts.conflictedIds).toHaveLength(NOTIFICATION_LIMITS.events);
+    const next = retainNotificationEvidence(conflicts, [task], [session], [event(501)]);
+    const overflow = retainNotificationEvidence(next, [task], [session], [event(501, { source: 'changed' })]);
+    expect(overflow.conflictedIds).toHaveLength(NOTIFICATION_LIMITS.events);
+    expect(overflow.refs).toHaveLength(NOTIFICATION_LIMITS.events);
+    expect(overflow.navigationBlocked).toBe(true);
+    expect(retainNotificationEvidence(overflow, [task], [session], []).navigationBlocked).toBe(true);
+  });
+
+  it('rejects future sequences and invalid batch bounds without evicting real retained evidence', () => {
+    const events = Array.from({ length: NOTIFICATION_LIMITS.events }, (_, index) => event(index + 1));
+    const first = retainNotificationEvidence(empty, [task], [session], events, 500);
+    const future = retainNotificationEvidence(first, [task], [session], [event(Number.MAX_SAFE_INTEGER), event(501)], 500);
+    expect(future.refs).toEqual(first.refs);
+    expect(future.limited).toBe(true);
+    for (const invalid of [null, -1, NaN, Number.MAX_SAFE_INTEGER + 1]) {
+      const result = retainNotificationEvidence(empty, [task], [session], [event(1)], invalid);
+      expect(result.refs).toEqual([]);
+      expect(result.limited).toBe(true);
+    }
+    expect(retainNotificationEvidence(empty, [task], [session], [event(501)], 501).refs[0].sequence).toBe(501);
   });
 });

@@ -16,7 +16,7 @@ vi.mock('./session-api', () => ({ sessionApi: { sessionsList: vi.fn(), connectio
 const task: Task = { id: 'task-1', goal: 'Check notification sources', state: 'failed', revision: 3, created_at: '2026-10-31T00:00:00Z', updated_at: '2026-10-31T00:02:00Z' };
 const session: ManagedSession = { id: 'session-1', task_id: task.id, project_id: 'project-1', workspace_id: 'workspace-1', connection_id: 'connection-1', grant_id: 'grant-1', state: 'outcome_unknown', revision: 2, native_session_id: null, created_at: task.created_at, updated_at: task.updated_at, last_error: 'Provider text is not authority', turn_state: null };
 const event = (sequence: number): JournalEvent => ({ sequence, event_id: `event-${sequence}`, aggregate_id: session.id, kind: 'session.outcome_unknown', revision: sequence, occurred_at: task.updated_at, source: 'baton_supervisor', payload: { reason: 'Original observation', task_accepted: true } });
-const observation: NotificationObservation = { connected: true, tasksFresh: true, sessionsFresh: true, eventsFresh: true, eventLimited: false };
+const observation: NotificationObservation = { connected: true, tasksFresh: true, sessionsFresh: true, eventsFresh: true, eventLimited: false, eventSequence: 10000 };
 const snapshot = (tasks = [task]) => ({ tasks, sequence: 100, api_version: 1, database_schema_version: 17 });
 beforeEach(() => {
   vi.restoreAllMocks(); vi.resetAllMocks(); localStorage.clear(); localStorage.setItem('agentbaton.language', 'en');
@@ -162,5 +162,79 @@ describe('in-app Task notifications', () => {
     await user.click(screen.getByRole('button', { name: '下一页' }));
     expect(screen.getAllByTestId('task-notification')).toHaveLength(5);
     expect(screen.getByRole('checkbox', { name: '免打扰' })).toBeVisible();
+  });
+
+  it('rejects reversed conflicting originals in the App and keeps the conflict after a later page', async () => {
+    const user = userEvent.setup();
+    const otherTask: Task = { ...task, id: 'task-2', goal: 'Different task', state: 'draft' };
+    const first = event(1);
+    vi.mocked(api.snapshot).mockResolvedValue(snapshot([task, otherTask]));
+    vi.mocked(api.events).mockResolvedValueOnce({ events: [first], next_cursor: 100, sequence: 100, gap: false });
+    render(<App />);
+    await screen.findByText('Local daemon connected');
+    await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
+    await user.click(screen.getByText('Sources (1)'));
+    await user.click(within(screen.getByRole('dialog')).getByText('session.outcome_unknown'));
+    expect(screen.getByRole('button', { name: 'View loaded original event' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Close notifications' }));
+    const wrongOriginal = { ...event(2), event_id: first.event_id, aggregate_id: otherTask.id, payload: { reason: 'Other Task original must not be selected' } };
+    vi.mocked(api.events).mockResolvedValueOnce({ events: [wrongOriginal, first], next_cursor: 100, sequence: 100, gap: false });
+    await user.click(screen.getByRole('button', { name: 'Refresh' }));
+    await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
+    await user.click(screen.getByText('Sources (1)'));
+    await user.click(within(screen.getByRole('dialog')).getByText('session.outcome_unknown'));
+    expect(screen.getByText(/Conflicting event IDs were observed/)).toBeVisible();
+    expect(screen.getByText(/Evidence is limited/)).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'View loaded original event' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'History' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Close notifications' }));
+    vi.mocked(api.events).mockResolvedValueOnce({ events: [first], next_cursor: 100, sequence: 100, gap: false });
+    await user.click(screen.getByRole('button', { name: 'Refresh' }));
+    await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
+    await user.click(screen.getByText('Sources (1)'));
+    await user.click(within(screen.getByRole('dialog')).getByText('session.outcome_unknown'));
+    expect(screen.getByText(/Conflicting event IDs were observed/)).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'View loaded original event' })).not.toBeInTheDocument();
+  });
+
+  it('blocks global shortcuts behind the notification modal and restores the background on Escape', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await screen.findByText('Local daemon connected');
+    await user.click(screen.getByTestId('task-card'));
+    const thread = screen.getByTestId('task-thread');
+    const background = thread.closest('.shell')!.parentElement!;
+    const previousInert = background.inert, previousHidden = background.getAttribute('aria-hidden');
+    await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
+    expect(background.inert).toBe(true);
+    await user.keyboard('{Control>}k{/Control}');
+    await user.keyboard('{Control>}n{/Control}');
+    await user.keyboard('{Meta>}k{/Meta}');
+    await user.keyboard('{Meta>}n{/Meta}');
+    expect(screen.getAllByRole('dialog', { hidden: true })).toHaveLength(1);
+    expect(screen.getByRole('dialog', { name: 'Task notifications' })).toBeVisible();
+    expect(screen.getByTestId('task-thread')).toBe(thread);
+    expect(thread).toHaveAttribute('data-task-id', task.id);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { hidden: true })).not.toBeInTheDocument();
+    expect(background.inert).toBe(previousInert);
+    expect(background.getAttribute('aria-hidden')).toBe(previousHidden);
+    await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
+    expect(screen.getByRole('dialog', { name: 'Task notifications' })).toBeVisible();
+  });
+
+  it('uses the successful event batch upper bound, allowing later events and rejecting future references', async () => {
+    const user = userEvent.setup();
+    // Snapshot is at 100; a separately fetched legitimate batch is at 101.
+    vi.mocked(api.events).mockResolvedValue({ events: [event(101), event(999)], next_cursor: 101, sequence: 101, gap: false });
+    render(<App />);
+    await screen.findByText('Local daemon connected');
+    await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
+    await user.click(screen.getByText('Sources (1)'));
+    await user.click(within(screen.getByRole('dialog')).getByText('session.outcome_unknown'));
+    expect(screen.getByText('event-101')).toBeVisible();
+    expect(screen.queryByText('event-999')).not.toBeInTheDocument();
+    expect(screen.getByText(/Evidence is limited/)).toBeVisible();
+    expect(screen.getByRole('button', { name: 'View loaded original event' })).toBeVisible();
   });
 });

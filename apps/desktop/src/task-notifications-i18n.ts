@@ -12,6 +12,7 @@ export const taskNotificationMessages = {
     sessionOnly: 'Session evidence describes that session; it does not establish Task failure or acceptance.',
     events: 'Retained event references', eventOnly: 'Event references are past observations, not current status or stop confirmation.',
     eventId: 'Event ID', aggregate: 'Aggregate ID', origin: 'Observation source', viewEvent: 'View loaded original event', outsideWindow: 'Original event is outside the loaded page. Use History paging to locate this reference.',
+    conflictingSource: 'Conflicting event IDs were observed. Source navigation is unavailable for this reference; inspect History manually. A later page does not clear the conflict.',
     previous: 'Previous', next: 'Next', page: 'Page', noEvents: 'No mapped event references retained. Projection evidence is shown above.',
   },
   zh: {
@@ -27,6 +28,7 @@ export const taskNotificationMessages = {
     sessionOnly: '会话证据只描述该会话，不能证明任务失败或验收。',
     events: '保留的事件引用', eventOnly: '事件引用属于历史观察，不代表当前状态或停止确认。',
     eventId: '事件 ID', aggregate: '聚合 ID', origin: '观察来源', viewEvent: '查看已加载的原始事件', outsideWindow: '原始事件不在已加载页面中，可使用历史分页定位该引用。',
+    conflictingSource: '曾观察到冲突的事件 ID，无法从该引用跳转原文，请手动核对历史。翻页不会清除此冲突。',
     previous: '上一页', next: '下一页', page: '页', noEvents: '暂无已保留的关联事件引用，投影证据见上方。',
   },
 } as const;
