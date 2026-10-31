@@ -610,7 +610,12 @@ impl Daemon {
         let authenticated = request.as_ref().is_ok_and(|r| r.token == self.token);
         let result = request
             .map_err(|_| invalid())
-            .and_then(|r| self.dispatch(r));
+            .and_then(|r| {
+                if r.token == self.token && r.method == "workspace_open.context" {
+                    crate::workspace_open::validate_workspace_open_frame(raw)?;
+                }
+                self.dispatch(r)
+            });
         let revision = if authenticated {
             self.store.sequence().unwrap_or(0)
         } else {
@@ -1141,6 +1146,13 @@ impl Daemon {
                 Ok(json!(self.store.prepare_task_git_workspace(
                     &p.with_task_revision(revision), &self.managed_root, key,
                 )?))
+            }
+            "workspace_open.context" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::WorkspaceOpenRequest = params(r.params)?;
+                Ok(json!(self.store.workspace_open_context(&p.selection)?))
             }
             "workspaces.resolve" => {
                 if r.expected_revision.is_some() || r.idempotency_key.is_some() {
