@@ -21,7 +21,7 @@ beforeEach(()=>vi.resetAllMocks());
 afterEach(()=>vi.restoreAllMocks());
 function records(f:Fixture,initial:FactoryChildGoalView){
  const state={view:initial};
- vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(f.task)],sequence:1000,api_version:1}));
+ vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(f.task)],sequence:1000,api_version:1,database_schema_version:17}));
  vi.mocked(sessionApi.grantsList).mockImplementation(async()=>[structuredClone(f.grant)]);
  vi.mocked(factoryApi.get).mockImplementation(async()=>structuredClone(f.scope));
  vi.mocked(factoryApi.run).mockImplementation(async()=>structuredClone(f.detail));
