@@ -6697,7 +6697,8 @@
         "local_directory_handoff_slice": "passed only listed source-bound Core, IPC, mocked UI and Linux Native tests; macOS end-to-end not run"
       },
       "evidence": [
-        "docs/execution/workspace-open-directory/ROOT_LOCAL_RESULTS.json"
+        "docs/execution/workspace-open-directory/ROOT_LOCAL_RESULTS.json",
+        "docs/execution/workspace-open-directory/COMPOSED_CAPTURE_RESULTS.json"
       ],
       "limitations": [
         "Core7 UnixIPC, mocked UI transport tests and Linux Native library are separate dimensions; real end-to-end UI→Native→Core→OS not accepted",

@@ -1,3 +1,5 @@
+Next: retain current source-bound274/7/1194/126/715 and strict checks, review exact evidence, normally push the existing FeaturePR, verify precise CI and actual dualMac Terminal behavior, then continue full130 approved scope.
+
 # External terminal workspace directory handoff
 
 AB-SES-009 / WP10 / Design v0.2 / AB-START-001. Base e874b123d3e7f329a551e21922baf1a7a643548f; fixed contract in CONTRACT.json. Preserve all27 decisions and all130 requirements.

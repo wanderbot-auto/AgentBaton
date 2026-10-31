@@ -1,3 +1,9 @@
+## Current Root capture composition verified locally — 2026-10-31
+
+The real f5a merge retains the full Owner-only directory contract while composing Root17 capture scheduling and strict safety paths. At exactf5a,fullCore274 and realUnixIPC7 pass with freshly built matching Core17/CLI tools. At2ee,default fullUI1194/67files and strictworkspaceClippy pass. Atfd15,126 LinuxNative units,strictNative all-target Clippy,715 full infrastructure andfrontend type/build pass. Metadata-onlyfc1 retains every product/test/workflow byte fromfd15. [Exact commands, hashes and limits](workspace-open-directory/COMPOSED_CAPTURE_RESULTS.json).
+
+Independent source reviews verify the f5a source and later exact Root test/config/diagnostic inheritance; Roote509 metadata is preserved without changing any Feature requirement field or claiming new-head tests. Actual macOS Terminal target-directory observation,new exact Feature CI,current dualMac development packages and manual acceptance remain not run. These Linux/mock UI/CoreIPC dimensions do not become NativeMac proof. No Agent/session/approval transfer,private Provider call,paid resource,production or signing authority is added. Continue full130 scope.
+
 ## Exact readonly observations and retained CI failures — 2026-10-31
 
 At ea0d49,84 FactoryChildGoals tests pass after observing actual timer registration and exact subsequent reads; the original1000ms interval/observation limits,20-read product bound and no-write controls remain. At29e2,default fullUI1147/64 passes with maxWorkers2 only; original deadlines/isolation remain. Same29e2 normal Core17/React with actual owned installed Chromium ELF passes direct integration normal5/failing4 and12original PNGs, both owned clean shutdowns/cleanup. These local results do not diagnose or replace a7 remote failures.
