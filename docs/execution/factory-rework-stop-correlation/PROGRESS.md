@@ -1,3 +1,9 @@
+## Prior settlement association extension — 2026-10-31
+
+The latest Intel observation is a capture settlement at run revision12 after a separate node settlement at11. Reuse the existing strict reservation/session correlation for that previous node as well; keep it inside previous_node_settlement and retain both historical/not-same-plan labels. The original helper, event bounds, redaction, source predicates and runtime budgets remain unchanged. No causal or authority claim follows from a stop reason or completed turn.
+
+Root103 generated-SQLite tests pass, including6 new prior-binding/missing/duplicate/foreign/late/numeric controls. Independent source review passes64 checks and independently runs102 cases; its one guard-blocked old FIFO method and original attempt are separate, never counted passed. All original17 stop methods/80 collector methods remain; actual enhanced Core/Mac/CI projection is not run. See the appended EVIDENCE.json entry; old failures and source pins remain historical.
+
 # Progress
 
 - Read fixed collector, real session/Goal event writers and ReworkRunning Drop. The retained main DB is complete after owned shutdown; existing collector opens only an owned bounded copy read-only/immutable/query_only, with no Store/recovery/migration/runtime.

@@ -143,5 +143,52 @@
     "network",
     "production or budget changes"
   ],
-  "interpretation_limit": "measurement only; Intel415 REWORK_OUTCOME_UNKNOWN is a fixture tag and4013/4000 cannot be treated as unknown cause"
+  "interpretation_limit": "measurement only; Intel415 REWORK_OUTCOME_UNKNOWN is a fixture tag and4013/4000 cannot be treated as unknown cause",
+  "prior_settlement_extension": {
+    "recorded_at": "2026-10-31T20:15:12.540431+00:00",
+    "base": "abebb506ff946437c7aad071374c7e4cd392ffba",
+    "scope": "AB-TSK-007/008 finite historical observation only; not runtime behavior or cause fix",
+    "files": {
+      "scripts/record-factory-rework-ci-evidence.py": "8c9bb584fc561bc030b6e36ecc2ea5ab26f7424c78b779a93fa2f1e67e0b25e8",
+      "tests/infrastructure/test_factory_rework_stop_correlation.py": "4e714c0a2e9013e882ac5bf5f6cb06df07f79355bc9c98f4ea9db5f78f306964"
+    },
+    "change": "Add existing strict stop correlation to the separately labelled previous_node_settlement only. Original same_observed_revision=false and same_plan_not_established=true stay. No Core/Worker/budget/schema/workflow/authority changes.",
+    "root_test": {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "tests.infrastructure.test_factory_rework_stop_correlation",
+        "tests.infrastructure.test_factory_rework_ci_evidence",
+        "-v"
+      ],
+      "tests": 103,
+      "passed": 103,
+      "seconds": 0.558,
+      "log_sha256": "72e7f465741060a189ae8047fdf3c3f1995cb9843c00979be1f76c3cebe90dd5",
+      "dimension": "generated private SQLite history, not actual Core or macOS"
+    },
+    "independent_review": {
+      "sha256": "bdd4c11f0bfb15da784166f51567a1543fe8afff156fec489f085f8eb0333a7e",
+      "status": "SOURCE_READY",
+      "source_checks": 64,
+      "generated_sqlite_passed": 102,
+      "new_cases": 6,
+      "excluded_existing_method": "one old synthetic FIFO method blocked by reviewer actual-call guard; original blocked attempt retained, never counted passed; Root103 full run separate"
+    },
+    "ci_context": {
+      "head": "c67569856050fd40195b540b4bb71d3406e0e907",
+      "Product": 41188874038,
+      "original_producer_ms": 4003,
+      "original_reservation_ms": 4000,
+      "original_settled_ms": 4536,
+      "diagnosis_sha256": "6c3a7e521df05b040fb9fd4cfa1ebe7fd13a8cae9fea900d14a64e2338b1edba",
+      "interpretation": "Producer is aggregate accounting. Missing phase/stop association cannot distinguish Provider startup from Actor stop lag. Official finite artifact cannot recover absent private raw history; no retroactive CI result reconstructed."
+    },
+    "not_run": [
+      "actual Core/Mac replay of enhanced historical projection",
+      "new exact CI",
+      "full infrastructure after extension"
+    ]
+  }
 }
