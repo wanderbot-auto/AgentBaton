@@ -1,3 +1,11 @@
+## Current schema17 migration, routing and real UI verified — 2026-10-31T01:12:52.850868+00:00
+
+Exact source107f72 passes full58sessions, realFactory30/integrationIPC16, schema17/oldcommand migration15+7, genuine14/15/16 migrations6+5+10, strictworkspace/alltargetsClippy with all3genuine features, fmt and461infrastructure cases. Source92b6 fullCore229 includes its nested helper; production/unit sources remain byte-identical at107. Eleven ordinary migration/storage targets pass36, but their original combined batch remains failed57/1sessions until the later full58 closure. No failed batch is relabelled.
+
+Same107 frontend/explicit preview builds and private freeze pass. Normal/failure actual Chromium/Unix IPC passes9checks/12PNG; three real rounds pass3checks/7PNG, originalfalse,false,true receipts, exactCAS/shared fees and honest unknown costs. All owned cleanups daemonexit0/noKILL, joinedbrowser/HTTP/gate and removedfixtures; Root viewed3 originals, underlyingChromium hash unchanged. See [current source-bound results](authorized-integration/MIGRATION_COMPAT_RESULTS.json). Browser/generatedACP/privateOwner is notNative/Mac/liveProvider.
+
+ParentPR18 exact52 Environment3/Rustpass; UI CP08noPOST and Intel original4s reservation overrun fail, ARM running at lastread. Keep each failure distinct from f55 transport exhaustion. Root17 currentremoteCI/dualMac/Native/audit/installers/protected integration/full130 remain open. Main653679d OWNER001002 ACK/no003; no authority expansion or formalApprove.
+
 ## Real three-round browser and matched schema17 Factory verified — 2026-10-30T23:36:15.331635+00:00
 
 Exact9b matched React/Core17 browser passes3checks/7originalPNG: independent watcher produces false,false,true receipts,7integration stages/8totalsharedattempts, sole exactCAS, actual per-round DOM history and unknown modelcost retained. Real owned daemonexit0/noKILL, gate/browser/HTTPjoin and fixture removal confirmed; Root viewed3 originals. The exact source frozen/tool and frontend build records are bound; explicit preview test feature is not a shipped default application. Full infrastructure446 passes after original capacity interruption preserved.

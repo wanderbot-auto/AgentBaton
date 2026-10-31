@@ -76,5 +76,11 @@
     "correction": "assert original valid Task has no binding; task-id precise cold-open rejection; all other16 cases including project run original4 refusal checks after coldopen",
     "production_changed": false,
     "runtime_status": "candidate_not_run"
+  },
+  "root_actual_verification": {
+    "source": "107f72cd150cbbf11b58c55eddc4e95fc3a76bbc",
+    "result_ref": "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json",
+    "sha256": "78c56e50638b9ed5414d9488e5b67f9e02d9e9ce315265214eca2b5ca3d87d99",
+    "dimension": "Actual Linux only; independent source review and all retained failures remain separate; not Native/Mac/full acceptance"
   }
 }

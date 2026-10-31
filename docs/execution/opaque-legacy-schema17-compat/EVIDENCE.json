@@ -60,5 +60,11 @@
     "negative_source": "RTREE virtual/shadow type forgery, versions16 and17",
     "positive_source": "harmless same-name ordinary table preserved across16 migration and17 reopen",
     "status": "implemented_source; re-review and execution pending"
+  },
+  "root_actual_verification": {
+    "source": "107f72cd150cbbf11b58c55eddc4e95fc3a76bbc",
+    "result_ref": "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json",
+    "sha256": "78c56e50638b9ed5414d9488e5b67f9e02d9e9ce315265214eca2b5ca3d87d99",
+    "dimension": "Actual Linux only; independent source review and all retained failures remain separate; not Native/Mac/full acceptance"
   }
 }

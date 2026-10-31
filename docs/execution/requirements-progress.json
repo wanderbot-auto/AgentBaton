@@ -4996,7 +4996,8 @@
         "docs/execution/task-workspace-integration/EVIDENCE.json",
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
+        "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json"
       ],
       "limitations": [
         "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open.",
@@ -5030,6 +5031,21 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "schema17_opaque_legacy_and_owner_domain_routing_actual_regression",
+          "source": "107f72cd150cbbf11b58c55eddc4e95fc3a76bbc",
+          "Core_unit_source": "92b6eeff248ec009aeec47a96f265714c3ca0d2c",
+          "Core_unique": 229,
+          "sessions_actual_unique": 58,
+          "Factory_actual_unique": 30,
+          "integration_IPC_unique": 16,
+          "genuine_migrations": {
+            "14": 6,
+            "15": 5,
+            "16": 10
+          },
+          "coverage": "partial; Linux only, Native/dualMac/remoteCI/installers/full requirement not accepted"
         }
       ],
       "task_workspace_binding_contribution": {
@@ -7152,7 +7168,8 @@
         "docs/execution/authorized-integration/TARGET_DRIFT_RESULTS.json",
         "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
         "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
-        "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json"
+        "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+        "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -7327,6 +7344,21 @@
           "shared_actual_attempts": 8,
           "evidence": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
           "coverage": "partial Linux generatedACP/privateOwner; currentmigrations/Native/Mac/requiredCI/installers/fullrequirement notaccepted"
+        },
+        {
+          "slice": "schema17_opaque_legacy_and_owner_domain_routing_actual_regression",
+          "source": "107f72cd150cbbf11b58c55eddc4e95fc3a76bbc",
+          "Core_unit_source": "92b6eeff248ec009aeec47a96f265714c3ca0d2c",
+          "Core_unique": 229,
+          "sessions_actual_unique": 58,
+          "Factory_actual_unique": 30,
+          "integration_IPC_unique": 16,
+          "genuine_migrations": {
+            "14": 6,
+            "15": 5,
+            "16": 10
+          },
+          "coverage": "partial; Linux only, Native/dualMac/remoteCI/installers/full requirement not accepted"
         }
       ]
     },
@@ -7982,7 +8014,8 @@
         "docs/execution/data-contract-validation/EVIDENCE.json",
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -8014,6 +8047,21 @@
           "core_library_native_helper_ui_and_actual_browser": "passed_scope_limited",
           "native_owner_dialog_newMacFIRST_and_packages": "not_run",
           "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
+        },
+        {
+          "slice": "schema17_opaque_legacy_and_owner_domain_routing_actual_regression",
+          "source": "107f72cd150cbbf11b58c55eddc4e95fc3a76bbc",
+          "Core_unit_source": "92b6eeff248ec009aeec47a96f265714c3ca0d2c",
+          "Core_unique": 229,
+          "sessions_actual_unique": 58,
+          "Factory_actual_unique": 30,
+          "integration_IPC_unique": 16,
+          "genuine_migrations": {
+            "14": 6,
+            "15": 5,
+            "16": 10
+          },
+          "coverage": "partial; Linux only, Native/dualMac/remoteCI/installers/full requirement not accepted"
         }
       ]
     }
