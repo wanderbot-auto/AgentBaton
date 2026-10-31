@@ -1,3 +1,7 @@
+## Explicit commit-with-unread-response fixture — 2026-10-31
+
+Exact8bc17f4 passes all4 Task binding real UnixIPC cases; independent review daac8866 checks31 source predicates and exact whole-file inverse. Keep the original5s durable observation and every stable-payload/CAS/receipt/no-execution assertion. [Source-bound evidence](UNREAD_RESPONSE_RESULTS.json). No Mac or production-root-cause claim. Remote846 Environment has passed; its Product remains a separate candidate and local8bc has not been pushed.
+
 ## PR19 exact-main ancestry verified; own CI next — 2026-10-31T08:16:48.963781+00:00
 
 The reviewed content integration23d and local regressions remain source-bound. Protected main7ecf exactly equals approved Parent18 ae42's complete tree; a genuine prior merge already included ae42. After a separate reviewed ADR/proof commit, marker19e9 records7ecf ancestry with exactly zero file changes and an identical immediate before/after tree. Independent after-review ecb381308d1886562bf64914e7fb5c10e2b6806c3ec96a4334c607a000853a7b confirms ordered parents and ancestry. [Actual proof](SQUASH_ANCESTRY_ACTUAL_PROOF.json) retains the earlier Owner digest-label correction; raw and normalized text hashes are explicit. No Owner instruction changed.
