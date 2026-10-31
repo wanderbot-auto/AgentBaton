@@ -17,7 +17,7 @@
     "git_diff_check": "passed",
     "source_inverse_and_assertions": {
       "base": "4f962940533241fdec74b96a87c01a99788a62ee",
-      "status": "source_checks_passed_not_runtime",
+      "status": "historical_static_checks_for_original54_source_superseded_by_fixture_correction",
       "checks": [
         "ipc whole-file inverse restoration exact; Actor loop/handler/queue unchanged",
         "original-text strict ApprovalProposal routing and original Integration strict lookup retained",
@@ -66,5 +66,15 @@
       "not_started"
     ],
     "production_changed": false
+  },
+  "fixture_correction": {
+    "actual_observed_source": "c5dcf0490d557da4992a565ed0e2bd5dd2b9410e",
+    "actual_active_run": "/workspace/.onboarding/integration17-opaque-routing-all-migrations-sessions1",
+    "actual_observed_failure": "task-project: cold open borrowed a mismatched Task binding",
+    "final_run_result_at_diagnosis": "not_yet_available",
+    "root_cause": "legacy Scenario creates a direct workspace; Task.code_workspace_binding=None; startup project consistency is conditional on an existing binding",
+    "correction": "assert original valid Task has no binding; task-id precise cold-open rejection; all other16 cases including project run original4 refusal checks after coldopen",
+    "production_changed": false,
+    "runtime_status": "candidate_not_run"
   }
 }
