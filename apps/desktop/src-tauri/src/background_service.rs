@@ -207,7 +207,9 @@ mod engine {
                 '\n' => out.push_str("&#10;"),
                 '\r' => out.push_str("&#13;"),
                 '\t' => out.push_str("&#9;"),
-                c if c < '\u{20}' => return Err(Code::UnsafePath),
+                c if c < '\u{20}' || matches!(c, '\u{fffe}' | '\u{ffff}') => {
+                    return Err(Code::UnsafePath);
+                }
                 c => out.push(c),
             }
         }
@@ -563,6 +565,7 @@ mod engine {
         receipt: Option<Leaf>,
         plist: Option<Leaf>,
         directories: Vec<Option<Vec<(u64, u64, u32, u32)>>>,
+        runtime_directory: Vec<(u64, u64, u32, u32)>,
         binaries: Vec<Pin>,
     }
     impl Snapshot {
@@ -581,6 +584,10 @@ mod engine {
         if home.pins.last().ok_or(Code::UnsafePath)?.uid != layout.uid {
             return Err(Code::OwnershipConflict);
         }
+        // Registration must reference the existing private default runtime. Do
+        // not create or repair daemon state from a login-start setting operation.
+        let runtime = Directory::open(&layout.runtime, layout.uid, false, true, &mut untouched)?
+            .ok_or(Code::UnsafePath)?;
         let state = Directory::open(&layout.state, layout.uid, false, true, &mut untouched)?;
         let agents = Directory::open(&layout.agents, layout.uid, false, false, &mut untouched)?;
         if agents
@@ -630,6 +637,7 @@ mod engine {
                 state.as_ref().map(Directory::identities),
                 agents.as_ref().map(Directory::identities),
             ],
+            runtime_directory: runtime.identities(),
             binaries: vec![
                 binary_pin(&layout.executable, layout.uid)?,
                 binary_pin(&layout.program, layout.uid)?,
@@ -817,7 +825,10 @@ mod engine {
                 // explicit enable. Its presence alone never enables startup.
             }
             let after = inspect(layout)?;
-            if after.enabled != wanted || after.binaries != before.binaries {
+            if after.enabled != wanted
+                || after.binaries != before.binaries
+                || after.runtime_directory != before.runtime_directory
+            {
                 return Err(Code::ReconcileRequired);
             }
             Ok(())
@@ -909,15 +920,37 @@ mod engine {
         }
         impl Fixture {
             fn new() -> Self {
-                let root = std::env::temp_dir().join(format!(
+                let uid = unsafe { libc::geteuid() };
+                // Cloud /tmp may be world-writable and owned by an unrelated
+                // uid. Never relax production owner checks for a test fixture.
+                // macOS keeps its canonical per-user temporary directory; Linux
+                // uses the actual source directory, validated without symlinks.
+                #[cfg(target_os = "macos")]
+                let parent_path = fs::canonicalize(std::env::temp_dir()).unwrap();
+                #[cfg(not(target_os = "macos"))]
+                let parent_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+                let mut untouched = false;
+                let parent = Directory::open(&parent_path, uid, false, false, &mut untouched)
+                    .unwrap()
+                    .unwrap();
+                assert_eq!(parent.pins.last().unwrap().uid, uid);
+                assert!(!untouched);
+                parent.recheck().unwrap();
+                let name = format!(
                     "ab-bg-{}-{}",
                     std::process::id(),
                     COUNTER.fetch_add(1, Ordering::Relaxed)
-                ));
-                fs::create_dir(&root).unwrap();
-                fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
-                // Resolve only this generated fixture alias (/var on macOS).
-                let root = fs::canonicalize(root).unwrap();
+                );
+                let c = c_name(name.as_ref()).unwrap();
+                // Exclusive descriptor-relative creation never replaces a stale
+                // or unknown fixture and establishes mode0700 from first create.
+                assert_eq!(unsafe { libc::mkdirat(parent.fd(), c.as_ptr(), 0o700) }, 0);
+                parent.recheck().unwrap();
+                let root = parent_path.join(name);
+                let generated = Directory::open(&root, uid, false, true, &mut untouched)
+                    .unwrap()
+                    .unwrap();
+                generated.recheck().unwrap();
                 let home = root.join("home");
                 fs::create_dir(&home).unwrap();
                 fs::set_permissions(&home, fs::Permissions::from_mode(0o700)).unwrap();
@@ -929,6 +962,9 @@ mod engine {
                     fs::set_permissions(path, fs::Permissions::from_mode(0o755)).unwrap();
                 }
                 let runtime = home.join("Library/Application Support/dev.agentbaton/runtime");
+                // This is generated fixture setup, never registration behavior.
+                fs::create_dir_all(&runtime).unwrap();
+                fs::set_permissions(&runtime, fs::Permissions::from_mode(0o700)).unwrap();
                 let layout =
                     Layout::from_paths(unsafe { libc::geteuid() }, home, executable, runtime)
                         .unwrap();
@@ -996,6 +1032,156 @@ mod engine {
                 "&lt;&amp;&gt;&quot;&apos;&#10;&#13;&#9;"
             );
             assert_eq!(xml("\0"), Err(Code::UnsafePath));
+        }
+        #[test]
+        fn xml_and_layout_reject_xml10_forbidden_scalars_without_rejecting_unicode() {
+            let f = Fixture::new();
+            assert_eq!(xml("中文😀").unwrap(), "中文😀");
+            for forbidden in ['\u{fffe}', '\u{ffff}'] {
+                assert_eq!(
+                    xml(&format!("private{forbidden}text")),
+                    Err(Code::UnsafePath)
+                );
+                let home = f.root.join(format!("home{forbidden}"));
+                assert_eq!(
+                    Layout::from_paths(
+                        f.layout.uid,
+                        home.clone(),
+                        f.layout.executable.clone(),
+                        home.join("Library/Application Support/dev.agentbaton/runtime"),
+                    )
+                    .unwrap_err(),
+                    Code::UnsafePath
+                );
+                assert_eq!(
+                    Layout::from_paths(
+                        f.layout.uid,
+                        f.layout.home.clone(),
+                        f.layout.home.join(format!(
+                            "Applications/Bad{forbidden}.app/Contents/MacOS/desktop"
+                        )),
+                        f.layout.runtime.clone(),
+                    )
+                    .unwrap_err(),
+                    Code::UnsafePath
+                );
+            }
+            let home = f.root.join("home中文😀");
+            assert!(Layout::from_paths(
+                f.layout.uid,
+                home.clone(),
+                home.join("Applications/合法😀.app/Contents/MacOS/desktop"),
+                home.join("Library/Application Support/dev.agentbaton/runtime"),
+            )
+            .is_ok());
+        }
+        #[test]
+        fn missing_symlink_or_nonprivate_runtime_is_refused_without_repair() {
+            let f = Fixture::new();
+            let before = inspect(&f.layout).unwrap();
+            let saved = f.root.join("runtime-saved");
+            fs::rename(&f.layout.runtime, &saved).unwrap();
+            assert_eq!(inspect(&f.layout).unwrap_err(), Code::UnsafePath);
+            let report = apply(&f.layout, &before, Action::Enable);
+            assert_eq!(report["outcome"], "refused");
+            assert_eq!(report["side_effect_state"], "not_started");
+            assert!(!f.layout.runtime.exists());
+            assert!(!f.layout.state.exists());
+            assert!(!f.layout.agents.exists());
+            symlink(&saved, &f.layout.runtime).unwrap();
+            assert_eq!(inspect(&f.layout).unwrap_err(), Code::UnsafePath);
+            assert_eq!(
+                apply(&f.layout, &before, Action::Enable)["outcome"],
+                "refused"
+            );
+            assert!(fs::symlink_metadata(&f.layout.runtime)
+                .unwrap()
+                .file_type()
+                .is_symlink());
+            fs::remove_file(&f.layout.runtime).unwrap();
+            fs::rename(&saved, &f.layout.runtime).unwrap();
+            fs::set_permissions(&f.layout.runtime, fs::Permissions::from_mode(0o755)).unwrap();
+            assert_eq!(inspect(&f.layout).unwrap_err(), Code::OwnershipConflict);
+            assert_eq!(
+                apply(&f.layout, &before, Action::Enable)["outcome"],
+                "refused"
+            );
+            assert_eq!(
+                fs::metadata(&f.layout.runtime).unwrap().mode() & 0o7777,
+                0o755
+            );
+            assert!(!f.layout.state.exists());
+            assert!(!f.layout.agents.exists());
+        }
+        #[test]
+        fn runtime_replacement_invalidates_preconfirmed_enable_and_disable() {
+            for action in [Action::Enable, Action::Disable] {
+                let f = Fixture::new();
+                if action == Action::Disable {
+                    assert_eq!(f.enable()["outcome"], "applied");
+                }
+                let before = inspect(&f.layout).unwrap();
+                fs::rename(&f.layout.runtime, f.root.join("runtime-saved")).unwrap();
+                fs::create_dir(&f.layout.runtime).unwrap();
+                fs::set_permissions(&f.layout.runtime, fs::Permissions::from_mode(0o700)).unwrap();
+                assert_ne!(
+                    inspect(&f.layout).unwrap().runtime_directory,
+                    before.runtime_directory
+                );
+                let report = apply(&f.layout, &before, action);
+                assert_eq!(report["outcome"], "refused");
+                assert_eq!(report["code"], "state_changed");
+                assert_eq!(report["side_effect_state"], "not_started");
+                assert_eq!(
+                    f.layout.agents.join(PLIST).exists(),
+                    action == Action::Disable
+                );
+                assert_eq!(
+                    f.layout.state.join(RECEIPT).exists(),
+                    action == Action::Disable
+                );
+            }
+        }
+        #[test]
+        fn runtime_replacement_after_receipt_is_never_reported_as_applied() {
+            let f = Fixture::new();
+            let before = inspect(&f.layout).unwrap();
+            let runtime = f.layout.runtime.clone();
+            let saved = f.root.join("runtime-saved");
+            AFTER_RECEIPT.with(|hook| {
+                *hook.borrow_mut() = Some(Box::new(move || {
+                    fs::rename(&runtime, saved).unwrap();
+                    fs::create_dir(&runtime).unwrap();
+                    fs::set_permissions(&runtime, fs::Permissions::from_mode(0o700)).unwrap();
+                }))
+            });
+            let report = apply(&f.layout, &before, Action::Enable);
+            assert_eq!(report["outcome"], "unknown");
+            assert_eq!(report["code"], "reconcile_required");
+            assert_eq!(report["side_effect_state"], "unknown");
+            assert_eq!(
+                fs::read(f.layout.agents.join(PLIST)).unwrap(),
+                f.layout.plist
+            );
+            assert_eq!(
+                fs::read(f.layout.state.join(RECEIPT)).unwrap(),
+                f.layout.receipt
+            );
+        }
+        #[test]
+        fn nonroot_owned_world_writable_sticky_ancestor_is_refused() {
+            let f = Fixture::new();
+            // The supported per-user installation does not run as uid0.
+            assert_ne!(f.layout.uid, 0);
+            let unsafe_parent = f.root.join("untrusted-sticky");
+            fs::create_dir(&unsafe_parent).unwrap();
+            fs::set_permissions(&unsafe_parent, fs::Permissions::from_mode(0o1777)).unwrap();
+            let mut changed = false;
+            assert!(matches!(
+                Directory::open(&unsafe_parent, f.layout.uid, false, false, &mut changed),
+                Err(Code::OwnershipConflict)
+            ));
+            assert!(!changed);
         }
         #[test]
         fn custom_runtime_relative_and_unbundled_installations_are_refused() {
