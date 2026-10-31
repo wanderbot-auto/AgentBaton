@@ -3,10 +3,11 @@
   "base": "7af5672c3c4ac0b252bb0fa66e8f857783d06226",
   "source_sha256": {
     "apps/desktop/tests/factory-child-goal-real-ipc.py": "8d5ef41673539ec92c9a27c961b8dc551f7ddc56023ba497cf1e47c9db00df27",
-    "scripts/record-child-goal-ci-evidence.py": "638a481106b6bf2e9e3a71c3ead82a1154112b0b3793627ce12acfd24cfeb24c",
-    "tests/infrastructure/test_child_goal_diagnostics_v3.py": "85a43a65fb374c94c1d604213aac63449a1b07d0b4c2267defa4e807a5319940"
+    "scripts/record-child-goal-ci-evidence.py": "160cc18f0d258cec306e1847be08129c49686ca9353a8f404b2b75d6bfa483be",
+    "tests/infrastructure/test_child_goal_diagnostics_v3.py": "3809ec747d48eee7e63e547c917f95f0bc15f4c5500ab2ff8527c83baf9e9dce"
   },
-  "pure_validation": {"command": "python3 -m unittest discover -s tests/infrastructure -p 'test_child_goal_*diagnostics*.py' -v", "exit_code": 0, "passed": 22, "failed": 0, "new_v3_controls": 9, "existing_controls": 13, "reported_seconds": 0.246, "actual_SQL_or_Core_or_browser_executed": false},
+  "pure_validation": {"command": "python3 -m unittest discover -s tests/infrastructure -p 'test_child_goal_*diagnostics*.py' -v", "exit_code": 0, "passed": 24, "failed": 0, "new_v3_controls": 11, "existing_controls": 13, "reported_seconds": 0.265, "actual_SQL_or_Core_or_browser_executed": false},
+  "review_closure": {"reviewed_commit": "90e6ca2bd841a6bed693fe55d4deac951e91812e", "same_identity_requires_explicit_true": true, "nonnull_click_window_endpoints_ordered": true, "partial_null_unknown_preserved": true, "harness_changed_by_closure": false, "independent_rereview": "pending"},
   "git_diff_check": "passed",
   "legacy_input_versions_compatible": [1, 2],
   "app_source_epoch": "always null; not observable",

@@ -132,6 +132,8 @@ def owner_refresh_diagnostic(value):
         require(value==unobserved_owner_refresh());return value
     require(start is not None)
     require(all(value[k]is None or value[k]>=start for k in ('click_finished_ns','finished_ns')))
+    if value['click_finished_ns']is not None and value['finished_ns']is not None:
+        require(value['click_finished_ns']<=value['finished_ns'])
     for row in value['reads']:
         require(type(row)is dict and set(row)=={'method','binding','started_ns','finished_ns','reply_class','error'})
         require(row['method']=='factory_child_goals.get' and row['binding']=='scope_task_run')
@@ -158,6 +160,7 @@ def graph_identity_diagnostic(value):
         require(all(value[k]is None for k in ('known_same_identity','uid_matches','pgid_matches','ppid_matches','start_ticks_match')))
     if value['after_read']=='changed':require(value['known_same_identity']is False)
     if value['after_read']=='same' or value['known_same_identity']is True:
+        require(value['known_same_identity']is True)
         require(value['initial_binding']=='verified' and value['after_read']=='same')
         require(all(value[k]is True for k in ('uid_matches','pgid_matches','ppid_matches','start_ticks_match')))
     return value

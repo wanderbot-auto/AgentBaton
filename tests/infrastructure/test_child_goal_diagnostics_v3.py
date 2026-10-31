@@ -94,6 +94,19 @@ class V3DiagnosticsTests(unittest.TestCase):
             bad=copy.deepcopy(original);mutate(bad)
             with self.assertRaises(P.Refused):P.finite_diagnostics(bad)
 
+    def test_owner_window_cannot_finish_before_returned_click_and_partial_null_stays_unknown(self):
+        recorder=P.FiniteRuntimeDiagnostics();q={'scope_id':'scope','task_id':'task','goal_run_id':'goal'}
+        recorder.owner_refresh_begin(q,100)
+        self.assertIsNone(P.finite_diagnostics(recorder.snapshot())['owner_refresh']['finished_ns'])
+        recorder.owner_refresh_click_finished(120)
+        partial=P.finite_diagnostics(recorder.snapshot())['owner_refresh']
+        self.assertIsNone(partial['finished_ns']);self.assertIsNone(partial['refresh_completed'])
+        recorder.owner_refresh_end(110)
+        with self.assertRaises(P.Refused):P.finite_diagnostics(recorder.snapshot())
+        recorder.owner_refresh_end(130)
+        final=P.finite_diagnostics(recorder.snapshot())['owner_refresh']
+        self.assertEqual(final['click_causality'],'not_established');self.assertIsNone(final['source_epoch'])
+
     def test_initial_identity_requires_real_double_sample_and_all_known_fields(self):
         h=harness_helpers();expected={'pid':123,'pgid':123,'start_ticks':'456'}
         sample={'observation':'observed','pid':123,'pgid':123,'ppid':99,'uid':1000,'start_ticks':'456'}
@@ -125,6 +138,17 @@ class V3DiagnosticsTests(unittest.TestCase):
                        lambda v:v.update(initial_binding='unobserved')):
             bad=copy.deepcopy(original);mutate(bad)
             with self.assertRaises(P.Refused):P.graph_identity_diagnostic(bad)
+
+    def test_same_identity_projection_requires_explicit_true_even_when_all_field_matches_are_true(self):
+        h=harness_helpers();known={'observation':'observed','pid':123,'pgid':123,'ppid':99,'uid':1000,'start_ticks':'456'}
+        valid=h['graph_empty_identity_diagnostic'](known,known,known,True)
+        self.assertEqual(P.graph_identity_diagnostic(valid),valid)
+        for flag in (None,False):
+            bad={**valid,'known_same_identity':flag}
+            with self.subTest(flag=flag):
+                with self.assertRaises(P.Refused):P.graph_identity_diagnostic(bad)
+                value=P.unobserved_diagnostics();value['graph_provider_identity']=bad
+                with self.assertRaises(P.Refused):P.finite_diagnostics(value)
 
     def test_exact_cancel_predicate_checks_request_source_mirrors_and_durable_receipt(self):
         predicate=harness_helpers()['exact_graph_cancel_rows'];original=cancel_inputs()
