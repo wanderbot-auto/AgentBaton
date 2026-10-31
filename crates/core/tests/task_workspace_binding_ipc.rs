@@ -239,7 +239,7 @@ impl Fixture {
     }
 }
 impl Server {
-    fn drop_actual_response(&self, mut command: Value) {
+    fn send_without_reading_response(&self, mut command: Value) -> UnixStream {
         command["api_version"] = json!(1);
         command["request_id"] = json!("explicit-lost-preparation-response");
         command["token"] = json!(fs::read_to_string(self.runtime.join("session.token")).unwrap());
@@ -248,9 +248,11 @@ impl Server {
             .write_all(&serde_json::to_vec(&command).unwrap())
             .unwrap();
         socket.write_all(b"\n").unwrap();
-        drop(socket);
-        // Deliberately never read a reply. The test next observes the durable Task
-        // through a separate authenticated read, not an invented successful reply.
+        socket.shutdown(std::net::Shutdown::Write).unwrap();
+        // Keep the receive side alive until the separate durable-state read:
+        // closing both sides now may discard an unread request on BSD sockets.
+        // No reply is read, parsed or promoted to a successful result.
+        socket
     }
 }
 fn no_execution(db: &Connection) {
@@ -327,7 +329,7 @@ fn two_tasks_get_distinct_real_worktrees_and_readonly_status_has_no_fresh_author
 fn actual_dropped_write_reply_is_recovered_with_original_payload_after_task_revision_advanced() {
     let f = Fixture::new(true);
     let frame = f.preparation_frame(&f.task, "lost-key");
-    f.server.drop_actual_response(frame.clone());
+    let unread_response = f.server.send_without_reading_response(frame.clone());
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
     let stored = loop {
         assert!(
@@ -345,6 +347,8 @@ fn actual_dropped_write_reply_is_recovered_with_original_payload_after_task_revi
         std::thread::sleep(std::time::Duration::from_millis(5));
     };
     assert!(stored["revision"].as_u64().unwrap() > frame["expected_revision"].as_u64().unwrap());
+    // Deliberately lose the original response before retrying its stable key.
+    drop(unread_response);
     let recovered = result(f.unchanged(frame.clone()));
     assert_eq!(
         recovered["original_receipt"],

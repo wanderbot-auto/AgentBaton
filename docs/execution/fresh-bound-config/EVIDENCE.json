@@ -1,0 +1,1410 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T20:56:05.367048+00:00",
+  "requirements": [
+    "AB-VAL-009",
+    "AB-TSK-007",
+    "AB-TSK-008"
+  ],
+  "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+  "production_source": "aba91f19b245e2f7a18926a0af05d105ca180dc9",
+  "composed_parent": "8600c2b4e8be5cae5c13b04ff7462cd07368e3a8",
+  "source_sha256": {
+    "crates/workspaces/src/adoption.rs": "d4d7b25a4cafc3eadfa9313769ba365f8a496aeee30e59a7e614eb07353368d5",
+    "crates/workspaces/src/adoption_config_batch_tests.rs": "240505dfdd0020221e536ad1fa780864ec5f182b6cd46b5a089ee01e2fcf3ee1",
+    "crates/core/tests/fixtures/integration_runtime.rs": "4fa5b264825980fb2cfe150ed94607854541c71577766587072a202ea60ad30e",
+    "crates/core/src/task_workspace_binding_tests.rs": "63c8d642b689a4bb136dd10cd0fddafeb127744007e916f93a1860316a7bf97d",
+    "scripts/record-factory-rework-ci-evidence.py": "0d833619de5a8556b27ff3212e8be2a086dbc8663a279a68c92af260a67decfd",
+    "tests/infrastructure/test_factory_rework_attempt_budget.py": "672b583b689741a1f5b363a09ff0fd7982e07897058910d326215661c5f0b065"
+  },
+  "decisions": [
+    "Within every original fresh boundary, replace four bounded Git config queries with one names-only NUL-delimited read. No cross-boundary cache or skipped checks; same key predicates/error priority and original environment/deadline/cancel/path/hash/CAS controls.",
+    "System-sh fixture preserves canonical protected program, delivers fixed tracked SHA/size/identity-checked script on stdin. Original script bytes, arguments, Unicode and stop ownership/deadlines remain. Not a proven cause of older ARM failures.",
+    "Parent860 test diagnostics and original lost-unread-response recovery are composed. Root655 type conflict independently found before acceptance, smallest5fee guard ownership fix preserves migration SQL/backups/future18 assertions. Strict whole-source inverse new outer layer retains all old checks."
+  ],
+  "results": {
+    "root-bound-config-names-units2": {
+      "result": {
+        "source": "aba91f19b245e2f7a18926a0af05d105ca180dc9",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-workspaces",
+          "--lib",
+          "config_batch_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 5.320024934015237,
+        "minimum_free_bytes": 3175116800,
+        "interruption": null,
+        "log_sha256": "24286ac2565bd0097cdd22f66e3a205943b0af919d874027b2d097c1e59a0c41",
+        "summaries": [
+          "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 26 filtered out; finished in 2.50s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "fad4d1c2334e149cb6c23d253d3f1cbd08c56c6f4c1f7257b7c1080ab1b2af1c",
+      "inputs_sha256": "39ed8e4aac3bb11e98e45d490ea885da5617ed27ae86859df909ae5b70ca580e"
+    },
+    "root-bound-config-workspaces-full1": {
+      "result": {
+        "source": "aba91f19b245e2f7a18926a0af05d105ca180dc9",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-workspaces",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 106.59610485797748,
+        "minimum_free_bytes": 3174899712,
+        "interruption": null,
+        "log_sha256": "179b1419b02ed076c6b524aea7a7acfc042c8e07e56e794e391fbf3b317e87eb",
+        "summaries": [
+          "test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 30.45s",
+          "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.22s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 1.66s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.31s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.31s",
+          "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.84s",
+          "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.53s",
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s",
+          "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s",
+          "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.23s",
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.94s",
+          "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.49s",
+          "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "8011a73c98ae529382c31828c3af2f5ec5ab8c435c50bb8c8cb049ebd8058ae2",
+      "inputs_sha256": "6c7f61f8ef4d874f4d3b62983032bc7740c4fbe10bdcf727e5dd9dbea46e5f69"
+    },
+    "root-bound-config-integration-ipc1": {
+      "result": {
+        "source": "aba91f19b245e2f7a18926a0af05d105ca180dc9",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root21-plan-reuse-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root21-plan-reuse-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root21-plan-reuse-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 126.09442847402534,
+        "minimum_free_bytes": 3174666240,
+        "interruption": null,
+        "log_sha256": "43234031c8eb02708ebb2695c720ce92b2e68cfcffba14fa7ad622ce98e06106",
+        "summaries": [
+          "test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 103.42s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "9bc3a49430b40d8a243f9bc396de9a23de1390e2e74ce00380e19ae9e7a1e223",
+      "inputs_sha256": "7e1f647ab7e4463bc25f63064a8b41df1d96bb6cbb0759e948a3a062201007d1"
+    },
+    "root-bound-config-full-core1": {
+      "result": {
+        "source": "aba91f19b245e2f7a18926a0af05d105ca180dc9",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-bound-config-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-bound-config-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-bound-config-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 179.24798830697546,
+        "minimum_free_bytes": 3129643008,
+        "interruption": null,
+        "log_sha256": "0ccfcf15192801aaffc591f34a4ffd5e73b53d7154791995431bea734fa624f5",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 260 filtered out; finished in 0.00s",
+          "test result: ok. 261 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 154.96s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "a18a8452b1d608b493309da9417615edc067938be931b1549f24220913eb7b40",
+      "inputs_sha256": "cd1de1d1cee3308b1e69b6607090b5edf317b542db0d804e97ab1f3c5244dfd8"
+    },
+    "root-bound-config-parent860-full-infra1": {
+      "result": {
+        "source": "655511c6710602b74968ad135ba645776a301f74",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 0,
+        "seconds": 20.350734170991927,
+        "minimum_free_bytes": 3128926208,
+        "interruption": null,
+        "log_sha256": "a02c0d00704fffd0f6251a2db8813690cd3535c9ed4758957ddcc488616d5cff",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "8cd74a42e0986d979491c9a490af1832d4d0848d8c32718b13cb51c0bc7337e5",
+      "inputs_sha256": "93e0c50ca8219c86a8aabef58cb47e8a09ffed72b2eb4d808d408a13cefbb468"
+    },
+    "root17-parent860-fixed-task-units1": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-bound-config-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-bound-config-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-bound-config-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "task_workspace_binding::tests",
+          "--",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 33.997055879968684,
+        "minimum_free_bytes": 3128860672,
+        "interruption": null,
+        "log_sha256": "08a23e3090a8c0991a4b9cb407513634de31409e24944e220b4b73f82838fca4",
+        "summaries": [
+          "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 248 filtered out; finished in 9.62s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "ce7da6f26d7b765f4012bd06de4ee61cd828b85da66d082c2bc23d8f70f69913",
+      "inputs_sha256": "7f64fad188542d1cee139b2264b016cc922a2b0c714140915c54cf2a236de301"
+    },
+    "root17-parent860-fixed-task-ipc1": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-bound-config-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-bound-config-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-bound-config-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "task_workspace_binding_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 24.67748135997681,
+        "minimum_free_bytes": 3128807424,
+        "interruption": null,
+        "log_sha256": "6cb8c26734e2ea26f5d207136063e06342e189e312551d612dbdff4a3853b341",
+        "summaries": [
+          "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.53s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "d468f10cb835089cc2b019b741261afd2e02431c0419357bcdf2537a0275ad20",
+      "inputs_sha256": "9390c5fd6ff597e97a0b4045c276263e79a0e2ba4141ad1c4bec1a00e958e2a9"
+    },
+    "root17-parent860-fixed-clippy1": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 22.089309223985765,
+        "minimum_free_bytes": 3128762368,
+        "interruption": null,
+        "log_sha256": "a2d1c40a00acf826e085fde714cdacdc9cd69f191268c540428195dd7e73bac7",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "e1c7c04b479ffb4a7c3457267163de0a63d7d6c8b66ce80ab871aa0ba8938d01",
+      "inputs_sha256": "a37d19a2cca8ef716958220a25ee1595b3cd55768ce97d1b3aa4c6a317fb33ca"
+    },
+    "root17-parent860-fixed-native-clippy1": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 13.847052145982161,
+        "minimum_free_bytes": 3128745984,
+        "interruption": null,
+        "log_sha256": "b39e78e71085f1e5172eb3da2356b5f6fd73e741ada4dce4ea05d6a3b2b2db98",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "8b3426fea472bcebea4eb98a2b458dcc4bebfa67699906d69447e176249123a7",
+      "inputs_sha256": "3438b97be261db653bdb3ca93e9d5e6da838b3b51752f065e6bc66a75c104f01"
+    },
+    "root17-parent860-fixed-normal-build1": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 21.771994712005835,
+        "minimum_free_bytes": 3131252736,
+        "interruption": null,
+        "log_sha256": "55aeff913d9a9e3e174284e0c44d7f2ffa36d8f7a3b378c3b6fe70256dd569c8",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "541a032d2f0db6470c6230cad54f774af65ddfec4c2db06eecee7a9028e50b11",
+      "inputs_sha256": "d9ecfa6ce5c99480853f26730ebe2e24f47d133e19d450a8c5e86c075337047d"
+    },
+    "root17-parent860-fixed-normal-freeze1": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/root17-parent860-fixed-normal-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/root17-parent860-fixed-normal-probe1"
+        ],
+        "exit": 0,
+        "seconds": 0.40170084399869666,
+        "minimum_free_bytes": 3083526144,
+        "interruption": null,
+        "log_sha256": "4ad7c7cacf24728ba40a990379d647a5abefd993b0ecabb34c8631850f92bd4d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "4c6f71276cd390d3a48d06d596a975e4e09795c6530dca5f1d16d8a8c5e9d6df",
+      "inputs_sha256": "60275b7d37722fe8e5f894d9aa9f5ee847761a777bcf114bd7f1d488ed215415"
+    },
+    "root17-parent860-fixed-frontend-build2": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.9141182559542358,
+        "minimum_free_bytes": 3083481088,
+        "interruption": null,
+        "log_sha256": "86c7f222e767c7b80fad9e5021e366834731aa7195f437fd4e913bee7a5f2a60",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "5dd4b911dbad9425dfcd54fbd7e8ca4383f92ca2706f17b543e62a15efa23647",
+      "inputs_sha256": "97cfa3fc33f21045f946fca6ba0d55707ef2218cafa5b67efba3c11818349400"
+    },
+    "root17-parent860-fixed-frontend-build3": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.8083495830069296,
+        "minimum_free_bytes": 3083464704,
+        "interruption": null,
+        "log_sha256": "a42e634a9d47d97f3026e05f1a79721397564103d42565987b7a9fe895740cfd",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "14073661af8006b789a57b46988fbe4182f12376c016d182e0bd9a61cbc1a2b8",
+      "inputs_sha256": "448d8750eed96686036d4ead1a2eee776c25c2a01fa71fd9568c8f4f710cc3e6"
+    },
+    "root17-parent860-fixed-integration-browser1": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1/baton",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/integration-real-ipc.py",
+          "--run",
+          "--case",
+          "all",
+          "--batond",
+          "/workspace/.onboarding/root17-parent860-fixed-normal-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/root17-parent860-fixed-paired-candidate1.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/root17-parent860-fixed-frontend-build3/RESULT.json",
+          "--expected-source-head",
+          "5fee31098f5fd916b5a0512e15d74af208608205",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/root17-parent860-fixed-integration-browser1-private"
+        ],
+        "exit": 0,
+        "seconds": 22.57166255201446,
+        "minimum_free_bytes": 3079835648,
+        "interruption": null,
+        "log_sha256": "a412fbcb4e0552ce74fe4fddadb7e7354f107dc8b6787568167cb9076de4e61d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "a1ddd4318e23cf5a4f09f83f152c03e9b4008e9afcd3d4109877f4680590d915",
+      "inputs_sha256": "019dda4adedf663d0db82dc3d55ffdff1171145d8b620a8f29aa3b7576cba27e"
+    }
+  },
+  "same_source_browser": {
+    "manifest_sha256": "cdb376b034e138de1548151d9ebc6db2bec260c4463b1b2ea2de365797a521cf",
+    "manifest": {
+      "schema": 17,
+      "git_head": "5fee31098f5fd916b5a0512e15d74af208608205",
+      "source_head": "5fee31098f5fd916b5a0512e15d74af208608205",
+      "compiled_core_source_head": "5fee31098f5fd916b5a0512e15d74af208608205",
+      "source_tree": "0c47b7bf1fb638f790c7b48eb46c26b29ce1d9e6",
+      "dirty": false,
+      "tracked_clean": true,
+      "binaries": {
+        "batond": "84e181d70ef979fd4808240612dd7d17dc1e7faed28d0fb0079f663a4d88a6a9",
+        "baton": "55b755927c15fd59a94427dcaae4b364501135b9cff121fb1c1c8f2706513fbf"
+      },
+      "frontend_assets": {
+        "assets/index-CxSi7Q5u.js": "a057a3b703d2a4ecbad8f1000d03396ed461c42270db31a40aa5f8de5864dad1",
+        "assets/index-Do9en2m0.css": "73a730d394d1d11ec8a348aac5b8933208bdd7150bab5f84da524c615a056420",
+        "index.html": "bfe8934c6f10cd72b1170bc7ee827667e2b07c74a6f0b68069029222d00ba16c"
+      },
+      "frontend_build_record_sha256": "14073661af8006b789a57b46988fbe4182f12376c016d182e0bd9a61cbc1a2b8",
+      "dimension": "Same-source Core17 and React; Linux Chromium/generated ACP/private Owner test host, no live model/OS/macOS"
+    },
+    "integration": {
+      "normal": {
+        "report_sha256": "7894769ae9325c91423e595774752ac4e5e712f68191c31413f9709c2122ca02",
+        "status": "passed",
+        "checks": 5,
+        "screenshots": 6,
+        "cleanup": {
+          "pending_reviews_stopped": true,
+          "browser_closed": true,
+          "playwright_stopped": true,
+          "http_shutdown": true,
+          "http_thread_joined": true,
+          "daemon_joined": {
+            "exit": 0,
+            "joined": true,
+            "forced_kill": false
+          },
+          "private_transcript_saved": true,
+          "tools_assets_unchanged": true,
+          "fixture_removed": true
+        }
+      },
+      "command-failure": {
+        "report_sha256": "115ae249e067f9767c7a964c478d332a7122a6df9386474bf55ca4c8780c7dc2",
+        "status": "passed",
+        "checks": 4,
+        "screenshots": 6,
+        "cleanup": {
+          "pending_reviews_stopped": true,
+          "browser_closed": true,
+          "playwright_stopped": true,
+          "http_shutdown": true,
+          "http_thread_joined": true,
+          "daemon_joined": {
+            "exit": 0,
+            "joined": true,
+            "forced_kill": false
+          },
+          "private_transcript_saved": true,
+          "tools_assets_unchanged": true,
+          "fixture_removed": true
+        }
+      }
+    },
+    "child_goal": {
+      "normal": {
+        "actual": {
+          "result": {
+            "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+            "root": "/workspace/.worktrees/authorized-integration-validation",
+            "command": [
+              "env",
+              "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+              "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+              "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1",
+              "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1/baton",
+              "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1/baton",
+              "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+              "apps/desktop/tests/factory-child-goal-real-ipc.py",
+              "--run",
+              "--case",
+              "normal",
+              "--tools",
+              "/workspace/.onboarding/root17-parent860-fixed-normal-frozen1",
+              "--manifest",
+              "/workspace/.onboarding/root17-parent860-fixed-paired-candidate1.json",
+              "--frontend",
+              "/workspace/.worktrees/authorized-integration-validation/apps/desktop/dist",
+              "--chromium",
+              "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+              "--output",
+              "/workspace/.onboarding/root17-parent860-fixed-normal-browser1-private"
+            ],
+            "exit": 0,
+            "seconds": 24.578878011961933,
+            "minimum_free_bytes": 3070144512,
+            "interruption": null,
+            "log_sha256": "734b7b5e05882473867f91e780d67989777d0c0f02025bc9a931e9b2a4a51bfb",
+            "summaries": [],
+            "source_head_and_tracked_unchanged": true,
+            "frozen_tools_unchanged": true,
+            "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+          },
+          "result_sha256": "d6dd426ddc074459d8d7d44e58313bfa14ea966d21595d0a333d43d4f84fe098",
+          "inputs_sha256": "506e223c234b20761030eaba0c7097f2c51178555b641996f3eb285b7b95271e"
+        },
+        "finite_projection": {
+          "result": {
+            "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+            "root": "/workspace/.worktrees/authorized-integration-validation",
+            "command": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "scripts/record-child-goal-ci-evidence.py",
+              "--private-dir",
+              "/workspace/.onboarding/root17-parent860-fixed-normal-browser1-private",
+              "--manifest",
+              "/workspace/.onboarding/root17-parent860-fixed-paired-candidate1.json",
+              "--case",
+              "normal",
+              "--exit-code",
+              "0",
+              "--output",
+              "/workspace/.onboarding/root17-parent860-fixed-finite-normal-1"
+            ],
+            "exit": 0,
+            "seconds": 0.100656671973411,
+            "minimum_free_bytes": 3070128128,
+            "interruption": null,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "summaries": [],
+            "source_head_and_tracked_unchanged": true,
+            "frozen_tools_unchanged": true,
+            "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+          },
+          "result_sha256": "22a69a89826b7cc20469d4d61a57858f6a46235bf186551665007ef29987a774",
+          "inputs_sha256": "995e135a272cac88b4b3e9cd9b30c2e35943128800b55f08147381aed2e6552a"
+        },
+        "summary_sha256": "31aacb537b027be7f0b04d5cc151262580f8c216fa30a19f1d3d407a70df519d",
+        "summary": {
+          "contract": "agentbaton.child-goal-ci.v1",
+          "case": "normal",
+          "status": "passed",
+          "schema": 17,
+          "source_head": "5fee31098f5fd916b5a0512e15d74af208608205",
+          "compiled_core_source_head": "5fee31098f5fd916b5a0512e15d74af208608205",
+          "manifest_sha256": "cdb376b034e138de1548151d9ebc6db2bec260c4463b1b2ea2de365797a521cf",
+          "tools_sha256": {
+            "batond": "84e181d70ef979fd4808240612dd7d17dc1e7faed28d0fb0079f663a4d88a6a9",
+            "baton": "55b755927c15fd59a94427dcaae4b364501135b9cff121fb1c1c8f2706513fbf"
+          },
+          "frontend_asset_count": 3,
+          "frontend_assets_sha256": "c784cd9ef6fab04b55009972bad4935ba55f106100a15bcef7d46286420c0983",
+          "harness_sha256": "dd80aebe8fba1c1a031b10e77bdfba64d8d1d349819521fb2deb36a02435cd9d",
+          "exit_code": 0,
+          "command_state": "returned",
+          "checks": [
+            {
+              "id": "CG01",
+              "status": "passed"
+            },
+            {
+              "id": "CG02",
+              "status": "passed"
+            },
+            {
+              "id": "CG05",
+              "status": "passed"
+            },
+            {
+              "id": "CG06",
+              "status": "passed"
+            }
+          ],
+          "cleanup_complete": true,
+          "cleanup_record_count": 5,
+          "failure_kind": "none",
+          "screenshots_published": false,
+          "private_history_published": false,
+          "finite_diagnostics": {
+            "version": 4,
+            "failure_class": null,
+            "driver_lines": null,
+            "lines_truncated": null,
+            "phase": null,
+            "last_completed_check": "CG06",
+            "core_replies": {
+              "observation": "observed",
+              "captured_count": 262,
+              "truncated": false,
+              "unmapped_error_count": 0,
+              "errors": [
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_scopes.propose",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_runs.get",
+                  "code": "NOT_FOUND",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "STALE_REVISION",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                }
+              ]
+            },
+            "graph_provider_argv": null,
+            "owner_refresh": {
+              "observation": "observed",
+              "source_epoch": null,
+              "started_ns": 350123106822579,
+              "click_finished_ns": 350126063040196,
+              "finished_ns": 350128444053859,
+              "refresh_completed": null,
+              "full_fresh": null,
+              "loading": null,
+              "pending_kind": "unobserved",
+              "correlation": "temporal_only",
+              "click_causality": "not_established",
+              "reads": [
+                {
+                  "method": "factory_child_goals.get",
+                  "binding": "scope_task_run",
+                  "started_ns": 350125307904859,
+                  "finished_ns": 350125734142699,
+                  "reply_class": "result",
+                  "error": null
+                },
+                {
+                  "method": "factory_child_goals.get",
+                  "binding": "scope_task_run",
+                  "started_ns": 350127779822217,
+                  "finished_ns": 350128086542299,
+                  "reply_class": "result",
+                  "error": null
+                }
+              ],
+              "scope_task_only_read_count": 2,
+              "truncated": false
+            },
+            "graph_provider_identity": null,
+            "owner_ui_state": {
+              "source": "renderer_local_untrusted",
+              "authority": "none",
+              "begin": {
+                "observation": "unobserved",
+                "sampled_ns": null,
+                "epoch": null,
+                "fresh": null,
+                "loading": null,
+                "capacity": null,
+                "connected": null,
+                "busy": null,
+                "cancel_reading": null,
+                "disabled": null,
+                "has_view": null,
+                "summary_fresh": null,
+                "parent_ready": null,
+                "parent_refresh_only": null,
+                "pending_kind": null,
+                "pending_unknown": null,
+                "owner_present": null,
+                "owner_disabled": null
+              },
+              "end": {
+                "observation": "observed",
+                "sampled_ns": 350128443849434,
+                "epoch": 6,
+                "fresh": true,
+                "loading": false,
+                "capacity": false,
+                "connected": true,
+                "busy": false,
+                "cancel_reading": false,
+                "disabled": false,
+                "has_view": true,
+                "summary_fresh": true,
+                "parent_ready": false,
+                "parent_refresh_only": true,
+                "pending_kind": "none",
+                "pending_unknown": null,
+                "owner_present": true,
+                "owner_disabled": false
+              }
+            }
+          }
+        }
+      },
+      "cancel": {
+        "actual": {
+          "result": {
+            "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+            "root": "/workspace/.worktrees/authorized-integration-validation",
+            "command": [
+              "env",
+              "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+              "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+              "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1",
+              "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1/baton",
+              "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1/baton",
+              "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+              "apps/desktop/tests/factory-child-goal-real-ipc.py",
+              "--run",
+              "--case",
+              "cancel",
+              "--tools",
+              "/workspace/.onboarding/root17-parent860-fixed-normal-frozen1",
+              "--manifest",
+              "/workspace/.onboarding/root17-parent860-fixed-paired-candidate1.json",
+              "--frontend",
+              "/workspace/.worktrees/authorized-integration-validation/apps/desktop/dist",
+              "--chromium",
+              "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+              "--output",
+              "/workspace/.onboarding/root17-parent860-fixed-cancel-browser1-private"
+            ],
+            "exit": 0,
+            "seconds": 16.851508106978144,
+            "minimum_free_bytes": 3065303040,
+            "interruption": null,
+            "log_sha256": "f3435ce3cfcd2b2e1afeb1672075a72a990165497c81902ec48b84692dd0946b",
+            "summaries": [],
+            "source_head_and_tracked_unchanged": true,
+            "frozen_tools_unchanged": true,
+            "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+          },
+          "result_sha256": "3ca4c2b6f21481bbe8e146d3c54626d70377c5ba0db06444feeb672bffebd664",
+          "inputs_sha256": "b61a1b69bd5b380dd8c3d0596f18eca1c23b8da7d7f79a18651518127b40d0b3"
+        },
+        "finite_projection": {
+          "result": {
+            "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+            "root": "/workspace/.worktrees/authorized-integration-validation",
+            "command": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "scripts/record-child-goal-ci-evidence.py",
+              "--private-dir",
+              "/workspace/.onboarding/root17-parent860-fixed-cancel-browser1-private",
+              "--manifest",
+              "/workspace/.onboarding/root17-parent860-fixed-paired-candidate1.json",
+              "--case",
+              "cancel",
+              "--exit-code",
+              "0",
+              "--output",
+              "/workspace/.onboarding/root17-parent860-fixed-finite-cancel-1"
+            ],
+            "exit": 0,
+            "seconds": 0.10068546101683751,
+            "minimum_free_bytes": 3062956032,
+            "interruption": null,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "summaries": [],
+            "source_head_and_tracked_unchanged": true,
+            "frozen_tools_unchanged": true,
+            "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+          },
+          "result_sha256": "3ec93b8fcee711741bcdca8a7e91d41272167c193bca2ea9a05b226abe62cc01",
+          "inputs_sha256": "24546f4f6d821911d9d74433e72e0cefcae2b6c1deb413fd5606aee23d78dc9e"
+        },
+        "summary_sha256": "1db1561e9f0aa5d8e62973ee93ec3218a6951323c8882283a629e0987ca27aa9",
+        "summary": {
+          "contract": "agentbaton.child-goal-ci.v1",
+          "case": "cancel",
+          "status": "passed",
+          "schema": 17,
+          "source_head": "5fee31098f5fd916b5a0512e15d74af208608205",
+          "compiled_core_source_head": "5fee31098f5fd916b5a0512e15d74af208608205",
+          "manifest_sha256": "cdb376b034e138de1548151d9ebc6db2bec260c4463b1b2ea2de365797a521cf",
+          "tools_sha256": {
+            "batond": "84e181d70ef979fd4808240612dd7d17dc1e7faed28d0fb0079f663a4d88a6a9",
+            "baton": "55b755927c15fd59a94427dcaae4b364501135b9cff121fb1c1c8f2706513fbf"
+          },
+          "frontend_asset_count": 3,
+          "frontend_assets_sha256": "c784cd9ef6fab04b55009972bad4935ba55f106100a15bcef7d46286420c0983",
+          "harness_sha256": "dd80aebe8fba1c1a031b10e77bdfba64d8d1d349819521fb2deb36a02435cd9d",
+          "exit_code": 0,
+          "command_state": "returned",
+          "checks": [
+            {
+              "id": "CG01",
+              "status": "passed"
+            },
+            {
+              "id": "CG02",
+              "status": "passed"
+            },
+            {
+              "id": "CG04",
+              "status": "passed"
+            },
+            {
+              "id": "CG06",
+              "status": "passed"
+            }
+          ],
+          "cleanup_complete": true,
+          "cleanup_record_count": 5,
+          "failure_kind": "none",
+          "screenshots_published": false,
+          "private_history_published": false,
+          "finite_diagnostics": {
+            "version": 4,
+            "failure_class": null,
+            "driver_lines": null,
+            "lines_truncated": null,
+            "phase": null,
+            "last_completed_check": "CG06",
+            "core_replies": {
+              "observation": "observed",
+              "captured_count": 207,
+              "truncated": false,
+              "unmapped_error_count": 0,
+              "errors": [
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_scopes.propose",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_runs.get",
+                  "code": "NOT_FOUND",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "STALE_REVISION",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_child_plans.context",
+                  "code": "INPUT_CHANGED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                }
+              ]
+            },
+            "graph_provider_argv": null,
+            "owner_refresh": {
+              "observation": "unobserved",
+              "source_epoch": null,
+              "started_ns": null,
+              "click_finished_ns": null,
+              "finished_ns": null,
+              "refresh_completed": null,
+              "full_fresh": null,
+              "loading": null,
+              "pending_kind": "unobserved",
+              "correlation": "temporal_only",
+              "click_causality": "not_established",
+              "reads": [],
+              "scope_task_only_read_count": 0,
+              "truncated": false
+            },
+            "graph_provider_identity": null,
+            "owner_ui_state": {
+              "source": "renderer_local_untrusted",
+              "authority": "none",
+              "begin": {
+                "observation": "unobserved",
+                "sampled_ns": null,
+                "epoch": null,
+                "fresh": null,
+                "loading": null,
+                "capacity": null,
+                "connected": null,
+                "busy": null,
+                "cancel_reading": null,
+                "disabled": null,
+                "has_view": null,
+                "summary_fresh": null,
+                "parent_ready": null,
+                "parent_refresh_only": null,
+                "pending_kind": null,
+                "pending_unknown": null,
+                "owner_present": null,
+                "owner_disabled": null
+              },
+              "end": {
+                "observation": "unobserved",
+                "sampled_ns": null,
+                "epoch": null,
+                "fresh": null,
+                "loading": null,
+                "capacity": null,
+                "connected": null,
+                "busy": null,
+                "cancel_reading": null,
+                "disabled": null,
+                "has_view": null,
+                "summary_fresh": null,
+                "parent_ready": null,
+                "parent_refresh_only": null,
+                "pending_kind": null,
+                "pending_unknown": null,
+                "owner_present": null,
+                "owner_disabled": null
+              }
+            }
+          }
+        }
+      },
+      "lost-start": {
+        "actual": {
+          "result": {
+            "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+            "root": "/workspace/.worktrees/authorized-integration-validation",
+            "command": [
+              "env",
+              "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+              "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+              "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1",
+              "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1/baton",
+              "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root17-parent860-fixed-normal-frozen1/baton",
+              "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+              "apps/desktop/tests/factory-child-goal-real-ipc.py",
+              "--run",
+              "--case",
+              "lost-start",
+              "--tools",
+              "/workspace/.onboarding/root17-parent860-fixed-normal-frozen1",
+              "--manifest",
+              "/workspace/.onboarding/root17-parent860-fixed-paired-candidate1.json",
+              "--frontend",
+              "/workspace/.worktrees/authorized-integration-validation/apps/desktop/dist",
+              "--chromium",
+              "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+              "--output",
+              "/workspace/.onboarding/root17-parent860-fixed-lost-start-browser1-private"
+            ],
+            "exit": 0,
+            "seconds": 27.374456733989064,
+            "minimum_free_bytes": 3052011520,
+            "interruption": null,
+            "log_sha256": "1b6e82c6b8a5216768cce2f870f62f7a3cfc187dc04829ad7106098f95d8f32d",
+            "summaries": [],
+            "source_head_and_tracked_unchanged": true,
+            "frozen_tools_unchanged": true,
+            "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+          },
+          "result_sha256": "07d9e79ed96d25c5ff2ab1c6b03d41ba58e804d082d43dde7a9675b1439eae4d",
+          "inputs_sha256": "dce313976ba0203607a4277337012c13bb7d3060b40d7b331efd6cf2079379ae"
+        },
+        "finite_projection": {
+          "result": {
+            "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+            "root": "/workspace/.worktrees/authorized-integration-validation",
+            "command": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "scripts/record-child-goal-ci-evidence.py",
+              "--private-dir",
+              "/workspace/.onboarding/root17-parent860-fixed-lost-start-browser1-private",
+              "--manifest",
+              "/workspace/.onboarding/root17-parent860-fixed-paired-candidate1.json",
+              "--case",
+              "lost-start",
+              "--exit-code",
+              "0",
+              "--output",
+              "/workspace/.onboarding/root17-parent860-fixed-finite-lost-start-1"
+            ],
+            "exit": 0,
+            "seconds": 0.10064699803479016,
+            "minimum_free_bytes": 3051999232,
+            "interruption": null,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "summaries": [],
+            "source_head_and_tracked_unchanged": true,
+            "frozen_tools_unchanged": true,
+            "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+          },
+          "result_sha256": "cba50f6968599d7d82ffe6d8e2009e30f36f82a77875184125db8c6014b1d72e",
+          "inputs_sha256": "0e62caeede12f2b7e6846092edf4d4c3cee463568fb23b1cde0942302170d47d"
+        },
+        "summary_sha256": "bac42b02de0e7b7da22375b9cc9e78284c22dad8528975a081c67f6667ff8100",
+        "summary": {
+          "contract": "agentbaton.child-goal-ci.v1",
+          "case": "lost-start",
+          "status": "passed",
+          "schema": 17,
+          "source_head": "5fee31098f5fd916b5a0512e15d74af208608205",
+          "compiled_core_source_head": "5fee31098f5fd916b5a0512e15d74af208608205",
+          "manifest_sha256": "cdb376b034e138de1548151d9ebc6db2bec260c4463b1b2ea2de365797a521cf",
+          "tools_sha256": {
+            "batond": "84e181d70ef979fd4808240612dd7d17dc1e7faed28d0fb0079f663a4d88a6a9",
+            "baton": "55b755927c15fd59a94427dcaae4b364501135b9cff121fb1c1c8f2706513fbf"
+          },
+          "frontend_asset_count": 3,
+          "frontend_assets_sha256": "c784cd9ef6fab04b55009972bad4935ba55f106100a15bcef7d46286420c0983",
+          "harness_sha256": "dd80aebe8fba1c1a031b10e77bdfba64d8d1d349819521fb2deb36a02435cd9d",
+          "exit_code": 0,
+          "command_state": "returned",
+          "checks": [
+            {
+              "id": "CG01",
+              "status": "passed"
+            },
+            {
+              "id": "CG02",
+              "status": "passed"
+            },
+            {
+              "id": "CG03",
+              "status": "passed"
+            },
+            {
+              "id": "CG05",
+              "status": "passed"
+            },
+            {
+              "id": "CG06",
+              "status": "passed"
+            }
+          ],
+          "cleanup_complete": true,
+          "cleanup_record_count": 5,
+          "failure_kind": "none",
+          "screenshots_published": false,
+          "private_history_published": false,
+          "finite_diagnostics": {
+            "version": 4,
+            "failure_class": null,
+            "driver_lines": null,
+            "lines_truncated": null,
+            "phase": null,
+            "last_completed_check": "CG06",
+            "core_replies": {
+              "observation": "observed",
+              "captured_count": 297,
+              "truncated": false,
+              "unmapped_error_count": 0,
+              "errors": [
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_scopes.propose",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_runs.get",
+                  "code": "NOT_FOUND",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "STALE_REVISION",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "CONFIG_CONFLICT",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                }
+              ]
+            },
+            "graph_provider_argv": null,
+            "owner_refresh": {
+              "observation": "observed",
+              "source_epoch": null,
+              "started_ns": 350168715004728,
+              "click_finished_ns": 350170647439134,
+              "finished_ns": 350173536594505,
+              "refresh_completed": null,
+              "full_fresh": null,
+              "loading": null,
+              "pending_kind": "unobserved",
+              "correlation": "temporal_only",
+              "click_causality": "not_established",
+              "reads": [
+                {
+                  "method": "factory_child_goals.get",
+                  "binding": "scope_task_run",
+                  "started_ns": 350170073311890,
+                  "finished_ns": 350170413839215,
+                  "reply_class": "result",
+                  "error": null
+                },
+                {
+                  "method": "factory_child_goals.get",
+                  "binding": "scope_task_run",
+                  "started_ns": 350172585796636,
+                  "finished_ns": 350173180981026,
+                  "reply_class": "result",
+                  "error": null
+                }
+              ],
+              "scope_task_only_read_count": 2,
+              "truncated": false
+            },
+            "graph_provider_identity": null,
+            "owner_ui_state": {
+              "source": "renderer_local_untrusted",
+              "authority": "none",
+              "begin": {
+                "observation": "observed",
+                "sampled_ns": 350168728069226,
+                "epoch": 7,
+                "fresh": false,
+                "loading": true,
+                "capacity": false,
+                "connected": true,
+                "busy": false,
+                "cancel_reading": false,
+                "disabled": true,
+                "has_view": true,
+                "summary_fresh": false,
+                "parent_ready": false,
+                "parent_refresh_only": false,
+                "pending_kind": "start",
+                "pending_unknown": true,
+                "owner_present": true,
+                "owner_disabled": true
+              },
+              "end": {
+                "observation": "observed",
+                "sampled_ns": 350173536531741,
+                "epoch": 8,
+                "fresh": true,
+                "loading": false,
+                "capacity": false,
+                "connected": true,
+                "busy": false,
+                "cancel_reading": false,
+                "disabled": false,
+                "has_view": true,
+                "summary_fresh": true,
+                "parent_ready": false,
+                "parent_refresh_only": true,
+                "pending_kind": "none",
+                "pending_unknown": null,
+                "owner_present": true,
+                "owner_disabled": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "dimension": "Linux Chromium → finite test bridge/private Owner host → real Core17 Unix IPC with generated ACP, no model calls; not native Tauri dialog/macOS",
+    "visual_inspection": "Root viewed actual normal terminal-state-desktop.png; no style acceptance inferred from tests"
+  },
+  "independent_reviews": {
+    "root-protected-script-independent-review": {
+      "sha256": "1ee44523394636fc920722cc44a012ca9a4047cbb4809ed21eefbf66edbe269f",
+      "status": "SOURCE_READY",
+      "scope": "independent source/pure checks; actual regression belongs to results at its stated source"
+    },
+    "root-bound-config-batch-independent-review": {
+      "sha256": "d6c22e7075eeca9dbc997f185c107905d9a03dea34b33820174f3d322470324e",
+      "status": "SOURCE_READY",
+      "scope": "independent source/pure checks; actual regression belongs to results at its stated source"
+    },
+    "root17-parent860-composition-independent-review": {
+      "sha256": "a53ae6139bc1cc568457a7300676a42ecdfcaf6552884a30b1053b29e0b5f755",
+      "status": "CHANGES_REQUIRED",
+      "scope": "independent source/pure checks; actual regression belongs to results at its stated source"
+    },
+    "root17-parent860-composition-fixed-review": {
+      "sha256": "2e2af8d632fb51fd3b1ec6928c40ca015dad62d4a1715fe1c39c94f4ed476f21",
+      "status": "SOURCE_READY",
+      "scope": "independent source/pure checks; actual regression belongs to results at its stated source"
+    }
+  },
+  "preserved_failures": {
+    "protected_fixture_missing_trait": {
+      "result": {
+        "source": "68aae7ef0d594e9f0c2ffa549d302a1bbf620be5",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root21-plan-reuse-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root21-plan-reuse-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root21-plan-reuse-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 101,
+        "seconds": 23.184390030044597,
+        "minimum_free_bytes": 3175682048,
+        "interruption": null,
+        "log_sha256": "1e7c30242cf6db29ae80ea3a4639b0f4ec333bc4d1e8391daff1de8a5429f0af",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "27f75d8409c05dd35fa99c6da49c9dc8b3d59677150ccc7163be3bb9bdb10480",
+      "inputs_sha256": "27f6afa8b8b0c46a6f379070b74320d91daadd43c0e310fcf1f68254a7c25d6c"
+    },
+    "protected_fixture_pre_batch_28pass_2fail": {
+      "result": {
+        "source": "0d60289c9488658631d3ee165e6574d97e3862de",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root21-plan-reuse-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root21-plan-reuse-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root21-plan-reuse-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 101,
+        "seconds": 118.86208100500517,
+        "minimum_free_bytes": 3175346176,
+        "interruption": null,
+        "log_sha256": "5c24d36293e65c9d510d45682f7148d797bf7625c70c9b219cedcacc749baa52",
+        "summaries": [
+          "test result: FAILED. 28 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 96.07s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "fdcd1fe8f0ffe29ac93838c964682572d681831b22512beed81e70f89b718fdf",
+      "inputs_sha256": "6f56ee22d3826296ac4e26494741a43236f12bb0b985eb14ecba9947714a319c"
+    },
+    "frontend_missing_npm_PATH": {
+      "result": {
+        "source": "5fee31098f5fd916b5a0512e15d74af208608205",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 127,
+        "seconds": 0.10067851300118491,
+        "minimum_free_bytes": 3083501568,
+        "interruption": null,
+        "log_sha256": "87e46ed325b76572b0c6c02fac8672396471739c789063d645cbba2803e38aad",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "35b73199ba85482542b2718e3488aa5c0760419393528bbb5a4a426efad8969d",
+      "inputs_sha256": "f08de87dae8b89786104b90ed415027d64717dba720dda2818a174eb3ff26f6b"
+    }
+  },
+  "known_limit": "Names-only read shares the original bounded output cap. Extremely many benign names can fail closed earlier than four filtered reads; no output cap raised. Linux passes do not establish prior Host timing cause fixed or Mac performance acceptance.",
+  "remote_state": {
+    "PR21": {
+      "head": "8b9880314a4db6366b22430580806b36ec4d304b",
+      "Environment": 41193003655,
+      "Product": 41193006420,
+      "conclusion": "Product failure; Rust/UI pass, ARM integration18/12 and IntelFactory35/1 distinct failures retained"
+    },
+    "PR19": {
+      "head": "84686534d9761b6ca033aa814c95ba7e145e6f82",
+      "Environment": 41238532911,
+      "Product": 41238532886,
+      "conclusion": "Environment success/Product terminal failure; Rust/UI pass, ARMCore209/1 NotFound, IntelFactory29/1 captured4092ms>4000ms. Separate source diagnosis pending."
+    }
+  },
+  "not_run": [
+    "exact new remote CI on5fee",
+    "Mac native/dual-architecture validation of new production batching and composed fixtures",
+    "current Root development installers",
+    "live product Provider/approved remote host validation"
+  ],
+  "full130_complete": false
+}

@@ -698,11 +698,17 @@ struct CaptureWorker {
     unknown_recorded: bool,
     queued_at: std::time::Instant,
 }
+#[cfg(test)]
+type CaptureReadProbe = Box<dyn FnOnce(bool, std::sync::Arc<std::sync::atomic::AtomicBool>) + Send>;
 #[derive(Default)]
 pub(crate) struct GraphWorkers {
     captures: std::collections::HashMap<String, CaptureWorker>,
     stopping: bool,
     validators: validators::ValidatorWorkers,
+    #[cfg(test)]
+    capture_read_probe: Option<CaptureReadProbe>,
+    #[cfg(test)]
+    capture_read_ready: Option<std::sync::mpsc::Receiver<()>>,
 }
 impl GraphWorkers {
     pub(crate) fn start_validation(
@@ -744,7 +750,15 @@ impl GraphWorkers {
     }
     fn mark_started_capture_and_poll(&mut self, store: &mut Store, id: &str) -> Result<()> {
         store.mark_graph_capture_started(&self.captures.get(id).ok_or_else(changed)?.origin)?;
-        // The original frontier/origin checks and durable start receipt have
+        // Only the test fixture may hold a real completed read across the
+        // later fault. Normal libraries contain no checkpoint or receiver.
+        #[cfg(test)]
+        if let Some(ready) = self.capture_read_ready.take() {
+            ready
+                .recv_timeout(std::time::Duration::from_secs(5))
+                .map_err(|_| err("RESOURCE_LIMIT", "Test capture checkpoint was not reached"))?;
+        }
+        // The original fresh origin checks and durable start receipt have
         // succeeded. Observe a fast owned read's real join before unrelated
         // Actor work, without renewing or discounting its original clock.
         self.poll_finished_captures(store)
@@ -773,7 +787,13 @@ impl GraphWorkers {
         if self.has_workers() || self.stopping {
             return Ok(());
         }
-        store.reconcile_graph_frontiers()?;
+        // A persisted capture already belongs to a stopped producer. Service its
+        // original fresh checks and owned read before an unrelated full sweep;
+        // the same Actor call still reconciles every frontier before dispatch.
+        self.service_prepared_capture(store)?;
+        store.reconcile_graph_frontiers()
+    }
+    fn service_prepared_capture(&mut self, store: &mut Store) -> Result<()> {
         raw_collection_budget(&store.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(state)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE state='prepared' AND json_extract(document,'$.job_kind') IS NULL",[],1,MAX_STORED_BYTES)?;
         let doc: Option<String> = store
             .conn
@@ -804,9 +824,22 @@ impl GraphWorkers {
         };
         let cancel = prepared.cancelled.clone();
         let deadline = prepared.deadline;
+        #[cfg(test)]
+        let probe = self.capture_read_probe.take();
+        #[cfg(test)]
+        let probe_cancel = cancel.clone();
         let thread = std::thread::Builder::new()
             .name("baton-goal-evidence".into())
-            .spawn(move || observe_capture_worker(queued_at, || prepared.execute()));
+            .spawn(move || {
+                observe_capture_worker(queued_at, || {
+                    let result = prepared.execute();
+                    #[cfg(test)]
+                    if let Some(probe) = probe {
+                        probe(result.is_ok(), probe_cancel);
+                    }
+                    result
+                })
+            });
         match thread {
             Ok(thread) => {
                 let id = origin.id.clone();
@@ -3137,8 +3170,17 @@ impl Drop for GraphWorkers {
 
 #[cfg(test)]
 impl GraphWorkers {
-    /// An owned cancellation-observing reader fixture, not a Provider, Goal
-    /// candidate, approval or accepted output. Only tests can install it.
+    /// Test-only observation after real file I/O; never compiled into normal libraries.
+    pub(crate) fn install_capture_read_probe(
+        &mut self,
+        ready: std::sync::mpsc::Receiver<()>,
+        probe: impl FnOnce(bool, std::sync::Arc<std::sync::atomic::AtomicBool>) + Send + 'static,
+    ) {
+        assert!(self.capture_read_probe.is_none());
+        self.capture_read_probe = Some(Box::new(probe));
+        self.capture_read_ready = Some(ready);
+    }
+    /// An owned cancellation-observing reader fixture, not an approval.
     pub(crate) fn install_drop_fixture(
         &mut self,
         root: std::path::PathBuf,

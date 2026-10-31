@@ -2292,7 +2292,11 @@
         "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
         "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json",
         "docs/execution/child-goal-plan-read-reuse/ROOT_RESULTS.json",
-        "docs/execution/root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json"
+        "docs/execution/root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json",
+        "docs/execution/fresh-bound-config/EVIDENCE.json",
+        "docs/execution/task-workspace-integration/OBSERVER_AND_HEAD846_RESULTS.json",
+        "docs/execution/capture-frontier-service/EVIDENCE.json",
+        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2606,7 +2610,11 @@
         "docs/execution/child-goal-owner-ui-v4/ROOT_RESULTS.json",
         "docs/execution/root21-owner-ui-v4-composition/ROOT_LOCAL_RESULTS.json",
         "docs/execution/child-goal-plan-read-reuse/ROOT_RESULTS.json",
-        "docs/execution/root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json"
+        "docs/execution/root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json",
+        "docs/execution/fresh-bound-config/EVIDENCE.json",
+        "docs/execution/task-workspace-integration/OBSERVER_AND_HEAD846_RESULTS.json",
+        "docs/execution/capture-frontier-service/EVIDENCE.json",
+        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -3264,7 +3272,9 @@
         "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
         "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
-        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json"
+        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
+        "docs/execution/capture-frontier-service/EVIDENCE.json",
+        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -7214,7 +7224,9 @@
         "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
         "docs/execution/factory-ancestor-admission-diagnostics/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
-        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json"
+        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
+        "docs/execution/capture-frontier-service/EVIDENCE.json",
+        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -7540,7 +7552,8 @@
         "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json",
         "docs/execution/authorized-integration/FIRST_CI_CORRECTIONS.json",
         "docs/execution/authorized-integration/HEADFBD_CI_AND_LOCAL_RECOVERY.json",
-        "docs/execution/authorized-integration/PLATFORM_CLOSURE_RESULTS.json"
+        "docs/execution/authorized-integration/PLATFORM_CLOSURE_RESULTS.json",
+        "docs/execution/fresh-bound-config/EVIDENCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",

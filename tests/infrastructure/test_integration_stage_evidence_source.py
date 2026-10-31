@@ -20,6 +20,8 @@ def remove_once(text, fragment):
 
 
 def fixture_inverse(text):
+    from integration_fixed_script_fixture import restore_before_fixed_scripts
+    text = restore_before_fixed_scripts(text)
     text = remove_once(text, '#[path = "integration_stage_evidence.rs"]\nmod stage_evidence;\n')
     text = remove_once(text, '        stage_evidence::finish(\n            &self.server.runtime,\n            self.server.join_outcome,\n            self.task["id"].as_str(),\n            std::thread::panicking(),\n        );\n')
     fragment = '    let reply = server.request(frame);\n    stage_evidence::observe_reply(&server.runtime, method, &reply);\n    result(reply)\n'

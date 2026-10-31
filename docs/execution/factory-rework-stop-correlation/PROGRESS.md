@@ -1,3 +1,9 @@
+## Prior settlement association extension — 2026-10-31
+
+The latest Intel observation is a capture settlement at run revision12 after a separate node settlement at11. Reuse the existing strict reservation/session correlation for that previous node as well; keep it inside previous_node_settlement and retain both historical/not-same-plan labels. The original helper, event bounds, redaction, source predicates and runtime budgets remain unchanged. No causal or authority claim follows from a stop reason or completed turn.
+
+Root103 generated-SQLite tests pass, including6 new prior-binding/missing/duplicate/foreign/late/numeric controls. Independent source review passes64 checks and independently runs102 cases; its one guard-blocked old FIFO method and original attempt are separate, never counted passed. All original17 stop methods/80 collector methods remain; actual enhanced Core/Mac/CI projection is not run. See the appended EVIDENCE.json entry; old failures and source pins remain historical.
+
 # Progress
 
 - Read fixed collector, real session/Goal event writers and ReworkRunning Drop. The retained main DB is complete after owned shutdown; existing collector opens only an owned bounded copy read-only/immutable/query_only, with no Store/recovery/migration/runtime.
@@ -6,3 +12,7 @@
 - Each successful synthetic collection checks original DB raw bytes, inode/size/mtime/ctime unchanged, public secret/path exclusion and128KiB limit. An additional actual read-only/immutable/query_only transaction confirms writes are refused and original SHA/bytes unchanged. No product DB was opened.
 - First new15-method run had2 failures caused by author fixture construction: duplicate-key row accidentally lacked its selection fields, and populate(None) omitted the event rather than setting an existing turn field null. EVIDENCE retains source hashes, failing names/expected vs observed and scope. Corrected fixture construction retains the intended strict tests; production/collector logic was not loosened. Unit TemporaryDirectory failure DBs were automatically cleaned, not archived. Original tool output remains in the task transcript; no failed product/CI evidence was rewritten.
 - Root's supplied Intel finite report contextualizes the request; this leaf has not rerun/reprojected an actual CI DB and cannot recover data absent from the official artifact. No Core/Cargo/Actor/browser/network/Native/real Provider execution occurred and no CI cause is established.
+
+## Full infrastructure result after extension — 2026-10-31
+
+Exact4cc7967470a57ade6c433af218e436297f2130c1 passes all366 infrastructure tests in10.827s; log SHA-256 `faef1223c5ab07847a20a670bc26e532e3c697b636b5fc15eae5805e5b59e4b2`. Runner confirms tracked source and frozen tools unchanged. All93 bootstrap pins pass. This does not run an actual Mac collector or resolve the separate CI failures. New exact remote checks remain required.

@@ -1,3 +1,43 @@
+## Root17 capture composition verified — 2026-10-31
+
+Source246 composes Parent96 capture scheduling and controlled late-frontier failure regression while retaining the entire Root17 integration extension. Independent122-check whole-source review passes. Exact246 stop-module12(includes new2/fourpaths), completeFactory39 realIPC, strictworkspace+NativeLinuxClippy, fmt and normalCore17/CLIbuild/freeze pass. Normal immutable ELF inspection finds no four closed test-control markers; this is a development binary audit, not Mac/release acceptance. Metadata-only merged74 retains source/test/workflow bytes and passes all691 infrastructure tests. [Exact evidence](fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json).
+
+One local merge proof incorrectly assumed the entire Parent file was a prefix and its shell still committed after assertion failure. It was never pushed then; corrected strict full-file insertion proof and independent review verify the only19173byte Root17 extension remains exact, both test files equalParent96 and no markers/other runtime changes exist. The failed transcript is retained.
+
+Parent324 is now pushed with exact Environment41243422609/Product41243422606 queued/running, not passed. Root21's old8b CI remains failed; next new exact candidate/manual checks are pending. Earlier5fee matched browser and aba261/fullWorkspaces/30integration stay source-bound. Current246 browser/full263Core/Native/Mac/installers/full130 acceptance are not claimed. Continue exact CI, feature integration and the rest of approved Designv0.2; no authority expansion.
+
+## Owned capture service and fatal frontier regression — 2026-10-31
+
+Reviewed2ed prioritizes an already persisted owned capture before the same-tick mandatory full frontier sweep. All original fresh authorization/origin/lease/stop/CAS checks, queue clock,4s reservation and cancellation/join accounting remain. Original210Core/33Factory/14nativeGoalGraph and strictClippy pass at2ed; those old tests did not cover a new late-frontier fatal branch, so independent review correctly withheld acceptance.
+
+New96 regression closes that gap with actual approved producer/turn/stop/read, deterministic test-only channel and fatal Drop join before writer unlock; three nonfatal helper returns still propagate the original frontier refusal without dispatch, candidates, acceptance or refund. Current96 stop-module12(including new2/fourpaths), oldreader14, strictalltargetsClippy and non-testCore/CLI build pass. Probe/checkpoint is cfg(test)-only; its5s alarm is not runtime authority or performance evidence. The original147 legacy-getter andf9 unique-scope fixture failures remain retained; both corrections preserve production refusal rules. [Exact source-bound evidence](capture-frontier-service/EVIDENCE.json).
+
+846's measured4092>4000 overrun and ARM missing-entry cause remain distinct historical failures. Linux passes do not establish a Mac fix or current installers. Next: record one exact reviewed candidate, read actual Environment/Product results, then integrate dependency-ready work and remaining full130 scope. No formal Approve, live Provider, spend, signing or production permission added.
+
+## Actual846 failures and860 test observer checkpoint — 2026-10-31
+
+Exact846 Environment41238532911 passes all3; Product41238532886 is terminal failed despite Rust/UI pass. ARM Core209/1 fails on an unidentified symlink_metadata NotFound entry, distinct from the earlier dropped-write IPC failure. Intel Factory29/1 is plan2/run12blocked with real4092ms runtime above unchanged4000ms: producer3563ms, capture queue529ms, actual worker0ms. These observations do not establish a shared cause, pure Actor idle, or a permission to discount costs. Native acceptance/build/installers remain blocked.
+
+Reviewed860 test-only closed diagnostics retain only generated roots on panic and still fail on missing entries. Exact860 Core13 and infrastructure366 pass; prior8bc real UnixIPC4 remains source-bound. No refusal, budget, authority, migration or assertion was removed. [Source-bound evidence](task-workspace-integration/OBSERVER_AND_HEAD846_RESULTS.json). Next: source-trace capture preparation/frontier costs, make a reviewed bounded change only if justified, then one exact remote candidate; preserve all failed logs. Full130 remains incomplete.
+
+## Fresh config read and Root17 composition verified locally — 2026-10-31
+
+Reviewedaba replaces four Git config queries with one fresh names-only NUL read at each original boundary. Original refusal priority, deadlines, cancel, isolation and exact candidate/CAS checks remain. All6 focused controls, complete Workspaces and Core261 pass ataba; integration IPC30 passes there after preserving the prior28/2 failure. This is Linux evidence, not a proven fix for previous Mac timing failures. Extremely many benign names can still hit the unchanged output cap and fail closed.
+
+Genuine655 composes Parent860 diagnostics and unread-response fixture; 691 infrastructure tests pass. Independent review found a Root17 test guard type conflict before acceptance; minimal5fee ownership correction preserves all migration assertions. At5fee, CoreTask13/realTaskIPC4, strictworkspace+NativeLinuxClippy, normalCore17/CLI build and frontend build pass. Fresh same-source browser integration normal/failing-command has5/4 checks and12PNG; child Goal normal/cancel/lost-start has4/4/5 checks and all cleanup complete. Three finite projections pass. The first missing-trait compile failure, earlier28/2 runtime batch and npm PATH failure remain retained. [Exact evidence](fresh-bound-config/EVIDENCE.json).
+
+Remote Root8b Product remains failed. Parent846 Environment passes but Product fails separately on ARM missing-entry fixture and Intel capture queue overrun. Neither old CI nor Linux passes are new Mac acceptance; new exact CI/current native/dualMac/installers and full130 remain open. Next: diagnose exact capture queue, apply only justified reviewed bounded changes, integrate features and verify the next exact candidate under unchanged permissions.
+
+## Task dropped-response fixture verifies exact durable recovery — 2026-10-31
+
+Source8bc17f4 passes4 real UnixIPC cases with independently reviewed31-check fixture transport correction. The complete original frame is sent, the response is never read, and its descriptor is dropped after the original5s separate durable-state observation; original stable payload/key/CAS and no-authority checks remain. [Evidence](task-workspace-integration/UNREAD_RESPONSE_RESULTS.json). This does not establish BSD failure cause or current Mac acceptance. Remote846 Environment41238532911 passes; Product41238532886 is a different still-pending candidate. No duplicate run/new push until it terminates; full130 remains incomplete.
+
+## PR19 historical stop association and bootstrap correction verified locally — 2026-10-31
+
+The reviewed diagnostic extension retains strict historical/not-same-plan labels, original bounds and all runtime permission/budget guards. Exact4cc7967 passes366 infrastructure tests; independent review bdd4c11 covers64 source checks and102 generated SQLite cases, with its one guard-blocked old FIFO case explicitly excluded; Root separately passes all103 collector cases. All93 bootstrap files verify after the reviewed STATUS digest correction. [Evidence](factory-rework-stop-correlation/EVIDENCE.json).
+
+Previous exact60a5 Environment41192343803 failed stale STATUS digest. Product41192343794 is terminal failed: Rust/UI pass, ARM Task IPC3pass1fail bounded dropped-write observation, Intel Factory29pass1fail plan2/run12blocked. These are separate open failures; the diagnostic extension does not establish their cause or fix product behavior. No current Mac acceptance, installers or full130 completion is claimed. Main7ecf/OWNER001/002 and all authority restrictions remain.
+
 ## Root8b composition verified locally — 2026-10-31
 
 Exact11ce6fd combines Root8b with the existing directory handoff. Independent source review16ba7984 verifies335 source checks/8 pure checks, preserving raw-frame Owner validation and Root actor/admission flow. Actual272 Core,7 real Unix IPC,126 Linux Native,1193 UI/67files and686 infrastructure tests pass. Workspace/Native all-target Clippy, type/build and format checks pass. All10 result/log hashes and unchanged-source/frozen-tool checks are in [COMPOSED_ROOT8B_RESULTS.json](workspace-open-directory/COMPOSED_ROOT8B_RESULTS.json).
