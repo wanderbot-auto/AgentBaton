@@ -40,8 +40,9 @@ describe('in-app Task notifications', () => {
     expect(within(dialog).getAllByText('session.outcome_unknown')).toHaveLength(10);
     await user.click(within(dialog).getAllByText('session.outcome_unknown')[0]);
     expect(within(dialog).getByText('event-100')).toBeVisible();
-    expect(within(dialog).getByText('baton_supervisor')).toBeVisible();
-    await user.click(within(dialog).getByRole('button', { name: 'View loaded original event' }));
+    const originalSource = within(dialog).getByText('event-100').closest('details')!;
+    expect(within(originalSource).getByText('baton_supervisor')).toBeVisible();
+    await user.click(within(originalSource).getByRole('button', { name: 'View loaded original event' }));
     expect(onViewEvent).toHaveBeenCalledWith('event-100');
     expect(onOpenTask).not.toHaveBeenCalled();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
