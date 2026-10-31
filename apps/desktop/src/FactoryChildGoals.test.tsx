@@ -464,18 +464,25 @@ it('does not reuse an old head after a verified same-context raw binding changes
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not resume the old running view after a newer full view is Owner-ready and its referenced plan read is Busy',async()=>{
- const {f}=await openPollingFixture();vi.mocked(factoryChildGoalApi.get).mockResolvedValueOnce(f.ownerReady());
- vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision!==undefined)throw readonlyBusy();return structuredClone(f.plan);});
+ const f=await childGoalFixture(),head=await f.nextPlan();records(f,f.makeView(f.plan,1,'running'));
+ installReadonlyClock();const user=userEvent.setup();render(<FactoryChildGoals {...props(f,head)} parentReadIdentity="poll-origin"/>);
+ await openReadonlyPoll(user);await readonlyFindByTestId('goal-graph-history');
+ await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
+ vi.mocked(factoryChildGoalApi.get).mockResolvedValueOnce(f.ownerReady());
+ // Keep the referenced r1 different from the verified current head r2.
+ vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision!==undefined)throw readonlyBusy();return structuredClone(head);});
  await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not reuse a changed partial initial plan when the following adopted-plan read is Busy',async()=>{
- const f=await childGoalFixture(),adopted=await f.nextPlan();records(f,f.makeView(adopted,3,'running'));
+ const f=await childGoalFixture(),adopted=await f.nextPlan(),head=await f.view(3);f.plans.set(3,head);f.context.current_plan_revision=3;
+ // A third current head preserves the actual r1 read followed by the r2 read.
+ records(f,f.makeView(adopted,3,'running'));
  installReadonlyClock();const user=userEvent.setup();
  render(<FactoryChildGoals {...props(f,adopted)} parentReadIdentity="poll-origin"/>);await openReadonlyPoll(user);await readonlyFindByTestId('goal-graph-history');
  await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
  const changed=await f.view(1,f.plan.plan_json+'\n');
- vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision===1)return structuredClone(changed);if(revision===2)throw readonlyBusy();return structuredClone(adopted);});
+ vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision===1)return structuredClone(changed);if(revision===2)throw readonlyBusy();return structuredClone(head);});
  await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });

@@ -1,0 +1,163 @@
+{
+  "base": "c67569856050fd40195b540b4bb71d3406e0e907",
+  "scope": "Full source inverse, no TypeScript execution",
+  "files": [
+    {
+      "path": "apps/desktop/src/FactoryChildGoals.tsx",
+      "candidate_sha256": "ec4297a52530384def5797a914b8a4e519bb264908c2df4e09cb2dea6106d5ba",
+      "base_sha256": "57a6899da9526ae6289cafe54509fd2da5cae8146ca748a4640f3b042f7d3281",
+      "edits": [
+        {
+          "start": 118,
+          "end": 122,
+          "expected": "    // This refresh already verified head against this exact context/scope/task.\n    // Reuse only a complete immutable reference match; the validation loop below\n    // still checks shape, reference and raw bytes for both historical roles.\n    initial=head&&childGoalRefSame(head.reference,view.origin.initial_plan)?head:await factoryChildPlanApi.get(scope.id,target.task_id,view.origin.initial_plan.revision);\n",
+          "replacement": "    initial=await factoryChildPlanApi.get(scope.id,target.task_id,view.origin.initial_plan.revision);\n"
+        },
+        {
+          "start": 124,
+          "end": 125,
+          "expected": "    adopted=childGoalRefSame(view.origin.initial_plan,view.summary.plan)?initial:head&&childGoalRefSame(head.reference,view.summary.plan)?head:await factoryChildPlanApi.get(scope.id,target.task_id,view.summary.plan.revision);\n",
+          "replacement": "    adopted=childGoalRefSame(view.origin.initial_plan,view.summary.plan)?initial:await factoryChildPlanApi.get(scope.id,target.task_id,view.summary.plan.revision);\n"
+        }
+      ]
+    },
+    {
+      "path": "apps/desktop/src/FactoryChildGoals.test.tsx",
+      "candidate_sha256": "a5d64073640091631b09e79b11ff77b320a2ac231f78081ddbdc93b385fdf1cc",
+      "base_sha256": "869e84ff63cdca3deffd98fab66b3ec0aa1b55887dded8f54b85fe569025d6bf",
+      "edits": [
+        {
+          "start": 466,
+          "end": 473,
+          "expected": " const f=await childGoalFixture(),head=await f.nextPlan();records(f,f.makeView(f.plan,1,'running'));\n installReadonlyClock();const user=userEvent.setup();render(<FactoryChildGoals {...props(f,head)} parentReadIdentity=\"poll-origin\"/>);\n await openReadonlyPoll(user);await readonlyFindByTestId('goal-graph-history');\n await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());\n vi.mocked(factoryChildGoalApi.get).mockResolvedValueOnce(f.ownerReady());\n // Keep the referenced r1 different from the verified current head r2.\n vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision!==undefined)throw readonlyBusy();return structuredClone(head);});\n",
+          "replacement": " const {f}=await openPollingFixture();vi.mocked(factoryChildGoalApi.get).mockResolvedValueOnce(f.ownerReady());\n vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision!==undefined)throw readonlyBusy();return structuredClone(f.plan);});\n"
+        },
+        {
+          "start": 477,
+          "end": 480,
+          "expected": " const f=await childGoalFixture(),adopted=await f.nextPlan(),head=await f.view(3);f.plans.set(3,head);f.context.current_plan_revision=3;\n // A third current head preserves the actual r1 read followed by the r2 read.\n records(f,f.makeView(adopted,3,'running'));\n",
+          "replacement": " const f=await childGoalFixture(),adopted=await f.nextPlan();records(f,f.makeView(adopted,3,'running'));\n"
+        },
+        {
+          "start": 484,
+          "end": 485,
+          "expected": " vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision===1)return structuredClone(changed);if(revision===2)throw readonlyBusy();return structuredClone(head);});\n",
+          "replacement": " vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision===1)return structuredClone(changed);if(revision===2)throw readonlyBusy();return structuredClone(adopted);});\n"
+        }
+      ],
+      "old_expect_call_count": 245,
+      "new_expect_call_count": 246
+    },
+    {
+      "path": "apps/desktop/src/FactoryChildGoals.owner-ui-diagnostics.test.tsx",
+      "candidate_sha256": "83b6824e0ebdb6b2a15ad4366db63ac506b74c395e1553c966a71b38e2c5ef1b",
+      "base_sha256": "12e6163081d47edc1ade2718543db0eb2e522cf01bd57ff3078418c13cf713c3",
+      "edits": [
+        {
+          "start": 37,
+          "end": 40,
+          "expected": " // Keep a genuine different-reference tail: current head is r2, initial is r1.\n // An equal head/initial is now intentionally reused within this refresh.\n vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>revision===1?held:structuredClone(f.plans.get(revision??f.context.current_plan_revision)!));\n",
+          "replacement": " vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>revision===1?held:structuredClone(f.plan));\n"
+        },
+        {
+          "start": 46,
+          "end": 47,
+          "expected": " const user=userEvent.setup(),f=await childGoalFixture(true);await f.nextPlan();records(f,f.ownerReady());const release=deferInitial(f);\n",
+          "replacement": " const user=userEvent.setup(),f=await childGoalFixture(true);records(f,f.ownerReady());const release=deferInitial(f);\n"
+        },
+        {
+          "start": 61,
+          "end": 62,
+          "expected": " const user=userEvent.setup(),f=await childGoalFixture(true);await f.nextPlan();records(f,f.ownerReady());render(<FactoryChildGoals {...props(f)}/>);await open(user);\n",
+          "replacement": " const user=userEvent.setup(),f=await childGoalFixture(true);records(f,f.ownerReady());render(<FactoryChildGoals {...props(f)}/>);await open(user);\n"
+        },
+        {
+          "start": 73,
+          "end": 74,
+          "expected": " const user=userEvent.setup(),f=await childGoalFixture(true);await f.nextPlan();records(f,f.ownerReady());const release=deferInitial(f),current=props(f);\n",
+          "replacement": " const user=userEvent.setup(),f=await childGoalFixture(true);records(f,f.ownerReady());const release=deferInitial(f),current=props(f);\n"
+        }
+      ],
+      "old_expect_call_count": 37,
+      "new_expect_call_count": 37
+    }
+  ],
+  "checks_passed": 39,
+  "checks": [
+    "full-file inverse matches actual c675 apps/desktop/src/FactoryChildGoals.tsx",
+    "inverse refuses unrelated changed source apps/desktop/src/FactoryChildGoals.tsx",
+    "full-file inverse matches actual c675 apps/desktop/src/FactoryChildGoals.test.tsx",
+    "inverse refuses unrelated changed source apps/desktop/src/FactoryChildGoals.test.tsx",
+    "every original expect-containing source line remains byteexact apps/desktop/src/FactoryChildGoals.test.tsx",
+    "every original test title preserved apps/desktop/src/FactoryChildGoals.test.tsx",
+    "full-file inverse matches actual c675 apps/desktop/src/FactoryChildGoals.owner-ui-diagnostics.test.tsx",
+    "inverse refuses unrelated changed source apps/desktop/src/FactoryChildGoals.owner-ui-diagnostics.test.tsx",
+    "every original expect-containing source line remains byteexact apps/desktop/src/FactoryChildGoals.owner-ui-diagnostics.test.tsx",
+    "every original test title preserved apps/desktop/src/FactoryChildGoals.owner-ui-diagnostics.test.tsx",
+    "only two refresh plan selection sites changed",
+    "entire source prefix including context/head validation, Goal/view/floors and epoch gates exact",
+    "entire shape/ref/raw verification, saved refs/publication/Owner/writes/render suffix exact",
+    "intermediate epoch and sticky initial guards exact",
+    "complete immutable-ref match with original fresh API fallback initial",
+    "complete immutable-ref match with original fresh API fallback adopted",
+    "negative control anchor exists revision-only reuse",
+    "strict full inverse rejects revision-only reuse",
+    "negative control anchor exists skipped raw verification",
+    "strict full inverse rejects skipped raw verification",
+    "negative control anchor exists epoch guard deletion",
+    "strict full inverse rejects epoch guard deletion",
+    "negative control anchor exists poll budget extension",
+    "strict full inverse rejects poll budget extension",
+    "negative control anchor exists weakened Owner/write gate",
+    "strict full inverse rejects weakened Owner/write gate",
+    "new standalone mounted cases count6",
+    "new parameterized groups count5",
+    "new fixture keeps real scheduling and default wait budgets",
+    "authored mounted control raw verified3roles",
+    "authored mounted control raw rechecked next refresh",
+    "authored mounted control no cross-refresh DTO cache",
+    "authored mounted control full-reference mismatch matrix",
+    "authored mounted control post-await DTO tamper",
+    "authored mounted control same context identity controls",
+    "authored mounted control superseded epoch control",
+    "exact retained c675 CI finite summary",
+    "CI failure/check count/cleanup remains failed",
+    "end DOM sample observed without inferring activation time"
+  ],
+  "ci_failure_retained": {
+    "feature_source": "c67569856050fd40195b540b4bb71d3406e0e907",
+    "synthetic_compiled_source": "ff4376a636a4f7e6cd2776040afb2b4a9a1a5389",
+    "Product_run": 41188874038,
+    "official_artifact": 13038236044,
+    "finite_summary_sha256": "8dd4a2794b180f39d01e4e1c184a8ce94da0dd368245694e3b71263c114b91d5",
+    "status": "failed",
+    "checks": [
+      {
+        "id": "CG01",
+        "status": "passed"
+      },
+      {
+        "id": "CG02",
+        "status": "passed"
+      }
+    ],
+    "cleanup_complete": false,
+    "driver_lines": [
+      1732
+    ],
+    "window_ms": 5063.848145,
+    "get_start_ms": 3208.713642,
+    "get_finished_ms": 4189.900549,
+    "end_DOM": {
+      "observation": "observed",
+      "epoch": 6,
+      "fresh": true,
+      "loading": false,
+      "disabled": false,
+      "parent_ready": true,
+      "owner_present": true,
+      "owner_disabled": false
+    },
+    "interpretation": "end observation only; exact enable instant and failed expectation root cause remain unknown"
+  }
+}

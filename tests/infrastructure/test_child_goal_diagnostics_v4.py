@@ -35,7 +35,41 @@ PARENT_V4_SHA256 = {
 
 def source_sha(text):return hashlib.sha256(text.encode()).hexdigest()
 
+# Reviewed outer source layer: f0a4 two-read reuse -> c675 UI -> original v4.
+# These are source proofs only; no historical UI or Python module is executed.
+PLAN_READ_REUSE_MANIFEST_SHA256='f6975f9150a50e62d298edcfa903992b0f05abe871008642b7e6ec761dbb9579'
+PLAN_READ_REUSE_UI_SHA256='ec4297a52530384def5797a914b8a4e519bb264908c2df4e09cb2dea6106d5ba'
+PLAN_READ_REUSE_BASE_UI_SHA256='57a6899da9526ae6289cafe54509fd2da5cae8146ca748a4640f3b042f7d3281'
+
+def strip_plan_read_reuse_outer_layer(text,manifest_raw=None):
+    """Remove only exact reviewed read expressions, checking both whole files."""
+    if type(text)is not str:raise AssertionError('Unknown planning reuse source')
+    if manifest_raw is None:
+        manifest_raw=(ROOT/'docs/execution/child-goal-plan-read-reuse/SOURCE_INVERSE.json').read_bytes()
+    if type(manifest_raw)is not bytes or hashlib.sha256(manifest_raw).hexdigest()!=PLAN_READ_REUSE_MANIFEST_SHA256:
+        raise AssertionError('Unknown planning reuse source manifest')
+    manifest=json.loads(manifest_raw)
+    records=[row for row in manifest['files']if row['path']=='apps/desktop/src/FactoryChildGoals.tsx']
+    if len(records)!=1:raise AssertionError('Ambiguous planning reuse source')
+    record=records[0]
+    if (record['candidate_sha256']!=PLAN_READ_REUSE_UI_SHA256 or record['base_sha256']!=PLAN_READ_REUSE_BASE_UI_SHA256
+        or len(record['edits'])!=2):raise AssertionError('Unknown planning reuse source targets')
+    digest=hashlib.sha256(text.encode()).hexdigest()
+    if digest==PLAN_READ_REUSE_BASE_UI_SHA256:return text
+    if digest!=PLAN_READ_REUSE_UI_SHA256:raise AssertionError('Unknown planning reuse whole source')
+    lines=text.splitlines(keepends=True)
+    for edit in reversed(record['edits']):
+        if ''.join(lines[edit['start']:edit['end']])!=edit['expected']:
+            raise AssertionError('Exact planning reuse source anchor changed')
+        if text.count(edit['expected'])!=1:raise AssertionError('Ambiguous planning reuse source anchor')
+        lines[edit['start']:edit['end']]=edit['replacement'].splitlines(keepends=True)
+    restored=''.join(lines)
+    if hashlib.sha256(restored.encode()).hexdigest()!=PLAN_READ_REUSE_BASE_UI_SHA256:
+        raise AssertionError('Exact original c675 UI source changed')
+    return restored
+
 def inverse(path,text):
+    if path=='apps/desktop/src/FactoryChildGoals.tsx':text=strip_plan_read_reuse_outer_layer(text)
     expected=LAYERS[path]['original_sha256']
     # Only an exact whole reviewed Root17+v4 input selects the new target.
     # Any unknown change still faces the original Parent full-source check.
@@ -80,6 +114,7 @@ def parent_v4_source_copy(path,text):
     This is a counterfactual SOURCE inverse; live samples remain strict17.
     Whole input/output hashes and exact old composition targets are required.
     """
+    if path=='apps/desktop/src/FactoryChildGoals.tsx':text=strip_plan_read_reuse_outer_layer(text)
     if source_sha(text)!=ROOT17_V4_SOURCES[path][0]:raise AssertionError('Unknown composed source')
     if path=='apps/desktop/tests/factory-child-goal-real-ipc.py':
         from tests.infrastructure.test_graph_observation_handshake import strip_composed_outer_layer
@@ -240,7 +275,9 @@ class V4DiagnosticsTests(unittest.TestCase):
 
     def test_both_exact_reviewed_source_variants_keep_original_parent_and_root17_targets(self):
         for path,(merged,restored)in ROOT17_V4_SOURCES.items():
-            text=(ROOT/path).read_text();self.assertEqual(source_sha(text),merged)
+            text=(ROOT/path).read_text()
+            if path=='apps/desktop/src/FactoryChildGoals.tsx':text=strip_plan_read_reuse_outer_layer(text)
+            self.assertEqual(source_sha(text),merged)
             self.assertEqual(source_sha(inverse(path,text)),restored)
             parent=parent_v4_source_copy(path,text)
             self.assertEqual(source_sha(parent),PARENT_V4_SHA256[path])
@@ -287,5 +324,67 @@ class V4DiagnosticsTests(unittest.TestCase):
         self.assertEqual(safe['owner_ui_state'],P.unobserved_owner_ui_state())
         report['finite_diagnostics']=safe
         self.assertEqual(P.project(report,candidate,summary,'normal',0,'e'*64)['status'],'failed')
+    def test_exact_read_reuse_outer_layer_restores_c675_then_the_original_v4_baseline(self):
+        path='apps/desktop/src/FactoryChildGoals.tsx';text=(ROOT/path).read_text()
+        self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),PLAN_READ_REUSE_UI_SHA256)
+        parent=strip_plan_read_reuse_outer_layer(text)
+        self.assertEqual(hashlib.sha256(parent.encode()).hexdigest(),PLAN_READ_REUSE_BASE_UI_SHA256)
+        self.assertEqual(strip_plan_read_reuse_outer_layer(parent),parent)
+        self.assertEqual(inverse(path,parent),inverse(path,text))
+        self.assertEqual(hashlib.sha256(inverse(path,text).encode()).hexdigest(),LAYERS[path]['original_sha256'])
+
+    def test_read_reuse_outer_rejects_weak_reference_verification_epoch_poll_and_owner_changes(self):
+        path='apps/desktop/src/FactoryChildGoals.tsx';text=(ROOT/path).read_text()
+        mutations=[
+            ('childGoalRefSame(head.reference,view.origin.initial_plan)','head.reference.revision===view.origin.initial_plan.revision'),
+            ('childGoalRefSame(head.reference,view.summary.plan)','head.reference.revision===view.summary.plan.revision'),
+            ('await verifyChildRaw(plan);','void plan;'),
+            ('if(!mounted.current||stamp!==epoch.current)return null;','if(!mounted.current)return null;'),
+            ('},1000);','},1001);'),
+            ('disabled||!live(data)||!graphCanReviewOwner(view.details,node)','disabled'),
+            ('head:await factoryChildPlanApi.get(scope.id,target.task_id,view.origin.initial_plan.revision)', 'head:null'),
+            ('head:await factoryChildPlanApi.get(scope.id,target.task_id,view.summary.plan.revision)', 'head:null'),
+        ]
+        for before,after in mutations:
+            self.assertIn(before,text)
+            changed=text.replace(before,after,1)
+            with self.assertRaises(AssertionError):strip_plan_read_reuse_outer_layer(changed)
+            with self.assertRaises(AssertionError):inverse(path,changed)
+        for changed in (text+'\n// unknown outside source\n',text.replace('    // This refresh already verified head against this exact context/scope/task.\n','',1)):
+            self.assertNotEqual(changed,text)
+            with self.assertRaises(AssertionError):strip_plan_read_reuse_outer_layer(changed)
+
+    def test_read_reuse_manifest_whole_pin_keeps_all_expected_and_final_hashes_strict(self):
+        raw=(ROOT/'docs/execution/child-goal-plan-read-reuse/SOURCE_INVERSE.json').read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),PLAN_READ_REUSE_MANIFEST_SHA256)
+        text=(ROOT/'apps/desktop/src/FactoryChildGoals.tsx').read_text()
+        original=json.loads(raw)
+        mutations=[lambda d:d.update(extra=SECRET),lambda d:d['files'][0].update(base_sha256='0'*64),
+            lambda d:d['files'][0].update(candidate_sha256='0'*64),lambda d:d['files'][0]['edits'][0].update(expected=SECRET),
+            lambda d:d['files'][0]['edits'][0].update(replacement=SECRET),lambda d:d['files'][0]['edits'][0].update(start=119),
+            lambda d:d['files'][0]['edits'].reverse(),lambda d:d['files'][0]['edits'].pop(),
+            lambda d:d['files'].append(copy.deepcopy(d['files'][0]))]
+        for mutation in mutations:
+            changed=copy.deepcopy(original);mutation(changed)
+            with self.assertRaises(AssertionError):strip_plan_read_reuse_outer_layer(text,json.dumps(changed).encode())
+        for changed in (b'',raw+b'\n',raw.decode(),b'{}'):
+            with self.assertRaises(AssertionError):strip_plan_read_reuse_outer_layer(text,changed)
+
+    def test_read_reuse_keeps_root17_python_bytes_and_exact_parent16_source(self):
+        pins={'apps/desktop/tests/factory-child-goal-real-ipc.py':'b959489950486874cf9730b9877dc36ee6c0121688dbc3fd9ef567138279268d',
+            'scripts/record-child-goal-ci-evidence.py':'44d55431fad475248094fabd50cab3543241530dee37537276fa140fb0463f1a'}
+        for path,digest in pins.items():
+            raw=(ROOT/path).read_bytes()
+            self.assertEqual(hashlib.sha256(raw).hexdigest(),ROOT17_V4_SOURCES[path][0])
+            self.assertEqual(source_sha(parent_v4_source_copy(path,raw.decode())),digest)
+            self.assertEqual(hashlib.sha256(inverse(path,raw.decode()).encode()).hexdigest(),ROOT17_V4_SOURCES[path][1])
+        path=ROOT/'tests/infrastructure/test_child_goal_ci_evidence.py'
+        old=types.ModuleType('read_reuse_original_fixture');old.__file__=str(path)
+        exec(compile(path.read_bytes(),str(path),'exec'),old.__dict__)
+        raw,candidate,_,_=old.inputs();self.assertIs(type(candidate['schema']),int);self.assertEqual(candidate['schema'],17)
+        P.candidate_summary(raw)
+        for schema in (15,16,18,17.0,True):
+            bad=copy.deepcopy(candidate);bad['schema']=schema
+            with self.assertRaises(P.Refused):P.candidate_summary(json.dumps(bad).encode())
 
 if __name__=='__main__':unittest.main()

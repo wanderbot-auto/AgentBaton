@@ -35,14 +35,16 @@ async function open(user:ReturnType<typeof userEvent.setup>){await user.click(sc
 function deferInitial(f:Fixture){
  let release!:(value:FactoryChildPlanView)=>void;
  const held=new Promise<FactoryChildPlanView>(resolve=>{release=resolve;});
- vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>revision===1?held:structuredClone(f.plan));
+ // Keep a genuine different-reference tail: current head is r2, initial is r1.
+ // An equal head/initial is now intentionally reused within this refresh.
+ vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>revision===1?held:structuredClone(f.plans.get(revision??f.context.current_plan_revision)!));
  return ()=>release(structuredClone(f.plan));
 }
 const panel=()=>screen.getByTestId('factory-child-goal-panel');
 const noWrites=()=>{expect(goalGraphApi.approveNode).not.toHaveBeenCalled();expect(goalGraphApi.rejectNode).not.toHaveBeenCalled();expect(factoryChildGoalApi.start).not.toHaveBeenCalled();expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();expect(factoryChildGoalApi.advancePlan).not.toHaveBeenCalled();};
 
 it('observes a completed Goal get while initial-plan tail still prevents full freshness',async()=>{
- const user=userEvent.setup(),f=await childGoalFixture(true);records(f,f.ownerReady());const release=deferInitial(f);
+ const user=userEvent.setup(),f=await childGoalFixture(true);await f.nextPlan();records(f,f.ownerReady());const release=deferInitial(f);
  render(<FactoryChildGoals {...props(f)}/>);
  await user.click(screen.getByText(/^Factory child Goal execution ·/,{selector:'summary'}));
  await waitFor(()=>expect(factoryChildGoalApi.get).toHaveBeenCalledOnce());
@@ -57,7 +59,7 @@ it('observes a completed Goal get while initial-plan tail still prevents full fr
 });
 
 it('retains the prior view but disables Owner during a deferred manual-refresh tail',async()=>{
- const user=userEvent.setup(),f=await childGoalFixture(true);records(f,f.ownerReady());render(<FactoryChildGoals {...props(f)}/>);await open(user);
+ const user=userEvent.setup(),f=await childGoalFixture(true);await f.nextPlan();records(f,f.ownerReady());render(<FactoryChildGoals {...props(f)}/>);await open(user);
  await waitFor(()=>expect(screen.getByRole('button',{name:t.owner})).toBeEnabled());
  const epoch=Number(panel().getAttribute('data-cg-epoch')),release=deferInitial(f);
  await user.click(screen.getByRole('button',{name:t.refresh}));
@@ -69,7 +71,7 @@ it('retains the prior view but disables Owner during a deferred manual-refresh t
 });
 
 it('cannot publish a deferred old epoch after disconnect supersedes it',async()=>{
- const user=userEvent.setup(),f=await childGoalFixture(true);records(f,f.ownerReady());const release=deferInitial(f),current=props(f);
+ const user=userEvent.setup(),f=await childGoalFixture(true);await f.nextPlan();records(f,f.ownerReady());const release=deferInitial(f),current=props(f);
  const view=render(<FactoryChildGoals {...current}/>);
  await user.click(screen.getByText(/^Factory child Goal execution ·/,{selector:'summary'}));
  await waitFor(()=>expect(factoryChildPlanApi.get).toHaveBeenCalledWith(f.scope.id,f.task.id,1));
