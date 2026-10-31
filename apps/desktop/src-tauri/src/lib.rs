@@ -9,6 +9,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 mod approval;
+mod background_service;
 mod integration_approval;
 mod native_parent;
 
@@ -84,6 +85,40 @@ async fn confirm_proposed(
             )
         })
     }).await.map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn background_service_status(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    Ok(
+        tauri::async_runtime::spawn_blocking(move || background_service::status(&directory))
+            .await
+            .unwrap_or_else(|_| background_service::observation_failed()),
+    )
+}
+#[tauri::command]
+async fn background_service_enable(
+    window: tauri::WebviewWindow,
+    runtime: tauri::State<'_, Runtime>,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    Ok(tauri::async_runtime::spawn_blocking(move || {
+        background_service::change(window, directory, background_service::Action::Enable)
+    })
+    .await
+    .unwrap_or_else(|_| background_service::mutation_unknown()))
+}
+#[tauri::command]
+async fn background_service_disable(
+    window: tauri::WebviewWindow,
+    runtime: tauri::State<'_, Runtime>,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    Ok(tauri::async_runtime::spawn_blocking(move || {
+        background_service::change(window, directory, background_service::Action::Disable)
+    })
+    .await
+    .unwrap_or_else(|_| background_service::mutation_unknown()))
 }
 
 #[tauri::command]
@@ -1837,6 +1872,9 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        background_service_status,
+        background_service_enable,
+        background_service_disable,
         integration_policy_approve,
         integration_targets_list,
         integration_context_get,
