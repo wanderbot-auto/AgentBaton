@@ -41,11 +41,31 @@ struct Fixture {
     source: PathBuf,
     managed: PathBuf,
     path: PathBuf,
-    root: TempDir,
+    root: RetainedRoot,
+}
+// Preserve only this generated test root after a real assertion failure.
+// Never reopen it, replay an operation or treat retention as a stop receipt.
+struct RetainedRoot(Option<TempDir>);
+impl RetainedRoot {
+    fn path(&self) -> &Path {
+        self.0.as_ref().unwrap().path()
+    }
+}
+impl Drop for RetainedRoot {
+    fn drop(&mut self) {
+        if std::thread::panicking() {
+            if let Some(root) = self.0.take() {
+                eprintln!(
+                    "Retained Task binding failure fixture: {}",
+                    root.keep().display()
+                );
+            }
+        }
+    }
 }
 impl Fixture {
     fn new(repository: bool) -> Self {
-        let root = tempfile::tempdir().unwrap();
+        let root = RetainedRoot(Some(tempfile::tempdir().unwrap()));
         let source = root.path().join("source");
         let managed = root.path().join("managed");
         let path = root.path().join("store.sqlite3");
@@ -151,7 +171,41 @@ fn files(root: &Path) -> Vec<(PathBuf, bool, Vec<u8>)> {
             .collect();
         paths.sort();
         for path in paths {
-            let m = fs::symlink_metadata(&path).unwrap();
+            let m = fs::symlink_metadata(&path).unwrap_or_else(|error| {
+                let relative = path.strip_prefix(root).unwrap();
+                let region = if relative
+                    .components()
+                    .any(|part| part.as_os_str() == "objects")
+                {
+                    "objects"
+                } else if relative
+                    .components()
+                    .any(|part| part.as_os_str() == "worktrees")
+                {
+                    "worktrees"
+                } else if relative.components().any(|part| part.as_os_str() == "refs") {
+                    "refs"
+                } else if relative.components().any(|part| part.as_os_str() == ".git") {
+                    "git_other"
+                } else {
+                    "workspace_other"
+                };
+                let leaf = match path.file_name().and_then(|name| name.to_str()) {
+                    Some("gc.pid") => "gc_pid",
+                    Some("index.lock") => "index_lock",
+                    Some("locked") => "worktree_locked",
+                    Some("HEAD") => "head",
+                    Some("index") => "index",
+                    Some("config") => "config",
+                    Some("commondir") => "commondir",
+                    Some(name) if name.ends_with(".lock") => "other_lock",
+                    _ => "other",
+                };
+                panic!(
+                    "generated fixture metadata unavailable: region={region} leaf={leaf} kind={:?}",
+                    error.kind()
+                )
+            });
             assert!(!m.file_type().is_symlink());
             let rel = path.strip_prefix(root).unwrap().into();
             if m.is_dir() {
@@ -645,6 +699,7 @@ fn replay_and_new_admission_revalidate_physical_pins_without_locking_legal_outpu
 #[test]
 fn replaced_workspace_and_cleared_binding_history_cannot_reassign_or_repeat_creation() {
     for case in ["replaced", "source_head", "cleared_binding"] {
+        eprintln!("TASK_BINDING_FIXTURE_CASE {case}");
         let mut f = Fixture::new(true);
         let r = f.request();
         let view = f
