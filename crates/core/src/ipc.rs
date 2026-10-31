@@ -613,6 +613,10 @@ impl Daemon {
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
             self.supervisor.tick(&mut self.store)?;
+            // A terminal owned Goal turn committed by this outer service pass
+            // must reach the original fresh stop policy before expensive ticks.
+            // This hint selects no new work and is never a stop/join receipt.
+            self.service_hinted_goal_stops()?;
             self.graph_workers.tick(&mut self.store)?;
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
