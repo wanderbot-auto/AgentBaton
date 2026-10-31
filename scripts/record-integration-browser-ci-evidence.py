@@ -376,6 +376,142 @@ def driver_preflight_diagnostic(private, expected):
                 os.close(fd)
 
 
+# Closed observations from a failed real runtime report. These never satisfy
+# collect(), publish screenshots, or imply acceptance/cleanup success.
+RUNTIME_STAGES = ('startup', 'actual_frontend', 'actual_default_budget_refusal',
+    'private_independent_review', 'real_owner_acceptance_and_watcher')
+RUNTIME_EXCEPTIONS = ('Refusal', 'AssertionError', 'TimeoutError', 'Error',
+    'OSError', 'FileNotFoundError', 'PermissionError', 'BrokenPipeError',
+    'ConnectionResetError', 'ConnectionRefusedError', 'ValueError', 'KeyError',
+    'TypeError', 'AttributeError', 'JSONDecodeError', 'KeyboardInterrupt', 'SystemExit')
+
+
+def failed_cleanup_observation(value):
+    require(type(value) is dict and set(value) <= CLEANUP_BOOLS | {'daemon_joined'})
+    observed = {}
+    for key in sorted(CLEANUP_BOOLS | {'daemon_joined'}):
+        if key not in value:
+            observed[key] = None
+            continue
+        item = value[key]
+        if type(item) is dict and set(item) == {'error'}:
+            require(type(item['error']) is str and item['error'] in RUNTIME_EXCEPTIONS)
+            observed[key] = {'exception_kind': item['error']}
+        elif key == 'daemon_joined':
+            require(type(item) is dict and set(item) == {'exit', 'joined', 'forced_kill'}
+                and type(item['exit']) is int and -255 <= item['exit'] <= 255
+                and type(item['joined']) is bool and type(item['forced_kill']) is bool)
+            observed[key] = {name: item[name] for name in ('exit', 'joined', 'forced_kill')}
+        else:
+            require(type(item) is bool)
+            observed[key] = item
+    return observed
+
+
+def runtime_report_observation(report, case, expected, manifest_hash, build_hash, harness):
+    required = {'case', 'status', 'dimension', 'not_claimed', 'checks', 'screenshots', 'cleanup', 'inputs'}
+    optional = {'failure', 'browser_version', 'http_method_counts', 'readonly_reply_aborts',
+        'http_faults', 'fixture_retained_privately'}
+    require(type(report) is dict and required <= set(report) <= required | optional
+        and report['case'] == ('command_exit7' if case == 'command-failure' else 'normal')
+        and report['dimension'] == DIMENSION and report['not_claimed'] == NOT_CLAIMED)
+    source = input_summary(report['inputs'], expected, manifest_hash, build_hash, harness)
+    require(type(report['screenshots']) is list and len(report['screenshots']) <= 6)
+    if report['status'] == 'passed':
+        # A successful sibling remains subject to every existing report guard.
+        report_summary(report, case, expected, manifest_hash, build_hash, harness)
+        phase = exception = None
+    else:
+        require(report['status'] == 'failed_or_interrupted')
+        detail = report['failure']
+        require(type(detail) is dict and set(detail) == {'stage', 'kind'})
+        phase, exception = detail['stage'], detail['kind']
+        require(type(phase) is str and phase in RUNTIME_STAGES
+            and type(exception) is str and exception in RUNTIME_EXCEPTIONS
+            and (case == 'normal' or phase != 'actual_default_budget_refusal'))
+    names = CHECKS if case == 'normal' else (CHECKS[0], *CHECKS[2:])
+    checks = report['checks']
+    require(type(checks) is list and len(checks) <= len(names))
+    for index, row in enumerate(checks):
+        require(type(row) is dict and row.get('name') == names[index] and row.get('status') == 'passed')
+        fields = PRIVATE_FACTS if row['name'] == CHECKS[2] else TERMINAL_FACTS if row['name'] == CHECKS[3] else set()
+        require(set(row) == {'name', 'status'} | fields)
+        if fields == PRIVATE_FACTS:
+            for key in ('proposal_sha256', 'snapshot_sha256', 'whole_response_sha256'): sha(row[key])
+            for key in ('proposal_bytes', 'snapshot_bytes', 'whole_response_bytes'): number(row[key], 1, 1048576)
+        if fields == TERMINAL_FACTS:
+            failing = case == 'command-failure'
+            require(row['state'] == ('failed' if failing else 'confirmed_local_ref')
+                and type(row['stages']) is int and row['stages'] == (2 if failing else 3)
+                and type(row['cas_attempts']) is int and row['cas_attempts'] == (0 if failing else 1)
+                and type(row['command_exit']) is int and row['command_exit'] == (7 if failing else 0))
+            require(all(row[k] is True for k in ('source_and_index_unchanged', 'original_command_unchanged', 'actual_owned_reap_and_join'))
+                and row['tokens'] is None and row['cost_microunits'] is None)
+            number(row['shared_runtime_ms'], 1, 20000); number(row['shared_output_bytes'], 1, 8192)
+    return {'case': case, 'report_status': report['status'], 'phase': phase, 'exception_kind': exception,
+        'completed_checks': len(checks), 'last_completed_check': names[len(checks) - 1] if checks else None,
+        'cleanup_observations': failed_cleanup_observation(report['cleanup'])}, source
+
+
+def runtime_failure_diagnostic(private, expected):
+    """Observe closed failed-run facts; all admission and witness checks remain mandatory."""
+    unavailable = {'status': 'unavailable', 'failure_kind': 'missing_or_invalid_runtime_failure_diagnostic'}
+    fd = driver_fd = None
+    opened = []
+    try:
+        sha(expected, 40)
+        fd = P.directory(private, private=True)
+        witnesses = []
+        status = P.decode(P.regular_bytes(fd, 'status.json', MAX_STATUS, witnesses=witnesses))
+        require(type(status) is dict and set(status) == {'source', 'driver_exit', 'probe_passed'}
+            and status['source'] == expected and type(status['driver_exit']) is int
+            and status['driver_exit'] == 1 and status['probe_passed'] is True)
+        manifest_raw = P.regular_bytes(fd, 'candidate.json', MAX_REPORT, witnesses=witnesses)
+        build_raw = P.regular_bytes(fd, 'frontend-build-record.json', MAX_REPORT, witnesses=witnesses)
+        probe_raw = P.regular_bytes(fd, 'schema-probe.json', MAX_STATUS, witnesses=witnesses)
+        manifest, build, probe = P.decode(manifest_raw), P.decode(build_raw), P.decode(probe_raw)
+        require(type(manifest) is dict and type(build) is dict and type(probe) is dict)
+        require(type(manifest.get('schema')) is int and manifest['schema'] == 17 and manifest['git_head'] == expected
+            and manifest.get('dirty') is False and manifest.get('tracked_clean', True) is True
+            and set(manifest['binaries']) == {'batond', 'baton'}
+            and all(manifest.get(k, expected) == expected for k in ('source_head', 'compiled_core_source_head')))
+        require(build['source'] == expected and type(build['exit']) is int and build['exit'] == 0
+            and build['source_head_and_tracked_unchanged'] is True
+            and build.get('dirty', False) is False and build.get('tracked_clean', True) is True
+            and build['command'] == ['npm', '--prefix', 'apps/desktop', 'run', 'build'])
+        require(type(probe) is dict and set(probe) == {'source', 'api_version', 'database_schema_version', 'daemon_exit', 'joined'}
+            and probe['source'] == expected and type(probe['api_version']) is int and probe['api_version'] == 1
+            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 17
+            and type(probe['daemon_exit']) is int and probe['daemon_exit'] == 0 and probe['joined'] is True)
+        harness = expected_driver()
+        driver_path = Path(private) / 'driver'
+        driver_fd = P.directory(driver_path, private=True)
+        cases, sources, records = [], [], []
+        for case in CASES:
+            path = driver_path / case
+            case_fd = P.directory(path, private=True); opened.append(case_fd)
+            local_witness = []
+            report = P.decode(P.regular_bytes(case_fd, 'report.json', MAX_REPORT, witnesses=local_witness))
+            observation, source = runtime_report_observation(report, case, expected,
+                raw_sha(manifest_raw), raw_sha(build_raw), harness)
+            require(source['tools_sha256'] == manifest['binaries'])
+            cases.append(observation); sources.append(source)
+            records.append((path, case_fd, local_witness))
+        require(sources[0] == sources[1] and any(c['report_status'] == 'failed_or_interrupted' for c in cases))
+        for path, descriptor, records_to_check in [*records, (private, fd, witnesses), (driver_path, driver_fd, [])]:
+            P.same_directory(path, descriptor)
+            for name, original_pin in records_to_check:
+                require(P.pin(os.stat(name, dir_fd=descriptor, follow_symlinks=False)) == original_pin)
+        return {'status': 'observed', 'source': expected, 'driver_sha256': harness,
+            'driver_exit': 1, 'cases': cases, 'observation_only': True, 'runtime_acceptance': False}
+    except (ValueError, OSError, KeyError, TypeError, OverflowError, RecursionError):
+        return unavailable
+    finally:
+        for descriptor in reversed(opened): os.close(descriptor)
+        for descriptor in (driver_fd, fd):
+            if descriptor is not None: os.close(descriptor)
+
+
 def publish(output, summary, payloads):
     require(Path(output).is_absolute() and '..' not in Path(output).parts)
     parent = P.directory(Path(output).parent)
@@ -426,6 +562,7 @@ def main(argv=None):
         if summary['status'] != 'passed':
             summary['setup_diagnostic'] = setup_diagnostic(args.private, args.expected_source_head)
             summary['driver_preflight'] = driver_preflight_diagnostic(args.private, args.expected_source_head)
+            summary['runtime_failure'] = runtime_failure_diagnostic(args.private, args.expected_source_head)
         publish(args.output, summary, payloads)
         return 0 if summary['status'] == 'passed' else 1
     except (ValueError, OSError, KeyError, TypeError, OverflowError):
