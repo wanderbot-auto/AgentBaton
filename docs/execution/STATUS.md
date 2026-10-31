@@ -1,3 +1,13 @@
+## Rooteba partial CI result retained separately — 2026-10-31
+
+Main reports Product41250092516 Rust/UI pass, ARM integration19/11 failure and Intel stillinprogress. Pinned ARM log records first integrations.get expiry while validating/code=null at integration_runtime.rs138:9; this differs from olde509 OUTCOME_UNKNOWN/18/12. Rooteba has no2e0 phase fields. Preserve the exact failure and obtain finalAPI/Intel independently; no shared cause or Macphase fix is claimed.
+
+## Integration preparation phase diagnostics verified locally — 2026-10-31
+
+Debug-only13-slot observations retain original clocks, permissions, fees, owned join and unknown output. e601 focused11 and strictClippy pass; initial715/2infrastructure failures remain preserved. Reviewed2e0 exactsource inverses pass complete721infrastructure, fresh Core17/CLI normalbuild/freeze/probe, fullCore268outer +Workspaces35 andintegrationIPC33. Nestedhelper1/focused subsets are not added. [Source-bound evidence](integration-preparation-phase-observation/EVIDENCE.json).
+
+e601 defaultrelease Linux Core/CLI build/freeze/TERM0 and actualmarker audit pass against debugdaemon positivecontrol. The wrapper dev/test profile label is explicitly corrected by actual --release argv/no override; sameRustbytes are separately proved, not relabeled as newheadCI. NewMacphase/native/currentinstaller/remoteCI acceptance remains unrun; olde509/Root/Notification/Directory failures remain separate. Full130 is incomplete. Next: independentmetadata review, actualRootrun41250092516 refresh and exactintegrationchecks.
+
 ## PR21 exact e509 terminal failures retained — 2026-10-31
 
 Environment41246131296 passed all3; Product41246133682 is terminal failed: Rust passed, UI normal failed after3 checks at private_independent_review/AssertionError while command-failure passed4; its screenshot operation remains unknown. Intel Factory35/1 failed at plan2/run12blocked: directly bound work4088 exceeds4000 (producer3765+queue323, no discount). ARM integration18/12 includes OUTCOME_UNKNOWN, FIFO-ready expiry and unobserved command-leader stop; a common cause is not established. [Terminal source-bound evidence](integration-browser-failure-observation/CI_TERMINAL_RESULTS.json).

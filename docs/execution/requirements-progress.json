@@ -75,11 +75,13 @@
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
-        "docs/execution/integration-browser-failure-observation/EVIDENCE.json"
+        "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
+        "docs/execution/integration-preparation-phase-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
-        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete.",
+        "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
@@ -169,11 +171,13 @@
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
-        "docs/execution/integration-browser-failure-observation/EVIDENCE.json"
+        "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
+        "docs/execution/integration-preparation-phase-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
-        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete.",
+        "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
@@ -369,11 +373,13 @@
         "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
-        "docs/execution/integration-browser-failure-observation/EVIDENCE.json"
+        "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
+        "docs/execution/integration-preparation-phase-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
-        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete.",
+        "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
@@ -2301,11 +2307,13 @@
         "docs/execution/capture-frontier-service/EVIDENCE.json",
         "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json",
         "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json",
-        "docs/execution/integration-browser-failure-observation/EVIDENCE.json"
+        "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
+        "docs/execution/integration-preparation-phase-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
-        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
+        "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
@@ -2621,12 +2629,14 @@
         "docs/execution/capture-frontier-service/EVIDENCE.json",
         "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json",
         "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json",
-        "docs/execution/integration-browser-failure-observation/EVIDENCE.json"
+        "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
+        "docs/execution/integration-preparation-phase-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
-        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero.",
+        "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
@@ -3283,12 +3293,14 @@
         "docs/execution/capture-frontier-service/EVIDENCE.json",
         "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json",
         "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json",
-        "docs/execution/integration-browser-failure-observation/EVIDENCE.json"
+        "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
+        "docs/execution/integration-preparation-phase-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
-        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero.",
+        "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
@@ -7210,12 +7222,14 @@
         "docs/execution/capture-frontier-service/EVIDENCE.json",
         "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json",
         "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json",
-        "docs/execution/integration-browser-failure-observation/EVIDENCE.json"
+        "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
+        "docs/execution/integration-preparation-phase-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
-        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero.",
+        "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
