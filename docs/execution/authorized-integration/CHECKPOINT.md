@@ -75,4 +75,4 @@ Source107f72 actual58sessions/Factory30/integrationIPC16, genuine14six/15five/16
 
 ## First precise CI recovery 2026-10-31T02:17:44.819536+00:00
 
-Keepba Environmentall3 andProductall4 failures. Linux newadmission1/Core229/command14/strictClippy/fullinfra491 pass, b4data21 remains source-bound. All actual commands, corrected fixture semantics, unresolvedUIreport cause and failed482/4error evidence are in FIRST_CI_CORRECTIONS.json SHA256 df1121d6f14917a87241c60f97a547bd0d1bcc3305ec6c0cce9a6877e9f3b383. New preciseCI/dualMac/Native/packages/full130 remain open; no guard/budget/requiredcheck removed.
+Keepba Environmentall3 andProductall4 failures. Linux newadmission1/Core229/command14/strictClippy/fullinfra491 pass, b4data21 remains source-bound. All actual commands, corrected fixture semantics, unresolvedUIreport cause and failed482/4error evidence are in FIRST_CI_CORRECTIONS.json SHA256 f32733a81f0fbb1e4767513b33eb5e509c74d40cc4660e305992bae3e0dad0a4. New preciseCI/dualMac/Native/packages/full130 remain open; no guard/budget/requiredcheck removed.
