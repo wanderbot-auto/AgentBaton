@@ -633,30 +633,54 @@ fn verify_repository_controlled(
     controlled_check(control)?;
     Ok(current)
 }
+fn bound_config_categories(bytes: &[u8]) -> Result<[bool; 4], AdoptionError> {
+    if !bytes.is_empty() && bytes.last() != Some(&0) {
+        return Err(WorkspaceError::UnsafeRepository.into());
+    }
+    let mut forbidden = [false; 4];
+    for record in bytes.split(|byte| *byte == 0).filter(|row| !row.is_empty()) {
+        // Git -z config lists use LF between key/value and NUL between rows.
+        // Values (including LF or non-UTF8 bytes) are never interpreted as keys.
+        let key = record
+            .split(|byte| *byte == b'\n')
+            .next()
+            .unwrap_or_default();
+        forbidden[0] |= key == b"include.path"
+            || (key.starts_with(b"includeif.")
+                && key.ends_with(b".path")
+                && key.len() >= b"includeif.".len() + b".path".len());
+        forbidden[1] |= key.starts_with(b"merge.");
+        forbidden[2] |= key.starts_with(b"filter.");
+        forbidden[3] |= key == b"extensions.partialclone"
+            || (key.starts_with(b"remote.")
+                && key.ends_with(b".promisor")
+                && key.len() >= b"remote.".len() + b".promisor".len());
+    }
+    Ok(forbidden)
+}
 fn reject_bound_unsafe_config_controlled(
     grant: &AuthorizedIntegration,
     control: Option<&AdoptionControl<'_>>,
 ) -> Result<(), AdoptionError> {
-    // Counterfactual checkout contexts can enable includeIf rules absent from
-    // the linked root. Refuse indirection rather than audit only one context.
-    for (pattern, merge) in [
-        ("^include(if\\..*)?\\.path$", false),
-        ("^merge\\.", true),
-        ("^filter\\.", false),
-        (
-            "^(extensions\\.partialclone|remote\\..*\\.promisor)$",
-            false,
-        ),
-    ] {
+    // One fresh bounded read at EACH original audit boundary. No include is
+    // followed, no result is cached across inspections, stages or admission.
+    controlled_check(control)?;
+    let result = bound_output(
+        grant,
+        &["config", "--no-includes", "--null", "--list"],
+        control,
+    )?;
+    controlled_check(control)?;
+    if result.interrupted || !result.output.status.success() {
+        return Err(WorkspaceError::UnsafeRepository.into());
+    }
+    let forbidden = bound_config_categories(&result.output.stdout)?;
+    // Preserve original include -> merge -> filter -> partial-clone precedence
+    // and cancellation/deadline checkpoints for every original category.
+    for (refused, merge) in forbidden.into_iter().zip([false, true, false, false]) {
         controlled_check(control)?;
-        let result = bound_output(
-            grant,
-            &["config", "--no-includes", "--get-regexp", pattern],
-            control,
-        )?;
         controlled_check(control)?;
-        let config = result.output;
-        if result.interrupted || config.status.success() || config.status.code() != Some(1) {
+        if refused {
             return Err(if merge {
                 AdoptionError::UnsafeMergeDriver
             } else {
@@ -666,6 +690,7 @@ fn reject_bound_unsafe_config_controlled(
     }
     Ok(())
 }
+
 fn reject_candidate_gitlinks(
     grant: &AuthorizedIntegration,
     candidate: &str,
@@ -1356,3 +1381,7 @@ mod controlled_completion_tests {
         completed_cas_remains_historical_success(true);
     }
 }
+
+#[cfg(test)]
+#[path = "adoption_config_batch_tests.rs"]
+mod config_batch_tests;
