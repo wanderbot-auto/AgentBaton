@@ -264,7 +264,7 @@ fn retain_with_hook(workspace: &Path, evidence: &Path, after_read: impl FnOnce()
     let fd = unsafe {
         libc::openat(
             directory.as_raw_fd(),
-            b"goal-deadline-parent-stages.json\0".as_ptr().cast(),
+            c"goal-deadline-parent-stages.json".as_ptr(),
             libc::O_RDONLY | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC,
         )
     };
