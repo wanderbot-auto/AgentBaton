@@ -1,3 +1,9 @@
+## First Root17 CI failures retained; local fixture corrections verified — 2026-10-31T02:17:44.819536+00:00
+
+Exactba first Environment41154588435 failedall3 (private test intermediate0755); Product41154588518 failedall4: Rust current-schema16 assertion, bothMac canonical runtime fixture, UI TaskWorkspace report_missing. Do not count later evidence-collector errors as firstcause. CurrentLinux corrected admission1, fullCore229+command14 and strict alltargets/3legacyfeatureClippy pass; data21 remains bound tob4 failedmixedbatch. Explicitumask0022 fullinfra491 passes after preserved482/4ERROR strictworkflow-layer refusal. See [first CI corrections](authorized-integration/FIRST_CI_CORRECTIONS.json).
+
+Only syntheticfixtures/currentversion expectations and bounded workflowdiagnostics changed. Production0700/symlink/128MiB/identity/hash/authority/budget checks remain. Unknown TaskWorkspace copy/launch/preflight cause awaits exact newCI finite facts; no128MiB increase or guessed rootcause. New dualMac/Native/audit/installers/protectedintegration and full130 remain open. Main653679d/OWNER001002ACK/no003; no formalApprove or authority expansion.
+
 ## Current schema17 migration, routing and real UI verified — 2026-10-31T01:12:52.850868+00:00
 
 Exact source107f72 passes full58sessions, realFactory30/integrationIPC16, schema17/oldcommand migration15+7, genuine14/15/16 migrations6+5+10, strictworkspace/alltargetsClippy with all3genuine features, fmt and461infrastructure cases. Source92b6 fullCore229 includes its nested helper; production/unit sources remain byte-identical at107. Eleven ordinary migration/storage targets pass36, but their original combined batch remains failed57/1sessions until the later full58 closure. No failed batch is relabelled.

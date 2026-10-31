@@ -4997,7 +4997,8 @@
         "docs/execution/task-workspace-integration/PARENT_DE0B_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
-        "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json"
+        "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json",
+        "docs/execution/authorized-integration/FIRST_CI_CORRECTIONS.json"
       ],
       "limitations": [
         "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open.",
@@ -7169,7 +7170,8 @@
         "docs/execution/authorized-integration/COMPOSED_CHECKPOINT_RESULTS.json",
         "docs/execution/authorized-integration/RESUMED_UNICODE_RESULTS.json",
         "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
-        "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json"
+        "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json",
+        "docs/execution/authorized-integration/FIRST_CI_CORRECTIONS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -8015,7 +8017,8 @@
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
         "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
-        "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json"
+        "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json",
+        "docs/execution/authorized-integration/FIRST_CI_CORRECTIONS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."

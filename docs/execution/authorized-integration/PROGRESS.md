@@ -90,3 +90,8 @@ Native Cargo lock now pins the same reviewed focaccia2.5.0/checksum as root; no 
 ## Root current verification 2026-10-31T01:12:52.850868+00:00
 
 Source107f72 actual58sessions/Factory30/integrationIPC16, genuine14six/15five/16ten,15schema17+7oldcommand migration,461infra/strictClippy/fmt pass. Same107 browser normal/failure9checks12PNG and three-round3checks7PNG pass with ownedcleanup. Source92b6 Core229 has exact production/unit byte equivalence. Original c5dc mixed batch staysfailed57/1 until full58 corrected legacyfixture closure; fullfailedELF/log retained. Evidence MIGRATION_COMPAT_RESULTS.json SHA256 f7216d194980bc31ca7f154d4969cdbf100f5f08e4982ee4823dc07847989a99. Root exact remoteCI/Native/dualMac/audit/packages and full130 remain open.
+
+
+## First precise CI recovery 2026-10-31T02:17:44.819536+00:00
+
+Keepba Environmentall3 andProductall4 failures. Linux newadmission1/Core229/command14/strictClippy/fullinfra491 pass, b4data21 remains source-bound. All actual commands, corrected fixture semantics, unresolvedUIreport cause and failed482/4error evidence are in FIRST_CI_CORRECTIONS.json SHA256 df1121d6f14917a87241c60f97a547bd0d1bcc3305ec6c0cce9a6877e9f3b383. New preciseCI/dualMac/Native/packages/full130 remain open; no guard/budget/requiredcheck removed.

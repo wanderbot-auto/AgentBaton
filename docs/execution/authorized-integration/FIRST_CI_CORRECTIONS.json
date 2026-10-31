@@ -1,0 +1,310 @@
+{
+  "contract": "agentbaton.root17-first-ci-corrections.v1",
+  "recorded_at": "2026-10-31T02:17:44.819536+00:00",
+  "source": "13851d70032b09b84d0f74f5c4deffd39f4dbe66",
+  "actual_passed": {
+    "integration17-projection-fixed-full-infra-umask022-1": {
+      "result": {
+        "source": "2681d58fdfbd6d0218d598c24831037781906ef9",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "python",
+          "-c",
+          "import os,runpy,sys; os.umask(0o022); sys.argv=[\"unittest\",\"discover\",\"-s\",\"tests/infrastructure\",\"-p\",\"test_*.py\"]; runpy.run_module(\"unittest\",run_name=\"__main__\")"
+        ],
+        "exit": 0,
+        "seconds": 12.627077894983813,
+        "minimum_free_bytes": 607174656,
+        "interruption": null,
+        "log_sha256": "ac3d272ef2110c35e37e648b588d0040e9d4be094566e172c8d64619a937a3a2",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "3393914bd90331e22cf12c92e0079f1ac093d418e366e8023be089d113f3cc0c",
+      "inputs_sha256": "c7b9d0096a9c29748930ec3db8c9374e19534834df04b7b988f9f765ec503213"
+    },
+    "integration17-admission-current-guard-tests1": {
+      "result": {
+        "source": "9549441a0de2b84c57e2302191ca96017b2d73d1",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "admission_performance",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 28.775675263954327,
+        "minimum_free_bytes": 553648128,
+        "interruption": null,
+        "log_sha256": "a982b59102c971169e828555aae92e79939643698437d17eff83d73247da8f94",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "5e39348ddc5350c7c718a4965b6d61a5bb265a1efd83d5389654154b0beff9a1",
+      "inputs_sha256": "04ffd23c13c31b07f96e43cc47e7bc4f11d92e8efcf639582829bb4d5f0ccfbe"
+    },
+    "integration17-journal-canonical-full-core-command1": {
+      "result": {
+        "source": "94338f052dfe562a14db56c96210f5e8647665ae",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/integration17-shared-ack-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/integration17-shared-ack-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/integration17-shared-ack-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--no-fail-fast",
+          "--lib",
+          "--test",
+          "command_validation",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 212.7476194439805,
+        "minimum_free_bytes": 368087040,
+        "interruption": null,
+        "log_sha256": "b0a360e584096b46f205b8a4829ff6beb5d3541ff74d1fe88f2f3f181ede7888",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 228 filtered out; finished in 0.00s",
+          "test result: ok. 229 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 141.46s",
+          "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.22s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "5f34f020700748c72c00dfa424c8c5b611827c117fe20dc1a10374adf3cd6e18",
+      "inputs_sha256": "638d47166dab33642f992a528e2ad3efe809ef9a0eae571c143e4a03a0048c62"
+    },
+    "integration17-journal-canonical-clippy1": {
+      "result": {
+        "source": "94338f052dfe562a14db56c96210f5e8647665ae",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "clippy",
+          "--workspace",
+          "--all-targets",
+          "--locked",
+          "--features",
+          "agentbaton-core/actual-legacy-migration-tests,agentbaton-core/actual-schema15-migration-tests,agentbaton-core/actual-schema16-migration-tests",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 35.804118417960126,
+        "minimum_free_bytes": 436736000,
+        "interruption": null,
+        "log_sha256": "0d46daff0179cba15845d6592f9f2ce1374f30b4542e6ed44d22e6b33ad7334e",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "fe06508721a71607f9e7c1f246d07b3cca3c899cc56d6bb1e61027db8eee328e",
+      "inputs_sha256": "f7f69eee375860b16717f0fa8ac9b5b485058234003d546181f093be15d812dd"
+    },
+    "integration17-task-workspace-diagnostic-inverse-full-infra1": {
+      "result": {
+        "source": "13851d70032b09b84d0f74f5c4deffd39f4dbe66",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "python",
+          "-c",
+          "import os,runpy,sys; os.umask(0o022); sys.argv=[\"unittest\",\"discover\",\"-s\",\"tests/infrastructure\",\"-p\",\"test_*.py\"]; runpy.run_module(\"unittest\",run_name=\"__main__\")"
+        ],
+        "exit": 0,
+        "seconds": 12.732438802020624,
+        "minimum_free_bytes": 330366976,
+        "interruption": null,
+        "log_sha256": "afbea863d8c0331bd5a8d7cd43083a463f11bbced96846fb9c45564a3e72e2fe",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "08f7955953b38be7d938fd9fdb9dbce6ff0231d3150435082ec825b96d64465c",
+      "inputs_sha256": "f39540c9c0af16f9de90c16ac95871ac805d1a2dd58dfb37bf292f92be33453f"
+    }
+  },
+  "preserved_failed_local": {
+    "current_command_data": {
+      "result": {
+        "source": "b4dc2dcc549b11d2b9448147b5ae0dc3cf96174f",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--no-fail-fast",
+          "--test",
+          "command_validation",
+          "--test",
+          "data_workspaces",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 101,
+        "seconds": 51.055080460966565,
+        "minimum_free_bytes": 448962560,
+        "interruption": null,
+        "log_sha256": "62a99dfd5ebab8c13b55b01fd02b382a17842e029987bb3bba660ea34f4c2eaf",
+        "summaries": [
+          "test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.22s",
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.72s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "46ee6935b7cbaa4395ef9703d373f181f361b6e26279c4e2bfd8a545745f561c",
+      "inputs_sha256": "0af5831dd303867fd2468fe1f9ff09205fb38d4058b81ceb2819b6f82f7eefe9"
+    },
+    "diagnostic_workflow_baseline": {
+      "result": {
+        "source": "74cf31745ff6333cf6e88a86eaa8c52608738d61",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "python",
+          "-c",
+          "import os,runpy,sys; os.umask(0o022); sys.argv=[\"unittest\",\"discover\",\"-s\",\"tests/infrastructure\",\"-p\",\"test_*.py\"]; runpy.run_module(\"unittest\",run_name=\"__main__\")"
+        ],
+        "exit": 1,
+        "seconds": 13.933613783039618,
+        "minimum_free_bytes": 448196608,
+        "interruption": null,
+        "log_sha256": "4847e5a9e638210b604cec854a417823c895980e6e2f85702ad1e8fd43417315",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "ceb31200d936565ed260fd7228731789c835c160412e775733a55d6b2fa97d1e",
+      "inputs_sha256": "ffccc798072cc7e04f5c8ee6e482cd96569467e60a6de207df5723d1883fcee1"
+    }
+  },
+  "subset_attribution": "The b4 command/data batch failed13/1command while all21data passed. Later943 fullCore229 and fullcommand14 pass after restoring only the test-injected trigger. Data21 is not relabelled as a new943 rerun; Core nested helper is included in229.",
+  "source_reviews": {
+    "projection": {
+      "file": "integration-projection-fd215c1-independent-review/REVIEW.json",
+      "sha256": "fee61c0549b49ff01622d2022f70e0728446f92c293dde76bf462cf84fab4f80",
+      "status": "SOURCE_READY_PURE_PROJECTION_VERIFIED",
+      "dimension": "independent source/pure review, not macOS execution"
+    },
+    "admission": {
+      "file": "admission-55a9d49-independent-review/REVIEW.json",
+      "sha256": "efe2f53787f574fa8240049a8bc14d04e09692e65738ba477ddd54925575e45f",
+      "status": "SOURCE_READY_RUNTIME_REQUIRED",
+      "dimension": "independent source/pure review, not macOS execution"
+    },
+    "current_targets": {
+      "file": "schema17-current-target-4554-independent-review/REVIEW.json",
+      "sha256": "29bfa23d0de3056e966f10c40fc6ee1a777563db267fdceeb33898235027ce03",
+      "status": "SOURCE_READY",
+      "dimension": "independent source/pure review, not macOS execution"
+    },
+    "finite_diagnostics": {
+      "file": "task-workspace-launch-3dc-independent-review/REVIEW.json",
+      "sha256": "5be8ee37e6e694370c8fdda986c12f88d97ef54461a502b79674b1e091892521",
+      "status": null,
+      "dimension": "independent source/pure review, not macOS execution"
+    },
+    "canonical_and_journal": {
+      "file": "journal-canonical-6b04f63-independent-review/REVIEW.json",
+      "sha256": "3d57b372fc2d1d93725ec67ffbde55ff436f4c0e027f6d9d8a6e5a4a93c7cc13",
+      "status": "SOURCE_READY_RUNTIME_REQUIRED",
+      "dimension": "independent source/pure review, not macOS execution"
+    },
+    "exact_workflow_inverse": {
+      "file": "task-workspace-inverse-118abdd-independent-review/REVIEW.json",
+      "sha256": "359bbf9bf4da3dca773a80027e9e251e8f957bc00624172ab3dcb1ccfc9af60d",
+      "status": "SOURCE_READY_PURE24_VERIFIED_FULL491_PENDING",
+      "dimension": "independent source/pure review, not macOS execution"
+    }
+  },
+  "exact_first_CI": {
+    "head": "ba4612a6d7dc6e23b1bb1cfa22fbf9ce32a89947",
+    "Environment": {
+      "id": 41154588435,
+      "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41154588435",
+      "conclusion": "failed all3; 461cases one positive12PNG fixture failure",
+      "first_cause": "Synthetic driver directory inherited0755 under common umask0022; production private0700guard correctly refused. Explicit seed directory700 closes the fixture; production guard remains."
+    },
+    "Product": {
+      "id": 41154588518,
+      "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41154588518",
+      "conclusion": "failed all4",
+      "Rust": "229Corepassed then current admission fixture expected16 instead17 at105",
+      "Apple_Silicon": "Core224pass1fail in platform225: task_workspace_binding_ipc_tests76 rawDarwin temporary runtime path contains symlink",
+      "Intel": "Same first task_workspace_binding_ipc_tests76 runtime-path refusal;224pass1fail",
+      "UI": "TaskWorkspace driver or finite projection failed; retained summary report_missing. No first-cause stage or binary metadata was retained, so copy/launch/preflight cause remains unknown.",
+      "secondary_failures": "Later finite-evidence collectors failed after primary tests; not substituted as firstcause."
+    },
+    "saved_evidence": {
+      "terminal_product_sha256": "00f70d55b132e6e30402202469c5df060f1a2f4e88b52e1d8d5480134bde6151",
+      "environment_ubuntu_log_sha256": "ef71411b532a24ee1202db9d718fa4c35a749c438d84295efed0e306eb555452",
+      "arm_log_sha256": "397991b573a639fe93fef2fbbe27e9c9acc4a21cd67ceb3d1075030d33833375",
+      "ui_log_sha256": "7c45ca8beb5d0a0d8fc6c81f6c7b478835063d8fb3d2db62c14546fe0957e7b2",
+      "ui_artifact": 13025090990,
+      "ui_zip_sha256": "7df245ecd97c2087f72b68bbecf1dc155716f9be69177e0e343767a33fc1ac6f"
+    }
+  },
+  "corrections": [
+    "Current version checks use exact17; original admission3s/profile/drift controls and all historical16/corruption/inverse fixtures retained.",
+    "Generated Mac IPC fixture now uses canonical short/tmp parent and private0700; production symlink rejection unchanged.",
+    "Journal failure still executes once and holds fence. With injected trigger, cold startup is refused without changing rows/events/fences/marker; only that trigger is removed before original same-key outcome_unknown restart/no-reexecution assertions.",
+    "TaskWorkspace workflow adds closed finite copy/launch/exit diagnostics only. Original128MiB bound/owner/mode/identity/digest checks and driver/projector argv preserved. report_missing root cause remains unproven.",
+    "Only exact reviewed3dc diagnostic function can be inversely replaced with fixed55a9 original function. Original whole-workflow baselines and guards unchanged; full491 underumask0022 passes after retained482/4ERROR run."
+  ],
+  "limits": [
+    "All current local passes are Linux dev/testdebug0; they do not establish either macOS architecture, current installer or live Provider acceptance.",
+    "No new precise CI is claimed by this record. New head must run its own three Environment and Product checks before protected integration.",
+    "No product Rust/UI runtime changes since107 in this correction chain; test fixtures, CI diagnosis and evidence only. Full Designv0.2/130 remains incomplete.",
+    "RootPR21 is still dependent onPR19; no merge, formalApprove, production, signing/privateProvider/newspending authority granted."
+  ],
+  "runtime_source_equivalence": {
+    "baseline": "107f72cd150cbbf11b58c55eddc4e95fc3a76bbc",
+    "checked_paths": [
+      "crates/core/src",
+      "crates/workspaces/src",
+      "crates/providers/src",
+      "crates/config/src",
+      "apps/daemon/src",
+      "apps/cli/src",
+      "apps/desktop/src/FactoryRuntime.tsx",
+      "apps/desktop/src/FactoryChildPlans.tsx"
+    ],
+    "only_diff": "test-only task_workspace_binding_ipc_tests.rs canonical fixture"
+  }
+}
