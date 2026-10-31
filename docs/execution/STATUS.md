@@ -1,3 +1,11 @@
+## Root17 capture composition verified — 2026-10-31
+
+Source246 composes Parent96 capture scheduling and controlled late-frontier failure regression while retaining the entire Root17 integration extension. Independent122-check whole-source review passes. Exact246 stop-module12(includes new2/fourpaths), completeFactory39 realIPC, strictworkspace+NativeLinuxClippy, fmt and normalCore17/CLIbuild/freeze pass. Normal immutable ELF inspection finds no four closed test-control markers; this is a development binary audit, not Mac/release acceptance. Metadata-only merged74 retains source/test/workflow bytes and passes all691 infrastructure tests. [Exact evidence](fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json).
+
+One local merge proof incorrectly assumed the entire Parent file was a prefix and its shell still committed after assertion failure. It was never pushed then; corrected strict full-file insertion proof and independent review verify the only19173byte Root17 extension remains exact, both test files equalParent96 and no markers/other runtime changes exist. The failed transcript is retained.
+
+Parent324 is now pushed with exact Environment41243422609/Product41243422606 queued/running, not passed. Root21's old8b CI remains failed; next new exact candidate/manual checks are pending. Earlier5fee matched browser and aba261/fullWorkspaces/30integration stay source-bound. Current246 browser/full263Core/Native/Mac/installers/full130 acceptance are not claimed. Continue exact CI, feature integration and the rest of approved Designv0.2; no authority expansion.
+
 ## Owned capture service and fatal frontier regression — 2026-10-31
 
 Reviewed2ed prioritizes an already persisted owned capture before the same-tick mandatory full frontier sweep. All original fresh authorization/origin/lease/stop/CAS checks, queue clock,4s reservation and cancellation/join accounting remain. Original210Core/33Factory/14nativeGoalGraph and strictClippy pass at2ed; those old tests did not cover a new late-frontier fatal branch, so independent review correctly withheld acceptance.

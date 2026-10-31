@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T21:26:49.247794+00:00",
+  "record_head": "d74e59ffc0ba93ad26987b2fe68f8eb6f570cc68",
+  "tested_source": "246b2e451fcc031e3f4dd36f06ce76553684673e",
+  "metadata_only_merge": {
+    "head": "d74e59ffc0ba93ad26987b2fe68f8eb6f570cc68",
+    "parent": "32432f29bfc6125a5eb8fc3d47f682d63c446093",
+    "proof": "Runtime/test/workflow/toolchain paths byte-equal246; preserve Root17 fields plus incoming four evidence paths and full STATUS history; only STATUS bootstrap digest changed."
+  },
+  "requirements": [
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-010",
+    "AB-TSK-012"
+  ],
+  "actual": {
+    "root17-capture-frontier-normal-build1": {
+      "result": {
+        "source": "246b2e451fcc031e3f4dd36f06ce76553684673e",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 20.856107386993244,
+        "minimum_free_bytes": 3045273600,
+        "interruption": null,
+        "log_sha256": "0e27cfd67f16ce76785e1d04aba30b14b8b7ba91e30bd7abef50a549de54146b",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "a18ef428b2f2a0fcb012ca0d502856159b1c542c11ec0ba3f57ffed2b3e91c16",
+      "inputs_sha256": "434fd6936a02e839b0d38a4f76275e07af934158cbd95a2a4a59d3fb2177b740"
+    },
+    "root17-capture-frontier-normal-freeze1": {
+      "result": {
+        "source": "246b2e451fcc031e3f4dd36f06ce76553684673e",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/root17-capture-frontier-normal-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/root17-capture-frontier-normal-probe1"
+        ],
+        "exit": 0,
+        "seconds": 0.4013716150075197,
+        "minimum_free_bytes": 2993762304,
+        "interruption": null,
+        "log_sha256": "1dc8428c62b0773efee9e6958cd53b141fa38a8ec17614214d93b7ae95cdc5e8",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "af6b4384db55888c4bd150c724e8814fbfbfabe72a57f4ec9798344fe3f8f16d",
+      "inputs_sha256": "ac2b59a7aa9a770a060cfb0e6485ee26e87c4f6efc3298485e86c98279e937bf"
+    },
+    "root17-capture-frontier-stop-regressions1": {
+      "result": {
+        "source": "246b2e451fcc031e3f4dd36f06ce76553684673e",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root17-capture-frontier-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root17-capture-frontier-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root17-capture-frontier-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "ipc::goal_stop_service_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 38.834090340998955,
+        "minimum_free_bytes": 2993713152,
+        "interruption": null,
+        "log_sha256": "7e541b7254cd9a20a01c8fa2ceceb3820eb2b46a96323c2654c462537355107c",
+        "summaries": [
+          "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 251 filtered out; finished in 14.39s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "e9bd6e7dea8befb94b9d7525e0cdfb92b50039863a2a814f33bca5a3184a7cf1",
+      "inputs_sha256": "6fa0b52519802172a6463acc01a9788674670c59ae61c310b1a4f96ee452a951"
+    },
+    "root17-capture-frontier-full-factory1": {
+      "result": {
+        "source": "246b2e451fcc031e3f4dd36f06ce76553684673e",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root17-capture-frontier-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root17-capture-frontier-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root17-capture-frontier-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 127.45131401898107,
+        "minimum_free_bytes": 2984759296,
+        "interruption": null,
+        "log_sha256": "3768d114060601b6188b2d53bd5874add35f1d2bc4bc4a049251dc2af0355481",
+        "summaries": [
+          "test result: ok. 39 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 103.28s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "3425e4ca3d75db0dbfc97fda6e243616d0c97cfd7f75196b709078b79ff8ca63",
+      "inputs_sha256": "17690c4fef23ed6a9dd97d25ce1cca641357e4c34f376d52416a9bed37acd830"
+    },
+    "root17-capture-frontier-workspace-clippy1": {
+      "result": {
+        "source": "246b2e451fcc031e3f4dd36f06ce76553684673e",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 20.777144328982104,
+        "minimum_free_bytes": 2984681472,
+        "interruption": null,
+        "log_sha256": "95b52a9e125983dfd96923a1a201ad5bc3d74f9b2abcdf883d5e42c0a314dc5b",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "99ac94ec59cdef74f2a8e48a5efb02eb66f712535cbca8bd72376ba99736c2f2",
+      "inputs_sha256": "9a08a2ba47bed1a5dd5991c8bf9f1faf2b49c156897cfa325d365f8efde4bbbe"
+    },
+    "root17-capture-frontier-native-clippy1": {
+      "result": {
+        "source": "246b2e451fcc031e3f4dd36f06ce76553684673e",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 15.851688786991872,
+        "minimum_free_bytes": 2984689664,
+        "interruption": null,
+        "log_sha256": "3978cac9230b1d2c2aa1fc24ce9f94ee2dfb050afba55b74ef87e3e6cf4858cb",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "1109fc4d652c15057daf8b430ad3366fca49e75cae00e386702d1c1f131ad9fe",
+      "inputs_sha256": "7d5e14e0166a8801276d38f372828982cc8dbecb9e582811424272368ddd4a95"
+    },
+    "root17-capture-frontier-fmt1": {
+      "result": {
+        "source": "246b2e451fcc031e3f4dd36f06ce76553684673e",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "seconds": 1.8067313539795578,
+        "minimum_free_bytes": 2984656896,
+        "interruption": null,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "122f8dcea49cf34f185fbb69bfeeef4e42a39bc156c71eeadb087218c7262a92",
+      "inputs_sha256": "9340bbee52260e00942dc9a0a54f7953039cc63e23b8c53695ec68e0fcb263c3"
+    },
+    "root17-capture-frontier-normal-isolation1": {
+      "result": {
+        "source": "246b2e451fcc031e3f4dd36f06ce76553684673e",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "python3",
+          "/workspace/.onboarding/audit-owned-capture-controls.py",
+          "--tools",
+          "/workspace/.onboarding/root17-capture-frontier-normal-frozen1"
+        ],
+        "exit": 0,
+        "seconds": 0.3014353469479829,
+        "minimum_free_bytes": 2984640512,
+        "interruption": null,
+        "log_sha256": "f6b2ea543b92030d981cd94954a62569a4c4e49779cae3e8409ed1f0a9fdfa17",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "ac838402f06e7a758bee01e03ef8351ba2542c42cd8964c98e3b535db448e515",
+      "inputs_sha256": "a25d44ee0c56062c61db2943fd3ee4710750841cf7b9094baf1b043d1c34a288"
+    },
+    "root17-capture-frontier-full-infrastructure1": {
+      "result": {
+        "source": "d74e59ffc0ba93ad26987b2fe68f8eb6f570cc68",
+        "root": "/workspace/.worktrees/authorized-integration-validation",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 0,
+        "seconds": 22.15700838295743,
+        "minimum_free_bytes": 2983989248,
+        "interruption": null,
+        "log_sha256": "8b1e2044d0d1dee93186dcd6e60daefeef0f306c76da88755372c1792f8d7694",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "6b96a7eb9c85a5fe0b814a0cfd15b47894ed6673aa50d0f9c02ba9b34b730137",
+      "inputs_sha256": "f794cd55d691469e041d2384ef3a7e494bc68a03755c81d438470640f573fb28"
+    }
+  },
+  "independent_reviews": {
+    "pr19-capture-frontier-regression-independent-review": {
+      "sha256": "907ca53a30bcb969a88709ffa2e043b75681404e70018eb1959e1052d628a306",
+      "status": "SOURCE_READY",
+      "scope": "independent fixed source/metadata and separately pinned execution evidence; no Mac inference"
+    },
+    "root17-capture-frontier-composition-independent-review": {
+      "sha256": "02dd24578f5198dc5ffba27ae27ee71691b6f4edbf0b5f86a2ebaf24776cf12d",
+      "status": "SOURCE_READY",
+      "scope": "independent fixed source/metadata and separately pinned execution evidence; no Mac inference"
+    },
+    "pr19-capture-frontier-metadata-independent-review": {
+      "sha256": "952ffa1cdfff7a549eb6d8ad5516e8591c74e617fbb209c0a0fa84924aef9770",
+      "status": "SOURCE_READY",
+      "scope": "independent fixed source/metadata and separately pinned execution evidence; no Mac inference"
+    }
+  },
+  "source_composition": {
+    "Root246": "Parent96 whole goal_graph file plus the only Root17 integration extension, 19173 bytes SHA bcd4606d817c7e176529b8069c43d053081853090c2ea5f1fba0d831b24d88bd; extension unchanged fromRoot74. Two test files wholeParent96. Other Root runtime/migration/permissions/Native/workflow unchanged.",
+    "earlier_shell_error": "An incorrect whole-file-prefix proof assertion failed and a local merge still committed because that shell lacked set-e. No push occurred. Subsequent strict whole-file insertion proof and independent122-check source review verified the complete composition; no conflict markers or discarded Root source. Original failed transcript retained."
+  },
+  "counts_and_limits": {
+    "current_source246": "12 stop tests include new2/fourpaths;39 completeFactory UnixIPC; strictworkspace+NativeLinuxClippy/fmt,normalCore17/CLIbuild/freeze pass. No full263Core execution is claimed.",
+    "current_metadata_d74": "Full infrastructure691 pass; no new Rust execution at metadata-only head.",
+    "not_additive": "EarlierParent96/Root5fee tests retain their source pins. New2 are included in12, not extra. Earlier full261/Core and Workspaces/30integration ataba are not relabelled246.",
+    "normal_isolation": "Actual immutable normal Core17/CLI ELF files lack four closed test-only markers. This is normal development binary inspection, not native/release/Mac audit. cfg(test) probes and checkpoint do not confer product runtime or widen budgets.",
+    "browser": "Real matched React/Core17 browser4/4/5 + integration5/4 and12PNG passed at5fee only; source246 current exact CI/UI browser remains not_run."
+  },
+  "remote_parent": {
+    "PR": 19,
+    "head": "32432f29bfc6125a5eb8fc3d47f682d63c446093",
+    "Environment": 41243422609,
+    "Product": 41243422606,
+    "status": "last observedqueued/in_progress, notpassed; one normalpush/no duplicate workflow"
+  },
+  "remote_Root": {
+    "PR": 21,
+    "head": "8b9880314a4db6366b22430580806b36ec4d304b",
+    "status": "old Product failed; new reviewed candidate not yet pushed/dispatched at recordtime"
+  },
+  "not_run": [
+    "new exact Root remote CI",
+    "current Root Native/dualMac runtime/desktop checks",
+    "current Root development installers/manual Mac acceptance",
+    "live product Provider/approved remote host testing"
+  ],
+  "full130_complete": false
+}
