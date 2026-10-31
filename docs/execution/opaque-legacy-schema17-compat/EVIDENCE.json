@@ -1,0 +1,56 @@
+{
+  "base_commit": "4f962940533241fdec74b96a87c01a99788a62ee",
+  "branch": "codex/opaque-legacy-schema17-compat",
+  "original_failure": {
+    "source": "parent-reported actual execution, not rerun by source author",
+    "log": "/workspace/.onboarding/integration17-current-migration-targets1/command.log",
+    "sha256": "6dc13459134eb2e284a1bc4d41a6ac492d4ae9e0d408fc3f846c8d676a65d0fd",
+    "target": "command_validation_migration",
+    "passed": 6,
+    "failed": 1,
+    "failure": "real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_and_blob: INPUT_CHANGED exact table set"
+  },
+  "static_checks": [
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 crates/core/src/integration_store.rs crates/core/tests/integration_schema17.rs",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "failed_tool_attempt": {
+    "command": "rustfmt without explicit RUSTUP_HOME",
+    "result": "could not create /home/agent/.rustup: read-only filesystem; corrected workspace toolchain env, no escalation"
+  },
+  "new_test_source": {
+    "functions": 4,
+    "generated_negative_variants": 20,
+    "negative_versions": [
+      16,
+      17
+    ],
+    "status": "not_run"
+  },
+  "not_run": [
+    "Cargo/type checking",
+    "actual SQLite migration/rollback/backup execution",
+    "original schema7 regression",
+    "historical producer generation",
+    "Actor/Node/browser",
+    "network/remote/CI",
+    "macOS/native",
+    "real Provider",
+    "independent review"
+  ],
+  "authority": "AB-START-001; source author static-only task; no permission changes",
+  "requirement_ids": [
+    "AB-SEC-007",
+    "AB-COR-002"
+  ],
+  "source_sha256": {
+    "crates/core/src/integration_store.rs": "422e8603041ab829c6e70fc2540a18f3743df21434ffe74af054ddac98ab1283",
+    "crates/core/tests/integration_schema17.rs": "882446a4ee1d7bd869118f8adb4c1f3c1cbd91aec96f3964c588d6822d85a08c"
+  }
+}

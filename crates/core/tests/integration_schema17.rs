@@ -1,5 +1,7 @@
 //! Store17 persistence contract. Synthetic malformed predecessors below are
 //! negatives only; genuine source16 data is tested by integration_actual16_migration.
+//! Opaque compatibility inputs below are controlled generated schema16/17 inputs,
+//! never claimed as genuine historical producers.
 #[path = "fixtures/pre_factory_schema.rs"]
 pub mod pre_factory_schema;
 use agentbaton_core::storage::Store;
@@ -520,7 +522,208 @@ fn controlled_empty17_inverse_preserves_unrelated_unknown_schema_and_typed_bytes
         .filter(|(name, _)| !INTEGRATION17_TABLES.contains(&name.as_str()))
         .collect();
     assert!(after.schema == expected_schema && after.rows == expected_rows);
-    // This extra table is a controlled generated preservation input only. It
-    // is not a genuine predecessor accepted by production's exact55-table gate.
+    // This extra table is a controlled generated preservation input only, not
+    // a genuine historical predecessor. Production formerly rejected all extra
+    // tables; the separate opaque compatibility tests cover the new policy.
     assert_eq!(after.version, 16);
+}
+
+#[test]
+fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and17_reopen() {
+    use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
+    let (root, path, db) = empty_current_fixture();
+    remove_empty_integration17(&db).unwrap();
+    // Generated compatibility input, not a genuine historical producer. Data
+    // remains uninterpreted even when it resembles permission-bearing JSON.
+    db.execute_batch(r#"
+        CREATE TABLE original_blob(bytes BLOB, raw TEXT UNIQUE, n INTEGER, r REAL, absent TEXT);
+        CREATE INDEX original_blob_bytes ON original_blob(bytes);
+        INSERT INTO original_blob(rowid,bytes,raw,n,r,absent)
+          VALUES(47,x'00ffdeadbeef',' {"authority_kind":"integration","approved":true} ',37,1.25,NULL);
+        CREATE TABLE "opaque""; SELECT"(bytes BLOB);
+        INSERT INTO "opaque""; SELECT"(rowid,bytes) VALUES(83,x'ff000102');
+    "#).unwrap();
+    let before = image(&db);
+    assert_eq!(before.version, 16);
+    drop(db);
+    let store = Store::open(&path).unwrap();
+    let after = image(&ro(&path));
+    assert_eq!(after.version, 17);
+    let old_schema: Schema = after
+        .schema
+        .iter()
+        .filter(|row| !NEW_TABLES.contains(&row.2.as_str()))
+        .cloned()
+        .collect();
+    let old_rows: BTreeMap<_, _> = after
+        .rows
+        .iter()
+        .filter(|(name, _)| !NEW_TABLES.contains(&name.as_str()))
+        .map(|(name, rows)| (name.clone(), rows.clone()))
+        .collect();
+    assert!(before.schema == old_schema && before.rows == old_rows);
+    zero_authority(&store, &ro(&path));
+    preserved_backup(&before, root.path());
+    let backup_raw = fs::read(&backups(root.path())[0]).unwrap();
+    drop(store);
+    let reopened = Store::open(&path).unwrap();
+    assert!(
+        image(&ro(&path)) == after,
+        "reopen changed opaque or known history"
+    );
+    zero_authority(&reopened, &ro(&path));
+    assert_eq!(backups(root.path()).len(), 1);
+    assert_eq!(fs::read(&backups(root.path())[0]).unwrap(), backup_raw);
+}
+
+#[test]
+fn opaque_compatibility_never_substitutes_for_known_objects_or_accepts_dependencies() {
+    use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
+    let variants = [
+        ("changed_known_ddl", "ALTER TABLE tasks ADD COLUMN unknown_fixture_field TEXT;"),
+        ("missing_known_index", "DROP INDEX goal_one_active_scope_per_task;"),
+        ("changed_known_index", "DROP INDEX goal_one_active_scope_per_task; CREATE UNIQUE INDEX goal_one_active_scope_per_task ON goal_scopes(task_id);"),
+        ("missing_known_trigger", "DROP TRIGGER command_fence_attempt;"),
+        ("changed_known_trigger", "DROP TRIGGER command_fence_attempt; CREATE TRIGGER command_fence_attempt BEFORE INSERT ON attempts BEGIN SELECT 1; END;"),
+        ("missing_known_table", "DROP TABLE command_workspace_fences;"),
+        ("attached_index", "CREATE INDEX opaque_attached ON tasks(id);"),
+        ("attached_trigger", "CREATE TRIGGER opaque_attached AFTER INSERT ON tasks BEGIN SELECT 1; END;"),
+        ("opaque_trigger", "CREATE TABLE opaque_data(raw BLOB); CREATE TRIGGER opaque_attached AFTER INSERT ON opaque_data BEGIN SELECT 1; END;"),
+        ("opaque_view", "CREATE VIEW opaque_view AS SELECT * FROM tasks;"),
+        ("reserved_table", "CREATE TABLE InTeGrAtIoN_future(raw BLOB);"),
+        ("reserved_index", "CREATE TABLE opaque_data(raw BLOB); CREATE INDEX InTeGrAtIoN_future ON opaque_data(raw);"),
+        ("known_name_other_kind", "CREATE TRIGGER TaSkS AFTER INSERT ON tasks BEGIN SELECT 1; END;"),
+        ("incoming_authority_fk", "CREATE TABLE opaque_data(id TEXT REFERENCES TaSkS(id));"),
+        ("incoming_future_fk", "CREATE TABLE opaque_data(id TEXT REFERENCES InTeGrAtIoNs(id));"),
+        ("opaque_cross_fk", "CREATE TABLE opaque_a(id TEXT PRIMARY KEY); CREATE TABLE opaque_b(id TEXT REFERENCES opaque_a(id));"),
+        ("generated_column", "CREATE TABLE opaque_data(raw TEXT,derived TEXT GENERATED ALWAYS AS (raw) VIRTUAL);"),
+        ("stored_generated_column", "CREATE TABLE opaque_data(raw TEXT,derived TEXT GENERATED ALWAYS AS (raw) STORED);"),
+        ("expression_index", "CREATE TABLE opaque_data(raw TEXT); CREATE INDEX opaque_expression ON opaque_data(lower(raw));"),
+        ("partial_index", "CREATE TABLE opaque_data(raw BLOB); CREATE INDEX opaque_partial ON opaque_data(raw) WHERE raw IS NOT NULL;"),
+    ];
+    for version in [16, 17] {
+        for (variant, sql) in variants {
+            let (root, path, db) = empty_current_fixture();
+            if version == 16 {
+                remove_empty_integration17(&db).unwrap();
+            }
+            db.pragma_update(None, "foreign_keys", false).unwrap();
+            db.execute_batch(sql).unwrap();
+            db.execute_batch("PRAGMA wal_autocheckpoint=0; PRAGMA wal_checkpoint(TRUNCATE);")
+                .unwrap();
+            // Retain a committed WAL frame too: a refusal must not quietly
+            // checkpoint/rewrite the input, raw Task text, or partial17 DDL.
+            db.execute_batch("UPDATE tasks SET document=document || ' '; ")
+                .unwrap();
+            let before = image(&db);
+            let raw = fs::read(&path).unwrap();
+            let wal = path.with_file_name("state.sqlite3-wal");
+            let wal_raw = fs::read(&wal).unwrap();
+            let error = Store::open(&path).err().expect(variant);
+            assert_eq!(error.code, "INPUT_CHANGED", "version{version}:{variant}");
+            assert!(
+                before == image(&db),
+                "logical rollback version{version}:{variant}"
+            );
+            assert_eq!(
+                fs::read(&path).unwrap(),
+                raw,
+                "main rollback version{version}:{variant}"
+            );
+            assert_eq!(
+                fs::read(&wal).unwrap(),
+                wal_raw,
+                "WAL rollback version{version}:{variant}"
+            );
+            if version == 16 {
+                preserved_backup(&before, root.path());
+            } else {
+                assert!(backups(root.path()).is_empty());
+            }
+        }
+    }
+}
+
+#[test]
+fn opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated() {
+    use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
+    for version in [16, 17] {
+        let (root, path, db) = empty_current_fixture();
+        if version == 16 {
+            remove_empty_integration17(&db).unwrap();
+        }
+        db.execute_batch("CREATE VIRTUAL TABLE opaque_search USING fts5(raw); INSERT INTO opaque_search VALUES('uninterpreted'); PRAGMA wal_checkpoint(TRUNCATE);").unwrap();
+        // FTS shadow tables can be WITHOUT ROWID; avoid the ordinary-row image
+        // helper and prove exact source bytes/DDL plus opaque contents instead.
+        let schema: Schema = db
+            .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
+            .unwrap()
+            .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))
+            .unwrap()
+            .map(Result::unwrap)
+            .collect();
+        let raw = fs::read(&path).unwrap();
+        let error = Store::open(&path)
+            .err()
+            .expect("virtual/shadow schema must refuse");
+        assert_eq!(error.code, "INPUT_CHANGED");
+        assert_eq!(fs::read(&path).unwrap(), raw);
+        let after: Schema = db
+            .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
+            .unwrap()
+            .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))
+            .unwrap()
+            .map(Result::unwrap)
+            .collect();
+        assert!(schema == after);
+        if version == 16 {
+            let copies = backups(root.path());
+            assert_eq!(copies.len(), 1);
+            let backup = ro(&copies[0]);
+            assert_eq!(
+                backup
+                    .pragma_query_value::<u32, _>(None, "user_version", |r| r.get(0))
+                    .unwrap(),
+                16
+            );
+            assert_eq!(
+                backup
+                    .query_row("SELECT raw FROM opaque_search", [], |r| r
+                        .get::<_, String>(0))
+                    .unwrap(),
+                "uninterpreted"
+            );
+        } else {
+            assert!(backups(root.path()).is_empty());
+        }
+    }
+}
+
+#[test]
+fn opaque16_at_object_budget_refuses_additive17_overflow_atomically() {
+    use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
+    let (root, path, db) = empty_current_fixture();
+    remove_empty_integration17(&db).unwrap();
+    let count: u32 = db
+        .query_row("SELECT count(*) FROM sqlite_schema", [], |r| r.get(0))
+        .unwrap();
+    assert!(count < 256);
+    for number in count..256 {
+        // Numeric generated identifiers, not user-controlled SQL fragments.
+        db.execute_batch(&format!("CREATE TABLE opaque_budget_{number}(raw BLOB);"))
+            .unwrap();
+    }
+    db.execute_batch("PRAGMA wal_autocheckpoint=0; PRAGMA wal_checkpoint(TRUNCATE); UPDATE tasks SET document=document || ' ';").unwrap();
+    let before = image(&db);
+    let raw = fs::read(&path).unwrap();
+    let wal = path.with_file_name("state.sqlite3-wal");
+    let wal_raw = fs::read(&wal).unwrap();
+    let error = Store::open(&path)
+        .err()
+        .expect("new17 objects exceed unchanged budget");
+    assert_eq!(error.code, "INPUT_CHANGED");
+    assert!(before == image(&db));
+    assert_eq!(fs::read(&path).unwrap(), raw);
+    assert_eq!(fs::read(&wal).unwrap(), wal_raw);
+    preserved_backup(&before, root.path());
 }

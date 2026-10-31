@@ -12,7 +12,7 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
         let tx = db
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        if schema_objects(&tx, 59)? != schema_objects(&reference, 59)? {
+        if !compatible_schema(&tx, &reference, 59)? {
             return Err(CoreError::new(
                 "INPUT_CHANGED",
                 "Integration current schema17 is incomplete or changed",
@@ -46,7 +46,7 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
     // Compare all original table/constraint/index/view/trigger definitions
     // before writing any new DDL; a failure leaves the source transaction inert.
     let reference = crate::storage::integration_schema16_reference()?;
-    if schema_objects(&tx, 55)? != schema_objects(&reference, 55)? {
+    if !compatible_schema(&tx, &reference, 55)? {
         return Err(CoreError::new(
             "INPUT_CHANGED",
             "Integration migration refuses a changed or incomplete schema16 predecessor",
@@ -65,6 +65,9 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
     }
     validate_predecessor_tasks(&tx)?;
     tx.execute_batch(DDL).map_err(db_error)?;
+    // Extras consume the same fixed schema budget as known objects. Refuse
+    // atomically if adding17 would exceed it and make the result unreopenable.
+    schema_objects(&tx)?;
     tx.execute_batch("PRAGMA user_version=17;")
         .map_err(db_error)?;
     tx.commit().map_err(db_error)
@@ -97,7 +100,7 @@ impl crate::storage::Store {
 
 type SchemaObject = (String, String, String, Option<String>);
 
-fn schema_objects(db: &Connection, expected_tables: usize) -> Result<Vec<SchemaObject>> {
+fn schema_objects(db: &Connection) -> Result<Vec<SchemaObject>> {
     let (count, bytes):(i64,i64)=db.query_row("SELECT count(*),COALESCE(sum(octet_length(type)+octet_length(name)+octet_length(tbl_name)+COALESCE(octet_length(sql),0)),0) FROM sqlite_schema",[],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
     if !(1..=256).contains(&count) || !(1..=1048576).contains(&bytes) {
         return Err(CoreError::new(
@@ -120,17 +123,95 @@ fn schema_objects(db: &Connection, expected_tables: usize) -> Result<Vec<SchemaO
         .map_err(db_error)?
         .collect::<std::result::Result<Vec<_>, _>>()
         .map_err(db_error)?;
-    if rows.iter().filter(|r| r.0 == "table").count() != expected_tables {
-        return Err(CoreError::new(
-            "INPUT_CHANGED",
-            "Integration schema must contain its complete exact table set including sqlite_sequence",
-        ));
-    }
     Ok(rows
         .into_iter()
         .map(|(kind, name, table, sql)| (kind, name, table, sql.map(|s| normalize_ddl(&s))))
         .collect())
 }
+// The reference defines the entire authority-bearing schema, not the entire
+// historical user database. Unrecognized objects never acquire domain meaning.
+fn compatible_schema(
+    db: &Connection,
+    reference: &Connection,
+    expected_tables: usize,
+) -> Result<bool> {
+    let known = schema_objects(reference)?;
+    if known.iter().filter(|row| row.0 == "table").count() != expected_tables {
+        return Err(CoreError::new(
+            "INPUT_CHANGED",
+            "Integration trusted reference has an incomplete table set",
+        ));
+    }
+    let actual = schema_objects(db)?;
+    // Includes every original constraint, implicit/explicit index and any
+    // reference trigger/view. Extra objects cannot replace a missing definition.
+    if !known.iter().all(|row| actual.contains(row)) {
+        return Ok(false);
+    }
+    let extras: Vec<_> = actual.iter().filter(|row| !known.contains(row)).collect();
+    let opaque_tables: Vec<_> = extras
+        .iter()
+        .filter(|row| row.0 == "table")
+        .map(|row| row.1.as_str())
+        .collect();
+    for row in &extras {
+        let (kind, name, table, sql) = row;
+        // SQLite identifiers compare ASCII case-insensitively. Also reserve
+        // future Integration names so an opaque object cannot predeclare them.
+        if name.to_ascii_lowercase().starts_with("integration")
+            || known.iter().any(|known| known.1.eq_ignore_ascii_case(name))
+        {
+            return Ok(false);
+        }
+        match kind.as_str() {
+            "table" => {
+                if name != table
+                    || name.to_ascii_lowercase().starts_with("sqlite_")
+                    || sql.is_none()
+                {
+                    return Ok(false);
+                }
+                // Metadata is inspected without selecting/evaluating opaque
+                // rows or interpolating their identifiers as executable SQL.
+                let ordinary: bool = db.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM pragma_table_list WHERE schema='main' AND name=?1 AND type='table')",
+                    [name], |r| r.get(0),
+                ).map_err(db_error)?;
+                let dependencies: bool = db.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM pragma_foreign_key_list(?1,'main')) OR EXISTS(SELECT 1 FROM pragma_table_xinfo(?1,'main') WHERE hidden<>0)",
+                    [name], |r| r.get(0),
+                ).map_err(db_error)?;
+                // No FK, even opaque-to-opaque: deliberately conservative,
+                // bounded preservation, not a second schema migration system.
+                if !ordinary || dependencies {
+                    return Ok(false);
+                }
+            }
+            "index" => {
+                if !opaque_tables.contains(&table.as_str()) {
+                    return Ok(false);
+                }
+                let safe: bool = db.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM pragma_index_list(?1,'main') WHERE name=?2 AND partial=0 AND ((origin='c' AND ?3) OR (origin IN ('u','pk') AND NOT ?3))) AND NOT EXISTS(SELECT 1 FROM pragma_index_xinfo(?2,'main') WHERE key=1 AND cid<0)",
+                    rusqlite::params![table, name, sql.is_some()], |r| r.get(0),
+                ).map_err(db_error)?;
+                // Only ordinary column indexes owned by opaque tables; no
+                // expression/partial indexes or indexes attached to authority.
+                if !safe
+                    || (name.to_ascii_lowercase().starts_with("sqlite_")
+                        && !name.to_ascii_lowercase().starts_with("sqlite_autoindex_"))
+                {
+                    return Ok(false);
+                }
+            }
+            // Unknown triggers/views/virtual or shadow objects could execute or
+            // expose authority-domain behavior and are never opaque data.
+            _ => return Ok(false),
+        }
+    }
+    Ok(true)
+}
+
 fn normalize_ddl(sql: &str) -> String {
     // Ignore formatting only outside quoted SQL content. Literal values and
     // named constraints/index predicates remain byte-exact.
