@@ -1,3 +1,9 @@
+## Notification composition898 verified locally; CI interpreter preparation pending — 2026-10-31T06:41:12.403981+00:00
+
+ExactRoot e874 merged with Feature784, four source/test conflicts independently reviewed. Infrastructure600, full UI1088/typecheck and fresh same898 Core/frontend builds pass; the entire original flagged CI wrapper passes integration9 and notifications6 with16 original PNGs, one Task notice/12 natural events/10 inspected sources and confirmed cleanup. [Evidence](task-notifications/COMPOSED_ROOT_E874_RESULTS.json), SHA256 305a2be71a664987c2f4bee6e04dce34b1c9b3b9304c6c565c711fbc8d8e2651. The first sparse checkout test failure is retained; materialization changed no source/index or existing dependency link.
+
+New Feature CI awaits the shared private Python preparation correction after Root e874 retained actual python_mode_allowed=false before any integration business case. Do not weaken that guard or transfer Linux/old results to new Mac acceptance. All existing130 requirement states and permissions remain; full product work continues.
+
 ## Root17 product and diagnostics verified locally; exact Mac CI pending — 2026-10-31T06:21:02.745312+00:00
 
 Source0fbc passes Core235, workspaces194+7docs and integrationIPC20. Source7e passes strict Core/workspaces all-targets Clippy after retained two test type-complexity failures. Fresh7e Core/frontend/private empty probe and corrected0af harness pass actual Linux normal4/cancel4/lost-start5, all cleanup confirmed. The original7e ACK missing-hashlib failure and incomplete cleanup remain retained; source-only checks had masked that dependency. Full composed82c infrastructure586 and format pass. [Exact evidence](authorized-integration/PLATFORM_CLOSURE_RESULTS.json), SHA256 d76e816d670f9d213d88830275d24f5d640f1c55e008c5d52b98da94f20b055b.
