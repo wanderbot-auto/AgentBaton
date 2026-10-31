@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-## Directory handoff local regressions verified — 2026-10-31T08:26:17.624062+00:00
-
-AB-SES-009 is implemented through an Owner-only Core directory context, fixed Native Terminal argv and the actual Task workspace UI. Actual current local246 Core,126 Linux Native library,1116 UI/62files and594 infrastructure tests pass at the source commits recorded in [ROOT_LOCAL_RESULTS.json](workspace-open-directory/ROOT_LOCAL_RESULTS.json). The new11 Core and9 focused Native cases are subsets. Strict workspace/all-target and Native Clippy, type/build and formatter checks pass. The readonly fixture fix rechecks all6 mounted paths without changing assertions; previous5/1 mounted failure, TS2540 and formatter failure remain retained.
-
-The original7 actual Core UnixIPC cases retain their source attribution. Mocked UI transport, actual Core IPC and Linux Native tests do not prove the complete Native/macOS handoff. Actual Terminal target-directory observation, dual-Mac desktop checks, feature CI/development packages and manual acceptance remain not run. Only explicit directory handoff is implemented; no Agent/session/approval transfer. Full130 remains incomplete and all authority limits persist.
-=======
 ## Root21 same-refresh planning reuse verified — 2026-10-31
 
 Ordinary merge889 plus the one-field schema17 test mock fix3ec preserves the reviewed production optimization and all strict17, Owner, raw/shape/epoch, deadline and shared-budget rules. FullUI1146/64 and infrastructure678 pass at889. Its original TS2322 test-mock failure remains;3ec type/build and19 focused cases pass. Fresh matching3ec normal Core17/CLI and React pass actual child-Goal normal/cancel/lost-start4/4/5 checks with cleanup and three finite projections. Direct integration frontend normal/failing-command passes5/4 checks and12 original PNGs; daemon exit0/joined/no forced kill, browser/HTTP cleanup and fixture removal observed. This direct driver is not a whole CI wrapper result. [Source-bound evidence](root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json).
@@ -28,7 +21,12 @@ Actual composed UI/type/build/full infrastructure, matched Core17/browser and ex
 Ordinary merge of fd24203 and PR19 b55c44a preserves strict17, all integration storage/accounting and real worker stop/join paths while inheriting Main Owner FIFO and its single private GoalAdvanceReply diagnostic. The unpublished passing compound candidate is explicitly superseded; its245 Core result stays historical. Seven applicable typed-property controls and three Store controls replace representation-specific tests with the mapping retained. No budget, permission, unknown-result policy or baseline safety assertion is weakened.
 
 Independent source reviews cover the fixed five typed Rust files, four history/stop/wire files and thirteen document resolutions, five Python merges and four source-test locator adaptations. Complete inverse proofs preserve both source histories. Scoped pure87 passes with zero actual calls; earlier78/4/4 and83/4 outcomes remain. These source/pure checks do not validate the new merged runtime. [Evidence and exact pending checks](root21-main-alignment/EVIDENCE.json). Owner001/002 ACK; full130 and all authority limits remain.
->>>>>>> 8b9880314a4db6366b22430580806b36ec4d304b
+
+## Directory handoff local regressions verified — 2026-10-31T08:26:17.624062+00:00
+
+AB-SES-009 is implemented through an Owner-only Core directory context, fixed Native Terminal argv and the actual Task workspace UI. Actual current local246 Core,126 Linux Native library,1116 UI/62files and594 infrastructure tests pass at the source commits recorded in [ROOT_LOCAL_RESULTS.json](workspace-open-directory/ROOT_LOCAL_RESULTS.json). The new11 Core and9 focused Native cases are subsets. Strict workspace/all-target and Native Clippy, type/build and formatter checks pass. The readonly fixture fix rechecks all6 mounted paths without changing assertions; previous5/1 mounted failure, TS2540 and formatter failure remain retained.
+
+The original7 actual Core UnixIPC cases retain their source attribution. Mocked UI transport, actual Core IPC and Linux Native tests do not prove the complete Native/macOS handoff. Actual Terminal target-directory observation, dual-Mac desktop checks, feature CI/development packages and manual acceptance remain not run. Only explicit directory handoff is implemented; no Agent/session/approval transfer. Full130 remains incomplete and all authority limits persist.
 
 ## Root17 product and diagnostics verified locally; exact Mac CI pending — 2026-10-31T06:21:02.745312+00:00
 
