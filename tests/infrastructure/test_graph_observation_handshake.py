@@ -36,7 +36,7 @@ def shared():
     tree=ast.parse(DRIVER.read_text())
     node=next(n for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='GRAPH_OBSERVATION_ACK_CODE'for t in n.targets))
     code=ast.literal_eval(node.value)
-    ns={'os':os,'re':re,'Path':Path,'time':types.SimpleNamespace(monotonic_ns=lambda:1_000_000_000),'json':json,'hashlib':hashlib}
+    ns={'os':os,'re':re,'Path':Path,'time':types.SimpleNamespace(monotonic_ns=lambda:1_000_000_000),'json':json}
     exec(compile(code,'<fixed-generated-ACK-helper>','exec'),ns)
     return ns,code
 

@@ -1,6 +1,6 @@
 {
   "original_harness_sha256": "b7cac9f5eda5d8933de6b739da65d2246063fea3ce29272cf33963ca0dc0239a",
-  "addition_sha256": "70447862ef02c61c99f206b81c82fb118388c91b6ae0414f45141e1e324935f0",
+  "addition_sha256": "a4b8f476cd72c6ff465cab3bd3bdc617e2d43aaa42d9fefdefafe74384f19705",
   "replacements": [
     [
       "    recovery_line=\"            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled(timeout=15000);recover.click()\\n\"\n    assert source.count(recovery_line)==1\n    for name,replacement in {\n        'implicit-default5s':recovery_line.replace('(timeout=15000)','()'),\n        'expanded16s':recovery_line.replace('timeout=15000','timeout=16000'),\n        'zero-observation':recovery_line.replace('timeout=15000','timeout=0'),\n        'inexact-recovery-locator':recovery_line.replace('exact=True','exact=False'),\n        'click-before-enabled':recovery_line.replace('expect(recover).to_be_enabled(timeout=15000);recover.click()','recover.click();expect(recover).to_be_enabled(timeout=15000)'),\n    }.items():\n        mutated=source.replace(recovery_line,replacement);assert mutated!=source\n        try:lost_start_observation_self_check(mutated)\n        except AssertionError:pass\n        else:raise AssertionError(name)\n        checks.append('pure-lost-start-observation-refuses:'+name)\n\n",

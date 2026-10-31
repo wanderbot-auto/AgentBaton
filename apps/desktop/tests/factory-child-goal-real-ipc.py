@@ -675,7 +675,7 @@ def fixture_window_source_self_check(source=None):
 
 
 GRAPH_OBSERVATION_ACK_CODE = r'''
-import selectors,stat
+import hashlib,selectors,stat
 
 def graph_ack_identity(value):
  fields={'pid','ppid','start_ticks','uid','pgid'}
