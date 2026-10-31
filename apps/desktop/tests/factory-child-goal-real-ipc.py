@@ -791,6 +791,138 @@ def database_snapshot(runtime):
     return {'schema':17,'factory_counts':counts,'tables':result,'sequence':sequence,'active_workspace_leases':active_leases,'active_dispatch_intents':active_intents}
 
 
+GRAPH_IDENTITY_FIELDS = ('pid', 'ppid', 'start_ticks', 'uid', 'pgid')
+GRAPH_LIVE_STATES = frozenset(('R', 'S', 'D', 'T', 't', 'I', 'P', 'W'))
+GRAPH_TERMINAL_STATES = frozenset(('Z', 'X', 'x'))
+
+
+def graph_identity_sample(pid):
+    """Bounded readonly metadata only; absent and unobserved stay distinct."""
+    try:
+        value = support.proc_identity(pid)
+        return {'observation': 'observed', 'pid': value['pid'], 'ppid': value['parent_pid'],
+            'start_ticks': value['start_ticks'], 'uid': Path('/proc', str(pid)).stat().st_uid,
+            'pgid': os.getpgid(pid), 'state': value['state']}
+    except (FileNotFoundError, ProcessLookupError):
+        return {'observation': 'absent'}
+    except (OSError, ValueError, TypeError, KeyError, AssertionError):
+        return {'observation': 'unobserved'}
+
+
+def graph_valid_identity(value):
+    return (type(value) is dict and set(value) == set(GRAPH_IDENTITY_FIELDS)
+        and all(type(value[k]) is int for k in ('pid', 'ppid', 'uid', 'pgid'))
+        and value['pid'] > 1 and value['ppid'] > 0 and value['uid'] >= 0 and value['pgid'] == value['pid']
+        and type(value['start_ticks']) is str and re.fullmatch('[0-9]{1,32}', value['start_ticks']) is not None)
+
+
+def graph_sample_identity(value):
+    if not (type(value) is dict and set(value) == {'observation', 'state'} | set(GRAPH_IDENTITY_FIELDS)
+            and value['observation'] == 'observed' and type(value['state']) is str
+            and value['state'] in GRAPH_LIVE_STATES | GRAPH_TERMINAL_STATES):
+        return None
+    identity = {key: value[key] for key in GRAPH_IDENTITY_FIELDS}
+    return identity if graph_valid_identity(identity) else None
+
+
+def graph_argv_observation(raw, expected):
+    """Finite grammar observation; no raw arguments/messages leave this helper."""
+    if type(raw) is not bytes:
+        return {'kind': 'unobserved', 'bytes': None}
+    size = len(raw)
+    if size > 8192: return {'kind': 'oversize', 'bytes': 8193}
+    if size == 0: return {'kind': 'empty', 'bytes': 0}
+    if not raw.endswith(b'\0'): return {'kind': 'missing_nul', 'bytes': size}
+    try: argv = [value.decode('utf-8') for value in raw[:-1].split(b'\0')]
+    except UnicodeDecodeError: return {'kind': 'invalid_utf8', 'bytes': size}
+    valid = (type(expected) is list and len(expected) == 3
+        and all(type(value) is str and value for value in expected) and argv[-3:] == expected)
+    return {'kind': 'valid' if valid else 'mismatch', 'bytes': size}
+
+
+def graph_binding_decision(expected, known, before, argv, after, uid):
+    """Retain an initial binding only; no branch proves business stop or join."""
+    refused = {'kind': 'not_verified', 'binding': None, 'stop_proved': False}
+    if not (type(expected) is dict and set(expected) == {'pid', 'pgid', 'start_ticks'}
+            and type(uid) is int and uid >= 0): return refused
+    sample_before, sample_after = graph_sample_identity(before), graph_sample_identity(after)
+    def matches(value):
+        return (value is not None and value['uid'] == uid
+            and all(type(value[k]) is type(expected[k]) and value[k] == expected[k] for k in expected))
+    if not (type(argv) is dict and set(argv) == {'kind', 'bytes'}): return refused
+    kind, size = argv['kind'], argv['bytes']
+    if kind in ('not_read', 'unobserved'):
+        if size is not None: return refused
+    elif not (kind in ('valid', 'empty', 'oversize', 'missing_nul', 'invalid_utf8', 'mismatch')
+            and type(size) is int and 0 <= size <= 8193): return refused
+    if kind == 'valid' and not 0 < size <= 8192: return refused
+    if kind == 'empty' and size != 0: return refused
+    if kind in ('oversize', 'missing_nul', 'invalid_utf8', 'mismatch'): return refused
+    if known is None:
+        if (matches(sample_before) and sample_before == sample_after and kind == 'valid'
+                and before['state'] in GRAPH_LIVE_STATES and after['state'] in GRAPH_LIVE_STATES):
+            return {'kind': 'initial_live', 'binding': copy.deepcopy(sample_before), 'stop_proved': False}
+        return refused
+    if not (graph_valid_identity(known) and matches(known)): return refused
+    before_absent = type(before) is dict and before == {'observation': 'absent'}
+    after_absent = type(after) is dict and after == {'observation': 'absent'}
+    if sample_before is None and not before_absent: return refused
+    if sample_after is None and not after_absent: return refused
+    if after_absent:
+        result = 'repeat_absent'
+    elif sample_after['pid'] == known['pid'] and sample_after['start_ticks'] != known['start_ticks']:
+        result = 'repeat_replaced'
+    elif sample_before == sample_after == known:
+        if after['state'] in GRAPH_TERMINAL_STATES:
+            if kind not in ('valid', 'empty', 'not_read'): return refused
+            result = 'repeat_terminal'
+        elif before['state'] in GRAPH_LIVE_STATES and kind == 'valid':
+            result = 'repeat_live'
+        else: return refused
+    else: return refused
+    return {'kind': result, 'binding': None, 'stop_proved': False}
+
+
+def observe_graph_identity(expected, expected_argv, known):
+    """Two metadata samples surround a bounded read of only a bound live PID."""
+    before = graph_identity_sample(expected['pid'])
+    identity = graph_sample_identity(before)
+    argv = {'kind': 'not_read', 'bytes': None}
+    if (identity is not None and before['state'] in GRAPH_LIVE_STATES and identity['uid'] == os.geteuid()
+            and all(identity[k] == expected[k] for k in expected) and (known is None or identity == known)):
+        try:
+            with Path('/proc', str(expected['pid']), 'cmdline').open('rb') as stream:
+                raw = stream.read(8193)
+        except OSError: raw = None
+        argv = graph_argv_observation(raw, expected_argv)
+    after = graph_identity_sample(expected['pid'])
+    result = graph_binding_decision(expected, known, before, argv, after, os.geteuid())
+    return result, {'kind': result['kind'], 'before': before, 'argv': argv, 'after': after,
+        'initial_binding_verified': known is not None, 'stop_proved': False}
+
+
+def bind_graph_observation(fixed, expected_argv, old, context, output):
+    """First observation must prove live identity; repeat never creates one."""
+    history = context.setdefault('_graph_provider_identities', {})
+    known = history.get(fixed['path'])
+    require((old is None) == (known is None), 'Graph initial binding coverage not verified')
+    result, observation = observe_graph_identity(fixed['owned_provider'], expected_argv, known)
+    seen = context.setdefault('_graph_provider_observation_kinds', set())
+    key = (fixed['path'], result['kind'])
+    if key not in seen:
+        require(len(seen) < 12, 'Bounded Graph observation kinds exceeded')
+        base.write_private_json(output / ('observed-graph-' + str(fixed['owned_provider']['pid']) + '-' + result['kind'] + '.json'), observation)
+        seen.add(key)
+    require(result['kind'] != 'not_verified', 'Graph process observation not verified')
+    if old is None:
+        require(result['kind'] == 'initial_live' and graph_valid_identity(result['binding']) and len(history) < 2)
+        base.write_private_json(output / ('verified-graph-identity-' + str(fixed['owned_provider']['pid']) + '.json'), result['binding'])
+        history[fixed['path']] = result['binding']
+    else:
+        require(result['kind'] in ('repeat_live', 'repeat_absent', 'repeat_replaced', 'repeat_terminal')
+            and result['binding'] is None)
+
+
 def collect_graph_records(runtime,workspace,scope,context,verified,output):
     """Bind saved generated identities to actual Core text/session/node/attempt."""
     directory=Path(workspace['root'])/'reports'
@@ -824,12 +956,7 @@ def collect_graph_records(runtime,workspace,scope,context,verified,output):
             fixed={'path':str(path),'sha256':base.sha(raw),'file_pin':pin,'owned_provider':identity,
                 'session_id':session['id'],'attempt_id':session['attempt_id'],'run_id':request['run_id'],'request':request}
             old=next((v for v in verified if v['path']==fixed['path']),None);assert old is None or old==fixed
-            try:current=support.proc_identity(identity['pid'])
-            except FileNotFoundError:current=None
-            if current is not None and current['start_ticks']==identity['start_ticks']:
-                argv=Path('/proc',str(identity['pid']),'cmdline').read_bytes();assert 0<len(argv)<=8192 and argv.endswith(b'\0')
-                assert [v.decode()for v in argv[:-1].split(b'\0')][-3:]==row['provider_argv']
-                assert os.getpgid(identity['pid'])==identity['pgid']
+            bind_graph_observation(fixed,row['provider_argv'],old,context,output)
             if old is None:
                 base.write_private_json(output/('verified-graph-'+str(identity['pid'])+'.json'),fixed);verified.append(fixed)
         db.rollback()
