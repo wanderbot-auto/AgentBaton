@@ -99,5 +99,7 @@
     "exit": 1,
     "Python_source_changed": false,
     "resolution": "Root/independent reviewer must adapt old whole-source inverse to this reviewed outer layer without removing negative controls; outside author allowed paths"
-  }
+  },
+  "root_verification_record": "ROOT_RESULTS.json",
+  "current_state": "reviewed integrated optimization; source-bound local browser/UI and integrated IPC/infrastructure pass; new CI/Mac pending; historical author not_run entries retained"
 }

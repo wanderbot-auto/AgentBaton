@@ -1,3 +1,9 @@
+## PR19 exact-plan read reuse and private Task IPC fixture verified locally — 2026-10-31
+
+Integrated1cd preserves all Owner, raw/shape/epoch and deadline/budget guards. Reviewed5b source passes1093 UI cases and actual normal/cancel/lost-start Linux browser/Unix IPC with cleanup and finite evidence. Integrated1cd passes4 Task binding IPC cases and360 infrastructure checks; canonical/tmp0700 fixture fixes the separate ARM path setup defect without weakening the production symlink refusal. Source-bound records do not transfer old tests to new heads. [Evidence](child-goal-plan-read-reuse/ROOT_RESULTS.json).
+
+Originalc675 Environment3 passed, Product failed UI normal assertion, Intel rework4000ms reservation overrun and ARM later Task IPC setup separately. The exact enable instant remains unknown; Intel refusal remains unresolved. New exact CI, nativeMac/current installers/full130 remain open; main7ecf and OWNER001/002 ACK/no003; no formalApprove or authority expansion.
+
 ## Actual Owner diagnostics verified locally; old CI remains failed — 2026-10-31T09:23:34.848058+00:00
 
 The schema16 Task workspace fixture uses the reviewed canonical short private runtime; its focused Linux test passes without changing production symlink refusal. Opt-in v4 adds only readonly renderer-local metadata. Type/build,1074 UI tests/60files (new5 included),356 infrastructure and matched built Core16/frontend actual normal4, cancel4 and lost-start5 checks pass with cleanup. All three finite projections pass. [Exact commands/sources and retained failures](child-goal-owner-ui-v4/ROOT_RESULTS.json), SHA256 c50c9c68fda4700908556f54dcdfe1769c45384fc8b6fdde516b9704ed5bf037. Core/frontend sourceea62 and test-only harness checkout4f are distinguished.
