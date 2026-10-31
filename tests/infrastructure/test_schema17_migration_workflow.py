@@ -141,8 +141,43 @@ def strip_approved_task_workspace_launch_diagnostics(text):
     return text[:start] + original.decode('utf-8') + text[end:]
 
 
+TASK_NOTIFICATION_DRIVER_SHA256 = 'df3ddde5681355b95ae69e79bdaae674a6531f68c438102007dde0ca82d5727d'
+TASK_NOTIFICATION_STEP_SHA256 = 'c169dafdc25322aeb3f648081f79795f6ae7f89245c15559679e181aec1d4a8d'
+TASK_NOTIFICATION_FLAG = "                          '--notification-probe',\n"
+
+
+def strip_task_notification_ci_layer(text):
+    """Reverse only the complete reviewed notification step and one argv flag."""
+    headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
+    title = '      - name: Retain finite task notification evidence without private runtime data\n'
+    if [i for i, header in enumerate(headers) if header.group(0) == title] != [29] or len(headers) <= 30:
+        raise ValueError('Notification CI step count/position changed')
+    if (headers[27].group(0) != '      - name: Actual integration frontend with real Core IPC and generated correctness\n'
+            or headers[28].group(0) != '      - name: Retain finite integration browser evidence without private runtime data\n'
+            or headers[30].group(0) != '      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02\n'):
+        raise ValueError('Notification CI original neighbors changed')
+    driver = text[headers[27].start():headers[28].start()]
+    addition = text[headers[29].start():headers[30].start()]
+    if (hashlib.sha256(driver.encode()).hexdigest() != TASK_NOTIFICATION_DRIVER_SHA256
+            or hashlib.sha256(addition.encode()).hexdigest() != TASK_NOTIFICATION_STEP_SHA256
+            or text.count(TASK_NOTIFICATION_FLAG) != 1 or driver.count(TASK_NOTIFICATION_FLAG) != 1):
+        raise ValueError('Notification CI exact reviewed raw bytes changed')
+    original = driver.replace(TASK_NOTIFICATION_FLAG, '', 1)
+    if hashlib.sha256(original.encode()).hexdigest() != BROWSER_CI_STEPS[0][2]:
+        raise ValueError('Notification flag inverse did not restore the original driver')
+    jobs = list(re.finditer(r'^  [A-Za-z_][A-Za-z0-9_-]*:\n', text, re.MULTILINE))
+    preceding = [header for header in jobs if header.start() < headers[27].start()]
+    if (not preceding or preceding[-1].group(0) != '  frontend:\n'
+            or any(headers[27].start() <= header.start() < headers[30].start() for header in jobs)):
+        raise ValueError('Notification CI must remain in the original frontend job')
+    # Every other byte still passes through all older raw-whole-workflow pins.
+    text = text[:headers[29].start()] + text[headers[30].start():]
+    return text[:headers[27].start()] + original + text[headers[28].start():]
+
+
 def strip_integration_browser_ci_layer(text):
     """Restore the reviewed diagnostic layer, then exact UI blocks/schema."""
+    text = strip_task_notification_ci_layer(text)
     text = strip_approved_ui_preview_profile(text)
     text = strip_approved_task_workspace_launch_diagnostics(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
