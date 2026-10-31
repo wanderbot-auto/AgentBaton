@@ -588,5 +588,46 @@
     "Keep Parent UI normal/cancel failures and Root7ee four failure classes distinct; preserve all original failed fixtures, logs and unknown outcomes.",
     "Continue all130 authorized requirements with current platform/build/package/remote gaps explicit; no requirement status is changed here."
   ],
-  "public_boundary": "Only finite selected results and raw artifact hashes are published. Private INPUTS paths, runtime roots, tokens, raw replies, fixture logs, DBs and tracebacks are not copied."
+  "public_boundary": "Only finite selected results and raw artifact hashes are published. Private INPUTS paths, runtime roots, tokens, raw replies, fixture logs, DBs and tracebacks are not copied.",
+  "canonical_fixture_followup": {
+    "recorded_at": "2026-10-31T04:31:23.537304+00:00",
+    "notification_source": "784afd593f81ac62e638f16dbcf065de4b6fcde9",
+    "retained_environment_run": 41168423931,
+    "environment_observation": "Ubuntu passed (Root current observation); both Mac jobs failed with 15 errors each in the positive setup projection fixture. These failed runs are retained, not rerun or relabelled.",
+    "raw_Mac_logs": {
+      "arm-env.log": {
+        "sha256": "dd6de08e67332733c0e14dead40592a5907d9a4259adc6682b5d6d7a29247dbb",
+        "bytes": 179633,
+        "suite_tests": 522,
+        "errors": 15
+      },
+      "intel-env.log": {
+        "sha256": "541141f3fe5b670ed32d0fca33b7a511c4b457f62f1b196f989a2594c5a3f40d",
+        "bytes": 179778,
+        "suite_tests": 522,
+        "errors": 15
+      }
+    },
+    "fixture_cause": "The positive fixture passed an unresolved temporary-root alias to the strict canonical-parent publisher. The publisher correctly refused; the subsequent test output lookup raised FileNotFoundError for all15 stage subcases.",
+    "fix_scope": "Only test fixture roots resolve(strict=True); three invalid-evidence groups first prove observed and expected-stage baselines before mutation. A Linux-reproducible alias-output-parent negative proves canonical publication succeeds while alias publication raises ENOTDIR/ELOOP and main returns1 without writes or output.",
+    "projector_and_workflow_guards_changed": false,
+    "original_3bb_infrastructure522_result": "Preserved above as the actual prior Linux result; not claimed as a Mac pass or a rerun of this corrected fixture.",
+    "test_parent_commit": "23273ddb62a9a358b7578e2344e6c09b0f2a574f",
+    "changed_test_sha256": "b962181836ed27b23af5187c7cedefb94a0cb7df39fe08520e43a16d910445c4",
+    "local_validation": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.infrastructure.test_integration_setup_diagnostics",
+      "exit": 0,
+      "tests": 10,
+      "dimension": "pure synthetic/source only; Linux executor; Mac not run",
+      "command_log_sha256": "2cc1f80d3b0d23bab2b5bddca0cd2cb6676d2acc1438f553911566a4e6d1b1e1",
+      "RESULT_sha256": "a0b651a5b433c14dc5ff89600aa3a5f2611ea1d40eda67948b3af1e4ccbb29bc"
+    },
+    "not_run": [
+      "macOS execution of this correction",
+      "full infrastructure suite after this correction",
+      "new remote CI",
+      "Core/browser/SQL/Node/Cargo/network execution by this author"
+    ],
+    "next": "Independent source review, then Root cherry-pick and corresponding notification feature closure before exact new CI."
+  }
 }
