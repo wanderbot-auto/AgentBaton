@@ -256,3 +256,95 @@ fn darwin_mount_bits_match_the_locked_native_api_constants() {
         (libc::MNT_NOEXEC | libc::MNT_IGNORE_OWNERSHIP) as u32
     );
 }
+
+// This is an actual macOS descriptor/volume observation, not a policy model.
+// It never starts Git. Failure diagnostics expose only fixed roles and system
+// metadata scalars, never environment values, payloads or arbitrary error text.
+#[cfg(target_os = "macos")]
+#[test]
+fn actual_apple_git_system_volume_and_held_pin_pass_the_production_policy() {
+    fn required<T>(value: Result<T>, stage: &'static str) -> T {
+        value.unwrap_or_else(|_| panic!("apple-system-git stage={stage} failed"))
+    }
+    fn observe(role: &'static str, file: &File) -> (AppleFileIdentity, AppleSystemVolume) {
+        eprintln!("apple-system-git role={role} stage=observe");
+        let identity = required(apple_file_identity(file), "file-identity");
+        let volume = required(apple_volume(file), "held-volume");
+        let system_disk_source = volume
+            .source
+            .strip_prefix(b"/dev/disk")
+            .is_some_and(|tail| {
+                !tail.is_empty()
+                    && tail[0].is_ascii_digit()
+                    && tail.iter().all(|b| b.is_ascii_digit() || *b == b's')
+            });
+        eprintln!(
+            "apple-system-git role={} uid={} mode={} dev={} ino={} nlink={} file_flags={} mount_flags={} mount_flags_ext={} vfs_flags={} mount_owner={} fs_type={} fs_subtype={} readonly={} mount_readonly={} local={} rootfs={} snapshot={} apfs={} root_mount={} system_disk_source={} noexec={} ignore_ownership={} protected_root={}",
+            role, identity.uid, identity.mode, identity.device, identity.inode,
+            identity.links, identity.flags, volume.flags, volume.flags_ext,
+            volume.vfs_flags, volume.owner, volume.fs_type, volume.fs_subtype,
+            volume.readonly, volume.flags & 0x0000_0001 != 0,
+            volume.flags & 0x0000_1000 != 0, volume.flags & 0x0000_4000 != 0,
+            volume.flags & 0x4000_0000 != 0, volume.filesystem.as_slice() == b"apfs",
+            volume.mountpoint.as_slice() == b"/", system_disk_source, volume.flags & 0x0000_0004 != 0,
+            volume.flags & 0x0020_0000 != 0, volume.protected_root_snapshot(),
+        );
+        (identity, volume)
+    }
+    let control = IntegrationReadControl {
+        cancel: Arc::new(AtomicBool::new(false)),
+        deadline: Instant::now() + Duration::from_secs(5),
+    };
+    let path = Path::new(agentbaton_workspaces::MACOS_SYSTEM_GIT);
+    let canonical_exact = path
+        .canonicalize()
+        .is_ok_and(|canonical| canonical.as_os_str() == path.as_os_str());
+    eprintln!("apple-system-git canonical_exact={canonical_exact}");
+    assert!(canonical_exact, "apple-system-git stage=canonical failed");
+    required(control.check(), "deadline-before-open");
+    let parent = required(tree_root(Path::new("/usr/bin")), "leaf-parent-open");
+    let file: File = rustix::fs::openat(
+        &parent,
+        "git",
+        rustix::fs::OFlags::RDONLY
+            | rustix::fs::OFlags::NOFOLLOW
+            | rustix::fs::OFlags::NONBLOCK
+            | rustix::fs::OFlags::CLOEXEC,
+        rustix::fs::Mode::empty(),
+    )
+    .unwrap_or_else(|_| panic!("apple-system-git stage=leaf-open failed"))
+    .into();
+    let (identity, volume) = observe("git", &file);
+    let mut ancestors_allowed = true;
+    for (role, path) in [("root", "/"), ("usr", "/usr"), ("usr_bin", "/usr/bin")] {
+        required(control.check(), "deadline-before-ancestor");
+        eprintln!("apple-system-git role={role} stage=ancestor-open");
+        let ancestor = required(tree_root(Path::new(path)), "ancestor-open");
+        let (identity, observed_volume) = observe(role, &ancestor);
+        let allowed = apple_ancestor_allowed(Path::new(path), &identity, &observed_volume, &volume);
+        eprintln!("apple-system-git role={role} ancestor_allowed={allowed}");
+        ancestors_allowed &= allowed;
+    }
+    assert!(
+        apple_git_allowed(path, &identity, &volume),
+        "apple-system-git stage=leaf-policy failed"
+    );
+    assert!(
+        ancestors_allowed,
+        "apple-system-git stage=ancestor-policy failed"
+    );
+    let proof = required(AppleSystemGitProof::capture(&file), "proof-capture");
+    required(proof.recheck(path, &file), "proof-recheck");
+    let (program, pin) = required(system_git(&control), "system-git-pin");
+    assert!(
+        program.canonical_path.as_os_str() == path.as_os_str(),
+        "apple-system-git stage=program-path failed"
+    );
+    assert!(
+        required(apple_file_identity(&pin.file), "pin-file-identity") == identity
+            && required(apple_volume(&pin.file), "pin-volume") == volume,
+        "apple-system-git stage=pin-observation-match failed"
+    );
+    required(pin.recheck(), "held-pin-recheck");
+    required(control.check(), "deadline-after-recheck");
+}
