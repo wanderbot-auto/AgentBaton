@@ -538,6 +538,29 @@ def graph_attempt_budget_fact(origin, row, nodes, events, factory_mirror_count):
     return attempt, attempt_budget_metrics(value, reservation, 'graph_' + kind, bucket_revision(revision))
 
 
+def attempt_budget_grant_lineage(conn, origin, grant_id):
+    """Stored identity association only; no current authorization/expiry check."""
+    current, seen, expected_depth = attempt_budget_key(grant_id), set(), None
+    for _ in range(33):
+        need(current not in seen); seen.add(current)
+        rows = conn.execute('SELECT id,project_id,parent_id,document FROM execution_grants '
+            "WHERE id=? OR json_extract(document,'$.id')=? LIMIT 2", (current, current)).fetchall()
+        need(len(rows) == 1)
+        key, project, parent, raw = rows[0]
+        doc = strict_json(raw)
+        need(key == current and project == origin['project'] and doc['id'] == key
+             and doc['project_id'] == project and doc['parent_id'] == parent
+             and doc['root_grant_id'] == origin['root'])
+        depth = integer(doc['depth'], 32)
+        if expected_depth is not None: need(depth == expected_depth)
+        if parent is None:
+            need(key == origin['root'] and depth == 0)
+            return
+        need(key != origin['root'] and depth > 0)
+        current, expected_depth = attempt_budget_key(parent), depth - 1
+    raise Invalid()
+
+
 def factory_attempt_stop_confirmed(value):
     # This field alone is updated by SQL json_set with a Rust bool bound through
     # rusqlite as integer 0/1; other booleans and numeric metrics stay strict.
@@ -570,11 +593,12 @@ def factory_attempt_budget_fact(origin, row, attempts, sessions):
     need(all(actual[k] == v for k, v in (('session_id', session), ('attempt_id', attempt),
         ('scope_id', scope), ('run_id', origin['factory']), ('task_id', task), ('root_task_id', root_task))))
     need(factory_attempt_stop_confirmed(actual['stop_confirmed']) == boolean(value['settled']))
-    s_id, s_task, s_project, s_root, s_raw = sessions[0]
+    s_id, s_task, s_project, s_grant, s_root, s_raw = sessions[0]
     need((s_id, s_task, s_project, s_root) == (session, task, project, origin['root']))
     doc = strict_json(s_raw)
+    attempt_budget_key(s_grant)
     need(all(doc[k] == v for k, v in (('id', session), ('task_id', task), ('project_id', project),
-        ('root_grant_id', origin['root']), ('attempt_id', attempt))))
+        ('grant_id', s_grant), ('attempt_id', attempt))))
     return attempt, attempt_budget_metrics(value, reservation, 'factory_task', None)
 
 
@@ -592,7 +616,7 @@ def attempt_budget_observations(conn):
         'not_an_admission_stop_or_authority_verdict': True, 'records': []}
     try:
         for table in ('factory_child_goal_runs', 'goal_runs', 'goal_run_reservations', 'goal_run_nodes',
-                      'factory_budget_reservations', 'factory_attempts', 'sessions', 'events'):
+                      'factory_budget_reservations', 'factory_attempts', 'sessions', 'execution_grants', 'events'):
             schema = conn.execute('SELECT type,sql FROM sqlite_master WHERE name=?', (table,)).fetchone()
             need(schema is not None and schema[0] == 'table' and type(schema[1]) is str
                  and re.match(r'CREATE\s+TABLE\s', schema[1], re.I))
@@ -647,10 +671,12 @@ def attempt_budget_observations(conn):
             attempts = conn.execute('SELECT session_id,attempt_id,scope_id,run_id,task_id,root_task_id,reservation,document '
                 "FROM factory_attempts WHERE attempt_id=? OR json_extract(document,'$.attempt_id')=? OR session_id=? OR json_extract(document,'$.session_id')=? LIMIT 2",
                 (row[0], row[0], value['session_id'], value['session_id'])).fetchall()
-            sessions = conn.execute('SELECT id,task_id,project_id,root_grant_id,document FROM sessions '
+            sessions = conn.execute('SELECT id,task_id,project_id,grant_id,root_grant_id,document FROM sessions '
                 "WHERE id=? OR json_extract(document,'$.attempt_id')=? LIMIT 2",
                 (value['session_id'], row[0])).fetchall()
-            add(factory_attempt_budget_fact(origin, row, attempts, sessions))
+            fact = factory_attempt_budget_fact(origin, row, attempts, sessions)
+            attempt_budget_grant_lineage(conn, origin, sessions[0][3])
+            add(fact)
         out.update(status='collected_bound_record_facts',
             code='original_row_node_event_or_session_fields_match' if records else 'no_selected_attempt_sources', records=records)
         return out

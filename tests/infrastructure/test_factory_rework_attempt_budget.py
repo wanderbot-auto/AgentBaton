@@ -57,10 +57,26 @@ def factory_fixture(actual=2400, settled=True):
         captured_provider_message_bytes=None,provider_message_capture_complete=False)
     attempt_doc = dict(session_id=session,attempt_id=attempt,scope_id=origin['scope'],run_id=origin['factory'],
         task_id=origin['child'],root_task_id=origin['root_task'],stop_confirmed=int(settled))
-    session_doc = dict(id=session,task_id=origin['child'],project_id=origin['project'],root_grant_id=origin['root'],attempt_id=attempt)
+    session_doc = dict(id=session,task_id=origin['child'],project_id=origin['project'],
+        grant_id=SECRET+'-derived-grant',attempt_id=attempt,workspace_id=SECRET+'-workspace',
+        connection_id=SECRET+'-connection',state='stopped',revision=2,native_session_id=None,
+        created_at='2000-01-01T00:00:00Z',updated_at='2000-01-01T00:00:00Z',last_error=None,
+        turn_state=None,intent_id=SECRET+'-intent',fencing_token=1,runtime_snapshot=None)
     return (attempt,origin['scope'],origin['root_task'],origin['project'],encoded(value)), [
         (session,attempt,origin['scope'],origin['factory'],origin['child'],origin['root_task'],encoded(declared),encoded(attempt_doc))],[
-        (session,origin['child'],origin['project'],origin['root'],encoded(session_doc))]
+        (session,origin['child'],origin['project'],session_doc['grant_id'],origin['root'],encoded(session_doc))]
+
+
+def grant_fixture(key=None, parent=None, depth=0):
+    origin,_,_=origin_fixture();key=origin['root']if key is None else key
+    doc=dict(id=key,project_id=origin['project'],root_grant_id=origin['root'],parent_id=parent,
+        depth=depth,revision=1,approval_id=SECRET+'-approval',approved_at='2000-01-01T00:00:00Z',
+        expires_at_ms=1,revoked=False,scope=dict(workspace_ids=[SECRET+'-workspace'],
+            connection_ids=[SECRET+'-connection'],host_ids=[SECRET+'-host'],max_attempts=10,
+            max_concurrency=1,max_duration_ms=4000,recipients=[],network=dict(mode='deny'),max_depth=32,max_children=10),
+        connection_bindings={},workspace_bindings={},enforcement=dict(baton_mediated_scope=True,
+            os_filesystem_sandbox=False,os_network_sandbox=False,native_identity_isolation=False))
+    return (key,origin['project'],parent,encoded(doc))
 
 
 class PureRecordBinding(unittest.TestCase):
@@ -118,7 +134,7 @@ class PureRecordBinding(unittest.TestCase):
     def test_factory_foreign_root_project_session_attempt_or_mirrored_document_refuse(self):
         row,attempts,sessions=factory_fixture()
         for section,index in [('row',1),('row',2),('row',3),('attempt',0),('attempt',1),('attempt',2),
-            ('attempt',3),('attempt',4),('attempt',5),('session',0),('session',1),('session',2),('session',3)]:
+            ('attempt',3),('attempt',4),('attempt',5),('session',0),('session',1),('session',2),('session',3),('session',4)]:
             rr,aa,ss=copy.deepcopy((row,attempts,sessions))
             if section=='row':rr=list(rr);rr[index]='foreign'
             elif section=='attempt':aa[0]=list(aa[0]);aa[0][index]='foreign'
@@ -205,6 +221,7 @@ class ScriptedConnection:
         self.origin,self.origin_row,self.current=origin_fixture()
         self.graph,self.nodes,self.events=graph_fixture()
         self.factory,self.attempts,self.sessions=factory_fixture()
+        self.grants=[grant_fixture(self.sessions[0][3],self.origin['root'],1),grant_fixture()]
         self.commands=[];self.graph_rows=[self.graph];self.factory_rows=[self.factory]
         self.schema_bad=None;self.count_bad=None;self.mirror=0
     def execute(self,sql,params=()):
@@ -235,9 +252,11 @@ class ScriptedConnection:
             if ' OR 'not in sql:raise AssertionError('Factory attempt reverse coverage missing')
             return Cursor([r for r in self.attempts if r[1]==params[0]or json.loads(r[-1]).get('attempt_id')==params[1]
                 or r[0]==params[2]or json.loads(r[-1]).get('session_id')==params[3]][:2])
-        if sql.startswith('SELECT id,task_id,project_id,root_grant_id,document'):
+        if sql.startswith('SELECT id,task_id,project_id,grant_id,root_grant_id,document'):
             if ' OR 'not in sql:raise AssertionError('Session JSON attempt uniqueness check missing')
             return Cursor([r for r in self.sessions if r[0]==params[0]or json.loads(r[-1]).get('attempt_id')==params[1]][:2])
+        if sql.startswith('SELECT id,project_id,parent_id,document FROM execution_grants'):
+            return Cursor([r for r in self.grants if r[0]==params[0]or json.loads(r[-1]).get('id')==params[1]][:2])
         raise AssertionError('Unexpected or mutating cursor call')
 
 
@@ -353,6 +372,72 @@ class OptionalReaderControls(unittest.TestCase):
             with self.subTest(kind=kind):
                 self.assertEqual(value['status'],'pending');self.assertEqual(value['records'],[])
                 self.assertNotIn(SECRET,encoded(value))
+
+    def test_production_session_and_grant_shapes_bind_distinct_derived_grant_to_original_root(self):
+        conn=ScriptedConnection();session=json.loads(conn.sessions[0][-1])
+        self.assertEqual(set(session),set(('id','task_id','project_id','workspace_id','connection_id',
+            'grant_id','state','revision','native_session_id','created_at','updated_at','last_error',
+            'turn_state','attempt_id','intent_id','fencing_token','runtime_snapshot')))
+        self.assertNotIn('root_grant_id',session)
+        self.assertNotEqual(session['grant_id'],conn.origin['root'])
+        self.assertEqual(set(json.loads(conn.grants[0][-1])),set(('id','project_id','root_grant_id',
+            'parent_id','depth','revision','approval_id','approved_at','expires_at_ms','revoked',
+            'scope','connection_bindings','workspace_bindings','enforcement')))
+        # Stored expires_at_ms=1 is deliberate: association is not a current
+        # authorization or expiry decision.
+        for derived in (False,True):
+            conn=ScriptedConnection()
+            if derived:
+                parent=SECRET+'-middle-grant'
+                conn.grants=[grant_fixture(conn.sessions[0][3],parent,2),
+                    grant_fixture(parent,conn.origin['root'],1),grant_fixture()]
+            else:
+                row=list(conn.sessions[0]);row[3]=conn.origin['root']
+                doc=json.loads(row[-1]);doc['grant_id']=row[3];row[-1]=encoded(doc);conn.sessions=[row]
+            value=P.attempt_budget_observations(conn)
+            self.assertEqual(value['status'],'collected_bound_record_facts')
+            self.assertEqual(len(value['records']),2);self.assertNotIn(SECRET,encoded(value))
+
+    def test_session_grant_and_original_ancestry_mismatch_refuse_whole_optional(self):
+        variants=('json-grant','missing-json-grant','column-root','missing-grant','duplicate-grant',
+            'column-project','column-parent','doc-root','doc-id','doc-project','depth','cycle','nonroot-terminal')
+        for variant in variants:
+            conn=ScriptedConnection()
+            self.assertEqual(P.attempt_budget_observations(conn)['status'],'collected_bound_record_facts')
+            if variant in ('json-grant','missing-json-grant','column-root'):
+                row=list(conn.sessions[0]);doc=json.loads(row[-1])
+                if variant=='json-grant':doc['grant_id']='foreign-grant'
+                elif variant=='missing-json-grant':doc['root_grant_id']=doc.pop('grant_id')
+                else:row[4]='foreign-root'
+                row[-1]=encoded(doc);conn.sessions=[row]
+            elif variant=='missing-grant':conn.grants=conn.grants[1:]
+            elif variant=='duplicate-grant':conn.grants.append(conn.grants[0])
+            else:
+                row=list(conn.grants[0]);doc=json.loads(row[-1])
+                if variant=='column-project':row[1]='foreign-project'
+                elif variant=='column-parent':row[2]='foreign-parent'
+                elif variant=='doc-root':doc['root_grant_id']='foreign-root'
+                elif variant=='doc-id':doc['id']='foreign-grant'
+                elif variant=='doc-project':doc['project_id']='foreign-project'
+                elif variant=='depth':doc['depth']=True
+                elif variant=='cycle':row[2]=doc['parent_id']=row[0]
+                else:row[2]=doc['parent_id']=None;doc['depth']=0
+                row[-1]=encoded(doc);conn.grants[0]=row
+            value=P.attempt_budget_observations(conn)
+            with self.subTest(variant=variant):
+                self.assertEqual(value['status'],'pending');self.assertEqual(value['records'],[])
+                self.assertNotIn(SECRET,encoded(value))
+
+    def test_stored_grant_association_chain_is_bounded_to_33_original_rows(self):
+        conn=ScriptedConnection();first=conn.sessions[0][3]
+        ids=[conn.origin['root']]+[SECRET+'-link-'+str(i)for i in range(1,32)]+[first]
+        conn.grants=[grant_fixture(key,None if depth==0 else ids[depth-1],depth)for depth,key in enumerate(ids)]
+        value=P.attempt_budget_observations(conn)
+        self.assertEqual(value['status'],'collected_bound_record_facts');self.assertEqual(len(value['records']),2)
+        doc=json.loads(conn.grants[-1][-1]);doc['depth']=33
+        conn.grants[-1]=(*conn.grants[-1][:-1],encoded(doc))
+        value=P.attempt_budget_observations(conn)
+        self.assertEqual(value['status'],'pending');self.assertEqual(value['records'],[])
 
     def test_factory_stop_integer_encoding_whole_optional_positive_and_bad_values_refuse_all_rows(self):
         for settled,raw in ((True,1),(False,0),(True,True),(False,False)):
