@@ -44,6 +44,59 @@ def fields(text, name):
     return set(re.findall(r'^\s*(?:pub(?:\([^)]*\))?\s+)?(\w+)\s*:', text[start:end], re.M))
 
 
+# Exact, independently reviewed e601 debug-phase composition only. The old
+# envelope matcher and original ten Rust controls continue to examine their
+# complete original sources, rather than accepting a new counter or alias.
+BEFORE_PHASE_SETTLEMENT_SHA256 = 'ab01a4be3b635180bdb87f710cd56ea8a3b0e4f32f98ef35126e0a49d5329282'
+PHASE_SETTLEMENT_SHA256 = '327a441778af51c6648ce0744a72e3614634b868544620dc5c2cfa399ed5f154'
+BEFORE_PHASE_RUST_TEST_SHA256 = '74b273792c3e3cb35e934628ffc1af29baa4130df4ebe4d3c97dfc1f6d29c5f7'
+PHASE_RUST_TEST_SHA256 = '9aba1d7dfd199758772807200e05898397bdee8135afc266c905f3b7f6d9792a'
+PHASE_RUST_TEST_SUFFIX_SHA256 = '3e45d0f18f28a2e78634941b39713c80522f21a1365588e3e492d0fae5e6ad40'
+PHASE_TEST_MARKER = '\n#[cfg(debug_assertions)]\nmod preparation_phase_observation_tests {'
+PREPARATION_PAYLOAD = 'json!({"attempt_id":attempt.view.attempt_id,"io":io,"measurement_not_authority":true,"whole_filesystem_output":null})'
+PHASE_PAYLOAD_ALIAS = ("            let payload = " + PREPARATION_PAYLOAD + ";\n" +
+    """            #[cfg(debug_assertions)]
+            let payload = {
+                let mut payload = payload;
+                if joined.result.is_err() || !io.io_complete() || joined.output_bytes.is_none() {
+                    if let Some(trace) = &ticket.phase_observation {
+                        trace.extend_event(&mut payload);
+                    }
+                }
+                payload
+            };
+""")
+
+
+def exact_source_pin(text, expected):
+    if hashlib.sha256(text.encode()).hexdigest() != expected:
+        raise AssertionError('unreviewed debug-phase source composition')
+
+
+def settlement_before_phase(text):
+    exact_source_pin(text, PHASE_SETTLEMENT_SHA256)
+    text = remove_once(text, PHASE_PAYLOAD_ALIAS)
+    if text.count('                &payload,\n') != 1:
+        raise AssertionError('unique original preparation payload argument required')
+    text = text.replace('                &payload,\n', '                &' + PREPARATION_PAYLOAD + ',\n', 1)
+    exact_source_pin(text, BEFORE_PHASE_SETTLEMENT_SHA256)
+    return text
+
+
+def rust_controls_before_phase(text):
+    exact_source_pin(text, PHASE_RUST_TEST_SHA256)
+    if text.count(PHASE_TEST_MARKER) != 1:
+        raise AssertionError('unique reviewed phase-test suffix required')
+    start = text.index(PHASE_TEST_MARKER)
+    suffix = text[start:]
+    exact_source_pin(suffix, PHASE_RUST_TEST_SUFFIX_SHA256)
+    if suffix.count('#[test]') != 3:
+        raise AssertionError('exact three reviewed optional-phase controls required')
+    original = text[:start]
+    exact_source_pin(original, BEFORE_PHASE_RUST_TEST_SHA256)
+    return original
+
+
 class IntegrationStageEvidenceSourceTests(unittest.TestCase):
     def test_real_filesystem_ancestor_swapback_old_pins_pass_new_guard_refuses(self):
         # Synthetic regular-file opening witness only: no SQLite or product.
@@ -137,7 +190,7 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
         self.assertIn('e.sequence == 0', MODULE.read_text())  # original records::event stores zero inside document.
 
     def test_selected_payload_shapes_match_original_event_construction(self):
-        production = (ROOT / 'crates/core/src/integration_settlement.rs').read_text()
+        production = settlement_before_phase((ROOT / 'crates/core/src/integration_settlement.rs').read_text())
         for kind, raw in [('integration.stage_unknown', 'UnknownEvent'), ('integration.preparation_io_observed', 'PreparationEvent')]:
             tail = production.split('"' + kind + '"', 1)[1].split(')?;', 1)[0]
             self.assertEqual(fields(MODULE.read_text(), raw), set(re.findall(r'"([a-z_]+)"\s*:', tail)))
@@ -165,7 +218,7 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
         self.assertRegex(source, r'shape\(\s*&value')
 
     def test_rust_controls_cover_required_negative_dimensions(self):
-        source = RUST_TEST.read_text()
+        source = rust_controls_before_phase(RUST_TEST.read_text())
         for required in ['must not read', 'PRIVATE_CANARY_DO_NOT_PUBLISH', 'other-attempt', 'foreign', '33', '65', 'worker_thread_joined', 'git_stdout_observed_bytes', 'source_commit', 'unrecognized', 'server.finish()', 'result.is_ok()']:
             self.assertIn(required, source)
         self.assertEqual(source.count('#[test]'), 10)
