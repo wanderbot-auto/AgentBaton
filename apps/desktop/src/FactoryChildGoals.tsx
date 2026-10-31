@@ -118,6 +118,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
     if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&!!source.snapshot.view&&sameActivePollingGoal(view.summary,source.snapshot.view.summary);
     initial=await factoryChildPlanApi.get(scope.id,target.task_id,view.origin.initial_plan.revision);
     if(!mounted.current||stamp!==epoch.current)return null;
+    if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&factorySame(initial,source.snapshot.initial);
     adopted=childGoalRefSame(view.origin.initial_plan,view.summary.plan)?initial:await factoryChildPlanApi.get(scope.id,target.task_id,view.summary.plan.revision);
     for(const [plan,ref] of [[initial,view.origin.initial_plan],[adopted,view.summary.plan]] as const){if(!childViewShape(plan,context,scope)||!childGoalRefSame(plan.reference,ref))throw new Error(t.invalid);await verifyChildRaw(plan);}
     if(!childGoalSavedReferencesMatch(view,initial,adopted))throw new Error(t.invalid);

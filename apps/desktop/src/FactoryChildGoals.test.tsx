@@ -411,6 +411,16 @@ it('does not resume the old running view after a newer full view is Owner-ready 
  await nextReadonlyPoll();await screen.findByRole('alert');await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
+it('does not reuse a changed partial initial plan when the following adopted-plan read is Busy',async()=>{
+ const f=await childGoalFixture(),adopted=await f.nextPlan();records(f,f.makeView(adopted,3,'running'));
+ vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});const user=userEvent.setup({advanceTimers:vi.advanceTimersByTime});
+ render(<FactoryChildGoals {...props(f,adopted)} parentReadIdentity="poll-origin"/>);await open(user);await screen.findByTestId('goal-graph-history');
+ await waitFor(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
+ const changed=await f.view(1,f.plan.plan_json+'\n');
+ vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision===1)return structuredClone(changed);if(revision===2)throw readonlyBusy();return structuredClone(adopted);});
+ await nextReadonlyPoll();await screen.findByRole('alert');await act(async()=>{await vi.advanceTimersByTimeAsync(10000);});
+ expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
+});
 it.each(['expired','revoked'])('preserves existing fresh readonly polling after a complete %s history read',async mode=>{
  const {f,state,user}=await openPollingFixture(),clock=vi.spyOn(Date,'now');
  try{
