@@ -173,6 +173,13 @@ def unobserved_diagnostics():
         'graph_provider_identity':None}
 
 def finite_diagnostics(value):
+    # V4 is an explicit extension; validate its unchanged v3 payload first.
+    if type(value)is dict and type(value.get('version'))is int and value['version']==4:
+        require(set(value)==set(unobserved_diagnostics())|{'owner_ui_state'})
+        legacy={k:v for k,v in value.items()if k!='owner_ui_state'};legacy['version']=3
+        finite_diagnostics(legacy)
+        owner_ui_state_diagnostic(value['owner_ui_state'],value['owner_refresh'])
+        return value
     if value is None:return unobserved_diagnostics()
     require(type(value)is dict and type(value.get('version'))is int and value['version']in (1,2,3))
     expected=set(unobserved_diagnostics())
@@ -298,6 +305,84 @@ class FiniteRuntimeDiagnostics:
             if self._invalid:return {'version':1,'invalid':True}
             # All retained fields have already been reduced to finite scalars.
             return json.loads(json.dumps(self._value,allow_nan=False))
+
+# V4 is renderer-local, untrusted metadata. It is never an Owner/stop receipt,
+# a full-refresh completion proof, or input to the unchanged PASS predicate.
+OWNER_UI_FLAGS=('fresh','loading','capacity','connected','busy','cancel_reading',
+    'disabled','has_view','summary_fresh','parent_ready','parent_refresh_only')
+OWNER_UI_PENDING={'none','start','cancel','advance','owner','reject'}
+
+def unobserved_owner_ui_sample():
+    return {'observation':'unobserved','sampled_ns':None,'epoch':None,
+        **{key:None for key in OWNER_UI_FLAGS},'pending_kind':None,
+        'pending_unknown':None,'owner_present':None,'owner_disabled':None}
+
+def unobserved_owner_ui_state():
+    return {'source':'renderer_local_untrusted','authority':'none',
+        'begin':unobserved_owner_ui_sample(),'end':unobserved_owner_ui_sample()}
+
+def owner_ui_sample_diagnostic(value):
+    require(type(value)is dict and set(value)==set(unobserved_owner_ui_sample()))
+    if value['observation']=='unobserved':
+        require(strict_json_equal(value,unobserved_owner_ui_sample()));return value
+    require(value['observation']=='observed')
+    require(type(value['sampled_ns'])is int and 0<value['sampled_ns']<2**63)
+    require(type(value['epoch'])is int and 0<=value['epoch']<=9007199254740991)
+    require(all(type(value[key])is bool for key in OWNER_UI_FLAGS))
+    require(value['has_view']is True)
+    require(type(value['pending_kind'])is str and value['pending_kind']in OWNER_UI_PENDING)
+    require(value['pending_unknown']is None if value['pending_kind']=='none'else type(value['pending_unknown'])is bool)
+    require(type(value['owner_present'])is bool)
+    require(type(value['owner_disabled'])is bool if value['owner_present']else value['owner_disabled']is None)
+    return value
+
+def owner_ui_state_diagnostic(value,window):
+    require(type(value)is dict and set(value)==set(unobserved_owner_ui_state()))
+    require(value['source']=='renderer_local_untrusted' and value['authority']=='none')
+    for slot in ('begin','end'):
+        sample=owner_ui_sample_diagnostic(value[slot])
+        if sample['observation']=='observed':
+            require(window['observation']=='observed')
+            require(window['started_ns']<=sample['sampled_ns'])
+            require(window['finished_ns']is None or sample['sampled_ns']<=window['finished_ns'])
+    if all(value[slot]['observation']=='observed'for slot in ('begin','end')):
+        require(value['begin']['sampled_ns']<=value['end']['sampled_ns'])
+    return value
+
+def owner_ui_dom_sample(raw,sampled_ns):
+    """Parse fixed, size-bounded DOM scalars; absent/foreign/invalid stays unknown."""
+    unknown=unobserved_owner_ui_sample()
+    try:
+        require(type(raw)is dict and set(raw)==set(OWNER_UI_FLAGS)|{'epoch','pending_kind','pending_unknown','owner_present','owner_disabled'})
+        require(all(type(raw[k])is str and len(raw[k])<=32 for k in (*OWNER_UI_FLAGS,'epoch','pending_kind','pending_unknown')))
+        require(re.fullmatch(r'0|[1-9][0-9]{0,15}',raw['epoch'])is not None)
+        require(all(raw[key]in {'true','false'}for key in OWNER_UI_FLAGS))
+        require(raw['pending_kind']in OWNER_UI_PENDING)
+        require(raw['pending_unknown']=='none'if raw['pending_kind']=='none'else raw['pending_unknown']in {'true','false'})
+        value={'observation':'observed','sampled_ns':sampled_ns,'epoch':int(raw['epoch']),
+            **{key:raw[key]=='true'for key in OWNER_UI_FLAGS},'pending_kind':raw['pending_kind'],
+            'pending_unknown':None if raw['pending_kind']=='none'else raw['pending_unknown']=='true',
+            'owner_present':raw['owner_present'],'owner_disabled':raw['owner_disabled']}
+        return owner_ui_sample_diagnostic(value)
+    except Refused:return unknown
+
+class FiniteRuntimeDiagnosticsV4(FiniteRuntimeDiagnostics):
+    """Opt-in main-thread endpoint samples; default recorder remains exactly v3."""
+    def __init__(self):
+        super().__init__();self._ui=unobserved_owner_ui_state();self._ui_slots=set()
+    def owner_ui_sample(self,slot,raw,sampled_ns):
+        require(type(slot)is str and slot in {'begin','end'})
+        sample=owner_ui_dom_sample(raw,sampled_ns)
+        with self._lock:
+            # Duplicate endpoints are unavailable, not a choice of best snapshot.
+            self._ui[slot]=unobserved_owner_ui_sample()if slot in self._ui_slots else sample
+            self._ui_slots.add(slot)
+    def snapshot(self):
+        value=super().snapshot()
+        if value.get('version')!=3:return value
+        with self._lock:state=json.loads(json.dumps(self._ui,allow_nan=False))
+        value.update(version=4,owner_ui_state=state)
+        return value
 
 def project(report, candidate, summary, case, exit_code, harness_sha):
     require(case in CASES and (exit_code is None or type(exit_code)is int and -128<=exit_code<=255))

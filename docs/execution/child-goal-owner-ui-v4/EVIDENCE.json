@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "base": "b3b3426efe9ac2f84a80daafdbe751cf97b85c80",
+  "scope": "read-only renderer endpoint diagnostic extension; no acceptance or CI cause assertion",
+  "source_files": {
+    "apps/desktop/src/FactoryChildGoals.tsx": "57a6899da9526ae6289cafe54509fd2da5cae8146ca748a4640f3b042f7d3281",
+    "apps/desktop/src/FactoryChildGoals.owner-ui-diagnostics.test.tsx": "12e6163081d47edc1ade2718543db0eb2e522cf01bd57ff3078418c13cf713c3",
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": "b959489950486874cf9730b9877dc36ee6c0121688dbc3fd9ef567138279268d",
+    "scripts/record-child-goal-ci-evidence.py": "44d55431fad475248094fabd50cab3543241530dee37537276fa140fb0463f1a",
+    "tests/infrastructure/test_child_goal_diagnostics_v4.py": "9d433653b00d370dd11ccbaa30e95ce990658cf6d5cde13ef80296f5db7d2336"
+  },
+  "full_source_inverse": {
+    "apps/desktop/src/FactoryChildGoals.tsx": {
+      "original_sha256": "7c386d3262f90876f0c72d9b12ff1ba25020a0510a70d18c08c6cf4dce1dc267",
+      "matched": true,
+      "exact_additive_layer_sha256": [
+        "bb08ba8e55620d59343951f3ec13d7acd7b45efbd2514a6812b9217dcd45e4e7"
+      ]
+    },
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": {
+      "original_sha256": "7dc4732f18be492fddcc49bb989f233cd4fc409bb11de33a7951f7d5cf36e338",
+      "matched": true,
+      "exact_additive_layer_sha256": [
+        "3f7f121b3cc8c92f2f660cf09cf30744b204753409ae3b29ffbe910ddf40466d"
+      ]
+    },
+    "scripts/record-child-goal-ci-evidence.py": {
+      "original_sha256": "5b515e01d220c1b0e9a2759ba3a74cc081e7122a1fa549583aed6a911fd47d69",
+      "matched": true,
+      "exact_additive_layer_sha256": [
+        "21f3e613468e5a7fa6661852663ba165f914f7fe296cea0c08987d2560dce836",
+        "675f9004711f3c1aa4f444fde5dcd411943453ec937c7cf1a9d742935e7a6ac5"
+      ]
+    }
+  },
+  "validation": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 unittest loader: test_child_goal_finite_diagnostics.py, test_child_goal_diagnostics_v3.py, test_child_goal_bound_readonly_wait.py, test_child_goal_diagnostics_v4.py",
+    "tests": 53,
+    "seconds": 3.638,
+    "result": "PASS",
+    "diff_check": "PASS",
+    "mounted_authored": 5,
+    "mounted_run": false
+  },
+  "old_CI": {
+    "Product": 41183987127,
+    "UIjob": 124487022593,
+    "artifact": 13036421914,
+    "summary_sha256": "8f57c748e79c32cab53e348008ab795c578a6eba87d626c3ee6845b6bc622d99",
+    "diagnosis_sha256": "c4b8ea95f43d4fee19fa1646636830621d3946f194ae51adae6494a4bef029be",
+    "status": "retained FAIL; specific cause unknown"
+  },
+  "not_run": [
+    "Node/TypeScript/mounted tests",
+    "browser/DOM JS/actual wrapper",
+    "Core/Cargo/SQL/product processes",
+    "Native/macOS/CI/network"
+  ],
+  "next": "Independent review then Root sole actual execution; no formal Approve"
+}

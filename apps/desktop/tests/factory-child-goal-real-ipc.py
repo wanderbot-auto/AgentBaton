@@ -1310,6 +1310,40 @@ def wait_bound_child_goal(host,bounds,query,predicate,*,pump,capture,deadline=No
         time.sleep(.02)
 
 
+def sample_owner_ui(finite,goal_panel,goal_id,slot):
+    """One non-waiting, read-only DOM endpoint; never mask a business exception."""
+    try:
+        raw=goal_panel.evaluate_all("""(nodes, expectedGoal) => {
+            if(nodes.length!==1)return null;
+            const panel=nodes[0];
+            if(!panel.isConnected||panel.getAttribute('data-cg-diagnostic')!=='owner-ui-v4')return null;
+            const histories=panel.querySelectorAll('[data-testid="goal-graph-history"]');
+            if(histories.length!==1||histories[0].getAttribute('data-run-id')!==expectedGoal)return null;
+            const attributes={epoch:'epoch',fresh:'fresh',loading:'loading',pending_kind:'pending-kind',
+                pending_unknown:'pending-unknown',capacity:'capacity',connected:'connected',busy:'busy',
+                cancel_reading:'cancel-reading',disabled:'disabled',has_view:'has-view',
+                summary_fresh:'summary-fresh',parent_ready:'parent-ready',parent_refresh_only:'parent-refresh-only'};
+            const result={};
+            for(const [key,suffix] of Object.entries(attributes)){
+                const value=panel.getAttribute('data-cg-'+suffix);
+                if(typeof value!=='string'||value.length>32)return null;
+                result[key]=value;
+            }
+            const marked=panel.querySelectorAll('[data-cg-owner-control="review"]');
+            const captioned=[...panel.querySelectorAll('button')].filter(button=>button.textContent==='Review exact Factory-origin candidate in native dialog');
+            if(marked.length>1||marked.length!==captioned.length)return null;
+            if(marked.length===1&&(marked[0]!==captioned[0]||marked[0].tagName!=='BUTTON'))return null;
+            result.owner_present=marked.length===1;
+            result.owner_disabled=marked.length===1?marked[0].disabled:null;
+            return result;
+        }""",goal_id)
+    except Exception:
+        # Diagnostic collection errors are unavailable, not a replacement for
+        # the original assertion/cleanup outcome. No exception text is retained.
+        raw=None
+    finite.owner_ui_sample(slot,raw,time.monotonic_ns())
+
+
 def runtime_driver(args, output):
     """Real built UI / authenticated Core15 / generated processes, never a mock.
 
@@ -1343,7 +1377,7 @@ def runtime_driver(args, output):
     token='';pump=lambda:None;active={};lock=threading.Lock();verified=[];graph_verified=[];record_context={};resources={};bounds=None
     def clean(v):return str(v).replace(token,'[redacted generated Owner token]')if token else str(v)
     diagnostic_phase='runtime'
-    finite=finite_projection.FiniteRuntimeDiagnostics()
+    finite=finite_projection.FiniteRuntimeDiagnosticsV4()
     def passed(name,details):
         report['checks'].append({'id':name,'status':'passed','evidence':details});finite.completed(name)
     def fail(stage,error):
@@ -1688,6 +1722,7 @@ def runtime_driver(args, output):
             require(before_owner['details']['task_accepted']is False and before_owner['details']['task_acceptance']is None)
             phase_stamp('owner_UI_refresh_click','start')
             finite.owner_refresh_begin(bound_child_goal_query(query,bounds),time.monotonic_ns())
+            sample_owner_ui(finite,goal_panel,query['goal_run_id'],'begin')
             try:goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
             finally:
                 finite.owner_refresh_click_finished(time.monotonic_ns())
@@ -1696,6 +1731,7 @@ def runtime_driver(args, output):
             phase_stamp('owner_enabled_expect','start')
             try:expect(owner).to_be_enabled()
             finally:
+                sample_owner_ui(finite,goal_panel,query['goal_run_id'],'end')
                 finite.owner_refresh_end(time.monotonic_ns())
                 phase_stamp('owner_enabled_expect','end')
             shot('03-real-owned-candidate-before-owner',goal_panel)
