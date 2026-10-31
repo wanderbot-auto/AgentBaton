@@ -1,3 +1,9 @@
+## Current Root capture composition verified locally — 2026-10-31
+
+The real f5a merge retains the full Owner-only directory contract while composing Root17 capture scheduling and strict safety paths. At exactf5a,fullCore274 and realUnixIPC7 pass with freshly built matching Core17/CLI tools. At2ee,default fullUI1194/67files and strictworkspaceClippy pass. Atfd15,126 LinuxNative units,strictNative all-target Clippy,715 full infrastructure andfrontend type/build pass. Metadata-onlyfc1 retains every product/test/workflow byte fromfd15. [Exact commands, hashes and limits](workspace-open-directory/COMPOSED_CAPTURE_RESULTS.json).
+
+Independent source reviews verify the f5a source and later exact Root test/config/diagnostic inheritance; Roote509 metadata is preserved without changing any Feature requirement field or claiming new-head tests. Actual macOS Terminal target-directory observation,new exact Feature CI,current dualMac development packages and manual acceptance remain not run. These Linux/mock UI/CoreIPC dimensions do not become NativeMac proof. No Agent/session/approval transfer,private Provider call,paid resource,production or signing authority is added. Continue full130 scope.
+
 ## Exact readonly observations and retained CI failures — 2026-10-31
 
 At ea0d49,84 FactoryChildGoals tests pass after observing actual timer registration and exact subsequent reads; the original1000ms interval/observation limits,20-read product bound and no-write controls remain. At29e2,default fullUI1147/64 passes with maxWorkers2 only; original deadlines/isolation remain. Same29e2 normal Core17/React with actual owned installed Chromium ELF passes direct integration normal5/failing4 and12original PNGs, both owned clean shutdowns/cleanup. These local results do not diagnose or replace a7 remote failures.
@@ -46,6 +52,12 @@ The reviewed diagnostic extension retains strict historical/not-same-plan labels
 
 Previous exact60a5 Environment41192343803 failed stale STATUS digest. Product41192343794 is terminal failed: Rust/UI pass, ARM Task IPC3pass1fail bounded dropped-write observation, Intel Factory29pass1fail plan2/run12blocked. These are separate open failures; the diagnostic extension does not establish their cause or fix product behavior. No current Mac acceptance, installers or full130 completion is claimed. Main7ecf/OWNER001/002 and all authority restrictions remain.
 
+## Root8b composition verified locally — 2026-10-31
+
+Exact11ce6fd combines Root8b with the existing directory handoff. Independent source review16ba7984 verifies335 source checks/8 pure checks, preserving raw-frame Owner validation and Root actor/admission flow. Actual272 Core,7 real Unix IPC,126 Linux Native,1193 UI/67files and686 infrastructure tests pass. Workspace/Native all-target Clippy, type/build and format checks pass. All10 result/log hashes and unchanged-source/frozen-tool checks are in [COMPOSED_ROOT8B_RESULTS.json](workspace-open-directory/COMPOSED_ROOT8B_RESULTS.json).
+
+The unpublished9e3 merge metadata-marker error is retained in Git history and corrected by ordinary11ce before these checks; no feature push or Mac result is attributed to it. Linux/mocked UI checks do not establish complete macOS Terminal handoff. Actual dual-Mac target-directory observation, new feature CI/installers and manual acceptance remain not run. Full130 and authority limits are unchanged.
+
 ## Root21 same-refresh planning reuse verified — 2026-10-31
 
 Ordinary merge889 plus the one-field schema17 test mock fix3ec preserves the reviewed production optimization and all strict17, Owner, raw/shape/epoch, deadline and shared-budget rules. FullUI1146/64 and infrastructure678 pass at889. Its original TS2322 test-mock failure remains;3ec type/build and19 focused cases pass. Fresh matching3ec normal Core17/CLI and React pass actual child-Goal normal/cancel/lost-start4/4/5 checks with cleanup and three finite projections. Direct integration frontend normal/failing-command passes5/4 checks and12 original PNGs; daemon exit0/joined/no forced kill, browser/HTTP cleanup and fixture removal observed. This direct driver is not a whole CI wrapper result. [Source-bound evidence](root21-owner-ui-v4-composition/PLAN_READ_REUSE_RESULTS.json).
@@ -69,6 +81,12 @@ Actual composed UI/type/build/full infrastructure, matched Core17/browser and ex
 Ordinary merge of fd24203 and PR19 b55c44a preserves strict17, all integration storage/accounting and real worker stop/join paths while inheriting Main Owner FIFO and its single private GoalAdvanceReply diagnostic. The unpublished passing compound candidate is explicitly superseded; its245 Core result stays historical. Seven applicable typed-property controls and three Store controls replace representation-specific tests with the mapping retained. No budget, permission, unknown-result policy or baseline safety assertion is weakened.
 
 Independent source reviews cover the fixed five typed Rust files, four history/stop/wire files and thirteen document resolutions, five Python merges and four source-test locator adaptations. Complete inverse proofs preserve both source histories. Scoped pure87 passes with zero actual calls; earlier78/4/4 and83/4 outcomes remain. These source/pure checks do not validate the new merged runtime. [Evidence and exact pending checks](root21-main-alignment/EVIDENCE.json). Owner001/002 ACK; full130 and all authority limits remain.
+
+## Directory handoff local regressions verified — 2026-10-31T08:26:17.624062+00:00
+
+AB-SES-009 is implemented through an Owner-only Core directory context, fixed Native Terminal argv and the actual Task workspace UI. Actual current local246 Core,126 Linux Native library,1116 UI/62files and594 infrastructure tests pass at the source commits recorded in [ROOT_LOCAL_RESULTS.json](workspace-open-directory/ROOT_LOCAL_RESULTS.json). The new11 Core and9 focused Native cases are subsets. Strict workspace/all-target and Native Clippy, type/build and formatter checks pass. The readonly fixture fix rechecks all6 mounted paths without changing assertions; previous5/1 mounted failure, TS2540 and formatter failure remain retained.
+
+The original7 actual Core UnixIPC cases retain their source attribution. Mocked UI transport, actual Core IPC and Linux Native tests do not prove the complete Native/macOS handoff. Actual Terminal target-directory observation, dual-Mac desktop checks, feature CI/development packages and manual acceptance remain not run. Only explicit directory handoff is implemented; no Agent/session/approval transfer. Full130 remains incomplete and all authority limits persist.
 
 ## Root17 product and diagnostics verified locally; exact Mac CI pending — 2026-10-31T06:21:02.745312+00:00
 

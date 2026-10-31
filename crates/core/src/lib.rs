@@ -23,6 +23,11 @@ pub use task_workspace_binding::{
     GitWorkspacePin, TaskGitWorkspacePreparation, TaskWorkspaceBinding, TaskWorkspaceBindingState,
     TaskWorkspaceBindingView, TaskWorkspaceReservationReceipt,
 };
+mod workspace_open;
+pub use workspace_open::{
+    pin_open_context, WorkspaceDirectoryIdentity, WorkspaceOpenContext, WorkspaceOpenDirectoryPin,
+    WorkspaceOpenRequest, WorkspaceOpenSelection,
+};
 mod workspace_resolution;
 pub use workspace_resolution::{
     CodeWorkspaceCandidateInfo, CodeWorkspacePreparation, CodeWorkspacePreparationReason,
