@@ -5,3 +5,5 @@ Requirements: AB-TSK-004/008/011 and AB-SEC-001. Authorization: existing AB-STAR
 Read the retained official run41149970320 UI job124383908356 evidence before diagnosing. Separate absent dispatch, local refusal, actual dropped committed response and persistent unknown state. Add bounded observation only to the existing single-click CP08 interaction; retain original unknown/exact replay/CAS/zero-mutation assertions, original deadlines/TTL/budgets and immutable read/write boundaries. No TypeScript/IPC product edits, no retry/extra click, no force, no backend write or product hooks.
 
 Root owns independent review and actual browser/IPC execution with explicit frontend/Core provenance. Source author may parse Python AST and inspect diffs only; no browser, Cargo, SQLite, network, Provider, native or heavy tests.
+
+Independent review closure: installation and finish must use immediate page/JSHandle evaluation, never a Locator wait. Diagnostic exceptions are bounded stage/type evidence and cannot replace the original click/unknown error. Exact request matching strictly decodes bounded unique-key finite JSON through the existing closed envelope parser.
