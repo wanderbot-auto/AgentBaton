@@ -63,6 +63,9 @@ _POST_JOIN_LAYERS = json.loads(r'''
 
 
 def strip_post_join_layer(path,text):
+    if path == RUNTIME:
+        from integration_fixed_script_fixture import restore_before_fixed_scripts
+        text = restore_before_fixed_scripts(text)
     if type(path)is not str or path not in _POST_JOIN_LAYERS or type(text)is not str:
         raise AssertionError('Post-join inverse arguments refused')
     fixture=_POST_JOIN_LAYERS[path]

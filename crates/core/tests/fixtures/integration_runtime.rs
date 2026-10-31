@@ -23,6 +23,16 @@ const TARGET: &str = "refs/heads/integration";
 const DEFAULT_REPORT_PATH: &str = "reports/report.txt";
 const UNICODE_REPORT_PATH: &str = "reports/报告 😀 cafe\u{301}.txt";
 
+// Fixed scripts are ordinary baseline files, selected separately by exact SHA.
+// The protected system shell remains subject to the original Command gates.
+const FIXED_VALIDATOR_SCRIPTS: [(&str, &str); 5] = [
+    ("normal", "test -s \"$1\""),
+    ("failure", "printf '%s\\n' 'fixed correctness failure' >&2; exit 7"),
+    ("stop", "kill -STOP \"$$\"; exit 0"),
+    ("reprepare", "test -s reports/report.txt || exit 21; printf '%s\\n' \"$$\" > \"$1\" || exit 22; IFS= read -r reply < \"$2\" || exit 23; [ \"$reply\" = continue ] || exit 24"),
+    ("drift", "test -s reports/report.txt || exit 21; printf '%s\\n' \"$$\" > \"$1\" || exit 22; IFS= read -r reply < \"$2\" || exit 23; [ \"$reply\" = continue ] || exit 24; exit 7"),
+];
+
 struct RuntimeFixture {
     // Explicit Drop joins the daemon before deleting its authenticated roots.
     server: Server,
@@ -95,8 +105,27 @@ fn private_owner(server: &Server, proposal: &Value) -> Value {
     )
 }
 fn approved(server: &Server, method: &str, params: Value, key: &str) -> Value {
+    let expected_script = params.get("script").cloned();
     let p = rpc(server, method, params, Some(key), None);
-    private_owner(server, &p)
+    let definition = private_owner(server, &p);
+    if method == "command_validation_policies.propose" {
+        assert_eq!(definition["selection"]["mode"], "posix_sh_stdin");
+        assert_eq!(
+            Some(definition["selection"]["script"].clone()),
+            expected_script
+        );
+        assert_eq!(
+            definition["contract"]["script"]["requirement"],
+            definition["selection"]["script"]
+        );
+        assert_eq!(
+            definition["contract"]["script"]["canonical_root"],
+            definition["contract"]["cwd"]["canonical_root"]
+        );
+        assert_eq!(definition["contract"]["arguments"][0], "-s");
+        assert_eq!(definition["contract"]["arguments"][1], "--");
+    }
+    definition
 }
 fn observe(server: &Server, method: &str, params: Value, ready: impl Fn(&Value) -> bool) -> Value {
     // The existing local fixture's observation boundary; never a new runtime cap.
@@ -220,6 +249,19 @@ impl RuntimeFixture {
         git(&project_root, &["init", "--initial-branch=main"]);
         fs::create_dir(project_root.join("inputs")).unwrap();
         fs::write(project_root.join("inputs/file"), b"baseline").unwrap();
+        fs::create_dir(project_root.join("validators")).unwrap();
+        for (name, body) in FIXED_VALIDATOR_SCRIPTS {
+            let path = project_root.join(format!("validators/{name}.sh"));
+            let mut file = fs::OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .mode(0o644)
+                .open(path)
+                .unwrap();
+            file.write_all(body.as_bytes()).unwrap();
+            file.sync_all().unwrap();
+            assert_eq!(file.metadata().unwrap().nlink(), 1);
+        }
         fs::write(
             project_root.join("unselected.txt"),
             b"unselected baseline\n",
@@ -238,11 +280,9 @@ impl RuntimeFixture {
         } else {
             unicode_provider(&root, report_path)
         };
-        // A private, single-link image of a fixed local shell is approved by
-        // the real Command policy. Do not relax system-program identity gates.
-        let validator_program = root.join("fixed-sh");
-        fs::copy(fs::canonicalize("/bin/sh").unwrap(), &validator_program).unwrap();
-        fs::set_permissions(&validator_program, fs::Permissions::from_mode(0o700)).unwrap();
+        // Keep the actual protected OS image; a runner-owned copy is not a
+        // protected macOS executable. No system-program identity exemption.
+        let validator_program = fs::canonicalize("/bin/sh").unwrap();
         assert_eq!(fs::metadata(&validator_program).unwrap().nlink(), 1);
         diagnostics::git_environment();
         diagnostics::fixture("runtime", &root, &project_root, None);
@@ -509,23 +549,28 @@ impl RuntimeFixture {
         );
         d
     }
+    fn validator_script(&self, name: &str) -> Value {
+        let body = FIXED_VALIDATOR_SCRIPTS
+            .iter()
+            .find(|(kind, _)| *kind == name)
+            .unwrap()
+            .1;
+        let relative = format!("validators/{name}.sh");
+        let path = self.source().join(&relative);
+        let metadata = fs::symlink_metadata(&path).unwrap();
+        assert!(metadata.is_file() && !metadata.file_type().is_symlink());
+        assert_eq!(metadata.nlink(), 1);
+        assert_eq!(sha256(&fs::read(path).unwrap()), sha256(body.as_bytes()));
+        json!({"artifact_id":format!("integration-{name}-script"),"relative_path":relative,
+            "max_bytes":body.len(),"expected_sha256":sha256(body.as_bytes())})
+    }
     fn command_definition(&self, candidate: &Value) -> Value {
-        let arguments = if self.report_path == DEFAULT_REPORT_PATH {
-            json!(["-c", "test -s reports/report.txt"])
-        } else {
-            // The filename is an argv value, not shell source. Keep the same
-            // reviewed predicate, wall/cleanup limits and expected exit code.
-            json!([
-                "-c",
-                "test -s \"$1\"",
-                "integration-fixed-validator",
-                self.report_path
-            ])
-        };
+        // Unicode is a literal data argument, never shell source.
+        let arguments = json!([self.report_path]);
         approved(
             &self.server,
             "command_validation_policies.propose",
-            json!({"session_id":candidate["session_id"],"executable":self.validator_program,"mode":"native_executable","script":null,
+            json!({"session_id":candidate["session_id"],"executable":self.validator_program,"mode":"posix_sh_stdin","script":self.validator_script("normal"),
             "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
             "outputs":[{"artifact_id":"report","relative_path":self.report_path,"max_bytes":1024,"expected_sha256":null}],
             "arguments":arguments,"environment":{},"expected_exit_codes":[0],"wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
@@ -815,6 +860,40 @@ impl OriginalCommand {
         );
     }
 }
+// Scripts are rebound only to the new managed candidate. Preserve the exact
+// approved bytes/requirement, independently observed integrity and real delivery.
+fn assert_script_rebound(view: &Value, definition: &Value) {
+    let contract = &view["contract"];
+    let script = &contract["script"];
+    let original = &definition["contract"]["script"];
+    assert_eq!(contract["mode"], "posix_sh_stdin");
+    assert_eq!(script["requirement"], original["requirement"]);
+    assert_ne!(script["canonical_root"], original["canonical_root"]);
+    for (script_field, cwd_field) in [
+        ("canonical_root", "canonical_root"),
+        ("root_device", "device"),
+        ("root_inode", "inode"),
+    ] {
+        assert_eq!(script[script_field], contract["cwd"][cwd_field]);
+    }
+    let id = script["requirement"]["artifact_id"].as_str().unwrap();
+    let observed = observed_artifact(&view["file_integrity"]["inputs"], id);
+    assert_eq!(
+        observed["expected_sha256"],
+        script["requirement"]["expected_sha256"]
+    );
+    assert_eq!(
+        observed["observed_sha256"],
+        script["requirement"]["expected_sha256"]
+    );
+    assert_eq!(observed["size"], script["requirement"]["max_bytes"]);
+    assert_eq!(observed["state"], "passed");
+    assert_eq!(
+        view["script_bytes_delivered"],
+        script["requirement"]["max_bytes"]
+    );
+}
+
 fn exact_artifact<'a>(items: &'a Value, id: &str) -> &'a Value {
     let matches = items
         .as_array()
@@ -860,6 +939,7 @@ fn assert_merged_command(
     assert_eq!(view["policy_revision"], receipt["definition_digest"]);
     let contract = &view["contract"];
     let original_contract = &original.definition["contract"];
+    assert_script_rebound(view, &original.definition);
     let subject = json!({"task_id":f.task["id"],"attempt_id":receipt["attempt_id"],"spec_revision":policy["selection"]["expected_spec_revision"],"input_revision":policy["bindings"]["source"]["head"],
         "version":{"kind":"git","target_ref":TARGET,"expected_target_head":f.initial_target,"source_candidate":run["source_commit"],"integration_candidate":run["integration_commit"],"tree":run["integration_tree"]}});
     assert_eq!(contract["file_contract"]["subject"], subject);
@@ -885,7 +965,6 @@ fn assert_merged_command(
     for field in [
         "arguments",
         "mode",
-        "script",
         "argv0",
         "image_policy",
         "environment_sha256",
@@ -1635,10 +1714,10 @@ impl RuntimeFixture {
         approved(
             &self.server,
             "command_validation_policies.propose",
-            json!({"session_id":candidate["session_id"],"executable":self.validator_program,"mode":"native_executable","script":null,
+            json!({"session_id":candidate["session_id"],"executable":self.validator_program,"mode":"posix_sh_stdin","script":self.validator_script("failure"),
             "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
             "outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],
-            "arguments":["-c","printf '%s\\n' 'fixed correctness failure' >&2; exit 7"],"environment":{},"expected_exit_codes":[0],"wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
+            "arguments":[],"environment":{},"expected_exit_codes":[0],"wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
             "require":{"filesystem_isolation":false,"network_isolation":false,"process_tree_containment":false,"execution_time_input_immutability":false,"auxiliary_source_immutability":false,"sealed_executable_image":false}}),
             "failing-correctness-definition",
         )
@@ -1802,10 +1881,10 @@ fn fresh_merged_correctness_failure_never_admits_cas_and_retains_charged_receipt
         view["file_integrity"]["passed"], true,
         "artifact integrity is not command correctness"
     );
+    assert_script_rebound(view, &definition);
     for field in [
         "arguments",
         "mode",
-        "script",
         "argv0",
         "environment_sha256",
         "expected_exit_codes",
@@ -2321,7 +2400,7 @@ fn stopped_command_identity(program: &Path, token: &str) -> ObservedCommandIdent
     let started = Instant::now();
     let parent = std::process::id();
     let uid = unsafe { libc::geteuid() };
-    let expected = format!("{} -c kill -STOP \"$$\"; exit 0 {token}", program.display());
+    let expected = format!("{} -s -- {token}", program.display());
     loop {
         let numeric = bounded_ps(&["-axo", "pid=,ppid=,pgid=,uid=,stat="]);
         let mut matches = Vec::new();
@@ -2414,10 +2493,10 @@ impl RuntimeFixture {
         approved(
             &self.server,
             "command_validation_policies.propose",
-            json!({"session_id":candidate["session_id"],"executable":self.validator_program,"mode":"native_executable","script":null,
+            json!({"session_id":candidate["session_id"],"executable":self.validator_program,"mode":"posix_sh_stdin","script":self.validator_script("stop"),
             "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
             "outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],
-            "arguments":["-c","kill -STOP \"$$\"; exit 0",token],"environment":{},"expected_exit_codes":[0],"wall_time_ms":3000,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
+            "arguments":[token],"environment":{},"expected_exit_codes":[0],"wall_time_ms":3000,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
             "require":{"filesystem_isolation":false,"network_isolation":false,"process_tree_containment":false,"execution_time_input_immutability":false,"auxiliary_source_immutability":false,"sealed_executable_image":false}}),
             "owned-stopped-command-definition",
         )
@@ -2818,15 +2897,14 @@ impl ReprepareGate {
 impl RuntimeFixture {
     fn reprepare_command_definition(&self, candidate: &Value, gate: &ReprepareGate) -> Value {
         let (ready, release) = gate.paths();
-        let script = "test -s reports/report.txt || exit 21; printf '%s\\n' \"$$\" > \"$1\" || exit 22; IFS= read -r reply < \"$2\" || exit 23; [ \"$reply\" = continue ] || exit 24";
         approved(
             &self.server,
             "command_validation_policies.propose",
             json!({
-                "session_id":candidate["session_id"],"executable":self.validator_program,"mode":"native_executable","script":null,
+                "session_id":candidate["session_id"],"executable":self.validator_program,"mode":"posix_sh_stdin","script":self.validator_script("reprepare"),
                 "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
                 "outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],
-                "arguments":["-c",script,"bounded-reprepare",ready,release],"environment":{},"expected_exit_codes":[0],
+                "arguments":[ready,release],"environment":{},"expected_exit_codes":[0],
                 "wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
                 "require":{"filesystem_isolation":false,"network_isolation":false,"process_tree_containment":false,"execution_time_input_immutability":false,"auxiliary_source_immutability":false,"sealed_executable_image":false}
             }),
@@ -3227,11 +3305,11 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
         assert_eq!(view["goal_io"]["state"], "observed");
         assert_eq!(view["approval_id"], policy["approval_id"]);
         assert_eq!(view["policy_revision"], receipt["definition_digest"]);
+        assert_script_rebound(view, &original.definition);
         let contract = &view["contract"];
         for field in [
             "arguments",
             "mode",
-            "script",
             "argv0",
             "image_policy",
             "environment_sha256",
@@ -3434,15 +3512,14 @@ fn three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descenda
 impl RuntimeFixture {
     fn drift_refusal_command(&self, candidate: &Value, gate: &ReprepareGate) -> Value {
         let (ready, release) = gate.paths();
-        let script = "test -s reports/report.txt || exit 21; printf '%s\\n' \"$$\" > \"$1\" || exit 22; IFS= read -r reply < \"$2\" || exit 23; [ \"$reply\" = continue ] || exit 24; exit 7";
         approved(
             &self.server,
             "command_validation_policies.propose",
             json!({
-                "session_id":candidate["session_id"],"executable":self.validator_program,"mode":"native_executable","script":null,
+                "session_id":candidate["session_id"],"executable":self.validator_program,"mode":"posix_sh_stdin","script":self.validator_script("drift"),
                 "inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":sha256(b"baseline")}],
                 "outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],
-                "arguments":["-c",script,"bounded-reprepare-negative",ready,release],"environment":{},"expected_exit_codes":[0],
+                "arguments":[ready,release],"environment":{},"expected_exit_codes":[0],
                 "wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":128,"stderr_limit":128,
                 "require":{"filesystem_isolation":false,"network_isolation":false,"process_tree_containment":false,"execution_time_input_immutability":false,"auxiliary_source_immutability":false,"sealed_executable_image":false}
             }),
