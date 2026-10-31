@@ -1,0 +1,172 @@
+{
+  "contract": "agentbaton.factory.readonly-busy.root-results.v1",
+  "recorded_at": "2026-10-30T19:15:00.563367+00:00",
+  "source": "b025f14a0ae8a7abbac8cbb32b2c06b9c73124b5",
+  "PR": 18,
+  "source_original": "39fc920a72f063b955a21a1114494dd7834f716e",
+  "source_cherry": "58fad19",
+  "independent_source_review": {
+    "path": ".onboarding/pr18-read-busy-resumed-independent-review/REVIEW.json",
+    "sha256": "e270bce6a39e050a58852fca28383f657d7ebe04739f6d2c7ddd7f5c01a57260",
+    "bytes": 4771
+  },
+  "scope": "test fixture only; original product history worker, permissions, budgets, deadlines and writes unchanged",
+  "actual": {
+    "pr18-readonly-busy-full-factory1": {
+      "result": {
+        "source": "b025f14a0ae8a7abbac8cbb32b2c06b9c73124b5",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 146.89151080400916,
+        "minimum_free_bytes": 351756288,
+        "interruption": null,
+        "log_sha256": "54092eeb19aef5ca4646cbc6408ce65fd0da50b90055a84e04079d78712a19a1",
+        "summaries": [
+          "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 123.38s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-readonly-busy-full-factory1/RESULT.json",
+        "sha256": "a12d8c7dabb3a05e6b137ae4cf9d0ca41cf424d3a2cc350ec6ec3c3005c785bb",
+        "bytes": 906
+      },
+      "log": {
+        "path": ".onboarding/pr18-readonly-busy-full-factory1/command.log",
+        "sha256": "54092eeb19aef5ca4646cbc6408ce65fd0da50b90055a84e04079d78712a19a1",
+        "bytes": 10341
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-readonly-busy-full-factory1/INPUTS.json",
+        "sha256": "98d0923a8c8d358a9466b41d3fcb5b41bbdafeb169bfd8595f2aa2568cd847c8",
+        "bytes": 14663
+      }
+    },
+    "pr18-readonly-busy-clippy1": {
+      "result": {
+        "source": "b025f14a0ae8a7abbac8cbb32b2c06b9c73124b5",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 17.677869495993946,
+        "minimum_free_bytes": 362393600,
+        "interruption": null,
+        "log_sha256": "15c823f2987c5baa43f16cb9e31fb148b606e6ec05c70c65b7cdd4e4cbd54fd6",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-readonly-busy-clippy1/RESULT.json",
+        "sha256": "28e9d6420500bdbe9f482a1f1bf38c43b222b19412dba8bb69b6e98a088c334b",
+        "bytes": 775
+      },
+      "log": {
+        "path": ".onboarding/pr18-readonly-busy-clippy1/command.log",
+        "sha256": "15c823f2987c5baa43f16cb9e31fb148b606e6ec05c70c65b7cdd4e4cbd54fd6",
+        "bytes": 665
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-readonly-busy-clippy1/INPUTS.json",
+        "sha256": "f10e4a5ee9dbc8b7f2599427d4d1bed5079beecfc71eb8dcd0f6ff2a6ce2fd8e",
+        "bytes": 14638
+      }
+    },
+    "pr18-readonly-busy-fmt1": {
+      "result": {
+        "source": "b025f14a0ae8a7abbac8cbb32b2c06b9c73124b5",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "seconds": 1.2050233879999723,
+        "minimum_free_bytes": 365006848,
+        "interruption": null,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-readonly-busy-fmt1/RESULT.json",
+        "sha256": "64f4c384de5aade9a8113636af1137445344b47bc0daba1d23abc3684dd55087",
+        "bytes": 718
+      },
+      "log": {
+        "path": ".onboarding/pr18-readonly-busy-fmt1/command.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-readonly-busy-fmt1/INPUTS.json",
+        "sha256": "3d8943426b2007ba3bd641d8202d1f64e32e85ae802955628f7bf2f633939a8d",
+        "bytes": 14581
+      }
+    }
+  },
+  "prior_ci": {
+    "source": "8fe85661e6cf62f23fe681b6567a92fff9ac0d59",
+    "Environment": 41106104971,
+    "Product": 41106104765,
+    "Environment_lanes": "3 success",
+    "Product_lanes": "Rust/UI/AppleSilicon success;Intel WORKSPACE_BUSY failed26/1",
+    "product_record": {
+      "path": ".onboarding/pr18-head8fe-evidence/product-terminal.json",
+      "sha256": "f3d545508c97939d131762f04449b9692e137a48761ff8541f1c5342c10a1d62",
+      "bytes": 10132
+    },
+    "environment_record": {
+      "path": ".onboarding/pr18-head8fe-evidence/environment-terminal.json",
+      "sha256": "6383e3fd1ce540860b486f8680a8cf9a43d7801c5a752f534e31458ead024bc4",
+      "bytes": 6079
+    }
+  },
+  "not_claimed": [
+    "natural local busy race reproduction",
+    "new same-source macOS or CI pass",
+    "whole product acceptance",
+    "live Provider/model/Native dialog verification",
+    "merge/formalApprove/signing/release"
+  ],
+  "counts": {
+    "Factory_unique": 33,
+    "new_pure_busy_controls_included": 3,
+    "actual_rework_included": 1,
+    "naturally_observed_busy_replies": 0
+  }
+}

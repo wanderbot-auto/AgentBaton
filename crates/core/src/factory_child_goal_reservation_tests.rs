@@ -607,3 +607,184 @@ fn budget_history_reuse_preserves_values_and_rechecks_each_new_invocation() {
     assert_eq!(unchanged_execution(&f), before);
     assert_eq!(f.store.sequence().unwrap(), sequence);
 }
+
+// The original guard, recorded advance intent, wrapper, owned reply and event
+// writer are real Core/SQLite paths. No Provider/Actor loop/process is claimed.
+fn original_ancestor_failure_after_recorded_intent(
+) -> (Fixture, String, serde_json::Value, crate::CoreError) {
+    let (mut f, scope, goal) = queued();
+    f.raw = format!("admission original request {}", uuid::Uuid::new_v4());
+    let read = f
+        .store
+        .prepare_factory_child_goal_read(&scope.id, &scope.root_task_id, &f.raw, false)
+        .unwrap();
+    f.store.data_input = Some(f.observe(read));
+    let request = crate::goal_store::GoalRunDispatch {
+        run_id: goal.goal.run.id.clone(),
+        expected_ledger_revision: f.store.sequence().unwrap(),
+    };
+    let (receipt, fresh) = f
+        .store
+        .admit_goal_graph_advance(
+            &request,
+            goal.goal.run.revision,
+            "recorded-observation-test",
+        )
+        .unwrap();
+    assert!(fresh);
+    f.store.data_input = None;
+    // Deliberately oversized negative input to the existing guard, not a new
+    // plan or an execution authority. All existing approved caps are unchanged.
+    let reservation = crate::goal_plan::AttemptReservation {
+        runtime_ms: u64::MAX,
+        output_bytes: 1,
+        tokens: None,
+        cost_microunits: None,
+    };
+    let error = f
+        .store
+        .test_factory_ancestor_refusal(&request.run_id, &reservation)
+        .unwrap_err();
+    assert_eq!(error.code, "RESOURCE_LIMIT");
+    assert!(error
+        .details_ref
+        .as_deref()
+        .unwrap()
+        .starts_with("factory-ancestor-budget-v1:"));
+    assert_eq!(
+        f.store
+            .conn
+            .query_row("SELECT count(*) FROM goal_run_reservations", [], |r| r
+                .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+    (f, request.run_id, receipt, error)
+}
+fn latest_blocked_payload(f: &Fixture, id: &str) -> serde_json::Value {
+    let raw: String = f.store.conn.query_row(
+        "SELECT document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.run_blocked' ORDER BY sequence DESC LIMIT 1", [id], |r|r.get(0)).unwrap();
+    serde_json::from_str::<serde_json::Value>(&raw).unwrap()["payload"].clone()
+}
+#[test]
+fn original_guard_sample_survives_recorded_intent_and_owned_reply_into_blocked_event() {
+    let (mut f, id, receipt, error) = original_ancestor_failure_after_recorded_intent();
+    let original = serde_json::to_value(&error).unwrap();
+    let mut observation = None;
+    let wrapped = crate::ipc::recorded_goal_dispatch_error(&id, &receipt, error, &mut observation);
+    let mut expected = original;
+    expected["side_effect_state"] = json!("confirmed");
+    expected["details_ref"] = json!(format!(
+        "recorded-goal-advance:{}",
+        receipt["intent_id"].as_str().unwrap()
+    ));
+    assert_eq!(
+        serde_json::to_value(&wrapped).unwrap(),
+        expected,
+        "original external error/recovery reference must remain exact"
+    );
+    let wire = json!({"error": wrapped, "revision": f.store.sequence().unwrap()});
+    let (send, receive) = std::sync::mpsc::sync_channel(1);
+    crate::ipc::ReadyReply::Goal(send)
+        .try_send_observed(crate::ipc::GoalAdvanceReply::new(wire.clone(), observation))
+        .unwrap();
+    let (received, owned) = receive.try_recv().unwrap().into_parts();
+    assert_eq!(received, wire);
+    assert!(
+        receive.try_recv().is_err(),
+        "one owned reply cannot be replayed"
+    );
+    f.store
+        .block_goal_run_observed(
+            &id,
+            received["error"]["code"].as_str().unwrap(),
+            received["error"]["details_ref"].as_str(),
+            owned.as_ref(),
+        )
+        .unwrap();
+    let payload = latest_blocked_payload(&f, &id);
+    assert_eq!(payload["reason_code"], "RESOURCE_LIMIT");
+    assert_eq!(payload["automatic_retry"], false);
+    assert_eq!(payload["task_accepted"], false);
+    let diagnostic = &payload["budget_admission"];
+    assert_eq!(diagnostic["guard_kind"], "runtime");
+    assert_eq!(diagnostic["requested_runtime_ms"], u64::MAX);
+    assert_eq!(diagnostic["relevant_count"], 0);
+    assert_eq!(diagnostic["settled_actual_runtime_ms"], 0);
+    assert_eq!(diagnostic["unsettled_reserved_runtime_ms"], 0);
+    assert_eq!(
+        f.store
+            .conn
+            .query_row("SELECT count(*) FROM goal_run_reservations", [], |r| r
+                .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+}
+#[test]
+fn private_guard_observation_cannot_cross_run_or_relabel_a_stale_revision() {
+    for kind in ["missing", "foreign_run", "stale_revision", "foreign_plan"] {
+        let (mut f, id, receipt, mut error) = original_ancestor_failure_after_recorded_intent();
+        if matches!(kind, "stale_revision" | "foreign_plan") {
+            let prefix = "factory-ancestor-budget-v1:";
+            let mut value: serde_json::Value = serde_json::from_str(
+                error
+                    .details_ref
+                    .as_deref()
+                    .unwrap()
+                    .strip_prefix(prefix)
+                    .unwrap(),
+            )
+            .unwrap();
+            value[if kind == "stale_revision" {
+                "run_revision"
+            } else {
+                "plan_revision"
+            }] = json!(u64::MAX);
+            error.details_ref = Some(format!(
+                "{prefix}{}",
+                serde_json::to_string(&value).unwrap()
+            ));
+        }
+        let mut observation = None;
+        let wrapped = crate::ipc::recorded_goal_dispatch_error(
+            if kind == "foreign_run" {
+                "foreign-generated-run"
+            } else {
+                &id
+            },
+            &receipt,
+            error,
+            &mut observation,
+        );
+        if kind == "missing" {
+            observation = None;
+        }
+        f.store
+            .block_goal_run_observed(
+                &id,
+                &wrapped.code,
+                wrapped.details_ref.as_deref(),
+                observation.as_ref(),
+            )
+            .unwrap();
+        let payload = latest_blocked_payload(&f, &id);
+        assert_eq!(payload["reason_code"], "RESOURCE_LIMIT");
+        assert_eq!(payload["automatic_retry"], false);
+        assert_eq!(payload["task_accepted"], false);
+        assert!(payload.get("budget_admission").is_none(), "{kind}");
+    }
+}
+#[test]
+fn public_wire_reply_drops_private_observation_and_keeps_original_value() {
+    let (_f, id, receipt, error) = original_ancestor_failure_after_recorded_intent();
+    let mut observation = None;
+    let wrapped = crate::ipc::recorded_goal_dispatch_error(&id, &receipt, error, &mut observation);
+    assert!(observation.is_some());
+    let wire = json!({"error":wrapped});
+    let (send, receive) = std::sync::mpsc::sync_channel(1);
+    crate::ipc::ReadyReply::Wire(send)
+        .try_send_observed(crate::ipc::GoalAdvanceReply::new(wire.clone(), observation))
+        .unwrap();
+    assert_eq!(receive.try_recv().unwrap(), wire);
+}

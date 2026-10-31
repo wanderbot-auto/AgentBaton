@@ -1,0 +1,568 @@
+{
+  "recorded_at": "2026-10-31T05:42:21.877135+00:00",
+  "source": "fdf0d2ced3395795d507bfca54318180640a05ee",
+  "scope": "real product readonly Busy polling recovery; bounded by the original twenty automatic reads at one second, exact typed retryable true/not_started and same epoch/parent/run/source, all writes stale until full validation; old unknown/cancel paths retained",
+  "independent_reviews": {
+    "child-goal-readonly-poll-recovery-independent-review-1270c8c.json": "77440d560c8f5b986341b792340dca27a355329b350a1f0d61ceced4118a2fc6",
+    "child-goal-poll-test-clock-independent-review-1722a8a.json": "8a14e31f637044f4e8787d524fc0ba2f5fd7476253a7461aa8abbc7307052bb0",
+    "child-goal-unknown-cancel-status-independent-review-473b8a3.json": "f0d5027cf01fca9a2dfd6ecbad148db22eb4c3acb6cc61ad870faf068b2fefba"
+  },
+  "source_equivalence_to_reviewed_127": {
+    "apps/desktop/src/FactoryChildGoals.tsx": "c6a552028f02320378080f4ded140cb6fbf7c51f",
+    "apps/desktop/src/api.ts": "3acbf431a4bb093d5a5265003ce714314302656c"
+  },
+  "commands": {
+    "pr18-poll-recovery-127-type-focused1": {
+      "result_sha256": "fd3260d38954498914b6c4fa6244fea6ae5c57d93deeb82926b0228270afac6e",
+      "inputs_sha256": "6af78c639732059fc5349d64af5cadf0e3861a1d928139a48377a6db7e3576fb",
+      "source": "1270c8c6875ad4ceecd373a77cf33260f2ac2e18",
+      "exit": 1,
+      "seconds": 146.82091392803704,
+      "log_sha256": "03f74b8cc6bfbd368b24ce1579d87dbf2528019322731d1e1ad0b4658c40bdc6",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": [
+        "Tests 28 \u23af\u23af\u23af\u23af\u23af\u23af\u23af",
+        "Test Files  1 failed | 1 passed (2)",
+        "Tests  28 failed | 65 passed (93)"
+      ]
+    },
+    "pr18-poll-clock-172-type-positive1": {
+      "result_sha256": "b6aa4145d8089bae12e112b3486d7ad647a9e6a7091c1a975239242a392b5e8c",
+      "inputs_sha256": "02b630af43d3c9d2adc2b942276c8085b1ac53a580e309b21820f8685830cae7",
+      "source": "1722a8aaac44e2bce888e921c21bd92a0af41154",
+      "exit": 0,
+      "seconds": 2.910735521989409,
+      "log_sha256": "5b5fc3c120599a05504f7292aa385b6ffbc9fd71e91a7141a207a417ce14e0f3",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": [
+        "Test Files  1 passed (1)",
+        "Tests  1 passed | 82 skipped (83)"
+      ]
+    },
+    "pr18-poll-clock-172-full-focused1": {
+      "result_sha256": "55ebec32d216e3b6f9470086e209f507af2f29ddc0e182a2506e25c292d60789",
+      "inputs_sha256": "8101ec1af1bccb8e91fae923d1306ab55dd664d6546681aa132ead3ac35ca161",
+      "source": "1722a8aaac44e2bce888e921c21bd92a0af41154",
+      "exit": 1,
+      "seconds": 7.620326381991617,
+      "log_sha256": "c3135fafbc90dbf123be7513a0844770ec040c599a0b311f524ecdd237a9d9fe",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": [
+        "Tests 1 \u23af\u23af\u23af\u23af\u23af\u23af\u23af",
+        "Test Files  1 failed | 1 passed (2)",
+        "Tests  1 failed | 92 passed (93)"
+      ]
+    },
+    "pr18-poll-status-473-unknown-positive1": {
+      "result_sha256": "8ab7fc87b3c64287f344ffae0959bf527eabab3c51908db86b1510ef707c8e23",
+      "inputs_sha256": "d48f607586ba1600d75a4de8c5274f91826a4f4cc36827f53e137ca1c0d242a3",
+      "source": "473b8a3b6905e7ee5ab64654327f5dc5ef4638d6",
+      "exit": 0,
+      "seconds": 1.910041444003582,
+      "log_sha256": "5c80f8537cef4d5a9afb8aab9991ee691ae1d6a79254aa3c56d4e21f107b4dbc",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": [
+        "Test Files  1 passed (1)",
+        "Tests  1 passed | 82 skipped (83)"
+      ]
+    },
+    "pr18-poll-status-473-full-focused1": {
+      "result_sha256": "228302334f2054af5fb11fa1930098897c1b67bba75323d166dacb8af2632fec",
+      "inputs_sha256": "f1126d405172407f9595b152c9b1c96ae55b2d3d4ca46ef536253fea161c14d6",
+      "source": "473b8a3b6905e7ee5ab64654327f5dc5ef4638d6",
+      "exit": 0,
+      "seconds": 6.528284361003898,
+      "log_sha256": "39d3e076e60e1632c0f30a1edf8c20a5fe7cd0649f900fe833224c24708ada5c",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": [
+        "Test Files  2 passed (2)",
+        "Tests  93 passed (93)"
+      ]
+    },
+    "pr18-poll-recovery-composed-types-all-ui-build1": {
+      "result_sha256": "52ae0b080118607bb1514e65d9d4827c46f7a0c51904533756a6da64d05037d6",
+      "inputs_sha256": "912b3a99619dfe1f4e45eedc637d8dc5d1537e12ea748e2fe4221a3724878463",
+      "source": "fdf0d2ced3395795d507bfca54318180640a05ee",
+      "exit": 0,
+      "seconds": 33.19361580302939,
+      "log_sha256": "b7742108b38ab27e229193c40f97db8417c572eabfbec802120423dd13077a95",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": [
+        "Test Files  55 passed (55)",
+        "Tests  954 passed (954)"
+      ]
+    },
+    "pr18-poll-recovery-composed-preview-build1": {
+      "result_sha256": "03f918656a014dba4581c83bb6c5c78bfd02635770a03bb8c8a65713365a1a5f",
+      "inputs_sha256": "079a60dc04ef788085176bcdfc78a910c285c492a939f527a4f60222457cdcee",
+      "source": "fdf0d2ced3395795d507bfca54318180640a05ee",
+      "exit": 0,
+      "seconds": 24.57858913700329,
+      "log_sha256": "07bd126ed25a374858b439a850436ebb860cbc5e4dca49097983e2efdfba0510",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": []
+    },
+    "pr18-poll-recovery-composed-full-infra1": {
+      "result_sha256": "e35d82c5a3b2876326912fb3a080a5f35c1cd8bc70fa870b2bdfb0037ff8b6a0",
+      "inputs_sha256": "3e793a156c733908321b0ac1de56ab684e9d74b0fcf19a5c9fee66f5995d03a7",
+      "source": "fdf0d2ced3395795d507bfca54318180640a05ee",
+      "exit": 0,
+      "seconds": 11.84492937696632,
+      "log_sha256": "32590b61ae2bdfe2a9ebc0e414d42c626bb9ea1130be7acda5313f8f9451ba58",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": [
+        "Ran 296 tests in 11.550s"
+      ]
+    },
+    "pr18-poll-recovery-composed-normal-command1": {
+      "result_sha256": "acfd8ae261c3e9ee4e8ffab21bd4310d9885b853705f4c4c981d9be2ee3ba7de",
+      "inputs_sha256": "8e78fd98dc51084749bdd62ff0e93f8d0b1dfab35751193e778571b91dfe1d61",
+      "source": "fdf0d2ced3395795d507bfca54318180640a05ee",
+      "exit": 0,
+      "seconds": 25.076300077023916,
+      "log_sha256": "179520a61cbd7a46c0aab0871540e4ea90039b6c4d0bdee2f3eb809d6a5fc05b",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": []
+    },
+    "pr18-poll-recovery-composed-cancel-command1": {
+      "result_sha256": "dbf196de98e3217932d9bc5c123bc160886e6526c981eb8e8adb3b3bdb901c0e",
+      "inputs_sha256": "6b2f73c8e32a53a15c2293820b812bd794d7419904d9a97d73f47a832fb11577",
+      "source": "fdf0d2ced3395795d507bfca54318180640a05ee",
+      "exit": 0,
+      "seconds": 18.169762948993593,
+      "log_sha256": "4f3c1d9d191598d4a642b7811aea1d79e48738acbd1a21bee4214758e1ff654d",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": []
+    },
+    "pr18-poll-recovery-composed-lost-start-command1": {
+      "result_sha256": "c3ff3694e0ce8fb0c2785211f0ffa233f398e2cb414e18542a371bd96dc15672",
+      "inputs_sha256": "82c67583a9a2d04ac283728c61004bfe99d5bf30685b85971ac85f7982602242",
+      "source": "fdf0d2ced3395795d507bfca54318180640a05ee",
+      "exit": 0,
+      "seconds": 28.306153955985792,
+      "log_sha256": "215bad47cdc104a97902a004816dee7d7694cd0d1ea03cc6437beee22feab24c",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": []
+    },
+    "pr18-poll-recovery-composed-projection1": {
+      "result_sha256": "c9ef8cbd9e92f9f828a715211576218b2bb74b5fad3f215739fe616a9cd59a2f",
+      "inputs_sha256": "d362e7d039d74c508116ec94cecf1b6818b96b27a658d69c2c6ece721a7616ea",
+      "source": "fdf0d2ced3395795d507bfca54318180640a05ee",
+      "exit": 0,
+      "seconds": 0.30125724896788597,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_unchanged": true,
+      "interruption": null,
+      "observed_test_counts": []
+    }
+  },
+  "cases": {
+    "normal": {
+      "summary_sha256": "62a8394207ce05a7964c12730bbee7d152e3a5b1848c25916cbf82818c84caa3",
+      "private_report_sha256": "cd0ca5a930b470285d4dca75c361cc354d526bbdd0fe63ba2507fbbceab8c4fb",
+      "summary": {
+        "contract": "agentbaton.child-goal-ci.v1",
+        "case": "normal",
+        "status": "passed",
+        "schema": 15,
+        "source_head": "fdf0d2ced3395795d507bfca54318180640a05ee",
+        "compiled_core_source_head": "fdf0d2ced3395795d507bfca54318180640a05ee",
+        "manifest_sha256": "8085497118f5060613460113668cdfd58fcdba5f99bbde5e92e143e3334dd444",
+        "tools_sha256": {
+          "batond": "7acee823093c813297f3e5be4ab282b622706478b9294ee36e68172b2d753257",
+          "baton": "6c8ccfa3d78d704566148ce39ac08eb98dad1bf4e1b75b84ad0c4189ca3d842f"
+        },
+        "frontend_asset_count": 3,
+        "frontend_assets_sha256": "b40813f178b6856d6961ffbcb60b81ae3574f6d21e6b8ce42c6587bde975a699",
+        "harness_sha256": "8d5ef41673539ec92c9a27c961b8dc551f7ddc56023ba497cf1e47c9db00df27",
+        "exit_code": 0,
+        "command_state": "returned",
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 5,
+        "failure_kind": "none",
+        "screenshots_published": false,
+        "private_history_published": false,
+        "finite_diagnostics": {
+          "version": 3,
+          "failure_class": null,
+          "driver_lines": null,
+          "lines_truncated": null,
+          "phase": null,
+          "last_completed_check": "CG06",
+          "core_replies": {
+            "observation": "observed",
+            "captured_count": 269,
+            "truncated": false,
+            "unmapped_error_count": 0,
+            "errors": [
+              {
+                "method": "factory_child_goals.start",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_scopes.propose",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_runs.get",
+                "code": "NOT_FOUND",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_child_goals.start",
+                "code": "STALE_REVISION",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_child_plans.context",
+                "code": "INPUT_CHANGED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              }
+            ]
+          },
+          "graph_provider_argv": null,
+          "owner_refresh": {
+            "observation": "observed",
+            "source_epoch": null,
+            "started_ns": 294780959790955,
+            "click_finished_ns": 294783919643444,
+            "finished_ns": 294786788280394,
+            "refresh_completed": null,
+            "full_fresh": null,
+            "loading": null,
+            "pending_kind": "unobserved",
+            "correlation": "temporal_only",
+            "click_causality": "not_established",
+            "reads": [
+              {
+                "method": "factory_child_goals.get",
+                "binding": "scope_task_run",
+                "started_ns": 294782841235990,
+                "finished_ns": 294783484550210,
+                "reply_class": "result",
+                "error": null
+              },
+              {
+                "method": "factory_child_goals.get",
+                "binding": "scope_task_run",
+                "started_ns": 294785720909847,
+                "finished_ns": 294786049747880,
+                "reply_class": "result",
+                "error": null
+              }
+            ],
+            "scope_task_only_read_count": 2,
+            "truncated": false
+          },
+          "graph_provider_identity": null
+        }
+      },
+      "checks": 4
+    },
+    "cancel": {
+      "summary_sha256": "24fdc0e0767be037d0c9162682ed0b6506b0ad217c55430f33e7a350302f43f1",
+      "private_report_sha256": "0ba3d39e4eb295e808b552bdb928d1b59ad4d41d7084aa373f9734b8d89291e3",
+      "summary": {
+        "contract": "agentbaton.child-goal-ci.v1",
+        "case": "cancel",
+        "status": "passed",
+        "schema": 15,
+        "source_head": "fdf0d2ced3395795d507bfca54318180640a05ee",
+        "compiled_core_source_head": "fdf0d2ced3395795d507bfca54318180640a05ee",
+        "manifest_sha256": "8085497118f5060613460113668cdfd58fcdba5f99bbde5e92e143e3334dd444",
+        "tools_sha256": {
+          "batond": "7acee823093c813297f3e5be4ab282b622706478b9294ee36e68172b2d753257",
+          "baton": "6c8ccfa3d78d704566148ce39ac08eb98dad1bf4e1b75b84ad0c4189ca3d842f"
+        },
+        "frontend_asset_count": 3,
+        "frontend_assets_sha256": "b40813f178b6856d6961ffbcb60b81ae3574f6d21e6b8ce42c6587bde975a699",
+        "harness_sha256": "8d5ef41673539ec92c9a27c961b8dc551f7ddc56023ba497cf1e47c9db00df27",
+        "exit_code": 0,
+        "command_state": "returned",
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG04",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 5,
+        "failure_kind": "none",
+        "screenshots_published": false,
+        "private_history_published": false,
+        "finite_diagnostics": {
+          "version": 3,
+          "failure_class": null,
+          "driver_lines": null,
+          "lines_truncated": null,
+          "phase": null,
+          "last_completed_check": "CG06",
+          "core_replies": {
+            "observation": "observed",
+            "captured_count": 225,
+            "truncated": false,
+            "unmapped_error_count": 0,
+            "errors": [
+              {
+                "method": "factory_child_goals.start",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_scopes.propose",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_runs.get",
+                "code": "NOT_FOUND",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_child_goals.start",
+                "code": "STALE_REVISION",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              }
+            ]
+          },
+          "graph_provider_argv": null,
+          "owner_refresh": {
+            "observation": "unobserved",
+            "source_epoch": null,
+            "started_ns": null,
+            "click_finished_ns": null,
+            "finished_ns": null,
+            "refresh_completed": null,
+            "full_fresh": null,
+            "loading": null,
+            "pending_kind": "unobserved",
+            "correlation": "temporal_only",
+            "click_causality": "not_established",
+            "reads": [],
+            "scope_task_only_read_count": 0,
+            "truncated": false
+          },
+          "graph_provider_identity": null
+        }
+      },
+      "checks": 4
+    },
+    "lost-start": {
+      "summary_sha256": "32d031495f02cf95f8fa6fc638ffcfa4667b2f7827aca702a40480dd170514c5",
+      "private_report_sha256": "6b9a2baf5a5e0b029ed6934902a6b8e62f4f6ab7efb2a1f9155ee58ab220f41e",
+      "summary": {
+        "contract": "agentbaton.child-goal-ci.v1",
+        "case": "lost-start",
+        "status": "passed",
+        "schema": 15,
+        "source_head": "fdf0d2ced3395795d507bfca54318180640a05ee",
+        "compiled_core_source_head": "fdf0d2ced3395795d507bfca54318180640a05ee",
+        "manifest_sha256": "8085497118f5060613460113668cdfd58fcdba5f99bbde5e92e143e3334dd444",
+        "tools_sha256": {
+          "batond": "7acee823093c813297f3e5be4ab282b622706478b9294ee36e68172b2d753257",
+          "baton": "6c8ccfa3d78d704566148ce39ac08eb98dad1bf4e1b75b84ad0c4189ca3d842f"
+        },
+        "frontend_asset_count": 3,
+        "frontend_assets_sha256": "b40813f178b6856d6961ffbcb60b81ae3574f6d21e6b8ce42c6587bde975a699",
+        "harness_sha256": "8d5ef41673539ec92c9a27c961b8dc551f7ddc56023ba497cf1e47c9db00df27",
+        "exit_code": 0,
+        "command_state": "returned",
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG03",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 5,
+        "failure_kind": "none",
+        "screenshots_published": false,
+        "private_history_published": false,
+        "finite_diagnostics": {
+          "version": 3,
+          "failure_class": null,
+          "driver_lines": null,
+          "lines_truncated": null,
+          "phase": null,
+          "last_completed_check": "CG06",
+          "core_replies": {
+            "observation": "observed",
+            "captured_count": 312,
+            "truncated": false,
+            "unmapped_error_count": 0,
+            "errors": [
+              {
+                "method": "factory_child_goals.start",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_scopes.propose",
+                "code": "AUTH_REQUIRED",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_runs.get",
+                "code": "NOT_FOUND",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              },
+              {
+                "method": "factory_child_goals.start",
+                "code": "STALE_REVISION",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 2
+              },
+              {
+                "method": "factory_child_goals.start",
+                "code": "CONFIG_CONFLICT",
+                "retryable": false,
+                "side_effect_state": "not_started",
+                "count": 1
+              }
+            ]
+          },
+          "graph_provider_argv": null,
+          "owner_refresh": {
+            "observation": "observed",
+            "source_epoch": null,
+            "started_ns": 295138101242013,
+            "click_finished_ns": 295140545509936,
+            "finished_ns": 295142893550920,
+            "refresh_completed": null,
+            "full_fresh": null,
+            "loading": null,
+            "pending_kind": "unobserved",
+            "correlation": "temporal_only",
+            "click_causality": "not_established",
+            "reads": [
+              {
+                "method": "factory_child_goals.get",
+                "binding": "scope_task_run",
+                "started_ns": 295139112674298,
+                "finished_ns": 295139911319235,
+                "reply_class": "result",
+                "error": null
+              },
+              {
+                "method": "factory_child_goals.get",
+                "binding": "scope_task_run",
+                "started_ns": 295141952680102,
+                "finished_ns": 295142257329421,
+                "reply_class": "result",
+                "error": null
+              }
+            ],
+            "scope_task_only_read_count": 1,
+            "truncated": false
+          },
+          "graph_provider_identity": null
+        }
+      },
+      "checks": 5
+    }
+  },
+  "candidate_sha256": "8085497118f5060613460113668cdfd58fcdba5f99bbde5e92e143e3334dd444",
+  "tool_provenance": "Fresh actual source-fdf Core/CLI build; existing frozen9f files reused after exact new-build equality. Old9f manifest unchanged; new frontend is actually built from fdf. Shared target is mutable and may later hold another branch; historical proof is the captured result/candidate, not a claim about future target contents.",
+  "dimensions": {
+    "type_and_UI": "954 renderer tests across55 files; mocked transport where their fixtures use mocks. New35 targeted tests are28 component+7 API. Targeted93 and full954 are overlapping, not additive.",
+    "browser": "Linux Chromium with actual Core15/Unix IPC, generated ACP and private test Owner; recorded local Chromium discovery adapter. Original normal4/cancel4/lost-start5 checks and cleanup passed. No controlled real-Busy causal trace is claimed from these browser passes.",
+    "projection": "Three actual v3 private reports strictly projected with their original Core/build/harness source attribution; epochs and click causality remain unknown where unobserved."
+  },
+  "failures_retained": [
+    "127 focused65 passed/28 component timeouts: local fake timers froze RTL zero-ms drain; original 146.821s failure retained",
+    "172 focused92 passed/1 failed: ambiguous status selector with full history and unknown cancellation; original c313 failure retained",
+    "earlier Parent7af exact Product41163775724 failed UI normal/cancel, while lost-start/Rust/bothMac passed; new local tests do not rewrite it"
+  ],
+  "not_run": [
+    "new exact source remote Environment/Product",
+    "new source Native macOS acceptance and dual-architecture installers",
+    "manual macOS installation",
+    "live Provider/model calls"
+  ],
+  "full_130_complete": false,
+  "authority": "AB-START-001 unchanged. No formal GitHub Approve, new spending, private identities, signing or production release."
+}

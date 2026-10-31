@@ -1,3 +1,5 @@
+Current Root17/main composition is pending new runtime verification. Both historical source records below are retained with their original scope and timestamps.
+
 # Goal Owner observation order
 
 Fixed base9f70bede88506f0d35b0a00a433e49f391c4efae; independent sparse branch codex/goal-owner-observation-order, unmodified docs tar.gz excluded. Scope is the explicitly approved harness-only correction under AB-START-001, supporting AB-TSK-004/008/011 and AB-SEC-001. ACK OWNER-001/002. No product API/UI/Core, worker, Grant, budget, Provider or TTL change.

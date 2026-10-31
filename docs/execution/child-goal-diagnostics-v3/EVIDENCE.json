@@ -1,0 +1,49 @@
+{
+  "dimension": "Parent15 harness and finite diagnostic source/pure metadata only",
+  "base": "7af5672c3c4ac0b252bb0fa66e8f857783d06226",
+  "source_sha256": {
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": "8d5ef41673539ec92c9a27c961b8dc551f7ddc56023ba497cf1e47c9db00df27",
+    "scripts/record-child-goal-ci-evidence.py": "160cc18f0d258cec306e1847be08129c49686ca9353a8f404b2b75d6bfa483be",
+    "tests/infrastructure/test_child_goal_diagnostics_v3.py": "3809ec747d48eee7e63e547c917f95f0bc15f4c5500ab2ff8527c83baf9e9dce"
+  },
+  "pure_validation": {"command": "python3 -m unittest discover -s tests/infrastructure -p 'test_child_goal_*diagnostics*.py' -v", "exit_code": 0, "passed": 24, "failed": 0, "new_v3_controls": 11, "existing_controls": 13, "reported_seconds": 0.265, "actual_SQL_or_Core_or_browser_executed": false},
+  "review_closure": {"reviewed_commit": "90e6ca2bd841a6bed693fe55d4deac951e91812e", "same_identity_requires_explicit_true": true, "nonnull_click_window_endpoints_ordered": true, "partial_null_unknown_preserved": true, "harness_changed_by_closure": false, "independent_rereview": "pending"},
+  "legacy_control_adaptation": {
+    "base": "effb68639ffb7a6935dc4de95074422ba7df0411",
+    "source_sha256": {
+      "tests/infrastructure/test_factory_bound_provider_exit.py": "4573b0a20d1c7f77b146b652580311422a508e858eca36ead7b507e30ae4a9bd",
+      "tests/infrastructure/test_graph_provider_argv_diagnostics.py": "261c5931985c44661af513a61db1b1c7e189c462e636bf5be06b335b86788ba5"
+    },
+    "scope": "tests and unit docs only; harness/projector/product unchanged",
+    "phase_count": 7,
+    "phase_failure_exception_identity_and_end_stamp_coverage": "all seven preserved",
+    "historical_exact_v1_v2_negative_controls": "preserved and extended against v3-field smuggling",
+    "pure_commands": [
+      {"command": "python3 -m unittest discover -s tests/infrastructure -p test_graph_provider_argv_diagnostics.py -v", "exit_code": 0, "passed": 14, "failed": 0, "seconds": 0.044},
+      {"command": "python3 -m unittest discover -s tests/infrastructure -p test_factory_bound_provider_exit.py -k ChildGoal -v", "exit_code": 0, "passed": 5, "failed": 0, "seconds": 0.313}
+    ],
+    "original_full_infra": {"cases": 295, "failures": 2, "errors": 2, "log": "/workspace/.onboarding/pr18-diagnostics-v3-full-infra1/command.log", "status": "preserved failed"},
+    "full_infra_or_SQLite_Core_browser_network_executed_here": false,
+    "independent_review": "pending"
+  },
+  "git_diff_check": "passed",
+  "legacy_input_versions_compatible": [1, 2],
+  "app_source_epoch": "always null; not observable",
+  "app_freshness_loading_refresh_completion": "null; not observable",
+  "pending_kind": "unobserved",
+  "owner_read_correlation": "temporal_only; exact scope/task/run get requests; click causality not established",
+  "empty_argv_rule_changed": false,
+  "freshness_strategy_changed": false,
+  "product_TS_or_Actor_changed": false,
+  "extra_wire_calls_retries_signals_waits": 0,
+  "old_run": {
+    "product_run": 41163775724,
+    "ui_job": 124426814580,
+    "synthetic_source": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3",
+    "ui_log_sha256": "4f9df076b715ffdd5022513dda27159bfddda12f3614a002aff79acc8d0661c4",
+    "normal": {"status": "failed", "cleanup_complete": false, "checks_passed": 2, "summary_sha256": "c7bed2187d3836c4651f80b1141dc883453caf504458eb7bcb1f11c4b312a54d"},
+    "cancel": {"status": "failed", "cleanup_complete": false, "checks_passed": 2, "summary_sha256": "375557fcee714fe8249e28621cfb5cc04b2cd19bc58da8a8b61e735bc5f51284"},
+    "lost_start": {"status": "passed", "cleanup_complete": true, "checks_passed": 5, "summary_sha256": "a0dd45af4b5506e4720408ca0eafb4ce24e4f8538a183bf7b43b9ec3e6b88fc3"}
+  },
+  "not_run": ["independent review", "actual Core/browser", "SQL adapter execution", "native/macOS", "Rust", "Node", "network", "CI", "push"]
+}

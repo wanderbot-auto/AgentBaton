@@ -1,0 +1,673 @@
+{
+  "contract": "agentbaton.goal-admission-handoff.root-results.v1",
+  "recorded_at": "2026-10-30T23:08:56.158078+00:00",
+  "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+  "PR": 18,
+  "source_original": "9942d2de833d183a486a00d0de6960e09209f23b",
+  "source_corrections": [
+    "d9149a0111dd81776f3853e0e988bb5b0ba7a521",
+    "04de1f8136c86288b7c479127ca826441c4a728d"
+  ],
+  "source_graph_argv": "ebd79d1fde6ef0b4858b562b71ba31f984be2735",
+  "actual_passed": {
+    "pr18-observed-handoff-full-core2": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 147.98538734699832,
+        "minimum_free_bytes": 164143104,
+        "interruption": null,
+        "log_sha256": "f6c9980cf54b0af4a1c952f441eec39398d2b422027eadfba9396fd9bed4a988",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 169 filtered out; finished in 0.00s",
+          "test result: ok. 170 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 128.99s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-full-core2/RESULT.json",
+        "sha256": "1d10ebb055540d815f530ff19281fdeb6cbcf2cb072ee6f39a858ea4ff29dcc5",
+        "bytes": 982
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-full-core2/INPUTS.json",
+        "sha256": "773a6860111b97ee72267f0cf82217996cd913abeb68e56d53dbb8845f095701",
+        "bytes": 14635
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-full-core2/command.log",
+        "sha256": "f6c9980cf54b0af4a1c952f441eec39398d2b422027eadfba9396fd9bed4a988",
+        "bytes": 29303
+      }
+    },
+    "pr18-observed-handoff-full-factory1": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 141.4420347690466,
+        "minimum_free_bytes": 179249152,
+        "interruption": null,
+        "log_sha256": "c7e080b70fa54f116f04b3e109087344b273f1324f5b077f6d90c32902b0b4b2",
+        "summaries": [
+          "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 116.07s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-full-factory1/RESULT.json",
+        "sha256": "cf68d4fed2a3674b4fcf28af614f66afdbf15130834ac63254368c57fa6c4551",
+        "bytes": 931
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-full-factory1/INPUTS.json",
+        "sha256": "89a9382ef0c76f8a12c7f7cac5a916ba07f2163c40d5538fcc12d2d62512ac7c",
+        "bytes": 14689
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-full-factory1/command.log",
+        "sha256": "c7e080b70fa54f116f04b3e109087344b273f1324f5b077f6d90c32902b0b4b2",
+        "bytes": 10339
+      }
+    },
+    "pr18-observed-handoff-full-infra1": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 0,
+        "seconds": 7.3153735809610225,
+        "minimum_free_bytes": 351641600,
+        "interruption": null,
+        "log_sha256": "ef05afdb161688a5b6d535de6b3328c7ba573d3b04713e096a0442ec68dc9bfe",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-full-infra1/RESULT.json",
+        "sha256": "c74b90f15e271ea71d1a3bf06a6d2a5dfeea62ebb97a445a17f1676d43026a87",
+        "bytes": 707
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-full-infra1/INPUTS.json",
+        "sha256": "0f9d04e2a6ae170aae73e03f047d3eef73ee4e3b8422f088a81eca4962837583",
+        "bytes": 1612
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-full-infra1/command.log",
+        "sha256": "ef05afdb161688a5b6d535de6b3328c7ba573d3b04713e096a0442ec68dc9bfe",
+        "bytes": 369
+      }
+    },
+    "pr18-observed-handoff-clippy1": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 18.179450884985272,
+        "minimum_free_bytes": 431210496,
+        "interruption": null,
+        "log_sha256": "babfe3edd2913d6dfd193098bf9cf83419f90731e51a180978f29432b0a4041a",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-clippy1/RESULT.json",
+        "sha256": "65f96edb3d641c90c8f66fefce68437e378f12d144cc31e868aca5e6eb16e1f5",
+        "bytes": 775
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-clippy1/INPUTS.json",
+        "sha256": "6a20ae56060e33567a6ffa8bdb2cc92123c7c8434ff0c44f7362a858a18bdfbc",
+        "bytes": 14638
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-clippy1/command.log",
+        "sha256": "babfe3edd2913d6dfd193098bf9cf83419f90731e51a180978f29432b0a4041a",
+        "bytes": 665
+      }
+    },
+    "pr18-observed-handoff-fmt1": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "seconds": 1.6095064990222454,
+        "minimum_free_bytes": 435720192,
+        "interruption": null,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-fmt1/RESULT.json",
+        "sha256": "fe3045e034eeb1b273e9ba51fd5b26a5dc3059c47719aee604f4514f05cbe1be",
+        "bytes": 718
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-fmt1/INPUTS.json",
+        "sha256": "ad8eb341f78122994b58aa8b589ea20d66c0bbd3e420c507b177cd8facfe76ce",
+        "bytes": 14581
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-fmt1/command.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    "pr18-observed-handoff-frontend-build1": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 2.0364363479893655,
+        "minimum_free_bytes": 435716096,
+        "interruption": null,
+        "log_sha256": "5634a52d667294799d971e636437e1d6e3f8a505f23cf6e70c0e8becc9ed576f",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-frontend-build1/RESULT.json",
+        "sha256": "5628ee88e5636641b163360068349332d419e7343d36a150320f4271b1b30d19",
+        "bytes": 657
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-frontend-build1/INPUTS.json",
+        "sha256": "71c2ac0a81c4d2fe94ee29a8e73c450c88e3fc6c1a84de274a4be86dbd2d337f",
+        "bytes": 1562
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-frontend-build1/command.log",
+        "sha256": "5634a52d667294799d971e636437e1d6e3f8a505f23cf6e70c0e8becc9ed576f",
+        "bytes": 984
+      }
+    },
+    "pr18-observed-handoff-preview-build1": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton",
+          "--features",
+          "agentbaton-core/preview-evidence"
+        ],
+        "exit": 0,
+        "seconds": 17.179788444016594,
+        "minimum_free_bytes": 359522304,
+        "interruption": null,
+        "log_sha256": "342365c29b025c77b09edae374ba69dde9feb30c915d896f5289d94393b8942c",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-preview-build1/RESULT.json",
+        "sha256": "a86f0a5a1bb623d068a90075bf727f96f7eda0923e70654260e1ef5131d3ec7f",
+        "bytes": 809
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-preview-build1/INPUTS.json",
+        "sha256": "362f78caa491b1d8758170cbb6526d566d77051221128923938e3836a7f08b71",
+        "bytes": 14672
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-preview-build1/command.log",
+        "sha256": "342365c29b025c77b09edae374ba69dde9feb30c915d896f5289d94393b8942c",
+        "bytes": 665
+      }
+    },
+    "pr18-observed-handoff-freeze-command1": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/pr18-observed-handoff-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/pr18-observed-handoff-probe1"
+        ],
+        "exit": 0,
+        "seconds": 0.4014888129895553,
+        "minimum_free_bytes": 320110592,
+        "interruption": null,
+        "log_sha256": "070ff09078dbebfc2a98ba201cdc79e4fd7bdaf7199cc3463a67cea63bef581d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-freeze-command1/RESULT.json",
+        "sha256": "c90fb40979c63b763816049e6a90ebc09613320ef90fb4862148834789a2bbd4",
+        "bytes": 902
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-freeze-command1/INPUTS.json",
+        "sha256": "97790cfa36a5ffd2f55d4f5ae6b8c577e4989da80b6701c7fb656c52a4a22785",
+        "bytes": 1807
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-freeze-command1/command.log",
+        "sha256": "070ff09078dbebfc2a98ba201cdc79e4fd7bdaf7199cc3463a67cea63bef581d",
+        "bytes": 1665
+      }
+    },
+    "pr18-observed-handoff-childcancel-command1": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "cancel",
+          "--tools",
+          "/workspace/.onboarding/pr18-observed-handoff-frozen1",
+          "--frontend",
+          "apps/desktop/dist",
+          "--manifest",
+          "/workspace/.onboarding/pr18-observed-handoff-childgoal-candidate1.json",
+          "--chromium",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/pr18-observed-handoff-childcancel-actual1"
+        ],
+        "exit": 0,
+        "seconds": 17.15067150304094,
+        "minimum_free_bytes": 315260928,
+        "interruption": null,
+        "log_sha256": "91a2e13bf30edf14ac453dca6f22b0a998e9b7db45f66dc869cd77223f1b186e",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-childcancel-command1/RESULT.json",
+        "sha256": "1d1f9ccc2fbcae81342756e4660be170817d8414c1684c864f9a49a3c7af336d",
+        "bytes": 1303
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-childcancel-command1/INPUTS.json",
+        "sha256": "c4690e653c6a144253940820652f5ed52c91cabe68e1f67b8803ad8bc711ae02",
+        "bytes": 2209
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-childcancel-command1/command.log",
+        "sha256": "91a2e13bf30edf14ac453dca6f22b0a998e9b7db45f66dc869cd77223f1b186e",
+        "bytes": 142
+      }
+    },
+    "pr18-observed-handoff-childcancel-public-command1": {
+      "result": {
+        "source": "090df57e8789ead0de9543fd9856ff530165c7e9",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "python",
+          "scripts/record-child-goal-ci-evidence.py",
+          "--private-dir",
+          "/workspace/.onboarding/pr18-observed-handoff-childcancel-actual1",
+          "--case",
+          "cancel",
+          "--manifest",
+          "/workspace/.onboarding/pr18-observed-handoff-childgoal-candidate1.json",
+          "--exit-code",
+          "0",
+          "--output",
+          "/workspace/.onboarding/pr18-observed-handoff-childcancel-public1"
+        ],
+        "exit": 0,
+        "seconds": 0.10075657098786905,
+        "minimum_free_bytes": 214904832,
+        "interruption": null,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-childcancel-public-command1/RESULT.json",
+        "sha256": "ca5a5e4779ff425e936c4569a407f87fbd389ee0a4987a9cc975e04255048984",
+        "bytes": 982
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-childcancel-public-command1/INPUTS.json",
+        "sha256": "dca941538e0b62a54ce9fda7b66fb4771b176ed6e8aff5f8ddfb1b9765549938",
+        "bytes": 1886
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-childcancel-public-command1/command.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  },
+  "retained_failed": {
+    "pr18-observed-handoff-full-core1": {
+      "result": {
+        "source": "429a6f7cb7c7a1429df7a4c671be1627e9488536",
+        "root": "/workspace/.worktrees/factory-runtime-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 101,
+        "seconds": 12.046228270046413,
+        "minimum_free_bytes": 265965568,
+        "interruption": null,
+        "log_sha256": "d9cff462d2d1a33fe7416f5aff9845000ed55e034bc1c3f4fde9a3bf6afaba9c",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_file": {
+        "path": ".onboarding/pr18-observed-handoff-full-core1/RESULT.json",
+        "sha256": "2fe2c8d5026ce0cb2eb369da531153b40229c6cdc8a075f2babdc65c2ac392c0",
+        "bytes": 774
+      },
+      "inputs": {
+        "path": ".onboarding/pr18-observed-handoff-full-core1/INPUTS.json",
+        "sha256": "a619720d9a35b7890a314788c4022d1a6cdca2ba05ca21c618d47d994079043b",
+        "bytes": 14635
+      },
+      "log": {
+        "path": ".onboarding/pr18-observed-handoff-full-core1/command.log",
+        "sha256": "d9cff462d2d1a33fe7416f5aff9845000ed55e034bc1c3f4fde9a3bf6afaba9c",
+        "bytes": 1136
+      }
+    }
+  },
+  "counts_not_additive": {
+    "Core_unique": 170,
+    "new3_Core_Store_SQLite_controls_included": true,
+    "Factory_unique": 33,
+    "actual_rework_and_original3busy_controls_included": true,
+    "infrastructure_unique": 269,
+    "browser_child_cancel": {
+      "checks": 4,
+      "screenshots": 3,
+      "daemon_exit": 0,
+      "cleanup_complete": true
+    }
+  },
+  "source_reviews": {
+    "Goal_handoff_P2_closed": {
+      "path": ".onboarding/goal-admission-handoff-independent-review/REVIEW-d9149a0.json",
+      "sha256": "bdb72fbf395af490356b6cd11ff3c680978e796c43b7e771fb468c3120d81f6a",
+      "bytes": 1576
+    },
+    "actual_missing_blocking_send_compile_failure_corrected_and_review_erratum": {
+      "path": ".onboarding/goal-admission-handoff-independent-review/REVIEW-04de1f8.json",
+      "sha256": "7339e45f2f9e89d10d9377904989be3d8f89b55947ebc3067713cbd8f3f7c025",
+      "bytes": 1689
+    },
+    "finite_argv_v2": {
+      "path": ".onboarding/graph-provider-argv-diagnostics-independent-review/REVIEW.json",
+      "sha256": "7768a3a7828c0d7e151e9c08919cbfea0858cb9df20e99da61eb6ec896669de4",
+      "bytes": 4382
+    }
+  },
+  "child_cancel": {
+    "private_report": {
+      "path": ".onboarding/pr18-observed-handoff-childcancel-actual1/report.json",
+      "sha256": "619fc5d61cd71b3ac8e69ea565072ab4986592fb519789ad11bce03bf5ce7fbe",
+      "bytes": 2383718
+    },
+    "finite_summary": {
+      "path": ".onboarding/pr18-observed-handoff-childcancel-public1/summary.json",
+      "sha256": "c986159274305f6ac8d3c4ced34717a719173673c2b56bf82e87ecff5c6c80ef",
+      "bytes": 2576
+    },
+    "candidate": {
+      "path": ".onboarding/pr18-observed-handoff-childgoal-candidate1.json",
+      "sha256": "1aae590b60f93531eb9b553043da8a890ee499c0e5135e84065fce1448406df8",
+      "bytes": 1277
+    },
+    "checks": [
+      {
+        "id": "CG01",
+        "status": "passed",
+        "evidence": "Separate actual Native fixture establishes original Grant ceiling; old false and excess policy requests denied without DB/journal/attempt mutation"
+      },
+      {
+        "id": "CG02",
+        "status": "passed",
+        "evidence": "Complete private-Owner-approved UI scope; all Factory/Graph/session/attempt/dispatch/reservation execution domains0, inactive leases, only explicit unused Native metadata remains"
+      },
+      {
+        "id": "CG04",
+        "status": "passed",
+        "evidence": "Actual live Graph cancel reply lost, explicit same-key recovery and actual cancelled view; no TaskAccepted or automatic opposite action"
+      },
+      {
+        "id": "CG06",
+        "status": "passed",
+        "evidence": "Factory-bound Native-confirmed grant3 unchanged after Factory approval, both explicit Native revision histories retained; one derived run/one immutable saved ref, shared3(or2 cancellation) attempts consumed with active0, no refund/new identity/hidden Native Graph approval, actual owned-stop journal and unchanged source"
+      }
+    ],
+    "screenshots": [
+      {
+        "path": "/workspace/.onboarding/pr18-observed-handoff-childcancel-actual1/01-complete-explicit-execution-policy.png",
+        "sha256": "3db72469910d2215f9c98de1c6ae6d17bbadbfe6fe8ef7d84b479a4272a20f58",
+        "dimension": "Linux Chromium, NOT Native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/pr18-observed-handoff-childcancel-actual1/02-exact-saved-raw-reference-before-start.png",
+        "sha256": "8df06d6761aaa840845cae0eccf79e381ab7ca50d2b43084e8fc8337244b9cd9",
+        "dimension": "Linux Chromium, NOT Native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/pr18-observed-handoff-childcancel-actual1/04-persisted-final-graph-and-factory.png",
+        "sha256": "46e899730db9602c7d49931689dc8e552b6e1b8bd5b68299ea85446eacc61b02",
+        "dimension": "Linux Chromium, NOT Native/macOS"
+      }
+    ],
+    "cleanup": [
+      {
+        "action": "HTTP_serve_and_handler_join",
+        "confirmed": true,
+        "active": {}
+      },
+      {
+        "action": "actual_private_daemon_wait",
+        "pid": 2950784,
+        "exitcode": 0
+      },
+      {
+        "action": "fixed previously verified generated identities inspected",
+        "required_records_for_success": 1,
+        "required_identities_for_success": 2,
+        "workflow_successful_before_cleanup": true,
+        "actual_bound_records": 1,
+        "actual_bound_identities": 2,
+        "verified_records": 1,
+        "inspected_identities": 2,
+        "observations": [
+          {
+            "role": "owned_provider",
+            "expected": {
+              "pid": 2951246,
+              "pgid": 2951246,
+              "start_ticks": "27137266"
+            },
+            "observed": null,
+            "original_identity_gone": true,
+            "signal_sent": false
+          },
+          {
+            "role": "owned_companion",
+            "expected": {
+              "pid": 2951248,
+              "pgid": 2951246,
+              "start_ticks": "27137271"
+            },
+            "observed": null,
+            "original_identity_gone": true,
+            "signal_sent": false
+          }
+        ],
+        "complete": true
+      },
+      {
+        "action": "bound_Graph_provider_identity_gone",
+        "expected": {
+          "pid": 2951436,
+          "pgid": 2951436,
+          "start_ticks": "27137839"
+        },
+        "observed": null,
+        "confirmed": true,
+        "signal_sent": false
+      },
+      {
+        "action": "all_persisted_sessions_match_bound_stopped_processes",
+        "confirmed": true,
+        "session_ids": [
+          "89f1c952-010b-4fc0-afe8-7b6b73182d93",
+          "b3c08693-f330-4dcf-a929-6f5d089ef98f"
+        ]
+      }
+    ],
+    "root_viewed_original": "04-persisted-final-graph-and-factory.png",
+    "natural_argv_refusal": "not observed in this passing case; no claim original CI race reproduced or fixed"
+  },
+  "prior_CI": {
+    "head": "71fd73958dd6b340bf030c0e747cd392fa82cc72",
+    "Environment": 41113871366,
+    "Product": 41113871143,
+    "result": "Env3/Rust/AppleSilicon pass, Intel29/1rework plan2run14blocked, UI childcancel Graphargv compoundassert fail",
+    "Intel_finite_artifact": 13005888035,
+    "Intel_finite_zip": {
+      "path": ".onboarding/pr18-head71f-evidence/intel-finite.zip",
+      "sha256": "e844310d2152acf8dede754ac06399c874932639d125d6c0ed6305ba109ae6d3",
+      "bytes": 4868
+    },
+    "UI_artifact": 13004897903,
+    "UI_zip": {
+      "path": ".onboarding/pr18-head71f-evidence/ui.zip",
+      "sha256": "9ac47ce15b4344d0ab70b3884181c6e06a1a2f7c61207896eec51fab474dcc1d",
+      "bytes": 11424196
+    },
+    "Intel_actual_log": {
+      "path": ".onboarding/pr18-head71f-evidence/intel-job-api.log",
+      "sha256": "9cbfe16357ea2b2f5bcf34a85680e1e2b39c882c095140926de83d9a5601b5ca",
+      "bytes": 213043
+    },
+    "UI_actual_log": {
+      "path": ".onboarding/pr18-head71f-evidence/ui-job-api.log",
+      "sha256": "49e95dca9eb617d35916e23e59ac4b81e8c97d1772b5a9b160a3de62ce9cdfea",
+      "bytes": 94084
+    }
+  },
+  "meaning": "Private owned sample handoff preserves public wire/recovery/error semantics and original budgets/authority. finite argv diagnostics never retries/defers/changes acceptability. Local source-bound passes are not current Mac, natural race or Intel budget resolution.",
+  "remaining": [
+    "precise new candidate CI and dualMac/Native/development packages",
+    "normal/loststart UI not rerun locally after this diagnostic-only composition; prior results source-bound and CI required",
+    "full130 requirements including remaining workflows/remote/retention/delivery"
+  ],
+  "authority": "main653679d OWNER001002 ACK/no003; AB-START-001 unchanged. No formalApprove/merge/privateProvider/spend/signing/production."
+}

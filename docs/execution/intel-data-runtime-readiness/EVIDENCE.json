@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T07:15:46.909300+00:00",
+  "base": "e874b123d3e7f329a551e21922baf1a7a643548f",
+  "status": "source_pure_ready_independent_review_and_Root_actual_tests_pending",
+  "source_sha256": {
+    "crates/core/tests/factory_runtime_ipc.rs": "a6622d7b1e80b3b565c29e1eb3b0115f78822d6eac08e1f5d6fc6007f468ffee"
+  },
+  "retained_actual_failure": {
+    "Product_run": 41176611805,
+    "source": "e874b123d3e7f329a551e21922baf1a7a643548f",
+    "platform": "macOS Intel",
+    "Factory_passed": 32,
+    "Factory_failed": 2,
+    "raw_log_sha256": "f53413796537070c671fbc934f2a28f7a49f495571dbcd1248da5fc989207156",
+    "selected_test": "actual_data_factory_wrong_start_revision_is_stale_before_read_worker_or_intent",
+    "original_source_line": 1897,
+    "exact_site": "shared run_data_mode RPC call(&runtime, request).unwrap()",
+    "error_code": "PERMISSION_DENIED",
+    "fixed_message": "Runtime state is missing or inaccessible",
+    "side_effect_state": "not_started",
+    "missing_path": "unknown: runtime directory or session.token lstat",
+    "failed_RPC_method": "not_recorded",
+    "not_StoreRuntime_init": true,
+    "unrelated_rework_failure": "retained; not investigated or reclassified"
+  },
+  "source_causality": {
+    "existing_fixture_canonical_base_and0700_children": true,
+    "production_bind_order": [
+      "database",
+      "socket",
+      "create token",
+      "write72byte token",
+      "sync token",
+      "return daemon"
+    ],
+    "old_readiness": "socket exists; schema probe cannot prove token ready",
+    "established": "A legitimate startup schedule can satisfy old readiness before token exists/completes.",
+    "not_established": "That schedule or any exact missing path/RPC was the actual old failure.",
+    "Mac_alias_root_cause_claim": false
+  },
+  "new_readiness": {
+    "socket_present": true,
+    "token_regular_no_symlink": true,
+    "token_uid": "effective uid",
+    "token_mode": "0600 exact",
+    "token_links": 1,
+    "token_bytes": 72,
+    "authority": "readiness metadata only; unchanged production call still validates/authenticates",
+    "original_startup_deadline_seconds": 5,
+    "new_sleep_or_retry_or_budget": false
+  },
+  "preservation": {
+    "entire_original_fixture_inverse_sha256": "cb5de282125ac02394a301ab43bce35f163496120e78ea21265cc31b1fa9272a",
+    "production_ipc_sha256_unchanged": "53b025469e2fd13f7572ff6a3f2586965794ae9b07865cf65f855141f38f3dc1",
+    "stale_and_zero_sideeffect_assertions": "exact original full-file inverse",
+    "production_files_changed": false
+  },
+  "source_pure_validation": {
+    "metadata_model_cases": 14,
+    "source_bound_predicates": 6,
+    "source_proof_sha256": "c7edf7e4d4fcf3033b3d52aa467d789aa82b75b927b16e695efa5dcd663de844",
+    "source_proof_script_sha256": "bf417c06144c27a851981878524f8ba37bc44acbd444f140aa8b9d00a8b761d2",
+    "Rust_tests_authored_not_run": 2,
+    "dimension": "Python metadata/event ordering model + exact source inverse/static binding checks only",
+    "diff_check": "passed"
+  },
+  "not_run": [
+    "Rust compilation/unit/focused Factory test",
+    "actual SQL/daemon/process/fixture",
+    "actual Mac missing-path reproduction or new CI",
+    "Node/browser/network",
+    "separate rework diagnosis",
+    "formal approval"
+  ],
+  "next": "Independent review; Root actual focused Rust on matching source/tools; new Mac CI evidence."
+}

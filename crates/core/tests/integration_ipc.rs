@@ -21,6 +21,14 @@ struct Server {
     runtime: PathBuf,
     stop: Arc<AtomicBool>,
     thread: Option<JoinHandle<agentbaton_core::Result<()>>>,
+    join_outcome: Option<ActorJoinOutcome>,
+}
+// Test-host observation only; this does not certify worker/process stop.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ActorJoinOutcome {
+    Ok,
+    Error,
+    Panic,
 }
 impl Server {
     fn start(runtime: PathBuf) -> Self {
@@ -32,6 +40,7 @@ impl Server {
             runtime,
             stop,
             thread: Some(thread),
+            join_outcome: None,
         }
     }
     fn request(&self, frame: Value) -> Value {
@@ -87,6 +96,11 @@ impl Server {
         self.stop.store(true, Ordering::Release);
         if let Some(thread) = self.thread.take() {
             let outcome = thread.join();
+            self.join_outcome = Some(match &outcome {
+                Ok(Ok(())) => ActorJoinOutcome::Ok,
+                Ok(Err(_)) => ActorJoinOutcome::Error,
+                Err(_) => ActorJoinOutcome::Panic,
+            });
             if !std::thread::panicking() {
                 outcome.unwrap().unwrap();
             }

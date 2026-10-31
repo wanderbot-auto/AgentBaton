@@ -1,0 +1,32 @@
+{
+  "contract": "agentbaton.pr19.squash-ancestry-review.v1",
+  "verdict": "SOURCE_READY_CONDITIONALLY_FOR_EXACT_7ECF_ANCESTRY_MARKER",
+  "formal_approval": false,
+  "reviewed_content_merge": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+  "observed_current_feature_head": "72fc53eba8ee2bf8c3020af6947b8791f20fe1a1",
+  "protected_squash": "7ecf0c51e53de26cb443b328ad660b4b1f491e5a",
+  "approved_parent": "ae42fcdc55473ef1574f1844432c19395c7373a6",
+  "equal_parent_and_squash_tree": "b6bdb713755a427827baa76533ad5391304a4d52",
+  "finding": "No source blocker for a strictly content-preserving marker under the exact preconditions; no marker or commit performed",
+  "proof_sha256": "ed9d1fb1b8a9f8b61b6d7f7136dd44efbeef084df47466683f90190d585d0f7c",
+  "adr_sha256": "27738ffe9fefac6a96b68c056b41938f9dd1025b01ce1b008eb92b596f6cbca1",
+  "source_check_script_sha256": "99da5636a0cfbedf5c014ab483299dc2719fad06106aa47c2238a46617beb73f",
+  "checks": {
+    "git_object_and_parent_ancestry": true,
+    "three_complete_conflict_results": true,
+    "critical_blob_preservation_checks": 18,
+    "current_delta_product_source": false,
+    "remote_freshness": "NOT_CHECKED",
+    "metadata_actual_results_acceptance": "outside_scope",
+    "runtime_execution": "NOT_RUN",
+    "marker_executed": false,
+    "Root_tree_or_index_modified": false
+  },
+  "mandatory_gate": "Fresh remote main exact7ecf; separate ADR/proof commit; original ae42 real ancestor; all intervening changes accounted; marker tree equals immediate premarker tree and exact ordered parents; every different main SHA refuses this decision",
+  "limits": [
+    "Remote freshness unobserved",
+    "Root-reported runtime subset results not independently reexecuted or certified here",
+    "No formal GitHub approval, protected merge, marker, network, SQL, Cargo, Node, browser or product process",
+    "No claim full130/realProvider/remote/signing/production complete"
+  ]
+}

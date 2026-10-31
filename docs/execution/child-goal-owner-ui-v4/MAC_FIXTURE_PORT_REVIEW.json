@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_READY",
+  "candidate": "b3b3426efe9ac2f84a80daafdbe751cf97b85c80",
+  "parent": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+  "port_source": "fd24203cff5ee6c0aa9a1dcf6e8dfb2d93688375",
+  "scope": "Independent read-only source review of one fixture allocation change; no runtime verification",
+  "file": {
+    "path": "crates/core/src/task_workspace_binding_ipc_tests.rs",
+    "before_sha256": "f2620fb45faef9e1c1dda2070982012ab5526f3d3b07dc9c2058b94c40ac42e0",
+    "after_sha256": "1a40d61a326ab9f8f915c405e01e2ec16dc6341b3b3c4313450331f1903706cd",
+    "production_ipc_sha256": "13a0b25bd276544c660f3afc0bc6c1493b1d679837e57e5af547e7c03e407aeb",
+    "unchanged_prefix_bytes": 2841,
+    "unchanged_suffix_bytes": 2511,
+    "changed_files": [
+      "crates/core/src/task_workspace_binding_ipc_tests.rs"
+    ]
+  },
+  "checks": [
+    "fixed_HEAD_and_parent",
+    "whole_commit_one_test_file_only",
+    "exact_fd24203_file_port",
+    "worktree_exact_commit",
+    "full_inverse_recovers_b55_file",
+    "entire_prefix_and_business_suffix_byte_equal",
+    "two_original_test_functions_retained",
+    "canonical_tmp_parent",
+    "fixed_short_prefix",
+    "creation_mode0700_and_exact_named_checks",
+    "old_business_assertions_shutdown_cleanup_byte_equal",
+    "production_ipc_entire_file_unchanged",
+    "test_module_cfg_test_only",
+    "Root_proof_digest_and_sizes_verified"
+  ],
+  "source_checks_passed": 14,
+  "exact_inverse": "Replace only new allocation/canonical/mode assertion block with original tempfile::tempdir line; the complete result equals original b55 bytes. Complete candidate file equals reviewed fd24203 file.",
+  "semantics": {
+    "temporary_root": "Canonical /tmp parent is selected before unique tempfile Builder creates short ab-twb owned fixture; mode0700 requested at creation and exact named mode plus canonical path/parent asserted before Daemon::bind.",
+    "production_boundary": "Daemon::bind still invokes ensure_runtime -> no_symlinks; absolute/no-parent-traversal and each component symlink rejection, euid/private/type checks, NOFOLLOW private-file creation all unchanged. No production canonicalization or symlink acceptance is added.",
+    "business_body": "All source creation, real data worker preview, unreaped-worker Busy/not_started, readonly tasks.get, full table image zero-change, explicit shutdown and owned worker reaping remain byte identical.",
+    "no_causal_overclaim": "This removes default temporary alias components from this test fixture. No exact historical symlink component is reconstructed and no Mac success is claimed."
+  },
+  "original_failure": {
+    "attribution": "Root-reported Product41183987127 both Mac209PASS1FAIL in fixture Daemon::bind at original line76; raw Mac logs are not in this local evidence directory, so this review does not independently verify their bytes.",
+    "retained": true,
+    "separate_from_UI": "Owner button line1697 failure has separate diagnosis and no causal link established."
+  },
+  "Root_port_proof_sha256": "7a0580ab4e82ac71faa152b8fe5133642fe66362bfbe648807cf9b1009c3f4e8",
+  "not_run": [
+    "focused Rust test (Root shell67269 status not observed here)",
+    "Mac/CI revalidation",
+    "Cargo/SQL/Node/browser/product process/network"
+  ],
+  "blocking_findings": [],
+  "mutations": "Only this private review JSON; no candidate/worktree/index changes. Existing untracked apps/desktop/node_modules left untouched."
+}

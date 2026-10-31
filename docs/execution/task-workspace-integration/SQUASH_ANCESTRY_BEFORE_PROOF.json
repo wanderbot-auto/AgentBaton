@@ -1,0 +1,210 @@
+{
+  "contract": "agentbaton.pr19.squash-ancestry-source-proof.v1",
+  "verdict": "SOURCE_READY_CONDITIONALLY_FOR_EXACT_SQUASH_ANCESTRY_MARKER",
+  "formal_approval": false,
+  "reviewed_content_merge": "23d7638bcc08260c644359ccff8a40b2bec4f2ad",
+  "reviewed_content_merge_tree": "7a3203d0812f3b433aa91c2efdcc7600219f619d",
+  "current_feature_head": "72fc53eba8ee2bf8c3020af6947b8791f20fe1a1",
+  "current_feature_tree": "e12acc4de9efb60c92795333482f4cd82c564c36",
+  "current_delta_from_reviewed_content_merge": [
+    "BOOTSTRAP_MANIFEST.json",
+    "docs/execution/STATUS.md",
+    "docs/execution/requirements-progress.json",
+    "docs/execution/task-workspace-integration/CHECKPOINT.md",
+    "docs/execution/task-workspace-integration/EVIDENCE.json",
+    "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+    "docs/execution/task-workspace-integration/PLAN.md",
+    "docs/execution/task-workspace-integration/PROGRESS.md",
+    "docs/execution/task-workspace-integration/parent-ae42/06-task1-bound-execution-mobile.png",
+    "docs/execution/task-workspace-integration/parent-ae42/08-unbound-entry-exact-recovered-desktop.png",
+    "docs/execution/task-workspace-integration/parent-ae42/summary.json"
+  ],
+  "current_metadata_result_acceptance": "outside this ancestry/source review",
+  "feature_merge_parents": [
+    "e3ae624287a76bbaaead96f45f587a58aace1c66",
+    "ae42fcdc55473ef1574f1844432c19395c7373a6"
+  ],
+  "actual_content_merge_base": "674d0a3502776c7996a0cf2e6f00ad3e5126b14d",
+  "approved_parent": "ae42fcdc55473ef1574f1844432c19395c7373a6",
+  "protected_squash": "7ecf0c51e53de26cb443b328ad660b4b1f491e5a",
+  "equal_parent_and_squash_tree": "b6bdb713755a427827baa76533ad5391304a4d52",
+  "parent_is_actual_feature_ancestor": true,
+  "protected_squash_is_feature_ancestor_now": false,
+  "feature_is_not_equal_tree_to_main": true,
+  "prior_feature_main_merge_base": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "resolved_three_conflicts": [
+    {
+      "path": "docs/execution/STATUS.md",
+      "sha256": "d2b7ec77cfa9338f43ce1a28e1e222a1cdfbc408d0a6ccbc4927cc9027d968b3",
+      "full_threeway_reconstruction": true,
+      "overlaps": [
+        {
+          "base_line_zero_based": 0,
+          "base_end_zero_based": 0,
+          "order": [
+            "theirs",
+            "ours"
+          ],
+          "boundary_blank_removed": true,
+          "ours_sha256": "090b939e144304f0e261414350034527fa116656c630276e20961ae042762e3c",
+          "theirs_sha256": "63ad6d1a4a7ae80740ea38dc80dabcb28b031c87b436ec37dcd2ae7ad17d6e07"
+        }
+      ]
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sha256": "13a0b25bd276544c660f3afc0bc6c1493b1d679837e57e5af547e7c03e407aeb",
+      "full_threeway_reconstruction": true,
+      "overlaps": [
+        {
+          "base_line_zero_based": 2913,
+          "base_end_zero_based": 2913,
+          "order": [
+            "ours",
+            "theirs"
+          ],
+          "boundary_blank_removed": false,
+          "ours_sha256": "0f9ea8d1b6151bdfca8ed46082016723b80ac6e67ffc9b891c7a59c2e5369607",
+          "theirs_sha256": "d3483c653671c7432d92c3a0416c4c91a5e134fb3915c6ec256242b5a9a4ba33"
+        }
+      ]
+    },
+    {
+      "path": "BOOTSTRAP_MANIFEST.json",
+      "sha256": "444991c35d38715d27e8da75001d2ac912a89f2dd10907a5170185735cdafe3b",
+      "semantic_diff_from_approved_parent": [
+        "/files/docs/execution/STATUS.md"
+      ],
+      "actual_STATUS_pin_verified": true
+    }
+  ],
+  "critical_source_preservation": [
+    {
+      "path": "crates/core/src/factory_history_reads.rs",
+      "sha256": "2dee44904500aad63b9a68278595f0cded3cdba2455bda7578a5f480725625f2",
+      "preservation": "exact schema discriminator15->16; all other bytes preserved"
+    },
+    {
+      "path": "crates/core/src/factory_history_reads_tests.rs",
+      "sha256": "faaebc1fe2772d66cfdcaeb5761156359ecb38558911b075bbf457e1ff939ca0",
+      "preservation": "old complete test file retained plus one appended control"
+    },
+    {
+      "path": "crates/core/src/factory_history_actor_tests.rs",
+      "sha256": "f331222487c3eb77502a043eba285b69989244fc9d2e5c31c9160aee7c6067c4",
+      "preservation": "exact approved-parent blob"
+    },
+    {
+      "path": "crates/core/src/factory_summary_proof_tests.rs",
+      "sha256": "0f84cdfbd03b2e46d8ad9d9fc1a7256403d3c267394171e3e798639319cb8050",
+      "preservation": "exact approved-parent blob"
+    },
+    {
+      "path": "crates/core/src/goal_stop_service_tests.rs",
+      "sha256": "8b98083affc471cec3bc28671f7a2fa9452c65d0897b5cddd7fc85c384f8b804",
+      "preservation": "exact approved-parent blob"
+    },
+    {
+      "path": "crates/core/src/ipc_owner_read_queue_tests.rs",
+      "sha256": "1216061ae609817c68e0289bbf4baf5ba3d3ec99db0e7ad3ae5d721c5e4de5a6",
+      "preservation": "exact approved-parent blob"
+    },
+    {
+      "path": "apps/desktop/src/ManagedSessions.tsx",
+      "sha256": "cd3234c9892493d41fd852d26d5b8901cf99e702bf182c79e6d77eb9062a0d1d",
+      "preservation": "exact e3ae624287a76bbaaead96f45f587a58aace1c66 blob"
+    },
+    {
+      "path": "apps/desktop/src/TaskCodeWorkspace.tsx",
+      "sha256": "f6f9ec6ebddfd0ecfea919426a37aebb9e20fe8e3125093920c3ad422a16a6dd",
+      "preservation": "exact e3ae624287a76bbaaead96f45f587a58aace1c66 blob"
+    },
+    {
+      "path": "apps/desktop/src/task-workspace-binding-wire.ts",
+      "sha256": "5f505bbabb69b7389af4573615fd1ffc707a2eb1090113ac50e8d9e1e4ab6d62",
+      "preservation": "exact e3ae624287a76bbaaead96f45f587a58aace1c66 blob"
+    },
+    {
+      "path": "apps/desktop/src/workspace-preparation-wire.ts",
+      "sha256": "2711af2cd310ed985767cd6c58ffe695257d82497695b00472ce9547a82946c7",
+      "preservation": "exact e3ae624287a76bbaaead96f45f587a58aace1c66 blob"
+    },
+    {
+      "path": "crates/core/src/task_workspace_binding.rs",
+      "sha256": "5aa76ce8e535f2bf6fc5d26aeaa520136d417149df6d087c7f18b2796817b7ba",
+      "preservation": "exact e3ae624287a76bbaaead96f45f587a58aace1c66 blob"
+    },
+    {
+      "path": "crates/core/src/workspace_resolution.rs",
+      "sha256": "e65cf241f76524639b7f0a2ece05315933a7795ee5205d4db09594b4f8b7db76",
+      "preservation": "exact e3ae624287a76bbaaead96f45f587a58aace1c66 blob"
+    },
+    {
+      "path": "apps/desktop/src/FactoryChildGoals.tsx",
+      "sha256": "7c386d3262f90876f0c72d9b12ff1ba25020a0510a70d18c08c6cf4dce1dc267",
+      "preservation": "exact ae42fcdc55473ef1574f1844432c19395c7373a6 blob"
+    },
+    {
+      "path": "apps/desktop/src/FactoryChildGoals.test.tsx",
+      "sha256": "869e84ff63cdca3deffd98fab66b3ec0aa1b55887dded8f54b85fe569025d6bf",
+      "preservation": "exact ae42fcdc55473ef1574f1844432c19395c7373a6 blob"
+    },
+    {
+      "path": "apps/desktop/src/FactoryChildPlans.tsx",
+      "sha256": "b833b7b6b0984c57a1c3508e365fe8de77a975ddfa59d6edf1fb068445abfc70",
+      "preservation": "exact ae42fcdc55473ef1574f1844432c19395c7373a6 blob"
+    },
+    {
+      "path": "apps/desktop/src/FactoryRuntime.tsx",
+      "sha256": "87455db8e315837852cd87e83117dc945c342716afd7f0e822c7a176fde4df10",
+      "preservation": "exact ae42fcdc55473ef1574f1844432c19395c7373a6 blob"
+    },
+    {
+      "path": "crates/core/src/goal_factory.rs",
+      "sha256": "1ef5e80c2c76281e22b68e5deb277e730c79067a9c5cde8b72f13b251af804f1",
+      "preservation": "exact ae42fcdc55473ef1574f1844432c19395c7373a6 blob"
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "sha256": "33a7ee3a941399b7e52a39e463e78fe737f61449e72cd09dbc0dff0a894a1dae",
+      "preservation": "exact ae42fcdc55473ef1574f1844432c19395c7373a6 blob"
+    }
+  ],
+  "reused_independent_content_review": {
+    "path": "/tmp/pr19-23d-independent-review.json",
+    "sha256": "e5aad8d0602d5cf8ec2d215a4d5cac59ebfe215809fa1b8d7d16aa2d112e9c57",
+    "scope": "23d existing content integration; no new whole-product audit"
+  },
+  "current_origin_main_is_local_ref_only": true,
+  "remote_main_freshness": "NOT_CHECKED_NETWORK_FORBIDDEN",
+  "tracked_worktree_and_index_clean_at_check": true,
+  "preexisting_untracked_paths_not_integrated": [
+    "apps/desktop/node_modules"
+  ],
+  "marker_executed": false,
+  "commit_created": false,
+  "proposed_marker": {
+    "command": "git merge --no-ff -s ours 7ecf0c51e53de26cb443b328ad660b4b1f491e5a",
+    "purpose": "record already-accounted equal-tree squash ancestry after separate reviewed ADR/proof commit",
+    "required_before": [
+      "Fresh authoritative remote/main exactly protected_squash; reject ANY different SHA, even if its tree happens to match",
+      "Local protected_squash and approved_parent exact tree equality remains; approved_parent ancestor of current feature HEAD",
+      "Current feature descends from reviewed23d and only separately reviewed ADR/proof changes occurred since it, or new content changes reviewed separately",
+      "Tracked working tree/index clean; no in-progress merge/rebase/cherry-pick; record immediate premarker HEAD/tree",
+      "Marker starts only after separate ADR/proof commit; no protected-main/ref mutation or protection bypass"
+    ],
+    "required_after": [
+      "Exactly two parents: immediate premarker HEAD then exact protected_squash",
+      "Marker tree equals immediate premarker tree byte-for-byte; no content/index/worktree delta",
+      "Both approved_parent and protected_squash ancestors; attach immutable before/after proof",
+      "Keep normal PR checks and independent review on exact final candidate; no runtime/dualMac/full130 acceptance inferred"
+    ]
+  },
+  "limitations": [
+    "Remote freshness unobserved",
+    "Root-reported runtime subset results not independently reexecuted or certified here",
+    "No formal GitHub approval, protected merge, marker, network, SQL, Cargo, Node, browser or product process",
+    "No claim full130/realProvider/remote/signing/production complete"
+  ],
+  "script_sha256": "99da5636a0cfbedf5c014ab483299dc2719fad06106aa47c2238a46617beb73f"
+}
