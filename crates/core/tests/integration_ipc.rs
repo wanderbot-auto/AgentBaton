@@ -14,6 +14,9 @@ use std::{
     thread::JoinHandle,
 };
 
+#[path = "fixtures/integration_diagnostics.rs"]
+mod diagnostics;
+
 struct Server {
     runtime: PathBuf,
     stop: Arc<AtomicBool>,
@@ -32,7 +35,12 @@ impl Server {
         }
     }
     fn request(&self, frame: Value) -> Value {
-        call(&self.runtime, frame).unwrap()
+        let method = diagnostics::method(&frame["method"]);
+        let reply = call(&self.runtime, frame).unwrap();
+        if let Some(error) = reply.get("error") {
+            diagnostics::ipc_error(method, error);
+        }
+        reply
     }
     fn image(&self) -> Vec<(String, Vec<Vec<SqlValue>>)> {
         let db = Connection::open_with_flags(
@@ -140,6 +148,8 @@ impl Fixture {
             &source,
             &["symbolic-ref", "refs/heads/alias", "refs/heads/integration"],
         );
+        diagnostics::git_environment();
+        diagnostics::fixture("preview", &root, &source, None);
         let server = Server::start(root.join("runtime"));
         let project = result(server.request(json!({"method":"projects.import","params":{"path":source,"name":"Generated integration source"},"idempotency_key":"project"})));
         let task = result(server.request(json!({"method":"tasks.create","params":{"project_id":project["id"],"goal":"Preview does not authorize adoption"},"idempotency_key":"task"})));
