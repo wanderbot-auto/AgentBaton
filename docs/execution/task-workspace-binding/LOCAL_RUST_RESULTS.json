@@ -1,0 +1,186 @@
+{
+  "recorded_at": "2026-10-29T19:55:06.250426+00:00",
+  "scope": "Actual generated Linux Rust/SQLite/Git backend only; not IPC/Native/Provider/macOS/full workspace runtime suite",
+  "runs": [
+    {
+      "source": "461e250909fec726d421a9367fd70f639a627dfb",
+      "root": "/workspace/.worktrees/task-workspace-binding",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "task_workspace_binding",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 32.40570168499835,
+      "minimum_free_bytes": 299859968,
+      "interruption": null,
+      "log_sha256": "44adcdc01a7fbe0d6d85ff3b5bd59226b0264f2f211cf7aed6be9d8319a3dec9",
+      "summaries": [
+        "test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 139 filtered out; finished in 8.17s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "0d6a034785ffd3d47ca781b2ec41a5036567bb40",
+      "root": "/workspace/.worktrees/task-workspace-binding",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "task_workspace_binding",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 26.774188971001422,
+      "minimum_free_bytes": 378884096,
+      "interruption": null,
+      "log_sha256": "9c6e3bd0719315e9e29c5ba5d69da2226c4e2fd48ce16ae382891b3b64113b57",
+      "summaries": [
+        "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 139 filtered out; finished in 9.33s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "0d6a034785ffd3d47ca781b2ec41a5036567bb40",
+      "root": "/workspace/.worktrees/task-workspace-binding",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "task_workspace_binding",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 16.540144126978703,
+      "minimum_free_bytes": 416059392,
+      "interruption": null,
+      "log_sha256": "da05de309401f7950071f087b753fe6511fb1d94eeca8fab71d423f2efb3d59b",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.82s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "0d6a034785ffd3d47ca781b2ec41a5036567bb40",
+      "root": "/workspace/.worktrees/task-workspace-binding",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--test",
+        "task_workspace_binding",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 101,
+      "seconds": 8.621165110002039,
+      "minimum_free_bytes": 415531008,
+      "interruption": null,
+      "log_sha256": "4d1af9d1ce1c860767b4a0383691a20eddfde5f701e5386bf2a74f433414c0a3",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "fd97e826053b52a9f1412ed60e92cae44bb569cb",
+      "root": "/workspace/.worktrees/task-workspace-binding",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 101,
+      "seconds": 12.054024368000682,
+      "minimum_free_bytes": 398614528,
+      "interruption": null,
+      "log_sha256": "37925df8cb4bc8a48007436e6f0cd6b3a3f619883adaf61f902334e8f85b03b1",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "95c693db9b9c88dcb8d03b3ccdc78f980a5eb6f2",
+      "root": "/workspace/.worktrees/task-workspace-binding",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 12.552652151003713,
+      "minimum_free_bytes": 392032256,
+      "interruption": null,
+      "log_sha256": "884e4ae3ae33590ff47669ab85e48c6e8d18cfe2687c71c4901a45028c8e5987",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  ],
+  "source_reviews": {
+    "2f_bound_kind": "a0315c1acc32baeb233ab1f0a7cf0a827787d2828c061607fc474eb04e828059",
+    "4d_alias": "8058b423807424b102a9fa0613da3ec72b560dd4b305d30daffb71141749015f"
+  },
+  "root_mechanical_test_adapters": {
+    "fd97e826053b52a9f1412ed60e92cae44bb569cb": "Existing Goal plan Task literal new optional field None; no changed assertions",
+    "95c693db9b9c88dcb8d03b3ccdc78f980a5eb6f2": "Carry exact current Factory Root const assert form for older branch base; source reviewer self-review for this trivial equivalence"
+  },
+  "not_run": [
+    "genuine nonempty15 to16 fixture acceptance",
+    "complete schema16 runtime/migration regression",
+    "fixed new binding IPC and Native/UI",
+    "real product Provider and Mac",
+    "full product130 acceptance"
+  ],
+  "old_failure_preserved": {
+    "12PASS1FAIL": true,
+    "failed_test_executable": "task-workspace-binding-core-units1/failing-test.elf",
+    "first_type_complexity_lint": true,
+    "older_base_constant_assert_lint": true
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "recorded_at": "2026-10-29T21:07:29.116174+00:00",
+  "base": "73de1bb86c0777647c53e26e1cf3c5c355cbbb77",
+  "source_head": "8366b26b71968b826893eb335ae81e5a411323af",
+  "prior_source": "fbcff12644a40e438a264d8efad7064f315de6ef",
+  "files": {
+    "apps/desktop/src/App.tsx": "23e59d85507b16ed31bcde44037f1e9289db9277b9ba0cc6fda68dfc073942fb",
+    "apps/desktop/src/TaskCodeWorkspace.test.tsx": "71083b8d48deb70cae003ab35fac0dc94169be5fe1852ff48cfcfa5770f04f86",
+    "apps/desktop/src/TaskCodeWorkspace.tsx": "bfee065f0aaa8c6c460da347098b27bcd6e41744f49db5759dca1025d9c3fbdd",
+    "apps/desktop/src/style.css": "17ee088e5521ba8ee56b4dc00d5150aa3ec08fbb39530d1931b4aebd66792c93",
+    "apps/desktop/src/task-code-workspace-i18n.ts": "064343173edeb949dad3ab9d52dc2c18ecb896d60d5dd4dea4f05ef66860c45f"
+  },
+  "protected_source_byte_unchanged": {
+    "apps/desktop/src/api.ts": "9754c337e90ed8900a43ce60afc7ed302ea2a0f3c0a26ee809538ec98fb1f32b",
+    "apps/desktop/src/task-workspace-binding-wire.ts": "5f505bbabb69b7389af4573615fd1ffc707a2eb1090113ac50e8d9e1e4ab6d62",
+    "apps/desktop/src/workspace-preparation-wire.ts": "2711af2cd310ed985767cd6c58ffe695257d82497695b00472ce9547a82946c7",
+    "apps/desktop/src/Projects.tsx": "8a94b6c5ec766f3acddb22648c89b74595fb0fa7b5c3439e9b923a0c925d18f4",
+    "apps/desktop/src/DataWorkspaces.tsx": "89aaaedf8b1efa8d9a61e9f433fc780e4eaf1186437f82e1b2e141fae3af5664",
+    "crates/core/src/task_workspace_binding.rs": "5aa76ce8e535f2bf6fc5d26aeaa520136d417149df6d087c7f18b2796817b7ba",
+    "crates/core/src/workspace_resolution.rs": "e65cf241f76524639b7f0a2ece05315933a7795ee5205d4db09594b4f8b7db76"
+  },
+  "checks": {
+    "only5allowed_files": true,
+    "fixedAPIallowlist": [
+      "projectsList",
+      "taskGet",
+      "workspacesPrepareTaskGit",
+      "workspacesResolve"
+    ],
+    "no_generic_transport_or_numeric_FS_conversion": true,
+    "App_inverse_byte_equal": true,
+    "existing_stylesheet_prefix_equal": true,
+    "archive_history_does_not_call_creation_resolver": true,
+    "unknown_preserves_original_key_and_payload": true,
+    "checked_wire_parsers_consumed": true,
+    "async_local_parent_identity_guard": true,
+    "immutable_receipt_and_monotonic_read_floor": true,
+    "declared_mocked_component_cases": 24,
+    "diff_check_exit": 0
+  },
+  "NOT_RUN": [
+    "TypeScript typecheck",
+    "Vitest24newcases",
+    "full existing frontend tests",
+    "Vite build",
+    "real Core IPC",
+    "actual browser",
+    "Native/macOS",
+    "Cargo/Actor/Provider/CI"
+  ],
+  "requirements": [
+    "AB-PRJ-002",
+    "AB-PRJ-003",
+    "AB-PRJ-005",
+    "AB-SEC-007",
+    "OWNER-002"
+  ],
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "status": "SOURCE_ONLY_READY_FOR_INDEPENDENT_REVIEW_AND_ROOT_TESTS",
+  "tests_declared_not_run": 24,
+  "actual_test_passes": null,
+  "commands": [
+    {
+      "command": "Python stdlib static source/inverse/protected-file assertions",
+      "exit": 0,
+      "dimension": "source checks only; not TS parse/compile/tests"
+    },
+    {
+      "command": "git diff 73de1bb 8366b26 --check",
+      "exit": 0
+    }
+  ],
+  "permissions_expanded": false,
+  "new_provider_or_cost": false,
+  "restart_limit": "Uncommitted intent retention is same-document only; persisted server receipt remains recoverable by tasks.get.",
+  "review_followup_422dd19": {
+    "recorded_at": "2026-10-29T21:12:53.641435+00:00",
+    "source": "422dd195c83c7f5b28e1a967a5dec00f3c243f30",
+    "prior_source": "8366b26b71968b826893eb335ae81e5a411323af",
+    "dimension": "Python stdlib source/inverse assertions only; no TS syntax/compiler/runtime proof",
+    "checks": {
+      "component_entire_inverse_equals_8366": true,
+      "old24tests_entire_inverse_equals_8366": true,
+      "new_declared_cases": 25,
+      "other_UI_API_wire_files_byte_same": true,
+      "archived_readonly_history_guard_preserved": true,
+      "TaskDraft_required_for_new_prepare": true,
+      "Core_archived_refusal_and_nonDraft_block_source_confirmed": true,
+      "diff_check_exit": 0
+    },
+    "source_pins": {
+      "apps/desktop/src/TaskCodeWorkspace.tsx": "cc38f061e6c65c57d299eceab6b368534dd9924cff238039f52c558d30583444",
+      "apps/desktop/src/TaskCodeWorkspace.test.tsx": "a69b7c1338131fefb62d523af5209207eba6f9856339ccaa25c2f55f4d963b5c"
+    },
+    "core_resolution_source_sha256": "e65cf241f76524639b7f0a2ece05315933a7795ee5205d4db09594b4f8b7db76",
+    "actual_tests": "NOT_RUN",
+    "actual_product": "NOT_RUN",
+    "initial_static_check": "One own Python source assertion initially expected Rust != syntax; actual same Draft guard uses !matches!. Assertion-only exit1 retained in tool trace; no product/test run. Corrected spelling source check passes without source changes.",
+    "original_phase_NOT_RUN_and_seal_preserved": true
+  }
+}

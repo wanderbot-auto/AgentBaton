@@ -1,3 +1,5 @@
+import { parseTaskWorkspaceBindingView, parseTaskWithWorkspaceBinding, validateTaskGetId, validateTaskGitWorkspacePreparation, type TaskGitWorkspacePreparation, type TaskWorkspaceBinding } from './task-workspace-binding-wire';
+import { parseCodeWorkspacePreparation, validateCodeWorkspacePreparationRequest, type CodeWorkspacePreparationRequest } from './workspace-preparation-wire';
 import { invoke } from '@tauri-apps/api/core';
 
 export interface Task {
@@ -9,6 +11,7 @@ export interface Task {
   readonly spec_revision?: number;
   readonly acceptance_ref?: string | null;
   readonly acceptance_sequence?: number | null;
+  readonly code_workspace_binding?: TaskWorkspaceBinding | null;
   created_at: string;
   updated_at: string;
 }
@@ -75,6 +78,14 @@ export async function request<T>(command: string, args?: Record<string, unknown>
   return envelope.result;
 }
 export const api = {
+  taskGet: async (taskId: string) => {
+    const selected = validateTaskGetId(taskId);
+    return parseTaskWithWorkspaceBinding(await request<unknown>('tasks_get', { taskId: selected }), selected);
+  },
+  workspacesPrepareTaskGit: async (selection: TaskGitWorkspacePreparation, idempotencyKey: string) => {
+    const selected = validateTaskGitWorkspacePreparation(selection, idempotencyKey);
+    return parseTaskWorkspaceBindingView(await request<unknown>('workspaces_prepare_task_git', { selection: selected, idempotencyKey }), selected, idempotencyKey);
+  },
   snapshot: async () => {const value=await request<Snapshot>('system_snapshot');if(value.tasks.some(task=>task.state==='accepted'&&(!taskHasAcceptanceProjection(task)||!Number.isSafeInteger(value.sequence)||task.acceptance_sequence!>value.sequence)))throw new Error('Invalid accepted Task projection');return value;},
   create: (goal: string, idempotencyKey: string, projectId?: string) => request<Task>('tasks_create', { goal, idempotencyKey, ...(projectId ? { projectId } : {}) }),
   cancel: (task: Task, idempotencyKey: string) => request<Task>('tasks_cancel', { taskId: task.id, expectedRevision: task.revision, idempotencyKey }),
@@ -85,4 +96,8 @@ export const api = {
   projectsReassociate: (project: Project, path: string, idempotencyKey: string) => request<Project>('projects_reassociate', { projectId: project.id, path, expectedRevision: project.revision, idempotencyKey }),
   workspacesCreate: (project: Project, expectedHead: string, idempotencyKey: string) => request<ManagedWorkspace>('workspaces_create', { projectId: project.id, expectedHead, expectedRevision: project.revision, idempotencyKey }),
   workspacesList: (projectId: string) => request<ManagedWorkspace[]>('workspaces_list', { projectId }),
+  workspacesResolve: async (selection: CodeWorkspacePreparationRequest) => {
+    const checked = validateCodeWorkspacePreparationRequest(selection);
+    return parseCodeWorkspacePreparation(await request<unknown>('workspaces_resolve', { selection: checked }), checked);
+  },
 };

@@ -1,4 +1,4 @@
-//! Generated schema13 metadata increment followed by current15, exact backup and rollback.
+//! Generated schema13 metadata increment followed by current16, exact backup and rollback.
 #[path = "fixtures/pre_factory_schema.rs"]
 mod pre_factory_schema;
 use agentbaton_core::storage::Store;
@@ -129,7 +129,7 @@ fn schema13_upgrade_keeps_raw_history_and_private_backup_and_adds_no_authority()
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        15
+        16
     );
     assert_eq!(
         db.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -221,10 +221,10 @@ fn child_plan_migration_collision_rolls_back_both_tables_and_preserves_old_bytes
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema16_refuses_without_mutation_or_backup() {
+fn future_schema17_refuses_without_mutation_or_backup() {
     let (d, p, _) = old();
     let db = Connection::open(&p).unwrap();
-    db.execute_batch("PRAGMA user_version=16;").unwrap();
+    db.execute_batch("PRAGMA user_version=17;").unwrap();
     drop(db);
     let before = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");

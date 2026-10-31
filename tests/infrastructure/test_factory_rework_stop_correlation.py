@@ -162,4 +162,65 @@ class StopCorrelationTests(unittest.TestCase):
             with self.assertRaises(sqlite3.OperationalError):db.execute('CREATE TABLE forbidden_write(x)')
         self.assertEqual(self.f.db.read_bytes(),before);self.assertEqual(hashlib.sha256(self.f.db.read_bytes()).hexdigest(),digest)
 
+    def capture_after_node(self):
+        self.observation['list_progress'].update(run_revision=12,run_state='blocked',failure_code='REWORK_REVISION2_TERMINAL')
+        self.f.write('readonly-observation-last.json',self.observation)
+        self.add(12,'goal.capture_settled','goal_core',RUN,dict(task_accepted=False,
+            actual_runtime_ms=4536,actual_output_bytes=None,state='failed',
+            capture_worker_joined=False,producer_stop_confirmed=True,
+            producer_elapsed_ms=4003,runtime_reservation_ms=4000,io_completion='not_started'),revision=12)
+
+    def previous_slot(self):
+        events=self.collect();self.assertEqual(events['observed_run_revision'],12)
+        self.assertEqual([v['kind']for v in events['events']],['goal.capture_settled'])
+        self.assertEqual(events['settled_session_stops'],[])
+        previous=events['previous_node_settlement']
+        self.assertEqual(previous['run_revision'],11)
+        self.assertIs(previous['same_observed_revision'],False)
+        self.assertIs(previous['same_plan_not_established'],True)
+        return previous['settled_session_stop']
+
+    def test_prior_node_stop_is_bound_history_without_current_revision_or_plan_claim(self):
+        self.populate();self.capture_after_node();out=self.previous_slot()
+        self.assertEqual(out['status'],'observed');self.assertEqual(out['stop_reason'],'cancelled')
+        self.assertTrue(out['process_reaped']);self.assertTrue(out['turn_completed'])
+        self.assertEqual(out['completed_turn_count'],1)
+        self.assertNotIn('cause',out);self.assertNotIn('task_accepted',out)
+
+    def test_prior_duration_stop_with_no_turn_is_not_provider_or_actor_cause(self):
+        self.populate(turn=None);self.update(5,lambda v:v['payload'].update(reason='duration_limit'))
+        self.capture_after_node();out=self.previous_slot()
+        self.assertEqual(out['stop_reason'],'duration_limit');self.assertIs(out['turn_completed'],False)
+        self.assertEqual(out['completed_turn_count'],0);self.assertNotIn('cause',out)
+
+    def test_prior_missing_stop_or_reservation_remains_unavailable(self):
+        for missing in ['reserved','stopped']:
+            with self.subTest(missing=missing):
+                self.f.sql('DELETE FROM events');self.populate(**{missing:False});self.capture_after_node()
+                out=self.previous_slot();self.assertEqual(out['status'],'unavailable')
+                self.assertIsNone(out['stop_reason']);self.assertIsNone(out['turn_completed'])
+
+    def test_prior_duplicate_reservation_cannot_choose_latest_or_ignore_foreign_run(self):
+        self.populate();self.add(2,'goal.node_reserved','goal_core','foreign-'+SECRET,
+            dict(node_id=NODE,attempt_id=ATTEMPT,session_id=SESSION,plan_revision=1,task_accepted=False),revision=3)
+        self.capture_after_node();out=self.previous_slot()
+        self.assertEqual(out['status'],'ambiguous');self.assertIsNone(out['turn_completed'])
+
+    def test_prior_binding_and_sender_mismatches_never_supply_stop(self):
+        for sequence,mutate in [(1,lambda v:v['payload'].update(attempt_id='foreign-'+SECRET)),
+            (10,lambda v:v['payload'].update(session_id='foreign-'+SECRET)),
+            (5,lambda v:v.update(source='provider_runtime'))]:
+            with self.subTest(sequence=sequence):
+                self.f.sql('DELETE FROM events');self.populate();self.update(sequence,mutate);self.capture_after_node()
+                out=self.previous_slot();self.assertEqual(out['status'],'unavailable');self.assertIsNone(out['turn_completed'])
+
+    def test_prior_late_or_non_boolean_stop_never_coerces_into_confirmation(self):
+        for mode in ['late','numeric']:
+            with self.subTest(mode=mode):
+                self.f.sql('DELETE FROM events');self.populate()
+                if mode=='late':self.f.sql('UPDATE events SET sequence=13 WHERE sequence=5')
+                else:self.update(5,lambda v:v['payload'].update(process_reaped=1))
+                self.capture_after_node();out=self.previous_slot()
+                self.assertEqual(out['status'],'unavailable');self.assertIsNone(out['process_reaped'])
+
 if __name__=='__main__':unittest.main()

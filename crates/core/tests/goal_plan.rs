@@ -46,6 +46,7 @@ impl Fixture {
             revision: 1,
             acceptance_ref: None,
             acceptance_sequence: None,
+            code_workspace_binding: None,
             created_at: "host-time".into(),
             updated_at: "host-time".into(),
         };

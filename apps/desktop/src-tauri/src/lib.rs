@@ -143,6 +143,59 @@ async fn workspaces_create(
     call(&runtime, json!({"method":"workspaces.create","params":{"project_id":project_id,"expected_head":expected_head},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
 }
 
+fn task_workspace_preparation_frame(
+    selection: &agentbaton_core::TaskGitWorkspacePreparation,
+    idempotency_key: &str,
+) -> Value {
+    json!({"method":"workspaces.prepare_task_git","params":{
+        "task_id":selection.task_id,
+        "expected_spec_revision":selection.expected_spec_revision,
+        "expected_project_revision":selection.expected_project_revision,
+        "host_id":selection.host_id,
+        "expected_source_pin":selection.expected_source_pin,
+        "preparation_key":selection.preparation_key
+    },"expected_revision":selection.expected_task_revision,"idempotency_key":idempotency_key})
+}
+
+#[tauri::command]
+async fn workspaces_prepare_task_git(
+    runtime: tauri::State<'_, Runtime>,
+    selection: agentbaton_core::TaskGitWorkspacePreparation,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        task_workspace_preparation_frame(&selection, &idempotency_key),
+        false,
+    )
+    .await
+}
+
+fn task_get_frame(task_id: &str) -> Value {
+    json!({"method":"tasks.get","params":{"task_id":task_id}})
+}
+
+#[tauri::command]
+async fn tasks_get(runtime: tauri::State<'_, Runtime>, task_id: String) -> Result<Value, String> {
+    // Stored Task/binding metadata is not a fresh filesystem or execution proof.
+    call(&runtime, task_get_frame(&task_id), false).await
+}
+
+fn workspace_resolution_frame(
+    selection: &agentbaton_core::CodeWorkspacePreparationRequest,
+) -> Value {
+    json!({"method":"workspaces.resolve","params":selection})
+}
+
+#[tauri::command]
+async fn workspaces_resolve(
+    runtime: tauri::State<'_, Runtime>,
+    selection: agentbaton_core::CodeWorkspacePreparationRequest,
+) -> Result<Value, String> {
+    // A fixed owner read. Never start a daemon or call an approval/write wrapper.
+    call(&runtime, workspace_resolution_frame(&selection), false).await
+}
+
 #[tauri::command]
 async fn workspaces_list(
     runtime: tauri::State<'_, Runtime>,
@@ -1568,6 +1621,9 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         projects_reassociate,
         workspaces_create,
         workspaces_list,
+        workspaces_resolve,
+        workspaces_prepare_task_git,
+        tasks_get,
         data_workspace_previews_start,
         data_workspace_previews_list,
         data_workspace_previews_get,
@@ -1853,5 +1909,101 @@ mod factory_bridge_tests {
                 .is_err()
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod workspace_resolution_bridge_tests {
+    use super::*;
+
+    #[test]
+    fn fixed_workspace_read_preserves_only_four_selection_fields() {
+        let selection = agentbaton_core::CodeWorkspacePreparationRequest {
+            task_id: "task".into(),
+            expected_task_revision: 3,
+            expected_project_revision: 7,
+            host_id: "local".into(),
+        };
+        assert_eq!(
+            workspace_resolution_frame(&selection),
+            json!({
+                "method":"workspaces.resolve", "params":{
+                    "task_id":"task", "expected_task_revision":3,
+                    "expected_project_revision":7, "host_id":"local"
+                }
+            })
+        );
+        let mut extra = serde_json::to_value(&selection).unwrap();
+        extra["destination"] = json!("/unapproved");
+        assert!(
+            serde_json::from_value::<agentbaton_core::CodeWorkspacePreparationRequest>(extra)
+                .is_err()
+        );
+        let production = include_str!("lib.rs").split("#[cfg(test)]").next().unwrap();
+        let wrapper = production
+            .split("async fn workspaces_resolve(")
+            .nth(1)
+            .unwrap()
+            .split("#[tauri::command]")
+            .next()
+            .unwrap();
+        assert!(wrapper.contains("workspace_resolution_frame(&selection), false"));
+        assert!(!wrapper.contains("confirm_proposed"));
+        assert!(!wrapper.contains("ensure_daemon"));
+    }
+}
+
+#[cfg(test)]
+mod task_workspace_binding_bridge_tests {
+    use super::*;
+    #[test]
+    fn typed_git_preparation_maps_six_parameters_and_original_task_cas_without_numeric_fs_loss() {
+        let selection = agentbaton_core::TaskGitWorkspacePreparation {
+            task_id: "task".into(),
+            expected_task_revision: 3,
+            expected_spec_revision: 2,
+            expected_project_revision: 7,
+            host_id: "local".into(),
+            expected_source_pin: agentbaton_core::GitWorkspacePin {
+                canonical_root: "/source".into(),
+                device: 9_007_199_254_740_993,
+                inode: u64::MAX,
+                common_dir: "/source/.git".into(),
+                head: "a".repeat(40),
+            },
+            preparation_key: "code-prep:".to_owned() + &"b".repeat(64),
+        };
+        let frame = task_workspace_preparation_frame(&selection, "original-key");
+        assert_eq!(
+            frame,
+            json!({"method":"workspaces.prepare_task_git","params":{
+            "task_id":"task","expected_spec_revision":2,"expected_project_revision":7,"host_id":"local",
+            "expected_source_pin":{"canonical_root":"/source","device":"9007199254740993","inode":"18446744073709551615","common_dir":"/source/.git","head":"a".repeat(40)},
+            "preparation_key":"code-prep:".to_owned()+&"b".repeat(64)
+        },"expected_revision":3,"idempotency_key":"original-key"})
+        );
+        assert!(frame["params"].get("expected_task_revision").is_none());
+        assert_eq!(
+            task_get_frame("task"),
+            json!({"method":"tasks.get","params":{"task_id":"task"}})
+        );
+        let mut numeric = serde_json::to_value(&selection).unwrap();
+        numeric["expected_source_pin"]["device"] = json!(1);
+        assert!(
+            serde_json::from_value::<agentbaton_core::TaskGitWorkspacePreparation>(numeric)
+                .is_err()
+        );
+        let source = include_str!("lib.rs");
+        let production = source.split("#[cfg(test)]").next().unwrap();
+        let wrapper = production
+            .split("async fn workspaces_prepare_task_git(")
+            .nth(1)
+            .unwrap()
+            .split("#[tauri::command]")
+            .next()
+            .unwrap();
+        assert!(wrapper.contains("false"));
+        assert!(!wrapper.contains("confirm_proposed"));
+        assert!(!wrapper.contains("ensure_daemon"));
     }
 }

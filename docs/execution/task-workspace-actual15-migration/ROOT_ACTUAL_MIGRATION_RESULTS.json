@@ -1,0 +1,208 @@
+{
+  "source": "7d7b7016295a93a4f7ba5fe0e4e320f197e3b530",
+  "input_source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+  "generator_result": {
+    "source": "1ebf9e9092b278fd2dda54b876d68f29bf03feeb",
+    "root": "/workspace/.worktrees/task-workspace-integration",
+    "command": [
+      "python3",
+      "crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py",
+      "--frozen",
+      "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+      "--output",
+      "/workspace/.onboarding/task-workspace-actual15-input1",
+      "--build-evidence",
+      "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/RESULTS.json"
+    ],
+    "exit": 0,
+    "seconds": 0.9026132969884202,
+    "minimum_free_bytes": 237211648,
+    "interruption": null,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "retained_failures": [
+    {
+      "source": "1ebf9e9092b278fd2dda54b876d68f29bf03feeb",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "env",
+        "AGENTBATON_ACTUAL_SCHEMA15_FIXTURE=/workspace/.onboarding/task-workspace-actual15-input1",
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-schema15-migration-tests",
+        "--test",
+        "task_workspace_actual15_migration",
+        "--",
+        "--nocapture"
+      ],
+      "exit": -15,
+      "seconds": 15.562723915994866,
+      "minimum_free_bytes": 156934144,
+      "interruption": "external_capacity_time_or_log_bound",
+      "log_sha256": "fca7ba77401b7a4e4e524fa8c115196d98e6a8fa4e2447a8a21c2eb45ab28c86",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "source": "1ebf9e9092b278fd2dda54b876d68f29bf03feeb",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "env",
+        "AGENTBATON_ACTUAL_SCHEMA15_FIXTURE=/workspace/.onboarding/task-workspace-actual15-input1",
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-schema15-migration-tests",
+        "--test",
+        "task_workspace_actual15_migration",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 0.7075350919913035,
+      "minimum_free_bytes": 250871808,
+      "interruption": null,
+      "log_sha256": "1079c1fe55af0b7b396dd940b7768f410fb368513938a431a69532b0069affa4",
+      "summaries": [
+        "test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  ],
+  "corrected_consumer": {
+    "source": "7d7b7016295a93a4f7ba5fe0e4e320f197e3b530",
+    "root": "/workspace/.worktrees/task-workspace-integration",
+    "command": [
+      "env",
+      "AGENTBATON_ACTUAL_SCHEMA15_FIXTURE=/workspace/.onboarding/task-workspace-actual15-input1",
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--features",
+      "actual-schema15-migration-tests",
+      "--test",
+      "task_workspace_actual15_migration",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.7032617510121781,
+    "minimum_free_bytes": 292507648,
+    "interruption": null,
+    "log_sha256": "d2a9731e2cbd8a11b728a5e18efef94fbf0ff012b548c0428e653a276efb9002",
+    "summaries": [
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s"
+    ],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "strict_inverse": {
+    "source": "dfc8c68b2ada8943bde2b13b54cd58b647e62e98",
+    "root": "/workspace/.worktrees/task-workspace-integration",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "command_validation_migration",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 16.95351744099753,
+    "minimum_free_bytes": 292593664,
+    "interruption": null,
+    "log_sha256": "a0556a27d6ec588de3b1c67a281e7e8a87573d50164c8812cd191302e0b8edb2",
+    "summaries": [
+      "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.79s"
+    ],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "limits": [
+    "Actual Linux/genuine old15 nonempty Task/events/idempotency history only",
+    "No nonempty Goal/Factory old15 history, no late migration write fault claim",
+    "Native/macOS/exactCI/current UI interactions still pending",
+    "Original failed database/sidecars/ELF preserved; no production policy change"
+  ],
+  "input2_generator_result": {
+    "source": "26fae711baac59504767a02ef5946c3b0ce79a47",
+    "root": "/workspace/.worktrees/task-workspace-integration",
+    "command": [
+      "python3",
+      "crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py",
+      "--frozen",
+      "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+      "--output",
+      "/workspace/.onboarding/task-workspace-actual15-input2",
+      "--build-evidence",
+      "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/RESULTS.json"
+    ],
+    "exit": 0,
+    "seconds": 0.802177642006427,
+    "minimum_free_bytes": 240979968,
+    "interruption": null,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "input2_consumer_result": {
+    "source": "840334e2507c7b2b39e89917b491e75c1ca3de18",
+    "root": "/workspace/.worktrees/task-workspace-integration",
+    "command": [
+      "env",
+      "AGENTBATON_ACTUAL_SCHEMA15_FIXTURE=/workspace/.onboarding/task-workspace-actual15-input2",
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--features",
+      "actual-schema15-migration-tests",
+      "--test",
+      "task_workspace_actual15_migration",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 17.160356292995857,
+    "minimum_free_bytes": 191336448,
+    "interruption": null,
+    "log_sha256": "1c567942b7d27c4eb817cf88e7ec0dced81665acd91294a3f0f319977e3489d4",
+    "summaries": [
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s"
+    ],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "input2_note": "New genuine old15 input2 generated after native helper16 revision; input1 untouched, new5PASS source840. No nonempty oldGoal/Factory history claim."
+}

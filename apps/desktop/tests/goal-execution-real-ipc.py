@@ -125,7 +125,7 @@ def main():
     manifest = json.loads(manifest_bytes)
     binary_entry = manifest['binaries']['batond']
     expected_binary = binary_entry['sha256'] if isinstance(binary_entry, dict) else binary_entry
-    assert type(manifest.get('schema')) is int and manifest['schema'] == 15 and sha(binary.read_bytes()) == expected_binary, 'Explicit coherent schema15 candidate is required'
+    assert type(manifest.get('schema')) is int and manifest['schema'] == 16 and sha(binary.read_bytes()) == expected_binary, 'Explicit coherent schema16 candidate is required'
     report = {'status': 'failed_or_interrupted',
               'dimension': 'actual built React / Linux Chromium / fixed test-only HTTP / authenticated Unix Core / generated owned ACP process',
               'native_owner_dialog': 'not_run; fixed private host fixture outside HTTP approves actual Core snapshots',
@@ -203,7 +203,7 @@ def main():
             def database():
                 with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
                     db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-                    assert db.execute('PRAGMA user_version').fetchone()[0] == 15
+                    assert db.execute('PRAGMA user_version').fetchone()[0] == 16
                     assert db.execute('SELECT count(*) FROM factory_child_goal_runs').fetchone()[0] == 0
                     tables = ['attempts', 'sessions', 'dispatch_intents', 'goal_runs', 'goal_run_nodes', 'goal_run_reservations', 'goal_plan_revisions', 'goal_node_evidence']
                     value = {name: db.execute('SELECT count(*) FROM ' + name).fetchone()[0] for name in tables}

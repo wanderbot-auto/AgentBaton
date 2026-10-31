@@ -112,7 +112,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal execution counts")?;
     if !valid_goal_execution_counts(&snapshot) {
         return Err(
-            "Goal execution fixture must have schema15 and no run/node/reservation authority"
+            "Goal execution fixture must have schema16 and no run/node/reservation authority"
                 .into(),
         );
     }
@@ -120,7 +120,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
 }
 fn valid_goal_execution_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 5)
-        && value["schema_version"].as_u64() == Some(15)
+        && value["schema_version"].as_u64() == Some(16)
         && ["run_count", "node_count", "reservation_count"]
             .iter()
             .all(|key| value[*key].as_u64() == Some(0))
@@ -223,7 +223,7 @@ db.close()
 
 fn valid_goal_graph_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 8)
-        && value["schema_version"].as_u64() == Some(15)
+        && value["schema_version"].as_u64() == Some(16)
         && GOAL_GRAPH_COUNT_FIELDS
             .iter()
             .all(|key| value[*key].as_u64() == Some(0))
@@ -238,7 +238,7 @@ fn goal_graph_database_snapshot(runtime: &Path) -> Result<Value, String> {
     let snapshot: Value =
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal graph counts")?;
     if !valid_goal_graph_counts(&snapshot) {
-        return Err("Goal graph fixture must have schema15 and six empty graph tables".into());
+        return Err("Goal graph fixture must have schema16 and six empty graph tables".into());
     }
     Ok(snapshot)
 }
@@ -357,7 +357,7 @@ db.close()
 "#;
 fn valid_factory_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 14)
-        && value["schema_version"].as_u64() == Some(15)
+        && value["schema_version"].as_u64() == Some(16)
         && value["sequence"].as_u64().is_some()
         && FACTORY_COUNT_FIELDS
             .iter()
@@ -373,7 +373,7 @@ fn factory_database_snapshot(runtime: &Path) -> Result<Value, String> {
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Factory counts")?;
     if !valid_factory_counts(&snapshot) {
         return Err(
-            "Factory fixture requires exact schema15 and twelve independently empty tables".into(),
+            "Factory fixture requires exact schema16 and twelve independently empty tables".into(),
         );
     }
     Ok(snapshot)
@@ -1907,7 +1907,7 @@ mod fixture_tests {
         json!({"status":"running","goal_readonly_database":{"read_only":true,"unchanged":true,"before":goal,"after":goal}})
     }
     fn execution_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":15,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
+        json!({"schema_version":16,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
     }
     fn execution_result_fixture(sequence: u64) -> Value {
         json!({"goalExecutionLists":true,"goalExecutionMissingRunDenied":true,"readonlyGoalExecutionNoMutation":true,"goalReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionMissingRun":{"run_id":MISSING_GOAL_RUN_ID,"code":"NOT_FOUND","side_effect_state":"not_started"}})
@@ -1958,7 +1958,8 @@ mod fixture_tests {
             ("schema_version","PRAGMA user_version=12",12),
             ("schema_version","PRAGMA user_version=13",13),
             ("schema_version","PRAGMA user_version=14",14),
-            ("schema_version","PRAGMA user_version=16",16),
+            ("schema_version","PRAGMA user_version=15",15),
+            ("schema_version","PRAGMA user_version=17",17),
             ("run_count","INSERT INTO goal_runs VALUES('count-probe','scope','project','task',1,'queued','{}')",1),
             ("node_count","INSERT INTO goal_run_nodes VALUES('count-probe',1,'node',0,'not_started',NULL,NULL,'{}')",1),
             ("reservation_count","INSERT INTO goal_run_reservations VALUES('attempt','count-probe','node',NULL,'{}')",1),
@@ -2152,7 +2153,7 @@ mod fixture_tests {
     }
 
     fn graph_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":15,"capability_count":0,"job_count":0,"candidate_count":0,"validation_count":0,"owner_decision_count":0,"acceptance_count":0,"sequence":sequence})
+        json!({"schema_version":16,"capability_count":0,"job_count":0,"candidate_count":0,"validation_count":0,"owner_decision_count":0,"acceptance_count":0,"sequence":sequence})
     }
     fn graph_report_fixture(sequence: u64) -> Value {
         let mut report = readonly_report_fixture(sequence);
@@ -2182,7 +2183,7 @@ mod fixture_tests {
         assert_eq!(goal_database_snapshot(&runtime).unwrap()["sequence"], 0);
         assert_eq!(
             goal_execution_database_snapshot(&runtime).unwrap()["schema_version"],
-            15
+            16
         );
         let mut report = graph_report_fixture(0);
         record_goal_graph_checkpoint(0, "main", &mut report, "before", before.clone()).unwrap();
@@ -2226,7 +2227,8 @@ mod fixture_tests {
             ("schema_version", "PRAGMA user_version=12", 12),
             ("schema_version", "PRAGMA user_version=13", 13),
             ("schema_version", "PRAGMA user_version=14", 14),
-            ("schema_version", "PRAGMA user_version=16", 16),
+            ("schema_version", "PRAGMA user_version=15", 15),
+            ("schema_version", "PRAGMA user_version=17", 17),
             ("capability_count", "INSERT INTO goal_graph_capabilities(run_id,approval_id,version,document) VALUES('probe','approval',1,'{}')", 1),
             ("job_count", "INSERT INTO goal_graph_jobs(id,run_id,node_id,plan_revision,state,attempt_id,workspace_id,document) VALUES('probe','run','node',1,'queued',NULL,'workspace','{}')", 1),
             ("candidate_count", "INSERT INTO goal_graph_candidates(id,run_id,node_id,plan_revision,attempt_id,document) VALUES('probe','run','node',1,'attempt','{}')", 1),
@@ -2344,7 +2346,7 @@ mod fixture_tests {
         .is_err());
     }
     #[test]
-    fn graph_final_evidence_requires_independent_schema15_and_exact_core_denial() {
+    fn graph_final_evidence_requires_independent_schema16_and_exact_core_denial() {
         let mut report = graph_report_fixture(2);
         let counts = graph_counts_fixture(2);
         record_goal_graph_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
@@ -2431,7 +2433,7 @@ mod fixture_tests {
         let before = goal_graph_database_snapshot(&runtime).unwrap();
         let old_before = goal_database_snapshot(&runtime).unwrap();
         let execution_before = goal_execution_database_snapshot(&runtime).unwrap();
-        assert_eq!(before["schema_version"], 15);
+        assert_eq!(before["schema_version"], 16);
         let listed = ipc::call(
             &runtime,
             json!({"method":"goal_graph_runs.list","params":{"task_id":task_id}}),
@@ -2540,7 +2542,7 @@ mod fixture_tests {
         assert!(validate_webcrypto_evidence(&second, &report, true).is_err());
     }
     fn factory_counts_fixture(sequence: u64) -> Value {
-        let mut counts = json!({"schema_version":15,"sequence":sequence});
+        let mut counts = json!({"schema_version":16,"sequence":sequence});
         for field in FACTORY_COUNT_FIELDS {
             counts[field] = json!(0);
         }
@@ -2570,7 +2572,7 @@ mod fixture_tests {
         result
     }
     #[test]
-    fn factory_readonly_requires_exact_schema15_all_twelve_typed_counts_and_ordered_context() {
+    fn factory_readonly_requires_exact_schema16_all_twelve_typed_counts_and_ordered_context() {
         let counts = factory_counts_fixture(3);
         assert!(valid_factory_counts(&counts));
         for field in ["schema_version", "sequence"]
@@ -2598,7 +2600,7 @@ mod fixture_tests {
             changed[field] = json!(1);
             assert!(!valid_factory_counts(&changed));
         }
-        for schema in [11, 12, 13, 14, 16] {
+        for schema in [11, 12, 13, 14, 15, 17] {
             let mut changed = counts.clone();
             changed["schema_version"] = json!(schema);
             assert!(!valid_factory_counts(&changed));
@@ -2685,7 +2687,7 @@ mod fixture_tests {
         assert!(validate_factory_evidence(&replay_result, &replay).is_err());
     }
     #[test]
-    fn factory_actual_schema15_query_and_core_count_projection_leave_history_unchanged() {
+    fn factory_actual_schema16_query_and_core_count_projection_leave_history_unchanged() {
         let (_directory, runtime, mut store) = fresh_execution_fixture();
         let task = store
             .create(
@@ -2754,7 +2756,8 @@ mod fixture_tests {
             "PRAGMA user_version=12",
             "PRAGMA user_version=13",
             "PRAGMA user_version=14",
-            "PRAGMA user_version=16",
+            "PRAGMA user_version=15",
+            "PRAGMA user_version=17",
             "DROP TABLE factory_scopes",
             "DROP TABLE factory_budget_reservations",
             "DROP TABLE factory_child_plan_heads",

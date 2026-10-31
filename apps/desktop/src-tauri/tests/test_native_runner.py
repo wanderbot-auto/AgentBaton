@@ -26,11 +26,11 @@ GOOD = {
 
 # New evidence is additive; the original GOOD fields and all old test bodies stay intact.
 GOOD['first_webview'].update(goalExecutionLists=True, goalExecutionMissingRunDenied=True, readonlyGoalExecutionNoMutation=True, goalExecutionReadonlySequence=dict(before=2, after=2), goalExecutionMissingRun=dict(run_id='native-readonly-missing-goal-run', code='NOT_FOUND', side_effect_state='not_started'))
-GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=15,run_count=0,node_count=0,reservation_count=0,sequence=2), after=dict(schema_version=15,run_count=0,node_count=0,reservation_count=0,sequence=2))
+GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=16,run_count=0,node_count=0,reservation_count=0,sequence=2), after=dict(schema_version=16,run_count=0,node_count=0,reservation_count=0,sequence=2))
 
 
 GOOD['first_webview'].update(goalGraphLists=True, goalGraphMissingRunDenied=True, readonlyGoalGraphNoMutation=True, goalGraphReadonlySequence=dict(before=2, after=2), goalGraphMissingRun=dict(run_id='native-readonly-missing-goal-graph-run', code='NOT_FOUND', side_effect_state='not_started'))
-GOOD['goal_graph_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=15,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2), after=dict(schema_version=15,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2))
+GOOD['goal_graph_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=16,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2), after=dict(schema_version=16,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2))
 
 
 # Runtime crypto evidence is additive to the unchanged readonly/lifecycle fixture.
@@ -44,7 +44,7 @@ GOOD['first_webview'].update(factoryScopeLists=True, factoryMissingScopeDenied=T
                             readonlyFactoryNoMutation=True, factoryReadonlySequence=dict(before=2, after=2),
                             factoryMissingScope=dict(scope_id=native_run.MISSING_FACTORY_SCOPE_ID, code='NOT_FOUND', side_effect_state='not_started'),
                             factoryMissingRun=dict(scope_id=native_run.MISSING_FACTORY_SCOPE_ID, code='NOT_FOUND', side_effect_state='not_started'))
-_factory_counts = dict(schema_version=15, sequence=2, **{name: 0 for name in native_run.FACTORY_COUNT_FIELDS})
+_factory_counts = dict(schema_version=16, sequence=2, **{name: 0 for name in native_run.FACTORY_COUNT_FIELDS})
 GOOD['factory_readonly_database'] = dict(read_only=True, unchanged=True, before=_factory_counts.copy(), after=_factory_counts.copy())
 
 
@@ -203,7 +203,7 @@ class GoalExecutionReadonlyEvidenceTests(unittest.TestCase):
                     changed=copy.deepcopy(GOOD);changed['first_webview'][field]=value
                     self.assertIsNotNone(native_run.native_report_error(changed))
 
-    def test_execution_database_is_independent_complete_schema15_and_all_zero(self):
+    def test_execution_database_is_independent_complete_schema16_and_all_zero(self):
         for location in ['goal_execution_readonly_database','before','after']:
             missing=copy.deepcopy(GOOD)
             if location=='goal_execution_readonly_database':del missing[location]
@@ -263,7 +263,7 @@ class GoalGraphReadonlyEvidenceTests(unittest.TestCase):
                 changed=copy.deepcopy(GOOD);changed['first_webview'][field]=value
                 self.assertIsNotNone(native_run.native_report_error(changed))
 
-    def test_graph_database_requires_schema15_and_all_six_independent_zero_counts(self):
+    def test_graph_database_requires_schema16_and_all_six_independent_zero_counts(self):
         fields=['schema_version','capability_count','job_count','candidate_count','validation_count','owner_decision_count','acceptance_count','sequence']
         for location in ['goal_graph_readonly_database','before','after']:
             missing=copy.deepcopy(GOOD)
@@ -281,7 +281,7 @@ class GoalGraphReadonlyEvidenceTests(unittest.TestCase):
             changed=copy.deepcopy(GOOD)
             for phase in ['before','after']:changed['goal_graph_readonly_database'][phase][field]=1
             self.assertIsNotNone(native_run.native_report_error(changed))
-        for schema in [10,11,12,13,14,16,13.0,14.0,15.0,True,'13','14','15',None]:
+        for schema in [10,11,12,13,14,15,17,13.0,14.0,15.0,16.0,True,'13','14','15','16',None]:
             for group in ['goal_graph_readonly_database','goal_execution_readonly_database']:
                 changed=copy.deepcopy(GOOD)
                 for phase in ['before','after']:changed[group][phase]['schema_version']=schema
@@ -365,7 +365,7 @@ class NativeArtifactAuditTests(unittest.TestCase):
 
 
 class FactoryReadonlyEvidenceTests(unittest.TestCase):
-    def test_exact_schema15_and_all_twelve_independent_typed_zero_counts_are_required(self):
+    def test_exact_schema16_and_all_twelve_independent_typed_zero_counts_are_required(self):
         self.assertIsNone(native_run.native_report_error(copy.deepcopy(GOOD)))
         fields = set(native_run.FACTORY_COUNT_FIELDS) | {'schema_version', 'sequence'}
         self.assertEqual(len(native_run.FACTORY_COUNT_FIELDS), 12)
@@ -383,7 +383,7 @@ class FactoryReadonlyEvidenceTests(unittest.TestCase):
                 for checkpoint in ['before', 'after']:
                     changed['factory_readonly_database'][checkpoint][field] = 1
                 self.assertIsNotNone(native_run.native_report_error(changed), field)
-        for schema in [0, 11, 12, 13, 14, 16, 13.0, 14.0, 15.0, True, '13', '14', '15', None]:
+        for schema in [0, 11, 12, 13, 14, 15, 17, 13.0, 14.0, 15.0, 16.0, True, '13', '14', '15', '16', None]:
             changed = copy.deepcopy(GOOD)
             for phase in ['before', 'after']:
                 changed['factory_readonly_database'][phase]['schema_version'] = schema

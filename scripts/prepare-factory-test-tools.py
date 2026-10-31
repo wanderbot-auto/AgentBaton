@@ -48,8 +48,8 @@ def observe_database(runtime):
         conn.execute('PRAGMA query_only=ON')
         conn.execute('BEGIN')
         schema = conn.execute('PRAGMA user_version').fetchone()[0]
-        if type(schema) is not int or schema != 15:
-            raise ValueError('Prepared daemon did not create exact schema15')
+        if type(schema) is not int or schema != 16:
+            raise ValueError('Prepared daemon did not create exact schema16')
         counts = {name: conn.execute('SELECT count(*) FROM ' + name).fetchone()[0]
                   for name in FACTORY_TABLES}
         sequence = conn.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]
@@ -150,7 +150,7 @@ def prepare(root, source, output, evidence):
         verify_private_tool(output / name)
     if any(sha256(source / name) != value or sha256(output / name) != value for name, value in hashes.items()):
         raise ValueError('Test tools changed during preparation')
-    record = {**identity, 'schema': 15, 'source_directory': str(source),
+    record = {**identity, 'schema': 16, 'source_directory': str(source),
               'frozen_directory': str(output), 'binaries': hashes,
               'source_binaries_after': {name: sha256(source / name) for name in hashes},
               'frozen_binaries_after': {name: sha256(output / name) for name in hashes},
@@ -165,8 +165,8 @@ def verify(root, tools):
     if not tools.is_absolute():
         raise ValueError('Frozen tool directory must be absolute')
     record = json.loads((tools / 'manifest.json').read_text())
-    if type(record.get('schema')) is not int or record['schema'] != 15:
-        raise ValueError('Frozen tool manifest must be exact schema15')
+    if type(record.get('schema')) is not int or record['schema'] != 16:
+        raise ValueError('Frozen tool manifest must be exact schema16')
     if record.get('frozen_directory') != str(tools.resolve(strict=True)):
         raise ValueError('Frozen tool directory changed')
     if any(record.get(key) != value for key, value in source_identity(root).items()):

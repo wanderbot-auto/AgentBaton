@@ -1,0 +1,11 @@
+# Progress
+
+Final source `bf241a3cc690a073d7422f57367eaa1621449aef`, based on initial two-file source `7fbd32b6a68f4ca8a4c6f7b4460f11a56074a04d`. Only new projector and dedicated Python tests; production/Core/IPC/Native/UI/CI/locks and original driver remain unchanged.
+
+Current checks: exact schema16 report table-name set55 and typed counts,49 execution/authority domains zero, five case IDs/scenario consistency and B05 execution_authorizedfalse/four selection reads. Field explicitly says driver_asserted_no_execution: no independent DB recheck occurs. Three source heads must equal caller's exact head; harness hash must equal bounded current-checkout source. Tools must be500 with stable before/after hashes; Root has independently chosen private same-byte500 copies for the driver. Frontend names/paths are not output: only bounded map count/hash.
+
+Nullable cleanup requires every success key present with None, true daemon reaped/exit0, HTTP joined and source hashes stable. Report/root/files are private owner0700/0600/nlink1, NOFOLLOW/NONBLOCK descriptor-walked and bounded; root/report/PNG replacement or mutation refuses. Fixed summary serialization uses the actual pretty UTF8 bytes including newline≤128KiB. CLI unknown/missing/help paths never echo arguments or arbitrary exception text.
+
+Initial28 then7fbd29 pure passes are retained but did not prove PNG pixel validity. Independent reviewer reproduced arbitrary gAMA text and raw uncompressed IDAT leaking through the old actual P.main; our same regression on old production yielded1test/2FAIL. Original7fbd is CHANGES_REQUIRED history. The fixed source retains all29 tests unchanged and adds4 tests:33PASS/0skip/0.819s. Same two negative subcases now refuse via actual P.main with no PNG output. Additional bounded/eof/filter/dimension/metadata/concat/decoded-budget controls and legal multi-IDAT/filter0–4 positive preserve raw hashes.
+
+12 static/source-scope checks pass. Six already completed Root PNGs were read only for format compatibility and all pass the new syntax validator; before/after original bytes/metadata match. No original images/report/DB/log were copied into this evidence archive, and no new browser/collector publication was executed.

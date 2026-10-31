@@ -1,0 +1,18 @@
+# Checkpoint
+
+- Scope: AB-SEC-007 with PRJ003/005; base0d6a034, source207b0a4d9fc3dbf8c456dacb90767a4720dce954. Own records are a later docs-only commit identified in the delivery reply. No self-referential fake commit hash.
+- Root approval: `task_workspace_actual15_migration` / `actual-schema15-migration-tests` / `AGENTBATON_ACTUAL_SCHEMA15_FIXTURE`. Root owns Cargo/locks/CI. Do not run all tests from this unconnected source branch before the explicit required-feature target is registered.
+- Source/pure verification complete; independent review and every actual old15/Store16 run remain pending. No running child/target lease held by this agent. No background executor or timer claimed.
+- Actual producer command for Root's later authorized window (NOT_RUN): `python3 crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py --frozen /workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen --output /workspace/.onboarding/task-workspace-actual15-generated-run1`.
+- Native rebuilt-pair route (NOT_RUN): `python3 scripts/prepare-schema15-migration-fixture.py --repository <repo> --output <fresh-private-build-output> --target-dir <Root-leased-target> --cargo <absolute-cargo> --rustc <absolute-rustc>`; then generator `--frozen <build-output>/frozen --build-manifest <build-output>/frozen/source-build-manifest.json --output <fresh-private-fixture>`.
+- Rust command after Root registration/generation (NOT_RUN): `AGENTBATON_ACTUAL_SCHEMA15_FIXTURE=<private-fixture> cargo test --offline --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- --nocapture --test-threads=1` using Root's existing profile/resource guard.
+- Fresh build must precede new16 tool preparation in CI or use Root's isolated target/backup lease; never overwrite unknown shared tools. New helper fetch/build and genuine generation are code only here, not authorization to start a process in this source window. Existing60min CI budgets unchanged; actual time and both Mac dimensions require real runs.
+- Retain genuine14 evidence, former synthetic15-shape evidence and all failures separately. This input's genuine15 claim begins only after actual RPC generation/statuspassed; its Task-only history cannot certify nonempty Goal/Factory or a write-after-migration failure.
+
+## Resume after actual run2 failures
+
+- Current correction source `74ac5507b63ce82d8a3afba5fe051721d9f1098f`; later docs-only head is identified in delivery. Original207b source and all failure artifacts remain intact. Root source integration1ebf9e9/real input generation/run2 are historical evidence, not PASS for this correction.
+- Source freeze/evidence: `/workspace/.onboarding/task-workspace-actual15-migration/consumer-fix-run2` contains immutable-read diagnosis, inverse source guard and13-pure log; no raw DB copy. Original private failure dirs oqLQP5/eP15TN and input1 must remain intact.
+- Corrected target still has5 Rust functions/10 expanded cases, none ignored; source allows no weaker result. Production/schema/Cargo/locks/CI and genuine14 unchanged. Root's existing required-feature target connection must remain.
+- Next: independent narrow review of74ac550, integrate exact leaf, Root-controlled Cargo target rerun with the same genuine15 fixture env. No new fixture generation/binary rebuild is required by this correction. Retain old3PASS/2FAIL and new precise results separately; do not label new5PASS before actual execution.
+- No Cargo/Node/browser/daemon/Actor, shared-target change, Provider/account/cost or background process was started in this correction window. Corrected Rust/macOS/CI remain NOT_RUN.

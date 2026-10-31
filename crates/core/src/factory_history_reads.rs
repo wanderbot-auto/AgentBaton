@@ -140,7 +140,7 @@ fn execute(
     let version: u32 = connection
         .pragma_query_value(None, "user_version", |row| row.get(0))
         .map_err(crate::storage::db_error)?;
-    if version != 15 {
+    if version != 16 {
         return Err(CoreError::new(
             "INPUT_CHANGED",
             "Readonly history database schema changed",

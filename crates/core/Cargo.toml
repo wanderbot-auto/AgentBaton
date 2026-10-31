@@ -22,6 +22,8 @@ tempfile = "3"
 libc = "0.2"
 
 [features]
+# Explicit genuine schema15 input gate; missing input is a hard test failure.
+actual-schema15-migration-tests = []
 actual-legacy-migration-tests = []
 # Non-default, debug-only deterministic evidence seam. Never product authority.
 preview-evidence = []
@@ -30,3 +32,8 @@ preview-evidence = []
 name = "factory_child_goal_legacy_migration"
 path = "tests/factory_child_goal_legacy_migration.rs"
 required-features = ["actual-legacy-migration-tests"]
+
+[[test]]
+name = "task_workspace_actual15_migration"
+path = "tests/task_workspace_actual15_migration.rs"
+required-features = ["actual-schema15-migration-tests"]

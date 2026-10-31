@@ -288,6 +288,49 @@ fn check_workspace_identity(
     }
 }
 
+pub(crate) fn reserve_workspace_row(
+    tx: &Transaction<'_>,
+    workspace: &ManagedWorkspace,
+    key: &str,
+    payload: &str,
+) -> Result<()> {
+    let id = &workspace.project_id;
+    let expected_head = &workspace.base_revision;
+    tx.execute("INSERT INTO managed_workspaces(id,project_id,document,state,idempotency_key,root,payload) VALUES(?1,?2,?3,?4,?5,?6,?7)",params![workspace.id,id,encode(&workspace)?,workspace.state,key,workspace.root.to_string_lossy(),payload]).map_err(db_error)?;
+    event(
+        tx,
+        &workspace.id,
+        workspace.revision,
+        "workspace.creation_reserved",
+        json!({"project_id":id,"root":workspace.root,"base_revision":expected_head}),
+    )?;
+    Ok(())
+}
+
+pub(crate) fn finalize_workspace_row(
+    tx: &Transaction<'_>,
+    workspace: &ManagedWorkspace,
+) -> Result<()> {
+    let id = &workspace.project_id;
+    tx.execute(
+        "UPDATE managed_workspaces SET document=?1,state=?2 WHERE id=?3",
+        params![encode(&workspace)?, workspace.state, workspace.id],
+    )
+    .map_err(db_error)?;
+    event(
+        tx,
+        &workspace.id,
+        workspace.revision,
+        if workspace.state == "ready" {
+            "workspace.created"
+        } else {
+            "workspace.creation_outcome_unknown"
+        },
+        json!({"project_id":id,"root":workspace.root}),
+    )?;
+    Ok(())
+}
+
 impl Store {
     pub fn import_project(&mut self, path: &Path, name: &str, key: &str) -> Result<Project> {
         key_valid(key)?;
@@ -546,14 +589,7 @@ impl Store {
             state: "creating".into(),
             revision: 1,
         };
-        tx.execute("INSERT INTO managed_workspaces(id,project_id,document,state,idempotency_key,root,payload) VALUES(?1,?2,?3,?4,?5,?6,?7)",params![workspace.id,id,encode(&workspace)?,workspace.state,key,workspace.root.to_string_lossy(),payload]).map_err(db_error)?;
-        event(
-            &tx,
-            &workspace.id,
-            workspace.revision,
-            "workspace.creation_reserved",
-            json!({"project_id":id,"root":workspace.root,"base_revision":expected_head}),
-        )?;
+        reserve_workspace_row(&tx, &workspace, key, &payload)?;
         tx.commit().map_err(db_error)?;
         let created = agentbaton_workspaces::create_isolated(
             &current.canonical_root,
@@ -575,22 +611,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        tx.execute(
-            "UPDATE managed_workspaces SET document=?1,state=?2 WHERE id=?3",
-            params![encode(&workspace)?, workspace.state, workspace.id],
-        )
-        .map_err(db_error)?;
-        event(
-            &tx,
-            &workspace.id,
-            workspace.revision,
-            if workspace.state == "ready" {
-                "workspace.created"
-            } else {
-                "workspace.creation_outcome_unknown"
-            },
-            json!({"project_id":id,"root":workspace.root}),
-        )?;
+        finalize_workspace_row(&tx, &workspace)?;
         tx.commit().map_err(db_error)?;
         if workspace.state != "ready" {
             let mut error = CoreError::new(
@@ -663,6 +684,7 @@ impl Store {
                     "workspace.recovery_outcome_unknown",
                     json!({"root":workspace.root,"automatic_replay":false}),
                 )?;
+                crate::task_workspace_binding::recover_for_workspace(&tx, &workspace)?;
             }
             tx.commit().map_err(db_error)?;
         }

@@ -1,0 +1,284 @@
+{
+  "recorded_at": "2026-10-30T01:48:34.121539+00:00",
+  "base": "363e680ef9ee59e8e7d3c02080b19194fe116302",
+  "source": "77d229a0be16c0bd21d12e1a96f8af6f91e05b62",
+  "requirements": [
+    "AB-PRJ-002",
+    "AB-PRJ-003",
+    "AB-PRJ-005",
+    "AB-SEC-007",
+    "OWNER-002"
+  ],
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "dimension": "source and pure Python/inert synthetic protocol/file/PNG metadata controls only",
+  "source_sha256": {
+    "apps/desktop/tests/task-workspace-binding-real-ipc.py": "2cf725f99de2c24ed1e93572d0107085c2f952400506aa6f15308d753832af52",
+    "apps/desktop/tests/test_task_workspace_binding_real_ipc.py": "d4905a193a719a05864131c2099e74e8fd6e0f0375cc6511961df3858f7c0b59",
+    "scripts/record-task-workspace-ci-evidence.py": "6ffa7216fe4c186ce6cc901f04979bb86060c2199d67d2c3a69ae9c83b6a57a2",
+    "tests/infrastructure/test_task_workspace_ci_evidence.py": "f2078b51e452127d072116ba467e5ed54f10d55847bce01c745025ebb2bdd504"
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "apps/desktop/tests",
+        "-p",
+        "test_task_workspace_binding_real_ipc.py",
+        "-v"
+      ],
+      "exit": 0,
+      "cases": 46,
+      "new_cases": 6,
+      "seconds": 0.027,
+      "log_sha256": "e6ba6f23b5abe69d28d7391136e8d3b7bbf77d8ddea57b568c1f72276ef4458d"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_task_workspace_ci_evidence.py",
+        "-v"
+      ],
+      "exit": 0,
+      "cases": 36,
+      "new_cases": 3,
+      "seconds": 1.299,
+      "log_sha256": "75a0e81816101818b9136b8de07d78d5c3a1549841a4c461d7a05bc13defd02d"
+    },
+    {
+      "command": "python3 /workspace/.onboarding/task-workspace-entry-real-ipc/check_preservation.py",
+      "exit": 0,
+      "assertions": 11
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "preservation": {
+    "AST_apps/desktop/tests/task-workspace-binding-real-ipc.py": true,
+    "AST_apps/desktop/tests/test_task_workspace_binding_real_ipc.py": true,
+    "AST_scripts/record-task-workspace-ci-evidence.py": true,
+    "AST_tests/infrastructure/test_task_workspace_ci_evidence.py": true,
+    "entire_driver_inverse_equal_base_B01_B05_all_assertions_cleanup_deadlines_privacy_whitelist": true,
+    "entire_projection_inverse_equal_base_including_all_privacy_FD_PNG_and_cleanup_validation": true,
+    "old40_driver_tests_full_inverse_equal_only_stricter_six_case_updates": true,
+    "old33_projection_tests_full_inverse_equal_with_explicit_B05_fixture_lookup": true,
+    "public_HTTP_allowlist_entire_Boundary_unchanged": true,
+    "only_four_allowed_test_paths_changed": true,
+    "diffcheck0": true
+  },
+  "scenario_NOT_RUN": {
+    "WSI-B01": "NOT_RUN this fixed source",
+    "WSI-B02": "NOT_RUN this fixed source",
+    "WSI-B03": "NOT_RUN this fixed source",
+    "WSI-B04": "NOT_RUN this fixed source",
+    "WSI-B05": "NOT_RUN this fixed source",
+    "WSI-B06": "NOT_RUN this fixed source"
+  },
+  "NOT_RUN": [
+    "Node/typecheck/frontend build",
+    "actual Core16/Unix Actor/browser B01–B06",
+    "actual screenshot review",
+    "Native/macOS dual architecture",
+    "Provider/CI"
+  ],
+  "expected_required_checks": 6,
+  "expected_fixed_screenshots": 8,
+  "public_summary_excludes_raw_private": true,
+  "public_HTTP_allowlist_unchanged": true,
+  "new_permission_or_Core_contract": false,
+  "scope_complete": false,
+  "status": "SOURCE_ONLY_PENDING_INDEPENDENT_REVIEW_AND_ROOT_ACTUAL_RUN",
+  "followups": [
+    {
+      "recorded_at": "2026-10-30T02:08:11.777878+00:00",
+      "source_fix": "bde98d383cacb766f5cb45286cdbffb62b5a622c",
+      "reviewed_previous_source": "77d229a0be16c0bd21d12e1a96f8af6f91e05b62",
+      "previous_source_status": "CHANGES_REQUIRED missing old managed-worktree filesystem preservation proof; initial46/36pure not E2E",
+      "new_proof": "both old receipt-bound managed tree images include own .git backlink and workfiles; exact before/after equality",
+      "shared_git_common_dir_unchanged_claimed": false,
+      "existing_task_source_zeroexecution_assertions_retained": true,
+      "original_default_file_digest_semantics_unchanged": true,
+      "source_sha256": {
+        "apps/desktop/tests/task-workspace-binding-real-ipc.py": "6bb002f30788e2ba3e35565c2b1c8187af42cfdfaec4090bb931bb71559bb0fb",
+        "apps/desktop/tests/test_task_workspace_binding_real_ipc.py": "c4d908040f8847548cacd0aec8be98826dbc3c893d4c51dd4e76309a8f8a3504",
+        "scripts/record-task-workspace-ci-evidence.py": "949144b1f1088883a33ffb08f53f2bfbb7b826df4659048c396373f5d48bde52",
+        "tests/infrastructure/test_task_workspace_ci_evidence.py": "1db7ae2c4181331da34826f46cebcd1db40a8c90b1412b0e0a2ff3902497ce8e"
+      },
+      "pure_driver": {
+        "exit": 0,
+        "cases": 54,
+        "new_cases": 8,
+        "seconds": 0.037,
+        "log_sha256": "d2a7ce00baa781daac023fc39f581e748171dbba7deb750d4ef80e2945c4659e"
+      },
+      "source_checks": {
+        "exit": 0,
+        "count": 9,
+        "checks": {
+          "AST_apps/desktop/tests/task-workspace-binding-real-ipc.py": true,
+          "AST_apps/desktop/tests/test_task_workspace_binding_real_ipc.py": true,
+          "AST_scripts/record-task-workspace-ci-evidence.py": true,
+          "AST_tests/infrastructure/test_task_workspace_ci_evidence.py": true,
+          "entire_driver_inverse_equals_original77_all_six_flows_and_readwrite_CAS_and_B01_B05_unchanged": true,
+          "old46_tests_entire_file_preserved_without_removal_or_assertion_changes": true,
+          "entire_projector_only_strengthens_new_B06_private_fs_proof": true,
+          "old36_projector_tests_preserved_only_new_field_required_in_fixture": true,
+          "diffcheck0": true
+        }
+      },
+      "projection_new_case": 1,
+      "actual_browser_NOT_RUN": true,
+      "Native_Node_Cargo_Provider_NOT_RUN": true,
+      "source_only_review_pending": true,
+      "whole_scope_complete": false,
+      "pure_projection": {
+        "exit": 0,
+        "cases": 37,
+        "new_cases": 1,
+        "seconds": 1.263,
+        "log_sha256": "985618451c14a865ba4ae5b23812e723535b0616f35a1ade9ab085f24cb667f9"
+      }
+    },
+    {
+      "recorded_at": "2026-10-30T02:10:19.999937+00:00",
+      "source_fix": "af52a0e8a28e609ca0dda1baa3f104c4fe84fa22",
+      "previous_source": "bde98d383cacb766f5cb45286cdbffb62b5a622c",
+      "previous_review_status": "old worktree P2 substantively covered; new F2 CHANGES_REQUIRED: actual byte reads not bounded during growth",
+      "f2_dimension": "controlled stream counterexample, not actual Core/browser failure",
+      "fix_scope": "expected_identity/new-image digest branch only; all original default callers unchanged",
+      "accepted_total_tree_bytes_max": 67108864,
+      "per_read_bytes_max": 1048576,
+      "overflow_detection_extra_bytes_max": 1,
+      "new_control": "never-EOF injected stream refuses at initial size +1",
+      "source_sha256": {
+        "apps/desktop/tests/task-workspace-binding-real-ipc.py": "69fe15cb5b4b7af33652611c15fcef5101adf480d52d76e7533ca82171186dd8",
+        "apps/desktop/tests/test_task_workspace_binding_real_ipc.py": "d1606d9bc306ee78508cccebfa34261ede71165fe09d258f4abe1a22e993a179",
+        "scripts/record-task-workspace-ci-evidence.py": "949144b1f1088883a33ffb08f53f2bfbb7b826df4659048c396373f5d48bde52",
+        "tests/infrastructure/test_task_workspace_ci_evidence.py": "1db7ae2c4181331da34826f46cebcd1db40a8c90b1412b0e0a2ff3902497ce8e"
+      },
+      "driver_pure": {
+        "exit": 0,
+        "cases": 55,
+        "seconds": 0.04,
+        "new_cases_after_bde": 1,
+        "log_sha256": "c3656820482762d6a2dffcc3d07cca0871ad611e4c489cd12878d94f4f2ee7bd"
+      },
+      "projection_pure": {
+        "exit": 0,
+        "cases": 37,
+        "seconds": 1.274,
+        "log_sha256": "cfdf1b5f76bd2df379bf6269618da7b49ff63d3b5bee7feafa0a158502b02e8d"
+      },
+      "source_controls": {
+        "exit": 0,
+        "count": 9,
+        "checks": {
+          "AST_apps/desktop/tests/task-workspace-binding-real-ipc.py": true,
+          "AST_apps/desktop/tests/test_task_workspace_binding_real_ipc.py": true,
+          "AST_scripts/record-task-workspace-ci-evidence.py": true,
+          "AST_tests/infrastructure/test_task_workspace_ci_evidence.py": true,
+          "entire_driver_inverse_equals_original77_all_six_flows_and_readwrite_CAS_and_B01_B05_unchanged": true,
+          "old46_tests_entire_file_preserved_without_removal_or_assertion_changes": true,
+          "entire_projector_only_strengthens_new_B06_private_fs_proof": true,
+          "old36_projector_tests_preserved_only_new_field_required_in_fixture": true,
+          "diffcheck0": true
+        }
+      },
+      "actual_Core_browser_Native_Node_Cargo_Provider_NOT_RUN": true,
+      "independent_review_pending": true,
+      "whole_scope_complete": false
+    },
+    {
+      "recorded_at": "2026-10-30T03:21:09.172292+00:00",
+      "source_fix": "50cc98a93a5c61b0738739f1599bdbad03416d7c",
+      "previous_source_bytes": "af52a0e8a28e609ca0dda1baa3f104c4fe84fa22",
+      "actual_original_failure": {
+        "recorded_at": "2026-10-30T03:19:15.860080+00:00",
+        "actual_source": "1155863ab85774ccaec0845c875df1e90d378546",
+        "actual_harness_sha256": "69fe15cb5b4b7af33652611c15fcef5101adf480d52d76e7533ca82171186dd8",
+        "actual_App_sha256": "23e59d85507b16ed31bcde44037f1e9289db9277b9ba0cc6fda68dfc073942fb",
+        "report_sha256": "f307ea422498dda00d24ac8d3e04deac07922dc6f91dcaa5f7d378f77deab17a",
+        "result_sha256": "e028f66fcd138dd33d58ffbb38ddbaf66fbb93f32526e528da8031eb463ee872",
+        "exit": 1,
+        "seconds": 25.557973544986453,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "checks_passed": [
+          "WSI-B01",
+          "WSI-B02",
+          "WSI-B05"
+        ],
+        "scenario_states": {
+          "WSI-B01": "passed",
+          "WSI-B02": "passed",
+          "WSI-B03": "NOT_RUN",
+          "WSI-B04": "NOT_RUN",
+          "WSI-B05": "passed",
+          "WSI-B06": "NOT_RUN"
+        },
+        "snapshots_observed": 2,
+        "third_task_count": 3,
+        "managed_workspace_count": 2,
+        "third_task_HTTP_observed": false,
+        "http_errors": 0,
+        "page_errors": 0,
+        "cleanup_complete": true,
+        "cause": "private setup created third Task on idle all-draft canvas but did not invoke existing App readonly refresh before expecting its card",
+        "source_localized_assertion_line": 932,
+        "line_is_inferred_not_captured_traceback": true,
+        "B06_prepare_or_recovery_reached": false,
+        "new_driver_runtime_NOT_RUN": true,
+        "checks": {}
+      },
+      "fix_scope": "existing Appbar readonly refresh after private third Task setup, delivered exact snapshot plus same card1 in shared15s budget",
+      "production_polling_changed": false,
+      "HTTP_Boundary_or_Core_IPC_changed": false,
+      "new_snapshot_projection_private_only": true,
+      "source_sha256": {
+        "apps/desktop/tests/task-workspace-binding-real-ipc.py": "667a188f945e6a96a0859e2f776dde5b3a8dce71e40ae7e3b6731ef60b06fabd",
+        "apps/desktop/tests/test_task_workspace_binding_real_ipc.py": "bc9cec353974b7ce2a87c27c1181c9b4a3c1265e9ad5186e59946bf85b8e06d7"
+      },
+      "author_pure": {
+        "exit": 0,
+        "cases": 58,
+        "new_cases": 3,
+        "seconds": 0.035,
+        "log_sha256": "fa4d4497c92ca1de3d03ad9f1e75f1d1042d2162089df22e3cc16f5f30a6fe3b"
+      },
+      "source_checks": {
+        "exit": 0,
+        "count": 7,
+        "checks": {
+          "driver_AST_valid": true,
+          "entire_driver_inverse_equal_af_including_all_6_checks_recovery_FDs_byte_bounds_CAS_cleanup": true,
+          "pure_tests_AST_valid": true,
+          "all_old55_tests_byte_equal": true,
+          "projector_unchanged_scripts/record-task-workspace-ci-evidence.py": true,
+          "projector_unchanged_tests/infrastructure/test_task_workspace_ci_evidence.py": true,
+          "diffcheck0": true
+        }
+      },
+      "finite_failure_checks": {
+        "exit": 0,
+        "count": 7
+      },
+      "new_source_actual_Core_browser_Node_Cargo_NOT_RUN": true,
+      "independent_review_pending": true,
+      "whole_scope_complete": false
+    }
+  ],
+  "Root_actual_current_results": "../task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json"
+}

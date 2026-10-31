@@ -79,3 +79,5 @@
 .data-workspaces dd { margin:4px 0 14px; }
 .data-workspaces code { white-space:pre-wrap; overflow-wrap:anywhere; }
 @media(max-width:759px){.data-workspaces button,.data-workspaces input{min-height:44px}}
+
+.task-code-workspace{margin:18px 0;border-top:1px solid var(--line);padding-top:12px}.task-code-workspace>section{padding:12px 0;max-width:760px}.task-code-workspace code{white-space:pre-wrap;overflow-wrap:anywhere}.task-code-workspace details{margin:12px 0}.task-code-workspace dd{overflow-wrap:anywhere}

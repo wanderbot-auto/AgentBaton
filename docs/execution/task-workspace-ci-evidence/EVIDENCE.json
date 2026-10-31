@@ -1,0 +1,44 @@
+{
+  "base": "6c0908e598381a387a3e5b3207f3a7115905d73c",
+  "source_commit": "bf241a3cc690a073d7422f57367eaa1621449aef",
+  "kind": "authored source/pure evidence",
+  "initial_source_CHANGES_REQUIRED": "7fbd32b6a68f4ca8a4c6f7b4460f11a56074a04d",
+  "completed": {
+    "final_pure_tests": 33,
+    "final_pure_skipped": 0,
+    "old_targeted_regression_tests": 1,
+    "old_targeted_regression_subcase_failures": 2,
+    "same_regression_after_fix": "PASS",
+    "static_checks": 12,
+    "existing_Root_PNG_format_read_only": 6
+  },
+  "not_run": [
+    "new product browser/driver",
+    "Core/Actor/daemon/SQLite",
+    "Node/Cargo",
+    "real new collector publication",
+    "Native/macOS/CI",
+    "Provider"
+  ],
+  "counts_not_additive": true,
+  "independent_review": {
+    "review_sha256": "5b2ee7625337c4dabaac31b1cb14853942279a7af49463760ae5566af3c59f98",
+    "manifest_sha256": "7677118c7875a6b2783190892bcee992f1d35edb6621d0ad9284f6a0a1466770"
+  },
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "sha256": "49b6d7cec32dba98fa1588400ebe9c773f5fa927d6de72073f20f6b0d5f77020",
+    "bytes": 30701,
+    "regular_members": 34,
+    "roundtrip_verified": true
+  },
+  "manifest_sha256": "1dc167d843330507abfdd7a60ac8478c3d4054cb6bee4e1d466d1c605035c335",
+  "archive_excludes": [
+    "original report",
+    "original PNGs",
+    "daemon logs",
+    "HTTP/RPC",
+    "SQLite",
+    "private IDs or credentials"
+  ]
+}
