@@ -2329,7 +2329,8 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
+        "readonly_poll_recovery_local_slice": "passed for sourcefdf mocked transport controls and actual Linux normal4/cancel4/lost-start5 Core/browser regressions; explicit source/evidence in ACTUAL_RESULTS; exact new Native/Mac/Provider acceptance not established"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -2347,7 +2348,8 @@
         "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
         "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
-        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json"
+        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
+        "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -4116,12 +4118,14 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance",
+        "readonly_poll_recovery_local_slice": "passed for sourcefdf mocked transport controls and actual Linux normal4/cancel4/lost-start5 Core/browser regressions; explicit source/evidence in ACTUAL_RESULTS; exact new Native/Mac/Provider acceptance not established"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
@@ -4155,14 +4159,16 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance",
+        "readonly_poll_recovery_local_slice": "passed for sourcefdf mocked transport controls and actual Linux normal4/cancel4/lost-start5 Core/browser regressions; explicit source/evidence in ACTUAL_RESULTS; exact new Native/Mac/Provider acceptance not established"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/child-goal-readonly-poll-recovery/ACTUAL_RESULTS.json"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
