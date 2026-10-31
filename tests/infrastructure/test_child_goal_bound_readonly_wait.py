@@ -29,7 +29,7 @@ def environment():
         'FixedCall':namedtuple('FixedCall','method params key revision')}
     load_functions(SUPPORT,['BoundaryRefusal','require','exact_json_value'],ns)
     ns['support']=types.SimpleNamespace(exact_json_value=ns['exact_json_value'])
-    load_functions(DRIVER,['identifier','bound_child_goal_query','exact_pending_child_goal_read','wait_bound_child_goal'],ns)
+    load_functions(DRIVER,['identifier','bound_child_goal_query','exact_pending_child_goal_read','child_observation_deadline','wait_bound_child_goal'],ns)
     bounds=types.SimpleNamespace(scope_id='scope-fixed',tasks={'task-fixed'},goal_runs={'goal-fixed':'task-fixed'})
     query={'scope_id':'scope-fixed','task_id':'task-fixed','goal_run_id':'goal-fixed'}
     return clock,ns,bounds,query

@@ -1,5 +1,6 @@
 """Synthetic stage/projection and complete source inverse; no real processes."""
 import copy
+import errno
 import hashlib
 import importlib.util
 import json
@@ -107,7 +108,7 @@ class FiniteSetupProjection(unittest.TestCase):
     def test_failed_step_exports_only_closed_setup_fields_and_stays_failed(self):
         for stage in E.SETUP_STAGES:
             with self.subTest(stage=stage), tempfile.TemporaryDirectory() as temporary:
-                root = Path(temporary); private = root / 'private'
+                root = Path(temporary).resolve(strict=True); private = root / 'private'
                 seed(private, stage, None if stage == 'driver_returned' else 'os_error', 1 if stage == 'driver_returned' else None)
                 output = root / 'public'
                 self.assertEqual(E.main(['--private', str(private), '--output', str(output),
@@ -118,6 +119,29 @@ class FiniteSetupProjection(unittest.TestCase):
                 self.assertEqual(value['setup_diagnostic']['stage'], stage)
                 self.assertIs(value['screenshots_published'], False)
                 self.assertNotIn(SECRET, raw); self.assertNotIn(str(private), raw)
+
+    def test_alias_output_parent_refuses_without_publishing_even_with_valid_private_evidence(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve(strict=True)
+            private = root / 'private'; seed(private)
+            self.assertEqual(E.setup_diagnostic(private, HEAD)['status'], 'observed')
+            parent = root / 'canonical-parent'; parent.mkdir(mode=0o700)
+            alias = root / 'alias-parent'; alias.symlink_to(parent, target_is_directory=True)
+            summary = E.failure(HEAD, 'driver_step_not_successful')
+            # The same real parent publishes successfully through its canonical
+            # name; an alias must remain refused before creating any output.
+            E.publish(parent / 'control', summary, {})
+            self.assertEqual({p.name for p in (parent / 'control').iterdir()}, {'summary.json'})
+            with self.assertRaises(OSError) as refused:
+                E.publish(alias / 'refused', summary, {})
+            self.assertIn(refused.exception.errno, (errno.ENOTDIR, errno.ELOOP))
+            with mock.patch.object(E.P, 'write_new', wraps=E.P.write_new) as written:
+                self.assertEqual(E.main(['--private', str(private), '--output', str(alias / 'via-main'),
+                    '--expected-source-head', HEAD, '--driver-step-outcome', 'failure']), 1)
+                written.assert_not_called()
+            self.assertFalse((parent / 'refused').exists())
+            self.assertFalse((parent / 'via-main').exists())
+            self.assertEqual({p.name for p in parent.iterdir()}, {'control'})
 
     def test_unknown_extra_nonfinite_wrong_source_bool_int_or_inconsistent_facts_are_unavailable(self):
         changes = [('setup-diagnostic.json', lambda d: d.update(stage=SECRET)),
@@ -138,7 +162,9 @@ class FiniteSetupProjection(unittest.TestCase):
             ('status.json', lambda d: d.update(database=SECRET))]
         for name, change in changes:
             with self.subTest(name=name, change=change), tempfile.TemporaryDirectory() as temporary:
-                private = Path(temporary) / 'private'; seed(private)
+                private = Path(temporary).resolve(strict=True) / 'private'; seed(private)
+                self.assertEqual(E.setup_diagnostic(private, HEAD)['status'], 'observed')
+                self.assertEqual(E.setup_diagnostic(private, HEAD)['stage'], 'schema_probe')
                 path = private / name; data = json.loads(path.read_text()); change(data); path.write_text(json.dumps(data))
                 value = E.setup_diagnostic(private, HEAD)
                 self.assertEqual(value, UNAVAILABLE); self.assertNotIn(SECRET, json.dumps(value))
@@ -146,7 +172,9 @@ class FiniteSetupProjection(unittest.TestCase):
     def test_missing_duplicate_symlink_hardlink_permissions_and_oversize_refuse(self):
         for kind in ('missing', 'duplicate', 'symlink', 'hardlink', 'permissions', 'oversize', 'root-mode'):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory() as temporary:
-                root = Path(temporary); private = root / 'private'; seed(private); path = private / 'setup-diagnostic.json'
+                root = Path(temporary).resolve(strict=True); private = root / 'private'; seed(private); path = private / 'setup-diagnostic.json'
+                self.assertEqual(E.setup_diagnostic(private, HEAD)['status'], 'observed')
+                self.assertEqual(E.setup_diagnostic(private, HEAD)['stage'], 'schema_probe')
                 if kind == 'missing': path.unlink()
                 elif kind == 'duplicate': path.write_text('{"source":"' + HEAD + '","source":"' + HEAD + '"}')
                 elif kind == 'symlink':
@@ -160,7 +188,11 @@ class FiniteSetupProjection(unittest.TestCase):
     def test_bool_or_out_of_range_return_code_is_never_valid_observation(self):
         for exit_code in (False, True, 256, -256, None, '0'):
             with self.subTest(exit_code=exit_code), tempfile.TemporaryDirectory() as temporary:
-                private = Path(temporary) / 'private'; seed(private, 'driver_returned', None, exit_code)
+                private = Path(temporary).resolve(strict=True) / 'private'; seed(private, 'driver_returned', None, 0)
+                self.assertEqual(E.setup_diagnostic(private, HEAD)['status'], 'observed')
+                self.assertEqual(E.setup_diagnostic(private, HEAD)['stage'], 'driver_returned')
+                status_path = private / 'status.json'; status = json.loads(status_path.read_text())
+                status['driver_exit'] = exit_code; status_path.write_text(json.dumps(status))
                 self.assertEqual(E.setup_diagnostic(private, HEAD), UNAVAILABLE)
 
 

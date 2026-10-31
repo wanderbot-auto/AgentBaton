@@ -86,14 +86,61 @@ pub enum WorkspaceKind {
     },
 }
 
-fn git_command(root: &Path) -> Command {
-    let mut command = Command::new("git");
+/// The macOS system Git entry point. This may launch the OS-selected Apple
+/// developer toolchain; its bytes are not a digest of that entire toolchain.
+/// There is no user-selected Git program option or PATH fallback on macOS.
+pub const MACOS_SYSTEM_GIT: &str = "/usr/bin/git";
+
+fn git_environment_selector(key: &OsStr, apple_system: bool) -> bool {
+    let key = key.as_bytes();
+    key.starts_with(b"GIT_")
+        || apple_system
+            && (matches!(
+                key,
+                b"DEVELOPER_DIR"
+                    | b"SDKROOT"
+                    | b"TOOLCHAINS"
+                    | b"DT_TOOLCHAIN_DIR"
+                    | b"XCODE_DEVELOPER_DIR_PATH"
+                    | b"__XPC_DEVELOPER_DIR"
+            ) || key.starts_with(b"XCRUN_")
+                || key.starts_with(b"xcrun_")
+                || key.starts_with(b"DYLD_")
+                || key.starts_with(b"_DYLD_")
+                || key.starts_with(b"__XPC_DYLD_")
+                || key.starts_with(b"LD_"))
+}
+
+/// Apply the same local Git environment policy to workspace operations and
+/// Core's pinned integration observations. Only this child command changes;
+/// no global environment, Xcode selection, permissions or settings are edited.
+pub fn configure_local_git_environment(command: &mut Command) {
+    configure_git_environment_for_platform(command, cfg!(target_os = "macos"));
+}
+
+fn configure_git_environment_for_platform(command: &mut Command, apple_system: bool) {
+    let explicit: Vec<_> = command.get_envs().map(|(key, _)| key.to_owned()).collect();
     // Local operations must not inherit another process's Git repository/config selectors.
-    for (key, _) in std::env::vars_os() {
-        if key.as_bytes().starts_with(b"GIT_") {
+    for key in std::env::vars_os().map(|(key, _)| key).chain(explicit) {
+        if git_environment_selector(&key, apple_system) {
             command.env_remove(key);
         }
     }
+    if apple_system {
+        command.env("PATH", "/usr/bin:/bin:/usr/sbin:/sbin");
+    }
+}
+
+#[cfg(test)]
+#[path = "system_git_tests.rs"]
+mod system_git_tests;
+
+fn git_command(root: &Path) -> Command {
+    #[cfg(target_os = "macos")]
+    let mut command = Command::new(MACOS_SYSTEM_GIT);
+    #[cfg(not(target_os = "macos"))]
+    let mut command = Command::new("git");
+    configure_local_git_environment(&mut command);
     command
         .env("GIT_CONFIG_GLOBAL", "/dev/null")
         .env("GIT_CONFIG_NOSYSTEM", "1")

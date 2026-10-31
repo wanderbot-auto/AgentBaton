@@ -1,7 +1,7 @@
 //! Actual Unix IPC + generated ACP + managed Git integration. The private
 //! approvals.finalize caller below is a trusted test host, not an OS dialog.
 //! No normal-path authority, acceptance, pass, lease or stop is inserted by SQL.
-use super::{git, result, Server};
+use super::{diagnostics, git, result, Server};
 use agentbaton_core::{goal_plan::*, goal_store::*};
 use agentbaton_workspaces::validation::{sha256, ArtifactRequirement};
 use rusqlite::{types::Value as SqlValue, Connection, OpenFlags};
@@ -234,6 +234,8 @@ impl RuntimeFixture {
         fs::copy(fs::canonicalize("/bin/sh").unwrap(), &validator_program).unwrap();
         fs::set_permissions(&validator_program, fs::Permissions::from_mode(0o700)).unwrap();
         assert_eq!(fs::metadata(&validator_program).unwrap().nlink(), 1);
+        diagnostics::git_environment();
+        diagnostics::fixture("runtime", &root, &project_root, None);
         let server = Server::start(root.join("runtime"));
         assert_eq!(
             rpc(&server, "system.snapshot", json!({}), None, None)["database_schema_version"],
@@ -289,6 +291,12 @@ impl RuntimeFixture {
             .find(|w| w["id"] == workspace_id)
             .unwrap()
             .clone();
+        diagnostics::fixture(
+            "runtime-managed",
+            &root,
+            &project_root,
+            workspace["root"].as_str().map(Path::new),
+        );
         let task = rpc(
             &server,
             "tasks.get",

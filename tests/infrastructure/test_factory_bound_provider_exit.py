@@ -502,22 +502,43 @@ class ChildGoalTimingTests(unittest.TestCase):
         with self.assertRaises(AssertionError):ns['phase_stamp']('arbitrary private text','start')
         self.assertEqual(len(report['owner_phase_stamps']),2)
 
-    def test_all_four_actual_phase_blocks_keep_end_stamp_on_failure(self):
+    def test_all_seven_actual_phase_blocks_keep_end_stamp_on_failure(self):
         path,runtime=self.nodes()
         blocks=[n for n in ast.walk(runtime)if isinstance(n,ast.Try)and len(n.finalbody)==1
             and isinstance(n.finalbody[0],ast.Expr)and isinstance(n.finalbody[0].value,ast.Call)
             and isinstance(n.finalbody[0].value.func,ast.Name)and n.finalbody[0].value.func.id=='phase_stamp']
-        self.assertEqual(len(blocks),4)
+        expected={'before_owner_read','before_owner_capture','owner_UI_refresh_click','owner_enabled_expect',
+            'owner_click','owner_receipt_observe','owner_core_acceptance'}
+        self.assertEqual(len(blocks),7)
+        names=[]
         for block in blocks:
-            stamps=[]
-            def refuse(*a,**k):raise RuntimeError('original unit failure')
-            button=SimpleNamespace(click=refuse)
-            ns={'phase_stamp':lambda *a:stamps.append(a),'wait':refuse,'wait_child_goal':refuse,'capture':refuse,
-                'goal_panel':SimpleNamespace(get_by_role=lambda *a,**k:button),'owner':object(),
-                'expect':lambda _:SimpleNamespace(to_be_enabled=refuse)}
-            with self.assertRaisesRegex(RuntimeError,'original unit failure'):
-                exec(compile(ast.Module(body=[block],type_ignores=[]),str(path),'exec'),ns)
-            self.assertEqual(len(stamps),1);self.assertEqual(stamps[0][1],'end')
+            end=block.finalbody[0].value
+            self.assertEqual(len(end.args),2);self.assertFalse(end.keywords)
+            self.assertIsInstance(end.args[0],ast.Constant);self.assertIsInstance(end.args[1],ast.Constant)
+            self.assertEqual(end.args[1].value,'end');names.append(end.args[0].value)
+        self.assertEqual(set(names),expected);self.assertEqual(len(set(names)),7)
+        for name,block in zip(names,blocks):
+            with self.subTest(phase=name):
+                stamps=[];calls=[];original=RuntimeError('original unit failure')
+                def refuse(*a,**k):calls.append((a,k));raise original
+                button=SimpleNamespace(click=refuse);trace=object()
+                query={'scope_id':'scope','task_id':'child','goal_run_id':'graph'}
+                pump=lambda:None
+                ns={'phase_stamp':lambda *a:stamps.append(a),'wait':refuse,'wait_child_goal':refuse,'capture':refuse,
+                    'goal_panel':SimpleNamespace(get_by_role=lambda *a,**k:button),'owner':button,
+                    'expect':lambda _:SimpleNamespace(to_be_enabled=refuse),
+                    'wait_goal_owner_binding':refuse,'report':{'goal_owner_binding':trace},
+                    'query':query,'owner_deadline':123.0,'pump':pump}
+                with self.assertRaisesRegex(RuntimeError,'original unit failure')as error:
+                    exec(compile(ast.Module(body=[block],type_ignores=[]),str(path),'exec'),ns)
+                self.assertIs(error.exception,original)
+                self.assertEqual(stamps,[(name,'end')]);self.assertEqual(len(calls),1)
+                if name=='owner_receipt_observe':
+                    self.assertEqual(len(calls[0][0]),2);self.assertIs(calls[0][0][0],trace);self.assertIs(calls[0][0][1],query)
+                    self.assertEqual(calls[0][1],{'deadline':123.0,'pump':pump,'capture':refuse})
+                elif name=='owner_core_acceptance':
+                    self.assertEqual(len(calls[0][0]),1);self.assertTrue(callable(calls[0][0][0]));self.assertEqual(calls[0][1],{'deadline':123.0})
+
 
 
 class BoundMcpLateDiagnosticTests(unittest.TestCase):

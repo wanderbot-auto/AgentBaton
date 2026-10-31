@@ -389,11 +389,244 @@ fn check_head_reference(root: &Path) -> Result<()> {
     Ok(())
 }
 
+// Darwin mount ABI flags from the already locked libc 0.2.191 source. The
+// production calls use rustix, so no additional dependency/unsafe FFI is needed.
+#[cfg(any(target_os = "macos", test))]
+// MNT_RDONLY | MNT_LOCAL | MNT_ROOTFS | MNT_SNAPSHOT.
+const APPLE_ROOT_FLAGS: u32 = 0x0000_0001 | 0x0000_1000 | 0x0000_4000 | 0x4000_0000;
+#[cfg(any(target_os = "macos", test))]
+// MNT_NOEXEC | MNT_IGNORE_OWNERSHIP.
+const APPLE_FORBIDDEN_FLAGS: u32 = 0x0000_0004 | 0x0020_0000;
+#[cfg(any(target_os = "macos", test))]
+const APPLE_VFS_READONLY: u64 = 1;
+
+#[cfg(any(target_os = "macos", test))]
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct AppleSystemVolume {
+    device: u64,
+    fsid: u64,
+    flags: u32,
+    flags_ext: u32,
+    vfs_flags: u64,
+    owner: u32,
+    fs_type: u32,
+    fs_subtype: u32,
+    filesystem: Vec<u8>,
+    mountpoint: Vec<u8>,
+    source: Vec<u8>,
+    readonly: bool,
+}
+#[cfg(any(target_os = "macos", test))]
+impl AppleSystemVolume {
+    fn protected_root_snapshot(&self) -> bool {
+        self.readonly
+            && self.vfs_flags & APPLE_VFS_READONLY != 0
+            && self.flags & APPLE_ROOT_FLAGS == APPLE_ROOT_FLAGS
+            && self.flags & APPLE_FORBIDDEN_FLAGS == 0
+            && self.owner == 0
+            && self.filesystem.as_slice() == b"apfs"
+            && self.mountpoint.as_slice() == b"/"
+            && self.source.strip_prefix(b"/dev/disk").is_some_and(|tail| {
+                !tail.is_empty()
+                    && tail[0].is_ascii_digit()
+                    && tail.iter().all(|b| b.is_ascii_digit() || *b == b's')
+            })
+    }
+}
+#[cfg(any(target_os = "macos", test))]
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct AppleFileIdentity {
+    device: u64,
+    inode: u64,
+    uid: u32,
+    mode: u32,
+    links: u64,
+    flags: u32,
+}
+#[cfg(any(target_os = "macos", test))]
+fn apple_git_allowed(path: &Path, file: &AppleFileIdentity, volume: &AppleSystemVolume) -> bool {
+    path.as_os_str() == std::ffi::OsStr::new(agentbaton_workspaces::MACOS_SYSTEM_GIT)
+        && file.mode & 0o170000 == 0o100000
+        && file.uid == 0
+        && file.mode & 0o022 == 0
+        && file.mode & 0o111 != 0
+        && file.links > 0
+        && file.device == volume.device
+        && volume.protected_root_snapshot()
+}
+#[cfg(any(target_os = "macos", test))]
+fn apple_git_observation_matches(
+    path: &Path,
+    expected_file: &AppleFileIdentity,
+    expected_volume: &AppleSystemVolume,
+    file: &AppleFileIdentity,
+    volume: &AppleSystemVolume,
+) -> bool {
+    file == expected_file && volume == expected_volume && apple_git_allowed(path, file, volume)
+}
+#[cfg(any(target_os = "macos", test))]
+fn apple_ancestor_allowed(
+    path: &Path,
+    file: &AppleFileIdentity,
+    volume: &AppleSystemVolume,
+    expected_volume: &AppleSystemVolume,
+) -> bool {
+    ["/", "/usr", "/usr/bin"]
+        .iter()
+        .any(|name| path.as_os_str() == std::ffi::OsStr::new(*name))
+        && file.mode & 0o170000 == 0o040000
+        && file.uid == 0
+        && file.mode & 0o022 == 0
+        && file.links > 0
+        && file.device == volume.device
+        && volume == expected_volume
+        && volume.protected_root_snapshot()
+}
+#[cfg(target_os = "macos")]
+fn apple_file_identity(file: &File) -> Result<AppleFileIdentity> {
+    let stat = rustix::fs::fstat(file).map_err(|_| changed())?;
+    Ok(AppleFileIdentity {
+        device: stat.st_dev as u64,
+        inode: stat.st_ino,
+        uid: stat.st_uid,
+        mode: u32::from(stat.st_mode),
+        links: u64::from(stat.st_nlink),
+        flags: stat.st_flags,
+    })
+}
+#[cfg(target_os = "macos")]
+fn apple_volume(file: &File) -> Result<AppleSystemVolume> {
+    fn bounded_string<const N: usize>(value: &[std::ffi::c_char; N]) -> Result<Vec<u8>> {
+        let end = value.iter().position(|b| *b == 0).ok_or_else(changed)?;
+        Ok(value[..end].iter().map(|b| *b as u8).collect())
+    }
+    let stat = rustix::fs::fstatfs(file).map_err(|_| changed())?;
+    let vfs = rustix::fs::fstatvfs(file).map_err(|_| changed())?;
+    Ok(AppleSystemVolume {
+        device: file.metadata().map_err(|_| changed())?.dev(),
+        fsid: vfs.f_fsid,
+        flags: stat.f_flags,
+        flags_ext: stat.f_flags_ext,
+        vfs_flags: vfs.f_flag.bits(),
+        owner: stat.f_owner,
+        fs_type: stat.f_type,
+        fs_subtype: stat.f_fssubtype,
+        filesystem: bounded_string(&stat.f_fstypename)?,
+        mountpoint: bounded_string(&stat.f_mntonname)?,
+        source: bounded_string(&stat.f_mntfromname)?,
+        readonly: vfs.f_flag.contains(rustix::fs::StatVfsMountFlags::RDONLY),
+    })
+}
+#[cfg(target_os = "macos")]
+struct AppleAncestorPin {
+    path: PathBuf,
+    file: File,
+    stamp: TreeStamp,
+    identity: AppleFileIdentity,
+}
+#[cfg(target_os = "macos")]
+struct AppleSystemGitProof {
+    file: AppleFileIdentity,
+    volume: AppleSystemVolume,
+    ancestors: Vec<AppleAncestorPin>,
+}
+#[cfg(target_os = "macos")]
+impl AppleSystemGitProof {
+    fn capture(file: &File) -> Result<Self> {
+        let path = Path::new(agentbaton_workspaces::MACOS_SYSTEM_GIT);
+        let identity = apple_file_identity(file)?;
+        let volume = apple_volume(file)?;
+        if !apple_git_allowed(path, &identity, &volume) {
+            return Err(changed());
+        }
+        let mut ancestors = vec![];
+        for path in ["/", "/usr", "/usr/bin"] {
+            let path = Path::new(path);
+            let file = tree_root(path)?;
+            let identity = apple_file_identity(&file)?;
+            if !apple_ancestor_allowed(path, &identity, &apple_volume(&file)?, &volume) {
+                return Err(changed());
+            }
+            let stamp = tree_stamp(&rustix::fs::fstat(&file).map_err(|_| changed())?);
+            ancestors.push(AppleAncestorPin {
+                path: path.into(),
+                file,
+                stamp,
+                identity,
+            });
+        }
+        Ok(Self {
+            file: identity,
+            volume,
+            ancestors,
+        })
+    }
+    fn recheck(&self, path: &Path, file: &File) -> Result<()> {
+        if path.canonicalize().map_err(|_| changed())?.as_os_str() != path.as_os_str()
+            || !apple_git_observation_matches(
+                path,
+                &self.file,
+                &self.volume,
+                &apple_file_identity(file)?,
+                &apple_volume(file)?,
+            )
+        {
+            return Err(changed());
+        }
+        for ancestor in &self.ancestors {
+            let current = tree_root(&ancestor.path)?;
+            for file in [&ancestor.file, &current] {
+                let identity = apple_file_identity(file)?;
+                if tree_stamp(&rustix::fs::fstat(file).map_err(|_| changed())?) != ancestor.stamp
+                    || identity != ancestor.identity
+                    || !apple_ancestor_allowed(
+                        &ancestor.path,
+                        &identity,
+                        &apple_volume(file)?,
+                        &self.volume,
+                    )
+                {
+                    return Err(changed());
+                }
+            }
+        }
+        // Reopen the named leaf without following symlinks as well as checking
+        // the held descriptor. A mount/volume change cannot inherit the proof.
+        let parent = tree_root(path.parent().ok_or_else(changed)?)?;
+        let current: File = rustix::fs::openat(
+            &parent,
+            path.file_name().ok_or_else(changed)?,
+            rustix::fs::OFlags::RDONLY
+                | rustix::fs::OFlags::NOFOLLOW
+                | rustix::fs::OFlags::NONBLOCK
+                | rustix::fs::OFlags::CLOEXEC,
+            rustix::fs::Mode::empty(),
+        )
+        .map_err(|_| changed())?
+        .into();
+        if tree_stamp(&rustix::fs::fstat(&current).map_err(|_| changed())?)
+            != tree_stamp(&rustix::fs::fstat(file).map_err(|_| changed())?)
+            || !apple_git_observation_matches(
+                path,
+                &self.file,
+                &self.volume,
+                &apple_file_identity(&current)?,
+                &apple_volume(&current)?,
+            )
+        {
+            return Err(changed());
+        }
+        Ok(())
+    }
+}
+
 /// Holds full observed metadata excluding atime, including the original descriptor.
 pub(super) struct LeafPin {
     path: PathBuf,
     file: File,
     stamp: TreeStamp,
+    #[cfg(target_os = "macos")]
+    apple_system_git: Option<AppleSystemGitProof>,
 }
 impl LeafPin {
     pub(super) fn file_pin(&self) -> Result<agentbaton_workspaces::data_workspace::FilePin> {
@@ -432,6 +665,37 @@ impl LeafPin {
             path: path.into(),
             file,
             stamp,
+            #[cfg(target_os = "macos")]
+            apple_system_git: None,
+        };
+        pin.recheck()?;
+        Ok(pin)
+    }
+    #[cfg(target_os = "macos")]
+    fn capture_apple_system_git() -> Result<Self> {
+        let path = Path::new(agentbaton_workspaces::MACOS_SYSTEM_GIT);
+        if path.canonicalize().map_err(|_| changed())?.as_os_str() != path.as_os_str() {
+            return Err(changed());
+        }
+        let parent = tree_root(path.parent().ok_or_else(changed)?)?;
+        let file: File = rustix::fs::openat(
+            &parent,
+            path.file_name().ok_or_else(changed)?,
+            rustix::fs::OFlags::RDONLY
+                | rustix::fs::OFlags::NOFOLLOW
+                | rustix::fs::OFlags::NONBLOCK
+                | rustix::fs::OFlags::CLOEXEC,
+            rustix::fs::Mode::empty(),
+        )
+        .map_err(|_| changed())?
+        .into();
+        let proof = AppleSystemGitProof::capture(&file)?;
+        let stamp = tree_stamp(&rustix::fs::fstat(&file).map_err(|_| changed())?);
+        let pin = Self {
+            path: path.into(),
+            file,
+            stamp,
+            apple_system_git: Some(proof),
         };
         pin.recheck()?;
         Ok(pin)
@@ -449,6 +713,10 @@ impl LeafPin {
         .map_err(|_| changed())?;
         if tree_stamp(&stat) != self.stamp {
             return Err(changed());
+        }
+        #[cfg(target_os = "macos")]
+        if let Some(proof) = &self.apple_system_git {
+            proof.recheck(&self.path, &self.file)?;
         }
         Ok(())
     }
@@ -602,25 +870,33 @@ pub(super) fn system_git(
     control: &IntegrationReadControl,
 ) -> Result<(IntegrationProgramPin, LeafPin)> {
     control.check()?;
-    let path = std::env::var_os("PATH").ok_or_else(changed)?;
-    let mut selected = None;
-    for directory in std::env::split_paths(&path) {
-        if !directory.is_absolute() {
-            return Err(changed());
-        }
-        let candidate = directory.join("git");
-        match fs::metadata(&candidate) {
-            Ok(m) if m.is_file() && m.mode() & 0o111 != 0 => {
-                selected = Some(candidate.canonicalize().map_err(|_| changed())?);
-                break;
+    // The API has no caller-selected Git executable. macOS uses its fixed OS
+    // entry point, never a failed PATH candidate followed by a silent fallback.
+    #[cfg(target_os = "macos")]
+    let pin = LeafPin::capture_apple_system_git()?;
+    #[cfg(not(target_os = "macos"))]
+    let pin = {
+        let path = std::env::var_os("PATH").ok_or_else(changed)?;
+        let mut selected = None;
+        for directory in std::env::split_paths(&path) {
+            if !directory.is_absolute() {
+                return Err(changed());
             }
-            Ok(_) => (),
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => (),
-            Err(_) => return Err(changed()),
+            let candidate = directory.join("git");
+            match fs::metadata(&candidate) {
+                Ok(m) if m.is_file() && m.mode() & 0o111 != 0 => {
+                    selected = Some(candidate.canonicalize().map_err(|_| changed())?);
+                    break;
+                }
+                Ok(_) => (),
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => (),
+                Err(_) => return Err(changed()),
+            }
         }
-    }
-    let path = selected.ok_or_else(changed)?;
-    let pin = LeafPin::capture(&path)?;
+        LeafPin::capture(&selected.ok_or_else(changed)?)?
+    };
+    control.check()?;
+    let path = pin.path.clone();
     let metadata = pin.file.metadata().map_err(|_| changed())?;
     if metadata.mode() & 0o022 != 0 || metadata.mode() & 0o111 == 0 {
         return Err(changed());
@@ -777,17 +1053,10 @@ pub(super) fn git_status(
     args: &[&std::ffi::OsStr],
     control: &IntegrationReadControl,
 ) -> Result<(std::process::ExitStatus, Vec<u8>)> {
-    use std::{
-        os::unix::ffi::OsStrExt,
-        process::{Command, Stdio},
-    };
+    use std::process::{Command, Stdio};
     control.check()?;
     let mut command = Command::new(&program.canonical_path);
-    for (key, _) in std::env::vars_os() {
-        if key.as_bytes().starts_with(b"GIT_") {
-            command.env_remove(key);
-        }
-    }
+    agentbaton_workspaces::configure_local_git_environment(&mut command);
     command
         .env("GIT_CONFIG_GLOBAL", "/dev/null")
         .env("GIT_CONFIG_NOSYSTEM", "1")
@@ -1013,6 +1282,10 @@ pub(super) fn inspect_git(
         },
     })
 }
+
+#[cfg(test)]
+#[path = "integration_system_git_tests.rs"]
+mod system_git_policy_tests;
 
 #[cfg(test)]
 mod controlled_git_tests {

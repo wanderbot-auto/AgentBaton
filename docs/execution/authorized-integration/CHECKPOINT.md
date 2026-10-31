@@ -81,3 +81,22 @@ Keepba Environmentall3 andProductall4 failures. Linux newadmission1/Core229/comm
 ## fbd exact CI terminal and local recovery — 2026-10-31T02:52:01.931546+00:00
 
 fbd Environment3PASS; Productall4FAIL: Rust/bothMac execution6/1 original v1 fixture differs from historical production NOTNULL; UI pre-driver measured140798744>original128MiB. Latercollectors secondary. Correctedcurrent9ed execution8/strictClippy/fmt and501infra PASS; samefbd explicitdebug0 build42149952daemon, same-head frontend+TaskWorkspace6actualchecks8PNG pass/cleanuptrue. No wholeCI/Mac acceptance claimed. See HEADFBD_CI_AND_LOCAL_RECOVERY.json SHA256 28530521d72609728aa00ae1f765bc0587932bc885840fa86d6465f163838841. NewexactCI and full130 remain open. OWNER001002/main653679dACK, no formalApprove or authority expansion.
+
+
+## Root21 resumed finite checkpoint — 2026-10-31T04:25:04.125892+00:00
+
+Metadata base 3bb658b; [new finite results](RESUMED_ROOT21_DIAGNOSTICS_RESULTS.json) SHA256 `b740d3ffac13df9ba489f0c7080c7348ac75299ee29af0abfead8350a2fbcc53`. e4 actual Factory 37 / IPC 20 passes and original strict-Clippy101 remain attributed to e4. Source 3bb passes the same two-target strict Clippy and full Python infrastructure (522 tests). IPC 20 includes 4 synthetic Rust diagnostic controls; complete-target counts are not added to their historical subsets. The subprocess companions remain retained schema17 tools (manifest source 9b69589), not e4/3bb rebuilds; the raw collector's inherited frozen-tool snapshot does not independently pin the command-line overridden companion directory. Raw INPUTS/RESULT/log hashes are recorded without copying private paths or fixture logs.
+
+All original 7ee terminal results and four separate failure classes remain: Rust success, UI unknown integration-wrapper setup/driver failure, ARM 1 passed / 15 failed INPUT_CHANGED, and Intel 25 passed / 2 failed with deadline-owned-premise and readonly Busy failures. Source/pure reviews of the bounded observers, exact Busy reconciliation and pinned/nonblocking deadline retention have no remaining source findings after their recorded closures. Preserve the original deadline retention P2 rejection and vacuous notification negative-test P2 rejection beside their separate closure records. Linux passes and source closure do not establish either original Mac root cause or a new CI pass.
+
+Parent 7af terminal Environment succeeds and wholeProduct fails UI, even though Rust/ARM/Intel succeed. UI normal/cancel fail with incomplete cleanup; lost-start succeeds with 5 checks and complete cleanup. Its synthetic 5432 checkout is not a protected-main merge. The official two development DMGs are checksum-verified downloads with CI-reported ad hoc/unsigned status only; native install/manual verification was not performed here. Source 287 wrapper/notification/browser evidence remains separately audited historical feature evidence, not a 3bb rerun.
+
+Next Root independently reviews/cherry-picks this metadata, then runs exact reviewed CI and reads the new finite diagnostics without changing original guards, budgets or required checks. Current Native/dualMac/Root installers/protected integration and all 130 completion remain open. No requirement state or authorization is changed, and no formal Approve / live Provider/signing/production result is claimed.
+
+
+### Canonical temporary fixture follow-up
+
+Notification 784 Environment 41168423931 separately retains both Mac jobs failed with 15 errors each in an unresolved temporary-root positive fixture; Ubuntu passed. The test-only canonical-root correction and alias-parent refusal control pass 10 pure Linux tests. Projector/source pins are unchanged; corrected Mac/full-infrastructure/new CI execution remains not run.
+The three invalid-evidence groups now first establish an observed canonical seed at the expected stage, so Mac alias rejection cannot make their negative assertions pass vacuously. Original 3bb Linux infrastructure 522 and both failed 784 Mac logs remain distinct.
+
+Current harness source6a4649b with same6ca Core/frontend: normal4 and lost-start5 checks pass with cleanup; cancel2 checks then assertion/cleanup false, daemon0. All raw failure data retained. New candidate CI is for diagnosis and must not be reported green. Evidence OWNER_BACKPORT_RUNTIME_RESULTS.json SHA256 26f627e2407362cbc5b4898b2479885df79db8e4336a3fca9cfb4062912c7be9.

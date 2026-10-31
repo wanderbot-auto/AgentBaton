@@ -1,0 +1,29 @@
+{
+  "work_id": "root21-arm-integration-diagnostics",
+  "base_commit": "7ee2437db08695347650a28f445cb0034b5f3f58",
+  "worktree": "/tmp/root21-arm-integration-diagnostics",
+  "branch": "codex/root21-arm-integration-diagnostics",
+  "authority": "AB-START-001; Root diagnostic-only delegation",
+  "evidence_kind": "test_source_constraints_only",
+  "original_arm_log_sha256": "6a8392bddc5fcdfd46a5613af3f320db4dbe32e7a4d46293cfa1f8dbe6d17775",
+  "checks": [
+    {"command": "python3 tests/infrastructure/test_integration_ipc_diagnostics.py", "exit_code": 0, "passed": 4, "failed": 0},
+    {"command": "git diff --check", "exit_code": 0},
+    {"command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --check crates/core/tests/integration_ipc.rs crates/core/tests/fixtures/integration_runtime.rs crates/core/tests/fixtures/integration_diagnostics.rs", "exit_code": 0, "version": "rustfmt 1.10.0-stable (58cf8f9c35 2026-10-13)", "dimension": "format_and_parse_only"}
+  ],
+  "rust_pure_tests_added": 4,
+  "rust_pure_tests_run": false,
+  "fixture_code_restored_sha256": {
+    "crates/core/tests/integration_ipc.rs": "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c",
+    "crates/core/tests/fixtures/integration_runtime.rs": "625aa04bc71f0d9c6d6154bab7a252c713b489904624ad1f5a3f5328047b78d0"
+  },
+  "production_code_changed": false,
+  "assertions_changed": false,
+  "git_selection_changed": false,
+  "extra_git_executed": false,
+  "runtime_tests_run": false,
+  "macos_verified": false,
+  "root_cause": "unknown pending actual RPC method/fixed phase and same-process Git metadata",
+  "formal_approval": false,
+  "root_pending": ["independent review", "Rust compilation and pure tests", "focused actual Linux suite", "new exact-SHA actual ARM CI evidence"]
+}

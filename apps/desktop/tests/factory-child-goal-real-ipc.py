@@ -429,21 +429,24 @@ def self_check():
         checks.append('pure-exact-child-wait-refuses:'+name)
 
     checks.extend(lost_start_observation_self_check(source))
-    recovery_line="            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled(timeout=15000);recover.click()\n"
+    recovery_line="            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True)\n            wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)\n            recover.click()\n"
     assert source.count(recovery_line)==1
-    for name,replacement in {
-        'implicit-default5s':recovery_line.replace('(timeout=15000)','()'),
-        'expanded16s':recovery_line.replace('timeout=15000','timeout=16000'),
-        'zero-observation':recovery_line.replace('timeout=15000','timeout=0'),
-        'inexact-recovery-locator':recovery_line.replace('exact=True','exact=False'),
-        'click-before-enabled':recovery_line.replace('expect(recover).to_be_enabled(timeout=15000);recover.click()','recover.click();expect(recover).to_be_enabled(timeout=15000)'),
-    }.items():
-        mutated=source.replace(recovery_line,replacement);assert mutated!=source
+    observation_call="wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)"
+    mutations={
+        'implicit-default5s':source.replace(recovery_line,recovery_line.replace(observation_call,'expect(recover).to_be_enabled()')),
+        'expanded16s':source.replace('deadline=time.monotonic()+15\n    def read_enabled','deadline=time.monotonic()+16\n    def read_enabled'),
+        'zero-observation':source.replace('deadline=time.monotonic()+15\n    def read_enabled','deadline=time.monotonic()+0\n    def read_enabled'),
+        'inexact-recovery-locator':source.replace(recovery_line,recovery_line.replace('exact=True','exact=False')),
+        'click-before-enabled':source.replace(recovery_line,recovery_line.replace('            '+observation_call+'\n            recover.click()','            recover.click()\n            '+observation_call)),
+    }
+    for name,mutated in mutations.items():
+        assert mutated!=source
         try:lost_start_observation_self_check(mutated)
         except AssertionError:pass
         else:raise AssertionError(name)
         checks.append('pure-lost-start-observation-refuses:'+name)
 
+    checks.extend(goal_owner_observation_self_check(source))
     return {'status':'passed','count':len(checks),'checks':checks,
         'dimension':'pure Python fixed-boundary and fake-query-return controls; NO Core/SQLite migration/browser/OS approval/process execution'}
 
@@ -488,8 +491,15 @@ def lost_start_observation_self_check(source):
         any(isinstance(t,ast.Name)and t.id=='recover'for t in n.targets)]
     assert len(indices)==1
     expected=ast.parse("recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True)\n"
-        'expect(recover).to_be_enabled(timeout=15000)\nrecover.click()\n').body
+        'wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)\nrecover.click()\n').body
     assert [ast.dump(n,include_attributes=False)for n in body[indices[0]:indices[0]+3]]==[ast.dump(n,include_attributes=False)for n in expected]
+    helper=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)and n.name=='wait_graph_recovery_enabled')
+    end=helper.body[1]
+    assert isinstance(end,ast.Assign)and ast.unparse(end.targets[0])=='deadline'and ast.unparse(end.value)=='time.monotonic() + 15'
+    calls=[n for n in ast.walk(helper)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='wait']
+    assert len(calls)==1 and [(k.arg,ast.unparse(k.value))for k in calls[0].keywords]==[('seconds','15')]
+    probes=[n for n in ast.walk(helper)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='is_enabled']
+    assert len(probes)==1 and [(k.arg,ast.unparse(k.value))for k in probes[0].keywords]==[('timeout','min(20, remaining)')]
     return ['pure-lost-start-exact-recovery-after-bounded15s-read-observation']
 
 
@@ -498,6 +508,85 @@ def lost_start_observation_self_check(source):
 EXEC_PLAN_HELPER = planning.PLAN_HELPER.replace(
     "'side_effect':'advisory_read_only','write_set':[]",
     "'side_effect':'workspace_write','write_set':[{'kind':'workspace','path':p}for p in ctx['edit_context']['writable_prefixes']]")
+
+
+def goal_owner_observation_self_check(source):
+    """Synthetic clocks/receipts only; no IPC, SQLite, process or browser."""
+    import ast
+    global time
+    checks=[];original_time=time
+    class Clock:
+        def __init__(self):self.value=0.0
+        def monotonic(self):return self.value
+        def monotonic_ns(self):return int(self.value*1_000_000_000)
+        def sleep(self,seconds):self.value+=seconds
+    query={'scope_id':'scope','task_id':'child','goal_run_id':'graph'}
+    bounds=Bounds('project','root','scope','factory',{'child'},{'graph':'child'})
+    payload={'selection':{'run_id':'graph','node_id':'owner-report','expected_plan_revision':1,'expected_ledger_revision':11},'expectedRevision':5,'idempotencyKey':'one-owner-intent'}
+    reply={'request_id':'request','result':{'graph_contract_version':1,'approval_id':'approval','owner_decision_id':'decision','run_id':'graph','node_id':'owner-report','plan_revision':1,'run_revision':6,'decision':'accepted','task_accepted':True},'revision':12,'warnings':[]}
+    def completed():
+        trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1);begin_goal_owner_binding(trace,payload);complete_goal_owner_binding(trace,reply);return trace
+    def refused(action):
+        try:action()
+        except Refusal:return
+        raise AssertionError('Invalid Owner observation accepted')
+    try:
+        time=Clock();trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1);calls=[]
+        def pump():
+            if time.value>=12 and trace['state']=='not_entered':begin_goal_owner_binding(trace,payload);complete_goal_owner_binding(trace,reply)
+        end=child_observation_deadline();observed=wait_goal_owner_binding(trace,query,deadline=end,pump=pump,capture=lambda:None)
+        class Host:
+            def wire(self,call):
+                assert observed['state']=='completed'and trace['call_count']==1
+                assert call.method=='factory_child_goals.get'and call.key is None and call.revision is None
+                calls.append(time.value);time.sleep(.5)
+                return {'result':{'details':{'task_accepted':True}}},b'synthetic-unit-only'
+        view=wait_bound_child_goal(Host(),bounds,query,lambda v:v['details']['task_accepted']is True,pump=lambda:None,capture=lambda:None,deadline=end)
+        assert view['details']['task_accepted']is True and len(calls)==1 and calls[0]>=12 and time.value<15
+        checks.append('one-shared15s-end-receipt-before-one-independent-read-no-early-worker-competition')
+        for label,mutate in [
+            ('never-entered',lambda t:None),('entered-no-receipt',lambda t:begin_goal_owner_binding(t,payload)),
+            ('failed',lambda t:t.update(state='failed',error_type='OriginalError')),
+            ('unknown',lambda t:t.update(state='outcome_unknown')),
+        ]:
+            time=Clock();trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1);mutate(trace)
+            refused(lambda:wait_goal_owner_binding(trace,query,deadline=15,pump=lambda:None,capture=lambda:None))
+            assert not calls[1:];checks.append('owner-observation-refuses:'+label)
+        for label,mutate in [
+            ('foreign-scope',lambda t:t.update(scope_id='other')),('foreign-task',lambda t:t.update(task_id='other')),
+            ('foreign-run',lambda t:t.update(run_id='other')),('foreign-node',lambda t:t.update(node_id='other')),
+            ('duplicate-call',lambda t:t.update(call_count=2)),('bool-call',lambda t:t.update(call_count=True)),
+            ('unarmed',lambda t:t.update(armed=False)),('missing-key-proof',lambda t:t.update(key_sha256=None)),
+            ('missing-raw-proof',lambda t:t.update(reply_sha256=None)),('missing-receipt',lambda t:t.update(receipt=None)),
+            ('bool-accepted',lambda t:t['receipt'].update(task_accepted=1)),('wrong-plan',lambda t:t['receipt'].update(plan_revision=2)),
+        ]:
+            time=Clock();trace=completed();mutate(trace)
+            refused(lambda:wait_goal_owner_binding(trace,query,deadline=15,pump=lambda:None,capture=lambda:None));checks.append('owner-observation-refuses:'+label)
+        time=Clock();trace=new_goal_owner_binding();arm_goal_owner_binding(trace,query,1)
+        def late():time.sleep(15);begin_goal_owner_binding(trace,payload);complete_goal_owner_binding(trace,reply)
+        refused(lambda:wait_goal_owner_binding(trace,query,deadline=15,pump=late,capture=lambda:None));checks.append('receipt-at-original-deadline-cannot-pass')
+        time=Clock();time.value=14.8;trace=completed();observed=wait_goal_owner_binding(trace,query,deadline=15,pump=lambda:None,capture=lambda:None)
+        refused(lambda:wait_bound_child_goal(Host(),bounds,query,lambda v:True,pump=lambda:None,capture=lambda:None,deadline=15));checks.append('late-independent-Core-reply-cannot-reset-or-pass-original-deadline')
+        for deadline in [True,False,16,float('inf'),float('nan'),0,-1]:
+            time=Clock();refused(lambda:child_observation_deadline(deadline));checks.append('deadline-refuses:'+str(deadline))
+        time=Clock();trace=completed();refused(lambda:arm_goal_owner_binding(trace,query,1));refused(lambda:begin_goal_owner_binding(trace,payload));checks.append('old-or-duplicate-Native-binding-cannot-be-rearmed-for-this-click')
+    finally:time=original_time
+    tree=ast.parse(source);runtime=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    owner_clicks=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and isinstance(n.func.value,ast.Name)and n.func.value.id=='owner'and n.func.attr=='click'];assert len(owner_clicks)==1
+    assignments=[n for n in ast.walk(runtime)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='owner_deadline'for t in n.targets)];assert len(assignments)==1
+    assert ast.dump(assignments[0].value)==ast.dump(ast.parse('time.monotonic()+15',mode='eval').body)
+    receipt_calls=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='wait_goal_owner_binding'];assert len(receipt_calls)==1
+    final_calls=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='wait_child_goal'and any(k.arg=='deadline'for k in n.keywords)];assert len(final_calls)==1
+    assert owner_clicks[0].lineno<assignments[0].lineno<receipt_calls[0].lineno<final_calls[0].lineno
+    arms=[n for n in ast.walk(runtime)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='arm_goal_owner_binding'];assert len(arms)==1 and arms[0].lineno<owner_clicks[0].lineno
+    wrapper=next(n for n in ast.walk(runtime)if isinstance(n,ast.FunctionDef)and n.name=='wait_child_goal')
+    assert len(wrapper.body)==1 and isinstance(wrapper.body[0],ast.Return)
+    forwarded=wrapper.body[0].value
+    assert isinstance(forwarded,ast.Call)and isinstance(forwarded.func,ast.Name)and forwarded.func.id=='wait_bound_child_goal'
+    assert [ast.dump(k.value)for k in forwarded.keywords if k.arg=='deadline']==[ast.dump(ast.Name(id='deadline',ctx=ast.Load()))]
+    for call in [receipt_calls[0],final_calls[0]]:assert [ast.dump(k.value)for k in call.keywords if k.arg=='deadline']==[ast.dump(ast.Name(id='owner_deadline',ctx=ast.Load()))]
+    checks.append('runtime-AST-one-click-then-one-end-receipt-before-Core-with-identical-end')
+    return checks
 
 
 def upfront_work_budget_self_check(program,case='normal'):
@@ -585,6 +674,160 @@ def fixture_window_source_self_check(source=None):
     return ['pure-fresh-Native-Grant-and-Scope-wall60000-effective-root-project30000']
 
 
+GRAPH_OBSERVATION_ACK_CODE = r'''
+import hashlib,selectors,stat
+
+def graph_ack_identity(value):
+ fields={'pid','ppid','start_ticks','uid','pgid'}
+ assert type(value)is dict and set(value)==fields
+ assert all(type(value[k])is int for k in ('pid','ppid','uid','pgid'))
+ assert value['pid']>1 and value['ppid']>0 and value['uid']>=0 and value['pgid']==value['pid']
+ assert type(value['start_ticks'])is str and 0<len(value['start_ticks'])<=32 and value['start_ticks'].isascii() and value['start_ticks'].isdigit()
+ return value
+
+def graph_ack_bytes(nonce,identity):
+ graph_ack_identity(identity)
+ assert type(nonce)is str and len(nonce)==32 and all(c in '0123456789abcdef'for c in nonce)
+ metadata=hashlib.sha256(json.dumps(identity,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+ value={'contract':'graph-observation-ack.v1','nonce':nonce,'pid':identity['pid'],
+  'start_ticks':identity['start_ticks'],'metadata_sha256':metadata}
+ raw=(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode()
+ assert 0<len(raw)<=4096
+ return raw
+
+def graph_ack_name(nonce,identity):
+ graph_ack_bytes(nonce,identity)
+ return 'graph-'+nonce+'-'+str(identity['pid'])+'-'+identity['start_ticks']+'.fifo'
+
+def graph_ack_noinherit(fd):
+ try:
+  os.set_inheritable(fd,False)
+  assert os.get_inheritable(fd)is False
+  return fd
+ except BaseException:os.close(fd);raise
+
+def graph_ack_directory(path,pin=None):
+ path=Path(path);assert path.is_absolute() and '..'not in path.parts
+ flags=os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC
+ fd=graph_ack_noinherit(os.open('/',flags))
+ try:
+  for part in path.parts[1:]:
+   nxt=graph_ack_noinherit(os.open(part,flags,dir_fd=fd));os.close(fd);fd=nxt
+  info=os.fstat(fd)
+  assert stat.S_ISDIR(info.st_mode) and info.st_uid==os.geteuid() and stat.S_IMODE(info.st_mode)==0o700
+  actual=[info.st_dev,info.st_ino,info.st_uid,stat.S_IMODE(info.st_mode)]
+  if pin is not None:
+   assert type(pin)is list and len(pin)==4 and all(type(v)is int for v in pin) and actual==pin
+  return fd,actual
+ except BaseException:os.close(fd);raise
+
+def graph_ack_fifo_pin(info):
+ assert stat.S_ISFIFO(info.st_mode) and stat.S_IMODE(info.st_mode)==0o600
+ assert info.st_uid==os.geteuid() and info.st_nlink==1
+ return (info.st_dev,info.st_ino,info.st_mode,info.st_uid,info.st_nlink)
+
+def graph_ack_self_identity():
+ with open('/proc/self/stat','rb')as stream:raw=stream.read(4097)
+ assert len(raw)<=4096
+ tail=raw.rsplit(b')',1)[1].split();assert len(tail)>=20
+ return graph_ack_identity({'pid':os.getpid(),'ppid':int(tail[1]),'start_ticks':tail[19].decode('ascii'),
+  'uid':os.geteuid(),'pgid':os.getpgid(0)})
+
+def graph_ack_prepare(settings,request,started_ns):
+ # This is part of the original producing attempt, not a fresh observation budget.
+ reservation=request['budget']['reservation'];assert reservation==request['node']['reservation']
+ runtime=reservation['runtime_ms'];assert type(runtime)is int
+ assert settings['case']in ('normal','lost-start','cancel') and runtime==(10000 if settings['case']=='cancel'else 4000)
+ assert type(started_ns)is int and started_ns>0
+ deadline=started_ns+runtime*1_000_000
+ assert time.monotonic_ns()<deadline,'Graph observation ACK original attempt deadline expired'
+ identity=graph_ack_self_identity();nonce=settings['nonce'];name=graph_ack_name(nonce,identity)
+ parent,pin=graph_ack_directory(settings['graph_observation_directory'],settings['graph_observation_directory_pin'])
+ fd=None
+ try:
+  os.mkfifo(name,0o600,dir_fd=parent)
+  before=graph_ack_fifo_pin(os.stat(name,dir_fd=parent,follow_symlinks=False))
+  fd=graph_ack_noinherit(os.open(name,os.O_RDWR|os.O_NONBLOCK|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent))
+  assert before==graph_ack_fifo_pin(os.fstat(fd))==graph_ack_fifo_pin(os.stat(name,dir_fd=parent,follow_symlinks=False))
+  return {'fd':fd,'parent':parent,'name':name,'pin':before,'deadline_ns':deadline,
+   'nonce':nonce,'identity':identity,'directory_pin':pin}
+ except BaseException:
+  if fd is not None:os.close(fd)
+  os.close(parent);raise
+
+def graph_ack_wait(channel):
+ expected=graph_ack_bytes(channel['nonce'],channel['identity']);raw=b''
+ assert os.get_inheritable(channel['fd'])is False
+ with selectors.DefaultSelector()as selector:
+  selector.register(channel['fd'],selectors.EVENT_READ)
+  while True:
+   remaining=channel['deadline_ns']-time.monotonic_ns()
+   assert remaining>0,'Graph observation ACK original attempt deadline expired'
+   events=selector.select(remaining/1_000_000_000)
+   assert time.monotonic_ns()<channel['deadline_ns'],'Graph observation ACK arrived too late'
+   if not events:continue
+   assert len(events)==1 and events[0][0].fd==channel['fd']
+   block=os.read(channel['fd'],4097-len(raw));assert block,'Graph observation ACK pipe closed'
+   raw+=block;assert len(raw)<=4096
+   assert channel['pin']==graph_ack_fifo_pin(os.fstat(channel['fd']))==graph_ack_fifo_pin(os.stat(channel['name'],dir_fd=channel['parent'],follow_symlinks=False))
+   if b'\n'in raw:
+    assert raw==expected,'Graph observation ACK binding refused'
+    assert graph_ack_self_identity()==channel['identity'],'Graph observation identity changed'
+    assert time.monotonic_ns()<channel['deadline_ns'],'Graph observation ACK verification arrived too late'
+    return
+
+def graph_ack_close(channel):
+ try:os.close(channel['fd'])
+ finally:os.close(channel['parent'])
+'''
+exec(GRAPH_OBSERVATION_ACK_CODE)
+
+
+def publish_graph_binding_ack(fixed,context):
+    """Root host only, after actual strong initial binding; repeat never calls."""
+    identity=context['_graph_provider_identities'].get(fixed['path'])
+    require(graph_valid_identity(identity) and identity['uid']==os.geteuid()
+        and all(identity[k]==fixed['owned_provider'][k]for k in ('pid','pgid','start_ticks')))
+    sent=context.setdefault('_graph_observation_ack_sent',set())
+    require(fixed['path']not in sent,'Graph observation ACK already sent')
+    raw=graph_ack_bytes(context['nonce'],identity);name=graph_ack_name(context['nonce'],identity)
+    parent,pin=graph_ack_directory(context['graph_observation_directory'],context['graph_observation_directory_pin'])
+    fd=None
+    try:
+        before=graph_ack_fifo_pin(os.stat(name,dir_fd=parent,follow_symlinks=False))
+        fd=graph_ack_noinherit(os.open(name,os.O_WRONLY|os.O_NONBLOCK|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent))
+        require(before==graph_ack_fifo_pin(os.fstat(fd)))
+        require(len(raw)<=os.fpathconf(fd,'PC_PIPE_BUF'))
+        receipt=name[:-5]+'.ack.json'
+        output=graph_ack_noinherit(os.open(receipt,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=parent))
+        with os.fdopen(output,'wb')as stream:
+            stream.write(raw);stream.flush();os.fsync(stream.fileno())
+        require(os.write(fd,raw)==len(raw),'Graph observation ACK pipe write incomplete')
+        require(before==graph_ack_fifo_pin(os.stat(name,dir_fd=parent,follow_symlinks=False)))
+        check,actual=graph_ack_directory(context['graph_observation_directory'],pin);os.close(check)
+        require(actual==pin);sent.add(fixed['path'])
+    finally:
+        if fd is not None:os.close(fd)
+        os.close(parent)
+
+
+def wait_graph_recovery_enabled(locator,assert_enabled,timeout_error,*,wait):
+    """Keep capture active during the original15s readonly enabled observation."""
+    deadline=time.monotonic()+15
+    def read_enabled():
+        remaining=int((deadline-time.monotonic())*1000)
+        require(remaining>0,'Original recovery enabled observation expired')
+        try:enabled=locator.is_enabled(timeout=min(20,remaining))
+        except timeout_error:return False
+        require(type(enabled)is bool and time.monotonic()<deadline)
+        if enabled:
+            remaining=int((deadline-time.monotonic())*1000)
+            require(remaining>0);assert_enabled(remaining)
+            require(time.monotonic()<deadline,'Recovery enabled assertion arrived too late')
+        return enabled
+    return wait(read_enabled,lambda value:value is True,seconds=15)
+
+
 def generated_acp():
     text = base.GENERATED_ACP
     graph_new = r'''   if not servers:
@@ -605,14 +848,18 @@ def generated_acp():
     assert c['outputs'][0]['artifact']['artifact_id']=='report-child'
     assert c['outputs'][0]['artifact']['relative_path']=='reports/report-child.txt'
     assert len(c['outputs'])==1
-    proof={'request_text':raw,'request_sha256':hashlib.sha256(raw.encode()).hexdigest(),
-     'owned_provider':identity(os.getpid()),'fixture_nonce':settings['nonce'],
-     'native_session_id':native_session_id,'program_sha256':file_hash(__file__),
-     'settings_sha256':file_hash(settings_path),'provider_argv':sys.argv,'mcp_servers':[]}
-    record='reports/graph-request-'+str(os.getpid())+'.json'
-    fd=os.open(record+'.tmp',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
-    with os.fdopen(fd,'w')as f:json.dump(proof,f)
-    os.replace(record+'.tmp',record)
+    graph_channel=graph_ack_prepare(settings,c,FIXTURE_STARTED_NS)
+    try:
+     proof={'request_text':raw,'request_sha256':hashlib.sha256(raw.encode()).hexdigest(),
+      'owned_provider':identity(os.getpid()),'fixture_nonce':settings['nonce'],
+      'native_session_id':native_session_id,'program_sha256':file_hash(__file__),
+      'settings_sha256':file_hash(settings_path),'provider_argv':sys.argv,'mcp_servers':[]}
+     record='reports/graph-request-'+str(os.getpid())+'.json'
+     fd=os.open(record+'.tmp',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+     with os.fdopen(fd,'w')as f:json.dump(proof,f)
+     os.replace(record+'.tmp',record)
+     graph_ack_wait(graph_channel)
+    finally:graph_ack_close(graph_channel)
     output=c['outputs'][0]['artifact']['relative_path']
     fd=os.open(output,os.O_WRONLY|os.O_CREAT|os.O_TRUNC|os.O_NOFOLLOW,0o600)
     with os.fdopen(fd,'wb')as f:f.write(b'fixed child Goal report\n')
@@ -653,7 +900,7 @@ def generated_acp():
 '''
     # This is a separate test program and never receives a native Provider login.
     replacements = [
-        ('mcp=None;mid=0', EXEC_PLAN_HELPER + '\nmcp=None;mid=0'),
+        ('mcp=None;mid=0', EXEC_PLAN_HELPER + '\n' + GRAPH_OBSERVATION_ACK_CODE + '\nmcp=None;mid=0'),
         ("servers=request['params']['mcpServers'];assert len(servers)==1", "servers=request['params']['mcpServers']\n"+graph_new+"   assert len(servers)==1"),
         ("['delegate_task','get_task_status','get_task_result','cancel_task']", "['delegate_task','get_task_status','get_task_result','cancel_task','submit_child_plan','execute_child_goal','advance_child_goal']"),
         ("   assert set(c)==", graph_prompt+"   assert set(c)=="),
@@ -711,6 +958,139 @@ def database_snapshot(runtime):
     return {'schema':17,'factory_counts':counts,'tables':result,'sequence':sequence,'active_workspace_leases':active_leases,'active_dispatch_intents':active_intents}
 
 
+GRAPH_IDENTITY_FIELDS = ('pid', 'ppid', 'start_ticks', 'uid', 'pgid')
+GRAPH_LIVE_STATES = frozenset(('R', 'S', 'D', 'T', 't', 'I', 'P', 'W'))
+GRAPH_TERMINAL_STATES = frozenset(('Z', 'X', 'x'))
+
+
+def graph_identity_sample(pid):
+    """Bounded readonly metadata only; absent and unobserved stay distinct."""
+    try:
+        value = support.proc_identity(pid)
+        return {'observation': 'observed', 'pid': value['pid'], 'ppid': value['parent_pid'],
+            'start_ticks': value['start_ticks'], 'uid': Path('/proc', str(pid)).stat().st_uid,
+            'pgid': os.getpgid(pid), 'state': value['state']}
+    except (FileNotFoundError, ProcessLookupError):
+        return {'observation': 'absent'}
+    except (OSError, ValueError, TypeError, KeyError, AssertionError):
+        return {'observation': 'unobserved'}
+
+
+def graph_valid_identity(value):
+    return (type(value) is dict and set(value) == set(GRAPH_IDENTITY_FIELDS)
+        and all(type(value[k]) is int for k in ('pid', 'ppid', 'uid', 'pgid'))
+        and value['pid'] > 1 and value['ppid'] > 0 and value['uid'] >= 0 and value['pgid'] == value['pid']
+        and type(value['start_ticks']) is str and re.fullmatch('[0-9]{1,32}', value['start_ticks']) is not None)
+
+
+def graph_sample_identity(value):
+    if not (type(value) is dict and set(value) == {'observation', 'state'} | set(GRAPH_IDENTITY_FIELDS)
+            and value['observation'] == 'observed' and type(value['state']) is str
+            and value['state'] in GRAPH_LIVE_STATES | GRAPH_TERMINAL_STATES):
+        return None
+    identity = {key: value[key] for key in GRAPH_IDENTITY_FIELDS}
+    return identity if graph_valid_identity(identity) else None
+
+
+def graph_argv_observation(raw, expected):
+    """Finite grammar observation; no raw arguments/messages leave this helper."""
+    if type(raw) is not bytes:
+        return {'kind': 'unobserved', 'bytes': None}
+    size = len(raw)
+    if size > 8192: return {'kind': 'oversize', 'bytes': 8193}
+    if size == 0: return {'kind': 'empty', 'bytes': 0}
+    if not raw.endswith(b'\0'): return {'kind': 'missing_nul', 'bytes': size}
+    try: argv = [value.decode('utf-8') for value in raw[:-1].split(b'\0')]
+    except UnicodeDecodeError: return {'kind': 'invalid_utf8', 'bytes': size}
+    valid = (type(expected) is list and len(expected) == 3
+        and all(type(value) is str and value for value in expected) and argv[-3:] == expected)
+    return {'kind': 'valid' if valid else 'mismatch', 'bytes': size}
+
+
+def graph_binding_decision(expected, known, before, argv, after, uid):
+    """Retain an initial binding only; no branch proves business stop or join."""
+    refused = {'kind': 'not_verified', 'binding': None, 'stop_proved': False}
+    if not (type(expected) is dict and set(expected) == {'pid', 'pgid', 'start_ticks'}
+            and type(uid) is int and uid >= 0): return refused
+    sample_before, sample_after = graph_sample_identity(before), graph_sample_identity(after)
+    def matches(value):
+        return (value is not None and value['uid'] == uid
+            and all(type(value[k]) is type(expected[k]) and value[k] == expected[k] for k in expected))
+    if not (type(argv) is dict and set(argv) == {'kind', 'bytes'}): return refused
+    kind, size = argv['kind'], argv['bytes']
+    if kind in ('not_read', 'unobserved'):
+        if size is not None: return refused
+    elif not (kind in ('valid', 'empty', 'oversize', 'missing_nul', 'invalid_utf8', 'mismatch')
+            and type(size) is int and 0 <= size <= 8193): return refused
+    if kind == 'valid' and not 0 < size <= 8192: return refused
+    if kind == 'empty' and size != 0: return refused
+    if kind in ('oversize', 'missing_nul', 'invalid_utf8', 'mismatch'): return refused
+    if known is None:
+        if (matches(sample_before) and sample_before == sample_after and kind == 'valid'
+                and before['state'] in GRAPH_LIVE_STATES and after['state'] in GRAPH_LIVE_STATES):
+            return {'kind': 'initial_live', 'binding': copy.deepcopy(sample_before), 'stop_proved': False}
+        return refused
+    if not (graph_valid_identity(known) and matches(known)): return refused
+    before_absent = type(before) is dict and before == {'observation': 'absent'}
+    after_absent = type(after) is dict and after == {'observation': 'absent'}
+    if sample_before is None and not before_absent: return refused
+    if sample_after is None and not after_absent: return refused
+    if after_absent:
+        result = 'repeat_absent'
+    elif sample_after['pid'] == known['pid'] and sample_after['start_ticks'] != known['start_ticks']:
+        result = 'repeat_replaced'
+    elif sample_before == sample_after == known:
+        if after['state'] in GRAPH_TERMINAL_STATES:
+            if kind not in ('valid', 'empty', 'not_read'): return refused
+            result = 'repeat_terminal'
+        elif before['state'] in GRAPH_LIVE_STATES and kind == 'valid':
+            result = 'repeat_live'
+        else: return refused
+    else: return refused
+    return {'kind': result, 'binding': None, 'stop_proved': False}
+
+
+def observe_graph_identity(expected, expected_argv, known):
+    """Two metadata samples surround a bounded read of only a bound live PID."""
+    before = graph_identity_sample(expected['pid'])
+    identity = graph_sample_identity(before)
+    argv = {'kind': 'not_read', 'bytes': None}
+    if (identity is not None and before['state'] in GRAPH_LIVE_STATES and identity['uid'] == os.geteuid()
+            and all(identity[k] == expected[k] for k in expected) and (known is None or identity == known)):
+        try:
+            with Path('/proc', str(expected['pid']), 'cmdline').open('rb') as stream:
+                raw = stream.read(8193)
+        except OSError: raw = None
+        argv = graph_argv_observation(raw, expected_argv)
+    after = graph_identity_sample(expected['pid'])
+    result = graph_binding_decision(expected, known, before, argv, after, os.geteuid())
+    return result, {'kind': result['kind'], 'before': before, 'argv': argv, 'after': after,
+        'initial_binding_verified': known is not None, 'stop_proved': False}
+
+
+def bind_graph_observation(fixed, expected_argv, old, context, output):
+    """First observation must prove live identity; repeat never creates one."""
+    history = context.setdefault('_graph_provider_identities', {})
+    known = history.get(fixed['path'])
+    require((old is None) == (known is None), 'Graph initial binding coverage not verified')
+    result, observation = observe_graph_identity(fixed['owned_provider'], expected_argv, known)
+    seen = context.setdefault('_graph_provider_observation_kinds', set())
+    key = (fixed['path'], result['kind'])
+    if key not in seen:
+        require(len(seen) < 12, 'Bounded Graph observation kinds exceeded')
+        base.write_private_json(output / ('observed-graph-' + str(fixed['owned_provider']['pid']) + '-' + result['kind'] + '.json'), observation)
+        seen.add(key)
+    require(result['kind'] != 'not_verified', 'Graph process observation not verified')
+    if old is None:
+        require(result['kind'] == 'initial_live' and graph_valid_identity(result['binding']) and len(history) < 2)
+        base.write_private_json(output / ('verified-graph-identity-' + str(fixed['owned_provider']['pid']) + '.json'), result['binding'])
+        history[fixed['path']] = result['binding']
+        publish_graph_binding_ack(fixed,context)
+    else:
+        require(result['kind'] in ('repeat_live', 'repeat_absent', 'repeat_replaced', 'repeat_terminal')
+            and result['binding'] is None)
+
+
 def collect_graph_records(runtime,workspace,scope,context,verified,output):
     """Bind saved generated identities to actual Core text/session/node/attempt."""
     directory=Path(workspace['root'])/'reports'
@@ -744,12 +1124,7 @@ def collect_graph_records(runtime,workspace,scope,context,verified,output):
             fixed={'path':str(path),'sha256':base.sha(raw),'file_pin':pin,'owned_provider':identity,
                 'session_id':session['id'],'attempt_id':session['attempt_id'],'run_id':request['run_id'],'request':request}
             old=next((v for v in verified if v['path']==fixed['path']),None);assert old is None or old==fixed
-            try:current=support.proc_identity(identity['pid'])
-            except FileNotFoundError:current=None
-            if current is not None and current['start_ticks']==identity['start_ticks']:
-                argv=Path('/proc',str(identity['pid']),'cmdline').read_bytes();assert 0<len(argv)<=8192 and argv.endswith(b'\0')
-                assert [v.decode()for v in argv[:-1].split(b'\0')][-3:]==row['provider_argv']
-                assert os.getpgid(identity['pid'])==identity['pgid']
+            bind_graph_observation(fixed,row['provider_argv'],old,context,output)
             if old is None:
                 base.write_private_json(output/('verified-graph-'+str(identity['pid'])+'.json'),fixed);verified.append(fixed)
         db.rollback()
@@ -1039,14 +1414,87 @@ def exact_pending_child_goal_read(reply):
         and type(error['message'])is str and (error['details_ref']is None or type(error['details_ref'])is str))
 
 
-def wait_bound_child_goal(host,bounds,query,predicate,*,pump,capture):
+def child_observation_deadline(deadline=None):
+    now=time.monotonic()
+    if deadline is None:return now+15
+    require(type(deadline)in {int,float}and now<deadline<=now+15,'Bound child Goal observation expired')
+    return deadline
+
+
+def new_goal_owner_binding():
+    return {'call_count':0,'state':'not_entered','armed':False,'click_sequence':0,'armed_ns':None,'scope_id':None,'task_id':None,'expected_run_id':None,'expected_plan_revision':None,'started_ns':None,'finished_ns':None,
+        'request_sha256':None,'key_sha256':None,'run_id':None,'node_id':None,'plan_revision':None,'expected_revision':None,
+        'receipt':None,'reply_sha256':None,'error_type':None}
+
+
+def arm_goal_owner_binding(trace,query,plan_revision):
+    require(trace==new_goal_owner_binding(),'No earlier or duplicate Goal Owner binding may satisfy this click')
+    require(type(query)is dict and set(query)=={'scope_id','task_id','goal_run_id'}and all(identifier(v)for v in query.values())and positive(plan_revision))
+    trace.update(armed=True,click_sequence=1,armed_ns=time.monotonic_ns(),scope_id=query['scope_id'],task_id=query['task_id'],expected_run_id=query['goal_run_id'],expected_plan_revision=plan_revision)
+
+
+def begin_goal_owner_binding(trace,payload):
+    trace['call_count']+=1
+    trace.update(state='entered',started_ns=time.monotonic_ns())
+    require(trace['armed']is True and trace['click_sequence']==1 and trace['call_count']==1,'Only one explicit armed Goal Owner binding is expected')
+    require(type(payload)is dict and set(payload)=={'selection','expectedRevision','idempotencyKey'})
+    selection=payload['selection']
+    require(type(selection)is dict and set(selection)=={'run_id','node_id','expected_plan_revision','expected_ledger_revision'})
+    require(identifier(selection['run_id'])and selection['run_id']==trace['expected_run_id']and selection['node_id']=='owner-report')
+    require(positive(payload['expectedRevision'])and positive(selection['expected_plan_revision'])and selection['expected_plan_revision']==trace['expected_plan_revision']and positive(selection['expected_ledger_revision']))
+    require(type(payload['idempotencyKey'])is str and planning.KEY.fullmatch(payload['idempotencyKey']))
+    raw=json.dumps(payload,sort_keys=True,separators=(',',':'),allow_nan=False).encode('utf-8')
+    require(len(raw)<=planning.MAX_WIRE)
+    trace.update(request_sha256=base.sha(raw),key_sha256=base.sha(payload['idempotencyKey'].encode()),run_id=selection['run_id'],node_id=selection['node_id'],plan_revision=selection['expected_plan_revision'],expected_revision=payload['expectedRevision'])
+
+
+def complete_goal_owner_binding(trace,reply):
+    require(trace['call_count']==1 and trace['state']=='entered')
+    require(type(reply)is dict and set(reply)=={'request_id','result','revision','warnings'})
+    result=reply['result']
+    require(type(result)is dict and set(result)=={'approval_id','decision','graph_contract_version','node_id','owner_decision_id','plan_revision','run_id','run_revision','task_accepted'})
+    require(type(result['graph_contract_version'])is int and result['graph_contract_version']==1)
+    require(result['run_id']==trace['run_id']and result['node_id']==trace['node_id']and type(result['plan_revision'])is int and result['plan_revision']==trace['plan_revision'])
+    require(result['decision']=='accepted'and result['task_accepted']is True and positive(result['run_revision'])and result['run_revision']>trace['expected_revision'])
+    require(identifier(result['approval_id'])and identifier(result['owner_decision_id']))
+    raw=json.dumps(reply,sort_keys=True,separators=(',',':'),allow_nan=False).encode('utf-8')
+    require(len(raw)<=planning.MAX_WIRE)
+    trace.update(state='completed',finished_ns=time.monotonic_ns(),receipt=copy.deepcopy(result),reply_sha256=base.sha(raw))
+
+
+def wait_goal_owner_binding(trace,query,*,deadline,pump,capture):
+    """Observe this one Native call without issuing competing Core history reads.
+
+    Completion is only a receipt observation. The independent Core acceptance
+    read still follows, within the same original absolute15s deadline.
+    """
+    end=child_observation_deadline(deadline)
+    require(type(query)is dict and set(query)=={'scope_id','task_id','goal_run_id'}and all(identifier(v)for v in query.values()))
+    goal_id=query['goal_run_id']
+    while True:
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        pump();capture()
+        require(time.monotonic()<end,'Bound child Goal observation expired')
+        require(trace['call_count']in {0,1}and type(trace['call_count'])is int,'Goal Owner binding duplicated')
+        require(trace['state']in {'not_entered','entered','completed'},'Goal Owner binding did not complete; do not replay')
+        if trace['state']=='completed':
+            require(trace['armed']is True and trace['click_sequence']==1 and trace['scope_id']==query['scope_id']and trace['task_id']==query['task_id']and trace['call_count']==1 and trace['expected_run_id']==goal_id and trace['run_id']==goal_id and trace['node_id']=='owner-report')
+            require(all(type(trace[k])is str and re.fullmatch('[a-f0-9]{64}',trace[k])for k in ['key_sha256','request_sha256','reply_sha256']))
+            require(type(trace['started_ns'])is int and type(trace['finished_ns'])is int and trace['finished_ns']>=trace['started_ns']>=trace['armed_ns'])
+            receipt=trace['receipt']
+            require(type(receipt)is dict and receipt.get('run_id')==goal_id and receipt.get('node_id')=='owner-report'and receipt.get('task_accepted')is True and receipt.get('decision')=='accepted'and type(receipt.get('plan_revision'))is int and receipt['plan_revision']==trace['expected_plan_revision'])
+            return copy.deepcopy(trace)
+        time.sleep(.02)
+
+
+def wait_bound_child_goal(host,bounds,query,predicate,*,pump,capture,deadline=None):
     """Existing15s/20ms observation, never replaying an Owner or start write.
 
     A strict not-started busy reply is a pending read in the original polling
     loop. Existing wire/recorder5s limits and raw/finite capture remain intact.
     A read may return after its socket/recorder waits; it cannot pass late.
     """
-    end=time.monotonic()+15
+    end=child_observation_deadline(deadline)
     fixed=bound_child_goal_query(query,bounds)
     while True:
         require(time.monotonic()<end,'Bound child Goal observation expired')
@@ -1090,7 +1538,7 @@ def runtime_driver(args, output):
     report={'status':'failed_or_interrupted','dimension':'actual built React/Linux Chromium/fixed test-only adapter/authenticated Unix Core15/generated account-free ACP/MCP7',
         'case':args.case,'capacity_preflight':{'free_bytes':free,'guard_bytes':200*1024*1024,'private_tool_copy_bytes':raw_daemon.stat().st_size+raw_cli.stat().st_size,'evidence_allowance_bytes':32*1024*1024},'candidate':manifest,'manifest_sha256':base.sha(manifest_raw),'harness_sha256':base.sha(source),
         'support_sha256':old_support,'frontend_assets':assets,'checks':[],'http':[],'faults':[],'private_owner_reviews':[],
-        'screenshots':[],'observations':{},'cleanup':[],'http_unexpected_errors':[],'readonly_aborts':[],'cleanup_complete':False,
+        'screenshots':[],'observations':{},'goal_owner_binding':new_goal_owner_binding(),'cleanup':[],'http_unexpected_errors':[],'readonly_aborts':[],'cleanup_complete':False,
         'not_claimed':['native OS Owner dialog','macOS','native WebView','real Provider/model','OS sandbox','unknown meters as zero','all recovery/adoption paths','advance_plan end-to-end','real Validator execution (validators[] in these cases)','whole product completion']}
     # Explicit ownership: no TemporaryDirectory/finalizer may erase a failed
     # runtime or files still referenced by unknown/live processes.
@@ -1114,7 +1562,8 @@ def runtime_driver(args, output):
             assert time.monotonic()<end,clean(('Bounded observation deadline',value))
             time.sleep(.02)
     def phase_stamp(phase,edge):
-        assert phase in {'before_owner_read','before_owner_capture','owner_UI_refresh_click','owner_enabled_expect'} and edge in {'start','end'}
+        assert phase in {'before_owner_read','before_owner_capture','owner_UI_refresh_click','owner_enabled_expect','owner_click','owner_receipt_observe','owner_core_acceptance'} and edge in {'start','end'}
+        assert len(report.get('owner_phase_stamps',[]))<14
         report.setdefault('owner_phase_stamps',[]).append({'phase':phase,'edge':edge,'monotonic_ns':time.monotonic_ns()})
     def capture():
         if host is None or workspace is None or scope is None or not record_context.get('run_id'):return
@@ -1186,9 +1635,15 @@ def runtime_driver(args, output):
         assert grant['id']==original_grant['id'] and grant['revision']>original_grant['revision'] and grant['scope']['max_children']==3 and grant['scope']['max_depth']==1
         report['observations']['explicit_original_grant_ceiling']={'initial_children0':original_grant,'separate_native_goal_scope':native_scope,'effective_original_grant':grant}
         task=host.result('tasks.create',{'project_id':project['id'],'goal':'Execute and review the exact saved child Goal report, then resume the original parent'},'cg:root-task')
-        settings_value={'case':args.case,'task_id':task['id'],'connection_id':cid,'workspace_id':workspace['id'],'companion':str(companion),'nonce':uuid.uuid4().hex}
+        graph_observation_directory=root/'graph-observation'
+        graph_observation_directory.mkdir(mode=0o700)
+        require(not graph_observation_directory.is_relative_to(wroot.resolve(strict=True))
+            and not graph_observation_directory.is_relative_to(source_root.resolve(strict=True)))
+        graph_directory_fd,graph_directory_pin=graph_ack_directory(graph_observation_directory)
+        os.close(graph_directory_fd)
+        settings_value={'graph_observation_directory':str(graph_observation_directory),'graph_observation_directory_pin':graph_directory_pin,'case':args.case,'task_id':task['id'],'connection_id':cid,'workspace_id':workspace['id'],'companion':str(companion),'nonce':uuid.uuid4().hex}
         base.write_private_json(settings,settings_value)
-        record_context.update(nonce=settings_value['nonce'],program_sha256=base.sha(provider.read_bytes()),settings_sha256=base.sha(settings.read_bytes()),connection_id=cid,provider=str(provider),settings=str(settings),companion=str(companion),companion_sha256=base.sha(companion.read_bytes()))
+        record_context.update(graph_observation_directory=str(graph_observation_directory),graph_observation_directory_pin=graph_directory_pin,nonce=settings_value['nonce'],program_sha256=base.sha(provider.read_bytes()),settings_sha256=base.sha(settings.read_bytes()),connection_id=cid,provider=str(provider),settings=str(settings),companion=str(companion),companion_sha256=base.sha(companion.read_bytes()))
         outputs=[{'artifact_id':key,'relative_path':'reports/'+key+'.txt','max_bytes':4096,'expected_sha256':None}for key in ['report-child','report-parent']]
         selection={'root_task_id':task['id'],'expected_task_revision':task['revision'],'grant_id':grant['id'],'expected_grant_revision':grant['revision'],'connection_ids':[cid],'workspace_ids':[workspace['id']],
             'inputs':inputs,'outputs':outputs,'recipients':[],'max_depth':2,'max_children':3,'max_total_nodes':4,'root_budget':copy.deepcopy(budget),'project_budget':copy.deepcopy(budget),'ttl_ms':60000,
@@ -1277,7 +1732,7 @@ def runtime_driver(args, output):
         http_thread=threading.Thread(target=server.serve_forever);http_thread.start()
         playwright=sync_playwright().start();browser=playwright.chromium.launch(executable_path=args.chromium,headless=True,args=['--no-sandbox'])
         context=browser.new_context(viewport={'width':1488,'height':1400},locale='en-US');context.set_default_timeout(15000)
-        def private_owner(_source,command,payload):
+        def private_owner_impl(_source,command,payload):
             nonlocal scope
             require(type(payload)is dict)
             if command=='factory_scope_approve':
@@ -1307,6 +1762,19 @@ def runtime_driver(args, output):
                 require(not reply.get('error')and reply['result']['task_accepted']is True)
             base.write_private_json(output/('private-owner-'+uuid.uuid4().hex+'.json'),{'response':reply,'original_sha256':base.sha(raw)})
             return reply
+        def private_owner(_source,command,payload):
+            if command!='goal_node_approve':return private_owner_impl(_source,command,payload)
+            trace=report['goal_owner_binding']
+            try:
+                begin_goal_owner_binding(trace,payload)
+                reply=private_owner_impl(_source,command,payload)
+                complete_goal_owner_binding(trace,reply)
+                return reply
+            except BaseException as error:
+                # Binding failure says nothing about a committed effect. Keep
+                # the original error/wires; never retry or call it not_started.
+                trace.update(state='failed',finished_ns=time.monotonic_ns(),error_type=type(error).__name__[:64])
+                raise
         context.expose_binding('__private_child_goal_owner',private_owner)
         context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{if(command==='factory_scope_approve'||command==='goal_node_approve')return window.__private_child_goal_owner(command,args);const r=await fetch('/__test_child_goal_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw new Error('Fixed child Goal test bridge refused request');return r.json();}};""")
         context.route('**/*',lambda route:route.continue_()if route.request.url.startswith(url+'/')else route.abort())
@@ -1385,14 +1853,16 @@ def runtime_driver(args, output):
         initial=started['response']['result'];goal_id=initial['goal']['run']['id'];bounds.goal_runs[goal_id]=child['task_id']
         assert support.exact_json_value(initial['plan'],saved['reference'])and initial['goal']['task_accepted']is False
         query={'scope_id':scope['id'],'task_id':child['task_id'],'goal_run_id':goal_id}
-        def wait_child_goal(predicate):
-            return wait_bound_child_goal(host,bounds,query,predicate,pump=pump,capture=capture)
+        def wait_child_goal(predicate,*,deadline=None):
+            return wait_bound_child_goal(host,bounds,query,predicate,pump=pump,capture=capture,deadline=deadline)
         assert not (wroot/'reports/release-parent').exists();base.write_private_json(wroot/'reports/release-parent',{'committed_goal_run_id':goal_id,'actual_start_reply_sha256':started['original_reply_sha256']})
         if args.case=='lost-start':
             assert fault['used'];expect(goal_panel.get_by_role('status').filter(has_text='Outcome unknown')).to_be_visible()
             assert len([r for r in report['http']if r['method']=='factory_child_goals.start'])==1
             goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
-            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled(timeout=15000);recover.click()
+            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True)
+            wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)
+            recover.click()
             calls=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and r.get('response_complete')],lambda v:len(v)==1)
             recovered=calls[0];assert (recovered['params'],recovered['key'],recovered['revision'])==(started['params'],started['key'],started['revision'])
             assert support.exact_json_value(recovered['response']['result'],initial)
@@ -1433,8 +1903,23 @@ def runtime_driver(args, output):
             phase_stamp('owner_enabled_expect','start')
             try:expect(owner).to_be_enabled()
             finally:phase_stamp('owner_enabled_expect','end')
-            shot('03-real-owned-candidate-before-owner',goal_panel);owner.click()
-            final_view=wait_child_goal(lambda v:v['details']['task_accepted']is True)
+            shot('03-real-owned-candidate-before-owner',goal_panel)
+            arm_goal_owner_binding(report['goal_owner_binding'],bound_child_goal_query(query,bounds),before_owner['details']['run']['plan_revision'])
+            phase_stamp('owner_click','start')
+            try:owner.click()
+            finally:phase_stamp('owner_click','end')
+            # The old final wait began here. Both stages share that one15s end;
+            # do not compete with this intent's mandatory UI readonly preflight.
+            owner_deadline=time.monotonic()+15
+            report['observations']['owner_acceptance_deadline']={'limit_seconds':15,'deadline_monotonic':owner_deadline}
+            phase_stamp('owner_receipt_observe','start')
+            try:owner_binding=wait_goal_owner_binding(report['goal_owner_binding'],query,deadline=owner_deadline,pump=pump,capture=capture)
+            finally:phase_stamp('owner_receipt_observe','end')
+            phase_stamp('owner_core_acceptance','start')
+            try:final_view=wait_child_goal(lambda v:v['details']['task_accepted']is True,deadline=owner_deadline)
+            finally:phase_stamp('owner_core_acceptance','end')
+            require(report['goal_owner_binding']['call_count']==1 and report['goal_owner_binding']['state']=='completed')
+            require(all(owner_binding[k]==report['goal_owner_binding'][k]for k in ['key_sha256','request_sha256','reply_sha256','expected_run_id','scope_id','task_id']))
             receipt=final_view['details']['task_acceptance'];require(receipt is not None and receipt['run_id']==goal_id)
             final_factory=wait(lambda:host.result('factory_runs.get',{'scope_id':scope['id']}),lambda v:v['run']['state']=='completed')
             require((wroot/'reports/fixture-stages.txt').read_text()=='parent-initial\nparent-resumed\n')

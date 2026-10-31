@@ -1,0 +1,1091 @@
+{
+  "recorded_at": "2026-10-31T06:21:02.745312+00:00",
+  "composed_source": "82c94b3de8837f8e85190ec06fc964355563a4a1",
+  "scope": "partial product verification; full Design v0.2 /130 requirements remains open",
+  "commands": {
+    "root17-mixed-ordinary-dbb-full-factory1": {
+      "source": "6565d1c0895b207b8283cb0608e340bf49c314c9",
+      "exit": 0,
+      "seconds": 135.59361587301828,
+      "log_sha256": "44cd8dc3a7bb622e0b45e09eeaf0686eeb09cedfe9d4a339ea6156eba0423b74",
+      "summaries": [
+        "test result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 104.02s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "b82c7b1c1d864031e3c768011aaf208fcf252464c93803240207be816dfa4d54",
+      "inputs_sha256": "129ae0c2a5cc02d6f3286725b7e50e306342b90d50ae092f1cf2d88514eea67e",
+      "command_with_declared_path_aliases": [
+        "env",
+        "CARGO_BUILD_JOBS=1",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$PRIVATE_EVIDENCE/integration17-opaque-routing-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$PRIVATE_EVIDENCE/integration17-opaque-routing-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$PRIVATE_EVIDENCE/integration17-opaque-routing-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--nocapture"
+      ]
+    },
+    "root17-apple-git-full-workspaces1": {
+      "source": "0fbc2668424064551a02dd219fafa22addfdd5d9",
+      "exit": 0,
+      "seconds": 111.59813516796567,
+      "log_sha256": "1811fc43bf026c717932892513389e1bae6d346ae011b4569e0be3c58dba7eb9",
+      "summaries": [
+        "test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 28.70s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.23s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 1.66s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.31s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.31s",
+        "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.83s",
+        "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.83s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s",
+        "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+        "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s",
+        "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.23s",
+        "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.91s",
+        "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.38s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "773985bc77a8d20f5e8ffaa125a269dd10c04c079640fc25d9aae57b0284f56a",
+      "inputs_sha256": "564d784d8a13f68f4628b6dfa7de1601271f15296a63b45d709798f14af486b9",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--",
+        "--nocapture"
+      ]
+    },
+    "root17-apple-git-full-integration-ipc1": {
+      "source": "0fbc2668424064551a02dd219fafa22addfdd5d9",
+      "exit": 0,
+      "seconds": 129.0675919909845,
+      "log_sha256": "0a358aef7334652002ad8d9c7824304dcd435ee007c06124d6100a233cf985df",
+      "summaries": [
+        "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 99.30s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "34a1d5b444740e7f52c4608ff59db68d78aaf246e34468d801ec93ac0f8afd04",
+      "inputs_sha256": "9a996b7321bdf5a2055e53f464464fabe3ca999e5d9e959c91bf732b726a6f9c",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "--",
+        "--nocapture"
+      ]
+    },
+    "root17-apple-git-core-lib1": {
+      "source": "0fbc2668424064551a02dd219fafa22addfdd5d9",
+      "exit": 0,
+      "seconds": 175.38601168396417,
+      "log_sha256": "7977b7d16c96dc7de08b4e67d09181ef764603bc27d076b186afd104c6858d5a",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 234 filtered out; finished in 0.00s",
+        "test result: ok. 235 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 143.27s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "a1831cd1bb7d4e26282b68c439ef7398c019598736aaba714974380a189854c9",
+      "inputs_sha256": "f2defe7f6a62f3a58edff2b4c9dbbfd995801d92ef61596eadd50b6678b412dd",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--nocapture"
+      ]
+    },
+    "root17-apple-git-strict-clippy1": {
+      "source": "0fbc2668424064551a02dd219fafa22addfdd5d9",
+      "exit": 101,
+      "seconds": 30.89022673096042,
+      "log_sha256": "ee17f9abfb1eb89da12ff7be00d480f12cd441a9b0f26807db57b609c3b367d6",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "4d9cc21d115369bf85688541b7807084d6bdae67a291c63cefe8795cc0415817",
+      "inputs_sha256": "7112d722f0736636d1a5e027ef2bb82d933d8b8ddbe0848dae6c65b3758113ca",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "-p",
+        "agentbaton-workspaces",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ]
+    },
+    "root17-apple-git-strict-clippy2": {
+      "source": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+      "exit": 0,
+      "seconds": 33.39904640096938,
+      "log_sha256": "fe7a3f61d5a02e38d49f0897f357436a7ee56c7249516998ca45692279ee17e1",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "71ef28bf2310c398ae56bbd67e9d7ea8ec9d4eaf9cbafc8ec71e52574e4855a6",
+      "inputs_sha256": "f66ddf131efa275ba48ce3f33dbb4a12de924f260ac468aa8b2e12568d67b7f9",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "-p",
+        "agentbaton-workspaces",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ]
+    },
+    "root17-ack7e-preview-build1": {
+      "source": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+      "exit": 0,
+      "seconds": 28.70122138701845,
+      "log_sha256": "3405be0e09a38ae56d7d18829133045039a4d0a7ad09b229a8b71ac2b58c0646",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "aff8059db8d2d2b7c16eadaee02e02086cfcff26a3b17af954152a44d0c6004e",
+      "inputs_sha256": "04e634442bf98755efed0625c8e56f9ee9a0e9acdca4b7e89b93dd92ca7a9942",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton",
+        "--features",
+        "agentbaton-core/preview-evidence"
+      ]
+    },
+    "root17-ack7e-prepare-tools-command1": {
+      "source": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+      "exit": 0,
+      "seconds": 0.4013256909674965,
+      "log_sha256": "d8e6691bd407cb32820aed5e115a6d9e5ac3335161d6e96fda628e65b4ec5a3e",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "bed43367dc37b38a703d1b37635c578858cb795677ac4785012cb69b384034b7",
+      "inputs_sha256": "099d5b2f87c29ca241b0fbd1e0463c95fcb4e33f5384683e928006793e9e0b50",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "$SDK_PYTHON_HOME/bin/python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+        "--output",
+        "$FROZEN_7E",
+        "--evidence",
+        "$PRIVATE_EVIDENCE/root17-ack7e-tools-probe1"
+      ]
+    },
+    "root17-ack7e-frontend-build1": {
+      "source": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+      "exit": 0,
+      "seconds": 1.6064376520225778,
+      "log_sha256": "7cf7ea3fd19a91cd5ea86149f30e06dada0489b236448e6fac73fd0c1e6f99f0",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "f954e2f0c79da3b777b509d41601dde322a278349e4e6a4d30771b8c9fcf8361",
+      "inputs_sha256": "29060677ec5ffdfc6097ff54746c9f89233ebfd58cd90f9a26e59b77b575138b",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ]
+    },
+    "root17-ack7e-lost-start-command1": {
+      "source": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+      "exit": 1,
+      "seconds": 13.34616187500069,
+      "log_sha256": "2f43c1876b2b2715937c31cc2c96e2ca83c683e7687874da86d672caa4458e1a",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "177f0d89dce27c3a680ff15f2d84799f7a1df2c943ac22b064cffbb5ac062c50",
+      "inputs_sha256": "c7d031e6860ae9fcd5c734cce3152ad2f06e0ade3bd0d678e84b18db75c6874f",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$FROZEN_7E",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$FROZEN_7E/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$FROZEN_7E/baton",
+        "PYTHONHOME=$SDK_PYTHON_HOME",
+        "$BROWSER_PYTHON",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "lost-start",
+        "--tools",
+        "$FROZEN_7E",
+        "--frontend",
+        "apps/desktop/dist",
+        "--manifest",
+        "$PRIVATE_EVIDENCE/root17-ack7e-candidate1.json",
+        "--chromium",
+        "$LOCAL_CHROMIUM_ADAPTER",
+        "--output",
+        "$PRIVATE_EVIDENCE/root17-ack7e-lost-start-actual1"
+      ]
+    },
+    "root17-ack0af-normal-command1": {
+      "source": "0af66b3556e79ed2d846948b17025e1a11b68b31",
+      "exit": 0,
+      "seconds": 23.77333378099138,
+      "log_sha256": "6c85836245ebf49ce783fb6fc560b0e0d1b4e43be6e5a85b11b3988e2656ca9c",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "3b52ecd58872710958c25af66c6cf443340dc987e2321081c59732d637c553fb",
+      "inputs_sha256": "1652515203d83bbe93173f03cf825b2f969b7e52da1e926566296978f19d9481",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$FROZEN_7E",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$FROZEN_7E/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$FROZEN_7E/baton",
+        "PYTHONHOME=$SDK_PYTHON_HOME",
+        "$BROWSER_PYTHON",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "normal",
+        "--tools",
+        "$FROZEN_7E",
+        "--frontend",
+        "apps/desktop/dist",
+        "--manifest",
+        "$PRIVATE_EVIDENCE/root17-ack7e-candidate1.json",
+        "--chromium",
+        "$LOCAL_CHROMIUM_ADAPTER",
+        "--output",
+        "$PRIVATE_EVIDENCE/root17-ack0af-normal-actual1"
+      ]
+    },
+    "root17-ack0af-cancel-command1": {
+      "source": "0af66b3556e79ed2d846948b17025e1a11b68b31",
+      "exit": 0,
+      "seconds": 16.95217586000217,
+      "log_sha256": "883beb6d5108e81f06bb5254f6896732c02376f1d734de08eeabbdf9313d3dd8",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "d239a543624be65d16829cbc329265b85500ba90b83d6269eea507a536fcca61",
+      "inputs_sha256": "6768fa79bc21a42135c438ca74c167a0e811dc0840264c382339fc92d55c9b20",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$FROZEN_7E",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$FROZEN_7E/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$FROZEN_7E/baton",
+        "PYTHONHOME=$SDK_PYTHON_HOME",
+        "$BROWSER_PYTHON",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "cancel",
+        "--tools",
+        "$FROZEN_7E",
+        "--frontend",
+        "apps/desktop/dist",
+        "--manifest",
+        "$PRIVATE_EVIDENCE/root17-ack7e-candidate1.json",
+        "--chromium",
+        "$LOCAL_CHROMIUM_ADAPTER",
+        "--output",
+        "$PRIVATE_EVIDENCE/root17-ack0af-cancel-actual1"
+      ]
+    },
+    "root17-ack0af-lost-start-command1": {
+      "source": "0af66b3556e79ed2d846948b17025e1a11b68b31",
+      "exit": 0,
+      "seconds": 28.283463036001194,
+      "log_sha256": "f254834c502f65a40753c5e5728be956e8021a24cf8878d582e6ed1499976384",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "5c25f8bf2f9c2759d2a6d6f1db00ba3412fd33db77b4cb4397aee5b6e0190d55",
+      "inputs_sha256": "e81bb2d9ce5bc6c7886853c88e9aa1467e9013b1484d56620855fbf9f408e20c",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$FROZEN_7E",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$FROZEN_7E/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$FROZEN_7E/baton",
+        "PYTHONHOME=$SDK_PYTHON_HOME",
+        "$BROWSER_PYTHON",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "lost-start",
+        "--tools",
+        "$FROZEN_7E",
+        "--frontend",
+        "apps/desktop/dist",
+        "--manifest",
+        "$PRIVATE_EVIDENCE/root17-ack7e-candidate1.json",
+        "--chromium",
+        "$LOCAL_CHROMIUM_ADAPTER",
+        "--output",
+        "$PRIVATE_EVIDENCE/root17-ack0af-lost-start-actual1"
+      ]
+    },
+    "root17-ack0af-projection-command1": {
+      "source": "0af66b3556e79ed2d846948b17025e1a11b68b31",
+      "exit": 0,
+      "seconds": 0.301063772989437,
+      "log_sha256": "28eb11dd90e77050bb84b1ae3350bb23b612c7d80d3f7d76e1bde5319e5ba990",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "261d77f4fc9f7b9d96d6188d5ff2e744655a7272d1553b2af6adcbae6c7bc654",
+      "inputs_sha256": "62763ba9206f80252a735a803db4d2774e4723461fe323c5c0d0903cea171305",
+      "command_with_declared_path_aliases": [
+        "$SDK_PYTHON_HOME/bin/python3",
+        "-"
+      ]
+    },
+    "root17-platform-82c-full-infra1": {
+      "source": "82c94b3de8837f8e85190ec06fc964355563a4a1",
+      "exit": 0,
+      "seconds": 18.64597033598693,
+      "log_sha256": "570f31aa8061b5ccd7bb74b5056914ca9c2723cb7d0bf6bcd530a0dca990ee77",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "d0c17e6eb892d46e673693938ce4c93015a4cfc6a900b680a5f18cd7a9dc3789",
+      "inputs_sha256": "404f5138c68f5d8d6214b76369619327d8b15c7f5f1a8653445fb6175e92bc86",
+      "command_with_declared_path_aliases": [
+        "$SDK_PYTHON_HOME/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ]
+    },
+    "root17-platform-82c-fmt1": {
+      "source": "82c94b3de8837f8e85190ec06fc964355563a4a1",
+      "exit": 0,
+      "seconds": 1.503968579985667,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "92be7a0cef57a918285115a8329786eaad3e917be82cf7b6dc81790266ad9ba5",
+      "inputs_sha256": "e52354a361c8665d28afaaa207f7acab662f1e1055faa6ec78ff20ea69567894",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ]
+    },
+    "root17-preflight8ec-full-wrapper-command1": {
+      "source": "8ec135af79f1efa40d8a8b910b3a22354dca4c5b",
+      "exit": 0,
+      "seconds": 24.485750652034767,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "881019ccd4d34091a891c00e1dca4bb21577be2fdc2de43593a0d21c807cbe53",
+      "inputs_sha256": "fef9492f2c4c43fc51cb234d663bfb9efd208513d5495339beaf4444a32494c6",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$PRIVATE_EVIDENCE/integration17-opaque-routing-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$PRIVATE_EVIDENCE/integration17-opaque-routing-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$PRIVATE_EVIDENCE/integration17-opaque-routing-frozen1/baton",
+        "PYTHONHOME=$SDK_PYTHON_HOME",
+        "$BROWSER_PYTHON",
+        "$PRIVATE_EVIDENCE/integration-ci-wrapper-8ec-repro.py",
+        "--repository",
+        "/tmp/root17-preflight-full-wrapper-8ec",
+        "--run-wrapper",
+        "--expected-source-head",
+        "8ec135af79f1efa40d8a8b910b3a22354dca4c5b",
+        "--chromium-adapter",
+        "$LOCAL_CHROMIUM_ADAPTER",
+        "--runner-temp",
+        "/tmp/ab8ec1",
+        "--output",
+        "/tmp/ab8ec1-result"
+      ]
+    },
+    "root17-preflight8ec-full-wrapper-projection1": {
+      "source": "8ec135af79f1efa40d8a8b910b3a22354dca4c5b",
+      "exit": 0,
+      "seconds": 0.20087589096510783,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "ef4df7fb6e63c9fcbc82863e14c0abdfe8a624e34699dbd2bf641c84f36024f4",
+      "inputs_sha256": "3c495a6c2e3c328ef96afdef835d80bd05c0b2f78beca8937f187a54798c6194",
+      "command_with_declared_path_aliases": [
+        "$SDK_PYTHON_HOME/bin/python3",
+        "scripts/record-integration-browser-ci-evidence.py",
+        "--private",
+        "/tmp/ab8ec1/agentbaton-integration-browser-ci",
+        "--output",
+        "$PRIVATE_EVIDENCE/root17-preflight8ec-full-wrapper-public1",
+        "--expected-source-head",
+        "8ec135af79f1efa40d8a8b910b3a22354dca4c5b",
+        "--driver-step-outcome",
+        "success"
+      ]
+    },
+    "root17-preflight8ec-mode-negative-command1": {
+      "source": "8ec135af79f1efa40d8a8b910b3a22354dca4c5b",
+      "exit": 1,
+      "seconds": 0.5018319709924981,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "82f81d866b57cd376bf11ef7b499fba8d3ee789666bb70b83916756247e44718",
+      "inputs_sha256": "a5bb589d3d36a6cbad83fb17ecd479c537ff27db381e7e6dea25c762622dcaad",
+      "command_with_declared_path_aliases": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$PRIVATE_EVIDENCE/integration17-opaque-routing-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$PRIVATE_EVIDENCE/integration17-opaque-routing-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$PRIVATE_EVIDENCE/integration17-opaque-routing-frozen1/baton",
+        "PYTHONHOME=$SDK_PYTHON_HOME",
+        "/tmp/ab8ec-python-mode-negative/python",
+        "$PRIVATE_EVIDENCE/integration-ci-wrapper-8ec-repro.py",
+        "--repository",
+        "/tmp/root17-preflight-full-wrapper-8ec",
+        "--run-wrapper",
+        "--expected-source-head",
+        "8ec135af79f1efa40d8a8b910b3a22354dca4c5b",
+        "--chromium-adapter",
+        "$LOCAL_CHROMIUM_ADAPTER",
+        "--runner-temp",
+        "/tmp/ab8ecn1",
+        "--output",
+        "/tmp/ab8ecn1-result"
+      ]
+    },
+    "root17-preflight8ec-mode-negative-projection1": {
+      "source": "8ec135af79f1efa40d8a8b910b3a22354dca4c5b",
+      "exit": 1,
+      "seconds": 0.10076801700051874,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "result_sha256": "46f7fd7983d3f37cd3d0eab0412f9e05c1fe7c1ffa8d27eea77bb5013fc7cc42",
+      "inputs_sha256": "8bd22bf55f15c3192e8dd648db5f16cdd580c1ada1058d02464ac8890021a054",
+      "command_with_declared_path_aliases": [
+        "$SDK_PYTHON_HOME/bin/python3",
+        "scripts/record-integration-browser-ci-evidence.py",
+        "--private",
+        "/tmp/ab8ecn1/agentbaton-integration-browser-ci",
+        "--output",
+        "$PRIVATE_EVIDENCE/root17-preflight8ec-mode-negative-public1",
+        "--expected-source-head",
+        "8ec135af79f1efa40d8a8b910b3a22354dca4c5b",
+        "--driver-step-outcome",
+        "failure"
+      ]
+    }
+  },
+  "path_aliases": "Aliases denote exact private executor paths retained in hashed INPUTS.json; no credential or private history is published.",
+  "counts": {
+    "core_lib_unique": 235,
+    "workspaces_runtime_unique": 194,
+    "workspaces_doctests": 7,
+    "integration_ipc": 20,
+    "factory_runtime": 37,
+    "infrastructure": 586,
+    "non_additive": "Core nested helper1 and workspaces nested helper4 are already included. Prior focused/pure tests overlap these totals. Sources differ explicitly in each result."
+  },
+  "actual_browser": {
+    "harness_source": "0af66b3556e79ed2d846948b17025e1a11b68b31",
+    "compiled_core_frontend_source": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+    "candidate_sha256": "56139b8e6861664749284e24e03268bb6e90a27b2c6412c28ed878e9378b29ad",
+    "dimension": "real Linux Core17/React/authenticated Unix IPC; generated account-free ACP/private test Owner; explicit installed Chromium launcher adapter, not CI bundled ELF discovery or Native/Mac/live Provider",
+    "cases": {
+      "normal": {
+        "original_projection_sha256": "64f7f7726133eb61182608bb42646b01d713923382379815dce61ef17667a5bd",
+        "projection": {
+          "contract": "agentbaton.child-goal-ci.v1",
+          "case": "normal",
+          "status": "passed",
+          "schema": 17,
+          "source_head": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+          "compiled_core_source_head": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+          "manifest_sha256": "56139b8e6861664749284e24e03268bb6e90a27b2c6412c28ed878e9378b29ad",
+          "tools_sha256": {
+            "batond": "10516d79f927448b871ac1427f5bb5a8b025d2ccbd7c1ad6cc46ec1f49b2c635",
+            "baton": "d0e026163a8282f7fd13846343d6d08dd3537ea1d51fedaf11fbae863739b35f"
+          },
+          "frontend_asset_count": 3,
+          "frontend_assets_sha256": "ddfb2c947dffadd3215abf58f70c9a900bc4b16e4d072e4dbea1d774df299f50",
+          "harness_sha256": "4b0332152c2dff9e4d4d7df94dede8ce23b0735c1b76adbef14398c142811b88",
+          "exit_code": 0,
+          "command_state": "returned",
+          "checks": [
+            {
+              "id": "CG01",
+              "status": "passed"
+            },
+            {
+              "id": "CG02",
+              "status": "passed"
+            },
+            {
+              "id": "CG05",
+              "status": "passed"
+            },
+            {
+              "id": "CG06",
+              "status": "passed"
+            }
+          ],
+          "cleanup_complete": true,
+          "cleanup_record_count": 5,
+          "failure_kind": "none",
+          "screenshots_published": false,
+          "private_history_published": false,
+          "finite_diagnostics": {
+            "version": 1,
+            "failure_class": null,
+            "driver_lines": null,
+            "lines_truncated": null,
+            "phase": null,
+            "last_completed_check": "CG06",
+            "core_replies": {
+              "observation": "observed",
+              "captured_count": 269,
+              "truncated": false,
+              "unmapped_error_count": 0,
+              "errors": [
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_scopes.propose",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_runs.get",
+                  "code": "NOT_FOUND",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "STALE_REVISION",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                }
+              ]
+            }
+          }
+        }
+      },
+      "cancel": {
+        "original_projection_sha256": "db2abbaaac31a704b6a640f5436cd37ea790189bb8d3a6aa935c298f75f54d26",
+        "projection": {
+          "contract": "agentbaton.child-goal-ci.v1",
+          "case": "cancel",
+          "status": "passed",
+          "schema": 17,
+          "source_head": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+          "compiled_core_source_head": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+          "manifest_sha256": "56139b8e6861664749284e24e03268bb6e90a27b2c6412c28ed878e9378b29ad",
+          "tools_sha256": {
+            "batond": "10516d79f927448b871ac1427f5bb5a8b025d2ccbd7c1ad6cc46ec1f49b2c635",
+            "baton": "d0e026163a8282f7fd13846343d6d08dd3537ea1d51fedaf11fbae863739b35f"
+          },
+          "frontend_asset_count": 3,
+          "frontend_assets_sha256": "ddfb2c947dffadd3215abf58f70c9a900bc4b16e4d072e4dbea1d774df299f50",
+          "harness_sha256": "4b0332152c2dff9e4d4d7df94dede8ce23b0735c1b76adbef14398c142811b88",
+          "exit_code": 0,
+          "command_state": "returned",
+          "checks": [
+            {
+              "id": "CG01",
+              "status": "passed"
+            },
+            {
+              "id": "CG02",
+              "status": "passed"
+            },
+            {
+              "id": "CG04",
+              "status": "passed"
+            },
+            {
+              "id": "CG06",
+              "status": "passed"
+            }
+          ],
+          "cleanup_complete": true,
+          "cleanup_record_count": 5,
+          "failure_kind": "none",
+          "screenshots_published": false,
+          "private_history_published": false,
+          "finite_diagnostics": {
+            "version": 1,
+            "failure_class": null,
+            "driver_lines": null,
+            "lines_truncated": null,
+            "phase": null,
+            "last_completed_check": "CG06",
+            "core_replies": {
+              "observation": "observed",
+              "captured_count": 198,
+              "truncated": false,
+              "unmapped_error_count": 0,
+              "errors": [
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_scopes.propose",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_runs.get",
+                  "code": "NOT_FOUND",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "STALE_REVISION",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_child_plans.context",
+                  "code": "INPUT_CHANGED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                }
+              ]
+            }
+          }
+        }
+      },
+      "lost-start": {
+        "original_projection_sha256": "48186054eb02ffa3b1744ab1c34086cc5d5c6338d7cd0467f211514898365361",
+        "projection": {
+          "contract": "agentbaton.child-goal-ci.v1",
+          "case": "lost-start",
+          "status": "passed",
+          "schema": 17,
+          "source_head": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+          "compiled_core_source_head": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+          "manifest_sha256": "56139b8e6861664749284e24e03268bb6e90a27b2c6412c28ed878e9378b29ad",
+          "tools_sha256": {
+            "batond": "10516d79f927448b871ac1427f5bb5a8b025d2ccbd7c1ad6cc46ec1f49b2c635",
+            "baton": "d0e026163a8282f7fd13846343d6d08dd3537ea1d51fedaf11fbae863739b35f"
+          },
+          "frontend_asset_count": 3,
+          "frontend_assets_sha256": "ddfb2c947dffadd3215abf58f70c9a900bc4b16e4d072e4dbea1d774df299f50",
+          "harness_sha256": "4b0332152c2dff9e4d4d7df94dede8ce23b0735c1b76adbef14398c142811b88",
+          "exit_code": 0,
+          "command_state": "returned",
+          "checks": [
+            {
+              "id": "CG01",
+              "status": "passed"
+            },
+            {
+              "id": "CG02",
+              "status": "passed"
+            },
+            {
+              "id": "CG03",
+              "status": "passed"
+            },
+            {
+              "id": "CG05",
+              "status": "passed"
+            },
+            {
+              "id": "CG06",
+              "status": "passed"
+            }
+          ],
+          "cleanup_complete": true,
+          "cleanup_record_count": 5,
+          "failure_kind": "none",
+          "screenshots_published": false,
+          "private_history_published": false,
+          "finite_diagnostics": {
+            "version": 1,
+            "failure_class": null,
+            "driver_lines": null,
+            "lines_truncated": null,
+            "phase": null,
+            "last_completed_check": "CG06",
+            "core_replies": {
+              "observation": "observed",
+              "captured_count": 301,
+              "truncated": false,
+              "unmapped_error_count": 0,
+              "errors": [
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_scopes.propose",
+                  "code": "AUTH_REQUIRED",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_runs.get",
+                  "code": "NOT_FOUND",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                },
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "STALE_REVISION",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 2
+                },
+                {
+                  "method": "factory_child_goals.start",
+                  "code": "CONFIG_CONFLICT",
+                  "retryable": false,
+                  "side_effect_state": "not_started",
+                  "count": 1
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "prior_failure": {
+      "source": "7e9961cc44fa11bf6e29f0c1882bfd4075aebbc4",
+      "case": "lost-start",
+      "checks": 2,
+      "error": "NameError: hashlib not defined in shared ACK helper",
+      "cleanup_complete": false,
+      "daemon_exit": 0,
+      "report_sha256": "288490b96f9440713fbfe8ba3daaf3b8b7fc9edeaf69a9806b501acc06a8087d",
+      "preserved": "Original partial receipt/private fixture/raw DB remain. Fresh source0af fixtures never replay the original request. Later kernel absence is not historical stop or business proof."
+    }
+  },
+  "preflight": {
+    "source": "8ec135af79f1efa40d8a8b910b3a22354dca4c5b",
+    "complete_original_wrapper": "actual normal5 + failure4 checks, original12PNG, strict projection passed; only declared local Chromium discovery adapter",
+    "controlled_negative": "Same owned copied Python bytes changed to0775 inside private0700 root; schema probe true, current driver runtime not entered, driver2 at runtime_owner_mode_guard, strict failed projector exit1. Expected refusal is not product success.",
+    "old_remote_cause": "accc driver_returned2 before business case; precise original guard remains unknown; controlled Python mode refusal is not its diagnosis."
+  },
+  "budget_diagnostic": {
+    "projector_source": "1f20e289efa39ca06b59b27c0451582b0b9399a7",
+    "projector_sha256": "4fabf510c197725d6eba9b3c7e128a15af42c96eeca5ff30ebde1c481e07ce0c",
+    "actual_snapshot_test_source": "6565d1c0895b207b8283cb0608e340bf49c314c9",
+    "private_copy_proof_sha256": "07f5f73afa1701cea9608079a68b4e4d9bef0aedd92ffbe53f8cce343648a0eb",
+    "original_9b2_projection_sha256": "7606caa58c32382a27654f452778ba91b8048c47ced8ea8b5c83fc3838bce8e5",
+    "original_9b2_optional": "pending; actual SessionHandle has grant_id, no JSON root_grant_id; original result preserved",
+    "actual_new_projection_sha256": "926004d7edc43b14ed6d7f546d62efc5c9f8c1555c8a93db506987431747bd72",
+    "actual_new_projection": {
+      "cases": [
+        {
+          "actor_thread_joined": true,
+          "code": "FINITE_PROJECTION_COLLECTED",
+          "daemon_result": "ok",
+          "last_readonly_observation": {
+            "approved_scope_remaining_ms": 32599,
+            "call_elapsed_ms": 21,
+            "call_number": 27,
+            "configured_actor_request_budget_ms": 60000,
+            "configured_client_read_timeout_ms": 5000,
+            "list_progress": null,
+            "method": "factory_runs.get",
+            "method_calls": {
+              "factory_child_goals.get": 1,
+              "factory_child_goals.list": 18,
+              "factory_runs.get": 8
+            },
+            "method_total_elapsed_ms": {
+              "factory_child_goals.get": 1015,
+              "factory_child_goals.list": 18021,
+              "factory_runs.get": 3957
+            },
+            "node_count": null,
+            "observation_overdue_ms": 0,
+            "observation_remaining_ms": 28514,
+            "phase": "wait_parent_resume_completed",
+            "plan_revision": null,
+            "received_before_original_deadline": true,
+            "reply_is_error": false,
+            "reply_object_supplied": true,
+            "reply_revision": 161,
+            "run_completed": true,
+            "run_outcome_unknown": false,
+            "run_revision": 12,
+            "scenario_elapsed_ms": 28031,
+            "stage": "response_received",
+            "wall_ms": 1793422789107
+          },
+          "post_shutdown": {
+            "associated_events": {
+              "code": "unknown_not_available",
+              "events": [],
+              "previous_node_settlement": null,
+              "prior_capture_settlements": [],
+              "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+              "status": "pending"
+            },
+            "attempt_budget_observations": {
+              "code": "original_row_node_event_or_session_fields_match",
+              "coverage": "selected_child_original_graph_and_factory_descendant_records_only",
+              "not_an_admission_stop_or_authority_verdict": true,
+              "other_root_project_records_not_projected": true,
+              "records": [
+                {
+                  "actual_output_bytes": 20,
+                  "actual_runtime_ms": 2018,
+                  "declared_output_bytes": 1024,
+                  "declared_runtime_ms": 4000,
+                  "ordinal": 1,
+                  "output_exceeds_declared": false,
+                  "plan_revision": "2",
+                  "record_kind": "graph_work",
+                  "runtime_exceeds_declared": false,
+                  "settled": true
+                },
+                {
+                  "actual_output_bytes": 21,
+                  "actual_runtime_ms": 1231,
+                  "declared_output_bytes": 1024,
+                  "declared_runtime_ms": 4000,
+                  "ordinal": 2,
+                  "output_exceeds_declared": false,
+                  "plan_revision": "1",
+                  "record_kind": "graph_work",
+                  "runtime_exceeds_declared": false,
+                  "settled": true
+                },
+                {
+                  "actual_output_bytes": 0,
+                  "actual_runtime_ms": 2209,
+                  "declared_output_bytes": 1024,
+                  "declared_runtime_ms": 6000,
+                  "ordinal": 3,
+                  "output_exceeds_declared": false,
+                  "plan_revision": "2",
+                  "record_kind": "graph_validate",
+                  "runtime_exceeds_declared": false,
+                  "settled": true
+                },
+                {
+                  "actual_output_bytes": 0,
+                  "actual_runtime_ms": 1333,
+                  "declared_output_bytes": 1024,
+                  "declared_runtime_ms": 6000,
+                  "ordinal": 4,
+                  "output_exceeds_declared": false,
+                  "plan_revision": "1",
+                  "record_kind": "graph_validate",
+                  "runtime_exceeds_declared": false,
+                  "settled": true
+                },
+                {
+                  "actual_output_bytes": 21,
+                  "actual_runtime_ms": 3137,
+                  "declared_output_bytes": 4096,
+                  "declared_runtime_ms": 17436,
+                  "ordinal": 5,
+                  "output_exceeds_declared": false,
+                  "plan_revision": null,
+                  "record_kind": "factory_task",
+                  "runtime_exceeds_declared": false,
+                  "settled": true
+                }
+              ],
+              "snapshot_time": "post_owned_shutdown_not_admission_instant",
+              "status": "collected_bound_record_facts"
+            },
+            "budget_usage": {
+              "child": {
+                "settled_actual_runtime_ms": 9928,
+                "settled_count": 5,
+                "settled_runtime_unknown": false,
+                "unsettled_count": 0,
+                "unsettled_reserved_runtime_ms": 0
+              },
+              "code": "existing_ledger_and_child_records",
+              "not_an_authority_or_admission_verdict": true,
+              "project": {
+                "actual_runtime_ms": 11246,
+                "observed_attempts": 8,
+                "runtime_unknown": false
+              },
+              "root": {
+                "actual_runtime_ms": 11246,
+                "observed_attempts": 8,
+                "runtime_unknown": false
+              },
+              "snapshot_time": "post_owned_shutdown_not_admission_instant",
+              "status": "collected_post_shutdown_budget_facts"
+            },
+            "child_graph_count": 1,
+            "integration_counts": {
+              "integration_attempts": 0,
+              "integration_policies": 0,
+              "integration_ref_fences": 0,
+              "integrations": 0
+            },
+            "node_counts": {
+              "1:owner_approval:not_started": 1,
+              "1:validate:failed": 1,
+              "1:work:candidate": 1,
+              "2:owner_approval:accepted": 1,
+              "2:validate:validated": 1,
+              "2:work:candidate": 1
+            },
+            "runs": [
+              {
+                "cancel_requested": false,
+                "plan_revision": "2",
+                "state": "accepted",
+                "task_accepted": true
+              }
+            ],
+            "schema": 17,
+            "validation_counts": {
+              "1:failed:passed_false:stopped_true:worker_joined": 1,
+              "2:passed:passed_true:stopped_true:worker_joined": 1
+            },
+            "validation_observations": {
+              "1": {
+                "actual_runtime_ms": 1333,
+                "error_code": null,
+                "exit_code": 1,
+                "goal_io_state": "observed",
+                "process_started": true
+              },
+              "2": {
+                "actual_runtime_ms": 2209,
+                "error_code": null,
+                "exit_code": 0,
+                "goal_io_state": "observed",
+                "process_started": true
+              }
+            }
+          },
+          "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+          "status": "collected_post_shutdown",
+          "test_panicking": false
+        }
+      ],
+      "code": "FINITE_PROJECTION_COLLECTED",
+      "contract": "agentbaton.factory-rework-progress.v1",
+      "not_a_product_or_test_pass": true,
+      "status": "collected_post_shutdown"
+    },
+    "limits": "5 original selected-child bound records from a passing Linux run. Not root/project admission coverage, old Intel root cause, current grant authority, stop proof, or a product test verdict."
+  },
+  "independent_reviews": [
+    {
+      "record": "root7e9961c-composed-independent-review.json",
+      "sha256": "21d12946b5640dbd3d413fd475cc01bf1550c4a671fe1f3da29763abda0d2b7b",
+      "scope": "source/pure only; separate actual results above"
+    },
+    {
+      "record": "root0af-ack-import-independent-review.json",
+      "sha256": "9b4ffefcb3302f6b5364c9d8575f4b1d4bd33a0a7123d003ab38321303473a71",
+      "scope": "source/pure only; separate actual results above"
+    },
+    {
+      "record": "REWORK_1F20E28_SESSION_GRANT_CLOSURE.review.json",
+      "sha256": "5a69b655ee19740a4c4bff238dcda2b629d8805d30f66f764e320704be903cda",
+      "scope": "source/pure only; separate actual results above"
+    }
+  ],
+  "remote_evidence": {
+    "Root_accc": {
+      "environment": "41169975047 all3SUCCESS",
+      "product": "41169977095 FAIL; RustSUCCESS; ARM integration5PASS15FAIL worker-system-git-pin; Intel Factory33PASS1FAIL reworkblocked; UI integration driver2, earlier frontend passed"
+    },
+    "Parent_ae42": {
+      "environment": "41173949636 all3SUCCESS",
+      "product": "41173949635 Rust/UI SUCCESS; bothMac in progress at latest observed query, do not transfer to Root"
+    },
+    "Notification_784": "Environment41168423931 FAIL; Product41168426054 FAIL; integration/notification probes skipped; original separate failures remain"
+  },
+  "not_run": [
+    "new exact Root dualmacOS compilation/native acceptance/release-control audit/development packages",
+    "new protected integration",
+    "real Provider/model/private identity",
+    "manual Mac install/acceptance",
+    "full130 acceptance"
+  ],
+  "authority": "AB-START-001 unchanged; OWNER001/002 ACK, no003 at main653679d; no formal GitHub Approve, production, signing credentials, paid resources or private Provider calls"
+}

@@ -308,6 +308,74 @@ def setup_diagnostic(private, expected):
         return unavailable
 
 
+DRIVER_PREFLIGHT_STAGES = ('expected_source_head', 'core_paths', 'core_tool_pins',
+    'core_executable_guard', 'core_owner_mode_guard', 'candidate_read', 'candidate_size_guard',
+    'candidate_decode', 'candidate_schema_guard', 'candidate_source_guard', 'candidate_clean_guard',
+    'candidate_tool_hash_guard', 'frontend_record_read', 'frontend_record_size_guard',
+    'frontend_record_decode', 'frontend_record_guard', 'frontend_resolve', 'chromium_resolve',
+    'runtime_chromium_pin', 'runtime_python_pin', 'runtime_owner_mode_guard', 'source_guard',
+    'frontend_assets', 'run_required', 'playwright_import')
+DRIVER_PREFLIGHT_EXCEPTIONS = ('refusal', 'import_error', 'os_error', 'value_error', 'key_error',
+    'type_error', 'attribute_error', 'interrupted', 'system_exit', 'other_exception')
+DRIVER_RUNTIME_CHECKS = frozenset(('chromium_owner_allowed', 'chromium_mode_allowed',
+    'python_owner_allowed', 'python_mode_allowed'))
+
+
+def driver_preflight_diagnostic(private, expected):
+    """Closed exit2 observation, not source-guard success or external authority."""
+    unavailable = {'status': 'unavailable', 'failure_kind': 'missing_or_invalid_driver_preflight_diagnostic'}
+    root_fd = driver_fd = None
+    try:
+        sha(expected, 40)
+        root_fd = P.directory(private, private=True)
+        root_witnesses, driver_witnesses = [], []
+        status = P.decode(P.regular_bytes(root_fd, 'status.json', MAX_STATUS, witnesses=root_witnesses))
+        require(type(status) is dict and set(status) == {'source', 'driver_exit', 'probe_passed'}
+            and status['source'] == expected and type(status['driver_exit']) is int
+            and status['driver_exit'] == 2 and status['probe_passed'] is True)
+        path = Path(private) / 'driver'
+        driver_fd = P.directory(path, private=True)
+        value = P.decode(P.regular_bytes(driver_fd, 'preflight-diagnostic.json', 4096, witnesses=driver_witnesses))
+        require(type(value) is dict and set(value) == {'version', 'declared_source', 'driver_sha256',
+            'stage', 'exception_kind', 'run_requested', 'runtime_case_entered', 'runtime_checks'})
+        require(type(value['version']) is int and value['version'] == 1
+            and value['declared_source'] == expected and value['driver_sha256'] == expected_driver()
+            and type(value['run_requested']) is bool and value['runtime_case_entered'] is False)
+        stage, exception = value['stage'], value['exception_kind']
+        require(type(stage) is str and stage in DRIVER_PREFLIGHT_STAGES)
+        checks = value['runtime_checks']
+        require(type(checks) is dict and set(checks) == DRIVER_RUNTIME_CHECKS
+            and (all(v is None for v in checks.values()) or all(type(v) is bool for v in checks.values())))
+        position, owner_guard = DRIVER_PREFLIGHT_STAGES.index(stage), DRIVER_PREFLIGHT_STAGES.index('runtime_owner_mode_guard')
+        if position < owner_guard:
+            require(all(v is None for v in checks.values()))
+        elif position > owner_guard:
+            require(all(v is True for v in checks.values()))
+        if stage == 'run_required':
+            require(exception is None and value['run_requested'] is False)
+            outcome = 'run_required'
+        elif stage == 'playwright_import':
+            require(exception == 'import_error' and value['run_requested'] is True)
+            outcome = 'dependency_import_failed'
+        else:
+            require(type(exception) is str and exception in DRIVER_PREFLIGHT_EXCEPTIONS)
+            outcome = 'preflight_refused'
+        for location, fd, witnesses in ((private, root_fd, root_witnesses), (path, driver_fd, driver_witnesses)):
+            P.same_directory(location, fd)
+            for name, original_pin in witnesses:
+                require(P.pin(os.stat(name, dir_fd=fd, follow_symlinks=False)) == original_pin)
+        return {'status': 'observed', 'declared_source': expected, 'driver_sha256': value['driver_sha256'],
+            'stage': stage, 'exception_kind': exception, 'outcome': outcome,
+            'run_requested': value['run_requested'], 'runtime_case_entered': False,
+            'runtime_checks': checks}
+    except (ValueError, OSError, KeyError, TypeError, OverflowError):
+        return unavailable
+    finally:
+        for fd in (driver_fd, root_fd):
+            if fd is not None:
+                os.close(fd)
+
+
 def publish(output, summary, payloads):
     require(Path(output).is_absolute() and '..' not in Path(output).parts)
     parent = P.directory(Path(output).parent)
@@ -357,6 +425,7 @@ def main(argv=None):
             summary, payloads = failure(args.expected_source_head, 'invalid_failed_or_incomplete_private_evidence'), {}
         if summary['status'] != 'passed':
             summary['setup_diagnostic'] = setup_diagnostic(args.private, args.expected_source_head)
+            summary['driver_preflight'] = driver_preflight_diagnostic(args.private, args.expected_source_head)
         publish(args.output, summary, payloads)
         return 0 if summary['status'] == 'passed' else 1
     except (ValueError, OSError, KeyError, TypeError, OverflowError):
