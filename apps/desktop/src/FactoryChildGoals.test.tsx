@@ -348,10 +348,13 @@ async function advanceReadonlyClock(milliseconds:number){
 async function observeReadonly(assertion:()=>void){
  // Same 1000ms observation bound as RTL's default, using a captured real timer
  // so observing async work never advances or consumes a product polling slot.
- const end=realReadonlyNow()+1000;let last:unknown;
+ const end=realReadonlyNow()+1000,expired=()=>new Error('Readonly test observation exceeded its original 1000ms boundary');
  for(;;){
-  try{assertion();return;}catch(error){last=error;}
-  if(realReadonlyNow()>=end)throw last;
+  if(realReadonlyNow()>=end)throw expired();
+  let matched=false;
+  try{assertion();matched=true;}catch{/* Keep observing within the same fixed bound. */}
+  if(realReadonlyNow()>=end)throw expired();
+  if(matched)return;
   await act(async()=>{await new Promise<void>(resolve=>realReadonlyTimeout(resolve,0));});
  }
 }
