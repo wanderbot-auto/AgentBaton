@@ -1,3 +1,9 @@
+## PR19 historical stop association and bootstrap correction verified locally — 2026-10-31
+
+The reviewed diagnostic extension retains strict historical/not-same-plan labels, original bounds and all runtime permission/budget guards. Exact4cc7967 passes366 infrastructure tests; independent review bdd4c11 covers64 source checks and102 generated SQLite cases, with its one guard-blocked old FIFO case explicitly excluded; Root separately passes all103 collector cases. All93 bootstrap files verify after the reviewed STATUS digest correction. [Evidence](factory-rework-stop-correlation/EVIDENCE.json).
+
+Previous exact60a5 Environment41192343803 failed stale STATUS digest. Product41192343794 is terminal failed: Rust/UI pass, ARM Task IPC3pass1fail bounded dropped-write observation, Intel Factory29pass1fail plan2/run12blocked. These are separate open failures; the diagnostic extension does not establish their cause or fix product behavior. No current Mac acceptance, installers or full130 completion is claimed. Main7ecf/OWNER001/002 and all authority restrictions remain.
+
 ## PR19 exact-plan read reuse and private Task IPC fixture verified locally — 2026-10-31
 
 Integrated1cd preserves all Owner, raw/shape/epoch and deadline/budget guards. Reviewed5b source passes1093 UI cases and actual normal/cancel/lost-start Linux browser/Unix IPC with cleanup and finite evidence. Integrated1cd passes4 Task binding IPC cases and360 infrastructure checks; canonical/tmp0700 fixture fixes the separate ARM path setup defect without weakening the production symlink refusal. Source-bound records do not transfer old tests to new heads. [Evidence](child-goal-plan-read-reuse/ROOT_RESULTS.json).
