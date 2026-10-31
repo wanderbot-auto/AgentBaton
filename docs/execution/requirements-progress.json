@@ -2319,7 +2319,8 @@
         "docs/execution/fresh-bound-config/EVIDENCE.json",
         "docs/execution/task-workspace-integration/OBSERVER_AND_HEAD846_RESULTS.json",
         "docs/execution/capture-frontier-service/EVIDENCE.json",
-        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json"
+        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json",
+        "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2637,7 +2638,8 @@
         "docs/execution/fresh-bound-config/EVIDENCE.json",
         "docs/execution/task-workspace-integration/OBSERVER_AND_HEAD846_RESULTS.json",
         "docs/execution/capture-frontier-service/EVIDENCE.json",
-        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json"
+        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json",
+        "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -3297,7 +3299,8 @@
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
         "docs/execution/capture-frontier-service/EVIDENCE.json",
-        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json"
+        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json",
+        "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -7222,7 +7225,8 @@
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
         "docs/execution/capture-frontier-service/EVIDENCE.json",
-        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json"
+        "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json",
+        "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
