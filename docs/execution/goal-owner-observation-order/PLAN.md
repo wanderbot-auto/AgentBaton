@@ -5,3 +5,5 @@ Fixed base9f70bede88506f0d35b0a00a433e49f391c4efae; independent sparse branch co
 The original final task-acceptance observation created its15s end after the single Owner click. Preserve that exact stage boundary and share one absolute end between observing that same Native receipt and independent Core task acceptance. Before the receipt, the private driver must not compete for the one history-reader slot. Never click/replay again, manufacture acceptance, weaken client gates or reset the deadline.
 
 Add bounded entered/completed/failed evidence tied to the armed scope/task/run/node/plan and one key/request/reply hash. Retain original Native validation and raw wire evidence, failures and cleanup semantics. Run only pure source/clock controls here; Root owns full harness/native/browser/IPC execution and independent review.
+
+Review closure extends the existing infrastructure timing controls to the exact7 actual phase blocks, preserving the original4 fault injections and adding the3 new stages. Load the new actual deadline helper in the preexisting readonly test environment; preserve every original15 test body and deadline/refusal boundary.
