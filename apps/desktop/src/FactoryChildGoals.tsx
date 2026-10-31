@@ -39,9 +39,11 @@ type Snapshot={scope:FactoryScope;family:FactoryRunDetails;target:FactoryTaskHan
 type PollSource={parent:string;snapshot:Snapshot};
 type ReadonlyPollRetry={stamp:number;source:PollSource};
 const exactReadonlyBusy=(error:unknown)=>error instanceof DaemonError&&error.code==='WORKSPACE_BUSY'&&error.retryable===true&&error.sideEffectState==='not_started';
+const sameActivePollingGoal=(next:FactoryChildGoalSummary,known:FactoryChildGoalSummary)=>next.goal.run.id===known.goal.run.id&&graphRunPolling(next.goal)&&childGoalRefSame(next.plan,known.plan)&&next.goal.run.cancel_requested===known.goal.run.cancel_requested;
 // Old evidence authorizes only the next bounded read. It cannot make a stale
 // view fresh, establish a new run, or relax any existing write/Owner gate.
-const pollingSnapshotReady=(v:Snapshot,p:Props)=>parentReadReady(p)&&!!v.view&&graphRunPolling(v.view.summary.goal)&&v.rows.some(row=>row.goal.run.id===v.view!.summary.goal.run.id&&graphRunPolling(row.goal))&&!v.scope.revoked&&v.scope.expires_at_ms>Date.now()&&!!v.grant&&!v.grant.revoked&&v.grant.revision===v.scope.root_grant_revision&&v.grant.expires_at_ms>Date.now()&&!v.family.run.cancel_requested&&!['cancelled','completed','blocked','outcome_unknown'].includes(v.family.run.state)&&!v.target.cancel_requested&&taskAllowsExecution(v.task)&&v.task.spec_revision===v.context.goal.spec_revision;
+const snapshotPollingGoal=(v:Snapshot)=>!!v.view&&graphRunPolling(v.view.summary.goal)&&v.rows.some(row=>row.goal.run.id===v.view!.summary.goal.run.id&&graphRunPolling(row.goal));
+const pollingSnapshotReady=(v:Snapshot,p:Props)=>parentReadReady(p)&&snapshotPollingGoal(v)&&!v.scope.revoked&&v.scope.expires_at_ms>Date.now()&&!!v.grant&&!v.grant.revoked&&v.grant.revision===v.scope.root_grant_revision&&v.grant.expires_at_ms>Date.now()&&!v.family.run.cancel_requested&&!['cancelled','completed','blocked','outcome_unknown'].includes(v.family.run.state)&&!v.target.cancel_requested&&taskAllowsExecution(v.task)&&v.task.spec_revision===v.context.goal.spec_revision;
 
 export function FactoryChildGoals(props:Props){
  const t=childGoalMessages[props.language],[open,setOpen]=useState(false),[started,setStarted]=useState(false);
@@ -74,6 +76,10 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    const rows=await factoryChildGoalApi.list(scope.id,target.task_id);
    if(!childGoalHistoryShape(rows,scope,target,family,null,task))throw new Error(t.invalid);
    for(const [id,floor] of saved.floors){const row=rows.find(row=>row.goal.run.id===id);if(!row||!childGoalSummaryMeetsFloor(row,floor.summary))throw new Error(t.invalid);}
+   if(source&&pollAuthority.current?.stamp===stamp){
+    const known=source.snapshot.view,row=rows.find(item=>item.goal.run.id===known?.summary.goal.run.id);
+    pollAuthority.current.same=pollAuthority.current.same===true&&!!known&&!!row&&sameActivePollingGoal(row,known.summary);
+   }
    if(!mounted.current||stamp!==epoch.current)return null;
    const trusted:ReadSummary={scope,family,target,task,rows,grant:grants.find(g=>g.id===scope.root_grant_id)??null};summaryRead.current={stamp,value:trusted};setSummary(trusted);setSummaryFresh(true);
    for(const row of rows){const floor=saved.floors.get(row.goal.run.id);saved.floors.set(row.goal.run.id,{summary:structuredClone(row),details:floor?.details??null,origin:floor?.origin??null});}
@@ -96,10 +102,12 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    const context=await factoryChildPlanApi.context(scope.id,target.task_id);
    if(!mounted.current||stamp!==epoch.current)return null;
    if(!childContextShape(context,scope,target)||context.run_id!==family.run.id)throw new Error(t.invalid);
+   if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&factorySame(context,source.snapshot.context);
    let head:FactoryChildPlanView|null=null;
    try{head=await factoryChildPlanApi.get(scope.id,target.task_id);if(!mounted.current||stamp!==epoch.current)return null;if(!childViewShape(head,context,scope)||head.reference.revision!==context.current_plan_revision)throw new Error(t.invalid);await verifyChildRaw(head);}
    catch(e){if(!(context.current_plan_revision===0&&e instanceof DaemonError&&e.code==='NOT_FOUND'&&e.sideEffectState==='not_started'))throw e;}
    if(!mounted.current||stamp!==epoch.current)return null;
+   if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&factorySame(head,source.snapshot.head);
    const op=saved.pending,id=op?.receipt?.runId??op?.goalRunId??(rows.some(row=>row.goal.run.id===choice.current)?choice.current:rows.at(-1)?.goal.run.id);
    let view:FactoryChildGoalView|null=null,initial:FactoryChildPlanView|null=null,adopted:FactoryChildPlanView|null=null;
    if(id){
@@ -107,6 +115,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
     if(!mounted.current||stamp!==epoch.current)return null;
     const listed=rows.find(row=>row.goal.run.id===id),floor=saved.floors.get(id);
     if(!listed||!childGoalViewShape(view,scope,target,family,context,task)||!childGoalSummaryMeetsFloor(view.summary,listed)||floor?.origin&&floor.origin!==JSON.stringify(view.origin)||floor?.details&&!graphDetailsMeetFloor(view.details,{summary:floor.summary.goal,details:floor.details}))throw new Error(t.invalid);
+    if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&!!source.snapshot.view&&sameActivePollingGoal(view.summary,source.snapshot.view.summary);
     initial=await factoryChildPlanApi.get(scope.id,target.task_id,view.origin.initial_plan.revision);
     if(!mounted.current||stamp!==epoch.current)return null;
     adopted=childGoalRefSame(view.origin.initial_plan,view.summary.plan)?initial:await factoryChildPlanApi.get(scope.id,target.task_id,view.summary.plan.revision);
@@ -118,7 +127,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    for(const row of nextRows){const before=saved.floors.get(row.goal.run.id);saved.floors.set(row.goal.run.id,{summary:structuredClone(row),details:view?.summary.goal.run.id===row.goal.run.id?structuredClone(view.details):before?.details??null,origin:view?.summary.goal.run.id===row.goal.run.id?JSON.stringify(view.origin):before?.origin??null});}
    saved.scopeRevision=scope.revision;saved.factoryRevision=family.run.revision;saved.taskRevision=task.revision;saved.taskFingerprint=JSON.stringify(task);choice.current=id??'';
    const snapshot:Snapshot={scope,family,target,task,context,head,rows:nextRows,view,initial,adopted,grant:trusted.grant};setData(snapshot);setFresh(true);
-   pollSource.current=parentIdentity(current.current)===parent&&pollingSnapshotReady(snapshot,current.current)?{parent,snapshot}:null;
+   pollSource.current=parentIdentity(current.current)===parent&&snapshotPollingGoal(snapshot)?{parent,snapshot}:null;
    if(op){
     const r=op.receipt,detail=view?.details;
     const decision=r?.decisionId?detail?.owner_decisions.find(item=>item.id===r.decisionId):null;
@@ -137,11 +146,11 @@ function ChildGoalPanel(props:Props&{open:boolean}){
  useEffect(()=>{if(open)void refresh();},[open,refresh,props.selected?.reference.id,props.selected?.reference.revision]);
  const pollParent=parentIdentity(props);
  useEffect(()=>{
-  const source=pollSource.current,retry=readonlyPollRetry.current,stamp=epoch.current;
-  if(!open||!connected||loading||busy||pending||!source||source.parent!==pollParent||!pollingSnapshotReady(source.snapshot,current.current)||!fresh&&!(retry?.stamp===stamp&&retry.source===source))return;
+  const source=pollSource.current,retry=readonlyPollRetry.current,stamp=epoch.current,recovering=!fresh;
+  if(!open||!connected||loading||busy||pending||!source||source.parent!==pollParent||!snapshotPollingGoal(source.snapshot)||recovering&&!(retry?.stamp===stamp&&retry.source===source&&pollingSnapshotReady(source.snapshot,current.current)))return;
   if(reads.current>=20){setPaused(true);return;}
   const timer=setTimeout(()=>{
-   if(!mounted.current||stamp!==epoch.current||pollSource.current!==source||parentIdentity(current.current)!==pollParent||!current.current.connected||saved.pending||writing.current||cancelReadInFlight.current||!pollingSnapshotReady(source.snapshot,current.current))return;
+   if(!mounted.current||stamp!==epoch.current||pollSource.current!==source||parentIdentity(current.current)!==pollParent||!current.current.connected||saved.pending||writing.current||cancelReadInFlight.current||recovering&&!pollingSnapshotReady(source.snapshot,current.current))return;
    ++reads.current;void refresh(false);
   },1000);return()=>clearTimeout(timer);
  },[open,connected,fresh,loading,busy,pending,data,tick,refresh,pollParent,props.parentReady,props.parentRefreshOnly]);
