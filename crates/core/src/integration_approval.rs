@@ -6,7 +6,7 @@ use crate::{
     storage::{db_error, encode, now, Event, Store},
     Result,
 };
-use rusqlite::{params, Transaction, TransactionBehavior};
+use rusqlite::{params, OptionalExtension, Transaction, TransactionBehavior};
 use serde_json::{json, Value};
 use std::time::Instant;
 use uuid::Uuid;
@@ -125,6 +125,32 @@ fn guarantees() -> IntegrationGuarantees {
     }
 }
 impl Store {
+    /// Select this domain only from a bounded, strictly typed stored proposal.
+    /// Absence, another domain, or undecodable bytes return to the original
+    /// owner-request guards; this probe never grants or finalizes authority.
+    pub(crate) fn integration_proposal_for_request(
+        &self,
+        id: &str,
+    ) -> Result<Option<ApprovalProposal>> {
+        let row: Option<Option<String>> = self.conn.query_row(
+            "SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM approval_proposals WHERE id=?1",
+            [id],
+            |r| r.get(0),
+        ).optional().map_err(db_error)?;
+        let Some(Some(text)) = row else {
+            return Ok(None);
+        };
+        // Decode the original text, never a Value that discards duplicate keys.
+        let Ok(proposal) = serde_json::from_str::<ApprovalProposal>(&text) else {
+            return Ok(None);
+        };
+        if proposal.kind != "integration" {
+            return Ok(None);
+        }
+        // Preserve the original Integration ID/size/object/typed checks after
+        // domain selection. The actor owns this connection throughout routing.
+        self.integration_proposal_record(id).map(Some)
+    }
     pub(crate) fn integration_proposal_record(&self, id: &str) -> Result<ApprovalProposal> {
         raw(&self.conn, "approval_proposals", id)
     }
@@ -312,5 +338,169 @@ impl Store {
         records::check_metadata_bounds(&tx)?;
         tx.commit().map_err(db_error)?;
         serde_json::to_value(policy).map_err(|_| invalid())
+    }
+}
+
+#[cfg(test)]
+mod request_domain_tests {
+    use super::*;
+
+    fn proposal(id: &str, kind: &str) -> String {
+        serde_json::to_string(&ApprovalProposal {
+            id: id.into(),
+            kind: kind.into(),
+            revision: 1,
+            snapshot: json!({}),
+            created_at: "2026-10-31T00:00:00Z".into(),
+            expires_at_ms: i64::MAX,
+            consumed: false,
+        })
+        .unwrap()
+    }
+    fn put(store: &Store, id: &str, text: &str) {
+        store
+            .conn
+            .execute(
+                "INSERT INTO approval_proposals(id,document,result) VALUES(?1,?2,NULL)",
+                params![id, text],
+            )
+            .unwrap();
+    }
+    fn unchanged(store: &Store, sequence: u64, documents: &[(String, String)]) {
+        assert_eq!(store.sequence().unwrap(), sequence);
+        assert_eq!(store.integration_record_counts().unwrap().policies, 0);
+        assert_eq!(store.integration_record_counts().unwrap().runs, 0);
+        let rows: Vec<(String, String)> = store
+            .conn
+            .prepare("SELECT id,document FROM approval_proposals WHERE result IS NULL ORDER BY id")
+            .unwrap()
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))
+            .unwrap()
+            .collect::<std::result::Result<_, _>>()
+            .unwrap();
+        assert_eq!(rows, documents);
+    }
+    fn documents(store: &Store) -> Vec<(String, String)> {
+        store
+            .conn
+            .prepare("SELECT id,document FROM approval_proposals ORDER BY id")
+            .unwrap()
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))
+            .unwrap()
+            .collect::<std::result::Result<_, _>>()
+            .unwrap()
+    }
+
+    #[test]
+    fn optional_domain_probe_leaves_missing_and_original_kinds_to_original_owner_guards() {
+        let root = tempfile::tempdir().unwrap();
+        let store = Store::open(&root.path().join("baton.sqlite3")).unwrap();
+        assert!(store
+            .integration_proposal_for_request("unknown-owner-proposal")
+            .unwrap()
+            .is_none());
+        for kind in [
+            "grant",
+            "factory",
+            "goal_execution",
+            "goal_graph_execution",
+            "goal_node_acceptance",
+        ] {
+            put(&store, kind, &proposal(kind, kind));
+            assert!(
+                store
+                    .integration_proposal_for_request(kind)
+                    .unwrap()
+                    .is_none(),
+                "{kind}"
+            );
+        }
+        put(
+            &store,
+            "integration-only",
+            &proposal("integration-only", "integration"),
+        );
+        let selected = store
+            .integration_proposal_for_request("integration-only")
+            .unwrap()
+            .unwrap();
+        assert_eq!(selected.id, "integration-only");
+        assert_eq!(selected.kind, "integration");
+        let before = documents(&store);
+        let sequence = store.sequence().unwrap();
+        assert!(store
+            .integration_proposal_for_request("unknown-owner-proposal")
+            .unwrap()
+            .is_none());
+        unchanged(&store, sequence, &before);
+    }
+
+    #[test]
+    fn malformed_duplicate_unknown_and_oversized_integration_fallback_never_finalize() {
+        let root = tempfile::tempdir().unwrap();
+        let mut store = Store::open(&root.path().join("baton.sqlite3")).unwrap();
+        let original = proposal("guarded", "integration");
+        let duplicate = original.replace(
+            "\"kind\":\"integration\"",
+            "\"kind\":\"integration\",\"kind\":\"grant\"",
+        );
+        let unknown = original.replacen('{', "{\"caller_authorized\":true,", 1);
+        let oversized = format!(
+            "{original}{}",
+            " ".repeat(MAX_INTEGRATION_BYTES + 1 - original.len())
+        );
+        for (id, text) in [
+            ("malformed", "{\"kind\":\"integration\"".into()),
+            ("duplicate-kind", duplicate),
+            ("unknown-authority", unknown),
+            ("oversized", oversized),
+        ] {
+            put(&store, id, &text);
+            let before = documents(&store);
+            let sequence = store.sequence().unwrap();
+            assert!(
+                store
+                    .integration_proposal_for_request(id)
+                    .unwrap()
+                    .is_none(),
+                "{id}"
+            );
+            assert!(
+                store.finalize_proposal(id, 1).is_err(),
+                "{id}: fallback granted authority"
+            );
+            unchanged(&store, sequence, &before);
+        }
+    }
+
+    #[test]
+    fn exact_byte_bound_retains_strict_integration_id_and_native_finalizer_checks() {
+        let root = tempfile::tempdir().unwrap();
+        let mut store = Store::open(&root.path().join("baton.sqlite3")).unwrap();
+        let original = proposal("bounded", "integration");
+        let bounded = format!(
+            "{original}{}",
+            " ".repeat(MAX_INTEGRATION_BYTES - original.len())
+        );
+        put(&store, "bounded", &bounded);
+        assert!(store
+            .integration_proposal_for_request("bounded")
+            .unwrap()
+            .is_some());
+        let before = documents(&store);
+        let sequence = store.sequence().unwrap();
+        assert_eq!(
+            store.finalize_proposal("bounded", 1).unwrap_err().code,
+            "AUTH_REQUIRED"
+        );
+        unchanged(&store, sequence, &before);
+        put(&store, "invalid id", &proposal("invalid id", "integration"));
+        assert_eq!(
+            store
+                .integration_proposal_for_request("invalid id")
+                .unwrap_err()
+                .code,
+            "INVALID_REQUEST"
+        );
     }
 }

@@ -1,0 +1,55 @@
+{
+  "baseline": "4f962940533241fdec74b96a87c01a99788a62ee",
+  "requirements": [
+    "Design v0.2 original owner approval/concurrency isolation",
+    "schema17 strict Task binding and historical acceptance evidence",
+    "Integration request-owned private native approval"
+  ],
+  "actual_failed_evidence": {
+    "directory": "/workspace/.onboarding/integration17-other-migration-and-sessions1",
+    "log_sha256": "b47d92b19758743857bfebf920cb971b3276031161ea11e55eed1bd1a2ee2a5a",
+    "exit": 101,
+    "sessions_passed": 55,
+    "sessions_failed": 3
+  },
+  "actual_author_checks": {
+    "rustfmt_edition2021": "passed",
+    "git_diff_check": "passed",
+    "source_inverse_and_assertions": {
+      "base": "4f962940533241fdec74b96a87c01a99788a62ee",
+      "status": "source_checks_passed_not_runtime",
+      "checks": [
+        "ipc whole-file inverse restoration exact; Actor loop/handler/queue unchanged",
+        "original-text strict ApprovalProposal routing and original Integration strict lookup retained",
+        "fixed parameterized optional raw-byte 1MiB query",
+        "all four existing read/replay corruption assertions retained and invoked for every already-open case",
+        "only task-project/task-id precise cold-open Task-binding rejection",
+        "remaining 15 corruption cases retain original cold-open read/replay checks"
+      ],
+      "files": {
+        "crates/core/src/integration_approval.rs": "b99130c0315bef0f113b6cfec261a28b5b89d2f994a6a06eebdd21644bf07a7f",
+        "crates/core/src/ipc.rs": "53b025469e2fd13f7572ff6a3f2586965794ae9b07865cf65f855141f38f3dc1",
+        "crates/core/tests/sessions_ipc.rs": "a8ded5e905b7261c6d64875c7ac418daf13e45327babec7c96059dbef909b09d"
+      },
+      "not_run": [
+        "Cargo compile/test",
+        "SQLite execution",
+        "real IPC",
+        "browser",
+        "macOS",
+        "CI"
+      ]
+    }
+  },
+  "runtime_status": "not_run",
+  "independent_review": "pending",
+  "root_next": [
+    "compile new Integration approval tests",
+    "all 58 sessions actual IPC tests",
+    "relevant full Core/Integration/native regressions"
+  ],
+  "requirement_ids": [
+    "AB-SEC-001",
+    "AB-SEC-007"
+  ]
+}

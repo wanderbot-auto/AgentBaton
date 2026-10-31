@@ -3167,10 +3167,12 @@ impl Daemon {
             }
             "approvals.finalize" => {
                 let p: ProposalId = params(request.params)?;
-                let proposal = self.store.integration_proposal_record(&p.proposal_id)?;
-                if proposal.kind != "integration" {
+                let Some(_proposal) = self
+                    .store
+                    .integration_proposal_for_request(&p.proposal_id)?
+                else {
                     return Ok(None);
-                }
+                };
                 let revision = request.expected_revision.ok_or_else(invalid)?;
                 if self
                     .store

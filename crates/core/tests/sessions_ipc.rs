@@ -4300,6 +4300,10 @@ fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_wit
     for (name, sql) in cases {
         let path = f.root.join(format!("tampered-{name}.sqlite3"));
         std::fs::copy(&frozen, &path).unwrap();
+        // Exercise the original history guards after a valid startup. Current
+        // schema17 also rejects mismatched Task bindings during a cold open;
+        // that separate boundary must not hide these four read/replay checks.
+        let mut store = agentbaton_core::storage::Store::open(&path).unwrap();
         let db = rusqlite::Connection::open(&path).unwrap();
         if name == "task-project" {
             db.execute(
@@ -4320,34 +4324,69 @@ fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_wit
             .try_into()
             .unwrap();
         drop(db);
-        let mut store = agentbaton_core::storage::Store::open(&path).unwrap();
-        assert!(
-            store.get(task_id).is_err(),
-            "{name}: generic accepted read borrowed damaged evidence"
-        );
-        assert!(
-            store.list().is_err(),
-            "{name}: list borrowed damaged accepted evidence"
-        );
-        assert!(
-            store.goal_graph_details(run_id).is_err(),
-            "{name}: Graph accepted read borrowed damaged evidence"
-        );
-        assert!(
-            store
-                .finalize_proposal(
-                    proposal["id"].as_str().unwrap(),
-                    proposal["revision"].as_u64().unwrap()
-                )
-                .is_err(),
-            "{name}: historical finalize borrowed damaged result/evidence"
-        );
-        assert_eq!(
-            store.sequence().unwrap(),
-            seq,
-            "{name}: rejection created events"
-        );
-        eprintln!("ACCEPTED_HISTORY_CONTROL {name} refused without mutation");
+        let refused_history = |store: &mut agentbaton_core::storage::Store, boundary: &str| {
+            assert!(
+                store.get(task_id).is_err(),
+                "{name}: generic accepted read borrowed damaged evidence"
+            );
+            assert!(
+                store.list().is_err(),
+                "{name}: list borrowed damaged accepted evidence"
+            );
+            assert!(
+                store.goal_graph_details(run_id).is_err(),
+                "{name}: Graph accepted read borrowed damaged evidence"
+            );
+            assert!(
+                store
+                    .finalize_proposal(
+                        proposal["id"].as_str().unwrap(),
+                        proposal["revision"].as_u64().unwrap()
+                    )
+                    .is_err(),
+                "{name}: historical finalize borrowed damaged result/evidence"
+            );
+            assert_eq!(
+                store.sequence().unwrap(),
+                seq,
+                "{name}: rejection created events"
+            );
+            eprintln!("ACCEPTED_HISTORY_CONTROL {name} {boundary} refused without mutation");
+        };
+        refused_history(&mut store, "already-open");
+        drop(store);
+        if matches!(name, "task-project" | "task-id") {
+            let bytes = std::fs::read(&path).unwrap();
+            let sidecars = ["-wal", "-shm"].map(|suffix| {
+                let sidecar = PathBuf::from(format!("{}{suffix}", path.display()));
+                (sidecar.clone(), std::fs::read(sidecar).ok())
+            });
+            let error = match agentbaton_core::storage::Store::open(&path) {
+                Ok(_) => panic!("{name}: cold open borrowed a mismatched Task binding"),
+                Err(error) => error,
+            };
+            assert_eq!(error.code, "INPUT_CHANGED", "{name}: {error:?}");
+            assert_eq!(error.side_effect_state, "not_started");
+            assert_eq!(
+                error.message,
+                "Integration migration refuses malformed predecessor Task records"
+            );
+            assert_eq!(
+                std::fs::read(&path).unwrap(),
+                bytes,
+                "{name}: cold rejection changed database bytes"
+            );
+            for (sidecar, before) in sidecars {
+                assert_eq!(
+                    std::fs::read(sidecar).ok(),
+                    before,
+                    "{name}: cold rejection changed journal bytes"
+                );
+            }
+        } else {
+            let mut reopened = agentbaton_core::storage::Store::open(&path).unwrap();
+            refused_history(&mut reopened, "cold-open");
+        }
     }
 }
 
