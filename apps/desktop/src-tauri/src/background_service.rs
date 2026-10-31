@@ -272,6 +272,10 @@ mod engine {
         }
         #[cfg(target_os = "macos")]
         fn current(runtime: &Path) -> Result<Self> {
+            #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+            if let Some(resolved) = smoke::resolve(runtime) {
+                return resolved;
+            }
             let (uid, home) = system_home()?;
             if std::env::var_os("HOME").as_deref() != Some(home.as_os_str()) {
                 return Err(Code::HomeMismatch);
@@ -911,6 +915,12 @@ mod engine {
         }
     }
 
+    #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+    pub(crate) mod smoke {
+        use super::*;
+        include!("native_background_service_test/fixture.rs");
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -1389,3 +1399,6 @@ mod engine {
         }
     }
 }
+
+#[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+pub(crate) use engine::smoke;

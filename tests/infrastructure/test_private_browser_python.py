@@ -171,9 +171,12 @@ class PrivateCopies(unittest.TestCase):
             chmod.assert_not_called()
 
 
+from tests.infrastructure import test_background_service_native_smoke_source as BG
+
+
 class ExactWorkflowLayer(unittest.TestCase):
     def test_single_command_inverse_restores_entire_e874_workflow_and_all_old_pins(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text()
+        text=BG.strip_background_native_smoke_layer((ROOT/'.github/workflows/product.yml').read_text())
         old=W.strip_private_browser_python(text)
         self.assertEqual(hashlib.sha256(old.encode()).hexdigest(),'6d82c3f8799925f89b8a13e395356066995680c7d131d10345c2d6e64fd0bc3d')
         self.assertEqual(old,text.replace(W.PRIVATE_BROWSER_PYTHON_AFTER,W.PRIVATE_BROWSER_PYTHON_BEFORE,1))
@@ -181,7 +184,7 @@ class ExactWorkflowLayer(unittest.TestCase):
         W.verify_only_six_historical_target_changes(old)
 
     def test_unknown_command_extra_step_changed_guard_or_outside_edit_cannot_be_hidden(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text()
+        text=BG.strip_background_native_smoke_layer((ROOT/'.github/workflows/product.yml').read_text())
         for before,after in [(W.PRIVATE_BROWSER_PYTHON_AFTER,W.PRIVATE_BROWSER_PYTHON_BEFORE+'          echo unknown\n'),
             ('--output artifacts/browser-venv','--output /global/python'),
             ('--require-hashes','--no-deps'),('contents: read','contents: write'),

@@ -686,6 +686,17 @@ jobs:
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy16-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 scripts/generate-schema16-migration-fixture.py --frozen "$RUNNER_TEMP/agentbaton-legacy16-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy16-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy16-fixture"
+      - name: Actual Native background registration IPC in generated private paths
+        run: |
+          set -euo pipefail
+          # Matching normal17 tools/sidecars; later original steps reuse caches.
+          cargo build --locked --bin batond --bin baton
+          cargo build --release --locked --bin batond --bin baton
+          bash scripts/prepare-desktop-sidecars.sh
+          cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --lib background_service -- --test-threads=1
+          cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-background-service-smoke
+          cp target/debug/batond apps/desktop/src-tauri/target/debug/batond
+          python3 scripts/native-background-service-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-background-service-smoke --daemon target/debug/batond --output artifacts/native-smoke/background-registration
       - name: Core and native host tests
         env:
           # Each fixture owns real Git/SQLite/process work. Keep the original

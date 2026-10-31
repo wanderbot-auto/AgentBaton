@@ -58,3 +58,9 @@ required-features = ["native-smoke"]
 # Test inherits dev; release already optimizes this unchanged SHA-256 library.
 [profile.dev.package.sha2]
 opt-level = 3
+
+# Private generated-tree registration IPC; never enabled in application bundles.
+[[bin]]
+name = "agentbaton-native-background-service-smoke"
+path = "src/bin/native_background_service_smoke.rs"
+required-features = ["native-smoke"]

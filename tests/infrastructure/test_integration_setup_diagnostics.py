@@ -196,9 +196,12 @@ class FiniteSetupProjection(unittest.TestCase):
                 self.assertEqual(E.setup_diagnostic(private, HEAD), UNAVAILABLE)
 
 
+from tests.infrastructure import test_background_service_native_smoke_source as BG
+
+
 class ExactDiagnosticSourceInverse(unittest.TestCase):
     def test_complete_step_restores_exact7ee_and_all_older_whole_workflow_pins(self):
-        text = F.WORKFLOW.read_text()
+        text = BG.strip_background_native_smoke_layer(F.WORKFLOW.read_text())
         self.assertEqual(hashlib.sha256(W.strip_integration_setup_diagnostics(text).encode()).hexdigest(),
             '2571ca962ee7eca8ef0b679b86bd939187d69427d83fce3d5ca18c885fc18d23')
         W.verify_only_six_historical_target_changes(text)
@@ -217,7 +220,7 @@ class ExactDiagnosticSourceInverse(unittest.TestCase):
             self.assertEqual(before[name], after[name])
 
     def test_exact_complete_flagged_step_restores765_driver_before_its_original_inverse(self):
-        text = F.WORKFLOW.read_text()
+        text = BG.strip_background_native_smoke_layer(F.WORKFLOW.read_text())
         flagged = text.replace(W.INTEGRATION_SETUP_NOTIFICATION_ANCHOR,
             W.INTEGRATION_SETUP_NOTIFICATION_FLAG + W.INTEGRATION_SETUP_NOTIFICATION_ANCHOR, 1)
         restored = W.strip_integration_setup_diagnostics(flagged)
@@ -236,7 +239,7 @@ class ExactDiagnosticSourceInverse(unittest.TestCase):
                 W.strip_integration_setup_diagnostics(flagged.replace(old, new, 1))
 
     def test_any_diagnostic_guard_outside_edit_move_missing_duplicate_or_fixture_corruption_refuses(self):
-        text = F.WORKFLOW.read_text()
+        text = BG.strip_background_native_smoke_layer(F.WORKFLOW.read_text())
         changes = [("'exception_kind': None", "'exception_kind': 'unknown'"),
             ("diagnostic['stage'] = 'schema_probe'", "diagnostic['stage'] = 'driver_returned'"),
             ("'traceback_bytes': 0", "'traceback_bytes': True"),

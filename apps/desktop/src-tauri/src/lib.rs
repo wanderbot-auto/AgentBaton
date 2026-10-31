@@ -11,6 +11,8 @@ use std::time::{Duration, Instant};
 mod approval;
 mod background_service;
 mod integration_approval;
+#[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+pub mod native_background_service_test;
 mod native_parent;
 
 // Read-only limits shared with the feature-gated Native test binary. The
@@ -48,6 +50,8 @@ pub mod native_integration_test_view {
 
 struct Runtime {
     directory: PathBuf,
+    #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+    background_mode: background_service::smoke::Mode,
 }
 
 async fn call(runtime: &Runtime, command: Value, connect: bool) -> Result<Value, String> {
@@ -90,11 +94,22 @@ async fn confirm_proposed(
 #[tauri::command]
 async fn background_service_status(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
     let directory = runtime.directory.clone();
-    Ok(
-        tauri::async_runtime::spawn_blocking(move || background_service::status(&directory))
-            .await
-            .unwrap_or_else(|_| background_service::observation_failed()),
-    )
+    #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+    let mode = runtime.background_mode.clone();
+    Ok(tauri::async_runtime::spawn_blocking(move || {
+        #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+        if let background_service::smoke::Mode::Fixture(capability) = mode {
+            return background_service::smoke::invoke(
+                capability,
+                &directory,
+                background_service::smoke::Operation::Status,
+                || background_service::status(&directory),
+            );
+        }
+        background_service::status(&directory)
+    })
+    .await
+    .unwrap_or_else(|_| background_service::observation_failed()))
 }
 #[tauri::command]
 async fn background_service_enable(
@@ -102,7 +117,24 @@ async fn background_service_enable(
     runtime: tauri::State<'_, Runtime>,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
+    #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+    let mode = runtime.background_mode.clone();
     Ok(tauri::async_runtime::spawn_blocking(move || {
+        #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+        if let background_service::smoke::Mode::Fixture(capability) = mode {
+            return background_service::smoke::invoke(
+                capability,
+                &directory,
+                background_service::smoke::Operation::Enable,
+                || {
+                    background_service::change(
+                        window,
+                        directory.clone(),
+                        background_service::Action::Enable,
+                    )
+                },
+            );
+        }
         background_service::change(window, directory, background_service::Action::Enable)
     })
     .await
@@ -114,7 +146,24 @@ async fn background_service_disable(
     runtime: tauri::State<'_, Runtime>,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
+    #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+    let mode = runtime.background_mode.clone();
     Ok(tauri::async_runtime::spawn_blocking(move || {
+        #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+        if let background_service::smoke::Mode::Fixture(capability) = mode {
+            return background_service::smoke::invoke(
+                capability,
+                &directory,
+                background_service::smoke::Operation::Disable,
+                || {
+                    background_service::change(
+                        window,
+                        directory.clone(),
+                        background_service::Action::Disable,
+                    )
+                },
+            );
+        }
         background_service::change(window, directory, background_service::Action::Disable)
     })
     .await
@@ -1981,7 +2030,11 @@ pub fn desktop_builder(directory: PathBuf) -> tauri::Builder<tauri::Wry> {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .on_window_event(native_parent::on_window_event)
-        .manage(Runtime { directory })
+        .manage(Runtime {
+            directory,
+            #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+            background_mode: background_service::smoke::Mode::Production,
+        })
         .invoke_handler(dispatch_production)
 }
 
