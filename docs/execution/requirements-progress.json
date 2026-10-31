@@ -818,8 +818,12 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/background-login-registration/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Supporting next-login registration/settings slice only at bb5c7f935f95139027ff7b2008dcd9db318e833c; active-task survival across UI exit, menu-bar, stop-all/full-exit, sleep/crash recovery and100-repeat lifecycle remain unimplemented or NOT_RUN. Status and verification are unchanged; Linux/mock/browser evidence does not establish D13 acceptance."
+      ]
     },
     {
       "id": "AB-CAP-001",
@@ -6702,17 +6706,37 @@
     {
       "id": "AB-SES-010",
       "work_package": "WP10",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src-tauri/src/background_service.rs",
+        "apps/desktop/src-tauri/src/lib.rs",
+        "apps/desktop/src/BackgroundServiceSettings.tsx",
+        "apps/desktop/src/background-service-api.ts",
+        "apps/desktop/src/background-service-i18n.ts"
+      ],
       "verification": {
-        "unit": "not_run",
+        "unit": "passed",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/background-login-registration/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Partial slice: explicit confirmed/revocable next-login LaunchAgent registration and bilingual settings; default disabled, no launchctl/current daemon/task/Grant action. Native source3dbab9280a59d5ef151f00ddd7bff69c3ffc9e14 and UI21468a5120dd89b6e2f8086087bfe49986781f09 compose as bb5c7f935f95139027ff7b2008dcd9db318e833c.",
+        "Unit passed is limited to Linux generated filesystem Native tests(136 full including19 background cases) and mocked Native transport UI1175/66 files; strict Linux Clippy/type/build pass. Actual macOS branch and actual background settings Tauri IPC remain NOT_RUN.",
+        "Integration/native_arm64/native_x86_64 remain not_run: Linux actual Core17 browser5+4 validates existing integration regression, not the new background commands or OS registration. macOS login activation/revoke, UI-exit task survival, full D13 recovery and dual installers require exact-source acceptance.",
+        "All130 Designv0.2 requirements retained; no effective OS startup/current process state, sleep/crash recovery, full lifecycle or whole-product completion claim."
+      ],
+      "verification_refs": [
+        "apps/desktop/src-tauri/src/background_service.rs::engine::tests",
+        "apps/desktop/src/BackgroundServiceSettings.test.tsx",
+        "apps/desktop/src/background-service-api.test.ts",
+        "apps/desktop/src/QuietCanvas.test.tsx"
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-SES-011",

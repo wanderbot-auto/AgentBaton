@@ -1,0 +1,1246 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T23:14:28.997984+00:00",
+  "design": "v0.2",
+  "approval_id": "AB-START-001",
+  "requirements": [
+    "AB-SES-008",
+    "AB-SES-010"
+  ],
+  "source_head": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+  "source_tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+  "branch": "codex/background-service-native",
+  "repository": "https://github.com/wanderbot-auto/AgentBaton",
+  "cloud_task_url": "unavailable in this execution interface; no invented task launch/Goal state",
+  "source_composition": {
+    "base": "eba81e397dec1d0955d22fbce5ae06ec70d228a8",
+    "native_source": "3dbab9280a59d5ef151f00ddd7bff69c3ffc9e14",
+    "ui_source": "21468a5120dd89b6e2f8086087bfe49986781f09",
+    "whole_tree_proof": {
+      "path": "/workspace/.onboarding/background-service-composition-source-proof2.json",
+      "sha256": "e429f70faa5ed0c3cd76564a4ea7377227f7c8a0583be4eb8c1d351d9a53c8a9"
+    },
+    "unchanged_other_blobs": 2467,
+    "prior_incorrect_proof": {
+      "path": "/workspace/.onboarding/background-service-composition-source-proof1.json",
+      "sha256": "5c379fd564d7126205ae4ff5452e6ca2a0f6f5c0f2d730491e3b5a0e54798f71"
+    },
+    "erratum": "Prior proof1 incorrectly reported 2461 unchanged blobs by subtracting all11 feature paths, including6 new paths. Retain it; proof2 verifies2478 total,2472 base,5 overwritten,6 new,2467 unchanged.",
+    "independent_source_review": {
+      "path": "/tmp/background-service-composition-independent-review/REVIEW.json",
+      "sha256": "16d4c47b704603f71c83ef160a0dbc4975194ea3437f82956ac9aaa3ab30b5a4"
+    },
+    "independent_source_review_decision": "SOURCE_READY",
+    "independent_source_review_checks": 93,
+    "review_scope": "Source composition readiness, not all platform acceptance or this new metadata review."
+  },
+  "actual_results": [
+    {
+      "directory": "/workspace/.onboarding/background-service-composed-infrastructure1",
+      "dimension": "Python infrastructure/negative synthetic fixtures; not product platform acceptance",
+      "result_sha256": "a0aa2029b15e3f02c9e247349c90dea960ce3a57c4794c6aca9d423546fdad1e",
+      "inputs_sha256": "a5abcdd0741bab786afce821210147c7b7f69b42d314cf43952fe5d007737ab4",
+      "tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+      "result": {
+        "source": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 20.253967875032686,
+        "minimum_free_bytes": 723300352,
+        "interruption": null,
+        "log_sha256": "9ca912377bc2c6c81f5707a472bde599e04544b950c502fdd743b68265e69af3",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 715
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-composed-typecheck1",
+      "dimension": "TypeScript static typecheck",
+      "result_sha256": "ed307cb6c188c4182856a1cb91ecd9f3738336b1e356db660e37f04eba2981e1",
+      "inputs_sha256": "06640129cad67f9056a018cf854aaa4dd7943df9ab30d03cbd92087a8a0c993e",
+      "tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+      "result": {
+        "source": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "typecheck"
+        ],
+        "exit": 0,
+        "seconds": 1.2139990139985457,
+        "minimum_free_bytes": 723283968,
+        "interruption": null,
+        "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-composed-ui1",
+      "dimension": "Linux mocked Native transport component/UI tests; not actual Tauri invocation",
+      "result_sha256": "baee5d4dd3e5fef30f0d8d18f45065273a86f65a44f3719ead30428de7d7943d",
+      "inputs_sha256": "896a287e8ccc7908ec1405b2287e2a74e6bd9cfaa731eb7b3aafb4a8fc001a47",
+      "tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+      "result": {
+        "source": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "test"
+        ],
+        "exit": 0,
+        "seconds": 48.107490641996264,
+        "minimum_free_bytes": 715698176,
+        "interruption": null,
+        "log_sha256": "cb4ad7f0de46e2f27f9edc5cfb64115decdfa1f127b8ca19d0aea22d09765d54",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 1175
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-composed-frontend-build1",
+      "dimension": "Production React build only",
+      "result_sha256": "338e45e0188bccd3ae4cb1187a2bd2ff0b383e103a5fa405cd946f0de95afb77",
+      "inputs_sha256": "82cdd293d4172ff35b3822c64e12f669b1ee7d13d6565007008f83e09c7e5946",
+      "tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+      "result": {
+        "source": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.6055262130103074,
+        "minimum_free_bytes": 715681792,
+        "interruption": null,
+        "log_sha256": "a1d11bcaf0771fbd9e3671d564703b499d0ecc950f432f7fefeef60768913f3a",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-composed-native-full1",
+      "dimension": "Linux Rust Native library tests; generated filesystem fixture tests and unsupported OS branch, not macOS production branch",
+      "result_sha256": "8d2a49c2ff01ed0fd78420a1d3b71204044eaadbddc19417d84a1cabc184add5",
+      "inputs_sha256": "885347a8255055e2ac5cf5d7e070118d784be031ff0ff3c9d0a80b10c24440ee",
+      "tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+      "result": {
+        "source": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-closed-shot-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 26.323608203034382,
+        "minimum_free_bytes": 670416896,
+        "interruption": null,
+        "log_sha256": "b8ce684ac92ae2a02a67ec867785f5ab7687e5fcecc1b7b1c5b24427ce8d4770",
+        "summaries": [
+          "test result: ok. 136 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.50s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 136
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-composed-native-clippy1",
+      "dimension": "Linux Native all-targets strict Clippy; not macOS typecheck",
+      "result_sha256": "16c08f5c22e3b654d2adf4a78c0794c987e0e9d46255ad4382fe67bb7c8a4efe",
+      "inputs_sha256": "b802ba14e3c8aa7d6e48978360fb181a178484bee3a1023090472641bcf9a7a5",
+      "tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+      "result": {
+        "source": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-closed-shot-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 13.440667764982209,
+        "minimum_free_bytes": 670433280,
+        "interruption": null,
+        "log_sha256": "388e9b05b3b5fc5f12981f96829a3845bed6ce506245bb6faf0ea12d30b9f1e1",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-composed-normal-build2",
+      "dimension": "Normal Linux Core17 daemon/CLI build, default features; not macOS installer",
+      "result_sha256": "4c07c7756c97de2e9b3d938e91e901bca9a92acdfbc6bd650d71aaed83ae301c",
+      "inputs_sha256": "76c771321c55e2b659078ddec5aa3ae1304733090590dcfc1c11cfd78de64b13",
+      "tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+      "result": {
+        "source": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 20.063585650001187,
+        "minimum_free_bytes": 715530240,
+        "interruption": null,
+        "log_sha256": "71194d9ead4ec1db8c9e84df008e365fbe495216058aa4308f6e335b6ea1ce99",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-composed-normal-freeze1",
+      "dimension": "Normal tool immutable freeze and empty schema17 actual Unix IPC/read-only probe",
+      "result_sha256": "57cc4969ecd631414f9cc376601e79e7265f24314454eae6055ee8529da1e12a",
+      "inputs_sha256": "48c0458af5af401ba7aaa0e561f4a6714bab8efaac7ffcbc58c68cbe014e5a1a",
+      "tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+      "result": {
+        "source": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/background-service-composed-normal-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/background-service-composed-normal-freeze-evidence1"
+        ],
+        "exit": 0,
+        "seconds": 0.40137474797666073,
+        "minimum_free_bytes": 670756864,
+        "interruption": null,
+        "log_sha256": "3c5b7b7d8060582c3dc74dbd76f93f4f18415e35c86683d2df5073df1118b03a",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-composed-browser1",
+      "dimension": "Linux built React/Chromium finite test bridge + actual Core17 Unix IPC + generated ACP/private trusted test host; integration regression only",
+      "result_sha256": "765dcac1854549cf341461dc73221c0d43c90d92bccbaaadea1a556b7dc85ecb",
+      "inputs_sha256": "be1afdb7b274805f43cddabf70b23649f823dd0cb2f397eba78af23000e0d8be",
+      "tree": "1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f",
+      "result": {
+        "source": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/background-service-composed-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/background-service-composed-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/background-service-composed-normal-frozen1/baton",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/integration-real-ipc.py",
+          "--run",
+          "--case",
+          "all",
+          "--batond",
+          "/workspace/.onboarding/background-service-composed-normal-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/background-service-composed-candidate1.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/background-service-composed-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+          "--chromium",
+          "/workspace/.onboarding/root29-owned-chromium-runtime1/chromium",
+          "--output",
+          "/workspace/.onboarding/background-service-composed-browser1-private"
+        ],
+        "exit": 0,
+        "seconds": 24.173411311989184,
+        "minimum_free_bytes": 667230208,
+        "interruption": null,
+        "log_sha256": "a412fbcb4e0552ce74fe4fddadb7e7354f107dc8b6787568167cb9076de4e61d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 9
+    }
+  ],
+  "normal_tools": {
+    "candidate_manifest": {
+      "path": "/workspace/.onboarding/background-service-composed-candidate1.json",
+      "sha256": "5296dd48299f77edd1a3dbc2a60ded402b8ad45833b48fb1eb0ef8cf9ab3a747"
+    },
+    "frozen_manifest": {
+      "path": "/workspace/.onboarding/background-service-composed-normal-frozen1/manifest.json",
+      "sha256": "14aa64ede9f065dc0e6de1c1f369b6ab795d371fd780c7dab0005154471d7912"
+    },
+    "binaries": {
+      "batond": "9d19b582e06d9c26149d91ca61158d34d59e597987d90c38b45594addc5f2607",
+      "baton": "a8c5f7084a53bbc003ae807f66a29091dd3ffe70f6dc252a975c183e01f79209"
+    },
+    "schema": 17,
+    "probe": {
+      "schema": 17,
+      "query_only": true,
+      "sequence": 0,
+      "zero_tables": {
+        "factory_scopes": 0,
+        "factory_runs": 0,
+        "factory_task_lineage": 0,
+        "factory_delegations": 0,
+        "factory_task_bindings": 0,
+        "factory_attempts": 0,
+        "factory_scoped_handles": 0,
+        "factory_handoffs": 0,
+        "factory_budget_reservations": 0,
+        "factory_child_plan_heads": 0,
+        "factory_child_plan_revisions": 0,
+        "factory_child_goal_runs": 0,
+        "integration_policies": 0,
+        "integrations": 0,
+        "integration_attempts": 0,
+        "integration_ref_fences": 0
+      },
+      "runtime_mode": "0o700",
+      "socket_utf8_bytes": 30,
+      "snapshot_api_version": 1,
+      "snapshot_sequence": 0,
+      "cli_snapshot_exit": 0,
+      "original_daemon_SIGTERM_wait_exit": 0,
+      "sigterm_sent": true,
+      "forced_kill": false
+    },
+    "probe_cleanup": {
+      "path": "/workspace/.onboarding/background-service-composed-normal-freeze-evidence1/probe-cleanup.json",
+      "sha256": "46c4d9cd85195127d08acfc0426a9b50f0655bb07c131bff60cfe3f4b34eb601"
+    },
+    "dimension": "Same-checkout normal product tools; empty private Unix IPC/read-only SQLite probe; no Provider or native GUI"
+  },
+  "integration_browser_regression": [
+    {
+      "case": "normal",
+      "report": {
+        "path": "/workspace/.onboarding/background-service-composed-browser1-private/normal/report.json",
+        "sha256": "5884f1d97575480ff333304cc9d463d1c5f0f4c7f07414f0ad93f3b50753e028"
+      },
+      "status": "passed",
+      "dimension": "Linux built React/Chromium + finite TEST bridge + actual Core17 Unix IPC + generated ACP + private trusted test host",
+      "checks": [
+        {
+          "name": "real managed Task/Graph before Task acceptance; visible new5s draft; optional original Command selected",
+          "status": "passed"
+        },
+        {
+          "name": "actual Core RESOURCE_LIMIT for oversized default output; no target/fence/policy/run/attempt authority",
+          "status": "passed"
+        },
+        {
+          "name": "complete real pending proposal and consumed receipt matched outside HTTP before TaskAccepted",
+          "status": "passed",
+          "proposal_sha256": "b93542193d2d99fabbc01742e215086b149c4b8b23212ea55c161d7845cb083a",
+          "snapshot_sha256": "45aae17192e3fc4a230ed669d5140809e333a9df141614d9dd77266b7b10736d",
+          "proposal_bytes": 12482,
+          "snapshot_bytes": 12299,
+          "whole_response_bytes": 12573,
+          "whole_response_sha256": "45370676ba821dcf83e0ccc9a5cba253c4a9ac6c1aaa03ea6b08e827b49d45a8"
+        },
+        {
+          "name": "actual watcher fresh merged Command/owned stop/join/shared fees/source preservation and exact local ref result",
+          "status": "passed",
+          "state": "confirmed_local_ref",
+          "stages": 3,
+          "command_exit": 0,
+          "cas_attempts": 1,
+          "source_and_index_unchanged": true,
+          "original_command_unchanged": true,
+          "actual_owned_reap_and_join": true,
+          "shared_runtime_ms": 3078,
+          "shared_output_bytes": 364,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        {
+          "name": "actual built component displays separate Task/integration result and real receipt; desktop/mobile screenshots",
+          "status": "passed"
+        }
+      ],
+      "screenshots": [
+        {
+          "name": "task-pending-before-acceptance",
+          "sha256": "9ef114d57280000c521d7209b2e0375f915b2d4e00236a6bf61a31f8a4978cf3",
+          "bytes": 135504,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 340,
+            "y": 539.390625,
+            "width": 740,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "permission-before-task-acceptance",
+          "sha256": "1ef98c49b92aeff206fae6d6578c9fb98b23c35a8ea0a892db65dc350332e03d",
+          "bytes": 147085,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 340,
+            "y": 708.28125,
+            "width": 740,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-state-desktop",
+          "sha256": "e2108c98ce350f2dfcee9bc45cf742b2ad1e80bf0877d60bfa1193e52816bffa",
+          "bytes": 138688,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 537.546875,
+            "y": 279.171875,
+            "width": 542.453125,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-receipt-desktop",
+          "sha256": "e2108c98ce350f2dfcee9bc45cf742b2ad1e80bf0877d60bfa1193e52816bffa",
+          "bytes": 138688,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 726.03125,
+            "y": 800.171875,
+            "width": 353.96875,
+            "height": 42
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-state-mobile",
+          "sha256": "77021039dfad4b3ee1b59a4caa305f6f9593c7d742beacd1f726c42d9846e3f9",
+          "bytes": 52619,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "focus_box_before_capture_observation": {
+            "x": 16,
+            "y": 337.453125,
+            "width": 358,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-receipt-mobile",
+          "sha256": "be785ff6de1d4a80c9fb768fa4ca510a0080af500fced231733b3592514da954",
+          "bytes": 57407,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "focus_box_before_capture_observation": {
+            "x": 16,
+            "y": 337.453125,
+            "width": 358,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        }
+      ],
+      "cleanup": {
+        "pending_reviews_stopped": true,
+        "browser_closed": true,
+        "playwright_stopped": true,
+        "http_shutdown": true,
+        "http_thread_joined": true,
+        "daemon_joined": {
+          "exit": 0,
+          "joined": true,
+          "forced_kill": false
+        },
+        "private_transcript_saved": true,
+        "tools_assets_unchanged": true,
+        "fixture_removed": true
+      },
+      "candidate_manifest_sha256": "5296dd48299f77edd1a3dbc2a60ded402b8ad45833b48fb1eb0ef8cf9ab3a747",
+      "driver_sha256": "76f2915296d2aa2ac164b67bb221775dcea734e1efa8e694789138784bd5de92",
+      "not_claimed": [
+        "production Tauri Native formatter",
+        "OS dialog",
+        "macOS",
+        "live Provider/model",
+        "OS sandbox",
+        "whole-filesystem output quota",
+        "complete failure matrix",
+        "whole product completion"
+      ]
+    },
+    {
+      "case": "command_exit7",
+      "report": {
+        "path": "/workspace/.onboarding/background-service-composed-browser1-private/command-failure/report.json",
+        "sha256": "6d74ab9484e8bd22ab31e2cfa74e249e499cb7ed44bf9133689932a15a000010"
+      },
+      "status": "passed",
+      "dimension": "Linux built React/Chromium + finite TEST bridge + actual Core17 Unix IPC + generated ACP + private trusted test host",
+      "checks": [
+        {
+          "name": "real managed Task/Graph before Task acceptance; visible new5s draft; optional original Command selected",
+          "status": "passed"
+        },
+        {
+          "name": "complete real pending proposal and consumed receipt matched outside HTTP before TaskAccepted",
+          "status": "passed",
+          "proposal_sha256": "c894cbd43837c3fcb87a24fb919178755d46e65feca5a80ae1216be8c9134491",
+          "snapshot_sha256": "b73352fd9f65b4e9efe7d32c723b693b4716e3e63f1b2766a5c0a8698ff07e92",
+          "proposal_bytes": 12545,
+          "snapshot_bytes": 12361,
+          "whole_response_bytes": 12636,
+          "whole_response_sha256": "5378d2c247833b124a03871b784b42a78451b19d551308a52cffebdc44703666"
+        },
+        {
+          "name": "actual watcher fresh merged Command/owned stop/join/shared fees/source preservation and exact local ref result",
+          "status": "passed",
+          "state": "failed",
+          "stages": 2,
+          "command_exit": 7,
+          "cas_attempts": 0,
+          "source_and_index_unchanged": true,
+          "original_command_unchanged": true,
+          "actual_owned_reap_and_join": true,
+          "shared_runtime_ms": 2258,
+          "shared_output_bytes": 50,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        {
+          "name": "actual built component displays separate Task/integration result and real receipt; desktop/mobile screenshots",
+          "status": "passed"
+        }
+      ],
+      "screenshots": [
+        {
+          "name": "task-pending-before-acceptance",
+          "sha256": "8f6bdec29ad4db34d0077129fab6725c6f89b1dff2cf563e0462dea25f383d53",
+          "bytes": 135253,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 340,
+            "y": 539.390625,
+            "width": 740,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "permission-before-task-acceptance",
+          "sha256": "f81ee22ca74378d904b4be3ab9cbb60e7064fe80b78aa1a100bbf442d6566808",
+          "bytes": 147242,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 340,
+            "y": 708.28125,
+            "width": 740,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-state-desktop",
+          "sha256": "d26c7e082370a8e529d376d16a93acee5e92d556e130d0b378a3cb8bd69732bc",
+          "bytes": 141447,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 537.546875,
+            "y": 244.171875,
+            "width": 542.453125,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-receipt-desktop",
+          "sha256": "0cb8b05963c51b29fbb723ac9cf33c05c5b521cc2620ecd8ca45f3aee8353a59",
+          "bytes": 142229,
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          },
+          "focus_box_before_capture_observation": {
+            "x": 735.265625,
+            "y": 800.171875,
+            "width": 344.734375,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-state-mobile",
+          "sha256": "85e4968d7405d73a003ca8087fc99a52fb48511c6eb4b76fa57f8a8daff8cbd3",
+          "bytes": 52028,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "focus_box_before_capture_observation": {
+            "x": 16,
+            "y": 337.453125,
+            "width": 358,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        },
+        {
+          "name": "terminal-receipt-mobile",
+          "sha256": "b5a5252b463afd0b22fbb243c3ad8de6bdb631545ced2c408e7dd02b4b66b891",
+          "bytes": 61420,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "focus_box_before_capture_observation": {
+            "x": 16,
+            "y": 337.453125,
+            "width": 358,
+            "height": 21
+          },
+          "focus_viewport_asserted_before_capture": true,
+          "pixel_synchronized": false,
+          "dimension": "Linux Chromium only"
+        }
+      ],
+      "cleanup": {
+        "pending_reviews_stopped": true,
+        "browser_closed": true,
+        "playwright_stopped": true,
+        "http_shutdown": true,
+        "http_thread_joined": true,
+        "daemon_joined": {
+          "exit": 0,
+          "joined": true,
+          "forced_kill": false
+        },
+        "private_transcript_saved": true,
+        "tools_assets_unchanged": true,
+        "fixture_removed": true
+      },
+      "candidate_manifest_sha256": "5296dd48299f77edd1a3dbc2a60ded402b8ad45833b48fb1eb0ef8cf9ab3a747",
+      "driver_sha256": "76f2915296d2aa2ac164b67bb221775dcea734e1efa8e694789138784bd5de92",
+      "not_claimed": [
+        "production Tauri Native formatter",
+        "OS dialog",
+        "macOS",
+        "live Provider/model",
+        "OS sandbox",
+        "whole-filesystem output quota",
+        "complete failure matrix",
+        "whole product completion"
+      ]
+    }
+  ],
+  "retained_history": [
+    {
+      "directory": "/workspace/.onboarding/background-service-ui-focused1",
+      "dimension": "Mock UI contract tests before BG-UI-001 parser tightening; not current acceptance",
+      "result_sha256": "921ba736f0b4e67809e1c76170b37bb8e09c67113bb45e3ded8fa0eda70afd63",
+      "inputs_sha256": "02b2e3927bed72bbee3df0752db1b06129160397646efa317f821c6c3b27b449",
+      "tree": "0e7c92797b0935afac50abdef6511be997e199c1",
+      "result": {
+        "source": "ccbb81f618ee3b8b4ad8f4673bd12ac5e6b0aa91",
+        "root": "/workspace/.worktrees/background-service-ui",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "test",
+          "--",
+          "BackgroundServiceSettings.test.tsx",
+          "background-service-api.test.ts"
+        ],
+        "exit": 0,
+        "seconds": 1.908561794029083,
+        "minimum_free_bytes": 752062464,
+        "interruption": null,
+        "log_sha256": "f4dcaf0ab6c6e2799b8b1748ea995c31ae9949d348c363d1716fe996f0c82f6d",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 27
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-ui-typecheck1",
+      "dimension": "Initial UI TypeScript check before later fixes",
+      "result_sha256": "e26026f909d55c1332059b14312de3359f2b2b498955752ffbcd8c7f6dffaf97",
+      "inputs_sha256": "44843fb5cfa31fed0b6f4cedfcb2609e19773213429f1e8405c474017a892a40",
+      "tree": "0e7c92797b0935afac50abdef6511be997e199c1",
+      "result": {
+        "source": "ccbb81f618ee3b8b4ad8f4673bd12ac5e6b0aa91",
+        "root": "/workspace/.worktrees/background-service-ui",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "typecheck"
+        ],
+        "exit": 0,
+        "seconds": 1.3085888469940983,
+        "minimum_free_bytes": 752230400,
+        "interruption": null,
+        "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-ui-typecheck2",
+      "dimension": "Intermediate UI TypeScript check; full focus regression still failed",
+      "result_sha256": "ee0c9026fa16fcbab7248e4843272c1f3c9d46289bd2b68226a2bb671a759dd1",
+      "inputs_sha256": "04bd13667d79f1279b2be848c7c3755cdba12259707c5d6e4e70ff052159e1c9",
+      "tree": "0f8bd2129cd4ff22602b1bdad9387ea245194c9d",
+      "result": {
+        "source": "18f475f03bac1f3e96bd5d5a36573cd8ec413f34",
+        "root": "/workspace/.worktrees/background-service-ui",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "typecheck"
+        ],
+        "exit": 0,
+        "seconds": 1.7075014289584942,
+        "minimum_free_bytes": 750587904,
+        "interruption": null,
+        "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-ui-full-ui1",
+      "dimension": "1174 passed / 1 failed: settings ShiftTab expected Connection, legitimate closed Background summary now follows it",
+      "result_sha256": "07caa6916c2d71fa6c8339c73a109c9525553636e7f21d1cffeb108c053e6211",
+      "inputs_sha256": "10defc02fccf65f9bb2cf35c7205bd90455bb8cc8412815aebf29cfcb9c70eff",
+      "tree": "0f8bd2129cd4ff22602b1bdad9387ea245194c9d",
+      "result": {
+        "source": "18f475f03bac1f3e96bd5d5a36573cd8ec413f34",
+        "root": "/workspace/.worktrees/background-service-ui",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "test"
+        ],
+        "exit": 1,
+        "seconds": 50.242488819989376,
+        "minimum_free_bytes": 742719488,
+        "interruption": null,
+        "log_sha256": "7a1a9a0b5db304977dc81faeb6a68bcef208b541b60eebb0da9d38411b0ba9a2",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 1175
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-ui-typecheck3",
+      "dimension": "Corrected UI TypeScript",
+      "result_sha256": "e947fcd21b8f9b646a5ed00cc8d078c0ed1fcc5aeede4409e015c95cd00694ce",
+      "inputs_sha256": "ebae6334044c7da8f3fcf3a5b7914442ddaaa65be7bf5f580118d58f5b5ccac3",
+      "tree": "11bb1f9bc35cabeab34d0db641411c83798826c3",
+      "result": {
+        "source": "21468a5120dd89b6e2f8086087bfe49986781f09",
+        "root": "/workspace/.worktrees/background-service-ui",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "typecheck"
+        ],
+        "exit": 0,
+        "seconds": 1.106867650989443,
+        "minimum_free_bytes": 729395200,
+        "interruption": null,
+        "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-ui-full-ui2",
+      "dimension": "Corrected UI mock transport regression: 1175 tests / 66 files passed",
+      "result_sha256": "8b1b5499f1e4a5d992bc62e2c1d9eacb9a0ce4e973d6a69a4b69388522f87e13",
+      "inputs_sha256": "231603c1c2dd99b52c17a8c0d1c664c68c75da37f8cf5113abb3b32d2182f99d",
+      "tree": "11bb1f9bc35cabeab34d0db641411c83798826c3",
+      "result": {
+        "source": "21468a5120dd89b6e2f8086087bfe49986781f09",
+        "root": "/workspace/.worktrees/background-service-ui",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "test"
+        ],
+        "exit": 0,
+        "seconds": 47.73474016599357,
+        "minimum_free_bytes": 729247744,
+        "interruption": null,
+        "log_sha256": "3edcf516adf943b579932978c49d4a004673a1b61304940e5f1aeff9c35663bd",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 1175
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-ui-frontend-build2",
+      "dimension": "Corrected UI React build",
+      "result_sha256": "a25684f32f1a3a6efa49b00795f805639f9d2ec28429eb3cde715dddbbbdc6c3",
+      "inputs_sha256": "d40cf4a451ceacfee2d0562bd429a8e4d8374090f43852becf2814805a633f58",
+      "tree": "11bb1f9bc35cabeab34d0db641411c83798826c3",
+      "result": {
+        "source": "21468a5120dd89b6e2f8086087bfe49986781f09",
+        "root": "/workspace/.worktrees/background-service-ui",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.612445664999541,
+        "minimum_free_bytes": 728449024,
+        "interruption": null,
+        "log_sha256": "0763bc6a3a385125c5e3eae8ee905d88874ff629054bf4945c68ca4522fab8f7",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-native-linux-focused1",
+      "dimension": "Exit101 at Tauri resource preparation: ignored sidecars absent; no type/test result; later static Result macro repair is not a reproduced compiler failure here",
+      "result_sha256": "73fb2c3a48148577d5050d7239ea432a42fb055e7758934d4485a5b108f14d9a",
+      "inputs_sha256": "13fe2ca48003c8c6ff2b10b48fcce28cd964aca393cab61d930002fa0527ae3a",
+      "tree": "08f493308a208617885c8f2ea35947522b9256ed",
+      "result": {
+        "source": "9e92fdbb99c05a658003ebcd728ac2e2d7b54ecf",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--lib",
+          "background_service::engine::tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 101,
+        "seconds": 4.0152688740054145,
+        "minimum_free_bytes": 723255296,
+        "interruption": null,
+        "log_sha256": "91cf15d2cc1d9a390ac0261b89a6dc94a9dd0f53bfabdecea1a4f51d5dcef50c",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-native-linux-focused2",
+      "dimension": "Actual compile succeeded, then 2 passed / 12 failed at generated fixture inspect OwnershipConflict; nobody-owned world-writable /tmp was correctly refused",
+      "result_sha256": "b2f964155d8cc5cba521312ef687aface46a35051e613ef39c96cb93bed558e8",
+      "inputs_sha256": "14c04e0606c7a5e0abbbf04232941b0e3199499f83110f9dd97d9f4611751420",
+      "tree": "dec1e96d753dd83634dfb74048be48aaf38490d4",
+      "result": {
+        "source": "ac5acbfa205400b1e920021be240cebac8d26cc3",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-closed-shot-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--lib",
+          "background_service::engine::tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 101,
+        "seconds": 24.572512793005444,
+        "minimum_free_bytes": 682233856,
+        "interruption": null,
+        "log_sha256": "7f5a4b32d1a5892c6b1234406e34dbb959df607ce1dda06c1cdf1dca9b04683c",
+        "summaries": [
+          "test result: FAILED. 2 passed; 12 failed; 0 ignored; 0 measured; 117 filtered out; finished in 0.00s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 14
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-native-linux-focused3",
+      "dimension": "Corrected fixture/runtime/XML: 19 generated filesystem tests passed on Linux",
+      "result_sha256": "5e2695510c281fab1883b2d7df17b7b860e1410392823c045e31a1be86065aa8",
+      "inputs_sha256": "bf0a752202ac5ddf98d91fdcf81f2c62d72692b4cc930cb026c49fc4177de92b",
+      "tree": "2739f0fd0339742fa4269caaa40e732c0b71b5a6",
+      "result": {
+        "source": "53ab5c2412eeef5028442ed00bbcdd058b79a221",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-closed-shot-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--lib",
+          "background_service::engine::tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 26.185661251016427,
+        "minimum_free_bytes": 681795584,
+        "interruption": null,
+        "log_sha256": "8099d9eff5716155d48b62ebe1c7956ebc8219d74ff18435bc65256d76b479fa",
+        "summaries": [
+          "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 117 filtered out; finished in 0.08s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 19
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-native-linux-full1",
+      "dimension": "136 full Native library tests passed on Linux",
+      "result_sha256": "029f16ba9ea5230c98872ec7d7af8a216dd89ca9d936e9ba0e01936ab1acff10",
+      "inputs_sha256": "b85369d23e9127f810afec976941b60e2d897f068868d869bce1787afa62fcef",
+      "tree": "2739f0fd0339742fa4269caaa40e732c0b71b5a6",
+      "result": {
+        "source": "53ab5c2412eeef5028442ed00bbcdd058b79a221",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-closed-shot-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 26.98691241699271,
+        "minimum_free_bytes": 681689088,
+        "interruption": null,
+        "log_sha256": "11b29bd37e735b79b5e4171695d4b846b46d775da7f47672a84ea3fc7ae2d483",
+        "summaries": [
+          "test result: ok. 136 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.42s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "test_count": 136
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-native-linux-clippy1",
+      "dimension": "Strict Clippy failed solely type_complexity; tests were not erased or weakened",
+      "result_sha256": "d958eacbd4b7132fc77272d02fd01c104d1caeaffe35f72bd61d6c3c812fb6fb",
+      "inputs_sha256": "11a44017023a5d05d25c3bce1a1716783788bdc48e8eb074db7b94ff26f8092d",
+      "tree": "2739f0fd0339742fa4269caaa40e732c0b71b5a6",
+      "result": {
+        "source": "53ab5c2412eeef5028442ed00bbcdd058b79a221",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-closed-shot-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 101,
+        "seconds": 13.737233709020074,
+        "minimum_free_bytes": 681562112,
+        "interruption": null,
+        "log_sha256": "d252b23ab4faa19d08c37261834e56e60f3f09d96db3cdf56ee566d7d3f94428",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "directory": "/workspace/.onboarding/background-service-native-linux-clippy2",
+      "dimension": "Private exact type aliases; strict Linux Native Clippy passed",
+      "result_sha256": "54f0f3a7c5a2a2b66a68e99ccca8ce3dc7d50e4668966d791502b83b35c00a2a",
+      "inputs_sha256": "99b69cf6ee7e4406e326c63706a5a03cddc2f8ca91850dffbc1deaae26ccf409",
+      "tree": "42f538b41a9d32d86634c301089c32935e181e17",
+      "result": {
+        "source": "3dbab9280a59d5ef151f00ddd7bff69c3ffc9e14",
+        "root": "/workspace/.worktrees/background-service-native",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+          "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+          "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-closed-shot-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-closed-shot-normal-frozen1/baton",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 13.441036631003954,
+        "minimum_free_bytes": 681463808,
+        "interruption": null,
+        "log_sha256": "2bda7a4af04a9c3b5979c84a2a8522b4503eadecece2a5068f4e0de1c00b15f0",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    }
+  ],
+  "prelaunch_block": {
+    "record": {
+      "path": "/workspace/.onboarding/background-service-composed-normal-build1/BLOCKED_PRELAUNCH.json",
+      "sha256": "392789f57a6d4397977c9d7c87a7c3a3042e97302a86f85d358a4e37a6b8fcb2"
+    },
+    "status": "PRELAUNCH_BLOCKED_NO_CARGO_STARTED",
+    "explanation": "Submitting shell omitted set -e after dependent Native resource guard. Parent exclusively reserved the known empty runner output; runner failed FileExists before Cargo/source/target operations. Not a product build failure or success. Only normal-build2 actually ran and passed."
+  },
+  "native_compile_resource_guard": {
+    "result": {
+      "path": "/workspace/.onboarding/background-service-composed-native-resource-guard1/RESULT.json",
+      "sha256": "d3358d933d81ede743d89446485b2ef5d4809992c0b8fb93f575061879a008d2"
+    },
+    "actual": {
+      "head": "bb5c7f935f95139027ff7b2008dcd9db318e833c",
+      "exit": 0,
+      "original_inode_mode_nlink_sha_restored": true,
+      "sidecar_links_removed": true,
+      "source_unchanged": true,
+      "frozen_unchanged": true,
+      "dimension": "Linux compile/temporary FS tests only; ignored same-source compile resources retained"
+    },
+    "limits": "Temporary ignored compile resources only; original shared-normal inode/mode/nlink/SHA restored and sidecar links removed. Does not prove packaged macOS sidecars."
+  },
+  "implemented_slice": [
+    "Three fixed no-renderer-argument typed Native commands; closed nine-key response; unsupported outside macOS",
+    "Existing Native caller physical confirmation and fresh post-confirmation compare before writes; no operation silently grants execution",
+    "Explicit next-login per-user LaunchAgent only, RunAtLoad=true/KeepAlive=false; no launchctl, current daemon control, dispatch or Grant/DB changes",
+    "Default runtime must already exist, be private and pass nofollow/owner/ancestor checks; identity participates in precommit CAS and postwrite reconciliation",
+    "Fixed bundle sibling batond, passwd/euid home compared with HOME; custom runtime/installation changes/unknown content refuse",
+    "Private owner receipt and no-clobber full plist installation/revocation; partial/unknown preserved with manual refresh and no automatic replay",
+    "Bilingual settings, strict no-argument typed transport, finite matrix parser, unknown cross-remount handling and closed-details keyboard focus"
+  ],
+  "not_run_or_unfinished": [
+    "Actual background_service_status/enable/disable Tauri invocation, Native parent confirmation and UI settings command integration",
+    "macOS arm64 and x86_64 compilation and private filesystem behavior for this candidate",
+    "Actual per-user LaunchAgent registration, explicit Native confirmation, next-login daemon launch and revocation in macOS",
+    "OS effective login-start state; current_daemon_action remains none, effective_login_start remains not_observed",
+    "Active authorized tasks survive UI window close/UI process exit",
+    "Menu-bar status, explicit stop-all and complete-exit lifecycle",
+    "Sleep/wake, disconnect/crash recovery, pre-existing single-writer reconciliation and 100-repeat lifecycle acceptance",
+    "Exact candidate required remote Environment/Product CI and reviewed PR integration",
+    "Dual-architecture development installers, SHA-256/signature/install/manual desktop acceptance",
+    "Real Provider/model, private credentials, production release, new paid resources, signing and final license are not authorized by this work"
+  ],
+  "requirement_tracking_policy": "Only SES010 advances not_started to implementing/unit passed for explicitly limited Linux filesystem and mock UI slice. SES008 status and all verification remain not_started/not_run; only evidence/limits appended. Other128 requirements and immutable specs unchanged. Full130 Designv0.2 target remains incomplete.",
+  "authority": "OWNER-001/002 acknowledged within existing AB-START-001; no added merge/Approve/production/credential/signing/paid authority. This metadata pass performs no product run or OS service operation."
+}

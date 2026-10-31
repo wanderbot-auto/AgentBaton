@@ -1,3 +1,9 @@
+## Explicit next-login background registration: local composed slice — 2026-10-31
+
+Sourcebb5c7f9 composes Native3db + UI214 + Rooteba; independent whole-tree review93 checks is SOURCE_READY with2467 other blobs unchanged. Exactbb5 infrastructure715, mockUI1175/66, type/frontend build, Linux Native136/strictClippy, normal Core17/CLI build/freeze and actual Linux integration browser normal5/failing4 with12 original PNGs pass. Both browser cases exited/joined cleanly without forced kill. [Source-bound results and retained failures](background-login-registration/EVIDENCE.json).
+
+Only AB-SES-010 advances to implementing for explicit confirmed/revocable next-login registration and settings; AB-SES-008 remains not_started. No current daemon/tasks are changed and effective OS startup remains unobserved. Actual new settings Native IPC, bothMac login/registration/lifecycle acceptance, UI-exit task survival, menu/full-exit/recovery and current dual installers are NOT_RUN. Browser integration regression is not background-service validation. Old18f focus,ac5 fixture,53ab Clippy failures, wrong proof1 count and prelaunch-blocked normal-build1 remain retained; onlybuild2 actually ran. Metadata awaits independent review; no new CI/PR/merge is claimed. OWNER001/002 ACK; full130 and all authority limits remain.
+
 ## PR21 exact e509 terminal failures retained — 2026-10-31
 
 Environment41246131296 passed all3; Product41246133682 is terminal failed: Rust passed, UI normal failed after3 checks at private_independent_review/AssertionError while command-failure passed4; its screenshot operation remains unknown. Intel Factory35/1 failed at plan2/run12blocked: directly bound work4088 exceeds4000 (producer3765+queue323, no discount). ARM integration18/12 includes OUTCOME_UNKNOWN, FIFO-ready expiry and unobserved command-leader stop; a common cause is not established. [Terminal source-bound evidence](integration-browser-failure-observation/CI_TERMINAL_RESULTS.json).
