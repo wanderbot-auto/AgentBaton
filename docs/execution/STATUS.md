@@ -1,3 +1,9 @@
+## PR19 terminal324 failures and bounded follow-up — 2026-10-31
+
+Exact324 Environment41243422609 passed; Product41243422606 is terminal failed: Rust/UI passed, Intel Factory29/1 correctly refused15033+6000 above20000, ARM workspace-preparation0/4 failed at the symbolic-link guard. Its exact rejected path was not logged. Native/packaging stages after each failure did not run.
+
+Reviewed7bd canonical private test roots plus actual alias-refusal control pass5 Linux Unix IPC cases. Reviewede94 finite fee-kind observations pass392 complete infrastructure tests and strict integration-test Clippy; original fees, deduplication, clocks, limits and failure exits remain. Synthetic129 evidence is separate; old5981 subtraction is not an observed planner identity. [Exact evidence](factory-rework-fee-kind-observation/EVIDENCE.json). New precise CI, both Mac acceptance/current installers and full130 remain open.
+
 ## Owned capture service and fatal frontier regression — 2026-10-31
 
 Reviewed2ed prioritizes an already persisted owned capture before the same-tick mandatory full frontier sweep. All original fresh authorization/origin/lease/stop/CAS checks, queue clock,4s reservation and cancellation/join accounting remain. Original210Core/33Factory/14nativeGoalGraph and strictClippy pass at2ed; those old tests did not cover a new late-frontier fatal branch, so independent review correctly withheld acceptance.

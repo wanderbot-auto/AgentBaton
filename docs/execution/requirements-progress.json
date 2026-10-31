@@ -74,7 +74,8 @@
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -167,7 +168,8 @@
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -290,7 +292,8 @@
         "docs/execution/task-workspace-integration/DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_34F_COMPOSED_RESULTS.json",
         "docs/execution/task-workspace-integration/PARENT_674D_COMPOSED_RESULTS.json",
-        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json"
+        "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -3094,7 +3097,8 @@
         "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
-        "docs/execution/capture-frontier-service/EVIDENCE.json"
+        "docs/execution/capture-frontier-service/EVIDENCE.json",
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -6985,7 +6989,8 @@
         "docs/execution/factory-ancestor-admission-diagnostics/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
-        "docs/execution/capture-frontier-service/EVIDENCE.json"
+        "docs/execution/capture-frontier-service/EVIDENCE.json",
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
