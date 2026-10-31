@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "requirement": "AB-SES-009",
+  "unit": "desktop/UI/Native directory-only handoff",
+  "base": "e874b123d3e7f329a551e21922baf1a7a643548f",
+  "branch": "codex/workspace-open-desktop",
+  "status": "source_implemented_shared_hooks_and_Root_execution_pending",
+  "authority": "AB-START-001 and Root bounded workspace-open contract; no real OS handoff authorized to this worker",
+  "contract": {
+    "path": "/workspace/.onboarding/workspace-open-contract-v1.json",
+    "sha256": "ef4e134f8300a8a8ff7f58de213f059beef3e7e3981db3cdfd76910cba0cd442"
+  },
+  "source_sha256": {
+    "apps/desktop/src/ExternalWorkspaceOpen.tsx": "903200367fee3093189703ce6ce294675bdc0c7a78d0e6adba2c5efecdd19a5e",
+    "apps/desktop/src/ExternalWorkspaceOpen.test.tsx": "134cdc89886236b66257bd4acc9009bbe179891834b9d46f9d89ed97f6c7bb97",
+    "apps/desktop/src/workspace-open-api.ts": "68b663f33179c3daeefe418755b0412992b924f079c350996d4bed97a35ab152",
+    "apps/desktop/src/workspace-open-api.test.ts": "64716df8910e761485936902c179a9c27ef37e2a9e49a7a5d5f9860d08dbc3f0",
+    "apps/desktop/src/workspace-open-wire.ts": "00e618cf18775507c664dd82465049872a3f9a198f521ed62ce12ff71f6b5245",
+    "apps/desktop/src/workspace-open-i18n.ts": "b77ae3014963d9ba7ef2a80bf708f3104229a681b9d7f2c3b7c6d4eaed872bc9",
+    "apps/desktop/src-tauri/src/workspace_open.rs": "f6b31a1ca45537e95f7c5899c726a74115461cd3eaa9fbab57ab4449e250389f",
+    "tests/infrastructure/test_workspace_open_desktop_contract.py": "d24a8f7feca024dc59b78efc1a3454258e956d18db3969a7a65a854c28afa905"
+  },
+  "protected_unchanged_sha256": {
+    "apps/desktop/src/TaskCodeWorkspace.tsx": "f6f9ec6ebddfd0ecfea919426a37aebb9e20fe8e3125093920c3ad422a16a6dd",
+    "apps/desktop/src-tauri/src/lib.rs": "f7c53d2d79e477e2f101c20803df360dfeef6fc87e70bc48558717c312b3bf24",
+    "apps/desktop/src/api.ts": "fef8e440fd179d8e23c854a9eab96388cc00e601072f2a00dbc54d068bcc2c82",
+    "apps/desktop/src/App.tsx": "4e22c5350c5db6eb4bab363af9df5503d7cd96583a2dd58ee9a542bf8809387f",
+    "apps/desktop/src-tauri/Cargo.toml": "f5128a9559eebeff46771e991ef96954e1b9e30d6f29c93ea70e2bf785a03b84"
+  },
+  "shared_hook_proposal": {
+    "path": "/tmp/workspace-open-desktop-hooks-e874.patch",
+    "sha256": "87537faaa2f9b002655e0df89273c582a43f09e62258da757ff82605f47e80e9",
+    "git_apply_check": "PASS against unchanged base",
+    "Root_only": "TaskCodeWorkspace child import/mount; src-tauri mod/onecommand/registration; no shared source edited"
+  },
+  "public_interfaces": {
+    "component": "ExternalWorkspaceOpen({task:Task,language:en|zh,connected:boolean,open:boolean,blocked?:boolean}) as child only of existing TaskCodeWorkspace",
+    "ui_request": "open_workspace_terminal({request:{selection,terminal:macos_terminal}}) direct strict closed native result; no path/program/args/env/token/grant/session",
+    "native_entry": "workspace_open::handoff(directory:PathBuf,window:tauri::WebviewWindow,request:serde_json::Value)->Value async",
+    "Core_needed_exports": [
+      "WorkspaceOpenSelection (.validate())",
+      "WorkspaceOpenContext (public selection/canonical_path/directory_identity)",
+      "pin_open_context(&WorkspaceOpenContext)->CoreResult<WorkspaceOpenDirectoryPin>",
+      "WorkspaceOpenDirectoryPin.recheck()->CoreResult<()>"
+    ],
+    "Core_fresh_frame": "Owner ipc::call(runtime,{method:workspace_open.context,params:{selection}}); no ensure_daemon, write bridge or companion token"
+  },
+  "safety": [
+    "Explicit source/isolated selection and one fixed supported terminal; dirty source/ready Git/data selection is read-only, never adopted or assigned.",
+    "Strict runtime request/context/result schema with canonical UUID, safe positive revision subset, string u64 identities/count/path checks, closed status/code combinations; unsupported/extra/private authority rejected.",
+    "UI context epoch/project/task/revision/open/disconnect/blocked guard; one document-wide pending handoff; local uncertainty retained across remount. Stale replies cannot display current success. Unknown needs manual refresh and a new explicit click; no timers/retry loops. A later refused explicit attempt cannot erase earlier uncertainty.",
+    "Native trusts only actual main window and fixed app origins (debug fixed configured dev origin only); existing caller lifecycle is rechecked without any approval dialog or consent transfer.",
+    "Native fresh Core exactselection and complete held/named NOFOLLOW pins, retained through handoff; fixed /usr/bin/open argv[-a,/System/Applications/Utilities/Terminal.app,absolute directory], env_clear+systemPATH, null stdio; no shell/xcrun/AppleScript/Agent.",
+    "Single5s owned opener wait, strict postreplydeadline. Postspawn nonzero/error/timeout/lost result unknown. RAII retains unreaped opener in sole slot, signals only after fresh owned try_wait running observation and never on wait error, never Terminal/processgroup; no unbounded wait/background reaper/new budget/automatic retry. Linux unsupported before context/spawn."
+  ],
+  "validation": [
+    {
+      "kind": "Python source boundary",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.infrastructure.test_workspace_open_desktop_contract -v",
+      "tests": 7,
+      "exit": 0,
+      "log": "/tmp/workspace-open-desktop-pure-e874.log",
+      "log_sha256": "48b65be5a061c5fcee3b8997b4f7efb209f76dd8774f796a5337d3fd5a079910",
+      "dimension": "source-only controls; not TS/Rust/OS behavior"
+    },
+    {
+      "kind": "rustfmt module parsing/format",
+      "status": "PASS",
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --check apps/desktop/src-tauri/src/workspace_open.rs",
+      "exit": 0
+    },
+    {
+      "kind": "shared hook mutation check",
+      "status": "PASS",
+      "command": "git diff --exit-code -- TaskCodeWorkspace.tsx src-tauri/src/lib.rs api.ts App.tsx; git apply --check private hook patch",
+      "shared_sources_edited": false
+    },
+    {
+      "kind": "git_diff_cached_check",
+      "status": "PASS",
+      "command": "git diff --cached --check",
+      "exit": 0
+    }
+  ],
+  "authored_NOT_RUN": {
+    "API_wire": "exact source/managed request, forbidden fields, unsafe revisions, terminal/UUID, u64/path/context mismatch, result contradiction, transport no retry, dirty source and ready data/list refusal matrix",
+    "component": "explicit choice/oneflight, unknown manual recovery, disconnect/task/project/revision/close/blocked stale reply matrix, stale choices, remount uncertainty, bilingual refusal, no raw errors",
+    "native_pure_tests": 5,
+    "native_scope": "closed DTO/error context, true main origin, exact argv/env with special text, zero exit and strict time/status matrix; no real spawn"
+  },
+  "not_run": [
+    "Node/typecheck/UI tests",
+    "Cargo/native compile/tests",
+    "actual Core/SQLite/IPC",
+    "OS process/opener/Terminal",
+    "browser",
+    "native main lifecycle integration",
+    "Darwin target-directory observation",
+    "network/CI/push",
+    "Provider/model calls",
+    "formal Approve/merge"
+  ],
+  "remaining": [
+    "Root compose Core DTO/helper exports and narrow shared hooks",
+    "independent source review",
+    "Root types/focused/full UI and Native compilation/tests",
+    "real UnixIPC read/no-write before-after evidence",
+    "actual dualMac handoff and observed target directory or explicit NOT_RUN/manual record"
+  ],
+  "acceptance": {
+    "native_handoff_pass": false,
+    "actual_target_directory_observed": false,
+    "whole_requirement_complete": false,
+    "formal_approve": false
+  },
+  "core_candidate": "5d7ac35fba06efedc07bc2c3ef4d386e31245795"
+}
