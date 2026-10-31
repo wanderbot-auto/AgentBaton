@@ -718,7 +718,7 @@ impl Daemon {
                     }
                     if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send(&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
                 })();
-                if let Err(mut error)=action {if error.side_effect_state=="not_started"{error.side_effect_state="confirmed".into();}error.details_ref=receipt["intent_id"].as_str().map(|id|format!("recorded-goal-advance:{id}"));return Err(error);}Ok(receipt)
+                if let Err(error)=action {return Err(Store::recorded_goal_advance_error(error,&receipt,&p.run_id,revision));}Ok(receipt)
             }
             "factory_runs.start" => {
                 let p: FactoryScopeId = params(r.params)?;

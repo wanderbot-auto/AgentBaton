@@ -3958,4 +3958,5 @@ mod tests {
             );
         }
     }
+    include!("goal_admission_detail_store_tests.rs");
 }
