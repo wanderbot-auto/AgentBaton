@@ -4,6 +4,7 @@ import type { Language } from './i18n';
 import { parseTaskWithWorkspaceBinding, parseTaskWorkspaceBindingView, validateTaskGitWorkspacePreparation, type TaskGitWorkspacePreparation, type TaskWorkspaceBindingView, type TaskWorkspaceReservationReceipt } from './task-workspace-binding-wire';
 import { parseCodeWorkspacePreparation, type CodeWorkspacePreparation } from './workspace-preparation-wire';
 import { taskCodeWorkspaceMessages } from './task-code-workspace-i18n';
+import { ExternalWorkspaceOpen } from './ExternalWorkspaceOpen';
 
 type Props = { task: Task; language: Language; connected: boolean; autoOpen?: boolean; onBindingReady?: (taskId: string) => void };
 type Intent = { projectId: string; selection: TaskGitWorkspacePreparation; key: string; uncertain: boolean; reconciled: boolean };
@@ -154,6 +155,7 @@ function WorkspacePanel(props: Props & { open: boolean }) {
       {currentBinding && <><h4>{t.current}</h4><p>{currentBinding.state === 'ready' ? t.ready : currentBinding.state === 'pending' ? t.pending : t.unknown}</p><p>{revalidated ? t.identity : t.recordedOnly}</p>{staleBinding && <p>{t.stale}</p>}<button type="button" disabled={disabled || !!pending} onClick={revalidate}>{t.revalidate}</button></>}
     </>}
     {receipt && <details><summary>{t.details}</summary><h4>{t.receipt}</h4><dl><dt>{t.bindingId}</dt><dd>{receipt.binding_id}</dd><dt>{t.workspaceId}</dt><dd>{receipt.workspace_id}</dd><dt>{t.host}</dt><dd>{receipt.host_id === 'local' ? t.local : receipt.host_id}</dd><dt>{t.originalRevision}</dt><dd>{receipt.original_task_revision}</dd><dt>{t.reservedRevision}</dt><dd>{receipt.reserved_task_revision}</dd><dt>{t.spec}</dt><dd>{receipt.spec_revision}</dd><dt>{t.projectRevision}</dt><dd>{receipt.project_revision}</dd><dt>{t.destination}</dt><dd><code>{receipt.managed_root.replace(/\/$/, '') + '/' + receipt.workspace_id}</code></dd><dt>{t.source}</dt><dd><code>{receipt.source_pin.canonical_root}</code></dd><dt>{t.head}</dt><dd><code>{receipt.source_pin.head}</code></dd><dt>{t.sourceDevice}</dt><dd><code>{receipt.source_pin.device}</code></dd><dt>{t.sourceInode}</dt><dd><code>{receipt.source_pin.inode}</code></dd><dt>{t.requestDigest}</dt><dd><code>{receipt.request_digest}</code></dd><dt>{t.key}</dt><dd><code>{receipt.request_key}</code></dd><dt>{t.preparationKey}</dt><dd><code>{receipt.preparation_key}</code></dd>{currentBinding && <><dt>{t.bindingRevision}</dt><dd>{currentBinding.revision}</dd></>}{observed && <><dt>{t.observed}</dt><dd>{observed.at}</dd><dt>{t.observedRoot}</dt><dd><code>{observed.value.observed_managed_pin.canonical_root}</code></dd><dt>{t.managedHead}</dt><dd><code>{observed.value.observed_managed_pin.head}</code></dd></>}</dl></details>}
+    <ExternalWorkspaceOpen task={props.task} language={props.language} connected={props.connected} open={props.open} />
     {!fresh && !loading && read && <p>{t.unavailable}</p>}<p className="hint">{t.noAuthority}</p>
   </section>;
 }

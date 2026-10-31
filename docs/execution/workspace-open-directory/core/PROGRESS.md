@@ -1,0 +1,5 @@
+# Source implementation checkpoint
+
+Added strict selection/request/context/identity types, Owner Store read, held directory pin and Native recheck helper in one new production module. Added eleven unit tests and seven real Unix IPC test sources (18 authored, all NOT_RUN): exact wire/refusal matrices, decimal-u64 precision, root-to-leaf bound/aliases, same-leaf changed ancestor, leaf/ancestor symlinks/replacement, source and ready dirty Git/data, both revisions/membership/state, malformed/oversized records, Owner/scoped authentication, raw duplicate keys at three levels and explicit-null write fields. Unix IPC checks full before/after schema17 table images and exact zero task/attempt/session/approval/Grant/Factory reservation counts.
+
+No existing source, existing tests, protocols, migrations, lockfiles, approvals or budgets were edited. Shared module/dispatch/raw-handler hooks exist only as a private proposed patch for Root. No Rust compilation, SQLite, product/fixture process, browser, Node, network or CI was executed by this author. See EVIDENCE.json for actual source/format/patch checks and pending Root execution.

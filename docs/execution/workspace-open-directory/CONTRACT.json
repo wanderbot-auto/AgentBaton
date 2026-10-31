@@ -1,0 +1,40 @@
+{
+  "baseline": "e874b123d3e7f329a551e21922baf1a7a643548f",
+  "requirement": "AB-SES-009",
+  "authority": "existing AB-START-001; no new Provider, host, credential, spend, signing or formal Approve",
+  "core_method": "workspace_open.context",
+  "core_method_kind": "strict Owner-only read; params={selection}; all additional fields refused; scoped companion never allowed",
+  "selection": {
+    "project_source": {
+      "kind": "project_source",
+      "project_id": "UUID",
+      "expected_project_revision": "positive exact u64 JSON integer"
+    },
+    "managed_workspace": {
+      "kind": "managed_workspace",
+      "project_id": "UUID",
+      "expected_project_revision": "positive exact u64 JSON integer",
+      "workspace_id": "UUID",
+      "expected_workspace_revision": "positive exact u64 JSON integer"
+    }
+  },
+  "context": {
+    "selection": "exact selection reflected",
+    "canonical_path": "fresh registered canonical absolute local directory; never supplied by renderer",
+    "directory_identity": "array root-to-leaf of {device:canonical decimal u64 string,inode:canonical decimal u64 string}; length=absolute normal path components+root; max129; no JS numeric conversion"
+  },
+  "core_contract": "Strict IDs/revisions, membership, ready identity-pinned source or managed Git/data; source vs isolated explicit; no dirty-HEAD restriction and no task binding/adoption/creation; bounded component-wise O_DIRECTORY/NOFOLLOW opens validate existing registered leaf device/inode, all held/named components; no symlink or alias fallback. No Store migration or new schema/write/event/session/attempt/Grant/reservation. Reject pending/unknown/remote/foreign/stale/malformed targets. Ancestor identity context is an observation, not atomic lifetime pathname immutability or OS sandbox.",
+  "native_command": "open_workspace_terminal(request)",
+  "native_request": {
+    "selection": "same closed selection",
+    "terminal": "macos_terminal only"
+  },
+  "native_handler": "Only existing trusted main window. Fetch Core fresh context itself with original Owner connection; renderer passes only IDs/revisions/enum, no directory/program/argv/env/connection/grant. Fresh context selection equality and full descriptor/named ancestor pins immediately rechecked. Fixed /usr/bin/open with separate argv [-a, /System/Applications/Utilities/Terminal.app, canonical_absolute_directory]; no --/vendor syntax guess is required because the directory is absolute; fixed directory argument must safely cover spaces/Unicode/newlines/leading hyphen. env_clear + minimal system PATH, no inherited Baton token/private config/auth vars; stdout/stderr null; owned bounded wait/reap only, no shell/cd script/AppleScript/xcrun/Automation. No real OS handoff by subagents.",
+  "native_result": {
+    "status": "handoff_accepted|refused|outcome_unknown",
+    "code": "accepted|unsupported_platform|invalid_selection|stale_context|directory_changed|native_window_invalid|opener_unavailable|opener_failed|opener_timeout|transport_unknown"
+  },
+  "native_result_semantics": "accepted only original owned opener returned0, proves OS handoff only; before-spawn failure refused; after spawn error/nonzero/deadline/lost result unknown unless real absence-of-effect proof; no automatic retry. No terminal cwd/window/Agent/managed session/Task success claim. Linux unsupported before spawn. Minimal handoff wait5s independent from unchanged product runtime budgets.",
+  "ui": "Standalone ExternalWorkspaceOpen child in TaskCodeWorkspace only; existing IDs/current source-vs-ready-managed choices with explicit labels and one selected fixed terminal. Bilingual labels; no App/notifications/config screen. Strict wire runtime validation, exact request no path/etc, one in-flight, epoch/project/task/selection switch invalidates old replies, disconnect/unmount guard; pending/unknown remains visible, unknown no auto retry. Preserve existing full Task workspace features and dirty-workspace opening.",
+  "acceptance": "Source/pure + Root Rust normal/refusal contracts/real UnixIPC read and exact before-after no-write counts; Root UI/types/tests/full real IPC bridge; independent review; actual dualMac handoff and observed target directory if available, otherwise precisely NOT_RUN/manual checklist. No Linux/mock substitution for native directory evidence. Broader130 remains incomplete."
+}
