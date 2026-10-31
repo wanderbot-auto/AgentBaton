@@ -7,3 +7,5 @@ Root next: independent source review, real TypeScript/Node checks (especially ol
 Known limits: no claim of reproducing CI52, no solution claimed for native disabled controls that receive no React event, no Provider/macOS evidence here. Root's existing passing diagnostic is only context; it does not verify this new source. If a test fails, retain it and diagnose before integration.
 
 Latest source closure adds FactoryChildPlans.publication-window.test.tsx and changes only ChildPlans plus dedicated docs. Root/reviewer should execute its deferred-state/new-proof/finally-complete barrier and unchanged original tests. Check both zero dispatch of the obsolete CAS and later recovery of normal readiness with identical cached DTOs. No claim that absent CI52 dispatch or native disabled gestures are fixed.
+
+Latest closure is tests/docs only after Root's actual918pass/1locator failure. Product TSX bytes remain those of9b1c3c. Rerun the corrected unknown recovery case and full UI suite; do not transfer918/919 into a green claim for the new test source. Original failed log remains retained.

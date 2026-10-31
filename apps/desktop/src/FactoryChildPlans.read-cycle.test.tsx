@@ -1,5 +1,5 @@
 // Mocked React/transport contracts only; no Core permission, IPC or browser proof.
-import { act,fireEvent,render,screen,waitFor } from '@testing-library/react';
+import { act,fireEvent,render,screen,waitFor,within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach,beforeEach,describe,expect,it,vi } from 'vitest';
 import { FactoryChildPlans } from './FactoryChildPlans';
@@ -86,12 +86,17 @@ describe('child-plan explicit read cycles',()=>{
  });
  it('keeps unknown original bytes/key/CAS across read cycles and sends no duplicate intent automatically',async()=>{
   const f=childPlanningFixture(),u=userEvent.setup();setup(f);vi.mocked(factoryChildPlanApi.submit).mockRejectedValue(new Error('lost after commit'));
-  const mounted=render(<FactoryChildPlans {...props(f)}/>);await opened(u);enter(f);fireEvent.click(store());fireEvent.click(store());
-  await waitFor(()=>expect(screen.getByRole('alert')).toHaveTextContent(t.pending));expect(factoryChildPlanApi.submit).toHaveBeenCalledOnce();
+  const mounted=render(<FactoryChildPlans {...props(f)}/>);await opened(u);enter(f);
+  const taskDetails=screen.getByText(`${t.title} · ${f.target.task_id}`,{selector:'summary',exact:true}).closest('details')!;
+  const region=within(taskDetails).getByRole('region',{name:t.title});
+  const unknownAlert=()=>within(region).getByText(/^Submission outcome unknown\.(?:\s|$)/,{selector:':scope > p[role="alert"]'});
+  fireEvent.click(store());fireEvent.click(store());
+  await waitFor(()=>expect(unknownAlert()).toHaveTextContent(t.pending));expect(factoryChildPlanApi.submit).toHaveBeenCalledOnce();
   const original=vi.mocked(factoryChildPlanApi.submit).mock.calls[0],v=await f.view(1,original[2]);setup(f,[v]);mounted.rerender(<FactoryChildPlans {...props(f,2)}/>);
-  await waitFor(()=>expect(screen.getByRole('button',{name:t.recover})).toBeEnabled());expect(screen.getByRole('alert')).toHaveTextContent(t.pending);expect(factoryChildPlanApi.submit).toHaveBeenCalledOnce();expect(store()).toBeDisabled();
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.recover})).toBeEnabled());expect(unknownAlert()).toHaveTextContent(t.pending);expect(factoryChildPlanApi.submit).toHaveBeenCalledOnce();expect(store()).toBeDisabled();
   vi.mocked(factoryChildPlanApi.submit).mockResolvedValue(v);await u.click(screen.getByRole('button',{name:t.recover}));await waitFor(()=>expect(screen.queryByRole('button',{name:t.recover})).toBeNull());
-  expect(vi.mocked(factoryChildPlanApi.submit).mock.calls[1]).toEqual(original);expect(screen.queryByRole('alert')).toBeNull();
+  expect(vi.mocked(factoryChildPlanApi.submit).mock.calls[1]).toEqual(original);expect(within(region).queryByText(/^Submission outcome unknown\.(?:\s|$)/,{selector:':scope > p[role="alert"]'})).toBeNull();
+  expect(region.querySelector(':scope > p[role="alert"]')).toBeNull();expect(factoryChildPlanApi.submit).toHaveBeenCalledTimes(2);
  });
  it('records a committed receipt as history after revocation without restoring new-write authority',async()=>{
   const f=childPlanningFixture(),u=userEvent.setup();setup(f);const held=deferred<FactoryChildPlanView>();vi.mocked(factoryChildPlanApi.submit).mockImplementation(()=>held.promise);

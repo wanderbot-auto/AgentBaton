@@ -7,3 +7,5 @@ Preserve every original parent polling cycle and full client/parentReady/authori
 Source author owns only FactoryRuntime.tsx, FactoryChildPlans.tsx, focused component tests and this directory. Root owns independent review, Node/type checks, actual IPC/browser and CI. Source author executes static diff/scope checks only, with all runtime results not_run.
 
 Review closure: synchronously withdraw current ready at read start, then revalidate the verified token and complete live read fingerprint at submit entry. Add a controlled deferred-React-publication regression covering the completed-read/before-publication event window and restoration after an identical cached manual read. No heavy tests by this author.
+
+Root's actual Node suite exposed a locator-only ambiguity in the new unknown recovery case. Narrow only that test to its task's direct submission alert, retaining unique matching, full pending text and every exact-request/no-replay assertion; do not alter product code or the original acceptance standard.
