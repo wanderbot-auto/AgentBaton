@@ -820,7 +820,8 @@
         "Only application notifications while UI fetches; no OSnotification delivery/background/DNDOS claims.",
         "Current projections do not independently expose auth/quota/config drift; no such state inferred from text. Other full design requirements remain.",
         "Actual tests use generated ACP/privateOwner host; realProvider/accounts/models/signing/production/newspend remain separately gated.",
-        "This feature remains part of full130 development, not wholeproduct completion or mainmerge."
+        "This feature remains part of full130 development, not wholeproduct completion or mainmerge.",
+        "Root eba composition at exact b8 locally passes735infra/1166UI/normalCore17+frontend/directbrowser5+4+notification6/16PNG; supporting evidence only. Original verification/status remain source-bound; old ef060 Product CI failed, new candidate CI/Mac/OS delivery/100-real/current installers/full130 NOT_RUN."
       ],
       "coverage": "partial",
       "verification_refs": [
@@ -828,6 +829,9 @@
         "apps/desktop/src/TaskNotifications.test.tsx",
         "apps/desktop/tests/task_notifications_real_ipc_probe.py",
         "tests/infrastructure/test_task_notification_ci.py"
+      ],
+      "supporting_evidence": [
+        "docs/execution/task-notifications/ROOT_EBA_COMPOSITION_RESULTS.json"
       ]
     },
     {

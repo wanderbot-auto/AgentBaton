@@ -1,3 +1,9 @@
+## Notification Root eba composition verified locally — 2026-10-31
+
+Exact b8c4a9fb/tree da769 composes the independently reviewed Root eba changes without changing original notification controls. Local infrastructure735, fullUI1166/66, type/build, normal Core17/CLI/freeze and real Linux IPC/browser normal5/failed-command4 plus notification6 pass with16 original PNGs and owned cleanup. Author11/independent13 unique controls are separate; initial17 included6 duplicates. [Source-bound records](task-notifications/ROOT_EBA_COMPOSITION_RESULTS.json).
+
+Old ef060 Environment41247895600 all3/Rust pass; Product41247898176 terminal failed: UI failed-command private_independent_review/AssertionError after2, ARM integration18/12, Intel Factory35/1 bounded reconciliation line488. Their different failure evidence and unknown cleanup stay intact; local success proves no unique remote cause or Mac fix. New b8/future metadata CI remains NOT_RUN, not pushed by this author. Whole130 remains incomplete; OS/background delivery,100 real repeats, actual Native/dualMac acceptance and current development installers remain open. Next: independent metadata review and one guarded exact PR22 CI candidate.
+
 ## PR21 exact e509 terminal failures retained — 2026-10-31
 
 Environment41246131296 passed all3; Product41246133682 is terminal failed: Rust passed, UI normal failed after3 checks at private_independent_review/AssertionError while command-failure passed4; its screenshot operation remains unknown. Intel Factory35/1 failed at plan2/run12blocked: directly bound work4088 exceeds4000 (producer3765+queue323, no discount). ARM integration18/12 includes OUTCOME_UNKNOWN, FIFO-ready expiry and unobserved command-leader stop; a common cause is not established. [Terminal source-bound evidence](integration-browser-failure-observation/CI_TERMINAL_RESULTS.json).
