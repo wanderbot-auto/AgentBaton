@@ -348,11 +348,12 @@ async function advanceReadonlyClock(milliseconds:number){
 async function observeReadonly(assertion:()=>void){
  // Same 1000ms observation bound as RTL's default, using a captured real timer
  // so observing async work never advances or consumes a product polling slot.
- const end=realReadonlyNow()+1000,expired=()=>new Error('Readonly test observation exceeded its original 1000ms boundary');
+ let lastAssertion:unknown;
+ const end=realReadonlyNow()+1000,expired=()=>new Error('Readonly test observation exceeded its original 1000ms boundary',{cause:lastAssertion});
  for(;;){
   if(realReadonlyNow()>=end)throw expired();
   let matched=false;
-  try{assertion();matched=true;}catch{/* Keep observing within the same fixed bound. */}
+  try{assertion();matched=true;}catch(error){lastAssertion=error;}
   if(realReadonlyNow()>=end)throw expired();
   if(matched)return;
   await act(async()=>{await new Promise<void>(resolve=>realReadonlyTimeout(resolve,0));});
@@ -511,8 +512,19 @@ it('does not poll after disconnection or an unready parent even when the last fa
  await act(async()=>{await advanceReadonlyClock(10000);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
 });
 it('does not restart reads or repeat a write while cancellation outcome is unknown',async()=>{
- const {user}=await openPollingFixture();vi.mocked(factoryChildGoalApi.cancel).mockRejectedValueOnce(new Error('lost cancel reply'));
- await user.click(screen.getByRole('button',{name:t.cancel}));await observeReadonly(()=>expect(screen.getByRole('status')).toHaveTextContent(t.pending));
+ const {f,user}=await openPollingFixture();vi.mocked(factoryChildGoalApi.cancel).mockRejectedValueOnce(new Error('lost cancel reply'));
+ expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled();
+ expect(screen.getAllByRole('status')).toHaveLength(1);expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();
+ await user.click(screen.getByRole('button',{name:t.cancel}));await observeReadonly(()=>{
+  expect(factoryChildGoalApi.cancel).toHaveBeenCalledOnce();
+  expect(factoryChildGoalApi.cancel).toHaveBeenCalledWith(f.scope.id,f.task.id,f.runId,1,1,expect.any(String));
+  // Complete history already has its acceptance-pending status. The unknown
+  // cancellation adds a separate status; the global unique-role query is not
+  // a valid observation of this full-view fixture.
+  const statuses=screen.getAllByRole('status'),unknown=statuses.filter(node=>node.textContent===t.pending);
+  expect(statuses).toHaveLength(2);expect(unknown).toHaveLength(1);expect(unknown[0]).toHaveTextContent(t.pending);
+  expect(screen.getByRole('alert')).toHaveTextContent(t.pending);
+ });
  vi.mocked(factoryChildGoalApi.list).mockRejectedValueOnce(readonlyBusy());await user.click(screen.getByRole('button',{name:t.refresh}));await readonlyFindByRole('alert');
  const calls=vi.mocked(factoryChildGoalApi.list).mock.calls.length;await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(calls);expect(factoryChildGoalApi.cancel).toHaveBeenCalledOnce();
