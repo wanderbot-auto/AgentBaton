@@ -396,3 +396,67 @@ fn failed_or_signalled_list_is_not_a_no_match_and_output_bound_stays_fixed() {
         Err(WorkspaceError::ResourceLimit)
     ));
 }
+
+#[test]
+fn actual_git_lf_and_non_utf8_subsections_preserve_original_query_classification() {
+    let repository = Repository::new();
+    for (label, config, expected_name) in [
+        (
+            "literal_lf",
+            b"\n[remote \"generated\nsubsection\"]\n promisor = false\n".as_slice(),
+            b"remote.generated\nsubsection.promisor".as_slice(),
+        ),
+        (
+            "non_utf8",
+            b"\n[remote \"generated-\xff-subsection\"]\n promisor = false\n".as_slice(),
+            b"remote.generated-\xff-subsection.promisor".as_slice(),
+        ),
+    ] {
+        let before = repository.config(config);
+        // This is actual Git output from the same private configuration. An
+        // implementation may reject the representation; that is not a claim
+        // that the accepted-name branch ran. Both guards must still agree.
+        let names = bounded_output(git_command(&repository.source).args([
+            "config",
+            "--no-includes",
+            "--null",
+            "--name-only",
+            "--list",
+        ]))
+        .unwrap();
+        let parse_class = kind(isolated_config_categories(&names).and_then(|forbidden| {
+            if forbidden.into_iter().any(|refused| refused) {
+                Err(WorkspaceError::UnsafeRepository)
+            } else {
+                Ok(())
+            }
+        }));
+        let original_class = kind(previous_three_query_guard(&repository.source));
+        let cancel = AtomicBool::new(false);
+        let control = adoption::AdoptionControl::for_request(
+            &cancel,
+            Instant::now() + Duration::from_secs(15),
+        );
+        let current_class = kind(audit_isolated_config(&repository.source, &control));
+        let actual_name_observed = names
+            .stdout
+            .split(|byte| *byte == 0)
+            .any(|key| key == expected_name);
+        eprintln!("ISOLATED_CONFIG_SUBSECTION case={label} list_exit={:?} list_success={} parser_class={parse_class} original_class={original_class} current_class={current_class} actual_name_observed={actual_name_observed}", names.status.code(), names.status.success());
+        assert_eq!(current_class, original_class, "actual Git case {label}");
+        assert_eq!(current_class, parse_class, "same actual names {label}");
+        if names.status.success() {
+            assert!(
+                actual_name_observed,
+                "Git accepted and emitted exact name {label}"
+            );
+            assert_eq!(current_class, "unsafe");
+        } else {
+            assert_eq!(current_class, "not_repository");
+        }
+        assert_eq!(counts(&control), (1, 1));
+        assert!(!control.preparation_io().effects_may_have_started());
+        assert_eq!(fs::read(&repository.config).unwrap(), before);
+        assert_eq!(fs::read_dir(&repository.managed).unwrap().count(), 0);
+    }
+}
