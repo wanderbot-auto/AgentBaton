@@ -151,7 +151,10 @@ fn database_image(store: &Store) -> DatabaseImage {
         .collect()
 }
 
-fn files(root: &Path, area: &'static str, phase: &'static str) -> Vec<(PathBuf, bool, Vec<u8>)> {
+fn files(root: &Path) -> Vec<(PathBuf, bool, Vec<u8>)> {
+    files_at(root, "foreign", "unspecified")
+}
+fn files_at(root: &Path, area: &'static str, phase: &'static str) -> Vec<(PathBuf, bool, Vec<u8>)> {
     fn fail(
         root: &Path,
         path: &Path,
@@ -232,19 +235,19 @@ fn resolve_unchanged(
     request: &CodeWorkspacePreparationRequest,
 ) -> Result<CodeWorkspacePreparation> {
     let before = database_image(&f.store);
-    let source = files(&f.source, "source", "before");
-    let managed = files(&f.managed, "managed", "before");
+    let source = files_at(&f.source, "source", "before");
+    let managed = files_at(&f.managed, "managed", "before");
     let result = f.store.resolve_code_workspace_preparation(request);
     assert!(
         before == database_image(&f.store),
         "readonly preparation changed durable row bytes or journal/counters"
     );
     assert!(
-        source == files(&f.source, "source", "after"),
+        source == files_at(&f.source, "source", "after"),
         "readonly preparation wrote source files"
     );
     assert!(
-        managed == files(&f.managed, "managed", "after"),
+        managed == files_at(&f.managed, "managed", "after"),
         "readonly preparation created or wrote a managed workspace"
     );
     assert!(
