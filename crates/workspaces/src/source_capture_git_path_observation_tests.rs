@@ -70,6 +70,16 @@ fn authorized(root: &Path) -> AuthorizedSourceCapture {
     .unwrap()
 }
 
+// Existing Serialize is a read-only observation, not a new field accessor.
+// Counts remain exact u64; missing, negative or non-integer fields fail tests.
+fn git_counts(io: &crate::adoption::ControlledPreparationIo) -> (u64, u64) {
+    let value = serde_json::to_value(io).unwrap();
+    (
+        value["git_calls_attempted"].as_u64().unwrap(),
+        value["git_calls_complete"].as_u64().unwrap(),
+    )
+}
+
 #[test]
 fn actual_batch_matches_all_three_original_observations_with_one_counted_child() {
     let (_directory, root) = repository("source-paths space-雪-");
@@ -79,10 +89,10 @@ fn actual_batch_matches_all_three_original_observations_with_one_counted_child()
     let control = crate::adoption::AdoptionControl::for_request(&cancel, deadline);
     recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)).unwrap();
     let observed = control.preparation_io();
-    assert_eq!(observed.git_calls_attempted, 1);
-    assert_eq!(observed.git_calls_complete, 1);
-    assert!(observed.io_complete && !observed.interrupted);
-    assert!(!observed.effects_may_have_started);
+    assert_eq!(git_counts(&observed).0, 1);
+    assert_eq!(git_counts(&observed).1, 1);
+    assert!(observed.io_complete() && !observed.interrupted());
+    assert!(!observed.effects_may_have_started());
     for (arg, expected) in [
         ("--show-toplevel", &root),
         ("--absolute-git-dir", &git),
@@ -194,7 +204,7 @@ fn actual_non_repository_nonzero_exit_never_returns_a_path_observation() {
     let deadline = Instant::now() + Duration::from_secs(5);
     let control = crate::adoption::AdoptionControl::for_request(&cancel, deadline);
     assert!(recheck_git_paths(deadline, &root, [&root, &root, &root], Some(&control)).is_err());
-    assert_eq!(control.preparation_io().git_calls_attempted, 1);
+    assert_eq!(git_counts(&control.preparation_io()).0, 1);
 }
 
 #[test]
@@ -213,7 +223,7 @@ fn original_cancelled_and_expired_clocks_reject_before_spawn() {
             recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)),
             Err(WorkspaceError::ResourceLimit)
         ));
-        assert_eq!(control.preparation_io().git_calls_attempted, 0);
+        assert_eq!(git_counts(&control.preparation_io()).0, 0);
     }
 }
 
@@ -231,9 +241,9 @@ fn actual_spawn_then_cancel_still_rejects_and_keeps_real_counted_io() {
         Err(WorkspaceError::ResourceLimit)
     ));
     let observed = control.preparation_io();
-    assert_eq!(observed.git_calls_attempted, 1);
-    assert!(observed.interrupted);
-    assert!(!observed.effects_may_have_started);
+    assert_eq!(git_counts(&observed).0, 1);
+    assert!(observed.interrupted());
+    assert!(!observed.effects_may_have_started());
 }
 
 #[test]
@@ -254,8 +264,8 @@ fn actual_spawn_elapsed_past_original_deadline_never_accepts_finished_output() {
         Err(WorkspaceError::ResourceLimit)
     ));
     let observed = control.preparation_io();
-    assert_eq!(observed.git_calls_attempted, 1);
-    assert!(observed.interrupted);
+    assert_eq!(git_counts(&observed).0, 1);
+    assert!(observed.interrupted());
 }
 
 #[test]
