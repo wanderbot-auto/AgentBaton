@@ -731,10 +731,7 @@ fn actual_actor_service_before_owned_join_keeps_original_terminal_order() {
     };
     assert_eq!(kinds, vec!["session.turn_ended", "session.stopped"]);
     assert_eq!(f.store.get_session(&session.id).unwrap().last_error, None);
-    assert_eq!(
-        f.store.get_goal_run(&f.run.id).unwrap().task_accepted,
-        false
-    );
+    assert!(!f.store.get_goal_run(&f.run.id).unwrap().task_accepted);
 }
 
 #[test]
