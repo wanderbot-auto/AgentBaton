@@ -573,6 +573,74 @@ pub fn create_isolated(
     inspect(&destination)
 }
 
+// A single fresh observation replaces only the three declaration reads at the
+// original isolated-checkout boundary. No snapshot survives this function.
+fn isolated_config_categories(result: &Output) -> Result<[bool; 3], WorkspaceError> {
+    // Same per-stream bound as the existing controlled runner. Keeping it here
+    // also prevents a malformed observation from becoming an unbounded parser.
+    if result.stdout.len() > 4_194_304 || result.stderr.len() > 4_194_304 {
+        return Err(WorkspaceError::ResourceLimit);
+    }
+    // The original first (include) probe rejected any failed config read other
+    // than its expected no-match1 as NotRepository. --list succeeds even with
+    // no names, so every nonzero/signal status is now a failed read, never a
+    // no-match result. It must precede declaration classification as before.
+    if !result.status.success() {
+        return Err(WorkspaceError::NotRepository);
+    }
+    if result.stdout.is_empty() {
+        return Ok([false; 3]);
+    }
+    if result.stdout.last() != Some(&0) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    let mut forbidden = [false; 3];
+    // --name-only -z emits complete keys separated only by NUL. Values never
+    // enter the parser; LF and non-UTF8 subsection bytes keep their original
+    // byte semantics instead of being split or normalized into other keys.
+    for key in result.stdout[..result.stdout.len() - 1].split(|byte| *byte == 0) {
+        if key.is_empty() {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+        forbidden[0] |= key == b"include.path"
+            || (key.starts_with(b"includeif.")
+                && key.ends_with(b".path")
+                && key.len() >= b"includeif.".len() + b".path".len());
+        forbidden[1] |= key == b"extensions.partialclone"
+            || (key.starts_with(b"remote.")
+                && key.ends_with(b".promisor")
+                && key.len() >= b"remote.".len() + b".promisor".len());
+        forbidden[2] |= key.starts_with(b"filter.");
+    }
+    Ok(forbidden)
+}
+
+fn audit_isolated_config(
+    root: &Path,
+    control: &adoption::AdoptionControl<'_>,
+) -> Result<(), WorkspaceError> {
+    let result = output_with_control(
+        git_command(root).args(["config", "--no-includes", "--null", "--name-only", "--list"]),
+        Some(control),
+    )?;
+    let forbidden = isolated_config_categories(&result)?;
+    // Preserve include -> partial/promisor -> filter priority and the original
+    // pre/post category cancellation/deadline checkpoints. No effects are
+    // admitted here; output_with_control keeps real child IO accounting.
+    for refused in forbidden {
+        control.check()?;
+        control.check()?;
+        if refused {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+#[path = "isolated_config_batch_tests.rs"]
+mod isolated_config_batch_tests;
+
 /// Same isolated-worktree checks, with the original trusted host stage clock.
 /// Consult control.preparation_io even on Err: private worktree/object effects
 /// may already exist. Nothing resets/removes source or silently retries.
@@ -608,40 +676,7 @@ pub fn create_isolated_controlled(
     if destination.symlink_metadata().is_ok() {
         return Err(WorkspaceError::InvalidPath);
     }
-    // Exact original config declaration probes, all under the same control.
-    let includes = output_with_control(
-        git_command(&source.canonical_root).args([
-            "config",
-            "--no-includes",
-            "--get-regexp",
-            "^include(if\\..*)?\\.path$",
-        ]),
-        Some(&control),
-    )?;
-    if includes.status.success() {
-        return Err(WorkspaceError::UnsafeRepository);
-    }
-    if includes.status.code() != Some(1) {
-        return Err(WorkspaceError::NotRepository);
-    }
-    let partial = output_with_control(
-        git_command(&source.canonical_root).args([
-            "config",
-            "--get-regexp",
-            "^(extensions\\.partialclone|remote\\..*\\.promisor)$",
-        ]),
-        Some(&control),
-    )?;
-    if partial.status.success() || partial.status.code() != Some(1) {
-        return Err(WorkspaceError::UnsafeRepository);
-    }
-    let filters = output_with_control(
-        git_command(&source.canonical_root).args(["config", "--get-regexp", "^filter\\."]),
-        Some(&control),
-    )?;
-    if filters.status.success() || filters.status.code() != Some(1) {
-        return Err(WorkspaceError::UnsafeRepository);
-    }
+    audit_isolated_config(&source.canonical_root, &control)?;
     let verified = output_with_control(
         git_command(&source.canonical_root).args([
             "rev-parse",
