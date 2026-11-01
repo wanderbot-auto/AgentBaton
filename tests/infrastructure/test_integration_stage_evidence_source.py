@@ -169,7 +169,13 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
         for path, inverse in [(FIXTURE, fixture_inverse), (HOST, host_inverse)]:
             original = path.read_text()
             changed = original + '// unreviewed-region\n'
-            self.assertNotEqual(hashlib.sha256(inverse(changed).encode()).digest(), hashlib.sha256(inverse(original).encode()).digest())
+            if path == FIXTURE:
+                # The new exact whole-source layer now refuses an unknown
+                # runtime before the original historical hash comparison.
+                with self.assertRaises(AssertionError):
+                    inverse(changed)
+            else:
+                self.assertNotEqual(hashlib.sha256(inverse(changed).encode()).digest(), hashlib.sha256(inverse(original).encode()).digest())
             with self.assertRaises(AssertionError):
                 inverse(inverse(original))
 

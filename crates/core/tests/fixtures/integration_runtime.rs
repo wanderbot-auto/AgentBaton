@@ -3573,6 +3573,194 @@ enum DriftRefusal {
     ExhaustedRounds,
 }
 
+// Test-host setup only: immutable object preparation is separate from the
+// active validator marker window. Neither clock grants product authority.
+#[derive(Clone, Copy, Debug)]
+enum DriftHostStep {
+    ConfirmUnchangedTarget,
+    ReadExpectedTree,
+    CreatePreparedObject,
+    VerifyPreparedAncestry,
+    ReadLiveValidator,
+    TargetCompareAndSwap,
+    ConfirmChangedTarget,
+    ReleaseValidator,
+}
+#[derive(Clone, Copy, Debug)]
+enum DriftHostBoundary {
+    Before,
+    After,
+}
+#[derive(Clone, Copy, Debug)]
+enum DriftHostWindow {
+    Setup,
+    OriginalMarker,
+}
+struct DriftHostClock {
+    round: u64,
+    window: DriftHostWindow,
+    started: Instant,
+    deadline: Instant,
+}
+impl DriftHostClock {
+    fn setup(round: u64) -> Self {
+        let started = Instant::now();
+        Self {
+            round,
+            window: DriftHostWindow::Setup,
+            started,
+            deadline: started + Duration::from_millis(500),
+        }
+    }
+    fn marker(round: u64, deadline: Instant) -> Self {
+        Self {
+            round,
+            window: DriftHostWindow::OriginalMarker,
+            started: deadline.checked_sub(Duration::from_millis(500)).unwrap(),
+            deadline,
+        }
+    }
+    fn record(&self, step: DriftHostStep, boundary: DriftHostBoundary) {
+        let now = Instant::now();
+        eprintln!("DRIFT_HOST_STEP window={:?} round={} step={step:?} boundary={boundary:?} original_elapsed_ms={} original_remaining_ms={}", self.window, self.round, now.saturating_duration_since(self.started).as_millis(), self.deadline.saturating_duration_since(now).as_millis());
+    }
+    fn git(&self, f: &RuntimeFixture, step: DriftHostStep, args: &[&str]) -> String {
+        self.record(step, DriftHostBoundary::Before);
+        let value = reprepare_host_git(f, args, self.deadline);
+        self.record(step, DriftHostBoundary::After);
+        value
+    }
+}
+struct PreparedDriftRef {
+    expected: String,
+    next: String,
+    tree: String,
+    round: u64,
+    non_descendant: bool,
+}
+fn prepare_drift_ref(
+    f: &RuntimeFixture,
+    expected: &str,
+    round: u64,
+    non_descendant: bool,
+) -> PreparedDriftRef {
+    // One independent fixed500ms setup bound for this generated object, before
+    // policy approval/start; never the active validator's marker clock.
+    let clock = DriftHostClock::setup(round);
+    let tree = clock.git(
+        f,
+        DriftHostStep::ReadExpectedTree,
+        &["rev-parse", &format!("{expected}^{{tree}}")],
+    );
+    let next = if non_descendant {
+        // No parent: retain the original independent root-commit negative.
+        clock.git(
+            f,
+            DriftHostStep::CreatePreparedObject,
+            &["commit-tree", &tree, "-m", "owned unrelated replacement"],
+        )
+    } else {
+        let next = clock.git(
+            f,
+            DriftHostStep::CreatePreparedObject,
+            &[
+                "commit-tree",
+                &tree,
+                "-p",
+                expected,
+                "-m",
+                &format!("owned descendant after round {round}"),
+            ],
+        );
+        clock.git(
+            f,
+            DriftHostStep::VerifyPreparedAncestry,
+            &["merge-base", "--is-ancestor", expected, &next],
+        );
+        next
+    };
+    assert!(Instant::now() < clock.deadline);
+    PreparedDriftRef {
+        expected: expected.into(),
+        next,
+        tree,
+        round,
+        non_descendant,
+    }
+}
+fn prepare_drift_refs(
+    f: &RuntimeFixture,
+    rounds: u64,
+    non_descendant: bool,
+) -> Vec<PreparedDriftRef> {
+    assert!((1..=3).contains(&rounds));
+    assert!(!non_descendant || rounds == 1);
+    assert!(
+        DriftHostClock::setup(0).git(
+            f,
+            DriftHostStep::ConfirmUnchangedTarget,
+            &["rev-parse", TARGET],
+        ) == f.initial_target,
+        "object preparation must preserve the original target ref"
+    );
+    let mut expected = f.initial_target.clone();
+    let mut prepared = Vec::new();
+    for round in 1..=rounds {
+        let next = prepare_drift_ref(f, &expected, round, non_descendant);
+        expected = next.next.clone();
+        prepared.push(next);
+    }
+    assert!(
+        DriftHostClock::setup(0).git(
+            f,
+            DriftHostStep::ConfirmUnchangedTarget,
+            &["rev-parse", TARGET],
+        ) == f.initial_target,
+        "object preparation must preserve the original target ref"
+    );
+    prepared
+}
+fn apply_prepared_drift_ref(
+    f: &RuntimeFixture,
+    prepared: &PreparedDriftRef,
+    expected: &str,
+    round: u64,
+    non_descendant: bool,
+    clock: &DriftHostClock,
+) -> String {
+    assert!(
+        prepared.expected == expected,
+        "prepared expected head binding changed"
+    );
+    assert_eq!(prepared.round, round);
+    assert_eq!(prepared.non_descendant, non_descendant);
+    for oid in [&prepared.expected, &prepared.next, &prepared.tree] {
+        assert!([40, 64].contains(&oid.len()) && oid.bytes().all(|b| b.is_ascii_hexdigit()));
+    }
+    // The sole mutation and its exact confirmation remain within the ORIGINAL
+    // marker deadline, after the actual live-stage/round/unsettled checks.
+    clock.git(
+        f,
+        DriftHostStep::TargetCompareAndSwap,
+        &[
+            "update-ref",
+            "--no-deref",
+            TARGET,
+            &prepared.next,
+            &prepared.expected,
+        ],
+    );
+    assert!(
+        clock.git(
+            f,
+            DriftHostStep::ConfirmChangedTarget,
+            &["rev-parse", TARGET],
+        ) == prepared.next,
+        "the original target CAS must be exactly confirmed"
+    );
+    prepared.next.clone()
+}
+
 fn assert_real_drift_refusal(case: DriftRefusal) {
     let mut f = RuntimeFixture::with_attempt_limit(12);
     let ready = f.owner_ready();
@@ -3587,6 +3775,20 @@ fn assert_real_drift_refusal(case: DriftRefusal) {
     user_changes(&f);
     let before_source = source_image(&f.source());
     let before_project = source_image(&f.project_root);
+    let rounds = if matches!(case, DriftRefusal::ExhaustedRounds) {
+        3u64
+    } else {
+        1
+    };
+    let prepared = prepare_drift_refs(&f, rounds, matches!(case, DriftRefusal::NonDescendant));
+    assert!(
+        source_image(&f.source()) == before_source,
+        "object preparation changed the source image"
+    );
+    assert!(
+        source_image(&f.project_root) == before_project,
+        "object preparation changed the project image"
+    );
     let policy = if matches!(case, DriftRefusal::BlockPolicy) {
         f.approve_blocked_three_round_integration(&definition)
     } else {
@@ -3601,11 +3803,6 @@ fn assert_real_drift_refusal(case: DriftRefusal) {
         Some(policy["revision"].clone()),
     );
     let id = start["run"]["id"].clone();
-    let rounds = if matches!(case, DriftRefusal::ExhaustedRounds) {
-        3u64
-    } else {
-        1
-    };
     let mut heads = vec![f.initial_target.clone()];
     let mut candidates = Vec::new();
     let mut leaders = Vec::new();
@@ -3613,6 +3810,8 @@ fn assert_real_drift_refusal(case: DriftRefusal) {
         let (leader, deadline) = gate.next_owned_validator();
         leaders.push(leader);
         assert!(Instant::now() < deadline);
+        let clock = DriftHostClock::marker(round, deadline);
+        clock.record(DriftHostStep::ReadLiveValidator, DriftHostBoundary::Before);
         let live = rpc(
             &f.server,
             "integrations.get",
@@ -3620,6 +3819,7 @@ fn assert_real_drift_refusal(case: DriftRefusal) {
             None,
             None,
         );
+        clock.record(DriftHostStep::ReadLiveValidator, DriftHostBoundary::After);
         assert!(Instant::now() < deadline);
         assert_eq!(live["run"]["active_stage"], "validator");
         assert_eq!(live["run"]["round"], round);
@@ -3631,31 +3831,18 @@ fn assert_real_drift_refusal(case: DriftRefusal) {
         assert_eq!(attempt["kind"], "validator");
         assert_eq!(attempt["settled"], false);
         candidates.push(live["run"]["integration_commit"].clone());
-        let next = if matches!(case, DriftRefusal::NonDescendant) {
-            let expected = &heads[(round - 1) as usize];
-            let tree = reprepare_host_git(
-                &f,
-                &["rev-parse", &format!("{expected}^{{tree}}")],
-                deadline,
-            );
-            // A distinct root commit has no parents, so the approved baseline
-            // cannot be its ancestor. This rewrites only the owned target ref.
-            let root_commit = reprepare_host_git(
-                &f,
-                &["commit-tree", &tree, "-m", "owned unrelated replacement"],
-                deadline,
-            );
-            reprepare_host_git(
-                &f,
-                &["update-ref", "--no-deref", TARGET, &root_commit, expected],
-                deadline,
-            );
-            root_commit
-        } else {
-            advance_owned_test_target(&f, &heads[(round - 1) as usize], round, deadline)
-        };
+        let next = apply_prepared_drift_ref(
+            &f,
+            &prepared[(round - 1) as usize],
+            &heads[(round - 1) as usize],
+            round,
+            matches!(case, DriftRefusal::NonDescendant),
+            &clock,
+        );
         heads.push(next);
+        clock.record(DriftHostStep::ReleaseValidator, DriftHostBoundary::Before);
         gate.release(deadline);
+        clock.record(DriftHostStep::ReleaseValidator, DriftHostBoundary::After);
     }
     let done = observe(
         &f.server,

@@ -77,6 +77,11 @@ _FIXED_SCRIPT_EDITS = json.loads(r'''
 ''')
 
 def restore_before_fixed_scripts(text):
+    # Exact new source layer precedes all unchanged historical observers.
+    if type(text) is str and hashlib.sha256(text.encode()).hexdigest() == FIXED_SCRIPT_RESTORED_SHA256:
+        return text
+    from integration_drift_ref_preparation_fixture import restore_before_drift_ref_preparation
+    text = restore_before_drift_ref_preparation(text)
     if type(text) is not str:
         raise AssertionError("Fixture inverse expects source text")
     if "const FIXED_VALIDATOR_SCRIPTS:" not in text:
