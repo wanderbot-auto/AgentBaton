@@ -1,3 +1,9 @@
+## Goal-owned Root composition regression recorded locally — 2026-11-01
+
+Exact960 passes fullCore281 (nestedhelper included), one actualFactory rework case, matchingnormalCore17/CLI build/freeze/probe and frontend type/build. Three actual Factory-childGoal browser cases normal/cancel/lost-start pass4/4/5checks with4/3/4PNG and independently verified ownedcleanup. Their13checks/11PNG cover onlythese three scenarios, not a fullbrowser suite. StrictClippy/full768infra remain bound to46, whose product/test/workflow bytes equal960; the original978bool-assert Clippy failure stays retained. [Exact finite results](goal-owned-root-composition/EVIDENCE.json).
+
+Earlier Root003 and PR24f744 remote failures retain their separate sources and remain unclosed by these localpasses. This metadata has no newCI result; currentMac/Native/dualarchitecture installers, privateProvider and full130acceptance remain open. Metadata independentreview is pending; no formalApprove or authority expansion.
+
 ## Rooteba partial CI result retained separately — 2026-10-31
 
 Main reports Product41250092516 Rust/UI pass, ARM integration19/11 failure and Intel stillinprogress. Pinned ARM log records first integrations.get expiry while validating/code=null at integration_runtime.rs138:9; this differs from olde509 OUTCOME_UNKNOWN/18/12. Rooteba has no2e0 phase fields. Preserve the exact failure and obtain finalAPI/Intel independently; no shared cause or Macphase fix is claimed.

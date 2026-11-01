@@ -1,0 +1,675 @@
+{
+  "contract": "agentbaton.goal-owned-root-composition.v1",
+  "recorded_at": "2026-11-01T01:32:08.325440+00:00",
+  "state": "LOCAL_REGRESSION_RECORDED_PENDING_METADATA_REVIEW",
+  "source": "960550722366ee533431f4daf162a677e7c63d80",
+  "requirement_support_only": [
+    "AB-TSK-007",
+    "AB-TSK-009",
+    "AB-TSK-010",
+    "AB-TSK-012",
+    "AB-ACP-005",
+    "AB-SEC-006"
+  ],
+  "scope": "Linux local source-specific composition regression, not whole product acceptance",
+  "commands": [
+    {
+      "record": "goal-owned-root-composition-clippy1",
+      "source": "978e616bdb25bc1974c017d030e50fe01bf20b85",
+      "exit": 101,
+      "wrapper_seconds": 14.043761315988377,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "actual_command_sha256": "d1f633adc675c97f478f9559e6ee5e2de43b76fabe792ee104084b57d19b70af",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "71ce4066c76503ed54cf4d560381ef15ee2b20bd9136484a8fd489b952e5b24d",
+        "INPUTS.json": "b5256495dad2405db0dc5a0716d899e33af7a2396a3680be3b2c4d65f1a5de3b",
+        "command.log": "f815f4e15a79e2da2f6813fd463eb87457c9a909fda4ccdb355e20648bd4b2dc"
+      },
+      "selected_frozen_tools_sha256": [
+        "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+        "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+      ],
+      "selected_tools_hashes_match_normal960_pair": false
+    },
+    {
+      "record": "goal-owned-root-composition-clippy2",
+      "source": "46fbef8435a8b3c99e8a281b9e7553695b595913",
+      "exit": 0,
+      "wrapper_seconds": 15.967060217051767,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "actual_command_sha256": "d1f633adc675c97f478f9559e6ee5e2de43b76fabe792ee104084b57d19b70af",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "c709342de793fb28262b4d663604d1774db4616d64e99675dd2b6f679bd5e352",
+        "INPUTS.json": "14b00f4244c3702a8045d74d7290cc10a3fe85909c91c6876e6cab00bf3932a9",
+        "command.log": "a0ef36c9bb2b511b8d1284a1c48ecf534e43797ca8dfbdef3516f0b6f6ff86ad"
+      },
+      "selected_frozen_tools_sha256": [
+        "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+        "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+      ],
+      "selected_tools_hashes_match_normal960_pair": false
+    },
+    {
+      "record": "goal-owned-root-composition-infrastructure1",
+      "source": "46fbef8435a8b3c99e8a281b9e7553695b595913",
+      "exit": 0,
+      "wrapper_seconds": 20.349897477019113,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py",
+        "-q"
+      ],
+      "actual_command_sha256": "096b7c07cdc2cb996392caee6f268fb7920106dbb660667edf700abaa57fdb80",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "3cd2cafbcd29d56e32a7e0301584f496a169cd14b2433418603df112fb719463",
+        "INPUTS.json": "4efde0f1a1b164463ffd7f106bb06bbebaec0736f555440453a09fbd36fc6969",
+        "command.log": "f95b8794b1c0edd2ee73079b02109c69906328a100e16b18a543deb53370b711"
+      },
+      "selected_frozen_tools_sha256": [
+        "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+        "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+      ],
+      "selected_tools_hashes_match_normal960_pair": false
+    },
+    {
+      "record": "goal-owned-root-core-lib1",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "exit": 0,
+      "wrapper_seconds": 207.892809921992,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$PINNED_EXECUTION_INPUT",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "actual_command_sha256": "581043e48c4d742676300f9877c324a558e22362c41e7816a059c6adafffdd58",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 280 filtered out; finished in 0.00s",
+        "test result: ok. 281 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 183.32s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "2ada7ffa28f9649f7e39bdc1783e4e57871863ddc50fef3c787920c12f0c277c",
+        "INPUTS.json": "a852cea0df2a5756c044d947d0ee0289008086b7020fcdb67064bf5c2e044202",
+        "command.log": "87ad2a21da7c3c4624e8be3c4148a87c85e2a6b1646b752b0a10d1327c74a9d4"
+      },
+      "selected_frozen_tools_sha256": [
+        "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0",
+        "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee"
+      ],
+      "selected_tools_hashes_match_normal960_pair": true
+    },
+    {
+      "record": "goal-owned-root-factory-rework1",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "exit": 0,
+      "wrapper_seconds": 52.66890945000341,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$PINNED_EXECUTION_INPUT",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--exact",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "actual_command_sha256": "64981901f7fa716de35c0aa24c58fd359491f6852423d6819990f69134027a8e",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 38 filtered out; finished in 28.97s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "580abee778daf105e0837d8b0d6fb14cd599927091520b55901d0f8a340d6f68",
+        "INPUTS.json": "5dc045bb6163e29f65e88aeb5e0ee84a799473f465bff3ba5fd5867b62847057",
+        "command.log": "10bba7a3218ce6574ba94860ec43a95abc546f2627a6e55bef9545447a829599"
+      },
+      "selected_frozen_tools_sha256": [
+        "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0",
+        "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee"
+      ],
+      "selected_tools_hashes_match_normal960_pair": true
+    },
+    {
+      "record": "goal-owned-root-normal-build1",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "exit": 0,
+      "wrapper_seconds": 21.961275696987286,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton"
+      ],
+      "actual_command_sha256": "99aed924352a23e4e1457a1959aeb630ef7277fa02c289760f75d75a37ef18a0",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "5be15c110227fa02077347f08a082946c1f0b7fdf0d55fdf16ed0f5a84b75d8b",
+        "INPUTS.json": "12fd7b13fde198756e54a35985c5bfd37ae5602fd7977dc3a7b7e8ff5018af34",
+        "command.log": "2f43952fe4e0912b3f665054ae5741e9f981a402b68fc0965858873b5027b354"
+      },
+      "selected_frozen_tools_sha256": [
+        "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+        "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+      ],
+      "selected_tools_hashes_match_normal960_pair": false
+    },
+    {
+      "record": "goal-owned-root-normal-freeze1",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "exit": 0,
+      "wrapper_seconds": 0.5025338919949718,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "$BOUND_PRIVATE_INPUT",
+        "--output",
+        "$BOUND_PRIVATE_INPUT",
+        "--evidence",
+        "$BOUND_PRIVATE_INPUT"
+      ],
+      "actual_command_sha256": "31b5b30aa7f33a9dd82f9228b88ddf5db8dd19b2cb1d143fbfda1648755208b9",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "4a9b038b699bfa90daba95d85218e29542edde2df6fdfb32858c847be195ca03",
+        "INPUTS.json": "3ba03b045abbeeb6dcc931e9c32b7c671a42ccaed3e53596656dbfad7d833ead",
+        "command.log": "cf8b56a9e408aa7f9cf61d1983a09e5c014850c2da11b98bd2544c4d90d7b75e"
+      },
+      "selected_frozen_tools_sha256": [
+        "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+        "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+      ],
+      "selected_tools_hashes_match_normal960_pair": false
+    },
+    {
+      "record": "goal-owned-root-frontend-build1",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "exit": 0,
+      "wrapper_seconds": 1.7126607940299436,
+      "command_template": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "actual_command_sha256": "52c34e0c668a29cd31888d1a48a80c5784b7f0eecccc55eb067cf29446feec80",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "24c91a030efd1396f4de48134386cc391ff45a4d2ee2ff7f769565c502ef5574",
+        "INPUTS.json": "e8a401a274269147d1e6997bf2b428f82b02eb91f2afa4b816355a09fc2693db",
+        "command.log": "85dcce395c38c707906dea4cb8bc437d50a58afb7887912ee82590190d6ef045"
+      },
+      "selected_frozen_tools_sha256": [
+        "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+        "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+      ],
+      "selected_tools_hashes_match_normal960_pair": false
+    },
+    {
+      "record": "goal-owned-root-browser-normal1",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "exit": 0,
+      "wrapper_seconds": 24.38091061997693,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "PYTHONHOME=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$PINNED_EXECUTION_INPUT",
+        "$BOUND_PRIVATE_INPUT",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "normal",
+        "--tools",
+        "$BOUND_PRIVATE_INPUT",
+        "--manifest",
+        "$BOUND_PRIVATE_INPUT",
+        "--frontend",
+        "apps/desktop/dist",
+        "--chromium",
+        "$BOUND_PRIVATE_INPUT",
+        "--output",
+        "$BOUND_PRIVATE_INPUT"
+      ],
+      "actual_command_sha256": "cc48b9aa35803f7964e4f04ab655537c89c49dfcc0f2c2a5e3dbe9e4a05e235f",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "7a5fca02e6d65041cbf99def7c239b6cd9ccc23f577ad5df3a0391231b239bbd",
+        "INPUTS.json": "e01868b18c5a330e6cf229671c988691a0d3addfd3ef0138c1603e4d34230915",
+        "command.log": "5de05d84b60e79f746ebd226985b2f61d8b4a315eb341fd3b941710f52e67d35"
+      },
+      "selected_frozen_tools_sha256": [
+        "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0",
+        "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee"
+      ],
+      "selected_tools_hashes_match_normal960_pair": true
+    },
+    {
+      "record": "goal-owned-root-browser-cancel1",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "exit": 0,
+      "wrapper_seconds": 16.85226178902667,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "PYTHONHOME=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$PINNED_EXECUTION_INPUT",
+        "$BOUND_PRIVATE_INPUT",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "cancel",
+        "--tools",
+        "$BOUND_PRIVATE_INPUT",
+        "--manifest",
+        "$BOUND_PRIVATE_INPUT",
+        "--frontend",
+        "apps/desktop/dist",
+        "--chromium",
+        "$BOUND_PRIVATE_INPUT",
+        "--output",
+        "$BOUND_PRIVATE_INPUT"
+      ],
+      "actual_command_sha256": "49e8f7ec02e3328afd8e95b582a30f083eff536f359f544d54d6cc111898880e",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "718b63fad4cffd511e0357f3a1150e09056f11fb22662b31ab7bf92b0931969c",
+        "INPUTS.json": "fd0203c4c2d589264edad926f0d99a76a338c77d906dd07f47798f839f519654",
+        "command.log": "503a35d16ce4151cbedda6c35076e37596120ff8111c0696b93267861bfafd5e"
+      },
+      "selected_frozen_tools_sha256": [
+        "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0",
+        "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee"
+      ],
+      "selected_tools_hashes_match_normal960_pair": true
+    },
+    {
+      "record": "goal-owned-root-browser-lost-start1",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "exit": 0,
+      "wrapper_seconds": 26.693562317988835,
+      "command_template": [
+        "env",
+        "PATH=$PINNED_EXECUTION_INPUT",
+        "PYTHONHOME=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_FACTORY_TEST_TOOLS=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_PLAN_COMPANION=$PINNED_EXECUTION_INPUT",
+        "AGENTBATON_CHILD_GOAL_COMPANION=$PINNED_EXECUTION_INPUT",
+        "$BOUND_PRIVATE_INPUT",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "lost-start",
+        "--tools",
+        "$BOUND_PRIVATE_INPUT",
+        "--manifest",
+        "$BOUND_PRIVATE_INPUT",
+        "--frontend",
+        "apps/desktop/dist",
+        "--chromium",
+        "$BOUND_PRIVATE_INPUT",
+        "--output",
+        "$BOUND_PRIVATE_INPUT"
+      ],
+      "actual_command_sha256": "72a1eb7a40b5653401013c4215138a55798bd56d861c95bdcbdaa1f2b57f2372",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "sha256": {
+        "RESULT.json": "cdd08bdb73344eee6e8265a1e182f3ed952627d3337856ea884c8bb57c6adff6",
+        "INPUTS.json": "23b11539711d170ac2afb27dfc45fa4a2e030100af3c9362e027b59d6f19ea4a",
+        "command.log": "06e185bdcbe164114c8e8e07c70ed2da0a55646ecaa017fac11cc561fd5e7d8d"
+      },
+      "selected_frozen_tools_sha256": [
+        "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0",
+        "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee"
+      ],
+      "selected_tools_hashes_match_normal960_pair": true
+    }
+  ],
+  "counts": {
+    "full_Core_unique": 281,
+    "nested_Core_helper_included_not_added": 1,
+    "full_infrastructure_at46": 768,
+    "Factory_rework_only": 1,
+    "Factory_filtered_not_run_in_that_command": 38,
+    "browser_scenarios_only": 3,
+    "browser_checks_only_those_scenarios": 13,
+    "browser_PNG_only_those_scenarios": 11
+  },
+  "same_source_notes": {
+    "Core_Factory_build_freeze_frontend_browser_source": "960550722366ee533431f4daf162a677e7c63d80",
+    "Clippy_infrastructure_source": "46fbef8435a8b3c99e8a281b9e7553695b595913",
+    "metadata_only_delta46_to960": [
+      "BOOTSTRAP_MANIFEST.json",
+      "docs/execution/STATUS.md",
+      "docs/execution/goal-owned-turn-stop/ADR.md",
+      "docs/execution/goal-owned-turn-stop/CHECKPOINT.md",
+      "docs/execution/goal-owned-turn-stop/EVIDENCE.json",
+      "docs/execution/goal-owned-turn-stop/PLAN.md",
+      "docs/execution/goal-owned-turn-stop/PROGRESS.md",
+      "docs/execution/requirements-progress.json"
+    ],
+    "product_test_workflow_bytes_equal46_and960": true,
+    "does_not_relabel46_checks_as_a_new960_invocation": true
+  },
+  "preserved_local_failure": {
+    "source": "978e616bdb25bc1974c017d030e50fe01bf20b85",
+    "check": "strict Core all-targets Clippy",
+    "exit": 101,
+    "kind": "assert_eq with literal boolean",
+    "log_sha256": "f815f4e15a79e2da2f6813fd463eb87457c9a909fda4ccdb355e20648bd4b2dc",
+    "correction_scope": "reviewed assert! form, original assertion semantics retained; oldfailure retained"
+  },
+  "frozen_normal_tools": {
+    "schema": 17,
+    "source": "960550722366ee533431f4daf162a677e7c63d80",
+    "binaries_sha256": {
+      "baton": "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0",
+      "batond": "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee"
+    },
+    "source_and_frozen_after_equal": true,
+    "actual_probe": {
+      "query_only": true,
+      "schema": 17,
+      "sequence": 0,
+      "snapshot_api_version": 1,
+      "snapshot_sequence": 0,
+      "all_original_Factory_Integration_counts_zero": true,
+      "sigterm_sent": true,
+      "forced_kill": false,
+      "original_daemon_wait_exit": 0
+    }
+  },
+  "actual_browser_cases": [
+    {
+      "case": "normal",
+      "status": "passed",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "checks": 4,
+      "PNG": 4,
+      "report_sha256": "2ffdf31a9ddf2321fa7aed2bb5fae2a53982d833ed34f8c74b8c9ec290cd2a35",
+      "compiled_core_source": "960550722366ee533431f4daf162a677e7c63d80",
+      "frontend_build_source": "960550722366ee533431f4daf162a677e7c63d80",
+      "schema": 17,
+      "binary_sha256": {
+        "batond": "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee",
+        "baton": "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0"
+      },
+      "harness_sha256": "c3d374a58907e57840cb21f6a6ed55a406056035dc39b807d93bfe7d465903ee",
+      "manifest_sha256": "ad1b45bac6de48e65719c4b91d671289d277c97605880b61009c31ea472f4b8e",
+      "cleanup_complete": true,
+      "finite_cleanup": {
+        "HTTP_serve_and_handlers_joined": true,
+        "actual_owned_daemon_wait_exit": 0,
+        "generated_bound_records_verified": 2,
+        "generated_bound_identities_inspected": 4,
+        "all_inspected_original_identities_gone": true,
+        "cleanup_signals_for_these_identity_records_sent": false,
+        "bound_Graph_provider_gone": true,
+        "all_persisted_sessions_match_bound_stopped_processes": true
+      },
+      "screenshots": [
+        {
+          "ordinal": 1,
+          "sha256": "b9f653f7b5e64b53968ad40b11c5451c08b7a0b30c54410df349db6bdf8cb648",
+          "bytes": 150790,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        },
+        {
+          "ordinal": 2,
+          "sha256": "9994f69fa494a36414d0ba0b511b473c1abb581d0bb44e595430a04b33d9e658",
+          "bytes": 202204,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        },
+        {
+          "ordinal": 3,
+          "sha256": "fadcad1d1681c6fc2658a410edf6133899020b7fbfc8e60befef9c46cd64100d",
+          "bytes": 210791,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        },
+        {
+          "ordinal": 4,
+          "sha256": "e9677626400eb6fe5b44aac5f7abbb35466384f09bbf4a6e6902bc7ec9fdbdc4",
+          "bytes": 206980,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        }
+      ]
+    },
+    {
+      "case": "cancel",
+      "status": "passed",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "checks": 4,
+      "PNG": 3,
+      "report_sha256": "068007c27aee608129bd018c7d730320b7785c3ef52edf0bb5d310435a82e3f9",
+      "compiled_core_source": "960550722366ee533431f4daf162a677e7c63d80",
+      "frontend_build_source": "960550722366ee533431f4daf162a677e7c63d80",
+      "schema": 17,
+      "binary_sha256": {
+        "batond": "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee",
+        "baton": "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0"
+      },
+      "harness_sha256": "c3d374a58907e57840cb21f6a6ed55a406056035dc39b807d93bfe7d465903ee",
+      "manifest_sha256": "ad1b45bac6de48e65719c4b91d671289d277c97605880b61009c31ea472f4b8e",
+      "cleanup_complete": true,
+      "finite_cleanup": {
+        "HTTP_serve_and_handlers_joined": true,
+        "actual_owned_daemon_wait_exit": 0,
+        "generated_bound_records_verified": 1,
+        "generated_bound_identities_inspected": 2,
+        "all_inspected_original_identities_gone": true,
+        "cleanup_signals_for_these_identity_records_sent": false,
+        "bound_Graph_provider_gone": true,
+        "all_persisted_sessions_match_bound_stopped_processes": true
+      },
+      "screenshots": [
+        {
+          "ordinal": 1,
+          "sha256": "7d2baa56e2dc317a89a1e3071a5e8c128c9bcfef0844940d929a90f821b70579",
+          "bytes": 150019,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        },
+        {
+          "ordinal": 2,
+          "sha256": "6d2ee45e9bddd14f48ccc38d58123ac9038db74ad55c5dadace65bbef2a964d4",
+          "bytes": 201500,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        },
+        {
+          "ordinal": 3,
+          "sha256": "b61832b508a242b840a93ed44eba2516fe02160cecbdb2a1cb7bde890a1b994f",
+          "bytes": 209456,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        }
+      ]
+    },
+    {
+      "case": "lost-start",
+      "status": "passed",
+      "source": "960550722366ee533431f4daf162a677e7c63d80",
+      "checks": 5,
+      "PNG": 4,
+      "report_sha256": "939604a8b3e8c809613710fac433c6ed256aeb7e94bb1f7f22dd60f2eecc765b",
+      "compiled_core_source": "960550722366ee533431f4daf162a677e7c63d80",
+      "frontend_build_source": "960550722366ee533431f4daf162a677e7c63d80",
+      "schema": 17,
+      "binary_sha256": {
+        "batond": "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee",
+        "baton": "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0"
+      },
+      "harness_sha256": "c3d374a58907e57840cb21f6a6ed55a406056035dc39b807d93bfe7d465903ee",
+      "manifest_sha256": "ad1b45bac6de48e65719c4b91d671289d277c97605880b61009c31ea472f4b8e",
+      "cleanup_complete": true,
+      "finite_cleanup": {
+        "HTTP_serve_and_handlers_joined": true,
+        "actual_owned_daemon_wait_exit": 0,
+        "generated_bound_records_verified": 2,
+        "generated_bound_identities_inspected": 4,
+        "all_inspected_original_identities_gone": true,
+        "cleanup_signals_for_these_identity_records_sent": false,
+        "bound_Graph_provider_gone": true,
+        "all_persisted_sessions_match_bound_stopped_processes": true
+      },
+      "screenshots": [
+        {
+          "ordinal": 1,
+          "sha256": "e684740df762876453e550f9be60fc86252160c4fda0fc36ed19af08d7db7b4f",
+          "bytes": 150385,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        },
+        {
+          "ordinal": 2,
+          "sha256": "96c3a2115fd91e044744363b4b2dac61d1ea8b40a7193b2c32744408ccf2ade8",
+          "bytes": 201273,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        },
+        {
+          "ordinal": 3,
+          "sha256": "e4917827dbc2a1434f2dc42692e4422cc0d385d30bbc80b20aa6e042a8b5515f",
+          "bytes": 211780,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        },
+        {
+          "ordinal": 4,
+          "sha256": "089edf46cd1f3422c34de165af8e496e5295a73cc8578ca7432432a0c8da839e",
+          "bytes": 208113,
+          "width": 1488,
+          "height": 1400,
+          "dimension": "Linux Chromium screenshot; no Native or independent visual review claimed"
+        }
+      ]
+    }
+  ],
+  "retained_remote_failures": {
+    "Root003": {
+      "source_prefix": "003",
+      "status": "earlier remote failure retained as reported by main; no network recheck in this metadata task",
+      "closed_by_this_local_record": false
+    },
+    "PR24_f744": {
+      "source": "f744db55a079f1b174ace5670f213fcc1265622e",
+      "Product_run": 41256237628,
+      "UI_job": 124699887616,
+      "failure": "integration normal private_independent_review AssertionError, active screenshot viewport,3checks; command-failure4passed",
+      "closed_by_this_local_record": false,
+      "diagnostic_record_sha256": "975f0b3f44fe6cff7eaf4c5b27362eedbe688d6bb150bfe023bdf23310721e71"
+    }
+  },
+  "privacy": "Only fixed finite scalar observations and hashes are copied. Raw reports, process identities, generated record IDs, private paths, transcripts and images are not republished. Actual command input records remain hash-bound with explicit private aliases.",
+  "NOT_RUN_OR_NOT_ESTABLISHED": [
+    "new metadata candidate CI",
+    "current macOS Native/dualarchitecture installation acceptance",
+    "live private Provider/model tests",
+    "full Factory39 runtime suite in rework-only command",
+    "complete browser suite",
+    "whole Designv0.2/130acceptance"
+  ],
+  "review": "metadata independent review pending; no formal GitHubApprove or CI pass is claimed",
+  "authority": "AB-START-001 unchanged; no new fees/accounts/credentials/production/signing/permissions"
+}
