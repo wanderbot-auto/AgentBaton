@@ -878,7 +878,7 @@ impl Daemon {
                         if let Err(error)=self.supervisor.launch(&mut self.store,&session.id){self.supervisor.record_local_launch_failure(&mut self.store,&session.id)?;self.store.settle_goal_worker(&session.id,u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),true,true)?;return Err(error);}
                         return Ok(());
                     }
-                    if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send(&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
+                    if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send_goal(&mut self.store,&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
                 })();
                 if let Err(error)=action {return Err(recorded_goal_dispatch_error(&p.run_id,&receipt,error,admission));}Ok(receipt)
             }
