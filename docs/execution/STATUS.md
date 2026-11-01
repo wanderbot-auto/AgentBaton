@@ -1,3 +1,21 @@
+## Reviewed local source mapped to exact tested tree — metadata review pending
+
+Main committed `2d04d6cc8b666e6110b1cb901fd5e804876be793` only after applicablechecks and independentactualaudit; its tree exactlymatches testedb8. The local assembly branch normally FF'd d309→same2d04, with no extra mergecommit or remote write. Actualchecks remain stagedtreeb8/baseHEADd309 evidence; d309Workspaces is a separate execution with scope-equivalence proof. [Exact mapping and evidence](integration-git-path-observation/EVIDENCE.json).
+
+Seven metadata files are now staged on2d04 for independentreview and applicablechecks; author has not committed or pushed metadata. Earlierfailures/pendingstates remain historical. NewremoteCI/dualMac/native/installers/privateProvider/full130 acceptance remainsopen; the trusted04:14 existingbranch/draft permission adds noApprove/release/fees.
+
+## Drift fixture staged-tree validation passed locally — draft 2026-11-01
+
+Actualtreeb8/baseHEADd309 passed Integration33, infrastructure802, strictworkspaceClippy excludingdesktop, format and bootstrap93/design/static. It was a stagedtree, not an exact tested cleancommit; candidatecommit/normalRootmerge mappings are stillpending. Existingd309 fullWorkspaces remains an olderexecution with scope-equivalence proof, not a b8rerun. [Typed evidence](integration-git-path-observation/EVIDENCE.json).
+
+Originald30932/1, prior4ec55/1 and ab4ProductMacfail remain. The failing Git substep was unobserved; newlocal33pass does not establish unique rootcause/Macfix. All130, newremoteCI/dualMac/installers/privateProvider acceptance remainopen. Metadata staysdraft/uncommitted while mainaudits and maps actualsource. Trusted04:14 confirmation permits existingbranch/draftPR updates after tests+independentreview, noformalApprove/release/fees.
+
+## Isolated config fresh read verified locally — draft 2026-11-01
+
+Reviewed2a1 production and c900 test correction are integrated at exact local Rootd309. The complete Workspaces package command exited0 in110.495s, including lib56 and all subsequent integration/doc groups; filtered nested child summaries are included in parent groups. Original4ec55/1 is retained. Actual nonUTF8 promisor names now refuse even when the old locale regexp misses them; literalLF representation was rejected byGit128 and both guards. Same4MiB all-name bound is intentionally conservative. [Exact evidence](integration-git-path-observation/EVIDENCE.json) · [Decision](integration-git-path-observation/ADR.md).
+
+Exactd309 CoreIntegration is32PASS1FAIL101.92s (bounded Host Git expiry at fixture3026), separate from WorkspacesPASS. Independent diagnosis is pending with unchanged clocks/budgets; Root strictClippy and fullinfra results are absent, and another CoreClippy does not substitute. This draft is not CIready and must not be frozen/committed/pushed while tests fail. Two fewer config child launches is a static count, not measuredMac latency or proof ab4's Intel/ARM failures are fixed. Main reports ab4 EnvironmentPASS/ProductMacFAIL; saved Environment terminal pin remains to append. Currentd309 is local/unpushed with no new exactCI. Metadata review and full130/native/installers/privateProvider acceptance remain open. The trusted04:14 owner confirmation allows existingbranch/draftPR updates only after tests+independentreview; failure blocks commit/push and grants noApprove/release/fees. No requirements state changes.
+
 ## Child-plan local activation verified locally — 2026-11-01
 
 Reviewed 6a harness executed at byte-identical local Root 89f: controlled Chromium 151 native DOM passed in 1.103 s; full child-planning CP01–CP09 passed 9 checks with 4 original PNGs in 12.233 s using actual Unix IPC/Core 17 and generated ACP/MCP fixtures. All original 5 s, Core refusal/DB/permission/budget checks remain. HTTP join, daemon wait 0 and three verified records/six bound identities have finite cleanup evidence. Full local infrastructure 787 PASS after a retained exit127 tool-start failure; no test ran in that first invocation. [Exact evidence](child-plan-local-activation/EVIDENCE.json).

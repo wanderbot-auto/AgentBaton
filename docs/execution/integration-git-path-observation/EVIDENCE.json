@@ -275,5 +275,767 @@
       "OWNER-002"
     ],
     "scope_unchanged": "Designv0.2 complete130 requirements/27 decisions. No new production, credentials/private Provider, spending/resources, signing, final license or formal PR Approve authorization."
+  },
+  "isolated_config_fresh_batch_followup": {
+    "document_state": "DRAFT_BLOCKED; RootIntegration failed32/1; no freeze/commit/push before test failure is resolved and reviewed",
+    "baseline_root": "d3098c40921ec3f3cb46266e60234775b156f13b",
+    "baseline_tree": "fd5923a598bf8f63387f19518334758293236fd7",
+    "metadata_branch": "codex/isolated-config-root-evidence",
+    "production_source": "2a1a18c9ab3e3ce2c426049917b8c1cbfaa8f2b2",
+    "real_subsection_test_source": "1b4a8f9b6ec7450b81862e621c5603be85bcd669",
+    "security_expectation_test_fix": "c9006de638ae5d0aa99c1940cfb186ef94f6fb85",
+    "source_sha256": {
+      "crates/workspaces/src/lib.rs": "51885812db1e129793cfb7fe250e57b840f135cf6bd3ebcfc448d429ce87cd07",
+      "crates/workspaces/src/isolated_config_batch_tests.rs": "9547b5b1f6caf7187b187f15e2e80684169670b4f7815d5defa3b534823a81cb"
+    },
+    "decision": {
+      "read": "Original same-boundary three isolated config declarations queries become one fresh controlled --no-includes --null --name-only --list; original HEAD/FD/path/proof boundaries, cancellation, fee and effects checks remain. No cross-boundary cache.",
+      "policy": "A valid emitted promisor declaration remains refused even when a locale regexp misses nonUTF8 bytes. Original query is actually measured, not fabricated to match byteguard.",
+      "status_framing": "Successful list names are complete nonempty NUL records; failed/signalled list is not a no-match proof. Original failed first-probe classification NotRepository and actual controlled IO retain their role.",
+      "conservative_difference": "Same4MiB per-stream cap now covers all names. Large irrelevant name sets can fail ResourceLimit where three filtered original outputs were smaller; fail closed, do not truncate or extend cap.",
+      "performance": "Only static reduction of two config child launches per successful unchanged-boundary audit; no measured Mac gain or prior Mac/IPC failure fix.",
+      "unchanged": "No runtime/observer budget, retry slot, attempts/rounds, IO discount/refund, policy/authority expansion or original safety-test deletion."
+    },
+    "actual_workspaces": {
+      "source": "d3098c40921ec3f3cb46266e60234775b156f13b",
+      "tree": "fd5923a598bf8f63387f19518334758293236fd7",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/goal-owned-root-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "exit": 0,
+      "wrapper_seconds": 110.49521180102602,
+      "summaries_as_reported": [
+        "test result: ok. 56 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 36.28s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.30s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 1.67s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.31s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.30s",
+        "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.84s",
+        "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.45s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s",
+        "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+        "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s",
+        "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.19s",
+        "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.87s",
+        "test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.29s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s"
+      ],
+      "result": {
+        "path": "/workspace/.onboarding/isolated-config-batch-workspaces2/RESULT.json",
+        "sha256": "1790e47241848b470f5cee556198292184690254b59d3124ac6e0300b8cb28b3",
+        "bytes": 2564
+      },
+      "inputs": {
+        "path": "/workspace/.onboarding/isolated-config-batch-workspaces2/INPUTS.json",
+        "sha256": "f506936b9d773b95decbf9eef8812c579c936b4d3f96fb1d9dd03e10625b484e",
+        "bytes": 17487
+      },
+      "log": {
+        "path": "/workspace/.onboarding/isolated-config-batch-workspaces2/command.log",
+        "sha256": "c1111d16c35cda9fe1371b5d1ab6629393d3b806e7d02f1f493dc10b41850a3e",
+        "bytes": 56991
+      },
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true
+    },
+    "actual_Core_Integration": {
+      "source": "d3098c40921ec3f3cb46266e60234775b156f13b",
+      "tree": "fd5923a598bf8f63387f19518334758293236fd7",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/goal-owned-root-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "exit": 101,
+      "wrapper_seconds": 123.66928035300225,
+      "summaries_as_reported": [
+        "test result: FAILED. 32 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 101.92s"
+      ],
+      "result": {
+        "path": "/workspace/.onboarding/isolated-config-batch-integration1/RESULT.json",
+        "sha256": "7f20d453cd1cbc53b3d6cd85b308d8564f3be6cec9f0c0ae4588eb363159a311",
+        "bytes": 1175
+      },
+      "inputs": {
+        "path": "/workspace/.onboarding/isolated-config-batch-integration1/INPUTS.json",
+        "sha256": "ed301826cc4ffcab84cbd17c041c0f5fcc7af64742d609f79a2a80163134eabb",
+        "bytes": 17518
+      },
+      "log": {
+        "path": "/workspace/.onboarding/isolated-config-batch-integration1/command.log",
+        "sha256": "57a9e3af946a4c408c31d36360912960ff220481ffa47e2f2b7f52e8ed1cd841",
+        "bytes": 65557
+      },
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "passed": 32,
+      "failed": 1,
+      "test_seconds": 101.92,
+      "failed_test": "integration_runtime::block_policy_with_three_round_limit_refuses_real_descendant_advance",
+      "source_location": "crates/core/tests/fixtures/integration_runtime.rs:3026:9",
+      "reason": "bounded Host Git expired",
+      "diagnosis": "Independent readonly diagnosis in progress; no budget/deadline change or root cause accepted"
+    },
+    "top_level_pass_groups": [
+      {
+        "suite": "lib",
+        "passed": 56
+      },
+      {
+        "suite": "command_target_drift",
+        "passed": 6
+      },
+      {
+        "suite": "command_validation",
+        "passed": 28
+      },
+      {
+        "suite": "controlled_preparation",
+        "passed": 16
+      },
+      {
+        "suite": "data_workspace",
+        "passed": 24
+      },
+      {
+        "suite": "deterministic",
+        "passed": 21
+      },
+      {
+        "suite": "lazy_fetch",
+        "passed": 5
+      },
+      {
+        "suite": "safety",
+        "passed": 23
+      },
+      {
+        "suite": "source_capture",
+        "passed": 21
+      },
+      {
+        "suite": "validation_adoption",
+        "passed": 24
+      },
+      {
+        "suite": "doc_tests",
+        "passed": 7
+      }
+    ],
+    "counting": "Four filtered nested child summaries are already inside their parent groups and are not added. New11 tests are inside lib56. Compile-fail doctest diagnostics and caught controlled panic output are successful contracts; full outer command exit0 is authoritative for this package run.",
+    "actual_subsections": {
+      "literal_LF": {
+        "Git_list_exit": 128,
+        "exact_name_emitted": false,
+        "old_guard": "NotRepository",
+        "current_guard": "NotRepository",
+        "dimension": "Rejected representation; not an acceptedLF path"
+      },
+      "non_UTF8": {
+        "Git_list_exit": 0,
+        "exact_name_emitted": true,
+        "old_guard": "safe",
+        "current_guard": "UnsafeRepository",
+        "dimension": "Actually emitted forbidden promisor declaration missed by original locale-sensitive regex; current byteguard refuses"
+      }
+    },
+    "historical_first_failure": {
+      "source": "4ec835bba880d8f10d139bba70bcccf0c5ea3afe",
+      "tree": "4282db2d2d0500c45c351555c8e8de788f37f255",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/goal-owned-root-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "exit": 101,
+      "wrapper_seconds": 40.611604128964245,
+      "summaries_as_reported": [
+        "test result: FAILED. 55 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 36.25s"
+      ],
+      "result": {
+        "path": "/workspace/.onboarding/isolated-config-batch-workspaces1/RESULT.json",
+        "sha256": "9cba45cfd6846f22a7237034ca7846748c4be4ca4c4e96fb6ce22e148068cab2",
+        "bytes": 1143
+      },
+      "inputs": {
+        "path": "/workspace/.onboarding/isolated-config-batch-workspaces1/INPUTS.json",
+        "sha256": "eebf7b395974299fc0a0794a48ab8202b0442803670fba2527ffcd2e730fbfc9",
+        "bytes": 17487
+      },
+      "log": {
+        "path": "/workspace/.onboarding/isolated-config-batch-workspaces1/command.log",
+        "sha256": "9656e71517314336d5b7549bb5d25827d279a1c899bc88d7e2c26c1303dc3aaa",
+        "bytes": 14174
+      },
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "group": "55passed1failed36.25s; blanket equivalence assertion disproved; test expectation corrected, new refusal not weakened"
+    },
+    "reviews": [
+      {
+        "source": "2a1",
+        "path": "/tmp/isolation-config-fresh-batch-independent-review-2a1/REVIEW.json",
+        "sha256": "02da4d12452ccb87a607ab8b947af9e625374ac47ba3b2d11a83dbc522544558",
+        "status": "SOURCE_CONDITIONAL_ACTUAL_NOT_RUN"
+      },
+      {
+        "source": "c900",
+        "path": "/tmp/isolation-config-nonutf8-test-correction-independent-review-c900/REVIEW.json",
+        "sha256": "cc6a3850ac23e7ec37f11b561eb1a85b25962fa930f4a7f88f0a01afa9e55213",
+        "status": "SOURCE_READY_TEST_ONLY_SECURITY_EXPECTATION_CORRECTION_ACTUAL_RERUN_NOT_RUN"
+      }
+    ],
+    "author_evidence": [
+      {
+        "path": "/tmp/isolation-config-fresh-batch-author/REVISION3_RESULTS.json",
+        "sha256": "7d92acf89c610517d039f071d85e97e15986a360b5404f8e7b5b5c8292090524",
+        "bytes": 6460
+      },
+      {
+        "path": "/tmp/isolation-config-fresh-batch-author/REVISION3_SOURCE_PROOF.json",
+        "sha256": "428887c584e3dbb03d0c84044e2fe1affbb005a6f71be8d3d8b7d897b3ae0315",
+        "bytes": 1809
+      },
+      {
+        "path": "/tmp/isolation-config-fresh-batch-author/LOCALE_REGEX_DIAGNOSTIC.json",
+        "sha256": "f9c6dd880e3beeab20b6e41cc8c025b1f0547706870a9f4344e89e92e63fe314",
+        "bytes": 1854
+      },
+      {
+        "path": "/tmp/isolation-config-fresh-batch-author/ADR_REVISION3.md",
+        "sha256": "b4ca2e7544e3a6757f705443b4a59ecc5410352f21bcb05ce3c5f5fe5b936d97",
+        "bytes": 2980
+      }
+    ],
+    "locale_limit": "Standalone Linux libc reproduction matches nonUTF8 in C and misses in C.UTF8. Original wrapper did not capture locale and Mac implementation was not observed. Diagnostic is not a Git test or retrospective environment pin.",
+    "pending_actual_results": {
+      "Root_Core_Integration": "FAILED32/1; diagnose and resolve original bounded Host Git expiry without extending deadline/budget, then independently review and actually validate exact source",
+      "Root_strict_Clippy": "Await exact Root result; a different Core Clippy invocation in progress is not this Root result",
+      "Root_full_infrastructure": "Await exact Root result",
+      "ab4_Environment_terminal_pin": "Main reports passed; saved raw terminal observation pending"
+    },
+    "remote_history": {
+      "head": "ab4f53d5a702c1e3708ac2d6427c7bfa6f2db5a9",
+      "Product_run": 41266828747,
+      "Product": "FAIL",
+      "Rust": "PASS",
+      "UI": "PASS",
+      "Intel": "Factory35pass1fail final readonly get5002ms while original observation remaining11869ms and Scope13192ms; sharedretry2 already exhausted",
+      "Apple_Silicon": "Integration22pass11fail; three state observers,sevenFIFO observers,one exactleader stop observer; postshutdown is not failure instant",
+      "saved_Product_terminal": {
+        "path": "/workspace/.onboarding/root21-ab4f53d5-delivery1/CI_OBSERVATION_0330.json",
+        "sha256": "42c57b08682a65fc2b0429bc65a6537b0a59790ce49693dc580604dbcc6605bc",
+        "bytes": 1185
+      },
+      "finite_diagnostic": {
+        "path": "/tmp/root21-ab4f53d5-mac-failure-diagnostic/RESULTS2.json",
+        "sha256": "c98ba3809469c4d59431bd3cd7f244c4d98626b28b77cac1341c221a0dcc88fe",
+        "bytes": 1855
+      },
+      "Environment": "Main reported PASS; exact saved terminal observation pending",
+      "new_d309_remote_CI": "NOT_RUN_NOT_PUSHED"
+    },
+    "owner_instruction_0414_UTC": {
+      "source": "Main relayed trusted direct user confirmation at2026-11-01 04:14UTC",
+      "scope": "Existing branch push and draftPR update only after testing and independent review; failing tests block commit/push. No formalApprove/release/fees.",
+      "not_candidate_acceptance": true
+    },
+    "requirements_and_authority": {
+      "all130": "UNFINISHED; no baseline or progress-state mutation",
+      "requirements_files_changed": false,
+      "metadata_only": true,
+      "no_privateProvider_or_Mac_or_installer_acceptance": true,
+      "no_new_budget_retry_or_fees": true,
+      "metadata_independent_review": "PENDING after additional results and freeze",
+      "no_formalApprove_or_main_merge": "This draft performs neither"
+    }
+  },
+  "root_drift_staged_validation": {
+    "document_state": "DRAFT_STAGED_TESTS_PASSED_AWAIT_TRUE_COMMIT_MAPPING_AND_METADATA_REVIEW",
+    "base_HEAD": "d3098c40921ec3f3cb46266e60234775b156f13b",
+    "tested_source_kind": "staged_tree",
+    "tested_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+    "tested_tree_is_commit": false,
+    "candidate_source_commit": null,
+    "normal_Root_merge_commit": null,
+    "commit_mapping_state": "PENDING; no invented commit hash or claim that baseHEAD was the tested candidate commit",
+    "fixture_engineering": {
+      "scope": "Only four assert_real_drift_refusal cases prebuild fixed expected→next/tree/round objects before approval/start, fixed setup500ms independent of active validator.",
+      "preserved": "Original marker500ms with ps/live-stage/round/settledfalse, exact targetCAS+confirmation+release, original wall500/cleanup500/Host500/stage reservations, old Git/gate/positive/withdraw/done-assert tail. No new retry/clock/refund/authority.",
+      "proof": "SourceImage+independentTARGET before/after setup, no early ref move; NonDescendant remains parentless and originalrev-list1 assertion.",
+      "diagnostics": "Closed step/window/boundary enum and round/monotonicelapsed/originalremaining only; diagnostic I/O consumes original clock and is not zero overhead."
+    },
+    "independent_source_review": {
+      "path": "/tmp/root-drift-preparation-independent-review/REVIEW.json",
+      "sha256": "fad88671f941f24b0ac777d6af6196ffeeda73007e89286508edec01fd1a8609",
+      "bytes": 8213,
+      "decision": "SOURCE_READY_UNCOMMITTED_STAGED_TREE_NOT_ACTUAL_FIX_PASS",
+      "source_checks": 44,
+      "independent_pure": {
+        "tests": 30,
+        "unique": 30,
+        "failures": 0,
+        "errors": 0,
+        "seconds": 0.1128390800440684,
+        "log_sha256": "0828d4ba7628359d47da6f65f1b50e825a7388f0eb306ddd9c283f4ab715924e",
+        "dimension": "30pure source/text/inverse plus generated local descriptor checks, immutable tree copies. Product Git/SQL/subprocess/socket/thread forbidden. Only explicitly authorized read-only gitshow tree:path used outside tests."
+      },
+      "findings": [],
+      "historical_not_run_preserved": "Review was source-only at that time; later main actual checks below do not rewrite its historical status."
+    },
+    "actual_staged_checks": [
+      {
+        "runner_version": "v6",
+        "source_kind": "staged_tree",
+        "base_HEAD": "d3098c40921ec3f3cb46266e60234775b156f13b",
+        "tested_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+        "source_commit_is_tested_clean_commit": false,
+        "initial_tracked_clean": false,
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/goal-owned-root-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "child_exit": 0,
+        "wrapper_seconds": 124.1320132240071,
+        "interruption": null,
+        "source_and_tools_stable": true,
+        "summaries_as_reported": [
+          "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 101.52s"
+        ],
+        "result": {
+          "path": "/workspace/.onboarding/root-drift-staged-integration1/RESULT.json",
+          "sha256": "c62c1c0a2bd0905f1d81fbd70bfd9b3bd55d8b78041952dccd453463cb17779a",
+          "bytes": 1408
+        },
+        "inputs": {
+          "path": "/workspace/.onboarding/root-drift-staged-integration1/INPUTS.json",
+          "sha256": "7e4a6e4b2891aa392c1d47d1bc74782d62d2c2de502b940bc3ff707f66b18313",
+          "bytes": 17677
+        },
+        "log": {
+          "path": "/workspace/.onboarding/root-drift-staged-integration1/command.log",
+          "sha256": "cc68fd92ce95b131f493f400daf9d829dae7af0cc788b753e94e86e2ac45864c",
+          "bytes": 76692
+        },
+        "wrapper_exit": 0,
+        "owned_leader_joined": true,
+        "stop_unconfirmed": false
+      },
+      {
+        "runner_version": "v5",
+        "source_kind": "staged_tree",
+        "base_HEAD": "d3098c40921ec3f3cb46266e60234775b156f13b",
+        "tested_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+        "source_commit_is_tested_clean_commit": false,
+        "initial_tracked_clean": false,
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "child_exit": 0,
+        "wrapper_seconds": 20.44432190002408,
+        "interruption": null,
+        "source_and_tools_stable": true,
+        "summaries_as_reported": [],
+        "result": {
+          "path": "/workspace/.onboarding/root-drift-staged-infrastructure1/RESULT.json",
+          "sha256": "8fae7ebf69f7e743af00292231f123bcb00cb289bf77f66b6dccdca832dad13a",
+          "bytes": 882
+        },
+        "inputs": {
+          "path": "/workspace/.onboarding/root-drift-staged-infrastructure1/INPUTS.json",
+          "sha256": "22c808ece2006b6afd7f0ef47b6f337f49046b63a20466a0140a50901d140415",
+          "bytes": 1778
+        },
+        "log": {
+          "path": "/workspace/.onboarding/root-drift-staged-infrastructure1/command.log",
+          "sha256": "2e49da72ebdb2352ed4662b02d8f68ea92a476ad8f329b4414fa2f4eef4bbb32",
+          "bytes": 159066
+        },
+        "limitation": "v5 actual call had no interruption and exit0; no generic bounded shutdown/join guarantee inferred from absent v6 fields."
+      },
+      {
+        "runner_version": "v6",
+        "source_kind": "staged_tree",
+        "base_HEAD": "d3098c40921ec3f3cb46266e60234775b156f13b",
+        "tested_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+        "source_commit_is_tested_clean_commit": false,
+        "initial_tracked_clean": false,
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/goal-owned-root-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--workspace",
+          "--all-targets",
+          "--exclude",
+          "agentbaton-desktop",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "child_exit": 0,
+        "wrapper_seconds": 19.98312262800755,
+        "interruption": null,
+        "source_and_tools_stable": true,
+        "summaries_as_reported": [],
+        "result": {
+          "path": "/workspace/.onboarding/root-drift-staged-clippy1/RESULT.json",
+          "sha256": "420831d10bb88e9369fa196c016fbefd226fcdb45824c6b3446c7596aac18cf6",
+          "bytes": 1298
+        },
+        "inputs": {
+          "path": "/workspace/.onboarding/root-drift-staged-clippy1/INPUTS.json",
+          "sha256": "4023d44dd9bbaff48f65338db439b92f336fac60c0256d286d6383cde5431433",
+          "bytes": 17673
+        },
+        "log": {
+          "path": "/workspace/.onboarding/root-drift-staged-clippy1/command.log",
+          "sha256": "56f264deb11567cdfe93e618ca10c26c484bba2abc22c5f763e680c436db2531",
+          "bytes": 713
+        },
+        "wrapper_exit": 0,
+        "owned_leader_joined": true,
+        "stop_unconfirmed": false
+      },
+      {
+        "runner_version": "v6",
+        "source_kind": "staged_tree",
+        "base_HEAD": "d3098c40921ec3f3cb46266e60234775b156f13b",
+        "tested_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+        "source_commit_is_tested_clean_commit": false,
+        "initial_tracked_clean": false,
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "child_exit": 0,
+        "wrapper_seconds": 1.5044553159968928,
+        "interruption": null,
+        "source_and_tools_stable": true,
+        "summaries_as_reported": [],
+        "result": {
+          "path": "/workspace/.onboarding/root-drift-staged-format1/RESULT.json",
+          "sha256": "19012d92172a6c25fe798d3b4287bcf6e3c7d820e27c81dbf424e2e94bfaf5c6",
+          "bytes": 894
+        },
+        "inputs": {
+          "path": "/workspace/.onboarding/root-drift-staged-format1/INPUTS.json",
+          "sha256": "96aeb6044871b8e7bccd0fa31048ed57a59308be8237a9b0df92847aac572643",
+          "bytes": 17170
+        },
+        "log": {
+          "path": "/workspace/.onboarding/root-drift-staged-format1/command.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "wrapper_exit": 0,
+        "owned_leader_joined": true,
+        "stop_unconfirmed": false
+      },
+      {
+        "runner_version": "v6",
+        "source_kind": "staged_tree",
+        "base_HEAD": "d3098c40921ec3f3cb46266e60234775b156f13b",
+        "tested_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+        "source_commit_is_tested_clean_commit": false,
+        "initial_tracked_clean": false,
+        "command": [
+          "python3",
+          "scripts/verify_bootstrap_manifest.py"
+        ],
+        "child_exit": 0,
+        "wrapper_seconds": 0.10095541196642444,
+        "interruption": null,
+        "source_and_tools_stable": true,
+        "summaries_as_reported": [],
+        "result": {
+          "path": "/workspace/.onboarding/root-drift-staged-bootstrap1/RESULT.json",
+          "sha256": "8a5a96c4d40ac52a795c3019f58d41e31460a767f2f968659f4bced423edc27c",
+          "bytes": 892
+        },
+        "inputs": {
+          "path": "/workspace/.onboarding/root-drift-staged-bootstrap1/INPUTS.json",
+          "sha256": "eae1cf82b1a91c5b3f5a839290bca002a1ead9292da3fcd7ce46b2973bf2269b",
+          "bytes": 1754
+        },
+        "log": {
+          "path": "/workspace/.onboarding/root-drift-staged-bootstrap1/command.log",
+          "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+          "bytes": 71
+        },
+        "wrapper_exit": 0,
+        "owned_leader_joined": true,
+        "stop_unconfirmed": false
+      },
+      {
+        "runner_version": "v6",
+        "source_kind": "staged_tree",
+        "base_HEAD": "d3098c40921ec3f3cb46266e60234775b156f13b",
+        "tested_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+        "source_commit_is_tested_clean_commit": false,
+        "initial_tracked_clean": false,
+        "command": [
+          "python3",
+          "scripts/validate_design.py"
+        ],
+        "child_exit": 0,
+        "wrapper_seconds": 0.30141575797460973,
+        "interruption": null,
+        "source_and_tools_stable": true,
+        "summaries_as_reported": [],
+        "result": {
+          "path": "/workspace/.onboarding/root-drift-staged-design1/RESULT.json",
+          "sha256": "436c5388b82d50705b9998ebea43b328687ac8d91a31a8a583f4030dd7cd6d27",
+          "bytes": 882
+        },
+        "inputs": {
+          "path": "/workspace/.onboarding/root-drift-staged-design1/INPUTS.json",
+          "sha256": "cf58ddee2af0a5b6c0944f58ce6f657698731f412a58e2b4cc17ea9b5c32ee43",
+          "bytes": 1744
+        },
+        "log": {
+          "path": "/workspace/.onboarding/root-drift-staged-design1/command.log",
+          "sha256": "f95dee9a52c0e6511f19ccaf3fa3852211a7059d64f78c84ba8732c4edeaf493",
+          "bytes": 726
+        },
+        "wrapper_exit": 0,
+        "owned_leader_joined": true,
+        "stop_unconfirmed": false
+      },
+      {
+        "runner_version": "v6",
+        "source_kind": "staged_tree",
+        "base_HEAD": "d3098c40921ec3f3cb46266e60234775b156f13b",
+        "tested_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+        "source_commit_is_tested_clean_commit": false,
+        "initial_tracked_clean": false,
+        "command": [
+          "python3",
+          "scripts/validate_infrastructure.py"
+        ],
+        "child_exit": 0,
+        "wrapper_seconds": 0.10108706896426156,
+        "interruption": null,
+        "source_and_tools_stable": true,
+        "summaries_as_reported": [],
+        "result": {
+          "path": "/workspace/.onboarding/root-drift-staged-static-infrastructure1/RESULT.json",
+          "sha256": "402767c75ca7da0fecc90aecdbebb61199a5661ac11bac6423c05f433c6fbe6a",
+          "bytes": 890
+        },
+        "inputs": {
+          "path": "/workspace/.onboarding/root-drift-staged-static-infrastructure1/INPUTS.json",
+          "sha256": "e98c3f88ce4121c4a6d30f50ffd62da3e5a529ecbb077537476ee18f099b824a",
+          "bytes": 1752
+        },
+        "log": {
+          "path": "/workspace/.onboarding/root-drift-staged-static-infrastructure1/command.log",
+          "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+          "bytes": 231
+        },
+        "wrapper_exit": 0,
+        "owned_leader_joined": true,
+        "stop_unconfirmed": false
+      }
+    ],
+    "actual_summary": {
+      "Integration": "33PASS0FAIL101.52s/w124.132013224, v6 child0/wrapper0/interruptionNone/joinedtrue/source+toolsstable",
+      "infrastructure": "802PASS19.808s/w20.444321900; includes9new source checks, do not add pure30 again. Outer unittest802OK; controlledfailed_or_interrupted output is negativefixture output, not overall failure.",
+      "strict_Clippy": "Workspace all-targets excludingdesktop -Dwarnings PASS19.983122628s (v6)",
+      "format": "cargo fmt--all--check PASS1.504455316s (v6)",
+      "bootstrap_design_static": "AllPASS, bootstrap93; design130requirements/27answers is design-only, not product acceptance."
+    },
+    "workspace_source_equivalence": {
+      "path": "/workspace/.onboarding/root-drift-workspace-source-equivalence1.json",
+      "sha256": "fc392a8c9c0568f60afac76a5b4fb77f1cbb30fa5c229af42630aab1aa4c6004",
+      "bytes": 3364,
+      "executed_source_commit": "d3098c40921ec3f3cb46266e60234775b156f13b",
+      "staged_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+      "workspaces_command_reexecuted_on_b8": false,
+      "scope": "Existing exactd309 completeWorkspaces result only. Allcrates/workspaces, its registrydeps, lock/root manifests/.cargo/toolchain unchanged; sevenchanges solelyCoretestfixture+infra. No new stagedWorkspaces pass is fabricated.",
+      "actual_d309_Workspaces_result_sha256": "1790e47241848b470f5cee556198292184690254b59d3124ac6e0300b8cb28b3"
+    },
+    "retained_failure_and_uncertain_step": {
+      "actual_d309": "32PASS1FAIL101.92s/w123.669280353; boundedHostGit expiry at3026. OriginalJSONfields and failedlog remain in earlier followup.",
+      "diagnostic": "Shared500ms expired and targetref had advanced; exact failing Git substep was not observed. Setup relocation and current33pass do not retrospectively identify a unique rootcause.",
+      "diagnostic_evidence": "independent source review retained_history.original_d309",
+      "diagnostic_sha256": "c8a6377c0d2b5cd032605a9d8670beb537b558f833dac299cb6608d6d41419be",
+      "author_pure8_1_and29_1": "Kept in authorRESULTS and logs; finalpure30 not added to infra802."
+    },
+    "external_runner_evidence": {
+      "path": "/tmp/staged-evidence-runner-v6-independent-review/REVIEW.json",
+      "sha256": "810545792f39f057bdbb461dd9ed7edff20451df1f887f8e106e4b960160a675",
+      "bytes": 13836,
+      "decision": "SOURCE_READY_FOR_EXPLICIT_STAGED_TREE_TESTING",
+      "dimension": "External bounded test-evidence runner only; no project management module added.",
+      "actual_controlled_cases": 10,
+      "independent_pure_controls": 1,
+      "scope": "Ten actual privatefixture/Pythonchild controls plus one in-memory unconfirmedstop control; no product/Provider/SQL. Pureunknownstop is not an actuallyforced unkillableprocess.",
+      "limitations": [
+        "Unconfirmed actual leader stop was not forced or observed; that branch was independently exercised only with one in-memory FakeProcess control. Actual10 and pure1 counts remain separate.",
+        "Original SIGTERM ProcessLookup race can still abort the runner without a normal RESULT; it cannot produce a successful wrapper result.",
+        "Tracked Git state checks are before/after observations, not isolation against transient restored edits or untracked dependency files.",
+        "Disk/permission write failures may still prevent recording evidence; missing records are not success.",
+        "No product Cargo/SQL/daemon/browser/Rootb8 or remoteCI was run by reviewer. The actual10 cases are preexisting main evidence; only the in-memory pure control was newly executed.",
+        "Retained harness/generator errata are parent-recorded history; this review does not claim to have independently witnessed those original failed attempts."
+      ]
+    },
+    "authorization_confirmation": {
+      "source": "Trusted conversation history explicitly provided by current cloud coordination message; no independent rawAPI capture claimed.",
+      "assistant_question": "是否允许我继续让原任务把经过测试和独立审查的修改推送到 wanderbot-auto/AgentBaton 的现有开发分支、更新草稿 PR？这次确认不包含正式发布或额外付费。",
+      "user_reply": "确认",
+      "user_reply_at": "2026-11-01 04:14UTC",
+      "allowed": "Existing developmentbranch push/draftPR update after testing and independentreview. Failed tests blockcommit/push.",
+      "excluded": "No formalGitHubApprove, release/production, additionalfees, account/credentials/signing or permission expansion.",
+      "internal_identifiers_published": false
+    },
+    "ab4_Environment_terminal": {
+      "run": 41266827268,
+      "head": "ab4f53d5a702c1e3708ac2d6427c7bfa6f2db5a9",
+      "status": "completed",
+      "conclusion": "success",
+      "all3lanes": "success",
+      "terminal_observation": {
+        "path": "/workspace/.onboarding/root21-ab4f53d5-delivery1/CI_OBSERVATION_0255.json",
+        "sha256": "f0b4c0a242f57f745da21b2001bb1656e9eacf5a10e4afeb75dcfee1f6042df7",
+        "bytes": 2160
+      },
+      "head_binding_observation": {
+        "path": "/workspace/.onboarding/root21-ab4f53d5-delivery1/OBSERVED_RUNS2.json",
+        "sha256": "aadf4dfaf4fc8aac6effa960017ca75e77a61035446ffb3506bf4a4d32af3fa8",
+        "bytes": 742
+      },
+      "Product_limit": "Product in this0255 observation was stillinprogress; finalProductFAIL is separately pinned0330, never inferred from0255."
+    },
+    "still_open": [
+      "Main actualaudit and trueexactb8 commit+normalRootmerge mappings",
+      "Metadata independent review/final freeze, not staged/committed here",
+      "New exact remote CI and bothMac/Native/installers; ab4ProductMacfail history retained",
+      "Full130product acceptance/privateProvider/signing/production/finallicense remain unestablished"
+    ],
+    "no_push_by_metadata_author": true
+  },
+  "root_drift_resolved_source_mapping": {
+    "document_state": "RESOLVED_SOURCE_MAPPING_METADATA_STAGED_FOR_INDEPENDENT_REVIEW_NOT_COMMITTED_OR_PUSHED_BY_AUTHOR",
+    "resolves_historical_pending": "root_drift_staged_validation.candidate_source_commit/normal_Root_merge_commit remain null as historical state; resolved values are only in this appended record.",
+    "tested_source_kind": "staged_tree",
+    "tested_base_HEAD": "d3098c40921ec3f3cb46266e60234775b156f13b",
+    "tested_source_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+    "real_source_commit": "2d04d6cc8b666e6110b1cb901fd5e804876be793",
+    "real_source_commit_parent": "d3098c40921ec3f3cb46266e60234775b156f13b",
+    "real_source_commit_tree": "b8ed174d16c43112f8b7b7dd4ba042e118f114d1",
+    "all_tested_blobs_modes_equal_source_commit": true,
+    "actual_evidence_independent_review": {
+      "path": "/tmp/root-drift-staged-actual-independent-review/REVIEW.json",
+      "sha256": "3ae8b937ded3d82312fb9e028b13ea8bb3d5d90ee38890a2aa6944709bc74b3a",
+      "bytes": 10990,
+      "decision": "LOCAL_SOURCE_AND_ACTUAL_EVIDENCE_READY_FOR_EXACT_B8_TREE_COMMIT",
+      "checks": 374,
+      "mustfix": [],
+      "scope": "Local source and actual evidence binding; not remoteCI/Mac/fullproduct or formalGitHubApprove."
+    },
+    "guarded_commit_operation": {
+      "path": "/workspace/.onboarding/root-b8-reviewed-commit-result.json",
+      "sha256": "51b0c8d9ffd025849b0a0fa40166867aa137e9763fb3d862e4aaea55b7230acf",
+      "bytes": 1087,
+      "negative_no_write_cases": 15,
+      "positive_fake_callback_cases": 1,
+      "actual_repository_write_after_checks_and_review": true,
+      "dimension": "One external localcommit operation and its controls; no inproduct management module or new budget."
+    },
+    "normal_development_integration": {
+      "path": "/workspace/.onboarding/root-b8-main-fastforward-composition1.json",
+      "sha256": "2fdb81b41a3eef398497e5826bd56aa92b3e5bf646227cbffe1d458a12359500",
+      "bytes": 396,
+      "branch": "codex/authorized-integration-assembly",
+      "before": "d3098c40921ec3f3cb46266e60234775b156f13b",
+      "after": "2d04d6cc8b666e6110b1cb901fd5e804876be793",
+      "method": "normal_fast_forward",
+      "additional_merge_commit": null,
+      "all_tracked_blobs_modes_equal_b8": true,
+      "remote_write_at_recorded_handoff": false
+    },
+    "metadata_author_base_ff": {
+      "path": "/tmp/isolated-config-root-metadata-author/METADATA_BASE_FAST_FORWARD.json",
+      "sha256": "3c75fb0b1cadaf43c8b10756424377c634137aa739cf11c5836ed8fd6f281b4a",
+      "bytes": 1145,
+      "branch": "codex/isolated-config-root-evidence",
+      "before": "d3098c40921ec3f3cb46266e60234775b156f13b",
+      "after": "2d04d6cc8b666e6110b1cb901fd5e804876be793",
+      "method": "git merge --ff-only",
+      "all7_known_metadata_draft_bytes_preserved": true,
+      "sourcefix_paths_disjoint_metadata_paths": true,
+      "reset_or_stash_used": false
+    },
+    "evidence_interpretation": "The commands actually ran against stagedtreeb8/baseHEADd309; they were not exactcleancommit runs. After results and independentreview, commit2d04 was created with identicaltree. The mapping does not relabel the older d309Workspaces command as b8/2d04 rerun. Scopeequivalence fc392a remains separate.",
+    "authority": "Trusted04:14 original question/reply and exclusions remain verbatim in earlier record; this mapping adds no Approve/release/fees/credential/signing authority.",
+    "remaining": [
+      "Metadata independentreview then applicable stagedstatic/infra checks before metadata commit",
+      "No new accurate remoteCI/dualMac/native/installers/privateProvider/full130 acceptance claimed",
+      "Oldab4ProductMacfail and all earlier failures retain their sources and precise diagnostic limitations"
+    ]
   }
 }
