@@ -1,3 +1,9 @@
+## Child-plan local activation verified locally — 2026-11-01
+
+Reviewed 6a harness executed at byte-identical local Root 89f: controlled Chromium 151 native DOM passed in 1.103 s; full child-planning CP01–CP09 passed 9 checks with 4 original PNGs in 12.233 s using actual Unix IPC/Core 17 and generated ACP/MCP fixtures. All original 5 s, Core refusal/DB/permission/budget checks remain. HTTP join, daemon wait 0 and three verified records/six bound identities have finite cleanup evidence. Full local infrastructure 787 PASS after a retained exit127 tool-start failure; no test ran in that first invocation. [Exact evidence](child-plan-local-activation/EVIDENCE.json).
+
+Original db281 remote UI 5/4 and both Mac Integration 21/12 failures remain separate; Product is terminal FAIL as of 02:22:38 UTC and Rust passed; sole UI cause is unknown. No new precise CI/Mac/privateProvider/full 130 acceptance or protected-main merge is claimed. Metadata independent review is pending; remote PR21 remains db281 at the recorded handoff.
+
 ## Goal-owned Root composition regression recorded locally — 2026-11-01
 
 Exact960 passes fullCore281 (nestedhelper included), one actualFactory rework case, matchingnormalCore17/CLI build/freeze/probe and frontend type/build. Three actual Factory-childGoal browser cases normal/cancel/lost-start pass4/4/5checks with4/3/4PNG and independently verified ownedcleanup. Their13checks/11PNG cover onlythese three scenarios, not a fullbrowser suite. StrictClippy/full768infra remain bound to46, whose product/test/workflow bytes equal960; the original978bool-assert Clippy failure stays retained. [Exact finite results](goal-owned-root-composition/EVIDENCE.json).
