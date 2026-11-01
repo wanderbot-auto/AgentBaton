@@ -1686,7 +1686,7 @@ def runtime_driver(args, output):
     token='';pump=lambda:None;active={};lock=threading.Lock();verified=[];graph_verified=[];record_context={};resources={};bounds=None
     def clean(v):return str(v).replace(token,'[redacted generated Owner token]')if token else str(v)
     diagnostic_phase='runtime'
-    finite=finite_projection.FiniteRuntimeDiagnosticsV4()
+    finite=finite_projection.FiniteRuntimeDiagnosticsV5()
     def passed(name,details):
         report['checks'].append({'id':name,'status':'passed','evidence':details});finite.completed(name)
     def fail(stage,error):
@@ -1705,8 +1705,18 @@ def runtime_driver(args, output):
         report.setdefault('owner_phase_stamps',[]).append({'phase':phase,'edge':edge,'monotonic_ns':time.monotonic_ns()})
     def capture():
         if host is None or workspace is None or scope is None or not record_context.get('run_id'):return
-        base.collect_started_records(runtime,workspace,scope,record_context,verified,output,reaper)
-        collect_graph_records(runtime,workspace,scope,record_context,graph_verified,output,finite)
+        try:
+            base.collect_started_records(runtime,workspace,scope,record_context,verified,output,reaper)
+        except BaseException as error:
+            try:finite.capture_failure('started_records',error)
+            except BaseException:pass
+            raise
+        try:
+            collect_graph_records(runtime,workspace,scope,record_context,graph_verified,output,finite)
+        except BaseException as error:
+            try:finite.capture_failure('graph_records',error)
+            except BaseException:pass
+            raise
     try:
         report['controller_reaper']={};reaper=base.FixtureControllerReaper(report['controller_reaper']);reaper.enable()
         report['private_installation']={}

@@ -173,6 +173,14 @@ def unobserved_diagnostics():
         'graph_provider_identity':None}
 
 def finite_diagnostics(value):
+    # V5 is failure-only: preserve and validate the complete original v4 first.
+    if type(value)is dict and type(value.get('version'))is int and value['version']==5:
+        require(set(value)==set(unobserved_diagnostics())|{'owner_ui_state','capture_failure'})
+        legacy={k:v for k,v in value.items()if k!='capture_failure'};legacy['version']=4
+        finite_diagnostics(legacy)
+        require(value['failure_class']is not None)
+        capture_failure_diagnostic(value['capture_failure'],value['failure_class'])
+        return value
     # V4 is an explicit extension; validate its unchanged v3 payload first.
     if type(value)is dict and type(value.get('version'))is int and value['version']==4:
         require(set(value)==set(unobserved_diagnostics())|{'owner_ui_state'})
@@ -285,6 +293,7 @@ class FiniteRuntimeDiagnostics:
     def failure(self,error,phase,filename,refusal_type,timeout_types=()):
         with self._lock:
             if self._value['failure_class']is not None:return
+            self._failure_identity=error
             if isinstance(error,refusal_type):kind='refusal'
             elif isinstance(error,AssertionError):kind='assertion'
             elif isinstance(error,(TimeoutError,)+timeout_types):kind='timeout'
@@ -388,6 +397,60 @@ class FiniteRuntimeDiagnosticsV4(FiniteRuntimeDiagnostics):
         value.update(version=4,owner_ui_state=state)
         return value
 
+# Failure-only capture observations. No extra probe/read/retry is performed.
+def capture_failure_diagnostic(value,failure_class):
+    require(type(value)is dict and set(value)=={'substage','errno','helper_source','helper_line'})
+    require(type(value['substage'])is str and value['substage']in {'started_records','graph_records'})
+    number=value['errno']
+    require(number is None or type(number)is int and 1<=number<=4095 and failure_class in {'os_error','timeout'})
+    source,line=value['helper_source'],value['helper_line']
+    require((source is None and line is None)or(type(source)is str and source in {'factory_base','child_goal_driver'}
+        and type(line)is int and 1<=line<=1000000))
+    return value
+
+
+def capture_failure_observation(substage,error):
+    require(type(substage)is str and substage in {'started_records','graph_records'})
+    number=error.errno if isinstance(error,OSError)else None
+    number=number if type(number)is int and 1<=number<=4095 else None
+    # These are exact repository source names, never an exception-supplied path.
+    tests=Path(__file__).absolute().parents[1]/'apps/desktop/tests'
+    sources={str(tests/'factory-real-ipc.py'):'factory_base',
+             str(tests/'factory-child-goal-real-ipc.py'):'child_goal_driver'}
+    source,line=None,None
+    tb=error.__traceback__
+    for _ in range(4096):
+        if tb is None:break
+        candidate=sources.get(tb.tb_frame.f_code.co_filename)
+        if candidate is not None and type(tb.tb_lineno)is int and 1<=tb.tb_lineno<=1000000:
+            source,line=candidate,tb.tb_lineno
+        tb=tb.tb_next
+    if tb is not None:source,line=None,None
+    return {'substage':substage,'errno':number,'helper_source':source,'helper_line':line}
+
+
+class FiniteRuntimeDiagnosticsV5(FiniteRuntimeDiagnosticsV4):
+    """Successful snapshots stay v4; only the actual first capture failure extends it."""
+    def capture_failure(self,substage,error):
+        try:
+            observation=capture_failure_observation(substage,error)
+            with self._lock:
+                if not hasattr(self,'_capture_error'):
+                    self._capture_error=error;self._capture_observation=observation
+        except BaseException:
+            # Metadata collection cannot replace the original exception/raise.
+            return
+    def snapshot(self):
+        value=super().snapshot()
+        if value.get('version')!=4 or value.get('failure_class')is None:return value
+        with self._lock:
+            capture=getattr(self,'_capture_error',None)
+            if capture is None or capture is not getattr(self,'_failure_identity',None):return value
+            observation=dict(self._capture_observation)
+        value.update(version=5,capture_failure=observation)
+        return value
+
+
 def project(report, candidate, summary, case, exit_code, harness_sha):
     require(case in CASES and (exit_code is None or type(exit_code)is int and -128<=exit_code<=255))
     require(type(report)is dict and report.get('case')==case and report.get('status')in ('passed','failed_or_interrupted'))
@@ -400,6 +463,8 @@ def project(report, candidate, summary, case, exit_code, harness_sha):
         seen.add(check['id']);safe.append({'id':check['id'],'status':'passed'})
     cleanup=report.get('cleanup');require(type(cleanup)is list and len(cleanup)<=256 and type(report.get('cleanup_complete'))is bool)
     diagnostics=finite_diagnostics(report.get('finite_diagnostics'))
+    if diagnostics.get('version')==5:
+        require(report['status']=='failed_or_interrupted'and exit_code!=0)
     passed=(exit_code==0 and report['status']=='passed' and report['cleanup_complete']is True
         and not report.get('failure') and report.get('http_unexpected_errors')==[] and seen==EXPECTED[case]
         and diagnostics.get('graph_provider_argv')is None)

@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import types
 import unittest
+from tests.infrastructure.child_goal_capture_source_fixture import LAYERS as CAPTURE_LAYERS, strip_capture_failure_layer
 
 ROOT=Path(__file__).resolve().parents[2]
 P=types.ModuleType('v4_projection');P.__file__=str(ROOT/'scripts/record-child-goal-ci-evidence.py')
@@ -69,6 +70,7 @@ def strip_plan_read_reuse_outer_layer(text,manifest_raw=None):
     return restored
 
 def inverse(path,text):
+    if path in CAPTURE_LAYERS:text=strip_capture_failure_layer(path,text)
     if path=='apps/desktop/src/FactoryChildGoals.tsx':text=strip_plan_read_reuse_outer_layer(text)
     expected=LAYERS[path]['original_sha256']
     # Only an exact whole reviewed Root17+v4 input selects the new target.
@@ -98,6 +100,7 @@ def strip_owner_ui_v4_outer_layer(text):
     """Exact outer source layer before the unchanged two historical inverses."""
     if type(text)is not str:raise AssertionError('Unknown Owner UI outer source')
     path='apps/desktop/tests/factory-child-goal-real-ipc.py'
+    text=strip_capture_failure_layer(path,text)
     digest=source_sha(text)
     if digest==ROOT17_V4_SOURCES[path][0]:return inverse(path,text)
     # These are exactly the old composed source and old two restored targets.
@@ -109,6 +112,7 @@ def strip_owner_ui_v4_outer_layer(text):
 
 
 def parent_v4_source_copy(path,text):
+    if path in CAPTURE_LAYERS:text=strip_capture_failure_layer(path,text)
     """Reconstruct immutable c675 text for the old positive guard, never exec it.
 
     This is a counterfactual SOURCE inverse; live samples remain strict17.
@@ -169,7 +173,7 @@ class V4DiagnosticsTests(unittest.TestCase):
                 if text==original:continue
                 with self.assertRaises((AssertionError,ValueError)):inverse(path,text)
         path='apps/desktop/tests/factory-child-goal-real-ipc.py'
-        text=(ROOT/path).read_text().replace('FiniteRuntimeDiagnosticsV4()','FiniteRuntimeDiagnostics()')
+        text=strip_capture_failure_layer(path,(ROOT/path).read_text()).replace('FiniteRuntimeDiagnosticsV4()','FiniteRuntimeDiagnostics()')
         with self.assertRaises(AssertionError):inverse(path,text)
 
     def test_v3_default_and_v1_v2_semantics_are_unchanged(self):
@@ -276,6 +280,7 @@ class V4DiagnosticsTests(unittest.TestCase):
     def test_both_exact_reviewed_source_variants_keep_original_parent_and_root17_targets(self):
         for path,(merged,restored)in ROOT17_V4_SOURCES.items():
             text=(ROOT/path).read_text()
+            if path in CAPTURE_LAYERS:text=strip_capture_failure_layer(path,text)
             if path=='apps/desktop/src/FactoryChildGoals.tsx':text=strip_plan_read_reuse_outer_layer(text)
             self.assertEqual(source_sha(text),merged)
             self.assertEqual(source_sha(inverse(path,text)),restored)
@@ -288,6 +293,7 @@ class V4DiagnosticsTests(unittest.TestCase):
 
     def test_outer_inverse_rejects_unknown_guard_schema_wait_helper_or_missing_endpoint(self):
         path='apps/desktop/tests/factory-child-goal-real-ipc.py';text=(ROOT/path).read_text()
+        text=strip_capture_failure_layer(path,text)
         mutations=[("snapshot['schema']==17","snapshot['schema']==16"),
             ('time.monotonic()+15','time.monotonic()+16'),
             ("require(result['kind'] != 'not_verified'", "require(result['kind'] == 'not_verified'"),
@@ -375,6 +381,7 @@ class V4DiagnosticsTests(unittest.TestCase):
             'scripts/record-child-goal-ci-evidence.py':'44d55431fad475248094fabd50cab3543241530dee37537276fa140fb0463f1a'}
         for path,digest in pins.items():
             raw=(ROOT/path).read_bytes()
+            if path in CAPTURE_LAYERS:raw=strip_capture_failure_layer(path,raw.decode()).encode()
             self.assertEqual(hashlib.sha256(raw).hexdigest(),ROOT17_V4_SOURCES[path][0])
             self.assertEqual(source_sha(parent_v4_source_copy(path,raw.decode())),digest)
             self.assertEqual(hashlib.sha256(inverse(path,raw.decode()).encode()).hexdigest(),ROOT17_V4_SOURCES[path][1])
