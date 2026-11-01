@@ -276,6 +276,199 @@ def validation_observations(conn, selected):
     return result
 
 
+# Optional fee-source observations from the same post-owned-shutdown rows.
+# This is not an admission decision, receipt authenticator or stop proof.
+FEE_NODE_KINDS = {'work': 'graph_work', 'validate': 'graph_validator',
+                  'owner_approval': 'graph_owner', 'summary': 'graph_summary'}
+MAX_FEE_GROUPS = 8
+
+
+def fee_kind_unavailable():
+    return {'status': 'unavailable', 'code': 'fee_kind_evidence_unavailable',
+            'snapshot_time': 'post_owned_shutdown_not_admission_instant',
+            'not_an_authority_admission_or_stop_verdict': True, 'groups': []}
+
+
+def fee_identifier(value):
+    need(type(value) is str and 0 < len(value.encode()) <= 512)
+    return value
+
+
+def fee_table(conn, name, rows):
+    need(name in ('goal_run_nodes', 'events'))
+    schema = conn.execute('SELECT type,sql FROM sqlite_master WHERE name=?', (name,)).fetchone()
+    need(schema is not None and schema[0] == 'table' and type(schema[1]) is str
+         and re.match(r'CREATE\s+TABLE\s', schema[1], re.I))
+    count, total, maximum = conn.execute(
+        f'SELECT count(*),coalesce(sum(length(CAST(document AS BLOB))),0),'
+        f'coalesce(max(length(CAST(document AS BLOB))),0) FROM {name}').fetchone()
+    integer(count, rows); integer(total, 4 * 1024 * 1024); integer(maximum, 1024 * 1024)
+
+
+def fee_events(conn, factory_run):
+    fee_table(conn, 'events', MAX_EVENT_ROWS)
+    columns = conn.execute('PRAGMA table_info(events)').fetchall()
+    need([(c[1], c[2], c[3], c[5]) for c in columns] ==
+         [('sequence', 'INTEGER', 0, 1), ('document', 'TEXT', 1, 0)])
+    result = []
+    for sequence, raw in conn.execute('SELECT sequence,document FROM events ORDER BY sequence'):
+        integer(sequence, (1 << 63) - 1); need(sequence > 0)
+        event = strict_json(raw)
+        need(type(event) is dict)
+        if (event.get('source') != 'factory_core' or event.get('aggregate_id') != factory_run
+                or event.get('kind') not in ('factory.child_goal_planner_recovery_prepared', 'factory.attempt_reserved')):
+            continue
+        need(type(event.get('revision')) is int and event['revision'] > 0 and type(event.get('payload')) is dict)
+        result.append((sequence, event['kind'], event['payload']))
+    return result
+
+
+def recovery_fee_link(events, used, goal, child, attempt, value):
+    matches = [(seq, payload) for seq, kind, payload in events
+               if kind == 'factory.attempt_reserved' and payload.get('attempt_id') == attempt]
+    need(len(matches) <= 1)
+    if not matches:
+        return None
+    reserved_sequence, payload = matches[0]
+    need(type(payload.get('reservation')) is dict)
+    integer(payload['reservation'].get('runtime_ms')); integer(payload['reservation'].get('output_bytes'))
+    need(payload.get('session_id') == value['session_id'] and payload.get('task_id') == child
+         and payload.get('root_task_id') == value['root_task_id']
+         and payload.get('reservation') == value['reservation'] and payload.get('stop_confirmed') is False)
+    prepared = [(seq, payload) for seq, kind, payload in events
+                if seq < reserved_sequence and kind == 'factory.child_goal_planner_recovery_prepared'
+                and payload.get('task_id') == child and payload.get('goal_run_id') == goal]
+    need(len(prepared) <= 1)
+    if not prepared:
+        return None
+    sequence, payload = prepared[0]
+    context = payload['failure_context']
+    need(type(context) is dict and context.get('goal_run_id') == goal
+         and context.get('all_graph_attempts_stopped') is True and context.get('unknown_effects') is False
+         and payload.get('new_permissions') is False and payload.get('reservation_refunded') is False
+         and payload.get('task_accepted') is False)
+    revision = integer(context['plan_revision'], 2); need(revision in (1, 2))
+    need(sequence not in used); used.add(sequence)
+    return revision
+
+
+def fee_kind_observations(conn, goal, scope, child, derived, records, totals):
+    """Classify original records only when their persisted counterpart is unique."""
+    unavailable = fee_kind_unavailable()
+    try:
+        need(len(records) <= MAX_ROWS)
+        fee_table(conn, 'goal_run_nodes', MAX_ROWS)
+        nodes, node_slots = {}, set()
+        for revision, node_id, attempt, raw in conn.execute(
+                'SELECT plan_revision,node_id,attempt_id,document FROM goal_run_nodes WHERE run_id=?', (goal,)):
+            value = strict_json(raw)
+            need(type(value) is dict and type(value.get('node')) is dict)
+            integer(revision, 2); need(revision in (1, 2))
+            need(integer(value.get('plan_revision'), 2) == revision and value['node'].get('id') == node_id
+                 and value.get('attempt_id') == attempt)
+            enum(value['node'].get('kind'), FEE_NODE_KINDS)
+            if attempt is None:
+                continue
+            key = (revision, fee_identifier(node_id), fee_identifier(attempt))
+            need(key not in nodes and key[:2] not in node_slots)
+            node_slots.add(key[:2]); nodes[key] = value
+        expected_nodes = {(value['plan_revision'], value['node_id'], attempt)
+                          for source, attempt, value in records if source == 'graph'}
+        need(set(nodes) == expected_nodes)
+        native = [value for source, _, value in records if source == 'factory']
+        own = [value for value in native if value['task_id'] == child]
+        factory_run = derived['origin'].get('factory_run_id')
+        if native:
+            fee_identifier(factory_run)
+        events = None
+        if own:
+            try:
+                events = fee_events(conn, factory_run)
+            except (Invalid, sqlite3.Error, KeyError, TypeError, ValueError, RecursionError):
+                events = None
+        own_attempts = {value['attempt_id'] for value in own}
+        if events is not None:
+            for _, kind, payload in events:
+                if kind == 'factory.attempt_reserved' and payload.get('task_id') == child:
+                    need(payload.get('attempt_id') in own_attempts)
+        groups, seen, used = {}, set(), set()
+        complete = True
+        for source, attempt, value in records:
+            fee_identifier(attempt); need(attempt not in seen); seen.add(attempt)
+            settled = boolean(value['settled'])
+            actual = integer(value['actual_runtime_ms'], nullable=True)
+            output = integer(value['actual_output_bytes'], nullable=True)
+            reservation = value['reservation']; need(type(reservation) is dict)
+            runtime = integer(reservation['runtime_ms']); reserve_output = integer(reservation['output_bytes'])
+            queued, queue_state = None, 'not_applicable'
+            if source == 'graph':
+                revision = integer(value['plan_revision'], 2); need(revision in (1, 2))
+                key = (revision, fee_identifier(value['node_id']), attempt)
+                node = nodes[key]
+                need(node.get('stop_confirmed') is settled
+                     and integer(node.get('actual_runtime_ms'), nullable=True) == actual
+                     and integer(node.get('actual_output_bytes'), nullable=True) == output
+                     and type(node['node'].get('reservation')) is dict)
+                integer(node['node']['reservation']['runtime_ms'])
+                integer(node['node']['reservation']['output_bytes'])
+                need(node['node']['reservation'] == reservation)
+                kind = FEE_NODE_KINDS[node['node']['kind']]
+                relation, linked = 'graph_plan', True
+            else:
+                need(source == 'factory' and value['run_id'] == factory_run
+                     and value['scope_id'] == scope)
+                fee_identifier(value['session_id']); fee_identifier(value['root_task_id'])
+                own_child = value['task_id'] == child
+                kind = 'factory_child_session' if own_child else 'factory_descendant_session'
+                revision, relation, linked = None, 'not_established', False
+                if own_child and events is not None:
+                    failed_revision = recovery_fee_link(events, used, goal, child, attempt, value)
+                    if failed_revision is not None:
+                        kind, revision, relation, linked = ('factory_recovery_planner', failed_revision,
+                                                          'failed_graph_context', True)
+                if not linked:
+                    complete = False
+                if 'queued_ms' in value:
+                    queued = integer(value['queued_ms']); queue_state = 'observed'
+                    need(not settled or actual is None or queued <= actual)
+                else:
+                    queue_state = 'unavailable'; complete = False
+            key = (kind, revision, relation, linked)
+            if key not in groups:
+                need(len(groups) < MAX_FEE_GROUPS)
+                groups[key] = {'source_kind': kind, 'plan_revision': revision, 'plan_relation': relation,
+                    'direct_binding_established': linked, 'record_count': 0, 'settled_count': 0,
+                    'unsettled_count': 0, 'settled_actual_runtime_ms': 0, 'unsettled_reserved_runtime_ms': 0,
+                    'declared_reserved_runtime_ms': 0, 'settled_actual_output_bytes': 0,
+                    'unsettled_reserved_output_bytes': 0, 'factory_queued_ms': 0 if queued is not None else None,
+                    'queue_observation': queue_state}
+            group = groups[key]; group['record_count'] += 1
+            group['declared_reserved_runtime_ms'] = integer(group['declared_reserved_runtime_ms'] + runtime)
+            if settled:
+                group['settled_count'] += 1
+                for name, metric in (('settled_actual_runtime_ms', actual), ('settled_actual_output_bytes', output)):
+                    group[name] = integer(group[name] + metric) if group[name] is not None and metric is not None else None
+            else:
+                group['unsettled_count'] += 1
+                group['unsettled_reserved_runtime_ms'] = integer(group['unsettled_reserved_runtime_ms'] + runtime)
+                group['unsettled_reserved_output_bytes'] = integer(group['unsettled_reserved_output_bytes'] + reserve_output)
+            if source == 'factory':
+                group['factory_queued_ms'] = integer(group['factory_queued_ms'] + queued) if group['factory_queued_ms'] is not None and queued is not None else None
+                if queue_state != 'observed': group['queue_observation'] = 'unavailable'
+        ordered = sorted(groups.values(), key=lambda value: (value['source_kind'], value['plan_revision'] or 0))
+        for name in ('settled_count', 'unsettled_count', 'unsettled_reserved_runtime_ms'):
+            need(sum(group[name] for group in ordered) == totals[name])
+        actual_sum = None if any(group['settled_actual_runtime_ms'] is None for group in ordered) else integer(sum(group['settled_actual_runtime_ms'] for group in ordered))
+        need(actual_sum == totals['settled_actual_runtime_ms'])
+        need(len(records) == totals['settled_count'] + totals['unsettled_count'])
+        return {'status': 'observed' if complete else 'partial', 'code': 'unique_original_fee_records',
+                'snapshot_time': 'post_owned_shutdown_not_admission_instant',
+                'not_an_authority_admission_or_stop_verdict': True,
+                'record_count': len(records), 'groups': ordered}
+    except (Invalid, sqlite3.Error, KeyError, TypeError, ValueError, RecursionError):
+        return unavailable
+
+
 def budget_usage(conn):
     """Post-join existing ledger/child-record facts, not admission or authority.
 
@@ -287,6 +480,7 @@ def budget_usage(conn):
            'snapshot_time': 'post_owned_shutdown_not_admission_instant',
            'not_an_authority_or_admission_verdict': True,
            'root': None, 'project': None, 'child': None}
+    out['fee_kind_observations'] = fee_kind_unavailable()
     try:
         for table in ('goal_run_reservations', 'factory_budget_reservations', 'goal_ledgers'):
             row = conn.execute('SELECT type,sql FROM sqlite_master WHERE name=?', (table,)).fetchone()
@@ -330,6 +524,7 @@ def budget_usage(conn):
                   'settled_actual_runtime_ms': 0, 'unsettled_reserved_runtime_ms': 0,
                   'settled_runtime_unknown': False}
         seen = set()
+        fee_records = []
 
         def add(attempt, value):
             need(type(attempt) is str and 0 < len(attempt.encode()) <= 512 and attempt not in seen)
@@ -353,6 +548,7 @@ def budget_usage(conn):
             value = strict_json(raw)
             need(run == goal and value['run_id'] == goal)
             add(attempt, value)
+            fee_records.append(('graph', attempt, value))
         for attempt, row_scope, raw in conn.execute(
                 'SELECT attempt_id,scope_id,document FROM factory_budget_reservations WHERE scope_id=?', (scope,)):
             value = strict_json(raw)
@@ -365,11 +561,13 @@ def budget_usage(conn):
                  and value['project_id'] == project and value['task_id'] in ancestors)
             if child in ancestors:
                 add(attempt, value)
+                fee_records.append(('factory', attempt, value))
         out['child'] = totals
         unknown = (out['root']['runtime_unknown'] or out['project']['runtime_unknown']
                    or totals['settled_runtime_unknown'])
         out['status'] = 'pending' if unknown else 'collected_post_shutdown_budget_facts'
         out['code'] = 'unknown_runtime_observation' if unknown else 'existing_ledger_and_child_records'
+        out['fee_kind_observations'] = fee_kind_observations(conn, goal, scope, child, record, fee_records, totals)
         return out
     except (sqlite3.Error, KeyError, TypeError):
         # Old/missing metadata is not a zero consumption or a successful test.

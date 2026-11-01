@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import unittest
 from unittest import mock
+import rework_fee_kind_composition_fixture as fee_composition
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location('_pure_attempt_budget', ROOT / 'scripts/record-factory-rework-ci-evidence.py')
@@ -124,6 +125,7 @@ _PRIOR_STOP_LAYER = json.loads(r'''
 ''')
 
 def strip_prior_stop_layer(text):
+    text = fee_composition.strip_root_fee_kind_layer(text)
     if type(text) is not str:
         raise AssertionError('Unknown prior stop source type')
     digest = hashlib.sha256(text.encode()).hexdigest()
@@ -586,6 +588,7 @@ class OptionalReaderControls(unittest.TestCase):
 class PriorStopSourceComposition(unittest.TestCase):
     def test_new_whole_source_restores_exact_old_stop_layer_and_all_original_guards(self):
         current=(ROOT/'scripts/record-factory-rework-ci-evidence.py').read_text()
+        current=fee_composition.strip_root_fee_kind_layer(current)
         self.assertEqual(hashlib.sha256(current.encode()).hexdigest(),_PRIOR_STOP_LAYER['input_sha256'])
         restored=strip_prior_stop_layer(current)
         self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),_SETTLED_STOP_LAYER['merged_sha256'])
