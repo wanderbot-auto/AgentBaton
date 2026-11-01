@@ -102,9 +102,10 @@ fn only_original_turn(db: &Connection, id: &str) -> Result<bool> {
     Ok(count == 1)
 }
 fn original_backpressure_event(db: &Connection, session: &ManagedSession) -> Result<bool> {
+    let revision = i64::try_from(session.revision).map_err(|_| changed())?;
     let mut q=db.prepare("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.revision')=?2 AND json_extract(document,'$.kind')='session.outcome_unknown' LIMIT 2").map_err(db_error)?;
     let rows = q
-        .query_map(params![session.id, session.revision], |r| {
+        .query_map(params![session.id, revision], |r| {
             r.get::<_, Option<String>>(0)
         })
         .map_err(db_error)?

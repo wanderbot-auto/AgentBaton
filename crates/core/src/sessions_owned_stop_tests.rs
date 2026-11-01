@@ -860,6 +860,15 @@ fn actual_update_and_completed_with_full64_keeps_history_but_preserves_backpress
     for failure_already_committed in [false, true] {
         let mut f = fixture_with_outputs(2, false, "update-complete");
         let session = reserve(&mut f);
+        let mut unrepresentable_revision = session.clone();
+        unrepresentable_revision.revision = u64::MAX;
+        assert_eq!(
+            original_backpressure_event(&f.store.conn, &unrepresentable_revision)
+                .unwrap_err()
+                .code,
+            "INPUT_CHANGED",
+            "SQLite binding cannot truncate an authorization revision"
+        );
         let runtime = f._directory.path().canonicalize().unwrap().join("runtime");
         let mut supervisor = Supervisor::new(&runtime);
         supervisor.launch(&mut f.store, &session.id).unwrap();
