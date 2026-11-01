@@ -1,0 +1,633 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T04:25:04.125892+00:00",
+  "status": "Linux_target_and_source_diagnostics_verified_exact_new_CI_pending",
+  "metadata_base": "3bb658b6780062e7492aa182af37f62a2e1b20e8",
+  "product_acceptance": false,
+  "requirements_state_changed": false,
+  "authority": {
+    "approval": "AB-START-001",
+    "main_observed": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+    "owner_inbox_ACK": [
+      "OWNER-001",
+      "OWNER-002"
+    ],
+    "OWNER-003_observed": false,
+    "real_Provider_calls": false,
+    "signing": false,
+    "production": false,
+    "formal_Approve": false
+  },
+  "root_composed_sources": {
+    "wrapper_setup_diagnostics": "e65523586cb28ef9b9efafc9b05b7826f0809c08",
+    "readonly_Busy_fixture": "251e160ce3c2c5829d9e4e1f272c62fb0b8bb9c5",
+    "integration_IPC_diagnostics": "8a8c2b3aa81190e533bebf2091213fc923e25ca8",
+    "deadline_generated_observation": "4b656fb1c4836865c5f6f8e2212d5ee91ee82a24",
+    "deadline_pinned_retention": "e4b635c6d960d0a959f498dabd638fdb38bcada4",
+    "typed_C_string": "3bb658b6780062e7492aa182af37f62a2e1b20e8"
+  },
+  "actual_commands": [
+    {
+      "record_label": "root17-resumed-full-factory1",
+      "source": "e4b635c6d960d0a959f498dabd638fdb38bcada4",
+      "tree": "4639411d68f565961d06481d1c2de7697fac2e6d",
+      "command_with_private_paths_redacted": [
+        "env",
+        "CARGO_BUILD_JOBS=1",
+        "AGENTBATON_FACTORY_TEST_TOOLS=<retained-private-frozen-tools>",
+        "AGENTBATON_CHILD_PLAN_COMPANION=<retained-private-frozen-tools>",
+        "AGENTBATON_CHILD_GOAL_COMPANION=<retained-private-frozen-tools>",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--test-threads=1"
+      ],
+      "private_paths_redacted": true,
+      "exit": 0,
+      "seconds": 132.34639807796339,
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "raw_hashes": {
+        "INPUTS.json": {
+          "sha256": "fb6a4ef375d13ccf42b09266608026175a32bc6746f75b40a06083942c139a19",
+          "bytes": 17391
+        },
+        "RESULT.json": {
+          "sha256": "6e562bbfe0dcbc5ae64e648b2cb56554e0c3e2ced6d7ef81883aa4b9e6923f21",
+          "bytes": 1179
+        },
+        "command.log": {
+          "sha256": "52f7504d1edc55184d5c1b916e883f3ccb82d44a023bd07dfc52f14e8e7e22ca",
+          "bytes": 4782
+        }
+      },
+      "recorded_log_hash_matches_actual_log": true,
+      "target": "factory_runtime_ipc",
+      "passed": 37,
+      "failed": 0,
+      "test_target_seconds": 102.19,
+      "dimension": "Linux target includes actual IPC scenarios and pure decision/retention controls; 37 is the complete target count, not 37 newly added IPC scenarios"
+    },
+    {
+      "record_label": "root17-resumed-full-integration-ipc1",
+      "source": "e4b635c6d960d0a959f498dabd638fdb38bcada4",
+      "tree": "4639411d68f565961d06481d1c2de7697fac2e6d",
+      "command_with_private_paths_redacted": [
+        "env",
+        "CARGO_BUILD_JOBS=1",
+        "AGENTBATON_FACTORY_TEST_TOOLS=<retained-private-frozen-tools>",
+        "AGENTBATON_CHILD_PLAN_COMPANION=<retained-private-frozen-tools>",
+        "AGENTBATON_CHILD_GOAL_COMPANION=<retained-private-frozen-tools>",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "--",
+        "--test-threads=1"
+      ],
+      "private_paths_redacted": true,
+      "exit": 0,
+      "seconds": 131.7440481520025,
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "raw_hashes": {
+        "INPUTS.json": {
+          "sha256": "bf60c7e21d08178ea287cceb09503fb4d19db75ad4f1bda54013fb18297af2da",
+          "bytes": 17387
+        },
+        "RESULT.json": {
+          "sha256": "4aa9b3c852fa30897fbbc78b4cd1c9966efe231f21dd918f2c1737286c0cdbdf",
+          "bytes": 1174
+        },
+        "command.log": {
+          "sha256": "baa758341482f62c2897d9c531e8ff66b3704c63d330f1329606c3f752d72b81",
+          "bytes": 2879
+        }
+      },
+      "recorded_log_hash_matches_actual_log": true,
+      "target": "integration_ipc",
+      "passed": 20,
+      "failed": 0,
+      "test_target_seconds": 99.29,
+      "dimension": "Linux target includes 16 actual IPC cases and four diagnostic projection controls; counts are not additive to the historical 16"
+    },
+    {
+      "record_label": "root17-resumed-strict-clippy1",
+      "source": "e4b635c6d960d0a959f498dabd638fdb38bcada4",
+      "tree": "4639411d68f565961d06481d1c2de7697fac2e6d",
+      "command_with_private_paths_redacted": [
+        "env",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--test",
+        "integration_ipc",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "private_paths_redacted": false,
+      "exit": 101,
+      "seconds": 14.834239916002844,
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "raw_hashes": {
+        "INPUTS.json": {
+          "sha256": "339e94a808bbfcc9718ea5063eb3d795812ad73ecf24f33b0fdc83135575d1fa",
+          "bytes": 17137
+        },
+        "RESULT.json": {
+          "sha256": "24878d1b30ba477b39cfc9cd3daa174fa92b2bc06cc79bd23db3b52709dbb963",
+          "bytes": 822
+        },
+        "command.log": {
+          "sha256": "1fcdad400184d52dae294e77db612a8d77e4c9f954a76e09e73128396208dd56",
+          "bytes": 1170
+        }
+      },
+      "recorded_log_hash_matches_actual_log": true,
+      "status": "failed_retained",
+      "failure_kind": "manual_c_str_literals",
+      "scope": "strict -D warnings on factory_runtime_ipc and integration_ipc targets only; not workspace/all-targets"
+    },
+    {
+      "record_label": "root17-resumed-strict-clippy2",
+      "source": "3bb658b6780062e7492aa182af37f62a2e1b20e8",
+      "tree": "1819147ee53a8722ea9a0719c473612df67fec44",
+      "command_with_private_paths_redacted": [
+        "env",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--test",
+        "integration_ipc",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "private_paths_redacted": false,
+      "exit": 0,
+      "seconds": 15.043052893015556,
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "raw_hashes": {
+        "INPUTS.json": {
+          "sha256": "282a18d1bc3b224e272321703b2917ea4c4c118fa5c5d5bca8efed651ee72b82",
+          "bytes": 17137
+        },
+        "RESULT.json": {
+          "sha256": "867e3fc8abb8e75b470ee829d28e349f09a0fcbb582618ecddb51866a2be9f36",
+          "bytes": 820
+        },
+        "command.log": {
+          "sha256": "89b8b8fa227e161bf342b9e9a4b914d58083cc11298b2234bd648088193ad346",
+          "bytes": 511
+        }
+      },
+      "recorded_log_hash_matches_actual_log": true,
+      "status": "passed",
+      "scope": "same two strict test targets; not workspace/all-targets",
+      "correction": "typed C string in test-only retained-marker openat; bytes/terminating NUL/flags/held descriptor and negative controls preserved"
+    },
+    {
+      "record_label": "root17-resumed-full-infra1",
+      "source": "3bb658b6780062e7492aa182af37f62a2e1b20e8",
+      "tree": "1819147ee53a8722ea9a0719c473612df67fec44",
+      "command_with_private_paths_redacted": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "private_paths_redacted": true,
+      "exit": 0,
+      "seconds": 14.04620750300819,
+      "source_head_and_tracked_unchanged": true,
+      "interruption": null,
+      "raw_hashes": {
+        "INPUTS.json": {
+          "sha256": "52791d0153a1cd5c3823c21021a8dd744b7e218225968027ac16148f91ac819c",
+          "bytes": 1695
+        },
+        "RESULT.json": {
+          "sha256": "fd2a5301ac39b333fc857222a30f007910ba79a114cb84be8e7b3c4dcfda7939",
+          "bytes": 790
+        },
+        "command.log": {
+          "sha256": "8c17d1f171e292e47541048f533aed6732177b2135441c58d2ccfdad234b9497",
+          "bytes": 100451
+        }
+      },
+      "recorded_log_hash_matches_actual_log": true,
+      "status": "passed",
+      "passed": 522,
+      "failed": 0,
+      "dimension": "Python infrastructure suite; not 522 product integration tests"
+    }
+  ],
+  "retained_frozen_tool_attribution": {
+    "manifest_source": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+    "manifest_schema": 17,
+    "manifest_sha256": "89501415790e558248653cd50fb1d559b30ff7785f196045ccdf5c76fcbd0b9f",
+    "manifest_recorded_binary_sha256": {
+      "batond": "c8e9186bfaf78ec00685e4d0174b716b117ad86eef1b5767f41a9c6cdbf63600",
+      "baton": "bd3769c79fa6c1b0e59bc7147c0be1e658222a989027e5984741a4124fd80273"
+    },
+    "limit": "The e4 test binaries were compiled for the real commands, which explicitly select retained frozen companions. These are not newly rebuilt e4 or3bb subprocess tools. Raw INPUTS env/frozen_tools capture refers to inherited settings; its frozen_tools_unchanged boolean does not independently establish before/after identity of the argv-overridden companion directory."
+  },
+  "independent_source_reviews": [
+    {
+      "record_label": "A.review.json",
+      "raw_sha256": "9c77853ea206c60b117d47215bdaf711d7f8fef083fa9ccf5ab986e4d34e1cfe",
+      "reviewed_commit": "0a5ca1d9172114d6f006baa07db45ce7ec6221cf",
+      "status": "SOURCE_READY",
+      "dimension": "source and pure Python synthetic only",
+      "findings_count": 0,
+      "formal_product_approval": false
+    },
+    {
+      "record_label": "B_BUSY.review.json",
+      "raw_sha256": "ce35cb0990333959ff11e22a4bf1d3915b8cc16fd378c4fe937ae1f318717b2f",
+      "reviewed_commit": "6be4d71c97f5b4c86a2b2e66751fa5ff4b54cbf8",
+      "status": "SOURCE_READY",
+      "dimension": "source and pure Python synthetic only",
+      "findings_count": 0,
+      "formal_product_approval": false
+    },
+    {
+      "record_label": "B_DEADLINE.review.json",
+      "raw_sha256": "638f68dc0e1b6e83f7238eb861009add4286a5a92b392ec8bdc7bf0ebb3b82b5",
+      "reviewed_commit": "c8b6190da167e882dd912299ac85ac0652195a9c",
+      "status": "BLOCKED_SOURCE_REVIEW",
+      "dimension": "source and pure Python synthetic only",
+      "findings_count": 1,
+      "formal_product_approval": false
+    },
+    {
+      "record_label": "B_DEADLINE_25DD39E_CLOSURE.review.json",
+      "raw_sha256": "b6b5c4156461531a4c48862ab279324c0e8b757dc963dd1dcc089c04ad7cd717",
+      "reviewed_commit": "25dd39e6250a32b80bba4f6d899e634a935e7b4f",
+      "status": "SOURCE_READY",
+      "dimension": "source and pure Python synthetic only",
+      "findings_count": 0,
+      "formal_product_approval": false
+    },
+    {
+      "record_label": "C.review.json",
+      "raw_sha256": "6b8aaf89be0077db21ce01478b95a30fe3b05f9195ef363ed90b949447c63567",
+      "reviewed_commit": "b53ff1483078121c061a2bb9f5bbd5ae0345b780",
+      "status": "SOURCE_READY",
+      "dimension": "source and pure Python synthetic only",
+      "findings_count": 0,
+      "formal_product_approval": false
+    },
+    {
+      "record_label": "NOTIFICATIONS_784AFD5_FINAL_METADATA.review.json",
+      "raw_sha256": "f36a9a6b54ba0858b26506c4b0cab9b26bc2c3d39d3560b2b4d8747df992c629",
+      "reviewed_commit": "784afd593f81ac62e638f16dbcf065de4b6fcde9",
+      "status": "SOURCE_READY",
+      "dimension": "final metadata/source attribution audit only; bc6587a recorded local evidence/source reviews retained by exact hash, not rerun",
+      "findings_count": 0,
+      "formal_product_approval": false
+    },
+    {
+      "record_label": "NOTIFICATIONS_BC6587A_METADATA.review.json",
+      "raw_sha256": "99511e95d85c454626cd19ffd225dcfe216bcb677a7d8fa14e1505d7b590419e",
+      "reviewed_commit": "bc6587a40e6225664c2f1eef921bd9efc5865534",
+      "status": "SOURCE_READY",
+      "dimension": "finite notification metadata/source-bindings/original PNG evidence review; prior implementation source reviews reused by exact recorded hash, not repeated",
+      "findings_count": 0,
+      "formal_product_approval": false
+    },
+    {
+      "record_label": "NOTIFY_84014AE_NEGATIVE_REJECTION.review.json",
+      "raw_sha256": "c08e7abb7abe0519ddc49777ad7e8fe9c6705d71ce7c131abe0d0099eed3d0c8",
+      "reviewed_commit": "84014ae42953632a5250d2060d3f1e54d2046674",
+      "status": "CHANGES_REQUIRED",
+      "dimension": "source review and limited Python3.12 controls only",
+      "findings_count": 1,
+      "formal_product_approval": false
+    },
+    {
+      "record_label": "NOTIFY_D8D8F0B_NEGATIVE_CLOSURE.review.json",
+      "raw_sha256": "3e5297745c92b66672c28924c4e1a2f28d844ec3fc6b57588f4dce4ab9e40859",
+      "reviewed_commit": "d8d8f0b8005b2aa27f354ad2404344d8f5a3f908",
+      "status": "SOURCE_READY",
+      "dimension": "source review and limited Python3.12 controls only",
+      "findings_count": 0,
+      "formal_product_approval": false
+    },
+    {
+      "record_label": "ROOT_3BB658B_CSTRING.review.json",
+      "raw_sha256": "678ce4eb5b303bae0abcaf44074409354d27e2710c90fae3bbee60ba5a59cfdc",
+      "reviewed_commit": "3bb658b6780062e7492aa182af37f62a2e1b20e8",
+      "status": "SOURCE_READY",
+      "dimension": "source review and limited Python3.12 controls only",
+      "findings_count": 0,
+      "formal_product_approval": false
+    }
+  ],
+  "retained_review_rejections": [
+    {
+      "record": "B_DEADLINE.review.json",
+      "status": "BLOCKED_SOURCE_REVIEW",
+      "finding": "Initial retention could follow symlinks/nonregular files and copy unknown JSON fields; original rejected source and review retained.",
+      "closure": "B_DEADLINE_25DD39E_CLOSURE.review.json; strict pinned nonblocking regular-file projection, later Root e4 and typed-C-string3bb remain separately source-bound."
+    },
+    {
+      "record": "NOTIFY_84014AE_NEGATIVE_REJECTION.review.json",
+      "status": "CHANGES_REQUIRED",
+      "finding": "Direct notification inverse rejected its unchanged combined baseline, making its negative mutation checks vacuous.",
+      "closure": "NOTIFY_D8D8F0B_NEGATIVE_CLOSURE.review.json; normalize setup layer and positively check unchanged baseline before mutations. Separate notification branch; not composed into this Root3bb source."
+    }
+  ],
+  "retained_Root7ee_CI": {
+    "source_head": "7ee2437db08695347650a28f445cb0034b5f3f58",
+    "Product": {
+      "run": 41162216164,
+      "conclusion": "failure",
+      "raw_terminal_sha256": "ab6c3eb735ab34326e362f3abf07df499c5c513f458fff7cb2cb222a208ed1f0",
+      "jobs_terminal_sha256": "b83c5782681636718cdec9c7687765991769a285903f544d3f2564767dd8c00c",
+      "jobs": [
+        {
+          "id": 124422036589,
+          "name": "Product / Rust",
+          "conclusion": "success",
+          "first_failed_step": null
+        },
+        {
+          "id": 124422036734,
+          "name": "Product / UI",
+          "conclusion": "failure",
+          "first_failed_step": "Actual integration frontend with real Core IPC and generated correctness"
+        },
+        {
+          "id": 124422036740,
+          "name": "Product / macos-15-intel",
+          "conclusion": "failure",
+          "first_failed_step": "Core and native host tests"
+        },
+        {
+          "id": 124422036743,
+          "name": "Product / macos-15",
+          "conclusion": "failure",
+          "first_failed_step": "Core and native host tests"
+        }
+      ]
+    },
+    "Environment": {
+      "run": 41162213991,
+      "conclusion": "success",
+      "raw_terminal_sha256": "178105bafaec64a9d9c8e60007288784c13c4e9499a05986c15b7cf861f94fdc"
+    },
+    "retained_failure_classes": [
+      {
+        "class": "UI integration wrapper",
+        "observation": "Earlier Actual frontend step passed. Integration driver step failed; finite artifact contains driver_step_not_successful. Private setup-error/status were not uploaded. Original setup/driver first cause remains unknown.",
+        "job": 124422036734
+      },
+      {
+        "class": "Apple Silicon integration IPC",
+        "observation": "integration_ipc completed 1 passed/15 failed with strict INPUT_CHANGED at target/actual integration assertions. Root cause remains unknown; Linux/source diagnostics do not establish a Mac fix.",
+        "job": 124422036743
+      },
+      {
+        "class": "Intel one-second child Goal deadline",
+        "observation": "Owned candidate/private Owner review premise was not reached; child outcome remained unknown. Original premise/deadlines and failed fixture retained.",
+        "job": 124422036740
+      },
+      {
+        "class": "Intel readonly rework Busy",
+        "observation": "Separate rework failure: exact readonly WORKSPACE_BUSY, retryable true, side_effect_state not_started. Intel Factory target overall 25 passed/2 failed. Not the deadline failure and not a successful stop/retry.",
+        "job": 124422036740
+      }
+    ],
+    "raw_failure_log_sha256": {
+      "ui-job-api.log": "97761c55efae4aecba23ad3328f78db63cd67cc2984fdce749fef19b7f16f9c2",
+      "arm-job-api.log": "6a8392bddc5fcdfd46a5613af3f320db4dbe32e7a4d46293cfa1f8dbe6d17775",
+      "intel-job-api.log": "1bc77449a04bb02eff3de01128caba671acfeed3e1ce8d1a7e0327d51cfecfdb"
+    },
+    "finite_UI_failure_summary": {
+      "sha256": "57265d1c4e121f7fef28551c7d2b848555c6913d63c0ba1d72d5b2c0f878188e",
+      "source": "7ee2437db08695347650a28f445cb0034b5f3f58",
+      "status": "failed",
+      "failure_kind": "driver_step_not_successful"
+    },
+    "secondary_failure_note": "Later finite collectors failed after the original job failure; they are not substituted for the first failed product stage."
+  },
+  "Parent7af_CI": {
+    "source_head": "7af5672c3c4ac0b252bb0fa66e8f857783d06226",
+    "Product": {
+      "run": 41163775724,
+      "conclusion": "failure",
+      "raw_terminal_sha256": "ed957fd69d090e0c11728979f3e42e132166697e9d2ae0e96e352ff08093ddd8",
+      "jobs_terminal_sha256": "4c731cefc5752a6a154d8f49a6de771853aaf2ccda8a96db44d8f0b893348d6e",
+      "jobs": [
+        {
+          "id": 124426814425,
+          "name": "Product / Rust",
+          "conclusion": "success",
+          "first_failed_step": null
+        },
+        {
+          "id": 124426814580,
+          "name": "Product / UI",
+          "conclusion": "failure",
+          "first_failed_step": "Actual frontend with real Unix IPC and responsive screenshots"
+        },
+        {
+          "id": 124426814598,
+          "name": "Product / macos-15-intel",
+          "conclusion": "success",
+          "first_failed_step": null
+        },
+        {
+          "id": 124426814650,
+          "name": "Product / macos-15",
+          "conclusion": "success",
+          "first_failed_step": null
+        }
+      ]
+    },
+    "Environment": {
+      "run": 41163775698,
+      "conclusion": "success",
+      "raw_terminal_sha256": "5a77ef561b49532030a4bab0946a3bab0da9dc7b2beb9c3e2b0131094e9c8aa3"
+    },
+    "synthetic_checkout": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3",
+    "synthetic_checkout_note": "CI synthetic PR checkout; not a protected-main merge or completed integration.",
+    "raw_UI_log_sha256": "4f9df076b715ffdd5022513dda27159bfddda12f3614a002aff79acc8d0661c4",
+    "UI_child_goal_cases": [
+      {
+        "case": "cancel",
+        "summary_sha256": "375557fcee714fe8249e28621cfb5cc04b2cd19bc58da8a8b61e735bc5f51284",
+        "source_head": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3",
+        "compiled_core_source_head": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3",
+        "status": "failed",
+        "exit_code": 1,
+        "failure_kind": "runtime_failed",
+        "passed_checks": [
+          "CG01",
+          "CG02"
+        ],
+        "cleanup_complete": false,
+        "screenshots_published": false,
+        "private_history_published": false
+      },
+      {
+        "case": "lost-start",
+        "summary_sha256": "a0dd45af4b5506e4720408ca0eafb4ce24e4f8538a183bf7b43b9ec3e6b88fc3",
+        "source_head": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3",
+        "compiled_core_source_head": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3",
+        "status": "passed",
+        "exit_code": 0,
+        "failure_kind": "none",
+        "passed_checks": [
+          "CG01",
+          "CG02",
+          "CG03",
+          "CG05",
+          "CG06"
+        ],
+        "cleanup_complete": true,
+        "screenshots_published": false,
+        "private_history_published": false
+      },
+      {
+        "case": "normal",
+        "summary_sha256": "c7bed2187d3836c4651f80b1141dc883453caf504458eb7bcb1f11c4b312a54d",
+        "source_head": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3",
+        "compiled_core_source_head": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3",
+        "status": "failed",
+        "exit_code": 1,
+        "failure_kind": "runtime_failed",
+        "passed_checks": [
+          "CG01",
+          "CG02"
+        ],
+        "cleanup_complete": false,
+        "screenshots_published": false,
+        "private_history_published": false
+      }
+    ],
+    "development_packages": {
+      "verification_record_sha256": "1304b79a132429936b8c2aa9a5a650b3fc3f2397d3af57df1f287a1b55b3572c",
+      "dimension": "Root downloaded official artifacts and verified archive digest and DMG checksums on Linux; CI build-record signature declarations were read, not re-executed locally; no native install/manual acceptance",
+      "initial_verifier_failure_retained": "Exact checksum path assertion initially omitted ./; verifier path expectation was corrected, artifact content and hashes unchanged",
+      "artifacts": [
+        {
+          "arch": "arm",
+          "artifact_id": 13029575540,
+          "artifact_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41163775724/artifacts/13029575540",
+          "artifact_zip_sha256": "e792f9ff500052a84c1e928a0cf1e2502132f8f2a36ba72465158d8b8ad874a4",
+          "dmg_sha256": "ff068977168a879615dfb16e9fabd4c9be748d1c74d85466d9589bfdd18776f4",
+          "dmg_bytes": 10004411,
+          "build_record_sha256": "704dfab995bfd7a24973a68f21e9c8cb6e7d3db64c0e0c69b348478dc7d4eabf",
+          "acceptance_sha256": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+          "signature": "ad hoc linker signature, no trusted publisher/no TeamIdentifier",
+          "source_head": "7af5672c3c4ac0b252bb0fa66e8f857783d06226",
+          "synthetic_checkout": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3"
+        },
+        {
+          "arch": "intel",
+          "artifact_id": 13030325572,
+          "artifact_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41163775724/artifacts/13030325572",
+          "artifact_zip_sha256": "e6f279a5be2a3a6ca8248f6ef707f2635e6e7a90d9df1a7fa18bf4a41c572445",
+          "dmg_sha256": "aad60c8e137c4ee168202b1e4d20304acead4d241b34215323d3ba222b3978d3",
+          "dmg_bytes": 10470543,
+          "build_record_sha256": "b3fcdd8650538421d92afe7424be66f7ee5128fff83552409133911c6b45c0a4",
+          "acceptance_sha256": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+          "signature": "code object is not signed at all",
+          "source_head": "7af5672c3c4ac0b252bb0fa66e8f857783d06226",
+          "synthetic_checkout": "5432aa3fdceb2378554381cc51dcbe4ed3cbc3c3"
+        }
+      ]
+    }
+  },
+  "previous_source_bound_local_wrapper_context": {
+    "tested_source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+    "review_record_sha256": "99511e95d85c454626cd19ffd225dcfe216bcb677a7d8fa14e1505d7b590419e",
+    "observation": "Original7ee and current287 complete wrapper replays used real287 build/metadata; current287 includes the actual notification argument. Source287 original9 checks/12 PNG plus notification6 checks/4 PNG and strict finite projection were independently audited. This is earlier separate feature evidence, not a3bb rerun.",
+    "browser_limit": "Explicit local installed-browser adapter replaced Playwright bundled-ELF discovery; prior CI first cause remains unknown."
+  },
+  "not_run_on_Root3bb": [
+    "new exact remote CI",
+    "new macOS Apple Silicon or Intel execution",
+    "same-head frontend/Core browser or Native application execution",
+    "workspace/all-targets strict Clippy",
+    "new current-source development packages or native manual installation",
+    "live model/Provider calls",
+    "formal product approval or full130 acceptance"
+  ],
+  "next": [
+    "Root independently audit this finite metadata and source attribution before cherry-pick.",
+    "Run exact reviewed source CI without bypassing existing required checks or changing guards; collect the new closed diagnostics for the original unknown UI/ARM/deadline stages.",
+    "Keep Parent UI normal/cancel failures and Root7ee four failure classes distinct; preserve all original failed fixtures, logs and unknown outcomes.",
+    "Continue all130 authorized requirements with current platform/build/package/remote gaps explicit; no requirement status is changed here."
+  ],
+  "public_boundary": "Only finite selected results and raw artifact hashes are published. Private INPUTS paths, runtime roots, tokens, raw replies, fixture logs, DBs and tracebacks are not copied.",
+  "canonical_fixture_followup": {
+    "recorded_at": "2026-10-31T04:31:23.537304+00:00",
+    "notification_source": "784afd593f81ac62e638f16dbcf065de4b6fcde9",
+    "retained_environment_run": 41168423931,
+    "environment_observation": "Ubuntu passed (Root current observation); both Mac jobs failed with 15 errors each in the positive setup projection fixture. These failed runs are retained, not rerun or relabelled.",
+    "raw_Mac_logs": {
+      "arm-env.log": {
+        "sha256": "dd6de08e67332733c0e14dead40592a5907d9a4259adc6682b5d6d7a29247dbb",
+        "bytes": 179633,
+        "suite_tests": 522,
+        "errors": 15
+      },
+      "intel-env.log": {
+        "sha256": "541141f3fe5b670ed32d0fca33b7a511c4b457f62f1b196f989a2594c5a3f40d",
+        "bytes": 179778,
+        "suite_tests": 522,
+        "errors": 15
+      }
+    },
+    "fixture_cause": "The positive fixture passed an unresolved temporary-root alias to the strict canonical-parent publisher. The publisher correctly refused; the subsequent test output lookup raised FileNotFoundError for all15 stage subcases.",
+    "fix_scope": "Only test fixture roots resolve(strict=True); three invalid-evidence groups first prove observed and expected-stage baselines before mutation. A Linux-reproducible alias-output-parent negative proves canonical publication succeeds while alias publication raises ENOTDIR/ELOOP and main returns1 without writes or output.",
+    "projector_and_workflow_guards_changed": false,
+    "original_3bb_infrastructure522_result": "Preserved above as the actual prior Linux result; not claimed as a Mac pass or a rerun of this corrected fixture.",
+    "test_parent_commit": "23273ddb62a9a358b7578e2344e6c09b0f2a574f",
+    "changed_test_sha256": "b962181836ed27b23af5187c7cedefb94a0cb7df39fe08520e43a16d910445c4",
+    "local_validation": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.infrastructure.test_integration_setup_diagnostics",
+      "exit": 0,
+      "tests": 10,
+      "dimension": "pure synthetic/source only; Linux executor; Mac not run",
+      "command_log_sha256": "2cc1f80d3b0d23bab2b5bddca0cd2cb6676d2acc1438f553911566a4e6d1b1e1",
+      "RESULT_sha256": "a0b651a5b433c14dc5ff89600aa3a5f2611ea1d40eda67948b3af1e4ccbb29bc"
+    },
+    "not_run": [
+      "macOS execution of this correction",
+      "full infrastructure suite after this correction",
+      "new remote CI",
+      "Core/browser/SQL/Node/Cargo/network execution by this author"
+    ],
+    "next": "Independent source review, then Root cherry-pick and corresponding notification feature closure before exact new CI."
+  }
+}

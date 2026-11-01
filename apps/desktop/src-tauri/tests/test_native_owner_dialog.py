@@ -24,7 +24,7 @@ def pending():
                 'snapshot': {'intent': {'project_id': 'project', 'workspace_id': 'workspace', 'connection_id': 'connection',
                                         'max_attempts': 1, 'max_concurrency': 1, 'max_duration_ms': 1000},
                              'refs': {'workspace_identity': {'canonical_root': '/fixture', 'device': 1, 'inode': 2}, 'connection': {'revision': 2}}}}
-    value = {'read_only': True, 'schema_version': 16, 'sequence': 9, 'proposal': proposal,
+    value = {'read_only': True, 'schema_version': 17, 'sequence': 9, 'proposal': proposal,
              'proposal_result': None, 'grants': [], 'events': [], 'counts': COUNTS.copy()}
     return proposal, value
 
@@ -66,7 +66,7 @@ class OwnerRunnerControls(unittest.TestCase):
 
     def test_real_readonly_sqlite_observation_rejects_authority_change(self):
         daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
-        self.assertTrue(daemon.is_file(), 'Provide the actual frozen/schema16 batond; never substitute test DDL')
+        self.assertTrue(daemon.is_file(), 'Provide the actual frozen/schema17 batond; never substitute test DDL')
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
             with runner.bootstrap(daemon, output) as fixture:
@@ -84,8 +84,8 @@ class OwnerRunnerControls(unittest.TestCase):
                     with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
                         actual.backup(copy_db)
                 self.assertEqual(set(observed['counts']), set(runner.ZERO_TABLES))
-                self.assertEqual(len(observed['counts']), 31)
-                for table in runner.FACTORY_TABLES:
+                self.assertEqual(len(observed['counts']), 35)
+                for table in (*runner.FACTORY_TABLES, *runner.INTEGRATION_TABLES):
                     missing_copy = output / ('missing-' + table)
                     missing_copy.mkdir()
                     with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as actual:
@@ -103,10 +103,10 @@ class OwnerRunnerControls(unittest.TestCase):
                 self.assertIsNotNone(runner.pending_error(runner.database(clone, proposal['id']), proposal, observed['sequence']))
                 with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
                     copy_db.execute('DELETE FROM goal_graph_jobs')
-                    copy_db.execute('PRAGMA user_version=17')
+                    copy_db.execute('PRAGMA user_version=18')
                 self.assertIsNotNone(runner.pending_error(runner.database(clone, proposal['id']), proposal, observed['sequence']))
                 with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
-                    copy_db.execute('PRAGMA user_version=16')
+                    copy_db.execute('PRAGMA user_version=17')
                     copy_db.execute('DROP TABLE goal_plan_heads')
                 with self.assertRaisesRegex(sqlite3.OperationalError, 'goal_plan_heads'):
                     runner.database(clone, proposal['id'])
@@ -168,13 +168,13 @@ class OwnerRunnerControls(unittest.TestCase):
             changed['events'][1]['sequence'] = second
             self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response))
 
-    def test_schema16_requires_original19_plus_all_twelve_factory_zero_tables(self):
+    def test_schema17_requires_original19_plus_twelve_factory_and_four_integration_zero_tables(self):
         proposal, before = pending()
         _, after, response = approved()
-        self.assertEqual(len(runner.ZERO_TABLES), 31)
+        self.assertEqual(len(runner.ZERO_TABLES), 35)
         self.assertEqual(len(runner.FACTORY_TABLES), 12)
-        self.assertEqual(set(runner.ZERO_TABLES), {'attempts', 'sessions', *runner.GOAL_TABLES, *runner.FACTORY_TABLES})
-        for schema in [11, 12, 13, 14, 15, 17, 13.0, 14.0, 15.0, 16.0, True, '13', '14', '15', '16', None]:
+        self.assertEqual(set(runner.ZERO_TABLES), {'attempts', 'sessions', *runner.GOAL_TABLES, *runner.FACTORY_TABLES, *runner.INTEGRATION_TABLES})
+        for schema in [11, 12, 13, 14, 15, 16, 18, 13.0, 14.0, 15.0, 16.0, 17.0, True, '13', '14', '15', '16', '17', None]:
             changed = copy.deepcopy(before); changed['schema_version'] = schema
             self.assertIsNotNone(runner.pending_error(changed, proposal, 9), schema)
             changed = copy.deepcopy(after); changed['schema_version'] = schema
@@ -429,7 +429,7 @@ class OwnerRunnerControls(unittest.TestCase):
 class BootstrapPathControls(unittest.TestCase):
     def daemon(self):
         daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
-        self.assertTrue(daemon.is_file(), 'Use the real frozen schema16 daemon')
+        self.assertTrue(daemon.is_file(), 'Use the real frozen schema17 daemon')
         return daemon
 
     def test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready(self):
@@ -643,7 +643,7 @@ def factory_pending():
     proposal = {'id': 'factory-proposal', 'kind': 'factory', 'consumed': False, 'revision': 1,
                 'snapshot': {'schema_version': 1, 'selection': selection, 'bindings': bindings, 'contract_digest': 'c' * 64},
                 'created_at': 'generated', 'expires_at_ms': 9999999999999}
-    before = {'read_only': True, 'schema_version': 16, 'sequence': 20, 'proposal': copy.deepcopy(proposal),
+    before = {'read_only': True, 'schema_version': 17, 'sequence': 20, 'proposal': copy.deepcopy(proposal),
               'proposal_result': None, 'grants': [copy.deepcopy(grant)], 'events': [], 'counts': COUNTS.copy(),
               'grant_documents': {'grant': runner.json.dumps(grant)}, 'other_proposals': {'connection': 'original raw connection'},
               'task_documents': {'task': 'original raw task'}, 'scopes': [], 'dispatch_intents': 0}
@@ -829,7 +829,7 @@ class FactoryPlanningControls(unittest.TestCase):
 
     def test_old_or_future_schema_refused_before_any_factory_resource_approval(self):
         proposal, initial = pending()
-        for schema in [12, 13, 14, 15, 17, 14.0, 15.0, 16.0]:
+        for schema in [12, 13, 14, 15, 16, 18, 14.0, 15.0, 16.0, 17.0]:
             changed = copy.deepcopy(initial)
             changed['schema_version'] = schema
             with mock.patch.object(runner, 'database', return_value=changed), mock.patch.object(runner, 'FactoryBootstrapClient') as host:
@@ -837,7 +837,7 @@ class FactoryPlanningControls(unittest.TestCase):
                     runner.prepare_factory({'runtime': Path('/generated'), 'proposal': proposal, 'client': object()})
                 host.assert_not_called()
 
-    def test_real_core_factory_preparation_is_schema16_complete_and_never_finalizes_target(self):
+    def test_real_core_factory_preparation_is_schema17_complete_and_never_finalizes_target(self):
         daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
         self.assertTrue((daemon.parent / 'baton').is_file(), 'Use matching same-head16 tools, not an old companion')
 
@@ -908,7 +908,7 @@ class FactoryPlanningControls(unittest.TestCase):
                     self.assertEqual(before['grants'][0]['scope']['max_duration_ms'], 300000)
                     self.assertEqual(before['grants'][0]['scope']['max_children'], 0)
                     self.assertEqual(before['counts']['factory_scopes'], 0)
-                    self.assertEqual(len(before['counts']), 31)
+                    self.assertEqual(len(before['counts']), 35)
                     self.assertGreater(len(pages), 2)
                     self.assertEqual(contexts[-1]['outer_final'], True)
                     self.assertEqual(proposal['snapshot']['bindings']['child_planning']['policy'], invoke['selection']['child_planning_policy'])

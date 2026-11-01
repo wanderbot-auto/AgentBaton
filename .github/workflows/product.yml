@@ -26,14 +26,20 @@ jobs:
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy14-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Build genuine schema15 Task history for the required migration gate
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy15-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy15-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy15-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy15-fixture"
+      - name: Build genuine schema16 workspace history for the required migration gate
+        run: |
+          set -euo pipefail
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy16-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/generate-schema16-migration-fixture.py --frozen "$RUNNER_TEMP/agentbaton-legacy16-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy16-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy16-fixture"
       - name: Workspace tests with actual generated native-wire capture
         env:
           RUST_TEST_THREADS: '1'
@@ -42,7 +48,7 @@ jobs:
           mkdir -p artifacts/provider-contract
           # Planning integration tests require matching normal tools before tests.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema16-tools"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema17-tools"
           export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           cargo build --workspace --locked --bins
@@ -66,6 +72,14 @@ jobs:
           set -euo pipefail
           cargo test --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- -D warnings
+      - name: Migrate genuine nonempty schema16 workspace history with corruption and receipt controls
+        env:
+          AGENTBATON_ACTUAL_SCHEMA16_FIXTURE: ${{ runner.temp }}/agentbaton-legacy16-fixture/manifest.json
+          RUST_TEST_THREADS: '1'
+        run: |
+          set -euo pipefail
+          cargo test --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- --nocapture --test-threads=1
+          cargo clippy --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- -D warnings
       - name: Validate captured messages against hash-pinned official native schema
         run: |
           set -euo pipefail
@@ -160,8 +174,8 @@ jobs:
           set -euo pipefail
           rustup toolchain install stable --profile minimal
           cargo test --locked -p agentbaton-core --features preview-evidence --lib evidence_gate -- --nocapture --test-threads=1
-          cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence
-          python3 -m venv artifacts/browser-venv
+          CARGO_PROFILE_DEV_DEBUG=0 cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence
+          python3 scripts/prepare-browser-runtime.py --output artifacts/browser-venv
           artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt
           artifacts/browser-venv/bin/python -m playwright install --with-deps chromium
       - name: Actual frontend with real Unix IPC and responsive screenshots
@@ -179,13 +193,13 @@ jobs:
               return subprocess.check_output(['git', *args], text=True).strip()
           assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
           candidate = {
-              'schema': 16,
+              'schema': 17,
               'git_head': git('rev-parse', 'HEAD'),
               'git_tree': git('rev-parse', 'HEAD^{tree}'),
               'dirty': False,
               'cargo_features': ['agentbaton-core/preview-evidence'],
               'binaries': {name: hashlib.sha256(pathlib.Path('target/debug', name).read_bytes()).hexdigest() for name in ['batond', 'baton']},
-              'scope': 'CI-built Linux debug evidence candidate; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact',
+              'scope': 'CI-built Linux dev evidence candidate; only this UI preview tool build sets CARGO_PROFILE_DEV_DEBUG=0 (debuginfo=0); dev opt-level/debug_assertions/panic defaults and existing package overrides are unchanged; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact',
           }
           pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
           async def chromium_executable_path():
@@ -204,19 +218,85 @@ jobs:
           # may populate the existing public artifact tree.
           def run_task_workspace_evidence():
               import os
+              def diagnostic_json(value):
+                  stages = {'not_started', 'private_directory', 'tools_directory', 'tool_open', 'tool_metadata',
+                      'tool_copy', 'tool_postcopy', 'driver_log_open', 'driver_launch', 'driver_completed',
+                      'projection_log_open', 'projection_launch', 'projection_completed'}
+                  fields = {'contract', 'driver_stage', 'projection_stage', 'driver_failure_stage',
+                      'projection_failure_stage', 'driver_failure_kind', 'projection_failure_kind',
+                      'tool_role', 'tools', 'driver_exit', 'projection_exit'}
+                  if type(value) is not dict or set(value) != fields or value['contract'] != 'agentbaton.task-workspace-ci-launch.v1':
+                      raise ValueError('Finite launch diagnostic refused')
+                  for key in ('driver_stage', 'projection_stage'):
+                      if type(value[key]) is not str or value[key] not in stages:
+                          raise ValueError('Finite launch diagnostic refused')
+                  for key in ('driver_failure_stage', 'projection_failure_stage'):
+                      if value[key] is not None and (type(value[key]) is not str or value[key] not in stages):
+                          raise ValueError('Finite launch diagnostic refused')
+                  for key in ('driver_failure_kind', 'projection_failure_kind'):
+                      if value[key] is not None and value[key] not in ('os_error', 'subprocess_error'):
+                          raise ValueError('Finite launch diagnostic refused')
+                  for key in ('driver_exit', 'projection_exit'):
+                      if value[key] is not None and (type(value[key]) is not int or not -2147483648 <= value[key] <= 2147483647):
+                          raise ValueError('Finite launch diagnostic refused')
+                  if value['tool_role'] not in (None, 'batond', 'baton') or type(value['tools']) is not dict or set(value['tools']) != {'batond', 'baton'}:
+                      raise ValueError('Finite launch diagnostic refused')
+                  for row in value['tools'].values():
+                      if row is None:
+                          continue
+                      if type(row) is not dict or set(row) != {'bytes', 'mode', 'regular', 'owner_matches', 'writable', 'identity_unchanged', 'digest_matches'}:
+                          raise ValueError('Finite launch diagnostic refused')
+                      if type(row['bytes']) is not int or not 0 <= row['bytes'] <= 9223372036854775807 or type(row['mode']) is not int or not 0 <= row['mode'] <= 0o7777:
+                          raise ValueError('Finite launch diagnostic refused')
+                      if any(type(row[key]) is not bool for key in ('regular', 'owner_matches', 'writable')):
+                          raise ValueError('Finite launch diagnostic refused')
+                      if any(row[key] is not None and type(row[key]) is not bool for key in ('identity_unchanged', 'digest_matches')):
+                          raise ValueError('Finite launch diagnostic refused')
+                  raw = json.dumps(value, separators=(',', ':'), allow_nan=False)
+                  if len(raw.encode()) > 4096:
+                      raise ValueError('Finite launch diagnostic refused')
+                  return raw
+              def emit_diagnostic(value):
+                  try:
+                      print(diagnostic_json(value), flush=True)
+                      return True
+                  except Exception:
+                      # Diagnostic failure must preserve a failed job, never
+                      # replace its original driver/projection failure.
+                      return False
+              diagnostic = {'contract': 'agentbaton.task-workspace-ci-launch.v1',
+                  'driver_stage': 'private_directory', 'projection_stage': 'not_started',
+                  'driver_failure_stage': None, 'projection_failure_stage': None,
+                  'driver_failure_kind': None, 'projection_failure_kind': None,
+                  'tool_role': None, 'tools': {'batond': None, 'baton': None},
+                  'driver_exit': None, 'projection_exit': None}
               private = pathlib.Path(os.environ['RUNNER_TEMP']) / 'task-workspace-browser-private'
-              private.mkdir(mode=0o700, exist_ok=False)
+              try:
+                  private.mkdir(mode=0o700, exist_ok=False)
+              except OSError:
+                  diagnostic['driver_failure_stage'] = diagnostic['driver_stage']
+                  diagnostic['driver_failure_kind'] = 'os_error'
+                  emit_diagnostic(diagnostic)
+                  raise
               driver_exit = projection_exit = None
               try:
                   import stat
                   tools = private / 'tools'
+                  diagnostic['driver_stage'] = 'tools_directory'
                   tools.mkdir(mode=0o700, exist_ok=False)
                   for name in ('batond', 'baton'):
+                      diagnostic['tool_role'] = name
+                      diagnostic['driver_stage'] = 'tool_open'
                       source_fd = os.open(pathlib.Path('target/debug') / name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
                       with os.fdopen(source_fd, 'rb') as source:
                           before = os.fstat(source.fileno())
+                          diagnostic['driver_stage'] = 'tool_metadata'
+                          diagnostic['tools'][name] = {'bytes': before.st_size, 'mode': stat.S_IMODE(before.st_mode),
+                              'regular': stat.S_ISREG(before.st_mode), 'owner_matches': before.st_uid == os.getuid(),
+                              'writable': bool(before.st_mode & 0o022), 'identity_unchanged': None, 'digest_matches': None}
                           if not (stat.S_ISREG(before.st_mode) and before.st_uid == os.getuid() and not before.st_mode & 0o022 and 0 < before.st_size <= 134217728):
                               raise OSError('Built tool metadata refused')
+                          diagnostic['driver_stage'] = 'tool_copy'
                           target_fd = os.open(tools / name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
                           digest = hashlib.sha256()
                           copied = 0
@@ -229,12 +309,18 @@ jobs:
                                   target.write(block)
                               after = os.fstat(source.fileno())
                               stamp = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_gid, value.st_nlink, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+                              diagnostic['driver_stage'] = 'tool_postcopy'
+                              diagnostic['tools'][name]['identity_unchanged'] = stamp(before) == stamp(after)
+                              diagnostic['tools'][name]['digest_matches'] = digest.hexdigest() == candidate['binaries'][name]
                               if copied != before.st_size or stamp(before) != stamp(after) or digest.hexdigest() != candidate['binaries'][name]:
                                   raise OSError('Built tool digest or identity changed')
                               target.flush()
                               os.fsync(target.fileno())
                               os.fchmod(target.fileno(), 0o500)
+                  diagnostic['tool_role'] = None
+                  diagnostic['driver_stage'] = 'driver_log_open'
                   with os.fdopen(os.open(private / 'driver.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      diagnostic['driver_stage'] = 'driver_launch'
                       driver_exit = subprocess.run([
                           sys.executable, 'apps/desktop/tests/task-workspace-binding-real-ipc.py', '--run',
                           '--batond', str(tools / 'batond'),
@@ -244,20 +330,28 @@ jobs:
                           '--expected-source-head', candidate['git_head'],
                           '--output', str(private / 'driver'), '--chromium', chromium,
                       ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
-              except (OSError, subprocess.SubprocessError):
-                  pass
+                      diagnostic['driver_stage'] = 'driver_completed'
+              except (OSError, subprocess.SubprocessError) as error:
+                  diagnostic['driver_failure_stage'] = diagnostic['driver_stage']
+                  diagnostic['driver_failure_kind'] = 'os_error' if isinstance(error, OSError) else 'subprocess_error'
               finally:
                   try:
+                      diagnostic['projection_stage'] = 'projection_log_open'
                       with os.fdopen(os.open(private / 'projection.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                          diagnostic['projection_stage'] = 'projection_launch'
                           projection_exit = subprocess.run([
                               sys.executable, 'scripts/record-task-workspace-ci-evidence.py',
                               '--private', str(private / 'driver'),
                               '--output', str(pathlib.Path('artifacts/ui-browser/task-workspace-binding').absolute()),
                               '--expected-source-head', candidate['git_head'],
                           ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
-                  except (OSError, subprocess.SubprocessError):
-                      pass
-              if driver_exit != 0 or projection_exit != 0:
+                          diagnostic['projection_stage'] = 'projection_completed'
+                  except (OSError, subprocess.SubprocessError) as error:
+                      diagnostic['projection_failure_stage'] = diagnostic['projection_stage']
+                      diagnostic['projection_failure_kind'] = 'os_error' if isinstance(error, OSError) else 'subprocess_error'
+              diagnostic['driver_exit'], diagnostic['projection_exit'] = driver_exit, projection_exit
+              diagnostic_ok = emit_diagnostic(diagnostic)
+              if type(driver_exit) is not int or driver_exit != 0 or type(projection_exit) is not int or projection_exit != 0 or not diagnostic_ok:
                   raise RuntimeError('Task workspace driver or finite evidence projection failed')
           run_task_workspace_evidence()
           graph_base = [
@@ -343,6 +437,201 @@ jobs:
           if child_goal_failures:
               raise SystemExit('Factory child Goal runtime checks failed: ' + json.dumps(child_goal_failures))
           PY
+      - name: Actual integration frontend with real Core IPC and generated correctness
+        id: integration_browser_driver
+        run: |
+          set -euo pipefail
+          umask 077
+          artifacts/browser-venv/bin/python - <<'INTEGRATION_BROWSER'
+          import asyncio, hashlib, importlib.util, json, os, pathlib, signal, stat, subprocess, sys, time, traceback
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          def chromium_path():
+              from playwright.async_api import async_playwright
+              async def read():
+                  async with async_playwright() as browser:
+                      return pathlib.Path(browser.chromium.executable_path).resolve(strict=True)
+              return asyncio.run(read())
+
+          def private_json(path, value):
+              with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'w') as stream:
+                  json.dump(value, stream, allow_nan=False)
+                  stream.write('\n')
+                  stream.flush()
+                  os.fsync(stream.fileno())
+
+          def source_driver():
+              path = pathlib.Path('apps/desktop/tests/integration-real-ipc.py')
+              spec = importlib.util.spec_from_file_location('_ci_integration_driver', path)
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+
+          def copy_tool(source, destination, expected):
+              stamp = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_nlink,
+                                    value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+              with os.fdopen(os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as stream:
+                  before = os.fstat(stream.fileno())
+                  if not (stat.S_ISREG(before.st_mode) and before.st_uid == os.geteuid()
+                          and not before.st_mode & 0o022 and 0 < before.st_size <= 268435456):
+                      raise ValueError('Built integration tool metadata refused')
+                  with os.fdopen(os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as output:
+                      digest, copied = hashlib.sha256(), 0
+                      while block := stream.read(min(1048576, before.st_size - copied + 1)):
+                          copied += len(block)
+                          if copied > before.st_size:
+                              raise ValueError('Built integration tool grew')
+                          digest.update(block)
+                          output.write(block)
+                      if copied != before.st_size or stamp(before) != stamp(os.fstat(stream.fileno())) or digest.hexdigest() != expected:
+                          raise ValueError('Built integration tool identity or SHA changed')
+                      output.flush()
+                      os.fsync(output.fileno())
+                      os.fchmod(output.fileno(), 0o500)
+              if stamp(before) != stamp(os.stat(source, follow_symlinks=False)):
+                  raise ValueError('Built integration tool path changed')
+
+          def actual_schema_probe(module, tools, private, source):
+              runtime = private / 'probe-runtime'
+              runtime.mkdir(mode=0o700)
+              snapshot = None
+              with os.fdopen(os.open(private / 'probe.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                  process = subprocess.Popen([str(tools / 'batond')], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)},
+                                             stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+                  try:
+                      deadline = time.monotonic() + 10
+                      while not ((runtime / 'session.token').is_file() and (runtime / 'batond.sock').exists()):
+                          if process.poll() is not None or time.monotonic() >= deadline:
+                              raise ValueError('Actual schema probe did not start')
+                          time.sleep(.02)
+                      snapshot = module.Host(runtime).result('system.snapshot', {})
+                      if not (type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 17
+                              and type(snapshot.get('api_version')) is int and snapshot['api_version'] == 1):
+                          raise ValueError('Actual Core schema probe refused')
+                  finally:
+                      if process.poll() is None:
+                          process.send_signal(signal.SIGTERM)
+                      try:
+                          exit_code = process.wait(timeout=10)
+                      except subprocess.TimeoutExpired:
+                          process.kill()
+                          process.wait(timeout=5)
+                          raise ValueError('Forced probe kill is not successful cleanup')
+                      if type(exit_code) is not int or exit_code != 0:
+                          raise ValueError('Actual schema probe failed cleanup')
+              private_json(private / 'schema-probe.json', {'source': source, 'api_version': snapshot['api_version'],
+                           'database_schema_version': snapshot['database_schema_version'], 'daemon_exit': 0, 'joined': True})
+
+          def run_integration_browser():
+              temporary = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True)
+              private = temporary / 'agentbaton-integration-browser-ci'
+              private.mkdir(mode=0o700, exist_ok=False)
+              if stat.S_IMODE(private.stat().st_mode) != 0o700 or private.stat().st_uid != os.geteuid():
+                  raise ValueError('Private integration root refused')
+              source = git('rev-parse', 'HEAD')
+              status = {'source': source, 'driver_exit': None, 'probe_passed': False}
+              diagnostic = {'source': source, 'stage': 'tracked_source_guard', 'exception_kind': None,
+                            'browser_discovered': False, 'browser_pinned': False, 'traceback_bytes': 0}
+              try:
+                  if git('status', '--porcelain', '--untracked-files=no'):
+                      raise ValueError('Tracked integration source changed')
+                  diagnostic['stage'] = 'paired_record_read'
+                  manifest_raw = pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').read_bytes()
+                  build_raw = pathlib.Path('artifacts/ui-browser/frontend-build-record.json').read_bytes()
+                  diagnostic['stage'] = 'driver_import'
+                  module = source_driver()
+                  diagnostic['stage'] = 'paired_record_decode'
+                  manifest, build = module.decode(manifest_raw), module.decode(build_raw)
+                  diagnostic['stage'] = 'paired_metadata_guard'
+                  if not (type(manifest.get('schema')) is int and manifest['schema'] == 17 and manifest['git_head'] == source
+                          and manifest.get('dirty') is False and build['source'] == source and type(build['exit']) is int
+                          and build['exit'] == 0 and build['source_head_and_tracked_unchanged'] is True):
+                      raise ValueError('Paired integration source/build metadata refused')
+                  diagnostic['stage'] = 'private_records'
+                  for name, raw in [('candidate.json', manifest_raw), ('frontend-build-record.json', build_raw)]:
+                      with os.fdopen(os.open(private / name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as stream:
+                          stream.write(raw)
+                          stream.flush()
+                          os.fsync(stream.fileno())
+                  diagnostic['stage'] = 'private_tools'
+                  tools = private / 'tools'
+                  tools.mkdir(mode=0o700)
+                  for name in ('batond', 'baton'):
+                      diagnostic['stage'] = 'copy_' + name
+                      copy_tool(pathlib.Path('target/debug') / name, tools / name, manifest['binaries'][name])
+                  diagnostic['stage'] = 'schema_probe'
+                  actual_schema_probe(module, tools, private, source)
+                  status['probe_passed'] = True
+                  diagnostic['stage'] = 'chromium_discovery'
+                  chromium = chromium_path()
+                  diagnostic['browser_discovered'] = True
+                  # Real installed browser ELF; no launcher/wrapper or copied Python layout.
+                  diagnostic['stage'] = 'chromium_pin'
+                  module.pinned_file(chromium, module.MAX_CHROMIUM_IMAGE)
+                  diagnostic['browser_pinned'] = True
+                  diagnostic['stage'] = 'driver_log_open'
+                  with os.fdopen(os.open(private / 'driver.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      diagnostic['stage'] = 'driver_run'
+                      status['driver_exit'] = subprocess.run([
+                          sys.executable, 'apps/desktop/tests/integration-real-ipc.py', '--run', '--case', 'all',
+                          '--batond', str(tools / 'batond'), '--candidate-manifest', str(private / 'candidate.json'),
+                          '--frontend', 'apps/desktop/dist', '--frontend-build-record', str(private / 'frontend-build-record.json'),
+                          '--expected-source-head', source, '--chromium', str(chromium), '--output', str(private / 'driver'),
+                      ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
+                  diagnostic['stage'] = 'driver_returned'
+              except Exception as error:
+                  kinds = ((ImportError, 'import_error'), (OSError, 'os_error'), (ValueError, 'value_error'),
+                           (KeyError, 'key_error'), (TypeError, 'type_error'), (AttributeError, 'attribute_error'))
+                  diagnostic['exception_kind'] = next((tag for kind, tag in kinds if isinstance(error, kind)), 'other_exception')
+                  # Bounded traceback only, never locals or public diagnostics.
+                  raw = ''.join(traceback.TracebackException.from_exception(error, capture_locals=False).format()).encode('utf-8', 'backslashreplace')
+                  raw = raw[:16384].decode('utf-8', 'ignore').encode('utf-8')
+                  diagnostic['traceback_bytes'] = len(raw)
+                  with os.fdopen(os.open(private / 'setup-error.traceback.txt', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      log.write(raw)
+                      log.flush()
+                      os.fsync(log.fileno())
+              finally:
+                  private_json(private / 'status.json', status)
+                  private_json(private / 'setup-diagnostic.json', diagnostic)
+              return 0 if type(status['driver_exit']) is int and status['driver_exit'] == 0 and status['probe_passed'] is True else 1
+
+          if __name__ == '__main__':
+              raise SystemExit(run_integration_browser())
+          INTEGRATION_BROWSER
+      - name: Retain finite integration browser evidence without private runtime data
+        if: always()
+        env:
+          INTEGRATION_BROWSER_DRIVER_OUTCOME: ${{ steps.integration_browser_driver.outcome }}
+        run: |
+          set -euo pipefail
+          umask 077
+          python3 - <<'INTEGRATION_BROWSER_EVIDENCE'
+          import os, pathlib, subprocess, sys
+
+          def project_integration_browser():
+              temporary = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True)
+              private = temporary / 'agentbaton-integration-browser-ci'
+              private.mkdir(mode=0o700, exist_ok=True)
+              if private.is_symlink() or private.resolve(strict=True) != private or private.stat().st_uid != os.geteuid() or private.stat().st_mode & 0o777 != 0o700:
+                  raise ValueError('Private projection root refused')
+              source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+              public = pathlib.Path('artifacts/ui-browser/integration-browser').absolute()
+              public.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+              outcome = os.environ.get('INTEGRATION_BROWSER_DRIVER_OUTCOME') or 'unobserved'
+              with os.fdopen(os.open(private / 'projection.log', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                  result = subprocess.run([
+                      sys.executable, 'scripts/record-integration-browser-ci-evidence.py',
+                      '--private', str(private), '--output', str(public), '--expected-source-head', source,
+                      '--driver-step-outcome', outcome,
+                  ], stdout=log, stderr=subprocess.STDOUT, check=False)
+              return 0 if type(result.returncode) is int and result.returncode == 0 and outcome == 'success' else 1
+
+          if __name__ == '__main__':
+              raise SystemExit(project_integration_browser())
+          INTEGRATION_BROWSER_EVIDENCE
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -381,16 +670,22 @@ jobs:
       - name: Build genuine native schema14 history for the required migration gate
         run: |
           set -euo pipefail
-          # Freeze the original native14 pair before normal16 overwrites target.
+          # Freeze the original native14 pair before normal17 overwrites target.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy14-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Build genuine schema15 Task history for the required migration gate
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy15-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy15-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy15-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy15-fixture"
+      - name: Build genuine schema16 workspace history for the required migration gate
+        run: |
+          set -euo pipefail
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy16-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 scripts/generate-schema16-migration-fixture.py --frozen "$RUNNER_TEMP/agentbaton-legacy16-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy16-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy16-fixture"
       - name: Core and native host tests
         env:
           # Each fixture owns real Git/SQLite/process work. Keep the original
@@ -400,7 +695,7 @@ jobs:
           set -euo pipefail
           # Planning integration tests require matching normal tools before tests.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema16-tools"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema17-tools"
           export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           cargo build --workspace --locked --bins
@@ -429,6 +724,14 @@ jobs:
           set -euo pipefail
           cargo test --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- -D warnings
+      - name: Migrate genuine nonempty schema16 workspace history with corruption and receipt controls
+        env:
+          AGENTBATON_ACTUAL_SCHEMA16_FIXTURE: ${{ runner.temp }}/agentbaton-legacy16-fixture/manifest.json
+          RUST_TEST_THREADS: '1'
+        run: |
+          set -euo pipefail
+          cargo test --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- --nocapture --test-threads=1
+          cargo clippy --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- -D warnings
       - name: Actual macOS WebView and daemon lifecycle acceptance
         run: |
           set -euo pipefail
@@ -444,6 +747,109 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/native-owner-dialog-smoke.py --kind factory_planning --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --companion target/debug/baton --output artifacts/native-smoke/factory-planning-owner-dialog
+      - name: Native library tests with smoke features
+        env:
+          RUST_TEST_THREADS: '1'
+        run: cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --lib -- --test-threads=1
+      - name: Actual Native integration approval and early cancellation
+        run: |
+          set -euo pipefail
+          python3 - <<'INTEGRATION_NATIVE'
+          import json, os, pathlib, stat, subprocess, sys
+
+          def run_integration_cases():
+              private = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True) / 'agentbaton-native-integration'
+              private.mkdir(mode=0o700, exist_ok=False)
+              info = private.lstat()
+              if not (stat.S_ISDIR(info.st_mode) and info.st_uid == os.geteuid()
+                      and stat.S_IMODE(info.st_mode) == 0o700 and private.resolve() == private):
+                  raise RuntimeError('Private integration evidence directory refused')
+              exits = {}
+              for case, extra in [('last-page', []), ('first-page', ['--integration-cancel-at', '0'])]:
+                  command = [sys.executable, 'scripts/native-owner-dialog-smoke.py', '--kind', 'integration',
+                             '--binary', 'apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke',
+                             '--daemon', 'target/debug/batond', '--companion', 'target/debug/baton',
+                             '--output', str(private / case), *extra]
+                  code = None
+                  try:
+                      fd = os.open(private / (case + '.driver.log'), os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+                      with os.fdopen(fd, 'wb') as log:
+                          code = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=False).returncode
+                  except (OSError, subprocess.SubprocessError):
+                      pass
+                  exits[case] = {'driver_exit': code if type(code) is int and -(1 << 31) <= code < (1 << 31) else None}
+              fd = os.open(private / 'driver-status.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+              with os.fdopen(fd, 'w') as status:
+                  json.dump(exits, status)
+                  status.write('\n')
+              if any(value['driver_exit'] != 0 for value in exits.values()):
+                  raise SystemExit(1)
+
+          if __name__ == '__main__':
+              run_integration_cases()
+          INTEGRATION_NATIVE
+      - name: Retain finite Native integration evidence without private snapshots
+        if: always()
+        run: |
+          python3 - <<'INTEGRATION_EVIDENCE'
+          import importlib.util, json, os, pathlib, subprocess, sys
+
+          def project_integration_cases():
+              root = pathlib.Path.cwd().resolve()
+              private = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True) / 'agentbaton-native-integration'
+              output = root / 'artifacts/native-smoke'
+              output.mkdir(parents=True, exist_ok=True)
+              if output.resolve() != output:
+                  raise RuntimeError('Public integration evidence directory refused')
+              spec = importlib.util.spec_from_file_location('integration_ci_projection', root / 'scripts/record-integration-owner-ci-evidence.py')
+              projector = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(projector)
+              cases = ('last-page', 'first-page')
+              driver_exits = {}
+              try:
+                  observed = projector.private_json(private / 'driver-status.json')
+                  if (type(observed) is dict and set(observed) == set(cases)
+                          and all(type(value) is dict and set(value) == {'driver_exit'}
+                                  and (value['driver_exit'] is None or type(value['driver_exit']) is int
+                                       and -(1 << 31) <= value['driver_exit'] < (1 << 31))
+                                  for value in observed.values())):
+                      driver_exits = observed
+              except (OSError, ValueError, TypeError, KeyError, RecursionError):
+                  pass
+              results = {}
+              for case in cases:
+                  code = None
+                  try:
+                      report = projector.private_json(private / case / 'cancel/owner-dialog.json')
+                      baseline = report['integration_approval_database']['before']['sequence']
+                      if type(baseline) is not int or not 0 <= baseline <= (1 << 64) - 1:
+                          raise ValueError('Native integration baseline refused')
+                      fd = os.open(private / (case + '.projection.log'), os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+                      with os.fdopen(fd, 'wb') as log:
+                          code = subprocess.run([sys.executable, 'scripts/record-integration-owner-ci-evidence.py',
+                              '--private', str(private / case), '--output', str(output / ('integration-' + case + '.json')),
+                              '--baseline-sequence', str(baseline)], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
+                  except (OSError, ValueError, TypeError, KeyError, RecursionError, subprocess.SubprocessError):
+                      pass
+                  driver = driver_exits.get(case, {}).get('driver_exit')
+                  projection = code if type(code) is int and -(1 << 31) <= code < (1 << 31) else None
+                  results[case] = {'driver_exit': driver, 'projection_exit': projection,
+                                   'complete': driver == 0 and projection == 0}
+              complete = all(value['complete'] for value in results.values())
+              summary = {'contract': 'agentbaton.integration-native-ci.v1',
+                         'status': 'driver_and_projection_passed' if complete else 'failed',
+                         'cases': results, 'private_history_published': False,
+                         'visual_review': 'not_established', 'runtime_acceptance': False}
+              fd = os.open(output / 'integration-execution.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+              with os.fdopen(fd, 'w') as stream:
+                  json.dump(summary, stream, indent=2)
+                  stream.write('\n')
+              if not complete:
+                  raise SystemExit(1)
+
+          if __name__ == '__main__':
+              project_integration_cases()
+          INTEGRATION_EVIDENCE
       - name: Retain bounded native migration metadata without private history
         if: always()
         run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration

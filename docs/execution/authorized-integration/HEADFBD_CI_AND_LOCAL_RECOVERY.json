@@ -1,0 +1,331 @@
+{
+  "recorded_at": "2026-10-31T02:52:01.931546+00:00",
+  "status": "local_recovery_verified_exact_new_CI_pending",
+  "CI_head": "fbd5b3103794cc163ae91d9f3407fe2dfb90ea49",
+  "CI": {
+    "Environment": {
+      "run": 41159796739,
+      "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41159796739",
+      "conclusion": "all3success"
+    },
+    "Product": {
+      "run": 41159799252,
+      "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41159799252",
+      "conclusion": "all4failure",
+      "Rust": "execution target6passed1failed; v1_migration_preserves_records_and_produces_private_restorable_backup:250 strict INPUT_CHANGED",
+      "Apple_Silicon": "225Core inclnestedhelper passed; execution6/1samev1constraintfailure; subsequent Native/application/package gates notrun",
+      "Intel": "execution6/1samev1constraintfailure; subsequent Native/application/package gates notrun",
+      "UI": "driver tool_metadata refused batond140798744bytes>134217728; driver notlaunched, projection2; original report_missing retained",
+      "secondary": "finite collectors refused after primary failure; not firstcause"
+    }
+  },
+  "original_logs": {
+    "rust-job-api.log": "0139c101ede94c16f40abd09361c099057ea332a76785955bcce92aded6e7bcf",
+    "arm-job-api.log": "93c2106790d458ec57480bd5c64fd7c4e0718776e99097e8779d7847f934888b",
+    "intel-job-api.log": "ea2f6c2c0ae13bf85844bab94634e50817a21cd62434408183c4db7298a1d508",
+    "ui-job-api.log": "a9f181ce3be87204f707bcb3af1111c9a4c971edc2978504e8ee8c655883435d",
+    "product-terminal.json": "aff448b32930a616b736ce6188621a935c82cfbb22873b4ef20469399d87fe41",
+    "initial-runs.json": "ec39d47596a54b99c6fe449489ea41eb0b2ac25158ee2cc5f6cbb0d299129a66",
+    "jobs-observed-round2.json": "9cc0ec7a0af385b29b4a3aa50eda0171e8e9a450c0c3772614ca85f3a5c2f10f"
+  },
+  "retained_UI_artifact": {
+    "id": 13026792157,
+    "bytes": 6347627,
+    "sha256": "e3276c9b9c52c0742adcc73e4afa0c49dac4becd3a84ac170c39b82d1d619f5c",
+    "summary": "pending/report_missing; new finite launch diagnostic in rawjoblog establishes pre-driver size refusal for fbd only, not a retrospectively measured ba cause"
+  },
+  "actual_commands": {
+    "integration17-fbd-preview-debug0-build1": {
+      "RESULT_sha256": "1a333615432ee1d3dcf4d55bcdcabe888cdea59fd79d4b925b488bf50b9a9258",
+      "source": "fbd5b3103794cc163ae91d9f3407fe2dfb90ea49",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "env",
+        "CARGO_BUILD_JOBS=1",
+        "CARGO_PROFILE_DEV_DEBUG=0",
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton",
+        "--features",
+        "agentbaton-core/preview-evidence"
+      ],
+      "exit": 0,
+      "seconds": 28.084916097985115,
+      "minimum_free_bytes": 298893312,
+      "interruption": null,
+      "log_sha256": "d9347e1bcbbe3244b2a6b6b06216ffdac6c438a58dbfee06ac3271ad19a37b81",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "integration17-fbd-debug0-frontend-build1": {
+      "RESULT_sha256": "6a826abfa22f9e389f9f2941fcf23ecf78d3b154bb94a8b62735909cdcbc3ade",
+      "source": "fbd5b3103794cc163ae91d9f3407fe2dfb90ea49",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 1.5092639310169034,
+      "minimum_free_bytes": 314912768,
+      "interruption": null,
+      "log_sha256": "0b7651f9f91b566bb87c349edf201379ff2c6fb15c3e45f4666f09a7f692c921",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "integration17-fbd-debug0-task-workspace-command1": {
+      "RESULT_sha256": "07595c8f1e078e51e02e602bff501e2d0c107aa6c096241b00771a660f24600c",
+      "source": "fbd5b3103794cc163ae91d9f3407fe2dfb90ea49",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+        "apps/desktop/tests/task-workspace-binding-real-ipc.py",
+        "--run",
+        "--batond",
+        "/workspace/.onboarding/integration17-opaque-routing-frozen1/batond",
+        "--candidate-manifest",
+        "/workspace/.onboarding/integration17-fbd-debug0-candidate1.json",
+        "--frontend",
+        "apps/desktop/dist",
+        "--frontend-build-record",
+        "/workspace/.onboarding/integration17-fbd-debug0-frontend-build1/RESULT.json",
+        "--expected-source-head",
+        "fbd5b3103794cc163ae91d9f3407fe2dfb90ea49",
+        "--output",
+        "/workspace/.onboarding/integration17-fbd-debug0-task-workspace-actual1",
+        "--chromium",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium"
+      ],
+      "exit": 0,
+      "seconds": 9.126592010026798,
+      "minimum_free_bytes": 313839616,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "integration17-original-v1-full-execution1": {
+      "RESULT_sha256": "4f99ca053a97f263fcdf5bbc238ffeef9b2c0440d4b0f55644a39556608b8dd9",
+      "source": "9edbf9ecc47920c2f9e0a37e90d6162a0b59fa10",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "env",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "execution",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 28.20751084398944,
+      "minimum_free_bytes": 295047168,
+      "interruption": null,
+      "log_sha256": "bc7615089ca58a9234706e704e0f84a42b844bfba3e4065dc743f76a570c1ee0",
+      "summaries": [
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "integration17-original-v1-clippy1": {
+      "RESULT_sha256": "89417b495663365c96395dde8453ddbda3adc0979ae72f217d7957fbc4b2c2e3",
+      "source": "9edbf9ecc47920c2f9e0a37e90d6162a0b59fa10",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "env",
+        "CARGO_BUILD_JOBS=1",
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "execution",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 13.634631913970225,
+      "minimum_free_bytes": 287391744,
+      "interruption": null,
+      "log_sha256": "4cc613341139d5fda05a44a21246a1520c63eef0479f77d7a3f86feab094ab42",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "integration17-dev-profile-full-infra1": {
+      "RESULT_sha256": "945650968fbaa12fe55f5867d6d35e880adefce0de6c8eca856c4e5f6459a88a",
+      "source": "9edbf9ecc47920c2f9e0a37e90d6162a0b59fa10",
+      "root": "/workspace/.worktrees/authorized-integration-validation",
+      "command": [
+        "python3",
+        "-c",
+        "import os,runpy,sys; os.umask(0o022); sys.argv=[\"unittest\",\"discover\",\"-s\",\"tests/infrastructure\",\"-p\",\"test_*.py\"]; runpy.run_module(\"unittest\",run_name=\"__main__\")"
+      ],
+      "exit": 0,
+      "seconds": 14.138064853963442,
+      "minimum_free_bytes": 287371264,
+      "interruption": null,
+      "log_sha256": "aca56e5eb2c4dd728ce6ca170f32cf817684cbafc99310d8d4b1cd7f22cba2cd",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "actual_browser": {
+    "runtime_Core_and_frontend_source": "fbd5b3103794cc163ae91d9f3407fe2dfb90ea49",
+    "report_sha256": "1f25d632921f3d3c445bb5de55b135f3487d38a77e19c9743e6c23689d3aba8a",
+    "checks": 6,
+    "scenarios": {
+      "WSI-B01": "passed",
+      "WSI-B02": "passed",
+      "WSI-B03": "passed",
+      "WSI-B04": "passed",
+      "WSI-B05": "passed",
+      "WSI-B06": "passed"
+    },
+    "original_PNGs": 8,
+    "PNG_hashes": [
+      {
+        "name": "01-first-task-ready-desktop.png",
+        "sha256": "b61b7e4b1b9aed68ef0b9d21dd69f7d0b1b8822286e26e98106013432d09268a",
+        "viewport": {
+          "height": 1100,
+          "width": 1440
+        },
+        "visual_review": "NOT_RUN by author; Root must inspect original PNG"
+      },
+      {
+        "name": "02-second-task-exact-recovered-desktop.png",
+        "sha256": "9562cd4a52b82e6b094d1752d3972e092e3b27f9d44ff6ca0e6b1a7dab907545",
+        "viewport": {
+          "height": 1100,
+          "width": 1440
+        },
+        "visual_review": "NOT_RUN by author; Root must inspect original PNG"
+      },
+      {
+        "name": "05-task2-bound-execution-desktop.png",
+        "sha256": "8678bd047a03d90c66e49cdb11c9d3892a2eb06297f69e4c8bd21c71efb4bf10",
+        "viewport": {
+          "height": 1100,
+          "width": 1440
+        },
+        "visual_review": "NOT_RUN by author; Root must inspect original PNG"
+      },
+      {
+        "name": "06-task1-bound-execution-mobile.png",
+        "sha256": "20b955b3c80803426b7b577fbc8862d6fbc2e5e74cc3a488de014a9013c6ce76",
+        "viewport": {
+          "height": 844,
+          "width": 390
+        },
+        "visual_review": "NOT_RUN by author; Root must inspect original PNG"
+      },
+      {
+        "name": "07-unbound-entry-parent-refresh-recovery-desktop.png",
+        "sha256": "4ebc739872abefdfd8aaf7770121ea3dd896d0e2a11e935210356565ea9368b2",
+        "viewport": {
+          "height": 1100,
+          "width": 1440
+        },
+        "visual_review": "NOT_RUN by author; Root must inspect original PNG"
+      },
+      {
+        "name": "08-unbound-entry-exact-recovered-desktop.png",
+        "sha256": "258db9f401df787b46d65cd4034a7534c34db3138781d5a33f259842ab539e66",
+        "viewport": {
+          "height": 1100,
+          "width": 1440
+        },
+        "visual_review": "NOT_RUN by author; Root must inspect original PNG"
+      },
+      {
+        "name": "03-drift-invalidates-proof-desktop.png",
+        "sha256": "d1bc6a2fb97566c9dd069597a33126b56a330a427d540e025fcc0706c2eeaf29",
+        "viewport": {
+          "height": 1100,
+          "width": 1440
+        },
+        "visual_review": "NOT_RUN by author; Root must inspect original PNG"
+      },
+      {
+        "name": "04-drift-history-mobile.png",
+        "sha256": "a060a73cb65777bdcd61eff7144e91c47485ae42ffe771f9aa5d04d0d116300d",
+        "viewport": {
+          "height": 844,
+          "width": 390
+        },
+        "visual_review": "NOT_RUN by author; Root must inspect original PNG"
+      }
+    ],
+    "cleanup_complete": true,
+    "original_daemon_exit": 0,
+    "dimension": "actual Linux Chromium/Unix IPC with generated private fixtures, not macOS Native/real Provider",
+    "Root_visual_inspections": [
+      "01-first-task-ready-desktop.png",
+      "04-drift-history-mobile.png"
+    ]
+  },
+  "build_size": {
+    "local_batond_bytes": 42149952,
+    "local_baton_bytes": 3063344,
+    "guard_bytes_unchanged": 134217728,
+    "profile": "UI preview build explicitly DEV_DEBUG0 only; default optimization/assertions/panic and existing package overrides unchanged",
+    "source": "actual newly built fbd bytes; both equal earlier107frozen copies, equality verified before reuse; original107manifest not relabelled",
+    "proof_sha256": "63f945524b2f71fdbfe6cac9e2aaa57c4d1ff9443d693a1cdb8fce6f1383281e"
+  },
+  "source_corrections": {
+    "profile": {
+      "author": "d0b4dc86f93a8fb1db6d75237b3fb7a31c241398",
+      "composed": "9ed1a3d",
+      "review_file": "ui-preview-d0b4-independent-review/REVIEW.json",
+      "review_sha256": "23a6b35c640f5d155224425da92b6e638deb5f412b34aecfdfc1b28e435fdce8",
+      "meaning": "two workflow lines and exact approved inverse source/10negativecontrols only; all old baseline hashes/guards unchanged"
+    },
+    "v1_fixture": {
+      "authors": [
+        "52ffcc9c55271f82a039162ae2110b7226e928d4",
+        "a667f55ec95debc58ee89b13fb69a92f08ac6ed8"
+      ],
+      "composed": "9edbf9ecc47920c2f9e0a37e90d6162a0b59fa10",
+      "original_production_commit": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
+      "review_file": "v1-a667-independent-review/REVIEW.json",
+      "review_sha256": "db4c9541fd50498febd0eb63df199b193ebbbe0cb8987375277dbc3153dd2820",
+      "meaning": "real initial idempotency columns always NOTNULL; positive fixture restored with all originalassertions; old weakDDL retained asnegative, originalrows/private600v1backup verified, previous migrations honestly reach16 then strict17refusal; second16coldrefusal schema/allrawrows/version unchanged; no whole-v1-chain atomicity or genuine16fabrication claim"
+    }
+  },
+  "format": "cargo fmt --all -- --check passed at9edbf9",
+  "infra": "501unique methods passed under explicit0022; no oldfailure deletion",
+  "limits": [
+    "Oldfbd remains failed; current local production Rust/frontend same asfbd, only workflow/test/evidence corrections. New exacthead CI still required.",
+    "No production0700/symlink/128MiB/identity/hash/completeknownschema/FK/Taskvalidation/timeout/budget guard weakened.",
+    "Source-bound local passes do not establish both Mac Native/application, installers, protected integration, signing or full130acceptance.",
+    "AB-START-001 unchanged; no formalApprove/newspend/privateProvider/production authority."
+  ]
+}

@@ -42,7 +42,7 @@ ID = re.compile(r'[A-Za-z0-9._:-]{1,128}')
 KEY = re.compile(r'[A-Za-z0-9:_-]{1,128}')
 CHILD_COMMANDS = frozenset({'factory_child_plans_context', 'factory_child_plans_get',
     'factory_child_plans_list', 'factory_child_plans_submit'})
-# Only this newly imported, private module instance uses schema16 prompt fields.
+# Only this newly imported, private module instance uses schema17 prompt fields.
 # No existing file/module object used by another harness is changed.
 base.REQUEST_FIELDS = base.REQUEST_FIELDS | {'child_planning_context'}
 
@@ -185,13 +185,14 @@ def fingerprint_db(runtime):
     """Readonly, bounded exact rows; no Store::open/migration/recovery."""
     with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 16
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 17
         names = {v[0] for v in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         fixed = {'execution_grants', 'managed_workspaces', 'tasks', 'attempts', 'sessions', 'factory_attempts', 'factory_runs',
             'factory_child_plan_heads', 'factory_child_plan_revisions', 'budgets', 'workspace_leases',
             'factory_budget_reservations', 'goal_ledgers', 'idempotency', 'events'}
         fixed |= base.support.LEGACY_GOAL_TABLES
         fixed |= set(base.support.FACTORY_RECORD_TABLES.values())
+        fixed |= set(base.support.INTEGRATION_RECORD_TABLES.values())
         assert fixed <= names, ('Missing required current tables', sorted(fixed - names))
         counts = base.support.current_factory_counts(db)
         assert counts['child_goal_runs'] == 0, 'Planning-only scope cannot dispatch a derived Goal'
@@ -259,6 +260,91 @@ def verify_exact_recovery(original, recovered, scope, task_id):
         'recovered_journal_cursor':recovered['response']['revision'],
         'immutable_reference':original['response']['result']['reference'],
         'complete_result_typed_equal':True,'exact_request_key_params_CAS':True}
+
+
+# BEGIN LOCAL REFUSAL ACTIVATION OBSERVATION
+# Private harness observation only. Neither product state nor dispatch is changed.
+LOCAL_ACTIVATION_INSTALL = r"""button => {
+ const root=button.closest('section');
+ if(!root||window.__childPlanActivation)throw new Error('Activation observer already installed or missing region');
+ const state={button,root,down:0,up:0,clicks:0};
+ state.listener=e=>{if(e.target===button){if(e.type==='pointerdown')state.down++;if(e.type==='pointerup')state.up++;if(e.type==='click')state.clicks++;}};
+ for(const type of ['pointerdown','pointerup','click'])document.addEventListener(type,state.listener,true);
+ window.__childPlanActivation=state;
+}"""
+LOCAL_ACTIVATION_READ = r"""() => {
+ const s=window.__childPlanActivation,b=window.__childPlanSubmitObservation;
+ if(!s||!b)throw new Error('Missing local activation observation');
+ const alerts=Array.from(s.root.querySelectorAll(':scope > p[role="alert"]'),e=>e.textContent||'');
+ return {down:s.down,up:s.up,clicks:s.clicks,connected:s.button.isConnected,
+  starts:b.starts,active:b.active,
+  denied:alerts.some(t=>/^Plan submission refused(?::|\s|$)/.test(t)),
+  not_sent:alerts.some(t=>t.startsWith('No submission was sent.')),
+  unknown:alerts.some(t=>t.startsWith('Submission outcome unknown.'))};
+}"""
+LOCAL_ACTIVATION_REMOVE = r"""() => {
+ const s=window.__childPlanActivation;if(!s)return;
+ for(const type of ['pointerdown','pointerup','click'])document.removeEventListener(type,s.listener,true);
+ delete window.__childPlanActivation;
+}"""
+
+
+def local_activation_decision(snapshot, starts):
+    """Closed finite observations: absence of an HTTP row is never evidence."""
+    assert type(snapshot) is dict and set(snapshot) == {
+        'down','up','clicks','connected','starts','active','denied','not_sent','unknown'}
+    assert all(type(snapshot[k]) is int and 0 <= snapshot[k] <= 1 for k in ('down','up','clicks'))
+    assert all(type(snapshot[k]) is bool for k in ('connected','denied','not_sent','unknown'))
+    assert all(type(snapshot[k]) is int and snapshot[k] >= 0 for k in ('starts','active'))
+    assert type(starts) is int and starts >= 0
+    assert snapshot['starts'] == starts and snapshot['active'] == 0, 'A submit started; never replay local activation'
+    assert snapshot['connected'] and not snapshot['unknown'], 'Disconnected or unknown activation cannot be replayed'
+    if snapshot['denied']:
+        return 'denied'
+    if snapshot['clicks'] == 1:
+        # Click capture alone is not proof that the React handler ran. Only its
+        # explicit no-send publication may permit another genuine activation.
+        return 'retry' if snapshot['not_sent'] else 'wait'
+    if snapshot['down'] == 1 and snapshot['up'] == 1:
+        return 'retry'  # Exact native press/release, but no click was delivered.
+    return 'wait'
+
+
+def observe_local_refusal(page, button, submit_count, *, clock=time.monotonic):
+    """At most four local activations within the original five-second bound.
+
+    This is for the fixed invalid local drafts only, never for recovery or any
+    successful/uncertain mutation. Invoke-start is recorded synchronously before
+    the unchanged fetch, so even a queued/failed request permanently stops retries.
+    """
+    deadline = clock() + 5
+    baseline = page.evaluate('() => window.__childPlanSubmitObservation.starts')
+    initial_http_count = submit_count()
+    for attempt in range(1, 5):
+        assert clock() < deadline, 'Local refusal activation deadline expired'
+        button.evaluate(LOCAL_ACTIVATION_INSTALL)
+        try:
+            before = page.evaluate(LOCAL_ACTIVATION_READ)
+            assert before['starts'] == baseline and before['active'] == 0 and not before['unknown']
+            assert not before['denied'], 'A previous denial is not this activation receipt'
+            # Any Playwright error is the original failure, never a retry signal.
+            remaining = (deadline - clock()) * 1000
+            assert remaining > 0, 'Local refusal activation deadline expired'
+            button.click(timeout=remaining)
+            while True:
+                assert clock() < deadline, 'Local refusal activation deadline expired'
+                snapshot = page.evaluate(LOCAL_ACTIVATION_READ)
+                decision = local_activation_decision(snapshot, baseline)
+                assert submit_count() == initial_http_count, 'A submit reached HTTP; never replay activation'
+                if decision == 'denied':
+                    return deadline, {'attempts':attempt,'outcome':'local_denied','submit_starts_delta':0}
+                if decision == 'retry':
+                    break
+                page.wait_for_timeout(min(10, max(0, (deadline - clock()) * 1000)))
+        finally:
+            page.evaluate(LOCAL_ACTIVATION_REMOVE)
+    raise AssertionError('Local refusal activation attempts exhausted; no mutation was replayed')
+# END LOCAL REFUSAL ACTIVATION OBSERVATION
 
 
 def record_http_abort(report, method, stage, error, clean=str):
@@ -877,12 +963,12 @@ def runtime_driver(args, output, manifest):
     assert sum(p.stat().st_size for p in asset_paths if p.is_file())<=64*1024*1024
     assets = {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(asset_paths) if p.is_file()}
     assert (frontend / 'index.html').is_file() and len(assets) <= 4096
-    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema16 frontend required'
+    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema17 frontend required'
     for name, path in [('batond', raw_daemon), ('baton', raw_cli)]:
         assert sha(path.read_bytes()) == manifest['binaries'][name]
-    assert type(manifest['schema']) is int and manifest['schema'] == 16
+    assert type(manifest['schema']) is int and manifest['schema'] == 17
     assert re.fullmatch('[a-f0-9]{40}',manifest['source_head']) and re.fullmatch('[a-f0-9]{40}',manifest['compiled_core_source_head'])
-    report = {'status': 'failed_or_interrupted', 'schema_required': 16, 'harness_sha256': sha(source), 'candidate_manifest_sha256': sha(args.manifest.read_bytes()),
+    report = {'status': 'failed_or_interrupted', 'schema_required': 17, 'harness_sha256': sha(source), 'candidate_manifest_sha256': sha(args.manifest.read_bytes()),
         'support_sha256': sha(BASE_PATH.read_bytes()), 'candidate': manifest, 'frontend_assets': assets,
         'harness_git_head': subprocess.check_output(['git','rev-parse','HEAD'],cwd=Path(__file__).resolve().parents[3],text=True).strip(),
         'checks': [], 'screenshots': [], 'http': [], 'private_owner_reviews': [], 'cleanup': [],
@@ -930,7 +1016,7 @@ def runtime_driver(args, output, manifest):
                 'authority': 'private generated fixture, NOT OS Native approval'})
             return host.result('approvals.finalize', {'proposal_id': proposal['id']},
                 'proposal:' + proposal['id'], proposal['revision'])
-        connection = resource('connections.propose', {'name': 'Generated schema16 MCP5', 'provider': 'custom_acp',
+        connection = resource('connections.propose', {'name': 'Generated schema17 MCP5', 'provider': 'custom_acp',
             'executable': str(provider), 'arguments': ['--fixture-settings', str(settings)]}, 'connection', 'planning:connection')
         cid = connection['id']
         rows = wait(lambda: host.result('connections.list', {}), lambda rows: any(c['id'] == cid and c['probe_state'] == 'ready' for c in rows))
@@ -1047,7 +1133,7 @@ def runtime_driver(args, output, manifest):
             report['observations']['factory_approval_reply'] = {'envelope': envelope, 'original_sha256': sha(original)}
             return envelope
         context.expose_binding('__private_test_factory_owner', private_owner_approve)
-        context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{if(command==='factory_scope_approve')return window.__private_test_factory_owner(command,args);const r=await fetch('/__test_child_plan_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw new Error('Fixed child-plan test bridge refused request');return r.json();}};""")
+        context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__childPlanSubmitObservation={starts:0,active:0};window.__TAURI_INTERNALS__={invoke:async(command,args)=>{if(command==='factory_scope_approve')return window.__private_test_factory_owner(command,args);const observed=command==='factory_child_plans_submit';if(observed){window.__childPlanSubmitObservation.starts++;window.__childPlanSubmitObservation.active++;}try{const r=await fetch('/__test_child_plan_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw new Error('Fixed child-plan test bridge refused request');return await r.json();}finally{if(observed)window.__childPlanSubmitObservation.active--;}}};""")
         context.set_default_timeout(15000)
         context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(url + '/') else route.abort())
         page = context.new_page(); errors = []; page.on('pageerror', lambda error: errors.append(str(error)))
@@ -1181,8 +1267,13 @@ def runtime_driver(args, output, manifest):
         for label, invalid, code in variants:
             before = fingerprint_db(runtime); n = sum(r['method'] == 'factory_child_plans.submit' for r in report['http'])
             text = json.dumps(invalid, indent=2); draft.fill(text)
-            root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-            expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Plan submission refused(?::|\s|$)'))).to_contain_text('Plan submission refused')
+            activation_deadline, activation = observe_local_refusal(page,
+                root_region.get_by_role('button', name='Store next plan revision', exact=True),
+                lambda: sum(r['method'] == 'factory_child_plans.submit' for r in report['http']))
+            report['observations'].setdefault('local_negative_activations', []).append({'variant':label, **activation})
+            activation_remaining = (activation_deadline - time.monotonic()) * 1000
+            assert activation_remaining > 0, 'Local refusal activation deadline expired'
+            expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Plan submission refused(?::|\s|$)'))).to_contain_text('Plan submission refused', timeout=activation_remaining)
             assert sum(r['method'] == 'factory_child_plans.submit' for r in report['http']) == n
             reply = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': text,
                 'expectedPlanRevision': 3, 'expectedRevision': scope['revision'], 'idempotencyKey': 'negative-' + label})
@@ -1344,7 +1435,7 @@ def runtime_driver(args, output, manifest):
             def final_diagnostics():
                 info, _ = base.diagnostic_snapshot(runtime, workspace, output, token)
                 report['observations']['final_diagnostics'] = info
-                assert info['complete'] is True and info['schema'] == 16
+                assert info['complete'] is True and info['schema'] == 17
             base.cleanup_call(report, 'readonly_final_diagnostics', final_diagnostics, clean)
         close_browser_engine(browser,playwright,report,clean)
         http_complete = True
@@ -1438,7 +1529,7 @@ def main():
         base.write_private_json(output/'sql-check.json',value);print(json.dumps(value));return 0
     if not args.run:
         base.write_private_json(output / 'NOT_RUN.json', {'actual_runtime': 'not_run',
-            'pending': ['Root reviewed harness', 'fixed schema16 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
+            'pending': ['Root reviewed harness', 'fixed schema17 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
         return 2
     assert args.tools and args.frontend and args.manifest
     manifest = json.loads(args.manifest.read_bytes(), object_pairs_hook=unique_object)

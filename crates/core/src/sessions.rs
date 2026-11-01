@@ -40,6 +40,10 @@ use std::{
 use time::OffsetDateTime;
 use uuid::Uuid;
 
+#[path = "sessions_owned_stop.rs"]
+mod owned_stop;
+use owned_stop::{CompletedTurnProof, RetainedReceipt};
+
 // Unit-test-only, one-shot fault injection at the exact atomic boundary. No
 // product build, feature, IPC request or Provider can install this callback.
 #[cfg(test)]
@@ -1074,14 +1078,24 @@ impl Store {
 
 enum Work {
     Prompt(String),
+    GoalPrompt {
+        text: String,
+        stop: owned_stop::TurnTicket,
+    },
 }
 enum Outcome {
     Ready(String, String),
     Update(String, Value),
     Turn(String, String),
+    GoalTurn {
+        id: String,
+        ticket: owned_stop::TurnTicket,
+        state: String,
+    },
     Failure(String, String),
 }
 struct WorkerReceipt {
+    completed_turn: Option<CompletedTurnProof>,
     capture: Option<crate::factory::FactoryCapture>,
     elapsed_ms: u64,
     reason: String,
@@ -1089,12 +1103,14 @@ struct WorkerReceipt {
     never_started: bool,
 }
 struct Worker {
+    owned_stop: Option<Arc<owned_stop::LaunchBinding>>,
     commands: SyncSender<Work>,
     cancel: Arc<AtomicBool>,
     thread: JoinHandle<WorkerReceipt>,
 }
 pub struct Supervisor {
     workers: HashMap<String, Worker>,
+    retained_receipts: HashMap<String, RetainedReceipt>,
     probes: HashMap<String, JoinHandle<std::result::Result<VersionEvidence, String>>>,
     events: Receiver<Outcome>,
     sender: SyncSender<Outcome>,
@@ -1108,6 +1124,7 @@ impl Supervisor {
         let (sender, events) = mpsc::sync_channel(64);
         Self {
             workers: HashMap::new(),
+            retained_receipts: HashMap::new(),
             probes: HashMap::new(),
             events,
             sender,
@@ -1214,7 +1231,7 @@ impl Supervisor {
         Ok(())
     }
     pub fn launch(&mut self, store: &mut Store, id: &str) -> Result<()> {
-        if self.workers.contains_key(id) {
+        if self.workers.contains_key(id) || self.retained_receipts.contains_key(id) {
             return Ok(());
         }
         self.launch_clocks
@@ -1331,6 +1348,12 @@ impl Supervisor {
             environment,
         };
         let mut factory_mcp = store.factory_mcp_for_launch(id, &self.runtime)?;
+        let owned_stop = if factory_mcp.is_none() {
+            owned_stop::launch_binding(store, &s)?
+        } else {
+            None
+        };
+        let worker_owned_stop = owned_stop.clone();
         // The durable sent marker precedes worker spawn and any provider code.
         store.mark_dispatch_started(&s.intent_id, &s.id)?;
         if let Some(mcp) = factory_mcp.as_mut() {
@@ -1372,6 +1395,7 @@ impl Supervisor {
                         installation,
                         configuration,
                         factory_mcp,
+                        owned_stop: worker_owned_stop,
                         prelaunch_ms,
                         duration,
                     },
@@ -1390,6 +1414,7 @@ impl Supervisor {
         self.workers.insert(
             s.id,
             Worker {
+                owned_stop,
                 commands,
                 cancel,
                 thread,
@@ -1415,6 +1440,32 @@ impl Supervisor {
                 )
             })
     }
+    // The Goal dispatcher has already committed its private exact turn intent.
+    // This method only carries that intent into the existing owned command.
+    pub(crate) fn send_goal(&mut self, store: &mut Store, id: &str, text: &str) -> Result<()> {
+        let worker = self.workers.get(id).ok_or_else(|| {
+            CoreError::new(
+                "OUTCOME_UNKNOWN",
+                "No owned worker exists; reconcile before retry",
+            )
+        })?;
+        let Some(origin) = worker.owned_stop.as_ref() else {
+            return self.send(id, text);
+        };
+        let stop = owned_stop::committed_ticket(store, origin, text)?;
+        worker
+            .commands
+            .try_send(Work::GoalPrompt {
+                text: text.into(),
+                stop,
+            })
+            .map_err(|_| {
+                CoreError::new(
+                    "RESOURCE_LIMIT",
+                    "Worker command queue unavailable; reconcile queued turn",
+                )
+            })
+    }
     /// Only `launch` errors reach this path: no worker was inserted and a
     /// successful thread spawn has no fallible operation before insertion.
     pub(crate) fn record_local_launch_failure(
@@ -1422,7 +1473,7 @@ impl Supervisor {
         store: &mut Store,
         id: &str,
     ) -> Result<()> {
-        if self.workers.contains_key(id) {
+        if self.workers.contains_key(id) || self.retained_receipts.contains_key(id) {
             return Err(CoreError::new(
                 "OUTCOME_UNKNOWN",
                 "An owned worker exists; local no-start proof is unavailable",
@@ -1436,97 +1487,131 @@ impl Supervisor {
         )
         .unwrap_or(u64::MAX)
         .saturating_add(store.shared_session_queue(id)?.unwrap_or(0));
-        self.persist_receipt(
-            store,
-            id,
-            WorkerReceipt {
+        self.retained_receipts.insert(
+            id.into(),
+            RetainedReceipt::new(WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "local_launch_failed_before_worker_start".into(),
                 process_reaped: false,
                 never_started: true,
                 elapsed_ms,
-            },
-        )
+            }),
+        );
+        self.flush_retained_receipts(store)
     }
     pub(crate) fn has_owned_io(&self) -> bool {
-        !self.workers.is_empty() || !self.probes.is_empty()
+        !self.workers.is_empty() || !self.probes.is_empty() || !self.retained_receipts.is_empty()
     }
     pub fn has_workers(&self) -> bool {
-        !self.workers.is_empty()
+        !self.workers.is_empty() || !self.retained_receipts.is_empty()
     }
     pub fn owns(&self, id: &str) -> bool {
-        self.workers.contains_key(id)
+        self.workers.contains_key(id) || self.retained_receipts.contains_key(id)
     }
     pub fn cancel(&self, id: &str) {
         if let Some(w) = self.workers.get(id) {
             w.cancel.store(true, Ordering::Relaxed);
         }
     }
-    fn persist_receipt(
-        &mut self,
-        store: &mut Store,
-        id: &str,
-        receipt: WorkerReceipt,
-    ) -> Result<()> {
+    fn flush_retained_receipts(&mut self, store: &mut Store) -> Result<()> {
+        let ids: Vec<_> = self.retained_receipts.keys().cloned().collect();
+        for id in ids {
+            Self::persist_receipt(store, &id, self.retained_receipts.get_mut(&id).unwrap())?;
+            self.retained_receipts.remove(&id);
+        }
+        Ok(())
+    }
+    fn persist_receipt(store: &mut Store, id: &str, retained: &mut RetainedReceipt) -> Result<()> {
+        let receipt = &retained.receipt;
+        let progress = &mut retained.progress;
+        if !progress.terminal {
+            if let Some(proof) = &receipt.completed_turn {
+                if receipt.reason == "event_backpressure" {
+                    proof.persist_failed_backpressure(store, id)?;
+                } else {
+                    proof.persist(store, id)?;
+                }
+            }
+            progress.terminal = true;
+        }
         let mut s = store.get_session(id)?;
         if receipt.process_reaped || receipt.never_started {
-            let task = store.get(&s.task_id)?;
-            if (receipt.reason == "cancelled" || s.state == "cancel_requested")
-                && task.state != TaskState::CancelRequested
-                && !crate::goal_store::owns_session(&store.conn, id)?
-                && !store.factory_internal_stop_is_current(id)?
-            {
-                store.cancel(&task.id, task.revision)?;
+            if !progress.task {
+                let task = store.get(&s.task_id)?;
+                if (receipt.reason == "cancelled" || s.state == "cancel_requested")
+                    && task.state != TaskState::CancelRequested
+                    && !crate::goal_store::owns_session(&store.conn, id)?
+                    && !store.factory_internal_stop_is_current(id)?
+                {
+                    store.cancel(&task.id, task.revision)?;
+                }
+                progress.task = true;
             }
-            let proof = if receipt.never_started
-                && store.intent(&s.intent_id)?.state == IntentState::Prepared
-            {
-                StopEvidence::NeverDispatched
-            } else if receipt.never_started {
-                StopEvidence::ConfirmedNotStarted {
-                    executor_instance: s.id.clone(),
-                    receipt_ref: format!("owned-worker-no-start:{id}"),
-                }
-            } else {
-                StopEvidence::ConfirmedStopped {
-                    executor_instance: s.id.clone(),
-                    receipt_ref: format!("owned-worker-stop:{id}"),
-                }
-            };
-            store.confirm_stop(&s.intent_id, proof)?;
-            store.release_workspace_lease(&s.workspace_id, &s.id, s.fencing_token)?;
+            if !progress.stop {
+                let proof = if receipt.never_started
+                    && store.intent(&s.intent_id)?.state == IntentState::Prepared
+                {
+                    StopEvidence::NeverDispatched
+                } else if receipt.never_started {
+                    StopEvidence::ConfirmedNotStarted {
+                        executor_instance: s.id.clone(),
+                        receipt_ref: format!("owned-worker-no-start:{id}"),
+                    }
+                } else {
+                    StopEvidence::ConfirmedStopped {
+                        executor_instance: s.id.clone(),
+                        receipt_ref: format!("owned-worker-stop:{id}"),
+                    }
+                };
+                store.confirm_stop(&s.intent_id, proof)?;
+                progress.stop = true;
+            }
+            if !progress.lease {
+                store.release_workspace_lease(&s.workspace_id, &s.id, s.fencing_token)?;
+                progress.lease = true;
+            }
             s.state = "stopped".into();
         } else {
             s.state = "outcome_unknown".into();
         }
-        s.last_error = if receipt.reason == "cancelled" {
-            s.last_error.clone()
-        } else {
-            Some(receipt.reason.clone())
-        };
-        let tx = store.conn.transaction().map_err(db_error)?;
-        tx.execute("UPDATE session_turns SET state='outcome_unknown' WHERE session_id=?1 AND state='pending'",[id]).map_err(db_error)?;
-        save_session(
-            &tx,
-            &mut s,
-            "session.stopped",
-            json!({"reason":receipt.reason,"process_reaped":receipt.process_reaped,"no_process_started":receipt.never_started,"task_accepted":false}),
-            "baton_supervisor",
-        )?;
-        tx.commit().map_err(db_error)?;
-        store.settle_goal_worker(
-            id,
-            receipt.elapsed_ms,
-            receipt.process_reaped || receipt.never_started,
-            receipt.never_started,
-        )?;
-        store.settle_shared_session(
-            id,
-            receipt.elapsed_ms,
-            receipt.process_reaped || receipt.never_started,
-            receipt.never_started,
-            receipt.capture.as_ref(),
-        )?;
+        if !progress.session {
+            s.last_error = if receipt.reason == "cancelled" {
+                s.last_error.clone()
+            } else {
+                Some(receipt.reason.clone())
+            };
+            let tx = store.conn.transaction().map_err(db_error)?;
+            tx.execute("UPDATE session_turns SET state='outcome_unknown' WHERE session_id=?1 AND state='pending'",[id]).map_err(db_error)?;
+            save_session(
+                &tx,
+                &mut s,
+                "session.stopped",
+                json!({"reason":receipt.reason,"process_reaped":receipt.process_reaped,"no_process_started":receipt.never_started,"task_accepted":false}),
+                "baton_supervisor",
+            )?;
+            tx.commit().map_err(db_error)?;
+            progress.session = true;
+        }
+        if !progress.goal {
+            store.settle_goal_worker(
+                id,
+                receipt.elapsed_ms,
+                receipt.process_reaped || receipt.never_started,
+                receipt.never_started,
+            )?;
+            progress.goal = true;
+        }
+        if !progress.shared {
+            store.settle_shared_session(
+                id,
+                receipt.elapsed_ms,
+                receipt.process_reaped || receipt.never_started,
+                receipt.never_started,
+                receipt.capture.as_ref(),
+            )?;
+            progress.shared = true;
+        }
         store.settle_factory_worker(
             id,
             receipt.process_reaped,
@@ -1535,11 +1620,15 @@ impl Supervisor {
             receipt.capture.as_ref(),
         )
     }
+
     pub fn shutdown(&mut self, store: &mut Store) -> Result<()> {
         for worker in self.workers.values() {
             worker.cancel.store(true, Ordering::Relaxed);
         }
-        while !self.workers.is_empty() || !self.probes.is_empty() {
+        while !self.workers.is_empty()
+            || !self.probes.is_empty()
+            || !self.retained_receipts.is_empty()
+        {
             self.tick(store)?;
             std::thread::sleep(Duration::from_millis(5));
         }
@@ -1613,8 +1702,32 @@ impl Supervisor {
                     )?;
                     tx.commit().map_err(db_error)?;
                 }
+                Ok(Outcome::GoalTurn { id, ticket, state }) => {
+                    ticket.persist_terminal(store, &id, &state)?;
+                    self.goal_stop_hint = true;
+                }
                 Ok(Outcome::Turn(id, state)) => {
+                    // The bound one-turn lane never uses an uncorrelated log
+                    // event as its completion. In particular no late event may
+                    // overwrite the retained, exactly identified receipt.
+                    if self
+                        .workers
+                        .get(&id)
+                        .is_some_and(|w| w.owned_stop.is_some())
+                        || self
+                            .retained_receipts
+                            .get(&id)
+                            .is_some_and(|r| r.receipt.completed_turn.is_some())
+                    {
+                        store.session_failure(&id, "uncorrelated_goal_turn")?;
+                        self.cancel(&id);
+                        continue;
+                    }
                     let mut s = store.get_session(&id)?;
+                    if s.state == "stopped" {
+                        continue;
+                    }
+
                     if s.state == "running" {
                         s.state = "ready".into();
                     }
@@ -1657,11 +1770,14 @@ impl Supervisor {
         for id in done {
             let w = self.workers.remove(&id).unwrap();
             match w.thread.join() {
-                Ok(receipt) => self.persist_receipt(store, &id, receipt)?,
+                Ok(receipt) => {
+                    self.retained_receipts
+                        .insert(id, RetainedReceipt::new(receipt));
+                }
                 Err(_) => store.session_failure(&id, "worker_panic_requires_reconciliation")?,
             }
         }
-        Ok(())
+        self.flush_retained_receipts(store)
     }
 }
 impl Supervisor {
@@ -1689,6 +1805,7 @@ impl Supervisor {
             }
             check();
             WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "generated_drop_fixture".into(),
                 process_reaped: true,
@@ -1699,6 +1816,7 @@ impl Supervisor {
         self.workers.insert(
             "generated-drop-fixture".into(),
             Worker {
+                owned_stop: None,
                 commands,
                 cancel,
                 thread,
@@ -1717,6 +1835,7 @@ struct WorkerLaunch {
     installation: ApprovedInstallation,
     configuration: Option<Value>,
     factory_mcp: Option<crate::factory::FactoryMcpLaunch>,
+    owned_stop: Option<Arc<owned_stop::LaunchBinding>>,
     prelaunch_ms: u64,
     duration: Duration,
 }
@@ -1736,6 +1855,7 @@ fn run_worker(
             .is_some_and(|m| m.check_data_boundary().is_err())
         {
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "data_observation_expired_before_worker".into(),
                 process_reaped: false,
@@ -1776,6 +1896,7 @@ fn run_worker_inner(
         installation,
         configuration,
         factory_mcp,
+        owned_stop,
         prelaunch_ms: _,
         duration,
     } = launch;
@@ -1783,6 +1904,7 @@ fn run_worker_inner(
     let notify = |outcome| events.try_send(outcome).is_ok();
     if cancel.load(Ordering::Relaxed) {
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "cancelled".into(),
             process_reaped: false,
@@ -1794,6 +1916,7 @@ fn run_worker_inner(
         Ok(mcp) => mcp,
         Err(_) => {
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "factory_launch_binding_changed".into(),
                 process_reaped: false,
@@ -1804,6 +1927,7 @@ fn run_worker_inner(
     };
     if cancel.load(Ordering::Relaxed) || started.elapsed() >= duration {
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "factory_preflight_cancelled_or_deadline".into(),
             process_reaped: false,
@@ -1813,6 +1937,7 @@ fn run_worker_inner(
     }
     if data.is_some_and(|d| d.check_worker_boundary().is_err()) {
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "data_changed_or_request_deadline_before_spawn".into(),
             process_reaped: false,
@@ -1832,6 +1957,7 @@ fn run_worker_inner(
                 "provider_initialization_failed".into(),
             ));
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "initialization_failed".into(),
                 process_reaped: false,
@@ -1844,6 +1970,7 @@ fn run_worker_inner(
     if cancel.load(Ordering::Relaxed) || started.elapsed() >= duration {
         process.terminate();
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "launch_cancelled_or_timeout".into(),
             process_reaped: process.diagnostics().process_reaped,
@@ -1865,6 +1992,7 @@ fn run_worker_inner(
         if configured.is_err() {
             process.terminate();
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "provider_configuration_unsupported".into(),
                 process_reaped: process.diagnostics().process_reaped,
@@ -1882,6 +2010,7 @@ fn run_worker_inner(
                 "provider_session_creation_failed".into(),
             ));
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "session_creation_failed".into(),
                 process_reaped: process.diagnostics().process_reaped,
@@ -1893,6 +2022,7 @@ fn run_worker_inner(
     if !notify(Outcome::Ready(id.clone(), native.clone())) {
         process.terminate();
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "event_backpressure".into(),
             process_reaped: process.diagnostics().process_reaped,
@@ -1901,6 +2031,8 @@ fn run_worker_inner(
         };
     }
     let mut pending = false;
+    let mut stop_ticket: Option<owned_stop::TurnTicket> = None;
+    let mut completed_turn = None;
     let mut dropped = 0;
     let reason = loop {
         if cancel.load(Ordering::Relaxed) {
@@ -1911,7 +2043,19 @@ fn run_worker_inner(
             break "duration_limit";
         }
         match commands.try_recv() {
-            Ok(Work::Prompt(text)) => {
+            Ok(work) => {
+                let (text, ticket) = match work {
+                    Work::Prompt(text) => (text, None),
+                    Work::GoalPrompt { text, stop } => (text, Some(stop)),
+                };
+                if ticket
+                    .as_ref()
+                    .is_some_and(|t| !t.matches(owned_stop.as_ref(), &id, &native))
+                    || (owned_stop.is_some() && ticket.is_none())
+                {
+                    break "goal_turn_binding_changed";
+                }
+
                 if pending {
                     break "duplicate_worker_turn";
                 }
@@ -1921,6 +2065,7 @@ fn run_worker_inner(
                     break "provider_prompt_failed";
                 }
                 pending = true;
+                stop_ticket = ticket;
             }
             Err(TryRecvError::Disconnected) => break "supervisor_disconnected",
             Err(TryRecvError::Empty) => {}
@@ -1957,12 +2102,20 @@ fn run_worker_inner(
         } else {
             std::thread::sleep(Duration::from_millis(5));
         }
+        // Capture the correlated original turn before any lossy log forwarding.
+        // Backpressure remains a failure; it cannot erase this historical fact.
+        if turn_completed == Some(agentbaton_providers::TurnState::Completed) {
+            if let Some(ticket) = stop_ticket.take() {
+                completed_turn = Some(ticket.completed());
+            }
+        }
         let updates = process.take_updates();
         for update in updates {
             if !notify(Outcome::Update(id.clone(), json!(update))) {
                 process.terminate();
                 notify(Outcome::Failure(id.clone(), "event_backpressure".into()));
                 return WorkerReceipt {
+                    completed_turn,
                     capture: None,
                     reason: "event_backpressure".into(),
                     process_reaped: process.diagnostics().process_reaped,
@@ -1985,11 +2138,25 @@ fn run_worker_inner(
             }
         }
         if let Some(state) = turn_completed {
+            if completed_turn.is_some() {
+                // Exactly the process this worker already owns. The receipt
+                // carries the terminal proof even if the Actor is busy.
+                break "cancelled";
+            }
             let state = serde_json::to_value(state)
                 .ok()
                 .and_then(|s| s.as_str().map(str::to_owned))
                 .unwrap_or_else(|| "outcome_unknown".into());
-            if !notify(Outcome::Turn(id.clone(), state)) {
+            let outcome = if let Some(ticket) = stop_ticket.take() {
+                Outcome::GoalTurn {
+                    id: id.clone(),
+                    ticket,
+                    state,
+                }
+            } else {
+                Outcome::Turn(id.clone(), state)
+            };
+            if !notify(outcome) {
                 break "event_backpressure";
             }
         }
@@ -1999,6 +2166,7 @@ fn run_worker_inner(
         notify(Outcome::Failure(id.clone(), reason.into()));
     }
     WorkerReceipt {
+        completed_turn,
         capture: None,
         reason: reason.into(),
         process_reaped: process.diagnostics().process_reaped,
@@ -2154,6 +2322,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "integration" {
+            return self.integration_finalization_replay(id,revision)?.ok_or_else(||CoreError::new("AUTH_REQUIRED","Integration native finalization requires its original request-owned observation"));
+        }
         if proposal.kind == "factory" {
             let companion: crate::factory::FactoryCompanionBinding =
                 serde_json::from_value(proposal.snapshot["bindings"]["companion"].clone())
@@ -2310,6 +2481,7 @@ mod tests {
                 },
                 configuration: None,
                 factory_mcp: None,
+                owned_stop: None,
                 prelaunch_ms: 0,
                 duration: Duration::from_secs(2),
             },

@@ -20,7 +20,7 @@ exec(compile(Path(P.__file__).read_bytes(),P.__file__,'exec'),P.__dict__)
 SECRET='PRIVATE_SENTINEL_TOKEN_GRANT_RPC_HTML'
 
 def inputs(case='normal'):
-    m={'schema':16,'dirty':False,'git_head':'a'*40,'source_head':'a'*40,'compiled_core_source_head':'a'*40,
+    m={'schema':17,'dirty':False,'git_head':'a'*40,'source_head':'a'*40,'compiled_core_source_head':'a'*40,
        'binaries':{'batond':'b'*64,'baton':'c'*64},'frontend_assets':{SECRET+'.html':'d'*64}}
     raw=json.dumps(m).encode();candidate,summary=P.candidate_summary(raw)
     r={'case':case,'status':'passed','candidate':candidate,'manifest_sha256':P.sha(raw),'harness_sha256':'e'*64,
@@ -98,7 +98,7 @@ class ChildGoalProjectionTests(unittest.TestCase):
 
     def test_candidate_json_types_cannot_coerce_schema_dirty_or_nested_values(self):
         _,m,s,r=inputs()
-        for key,value in [('schema',15),('schema',17),('schema',15.0),('schema',16.0),('schema','16'),('dirty',0),('schema',True)]:
+        for key,value in [('schema',15),('schema',16),('schema',18),('schema',15.0),('schema',16.0),('schema',17.0),('schema','16'),('schema','17'),('dirty',0),('schema',True)]:
             bad=copy.deepcopy(r);bad['candidate'][key]=value
             with self.subTest(key=key,value=value),self.assertRaises(P.Refused):P.project(bad,m,s,'normal',0,'e'*64)
         for left,right in [({'v':[False]},{'v':[0]}),({'v':[1]},{'v':[1.0]}),([1,2],[2,1]),({'x':1},{'y':1}),(0.0,-0.0),({True:1},{1:1})]:

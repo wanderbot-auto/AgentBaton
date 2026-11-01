@@ -1,0 +1,90 @@
+{
+  "base": "df248755e0494fc0f9ca2d794ecbdc5ae77d4226",
+  "source": "efe9eed24a2aa2792246767d635f738d6fb3cde4",
+  "source_hashes": {
+    "crates/core/src/factory_reads.rs": {
+      "before_sha256": "46cea6b478f9dad214ca36fa9c1911b3380b1a58bc036cfb60c996d84cc35911",
+      "after_sha256": "047638e1f69a5ed2780c2682d8f0ee3e12bd346bbcabe2755aacfe02da69cb57",
+      "inverse_full_file_byte_equal": true,
+      "production_prefix_and_other_test_module_byte_equal": true,
+      "changed_existing_test_functions": 2
+    },
+    "crates/core/src/task_workspace_binding_tests.rs": {
+      "before_sha256": "aad5761ac50738fab2c9a8748be996fb843e0a7671090b1ca2e7b0217dc83c2c",
+      "after_sha256": "93a54b4268bd9871861999002fc8c3c743909d307f290fb0fda6a73cc6013696",
+      "inverse_full_file_byte_equal": true,
+      "null_semantic_negative_byte_equal": true,
+      "changed_existing_test_functions": 1
+    }
+  },
+  "test_function_count_delta": 0,
+  "production_and_other_functions_byte_equal": true,
+  "null_semantic_negative_and_genuine_targets_changed": false,
+  "actual_rustfmt_and_diff": "PASS",
+  "actual_cargo_products": "NOT_RUN",
+  "cargo_target_used": false,
+  "root_commands_not_run": [
+    [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--lib",
+      "readonly_worker_refuses_old15_old16_and_future18_without_rewriting_database_or_journal",
+      "--",
+      "--show-output",
+      "--test-threads=1"
+    ],
+    [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--lib",
+      "readonly_query_only_connection_refuses_real_writes_without_mutating_schema_or_journal",
+      "--",
+      "--show-output",
+      "--test-threads=1"
+    ],
+    [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--lib",
+      "controlled_v15_shape_migration_retains_rows_backup_and_refuses_future18",
+      "--",
+      "--show-output",
+      "--test-threads=1"
+    ]
+  ],
+  "old_root_failure": {
+    "source": "df248755e0494fc0f9ca2d794ecbdc5ae77d4226",
+    "outer_pass": 171,
+    "outer_fail": 3,
+    "nested_helper_not_added": 1,
+    "seconds": 110.22,
+    "log_sha256": "d62673b3148b510247ea2400e0962c551a405290b56ec919d066a2064a3cff1f"
+  },
+  "artifacts": {
+    "SOURCE_INVERSE_PROOF.json": {
+      "bytes": 1418,
+      "sha256": "2aa93ae4c027bd5b1d657466a15e6e798d4218ed63e2b9f9095674700ddf067f"
+    },
+    "INITIAL_FORMATTER_REFUSAL.json": {
+      "bytes": 436,
+      "sha256": "4254de0a4ab903a6fa7f713607ba7aa88712825a527face8e4f7e475bdf61313"
+    },
+    "rustfmt-check.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "rustfmt-final.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

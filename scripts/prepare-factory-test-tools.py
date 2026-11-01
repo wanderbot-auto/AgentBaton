@@ -19,6 +19,8 @@ FACTORY_TABLES = (
     'factory_child_plan_heads', 'factory_child_plan_revisions', 'factory_child_goal_runs',
 )
 
+INTEGRATION_TABLES = ('integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences')
+
 
 def verify_private_tool(path):
     metadata = path.lstat()
@@ -48,10 +50,10 @@ def observe_database(runtime):
         conn.execute('PRAGMA query_only=ON')
         conn.execute('BEGIN')
         schema = conn.execute('PRAGMA user_version').fetchone()[0]
-        if type(schema) is not int or schema != 16:
-            raise ValueError('Prepared daemon did not create exact schema16')
+        if type(schema) is not int or schema != 17:
+            raise ValueError('Prepared daemon did not create exact schema17')
         counts = {name: conn.execute('SELECT count(*) FROM ' + name).fetchone()[0]
-                  for name in FACTORY_TABLES}
+                  for name in (*FACTORY_TABLES, *INTEGRATION_TABLES)}
         sequence = conn.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]
         if sequence != 0 or any(type(count) is not int or count != 0 for count in counts.values()):
             raise ValueError('Private preparation probe unexpectedly created authority/runtime rows')
@@ -61,7 +63,7 @@ def observe_database(runtime):
 
 def probe(tools, evidence):
     # /tmp resolves to /private/tmp on macOS. Keep AF_UNIX below its path bound.
-    with tempfile.TemporaryDirectory(prefix='ab15-', dir='/tmp') as temporary:
+    with tempfile.TemporaryDirectory(prefix='ab17-', dir='/tmp') as temporary:
         runtime = Path(temporary).resolve(strict=True)
         runtime.chmod(0o700)
         socket_bytes = len(str(runtime / 'batond.sock').encode('utf-8'))
@@ -150,7 +152,7 @@ def prepare(root, source, output, evidence):
         verify_private_tool(output / name)
     if any(sha256(source / name) != value or sha256(output / name) != value for name, value in hashes.items()):
         raise ValueError('Test tools changed during preparation')
-    record = {**identity, 'schema': 16, 'source_directory': str(source),
+    record = {**identity, 'schema': 17, 'source_directory': str(source),
               'frozen_directory': str(output), 'binaries': hashes,
               'source_binaries_after': {name: sha256(source / name) for name in hashes},
               'frozen_binaries_after': {name: sha256(output / name) for name in hashes},
@@ -165,8 +167,8 @@ def verify(root, tools):
     if not tools.is_absolute():
         raise ValueError('Frozen tool directory must be absolute')
     record = json.loads((tools / 'manifest.json').read_text())
-    if type(record.get('schema')) is not int or record['schema'] != 16:
-        raise ValueError('Frozen tool manifest must be exact schema16')
+    if type(record.get('schema')) is not int or record['schema'] != 17:
+        raise ValueError('Frozen tool manifest must be exact schema17')
     if record.get('frozen_directory') != str(tools.resolve(strict=True)):
         raise ValueError('Frozen tool directory changed')
     if any(record.get(key) != value for key, value in source_identity(root).items()):

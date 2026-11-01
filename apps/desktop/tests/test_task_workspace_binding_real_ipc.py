@@ -181,7 +181,7 @@ class PreflightTests(unittest.TestCase):
         (self.front / 'index.html').write_text('<div>Metadata only, never served</div>')
         self.manifest = root / 'manifest.json'
         self.build = root / 'build.json'
-        self.data = {'schema': 16, 'git_head': h.BASE,
+        self.data = {'schema': 17, 'git_head': h.BASE,
                      'binaries': {'batond': h.file_digest(self.binary)['sha256'],
                                   'baton': h.file_digest(self.cli)['sha256']}}
         self.build_data = {'source': h.BASE, 'exit': 0, 'source_head_and_tracked_unchanged': True,
@@ -203,12 +203,12 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(result['frontend_assets']['index.html']['sha256'], h.sha((self.front / 'index.html').read_bytes()))
 
     def test_schema_float_bool_old_future_and_unmatched_source_are_refused(self):
-        for schema in (16.0, True, 15, 17):
+        for schema in (16.0, 17.0, True, 15, 16, 18):
             self.data['schema'] = schema
             self.save()
             with self.assertRaises(ValueError):
                 h.preflight(self.args)
-        self.data['schema'] = 16
+        self.data['schema'] = 17
         self.data['git_head'] = 'a'*40
         self.save()
         with self.assertRaises(ValueError):

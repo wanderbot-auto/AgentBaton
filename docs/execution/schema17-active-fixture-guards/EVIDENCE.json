@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-30T23:18:53.375737+00:00",
+  "requirements": [
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-TSK-010",
+    "AB-PRJ-004",
+    "AB-PRJ-005",
+    "AB-VAL-009"
+  ],
+  "base": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+  "source": "cc95c2c954049253d7e90d704e62c35089fc0548",
+  "source_sha256": {
+    "crates/core/tests/factory_runtime_ipc.rs": "97326c56c3c7d11c40dbf0122a8d9df92c3c34597a9f7fb4791430f3a4c6eab7",
+    "crates/core/tests/fixtures/factory_child_goal_runtime.rs": "c1ba5d8899b59f69acd5a9f8c8e964481dc91499d2ceb1650187ec22b9f1bb73"
+  },
+  "expected_current_schema": 17,
+  "exact_guard_type": "original rusqlite typed u32 SQL header read plus assert_eq literal17, no accepted range",
+  "static_checks": {
+    "passed": 31,
+    "dimension": "source-level contract model of unchanged typed SQL u32 extraction plus exact assert17; not executed Rust/SQLite/product tests",
+    "record": "/workspace/.onboarding/schema17-active-fixture-guards-source1/STATIC.json",
+    "sha256": "831fcfd9561097603ead0645edc467e186876d165d97e6157d8270ca73e8588a"
+  },
+  "author_commands": [
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup rustfmt --edition 2021 --config skip_children=true --check crates/core/tests/factory_runtime_ipc.rs crates/core/tests/fixtures/factory_child_goal_runtime.rs",
+      "exit": 0,
+      "dimension": "format only"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "dimension": "whitespace only"
+    }
+  ],
+  "original_actual_failure": {
+    "source": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+    "result_path": "/workspace/.onboarding/integration17-matched-tools-full-factory2/RESULT.json",
+    "result_sha256": "ca329c0c00959b726be2e97813f2340776d9cfa62517dbae8926da2a9d432198",
+    "log_sha256": "bec6b1ca387e41a2fa91c3ebe73e489e3107fb8a9467424620d115debdbd15a9",
+    "passed": 21,
+    "failed": 9,
+    "test_seconds": 91.94,
+    "meaning": "seven current installed-daemon Data headers and two current post-run Goal DB headers have actual17 but old expected16",
+    "new_fixed_run": "NOT_RUN by author"
+  },
+  "unchanged": [
+    "all source except exact two current version literals/messages",
+    "production schema/DDL/migrations",
+    "historical schema14/15/16 producers and fixtures",
+    "controlled schema16 predecessor inverse",
+    "all budgets/permissions/stop/unknown/fee/CAS assertions",
+    "all existing test entrypoints"
+  ],
+  "migration_followups_not_changed": {
+    "controlled_inverse": "fixtures/pre_factory_schema.rs check_empty_factory accepts only schema16; current17 requires validating/removing empty integration17 domain before old16 inverse, not changing this label alone",
+    "pre_factory_schema_consumers": [
+      "crates/core/tests/command_validation_migration.rs",
+      "crates/core/tests/data_workspace_migration.rs",
+      "crates/core/tests/factory_child_plan_migration.rs",
+      "crates/core/tests/factory_migration.rs",
+      "crates/core/tests/goal_graph_migration.rs",
+      "crates/core/tests/goal_runtime_migration.rs",
+      "crates/core/tests/goal_store_migration.rs",
+      "crates/core/tests/migration_v3.rs",
+      "crates/core/tests/migration_v5.rs",
+      "crates/core/tests/migration_v6.rs",
+      "crates/core/tests/migration_v7.rs",
+      "crates/core/tests/sessions_ipc.rs"
+    ],
+    "additional_consumer": "task_workspace_actual15_migration.rs still declares genuine15->16/current target16; extend its consumer acceptance to actual current17 only after preserving genuine15 rows and validating new empty domains",
+    "already_separate_correct_target": "integration_actual16_migration.rs is explicitly genuine source16->Store17 and pinned to its source16 producer; preserve that producer",
+    "requires_separate_review_and_actual_migration_runs": true
+  },
+  "runtime": {
+    "cargo_compile": "NOT_RUN",
+    "corrected_fullFactory30": "NOT_RUN",
+    "Actor": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "macOS": "NOT_RUN",
+    "CI": "NOT_RUN"
+  },
+  "whole_requirement_accepted": false,
+  "author_setup_corrections": [
+    {
+      "action": "Initial no-checkout sparse tree index was populated with git read-tree -mu HEAD before edits",
+      "dimension": "new isolated worktree setup only; no prior user changes"
+    },
+    {
+      "action": "Initial docs git add was refused because the new unit directory was outside sparse patterns; added that exact sparse pattern and retried",
+      "dimension": "no product/source/test failure; no prior records overwritten"
+    }
+  ],
+  "root_matched_schema17_results": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
+  "author_not_run_fields_are_historical": true
+}

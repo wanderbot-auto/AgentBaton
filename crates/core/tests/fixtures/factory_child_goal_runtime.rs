@@ -10,10 +10,13 @@ use std::{
     thread::JoinHandle,
     time::{Duration, Instant},
 };
+#[path = "factory_child_goal_deadline_evidence.rs"]
+mod deadline_evidence;
 #[path = "factory_child_goal_overrun_containment.rs"]
 mod overrun_containment;
 #[path = "factory_child_goal_rework.rs"]
 mod rework;
+use deadline_evidence::retain_deadline_parent_stages;
 struct RunningDaemon {
     stop: Arc<AtomicBool>,
     thread: Option<JoinHandle<agentbaton_core::Result<()>>>,
@@ -53,6 +56,8 @@ impl Drop for RunningDaemon {
                 .workspace
                 .join("reports/goal-deadline-started")
                 .is_file());
+            report["deadline_parent_stages"] =
+                retain_deadline_parent_stages(&self.workspace, &self.evidence);
             fs::write(
                 self.evidence.join("owned-cleanup.json"),
                 serde_json::to_vec_pretty(&report)?,
@@ -419,7 +424,8 @@ fn actual_generated_child_goal(root_self: bool, deadline_probe: bool) {
     assert_eq!(
         db.pragma_query_value::<u32, _>(None, "user_version", |row| row.get(0))
             .unwrap(),
-        16
+        17,
+        "Post-run current Core17 storage must remain exactly schema17"
     );
     for (sql,expected) in [("SELECT count(*) FROM factory_child_goal_runs",1),("SELECT count(*) FROM factory_attempts",if root_self {1}else{2}),("SELECT count(*) FROM goal_run_reservations",1),("SELECT count(*) FROM goal_graph_capabilities",0),("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",0),("SELECT count(*) FROM workspace_leases WHERE holder!=''",0),("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'",1),("SELECT count(*) FROM attempts WHERE root_task_id!=(SELECT root_task_id FROM factory_scopes LIMIT 1)",0)]{assert_eq!(db.query_row(sql,[],|row|row.get::<_,i64>(0)).unwrap(),expected,"{sql}");}
     if root_self {
@@ -536,5 +542,55 @@ fn child_goal_provider(
             include_str!("factory_child_planning_acp.py")
         ),
     );
+    if deadline_probe {
+        script = script.replace(
+            "mcp=None;mid=0",
+            &format!(
+                "{}\nmcp=None;mid=0",
+                include_str!("factory_child_goal_deadline_diagnostics.py")
+            ),
+        );
+        // Observe each reply before the original assertions, without changing
+        // them, adding a retry or treating a child unknown as an owned Goal.
+        script = script.replace(
+            "result=json.loads(mcp.stdout.readline());assert 'error' not in result,result",
+            "result=json.loads(mcp.stdout.readline());deadline_envelope_reply(result,rpc=True);assert 'error' not in result,result",
+        );
+        script = script.replace(
+            " result=mcp_call('tools/call',{'name':name,'arguments':args})\n actual=json.loads(result['content'][0]['text']);assert 'error' not in actual,actual",
+            " result=mcp_call('tools/call',{'name':name,'arguments':args});deadline_tools_reply(result)\n actual=json.loads(result['content'][0]['text']);deadline_envelope_reply(actual,rpc=False);assert 'error' not in actual,actual",
+        );
+        for (original, observed) in [
+            (
+                "status=tool('get_task_status',{'task_id':c['task_id']})",
+                "status=deadline_tool('parent_task_status','get_task_status',{'task_id':c['task_id']})",
+            ),
+            (
+                "child=tool('delegate_task',{'goal':'Produce and accept only the actual fixed child report'",
+                "child=deadline_tool('delegate_child','delegate_task',{'goal':'Produce and accept only the actual fixed child report'",
+            ),
+            (
+                "childstatus=tool('get_task_status',{'task_id':child['task_id']});ctx=",
+                "childstatus=deadline_tool('child_planning_status','get_task_status',{'task_id':child['task_id']});ctx=",
+            ),
+            (
+                "saved=tool('submit_child_plan',{'task_id':child['task_id'],",
+                "saved=deadline_tool('submit_child_plan','submit_child_plan',{'task_id':child['task_id'],",
+            ),
+            (
+                "childstatus=tool('get_task_status',{'task_id':child['task_id']})\n   queued=",
+                "childstatus=deadline_tool('child_execution_status','get_task_status',{'task_id':child['task_id']})\n   queued=",
+            ),
+            (
+                "queued=tool('execute_child_goal'",
+                "queued=deadline_tool('execute_child_goal','execute_child_goal'",
+            ),
+        ] {
+            // A changed fixture must fail generation instead of silently
+            // omitting its diagnostic hook. This does not widen any outcome.
+            assert_eq!(script.matches(original).count(), 1, "{original}");
+            script = script.replace(original, observed);
+        }
+    }
     script
 }

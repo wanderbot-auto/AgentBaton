@@ -9,6 +9,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 mod approval;
+mod integration_approval;
 mod native_parent;
 
 // Read-only limits shared with the feature-gated Native test binary. The
@@ -18,6 +19,30 @@ pub mod native_review_test_limits {
     pub const REVIEW_MESSAGE_BYTES: usize = super::native_parent::REVIEW_MESSAGE_BYTES;
     pub const REVIEW_ROW_ENCODED_BYTES: usize = super::native_parent::REVIEW_ROW_ENCODED_BYTES;
     pub const REVIEW_ROWS_PER_PAGE: usize = super::native_parent::REVIEW_ROWS_PER_PAGE;
+}
+
+#[cfg(feature = "native-smoke")]
+pub mod native_integration_test_view {
+    pub const TITLE: &str = super::integration_approval::TITLE;
+    pub fn review_messages(
+        proposal: &serde_json::Value,
+        selection: &agentbaton_core::integration::IntegrationPolicySelection,
+    ) -> Result<Vec<String>, String> {
+        super::integration_approval::review_messages(
+            &serde_json::json!({"result":proposal}),
+            selection,
+        )
+    }
+    pub fn receipt_matches(
+        response: &serde_json::Value,
+        proposal: &serde_json::Value,
+        selection: &agentbaton_core::integration::IntegrationPolicySelection,
+    ) -> bool {
+        super::integration_approval::receipt_matches(response, proposal, selection)
+    }
+    pub fn current_schema_matches(response: &serde_json::Value) -> bool {
+        super::require_current_database_schema(response).is_ok()
+    }
 }
 
 struct Runtime {
@@ -678,6 +703,250 @@ fn goal_graph_advance_frame(
     idempotency_key: &str,
 ) -> Value {
     json!({"method":"goal_graph_runs.advance_plan","params":{"run_id":run_id,"expected_plan_revision":expected_plan_revision,"expected_ledger_revision":expected_ledger_revision},"expected_revision":expected_revision,"idempotency_key":idempotency_key})
+}
+
+fn integration_policy_proposal_frame(
+    selection: &agentbaton_core::integration::IntegrationPolicySelection,
+    key: &str,
+) -> Value {
+    json!({"method":approval::ApprovalKind::Integration.proposal_method(),"params":selection,"idempotency_key":key})
+}
+fn integration_reference_frame(
+    method: &str,
+    field: &str,
+    id: &str,
+    revision: Option<u64>,
+    key: Option<&str>,
+) -> Value {
+    let mut value = json!({"method":method,"params":{field:id}});
+    if let Some(revision) = revision {
+        value["expected_revision"] = json!(revision);
+    }
+    if let Some(key) = key {
+        value["idempotency_key"] = json!(key);
+    }
+    value
+}
+fn integration_list_frame(
+    method: &str,
+    task_id: &str,
+    after_id: Option<String>,
+    limit: Option<u32>,
+) -> Value {
+    json!({"method":method,"params":agentbaton_core::integration::IntegrationListQuery{task_id:task_id.into(),after_id,limit}})
+}
+async fn integration_call(runtime: &Runtime, frame: Value) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let snapshot = ipc::call(&directory, json!({"method":"system.snapshot","params":{}}))
+            .map_err(|e| e.to_string())?;
+        require_current_database_schema(&snapshot)?;
+        Ok(ipc::call(&directory, frame).unwrap_or_else(
+            |error| json!({"request_id":null,"error":error,"revision":0,"warnings":[]}),
+        ))
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+#[tauri::command]
+async fn integration_policy_approve(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    selection: agentbaton_core::integration::IntegrationPolicySelection,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        native_parent::with_caller(window, |parent| {
+            let snapshot = ipc::call(&directory, json!({"method":"system.snapshot","params":{}}))
+                .map_err(|e| e.to_string())?;
+            require_current_database_schema(&snapshot)?;
+            let response = ipc::call(
+                &directory,
+                integration_policy_proposal_frame(&selection, &idempotency_key),
+            )
+            .map_err(|e| e.to_string())?;
+            integration_approval::confirm_and_finalize(
+                response,
+                &selection,
+                |message| parent.confirm(integration_approval::TITLE, message),
+                |frame| parent.finalize(|| ipc::call(&directory, frame).map_err(|e| e.to_string())),
+            )
+        })
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+fn integration_targets_frame(
+    task_id: &str,
+    after_ref: Option<String>,
+    limit: Option<u32>,
+) -> Value {
+    json!({"method":"integration_targets.list","params":agentbaton_core::integration::IntegrationTargetQuery{task_id:task_id.into(),after_ref,limit}})
+}
+fn integration_context_frame(task_id: &str, goal_scope_id: &str) -> Value {
+    json!({"method":"integration_context.get","params":agentbaton_core::integration::IntegrationContextQuery{task_id:task_id.into(),goal_scope_id:goal_scope_id.into()}})
+}
+#[tauri::command]
+async fn integration_context_get(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    goal_scope_id: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_context_frame(&task_id, &goal_scope_id),
+    )
+    .await
+}
+#[tauri::command]
+async fn integration_targets_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    after_ref: Option<String>,
+    limit: Option<u32>,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_targets_frame(&task_id, after_ref, limit),
+    )
+    .await
+}
+#[tauri::command]
+async fn integration_policies_get(
+    runtime: tauri::State<'_, Runtime>,
+    policy_id: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integration_policies.get",
+            "policy_id",
+            &policy_id,
+            None,
+            None,
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integration_policies_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    after_id: Option<String>,
+    limit: Option<u32>,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_list_frame("integration_policies.list", &task_id, after_id, limit),
+    )
+    .await
+}
+#[tauri::command]
+async fn integration_policies_revoke(
+    runtime: tauri::State<'_, Runtime>,
+    policy_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integration_policies.revoke",
+            "policy_id",
+            &policy_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_start(
+    runtime: tauri::State<'_, Runtime>,
+    policy_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integrations.start",
+            "policy_id",
+            &policy_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_get(
+    runtime: tauri::State<'_, Runtime>,
+    integration_id: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integrations.get",
+            "integration_id",
+            &integration_id,
+            None,
+            None,
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    after_id: Option<String>,
+    limit: Option<u32>,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_list_frame("integrations.list", &task_id, after_id, limit),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    integration_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integrations.cancel",
+            "integration_id",
+            &integration_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_reconcile(
+    runtime: tauri::State<'_, Runtime>,
+    integration_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integrations.reconcile",
+            "integration_id",
+            &integration_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+    )
+    .await
 }
 
 fn factory_scope_proposal_frame(selection: &Value, key: &str) -> Value {
@@ -1507,7 +1776,18 @@ fn authenticated_snapshot(runtime: &Path, deadline: Instant) -> Result<Value, St
     if let Some(error) = response.get("error") {
         return Err(error.to_string());
     }
+    require_current_database_schema(&response)?;
     Ok(response)
+}
+
+fn require_current_database_schema(response: &Value) -> Result<(), String> {
+    if response.get("error").is_some()
+        || response["result"]["api_version"].as_u64() != Some(1)
+        || response["result"]["database_schema_version"].as_u64() != Some(17)
+    {
+        return Err("Authenticated daemon requires exact database schema17; old/future/unknown schema is unsupported".into());
+    }
+    Ok(())
 }
 
 fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
@@ -1557,6 +1837,17 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        integration_policy_approve,
+        integration_targets_list,
+        integration_context_get,
+        integration_policies_get,
+        integration_policies_list,
+        integration_policies_revoke,
+        integrations_start,
+        integrations_get,
+        integrations_list,
+        integrations_cancel,
+        integrations_reconcile,
         factory_scope_approve,
         factory_scopes_get,
         factory_scopes_list,
@@ -2005,5 +2296,83 @@ mod task_workspace_binding_bridge_tests {
         assert!(wrapper.contains("false"));
         assert!(!wrapper.contains("confirm_proposed"));
         assert!(!wrapper.contains("ensure_daemon"));
+    }
+}
+
+#[cfg(test)]
+mod integration_bridge_tests {
+    use super::*;
+    #[test]
+    fn integration_reads_and_writes_preserve_fixed_reference_cas_and_key() {
+        for (method, field) in [
+            ("integration_policies.revoke", "policy_id"),
+            ("integrations.start", "policy_id"),
+            ("integrations.cancel", "integration_id"),
+            ("integrations.reconcile", "integration_id"),
+        ] {
+            let frame = integration_reference_frame(
+                method,
+                field,
+                "exact-id",
+                Some(73),
+                Some("original-key"),
+            );
+            assert_eq!(frame["method"], method);
+            assert_eq!(frame["params"], json!({field:"exact-id"}));
+            assert_eq!(frame["expected_revision"], 73);
+            assert_eq!(frame["idempotency_key"], "original-key");
+            assert_eq!(frame.as_object().unwrap().len(), 4);
+        }
+        assert_eq!(
+            integration_reference_frame("integrations.get", "integration_id", "id", None, None),
+            json!({"method":"integrations.get","params":{"integration_id":"id"}})
+        );
+        assert_eq!(
+            integration_list_frame(
+                "integration_policies.list",
+                "task",
+                Some("cursor".into()),
+                Some(7)
+            ),
+            json!({"method":"integration_policies.list","params":{"task_id":"task","after_id":"cursor","limit":7}})
+        );
+        assert_eq!(
+            integration_context_frame("task", "scope"),
+            json!({"method":"integration_context.get","params":{"task_id":"task","goal_scope_id":"scope"}})
+        );
+        assert_eq!(
+            integration_targets_frame("task", Some("refs/heads/last".into()), Some(2)),
+            json!({"method":"integration_targets.list","params":{"task_id":"task","after_ref":"refs/heads/last","limit":2}})
+        );
+    }
+    #[test]
+    fn current_schema_requires_authenticated_exact_typed_seventeen() {
+        let good = json!({"result":{"api_version":1,"database_schema_version":17}});
+        assert!(require_current_database_schema(&good).is_ok());
+        for bad in [
+            Value::Null,
+            json!(16),
+            json!(18),
+            json!(17.0),
+            json!(true),
+            json!("17"),
+        ] {
+            let mut response = good.clone();
+            response["result"]["database_schema_version"] = bad;
+            assert!(require_current_database_schema(&response).is_err());
+        }
+        let mut error = good.clone();
+        error["error"] = Value::Null;
+        assert!(require_current_database_schema(&error).is_err());
+        assert!(
+            require_current_database_schema(&json!({"result":{"database_schema_version":17}}))
+                .is_err()
+        );
+    }
+    #[test]
+    fn generic_owner_path_cannot_finalize_integration() {
+        let response=approval::confirm_and_finalize(json!({"result":{"id":"p","revision":1,"kind":"integration","consumed":false,"snapshot":{}}}),approval::ApprovalKind::Integration, |_|panic!("no generic dialog"), |_|panic!("no generic finalization")).unwrap();
+        assert!(response.get("error").is_some());
+        assert_eq!(response["error"]["side_effect_state"], "not_started");
     }
 }

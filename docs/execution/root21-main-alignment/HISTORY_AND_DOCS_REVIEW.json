@@ -1,0 +1,75 @@
+{
+  "contract": "agentbaton.root21.normalmerge.scoped-independent-review.v1",
+  "verdict": "SOURCE_READY",
+  "blocking_findings": [],
+  "formal_approval": false,
+  "scope": "exact four Rust files and thirteen already-resolved document files only; uncommitted merge",
+  "HEAD": "fd24203cff5ee6c0aa9a1dcf6e8dfb2d93688375",
+  "MERGE_HEAD": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+  "reviewed_sha256": {
+    "crates/core/src/factory_history_reads.rs": "03d2fef57874c57ed950794048bd2f512cafd216b1c996bd44a0f36203b60aba",
+    "crates/core/src/factory_history_reads_tests.rs": "fb047eb570fd20fc6a9757ea3ca358a041bb555dbf9cd5428e927a4b3813a81b",
+    "crates/core/src/goal_stop_service_tests.rs": "8b98083affc471cec3bc28671f7a2fa9452c65d0897b5cddd7fc85c384f8b804",
+    "crates/core/src/integration_workers.rs": "cdd348d18981b9d7229774172abb8cc6a4c718c3daf22f3b46cdc0db355d36a3",
+    "docs/execution/STATUS.md": "25bf031c97c00e33900c9c820846d50ef466f84998a21efd6593b74f6eca4fd2",
+    "docs/execution/factory-ancestor-admission-diagnostics/CHECKPOINT.md": "2274d6ebe8c6c6e2a2b3c8c256e49e92bd619801e37baf9dbae15ef924b7dd87",
+    "docs/execution/factory-ancestor-admission-diagnostics/PROGRESS.md": "f2274727f808d8dff45995dd0aaaf2f4404f2c5eea3e0e6b8cc0f51525331301",
+    "docs/execution/factory-history-worker/CHECKPOINT.md": "d0a029ffa928700be95ea030833c437617587695b68448d5532262b8de988c92",
+    "docs/execution/factory-history-worker/PLAN.md": "5e849e1683b177ef9c225f9f5112c96c09b2a7e48e1b653f9739cd75e559d017",
+    "docs/execution/factory-history-worker/PROGRESS.md": "f9ba5dfc9c035c6686f3eab506f9a9baeb0e5d5a1744a915cc2cc289bea001ed",
+    "docs/execution/goal-owner-observation-order/CHECKPOINT.md": "b27c22143816e078edb73f3dba440981ede1c5f67f5a3263b6bbc4f6fe55bddf",
+    "docs/execution/goal-owner-observation-order/PLAN.md": "e9a30b801fa455d26377fc617594da90b18e64ddc6b5bd410f65a54ef34ab5a3",
+    "docs/execution/goal-owner-observation-order/PROGRESS.md": "76fb7485593c42cdc028c0a933606a3a4910ae0921b98ec1ccf5741e5337dc44",
+    "docs/execution/factory-history-worker/EVIDENCE.json": "04aaee10e0d59fe89c0437f607fecb89ca0caa1077dc2ad8d9e07a99d2186817",
+    "docs/execution/goal-owner-observation-order/EVIDENCE.json": "ec4080f443e271a81f6d75f7ccb88d1968d9892deb13938e7d425a69c44d0177",
+    "docs/execution/requirements-progress.json": "33613bd2dc2cd87fce9c2ab9eed4ca83ae431bea715e2f636bc018764734a042",
+    "BOOTSTRAP_MANIFEST.json": "cb21ae9a81bec977124a68eb33d9b996d3767ad69f276f7221c38983de54fdc1"
+  },
+  "conclusion": "Strict17 reader and old controls preserved; incoming row/outer-loop tests composed without new authority; complete historical document sides and all130 status/coverage preserved. This is not acceptance of other floating merge files or runtime behavior.",
+  "key_checks": [
+    "Reader entire bytes equal Root HEAD/stage2; only incoming reader difference is16 versus17 discriminator; strict17 retained",
+    "Root history test file is a complete unchanged prefix after one test reply\u2192Wire constructor; Root Integration17 table/count control exact",
+    "Appended incoming all-row TaskBinding control exactly reconstructs incoming complete tail after reversing only schema/name/comment/negative-set adaptation; current17 rejects15/16/18",
+    "All existing tasks/managed_workspaces/idempotency/events columns compared by SELECT* all row values; no new TaskBinding table or DDL",
+    "Six original Root Goal stop test functions byte-exact; full resulting file equals incoming; two actual outer-Daemon fault tests and history_actor module preserved",
+    "Integration worker complete file inverse differs only one test reply\u2192Wire constructor; no admission observation/new execution path added",
+    "Integration schema/migration file byte-exact Root HEAD, retains all four integration tables and current17",
+    "Nine Markdown files reconstructed exactly from saved conflicts with both sides verified in actual Git parents; all nonconflict bytes preserved",
+    "Two EVIDENCE objects retain every original Root field plus the complete explicitly historical incoming record and pending-merge warning",
+    "Requirements independently remerged from actual virtual stage1 and both parents; exactly130 ordered IDs/status/coverage equal both parents;36 historical-reference/source-slice locations changed only",
+    "Parent manifests identical except STATUS pin; resolved manifest differs only by hash of actual resolvedSTATUS"
+  ],
+  "check_artifact": {
+    "path": "/tmp/root21-normalmerge-four-docs-independent-check.json",
+    "sha256": "3550bf853b302b3dde93337aded454825bd5a23bbba9832f45046ee67a319170"
+  },
+  "author_proofs": [
+    {
+      "path": "/tmp/root21-normalmerge-history-four/source-proof.json",
+      "sha256": "51b6579ffa610a8d60da6ef87ac93c11125bddbf2422245a8a2c1189f1b1d694"
+    },
+    {
+      "path": "/workspace/.onboarding/root21-owned-doc-conflict-proof1/PROOF.json",
+      "sha256": "d9ef91adf6c126a9a6a631eac436332a32d6c3b5ca2ecec40cc2be689a7ee1bc"
+    }
+  ],
+  "actual_best_merge_bases": [
+    "07d8c1d7e9cbc7237eec5aad39af5094b016ab7e",
+    "2e202515772fa7feebf25c845b6e530633526fe1"
+  ],
+  "scope_boundaries": [
+    "Other three Core/two test/five Python files are under active authorship and not reviewed here",
+    "Immutable incoming ReadyReply Wire contract inspected; final shared IPC/Goal service composition requires its own review and actual compile/runtime tests",
+    "Every new merged source actual test remains NOT_RUN; no old Parent/schema16/platform or source-only result transferred",
+    "Any changed reviewed digest after this snapshot needs recheck; this review does not stage files or approve the whole merge"
+  ],
+  "not_run": [
+    "Cargo/Clippy/Rust tests",
+    "SQL/schema migrations",
+    "actual Actor/history/Goal stop/product processes",
+    "Node/browser/network",
+    "full new composed merge runtime/Mac/CI"
+  ],
+  "Root_source_index_or_history_modified": false,
+  "full130_Provider_remote_signing_delivery_complete": false
+}

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "kind": "integration_release_isolation_source_and_canary",
+  "base": "b452e4a31dd4d1c9cce7e35282a9c2c9dcf0ff39",
+  "before_fix": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/infrastructure",
+      "-p",
+      "test_native_release_audit.py",
+      "-v"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "test_every_existing_marker_is_independently_rejected (test_native_release_audit.NativeReleaseAuditTests.test_every_existing_marker_is_independently_rejected) ... ok\ntest_grep_error_never_becomes_no_match_success (test_native_release_audit.NativeReleaseAuditTests.test_grep_error_never_becomes_no_match_success) ... ok\ntest_legitimate_integration_production_identifiers_are_not_test_markers (test_native_release_audit.NativeReleaseAuditTests.test_legitimate_integration_production_identifiers_are_not_test_markers) ... ok\ntest_missing_input_fails_without_success (test_native_release_audit.NativeReleaseAuditTests.test_missing_input_fails_without_success) ... ok\ntest_missing_inspector_fails_before_success_or_inspection (test_native_release_audit.NativeReleaseAuditTests.test_missing_inspector_fails_before_success_or_inspection) ... ok\ntest_new_integration_os_test_marker_is_rejected (test_native_release_audit.NativeReleaseAuditTests.test_new_integration_os_test_marker_is_rejected) ... FAIL\ntest_strings_failure_after_clean_output_never_reports_pass (test_native_release_audit.NativeReleaseAuditTests.test_strings_failure_after_clean_output_never_reports_pass) ... ok\ntest_strings_failure_after_forbidden_output_never_reports_pass (test_native_release_audit.NativeReleaseAuditTests.test_strings_failure_after_forbidden_output_never_reports_pass) ... ok\n\n======================================================================\nFAIL: test_new_integration_os_test_marker_is_rejected (test_native_release_audit.NativeReleaseAuditTests.test_new_integration_os_test_marker_is_rejected)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/workspace/.worktrees/integration-release-audit/tests/infrastructure/test_native_release_audit.py\", line 118, in test_new_integration_os_test_marker_is_rejected\n    self.assert_rejected_marker(INTEGRATION_MARKER)\n  File \"/workspace/.worktrees/integration-release-audit/tests/infrastructure/test_native_release_audit.py\", line 106, in assert_rejected_marker\n    self.assertEqual(reply.returncode, 1)\nAssertionError: 0 != 1\n\n----------------------------------------------------------------------\nRan 8 tests in 0.113s\n\nFAILED (failures=1)\n",
+    "audit_sha256": "6d2ac974bd2f85d22feb5cd15cf9247f4f82613c85d05ab20f369a025ef689df",
+    "test_sha256": "e41cbb98533d2561752f17ca5fb6219c111cb4f58a699367e197f1dc6ae777d7"
+  },
+  "dimension": "private byte fixtures/real shell/tools and controlled failure tools only; no Mach-O/product execution",
+  "after_fix": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/infrastructure",
+      "-p",
+      "test_native_release_audit.py",
+      "-v"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_every_existing_marker_is_independently_rejected (test_native_release_audit.NativeReleaseAuditTests.test_every_existing_marker_is_independently_rejected) ... ok\ntest_grep_error_never_becomes_no_match_success (test_native_release_audit.NativeReleaseAuditTests.test_grep_error_never_becomes_no_match_success) ... ok\ntest_legitimate_integration_production_identifiers_are_not_test_markers (test_native_release_audit.NativeReleaseAuditTests.test_legitimate_integration_production_identifiers_are_not_test_markers) ... ok\ntest_missing_input_fails_without_success (test_native_release_audit.NativeReleaseAuditTests.test_missing_input_fails_without_success) ... ok\ntest_missing_inspector_fails_before_success_or_inspection (test_native_release_audit.NativeReleaseAuditTests.test_missing_inspector_fails_before_success_or_inspection) ... ok\ntest_new_integration_os_test_marker_is_rejected (test_native_release_audit.NativeReleaseAuditTests.test_new_integration_os_test_marker_is_rejected) ... ok\ntest_strings_failure_after_clean_output_never_reports_pass (test_native_release_audit.NativeReleaseAuditTests.test_strings_failure_after_clean_output_never_reports_pass) ... ok\ntest_strings_failure_after_forbidden_output_never_reports_pass (test_native_release_audit.NativeReleaseAuditTests.test_strings_failure_after_forbidden_output_never_reports_pass) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.141s\n\nOK\n",
+    "audit_sha256": "fff2bf0cefea1a1004a83cbef4caf31d6b9b99e5870fb22cc32527706ce0ad58",
+    "test_sha256": "e41cbb98533d2561752f17ca5fb6219c111cb4f58a699367e197f1dc6ae777d7"
+  },
+  "inverse_whole_script_equal_to_base": true,
+  "source_commit": "8902da6a7f3fe130d82d068cc0ff018e6cd2d0fc",
+  "requirements": {
+    "AB-REL-003": "direct release test-entry exclusion/detection",
+    "AB-REL-001": "layered evidence; no Mac/release claims"
+  },
+  "source": {
+    "scripts/native-audit-release.sh": {
+      "bytes": 1189,
+      "sha256": "fff2bf0cefea1a1004a83cbef4caf31d6b9b99e5870fb22cc32527706ce0ad58"
+    },
+    "tests/infrastructure/test_native_release_audit.py": {
+      "bytes": 6903,
+      "sha256": "e41cbb98533d2561752f17ca5fb6219c111cb4f58a699367e197f1dc6ae777d7"
+    }
+  },
+  "fixed_marker_origin": {
+    "source": "b452e4a31dd4d1c9cce7e35282a9c2c9dcf0ff39",
+    "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+    "line": 104,
+    "literal": "native_integration_os_dialog_fixture"
+  },
+  "old_regex_terms_retained": 11,
+  "new_marker_terms_added": 1,
+  "test_methods": 8,
+  "old_marker_independent_subcases": 11,
+  "before_summary": "7PASS1FAIL; omitted Integration marker mistakenly returned0",
+  "after_summary": "8PASS0FAIL;11 old-marker independent subcases retained",
+  "extra_checks": [
+    {
+      "command": "bash -n scripts/native-audit-release.sh",
+      "exit": 0
+    },
+    {
+      "command": "Python compile(new_test_source, path, exec) without writing bytecode",
+      "result": "PASS"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "test_scope": {
+    "input": "private0600 single-link byte files, not executable/Mach-O",
+    "real_script": true,
+    "real_strings_and_grep_for_marker_cases": true,
+    "fixed_mock_tools_only_for_failure_branches": true,
+    "controlled_environment": "PATH discovered local tool directories;LC_ALL=C;privateTMPDIR;no BASH_ENV/ENV/credentials inherited",
+    "fixture_bytes_or_identity_modified": false,
+    "inspection_temporary_files_left": false
+  },
+  "not_run": [
+    "real default-feature release executable audit",
+    "Apple Silicon/Intel macOS",
+    "full infrastructure suite",
+    "Cargo/Native build",
+    "Actor/Provider",
+    "CI",
+    "release/signing/publishing"
+  ],
+  "authority": "implementation only; no production/signing/realProvider/newfee authorization"
+}

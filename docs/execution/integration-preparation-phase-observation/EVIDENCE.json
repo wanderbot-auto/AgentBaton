@@ -1,0 +1,831 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T23:34:43.366787+00:00",
+  "record_head": "2e0b06dab4c64b70ac3fa3cca4640a6be3c3db20",
+  "branch": "codex/integration-preparation-phase-observation",
+  "requirements": [
+    "AB-PRJ-002",
+    "AB-PRJ-003",
+    "AB-PRJ-005",
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-010",
+    "AB-TSK-012"
+  ],
+  "scope": "Debug-only original integration preparation phase measurement and strict source composition guards; supporting diagnostics, not a new product capability or performance fix.",
+  "sources": {
+    "rust_implementation": "e6017f52bc849f474a5441a253561a575fb6c53b",
+    "strict_python_guard_followup": "2e0b06dab4c64b70ac3fa3cca4640a6be3c3db20",
+    "rust_source_identity": [
+      {
+        "path": "crates/core/src/integration_runtime.rs",
+        "sha256": "4b617cc4b53399262e7d97a73c7b08318759570ddcba54a33a242c67a0031c6d",
+        "e601_equals_2e0": true
+      },
+      {
+        "path": "crates/core/src/integration_stage_workers.rs",
+        "sha256": "6cee5d9bb59d8ea4abb1e3e844c7ab33a3c06ea9da6536438f68ff6e836f78cf",
+        "e601_equals_2e0": true
+      },
+      {
+        "path": "crates/core/src/integration_io.rs",
+        "sha256": "aabb9d25c90e86c7d20ef55db5ec361c22347eee70ca7c9f5f9d12f1fdede5c4",
+        "e601_equals_2e0": true
+      },
+      {
+        "path": "crates/core/src/integration_settlement.rs",
+        "sha256": "327a441778af51c6648ce0744a72e3614634b868544620dc5c2cfa399ed5f154",
+        "e601_equals_2e0": true
+      },
+      {
+        "path": "crates/workspaces/src/adoption.rs",
+        "sha256": "080cfbdf136162a7b587fdbc06ee83198067c5d09319ba983e238471a42f4565",
+        "e601_equals_2e0": true
+      },
+      {
+        "path": "crates/core/tests/fixtures/integration_stage_evidence.rs",
+        "sha256": "3d031567da3589972027bb8fadf96bca0a9830334883e1d557b7883671006c76",
+        "e601_equals_2e0": true
+      },
+      {
+        "path": "crates/core/tests/fixtures/integration_stage_evidence_tests.rs",
+        "sha256": "9aba1d7dfd199758772807200e05898397bdee8135afc266c905f3b7f6d9792a",
+        "e601_equals_2e0": true
+      }
+    ],
+    "only_commit_delta_e601_to_2e0": [
+      "tests/infrastructure/test_integration_stage_evidence_phase_inverse.py",
+      "tests/infrastructure/test_integration_stage_evidence_source.py"
+    ]
+  },
+  "independent_source_reviews": [
+    {
+      "path": "/tmp/root-e509-preparation-phase-independent-review/REVIEW.json",
+      "sha256": "d1c6efd7521a76d4b6f25b3d581ddda51f93040281d282ef9ed5c0548e554f07",
+      "scope": "Only seven-file debug preparation observation change and proposal PP001/PP002/PP003; no broader product acceptance",
+      "decision": "SOURCE_READY"
+    },
+    {
+      "path": "/tmp/integration-preparation-phase-source-guard-independent-review/REVIEW.json",
+      "sha256": "46c945b6aa316394ffbebd743c26cd4b5096a69fc05e25c701d74bb9df42fb0b",
+      "scope": [
+        "tests/infrastructure/test_integration_stage_evidence_phase_inverse.py",
+        "tests/infrastructure/test_integration_stage_evidence_source.py"
+      ],
+      "decision": "SOURCE_READY"
+    }
+  ],
+  "author_static_proofs": [
+    {
+      "path": "/tmp/root-e509-preparation-phase-author/SOURCE_PROOF.json",
+      "sha256": "fd073243f89985e006b646971ef88e8ecc9446b8ac9c78e75d6605b748daeb50"
+    },
+    {
+      "path": "/tmp/root-e509-preparation-phase-author/SOURCE_GUARD_COMPOSITION_PROOF.json",
+      "sha256": "13de062889e2253f5258df9fafcf7aaee89e4cb3e7bf0c6a36907bf5e0a8b853"
+    }
+  ],
+  "actual_results": [
+    {
+      "name": "integration-preparation-phase-core-focused1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-core-focused1",
+      "result_sha256": "79eb6e5e9278df166df2374111d6a0bc638057cfb0fd82019f21bd3fbba3be4d",
+      "inputs_sha256": "c0e887e449b2bc281bc96073d850f600acf340afdbc69b1448d786ecd369265c",
+      "source_tree": "4802740223356061cf79afda697a422dabada05e",
+      "result": {
+        "source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "preparation_phase",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 22.58620819298085,
+        "minimum_free_bytes": 5261418496,
+        "interruption": null,
+        "log_sha256": "e535f1ef6a66eff9baa61f7e5e6dcad69636038cd07d3f2d9b9317a1523863f7",
+        "summaries": [
+          "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 268 filtered out; finished in 0.00s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "compile-only; wrong filter ran0tests; no phase-test pass",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-core-focused2",
+      "path": "/workspace/.onboarding/integration-preparation-phase-core-focused2",
+      "result_sha256": "28c4dd08df3797fe84382f9862c35a13224e3e00336c8a5e618dede3cec66db5",
+      "inputs_sha256": "1a5e6aefcdb210c003439b37c5a91f0774fa27fbbe987147d9c0adc16660f6c4",
+      "source_tree": "4802740223356061cf79afda697a422dabada05e",
+      "result": {
+        "source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "phase_observation::tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 26.79719735396793,
+        "minimum_free_bytes": 5261262848,
+        "interruption": null,
+        "log_sha256": "f67ccec0511fe54c8610fe3f87a5071aba2f66fe6a7e3f0906dddb4461015763",
+        "summaries": [
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 263 filtered out; finished in 0.00s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "5newCorephase tests; subset of later268outerCore, not additive",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-workspaces-focused1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-workspaces-focused1",
+      "result_sha256": "30979495965b5f2f3a3990c0d7254e865c990c407123d2b64c845320c7da91f7",
+      "inputs_sha256": "239c387d8aa143a37962d57a60efdc54ad249c81299e128c0f7f40b478385d8e",
+      "source_tree": "4802740223356061cf79afda697a422dabada05e",
+      "result": {
+        "source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-workspaces",
+          "--lib",
+          "preparation_phase_sampler_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 2.50650520704221,
+        "minimum_free_bytes": 5326639104,
+        "interruption": null,
+        "log_sha256": "78b1e3727fb4561150b58c4564e92628de34b41989b551ab89fae933b4c98e93",
+        "summaries": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 32 filtered out; finished in 0.00s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "3newWorkspaces sampler tests; subset of later35Workspaces, not additive",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-fixture-focused1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-fixture-focused1",
+      "result_sha256": "5d1fe806e875b9d1a6150ef6cb39899bc9ba863a05acbb0f8b0c21796e06c593",
+      "inputs_sha256": "35143a5f72566a9415ecf2282e771bc8dfd4f36a8942740f5a3fa3ddc0d0a555",
+      "source_tree": "4802740223356061cf79afda697a422dabada05e",
+      "result": {
+        "source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "preparation_phase_observation_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 22.39080329798162,
+        "minimum_free_bytes": 5326012416,
+        "interruption": null,
+        "log_sha256": "9e370652229aef05a59a2d3894ff83f7786111d173099ce014cbbe82684e9556",
+        "summaries": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.03s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "3newfixture phase tests; subset of later33integrationIPC, not additive",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-strict-clippy1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-strict-clippy1",
+      "result_sha256": "cab92641651c39ff9620df15ef0b4e2a7b2430b6b76b8147f8f28529538c1a7e",
+      "inputs_sha256": "8ec9737e7e33b252c3666884f5c0ba99bd6a5ff9126a932eed8daa83a9b8ca10",
+      "source_tree": "4802740223356061cf79afda697a422dabada05e",
+      "result": {
+        "source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "clippy",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "-p",
+          "agentbaton-workspaces",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 18.97849045897601,
+        "minimum_free_bytes": 5333360640,
+        "interruption": null,
+        "log_sha256": "03201b833ae20dcfd8438d781e006d9ea17425ad3bf37cd9461a5bf5b5db75c7",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "strictCore+Workspaces all-targets -Dwarnings",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-infrastructure1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-infrastructure1",
+      "result_sha256": "01082c9a13ef1116e601298b518e57c8ed00c72da6f3350618d73c5c93fe1966",
+      "inputs_sha256": "22601dd4efd4ba0604bf0e063b810844b00ca5ca18aec2e4457fc32310798355",
+      "source_tree": "4802740223356061cf79afda697a422dabada05e",
+      "result": {
+        "source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-v"
+        ],
+        "exit": 1,
+        "seconds": 19.94843435299117,
+        "minimum_free_bytes": 5330001920,
+        "interruption": null,
+        "log_sha256": "c86bb54b8b0cbe4a74a180de89026466bfefaba37b191529bd7e34f2d1ef6e49",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "715executed/2failed, preserved. Originalsourceguard10vs13 and payloadalias parser. Synthetic logs are not actualbrowser acceptance",
+      "actual_command_environment_overrides": {}
+    },
+    {
+      "name": "integration-preparation-phase-infrastructure2",
+      "path": "/workspace/.onboarding/integration-preparation-phase-infrastructure2",
+      "result_sha256": "708db998db507f918bde3ff8c9d515962e4e8ba4d8ea6dd7669d5e02bca54e84",
+      "inputs_sha256": "b0c862e08679dd08b82c8f984e73d2e6402881b83b696428de1b7049b78904e2",
+      "source_tree": "14cbfc9d48d4801739dd863d764028957d55c341",
+      "result": {
+        "source": "2e0b06dab4c64b70ac3fa3cca4640a6be3c3db20",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 20.64901746099349,
+        "minimum_free_bytes": 4780630016,
+        "interruption": null,
+        "log_sha256": "ced18e80a34429cabdf81f228e215ed38059bd164fcce2e1314035b8bf5ff937",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "721passed after strict whole-source composition inverse and6new pure controls",
+      "actual_command_environment_overrides": {}
+    },
+    {
+      "name": "integration-preparation-phase-normal-build2",
+      "path": "/workspace/.onboarding/integration-preparation-phase-normal-build2",
+      "result_sha256": "ebd1f36d3e4f4f14754ff2255f543ffd6b860aab48b5e143753508fe69ec293a",
+      "inputs_sha256": "39fc7323b17aa4ed3aed7afa98095f51e6de773dfa4f634c4a528ff0fb731f29",
+      "source_tree": "14cbfc9d48d4801739dd863d764028957d55c341",
+      "result": {
+        "source": "2e0b06dab4c64b70ac3fa3cca4640a6be3c3db20",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 21.461968840972986,
+        "minimum_free_bytes": 4716781568,
+        "interruption": null,
+        "log_sha256": "808b5580ded36bda853c56b94be91acf1615bb075009528429a3168348cc139a",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "fresh normal dev/debug Core17+CLI build, no smoke feature",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-normal-freeze1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-normal-freeze1",
+      "result_sha256": "ab2690a315f1ab8ff42409f4cb7bb3d759fbbf85df35150c3f94c059d0e40097",
+      "inputs_sha256": "f857702470234ba254b3e6c7762f2d0df393b06528ca09bea3246be130a5d5f8",
+      "source_tree": "14cbfc9d48d4801739dd863d764028957d55c341",
+      "result": {
+        "source": "2e0b06dab4c64b70ac3fa3cca4640a6be3c3db20",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/integration-preparation-phase-normal-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/integration-preparation-phase-normal-freeze-evidence1"
+        ],
+        "exit": 0,
+        "seconds": 0.3009850400267169,
+        "minimum_free_bytes": 4788756480,
+        "interruption": null,
+        "log_sha256": "50e2da47b0afe7fe80a13ab170063e2cae0967ced2798e67df89d71a9458130f",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "fresh normaltools freeze+actual empty privateUnixIPC/CLI/readonlySQLite probe and actualTERM0cleanup",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-core-workspaces-full1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-core-workspaces-full1",
+      "result_sha256": "35e3daa687d1cf73138cbba78e8934dcf9dc765f60d18786a741bd70c9e81ddb",
+      "inputs_sha256": "79f32ea32d6677436fd1402c3b638733c223edf1e3239d37fabfcaee6062a2b6",
+      "source_tree": "14cbfc9d48d4801739dd863d764028957d55c341",
+      "result": {
+        "source": "2e0b06dab4c64b70ac3fa3cca4640a6be3c3db20",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/integration-preparation-phase-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/integration-preparation-phase-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/integration-preparation-phase-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "-p",
+          "agentbaton-workspaces",
+          "--lib",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 212.9180967430002,
+        "minimum_free_bytes": 4711870464,
+        "interruption": null,
+        "log_sha256": "61bfe2b9210e5e6e3a49a16022a9eb16487e29f04c6463143397dfafdfa422a8",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 267 filtered out; finished in 0.00s",
+          "test result: ok. 268 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 159.09s",
+          "test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 30.37s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "Core268outer+Workspaces35unique. Nested1same-executable helper is not additional test",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS": "/workspace/.onboarding/integration-preparation-phase-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION": "/workspace/.onboarding/integration-preparation-phase-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION": "/workspace/.onboarding/integration-preparation-phase-normal-frozen1/baton"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-integration-ipc-full1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-integration-ipc-full1",
+      "result_sha256": "e5b1d8a6e353ffe517e200bd94787295d71a880515fa63974999ff8e797a2107",
+      "inputs_sha256": "42d97fbbc778ea0ce9b188c47b34c66491dd60fc97e40ebc95429b2c4c17405c",
+      "source_tree": "14cbfc9d48d4801739dd863d764028957d55c341",
+      "result": {
+        "source": "2e0b06dab4c64b70ac3fa3cca4640a6be3c3db20",
+        "root": "/tmp/root-e509-preparation-phase",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/integration-preparation-phase-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/integration-preparation-phase-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/integration-preparation-phase-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 124.9516597109614,
+        "minimum_free_bytes": 4731441152,
+        "interruption": null,
+        "log_sha256": "8fc85c729de6701a025daeb1e59c25c8c6c0e6526738a04871c157ae2630768b",
+        "summaries": [
+          "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 103.14s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "33actualintegrationIPC tests including3new optionalprojection controls",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS": "/workspace/.onboarding/integration-preparation-phase-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION": "/workspace/.onboarding/integration-preparation-phase-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION": "/workspace/.onboarding/integration-preparation-phase-normal-frozen1/baton"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-default-release-build1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-default-release-build1",
+      "result_sha256": "fe408c487b45e282a29ceb9489d881c5047ed131024b134ca9bf1f479bec02ab",
+      "inputs_sha256": "091a77d1b7dc3246121aeaa46f87bc436c9c3e6f5098783fc4295e40b99c743d",
+      "source_tree": "4802740223356061cf79afda697a422dabada05e",
+      "result": {
+        "source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+        "root": "/tmp/root-e601-release-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_TARGET_DIR=/tmp/root-e601-release-target",
+          "cargo",
+          "build",
+          "--release",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 126.8483756040223,
+        "minimum_free_bytes": 4809109504,
+        "interruption": null,
+        "log_sha256": "80d6ffebfaae5264910cdb3b38a5efa18fdb00689cac04ef478e94317bd02606",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "actual default--release nofeatures/no releaseprofile/debugassertions override; separate isolated validationworktree",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "CARGO_TARGET_DIR": "/tmp/root-e601-release-target"
+      }
+    },
+    {
+      "name": "integration-preparation-phase-release-freeze1",
+      "path": "/workspace/.onboarding/integration-preparation-phase-release-freeze1",
+      "result_sha256": "194d18769af40e16cd492de8dad830d472c2b9bcb60681234923586ee403aa62",
+      "inputs_sha256": "bb4a1645b971b39b9bc23c7239a8204f22a463a59be51ac9e295cc8029968f5c",
+      "source_tree": "4802740223356061cf79afda697a422dabada05e",
+      "result": {
+        "source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+        "root": "/tmp/root-e601-release-validation",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/tmp/root-e601-release-target/release",
+          "--output",
+          "/workspace/.onboarding/integration-preparation-phase-release-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/integration-preparation-phase-release-freeze-evidence1"
+        ],
+        "exit": 0,
+        "seconds": 0.20114476600429043,
+        "minimum_free_bytes": 4783431680,
+        "interruption": null,
+        "log_sha256": "a39f51fcdeaf965c4474b0990a2ba50ef2c5fddb19b936485d1a4391362438bb",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "note": "fresh actualdefaultrelease Core17+CLI freeze/probe/TERM0; notMacdesktop acceptance",
+      "actual_command_environment_overrides": {
+        "PATH": "/workspace/.toolchains/cargo/bin:/usr/bin:/bin"
+      }
+    }
+  ],
+  "counting": {
+    "new_focused_unique": {
+      "Core_phase": 5,
+      "Workspaces_sampler": 3,
+      "fixture_phase": 3,
+      "total": 11
+    },
+    "wrong_filter": "core-focused1 ran0tests: compile-only, excluded from all test-pass counts",
+    "full_Core_unique_outer": 268,
+    "nested_Core_helper_not_additive": 1,
+    "full_Workspaces_unique": 35,
+    "full_integration_IPC": 33,
+    "full_infrastructure_followup": 721,
+    "retained_original_infrastructure": {
+      "executed": 715,
+      "failed": 2
+    },
+    "rule": "Focused11 are subsets of corresponding full suites. No additive all-product test or requirements-completion count. Infrastructure synthetic browser-looking status prints are fixture output, not an actual browser run."
+  },
+  "normal_and_release_frozen_probes": [
+    {
+      "kind": "normal",
+      "source": "2e0b06dab4c64b70ac3fa3cca4640a6be3c3db20",
+      "manifest_path": "/workspace/.onboarding/integration-preparation-phase-normal-freeze-evidence1/manifest.json",
+      "manifest_sha256": "6441a3d940a222f3daa3ca45b77939c528835c1f4b1cd832cc118fa23c835d38",
+      "probe_cleanup_sha256": "db0294607e1cba45282f306d55c8f833cb458d603a5e71be70c90d57e588abb8",
+      "probe_snapshot_sha256": "90e836c08010c127be5afb2359190d51b920cbe7f7e73423e3b105e17e0d60ee",
+      "frozen_directory": "/workspace/.onboarding/integration-preparation-phase-normal-frozen1",
+      "binary_sha256": {
+        "batond": "c9631cd73f7881c62b133212ed4362ba8a4f0ba78dfc388aaef2e8d8e5c2ff50",
+        "baton": "31faa8df8c98aae3514ef74415917840d08dd28e01f8a5f76ef476830c3629e7"
+      },
+      "probe": {
+        "schema": 17,
+        "query_only": true,
+        "sequence": 0,
+        "zero_tables": {
+          "factory_scopes": 0,
+          "factory_runs": 0,
+          "factory_task_lineage": 0,
+          "factory_delegations": 0,
+          "factory_task_bindings": 0,
+          "factory_attempts": 0,
+          "factory_scoped_handles": 0,
+          "factory_handoffs": 0,
+          "factory_budget_reservations": 0,
+          "factory_child_plan_heads": 0,
+          "factory_child_plan_revisions": 0,
+          "factory_child_goal_runs": 0,
+          "integration_policies": 0,
+          "integrations": 0,
+          "integration_attempts": 0,
+          "integration_ref_fences": 0
+        },
+        "runtime_mode": "0o700",
+        "socket_utf8_bytes": 30,
+        "snapshot_api_version": 1,
+        "snapshot_sequence": 0,
+        "cli_snapshot_exit": 0,
+        "original_daemon_SIGTERM_wait_exit": 0,
+        "sigterm_sent": true,
+        "forced_kill": false
+      },
+      "cleanup": {
+        "sigterm_sent": true,
+        "forced_kill": false,
+        "wait_exit": 0
+      },
+      "dimension": "Local actual emptyUnixIPC/CLI/read-onlySQLite schema17 probe only; no Provider/nativeGUI"
+    },
+    {
+      "kind": "release",
+      "source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+      "manifest_path": "/workspace/.onboarding/integration-preparation-phase-release-freeze-evidence1/manifest.json",
+      "manifest_sha256": "3159ec44fa286717fcf862527e8df5eddf9e7703008ffeed13634665ebeacee8",
+      "probe_cleanup_sha256": "a0c16f6e24392b1fa80252e268b2252cf739e3ed82133c95ba814adb6f425a38",
+      "probe_snapshot_sha256": "66f694127c2c9625e18c6ea2fe88fe9de05ffd36632ef923cae2a956d4fd443f",
+      "frozen_directory": "/workspace/.onboarding/integration-preparation-phase-release-frozen1",
+      "binary_sha256": {
+        "batond": "25c0fea6d52bc4e68a71fb93bbfc15d299a95840c2b0479d9f8fca836a55869b",
+        "baton": "51b4ebbe3bfe04379b312042b8f0ae2b1f4914058cb53c911f4463a49402af72"
+      },
+      "probe": {
+        "schema": 17,
+        "query_only": true,
+        "sequence": 0,
+        "zero_tables": {
+          "factory_scopes": 0,
+          "factory_runs": 0,
+          "factory_task_lineage": 0,
+          "factory_delegations": 0,
+          "factory_task_bindings": 0,
+          "factory_attempts": 0,
+          "factory_scoped_handles": 0,
+          "factory_handoffs": 0,
+          "factory_budget_reservations": 0,
+          "factory_child_plan_heads": 0,
+          "factory_child_plan_revisions": 0,
+          "factory_child_goal_runs": 0,
+          "integration_policies": 0,
+          "integrations": 0,
+          "integration_attempts": 0,
+          "integration_ref_fences": 0
+        },
+        "runtime_mode": "0o700",
+        "socket_utf8_bytes": 30,
+        "snapshot_api_version": 1,
+        "snapshot_sequence": 0,
+        "cli_snapshot_exit": 0,
+        "original_daemon_SIGTERM_wait_exit": 0,
+        "sigterm_sent": true,
+        "forced_kill": false
+      },
+      "cleanup": {
+        "sigterm_sent": true,
+        "forced_kill": false,
+        "wait_exit": 0
+      },
+      "dimension": "Local actual emptyUnixIPC/CLI/read-onlySQLite schema17 probe only; no Provider/nativeGUI"
+    }
+  ],
+  "release_isolation": {
+    "path": "/workspace/.onboarding/integration-preparation-phase-release-isolation1/RESULT.json",
+    "sha256": "3ce7749fd824e0956b641a21d94e90596076128419c81e0acab2fdaf6bae33a2",
+    "audit_script_path": "/workspace/.onboarding/audit-integration-phase-release1.py",
+    "audit_script_sha256": "774ba823a4b8d8b95bd9cf51f73eac17ca1d46673d42af6126f0aa631b5921cf",
+    "result": {
+      "status": "passed",
+      "release_source": "e6017f52bc849f474a5441a253561a575fb6c53b",
+      "debug_source": "2e0b06dab4c64b70ac3fa3cca4640a6be3c3db20",
+      "scope": "Linux Core/CLI default-release binary marker audit, with matching product-source debug positive control; not macOS/app/signature acceptance",
+      "build_result": "/workspace/.onboarding/integration-preparation-phase-default-release-build1/RESULT.json",
+      "build_command": "cargo build --release --locked --bin batond --bin baton; no features or profile override",
+      "runner_profile_erratum": "Original wrapper RESULT.profile is a generic dev/test description. Actual argv explicitly selects the default Cargo release profile; it does not claim debug_assertions ON for this release build. INPUTS retains exact argv/environment.",
+      "rows": [
+        {
+          "binary": "batond",
+          "default_release": {
+            "path": "/tmp/root-e601-release-target/release/batond",
+            "sha256": "25c0fea6d52bc4e68a71fb93bbfc15d299a95840c2b0479d9f8fca836a55869b",
+            "bytes": 18814864,
+            "markers": {
+              "agentbaton.integration-preparation-phases.v1": 0,
+              "phase_observation": 0
+            }
+          },
+          "matching_debug_control": {
+            "path": "/workspace/.onboarding/integration-preparation-phase-normal-frozen1/batond",
+            "sha256": "c9631cd73f7881c62b133212ed4362ba8a4f0ba78dfc388aaef2e8d8e5c2ff50",
+            "bytes": 42107600,
+            "markers": {
+              "agentbaton.integration-preparation-phases.v1": 1,
+              "phase_observation": 86
+            }
+          },
+          "positive_control_required": true
+        },
+        {
+          "binary": "baton",
+          "default_release": {
+            "path": "/tmp/root-e601-release-target/release/baton",
+            "sha256": "51b4ebbe3bfe04379b312042b8f0ae2b1f4914058cb53c911f4463a49402af72",
+            "bytes": 1756760,
+            "markers": {
+              "agentbaton.integration-preparation-phases.v1": 0,
+              "phase_observation": 0
+            }
+          },
+          "matching_debug_control": {
+            "path": "/workspace/.onboarding/integration-preparation-phase-normal-frozen1/baton",
+            "sha256": "31faa8df8c98aae3514ef74415917840d08dd28e01f8a5f76ef476830c3629e7",
+            "bytes": 3061768,
+            "markers": {
+              "agentbaton.integration-preparation-phases.v1": 0,
+              "phase_observation": 0
+            }
+          },
+          "positive_control_required": false
+        }
+      ]
+    },
+    "explicit_runner_profile_erratum": "Original wrapper RESULT.profile is a generic dev/test description. It is inapplicable to this explicitly --release command. The actual argv/environment select the default Cargo release profile, no features, release-profile override, Rust flags or debug-assertions override. No claim of debug_assertions ON for the release build; the actual binary audit provides the separate marker evidence.",
+    "no_mutable_target_reread_by_metadata_author": true,
+    "actual_claim": "Both actualdefaultrelease Core/CLI have0occurrences of contract/key; debugdaemon hascontract1/key86 positivecontrol. DebugCLI0/0 is expected because it may not linkdaemonsettlement; no CLI positivecontrol fabricated.",
+    "limit": "Actual Linux defaultrelease Core/CLI bytes only; not macOS application/Tauri/package/signature/manualacceptance. e601release source is not relabeled new2e0CI; allRustsource identical is separately proved."
+  },
+  "implementation_limits": {
+    "phase_slots": 13,
+    "trace_bytes_max": 4096,
+    "original_public_projection_limit": 16384,
+    "compile_gate": "cfg(debug_assertions); no environment/IPC control",
+    "coverage": "Only originalSome(io) event. Earlyread/admission/workerverification/panic/unscheduledNone(io) paths retain unavailable phase data, not fabricated IO0/event/completeness.",
+    "PP001": "Extra snapshots use actual try_lock; original final preparation_io Mutex.lock untouched. Invalid/poison/overflow/contention omits optional trace without changing original Result.",
+    "PP002": "Original eventcount/kind/revision, stop/join, unknown/fence/fees unchanged. Debug optional eventpayload bytes increase; no no-DB-mutation claim.",
+    "PP003": "Original clock samples/order retained; joined counters historical returned sample; valid original16KiBprojection built first; oversizedoptional omitted alone and original oversizedbase stillrefuses. Unique duplicateJSONkey rejection retained.",
+    "observer_effect": "Extra debug observation costs exist. Serialization after original charge sample is not claimed fully charged; no moved origins or discounts.",
+    "unchanged_boundaries": "Original preparation2s/5s, Factory4s/6s/20s budgets, expiry, permissions, cancellation, stopped proof, CAS, freshness, output unknown and charges retain original expressions/order."
+  },
+  "historical_failures_retained": {
+    "exact_e509_terminal": {
+      "path": "docs/execution/integration-browser-failure-observation/CI_TERMINAL_RESULTS.json",
+      "sha256": "6e41d36fc33112c34179ee15d55700a13c3161c246b7de99b22b2133b343f993",
+      "source": "e509b2192020a12dc5474f0a0070846182a9cc5f",
+      "Product": 41246133682,
+      "result": "failed: ARM18/12,Intel35/1,UI normal3failure; Rust and all3Environmentpass",
+      "limit": "Original failures retained; Linux phase regression does not prove a shared root cause or fix."
+    },
+    "independent_ARM_diagnosis": {
+      "path": "/tmp/root-e509-arm-integration-independent-diagnosis/DIAGNOSIS.json",
+      "sha256": "2fd8a79749823e08325ad7371dd167f2e578d7c30048e2016bfc5f52955d1637",
+      "limit": "Observed preparationdeadline crossings do not identify exact costlysubphase. New measurement source is not a Mac performancefix."
+    },
+    "Root_Notification_Directory": "Existing separate source-bound CI/browser/Native failure records remain unchanged. Their causes and partial results are not merged or erased by these localLinux checks."
+  },
+  "remote_status_not_verified_by_this_author": {
+    "source": "Main-agent task instruction, not a new API read",
+    "Root_remote_head": "eba81e397dec1d0955d22fbce5ae06ec70d228a8",
+    "Root_Product_run": 41250092516,
+    "state": "Main now reports Rust/UI success, ARM terminalfailure, Intel stillinprogress; overall finalstate still needs main freshAPI verification",
+    "this_branch": "2e0local/unpushed; no own newCI or dualMac phase evidence",
+    "ARM_log_read_by_this_author": {
+      "job": 124681607065,
+      "path": "/workspace/.onboarding/pr21-eba81e39-ci/arm-product.log",
+      "sha256": "f482fe893f0bbbf268ea098613cd462223daa125ff14dce7c5d49c4a7d46c0f2",
+      "target": "integration_ipc",
+      "passed": 19,
+      "failed": 11,
+      "first_final_failure": {
+        "test": "integration_runtime::accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_source",
+        "site": "crates/core/tests/fixtures/integration_runtime.rs:138:9",
+        "observation": "integrations.get expired while validating, code=null"
+      },
+      "not_the_old_e509_failure": "Olde509 first OUTCOME_UNKNOWN/18pass12fail remains separatelyrecorded; do not reuse that cause.",
+      "new_phase_fields_observed": 0,
+      "limit": "Rooteba does not include2e0 phase source. Post-owned-shutdown rows are not failure-instant observations; do not infer all11 share a cause."
+    }
+  },
+  "not_run": [
+    "New macOS AppleSilicon/Intel phase observations or native desktop acceptance",
+    "Current exactcandidate remoteCI/installationpackages/manualmacOS acceptance",
+    "New Node/browser/UI/realProvider/modelcalls/remoteHosts tests for thisslice",
+    "No product test, build, probe, gh query, commit or push performed by thismetadataauthor; only existing evidence/source read"
+  ],
+  "full_goal": "FullDesignv0.2/all130/WP01-14 incomplete; no status/dimension/ref promoted to accepted.",
+  "authority": "AB-START-001 unchanged; no formalApprove/liveprivateProvider/newpaidresources/signing/license/notary/production authorization."
+}

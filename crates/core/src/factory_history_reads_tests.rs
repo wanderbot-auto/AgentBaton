@@ -388,9 +388,69 @@ fn original_revoked_history_remains_readonly_and_does_not_supply_effect_authorit
     assert_eq!(f.store.sequence().unwrap(), seq);
 }
 
-// PR19 schema16 composition controls. The migration retains these existing
-// tables; it does not introduce TaskBinding tables or Integration17 tables.
-fn schema16_binding_and_event_rows(
+#[test]
+fn composed_history_requires_exact17_and_preserves_all_integration_tables() {
+    let (f, s, g) = queued();
+    let original_version: u32 = f
+        .store
+        .conn
+        .pragma_query_value(None, "user_version", |row| row.get(0))
+        .unwrap();
+    assert_eq!(original_version, 17);
+    let sequence = f.store.sequence().unwrap();
+    let execution = unchanged_execution(&f);
+    let integration = json!(f.store.integration_record_counts().unwrap());
+    let expected = f.store.get_factory_child_goal(&q(&s, &g)).unwrap();
+    let mut workers = FactoryHistoryWorkers::default();
+    for rejected_version in [15u32, 16u32, 18u32] {
+        f.store
+            .conn
+            .pragma_update(None, "user_version", rejected_version)
+            .unwrap();
+        let receive = start(&mut workers, &f.store, FactoryHistoryQuery::Get(q(&s, &g)));
+        let got = finish(&mut workers, &f.store, receive);
+        assert_eq!(got["error"]["code"], "INPUT_CHANGED");
+        assert_eq!(got["error"]["side_effect_state"], "not_started");
+        assert!(got.get("result").is_none());
+        assert_eq!(got["revision"], 0);
+        assert_eq!(
+            f.store
+                .conn
+                .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
+                .unwrap(),
+            rejected_version
+        );
+        assert_eq!(f.store.sequence().unwrap(), sequence);
+        assert_eq!(unchanged_execution(&f), execution);
+        assert_eq!(
+            json!(f.store.integration_record_counts().unwrap()),
+            integration
+        );
+    }
+    f.store
+        .conn
+        .pragma_update(None, "user_version", original_version)
+        .unwrap();
+    let receive = start(&mut workers, &f.store, FactoryHistoryQuery::Get(q(&s, &g)));
+    let got = finish(&mut workers, &f.store, receive);
+    assert!(got.get("error").is_none());
+    assert_eq!(got["result"], json!(expected));
+    assert_eq!(got["revision"], sequence);
+    assert_eq!(f.store.sequence().unwrap(), sequence);
+    assert_eq!(unchanged_execution(&f), execution);
+    assert_eq!(
+        json!(f.store.integration_record_counts().unwrap()),
+        integration
+    );
+    workers.reap_owned_workers();
+    workers.release_database(&f.store);
+    assert_eq!(workers.database_owners_for_test(), 0);
+}
+
+// PR19 binding-row controls composed with the current schema17 history reader.
+// These existing rows remain in tasks/managed_workspaces/idempotency/events;
+// no TaskBinding table is introduced. Root Integration17 controls remain above.
+fn schema17_binding_and_event_rows(
     f: &Fixture,
 ) -> Vec<(&'static str, Vec<Vec<rusqlite::types::Value>>)> {
     let mut image = Vec::new();
@@ -410,24 +470,24 @@ fn schema16_binding_and_event_rows(
             .unwrap()
             .collect::<std::result::Result<Vec<_>, _>>()
             .unwrap();
-        assert!(!rows.is_empty(), "existing schema16 fixture rows required");
+        assert!(!rows.is_empty(), "existing schema17 fixture rows required");
         image.push((table, rows));
     }
     image
 }
 
 #[test]
-fn history_requires_exact16_and_preserves_existing_task_binding_rows_and_events() {
+fn history_requires_exact17_and_preserves_existing_task_binding_rows_and_events() {
     let (f, scope, goal) = queued();
     let version: u32 = f
         .store
         .conn
         .pragma_query_value(None, "user_version", |row| row.get(0))
         .unwrap();
-    assert_eq!(version, 16, "Store must supply the real current schema");
+    assert_eq!(version, 17, "Store must supply the real current schema");
     let sequence = f.store.sequence().unwrap();
     let execution = unchanged_execution(&f);
-    let rows = schema16_binding_and_event_rows(&f);
+    let rows = schema17_binding_and_event_rows(&f);
     let query = q(&scope, &goal);
     let expected = f.store.get_factory_child_goal(&query).unwrap();
     let mut workers = FactoryHistoryWorkers::default();
@@ -443,9 +503,9 @@ fn history_requires_exact16_and_preserves_existing_task_binding_rows_and_events(
     assert_eq!(reply["revision"], sequence);
     assert_eq!(f.store.sequence().unwrap(), sequence);
     assert_eq!(unchanged_execution(&f), execution);
-    assert!(rows == schema16_binding_and_event_rows(&f));
+    assert!(rows == schema17_binding_and_event_rows(&f));
 
-    for wrong_version in [15u32, 17u32] {
+    for wrong_version in [15u32, 16u32, 18u32] {
         // This changes only the version discriminator of an owned current
         // fixture; it is not an old/future schema migration simulation.
         f.store
@@ -472,7 +532,7 @@ fn history_requires_exact16_and_preserves_existing_task_binding_rows_and_events(
         );
         assert_eq!(f.store.sequence().unwrap(), sequence);
         assert_eq!(unchanged_execution(&f), execution);
-        assert!(rows == schema16_binding_and_event_rows(&f));
+        assert!(rows == schema17_binding_and_event_rows(&f));
         assert!(f.store.conn.is_autocommit());
     }
 
@@ -494,7 +554,7 @@ fn history_requires_exact16_and_preserves_existing_task_binding_rows_and_events(
     assert_eq!(reply["revision"], sequence);
     assert_eq!(f.store.sequence().unwrap(), sequence);
     assert_eq!(unchanged_execution(&f), execution);
-    assert!(rows == schema16_binding_and_event_rows(&f));
+    assert!(rows == schema17_binding_and_event_rows(&f));
     assert!(f.store.conn.is_autocommit());
     workers.reap_owned_workers();
     workers.release_database(&f.store);

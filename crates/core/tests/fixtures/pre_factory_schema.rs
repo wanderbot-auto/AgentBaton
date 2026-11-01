@@ -1,5 +1,7 @@
 //! Controlled test-only inverse from current schema16 to generated predecessors.
 //! This does not make a genuine historical14 fixture and never runs on live data.
+#[path = "pre_integration_schema.rs"]
+pub mod pre_integration_schema;
 use rusqlite::{Connection, Transaction};
 use std::collections::BTreeSet;
 
@@ -214,6 +216,27 @@ PRAGMA user_version=14;")?;
 }
 
 pub fn remove_empty_factory_increment(connection: &Connection) -> rusqlite::Result<()> {
+    remove_empty_factory_increment_impl(connection, false)
+}
+
+/// Explicit current17 generator, not an acceptance range for the old16 inverse.
+pub fn remove_empty_current_factory_increment(connection: &Connection) -> rusqlite::Result<()> {
+    remove_empty_factory_increment_impl(connection, true)
+}
+
+/// Caller keeps the entire17 ->14 ->13 sequence inside its original transaction.
+pub fn remove_empty_current_child_goal_increment(
+    transaction: &Transaction<'_>,
+) -> rusqlite::Result<()> {
+    pre_integration_schema::remove_empty_integration17_in_transaction(transaction)
+        .map_err(|_| rusqlite::Error::InvalidQuery)?;
+    remove_empty_child_goal_increment(transaction)
+}
+
+fn remove_empty_factory_increment_impl(
+    connection: &Connection,
+    current17: bool,
+) -> rusqlite::Result<()> {
     if !connection.is_autocommit() {
         return Err(rusqlite::Error::InvalidQuery);
     }
@@ -222,7 +245,11 @@ pub fn remove_empty_factory_increment(connection: &Connection) -> rusqlite::Resu
     connection.pragma_update(None, "foreign_keys", false)?;
     let result = (|| {
         let transaction = connection.unchecked_transaction()?;
-        remove_empty_child_goal_increment(&transaction)?;
+        if current17 {
+            remove_empty_current_child_goal_increment(&transaction)?;
+        } else {
+            remove_empty_child_goal_increment(&transaction)?;
+        }
         transaction.execute_batch(
             "DROP TABLE factory_child_plan_heads;
 DROP TABLE factory_child_plan_revisions;

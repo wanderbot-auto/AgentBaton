@@ -874,6 +874,7 @@ impl Store {
             ));
         }
         let identity = workspace.identity.as_ref().ok_or_else(invalid)?;
+        crate::integration::check_workspace_fences(&self.conn, identity, None)?;
         if matches!(
             identity.kind,
             agentbaton_workspaces::WorkspaceKind::Directory

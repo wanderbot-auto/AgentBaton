@@ -50,7 +50,7 @@ def report():
                          'daemon_stop': {'pid': 999999, 'wait_exitcode': 0, 'popen_reaped': True},
                          'http_thread': {'thread_alive_after_join': False},
                          'tools_after': copy.deepcopy(tools), 'assets_after': copy.deepcopy(assets)},
-             'no_execution': {'schema': 16, 'no_execution_or_grants': True,
+             'no_execution': {'schema': 17, 'no_execution_or_grants': True,
                               'table_counts': {name: 0 for name in P.TABLES}},
              'screenshots': [], 'http': [{'token': SECRET}], 'error': {'private': SECRET},
              'runtime': {'path': SECRET}, 'raw_report': SECRET}
@@ -238,7 +238,7 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
             self.write(value); code, _, out = self.run_projection(); self.assertEqual(code, 1); self.assert_no_images(out)
 
     def test_schema_old_future_and_float_do_not_coerce(self):
-        for schema in [15, 17, 16.0, True, '16']:
+        for schema in [15, 16, 18, 16.0, 17.0, True, '16', '17']:
             value = report(); value['no_execution']['schema'] = schema; self.write(value)
             self.assertEqual(self.run_projection()[0], 1)
 

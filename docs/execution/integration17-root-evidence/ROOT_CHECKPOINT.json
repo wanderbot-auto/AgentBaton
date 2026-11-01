@@ -1,0 +1,125 @@
+{
+  "contract": "agentbaton.integration17.root-checkpoint.v1",
+  "as_of_utc": "2026-10-30T10:26:19.723211+00:00",
+  "branch": "codex/authorized-integration-assembly",
+  "before_record_commit": "412c5edc2ad88e61a1d23ed603e0e2ad65f53b2b",
+  "main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "authorization": "AB-START-001 unchanged; complete Design v0.2/130 remains open",
+  "foundation": {
+    "path": "docs/execution/integration17-root-evidence/FOUNDATION_RESULTS.json",
+    "sha256": "b2fb0a06e9f3819028a574d9b352604147411b05d102932bdc6c92f7cc51baca",
+    "source_cutoff": "37492e905f2061e08a13e4569b30de5e14841965",
+    "Core_unique": 179,
+    "nested_helper_is_included": true,
+    "Native_Rust_test_cases": "not_run",
+    "Native_OS": "not_run",
+    "full_authorized_integration_pipeline": "not_complete"
+  },
+  "followup_commands": {
+    "integration17-d404-check1": {
+      "source": "d40449d07cf711d20047347b6407318c466db045",
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "--workspace",
+        "--all-targets"
+      ],
+      "exit": 101,
+      "seconds": 12.740861494996352,
+      "log_sha256": "bc551a1338601db48f4fd14baad550db1fbcaa9d52b173a9047044c2e3382a7d",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "f9468b7172ba2365f79826d3f19a0f7a74830087aa8d9d26b9ddefca1900f063"
+    },
+    "integration17-a655-check1": {
+      "source": "ad26ff313d35f75cf5ce79f5ae47c587d336fd44",
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "--workspace",
+        "--all-targets"
+      ],
+      "exit": 0,
+      "seconds": 15.75633151101647,
+      "log_sha256": "5efa54f47e039fa382e87f070b1e96d73bed5bd83eb1c9c2c86fd5b30b27ef00",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "6f470ad8b02e4ffc4125d491afae61baf06093024b0bea1b0b645471e318f991"
+    },
+    "integration17-native-alltargets-check1": {
+      "source": "412c5edc2ad88e61a1d23ed603e0e2ad65f53b2b",
+      "command": [
+        "env",
+        "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+        "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+        "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+        "cargo",
+        "check",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--all-targets",
+        "--features",
+        "native-smoke"
+      ],
+      "exit": -15,
+      "seconds": 53.24536282900954,
+      "log_sha256": "38a17e29f152a760fa3c1b90eb90d0fd8a03944747c5264aa35df83ef682158c",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "d5b4ae25abd1a14bb0951c23defd440a9c8eff79ac61b23bc429c4b2a593941a"
+    }
+  },
+  "coordinator_review": {
+    "source": "cf5ce44ea63aa95f0a39da913a63f22881650190",
+    "status": "changes_required_pending_fix",
+    "finding": "P1 retained CommandRun default Drop does not guarantee actual leader reap on normal/error/panic shutdown; private explicit stop/reap and guarded ownership fix in progress",
+    "not_accepted": true
+  },
+  "independent_narrow_reviews": [
+    {
+      "scope": "lease SQL and fixed phase preservation only",
+      "review_sha256": "068a8f01af3cbd87946336e2a7ba04643744edd408dba78a62a7a24b46223599",
+      "manifest_sha256": "ccd71c3f5ee131fe62c7d04ca97aac5a9779f0f2040329544fbdab71fd3ef0b4"
+    },
+    {
+      "scope": "compile adapters and unit-expression delta only",
+      "review_sha256": "57c40b609cf6784a3c971239b6cda9786ef86625b00c513339ed1a2ec84e8026",
+      "manifest_sha256": "ae198bb7ae9c1dd515074899d4b09f4a86f4f30def206f114502475f64726233"
+    }
+  ],
+  "Parent_PR18": {
+    "head": "8c292ae9edb0741a1629783ad9ac297a1f941f9e",
+    "Environment": 41035223312,
+    "Product": 41035223038,
+    "Intel_job": 123994285814,
+    "Intel": "failed 26pass1fail; original observationdeadline wait_rework_awaiting_owner; plan1/run4 blocked",
+    "Intel_finite_artifact": 12968668273,
+    "artifact_zip_sha256": "e5a5038495bbb78370885d9d3170db3ac6726b16d6f2c700a0d9cbe2f71450a9",
+    "capture": {
+      "actual_runtime_ms": 4362,
+      "runtime_reservation_ms": 4000,
+      "producer_elapsed_ms": 4005,
+      "io_completion": "not_started",
+      "capture_worker_joined": false
+    },
+    "ARMSuccessNotAssumed": "last read Native Factory acceptance in progress; refresh exact run before any integration",
+    "cause": "specific stage CPU/wait cause unresolved; prior completed-capture join delay is a different observed failure",
+    "merge": "draft open not merged"
+  },
+  "remaining": [
+    "fix and independently review owned validator cleanup, controlled preparation and original-deadline propagation",
+    "finish actual durable watcher/start, fresh merged validators, bounded target reprepare, CAS/settlement/unknown recovery",
+    "actual new UI/Unix IPC, Native tests and both Mac verification; live Provider separately gated",
+    "full Unicode/change/adoption/remote/retention requirements and final development delivery remain open"
+  ]
+}

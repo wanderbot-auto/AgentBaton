@@ -1,6 +1,6 @@
-//! Generated schema13 metadata increment followed by current16, exact backup and rollback.
+//! Generated schema13 metadata increment followed by current17, exact backup and rollback.
 #[path = "fixtures/pre_factory_schema.rs"]
-mod pre_factory_schema;
+pub mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::Connection;
 use std::{
@@ -32,7 +32,7 @@ fn old() -> (tempfile::TempDir, PathBuf, String) {
     db.pragma_update(None, "foreign_keys", false).unwrap();
     let generated = (|| -> rusqlite::Result<()> {
         let transaction = db.unchecked_transaction()?;
-        pre_factory_schema::remove_empty_child_goal_increment(&transaction)?;
+        pre_factory_schema::remove_empty_current_child_goal_increment(&transaction)?;
         transaction.execute_batch("DROP TABLE factory_child_plan_heads;DROP TABLE factory_child_plan_revisions;PRAGMA user_version=13;CREATE TABLE original_bytes(raw BLOB);INSERT INTO original_bytes VALUES(x'00ffdeadbeef');")?;
         transaction.commit()
     })();
@@ -129,7 +129,7 @@ fn schema13_upgrade_keeps_raw_history_and_private_backup_and_adds_no_authority()
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        16
+        17
     );
     assert_eq!(
         db.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -221,10 +221,10 @@ fn child_plan_migration_collision_rolls_back_both_tables_and_preserves_old_bytes
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema17_refuses_without_mutation_or_backup() {
+fn future_schema18_refuses_without_mutation_or_backup() {
     let (d, p, _) = old();
     let db = Connection::open(&p).unwrap();
-    db.execute_batch("PRAGMA user_version=17;").unwrap();
+    db.execute_batch("PRAGMA user_version=18;").unwrap();
     drop(db);
     let before = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
@@ -239,7 +239,7 @@ fn generated_fixture_inverse_restores_native_identity_without_factory_authority(
     drop(Store::open(&path).unwrap());
     let db = Connection::open(&path).unwrap();
     db.pragma_update(None, "foreign_keys", true).unwrap();
-    pre_factory_schema::remove_empty_factory_increment(&db).unwrap();
+    pre_factory_schema::remove_empty_current_factory_increment(&db).unwrap();
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),

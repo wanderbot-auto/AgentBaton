@@ -1,0 +1,76 @@
+{
+  "source_commit": "14f912dc31df09591ec4cc6739db56f0ea447217",
+  "base": "b452e4a31dd4d1c9cce7e35282a9c2c9dcf0ff39",
+  "requirements": [
+    "AB-TSK-007",
+    "AB-COR-006",
+    "AB-VAL-009"
+  ],
+  "source_sha256": {
+    "crates/core/src/integration_io.rs": "43a33d15560c5087c6ee34be09f55ae021425dfdc83a3ece10ae0fd64ad97386",
+    "crates/core/src/integration_validator_stop_tests.rs": "0669b2a105a003a09a7bc3a13bf5eeeced68d582cd190e5ad3e26453310bd46b",
+    "crates/core/src/integration_settlement.rs": "24799b656cdfbe50b52357c0705da30e0a37c75fe97067ec9ef622ccd7830c14",
+    "crates/core/src/goal_validator_io.rs": "bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57",
+    "crates/workspaces/src/command_validation.rs": "356326f248003a31c46ecbaaaf6ab3acab7a3abfde952191bc38c0cd5ffd7171"
+  },
+  "checks": {
+    "whole_integration_io_inverse_equal": true,
+    "original_cas_function_suffix_unchanged": true,
+    "opaque_command_not_serialized_view": true,
+    "no_view_mutation": true,
+    "normal_exit_removed_only_from_stop": true,
+    "all_cleanup_eof_checks_present": true,
+    "exact_no_child_reasons": true,
+    "crates/core/src/integration_settlement.rs_unchanged": true,
+    "crates/core/src/integration_stage_workers.rs_unchanged": true,
+    "crates/core/src/goal_validator_io.rs_unchanged": true,
+    "crates/workspaces/src/command_validation.rs_unchanged": true
+  },
+  "pass_count": 11,
+  "fail_count": 0,
+  "commands_executed": [
+    "direct rustfmt --edition 2021 on the two changed source files",
+    "git diff --check",
+    "read-only Git object inverse/unchanged-source checks"
+  ],
+  "not_run": [
+    "Cargo/compile/Clippy",
+    "four new actual CommandRun cfg tests",
+    "Actor/Unix IPC/generated Git",
+    "Native OS/Provider/Mac"
+  ],
+  "caller_worker_join_is_independent": true,
+  "limits_or_permissions_changed": false,
+  "descendant_containment_claim": "unchanged not_enforced_unknown",
+  "initial_no_child_stream_flags": {
+    "stdout_eof": true,
+    "stderr_eof": true,
+    "all_capture_eof": true,
+    "owned_leader_reaped": false,
+    "cleanup_completed_within_budget": false,
+    "exit_observed_within_budget": false,
+    "note": "Initial empty-stream values, not evidence of actual created pipes. Predicate does not require or rewrite them on exact no-child paths."
+  },
+  "status": "source_frozen_pending_independent_review_and_actual_tests",
+  "planned_root_command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--lib",
+    "integration::io::validator_stop_tests::",
+    "--",
+    "--show-output",
+    "--test-threads=1"
+  ],
+  "baseline_actor_cancel_result": "not_run_by_author; Root separately retains baseline before applying fix",
+  "initial_source_commit": "f653ede511e090d5393fb9df642cde0b9981f7c4",
+  "test_only_reason_addendum": {
+    "latest_source": "14f912dc31df09591ec4cc6739db56f0ea447217",
+    "production_sha256": "43a33d15560c5087c6ee34be09f55ae021425dfdc83a3ece10ae0fd64ad97386",
+    "new_cfg_tests_sha256": "0669b2a105a003a09a7bc3a13bf5eeeced68d582cd190e5ad3e26453310bd46b",
+    "test_only_change": "one additional exact RunReason::CancelRequested assertion; original f653/425 records preserved",
+    "execution": "direct rustfmt/diff0 only; Rust/Actor NOT_RUN"
+  }
+}

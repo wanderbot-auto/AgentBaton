@@ -36,7 +36,7 @@ function setup(f: ReturnType<typeof fixture>) {
     return { task_id: f.task.id, task_revision: f.task.revision, spec_revision: f.task.spec_revision!, project_id: f.project.id, project_revision: f.project.revision, host_id: 'local', source: { canonical_root: '/source', device: '1', inode: '2', kind: { kind: 'directory' } }, source_head: null, preparation_key: null, state: 'needs_dataset_selection', reason: 'selected_dataset_required', candidates: [], execution_authorized: false, creates_workspace: false };
   });
   vi.mocked(api.workspacesList).mockResolvedValue([f.other, f.workspace]);
-  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [f.task], sequence: 0, api_version: 1 });
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [f.task], sequence: 0, api_version:1,database_schema_version:17 });
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([f.connection]); vi.mocked(sessionApi.sessionsList).mockResolvedValue([]); vi.mocked(sessionApi.grantsList).mockResolvedValue([f.grant]);
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private built-App/Chromium -> fixed HTTP -> real schema16 Owner Unix IPC.
+"""Private built-App/Chromium -> fixed HTTP -> real schema17 Owner Unix IPC.
 
 No Provider, approval, generic RPC, fake success, or public evidence projection.
 Only --run starts processes. Default preflight exits 2 (runtime NOT_RUN).
@@ -398,7 +398,7 @@ def db_image(runtime):
     with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True, timeout=3) as db:
         db.execute('PRAGMA query_only=ON')
         db.execute('BEGIN')
-        require(db.execute('PRAGMA user_version').fetchone()[0] == 16)
+        require(db.execute('PRAGMA user_version').fetchone()[0] == 17)
         names = [r[0] for r in db.execute("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")]
         rows = {}
         for name in names:
@@ -413,9 +413,10 @@ def db_image(runtime):
 def no_execution(runtime):
     rows = db_image(runtime)
     for name in ('connections', 'execution_grants', 'attempts', 'dispatch_intents', 'sessions',
-                 'workspace_leases', 'budgets', 'factory_scopes', 'factory_runs', 'approval_proposals'):
+                 'workspace_leases', 'budgets', 'factory_scopes', 'factory_runs', 'approval_proposals',
+                 'integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences'):
         require(name in rows and rows[name] == [], 'Unexpected execution/authority row')
-    return {'schema': 16, 'no_execution_or_grants': True,
+    return {'schema': 17, 'no_execution_or_grants': True,
             'table_counts': {k: len(v) for k, v in rows.items()}}
 
 
@@ -541,7 +542,7 @@ def preflight(args):
     manifest_path = args.candidate_manifest.resolve(strict=True)
     require(manifest_path.stat().st_size <= 2_097_152)
     manifest = decode(manifest_path.read_bytes())
-    require(type(manifest.get('schema')) is int and manifest['schema'] == 16)
+    require(type(manifest.get('schema')) is int and manifest['schema'] == 17)
     heads = [manifest[k] for k in ('source_head', 'git_head', 'compiled_core_source_head') if k in manifest]
     require(bool(heads) and all(head == expected for head in heads), 'Missing or conflicting source aliases refused')
     compiled_head = heads[0]

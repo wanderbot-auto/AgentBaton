@@ -1,0 +1,23 @@
+{
+  "dimension": "single-fixture reviewed-source transplant; no new runtime or CI result",
+  "base": "7ee2437db08695347650a28f445cb0034b5f3f58",
+  "reviewed_source_commit": "58fad1977c6a9ddfea4aa5c17484b335491a9191",
+  "source": "crates/core/tests/fixtures/factory_child_goal_rework.rs",
+  "source_sha256": "d71d3c5a259b8d1f80a3cc7ab5e04fc0ad7ac7ab0d9434f04675ec6027aba7a2",
+  "source_diff_from_reviewed_file": "empty",
+  "git_diff_check": "passed",
+  "original_failure": {
+    "product_run": 41162216164,
+    "intel_job": 124422036740,
+    "suite": "factory_runtime_ipc",
+    "passed": 25,
+    "failed": 2,
+    "log": "/workspace/.onboarding/root17-7ee2437-ci/intel-job-api.log",
+    "log_sha256": "1bc77449a04bb02eff3de01128caba671acfeed3e1ce8d1a7e0327d51cfecfdb",
+    "rework_reply": {"code": "WORKSPACE_BUSY", "retryable": true, "side_effect_state": "not_started"},
+    "one_second_deadline_failure": "preserved separately; child attempt absent, owned Goal deadline not established"
+  },
+  "not_run": ["three added Rust pure controls", "actual current Factory suite", "Cargo", "Node", "browser", "SQL", "network", "CI", "push"],
+  "independent_review": "pending Root",
+  "constraints": {"shared_read_retries": 2, "original_observation_seconds": 55, "owner_write_replay": false, "actor_changed": false, "root_integration_fixture_changed": false}
+}

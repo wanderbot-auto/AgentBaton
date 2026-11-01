@@ -272,3 +272,75 @@ impl Store {
                 .is_some_and(|n| n <= record.reservation.output_bytes))
     }
 }
+
+/// Neutral accounting view after each domain's own private origin validation.
+/// This is not a Factory reservation and does not carry execution permission.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SharedAccountingKind {
+    FactoryTask,
+    LegacySession,
+    FactoryChildGoal,
+    Integration,
+}
+pub(crate) struct SharedAccountingRecord {
+    pub(crate) kind: SharedAccountingKind,
+    pub(crate) scope_id: Option<String>,
+    pub(crate) root_grant_id: String,
+    pub(crate) task_id: String,
+    pub(crate) attempt_id: String,
+    pub(crate) integration_id: Option<String>,
+    pub(crate) ancestors: Vec<String>,
+    pub(crate) reservation: AttemptReservation,
+    pub(crate) settled: bool,
+    pub(crate) actual_runtime_ms: Option<u64>,
+    pub(crate) actual_output_bytes: Option<u64>,
+}
+pub(crate) fn accounting_records(
+    db: &Connection,
+    root: &str,
+    project: &str,
+) -> Result<Vec<SharedAccountingRecord>> {
+    let mut result = vec![];
+    for r in budget_records(db, root, project)? {
+        let kind = match r.authority_kind.as_str() {
+            "factory_task" => SharedAccountingKind::FactoryTask,
+            "legacy_shared_session" => SharedAccountingKind::LegacySession,
+            "factory_child_goal" => SharedAccountingKind::FactoryChildGoal,
+            _ => {
+                return Err(CoreError::new(
+                    "BUDGET_UNKNOWN",
+                    "Unknown stored accounting authority origin",
+                ))
+            }
+        };
+        result.push(SharedAccountingRecord {
+            kind,
+            scope_id: r.scope_id,
+            root_grant_id: r.root_grant_id,
+            task_id: r.task_id,
+            attempt_id: r.attempt_id,
+            integration_id: None,
+            ancestors: r.ancestors,
+            reservation: r.reservation,
+            settled: r.settled,
+            actual_runtime_ms: r.actual_runtime_ms,
+            actual_output_bytes: r.actual_output_bytes,
+        });
+    }
+    for r in crate::integration::accounting_records(db, root, project)? {
+        result.push(SharedAccountingRecord {
+            kind: SharedAccountingKind::Integration,
+            scope_id: r.scope_id,
+            root_grant_id: r.root_grant_id,
+            task_id: r.task_id,
+            attempt_id: r.attempt_id,
+            integration_id: Some(r.integration_id),
+            ancestors: r.ancestors,
+            reservation: r.reservation,
+            settled: r.settled,
+            actual_runtime_ms: r.actual_runtime_ms,
+            actual_output_bytes: r.actual_output_bytes,
+        });
+    }
+    Ok(result)
+}

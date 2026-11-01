@@ -27,7 +27,7 @@ beforeEach(() => {
     return { task_id: task.id, task_revision: task.revision, spec_revision: 1, project_id: project.id, project_revision: project.revision, host_id: 'local', source: { canonical_root: project.identity.canonical_root, device: '1', inode: '2', kind: { kind: 'directory' } }, source_head: null, preparation_key: null, state: 'needs_dataset_selection', reason: 'selected_dataset_required', candidates: [], execution_authorized: false, creates_workspace: false };
   });
   vi.mocked(api.workspacesList).mockResolvedValue([workspace]);
-  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], api_version: 1, sequence: 0 });
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], api_version:1,database_schema_version:17, sequence: 0 });
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([connection]);
   vi.mocked(sessionApi.grantsList).mockResolvedValue([grant]);

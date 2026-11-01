@@ -1,3 +1,5 @@
+Next: preserve the exact a7 CI failures; run the reviewed new candidate through existing Environment/Product once each, inspect the new finite runtime evidence, diagnose Parent child-budget fees without widening any reservation, then continue features and full130 acceptance.
+
 # Isolate the polling clock from RTL's asynchronous drain
 
 Base `1270c8c6875ad4ceecd373a77cf33260f2ac2e18`; isolated sparse branch `codex/child-goal-poll-test-clock` in `/tmp/child-goal-poll-test-clock`. Root owns Node/typecheck/browser/Core/SQL execution. Do not change the 127 product/API source, old cases, product 20x1000ms budget, test 5000ms timeout or failed-run evidence.

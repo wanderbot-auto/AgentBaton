@@ -49,6 +49,16 @@ struct Fixture {
     managed: PathBuf,
     root: TempDir,
 }
+impl Drop for Fixture {
+    fn drop(&mut self) {
+        if std::thread::panicking() {
+            // Preserve only this generated fixture after failure, never retry
+            // its operation or reinterpret retention as successful cleanup.
+            self.root.disable_cleanup(true);
+            eprintln!("Readonly workspace fixture retained after failure");
+        }
+    }
+}
 impl Fixture {
     fn new(repository: bool) -> Self {
         let root = tempfile::tempdir().unwrap();
@@ -142,32 +152,81 @@ fn database_image(store: &Store) -> DatabaseImage {
 }
 
 fn files(root: &Path) -> Vec<(PathBuf, bool, Vec<u8>)> {
-    fn walk(root: &Path, current: &Path, result: &mut Vec<(PathBuf, bool, Vec<u8>)>) {
+    files_at(root, "foreign", "unspecified")
+}
+fn files_at(root: &Path, area: &'static str, phase: &'static str) -> Vec<(PathBuf, bool, Vec<u8>)> {
+    fn fail(
+        root: &Path,
+        path: &Path,
+        area: &str,
+        phase: &str,
+        operation: &str,
+        error: std::io::Error,
+    ) -> ! {
+        // Closed categories only: no arbitrary leaf, source bytes, error text
+        // or filesystem path is copied into public CI diagnostics.
+        let relative = path.strip_prefix(root).unwrap();
+        let parts: Vec<_> = relative.components().collect();
+        let region = if parts.iter().any(|p| p.as_os_str() == "objects") {
+            "objects"
+        } else if parts.iter().any(|p| p.as_os_str() == "worktrees") {
+            "worktrees"
+        } else if parts.iter().any(|p| p.as_os_str() == "refs") {
+            "refs"
+        } else if parts.iter().any(|p| p.as_os_str() == ".git") {
+            "git_other"
+        } else {
+            "workspace_other"
+        };
+        let leaf = match path.file_name().and_then(|name| name.to_str()) {
+            Some("gc.pid") => "gc_pid",
+            Some("index.lock") => "index_lock",
+            Some("locked") => "worktree_locked",
+            Some("HEAD") => "head",
+            Some("index") => "index",
+            Some("config") => "config",
+            Some("commondir") => "commondir",
+            Some(name) if name.ends_with(".lock") => "other_lock",
+            _ => "other",
+        };
+        panic!("generated readonly snapshot unavailable: area={area} phase={phase} operation={operation} region={region} leaf={leaf} kind={:?}", error.kind())
+    }
+    fn walk(
+        root: &Path,
+        current: &Path,
+        area: &str,
+        phase: &str,
+        result: &mut Vec<(PathBuf, bool, Vec<u8>)>,
+    ) {
         let mut entries: Vec<_> = fs::read_dir(current)
-            .unwrap()
-            .map(|e| e.unwrap().path())
+            .unwrap_or_else(|e| fail(root, current, area, phase, "read_dir", e))
+            .map(|e| {
+                e.unwrap_or_else(|e| fail(root, current, area, phase, "dir_entry", e))
+                    .path()
+            })
             .collect();
         entries.sort();
         for path in entries {
-            let metadata = fs::symlink_metadata(&path).unwrap();
+            let metadata = fs::symlink_metadata(&path)
+                .unwrap_or_else(|e| fail(root, &path, area, phase, "symlink_metadata", e));
             assert!(
                 !metadata.file_type().is_symlink(),
                 "own fixture must not follow symlinks"
             );
             if metadata.is_dir() {
                 result.push((path.strip_prefix(root).unwrap().into(), true, vec![]));
-                walk(root, &path, result);
+                walk(root, &path, area, phase, result);
             } else {
                 result.push((
                     path.strip_prefix(root).unwrap().into(),
                     false,
-                    fs::read(path).unwrap(),
+                    fs::read(&path).unwrap_or_else(|e| fail(root, &path, area, phase, "read", e)),
                 ));
             }
         }
     }
     let mut result = vec![];
-    walk(root, root, &mut result);
+    walk(root, root, area, phase, &mut result);
     result
 }
 
@@ -176,19 +235,19 @@ fn resolve_unchanged(
     request: &CodeWorkspacePreparationRequest,
 ) -> Result<CodeWorkspacePreparation> {
     let before = database_image(&f.store);
-    let source = files(&f.source);
-    let managed = files(&f.managed);
+    let source = files_at(&f.source, "source", "before");
+    let managed = files_at(&f.managed, "managed", "before");
     let result = f.store.resolve_code_workspace_preparation(request);
     assert!(
         before == database_image(&f.store),
         "readonly preparation changed durable row bytes or journal/counters"
     );
     assert!(
-        source == files(&f.source),
+        source == files_at(&f.source, "source", "after"),
         "readonly preparation wrote source files"
     );
     assert!(
-        managed == files(&f.managed),
+        managed == files_at(&f.managed, "managed", "after"),
         "readonly preparation created or wrote a managed workspace"
     );
     assert!(

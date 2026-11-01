@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "approval_id": "AB-START-001",
+  "base": "77792da462278b0ba812611b473ec631d9e26137",
+  "source": "dd1bf441bb51b9bd67f06895c2838881cd0e8fd3",
+  "dimension": "source_only_not_runtime_verified",
+  "files": {
+    "crates/core/src/integration_workers.rs": "504cf999abb6ec7cf6000655d2b4b3500faeb12200b67c36fa030c861909531b",
+    "crates/core/src/ipc.rs": "5ef9dd7721e1a2246203cea10bfd21e89c5eb2246c0f2f68f681ea5b3ce4086f"
+  },
+  "checks": [
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --check crates/core/src/integration_workers.rs crates/core/src/ipc.rs",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "name": "whole original files exact inverse after removing20 added lines",
+      "exit": 0
+    }
+  ],
+  "new_test_declarations": 0,
+  "runtime": {
+    "full14": "not_run",
+    "core": "not_run",
+    "clippy": "not_run",
+    "performance_measurement": "not_run",
+    "new_rootcause_claim": "none"
+  },
+  "retained_prior_failure": {
+    "source": "77792da462278b0ba812611b473ec631d9e26137",
+    "unique_passed": 13,
+    "unique_failed": 1,
+    "validator_actual_ms": 2004,
+    "reservation_ms": 2000,
+    "cause": "not established by whole-suite duration",
+    "command_log_sha256": "15e801596af1c38c22ea6dd71d51d86a10916eca87d6da4dd9ed8617ee9a2686"
+  },
+  "authority_unchanged": true,
+  "source_revisions": [
+    {
+      "source": "59f2f3048fbe671ebb15069a69e9b0f03a6cef5b",
+      "finding": "Independent P2: known retained Factory fatal before new second service",
+      "scope": "5added ipc lines; propagate original fatal before any newly prioritized completion",
+      "source_sha256": "c8a0d9c97fdf4bc22a7cc3a65a5fd44b6fd88dc3e3dd49301198a4f4636424ca",
+      "inverse": "whole previous IPC file restored by exact removal",
+      "rustfmt": "passed",
+      "diff_check": "passed",
+      "runtime": "not_run",
+      "original_finding_retained": true
+    }
+  ]
+}

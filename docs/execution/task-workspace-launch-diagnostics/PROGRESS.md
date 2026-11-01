@@ -1,0 +1,7 @@
+# Actual progress
+
+The official ba4612a TaskWorkspace artifact has a finite report_missing summary. That alone does not locate the failure: built-tool copy checks precede driver launch, and harness preflight precedes report initialization. Current schema17/source declarations are coherent. Actual CI binary size, driver return and failure substage were not retained; no128MiB relaxation or debug-profile change is justified.
+
+The existing workflow now records closed stage enums, closed batond/baton role, bounded size/mode and regular/owner/writable booleans, postcopy identity/digest booleans and strictint/null exits. It emits at most one4KiB JSON line after projection; early private-directory refusal retains its original rethrow after a finite diagnostic. No exception text, argv, raw paths, uid/inode/PIDs or private logs enter the line. Diagnostic errors retain a failed job and cannot hide the original failure.
+
+Twenty new actual-workflow-AST pure tests plus37 original finite-projector tests pass together (57) under both0022 and0077. Tiny generated files and stub subprocesses never execute a binary, database, browser or Provider. Source inverse proves original copy/launch/projection AST remains exact after removing instrumentation and restoring the independently strengthened strict exit-type predicate. All YAML outside this function and both original harness/projector files remain byte-identical.

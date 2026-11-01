@@ -107,7 +107,7 @@ impl Fixture {
                 .unwrap()
                 .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
                 .unwrap(),
-            16
+            17
         );
         let p = store
             .import_project(&source, "Admission fixture", "project")

@@ -282,7 +282,9 @@ impl Fixture {
         let node = PlanNode {
             id: "produce-report".into(),
             parent_id: None,
-            kind: NodeKind::Work,
+            // Summary uses the same fresh Goal policy, but retains the Actor-hint
+            // lane; one-turn Work fast-stop is verified separately.
+            kind: NodeKind::Summary,
             goal: "Produce the exact requested report".into(),
             dependencies: vec![],
             workspace_id: self.workspace.id.clone(),
@@ -422,7 +424,10 @@ impl Fixture {
             )
             .unwrap()
             .unwrap();
-        self.daemon.supervisor.send(&id, &text).unwrap();
+        self.daemon
+            .supervisor
+            .send_goal(&mut self.daemon.store, &id, &text)
+            .unwrap();
         (run, self.daemon.store.get_session(&session.id).unwrap())
     }
     fn wait_ready(&mut self, id: &str) {

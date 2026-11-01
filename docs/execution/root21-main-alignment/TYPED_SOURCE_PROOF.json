@@ -1,0 +1,369 @@
+{
+  "status": "SOURCE_READY_FOR_INDEPENDENT_REVIEW_AND_ROOT_ACTUAL_TESTS",
+  "root_head": "fd24203cff5ee6c0aa9a1dcf6e8dfb2d93688375",
+  "merge_head": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+  "allowed_paths": [
+    "crates/core/src/goal_factory.rs",
+    "crates/core/src/goal_runtime.rs",
+    "crates/core/src/ipc.rs",
+    "crates/core/src/goal_admission_detail_codec_tests.rs",
+    "crates/core/src/goal_admission_detail_store_tests.rs"
+  ],
+  "manifest": [
+    {
+      "path": "crates/core/src/goal_factory.rs",
+      "sha256": "8311dbdd428c4a6b03909077bb57284ad5a31f05495bebdcefdae575bc940244",
+      "bytes": 104774
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "sha256": "bf94f9c458e0cb1fd5d9059df6a88f5f58fa00881ddf640427effed8d56c8878",
+      "bytes": 166612
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sha256": "ad1902e0db6e9be5468a1a9016d46d3c8dd645e1c09b709c116259069cfd3974",
+      "bytes": 159515
+    },
+    {
+      "path": "crates/core/src/goal_admission_detail_codec_tests.rs",
+      "sha256": "62e15b9521828e72c285112ec1f62253d63f7135eacc2c07efdcbab6c9ca94c3",
+      "bytes": 11066
+    },
+    {
+      "path": "crates/core/src/goal_admission_detail_store_tests.rs",
+      "sha256": "bbf94ff1d5554a6fd70a95126029a286e4e5cc9807ecee0129338bf08c0db124",
+      "bytes": 9718
+    }
+  ],
+  "source_checks_passed": 58,
+  "checks": [
+    "goal_factory.rs root-origin addition 1028",
+    "goal_factory.rs root-origin addition 2296",
+    "goal_factory.rs full inverse Main bytes",
+    "goal_runtime.rs root-origin addition 952",
+    "goal_runtime.rs root-origin addition 955",
+    "goal_runtime.rs root-origin addition 960",
+    "goal_runtime.rs root-origin addition 2618",
+    "goal_runtime.rs root-origin addition 2632",
+    "goal_runtime.rs root-origin addition 2738",
+    "goal_runtime.rs root-origin addition 3981",
+    "goal_runtime.rs full inverse Main bytes",
+    "ipc.rs root-origin addition 547",
+    "ipc.rs root-origin addition 609",
+    "ipc.rs root-origin addition 630",
+    "ipc.rs root-origin addition 634",
+    "ipc.rs root-origin addition 654",
+    "ipc.rs root-origin addition 669",
+    "ipc.rs root-origin addition 673",
+    "ipc.rs root-origin addition 697",
+    "ipc.rs root-origin addition 982",
+    "ipc.rs root-origin addition 1351",
+    "ipc.rs root-origin addition 1366",
+    "ipc.rs root-origin addition 2173",
+    "ipc.rs root-origin addition 3297",
+    "ipc.rs full inverse Main bytes",
+    "no markers in five files",
+    "factory exactly Main + Root accounting + typed property include",
+    "compound production encoder/parser absent",
+    "extra nullable/replay policies absent",
+    "Root integration accounting kind retained",
+    "Root method retained reserve_integration_execution_meter",
+    "Root method retained settle_integration_execution_meter",
+    "Root method retained integration_historical_usage",
+    "Main worker helper exactly retained service_after_early_owner_read",
+    "no early armed tick through service_after_early_owner_read",
+    "Main worker helper exactly retained service_after_ready_request",
+    "no early armed tick through service_after_ready_request",
+    "outer original integration/stop/fatal/early-read/order source",
+    "normal requests retain exact finish-read then integration tick",
+    "single FIFO16 counter and head custody",
+    "two observed successful dispatch completions",
+    "only auto Goal lane uses Goal reply constructor",
+    "both wire reply constructors retained",
+    "private wrapper same exact Main bytes",
+    "Root integration helper impl exact",
+    "seven meaningful typed property controls",
+    "three actual Store controls retained",
+    "same ten-table before-after counter helper",
+    "Store invariant sequence + 1",
+    "Store invariant assert_eq!(detail_test_counts(&f.store), counts);",
+    "Store invariant assert_eq!(replay, receipt);",
+    "Store invariant assert_eq!(again, receipt);",
+    "Store invariant assert_eq!(json!(after), json!(before));",
+    "Store invariant 14029",
+    "Store invariant 6000",
+    "Store invariant 20000",
+    "legacy compound tests removed not skipped",
+    "bounded inner decode and strict inner negative controls"
+  ],
+  "whole_file_inverse_proof": [
+    {
+      "path": "crates/core/src/goal_factory.rs",
+      "parent_sha256": "1ef5e80c2c76281e22b68e5deb277e730c79067a9c5cde8b72f13b251af804f1",
+      "root_sha256": "b79e08d4be147a5d51141932da8d560fd34171069a9d8cd928f3b984a5068007",
+      "merged_sha256": "8311dbdd428c4a6b03909077bb57284ad5a31f05495bebdcefdae575bc940244",
+      "whole_file_inverse_to_parent_exact": true,
+      "inverse_path": "/tmp/root21-typed-merge-five-proof/goal_factory.rs.inverse-parent.rs",
+      "every_difference_addition_is_exact_root_bytes": true,
+      "edits": [
+        {
+          "kind": "replace",
+          "parent_line": 1028,
+          "merged_line": 1028,
+          "removed_lines": 1,
+          "added_lines": 1,
+          "added_bytes_sha256": "ab6badaf47a759c9dab754754ad8ce05b8b8e4263bee26cc67a961a4bdb435a8",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 2296,
+          "merged_line": 2296,
+          "removed_lines": 0,
+          "added_lines": 1,
+          "added_bytes_sha256": "b6e57306f947b44c6295f947d7bd0a89869b8d90937e13da2142b9547eebd484",
+          "added_bytes_exactly_present_in_root17": true
+        }
+      ]
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "parent_sha256": "33a7ee3a941399b7e52a39e463e78fe737f61449e72cd09dbc0dff0a894a1dae",
+      "root_sha256": "82659386e3d3fc1a3452c6f0845df5796e881ba8d21598bf4ab9ce6c648db1c5",
+      "merged_sha256": "bf94f9c458e0cb1fd5d9059df6a88f5f58fa00881ddf640427effed8d56c8878",
+      "whole_file_inverse_to_parent_exact": true,
+      "inverse_path": "/tmp/root21-typed-merge-five-proof/goal_runtime.rs.inverse-parent.rs",
+      "every_difference_addition_is_exact_root_bytes": true,
+      "edits": [
+        {
+          "kind": "replace",
+          "parent_line": 952,
+          "merged_line": 952,
+          "removed_lines": 1,
+          "added_lines": 1,
+          "added_bytes_sha256": "186fe385b6c4095b667831157f86e8e364b136955f77198554022274e6ccc6ee",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "replace",
+          "parent_line": 955,
+          "merged_line": 955,
+          "removed_lines": 1,
+          "added_lines": 1,
+          "added_bytes_sha256": "f1c2c748ed36f3b6bfb2b8db88c58c2b4768a22b25d9dc1ba01da016313844d8",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "replace",
+          "parent_line": 960,
+          "merged_line": 960,
+          "removed_lines": 2,
+          "added_lines": 9,
+          "added_bytes_sha256": "f0daa0b5609bce2e167d21f2ee3a98cd8eda240e1cf972b6dac01b9ea9cdc851",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "replace",
+          "parent_line": 2611,
+          "merged_line": 2618,
+          "removed_lines": 41,
+          "added_lines": 9,
+          "added_bytes_sha256": "93c6e973d4fb9138605f599b34fb613a858f038abb961b7f11935bef8abdb923",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "replace",
+          "parent_line": 2657,
+          "merged_line": 2632,
+          "removed_lines": 25,
+          "added_lines": 7,
+          "added_bytes_sha256": "6251ef0e99d6f267c80083f87a0f0c1bff950ff0cc10251f4b1e2f22d949fd0c",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 2781,
+          "merged_line": 2738,
+          "removed_lines": 0,
+          "added_lines": 174,
+          "added_bytes_sha256": "cf57d153aae16ed199d86e1ce980eaf14091382b0f4c57429792773c17bff90a",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 3850,
+          "merged_line": 3981,
+          "removed_lines": 0,
+          "added_lines": 1,
+          "added_bytes_sha256": "9d407015a422aaaae95b4a28cd36d369ca3e58b907efc51b0eb6a804534f787e",
+          "added_bytes_exactly_present_in_root17": true
+        }
+      ]
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "parent_sha256": "13a0b25bd276544c660f3afc0bc6c1493b1d679837e57e5af547e7c03e407aeb",
+      "root_sha256": "80f4c555bc3985c7cf355d2a7d4c5a1d297dc33e5cc8788fa4037680f1c218d2",
+      "merged_sha256": "ad1902e0db6e9be5468a1a9016d46d3c8dd645e1c09b709c116259069cfd3974",
+      "whole_file_inverse_to_parent_exact": true,
+      "inverse_path": "/tmp/root21-typed-merge-five-proof/ipc.rs.inverse-parent.rs",
+      "every_difference_addition_is_exact_root_bytes": true,
+      "edits": [
+        {
+          "kind": "insert",
+          "parent_line": 547,
+          "merged_line": 547,
+          "removed_lines": 0,
+          "added_lines": 1,
+          "added_bytes_sha256": "944222e8d3bdaa93fcd44fb8da093921863e5df39be88ad8b60a570c51f21649",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 608,
+          "merged_line": 609,
+          "removed_lines": 0,
+          "added_lines": 1,
+          "added_bytes_sha256": "85e947106edb4a369a879ae7608b58057090854ab81a74a760803542e791816c",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 628,
+          "merged_line": 630,
+          "removed_lines": 0,
+          "added_lines": 1,
+          "added_bytes_sha256": "5ea6067275538a2433f183d9aac2ec20ed26e60eaf08ffc726b47de46b754434",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 631,
+          "merged_line": 634,
+          "removed_lines": 0,
+          "added_lines": 6,
+          "added_bytes_sha256": "afdc7cc1e6a957d1a46b62ba297130430b37d17d7cfbe6363991c7d03fa3eaf8",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 645,
+          "merged_line": 654,
+          "removed_lines": 0,
+          "added_lines": 8,
+          "added_bytes_sha256": "1e1a4990267103100c8518d879bcd336f2aca5fee5d3cf21abee3658d198901a",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 652,
+          "merged_line": 669,
+          "removed_lines": 0,
+          "added_lines": 1,
+          "added_bytes_sha256": "a72cbecf64b36cd02b14e1a6117ce0ee667ad0dece84d0688cab73879c4abbdf",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 655,
+          "merged_line": 673,
+          "removed_lines": 0,
+          "added_lines": 2,
+          "added_bytes_sha256": "7480eb5ad1ea9e322c910a74f00aef6c591844ca6f7c2c96f3549c85a958909c",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 677,
+          "merged_line": 697,
+          "removed_lines": 0,
+          "added_lines": 24,
+          "added_bytes_sha256": "ecbb45abe39ec5218a4f04319028008e78aa0ccae093ff5a97c73ba097c7c7e2",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 938,
+          "merged_line": 982,
+          "removed_lines": 0,
+          "added_lines": 16,
+          "added_bytes_sha256": "a1756476e81b477649f60fc83a1516cb8bb300f29169c5ce42744065b22e412e",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "replace",
+          "parent_line": 1291,
+          "merged_line": 1351,
+          "removed_lines": 1,
+          "added_lines": 1,
+          "added_bytes_sha256": "0840fe6378c673d28c83a79608a47fb20997a74f050e282ae14e8b25c076b19e",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 1306,
+          "merged_line": 1366,
+          "removed_lines": 0,
+          "added_lines": 7,
+          "added_bytes_sha256": "89476bd033b862c2b08b9cede5500802e6bb675a113a36af2dac178bbc3b786e",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 2106,
+          "merged_line": 2173,
+          "removed_lines": 0,
+          "added_lines": 43,
+          "added_bytes_sha256": "8c7889d0b99a85214d2b5f9e31ca9a663351c81f688aafc74f8b68cc58feba77",
+          "added_bytes_exactly_present_in_root17": true
+        },
+        {
+          "kind": "insert",
+          "parent_line": 3187,
+          "merged_line": 3297,
+          "removed_lines": 0,
+          "added_lines": 262,
+          "added_bytes_sha256": "cf27c48c402ab2dbce61ec54e48f5f3f39c61e91cec0defbd0c5d93ea7a0d1d9",
+          "added_bytes_exactly_present_in_root17": true
+        }
+      ]
+    }
+  ],
+  "before_conflict_snapshots": "/tmp/root21-typed-merge-five-before",
+  "inverse_interpretation": "All three complete production files invert exactly to Main, and each inserted/replaced byte sequence is identical to existing Root17 source. This proves source inheritance plus explicit hunk inventory, not runtime correctness. Main Goal stop/read/typed contracts retained; Root17 integration/accounting methods/routes/ownership retained.",
+  "test_mapping_strategy_json": "/tmp/root21-pr19-merge-strategy-fd242-b55c.json",
+  "new_controls": {
+    "typed_properties": 7,
+    "actual_Store_tests_adapted": 3,
+    "Main_original_tests": "retained byte-for-byte apart from parent-preserving Root additions/include",
+    "six_guard_status": "actual Core diagnostic constructors with all six tags/branch-shaped finite samples; NOT a claim of six actual database admission guard-branch executions. Main existing real original ancestor refusal -> receipt -> channel -> block Store test remains in unmodified merged factory_child_goal_reservation_tests.rs."
+  },
+  "performed": [
+    "save original five conflict/source bytes in private tmp",
+    "edit only authorized5 files",
+    "rustfmt edition2021 skip_children=true on only5 files",
+    "pure Python/Git source/inverse assertions; no product runtime"
+  ],
+  "not_performed": [
+    "Cargo/compile/Rust tests",
+    "SQL",
+    "Node/browser/product process",
+    "network/CI",
+    "git add/commit/revert/merge/index writes"
+  ],
+  "historical_results": "fd24203 original fullCore245 PASS remains historical; not credited to new typed composition.",
+  "ADR": {
+    "path": "/tmp/root21-typed-merge-five-proof/ADR-DRAFT.md",
+    "sha256": "dd9b8c21753c18a8cfdf6484ba997b7bcb9ea0ac69052fe11c00e951e398ebfe"
+  },
+  "test_mapping": {
+    "path": "/tmp/root21-typed-merge-five-proof/TEST-MAPPING.json",
+    "sha256": "c9aa5f35c03723e2df457714d32363b250bd935158b6a184f80cf4a0d72dff2d"
+  },
+  "format_and_diff_checks": {
+    "rustfmt": "PASS: edition2021 skip_children=true only the five assigned files",
+    "git_diff_check": "PASS exit0 restricted to five assigned paths",
+    "Rust_or_SQL_execution": "NOT_RUN"
+  }
+}

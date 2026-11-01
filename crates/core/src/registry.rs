@@ -294,6 +294,26 @@ pub(crate) fn reserve_workspace_row(
     key: &str,
     payload: &str,
 ) -> Result<()> {
+    reserve_workspace_row_checked(tx, workspace, key, payload, None)
+}
+pub(crate) fn reserve_workspace_row_for_integration(
+    tx: &Transaction<'_>,
+    workspace: &ManagedWorkspace,
+    key: &str,
+    payload: &str,
+    permit: &crate::integration::IntegrationFencePermit,
+) -> Result<()> {
+    reserve_workspace_row_checked(tx, workspace, key, payload, Some(permit))
+}
+fn reserve_workspace_row_checked(
+    tx: &Transaction<'_>,
+    workspace: &ManagedWorkspace,
+    key: &str,
+    payload: &str,
+    permit: Option<&crate::integration::IntegrationFencePermit>,
+) -> Result<()> {
+    let project = project_from(tx, &workspace.project_id)?;
+    crate::integration::check_workspace_fences(tx, &project.identity, permit)?;
     let id = &workspace.project_id;
     let expected_head = &workspace.base_revision;
     tx.execute("INSERT INTO managed_workspaces(id,project_id,document,state,idempotency_key,root,payload) VALUES(?1,?2,?3,?4,?5,?6,?7)",params![workspace.id,id,encode(&workspace)?,workspace.state,key,workspace.root.to_string_lossy(),payload]).map_err(db_error)?;
@@ -350,6 +370,7 @@ impl Store {
             return Ok(old);
         }
         let identity = inspect(path).map_err(workspace_error)?;
+        crate::integration::check_workspace_fences(&tx, &identity, None)?;
         let duplicate: bool = tx
             .query_row(
                 "SELECT EXISTS(SELECT 1 FROM projects WHERE root=?1 OR (device=?2 AND inode=?3))",
@@ -486,6 +507,7 @@ impl Store {
             return Ok(old);
         }
         let mut project = project_from(&tx, id)?;
+        crate::integration::check_workspace_fences(&tx, &project.identity, None)?;
         current_project(&project, expected_revision)?;
         project.identity = reassociate(&project.identity, path).map_err(workspace_error)?;
         project.revision += 1;
