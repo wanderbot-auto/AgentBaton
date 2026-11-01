@@ -492,6 +492,58 @@ fn git_path(
     }
     Ok(p)
 }
+// One fresh read per original recheck boundary; never retained as authority.
+// Paths cannot contain newlines/control bytes in the original contract. Require
+// exactly three complete fields and the original canonical pin for each one.
+fn verify_git_path_observation(
+    raw: &[u8],
+    expected: [&Path; 3],
+    deadline: Instant,
+    control: Option<&crate::adoption::AdoptionControl<'_>>,
+) -> Result<(), WorkspaceError> {
+    check_capture_control(deadline, control)?;
+    let text = std::str::from_utf8(raw).map_err(|_| WorkspaceError::InvalidPath)?;
+    if text.len() > 3 * (MAX_PATH_BYTES + 1) {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    let text = text.strip_suffix('\n').ok_or(WorkspaceError::InvalidPath)?;
+    let fields = text.splitn(4, '\n').collect::<Vec<_>>();
+    if fields.len() != 3 {
+        return Err(WorkspaceError::InvalidPath);
+    }
+    for (text, expected) in fields.into_iter().zip(expected) {
+        check_capture_control(deadline, control)?;
+        if text.is_empty() || text.len() > MAX_PATH_BYTES || text.chars().any(char::is_control) {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        let path = Path::new(text);
+        if fs::canonicalize(path)? != path || path != expected {
+            return Err(WorkspaceError::InvalidPath);
+        }
+        check_capture_control(deadline, control)?;
+    }
+    Ok(())
+}
+fn recheck_git_paths(
+    deadline: Instant,
+    root: &Path,
+    expected: [&Path; 3],
+    control: Option<&crate::adoption::AdoptionControl<'_>>,
+) -> Result<(), WorkspaceError> {
+    let raw = text_output_controlled(
+        deadline,
+        git_command(root).args([
+            "rev-parse",
+            "--path-format=absolute",
+            "--show-toplevel",
+            "--absolute-git-dir",
+            "--git-common-dir",
+        ]),
+        control,
+    )?;
+    verify_git_path_observation(&raw, expected, deadline, control)
+}
+
 fn no_alternates(
     deadline: Instant,
     common: &Path,
@@ -794,12 +846,12 @@ impl AuthorizedSourceCapture {
         }
         audit(deadline, &mut self.command(), control)?;
         no_alternates(deadline, &self.common_dir, control)?;
-        if git_path(deadline, &self.root, "--show-toplevel", control)? != self.root
-            || git_path(deadline, &self.root, "--absolute-git-dir", control)? != self.git_dir
-            || git_path(deadline, &self.root, "--git-common-dir", control)? != self.common_dir
-        {
-            return Err(WorkspaceError::InvalidPath);
-        }
+        recheck_git_paths(
+            deadline,
+            &self.root,
+            [&self.root, &self.git_dir, &self.common_dir],
+            control,
+        )?;
         if oid(text_output_controlled(
             deadline,
             self.command()
@@ -2273,3 +2325,7 @@ mod deadline_tests {
         assert_eq!(test_git(&root, &["config", "diff.ignoreSubmodules"]), "all");
     }
 }
+
+#[cfg(test)]
+#[path = "source_capture_git_path_observation_tests.rs"]
+mod git_path_observation_tests;
