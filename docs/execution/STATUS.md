@@ -1115,3 +1115,11 @@ Goal计划算法source9acf86c/docs3d369已独立48tests+4原语义控制/Clippy/
 PR12真实优化sourcecb82（本地cherry5cea，docs47ab）已独审227unique+4compilefail/Clippy/fmt/5Git每phase及额外恶意Git配置控制通过；作者完整377+4另记。生产仅同次inspect批量只读查询，reservation/launch两次独立完整guard与原1000/1/2/3秒不变。Mac同次cargo仅加--show-output显示实际阶段，不额外重复/预热/skip。新候选正常push后仍须新准确7检查、双native与实际双包核验，未将Linux当Mac或完整产品完成。
 
 实测e373双Mac作业成功且原command14/native11/harness6/WebView/defaultreleaseaudit独审通过，actualba437，原1000ms下admission ARM531ms/Intel406ms，真实优化有效；整体仍因Linuxdefault跨fixture压力13/14失败（剩余760ms/RPC946ms）不能合入。只增加Linuxworkspace-step RUST_TEST_THREADS1、全部测试/内部并发/原预算/25min/Environment不变，静态已独审；新head还须全部7/双native/双包，Linux跨fixture并行压力保留failed限制不称满足。Goal结构编辑175独审259和fresh真实10通过，Meta589兼容修34+旧probe独审关闭，尚待组合新GoalCI；Dataa10库111+7独审通过，Core/IPC/UI下一步仍未接。
+
+## Goal Work 单次完成后的原进程停止 · 源码8367
+
+本地分支 `codex/goal-owned-turn-stop` 源码 `8367a663017c1e2c6b9c00b172cc7272fc050ab4` 已绑定原Actor提交的turn ID/key与原session/attempt/intent/run/plan/node/native，仅真实相关completed后停止原owned process；普通/shared/Factory/MCP及非Work节点不启用。64日志队列不再承担terminal proof；joined未结算receipt保留并按原流水checkpoint，原时钟、4秒及Grant/输入/选择/CAS/费用/验收不变。满队列仍为backpressure失败，准确历史completed与当前unknown分开，不能升candidate/acceptance。
+
+真实8367：新增13PASS24.24s、原Goal hint12PASS14.37s、原sessions2PASS0.07s，共同源27个互不重名测试；wrapper分别48.142/40.320/23.883s，源和冻结工具均未变。独立源码57检查SOURCE_READY。旧hint用合法Summary保持完整原fresh policy、deadline/腐败/授权拒绝断言。45ca12PASS、独审发现其update+endturn/full64漏洞、396首编译E0277零测试及8367 checked i64/overflow修复均独立保留，不挪用旧绿。
+
+证据 `docs/execution/goal-owned-turn-stop/EVIDENCE.json`。仅Linux本地generatedACP/原进程/SQLite维度；未声称原Root003 Intel4344/4000失败已在Mac修复。完整Core/Factory/infra/strictClippy/真实IPC/新准确CI/双Mac/安装包仍待验证；生命周期Supervisor hooks/Core18/Native完整退出属后续独立工作，不在本次27PASS或源码审查中。未push/新PR/新CI/合入/发布；全部130需求状态维度原样、总体未完，权限和费用边界不变。
