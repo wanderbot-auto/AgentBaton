@@ -1122,3 +1122,8 @@ PR12真实优化sourcecb82（本地cherry5cea，docs47ab）已独审227unique+4c
 在既有 child-goal-finite-diagnostics17 单元追加 bd7fa954e545d8aa7d5a8037b15ab951bbf4ce53：仅失败时增加封闭 capture 阶段、errno、两个固定 helper 来源/行号，原异常/collector/身份守卫/cleanup/预算/窗口/权限不变，成功仍v4。独审SOURCE_READY（04c2ea79…、236checks、独立177pure），主代理准确bd7实际fullinfra768PASS22.648s，normalbuild/freeze/frontend全部exit0；准确manifest/source/Corecompiled/frontend同bd7，真实Linux Chromium+UnixIPC cancel4checks/3原PNG/cleanup_complete及daemonexit0通过，固定身份和stopped-session核验保留。不编造全局noKill字段；本次只读取、核hash并登记主代理执行，未重跑产品。完整命令/RESULT/INPUTS/hash在本单元EVIDENCE的capture_failure_observation_bd7_2026_11_01追加项。
 
 旧Root003 Product41254032180仍失败：Rust成功，IntelFactory35/1（fbe39de6报告，capture4344/4000ms、producer4027、io未启动），ARMIntegration21/12（d77eb00b，11条13slot、首OUTCOME_UNKNOWN），UIcancel在两check后OSError（更正99c1c16f报告，errno未记录）。bd7成功取消不证明旧根因已解，未放宽预算，未请求新RootCI。Linux不代替Mac；bd7实际normal/lost-start、v5故障运行、双Mac/Native/开发包及真实Provider未验证；130需求整字节和完整Designv0.2范围保持，SOURCE_READY不等完整交付。本次无新合入/发布/费用/账号/凭据/正式Approve权限。
+
+
+## 2026-11-01 · readonly workspace failure evidence
+
+原 PR24 f744 ARM Core 260通过、1失败，workspace_resolution_tests.rs152 在枚举后元数据读取返回 ENOENT；缺失文件与阶段未知，不能沿用旧 Task-binding 用例根因。隔离源码 d68469d9 只添加失败时生成夹具保留及固定阶段/路径类别诊断，保留完整 .git、所有字节快照与 dirty/key/head/DB 断言。首轮编译漏了两个既有 foreign 调用参数而失败，已保留日志并恢复原调用包装；精确新源码原10项测试通过（3.73秒），独审就绪。此诊断尚未经新 Mac/CI 验证，不计需求完成；原130范围和所有权限边界不变。详见 `workspace-snapshot-failure-diagnostic/EVIDENCE.json`。

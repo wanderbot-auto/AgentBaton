@@ -77,7 +77,8 @@
         "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
         "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
         "docs/execution/integration-preparation-phase-observation/EVIDENCE.json",
-        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json",
+        "docs/execution/workspace-snapshot-failure-diagnostic/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -174,7 +175,8 @@
         "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
         "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
         "docs/execution/integration-preparation-phase-observation/EVIDENCE.json",
-        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json",
+        "docs/execution/workspace-snapshot-failure-diagnostic/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -377,7 +379,8 @@
         "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
         "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
         "docs/execution/integration-preparation-phase-observation/EVIDENCE.json",
-        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json",
+        "docs/execution/workspace-snapshot-failure-diagnostic/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -5446,7 +5449,8 @@
         "docs/execution/provider-adapters/EVIDENCE.json",
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-integration/EVIDENCE.json"
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/workspace-snapshot-failure-diagnostic/EVIDENCE.json"
       ],
       "limitations": [
         "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
