@@ -1,3 +1,13 @@
+## Real Native IPC source and local follow-up — 2026-11-01
+
+Source d122f7a9231f8670aaab692b7cc113e60b26fabf is the genuine c66c6e3 Native fixture + a51d7f6 settings-focus merge. Independent source review97 checks is SOURCE_READY; this is not a Mac runtime pass. The Native fixture source covers all six required groups with explicit capability/Runtime/root binding, Rust-held phases, actual sheet observation/clicks, fresh filesystem checks and closed reports. Its6 Mac-only Rust tests and actual GUI cases remain NOT_RUN.
+
+Exact d122 local results pass: normal Core17/CLI build and private frozen schema17 probe, React build, Linux Native136 (27.289s wrapper), strict Native all-target Clippy (14.055s), infrastructure730 (20.545s tests/20.984s wrapper),93-pin/bootstrap/design/static-infrastructure/product-gate and Native format checks. The13 records comprise12 standard RESULT/INPUTS/log wrappers plus1 inode/mode/nlink/SHA resource-restoration guard, not13 product suites. Actual Linux quiet canvas passes38 checks and24 PNG hashes (7.829s wrapper), including the settings summary focus correction. It invokes the real Core via a test-only browser bridge; it does not test the new Native registration commands. Its evidence has no cleanup field, so TERM/join/noKILL are not inferred. Counts are not added to previous rounds.
+
+PR24 source74da remains a failed remote Product run41252249298: Rust success; UI settings-summary strict locator ambiguity. Official raw/job evidence binds Intel job124687989525 to Factory34/2 (first1s candidate/Owner phase not reached; separate rework capture4337/4000 with producer4014, worker not started and queue segments null), and ARM job124687989482 to integration18/12 (first validating observation expiry; Factory36 passed/rework accepted). Both Core libraries pass261/0. The first aggregate swapped architecture job IDs; retain it with an explicit erratum and use original job JSON/raw logs. No323ms queue inference or shared Mac rootcause is claimed. New exact-candidate CI, both Mac fixture/ABI/NativeGUI and default release isolation, login/manual/lifecycle/installers remain NOT_RUN. Full130 statuses and authorization are unchanged; old failures and source-bound results remain below and in EVIDENCE.json.
+
+Previous progress retained verbatim:
+
 # Source-bound progress
 
 Native3db and UI214 were integrated with Rooteba as bb5c7f935f95139027ff7b2008dcd9db318e833c. Independent whole-tree review performed93 checks and reported SOURCE_READY;2467 other blobs remain exact. The earlier proof1 count2461 was wrong; proof2 corrects it without deleting the prior record.

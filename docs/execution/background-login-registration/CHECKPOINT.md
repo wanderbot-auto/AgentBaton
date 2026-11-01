@@ -1,3 +1,13 @@
+## Follow-up checkpoint — 2026-11-01
+
+Repository: https://github.com/wanderbot-auto/AgentBaton. Local branch codex/background-service-real-ipc, reviewed/tested source d122f7a9231f8670aaab692b7cc113e60b26fabf, tree e171349802ee0283105bb207d8bd4fef84d36848; parents c66c6e31e5edb3891deb1140993804088d27af0a and a51d7f6316de706c702e34a8b09c9c9598a6e170. The prior Native branch/PR24 source74da is retained. This metadata is staged for independent review and parent-controlled commit; the metadata author has not committed, pushed, approved or launched remote checks. No source was changed by this record.
+
+Exact-source local evidence:12 standard wrappers plus1 resource guard; normal17 build/freeze and React build, Native Linux136/strictClippy, infrastructure730, actual Core/quiet38checks24PNG and static checks pass. Six new Mac fixture Rust tests, actual Native background IPC/sheets, default binary isolation, real login/task lifecycle and both installers remain NOT_RUN. Browser evidence lacks cleanup fields; no borrowed stop proof. EVIDENCE.json preserves the exact old failed Product41252249298 UI locator error and corrected raw job binding: Intel124687989525 Factory34/2, ARM124687989482 integration18/12, Core261/0 on both. Original aggregate ID swap is retained as an erratum; producer4014/capture4337 is not a measured queue or a solved rootcause.
+
+Next: independent review of these6 metadata files/93pins, parent commit and accurate new-candidate required CI. Execute the new independent Mac step on both architectures without waiting for unrelated Core budgets to become green; all old checks still fail normally. Diagnose real failures without raising budgets/timeouts/permissions or replaying unknown writes. Continue all remaining approved product work and original SES008/010 lifecycle/dual development installer acceptance. No Provider/account/cost/signing/production authority or fabricated background continuation is added.
+
+Previous checkpoint retained verbatim:
+
 # Checkpoint
 
 Repository: https://github.com/wanderbot-auto/AgentBaton. Branch: codex/background-service-native. Tested source: bb5c7f935f95139027ff7b2008dcd9db318e833c; tree1e6f4fd1c0e8924b33b01d315bfe03c7597bd29f. Native3db + UI214 + Rooteba exact disjoint composition. This metadata is uncommitted and awaits independent eight-file review; no new push, PR, formal Approve, merge or release is performed by this work unit. Existing Root/Parent CI failures remain in their prior records and are not superseded by Linux local passes. Cloud task URL is unavailable; no background continuation or Goal status is fabricated.

@@ -1243,4 +1243,858 @@
   ],
   "requirement_tracking_policy": "Only SES010 advances not_started to implementing/unit passed for explicitly limited Linux filesystem and mock UI slice. SES008 status and all verification remain not_started/not_run; only evidence/limits appended. Other128 requirements and immutable specs unchanged. Full130 Designv0.2 target remains incomplete.",
   "authority": "OWNER-001/002 acknowledged within existing AB-START-001; no added merge/Approve/production/credential/signing/paid authority. This metadata pass performs no product run or OS service operation."
+,
+  "real_native_ipc_followup": {
+    "recorded_at": "2026-11-01T00:11:54.698024+00:00",
+    "source_head": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+    "source_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+    "branch": "codex/background-service-real-ipc",
+    "source_composition": {
+      "baseline": "74da1c2553fb6c6f2e19090658f85ae3e3add283",
+      "native_ipc_harness": "c66c6e31e5edb3891deb1140993804088d27af0a",
+      "quiet_settings_focus_fix": "a51d7f6316de706c702e34a8b09c9c9598a6e170",
+      "genuine_merge": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+      "independent_source_reviews": [
+        {
+          "path": "/tmp/background-service-real-ipc-independent-review/REVIEW.json",
+          "sha256": "1fa01566742ab859cdfd89ea399143c63852a8227ade3eda007e7891078a9786",
+          "decision": "SOURCE_READY",
+          "head": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "source_only_not_mac_acceptance": true
+        },
+        {
+          "path": "/tmp/background74da-settings-focus-independent-review/REVIEW.json",
+          "sha256": "e162008cb5f5c62e1313bfb20318de3f73a5b3f9bf4e0a52549ef5c83a4c55f1",
+          "decision": "SOURCE_READY",
+          "head": "a51d7f6316de706c702e34a8b09c9c9598a6e170",
+          "source_only_not_mac_acceptance": true
+        }
+      ],
+      "author_implementation": {
+        "path": "/tmp/background-service-real-ipc-implementation/RESULTS.json",
+        "sha256": "a06ddbc9998e48add94dd74d2e11794d804a37a494cb4865caebf10ff17a526f",
+        "role": "Author self-check, not independent review"
+      }
+    },
+    "implementation_scope": "Mac native-smoke+debug-only fixture Context, exact Runtime/root binding/no realHome fallback; six required real IPC/Native sheet/FS acceptance groups implemented as source. Three original no-argument production commands/native_parent/fresh CAS/helper checks remain. True OSlogin, menu/stop-all/full-exit/sleep task lifecycle not implemented by this harness.",
+    "actual_results": [
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-normal-build1",
+        "dimension": "Linux normal17 Core/CLI build; no new Native GUI",
+        "result_sha256": "b72a3004bf70dccf35028ad262c0f33f3cc9721e6ddd14ec3f2277f48146541c",
+        "inputs_sha256": "ead9f21f40567bc00418dbec30b5e63aa5bf186161cbf9f5e2ac658bfb4820ca",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "env",
+            "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+            "cargo",
+            "build",
+            "--locked",
+            "--bin",
+            "batond",
+            "--bin",
+            "baton"
+          ],
+          "exit": 0,
+          "seconds": 21.06274999101879,
+          "minimum_free_bytes": 495804416,
+          "interruption": null,
+          "log_sha256": "d63901ddae68a0e54bfbe14c79915f99420f3405e4b362d4803bbafe2cf4def1",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-normal-freeze1",
+        "dimension": "normal17 frozen tools/private empty Unix IPC/read-only schema17 probe",
+        "result_sha256": "9d4f1b3a8344b34307233a540ca1fb256ac8693d0cd963fdf96672d41f8dd6b3",
+        "inputs_sha256": "abfabe6670a1ab4b42445a9d89cc52782870596b3c114c5b60acf1b89b16719c",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "env",
+            "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+            "python3",
+            "scripts/prepare-factory-test-tools.py",
+            "--source",
+            "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+            "--output",
+            "/workspace/.onboarding/background-real-ipc-normal-frozen1",
+            "--evidence",
+            "/workspace/.onboarding/background-real-ipc-normal-freeze-evidence1"
+          ],
+          "exit": 0,
+          "seconds": 0.40172829100629315,
+          "minimum_free_bytes": 450629632,
+          "interruption": null,
+          "log_sha256": "8674cef5a2ae876926e738bd6858876f2c2ed407a34552df2d3c96ba0dedd325",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-frontend-build1",
+        "dimension": "production React static build; no Native invocation",
+        "result_sha256": "6685e7549fc72530de1b750148293484e0c2daa7089315a6009c25571bb42810",
+        "inputs_sha256": "3bf8c3e13e88384a75db7fe8a05f48ff9212dfe54e7719f16ba685981533f877",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "npm",
+            "--prefix",
+            "apps/desktop",
+            "run",
+            "build"
+          ],
+          "exit": 0,
+          "seconds": 1.9426695330184884,
+          "minimum_free_bytes": 450600960,
+          "interruption": null,
+          "log_sha256": "b196faa29b6b06b9b6aaacc56efaec820206a83197ee2613299e85accc732f67",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-native-full1",
+        "dimension": "Linux default Native136 tests; mac-only feature6 fixture tests not compiled/run",
+        "result_sha256": "02e1a915b844acec82740140f302cb833e321b513176d9f941fb475ed018d76c",
+        "inputs_sha256": "3ab47988d7b7896dfeec2dc6aaf6c7623935f88846441125e7713be8c49eb3ad",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "env",
+            "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+            "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+            "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+            "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+            "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+            "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/background-real-ipc-normal-frozen1",
+            "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/background-real-ipc-normal-frozen1/baton",
+            "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/background-real-ipc-normal-frozen1/baton",
+            "cargo",
+            "test",
+            "--locked",
+            "--manifest-path",
+            "apps/desktop/src-tauri/Cargo.toml",
+            "--lib",
+            "--",
+            "--nocapture"
+          ],
+          "exit": 0,
+          "seconds": 27.28929187601898,
+          "minimum_free_bytes": 405090304,
+          "interruption": null,
+          "log_sha256": "9dd236452b7935aad79ae905406e8cb764a499956e8bc9c27a428fd144237490",
+          "summaries": [
+            "test result: ok. 136 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.50s"
+          ],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        },
+        "test_count": 136
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-native-clippy1",
+        "dimension": "Linux default Native strict all-target Clippy; not Mac feature typecheck",
+        "result_sha256": "82d364ff9346cffe32fbc9760aa720ee3ca90b70bb193204598988b476d7af5b",
+        "inputs_sha256": "67e33c0f59f6a1f91aa279b2283612ee8f96a54bc24bca809382ea8095d10427",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "env",
+            "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+            "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+            "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+            "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+            "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+            "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/background-real-ipc-normal-frozen1",
+            "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/background-real-ipc-normal-frozen1/baton",
+            "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/background-real-ipc-normal-frozen1/baton",
+            "cargo",
+            "clippy",
+            "--locked",
+            "--manifest-path",
+            "apps/desktop/src-tauri/Cargo.toml",
+            "--all-targets",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "exit": 0,
+          "seconds": 14.054942972026765,
+          "minimum_free_bytes": 385712128,
+          "interruption": null,
+          "log_sha256": "31fd1ccc7fa163511cbf5e3f4be9f009b02a3847ee9dc898bdc47017a3790d7d",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-infrastructure1",
+        "dimension": "Python infrastructure730 synthetic/source/negative tests; not product Native IPC",
+        "result_sha256": "ffd9a119a821e545f1b82e27929d4260be1afa8a23777493fbedb54216273917",
+        "inputs_sha256": "c7745d576350d62d1c15b642cfe3701156c7db2b4068fe525c9c1cc27ba7af44",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests/infrastructure",
+            "-p",
+            "test_*.py",
+            "-v"
+          ],
+          "exit": 0,
+          "seconds": 20.983927460969426,
+          "minimum_free_bytes": 394534912,
+          "interruption": null,
+          "log_sha256": "f479040a90fdd79f67a05739fe770ca0b96c76ab71855acac4770d89e764f6a2",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        },
+        "test_count": 730,
+        "test_seconds": 20.545
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-browser1",
+        "dimension": "actual Linux Chromium built React + test-only bridge + Core17 IPC; settings focus/quiet canvas regression, not Native registration",
+        "result_sha256": "fb1e1a277b663dc4c301e9420df5b4a9da62d2d7ba1fe7b252981378931059e1",
+        "inputs_sha256": "f29aaea2b7a34499ea68107d2910702416eca0a6d4ebadc0f044c378d3c5c455",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "env",
+            "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+            "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+            "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/background-real-ipc-normal-frozen1",
+            "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/background-real-ipc-normal-frozen1/baton",
+            "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/background-real-ipc-normal-frozen1/baton",
+            "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+            "apps/desktop/tests/quiet-canvas-real-ipc.py",
+            "--batond",
+            "/workspace/.onboarding/background-real-ipc-normal-frozen1/batond",
+            "--chromium",
+            "/workspace/.onboarding/directory-task-driver-chromium-launcher1",
+            "--output",
+            "/workspace/.onboarding/background-real-ipc-browser1-private"
+          ],
+          "exit": 0,
+          "seconds": 7.82909227500204,
+          "minimum_free_bytes": 447651840,
+          "interruption": null,
+          "log_sha256": "b9b64da1d0636f5aa2a53f0c1262b5ea1c5eaf72b3cfbe9fac358c75314d77bb",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-format1",
+        "dimension": "Native cargo fmt --check static formatting only",
+        "result_sha256": "7d92ff1878605b3a94723e92b6c10145b528b2c3afa4e1913ef1e9f86371366c",
+        "inputs_sha256": "9978f651bbe8ee4e1a9dc993ca56d583ee9e6672053feafb3540502d9711999d",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "env",
+            "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+            "cargo",
+            "fmt",
+            "--manifest-path",
+            "apps/desktop/src-tauri/Cargo.toml",
+            "--",
+            "--check"
+          ],
+          "exit": 0,
+          "seconds": 0.40123053203569725,
+          "minimum_free_bytes": 447586304,
+          "interruption": null,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-bootstrap1",
+        "dimension": "93 bootstrap integrity pins before this metadata edit",
+        "result_sha256": "58a83a71c523de55e22ed715c833053820a5335f6a490924dc09a55b3f8652e8",
+        "inputs_sha256": "c1281fdd47ae13ce86a7e1d49ad3e6766d997f2766316512c48654c92d0c20d2",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "python3",
+            "scripts/verify_bootstrap_manifest.py"
+          ],
+          "exit": 0,
+          "seconds": 0.10876615298911929,
+          "minimum_free_bytes": 405069824,
+          "interruption": null,
+          "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-design1",
+        "dimension": "130requirements/27answers design-only validator",
+        "result_sha256": "33aa243388e1f6ed26994d9dfef80772d0d301a9d0266752e372d79d357eabd5",
+        "inputs_sha256": "d200d5cb7f39d7ccc57b8fb2ff410f498ca89178dc0f4bc124b8b6d4af4dd304",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "python3",
+            "scripts/validate_design.py"
+          ],
+          "exit": 0,
+          "seconds": 0.4037143199821003,
+          "minimum_free_bytes": 405037056,
+          "interruption": null,
+          "log_sha256": "b5482741520ebb04374ecd77dd63b2dedde3cbe4120ccc531dd966ca2861bd43",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-static-infrastructure1",
+        "dimension": "static workflow/actions/permissions validation, not remote execution",
+        "result_sha256": "52195dcaec0d72faaa41a7569662700be76b2d6f502eb505b429b19025faa396",
+        "inputs_sha256": "e299ae90188eb44032fd90397e2556255d922b8243934eea9c2fc17d5dcd7fff",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "python3",
+            "scripts/validate_infrastructure.py"
+          ],
+          "exit": 0,
+          "seconds": 0.20343319495441392,
+          "minimum_free_bytes": 405049344,
+          "interruption": null,
+          "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      },
+      {
+        "directory": "/workspace/.onboarding/background-real-ipc-gate1",
+        "dimension": "current product authorization gate check, no new authorization",
+        "result_sha256": "482d605ac6855ec60a5ac5fe341b1865c1db9a3093b3f5427c9376f7c6948f60",
+        "inputs_sha256": "8f94b2e43e1efb13ed8c6854fec1f5f015b2f49a471c5f63a6f298c23253fee0",
+        "input_tree": "e171349802ee0283105bb207d8bd4fef84d36848",
+        "result": {
+          "source": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+          "root": "/workspace/.worktrees/background-service-native",
+          "command": [
+            "python3",
+            "scripts/check_gate.py",
+            "--scope",
+            "product"
+          ],
+          "exit": 0,
+          "seconds": 0.10661715897731483,
+          "minimum_free_bytes": 405061632,
+          "interruption": null,
+          "log_sha256": "25a96f7a5df6d01e424d7190ea049f3415a67aff9cdf3b2f9f6e6c1e629cbb49",
+          "summaries": [],
+          "source_head_and_tracked_unchanged": true,
+          "frozen_tools_unchanged": true,
+          "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+        }
+      }
+    ],
+    "resource_guard": {
+      "path": "/workspace/.onboarding/background-real-ipc-native-resource-guard1/RESULT.json",
+      "sha256": "5e9ef4a143495155535f9254a064f45f64fafcdf1d08c40a395171645328e527",
+      "before_sha256": "893f87f30aa01d9b436569b44621c2664935fec9ff612e97e2a59ff3f03105ab",
+      "result": {
+        "head": "d122f7a9231f8670aaab692b7cc113e60b26fabf",
+        "exit": 0,
+        "original_inode_mode_nlink_sha_restored": true,
+        "sidecar_links_removed": true,
+        "source_unchanged": true,
+        "frozen_unchanged": true,
+        "dimension": "Linux compile/temporary FS tests only; ignored same-source compile resources retained"
+      },
+      "limit": "13th record; resource restoration, not another product test count"
+    },
+    "python_validation_report": {
+      "path": "/tmp/root-parent-and-background-python-verification/RESULTS.json",
+      "sha256": "fe8f345cc4b50f265a8a41a43e4fb7e0ed10ee9bd9541c3d00f7b2554178a8db",
+      "limit": "Only d122 section corresponds to this branch; other Root source754 not transferred."
+    },
+    "normal_tools": {
+      "manifest": {
+        "path": "/workspace/.onboarding/background-real-ipc-normal-frozen1/manifest.json",
+        "sha256": "937055c9b94413c5d950ce2f1971859cc50a9f7d9167684391468b083cb79235"
+      },
+      "binaries": {
+        "batond": "9d19b582e06d9c26149d91ca61158d34d59e597987d90c38b45594addc5f2607",
+        "baton": "a8c5f7084a53bbc003ae807f66a29091dd3ffe70f6dc252a975c183e01f79209"
+      },
+      "schema": 17,
+      "probe": {
+        "schema": 17,
+        "query_only": true,
+        "sequence": 0,
+        "zero_tables": {
+          "factory_scopes": 0,
+          "factory_runs": 0,
+          "factory_task_lineage": 0,
+          "factory_delegations": 0,
+          "factory_task_bindings": 0,
+          "factory_attempts": 0,
+          "factory_scoped_handles": 0,
+          "factory_handoffs": 0,
+          "factory_budget_reservations": 0,
+          "factory_child_plan_heads": 0,
+          "factory_child_plan_revisions": 0,
+          "factory_child_goal_runs": 0,
+          "integration_policies": 0,
+          "integrations": 0,
+          "integration_attempts": 0,
+          "integration_ref_fences": 0
+        },
+        "runtime_mode": "0o700",
+        "socket_utf8_bytes": 30,
+        "snapshot_api_version": 1,
+        "snapshot_sequence": 0,
+        "cli_snapshot_exit": 0,
+        "original_daemon_SIGTERM_wait_exit": 0,
+        "sigterm_sent": true,
+        "forced_kill": false
+      },
+      "dimension": "Same-checkout normal product tools; empty private Unix IPC/read-only SQLite probe; no Provider or native GUI"
+    },
+    "quiet_canvas_regression": {
+      "private_evidence": {
+        "path": "/workspace/.onboarding/background-real-ipc-browser1-private/evidence.json",
+        "sha256": "6b02b9fbdf87dec280b62cbe6744d3c6c08ba587aa1b294ee29908b243177ba7"
+      },
+      "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider",
+      "checks_count": 38,
+      "all_check_statuses_passed": true,
+      "check_names": [
+        "empty state contains no demonstration task",
+        "five actual UI drafts persisted through Unix IPC",
+        "reviewed quick-context summary converts to actual draft, standalone model send unavailable",
+        "truthful recorded-state filtering",
+        "real core rejects oversized UTF-8 goal without inserting a task",
+        "home layout 1488x981",
+        "last card remains accessible above composer 1488x981",
+        "actual read-only integrity lists and no fabricated validation 1488x981",
+        "actual read-only data contract lists and no fabricated validation 1488x981",
+        "actual read-only command lists and no fabricated execution 1488x981",
+        "actual read-only empty Goal scope and disabled-or-absent writes 1488x981",
+        "home layout 1440x900",
+        "last card remains accessible above composer 1440x900",
+        "actual read-only integrity lists and no fabricated validation 1440x900",
+        "actual read-only data contract lists and no fabricated validation 1440x900",
+        "actual read-only command lists and no fabricated execution 1440x900",
+        "actual read-only empty Goal scope and disabled-or-absent writes 1440x900",
+        "collapsed rail controls retain accessible localized names",
+        "home layout 1024x768",
+        "last card remains accessible above composer 1024x768",
+        "actual read-only integrity lists and no fabricated validation 1024x768",
+        "actual read-only data contract lists and no fabricated validation 1024x768",
+        "actual read-only command lists and no fabricated execution 1024x768",
+        "actual read-only empty Goal scope and disabled-or-absent writes 1024x768",
+        "mobile navigation exposes named controls and44px toggle target",
+        "home layout 390x844",
+        "last card remains accessible above composer 390x844",
+        "actual read-only integrity lists and no fabricated validation 390x844",
+        "actual read-only data contract lists and no fabricated validation 390x844",
+        "actual read-only command lists and no fabricated execution 390x844",
+        "actual read-only empty Goal scope and disabled-or-absent writes 390x844",
+        "keyboard command search, Escape and focus restore",
+        "actual closed-details summary is included in dialog focus trap",
+        "actual grant duration input enforces3600second core boundary; no unsupported grant sent",
+        "reduced motion disables product transitions",
+        "actual never-dispatched draft cancellation is confirmed by core evidence",
+        "history uses actual journal events",
+        "no browser runtime errors"
+      ],
+      "screenshots": [
+        {
+          "name": "home-1488x981.png",
+          "sha256": "9b95fe8634a905c8bf9cc7671aabae121611edb526069ee1ca7cc326985b6c92",
+          "bytes": 108938
+        },
+        {
+          "name": "task-1488x981.png",
+          "sha256": "011333869052d58b20fc190d767e880415803ade164868aba09fc25ce46c3a7a",
+          "bytes": 80792
+        },
+        {
+          "name": "artifacts-1488x981.png",
+          "sha256": "bad9ef595f9b1ec8260059dfe08fc4fbf6e57d4d01999c9fa31a50c0fc90aed5",
+          "bytes": 124767
+        },
+        {
+          "name": "data-contract-1488x981.png",
+          "sha256": "43a50c5802bed9d01de40fe600c3a6a7cf07f320b3f8725be1d9cc08d962186f",
+          "bytes": 139603
+        },
+        {
+          "name": "command-contract-1488x981.png",
+          "sha256": "f9db0c15b6f3361026b77a0515479bc9d4ab51550aad11acb818f95635990439",
+          "bytes": 130790
+        },
+        {
+          "name": "goal-readonly-1488x981.png",
+          "sha256": "32be7c49b611a24b5dcf3f0f8fba902d7731c7a0ffd8510a8ca81dd5a110c2ad",
+          "bytes": 124960
+        },
+        {
+          "name": "home-1440x900.png",
+          "sha256": "ea0f48c6f18f602ccfd0cd07ea8eeac6771ee214862821e500af7f25950c2746",
+          "bytes": 102215
+        },
+        {
+          "name": "task-1440x900.png",
+          "sha256": "0759a7917f618d422b19a7a0d4ae244ad8afb371db9527ef0bb17ce6564f0247",
+          "bytes": 79598
+        },
+        {
+          "name": "artifacts-1440x900.png",
+          "sha256": "5eb9f702060ad9bfc42f51e6b3a619e24d7c0595b334228ca154992e99a379ce",
+          "bytes": 120466
+        },
+        {
+          "name": "data-contract-1440x900.png",
+          "sha256": "906cc36f746a4993c2ea4be5ca45f5e5b5efa2feb1d4378ea688af8bc7ac3fd7",
+          "bytes": 134206
+        },
+        {
+          "name": "command-contract-1440x900.png",
+          "sha256": "28745f32560adaaba28ec33e3b9da7a5e3f8928b5ab41bb0475badf809643ff6",
+          "bytes": 126736
+        },
+        {
+          "name": "goal-readonly-1440x900.png",
+          "sha256": "127cf84407d51fccf6a737a326c8a6e90fbbf9986005e8a769989ebad81c3fe7",
+          "bytes": 118558
+        },
+        {
+          "name": "home-1024x768.png",
+          "sha256": "dab74b3ceb14d6ffb33735c5d566034389bb3e37636f5b90ee06e40b1526fe3b",
+          "bytes": 75743
+        },
+        {
+          "name": "task-1024x768.png",
+          "sha256": "d343949afad7898676fd0d4fb84ef333e3930d849a8b5064df4800d4408dc993",
+          "bytes": 63361
+        },
+        {
+          "name": "artifacts-1024x768.png",
+          "sha256": "7f489413f8b55a6b212705625194abe73711e75d3e57c93920c1f1f670f1af5b",
+          "bytes": 95236
+        },
+        {
+          "name": "data-contract-1024x768.png",
+          "sha256": "79ab1b5474150a935bf7c97b5c66b95293ce3db5052d00fd41267aba978d02ae",
+          "bytes": 91432
+        },
+        {
+          "name": "command-contract-1024x768.png",
+          "sha256": "0c75d47690fc21872079961ba4e6226e20c3ac56debe2b6fd29182bbef503379",
+          "bytes": 103122
+        },
+        {
+          "name": "goal-readonly-1024x768.png",
+          "sha256": "959016f24ba345a62e0913d14d524b0dd9faeaa9f4a878a328a033a3cc79a430",
+          "bytes": 95453
+        },
+        {
+          "name": "home-390x844.png",
+          "sha256": "167ec26ea92e90f20bea27f9c1e6791b861beece064814400da72c5643e0177d",
+          "bytes": 54308
+        },
+        {
+          "name": "task-390x844.png",
+          "sha256": "21ed4e78817d0e2d200df53f935a930cf02ddb282204f1a28e77c314963fbb48",
+          "bytes": 45691
+        },
+        {
+          "name": "artifacts-390x844.png",
+          "sha256": "92cbdf7fe71ad1bad50b0028e6be82ec8d77e918f2c631b17bf49923a0b96998",
+          "bytes": 72100
+        },
+        {
+          "name": "data-contract-390x844.png",
+          "sha256": "d34c9aaeb91209cc2a18eeb45dfc31a4b9adbcb53359c7e1a25b97daef39a727",
+          "bytes": 61978
+        },
+        {
+          "name": "command-contract-390x844.png",
+          "sha256": "5fa64da766611136d3b33e7bc500d500df2d39b2c69e747b89e3cd3963c7c31e",
+          "bytes": 66112
+        },
+        {
+          "name": "goal-readonly-390x844.png",
+          "sha256": "97e7238318815c42a41a9f2ca1ec8028accb7c5a6f5b300a570e7782c683ffbc",
+          "bytes": 49505
+        }
+      ],
+      "screenshot_count": 24,
+      "requests_count": 115,
+      "daemon_sha256": "9d19b582e06d9c26149d91ca61158d34d59e597987d90c38b45594addc5f2607",
+      "cleanup_observation": "No cleanup field in this browser evidence. Process exit0 is recorded; TERM/join/noKILL/HTTP/browser cleanup are not independently inferred from exit or PNGs.",
+      "not_background_commands": "quiet-canvas actual Core/UI focus regression, not real background_service_status/enable/disable or Native sheet"
+    },
+    "retained_remote_failure": {
+      "pr": "https://github.com/wanderbot-auto/AgentBaton/pull/24",
+      "head": "74da1c2553fb6c6f2e19090658f85ae3e3add283",
+      "product_run": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41252249298",
+      "product_conclusion": "failure",
+      "jobs_snapshot": {
+        "path": "/workspace/.onboarding/pr24-74da1c25-ci/product-jobs-current.json",
+        "sha256": "7c0e253bd23e06f7048be91f7bd571416d197d0bf2bbf77abc49779eaf8e460f"
+      },
+      "ui_log": {
+        "path": "/workspace/.onboarding/pr24-74da1c25-ci/ui-product.log",
+        "sha256": "56e4a82fc0e2a5d2dbf69ff2c163c605f389d9727a20d1a0af62c9315f317d19"
+      },
+      "jobs": [
+        {
+          "id": 124687989335,
+          "name": "Product / Rust",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41252249298/job/124687989335",
+          "completed_at": "2026-10-31T23:42:08Z",
+          "failed_steps": []
+        },
+        {
+          "id": 124687989482,
+          "name": "Product / macos-15",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41252249298/job/124687989482",
+          "completed_at": "2026-10-31T23:55:09Z",
+          "failed_steps": [
+            "Core and native host tests",
+            "Retain finite Native integration evidence without private snapshots"
+          ]
+        },
+        {
+          "id": 124687989502,
+          "name": "Product / UI",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41252249298/job/124687989502",
+          "completed_at": "2026-10-31T23:25:53Z",
+          "failed_steps": [
+            "Actual frontend with real Unix IPC and responsive screenshots",
+            "Retain finite integration browser evidence without private runtime data"
+          ]
+        },
+        {
+          "id": 124687989525,
+          "name": "Product / macos-15-intel",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41252249298/job/124687989525",
+          "completed_at": "2026-11-01T00:00:06Z",
+          "failed_steps": [
+            "Core and native host tests",
+            "Retain finite Native integration evidence without private snapshots"
+          ]
+        }
+      ],
+      "ui_first_error": "quiet-canvas-real-ipc.py line332 Locator.evaluate strict mode: settings dialog summary resolved2. Line329 selected summary broadly; new background summary made ambiguity visible. Integration steps after failure skipped, not product integration failure.",
+      "mac_first_error": {
+        "verified_architecture_jobs": [
+          {
+            "architecture": "intel",
+            "job": 124687989525,
+            "job_name": "Product / macos-15-intel",
+            "job_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41252249298/job/124687989525",
+            "job_json": {
+              "path": "/tmp/ab-root003-native74da-ci-3hfzp8eb/Native74da/job-124687989525.json",
+              "sha256": "d6830f805cd0fff91294f1570f6a78cffef3a3e7b1ce7cdf79708c50c23e21bf"
+            },
+            "raw_log": {
+              "path": "/tmp/ab-root003-native74da-ci-3hfzp8eb/Native74da/intel-product.log",
+              "sha256": "3fbcb80330b2a526dc5b2d9a385509107077ab1c3c1e6d146f6e8300461210e1"
+            },
+            "failed_target_passed": 34,
+            "failed_target_failed": 2,
+            "first_actual_failure": {
+              "test": "child_goal_runtime::actual_factory_child_goal_one_second_deadline_retains_unknown_without_replay_or_refund",
+              "file": "crates/core/tests/fixtures/factory_child_goal_runtime.rs",
+              "line": 385,
+              "kind": "initial_owned_candidate_or_private_owner_phase_not_reached",
+              "parent_Factory_state": "outcome_unknown",
+              "parent_Factory_revision": 6,
+              "task_states": [
+                "waiting_child",
+                "outcome_unknown"
+              ],
+              "last_error_code": null
+            },
+            "other_final_failure_tests": [
+              "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume"
+            ],
+            "Core_library": "261passed/0failed/0filtered; old replaced-workspace test present"
+          },
+          {
+            "architecture": "arm",
+            "job": 124687989482,
+            "job_name": "Product / macos-15",
+            "job_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/41252249298/job/124687989482",
+            "job_json": {
+              "path": "/tmp/ab-root003-native74da-ci-3hfzp8eb/Native74da/job-124687989482.json",
+              "sha256": "aa5e32e18ecdbb756fff23827657dc9fd798dd99a02609708a34ddfa5fe3dce6"
+            },
+            "raw_log": {
+              "path": "/tmp/ab-root003-native74da-ci-3hfzp8eb/Native74da/arm-product.log",
+              "sha256": "ef7acae155a2940b91e79dad6e985c6138cf461a98590f7ddbcdef3330588343"
+            },
+            "failed_target_passed": 18,
+            "failed_target_failed": 12,
+            "first_actual_failure": {
+              "test": "integration_runtime::accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_source",
+              "file": "crates/core/tests/fixtures/integration_runtime.rs",
+              "line": 138,
+              "kind": "integration_observation_deadline_expired",
+              "state": "validating",
+              "code": null
+            },
+            "other_final_failure_tests": [
+              "integration_runtime::block_policy_with_three_round_limit_refuses_real_descendant_advance",
+              "integration_runtime::cancelling_actual_owned_merged_validator_reaps_without_cas_or_refunding_attempts",
+              "integration_runtime::fresh_merged_correctness_failure_never_admits_cas_and_retains_charged_receipts",
+              "integration_runtime::native_policy_before_task_acceptance_automatically_integrates_once_without_explicit_wake",
+              "integration_runtime::non_descendant_rewrite_during_real_validator_never_reprepares_or_refunds",
+              "integration_runtime::owner_cancel_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+              "integration_runtime::owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+              "integration_runtime::third_real_descendant_advance_exhausts_rounds_without_fourth_preparation_or_cas",
+              "integration_runtime::three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descendant_advances",
+              "integration_runtime::unexpected_exit_with_real_descendant_advance_never_reprepares_or_refunds",
+              "integration_runtime::unicode_accepted_artifact_fresh_command_and_exact_cas_preserve_raw_utf8_path"
+            ],
+            "Core_library": "261passed/0failed/0filtered; old replaced-workspace test present"
+          }
+        ],
+        "intel_rework_finite": {
+          "status": "blocked",
+          "child_graph_plan_revision": 2,
+          "observed_child_graph_run_revision": 12,
+          "task_accepted": false,
+          "capture": {
+            "actual_runtime_ms": 4337,
+            "declared_runtime_ms": 4000,
+            "producer_elapsed_ms": 4014,
+            "capture_worker_joined": false,
+            "io_completion": "not_started",
+            "queue_segments": null,
+            "producer_stop_reason": "duration_limit"
+          },
+          "child_budget": {
+            "settled_actual_runtime_ms": 16249,
+            "settled_count": 4,
+            "settled_runtime_unknown": false,
+            "unsettled_count": 0,
+            "unsettled_reserved_runtime_ms": 0
+          },
+          "root_project_budget": {
+            "root": {
+              "actual_runtime_ms": 19330,
+              "observed_attempts": 6,
+              "runtime_unknown": false
+            },
+            "project": {
+              "actual_runtime_ms": 19330,
+              "observed_attempts": 6,
+              "runtime_unknown": false
+            }
+          },
+          "daemon_result": "ok",
+          "actor_thread_joined": true,
+          "distinction": "Actual new4337/4s overrun with producer4014 and no captureworker start. Do not infer the323ms difference as measured queue; do not substitute olde5094088 or Parent20k admission evidence. Separate from the earlier one-second-deadline failure."
+        },
+        "arm_rework_finite": {
+          "state": "accepted",
+          "task_accepted": true,
+          "settled_child_ms": 10835,
+          "settled_count": 5,
+          "daemon_result": "ok",
+          "actor_thread_joined": true,
+          "limit": "Passing Factory fixture cleanup and fees do not describe failing integration fixtures."
+        },
+        "original_aggregate": {
+          "path": "/tmp/root003-native74da-ci-diagnostic/RESULTS.json",
+          "sha256": "4e14e9859b2bf996b7a193c9f11307ac2cd95632fca66f1fe58796065fba2151",
+          "erratum": "Original aggregate swaps only job IDs between its architecture entries. Original retained unchanged. Correct IDs are verified directly from official job JSON and corresponding raw toolchain architecture logs here; raw evidence takes precedence.",
+          "other_source_not_transferred": "Root003_UI portion belongs to another commit/run and is not this74da UI failure."
+        },
+        "limits": "4337-4014 is not measured queue; queue_segments null/worker not started. Both original4s/1s boundaries remain. No unique Mac performance rootcause proved and no old846 NotFound causal fix inferred.",
+        "corrected_aggregate": {
+          "path": "/tmp/root003-native74da-ci-diagnostic/RESULTS2.json",
+          "sha256": "99c1c16ffad086902365a61db53c701100e94c44337cfb0c93feb3264b4b6d1c",
+          "role": "Read-only official evidence diagnosis; corrected job IDs, original aggregate retained unchanged",
+          "scope": "Only Native74da_Mac applies here; Root003_UI is a different source/run"
+        }
+      },
+      "limits": "Old exact74da terminal failure and correctly bound raw evidence retained. Environment/currentd122 CI status is not inferred. NewMac harness did not exist at74da; later acceptance/packaging not established."
+    },
+    "counts_not_additive": "d122 infrastructure730, Linux Native136, quiet38checks24PNG are distinct dimensions. Priorc66 precommit730 and priorbb5 counts stay separate and are not added or reattributed.",
+    "remaining_not_run": [
+      "new6 macOS feature-only Rust binding tests (25 background filtered cases including original19) and Mac feature type compilation",
+      "true Mac native background command WebView/Cancel/OK/private-FS groups01/02/03/05/06/07",
+      "defaultdebug/defaultrelease actual executable contamination audit for the new fixture markers",
+      "exact newcandidate Environment/Product checks and both Mac builds/installers",
+      "installed realdefault Layout positive/actual login activation/revocation/single-writer reconcile without openingUI",
+      "active managed task survival after UIexit/menu/stop-all/full-exit/sleep/crash recovery/manual acceptance",
+      "realProvider credentials/calls/signing/production additional authority"
+    ],
+    "requirements": "Full130 unchanged; existing ABSES008 evidence path and ABSES010 evidence path point to this extended document. No requirement status/verification/coverage/non-evidence field changes.",
+    "limits": "Source readiness and Linux realCore quiet canvas do not prove Native background IPC/macOS/login behavior. No currentMac failure cause guessed; no remote green or installer completion. CloudTask URL remains unavailable."
+  }
 }

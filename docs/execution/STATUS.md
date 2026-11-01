@@ -1,3 +1,9 @@
+## Native registration IPC harness source; local checks — 2026-11-01
+
+Reviewed source d122f7a composes the debug-only Native registration fixture and the exact settings-summary focus correction. Exact Linux results: normal Core17/CLI build/freeze, React build, Native136/strictClippy, infrastructure730, static checks and actual quiet canvas38checks24PNG pass. Browser evidence has no cleanup field and does not prove the new Native commands. [Source-bound follow-up and retained failures](background-login-registration/EVIDENCE.json).
+
+PR24 old74da Product41252249298 is failed: Rust passed; UI strict settings-summary locator matched2; Intel job124687989525 Factory34/2 (1s phase and separate4s capture overrun), ARM job124687989482 integration18/12 (validating expiry), with Core261/0 on both. Exact raw bindings and the original aggregate job-ID erratum are retained; no shared cause or measured queue is inferred. New6 Mac fixture tests/real Native sheets/default release isolation, actual login, UI-exit task survival/stop-all/sleep/full D13 and dual installers remain NOT_RUN. Full130 requirement fields/permissions remain unchanged. This checkpoint awaits independent metadata review and exact-candidate CI; no remote or product completion claim.
+
 ## Explicit next-login background registration: local composed slice — 2026-10-31
 
 Sourcebb5c7f9 composes Native3db + UI214 + Rooteba; independent whole-tree review93 checks is SOURCE_READY with2467 other blobs unchanged. Exactbb5 infrastructure715, mockUI1175/66, type/frontend build, Linux Native136/strictClippy, normal Core17/CLI build/freeze and actual Linux integration browser normal5/failing4 with12 original PNGs pass. Both browser cases exited/joined cleanly without forced kill. [Source-bound results and retained failures](background-login-registration/EVIDENCE.json).

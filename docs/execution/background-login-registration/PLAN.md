@@ -1,3 +1,11 @@
+## Real Native IPC acceptance follow-up — 2026-11-01
+
+At source d122f7a, preserve the complete130-requirement goal while testing the existing registration slice through the actual three production commands. The debug-only native-smoke fixture supplies fixed Rust-owned private paths, never HOME/renderer-selected paths or a fallback to the real account Library. Six required groups cover fresh status, enable cancel/confirm, disable cancel/confirm, preconfirm runtime replacement and unknown registration content. Real Native confirmation, original filesystem/CAS guards and strict nine-field receipts remain authoritative.
+
+Use the one added dual-Mac step before the existing Core group to obtain this independent dimension even if later Core tests fail; retain every old step, permission and60-minute job limit. Matching normal17 tools/real sidecars are built explicitly. Parent must run the6 new Mac Rust tests, feature build, actual own-process sheets and default executable isolation checks. Login activation and full D13 task lifecycle still require separate evidence; a generated-tree IPC pass cannot satisfy them. Current local Linux results and the unchanged old74da remote failure are separated in EVIDENCE.json under real_native_ipc_followup.
+
+Previous plan retained verbatim:
+
 # Explicit next-login background registration
 
 Design v0.2 / AB-START-001 / WP10 / AB-SES-010, supporting AB-SES-008 and D13. This dependency-ready slice adds product background settings, not project-management machinery. The complete130-requirement target remains unchanged.
