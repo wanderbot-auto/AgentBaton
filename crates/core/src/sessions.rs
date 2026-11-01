@@ -1527,7 +1527,11 @@ impl Supervisor {
         let progress = &mut retained.progress;
         if !progress.terminal {
             if let Some(proof) = &receipt.completed_turn {
-                proof.persist(store, id)?;
+                if receipt.reason == "event_backpressure" {
+                    proof.persist_failed_backpressure(store, id)?;
+                } else {
+                    proof.persist(store, id)?;
+                }
             }
             progress.terminal = true;
         }
@@ -2098,13 +2102,20 @@ fn run_worker_inner(
         } else {
             std::thread::sleep(Duration::from_millis(5));
         }
+        // Capture the correlated original turn before any lossy log forwarding.
+        // Backpressure remains a failure; it cannot erase this historical fact.
+        if turn_completed == Some(agentbaton_providers::TurnState::Completed) {
+            if let Some(ticket) = stop_ticket.take() {
+                completed_turn = Some(ticket.completed());
+            }
+        }
         let updates = process.take_updates();
         for update in updates {
             if !notify(Outcome::Update(id.clone(), json!(update))) {
                 process.terminate();
                 notify(Outcome::Failure(id.clone(), "event_backpressure".into()));
                 return WorkerReceipt {
-                    completed_turn: None,
+                    completed_turn,
                     capture: None,
                     reason: "event_backpressure".into(),
                     process_reaped: process.diagnostics().process_reaped,
@@ -2127,13 +2138,10 @@ fn run_worker_inner(
             }
         }
         if let Some(state) = turn_completed {
-            if state == agentbaton_providers::TurnState::Completed {
-                if let Some(ticket) = stop_ticket.take() {
-                    completed_turn = Some(ticket.completed());
-                    // Exactly the process this worker already owns. The receipt
-                    // carries the terminal proof even if the Actor is busy.
-                    break "cancelled";
-                }
+            if completed_turn.is_some() {
+                // Exactly the process this worker already owns. The receipt
+                // carries the terminal proof even if the Actor is busy.
+                break "cancelled";
             }
             let state = serde_json::to_value(state)
                 .ok()

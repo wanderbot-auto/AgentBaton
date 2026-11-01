@@ -20,6 +20,10 @@ for line in sys.stdin:
   with open('reports/prompt-count','a')as f:f.write('one\n')
   if MODE=='hold': continue
   with open('reports/report.txt','w')as f:f.write('real-owned-one-turn\n')
+  if MODE=='update-complete':
+   update={'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'actual-generated-goal','update':{'sessionUpdate':'agent_message_chunk','content':{'type':'text','text':'real update before end_turn'}}}}
+   done={'jsonrpc':'2.0','id':r['id'],'result':{'stopReason':'end_turn'}}
+   os.write(1,(json.dumps(update)+'\n'+json.dumps(done)+'\n').encode());continue
   result={'stopReason':'end_turn'}
  else: continue
  if m=='session/prompt' and MODE=='wrong-response': r['id']+=100
@@ -29,7 +33,6 @@ for line in sys.stdin:
 struct Fixture {
     store: Store,
     _directory: tempfile::TempDir,
-    scope: GoalScopeView,
     run: GoalRun,
 }
 fn git(root: &Path, args: &[&str]) -> String {
@@ -287,7 +290,6 @@ fn fixture_with_outputs(capacity: u32, two_outputs: bool, mode: &str) -> Fixture
     Fixture {
         store,
         _directory: dir,
-        scope,
         run,
     }
 }
@@ -851,4 +853,191 @@ fn actual_failed_terminal_commit_retains_joined_proof_before_any_stop_journal() 
     assert_eq!(event_count(&f.store, "session.turn_ended"), 1);
     assert_eq!(event_count(&f.store, "session.stopped"), 1);
     assert!(!supervisor.has_workers());
+}
+
+#[test]
+fn actual_update_and_completed_with_full64_keeps_history_but_preserves_backpressure_failure() {
+    for failure_already_committed in [false, true] {
+        let mut f = fixture_with_outputs(2, false, "update-complete");
+        let session = reserve(&mut f);
+        let runtime = f._directory.path().canonicalize().unwrap().join("runtime");
+        let mut supervisor = Supervisor::new(&runtime);
+        supervisor.launch(&mut f.store, &session.id).unwrap();
+        let until = Instant::now() + Duration::from_secs(4);
+        while f.store.get_session(&session.id).unwrap().state != "ready" {
+            supervisor.tick(&mut f.store).unwrap();
+            assert!(Instant::now() < until);
+            std::thread::yield_now();
+        }
+        for _ in 0..64 {
+            assert!(supervisor
+                .sender
+                .try_send(Outcome::Update(
+                    session.id.clone(),
+                    json!({"generated":"actual full queue before real update and end_turn"})
+                ))
+                .is_ok());
+        }
+        queue_original_prompt(&mut f, &mut supervisor, &session);
+        while !supervisor.workers[&session.id].thread.is_finished() {
+            assert!(Instant::now() < until);
+            std::thread::yield_now();
+        }
+        let worker = supervisor.workers.remove(&session.id).unwrap();
+        let receipt = worker.thread.join().unwrap();
+        assert_eq!(receipt.reason, "event_backpressure");
+        assert!(receipt.process_reaped && !receipt.never_started);
+        assert!(receipt.elapsed_ms > 0 && receipt.elapsed_ms < 4000);
+        assert!(
+            receipt.completed_turn.is_some(),
+            "a real correlated result survives the failed update forwarding"
+        );
+        if failure_already_committed {
+            // All original queued updates are processed before the exact real
+            // failure callback. This is the other legal Actor/worker schedule.
+            supervisor.tick(&mut f.store).unwrap();
+            f.store
+                .session_failure(&session.id, "event_backpressure")
+                .unwrap();
+            let (seq, raw): (i64, String) = f
+                .store
+                .conn
+                .query_row(
+                    "SELECT sequence,document FROM events ORDER BY sequence DESC LIMIT 1",
+                    [],
+                    |r| Ok((r.get(0)?, r.get(1)?)),
+                )
+                .unwrap();
+            f.store.conn.execute("UPDATE events SET document=json_set(document,'$.source','forged-source') WHERE sequence=?1",[seq]).unwrap();
+            assert!(
+                receipt
+                    .completed_turn
+                    .as_ref()
+                    .unwrap()
+                    .persist_failed_backpressure(&mut f.store, &session.id)
+                    .is_err(),
+                "last_error alone is not durable same-turn failure provenance"
+            );
+            f.store
+                .conn
+                .execute(
+                    "UPDATE events SET document=?1 WHERE sequence=?2",
+                    params![raw, seq],
+                )
+                .unwrap();
+        }
+        let proof = receipt.completed_turn.as_ref().unwrap();
+        proof
+            .persist_failed_backpressure(&mut f.store, &session.id)
+            .unwrap();
+        proof
+            .persist_failed_backpressure(&mut f.store, &session.id)
+            .unwrap();
+        assert_eq!(
+            event_count(&f.store, "session.turn_ended"),
+            1,
+            "same exact historical turn is immutable"
+        );
+        assert_eq!(
+            event_count(&f.store, "session.outcome_unknown"),
+            1,
+            "backpressure failure is recorded even when its queue notification was refused"
+        );
+        let (sequence,historical):(i64,String)=f.store.conn.query_row("SELECT sequence,document FROM events WHERE json_extract(document,'$.kind')='session.turn_ended' AND json_extract(document,'$.aggregate_id')=?1",[&session.id],|r|Ok((r.get(0)?,r.get(1)?))).unwrap();
+        let history: Event = decode(&historical).unwrap();
+        assert_eq!(history.payload["turn_state"], "completed");
+        assert_eq!(history.payload["post_turn_failure"], "event_backpressure");
+        assert!(history.payload["owned_turn_id"].is_string());
+        assert_eq!(
+            history.payload["owned_turn_proof_sha256"]
+                .as_str()
+                .unwrap()
+                .len(),
+            64
+        );
+        f.store.conn.execute("INSERT INTO session_turns VALUES('already-ended-future-turn',?1,'ended','{}','future-ended-key','{}')",[&session.id]).unwrap();
+        assert!(
+            proof
+                .persist_failed_backpressure(&mut f.store, &session.id)
+                .is_err(),
+            "future ended turn cannot be overwritten either"
+        );
+        f.store
+            .conn
+            .execute(
+                "DELETE FROM session_turns WHERE id='already-ended-future-turn'",
+                [],
+            )
+            .unwrap();
+        f.store.conn.execute("UPDATE events SET document=json_set(document,'$.payload.owned_turn_proof_sha256','forged') WHERE sequence=?1",[sequence]).unwrap();
+        assert!(
+            proof
+                .persist_failed_backpressure(&mut f.store, &session.id)
+                .is_err(),
+            "ended state does not substitute for exact terminal evidence"
+        );
+        f.store
+            .conn
+            .execute(
+                "UPDATE events SET document=?1 WHERE sequence=?2",
+                params![historical, sequence],
+            )
+            .unwrap();
+        f.store
+            .conn
+            .execute("DELETE FROM events WHERE sequence=?1", [sequence])
+            .unwrap();
+        assert!(
+            proof
+                .persist_failed_backpressure(&mut f.store, &session.id)
+                .is_err(),
+            "missing historical event refuses replay"
+        );
+        f.store
+            .conn
+            .execute(
+                "INSERT INTO events(sequence,document) VALUES(?1,?2)",
+                params![sequence, historical],
+            )
+            .unwrap();
+        let mut current = f.store.get_session(&session.id).unwrap();
+        current.last_error = Some("another-unknown-cause".into());
+        f.store
+            .conn
+            .execute(
+                "UPDATE sessions SET document=?1 WHERE id=?2",
+                params![encode(&current).unwrap(), session.id],
+            )
+            .unwrap();
+        assert!(
+            proof
+                .persist_failed_backpressure(&mut f.store, &session.id)
+                .is_err(),
+            "other unknown causes are not backpressure proof"
+        );
+        current.last_error = Some("event_backpressure".into());
+        f.store
+            .conn
+            .execute(
+                "UPDATE sessions SET document=?1 WHERE id=?2",
+                params![encode(&current).unwrap(), session.id],
+            )
+            .unwrap();
+        supervisor
+            .retained_receipts
+            .insert(session.id.clone(), RetainedReceipt::new(receipt));
+        supervisor.flush_retained_receipts(&mut f.store).unwrap();
+        supervisor.tick(&mut f.store).unwrap();
+        let stopped = f.store.get_session(&session.id).unwrap();
+        assert_eq!(stopped.state, "stopped");
+        assert_eq!(stopped.last_error.as_deref(), Some("event_backpressure"));
+        assert_eq!(stopped.turn_state.as_deref(), Some("outcome_unknown"));
+        let details = f.store.goal_run_details(&f.run.id).unwrap();
+        assert_ne!(details["nodes"][0]["state"], "candidate");
+        assert_eq!(details["run"]["state"], "outcome_unknown");
+        assert_eq!(details["run"]["task_accepted"], false);
+        assert_eq!(event_count(&f.store, "session.turn_ended"), 1);
+        assert_eq!(event_count(&f.store, "session.stopped"), 1);
+        assert!(!supervisor.has_workers());
+    }
 }

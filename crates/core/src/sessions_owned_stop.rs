@@ -89,6 +89,61 @@ struct TurnPayload {
     expected_revision: u64,
 }
 
+// Read at most two rows: Goal Work has exactly one original turn. A later
+// ended turn is just as invalid for replay as a pending future turn.
+fn only_original_turn(db: &Connection, id: &str) -> Result<bool> {
+    let count: u32 = db
+        .query_row(
+            "SELECT count(*) FROM (SELECT 1 FROM session_turns WHERE session_id=?1 LIMIT 2)",
+            [id],
+            |r| r.get(0),
+        )
+        .map_err(db_error)?;
+    Ok(count == 1)
+}
+fn original_backpressure_event(db: &Connection, session: &ManagedSession) -> Result<bool> {
+    let mut q=db.prepare("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.revision')=?2 AND json_extract(document,'$.kind')='session.outcome_unknown' LIMIT 2").map_err(db_error)?;
+    let rows = q
+        .query_map(params![session.id, session.revision], |r| {
+            r.get::<_, Option<String>>(0)
+        })
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    let [Some(raw)] = rows.as_slice() else {
+        return Ok(false);
+    };
+    let event: Event = decode(raw)?;
+    Ok(event.aggregate_id == session.id
+        && event.revision == session.revision
+        && event.kind == "session.outcome_unknown"
+        && event.source == "baton_supervisor"
+        && event.payload == json!({"reason":"event_backpressure","automatic_replay":false}))
+}
+fn original_terminal_event(
+    db: &Connection,
+    session: &ManagedSession,
+    turn: &str,
+    expected: &Value,
+) -> Result<bool> {
+    let mut q=db.prepare("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.turn_ended' AND json_extract(document,'$.payload.owned_turn_id')=?2 LIMIT 2").map_err(db_error)?;
+    let rows = q
+        .query_map(params![session.id, turn], |r| r.get::<_, Option<String>>(0))
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    let [Some(raw)] = rows.as_slice() else {
+        return Ok(false);
+    };
+    let event: Event = decode(raw)?;
+    Ok(event.aggregate_id == session.id
+        && event.revision > 0
+        && event.revision <= session.revision
+        && event.kind == "session.turn_ended"
+        && event.source == "provider_runtime"
+        && event.payload == *expected)
+}
+
 pub(super) fn committed_ticket(
     store: &Store,
     origin: &Arc<LaunchBinding>,
@@ -97,6 +152,7 @@ pub(super) fn committed_ticket(
     let session = store.get_session(&origin.session)?;
     let current = launch_binding(store, &session)?.ok_or_else(changed)?;
     if current.as_ref() != origin.as_ref()
+        || !only_original_turn(&store.conn, &origin.session)?
         || session.state != "running"
         || session.turn_state.as_deref() != Some("running")
     {
@@ -160,9 +216,21 @@ impl CompletedTurnProof {
     pub(super) fn persist(&self, store: &mut Store, id: &str) -> Result<()> {
         self.0.persist_terminal(store, id, "completed")
     }
+    pub(super) fn persist_failed_backpressure(&self, store: &mut Store, id: &str) -> Result<()> {
+        self.0.persist_terminal_inner(store, id, "completed", true)
+    }
 }
 impl TurnTicket {
     pub(super) fn persist_terminal(&self, store: &mut Store, id: &str, state: &str) -> Result<()> {
+        self.persist_terminal_inner(store, id, state, false)
+    }
+    fn persist_terminal_inner(
+        &self,
+        store: &mut Store,
+        id: &str,
+        state: &str,
+        failed_backpressure: bool,
+    ) -> Result<()> {
         if !matches!(
             state,
             "completed" | "cancelled" | "interrupted" | "outcome_unknown"
@@ -179,9 +247,31 @@ impl TurnTicket {
             return Err(changed());
         }
         let current = launch_binding(store, &session)?.ok_or_else(changed)?;
-        if current.as_ref() != t.origin.as_ref() {
+        if current.as_ref() != t.origin.as_ref() || !only_original_turn(&store.conn, id)? {
             return Err(changed());
         }
+        // A reference to immutable observed facts, never a serialized ticket or
+        // a capability that an Agent/renderer can submit as stop authority.
+        let digest = agentbaton_workspaces::validation::sha256(
+            encode(&(
+                &t.origin.session,
+                &t.origin.attempt,
+                &t.origin.intent,
+                &t.origin.run,
+                t.origin.plan,
+                &t.origin.digest,
+                &t.origin.node,
+                &t.native,
+                &t.turn,
+                &t.key,
+                &t.payload,
+                &t.document,
+            ))?
+            .as_bytes(),
+        );
+        let terminal_payload = json!({"turn_state":state,"task_accepted":false,
+            "owned_turn_id":t.turn,"owned_turn_proof_sha256":digest,
+            "post_turn_failure":if failed_backpressure {Some("event_backpressure")}else{None}});
         let tx = store.conn.transaction().map_err(db_error)?;
         let row: (String, String, String, String) = tx.query_row(
             "SELECT state,idempotency_key,payload,document FROM session_turns WHERE id=?1 AND session_id=?2 AND octet_length(payload)<=1048576 AND octet_length(document)<=1048576",
@@ -197,33 +287,79 @@ impl TurnTicket {
                 |r| r.get(0),
             )
             .map_err(db_error)?;
+        let retained_state = if failed_backpressure {
+            "outcome_unknown"
+        } else {
+            state
+        };
+        let same_backpressure = session.last_error.as_deref() == Some("event_backpressure");
         if row.0 == "ended" {
             // Exact already-committed proof only. Never overwrite a later turn.
-            if pending == 0 && session.turn_state.as_deref() == Some(state) {
+            if pending == 0
+                && session.turn_state.as_deref() == Some(retained_state)
+                && (!failed_backpressure || same_backpressure)
+                && original_terminal_event(&tx, &session, &t.turn, &terminal_payload)?
+            {
                 tx.commit().map_err(db_error)?;
                 return Ok(());
             }
             return Err(changed());
         }
-        if row.0 != "pending"
-            || pending != 1
-            || session.turn_state.as_deref() != Some("running")
-            || !matches!(session.state.as_str(), "running" | "cancel_requested")
+        let original_pending = row.0 == "pending"
+            && pending == 1
+            && session.turn_state.as_deref() == Some("running")
+            && matches!(session.state.as_str(), "running" | "cancel_requested");
+        let prior_same_backpressure = failed_backpressure
+            && same_backpressure
+            && row.0 == "outcome_unknown"
+            && pending == 0
+            && session.turn_state.as_deref() == Some("running")
+            && matches!(
+                session.state.as_str(),
+                "outcome_unknown" | "cancel_requested"
+            )
+            && original_backpressure_event(&tx, &session)?;
+        if !original_pending && !prior_same_backpressure {
+            return Err(changed());
+        }
+        if failed_backpressure {
+            // Retain the true completed response as history, while the current
+            // failed workflow remains unknown. Original Goal settlement cannot
+            // turn this log failure into a candidate or acceptance.
+            if session.state != "cancel_requested" {
+                session.state = "outcome_unknown".into();
+            }
+            session.last_error = Some("event_backpressure".into());
+        } else if session.state == "running" {
+            session.state = "ready".into();
+        }
+        session.turn_state = Some(retained_state.into());
+        if tx
+            .execute(
+                "UPDATE session_turns SET state='ended' WHERE id=?1 AND session_id=?2 AND state=?3",
+                params![t.turn, id, row.0],
+            )
+            .map_err(db_error)?
+            != 1
         {
             return Err(changed());
         }
-        if session.state == "running" {
-            session.state = "ready".into();
-        }
-        session.turn_state = Some(state.into());
-        if tx.execute("UPDATE session_turns SET state='ended' WHERE id=?1 AND session_id=?2 AND state='pending'",params![t.turn,id]).map_err(db_error)? != 1 {
-            return Err(changed());
+        if failed_backpressure && !prior_same_backpressure {
+            // The failure notification itself may have been refused by the full
+            // channel. Record the actual receipt failure, never invent a prior event.
+            save_session(
+                &tx,
+                &mut session,
+                "session.outcome_unknown",
+                json!({"reason":"event_backpressure","automatic_replay":false}),
+                "baton_supervisor",
+            )?;
         }
         save_session(
             &tx,
             &mut session,
             "session.turn_ended",
-            json!({"turn_state":state,"task_accepted":false}),
+            terminal_payload,
             "provider_runtime",
         )?;
         tx.commit().map_err(db_error)
