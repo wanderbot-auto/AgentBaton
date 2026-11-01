@@ -2314,7 +2314,8 @@
         "docs/execution/fresh-bound-config/COMPOSED_CAPTURE_RESULTS.json",
         "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json",
         "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
-        "docs/execution/integration-preparation-phase-observation/EVIDENCE.json"
+        "docs/execution/integration-preparation-phase-observation/EVIDENCE.json",
+        "docs/execution/goal-owned-turn-stop/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -2965,7 +2966,8 @@
         "docs/execution/factory-rework-read-busy/ROOT_RESULTS.json",
         "docs/execution/goal-admission-observation-handoff/ROOT_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
-        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json"
+        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
+        "docs/execution/goal-owned-turn-stop/EVIDENCE.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -3301,7 +3303,8 @@
         "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json",
         "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
         "docs/execution/integration-preparation-phase-observation/EVIDENCE.json",
-        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json",
+        "docs/execution/goal-owned-turn-stop/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -5263,7 +5266,8 @@
       "evidence": [
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/goal-owned-turn-stop/EVIDENCE.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -6515,7 +6519,8 @@
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/goal-owned-turn-stop/EVIDENCE.json"
       ],
       "limitations": [
         "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
@@ -7232,7 +7237,8 @@
         "docs/execution/child-goal-readonly-poll-recovery/clock-adaptation/REGISTRATION_AND_CI_A7_RESULTS.json",
         "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
         "docs/execution/integration-preparation-phase-observation/EVIDENCE.json",
-        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json"
+        "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json",
+        "docs/execution/goal-owned-turn-stop/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",

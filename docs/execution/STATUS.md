@@ -1127,3 +1127,11 @@ PR12真实优化sourcecb82（本地cherry5cea，docs47ab）已独审227unique+4c
 ## 2026-11-01 · readonly workspace failure evidence
 
 原 PR24 f744 ARM Core 260通过、1失败，workspace_resolution_tests.rs152 在枚举后元数据读取返回 ENOENT；缺失文件与阶段未知，不能沿用旧 Task-binding 用例根因。隔离源码 d68469d9 只添加失败时生成夹具保留及固定阶段/路径类别诊断，保留完整 .git、所有字节快照与 dirty/key/head/DB 断言。首轮编译漏了两个既有 foreign 调用参数而失败，已保留日志并恢复原调用包装；精确新源码原10项测试通过（3.73秒），独审就绪。此诊断尚未经新 Mac/CI 验证，不计需求完成；原130范围和所有权限边界不变。详见 `workspace-snapshot-failure-diagnostic/EVIDENCE.json`。
+
+## Goal Work 单次完成后的原进程停止 · 源码8367
+
+本地分支 `codex/goal-owned-turn-stop` 源码 `8367a663017c1e2c6b9c00b172cc7272fc050ab4` 已绑定原Actor提交的turn ID/key与原session/attempt/intent/run/plan/node/native，仅真实相关completed后停止原owned process；普通/shared/Factory/MCP及非Work节点不启用。64日志队列不再承担terminal proof；joined未结算receipt保留并按原流水checkpoint，原时钟、4秒及Grant/输入/选择/CAS/费用/验收不变。满队列仍为backpressure失败，准确历史completed与当前unknown分开，不能升candidate/acceptance。
+
+真实8367：新增13PASS24.24s、原Goal hint12PASS14.37s、原sessions2PASS0.07s，共同源27个互不重名测试；wrapper分别48.142/40.320/23.883s，源和冻结工具均未变。独立源码57检查SOURCE_READY。旧hint用合法Summary保持完整原fresh policy、deadline/腐败/授权拒绝断言。45ca12PASS、独审发现其update+endturn/full64漏洞、396首编译E0277零测试及8367 checked i64/overflow修复均独立保留，不挪用旧绿。
+
+证据 `docs/execution/goal-owned-turn-stop/EVIDENCE.json`。仅Linux本地generatedACP/原进程/SQLite维度；未声称原Root003 Intel4344/4000失败已在Mac修复。完整Core/Factory/infra/strictClippy/真实IPC/新准确CI/双Mac/安装包仍待验证；生命周期Supervisor hooks/Core18/Native完整退出属后续独立工作，不在本次27PASS或源码审查中。未push/新PR/新CI/合入/发布；全部130需求状态维度原样、总体未完，权限和费用边界不变。
