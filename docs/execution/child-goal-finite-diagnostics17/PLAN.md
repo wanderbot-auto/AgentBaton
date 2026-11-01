@@ -7,3 +7,10 @@ Parent diagnostic implementation, hooks, fixed vocabularies and caps remain byte
 Root's existing pure candidate fixture is already integer17 and rejects15/16/18. The new test imports that fixture; its only schema adaptation explicitly asserts17 and those three refusals. Existing thirteen projection tests and all version negatives stay byte-identical. Verify exact inverse of all Parent diagnostic hunks restores both full Root files, not just selected tokens. Run original13/new13and driver self-check only; no real Actor/Core/browser/Node/Cargo/CI/network.
 
 Attribution boundary: Parent415 source/frozen15 tools/frontend and Parentf822+ad400f0 normal4checks34.938s/projector pass are separate prior evidence, not this17composition. Do not import ad400f0selectors or convert old schema15 passes to17passes. Parent EVIDENCE remains sealed unchanged. Root arranges independent review and later actual schema17/runtime verification.
+
+
+## 2026-11-01 — bounded capture failure observation (bd7)
+
+Extend this existing schema17 diagnostic unit with source bd7fa954e545d8aa7d5a8037b15ab951bbf4ce53 (base e2cfe090dd3268bff541008860ebd098d159b348). Only an actual first capture exception may add fixed started_records/graph_records, bounded errno and exact factory_base/child_goal_driver source/line. Successful reports remain v4. Preserve original raise, both collector calls, source inverse pins/negative vectors, cleanup, identity, budget, windows and permission rules.
+
+The source now has independent SOURCE_READY review; main has run full infrastructure and one real Linux cancel flow using exact-source frozen normal binaries and built frontend. Next integration must preserve the old Root003 failures and request fresh exact-candidate CI separately. The previous failure errno/root cause remains unknown; no deadline increase, retry or Mac/product completion follows from this observation-only work.

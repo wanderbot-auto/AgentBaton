@@ -1115,3 +1115,10 @@ Goal计划算法source9acf86c/docs3d369已独立48tests+4原语义控制/Clippy/
 PR12真实优化sourcecb82（本地cherry5cea，docs47ab）已独审227unique+4compilefail/Clippy/fmt/5Git每phase及额外恶意Git配置控制通过；作者完整377+4另记。生产仅同次inspect批量只读查询，reservation/launch两次独立完整guard与原1000/1/2/3秒不变。Mac同次cargo仅加--show-output显示实际阶段，不额外重复/预热/skip。新候选正常push后仍须新准确7检查、双native与实际双包核验，未将Linux当Mac或完整产品完成。
 
 实测e373双Mac作业成功且原command14/native11/harness6/WebView/defaultreleaseaudit独审通过，actualba437，原1000ms下admission ARM531ms/Intel406ms，真实优化有效；整体仍因Linuxdefault跨fixture压力13/14失败（剩余760ms/RPC946ms）不能合入。只增加Linuxworkspace-step RUST_TEST_THREADS1、全部测试/内部并发/原预算/25min/Environment不变，静态已独审；新head还须全部7/双native/双包，Linux跨fixture并行压力保留failed限制不称满足。Goal结构编辑175独审259和fresh真实10通过，Meta589兼容修34+旧probe独审关闭，尚待组合新GoalCI；Dataa10库111+7独审通过，Core/IPC/UI下一步仍未接。
+
+
+## 2026-11-01 — Child Goal capture failure observation, source bd7 (Linux scope)
+
+在既有 child-goal-finite-diagnostics17 单元追加 bd7fa954e545d8aa7d5a8037b15ab951bbf4ce53：仅失败时增加封闭 capture 阶段、errno、两个固定 helper 来源/行号，原异常/collector/身份守卫/cleanup/预算/窗口/权限不变，成功仍v4。独审SOURCE_READY（04c2ea79…、236checks、独立177pure），主代理准确bd7实际fullinfra768PASS22.648s，normalbuild/freeze/frontend全部exit0；准确manifest/source/Corecompiled/frontend同bd7，真实Linux Chromium+UnixIPC cancel4checks/3原PNG/cleanup_complete及daemonexit0通过，固定身份和stopped-session核验保留。不编造全局noKill字段；本次只读取、核hash并登记主代理执行，未重跑产品。完整命令/RESULT/INPUTS/hash在本单元EVIDENCE的capture_failure_observation_bd7_2026_11_01追加项。
+
+旧Root003 Product41254032180仍失败：Rust成功，IntelFactory35/1（fbe39de6报告，capture4344/4000ms、producer4027、io未启动），ARMIntegration21/12（d77eb00b，11条13slot、首OUTCOME_UNKNOWN），UIcancel在两check后OSError（更正99c1c16f报告，errno未记录）。bd7成功取消不证明旧根因已解，未放宽预算，未请求新RootCI。Linux不代替Mac；bd7实际normal/lost-start、v5故障运行、双Mac/Native/开发包及真实Provider未验证；130需求整字节和完整Designv0.2范围保持，SOURCE_READY不等完整交付。本次无新合入/发布/费用/账号/凭据/正式Approve权限。
