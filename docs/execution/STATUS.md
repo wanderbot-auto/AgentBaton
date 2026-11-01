@@ -1141,3 +1141,14 @@ PR12真实优化sourcecb82（本地cherry5cea，docs47ab）已独审227unique+4c
 真实8367：新增13PASS24.24s、原Goal hint12PASS14.37s、原sessions2PASS0.07s，共同源27个互不重名测试；wrapper分别48.142/40.320/23.883s，源和冻结工具均未变。独立源码57检查SOURCE_READY。旧hint用合法Summary保持完整原fresh policy、deadline/腐败/授权拒绝断言。45ca12PASS、独审发现其update+endturn/full64漏洞、396首编译E0277零测试及8367 checked i64/overflow修复均独立保留，不挪用旧绿。
 
 证据 `docs/execution/goal-owned-turn-stop/EVIDENCE.json`。仅Linux本地generatedACP/原进程/SQLite维度；未声称原Root003 Intel4344/4000失败已在Mac修复。完整Core/Factory/infra/strictClippy/真实IPC/新准确CI/双Mac/安装包仍待验证；生命周期Supervisor hooks/Core18/Native完整退出属后续独立工作，不在本次27PASS或源码审查中。未push/新PR/新CI/合入/发布；全部130需求状态维度原样、总体未完，权限和费用边界不变。
+
+
+## 2026-11-01 · Integration 同次 Git 路径观察（源码3b，Linux主树18c）
+
+生产0793仅在每个原recheck内合并三个路径rev-parse为一次fresh bounded observation，独立bound HEAD、原FD/selection/config/no-alternates/全部重检点、原2s/5s/取消/unknown/真实IO计费不变，无缓存/队列折扣/退款；原Path组件语义不等于逐字节路径拼写验证。3b仅修新增测试的私有字段读取，原0793在Rootf0e的12E0616/零测试首失败保留。
+
+主树18c0365e248ea294a0eff5792f57812a0937ab2e实际Workspaces45PASS（新增10+原35均已包含，不能叠加），35.67s/wrapper38.399629203s；Linux实际Integration IPC33PASS，101.84s/wrapper125.602976819s。source/tracked/frozen tools均未变；3b与18c全树仅差先前child-plan单元4metadata+STATUS+manifest，所有运行源码一致。独审SOURCE_READY绑定准确3b源码与Root45证据；本次metadata待独审，不能称新head CI通过。完整命令/INPUTS/RESULT/log SHA见 `integration-git-path-observation/EVIDENCE.json`。
+
+尚无新双Mac耗时收益、原预算达标或新CI/桌面/安装包证据；旧db281 ARM Integration21/12失败原样保留，不挪用Linux结果或合并不同根因。第二config batching未实现；130需求记录整字节不变、完整Designv0.2/27决定继续，整体未完。未新增生产、费用/主机、私人Provider/账号凭据、签名、许可证或正式PR Approve授权。
+
+同一Root18c严格Clippy（Workspaces+Core/all-targets/-D warnings）exit0/18.667750135s，完整infra793PASS（测试19.105s/wrapper19.455937190s，已含6纯guard）。负向fixture的failed_or_interrupted打印不改外层793 OK；这些Linux结果不新增Mac/新CI或产品完成声明。
