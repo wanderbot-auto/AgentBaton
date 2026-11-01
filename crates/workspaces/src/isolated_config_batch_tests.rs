@@ -398,7 +398,7 @@ fn failed_or_signalled_list_is_not_a_no_match_and_output_bound_stays_fixed() {
 }
 
 #[test]
-fn actual_git_lf_and_non_utf8_subsections_preserve_original_query_classification() {
+fn actual_git_unusual_subsections_preserve_refusal_and_record_old_regex_difference() {
     let repository = Repository::new();
     for (label, config, expected_name) in [
         (
@@ -443,7 +443,15 @@ fn actual_git_lf_and_non_utf8_subsections_preserve_original_query_classification
             .split(|byte| *byte == 0)
             .any(|key| key == expected_name);
         eprintln!("ISOLATED_CONFIG_SUBSECTION case={label} list_exit={:?} list_success={} parser_class={parse_class} original_class={original_class} current_class={current_class} actual_name_observed={actual_name_observed}", names.status.code(), names.status.success());
-        assert_eq!(current_class, original_class, "actual Git case {label}");
+        // A non-UTF8 subsection can be emitted by Git but missed by the old
+        // locale-sensitive regexp. That historical encoding hole must not
+        // weaken the original policy against any promisor declaration. Keep
+        // measuring the old result; never manufacture an old refusal.
+        if label == "non_utf8" && names.status.success() {
+            assert!(matches!(original_class, "safe" | "unsafe"));
+        } else {
+            assert_eq!(current_class, original_class, "actual Git case {label}");
+        }
         assert_eq!(current_class, parse_class, "same actual names {label}");
         if names.status.success() {
             assert!(
