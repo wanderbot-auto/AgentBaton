@@ -1,0 +1,279 @@
+{
+  "document_state": "SOURCE3B_ROOT18C_LINUX_45_33_CLIPPY_793_PARTIAL_VERIFICATION_METADATA_REVIEW_PENDING",
+  "recorded_at": "2026-11-01T02:45:18.326829+00:00",
+  "baseline": "89f83e6bc2968f3d70cb449135f828e4ade2dafe",
+  "production_source": "0793d53eee3127c1b263411fb82a329c7c00a5a2",
+  "test_access_fix_source": "3b2ac87bc5a511ef8fe78fdc64cd0ec8f079afd4",
+  "author_source_tree": "e6b0ff19e2d719e315a80ff0d4d57ebbc436ecf5",
+  "branch": "codex/integration-git-path-observation",
+  "actual_root_source": "18c0365e248ea294a0eff5792f57812a0937ab2e",
+  "actual_root_tree": "08b505c372c9e34da45bdb33ca580a1323bdd067",
+  "source_sha256": {
+    "crates/workspaces/src/source_capture.rs": "7b76540fa3186e2df503f9eabc17cd951fdccf9fc5cc64c9f841cc9d563924ed",
+    "crates/workspaces/src/source_capture_git_path_observation_tests.rs": "18ee67e144e0d7420c7fd59bde173daa47ec21dd7e799d3a5191d0b51d2b61f5",
+    "tests/infrastructure/test_source_capture_git_path_observation.py": "a2ee1ae21e47ffca0d66b35afd60dadb529c3fad408f4ae8559c96409f5ce40c"
+  },
+  "source_binding": {
+    "whole_tracked_diff_3b_to_actual_root": [
+      "BOOTSTRAP_MANIFEST.json",
+      "docs/execution/STATUS.md",
+      "docs/execution/child-plan-local-activation/CHECKPOINT.md",
+      "docs/execution/child-plan-local-activation/EVIDENCE.json",
+      "docs/execution/child-plan-local-activation/PLAN.md",
+      "docs/execution/child-plan-local-activation/PROGRESS.md"
+    ],
+    "difference_scope": "Only the earlier child-plan-local-activation four metadata files, STATUS and its manifest pin differ. All runtime/contract-test/pure-guard source bytes are identical. These facts bind local Linux command evidence; they do not mint a new exact-head CI pass.",
+    "metadata_draft_parent": "3b2ac87bc5a511ef8fe78fdc64cd0ec8f079afd4",
+    "new_metadata_validation": "NOT_RUN as a product source; only data/source integrity checks performed in author task."
+  },
+  "decision": {
+    "one_fresh_observation": "At each original recheck, one controlled rev-parse returns the three complete pinned paths. Each original recheck, descriptor/selection/config/no-alternates check and the independent explicitly bound HEAD query remain.",
+    "no_cache_or_refund": "No observation persists across rechecks/ticks/stages. Original time/deadline/cancel/accounting and actual IO stay enforced. No reservation refunds or queue discount.",
+    "path_semantics": "Original Rust Path component equality is retained. This is not lexical byte-for-byte canonical spelling validation; dot components/repeated separators may compare equal. Canonical lookup plus original entity pins still reject the actual tested symlink alias.",
+    "second_config_batch": "NOT_IMPLEMENTED in this unit.",
+    "performance_limit": "Static normal one-artifact arithmetic predicts12 fewer subprocesses across authorization+capture. No measured Mac latency saving or2s/5s budget pass is claimed."
+  },
+  "actual_checks": [
+    {
+      "directory": "/workspace/.onboarding/integration-git-path-observation-workspaces1",
+      "source": "f0e642674e7f2ab887eb15ac6e418b43c0d756db",
+      "tree": "bffee0cd8e01e9c1574921825ada98753ad2ccb7",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/goal-owned-root-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--lib",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "exit_code": 101,
+      "wrapper_seconds": 1.7043119369773194,
+      "executed_tests": 0,
+      "summaries": [],
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "sha256": {
+        "RESULT.json": "62403f8c39e1440639e5a64b645e3b7f66c808d342dea66c46f9b2c379d4f4d1",
+        "INPUTS.json": "35023e213e156527bd42bea5851e677b908b2c757faf8bffa7525d975f0058e3",
+        "command.log": "9310c430853e2bc52a0765bdea6cad22de30c69c8e664b5e2cb0c219052c5fad"
+      },
+      "classification": "Compile failure12xE0616 in the new test module; no Rust test body ran.",
+      "fixed_by_source": "3b2ac87bc5a511ef8fe78fdc64cd0ec8f079afd4"
+    },
+    {
+      "directory": "/workspace/.onboarding/integration-git-path-observation-workspaces2",
+      "source": "18c0365e248ea294a0eff5792f57812a0937ab2e",
+      "tree": "08b505c372c9e34da45bdb33ca580a1323bdd067",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/goal-owned-root-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--lib",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "exit_code": 0,
+      "wrapper_seconds": 38.399629203020595,
+      "executed_tests": 45,
+      "summaries": [
+        "test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 35.67s"
+      ],
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "sha256": {
+        "RESULT.json": "ca3654e797c08213cd3423fa1d511afd25fc185ac3bc523011b874ca3f0724f4",
+        "INPUTS.json": "b9d4f921d6d6a18630785083a5d334208eee71a89183e1d0effe3331af05e02d",
+        "command.log": "45c0385a2cc31d03f32b382aad3421c2cecddef2da649479391ebbb09ca74338"
+      },
+      "test_seconds": 35.67,
+      "new_contract_tests_inside_total": 10,
+      "original_tests_inside_total": 35,
+      "counting_rule": "45 already includes10 new+35 original; these are not added again.",
+      "dimension": "Linux actual controlled Git/real repositories and existing Workspaces contracts; no Mac timing acceptance."
+    },
+    {
+      "directory": "/workspace/.onboarding/integration-git-path-observation-integration1",
+      "source": "18c0365e248ea294a0eff5792f57812a0937ab2e",
+      "tree": "08b505c372c9e34da45bdb33ca580a1323bdd067",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/goal-owned-root-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "exit_code": 0,
+      "wrapper_seconds": 125.60297681897646,
+      "executed_tests": 33,
+      "summaries": [
+        "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 101.84s"
+      ],
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "sha256": {
+        "RESULT.json": "6fe70a3a3ea11fb7b9cc92d6fcbb54b37e9b82c3ed0a65150582cedef53932ea",
+        "INPUTS.json": "e29f7078f1893ee4c8380c7a303eb0f69c9596a06eb4f1984ee38d45030869e2",
+        "command.log": "c3912ca86b01fedd64cc30caacf456a035a8df2782b6368ac2794599ce6f1f55"
+      },
+      "test_seconds": 101.84,
+      "dimension": "Linux actual Unix IPC/SQLite/controlled generated-process Integration contracts; no real model Provider or macOS native desktop claim."
+    },
+    {
+      "directory": "/workspace/.onboarding/integration-git-path-observation-clippy1",
+      "source": "18c0365e248ea294a0eff5792f57812a0937ab2e",
+      "tree": "08b505c372c9e34da45bdb33ca580a1323bdd067",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/goal-owned-root-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/goal-owned-root-normal-frozen1/baton",
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "wrapper_seconds": 18.667750135005917,
+      "summaries": [],
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "sha256": {
+        "RESULT.json": "58e4c2cb7fd5e80beae8e7ec01f90f7f9c30fc840e154fed364b1011c6139ba8",
+        "INPUTS.json": "2e48ad06559a66ecc40362c75358ce5af1b0977eeb214c8eb0f2628dbefc1ad6",
+        "command.log": "b35aa69d7cf12f134bb8568bdbb68d71263c0705f87efb83a5fc3b74ce9563da"
+      },
+      "dimension": "strict_clippy",
+      "scope": "Workspaces+Core all-targets, locked, -D warnings; exact command preserved, no blanket claim for unrelated packages."
+    },
+    {
+      "directory": "/workspace/.onboarding/integration-git-path-observation-infrastructure1",
+      "source": "18c0365e248ea294a0eff5792f57812a0937ab2e",
+      "tree": "08b505c372c9e34da45bdb33ca580a1323bdd067",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "wrapper_seconds": 19.45593719003955,
+      "summaries": [],
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "sha256": {
+        "RESULT.json": "5b1f4d4be23296991d3a7129dcba48ca81e51978cd719b2954cd94d41c98ea2b",
+        "INPUTS.json": "3443dc269d2652eba4fd266f3bca1732de3bd604c6d651049a1734717ec9249a",
+        "command.log": "0f34da3ed8791d2695f4fcc1d38c4723f770d2fade2280062e71ff7d36cec4cf"
+      },
+      "dimension": "pure_infrastructure",
+      "executed_tests": 793,
+      "test_seconds": 19.105,
+      "actual_unittest_summary": "Ran 793 tests in 19.105s; OK",
+      "negative_fixture_output": "failed_or_interrupted printed by intentional negative fixtures; outer793 unittest result and wrapper exit0 are authoritative for this command.",
+      "counting_rule": "This full793 includes the6 source-inverse controls; do not add them again. No Rust/IPC/Mac evidence is inferred from this pure suite."
+    }
+  ],
+  "independent_review": {
+    "path": "/tmp/integration-git-path-observation-independent-review/REVIEW3B_ACTUAL45_ADDENDUM.json",
+    "sha256": "39ced126d2d7648c03ca7e1f83c007b6e3baddae10bf3a338336117cff8321f3",
+    "verdict": "SOURCE_READY",
+    "scope": "Exact production0793+test-fix3b and independently read Root18c45-test evidence; not complete product acceptance or formal GitHub Approve.",
+    "must_fix": []
+  },
+  "author_source_evidence": {
+    "source_proof": {
+      "path": "/tmp/integration-git-path-observation-evidence/SOURCE_PROOF.json",
+      "sha256": "6f320e2abb2359c789df04f0af739821b7afda6f53cb5f2eb71910a8150f9487"
+    },
+    "test_fix_proof": {
+      "path": "/tmp/integration-git-path-observation-evidence/REVISION2_SOURCE_PROOF.json",
+      "sha256": "ae6bcb6259bc2dbb4bd429e36a95f6113aecadcd097f2806e0ac169c48fe5edc"
+    },
+    "path_equality_erratum": {
+      "path": "/tmp/integration-git-path-observation-evidence/ADR_ERRATUM.md",
+      "sha256": "45a6109abe27433d47263aee56887afd4d4a131d28449fc108ec7430ccd86ccf"
+    },
+    "pure_source_inverse": {
+      "command": "python -m unittest discover -s tests/infrastructure -p test_source_capture_git_path_observation.py -v",
+      "actual_passed": 6,
+      "seconds": 0.003,
+      "dimension": "Pure source/inverse controls; not added to45 Rust count.",
+      "initial_failure_retained": "Initial generated new Python test had unterminated string literal on import;0 test bodies ran. Escaping-only correction preceded6PASS; no Rust source change."
+    },
+    "production_source_inverse": "Exact original whole source and original test bodies recover byte-for-byte; follow-up test access fix also has exact whole-testfile inverse."
+  },
+  "historical_mac_failure_preserved": {
+    "source": "db28129bd5e63a6b99bf8385843e4f3fb6f741eb",
+    "run": 41262058900,
+    "ARM_job": 124717158134,
+    "ARM_log_sha256": "8244295fb88a9fadea0b8f87f3e7a4d818301f98fa5468d906a4a83218636885",
+    "ARM_integration_passed": 21,
+    "ARM_integration_failed": 12,
+    "diagnostic_sha256": "10883b7e66bcecbb1bad577c62cfe101d2f2224e7a4b7c4a4430110fcb11fe6f",
+    "meaning": "First outcome_unknown with historical13-slot trace; several distinct assertions and post-shutdown observations. Linux success is not a reclassification or proof of a common Mac root cause."
+  },
+  "not_run": [
+    "Mac Apple Silicon/Intel exact new candidate performance acceptance",
+    "new exact-head Environment/Product CI",
+    "new installation packages/signatures/native desktop verification",
+    "real Provider/model calls",
+    "full product acceptance"
+  ],
+  "requirements_and_authority": {
+    "progress_file_sha256_unchanged": "bc2d9e331a26e0dbbec2b870dd883c9875e993d4c782e06a9010bc38eace88c3",
+    "requirement_count": 130,
+    "all_requirement_records_unchanged": true,
+    "all_product_completion": false,
+    "approval": "AB-START-001",
+    "owner_inbox_ack": [
+      "OWNER-001",
+      "OWNER-002"
+    ],
+    "scope_unchanged": "Designv0.2 complete130 requirements/27 decisions. No new production, credentials/private Provider, spending/resources, signing, final license or formal PR Approve authorization."
+  }
+}
