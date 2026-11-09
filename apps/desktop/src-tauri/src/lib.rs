@@ -360,6 +360,34 @@ async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, S
 }
 
 #[tauri::command]
+async fn managed_skills_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_skills.list","params":{}}), false).await
+}
+#[tauri::command]
+async fn managed_skill_preview(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_skills.preview","params":request}), false).await
+}
+#[tauri::command]
+async fn managed_skill_find(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_skills.find","params":request}), false).await
+}
+#[tauri::command]
+async fn managed_skill_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_skills.get","params":request}), false).await
+}
+#[tauri::command]
+async fn managed_skill_create(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, selection: Value, idempotency_key: String) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        native_parent::with_caller(window, |parent| {
+            let response = ipc::call(&directory, json!({"method":"managed_skills.propose","params":selection,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
+            approval::confirm_managed_skill_and_finalize(response, &selection, &idempotency_key,
+                |message| parent.confirm("AgentBaton — Managed Skill approval", message),
+                |command| parent.finalize(|| ipc::call(&directory, command).map_err(|error| error.to_string())))
+        })
+    }).await.map_err(|error| error.to_string())?
+}
+#[tauri::command]
 async fn connection_inspect(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
     call(&runtime, json!({"method":"connections.inspect","params":request}), false).await
 }
@@ -2086,6 +2114,11 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         data_workspaces_cancel,
         connections_list,
         connections_register,
+        managed_skills_list,
+        managed_skill_preview,
+        managed_skill_create,
+        managed_skill_find,
+        managed_skill_get,
         connection_inspect,
         connection_probe_get,
         connection_probe_find,

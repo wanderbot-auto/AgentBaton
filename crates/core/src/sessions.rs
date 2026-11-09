@@ -47,9 +47,16 @@ pub(crate) mod planning;
 use owned_stop::{CompletedTurnProof, RetainedReceipt};
 #[path = "connection_probe.rs"]
 mod connection_probe;
+#[path = "managed_skills.rs"]
+mod managed_skills;
 pub use connection_probe::{
     ConnectionInspectRequest, ConnectionInspection, ConnectionProbeAttempt,
     ConnectionProbeConfirmation, ConnectionProbeFind, ConnectionProbeId,
+};
+pub use managed_skills::{
+    ManagedSkillCatalog, ManagedSkillConfirmation, ManagedSkillConnectionId, ManagedSkillFind,
+    ManagedSkillOperation, ManagedSkillPreview, ManagedSkillProfile, ManagedSkillRequest,
+    ManagedSkillSelection, ManagedSkillSummary, ManagedSkillUnavailable,
 };
 
 // Unit-test-only, one-shot fault injection at the exact atomic boundary. No
@@ -2538,7 +2545,7 @@ impl Store {
             &proposal.id,
             1,
             "approval.proposed",
-            json!({"kind":kind,"snapshot":proposal.snapshot}),
+            approval_event_payload(kind, &proposal.snapshot)?,
             "user_action",
         )?;
         tx.commit().map_err(db_error)?;
@@ -2568,6 +2575,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "managed_skill" {
+            return self.finalize_managed_skill(id, revision);
+        }
         if proposal.kind == "connection_probe" {
             return self.finalize_connection_probe(id, revision);
         }
@@ -2693,6 +2703,30 @@ impl Store {
         )?;
         tx.commit().map_err(db_error)?;
         Ok(result)
+    }
+}
+
+/// Keep approved Skill instructions in authoritative review/configuration records,
+/// not in general event history. Unmarked historical proposal payloads are unchanged.
+pub(crate) fn approval_event_payload(kind: &str, snapshot: &Value) -> Result<Value> {
+    fn contains_managed_skill(value: &Value) -> bool {
+        match value {
+            Value::Object(fields) => {
+                fields.get("source_ref").and_then(Value::as_str)
+                    == Some("baton-managed-codex-skill")
+                    || fields.values().any(contains_managed_skill)
+            }
+            Value::Array(values) => values.iter().any(contains_managed_skill),
+            _ => false,
+        }
+    }
+    if kind == "managed_skill" || contains_managed_skill(snapshot) {
+        use sha2::{Digest, Sha256};
+        Ok(
+            json!({"kind":kind,"snapshot_digest":format!("{:x}",Sha256::digest(encode(snapshot)?.as_bytes()))}),
+        )
+    } else {
+        Ok(json!({"kind":kind,"snapshot":snapshot}))
     }
 }
 

@@ -191,7 +191,7 @@ pub(crate) fn selected_configuration(
     }
 }
 
-fn is_selected_codex_plan(plan: &RuntimePlan) -> Result<bool> {
+pub(crate) fn is_selected_codex_plan(plan: &RuntimePlan) -> Result<bool> {
     if plan.provider() != RuntimeProvider::Codex || plan.source_refs.len() != 1 {
         return Ok(false);
     }
@@ -335,6 +335,7 @@ pub(crate) fn approved_plan(connection: &ProviderConnection) -> Result<RuntimePl
             .map_err(config_error)?
         && !is_restrictive_claude_plan(&plan)?
         && !is_selected_codex_plan(&plan)?
+        && !is_managed_codex_skill_plan(&plan)?
     {
         return Err(CoreError::new(
             "CAPABILITY_UNSUPPORTED",
@@ -439,6 +440,42 @@ impl Store {
         tx.commit().map_err(db_error)?;
         Ok(())
     }
+}
+
+/// Only the explicitly approved one-file managed skill extends the existing
+/// default/two-enum Codex profile. No generic RuntimePlan capability bypass.
+pub(crate) fn is_managed_codex_skill_plan(plan: &RuntimePlan) -> Result<bool> {
+    if plan.provider() != RuntimeProvider::Codex
+        || plan.skills.len() != 1
+        || !plan.skills[0].assets.is_empty()
+        || plan.codex.model_name().is_some()
+        || !plan.mcp_servers.is_empty()
+    {
+        return Ok(false);
+    }
+    let provenance = &plan.skills[0].provenance;
+    if provenance.source_ref != "baton-managed-codex-skill"
+        || provenance.revision != "1"
+        || plan
+            .source_refs
+            .iter()
+            .filter(|s| s.source_ref == provenance.source_ref)
+            .count()
+            != 1
+        || !plan.source_refs.contains(provenance)
+    {
+        return Ok(false);
+    }
+    plan.validate().map_err(config_error)?;
+    let mut base = plan.clone();
+    base.skills.clear();
+    base.source_refs
+        .retain(|s| s.source_ref != "baton-managed-codex-skill");
+    Ok(base.plan_digest().map_err(config_error)?
+        == plan_for_provider("codex")?
+            .plan_digest()
+            .map_err(config_error)?
+        || is_selected_codex_plan(&base)?)
 }
 
 #[cfg(test)]

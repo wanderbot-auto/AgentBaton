@@ -444,7 +444,7 @@ impl Store {
             revision: 1,
             kind: "approval.proposed".into(),
             occurred_at: now()?,
-            payload: json!({"kind":proposal.kind,"snapshot":proposal.snapshot}),
+            payload: crate::sessions::approval_event_payload(&proposal.kind, &proposal.snapshot)?,
             source: "user_action".into(),
         };
         let document = bounded_graph_proposal(&proposal, &proposed)?;
@@ -2240,7 +2240,7 @@ impl Store {
             revision: 1,
             kind: "approval.proposed".into(),
             occurred_at: now()?,
-            payload: json!({"kind":p.kind,"snapshot":p.snapshot}),
+            payload: crate::sessions::approval_event_payload(&p.kind, &p.snapshot)?,
             source: "user_action".into(),
         };
         let doc = bounded_graph_proposal(&p, &e)?;
@@ -3087,7 +3087,7 @@ fn verify_owner_decision_receipt(
     if proposal_seq <= 0
         || event.source != "user_action"
         || event.payload["kind"] != p.kind
-        || event.payload["snapshot"] != p.snapshot
+        || event.payload != crate::sessions::approval_event_payload(&p.kind, &p.snapshot)?
     {
         return Err(denied());
     }
@@ -3737,7 +3737,7 @@ mod proposal_size_tests {
             revision: 1,
             kind: "approval.proposed".into(),
             occurred_at: "2026-10-28T00:00:00Z".into(),
-            payload: json!({"kind":p.kind,"snapshot":p.snapshot}),
+            payload: crate::sessions::approval_event_payload(&p.kind, &p.snapshot).unwrap(),
             source: "user_action".into(),
         };
         assert_eq!(

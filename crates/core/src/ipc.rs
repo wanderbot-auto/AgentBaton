@@ -852,6 +852,8 @@ impl Daemon {
                     | "connections.propose"
                     | "connections.inspect"
                     | "connections.reprobe.propose"
+                    | "managed_skills.preview"
+                    | "managed_skills.propose"
                     | "grants.propose"
                     | "goal_scopes.propose"
                     | "goal_plans.draft"
@@ -1035,6 +1037,31 @@ impl Daemon {
             "goal_plans.list" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.list_goal_plan_revisions(&p.scope_id)?))}
             "goal_plans.ready_preview" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.preview_goal_ready(&p.scope_id,r.expected_revision.ok_or_else(invalid)?)?))}
             "goal_scopes.approve" | "goal_plans.dispatch" | "goal_plans.reserve" | "goal_plans.accept" => Err(CoreError::new("AUTH_REQUIRED","Renderer approval flags, dispatch/reservation and Task acceptance are not Goal preview methods")),
+            "managed_skills.list" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                empty(&r.params)?;
+                Ok(json!(self.store.list_managed_skill_profiles()?))
+            }
+            "managed_skills.preview" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedSkillRequest = params(r.params)?;
+                Ok(json!(self.store.preview_managed_skill(&p)?))
+            }
+            "managed_skills.propose" => {
+                if r.expected_revision.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedSkillSelection = params(r.params)?;
+                Ok(json!(self.store.propose_managed_skill(&p, &r.idempotency_key.ok_or_else(invalid)?)?))
+            }
+            "managed_skills.find" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedSkillFind = params(r.params)?;
+                Ok(json!(self.store.find_managed_skill(&p)?))
+            }
+            "managed_skills.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedSkillConnectionId = params(r.params)?;
+                Ok(json!(self.store.get_managed_skill_profile(&p.connection_id)?))
+            }
             "connections.inspect" => {
                 if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
                 let p: crate::sessions::ConnectionInspectRequest = params(r.params)?;
@@ -1083,6 +1110,15 @@ impl Daemon {
                             error.message=format!("{}; owner approval and copy intent are recorded. Read the existing creation; this does not confirm filesystem copy or Ready",error.message);
                             return Err(error);
                         }
+                    }
+                }
+                if !already_confirmed && result.get("profile").is_some() && result.get("connection").is_some() {
+                    let id = result["connection"]["id"].as_str().ok_or_else(invalid)?;
+                    if let Err(error) = self.supervisor.probe(&self.store, id) {
+                        let mut error = self.store.record_initial_probe_not_started(id).err().unwrap_or(error);
+                        if matches!(error.side_effect_state.as_str(), "none" | "not_started") { error.side_effect_state = "confirmed".into(); }
+                        error.details_ref = Some(format!("managed-skill-connection-probe-not-scheduled:{id}"));
+                        return Err(error);
                     }
                 }
                 if !already_confirmed && result.get("probe_attempt").is_some() {

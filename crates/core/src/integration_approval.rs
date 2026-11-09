@@ -205,7 +205,7 @@ impl Store {
             &proposal.id,
             1,
             "approval.proposed",
-            &json!({"kind":"integration","snapshot":proposal.snapshot}),
+            &crate::sessions::approval_event_payload("integration", &proposal.snapshot)?,
         )?;
         records::remember(&tx, "integration:propose", key_id, &payload, &proposal)?;
         // All business rows and held observations are still checked under this

@@ -15,6 +15,12 @@ use std::{
     path::{Path, PathBuf},
 };
 type Result<T> = std::result::Result<T, ConfigError>;
+#[path = "instruction_only.rs"]
+mod instruction_only;
+pub use instruction_only::{
+    instruction_only_skill_metadata, InstructionOnlySkill, InstructionOnlySkillMetadata,
+    INSTRUCTION_ONLY_SKILL_MAX_BYTES, INSTRUCTION_ONLY_SKILL_SOURCE,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

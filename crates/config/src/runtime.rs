@@ -175,6 +175,11 @@ pub struct SelectedSkill {
     pub assets: Vec<SkillAsset>,
     pub provenance: SourceProvenance,
 }
+impl SelectedSkill {
+    pub fn instruction_text(&self) -> &str {
+        &self.instruction.0
+    }
+}
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RuntimePlan {
@@ -664,6 +669,47 @@ fn prepare(plan: RuntimePlan, state: &Path) -> Result<Prepared> {
     {
         return Err(error(ErrorCode::Conflict));
     }
+    let instruction_profile = plan
+        .source_refs
+        .iter()
+        .any(|p| p.source_ref == crate::capabilities::native::INSTRUCTION_ONLY_SKILL_SOURCE)
+        || plan.skills.iter().any(|s| {
+            s.provenance.source_ref == crate::capabilities::native::INSTRUCTION_ONLY_SKILL_SOURCE
+        });
+    if instruction_profile {
+        if plan.provider != RuntimeProvider::Codex
+            || plan.skills.len() != 1
+            || !plan.mcp_servers.is_empty()
+            || plan.codex.model.is_some()
+        {
+            return Err(error(ErrorCode::Conflict));
+        }
+        let skill = &plan.skills[0];
+        if !skill.assets.is_empty()
+            || skill.provenance.source_ref
+                != crate::capabilities::native::INSTRUCTION_ONLY_SKILL_SOURCE
+            || skill.provenance.revision != "1"
+            || skill.provenance.sha256 != sha256(skill.instruction.0.as_bytes())
+            || plan
+                .source_refs
+                .iter()
+                .filter(|p| {
+                    p.source_ref == crate::capabilities::native::INSTRUCTION_ONLY_SKILL_SOURCE
+                })
+                .count()
+                > 1
+            || plan.source_refs.iter().any(|p| {
+                p.source_ref == crate::capabilities::native::INSTRUCTION_ONLY_SKILL_SOURCE
+                    && p != &skill.provenance
+            })
+        {
+            return Err(error(ErrorCode::Conflict));
+        }
+        crate::capabilities::native::instruction_only_skill_metadata(
+            &skill.directory_name,
+            &skill.instruction.0,
+        )?;
+    }
     let plan_digest = logical_plan_digest(&plan)?;
     let mut sources = plan.source_refs;
     for server in &plan.mcp_servers {
@@ -798,9 +844,13 @@ fn prepare(plan: RuntimePlan, state: &Path) -> Result<Prepared> {
         {
             return Err(error(ErrorCode::Conflict));
         }
-        let prefix = Path::new(provider_directory(plan.provider))
-            .join("skills")
-            .join(&skill.directory_name);
+        let prefix = if instruction_profile {
+            Path::new("state/home/.agents/skills").join(&skill.directory_name)
+        } else {
+            Path::new(provider_directory(plan.provider))
+                .join("skills")
+                .join(&skill.directory_name)
+        };
         file_data.insert(
             prefix.join("SKILL.md"),
             (
@@ -927,6 +977,75 @@ fn prepare(plan: RuntimePlan, state: &Path) -> Result<Prepared> {
     validate_manifest(&manifest)?;
     Ok(Prepared { manifest, files })
 }
+// Only the new source marker opens this immutable island inside mutable HOME.
+// Historical profiles keep their original layout and verification semantics.
+fn instruction_profile_file(manifest: &RuntimeManifest) -> Result<Option<PathBuf>> {
+    let markers: Vec<_> = manifest
+        .source_refs
+        .iter()
+        .filter(|p| p.source_ref == crate::capabilities::native::INSTRUCTION_ONLY_SKILL_SOURCE)
+        .collect();
+    if markers.is_empty() {
+        return Ok(None);
+    }
+    if markers.len() != 1
+        || manifest.provider != RuntimeProvider::Codex
+        || markers[0].revision != "1"
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let skills: Vec<_> = manifest
+        .files
+        .iter()
+        .filter(|f| {
+            matches!(
+                f.kind,
+                MaterializedKind::SkillInstruction
+                    | MaterializedKind::SkillAsset
+                    | MaterializedKind::SkillScript
+            )
+        })
+        .collect();
+    if skills.len() != 1 {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let file = skills[0];
+    if !matches!(file.kind, MaterializedKind::SkillInstruction)
+        || file.bytes > crate::capabilities::native::INSTRUCTION_ONLY_SKILL_MAX_BYTES
+        || file.sha256 != markers[0].sha256
+        || file.source_refs.len() != 1
+        || &file.source_refs[0] != markers[0]
+        || !file.relative_path.starts_with("state/home/.agents/skills")
+        || file.relative_path.components().count() != 6
+        || file.relative_path.file_name() != Some(std::ffi::OsStr::new("SKILL.md"))
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let allowed = [
+        PathBuf::from("state/home/.agents"),
+        PathBuf::from("state/home/.agents/skills"),
+        file.relative_path
+            .parent()
+            .ok_or_else(|| error(ErrorCode::Conflict))?
+            .to_owned(),
+    ];
+    if manifest
+        .directories
+        .iter()
+        .any(|p| p.starts_with("state/home/.agents") && !allowed.contains(p))
+        || manifest
+            .mutable_directories
+            .iter()
+            .any(|p| p.starts_with("state/home/.agents"))
+        || manifest.files.iter().any(|f| {
+            f.relative_path.starts_with("state/home") && f.relative_path != file.relative_path
+        })
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    Ok(Some(file.relative_path.clone()))
+}
+
 fn validate_manifest(manifest: &RuntimeManifest) -> Result<()> {
     if !valid_digest(&manifest.plan_digest)
         || manifest.schema_version != 1
@@ -938,6 +1057,7 @@ fn validate_manifest(manifest: &RuntimeManifest) -> Result<()> {
     {
         return Err(error(ErrorCode::ResourceLimit));
     }
+    let instruction_file = instruction_profile_file(manifest)?;
     let mut mutable = BTreeSet::new();
     for path in &manifest.mutable_directories {
         relative(path)?;
@@ -958,11 +1078,11 @@ fn validate_manifest(manifest: &RuntimeManifest) -> Result<()> {
     }
     for file in &manifest.files {
         relative(&file.relative_path)?;
-        if manifest
-            .mutable_directories
-            .iter()
-            .any(|p| file.relative_path.starts_with(p))
-        {
+        if manifest.mutable_directories.iter().any(|p| {
+            file.relative_path.starts_with(p)
+                && !(p == Path::new("state/home")
+                    && instruction_file.as_ref() == Some(&file.relative_path))
+        }) {
             return Err(error(ErrorCode::Conflict));
         }
         if !valid_digest(&file.sha256)
@@ -990,6 +1110,7 @@ fn validate_manifest(manifest: &RuntimeManifest) -> Result<()> {
     Ok(())
 }
 fn verify_tree(dir: &File, manifest: &RuntimeManifest) -> Result<()> {
+    let instruction_file = instruction_profile_file(manifest)?;
     let expected_dirs: BTreeSet<_> = manifest.directories.iter().cloned().collect();
     let expected_files: BTreeMap<_, _> = manifest
         .files
@@ -1017,12 +1138,21 @@ fn verify_tree(dir: &File, manifest: &RuntimeManifest) -> Result<()> {
                 continue;
             }
             let path = relative_dir.join(name);
+            if instruction_file.is_some()
+                && relative_dir == Path::new("state/home")
+                && name != ".agents"
+            {
+                // Other HOME children remain runtime state, as in older profiles.
+                continue;
+            }
             let stat = io_error(rfs::statat(&directory, name, AtFlags::SYMLINK_NOFOLLOW))?;
             match FileType::from_raw_mode(stat.st_mode) {
                 FileType::Directory if expected_dirs.contains(&path) => {
                     let child = open_dir_at(&directory, Path::new(name))?;
                     seen_dirs.insert(path.clone());
-                    if !manifest.mutable_directories.contains(&path) {
+                    if !manifest.mutable_directories.contains(&path)
+                        || (instruction_file.is_some() && path == Path::new("state/home"))
+                    {
                         pending.push((path, child));
                     }
                 }
@@ -1032,6 +1162,17 @@ fn verify_tree(dir: &File, manifest: &RuntimeManifest) -> Result<()> {
                     let expected = expected_files[&path];
                     if bytes.len() != expected.bytes || sha256(&bytes) != expected.sha256 {
                         return Err(error(ErrorCode::Conflict));
+                    }
+                    if instruction_file.as_ref() == Some(&path) {
+                        let directory = path
+                            .parent()
+                            .and_then(Path::file_name)
+                            .and_then(|n| n.to_str())
+                            .ok_or_else(|| error(ErrorCode::InvalidPath))?;
+                        crate::capabilities::native::instruction_only_skill_metadata(
+                            directory,
+                            std::str::from_utf8(&bytes).map_err(|_| error(ErrorCode::Conflict))?,
+                        )?;
                     }
                     seen_files.insert(path);
                 }
