@@ -205,6 +205,14 @@ impl NativeSourceRoot {
         readonly_dir(&parent, &name)
     }
 }
+/// Explicit top-level selection; all other source fields are excluded, not
+/// merged. Exclusion metadata is a count, never arbitrary source keys/values.
+pub struct SelectedCodexPolicy {
+    pub sandbox: crate::runtime::CodexSandbox,
+    pub approval: crate::runtime::CodexApproval,
+    pub excluded_field_count: usize,
+}
+
 pub struct NativeSource {
     raw: Vec<u8>,
     relative: PathBuf,
@@ -257,6 +265,32 @@ impl NativeSource {
         }
         Ok(settings.disabled)
     }
+    pub fn selected_codex_policy(&self) -> Result<SelectedCodexPolicy> {
+        use crate::runtime::{CodexApproval, CodexSandbox};
+        if self.preview.format != NativeFormat::CodexToml {
+            return Err(error(ErrorCode::Conflict));
+        }
+        // Parse the original TOML, whose duplicate-key rejection is retained.
+        // Broad MCP diagnostics do not determine this separate explicit selection.
+        let raw = std::str::from_utf8(&self.raw).map_err(|_| error(ErrorCode::Conflict))?;
+        let table: toml::Table = toml::from_str(raw).map_err(|_| error(ErrorCode::Conflict))?;
+        let sandbox = match table.get("sandbox_mode").and_then(toml::Value::as_str) {
+            Some("read-only") => CodexSandbox::ReadOnly,
+            Some("workspace-write") => CodexSandbox::WorkspaceWrite,
+            _ => return Err(error(ErrorCode::Conflict)),
+        };
+        let approval = match table.get("approval_policy").and_then(toml::Value::as_str) {
+            Some("untrusted") => CodexApproval::Untrusted,
+            Some("on-request") => CodexApproval::OnRequest,
+            _ => return Err(error(ErrorCode::Conflict)),
+        };
+        Ok(SelectedCodexPolicy {
+            sandbox,
+            approval,
+            excluded_field_count: table.len() - 2,
+        })
+    }
+
     pub fn preserves_original_hash(&self) -> bool {
         sha256(&self.raw) == self.preview.source_digest
     }

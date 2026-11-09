@@ -42,7 +42,7 @@ impl ApprovalKind {
     fn action(&self) -> &'static str {
         match self {
             Self::Connection => {
-                "Register this exact executable and run its bounded --version probe. If configuration_import is present, import ONLY the displayed disabled Claude project-MCP names into the new connection. Review source hash and before/after names. No hooks, credentials, MCP execution, native writeback, existing connection changes or model calls are authorized. / 若显示 configuration_import，仅将列出的 Claude MCP 禁用名称导入新连接；核对来源哈希及差异。"
+                "Register this exact executable and run its bounded --version probe. If configuration_import is present, import ONLY its displayed selected fields into the new connection: Claude disabled project-MCP names, or Codex sandbox_mode/approval_policy. Review source hash, before/after values and any excluded-field count. Codex model, billing, profiles and all unselected source settings are excluded; declared effective policy is checked at new-thread start, not proof of OS enforcement. No hooks, credentials, MCP execution, native writeback, existing connection changes or model calls are authorized. / 若显示 configuration_import，仅导入列出的 Claude MCP 禁用名称或 Codex 两项执行策略；核对来源哈希、差异及排除数量，未选设置不导入。"
             }
             Self::Grant => {
                 "Grant this exact recipient and workspace the bounded execution scope below"

@@ -836,3 +836,52 @@ fn restrictive_claude_import_rejects_active_unknown_duplicate_and_secret_fields(
         assert!(!error.to_string().contains("NEVER-ECHO-SECRET"));
     }
 }
+
+#[test]
+fn codex_selected_policy_excludes_all_other_fields_without_exporting_names_or_values() {
+    let f = Fixture::new();
+    for sandbox in ["read-only", "workspace-write"] {
+        for approval in ["untrusted", "on-request"] {
+            let raw = format!("sandbox_mode = {sandbox:?}\napproval_policy = {approval:?}\nmodel = 'PRIVATE-MODEL'\nPRIVATE_KEY = 'PRIVATE-VALUE'\n[mcp_servers.private]\ncommand = 'DO-NOT-RUN'\n");
+            f.write("config.toml", &raw);
+            let source = f
+                .root()
+                .read_native(
+                    source("selected", "codex"),
+                    Path::new("config.toml"),
+                    NativeFormat::CodexToml,
+                )
+                .unwrap();
+            let selected = source.selected_codex_policy().unwrap();
+            assert_eq!(serde_json::to_value(selected.sandbox).unwrap(), sandbox);
+            assert_eq!(serde_json::to_value(selected.approval).unwrap(), approval);
+            assert_eq!(selected.excluded_field_count, 3);
+            assert_eq!(fs::read_to_string(f.path.join("config.toml")).unwrap(), raw);
+        }
+    }
+}
+#[test]
+fn codex_selected_policy_requires_both_safe_top_level_enums_without_implicit_profiles() {
+    let f = Fixture::new();
+    for raw in [
+        "sandbox_mode='danger-full-access'\napproval_policy='untrusted'",
+        "sandbox_mode='read-only'\napproval_policy='never'",
+        "sandbox_mode='read-only'\napproval_policy=123",
+        "sandbox_mode='read-only'",
+        "[profiles.selected]\nsandbox_mode='read-only'\napproval_policy='untrusted'",
+        "sandbox_mode='read-only'\nsandbox_mode='workspace-write'\napproval_policy='untrusted'",
+        "sandbox_mode='PRIVATE-SECRET'\napproval_policy='untrusted'",
+    ] {
+        f.write("config.toml", raw);
+        let source = f
+            .root()
+            .read_native(
+                source("selected", "codex"),
+                Path::new("config.toml"),
+                NativeFormat::CodexToml,
+            )
+            .unwrap();
+        let error = source.selected_codex_policy().err().unwrap();
+        assert!(!error.to_string().contains("PRIVATE-SECRET"));
+    }
+}

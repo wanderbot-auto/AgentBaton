@@ -1319,7 +1319,9 @@ impl Supervisor {
             .verify_before_launch(&snapshot.descriptor(), RuntimeRequirements::default())
             .map_err(crate::runtime_config::config_error)?;
         let configuration = if c.protocol_route == ProtocolRoute::CodexAppServer {
-            None
+            Some(crate::runtime_config::codex_snapshot_configuration(
+                &snapshot,
+            )?)
         } else {
             Some(
                 snapshot
@@ -2240,18 +2242,7 @@ impl Store {
             }
         }
         let (plan, configuration_import) = if let Some(path) = configuration_source {
-            if provider != "claude_code" {
-                return Err(CoreError::new(
-                    "CAPABILITY_UNSUPPORTED",
-                    "Selected configuration import currently supports only Claude restrictions",
-                ));
-            }
-            let (plan, source_sha256) = crate::runtime_config::selected_claude_plan(path)?;
-            let preview = json!({"source_path":path,"source_sha256":source_sha256,
-                "format":"claude_restrictions_v1", "disabled_mcp_names_before":[],
-                "disabled_mcp_names_after":plan.claude.disabled_project_mcp_names,
-                "native_writeback":false,"credentials_imported":false,
-                "applies_to":"new_connection_and_future_sessions_only"});
+            let (plan, preview) = crate::runtime_config::selected_configuration(provider, path)?;
             (plan, Some(preview))
         } else {
             (crate::runtime_config::plan_for_provider(provider)?, None)
@@ -2282,7 +2273,9 @@ impl Store {
         let Some(import) = snapshot.get("configuration_import") else {
             return crate::runtime_config::plan_for_provider(provider);
         };
-        if provider != "claude_code" || import["format"] != "claude_restrictions_v1" {
+        if !((provider == "claude_code" && import["format"] == "claude_restrictions_v1")
+            || (provider == "codex" && import["format"] == "codex_selected_policy_v1"))
+        {
             return Err(invalid("Unsupported stored configuration import"));
         }
         // Registration commits independently before proposal completion. Resolve
@@ -2296,10 +2289,9 @@ impl Store {
         let path = import["source_path"]
             .as_str()
             .ok_or_else(|| invalid("Stored configuration source is invalid"))?;
-        let (plan, digest) = crate::runtime_config::selected_claude_plan(path)?;
-        if import["source_sha256"] != digest
-            || import["disabled_mcp_names_after"] != json!(plan.claude.disabled_project_mcp_names)
-        {
+        let (plan, current_preview) =
+            crate::runtime_config::selected_configuration(provider, path)?;
+        if *import != current_preview {
             return Err(CoreError::new(
                 "INPUT_CHANGED",
                 "Selected configuration changed; review a new proposal",

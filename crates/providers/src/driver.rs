@@ -37,9 +37,13 @@ impl ManagedProviderProcess {
     ) -> Result<(), TransportFailure> {
         match self {
             Self::Acp(p) => p.configure_session_configuration(configuration),
-            Self::Codex(_) => Err(TransportFailure::protocol(
-                ProtocolError::CapabilityUnsupported,
-            )),
+            Self::Codex(p) => {
+                let policy = serde_json::from_value::<crate::codex::CodexExecutionPolicy>(
+                    configuration.clone(),
+                )
+                .map_err(|_| TransportFailure::protocol(ProtocolError::CapabilityUnsupported))?;
+                p.configure_policy(policy)
+            }
         }
     }
     pub fn configure_factory_session_configuration(
