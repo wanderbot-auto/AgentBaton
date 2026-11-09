@@ -1161,7 +1161,13 @@ fn native_smoke_report(
                 state.fail(&app, &error);
                 return Err(error);
             }
-            window.close().map_err(|e| e.to_string())?;
+            // Ordinary main-window close now hides the existing WebView. This
+            // older restart phase intentionally requires real WebView teardown
+            // and its Destroyed callback; keep that stronger contract explicit.
+            // It is not acceptance evidence for tray/Dock hide-and-restore.
+            state.report.lock().unwrap()["window_lifecycle_action"] = json!("forced_destroy_for_existing_restart_test");
+            state.report.lock().unwrap()["close_to_background_restore_acceptance"] = json!("not_run");
+            window.destroy().map_err(|e| e.to_string())?;
         }
         (2, "native-reopened") => {
             state.stage("reopened_report_received")?;

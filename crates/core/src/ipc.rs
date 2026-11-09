@@ -240,6 +240,37 @@ fn invalid() -> CoreError {
 fn params<T: for<'de> Deserialize<'de>>(v: Value) -> Result<T> {
     serde_json::from_value(v).map_err(|_| invalid())
 }
+fn background_read(
+    request: &Request,
+    token: &str,
+    store: &Store,
+    identity: &crate::background_status::BackgroundIdentity,
+    owned_provider_workers: bool,
+) -> Result<Value> {
+    if request.token != token {
+        return Err(CoreError::new(
+            "AUTH_REQUIRED",
+            "Local authentication failed",
+        ));
+    }
+    if request.api_version != API_VERSION {
+        return Err(CoreError::new(
+            "VERSION_UNSUPPORTED",
+            "Unsupported local API version",
+        ));
+    }
+    if request.method != "system.background"
+        || request.request_id.is_empty()
+        || request.request_id.len() > 128
+        || request.expected_revision.is_some()
+        || request.idempotency_key.is_some()
+    {
+        return Err(invalid());
+    }
+    empty(&request.params)?;
+    Ok(json!(identity.read(store, owned_provider_workers)?))
+}
+
 fn empty(v: &Value) -> Result<()> {
     if v.as_object().is_some_and(|o| o.is_empty()) || v.is_null() {
         Ok(())
@@ -553,6 +584,7 @@ impl FactoryQueueClock {
 }
 
 pub struct Daemon {
+    background_identity: crate::background_status::BackgroundIdentity,
     listener: UnixListener,
     store: Store,
     history_workers: crate::factory::FactoryHistoryWorkers,
@@ -586,6 +618,7 @@ impl Daemon {
         // POSIX locks. Finish permission preparation before SQLite owns any connection.
         drop(private_file(&db)?);
         let store = Store::open(&db)?;
+        let background_identity = crate::background_status::BackgroundIdentity::after_store_open()?;
         let managed_root = runtime_dir.join("workspaces");
         ensure_runtime(&managed_root)?;
         let socket = runtime_dir.join("batond.sock");
@@ -619,6 +652,7 @@ impl Daemon {
             .and_then(|()| token_file.sync_all())
             .map_err(|_| CoreError::new("INTERNAL_ERROR", "Cannot initialize authentication"))?;
         Ok(Self {
+            background_identity,
             listener,
             store,
             history_workers: Default::default(),
@@ -1595,6 +1629,7 @@ impl Daemon {
                 let p: Events = params(r.params)?;
                 self.store.events(p.cursor, p.limit)
             }
+            "system.background" => background_read(&r, &self.token, &self.store, &self.background_identity, self.has_provider_workers()),
             "system.snapshot" => {
                 empty(&r.params)?;
                 Ok(
@@ -3915,5 +3950,48 @@ mod conversation_wire_tests {
         )
         .is_err());
         assert!(params::<ConversationId>(json!({"conversation_id":"chat","force":true})).is_err());
+    }
+}
+
+#[cfg(test)]
+mod background_wire_tests {
+    use super::*;
+    #[test]
+    fn background_owner_read_rejects_mutation_envelopes_and_scoped_credentials() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::open(&dir.path().join("db")).unwrap();
+        let identity = crate::background_status::BackgroundIdentity::after_store_open().unwrap();
+        let base = json!({"api_version":1,"request_id":"client-a","token":"owner","method":"system.background","params":{}});
+        let read = |v: Value| {
+            let r: Request = serde_json::from_value(v).map_err(|_| invalid())?;
+            background_read(&r, "owner", &store, &identity, false)
+        };
+        let first = read(base.clone()).unwrap();
+        if let Some(path) = std::env::var_os("AGENTBATON_BACKGROUND_STATUS_FIXTURE") {
+            std::fs::write(path, serde_json::to_vec_pretty(&first).unwrap()).unwrap();
+        }
+        let mut next = base.clone();
+        next["request_id"] = json!("client-b");
+        assert_eq!(first, read(next).unwrap());
+        let changes = store.conn.total_changes();
+        for (field, value) in [
+            ("expected_revision", json!(0)),
+            ("idempotency_key", json!("key")),
+            ("params", json!({"start":true})),
+            ("params", json!([])),
+            ("method", json!("system.snapshot")),
+        ] {
+            let mut bad = base.clone();
+            bad[field] = value;
+            assert!(read(bad).is_err());
+        }
+        let mut bad = base.clone();
+        bad["token"] = json!("scoped-token");
+        assert_eq!(read(bad).unwrap_err().code, "AUTH_REQUIRED");
+        let scoped = json!({"api_version":1,"request_id":"scoped","handle_id":"handle","scoped_token":"scoped-token","method":"system.background","params":{}});
+        assert!(serde_json::from_value::<Request>(scoped.clone()).is_err());
+        let _: FactoryScopedRequest = serde_json::from_value(scoped.clone()).unwrap();
+        assert!(read(scoped).is_err());
+        assert_eq!(store.conn.total_changes(), changes);
     }
 }

@@ -6,11 +6,13 @@ use serde_json::{json, Value};
 use std::io::ErrorKind;
 use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 mod approval;
 mod integration_approval;
 mod native_parent;
+mod background_policy;
+mod background_window;
+mod detached_daemon;
 
 // Read-only limits shared with the feature-gated Native test binary. The
 // default application exports no test view; all values have one definition.
@@ -94,6 +96,49 @@ async fn system_snapshot(runtime: tauri::State<'_, Runtime>) -> Result<Value, St
         true,
     )
     .await
+}
+
+#[tauri::command]
+async fn background_status(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    // Read only: an unavailable daemon is never spawned by this observer.
+    call(
+        &runtime,
+        json!({"method":"system.background","params":{}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn background_hide_ui(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    expected_instance_id: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let refusal=|error:background_policy::HideFailure|json!({"request_id":null,"error":{"code":error.code,"message":error.message,"retryable":false,"side_effect_state":error.state,"details_ref":null},"revision":0,"warnings":[]});
+        let response=match ipc::call(&directory,json!({"method":"system.background","params":{}})) {
+            Ok(value)=>value,Err(_)=>return Ok(refusal(background_policy::HideFailure::not_started("Cannot authenticate background status; window remains visible".into())))
+        };
+        if let Err(error)=background_policy::status_instance(&response,Some(&expected_instance_id)) {
+            return Ok(refusal(background_policy::HideFailure::not_started(error)));
+        }
+        let (send,receive)=std::sync::mpsc::sync_channel(1);
+        let original=window.clone();let gate=std::sync::Arc::new(background_policy::HideGate::new());let queued=gate.clone();let deadline=Instant::now()+Duration::from_secs(5);
+        if let Err(error)=window.run_on_main_thread(move || {
+            if Instant::now()>=deadline {queued.expire();let _=send.send(Err(background_policy::HideFailure::not_started("Window hide expired before its main-thread action began".into())));return;}
+            if !queued.begin(){return;}
+            let result=background_window::hide_main(&original);let _=send.send(result);
+        }) {return Ok(refusal(background_policy::HideFailure::not_started(error.to_string())));}
+        match receive.recv_timeout(deadline.saturating_duration_since(Instant::now())) {
+            Ok(Ok(()))=>Ok(json!({"result":{"window":"main","action":"hidden","background_action":"unchanged"},"revision":0,"warnings":[]})),
+            Ok(Err(error))=>Ok(refusal(error)),
+            Err(_)=>{
+                let error=if gate.expire(){background_policy::HideFailure::not_started("Window hide timed out before its main-thread action began".into())}else{background_policy::HideFailure::unknown("Window hide outcome is unknown; do not automatically replay it".into())};
+                Ok(refusal(error))
+            }
+        }
+    }).await.map_err(|e|e.to_string())?
 }
 
 #[tauri::command]
@@ -2014,13 +2059,8 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
     // Only the installed sibling binary is executable here. Renderer input
     // never selects paths or arguments. A raced startup is rejected by the
     // daemon's exclusive writer lock; this client never removes the socket.
-    let mut child = Command::new(daemon)
-        .env("BATON_RUNTIME_DIR", runtime)
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
-        .map_err(|e| format!("Cannot start bundled daemon: {e}"))?;
+    let mut child = detached_daemon::DetachedDaemon::spawn(&daemon, runtime)
+        .map_err(|e| format!("Cannot start detached bundled daemon: {e}"))?;
     loop {
         if Instant::now() >= deadline {
             return Err("Daemon readiness deadline expired; no task was dispatched.".into());
@@ -2120,6 +2160,8 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         validations_run,
         validation_policies_revoke,
         system_snapshot,
+        background_status,
+        background_hide_ui,
         tasks_create,
         tasks_cancel,
         events_subscribe,
@@ -2179,7 +2221,9 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
 pub fn desktop_builder(directory: PathBuf) -> tauri::Builder<tauri::Wry> {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .on_window_event(native_parent::on_window_event)
+        .on_window_event(background_window::on_window_event)
+        .manage(background_window::BackgroundWindow::default())
+        .setup(|app| { background_window::install(app)?; Ok(()) })
         .manage(Runtime { directory })
         .invoke_handler(dispatch_production)
 }
@@ -2193,8 +2237,18 @@ pub fn run() {
         }
     };
     desktop_builder(directory)
-        .run(tauri::generate_context!())
-        .expect("Desktop runtime failed");
+        .build(tauri::generate_context!())
+        .expect("Desktop runtime failed")
+        .run(|app,event| {
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen { .. } = event {
+                if let Err(error)=background_window::restore_main(app) {
+                    eprintln!("Cannot restore AgentBaton main window: {error}");
+                }
+            }
+            #[cfg(not(target_os = "macos"))]
+            let _=(app,event);
+        });
 }
 
 #[cfg(test)]
