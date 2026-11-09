@@ -11,9 +11,12 @@ export function Connections({ language, connected, compact = false }: { language
   const [executable, setExecutable] = useState('');
   const [argumentsText, setArgumentsText] = useState('');
   const [provider, setProvider] = useState<ProviderChoice>('custom_acp');
+  const [configurationMode, setConfigurationMode] = useState<'default' | 'claude_restrictions'>('default');
+  const [configurationFile, setConfigurationFile] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const keys = useRef(new Map<string, string>());
+  const unresolvedImports = useRef(new Set<string>());
   const refresh = useCallback(async () => {
     if (!connected) return;
     try { setRecords(await sessionApi.connectionsList()); }
@@ -39,17 +42,26 @@ export function Connections({ language, connected, compact = false }: { language
     event.preventDefault();
     if (!connected || busy || !name.trim() || !executable.trim()) return;
     const args = provider === 'custom_acp' ? argumentsText.split('\n').map(value => value.trim()).filter(Boolean) : [];
-    const fingerprint = JSON.stringify([name.trim(), executable.trim(), provider, args]);
+    const source = provider === 'claude_code' && configurationMode === 'claude_restrictions' ? configurationFile.trim() : undefined;
+    if (source !== undefined && !source) return;
+    const fingerprint = JSON.stringify([name.trim(), executable.trim(), provider, args, source]);
     const key = keys.current.get(fingerprint) ?? crypto.randomUUID();
     keys.current.set(fingerprint, key);
     setBusy(true); setError('');
     try {
-      await sessionApi.connectionsRegister(name.trim(), executable.trim(), args, key, provider);
+      if (source === undefined) await sessionApi.connectionsRegister(name.trim(), executable.trim(), args, key, provider);
+      else await sessionApi.connectionsRegister(name.trim(), executable.trim(), args, key, provider, source);
       keys.current.delete(fingerprint);
-      setName(''); setExecutable(''); setArgumentsText('');
+      unresolvedImports.current.delete(fingerprint);
+      setName(''); setExecutable(''); setArgumentsText(''); setConfigurationFile(''); setConfigurationMode('default');
       await refresh();
     } catch (e) {
-      setError((e instanceof Error ? e.message : String(e)) + (e instanceof DaemonError && e.sideEffectState === 'unknown' ? ` ${t.uncertain}` : ''));
+      // A known pre-commit rejection can be reviewed as a fresh proposal on the
+      // next user action. Unknown/confirmed outcomes retain their exact key.
+      if (source !== undefined && (!(e instanceof DaemonError) || ['unknown', 'confirmed'].includes(e.sideEffectState))) unresolvedImports.current.add(fingerprint);
+      if (source !== undefined && !unresolvedImports.current.has(fingerprint) && e instanceof DaemonError && e.sideEffectState === 'not_started'
+          && ['INPUT_CHANGED', 'PERMISSION_DENIED', 'STALE_REVISION'].includes(e.code)) keys.current.delete(fingerprint);
+      setError((e instanceof Error ? e.message : String(e)) + ((e instanceof DaemonError && e.sideEffectState === 'unknown') || unresolvedImports.current.has(fingerprint) ? ` ${t.uncertain}` : ''));
     } finally { setBusy(false); }
   }
   return <section aria-labelledby="connections-title">
@@ -59,9 +71,11 @@ export function Connections({ language, connected, compact = false }: { language
     <details className="connection-registration" open={!compact}><summary>{t.register}</summary><form className="connection-form" onSubmit={register}>
       <label htmlFor="connection-name">{t.label}</label><input id="connection-name" value={name} onChange={event => setName(event.target.value)} maxLength={128} disabled={busy} required />
       <label htmlFor="connection-executable">{t.executable}</label><input id="connection-executable" value={executable} onChange={event => setExecutable(event.target.value)} maxLength={4096} disabled={busy} required />
-      <label htmlFor="connection-route">{t.route}</label><select id="connection-route" value={provider} onChange={event => setProvider(event.target.value as ProviderChoice)} disabled={busy}><option value="custom_acp">Custom ACP</option><option value="codex">Codex App Server</option><option value="qoder">Qoder ACP</option><option value="claude_code">Claude Agent ACP adapter</option></select>
+      <label htmlFor="connection-route">{t.route}</label><select id="connection-route" value={provider} onChange={event => { setProvider(event.target.value as ProviderChoice); setConfigurationMode('default'); setConfigurationFile(''); }} disabled={busy}><option value="custom_acp">Custom ACP</option><option value="codex">Codex App Server</option><option value="qoder">Qoder ACP</option><option value="claude_code">Claude Agent ACP adapter</option></select>
       <label htmlFor="connection-arguments">{t.arguments}</label><textarea id="connection-arguments" value={provider === 'custom_acp' ? argumentsText : ''} onChange={event => setArgumentsText(event.target.value)} disabled={busy || provider !== 'custom_acp'} maxLength={8192} rows={3} aria-describedby="arguments-help" /><p id="arguments-help" className="hint">{provider === 'custom_acp' ? t.argumentsHelp : t.generatedArguments}</p>
-      <p>{t.registerHelp}</p><p>{t.nativeConfirmation}</p><p className="hint">{t.noCredentials}</p><button className="primary" disabled={!connected || busy || !name.trim() || !executable.trim()}>{busy ? t.working : t.register}</button>
+      <label htmlFor="connection-config-source">{t.configSource}</label><select id="connection-config-source" value={configurationMode} disabled={busy} onChange={event => setConfigurationMode(event.target.value as 'default' | 'claude_restrictions')}><option value="default">{t.configDefault}</option>{provider === 'claude_code' && <option value="claude_restrictions">{t.configSelected}</option>}</select>
+      {provider === 'claude_code' && configurationMode === 'claude_restrictions' && <><label htmlFor="connection-config-file">{t.configFile}</label><input id="connection-config-file" value={configurationFile} onChange={event => setConfigurationFile(event.target.value)} maxLength={4096} required disabled={busy} aria-describedby="connection-config-help" /><p id="connection-config-help" className="hint">{t.configImportHelp}</p></>}
+      <p>{t.registerHelp}</p><p>{t.nativeConfirmation}</p><p className="hint">{t.noCredentials}</p><button className="primary" disabled={!connected || busy || !name.trim() || !executable.trim() || (configurationMode === 'claude_restrictions' && !configurationFile.trim())}>{busy ? t.working : t.register}</button>
     </form></details>
     <p>{t.noFallback}</p><p className="hint">{t.probeOnly}</p>
     {!records.length && <p>{t.emptyConnections}</p>}

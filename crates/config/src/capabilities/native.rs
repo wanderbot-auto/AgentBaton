@@ -215,6 +215,48 @@ impl NativeSource {
     pub fn preview(&self) -> NativePreview {
         self.preview.clone()
     }
+    /// Narrow, opt-in import projection. No raw values or unrecognized settings
+    /// are copied. Native declarations cannot grant MCP execution or identity.
+    pub fn restrictive_claude_settings(&self) -> Result<Vec<String>> {
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct RestrictiveSettings {
+            #[serde(rename = "disabledMcpjsonServers")]
+            disabled: Vec<String>,
+            #[serde(default, rename = "enableAllProjectMcpServers")]
+            enable_all: bool,
+            #[serde(default, rename = "enabledMcpjsonServers")]
+            enabled: Vec<String>,
+        }
+        if self.preview.format != NativeFormat::ClaudeSettingsJson
+            || self.preview.status != ParseStatus::Parsed
+        {
+            return Err(error(ErrorCode::Conflict));
+        }
+        // Typed deserialization also rejects duplicate keys; the broad diagnostic
+        // preview alone must never be used as a lossless import representation.
+        let settings: RestrictiveSettings =
+            serde_json::from_slice(&self.raw).map_err(|_| error(ErrorCode::Conflict))?;
+        if settings.enable_all
+            || !settings.enabled.is_empty()
+            || settings.disabled.is_empty()
+            || settings.disabled.len() > 128
+            || settings.disabled.iter().any(|name| {
+                name.is_empty()
+                    || name.len() > 128
+                    || name == "."
+                    || name == ".."
+                    || name.starts_with(".baton-")
+                    || !name
+                        .bytes()
+                        .all(|b| b.is_ascii_alphanumeric() || b"_-.:".contains(&b))
+            })
+            || settings.disabled.iter().collect::<BTreeSet<_>>().len() != settings.disabled.len()
+        {
+            return Err(error(ErrorCode::Conflict));
+        }
+        Ok(settings.disabled)
+    }
     pub fn preserves_original_hash(&self) -> bool {
         sha256(&self.raw) == self.preview.source_digest
     }

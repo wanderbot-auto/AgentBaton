@@ -127,6 +127,8 @@ struct RegisterConnection {
     executable: String,
     #[serde(default)]
     arguments: Vec<String>,
+    #[serde(default)]
+    configuration_source: Option<String>,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -934,11 +936,12 @@ impl Daemon {
             "connections.propose" => {
                 let p: RegisterConnection = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                Ok(json!(self.store.propose_connection(
+                Ok(json!(self.store.propose_connection_with_configuration(
                     &p.name,
                     &p.provider,
                     Path::new(&p.executable),
                     &p.arguments,
+                    p.configuration_source.as_deref(),
                     &key
                 )?))
             }

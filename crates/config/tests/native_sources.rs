@@ -786,3 +786,53 @@ fn skill_frontmatter_field_and_scalar_limits_are_independent_of_file_budget() {
     );
     assert!(!discovery.complete);
 }
+
+#[test]
+fn restrictive_claude_import_preserves_only_explicit_disabled_names() {
+    let f = Fixture::new();
+    let raw = br#"{"disabledMcpjsonServers":["local.tools","private"],"enableAllProjectMcpServers":false,"enabledMcpjsonServers":[]}"#;
+    f.write("settings.json", raw);
+    let source = f
+        .root()
+        .read_native(
+            source("selected", "claude-code"),
+            Path::new("settings.json"),
+            NativeFormat::ClaudeSettingsJson,
+        )
+        .unwrap();
+    assert_eq!(
+        source.restrictive_claude_settings().unwrap(),
+        vec!["local.tools", "private"]
+    );
+    assert!(source.preserves_original_hash());
+    assert_eq!(fs::read(f.path.join("settings.json")).unwrap(), raw);
+}
+
+#[test]
+fn restrictive_claude_import_rejects_active_unknown_duplicate_and_secret_fields() {
+    let f = Fixture::new();
+    for raw in [
+        r#"{"disabledMcpjsonServers":["ok"],"enableAllProjectMcpServers":true}"#,
+        r#"{"disabledMcpjsonServers":["ok"],"enabledMcpjsonServers":["enabled"]}"#,
+        r#"{"disabledMcpjsonServers":["ok"],"hooks":{}}"#,
+        r#"{"disabledMcpjsonServers":["ok"],"env":{"TOKEN":"NEVER-ECHO-SECRET"}}"#,
+        r#"{"disabledMcpjsonServers":["ok"],"unknown":"NEVER-ECHO-SECRET"}"#,
+        r#"{"disabledMcpjsonServers":["ok","ok"]}"#,
+        r#"{"disabledMcpjsonServers":["../path"]}"#,
+        r#"{"disabledMcpjsonServers":["ok"],"disabledMcpjsonServers":["different"]}"#,
+        r#"{"disabledMcpjsonServers":[]}"#,
+        r#"{}"#,
+    ] {
+        f.write("settings.json", raw);
+        let source = f
+            .root()
+            .read_native(
+                source("selected", "claude-code"),
+                Path::new("settings.json"),
+                NativeFormat::ClaudeSettingsJson,
+            )
+            .unwrap();
+        let error = source.restrictive_claude_settings().unwrap_err();
+        assert!(!error.to_string().contains("NEVER-ECHO-SECRET"));
+    }
+}

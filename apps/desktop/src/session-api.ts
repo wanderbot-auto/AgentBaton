@@ -71,7 +71,7 @@ export interface GrantRequest {
 }
 export const sessionApi = {
   connectionsList: () => request<NamedConnection[]>('connections_list'),
-  connectionsRegister: (name: string, executable: string, arguments_: string[], idempotencyKey: string, provider: ProviderChoice = 'custom_acp') => request<NamedConnection>('connections_register', { name, executable, arguments: arguments_, provider, idempotencyKey }),
+  connectionsRegister: (name: string, executable: string, arguments_: string[], idempotencyKey: string, provider: ProviderChoice = 'custom_acp', configurationSource?: string) => request<NamedConnection>('connections_register', { name, executable, arguments: arguments_, provider, idempotencyKey, ...(configurationSource === undefined ? {} : { configurationSource }) }),
   grantsCreate: (scope: GrantRequest, idempotencyKey: string) => request<ExecutionGrant>('grants_create', { projectId: scope.project_id, workspaceId: scope.workspace_id, connectionId: scope.connection_id, maxAttempts: scope.max_attempts, maxConcurrency: scope.max_concurrency, maxDurationMs: scope.max_duration_ms, idempotencyKey }),
   grantsList: (projectId: string) => request<ExecutionGrant[]>('grants_list', { projectId }),
   grantsRevoke: (grant: ExecutionGrant, idempotencyKey: string) => request<ExecutionGrant>('grants_revoke', { grantId: grant.id, expectedRevision: grant.revision, idempotencyKey }),

@@ -198,6 +198,7 @@ fn save_session(
 struct ExpectedConnectionSnapshot<'a> {
     executable_sha256: &'a str,
     runtime_plan_digest: &'a str,
+    runtime_plan: RuntimePlan,
 }
 impl Store {
     /// A local authenticated registration authorizes only one bounded version probe.
@@ -223,7 +224,10 @@ impl Store {
     ) -> Result<ProviderConnection> {
         key_valid(key)?;
         let protocol_route = crate::routes::validate_route_arguments(provider, arguments)?;
-        let runtime_plan = crate::runtime_config::plan_for_provider(provider)?;
+        let runtime_plan = match expected.as_ref() {
+            Some(snapshot) => snapshot.runtime_plan.clone(),
+            None => crate::runtime_config::plan_for_provider(provider)?,
+        };
         let plan_digest = runtime_plan
             .plan_digest()
             .map_err(crate::runtime_config::config_error)?;
@@ -243,9 +247,14 @@ impl Store {
         {
             return Err(invalid("Connection name and arguments must be bounded"));
         }
-        let payload = encode(
-            &json!({"name":name,"provider":provider,"executable":executable,"arguments":arguments}),
-        )?;
+        let mut registration =
+            json!({"name":name,"provider":provider,"executable":executable,"arguments":arguments});
+        // Preserve historical default-registration keys; imported plans must be
+        // part of the exact idempotency intent and cannot be swapped on replay.
+        if !runtime_plan.source_refs.is_empty() {
+            registration["runtime_plan_digest"] = json!(plan_digest);
+        }
+        let payload = encode(&registration)?;
         let old:Option<(String,String)>=self.conn.query_row("SELECT payload,result FROM idempotency WHERE scope='local:connections.register' AND key=?1",[key],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
         if let Some((old, result)) = old {
             if old != payload {
@@ -2195,8 +2204,59 @@ impl Store {
         arguments: &[String],
         key: &str,
     ) -> Result<ApprovalProposal> {
+        self.propose_connection_with_configuration(name, provider, executable, arguments, None, key)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn propose_connection_with_configuration(
+        &mut self,
+        name: &str,
+        provider: &str,
+        executable: &Path,
+        arguments: &[String],
+        configuration_source: Option<&str>,
+        key: &str,
+    ) -> Result<ApprovalProposal> {
         let protocol_route = crate::routes::validate_route_arguments(provider, arguments)?;
-        let plan_digest = crate::runtime_config::plan_for_provider(provider)?
+        key_valid(key)?;
+        if let Some(path) = configuration_source {
+            let old: Option<String> = self.conn.query_row(
+                "SELECT result FROM idempotency WHERE scope='local:approvals.propose:connection' AND key=?1",
+                [key], |row| row.get(0)).optional().map_err(db_error)?;
+            if let Some(old) = old {
+                let proposal: ApprovalProposal = decode(&old)?;
+                if proposal.snapshot["intent"]
+                    != json!({"name":name,"provider":provider,"executable":executable,"arguments":arguments})
+                    || proposal.snapshot["configuration_import"]["source_path"] != path
+                {
+                    return Err(CoreError::new(
+                        "CONFIG_CONFLICT",
+                        "Proposal key already used with another configuration selection",
+                    ));
+                }
+                // Replay the exact preview even if the selected source vanished.
+                // Finalization distinguishes committed registration from first use.
+                return Ok(proposal);
+            }
+        }
+        let (plan, configuration_import) = if let Some(path) = configuration_source {
+            if provider != "claude_code" {
+                return Err(CoreError::new(
+                    "CAPABILITY_UNSUPPORTED",
+                    "Selected configuration import currently supports only Claude restrictions",
+                ));
+            }
+            let (plan, source_sha256) = crate::runtime_config::selected_claude_plan(path)?;
+            let preview = json!({"source_path":path,"source_sha256":source_sha256,
+                "format":"claude_restrictions_v1", "disabled_mcp_names_before":[],
+                "disabled_mcp_names_after":plan.claude.disabled_project_mcp_names,
+                "native_writeback":false,"credentials_imported":false,
+                "applies_to":"new_connection_and_future_sessions_only"});
+            (plan, Some(preview))
+        } else {
+            (crate::runtime_config::plan_for_provider(provider)?, None)
+        };
+        let plan_digest = plan
             .plan_digest()
             .map_err(crate::runtime_config::config_error)?;
         if name.trim().is_empty()
@@ -2208,8 +2268,44 @@ impl Store {
         }
         let digest = executable_digest(executable)
             .map_err(|_| invalid("Select an existing canonical executable"))?;
-        let snapshot = json!({"intent":{"name":name,"provider":provider,"executable":executable,"arguments":arguments},"protocol_route":protocol_route,"runtime_plan_digest":plan_digest,"executable_sha256":digest.as_str(),"scope":"version_probe_only","identity_status":"unknown","enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"native_identity_isolation":false},"warning":"Executes selected program with --version only; no session/model invocation approved"});
+        let mut snapshot = json!({"intent":{"name":name,"provider":provider,"executable":executable,"arguments":arguments},"protocol_route":protocol_route,"runtime_plan_digest":plan_digest,"executable_sha256":digest.as_str(),"scope":"version_probe_only","identity_status":"unknown","enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"native_identity_isolation":false},"warning":"Executes selected program with --version only; no session/model invocation approved"});
+        if let Some(preview) = configuration_import {
+            snapshot["configuration_import"] = preview;
+        }
         self.persist_proposal("connection", snapshot, key)
+    }
+
+    fn connection_plan_for_confirmation(&self, snapshot: &Value, key: &str) -> Result<RuntimePlan> {
+        let provider = snapshot["intent"]["provider"]
+            .as_str()
+            .ok_or_else(|| invalid("Stored Provider is invalid"))?;
+        let Some(import) = snapshot.get("configuration_import") else {
+            return crate::runtime_config::plan_for_provider(provider);
+        };
+        if provider != "claude_code" || import["format"] != "claude_restrictions_v1" {
+            return Err(invalid("Unsupported stored configuration import"));
+        }
+        // Registration commits independently before proposal completion. Resolve
+        // that durable result on retry even if the external source later changes.
+        let old: Option<String> = self.conn.query_row(
+            "SELECT result FROM idempotency WHERE scope='local:connections.register' AND key=?1",
+            [key], |row| row.get(0)).optional().map_err(db_error)?;
+        if let Some(old) = old {
+            return crate::runtime_config::approved_plan(&decode::<ProviderConnection>(&old)?);
+        }
+        let path = import["source_path"]
+            .as_str()
+            .ok_or_else(|| invalid("Stored configuration source is invalid"))?;
+        let (plan, digest) = crate::runtime_config::selected_claude_plan(path)?;
+        if import["source_sha256"] != digest
+            || import["disabled_mcp_names_after"] != json!(plan.claude.disabled_project_mcp_names)
+        {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Selected configuration changed; review a new proposal",
+            ));
+        }
+        Ok(plan)
     }
     #[allow(clippy::too_many_arguments)]
     pub fn propose_grant(
@@ -2354,7 +2450,14 @@ impl Store {
         if proposal.revision != revision {
             return Err(CoreError::new("STALE_REVISION", "Owner proposal changed"));
         }
-        if proposal.expires_at_ms <= ms()? {
+        let imported_registration_committed = proposal.kind == "connection"
+            && proposal.snapshot.get("configuration_import").is_some()
+            && self.conn.query_row(
+                "SELECT EXISTS(SELECT 1 FROM idempotency WHERE scope='local:connections.register' AND key=?1)",
+                [format!("proposal:{}", proposal.id)], |row| row.get::<_, bool>(0)).map_err(db_error)?;
+        // Expiry blocks a first approval, not reconciliation of a registration
+        // already committed under that exact proposal before a lost result.
+        if proposal.expires_at_ms <= ms()? && !imported_registration_committed {
             return Err(CoreError::new(
                 "PERMISSION_DENIED",
                 "Owner proposal expired; prepare and review a fresh snapshot",
@@ -2371,6 +2474,8 @@ impl Store {
             "connection" => {
                 let arguments: Vec<String> = serde_json::from_value(intent["arguments"].clone())
                     .map_err(|_| invalid("Stored arguments invalid"))?;
+                let runtime_plan =
+                    self.connection_plan_for_confirmation(&proposal.snapshot, &key)?;
                 json!(self.register_connection_exact(
                     text("name")?,
                     text("provider")?,
@@ -2380,6 +2485,7 @@ impl Store {
                     Some(ExpectedConnectionSnapshot {
                         executable_sha256: proposal.snapshot["executable_sha256"].as_str().ok_or_else(|| invalid("Stored proposal executable digest is missing"))?,
                         runtime_plan_digest: proposal.snapshot["runtime_plan_digest"].as_str().ok_or_else(|| CoreError::new("INPUT_CHANGED", "Stored proposal predates the current runtime plan; prepare a fresh proposal"))?,
+                        runtime_plan,
                     })
                 )?)
             }

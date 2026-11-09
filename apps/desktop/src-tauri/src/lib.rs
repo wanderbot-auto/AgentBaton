@@ -360,6 +360,7 @@ async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, S
 }
 
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 async fn connections_register(
     runtime: tauri::State<'_, Runtime>,
     window: tauri::WebviewWindow,
@@ -368,12 +369,13 @@ async fn connections_register(
     arguments: Vec<String>,
     provider: String,
     idempotency_key: String,
+    configuration_source: Option<String>,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
         window,
         approval::ApprovalKind::Connection,
-        json!({"name":name,"executable":executable,"arguments":arguments,"provider":provider}),
+        json!({"name":name,"executable":executable,"arguments":arguments,"provider":provider,"configuration_source":configuration_source}),
         idempotency_key,
     )
     .await

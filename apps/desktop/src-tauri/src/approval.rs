@@ -42,7 +42,7 @@ impl ApprovalKind {
     fn action(&self) -> &'static str {
         match self {
             Self::Connection => {
-                "Register this exact executable and run its bounded --version probe"
+                "Register this exact executable and run its bounded --version probe. If configuration_import is present, import ONLY the displayed disabled Claude project-MCP names into the new connection. Review source hash and before/after names. No hooks, credentials, MCP execution, native writeback, existing connection changes or model calls are authorized. / 若显示 configuration_import，仅将列出的 Claude MCP 禁用名称导入新连接；核对来源哈希及差异。"
             }
             Self::Grant => {
                 "Grant this exact recipient and workspace the bounded execution scope below"
