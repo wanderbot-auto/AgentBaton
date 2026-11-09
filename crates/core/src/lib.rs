@@ -18,6 +18,7 @@ pub use runtime_config::RuntimeBinding;
 #[cfg(test)]
 mod conversation_tests;
 pub mod conversations;
+pub mod conversations_history;
 pub mod sessions;
 pub mod storage;
 mod task_workspace_binding;

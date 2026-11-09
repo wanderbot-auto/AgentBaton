@@ -1249,6 +1249,10 @@ impl Daemon {
                 empty(&r.params)?;
                 Ok(json!(self.store.list_conversations()?))
             }
+            "conversations.history" => {
+                let request: crate::conversations_history::ConversationHistoryRequest = params(r.params)?;
+                Ok(json!(self.store.conversation_history(&request)?))
+            }
             "conversations.get" => {
                 let p: ConversationId = params(r.params)?;
                 Ok(json!(self.store.get_conversation(&p.conversation_id)?))

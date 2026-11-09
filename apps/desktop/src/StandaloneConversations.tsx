@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { api, DaemonError, type Project, type ManagedWorkspace, type JournalEvent } from './api';
+import { api, DaemonError, type Project, type ManagedWorkspace } from './api';
 import { sessionApi, type NamedConnection, type ExecutionGrant, type GrantRequest } from './session-api';
-import { conversationApi, conversationEventText, conversationMeetsFloor, sameConversation, type Conversation, type ConversationCreate } from './conversation-api';
+import { conversationApi, conversationMeetsFloor, sameConversation, type Conversation, type ConversationCreate } from './conversation-api';
+import { ConversationHistory } from './ConversationHistory';
 import { standaloneConversationMessages } from './standalone-conversations-i18n';
 import type { Language } from './i18n';
 
@@ -26,9 +27,9 @@ export function StandaloneConversations({language,connected,onConvert,onBusy,uiS
   const [grantId,setGrantId]=useState(saved?.kind==='create'?saved.selection.grant_id:''), [title,setTitle]=useState(saved?.kind==='create'?saved.selection.title:'');
   const [attempts,setAttempts]=useState(saved?.kind==='grant'?saved.selection.max_attempts:1), [concurrency,setConcurrency]=useState(saved?.kind==='grant'?saved.selection.max_concurrency:1), [duration,setDuration]=useState(saved?.kind==='grant'?saved.selection.max_duration_ms/1000:60), [ack,setAck]=useState(false);
   const [projects,setProjects]=useState<Project[]>([]), [connections,setConnections]=useState<NamedConnection[]>([]), [workspaces,setWorkspaces]=useState<ManagedWorkspace[]>([]), [grants,setGrants]=useState<ExecutionGrant[]>([]), [rows,setRows]=useState<Conversation[]>([]);
-  const [selectedId,setSelectedId]=useState(saved?.kind==='send'||saved?.kind==='cancel'?saved.conversation.id:''), [view,setView]=useState<Conversation|null>(null), [events,setEvents]=useState<JournalEvent[]>([]);
+  const [selectedId,setSelectedId]=useState(saved?.kind==='send'||saved?.kind==='cancel'?saved.conversation.id:''), [view,setView]=useState<Conversation|null>(null);
   const [loading,setLoading]=useState(false), [fresh,setFresh]=useState(false), [error,setError]=useState(''), [message,setMessage]=useState(saved?.kind==='send'?saved.text:'');
-  const [chosen,setChosen]=useState(new Map<string,string>()), [summary,setSummary]=useState(''), [summaryProject,setSummaryProject]=useState<string|null>(null);
+  const [summary,setSummary]=useState(''), [summaryProject,setSummaryProject]=useState<string|null>(null);
   const mounted=useRef(true), sequence=useRef(0), polls=useRef(0), onBusyRef=useRef(onBusy);onBusyRef.current=onBusy;
   const notify=()=>{for(const listener of uiState.listeners)listener();};
   useEffect(()=>{mounted.current=true;const listener=()=>renderState(n=>n+1);uiState.listeners.add(listener);return()=>{mounted.current=false;++sequence.current;uiState.listeners.delete(listener);};},[uiState]);
@@ -40,25 +41,23 @@ export function StandaloneConversations({language,connected,onConvert,onBusy,uiS
   const grant=matchingGrants.find(g=>g.id===grantId);
   const scopeReady=!!project&&!project.archived&&readyWorkspaces.some(w=>w.id===workspaceId)&&readyConnections.some(c=>c.id===connectionId);
   useEffect(()=>{
-    const request=++sequence.current;let active=true;setFresh(false);setView(null);setEvents([]);setError('');
+    const request=++sequence.current;let active=true;setFresh(false);setView(null);setError('');
     if(!connected){setLoading(false);return()=>{active=false;};}setLoading(true);
     void(async()=>{
       const [p,c,all,w,g]=await Promise.all([api.projectsList(),sessionApi.connectionsList(),conversationApi.list(),projectId?api.workspacesList(projectId):Promise.resolve([]),projectId?sessionApi.grantsList(projectId):Promise.resolve([])]);
       if(!active||request!==sequence.current)return;
       if(!Array.isArray(p)||!Array.isArray(c)||!Array.isArray(w)||!Array.isArray(g)||w.some(item=>item.project_id!==projectId)||g.some(item=>item.project_id!==projectId))throw new Error();
       for(const [id,floor]of uiState.floors){const row=all.find(item=>item.id===id);if(!row||!conversationMeetsFloor(row,floor))throw new Error();}
-      let detail:Conversation|null=null;let history:JournalEvent[]=[];
+      let detail:Conversation|null=null;
       if(selectedId){
         const listed=all.find(row=>row.id===selectedId);if(!listed)throw new Error();
         detail=await conversationApi.get(selectedId);
         if(!conversationMeetsFloor(detail,listed))throw new Error();
-        const snapshot=await api.snapshot();const batch=await api.events(Math.max(0,snapshot.sequence-100));
-        history=batch.events.filter(event=>event.aggregate_id===selectedId&&conversationEventText(event)!==null);
       }
       if(!active||request!==sequence.current)return;
       for(const row of all)uiState.floors.set(row.id,row);
       if(detail)uiState.floors.set(detail.id,detail);
-      setProjects(p);setConnections(c);setWorkspaces(w);setGrants(g);setRows(all.map(row=>row.id===detail?.id?detail:row));setView(detail);setEvents(history);setFresh(true);
+      setProjects(p);setConnections(c);setWorkspaces(w);setGrants(g);setRows(all.map(row=>row.id===detail?.id?detail:row));setView(detail);setFresh(true);
       if(uiState.pending&&!uiState.inFlight){uiState.pending={...uiState.pending,reconciled:true};notify();}
     })().catch(()=>{if(active&&request===sequence.current)setError(t.error);}).finally(()=>{if(active&&request===sequence.current)setLoading(false);});
     return()=>{active=false;};
@@ -84,7 +83,7 @@ export function StandaloneConversations({language,connected,onConvert,onBusy,uiS
         // Core exact-key recovery returns the current record; do not accept regressed evidence.
         if(floor&&!conversationMeetsFloor(result,floor))throw new Error();
         if(!floor||conversationMeetsFloor(result,floor))uiState.floors.set(result.id,result);
-        if(mounted.current){setSelectedId(result.id);if(intent.kind==='send')setMessage('');if(intent.kind==='create'){setTitle('');setChosen(new Map());setSummary('');setSummaryProject(null);}}
+        if(mounted.current){setSelectedId(result.id);if(intent.kind==='send')setMessage('');if(intent.kind==='create'){setTitle('');setSummary('');setSummaryProject(null);}}
       }
       uiState.pending=null;
     }catch(failure){
@@ -111,11 +110,12 @@ export function StandaloneConversations({language,connected,onConvert,onBusy,uiS
       <details><summary>{t.grantSetup}</summary><p>{t.grantHelp}</p><label>{t.attempts}<input type="number" min={1} max={100} value={attempts} onChange={e=>{setAttempts(Number(e.target.value));setAck(false);}}/></label><label>{t.concurrency}<input type="number" min={1} max={attempts} value={concurrency} onChange={e=>{setConcurrency(Number(e.target.value));setAck(false);}}/></label><label>{t.duration}<input type="number" min={1} max={3600} value={duration} onChange={e=>{setDuration(Number(e.target.value));setAck(false);}}/></label><label><input type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/>{t.acknowledge}</label><button type="button" disabled={!scopeReady||!ack||!validLimit(attempts,1,100)||!validLimit(concurrency,1,attempts)||!validLimit(duration,1,3600)} onClick={authorize}>{t.approveGrant}</button></details>
       <label>{t.name}<input value={title} maxLength={512} onChange={e=>setTitle(e.target.value)}/></label><button type="button" disabled={!scopeReady||!grant||!title.trim()||byteLength(title)>512} onClick={start}>{t.start}</button>
     </fieldset></details>
-    {!rows.length&&fresh&&<p>{t.empty}</p>}<label>{t.selected}<select value={selectedId} disabled={busy||!!pending} onChange={e=>{setSelectedId(e.target.value);setChosen(new Map());setSummary('');setSummaryProject(null);setMessage('');setView(null);polls.current=0;}}><option value="">{t.choose}</option>{rows.map(row=><option key={row.id} value={row.id}>{row.title} · {label(row.state)}</option>)}</select></label>
-    {view&&<><h3>{view.title}</h3><p>{label(view.state)}</p><p>{t.project}: {projects.find(p=>p.id===view.project_id)?.name??view.project_id}</p><p>{t.connection}: {connections.find(c=>c.id===view.connection_id)?.name??view.connection_id}</p><p>{t.window}</p>{!events.length&&<p>{t.noMessages}</p>}<ol>{events.map(event=>{const excerpt=`${event.kind==='conversation.message_queued'?t.user:t.agent}: ${conversationEventText(event)}`;return <li key={event.event_id}><label><input type="checkbox" checked={chosen.has(event.event_id)} disabled={busy} onChange={e=>setChosen(old=>{const next=new Map(old);if(e.target.checked)next.set(event.event_id,excerpt);else next.delete(event.event_id);return next;})}/>{excerpt}</label></li>;})}</ol>
+    {!rows.length&&fresh&&<p>{t.empty}</p>}<label>{t.selected}<select value={selectedId} disabled={busy||!!pending} onChange={e=>{setSelectedId(e.target.value);setSummary('');setSummaryProject(null);setMessage('');setView(null);polls.current=0;}}><option value="">{t.choose}</option>{rows.map(row=><option key={row.id} value={row.id}>{row.title} · {label(row.state)}</option>)}</select></label>
+    {selectedId&&rows.find(row=>row.id===selectedId)&&<ConversationHistory key={selectedId} conversation={view??rows.find(row=>row.id===selectedId)!} language={language} connected={connected} disabled={busy} onSummary={(text,sourceProject)=>{setSummary(text);setSummaryProject(sourceProject);setError('');}} />}
+    {view&&<><h3>{view.title}</h3><p>{label(view.state)}</p><p>{t.project}: {projects.find(p=>p.id===view.project_id)?.name??view.project_id}</p><p>{t.connection}: {connections.find(c=>c.id===view.connection_id)?.name??view.connection_id}</p>
       <form onSubmit={e=>{e.preventDefault();send();}}><label>{t.message}<textarea value={message} disabled={disabled||view.state!=='ready'} maxLength={65536} onChange={e=>setMessage(e.target.value)}/></label><button type="submit" disabled={disabled||view.state!=='ready'||!message.trim()||byteLength(message)>65536}>{t.send}</button></form>{view.state!=='ready'&&<p>{t.notReady}</p>}
       <button type="button" disabled={disabled||!['starting','ready','running'].includes(view.state)} onClick={()=>void perform({kind:'cancel',key:crypto.randomUUID(),reconciled:false,conversation:structuredClone(view)})}>{t.stop}</button>
-      <button type="button" disabled={busy} onClick={()=>{const text=[...chosen.values()].join('\n\n');if(!text){setError(t.emptySelection);return;}if(!fitsSummary(text)){setError(t.limit);return;}setSummary(text);setSummaryProject(view.project_id);setError('');}}>{t.useContext}</button>
+
     </>}
     {summaryProject!==null&&<><label>{t.summary}<textarea value={summary} maxLength={8192} onChange={e=>setSummary(e.target.value)}/></label><p>{t.project}: {summaryProject}</p><p>{t.conversionHelp}</p>{!fitsSummary(summary)&&<p role="alert">{t.limit}</p>}<button type="button" disabled={!connected||busy||!!pending||!summary.trim()||!fitsSummary(summary)} onClick={()=>onConvert(summary,summaryProject)}>{t.convert}</button></>}
   </section>;

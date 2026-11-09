@@ -431,6 +431,19 @@ async fn conversations_list(runtime: tauri::State<'_, Runtime>) -> Result<Value,
     .await
 }
 #[tauri::command]
+async fn conversations_history(
+    runtime: tauri::State<'_, Runtime>,
+    conversation_id: String,
+    cursor: Option<Value>,
+    limit: Option<u32>,
+) -> Result<Value, String> {
+    let limit = limit.unwrap_or(100);
+    if !(1..=100).contains(&limit) {
+        return Err("History page limit must be between 1 and 100".into());
+    }
+    call(&runtime, json!({"method":"conversations.history","params":{"conversation_id":conversation_id,"cursor":cursor,"limit":limit}}), false).await
+}
+#[tauri::command]
 async fn conversations_get(
     runtime: tauri::State<'_, Runtime>,
     conversation_id: String,
@@ -1985,6 +1998,7 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         grants_revoke,
         conversations_list,
         conversations_get,
+        conversations_history,
         conversations_create,
         conversations_send,
         conversations_cancel,

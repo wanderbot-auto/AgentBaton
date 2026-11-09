@@ -6246,6 +6246,20 @@ fn standalone_conversation_ipc_never_creates_a_task_or_replays_a_turn() {
         |v| v["state"] == "ready" && v["turn_state"] == "completed",
     );
     result(f.server.request(send));
+    let history = result(f.server.request(json!({"method":"conversations.history","params":{"conversation_id":ready["id"],"cursor":null,"limit":100}})));
+    assert_eq!(history["conversation_id"], ready["id"]);
+    assert_eq!(history["attempt_id"], ready["attempt_id"]);
+    assert_eq!(history["coverage"], "complete");
+    assert_eq!(history["capture"], "normalized_partial");
+    assert_eq!(
+        history["events"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|e| e["kind"] == "conversation.message_queued")
+            .count(),
+        1
+    );
     let tasks_after = result(f.server.request(json!({"method":"tasks.list","params":{}})));
     assert_eq!(
         tasks_after, tasks_before,

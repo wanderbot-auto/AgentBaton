@@ -4,6 +4,9 @@ import { api, DaemonError, type Project, type ManagedWorkspace, type JournalEven
 import { sessionApi, type NamedConnection, type ExecutionGrant } from './session-api';
 import { conversationApi, type Conversation } from './conversation-api';
 import { App } from './App';
+import { conversationHistoryApi } from './conversation-history-api';
+import { historyPage, historyEvent } from './conversation-history-test-fixtures';
+vi.mock('./conversation-history-api',()=>({conversationHistoryApi:{page:vi.fn()}}));
 import { StandaloneConversations, createConversationUiState } from './StandaloneConversations';
 vi.mock('./api',async original=>({...await original<typeof import('./api')>(),api:{projectsList:vi.fn(),workspacesList:vi.fn(),snapshot:vi.fn(),events:vi.fn(),create:vi.fn()}}));
 vi.mock('./session-api',()=>({sessionApi:{connectionsList:vi.fn(),grantsList:vi.fn(),grantsCreate:vi.fn(),sessionsCreate:vi.fn(),sessionsSend:vi.fn(),sessionsList:vi.fn()}}));
@@ -15,7 +18,7 @@ const grant:ExecutionGrant={id:'grant',project_id:project.id,root_grant_id:'gran
 const conversation:Conversation={id:'conversation',project_id:project.id,title:'Discuss design',workspace_id:workspace.id,connection_id:connection.id,grant_id:grant.id,state:'ready',revision:2,native_session_id:'native',created_at:'date',updated_at:'date',last_error:null,turn_state:null,runtime_snapshot:null,attempt_id:'attempt',fencing_token:1,git_common_device:1,git_common_inode:2};
 const event:JournalEvent={event_id:'event',aggregate_id:conversation.id,revision:1,sequence:1,kind:'conversation.update',occurred_at:'date',source:'provider',payload:{update:{kind:{kind:'agent_text',text:'Discussed option'}}}};
 const convert=vi.fn();let state=createConversationUiState();
-beforeEach(()=>{vi.resetAllMocks();localStorage.clear();localStorage.setItem('agentbaton.language','en');vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);state=createConversationUiState();vi.mocked(api.projectsList).mockResolvedValue([project]);vi.mocked(api.workspacesList).mockResolvedValue([workspace]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([connection]);vi.mocked(sessionApi.grantsList).mockResolvedValue([grant]);vi.mocked(conversationApi.list).mockResolvedValue([]);vi.mocked(conversationApi.get).mockResolvedValue(conversation);vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[event],sequence:1,next_cursor:1,gap:false});});
+beforeEach(()=>{vi.resetAllMocks();vi.mocked(conversationHistoryApi.page).mockResolvedValue({...historyPage([historyEvent(1),{...event,revision:2,sequence:2}],null),snapshot_revision:2,snapshot_sequence:2});localStorage.clear();localStorage.setItem('agentbaton.language','en');vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);state=createConversationUiState();vi.mocked(api.projectsList).mockResolvedValue([project]);vi.mocked(api.workspacesList).mockResolvedValue([workspace]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([connection]);vi.mocked(sessionApi.grantsList).mockResolvedValue([grant]);vi.mocked(conversationApi.list).mockResolvedValue([]);vi.mocked(conversationApi.get).mockResolvedValue(conversation);vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[event],sequence:1,next_cursor:1,gap:false});});
 function mount(){return render(<StandaloneConversations language="en" connected onConvert={convert} uiState={state}/>);}
 async function setup(){
  fireEvent.click(screen.getByText('New independent conversation',{selector:'summary'}));
@@ -61,7 +64,7 @@ it('projects cancellation as a request rather than confirmed stop',async()=>{
  await waitFor(()=>expect(conversationApi.cancel).toHaveBeenCalledWith(conversation,expect.any(String)));await screen.findByText('Stop requested');expect(screen.queryByText('Stopped')).not.toBeInTheDocument();
 });
 it('converts only chosen excerpts with fixed source project and no hidden Task creation',async()=>{
- await select();fireEvent.click(screen.getByLabelText('Agent: Discussed option'));fireEvent.click(screen.getByRole('button',{name:'Use selected excerpts'}));fireEvent.change(screen.getByLabelText('Selected conversation summary'),{target:{value:'Reviewed selected option'}});fireEvent.click(screen.getByRole('button',{name:'Create task from summary'}));expect(convert).toHaveBeenCalledWith('Reviewed selected option',project.id);expect(api.create).not.toHaveBeenCalled();
+ await select();fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));fireEvent.click(screen.getByRole('button',{name:'Use selected excerpts'}));fireEvent.change(screen.getByLabelText('Selected conversation summary'),{target:{value:'Reviewed selected option'}});fireEvent.click(screen.getByRole('button',{name:'Create task from summary'}));expect(convert).toHaveBeenCalledWith('Reviewed selected option',project.id);expect(api.create).not.toHaveBeenCalled();
 });
 it('rejects details that regress below the observed conversation revision',async()=>{
  vi.mocked(conversationApi.list).mockResolvedValue([conversation]);vi.mocked(conversationApi.get).mockResolvedValue({...conversation,revision:1});mount();await screen.findByRole('option',{name:'Discuss design · Ready'});fireEvent.change(screen.getByLabelText('Selected conversation'),{target:{value:conversation.id}});await screen.findByRole('alert');expect(screen.queryByRole('button',{name:'Send message'})).not.toBeInTheDocument();
@@ -76,4 +79,18 @@ it('opens the actual App dialog and starts no task or prompt implicitly',async()
  expect(screen.getByRole('dialog',{name:'Independent Agent conversations'})).toBeInTheDocument();
  await setup();expect(conversationApi.create).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Start conversation'}));
  await waitFor(()=>expect(conversationApi.create).toHaveBeenCalledTimes(1));expect(api.create).not.toHaveBeenCalled();expect(conversationApi.send).not.toHaveBeenCalled();expect(sessionApi.sessionsCreate).not.toHaveBeenCalled();
+});
+
+it('keeps history and selected excerpts mounted while refreshing actor state',async()=>{
+ await select();fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));
+ fireEvent.click(screen.getByRole('button',{name:'Refresh conversations'}));
+ await waitFor(()=>expect(conversationApi.get).toHaveBeenCalledTimes(2));
+ expect(screen.getByLabelText('Agent: Discussed option')).toBeChecked();expect(conversationHistoryApi.page).toHaveBeenCalledTimes(1);
+ expect(api.events).not.toHaveBeenCalled();
+});
+it('keeps stop and actor refresh available when scoped history fails',async()=>{
+ vi.mocked(conversationHistoryApi.page).mockRejectedValue(new Error('unavailable'));await select();await screen.findByRole('alert');
+ expect(screen.getByRole('button',{name:'Request stop'})).toBeEnabled();expect(screen.getByRole('button',{name:'Refresh conversations'})).toBeEnabled();
+ vi.mocked(conversationApi.cancel).mockResolvedValue({...conversation,state:'cancel_requested',revision:3});
+ fireEvent.click(screen.getByRole('button',{name:'Request stop'}));await waitFor(()=>expect(conversationApi.cancel).toHaveBeenCalledWith(conversation,expect.any(String)));
 });
