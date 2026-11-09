@@ -353,6 +353,7 @@ fn managed_skill_closed_runtime_plan_cannot_enable_mcp_assets_or_models_and_lega
                 .mcp_servers
                 .push(agentbaton_config::runtime::ManagedMcpServer {
                     name: "unapproved".into(),
+                    codex_policy: None,
                     transport: agentbaton_config::runtime::ManagedMcpTransport::Http {
                         endpoint: NonSecretText::approved("https://example.invalid/mcp".into())
                             .unwrap(),

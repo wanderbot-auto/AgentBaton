@@ -336,6 +336,7 @@ pub(crate) fn approved_plan(connection: &ProviderConnection) -> Result<RuntimePl
         && !is_restrictive_claude_plan(&plan)?
         && !is_selected_codex_plan(&plan)?
         && !is_managed_codex_skill_plan(&plan)?
+        && !is_managed_codex_mcp_plan(&plan)?
     {
         return Err(CoreError::new(
             "CAPABILITY_UNSUPPORTED",
@@ -476,6 +477,26 @@ pub(crate) fn is_managed_codex_skill_plan(plan: &RuntimePlan) -> Result<bool> {
             .plan_digest()
             .map_err(config_error)?
         || is_selected_codex_plan(&base)?)
+}
+
+pub(crate) fn is_managed_codex_mcp_plan(plan: &RuntimePlan) -> Result<bool> {
+    if agentbaton_config::runtime::managed_codex_mcp_metadata(plan)
+        .map_err(config_error)?
+        .is_none()
+    {
+        return Ok(false);
+    }
+    plan.validate().map_err(config_error)?;
+    let mut base = plan.clone();
+    base.mcp_servers.clear();
+    base.source_refs
+        .retain(|p| p.source_ref != agentbaton_config::runtime::MANAGED_CODEX_MCP_SOURCE);
+    Ok(base.plan_digest().map_err(config_error)?
+        == plan_for_provider("codex")?
+            .plan_digest()
+            .map_err(config_error)?
+        || is_selected_codex_plan(&base)?
+        || is_managed_codex_skill_plan(&base)?)
 }
 
 #[cfg(test)]

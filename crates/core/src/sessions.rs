@@ -47,6 +47,13 @@ pub(crate) mod planning;
 use owned_stop::{CompletedTurnProof, RetainedReceipt};
 #[path = "connection_probe.rs"]
 mod connection_probe;
+#[path = "managed_mcps.rs"]
+pub(crate) mod managed_mcps;
+pub use managed_mcps::{
+    ManagedMcpCatalog, ManagedMcpConfirmation, ManagedMcpConnectionId, ManagedMcpFind,
+    ManagedMcpOperation, ManagedMcpPreview, ManagedMcpProfile, ManagedMcpRequest,
+    ManagedMcpSelection, ManagedMcpServerSelection, ManagedMcpSummary, ManagedMcpUnavailable,
+};
 #[path = "managed_skills.rs"]
 mod managed_skills;
 pub use connection_probe::{
@@ -1374,6 +1381,7 @@ impl Supervisor {
                 ))
             }
         };
+        let managed_mcp = managed_mcps::ManagedMcpLaunch::new(&plan, &snapshot)?;
         let environment = snapshot.environment();
         let installation = ApprovedInstallation {
             executable: c.executable,
@@ -1434,6 +1442,7 @@ impl Supervisor {
                         factory_mcp,
                         owned_stop: worker_owned_stop,
                         planning: None,
+                        managed_mcp,
                         prelaunch_ms,
                         duration,
                     },
@@ -1885,6 +1894,7 @@ pub(crate) struct WorkerLaunch {
     pub(crate) factory_mcp: Option<crate::factory::FactoryMcpLaunch>,
     owned_stop: Option<Arc<owned_stop::LaunchBinding>>,
     planning: Option<planning::PlanningCapture>,
+    managed_mcp: managed_mcps::ManagedMcpLaunch,
     pub(crate) prelaunch_ms: u64,
     pub(crate) duration: Duration,
 }
@@ -1896,9 +1906,16 @@ impl WorkerLaunch {
         prelaunch_ms: u64,
         duration: Duration,
         capture: planning::PlanningCapture,
+        authority: managed_mcps::ManagedMcpLaunch,
     ) -> Self {
-        let mut launch =
-            Self::conversation(route, installation, configuration, prelaunch_ms, duration);
+        let mut launch = Self::conversation(
+            route,
+            installation,
+            configuration,
+            prelaunch_ms,
+            duration,
+            authority,
+        );
         launch.planning = Some(capture);
         launch
     }
@@ -1908,6 +1925,7 @@ impl WorkerLaunch {
         configuration: Option<Value>,
         prelaunch_ms: u64,
         duration: Duration,
+        authority: managed_mcps::ManagedMcpLaunch,
     ) -> Self {
         Self {
             route,
@@ -1916,6 +1934,7 @@ impl WorkerLaunch {
             factory_mcp: None,
             owned_stop: None,
             planning: None,
+            managed_mcp: authority,
             prelaunch_ms,
             duration,
         }
@@ -2016,6 +2035,7 @@ fn run_worker_inner(
         factory_mcp,
         owned_stop,
         planning,
+        managed_mcp,
         prelaunch_ms: _,
         duration,
     } = launch;
@@ -2064,10 +2084,25 @@ fn run_worker_inner(
             elapsed_ms: 0,
         };
     }
+    if managed_mcp.verify(&installation).is_err() {
+        notify(Outcome::Failure(
+            id.clone(),
+            "managed_mcp_launch_binding_changed".into(),
+        ));
+        let mut receipt = WorkerReceipt::conversation_no_start(0);
+        receipt.reason = "managed_mcp_launch_binding_changed".into();
+        return receipt;
+    }
+    let remaining = duration.saturating_sub(started.elapsed());
+    if cancel.load(Ordering::Relaxed) || remaining.is_zero() {
+        let mut receipt = WorkerReceipt::conversation_no_start(0);
+        receipt.reason = "managed_preflight_cancelled_or_deadline".into();
+        return receipt;
+    }
     let mut process = match ManagedProviderProcess::start(
         route,
         installation,
-        duration.min(Duration::from_secs(3)),
+        remaining.min(Duration::from_secs(3)),
     ) {
         Ok(p) => p,
         Err(failure) => {
@@ -2575,6 +2610,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "managed_mcp" {
+            return self.finalize_managed_mcp(id, revision);
+        }
         if proposal.kind == "managed_skill" {
             return self.finalize_managed_skill(id, revision);
         }
@@ -2712,15 +2750,16 @@ pub(crate) fn approval_event_payload(kind: &str, snapshot: &Value) -> Result<Val
     fn contains_managed_skill(value: &Value) -> bool {
         match value {
             Value::Object(fields) => {
-                fields.get("source_ref").and_then(Value::as_str)
-                    == Some("baton-managed-codex-skill")
-                    || fields.values().any(contains_managed_skill)
+                matches!(
+                    fields.get("source_ref").and_then(Value::as_str),
+                    Some("baton-managed-codex-skill" | "baton-managed-codex-mcp")
+                ) || fields.values().any(contains_managed_skill)
             }
             Value::Array(values) => values.iter().any(contains_managed_skill),
             _ => false,
         }
     }
-    if kind == "managed_skill" || contains_managed_skill(snapshot) {
+    if matches!(kind, "managed_skill" | "managed_mcp") || contains_managed_skill(snapshot) {
         use sha2::{Digest, Sha256};
         Ok(
             json!({"kind":kind,"snapshot_digest":format!("{:x}",Sha256::digest(encode(snapshot)?.as_bytes()))}),
@@ -2776,6 +2815,7 @@ mod tests {
                 factory_mcp: None,
                 owned_stop: None,
                 planning: None,
+                managed_mcp: managed_mcps::ManagedMcpLaunch::test_empty(),
                 prelaunch_ms: 0,
                 duration: Duration::from_secs(2),
             },

@@ -852,6 +852,8 @@ impl Daemon {
                     | "connections.propose"
                     | "connections.inspect"
                     | "connections.reprobe.propose"
+                    | "managed_mcps.preview"
+                    | "managed_mcps.propose"
                     | "managed_skills.preview"
                     | "managed_skills.propose"
                     | "grants.propose"
@@ -1037,6 +1039,31 @@ impl Daemon {
             "goal_plans.list" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.list_goal_plan_revisions(&p.scope_id)?))}
             "goal_plans.ready_preview" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.preview_goal_ready(&p.scope_id,r.expected_revision.ok_or_else(invalid)?)?))}
             "goal_scopes.approve" | "goal_plans.dispatch" | "goal_plans.reserve" | "goal_plans.accept" => Err(CoreError::new("AUTH_REQUIRED","Renderer approval flags, dispatch/reservation and Task acceptance are not Goal preview methods")),
+            "managed_mcps.list" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                empty(&r.params)?;
+                Ok(json!(self.store.list_managed_mcp_profiles()?))
+            }
+            "managed_mcps.preview" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedMcpRequest = params(r.params)?;
+                Ok(json!(self.store.preview_managed_mcp(&p)?))
+            }
+            "managed_mcps.propose" => {
+                if r.expected_revision.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedMcpSelection = params(r.params)?;
+                Ok(json!(self.store.propose_managed_mcp(&p, &r.idempotency_key.ok_or_else(invalid)?)?))
+            }
+            "managed_mcps.find" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedMcpFind = params(r.params)?;
+                Ok(json!(self.store.find_managed_mcp(&p)?))
+            }
+            "managed_mcps.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedMcpConnectionId = params(r.params)?;
+                Ok(json!(self.store.get_managed_mcp_profile(&p.connection_id)?))
+            }
             "managed_skills.list" => {
                 if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
                 empty(&r.params)?;
@@ -1113,11 +1140,16 @@ impl Daemon {
                     }
                 }
                 if !already_confirmed && result.get("profile").is_some() && result.get("connection").is_some() {
-                    let id = result["connection"]["id"].as_str().ok_or_else(invalid)?;
+                    let id = result["connection"]["id"].as_str().filter(|id| !id.is_empty()).ok_or_else(|| {
+                        let mut error = CoreError::new("OUTCOME_UNKNOWN", "Managed connection was approved but its probe binding is unavailable; reconcile the original creation key");
+                        error.side_effect_state = "confirmed".into();
+                        error
+                    })?;
                     if let Err(error) = self.supervisor.probe(&self.store, id) {
                         let mut error = self.store.record_initial_probe_not_started(id).err().unwrap_or(error);
                         if matches!(error.side_effect_state.as_str(), "none" | "not_started") { error.side_effect_state = "confirmed".into(); }
-                        error.details_ref = Some(format!("managed-skill-connection-probe-not-scheduled:{id}"));
+                        let label = if result["profile"].get("managed_mcp").is_some() { "managed-mcp" } else { "managed-skill" };
+                        error.details_ref = Some(format!("{label}-connection-probe-not-scheduled:{id}"));
                         return Err(error);
                     }
                 }

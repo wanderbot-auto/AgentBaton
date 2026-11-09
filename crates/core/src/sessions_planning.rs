@@ -362,6 +362,7 @@ for line in sys.stdin:
             0,
             Duration::from_secs(3),
             capture.clone(),
+            super::super::managed_mcps::ManagedMcpLaunch::test_empty(),
         );
         let (commands, receiver) = mpsc::sync_channel(4);
         commands.send(Work::Prompt(prompt.into())).unwrap();

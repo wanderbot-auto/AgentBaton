@@ -485,6 +485,27 @@ pub(crate) fn grant_proposal_refs_with_data(
         })?
     };
     let mut refs = json!({"project_revision":project.revision,"project_name":project.name,"workspace_revision":workspace.revision,"workspace_identity":identity,"connection":connections[connection_id],"execution_recipient":{"connection_id":connection_id,"name":connection["name"],"provider":connection["provider"],"protocol_route":connection["protocol_route"],"executable":connection["executable"],"arguments":connection["arguments"],"executable_sha256":connection["executable_sha256"],"identity_status":connection["identity_status"],"config_status":connection["config_status"]}});
+    // Historical connections without this capability keep their exact approval
+    // shape and compatibility rules; only the new marker opens typed MCP review.
+    let marker = agentbaton_config::runtime::MANAGED_CODEX_MCP_SOURCE;
+    let managed_mcp = connection["runtime_plan"]["source_refs"]
+        .as_array()
+        .is_some_and(|refs| refs.iter().any(|r| r["source_ref"] == marker))
+        || connection["runtime_plan"]["mcp_servers"]
+            .as_array()
+            .is_some_and(|servers| {
+                servers.iter().any(|s| {
+                    s["provenance"]["source_ref"] == marker || !s["codex_policy"].is_null()
+                })
+            });
+    if managed_mcp {
+        let c: crate::sessions::ProviderConnection = serde_json::from_value(connection.clone())
+            .map_err(|_| CoreError::new("INPUT_CHANGED", "Connection changed"))?;
+        let plan = crate::runtime_config::approved_plan(&c)?;
+        if let Some(server) = crate::sessions::managed_mcps::summary(&plan)? {
+            refs["native_mcp"] = json!({"server":server,"scope":"native_stdio_tools_for_new_sessions","native_io_isolation":false,"interactive_tool_approval":"unsupported_requests_denied","credentials_imported":false});
+        }
+    }
     if matches!(identity.kind, WorkspaceKind::Directory) {
         refs["data_input"] = crate::data_workspaces::data_input_approval_view(conn, &workspace)?;
     }

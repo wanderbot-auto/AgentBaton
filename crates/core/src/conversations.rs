@@ -892,6 +892,7 @@ impl ConversationSupervisor {
                 .map_err(|_| error("INPUT_CHANGED", "Connection digest changed"))?,
         )
         .map_err(|_| error("INPUT_CHANGED", "Approved executable changed before launch"))?;
+        let authority = crate::sessions::managed_mcps::ManagedMcpLaunch::new(&plan, &snapshot)?;
         let installation = ApprovedInstallation {
             executable: connection.executable,
             expected_sha256: BinaryDigest::parse(&connection.executable_sha256)
@@ -947,6 +948,7 @@ impl ConversationSupervisor {
                 prelaunch_ms,
                 Duration::from_millis(remaining),
                 p.capture.clone(),
+                authority,
             )
         } else {
             WorkerLaunch::conversation(
@@ -955,6 +957,7 @@ impl ConversationSupervisor {
                 configuration,
                 prelaunch_ms,
                 Duration::from_millis(remaining),
+                authority,
             )
         };
         let thread = std::thread::Builder::new()

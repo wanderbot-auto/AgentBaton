@@ -153,10 +153,27 @@ pub enum ManagedMcpTransport {
     /// No credentials, headers, query parameters or userinfo are accepted here.
     Http { endpoint: NonSecretText },
 }
+pub const MANAGED_CODEX_MCP_SOURCE: &str = "baton-managed-codex-mcp";
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CodexMcpPolicy {
+    pub executable_sha256: String,
+    pub enabled_tools: Vec<String>,
+}
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ManagedCodexMcpMetadata {
+    pub name: String,
+    pub command: String,
+    pub executable_sha256: String,
+    pub enabled_tools: Vec<String>,
+}
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ManagedMcpServer {
     pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub codex_policy: Option<CodexMcpPolicy>,
     pub transport: ManagedMcpTransport,
     pub provenance: SourceProvenance,
 }
@@ -200,6 +217,110 @@ impl std::fmt::Debug for RuntimePlan {
             .finish_non_exhaustive()
     }
 }
+fn mcp_name(name: &str) -> bool {
+    !name.is_empty()
+        && name.len() <= 64
+        && name != "."
+        && name != ".."
+        && name
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"_.-".contains(&b))
+}
+/// Pure profile binding. Filesystem canonical identity/digest is separately
+/// verified by Core at confirmation and immediately before owned launch.
+pub fn managed_codex_mcp_digest(
+    name: &str,
+    command: &str,
+    exe_sha: &str,
+    tools: &[String],
+) -> Result<String> {
+    let path = Path::new(command);
+    if !mcp_name(name)
+        || !leaf(name)
+        || !name
+            .bytes()
+            .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b"_-".contains(&b))
+        || command.len() > 4096
+        || command.chars().any(char::is_control)
+        || !path.is_absolute()
+        || command == "/"
+        || command.ends_with('/')
+        || command
+            .split('/')
+            .skip(1)
+            .any(|p| p.is_empty() || p == "." || p == "..")
+        || !valid_digest(exe_sha)
+        || tools.is_empty()
+        || tools.len() > 16
+        || tools.iter().any(|v| !mcp_name(v))
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let mut sorted = tools.to_vec();
+    sorted.sort();
+    sorted.dedup();
+    if sorted.len() != tools.len() {
+        return Err(error(ErrorCode::Conflict));
+    }
+    Ok(sha256(&serde_json::to_vec(&json!({"profile":MANAGED_CODEX_MCP_SOURCE,"revision":"1","name":name,"command":command,"executable_sha256":exe_sha,"enabled_tools":sorted})).map_err(|_|error(ErrorCode::Conflict))?))
+}
+/// Validate only the closed MCP addition. This is not approval of the base
+/// connection policy, an executable launch permit, or a network grant.
+pub fn managed_codex_mcp_metadata(plan: &RuntimePlan) -> Result<Option<ManagedCodexMcpMetadata>> {
+    let marked = plan
+        .source_refs
+        .iter()
+        .any(|s| s.source_ref == MANAGED_CODEX_MCP_SOURCE)
+        || plan.mcp_servers.iter().any(|s| {
+            s.provenance.source_ref == MANAGED_CODEX_MCP_SOURCE || s.codex_policy.is_some()
+        });
+    if !marked {
+        return Ok(None);
+    }
+    if plan.provider != RuntimeProvider::Codex
+        || plan.codex.model.is_some()
+        || plan.mcp_servers.len() != 1
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let server = &plan.mcp_servers[0];
+    let policy = server
+        .codex_policy
+        .as_ref()
+        .ok_or_else(|| error(ErrorCode::Conflict))?;
+    let ManagedMcpTransport::Stdio { command, arguments } = &server.transport else {
+        return Err(error(ErrorCode::Conflict));
+    };
+    if !arguments.is_empty()
+        || server.provenance.source_ref != MANAGED_CODEX_MCP_SOURCE
+        || server.provenance.revision != "1"
+        || server.provenance.sha256
+            != managed_codex_mcp_digest(
+                &server.name,
+                &command.0,
+                &policy.executable_sha256,
+                &policy.enabled_tools,
+            )?
+        || plan
+            .source_refs
+            .iter()
+            .filter(|s| s.source_ref == MANAGED_CODEX_MCP_SOURCE)
+            .count()
+            != 1
+        || !plan.source_refs.contains(&server.provenance)
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let mut enabled_tools = policy.enabled_tools.clone();
+    enabled_tools.sort();
+    Ok(Some(ManagedCodexMcpMetadata {
+        name: server.name.clone(),
+        command: command.0.clone(),
+        executable_sha256: policy.executable_sha256.clone(),
+        enabled_tools,
+    }))
+}
+
 impl RuntimePlan {
     /// Stable approved-plan identity, excluding machine paths, staging IDs and inodes.
     pub fn plan_digest(&self) -> Result<String> {
@@ -669,6 +790,7 @@ fn prepare(plan: RuntimePlan, state: &Path) -> Result<Prepared> {
     {
         return Err(error(ErrorCode::Conflict));
     }
+    let managed_mcp = managed_codex_mcp_metadata(&plan)?;
     let instruction_profile = plan
         .source_refs
         .iter()
@@ -679,7 +801,7 @@ fn prepare(plan: RuntimePlan, state: &Path) -> Result<Prepared> {
     if instruction_profile {
         if plan.provider != RuntimeProvider::Codex
             || plan.skills.len() != 1
-            || !plan.mcp_servers.is_empty()
+            || (!plan.mcp_servers.is_empty() && managed_mcp.is_none())
             || plan.codex.model.is_some()
         {
             return Err(error(ErrorCode::Conflict));
@@ -733,7 +855,7 @@ fn prepare(plan: RuntimePlan, state: &Path) -> Result<Prepared> {
         if !leaf(&server.name) || servers.contains_key(&server.name) {
             return Err(error(ErrorCode::Conflict));
         }
-        let (native, acp) = match server.transport {
+        let (mut native, acp) = match server.transport {
             ManagedMcpTransport::Stdio { command, arguments } => {
                 if command.0.trim().is_empty()
                     || command.0.len() > 4096
@@ -771,6 +893,15 @@ fn prepare(plan: RuntimePlan, state: &Path) -> Result<Prepared> {
                 )
             }
         };
+        if let Some(policy) = server.codex_policy {
+            let mut tools = policy.enabled_tools;
+            tools.sort();
+            native["enabled_tools"] = json!(tools);
+            native["default_tools_approval_mode"] = json!("prompt");
+            native["required"] = json!(true);
+            native["startup_timeout_sec"] = json!(3);
+            native["tool_timeout_sec"] = json!(10);
+        }
         servers.insert(server.name, native);
         acp_servers.push(acp);
     }

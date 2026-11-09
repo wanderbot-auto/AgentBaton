@@ -1,10 +1,14 @@
 //! Native-only approval bridge. No finalize method is registered with Tauri.
+#[path = "approval_managed_mcp.rs"]
+mod managed_mcp;
+pub use managed_mcp::confirm_managed_mcp_and_finalize;
 use serde_json::{json, Value};
 
 pub enum ApprovalKind {
     Connection,
     ConnectionProbe,
     ManagedSkill,
+    ManagedMcp,
     Grant,
     Validation,
     DataValidation,
@@ -20,6 +24,7 @@ impl ApprovalKind {
             Self::Connection => "connections.propose",
             Self::ConnectionProbe => "connections.reprobe.propose",
             Self::ManagedSkill => "managed_skills.propose",
+            Self::ManagedMcp => "managed_mcps.propose",
             Self::Grant => "grants.propose",
             Self::Validation => "validation_policies.propose",
             Self::DataValidation => "data_validation_policies.propose",
@@ -35,6 +40,7 @@ impl ApprovalKind {
             Self::Connection => "connection",
             Self::ConnectionProbe => "connection_probe",
             Self::ManagedSkill => "managed_skill",
+            Self::ManagedMcp => "managed_mcp",
             Self::Grant => "grant",
             Self::Validation => "validation",
             Self::DataValidation => "data_validation",
@@ -51,9 +57,11 @@ impl ApprovalKind {
                 "Register this exact executable and run its bounded --version probe. If configuration_import is present, import ONLY its displayed selected fields into the new connection: Claude disabled project-MCP names, or Codex sandbox_mode/approval_policy. Review source hash, before/after values and any excluded-field count. Codex model, billing, profiles and all unselected source settings are excluded; declared effective policy is checked at new-thread start, not proof of OS enforcement. No hooks, credentials, MCP execution, native writeback, existing connection changes or model calls are authorized. / 若显示 configuration_import，仅导入列出的 Claude MCP 禁用名称或 Codex 两项执行策略；核对来源哈希、差异及排除数量，未选设置不导入。"
             }
             Self::ManagedSkill => "Create one NEW Codex connection with the reviewed managed instruction-only Skill, or without the old managed Skill. Existing Codex policy is preserved; old connections, Grants and active snapshots are unchanged. This also permits the selected program's bounded --version probe, not a model session or task execution. Select only instruction text without credentials, tokens or authentication material. Complete content is stored locally as an approved definition, not treated as permission. No assets, scripts, MCP, credential copying, global writeback, model or billing override. Configured bytes do NOT prove native discovery, loading or use. / 仅创建新的托管 Skill 连接；只选择不含凭据、令牌或认证材料的说明。正文是内容而非授权，不执行脚本或任务，不修改原连接、已有授权及活跃快照；文件存在不代表 Agent 已加载或使用。",
+            Self::ManagedMcp => "Create one NEW Codex App Server connection with one explicitly selected local stdio MCP executable and a finite tool-name list, or without its managed MCP. Preserve the base Skill and execution policy; old connections, Grants and active snapshots stay unchanged. Creation permits only the existing Codex program's bounded --version probe. It does not start the MCP program or grant task execution. Later separate execution approval permits this local MCP program to run with this user's resources and receive native context or tool arguments. Zero arguments and pinned entrance bytes are not proof of safety or isolation: scripts, interpreters, dependencies, configuration and later path changes are not fixed. Baton network-deny and recipient rules do not isolate native MCP I/O. Arbitrary descendant-process containment or complete cleanup is not proven; provider stop does not undo external writes or prove every MCP child exited. Tool names and prompt mode are requested configuration, not observed native enforcement. Native tool prompt policy remains prompt; unsupported interactive approvals are denied, never automatically accepted. No HTTP, explicit environment variables, secret references, credential copying, global writes, installation, model/billing override or OS sandbox claim. Configured does not prove session connection or use. / 创建独立的本地 MCP 配置连接，完整核对程序、摘要、工具名单及保留的策略。此确认仅创建配置并允许原 Codex 版本探测；MCP 执行须另行任务授权。程序可访问账号资源，Baton 网络或接收方规则不是原生 MCP 隔离；需要交互批准的调用仍可能被拒绝。",
+
             Self::ConnectionProbe => "Run ONE new bounded --version probe of the original approved executable digest and configuration binding. The previous probe must be confirmed stopped or never started. This runs code with this user's resources; it is not an OS sandbox or compatibility/account verification. No model session, installation, upgrade, credentials import, active-attempt migration, Grant renewal or global configuration write is authorized. Replaying this approval only reads the existing attempt. / 仅批准原摘要程序的一次有限版本重检。核对上次已停止或未启动的证据；不批准模型会话、安装升级、凭据导入、迁移活跃运行、更新授权或全局配置。原审批重放只核对已有尝试。",
             Self::Grant => {
-                "Grant this exact recipient and workspace the bounded execution scope below"
+                "Grant this exact recipient and workspace the bounded execution scope below. If native_mcp is present, explicitly review and authorize the displayed local executable, hash and finite tools for this connection: the program may access account resources and receive native context or arguments. Baton network-deny/recipient rules are not OS isolation for native MCP. Prompted approvals remain required; unsupported callbacks are denied. This does not expand another connection or existing Grant. / 如包含 native_mcp，须同时核对并明确批准其本地程序与工具范围；它可能访问账号资源，不保证原生 MCP 的系统隔离。"
             }
             Self::Validation => "Approve only the exact local artifact-integrity rule below; this does not accept a task or authorize integration",
             Self::DataValidation => "Approve only this exact JSON data-table contract: fixed file hashes, field types, numeric ranges and declared metadata. Dataset population, units and timezone are owner-declared values to match, not independently verified scientific facts. No reproduction script is executed; this does not establish algorithm correctness, accept a task or authorize integration.\n\n仅批准以下固定 JSON 数据表合同。行数总体、单位、时区按负责人声明核对；不运行复现脚本，不证明算法或科学结论，不验收任务、不授权采纳。",
@@ -1008,7 +1016,7 @@ pub fn confirm_and_finalize(
             "Server returned a malformed error before approval; no approval was finalized",
         );
     }
-    if matches!(kind, ApprovalKind::Integration | ApprovalKind::ManagedSkill) {
+    if matches!(kind, ApprovalKind::Integration | ApprovalKind::ManagedSkill | ApprovalKind::ManagedMcp) {
         return refused("Integration requires the dedicated complete typed Native review; generic approval cannot grant it");
     }
     let Some(proposal) = response.get("result") else {
