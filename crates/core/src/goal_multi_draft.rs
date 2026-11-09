@@ -1,4 +1,6 @@
-//! User-defined initial steps; authority and artifact contracts come from Core.
+//! One to eight user-defined initial work steps, with required review gates.
+//! Authority and artifact contracts come from Core; the legacy work-only draft
+//! endpoint remains unchanged.
 use super::*;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -47,7 +49,7 @@ impl Store {
     ) -> Result<GoalPlanDraft> {
         key(&request.scope_id)?;
         key(&request.task_id)?;
-        if !(2..=8).contains(&request.steps.len())
+        if !(1..=8).contains(&request.steps.len())
             || !text_valid(&request.risk_notes)
             || !text_valid(&request.prohibited_actions)
             || request.expected_scope_digest.len() != 64

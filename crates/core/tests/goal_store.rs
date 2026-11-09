@@ -2666,3 +2666,242 @@ fn goal_multi_draft_native_validator_gate_uses_only_approved_outputs_and_owner_w
         )
         .unwrap();
 }
+
+fn reviewed_single_request(f: &Fixture, scope: &GoalScopeView) -> GoalMultiPlanDraftRequest {
+    let base = draft_request(f, scope);
+    GoalMultiPlanDraftRequest {
+        scope_id: base.scope_id,
+        task_id: base.task_id,
+        expected_task_revision: base.expected_task_revision,
+        expected_spec_revision: base.expected_spec_revision,
+        expected_scope_revision: base.expected_scope_revision,
+        expected_scope_digest: base.expected_scope_digest,
+        expected_authority_revision: base.expected_authority_revision,
+        risk_notes: base.risk_notes,
+        prohibited_actions: base.prohibited_actions,
+        steps: vec![GoalDraftStep {
+            id: "single-work".into(),
+            goal: "Produce the approved report".into(),
+            dependencies: vec![],
+            input_artifact_ids: vec!["source".into()],
+            output_artifact_ids: vec!["report".into()],
+            runtime_ms: 1000,
+            output_bytes: 1024,
+            review_runtime_ms: 500,
+            review_output_bytes: 512,
+        }],
+    }
+}
+#[test]
+fn goal_reviewed_single_draft_has_owner_gate_and_preserves_legacy_contract() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let request = reviewed_single_request(&f, &scope);
+    let before = draft_database_snapshot(&f);
+    let legacy = f.store.goal_plan_draft(&draft_request(&f, &scope)).unwrap();
+    assert_eq!(legacy.plan.nodes.len(), 1);
+    assert_eq!(legacy.plan.nodes[0].kind, NodeKind::Work);
+    assert_eq!(legacy.plan.nodes[0].reservation.runtime_ms, 10_000);
+    assert_eq!(legacy.plan.nodes[0].reservation.output_bytes, 4096);
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    if let Some(path) = std::env::var_os("AGENTBATON_GOAL_REVIEWED_SINGLE_FIXTURE") {
+        fs::write(
+            path,
+            serde_json::to_vec_pretty(
+                &json!({"request":request,"task":f.task,"scope":scope,"draft":draft}),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    }
+    assert_eq!(before, draft_database_snapshot(&f));
+    assert_eq!(
+        draft.approved_acceptance_criteria,
+        f.selection.owner_acceptance_criteria
+    );
+    assert_eq!(draft.plan.nodes.len(), 2);
+    let work = &draft.plan.nodes[0];
+    let owner = &draft.plan.nodes[1];
+    assert_eq!(work.kind, NodeKind::Work);
+    assert_eq!(owner.kind, NodeKind::OwnerApproval);
+    assert_eq!(owner.dependencies, vec![work.id.clone()]);
+    assert_eq!(owner.required_validators, vec!["goal-owner-review"]);
+    assert!(
+        matches!(&owner.required_inputs[0].source,InputSource::Node{node_id,candidate_for_validation:true} if node_id==&work.id)
+    );
+    assert_eq!(owner.budget.runtime_ms, 500);
+    assert_eq!(owner.reservation.output_bytes, 512);
+    assert!(owner.outputs.is_empty());
+    assert!(owner.write_set.is_empty());
+    let saved = f
+        .store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id.clone(),
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "reviewed-single-submit",
+            0,
+        )
+        .unwrap();
+    assert_eq!(saved.digest, draft.plan_digest);
+    let preview = f.store.preview_goal_ready(&scope.id, 1).unwrap();
+    assert!(!preview.dispatched);
+    assert!(!preview.reservation_made);
+    let decision = preview.decision.unwrap();
+    assert_eq!(decision.admissions.len(), 1);
+    assert_eq!(decision.admissions[0].node_id, work.id);
+    assert!(decision.blocked.contains_key(&owner.id));
+    assert!(!decision.required_checks_satisfied);
+    assert_eq!(
+        f.store.goal_multi_plan_draft(&request).unwrap_err().code,
+        "STALE_REVISION"
+    );
+}
+#[test]
+fn goal_reviewed_single_draft_requires_capacity_and_explicit_review_budget() {
+    for kind in 0..5 {
+        let mut f = Fixture::new();
+        if kind == 0 {
+            f.selection.max_nodes = 1;
+        }
+        if kind == 1 {
+            f.selection.root_budget.attempts = 1;
+            f.selection.root_budget.parallel = 1;
+            f.selection.project_budget = f.selection.root_budget.clone();
+        }
+        let scope = f.approve();
+        let mut request = reviewed_single_request(&f, &scope);
+        match kind {
+            2 => request.steps[0].review_runtime_ms = 0,
+            3 => request.steps[0].review_output_bytes = scope.root_budget.output_bytes,
+            4 => request.steps.clear(),
+            _ => {}
+        }
+        let before = draft_database_snapshot(&f);
+        assert!(
+            f.store.goal_multi_plan_draft(&request).is_err(),
+            "variant {kind}"
+        );
+        assert_eq!(before, draft_database_snapshot(&f));
+    }
+}
+#[test]
+fn goal_reviewed_single_draft_uses_native_validator_definition_and_owner_gate() {
+    let mut f = Fixture::new();
+    let session = stopped_policy_session(&mut f);
+    let selection = agentbaton_core::validation::ValidationSelection {
+        session_id: session,
+        inputs: f.selection.inputs.clone(),
+        outputs: vec![f.selection.outputs[0].artifact.clone()],
+        analysis: None,
+    };
+    let p = f
+        .store
+        .propose_validation_policy(&selection, "single-integrity-policy")
+        .unwrap();
+    let policy: agentbaton_core::validation::ValidationPolicy =
+        serde_json::from_value(f.store.finalize_proposal(&p.id, 1).unwrap()).unwrap();
+    f.selection.outputs[0].validators.push(GoalValidatorRef {
+        kind: GoalValidatorKind::Integrity,
+        policy_id: policy.id.clone(),
+        revision: 1,
+    });
+    f.task = f.store.get(&f.task.id).unwrap();
+    let scope = f.approve();
+    let request = reviewed_single_request(&f, &scope);
+    let before = draft_database_snapshot(&f);
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    if let Some(path) = std::env::var_os("AGENTBATON_GOAL_REVIEWED_VALIDATOR_FIXTURE") {
+        fs::write(
+            path,
+            serde_json::to_vec_pretty(
+                &json!({"request":request,"task":f.task,"scope":scope,"draft":draft}),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    }
+    assert_eq!(before, draft_database_snapshot(&f));
+    assert_eq!(draft.plan.nodes.len(), 3);
+    let validator = draft
+        .plan
+        .nodes
+        .iter()
+        .find(|n| n.kind == NodeKind::Validate)
+        .unwrap();
+    let owner = draft
+        .plan
+        .nodes
+        .iter()
+        .find(|n| n.kind == NodeKind::OwnerApproval)
+        .unwrap();
+    assert!(
+        matches!(&validator.executor,Executor::Validator{rule_id} if rule_id==&format!("integrity:{}",policy.id))
+    );
+    assert_eq!(validator.required_inputs.len(), 1);
+    assert_eq!(validator.required_inputs[0].artifact_id, "report");
+    assert!(owner.dependencies.contains(&validator.id));
+    assert!(matches!(
+        validator.required_inputs[0].source,
+        InputSource::Node {
+            candidate_for_validation: true,
+            ..
+        }
+    ));
+    assert_eq!(validator.budget.runtime_ms, 500);
+    assert_eq!(owner.budget.runtime_ms, 500);
+    f.store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id.clone(),
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "single-validator-submit",
+            0,
+        )
+        .unwrap();
+    let preview = f.store.preview_goal_ready(&scope.id, 1).unwrap();
+    assert!(preview.read_only);
+    assert!(!preview.reservation_made);
+    assert!(!preview.dispatched);
+    // The existing policy fixture has a never-dispatched legacy session with
+    // unknown historical metering. A validated 3-node plan cannot invent that
+    // evidence: this proves fail-closed preview, not 3-node ready execution.
+    assert!(preview.decision.is_none());
+    assert!(preview
+        .blocked_reasons
+        .contains(&"historical_runtime_or_output_ledger_unknown".into()));
+    assert!(preview
+        .unknown_dimensions
+        .contains(&"root.runtime_ms".into()));
+    assert!(preview
+        .unknown_dimensions
+        .contains(&"project.output_bytes".into()));
+}
+
+#[test]
+fn goal_reviewed_single_draft_keeps_all_approved_outputs_in_one_owner_gate() {
+    let (mut f, scope, mut request) = multi_fixture();
+    request.steps.truncate(1);
+    request.steps[0].output_artifact_ids.push("summary".into());
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    assert_eq!(draft.plan.nodes.len(), 2);
+    let work = &draft.plan.nodes[0];
+    let owner = &draft.plan.nodes[1];
+    assert_eq!(work.outputs.len(), 2);
+    assert_eq!(work.write_set.len(), 2);
+    assert_eq!(owner.required_inputs.len(), 2);
+    assert!(owner.required_inputs.iter().all(|input|matches!(&input.source,InputSource::Node{node_id,candidate_for_validation:true} if node_id==&work.id)));
+    assert_eq!(draft.approved_outputs, f.selection.outputs);
+    f.store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id,
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "single-all-outputs",
+            0,
+        )
+        .unwrap();
+}

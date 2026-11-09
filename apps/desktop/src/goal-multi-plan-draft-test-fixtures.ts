@@ -9,3 +9,9 @@ export function multiDraftFixture(withValidator=false){
  const works=plan.nodes;plan.nodes=steps.flatMap(step=>[works.find(n=>n.id===step.id)!,...multiDraftReviewLayout(f.scope,steps).filter(g=>g.stepId===step.id).map(g=>({...structuredClone(works[0]),id:g.id,kind:g.kind==='owner'?'owner_approval' as const:'validate' as const,goal:`Review approved rule ${g.rule} for user step ${step.id}. Follow the original approved acceptance criteria; this gate grants no new authority.`,executor:{kind:g.kind as 'owner'|'validator',rule_id:g.rule},dependencies:g.dependencies,required_inputs:g.inputs,outputs:[],write_set:[],required_validators:[g.rule],side_effect:'advisory_read_only' as const,budget:{attempts:1,parallel:1,runtime_ms:100,output_bytes:256,children:0,reworks:0,tokens:null,cost_microunits:null},reservation:{runtime_ms:100,output_bytes:256,tokens:null,cost_microunits:null},idempotency_key:g.id+'-key'}))]);
  const draft:GoalMultiPlanDraft={...f.draft,approved_outputs:[...f.draft.approved_outputs,{artifact,validators:[]}],risk_facts:[...multiDraftRiskCodes],plan};return {...f,steps,selection,draft};
 }
+export function oneStepDraftFixture(withValidator=false){
+ const f=multiDraftFixture(withValidator);delete f.scope.outputs.final;delete f.scope.contracts['output:final'];delete f.scope.edit_context!.output_artifacts.final;
+ const steps=[f.steps[0]],selection=multiDraftRequest(f.task,f.scope,'Review overwritten files','Do not publish',steps);
+ const draft:GoalMultiPlanDraft={...f.draft,approved_outputs:f.draft.approved_outputs.filter(o=>o.artifact.artifact_id==='report'),plan:{...f.draft.plan,nodes:f.draft.plan.nodes.filter(n=>n.id==='step-1'||n.id.startsWith('baton-review-1-'))}};
+ return {...f,steps,selection,draft};
+}
