@@ -45,6 +45,12 @@ mod owned_stop;
 #[path = "sessions_planning.rs"]
 pub(crate) mod planning;
 use owned_stop::{CompletedTurnProof, RetainedReceipt};
+#[path = "connection_probe.rs"]
+mod connection_probe;
+pub use connection_probe::{
+    ConnectionInspectRequest, ConnectionInspection, ConnectionProbeAttempt,
+    ConnectionProbeConfirmation, ConnectionProbeFind, ConnectionProbeId,
+};
 
 // Unit-test-only, one-shot fault injection at the exact atomic boundary. No
 // product build, feature, IPC request or Provider can install this callback.
@@ -1020,7 +1026,11 @@ impl Store {
                 .collect::<Result<Vec<_>>>()?
         };
         for c in pending {
-            self.finish_probe(&c.id, Err("probe_interrupted".into()))?;
+            if let Some(a) = connection_probe::latest(&self.conn, &c.id)? {
+                self.finish_connection_probe(&a.id, Err("probe_interrupted".into()), false)?;
+            } else {
+                self.finish_probe(&c.id, Err("probe_interrupted".into()))?;
+            }
         }
         Ok(())
     }
@@ -1123,6 +1133,8 @@ pub struct Supervisor {
     workers: HashMap<String, Worker>,
     retained_receipts: HashMap<String, RetainedReceipt>,
     probes: HashMap<String, JoinHandle<std::result::Result<VersionEvidence, String>>>,
+    retry_probes: HashMap<String, JoinHandle<std::result::Result<VersionEvidence, String>>>,
+    retry_probe_receipts: HashMap<String, std::result::Result<VersionEvidence, String>>,
     events: Receiver<Outcome>,
     sender: SyncSender<Outcome>,
     runtime: PathBuf,
@@ -1137,6 +1149,8 @@ impl Supervisor {
             workers: HashMap::new(),
             retained_receipts: HashMap::new(),
             probes: HashMap::new(),
+            retry_probes: HashMap::new(),
+            retry_probe_receipts: HashMap::new(),
             events,
             sender,
             runtime: runtime.into(),
@@ -1209,10 +1223,13 @@ impl Supervisor {
     }
     pub fn probe(&mut self, store: &Store, id: &str) -> Result<()> {
         let c = store.get_connection(id)?;
+        if connection_probe::latest(&store.conn, id)?.is_some() {
+            return Ok(());
+        }
         if c.probe_state != "pending" || self.probes.contains_key(id) {
             return Ok(());
         }
-        if self.probes.len() >= 4 {
+        if self.probes.len() + self.retry_probes.len() >= 4 {
             return Err(CoreError::new(
                 "RESOURCE_LIMIT",
                 "Version probe concurrency limit reached",
@@ -1515,7 +1532,11 @@ impl Supervisor {
         self.flush_retained_receipts(store)
     }
     pub(crate) fn has_owned_io(&self) -> bool {
-        !self.workers.is_empty() || !self.probes.is_empty() || !self.retained_receipts.is_empty()
+        !self.workers.is_empty()
+            || !self.probes.is_empty()
+            || !self.retry_probes.is_empty()
+            || !self.retry_probe_receipts.is_empty()
+            || !self.retained_receipts.is_empty()
     }
     pub fn has_workers(&self) -> bool {
         !self.workers.is_empty() || !self.retained_receipts.is_empty()
@@ -1641,6 +1662,8 @@ impl Supervisor {
         }
         while !self.workers.is_empty()
             || !self.probes.is_empty()
+            || !self.retry_probes.is_empty()
+            || !self.retry_probe_receipts.is_empty()
             || !self.retained_receipts.is_empty()
         {
             self.tick(store)?;
@@ -1649,6 +1672,7 @@ impl Supervisor {
         Ok(())
     }
     pub fn tick(&mut self, store: &mut Store) -> Result<()> {
+        self.tick_retry_probes(store)?;
         let complete: Vec<String> = self
             .probes
             .iter()
@@ -1805,6 +1829,9 @@ impl Supervisor {
             let _ = w.thread.join();
         }
         for (_, probe) in self.probes.drain() {
+            let _ = probe.join();
+        }
+        for (_, probe) in self.retry_probes.drain() {
             let _ = probe.join();
         }
     }
@@ -2541,6 +2568,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "connection_probe" {
+            return self.finalize_connection_probe(id, revision);
+        }
         if proposal.kind == "integration" {
             return self.integration_finalization_replay(id,revision)?.ok_or_else(||CoreError::new("AUTH_REQUIRED","Integration native finalization requires its original request-owned observation"));
         }

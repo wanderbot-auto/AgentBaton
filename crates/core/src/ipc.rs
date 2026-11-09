@@ -850,6 +850,8 @@ impl Daemon {
                     | "workspaces.create"
                     | "workspaces.prepare_task_git"
                     | "connections.propose"
+                    | "connections.inspect"
+                    | "connections.reprobe.propose"
                     | "grants.propose"
                     | "goal_scopes.propose"
                     | "goal_plans.draft"
@@ -1033,6 +1035,26 @@ impl Daemon {
             "goal_plans.list" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.list_goal_plan_revisions(&p.scope_id)?))}
             "goal_plans.ready_preview" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.preview_goal_ready(&p.scope_id,r.expected_revision.ok_or_else(invalid)?)?))}
             "goal_scopes.approve" | "goal_plans.dispatch" | "goal_plans.reserve" | "goal_plans.accept" => Err(CoreError::new("AUTH_REQUIRED","Renderer approval flags, dispatch/reservation and Task acceptance are not Goal preview methods")),
+            "connections.inspect" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ConnectionInspectRequest = params(r.params)?;
+                Ok(json!(self.store.inspect_connection(&p)?))
+            }
+            "connections.reprobe.propose" => {
+                if r.expected_revision.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ConnectionInspectRequest = params(r.params)?;
+                Ok(json!(self.store.propose_connection_probe(&p, &r.idempotency_key.ok_or_else(invalid)?)?))
+            }
+            "connections.probe.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ConnectionProbeId = params(r.params)?;
+                Ok(json!(self.store.get_connection_probe(&p.attempt_id)?))
+            }
+            "connections.probe.find" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ConnectionProbeFind = params(r.params)?;
+                Ok(json!(self.store.find_connection_probe(&p)?))
+            }
             "connections.propose" => {
                 let p: RegisterConnection = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
@@ -1063,13 +1085,25 @@ impl Daemon {
                         }
                     }
                 }
-                if result.get("provider").is_some() {
+                if !already_confirmed && result.get("probe_attempt").is_some() {
+                    let id = result["probe_attempt"]["id"].as_str().ok_or_else(invalid)?;
+                    if let Err(mut error) = self.supervisor.probe_retry(&mut self.store, id) {
+                        if matches!(error.side_effect_state.as_str(), "none" | "not_started") { error.side_effect_state = "confirmed".into(); }
+                        error.details_ref = Some(format!("connection-probe-attempt:{id}"));
+                        return Err(error);
+                    }
+                }
+                if !already_confirmed && result.get("provider").is_some() {
                     if let Some(id) = result["id"].as_str() {
-                        if let Err(mut error) = self.supervisor.probe(&self.store, id) {
+                        if let Err(error) = self.supervisor.probe(&self.store, id) {
+                            // This error is before the probe thread is spawned.
+                            // Preserve that exact no-start proof; a later retry
+                            // needs its own Native approval, never replay.
+                            let mut error = self.store.record_initial_probe_not_started(id).err().unwrap_or(error);
                             // The owner-approved connection and confirmation
                             // receipt already committed; only probe scheduling
                             // failed. Never report the approval as not started.
-                            error.side_effect_state = "confirmed".into();
+                            if matches!(error.side_effect_state.as_str(), "none" | "not_started") { error.side_effect_state = "confirmed".into(); }
                             error.details_ref =
                                 Some(format!("connection-approved-probe-not-scheduled:{id}"));
                             error.message = format!(

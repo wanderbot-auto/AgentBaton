@@ -3,6 +3,7 @@ use serde_json::{json, Value};
 
 pub enum ApprovalKind {
     Connection,
+    ConnectionProbe,
     Grant,
     Validation,
     DataValidation,
@@ -16,6 +17,7 @@ impl ApprovalKind {
     pub fn proposal_method(&self) -> &'static str {
         match self {
             Self::Connection => "connections.propose",
+            Self::ConnectionProbe => "connections.reprobe.propose",
             Self::Grant => "grants.propose",
             Self::Validation => "validation_policies.propose",
             Self::DataValidation => "data_validation_policies.propose",
@@ -29,6 +31,7 @@ impl ApprovalKind {
     fn kind(&self) -> &'static str {
         match self {
             Self::Connection => "connection",
+            Self::ConnectionProbe => "connection_probe",
             Self::Grant => "grant",
             Self::Validation => "validation",
             Self::DataValidation => "data_validation",
@@ -44,6 +47,7 @@ impl ApprovalKind {
             Self::Connection => {
                 "Register this exact executable and run its bounded --version probe. If configuration_import is present, import ONLY its displayed selected fields into the new connection: Claude disabled project-MCP names, or Codex sandbox_mode/approval_policy. Review source hash, before/after values and any excluded-field count. Codex model, billing, profiles and all unselected source settings are excluded; declared effective policy is checked at new-thread start, not proof of OS enforcement. No hooks, credentials, MCP execution, native writeback, existing connection changes or model calls are authorized. / 若显示 configuration_import，仅导入列出的 Claude MCP 禁用名称或 Codex 两项执行策略；核对来源哈希、差异及排除数量，未选设置不导入。"
             }
+            Self::ConnectionProbe => "Run ONE new bounded --version probe of the original approved executable digest and configuration binding. The previous probe must be confirmed stopped or never started. This runs code with this user's resources; it is not an OS sandbox or compatibility/account verification. No model session, installation, upgrade, credentials import, active-attempt migration, Grant renewal or global configuration write is authorized. Replaying this approval only reads the existing attempt. / 仅批准原摘要程序的一次有限版本重检。核对上次已停止或未启动的证据；不批准模型会话、安装升级、凭据导入、迁移活跃运行、更新授权或全局配置。原审批重放只核对已有尝试。",
             Self::Grant => {
                 "Grant this exact recipient and workspace the bounded execution scope below"
             }
@@ -434,6 +438,137 @@ fn compact_data_workspace_snapshot(snapshot: &Value) -> Option<String> {
         serde_json::to_string_pretty(&display["snapshot_without_file_lists"]).ok()?,
         serde_json::to_string(&display["file_table_columns"]).ok()?, lines?.join(",\n"));
     (rendered.len() <= 16_384).then_some(rendered)
+}
+
+/// A renderer may select only an existing connection revision. The Native
+/// action checks the exact server snapshot and the previous stop proof before
+/// displaying the complete review; the result is only a probe, never a Grant.
+pub fn confirm_connection_probe_and_finalize(
+    response: Value,
+    selection: &Value,
+    request_key: &str,
+    confirm_native: impl FnOnce(&str) -> bool,
+    finalize: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    let snapshot = &response["result"]["snapshot"];
+    let connection = &snapshot["connection"];
+    let proof = &snapshot["previous_stop_proof"];
+    let stop_proven = if proof["kind"] == "process_reaped" {
+        exact_fields(proof, &["kind", "version_evidence"])
+            && proof["version_evidence"] == connection["version_evidence"]
+            && proof["version_evidence"]["process_reaped"] == true
+            && proof["version_evidence"]["executable_sha256"] == connection["executable_sha256"]
+            && proof["version_evidence"]["source"] == "selected_executable_version_probe"
+            && matches!(
+                proof["version_evidence"]["state"].as_str(),
+                Some("exit_failure" | "timed_out" | "output_limit" | "invalid_output")
+            )
+    } else {
+        exact_fields(proof, &["kind", "event_sequence"])
+            && proof["kind"] == "not_started"
+            && graph_revision(&proof["event_sequence"])
+    };
+    let complete = exact_fields(selection, &["connection_id", "expected_revision"])
+        && graph_id(&selection["connection_id"])
+        && graph_revision(&selection["expected_revision"])
+        && snapshot["intent"] == *selection
+        && exact_fields(
+            snapshot,
+            &[
+                "intent",
+                "connection",
+                "connection_digest",
+                "scope",
+                "arguments",
+                "timeout_ms",
+                "stdout_limit_bytes",
+                "request_key",
+                "identity_status",
+                "warning",
+                "previous_stop_proof",
+            ],
+        )
+        && connection["id"] == selection["connection_id"]
+        && connection["revision"] == selection["expected_revision"]
+        && connection["probe_state"] == "failed"
+        && connection["executable"]
+            .as_str()
+            .is_some_and(|p| p.starts_with('/') && !p.contains('\0'))
+        && graph_hash(&connection["executable_sha256"])
+        && graph_id(&connection["approval_id"])
+        && graph_id(&connection["config_revision"])
+        && graph_hash(&snapshot["connection_digest"])
+        && snapshot["scope"] == "version_probe_only"
+        && snapshot["arguments"] == json!(["--version"])
+        && snapshot["timeout_ms"] == 3000
+        && snapshot["stdout_limit_bytes"] == 4096
+        && snapshot["request_key"] == request_key
+        && snapshot["identity_status"] == "unknown"
+        && snapshot["warning"]
+            .as_str()
+            .is_some_and(|text| !text.is_empty())
+        && stop_proven;
+    if response.get("error").is_none() && !complete {
+        return Ok(
+            json!({"request_id":null,"error":{"code":"INVALID_APPROVAL_PROPOSAL","message":"Version retry does not match the exact selected connection, fixed --version limits or previous stop evidence; no approval was finalized","retryable":false,"side_effect_state":"not_started","details_ref":null},"revision":0,"warnings":[]}),
+        );
+    }
+    let original = response["result"].clone();
+    let result = confirm_and_finalize(
+        response,
+        ApprovalKind::ConnectionProbe,
+        confirm_native,
+        finalize,
+    )?;
+    if result.get("error").is_some() {
+        return Ok(result);
+    }
+    let receipt = &result["result"];
+    let attempt = &receipt["probe_attempt"];
+    let returned = &receipt["connection"];
+    let before = &original["snapshot"]["connection"];
+    let generation = selection["expected_revision"]
+        .as_u64()
+        .and_then(|n| n.checked_add(1));
+    let matches = exact_fields(receipt, &["connection", "probe_attempt"])
+        && returned["id"] == selection["connection_id"]
+        && attempt["connection_id"] == selection["connection_id"]
+        && graph_id(&attempt["id"])
+        && attempt["proposal_id"] == original["id"]
+        && attempt["request_key"] == request_key
+        && attempt["connection_revision"].as_u64() == generation
+        && returned["revision"]
+            .as_u64()
+            .zip(generation)
+            .is_some_and(|(current, first)| current >= first)
+        && [
+            "name",
+            "provider",
+            "protocol_route",
+            "executable",
+            "arguments",
+            "executable_sha256",
+            "environment_id",
+            "identity_ref",
+            "config_revision",
+            "runtime_plan",
+            "host_id",
+            "approval_id",
+            "capability_snapshot_id",
+            "identity_status",
+            "config_status",
+            "created_at",
+        ]
+        .iter()
+        .all(|field| returned[*field] == before[*field])
+        && attempt["executable_sha256"] == before["executable_sha256"]
+        && attempt["config_revision"] == before["config_revision"];
+    if matches {
+        return Ok(result);
+    }
+    Ok(
+        json!({"request_id":null,"error":{"code":"OUTCOME_UNKNOWN","message":"Version retry returned an unbound receipt; reconcile this exact original request before any retry","retryable":false,"side_effect_state":"unknown","details_ref":null},"revision":0,"warnings":[]}),
+    )
 }
 
 pub fn confirm_and_finalize(
@@ -5017,5 +5152,135 @@ mod factory_protocol_pin_tests {
             assert_eq!(refused["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
             assert_eq!(refused["error"]["side_effect_state"], "not_started");
         }
+    }
+}
+
+#[cfg(test)]
+mod connection_probe_tests {
+    use super::*;
+    use std::cell::Cell;
+    fn fixture() -> (Value, Value, Value) {
+        let evidence = json!({"source":"selected_executable_version_probe","executable_sha256":"a".repeat(64),"state":"timed_out","process_reaped":true});
+        let connection = json!({"id":"connection","name":"Selected program","provider":"custom_acp","protocol_route":"custom_acp","executable":"/approved/program","arguments":["adapter-argument"],"executable_sha256":"a".repeat(64),"environment_id":"environment","identity_ref":"native","config_revision":"configuration","runtime_plan":null,"host_id":"local","approval_id":"original-registration","capability_snapshot_id":"capability","identity_status":"unknown","config_status":"managed","created_at":"fixed","revision":2,"probe_state":"failed","version_evidence":evidence});
+        let selection = json!({"connection_id":"connection","expected_revision":2});
+        let proposal = json!({"result":{"id":"probe-proposal","kind":"connection_probe","revision":1,"snapshot":{"intent":selection,"connection":connection,"connection_digest":"b".repeat(64),"scope":"version_probe_only","arguments":["--version"],"timeout_ms":3000,"stdout_limit_bytes":4096,"request_key":"request","identity_status":"unknown","warning":"Only the exact program version probe","previous_stop_proof":{"kind":"process_reaped","version_evidence":evidence}}}});
+        let mut pending = connection;
+        pending["revision"] = json!(3);
+        pending["probe_state"] = json!("pending");
+        let receipt = json!({"result":{"connection":pending,"probe_attempt":{"id":"attempt","connection_id":"connection","connection_revision":3,"proposal_id":"probe-proposal","request_key":"request","executable_sha256":"a".repeat(64),"config_revision":"configuration"}}});
+        (selection, proposal, receipt)
+    }
+    #[test]
+    fn probe_retry_requires_exact_native_stop_proof_and_fixed_action_before_prompt() {
+        let (selection, original, _) = fixture();
+        for variant in 0..8 {
+            let mut p = original.clone();
+            match variant {
+                0 => p["result"]["snapshot"]["intent"]["connection_id"] = json!("other"),
+                1 => p["result"]["snapshot"]["connection"]["revision"] = json!(3),
+                2 => p["result"]["snapshot"]["arguments"] = json!(["--version", "--run"]),
+                3 => p["result"]["snapshot"]["timeout_ms"] = json!(3001),
+                4 => {
+                    p["result"]["snapshot"]["previous_stop_proof"]["version_evidence"]
+                        ["process_reaped"] = json!(false)
+                }
+                5 => {
+                    p["result"]["snapshot"]["previous_stop_proof"] =
+                        json!({"kind":"not_started","event_sequence":0})
+                }
+                6 => p["result"]["snapshot"]["connection"]["probe_state"] = json!("ready"),
+                _ => p["result"]["snapshot"]["request_key"] = json!("other"),
+            }
+            let result = confirm_connection_probe_and_finalize(
+                p,
+                &selection,
+                "request",
+                |_| panic!("invalid proposal cannot prompt"),
+                |_| panic!("invalid proposal cannot finalize"),
+            )
+            .unwrap();
+            assert_eq!(
+                result["error"]["code"], "INVALID_APPROVAL_PROPOSAL",
+                "variant {variant}"
+            );
+        }
+    }
+    #[test]
+    fn native_probe_denial_never_finalizes_or_schedules() {
+        let (selection, p, _) = fixture();
+        let result = confirm_connection_probe_and_finalize(
+            p,
+            &selection,
+            "request",
+            |message| {
+                assert!(message.contains("--version"));
+                assert!(message.contains("original-registration"));
+                false
+            },
+            |_| panic!("declined confirmation cannot finalize"),
+        )
+        .unwrap();
+        assert_eq!(result["error"]["side_effect_state"], "not_started");
+    }
+    #[test]
+    fn probe_approval_only_finalizes_the_exact_server_reference_and_bound_receipt() {
+        let (selection, p, receipt) = fixture();
+        let expected = receipt.clone();
+        let called = Cell::new(false);
+        let result = confirm_connection_probe_and_finalize(p, &selection, "request", |_| true, |command| {called.set(true); assert_eq!(command,json!({"method":"approvals.finalize","params":{"proposal_id":"probe-proposal"},"expected_revision":1,"idempotency_key":"proposal:probe-proposal"})); Ok(receipt)}).unwrap();
+        assert!(called.get());
+        assert_eq!(result, expected);
+    }
+    #[test]
+    fn a_changed_postcommit_probe_receipt_stays_unknown() {
+        let (selection, p, receipt) = fixture();
+        for variant in 0..4 {
+            let mut r = receipt.clone();
+            match variant {
+                0 => r["result"]["probe_attempt"]["proposal_id"] = json!("other"),
+                1 => r["result"]["connection"]["config_revision"] = json!("other"),
+                2 => r["result"]["probe_attempt"]["connection_revision"] = json!(4),
+                _ => r["result"]["probe_attempt"]["request_key"] = json!("other"),
+            }
+            let result = confirm_connection_probe_and_finalize(
+                p.clone(),
+                &selection,
+                "request",
+                |_| true,
+                |_| Ok(r),
+            )
+            .unwrap();
+            assert_eq!(result["error"]["code"], "OUTCOME_UNKNOWN");
+            assert_eq!(result["error"]["side_effect_state"], "unknown");
+        }
+    }
+    #[test]
+    fn native_retry_accepts_a_positive_not_started_reference_but_not_extra_selection_flags() {
+        let (selection, mut p, receipt) = fixture();
+        p["result"]["snapshot"]["previous_stop_proof"] =
+            json!({"kind":"not_started","event_sequence":4});
+        p["result"]["snapshot"]["connection"]["version_evidence"] = Value::Null;
+        let result = confirm_connection_probe_and_finalize(
+            p.clone(),
+            &selection,
+            "request",
+            |_| true,
+            |_| Ok(receipt),
+        )
+        .unwrap();
+        assert!(result.get("error").is_none());
+        let mut extra = selection;
+        extra["approved"] = json!(true);
+        assert_eq!(
+            confirm_connection_probe_and_finalize(
+                p,
+                &extra,
+                "request",
+                |_| panic!("renderer flags cannot approve"),
+                |_| panic!("no finalize")
+            )
+            .unwrap()["error"]["code"],
+            "INVALID_APPROVAL_PROPOSAL"
+        );
     }
 }

@@ -360,6 +360,30 @@ async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, S
 }
 
 #[tauri::command]
+async fn connection_inspect(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"connections.inspect","params":request}), false).await
+}
+#[tauri::command]
+async fn connection_probe_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"connections.probe.get","params":request}), false).await
+}
+#[tauri::command]
+async fn connection_probe_find(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"connections.probe.find","params":request}), false).await
+}
+#[tauri::command]
+async fn connection_probe_retry(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, request: Value, idempotency_key: String) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        native_parent::with_caller(window, |parent| {
+            let response = ipc::call(&directory, json!({"method":"connections.reprobe.propose","params":request,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
+            approval::confirm_connection_probe_and_finalize(response, &request, &idempotency_key,
+                |message| parent.confirm("AgentBaton — Version probe approval", message),
+                |command| parent.finalize(|| ipc::call(&directory, command).map_err(|error| error.to_string())))
+        })
+    }).await.map_err(|error| error.to_string())?
+}
+#[tauri::command]
 #[allow(clippy::too_many_arguments)]
 async fn connections_register(
     runtime: tauri::State<'_, Runtime>,
@@ -2062,6 +2086,10 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         data_workspaces_cancel,
         connections_list,
         connections_register,
+        connection_inspect,
+        connection_probe_get,
+        connection_probe_find,
+        connection_probe_retry,
         grants_list,
         grants_create,
         grants_revoke,
