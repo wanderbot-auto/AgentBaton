@@ -25,7 +25,7 @@ P = load('_integration_owner_projection_pure', 'scripts/record-integration-owner
 
 
 def group(phase):
-    before = {'schema_version': 17, 'sequence': 23, 'policies': 0, 'runs': 0, 'attempts': 0, 'ref_fences': 0}
+    before = {'schema_version': 18, 'sequence': 23, 'policies': 0, 'runs': 0, 'attempts': 0, 'ref_fences': 0}
     after = dict(before, policies=1, sequence=25) if phase == 'approve' else dict(before)
     return {'read_only': True, 'phase': phase, 'before': before, 'after': after,
             'proposal_matches': True, 'proposal_result_matches': True, 'policy_matches': True,
@@ -65,7 +65,7 @@ class IntegrationDatabaseContractControls(unittest.TestCase):
                 for bad in [True, False, 17.0, '17', -1, 1 << 64, None]:
                     value = group('approve'); value[checkpoint][field] = bad
                     self.assertIsNotNone(N.integration_database_error(value, 'approve', 23), (checkpoint, field, bad))
-            for schema in [15, 16, 18]:
+            for schema in [15, 16, 17, 19]:
                 value = group('approve'); value[checkpoint]['schema_version'] = schema
                 self.assertIsNotNone(N.integration_database_error(value, 'approve', 23))
             for mode in ['extra', 'missing']:
@@ -310,23 +310,28 @@ class IntegrationSeedSourceControls(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve(); path = root/'baton.sqlite3'
             with sqlite3.connect(path) as db:
-                db.execute('PRAGMA user_version=17')
+                db.execute('PRAGMA user_version=18')
                 # Inert count/raw reader fixture, not a genuine Core schema.
-                for table in sorted((*H.SCHEMA_TABLES, *N.INTEGRATION_TABLES)):
+                for table in sorted((*H.SCHEMA_TABLES, *N.INTEGRATION_TABLES, *N.CONVERSATION_TABLES)):
                     if table == 'sqlite_sequence': continue
                     db.execute('CREATE TABLE '+table+'(sequence INTEGER PRIMARY KEY AUTOINCREMENT,document TEXT)' if table == 'events'
                         else 'CREATE TABLE '+table+'(id TEXT,document TEXT)')
                 db.execute("INSERT INTO projects VALUES('original',?)", ('原source',))
             before = path.read_bytes(); value = F.database(root)
-            self.assertEqual(len(value['counts']), 59)
+            self.assertEqual(len(value['counts']), 63)
+            self.assertTrue(all(value['counts'][table] == 0 for table in N.CONVERSATION_TABLES))
             self.assertEqual(value['counts']['projects'], 1)
-            self.assertEqual(value['schema_version'], 17)
+            self.assertEqual(value['schema_version'], 18)
             self.assertTrue(value['read_only']); self.assertEqual(path.read_bytes(), before)
-            for old in [16,18]:
+            for table in N.CONVERSATION_TABLES:
+                with sqlite3.connect(path) as db: db.execute('ALTER TABLE '+table+' RENAME TO missing_conversation_domain')
+                with self.assertRaises(ValueError): F.database(root)
+                with sqlite3.connect(path) as db: db.execute('ALTER TABLE missing_conversation_domain RENAME TO '+table)
+            for old in [16,17,19]:
                 with sqlite3.connect(path) as db: db.execute('PRAGMA user_version='+str(old))
                 with self.assertRaises(ValueError): F.database(root)
             with sqlite3.connect(path) as db:
-                db.execute('PRAGMA user_version=17'); db.execute('CREATE TABLE unexpected(id INTEGER)')
+                db.execute('PRAGMA user_version=18'); db.execute('CREATE TABLE unexpected(id INTEGER)')
             with self.assertRaises(ValueError): F.database(root)
             with sqlite3.connect(path) as db:
                 db.execute('DROP TABLE unexpected'); db.execute('DROP TABLE integration_attempts')
@@ -338,8 +343,8 @@ class IntegrationSeedSourceControls(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root=Path(raw).resolve(); path=root/'baton.sqlite3'
             with sqlite3.connect(path) as db:
-                db.execute('PRAGMA user_version=17')
-                for table in sorted((*H.SCHEMA_TABLES,*N.INTEGRATION_TABLES)):
+                db.execute('PRAGMA user_version=18')
+                for table in sorted((*H.SCHEMA_TABLES,*N.INTEGRATION_TABLES, *N.CONVERSATION_TABLES)):
                     if table=='sqlite_sequence':continue
                     db.execute('CREATE TABLE '+table+'(sequence INTEGER PRIMARY KEY AUTOINCREMENT,document TEXT)' if table=='events' else 'CREATE TABLE '+table+'(id TEXT,document TEXT)')
                 db.execute("INSERT INTO projects VALUES('oversize',zeroblob(8388609))")
@@ -410,7 +415,7 @@ class IntegrationSeedSourceControls(unittest.TestCase):
         # Inert records only. No Core authority or accepted Task is manufactured.
         from types import SimpleNamespace
         H=load('_integration_receipt_names','scripts/prepare-schema16-migration-fixture.py')
-        tables=sorted((*H.SCHEMA_TABLES,*N.INTEGRATION_TABLES))
+        tables=sorted((*H.SCHEMA_TABLES,*N.INTEGRATION_TABLES, *N.CONVERSATION_TABLES))
         columns={t:['id','document'] for t in tables}
         columns.update(events=['sequence','document'],approval_proposals=['id','document','result'],
             integration_policies=['id','task_id','spec_revision','goal_scope_id','approval_id','revision','document'])
@@ -420,7 +425,7 @@ class IntegrationSeedSourceControls(unittest.TestCase):
         rows['projects']=[[1,'original-project','原文']]
         rows['approval_proposals']=[[1,p['id'],json.dumps(p),None]]
         rows['events']=[[23,23,json.dumps({'sequence':0,'kind':'old-private-history'})]]
-        before={'read_only':True,'schema_version':17,'columns':columns,'counts':{t:len(rows[t]) for t in tables},'rows':rows,'sequence':23}
+        before={'read_only':True,'schema_version':18,'columns':columns,'counts':{t:len(rows[t]) for t in tables},'rows':rows,'sequence':23}
         policy={'id':p['id'],'approval_id':p['id'],'revision':1,'selection':p['snapshot']['intent'],
             'bindings':p['snapshot']['bindings'],'snapshot_digest':N.digest(p['snapshot']),'revoked':False}
         after=copy.deepcopy(before);after['sequence']=25

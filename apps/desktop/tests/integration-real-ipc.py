@@ -237,7 +237,7 @@ def preflight(args, diagnostic=None):
     driver_preflight_stage(diagnostic, 'candidate_decode')
     manifest = decode(manifest_raw)
     driver_preflight_stage(diagnostic, 'candidate_schema_guard')
-    require(type(manifest.get('schema')) is int and manifest['schema'] == 17)
+    require(type(manifest.get('schema')) is int and manifest['schema'] == 18)
     driver_preflight_stage(diagnostic, 'candidate_source_guard')
     aliases = [manifest[k] for k in ('source_head', 'git_head', 'compiled_core_source_head') if k in manifest]
     require(aliases and all(v == head for v in aliases))
@@ -428,7 +428,7 @@ def database(runtime):
     db = sqlite3.connect((runtime / 'baton.sqlite3').resolve().as_uri() + '?mode=ro', uri=True, timeout=2)
     try:
         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-        require(db.execute('PRAGMA user_version').fetchone() == (17,))
+        require(db.execute('PRAGMA user_version').fetchone() == (18,))
         yield db
     finally:
         db.close()
@@ -724,7 +724,7 @@ def bootstrap(host, root, failing):
     provider.chmod(0o700)
     shell = root / 'fixed-sh'; shutil.copyfile(Path('/bin/sh').resolve(strict=True), shell); shell.chmod(0o700)
     require(shell.stat().st_nlink == 1)
-    require(host.result('system.snapshot', {})['database_schema_version'] == 17)
+    require(host.result('system.snapshot', {})['database_schema_version'] == 18)
     project = host.result('projects.import', {'path': str(source), 'name': 'Generated integration browser'}, 'project')
     task = host.result('tasks.create', {'project_id': project['id'], 'goal': 'Generated integration browser ' + ('failure' if failing else 'normal')}, 'task')
     resolved = host.result('workspaces.resolve', {'task_id': task['id'], 'expected_task_revision': task['revision'],

@@ -281,6 +281,7 @@ pub(crate) enum SharedAccountingKind {
     LegacySession,
     FactoryChildGoal,
     Integration,
+    Conversation,
 }
 pub(crate) struct SharedAccountingRecord {
     pub(crate) kind: SharedAccountingKind,
@@ -321,6 +322,21 @@ pub(crate) fn accounting_records(
             attempt_id: r.attempt_id,
             integration_id: None,
             ancestors: r.ancestors,
+            reservation: r.reservation,
+            settled: r.settled,
+            actual_runtime_ms: r.actual_runtime_ms,
+            actual_output_bytes: r.actual_output_bytes,
+        });
+    }
+    for r in crate::conversations::budget_records(db, root, project)? {
+        result.push(SharedAccountingRecord {
+            kind: SharedAccountingKind::Conversation,
+            scope_id: None,
+            root_grant_id: r.root_grant_id,
+            task_id: String::new(),
+            attempt_id: r.attempt_id,
+            integration_id: None,
+            ancestors: vec![],
             reservation: r.reservation,
             settled: r.settled,
             actual_runtime_ms: r.actual_runtime_ms,

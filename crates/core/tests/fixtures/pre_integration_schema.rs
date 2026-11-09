@@ -46,6 +46,20 @@ pub fn verify_empty_integration17(db: &Connection) -> Result<(), String> {
     if version != 17 {
         return Err(REFUSED.to_owned());
     }
+    verify_empty_domain(db)
+}
+
+/// Explicit current18 read-only composition; the historical17 contract stays exact.
+pub fn verify_empty_integration17_current18(db: &Connection) -> Result<(), String> {
+    let version: u32 = db
+        .pragma_query_value(None, "user_version", |r| r.get(0))
+        .map_err(|_| REFUSED.to_owned())?;
+    if version != 18 {
+        return Err(REFUSED.to_owned());
+    }
+    verify_empty_domain(db)
+}
+fn verify_empty_domain(db: &Connection) -> Result<(), String> {
     let all = objects(db)?;
     let actual: Vec<_> = all
         .iter()

@@ -94,13 +94,13 @@ def project(cancel, approve, baseline_sequence):
         require(N.integration_database_error(group, phase, baseline_sequence) is None)
         # All keys here are fixed and scalar. Unknown raw/private fields never
         # become a "safe" JSON value through passthrough or stringification.
-        phases.append({'phase': phase, 'schema': 17,
+        phases.append({'phase': phase, 'schema': 18,
             'baseline_sequence': baseline_sequence, 'after_sequence': group['after']['sequence'],
             'policy_count': group['after']['policies'], 'run_count': 0, 'attempt_count': 0, 'ref_fence_count': 0,
             'owner_event_sequence': group['owner_event_sequence'], 'policy_event_sequence': group['policy_event_sequence'],
             'exact_native_record_bindings': True})
     require(N.json_exact(cancel['integration_approval_database']['before'], approve['integration_approval_database']['before']))
-    return {'contract': 'agentbaton.integration-owner-ci.v1', 'schema': 17,
+    return {'contract': 'agentbaton.integration-owner-ci.v1', 'schema': 18,
             'status': 'valid_native_report_projection', 'origin': 'native_report_asserted',
             'visual_review': 'not_established_by_collector', 'driver_cleanup': 'not_established_by_collector',
             'authority_or_runtime_acceptance': False, 'private_history_published': False,

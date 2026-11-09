@@ -4,6 +4,8 @@
 //! results. Missing input is a test failure; synthetic approvals are never a
 //! substitute. This tests Store::open (including recovery), not a public
 //! migration-only API, which does not exist.
+#[path = "fixtures/pre_conversation_schema.rs"]
+pub mod pre_conversation_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::{types::ValueRef, Connection, OpenFlags};
 use serde_json::{json, Value};
@@ -555,7 +557,7 @@ fn integration_backups(dir: &Path) -> Vec<PathBuf> {
         .filter(|path| {
             let name = path.file_name().unwrap().to_str().unwrap();
             let Some(id) = name
-                .strip_prefix("history.pre-v17-")
+                .strip_prefix("history.pre-v18-")
                 .and_then(|value| value.strip_suffix(".sqlite3"))
             else {
                 return false;
@@ -669,14 +671,16 @@ fn actual_nonempty_native_and_factory14_history_survives_store17_and_private_bac
     assert!(!details.task_accepted);
     drop(store);
     let after = Connection::open(&path).unwrap();
-    assert_eq!(version(&after), 17);
+    assert_eq!(version(&after), 18);
     assert!(fk_errors(&after).is_empty());
-    pre_integration_schema::verify_empty_integration17(&after).unwrap();
+    pre_integration_schema::verify_empty_integration17_current18(&after).unwrap();
+    pre_conversation_schema::verify_empty_conversation18(&after).unwrap();
     let predecessor_schema: Schema = schema(&after)
         .into_iter()
         .filter(|row| {
             row.2 != "factory_child_goal_runs"
                 && !pre_integration_schema::INTEGRATION17_TABLES.contains(&row.2.as_str())
+                && !pre_conversation_schema::CONVERSATION18_TABLES.contains(&row.2.as_str())
         })
         .collect();
     assert_private_equal(
@@ -692,7 +696,10 @@ fn actual_nonempty_native_and_factory14_history_survives_store17_and_private_bac
         original_application_id
     );
     let mut new_rows = rows(&after);
-    for table in pre_integration_schema::INTEGRATION17_TABLES {
+    for table in pre_integration_schema::INTEGRATION17_TABLES
+        .into_iter()
+        .chain(pre_conversation_schema::CONVERSATION18_TABLES)
+    {
         assert!(
             new_rows.remove(table) == Some(vec![]),
             "New Integration table must be present and empty"
@@ -803,7 +810,7 @@ fn actual_nonempty_native_and_factory14_history_survives_store17_and_private_bac
         "Current17 reopen cannot add an integration safety copy"
     );
     let reopened = Connection::open(&path).unwrap();
-    pre_integration_schema::verify_empty_integration17(&reopened).unwrap();
+    pre_integration_schema::verify_empty_integration17_current18(&reopened).unwrap();
     assert_private_equal(
         &rows(&reopened),
         &after_rows,
@@ -962,23 +969,23 @@ fn actual14_corrupt_native_result_capability_or_ordered_receipt_is_rejected() {
 }
 
 #[test]
-fn actual14_fixture_relabeled_future18_is_refused_before_backup_or_recovery() {
+fn actual14_fixture_relabeled_future19_is_refused_before_backup_or_recovery() {
     // Deliberate future-version corruption of this private copy only. Never
     // relabel the historical14 source/generator/input or claim genuine18 data.
     let (dir, path, _) = fixture();
     let db = Connection::open(&path).unwrap();
-    db.execute_batch("PRAGMA user_version=18").unwrap();
+    db.execute_batch("PRAGMA user_version=19").unwrap();
     let before = rows(&db);
     let before_schema = schema(&db);
     drop(db);
     let before_raw = fs::read(&path).unwrap();
     let error = match Store::open(&path) {
-        Ok(_) => panic!("Future18 must not open"),
+        Ok(_) => panic!("Future19 must not open"),
         Err(e) => e,
     };
     assert_eq!(error.code, "VERSION_UNSUPPORTED");
     let db = Connection::open(&path).unwrap();
-    assert_eq!(version(&db), 18);
+    assert_eq!(version(&db), 19);
     assert_private_equal(&rows(&db), &before, &path, "Future database changed");
     assert_private_equal(&schema(&db), &before_schema, &path, "Future DDL changed");
     assert_private_equal(

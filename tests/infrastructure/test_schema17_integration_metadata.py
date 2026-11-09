@@ -14,7 +14,7 @@ spec.loader.exec_module(G)
 
 
 class IntegrationMetadataControls(unittest.TestCase):
-    def database(self, schema=17):
+    def database(self, schema=18):
         db = sqlite3.connect(':memory:')
         self.addCleanup(db.close)
         db.execute(f'PRAGMA user_version={schema}')
@@ -42,7 +42,7 @@ class IntegrationMetadataControls(unittest.TestCase):
                     G.current_factory_counts(db)
 
     def test_old_and_future_real_sqlite_versions_never_become_current(self):
-        for schema in [15, 16, 18]:
+        for schema in [15, 16, 17, 19]:
             with self.subTest(schema=schema), self.assertRaises(AssertionError):
                 G.current_factory_counts(self.database(schema))
 

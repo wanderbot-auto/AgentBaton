@@ -540,7 +540,7 @@ impl Store {
             );
             *clock = Instant::now();
         }
-        let busy:i64=tx.query_row("SELECT count(*) FROM sessions WHERE workspace_id=?1 AND state NOT IN('stopped','failed')",[workspace_id],|r|r.get(0)).map_err(db_error)?;
+        let busy:i64=tx.query_row("SELECT count(*) FROM (SELECT workspace_id,state FROM sessions UNION ALL SELECT workspace_id,state FROM conversations) WHERE workspace_id=?1 AND state NOT IN('stopped','failed')",[workspace_id],|r|r.get(0)).map_err(db_error)?;
         let lease: Option<(String, i64)> = tx
             .query_row(
                 "SELECT holder,fencing_token FROM workspace_leases WHERE resource=?1",
@@ -558,12 +558,12 @@ impl Store {
         crate::policy::validate_ancestor_grant_budgets_from(&tx, grant_id)?;
         let total: i64 = tx
             .query_row(
-                "SELECT count(*) FROM sessions WHERE root_grant_id=?1",
+                "SELECT count(*) FROM (SELECT root_grant_id,state FROM sessions UNION ALL SELECT root_grant_id,state FROM conversations) WHERE root_grant_id=?1",
                 [&grant.root_grant_id],
                 |r| r.get(0),
             )
             .map_err(db_error)?;
-        let active:i64=tx.query_row("SELECT count(*) FROM sessions WHERE root_grant_id=?1 AND state NOT IN('stopped','failed')",[&grant.root_grant_id],|r|r.get(0)).map_err(db_error)?;
+        let active:i64=tx.query_row("SELECT count(*) FROM (SELECT root_grant_id,state FROM sessions UNION ALL SELECT root_grant_id,state FROM conversations) WHERE root_grant_id=?1 AND state NOT IN('stopped','failed')",[&grant.root_grant_id],|r|r.get(0)).map_err(db_error)?;
         let root = crate::policy::grant_from_for_supervisor(&tx, &grant.root_grant_id)?;
         if total >= i64::from(root.scope.max_attempts)
             || active >= i64::from(root.scope.max_concurrency)
@@ -575,12 +575,12 @@ impl Store {
         }
         let own_total: i64 = tx
             .query_row(
-                "SELECT count(*) FROM sessions WHERE grant_id=?1",
+                "SELECT count(*) FROM (SELECT grant_id,state FROM sessions UNION ALL SELECT grant_id,state FROM conversations) WHERE grant_id=?1",
                 [grant_id],
                 |r| r.get(0),
             )
             .map_err(db_error)?;
-        let own_active:i64=tx.query_row("SELECT count(*) FROM sessions WHERE grant_id=?1 AND state NOT IN('stopped','failed')",[grant_id],|r|r.get(0)).map_err(db_error)?;
+        let own_active:i64=tx.query_row("SELECT count(*) FROM (SELECT grant_id,state FROM sessions UNION ALL SELECT grant_id,state FROM conversations) WHERE grant_id=?1 AND state NOT IN('stopped','failed')",[grant_id],|r|r.get(0)).map_err(db_error)?;
         if own_total >= i64::from(grant.scope.max_attempts)
             || own_active >= i64::from(grant.scope.max_concurrency)
         {
@@ -591,7 +591,7 @@ impl Store {
         }
         let running: i64 = tx
             .query_row(
-                "SELECT count(*) FROM sessions WHERE state NOT IN('stopped','failed')",
+                "SELECT count(*) FROM (SELECT state FROM sessions UNION ALL SELECT state FROM conversations) WHERE state NOT IN('stopped','failed')",
                 [],
                 |r| r.get(0),
             )
@@ -1085,14 +1085,14 @@ impl Store {
     }
 }
 
-enum Work {
+pub(crate) enum Work {
     Prompt(String),
     GoalPrompt {
         text: String,
         stop: owned_stop::TurnTicket,
     },
 }
-enum Outcome {
+pub(crate) enum Outcome {
     Ready(String, String),
     Update(String, Value),
     Turn(String, String),
@@ -1103,13 +1103,13 @@ enum Outcome {
     },
     Failure(String, String),
 }
-struct WorkerReceipt {
+pub(crate) struct WorkerReceipt {
     completed_turn: Option<CompletedTurnProof>,
     capture: Option<crate::factory::FactoryCapture>,
-    elapsed_ms: u64,
-    reason: String,
-    process_reaped: bool,
-    never_started: bool,
+    pub(crate) elapsed_ms: u64,
+    pub(crate) reason: String,
+    pub(crate) process_reaped: bool,
+    pub(crate) never_started: bool,
 }
 struct Worker {
     owned_stop: Option<Arc<owned_stop::LaunchBinding>>,
@@ -1181,7 +1181,7 @@ impl Supervisor {
             ),
         ]))
     }
-    fn configuration_root(&self) -> Result<RuntimeRoot> {
+    pub(crate) fn configuration_root(&self) -> Result<RuntimeRoot> {
         use std::os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt};
         let directory = self.runtime.join("runtime-config");
         match std::fs::DirBuilder::new().mode(0o700).create(&directory) {
@@ -1841,16 +1841,57 @@ impl Drop for Supervisor {
     }
 }
 
-struct WorkerLaunch {
-    route: ProtocolRoute,
-    installation: ApprovedInstallation,
-    configuration: Option<Value>,
-    factory_mcp: Option<crate::factory::FactoryMcpLaunch>,
+pub(crate) struct WorkerLaunch {
+    pub(crate) route: ProtocolRoute,
+    pub(crate) installation: ApprovedInstallation,
+    pub(crate) configuration: Option<Value>,
+    pub(crate) factory_mcp: Option<crate::factory::FactoryMcpLaunch>,
     owned_stop: Option<Arc<owned_stop::LaunchBinding>>,
-    prelaunch_ms: u64,
-    duration: Duration,
+    pub(crate) prelaunch_ms: u64,
+    pub(crate) duration: Duration,
 }
-fn run_worker(
+impl WorkerLaunch {
+    pub(crate) fn conversation(
+        route: ProtocolRoute,
+        installation: ApprovedInstallation,
+        configuration: Option<Value>,
+        prelaunch_ms: u64,
+        duration: Duration,
+    ) -> Self {
+        Self {
+            route,
+            installation,
+            configuration,
+            factory_mcp: None,
+            owned_stop: None,
+            prelaunch_ms,
+            duration,
+        }
+    }
+}
+impl WorkerReceipt {
+    pub(crate) fn conversation_no_start(elapsed_ms: u64) -> Self {
+        Self {
+            completed_turn: None,
+            capture: None,
+            elapsed_ms,
+            reason: "local_launch_failed_before_worker_start".into(),
+            process_reaped: false,
+            never_started: true,
+        }
+    }
+    pub(crate) fn conversation_panicked() -> Self {
+        Self {
+            completed_turn: None,
+            capture: None,
+            elapsed_ms: 0,
+            reason: "worker_panicked".into(),
+            process_reaped: false,
+            never_started: false,
+        }
+    }
+}
+pub(crate) fn run_worker(
     id: String,
     mut launch: WorkerLaunch,
     commands: Receiver<Work>,

@@ -1,5 +1,7 @@
 //! Versioned, authenticated local IPC. No TCP listener, shell, SQL, or arbitrary file API.
-use crate::{sessions::Supervisor, storage::Store, CoreError, Result};
+use crate::{
+    conversations::ConversationSupervisor, sessions::Supervisor, storage::Store, CoreError, Result,
+};
 use fs2::FileExt;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -159,6 +161,26 @@ struct ValidationTaskId {
 #[serde(deny_unknown_fields)]
 struct ValidationPolicyId {
     policy_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CreateConversation {
+    project_id: String,
+    title: String,
+    workspace_id: String,
+    connection_id: String,
+    grant_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ConversationId {
+    conversation_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SendConversation {
+    conversation_id: String,
+    text: String,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -539,6 +561,7 @@ pub struct Daemon {
     socket: PathBuf,
     managed_root: PathBuf,
     supervisor: Supervisor,
+    conversations: ConversationSupervisor,
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
     goal_pending: Option<(String, Receiver<GoalAdvanceReply>)>,
@@ -549,6 +572,9 @@ pub struct Daemon {
     integration_workers: crate::integration::IntegrationWorkers,
 }
 impl Daemon {
+    fn has_provider_workers(&self) -> bool {
+        self.supervisor.has_workers() || self.conversations.has_workers()
+    }
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
         ensure_runtime(runtime_dir)?;
         let data_workers = crate::data_workspace_workers::DataWorkspaceWorkers::new(runtime_dir)?;
@@ -601,6 +627,7 @@ impl Daemon {
             socket,
             managed_root,
             supervisor: Supervisor::new(runtime_dir),
+            conversations: ConversationSupervisor::new(runtime_dir),
             command_workers: Default::default(),
             data_workers,
             goal_pending: None,
@@ -620,6 +647,7 @@ impl Daemon {
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
             self.supervisor.tick(&mut self.store)?;
+            self.conversations.tick(&mut self.store)?;
             // A terminal owned Goal turn committed by this outer service pass
             // must reach the original fresh stop policy before expensive ticks.
             // This hint selects no new work and is never a stop/join receipt.
@@ -723,6 +751,7 @@ impl Daemon {
         self.data_workers.shutdown(&mut self.store)?;
         self.command_workers.shutdown(&mut self.store)?;
         self.supervisor.shutdown(&mut self.store)?;
+        self.conversations.shutdown(&mut self.store)?;
         self.graph_workers.shutdown(&mut self.store)?;
         self.history_workers.reap_owned_workers();
         self.history_workers.release_database(&self.store);
@@ -742,6 +771,7 @@ impl Daemon {
     }
     fn service_after_ready_request(&mut self) -> Result<()> {
         self.supervisor.tick(&mut self.store)?;
+        self.conversations.tick(&mut self.store)?;
         // A committed owned Goal terminal turn may need its original
         // stop-only policy now; this never selects or admits new work.
         self.service_hinted_goal_stops()?;
@@ -809,7 +839,7 @@ impl Daemon {
         if r.request_id.is_empty() || r.request_id.len() > 128 {
             return Err(invalid());
         }
-        if (self.supervisor.has_workers()
+        if (self.has_provider_workers()
             || self.command_workers.has_workers()
             || self.data_workers.has_workers()
             || self.graph_workers.has_workers())
@@ -826,12 +856,14 @@ impl Daemon {
                     | "factory_runs.start"
                     | "approvals.finalize"
                     | "sessions.create"
+                    | "conversations.create"
                     | "command_validation_policies.propose"
             )
         {
             let replay=match r.method.as_str(){
                 "factory_runs.start"=>{let p:FactoryScopeId=params(r.params.clone())?;self.store.factory_start_replay(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,r.idempotency_key.as_deref().ok_or_else(invalid)?)?.is_some()},
 
+                "conversations.create"=> match r.idempotency_key.as_deref() { Some(key) => self.store.conversation_create_replay(r.params["project_id"].as_str().unwrap_or(""),key)?, None => false },
                 "sessions.create"=>r.idempotency_key.as_ref().is_some_and(|key|self.store.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions WHERE task_id=?1 AND idempotency_key=?2)",rusqlite::params![r.params["task_id"].as_str().unwrap_or(""),key],|row|row.get::<_,bool>(0)).unwrap_or(false)),
                 "approvals.finalize"=>self.store.conn.query_row("SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",[r.params["proposal_id"].as_str().unwrap_or("")],|row|row.get::<_,bool>(0)).unwrap_or(false),
                 _=>false,
@@ -1121,7 +1153,7 @@ impl Daemon {
                 let p: ValidationPolicyId = params(r.params)?;
                 let revision = r.expected_revision.ok_or_else(invalid)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                if self.supervisor.has_owned_io() {
+                if self.supervisor.has_owned_io() || self.conversations.has_workers() {
                     if let Some(replay) = self.store.command_replay(&p.policy_id, revision, &key)? {
                         return Ok(json!(replay));
                     }
@@ -1165,7 +1197,7 @@ impl Daemon {
             "data_validations.run" => {
                 let p: ValidationPolicyId = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                if self.supervisor.has_workers() || self.command_workers.has_workers() {
+                if self.has_provider_workers() || self.command_workers.has_workers() {
                     return Err(CoreError::new(
                         "WORKSPACE_BUSY",
                         "Stop active owned sessions before this bounded data-validation operation",
@@ -1201,7 +1233,7 @@ impl Daemon {
             "validations.run" => {
                 let p: ValidationPolicyId = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                if self.supervisor.has_workers() || self.command_workers.has_workers() {
+                if self.has_provider_workers() || self.command_workers.has_workers() {
                     return Err(CoreError::new(
                         "WORKSPACE_BUSY",
                         "Stop active owned sessions before this bounded file-validation operation",
@@ -1212,6 +1244,47 @@ impl Daemon {
                     r.expected_revision.ok_or_else(invalid)?,
                     &key
                 )?))
+            }
+            "conversations.list" => {
+                empty(&r.params)?;
+                Ok(json!(self.store.list_conversations()?))
+            }
+            "conversations.get" => {
+                let p: ConversationId = params(r.params)?;
+                Ok(json!(self.store.get_conversation(&p.conversation_id)?))
+            }
+            "conversations.create" => {
+                let p: CreateConversation = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let conversation = self.store.create_conversation(&p.project_id, &p.title, &p.workspace_id, &p.connection_id, &p.grant_id, &key)?;
+                if let Err(mut error) = self.conversations.launch(&mut self.store, &conversation.id) {
+                    self.conversations.record_local_launch_failure(&mut self.store, &conversation.id)?;
+                    error.side_effect_state = "confirmed".into();
+                    error.details_ref = Some(format!("local-conversation-recorded:{}", conversation.id));
+                    return Err(error);
+                }
+                Ok(json!(self.store.get_conversation(&conversation.id)?))
+            }
+            "conversations.send" => {
+                let p: SendConversation = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let (conversation, dispatch) = self.store.send_conversation(&p.conversation_id, revision, &p.text, &key)?;
+                if dispatch {
+                    if let Err(mut error) = self.conversations.send(&conversation.id, &p.text) {
+                        self.conversations.cancel(&conversation.id);
+                        self.store.conversation_failure(&conversation.id, "turn_queue_failed")?;
+                        error.side_effect_state = "unknown".into();
+                        return Err(error);
+                    }
+                }
+                Ok(json!(conversation))
+            }
+            "conversations.cancel" => {
+                let p: ConversationId = params(r.params)?;
+                let conversation = self.store.cancel_conversation(&p.conversation_id, r.expected_revision.ok_or_else(invalid)?, &r.idempotency_key.ok_or_else(invalid)?)?;
+                self.conversations.cancel(&conversation.id);
+                Ok(json!(conversation))
             }
             "sessions.list" => {
                 empty(&r.params)?;
@@ -1377,6 +1450,7 @@ impl Drop for Daemon {
         self.data_workers.reap_owned_workers();
         self.command_workers.reap_owned_workers();
         self.supervisor.reap_owned_workers();
+        self.conversations.reap_owned_workers();
         self.history_workers.reap_owned_workers();
         self.history_workers.release_database(&self.store);
         let _ = fs::remove_file(&self.socket);
@@ -2120,7 +2194,7 @@ impl Daemon {
         };
         if plan.is_some() {
             if (!plan.as_ref().is_some_and(|p| p.is_child_planning())
-                && (self.supervisor.has_workers()
+                && (self.has_provider_workers()
                     || self.command_workers.has_workers()
                     || self.graph_workers.has_workers()))
                 || self.data_workers.has_workers()
@@ -3355,7 +3429,7 @@ impl Daemon {
             }
             _ => return Ok(None),
         };
-        if self.supervisor.has_workers()
+        if self.has_provider_workers()
             || self.command_workers.has_workers()
             || self.data_workers.has_workers()
             || self.graph_workers.has_workers()
@@ -3371,7 +3445,7 @@ impl Daemon {
         // admission waits for other workers; existing owned work must always be
         // cancellable and genuinely joined/settled.
         self.integration_workers.tick_stages(&mut self.store)?;
-        let idle = !self.supervisor.has_workers()
+        let idle = !self.has_provider_workers()
             && !self.command_workers.has_workers()
             && !self.data_workers.has_workers()
             && !self.graph_workers.has_workers()
@@ -3408,7 +3482,7 @@ impl Daemon {
             return Ok(Some(view));
         }
         if !self.store.integration_existing_run(&params.policy_id)?
-            && (self.supervisor.has_workers()
+            && (self.has_provider_workers()
                 || self.command_workers.has_workers()
                 || self.data_workers.has_workers()
                 || self.graph_workers.has_workers()
@@ -3453,7 +3527,7 @@ impl Daemon {
         if request.request_id.is_empty() || request.request_id.len() > 128 {
             return Err(invalid());
         }
-        if self.supervisor.has_workers()
+        if self.has_provider_workers()
             || self.command_workers.has_workers()
             || self.data_workers.has_workers()
             || self.graph_workers.has_workers()
@@ -3566,3 +3640,44 @@ mod goal_stop_service_tests;
 #[cfg(test)]
 #[path = "ipc_owner_read_queue_tests.rs"]
 mod owner_read_queue_tests;
+
+#[cfg(test)]
+mod conversation_wire_tests {
+    use super::*;
+
+    #[test]
+    fn conversation_create_is_taskless_and_closed() {
+        let payload = json!({"project_id":"p","title":"Discussion","workspace_id":"w","connection_id":"c","grant_id":"g"});
+        let parsed: CreateConversation = params(payload.clone()).unwrap();
+        assert_eq!(parsed.project_id, "p");
+        assert_eq!(parsed.title, "Discussion");
+        for field in [
+            "task_id",
+            "approved",
+            "caller_id",
+            "runtime_snapshot",
+            "require_enforcement",
+        ] {
+            let mut extra = payload.clone();
+            extra[field] = json!("untrusted");
+            assert!(params::<CreateConversation>(extra).is_err());
+        }
+        let mut missing = payload;
+        missing.as_object_mut().unwrap().remove("grant_id");
+        assert!(params::<CreateConversation>(missing).is_err());
+    }
+
+    #[test]
+    fn conversation_message_requires_exact_identity_and_closed_payload() {
+        let parsed: SendConversation =
+            params(json!({"conversation_id":"chat","text":"hello"})).unwrap();
+        assert_eq!(parsed.conversation_id, "chat");
+        assert_eq!(parsed.text, "hello");
+        assert!(params::<SendConversation>(json!({"session_id":"chat","text":"hello"})).is_err());
+        assert!(params::<SendConversation>(
+            json!({"conversation_id":"chat","text":"hello","grant_id":"other"})
+        )
+        .is_err());
+        assert!(params::<ConversationId>(json!({"conversation_id":"chat","force":true})).is_err());
+    }
+}

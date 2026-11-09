@@ -112,7 +112,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal execution counts")?;
     if !valid_goal_execution_counts(&snapshot) {
         return Err(
-            "Goal execution fixture must have schema17 and no run/node/reservation authority"
+            "Goal execution fixture must have schema18 and no run/node/reservation authority"
                 .into(),
         );
     }
@@ -120,7 +120,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
 }
 fn valid_goal_execution_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 5)
-        && value["schema_version"].as_u64() == Some(17)
+        && value["schema_version"].as_u64() == Some(18)
         && ["run_count", "node_count", "reservation_count"]
             .iter()
             .all(|key| value[*key].as_u64() == Some(0))
@@ -223,7 +223,7 @@ db.close()
 
 fn valid_goal_graph_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 8)
-        && value["schema_version"].as_u64() == Some(17)
+        && value["schema_version"].as_u64() == Some(18)
         && GOAL_GRAPH_COUNT_FIELDS
             .iter()
             .all(|key| value[*key].as_u64() == Some(0))
@@ -238,7 +238,7 @@ fn goal_graph_database_snapshot(runtime: &Path) -> Result<Value, String> {
     let snapshot: Value =
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal graph counts")?;
     if !valid_goal_graph_counts(&snapshot) {
-        return Err("Goal graph fixture must have schema17 and six empty graph tables".into());
+        return Err("Goal graph fixture must have schema18 and six empty graph tables".into());
     }
     Ok(snapshot)
 }
@@ -357,7 +357,7 @@ db.close()
 "#;
 fn valid_factory_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 14)
-        && value["schema_version"].as_u64() == Some(17)
+        && value["schema_version"].as_u64() == Some(18)
         && value["sequence"].as_u64().is_some()
         && FACTORY_COUNT_FIELDS
             .iter()
@@ -373,7 +373,7 @@ fn factory_database_snapshot(runtime: &Path) -> Result<Value, String> {
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Factory counts")?;
     if !valid_factory_counts(&snapshot) {
         return Err(
-            "Factory fixture requires exact schema17 and twelve independently empty tables".into(),
+            "Factory fixture requires exact schema18 and twelve independently empty tables".into(),
         );
     }
     Ok(snapshot)
@@ -494,7 +494,7 @@ db.close()
 "#;
 fn valid_integration_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 6)
-        && value["schema_version"].as_u64() == Some(17)
+        && value["schema_version"].as_u64() == Some(18)
         && value["sequence"].as_u64().is_some()
         && INTEGRATION_COUNT_FIELDS
             .iter()
@@ -509,7 +509,7 @@ fn integration_database_snapshot(runtime: &Path) -> Result<Value, String> {
         .map_err(|_| "invalid readonly integration counts")?;
     if !valid_integration_counts(&snapshot) {
         return Err(
-            "Integration readonly fixture requires exact schema17 and four empty tables".into(),
+            "Integration readonly fixture requires exact schema18 and four empty tables".into(),
         );
     }
     Ok(snapshot)
@@ -2041,7 +2041,7 @@ mod fixture_tests {
         json!({"status":"running","goal_readonly_database":{"read_only":true,"unchanged":true,"before":goal,"after":goal}})
     }
     fn execution_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":17,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
+        json!({"schema_version":18,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
     }
     fn execution_result_fixture(sequence: u64) -> Value {
         json!({"goalExecutionLists":true,"goalExecutionMissingRunDenied":true,"readonlyGoalExecutionNoMutation":true,"goalReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionMissingRun":{"run_id":MISSING_GOAL_RUN_ID,"code":"NOT_FOUND","side_effect_state":"not_started"}})
@@ -2288,7 +2288,7 @@ mod fixture_tests {
     }
 
     fn graph_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":17,"capability_count":0,"job_count":0,"candidate_count":0,"validation_count":0,"owner_decision_count":0,"acceptance_count":0,"sequence":sequence})
+        json!({"schema_version":18,"capability_count":0,"job_count":0,"candidate_count":0,"validation_count":0,"owner_decision_count":0,"acceptance_count":0,"sequence":sequence})
     }
     fn graph_report_fixture(sequence: u64) -> Value {
         let mut report = readonly_report_fixture(sequence);
@@ -2318,7 +2318,7 @@ mod fixture_tests {
         assert_eq!(goal_database_snapshot(&runtime).unwrap()["sequence"], 0);
         assert_eq!(
             goal_execution_database_snapshot(&runtime).unwrap()["schema_version"],
-            17
+            18
         );
         let mut report = graph_report_fixture(0);
         record_goal_graph_checkpoint(0, "main", &mut report, "before", before.clone()).unwrap();
@@ -2482,7 +2482,7 @@ mod fixture_tests {
         .is_err());
     }
     #[test]
-    fn graph_final_evidence_requires_independent_schema17_and_exact_core_denial() {
+    fn graph_final_evidence_requires_independent_schema18_and_exact_core_denial() {
         let mut report = graph_report_fixture(2);
         let counts = graph_counts_fixture(2);
         record_goal_graph_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
@@ -2569,7 +2569,7 @@ mod fixture_tests {
         let before = goal_graph_database_snapshot(&runtime).unwrap();
         let old_before = goal_database_snapshot(&runtime).unwrap();
         let execution_before = goal_execution_database_snapshot(&runtime).unwrap();
-        assert_eq!(before["schema_version"], 17);
+        assert_eq!(before["schema_version"], 18);
         let listed = ipc::call(
             &runtime,
             json!({"method":"goal_graph_runs.list","params":{"task_id":task_id}}),
@@ -2678,7 +2678,7 @@ mod fixture_tests {
         assert!(validate_webcrypto_evidence(&second, &report, true).is_err());
     }
     fn factory_counts_fixture(sequence: u64) -> Value {
-        let mut counts = json!({"schema_version":17,"sequence":sequence});
+        let mut counts = json!({"schema_version":18,"sequence":sequence});
         for field in FACTORY_COUNT_FIELDS {
             counts[field] = json!(0);
         }
@@ -2708,7 +2708,7 @@ mod fixture_tests {
         result
     }
     #[test]
-    fn factory_readonly_requires_exact_schema17_all_twelve_typed_counts_and_ordered_context() {
+    fn factory_readonly_requires_exact_schema18_all_twelve_typed_counts_and_ordered_context() {
         let counts = factory_counts_fixture(3);
         assert!(valid_factory_counts(&counts));
         for field in ["schema_version", "sequence"]
@@ -2736,7 +2736,7 @@ mod fixture_tests {
             changed[field] = json!(1);
             assert!(!valid_factory_counts(&changed));
         }
-        for schema in [11, 12, 13, 14, 15, 16, 18] {
+        for schema in [11, 12, 13, 14, 15, 16, 17, 19] {
             let mut changed = counts.clone();
             changed["schema_version"] = json!(schema);
             assert!(!valid_factory_counts(&changed));
@@ -2823,7 +2823,7 @@ mod fixture_tests {
         assert!(validate_factory_evidence(&replay_result, &replay).is_err());
     }
     #[test]
-    fn factory_actual_schema17_query_and_core_count_projection_leave_history_unchanged() {
+    fn factory_actual_schema18_query_and_core_count_projection_leave_history_unchanged() {
         let (_directory, runtime, mut store) = fresh_execution_fixture();
         let task = store
             .create(
@@ -2909,7 +2909,7 @@ mod fixture_tests {
         }
     }
     fn integration_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":17,"sequence":sequence,"policies":0,"runs":0,"attempts":0,"ref_fences":0})
+        json!({"schema_version":18,"sequence":sequence,"policies":0,"runs":0,"attempts":0,"ref_fences":0})
     }
     fn integration_report_fixture(sequence: u64) -> Value {
         let mut report = factory_report_fixture(sequence);
@@ -2919,7 +2919,7 @@ mod fixture_tests {
         report
     }
     #[test]
-    fn integration_readonly_has_independent_exact_schema17_and_four_typed_zero_counts() {
+    fn integration_readonly_has_independent_exact_schema18_and_four_typed_zero_counts() {
         let counts = integration_counts_fixture(7);
         assert!(valid_integration_counts(&counts));
         for field in ["schema_version", "sequence"]
@@ -3076,7 +3076,7 @@ mod fixture_tests {
             let observed: Value =
                 serde_json::from_slice(&bounded_goal_query(query).unwrap()).unwrap();
             assert_eq!(observed[field], 1);
-            assert_eq!(observed["schema_version"], 17);
+            assert_eq!(observed["schema_version"], 18);
             drop(store);
         }
     }

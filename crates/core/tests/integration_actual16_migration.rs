@@ -1,5 +1,7 @@
-//! Required-feature genuine source16 -> Store17 migration; no synthetic old-schema success.
+//! Required-feature genuine source16 -> Store18 migration; no synthetic old-schema success.
 //! Root registers required-features=["actual-schema16-migration-tests"].
+#[path = "fixtures/pre_conversation_schema.rs"]
+pub mod pre_conversation_schema;
 use agentbaton_core::{
     storage::{Store, Task},
     TaskGitWorkspacePreparation,
@@ -174,11 +176,11 @@ fn backups(root: &Path) -> Vec<PathBuf> {
             // A query-only SQLite connection can still create -wal/-shm
             // sidecars. Preserve those files, but count actual backup DBs.
             let name = p.file_name().unwrap().to_str().unwrap();
-            if !name.starts_with("actual.pre-v17-") || !name.ends_with(".sqlite3") {
+            if !name.starts_with("actual.pre-v18-") || !name.ends_with(".sqlite3") {
                 return false;
             }
             let id = name
-                .strip_prefix("actual.pre-v17-")
+                .strip_prefix("actual.pre-v18-")
                 .unwrap()
                 .strip_suffix(".sqlite3")
                 .unwrap();
@@ -817,14 +819,18 @@ fn zero_integration(store: &Store, path: &Path) {
 }
 fn assert_additive(before: &Image, after: &Image, path: &Path) {
     assert_eq!(before.version, 16);
-    assert_eq!(after.version, 17);
+    assert_eq!(after.version, 18);
     assert_eq!(after.journal, "wal");
     assert_eq!(before.rows.len(), 55);
-    assert_eq!(after.rows.len(), 59);
+    assert_eq!(after.rows.len(), 63);
+    pre_conversation_schema::verify_empty_conversation18(&ro(path)).unwrap();
     let old_schema: Schema = after
         .schema
         .iter()
-        .filter(|r| !NEW_TABLES.contains(&r.2.as_str()))
+        .filter(|r| {
+            !NEW_TABLES.contains(&r.2.as_str())
+                && !pre_conversation_schema::CONVERSATION18_TABLES.contains(&r.2.as_str())
+        })
         .cloned()
         .collect();
     equal(
@@ -836,7 +842,10 @@ fn assert_additive(before: &Image, after: &Image, path: &Path) {
     let old_rows: Rows = after
         .rows
         .iter()
-        .filter(|(name, _)| !NEW_TABLES.contains(&name.as_str()))
+        .filter(|(name, _)| {
+            !NEW_TABLES.contains(&name.as_str())
+                && !pre_conversation_schema::CONVERSATION18_TABLES.contains(&name.as_str())
+        })
         .map(|(name, rows)| (name.clone(), rows.clone()))
         .collect();
     equal(
@@ -845,7 +854,10 @@ fn assert_additive(before: &Image, after: &Image, path: &Path) {
         path,
         "Every old rowid/raw document/receipt/event/counter",
     );
-    for table in NEW_TABLES {
+    for table in NEW_TABLES
+        .into_iter()
+        .chain(pre_conversation_schema::CONVERSATION18_TABLES)
+    {
         assert!(after.rows[table].is_empty());
     }
     assert_eq!(before.application_id, after.application_id);
@@ -984,10 +996,10 @@ fn genuine16_three_create_receipts_and_ready_preparation_replay_without_new_writ
 }
 
 #[test]
-fn genuine16_copy_labelled_future18_is_refused_without_backup_or_any_byte_change() {
+fn genuine16_copy_labelled_future19_is_refused_without_backup_or_any_byte_change() {
     let f = fixture();
     let db = Connection::open(&f.db).unwrap();
-    db.pragma_update(None, "user_version", 18u32).unwrap();
+    db.pragma_update(None, "user_version", 19u32).unwrap();
     drop(db);
     let before = image(&ro(&f.db));
     let raw = fs::read(&f.db).unwrap();
@@ -999,13 +1011,13 @@ fn genuine16_copy_labelled_future18_is_refused_without_backup_or_any_byte_change
         &before,
         &image(&ro(&f.db)),
         &f.db,
-        "Future18 logical image changed",
+        "Future19 logical image changed",
     );
     equal(
         &raw,
         &fs::read(&f.db).unwrap(),
         &f.db,
-        "Future18 raw bytes changed",
+        "Future19 raw bytes changed",
     );
     assert!(backups(f.root()).is_empty());
     f.original_unchanged();

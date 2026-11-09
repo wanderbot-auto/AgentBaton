@@ -28,6 +28,7 @@ pub(crate) use runtime::{
     permits_continuing_task, reserve_session, verify_task_acceptance_state, GoalDispatchContext,
     GraphReadContext, GraphReadWitness, GraphWorkers,
 };
+pub(crate) use runtime::{reserve_conversation_meter, settle_conversation_meter};
 pub use runtime::{
     GoalPlanAdvance, GoalRun, GoalRunDispatch, GoalRunSelection, GraphArtifactReference,
     GraphCandidateReceipt, GraphCriterionBinding, GraphDefinitionReusePermission,
@@ -469,6 +470,14 @@ fn reconcile_budget(
 fn counts(db: &Connection, task: &Task, grant: &ExecutionGrant) -> Result<(u32, u32, u32, u32)> {
     let (p,pa):(u32,u32)=db.query_row("SELECT count(DISTINCT a.id),count(DISTINCT CASE WHEN d.state!='stopped' THEN a.id END) FROM attempts a JOIN tasks t ON t.id=a.task_id LEFT JOIN dispatch_intents d ON d.attempt_id=a.id WHERE json_extract(t.document,'$.project_id')=?1",[&task.project_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
     let (g,ga):(u32,u32)=db.query_row("SELECT count(DISTINCT a.id),count(DISTINCT CASE WHEN d.state!='stopped' THEN a.id END) FROM attempts a LEFT JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.root_task_id=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':') OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?2)",params![task.id,grant.root_grant_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+    let (cp,cap):(u32,u32)=db.query_row("SELECT count(*),COALESCE(sum(state NOT IN('stopped','failed')),0) FROM conversations WHERE project_id=?1",[&task.project_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+    let (cg,cag):(u32,u32)=db.query_row("SELECT count(*),COALESCE(sum(state NOT IN('stopped','failed')),0) FROM conversations WHERE root_grant_id=?1",[&grant.root_grant_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+    let (p, pa, g, ga) = (
+        p.checked_add(cp).ok_or_else(limited)?,
+        pa.checked_add(cap).ok_or_else(limited)?,
+        g.checked_add(cg).ok_or_else(limited)?,
+        ga.checked_add(cag).ok_or_else(limited)?,
+    );
     let pb = budget(db, true, &task.project_id)?;
     let gb = budget(db, false, &task.id)?;
     Ok((
@@ -482,7 +491,8 @@ fn no_writers(db: &Connection, task: &Task, grant: &ExecutionGrant) -> Result<()
     let active:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE d.state!='stopped' AND (a.root_task_id=?1 OR json_extract(a.binding,'$.workspace_id') IN (SELECT value FROM json_each(?2)) OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?3)))",params![task.id,encode(&grant.scope.workspace_ids)?,grant.root_grant_id],|r|r.get(0)).map_err(db_error)?;
     let command:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id IN (SELECT value FROM json_each(?1)))",[encode(&grant.scope.workspace_ids)?],|r|r.get(0)).map_err(db_error)?;
     let graph:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_graph_jobs WHERE workspace_id IN (SELECT value FROM json_each(?1)) AND state IN('prepared','running','cancel_requested','outcome_unknown'))",[encode(&grant.scope.workspace_ids)?],|r|r.get(0)).map_err(db_error)?;
-    if active || command || graph {
+    let conversation:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM conversations WHERE state NOT IN('stopped','failed') AND (root_grant_id=?1 OR workspace_id IN(SELECT value FROM json_each(?2))))",params![grant.root_grant_id,encode(&grant.scope.workspace_ids)?],|r|r.get(0)).map_err(db_error)?;
+    if active || command || graph || conversation {
         return Err(err("WORKSPACE_BUSY","Stop and reconcile all root/workspace intents and command read fences before reviewing Goal authority"));
     }
     Ok(())

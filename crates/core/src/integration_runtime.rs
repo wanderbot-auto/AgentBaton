@@ -221,6 +221,7 @@ fn live_policy(store: &Store, p: &IntegrationPolicy) -> Result<IntegrationScopeM
     Ok(material)
 }
 fn source_idle(db: &Connection, p: &IntegrationPolicy) -> Result<()> {
+    super::fences::check_conversation_writers(db, &p.bindings.source)?;
     let active:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE d.state!='stopped' AND (json_extract(a.binding,'$.workspace_id')=?1 OR a.root_task_id=?2)) OR EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_jobs WHERE workspace_id=?1 AND state IN('prepared','running','cancel_requested','outcome_unknown')) OR EXISTS(SELECT 1 FROM workspace_leases WHERE resource=?1 AND holder!='')",params![p.bindings.workspace_id,p.bindings.root_task_id],|r|r.get(0)).map_err(db_error)?;
     if active {
         return Err(CoreError::new("WORKSPACE_BUSY","Integration source still has an owned writer, unresolved intent or read fence; lease expiry does not confirm stop"));

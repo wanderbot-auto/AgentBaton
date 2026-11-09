@@ -163,6 +163,8 @@ LAYERS = {'apps/desktop/tests/factory-child-goal-real-ipc.py': {'before': 'dd80a
 def strip_capture_failure_layer(path,text):
     if type(path)is not str or path not in LAYERS or type(text)is not str:
         raise AssertionError('Unknown capture failure source arguments')
+    from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+    text=strip_schema18_source(path,text,legacy=LAYERS[path]['legacy'])
     record=LAYERS[path];digest=hashlib.sha256(text.encode()).hexdigest()
     if digest in record['legacy']:
         return text
@@ -258,6 +260,8 @@ TEST_GUARD_LAYER = {'before': '6b192b0069a833e74ac4e7c1519a2f7169f292f4be923e522
             '            self.assertEqual(source_sha(parent_v4_source_copy(path,raw.decode())),digest)\n']]}
 
 def strip_capture_test_guard_layer(text):
+    from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+    text=strip_schema18_source('tests/infrastructure/test_child_goal_diagnostics_v4.py',text,legacy=(TEST_GUARD_LAYER['before'],))
     if type(text)is not str:raise AssertionError("Unknown capture test source")
     digest=hashlib.sha256(text.encode()).hexdigest()
     if digest==TEST_GUARD_LAYER["before"]:return text

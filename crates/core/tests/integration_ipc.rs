@@ -61,7 +61,7 @@ impl Server {
         let version: u32 = db
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .unwrap();
-        assert_eq!(version, 17);
+        assert_eq!(version, 18);
         let mut result = vec![];
         // Every retained row, including approvals/events/counters, must remain
         // byte-identical for a preview/refusal. No synthetic authority writes.

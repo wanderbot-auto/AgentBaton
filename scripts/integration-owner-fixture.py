@@ -222,7 +222,7 @@ def bootstrap(owner, daemon_path, companion_path, output):
                 client = ResourceClient(runtime, owner)
                 wait(lambda: (runtime/'session.token').is_file() and (runtime/'batond.sock').exists(), bool, 10)
                 snapshot = client.call('system.snapshot', {})
-                require(type(snapshot['database_schema_version']) is int and snapshot['database_schema_version'] == 17, 'Actual schema17 Core required')
+                require(type(snapshot['database_schema_version']) is int and snapshot['database_schema_version'] == 18, 'Actual schema18 Core required')
                 project = client.call('projects.import', {'path': str(source), 'name': 'Native independent integration generated'}, 'integration-owner:project')
                 task = client.call('tasks.create', {'project_id': project['id'], 'goal': 'Generated independent integration approval'}, 'integration-owner:task')
                 preview = client.call('workspaces.resolve', {'task_id': task['id'], 'expected_task_revision': task['revision'],
@@ -292,10 +292,11 @@ def database(runtime):
     """One actual readonly transaction; bound all selected raw bytes first."""
     spec = importlib.util.spec_from_file_location('_integration_owner_table_names', ROOT / 'scripts/prepare-schema16-migration-fixture.py')
     helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(helper)
-    tables = tuple(sorted((*helper.SCHEMA_TABLES, 'integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences')))
+    tables = tuple(sorted((*helper.SCHEMA_TABLES, 'integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences',
+                           'conversations', 'conversation_dispatches', 'conversation_turns', 'conversation_budgets')))
     with sqlite3.connect((runtime/'baton.sqlite3').as_uri()+'?mode=ro', uri=True) as db:
         db.execute('PRAGMA query_only=ON'); db.execute('PRAGMA trusted_schema=OFF'); db.execute('BEGIN')
-        require(db.execute('PRAGMA user_version').fetchone()[0] == 17)
+        require(db.execute('PRAGMA user_version').fetchone()[0] == 18)
         require(tuple(r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")) == tables)
         columns, sizes, remaining, total_rows = {}, {}, 8_388_608, 0
         for table in tables:
@@ -309,7 +310,7 @@ def database(runtime):
         encode_cell = lambda v: {'sqlite_blob_hex': v.hex()} if type(v) is bytes else v
         rows = {table: [[encode_cell(v) for v in row] for row in db.execute('SELECT rowid,* FROM "'+table+'" ORDER BY rowid')] for table in tables}
         db.rollback()
-    return {'read_only': True, 'schema_version': 17, 'columns': columns, 'counts': sizes, 'rows': rows,
+    return {'read_only': True, 'schema_version': 18, 'columns': columns, 'counts': sizes, 'rows': rows,
             'sequence': max((r[1] for r in rows['events']), default=0)}
 
 
@@ -322,7 +323,7 @@ def pending_error(owner, value, before):
 
 
 def approved_error(owner, value, before, proposal, response):
-    if (value['schema_version'] != 17 or response.get('error') is not None or type(response.get('result')) is not dict
+    if (value['schema_version'] != 18 or response.get('error') is not None or type(response.get('result')) is not dict
             or value['sequence'] != before['sequence'] + 2 or value['columns'] != before['columns']):
         return 'Missing exact integration response/schema/two-event transaction'
     policy = response['result']
@@ -451,6 +452,6 @@ def run(owner, binary, daemon_path, companion_path, output, cancel_at=None):
                     owner._finish_factory_app(app, native, phase_out, failure)
         require(generated['daemon_cleanup']['ok'])
     owner.save(output/'result.json',{'status':'actual_integration_cancel_and_same_key_approval_visual_review_pending',
-        'phases':results,'daemon_cleanup':generated['daemon_cleanup'], 'schema':17,
+        'phases':results,'daemon_cleanup':generated['daemon_cleanup'], 'schema':18,
         'dimension':'macos_own_process_real_sheet','real_provider':'not_run','human_owner_approval':'not_claimed',
         'harness_binary_sha256':native['sha256'],'tools':generated['tools']})

@@ -30,6 +30,8 @@ def fixture_inverse(text):
 
 
 def host_inverse(text):
+    from schema18_host_fixture import restore_schema17_host
+    text = restore_schema17_host(text)
     text = remove_once(text, '    join_outcome: Option<ActorJoinOutcome>,\n')
     text = remove_once(text, '// Test-host observation only; this does not certify worker/process stop.\n#[derive(Clone, Copy, PartialEq, Eq)]\nenum ActorJoinOutcome {\n    Ok,\n    Error,\n    Panic,\n}\n')
     text = remove_once(text, '            join_outcome: None,\n')
@@ -164,6 +166,14 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
 
     def test_whole_host_inverse_exact_e874(self):
         self.assertEqual(hashlib.sha256(host_inverse(HOST.read_text()).encode()).hexdigest(), '90fe84ccdecccddcdb6b8d0530fcbf29dad8d9390c0ac3bfc7200e93a469aabb')
+
+    def test_current_host_schema_inverse_refuses_old_or_future_reader(self):
+        original = HOST.read_text()
+        for version in (17, 19):
+            changed = original.replace('assert_eq!(version, 18);',
+                                       f'assert_eq!(version, {version});', 1)
+            with self.assertRaises(AssertionError):
+                host_inverse(changed)
 
     def test_inverse_rejects_unknown_region_and_missing_fragment(self):
         for path, inverse in [(FIXTURE, fixture_inverse), (HOST, host_inverse)]:

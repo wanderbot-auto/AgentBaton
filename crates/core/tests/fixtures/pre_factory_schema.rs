@@ -1,5 +1,7 @@
 //! Controlled test-only inverse from current schema16 to generated predecessors.
 //! This does not make a genuine historical14 fixture and never runs on live data.
+#[path = "pre_conversation_schema.rs"]
+pub mod pre_conversation_schema;
 #[path = "pre_integration_schema.rs"]
 pub mod pre_integration_schema;
 use rusqlite::{Connection, Transaction};
@@ -219,15 +221,17 @@ pub fn remove_empty_factory_increment(connection: &Connection) -> rusqlite::Resu
     remove_empty_factory_increment_impl(connection, false)
 }
 
-/// Explicit current17 generator, not an acceptance range for the old16 inverse.
+/// Explicit current18 generator, not an acceptance range for the old16 inverse.
 pub fn remove_empty_current_factory_increment(connection: &Connection) -> rusqlite::Result<()> {
     remove_empty_factory_increment_impl(connection, true)
 }
 
-/// Caller keeps the entire17 ->14 ->13 sequence inside its original transaction.
+/// Caller keeps the entire18 ->17 ->14 ->13 sequence inside its original transaction.
 pub fn remove_empty_current_child_goal_increment(
     transaction: &Transaction<'_>,
 ) -> rusqlite::Result<()> {
+    pre_conversation_schema::remove_empty_conversation18_in_transaction(transaction)
+        .map_err(|_| rusqlite::Error::InvalidQuery)?;
     pre_integration_schema::remove_empty_integration17_in_transaction(transaction)
         .map_err(|_| rusqlite::Error::InvalidQuery)?;
     remove_empty_child_goal_increment(transaction)
@@ -235,7 +239,7 @@ pub fn remove_empty_current_child_goal_increment(
 
 fn remove_empty_factory_increment_impl(
     connection: &Connection,
-    current17: bool,
+    current18: bool,
 ) -> rusqlite::Result<()> {
     if !connection.is_autocommit() {
         return Err(rusqlite::Error::InvalidQuery);
@@ -245,7 +249,7 @@ fn remove_empty_factory_increment_impl(
     connection.pragma_update(None, "foreign_keys", false)?;
     let result = (|| {
         let transaction = connection.unchecked_transaction()?;
-        if current17 {
+        if current18 {
             remove_empty_current_child_goal_increment(&transaction)?;
         } else {
             remove_empty_child_goal_increment(&transaction)?;

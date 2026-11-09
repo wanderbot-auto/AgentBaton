@@ -615,7 +615,7 @@ class ProjectDBGuardComposition(unittest.TestCase):
         def close(self):self.closed=True
         def set_progress_handler(self,*_):pass
         def execute(self,sql,params=()):
-            if sql=='PRAGMA user_version':return Cursor([(17,)])
+            if sql=='PRAGMA user_version':return Cursor([(18,)])
             if sql=='PRAGMA query_only':return Cursor([(1,)])
             if sql.startswith('PRAGMA '):return Cursor([])
             if sql.startswith('SELECT type,sql FROM sqlite_master'):

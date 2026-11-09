@@ -80,13 +80,13 @@ def seed(root):
     # mkdir(parents=True) applies mode only to the leaf directory. Create this
     # intermediate private boundary explicitly, independently of the CI umask.
     (private / 'driver').mkdir(mode=0o700)
-    manifest = {'schema': 17, 'git_head': HEAD, 'dirty': False, 'binaries': {'batond': 'b'*64, 'baton': 'c'*64}}
+    manifest = {'schema': 18, 'git_head': HEAD, 'dirty': False, 'binaries': {'batond': 'b'*64, 'baton': 'c'*64}}
     build = {'source': HEAD, 'command': ['npm', '--prefix', 'apps/desktop', 'run', 'build'],
         'exit': 0, 'source_head_and_tracked_unchanged': True}
     manifest_raw, build_raw = json.dumps(manifest).encode(), json.dumps(build).encode()
     write(private / 'candidate.json', manifest_raw); write(private / 'frontend-build-record.json', build_raw)
     write(private / 'status.json', {'source': HEAD, 'driver_exit': 0, 'probe_passed': True})
-    write(private / 'schema-probe.json', {'source': HEAD, 'api_version': 1, 'database_schema_version': 17,
+    write(private / 'schema-probe.json', {'source': HEAD, 'api_version': 1, 'database_schema_version': 18,
         'daemon_exit': 0, 'joined': True})
     for case in E.CASES:
         data = report(case, manifest_raw, build_raw)
@@ -169,7 +169,7 @@ class ProjectionControls(unittest.TestCase):
                 self.assertEqual(self.project(private,root/'public'),1)
 
     def test_real_schema_probe_and_cleanup_are_strictly_typed(self):
-        for key,bad in [('database_schema_version',16),('database_schema_version',18),('database_schema_version',True),
+        for key,bad in [('database_schema_version',16),('database_schema_version',17),('database_schema_version',19),('database_schema_version',True),
             ('api_version',True),('api_version',17),('joined',False),('daemon_exit',False),('daemon_exit',1),('source','f'*40)]:
             with self.subTest(key=key,bad=bad),tempfile.TemporaryDirectory() as temporary:
                 root=Path(temporary).resolve();private=seed(root);q=private/'schema-probe.json';v=json.loads(q.read_text());v[key]=bad;write(q,v)

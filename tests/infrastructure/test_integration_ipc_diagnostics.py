@@ -63,6 +63,9 @@ _POST_JOIN_LAYERS = json.loads(r'''
 
 
 def strip_post_join_layer(path,text):
+    if path == IPC:
+        from schema18_host_fixture import restore_schema17_host
+        text = restore_schema17_host(text)
     if path == RUNTIME:
         from integration_fixed_script_fixture import restore_before_fixed_scripts
         text = restore_before_fixed_scripts(text)

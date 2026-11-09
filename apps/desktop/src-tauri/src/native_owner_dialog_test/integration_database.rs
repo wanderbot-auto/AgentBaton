@@ -26,7 +26,7 @@ baseline=int(baseline); original_revision=int(original_revision)
 db=sqlite3.connect(Path(path).resolve().as_uri()+'?mode=ro',uri=True,timeout=1,isolation_level=None)
 db.execute('PRAGMA query_only=ON');db.execute('PRAGMA trusted_schema=OFF');db.execute('BEGIN')
 assert db.execute('PRAGMA query_only').fetchone()[0]==1
-schema=db.execute('PRAGMA user_version').fetchone()[0];assert schema==17
+schema=db.execute('PRAGMA user_version').fetchone()[0];assert schema==18
 tables=('integration_policies','integrations','integration_attempts','integration_ref_fences')
 for table in tables:
     row=db.execute('SELECT type,sql FROM sqlite_master WHERE name=?',(table,)).fetchone()

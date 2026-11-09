@@ -66,8 +66,12 @@ def _strip(text, edits, before, after, error):
 
 
 def strip_screenshot_driver_layer(text):
+    from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+    text=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',text,legacy=(DRIVER_BEFORE_SHA256,))
     return _strip(text, DRIVER_EDITS, DRIVER_BEFORE_SHA256, DRIVER_AFTER_SHA256, AssertionError)
 
 
 def strip_screenshot_projector_layer(text):
+    from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+    text=strip_schema18_source('scripts/record-integration-browser-ci-evidence.py',text,legacy=(PROJECTOR_BEFORE_SHA256,),error=ValueError)
     return _strip(text, PROJECTOR_EDITS, PROJECTOR_BEFORE_SHA256, PROJECTOR_AFTER_SHA256, ValueError)

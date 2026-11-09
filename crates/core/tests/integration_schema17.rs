@@ -1,4 +1,4 @@
-//! Store17 persistence contract. Synthetic malformed predecessors below are
+//! Store18 persistence with exact Integration17 predecessor contract. Synthetic malformed predecessors below are
 //! negatives only; genuine source16 data is tested by integration_actual16_migration.
 //! Opaque compatibility inputs below are controlled generated schema16/17 inputs,
 //! never claimed as genuine historical producers.
@@ -118,7 +118,7 @@ fn backups(root: &Path) -> Vec<PathBuf> {
         .map(|e| e.unwrap().path())
         .filter(|p| {
             let name = p.file_name().unwrap().to_string_lossy();
-            name.starts_with("state.pre-v17-") && name.ends_with(".sqlite3")
+            name.starts_with("state.pre-v18-") && name.ends_with(".sqlite3")
         })
         .collect();
     result.sort();
@@ -167,7 +167,7 @@ fn preserved_backup(before: &Image, root: &Path) {
 }
 
 #[test]
-fn fresh_store17_is_additive_empty_authority_and_reopen_preserves_real_store_rows() {
+fn fresh_store18_is_additive_empty_authority_and_reopen_preserves_real_store_rows() {
     let (root, path) = fixture();
     let mut store = Store::open(&path).unwrap();
     let task = store
@@ -175,8 +175,8 @@ fn fresh_store17_is_additive_empty_authority_and_reopen_preserves_real_store_row
         .unwrap();
     assert!(task.code_workspace_binding.is_none());
     let before = image(&ro(&path));
-    assert_eq!(before.version, 17);
-    assert_eq!(before.rows.len(), 59); // complete55 predecessor tables + four17 tables
+    assert_eq!(before.version, 18);
+    assert_eq!(before.rows.len(), 63); // complete55 + four Integration17 + four Conversation18 tables
     zero_authority(&store, &ro(&path));
     drop(store);
     let reopened = Store::open(&path).unwrap();
@@ -193,11 +193,11 @@ fn fresh_store17_is_additive_empty_authority_and_reopen_preserves_real_store_row
 }
 
 #[test]
-fn future18_refuses_before_backup_or_recovery_with_committed_wal_preserved() {
+fn future19_refuses_before_backup_or_recovery_with_committed_wal_preserved() {
     let (root, path) = fixture();
     drop(Store::open(&path).unwrap());
     let keeper = Connection::open(&path).unwrap();
-    keeper.execute_batch("PRAGMA wal_autocheckpoint=0; CREATE TABLE future_private(bytes BLOB); INSERT INTO future_private VALUES(x'00ff0123'); PRAGMA user_version=18;").unwrap();
+    keeper.execute_batch("PRAGMA wal_autocheckpoint=0; CREATE TABLE future_private(bytes BLOB); INSERT INTO future_private VALUES(x'00ff0123'); PRAGMA user_version=19;").unwrap();
     let wal = path.with_file_name("state.sqlite3-wal");
     let before = image(&keeper);
     let raw = fs::read(&path).unwrap();
@@ -214,7 +214,7 @@ fn future18_refuses_before_backup_or_recovery_with_committed_wal_preserved() {
 }
 
 #[test]
-fn corrupt_non_sqlite_input_is_not_replaced_by_a_fresh_empty17_database() {
+fn corrupt_non_sqlite_input_is_not_replaced_by_a_fresh_empty18_database() {
     let (root, path) = fixture();
     let original = b"This is retained invalid SQLite input.\0\xff";
     fs::write(&path, original).unwrap();
@@ -291,6 +291,11 @@ fn empty_current_fixture() -> (Retained, PathBuf, Connection) {
     db.pragma_update(None, "foreign_keys", true).unwrap();
     (root, path, db)
 }
+fn empty_schema17_fixture() -> (Retained, PathBuf, Connection) {
+    let (root, path, db) = empty_current_fixture();
+    pre_factory_schema::pre_conversation_schema::remove_empty_conversation18(&db).unwrap();
+    (root, path, db)
+}
 fn inverse_settings(db: &Connection) -> Vec<SqlValue> {
     [
         "foreign_keys",
@@ -307,7 +312,7 @@ fn controlled_empty17_inverse_preserves_all_predecessor_rows_and_exact_schema_th
     use pre_factory_schema::pre_integration_schema::{
         remove_empty_integration17, verify_empty_integration17, INTEGRATION17_TABLES,
     };
-    let (root, path, db) = empty_current_fixture();
+    let (root, path, db) = empty_schema17_fixture();
     let before = image(&db);
     db.pragma_update(None, "query_only", true).unwrap();
     verify_empty_integration17(&db).unwrap();
@@ -344,12 +349,31 @@ fn controlled_empty17_inverse_preserves_all_predecessor_rows_and_exact_schema_th
     let store = Store::open(&path).unwrap();
     let db = ro(&path);
     let restored = image(&db);
-    assert_eq!(restored.version, 17);
+    assert_eq!(restored.version, 18);
     assert!(
-        restored.schema == before.schema && restored.rows == before.rows,
+        restored
+            .schema
+            .iter()
+            .filter(
+                |row| !pre_factory_schema::pre_conversation_schema::CONVERSATION18_TABLES
+                    .contains(&row.2.as_str())
+            )
+            .cloned()
+            .collect::<Schema>()
+            == before.schema
+            && restored
+                .rows
+                .iter()
+                .filter(|(name, _)| {
+                    !pre_factory_schema::pre_conversation_schema::CONVERSATION18_TABLES
+                        .contains(&name.as_str())
+                })
+                .map(|(name, rows)| (name.clone(), rows.clone()))
+                .collect::<BTreeMap<_, _>>()
+                == before.rows,
         "known synthetic16 roundtrip preserves all raw rows and original DDL"
     );
-    verify_empty_integration17(&db).unwrap();
+    pre_factory_schema::pre_conversation_schema::verify_empty_conversation18(&db).unwrap();
     assert_eq!(store.integration_record_counts().unwrap().policies, 0);
     assert_eq!(backups(root.path()).len(), 1);
 }
@@ -399,7 +423,7 @@ fn controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_
         ("nonempty:fences".into(),"INSERT INTO integration_ref_fences VALUES('repo','refs/heads/generated','r',1,'held','{}');".into()),
     ]);
     for (variant, sql) in variants {
-        let (_root, path, db) = empty_current_fixture();
+        let (_root, path, db) = empty_schema17_fixture();
         // Malformed rows here are bounded refusal inputs only, never authority.
         db.pragma_update(None, "foreign_keys", false).unwrap();
         let sql = if variant.starts_with("index:") {
@@ -431,7 +455,7 @@ fn controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_
     }
 }
 #[test]
-fn controlled_current17_then_original_factory_inverse_keeps_one_rollback_boundary() {
+fn controlled_current18_then_original_factory_inverse_keeps_one_rollback_boundary() {
     let (_root, path, db) = empty_current_fixture();
     db.execute_batch(
         "CREATE TABLE fixture_caller_collision(sentinel TEXT);PRAGMA wal_checkpoint(TRUNCATE);",
@@ -490,7 +514,7 @@ fn controlled_empty17_outer_refuses_nested_and_inner_refuses_committed_transacti
     use pre_factory_schema::pre_integration_schema::{
         remove_empty_integration17, remove_empty_integration17_in_transaction,
     };
-    let (_root, _path, db) = empty_current_fixture();
+    let (_root, _path, db) = empty_schema17_fixture();
     let transaction = db.unchecked_transaction().unwrap();
     let before = image(&transaction);
     assert!(remove_empty_integration17(&transaction).is_err());
@@ -506,7 +530,7 @@ fn controlled_empty17_inverse_preserves_unrelated_unknown_schema_and_typed_bytes
     use pre_factory_schema::pre_integration_schema::{
         remove_empty_integration17, INTEGRATION17_TABLES,
     };
-    let (_root, _path, db) = empty_current_fixture();
+    let (_root, _path, db) = empty_schema17_fixture();
     db.execute_batch("CREATE TABLE fixture_original(raw BLOB,txt TEXT,whole INTEGER,real_value REAL,nothing_value TEXT);INSERT INTO fixture_original VALUES(x'00ffdeadbeef','untouched',37,1.25,NULL);").unwrap();
     let before = image(&db);
     remove_empty_integration17(&db).unwrap();
@@ -529,9 +553,9 @@ fn controlled_empty17_inverse_preserves_unrelated_unknown_schema_and_typed_bytes
 }
 
 #[test]
-fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and17_reopen() {
+fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen() {
     use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
-    let (root, path, db) = empty_current_fixture();
+    let (root, path, db) = empty_schema17_fixture();
     remove_empty_integration17(&db).unwrap();
     // Generated compatibility input, not a genuine historical producer. Data
     // remains uninterpreted even when it resembles permission-bearing JSON.
@@ -550,17 +574,25 @@ fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and17_reopen(
     drop(db);
     let store = Store::open(&path).unwrap();
     let after = image(&ro(&path));
-    assert_eq!(after.version, 17);
+    assert_eq!(after.version, 18);
     let old_schema: Schema = after
         .schema
         .iter()
-        .filter(|row| !NEW_TABLES.contains(&row.2.as_str()))
+        .filter(|row| {
+            !NEW_TABLES.contains(&row.2.as_str())
+                && !pre_factory_schema::pre_conversation_schema::CONVERSATION18_TABLES
+                    .contains(&row.2.as_str())
+        })
         .cloned()
         .collect();
     let old_rows: BTreeMap<_, _> = after
         .rows
         .iter()
-        .filter(|(name, _)| !NEW_TABLES.contains(&name.as_str()))
+        .filter(|(name, _)| {
+            !NEW_TABLES.contains(&name.as_str())
+                && !pre_factory_schema::pre_conversation_schema::CONVERSATION18_TABLES
+                    .contains(&name.as_str())
+        })
         .map(|(name, rows)| (name.clone(), rows.clone()))
         .collect();
     assert!(before.schema == old_schema && before.rows == old_rows);
@@ -605,7 +637,7 @@ fn opaque_compatibility_never_substitutes_for_known_objects_or_accepts_dependenc
     ];
     for version in [16, 17] {
         for (variant, sql) in variants {
-            let (root, path, db) = empty_current_fixture();
+            let (root, path, db) = empty_schema17_fixture();
             if version == 16 {
                 remove_empty_integration17(&db).unwrap();
             }
@@ -637,11 +669,7 @@ fn opaque_compatibility_never_substitutes_for_known_objects_or_accepts_dependenc
                 wal_raw,
                 "WAL rollback version{version}:{variant}"
             );
-            if version == 16 {
-                preserved_backup(&before, root.path());
-            } else {
-                assert!(backups(root.path()).is_empty());
-            }
+            preserved_backup(&before, root.path());
         }
     }
 }
@@ -650,7 +678,7 @@ fn opaque_compatibility_never_substitutes_for_known_objects_or_accepts_dependenc
 fn opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated() {
     use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
     for version in [16, 17] {
-        let (root, path, db) = empty_current_fixture();
+        let (root, path, db) = empty_schema17_fixture();
         if version == 16 {
             remove_empty_integration17(&db).unwrap();
         }
@@ -678,7 +706,7 @@ fn opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated() {
             .map(Result::unwrap)
             .collect();
         assert!(schema == after);
-        if version == 16 {
+        {
             let copies = backups(root.path());
             assert_eq!(copies.len(), 1);
             let backup = ro(&copies[0]);
@@ -686,7 +714,7 @@ fn opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated() {
                 backup
                     .pragma_query_value::<u32, _>(None, "user_version", |r| r.get(0))
                     .unwrap(),
-                16
+                version
             );
             assert_eq!(
                 backup
@@ -695,8 +723,6 @@ fn opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated() {
                     .unwrap(),
                 "uninterpreted"
             );
-        } else {
-            assert!(backups(root.path()).is_empty());
         }
     }
 }
@@ -704,7 +730,7 @@ fn opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated() {
 #[test]
 fn opaque16_at_object_budget_refuses_additive17_overflow_atomically() {
     use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
-    let (root, path, db) = empty_current_fixture();
+    let (root, path, db) = empty_schema17_fixture();
     remove_empty_integration17(&db).unwrap();
     let count: u32 = db
         .query_row("SELECT count(*) FROM sqlite_schema", [], |r| r.get(0))
@@ -734,7 +760,7 @@ fn opaque16_at_object_budget_refuses_additive17_overflow_atomically() {
 fn opaque_named_pragma_table_list_cannot_forge_virtual_or_shadow_table_metadata() {
     use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
     for version in [16, 17] {
-        let (root, path, db) = empty_current_fixture();
+        let (root, path, db) = empty_schema17_fixture();
         if version == 16 {
             remove_empty_integration17(&db).unwrap();
         }
@@ -753,10 +779,6 @@ fn opaque_named_pragma_table_list_cannot_forge_virtual_or_shadow_table_metadata(
         assert!(before == image(&db));
         assert_eq!(fs::read(&path).unwrap(), raw);
         assert_eq!(fs::read(&wal).unwrap(), wal_raw);
-        if version == 16 {
-            preserved_backup(&before, root.path());
-        } else {
-            assert!(backups(root.path()).is_empty());
-        }
+        preserved_backup(&before, root.path());
     }
 }

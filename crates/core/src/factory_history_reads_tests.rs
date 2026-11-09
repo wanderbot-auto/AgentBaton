@@ -389,20 +389,20 @@ fn original_revoked_history_remains_readonly_and_does_not_supply_effect_authorit
 }
 
 #[test]
-fn composed_history_requires_exact17_and_preserves_all_integration_tables() {
+fn composed_history_requires_exact18_and_preserves_all_integration_tables() {
     let (f, s, g) = queued();
     let original_version: u32 = f
         .store
         .conn
         .pragma_query_value(None, "user_version", |row| row.get(0))
         .unwrap();
-    assert_eq!(original_version, 17);
+    assert_eq!(original_version, 18);
     let sequence = f.store.sequence().unwrap();
     let execution = unchanged_execution(&f);
     let integration = json!(f.store.integration_record_counts().unwrap());
     let expected = f.store.get_factory_child_goal(&q(&s, &g)).unwrap();
     let mut workers = FactoryHistoryWorkers::default();
-    for rejected_version in [15u32, 16u32, 18u32] {
+    for rejected_version in [15u32, 16u32, 17u32, 19u32] {
         f.store
             .conn
             .pragma_update(None, "user_version", rejected_version)
@@ -477,14 +477,14 @@ fn schema17_binding_and_event_rows(
 }
 
 #[test]
-fn history_requires_exact17_and_preserves_existing_task_binding_rows_and_events() {
+fn history_requires_exact18_and_preserves_existing_task_binding_rows_and_events() {
     let (f, scope, goal) = queued();
     let version: u32 = f
         .store
         .conn
         .pragma_query_value(None, "user_version", |row| row.get(0))
         .unwrap();
-    assert_eq!(version, 17, "Store must supply the real current schema");
+    assert_eq!(version, 18, "Store must supply the real current schema");
     let sequence = f.store.sequence().unwrap();
     let execution = unchanged_execution(&f);
     let rows = schema17_binding_and_event_rows(&f);
@@ -505,7 +505,7 @@ fn history_requires_exact17_and_preserves_existing_task_binding_rows_and_events(
     assert_eq!(unchanged_execution(&f), execution);
     assert!(rows == schema17_binding_and_event_rows(&f));
 
-    for wrong_version in [15u32, 16u32, 18u32] {
+    for wrong_version in [15u32, 16u32, 17u32, 19u32] {
         // This changes only the version discriminator of an owned current
         // fixture; it is not an old/future schema migration simulation.
         f.store

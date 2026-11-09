@@ -62,7 +62,7 @@ def fixture():
             p=root/'target/debug'/name;p.write_bytes((name+' synthetic image').encode());p.chmod(0o500)
             hashes[name]=hashlib.sha256(p.read_bytes()).hexdigest()
         public=root/'artifacts/ui-browser';public.mkdir(parents=True)
-        (public/'goal-execution-candidate.json').write_text(json.dumps({'schema':17,'git_head':HEAD,'dirty':False,'binaries':hashes}))
+        (public/'goal-execution-candidate.json').write_text(json.dumps({'schema':18,'git_head':HEAD,'dirty':False,'binaries':hashes}))
         (public/'frontend-build-record.json').write_text(json.dumps({'source':HEAD,'exit':0,'source_head_and_tracked_unchanged':True}))
         chromium=root/'real-installed-chromium';chromium.write_bytes(b'synthetic ELF only');chromium.chmod(0o500)
         previous=Path.cwd()
@@ -98,7 +98,7 @@ class WorkflowSource(unittest.TestCase):
         addition=text[headers[27].start():headers[29].start()];without=text.replace(addition,'',1)
         moved=without.replace('      - name: Real daemon and browser test dependencies\n',addition+'      - name: Real daemon and browser test dependencies\n',1)
         with self.assertRaises(ValueError):strip_integration_browser_ci_layer(moved)
-        for old,new in [("'schema': 17,","'schema': 16,"),('timeout-minutes: 20','timeout-minutes: 21'),
+        for old,new in [("'schema': 18,","'schema': 16,"),('timeout-minutes: 20','timeout-minutes: 21'),
             ("'--case', 'all'","'--case', 'normal'"),('if: always()','if: success()'),('contents: read','contents: write')]:
             self.assertIn(old,text)
             with self.subTest(old=old),self.assertRaises(ValueError):verify_only_six_historical_target_changes(text.replace(old,new,1))
@@ -109,12 +109,12 @@ class WorkflowSource(unittest.TestCase):
         methods=[n.args[0].value for n in ast.walk(tree) if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute)
             and n.func.attr=='result' and n.args and isinstance(n.args[0],ast.Constant)]
         self.assertEqual(methods,['system.snapshot'])
-        self.assertIn("snapshot['database_schema_version'] == 17",source)
+        self.assertIn("snapshot['database_schema_version'] == 18",source)
         self.assertIn("snapshot['api_version'] == 1",source)
         self.assertIn('process.send_signal(signal.SIGTERM)',source)
         self.assertIn("'daemon_exit': 0, 'joined': True",source)
         self.assertNotIn('approvals.finalize',source)
-        self.assertEqual(WORKFLOW.read_text().count("              'schema': 17,"),1)
+        self.assertEqual(WORKFLOW.read_text().count("              'schema': 18,"),1)
 
     def test_no_new_raw_public_paths_or_private_logs_are_uploaded(self):
         _,source=program(RUN,'INTEGRATION_BROWSER');_,projection=program(PROJECT,'INTEGRATION_BROWSER_EVIDENCE')

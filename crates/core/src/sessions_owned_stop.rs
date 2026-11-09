@@ -13,7 +13,7 @@ pub(super) struct LaunchBinding {
     node: String,
 }
 
-pub(super) struct TurnTicket {
+pub(crate) struct TurnTicket {
     origin: Arc<LaunchBinding>,
     native: String,
     turn: String,

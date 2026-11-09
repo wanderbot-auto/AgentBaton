@@ -12,6 +12,8 @@ FEE_HELPER = '# Optional fee-source observations from the same post-owned-shutdo
 FEE_INSERTIONS = ("    out['fee_kind_observations'] = fee_kind_unavailable()\n", '        fee_records = []\n', "            fee_records.append(('graph', attempt, value))\n", "                fee_records.append(('factory', attempt, value))\n", "        out['fee_kind_observations'] = fee_kind_observations(conn, goal, scope, child, record, fee_records, totals)\n")
 
 def strip_root_fee_kind_layer(text):
+    from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+    text=strip_schema18_source('scripts/record-factory-rework-ci-evidence.py',text,legacy=(BEFORE_SHA256,PRIOR_STOP_RESTORED_SHA256))
     if type(text) is not str:
         raise AssertionError('Unknown fee composition source type')
     digest = hashlib.sha256(text.encode()).hexdigest()

@@ -371,7 +371,7 @@ class FurtherGuardTests(unittest.TestCase):
             root = Path(temporary); head = 'a' * 40; h = 'b' * 64
             args = SimpleNamespace(expected_source_head=head, batond=root/'batond', frontend=root/'frontend',
                 candidate_manifest=root/'manifest.json', frontend_build_record=root/'build.json', chromium=root/'chromium')
-            manifest = {'schema': 17, 'source_head': head, 'compiled_core_source_head': head,
+            manifest = {'schema': 18, 'source_head': head, 'compiled_core_source_head': head,
                 'dirty': False, 'binaries': {'batond': h, 'baton': h}}
             build = {'source': head, 'exit': 0, 'command': ['npm', '--prefix', 'apps/desktop', 'run', 'build'],
                 'source_head_and_tracked_unchanged': True}
@@ -383,7 +383,7 @@ class FurtherGuardTests(unittest.TestCase):
                     mock.patch.object(D.os, 'access', return_value=True), mock.patch.object(D, 'source_guard', return_value={'head': head}):
                     return D.preflight(args)
             self.assertEqual(check(manifest, build)[3]['source'], head)
-            for wrong in [16, 18, True, 17.0, '17']:
+            for wrong in [16, 17, 19, True, 18.0, '18']:
                 m = dict(manifest, schema=wrong)
                 with self.subTest(schema=wrong), self.assertRaises(D.Refusal): check(m, build)
             for m in [dict(manifest, compiled_core_source_head='c'*40), dict(manifest, dirty=True),

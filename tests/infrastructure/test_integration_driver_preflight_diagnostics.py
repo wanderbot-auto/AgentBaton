@@ -50,7 +50,7 @@ def argv(root, *, run=True):
         p = root / name; p.write_bytes(('synthetic-' + name).encode()); p.chmod(0o500)
     frontend = root / 'frontend'; frontend.mkdir(); (frontend / 'index.html').write_text('synthetic frontend')
     manifest = root / 'candidate.json'
-    write(manifest, {'schema': 17, 'git_head': HEAD, 'dirty': False,
+    write(manifest, {'schema': 18, 'git_head': HEAD, 'dirty': False,
         'binaries': {k: sha((root / k).read_bytes()) for k in ('batond', 'baton')}})
     build = root / 'build.json'
     write(build, {'source': HEAD, 'exit': 0, 'command': ['npm', '--prefix', 'apps/desktop', 'run', 'build'],
@@ -128,8 +128,18 @@ class ActualPreflightStageControls(unittest.TestCase):
                 mock.patch.object(D, 'pinned_file', side_effect=observed):
                 namespace = dict(D.__dict__)
                 exec(compile((FIXTURES / 'original_preflight.py.txt').read_text(), '<exact-original-preflight>', 'exec'), namespace)
+                # Compare the historical17 implementation to the exact restored17
+                # current driver; current18 acceptance is tested separately above.
+                from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+                restored=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',DRIVER.read_text())
+                current_node=next(n for n in ast.parse(restored).body if isinstance(n,ast.FunctionDef) and n.name=='preflight')
+                exec(compile(ast.Module(body=[current_node],type_ignores=[]),'<restored-current-preflight>','exec'),namespace)
+                restored_preflight=namespace['preflight']
+                exec(compile((FIXTURES / 'original_preflight.py.txt').read_text(), '<exact-original-preflight>', 'exec'), namespace)
+                manifest=json.loads(args.candidate_manifest.read_text());manifest['schema']=17
+                write(args.candidate_manifest,manifest)
                 original = namespace['preflight'](copy.deepcopy(args)); old_calls = list(calls); calls.clear()
-                actual = D.preflight(copy.deepcopy(args), D.new_driver_preflight_diagnostic(args))
+                actual = restored_preflight(copy.deepcopy(args), D.new_driver_preflight_diagnostic(args))
                 self.assertTrue(D.exact(original, actual))
                 self.assertEqual(calls, old_calls)
 
@@ -337,7 +347,9 @@ class ExactOriginalSourceControls(unittest.TestCase):
 
     def test_all_original_guard_expressions_and_pin_call_arguments_are_unchanged(self):
         before = ast.parse((FIXTURES / 'original_preflight.py.txt').read_text()).body[0]
-        after = next(n for n in ast.parse(DRIVER.read_text()).body if isinstance(n, ast.FunctionDef) and n.name == 'preflight')
+        from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+        source=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',DRIVER.read_text())
+        after = next(n for n in ast.parse(source).body if isinstance(n, ast.FunctionDef) and n.name == 'preflight')
         def calls(node, name):
             return [ast.dump(n, include_attributes=False) for n in ast.walk(node)
                 if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == name]

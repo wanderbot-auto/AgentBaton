@@ -39,7 +39,7 @@ class FactoryTestToolTests(unittest.TestCase):
         with mock.patch.object(TOOLS, 'source_identity', return_value=IDENTITY), mock.patch.object(TOOLS, 'probe', return_value={'unit_only': True}):
             return TOOLS.prepare(ROOT, self.source, self.output, self.evidence)
 
-    def database(self, schema=17, missing=None, populated=None):
+    def database(self, schema=18, missing=None, populated=None):
         with sqlite3.connect(self.root / 'baton.sqlite3') as conn:
             conn.execute(f'PRAGMA user_version={schema}')
             conn.execute('CREATE TABLE events(sequence INTEGER)')
@@ -142,13 +142,13 @@ class FactoryTestToolTests(unittest.TestCase):
         self.database()
         before = (self.root / 'baton.sqlite3').read_bytes()
         observed = TOOLS.observe_database(self.root)
-        self.assertEqual(observed['schema'], 17)
+        self.assertEqual(observed['schema'], 18)
         self.assertEqual(len(observed['zero_tables']), 16)
         self.assertTrue(observed['query_only'])
         self.assertEqual((self.root / 'baton.sqlite3').read_bytes(), before)
 
     def test_old_and_future_schema_rejected(self):
-        for schema in (13, 14, 15, 16, 18):
+        for schema in (13, 14, 15, 16, 17, 19):
             with self.subTest(schema=schema):
                 self.database(schema=schema)
                 with self.assertRaises(ValueError):
@@ -176,7 +176,7 @@ class FactoryTestToolTests(unittest.TestCase):
         original = (self.output / 'manifest.json').read_bytes()
         with mock.patch.object(TOOLS, 'source_identity', return_value=IDENTITY):
             TOOLS.verify(ROOT, self.output)
-            for key, value in [('schema', 13), ('schema', 14), ('schema', 15), ('schema', 16), ('schema', 18), ('schema', 14.0), ('schema', 15.0), ('schema', 16.0), ('schema', 17.0), ('schema', '16'), ('schema', '17'), ('schema', True), ('git_head', 'c' * 40), ('git_tree', 'd' * 40), ('frozen_directory', '/wrong'), ('binaries', {'baton': 'x'})]:
+            for key, value in [('schema', 13), ('schema', 14), ('schema', 15), ('schema', 16), ('schema', 17), ('schema', 19), ('schema', 14.0), ('schema', 15.0), ('schema', 16.0), ('schema', 18.0), ('schema', '16'), ('schema', '17'), ('schema', True), ('git_head', 'c' * 40), ('git_tree', 'd' * 40), ('frozen_directory', '/wrong'), ('binaries', {'baton': 'x'})]:
                 record = json.loads(original); record[key] = value
                 (self.output / 'manifest.json').write_text(json.dumps(record))
                 with self.subTest(key=key, value=value), self.assertRaises(ValueError):

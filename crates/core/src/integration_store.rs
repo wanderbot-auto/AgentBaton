@@ -6,16 +6,25 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
     let current: u32 = db
         .pragma_query_value(None, "user_version", |r| r.get(0))
         .map_err(db_error)?;
-    if current == 17 {
-        let reference = crate::storage::integration_schema16_reference()?;
+    if matches!(current, 17 | 18) {
+        let mut reference = crate::storage::integration_schema16_reference()?;
         reference.execute_batch(DDL).map_err(db_error)?;
+        let expected_tables = if current == 18 {
+            reference
+                .pragma_update(None, "user_version", 17)
+                .map_err(db_error)?;
+            crate::conversations::migrate(&mut reference, 17)?;
+            63
+        } else {
+            59
+        };
         let tx = db
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        if !compatible_schema(&tx, &reference, 59)? {
+        if !compatible_schema(&tx, &reference, expected_tables)? {
             return Err(CoreError::new(
                 "INPUT_CHANGED",
-                "Integration current schema17 is incomplete or changed",
+                "Integration current schema is incomplete or changed",
             ));
         }
         if tx
@@ -26,7 +35,7 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
         {
             return Err(CoreError::new(
                 "INPUT_CHANGED",
-                "Integration current schema17 foreign keys are inconsistent",
+                "Integration current schema foreign keys are inconsistent",
             ));
         }
         validate_predecessor_tasks(&tx)?;

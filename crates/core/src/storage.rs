@@ -102,14 +102,14 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 17 {
+        if version > 18 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
         }
-        if version > 0 && version < 17 {
-            let backup = path.with_extension(format!("pre-v17-{}.sqlite3", Uuid::new_v4()));
+        if version > 0 && version < 18 {
+            let backup = path.with_extension(format!("pre-v18-{}.sqlite3", Uuid::new_v4()));
             let file = OpenOptions::new()
                 .create_new(true)
                 .write(true)
@@ -336,6 +336,7 @@ impl Store {
         crate::factory::migrate(&mut conn, version)?;
         crate::task_workspace_binding::migrate(&mut conn, version)?;
         crate::integration::migrate(&mut conn, version)?;
+        crate::conversations::migrate(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -353,6 +354,7 @@ impl Store {
         store.recover_workspace_creations()?;
         store.recover_task_workspace_bindings()?;
         store.recover_sessions()?;
+        store.recover_conversations()?;
         store.recover_command_validations()?;
         store.recover_data_workspace_operations()?;
         store.recover_factory_runs()?;

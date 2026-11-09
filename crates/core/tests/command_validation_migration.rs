@@ -66,7 +66,7 @@ fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_a
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        17
+        18
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -144,10 +144,10 @@ fn command_migration_failure_rolls_back_tables_and_version_retains_unknown_data(
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema18_refused_without_touching_bytes() {
+fn future_schema19_refused_without_touching_bytes() {
     let (_d, p) = fixture();
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=18;").unwrap();
+    c.execute_batch("PRAGMA user_version=19;").unwrap();
     drop(c);
     let raw = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
@@ -176,6 +176,7 @@ fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
     let connection = Connection::open(&database).unwrap();
     // Preserve the original strict16 inverse controls after the separately
     // verified, empty17 ->16 fixture-only inverse.
+    pre_factory_schema::pre_conversation_schema::remove_empty_conversation18(&connection).unwrap();
     pre_factory_schema::pre_integration_schema::remove_empty_integration17(&connection).unwrap();
     (directory, database, connection)
 }

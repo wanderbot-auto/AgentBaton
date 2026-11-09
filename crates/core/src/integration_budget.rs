@@ -178,9 +178,10 @@ pub(crate) fn accounting_records(
         }
         return Err(unknown());
     }
-    if version != 17 {
+    if version != 18 {
         return Err(unknown());
     }
+    crate::conversations::validate_schema(db)?;
     let(count,bytes,max):(i64,i64,i64)=db.query_row("SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(attempt_id)),0),COALESCE(max(octet_length(document)),0) FROM integration_attempts",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).map_err(db_error)?;
     if !(0..=100000).contains(&count)
         || !(0..=4194304).contains(&bytes)

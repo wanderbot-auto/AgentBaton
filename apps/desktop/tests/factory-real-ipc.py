@@ -46,7 +46,7 @@ MUTATIONS = frozenset({'factory_runs.start', 'factory_runs.cancel'})
 READS = frozenset({'system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
     'workspaces.list', 'grants.list', 'events.subscribe', 'goal_scopes.list',
     'factory_scopes.get', 'factory_scopes.list', 'factory_runs.get'})
-PENDING = ('Root immutable matching schema17 batond and sibling baton with manifest hashes',
+PENDING = ('Root immutable matching schema18 batond and sibling baton with manifest hashes',
     'Root actual composed built Factory frontend and asset hashes',
     'Core-author confirmation of actual Factory runtime/ledger and private MCP contract')
 
@@ -1013,7 +1013,7 @@ def preflight(args):
     binary = args.batond.resolve(strict=True)
     raw = args.candidate_manifest.resolve(strict=True).read_bytes()
     manifest = json.loads(raw, object_pairs_hook=unique_object)
-    assert type(manifest.get('schema')) is int and manifest['schema'] == 17, 'Only integer schema17 candidate is Factory runtime evidence'
+    assert type(manifest.get('schema')) is int and manifest['schema'] == 18, 'Only integer schema18 candidate is Factory runtime evidence'
     companion = binary.with_name('baton').resolve(strict=True)
     for name, path in [('batond', binary), ('baton', companion)]:
         assert manifest['binaries'][name] == sha(path.read_bytes()), (name, 'frozen binary SHA mismatch')
@@ -1467,7 +1467,7 @@ def runtime_driver(args, output, attribution, prepared):
                     with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
                         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
                         report['observations']['actual_sqlite_schema'] = db.execute('PRAGMA user_version').fetchone()[0]
-                        assert report['observations']['actual_sqlite_schema'] == 17
+                        assert report['observations']['actual_sqlite_schema'] == 18
                         counts = support.current_factory_counts(db)
                         report['observations']['factory_record_counts'] = counts
                         assert counts['child_goal_runs'] == counts['child_plan_heads'] == counts['child_plan_revisions'] == 0
@@ -1921,7 +1921,7 @@ def main():
     args = parser.parse_args()
     assert sum([args.self_check, args.fixture_self_check, args.cleanup_self_check, args.diagnostic_self_check, bool(args.case)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
-    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 17}
+    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 18}
     if args.self_check:
         report = {**attribution, **boundary_self_check()}
         (output / 'boundary-checks.json').write_text(json.dumps(report, indent=2) + '\n')

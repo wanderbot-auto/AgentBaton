@@ -246,7 +246,10 @@ class OriginalHarnessSourceBoundary(unittest.TestCase):
             ("snapshot['schema'])is int and snapshot['schema']==17", "snapshot['schema'])is int and snapshot['schema']==15")]:
             self.assertIn(old, restored)
             try:
-                changed = self.restore(DRIVER.read_text().replace(old, new, 1))
+                current = DRIVER.read_text()
+                current_anchor = old.replace("snapshot['schema']==17", "snapshot['schema']==18")
+                self.assertIn(current_anchor,current)
+                changed = self.restore(current.replace(current_anchor, new, 1))
             except AssertionError:
                 continue  # The exact newer handshake layer also refuses mutations.
             self.assertNotEqual(sha(changed.encode()), '40607488a0f0e82a0146ba98b70267c1f828b9403d9e5b7336af2bca17b96419')

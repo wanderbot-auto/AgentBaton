@@ -422,6 +422,59 @@ async fn grants_revoke(
 }
 
 #[tauri::command]
+async fn conversations_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"conversations.list","params":{}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn conversations_get(
+    runtime: tauri::State<'_, Runtime>,
+    conversation_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"conversations.get","params":{"conversation_id":conversation_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn conversations_create(
+    runtime: tauri::State<'_, Runtime>,
+    project_id: String,
+    title: String,
+    workspace_id: String,
+    connection_id: String,
+    grant_id: String,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"conversations.create","params":{"project_id":project_id,"title":title,"workspace_id":workspace_id,"connection_id":connection_id,"grant_id":grant_id},"idempotency_key":idempotency_key}), false).await
+}
+#[tauri::command]
+async fn conversations_send(
+    runtime: tauri::State<'_, Runtime>,
+    conversation_id: String,
+    expected_revision: u64,
+    text: String,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"conversations.send","params":{"conversation_id":conversation_id,"text":text},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+#[tauri::command]
+async fn conversations_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    conversation_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"conversations.cancel","params":{"conversation_id":conversation_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+
+#[tauri::command]
 async fn sessions_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
     call(
         &runtime,
@@ -1785,9 +1838,9 @@ fn authenticated_snapshot(runtime: &Path, deadline: Instant) -> Result<Value, St
 fn require_current_database_schema(response: &Value) -> Result<(), String> {
     if response.get("error").is_some()
         || response["result"]["api_version"].as_u64() != Some(1)
-        || response["result"]["database_schema_version"].as_u64() != Some(17)
+        || response["result"]["database_schema_version"].as_u64() != Some(18)
     {
-        return Err("Authenticated daemon requires exact database schema17; old/future/unknown schema is unsupported".into());
+        return Err("Authenticated daemon requires exact database schema18; old/future/unknown schema is unsupported".into());
     }
     Ok(())
 }
@@ -1930,6 +1983,11 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         grants_list,
         grants_create,
         grants_revoke,
+        conversations_list,
+        conversations_get,
+        conversations_create,
+        conversations_send,
+        conversations_cancel,
         sessions_list,
         sessions_get,
         sessions_create,
@@ -2348,16 +2406,16 @@ mod integration_bridge_tests {
         );
     }
     #[test]
-    fn current_schema_requires_authenticated_exact_typed_seventeen() {
-        let good = json!({"result":{"api_version":1,"database_schema_version":17}});
+    fn current_schema_requires_authenticated_exact_typed_eighteen() {
+        let good = json!({"result":{"api_version":1,"database_schema_version":18}});
         assert!(require_current_database_schema(&good).is_ok());
         for bad in [
             Value::Null,
-            json!(16),
-            json!(18),
-            json!(17.0),
+            json!(17),
+            json!(19),
+            json!(18.0),
             json!(true),
-            json!("17"),
+            json!("18"),
         ] {
             let mut response = good.clone();
             response["result"]["database_schema_version"] = bad;
@@ -2367,7 +2425,7 @@ mod integration_bridge_tests {
         error["error"] = Value::Null;
         assert!(require_current_database_schema(&error).is_err());
         assert!(
-            require_current_database_schema(&json!({"result":{"database_schema_version":17}}))
+            require_current_database_schema(&json!({"result":{"database_schema_version":18}}))
                 .is_err()
         );
     }

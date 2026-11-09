@@ -57,7 +57,7 @@ def driver_args(root):
     for name in ('batond','baton','chromium'):
         path=root/name;path.write_bytes(b'synthetic-'+name.encode());path.chmod(0o500)
     frontend=root/'frontend';frontend.mkdir();(frontend/'index.html').write_text('synthetic')
-    candidate=root/'candidate.json';candidate.write_text(json.dumps({'schema':17,'git_head':HEAD,'dirty':False,
+    candidate=root/'candidate.json';candidate.write_text(json.dumps({'schema':18,'git_head':HEAD,'dirty':False,
         'binaries':{name:hashlib.sha256((root/name).read_bytes()).hexdigest()for name in ('batond','baton')}}))
     build=root/'build.json';build.write_text(json.dumps({'source':HEAD,'exit':0,
         'command':['npm','--prefix','apps/desktop','run','build'],'source_head_and_tracked_unchanged':True}))
@@ -174,9 +174,9 @@ class PrivateCopies(unittest.TestCase):
 class ExactWorkflowLayer(unittest.TestCase):
     def test_single_command_inverse_restores_entire_e874_workflow_and_all_old_pins(self):
         text=(ROOT/'.github/workflows/product.yml').read_text()
-        old=W.strip_private_browser_python(text)
+        old=W.strip_private_browser_python(W.strip_conversation_schema18(text))
         self.assertEqual(hashlib.sha256(old.encode()).hexdigest(),'6d82c3f8799925f89b8a13e395356066995680c7d131d10345c2d6e64fd0bc3d')
-        self.assertEqual(old,text.replace(W.PRIVATE_BROWSER_PYTHON_AFTER,W.PRIVATE_BROWSER_PYTHON_BEFORE,1))
+        self.assertEqual(old,W.strip_conversation_schema18(text).replace(W.PRIVATE_BROWSER_PYTHON_AFTER,W.PRIVATE_BROWSER_PYTHON_BEFORE,1))
         W.verify_only_six_historical_target_changes(text)
         W.verify_only_six_historical_target_changes(old)
 

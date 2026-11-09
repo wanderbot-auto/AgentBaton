@@ -203,7 +203,8 @@ class ExactDiagnosticSourceInverse(unittest.TestCase):
             '2571ca962ee7eca8ef0b679b86bd939187d69427d83fce3d5ca18c885fc18d23')
         W.verify_only_six_historical_target_changes(text)
         original = (ROOT / 'tests/infrastructure/fixtures/integration_setup_diagnostics/pre_diagnostics_step.yml.txt').read_text()
-        changed = text[text.index('      - name: ' + F.RUN):text.index('      - name: ' + F.PROJECT)]
+        historical = W.strip_conversation_schema18(text)
+        changed = historical[historical.index('      - name: ' + F.RUN):historical.index('      - name: ' + F.PROJECT)]
         # All six original helpers, original arguments/guards and old status
         # statement retain exact original bytes; only runner diagnostics change.
         import ast

@@ -26,11 +26,11 @@ GOOD = {
 
 # New evidence is additive; the original GOOD fields and all old test bodies stay intact.
 GOOD['first_webview'].update(goalExecutionLists=True, goalExecutionMissingRunDenied=True, readonlyGoalExecutionNoMutation=True, goalExecutionReadonlySequence=dict(before=2, after=2), goalExecutionMissingRun=dict(run_id='native-readonly-missing-goal-run', code='NOT_FOUND', side_effect_state='not_started'))
-GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=17,run_count=0,node_count=0,reservation_count=0,sequence=2), after=dict(schema_version=17,run_count=0,node_count=0,reservation_count=0,sequence=2))
+GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=18,run_count=0,node_count=0,reservation_count=0,sequence=2), after=dict(schema_version=18,run_count=0,node_count=0,reservation_count=0,sequence=2))
 
 
 GOOD['first_webview'].update(goalGraphLists=True, goalGraphMissingRunDenied=True, readonlyGoalGraphNoMutation=True, goalGraphReadonlySequence=dict(before=2, after=2), goalGraphMissingRun=dict(run_id='native-readonly-missing-goal-graph-run', code='NOT_FOUND', side_effect_state='not_started'))
-GOOD['goal_graph_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=17,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2), after=dict(schema_version=17,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2))
+GOOD['goal_graph_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=18,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2), after=dict(schema_version=18,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2))
 
 
 # Runtime crypto evidence is additive to the unchanged readonly/lifecycle fixture.
@@ -44,10 +44,10 @@ GOOD['first_webview'].update(factoryScopeLists=True, factoryMissingScopeDenied=T
                             readonlyFactoryNoMutation=True, factoryReadonlySequence=dict(before=2, after=2),
                             factoryMissingScope=dict(scope_id=native_run.MISSING_FACTORY_SCOPE_ID, code='NOT_FOUND', side_effect_state='not_started'),
                             factoryMissingRun=dict(scope_id=native_run.MISSING_FACTORY_SCOPE_ID, code='NOT_FOUND', side_effect_state='not_started'))
-_factory_counts = dict(schema_version=17, sequence=2, **{name: 0 for name in native_run.FACTORY_COUNT_FIELDS})
+_factory_counts = dict(schema_version=18, sequence=2, **{name: 0 for name in native_run.FACTORY_COUNT_FIELDS})
 GOOD['factory_readonly_database'] = dict(read_only=True, unchanged=True, before=_factory_counts.copy(), after=_factory_counts.copy())
 
-_integration_counts = dict(schema_version=17, sequence=2, **{name: 0 for name in native_run.INTEGRATION_COUNT_FIELDS})
+_integration_counts = dict(schema_version=18, sequence=2, **{name: 0 for name in native_run.INTEGRATION_COUNT_FIELDS})
 GOOD['integration_readonly_database'] = dict(read_only=True, unchanged=True, before=_integration_counts.copy(), after=_integration_counts.copy())
 
 
@@ -284,7 +284,7 @@ class GoalGraphReadonlyEvidenceTests(unittest.TestCase):
             changed=copy.deepcopy(GOOD)
             for phase in ['before','after']:changed['goal_graph_readonly_database'][phase][field]=1
             self.assertIsNotNone(native_run.native_report_error(changed))
-        for schema in [10,11,12,13,14,15,16,18,13.0,14.0,15.0,16.0,17.0,True,'13','14','15','16','17',None]:
+        for schema in [10,11,12,13,14,15,16,17,19,13.0,14.0,15.0,16.0,18.0,True,'13','14','15','16','17',None]:
             for group in ['goal_graph_readonly_database','goal_execution_readonly_database']:
                 changed=copy.deepcopy(GOOD)
                 for phase in ['before','after']:changed[group][phase]['schema_version']=schema
@@ -386,7 +386,7 @@ class FactoryReadonlyEvidenceTests(unittest.TestCase):
                 for checkpoint in ['before', 'after']:
                     changed['factory_readonly_database'][checkpoint][field] = 1
                 self.assertIsNotNone(native_run.native_report_error(changed), field)
-        for schema in [0, 11, 12, 13, 14, 15, 16, 18, 13.0, 14.0, 15.0, 16.0, 17.0, True, '13', '14', '15', '16', '17', None]:
+        for schema in [0, 11, 12, 13, 14, 15, 16, 17, 19, 13.0, 14.0, 15.0, 16.0, 18.0, True, '13', '14', '15', '16', '17', None]:
             changed = copy.deepcopy(GOOD)
             for phase in ['before', 'after']:
                 changed['factory_readonly_database'][phase]['schema_version'] = schema
@@ -531,7 +531,7 @@ class IntegrationReadonlyEvidenceTests(unittest.TestCase):
             self.assertIsNotNone(native_run.native_report_error(value))
 
     def test_old_future_float_and_each_nonzero_table_are_rejected(self):
-        for schema in [15, 16, 18, 16.0, 17.0, True, '17']:
+        for schema in [15, 16, 17, 19, 16.0, 18.0, True, '17']:
             value = copy.deepcopy(GOOD)
             for phase in ['before', 'after']: value['integration_readonly_database'][phase]['schema_version'] = schema
             with self.subTest(schema=schema): self.assertIsNotNone(native_run.native_report_error(value))

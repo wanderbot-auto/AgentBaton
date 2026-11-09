@@ -518,9 +518,10 @@ impl IntegrationReadPlan {
             let version: u32 = connection
                 .pragma_query_value(None, "user_version", |r| r.get(0))
                 .map_err(db_error)?;
-            if version != 17 {
+            if version != 18 {
                 return Err(changed());
             }
+            crate::conversations::validate_schema(&connection)?;
             phase = "worker-row-recheck";
             let mut remaining = (4_194_304, 100_000);
             for q in &self.queries {
@@ -896,9 +897,10 @@ impl IntegrationReadProof {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version != 17 {
+        if version != 18 {
             return Err(changed());
         }
+        crate::conversations::validate_schema(&reader.conn)?;
         let plan = reader.prepare_integration_scope_read_with_database(
             IntegrationReadIntent::Stage(ticket.read_reference()),
             raw,

@@ -18,6 +18,9 @@ def sha(value): return hashlib.sha256(value).hexdigest()
 
 
 def original_driver(candidate):
+    from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+    assert type(candidate) is bytes, 'Unknown driver source'
+    candidate=strip_schema18_source('apps/desktop/tests/factory-child-planning-real-ipc.py',candidate.decode()).encode()
     assert type(candidate) is bytes and sha(candidate) == CANDIDATE_SHA256, 'Unknown driver source'
     source = candidate.decode()
     for new, old in [(FRAGMENTS['block'], ''),

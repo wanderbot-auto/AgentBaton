@@ -14,7 +14,8 @@ PARENT_FEE_TEST_SHA256 = '9f5df0be17e7fa48a22453aa1d33c0d308bb2ac6b942918b2c51b6
 
 class RootParentFeeSourceComposition(unittest.TestCase):
     def test_exact_full_root_source_restores_and_parent_helper_stays_exact(self):
-        text = PROJECTOR.read_text()
+        from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+        text = strip_schema18_source('scripts/record-factory-rework-ci-evidence.py', PROJECTOR.read_text())
         self.assertEqual(hashlib.sha256(text.encode()).hexdigest(), F.AFTER_SHA256)
         original = F.strip_root_fee_kind_layer(text)
         self.assertEqual(hashlib.sha256(original.encode()).hexdigest(), F.BEFORE_SHA256)
@@ -42,7 +43,7 @@ class RootParentFeeSourceComposition(unittest.TestCase):
 
     def test_unknown_outer_region_schema_budget_fees_and_output_cap_tamper_refuse(self):
         text = PROJECTOR.read_text()
-        mutations = [text+'# foreign\n', text.replace('SCHEMA = 17','SCHEMA = 16',1),
+        mutations = [text+'# foreign\n', text.replace('SCHEMA = 18','SCHEMA = 16',1),
                      text.replace('attempt not in seen','True',1),
                      text.replace("totals['settled_count'] += 1", "totals['settled_count'] += 0",1),
                      text.replace('MAX_PUBLIC = ', 'MAX_PUBLIC = 2 * ',1)]
@@ -75,7 +76,8 @@ class RootParentFeeSourceComposition(unittest.TestCase):
 
     def test_original_attempt_guard_full_file_and_parent_fee_tests_restore_exact(self):
         path = ROOT / 'tests/infrastructure/test_factory_rework_attempt_budget.py'
-        text = path.read_text()
+        from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+        text = strip_schema18_source('tests/infrastructure/test_factory_rework_attempt_budget.py',path.read_text())
         for fragment in ['import rework_fee_kind_composition_fixture as fee_composition\n',
                          '    text = fee_composition.strip_root_fee_kind_layer(text)\n',
                          '        current=fee_composition.strip_root_fee_kind_layer(current)\n']:

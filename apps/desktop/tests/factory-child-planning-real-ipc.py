@@ -42,7 +42,7 @@ ID = re.compile(r'[A-Za-z0-9._:-]{1,128}')
 KEY = re.compile(r'[A-Za-z0-9:_-]{1,128}')
 CHILD_COMMANDS = frozenset({'factory_child_plans_context', 'factory_child_plans_get',
     'factory_child_plans_list', 'factory_child_plans_submit'})
-# Only this newly imported, private module instance uses schema17 prompt fields.
+# Only this newly imported, private module instance uses schema18 prompt fields.
 # No existing file/module object used by another harness is changed.
 base.REQUEST_FIELDS = base.REQUEST_FIELDS | {'child_planning_context'}
 
@@ -185,7 +185,7 @@ def fingerprint_db(runtime):
     """Readonly, bounded exact rows; no Store::open/migration/recovery."""
     with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 17
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 18
         names = {v[0] for v in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         fixed = {'execution_grants', 'managed_workspaces', 'tasks', 'attempts', 'sessions', 'factory_attempts', 'factory_runs',
             'factory_child_plan_heads', 'factory_child_plan_revisions', 'budgets', 'workspace_leases',
@@ -963,12 +963,12 @@ def runtime_driver(args, output, manifest):
     assert sum(p.stat().st_size for p in asset_paths if p.is_file())<=64*1024*1024
     assets = {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(asset_paths) if p.is_file()}
     assert (frontend / 'index.html').is_file() and len(assets) <= 4096
-    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema17 frontend required'
+    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema18 frontend required'
     for name, path in [('batond', raw_daemon), ('baton', raw_cli)]:
         assert sha(path.read_bytes()) == manifest['binaries'][name]
-    assert type(manifest['schema']) is int and manifest['schema'] == 17
+    assert type(manifest['schema']) is int and manifest['schema'] == 18
     assert re.fullmatch('[a-f0-9]{40}',manifest['source_head']) and re.fullmatch('[a-f0-9]{40}',manifest['compiled_core_source_head'])
-    report = {'status': 'failed_or_interrupted', 'schema_required': 17, 'harness_sha256': sha(source), 'candidate_manifest_sha256': sha(args.manifest.read_bytes()),
+    report = {'status': 'failed_or_interrupted', 'schema_required': 18, 'harness_sha256': sha(source), 'candidate_manifest_sha256': sha(args.manifest.read_bytes()),
         'support_sha256': sha(BASE_PATH.read_bytes()), 'candidate': manifest, 'frontend_assets': assets,
         'harness_git_head': subprocess.check_output(['git','rev-parse','HEAD'],cwd=Path(__file__).resolve().parents[3],text=True).strip(),
         'checks': [], 'screenshots': [], 'http': [], 'private_owner_reviews': [], 'cleanup': [],
@@ -1016,7 +1016,7 @@ def runtime_driver(args, output, manifest):
                 'authority': 'private generated fixture, NOT OS Native approval'})
             return host.result('approvals.finalize', {'proposal_id': proposal['id']},
                 'proposal:' + proposal['id'], proposal['revision'])
-        connection = resource('connections.propose', {'name': 'Generated schema17 MCP5', 'provider': 'custom_acp',
+        connection = resource('connections.propose', {'name': 'Generated schema18 MCP5', 'provider': 'custom_acp',
             'executable': str(provider), 'arguments': ['--fixture-settings', str(settings)]}, 'connection', 'planning:connection')
         cid = connection['id']
         rows = wait(lambda: host.result('connections.list', {}), lambda rows: any(c['id'] == cid and c['probe_state'] == 'ready' for c in rows))
@@ -1435,7 +1435,7 @@ def runtime_driver(args, output, manifest):
             def final_diagnostics():
                 info, _ = base.diagnostic_snapshot(runtime, workspace, output, token)
                 report['observations']['final_diagnostics'] = info
-                assert info['complete'] is True and info['schema'] == 17
+                assert info['complete'] is True and info['schema'] == 18
             base.cleanup_call(report, 'readonly_final_diagnostics', final_diagnostics, clean)
         close_browser_engine(browser,playwright,report,clean)
         http_complete = True
@@ -1529,7 +1529,7 @@ def main():
         base.write_private_json(output/'sql-check.json',value);print(json.dumps(value));return 0
     if not args.run:
         base.write_private_json(output / 'NOT_RUN.json', {'actual_runtime': 'not_run',
-            'pending': ['Root reviewed harness', 'fixed schema17 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
+            'pending': ['Root reviewed harness', 'fixed schema18 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
         return 2
     assert args.tools and args.frontend and args.manifest
     manifest = json.loads(args.manifest.read_bytes(), object_pairs_hook=unique_object)

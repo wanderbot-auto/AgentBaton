@@ -37,7 +37,7 @@ integration_error=native_runner.integration_report_error(record)
 assert integration_error is None,integration_error
 for phase in ['before', 'after']:
     factory_counts = record['factory_readonly_database'][phase]
-    assert type(factory_counts['schema_version']) is int and factory_counts['schema_version'] == 17
+    assert type(factory_counts['schema_version']) is int and factory_counts['schema_version'] == 18
     assert all(type(factory_counts[field]) is int and factory_counts[field] == 0 for field in ['child_plan_heads', 'child_plan_revisions', 'child_goal_runs'])
 assert record['status']=='passed',record
 assert record['os']=='macos',record
@@ -57,7 +57,7 @@ assert record['first_webview']['readonlyGoalExecutionNoMutation'] is True
 assert record['goal_execution_readonly_database']['read_only'] is True
 assert record['goal_execution_readonly_database']['unchanged'] is True
 assert record['goal_execution_readonly_database']['before'] == record['goal_execution_readonly_database']['after']
-assert type(record['goal_execution_readonly_database']['before']['schema_version']) is int and record['goal_execution_readonly_database']['before']['schema_version'] == 17
+assert type(record['goal_execution_readonly_database']['before']['schema_version']) is int and record['goal_execution_readonly_database']['before']['schema_version'] == 18
 assert all(record['goal_execution_readonly_database']['before'][field] == 0 for field in ['run_count','node_count','reservation_count'])
 assert record['first_webview']['goalExecutionReadonlySequence'] == record['first_webview']['goalReadonlySequence']
 assert record['first_webview']['goalExecutionReadonlySequence']['before'] == record['goal_execution_readonly_database']['before']['sequence']
@@ -68,7 +68,7 @@ assert record['first_webview']['readonlyGoalGraphNoMutation'] is True
 assert record['goal_graph_readonly_database']['read_only'] is True
 assert record['goal_graph_readonly_database']['unchanged'] is True
 assert record['goal_graph_readonly_database']['before'] == record['goal_graph_readonly_database']['after']
-assert type(record['goal_graph_readonly_database']['before']['schema_version']) is int and record['goal_graph_readonly_database']['before']['schema_version'] == 17
+assert type(record['goal_graph_readonly_database']['before']['schema_version']) is int and record['goal_graph_readonly_database']['before']['schema_version'] == 18
 assert all(record['goal_graph_readonly_database']['before'][field] == 0 for field in ['capability_count','job_count','candidate_count','validation_count','owner_decision_count','acceptance_count'])
 assert record['first_webview']['goalGraphReadonlySequence'] == record['first_webview']['goalExecutionReadonlySequence'] == record['first_webview']['goalReadonlySequence']
 assert record['first_webview']['goalGraphReadonlySequence']['before'] == record['goal_graph_readonly_database']['before']['sequence']

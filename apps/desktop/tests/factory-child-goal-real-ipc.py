@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Schema17 real child-Goal browser/Unix IPC harness, not native/Provider proof.
+"""Schema18 real child-Goal browser/Unix IPC harness, not native/Provider proof.
 
 The five Owner calls preserve the frozen camelCase/snake_case wire contract.
 Default and --self-check start no listener, daemon, browser or subprocess.
 Explicit --run requires Root runtime readiness and exclusive execution lease;
-all successful business receipts then come from the supplied real Core17.
+all successful business receipts then come from the supplied real Core18.
 Private Owner simulation is test-only and never an actual OS confirmation.
 """
 from __future__ import annotations
@@ -232,12 +232,12 @@ def self_check():
             self.reads += 1
             return b'pure manifest-control bytes, not executable'
     binary = ManifestBinary()
-    manifest = {'schema':17,'binaries':{'batond':base.sha(binary.read_bytes())},'source_head':'a'*40}
+    manifest = {'schema':18,'binaries':{'batond':base.sha(binary.read_bytes())},'source_head':'a'*40}
     before = binary.reads
     assert support.verify_candidate(binary,json.dumps(manifest).encode()) == manifest
     assert binary.reads == before + 1
-    checks.append('integer17-manifest-positive-pure-bytes-only')
-    for bad in [12,13,14,15,16,18,True,15.0,16.0,17.0,'15','16','17',None]:
+    checks.append('integer18-manifest-positive-pure-bytes-only')
+    for bad in [12,13,14,15,16,17,19,True,15.0,16.0,18.0,'15','16','17',None]:
         before=binary.reads
         try: support.verify_candidate(binary,json.dumps({**manifest,'schema':bad}).encode())
         except AssertionError: pass
@@ -246,7 +246,7 @@ def self_check():
         checks.append('manifest-reject-before-binary-read:' + repr(bad))
     # Fake query return controls only, not a SQLite schema or migration surrogate.
     class FakeDB:
-        def __init__(self,schema=17,values=None): self.schema,self.values=schema,values or {}
+        def __init__(self,schema=18,values=None): self.schema,self.values=schema,values or {}
         def execute(self,query,params=()):
             if query=='PRAGMA user_version': value=self.schema
             elif query.startswith('SELECT type,CASE'):
@@ -278,7 +278,7 @@ def self_check():
             except (AssertionError,RuntimeError): pass
             else: raise AssertionError((table,bad))
             checks.append('integration-zero-reject:'+table+':'+repr(bad))
-    for schema in [12,13,14,15,16,18,15.0,16.0,17.0,True,'15','16','17',None]:
+    for schema in [12,13,14,15,16,17,19,15.0,16.0,18.0,True,'15','16','17',None]:
         try: support.current_factory_counts(FakeDB(schema=schema))
         except AssertionError: pass
         else: raise AssertionError(schema)
@@ -309,7 +309,7 @@ def self_check():
         for bad in [False,None,1]:
             assert not fixture_cleanup_permitted(**{**gates,key:bad})
             checks.append('retain-private-directory:'+key+':'+repr(bad))
-    snapshot={'schema':17,'factory_counts':{key:2 if key=='scopes'else 0 for key in support.FACTORY_RECORD_TABLES},
+    snapshot={'schema':18,'factory_counts':{key:2 if key=='scopes'else 0 for key in support.FACTORY_RECORD_TABLES},
         'tables':{table:{'count':PREAPPROVAL_COUNTS.get(table,0),'sha256':'a'*64}for table in PREAPPROVAL_ZERO_TABLES|PREAPPROVAL_COUNTS.keys()|{'events'}},
         'sequence':1,'active_workspace_leases':0,'active_dispatch_intents':0}
     verify_approval_did_not_execute(snapshot);checks.append('pure-approval-zero-execution-domain-positive')
@@ -955,7 +955,7 @@ def database_snapshot(runtime):
         sequence=db.execute('SELECT COALESCE(max(sequence),0)FROM events').fetchone()[0]
         active_leases=db.execute("SELECT count(*)FROM workspace_leases WHERE holder!=''").fetchone()[0]
         active_intents=db.execute("SELECT count(*)FROM dispatch_intents WHERE state!='stopped'").fetchone()[0];db.rollback()
-    return {'schema':17,'factory_counts':counts,'tables':result,'sequence':sequence,'active_workspace_leases':active_leases,'active_dispatch_intents':active_intents}
+    return {'schema':18,'factory_counts':counts,'tables':result,'sequence':sequence,'active_workspace_leases':active_leases,'active_dispatch_intents':active_intents}
 
 
 GRAPH_IDENTITY_FIELDS = ('pid', 'ppid', 'start_ticks', 'uid', 'pgid')
@@ -1244,7 +1244,7 @@ def verify_approval_did_not_execute(snapshot):
     # These are actual SQL observations at runtime. Unit dictionaries below
     # exercise refusal only; no count becomes a synthetic Core receipt.
     require(type(snapshot)is dict and set(snapshot)=={'schema','factory_counts','tables','sequence','active_workspace_leases','active_dispatch_intents'})
-    require(type(snapshot['schema'])is int and snapshot['schema']==17)
+    require(type(snapshot['schema'])is int and snapshot['schema']==18)
     require(type(snapshot['factory_counts'])is dict and set(snapshot['factory_counts'])==set(support.FACTORY_RECORD_TABLES))
     require(type(snapshot['tables'])is dict and set(snapshot['tables'])==PREAPPROVAL_ZERO_TABLES|PREAPPROVAL_COUNTS.keys()|{'events'})
     require(planning.safe_integer(snapshot['sequence']))
@@ -1663,7 +1663,7 @@ def runtime_driver(args, output):
     raw_daemon=(args.tools/'batond').resolve(strict=True);raw_cli=(args.tools/'baton').resolve(strict=True)
     frontend=args.frontend.resolve(strict=True);manifest_raw=args.manifest.resolve(strict=True).read_bytes()
     manifest=json.loads(manifest_raw,object_pairs_hook=planning.unique_object)
-    require(type(manifest['schema'])is int and manifest['schema']==17)
+    require(type(manifest['schema'])is int and manifest['schema']==18)
     require(all(re.fullmatch('[a-f0-9]{40}',manifest[k])for k in ['source_head','compiled_core_source_head']))
     require(manifest['binaries']['batond']==base.sha(raw_daemon.read_bytes()) and manifest['binaries']['baton']==base.sha(raw_cli.read_bytes()))
     files=list(frontend.rglob('*'));require(len(files)<=4096 and not any(p.is_symlink()for p in files))
@@ -2146,7 +2146,7 @@ def runtime_driver(args, output):
         if host is not None:
             def diagnostics():
                 info,_=base.diagnostic_snapshot(runtime,workspace,output,token);report['observations']['final_diagnostics']=info
-                require(info['complete']is True and info['schema']==17)
+                require(info['complete']is True and info['schema']==18)
                 if scope is not None:report['observations']['last_actual_SQL_snapshot']=database_snapshot(runtime)
             base.cleanup_call(report,'readonly_failure_diagnostics',diagnostics,clean)
         if scope is not None and host is not None:
@@ -2291,11 +2291,11 @@ def main():
             raise
     value=self_check() if args.self_check else {'status':'pending_dependencies','actual_runtime':'not_run',
         'runtime_driver':'source_implemented_not_run','implemented_cases':['normal','lost-start','cancel'],'matrix':MATRIX,'pending':[
-            'Core17 exact lifecycle success/failure/stop-chain fixtures and independent review',
-            'Fresh immutable Core17 tools/source manifest and composed frontend assets',
+            'Core18 exact lifecycle success/failure/stop-chain fixtures and independent review',
+            'Fresh immutable Core18 tools/source manifest and composed frontend assets',
             'Independent review of real browser driver; Root exclusive browser/daemon lease',
             'Additional permission/budget/unknown/adoption/recovery matrix beyond these three cases remains pending']}
-    value.update(schema_required=17,harness_sha256=base.sha(Path(__file__).read_bytes()),
+    value.update(schema_required=18,harness_sha256=base.sha(Path(__file__).read_bytes()),
         support_sha256=base.sha(PLANNING_PATH.read_bytes()))
     base.write_private_json(out/('self-check.json' if args.self_check else 'NOT_RUN.json'),value)
     print(json.dumps(value));return 0 if args.self_check else 2

@@ -1483,7 +1483,12 @@ impl Store {
                 return Err(changed());
             }
             let foreign:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions s WHERE s.workspace_id=?1 AND json_extract(s.document,'$.fencing_token')>?2 AND NOT EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=?3 AND n.session_id=s.id AND ((n.state='candidate' AND json_extract(n.document,'$.stop_confirmed')=1) OR (n.state='reserved' AND n.session_id=?4))))",params![record.refs.workspace.id,sql_num(a.writer_epoch)?,r.id,lease.holder],|row|row.get(0)).map_err(db_error)?;
-            if foreign {
+            let foreign_conversation = crate::conversations::has_writer_after(
+                &self.conn,
+                &record.refs.workspace.id,
+                sql_num(a.writer_epoch)?,
+            )?;
+            if foreign || foreign_conversation {
                 return Err(changed());
             }
         }

@@ -27,7 +27,7 @@ NAMES = ('task-pending-before-acceptance', 'permission-before-task-acceptance',
     'terminal-state-desktop', 'terminal-receipt-desktop', 'terminal-state-mobile', 'terminal-receipt-mobile')
 PUBLIC_NAMES = frozenset(case + '-' + name + '.png' for case in CASES for name in NAMES)
 MAX_REPORT, MAX_STATUS, MAX_PNG, MAX_TOTAL = 2097152, 65536, 16777216, 67108864
-DIMENSION = 'Linux built React/Chromium + finite TEST bridge + actual Core17 Unix IPC + generated ACP + private trusted test host'
+DIMENSION = 'Linux built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host'
 NOT_CLAIMED = ['production Tauri Native formatter', 'OS dialog', 'macOS', 'live Provider/model',
     'OS sandbox', 'whole-filesystem output quota', 'complete failure matrix', 'whole product completion']
 CHECKS = ('real managed Task/Graph before Task acceptance; visible new5s draft; optional original Command selected',
@@ -211,7 +211,7 @@ def collect(private, expected):
         build_raw = P.regular_bytes(fd, 'frontend-build-record.json', MAX_REPORT, witnesses=witnesses)
         probe_raw = P.regular_bytes(fd, 'schema-probe.json', MAX_STATUS, witnesses=witnesses)
         manifest, build, probe = P.decode(manifest_raw), P.decode(build_raw), P.decode(probe_raw)
-        require(type(manifest.get('schema')) is int and manifest['schema'] == 17 and manifest['git_head'] == expected
+        require(type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == expected
             and manifest.get('dirty') is False and manifest.get('tracked_clean', True) is True
             and set(manifest['binaries']) == {'batond', 'baton'}
             and all(manifest.get(k, expected) == expected for k in ('source_head', 'compiled_core_source_head')))
@@ -221,7 +221,7 @@ def collect(private, expected):
             and build['command'] == ['npm', '--prefix', 'apps/desktop', 'run', 'build'])
         require(type(probe) is dict and set(probe) == {'source', 'api_version', 'database_schema_version', 'daemon_exit', 'joined'}
             and probe['source'] == expected and type(probe['api_version']) is int and probe['api_version'] == 1
-            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 17
+            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18
             and type(probe['daemon_exit']) is int and probe['daemon_exit'] == 0 and probe['joined'] is True)
         summaries, sources, payloads, images, total = [], [], {}, [], 0
         case_witnesses = []
@@ -253,7 +253,7 @@ def collect(private, expected):
         for name, original_pin in witnesses:
             require(P.pin(os.stat(name, dir_fd=fd, follow_symlinks=False)) == original_pin)
         return {'contract': CONTRACT, 'status': 'passed', **sources[0], 'cases': summaries,
-            'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 17, 'joined': True},
+            'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 18, 'joined': True},
             'private_history_published': False, 'screenshots_published': True, 'screenshots': images,
             'visual_review': 'not_performed_by_projector', 'pixel_synchronized': False,
             'not_claimed': NOT_CLAIMED}, payloads
@@ -489,7 +489,7 @@ def runtime_failure_diagnostic(private, expected):
         probe_raw = P.regular_bytes(fd, 'schema-probe.json', MAX_STATUS, witnesses=witnesses)
         manifest, build, probe = P.decode(manifest_raw), P.decode(build_raw), P.decode(probe_raw)
         require(type(manifest) is dict and type(build) is dict and type(probe) is dict)
-        require(type(manifest.get('schema')) is int and manifest['schema'] == 17 and manifest['git_head'] == expected
+        require(type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == expected
             and manifest.get('dirty') is False and manifest.get('tracked_clean', True) is True
             and set(manifest['binaries']) == {'batond', 'baton'}
             and all(manifest.get(k, expected) == expected for k in ('source_head', 'compiled_core_source_head')))
@@ -499,7 +499,7 @@ def runtime_failure_diagnostic(private, expected):
             and build['command'] == ['npm', '--prefix', 'apps/desktop', 'run', 'build'])
         require(type(probe) is dict and set(probe) == {'source', 'api_version', 'database_schema_version', 'daemon_exit', 'joined'}
             and probe['source'] == expected and type(probe['api_version']) is int and probe['api_version'] == 1
-            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 17
+            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18
             and type(probe['daemon_exit']) is int and probe['daemon_exit'] == 0 and probe['joined'] is True)
         harness = expected_driver()
         driver_path = Path(private) / 'driver'

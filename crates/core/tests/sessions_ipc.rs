@@ -3403,7 +3403,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        17
+        18
     );
     assert!(db
         .query_row(
@@ -3534,6 +3534,8 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
             .map(|row| row.unwrap())
             .filter(|name| {
                 !pre_factory_schema::FACTORY_TABLES.contains(&name.as_str())
+                    && !pre_factory_schema::pre_conversation_schema::CONVERSATION18_TABLES
+                        .contains(&name.as_str())
                     && !pre_factory_schema::pre_integration_schema::INTEGRATION17_TABLES
                         .contains(&name.as_str())
             })
@@ -3564,7 +3566,7 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
     // Prove the four exact new domains are empty before excluding them from
     // the historical row projection. The old-version read below never calls
     // this current17-only verifier and still compares every retained old row.
-    pre_factory_schema::pre_integration_schema::verify_empty_integration17(&db).unwrap();
+    pre_factory_schema::pre_integration_schema::verify_empty_integration17_current18(&db).unwrap();
     let before_projection = legacy_snapshot();
     pre_factory_schema::remove_empty_current_factory_increment(&db).unwrap();
     assert_eq!(legacy_snapshot(),before_projection,"the historical projection must not rewrite any legacy row, including counters and consumed meters");
@@ -6208,4 +6210,88 @@ fn actual_graph_hard_shared_attempt_limit_keeps_bootstrap_usage_and_blocks_summa
         sequence
     );
     eprintln!("ACTUAL_GRAPH_BUDGET bootstrap1+Work1+Validator1 reaches approved3; Owner decision neither refunds nor mints Summary capacity");
+}
+
+#[test]
+fn standalone_conversation_ipc_never_creates_a_task_or_replays_a_turn() {
+    let f = Scenario::new(20_000);
+    let tasks_before = result(f.server.request(json!({"method":"tasks.list","params":{}})));
+    let create = json!({"method":"conversations.create","params":{
+        "project_id":f.project["id"],"title":"Independent generated discussion",
+        "workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]
+    },"idempotency_key":"standalone-create"});
+    let conversation = result(f.server.request(create.clone()));
+    assert!(conversation.get("task_id").is_none());
+    let ready = wait(
+        &f.server,
+        "conversations.get",
+        json!({"conversation_id":conversation["id"]}),
+        |v| v["state"] == "ready",
+    );
+    let replay = result(f.server.request(create.clone()));
+    assert_eq!(replay["id"], ready["id"]);
+    assert_eq!(replay["attempt_id"], ready["attempt_id"]);
+    let mut conflict = create;
+    conflict["params"]["title"] = json!("Different intent");
+    assert_eq!(
+        f.server.request(conflict)["error"]["code"],
+        "CONFIG_CONFLICT"
+    );
+    let send = json!({"method":"conversations.send","params":{"conversation_id":ready["id"],"text":"standalone fixture message"},"expected_revision":ready["revision"],"idempotency_key":"standalone-turn"});
+    result(f.server.request(send.clone()));
+    let ended = wait(
+        &f.server,
+        "conversations.get",
+        json!({"conversation_id":ready["id"]}),
+        |v| v["state"] == "ready" && v["turn_state"] == "completed",
+    );
+    result(f.server.request(send));
+    let tasks_after = result(f.server.request(json!({"method":"tasks.list","params":{}})));
+    assert_eq!(
+        tasks_after, tasks_before,
+        "Conversation must not synthesize or mutate a Task"
+    );
+    assert!(result(
+        f.server
+            .request(json!({"method":"sessions.list","params":{}}))
+    )
+    .as_array()
+    .unwrap()
+    .is_empty());
+    let events = result(
+        f.server
+            .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":1000}})),
+    );
+    assert_eq!(
+        events["events"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(
+                |e| e["aggregate_id"] == ready["id"] && e["kind"] == "conversation.message_queued"
+            )
+            .count(),
+        1
+    );
+    let cancelled=result(f.server.request(json!({"method":"conversations.cancel","params":{"conversation_id":ended["id"]},"expected_revision":ended["revision"],"idempotency_key":"standalone-cancel"})));
+    assert!(matches!(
+        cancelled["state"].as_str(),
+        Some("cancel_requested" | "stopped")
+    ));
+    wait(
+        &f.server,
+        "conversations.get",
+        json!({"conversation_id":ready["id"]}),
+        |v| v["state"] == "stopped",
+    );
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"conversations.list","params":{}}))
+        )
+        .as_array()
+        .unwrap()
+        .len(),
+        1
+    );
 }

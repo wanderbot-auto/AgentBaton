@@ -178,8 +178,31 @@ INTEGRATION_SETUP_ORIGINAL_SHA256 = 'a1db5e7447f25ac6dd8f7a3fff8005e071971cb75c0
 INTEGRATION_SETUP_ORIGINAL_BYTES = 9731
 
 
+# The current schema18 layer changes exactly these three candidate/probe sites.
+# Historical producer commands and every pinned baseline hash remain unchanged.
+CONVERSATION_SCHEMA18_SITES = (
+    ("              'schema': 18,\n              'git_head': git('rev-parse', 'HEAD'),", "              'schema': 17,\n              'git_head': git('rev-parse', 'HEAD'),"),
+    ("type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 18", "type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 17"),
+    ("type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == source", "type(manifest.get('schema')) is int and manifest['schema'] == 17 and manifest['git_head'] == source"),
+)
+
+def strip_conversation_schema18(text):
+    for current, historical in CONVERSATION_SCHEMA18_SITES:
+        if text.count(current) != 1 or historical in text:
+            raise ValueError('Exactly the three current schema18 candidate/probe sites are required')
+    for current, historical in CONVERSATION_SCHEMA18_SITES:
+        text = text.replace(current, historical, 1)
+    return text
+
+
 def strip_integration_setup_diagnostics(text):
     """Replace only a complete pinned step with its complete pinned original."""
+    # Older inverse tests also pass the already-peeled, exactly schema17 layer.
+    # Mixed, missing and duplicated current sites still fail the strict inverse.
+    if any(current in text for current, _ in CONVERSATION_SCHEMA18_SITES):
+        text = strip_conversation_schema18(text)
+    elif any(text.count(historical) != 1 for _, historical in CONVERSATION_SCHEMA18_SITES):
+        raise ValueError('Exact historical schema17 layer is required')
     text = strip_private_browser_python(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
     title = '      - name: Actual integration frontend with real Core IPC and generated correctness\n'
@@ -408,6 +431,14 @@ class Genuine16WorkflowWiring(unittest.TestCase):
                         step['run'] = step['run'].replace(expected, replacement)
                         with self.assertRaises(ValueError):
                             historical_targets(job)
+
+    def test_schema18_inverse_refuses_missing_duplicate_or_other_version_at_each_exact_site(self):
+        text = (ROOT / '.github/workflows/product.yml').read_text()
+        for current, historical in CONVERSATION_SCHEMA18_SITES:
+            for changed in (text.replace(current, historical, 1), text.replace(current, current.replace('18', '19'), 1), text + current):
+                with self.assertRaises(ValueError):
+                    strip_conversation_schema18(changed)
+        self.assertEqual(strip_conversation_schema18(text).count("              'schema': 17,\n"), 1)
 
     def test_exact_six_argument_reverse_normalization_retains_the_entire_old_workflow(self):
         verify_only_six_historical_target_changes((ROOT / '.github/workflows/product.yml').read_text())

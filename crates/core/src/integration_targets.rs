@@ -29,9 +29,10 @@ impl Store {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version != 17 {
+        if version != 18 {
             return Err(changed());
         }
+        crate::conversations::validate_schema(&self.conn)?;
         let task: Task = raw(&self.conn, "tasks", task_id)?;
         let project: Project = raw(&self.conn, "projects", &task.project_id)?;
         if task.id != task_id || project.id != task.project_id || project.archived {

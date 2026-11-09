@@ -315,7 +315,13 @@ class V4DiagnosticsTests(unittest.TestCase):
     def test_root17_samples_and_v3_refusal_semantics_survive_v4_only_metadata(self):
         path=ROOT/'tests/infrastructure/test_child_goal_ci_evidence.py'
         old=types.ModuleType('v4_root17_fixture');old.__file__=str(path)
-        exec(compile(path.read_bytes(),str(path),'exec'),old.__dict__)
+        from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+        source=strip_schema18_source('tests/infrastructure/test_child_goal_ci_evidence.py',path.read_text())
+        exec(compile(source,str(path),'exec'),old.__dict__)
+        P=types.ModuleType('restored_schema17_projection');P.__file__=old.P.__file__
+        original_projector=strip_schema18_source('scripts/record-child-goal-ci-evidence.py',Path(P.__file__).read_text())
+        exec(compile(original_projector,P.__file__,'exec'),P.__dict__)
+        old.P=P
         raw,candidate,summary,report=old.inputs()
         self.assertIs(type(candidate['schema']),int);self.assertEqual(candidate['schema'],17)
         P.candidate_summary(raw)
@@ -387,7 +393,13 @@ class V4DiagnosticsTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256(inverse(path,raw.decode()).encode()).hexdigest(),ROOT17_V4_SOURCES[path][1])
         path=ROOT/'tests/infrastructure/test_child_goal_ci_evidence.py'
         old=types.ModuleType('read_reuse_original_fixture');old.__file__=str(path)
-        exec(compile(path.read_bytes(),str(path),'exec'),old.__dict__)
+        from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+        source=strip_schema18_source('tests/infrastructure/test_child_goal_ci_evidence.py',path.read_text())
+        exec(compile(source,str(path),'exec'),old.__dict__)
+        P=types.ModuleType('restored_read_reuse_schema17');P.__file__=old.P.__file__
+        original_projector=strip_schema18_source('scripts/record-child-goal-ci-evidence.py',Path(P.__file__).read_text())
+        exec(compile(original_projector,P.__file__,'exec'),P.__dict__)
+        old.P=P
         raw,candidate,_,_=old.inputs();self.assertIs(type(candidate['schema']),int);self.assertEqual(candidate['schema'],17)
         P.candidate_summary(raw)
         for schema in (15,16,18,17.0,True):

@@ -610,7 +610,7 @@ pub(crate) fn validate_ancestor_grant_budgets_from(conn: &Connection, id: &str) 
             return Err(denied("Grant budget lineage is cyclic or too deep"));
         }
         let (total, active): (i64, i64) = conn.query_row(
-            "WITH RECURSIVE descendants(id) AS (SELECT ?1 UNION SELECT g.id FROM execution_grants g JOIN descendants d ON g.parent_id=d.id) SELECT count(*),COALESCE(SUM(CASE WHEN s.state NOT IN('stopped','failed') THEN 1 ELSE 0 END),0) FROM sessions s WHERE s.grant_id IN (SELECT id FROM descendants)",
+            "WITH RECURSIVE descendants(id) AS (SELECT ?1 UNION SELECT g.id FROM execution_grants g JOIN descendants d ON g.parent_id=d.id) SELECT count(*),COALESCE(SUM(CASE WHEN s.state NOT IN('stopped','failed') THEN 1 ELSE 0 END),0) FROM (SELECT grant_id,state FROM sessions UNION ALL SELECT grant_id,state FROM conversations) s WHERE s.grant_id IN (SELECT id FROM descendants)",
             [&current.id], |r|Ok((r.get(0)?,r.get(1)?))
         ).map_err(db_error)?;
         if total >= i64::from(current.scope.max_attempts)

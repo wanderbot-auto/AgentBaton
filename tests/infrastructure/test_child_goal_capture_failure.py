@@ -160,7 +160,8 @@ class ClosedCaptureProjection(unittest.TestCase):
 class CaptureSourceInverses(unittest.TestCase):
     def test_complete_original_driver_and_projector_bytes_restore_with_all_old_pins(self):
         for path,record in S.LAYERS.items():
-            text=(ROOT/path).read_text();self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),record['after'])
+            from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+            text=strip_schema18_source(path,(ROOT/path).read_text());self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),record['after'])
             restored=S.strip_capture_failure_layer(path,text)
             self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),record['before'])
             self.assertEqual(S.strip_capture_failure_layer(path,restored),restored)

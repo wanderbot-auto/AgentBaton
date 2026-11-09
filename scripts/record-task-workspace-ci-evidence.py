@@ -210,14 +210,14 @@ def execution_summary(report):
     value = report.get('no_execution')
     if value is None:
         return {'driver_asserted_no_execution': False}
-    require(type(value) is dict and type(value.get('schema')) is int and value['schema'] == 17
+    require(type(value) is dict and type(value.get('schema')) is int and value['schema'] == 18
             and type(value.get('no_execution_or_grants')) is bool)
     counts = value.get('table_counts')
     require(type(counts) is dict and set(counts) == set(TABLES))
     for number in counts.values():
         bounded(number, 0, 10000)
     zero = all(counts[name] == 0 for name in TABLES if name not in NONZERO_ALLOWED)
-    return {'schema': 17, 'driver_asserted_no_execution': value['no_execution_or_grants'] is True and zero,
+    return {'schema': 18, 'driver_asserted_no_execution': value['no_execution_or_grants'] is True and zero,
             'table_counts': {name: counts[name] for name in TABLES}}
 
 

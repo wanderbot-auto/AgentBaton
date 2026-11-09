@@ -1,3 +1,5 @@
+#[path = "../tests/fixtures/pre_conversation_schema.rs"]
+mod pre_conversation_schema;
 use super::*;
 use crate::CodeWorkspacePreparationRequest;
 use rusqlite::types::Value as SqlValue;
@@ -737,7 +739,7 @@ fn replaced_workspace_and_cleared_binding_history_cannot_reassign_or_repeat_crea
 }
 
 #[test]
-fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future18() {
+fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19() {
     // A local shape control, NOT a genuine old15-binary fixture; Root supplies that separately.
     let f = Fixture::new(false);
     let path = f.path.clone();
@@ -777,7 +779,7 @@ fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future18() {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        17
+        18
     );
     // Synthetic shape only, never labelled as an actual old15 binary result.
     // Child-before-parent removal is permitted ONLY while these four domains
@@ -790,8 +792,9 @@ fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future18() {
     assert_eq!(
         tx.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        17
+        18
     );
+    pre_conversation_schema::remove_empty_conversation18_in_transaction(&tx).unwrap();
     for table in [
         "integration_ref_fences",
         "integration_attempts",
@@ -822,11 +825,11 @@ fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future18() {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        17
+        18
     );
     assert!(before == image(&store.conn));
     assert!(current_exact == exact(&store.conn));
-    for prefix in ["pre-v16-", "pre-v17-"] {
+    for prefix in ["pre-v16-", "pre-v18-"] {
         let backups: Vec<_> = fs::read_dir(&parent)
             .unwrap()
             .map(|e| e.unwrap().path())
@@ -848,7 +851,7 @@ fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future18() {
     }
     store
         .conn
-        .pragma_update(None, "user_version", 18u32)
+        .pragma_update(None, "user_version", 19u32)
         .unwrap();
     drop(store);
     let original = fs::read(&path).unwrap();

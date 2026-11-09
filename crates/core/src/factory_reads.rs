@@ -276,6 +276,33 @@ fn owned_goal_delta(
     } else {
         0
     };
+    let cp: u32 = db
+        .query_row(
+            "SELECT count(*) FROM conversations WHERE project_id=?1",
+            [&scope.project_id],
+            |r| r.get(0),
+        )
+        .map_err(db_error)?;
+    let cr: u32 = db
+        .query_row(
+            "SELECT count(*) FROM conversations WHERE root_grant_id=?1",
+            [&scope.root_grant_id],
+            |r| r.get(0),
+        )
+        .map_err(db_error)?;
+    let add = |n: u64, c: u64| {
+        if needs_initializer {
+            n.checked_add(c).ok_or_else(changed)
+        } else {
+            Ok(n)
+        }
+    };
+    let project_attempt_count = add(project_attempt_count, u64::from(cp))?;
+    let project_session_count = add(project_session_count, u64::from(cp))?;
+    let project_intent_count = add(project_intent_count, u64::from(cp))?;
+    let root_attempt_count = add(root_attempt_count, u64::from(cr))?;
+    let root_session_count = add(root_session_count, u64::from(cr))?;
+    let root_intent_count = add(root_intent_count, u64::from(cr))?;
     Ok(OwnedGoalReadDelta {
         project_budget: format!("project:{}", scope.project_id),
         root_budget: format!("root:{}", scope.root_task_id),
@@ -1248,9 +1275,10 @@ impl FactoryReadPlan {
         let version: u32 = connection
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version != 17 {
+        if version != 18 {
             return Err(changed());
         }
+        crate::conversations::validate_schema(&connection)?;
         // Match the live Actor's exact approved business rows BEFORE filesystem
         // reads, preventing an independently replaced readonly DB granting reads.
         #[cfg(debug_assertions)]
@@ -2002,8 +2030,9 @@ mod tests {
         }
     }
     #[test]
-    fn readonly_worker_refuses_old15_old16_and_future18_without_rewriting_database_or_journal() {
-        for version in [15u32, 16u32, 18u32] {
+    fn readonly_worker_refuses_old15_old16_old17_and_future19_without_rewriting_database_or_journal(
+    ) {
+        for version in [15u32, 16u32, 17u32, 19u32] {
             let f = Fixture::new();
             let plan = f.plan();
             let _retained = KeepReadonlyFailure(Some(f._temp));
@@ -2048,7 +2077,7 @@ mod tests {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .unwrap();
-        assert_eq!(original_version, 17);
+        assert_eq!(original_version, 18);
         let before = readonly_image(&f.store.conn);
         let readonly = plan
             .database

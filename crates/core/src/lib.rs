@@ -15,6 +15,9 @@ pub mod registry;
 mod routes;
 mod runtime_config;
 pub use runtime_config::RuntimeBinding;
+#[cfg(test)]
+mod conversation_tests;
+pub mod conversations;
 pub mod sessions;
 pub mod storage;
 mod task_workspace_binding;
