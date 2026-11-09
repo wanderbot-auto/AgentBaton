@@ -1,4 +1,4 @@
-import {fireEvent,render,screen,waitFor} from '@testing-library/react';
+import {fireEvent,render,screen,waitFor,within} from '@testing-library/react';
 import {expect,it,vi} from 'vitest';
 import {GoalPlanning} from './GoalPlanning';
 import {goalApi} from './goal-api';
@@ -11,11 +11,11 @@ it('applies reviewed initial draft in the real Goal panel without proposing or a
  const f=goalDraftFixture();const grant={id:f.scope.root_grant_id,root_grant_id:f.scope.root_grant_id,parent_id:null,project_id:f.task.project_id,revision:2,expires_at_ms:f.scope.expires_at_ms,revoked:false,scope:{workspace_ids:['workspace'],connection_ids:['connection'],host_ids:['local'],max_attempts:4,max_concurrency:1,max_duration_ms:10000,max_children:3,max_depth:1}} as ExecutionGrant;
  vi.mocked(goalApi.grantsList).mockResolvedValue([grant]);vi.mocked(goalApi.scopesList).mockResolvedValue([f.scope]);vi.mocked(goalApi.plansList).mockResolvedValue([]);vi.mocked(goalPlanDraftApi.generate).mockResolvedValue(f.draft);
  render(<GoalPlanning task={f.task} language="en" connected navigation={{target:'plan',requestId:'first'}}/>);
- await waitFor(()=>expect(screen.getByRole('button',{name:'Generate initial draft'})).toBeEnabled());
+ await waitFor(()=>expect(screen.getByRole('button',{name:'Generate initial draft'})).toBeEnabled());expect(screen.getByText(/This compatibility template contains only a work node/)).toBeVisible();
  for(const [label,value] of [['Risks to review','Review overwritten files'],['Prohibited actions','Do not publish'],['Step runtime limit (ms)','1000'],['Step output limit (bytes)','4096']])fireEvent.change(screen.getByLabelText(label),{target:{value}});
  fireEvent.click(screen.getByRole('button',{name:'Generate initial draft'}));await screen.findByText(f.draft.approved_acceptance_criteria);
  for(const label of ['I reviewed the goal and approved output scope.','I reviewed the risks, prohibited actions and limits.','I reviewed the approved acceptance criteria.'])fireEvent.click(screen.getByLabelText(label));
  fireEvent.click(screen.getByRole('button',{name:'Use reviewed draft'}));
  await waitFor(()=>expect(screen.getByLabelText('Plan proposal JSON')).toHaveValue(JSON.stringify(f.draft.plan,null,2)));
- expect(goalApi.propose).not.toHaveBeenCalled();expect(goalApi.approve).not.toHaveBeenCalled();expect(goalApi.preview).not.toHaveBeenCalled();expect(screen.getByText('An existing plan or edited draft is present. It will not be overwritten.')).toBeVisible();
+ expect(goalApi.propose).not.toHaveBeenCalled();expect(goalApi.approve).not.toHaveBeenCalled();expect(goalApi.preview).not.toHaveBeenCalled();expect(within(screen.getByRole('region',{name:'Initial plan from this goal'})).getByText('An existing plan or edited draft is present. It will not be overwritten.')).toBeVisible();
 });

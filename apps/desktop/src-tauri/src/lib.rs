@@ -1707,6 +1707,18 @@ fn goal_plan_frame(
     )
 }
 #[tauri::command]
+async fn goal_multi_plan_draft(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_plans.draft_multi","params":request}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
 async fn goal_plan_draft(
     runtime: tauri::State<'_, Runtime>,
     request: Value,
@@ -1960,6 +1972,7 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         goal_scopes_list,
         goal_scopes_get,
         goal_scopes_revoke,
+        goal_multi_plan_draft,
         goal_plan_draft,
         goal_plans_propose,
         goal_plans_revise,

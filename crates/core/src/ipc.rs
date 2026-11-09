@@ -853,6 +853,7 @@ impl Daemon {
                     | "grants.propose"
                     | "goal_scopes.propose"
                     | "goal_plans.draft"
+                    | "goal_plans.draft_multi"
                     | "factory_scopes.propose"
                     | "factory_runs.start"
                     | "approvals.finalize"
@@ -957,6 +958,11 @@ impl Daemon {
             "goal_scopes.list" => {let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_scopes(&p.task_id)?))}
             "goal_scopes.get" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.get_goal_scope(&p.scope_id)?))}
             "goal_scopes.revoke" => {let p:GoalScopeId=params(r.params)?;let key=r.idempotency_key.ok_or_else(invalid)?;Ok(json!(self.store.revoke_goal_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&key)?))}
+            "goal_plans.draft_multi" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let request: crate::goal_store::GoalMultiPlanDraftRequest = params(r.params)?;
+                Ok(json!(self.store.goal_multi_plan_draft(&request)?))
+            }
             "goal_plans.draft" => {
                 if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
                 let request: crate::goal_store::GoalPlanDraftRequest = params(r.params)?;
@@ -1872,7 +1878,7 @@ impl Daemon {
                 let p: SendSession = params(request.params)?;
                 ids.push(self.store.get_session(&p.session_id)?.workspace_id);
             }
-            "goal_plans.draft" => {
+            "goal_plans.draft" | "goal_plans.draft_multi" => {
                 if request.expected_revision.is_some() || request.idempotency_key.is_some() {
                     return Err(invalid());
                 }
@@ -1886,8 +1892,12 @@ impl Daemon {
                         "Stop active owned execution before validating a new plan draft",
                     ));
                 }
-                let p: crate::goal_store::GoalPlanDraftRequest = params(request.params)?;
-                ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
+                let scope_id = if request.method == "goal_plans.draft" {
+                    params::<crate::goal_store::GoalPlanDraftRequest>(request.params)?.scope_id
+                } else {
+                    params::<crate::goal_store::GoalMultiPlanDraftRequest>(request.params)?.scope_id
+                };
+                ids.push(self.store.get_goal_scope(&scope_id)?.workspace_id);
             }
             "goal_plans.propose" | "goal_plans.revise" => {
                 let p: crate::goal_store::GoalPlanRawSubmission = params(request.params)?;

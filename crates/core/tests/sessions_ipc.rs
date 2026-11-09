@@ -156,6 +156,10 @@ for line in sys.stdin:
    assert contract['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
    assert contract['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
    text=contract['goal']
+   if contract['node']['id'] in ('draft-first','draft-second'):
+    assert 'multi fixture risk' in text and 'no external writes' in text
+    assert contract['node']['kind']=='work'
+    text='goal-report' if contract['node']['id']=='draft-first' else 'goal-report-extra-2'
    if text in ('goal-data-report','goal-data-report-bad'):
     import hashlib
     root=contract['workspace']['input_revision']
@@ -1066,7 +1070,7 @@ fn goal_scope_and_plan_with_capacity(
 ) -> Value {
     goal_scope_and_plan_with_options(f, goal, reworks, count, max_nodes, 2, vec![])
 }
-fn goal_scope_and_plan_with_options(
+fn goal_scope_only_with_options(
     f: &Scenario,
     goal: &str,
     reworks: u32,
@@ -1146,7 +1150,20 @@ fn goal_scope_and_plan_with_options(
     let proposal = result(f.server.request(
         json!({"method":"goal_scopes.propose","params":selection,"idempotency_key":format!("goal-scope:{}",f.task["id"].as_str().unwrap())}),
     ));
-    let scope = approve(&f.server, proposal);
+    approve(&f.server, proposal)
+}
+fn goal_scope_and_plan_with_options(
+    f: &Scenario,
+    goal: &str,
+    reworks: u32,
+    count: u32,
+    max_nodes: u32,
+    attempts: u32,
+    validators: Vec<agentbaton_core::goal_store::GoalValidatorRef>,
+) -> Value {
+    use agentbaton_core::{goal_plan::*, goal_store::*};
+    let scope =
+        goal_scope_only_with_options(f, goal, reworks, count, max_nodes, attempts, validators);
     let view: GoalScopeView = serde_json::from_value(scope.clone()).unwrap();
     let contract = view.outputs["report"].clone();
     let node = PlanNode {
@@ -6307,5 +6324,120 @@ fn standalone_conversation_ipc_never_creates_a_task_or_replays_a_turn() {
         .unwrap()
         .len(),
         1
+    );
+}
+
+#[test]
+fn actual_generated_multi_draft_requires_owner_before_downstream_and_task_acceptance() {
+    let f = Scenario::with_generated_output_policy(30_000, "custom_acp", false, 8);
+    let scope = goal_scope_only_with_options(&f, "goal-report", 0, 2, 8, 8, vec![]);
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    let request = json!({"scope_id":scope["id"],"task_id":task["id"],"expected_task_revision":task["revision"],"expected_spec_revision":task["spec_revision"],"expected_scope_revision":scope["revision"],"expected_scope_digest":scope["scope_digest"],"expected_authority_revision":scope["authority_revision"],"risk_notes":"multi fixture risk","prohibited_actions":"no external writes","steps":[
+        {"id":"draft-first","goal":"Produce the first approved report","dependencies":[],"input_artifact_ids":["fixed-input"],"output_artifact_ids":["report"],"runtime_ms":2000,"output_bytes":1024,"review_runtime_ms":500,"review_output_bytes":512},
+        {"id":"draft-second","goal":"Summarize the accepted first report","dependencies":[],"input_artifact_ids":["report"],"output_artifact_ids":["report-2"],"runtime_ms":2000,"output_bytes":1024,"review_runtime_ms":500,"review_output_bytes":512}
+    ]});
+    let draft = result(
+        f.server
+            .request(json!({"method":"goal_plans.draft_multi","params":request})),
+    );
+    assert_eq!(draft["planning_only"], true);
+    assert_eq!(draft["dispatched"], false);
+    assert!(result(
+        f.server
+            .request(json!({"method":"goal_plans.list","params":{"scope_id":scope["id"]}}))
+    )
+    .as_array()
+    .unwrap()
+    .is_empty());
+    let nodes = draft["plan"]["nodes"].as_array().unwrap();
+    let owner_for = |producer: &str| {
+        nodes
+            .iter()
+            .find(|node| {
+                node["kind"] == "owner_approval"
+                    && node["required_inputs"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|input| input["source"]["node_id"] == producer)
+            })
+            .unwrap()["id"]
+            .clone()
+    };
+    let first_owner = owner_for("draft-first");
+    let final_owner = owner_for("draft-second");
+    let saved=result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&draft["plan"]).unwrap()},"expected_revision":0,"idempotency_key":"save-generated-multi"})));
+    assert_eq!(saved["digest"], draft["plan_digest"]);
+    let approved = approve_graph_at(&f, &scope, 1);
+    let run_id = &approved["run"]["id"];
+    let first = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |value| {
+            value["nodes"].as_array().is_some_and(|rows| {
+                rows.iter()
+                    .any(|row| row["node"]["id"] == first_owner && row["state"] == "awaiting_owner")
+            })
+        },
+    );
+    assert_eq!(first["candidates"].as_array().unwrap().len(), 1);
+    assert_eq!(first["task_accepted"], false);
+    assert!(first["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|candidate| candidate["node_id"] != "draft-second"));
+    let owner = graph_owner_proposal(
+        &f,
+        run_id,
+        first_owner.as_str().unwrap(),
+        "approve-generated-first",
+    );
+    let decision = approve(&f.server, owner);
+    assert_eq!(decision["task_accepted"], false);
+    let second = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |value| {
+            value["nodes"].as_array().is_some_and(|rows| {
+                rows.iter()
+                    .any(|row| row["node"]["id"] == final_owner && row["state"] == "awaiting_owner")
+            })
+        },
+    );
+    let downstream = second["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|candidate| candidate["node_id"] == "draft-second")
+        .unwrap();
+    assert_eq!(
+        downstream["consumed_inputs"][0]["candidate"],
+        first["candidates"][0]["artifacts"][0]
+    );
+    assert_eq!(
+        downstream["artifacts"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"extra report 2")
+    );
+    assert_eq!(second["task_accepted"], false);
+    let final_proposal = graph_owner_proposal(
+        &f,
+        run_id,
+        final_owner.as_str().unwrap(),
+        "approve-generated-final",
+    );
+    let accepted = approve(&f.server, final_proposal);
+    assert_eq!(accepted["task_accepted"], true);
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"tasks.get","params":{"task_id":task["id"]}}))
+        )["state"],
+        "accepted"
     );
 }
