@@ -113,4 +113,12 @@ describe('Goal UI with mocked native transport; not Core9/native dialog/dispatch
   it('never reads or writes while disconnected and localizes the scoped Goal approval boundary',async()=>{
     const user=userEvent.setup(),f=fixture();render(<GoalPlanning task={f.task} language="zh" connected={false}/>);await user.click(screen.getByRole('heading',{name:'Goal 范围与计划'}));expect(screen.getByRole('button',{name:'在原生对话框中审阅 Goal 范围'})).toBeDisabled();expect(screen.getByText(/共享已消耗及活动计数保留/)).toBeVisible();expect(api.grantsList).not.toHaveBeenCalled();expect(api.approve).not.toHaveBeenCalled();
   });
+  it('preserves unresolved approval and its exact key when navigation reopens the mounted panel',async()=>{
+    const user=userEvent.setup(),f=fixture();vi.mocked(api.grantsList).mockResolvedValue([f.grant]);vi.mocked(api.approve).mockRejectedValueOnce(new Error('Lost approval response'));
+    const view=render(<GoalPlanning task={f.task} language="en" connected navigation={{target:'plan',requestId:'first'}}/>);
+    await screen.findByRole('option',{name:new RegExp(f.grant.id)});await fillScope(user,f);await user.click(approve());await screen.findByRole('alert');const original=vi.mocked(api.approve).mock.calls[0];
+    await user.click(screen.getByRole('heading',{name:'Goal scope and plan'}));view.rerender(<GoalPlanning task={f.task} language="en" connected navigation={{target:'execution',requestId:'again'}}/>);
+    await waitFor(()=>expect(screen.getByRole('alert')).toBeVisible());expect(api.approve).toHaveBeenCalledTimes(1);expect(screen.getByLabelText('Owner acceptance criteria')).toHaveValue('Review report against exact outcome');expect(vi.mocked(api.approve).mock.calls[0]).toEqual(original);expect(api.propose).not.toHaveBeenCalled();expect(api.revise).not.toHaveBeenCalled();expect(api.revoke).not.toHaveBeenCalled();
+  });
+
 });

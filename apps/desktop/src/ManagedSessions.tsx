@@ -27,8 +27,8 @@ function boundWorkspaceChoice(task: Task | undefined, project: Project | undefin
 // Local render provenance only; never an approval or IPC field.
 export function initialTaskSelectionCurrent(applied: string, rendered: string): boolean { return applied === rendered; }
 
-interface Props { language: Language; connected: boolean; projects: Project[]; tasks: Task[]; projectId: string; onProjectChange: (id: string) => void; refreshTasks: () => Promise<void>; initialTaskId?: string }
-export function ManagedSessions({ language, connected, projects, tasks, projectId, onProjectChange, refreshTasks, initialTaskId }: Props) {
+interface Props { language: Language; connected: boolean; projects: Project[]; tasks: Task[]; projectId: string; onProjectChange: (id: string) => void; refreshTasks: () => Promise<void>; initialTaskId?: string; uncertainSessions?: Set<string>; onUncertain?: (id: string) => void; sharedSendBusy?: boolean; onSendBusyChange?: (busy: boolean) => void }
+export function ManagedSessions({ language, connected, projects, tasks, projectId, onProjectChange, refreshTasks, initialTaskId, uncertainSessions, onUncertain, sharedSendBusy, onSendBusyChange }: Props) {
   const t = sessionMessages[language], codeText = taskCodeWorkspaceMessages[language];
   const initialSelectionIdentity = JSON.stringify([projectId, initialTaskId ?? null]);
   const initialSelectionEpoch = useRef({ identity: initialSelectionIdentity, revision: 0 });
@@ -62,6 +62,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const taskFloors = useRef(new Map<string, Task>());
   const [error, setError] = useState('');
   const [text, setText] = useState('');
+  const sending = useRef(false);
   const [uncertainSend, setUncertainSend] = useState<Set<string>>(() => new Set());
   const [events, setEvents] = useState<JournalEvent[]>([]);
   const [evidenceLimited, setEvidenceLimited] = useState(false);
@@ -72,6 +73,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const scopeRequest = useRef(0);
   const evidenceRequest = useRef(0);
   const selected = sessions.find(session => session.id === sessionId);
+  const taskUncertainSend = !!selected && sessions.some(session => session.task_id === selected.task_id && (uncertainSend.has(session.id) || uncertainSessions?.has(session.id)));
   const project = projects.find(record => record.id === projectId);
   const workspace = workspaces.find(record => record.id === workspaceId);
   const connection = connections.find(record => record.id === connectionId);
@@ -228,20 +230,21 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   }
   async function send(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selected || !sessionFresh || selected.state !== 'ready' || busy || !connected || !text.trim() || uncertainSend.has(selected.id)) return;
-    setBusy(true); setError('');
+    if (!selected || !sessionFresh || selected.state !== 'ready' || busy || sending.current || sharedSendBusy || !connected || !text.trim() || taskUncertainSend) return;
+    sending.current = true; setBusy(true); onSendBusyChange?.(true); setError('');
     const fingerprint = JSON.stringify(['send', selected.id, selected.revision, text]);
     const key = operationKeys.current.get(fingerprint) ?? crypto.randomUUID();
     operationKeys.current.set(fingerprint, key);
     try {
       const record = await sessionApi.sessionsSend(selected, text, key);
+      if (!record || !(['id','task_id','project_id','workspace_id','connection_id','grant_id'] as const).every(field => record[field] === selected[field]) || selected.native_session_id !== null && record.native_session_id !== selected.native_session_id || !Number.isSafeInteger(record.revision) || record.revision <= selected.revision) throw new Error(t.uncertain);
       operationKeys.current.delete(fingerprint);
       setText(''); setSessions(current => mergeSessions(current, [record]));
       await refreshEvidence(record.id);
     } catch (e) {
-      if (!(e instanceof DaemonError) || e.sideEffectState === 'unknown') setUncertainSend(current => new Set([...current, selected.id]));
+      if (!(e instanceof DaemonError) || e.code === 'OUTCOME_UNKNOWN' || !['none', 'not_started'].includes(e.sideEffectState)) { setUncertainSend(current => new Set([...current, selected.id])); onUncertain?.(selected.id); }
       showError(e);
-    } finally { setBusy(false); }
+    } finally { sending.current = false; setBusy(false); onSendBusyChange?.(false); }
   }
   return <section className="managed-sessions" aria-labelledby="sessions-title">
     <div className="section-heading"><h2 id="sessions-title">{t.sessions}</h2><button disabled={!connected || busy || loading} onClick={() => { void refresh(); void refreshScope(); void refreshTask(); if (sessionId) void refreshEvidence(sessionId).catch(showError); }}>{t.refresh}</button></div>
@@ -279,8 +282,8 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
     </div>
     <div className="workspace"><section>{!sessions.length && <p>{t.emptySessions}</p>}<ul className="task-list">{sessions.map(record => <li key={record.id}><button disabled={busy} aria-label={`${connections.find(item => item.id === record.connection_id)?.name ?? record.connection_id} · ${stateText(record.state)} · ${record.id}`} aria-pressed={sessionId === record.id} onClick={() => setSessionId(record.id)}><strong>{connections.find(item => item.id === record.connection_id)?.name ?? record.connection_id}</strong><span>{stateText(record.state)}</span><small>{record.id}</small></button></li>)}</ul></section>
       <section className="inspector">{selected ? <><h3>{selected.id}</h3><p role="status">{stateText(selected.state)}{selected.turn_state ? ` · ${stateText(selected.turn_state)}` : ''}{!sessionFresh && !['stopped', 'failed', 'outcome_unknown'].includes(selected.state) ? ` · ${t.stale}` : ''}</p><dl><dt>{t.task}</dt><dd>{selected.task_id}</dd><dt>{t.connection}</dt><dd>{selected.connection_id}</dd><dt>{t.recipient}</dt><dd>{connections.find(record => record.id === selected.connection_id)?.name ?? selected.connection_id}</dd><dt>{t.workspace}</dt><dd>{selected.workspace_id}</dd><dt>{t.writable}</dt><dd>{sessionWorkspace?.root ?? t.unknown}</dd><dt>{t.grantSelect}</dt><dd>{selected.grant_id}</dd><dt>{t.lastObserved}</dt><dd>{selected.updated_at}</dd></dl>{selected.last_error && <p>{selected.last_error}</p>}
-        <form onSubmit={send}><label htmlFor="session-message">{t.message}</label><textarea id="session-message" value={text} onChange={event => setText(event.target.value)} disabled={busy || !connected || !sessionFresh || selected.state !== 'ready' || uncertainSend.has(selected.id)} maxLength={16384} rows={4} /><p className="hint">{t.promptHelp}</p><button disabled={busy || !connected || !sessionFresh || selected.state !== 'ready' || !text.trim() || uncertainSend.has(selected.id)}>{t.send}</button></form>
-        {uncertainSend.has(selected.id) && <div className="error"><p>{t.uncertain}</p><button disabled={busy} onClick={() => { setText(''); setUncertainSend(current => { const next = new Set(current); next.delete(selected.id); return next; }); }}>{t.clearUncertain}</button></div>}
+        <form onSubmit={send}><label htmlFor="session-message">{t.message}</label><textarea id="session-message" value={text} onChange={event => setText(event.target.value)} disabled={busy || sharedSendBusy || !connected || !sessionFresh || selected.state !== 'ready' || taskUncertainSend} maxLength={16384} rows={4} /><p className="hint">{t.promptHelp}</p><button disabled={busy || sharedSendBusy || !connected || !sessionFresh || selected.state !== 'ready' || !text.trim() || taskUncertainSend}>{t.send}</button></form>
+        {taskUncertainSend && <div className="error"><p>{t.uncertain}</p><button disabled={busy} onClick={() => { setText(''); /* Discarding text is not proof that an uncertain send did not execute. */ }}>{t.clearUncertain}</button></div>}
         <button disabled={busy || !connected || !['starting', 'ready', 'running'].includes(selected.state)} onClick={() => void mutate(JSON.stringify(['cancel', selected.id, selected.revision]), key => sessionApi.sessionsCancel(selected, key), record => setSessions(current => mergeSessions(current, [record])))}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><p className="hint">{t.resumeUnsupported}</p>
         <h3>{t.outputTitle}</h3><p className="hint">{t.eventWindow}</p>{byteLimitedPage && <p role="status">{messages[language].bytePageLimit}</p>}{!events.length && <p>{evidenceLimited ? t.partialEvents : t.noEvents}</p>}<ol className="session-events">{events.map(event => <li key={event.event_id}>{sessionEventText(event) && <p className="message-text"><strong>{event.kind === 'session.message_queued' ? t.queuedMessage : t.agentMessage}</strong><br />{sessionEventText(event)}</p>}<details><summary>{event.kind} · {event.occurred_at}</summary><pre>{JSON.stringify(event.payload, null, 2)}</pre></details></li>)}</ol>
       </> : <p>{t.selected}</p>}</section></div>

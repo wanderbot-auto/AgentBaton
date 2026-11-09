@@ -33,13 +33,21 @@ it('requires explicit session selection and sends exact observed revision once',
  await waitFor(()=>expect(sessionApi.sessionsSend).toHaveBeenCalledWith(session,'Continue approved work',expect.any(String)));
  expect(sessionApi.sessionsSend).toHaveBeenCalledTimes(1);expect(api.create).not.toHaveBeenCalled();
 });
-it('blocks an unknown send and retains message through refresh',async()=>{
- vi.mocked(sessionApi.sessionsSend).mockRejectedValue(new DaemonError('OUTCOME_UNKNOWN','secret','unknown'));
+it.each(['unknown','none','not_started','confirmed'])('blocks OUTCOME_UNKNOWN with %s side-effect metadata and retains the message',async sideEffect=>{
+ vi.mocked(sessionApi.sessionsSend).mockRejectedValue(new DaemonError('OUTCOME_UNKNOWN','secret',sideEffect));
  render(<Harness/>);await choose();fireEvent.change(screen.getByLabelText('Message'),{target:{value:'Keep this message'}});
  await waitFor(()=>expect(screen.getByRole('button',{name:'Send to existing session'})).toBeEnabled());fireEvent.click(screen.getByRole('button',{name:'Send to existing session'}));
  await waitFor(()=>expect(uncertain).toHaveBeenCalledWith(session.id));expect(screen.getByLabelText('Message')).toHaveValue('Keep this message');
  fireEvent.click(screen.getByRole('button',{name:'Refresh conversation'}));await act(async()=>{});
  expect(screen.getByRole('button',{name:'Send to existing session'})).toBeDisabled();expect(screen.queryByText('secret')).not.toBeInTheDocument();
+});
+it('retains the draft and blocks sending when a receipt changes the observed native session',async()=>{
+ vi.mocked(sessionApi.sessionsSend).mockResolvedValue({...session,revision:4,state:'running',native_session_id:'foreign-native'});
+ render(<Harness/>);await choose();fireEvent.change(screen.getByLabelText('Message'),{target:{value:'Keep original message'}});
+ await waitFor(()=>expect(screen.getByRole('button',{name:'Send to existing session'})).toBeEnabled());fireEvent.click(screen.getByRole('button',{name:'Send to existing session'}));
+ await waitFor(()=>expect(uncertain).toHaveBeenCalledWith(session.id));expect(screen.getByLabelText('Message')).toHaveValue('Keep original message');
+ fireEvent.click(screen.getByRole('button',{name:'Refresh conversation'}));await act(async()=>{});
+ expect(screen.getByRole('button',{name:'Send to existing session'})).toBeDisabled();expect(sessionApi.sessionsSend).toHaveBeenCalledTimes(1);
 });
 it('rejects foreign fresh-session data',async()=>{
  vi.mocked(sessionApi.sessionsGet).mockResolvedValue({...session,connection_id:'other'});

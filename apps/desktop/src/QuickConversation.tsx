@@ -38,10 +38,10 @@ export function QuickConversation(props: Props) {
     sending.current = true; props.onBusy(true); setError('');
     try {
       const result = await sessionApi.sessionsSend(observed,message,key);
-      if (!sameSession(result,observed) || !Number.isSafeInteger(result.revision) || result.revision <= observed.revision) throw new Error();
+      if (!sameSession(result,observed) || observed.native_session_id !== null && result.native_session_id !== observed.native_session_id || !Number.isSafeInteger(result.revision) || result.revision <= observed.revision) throw new Error();
       floors.current.set(result.id,result.revision); keys.current.delete(fingerprint); setText(''); setFresh(null); setTick(value => value+1);
     } catch (failure) {
-      const uncertain = !(failure instanceof DaemonError) || !['none','not_started'].includes(failure.sideEffectState);
+      const uncertain = !(failure instanceof DaemonError) || failure.code === 'OUTCOME_UNKNOWN' || !['none','not_started'].includes(failure.sideEffectState);
       if (uncertain) props.onUncertain(observed.id);
       setFresh(null); setError(uncertain ? t.uncertain : t.failed);
     } finally { sending.current = false; props.onBusy(false); void props.refresh(); }

@@ -191,4 +191,35 @@ describe('Named connection and managed-session UI using mocked transport', () =>
     expect((await screen.findAllByText('Stopped (confirmed)', {}, { timeout: 2500 })).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
   });
+  it('blocks a shared uncertain Task across sessions while retaining cancellation and readonly refresh',async()=>{
+    const user=userEvent.setup(),second={...session,id:'session-2',native_session_id:'native-2'};
+    vi.mocked(sessionApi.sessionsList).mockResolvedValue([session,second]);vi.mocked(sessionApi.sessionsGet).mockImplementation(async id=>id===second.id?second:session);
+    render(<ManagedSessions language="en" connected projects={[project]} tasks={[task]} projectId={project.id} onProjectChange={vi.fn()} refreshTasks={refreshTasks} uncertainSessions={new Set([session.id])}/>);
+    await user.click(await screen.findByRole('button',{name:/Selected local agent.*Ready.*session-2/}));await waitFor(()=>expect(sessionApi.sessionsGet).toHaveBeenCalledWith(second.id));expect(screen.getByLabelText('Message to this connection')).toBeDisabled();expect(screen.getByRole('button',{name:'Send message'})).toBeDisabled();
+    await user.click(screen.getByRole('button',{name:'Discard this uncertain draft after reviewing evidence'}));expect(screen.getByRole('button',{name:'Send message'})).toBeDisabled();
+    vi.mocked(sessionApi.sessionsCancel).mockResolvedValue({...second,state:'cancel_requested',revision:3});await user.click(screen.getByRole('button',{name:'Request cancellation'}));await waitFor(()=>expect(sessionApi.sessionsCancel).toHaveBeenCalledWith(second,expect.any(String)));expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
+  });
+  it('reports an OUTCOME_UNKNOWN code to the parent and preserves the guard after remount',async()=>{
+    const user=userEvent.setup(),shared=new Set<string>(),onUncertain=vi.fn((id:string)=>{shared.add(id);});vi.mocked(sessionApi.sessionsSend).mockRejectedValue(new DaemonError('OUTCOME_UNKNOWN','Unresolved message','not_started'));
+    const view=render(<ManagedSessions language="en" connected projects={[project]} tasks={[task]} projectId={project.id} onProjectChange={vi.fn()} refreshTasks={refreshTasks} uncertainSessions={shared} onUncertain={onUncertain}/>);
+    await selectSession(user);await user.type(screen.getByLabelText('Message to this connection'),'Do not replay from another panel');await user.click(screen.getByRole('button',{name:'Send message'}));await waitFor(()=>expect(onUncertain).toHaveBeenCalledWith(session.id));expect(screen.getByRole('button',{name:'Send message'})).toBeDisabled();view.unmount();
+    render(<ManagedSessions language="en" connected projects={[project]} tasks={[task]} projectId={project.id} onProjectChange={vi.fn()} refreshTasks={refreshTasks} uncertainSessions={shared} onUncertain={onUncertain}/>);await user.click(await screen.findByRole('button',{name:/Selected local agent.*Ready.*session-1/}));await waitFor(()=>expect(screen.getByLabelText('Message to this connection')).toBeDisabled());expect(sessionApi.sessionsSend).toHaveBeenCalledTimes(1);
+  });
+  it('does not let unrelated Task uncertainty block this Task message',async()=>{
+    const user=userEvent.setup(),foreign={...session,id:'foreign-session',task_id:'foreign-task'};vi.mocked(sessionApi.sessionsList).mockResolvedValue([session,foreign]);
+    render(<ManagedSessions language="en" connected projects={[project]} tasks={[task]} projectId={project.id} onProjectChange={vi.fn()} refreshTasks={refreshTasks} uncertainSessions={new Set([foreign.id])}/>);await selectSession(user);expect(screen.getByLabelText('Message to this connection')).toBeEnabled();
+  });
+
+  it('holds shared send state until a late outcome arrives after unmount',async()=>{
+    const user=userEvent.setup(),onUncertain=vi.fn(),onSendBusyChange=vi.fn();let reject!:(reason:unknown)=>void;vi.mocked(sessionApi.sessionsSend).mockImplementation(()=>new Promise((_,fail)=>{reject=fail;}));
+    const view=render(<ManagedSessions language="en" connected projects={[project]} tasks={[task]} projectId={project.id} onProjectChange={vi.fn()} refreshTasks={refreshTasks} onUncertain={onUncertain} onSendBusyChange={onSendBusyChange}/>);await selectSession(user);await user.type(screen.getByLabelText('Message to this connection'),'in flight');await user.click(screen.getByRole('button',{name:'Send message'}));expect(onSendBusyChange.mock.calls).toEqual([[true]]);view.unmount();expect(onSendBusyChange.mock.calls).toEqual([[true]]);
+    await act(async()=>{reject(new DaemonError('OUTCOME_UNKNOWN','lost','none'));});expect(onUncertain).toHaveBeenCalledWith(session.id);expect(onSendBusyChange.mock.calls).toEqual([[true],[false]]);
+  });
+  it('blocks only sending while another entry owns an in-flight send',async()=>{
+    const user=userEvent.setup();render(<ManagedSessions language="en" connected projects={[project]} tasks={[task]} projectId={project.id} onProjectChange={vi.fn()} refreshTasks={refreshTasks} sharedSendBusy/>);await user.click(await screen.findByRole('button',{name:/Selected local agent.*Ready.*session-1/}));await waitFor(()=>expect(sessionApi.sessionsGet).toHaveBeenCalledWith(session.id));expect(screen.getByLabelText('Message to this connection')).toBeDisabled();expect(screen.getByRole('button',{name:'Send message'})).toBeDisabled();expect(screen.getByRole('button',{name:'Request cancellation'})).toBeEnabled();expect(screen.getByRole('button',{name:'Refresh session records'})).toBeEnabled();expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
+  });
+  it('treats a foreign successful-send receipt as shared uncertainty',async()=>{
+    const user=userEvent.setup(),onUncertain=vi.fn();vi.mocked(sessionApi.sessionsSend).mockResolvedValue({...session,task_id:'other-task',revision:3});render(<ManagedSessions language="en" connected projects={[project]} tasks={[task]} projectId={project.id} onProjectChange={vi.fn()} refreshTasks={refreshTasks} onUncertain={onUncertain}/>);await selectSession(user);await user.type(screen.getByLabelText('Message to this connection'),'bound message');await user.click(screen.getByRole('button',{name:'Send message'}));await waitFor(()=>expect(onUncertain).toHaveBeenCalledWith(session.id));expect(screen.getByLabelText('Message to this connection')).toHaveValue('bound message');expect(screen.getByRole('button',{name:'Send message'})).toBeDisabled();
+  });
+
 });
