@@ -854,6 +854,8 @@ impl Daemon {
                     | "goal_scopes.propose"
                     | "goal_plans.draft"
                     | "goal_plans.draft_multi"
+                    | "goal_plans.advice_context"
+                    | "goal_plans.advice_import"
                     | "factory_scopes.propose"
                     | "factory_runs.start"
                     | "approvals.finalize"
@@ -958,6 +960,16 @@ impl Daemon {
             "goal_scopes.list" => {let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_scopes(&p.task_id)?))}
             "goal_scopes.get" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.get_goal_scope(&p.scope_id)?))}
             "goal_scopes.revoke" => {let p:GoalScopeId=params(r.params)?;let key=r.idempotency_key.ok_or_else(invalid)?;Ok(json!(self.store.revoke_goal_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&key)?))}
+            "goal_plans.advice_context" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let query: crate::goal_store::GoalPlanAdviceQuery = params(r.params)?;
+                Ok(json!(self.store.goal_plan_advice_context(&query)?))
+            }
+            "goal_plans.advice_import" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let request: crate::goal_store::GoalPlanAdviceImportRequest = params(r.params)?;
+                Ok(json!(self.store.import_goal_plan_advice(&request)?))
+            }
             "goal_plans.draft_multi" => {
                 if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
                 let request: crate::goal_store::GoalMultiPlanDraftRequest = params(r.params)?;
@@ -1878,7 +1890,10 @@ impl Daemon {
                 let p: SendSession = params(request.params)?;
                 ids.push(self.store.get_session(&p.session_id)?.workspace_id);
             }
-            "goal_plans.draft" | "goal_plans.draft_multi" => {
+            "goal_plans.draft"
+            | "goal_plans.draft_multi"
+            | "goal_plans.advice_context"
+            | "goal_plans.advice_import" => {
                 if request.expected_revision.is_some() || request.idempotency_key.is_some() {
                     return Err(invalid());
                 }
@@ -1894,8 +1909,14 @@ impl Daemon {
                 }
                 let scope_id = if request.method == "goal_plans.draft" {
                     params::<crate::goal_store::GoalPlanDraftRequest>(request.params)?.scope_id
-                } else {
+                } else if request.method == "goal_plans.draft_multi" {
                     params::<crate::goal_store::GoalMultiPlanDraftRequest>(request.params)?.scope_id
+                } else if request.method == "goal_plans.advice_context" {
+                    params::<crate::goal_store::GoalPlanAdviceQuery>(request.params)?.scope_id
+                } else {
+                    params::<crate::goal_store::GoalPlanAdviceImportRequest>(request.params)?
+                        .query
+                        .scope_id
                 };
                 ids.push(self.store.get_goal_scope(&scope_id)?.workspace_id);
             }

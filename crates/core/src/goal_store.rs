@@ -44,6 +44,12 @@ pub use draft::{GoalPlanDraft, GoalPlanDraftRequest, GoalPlanDraftSource};
 #[path = "goal_multi_draft.rs"]
 mod multi_draft;
 pub use multi_draft::{GoalDraftStep, GoalMultiPlanDraftRequest};
+#[path = "goal_plan_advice.rs"]
+mod advice;
+pub use advice::{
+    GoalPlanAdviceContext, GoalPlanAdviceImport, GoalPlanAdviceImportRequest, GoalPlanAdviceOutput,
+    GoalPlanAdviceQuery, GoalPlanAdviceStep,
+};
 
 pub const MAX_GOAL_PLAN_BYTES: usize = 262_144;
 const MAX_STORED_BYTES: i64 = 1_048_576;

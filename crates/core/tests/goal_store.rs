@@ -2905,3 +2905,304 @@ fn goal_reviewed_single_draft_keeps_all_approved_outputs_in_one_owner_gate() {
         )
         .unwrap();
 }
+
+fn advice_query(request: &GoalMultiPlanDraftRequest) -> GoalPlanAdviceQuery {
+    GoalPlanAdviceQuery {
+        scope_id: request.scope_id.clone(),
+        task_id: request.task_id.clone(),
+        expected_task_revision: request.expected_task_revision,
+        expected_spec_revision: request.expected_spec_revision,
+        expected_scope_revision: request.expected_scope_revision,
+        expected_scope_digest: request.expected_scope_digest.clone(),
+        expected_authority_revision: request.expected_authority_revision,
+    }
+}
+fn advice_json(context: &GoalPlanAdviceContext, request: &GoalMultiPlanDraftRequest) -> String {
+    json!({"schema_version":1,"source":context.source,"steps":request.steps.iter().map(|s|json!({"id":s.id,"goal":s.goal,"dependencies":s.dependencies,"input_artifact_ids":s.input_artifact_ids,"output_artifact_ids":s.output_artifact_ids})).collect::<Vec<_>>()}).to_string()
+}
+#[test]
+fn goal_advice_readonly_context_import_and_explicit_later_draft_submit() {
+    let (mut f, scope, mut request) = multi_fixture();
+    let query = advice_query(&request);
+    let before = draft_database_snapshot(&f);
+    let context = f.store.goal_plan_advice_context(&query).unwrap();
+    assert_eq!(
+        context.approved_acceptance_criteria,
+        f.selection.owner_acceptance_criteria
+    );
+    assert_eq!(context.inputs["source"].sha256, sha256(b"fixed input\n"));
+    assert_eq!(context.outputs.len(), 2);
+    assert_eq!(context.outputs[0].relative_path, "outputs/report.txt");
+    assert_eq!(context.source.task_goal, f.task.goal);
+    let json = serde_json::to_string(&context).unwrap();
+    assert!(!json.contains(f.root.to_str().unwrap()));
+    let keys: std::collections::BTreeSet<_> = serde_json::to_value(&context)
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .keys()
+        .cloned()
+        .collect();
+    assert_eq!(
+        keys,
+        [
+            "source",
+            "approved_acceptance_criteria",
+            "inputs",
+            "outputs",
+            "writable_prefixes",
+            "root_budget",
+            "project_budget",
+            "max_nodes",
+            "planning_only",
+            "dispatched"
+        ]
+        .map(String::from)
+        .into_iter()
+        .collect()
+    );
+    let raw = advice_json(&context, &request);
+    let import_request = GoalPlanAdviceImportRequest {
+        query: query.clone(),
+        candidate_json: raw.clone(),
+    };
+    let imported = f.store.import_goal_plan_advice(&import_request).unwrap();
+    assert!(imported.planning_only);
+    assert!(!imported.dispatched);
+    assert_eq!(imported.steps[1].dependencies, vec!["report-step"]);
+    assert_eq!(before, draft_database_snapshot(&f));
+    if let Some(path) = std::env::var_os("AGENTBATON_GOAL_ADVICE_FIXTURE") {
+        fs::write(path,serde_json::to_vec_pretty(&json!({"query":query,"task":f.task,"scope":scope,"context":context,"candidate_json":raw,"imported":imported})).unwrap()).unwrap();
+    }
+    // Only a distinct later user action supplies risk/prohibitions and resource
+    // reservations; importing advice never creates these values.
+    for (to, from) in request.steps.iter_mut().zip(&imported.steps) {
+        to.id = from.id.clone();
+        to.goal = from.goal.clone();
+        to.dependencies = from.dependencies.clone();
+        to.input_artifact_ids = from.input_artifact_ids.clone();
+        to.output_artifact_ids = from.output_artifact_ids.clone();
+    }
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    assert_eq!(draft.plan.nodes.len(), 4);
+    let saved = f
+        .store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id.clone(),
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "import-reviewed-submit",
+            0,
+        )
+        .unwrap();
+    assert_eq!(saved.digest, draft.plan_digest);
+    assert_eq!(
+        f.store
+            .preview_goal_ready(&scope.id, 1)
+            .unwrap()
+            .decision
+            .unwrap()
+            .admissions[0]
+            .node_id,
+        "report-step"
+    );
+    assert_eq!(
+        f.store.goal_plan_advice_context(&query).unwrap_err().code,
+        "STALE_REVISION"
+    );
+    assert_eq!(
+        f.store
+            .import_goal_plan_advice(&import_request)
+            .unwrap_err()
+            .code,
+        "STALE_REVISION"
+    );
+}
+#[test]
+fn goal_advice_raw_duplicates_unknown_authority_and_non_json_are_rejected() {
+    let (mut f, _, request) = multi_fixture();
+    let query = advice_query(&request);
+    let context = f.store.goal_plan_advice_context(&query).unwrap();
+    let raw = advice_json(&context, &request);
+    let before = draft_database_snapshot(&f);
+    let mut cases = vec![
+        raw.replacen(
+            "\"schema_version\":1",
+            "\"schema_version\":1,\"schema_version\":1",
+            1,
+        ),
+        raw.replacen(
+            "\"id\":\"report-step\"",
+            "\"id\":\"report-step\",\"id\":\"report-step\"",
+            1,
+        ),
+        raw.replacen(
+            "\"task_revision\":1",
+            "\"task_revision\":1,\"task_revision\":1",
+            1,
+        ),
+        format!("```json\n{raw}\n```"),
+        format!("{raw} trailing"),
+    ];
+    assert!(
+        cases[..3].iter().all(|s| s != &raw),
+        "all duplicate fixtures must really alter raw text"
+    );
+    cases.push(raw.replacen(
+        "\"schema_version\":1",
+        "\"schema_version\":1,\"\\u0073chema_version\":1",
+        1,
+    ));
+    for field in [
+        "budget",
+        "provider",
+        "approved",
+        "risk_notes",
+        "prohibited_actions",
+    ] {
+        let mut v: Value = serde_json::from_str(&raw).unwrap();
+        v[field] = json!(true);
+        cases.push(v.to_string());
+    }
+    for field in [
+        "runtime_ms",
+        "output_bytes",
+        "review_runtime_ms",
+        "executor",
+        "candidate_for_validation",
+    ] {
+        let mut v: Value = serde_json::from_str(&raw).unwrap();
+        v["steps"][0][field] = json!(1);
+        cases.push(v.to_string());
+    }
+    for candidate_json in cases {
+        assert!(f
+            .store
+            .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                query: query.clone(),
+                candidate_json
+            })
+            .is_err());
+    }
+    assert_eq!(before, draft_database_snapshot(&f));
+}
+#[test]
+fn goal_advice_rejects_bad_graphs_artifacts_stale_source_and_utf8_limits() {
+    let (mut f, _, request) = multi_fixture();
+    let query = advice_query(&request);
+    let context = f.store.goal_plan_advice_context(&query).unwrap();
+    let base: Value = serde_json::from_str(&advice_json(&context, &request)).unwrap();
+    let before = draft_database_snapshot(&f);
+    for kind in 0..15 {
+        let mut v = base.clone();
+        match kind {
+            0 => v["steps"][1]["id"] = json!("report-step"),
+            1 => v["steps"][0]["id"] = json!("baton-review-1-1"),
+            2 => v["steps"][0]["dependencies"] = json!(["summary-step"]),
+            3 => v["steps"][0]["input_artifact_ids"] = json!(["summary"]),
+            4 => v["steps"][0]["input_artifact_ids"] = json!(["report"]),
+            5 => v["steps"][0]["dependencies"] = json!(["missing"]),
+            6 => v["steps"][0]["input_artifact_ids"] = json!(["missing"]),
+            7 => v["steps"][1]["output_artifact_ids"] = json!(["report"]),
+            8 => v["steps"][1]["output_artifact_ids"] = json!(["unapproved"]),
+            9 => v["steps"][1]["output_artifact_ids"] = json!([]),
+            10 => v["source"]["task_goal"] = json!("Unbound goal"),
+            11 => v["steps"][0]["goal"] = json!("中".repeat(1366)),
+            12 => v["steps"][0]["goal"] = json!(" "),
+            13 => v["steps"] = json!([]),
+            _ => v["steps"][0]["input_artifact_ids"] = json!(["source", "source"]),
+        };
+        assert!(
+            f.store
+                .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                    query: query.clone(),
+                    candidate_json: v.to_string()
+                })
+                .is_err(),
+            "variant {kind}"
+        );
+    }
+    let oversized = GoalPlanAdviceImportRequest {
+        query: query.clone(),
+        candidate_json: "中".repeat(21846),
+    };
+    assert_eq!(
+        f.store
+            .import_goal_plan_advice(&oversized)
+            .unwrap_err()
+            .code,
+        "RESOURCE_LIMIT"
+    );
+    let compact = base.to_string();
+    let exact = format!("{}{}", compact, " ".repeat(65_536 - compact.len()));
+    assert!(f
+        .store
+        .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+            query: query.clone(),
+            candidate_json: exact.clone()
+        })
+        .is_ok());
+    assert_eq!(
+        f.store
+            .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                query: query.clone(),
+                candidate_json: format!("{exact} ")
+            })
+            .unwrap_err()
+            .code,
+        "RESOURCE_LIMIT"
+    );
+    assert_eq!(before, draft_database_snapshot(&f));
+}
+#[test]
+fn goal_advice_current_native_source_and_required_gate_capacity_are_not_optional() {
+    for attempts in [false, true] {
+        let (mut f, _, request) = if attempts {
+            multi_fixture_with_limits(3, 4)
+        } else {
+            multi_fixture_with_limits(8, 3)
+        };
+        let query = advice_query(&request);
+        let context = f.store.goal_plan_advice_context(&query).unwrap();
+        assert_eq!(
+            f.store
+                .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                    query,
+                    candidate_json: advice_json(&context, &request)
+                })
+                .unwrap_err()
+                .code,
+            "RESOURCE_LIMIT"
+        );
+    }
+    for kind in 0..3 {
+        let (mut f, scope, request) = multi_fixture();
+        let query = advice_query(&request);
+        let context = f.store.goal_plan_advice_context(&query).unwrap();
+        let raw = advice_json(&context, &request);
+        match kind {
+            0 => {
+                f.sql().execute("UPDATE approval_proposals SET document=json_set(document,'$.snapshot.intent.owner_acceptance_criteria','Unapproved replacement') WHERE id=?1",[&scope.id]).unwrap();
+            }
+            1 => {
+                fs::write(f.root.join("input.txt"), "changed").unwrap();
+            }
+            _ => {
+                f.store
+                    .revoke_goal_scope(&scope.id, scope.revision, "advice-revoke")
+                    .unwrap();
+            }
+        }
+        let before = draft_database_snapshot(&f);
+        assert!(f.store.goal_plan_advice_context(&query).is_err());
+        assert!(f
+            .store
+            .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                query,
+                candidate_json: raw
+            })
+            .is_err());
+        assert_eq!(before, draft_database_snapshot(&f));
+    }
+}
