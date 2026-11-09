@@ -2142,3 +2142,215 @@ fn historical_reads_reject_orphans_and_tampered_commitments_instead_of_empty_suc
         "INPUT_CHANGED"
     );
 }
+
+// Read-only deterministic initial planning, with genuine persisted native scope
+// reconstruction. This fixture does not invoke a Provider or native dialog.
+fn draft_request(f: &Fixture, scope: &GoalScopeView) -> GoalPlanDraftRequest {
+    GoalPlanDraftRequest {
+        scope_id: scope.id.clone(),
+        task_id: f.task.id.clone(),
+        expected_task_revision: f.task.revision,
+        expected_spec_revision: f.task.spec_revision,
+        expected_scope_revision: scope.revision,
+        expected_scope_digest: scope.scope_digest.clone(),
+        expected_authority_revision: scope.authority_revision,
+        risk_notes: "The report could be incomplete; owner must inspect it".into(),
+        prohibited_actions: "Do not access external services or change source files".into(),
+        runtime_ms: 10_000,
+        output_bytes: 4096,
+    }
+}
+fn draft_database_snapshot(f: &Fixture) -> Vec<(String, Vec<Vec<rusqlite::types::Value>>)> {
+    let db = f.sql();
+    let names: Vec<String> = db
+        .prepare("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")
+        .unwrap()
+        .query_map([], |r| r.get(0))
+        .unwrap()
+        .collect::<std::result::Result<_, _>>()
+        .unwrap();
+    names
+        .into_iter()
+        .map(|name| {
+            let mut statement = db
+                .prepare(&format!(
+                    "SELECT * FROM \"{}\" ORDER BY rowid",
+                    name.replace('"', "\"\"")
+                ))
+                .unwrap();
+            let columns = statement.column_count();
+            let rows = statement
+                .query_map([], |r| {
+                    (0..columns)
+                        .map(|i| r.get(i))
+                        .collect::<rusqlite::Result<Vec<rusqlite::types::Value>>>()
+                })
+                .unwrap()
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .unwrap();
+            (name, rows)
+        })
+        .collect()
+}
+#[test]
+fn goal_draft_read_only_authenticated_candidate_submits_and_previews() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let request = draft_request(&f, &scope);
+    let before = draft_database_snapshot(&f);
+    let candidate = f.store.goal_plan_draft(&request).unwrap();
+    if let Some(path) = std::env::var_os("AGENTBATON_GOAL_DRAFT_FIXTURE") {
+        fs::write(
+            path,
+            serde_json::to_vec_pretty(
+                &json!({"request":request,"task":f.task,"scope":scope,"draft":candidate}),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    }
+    assert_eq!(
+        before,
+        draft_database_snapshot(&f),
+        "all tables including journal, idempotency, budgets and fences remain unchanged"
+    );
+    assert_eq!(
+        candidate.approved_acceptance_criteria,
+        f.selection.owner_acceptance_criteria
+    );
+    assert_eq!(candidate.approved_outputs, f.selection.outputs);
+    assert_eq!(candidate.source.scope_digest, scope.scope_digest);
+    assert_eq!(candidate.source.task_goal, f.task.goal);
+    assert!(candidate.planning_only);
+    assert!(!candidate.dispatched);
+    assert_eq!(candidate.plan.nodes.len(), 1);
+    let node = &candidate.plan.nodes[0];
+    assert_eq!(
+        node.goal,
+        format!(
+            "Task goal:\n{}\n\nUser-reviewed risks:\n{}\n\nProhibited actions:\n{}",
+            f.task.goal, request.risk_notes, request.prohibited_actions
+        )
+    );
+    assert_eq!(node.budget.attempts, 1);
+    assert_eq!(node.retry.max_attempts, 1);
+    assert_eq!(node.reservation.runtime_ms, request.runtime_ms);
+    assert_eq!(node.reservation.output_bytes, request.output_bytes);
+    let submitted = f
+        .store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id.clone(),
+                plan_json: serde_json::to_string(&candidate.plan).unwrap(),
+            },
+            "candidate-submit",
+            0,
+        )
+        .unwrap();
+    assert_eq!(submitted.digest, candidate.plan_digest);
+    assert!(!submitted.dispatched);
+    let preview = f.store.preview_goal_ready(&scope.id, 1).unwrap();
+    assert!(preview.read_only);
+    assert!(!preview.dispatched);
+    assert!(!preview.reservation_made);
+    let decision = preview.decision.unwrap();
+    assert_eq!(decision.admissions.len(), 1);
+    assert_eq!(
+        decision.admissions[0].resolved_inputs[0].artifact_id,
+        "source"
+    );
+    assert!(!decision.required_checks_satisfied);
+    assert_eq!(
+        f.store.goal_plan_draft(&request).unwrap_err().code,
+        "STALE_REVISION"
+    );
+}
+#[test]
+fn goal_draft_rejects_stale_bindings_and_expanded_budgets_without_writes() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let base = draft_request(&f, &scope);
+    let before = draft_database_snapshot(&f);
+    for kind in 0..10 {
+        let mut request = base.clone();
+        match kind {
+            0 => request.task_id = "foreign".into(),
+            1 => request.expected_task_revision += 1,
+            2 => request.expected_spec_revision += 1,
+            3 => request.expected_scope_revision += 1,
+            4 => request.expected_scope_digest = "b".repeat(64),
+            5 => request.expected_authority_revision += 1,
+            6 => request.runtime_ms = scope.root_budget.runtime_ms + 1,
+            7 => request.output_bytes = scope.project_budget.output_bytes + 1,
+            8 => request.runtime_ms = 0,
+            _ => request.output_bytes = 0,
+        };
+        assert!(f.store.goal_plan_draft(&request).is_err(), "variant {kind}");
+    }
+    assert_eq!(before, draft_database_snapshot(&f));
+}
+#[test]
+fn goal_draft_does_not_trust_changed_acceptance_or_input() {
+    for acceptance in [true, false] {
+        let mut f = Fixture::new();
+        let scope = f.approve();
+        let request = draft_request(&f, &scope);
+        if acceptance {
+            f.sql().execute("UPDATE goal_scopes SET document=json_set(document,'$.selection.owner_acceptance_criteria','Unapproved acceptance') WHERE id=?1",[&scope.id]).unwrap();
+        } else {
+            fs::write(f.root.join("input.txt"), "changed").unwrap();
+        }
+        assert_eq!(
+            f.store.goal_plan_draft(&request).unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+    }
+}
+#[test]
+fn goal_draft_text_is_bounded_without_truncation_and_request_is_closed() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let base = draft_request(&f, &scope);
+    for text in [
+        " ".into(),
+        "x".repeat(4097),
+        "中".repeat(1366),
+        "a\0b".into(),
+    ] {
+        let mut request = base.clone();
+        request.risk_notes = text;
+        assert!(f.store.goal_plan_draft(&request).is_err());
+    }
+    let mut value = serde_json::to_value(&base).unwrap();
+    value["approved"] = json!(true);
+    assert!(serde_json::from_value::<GoalPlanDraftRequest>(value).is_err());
+    let mut request = base;
+    request.risk_notes = "中".repeat(1365);
+    let candidate = f.store.goal_plan_draft(&request).unwrap();
+    assert!(candidate.plan.nodes[0].goal.contains(&request.risk_notes));
+}
+
+#[test]
+fn goal_draft_rejects_changed_original_approval_task_and_revoked_scope() {
+    for kind in 0..3 {
+        let mut f = Fixture::new();
+        let scope = f.approve();
+        let request = draft_request(&f, &scope);
+        match kind {
+            0 => {
+                f.sql().execute("UPDATE approval_proposals SET document=json_set(document,'$.snapshot.intent.owner_acceptance_criteria','Unapproved replacement') WHERE id=?1",[&scope.id]).unwrap();
+            }
+            1 => {
+                f.sql().execute("UPDATE tasks SET document=json_set(document,'$.goal','Changed goal') WHERE id=?1",[&f.task.id]).unwrap();
+            }
+            _ => {
+                f.store
+                    .revoke_goal_scope(&scope.id, scope.revision, "revoke-draft")
+                    .unwrap();
+            }
+        }
+        let before = draft_database_snapshot(&f);
+        assert!(f.store.goal_plan_draft(&request).is_err());
+        assert_eq!(before, draft_database_snapshot(&f));
+    }
+}
