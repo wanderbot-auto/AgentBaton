@@ -15,6 +15,12 @@ use std::{
     path::{Path, PathBuf},
 };
 type Result<T> = std::result::Result<T, ConfigError>;
+#[path = "instruction_only.rs"]
+mod instruction_only;
+pub use instruction_only::{
+    instruction_only_skill_metadata, InstructionOnlySkill, InstructionOnlySkillMetadata,
+    INSTRUCTION_ONLY_SKILL_MAX_BYTES, INSTRUCTION_ONLY_SKILL_SOURCE,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -205,6 +211,14 @@ impl NativeSourceRoot {
         readonly_dir(&parent, &name)
     }
 }
+/// Explicit top-level selection; all other source fields are excluded, not
+/// merged. Exclusion metadata is a count, never arbitrary source keys/values.
+pub struct SelectedCodexPolicy {
+    pub sandbox: crate::runtime::CodexSandbox,
+    pub approval: crate::runtime::CodexApproval,
+    pub excluded_field_count: usize,
+}
+
 pub struct NativeSource {
     raw: Vec<u8>,
     relative: PathBuf,
@@ -215,6 +229,74 @@ impl NativeSource {
     pub fn preview(&self) -> NativePreview {
         self.preview.clone()
     }
+    /// Narrow, opt-in import projection. No raw values or unrecognized settings
+    /// are copied. Native declarations cannot grant MCP execution or identity.
+    pub fn restrictive_claude_settings(&self) -> Result<Vec<String>> {
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct RestrictiveSettings {
+            #[serde(rename = "disabledMcpjsonServers")]
+            disabled: Vec<String>,
+            #[serde(default, rename = "enableAllProjectMcpServers")]
+            enable_all: bool,
+            #[serde(default, rename = "enabledMcpjsonServers")]
+            enabled: Vec<String>,
+        }
+        if self.preview.format != NativeFormat::ClaudeSettingsJson
+            || self.preview.status != ParseStatus::Parsed
+        {
+            return Err(error(ErrorCode::Conflict));
+        }
+        // Typed deserialization also rejects duplicate keys; the broad diagnostic
+        // preview alone must never be used as a lossless import representation.
+        let settings: RestrictiveSettings =
+            serde_json::from_slice(&self.raw).map_err(|_| error(ErrorCode::Conflict))?;
+        if settings.enable_all
+            || !settings.enabled.is_empty()
+            || settings.disabled.is_empty()
+            || settings.disabled.len() > 128
+            || settings.disabled.iter().any(|name| {
+                name.is_empty()
+                    || name.len() > 128
+                    || name == "."
+                    || name == ".."
+                    || name.starts_with(".baton-")
+                    || !name
+                        .bytes()
+                        .all(|b| b.is_ascii_alphanumeric() || b"_-.:".contains(&b))
+            })
+            || settings.disabled.iter().collect::<BTreeSet<_>>().len() != settings.disabled.len()
+        {
+            return Err(error(ErrorCode::Conflict));
+        }
+        Ok(settings.disabled)
+    }
+    pub fn selected_codex_policy(&self) -> Result<SelectedCodexPolicy> {
+        use crate::runtime::{CodexApproval, CodexSandbox};
+        if self.preview.format != NativeFormat::CodexToml {
+            return Err(error(ErrorCode::Conflict));
+        }
+        // Parse the original TOML, whose duplicate-key rejection is retained.
+        // Broad MCP diagnostics do not determine this separate explicit selection.
+        let raw = std::str::from_utf8(&self.raw).map_err(|_| error(ErrorCode::Conflict))?;
+        let table: toml::Table = toml::from_str(raw).map_err(|_| error(ErrorCode::Conflict))?;
+        let sandbox = match table.get("sandbox_mode").and_then(toml::Value::as_str) {
+            Some("read-only") => CodexSandbox::ReadOnly,
+            Some("workspace-write") => CodexSandbox::WorkspaceWrite,
+            _ => return Err(error(ErrorCode::Conflict)),
+        };
+        let approval = match table.get("approval_policy").and_then(toml::Value::as_str) {
+            Some("untrusted") => CodexApproval::Untrusted,
+            Some("on-request") => CodexApproval::OnRequest,
+            _ => return Err(error(ErrorCode::Conflict)),
+        };
+        Ok(SelectedCodexPolicy {
+            sandbox,
+            approval,
+            excluded_field_count: table.len() - 2,
+        })
+    }
+
     pub fn preserves_original_hash(&self) -> bool {
         sha256(&self.raw) == self.preview.source_digest
     }

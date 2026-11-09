@@ -1,0 +1,284 @@
+{
+  "apps/desktop/tests/factory-child-goal-real-ipc.py": {
+    "before": "c3d374a58907e57840cb21f6a6ed55a406056035dc39b807d93bfe7d465903ee",
+    "after": "25b4fac2a67cdfa0765b6d764dac0920b00e0d7670d18d93fba962ef31bf2741",
+    "edits": [
+      {
+        "start": 1,
+        "end": 2,
+        "expected": "\"\"\"Schema18 real child-Goal browser/Unix IPC harness, not native/Provider proof.\n",
+        "replacement": "\"\"\"Schema17 real child-Goal browser/Unix IPC harness, not native/Provider proof.\n"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "expected": "all successful business receipts then come from the supplied real Core18.\n",
+        "replacement": "all successful business receipts then come from the supplied real Core17.\n"
+      },
+      {
+        "start": 234,
+        "end": 235,
+        "expected": "    manifest = {'schema':18,'binaries':{'batond':base.sha(binary.read_bytes())},'source_head':'a'*40}\n",
+        "replacement": "    manifest = {'schema':17,'binaries':{'batond':base.sha(binary.read_bytes())},'source_head':'a'*40}\n"
+      },
+      {
+        "start": 238,
+        "end": 240,
+        "expected": "    checks.append('integer18-manifest-positive-pure-bytes-only')\n    for bad in [12,13,14,15,16,17,19,True,15.0,16.0,18.0,'15','16','17',None]:\n",
+        "replacement": "    checks.append('integer17-manifest-positive-pure-bytes-only')\n    for bad in [12,13,14,15,16,18,True,15.0,16.0,17.0,'15','16','17',None]:\n"
+      },
+      {
+        "start": 248,
+        "end": 249,
+        "expected": "        def __init__(self,schema=18,values=None): self.schema,self.values=schema,values or {}\n",
+        "replacement": "        def __init__(self,schema=17,values=None): self.schema,self.values=schema,values or {}\n"
+      },
+      {
+        "start": 280,
+        "end": 281,
+        "expected": "    for schema in [12,13,14,15,16,17,19,15.0,16.0,18.0,True,'15','16','17',None]:\n",
+        "replacement": "    for schema in [12,13,14,15,16,18,15.0,16.0,17.0,True,'15','16','17',None]:\n"
+      },
+      {
+        "start": 311,
+        "end": 312,
+        "expected": "    snapshot={'schema':18,'factory_counts':{key:2 if key=='scopes'else 0 for key in support.FACTORY_RECORD_TABLES},\n",
+        "replacement": "    snapshot={'schema':17,'factory_counts':{key:2 if key=='scopes'else 0 for key in support.FACTORY_RECORD_TABLES},\n"
+      },
+      {
+        "start": 957,
+        "end": 958,
+        "expected": "    return {'schema':18,'factory_counts':counts,'tables':result,'sequence':sequence,'active_workspace_leases':active_leases,'active_dispatch_intents':active_intents}\n",
+        "replacement": "    return {'schema':17,'factory_counts':counts,'tables':result,'sequence':sequence,'active_workspace_leases':active_leases,'active_dispatch_intents':active_intents}\n"
+      },
+      {
+        "start": 1246,
+        "end": 1247,
+        "expected": "    require(type(snapshot['schema'])is int and snapshot['schema']==18)\n",
+        "replacement": "    require(type(snapshot['schema'])is int and snapshot['schema']==17)\n"
+      },
+      {
+        "start": 1665,
+        "end": 1666,
+        "expected": "    require(type(manifest['schema'])is int and manifest['schema']==18)\n",
+        "replacement": "    require(type(manifest['schema'])is int and manifest['schema']==17)\n"
+      },
+      {
+        "start": 2148,
+        "end": 2149,
+        "expected": "                require(info['complete']is True and info['schema']==18)\n",
+        "replacement": "                require(info['complete']is True and info['schema']==17)\n"
+      },
+      {
+        "start": 2293,
+        "end": 2295,
+        "expected": "            'Core18 exact lifecycle success/failure/stop-chain fixtures and independent review',\n            'Fresh immutable Core18 tools/source manifest and composed frontend assets',\n",
+        "replacement": "            'Core17 exact lifecycle success/failure/stop-chain fixtures and independent review',\n            'Fresh immutable Core17 tools/source manifest and composed frontend assets',\n"
+      },
+      {
+        "start": 2297,
+        "end": 2298,
+        "expected": "    value.update(schema_required=18,harness_sha256=base.sha(Path(__file__).read_bytes()),\n",
+        "replacement": "    value.update(schema_required=17,harness_sha256=base.sha(Path(__file__).read_bytes()),\n"
+      }
+    ]
+  },
+  "apps/desktop/tests/factory-child-planning-real-ipc.py": {
+    "before": "325b013eefa3978107016ecb644290316cb820aa7d4a0d46286ca3c364cf85a3",
+    "after": "83a41650d758f53221d28778840676634c72d741011d88e9936ff4a35c11abe7",
+    "edits": [
+      {
+        "start": 44,
+        "end": 45,
+        "expected": "# Only this newly imported, private module instance uses schema18 prompt fields.\n",
+        "replacement": "# Only this newly imported, private module instance uses schema17 prompt fields.\n"
+      },
+      {
+        "start": 187,
+        "end": 188,
+        "expected": "        assert db.execute('PRAGMA user_version').fetchone()[0] == 18\n",
+        "replacement": "        assert db.execute('PRAGMA user_version').fetchone()[0] == 17\n"
+      },
+      {
+        "start": 965,
+        "end": 966,
+        "expected": "    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema18 frontend required'\n",
+        "replacement": "    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema17 frontend required'\n"
+      },
+      {
+        "start": 968,
+        "end": 969,
+        "expected": "    assert type(manifest['schema']) is int and manifest['schema'] == 18\n",
+        "replacement": "    assert type(manifest['schema']) is int and manifest['schema'] == 17\n"
+      },
+      {
+        "start": 970,
+        "end": 971,
+        "expected": "    report = {'status': 'failed_or_interrupted', 'schema_required': 18, 'harness_sha256': sha(source), 'candidate_manifest_sha256': sha(args.manifest.read_bytes()),\n",
+        "replacement": "    report = {'status': 'failed_or_interrupted', 'schema_required': 17, 'harness_sha256': sha(source), 'candidate_manifest_sha256': sha(args.manifest.read_bytes()),\n"
+      },
+      {
+        "start": 1018,
+        "end": 1019,
+        "expected": "        connection = resource('connections.propose', {'name': 'Generated schema18 MCP5', 'provider': 'custom_acp',\n",
+        "replacement": "        connection = resource('connections.propose', {'name': 'Generated schema17 MCP5', 'provider': 'custom_acp',\n"
+      },
+      {
+        "start": 1437,
+        "end": 1438,
+        "expected": "                assert info['complete'] is True and info['schema'] == 18\n",
+        "replacement": "                assert info['complete'] is True and info['schema'] == 17\n"
+      },
+      {
+        "start": 1531,
+        "end": 1532,
+        "expected": "            'pending': ['Root reviewed harness', 'fixed schema18 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})\n",
+        "replacement": "            'pending': ['Root reviewed harness', 'fixed schema17 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})\n"
+      }
+    ]
+  },
+  "apps/desktop/tests/integration-real-ipc.py": {
+    "before": "76f2915296d2aa2ac164b67bb221775dcea734e1efa8e694789138784bd5de92",
+    "after": "e23bc27afb3c2b7f1788ee384f3b3b02e24ba3d98fae9c944d9abd08dcf5aa5d",
+    "edits": [
+      {
+        "start": 239,
+        "end": 240,
+        "expected": "    require(type(manifest.get('schema')) is int and manifest['schema'] == 18)\n",
+        "replacement": "    require(type(manifest.get('schema')) is int and manifest['schema'] == 17)\n"
+      },
+      {
+        "start": 430,
+        "end": 431,
+        "expected": "        require(db.execute('PRAGMA user_version').fetchone() == (18,))\n",
+        "replacement": "        require(db.execute('PRAGMA user_version').fetchone() == (17,))\n"
+      },
+      {
+        "start": 726,
+        "end": 727,
+        "expected": "    require(host.result('system.snapshot', {})['database_schema_version'] == 18)\n",
+        "replacement": "    require(host.result('system.snapshot', {})['database_schema_version'] == 17)\n"
+      }
+    ]
+  },
+  "scripts/record-child-goal-ci-evidence.py": {
+    "before": "a628fa04b8799a96d57e6cad97f1ecfab266468e287acf5f6d70693a696af02e",
+    "after": "973464fd5deed4a55fbf5ba57cf1c7da10479231fe2ec0b8a21816bc985f91a3",
+    "edits": [
+      {
+        "start": 56,
+        "end": 57,
+        "expected": "    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==18 and m.get('dirty')is False)\n",
+        "replacement": "    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==17 and m.get('dirty')is False)\n"
+      },
+      {
+        "start": 64,
+        "end": 65,
+        "expected": "    summary={'schema':18,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],\n",
+        "replacement": "    summary={'schema':17,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],\n"
+      }
+    ]
+  },
+  "scripts/record-factory-rework-ci-evidence.py": {
+    "before": "2256877dd48a14bfe5280afadbe785dcebf64b766bbfe4fe7d58595d6ba08e20",
+    "after": "881a76401945fb31d2e5c61d49b264f6efdc6ff1c3c28e0a5ef2a2a2ad5cc761",
+    "edits": [
+      {
+        "start": 19,
+        "end": 20,
+        "expected": "SCHEMA = 18\n",
+        "replacement": "SCHEMA = 17\n"
+      }
+    ]
+  },
+  "scripts/record-integration-browser-ci-evidence.py": {
+    "before": "c938e5b16f3e833edd2d3bdef38ed39471b5172f9995f6f6f76c97e60d06f10c",
+    "after": "8168355976e2dc1bc1fffb6e494b281584b60f8c2aaf2923a0856082a43fb966",
+    "edits": [
+      {
+        "start": 29,
+        "end": 30,
+        "expected": "DIMENSION = 'Linux built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host'\n",
+        "replacement": "DIMENSION = 'Linux built React/Chromium + finite TEST bridge + actual Core17 Unix IPC + generated ACP + private trusted test host'\n"
+      },
+      {
+        "start": 213,
+        "end": 214,
+        "expected": "        require(type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == expected\n",
+        "replacement": "        require(type(manifest.get('schema')) is int and manifest['schema'] == 17 and manifest['git_head'] == expected\n"
+      },
+      {
+        "start": 223,
+        "end": 224,
+        "expected": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18\n",
+        "replacement": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 17\n"
+      },
+      {
+        "start": 255,
+        "end": 256,
+        "expected": "            'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 18, 'joined': True},\n",
+        "replacement": "            'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 17, 'joined': True},\n"
+      },
+      {
+        "start": 491,
+        "end": 492,
+        "expected": "        require(type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == expected\n",
+        "replacement": "        require(type(manifest.get('schema')) is int and manifest['schema'] == 17 and manifest['git_head'] == expected\n"
+      },
+      {
+        "start": 501,
+        "end": 502,
+        "expected": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18\n",
+        "replacement": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 17\n"
+      }
+    ]
+  },
+  "tests/infrastructure/test_factory_rework_attempt_budget.py": {
+    "before": "1eda2dc2c944b2e48347e5687d173963451eefb14780375a9f6fb8f704387a24",
+    "after": "052276a813b02b9e631a8d37bd5ec56e2d318086dcc2b1bb25fb43c56dd24826",
+    "edits": [
+      {
+        "start": 617,
+        "end": 618,
+        "expected": "            if sql=='PRAGMA user_version':return Cursor([(18,)])\n",
+        "replacement": "            if sql=='PRAGMA user_version':return Cursor([(17,)])\n"
+      }
+    ]
+  },
+  "tests/infrastructure/test_child_goal_ci_evidence.py": {
+    "before": "0cd914f4724b14d0db9abbad3cfab043caefb3e422231999d9e5eeeb88c3746d",
+    "after": "d610cee32598ede2fb646f76e43efdf6d9da29df8b98b94d06d91443ac1f644d",
+    "edits": [
+      {
+        "start": 22,
+        "end": 23,
+        "expected": "    m={'schema':18,'dirty':False,'git_head':'a'*40,'source_head':'a'*40,'compiled_core_source_head':'a'*40,\n",
+        "replacement": "    m={'schema':17,'dirty':False,'git_head':'a'*40,'source_head':'a'*40,'compiled_core_source_head':'a'*40,\n"
+      },
+      {
+        "start": 100,
+        "end": 101,
+        "expected": "        for key,value in [('schema',15),('schema',16),('schema',17),('schema',19),('schema',15.0),('schema',16.0),('schema',18.0),('schema','16'),('schema','17'),('dirty',0),('schema',True)]:\n",
+        "replacement": "        for key,value in [('schema',15),('schema',16),('schema',18),('schema',15.0),('schema',16.0),('schema',17.0),('schema','16'),('schema','17'),('dirty',0),('schema',True)]:\n"
+      }
+    ]
+  },
+  "tests/infrastructure/test_child_goal_diagnostics_v4.py": {
+    "before": "4631a519a858fb75028dda5723da85a2d33a5b4cb26a24e73bc0c3dd62c7af37",
+    "after": "2f383e2ed7fcb15dc302254c302a63a08fdba40886bb8b1df39decfb5da6d9d7",
+    "edits": [
+      {
+        "start": 317,
+        "end": 324,
+        "expected": "        from tests.infrastructure.schema18_source_fixture import strip_schema18_source\n        source=strip_schema18_source('tests/infrastructure/test_child_goal_ci_evidence.py',path.read_text())\n        exec(compile(source,str(path),'exec'),old.__dict__)\n        P=types.ModuleType('restored_schema17_projection');P.__file__=old.P.__file__\n        original_projector=strip_schema18_source('scripts/record-child-goal-ci-evidence.py',Path(P.__file__).read_text())\n        exec(compile(original_projector,P.__file__,'exec'),P.__dict__)\n        old.P=P\n",
+        "replacement": "        exec(compile(path.read_bytes(),str(path),'exec'),old.__dict__)\n"
+      },
+      {
+        "start": 395,
+        "end": 402,
+        "expected": "        from tests.infrastructure.schema18_source_fixture import strip_schema18_source\n        source=strip_schema18_source('tests/infrastructure/test_child_goal_ci_evidence.py',path.read_text())\n        exec(compile(source,str(path),'exec'),old.__dict__)\n        P=types.ModuleType('restored_read_reuse_schema17');P.__file__=old.P.__file__\n        original_projector=strip_schema18_source('scripts/record-child-goal-ci-evidence.py',Path(P.__file__).read_text())\n        exec(compile(original_projector,P.__file__,'exec'),P.__dict__)\n        old.P=P\n",
+        "replacement": "        exec(compile(path.read_bytes(),str(path),'exec'),old.__dict__)\n"
+      }
+    ]
+  }
+}

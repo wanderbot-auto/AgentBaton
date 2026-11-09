@@ -1,8 +1,14 @@
 //! Native-only approval bridge. No finalize method is registered with Tauri.
+#[path = "approval_managed_mcp.rs"]
+mod managed_mcp;
+pub use managed_mcp::confirm_managed_mcp_and_finalize;
 use serde_json::{json, Value};
 
 pub enum ApprovalKind {
     Connection,
+    ConnectionProbe,
+    ManagedSkill,
+    ManagedMcp,
     Grant,
     Validation,
     DataValidation,
@@ -10,11 +16,15 @@ pub enum ApprovalKind {
     Goal,
     DataWorkspace,
     GoalExecution,
+    Integration,
 }
 impl ApprovalKind {
     pub fn proposal_method(&self) -> &'static str {
         match self {
             Self::Connection => "connections.propose",
+            Self::ConnectionProbe => "connections.reprobe.propose",
+            Self::ManagedSkill => "managed_skills.propose",
+            Self::ManagedMcp => "managed_mcps.propose",
             Self::Grant => "grants.propose",
             Self::Validation => "validation_policies.propose",
             Self::DataValidation => "data_validation_policies.propose",
@@ -22,11 +32,15 @@ impl ApprovalKind {
             Self::Goal => "goal_scopes.propose",
             Self::DataWorkspace => "data_workspaces.propose",
             Self::GoalExecution => "goal_runs.propose",
+            Self::Integration => "integration_policies.propose",
         }
     }
     fn kind(&self) -> &'static str {
         match self {
             Self::Connection => "connection",
+            Self::ConnectionProbe => "connection_probe",
+            Self::ManagedSkill => "managed_skill",
+            Self::ManagedMcp => "managed_mcp",
             Self::Grant => "grant",
             Self::Validation => "validation",
             Self::DataValidation => "data_validation",
@@ -34,21 +48,27 @@ impl ApprovalKind {
             Self::Goal => "goal",
             Self::DataWorkspace => "data_workspace",
             Self::GoalExecution => "goal_execution",
+            Self::Integration => "integration",
         }
     }
     fn action(&self) -> &'static str {
         match self {
             Self::Connection => {
-                "Register this exact executable and run its bounded --version probe"
+                "Register this exact executable and run its bounded --version probe. If configuration_import is present, import ONLY its displayed selected fields into the new connection: Claude disabled project-MCP names, or Codex sandbox_mode/approval_policy. Review source hash, before/after values and any excluded-field count. Codex model, billing, profiles and all unselected source settings are excluded; declared effective policy is checked at new-thread start, not proof of OS enforcement. No hooks, credentials, MCP execution, native writeback, existing connection changes or model calls are authorized. / 若显示 configuration_import，仅导入列出的 Claude MCP 禁用名称或 Codex 两项执行策略；核对来源哈希、差异及排除数量，未选设置不导入。"
             }
+            Self::ManagedSkill => "Create one NEW Codex connection with the reviewed managed instruction-only Skill, or without the old managed Skill. Existing Codex policy is preserved; old connections, Grants and active snapshots are unchanged. This also permits the selected program's bounded --version probe, not a model session or task execution. Select only instruction text without credentials, tokens or authentication material. Complete content is stored locally as an approved definition, not treated as permission. No assets, scripts, MCP, credential copying, global writeback, model or billing override. Configured bytes do NOT prove native discovery, loading or use. / 仅创建新的托管 Skill 连接；只选择不含凭据、令牌或认证材料的说明。正文是内容而非授权，不执行脚本或任务，不修改原连接、已有授权及活跃快照；文件存在不代表 Agent 已加载或使用。",
+            Self::ManagedMcp => "Create one NEW Codex App Server connection with one explicitly selected local stdio MCP executable and a finite tool-name list, or without its managed MCP. Preserve the base Skill and execution policy; old connections, Grants and active snapshots stay unchanged. Creation permits only the existing Codex program's bounded --version probe. It does not start the MCP program or grant task execution. Later separate execution approval permits this local MCP program to run with this user's resources and receive native context or tool arguments. Zero arguments and pinned entrance bytes are not proof of safety or isolation: scripts, interpreters, dependencies, configuration and later path changes are not fixed. Baton network-deny and recipient rules do not isolate native MCP I/O. Arbitrary descendant-process containment or complete cleanup is not proven; provider stop does not undo external writes or prove every MCP child exited. Tool names and prompt mode are requested configuration, not observed native enforcement. Native tool prompt policy remains prompt; unsupported interactive approvals are denied, never automatically accepted. No HTTP, explicit environment variables, secret references, credential copying, global writes, installation, model/billing override or OS sandbox claim. Configured does not prove session connection or use. / 创建独立的本地 MCP 配置连接，完整核对程序、摘要、工具名单及保留的策略。此确认仅创建配置并允许原 Codex 版本探测；MCP 执行须另行任务授权。程序可访问账号资源，Baton 网络或接收方规则不是原生 MCP 隔离；需要交互批准的调用仍可能被拒绝。",
+
+            Self::ConnectionProbe => "Run ONE new bounded --version probe of the original approved executable digest and configuration binding. The previous probe must be confirmed stopped or never started. This runs code with this user's resources; it is not an OS sandbox or compatibility/account verification. No model session, installation, upgrade, credentials import, active-attempt migration, Grant renewal or global configuration write is authorized. Replaying this approval only reads the existing attempt. / 仅批准原摘要程序的一次有限版本重检。核对上次已停止或未启动的证据；不批准模型会话、安装升级、凭据导入、迁移活跃运行、更新授权或全局配置。原审批重放只核对已有尝试。",
             Self::Grant => {
-                "Grant this exact recipient and workspace the bounded execution scope below"
+                "Grant this exact recipient and workspace the bounded execution scope below. If native_mcp is present, explicitly review and authorize the displayed local executable, hash and finite tools for this connection: the program may access account resources and receive native context or arguments. Baton network-deny/recipient rules are not OS isolation for native MCP. Prompted approvals remain required; unsupported callbacks are denied. This does not expand another connection or existing Grant. / 如包含 native_mcp，须同时核对并明确批准其本地程序与工具范围；它可能访问账号资源，不保证原生 MCP 的系统隔离。"
             }
             Self::Validation => "Approve only the exact local artifact-integrity rule below; this does not accept a task or authorize integration",
             Self::DataValidation => "Approve only this exact JSON data-table contract: fixed file hashes, field types, numeric ranges and declared metadata. Dataset population, units and timezone are owner-declared values to match, not independently verified scientific facts. No reproduction script is executed; this does not establish algorithm correctness, accept a task or authorize integration.\n\n仅批准以下固定 JSON 数据表合同。行数总体、单位、时区按负责人声明核对；不运行复现脚本，不证明算法或科学结论，不验收任务、不授权采纳。",
             Self::CommandValidation => "Approve ONE run of this exact server-resolved fixed command, executable/script hashes, literal argv, constant environment, working directory, file contracts and time/capture limits. The program can access this user's resources. No OS filesystem/network sandbox, descendant containment, immutable inputs or scientific correctness is promised. Retained output limits are not filesystem quotas. Strict unsupported requirements must deny before spawn. Command results never accept the task, authorize Git integration or production release.\n\n仅批准该精确固定命令的一次运行。请完整核对程序/脚本哈希、参数、环境、工作目录及限额；不保证系统隔离或后代进程收容，命令结果不代表任务、Git 或生产验收。",
             Self::Goal => "Approve this separate Goal scope against the EXACT original root grant revision. Review grant_before and grant_after: only the displayed child/depth orchestration ceilings and grant revision change. Connection, environment, identity, host, workspace, recipients and execution ceilings MUST NOT expand. Review real project/root consumed, active and children counters; shared consumption is retained, never reset. Approval requires no active or unknown execution. Historical runtime/output/token/cost may be unknown and must never be advertised as zero. Owner acceptance criteria define a future review rule, NOT a passed receipt or Task acceptance. This version stores and previews plans only: no reservation, dispatch, model call, Git integration or production release occurs.\n\n独立 Goal 原生确认：核对原根授予版本及新增子任务/深度上限，其他连接、身份、主机、工作区、接收方和执行限额不可扩张。真实共享已消耗/活动计数不重置；历史未计量保持未知。验收条件不是通过凭据；本单元仅保存和预览计划，不预留或派发。",
             Self::GoalExecution => "Authorize execution within this SERVER-resolved Goal scope, exact initial plan and shared cumulative limits. Only safe plan revisions inside this same scope may advance without another confirmation. Existing connection, identity, host, input and workspace permissions MUST NOT expand. This does not grant child workspace creation, an OS filesystem/network sandbox, a filesystem output quota, Task acceptance, integration or production release. Reserved bounds are not measured usage; unknown effects block automatic replay.\n\n独立 Goal 执行批准：完整核对原有身份、主机、输入、工作区及共享累计限额；仅同范围内的安全计划修订可继续。不得创建新工作区或扩大权限；预留量不等于实测，节点完成不等于任务验收，未知副作用不能自动重放。",
+            Self::Integration => "Independent local integration requires its complete typed Native snapshot review; old execution or Goal approval never grants branch permission.",
             Self::DataWorkspace => "Approve ONE exact selected-file dataset copy from the server-resolved registered source to its host-managed destination. Review the project, preview revision, every file path, actual SHA-256/bytes, dataset revision and destination in the COMPLETE snapshot. Preview verification alone does not authorize copying. No original source writes, Git initialization, scripts, model calls or execution grant. Selected-file before/after observations are NOT an atomic whole-directory freeze, continuous immutability, DLP or an OS filesystem sandbox. Cancellation is a request; completed or partial copies can remain and must be reconciled, never silently replayed or deleted.\n\n独立数据工作区原生批准：完整核对项目、预览版本、所选文件路径/实际哈希/字节、数据集版本及后台目标。仅批准该精确副本，不修改原源、不初始化 Git、不执行脚本或模型、不授予执行权限；不保证整目录冻结、DLP 或系统隔离。取消请求不等于已停止或删除。",
         }
     }
@@ -432,6 +452,539 @@ fn compact_data_workspace_snapshot(snapshot: &Value) -> Option<String> {
     (rendered.len() <= 16_384).then_some(rendered)
 }
 
+/// A renderer may select only an existing connection revision. The Native
+/// action checks the exact server snapshot and the previous stop proof before
+/// displaying the complete review; the result is only a probe, never a Grant.
+pub fn confirm_connection_probe_and_finalize(
+    response: Value,
+    selection: &Value,
+    request_key: &str,
+    confirm_native: impl FnMut(&str) -> bool,
+    finalize: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    if let Some(error) = graph_server_error(&response) {
+        return error;
+    }
+    let snapshot = &response["result"]["snapshot"];
+    let connection = &snapshot["connection"];
+    let proof = &snapshot["previous_stop_proof"];
+    let stop_proven = if proof["kind"] == "process_reaped" {
+        exact_fields(proof, &["kind", "version_evidence"])
+            && proof["version_evidence"] == connection["version_evidence"]
+            && proof["version_evidence"]["process_reaped"] == true
+            && proof["version_evidence"]["executable_sha256"] == connection["executable_sha256"]
+            && proof["version_evidence"]["source"] == "selected_executable_version_probe"
+            && matches!(
+                proof["version_evidence"]["state"].as_str(),
+                Some("exit_failure" | "timed_out" | "output_limit" | "invalid_output")
+            )
+    } else {
+        exact_fields(proof, &["kind", "event_sequence"])
+            && proof["kind"] == "not_started"
+            && graph_revision(&proof["event_sequence"])
+    };
+    let complete = exact_fields(selection, &["connection_id", "expected_revision"])
+        && graph_id(&selection["connection_id"])
+        && graph_revision(&selection["expected_revision"])
+        && snapshot["intent"] == *selection
+        && exact_fields(
+            snapshot,
+            &[
+                "intent",
+                "connection",
+                "connection_digest",
+                "scope",
+                "arguments",
+                "timeout_ms",
+                "stdout_limit_bytes",
+                "request_key",
+                "identity_status",
+                "warning",
+                "previous_stop_proof",
+            ],
+        )
+        && connection["id"] == selection["connection_id"]
+        && connection["revision"] == selection["expected_revision"]
+        && connection["probe_state"] == "failed"
+        && connection["executable"]
+            .as_str()
+            .is_some_and(|p| p.starts_with('/') && !p.contains('\0'))
+        && graph_hash(&connection["executable_sha256"])
+        && graph_id(&connection["approval_id"])
+        && graph_id(&connection["config_revision"])
+        && graph_hash(&snapshot["connection_digest"])
+        && snapshot["scope"] == "version_probe_only"
+        && snapshot["arguments"] == json!(["--version"])
+        && snapshot["timeout_ms"] == 3000
+        && snapshot["stdout_limit_bytes"] == 4096
+        && snapshot["request_key"] == request_key
+        && snapshot["identity_status"] == "unknown"
+        && snapshot["warning"]
+            .as_str()
+            .is_some_and(|text| !text.is_empty())
+        && stop_proven;
+    if response.get("error").is_none() && !complete {
+        return Ok(
+            json!({"request_id":null,"error":{"code":"INVALID_APPROVAL_PROPOSAL","message":"Version retry does not match the exact selected connection, fixed --version limits or previous stop evidence; no approval was finalized","retryable":false,"side_effect_state":"not_started","details_ref":null},"revision":0,"warnings":[]}),
+        );
+    }
+    let original = response["result"].clone();
+    let managed_skill = original["snapshot"]["connection"]["runtime_plan"]["skills"]
+        .as_array()
+        .is_some_and(|skills| {
+            skills
+                .iter()
+                .any(|skill| skill["provenance"]["source_ref"] == "baton-managed-codex-skill")
+        });
+    let result = if managed_skill {
+        confirm_managed_probe_pages(response, confirm_native, finalize)?
+    } else {
+        confirm_and_finalize(
+            response,
+            ApprovalKind::ConnectionProbe,
+            confirm_native,
+            finalize,
+        )?
+    };
+    if result.get("error").is_some() {
+        return Ok(result);
+    }
+    let receipt = &result["result"];
+    let attempt = &receipt["probe_attempt"];
+    let returned = &receipt["connection"];
+    let before = &original["snapshot"]["connection"];
+    let generation = selection["expected_revision"]
+        .as_u64()
+        .and_then(|n| n.checked_add(1));
+    let matches = exact_fields(receipt, &["connection", "probe_attempt"])
+        && returned["id"] == selection["connection_id"]
+        && attempt["connection_id"] == selection["connection_id"]
+        && graph_id(&attempt["id"])
+        && attempt["proposal_id"] == original["id"]
+        && attempt["request_key"] == request_key
+        && attempt["connection_revision"].as_u64() == generation
+        && returned["revision"]
+            .as_u64()
+            .zip(generation)
+            .is_some_and(|(current, first)| current >= first)
+        && [
+            "name",
+            "provider",
+            "protocol_route",
+            "executable",
+            "arguments",
+            "executable_sha256",
+            "environment_id",
+            "identity_ref",
+            "config_revision",
+            "runtime_plan",
+            "host_id",
+            "approval_id",
+            "capability_snapshot_id",
+            "identity_status",
+            "config_status",
+            "created_at",
+        ]
+        .iter()
+        .all(|field| returned[*field] == before[*field])
+        && attempt["executable_sha256"] == before["executable_sha256"]
+        && attempt["config_revision"] == before["config_revision"];
+    if matches {
+        return Ok(result);
+    }
+    Ok(
+        json!({"request_id":null,"error":{"code":"OUTCOME_UNKNOWN","message":"Version retry returned an unbound receipt; reconcile this exact original request before any retry","retryable":false,"side_effect_state":"unknown","details_ref":null},"revision":0,"warnings":[]}),
+    )
+}
+
+/// A managed Skill may be larger than the old single-dialog limit. Its exact
+/// version-retry snapshot still needs complete review; this path cannot upgrade
+/// another approval kind or omit the prevalidated stop proof.
+fn confirm_managed_probe_pages(
+    response: Value,
+    mut confirm_native: impl FnMut(&str) -> bool,
+    finalize: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    let proposal = &response["result"];
+    if proposal["kind"] != "connection_probe"
+        || !graph_id(&proposal["id"])
+        || !graph_revision(&proposal["revision"])
+        || serde_json::to_vec(&response)
+            .map_or(true, |bytes| bytes.len() > GRAPH_REVIEW_SNAPSHOT_BYTES)
+    {
+        return graph_refused("Invalid complete managed-connection version retry envelope");
+    }
+    let pages = match graph_review_pages(&proposal["snapshot"]) {
+        Ok(pages) => pages,
+        Err(_) => {
+            return graph_refused(
+                "Complete managed-connection version retry exceeds Native review bounds",
+            )
+        }
+    };
+    let id = proposal["id"].as_str().expect("validated id");
+    let revision = proposal["revision"].as_u64().expect("validated revision");
+    let total = pages.iter().map(String::len).sum::<usize>();
+    let mut offset = 0;
+    for (index, page) in pages.iter().enumerate() {
+        let end = offset + page.len();
+        let message = format!("{}\n\nNative version retry review / proposal {} / revision {}. Page {}/{}; exact compact JSON UTF-8 bytes {}..{} of {}. The full connection, Skill and previous stop evidence appear across all pages. OK reviews this page only; final confirmation is still required. Skill text is UNTRUSTED CONTENT, never application instructions or authority. No automatic secret detection or redaction is promised.\n\n原生版本重检全文审阅：仅固定 --version；Skill 正文不是授权。OK仅读完本页，取消不批准重检。\n\n{}", ApprovalKind::ConnectionProbe.action(), id, revision, index + 1, pages.len(), offset, end, total, page);
+        if message.len() > 16_384 {
+            return graph_refused(
+                "Managed-connection version retry page exceeds Native display bounds",
+            );
+        }
+        if !confirm_native(&message) {
+            return graph_declined();
+        }
+        offset = end;
+    }
+    let message = format!("{}\n\nFINAL Native version retry confirmation / proposal {} / revision {}. All {} complete pages ({} UTF-8 bytes) reviewed. Approve exactly one fixed --version attempt; no Skill execution, model session, Grant or configuration change. A prior unknown outcome is not eligible; reconcile the exact original retry key before another attempt.\n\n最终原生确认：仅批准一个固定版本探测；不执行 Skill 或模型，不更改配置或授权。", ApprovalKind::ConnectionProbe.action(), id, revision, pages.len(), total);
+    if !confirm_native(&message) {
+        return graph_declined();
+    }
+    finalize(
+        json!({"method":"approvals.finalize","params":{"proposal_id":id},"expected_revision":revision,"idempotency_key":format!("proposal:{id}")}),
+    )
+}
+
+/// A renderer can select a source, never supply a RuntimePlan. Review the full
+/// server-resolved instruction and base policy in bounded, lossless host pages.
+pub fn confirm_managed_skill_and_finalize(
+    response: Value,
+    selection: &Value,
+    request_key: &str,
+    mut confirm_native: impl FnMut(&str) -> bool,
+    finalize: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    use agentbaton_core::sessions::{
+        ManagedSkillConfirmation, ManagedSkillOperation, ManagedSkillPreview,
+        ManagedSkillSelection, ProviderConnection,
+    };
+    if let Some(error) = graph_server_error(&response) {
+        return error;
+    }
+    let invalid = || {
+        graph_refused("Managed Skill review does not match the selected source, base revision and unchanged policy; nothing was approved")
+    };
+    let connection_fields = [
+        "id",
+        "name",
+        "provider",
+        "protocol_route",
+        "executable",
+        "arguments",
+        "executable_sha256",
+        "environment_id",
+        "identity_ref",
+        "config_revision",
+        "runtime_plan",
+        "host_id",
+        "approval_id",
+        "probe_state",
+        "revision",
+        "capability_snapshot_id",
+        "identity_status",
+        "config_status",
+        "created_at",
+        "version_evidence",
+    ];
+    let profile_fields = [
+        "connection_id",
+        "connection_revision",
+        "config_revision",
+        "runtime_plan_digest",
+        "sandbox_mode",
+        "approval_policy",
+        "managed_skill",
+        "runtime_loaded",
+        "runtime_used",
+    ];
+
+    if serde_json::to_vec(&response).map_or(true, |bytes| bytes.len() > GRAPH_REVIEW_SNAPSHOT_BYTES)
+    {
+        return invalid();
+    }
+    let proposal = &response["result"];
+    let snapshot = &proposal["snapshot"];
+    let Ok(intent) = serde_json::from_value::<ManagedSkillSelection>(selection.clone()) else {
+        return invalid();
+    };
+    let Ok(preview) = serde_json::from_value::<ManagedSkillPreview>(snapshot["preview"].clone())
+    else {
+        return invalid();
+    };
+    let Ok(base) =
+        serde_json::from_value::<ProviderConnection>(snapshot["base_connection"].clone())
+    else {
+        return invalid();
+    };
+    let Some(mut after_plan) = base.runtime_plan.clone() else {
+        return invalid();
+    };
+    if !exact_fields(selection, &["request", "expected_preview_digest"])
+        || !exact_fields(
+            &selection["request"],
+            &[
+                "base_connection_id",
+                "expected_base_revision",
+                "new_name",
+                "operation",
+                "skill_folder",
+            ],
+        )
+        || !exact_fields(
+            &snapshot["preview"],
+            &[
+                "base",
+                "operation",
+                "new_name",
+                "skill",
+                "instruction",
+                "policy_unchanged",
+                "source_folder",
+                "preview_digest",
+            ],
+        )
+        || !exact_fields(&snapshot["preview"]["base"], &profile_fields)
+        || !exact_fields(&snapshot["base_connection"], &connection_fields)
+        || proposal["kind"] != "managed_skill"
+        || !graph_id(&proposal["id"])
+        || !graph_revision(&proposal["revision"])
+        || !exact_fields(
+            snapshot,
+            &[
+                "intent",
+                "preview",
+                "base_connection",
+                "base_connection_digest",
+                "after_plan_digest",
+                "source_binding",
+                "request_key",
+                "scope",
+                "warning",
+            ],
+        )
+        || snapshot["intent"] != *selection
+        || !graph_id(&json!(request_key))
+        || snapshot["request_key"] != request_key
+        || snapshot["scope"] != "new_managed_connection_version_probe_only"
+        || !snapshot["warning"]
+            .as_str()
+            .is_some_and(|text| !text.is_empty())
+        || !graph_hash(&snapshot["base_connection_digest"])
+        || !graph_hash(&snapshot["after_plan_digest"])
+        || !graph_hash(&json!(intent.expected_preview_digest))
+        || preview.preview_digest != intent.expected_preview_digest
+        || preview.operation != intent.request.operation
+        || preview.new_name != intent.request.new_name
+        || preview.new_name.trim().is_empty()
+        || preview.new_name.len() > 128
+        || preview.new_name.chars().any(char::is_control)
+        || preview.source_folder != intent.request.skill_folder
+        || !preview.policy_unchanged
+        || base.id != intent.request.base_connection_id
+        || base.revision != intent.request.expected_base_revision
+        || !graph_revision(&json!(base.revision))
+        || base.provider != "codex"
+        || !matches!(
+            snapshot["base_connection"]["protocol_route"].as_str(),
+            Some("codex_app_server" | "codex_acp_adapter")
+        )
+        || base.host_id != "local"
+        || base.probe_state != "ready"
+        || !base.executable.is_absolute()
+        || !graph_hash(&json!(base.executable_sha256))
+        || preview.base.connection_id != base.id
+        || preview.base.connection_revision != base.revision
+        || preview.base.config_revision != base.config_revision
+        || !graph_hash(&json!(preview.base.runtime_plan_digest))
+        || after_plan.plan_digest().ok().as_ref() != Some(&preview.base.runtime_plan_digest)
+        || json!(after_plan.provider) != "codex"
+        || json!(after_plan.codex.sandbox) != preview.base.sandbox_mode
+        || json!(after_plan.codex.approval_policy) != preview.base.approval_policy
+        || after_plan.codex.model_name().is_some()
+        || !after_plan.mcp_servers.is_empty()
+        || !after_plan.claude.enabled_project_mcp_names.is_empty()
+        || !after_plan.claude.disabled_project_mcp_names.is_empty()
+        || preview.base.runtime_loaded.is_some()
+        || preview.base.runtime_used.is_some()
+        || after_plan.skills.len() != usize::from(preview.base.managed_skill.is_some())
+    {
+        return invalid();
+    }
+    if let Some(old) = &preview.base.managed_skill {
+        let source = &after_plan.skills[0];
+        if old.directory_name != source.directory_name
+            || old.sha256 != source.provenance.sha256
+            || old.instruction_bytes != source.instruction_text().len() as u64
+            || source.provenance.source_ref != "baton-managed-codex-skill"
+            || source.provenance.revision != "1"
+            || !source.assets.is_empty()
+        {
+            return invalid();
+        }
+    }
+    after_plan.skills.clear();
+    after_plan
+        .source_refs
+        .retain(|source| source.source_ref != "baton-managed-codex-skill");
+    match intent.request.operation {
+        ManagedSkillOperation::Replace => {
+            let (Some(skill), Some(instruction), Some(folder)) =
+                (&preview.skill, &preview.instruction, &preview.source_folder)
+            else {
+                return invalid();
+            };
+            let binding = &snapshot["source_binding"];
+            if instruction.is_empty()
+                || instruction.len() > 32_768
+                || instruction.contains('\0')
+                || folder.len() > 4096
+                || !folder.starts_with('/')
+                || folder.chars().any(char::is_control)
+                || skill.instruction_bytes != instruction.len() as u64
+                || !graph_hash(&json!(skill.sha256))
+                || !exact_fields(
+                    binding,
+                    &[
+                        "directory_name",
+                        "name",
+                        "description",
+                        "sha256",
+                        "root_device",
+                        "root_inode",
+                        "file_device",
+                        "file_inode",
+                        "source_identity",
+                    ],
+                )
+                || binding["directory_name"] != skill.directory_name
+                || binding["name"] != skill.name
+                || binding["description"] != skill.description
+                || binding["sha256"] != skill.sha256
+                || !graph_hash(&binding["source_identity"])
+                || !["root_device", "root_inode", "file_device", "file_inode"]
+                    .iter()
+                    .all(|key| binding[*key].as_u64().is_some())
+            {
+                return invalid();
+            }
+            let provenance = json!({"source_ref":"baton-managed-codex-skill", "revision":"1", "sha256":skill.sha256});
+            let Ok(skills) = serde_json::from_value(
+                json!([{"directory_name":skill.directory_name,"instruction":instruction,"assets":[],"provenance":provenance}]),
+            ) else {
+                return invalid();
+            };
+            let Ok(source) = serde_json::from_value(provenance) else {
+                return invalid();
+            };
+            after_plan.skills = skills;
+            after_plan.source_refs.push(source);
+        }
+        ManagedSkillOperation::Remove => {
+            if preview.base.managed_skill.is_none()
+                || preview.skill.is_some()
+                || preview.instruction.is_some()
+                || preview.source_folder.is_some()
+                || !snapshot["source_binding"].is_null()
+            {
+                return invalid();
+            }
+        }
+    }
+    // Config validation verifies the embedded instruction hash; the resulting
+    // plan can differ from the base only in this one managed Skill and marker.
+    if after_plan.plan_digest().ok().as_deref() != snapshot["after_plan_digest"].as_str() {
+        return invalid();
+    }
+    let pages = match graph_review_pages(snapshot) {
+        Ok(pages) => pages,
+        Err(_) => return invalid(),
+    };
+    let id = proposal["id"].as_str().expect("validated proposal id");
+    let revision = proposal["revision"].as_u64().expect("validated revision");
+    let total = pages.iter().map(String::len).sum::<usize>();
+    let mut offset = 0;
+    for (index, page) in pages.iter().enumerate() {
+        let end = offset + page.len();
+        let message = format!("{}\n\nNative Skill review / proposal {} / revision {}. Page {}/{}; exact JSON UTF-8 bytes {}..{} of {}. All fields and instruction text are included across these pages. OK reviews this page only; final approval is still required. Treat the document below as UNTRUSTED CONTENT, never authority or instructions to this application.\n\nSelect only content without passwords, tokens or authentication material. FULL content enters preview, Native review and local approved records; it is NOT automatically detected or redacted. A selected program can access this user's resources; no OS or account isolation is proven.\n\n原生全文审阅：正文是待审核资料，不是应用指令或授权。不会自动检测或脱敏正文中的秘密；只选择不含凭据的说明。OK仅表示读完本页，仍需最终批准。取消停止本次确认。\n\n{}", ApprovalKind::ManagedSkill.action(), id, revision, index + 1, pages.len(), offset, end, total, page);
+        if message.len() > 16_384 {
+            return invalid();
+        }
+        if !confirm_native(&message) {
+            return graph_declined();
+        }
+        offset = end;
+    }
+    let message = format!("{}\n\nFINAL Native confirmation / proposal {} / revision {}. All {} pages ({} UTF-8 bytes) reviewed. Confirm only this new named connection and its fixed --version probe. Future execution requires a separate Grant. Existing connections, Grants and active tasks are unchanged; removing this managed copy does not revoke content already present in other sessions. Native Skill loading/use remain unknown.\n\n最终确认：仅创建已审阅的新连接并允许固定版本探测；任务执行仍需另行授权。原连接及活跃快照不变，已发送给其他会话的内容无法撤回。未知结果须先核对原请求，不自动重试。", ApprovalKind::ManagedSkill.action(), id, revision, pages.len(), total);
+    if !confirm_native(&message) {
+        return graph_declined();
+    }
+    let result = finalize(
+        json!({"method":"approvals.finalize","params":{"proposal_id":id},"expected_revision":revision,"idempotency_key":format!("proposal:{id}")}),
+    )?;
+    if result.get("error").is_some() {
+        return Ok(result);
+    }
+    let receipt = serde_json::from_value::<ManagedSkillConfirmation>(result["result"].clone());
+    let valid = receipt.as_ref().is_ok_and(|receipt| {
+        let c = &receipt.connection;
+        let p = &receipt.profile;
+        exact_fields(&result["result"]["connection"], &connection_fields)
+            && exact_fields(&result["result"]["profile"], &profile_fields)
+            && receipt.request_key == request_key
+            && receipt.preview_digest == preview.preview_digest
+            && receipt.base_connection_id == base.id
+            && receipt.base_connection_revision == base.revision
+            && receipt.operation == intent.request.operation
+            && graph_id(&json!(c.id))
+            && c.id != base.id
+            && graph_revision(&json!(c.revision))
+            && c.name == intent.request.new_name
+            && c.provider == base.provider
+            && c.protocol_route == base.protocol_route
+            && c.executable == base.executable
+            && c.arguments == base.arguments
+            && c.executable_sha256 == base.executable_sha256
+            && c.host_id == base.host_id
+            && graph_id(&json!(c.environment_id))
+            && c.environment_id != base.environment_id
+            && graph_id(&json!(c.identity_ref))
+            && c.identity_ref != base.identity_ref
+            && graph_id(&json!(c.approval_id))
+            && c.approval_id != base.approval_id
+            && c.capability_snapshot_id != base.capability_snapshot_id
+            && c.identity_status == base.identity_status
+            && c.config_status == base.config_status
+            && c.runtime_plan
+                .as_ref()
+                .and_then(|plan| plan.plan_digest().ok())
+                .as_deref()
+                == snapshot["after_plan_digest"].as_str()
+            && c.runtime_plan
+                .as_ref()
+                .and_then(|plan| serde_json::to_value(plan).ok())
+                == serde_json::to_value(&after_plan).ok()
+            && p.connection_id == c.id
+            && p.connection_revision == c.revision
+            && p.config_revision == c.config_revision
+            && Some(p.runtime_plan_digest.as_str()) == snapshot["after_plan_digest"].as_str()
+            && p.sandbox_mode == preview.base.sandbox_mode
+            && p.approval_policy == preview.base.approval_policy
+            && json!(p.managed_skill) == json!(preview.skill)
+            && p.runtime_loaded.is_none()
+            && p.runtime_used.is_none()
+    });
+    if valid {
+        Ok(result)
+    } else {
+        Ok(
+            json!({"request_id":null,"error":{"code":"OUTCOME_UNKNOWN","message":"Managed Skill returned an unbound connection receipt; reconcile the exact original request before retrying","retryable":false,"side_effect_state":"unknown","details_ref":null},"revision":0,"warnings":[]}),
+        )
+    }
+}
+
 pub fn confirm_and_finalize(
     response: Value,
     kind: ApprovalKind,
@@ -462,6 +1015,9 @@ pub fn confirm_and_finalize(
         return refused(
             "Server returned a malformed error before approval; no approval was finalized",
         );
+    }
+    if matches!(kind, ApprovalKind::Integration | ApprovalKind::ManagedSkill | ApprovalKind::ManagedMcp) {
+        return refused("Integration requires the dedicated complete typed Native review; generic approval cannot grant it");
     }
     let Some(proposal) = response.get("result") else {
         return refused("Server returned no approval proposal; no approval was finalized");
@@ -5009,6 +5565,453 @@ mod factory_protocol_pin_tests {
             .unwrap();
             assert_eq!(refused["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
             assert_eq!(refused["error"]["side_effect_state"], "not_started");
+        }
+    }
+}
+
+#[cfg(test)]
+mod connection_probe_tests {
+    use super::*;
+    use std::cell::Cell;
+    fn fixture() -> (Value, Value, Value) {
+        let evidence = json!({"source":"selected_executable_version_probe","executable_sha256":"a".repeat(64),"state":"timed_out","process_reaped":true});
+        let connection = json!({"id":"connection","name":"Selected program","provider":"custom_acp","protocol_route":"custom_acp","executable":"/approved/program","arguments":["adapter-argument"],"executable_sha256":"a".repeat(64),"environment_id":"environment","identity_ref":"native","config_revision":"configuration","runtime_plan":null,"host_id":"local","approval_id":"original-registration","capability_snapshot_id":"capability","identity_status":"unknown","config_status":"managed","created_at":"fixed","revision":2,"probe_state":"failed","version_evidence":evidence});
+        let selection = json!({"connection_id":"connection","expected_revision":2});
+        let proposal = json!({"result":{"id":"probe-proposal","kind":"connection_probe","revision":1,"snapshot":{"intent":selection,"connection":connection,"connection_digest":"b".repeat(64),"scope":"version_probe_only","arguments":["--version"],"timeout_ms":3000,"stdout_limit_bytes":4096,"request_key":"request","identity_status":"unknown","warning":"Only the exact program version probe","previous_stop_proof":{"kind":"process_reaped","version_evidence":evidence}}}});
+        let mut pending = connection;
+        pending["revision"] = json!(3);
+        pending["probe_state"] = json!("pending");
+        let receipt = json!({"result":{"connection":pending,"probe_attempt":{"id":"attempt","connection_id":"connection","connection_revision":3,"proposal_id":"probe-proposal","request_key":"request","executable_sha256":"a".repeat(64),"config_revision":"configuration"}}});
+        (selection, proposal, receipt)
+    }
+    #[test]
+    fn probe_retry_requires_exact_native_stop_proof_and_fixed_action_before_prompt() {
+        let (selection, original, _) = fixture();
+        for variant in 0..8 {
+            let mut p = original.clone();
+            match variant {
+                0 => p["result"]["snapshot"]["intent"]["connection_id"] = json!("other"),
+                1 => p["result"]["snapshot"]["connection"]["revision"] = json!(3),
+                2 => p["result"]["snapshot"]["arguments"] = json!(["--version", "--run"]),
+                3 => p["result"]["snapshot"]["timeout_ms"] = json!(3001),
+                4 => {
+                    p["result"]["snapshot"]["previous_stop_proof"]["version_evidence"]
+                        ["process_reaped"] = json!(false)
+                }
+                5 => {
+                    p["result"]["snapshot"]["previous_stop_proof"] =
+                        json!({"kind":"not_started","event_sequence":0})
+                }
+                6 => p["result"]["snapshot"]["connection"]["probe_state"] = json!("ready"),
+                _ => p["result"]["snapshot"]["request_key"] = json!("other"),
+            }
+            let result = confirm_connection_probe_and_finalize(
+                p,
+                &selection,
+                "request",
+                |_| panic!("invalid proposal cannot prompt"),
+                |_| panic!("invalid proposal cannot finalize"),
+            )
+            .unwrap();
+            assert_eq!(
+                result["error"]["code"], "INVALID_APPROVAL_PROPOSAL",
+                "variant {variant}"
+            );
+        }
+    }
+    #[test]
+    fn native_probe_denial_never_finalizes_or_schedules() {
+        let (selection, p, _) = fixture();
+        let result = confirm_connection_probe_and_finalize(
+            p,
+            &selection,
+            "request",
+            |message| {
+                assert!(message.contains("--version"));
+                assert!(message.contains("original-registration"));
+                false
+            },
+            |_| panic!("declined confirmation cannot finalize"),
+        )
+        .unwrap();
+        assert_eq!(result["error"]["side_effect_state"], "not_started");
+    }
+    #[test]
+    fn probe_approval_only_finalizes_the_exact_server_reference_and_bound_receipt() {
+        let (selection, p, receipt) = fixture();
+        let expected = receipt.clone();
+        let called = Cell::new(false);
+        let result = confirm_connection_probe_and_finalize(p, &selection, "request", |_| true, |command| {called.set(true); assert_eq!(command,json!({"method":"approvals.finalize","params":{"proposal_id":"probe-proposal"},"expected_revision":1,"idempotency_key":"proposal:probe-proposal"})); Ok(receipt)}).unwrap();
+        assert!(called.get());
+        assert_eq!(result, expected);
+    }
+    #[test]
+    fn a_changed_postcommit_probe_receipt_stays_unknown() {
+        let (selection, p, receipt) = fixture();
+        for variant in 0..4 {
+            let mut r = receipt.clone();
+            match variant {
+                0 => r["result"]["probe_attempt"]["proposal_id"] = json!("other"),
+                1 => r["result"]["connection"]["config_revision"] = json!("other"),
+                2 => r["result"]["probe_attempt"]["connection_revision"] = json!(4),
+                _ => r["result"]["probe_attempt"]["request_key"] = json!("other"),
+            }
+            let result = confirm_connection_probe_and_finalize(
+                p.clone(),
+                &selection,
+                "request",
+                |_| true,
+                |_| Ok(r),
+            )
+            .unwrap();
+            assert_eq!(result["error"]["code"], "OUTCOME_UNKNOWN");
+            assert_eq!(result["error"]["side_effect_state"], "unknown");
+        }
+    }
+    #[test]
+    fn native_retry_accepts_a_positive_not_started_reference_but_not_extra_selection_flags() {
+        let (selection, mut p, receipt) = fixture();
+        p["result"]["snapshot"]["previous_stop_proof"] =
+            json!({"kind":"not_started","event_sequence":4});
+        p["result"]["snapshot"]["connection"]["version_evidence"] = Value::Null;
+        let result = confirm_connection_probe_and_finalize(
+            p.clone(),
+            &selection,
+            "request",
+            |_| true,
+            |_| Ok(receipt),
+        )
+        .unwrap();
+        assert!(result.get("error").is_none());
+        let mut extra = selection;
+        extra["approved"] = json!(true);
+        assert_eq!(
+            confirm_connection_probe_and_finalize(
+                p,
+                &extra,
+                "request",
+                |_| panic!("renderer flags cannot approve"),
+                |_| panic!("no finalize")
+            )
+            .unwrap()["error"]["code"],
+            "INVALID_APPROVAL_PROPOSAL"
+        );
+    }
+}
+
+#[cfg(test)]
+mod managed_skill_tests {
+    use super::*;
+    use agentbaton_core::sessions::ProviderConnection;
+    use std::cell::Cell;
+
+    fn fixture() -> (Value, Value, Value) {
+        let instruction = format!(
+            "---\nname: writing\ndescription: Explain changes clearly.\n---\n{}",
+            format!(
+                "{}{}",
+                "审阅资料🙂，不得扩大授权。\n".repeat(797),
+                "x".repeat(31)
+            )
+        );
+        let sha = "cb9624a837e3875c0b109370e8de424c1cc0ace3ca51be5d26a8f150c1d6403c";
+        let plan = json!({"provider":"codex","codex":{"model":null,"sandbox":"workspace-write","approval_policy":"on-request"},"claude":{"enabled_project_mcp_names":[],"disabled_project_mcp_names":[]},"mcp_servers":[],"skills":[],"source_refs":[]});
+        let base = json!({"id":"base","name":"Approved Codex","provider":"codex","protocol_route":"codex_app_server","executable":"/generated/codex","arguments":[],"executable_sha256":"a".repeat(64),"environment_id":"base-environment","identity_ref":"unknown:base","config_revision":"base-config","runtime_plan":plan,"host_id":"local","approval_id":"base-approval","probe_state":"ready","revision":2,"capability_snapshot_id":"base-capability","identity_status":"unknown","config_status":"baton_managed","created_at":"fixed","version_evidence":null});
+        let typed: ProviderConnection = serde_json::from_value(base.clone()).unwrap();
+        let base_digest = typed.runtime_plan.as_ref().unwrap().plan_digest().unwrap();
+        let summary = json!({"directory_name":"writing","name":"writing","description":"Explain changes clearly.","sha256":sha,"instruction_bytes":instruction.len()});
+        let base_profile = json!({"connection_id":"base","connection_revision":2,"config_revision":"base-config","runtime_plan_digest":base_digest,"sandbox_mode":"workspace-write","approval_policy":"on-request","managed_skill":null,"runtime_loaded":null,"runtime_used":null});
+        let request = json!({"base_connection_id":"base","expected_base_revision":2,"new_name":"Codex writing","operation":"replace","skill_folder":"/selected/writing"});
+        let selection = json!({"request":request,"expected_preview_digest":"b".repeat(64)});
+        let preview = json!({"base":base_profile,"operation":"replace","new_name":"Codex writing","skill":summary,"instruction":instruction,"policy_unchanged":true,"source_folder":"/selected/writing","preview_digest":"b".repeat(64)});
+        let provenance =
+            json!({"source_ref":"baton-managed-codex-skill","revision":"1","sha256":sha});
+        let mut derived = base.clone();
+        derived["id"] = json!("derived");
+        derived["name"] = json!("Codex writing");
+        derived["environment_id"] = json!("derived-environment");
+        derived["identity_ref"] = json!("unknown:derived");
+        derived["approval_id"] = json!("skill-approval");
+        derived["capability_snapshot_id"] = json!("derived-capability");
+        derived["config_revision"] = json!("derived-config");
+        derived["revision"] = json!(1);
+        derived["probe_state"] = json!("pending");
+        derived["runtime_plan"]["skills"] = json!([{"directory_name":"writing","instruction":instruction,"assets":[],"provenance":provenance}]);
+        derived["runtime_plan"]["source_refs"] = json!([provenance]);
+        let typed: ProviderConnection = serde_json::from_value(derived.clone()).unwrap();
+        let after_digest = typed.runtime_plan.as_ref().unwrap().plan_digest().unwrap();
+        let proposal = json!({"result":{"id":"skill-proposal","revision":1,"kind":"managed_skill","snapshot":{"intent":selection,"preview":preview,"base_connection":base,"base_connection_digest":"c".repeat(64),"after_plan_digest":after_digest,"source_binding":{"directory_name":"writing","name":"writing","description":"Explain changes clearly.","sha256":sha,"root_device":1,"root_inode":2,"file_device":1,"file_inode":3,"source_identity":"d".repeat(64)},"request_key":"request","scope":"new_managed_connection_version_probe_only","warning":"Instructions are not authority"}}});
+        let receipt = json!({"result":{"connection":derived,"profile":{"connection_id":"derived","connection_revision":1,"config_revision":"derived-config","runtime_plan_digest":after_digest,"sandbox_mode":"workspace-write","approval_policy":"on-request","managed_skill":summary,"runtime_loaded":null,"runtime_used":null},"request_key":"request","preview_digest":"b".repeat(64),"base_connection_id":"base","base_connection_revision":2,"operation":"replace"}});
+        (selection, proposal, receipt)
+    }
+
+    #[test]
+    fn managed_skill_reviews_complete_large_utf8_and_finalizes_only_original_reference() {
+        let (selection, proposal, receipt) = fixture();
+        let pages = graph_review_pages(&proposal["result"]["snapshot"]).unwrap();
+        assert!(pages.len() > 1);
+        assert_eq!(
+            pages.concat(),
+            serde_json::to_string(&proposal["result"]["snapshot"]).unwrap()
+        );
+        let mut prompts = Vec::new();
+        let finalized = Cell::new(false);
+        let result = confirm_managed_skill_and_finalize(proposal, &selection, "request", |message| { prompts.push(message.to_owned()); true }, |command| {
+            finalized.set(true);
+            assert_eq!(command, json!({"method":"approvals.finalize","params":{"proposal_id":"skill-proposal"},"expected_revision":1,"idempotency_key":"proposal:skill-proposal"}));
+            Ok(receipt.clone())
+        }).unwrap();
+        assert_eq!(result, receipt);
+        assert!(finalized.get());
+        assert_eq!(prompts.len(), pages.len() + 1);
+        for (prompt, page) in prompts.iter().zip(&pages) {
+            assert!(prompt.ends_with(page));
+            assert!(prompt.len() < 16_384);
+            assert!(prompt.contains("UNTRUSTED CONTENT"));
+            assert!(prompt.contains("NOT automatically detected or redacted"));
+        }
+        assert!(prompts.last().unwrap().contains("FINAL Native"));
+    }
+
+    #[test]
+    fn managed_skill_cancel_at_any_page_or_final_never_finalizes() {
+        let (selection, proposal, _) = fixture();
+        let count = graph_review_pages(&proposal["result"]["snapshot"])
+            .unwrap()
+            .len()
+            + 1;
+        for cancel in 0..count {
+            let index = Cell::new(0);
+            let result = confirm_managed_skill_and_finalize(
+                proposal.clone(),
+                &selection,
+                "request",
+                |_| {
+                    let i = index.get();
+                    index.set(i + 1);
+                    i != cancel
+                },
+                |_| panic!("cancel must not finalize"),
+            )
+            .unwrap();
+            assert_eq!(result["error"]["code"], "PERMISSION_DENIED");
+            assert_eq!(result["error"]["side_effect_state"], "not_started");
+            assert_eq!(index.get(), cancel + 1);
+        }
+    }
+
+    #[test]
+    fn managed_skill_rejects_changed_source_policy_or_scope_before_review() {
+        let (selection, original, _) = fixture();
+        for variant in 0..13 {
+            let mut p = original.clone();
+            let s = &mut p["result"]["snapshot"];
+            match variant {
+                0 => s["intent"]["request"]["expected_base_revision"] = json!(3),
+                1 => s["preview"]["instruction"] = json!("changed"),
+                2 => s["source_binding"]["sha256"] = json!("f".repeat(64)),
+                3 => s["source_binding"]["source_identity"] = json!("not-a-hash"),
+                4 => {
+                    s["base_connection"]["runtime_plan"]["codex"]["model"] = json!("paid-override")
+                }
+                5 => s["preview"]["base"]["sandbox_mode"] = json!("read-only"),
+                6 => s["preview"]["policy_unchanged"] = json!(false),
+                7 => s["scope"] = json!("execute_task"),
+                8 => s["request_key"] = json!("other"),
+                9 => s["after_plan_digest"] = json!("e".repeat(64)),
+                10 => s["preview"]["base"]["runtime_loaded"] = json!(true),
+                11 => s["preview"]["source_folder"] = json!("/another/folder"),
+                _ => s["unreviewed_permission"] = json!(true),
+            }
+            let result = confirm_managed_skill_and_finalize(
+                p,
+                &selection,
+                "request",
+                |_| panic!("invalid source cannot prompt"),
+                |_| panic!("invalid source cannot finalize"),
+            )
+            .unwrap();
+            assert_eq!(
+                result["error"]["code"], "INVALID_APPROVAL_PROPOSAL",
+                "variant {variant}"
+            );
+            assert_eq!(result["error"]["side_effect_state"], "not_started");
+        }
+    }
+
+    #[test]
+    fn managed_skill_unbound_postcommit_receipts_stay_unknown_and_generic_path_refuses() {
+        let (selection, proposal, receipt) = fixture();
+        for variant in 0..7 {
+            let mut r = receipt.clone();
+            match variant {
+                0 => r["result"]["connection"]["id"] = json!("base"),
+                1 => r["result"]["profile"]["runtime_used"] = json!(true),
+                2 => r["result"]["connection"]["environment_id"] = json!("base-environment"),
+                3 => {
+                    r["result"]["connection"]["runtime_plan"]["codex"]["sandbox"] =
+                        json!("read-only")
+                }
+                4 => r["result"]["request_key"] = json!("other"),
+                5 => r["result"]["preview_digest"] = json!("e".repeat(64)),
+                _ => r["result"]["profile"]["managed_skill"]["sha256"] = json!("e".repeat(64)),
+            }
+            let result = confirm_managed_skill_and_finalize(
+                proposal.clone(),
+                &selection,
+                "request",
+                |_| true,
+                |_| Ok(r),
+            )
+            .unwrap();
+            assert_eq!(
+                result["error"]["code"], "OUTCOME_UNKNOWN",
+                "variant {variant}"
+            );
+            assert_eq!(result["error"]["side_effect_state"], "unknown");
+        }
+        let refused = confirm_and_finalize(
+            proposal,
+            ApprovalKind::ManagedSkill,
+            |_| panic!("cannot bypass full typed review"),
+            |_| panic!("cannot bypass full typed review"),
+        )
+        .unwrap();
+        assert_eq!(refused["error"]["side_effect_state"], "not_started");
+    }
+
+    #[test]
+    fn managed_skill_remove_derives_empty_future_plan_without_revoking_old_content() {
+        let (_, original, original_receipt) = fixture();
+        let old = &original_receipt["result"];
+        let mut base = old["connection"].clone();
+        base["probe_state"] = json!("ready");
+        base["revision"] = json!(2);
+        let mut base_profile = old["profile"].clone();
+        base_profile["connection_revision"] = json!(2);
+        let selection = json!({"request":{"base_connection_id":"derived","expected_base_revision":2,"new_name":"Without Skill","operation":"remove","skill_folder":null},"expected_preview_digest":"f".repeat(64)});
+        let empty = original["result"]["snapshot"]["base_connection"]["runtime_plan"].clone();
+        let empty_digest =
+            original["result"]["snapshot"]["preview"]["base"]["runtime_plan_digest"].clone();
+        let preview = json!({"base":base_profile,"operation":"remove","new_name":"Without Skill","skill":null,"instruction":null,"policy_unchanged":true,"source_folder":null,"preview_digest":"f".repeat(64)});
+        let mut p = original;
+        p["result"]["snapshot"]["base_connection"] = base.clone();
+        p["result"]["snapshot"]["intent"] = selection.clone();
+        p["result"]["snapshot"]["preview"] = preview;
+        p["result"]["snapshot"]["source_binding"] = Value::Null;
+        p["result"]["snapshot"]["after_plan_digest"] = empty_digest.clone();
+        let mut c = base;
+        c["id"] = json!("removed");
+        c["name"] = json!("Without Skill");
+        c["environment_id"] = json!("removed-env");
+        c["identity_ref"] = json!("unknown:removed");
+        c["approval_id"] = json!("remove-approval");
+        c["capability_snapshot_id"] = json!("removed-capability");
+        c["config_revision"] = json!("empty-config");
+        c["runtime_plan"] = empty;
+        c["revision"] = json!(1);
+        c["probe_state"] = json!("pending");
+        let receipt = json!({"result":{"connection":c,"profile":{"connection_id":"removed","connection_revision":1,"config_revision":"empty-config","runtime_plan_digest":empty_digest,"sandbox_mode":"workspace-write","approval_policy":"on-request","managed_skill":null,"runtime_loaded":null,"runtime_used":null},"request_key":"request","preview_digest":"f".repeat(64),"base_connection_id":"derived","base_connection_revision":2,"operation":"remove"}});
+        let mut messages = Vec::new();
+        let result = confirm_managed_skill_and_finalize(
+            p,
+            &selection,
+            "request",
+            |message| {
+                messages.push(message.to_owned());
+                true
+            },
+            |_| Ok(receipt.clone()),
+        )
+        .unwrap();
+        assert_eq!(result, receipt);
+        assert!(messages.last().unwrap().contains("does not revoke content"));
+    }
+    #[test]
+    fn managed_skill_large_version_retry_reviews_full_snapshot_and_preserves_old_limits() {
+        let (_, _, original) = fixture();
+        let mut before = original["result"]["connection"].clone();
+        let evidence = json!({"source":"selected_executable_version_probe","executable_sha256":before["executable_sha256"],"state":"timed_out","process_reaped":true});
+        before["revision"] = json!(2);
+        before["probe_state"] = json!("failed");
+        before["version_evidence"] = evidence.clone();
+        let selection = json!({"connection_id":"derived","expected_revision":2});
+        let proposal = json!({"result":{"id":"probe-proposal","kind":"connection_probe","revision":1,"snapshot":{"intent":selection,"connection":before,"connection_digest":"b".repeat(64),"scope":"version_probe_only","arguments":["--version"],"timeout_ms":3000,"stdout_limit_bytes":4096,"request_key":"request","identity_status":"unknown","warning":"Version only","previous_stop_proof":{"kind":"process_reaped","version_evidence":evidence}}}});
+        let mut error_response = proposal.clone();
+        error_response["error"] = json!({"code":"OUTCOME_UNKNOWN","message":"Original response was uncertain","retryable":false,"side_effect_state":"unknown","details_ref":null});
+        let error_result = confirm_connection_probe_and_finalize(
+            error_response.clone(),
+            &selection,
+            "request",
+            |_| panic!("server errors must not prompt despite an otherwise valid marker result"),
+            |_| panic!("server errors must not finalize"),
+        )
+        .unwrap();
+        assert_eq!(error_result, error_response);
+        let pages = graph_review_pages(&proposal["result"]["snapshot"]).unwrap();
+        assert_eq!(
+            before["runtime_plan"]["skills"][0]["instruction"]
+                .as_str()
+                .unwrap()
+                .len(),
+            32768
+        );
+        assert!(pages.len() > 2);
+        assert_eq!(
+            pages.concat(),
+            serde_json::to_string(&proposal["result"]["snapshot"]).unwrap()
+        );
+        for cancel in 0..=pages.len() {
+            let index = Cell::new(0);
+            let refused = confirm_connection_probe_and_finalize(
+                proposal.clone(),
+                &selection,
+                "request",
+                |_| {
+                    let i = index.get();
+                    index.set(i + 1);
+                    i != cancel
+                },
+                |_| panic!("any cancelled page/final must not finalize"),
+            )
+            .unwrap();
+            assert_eq!(refused["error"]["side_effect_state"], "not_started");
+            assert_eq!(index.get(), cancel + 1);
+        }
+        let mut pending = before.clone();
+        pending["revision"] = json!(3);
+        pending["probe_state"] = json!("pending");
+        let receipt = json!({"result":{"connection":pending,"probe_attempt":{"id":"attempt","connection_id":"derived","connection_revision":3,"proposal_id":"probe-proposal","request_key":"request","executable_sha256":before["executable_sha256"],"config_revision":before["config_revision"]}}});
+        let mut prompts = Vec::new();
+        let result=confirm_connection_probe_and_finalize(proposal.clone(),&selection,"request",|message|{prompts.push(message.to_owned());true},|command|{assert_eq!(command,json!({"method":"approvals.finalize","params":{"proposal_id":"probe-proposal"},"expected_revision":1,"idempotency_key":"proposal:probe-proposal"}));Ok(receipt.clone())}).unwrap();
+        assert_eq!(result, receipt);
+        assert_eq!(prompts.len(), pages.len() + 1);
+        for (prompt, page) in prompts.iter().zip(pages) {
+            assert!(prompt.ends_with(&page));
+            assert!(prompt.len() < 16384);
+        }
+        for variant in 0..3 {
+            let mut p = proposal.clone();
+            match variant {
+                0 => {
+                    p["result"]["snapshot"]["previous_stop_proof"]["version_evidence"]
+                        ["process_reaped"] = json!(false)
+                }
+                1 => p["result"]["snapshot"]["request_key"] = json!("other"),
+                _ => {
+                    p["result"]["snapshot"]["connection"]["runtime_plan"]["skills"][0]
+                        ["provenance"]["source_ref"] = json!("legacy")
+                }
+            }
+            let result = confirm_connection_probe_and_finalize(
+                p,
+                &selection,
+                "request",
+                |_| panic!("invalid stop/key or oversized unmarked snapshot cannot prompt"),
+                |_| panic!("cannot finalize"),
+            )
+            .unwrap();
+            assert_eq!(result["error"]["side_effect_state"], "not_started");
         }
     }
 }

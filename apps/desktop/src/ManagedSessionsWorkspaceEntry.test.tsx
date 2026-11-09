@@ -47,7 +47,7 @@ function setup(f: Fixture) {
   const server = { task: f.task, rows: [f.other] };
   vi.mocked(api.taskGet).mockImplementation(async id => { if (id !== f.task.id) throw new Error('Unknown fixture Task'); return structuredClone(server.task); });
   vi.mocked(api.projectsList).mockResolvedValue([f.project]); vi.mocked(api.workspacesList).mockImplementation(async () => [...server.rows]); vi.mocked(api.workspacesResolve).mockResolvedValue(f.preparation);
-  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [f.task], sequence: 0, api_version: 1 }); vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [f.task], sequence: 0, api_version:1,database_schema_version:17 }); vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([f.connection]); vi.mocked(sessionApi.sessionsList).mockResolvedValue([]); vi.mocked(sessionApi.grantsList).mockResolvedValue([]);
   function commit(selection: TaskGitWorkspacePreparation, key: string) { const value = f.view(selection, key); server.task = { ...f.task, revision: 3, code_workspace_binding: value.binding }; server.rows = [f.other, f.own]; return value; }
   return { server, commit };

@@ -440,6 +440,7 @@ fn claude_configuration_is_explicit_client_metadata_not_global_writeback() {
         .disabled_project_mcp_names
         .push("unselected-server".into());
     plan.mcp_servers.push(ManagedMcpServer {
+        codex_policy: None,
         name: "selected-server".into(),
         transport: ManagedMcpTransport::Stdio {
             command: text("/approved/nonsecret-server"),
@@ -492,6 +493,7 @@ fn mcp_credentials_or_malformed_endpoint_are_not_accepted_as_nonsecret_endpoint(
     ] {
         let mut plan = RuntimePlan::empty(RuntimeProvider::Codex);
         plan.mcp_servers.push(ManagedMcpServer {
+            codex_policy: None,
             name: "selected".into(),
             transport: ManagedMcpTransport::Http {
                 endpoint: text(endpoint),

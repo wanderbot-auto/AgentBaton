@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "baseline": "c8128e42b1f280f6f7dc232e319235e15673d8a4",
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-005",
+    "D18",
+    "D19"
+  ],
+  "dimensions": {
+    "source_implemented": "Task Details real integration panel wired to11 typed Native commands; Core runtime completion not claimed",
+    "component_tests": "root_actual_da997:43 targeted and1059 full jsdom/mock passed;43 included in1059",
+    "typecheck": "root_actual_da997 type+Vite build passed",
+    "real_ipc": "not_run",
+    "native_macos_arm": "not_run",
+    "native_macos_intel": "not_run"
+  },
+  "constraints": "Root owns heavy toolchain/test execution; author has not run Node, Cargo, browser, Actor or Git product operations.",
+  "typed_contract": "a60816d",
+  "static_checks": [
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "actual_tests_run_by_author": [],
+  "scope_limits": [
+    "No Node/Cargo/browser/Actor/product Git execution by UI author",
+    "No formal PR approval, merge, production or signing performed",
+    "Component test source is mocked and does not prove real IPC or native macOS"
+  ],
+  "root_actual_results": [
+    {
+      "source": "457e6da559a620ebc14b96a7deaee22cfcf55c35",
+      "check": "typecheck",
+      "exit_code": 1,
+      "elapsed_seconds": 0.504,
+      "result": "failed",
+      "first_error": "integration-test-fixtures.ts:15:475 TS1005; missing outer closing brace in Selection fixture",
+      "log_sha256": "1429477592992e1a8863f65623f5f8af9c8c1397639346834737207f2e10722a",
+      "log_path": ".onboarding/integration17-ui-457e-type1/command.log"
+    },
+    {
+      "source": "05a89e7",
+      "check": "typecheck",
+      "exit_code": 1,
+      "elapsed_seconds": 1.111,
+      "result": "failed",
+      "first_error": "readonly fixture field mutation; explicit Intent narrowing needed",
+      "log_sha256": "91c8d7439fe8c34c8444af1731b06f9c51f9bc7a431416dc8386180ffb5a4193",
+      "log_path": ".onboarding/integration17-ui-05a8-type1/command.log"
+    },
+    {
+      "source": "7e1aa8b4957728d52c33f5a682371e5a9342f3e0",
+      "check": "typecheck",
+      "result": "passed",
+      "elapsed_seconds": 1.307,
+      "log_sha256_prefix": "642536",
+      "note": "Full digest retained by Root; do not expand this prefix into fabricated full hash."
+    },
+    {
+      "source": "7e1aa8b4957728d52c33f5a682371e5a9342f3e0",
+      "check": "targeted integration-api and TaskIntegration Vitest",
+      "result": "failed",
+      "passed": 40,
+      "failed": 1,
+      "unique_tests": 41,
+      "wrapper_seconds": 3.411,
+      "log_sha256": "72d2640ecbb04f5db861d5fd9bc4a27ca0b6f4801e7dfd13e44c2b996a889532",
+      "log_path": ".onboarding/integration17-ui-7e1a-tests1/command.log",
+      "failure": "Global unknown-text count included folded approved-limit details; replaced with dimension-specific actual-usage assertions."
+    },
+    {
+      "source": "a375a577021e2ef7398ce1c916a9c942ac2acf3d",
+      "check": "typecheck",
+      "result": "passed",
+      "elapsed_seconds": 1.407
+    },
+    {
+      "source": "a375a577021e2ef7398ce1c916a9c942ac2acf3d",
+      "check": "targeted integration-api and TaskIntegration Vitest",
+      "result": "failed",
+      "passed": 42,
+      "failed": 1,
+      "unique_tests": 43,
+      "log_sha256": "1b05263b309c869aa3785459692d3a4e4fa4e4e969dab1a6ff4b0d736f2a622d",
+      "log_path": ".onboarding/integration17-ui-a375-tests1/command.log",
+      "failure": "Remaining global explanation query matched stage-reservation and shared-usage paragraphs; now scoped to actual Shared budget details. Explicit dimension and P2 regressions passed."
+    },
+    {
+      "source": "da997678dbcf698308278b1cc92ce0b91a94c978",
+      "tree": "69afffe97b591cbcdd30216c59ae48ab5f3f1590",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "src/integration-api.test.ts",
+        "src/TaskIntegration.test.tsx",
+        "--maxWorkers=1"
+      ],
+      "result": "passed",
+      "exit_code": 0,
+      "unique_tests": 43,
+      "wrapper_seconds": 3.712992643006146,
+      "dimension": "jsdom/mock frontend and typed transport, not real Core/Native/macOS",
+      "log_path": ".onboarding/integration17-ui-da997-tests1/command.log",
+      "log_sha256": "fcb238d88f34c57d1af0b3d941f6d99a9c3c43440b003bb615814d5beac7f840",
+      "source_and_tracked_unchanged": true,
+      "targeted43_included_in_full1059": true
+    },
+    {
+      "source": "da997678dbcf698308278b1cc92ce0b91a94c978",
+      "tree": "69afffe97b591cbcdd30216c59ae48ab5f3f1590",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "--maxWorkers=1"
+      ],
+      "result": "passed",
+      "exit_code": 0,
+      "unique_tests": 1059,
+      "wrapper_seconds": 83.11405036199722,
+      "dimension": "jsdom/mock frontend and typed transport, not real Core/Native/macOS",
+      "log_path": ".onboarding/integration17-ui-da997-fulltests1/command.log",
+      "log_sha256": "67d7695aa19a87ca5aa8f2e50f81b2ce5b0d9406baee594d366dcfc9efa40854",
+      "source_and_tracked_unchanged": true,
+      "targeted43_included_in_full1059": true
+    },
+    {
+      "source": "da997678dbcf698308278b1cc92ce0b91a94c978",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "result": "passed",
+      "exit_code": 0,
+      "wrapper_seconds": 1.6134666280122474,
+      "log_path": ".onboarding/integration17-ui-da997-build1/command.log",
+      "log_sha256": "c7fa5f435e7d4cab306ee28791924a8c0625c7f322783bee5db76235355e0125",
+      "source_and_tracked_unchanged": true,
+      "dimension": "TypeScript/Vite frontend build, not Native/macOS"
+    }
+  ],
+  "independent_review": {
+    "context": "data_core_review_resume",
+    "result": "SOURCE_READY_FOR_CONTROLLED_UI_AND_COMPOSED_VALIDATION",
+    "source": "da997678dbcf698308278b1cc92ce0b91a94c978",
+    "fixed_source_assertions": 23,
+    "reviewer_actual_execution": "Python source/static reads only; no compiler/Node/GUI/product runtime",
+    "closed_findings": [
+      "Historical same-task policy revocation does not require current spec",
+      "Get response exact requested integration run ID required"
+    ],
+    "seals": {
+      "REVIEW.md": "57c0ab021f48a6ac379ed1467ca5b0bb41b90ab63ea075bf36834d86ed16f9a8",
+      "MANIFEST.json": "2e2904eeca288126be29eaaa876ac7c59a6e85047a25bc28668a9a3851806f67",
+      "revision-da99767/REVIEW.md": "18edbd19209a9ef8a32b7058720f3e223491e69a658c7e4d4cb68cb300283524",
+      "revision-da99767/MANIFEST.json": "94681c45dba6cf1804429bfa244f882f42503eca849e988f0bff97bf5ce10ed3"
+    }
+  },
+  "implementation_source": "da997678dbcf698308278b1cc92ce0b91a94c978"
+}

@@ -1,5 +1,7 @@
-//! Explicit required-feature genuine15->16 migration target; no synthetic old schema.
+//! Explicit required-feature genuine15->18 migration target; no synthetic old schema.
 //! Root must register required-features=["actual-schema15-migration-tests"].
+#[path = "fixtures/pre_conversation_schema.rs"]
+pub mod pre_conversation_schema;
 use agentbaton_core::storage::{Store, Task};
 use rusqlite::{params, types::Value as SqlValue, Connection, OpenFlags};
 use serde_json::{json, Value};
@@ -10,6 +12,9 @@ use std::{
     os::unix::fs::{MetadataExt, OpenOptionsExt, PermissionsExt},
     path::{Path, PathBuf},
 };
+
+#[path = "fixtures/pre_integration_schema.rs"]
+pub mod pre_integration_schema;
 
 const SOURCE: &str = "baa72ac04944ccd1a1abc659084f5bc6cd148f33";
 const TREE: &str = "fabfe01e74189f4986ea8c133f32a5f1ed52006b";
@@ -170,6 +175,34 @@ fn backups(root: &Path) -> Vec<PathBuf> {
             }
             let id = name
                 .strip_prefix("actual.pre-v16-")
+                .unwrap()
+                .strip_suffix(".sqlite3")
+                .unwrap();
+            let uuid = uuid::Uuid::parse_str(id).expect("Backup name must contain a UUID");
+            assert_eq!(uuid.to_string(), id);
+            assert_eq!(uuid.get_version_num(), 4);
+            assert_eq!(fs::canonicalize(p).unwrap(), *p);
+            private_read(p, 16_777_216);
+            true
+        })
+        .collect();
+    paths.sort();
+    paths
+}
+fn integration_backups(root: &Path) -> Vec<PathBuf> {
+    let mut paths: Vec<_> = fs::read_dir(root)
+        .unwrap()
+        .map(Result::unwrap)
+        .map(|r| r.path())
+        .filter(|p| {
+            // A query-only SQLite connection can still create -wal/-shm
+            // sidecars. Preserve those files, but count actual backup DBs.
+            let name = p.file_name().unwrap().to_str().unwrap();
+            if !name.starts_with("actual.pre-v18-") || !name.ends_with(".sqlite3") {
+                return false;
+            }
+            let id = name
+                .strip_prefix("actual.pre-v18-")
                 .unwrap()
                 .strip_suffix(".sqlite3")
                 .unwrap();
@@ -536,29 +569,79 @@ fn reject_unchanged(f: &Fixture, expected_code: &str) {
     let backup = &copies[0];
     private_read(backup, 16_777_216);
     backup_equal(&before, &image(&ro(backup)), backup);
+    let integration_copies = integration_backups(f.root());
+    assert_eq!(integration_copies.len(), 1);
+    backup_equal(
+        &before,
+        &image(&ro(&integration_copies[0])),
+        &integration_copies[0],
+    );
     f.original_unchanged();
 }
 
 #[test]
-fn genuine15_task_history_migrates16_without_binding_or_raw_history_rewrite() {
+fn genuine15_task_history_migrates17_without_binding_or_raw_history_rewrite() {
     let f = fixture();
     let before = image(&ro(&f.db));
     let store = Store::open(&f.db).unwrap();
     let after = image(&ro(&f.db));
-    assert_eq!(after.version, 16);
+    assert_eq!(before.version, 15);
+    assert_eq!(after.version, 18);
+    let connection = ro(&f.db);
+    pre_integration_schema::verify_empty_integration17_current18(&connection).unwrap();
+    pre_conversation_schema::verify_empty_conversation18(&connection).unwrap();
+    drop(connection);
+    assert_eq!(before.rows.len(), 55);
+    assert_eq!(after.rows.len(), 63);
+    let predecessor_rows: Rows = after
+        .rows
+        .iter()
+        .filter(|(name, _)| {
+            !pre_integration_schema::INTEGRATION17_TABLES.contains(&name.as_str())
+                && !pre_conversation_schema::CONVERSATION18_TABLES.contains(&name.as_str())
+        })
+        .map(|(name, rows)| (name.clone(), rows.clone()))
+        .collect();
     equal(
         &before.rows,
-        &after.rows,
+        &predecessor_rows,
         &f.db,
-        "Every predecessor row/raw document/receipt/sequence",
+        "Every predecessor rowid/raw document/receipt/sequence",
     );
+    let predecessor_schema: Schema = after
+        .schema
+        .iter()
+        .filter(|row| {
+            !pre_integration_schema::INTEGRATION17_TABLES.contains(&row.2.as_str())
+                && !pre_conversation_schema::CONVERSATION18_TABLES.contains(&row.2.as_str())
+        })
+        .cloned()
+        .collect();
     equal(
         &before.schema,
-        &after.schema,
+        &predecessor_schema,
         &f.db,
-        "Schema16 adds no table or DDL",
+        "Every predecessor table/index/trigger DDL, excluding only the verified Integration increment",
     );
-    assert_eq!(before.schema_version, after.schema_version);
+    // Schema16 is semantic-only; schema17 adds four tables and four named
+    // indexes; schema18 adds four tables. SQLite increments its cookie per DDL.
+    let added_ddl = u32::try_from(
+        after
+            .schema
+            .iter()
+            .filter(|row| {
+                (pre_integration_schema::INTEGRATION17_TABLES.contains(&row.2.as_str())
+                    || pre_conversation_schema::CONVERSATION18_TABLES.contains(&row.2.as_str()))
+                    && row.3.is_some()
+            })
+            .count(),
+    )
+    .unwrap();
+    assert_eq!(added_ddl, 12);
+    assert_eq!(
+        before.schema_version.checked_add(added_ddl),
+        Some(after.schema_version)
+    );
     assert_eq!(before.application_id, after.application_id);
     for record in f.manifest["tasks"].as_array().unwrap() {
         let id = record["id"].as_str().unwrap();
@@ -578,10 +661,23 @@ fn genuine15_task_history_migrates16_without_binding_or_raw_history_rewrite() {
     assert_eq!(copies.len(), 1);
     private_read(&copies[0], 16_777_216);
     backup_equal(&before, &image(&ro(&copies[0])), &copies[0]);
+    let integration_copies = integration_backups(f.root());
+    assert_eq!(integration_copies.len(), 1);
+    backup_equal(
+        &before,
+        &image(&ro(&integration_copies[0])),
+        &integration_copies[0],
+    );
     clean_fk(&ro(&f.db));
     drop(store);
     drop(Store::open(&f.db).unwrap());
     assert_eq!(backups(f.root()).len(), 1);
+    equal(
+        &integration_backups(f.root()),
+        &integration_copies,
+        &f.db,
+        "Current17 reopen cannot add another integration safety copy",
+    );
     equal(
         &after,
         &image(&ro(&f.db)),
@@ -591,7 +687,7 @@ fn genuine15_task_history_migrates16_without_binding_or_raw_history_rewrite() {
     f.original_unchanged();
 }
 #[test]
-fn genuine15_original_receipts_replay_after16_without_mutation_or_new_authority() {
+fn genuine15_original_receipts_replay_after17_without_mutation_or_new_authority() {
     let f = fixture();
     let mut store = Store::open(&f.db).unwrap();
     let before = image(&ro(&f.db));
@@ -708,10 +804,10 @@ fn genuine15_foreign_key_corruption_is_rejected_without_erasing_unknown_rows() {
     reject_unchanged(&f, "INPUT_CHANGED");
 }
 #[test]
-fn genuine15_copy_labeled_future17_is_refused_before_backup_or_recovery() {
+fn genuine15_copy_labeled_future19_is_refused_before_backup_or_recovery() {
     let f = fixture();
     let db = Connection::open(&f.db).unwrap();
-    db.pragma_update(None, "user_version", 17u32).unwrap();
+    db.pragma_update(None, "user_version", 19u32).unwrap();
     drop(db);
     let before = image(&ro(&f.db));
     let raw = fs::read(&f.db).unwrap();
@@ -721,14 +817,15 @@ fn genuine15_copy_labeled_future17_is_refused_before_backup_or_recovery() {
         &before,
         &image(&ro(&f.db)),
         &f.db,
-        "Future17 refusal must not mutate logical state",
+        "Future19 refusal must not mutate logical state",
     );
     equal(
         &raw,
         &fs::read(&f.db).unwrap(),
         &f.db,
-        "Future17 refusal must not touch raw file",
+        "Future19 refusal must not touch raw file",
     );
     assert!(backups(f.root()).is_empty());
+    assert!(integration_backups(f.root()).is_empty());
     f.original_unchanged();
 }

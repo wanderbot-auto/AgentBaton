@@ -5,6 +5,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
+focaccia = "=2.5.0"
 serde = { workspace = true }
 serde_json = { workspace = true }
 libc = "0.2"

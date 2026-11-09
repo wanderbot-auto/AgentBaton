@@ -1803,3 +1803,38 @@ fn input_invalidation_propagates_to_grandchildren_and_candidate_validators() {
         assert_eq!(d.blocked[n], BlockReason::ConsumedInputsChanged);
     }
 }
+
+#[test]
+fn user_defined_multi_work_contract_requires_owner_and_validator_before_downstream() {
+    // Explicit synthetic Host evidence exercises the production readiness
+    // predicate. This is not a persisted native Owner acceptance or Provider run.
+    let mut f = Fixture::new();
+    f.policy
+        .contracts
+        .get_mut("result")
+        .unwrap()
+        .required_validators = set(&["check", "accept"]);
+    let mut a = f.node("a", "workspace-a");
+    a.required_validators = vec!["check".into(), "accept".into()];
+    let mut b = f.node("b", "workspace-b");
+    b.required_validators = a.required_validators.clone();
+    b.dependencies = vec!["a".into()];
+    b.required_inputs = vec![input("a", false)];
+    let p = f.plan(vec![a, b]);
+    let mut host = snapshot(&p);
+    assert_eq!(decision(&p, host.clone()).admissions[0].node_id, "a");
+    observe(&p, &mut host, "a", NodeState::ExecutionSucceeded);
+    artifact(&p, &mut host, "a");
+    assert!(!decision(&p, host.clone())
+        .admissions
+        .iter()
+        .any(|a| a.node_id == "b"));
+    receipt(&p, &mut host, "a", "check", true);
+    assert!(!decision(&p, host.clone())
+        .admissions
+        .iter()
+        .any(|a| a.node_id == "b"));
+    receipt(&p, &mut host, "a", "accept", true);
+    assert_eq!(decision(&p, host.clone()).admissions[0].node_id, "b");
+    assert!(!decision(&p, host).required_checks_satisfied);
+}

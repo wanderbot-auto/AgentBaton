@@ -1,0 +1,16 @@
+import {fireEvent,render,screen,waitFor} from '@testing-library/react';
+import {beforeEach,expect,it,vi} from 'vitest';
+import {App} from './App';
+import {api} from './api';
+import {sessionApi} from './session-api';
+import {managedMcpsApi} from './managed-mcps-api';
+import {managedSkillsApi} from './managed-skills-api';
+import {backgroundServiceApi} from './background-service-api';
+import {managedMcpFixture} from './managed-mcps-test-fixtures';
+vi.mock('./api',async original=>({...await original<typeof import('./api')>(),api:{snapshot:vi.fn(),events:vi.fn(),projectsList:vi.fn()}}));
+vi.mock('./session-api',()=>({sessionApi:{connectionsList:vi.fn(),sessionsList:vi.fn()}}));
+vi.mock('./managed-mcps-api',async original=>({...await original<typeof import('./managed-mcps-api')>(),managedMcpsApi:{list:vi.fn(),preview:vi.fn(),create:vi.fn(),find:vi.fn()}}));
+vi.mock('./managed-skills-api',async original=>({...await original<typeof import('./managed-skills-api')>(),managedSkillsApi:{list:vi.fn()}}));
+beforeEach(()=>{vi.resetAllMocks();localStorage.clear();localStorage.setItem('agentbaton.language','en');});
+vi.mock('./background-service-api',async original=>({...await original<typeof import('./background-service-api')>(),backgroundServiceApi:{status:vi.fn(),hide:vi.fn()}}));
+it('opens background settings without hiding or changing existing settings',async()=>{vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[],next_cursor:1,sequence:1,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);vi.mocked(backgroundServiceApi.status).mockResolvedValue({instance_id:'12345678-1234-1234-1234-123456789abc',started_at:'2026-11-09T12:00:00Z',api_version:1,database_schema_version:18,sequence:1,owned_provider_workers:false,store_recovery:'completed_on_start'});render(<App/>);await waitFor(()=>expect(api.snapshot).toHaveBeenCalled());fireEvent.click(screen.getByRole('button',{name:'Settings'}));expect(await screen.findByRole('region',{name:'Background service'})).toBeVisible();expect(screen.getByText('Appearance')).toBeVisible();expect(screen.getByLabelText('Language')).toBeVisible();expect(backgroundServiceApi.hide).not.toHaveBeenCalled();});

@@ -1,0 +1,13 @@
+# Progress
+
+Independent source diagnosis atb452e4a31dd4d1c9cce7e35282a9c2c9dcf0ff39: command_validation.rs sets exit_observed_within_budget only in its natural-exit loop. Cancellation SIGKILL can produce real reap/EOF and original cleanup-within-cap without that PASS predicate. Previous integration stopped classification then forced unknown regardless of actual stop. No dynamic Actor reproduction is claimed by this source diagnosis.
+
+Sourcef653ede511e090d5393fb9df642cde0b9981f7c4 changes only the private stopped predicate and adds cfg registration/new tests. For process_started=false, accept only the opaque producer's CancelledBeforeSpawn/DeadlineExceeded no-child paths. Actual initial() has empty stream flags=true but reap/cleanup-within/exit-observed=false; these are not actual created-pipe EOF observations and the predicate neither requires nor rewrites them. Other no-child reasons remain conservative false.
+
+For process_started=true, require real leader reap, original cleanup within cap, stdout/stderr EOF and aggregate capture EOF; reject CleanupUnknown and inconsistent CancelledBeforeSpawn. Drop natural-exit from stopped only. All validation passed, normal exit, accept_command, library execution/cleanup, private CAS success and settlement conditions remain byte-identical. Worker-thread actual join and measurement/fence handling remain separate and unchanged. Real late/missing cleanup still cannot pass or release unknown resources.
+
+Four cfg test sources create actual opaque CommandRun through the trusted Rust policy API. No Native OS/Provider/Actor authority is claimed. Linux cancellation controls observe the generated owned shell stopped through a retained proc directory plus readonly ps, cancel only via the original atomic/owner, and consume its worker/leader. The negative retains a real stdout writer to prevent EOF through cleanup; no guessed PID is signalled. Descendant containment remains not_enforced_unknown.
+
+Author direct rustfmt/diff checks passed. Eleven source/inverse checks passed, proving the whole production file reverses exactly after restoring the predicate/removing registration and the original library/PASS/CAS/worker/settlement files are unchanged. No Cargo/Rust/Actor/Git/Node/Native/platform tests were executed by the author. Root's independent baseline and fixed actual tests remain pending and must not be inferred from static checks.
+
+14f912d adds one guard-specific test assertion requiring CancelRequested, protecting the actual-cancel dimension from late deadline races. This strengthens tests only; no production or budget change. Source-only checks remain non-runtime evidence.

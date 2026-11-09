@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "unit": "integration-core-lints",
+  "base_commit": "0cee7d57907af547880db1367c0386c4bc108950",
+  "source_commit": "385487b36d9625d6556c6242f0310b6dca2dc209",
+  "authority": "AB-START-001; OWNER-001/002; Root explicitly scoped lint repair",
+  "artifact_manifest": {
+    "path": "/workspace/.onboarding/integration-core-lints-source-385487b/MANIFEST.json",
+    "sha256": "5e1bba41090f5dde8be6be95d70d81127c62f6881ea9f172487b88f0149b660a"
+  },
+  "executed": [
+    {
+      "kind": "source_inverse_and_formatter_checks",
+      "command": "python3 /workspace/.onboarding/integration-core-lints-work/check.py",
+      "exit_code": 0,
+      "checks": 45,
+      "source_files": 13
+    },
+    {
+      "kind": "standalone_rustfmt",
+      "argv_record": "/workspace/.onboarding/integration-core-lints-source-385487b/rustfmt.json",
+      "exit_code": 0
+    },
+    {
+      "kind": "git_diff_check",
+      "exit_code": 0
+    }
+  ],
+  "moved_module_body_hashes": [
+    {
+      "file": "goal_runtime.rs",
+      "module": "tests",
+      "sha256": "efe63d1c9709673be76f10648e27bb32885847b9db3c7b4cd276ec32eecb5383",
+      "test_count": 16
+    },
+    {
+      "file": "goal_graph.rs",
+      "module": "proposal_size_tests",
+      "sha256": "18ca5fd0392e4d65615ba5bf7b43916dd885216fcddbd490516c05d718a31cb3",
+      "test_count": 1
+    },
+    {
+      "file": "integration_workers.rs",
+      "module": "tests",
+      "sha256": "275ae7d31ce96adae82141cecd677cb938d1e4d2bcfbb099bf72aa921e8abd94",
+      "test_count": 2
+    },
+    {
+      "file": "policy.rs",
+      "module": "live_workspace_tests",
+      "sha256": "475d6581370eb8b0dc8c95bbe2a9d710bfc34e38ef44fa3bf8032508456b406f",
+      "test_count": 4
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "crates/core/src/goal_graph.rs",
+      "base_sha256": "b56db4470bc0d3f468f98aab6dba3793b713bfe3696a2065b27fdda290071242",
+      "source_sha256": "55d4458c23a303e2198e444095a0a66c2bca29fbe9127fa076e7d1faec87e2c7"
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "base_sha256": "48fe81d4358b8a6b4a9db864ed470c31be26c116af58c7d1797fc816b2825bd9",
+      "source_sha256": "46581da4d99953a8cd8ca4b15c443fa1860a94b31ddf71abf46ccdf9839684c5"
+    },
+    {
+      "path": "crates/core/src/integration.rs",
+      "base_sha256": "3a6da954ec7fc2c68226fe310e1ca5c2f579364ba3f57fb2bf5076def923b92a",
+      "source_sha256": "d18c819444b0d9de67d40691b6dc8f50398993217cee89c92171f713ffb17fac"
+    },
+    {
+      "path": "crates/core/src/integration_approval.rs",
+      "base_sha256": "38618ffaa896ed191552d2ab8c53ddc3ffc2a8faf7c617596ded825797a463cf",
+      "source_sha256": "845375f6c3b0b10895c7d194d6cd2c7dbe2ed3017c972101f94ae79fdf53a7cc"
+    },
+    {
+      "path": "crates/core/src/integration_authority.rs",
+      "base_sha256": "81d5fd35c67bb18b77d65afcb4fe85178e48e5cc2fe3b6633dde62da2a730ed4",
+      "source_sha256": "c9439b84334da701e0037426d23b1454f27bac1660858133b56422f6a6cb1c66"
+    },
+    {
+      "path": "crates/core/src/integration_reads.rs",
+      "base_sha256": "0b351e3f1bac341d4435166d2cfae2720a1b1b35d366d90d5badb093b64c92c0",
+      "source_sha256": "e0af9753aa4d32d06fe01148e917c8ba0630798fe254cd790d9533ad97c543e3"
+    },
+    {
+      "path": "crates/core/src/integration_runtime.rs",
+      "base_sha256": "15953abc35bc79300687e4cb5b16513bb343efd95402fb0468341d5b210c979e",
+      "source_sha256": "e11348064c8a4e2ca04608f6cd742fd3d70d320a90a5e83b278fd5a1569ababd"
+    },
+    {
+      "path": "crates/core/src/integration_stage_workers.rs",
+      "base_sha256": "747e364d0073ce023237fb45979ff8ae38352504a1ede9e3bb81a276ae98944f",
+      "source_sha256": "1b0d1dbfbcbbd12f0df57ee52a2ec8fb6819c6be36516d6fb48e7c09701a3363"
+    },
+    {
+      "path": "crates/core/src/integration_store.rs",
+      "base_sha256": "309b1a79ede2ce0914246129e99442b706a805d20048d90d79e7504b86fe71ba",
+      "source_sha256": "09c612736715c7a4cddc844b035bb004716352c1ce8c74c4d78cc7257618704c"
+    },
+    {
+      "path": "crates/core/src/integration_targets.rs",
+      "base_sha256": "c360996d49e8278ca1f3e1be152c88822f39f794a1b04d4e4d6c2bb1a931eb84",
+      "source_sha256": "e38974e9dd66085f3aa1ab804b4e5461de1833a83319661e3bcbc30766bcef28"
+    },
+    {
+      "path": "crates/core/src/integration_workers.rs",
+      "base_sha256": "8e63b56dc5b5d74cfc293f3e60f9f789565d6c90aa08e7dba96730889daf31d0",
+      "source_sha256": "377cc331f010cedbb8aa1e98db6738c4c893bbd309e46fba284f559ddb078a11"
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "base_sha256": "c1ccf12bba720fb0751342e8d40dbbf91aea7b6eedfdb92dcf7cb92e2f0a1d19",
+      "source_sha256": "04b94d08bb550e17cc6a38777bf6bb3cdc779c0a93176851d93a5dacfaf67b37"
+    },
+    {
+      "path": "crates/core/src/policy.rs",
+      "base_sha256": "a4d723008b95ec83423847bf671f3ddccc31f2cd53cd0079d7a686a9c93e5e19",
+      "source_sha256": "a6c77d591498ed0a88e964ca6638f9ae8900ebb062625556c2a1ab42a661d9a2"
+    }
+  ],
+  "historical_failure": {
+    "path": "/workspace/.onboarding/integration17-validator-stop-clippy2/command.log",
+    "sha256": "25579121f4374b2fade2995341bf4179fcb400102bef3cf4ceac3b577eed651a"
+  },
+  "not_run": [
+    "Cargo check",
+    "strict Clippy",
+    "Rust tests",
+    "actual Serde JSON/Native bridge roundtrips",
+    "Actor/Unix IPC",
+    "macOS OS approval"
+  ],
+  "claims": {
+    "permission_or_budget_change": false,
+    "wire_field_or_serde_attribute_change": false,
+    "migration_SQL_change": false,
+    "test_body_change": false,
+    "runtime_verified_at_this_source": false
+  }
+}

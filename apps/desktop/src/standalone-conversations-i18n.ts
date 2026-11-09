@@ -1,0 +1,28 @@
+export const standaloneConversationMessages = {
+  en: {
+    entry:'New independent conversation', title:'Independent Agent conversations', help:'Start a separate Agent conversation in an approved managed workspace. Starting launches an Agent process; it does not create a task or send a message.',
+    refresh:'Refresh conversations', disconnected:'Connect to the local daemon to continue.', error:'The conversation or its authorization could not be verified. Refresh before continuing.',
+    project:'Conversation project', workspace:'Managed workspace', connection:'Agent connection', grant:'Execution grant', choose:'Choose…', name:'Conversation name', start:'Start conversation', empty:'No independent conversations yet.',
+    noProject:'Choose an active registered project.', noWorkspace:'No ready managed Git workspace is available for this project. Prepare one in project settings.', noConnection:'No approved ready connection is available. Configure a connection first.',
+    grantSetup:'Authorize this scope', attempts:'Attempt limit', concurrency:'Concurrency limit', duration:'Runtime limit (seconds)', acknowledge:'I have reviewed the connection, workspace and execution limits.', approveGrant:'Approve execution grant', grantHelp:'Existing task and conversation execution share the grant budget. Authorization is confirmed in the native window; it does not start a conversation.',
+    scope:'Execution scope', recipient:'Recipient', identity:'Identity reference', config:'Configuration revision', host:'Host', boundary:'Managed configuration and workspace paths do not prove an OS sandbox or identity isolation.',
+    selected:'Selected conversation', message:'Conversation message', send:'Send message', stop:'Request stop', cancelled:'Stop requested; wait for the observed result.', noMessages:'No messages in the loaded window.', window:'Only the loaded journal window is shown. Earlier messages may be missing.',
+    user:'You', agent:'Agent', summary:'Selected conversation summary', useContext:'Use selected excerpts', convert:'Create task from summary', conversionHelp:'Only the reviewed excerpts become a local task draft in this conversation’s project. This does not transfer execution authority or constitute a complete source-history contract.',
+    limit:'Selected text exceeds the supported limit. Select fewer excerpts; nothing was truncated.', emptySelection:'Select one or more message excerpts first.',
+    pending:'An operation may have taken effect. Its exact request is retained; refresh and explicitly reconcile it before making another change.', recover:'Reconcile original request', sending:'An operation is in progress.', notReady:'Sending requires a freshly observed ready conversation.', unknown:'Unknown state',
+    states:{starting:'Starting',ready:'Ready',running:'Running',cancel_requested:'Stop requested',stopped:'Stopped',failed:'Failed',outcome_unknown:'Outcome unknown'},
+  },
+  zh: {
+    entry:'新建独立对话', title:'独立 Agent 对话', help:'在已批准的受管工作区中启动独立 Agent 对话。启动会创建 Agent 进程，不创建任务，也不发送消息。',
+    refresh:'刷新对话', disconnected:'连接本地后台后继续。', error:'无法核验对话或授权，请刷新后继续。',
+    project:'对话项目', workspace:'受管工作区', connection:'Agent 连接', grant:'执行授权', choose:'请选择…', name:'对话名称', start:'开始对话', empty:'暂无独立对话。',
+    noProject:'请选择有效的已注册项目。', noWorkspace:'此项目没有就绪的受管 Git 工作区，请先在项目设置中准备。', noConnection:'暂无已批准且就绪的连接，请先配置连接。',
+    grantSetup:'批准此范围', attempts:'尝试次数上限', concurrency:'并发上限', duration:'运行时间上限（秒）', acknowledge:'我已核对连接、工作区与执行上限。', approveGrant:'批准执行授权', grantHelp:'任务与对话共享此授权的预算。授权在原生窗口中确认，不会自动启动对话。',
+    scope:'执行范围', recipient:'接收方', identity:'身份引用', config:'配置修订', host:'主机', boundary:'托管配置和工作区路径不代表已实现操作系统沙箱或身份隔离。',
+    selected:'选定对话', message:'对话消息', send:'发送消息', stop:'请求停止', cancelled:'已请求停止，请等待实际结果。', noMessages:'已加载窗口中暂无消息。', window:'仅显示已加载的日志窗口，可能缺少较早消息。',
+    user:'你', agent:'Agent', summary:'选定对话摘要', useContext:'使用选定片段', convert:'从摘要创建任务', conversionHelp:'仅将审阅后的片段保存为此对话项目中的本地任务草稿，不转移执行权限，也不代表完整的来源历史合同。',
+    limit:'选定文本超过支持的上限，请减少片段；未进行截断。', emptySelection:'请先选择消息片段。',
+    pending:'操作可能已生效，已保留原始请求。请刷新并明确核对原请求，再进行其他修改。', recover:'核对原始请求', sending:'操作正在进行。', notReady:'须重新读取到就绪对话后才能发送。', unknown:'未知状态',
+    states:{starting:'启动中',ready:'就绪',running:'运行中',cancel_requested:'已请求停止',stopped:'已停止',failed:'失败',outcome_unknown:'结果未知'},
+  },
+};

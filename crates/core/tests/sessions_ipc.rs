@@ -1,6 +1,6 @@
 //! Real generated fixture child only. No vendor executable, identity, model or network is invoked.
 #[path = "fixtures/pre_factory_schema.rs"]
-mod pre_factory_schema;
+pub mod pre_factory_schema;
 use agentbaton_core::ipc::{call, Daemon};
 use serde_json::{json, Value};
 use std::{
@@ -156,6 +156,10 @@ for line in sys.stdin:
    assert contract['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
    assert contract['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
    text=contract['goal']
+   if contract['node']['id'] in ('draft-first','draft-second'):
+    assert 'multi fixture risk' in text and 'no external writes' in text
+    assert contract['node']['kind']=='work'
+    text='goal-report' if contract['node']['id']=='draft-first' else 'goal-report-extra-2'
    if text in ('goal-data-report','goal-data-report-bad'):
     import hashlib
     root=contract['workspace']['input_revision']
@@ -1066,7 +1070,7 @@ fn goal_scope_and_plan_with_capacity(
 ) -> Value {
     goal_scope_and_plan_with_options(f, goal, reworks, count, max_nodes, 2, vec![])
 }
-fn goal_scope_and_plan_with_options(
+fn goal_scope_only_with_options(
     f: &Scenario,
     goal: &str,
     reworks: u32,
@@ -1146,7 +1150,20 @@ fn goal_scope_and_plan_with_options(
     let proposal = result(f.server.request(
         json!({"method":"goal_scopes.propose","params":selection,"idempotency_key":format!("goal-scope:{}",f.task["id"].as_str().unwrap())}),
     ));
-    let scope = approve(&f.server, proposal);
+    approve(&f.server, proposal)
+}
+fn goal_scope_and_plan_with_options(
+    f: &Scenario,
+    goal: &str,
+    reworks: u32,
+    count: u32,
+    max_nodes: u32,
+    attempts: u32,
+    validators: Vec<agentbaton_core::goal_store::GoalValidatorRef>,
+) -> Value {
+    use agentbaton_core::{goal_plan::*, goal_store::*};
+    let scope =
+        goal_scope_only_with_options(f, goal, reworks, count, max_nodes, attempts, validators);
     let view: GoalScopeView = serde_json::from_value(scope.clone()).unwrap();
     let contract = view.outputs["report"].clone();
     let node = PlanNode {
@@ -3403,7 +3420,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        16
+        18
     );
     assert!(db
         .query_row(
@@ -3532,7 +3549,13 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
             .query_map([], |row| row.get::<_, String>(0))
             .unwrap()
             .map(|row| row.unwrap())
-            .filter(|name| !pre_factory_schema::FACTORY_TABLES.contains(&name.as_str()))
+            .filter(|name| {
+                !pre_factory_schema::FACTORY_TABLES.contains(&name.as_str())
+                    && !pre_factory_schema::pre_conversation_schema::CONVERSATION18_TABLES
+                        .contains(&name.as_str())
+                    && !pre_factory_schema::pre_integration_schema::INTEGRATION17_TABLES
+                        .contains(&name.as_str())
+            })
             .collect();
         names
             .into_iter()
@@ -3557,8 +3580,12 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
             })
             .collect()
     };
+    // Prove the four exact new domains are empty before excluding them from
+    // the historical row projection. The old-version read below never calls
+    // this current17-only verifier and still compares every retained old row.
+    pre_factory_schema::pre_integration_schema::verify_empty_integration17_current18(&db).unwrap();
     let before_projection = legacy_snapshot();
-    pre_factory_schema::remove_empty_factory_increment(&db).unwrap();
+    pre_factory_schema::remove_empty_current_factory_increment(&db).unwrap();
     assert_eq!(legacy_snapshot(),before_projection,"the historical projection must not rewrite any legacy row, including counters and consumed meters");
     let evidence = json!({"kind":"test_only_empty_factory_historical_projection","goal_run_id":run["id"],"session_id":session_id,"attempt_id":attempt_id,"server_shutdown_joined":true,"raw_goal_run":raw_run,"raw_goal_node":raw_node,"raw_goal_reservation":original_reservation,"raw_owned_stop_receipt":stop_receipt,"raw_legacy_meter_receipts":meter_receipts,"legacy_tables_compared":before_projection.iter().map(|row|row.0.clone()).collect::<Vec<_>>(),"factory_shared_rows_before":0,"deleted_receipt_rows":0,"complete_old_session_budget_upgrade_compatibility":"not_established"});
     let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
@@ -3762,8 +3789,8 @@ impl GraphOwnerGrantClock {
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
         assert_eq!(
-            version, 16,
-            "This Factory integration fixture must link exact schema16"
+            version, 17,
+            "This Factory integration fixture must link exact current schema17"
         );
         let raw: String = db
             .query_row(
@@ -4264,9 +4291,17 @@ fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_wit
     drop(db);
     {
         let control = agentbaton_core::storage::Store::open(&frozen).unwrap();
+        let original_task = control.get(task_id).unwrap();
         assert_eq!(
-            control.get(task_id).unwrap().state,
+            original_task.state,
             agentbaton_core::storage::TaskState::Accepted
+        );
+        // Scenario uses workspaces.create directly: this historical fixture has
+        // no Task-managed binding. A foreign project still must fail all four
+        // durable acceptance guards, but does not violate a nonexistent receipt.
+        assert!(
+            original_task.code_workspace_binding.is_none(),
+            "legacy accepted fixture unexpectedly acquired a Task-managed binding"
         );
         assert!(control.goal_graph_details(run_id).unwrap().task_accepted);
     }
@@ -4292,6 +4327,10 @@ fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_wit
     for (name, sql) in cases {
         let path = f.root.join(format!("tampered-{name}.sqlite3"));
         std::fs::copy(&frozen, &path).unwrap();
+        // Exercise the original history guards after a valid startup. Current
+        // schema17 also rejects a mismatched Task row ID during a cold open;
+        // that separate boundary must not hide these four read/replay checks.
+        let mut store = agentbaton_core::storage::Store::open(&path).unwrap();
         let db = rusqlite::Connection::open(&path).unwrap();
         if name == "task-project" {
             db.execute(
@@ -4312,34 +4351,69 @@ fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_wit
             .try_into()
             .unwrap();
         drop(db);
-        let mut store = agentbaton_core::storage::Store::open(&path).unwrap();
-        assert!(
-            store.get(task_id).is_err(),
-            "{name}: generic accepted read borrowed damaged evidence"
-        );
-        assert!(
-            store.list().is_err(),
-            "{name}: list borrowed damaged accepted evidence"
-        );
-        assert!(
-            store.goal_graph_details(run_id).is_err(),
-            "{name}: Graph accepted read borrowed damaged evidence"
-        );
-        assert!(
-            store
-                .finalize_proposal(
-                    proposal["id"].as_str().unwrap(),
-                    proposal["revision"].as_u64().unwrap()
-                )
-                .is_err(),
-            "{name}: historical finalize borrowed damaged result/evidence"
-        );
-        assert_eq!(
-            store.sequence().unwrap(),
-            seq,
-            "{name}: rejection created events"
-        );
-        eprintln!("ACCEPTED_HISTORY_CONTROL {name} refused without mutation");
+        let refused_history = |store: &mut agentbaton_core::storage::Store, boundary: &str| {
+            assert!(
+                store.get(task_id).is_err(),
+                "{name}: generic accepted read borrowed damaged evidence"
+            );
+            assert!(
+                store.list().is_err(),
+                "{name}: list borrowed damaged accepted evidence"
+            );
+            assert!(
+                store.goal_graph_details(run_id).is_err(),
+                "{name}: Graph accepted read borrowed damaged evidence"
+            );
+            assert!(
+                store
+                    .finalize_proposal(
+                        proposal["id"].as_str().unwrap(),
+                        proposal["revision"].as_u64().unwrap()
+                    )
+                    .is_err(),
+                "{name}: historical finalize borrowed damaged result/evidence"
+            );
+            assert_eq!(
+                store.sequence().unwrap(),
+                seq,
+                "{name}: rejection created events"
+            );
+            eprintln!("ACCEPTED_HISTORY_CONTROL {name} {boundary} refused without mutation");
+        };
+        refused_history(&mut store, "already-open");
+        drop(store);
+        if name == "task-id" {
+            let bytes = std::fs::read(&path).unwrap();
+            let sidecars = ["-wal", "-shm"].map(|suffix| {
+                let sidecar = PathBuf::from(format!("{}{suffix}", path.display()));
+                (sidecar.clone(), std::fs::read(sidecar).ok())
+            });
+            let error = match agentbaton_core::storage::Store::open(&path) {
+                Ok(_) => panic!("{name}: cold open borrowed a mismatched Task row ID"),
+                Err(error) => error,
+            };
+            assert_eq!(error.code, "INPUT_CHANGED", "{name}: {error:?}");
+            assert_eq!(error.side_effect_state, "not_started");
+            assert_eq!(
+                error.message,
+                "Integration migration refuses malformed predecessor Task records"
+            );
+            assert_eq!(
+                std::fs::read(&path).unwrap(),
+                bytes,
+                "{name}: cold rejection changed database bytes"
+            );
+            for (sidecar, before) in sidecars {
+                assert_eq!(
+                    std::fs::read(sidecar).ok(),
+                    before,
+                    "{name}: cold rejection changed journal bytes"
+                );
+            }
+        } else {
+            let mut reopened = agentbaton_core::storage::Store::open(&path).unwrap();
+            refused_history(&mut reopened, "cold-open");
+        }
     }
 }
 
@@ -6153,4 +6227,217 @@ fn actual_graph_hard_shared_attempt_limit_keeps_bootstrap_usage_and_blocks_summa
         sequence
     );
     eprintln!("ACTUAL_GRAPH_BUDGET bootstrap1+Work1+Validator1 reaches approved3; Owner decision neither refunds nor mints Summary capacity");
+}
+
+#[test]
+fn standalone_conversation_ipc_never_creates_a_task_or_replays_a_turn() {
+    let f = Scenario::new(20_000);
+    let tasks_before = result(f.server.request(json!({"method":"tasks.list","params":{}})));
+    let create = json!({"method":"conversations.create","params":{
+        "project_id":f.project["id"],"title":"Independent generated discussion",
+        "workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]
+    },"idempotency_key":"standalone-create"});
+    let conversation = result(f.server.request(create.clone()));
+    assert!(conversation.get("task_id").is_none());
+    let ready = wait(
+        &f.server,
+        "conversations.get",
+        json!({"conversation_id":conversation["id"]}),
+        |v| v["state"] == "ready",
+    );
+    let replay = result(f.server.request(create.clone()));
+    assert_eq!(replay["id"], ready["id"]);
+    assert_eq!(replay["attempt_id"], ready["attempt_id"]);
+    let mut conflict = create;
+    conflict["params"]["title"] = json!("Different intent");
+    assert_eq!(
+        f.server.request(conflict)["error"]["code"],
+        "CONFIG_CONFLICT"
+    );
+    let send = json!({"method":"conversations.send","params":{"conversation_id":ready["id"],"text":"standalone fixture message"},"expected_revision":ready["revision"],"idempotency_key":"standalone-turn"});
+    result(f.server.request(send.clone()));
+    let ended = wait(
+        &f.server,
+        "conversations.get",
+        json!({"conversation_id":ready["id"]}),
+        |v| v["state"] == "ready" && v["turn_state"] == "completed",
+    );
+    result(f.server.request(send));
+    let history = result(f.server.request(json!({"method":"conversations.history","params":{"conversation_id":ready["id"],"cursor":null,"limit":100}})));
+    assert_eq!(history["conversation_id"], ready["id"]);
+    assert_eq!(history["attempt_id"], ready["attempt_id"]);
+    assert_eq!(history["coverage"], "complete");
+    assert_eq!(history["capture"], "normalized_partial");
+    assert_eq!(
+        history["events"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|e| e["kind"] == "conversation.message_queued")
+            .count(),
+        1
+    );
+    let tasks_after = result(f.server.request(json!({"method":"tasks.list","params":{}})));
+    assert_eq!(
+        tasks_after, tasks_before,
+        "Conversation must not synthesize or mutate a Task"
+    );
+    assert!(result(
+        f.server
+            .request(json!({"method":"sessions.list","params":{}}))
+    )
+    .as_array()
+    .unwrap()
+    .is_empty());
+    let events = result(
+        f.server
+            .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":1000}})),
+    );
+    assert_eq!(
+        events["events"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(
+                |e| e["aggregate_id"] == ready["id"] && e["kind"] == "conversation.message_queued"
+            )
+            .count(),
+        1
+    );
+    let cancelled=result(f.server.request(json!({"method":"conversations.cancel","params":{"conversation_id":ended["id"]},"expected_revision":ended["revision"],"idempotency_key":"standalone-cancel"})));
+    assert!(matches!(
+        cancelled["state"].as_str(),
+        Some("cancel_requested" | "stopped")
+    ));
+    wait(
+        &f.server,
+        "conversations.get",
+        json!({"conversation_id":ready["id"]}),
+        |v| v["state"] == "stopped",
+    );
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"conversations.list","params":{}}))
+        )
+        .as_array()
+        .unwrap()
+        .len(),
+        1
+    );
+}
+
+#[test]
+fn actual_generated_multi_draft_requires_owner_before_downstream_and_task_acceptance() {
+    let f = Scenario::with_generated_output_policy(30_000, "custom_acp", false, 8);
+    let scope = goal_scope_only_with_options(&f, "goal-report", 0, 2, 8, 8, vec![]);
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    let request = json!({"scope_id":scope["id"],"task_id":task["id"],"expected_task_revision":task["revision"],"expected_spec_revision":task["spec_revision"],"expected_scope_revision":scope["revision"],"expected_scope_digest":scope["scope_digest"],"expected_authority_revision":scope["authority_revision"],"risk_notes":"multi fixture risk","prohibited_actions":"no external writes","steps":[
+        {"id":"draft-first","goal":"Produce the first approved report","dependencies":[],"input_artifact_ids":["fixed-input"],"output_artifact_ids":["report"],"runtime_ms":2000,"output_bytes":1024,"review_runtime_ms":500,"review_output_bytes":512},
+        {"id":"draft-second","goal":"Summarize the accepted first report","dependencies":[],"input_artifact_ids":["report"],"output_artifact_ids":["report-2"],"runtime_ms":2000,"output_bytes":1024,"review_runtime_ms":500,"review_output_bytes":512}
+    ]});
+    let draft = result(
+        f.server
+            .request(json!({"method":"goal_plans.draft_multi","params":request})),
+    );
+    assert_eq!(draft["planning_only"], true);
+    assert_eq!(draft["dispatched"], false);
+    assert!(result(
+        f.server
+            .request(json!({"method":"goal_plans.list","params":{"scope_id":scope["id"]}}))
+    )
+    .as_array()
+    .unwrap()
+    .is_empty());
+    let nodes = draft["plan"]["nodes"].as_array().unwrap();
+    let owner_for = |producer: &str| {
+        nodes
+            .iter()
+            .find(|node| {
+                node["kind"] == "owner_approval"
+                    && node["required_inputs"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|input| input["source"]["node_id"] == producer)
+            })
+            .unwrap()["id"]
+            .clone()
+    };
+    let first_owner = owner_for("draft-first");
+    let final_owner = owner_for("draft-second");
+    let saved=result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&draft["plan"]).unwrap()},"expected_revision":0,"idempotency_key":"save-generated-multi"})));
+    assert_eq!(saved["digest"], draft["plan_digest"]);
+    let approved = approve_graph_at(&f, &scope, 1);
+    let run_id = &approved["run"]["id"];
+    let first = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |value| {
+            value["nodes"].as_array().is_some_and(|rows| {
+                rows.iter()
+                    .any(|row| row["node"]["id"] == first_owner && row["state"] == "awaiting_owner")
+            })
+        },
+    );
+    assert_eq!(first["candidates"].as_array().unwrap().len(), 1);
+    assert_eq!(first["task_accepted"], false);
+    assert!(first["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|candidate| candidate["node_id"] != "draft-second"));
+    let owner = graph_owner_proposal(
+        &f,
+        run_id,
+        first_owner.as_str().unwrap(),
+        "approve-generated-first",
+    );
+    let decision = approve(&f.server, owner);
+    assert_eq!(decision["task_accepted"], false);
+    let second = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |value| {
+            value["nodes"].as_array().is_some_and(|rows| {
+                rows.iter()
+                    .any(|row| row["node"]["id"] == final_owner && row["state"] == "awaiting_owner")
+            })
+        },
+    );
+    let downstream = second["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|candidate| candidate["node_id"] == "draft-second")
+        .unwrap();
+    assert_eq!(
+        downstream["consumed_inputs"][0]["candidate"],
+        first["candidates"][0]["artifacts"][0]
+    );
+    assert_eq!(
+        downstream["artifacts"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"extra report 2")
+    );
+    assert_eq!(second["task_accepted"], false);
+    let final_proposal = graph_owner_proposal(
+        &f,
+        run_id,
+        final_owner.as_str().unwrap(),
+        "approve-generated-final",
+    );
+    let accepted = approve(&f.server, final_proposal);
+    assert_eq!(accepted["task_accepted"], true);
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"tasks.get","params":{"task_id":task["id"]}}))
+        )["state"],
+        "accepted"
+    );
 }

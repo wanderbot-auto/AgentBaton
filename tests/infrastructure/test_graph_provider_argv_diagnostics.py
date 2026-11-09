@@ -178,7 +178,12 @@ class GraphProviderArgvDiagnosticsTests(unittest.TestCase):
             self.assertEqual((private/'report.json').read_bytes(),original)
 
     def test_driver_call_remains_within_existing_identity_and_pgid_guards(self):
-        tree=ast.parse((ROOT/'apps/desktop/tests/factory-child-goal-real-ipc.py').read_text())
+        from tests.infrastructure.test_graph_observation_handshake import strip_composed_outer_layer
+        source=(ROOT/'apps/desktop/tests/factory-child-goal-real-ipc.py').read_text()
+        # Preserve every old Main collector assertion on its exact historical blob.
+        historical=strip_composed_outer_layer(source,'theirs')
+        self.assertEqual(P.sha(historical.encode()),'7dc4732f18be492fddcc49bb989f233cd4fc409bb11de33a7951f7d5cf36e338')
+        tree=ast.parse(historical)
         function=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='collect_graph_records')
         calls=[n for n in ast.walk(function)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='check_graph_provider_argv']
         self.assertEqual(len(calls),1);call=calls[0]
@@ -188,6 +193,26 @@ class GraphProviderArgvDiagnosticsTests(unittest.TestCase):
         self.assertIn("current['start_ticks'] == identity['start_ticks']",body)
         self.assertIn("os.getpgid(identity['pid']) == identity['pgid']",body)
         self.assertNotIn('sleep',body);self.assertNotIn('cancel_requested',body)
+        # Actual composed source must retain the stronger Root binding kernel.
+        root=strip_composed_outer_layer(source,'ours')
+        self.assertEqual(P.sha(root.encode()),'4b0332152c2dff9e4d4d7df94dede8ce23b0735c1b76adbef14398c142811b88')
+        actual=ast.parse(source)
+        functions={n.name:n for n in actual.body if isinstance(n,ast.FunctionDef)}
+        collector=functions['collect_graph_records'];binding=functions['bind_graph_observation']
+        calls=[n for n in ast.walk(collector)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='bind_graph_observation']
+        self.assertEqual(len(calls),1)
+        self.assertEqual([ast.unparse(n)for n in calls[0].args],['fixed', "row['provider_argv']", 'old', 'context', 'output', 'finite', 'lambda: observe_exact_graph_cancel(db, scope, context, fixed)'])
+        text=ast.unparse(binding)
+        self.assertLess(text.index('observe_graph_identity('),text.index('graph_finite_observation('))
+        self.assertLess(text.index('graph_finite_observation('),text.index("require(result['kind'] != 'not_verified'"))
+        self.assertLess(text.index("require(result['kind'] != 'not_verified'"),text.index('publish_graph_binding_ack('))
+        finite=ast.unparse(functions['graph_finite_observation'])
+        self.assertIn("result['kind'] == 'not_verified' and kind in reasons",finite)
+        self.assertIn("{'empty': 'empty', 'oversize': 'oversized', 'missing_nul': 'missing_nul', 'mismatch': 'argv_mismatch'}",finite)
+        for name in ('graph_finite_observation','bind_graph_observation','collect_graph_records'):
+            text=ast.unparse(functions[name])
+            for forbidden in ('time.sleep','os.kill','os.waitpid','host.wire','host.result'):
+                self.assertNotIn(forbidden,text)
 
 
 if __name__=='__main__':unittest.main()

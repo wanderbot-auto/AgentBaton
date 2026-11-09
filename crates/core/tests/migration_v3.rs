@@ -1,5 +1,5 @@
 #[path = "fixtures/pre_factory_schema.rs"]
-mod pre_factory_schema;
+pub mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::Connection;
 use std::os::unix::fs::PermissionsExt;
@@ -13,7 +13,7 @@ fn v2_upgrade_keeps_tasks_intents_and_private_backup_reopens() {
         .unwrap();
     drop(store);
     let c = Connection::open(&db).unwrap();
-    pre_factory_schema::remove_empty_factory_increment(&c).unwrap();
+    pre_factory_schema::remove_empty_current_factory_increment(&c).unwrap();
     c.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots;DROP TABLE approval_proposals;DROP TABLE session_turns;DROP TABLE sessions;DROP TABLE execution_grants;DROP TABLE connections;DROP TABLE workspace_leases;DROP TABLE managed_workspaces;DROP TABLE projects;PRAGMA user_version=2;").unwrap();
     drop(c);
     let upgraded = Store::open(&db).unwrap();
@@ -75,7 +75,7 @@ fn failed_v3_migration_leaves_version_and_legacy_state_recoverable() {
     let task = store.create("local", "must remain", "key").unwrap();
     drop(store);
     let c = Connection::open(&db).unwrap();
-    pre_factory_schema::remove_empty_factory_increment(&c).unwrap();
+    pre_factory_schema::remove_empty_current_factory_increment(&c).unwrap();
     c.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots;DROP TABLE approval_proposals;DROP TABLE session_turns;DROP TABLE sessions;DROP TABLE execution_grants;DROP TABLE connections;DROP TABLE workspace_leases;DROP TABLE managed_workspaces;DROP TABLE projects;CREATE TABLE projects(sentinel TEXT);PRAGMA user_version=2;").unwrap();
     drop(c);
     assert!(Store::open(&db).is_err());

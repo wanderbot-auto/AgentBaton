@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "decisions": [
+    "D18",
+    "D19"
+  ],
+  "source_commit": "e2b620d20cc75b470dec623ee9c5349e1cd78c66",
+  "parent": "3f05ee88b0002e3c20db014ceabaf95d5901f244",
+  "file": "crates/core/tests/fixtures/integration_runtime.rs",
+  "sha256": "788c3871badfc21532fc19bb7bbedb9cc6a445e0c4308921ad41b1754a9d89c0",
+  "prefix": {
+    "bytes": 141075,
+    "lines": 3559,
+    "sha256": "c48172b62780dbf91ee8d081f3bcb0adaed58124ca3ed11cae586719e07a9813",
+    "unchanged": true
+  },
+  "tests": [
+    "owner_cancel_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+    "owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas"
+  ],
+  "phase": "actual running-validator FIFO; descendant advance precedes Owner withdrawal; private stopped-command postprobe not held or claimed",
+  "checks": [
+    "suffix rustfmt passed",
+    "prefix byte equality passed",
+    "git diff --check passed"
+  ],
+  "rust_compile": "not_run_by_author",
+  "actual_ipc": "not_run_by_author",
+  "macos": "not_run",
+  "review": "pending",
+  "clocks_and_budgets_changed": false,
+  "production_changes": false,
+  "remaining": [
+    "withdrawal after validator stop/postprobe queued",
+    "input/image pins",
+    "expiry",
+    "overrun",
+    "unknown"
+  ],
+  "root_failure_and_source_corrections": [
+    {
+      "source": "211c8182a13704e15325d434e6418fee5c43fe1e",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "owner_",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 49.758418518991675,
+      "summaries": [
+        "test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 24.66s"
+      ],
+      "log_sha256": "6edf9595058d30ebf3a06537607a723144947eb7b7f0165a946e1c73a72b247c",
+      "failed_case": "owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+      "observed": "terminal last_error CANCEL_REQUESTED, original test expected PERMISSION_DENIED",
+      "retained_fixture": "/tmp/integration-runtime-f9E2xA",
+      "root_reports_failed_raw_elf_retained": true,
+      "classification": "test expectation misread existing supervisor-stop/settlement semantics; not a production defect claim",
+      "fix_source": "9434d035d5a322f9d548d1baa27aa0e85b955c94",
+      "fix_file_sha256": "36c919478bd984fe14644b1d01ada9c175ec6ca54126db8a96d783491e731a4b",
+      "fixed_rust_execution": "not_run_by_author"
+    },
+    {
+      "source": "1eb4c0d79282eed98f87fc9e4f6df56919f3e77a",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 122.51451853002072,
+      "summaries": [
+        "test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 96.13s"
+      ],
+      "log_sha256": "fec599ec508946f7a25e8d62070af0a483b2dfbc41caf9e44a71b1b6df0a3dd3",
+      "failed_case": "owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+      "failure": "original Host 500ms assertion after synchronous Owner RPC return expired; different from preceding last_error expectation failure",
+      "root_observed_events": [
+        "policy_revoked",
+        "supervisor_stop_requested:PERMISSION_DENIED",
+        "validator_observed:deadline_exceeded;passed=false;within_budget=false;cleanup=true;join=true",
+        "finished"
+      ],
+      "retained_fixture": "/tmp/integration-runtime-NVAkN6",
+      "root_reports_failed_raw_elf_retained": true,
+      "new_source": "db19915c2066f654bdf822849d9a73510e5533df",
+      "new_source_file_sha256": "d876b13fe1340853681ecfc8bf90fcbf17c69c1d26a9d4b5efeef38f33fac995",
+      "source_change": "only two withdrawal suffixes: fresh private readonly observation plus owned scoped original IPC caller; release after exact committed event within original Host500ms, original reply joined within existing five-second observation; reject deadline_exceeded as timely withdrawal evidence",
+      "phase_limit": "running validator; pre-observation is private readonly SQLite, Owner mutation and terminal reads remain real IPC; not stopped-command/postprobe authority withdrawal coverage",
+      "fixed_rust_execution": "not_run_by_author"
+    }
+  ]
+}

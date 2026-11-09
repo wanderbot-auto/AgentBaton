@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "scope": "AB-VAL-009 real integration browser CI wiring and finite evidence",
+  "base_commit": "b3ae58596920d20e6c0df185bd7164ec8226d803",
+  "branch": "codex/integration-browser-ci",
+  "authorized_paths": [
+    ".github/workflows/product.yml",
+    "apps/desktop/tests/integration-real-ipc.py",
+    "scripts/record-integration-browser-ci-evidence.py",
+    "tests/infrastructure/test_integration_browser_ci_evidence.py",
+    "tests/infrastructure/test_integration_browser_ci.py",
+    "tests/infrastructure/test_schema17_migration_workflow.py",
+    "tests/infrastructure/test_integration_native_ci.py",
+    "docs/execution/integration-browser-ci/PLAN.md",
+    "docs/execution/integration-browser-ci/PROGRESS.md",
+    "docs/execution/integration-browser-ci/CHECKPOINT.md",
+    "docs/execution/integration-browser-ci/EVIDENCE.json"
+  ],
+  "source_sha256": {
+    ".github/workflows/product.yml": "d57073b8b9e923228cf7329a1a7ceae5ee75ee088a9e77c777a48e88805db974",
+    "apps/desktop/tests/integration-real-ipc.py": "1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e",
+    "scripts/record-integration-browser-ci-evidence.py": "4329a748b5cf941ad97a8db0c4bdbdd885547eddd63d126d3611f52b37ee1c41",
+    "tests/infrastructure/test_integration_browser_ci_evidence.py": "a3967a5fcfe44b86a08435b415fb67003bc286a40ddee5c7535da5757e4e30fd",
+    "tests/infrastructure/test_integration_browser_ci.py": "119c758b93ffd6c505cd3e97a3ba67bd7cb9eeba7ce7f4160f2fb4198842bb67",
+    "tests/infrastructure/test_schema17_migration_workflow.py": "43466892e839881a5eab13a671b461caa1da5530a7e35080c1229d27fde1b323",
+    "tests/infrastructure/test_integration_native_ci.py": "484b153886d6751df77821385a57990cddb2dba16a3e889846b619a06cce9725"
+  },
+  "old_driver_tests_unchanged": {
+    "path": "tests/infrastructure/test_integration_real_ipc.py",
+    "sha256": "59fcb64ca67589202e15f4b150fa372f53d42a71ee24891ab4ef1ac8e87e86e2",
+    "tests": 35
+  },
+  "actual_pure_command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.infrastructure.test_integration_browser_ci",
+    "tests.infrastructure.test_integration_browser_ci_evidence",
+    "tests.infrastructure.test_integration_real_ipc",
+    "tests.infrastructure.test_schema17_migration_workflow",
+    "tests.infrastructure.test_integration_native_ci",
+    "-q"
+  ],
+  "pure_history": [
+    {
+      "scope": "old guard modules plus explicit UI layer",
+      "tests": 28,
+      "passed": 28,
+      "failed": 0,
+      "seconds": 1.3
+    },
+    {
+      "scope": "new publisher subset",
+      "tests": 16,
+      "passed": 16,
+      "failed": 0,
+      "seconds": 0.541
+    },
+    {
+      "scope": "new CI+publisher subset",
+      "tests": 30,
+      "passed": 29,
+      "failed": 1,
+      "seconds": 1.455,
+      "failure": "test_projection_private_alias_or_world_mode_refuses_before_subprocess/world",
+      "cause": "umask clipped intended0755 fixture to0700; fixed explicit chmod0755, assertion retained"
+    },
+    {
+      "scope": "first complete five-module run before whitespace cleanup",
+      "tests": 93,
+      "passed": 93,
+      "failed": 0,
+      "seconds": 3.006
+    },
+    {
+      "scope": "all five modules after new-block blank-line cleanup, old pins intact",
+      "tests": 93,
+      "passed": 93,
+      "failed": 0,
+      "seconds": 3.173
+    },
+    {
+      "scope": "added contradictory manifest/build guard with hashes consistent",
+      "tests": 94,
+      "passed": 94,
+      "failed": 0,
+      "seconds": 3.486
+    },
+    {
+      "scope": "final all five modules after strengthening negative source binding",
+      "tests": 94,
+      "passed": 94,
+      "failed": 0,
+      "seconds": 2.668
+    },
+    {
+      "scope": "private setup traceback review closure; old94 included",
+      "tests": 97,
+      "passed": 97,
+      "failed": 0,
+      "seconds": 3.084
+    }
+  ],
+  "counts": {
+    "final_unique_pure_tests": 97,
+    "passed": 97,
+    "failed": 0,
+    "author_actual_product_or_CI_runs": 0
+  },
+  "workflow_preservation": {
+    "actual_b3_sha256": "599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc",
+    "new_raw_header_positions": [
+      27,
+      28
+    ],
+    "old_native_positions_after_exact_strip": [
+      42,
+      43,
+      44
+    ],
+    "old_workflow_pin": "4b7543d61e8846248e1b7474ff6fe15d64068612fadbd44f6fe7585933a3378d",
+    "existing_native_test_b22_assertion": false,
+    "historical_argv_changes_retained": 6,
+    "timeouts_minutes": [
+      25,
+      20,
+      60
+    ],
+    "only_existing_schema_literal_changed": "16->17"
+  },
+  "chromium_test_image_cap": {
+    "before_after": 536870912,
+    "other_tools_unchanged": 268435456,
+    "observed_local_engine_bytes": 326880088,
+    "old_Root4e_launcher_bytes": 5064,
+    "virtual_fixture_not_real_browser_run": true,
+    "product_or_Goal_budgets_changed": false
+  },
+  "public_allowlist": {
+    "root": "artifacts/ui-browser/integration-browser",
+    "files": "summary.json + exactly12 validated original generated-fixture PNGs on complete success",
+    "raw_history_or_absolute_paths": false,
+    "visual_review": "not_performed_by_projector",
+    "pixel_synchronized": false
+  },
+  "guards": [
+    "private canonical fd/nofollow owner0700 dirs/0600 singlelink reports and images",
+    "stable named/descriptor stamps and cross-case recheck",
+    "duplicateJSON/NaN/bool/source/driver SHA/tools/assets/probe exactness",
+    "driver step outcome independent from private status",
+    "normal5+failure4checks,stages3/2,CAS1/0,actualexit0/7",
+    "owned graceful cleanup and no HTTP authority/start laundering",
+    "original byte-exact Native/historical/whole-workflow guards"
+  ],
+  "syntax": "AST PASS",
+  "whitespace": "git diff --check exit0",
+  "independent_review": "PENDING",
+  "not_run_by_author": [
+    "actual CI",
+    "Node/frontend build",
+    "Core/Cargo/ACP processes",
+    "browser",
+    "real PNG production or visual review",
+    "Native OS/macOS",
+    "real Provider"
+  ],
+  "formal_pr_approve": false,
+  "whitespace_history": [
+    {
+      "result": "failed",
+      "cause": "new YAML inline empty lines carried ten trailing spaces; no legacy blocks affected",
+      "resolution": "removed only new blank-line spaces, repinned both complete new raw blocks, old599074/Native3/4b hashes preserved; reran full guards"
+    }
+  ],
+  "new_block_sha256": [
+    "a1db5e7447f25ac6dd8f7a3fff8005e071971cb75c0aee109ace816b23ece680",
+    "3065cc48dea7cb751aebea051ff9f8d84f4b0c090d003161ddb770043c34a431"
+  ],
+  "previous_source_sha256_37114a4": {
+    ".github/workflows/product.yml": "fa5626a558cf2dd9dd21da82cddb119f72ebe83bde34ed09c9eebf52ec26b4b0",
+    "apps/desktop/tests/integration-real-ipc.py": "1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e",
+    "scripts/record-integration-browser-ci-evidence.py": "4329a748b5cf941ad97a8db0c4bdbdd885547eddd63d126d3611f52b37ee1c41",
+    "tests/infrastructure/test_integration_browser_ci_evidence.py": "a3967a5fcfe44b86a08435b415fb67003bc286a40ddee5c7535da5757e4e30fd",
+    "tests/infrastructure/test_integration_browser_ci.py": "77d4fe1f0dbec6a57584ce2d1bb119b731ed3c158b722a3f9736ad7bf33afad9",
+    "tests/infrastructure/test_schema17_migration_workflow.py": "f73881d04affe3681fbcfd66cf89bf74d32523d50050b77d9aea199e88cab8aa",
+    "tests/infrastructure/test_integration_native_ci.py": "484b153886d6751df77821385a57990cddb2dba16a3e889846b619a06cce9725"
+  },
+  "setup_traceback_p2": {
+    "old_source": "37114a4199405d6352ff3996c34b9375234859de",
+    "finding": "setup except-pass lost exception despite comment; no actual CI failure is claimed",
+    "file": "RUNNER_TEMP private root/setup-error.traceback.txt",
+    "max_utf8_bytes": 16384,
+    "captured_locals": false,
+    "mode": "0600",
+    "nofollow": true,
+    "exclusive_create": true,
+    "fsync": true,
+    "console_or_public_fields": false,
+    "logging_write_failure": "propagates; finally writes original failed/unobserved status; no overwrite",
+    "new_inert_pure_test_functions": 3,
+    "old_budget_timeout_publisher_semantics_changed": false,
+    "independent_closure": "PENDING"
+  }
+}

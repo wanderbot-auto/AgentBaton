@@ -1,0 +1,56 @@
+{
+  "baseline": "9549441a0de2b84c57e2302191ca96017b2d73d1",
+  "requirements": [
+    "AB-SEC-007"
+  ],
+  "audit_file": "/workspace/.onboarding/schema17-current-tripwire-audit-9549441/AUDIT.json",
+  "source_checks": {
+    "baseline": "9549441a0de2b84c57e2302191ca96017b2d73d1",
+    "status": "source_only_checks_passed_not_runtime",
+    "audit_sha256": "230a0511e5f6a82f14c053622a1d0dd19fb982859215246226b70eca2e2a8210",
+    "changes": [
+      {
+        "path": "crates/core/tests/command_validation.rs",
+        "baseline_sha256": "cd82bbbb3184adb57095f0d137e58fe35644bc70ff9695cac7e5b1b76b0bbac0",
+        "candidate_sha256": "77bd573f821e5de281fb6684959ffcec3e10c8da033d79aedadff9e115f6a822",
+        "inverse_whole_file_exact": true,
+        "only_changes": "typed current PRAGMA expected16\u219217; existing mismatch message16\u219217 if present"
+      },
+      {
+        "path": "crates/core/tests/data_workspaces.rs",
+        "baseline_sha256": "4079e50fbc03f94d7e2107d7c4cbb6ca49464bf90d6197cdd8bb8e62bb2a8465",
+        "candidate_sha256": "edd1ef46984906a6c475bb8ba30e53fdb2c91e84923cd67fb1373e67f76deea6",
+        "inverse_whole_file_exact": true,
+        "only_changes": "typed current PRAGMA expected16\u219217; existing mismatch message16\u219217 if present"
+      }
+    ],
+    "preserved": [
+      "all historical schema16 source/fixtures/genuine16/inverses",
+      "all schema16 negative mutation cases",
+      "all original command/data behavior/failure assertions",
+      "typed u32 probes",
+      "all timeout/cancel/budget/permission settings"
+    ],
+    "new_worktree": "created --no-checkout; sparse noncone excludes only tracked docs/execution/**/*.tar.gz before initial git read-tree checkout; zero archive copies",
+    "not_run": [
+      "Cargo",
+      "SQLite",
+      "Node",
+      "browser",
+      "CI",
+      "network"
+    ]
+  },
+  "runtime": "not_run",
+  "independent_review": "pending",
+  "actual_format_and_diff_checks": {
+    "rustfmt_edition2021_check": "passed",
+    "git_diff_check": "passed",
+    "Cargo_SQL_product_execution": "not_run"
+  },
+  "root_next": [
+    "complete command_validation target",
+    "complete data_workspaces target",
+    "exact candidate CI"
+  ]
+}

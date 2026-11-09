@@ -20,7 +20,7 @@ beforeEach(() => {
   vi.mocked(api.workspacesList).mockResolvedValue([]);
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);
   vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);
-  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [], sequence: 0, api_version: 1 });
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [], sequence: 0, api_version:1,database_schema_version:17 });
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
 });
 describe('Task workspace using mocked Tauri transport', () => {
@@ -59,13 +59,13 @@ describe('Task workspace using mocked Tauri transport', () => {
     render(<App />);
     await screen.findByText('Local daemon connected');
     await user.type(screen.getByLabelText('Task goal'), task.goal);
-    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version: 1 });
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version:1,database_schema_version:17 });
     await user.click(screen.getByRole('button', { name: 'Create task' }));
     await waitFor(() => expect(api.create).toHaveBeenCalledWith(task.goal, expect.any(String)));
     expect(await screen.findByRole('heading', { name: task.goal })).toBeVisible();
     expect(screen.getByText('No execution evidence yet. This task has not been dispatched to a Provider.')).toBeVisible();
     vi.mocked(api.cancel).mockResolvedValue({ ...task, state: 'cancel_requested', revision: 2 });
-    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'cancel_requested', revision: 2 }], sequence: 2, api_version: 1 });
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'cancel_requested', revision: 2 }], sequence: 2, api_version:1,database_schema_version:17 });
     await user.click(screen.getByRole('tab', { name: 'Details' }));
     await user.click(screen.getByRole('button', { name: 'Request cancellation' }));
     await waitFor(() => expect(api.cancel).toHaveBeenCalledWith(task, expect.any(String)));
@@ -88,7 +88,7 @@ describe('Task workspace using mocked Tauri transport', () => {
   });
   it('switches language and exposes navigation and unknown states as text', async () => {
     const user = userEvent.setup();
-    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'provider_extension' }], sequence: 1, api_version: 1 });
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'provider_extension' }], sequence: 1, api_version:1,database_schema_version:17 });
     render(<App />);
     expect(await screen.findByText('Unknown status: provider_extension')).toBeVisible();
     fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'zh' } });
@@ -109,7 +109,7 @@ describe('Task workspace using mocked Tauri transport', () => {
   });
   it('opens the newest event window beyond 100 events and explicitly pages older history', async () => {
     const user = userEvent.setup();
-    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 230, api_version: 1 });
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 230, api_version:1,database_schema_version:17 });
     vi.mocked(api.events).mockImplementation(async cursor => ({
       events: Array.from({ length: 100 }, (_, i) => ({ sequence: cursor + i + 1, event_id: `event-${cursor + i + 1}`, aggregate_id: task.id, revision: 1, kind: `record.${cursor + i + 1}`, occurred_at: task.created_at, source: 'user_action', payload: {} })),
       next_cursor: cursor + 100, sequence: 230, gap: false,
@@ -127,7 +127,7 @@ describe('Task workspace using mocked Tauri transport', () => {
   });
   it('shows byte-limited history honestly and follows the returned cursor without accumulating large pages', async () => {
     const user = userEvent.setup();
-    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 230, api_version: 1 });
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 230, api_version:1,database_schema_version:17 });
     vi.mocked(api.events).mockImplementation(async cursor => ({
       events: [{ sequence: cursor + 1, event_id: `event-${cursor + 1}`, aggregate_id: task.id, revision: 1, kind: `record.${cursor + 1}`, occurred_at: task.created_at, source: 'generated_fixture', payload: {} }],
       next_cursor: cursor + 1, sequence: 230, gap: false, byte_limited: true, page_bytes: 100,
@@ -145,7 +145,7 @@ describe('Task workspace using mocked Tauri transport', () => {
 
   it('keeps authenticated task cancellation available when only history is resource-limited', async () => {
     const user = userEvent.setup();
-    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version: 1 });
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version:1,database_schema_version:17 });
     vi.mocked(api.cancel).mockResolvedValue({ ...task, state: 'cancelled', revision: 2 });
     vi.mocked(api.events).mockRejectedValue(new DaemonError('RESOURCE_LIMIT', 'Journal page unavailable', 'not_started'));
     render(<App />);
@@ -164,7 +164,7 @@ describe('Task workspace using mocked Tauri transport', () => {
 it('bounds accumulated history by bytes and explains that records remain in the local journal', async () => {
   const user = userEvent.setup();
   const text = 'x'.repeat(3 * 1024 * 1024);
-  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 500, api_version: 1 });
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 500, api_version:1,database_schema_version:17 });
   vi.mocked(api.events).mockImplementation(async cursor => ({
     events: [{ sequence: cursor + 100, event_id: `large-${cursor + 100}`, aggregate_id: task.id, revision: 1, kind: `large.${cursor + 100}`, occurred_at: task.created_at, source: 'generated_fixture', payload: { text } }],
     next_cursor: cursor + 100, sequence: 500, gap: false, page_bytes: 3 * 1024 * 1024,
@@ -195,7 +195,7 @@ it('labels byte-limited backend pages without claiming complete displayed histor
 
 it('keeps authenticated task controls available when a single oversized journal record is refused', async () => {
   const user = userEvent.setup();
-  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version: 1 });
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version:1,database_schema_version:17 });
   vi.mocked(api.events).mockRejectedValue(new DaemonError('RESOURCE_LIMIT', 'One journal record exceeds the bounded event page; it was not skipped', 'not_started'));
   render(<App />);
   expect(await screen.findByRole('alert')).toHaveTextContent('it was not skipped');

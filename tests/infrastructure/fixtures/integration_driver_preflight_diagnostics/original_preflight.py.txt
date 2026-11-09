@@ -1,0 +1,33 @@
+def preflight(args):
+    head = args.expected_source_head
+    require(type(head) is str and re.fullmatch('[a-f0-9]{40}', head) is not None)
+    binary = args.batond.absolute()
+    companion = binary.with_name('baton')
+    tools = {k: pinned_file(v) for k, v in [('batond', binary), ('baton', companion)]}
+    require(all(os.access(p, os.X_OK) for p in (binary, companion)))
+    require(all(v['uid'] in (0, os.geteuid()) and v['mode'] & 0o022 == 0 for v in tools.values()))
+    manifest_raw = args.candidate_manifest.read_bytes()
+    require(len(manifest_raw) <= 2097152)
+    manifest = decode(manifest_raw)
+    require(type(manifest.get('schema')) is int and manifest['schema'] == 17)
+    aliases = [manifest[k] for k in ('source_head', 'git_head', 'compiled_core_source_head') if k in manifest]
+    require(aliases and all(v == head for v in aliases))
+    require(manifest.get('dirty', False) is False and manifest.get('tracked_clean', True) is True)
+    require(all(manifest['binaries'][k] == tools[k]['sha256'] for k in tools))
+    build_raw = args.frontend_build_record.read_bytes()
+    require(len(build_raw) <= MAX_REVIEW)
+    build = decode(build_raw)
+    require(build.get('source') == head and type(build.get('exit')) is int and build['exit'] == 0
+        and build.get('command') == ['npm', '--prefix', 'apps/desktop', 'run', 'build']
+        and build.get('source_head_and_tracked_unchanged') is True
+        and build.get('dirty', False) is False and build.get('tracked_clean', True) is True)
+    frontend = args.frontend.resolve(strict=True)
+    args.chromium = args.chromium.resolve(strict=True)
+    runtime_tools = {'chromium': pinned_file(args.chromium, MAX_CHROMIUM_IMAGE),
+        'python': pinned_file(Path(sys.executable).resolve(strict=True))}
+    require(all(v['uid'] in (0, os.geteuid()) and v['mode'] & 0o022 == 0 for v in runtime_tools.values())
+        and os.access(args.chromium, os.X_OK))
+    source = source_guard(head)
+    return binary, companion, frontend, {'source': head, 'tools': tools, 'assets': assets(frontend),
+        'manifest_sha256': digest(manifest_raw), 'build_record_sha256': digest(build_raw),
+        'driver_sha256': digest(Path(__file__).read_bytes()), 'source_guard': source, 'runtime_tools': runtime_tools}

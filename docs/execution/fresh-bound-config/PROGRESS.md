@@ -1,0 +1,16 @@
+## Root17 capture composition verified — 2026-10-31
+
+Source246 composes Parent96 capture scheduling and controlled late-frontier failure regression while retaining the entire Root17 integration extension. Independent122-check whole-source review passes. Exact246 stop-module12(includes new2/fourpaths), completeFactory39 realIPC, strictworkspace+NativeLinuxClippy, fmt and normalCore17/CLIbuild/freeze pass. Normal immutable ELF inspection finds no four closed test-control markers; this is a development binary audit, not Mac/release acceptance. Metadata-only merged74 retains source/test/workflow bytes and passes all691 infrastructure tests. [Exact evidence](COMPOSED_CAPTURE_RESULTS.json).
+
+One local merge proof incorrectly assumed the entire Parent file was a prefix and its shell still committed after assertion failure. It was never pushed then; corrected strict full-file insertion proof and independent review verify the only19173byte Root17 extension remains exact, both test files equalParent96 and no markers/other runtime changes exist. The failed transcript is retained.
+
+Parent324 is now pushed with exact Environment41243422609/Product41243422606 queued/running, not passed. Root21's old8b CI remains failed; next new exact candidate/manual checks are pending. Earlier5fee matched browser and aba261/fullWorkspaces/30integration stay source-bound. Current246 browser/full263Core/Native/Mac/installers/full130 acceptance are not claimed. Continue exact CI, feature integration and the rest of approved Designv0.2; no authority expansion.
+
+## Fresh config read and Root17 composition verified locally — 2026-10-31
+
+Reviewedaba replaces four Git config queries with one fresh names-only NUL read at each original boundary. Original refusal priority, deadlines, cancel, isolation and exact candidate/CAS checks remain. All6 focused controls, complete Workspaces and Core261 pass ataba; integration IPC30 passes there after preserving the prior28/2 failure. This is Linux evidence, not a proven fix for previous Mac timing failures. Extremely many benign names can still hit the unchanged output cap and fail closed.
+
+Genuine655 composes Parent860 diagnostics and unread-response fixture; 691 infrastructure tests pass. Independent review found a Root17 test guard type conflict before acceptance; minimal5fee ownership correction preserves all migration assertions. At5fee, CoreTask13/realTaskIPC4, strictworkspace+NativeLinuxClippy, normalCore17/CLI build and frontend build pass. Fresh same-source browser integration normal/failing-command has5/4 checks and12PNG; child Goal normal/cancel/lost-start has4/4/5 checks and all cleanup complete. Three finite projections pass. The first missing-trait compile failure, earlier28/2 runtime batch and npm PATH failure remain retained. [Exact evidence](EVIDENCE.json).
+
+Remote Root8b Product remains failed. Parent846 Environment passes but Product fails separately on ARM missing-entry fixture and Intel capture queue overrun. Neither old CI nor Linux passes are new Mac acceptance; new exact CI/current native/dualMac/installers and full130 remain open. Next: diagnose exact capture queue, apply only justified reviewed bounded changes, integrate features and verify the next exact candidate under unchanged permissions.
+

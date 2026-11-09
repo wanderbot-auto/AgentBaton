@@ -753,7 +753,7 @@ impl Store {
             &proposal.id,
             1,
             "approval.proposed",
-            json!({"kind":"factory","snapshot":proposal.snapshot}),
+            crate::sessions::approval_event_payload("factory", &proposal.snapshot)?,
             "user_action",
         )?;
         tx.commit().map_err(db_error)?;

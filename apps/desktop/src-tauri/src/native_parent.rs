@@ -220,6 +220,15 @@ pub(crate) fn on_window_event(window: &tauri::Window, event: &WindowEvent) {
     }
 }
 
+/// A finished owner has no remaining private dispatch, even while its Slot
+/// destructor is still pending. This avoids depending on close-event timing.
+/// A poisoned ownership registry blocks hiding rather than losing a parent.
+pub(crate) fn background_hide_blocked(label: &str) -> bool {
+    let Ok(active) = slots().lock() else { return true; };
+    active.get(label).and_then(Weak::upgrade)
+        .is_some_and(|life| life.state.load(Ordering::Acquire) & FINISHED == 0)
+}
+
 /// These are the same two successful borrowed handles passed to parent().
 /// Plugin.parent cannot silently re-query the caller and fall back to None.
 struct CheckedParent<'a> {
@@ -642,4 +651,23 @@ mod tests {
         assert_eq!(result["error"]["side_effect_state"], "not_started");
         assert!(result.get("result").is_none());
     }
+    #[test]
+    fn background_hide_waits_for_native_owner_but_not_its_slot_destructor() {
+        let life = Arc::new(Lifecycle::default());
+        let slot = Slot::acquire("background-owner-finish-race", &life).unwrap();
+        assert!(background_hide_blocked("background-owner-finish-race"));
+        assert!(life.begin_review());
+        assert!(background_hide_blocked("background-owner-finish-race"));
+        assert!(life.complete_review());
+        assert!(life.begin_finalize());
+        assert!(life.invalidate(false));
+        assert!(background_hide_blocked("background-owner-finish-race"));
+        assert!(life.finish());
+        // The slot still exists while a close event can reach the main thread.
+        // FINISHED proves no further private dispatch, so hiding is now safe.
+        assert!(!background_hide_blocked("background-owner-finish-race"));
+        drop(slot);
+        assert!(!background_hide_blocked("background-owner-finish-race"));
+    }
+
 }

@@ -1,0 +1,14 @@
+import {fireEvent,render,screen} from '@testing-library/react';
+import {beforeEach,expect,it,vi} from 'vitest';
+import {App} from './App';
+import {api} from './api';
+import {sessionApi} from './session-api';
+import {managedMcpsApi} from './managed-mcps-api';
+import {managedSkillsApi} from './managed-skills-api';
+import {managedMcpFixture} from './managed-mcps-test-fixtures';
+vi.mock('./api',async original=>({...await original<typeof import('./api')>(),api:{snapshot:vi.fn(),events:vi.fn(),projectsList:vi.fn()}}));
+vi.mock('./session-api',()=>({sessionApi:{connectionsList:vi.fn(),sessionsList:vi.fn()}}));
+vi.mock('./managed-mcps-api',async original=>({...await original<typeof import('./managed-mcps-api')>(),managedMcpsApi:{list:vi.fn(),preview:vi.fn(),create:vi.fn(),find:vi.fn()}}));
+vi.mock('./managed-skills-api',async original=>({...await original<typeof import('./managed-skills-api')>(),managedSkillsApi:{list:vi.fn()}}));
+beforeEach(()=>{vi.resetAllMocks();localStorage.clear();localStorage.setItem('agentbaton.language','en');});
+it('exposes MCP management on the actual capabilities page while retaining Connections and Skills',async()=>{const f=managedMcpFixture();vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[],next_cursor:1,sequence:1,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([f.connection]);vi.mocked(managedMcpsApi.list).mockResolvedValue({profiles:[f.profile],unavailable:[]});vi.mocked(managedSkillsApi.list).mockResolvedValue({profiles:[],unavailable:[]});render(<App/>);fireEvent.click(await screen.findByRole('button',{name:'Capabilities'}));expect(await screen.findByRole('region',{name:'Managed MCP'})).toBeVisible();expect(screen.getByRole('region',{name:'Managed Skills'})).toBeVisible();expect(screen.getByText('Register and run version probe',{selector:'summary'})).toBeVisible();await screen.findByRole('option',{name:'Approved Codex MCP base · ready'});expect(managedMcpsApi.preview).not.toHaveBeenCalled();expect(managedMcpsApi.create).not.toHaveBeenCalled();});

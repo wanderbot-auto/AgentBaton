@@ -1,0 +1,192 @@
+{
+  "status": "SOURCE_READY",
+  "scope": "Two test-only source-composition adaptations; prior4 production+3docs review f61b remains separate",
+  "root_head": "fcc208989ffc24c75cbf4377b560a7e1e25ed195",
+  "merge_head": "c67569856050fd40195b540b4bb71d3406e0e907",
+  "fixed_test_manifest": {
+    "tests/infrastructure/test_child_goal_diagnostics_v4.py": {
+      "sha256": "2349c21be4ad4f611778dcdef0f5ca8935a035245e8951c2a03999a8cfa47ac8",
+      "unchanged_from_auto_merge": false
+    },
+    "tests/infrastructure/test_graph_observation_handshake.py": {
+      "sha256": "cb526006e376bafc6ba9a75d37a176335d1fdf18f5d27813fc25ad01a228e084",
+      "unchanged_from_auto_merge": false
+    },
+    "tests/infrastructure/test_graph_identity_observation.py": {
+      "sha256": "558fbfb98e124d633821dcc2587320237a72aade3137d9625607bf09187d3f73",
+      "unchanged_from_auto_merge": true
+    },
+    "tests/infrastructure/test_graph_provider_argv_diagnostics.py": {
+      "sha256": "b1a912a64b20e5f20ca400858791d8edc70fa17bac09ec5cc02a4c277fa24963",
+      "unchanged_from_auto_merge": true
+    },
+    "tests/infrastructure/test_child_goal_diagnostics_v3.py": {
+      "sha256": "10f28d84968b3bbca0ed9ee40cdd9bb9086dfaac752f9331a7f850130f038454",
+      "unchanged_from_auto_merge": true
+    }
+  },
+  "independent_checks_passed": 84,
+  "checks": [
+    "fixed source proof SHA",
+    "fixed test SHA tests/infrastructure/test_child_goal_diagnostics_v4.py",
+    "fixed test SHA tests/infrastructure/test_graph_observation_handshake.py",
+    "fixed test SHA tests/infrastructure/test_graph_identity_observation.py",
+    "fixed test SHA tests/infrastructure/test_graph_provider_argv_diagnostics.py",
+    "fixed test SHA tests/infrastructure/test_child_goal_diagnostics_v3.py",
+    "old handshake is exact95572byte historical target",
+    "handshake only exact2line outer delegation",
+    "old75184byte embedded mapping byte exact",
+    "original Parent LAYERS literal bytes exact",
+    "all14 original v4 methods AST exact",
+    "exactly3 new tests",
+    "all old handshake methods AST exact",
+    "other3 old files exact fcc tests/infrastructure/test_graph_identity_observation.py",
+    "other3 old files exact fcc tests/infrastructure/test_graph_provider_argv_diagnostics.py",
+    "other3 old files exact fcc tests/infrastructure/test_child_goal_diagnostics_v3.py",
+    "test source no skip/expectedfail",
+    "fixed product source input apps/desktop/src/FactoryChildGoals.tsx",
+    "Root inverse whole actualfcc apps/desktop/src/FactoryChildGoals.tsx",
+    "Parent source copy whole actualc675 apps/desktop/src/FactoryChildGoals.tsx",
+    "Parent inverse retains original full target apps/desktop/src/FactoryChildGoals.tsx",
+    "outer inverse rejects arbitrary source apps/desktop/src/FactoryChildGoals.tsx",
+    "outer inverse rejects arbitrary source apps/desktop/src/FactoryChildGoals.tsx",
+    "fixed product source input apps/desktop/tests/factory-child-goal-real-ipc.py",
+    "Root inverse whole actualfcc apps/desktop/tests/factory-child-goal-real-ipc.py",
+    "Parent source copy whole actualc675 apps/desktop/tests/factory-child-goal-real-ipc.py",
+    "Parent inverse retains original full target apps/desktop/tests/factory-child-goal-real-ipc.py",
+    "outer inverse rejects arbitrary source apps/desktop/tests/factory-child-goal-real-ipc.py",
+    "outer inverse rejects arbitrary source apps/desktop/tests/factory-child-goal-real-ipc.py",
+    "fixed product source input scripts/record-child-goal-ci-evidence.py",
+    "Root inverse whole actualfcc scripts/record-child-goal-ci-evidence.py",
+    "Parent source copy whole actualc675 scripts/record-child-goal-ci-evidence.py",
+    "Parent inverse retains original full target scripts/record-child-goal-ci-evidence.py",
+    "outer inverse rejects arbitrary source scripts/record-child-goal-ci-evidence.py",
+    "outer inverse rejects arbitrary source scripts/record-child-goal-ci-evidence.py",
+    "newouter then unchanged oldinverse preserves target ours",
+    "newouter then unchanged oldinverse preserves target theirs",
+    "negative anchor present snapshot['schema']==17",
+    "original/new source weakening denied new_outer snapshot['schema']==17",
+    "original/new source weakening denied old_composed snapshot['schema']==17",
+    "original/new source weakening denied v4_inverse snapshot['schema']==17",
+    "negative anchor present time.monotonic()+15",
+    "original/new source weakening denied new_outer time.monotonic()+15",
+    "original/new source weakening denied old_composed time.monotonic()+15",
+    "original/new source weakening denied v4_inverse time.monotonic()+15",
+    "negative anchor present require(result['kind'] != 'not_verified'",
+    "original/new source weakening denied new_outer require(result['kind'] != 'not_verified'",
+    "original/new source weakening denied old_composed require(result['kind'] != 'not_verified'",
+    "original/new source weakening denied v4_inverse require(result['kind'] != 'not_verified'",
+    "negative anchor present nodes.length!==1",
+    "original/new source weakening denied new_outer nodes.length!==1",
+    "original/new source weakening denied old_composed nodes.length!==1",
+    "original/new source weakening denied v4_inverse nodes.length!==1",
+    "negative anchor present FiniteRuntimeDiagnosticsV4()",
+    "original/new source weakening denied new_outer FiniteRuntimeDiagnosticsV4()",
+    "original/new source weakening denied old_composed FiniteRuntimeDiagnosticsV4()",
+    "original/new source weakening denied v4_inverse FiniteRuntimeDiagnosticsV4()",
+    "negative anchor present             sample_owner_ui(finite,goal_panel,query['goal_run_id'],'begin')\n",
+    "original/new source weakening denied new_outer             sample_owner_ui(finite,goal_panel,query['goal_run_id'],'begin')\n",
+    "original/new source weakening denied old_composed             sample_owner_ui(finite,goal_panel,query['goal_run_id'],'begin')\n",
+    "original/new source weakening denied v4_inverse             sample_owner_ui(finite,goal_panel,query['goal_run_id'],'begin')\n",
+    "negative anchor present                 sample_owner_ui(finite,goal_panel,query['goal_run_id'],'end')\n",
+    "original/new source weakening denied new_outer                 sample_owner_ui(finite,goal_panel,query['goal_run_id'],'end')\n",
+    "original/new source weakening denied old_composed                 sample_owner_ui(finite,goal_panel,query['goal_run_id'],'end')\n",
+    "original/new source weakening denied v4_inverse                 sample_owner_ui(finite,goal_panel,query['goal_run_id'],'end')\n",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "no historical copy passed to execution",
+    "Parent source-copy helper has no exec/compile/eval or writes",
+    "independent104pure PASS all actualcalls blocked",
+    "final stable fixed SHA tests/infrastructure/test_child_goal_diagnostics_v4.py",
+    "final stable fixed SHA tests/infrastructure/test_graph_observation_handshake.py",
+    "final stable fixed SHA tests/infrastructure/test_graph_identity_observation.py",
+    "final stable fixed SHA tests/infrastructure/test_graph_provider_argv_diagnostics.py",
+    "final stable fixed SHA tests/infrastructure/test_child_goal_diagnostics_v3.py"
+  ],
+  "independent_source_weakening_negative_cases": 21,
+  "pure": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "modules": [
+      "tests.infrastructure.test_child_goal_finite_diagnostics",
+      "tests.infrastructure.test_child_goal_diagnostics_v4",
+      "tests.infrastructure.test_child_goal_diagnostics_v3",
+      "tests.infrastructure.test_graph_provider_argv_diagnostics",
+      "tests.infrastructure.test_graph_observation_handshake",
+      "tests.infrastructure.test_graph_identity_observation",
+      "tests.infrastructure.test_child_goal_bound_readonly_wait",
+      "tests.infrastructure.test_factory_bound_provider_exit.ChildGoalObserverWaitTests",
+      "tests.infrastructure.test_factory_bound_provider_exit.ChildGoalTimingTests"
+    ],
+    "tests_run": 104,
+    "failures": [],
+    "errors": [],
+    "passed": true,
+    "forbidden_actual_calls": [],
+    "seconds": 6.56536079099169,
+    "scope": "pure test closure only; SQL/process/PID/FIFO/network blocked",
+    "not_run": [
+      "whole infrastructure suite",
+      "SQL-backed tests",
+      "actual lifecycle/browser/Provider/CI"
+    ]
+  },
+  "must_fix": [],
+  "findings": [
+    "New outer delegation strips only exact reviewed v4 full source to completefcc before old mappings; original95572byte handshake file and75184byte literal mapping recover unchanged.",
+    "All14 old v4 test method ASTs and Parent LAYERS pins unchanged;3 additional source-variant/negative/strict17 refusal controls; other3 source locator files byte exactfcc.",
+    "Both complete Root and Parent source variants reconstruct actual Git bytes; original strong Root and old Main target hashes still enforced. Historical schema16/weak collector remains text-only, never compiled or executed.",
+    "Original62/57PASS5FAIL and intermediate104/103PASS1FAIL records retained; independent104pure PASS does not claim fullinfra or product/runtime/CI acceptance."
+  ],
+  "retained_failure_evidence": {
+    "before": {
+      "tests": 62,
+      "errors": 0,
+      "failures": 5,
+      "seconds": 2.649063105985988,
+      "log_sha256": "81de6ff71f9d749aa5d6f74ca005c43e20b0ce8f89658525420ebd554eef904b",
+      "log": "/tmp/root21-c675-test-composition/before.log",
+      "failed_tests": [
+        "test_child_goal_diagnostics_v4.V4DiagnosticsTests.test_full_source_inverse_preserves_all_original_ui_harness_projector_bytes",
+        "test_graph_observation_handshake.SourceControls.test_exact_handshake_layer_inverse_preserves_all_old_harness_business_budget_and_cleanup",
+        "test_graph_identity_observation.OriginalHarnessSourceBoundary.test_exact_inverse_preserves_all_original_business_sql_schema_time_and_cleanup_source",
+        "test_graph_provider_argv_diagnostics.GraphProviderArgvDiagnosticsTests.test_driver_call_remains_within_existing_identity_and_pgid_guards",
+        "test_child_goal_diagnostics_v3.V3DiagnosticsTests.test_cancel_observation_never_replays_or_turns_absence_into_false_stop"
+      ],
+      "forbidden_actual_calls": "sqlite3.connect/subprocess.Popen/os.fork/kill/killpg/waitpid/socket.socket patched to refusal"
+    },
+    "intermediate": {
+      "tests": 104,
+      "errors": 0,
+      "failures": 1,
+      "seconds": 6.803023990010843,
+      "log_sha256": "29b7b48a3ed6708b0de83cb300b5ca6e21ccddef2cf257f73c33cee7194246d1",
+      "log": "/tmp/root21-c675-test-composition/after.log",
+      "failed_tests": [
+        "test_child_goal_diagnostics_v4.V4DiagnosticsTests.test_outer_inverse_rejects_unknown_guard_schema_wait_helper_or_missing_endpoint"
+      ],
+      "forbidden_actual_calls": "sqlite3.connect/subprocess.Popen/os.fork/kill/killpg/waitpid/socket.socket patched to refusal"
+    }
+  },
+  "not_run": [
+    "full infrastructure",
+    "Node/Cargo/SQL/process/PID/FIFO/Provider/browser/network",
+    "actual paired-source wrapper",
+    "new merged-head build/CI"
+  ],
+  "no_Root_or_index_modification": true,
+  "artifacts": {
+    "author_proof_sha256": "6647a7bde6e2e1e48ff88353077e7ce0bc704d293a29a30a694507d0df2076eb",
+    "pure_sha256": "d54cc1c28e54b71d304bf40942a9b164b88ab50d4465568dac6606dfafe99194",
+    "audit_script": "/tmp/root21-c675-two-test-independent-review/audit.py",
+    "pure_script": "/tmp/root21-c675-two-test-independent-review/run_pure.py"
+  }
+}

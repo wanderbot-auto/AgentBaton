@@ -102,11 +102,37 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 16 {
+        if version > 18 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
+        }
+        if version > 0 && version < 18 {
+            let backup = path.with_extension(format!("pre-v18-{}.sqlite3", Uuid::new_v4()));
+            let file = OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .mode(0o600)
+                .open(&backup)
+                .map_err(|_| {
+                    CoreError::new(
+                        "INTERNAL_ERROR",
+                        "Cannot create integration migration backup",
+                    )
+                })?;
+            file.set_permissions(
+                <std::fs::Permissions as std::os::unix::fs::PermissionsExt>::from_mode(0o600),
+            )
+            .map_err(|_| {
+                CoreError::new(
+                    "INTERNAL_ERROR",
+                    "Cannot secure integration migration backup",
+                )
+            })?;
+            drop(file);
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
         }
         if version > 0 && version < 16 {
             let backup = path.with_extension(format!("pre-v16-{}.sqlite3", Uuid::new_v4()));
@@ -309,6 +335,8 @@ impl Store {
         crate::goal_store::migrate_graph(&mut conn, version)?;
         crate::factory::migrate(&mut conn, version)?;
         crate::task_workspace_binding::migrate(&mut conn, version)?;
+        crate::integration::migrate(&mut conn, version)?;
+        crate::conversations::migrate(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -321,10 +349,12 @@ impl Store {
             graph_capture_clocks: Default::default(),
             factory_recovery_queue_epochs: Vec::new(),
         };
+        store.recover_integrations()?;
         store.recover_dispatches()?;
         store.recover_workspace_creations()?;
         store.recover_task_workspace_bindings()?;
         store.recover_sessions()?;
+        store.recover_conversations()?;
         store.recover_command_validations()?;
         store.recover_data_workspace_operations()?;
         store.recover_factory_runs()?;
@@ -476,7 +506,10 @@ impl Store {
         }
         let active:i64=self.conn.query_row("SELECT count(*) FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?1 AND d.state!='stopped'",[id],|r|r.get(0)).map_err(db_error)?;
         let command_active:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM command_validation_runs WHERE task_id=?1 AND state IN('prepared','running','cancel_requested','outcome_unknown'))",[id],|r|r.get(0)).map_err(db_error)?;
-        let no_attempt = task.state == TaskState::Draft && active == 0 && !command_active;
+        let planning_active =
+            crate::goal_store::planning::has_active_goal_planning(&self.conn, id)?;
+        let no_attempt =
+            task.state == TaskState::Draft && active == 0 && !command_active && !planning_active;
         task.state = if no_attempt {
             TaskState::Cancelled
         } else {
@@ -502,6 +535,36 @@ impl Store {
         )?;
         tx.commit().map_err(db_error)?;
         Ok(task)
+    }
+    // Called only after owned planning settlement. A stop request is not stop
+    // evidence: every mapped planning worker and other task intent must already
+    // be reconciled before completing the user's separate Task cancellation.
+    pub(crate) fn complete_goal_planning_task_cancel(&mut self, id: &str) -> Result<()> {
+        let mut task = self.get(id)?;
+        if task.state != TaskState::CancelRequested {
+            return Ok(());
+        }
+        let active: bool = self.conn.query_row("SELECT EXISTS(SELECT 1 FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?1 AND d.state!='stopped') OR EXISTS(SELECT 1 FROM command_validation_runs WHERE task_id=?1 AND state IN('prepared','running','cancel_requested','outcome_unknown')) OR EXISTS(SELECT 1 FROM goal_graph_jobs j JOIN goal_runs r ON r.id=j.run_id WHERE r.task_id=?1 AND j.state IN('prepared','running','cancel_requested','outcome_unknown'))",[id],|r|r.get(0)).map_err(db_error)?;
+        if active || crate::goal_store::planning::has_active_goal_planning(&self.conn, id)? {
+            return Ok(());
+        }
+        task.state = TaskState::Cancelled;
+        task.revision += 1;
+        task.updated_at = now()?;
+        let tx = self.conn.transaction().map_err(db_error)?;
+        tx.execute(
+            "UPDATE tasks SET document=?1 WHERE id=?2",
+            params![encode(&task)?, id],
+        )
+        .map_err(db_error)?;
+        append_event(
+            &tx,
+            &task,
+            "task.cancelled",
+            json!({"stop_evidence":"all_task_and_purpose_bound_planning_writers_reconciled"}),
+        )?;
+        tx.commit().map_err(db_error)?;
+        Ok(())
     }
     pub fn sequence(&self) -> Result<u64> {
         self.conn
@@ -676,4 +739,26 @@ PRAGMA user_version=8;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
     Ok(())
+}
+
+/// Schema-only reference for the integration migration. Uses the existing
+/// migration functions against a fresh private in-memory connection, with no
+/// Store construction/recovery, filesystem access or predecessor row mutation.
+pub(crate) fn integration_schema16_reference() -> Result<Connection> {
+    let mut conn = Connection::open_in_memory().map_err(db_error)?;
+    conn.execute_batch("CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL); CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, document TEXT NOT NULL); CREATE TABLE idempotency(scope TEXT NOT NULL, key TEXT NOT NULL, payload TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(scope,key)); PRAGMA user_version=1; PRAGMA foreign_keys=ON;").map_err(db_error)?;
+    crate::execution::migrate(&mut conn, 0)?;
+    migrate_registry(&mut conn, 0)?;
+    migrate_sessions(&mut conn, 0)?;
+    migrate_runtime_snapshots(&mut conn, 0)?;
+    migrate_validations(&mut conn, 0)?;
+    migrate_data_validations(&mut conn, 0)?;
+    migrate_command_validations(&mut conn, 0)?;
+    crate::goal_store::migrate(&mut conn, 0)?;
+    crate::data_workspaces::migrate(&mut conn, 0)?;
+    crate::goal_store::migrate_runtime(&mut conn, 0)?;
+    crate::goal_store::migrate_graph(&mut conn, 0)?;
+    crate::factory::migrate(&mut conn, 0)?;
+    crate::task_workspace_binding::migrate(&mut conn, 0)?;
+    Ok(conn)
 }

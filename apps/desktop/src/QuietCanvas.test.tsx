@@ -6,16 +6,16 @@ import { api, DaemonError, type Task } from './api';
 import { sessionApi, type ManagedSession } from './session-api';
 import { validationApi } from './validation-api';
 import { dataValidationApi } from './data-validation-api';
-vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { snapshot: vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), workspacesList: vi.fn() } }));
-vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn(), sessionsSend: vi.fn() } }));
+vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { snapshot: vi.fn(), taskGet:vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), workspacesList: vi.fn() } }));
+vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn(), sessionsGet:vi.fn(), sessionsSend: vi.fn() } }));
 vi.mock('./validation-api', async original => ({ ...await original<typeof import('./validation-api')>(), validationApi: { policiesList: vi.fn(), recordsList: vi.fn(), policiesApprove: vi.fn(), run: vi.fn(), revoke: vi.fn() } }));
 vi.mock('./data-validation-api', async original => ({ ...await original<typeof import('./data-validation-api')>(), dataValidationApi: { policiesList: vi.fn(), recordsList: vi.fn(), approve: vi.fn(), run: vi.fn(), revoke: vi.fn() } }));
 const date = '2026-10-26T00:00:00Z';
-const draft: Task = { id: 'draft-id', goal: 'A recorded local draft', state: 'draft', revision: 1, created_at: date, updated_at: date };
+const draft: Task = { id: 'draft-id', project_id:'project', spec_revision:1, goal: 'A recorded local draft', state: 'draft', revision: 1, created_at: date, updated_at: date };
 const running: Task = { ...draft, id: 'running-id', goal: 'A recorded running task', state: 'running' };
 beforeEach(() => {
   vi.resetAllMocks(); localStorage.clear(); localStorage.setItem('agentbaton.language', 'en');
-  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [draft, running], sequence: 1, api_version: 1 });
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [draft, running], sequence: 1, api_version:1,database_schema_version:17 });
   vi.mocked(api.projectsList).mockResolvedValue([]);
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 1, sequence: 1, gap: false });
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);
@@ -41,7 +41,7 @@ describe('Quiet Canvas product UI with mocked transport', () => {
   });
 
   it('renders unknown prototype-named states as data without interpreting inherited object properties', async () => {
-    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...draft, state: 'constructor' }], sequence: 0, api_version: 1 });
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...draft, state: 'constructor' }], sequence: 0, api_version:1,database_schema_version:17 });
     render(<App />);
     expect(await screen.findByText('Unknown status: constructor')).toBeVisible();
     expect(screen.getAllByTestId('task-card')).toHaveLength(1);
@@ -112,6 +112,7 @@ describe('Quiet Canvas product UI with mocked transport', () => {
   it('keeps an uncertain task-composer send blocked and preserves the exact user text', async () => {
     const session: ManagedSession = { id: 'session-ready', task_id: draft.id, project_id: 'project', workspace_id: 'workspace', connection_id: 'connection', grant_id: 'grant', state: 'ready', revision: 2, native_session_id: 'native', created_at: date, updated_at: date, last_error: null, turn_state: null };
     vi.mocked(sessionApi.sessionsList).mockResolvedValue([session]);
+    vi.mocked(sessionApi.sessionsGet).mockResolvedValue(session);vi.mocked(api.taskGet).mockResolvedValue(draft);
     vi.mocked(sessionApi.sessionsSend).mockRejectedValue(new DaemonError('OUTCOME_UNKNOWN', 'Write outcome is unknown', 'unknown'));
     const user = userEvent.setup(); render(<App />);
     await user.click(await screen.findByRole('button', { name: `Open task: ${draft.goal}` }));

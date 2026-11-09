@@ -22,7 +22,7 @@ beforeEach(()=>vi.resetAllMocks());
 afterEach(()=>activeReadonlyClock?.restore());
 function records(f:Fixture,initial:FactoryChildGoalView|null=null){
  const state={view:initial,task:structuredClone(f.task),grant:structuredClone(f.grant)};
- vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(state.task)],sequence:1000,api_version:1}));
+ vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(state.task)],sequence:1000,api_version:1,database_schema_version:17}));
  vi.mocked(sessionApi.grantsList).mockImplementation(async()=>[structuredClone(state.grant)]);
  vi.mocked(factoryApi.get).mockImplementation(async()=>structuredClone(f.scope));vi.mocked(factoryApi.run).mockImplementation(async()=>structuredClone(f.detail));
  vi.mocked(factoryChildPlanApi.context).mockImplementation(async()=>structuredClone(f.context));vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_s,_t,revision)=>{const p=f.plans.get(revision??f.context.current_plan_revision);if(!p)throw new DaemonError('NOT_FOUND','missing original saved plan','not_started');return structuredClone(p);});
@@ -173,7 +173,7 @@ it.each(['draft','outcome_unknown'])('keeps the exact Factory child path with a 
  expect(factoryScopeShape(f.scope,root)).toBe(true);expect(factoryDetailsShape(f.detail,root,f.scope.id)).toBe(true);
  expect(childContextShape(f.context,f.scope,f.target)).toBe(true);expect(childViewShape(f.plan,f.context,f.scope)).toBe(true);
  const state=records(f);state.task.state=childState;
- vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(root),structuredClone(state.task)],sequence:1000,api_version:1}));
+ vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(root),structuredClone(state.task)],sequence:1000,api_version:1,database_schema_version:17}));
  // The real daemon remains authoritative for private normal-handoff proof;
  // a fixed refusal avoids pretending this mock establishes a completed run.
  vi.mocked(factoryChildGoalApi.start).mockRejectedValue(new DaemonError('PERMISSION_DENIED','private Core proof still required','not_started'));
@@ -253,7 +253,7 @@ it.each(['foreign-scope','foreign-run','missing-task','stale-scope','stale-goal'
   await waitFor(()=>expect(screen.getByRole('button',{name:t.cancel})).toBeEnabled());
   if(mode==='foreign-scope')vi.mocked(factoryApi.get).mockResolvedValueOnce({...structuredClone(f.scope),id:'foreign-scope'});
   if(mode==='foreign-run')vi.mocked(factoryApi.run).mockResolvedValueOnce({...structuredClone(f.detail),run:{...f.detail.run,id:'foreign-run'}});
-  if(mode==='missing-task')vi.mocked(api.snapshot).mockResolvedValueOnce({tasks:[],sequence:1000,api_version:1});
+  if(mode==='missing-task')vi.mocked(api.snapshot).mockResolvedValueOnce({tasks:[],sequence:1000,api_version:1,database_schema_version:17});
   if(mode==='stale-scope')vi.mocked(factoryApi.get).mockResolvedValueOnce({...structuredClone(f.scope),revision:0});
   if(mode==='stale-goal')vi.mocked(factoryChildGoalApi.list).mockResolvedValueOnce([structuredClone(f.makeView().summary)]);
   if(mode==='goal-contract')vi.mocked(factoryChildGoalApi.list).mockResolvedValueOnce([{...structuredClone(state.view!.summary),goal:{...state.view!.summary.goal,graph_contract_version:2}}]);
@@ -312,7 +312,7 @@ it('keeps an unknown Native Owner decision pending instead of permitting an oppo
 // RTL/user-event 0ms drains and native SHA completion retain real scheduling.
 // These controls establish no Core execution or old-CI root cause.
 type PollTimerHandle=ReturnType<typeof globalThis.setTimeout>;
-type ReadonlyClock={advance:(milliseconds:number)=>Promise<void>;restore:()=>void};
+type ReadonlyClock={advance:(milliseconds:number)=>Promise<void>;nextDelay:()=>number|null;restore:()=>void};
 const realReadonlyTimeout=globalThis.setTimeout.bind(globalThis),realReadonlyClearTimeout=globalThis.clearTimeout.bind(globalThis),realReadonlyNow=performance.now.bind(performance);
 let activeReadonlyClock:ReadonlyClock|null=null;
 function installReadonlyClock(){
@@ -329,6 +329,7 @@ function installReadonlyClock(){
   if(!pendingTimers.delete(args[0] as PollTimerHandle))Reflect.apply(realReadonlyClearTimeout,globalThis,args);
  }) as typeof globalThis.clearTimeout);
  const clock:ReadonlyClock={
+  nextDelay:()=>pendingTimers.size?Math.min(...[...pendingTimers.values()].map(timer=>timer.at-now)):null,
   async advance(milliseconds){
    const end=now+milliseconds;
    for(;;){
@@ -384,8 +385,12 @@ async function openPollingFixture(){
 }
 async function nextReadonlyPoll(){
  const before=vi.mocked(factoryChildGoalApi.list).mock.calls.length;
+ // Observe the real effect's registration before advancing its interval. An
+ // enabled button alone can still describe the preceding completed read.
+ await observeReadonly(()=>expect(activeReadonlyClock!.nextDelay()).toBe(1000));
  await act(async()=>{await advanceReadonlyClock(999);});expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(before);
  await act(async()=>{await advanceReadonlyClock(1);});
+ await observeReadonly(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(before+1));
  await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
 }
 it('recovers a typed not-started readonly Busy through a new complete read without authorizing stale writes',async()=>{
@@ -485,6 +490,21 @@ it('does not reuse a changed partial initial plan when the following adopted-pla
  vi.mocked(factoryChildPlanApi.get).mockImplementation(async(_scope,_task,revision)=>{if(revision===1)return structuredClone(changed);if(revision===2)throw readonlyBusy();return structuredClone(head);});
  await nextReadonlyPoll();await readonlyFindByRole('alert');await act(async()=>{await advanceReadonlyClock(10000);});
  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
+});
+it('schedules the original readonly interval only after a delayed complete revoked history read',async()=>{
+ const {f,state,user}=await openPollingFixture(),reply=deferredCancelValue<FactoryChildGoalSummary[]>();
+ f.scope.revoked=true;f.scope.revision=2;state.grant={...state.grant,revoked:true};
+ vi.mocked(factoryChildGoalApi.list).mockImplementationOnce(()=>reply.promise);
+ try{
+  await user.click(screen.getByRole('button',{name:t.refresh}));
+  await observeReadonly(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2));
+  await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeDisabled());
+  expect(activeReadonlyClock!.nextDelay()).toBeNull();
+  await act(async()=>{await advanceReadonlyClock(10000);});
+  expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2);expectNoGoalWrites();
+ }finally{await act(async()=>{reply.resolve([structuredClone(state.view!.summary)]);});}
+ await observeReadonly(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());
+ await nextReadonlyPoll();expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(3);expectNoGoalWrites();
 });
 it.each(['expired','revoked'])('preserves existing fresh readonly polling after a complete %s history read',async mode=>{
  const {f,state,user}=await openPollingFixture(),clock=vi.spyOn(Date,'now');

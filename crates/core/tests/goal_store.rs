@@ -2142,3 +2142,1067 @@ fn historical_reads_reject_orphans_and_tampered_commitments_instead_of_empty_suc
         "INPUT_CHANGED"
     );
 }
+
+// Read-only deterministic initial planning, with genuine persisted native scope
+// reconstruction. This fixture does not invoke a Provider or native dialog.
+fn draft_request(f: &Fixture, scope: &GoalScopeView) -> GoalPlanDraftRequest {
+    GoalPlanDraftRequest {
+        scope_id: scope.id.clone(),
+        task_id: f.task.id.clone(),
+        expected_task_revision: f.task.revision,
+        expected_spec_revision: f.task.spec_revision,
+        expected_scope_revision: scope.revision,
+        expected_scope_digest: scope.scope_digest.clone(),
+        expected_authority_revision: scope.authority_revision,
+        risk_notes: "The report could be incomplete; owner must inspect it".into(),
+        prohibited_actions: "Do not access external services or change source files".into(),
+        runtime_ms: 10_000,
+        output_bytes: 4096,
+    }
+}
+fn draft_database_snapshot(f: &Fixture) -> Vec<(String, Vec<Vec<rusqlite::types::Value>>)> {
+    let db = f.sql();
+    let names: Vec<String> = db
+        .prepare("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")
+        .unwrap()
+        .query_map([], |r| r.get(0))
+        .unwrap()
+        .collect::<std::result::Result<_, _>>()
+        .unwrap();
+    names
+        .into_iter()
+        .map(|name| {
+            let mut statement = db
+                .prepare(&format!(
+                    "SELECT * FROM \"{}\" ORDER BY rowid",
+                    name.replace('"', "\"\"")
+                ))
+                .unwrap();
+            let columns = statement.column_count();
+            let rows = statement
+                .query_map([], |r| {
+                    (0..columns)
+                        .map(|i| r.get(i))
+                        .collect::<rusqlite::Result<Vec<rusqlite::types::Value>>>()
+                })
+                .unwrap()
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .unwrap();
+            (name, rows)
+        })
+        .collect()
+}
+#[test]
+fn goal_draft_read_only_authenticated_candidate_submits_and_previews() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let request = draft_request(&f, &scope);
+    let before = draft_database_snapshot(&f);
+    let candidate = f.store.goal_plan_draft(&request).unwrap();
+    if let Some(path) = std::env::var_os("AGENTBATON_GOAL_DRAFT_FIXTURE") {
+        fs::write(
+            path,
+            serde_json::to_vec_pretty(
+                &json!({"request":request,"task":f.task,"scope":scope,"draft":candidate}),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    }
+    assert_eq!(
+        before,
+        draft_database_snapshot(&f),
+        "all tables including journal, idempotency, budgets and fences remain unchanged"
+    );
+    assert_eq!(
+        candidate.approved_acceptance_criteria,
+        f.selection.owner_acceptance_criteria
+    );
+    assert_eq!(candidate.approved_outputs, f.selection.outputs);
+    assert_eq!(candidate.source.scope_digest, scope.scope_digest);
+    assert_eq!(candidate.source.task_goal, f.task.goal);
+    assert!(candidate.planning_only);
+    assert!(!candidate.dispatched);
+    assert_eq!(candidate.plan.nodes.len(), 1);
+    let node = &candidate.plan.nodes[0];
+    assert_eq!(
+        node.goal,
+        format!(
+            "Task goal:\n{}\n\nUser-reviewed risks:\n{}\n\nProhibited actions:\n{}",
+            f.task.goal, request.risk_notes, request.prohibited_actions
+        )
+    );
+    assert_eq!(node.budget.attempts, 1);
+    assert_eq!(node.retry.max_attempts, 1);
+    assert_eq!(node.reservation.runtime_ms, request.runtime_ms);
+    assert_eq!(node.reservation.output_bytes, request.output_bytes);
+    let submitted = f
+        .store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id.clone(),
+                plan_json: serde_json::to_string(&candidate.plan).unwrap(),
+            },
+            "candidate-submit",
+            0,
+        )
+        .unwrap();
+    assert_eq!(submitted.digest, candidate.plan_digest);
+    assert!(!submitted.dispatched);
+    let preview = f.store.preview_goal_ready(&scope.id, 1).unwrap();
+    assert!(preview.read_only);
+    assert!(!preview.dispatched);
+    assert!(!preview.reservation_made);
+    let decision = preview.decision.unwrap();
+    assert_eq!(decision.admissions.len(), 1);
+    assert_eq!(
+        decision.admissions[0].resolved_inputs[0].artifact_id,
+        "source"
+    );
+    assert!(!decision.required_checks_satisfied);
+    assert_eq!(
+        f.store.goal_plan_draft(&request).unwrap_err().code,
+        "STALE_REVISION"
+    );
+}
+#[test]
+fn goal_draft_rejects_stale_bindings_and_expanded_budgets_without_writes() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let base = draft_request(&f, &scope);
+    let before = draft_database_snapshot(&f);
+    for kind in 0..10 {
+        let mut request = base.clone();
+        match kind {
+            0 => request.task_id = "foreign".into(),
+            1 => request.expected_task_revision += 1,
+            2 => request.expected_spec_revision += 1,
+            3 => request.expected_scope_revision += 1,
+            4 => request.expected_scope_digest = "b".repeat(64),
+            5 => request.expected_authority_revision += 1,
+            6 => request.runtime_ms = scope.root_budget.runtime_ms + 1,
+            7 => request.output_bytes = scope.project_budget.output_bytes + 1,
+            8 => request.runtime_ms = 0,
+            _ => request.output_bytes = 0,
+        };
+        assert!(f.store.goal_plan_draft(&request).is_err(), "variant {kind}");
+    }
+    assert_eq!(before, draft_database_snapshot(&f));
+}
+#[test]
+fn goal_draft_does_not_trust_changed_acceptance_or_input() {
+    for acceptance in [true, false] {
+        let mut f = Fixture::new();
+        let scope = f.approve();
+        let request = draft_request(&f, &scope);
+        if acceptance {
+            f.sql().execute("UPDATE goal_scopes SET document=json_set(document,'$.selection.owner_acceptance_criteria','Unapproved acceptance') WHERE id=?1",[&scope.id]).unwrap();
+        } else {
+            fs::write(f.root.join("input.txt"), "changed").unwrap();
+        }
+        assert_eq!(
+            f.store.goal_plan_draft(&request).unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+    }
+}
+#[test]
+fn goal_draft_text_is_bounded_without_truncation_and_request_is_closed() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let base = draft_request(&f, &scope);
+    for text in [
+        " ".into(),
+        "x".repeat(4097),
+        "中".repeat(1366),
+        "a\0b".into(),
+    ] {
+        let mut request = base.clone();
+        request.risk_notes = text;
+        assert!(f.store.goal_plan_draft(&request).is_err());
+    }
+    let mut value = serde_json::to_value(&base).unwrap();
+    value["approved"] = json!(true);
+    assert!(serde_json::from_value::<GoalPlanDraftRequest>(value).is_err());
+    let mut request = base;
+    request.risk_notes = "中".repeat(1365);
+    let candidate = f.store.goal_plan_draft(&request).unwrap();
+    assert!(candidate.plan.nodes[0].goal.contains(&request.risk_notes));
+}
+
+#[test]
+fn goal_draft_rejects_changed_original_approval_task_and_revoked_scope() {
+    for kind in 0..3 {
+        let mut f = Fixture::new();
+        let scope = f.approve();
+        let request = draft_request(&f, &scope);
+        match kind {
+            0 => {
+                f.sql().execute("UPDATE approval_proposals SET document=json_set(document,'$.snapshot.intent.owner_acceptance_criteria','Unapproved replacement') WHERE id=?1",[&scope.id]).unwrap();
+            }
+            1 => {
+                f.sql().execute("UPDATE tasks SET document=json_set(document,'$.goal','Changed goal') WHERE id=?1",[&f.task.id]).unwrap();
+            }
+            _ => {
+                f.store
+                    .revoke_goal_scope(&scope.id, scope.revision, "revoke-draft")
+                    .unwrap();
+            }
+        }
+        let before = draft_database_snapshot(&f);
+        assert!(f.store.goal_plan_draft(&request).is_err());
+        assert_eq!(before, draft_database_snapshot(&f));
+    }
+}
+
+fn multi_fixture() -> (Fixture, GoalScopeView, GoalMultiPlanDraftRequest) {
+    multi_fixture_with_attempts(8)
+}
+fn multi_fixture_with_attempts(
+    attempts: u32,
+) -> (Fixture, GoalScopeView, GoalMultiPlanDraftRequest) {
+    multi_fixture_with_limits(attempts, 4)
+}
+fn multi_fixture_with_limits(
+    attempts: u32,
+    max_nodes: u32,
+) -> (Fixture, GoalScopeView, GoalMultiPlanDraftRequest) {
+    let mut f = Fixture::new();
+    f.selection.max_nodes = max_nodes;
+    f.selection.root_budget.attempts = attempts;
+    f.selection.root_budget.parallel = attempts.min(2);
+    f.selection.project_budget = f.selection.root_budget.clone();
+    f.selection.outputs.push(GoalOutputSelection {
+        artifact: ArtifactRequirement {
+            artifact_id: "summary".into(),
+            relative_path: "outputs/summary.txt".into(),
+            max_bytes: 1024,
+            expected_sha256: None,
+        },
+        validators: vec![],
+    });
+    let scope = f.approve();
+    let base = draft_request(&f, &scope);
+    let request = GoalMultiPlanDraftRequest {
+        scope_id: base.scope_id,
+        task_id: base.task_id,
+        expected_task_revision: base.expected_task_revision,
+        expected_spec_revision: base.expected_spec_revision,
+        expected_scope_revision: base.expected_scope_revision,
+        expected_scope_digest: base.expected_scope_digest,
+        expected_authority_revision: base.expected_authority_revision,
+        risk_notes: base.risk_notes,
+        prohibited_actions: base.prohibited_actions,
+        steps: vec![
+            GoalDraftStep {
+                id: "report-step".into(),
+                goal: "Prepare the requested report".into(),
+                dependencies: vec![],
+                input_artifact_ids: vec!["source".into()],
+                output_artifact_ids: vec!["report".into()],
+                runtime_ms: 1000,
+                output_bytes: 1024,
+                review_runtime_ms: 1000,
+                review_output_bytes: 1024,
+            },
+            GoalDraftStep {
+                id: "summary-step".into(),
+                goal: "Summarize the verified report".into(),
+                dependencies: vec![],
+                input_artifact_ids: vec!["report".into()],
+                output_artifact_ids: vec!["summary".into()],
+                runtime_ms: 1000,
+                output_bytes: 1024,
+                review_runtime_ms: 1000,
+                review_output_bytes: 1024,
+            },
+        ],
+    };
+    (f, scope, request)
+}
+#[test]
+fn goal_multi_draft_readonly_generates_submittable_dependencies_and_blocks_downstream() {
+    let (mut f, scope, request) = multi_fixture();
+    let before = draft_database_snapshot(&f);
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    assert_eq!(before, draft_database_snapshot(&f));
+    if let Some(path) = std::env::var_os("AGENTBATON_GOAL_MULTI_DRAFT_FIXTURE") {
+        fs::write(
+            path,
+            serde_json::to_vec_pretty(
+                &json!({"request":request,"task":f.task,"scope":scope,"draft":draft}),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    }
+    assert_eq!(
+        draft.approved_acceptance_criteria,
+        f.selection.owner_acceptance_criteria
+    );
+    assert_eq!(draft.plan.nodes.len(), 4);
+    let owner = &draft.plan.nodes[1];
+    assert_eq!(owner.kind, NodeKind::OwnerApproval);
+    assert!(
+        matches!(&owner.required_inputs[0].source,InputSource::Node{node_id,candidate_for_validation:true} if node_id=="report-step")
+    );
+    assert!(owner.outputs.is_empty());
+    assert!(owner.write_set.is_empty());
+    assert_eq!(owner.required_validators, vec!["goal-owner-review"]);
+    let second = &draft.plan.nodes[2];
+    assert_eq!(second.dependencies, vec!["report-step"]);
+    assert!(
+        matches!(&second.required_inputs[0].source,InputSource::Node{node_id,candidate_for_validation:false} if node_id=="report-step")
+    );
+    assert_eq!(second.goal,format!("Task goal:\n{}\n\nStep goal:\n{}\n\nUser-reviewed risks:\n{}\n\nProhibited actions:\n{}",f.task.goal,request.steps[1].goal,request.risk_notes,request.prohibited_actions));
+    let saved = f
+        .store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id.clone(),
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "multi-submit",
+            0,
+        )
+        .unwrap();
+    assert_eq!(saved.digest, draft.plan_digest);
+    let preview = f.store.preview_goal_ready(&scope.id, 1).unwrap();
+    assert!(!preview.dispatched);
+    assert!(!preview.reservation_made);
+    let decision = preview.decision.unwrap();
+    assert_eq!(decision.admissions.len(), 1);
+    assert_eq!(decision.admissions[0].node_id, "report-step");
+    assert!(decision.blocked.contains_key("summary-step"));
+    assert!(!decision.required_checks_satisfied);
+    assert_eq!(
+        f.store.goal_multi_plan_draft(&request).unwrap_err().code,
+        "STALE_REVISION"
+    );
+}
+#[test]
+fn goal_multi_draft_rejects_invalid_graphs_artifacts_and_budget_sums_without_writes() {
+    let (mut f, scope, base) = multi_fixture();
+    let before = draft_database_snapshot(&f);
+    for kind in 0..18 {
+        let mut request = base.clone();
+        match kind {
+            0 => {
+                request.steps[1].id = request.steps[0].id.clone();
+            }
+            1 => request.steps[0].dependencies.push("unknown".into()),
+            2 => request.steps[0].dependencies.push("report-step".into()),
+            3 => request.steps[0].dependencies.push("summary-step".into()),
+            4 => request.steps[0].input_artifact_ids.push("summary".into()),
+            5 => request.steps[0].input_artifact_ids.push("report".into()),
+            6 => request.steps[0].input_artifact_ids.push("unknown".into()),
+            7 => request.steps[0].input_artifact_ids.push("source".into()),
+            8 => request.steps[1].output_artifact_ids = vec!["report".into()],
+            9 => request.steps[1].output_artifact_ids = vec!["unknown".into()],
+            10 => request.steps[0].output_artifact_ids.clear(),
+            11 => request.steps[0].runtime_ms = scope.root_budget.runtime_ms,
+            12 => request.steps[0].output_bytes = scope.project_budget.output_bytes,
+            13 => {
+                request.steps[0].output_bytes = u64::MAX;
+                request.steps[1].output_bytes = 1;
+            }
+            14 => request.steps[0].runtime_ms = 0,
+            15 => {
+                request.steps.pop();
+            }
+            16 => request.expected_scope_digest = "f".repeat(64),
+            _ => request.steps[0].goal = "中".repeat(1366),
+        };
+        assert!(
+            f.store.goal_multi_plan_draft(&request).is_err(),
+            "variant {kind}"
+        );
+    }
+    assert_eq!(before, draft_database_snapshot(&f));
+    let mut unknown = serde_json::to_value(&base).unwrap();
+    unknown["steps"][0]["executor"] = json!({"kind":"owner"});
+    assert!(serde_json::from_value::<GoalMultiPlanDraftRequest>(unknown).is_err());
+}
+#[test]
+fn goal_multi_draft_single_approved_artifact_is_not_split_or_expanded() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let (_, _, mut request) = multi_fixture();
+    let base = draft_request(&f, &scope);
+    request.scope_id = base.scope_id;
+    request.task_id = base.task_id;
+    request.expected_task_revision = base.expected_task_revision;
+    request.expected_spec_revision = base.expected_spec_revision;
+    request.expected_scope_revision = base.expected_scope_revision;
+    request.expected_scope_digest = base.expected_scope_digest;
+    request.expected_authority_revision = base.expected_authority_revision;
+    assert!(f.store.goal_multi_plan_draft(&request).is_err());
+}
+
+#[test]
+fn goal_multi_draft_cumulative_attempt_limit_is_not_per_node_allowance() {
+    let (mut f, _, request) = multi_fixture_with_attempts(1);
+    let before = draft_database_snapshot(&f);
+    assert_eq!(
+        f.store.goal_multi_plan_draft(&request).unwrap_err().code,
+        "PERMISSION_DENIED"
+    );
+    assert_eq!(before, draft_database_snapshot(&f));
+}
+
+#[test]
+fn goal_multi_draft_generated_gate_count_and_review_budgets_are_authority_bounded() {
+    let (mut f, _, request) = multi_fixture_with_limits(8, 3);
+    assert_eq!(
+        f.store.goal_multi_plan_draft(&request).unwrap_err().code,
+        "RESOURCE_LIMIT"
+    );
+    let (mut f, _, base) = multi_fixture();
+    for kind in 0..4 {
+        let mut request = base.clone();
+        match kind {
+            0 => request.steps[0].review_runtime_ms = 0,
+            1 => request.steps[0].review_output_bytes = u64::MAX,
+            2 => request.steps[0].review_output_bytes = 7000,
+            _ => request.steps[0].id = "baton-review-1-1".into(),
+        };
+        assert!(f.store.goal_multi_plan_draft(&request).is_err());
+    }
+    let (mut f, _, request) = multi_fixture_with_attempts(3);
+    assert_eq!(
+        f.store.goal_multi_plan_draft(&request).unwrap_err().code,
+        "PERMISSION_DENIED"
+    );
+}
+#[test]
+fn goal_multi_draft_native_validator_gate_uses_only_approved_outputs_and_owner_waits() {
+    let mut f = Fixture::new();
+    let session = stopped_policy_session(&mut f);
+    let selection = agentbaton_core::validation::ValidationSelection {
+        session_id: session,
+        inputs: f.selection.inputs.clone(),
+        outputs: vec![f.selection.outputs[0].artifact.clone()],
+        analysis: None,
+    };
+    let p = f
+        .store
+        .propose_validation_policy(&selection, "multi-integrity-policy")
+        .unwrap();
+    let policy: agentbaton_core::validation::ValidationPolicy =
+        serde_json::from_value(f.store.finalize_proposal(&p.id, 1).unwrap()).unwrap();
+    f.selection.outputs[0].validators.push(GoalValidatorRef {
+        kind: GoalValidatorKind::Integrity,
+        policy_id: policy.id.clone(),
+        revision: 1,
+    });
+    f.selection.outputs.push(GoalOutputSelection {
+        artifact: ArtifactRequirement {
+            artifact_id: "summary".into(),
+            relative_path: "outputs/summary.txt".into(),
+            max_bytes: 1024,
+            expected_sha256: None,
+        },
+        validators: vec![],
+    });
+    f.selection.max_nodes = 5;
+    f.selection.new_max_children = 4;
+    f.task = f.store.get(&f.task.id).unwrap();
+    let scope = f.approve();
+    let base = draft_request(&f, &scope);
+    let (_, _, mut request) = multi_fixture();
+    request.scope_id = base.scope_id;
+    request.task_id = base.task_id;
+    request.expected_task_revision = base.expected_task_revision;
+    request.expected_spec_revision = base.expected_spec_revision;
+    request.expected_scope_revision = base.expected_scope_revision;
+    request.expected_scope_digest = base.expected_scope_digest;
+    request.expected_authority_revision = base.expected_authority_revision;
+    let before = draft_database_snapshot(&f);
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    assert_eq!(before, draft_database_snapshot(&f));
+    assert_eq!(draft.plan.nodes.len(), 5);
+    let validator = draft
+        .plan
+        .nodes
+        .iter()
+        .find(|n| n.kind == NodeKind::Validate)
+        .unwrap();
+    assert!(
+        matches!(&validator.executor,Executor::Validator{rule_id} if rule_id==&format!("integrity:{}",policy.id))
+    );
+    assert_eq!(validator.required_inputs.len(), 1);
+    assert_eq!(validator.required_inputs[0].artifact_id, "report");
+    assert!(matches!(
+        validator.required_inputs[0].source,
+        InputSource::Node {
+            candidate_for_validation: true,
+            ..
+        }
+    ));
+    let owner = draft
+        .plan
+        .nodes
+        .iter()
+        .find(|n| n.kind == NodeKind::OwnerApproval && n.required_inputs[0].artifact_id == "report")
+        .unwrap();
+    assert!(owner.dependencies.contains(&validator.id));
+    let other = draft
+        .plan
+        .nodes
+        .iter()
+        .find(|n| {
+            n.kind == NodeKind::OwnerApproval && n.required_inputs[0].artifact_id == "summary"
+        })
+        .unwrap();
+    assert!(!other.dependencies.contains(&validator.id));
+    f.store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id,
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "multi-validator-plan",
+            0,
+        )
+        .unwrap();
+}
+
+fn reviewed_single_request(f: &Fixture, scope: &GoalScopeView) -> GoalMultiPlanDraftRequest {
+    let base = draft_request(f, scope);
+    GoalMultiPlanDraftRequest {
+        scope_id: base.scope_id,
+        task_id: base.task_id,
+        expected_task_revision: base.expected_task_revision,
+        expected_spec_revision: base.expected_spec_revision,
+        expected_scope_revision: base.expected_scope_revision,
+        expected_scope_digest: base.expected_scope_digest,
+        expected_authority_revision: base.expected_authority_revision,
+        risk_notes: base.risk_notes,
+        prohibited_actions: base.prohibited_actions,
+        steps: vec![GoalDraftStep {
+            id: "single-work".into(),
+            goal: "Produce the approved report".into(),
+            dependencies: vec![],
+            input_artifact_ids: vec!["source".into()],
+            output_artifact_ids: vec!["report".into()],
+            runtime_ms: 1000,
+            output_bytes: 1024,
+            review_runtime_ms: 500,
+            review_output_bytes: 512,
+        }],
+    }
+}
+#[test]
+fn goal_reviewed_single_draft_has_owner_gate_and_preserves_legacy_contract() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let request = reviewed_single_request(&f, &scope);
+    let before = draft_database_snapshot(&f);
+    let legacy = f.store.goal_plan_draft(&draft_request(&f, &scope)).unwrap();
+    assert_eq!(legacy.plan.nodes.len(), 1);
+    assert_eq!(legacy.plan.nodes[0].kind, NodeKind::Work);
+    assert_eq!(legacy.plan.nodes[0].reservation.runtime_ms, 10_000);
+    assert_eq!(legacy.plan.nodes[0].reservation.output_bytes, 4096);
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    if let Some(path) = std::env::var_os("AGENTBATON_GOAL_REVIEWED_SINGLE_FIXTURE") {
+        fs::write(
+            path,
+            serde_json::to_vec_pretty(
+                &json!({"request":request,"task":f.task,"scope":scope,"draft":draft}),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    }
+    assert_eq!(before, draft_database_snapshot(&f));
+    assert_eq!(
+        draft.approved_acceptance_criteria,
+        f.selection.owner_acceptance_criteria
+    );
+    assert_eq!(draft.plan.nodes.len(), 2);
+    let work = &draft.plan.nodes[0];
+    let owner = &draft.plan.nodes[1];
+    assert_eq!(work.kind, NodeKind::Work);
+    assert_eq!(owner.kind, NodeKind::OwnerApproval);
+    assert_eq!(owner.dependencies, vec![work.id.clone()]);
+    assert_eq!(owner.required_validators, vec!["goal-owner-review"]);
+    assert!(
+        matches!(&owner.required_inputs[0].source,InputSource::Node{node_id,candidate_for_validation:true} if node_id==&work.id)
+    );
+    assert_eq!(owner.budget.runtime_ms, 500);
+    assert_eq!(owner.reservation.output_bytes, 512);
+    assert!(owner.outputs.is_empty());
+    assert!(owner.write_set.is_empty());
+    let saved = f
+        .store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id.clone(),
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "reviewed-single-submit",
+            0,
+        )
+        .unwrap();
+    assert_eq!(saved.digest, draft.plan_digest);
+    let preview = f.store.preview_goal_ready(&scope.id, 1).unwrap();
+    assert!(!preview.dispatched);
+    assert!(!preview.reservation_made);
+    let decision = preview.decision.unwrap();
+    assert_eq!(decision.admissions.len(), 1);
+    assert_eq!(decision.admissions[0].node_id, work.id);
+    assert!(decision.blocked.contains_key(&owner.id));
+    assert!(!decision.required_checks_satisfied);
+    assert_eq!(
+        f.store.goal_multi_plan_draft(&request).unwrap_err().code,
+        "STALE_REVISION"
+    );
+}
+#[test]
+fn goal_reviewed_single_draft_requires_capacity_and_explicit_review_budget() {
+    for kind in 0..5 {
+        let mut f = Fixture::new();
+        if kind == 0 {
+            f.selection.max_nodes = 1;
+        }
+        if kind == 1 {
+            f.selection.root_budget.attempts = 1;
+            f.selection.root_budget.parallel = 1;
+            f.selection.project_budget = f.selection.root_budget.clone();
+        }
+        let scope = f.approve();
+        let mut request = reviewed_single_request(&f, &scope);
+        match kind {
+            2 => request.steps[0].review_runtime_ms = 0,
+            3 => request.steps[0].review_output_bytes = scope.root_budget.output_bytes,
+            4 => request.steps.clear(),
+            _ => {}
+        }
+        let before = draft_database_snapshot(&f);
+        assert!(
+            f.store.goal_multi_plan_draft(&request).is_err(),
+            "variant {kind}"
+        );
+        assert_eq!(before, draft_database_snapshot(&f));
+    }
+}
+#[test]
+fn goal_reviewed_single_draft_uses_native_validator_definition_and_owner_gate() {
+    let mut f = Fixture::new();
+    let session = stopped_policy_session(&mut f);
+    let selection = agentbaton_core::validation::ValidationSelection {
+        session_id: session,
+        inputs: f.selection.inputs.clone(),
+        outputs: vec![f.selection.outputs[0].artifact.clone()],
+        analysis: None,
+    };
+    let p = f
+        .store
+        .propose_validation_policy(&selection, "single-integrity-policy")
+        .unwrap();
+    let policy: agentbaton_core::validation::ValidationPolicy =
+        serde_json::from_value(f.store.finalize_proposal(&p.id, 1).unwrap()).unwrap();
+    f.selection.outputs[0].validators.push(GoalValidatorRef {
+        kind: GoalValidatorKind::Integrity,
+        policy_id: policy.id.clone(),
+        revision: 1,
+    });
+    f.task = f.store.get(&f.task.id).unwrap();
+    let scope = f.approve();
+    let request = reviewed_single_request(&f, &scope);
+    let before = draft_database_snapshot(&f);
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    if let Some(path) = std::env::var_os("AGENTBATON_GOAL_REVIEWED_VALIDATOR_FIXTURE") {
+        fs::write(
+            path,
+            serde_json::to_vec_pretty(
+                &json!({"request":request,"task":f.task,"scope":scope,"draft":draft}),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    }
+    assert_eq!(before, draft_database_snapshot(&f));
+    assert_eq!(draft.plan.nodes.len(), 3);
+    let validator = draft
+        .plan
+        .nodes
+        .iter()
+        .find(|n| n.kind == NodeKind::Validate)
+        .unwrap();
+    let owner = draft
+        .plan
+        .nodes
+        .iter()
+        .find(|n| n.kind == NodeKind::OwnerApproval)
+        .unwrap();
+    assert!(
+        matches!(&validator.executor,Executor::Validator{rule_id} if rule_id==&format!("integrity:{}",policy.id))
+    );
+    assert_eq!(validator.required_inputs.len(), 1);
+    assert_eq!(validator.required_inputs[0].artifact_id, "report");
+    assert!(owner.dependencies.contains(&validator.id));
+    assert!(matches!(
+        validator.required_inputs[0].source,
+        InputSource::Node {
+            candidate_for_validation: true,
+            ..
+        }
+    ));
+    assert_eq!(validator.budget.runtime_ms, 500);
+    assert_eq!(owner.budget.runtime_ms, 500);
+    f.store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id.clone(),
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "single-validator-submit",
+            0,
+        )
+        .unwrap();
+    let preview = f.store.preview_goal_ready(&scope.id, 1).unwrap();
+    assert!(preview.read_only);
+    assert!(!preview.reservation_made);
+    assert!(!preview.dispatched);
+    // The existing policy fixture has a never-dispatched legacy session with
+    // unknown historical metering. A validated 3-node plan cannot invent that
+    // evidence: this proves fail-closed preview, not 3-node ready execution.
+    assert!(preview.decision.is_none());
+    assert!(preview
+        .blocked_reasons
+        .contains(&"historical_runtime_or_output_ledger_unknown".into()));
+    assert!(preview
+        .unknown_dimensions
+        .contains(&"root.runtime_ms".into()));
+    assert!(preview
+        .unknown_dimensions
+        .contains(&"project.output_bytes".into()));
+}
+
+#[test]
+fn goal_reviewed_single_draft_keeps_all_approved_outputs_in_one_owner_gate() {
+    let (mut f, scope, mut request) = multi_fixture();
+    request.steps.truncate(1);
+    request.steps[0].output_artifact_ids.push("summary".into());
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    assert_eq!(draft.plan.nodes.len(), 2);
+    let work = &draft.plan.nodes[0];
+    let owner = &draft.plan.nodes[1];
+    assert_eq!(work.outputs.len(), 2);
+    assert_eq!(work.write_set.len(), 2);
+    assert_eq!(owner.required_inputs.len(), 2);
+    assert!(owner.required_inputs.iter().all(|input|matches!(&input.source,InputSource::Node{node_id,candidate_for_validation:true} if node_id==&work.id)));
+    assert_eq!(draft.approved_outputs, f.selection.outputs);
+    f.store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id,
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "single-all-outputs",
+            0,
+        )
+        .unwrap();
+}
+
+fn advice_query(request: &GoalMultiPlanDraftRequest) -> GoalPlanAdviceQuery {
+    GoalPlanAdviceQuery {
+        scope_id: request.scope_id.clone(),
+        task_id: request.task_id.clone(),
+        expected_task_revision: request.expected_task_revision,
+        expected_spec_revision: request.expected_spec_revision,
+        expected_scope_revision: request.expected_scope_revision,
+        expected_scope_digest: request.expected_scope_digest.clone(),
+        expected_authority_revision: request.expected_authority_revision,
+    }
+}
+fn advice_json(context: &GoalPlanAdviceContext, request: &GoalMultiPlanDraftRequest) -> String {
+    json!({"schema_version":1,"source":context.source,"steps":request.steps.iter().map(|s|json!({"id":s.id,"goal":s.goal,"dependencies":s.dependencies,"input_artifact_ids":s.input_artifact_ids,"output_artifact_ids":s.output_artifact_ids})).collect::<Vec<_>>()}).to_string()
+}
+#[test]
+fn goal_advice_readonly_context_import_and_explicit_later_draft_submit() {
+    let (mut f, scope, mut request) = multi_fixture();
+    let query = advice_query(&request);
+    let before = draft_database_snapshot(&f);
+    let context = f.store.goal_plan_advice_context(&query).unwrap();
+    assert_eq!(
+        context.approved_acceptance_criteria,
+        f.selection.owner_acceptance_criteria
+    );
+    assert_eq!(context.inputs["source"].sha256, sha256(b"fixed input\n"));
+    assert_eq!(context.outputs.len(), 2);
+    assert_eq!(context.outputs[0].relative_path, "outputs/report.txt");
+    assert_eq!(context.source.task_goal, f.task.goal);
+    let json = serde_json::to_string(&context).unwrap();
+    assert!(!json.contains(f.root.to_str().unwrap()));
+    let keys: std::collections::BTreeSet<_> = serde_json::to_value(&context)
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .keys()
+        .cloned()
+        .collect();
+    assert_eq!(
+        keys,
+        [
+            "source",
+            "approved_acceptance_criteria",
+            "inputs",
+            "outputs",
+            "writable_prefixes",
+            "root_budget",
+            "project_budget",
+            "max_nodes",
+            "planning_only",
+            "dispatched"
+        ]
+        .map(String::from)
+        .into_iter()
+        .collect()
+    );
+    let raw = advice_json(&context, &request);
+    let import_request = GoalPlanAdviceImportRequest {
+        query: query.clone(),
+        candidate_json: raw.clone(),
+    };
+    let imported = f.store.import_goal_plan_advice(&import_request).unwrap();
+    assert!(imported.planning_only);
+    assert!(!imported.dispatched);
+    assert_eq!(imported.steps[1].dependencies, vec!["report-step"]);
+    assert_eq!(before, draft_database_snapshot(&f));
+    if let Some(path) = std::env::var_os("AGENTBATON_GOAL_ADVICE_FIXTURE") {
+        fs::write(path,serde_json::to_vec_pretty(&json!({"query":query,"task":f.task,"scope":scope,"context":context,"candidate_json":raw,"imported":imported})).unwrap()).unwrap();
+    }
+    // Only a distinct later user action supplies risk/prohibitions and resource
+    // reservations; importing advice never creates these values.
+    for (to, from) in request.steps.iter_mut().zip(&imported.steps) {
+        to.id = from.id.clone();
+        to.goal = from.goal.clone();
+        to.dependencies = from.dependencies.clone();
+        to.input_artifact_ids = from.input_artifact_ids.clone();
+        to.output_artifact_ids = from.output_artifact_ids.clone();
+    }
+    let draft = f.store.goal_multi_plan_draft(&request).unwrap();
+    assert_eq!(draft.plan.nodes.len(), 4);
+    let saved = f
+        .store
+        .submit_goal_plan_json(
+            &GoalPlanRawSubmission {
+                scope_id: scope.id.clone(),
+                plan_json: serde_json::to_string(&draft.plan).unwrap(),
+            },
+            "import-reviewed-submit",
+            0,
+        )
+        .unwrap();
+    assert_eq!(saved.digest, draft.plan_digest);
+    assert_eq!(
+        f.store
+            .preview_goal_ready(&scope.id, 1)
+            .unwrap()
+            .decision
+            .unwrap()
+            .admissions[0]
+            .node_id,
+        "report-step"
+    );
+    assert_eq!(
+        f.store.goal_plan_advice_context(&query).unwrap_err().code,
+        "STALE_REVISION"
+    );
+    assert_eq!(
+        f.store
+            .import_goal_plan_advice(&import_request)
+            .unwrap_err()
+            .code,
+        "STALE_REVISION"
+    );
+}
+#[test]
+fn goal_advice_raw_duplicates_unknown_authority_and_non_json_are_rejected() {
+    let (mut f, _, request) = multi_fixture();
+    let query = advice_query(&request);
+    let context = f.store.goal_plan_advice_context(&query).unwrap();
+    let raw = advice_json(&context, &request);
+    let before = draft_database_snapshot(&f);
+    let mut cases = vec![
+        raw.replacen(
+            "\"schema_version\":1",
+            "\"schema_version\":1,\"schema_version\":1",
+            1,
+        ),
+        raw.replacen(
+            "\"id\":\"report-step\"",
+            "\"id\":\"report-step\",\"id\":\"report-step\"",
+            1,
+        ),
+        raw.replacen(
+            "\"task_revision\":1",
+            "\"task_revision\":1,\"task_revision\":1",
+            1,
+        ),
+        format!("```json\n{raw}\n```"),
+        format!("{raw} trailing"),
+    ];
+    assert!(
+        cases[..3].iter().all(|s| s != &raw),
+        "all duplicate fixtures must really alter raw text"
+    );
+    cases.push(raw.replacen(
+        "\"schema_version\":1",
+        "\"schema_version\":1,\"\\u0073chema_version\":1",
+        1,
+    ));
+    for field in [
+        "budget",
+        "provider",
+        "approved",
+        "risk_notes",
+        "prohibited_actions",
+    ] {
+        let mut v: Value = serde_json::from_str(&raw).unwrap();
+        v[field] = json!(true);
+        cases.push(v.to_string());
+    }
+    for field in [
+        "runtime_ms",
+        "output_bytes",
+        "review_runtime_ms",
+        "executor",
+        "candidate_for_validation",
+    ] {
+        let mut v: Value = serde_json::from_str(&raw).unwrap();
+        v["steps"][0][field] = json!(1);
+        cases.push(v.to_string());
+    }
+    for candidate_json in cases {
+        assert!(f
+            .store
+            .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                query: query.clone(),
+                candidate_json
+            })
+            .is_err());
+    }
+    assert_eq!(before, draft_database_snapshot(&f));
+}
+#[test]
+fn goal_advice_rejects_bad_graphs_artifacts_stale_source_and_utf8_limits() {
+    let (mut f, _, request) = multi_fixture();
+    let query = advice_query(&request);
+    let context = f.store.goal_plan_advice_context(&query).unwrap();
+    let base: Value = serde_json::from_str(&advice_json(&context, &request)).unwrap();
+    let before = draft_database_snapshot(&f);
+    for kind in 0..15 {
+        let mut v = base.clone();
+        match kind {
+            0 => v["steps"][1]["id"] = json!("report-step"),
+            1 => v["steps"][0]["id"] = json!("baton-review-1-1"),
+            2 => v["steps"][0]["dependencies"] = json!(["summary-step"]),
+            3 => v["steps"][0]["input_artifact_ids"] = json!(["summary"]),
+            4 => v["steps"][0]["input_artifact_ids"] = json!(["report"]),
+            5 => v["steps"][0]["dependencies"] = json!(["missing"]),
+            6 => v["steps"][0]["input_artifact_ids"] = json!(["missing"]),
+            7 => v["steps"][1]["output_artifact_ids"] = json!(["report"]),
+            8 => v["steps"][1]["output_artifact_ids"] = json!(["unapproved"]),
+            9 => v["steps"][1]["output_artifact_ids"] = json!([]),
+            10 => v["source"]["task_goal"] = json!("Unbound goal"),
+            11 => v["steps"][0]["goal"] = json!("中".repeat(1366)),
+            12 => v["steps"][0]["goal"] = json!(" "),
+            13 => v["steps"] = json!([]),
+            _ => v["steps"][0]["input_artifact_ids"] = json!(["source", "source"]),
+        };
+        assert!(
+            f.store
+                .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                    query: query.clone(),
+                    candidate_json: v.to_string()
+                })
+                .is_err(),
+            "variant {kind}"
+        );
+    }
+    let oversized = GoalPlanAdviceImportRequest {
+        query: query.clone(),
+        candidate_json: "中".repeat(21846),
+    };
+    assert_eq!(
+        f.store
+            .import_goal_plan_advice(&oversized)
+            .unwrap_err()
+            .code,
+        "RESOURCE_LIMIT"
+    );
+    let compact = base.to_string();
+    let exact = format!("{}{}", compact, " ".repeat(65_536 - compact.len()));
+    assert!(f
+        .store
+        .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+            query: query.clone(),
+            candidate_json: exact.clone()
+        })
+        .is_ok());
+    assert_eq!(
+        f.store
+            .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                query: query.clone(),
+                candidate_json: format!("{exact} ")
+            })
+            .unwrap_err()
+            .code,
+        "RESOURCE_LIMIT"
+    );
+    assert_eq!(before, draft_database_snapshot(&f));
+}
+#[test]
+fn goal_advice_current_native_source_and_required_gate_capacity_are_not_optional() {
+    for attempts in [false, true] {
+        let (mut f, _, request) = if attempts {
+            multi_fixture_with_limits(3, 4)
+        } else {
+            multi_fixture_with_limits(8, 3)
+        };
+        let query = advice_query(&request);
+        let context = f.store.goal_plan_advice_context(&query).unwrap();
+        assert_eq!(
+            f.store
+                .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                    query,
+                    candidate_json: advice_json(&context, &request)
+                })
+                .unwrap_err()
+                .code,
+            "RESOURCE_LIMIT"
+        );
+    }
+    for kind in 0..3 {
+        let (mut f, scope, request) = multi_fixture();
+        let query = advice_query(&request);
+        let context = f.store.goal_plan_advice_context(&query).unwrap();
+        let raw = advice_json(&context, &request);
+        match kind {
+            0 => {
+                f.sql().execute("UPDATE approval_proposals SET document=json_set(document,'$.snapshot.intent.owner_acceptance_criteria','Unapproved replacement') WHERE id=?1",[&scope.id]).unwrap();
+            }
+            1 => {
+                fs::write(f.root.join("input.txt"), "changed").unwrap();
+            }
+            _ => {
+                f.store
+                    .revoke_goal_scope(&scope.id, scope.revision, "advice-revoke")
+                    .unwrap();
+            }
+        }
+        let before = draft_database_snapshot(&f);
+        assert!(f.store.goal_plan_advice_context(&query).is_err());
+        assert!(f
+            .store
+            .import_goal_plan_advice(&GoalPlanAdviceImportRequest {
+                query,
+                candidate_json: raw
+            })
+            .is_err());
+        assert_eq!(before, draft_database_snapshot(&f));
+    }
+}

@@ -1,0 +1,12 @@
+import {fireEvent,render,screen} from '@testing-library/react';
+import {beforeEach,expect,it,vi} from 'vitest';
+import {App} from './App';
+import {api} from './api';
+import {sessionApi} from './session-api';
+import {managedSkillsApi} from './managed-skills-api';
+import {managedSkillFixture} from './managed-skills-test-fixtures';
+vi.mock('./api',async original=>({...await original<typeof import('./api')>(),api:{snapshot:vi.fn(),events:vi.fn(),projectsList:vi.fn()}}));
+vi.mock('./session-api',()=>({sessionApi:{connectionsList:vi.fn(),sessionsList:vi.fn()}}));
+vi.mock('./managed-skills-api',async original=>({...await original<typeof import('./managed-skills-api')>(),managedSkillsApi:{list:vi.fn(),preview:vi.fn(),create:vi.fn(),find:vi.fn()}}));
+beforeEach(()=>{vi.resetAllMocks();localStorage.clear();localStorage.setItem('agentbaton.language','en');});
+it('opens actual managed Skill controls from Capabilities while retaining the connection registration form',async()=>{const f=managedSkillFixture();vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[],next_cursor:1,sequence:1,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([f.connection]);vi.mocked(managedSkillsApi.list).mockResolvedValue({profiles:[f.profile],unavailable:[]});render(<App/>);fireEvent.click(await screen.findByRole('button',{name:'Capabilities'}));expect(await screen.findByRole('region',{name:'Managed Skills'})).toBeVisible();await screen.findByRole('option',{name:'Approved Codex · ready'});expect(screen.getByText('Register and run version probe',{selector:'summary'})).toBeVisible();expect(screen.queryByText('No runtime capability catalog is exposed by this daemon yet.')).not.toBeInTheDocument();expect(managedSkillsApi.create).not.toHaveBeenCalled();});

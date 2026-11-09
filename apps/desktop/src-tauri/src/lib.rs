@@ -6,10 +6,14 @@ use serde_json::{json, Value};
 use std::io::ErrorKind;
 use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 mod approval;
+mod integration_approval;
 mod native_parent;
+mod background_policy;
+mod background_window;
+mod detached_daemon;
+mod client_recovery_bridge;
 
 // Read-only limits shared with the feature-gated Native test binary. The
 // default application exports no test view; all values have one definition.
@@ -18,6 +22,30 @@ pub mod native_review_test_limits {
     pub const REVIEW_MESSAGE_BYTES: usize = super::native_parent::REVIEW_MESSAGE_BYTES;
     pub const REVIEW_ROW_ENCODED_BYTES: usize = super::native_parent::REVIEW_ROW_ENCODED_BYTES;
     pub const REVIEW_ROWS_PER_PAGE: usize = super::native_parent::REVIEW_ROWS_PER_PAGE;
+}
+
+#[cfg(feature = "native-smoke")]
+pub mod native_integration_test_view {
+    pub const TITLE: &str = super::integration_approval::TITLE;
+    pub fn review_messages(
+        proposal: &serde_json::Value,
+        selection: &agentbaton_core::integration::IntegrationPolicySelection,
+    ) -> Result<Vec<String>, String> {
+        super::integration_approval::review_messages(
+            &serde_json::json!({"result":proposal}),
+            selection,
+        )
+    }
+    pub fn receipt_matches(
+        response: &serde_json::Value,
+        proposal: &serde_json::Value,
+        selection: &agentbaton_core::integration::IntegrationPolicySelection,
+    ) -> bool {
+        super::integration_approval::receipt_matches(response, proposal, selection)
+    }
+    pub fn current_schema_matches(response: &serde_json::Value) -> bool {
+        super::require_current_database_schema(response).is_ok()
+    }
 }
 
 struct Runtime {
@@ -69,6 +97,49 @@ async fn system_snapshot(runtime: tauri::State<'_, Runtime>) -> Result<Value, St
         true,
     )
     .await
+}
+
+#[tauri::command]
+async fn background_status(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    // Read only: an unavailable daemon is never spawned by this observer.
+    call(
+        &runtime,
+        json!({"method":"system.background","params":{}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn background_hide_ui(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    expected_instance_id: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let refusal=|error:background_policy::HideFailure|json!({"request_id":null,"error":{"code":error.code,"message":error.message,"retryable":false,"side_effect_state":error.state,"details_ref":null},"revision":0,"warnings":[]});
+        let response=match ipc::call(&directory,json!({"method":"system.background","params":{}})) {
+            Ok(value)=>value,Err(_)=>return Ok(refusal(background_policy::HideFailure::not_started("Cannot authenticate background status; window remains visible".into())))
+        };
+        if let Err(error)=background_policy::status_instance(&response,Some(&expected_instance_id)) {
+            return Ok(refusal(background_policy::HideFailure::not_started(error)));
+        }
+        let (send,receive)=std::sync::mpsc::sync_channel(1);
+        let original=window.clone();let gate=std::sync::Arc::new(background_policy::HideGate::new());let queued=gate.clone();let deadline=Instant::now()+Duration::from_secs(5);
+        if let Err(error)=window.run_on_main_thread(move || {
+            if Instant::now()>=deadline {queued.expire();let _=send.send(Err(background_policy::HideFailure::not_started("Window hide expired before its main-thread action began".into())));return;}
+            if !queued.begin(){return;}
+            let result=background_window::hide_main(&original);let _=send.send(result);
+        }) {return Ok(refusal(background_policy::HideFailure::not_started(error.to_string())));}
+        match receive.recv_timeout(deadline.saturating_duration_since(Instant::now())) {
+            Ok(Ok(()))=>Ok(json!({"result":{"window":"main","action":"hidden","background_action":"unchanged"},"revision":0,"warnings":[]})),
+            Ok(Err(error))=>Ok(refusal(error)),
+            Err(_)=>{
+                let error=if gate.expire(){background_policy::HideFailure::not_started("Window hide timed out before its main-thread action began".into())}else{background_policy::HideFailure::unknown("Window hide outcome is unknown; do not automatically replay it".into())};
+                Ok(refusal(error))
+            }
+        }
+    }).await.map_err(|e|e.to_string())?
 }
 
 #[tauri::command]
@@ -335,6 +406,123 @@ async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, S
 }
 
 #[tauri::command]
+async fn client_recovery_list(runtime: tauri::State<'_, Runtime>) -> Result<Value,String> {
+    let directory=runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move||client_recovery_bridge::list(&directory)).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn client_recovery_get(runtime: tauri::State<'_, Runtime>,entry_id:String) -> Result<Value,String> {
+    let directory=runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move||client_recovery_bridge::get(&directory,&entry_id,|command|ipc::call(&directory,command).map_err(|e|e.to_string()))).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn client_recovery_status(runtime: tauri::State<'_, Runtime>,binding:Value) -> Result<Value,String> {
+    // Lookup filters only: never clear a journal entry or cancel a request.
+    call(&runtime,json!({"method":"managed_creations.status","params":binding}),false).await
+}
+#[tauri::command]
+async fn client_recovery_abandon(runtime: tauri::State<'_, Runtime>,window:tauri::WebviewWindow,entry_id:String) -> Result<Value,String> {
+    let directory=runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move||{
+        let marker=match client_recovery_bridge::captured(&directory,&entry_id){Ok(m)=>m,Err(e)=>return Ok(json!({"error":e,"revision":0,"warnings":[]}))};
+        let response=ipc::call(&directory,json!({"method":"managed_creations.get","params":marker})).map_err(|e|e.to_string())?;
+        if client_recovery_bridge::outcome_state(&response,&marker).ok()!=Some("unresolved") {
+            return client_recovery_bridge::reconcile_response(&directory,&marker,response);
+        }
+        let response=native_parent::with_caller(window,|parent|client_recovery_bridge::confirm_abandon(&marker,response,
+            |message|parent.confirm("AgentBaton — Abandon original creation",message),
+            |command|parent.finalize(||{
+                client_recovery_bridge::still_current(&directory,&marker).map_err(|e|e.to_string())?;
+                ipc::call(&directory,command).map_err(|e|e.to_string())
+            })))?;
+        client_recovery_bridge::reconcile_response(&directory,&marker,response)
+    }).await.map_err(|e|e.to_string())?
+}
+
+#[tauri::command]
+async fn managed_mcps_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_mcps.list","params":{}}), false).await
+}
+#[tauri::command]
+async fn managed_mcp_preview(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_mcps.preview","params":request}), false).await
+}
+#[tauri::command]
+async fn managed_mcp_find(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_mcps.find","params":request}), false).await
+}
+#[tauri::command]
+async fn managed_mcp_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_mcps.get","params":request}), false).await
+}
+#[tauri::command]
+async fn managed_mcp_create(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, selection: Value, idempotency_key: String) -> Result<Value, String> {
+    let directory=runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        client_recovery_bridge::create(&directory,agentbaton_core::client_recovery_journal::ManagedCreationKind::ManagedMcp,&selection,&idempotency_key,
+            ||native_parent::with_caller(window,|parent|{
+                let response=ipc::call(&directory,json!({"method":"managed_mcps.propose","params":selection,"idempotency_key":idempotency_key})).map_err(|e|e.to_string())?;
+                approval::confirm_managed_mcp_and_finalize(response,&selection,&idempotency_key,
+                    |message|parent.confirm("AgentBaton — Managed MCP approval",message),
+                    |command|parent.finalize(||ipc::call(&directory,command).map_err(|e|e.to_string())))
+            }),|command|ipc::call(&directory,command).map_err(|e|e.to_string()))
+    }).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn managed_skills_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_skills.list","params":{}}), false).await
+}
+#[tauri::command]
+async fn managed_skill_preview(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_skills.preview","params":request}), false).await
+}
+#[tauri::command]
+async fn managed_skill_find(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_skills.find","params":request}), false).await
+}
+#[tauri::command]
+async fn managed_skill_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"managed_skills.get","params":request}), false).await
+}
+#[tauri::command]
+async fn managed_skill_create(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, selection: Value, idempotency_key: String) -> Result<Value, String> {
+    let directory=runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        client_recovery_bridge::create(&directory,agentbaton_core::client_recovery_journal::ManagedCreationKind::ManagedSkill,&selection,&idempotency_key,
+            ||native_parent::with_caller(window,|parent|{
+                let response=ipc::call(&directory,json!({"method":"managed_skills.propose","params":selection,"idempotency_key":idempotency_key})).map_err(|e|e.to_string())?;
+                approval::confirm_managed_skill_and_finalize(response,&selection,&idempotency_key,
+                    |message|parent.confirm("AgentBaton — Managed Skill approval",message),
+                    |command|parent.finalize(||ipc::call(&directory,command).map_err(|e|e.to_string())))
+            }),|command|ipc::call(&directory,command).map_err(|e|e.to_string()))
+    }).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn connection_inspect(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"connections.inspect","params":request}), false).await
+}
+#[tauri::command]
+async fn connection_probe_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"connections.probe.get","params":request}), false).await
+}
+#[tauri::command]
+async fn connection_probe_find(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"connections.probe.find","params":request}), false).await
+}
+#[tauri::command]
+async fn connection_probe_retry(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, request: Value, idempotency_key: String) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        native_parent::with_caller(window, |parent| {
+            let response = ipc::call(&directory, json!({"method":"connections.reprobe.propose","params":request,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
+            approval::confirm_connection_probe_and_finalize(response, &request, &idempotency_key,
+                |message| parent.confirm("AgentBaton — Version probe approval", message),
+                |command| parent.finalize(|| ipc::call(&directory, command).map_err(|error| error.to_string())))
+        })
+    }).await.map_err(|error| error.to_string())?
+}
+#[tauri::command]
+#[allow(clippy::too_many_arguments)]
 async fn connections_register(
     runtime: tauri::State<'_, Runtime>,
     window: tauri::WebviewWindow,
@@ -343,12 +531,13 @@ async fn connections_register(
     arguments: Vec<String>,
     provider: String,
     idempotency_key: String,
+    configuration_source: Option<String>,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
         window,
         approval::ApprovalKind::Connection,
-        json!({"name":name,"executable":executable,"arguments":arguments,"provider":provider}),
+        json!({"name":name,"executable":executable,"arguments":arguments,"provider":provider,"configuration_source":configuration_source}),
         idempotency_key,
     )
     .await
@@ -392,6 +581,72 @@ async fn grants_revoke(
     idempotency_key: String,
 ) -> Result<Value, String> {
     call(&runtime, json!({"method":"grants.revoke","params":{"grant_id":grant_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+
+#[tauri::command]
+async fn conversations_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"conversations.list","params":{}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn conversations_history(
+    runtime: tauri::State<'_, Runtime>,
+    conversation_id: String,
+    cursor: Option<Value>,
+    limit: Option<u32>,
+) -> Result<Value, String> {
+    let limit = limit.unwrap_or(100);
+    if !(1..=100).contains(&limit) {
+        return Err("History page limit must be between 1 and 100".into());
+    }
+    call(&runtime, json!({"method":"conversations.history","params":{"conversation_id":conversation_id,"cursor":cursor,"limit":limit}}), false).await
+}
+#[tauri::command]
+async fn conversations_get(
+    runtime: tauri::State<'_, Runtime>,
+    conversation_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"conversations.get","params":{"conversation_id":conversation_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn conversations_create(
+    runtime: tauri::State<'_, Runtime>,
+    project_id: String,
+    title: String,
+    workspace_id: String,
+    connection_id: String,
+    grant_id: String,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"conversations.create","params":{"project_id":project_id,"title":title,"workspace_id":workspace_id,"connection_id":connection_id,"grant_id":grant_id},"idempotency_key":idempotency_key}), false).await
+}
+#[tauri::command]
+async fn conversations_send(
+    runtime: tauri::State<'_, Runtime>,
+    conversation_id: String,
+    expected_revision: u64,
+    text: String,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"conversations.send","params":{"conversation_id":conversation_id,"text":text},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+#[tauri::command]
+async fn conversations_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    conversation_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"conversations.cancel","params":{"conversation_id":conversation_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
 }
 
 #[tauri::command]
@@ -678,6 +933,250 @@ fn goal_graph_advance_frame(
     idempotency_key: &str,
 ) -> Value {
     json!({"method":"goal_graph_runs.advance_plan","params":{"run_id":run_id,"expected_plan_revision":expected_plan_revision,"expected_ledger_revision":expected_ledger_revision},"expected_revision":expected_revision,"idempotency_key":idempotency_key})
+}
+
+fn integration_policy_proposal_frame(
+    selection: &agentbaton_core::integration::IntegrationPolicySelection,
+    key: &str,
+) -> Value {
+    json!({"method":approval::ApprovalKind::Integration.proposal_method(),"params":selection,"idempotency_key":key})
+}
+fn integration_reference_frame(
+    method: &str,
+    field: &str,
+    id: &str,
+    revision: Option<u64>,
+    key: Option<&str>,
+) -> Value {
+    let mut value = json!({"method":method,"params":{field:id}});
+    if let Some(revision) = revision {
+        value["expected_revision"] = json!(revision);
+    }
+    if let Some(key) = key {
+        value["idempotency_key"] = json!(key);
+    }
+    value
+}
+fn integration_list_frame(
+    method: &str,
+    task_id: &str,
+    after_id: Option<String>,
+    limit: Option<u32>,
+) -> Value {
+    json!({"method":method,"params":agentbaton_core::integration::IntegrationListQuery{task_id:task_id.into(),after_id,limit}})
+}
+async fn integration_call(runtime: &Runtime, frame: Value) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let snapshot = ipc::call(&directory, json!({"method":"system.snapshot","params":{}}))
+            .map_err(|e| e.to_string())?;
+        require_current_database_schema(&snapshot)?;
+        Ok(ipc::call(&directory, frame).unwrap_or_else(
+            |error| json!({"request_id":null,"error":error,"revision":0,"warnings":[]}),
+        ))
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+#[tauri::command]
+async fn integration_policy_approve(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    selection: agentbaton_core::integration::IntegrationPolicySelection,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        native_parent::with_caller(window, |parent| {
+            let snapshot = ipc::call(&directory, json!({"method":"system.snapshot","params":{}}))
+                .map_err(|e| e.to_string())?;
+            require_current_database_schema(&snapshot)?;
+            let response = ipc::call(
+                &directory,
+                integration_policy_proposal_frame(&selection, &idempotency_key),
+            )
+            .map_err(|e| e.to_string())?;
+            integration_approval::confirm_and_finalize(
+                response,
+                &selection,
+                |message| parent.confirm(integration_approval::TITLE, message),
+                |frame| parent.finalize(|| ipc::call(&directory, frame).map_err(|e| e.to_string())),
+            )
+        })
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+fn integration_targets_frame(
+    task_id: &str,
+    after_ref: Option<String>,
+    limit: Option<u32>,
+) -> Value {
+    json!({"method":"integration_targets.list","params":agentbaton_core::integration::IntegrationTargetQuery{task_id:task_id.into(),after_ref,limit}})
+}
+fn integration_context_frame(task_id: &str, goal_scope_id: &str) -> Value {
+    json!({"method":"integration_context.get","params":agentbaton_core::integration::IntegrationContextQuery{task_id:task_id.into(),goal_scope_id:goal_scope_id.into()}})
+}
+#[tauri::command]
+async fn integration_context_get(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    goal_scope_id: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_context_frame(&task_id, &goal_scope_id),
+    )
+    .await
+}
+#[tauri::command]
+async fn integration_targets_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    after_ref: Option<String>,
+    limit: Option<u32>,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_targets_frame(&task_id, after_ref, limit),
+    )
+    .await
+}
+#[tauri::command]
+async fn integration_policies_get(
+    runtime: tauri::State<'_, Runtime>,
+    policy_id: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integration_policies.get",
+            "policy_id",
+            &policy_id,
+            None,
+            None,
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integration_policies_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    after_id: Option<String>,
+    limit: Option<u32>,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_list_frame("integration_policies.list", &task_id, after_id, limit),
+    )
+    .await
+}
+#[tauri::command]
+async fn integration_policies_revoke(
+    runtime: tauri::State<'_, Runtime>,
+    policy_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integration_policies.revoke",
+            "policy_id",
+            &policy_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_start(
+    runtime: tauri::State<'_, Runtime>,
+    policy_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integrations.start",
+            "policy_id",
+            &policy_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_get(
+    runtime: tauri::State<'_, Runtime>,
+    integration_id: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integrations.get",
+            "integration_id",
+            &integration_id,
+            None,
+            None,
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    after_id: Option<String>,
+    limit: Option<u32>,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_list_frame("integrations.list", &task_id, after_id, limit),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    integration_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integrations.cancel",
+            "integration_id",
+            &integration_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+    )
+    .await
+}
+#[tauri::command]
+async fn integrations_reconcile(
+    runtime: tauri::State<'_, Runtime>,
+    integration_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    integration_call(
+        &runtime,
+        integration_reference_frame(
+            "integrations.reconcile",
+            "integration_id",
+            &integration_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+    )
+    .await
 }
 
 fn factory_scope_proposal_frame(selection: &Value, key: &str) -> Value {
@@ -1370,6 +1869,66 @@ fn goal_plan_frame(
     )
 }
 #[tauri::command]
+async fn goal_planning_prepare(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.prepare","params":request}), false).await
+}
+#[tauri::command]
+async fn goal_planning_start(runtime: tauri::State<'_, Runtime>, request: Value, expected_revision: u64, idempotency_key: String) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.start","params":request,"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+#[tauri::command]
+async fn goal_planning_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.get","params":request}), false).await
+}
+#[tauri::command]
+async fn goal_planning_list(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.list","params":request}), false).await
+}
+#[tauri::command]
+async fn goal_planning_cancel(runtime: tauri::State<'_, Runtime>, request: Value, expected_revision: u64, idempotency_key: String) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.cancel","params":request,"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+// Keep candidate_json as a string inside the request: only Core's strict typed
+// deserializer may interpret advice, including duplicate and unknown fields.
+#[tauri::command]
+async fn goal_plan_advice_context(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_plans.advice_context","params":request}), false).await
+}
+#[tauri::command]
+async fn goal_plan_advice_import(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_plans.advice_import","params":request}), false).await
+}
+#[tauri::command]
+async fn goal_multi_plan_draft(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_plans.draft_multi","params":request}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn goal_plan_draft(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_plans.draft","params":request}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
 async fn goal_plans_propose(
     runtime: tauri::State<'_, Runtime>,
     scope_id: String,
@@ -1507,7 +2066,18 @@ fn authenticated_snapshot(runtime: &Path, deadline: Instant) -> Result<Value, St
     if let Some(error) = response.get("error") {
         return Err(error.to_string());
     }
+    require_current_database_schema(&response)?;
     Ok(response)
+}
+
+fn require_current_database_schema(response: &Value) -> Result<(), String> {
+    if response.get("error").is_some()
+        || response["result"]["api_version"].as_u64() != Some(1)
+        || response["result"]["database_schema_version"].as_u64() != Some(18)
+    {
+        return Err("Authenticated daemon requires exact database schema18; old/future/unknown schema is unsupported".into());
+    }
+    Ok(())
 }
 
 fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
@@ -1526,13 +2096,8 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
     // Only the installed sibling binary is executable here. Renderer input
     // never selects paths or arguments. A raced startup is rejected by the
     // daemon's exclusive writer lock; this client never removes the socket.
-    let mut child = Command::new(daemon)
-        .env("BATON_RUNTIME_DIR", runtime)
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
-        .map_err(|e| format!("Cannot start bundled daemon: {e}"))?;
+    let mut child = detached_daemon::DetachedDaemon::spawn(&daemon, runtime)
+        .map_err(|e| format!("Cannot start detached bundled daemon: {e}"))?;
     loop {
         if Instant::now() >= deadline {
             return Err("Daemon readiness deadline expired; no task was dispatched.".into());
@@ -1557,6 +2122,17 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        integration_policy_approve,
+        integration_targets_list,
+        integration_context_get,
+        integration_policies_get,
+        integration_policies_list,
+        integration_policies_revoke,
+        integrations_start,
+        integrations_get,
+        integrations_list,
+        integrations_cancel,
+        integrations_reconcile,
         factory_scope_approve,
         factory_scopes_get,
         factory_scopes_list,
@@ -1589,6 +2165,15 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         goal_scopes_list,
         goal_scopes_get,
         goal_scopes_revoke,
+        goal_planning_prepare,
+        goal_planning_start,
+        goal_planning_get,
+        goal_planning_list,
+        goal_planning_cancel,
+        goal_plan_advice_context,
+        goal_plan_advice_import,
+        goal_multi_plan_draft,
+        goal_plan_draft,
         goal_plans_propose,
         goal_plans_revise,
         goal_plans_get,
@@ -1612,6 +2197,8 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         validations_run,
         validation_policies_revoke,
         system_snapshot,
+        background_status,
+        background_hide_ui,
         tasks_create,
         tasks_cancel,
         events_subscribe,
@@ -1634,9 +2221,33 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         data_workspaces_cancel,
         connections_list,
         connections_register,
+        client_recovery_list,
+        client_recovery_get,
+        client_recovery_status,
+        client_recovery_abandon,
+        managed_mcps_list,
+        managed_mcp_preview,
+        managed_mcp_find,
+        managed_mcp_get,
+        managed_mcp_create,
+        managed_skills_list,
+        managed_skill_preview,
+        managed_skill_create,
+        managed_skill_find,
+        managed_skill_get,
+        connection_inspect,
+        connection_probe_get,
+        connection_probe_find,
+        connection_probe_retry,
         grants_list,
         grants_create,
         grants_revoke,
+        conversations_list,
+        conversations_get,
+        conversations_history,
+        conversations_create,
+        conversations_send,
+        conversations_cancel,
         sessions_list,
         sessions_get,
         sessions_create,
@@ -1651,7 +2262,9 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
 pub fn desktop_builder(directory: PathBuf) -> tauri::Builder<tauri::Wry> {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .on_window_event(native_parent::on_window_event)
+        .on_window_event(background_window::on_window_event)
+        .manage(background_window::BackgroundWindow::default())
+        .setup(|app| { background_window::install(app)?; Ok(()) })
         .manage(Runtime { directory })
         .invoke_handler(dispatch_production)
 }
@@ -1665,8 +2278,18 @@ pub fn run() {
         }
     };
     desktop_builder(directory)
-        .run(tauri::generate_context!())
-        .expect("Desktop runtime failed");
+        .build(tauri::generate_context!())
+        .expect("Desktop runtime failed")
+        .run(|app,event| {
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen { .. } = event {
+                if let Err(error)=background_window::restore_main(app) {
+                    eprintln!("Cannot restore AgentBaton main window: {error}");
+                }
+            }
+            #[cfg(not(target_os = "macos"))]
+            let _=(app,event);
+        });
 }
 
 #[cfg(test)]
@@ -2005,5 +2628,83 @@ mod task_workspace_binding_bridge_tests {
         assert!(wrapper.contains("false"));
         assert!(!wrapper.contains("confirm_proposed"));
         assert!(!wrapper.contains("ensure_daemon"));
+    }
+}
+
+#[cfg(test)]
+mod integration_bridge_tests {
+    use super::*;
+    #[test]
+    fn integration_reads_and_writes_preserve_fixed_reference_cas_and_key() {
+        for (method, field) in [
+            ("integration_policies.revoke", "policy_id"),
+            ("integrations.start", "policy_id"),
+            ("integrations.cancel", "integration_id"),
+            ("integrations.reconcile", "integration_id"),
+        ] {
+            let frame = integration_reference_frame(
+                method,
+                field,
+                "exact-id",
+                Some(73),
+                Some("original-key"),
+            );
+            assert_eq!(frame["method"], method);
+            assert_eq!(frame["params"], json!({field:"exact-id"}));
+            assert_eq!(frame["expected_revision"], 73);
+            assert_eq!(frame["idempotency_key"], "original-key");
+            assert_eq!(frame.as_object().unwrap().len(), 4);
+        }
+        assert_eq!(
+            integration_reference_frame("integrations.get", "integration_id", "id", None, None),
+            json!({"method":"integrations.get","params":{"integration_id":"id"}})
+        );
+        assert_eq!(
+            integration_list_frame(
+                "integration_policies.list",
+                "task",
+                Some("cursor".into()),
+                Some(7)
+            ),
+            json!({"method":"integration_policies.list","params":{"task_id":"task","after_id":"cursor","limit":7}})
+        );
+        assert_eq!(
+            integration_context_frame("task", "scope"),
+            json!({"method":"integration_context.get","params":{"task_id":"task","goal_scope_id":"scope"}})
+        );
+        assert_eq!(
+            integration_targets_frame("task", Some("refs/heads/last".into()), Some(2)),
+            json!({"method":"integration_targets.list","params":{"task_id":"task","after_ref":"refs/heads/last","limit":2}})
+        );
+    }
+    #[test]
+    fn current_schema_requires_authenticated_exact_typed_eighteen() {
+        let good = json!({"result":{"api_version":1,"database_schema_version":18}});
+        assert!(require_current_database_schema(&good).is_ok());
+        for bad in [
+            Value::Null,
+            json!(17),
+            json!(19),
+            json!(18.0),
+            json!(true),
+            json!("18"),
+        ] {
+            let mut response = good.clone();
+            response["result"]["database_schema_version"] = bad;
+            assert!(require_current_database_schema(&response).is_err());
+        }
+        let mut error = good.clone();
+        error["error"] = Value::Null;
+        assert!(require_current_database_schema(&error).is_err());
+        assert!(
+            require_current_database_schema(&json!({"result":{"database_schema_version":18}}))
+                .is_err()
+        );
+    }
+    #[test]
+    fn generic_owner_path_cannot_finalize_integration() {
+        let response=approval::confirm_and_finalize(json!({"result":{"id":"p","revision":1,"kind":"integration","consumed":false,"snapshot":{}}}),approval::ApprovalKind::Integration, |_|panic!("no generic dialog"), |_|panic!("no generic finalization")).unwrap();
+        assert!(response.get("error").is_some());
+        assert_eq!(response["error"]["side_effect_state"], "not_started");
     }
 }

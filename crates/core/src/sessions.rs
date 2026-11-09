@@ -40,6 +40,37 @@ use std::{
 use time::OffsetDateTime;
 use uuid::Uuid;
 
+#[path = "sessions_owned_stop.rs"]
+mod owned_stop;
+#[path = "sessions_planning.rs"]
+pub(crate) mod planning;
+use owned_stop::{CompletedTurnProof, RetainedReceipt};
+#[path = "connection_probe.rs"]
+mod connection_probe;
+#[path = "managed_creation_recovery.rs"]
+mod managed_creation_recovery;
+pub use managed_creation_recovery::{
+    BindingRecoveryOutcome, NoNewExecution, RecoveryConnection, RecoveryOutcome,
+};
+#[path = "managed_mcps.rs"]
+pub(crate) mod managed_mcps;
+pub use managed_mcps::{
+    ManagedMcpCatalog, ManagedMcpConfirmation, ManagedMcpConnectionId, ManagedMcpFind,
+    ManagedMcpOperation, ManagedMcpPreview, ManagedMcpProfile, ManagedMcpRequest,
+    ManagedMcpSelection, ManagedMcpServerSelection, ManagedMcpSummary, ManagedMcpUnavailable,
+};
+#[path = "managed_skills.rs"]
+mod managed_skills;
+pub use connection_probe::{
+    ConnectionInspectRequest, ConnectionInspection, ConnectionProbeAttempt,
+    ConnectionProbeConfirmation, ConnectionProbeFind, ConnectionProbeId,
+};
+pub use managed_skills::{
+    ManagedSkillCatalog, ManagedSkillConfirmation, ManagedSkillConnectionId, ManagedSkillFind,
+    ManagedSkillOperation, ManagedSkillPreview, ManagedSkillProfile, ManagedSkillRequest,
+    ManagedSkillSelection, ManagedSkillSummary, ManagedSkillUnavailable,
+};
+
 // Unit-test-only, one-shot fault injection at the exact atomic boundary. No
 // product build, feature, IPC request or Provider can install this callback.
 #[cfg(test)]
@@ -194,6 +225,7 @@ fn save_session(
 struct ExpectedConnectionSnapshot<'a> {
     executable_sha256: &'a str,
     runtime_plan_digest: &'a str,
+    runtime_plan: RuntimePlan,
 }
 impl Store {
     /// A local authenticated registration authorizes only one bounded version probe.
@@ -219,7 +251,10 @@ impl Store {
     ) -> Result<ProviderConnection> {
         key_valid(key)?;
         let protocol_route = crate::routes::validate_route_arguments(provider, arguments)?;
-        let runtime_plan = crate::runtime_config::plan_for_provider(provider)?;
+        let runtime_plan = match expected.as_ref() {
+            Some(snapshot) => snapshot.runtime_plan.clone(),
+            None => crate::runtime_config::plan_for_provider(provider)?,
+        };
         let plan_digest = runtime_plan
             .plan_digest()
             .map_err(crate::runtime_config::config_error)?;
@@ -239,9 +274,14 @@ impl Store {
         {
             return Err(invalid("Connection name and arguments must be bounded"));
         }
-        let payload = encode(
-            &json!({"name":name,"provider":provider,"executable":executable,"arguments":arguments}),
-        )?;
+        let mut registration =
+            json!({"name":name,"provider":provider,"executable":executable,"arguments":arguments});
+        // Preserve historical default-registration keys; imported plans must be
+        // part of the exact idempotency intent and cannot be swapped on replay.
+        if !runtime_plan.source_refs.is_empty() {
+            registration["runtime_plan_digest"] = json!(plan_digest);
+        }
+        let payload = encode(&registration)?;
         let old:Option<(String,String)>=self.conn.query_row("SELECT payload,result FROM idempotency WHERE scope='local:connections.register' AND key=?1",[key],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
         if let Some((old, result)) = old {
             if old != payload {
@@ -527,7 +567,7 @@ impl Store {
             );
             *clock = Instant::now();
         }
-        let busy:i64=tx.query_row("SELECT count(*) FROM sessions WHERE workspace_id=?1 AND state NOT IN('stopped','failed')",[workspace_id],|r|r.get(0)).map_err(db_error)?;
+        let busy:i64=tx.query_row("SELECT count(*) FROM (SELECT workspace_id,state FROM sessions UNION ALL SELECT workspace_id,state FROM conversations) WHERE workspace_id=?1 AND state NOT IN('stopped','failed')",[workspace_id],|r|r.get(0)).map_err(db_error)?;
         let lease: Option<(String, i64)> = tx
             .query_row(
                 "SELECT holder,fencing_token FROM workspace_leases WHERE resource=?1",
@@ -545,12 +585,12 @@ impl Store {
         crate::policy::validate_ancestor_grant_budgets_from(&tx, grant_id)?;
         let total: i64 = tx
             .query_row(
-                "SELECT count(*) FROM sessions WHERE root_grant_id=?1",
+                "SELECT count(*) FROM (SELECT root_grant_id,state FROM sessions UNION ALL SELECT root_grant_id,state FROM conversations) WHERE root_grant_id=?1",
                 [&grant.root_grant_id],
                 |r| r.get(0),
             )
             .map_err(db_error)?;
-        let active:i64=tx.query_row("SELECT count(*) FROM sessions WHERE root_grant_id=?1 AND state NOT IN('stopped','failed')",[&grant.root_grant_id],|r|r.get(0)).map_err(db_error)?;
+        let active:i64=tx.query_row("SELECT count(*) FROM (SELECT root_grant_id,state FROM sessions UNION ALL SELECT root_grant_id,state FROM conversations) WHERE root_grant_id=?1 AND state NOT IN('stopped','failed')",[&grant.root_grant_id],|r|r.get(0)).map_err(db_error)?;
         let root = crate::policy::grant_from_for_supervisor(&tx, &grant.root_grant_id)?;
         if total >= i64::from(root.scope.max_attempts)
             || active >= i64::from(root.scope.max_concurrency)
@@ -562,12 +602,12 @@ impl Store {
         }
         let own_total: i64 = tx
             .query_row(
-                "SELECT count(*) FROM sessions WHERE grant_id=?1",
+                "SELECT count(*) FROM (SELECT grant_id,state FROM sessions UNION ALL SELECT grant_id,state FROM conversations) WHERE grant_id=?1",
                 [grant_id],
                 |r| r.get(0),
             )
             .map_err(db_error)?;
-        let own_active:i64=tx.query_row("SELECT count(*) FROM sessions WHERE grant_id=?1 AND state NOT IN('stopped','failed')",[grant_id],|r|r.get(0)).map_err(db_error)?;
+        let own_active:i64=tx.query_row("SELECT count(*) FROM (SELECT grant_id,state FROM sessions UNION ALL SELECT grant_id,state FROM conversations) WHERE grant_id=?1 AND state NOT IN('stopped','failed')",[grant_id],|r|r.get(0)).map_err(db_error)?;
         if own_total >= i64::from(grant.scope.max_attempts)
             || own_active >= i64::from(grant.scope.max_concurrency)
         {
@@ -578,7 +618,7 @@ impl Store {
         }
         let running: i64 = tx
             .query_row(
-                "SELECT count(*) FROM sessions WHERE state NOT IN('stopped','failed')",
+                "SELECT count(*) FROM (SELECT state FROM sessions UNION ALL SELECT state FROM conversations) WHERE state NOT IN('stopped','failed')",
                 [],
                 |r| r.get(0),
             )
@@ -1005,7 +1045,11 @@ impl Store {
                 .collect::<Result<Vec<_>>>()?
         };
         for c in pending {
-            self.finish_probe(&c.id, Err("probe_interrupted".into()))?;
+            if let Some(a) = connection_probe::latest(&self.conn, &c.id)? {
+                self.finish_connection_probe(&a.id, Err("probe_interrupted".into()), false)?;
+            } else {
+                self.finish_probe(&c.id, Err("probe_interrupted".into()))?;
+            }
         }
         Ok(())
     }
@@ -1072,30 +1116,44 @@ impl Store {
     }
 }
 
-enum Work {
+pub(crate) enum Work {
     Prompt(String),
+    GoalPrompt {
+        text: String,
+        stop: owned_stop::TurnTicket,
+    },
 }
-enum Outcome {
+pub(crate) enum Outcome {
     Ready(String, String),
     Update(String, Value),
     Turn(String, String),
+    GoalTurn {
+        id: String,
+        ticket: owned_stop::TurnTicket,
+        state: String,
+    },
     Failure(String, String),
 }
-struct WorkerReceipt {
+pub(crate) struct WorkerReceipt {
+    completed_turn: Option<CompletedTurnProof>,
     capture: Option<crate::factory::FactoryCapture>,
-    elapsed_ms: u64,
-    reason: String,
-    process_reaped: bool,
-    never_started: bool,
+    pub(crate) elapsed_ms: u64,
+    pub(crate) reason: String,
+    pub(crate) process_reaped: bool,
+    pub(crate) never_started: bool,
 }
 struct Worker {
+    owned_stop: Option<Arc<owned_stop::LaunchBinding>>,
     commands: SyncSender<Work>,
     cancel: Arc<AtomicBool>,
     thread: JoinHandle<WorkerReceipt>,
 }
 pub struct Supervisor {
     workers: HashMap<String, Worker>,
+    retained_receipts: HashMap<String, RetainedReceipt>,
     probes: HashMap<String, JoinHandle<std::result::Result<VersionEvidence, String>>>,
+    retry_probes: HashMap<String, JoinHandle<std::result::Result<VersionEvidence, String>>>,
+    retry_probe_receipts: HashMap<String, std::result::Result<VersionEvidence, String>>,
     events: Receiver<Outcome>,
     sender: SyncSender<Outcome>,
     runtime: PathBuf,
@@ -1108,7 +1166,10 @@ impl Supervisor {
         let (sender, events) = mpsc::sync_channel(64);
         Self {
             workers: HashMap::new(),
+            retained_receipts: HashMap::new(),
             probes: HashMap::new(),
+            retry_probes: HashMap::new(),
+            retry_probe_receipts: HashMap::new(),
             events,
             sender,
             runtime: runtime.into(),
@@ -1155,7 +1216,7 @@ impl Supervisor {
             ),
         ]))
     }
-    fn configuration_root(&self) -> Result<RuntimeRoot> {
+    pub(crate) fn configuration_root(&self) -> Result<RuntimeRoot> {
         use std::os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt};
         let directory = self.runtime.join("runtime-config");
         match std::fs::DirBuilder::new().mode(0o700).create(&directory) {
@@ -1181,10 +1242,13 @@ impl Supervisor {
     }
     pub fn probe(&mut self, store: &Store, id: &str) -> Result<()> {
         let c = store.get_connection(id)?;
+        if connection_probe::latest(&store.conn, id)?.is_some() {
+            return Ok(());
+        }
         if c.probe_state != "pending" || self.probes.contains_key(id) {
             return Ok(());
         }
-        if self.probes.len() >= 4 {
+        if self.probes.len() + self.retry_probes.len() >= 4 {
             return Err(CoreError::new(
                 "RESOURCE_LIMIT",
                 "Version probe concurrency limit reached",
@@ -1214,7 +1278,7 @@ impl Supervisor {
         Ok(())
     }
     pub fn launch(&mut self, store: &mut Store, id: &str) -> Result<()> {
-        if self.workers.contains_key(id) {
+        if self.workers.contains_key(id) || self.retained_receipts.contains_key(id) {
             return Ok(());
         }
         self.launch_clocks
@@ -1293,7 +1357,9 @@ impl Supervisor {
             .verify_before_launch(&snapshot.descriptor(), RuntimeRequirements::default())
             .map_err(crate::runtime_config::config_error)?;
         let configuration = if c.protocol_route == ProtocolRoute::CodexAppServer {
-            None
+            Some(crate::runtime_config::codex_snapshot_configuration(
+                &snapshot,
+            )?)
         } else {
             Some(
                 snapshot
@@ -1320,6 +1386,7 @@ impl Supervisor {
                 ))
             }
         };
+        let managed_mcp = managed_mcps::ManagedMcpLaunch::new(&plan, &snapshot)?;
         let environment = snapshot.environment();
         let installation = ApprovedInstallation {
             executable: c.executable,
@@ -1331,6 +1398,12 @@ impl Supervisor {
             environment,
         };
         let mut factory_mcp = store.factory_mcp_for_launch(id, &self.runtime)?;
+        let owned_stop = if factory_mcp.is_none() {
+            owned_stop::launch_binding(store, &s)?
+        } else {
+            None
+        };
+        let worker_owned_stop = owned_stop.clone();
         // The durable sent marker precedes worker spawn and any provider code.
         store.mark_dispatch_started(&s.intent_id, &s.id)?;
         if let Some(mcp) = factory_mcp.as_mut() {
@@ -1372,6 +1445,9 @@ impl Supervisor {
                         installation,
                         configuration,
                         factory_mcp,
+                        owned_stop: worker_owned_stop,
+                        planning: None,
+                        managed_mcp,
                         prelaunch_ms,
                         duration,
                     },
@@ -1390,6 +1466,7 @@ impl Supervisor {
         self.workers.insert(
             s.id,
             Worker {
+                owned_stop,
                 commands,
                 cancel,
                 thread,
@@ -1415,6 +1492,32 @@ impl Supervisor {
                 )
             })
     }
+    // The Goal dispatcher has already committed its private exact turn intent.
+    // This method only carries that intent into the existing owned command.
+    pub(crate) fn send_goal(&mut self, store: &mut Store, id: &str, text: &str) -> Result<()> {
+        let worker = self.workers.get(id).ok_or_else(|| {
+            CoreError::new(
+                "OUTCOME_UNKNOWN",
+                "No owned worker exists; reconcile before retry",
+            )
+        })?;
+        let Some(origin) = worker.owned_stop.as_ref() else {
+            return self.send(id, text);
+        };
+        let stop = owned_stop::committed_ticket(store, origin, text)?;
+        worker
+            .commands
+            .try_send(Work::GoalPrompt {
+                text: text.into(),
+                stop,
+            })
+            .map_err(|_| {
+                CoreError::new(
+                    "RESOURCE_LIMIT",
+                    "Worker command queue unavailable; reconcile queued turn",
+                )
+            })
+    }
     /// Only `launch` errors reach this path: no worker was inserted and a
     /// successful thread spawn has no fallible operation before insertion.
     pub(crate) fn record_local_launch_failure(
@@ -1422,7 +1525,7 @@ impl Supervisor {
         store: &mut Store,
         id: &str,
     ) -> Result<()> {
-        if self.workers.contains_key(id) {
+        if self.workers.contains_key(id) || self.retained_receipts.contains_key(id) {
             return Err(CoreError::new(
                 "OUTCOME_UNKNOWN",
                 "An owned worker exists; local no-start proof is unavailable",
@@ -1436,97 +1539,135 @@ impl Supervisor {
         )
         .unwrap_or(u64::MAX)
         .saturating_add(store.shared_session_queue(id)?.unwrap_or(0));
-        self.persist_receipt(
-            store,
-            id,
-            WorkerReceipt {
+        self.retained_receipts.insert(
+            id.into(),
+            RetainedReceipt::new(WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "local_launch_failed_before_worker_start".into(),
                 process_reaped: false,
                 never_started: true,
                 elapsed_ms,
-            },
-        )
+            }),
+        );
+        self.flush_retained_receipts(store)
     }
     pub(crate) fn has_owned_io(&self) -> bool {
-        !self.workers.is_empty() || !self.probes.is_empty()
+        !self.workers.is_empty()
+            || !self.probes.is_empty()
+            || !self.retry_probes.is_empty()
+            || !self.retry_probe_receipts.is_empty()
+            || !self.retained_receipts.is_empty()
     }
     pub fn has_workers(&self) -> bool {
-        !self.workers.is_empty()
+        !self.workers.is_empty() || !self.retained_receipts.is_empty()
     }
     pub fn owns(&self, id: &str) -> bool {
-        self.workers.contains_key(id)
+        self.workers.contains_key(id) || self.retained_receipts.contains_key(id)
     }
     pub fn cancel(&self, id: &str) {
         if let Some(w) = self.workers.get(id) {
             w.cancel.store(true, Ordering::Relaxed);
         }
     }
-    fn persist_receipt(
-        &mut self,
-        store: &mut Store,
-        id: &str,
-        receipt: WorkerReceipt,
-    ) -> Result<()> {
+    fn flush_retained_receipts(&mut self, store: &mut Store) -> Result<()> {
+        let ids: Vec<_> = self.retained_receipts.keys().cloned().collect();
+        for id in ids {
+            Self::persist_receipt(store, &id, self.retained_receipts.get_mut(&id).unwrap())?;
+            self.retained_receipts.remove(&id);
+        }
+        Ok(())
+    }
+    fn persist_receipt(store: &mut Store, id: &str, retained: &mut RetainedReceipt) -> Result<()> {
+        let receipt = &retained.receipt;
+        let progress = &mut retained.progress;
+        if !progress.terminal {
+            if let Some(proof) = &receipt.completed_turn {
+                if receipt.reason == "event_backpressure" {
+                    proof.persist_failed_backpressure(store, id)?;
+                } else {
+                    proof.persist(store, id)?;
+                }
+            }
+            progress.terminal = true;
+        }
         let mut s = store.get_session(id)?;
         if receipt.process_reaped || receipt.never_started {
-            let task = store.get(&s.task_id)?;
-            if (receipt.reason == "cancelled" || s.state == "cancel_requested")
-                && task.state != TaskState::CancelRequested
-                && !crate::goal_store::owns_session(&store.conn, id)?
-                && !store.factory_internal_stop_is_current(id)?
-            {
-                store.cancel(&task.id, task.revision)?;
+            if !progress.task {
+                let task = store.get(&s.task_id)?;
+                if (receipt.reason == "cancelled" || s.state == "cancel_requested")
+                    && task.state != TaskState::CancelRequested
+                    && !crate::goal_store::owns_session(&store.conn, id)?
+                    && !store.factory_internal_stop_is_current(id)?
+                {
+                    store.cancel(&task.id, task.revision)?;
+                }
+                progress.task = true;
             }
-            let proof = if receipt.never_started
-                && store.intent(&s.intent_id)?.state == IntentState::Prepared
-            {
-                StopEvidence::NeverDispatched
-            } else if receipt.never_started {
-                StopEvidence::ConfirmedNotStarted {
-                    executor_instance: s.id.clone(),
-                    receipt_ref: format!("owned-worker-no-start:{id}"),
-                }
-            } else {
-                StopEvidence::ConfirmedStopped {
-                    executor_instance: s.id.clone(),
-                    receipt_ref: format!("owned-worker-stop:{id}"),
-                }
-            };
-            store.confirm_stop(&s.intent_id, proof)?;
-            store.release_workspace_lease(&s.workspace_id, &s.id, s.fencing_token)?;
+            if !progress.stop {
+                let proof = if receipt.never_started
+                    && store.intent(&s.intent_id)?.state == IntentState::Prepared
+                {
+                    StopEvidence::NeverDispatched
+                } else if receipt.never_started {
+                    StopEvidence::ConfirmedNotStarted {
+                        executor_instance: s.id.clone(),
+                        receipt_ref: format!("owned-worker-no-start:{id}"),
+                    }
+                } else {
+                    StopEvidence::ConfirmedStopped {
+                        executor_instance: s.id.clone(),
+                        receipt_ref: format!("owned-worker-stop:{id}"),
+                    }
+                };
+                store.confirm_stop(&s.intent_id, proof)?;
+                progress.stop = true;
+            }
+            if !progress.lease {
+                store.release_workspace_lease(&s.workspace_id, &s.id, s.fencing_token)?;
+                progress.lease = true;
+            }
             s.state = "stopped".into();
         } else {
             s.state = "outcome_unknown".into();
         }
-        s.last_error = if receipt.reason == "cancelled" {
-            s.last_error.clone()
-        } else {
-            Some(receipt.reason.clone())
-        };
-        let tx = store.conn.transaction().map_err(db_error)?;
-        tx.execute("UPDATE session_turns SET state='outcome_unknown' WHERE session_id=?1 AND state='pending'",[id]).map_err(db_error)?;
-        save_session(
-            &tx,
-            &mut s,
-            "session.stopped",
-            json!({"reason":receipt.reason,"process_reaped":receipt.process_reaped,"no_process_started":receipt.never_started,"task_accepted":false}),
-            "baton_supervisor",
-        )?;
-        tx.commit().map_err(db_error)?;
-        store.settle_goal_worker(
-            id,
-            receipt.elapsed_ms,
-            receipt.process_reaped || receipt.never_started,
-            receipt.never_started,
-        )?;
-        store.settle_shared_session(
-            id,
-            receipt.elapsed_ms,
-            receipt.process_reaped || receipt.never_started,
-            receipt.never_started,
-            receipt.capture.as_ref(),
-        )?;
+        if !progress.session {
+            s.last_error = if receipt.reason == "cancelled" {
+                s.last_error.clone()
+            } else {
+                Some(receipt.reason.clone())
+            };
+            let tx = store.conn.transaction().map_err(db_error)?;
+            tx.execute("UPDATE session_turns SET state='outcome_unknown' WHERE session_id=?1 AND state='pending'",[id]).map_err(db_error)?;
+            save_session(
+                &tx,
+                &mut s,
+                "session.stopped",
+                json!({"reason":receipt.reason,"process_reaped":receipt.process_reaped,"no_process_started":receipt.never_started,"task_accepted":false}),
+                "baton_supervisor",
+            )?;
+            tx.commit().map_err(db_error)?;
+            progress.session = true;
+        }
+        if !progress.goal {
+            store.settle_goal_worker(
+                id,
+                receipt.elapsed_ms,
+                receipt.process_reaped || receipt.never_started,
+                receipt.never_started,
+            )?;
+            progress.goal = true;
+        }
+        if !progress.shared {
+            store.settle_shared_session(
+                id,
+                receipt.elapsed_ms,
+                receipt.process_reaped || receipt.never_started,
+                receipt.never_started,
+                receipt.capture.as_ref(),
+            )?;
+            progress.shared = true;
+        }
         store.settle_factory_worker(
             id,
             receipt.process_reaped,
@@ -1535,17 +1676,24 @@ impl Supervisor {
             receipt.capture.as_ref(),
         )
     }
+
     pub fn shutdown(&mut self, store: &mut Store) -> Result<()> {
         for worker in self.workers.values() {
             worker.cancel.store(true, Ordering::Relaxed);
         }
-        while !self.workers.is_empty() || !self.probes.is_empty() {
+        while !self.workers.is_empty()
+            || !self.probes.is_empty()
+            || !self.retry_probes.is_empty()
+            || !self.retry_probe_receipts.is_empty()
+            || !self.retained_receipts.is_empty()
+        {
             self.tick(store)?;
             std::thread::sleep(Duration::from_millis(5));
         }
         Ok(())
     }
     pub fn tick(&mut self, store: &mut Store) -> Result<()> {
+        self.tick_retry_probes(store)?;
         let complete: Vec<String> = self
             .probes
             .iter()
@@ -1613,8 +1761,32 @@ impl Supervisor {
                     )?;
                     tx.commit().map_err(db_error)?;
                 }
+                Ok(Outcome::GoalTurn { id, ticket, state }) => {
+                    ticket.persist_terminal(store, &id, &state)?;
+                    self.goal_stop_hint = true;
+                }
                 Ok(Outcome::Turn(id, state)) => {
+                    // The bound one-turn lane never uses an uncorrelated log
+                    // event as its completion. In particular no late event may
+                    // overwrite the retained, exactly identified receipt.
+                    if self
+                        .workers
+                        .get(&id)
+                        .is_some_and(|w| w.owned_stop.is_some())
+                        || self
+                            .retained_receipts
+                            .get(&id)
+                            .is_some_and(|r| r.receipt.completed_turn.is_some())
+                    {
+                        store.session_failure(&id, "uncorrelated_goal_turn")?;
+                        self.cancel(&id);
+                        continue;
+                    }
                     let mut s = store.get_session(&id)?;
+                    if s.state == "stopped" {
+                        continue;
+                    }
+
                     if s.state == "running" {
                         s.state = "ready".into();
                     }
@@ -1657,11 +1829,14 @@ impl Supervisor {
         for id in done {
             let w = self.workers.remove(&id).unwrap();
             match w.thread.join() {
-                Ok(receipt) => self.persist_receipt(store, &id, receipt)?,
+                Ok(receipt) => {
+                    self.retained_receipts
+                        .insert(id, RetainedReceipt::new(receipt));
+                }
                 Err(_) => store.session_failure(&id, "worker_panic_requires_reconciliation")?,
             }
         }
-        Ok(())
+        self.flush_retained_receipts(store)
     }
 }
 impl Supervisor {
@@ -1677,6 +1852,9 @@ impl Supervisor {
         for (_, probe) in self.probes.drain() {
             let _ = probe.join();
         }
+        for (_, probe) in self.retry_probes.drain() {
+            let _ = probe.join();
+        }
     }
     #[cfg(test)]
     pub(crate) fn install_drop_fixture(&mut self, check: impl FnOnce() + Send + 'static) {
@@ -1689,6 +1867,7 @@ impl Supervisor {
             }
             check();
             WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "generated_drop_fixture".into(),
                 process_reaped: true,
@@ -1699,6 +1878,7 @@ impl Supervisor {
         self.workers.insert(
             "generated-drop-fixture".into(),
             Worker {
+                owned_stop: None,
                 commands,
                 cancel,
                 thread,
@@ -1712,15 +1892,82 @@ impl Drop for Supervisor {
     }
 }
 
-struct WorkerLaunch {
-    route: ProtocolRoute,
-    installation: ApprovedInstallation,
-    configuration: Option<Value>,
-    factory_mcp: Option<crate::factory::FactoryMcpLaunch>,
-    prelaunch_ms: u64,
-    duration: Duration,
+pub(crate) struct WorkerLaunch {
+    pub(crate) route: ProtocolRoute,
+    pub(crate) installation: ApprovedInstallation,
+    pub(crate) configuration: Option<Value>,
+    pub(crate) factory_mcp: Option<crate::factory::FactoryMcpLaunch>,
+    owned_stop: Option<Arc<owned_stop::LaunchBinding>>,
+    planning: Option<planning::PlanningCapture>,
+    managed_mcp: managed_mcps::ManagedMcpLaunch,
+    pub(crate) prelaunch_ms: u64,
+    pub(crate) duration: Duration,
 }
-fn run_worker(
+impl WorkerLaunch {
+    pub(crate) fn planning_conversation(
+        route: ProtocolRoute,
+        installation: ApprovedInstallation,
+        configuration: Option<Value>,
+        prelaunch_ms: u64,
+        duration: Duration,
+        capture: planning::PlanningCapture,
+        authority: managed_mcps::ManagedMcpLaunch,
+    ) -> Self {
+        let mut launch = Self::conversation(
+            route,
+            installation,
+            configuration,
+            prelaunch_ms,
+            duration,
+            authority,
+        );
+        launch.planning = Some(capture);
+        launch
+    }
+    pub(crate) fn conversation(
+        route: ProtocolRoute,
+        installation: ApprovedInstallation,
+        configuration: Option<Value>,
+        prelaunch_ms: u64,
+        duration: Duration,
+        authority: managed_mcps::ManagedMcpLaunch,
+    ) -> Self {
+        Self {
+            route,
+            installation,
+            configuration,
+            factory_mcp: None,
+            owned_stop: None,
+            planning: None,
+            managed_mcp: authority,
+            prelaunch_ms,
+            duration,
+        }
+    }
+}
+impl WorkerReceipt {
+    pub(crate) fn conversation_no_start(elapsed_ms: u64) -> Self {
+        Self {
+            completed_turn: None,
+            capture: None,
+            elapsed_ms,
+            reason: "local_launch_failed_before_worker_start".into(),
+            process_reaped: false,
+            never_started: true,
+        }
+    }
+    pub(crate) fn conversation_panicked() -> Self {
+        Self {
+            completed_turn: None,
+            capture: None,
+            elapsed_ms: 0,
+            reason: "worker_panicked".into(),
+            process_reaped: false,
+            never_started: false,
+        }
+    }
+}
+pub(crate) fn run_worker(
     id: String,
     mut launch: WorkerLaunch,
     commands: Receiver<Work>,
@@ -1729,13 +1976,25 @@ fn run_worker(
 ) -> WorkerReceipt {
     let started = Instant::now();
     let prior = launch.prelaunch_ms;
+    let planning_capture = launch.planning.clone();
+    let planning_cancel = cancel.clone();
     let mut receipt = (|| {
+        if launch
+            .planning
+            .as_ref()
+            .is_some_and(|capture| !capture.claim(&id))
+        {
+            let mut refused = WorkerReceipt::conversation_no_start(prior);
+            refused.reason = "planning_launch_binding_changed".into();
+            return refused;
+        }
         if launch
             .factory_mcp
             .as_ref()
             .is_some_and(|m| m.check_data_boundary().is_err())
         {
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "data_observation_expired_before_worker".into(),
                 process_reaped: false,
@@ -1761,6 +2020,9 @@ fn run_worker(
     receipt.elapsed_ms = u64::try_from(started.elapsed().as_millis())
         .unwrap_or(u64::MAX)
         .saturating_add(prior);
+    if let Some(capture) = planning_capture {
+        capture.worker_finished(&receipt, planning_cancel.load(Ordering::Relaxed));
+    }
     receipt
 }
 fn run_worker_inner(
@@ -1776,6 +2038,9 @@ fn run_worker_inner(
         installation,
         configuration,
         factory_mcp,
+        owned_stop,
+        planning,
+        managed_mcp,
         prelaunch_ms: _,
         duration,
     } = launch;
@@ -1783,6 +2048,7 @@ fn run_worker_inner(
     let notify = |outcome| events.try_send(outcome).is_ok();
     if cancel.load(Ordering::Relaxed) {
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "cancelled".into(),
             process_reaped: false,
@@ -1794,6 +2060,7 @@ fn run_worker_inner(
         Ok(mcp) => mcp,
         Err(_) => {
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "factory_launch_binding_changed".into(),
                 process_reaped: false,
@@ -1804,6 +2071,7 @@ fn run_worker_inner(
     };
     if cancel.load(Ordering::Relaxed) || started.elapsed() >= duration {
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "factory_preflight_cancelled_or_deadline".into(),
             process_reaped: false,
@@ -1813,6 +2081,7 @@ fn run_worker_inner(
     }
     if data.is_some_and(|d| d.check_worker_boundary().is_err()) {
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "data_changed_or_request_deadline_before_spawn".into(),
             process_reaped: false,
@@ -1820,10 +2089,25 @@ fn run_worker_inner(
             elapsed_ms: 0,
         };
     }
+    if managed_mcp.verify(&installation).is_err() {
+        notify(Outcome::Failure(
+            id.clone(),
+            "managed_mcp_launch_binding_changed".into(),
+        ));
+        let mut receipt = WorkerReceipt::conversation_no_start(0);
+        receipt.reason = "managed_mcp_launch_binding_changed".into();
+        return receipt;
+    }
+    let remaining = duration.saturating_sub(started.elapsed());
+    if cancel.load(Ordering::Relaxed) || remaining.is_zero() {
+        let mut receipt = WorkerReceipt::conversation_no_start(0);
+        receipt.reason = "managed_preflight_cancelled_or_deadline".into();
+        return receipt;
+    }
     let mut process = match ManagedProviderProcess::start(
         route,
         installation,
-        duration.min(Duration::from_secs(3)),
+        remaining.min(Duration::from_secs(3)),
     ) {
         Ok(p) => p,
         Err(failure) => {
@@ -1832,6 +2116,7 @@ fn run_worker_inner(
                 "provider_initialization_failed".into(),
             ));
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "initialization_failed".into(),
                 process_reaped: false,
@@ -1844,6 +2129,7 @@ fn run_worker_inner(
     if cancel.load(Ordering::Relaxed) || started.elapsed() >= duration {
         process.terminate();
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "launch_cancelled_or_timeout".into(),
             process_reaped: process.diagnostics().process_reaped,
@@ -1865,6 +2151,7 @@ fn run_worker_inner(
         if configured.is_err() {
             process.terminate();
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "provider_configuration_unsupported".into(),
                 process_reaped: process.diagnostics().process_reaped,
@@ -1882,6 +2169,7 @@ fn run_worker_inner(
                 "provider_session_creation_failed".into(),
             ));
             return WorkerReceipt {
+                completed_turn: None,
                 capture: None,
                 reason: "session_creation_failed".into(),
                 process_reaped: process.diagnostics().process_reaped,
@@ -1890,9 +2178,12 @@ fn run_worker_inner(
             };
         }
     };
-    if !notify(Outcome::Ready(id.clone(), native.clone())) {
+    if planning.as_ref().is_some_and(|p| !p.ready(&id, &native))
+        || !notify(Outcome::Ready(id.clone(), native.clone()))
+    {
         process.terminate();
         return WorkerReceipt {
+            completed_turn: None,
             capture: None,
             reason: "event_backpressure".into(),
             process_reaped: process.diagnostics().process_reaped,
@@ -1901,6 +2192,8 @@ fn run_worker_inner(
         };
     }
     let mut pending = false;
+    let mut stop_ticket: Option<owned_stop::TurnTicket> = None;
+    let mut completed_turn = None;
     let mut dropped = 0;
     let reason = loop {
         if cancel.load(Ordering::Relaxed) {
@@ -1911,9 +2204,27 @@ fn run_worker_inner(
             break "duration_limit";
         }
         match commands.try_recv() {
-            Ok(Work::Prompt(text)) => {
+            Ok(work) => {
+                let (text, ticket) = match work {
+                    Work::Prompt(text) => (text, None),
+                    Work::GoalPrompt { text, stop } => (text, Some(stop)),
+                };
+                if ticket
+                    .as_ref()
+                    .is_some_and(|t| !t.matches(owned_stop.as_ref(), &id, &native))
+                    || (owned_stop.is_some() && ticket.is_none())
+                {
+                    break "goal_turn_binding_changed";
+                }
+
                 if pending {
                     break "duplicate_worker_turn";
+                }
+                if planning
+                    .as_ref()
+                    .is_some_and(|p| !p.begin(&id, &native, &text, ticket.is_none()))
+                {
+                    break "planning_turn_binding_changed";
                 }
                 let remaining = duration.saturating_sub(started.elapsed());
                 let _ = process.set_io_timeout(remaining.min(Duration::from_secs(60)));
@@ -1921,6 +2232,7 @@ fn run_worker_inner(
                     break "provider_prompt_failed";
                 }
                 pending = true;
+                stop_ticket = ticket;
             }
             Err(TryRecvError::Disconnected) => break "supervisor_disconnected",
             Err(TryRecvError::Empty) => {}
@@ -1957,12 +2269,31 @@ fn run_worker_inner(
         } else {
             std::thread::sleep(Duration::from_millis(5));
         }
+        // Capture the correlated original turn before any lossy log forwarding.
+        // Backpressure remains a failure; it cannot erase this historical fact.
+        if turn_completed == Some(agentbaton_providers::TurnState::Completed) {
+            if let Some(ticket) = stop_ticket.take() {
+                completed_turn = Some(ticket.completed());
+            }
+        }
         let updates = process.take_updates();
+        let mut planning_updates_valid = true;
+        if let Some(capture) = &planning {
+            // Account the entire drained sequence even when an earlier update
+            // invalidates capture. Actor forwarding is not the capture source.
+            for update in &updates {
+                planning_updates_valid &= capture.update(update);
+            }
+        }
+        if !planning_updates_valid {
+            break "planning_capture_incomplete";
+        }
         for update in updates {
             if !notify(Outcome::Update(id.clone(), json!(update))) {
                 process.terminate();
                 notify(Outcome::Failure(id.clone(), "event_backpressure".into()));
                 return WorkerReceipt {
+                    completed_turn,
                     capture: None,
                     reason: "event_backpressure".into(),
                     process_reaped: process.diagnostics().process_reaped,
@@ -1975,6 +2306,10 @@ fn run_worker_inner(
         process.take_evidence();
         let diagnostics = process.diagnostics();
         if diagnostics.update_records_dropped > dropped {
+            if let Some(capture) = &planning {
+                capture.invalidate();
+                break "planning_stream_gap";
+            }
             let count = diagnostics.update_records_dropped - dropped;
             dropped = diagnostics.update_records_dropped;
             if !notify(Outcome::Update(
@@ -1985,20 +2320,69 @@ fn run_worker_inner(
             }
         }
         if let Some(state) = turn_completed {
+            if let Some(capture) = &planning {
+                if cancel.load(Ordering::Relaxed) {
+                    capture.invalidate();
+                    break "cancelled";
+                }
+                match commands.try_recv() {
+                    Ok(_) => {
+                        capture.invalidate();
+                        break "planning_duplicate_prompt";
+                    }
+                    Err(TryRecvError::Disconnected) => {
+                        capture.invalidate();
+                        break "supervisor_disconnected";
+                    }
+                    Err(TryRecvError::Empty) => {}
+                }
+                if !capture.terminal(state) {
+                    break "planning_terminal_incomplete";
+                }
+                // Only this planning worker ends automatically; ordinary turns
+                // retain their existing multi-turn semantics.
+                break "planning_completed";
+            }
+            if completed_turn.is_some() {
+                // Exactly the process this worker already owns. The receipt
+                // carries the terminal proof even if the Actor is busy.
+                break "cancelled";
+            }
             let state = serde_json::to_value(state)
                 .ok()
                 .and_then(|s| s.as_str().map(str::to_owned))
                 .unwrap_or_else(|| "outcome_unknown".into());
-            if !notify(Outcome::Turn(id.clone(), state)) {
+            let outcome = if let Some(ticket) = stop_ticket.take() {
+                Outcome::GoalTurn {
+                    id: id.clone(),
+                    ticket,
+                    state,
+                }
+            } else {
+                Outcome::Turn(id.clone(), state)
+            };
+            if !notify(outcome) {
                 break "event_backpressure";
             }
         }
     };
+    if let Some(capture) = &planning {
+        // A failed poll may already have normalized earlier frames. Preserve
+        // their measured bytes even though no complete response can be used.
+        let remaining = process.take_updates();
+        for update in &remaining {
+            capture.update(update);
+        }
+        if !remaining.is_empty() || process.diagnostics().update_records_dropped > 0 {
+            capture.invalidate();
+        }
+    }
     process.terminate();
-    if reason != "cancelled" {
+    if reason != "cancelled" && reason != "planning_completed" {
         notify(Outcome::Failure(id.clone(), reason.into()));
     }
     WorkerReceipt {
+        completed_turn,
         capture: None,
         reason: reason.into(),
         process_reaped: process.diagnostics().process_reaped,
@@ -2027,8 +2411,48 @@ impl Store {
         arguments: &[String],
         key: &str,
     ) -> Result<ApprovalProposal> {
+        self.propose_connection_with_configuration(name, provider, executable, arguments, None, key)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn propose_connection_with_configuration(
+        &mut self,
+        name: &str,
+        provider: &str,
+        executable: &Path,
+        arguments: &[String],
+        configuration_source: Option<&str>,
+        key: &str,
+    ) -> Result<ApprovalProposal> {
         let protocol_route = crate::routes::validate_route_arguments(provider, arguments)?;
-        let plan_digest = crate::runtime_config::plan_for_provider(provider)?
+        key_valid(key)?;
+        if let Some(path) = configuration_source {
+            let old: Option<String> = self.conn.query_row(
+                "SELECT result FROM idempotency WHERE scope='local:approvals.propose:connection' AND key=?1",
+                [key], |row| row.get(0)).optional().map_err(db_error)?;
+            if let Some(old) = old {
+                let proposal: ApprovalProposal = decode(&old)?;
+                if proposal.snapshot["intent"]
+                    != json!({"name":name,"provider":provider,"executable":executable,"arguments":arguments})
+                    || proposal.snapshot["configuration_import"]["source_path"] != path
+                {
+                    return Err(CoreError::new(
+                        "CONFIG_CONFLICT",
+                        "Proposal key already used with another configuration selection",
+                    ));
+                }
+                // Replay the exact preview even if the selected source vanished.
+                // Finalization distinguishes committed registration from first use.
+                return Ok(proposal);
+            }
+        }
+        let (plan, configuration_import) = if let Some(path) = configuration_source {
+            let (plan, preview) = crate::runtime_config::selected_configuration(provider, path)?;
+            (plan, Some(preview))
+        } else {
+            (crate::runtime_config::plan_for_provider(provider)?, None)
+        };
+        let plan_digest = plan
             .plan_digest()
             .map_err(crate::runtime_config::config_error)?;
         if name.trim().is_empty()
@@ -2040,8 +2464,45 @@ impl Store {
         }
         let digest = executable_digest(executable)
             .map_err(|_| invalid("Select an existing canonical executable"))?;
-        let snapshot = json!({"intent":{"name":name,"provider":provider,"executable":executable,"arguments":arguments},"protocol_route":protocol_route,"runtime_plan_digest":plan_digest,"executable_sha256":digest.as_str(),"scope":"version_probe_only","identity_status":"unknown","enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"native_identity_isolation":false},"warning":"Executes selected program with --version only; no session/model invocation approved"});
+        let mut snapshot = json!({"intent":{"name":name,"provider":provider,"executable":executable,"arguments":arguments},"protocol_route":protocol_route,"runtime_plan_digest":plan_digest,"executable_sha256":digest.as_str(),"scope":"version_probe_only","identity_status":"unknown","enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"native_identity_isolation":false},"warning":"Executes selected program with --version only; no session/model invocation approved"});
+        if let Some(preview) = configuration_import {
+            snapshot["configuration_import"] = preview;
+        }
         self.persist_proposal("connection", snapshot, key)
+    }
+
+    fn connection_plan_for_confirmation(&self, snapshot: &Value, key: &str) -> Result<RuntimePlan> {
+        let provider = snapshot["intent"]["provider"]
+            .as_str()
+            .ok_or_else(|| invalid("Stored Provider is invalid"))?;
+        let Some(import) = snapshot.get("configuration_import") else {
+            return crate::runtime_config::plan_for_provider(provider);
+        };
+        if !((provider == "claude_code" && import["format"] == "claude_restrictions_v1")
+            || (provider == "codex" && import["format"] == "codex_selected_policy_v1"))
+        {
+            return Err(invalid("Unsupported stored configuration import"));
+        }
+        // Registration commits independently before proposal completion. Resolve
+        // that durable result on retry even if the external source later changes.
+        let old: Option<String> = self.conn.query_row(
+            "SELECT result FROM idempotency WHERE scope='local:connections.register' AND key=?1",
+            [key], |row| row.get(0)).optional().map_err(db_error)?;
+        if let Some(old) = old {
+            return crate::runtime_config::approved_plan(&decode::<ProviderConnection>(&old)?);
+        }
+        let path = import["source_path"]
+            .as_str()
+            .ok_or_else(|| invalid("Stored configuration source is invalid"))?;
+        let (plan, current_preview) =
+            crate::runtime_config::selected_configuration(provider, path)?;
+        if *import != current_preview {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Selected configuration changed; review a new proposal",
+            ));
+        }
+        Ok(plan)
     }
     #[allow(clippy::too_many_arguments)]
     pub fn propose_grant(
@@ -2081,6 +2542,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
+        managed_creation_recovery::ensure_open(&tx, kind, key)?;
         let old: Option<(String, String)> = tx
             .query_row(
                 "SELECT payload,result FROM idempotency WHERE scope=?1 AND key=?2",
@@ -2124,7 +2586,7 @@ impl Store {
             &proposal.id,
             1,
             "approval.proposed",
-            json!({"kind":kind,"snapshot":proposal.snapshot}),
+            approval_event_payload(kind, &proposal.snapshot)?,
             "user_action",
         )?;
         tx.commit().map_err(db_error)?;
@@ -2154,6 +2616,18 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "managed_mcp" {
+            return self.finalize_managed_mcp(id, revision);
+        }
+        if proposal.kind == "managed_skill" {
+            return self.finalize_managed_skill(id, revision);
+        }
+        if proposal.kind == "connection_probe" {
+            return self.finalize_connection_probe(id, revision);
+        }
+        if proposal.kind == "integration" {
+            return self.integration_finalization_replay(id,revision)?.ok_or_else(||CoreError::new("AUTH_REQUIRED","Integration native finalization requires its original request-owned observation"));
+        }
         if proposal.kind == "factory" {
             let companion: crate::factory::FactoryCompanionBinding =
                 serde_json::from_value(proposal.snapshot["bindings"]["companion"].clone())
@@ -2183,7 +2657,14 @@ impl Store {
         if proposal.revision != revision {
             return Err(CoreError::new("STALE_REVISION", "Owner proposal changed"));
         }
-        if proposal.expires_at_ms <= ms()? {
+        let imported_registration_committed = proposal.kind == "connection"
+            && proposal.snapshot.get("configuration_import").is_some()
+            && self.conn.query_row(
+                "SELECT EXISTS(SELECT 1 FROM idempotency WHERE scope='local:connections.register' AND key=?1)",
+                [format!("proposal:{}", proposal.id)], |row| row.get::<_, bool>(0)).map_err(db_error)?;
+        // Expiry blocks a first approval, not reconciliation of a registration
+        // already committed under that exact proposal before a lost result.
+        if proposal.expires_at_ms <= ms()? && !imported_registration_committed {
             return Err(CoreError::new(
                 "PERMISSION_DENIED",
                 "Owner proposal expired; prepare and review a fresh snapshot",
@@ -2200,6 +2681,8 @@ impl Store {
             "connection" => {
                 let arguments: Vec<String> = serde_json::from_value(intent["arguments"].clone())
                     .map_err(|_| invalid("Stored arguments invalid"))?;
+                let runtime_plan =
+                    self.connection_plan_for_confirmation(&proposal.snapshot, &key)?;
                 json!(self.register_connection_exact(
                     text("name")?,
                     text("provider")?,
@@ -2209,6 +2692,7 @@ impl Store {
                     Some(ExpectedConnectionSnapshot {
                         executable_sha256: proposal.snapshot["executable_sha256"].as_str().ok_or_else(|| invalid("Stored proposal executable digest is missing"))?,
                         runtime_plan_digest: proposal.snapshot["runtime_plan_digest"].as_str().ok_or_else(|| CoreError::new("INPUT_CHANGED", "Stored proposal predates the current runtime plan; prepare a fresh proposal"))?,
+                        runtime_plan,
                     })
                 )?)
             }
@@ -2266,6 +2750,31 @@ impl Store {
     }
 }
 
+/// Keep approved Skill instructions in authoritative review/configuration records,
+/// not in general event history. Unmarked historical proposal payloads are unchanged.
+pub(crate) fn approval_event_payload(kind: &str, snapshot: &Value) -> Result<Value> {
+    fn contains_managed_skill(value: &Value) -> bool {
+        match value {
+            Value::Object(fields) => {
+                matches!(
+                    fields.get("source_ref").and_then(Value::as_str),
+                    Some("baton-managed-codex-skill" | "baton-managed-codex-mcp")
+                ) || fields.values().any(contains_managed_skill)
+            }
+            Value::Array(values) => values.iter().any(contains_managed_skill),
+            _ => false,
+        }
+    }
+    if matches!(kind, "managed_skill" | "managed_mcp") || contains_managed_skill(snapshot) {
+        use sha2::{Digest, Sha256};
+        Ok(
+            json!({"kind":kind,"snapshot_digest":format!("{:x}",Sha256::digest(encode(snapshot)?.as_bytes()))}),
+        )
+    } else {
+        Ok(json!({"kind":kind,"snapshot":snapshot}))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2310,6 +2819,9 @@ mod tests {
                 },
                 configuration: None,
                 factory_mcp: None,
+                owned_stop: None,
+                planning: None,
+                managed_mcp: managed_mcps::ManagedMcpLaunch::test_empty(),
                 prelaunch_ms: 0,
                 duration: Duration::from_secs(2),
             },
