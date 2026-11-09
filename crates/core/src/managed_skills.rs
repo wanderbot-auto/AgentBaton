@@ -248,7 +248,10 @@ fn prepare(db: &Connection, r: &ManagedSkillRequest) -> Result<Prepared> {
         source_binding,
     })
 }
-fn proposal_row(db: &Connection, id: &str) -> Result<(ApprovalProposal, Option<String>)> {
+pub(super) fn proposal_row(
+    db: &Connection,
+    id: &str,
+) -> Result<(ApprovalProposal, Option<String>)> {
     let(raw,result):(String,Option<String>)=db.query_row("SELECT document,result FROM approval_proposals WHERE id=?1 AND octet_length(document)<=1048576 AND COALESCE(octet_length(result),0)<=1048576",[id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
     let p: ApprovalProposal = decode(&raw)?;
     if p.kind != "managed_skill" || p.id != id {
@@ -256,7 +259,11 @@ fn proposal_row(db: &Connection, id: &str) -> Result<(ApprovalProposal, Option<S
     }
     Ok((p, result))
 }
-fn committed(db: &Connection, p: &ApprovalProposal, raw: &str) -> Result<ManagedSkillConfirmation> {
+pub(super) fn committed(
+    db: &Connection,
+    p: &ApprovalProposal,
+    raw: &str,
+) -> Result<ManagedSkillConfirmation> {
     let mut c: ManagedSkillConfirmation = decode(raw)?;
     let selection: ManagedSkillSelection =
         serde_json::from_value(p.snapshot["intent"].clone()).map_err(|_| changed())?;
@@ -350,15 +357,12 @@ impl Store {
         key: &str,
     ) -> Result<ApprovalProposal> {
         key_valid(key)?;
-        let old:Option<String>=self.conn.query_row("SELECT CASE WHEN octet_length(result)<=1048576 THEN result END FROM idempotency WHERE scope='local:approvals.propose:managed_skill' AND key=?1",[key],|r|r.get(0)).optional().map_err(db_error)?;
-        if let Some(raw) = old {
-            let p: ApprovalProposal = decode(&raw)?;
-            if p.snapshot["intent"] != json!(s) {
-                return Err(CoreError::new(
-                    "CONFIG_CONFLICT",
-                    "Managed Skill key belongs to another selection",
-                ));
-            }
+        if let Some(p) = super::managed_creation_recovery::proposal_replay(
+            &mut self.conn,
+            "managed_skill",
+            key,
+            &json!(s),
+        )? {
             return Ok(p);
         }
         let p = prepare(&self.conn, &s.request)?;
@@ -382,6 +386,13 @@ impl Store {
                     e
                 });
         }
+        super::managed_creation_recovery::ensure_open(
+            &tx,
+            "managed_skill",
+            proposal.snapshot["request_key"]
+                .as_str()
+                .ok_or_else(changed)?,
+        )?;
         if proposal.revision != revision {
             return Err(CoreError::new(
                 "STALE_REVISION",

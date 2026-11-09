@@ -1073,6 +1073,22 @@ impl Daemon {
             "goal_plans.list" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.list_goal_plan_revisions(&p.scope_id)?))}
             "goal_plans.ready_preview" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.preview_goal_ready(&p.scope_id,r.expected_revision.ok_or_else(invalid)?)?))}
             "goal_scopes.approve" | "goal_plans.dispatch" | "goal_plans.reserve" | "goal_plans.accept" => Err(CoreError::new("AUTH_REQUIRED","Renderer approval flags, dispatch/reservation and Task acceptance are not Goal preview methods")),
+            "managed_creations.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let marker: crate::client_recovery_journal::ClientRecoveryMarker=params(r.params)?;
+                Ok(json!(self.store.managed_creation_outcome(&marker)?))
+            }
+            "managed_creations.status" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let binding: crate::client_recovery_journal::ManagedCreationBinding=params(r.params)?;
+                Ok(json!(self.store.managed_creation_binding_outcome(&binding)?))
+            }
+            "managed_creations.abandon" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let marker: crate::client_recovery_journal::ClientRecoveryMarker=params(r.params)?;
+                // No execution, Grant, budget reset or probe scheduling here.
+                Ok(json!(self.store.abandon_managed_creation(&marker)?))
+            }
             "managed_mcps.list" => {
                 if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
                 empty(&r.params)?;

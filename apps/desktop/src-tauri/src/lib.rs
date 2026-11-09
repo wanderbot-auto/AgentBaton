@@ -13,6 +13,7 @@ mod native_parent;
 mod background_policy;
 mod background_window;
 mod detached_daemon;
+mod client_recovery_bridge;
 
 // Read-only limits shared with the feature-gated Native test binary. The
 // default application exports no test view; all values have one definition.
@@ -405,6 +406,40 @@ async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, S
 }
 
 #[tauri::command]
+async fn client_recovery_list(runtime: tauri::State<'_, Runtime>) -> Result<Value,String> {
+    let directory=runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move||client_recovery_bridge::list(&directory)).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn client_recovery_get(runtime: tauri::State<'_, Runtime>,entry_id:String) -> Result<Value,String> {
+    let directory=runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move||client_recovery_bridge::get(&directory,&entry_id,|command|ipc::call(&directory,command).map_err(|e|e.to_string()))).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn client_recovery_status(runtime: tauri::State<'_, Runtime>,binding:Value) -> Result<Value,String> {
+    // Lookup filters only: never clear a journal entry or cancel a request.
+    call(&runtime,json!({"method":"managed_creations.status","params":binding}),false).await
+}
+#[tauri::command]
+async fn client_recovery_abandon(runtime: tauri::State<'_, Runtime>,window:tauri::WebviewWindow,entry_id:String) -> Result<Value,String> {
+    let directory=runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move||{
+        let marker=match client_recovery_bridge::captured(&directory,&entry_id){Ok(m)=>m,Err(e)=>return Ok(json!({"error":e,"revision":0,"warnings":[]}))};
+        let response=ipc::call(&directory,json!({"method":"managed_creations.get","params":marker})).map_err(|e|e.to_string())?;
+        if client_recovery_bridge::outcome_state(&response,&marker).ok()!=Some("unresolved") {
+            return client_recovery_bridge::reconcile_response(&directory,&marker,response);
+        }
+        let response=native_parent::with_caller(window,|parent|client_recovery_bridge::confirm_abandon(&marker,response,
+            |message|parent.confirm("AgentBaton — Abandon original creation",message),
+            |command|parent.finalize(||{
+                client_recovery_bridge::still_current(&directory,&marker).map_err(|e|e.to_string())?;
+                ipc::call(&directory,command).map_err(|e|e.to_string())
+            })))?;
+        client_recovery_bridge::reconcile_response(&directory,&marker,response)
+    }).await.map_err(|e|e.to_string())?
+}
+
+#[tauri::command]
 async fn managed_mcps_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
     call(&runtime, json!({"method":"managed_mcps.list","params":{}}), false).await
 }
@@ -422,15 +457,16 @@ async fn managed_mcp_get(runtime: tauri::State<'_, Runtime>, request: Value) -> 
 }
 #[tauri::command]
 async fn managed_mcp_create(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, selection: Value, idempotency_key: String) -> Result<Value, String> {
-    let directory = runtime.directory.clone();
+    let directory=runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        native_parent::with_caller(window, |parent| {
-            let response = ipc::call(&directory, json!({"method":"managed_mcps.propose","params":selection,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
-            approval::confirm_managed_mcp_and_finalize(response, &selection, &idempotency_key,
-                |message| parent.confirm("AgentBaton — Managed MCP approval", message),
-                |command| parent.finalize(|| ipc::call(&directory, command).map_err(|error| error.to_string())))
-        })
-    }).await.map_err(|error| error.to_string())?
+        client_recovery_bridge::create(&directory,agentbaton_core::client_recovery_journal::ManagedCreationKind::ManagedMcp,&selection,&idempotency_key,
+            ||native_parent::with_caller(window,|parent|{
+                let response=ipc::call(&directory,json!({"method":"managed_mcps.propose","params":selection,"idempotency_key":idempotency_key})).map_err(|e|e.to_string())?;
+                approval::confirm_managed_mcp_and_finalize(response,&selection,&idempotency_key,
+                    |message|parent.confirm("AgentBaton — Managed MCP approval",message),
+                    |command|parent.finalize(||ipc::call(&directory,command).map_err(|e|e.to_string())))
+            }),|command|ipc::call(&directory,command).map_err(|e|e.to_string()))
+    }).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
 async fn managed_skills_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
@@ -450,15 +486,16 @@ async fn managed_skill_get(runtime: tauri::State<'_, Runtime>, request: Value) -
 }
 #[tauri::command]
 async fn managed_skill_create(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, selection: Value, idempotency_key: String) -> Result<Value, String> {
-    let directory = runtime.directory.clone();
+    let directory=runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        native_parent::with_caller(window, |parent| {
-            let response = ipc::call(&directory, json!({"method":"managed_skills.propose","params":selection,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
-            approval::confirm_managed_skill_and_finalize(response, &selection, &idempotency_key,
-                |message| parent.confirm("AgentBaton — Managed Skill approval", message),
-                |command| parent.finalize(|| ipc::call(&directory, command).map_err(|error| error.to_string())))
-        })
-    }).await.map_err(|error| error.to_string())?
+        client_recovery_bridge::create(&directory,agentbaton_core::client_recovery_journal::ManagedCreationKind::ManagedSkill,&selection,&idempotency_key,
+            ||native_parent::with_caller(window,|parent|{
+                let response=ipc::call(&directory,json!({"method":"managed_skills.propose","params":selection,"idempotency_key":idempotency_key})).map_err(|e|e.to_string())?;
+                approval::confirm_managed_skill_and_finalize(response,&selection,&idempotency_key,
+                    |message|parent.confirm("AgentBaton — Managed Skill approval",message),
+                    |command|parent.finalize(||ipc::call(&directory,command).map_err(|e|e.to_string())))
+            }),|command|ipc::call(&directory,command).map_err(|e|e.to_string()))
+    }).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
 async fn connection_inspect(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
@@ -2184,6 +2221,10 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         data_workspaces_cancel,
         connections_list,
         connections_register,
+        client_recovery_list,
+        client_recovery_get,
+        client_recovery_status,
+        client_recovery_abandon,
         managed_mcps_list,
         managed_mcp_preview,
         managed_mcp_find,

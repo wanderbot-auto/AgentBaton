@@ -68,14 +68,22 @@ export class DaemonError extends Error {
     super(message);
   }
 }
+export const clientRecoveryRequiredEvent='agentbaton:client-recovery-required';
 export async function request<T>(command: string, args?: Record<string, unknown>): Promise<T> {
-  const envelope = await invoke<Envelope<T>>(command, args);
-  if (envelope.error) {
-    throw new DaemonError(envelope.error.code, envelope.error.message, envelope.error.side_effect_state,
-      typeof envelope.error.retryable === 'boolean' ? envelope.error.retryable : undefined);
+  let recoveryNotified=false;
+  const notifyRecovery=()=>{if(typeof window!=='undefined'){window.dispatchEvent(new Event(clientRecoveryRequiredEvent));recoveryNotified=true;}};
+  try {
+    const envelope = await invoke<Envelope<T>>(command, args);
+    if (envelope.error) {
+      if(envelope.error.code==='CLIENT_RECOVERY_REQUIRED')notifyRecovery();
+      throw new DaemonError(envelope.error.code, envelope.error.message, envelope.error.side_effect_state,
+        typeof envelope.error.retryable === 'boolean' ? envelope.error.retryable : undefined);
+    }
+    if (envelope.result === undefined) throw new Error('Daemon returned no result');
+    return envelope.result;
+  } finally {
+    if(!recoveryNotified&&(command==='managed_mcp_create'||command==='managed_skill_create'))notifyRecovery();
   }
-  if (envelope.result === undefined) throw new Error('Daemon returned no result');
-  return envelope.result;
 }
 export const api = {
   taskGet: async (taskId: string) => {

@@ -47,6 +47,11 @@ pub(crate) mod planning;
 use owned_stop::{CompletedTurnProof, RetainedReceipt};
 #[path = "connection_probe.rs"]
 mod connection_probe;
+#[path = "managed_creation_recovery.rs"]
+mod managed_creation_recovery;
+pub use managed_creation_recovery::{
+    BindingRecoveryOutcome, NoNewExecution, RecoveryConnection, RecoveryOutcome,
+};
 #[path = "managed_mcps.rs"]
 pub(crate) mod managed_mcps;
 pub use managed_mcps::{
@@ -2537,6 +2542,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
+        managed_creation_recovery::ensure_open(&tx, kind, key)?;
         let old: Option<(String, String)> = tx
             .query_row(
                 "SELECT payload,result FROM idempotency WHERE scope=?1 AND key=?2",
