@@ -856,6 +856,8 @@ impl Daemon {
                     | "goal_plans.draft_multi"
                     | "goal_plans.advice_context"
                     | "goal_plans.advice_import"
+                    | "goal_planning.prepare"
+                    | "goal_planning.start"
                     | "factory_scopes.propose"
                     | "factory_runs.start"
                     | "approvals.finalize"
@@ -867,6 +869,7 @@ impl Daemon {
             let replay=match r.method.as_str(){
                 "factory_runs.start"=>{let p:FactoryScopeId=params(r.params.clone())?;self.store.factory_start_replay(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,r.idempotency_key.as_deref().ok_or_else(invalid)?)?.is_some()},
 
+                "goal_planning.start"=>{let p:crate::goal_store::GoalPlanningStartRequest=params(r.params.clone())?;match r.idempotency_key.as_deref(){Some(key)=>self.store.goal_planning_start_replay(&p,key)?.is_some(),None=>false}},
                 "conversations.create"=> match r.idempotency_key.as_deref() { Some(key) => self.store.conversation_create_replay(r.params["project_id"].as_str().unwrap_or(""),key)?, None => false },
                 "sessions.create"=>r.idempotency_key.as_ref().is_some_and(|key|self.store.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions WHERE task_id=?1 AND idempotency_key=?2)",rusqlite::params![r.params["task_id"].as_str().unwrap_or(""),key],|row|row.get::<_,bool>(0)).unwrap_or(false)),
                 "approvals.finalize"=>self.store.conn.query_row("SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",[r.params["proposal_id"].as_str().unwrap_or("")],|row|row.get::<_,bool>(0)).unwrap_or(false),
@@ -960,6 +963,47 @@ impl Daemon {
             "goal_scopes.list" => {let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_scopes(&p.task_id)?))}
             "goal_scopes.get" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.get_goal_scope(&p.scope_id)?))}
             "goal_scopes.revoke" => {let p:GoalScopeId=params(r.params)?;let key=r.idempotency_key.ok_or_else(invalid)?;Ok(json!(self.store.revoke_goal_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&key)?))}
+            "goal_planning.prepare" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::goal_store::GoalPlanningPrepareRequest = params(r.params)?;
+                Ok(json!(self.store.prepare_goal_planning(&p)?))
+            }
+            "goal_planning.start" => {
+                let p: crate::goal_store::GoalPlanningStartRequest = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let (run, new) = self.store.start_goal_planning(&p, r.expected_revision.ok_or_else(invalid)?, &key)?;
+                if !new { return Ok(json!(run)); }
+                let recorded = |mut error: CoreError| {
+                    // A durable start receipt already exists. Even a secondary
+                    // settlement/read failure must preserve its retry identity.
+                    error.side_effect_state = "confirmed".into();
+                    error.details_ref = Some(format!("local-planning-recorded:{}", run.conversation_id));
+                    error
+                };
+                if let Err(error) = self.conversations.launch(&mut self.store, &run.conversation_id) {
+                    if let Err(settlement) = self.conversations.record_local_launch_failure(&mut self.store, &run.conversation_id) {
+                        return Err(recorded(settlement));
+                    }
+                    return Err(recorded(error));
+                }
+                Ok(json!(self.store.get_goal_planning(&run.conversation_id).map_err(recorded)?))
+            }
+            "goal_planning.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::goal_store::GoalPlanningId = params(r.params)?;
+                Ok(json!(self.store.get_goal_planning(&p.conversation_id)?))
+            }
+            "goal_planning.list" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::goal_store::GoalPlanningListRequest = params(r.params)?;
+                Ok(json!(self.store.list_goal_planning(&p.task_id)?))
+            }
+            "goal_planning.cancel" => {
+                let p: crate::goal_store::GoalPlanningId = params(r.params)?;
+                let run = self.store.cancel_goal_planning(&p.conversation_id, r.expected_revision.ok_or_else(invalid)?, &r.idempotency_key.ok_or_else(invalid)?)?;
+                self.conversations.cancel(&run.conversation_id);
+                Ok(json!(run))
+            }
             "goal_plans.advice_context" => {
                 if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
                 let query: crate::goal_store::GoalPlanAdviceQuery = params(r.params)?;
@@ -1889,6 +1933,38 @@ impl Daemon {
             "sessions.send" => {
                 let p: SendSession = params(request.params)?;
                 ids.push(self.store.get_session(&p.session_id)?.workspace_id);
+            }
+            "goal_planning.prepare" | "goal_planning.start" => {
+                let is_start = request.method == "goal_planning.start";
+                let scope_id = if is_start {
+                    let p: crate::goal_store::GoalPlanningStartRequest = params(request.params)?;
+                    let key = request.idempotency_key.as_deref().ok_or_else(invalid)?;
+                    if request.expected_revision.is_none() {
+                        return Err(invalid());
+                    }
+                    if self.store.goal_planning_start_replay(&p, key)?.is_some() {
+                        return Ok(vec![]);
+                    }
+                    p.preparation.query.scope_id
+                } else {
+                    if request.expected_revision.is_some() || request.idempotency_key.is_some() {
+                        return Err(invalid());
+                    }
+                    params::<crate::goal_store::GoalPlanningPrepareRequest>(request.params)?
+                        .query
+                        .scope_id
+                };
+                if self.has_provider_workers()
+                    || self.command_workers.has_workers()
+                    || self.data_workers.has_workers()
+                    || self.graph_workers.has_workers()
+                {
+                    return Err(CoreError::new(
+                        "WORKSPACE_BUSY",
+                        "Stop active owned execution before preparing a planning run",
+                    ));
+                }
+                ids.push(self.store.get_goal_scope(&scope_id)?.workspace_id);
             }
             "goal_plans.draft"
             | "goal_plans.draft_multi"

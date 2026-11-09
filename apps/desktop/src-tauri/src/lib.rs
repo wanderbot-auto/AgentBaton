@@ -1706,6 +1706,26 @@ fn goal_plan_frame(
         json!({"method":if revise{"goal_plans.revise"}else{"goal_plans.propose"},"params":{"scope_id":scope_id,"plan_json":plan_json},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),
     )
 }
+#[tauri::command]
+async fn goal_planning_prepare(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.prepare","params":request}), false).await
+}
+#[tauri::command]
+async fn goal_planning_start(runtime: tauri::State<'_, Runtime>, request: Value, expected_revision: u64, idempotency_key: String) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.start","params":request,"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+#[tauri::command]
+async fn goal_planning_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.get","params":request}), false).await
+}
+#[tauri::command]
+async fn goal_planning_list(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.list","params":request}), false).await
+}
+#[tauri::command]
+async fn goal_planning_cancel(runtime: tauri::State<'_, Runtime>, request: Value, expected_revision: u64, idempotency_key: String) -> Result<Value, String> {
+    call(&runtime, json!({"method":"goal_planning.cancel","params":request,"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
 // Keep candidate_json as a string inside the request: only Core's strict typed
 // deserializer may interpret advice, including duplicate and unknown fields.
 #[tauri::command]
@@ -1988,6 +2008,11 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         goal_scopes_list,
         goal_scopes_get,
         goal_scopes_revoke,
+        goal_planning_prepare,
+        goal_planning_start,
+        goal_planning_get,
+        goal_planning_list,
+        goal_planning_cancel,
         goal_plan_advice_context,
         goal_plan_advice_import,
         goal_multi_plan_draft,

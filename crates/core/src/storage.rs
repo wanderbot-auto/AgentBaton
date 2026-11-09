@@ -506,7 +506,10 @@ impl Store {
         }
         let active:i64=self.conn.query_row("SELECT count(*) FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?1 AND d.state!='stopped'",[id],|r|r.get(0)).map_err(db_error)?;
         let command_active:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM command_validation_runs WHERE task_id=?1 AND state IN('prepared','running','cancel_requested','outcome_unknown'))",[id],|r|r.get(0)).map_err(db_error)?;
-        let no_attempt = task.state == TaskState::Draft && active == 0 && !command_active;
+        let planning_active =
+            crate::goal_store::planning::has_active_goal_planning(&self.conn, id)?;
+        let no_attempt =
+            task.state == TaskState::Draft && active == 0 && !command_active && !planning_active;
         task.state = if no_attempt {
             TaskState::Cancelled
         } else {
@@ -532,6 +535,36 @@ impl Store {
         )?;
         tx.commit().map_err(db_error)?;
         Ok(task)
+    }
+    // Called only after owned planning settlement. A stop request is not stop
+    // evidence: every mapped planning worker and other task intent must already
+    // be reconciled before completing the user's separate Task cancellation.
+    pub(crate) fn complete_goal_planning_task_cancel(&mut self, id: &str) -> Result<()> {
+        let mut task = self.get(id)?;
+        if task.state != TaskState::CancelRequested {
+            return Ok(());
+        }
+        let active: bool = self.conn.query_row("SELECT EXISTS(SELECT 1 FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?1 AND d.state!='stopped') OR EXISTS(SELECT 1 FROM command_validation_runs WHERE task_id=?1 AND state IN('prepared','running','cancel_requested','outcome_unknown')) OR EXISTS(SELECT 1 FROM goal_graph_jobs j JOIN goal_runs r ON r.id=j.run_id WHERE r.task_id=?1 AND j.state IN('prepared','running','cancel_requested','outcome_unknown'))",[id],|r|r.get(0)).map_err(db_error)?;
+        if active || crate::goal_store::planning::has_active_goal_planning(&self.conn, id)? {
+            return Ok(());
+        }
+        task.state = TaskState::Cancelled;
+        task.revision += 1;
+        task.updated_at = now()?;
+        let tx = self.conn.transaction().map_err(db_error)?;
+        tx.execute(
+            "UPDATE tasks SET document=?1 WHERE id=?2",
+            params![encode(&task)?, id],
+        )
+        .map_err(db_error)?;
+        append_event(
+            &tx,
+            &task,
+            "task.cancelled",
+            json!({"stop_evidence":"all_task_and_purpose_bound_planning_writers_reconciled"}),
+        )?;
+        tx.commit().map_err(db_error)?;
+        Ok(())
     }
     pub fn sequence(&self) -> Result<u64> {
         self.conn

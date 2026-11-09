@@ -46,6 +46,9 @@ fn git(path: &Path, args: &[&str]) -> String {
     String::from_utf8(out.stdout).unwrap().trim().into()
 }
 pub(crate) fn fixture() -> Fixture {
+    fixture_with_body(None)
+}
+pub(crate) fn fixture_with_body(override_body: Option<&str>) -> Fixture {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path().canonicalize().unwrap();
     let source = root.join("source");
@@ -98,7 +101,7 @@ for line in sys.stdin:
         format!(
             "#!{}\n{}",
             String::from_utf8(python.stdout).unwrap().trim(),
-            body
+            override_body.unwrap_or(body)
         ),
     )
     .unwrap();

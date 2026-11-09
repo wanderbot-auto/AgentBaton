@@ -64,7 +64,7 @@ fn key_valid(key: &str) -> Result<()> {
         Ok(())
     }
 }
-fn read(db: &Connection, id: &str) -> Result<Conversation> {
+pub(crate) fn read(db: &Connection, id: &str) -> Result<Conversation> {
     let raw:Option<(Option<String>,String,String,String,String,String)>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END,project_id,workspace_id,connection_id,grant_id,state FROM conversations WHERE id=?1",[id],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).optional().map_err(db_error)?;
     let (raw, p, w, connection, grant, state) =
         raw.ok_or_else(|| error("NOT_FOUND", "Conversation does not exist"))?;
@@ -97,7 +97,12 @@ fn event(db: &Connection, c: &Conversation, kind: &str, payload: Value) -> Resul
         .map_err(db_error)?;
     Ok(())
 }
-fn save(db: &Connection, c: &mut Conversation, kind: &str, payload: Value) -> Result<()> {
+pub(crate) fn save(
+    db: &Connection,
+    c: &mut Conversation,
+    kind: &str,
+    payload: Value,
+) -> Result<()> {
     c.revision = c
         .revision
         .checked_add(1)
@@ -174,6 +179,46 @@ impl Store {
         grant_id: &str,
         key: &str,
     ) -> Result<Conversation> {
+        self.create_conversation_inner(
+            project_id,
+            title,
+            workspace_id,
+            connection_id,
+            grant_id,
+            key,
+            None,
+        )
+    }
+    pub(crate) fn create_planning_conversation(
+        &mut self,
+        project_id: &str,
+        workspace_id: &str,
+        connection_id: &str,
+        grant_id: &str,
+        key: &str,
+        request: &crate::goal_store::GoalPlanningStartRequest,
+    ) -> Result<Conversation> {
+        self.create_conversation_inner(
+            project_id,
+            "Goal planning",
+            workspace_id,
+            connection_id,
+            grant_id,
+            key,
+            Some(request),
+        )
+    }
+    #[allow(clippy::too_many_arguments)]
+    fn create_conversation_inner(
+        &mut self,
+        project_id: &str,
+        title: &str,
+        workspace_id: &str,
+        connection_id: &str,
+        grant_id: &str,
+        key: &str,
+        planning: Option<&crate::goal_store::GoalPlanningStartRequest>,
+    ) -> Result<Conversation> {
         key_valid(key)?;
         if title.trim().is_empty() || title.len() > 512 {
             return Err(error(
@@ -181,14 +226,23 @@ impl Store {
                 "Conversation title must be nonempty and at most 512 bytes",
             ));
         }
-        let payload = encode(
-            &json!({"project_id":project_id,"title":title,"workspace_id":workspace_id,"connection_id":connection_id,"grant_id":grant_id}),
-        )?;
+        let mut intent = json!({"project_id":project_id,"title":title,"workspace_id":workspace_id,"connection_id":connection_id,"grant_id":grant_id});
+        if let Some(p) = planning {
+            intent["planning"] = serde_json::to_value(p)
+                .map_err(|_| error("INVALID_REQUEST", "Invalid planning request"))?;
+        }
+        let payload = encode(&intent)?;
+        // Public keys cannot collide with Core purpose reservation keys.
+        let create_key = if planning.is_some() {
+            format!("goal-planning:{}", Uuid::new_v4())
+        } else {
+            key.into()
+        };
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        let old:Option<(String,String)>=tx.query_row("SELECT payload,document FROM conversations WHERE project_id=?1 AND idempotency_key=?2",params![project_id,key],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
+        let old:Option<(String,String)>=tx.query_row("SELECT payload,document FROM conversations WHERE project_id=?1 AND idempotency_key=?2",params![project_id,create_key],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
         if let Some((p, d)) = old {
             if p != payload {
                 return Err(error(
@@ -198,6 +252,21 @@ impl Store {
             }
             return decode(&d);
         }
+        let prepared = planning
+            .map(|r| {
+                let (p, project, grant) =
+                    crate::goal_store::planning::prepare_from(&tx, &r.preparation)?;
+                if p.digest != r.expected_digest
+                    || project != project_id
+                    || grant != grant_id
+                    || p.binding.workspace_id != workspace_id
+                    || p.binding.connection_id != connection_id
+                {
+                    return Err(error("INPUT_CHANGED", "Planning approval changed"));
+                }
+                Ok(p)
+            })
+            .transpose()?;
         let grant = crate::policy::validate_grant_from(
             &tx,
             grant_id,
@@ -299,7 +368,7 @@ impl Store {
             .checked_add(1)
             .ok_or_else(|| error("RESOURCE_LIMIT", "Writer generation exhausted"))?;
         let timestamp = now()?;
-        let conversation = Conversation {
+        let mut conversation = Conversation {
             id: id.clone(),
             project_id: project_id.into(),
             title: title.into(),
@@ -344,7 +413,7 @@ impl Store {
                 grant.root_grant_id,
                 conversation.state,
                 encode(&conversation)?,
-                key,
+                create_key,
                 payload
             ],
         )
@@ -355,13 +424,24 @@ impl Store {
         )
         .map_err(db_error)?;
         tx.execute("INSERT INTO workspace_leases VALUES(?1,?2,?3,0) ON CONFLICT(resource) DO UPDATE SET holder=excluded.holder,fencing_token=excluded.fencing_token,expires_at=0",params![workspace_id,id,epoch]).map_err(db_error)?;
-        reserve_budget(&tx, &conversation, &grant)?;
+        if let Some(p) = &prepared {
+            if encode(&p.binding)? != encode(&binding)? {
+                return Err(error("INPUT_CHANGED", "Approved planning binding changed"));
+            }
+        }
+        reserve_budget(&tx, &conversation, &grant, prepared.as_ref())?;
         event(
             &tx,
             &conversation,
             "conversation.launch_reserved",
             json!({"attempt_id":conversation.attempt_id,"binding":binding,"fencing_token":epoch,"task_created":false,"automatic_replay":false}),
         )?;
+        if let (Some(r), Some(p)) = (planning, prepared) {
+            crate::goal_store::planning::bind(&tx, &mut conversation, r, p, key, grant_id)?;
+            let purpose = crate::goal_store::planning::purpose(&tx, &conversation.id)?
+                .ok_or_else(|| error("INPUT_CHANGED", "Planning purpose missing"))?;
+            crate::goal_store::planning::start_marker(&tx, &purpose)?;
+        }
         tx.commit().map_err(db_error)?;
         Ok(conversation)
     }
@@ -371,6 +451,30 @@ impl Store {
         revision: u64,
         text: &str,
         key: &str,
+    ) -> Result<(Conversation, bool)> {
+        self.send_conversation_inner(id, revision, text, key, None)
+    }
+    fn send_planning_conversation(&mut self, id: &str) -> Result<Option<String>> {
+        let Some(p) = crate::goal_store::planning::purpose(&self.conn, id)? else {
+            return Ok(None);
+        };
+        let c = read(&self.conn, id)?;
+        self.send_conversation_inner(
+            id,
+            c.revision,
+            &p.prepared.prompt,
+            "goal-planning-fixed-turn",
+            Some(&p),
+        )?;
+        Ok(Some(p.prepared.prompt))
+    }
+    fn send_conversation_inner(
+        &mut self,
+        id: &str,
+        revision: u64,
+        text: &str,
+        key: &str,
+        planning: Option<&crate::goal_store::planning::PlanningPurpose>,
     ) -> Result<(Conversation, bool)> {
         key_valid(key)?;
         if text.trim().is_empty() || text.len() > 65536 {
@@ -384,6 +488,40 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
+        let purpose = crate::goal_store::planning::purpose(&tx, id)?;
+        match (&purpose, planning) {
+            (None, None) => {}
+            (Some(p), Some(expected))
+                if encode(p)? == encode(expected)? && p.prepared.prompt == text =>
+            {
+                let count: i64 = tx
+                    .query_row(
+                        "SELECT count(*) FROM conversation_turns WHERE conversation_id=?1",
+                        [id],
+                        |r| r.get(0),
+                    )
+                    .map_err(db_error)?;
+                if count != 0 {
+                    return Err(error(
+                        "OUTCOME_UNKNOWN",
+                        "Planning turn cannot be sent twice",
+                    ));
+                }
+                crate::goal_store::planning::validate_turn_source(&tx, p)?;
+                if crate::goal_store::planning::task_cancelled(&tx, id)? {
+                    return Err(error(
+                        "PERMISSION_DENIED",
+                        "Planning task cancellation requested",
+                    ));
+                }
+            }
+            _ => {
+                return Err(error(
+                    "PERMISSION_DENIED",
+                    "Planning conversations only accept their private fixed turn",
+                ))
+            }
+        }
         let old:Option<String>=tx.query_row("SELECT payload FROM conversation_turns WHERE conversation_id=?1 AND idempotency_key=?2",params![id,key],|r|r.get(0)).optional().map_err(db_error)?;
         if let Some(p) = old {
             if p != payload {
@@ -408,7 +546,9 @@ impl Store {
             ));
         }
         validate_live(&tx, &c)?;
-        let turn_id = Uuid::new_v4().to_string();
+        let turn_id = planning
+            .map(|p| p.turn_id.clone())
+            .unwrap_or_else(|| Uuid::new_v4().to_string());
         tx.execute(
             "INSERT INTO conversation_turns VALUES(?1,?2,'pending',?3,?4,?5)",
             params![
@@ -577,7 +717,24 @@ fn validate_live(db: &Connection, c: &Conversation) -> Result<crate::policy::Exe
     Ok(grant)
 }
 
+struct PlanningWorker {
+    capture: crate::sessions::planning::PlanningCapture,
+    purpose: crate::goal_store::planning::PlanningPurpose,
+    runtime: crate::RuntimeBinding,
+}
+impl PlanningWorker {
+    fn finish(self, r: &WorkerReceipt) -> crate::sessions::planning::PlanningCaptureResult {
+        self.capture.finish(
+            r,
+            &self.purpose.conversation_id,
+            &self.purpose.turn_id,
+            &self.purpose.prepared.prompt,
+            &self.runtime,
+        )
+    }
+}
 struct ConversationWorker {
+    planning: Option<PlanningWorker>,
     commands: SyncSender<Work>,
     cancel: Arc<AtomicBool>,
     thread: JoinHandle<WorkerReceipt>,
@@ -586,6 +743,7 @@ pub struct ConversationSupervisor {
     runtime: PathBuf,
     workers: HashMap<String, ConversationWorker>,
     receipts: HashMap<String, WorkerReceipt>,
+    planning_receipts: HashMap<String, crate::sessions::planning::PlanningCaptureResult>,
     no_start: HashMap<String, Instant>,
     events: Receiver<Outcome>,
     sender: SyncSender<Outcome>,
@@ -597,6 +755,7 @@ impl ConversationSupervisor {
             runtime: runtime.into(),
             workers: HashMap::new(),
             receipts: HashMap::new(),
+            planning_receipts: HashMap::new(),
             no_start: HashMap::new(),
             events,
             sender,
@@ -759,27 +918,55 @@ impl ConversationSupervisor {
         let sender = self.sender.clone();
         let worker_id = id.to_owned();
         let route = connection.protocol_route;
+        let planning = crate::goal_store::planning::purpose(&store.conn, id)?
+            .map(|purpose| -> Result<PlanningWorker> {
+                crate::goal_store::planning::validate_turn_source(&store.conn, &purpose)?;
+                let runtime = c
+                    .runtime_snapshot
+                    .clone()
+                    .ok_or_else(|| error("INPUT_CHANGED", "Planning runtime missing"))?;
+                let capture = crate::sessions::planning::PlanningCapture::new(
+                    id,
+                    &purpose.turn_id,
+                    &purpose.prepared.prompt,
+                    &runtime,
+                    purpose.prepared.response_bytes,
+                )?;
+                Ok(PlanningWorker {
+                    capture,
+                    purpose,
+                    runtime,
+                })
+            })
+            .transpose()?;
+        let launch = if let Some(p) = &planning {
+            WorkerLaunch::planning_conversation(
+                route,
+                installation,
+                configuration,
+                prelaunch_ms,
+                Duration::from_millis(remaining),
+                p.capture.clone(),
+            )
+        } else {
+            WorkerLaunch::conversation(
+                route,
+                installation,
+                configuration,
+                prelaunch_ms,
+                Duration::from_millis(remaining),
+            )
+        };
         let thread = std::thread::Builder::new()
             .name("baton-conversation".into())
             .spawn(move || {
-                crate::sessions::run_worker(
-                    worker_id,
-                    WorkerLaunch::conversation(
-                        route,
-                        installation,
-                        configuration,
-                        prelaunch_ms,
-                        Duration::from_millis(remaining),
-                    ),
-                    receiver,
-                    worker_cancel,
-                    sender,
-                )
+                crate::sessions::run_worker(worker_id, launch, receiver, worker_cancel, sender)
             })
             .map_err(|_| error("RESOURCE_LIMIT", "Cannot start owned conversation worker"))?;
         self.workers.insert(
             id.into(),
             ConversationWorker {
+                planning,
                 commands,
                 cancel,
                 thread,
@@ -817,6 +1004,10 @@ impl ConversationSupervisor {
                     .thread
                     .join()
                     .unwrap_or(WorkerReceipt::conversation_panicked());
+                if let Some(p) = w.planning {
+                    self.planning_receipts
+                        .insert(id.clone(), p.finish(&receipt));
+                }
                 self.receipts.insert(id, receipt);
             }
         }
@@ -824,8 +1015,14 @@ impl ConversationSupervisor {
     fn flush(&mut self, store: &mut Store) -> Result<()> {
         let ids: Vec<_> = self.receipts.keys().cloned().collect();
         for id in ids {
-            settle(store, &id, &self.receipts[&id])?;
+            settle_with_planning(
+                store,
+                &id,
+                &self.receipts[&id],
+                self.planning_receipts.get(&id),
+            )?;
             self.receipts.remove(&id);
+            self.planning_receipts.remove(&id);
         }
         Ok(())
     }
@@ -834,6 +1031,7 @@ impl ConversationSupervisor {
             let c = store.get_conversation(id)?;
             if c.state == "cancel_requested"
                 || c.state == "outcome_unknown"
+                || crate::goal_store::planning::turn_source_changed(&store.conn, id)?
                 || validate_live(&store.conn, &c).is_err()
             {
                 w.cancel.store(true, Ordering::Relaxed)
@@ -859,6 +1057,21 @@ impl ConversationSupervisor {
                         json!({"identity_status":"unknown","host_tools":false,"history_capture":{"normalized_updates":true,"raw_protocol":false,"completeness":"partial"}}),
                     )?;
                     tx.commit().map_err(db_error)?;
+                    if c.state == "ready" {
+                        match store.send_planning_conversation(&id) {
+                            Ok(Some(text)) => {
+                                if self.send(&id, &text).is_err() {
+                                    store.conversation_failure(&id, "planning_queue_unknown")?;
+                                    self.cancel(&id);
+                                }
+                            }
+                            Ok(None) => {}
+                            Err(_) => {
+                                store.conversation_failure(&id, "planning_admission_failed")?;
+                                self.cancel(&id);
+                            }
+                        }
+                    }
                 }
                 Outcome::Update(id, update) => {
                     let mut c = store.get_conversation(&id)?;
@@ -918,6 +1131,10 @@ impl ConversationSupervisor {
                 .thread
                 .join()
                 .unwrap_or(WorkerReceipt::conversation_panicked());
+            if let Some(p) = w.planning {
+                self.planning_receipts
+                    .insert(id.clone(), p.finish(&receipt));
+            }
             self.receipts.insert(id, receipt);
         }
     }
@@ -931,6 +1148,10 @@ impl ConversationSupervisor {
                 .thread
                 .join()
                 .unwrap_or(WorkerReceipt::conversation_panicked());
+            if let Some(p) = w.planning {
+                self.planning_receipts
+                    .insert(id.clone(), p.finish(&receipt));
+            }
             self.receipts.insert(id, receipt);
         }
         self.tick(store)
@@ -946,7 +1167,12 @@ impl Drop for ConversationSupervisor {
         }
     }
 }
-fn settle(store: &mut Store, id: &str, r: &WorkerReceipt) -> Result<()> {
+fn settle_with_planning(
+    store: &mut Store,
+    id: &str,
+    r: &WorkerReceipt,
+    capture: Option<&crate::sessions::planning::PlanningCaptureResult>,
+) -> Result<()> {
     if !r.process_reaped && !r.never_started {
         return store.conversation_failure(id, "owned_process_stop_unconfirmed");
     }
@@ -963,7 +1189,35 @@ fn settle(store: &mut Store, id: &str, r: &WorkerReceipt) -> Result<()> {
         )
         .map_err(db_error)?;
     if state == "stopped" {
+        let p = crate::goal_store::planning::purpose(&tx, id)?;
+        tx.commit().map_err(db_error)?;
+        if let Some(p) = p {
+            store.complete_goal_planning_task_cancel(&p.prepared.source.task_id)?;
+        }
         return Ok(());
+    }
+    let planning = crate::goal_store::planning::purpose(&tx, id)?;
+    if let (Some(p), Some(w)) = (&planning, capture) {
+        let complete = w.complete
+            && w.terminal_state.as_deref() == Some("completed")
+            && r.process_reaped
+            && !r.never_started;
+        if complete {
+            let count=tx.execute("UPDATE conversation_turns SET state='completed' WHERE conversation_id=?1 AND id=?2 AND state='pending'",params![id,p.turn_id]).map_err(db_error)?;
+            if count != 1 {
+                return Err(error(
+                    "INPUT_CHANGED",
+                    "Planning turn completion binding changed",
+                ));
+            }
+            c.turn_state = Some("completed".into());
+            save(
+                &tx,
+                &mut c,
+                "conversation.turn_completed",
+                json!({"turn_id":p.turn_id,"state":"completed"}),
+            )?;
+        }
     }
     tx.execute("UPDATE conversation_turns SET state='outcome_unknown' WHERE conversation_id=?1 AND state='pending'",[id]).map_err(db_error)?;
     let unknown:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM conversation_turns WHERE conversation_id=?1 AND state='outcome_unknown')",[id],|r|r.get(0)).map_err(db_error)?;
@@ -987,14 +1241,54 @@ fn settle(store: &mut Store, id: &str, r: &WorkerReceipt) -> Result<()> {
         [format!("project:{}", c.project_id)],
     )
     .map_err(db_error)?;
-    settle_budget(&tx, &c, r.elapsed_ms)?;
+    let output = if planning.is_some() {
+        capture
+            .filter(|w| w.measurement_complete && (r.process_reaped || r.never_started))
+            .map(|w| w.observed_output_bytes)
+            .or(if r.never_started { Some(0) } else { None })
+    } else {
+        Some(0)
+    };
+    settle_budget(&tx, &c, r.elapsed_ms, output)?;
+    if let Some(p) = &planning {
+        let complete = capture.is_some_and(|w| w.complete)
+            && !unknown
+            && c.turn_state.as_deref() == Some("completed")
+            && r.process_reaped
+            && !r.never_started;
+        let completion = crate::goal_store::planning::PlanningCompletion {
+            purpose_digest: crate::goal_store::planning::purpose_digest(p)?,
+            accounted_output_bytes: output,
+            elapsed_ms: r.elapsed_ms,
+            reply: if complete {
+                capture.and_then(|w| w.text.clone())
+            } else {
+                None
+            },
+            reply_complete: complete,
+            process_reaped: r.process_reaped,
+            worker_joined: capture.is_some(),
+            observed_output_bytes: capture.map(|w| w.observed_output_bytes).or(output),
+        };
+        crate::goal_store::planning::complete(&tx, p, &completion)?;
+        save(
+            &tx,
+            &mut c,
+            "conversation.planning_settled",
+            json!({"completion_digest":crate::goal_store::planning::completion_digest(&completion)?}),
+        )?;
+    }
     save(
         &tx,
         &mut c,
         "conversation.stopped",
         json!({"never_started":r.never_started,"process_reaped":r.process_reaped,"reason":r.reason,"elapsed_ms":r.elapsed_ms,"task_accepted":false,"turn_outcome_unknown":unknown}),
     )?;
-    tx.commit().map_err(db_error)
+    tx.commit().map_err(db_error)?;
+    if let Some(p) = planning {
+        store.complete_goal_planning_task_cancel(&p.prepared.source.task_id)?;
+    }
+    Ok(())
 }
 
 /// Exact new table definitions; rejecting missing/altered constraints is safer
@@ -1045,6 +1339,7 @@ fn reserve_budget(
     db: &Connection,
     c: &Conversation,
     grant: &crate::policy::ExecutionGrant,
+    planning: Option<&crate::goal_store::GoalPlanningPrepared>,
 ) -> Result<()> {
     use crate::goal_plan::{AttemptReservation, BudgetLimits};
     let ledger: Option<String> = db
@@ -1108,6 +1403,18 @@ fn reserve_budget(
     if duration == 0 {
         return Err(error("RESOURCE_LIMIT", "Shared runtime budget exhausted"));
     }
+    let output_bytes = if let Some(p) = planning {
+        if limits.is_none() || p.runtime_ms > duration {
+            return Err(error(
+                "RESOURCE_LIMIT",
+                "Planning exceeds remaining shared budget",
+            ));
+        }
+        duration = p.runtime_ms;
+        p.response_bytes
+    } else {
+        0
+    };
     let record = ConversationBudget {
         conversation_id: c.id.clone(),
         attempt_id: c.attempt_id.clone(),
@@ -1115,7 +1422,7 @@ fn reserve_budget(
         root_grant_id: grant.root_grant_id.clone(),
         reservation: AttemptReservation {
             runtime_ms: duration,
-            output_bytes: 0,
+            output_bytes,
             tokens: None,
             cost_microunits: None,
         },
@@ -1145,7 +1452,12 @@ fn conversation_duration(db: &Connection, id: &str) -> Result<u64> {
     let record: ConversationBudget = decode(&raw)?;
     Ok(record.reservation.runtime_ms)
 }
-fn settle_budget(db: &Connection, c: &Conversation, elapsed: u64) -> Result<()> {
+fn settle_budget(
+    db: &Connection,
+    c: &Conversation,
+    elapsed: u64,
+    output: Option<u64>,
+) -> Result<()> {
     let raw: String = db
         .query_row(
             "SELECT document FROM conversation_budgets WHERE conversation_id=?1",
@@ -1159,14 +1471,14 @@ fn settle_budget(db: &Connection, c: &Conversation, elapsed: u64) -> Result<()> 
     }
     record.settled = true;
     record.actual_runtime_ms = Some(elapsed);
-    record.actual_output_bytes = Some(0);
+    record.actual_output_bytes = output;
     if record.metered {
         crate::goal_store::settle_conversation_meter(
             db,
             &record.root_grant_id,
             &record.project_id,
             Some(elapsed),
-            Some(0),
+            output,
         )?;
     }
     db.execute(
@@ -1219,7 +1531,14 @@ pub(crate) fn budget_records(
             || r.root_grant_id != root
             || r.root_grant_id != br
             || r.settled != (state == "stopped")
-            || r.reservation.output_bytes != 0
+            || match crate::goal_store::planning::purpose(db, &id)? {
+                Some(p) => {
+                    r.reservation.output_bytes != p.prepared.response_bytes
+                        || r.reservation.runtime_ms != p.prepared.runtime_ms
+                        || !r.metered
+                }
+                None => r.reservation.output_bytes != 0,
+            }
             || r.reservation.tokens.is_some()
             || r.reservation.cost_microunits.is_some()
         {
@@ -1227,6 +1546,9 @@ pub(crate) fn budget_records(
                 "BUDGET_UNKNOWN",
                 "Conversation accounting origin mismatch",
             ));
+        }
+        if let Some(p) = crate::goal_store::planning::purpose(db, &id)? {
+            crate::goal_store::planning::verify_accounting(db, &p, &r)?;
         }
         out.push(r)
     }

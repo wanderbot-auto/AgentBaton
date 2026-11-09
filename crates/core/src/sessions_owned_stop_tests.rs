@@ -678,6 +678,7 @@ fn actual_ordinary_session_can_complete_two_turns_without_one_turn_stop() {
                 configuration: None,
                 factory_mcp: None,
                 owned_stop: None,
+                planning: None,
                 prelaunch_ms: 0,
                 duration: Duration::from_secs(4),
             },

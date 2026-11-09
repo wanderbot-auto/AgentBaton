@@ -42,6 +42,8 @@ use uuid::Uuid;
 
 #[path = "sessions_owned_stop.rs"]
 mod owned_stop;
+#[path = "sessions_planning.rs"]
+pub(crate) mod planning;
 use owned_stop::{CompletedTurnProof, RetainedReceipt};
 
 // Unit-test-only, one-shot fault injection at the exact atomic boundary. No
@@ -1407,6 +1409,7 @@ impl Supervisor {
                         configuration,
                         factory_mcp,
                         owned_stop: worker_owned_stop,
+                        planning: None,
                         prelaunch_ms,
                         duration,
                     },
@@ -1847,10 +1850,24 @@ pub(crate) struct WorkerLaunch {
     pub(crate) configuration: Option<Value>,
     pub(crate) factory_mcp: Option<crate::factory::FactoryMcpLaunch>,
     owned_stop: Option<Arc<owned_stop::LaunchBinding>>,
+    planning: Option<planning::PlanningCapture>,
     pub(crate) prelaunch_ms: u64,
     pub(crate) duration: Duration,
 }
 impl WorkerLaunch {
+    pub(crate) fn planning_conversation(
+        route: ProtocolRoute,
+        installation: ApprovedInstallation,
+        configuration: Option<Value>,
+        prelaunch_ms: u64,
+        duration: Duration,
+        capture: planning::PlanningCapture,
+    ) -> Self {
+        let mut launch =
+            Self::conversation(route, installation, configuration, prelaunch_ms, duration);
+        launch.planning = Some(capture);
+        launch
+    }
     pub(crate) fn conversation(
         route: ProtocolRoute,
         installation: ApprovedInstallation,
@@ -1864,6 +1881,7 @@ impl WorkerLaunch {
             configuration,
             factory_mcp: None,
             owned_stop: None,
+            planning: None,
             prelaunch_ms,
             duration,
         }
@@ -1900,7 +1918,18 @@ pub(crate) fn run_worker(
 ) -> WorkerReceipt {
     let started = Instant::now();
     let prior = launch.prelaunch_ms;
+    let planning_capture = launch.planning.clone();
+    let planning_cancel = cancel.clone();
     let mut receipt = (|| {
+        if launch
+            .planning
+            .as_ref()
+            .is_some_and(|capture| !capture.claim(&id))
+        {
+            let mut refused = WorkerReceipt::conversation_no_start(prior);
+            refused.reason = "planning_launch_binding_changed".into();
+            return refused;
+        }
         if launch
             .factory_mcp
             .as_ref()
@@ -1933,6 +1962,9 @@ pub(crate) fn run_worker(
     receipt.elapsed_ms = u64::try_from(started.elapsed().as_millis())
         .unwrap_or(u64::MAX)
         .saturating_add(prior);
+    if let Some(capture) = planning_capture {
+        capture.worker_finished(&receipt, planning_cancel.load(Ordering::Relaxed));
+    }
     receipt
 }
 fn run_worker_inner(
@@ -1949,6 +1981,7 @@ fn run_worker_inner(
         configuration,
         factory_mcp,
         owned_stop,
+        planning,
         prelaunch_ms: _,
         duration,
     } = launch;
@@ -2071,7 +2104,9 @@ fn run_worker_inner(
             };
         }
     };
-    if !notify(Outcome::Ready(id.clone(), native.clone())) {
+    if planning.as_ref().is_some_and(|p| !p.ready(&id, &native))
+        || !notify(Outcome::Ready(id.clone(), native.clone()))
+    {
         process.terminate();
         return WorkerReceipt {
             completed_turn: None,
@@ -2110,6 +2145,12 @@ fn run_worker_inner(
 
                 if pending {
                     break "duplicate_worker_turn";
+                }
+                if planning
+                    .as_ref()
+                    .is_some_and(|p| !p.begin(&id, &native, &text, ticket.is_none()))
+                {
+                    break "planning_turn_binding_changed";
                 }
                 let remaining = duration.saturating_sub(started.elapsed());
                 let _ = process.set_io_timeout(remaining.min(Duration::from_secs(60)));
@@ -2162,6 +2203,17 @@ fn run_worker_inner(
             }
         }
         let updates = process.take_updates();
+        let mut planning_updates_valid = true;
+        if let Some(capture) = &planning {
+            // Account the entire drained sequence even when an earlier update
+            // invalidates capture. Actor forwarding is not the capture source.
+            for update in &updates {
+                planning_updates_valid &= capture.update(update);
+            }
+        }
+        if !planning_updates_valid {
+            break "planning_capture_incomplete";
+        }
         for update in updates {
             if !notify(Outcome::Update(id.clone(), json!(update))) {
                 process.terminate();
@@ -2180,6 +2232,10 @@ fn run_worker_inner(
         process.take_evidence();
         let diagnostics = process.diagnostics();
         if diagnostics.update_records_dropped > dropped {
+            if let Some(capture) = &planning {
+                capture.invalidate();
+                break "planning_stream_gap";
+            }
             let count = diagnostics.update_records_dropped - dropped;
             dropped = diagnostics.update_records_dropped;
             if !notify(Outcome::Update(
@@ -2190,6 +2246,29 @@ fn run_worker_inner(
             }
         }
         if let Some(state) = turn_completed {
+            if let Some(capture) = &planning {
+                if cancel.load(Ordering::Relaxed) {
+                    capture.invalidate();
+                    break "cancelled";
+                }
+                match commands.try_recv() {
+                    Ok(_) => {
+                        capture.invalidate();
+                        break "planning_duplicate_prompt";
+                    }
+                    Err(TryRecvError::Disconnected) => {
+                        capture.invalidate();
+                        break "supervisor_disconnected";
+                    }
+                    Err(TryRecvError::Empty) => {}
+                }
+                if !capture.terminal(state) {
+                    break "planning_terminal_incomplete";
+                }
+                // Only this planning worker ends automatically; ordinary turns
+                // retain their existing multi-turn semantics.
+                break "planning_completed";
+            }
             if completed_turn.is_some() {
                 // Exactly the process this worker already owns. The receipt
                 // carries the terminal proof even if the Actor is busy.
@@ -2213,8 +2292,19 @@ fn run_worker_inner(
             }
         }
     };
+    if let Some(capture) = &planning {
+        // A failed poll may already have normalized earlier frames. Preserve
+        // their measured bytes even though no complete response can be used.
+        let remaining = process.take_updates();
+        for update in &remaining {
+            capture.update(update);
+        }
+        if !remaining.is_empty() || process.diagnostics().update_records_dropped > 0 {
+            capture.invalidate();
+        }
+    }
     process.terminate();
-    if reason != "cancelled" {
+    if reason != "cancelled" && reason != "planning_completed" {
         notify(Outcome::Failure(id.clone(), reason.into()));
     }
     WorkerReceipt {
@@ -2621,6 +2711,7 @@ mod tests {
                 configuration: None,
                 factory_mcp: None,
                 owned_stop: None,
+                planning: None,
                 prelaunch_ms: 0,
                 duration: Duration::from_secs(2),
             },

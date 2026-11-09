@@ -51,6 +51,13 @@ pub use advice::{
     GoalPlanAdviceQuery, GoalPlanAdviceStep,
 };
 
+#[path = "goal_planning.rs"]
+pub(crate) mod planning;
+pub use planning::{
+    GoalPlanningId, GoalPlanningListRequest, GoalPlanningPrepareRequest, GoalPlanningPrepared,
+    GoalPlanningRun, GoalPlanningStartRequest,
+};
+
 pub const MAX_GOAL_PLAN_BYTES: usize = 262_144;
 const MAX_STORED_BYTES: i64 = 1_048_576;
 const MAX_SCOPES: i64 = 256;
@@ -501,6 +508,9 @@ fn counts(db: &Connection, task: &Task, grant: &ExecutionGrant) -> Result<(u32, 
     ))
 }
 fn no_writers(db: &Connection, task: &Task, grant: &ExecutionGrant) -> Result<()> {
+    if planning::has_active_goal_planning(db, &task.id)? {
+        return Err(err("WORKSPACE_BUSY", "Task has an active planning writer"));
+    }
     let active:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE d.state!='stopped' AND (a.root_task_id=?1 OR json_extract(a.binding,'$.workspace_id') IN (SELECT value FROM json_each(?2)) OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?3)))",params![task.id,encode(&grant.scope.workspace_ids)?,grant.root_grant_id],|r|r.get(0)).map_err(db_error)?;
     let command:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id IN (SELECT value FROM json_each(?1)))",[encode(&grant.scope.workspace_ids)?],|r|r.get(0)).map_err(db_error)?;
     let graph:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_graph_jobs WHERE workspace_id IN (SELECT value FROM json_each(?1)) AND state IN('prepared','running','cancel_requested','outcome_unknown'))",[encode(&grant.scope.workspace_ids)?],|r|r.get(0)).map_err(db_error)?;

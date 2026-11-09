@@ -66,7 +66,7 @@ pub struct GoalPlanAdviceImport {
     pub planning_only: bool,
     pub dispatched: bool,
 }
-fn current_scope(
+pub(super) fn current_scope(
     db: &Connection,
     q: &GoalPlanAdviceQuery,
     data: Option<&crate::data_workspaces::DataInputWitness>,
