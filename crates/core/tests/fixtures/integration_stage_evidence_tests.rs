@@ -417,6 +417,73 @@ fn observation_conflicts_are_sticky_and_only_successful_replies_bind() {
     assert!(!OBSERVED.with(|v| v.borrow().contains_key(root)));
 }
 
+#[test]
+fn readonly_collector_projects_only_exact_schema18() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let (binding, run, attempts, events) = fixture();
+    let temp = tempfile::tempdir().unwrap();
+    let runtime = fs::canonicalize(temp.path()).unwrap();
+    fs::set_permissions(&runtime, fs::Permissions::from_mode(0o700)).unwrap();
+    let database = runtime.join("baton.sqlite3");
+    let db = Connection::open(&database).unwrap();
+    fs::set_permissions(&database, fs::Permissions::from_mode(0o600)).unwrap();
+    db.execute_batch(
+        "CREATE TABLE integrations(id, task_id, policy_id, state, revision, document);
+         CREATE TABLE integration_attempts(attempt_id, integration_id, round, kind, state,
+             authority_kind, root_task_id, root_grant_id, project_id, document);
+         CREATE TABLE events(sequence, document);",
+    )
+    .unwrap();
+    db.execute(
+        "INSERT INTO integrations VALUES (?1, ?2, ?3, 'outcome_unknown', 4, ?4)",
+        rusqlite::params![binding.id, binding.task, binding.policy, run],
+    )
+    .unwrap();
+    for row in attempts {
+        db.execute(
+            "INSERT INTO integration_attempts VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+            rusqlite::params![
+                row.id,
+                row.run,
+                row.round,
+                row.kind,
+                row.state,
+                row.authority,
+                row.root_task,
+                row.root_grant,
+                row.project,
+                row.document
+            ],
+        )
+        .unwrap();
+    }
+    for (sequence, document) in events {
+        db.execute(
+            "INSERT INTO events VALUES (?1, ?2)",
+            rusqlite::params![sequence, document],
+        )
+        .unwrap();
+    }
+    for schema in [17, 18, 19] {
+        db.pragma_update(None, "user_version", schema).unwrap();
+        let original = fs::read(&database).unwrap();
+        let observed = collect(&runtime, &binding);
+        assert_eq!(fs::read(&database).unwrap(), original);
+        if schema == 18 {
+            let value = observed.unwrap();
+            assert_eq!(value["status"], "collected");
+            assert_eq!(value["schema"], 18);
+            assert_eq!(value["rows"].as_array().unwrap().len(), 1);
+            assert_eq!(value["rows"][0]["preparation_io"]["git_calls_attempted"], 4);
+            assert_eq!(value["process_stop_proven"], false);
+            assert!(!value.to_string().contains(CANARY));
+        } else {
+            assert!(observed.is_err(), "schema {schema} must be refused");
+        }
+    }
+}
+
 #[cfg(debug_assertions)]
 mod preparation_phase_observation_tests {
     use super::*;

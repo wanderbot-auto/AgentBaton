@@ -13,8 +13,10 @@ class IntegrationPreparationPhaseInverseTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(restored_settlement.encode()).hexdigest(), original.BEFORE_PHASE_SETTLEMENT_SHA256)
         self.assertEqual(hashlib.sha256(restored_tests.encode()).hexdigest(), original.BEFORE_PHASE_RUST_TEST_SHA256)
         self.assertEqual(restored_tests.count('#[test]'), 10)
-        self.assertEqual(tests.count('#[test]'), 13)
-        self.assertEqual(tests[:tests.index(original.PHASE_TEST_MARKER)], restored_tests)
+        self.assertEqual(tests.count('#[test]'), 14)
+        historical_tests = original.rust_controls_before_schema18(tests)
+        self.assertEqual(historical_tests.count('#[test]'), 13)
+        self.assertEqual(historical_tests[:historical_tests.index(original.PHASE_TEST_MARKER)], restored_tests)
         for kind, raw in [('integration.stage_unknown', 'UnknownEvent'),
                           ('integration.preparation_io_observed', 'PreparationEvent')]:
             tail = restored_settlement.split('"' + kind + '"', 1)[1].split(')?;', 1)[0]

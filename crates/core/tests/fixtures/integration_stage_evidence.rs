@@ -494,7 +494,7 @@ fn project(
             "stage_unknown":u,"preparation_io":preparation.remove(id)}));
     }
     let mut result = envelope("collected", "ok", json!(rows));
-    result["schema"] = json!(17);
+    result["schema"] = json!(18);
     result["run_state"] = serde_json::to_value(run.state).map_err(|_| ())?;
     result["run_round"] = json!(run.round);
     result["active_stage"] = serde_json::to_value(run.active_stage).map_err(|_| ())?;
@@ -699,7 +699,7 @@ fn collect(runtime: &Path, b: &Binding) -> Checked<Value> {
     let schema: i64 = db
         .query_row("PRAGMA user_version", [], |r| r.get(0))
         .map_err(|_| ())?;
-    require(schema == 17)?;
+    require(schema == 18)?;
     let run_matches: i64 = db.query_row("SELECT count(*) FROM (SELECT 1 FROM integrations WHERE id=?1 OR json_extract(document,'$.id')=?1 LIMIT 2)",[&b.id],|r|r.get(0)).map_err(|_| ())?;
     require(run_matches == 1)?;
     let (id,task,policy,state,revision,text):(String,String,String,String,i64,String) = db.query_row("SELECT id,task_id,policy_id,state,revision,CASE WHEN length(CAST(document AS BLOB)) BETWEEN 1 AND 65536 THEN document END FROM integrations WHERE id=?1",[&b.id],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).map_err(|_| ())?;

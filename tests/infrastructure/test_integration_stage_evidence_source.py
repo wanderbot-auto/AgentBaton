@@ -55,6 +55,10 @@ BEFORE_PHASE_RUST_TEST_SHA256 = '74b273792c3e3cb35e934628ffc1af29baa4130df4ebe4d
 PHASE_RUST_TEST_SHA256 = '9aba1d7dfd199758772807200e05898397bdee8135afc266c905f3b7f6d9792a'
 PHASE_RUST_TEST_SUFFIX_SHA256 = '3e45d0f18f28a2e78634941b39713c80522f21a1365588e3e492d0fae5e6ad40'
 PHASE_TEST_MARKER = '\n#[cfg(debug_assertions)]\nmod preparation_phase_observation_tests {'
+SCHEMA17_EVIDENCE_SHA256 = '3d031567da3589972027bb8fadf96bca0a9830334883e1d557b7883671006c76'
+SCHEMA18_EVIDENCE_SHA256 = 'a46dafdb9313d8a48448b5564afd55b6cd5699099bda1688e05983a245692027'
+SCHEMA18_RUST_TEST_SHA256 = '8b2734bbde5acaecf791f81b92ae9ff584c8bbc15afe5b02228ea48e195dfed3'
+SCHEMA18_RUST_TEST_MARKER = '\n#[test]\nfn readonly_collector_projects_only_exact_schema18() {\n'
 PREPARATION_PAYLOAD = 'json!({"attempt_id":attempt.view.attempt_id,"io":io,"measurement_not_authority":true,"whole_filesystem_output":null})'
 PHASE_PAYLOAD_ALIAS = ("            let payload = " + PREPARATION_PAYLOAD + ";\n" +
     """            #[cfg(debug_assertions)]
@@ -75,6 +79,28 @@ def exact_source_pin(text, expected):
         raise AssertionError('unreviewed debug-phase source composition')
 
 
+def evidence_before_schema18(text):
+    exact_source_pin(text, SCHEMA18_EVIDENCE_SHA256)
+    for current, original in [('result["schema"] = json!(18);', 'result["schema"] = json!(17);'),
+                              ('require(schema == 18)?;', 'require(schema == 17)?;')]:
+        if text.count(current) != 1:
+            raise AssertionError('unique exact schema18 evidence boundary required')
+        text = text.replace(current, original, 1)
+    exact_source_pin(text, SCHEMA17_EVIDENCE_SHA256)
+    return text
+
+
+def rust_controls_before_schema18(text):
+    exact_source_pin(text, SCHEMA18_RUST_TEST_SHA256)
+    if text.count(SCHEMA18_RUST_TEST_MARKER) != 1 or text.count(PHASE_TEST_MARKER) != 1:
+        raise AssertionError('unique reviewed schema18 control required')
+    start = text.index(SCHEMA18_RUST_TEST_MARKER)
+    end = text.index(PHASE_TEST_MARKER, start)
+    original = text[:start] + text[end:]
+    exact_source_pin(original, PHASE_RUST_TEST_SHA256)
+    return original
+
+
 def settlement_before_phase(text):
     exact_source_pin(text, PHASE_SETTLEMENT_SHA256)
     text = remove_once(text, PHASE_PAYLOAD_ALIAS)
@@ -86,6 +112,8 @@ def settlement_before_phase(text):
 
 
 def rust_controls_before_phase(text):
+    if hashlib.sha256(text.encode()).hexdigest() == SCHEMA18_RUST_TEST_SHA256:
+        text = rust_controls_before_schema18(text)
     exact_source_pin(text, PHASE_RUST_TEST_SHA256)
     if text.count(PHASE_TEST_MARKER) != 1:
         raise AssertionError('unique reviewed phase-test suffix required')
@@ -100,6 +128,17 @@ def rust_controls_before_phase(text):
 
 
 class IntegrationStageEvidenceSourceTests(unittest.TestCase):
+    def test_exact_schema18_evidence_changes_preserve_original_source_and_refuse_tampering(self):
+        text = MODULE.read_text()
+        self.assertIn('result["schema"] = json!(18);', text)
+        self.assertIn('require(schema == 18)?;', text)
+        self.assertEqual(hashlib.sha256(evidence_before_schema18(text).encode()).hexdigest(),
+                         SCHEMA17_EVIDENCE_SHA256)
+        for changed in (text + '// unknown byte\n', text.replace('schema == 18', 'schema >= 18'),
+                        text.replace('json!(18)', 'json!(17)'), evidence_before_schema18(text)):
+            with self.subTest(changed=hashlib.sha256(changed.encode()).hexdigest()), self.assertRaises(AssertionError):
+                evidence_before_schema18(changed)
+
     def test_real_filesystem_ancestor_swapback_old_pins_pass_new_guard_refuses(self):
         # Synthetic regular-file opening witness only: no SQLite or product.
         def facts(info):
