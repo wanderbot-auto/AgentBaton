@@ -26,6 +26,12 @@ fn git(root: &Path, args: &[&str]) -> String {
             "user.email=fixture@example.invalid",
             "-c",
             "core.hooksPath=/dev/null",
+            // A detached maintenance process can change Git object locks
+            // while the test compares the fixture's complete source tree.
+            "-c",
+            "maintenance.auto=false",
+            "-c",
+            "gc.auto=0",
         ])
         .args(args)
         .env("GIT_CONFIG_GLOBAL", "/dev/null")
