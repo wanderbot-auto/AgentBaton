@@ -27,6 +27,12 @@ fn git(root: &Path, arguments: &[&str]) -> String {
             "user.name=Readonly fixture",
             "-c",
             "user.email=fixture@example.invalid",
+            // Keep detached maintenance from racing the full-tree snapshot
+            // of this generated repository. The snapshot remains exact.
+            "-c",
+            "maintenance.auto=false",
+            "-c",
+            "gc.auto=0",
         ])
         .args(arguments)
         .env("GIT_CONFIG_GLOBAL", "/dev/null")
