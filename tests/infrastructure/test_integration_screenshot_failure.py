@@ -9,6 +9,7 @@ import unittest
 from unittest import mock
 
 from tests.infrastructure import integration_screenshot_failure_fixture as I
+from tests.infrastructure import notification_screenshot_composition_fixture as C
 from tests.infrastructure import test_integration_browser_ci_evidence_runtime as R
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -135,10 +136,14 @@ class FiniteScreenshotProjection(unittest.TestCase):
             self.assertFalse(value['runtime_failure']['runtime_acceptance'])
 
 
+def strip_driver(text):
+    return I.strip_screenshot_driver_layer(C.strip_composed_notification_layer(text))
+
+
 class CompleteOldSourceInverse(unittest.TestCase):
     def test_exact_complete_sources_restore_original_e509_bytes_and_old_pins(self):
         for path, strip, before in [
-            ('apps/desktop/tests/integration-real-ipc.py', I.strip_screenshot_driver_layer, I.DRIVER_BEFORE_SHA256),
+            ('apps/desktop/tests/integration-real-ipc.py', strip_driver, I.DRIVER_BEFORE_SHA256),
             ('scripts/record-integration-browser-ci-evidence.py', I.strip_screenshot_projector_layer, I.PROJECTOR_BEFORE_SHA256)]:
             source = (ROOT / path).read_text(); restored = strip(source)
             self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), before)
@@ -147,7 +152,7 @@ class CompleteOldSourceInverse(unittest.TestCase):
         self.assertEqual(hashlib.sha256(original.encode()).hexdigest(), R.RUNTIME_BASE_PROJECTOR_SHA256)
 
     def test_inserted_and_original_unknown_changes_are_not_normalized(self):
-        pairs = [('apps/desktop/tests/integration-real-ipc.py', I.strip_screenshot_driver_layer, I.DRIVER_EDITS, AssertionError),
+        pairs = [('apps/desktop/tests/integration-real-ipc.py', strip_driver, I.DRIVER_EDITS, AssertionError),
             ('scripts/record-integration-browser-ci-evidence.py', I.strip_screenshot_projector_layer, I.PROJECTOR_EDITS, ValueError)]
         for path, strip, edits, error in pairs:
             text = (ROOT / path).read_text()

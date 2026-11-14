@@ -1,0 +1,97 @@
+{
+  "recorded_at": "2026-10-31T04:22:15.795036+00:00",
+  "source": "d8d8f0b8005b2aa27f354ad2404344d8f5a3f908",
+  "runtime_source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+  "runtime_equivalence": {
+    "tracked_apps_and_crates_except_browser_tests": 366,
+    "all_git_blob_ids_identical": true,
+    "does_not_transfer_remote_CI_or_native_results": true
+  },
+  "scope": "compose bounded setup diagnostics with existing notification-only CI delta; positive inverse order setup then notification, original entire-workflow hashes and negative controls unchanged; negative controls first prove their unmutated source is accepted",
+  "results": {
+    "task-notifications-79d-composed-source-tests1": {
+      "result_sha256": "7fff925d742a22f29080b4a5d38b208c70ce491622c28086023b8bf7f20c4888",
+      "source": "79d39e3174acadfa0cd6b968291e36959107553d",
+      "root": "/workspace/.worktrees/task-notification-aggregation",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "test_task_notification_ci",
+        "test_integration_setup_diagnostics",
+        "test_schema17_migration_workflow",
+        "-v"
+      ],
+      "exit": 1,
+      "seconds": 4.921160683967173,
+      "minimum_free_bytes": 5025542144,
+      "interruption": null,
+      "log_sha256": "288d35a68420f73b68ee0f3e07d32ba8b413a6b4b6ad945ccd9300b7f8eab3b2",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "task-notifications-840-composed-source-tests1": {
+      "result_sha256": "043035ba8225d056b24341d7c54f51c307bd2f4695ba02210eaa39c51974da0f",
+      "source": "84014ae42953632a5250d2060d3f1e54d2046674",
+      "root": "/workspace/.worktrees/task-notification-aggregation",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "test_task_notification_ci",
+        "test_integration_setup_diagnostics",
+        "test_schema17_migration_workflow",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 5.115426925010979,
+      "minimum_free_bytes": 5025415168,
+      "interruption": null,
+      "log_sha256": "99ccdad0098c747a2950eecd8bc03709530a9e8a15186b975563081bcb3241a0",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "task-notifications-d8d-full-infra1": {
+      "result_sha256": "76f0a0f896174d7f38a7dc4e461c2cd9d69c3139b5e985c90a4a78b2d6c069ca",
+      "source": "d8d8f0b8005b2aa27f354ad2404344d8f5a3f908",
+      "root": "/tmp/task-notifications-287-full-validation",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 18.650957887002733,
+      "minimum_free_bytes": 9911439360,
+      "interruption": null,
+      "log_sha256": "8b02d31de5a7bc1d23de79fa87f2ceb527762d62dd92a810a1b1a1b251c8fc5e",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "independent_reviews": {
+    "NOTIFICATIONS_BC6587A_METADATA.review.json": "99511e95d85c454626cd19ffd225dcfe216bcb677a7d8fa14e1505d7b590419e",
+    "NOTIFY_84014AE_NEGATIVE_REJECTION.review.json": "c08e7abb7abe0519ddc49777ad7e8fe9c6705d71ce7c131abe0d0099eed3d0c8",
+    "NOTIFY_D8D8F0B_NEGATIVE_CLOSURE.review.json": "3e5297745c92b66672c28924c4e1a2f28d844ec3fc6b57588f4dce4ab9e40859"
+  },
+  "unrun": [
+    "exact new head remote Environment/Product",
+    "native notification interaction",
+    "manual macOS installation/acceptance",
+    "live Provider"
+  ],
+  "full_130_complete": false,
+  "boundaries": "AB-START-001 unchanged, no formal Approve/spending/credentials/signing/production"
+}

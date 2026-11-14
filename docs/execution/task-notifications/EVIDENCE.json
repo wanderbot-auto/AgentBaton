@@ -1,0 +1,365 @@
+{
+  "recorded_at": "2026-10-31T04:07:31.636146+00:00",
+  "approval": "AB-START-001 Designv0.2 full130/WP01-14 unchanged",
+  "requirement": "AB-SES-007",
+  "status": "implemented_and_verified_in_listed_local_dimensions_not_full_product_acceptance",
+  "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+  "implementation": [
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/src/TaskNotifications.tsx",
+    "apps/desktop/src/task-notifications-model.ts",
+    "apps/desktop/src/task-notifications-i18n.ts",
+    "apps/desktop/src/task-notifications.css"
+  ],
+  "contract": {
+    "input": "existing real Task/session/journal projections, no new Core/API/schema/permission",
+    "aggregation": "one Task notice, exact Task/session aggregate mapping; payload/last_error/old event never grants state or authority",
+    "accepted": "only existing taskHasAcceptanceProjection; stopped/turnended/cancelrequested not accepted or confirmedstop",
+    "freshness": "independent generation-bound source freshness, conservative gap/partial/disconnect labels; absence from window not recovery",
+    "source": "bounded500refs/500stickyconflicts; duplicate IDs forbid navigation, overflowfailclosed, exactmetadata+time and safe batchsequence bound; oldsourcesexplicitlylimited",
+    "UI": "light appbar entry/contextdialog, Task/source navigation, DNDmanualexplicit with storagefailure windowfallback, shortcut modal isolation; no OS notification enablement"
+  },
+  "actual_commands": {
+    "task-notifications-287-types-all-ui-build1": {
+      "RESULT_sha256": "ddf0e93cad0286b95b8becee1cc555848e62e8f6f4160287902bcafbeba94695",
+      "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+      "root": "/workspace/.worktrees/task-notification-aggregation",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-c",
+        "import subprocess; commands=[[\"npm\",\"--prefix\",\"apps/desktop\",\"run\",\"typecheck\"],[\"npm\",\"--prefix\",\"apps/desktop\",\"test\"],[\"npm\",\"--prefix\",\"apps/desktop\",\"run\",\"build\"]]; [(print(\"CHECK\",c,flush=True),subprocess.run(c,check=True))for c in commands]"
+      ],
+      "exit": 0,
+      "seconds": 35.83322174899513,
+      "minimum_free_bytes": 247349248,
+      "interruption": null,
+      "log_sha256": "9e687f874fa865bb66bcca8da4539d6d82fb74fbf347ae90a69c829720ff9887",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "task-notifications-287-preview-build1": {
+      "RESULT_sha256": "1e1a733cc769fa4b414f81efe82195ef105bdf59f1fbd834bdff91ac322b18ce",
+      "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+      "root": "/workspace/.worktrees/task-notification-aggregation",
+      "command": [
+        "env",
+        "CARGO_BUILD_JOBS=1",
+        "CARGO_PROFILE_DEV_DEBUG=0",
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton",
+        "--features",
+        "agentbaton-core/preview-evidence"
+      ],
+      "exit": 0,
+      "seconds": 27.781730977992993,
+      "minimum_free_bytes": 247074816,
+      "interruption": null,
+      "log_sha256": "116991d3c2b9af12c7993cfa096562d5e0f2b78fe1498482b7dc258df23cbb16",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "task-notifications-287-frontend-build2": {
+      "RESULT_sha256": "3f682caca403d3fff16e50b2533439209a7847fecaaf28054093bd57d860284a",
+      "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+      "root": "/workspace/.worktrees/task-notification-aggregation",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 1.7078023770009167,
+      "minimum_free_bytes": 235225088,
+      "interruption": null,
+      "log_sha256": "eec113b0a246750c83f8e7b2210f8f2445359925aaca8b7fbe846d1e0e932dd4",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "task-notifications-287-whole-original-wrapper-command1": {
+      "RESULT_sha256": "0cd238dc466cdcf015ad1e9202f25a8b22599dd7fe7379981e716ec1570fd086",
+      "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+      "root": "/workspace/.worktrees/task-notification-aggregation",
+      "command": [
+        "env",
+        "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+        "/tmp/integration-ci-setup-stage-diagnostics-repro.py",
+        "--repository",
+        "/workspace/.worktrees/task-notification-aggregation",
+        "--run-wrapper",
+        "--expected-source-head",
+        "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+        "--chromium-adapter",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+        "--runner-temp",
+        "/tmp/ib287-wrapper-run1",
+        "--output",
+        "/tmp/ib287-wrapper-report1"
+      ],
+      "exit": 0,
+      "seconds": 23.883802384021692,
+      "minimum_free_bytes": 234110976,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "task-notifications-287-whole-current-wrapper-command2": {
+      "RESULT_sha256": "5679c66d46783bef7cc0aae7c98cc6af754c1bec5ee8c81ab9df3199056754cf",
+      "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+      "root": "/workspace/.worktrees/task-notification-aggregation",
+      "command": [
+        "env",
+        "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+        "/tmp/integration-ci-wrapper-287-repro.py",
+        "--repository",
+        "/workspace/.worktrees/task-notification-aggregation",
+        "--run-wrapper",
+        "--expected-source-head",
+        "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+        "--chromium-adapter",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/chromium",
+        "--runner-temp",
+        "/tmp/ib287n1",
+        "--output",
+        "/tmp/ib287n1-report"
+      ],
+      "exit": 0,
+      "seconds": 25.277595721010584,
+      "minimum_free_bytes": 233439232,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "task-notifications-287-real-finite-projection1": {
+      "RESULT_sha256": "84cbbf50aa337727c1cdb26647641931b036aa9f2a46436d853e2cdfddad32a2",
+      "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+      "root": "/workspace/.worktrees/task-notification-aggregation",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "scripts/record-task-notification-ci-evidence.py",
+        "--private",
+        "/tmp/ib287n1/agentbaton-integration-browser-ci",
+        "--output",
+        "/workspace/.onboarding/task-notifications-287-finite-public1",
+        "--expected-source-head",
+        "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+        "--driver-step-outcome",
+        "success"
+      ],
+      "exit": 0,
+      "seconds": 0.301354689989239,
+      "minimum_free_bytes": 233426944,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "task-notifications-287-full-infra-probe2": {
+      "RESULT_sha256": "a6bb560b0d137116d52254c7da1d3530ce22c348899cb1b9730d44893bbceeba",
+      "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+      "root": "/tmp/task-notifications-287-full-validation",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-c",
+        "import subprocess,os; os.umask(0o022); p=\"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3\"; commands=[[p,\"-m\",\"unittest\",\"discover\",\"-s\",\"tests/infrastructure\",\"-p\",\"test_*.py\"],[p,\"-m\",\"unittest\",\"discover\",\"-s\",\"apps/desktop/tests\",\"-p\",\"test_task_notifications_real_ipc_probe.py\"]]; [(print(\"CHECK\",c,flush=True),subprocess.run(c,check=True))for c in commands]"
+      ],
+      "exit": 0,
+      "seconds": 17.03605386801064,
+      "minimum_free_bytes": 14920007680,
+      "interruption": null,
+      "log_sha256": "39d4ad2e2dbc60b7cc076257f3b478db1ad9e8a39878f455a14f5ba1922c2f37",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  },
+  "finite_actual_summary": {
+    "contract": "agentbaton.task-notifications-ci.v1",
+    "status": "passed",
+    "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+    "checks": 6,
+    "task_notices": 1,
+    "naturally_observed_events": 12,
+    "inspected_event_count": 10,
+    "synthetic_repeated_events": 0,
+    "original_event_payload_matched": true,
+    "same_task_navigation": true,
+    "modal_shortcuts": 4,
+    "dnd_ui_reload": true,
+    "bridge_read_counts": {
+      "system.snapshot": 3,
+      "projects.list": 2,
+      "sessions.list": 2,
+      "connections.list": 2,
+      "events.subscribe": 2,
+      "tasks.get": 1,
+      "goal_scopes.list": 1,
+      "integration_policies.list": 1,
+      "integrations.list": 1,
+      "integrations.get": 1,
+      "integration_context.get": 1,
+      "integration_targets.list": 1
+    },
+    "private_read_counts": {
+      "system.snapshot": 3,
+      "projects.list": 2,
+      "sessions.list": 2,
+      "connections.list": 2,
+      "events.subscribe": 2,
+      "tasks.get": 1,
+      "goal_scopes.list": 1,
+      "integration_policies.list": 1,
+      "integrations.list": 1,
+      "integrations.get": 1,
+      "integration_context.get": 1,
+      "integration_targets.list": 1
+    },
+    "actual_reply_sha256": "6bca5aa01164d0d96c3331aa877366401986a97f9cdf8980e94eb0b86de95470",
+    "cleanup": {
+      "owned_daemon_exit": 0,
+      "joined": true,
+      "http_handlers_joined": true,
+      "browser_closed": true,
+      "source_tools_assets_unchanged": true,
+      "fixture_removed": true
+    },
+    "probe_source_sha256": "1567444210aea42b2ebadcc8d15ac06a3bedd94eabb40a91da39cdaa85c11c22",
+    "driver_sha256": "73bbcce87b0e9e3451f016cac464257a0f3e66bf5cdd06df5adcd03c76794eb7",
+    "manifest_sha256": "e8eb8d66ff35743e33397ce5b9b9e53878780c715a628c291aec858a6aa22f6e",
+    "build_record_sha256": "3f682caca403d3fff16e50b2533439209a7847fecaaf28054093bd57d860284a",
+    "assets_sha256": "df48fe77efdd9316b02d2dbb35a381bf58462ca7a16e10933259abd9e8168304",
+    "probe_report_sha256": "c5e7bbb6b3b51c20ce32408444637078aff9dc59b01365223913a720481001b0",
+    "screenshots": [
+      {
+        "name": "accepted-task-desktop.png",
+        "sha256": "962aa666a3f2165c6d24f5510d1311c9759a25ef72b208b9d0e99035670fc380",
+        "bytes": 122529,
+        "width": 1440,
+        "height": 1100
+      },
+      {
+        "name": "real-source-desktop.png",
+        "sha256": "9703c4338d1d08bbcfef83c26a42d976abb5f79733acc21f00ed7972c5cd2bd2",
+        "bytes": 137809,
+        "width": 1440,
+        "height": 1100
+      },
+      {
+        "name": "original-journal-desktop.png",
+        "sha256": "280a7f035798729d3594269817ed9bf43b187f7f6dac79a7e44b0d7db925e29d",
+        "bytes": 178242,
+        "width": 1440,
+        "height": 1100
+      },
+      {
+        "name": "dnd-mobile.png",
+        "sha256": "e9ad10d91eedcea3a8822afffb9e6384d2236fa157fedc181661971d4d0cc7a0",
+        "bytes": 46050,
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "screenshots_published": true,
+    "private_history_published": false,
+    "visual_review": "not_performed_by_projector",
+    "pixel_synchronized": false,
+    "not_claimed": [
+      "production Tauri IPC",
+      "macOS Native",
+      "live Provider/model",
+      "OS notifications",
+      "background notification delivery",
+      "100 real repeated events",
+      "whole product completion"
+    ]
+  },
+  "finite_summary_sha256": "914e32986a5de845f4317cf3cba6652f0e32922bd2171cc1cf46ba70fb83a555",
+  "original_integration_cases": {
+    "normal": {
+      "checks": 5,
+      "PNG": 6,
+      "status": "passed"
+    },
+    "command_failure": {
+      "checks": 4,
+      "PNG": 6,
+      "status": "passed"
+    },
+    "dimension": "same287 actualCore/frontend, Linux Chromium/generatedACP/privateOwnerfixture; originalallbusinessassertions retained"
+  },
+  "wrapper_scope": {
+    "original7ee_wrapper_on_actual287_records": "passed with original argv withoutnotification flag; setup+9businesschecks not notificationpass",
+    "current287_wrapper": "passed original fullAST with exactlyone notificationflag and same287actualbuildrecords; 6notifychecks+original9integrationchecks, not15unique requirements",
+    "local_adapter": "explicit installedChromiumlauncher adapter replaces CIbundledELF discovery; real browser output, not macOSNative or actualCI; oldCIcause remainsunknown",
+    "toolchain": "actualCore devdebug0 preview-evidence nondefault/releaseprohibited, actualhash matched retained107tools before reuse; originalmanifest stays107",
+    "tool_proof_sha256": "963768eebf6d107ddf53106e8e8132d59e92a968d36f8abe856ac9513be2cd97"
+  },
+  "review_records": {
+    "frontend_source": "c28277ec012ffb62b47081823fb7b481a84b5aa68e88e0383e67e786559f0f74",
+    "probe_source": "15c7b899782c3db766ba557e057285031d89324921d7068e9b421707a89797da",
+    "CI_projector": "f8a70de7776e8edc1b2e66c481198fac4b88688d101dfcaf37f5dcdc972f3deb",
+    "plain_language": "ec018c70dd9a8d08d2eed95c45e0c96678033bbe6dc7803a0ee1db0c9bbbdf18"
+  },
+  "passed_counts": {
+    "UI": {
+      "tests": 1088,
+      "files": 61,
+      "newcases": 19,
+      "dimension": "component/mockedtransport;100repeatdedup proven here only"
+    },
+    "infra": 513,
+    "probe_pure": 13,
+    "actual_notify": 6,
+    "actual_natural_events": 12,
+    "actual_task_notices": 1,
+    "original_integration": 9,
+    "counting": "focused/source/overlappingchecks not additive; actual100repeated events NOTclaimed"
+  },
+  "preserved_failures": {
+    "1499": "typespassed,42/1focusedlocatorfailure retained3d8d0ea0... before446fix",
+    "first_Node_setup": "missingnpmPATH attempt024f5227... retained, notproductdefect",
+    "sparse_fixtures": "1d firstfullUI1070+1suiteerror missingtrackedNativefixture, secondbad sparseadd option failedagain; oldlogs retained",
+    "1d_mixedbatch3": "1088UIpassed butoverallfailedBUILD missingtrackedindex.html; laterstandalonebuild4pass, notrelabellingbatch3",
+    "old287_fullinfra1": "513total3fail11errors inheritedsparse validation omittedtrackedinfrafiles; correctedonlytmpcheckout disable sparse; resultretained",
+    "Python3_13": "65/2ASTdumphash version difference retained06fecd...; actualspecified3.12strict67passed, no hashrelaxation; independent10ea400... exactshow_emptycompat confirmed",
+    "initial_reviews": "170sourcecollision/futureseq/modal findings;64unverifiedpyc;88after-parent-report-source drift PoC retained, fixed commits446/170/1d/50/765 as source histories"
+  },
+  "visual_review": {
+    "Root_originals_viewed": [
+      "accepted-task-desktop.png",
+      "dnd-mobile.png"
+    ],
+    "source": "287b7d5831ce7b06d33b91578e8c54d5d69289fa",
+    "older9bcPNG": "oldprojectionwording retained separately, not presented as new"
+  },
+  "limitations": [
+    "New precise remote CI notyetrun for this feature; Native/macOS AppleSilicon/Intel and product installation acceptance remain notrun.",
+    "Only application notifications while UI fetches; no OSnotification delivery/background/DNDOS claims.",
+    "Current projections do not independently expose auth/quota/config drift; no such state inferred from text. Other full design requirements remain.",
+    "Actual tests use generated ACP/privateOwner host; realProvider/accounts/models/signing/production/newspend remain separately gated.",
+    "This feature remains part of full130 development, not wholeproduct completion or mainmerge."
+  ]
+}

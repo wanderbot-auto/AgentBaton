@@ -1,0 +1,19 @@
+.task-notifications-connection{min-width:0}
+.task-notifications-trigger{display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:none;min-width:32px;min-height:30px;padding:4px;border-color:transparent;background:transparent;color:var(--muted)}
+.task-notifications-trigger svg{width:18px;height:18px;flex:none}
+.task-notifications-trigger[data-attention=true]{color:var(--warning)}
+.task-notifications{min-width:0;overflow-wrap:anywhere;font-size:var(--fs-body)}
+.task-notifications .task-notifications-dnd{display:flex;align-items:center;gap:10px;color:var(--ink)}
+.task-notifications-dnd input{width:auto;flex:none}
+.task-notifications-list{list-style:none;padding:0;margin:20px 0 0}
+.task-notifications-list>li{border-top:1px solid var(--line);padding:16px 0;min-width:0}
+.task-notifications-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.task-notifications-row h3{font-size:var(--fs-body);font-weight:500;min-width:0}
+.task-notifications-row>button{flex:none}
+.task-notifications details{margin:12px 0;min-width:0}
+.task-notifications summary{cursor:pointer;overflow-wrap:anywhere}
+.task-notifications details h3{margin-top:16px;font-size:var(--fs-body);font-weight:500}
+.task-notifications ol,.task-notifications details ul{padding-left:20px}
+.task-notifications ol>li,.task-notifications details ul>li{padding:6px 0}
+.task-notifications-pager{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0}
+@media(max-width:759px){.task-notifications-trigger{min-height:44px;min-width:44px;gap:2px}.task-notifications-trigger span{display:none}.task-notifications-row{flex-wrap:wrap}.task-notifications button{min-height:44px}}
