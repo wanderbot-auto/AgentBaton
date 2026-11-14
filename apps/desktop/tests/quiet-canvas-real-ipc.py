@@ -165,7 +165,7 @@ def main():
                 assert len(set(task_ids)) == 5
                 passed('five actual UI drafts persisted through Unix IPC', task_ids=task_ids)
                 page.get_by_role('button', name='快捷对话', exact=True).click()
-                assert page.get_by_role('button', name='发送消息 · 尚不可用').is_disabled()
+                assert page.get_by_role('button', name='发送消息 · 暂不可用', exact=True).is_disabled()
                 page.get_by_label('草稿上下文', exact=True).fill('检查只读配置输入')
                 page.get_by_role('button', name='转为任务', exact=True).click()
                 dialog = page.get_by_role('dialog', name='从此摘要创建任务')
@@ -232,7 +232,17 @@ def main():
                     selected_task = page.get_by_test_id('task-thread').get_attribute('data-task-id')
                     actual_task = next(task for task in ipc('system.snapshot', {})['result']['tasks'] if task['id'] == selected_task)
                     assert actual_task['project_id'] == fixture_project['id']
-                    page.get_by_role('tab', name='产物', exact=True).click()
+                    integrity_reads = [
+                        page.expect_response(
+                            lambda response, command=command: response.url == url + '/__test_ipc'
+                            and response.request.post_data_json.get('command') == command
+                        )
+                        for command in ('validation_policies_list', 'validations_list')
+                    ]
+                    with integrity_reads[0] as policy_read, integrity_reads[1] as record_read:
+                        page.get_by_role('tab', name='产物', exact=True).click()
+                    for response in (policy_read.value, record_read.value):
+                        assert response.ok and response.json()['result'] == []
                     page.get_by_text('尚无产物完整性记录。', exact=True).wait_for()
                     page.wait_for_function("()=>[...document.querySelectorAll('button')].some(button=>button.textContent==='刷新完整性记录'&&!button.disabled)")
                     assert any(request['method'] == 'validation_policies.list' and request['error'] is None for request in report['requests'])
