@@ -29,7 +29,7 @@ CHECKS = ('actual accepted Task projection and mapped journal observations',
     'probe bridge and private audit contain only existing bounded reads')
 NAMES = ('accepted-task-desktop', 'real-source-desktop', 'original-journal-desktop', 'dnd-mobile')
 PUBLIC_NAMES = frozenset(name + '.png' for name in NAMES)
-DIMENSION = 'Linux built React/Chromium + existing finite TEST bridge + actual Core17 Unix IPC'
+DIMENSION = 'Linux built React/Chromium + existing finite TEST bridge + actual Core18 Unix IPC'
 NOT_CLAIMED = ['production Tauri IPC', 'macOS Native', 'live Provider/model', 'OS notifications',
     'background notification delivery', '100 real repeated events', 'whole product completion']
 MAX_REPORT, MAX_PNG, MAX_TOTAL = 262144, 16777216, 33554432

@@ -100,7 +100,7 @@ def actual_observations(audit, task_id, project_id, acceptance):
     require(set(latest) == {'system.snapshot', 'sessions.list', 'events.subscribe'})
     snapshot, sessions, batch = (latest[k] for k in ('system.snapshot', 'sessions.list', 'events.subscribe'))
     require(type(snapshot) is dict and snapshot.get('api_version') == 1
-        and type(snapshot.get('api_version')) is int and snapshot.get('database_schema_version') == 17
+        and type(snapshot.get('api_version')) is int and snapshot.get('database_schema_version') == 18
         and type(snapshot.get('database_schema_version')) is int and integer(snapshot.get('sequence'))
         and type(snapshot.get('tasks')) is list and len(snapshot['tasks']) == 1)
     task = snapshot['tasks'][0]
@@ -143,7 +143,7 @@ def actual_observations(audit, task_id, project_id, acceptance):
 def pending_report(source, probe_source):
     require(type(source) is str and re.fullmatch('[a-f0-9]{40}', source) is not None)
     return {'contract': 'agentbaton.task-notifications-real-ipc.v1', 'status': 'NOT_RUN',
-        'flow_complete': False, 'dimension': 'Linux built React/Chromium + existing finite TEST bridge + actual Core17 Unix IPC',
+        'flow_complete': False, 'dimension': 'Linux built React/Chromium + existing finite TEST bridge + actual Core18 Unix IPC',
         'not_claimed': ['production Tauri IPC', 'macOS Native', 'live Provider/model', 'OS notifications',
             'background notification delivery', '100 real repeated events', 'whole product completion'],
         'source': source, 'probe_source': copy.deepcopy(probe_source), 'checks': [], 'screenshots': [],
