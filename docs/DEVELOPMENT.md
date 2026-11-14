@@ -24,7 +24,7 @@ npm test
 npm run build
 ```
 
-UI tests mock the transport and do not prove native IPC. The separate process smoke test exercises actual daemon/CLI IPC and SQLite restart persistence. Native host tests and development DMG packaging run on both macOS architectures in Product validation CI. Existing Environment checks remain independent.
+UI tests mock the transport and do not prove native IPC. The separate process smoke test exercises actual daemon/CLI IPC and SQLite restart persistence. Native host tests and development DMG packaging run on Apple Silicon (ARM64) in Product validation CI. Intel compatibility is deferred. Existing Environment checks remain independent.
 
 For an interactive native development session, start `target/debug/batond` from the repository root, then run `npm run tauri -- dev` from `apps/desktop`. The UI communicates only through host commands. Renderer input has no generic execute, SQL or filesystem API. Connection executable proposals require a separate native owner confirmation bound to the server snapshot before any version probe; session execution requires its own bounded grant. A missing daemon or unsupported capability is an explicit error; no demo backend substitutes for it.
 

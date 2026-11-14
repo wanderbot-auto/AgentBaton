@@ -18,7 +18,7 @@ Consult `docs/execution/OWNER_INBOX.md` and update `docs/execution/STATUS.md` at
 
 ## Product baseline
 
-- macOS support is Apple Silicon (ARM64) only. Run native, development package, and CI acceptance on Apple Silicon. Intel (x86_64) compatibility and CI are deferred; historical Intel evidence remains valid for the versions it tested. Linux scope is unchanged.
+- macOS support is Apple Silicon (ARM64) only. Run native, development package, and CI acceptance on Apple Silicon. This owner-approved scope supersedes the dual-architecture clauses in Design v0.2 (D08 and the macOS validation gate). Intel (x86_64) compatibility and CI are deferred; historical Intel evidence remains valid for the versions it tested. Linux scope is unchanged.
 
 Implement Design v0.2: one AgentBaton task-centric UI with quick agent chat; goal-driven autonomous planning, delegation, verification and bounded rework. Do not implement an external Ghostty session observer, terminal wrapper, generic embedded terminal, or parallel terminal interaction entry.
 

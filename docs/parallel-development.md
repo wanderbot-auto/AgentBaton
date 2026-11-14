@@ -50,9 +50,9 @@ bash scripts/collab.sh rebase --private
 
 ## AgentBaton 当前接入路径
 
-当前主分支是 `main`。已核对 #19 指向 main、#21 指向 #19 的 head、#25 指向 #21 的 head，三者目前都是打开的草稿。独立工作直接以最新 `origin/main` 为起点，可先走独立 PR；依赖未合入的阶段成果可从明确的上游分支开发，最终合并受父链约束。先验收 #19，再核对 #21 的实际 base 和 diff，再处理 #25；不能因为三个 PR 有重叠就合并到同一个目标。当前的 Product workflow 默认只在面向 main 的 PR 自动跑；堆叠分支若用 workflow_dispatch 验证，必须区分被测组合与将合入的精确目标。
+当前主分支是 `main`。阶段成果由 PR #26 统一验收；后续独立任务以最新 `origin/main` 为起点。依赖未合入的成果可从明确的上游分支开发，最终合并受父链约束；不得把相互重叠的 PR 未经核对分别合入同一个目标。当前的 Product workflow 默认只在面向 main 的 PR 自动跑；堆叠分支若用 workflow_dispatch 验证，必须区分被测组合与将合入的精确目标。
 
-已核对 main 的生效规则：三个 Environment 检查必需，要求分支更新，并要求解决审查对话；Product 尚未列为必需。建议单独用一项 CI/规则变更把适用的 Product / Rust、UI、Apple Silicon 和 Intel 检查设为必需，先验证一个测试 PR 上的实际 check 名称与触发覆盖再上线，保留已有检查。当前是个人名下公开仓库，根据 [GitHub 官方的 Merge Queue 资格](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue)，目前采用单集成窗口。以后若迁到符合资格的组织且 PR 吞吐有需要，先让两份 required-check workflow 支持 `merge_group`，验证合成分支能跑完整检查，再启用队列。
+已核对 main 的生效规则：Linux 与 Apple Silicon 的两个 Environment 检查必需，要求分支更新，并要求解决审查对话；Product 尚未列为必需。建议单独用一项 CI/规则变更把适用的 Product / Rust、UI、Apple Silicon 检查设为必需，先验证一个测试 PR 上的实际 check 名称与触发覆盖再上线，保留已有检查。当前是个人名下公开仓库，根据 [GitHub 官方的 Merge Queue 资格](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue)，目前采用单集成窗口。以后若迁到符合资格的组织且 PR 吞吐有需要，先让两份 required-check workflow 支持 `merge_group`，验证合成分支能跑完整检查，再启用队列。
 
 发送给新的任务窗口：
 

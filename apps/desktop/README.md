@@ -4,7 +4,7 @@ This desktop client uses Tauri IPC and the authenticated local daemon. It has no
 
 From the repository root, build `batond` and `baton` with Cargo. Start `batond` for development. In `apps/desktop`, run `npm ci`, `npm run typecheck`, `npm test`, `npm run build`, and `npm run tauri -- dev`. Use the same trusted `BATON_RUNTIME_DIR` for desktop and daemon when overriding the platform default. Never expose that directory or its credential to the renderer.
 
-For macOS packaging, prepare the target-suffixed daemon and CLI binaries under `src-tauri/binaries/`, then run `npm run tauri -- build --bundles app`. The app starts the bundled sibling daemon when its socket is absent. Closing the UI leaves the daemon running. This is an unsigned development build; formal signing, notarization and production release are separate gates. The configured deployment target is provisional until both architectures are built and validated.
+For macOS packaging, prepare the target-suffixed daemon and CLI binaries under `src-tauri/binaries/`, then run `npm run tauri -- build --bundles app`. The app starts the bundled sibling daemon when its socket is absent. Closing the UI leaves the daemon running. This is an unsigned development build; formal signing, notarization and production release are separate gates. The configured deployment target is provisional until it is built and validated on Apple Silicon (ARM64). Intel is outside the current macOS maintenance scope.
 
 Frontend tests mock Tauri responses and prove only UI behavior. Rust host tests, daemon IPC integration, native desktop behavior and real Provider integration are separate validation dimensions. Task drafts and managed sessions remain separate records; a prompt end-turn never marks a task accepted.
 
