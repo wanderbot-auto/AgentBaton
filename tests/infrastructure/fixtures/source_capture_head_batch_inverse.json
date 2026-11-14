@@ -1,0 +1,146 @@
+{
+  "crates/workspaces/src/source_capture.rs": {
+    "before": "7b76540fa3186e2df503f9eabc17cd951fdccf9fc5cc64c9f841cc9d563924ed",
+    "after": "a3fee14f6ef76d64931b2ffb44fcaefc67e6b80c2c90501092084cbf50aef4d6",
+    "edits": [
+      {
+        "start": 472,
+        "end": 473,
+        "expected": "#[cfg(test)]\n",
+        "replacement": ""
+      },
+      {
+        "start": 495,
+        "end": 520,
+        "expected": "// One fresh, framed observation per original recheck. Git resolves the\n// unbound selectors and the commit in one process. Compare all path pins\n// before using the OID; nothing is cached across effect boundaries.\nfn decode_git_paths<'a, const N: usize>(\n    raw: &'a [u8],\n    deadline: Instant,\n    control: Option<&crate::adoption::AdoptionControl<'_>>,\n) -> Result<[&'a str; N], WorkspaceError> {\n    check_capture_control(deadline, control)?;\n    let text = std::str::from_utf8(raw).map_err(|_| WorkspaceError::InvalidPath)?;\n    if text.len() > N * (MAX_PATH_BYTES + 1) {\n        return Err(WorkspaceError::InvalidPath);\n    }\n    text.strip_suffix('\\n')\n        .ok_or(WorkspaceError::InvalidPath)?\n        .split('\\n')\n        .take(N + 1)\n        .collect::<Vec<_>>()\n        .try_into()\n        .map_err(|_| WorkspaceError::InvalidPath)\n}\n\nfn verify_git_paths<const N: usize>(\n    fields: [&str; N],\n    expected: [&Path; N],\n",
+        "replacement": "// One fresh read per original recheck boundary; never retained as authority.\n// Paths cannot contain newlines/control bytes in the original contract. Require\n// exactly three complete fields and the original canonical pin for each one.\nfn verify_git_path_observation(\n    raw: &[u8],\n    expected: [&Path; 3],\n"
+      },
+      {
+        "start": 522,
+        "end": 523,
+        "expected": ") -> Result<(), WorkspaceError> {\n",
+        "replacement": ") -> Result<(), WorkspaceError> {\n    check_capture_control(deadline, control)?;\n    let text = std::str::from_utf8(raw).map_err(|_| WorkspaceError::InvalidPath)?;\n    if text.len() > 3 * (MAX_PATH_BYTES + 1) {\n        return Err(WorkspaceError::InvalidPath);\n    }\n    let text = text.strip_suffix('\\n').ok_or(WorkspaceError::InvalidPath)?;\n    let fields = text.splitn(4, '\\n').collect::<Vec<_>>();\n    if fields.len() != 3 {\n        return Err(WorkspaceError::InvalidPath);\n    }\n"
+      },
+      {
+        "start": 536,
+        "end": 552,
+        "expected": "\n#[cfg(test)]\nfn verify_git_path_observation(\n    raw: &[u8],\n    expected: [&Path; 3],\n    deadline: Instant,\n    control: Option<&crate::adoption::AdoptionControl<'_>>,\n) -> Result<(), WorkspaceError> {\n    verify_git_paths(\n        decode_git_paths(raw, deadline, control)?,\n        expected,\n        deadline,\n        control,\n    )\n}\n\n",
+        "replacement": ""
+      },
+      {
+        "start": 556,
+        "end": 557,
+        "expected": "    base: &str,\n",
+        "replacement": ""
+      },
+      {
+        "start": 567,
+        "end": 569,
+        "expected": "            \"--verify\",\n            \"HEAD^{commit}\",\n",
+        "replacement": ""
+      },
+      {
+        "start": 572,
+        "end": 578,
+        "expected": "    let [top, git_dir, common, head] = decode_git_paths(&raw, deadline, control)?;\n    verify_git_paths([top, git_dir, common], expected, deadline, control)?;\n    if !is_oid(head) || head != base {\n        return Err(WorkspaceError::StaleHead);\n    }\n    Ok(())\n",
+        "replacement": "    verify_git_path_observation(&raw, expected, deadline, control)\n"
+      },
+      {
+        "start": 785,
+        "end": 786,
+        "expected": "        let paths = text_output_controlled(\n",
+        "replacement": "        let git_dir = git_path(\n"
+      },
+      {
+        "start": 787,
+        "end": 793,
+        "expected": "            git_command(&workspace.canonical_root).args([\n                \"rev-parse\",\n                \"--path-format=absolute\",\n                \"--absolute-git-dir\",\n                \"--git-common-dir\",\n            ]),\n",
+        "replacement": "            &workspace.canonical_root,\n            \"--absolute-git-dir\",\n"
+      },
+      {
+        "start": 795,
+        "end": 803,
+        "expected": "        let [git_dir, observed_common] = decode_git_paths(&paths, deadline, control)?;\n        let git_dir = PathBuf::from(git_dir);\n        verify_git_paths(\n            [\n                git_dir.to_str().ok_or(WorkspaceError::InvalidPath)?,\n                observed_common,\n            ],\n            [&git_dir, common_dir],\n",
+        "replacement": "        if git_path(\n"
+      },
+      {
+        "start": 803,
+        "end": 804,
+        "expected": "            deadline,\n",
+        "replacement": "            deadline,\n            &workspace.canonical_root,\n            \"--git-common-dir\",\n"
+      },
+      {
+        "start": 805,
+        "end": 806,
+        "expected": "        )?;\n",
+        "replacement": "        )? != *common_dir\n        {\n            return Err(WorkspaceError::InvalidPath);\n        }\n"
+      },
+      {
+        "start": 892,
+        "end": 893,
+        "expected": "            &self.base,\n",
+        "replacement": ""
+      },
+      {
+        "start": 894,
+        "end": 895,
+        "expected": "        )?;\n",
+        "replacement": "        )?;\n        if oid(text_output_controlled(\n            deadline,\n            self.command()\n                .args([\"rev-parse\", \"--verify\", \"HEAD^{commit}\"]),\n            control,\n        )?)? != self.base\n        {\n            return Err(WorkspaceError::StaleHead);\n        }\n"
+      }
+    ]
+  },
+  "crates/workspaces/src/source_capture_git_path_observation_tests.rs": {
+    "before": "18ee67e144e0d7420c7fd59bde173daa47ec21dd7e799d3a5191d0b51d2b61f5",
+    "after": "09c336b104eb94dff1829ebc906506b9e7b62668c97ecd0261086f4aac1d1e7a",
+    "edits": [
+      {
+        "start": 46,
+        "end": 55,
+        "expected": "fn head(root: &Path) -> String {\n    let out = git_command(root)\n        .args([\"rev-parse\", \"HEAD\"])\n        .output()\n        .unwrap();\n    assert!(out.status.success());\n    oid(out.stdout).unwrap()\n}\n\n",
+        "replacement": ""
+      },
+      {
+        "start": 98,
+        "end": 106,
+        "expected": "    recheck_git_paths(\n        deadline,\n        &root,\n        [&root, &git, &common],\n        &head(&root),\n        Some(&control),\n    )\n    .unwrap();\n",
+        "replacement": "    recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)).unwrap();\n"
+      },
+      {
+        "start": 137,
+        "end": 180,
+        "expected": "    recheck_git_paths(\n        deadline,\n        &linked,\n        [&linked, &git, &common],\n        &head(&linked),\n        None,\n    )\n    .unwrap();\n    assert!(recheck_git_paths(\n        deadline,\n        &linked,\n        [&linked, &common, &git],\n        &head(&linked),\n        None\n    )\n    .is_err());\n}\n\n#[test]\nfn fresh_batched_recheck_refuses_a_changed_head_with_the_same_repository_pins() {\n    let (_directory, root) = repository(\"source-paths-changed-head-\");\n    let (git, common, _) = fields(&root);\n    let base = head(&root);\n    assert!(git_command(&root)\n        .args([\"commit\", \"--allow-empty\", \"-m\", \"advance\"])\n        .output()\n        .unwrap()\n        .status\n        .success());\n    let deadline = Instant::now() + Duration::from_secs(5);\n    let cancel = AtomicBool::new(false);\n    let control = crate::adoption::AdoptionControl::for_request(&cancel, deadline);\n    assert!(matches!(\n        recheck_git_paths(\n            deadline,\n            &root,\n            [&root, &git, &common],\n            &base,\n            Some(&control)\n        ),\n        Err(WorkspaceError::StaleHead)\n    ));\n    assert_eq!(git_counts(&control.preparation_io()), (1, 1));\n",
+        "replacement": "    recheck_git_paths(deadline, &linked, [&linked, &git, &common], None).unwrap();\n    assert!(recheck_git_paths(deadline, &linked, [&linked, &common, &git], None).is_err());\n"
+      },
+      {
+        "start": 228,
+        "end": 229,
+        "expected": "        &head(&root),\n",
+        "replacement": ""
+      },
+      {
+        "start": 263,
+        "end": 271,
+        "expected": "    assert!(recheck_git_paths(\n        deadline,\n        &root,\n        [&root, &root, &root],\n        &\"0\".repeat(40),\n        Some(&control)\n    )\n    .is_err());\n",
+        "replacement": "    assert!(recheck_git_paths(deadline, &root, [&root, &root, &root], Some(&control)).is_err());\n"
+      },
+      {
+        "start": 287,
+        "end": 294,
+        "expected": "            recheck_git_paths(\n                deadline,\n                &root,\n                [&root, &git, &common],\n                &head(&root),\n                Some(&control)\n            ),\n",
+        "replacement": "            recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)),\n"
+      },
+      {
+        "start": 310,
+        "end": 317,
+        "expected": "        recheck_git_paths(\n            deadline,\n            &root,\n            [&root, &git, &common],\n            &head(&root),\n            Some(&control)\n        ),\n",
+        "replacement": "        recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)),\n"
+      },
+      {
+        "start": 339,
+        "end": 346,
+        "expected": "        recheck_git_paths(\n            deadline,\n            &root,\n            [&root, &git, &common],\n            &head(&root),\n            Some(&control)\n        ),\n",
+        "replacement": "        recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)),\n"
+      }
+    ]
+  }
+}

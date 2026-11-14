@@ -763,8 +763,8 @@ fn prepare_candidate_inner(
     name: &str,
     control: Option<&AdoptionControl<'_>>,
 ) -> Result<PreparedCandidate, AdoptionError> {
+    // The repository recheck includes the fresh audit of the pinned Git dir.
     verify_repository_controlled(&grant, control)?;
-    reject_bound_unsafe_config_controlled(&grant, control)?;
     let source = bound_text_controlled(
         &grant,
         &[
@@ -840,9 +840,9 @@ fn prepare_candidate_inner(
     if !is_oid(&integration_candidate) {
         return Err(AdoptionError::Conflict);
     }
-    // The target may have advanced during object preparation. Do not silently
-    // validate against that changed target, even though user files were untouched.
-    verify_repository_controlled(&grant, control)?;
+    // create_bound_isolated checks repository identity, target ref and config
+    // immediately before the checkout; keep that fresh check and the one
+    // below after checkout. No Git effects are allowed between them unchecked.
     let workspace =
         create_bound_isolated(&grant, managed_root, name, &integration_candidate, control)?;
     verify_repository_controlled(&grant, control)?;
