@@ -161,7 +161,7 @@
       }
     ],
     "followup": {
-      "after": "938958504d83e6814c675e2f90e9c37a39740630a11a841a82c53f29253e4f90",
+      "after": "8f2372193a8496a0fb68ecc97c1541ffbd7e42cc8e86cf8edc852cb2bc85734b",
       "edits": [
         {
           "start": 1,
@@ -260,8 +260,14 @@
           "replacement": "            [fixture['definition']['reference']])\n"
         },
         {
-          "start": 1101,
-          "end": 1102,
+          "start": 1090,
+          "end": 1091,
+          "expected": "            focus.evaluate(\"(element) => element.scrollIntoView({block: 'center', inline: 'nearest', behavior: 'instant'})\")\n",
+          "replacement": ""
+        },
+        {
+          "start": 1102,
+          "end": 1103,
           "expected": "                'dimension': f'{platform} Chromium only'})\n",
           "replacement": "                'dimension': 'Linux Chromium only'})\n"
         }

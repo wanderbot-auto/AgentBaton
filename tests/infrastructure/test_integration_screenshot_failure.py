@@ -26,6 +26,7 @@ class ActualShotOperations(unittest.TestCase):
                 raise AssertionError(F.SECRET)
             return result
         focus = types.SimpleNamespace(scroll_into_view_if_needed=lambda: operation('scroll'),
+            evaluate=lambda script: self.assertIn("block: 'center'", script),
             bounding_box=lambda: operation('bounding_box', {'x': 0, 'y': 0, 'width': 10, 'height': 10}))
         def screenshot(*, path):
             operation('capture'); Path(path).write_bytes(b'synthetic image bytes')

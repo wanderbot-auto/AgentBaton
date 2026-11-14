@@ -1088,6 +1088,7 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         def shot(name, focus):
             report['active_screenshot'] = {'name': name, 'step': 'scroll'}
             focus.scroll_into_view_if_needed()
+            focus.evaluate("(element) => element.scrollIntoView({block: 'center', inline: 'nearest', behavior: 'instant'})")
             report['active_screenshot']['step'] = 'viewport'
             expect(focus).to_be_in_viewport(ratio=1)
             report['active_screenshot']['step'] = 'bounding_box'
