@@ -1043,23 +1043,45 @@ impl AuthorizedSourceCapture {
         if !is_oid(tree) || expected.is_empty() || expected.len() > MAX_SELECTED_FILES {
             return Err(WorkspaceError::InvalidPath);
         }
-        check_tree_paths(self, tree, control)?;
-        let raw = text_output_controlled(
-            self.deadline,
-            self.command().args([
-                "diff-tree",
-                "-r",
-                "--raw",
-                "--no-abbrev",
-                "-z",
-                "--no-renames",
-                "--no-ext-diff",
-                "--ignore-submodules=none",
-                self.base.as_str(),
-                tree,
-            ]),
-            control,
-        )?;
+        let paths = || check_tree_paths(self, tree, control);
+        let diff = || {
+            text_output_controlled(
+                self.deadline,
+                self.command().args([
+                    "diff-tree",
+                    "-r",
+                    "--raw",
+                    "--no-abbrev",
+                    "-z",
+                    "--no-renames",
+                    "--no-ext-diff",
+                    "--ignore-submodules=none",
+                    self.base.as_str(),
+                    tree,
+                ]),
+                control,
+            )
+        };
+        // Both commands read immutable object IDs with external diff disabled.
+        // Keep the full path safety check before accepting any diff or proceeding.
+        #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+        let raw = if control.is_some() {
+            std::thread::scope(|scope| {
+                let diff = std::thread::Builder::new().spawn_scoped(scope, diff)?;
+                let paths = paths();
+                let diff = diff.join();
+                paths?;
+                diff.map_err(|_| WorkspaceError::ResourceLimit)?
+            })?
+        } else {
+            paths()?;
+            diff()?
+        };
+        #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+        let raw = {
+            paths()?;
+            diff()?
+        };
         if !raw.is_empty() && raw.last() != Some(&0) {
             return Err(WorkspaceError::InvalidPath);
         }
@@ -1380,7 +1402,10 @@ impl AuthorizedSourceCapture {
         expected_bytes: u64,
         control: &crate::adoption::AdoptionControl<'_>,
     ) -> Result<(), WorkspaceError> {
-        use std::os::{fd::AsRawFd, unix::process::CommandExt};
+        use std::os::{
+            fd::{AsFd, AsRawFd},
+            unix::process::CommandExt,
+        };
         if !is_oid(blob)
             || !crate::validation::valid_hash(expected_sha)
             || expected_bytes > MAX_SELECTED_BYTES
@@ -1482,10 +1507,14 @@ impl AuthorizedSourceCapture {
                 break;
             }
             if !progress {
-                std::thread::sleep(
-                    Duration::from_millis(2)
-                        .min(control.deadline().saturating_duration_since(Instant::now())),
-                );
+                if let Err(error) = crate::wait_for_git_output(
+                    (!eof).then(|| stdout.as_fd()),
+                    stderr.pipe.as_ref().map(AsFd::as_fd),
+                    control.deadline(),
+                ) {
+                    failure = Some(error.into());
+                    break;
+                }
             }
         }
         owned.signal_own_group();
