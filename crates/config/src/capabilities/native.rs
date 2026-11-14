@@ -394,7 +394,7 @@ fn parse_server(
     };
     match transport {
         NativeTransport::Stdio => {
-            if !command.is_some_and(|value| value.as_str().is_some_and(|text| !text.is_empty())) {
+            if command.and_then(Value::as_str).is_none_or(str::is_empty) {
                 return Err("INVALID_MCP_COMMAND");
             }
             server.executable_ref = Some(opaque_ref(
@@ -412,7 +412,7 @@ fn parse_server(
             }
         }
         _ => {
-            if !url.is_some_and(|value| value.as_str().is_some_and(|text| !text.is_empty())) {
+            if url.and_then(Value::as_str).is_none_or(str::is_empty) {
                 return Err("INVALID_MCP_URL");
             }
             server.endpoint_ref = Some(opaque_ref(&preview.source_digest, &format!("{name}:url")));

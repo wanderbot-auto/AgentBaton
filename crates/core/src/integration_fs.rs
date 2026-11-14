@@ -1101,7 +1101,7 @@ pub(super) fn git_status(
         reaped: false,
         signal_attempted: false,
     };
-    #[cfg(test)]
+    #[cfg(all(test, target_os = "linux"))]
     controlled_pipe_hook::apply(owned.child.id());
     let mut stdout = ControlledCapture::new(owned.child.stdout.take().ok_or_else(changed)?)
         .map_err(|_| changed())?;
@@ -1384,7 +1384,7 @@ mod controlled_git_tests {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, target_os = "linux"))]
 mod controlled_pipe_hook {
     use std::cell::RefCell;
     type Hook = Box<dyn FnOnce(u32)>;
