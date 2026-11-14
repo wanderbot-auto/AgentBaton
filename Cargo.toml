@@ -19,8 +19,11 @@ opt-level = 3
 
 # Keep the same debug assertions, tests, and production behavior while reducing
 # time spent checking integration proofs and repository observations in debug.
+# Line-level symbols keep the development companion inside its existing size cap.
 [profile.dev.package.agentbaton-core]
 opt-level = 2
+debug = 1
 
 [profile.dev.package.agentbaton-workspaces]
 opt-level = 2
+debug = 1
