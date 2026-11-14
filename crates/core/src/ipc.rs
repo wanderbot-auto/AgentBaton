@@ -699,12 +699,11 @@ impl Daemon {
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
             }
-            // A genuinely finished integration stage need not wait behind the
-            // full Factory/Goal frontier scans to consume its original join.
+            // A ready proof or finished integration stage need not wait behind
+            // full Factory/Goal frontier scans for admission or join.
             // This keeps the existing supervisor/owned-worker pass above and
             // runs all ordinary stage checks; no armed-policy scan occurs here.
-            self.integration_workers
-                .tick_finished_stage(&mut self.store)?;
+            self.integration_workers.tick_ready_stage(&mut self.store)?;
             // Inspect only the FIFO head after the original worker/fatal pass.
             // Other methods retain their position until the original drain.
             let (mut turn, early_read) = ReadyTurn::queue_head(&ready, &self.token);
@@ -724,9 +723,8 @@ impl Daemon {
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
             }
-            // The original worker may have finished during Factory work.
-            self.integration_workers
-                .tick_finished_stage(&mut self.store)?;
+            // The original worker may have a proof or completion ready after Factory work.
+            self.integration_workers.tick_ready_stage(&mut self.store)?;
             #[cfg(debug_assertions)]
             let goal_clock = Instant::now();
             #[cfg(debug_assertions)]

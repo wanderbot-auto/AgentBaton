@@ -55,6 +55,7 @@ pub(super) struct OwnedStage {
     pub(super) ticket: IntegrationStageTicket,
     cancel: Arc<AtomicBool>,
     requests: Receiver<StageReadRequest>,
+    read_ready: Arc<AtomicBool>,
     admission: SyncSender<Result<IntegrationReadProof>>,
     thread: Option<JoinHandle<StageReturn>>,
 }
@@ -73,6 +74,8 @@ impl OwnedStage {
         let cancel = Arc::new(AtomicBool::new(false));
         let flag = cancel.clone();
         let (request_tx, requests) = mpsc::sync_channel(1);
+        let read_ready = Arc::new(AtomicBool::new(false));
+        let signal = read_ready.clone();
         let (admission, permit_rx) = mpsc::sync_channel::<Result<IntegrationReadProof>>(1);
         // A failed spawn must return the original candidate/CommandRun handles;
         // dropping a closure is not a successful stop receipt.
@@ -97,6 +100,7 @@ impl OwnedStage {
                         if let Some(trace) = &ticket.phase_observation {
                             trace.before_control(phase_observation::Phase::ReadProofReady);
                         }
+                        signal.store(true, Ordering::Release);
                         request_tx
                             .send(StageReadRequest {
                                 proof,
@@ -181,6 +185,7 @@ impl OwnedStage {
                 ticket,
                 cancel,
                 requests,
+                read_ready,
                 admission,
                 thread: Some(thread),
             }),
@@ -200,8 +205,17 @@ impl OwnedStage {
             }
         }
     }
+    pub(super) fn has_read_request(&self) -> bool {
+        self.read_ready.load(Ordering::Acquire)
+    }
     pub(super) fn take_read_request(&self) -> Result<Option<StageReadRequest>> {
-        match self.requests.try_recv() {
+        let request = self.requests.try_recv();
+        // Exactly one proof request is sent per worker. Clear the wake hint
+        // only after receiving it; a racing send still wakes the next tick.
+        if request.is_ok() {
+            self.read_ready.store(false, Ordering::Release);
+        }
+        match request {
             Ok(request) => Ok(Some(request)),
             Err(TryRecvError::Empty | TryRecvError::Disconnected) => Ok(None),
         }

@@ -44,6 +44,15 @@ fn fields(root: &Path) -> (PathBuf, PathBuf, Vec<u8>) {
     .into_bytes();
     (git, common, raw)
 }
+fn head(root: &Path) -> String {
+    let out = git_command(root)
+        .args(["rev-parse", "HEAD"])
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    oid(out.stdout).unwrap()
+}
+
 fn authorized(root: &Path) -> AuthorizedSourceCapture {
     let workspace = crate::inspect(root).unwrap();
     let WorkspaceKind::Git { head, .. } = &workspace.kind else {
@@ -87,7 +96,14 @@ fn actual_batch_matches_all_three_original_observations_with_one_counted_child()
     let cancel = AtomicBool::new(false);
     let deadline = Instant::now() + Duration::from_secs(5);
     let control = crate::adoption::AdoptionControl::for_request(&cancel, deadline);
-    recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)).unwrap();
+    recheck_git_paths(
+        deadline,
+        &root,
+        [&root, &git, &common],
+        &head(&root),
+        Some(&control),
+    )
+    .unwrap();
     let observed = control.preparation_io();
     assert_eq!(git_counts(&observed).0, 1);
     assert_eq!(git_counts(&observed).1, 1);
@@ -119,8 +135,49 @@ fn actual_linked_worktree_keeps_distinct_git_dir_and_common_dir() {
     let git = git_path(deadline, &linked, "--absolute-git-dir", None).unwrap();
     let common = git_path(deadline, &linked, "--git-common-dir", None).unwrap();
     assert_ne!(git, common);
-    recheck_git_paths(deadline, &linked, [&linked, &git, &common], None).unwrap();
-    assert!(recheck_git_paths(deadline, &linked, [&linked, &common, &git], None).is_err());
+    recheck_git_paths(
+        deadline,
+        &linked,
+        [&linked, &git, &common],
+        &head(&linked),
+        None,
+    )
+    .unwrap();
+    assert!(recheck_git_paths(
+        deadline,
+        &linked,
+        [&linked, &common, &git],
+        &head(&linked),
+        None
+    )
+    .is_err());
+}
+
+#[test]
+fn fresh_batched_recheck_refuses_a_changed_head_with_the_same_repository_pins() {
+    let (_directory, root) = repository("source-paths-changed-head-");
+    let (git, common, _) = fields(&root);
+    let base = head(&root);
+    assert!(git_command(&root)
+        .args(["commit", "--allow-empty", "-m", "advance"])
+        .output()
+        .unwrap()
+        .status
+        .success());
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let cancel = AtomicBool::new(false);
+    let control = crate::adoption::AdoptionControl::for_request(&cancel, deadline);
+    assert!(matches!(
+        recheck_git_paths(
+            deadline,
+            &root,
+            [&root, &git, &common],
+            &base,
+            Some(&control)
+        ),
+        Err(WorkspaceError::StaleHead)
+    ));
+    assert_eq!(git_counts(&control.preparation_io()), (1, 1));
 }
 
 #[test]
@@ -169,6 +226,7 @@ fn real_newline_path_cannot_be_reframed_into_three_pinned_fields() {
         Instant::now() + Duration::from_secs(5),
         &root,
         [&root, &git, &common],
+        &head(&root),
         None
     )
     .is_err());
@@ -203,7 +261,14 @@ fn actual_non_repository_nonzero_exit_never_returns_a_path_observation() {
     let cancel = AtomicBool::new(false);
     let deadline = Instant::now() + Duration::from_secs(5);
     let control = crate::adoption::AdoptionControl::for_request(&cancel, deadline);
-    assert!(recheck_git_paths(deadline, &root, [&root, &root, &root], Some(&control)).is_err());
+    assert!(recheck_git_paths(
+        deadline,
+        &root,
+        [&root, &root, &root],
+        &"0".repeat(40),
+        Some(&control)
+    )
+    .is_err());
     assert_eq!(git_counts(&control.preparation_io()).0, 1);
 }
 
@@ -220,7 +285,13 @@ fn original_cancelled_and_expired_clocks_reject_before_spawn() {
         };
         let control = crate::adoption::AdoptionControl::for_request(&cancel, deadline);
         assert!(matches!(
-            recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)),
+            recheck_git_paths(
+                deadline,
+                &root,
+                [&root, &git, &common],
+                &head(&root),
+                Some(&control)
+            ),
             Err(WorkspaceError::ResourceLimit)
         ));
         assert_eq!(git_counts(&control.preparation_io()).0, 0);
@@ -237,7 +308,13 @@ fn actual_spawn_then_cancel_still_rejects_and_keeps_real_counted_io() {
     let control = crate::adoption::AdoptionControl::for_request(&cancel, deadline);
     let _hook = crate::controlled_spawn_hook::install(move |_| flag.store(true, Ordering::Release));
     assert!(matches!(
-        recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)),
+        recheck_git_paths(
+            deadline,
+            &root,
+            [&root, &git, &common],
+            &head(&root),
+            Some(&control)
+        ),
         Err(WorkspaceError::ResourceLimit)
     ));
     let observed = control.preparation_io();
@@ -260,7 +337,13 @@ fn actual_spawn_elapsed_past_original_deadline_never_accepts_finished_output() {
         );
     });
     assert!(matches!(
-        recheck_git_paths(deadline, &root, [&root, &git, &common], Some(&control)),
+        recheck_git_paths(
+            deadline,
+            &root,
+            [&root, &git, &common],
+            &head(&root),
+            Some(&control)
+        ),
         Err(WorkspaceError::ResourceLimit)
     ));
     let observed = control.preparation_io();

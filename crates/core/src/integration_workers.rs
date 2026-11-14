@@ -284,13 +284,15 @@ impl IntegrationWorkers {
         }
         Ok(())
     }
-    pub(crate) fn tick_finished_stage(&mut self, store: &mut crate::storage::Store) -> Result<()> {
-        // This cheap scheduling observation is only the original owned thread,
-        // not a serialized completion, cached permission or stopped receipt.
-        // Real join, fresh authority/proofs and the original queue clock still
-        // run through the complete ordinary stage path. Unknown retained work
-        // is not replayed here, and unfinished admission stays in the full tick.
-        if self.stage.as_ref().is_some_and(|worker| worker.finished()) {
+    pub(crate) fn tick_ready_stage(&mut self, store: &mut crate::storage::Store) -> Result<()> {
+        // Admit a ready read proof or consume an original finished worker before
+        // unrelated frontier scans. Both still go through the complete stage
+        // checks, with no armed-policy scan or new clock here.
+        if self
+            .stage
+            .as_ref()
+            .is_some_and(|worker| worker.has_read_request() || worker.finished())
+        {
             self.tick_stages(store)?;
         }
         Ok(())

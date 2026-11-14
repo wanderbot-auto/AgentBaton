@@ -481,6 +481,16 @@ pub(super) fn inspect_exact(
     control: &IntegrationReadControl,
 ) -> Result<WorkspaceIdentity> {
     let current = super::fs::inspect_git(&expected.canonical_root, program, control)?;
+    check_exact(&current, expected, base, allow_dirty)?;
+    Ok(current)
+}
+
+fn check_exact(
+    current: &WorkspaceIdentity,
+    expected: &WorkspaceIdentity,
+    base: &str,
+    allow_dirty: bool,
+) -> Result<()> {
     let (
         WorkspaceKind::Git {
             common_dir: a,
@@ -501,7 +511,7 @@ pub(super) fn inspect_exact(
     {
         return Err(changed());
     }
-    Ok(current)
+    Ok(())
 }
 impl IntegrationReadPlan {
     pub(crate) fn execute(
@@ -571,6 +581,24 @@ impl IntegrationReadPlan {
             phase = "worker-system-git-pin";
             let (program, program_pin) = system_git(&control)?;
             observed.add_leaf(program_pin);
+            // Repeated original Grant entries and the designated source can
+            // name the same worktree. Reuse only this read plan's observation,
+            // sealed by the enclosing filesystem proof, while comparing it
+            // independently to each different binding and its clean rule.
+            let mut inspected = std::collections::BTreeMap::new();
+            let mut inspect = |expected: &WorkspaceIdentity, base: &str, allow_dirty: bool| {
+                use std::collections::btree_map::Entry;
+                let current = match inspected.entry(expected.canonical_root.clone()) {
+                    Entry::Occupied(entry) => entry.into_mut(),
+                    Entry::Vacant(entry) => entry.insert(super::fs::inspect_git(
+                        &expected.canonical_root,
+                        &program,
+                        &control,
+                    )?),
+                };
+                check_exact(current, expected, base, allow_dirty)?;
+                Ok::<_, CoreError>(current.clone())
+            };
             for grant in &material.grant_lineage {
                 control.check()?;
                 let first_ws = grant.scope.workspace_ids.first().ok_or_else(denied)?;
@@ -613,12 +641,10 @@ impl IntegrationReadPlan {
                     let workspace: crate::registry::ManagedWorkspace =
                         raw(&reader.conn, "managed_workspaces", id)?;
                     phase = "worker-grant-workspace-inspection";
-                    inspect_exact(
+                    inspect(
                         pinned,
                         &workspace.base_revision,
                         id == &material.workspace.id,
-                        &program,
-                        &control,
                     )?;
                 }
             }
@@ -627,20 +653,12 @@ impl IntegrationReadPlan {
                 _ => return Err(changed()),
             };
             phase = "worker-project-inspection";
-            let project = inspect_exact(
-                &material.project.identity,
-                project_head,
-                false,
-                &program,
-                &control,
-            )?;
+            let project = inspect(&material.project.identity, project_head, false)?;
             phase = "worker-source-inspection";
-            let source = inspect_exact(
+            let source = inspect(
                 material.workspace.identity.as_ref().ok_or_else(changed)?,
                 &material.workspace.base_revision,
                 true,
-                &program,
-                &control,
             )?;
             phase = "worker-input-binding";
             for input in &material.inputs {
