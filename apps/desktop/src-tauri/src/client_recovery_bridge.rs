@@ -380,7 +380,9 @@ mod tests {
     const KEY: &str = "8e883b9c-4a27-432d-a793-723a44db1dce";
     const NEXT: &str = "c375fe56-efc4-427f-8290-1928107404ed";
     fn fixture() -> PathBuf {
-        let p = std::env::temp_dir().join(format!(
+        // The real recovery journal rejects symlink ancestors, including macOS /var.
+        let parent = std::env::temp_dir().canonicalize().unwrap();
+        let p = parent.join(format!(
             "baton-creation-recovery-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
