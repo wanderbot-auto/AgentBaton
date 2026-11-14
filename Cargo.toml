@@ -16,3 +16,11 @@ opt-level = 3
 # development and test builds. No change to durability, SQL or release flags.
 [profile.dev.package.libsqlite3-sys]
 opt-level = 3
+
+# Keep the same debug assertions, tests, and production behavior while reducing
+# time spent checking integration proofs and repository observations in debug.
+[profile.dev.package.agentbaton-core]
+opt-level = 2
+
+[profile.dev.package.agentbaton-workspaces]
+opt-level = 2

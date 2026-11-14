@@ -1150,6 +1150,7 @@ fn ref_transaction_poll(
     control: &adoption::AdoptionControl<'_>,
     expected_ack: Option<&[u8]>,
 ) -> Result<(), WorkspaceError> {
+    use std::os::fd::AsFd;
     loop {
         let progress = stdout.pump() | stderr.pump();
         if stdout.truncated || stderr.truncated {
@@ -1182,10 +1183,11 @@ fn ref_transaction_poll(
         }
         control.check()?;
         if !progress {
-            std::thread::sleep(
-                Duration::from_millis(2)
-                    .min(control.deadline().saturating_duration_since(Instant::now())),
-            );
+            wait_for_git_output(
+                stdout.pipe.as_ref().map(AsFd::as_fd),
+                stderr.pipe.as_ref().map(AsFd::as_fd),
+                control.deadline(),
+            )?;
         }
     }
 }
