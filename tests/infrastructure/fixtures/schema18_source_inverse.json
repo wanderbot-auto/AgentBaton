@@ -161,8 +161,14 @@
       }
     ],
     "followup": {
-      "after": "0cc82eb99b7de13b4708690dd69447b1391630f37d2b682a1d8f8f5d2f8cd35c",
+      "after": "938958504d83e6814c675e2f90e9c37a39740630a11a841a82c53f29253e4f90",
       "edits": [
+        {
+          "start": 1,
+          "end": 2,
+          "expected": "\"\"\"Built React/Chromium -> finite test bridge -> actual Core18 Unix IPC.\n",
+          "replacement": "\"\"\"Built React/Linux Chromium -> finite test bridge -> actual Core17 Unix IPC.\n"
+        },
         {
           "start": 53,
           "end": 55,
@@ -236,10 +242,28 @@
           "replacement": ""
         },
         {
-          "start": 1075,
-          "end": 1076,
+          "start": 1042,
+          "end": 1043,
+          "expected": "    platform = 'Linux' if sys.platform == 'linux' else 'macOS'\n",
+          "replacement": ""
+        },
+        {
+          "start": 1044,
+          "end": 1045,
+          "expected": "        'dimension': f'{platform} built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host',\n",
+          "replacement": "        'dimension': 'Linux built React/Chromium + finite TEST bridge + actual Core17 Unix IPC + generated ACP + private trusted test host',\n"
+        },
+        {
+          "start": 1076,
+          "end": 1077,
           "expected": "            [fixture['definition']['reference']], graph_run=fixture['graph']['run']['id'])\n",
           "replacement": "            [fixture['definition']['reference']])\n"
+        },
+        {
+          "start": 1101,
+          "end": 1102,
+          "expected": "                'dimension': f'{platform} Chromium only'})\n",
+          "replacement": "                'dimension': 'Linux Chromium only'})\n"
         }
       ]
     }
@@ -314,7 +338,18 @@
         "expected": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18\n",
         "replacement": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 17\n"
       }
-    ]
+    ],
+    "followup": {
+      "after": "f4cae560fb2dbd3d5105f1433c4a8c4461d134e3fa940c2a099abb789fa5f411",
+      "edits": [
+        {
+          "start": 44,
+          "end": 46,
+          "expected": "    'goal_scopes.list', 'goal_runs.list', 'goal_graph_runs.list', 'goal_graph_runs.get', 'goal_plans.list',\n    'fixture.client_recovery_list', 'events.subscribe', 'integration_context.get', 'integration_targets.list',\n",
+          "replacement": "    'goal_scopes.list', 'events.subscribe', 'integration_context.get', 'integration_targets.list',\n"
+        }
+      ]
+    }
   },
   "tests/infrastructure/test_factory_rework_attempt_budget.py": {
     "before": "1eda2dc2c944b2e48347e5687d173963451eefb14780375a9f6fb8f704387a24",

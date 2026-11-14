@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Built React/Linux Chromium -> finite test bridge -> actual Core17 Unix IPC.
+"""Built React/Chromium -> finite test bridge -> actual Core18 Unix IPC.
 
 Only --run starts processes. The private host, outside HTTP, reviews complete
 Core proposals and finalizes generated fixture permissions. This is NOT the
@@ -1040,8 +1040,9 @@ def serve(frontend, host, bounds, reviews, attribution):
 def run_case(args, binary, companion, frontend, attribution, output, failing):
     # Imports happen only for an explicitly authorized real run, never pure tests.
     from playwright.sync_api import sync_playwright, expect
+    platform = 'Linux' if sys.platform == 'linux' else 'macOS'
     report = {'case': 'command_exit7' if failing else 'normal', 'status': 'failed_or_interrupted',
-        'dimension': 'Linux built React/Chromium + finite TEST bridge + actual Core17 Unix IPC + generated ACP + private trusted test host',
+        'dimension': f'{platform} built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host',
         'not_claimed': ['production Tauri Native formatter', 'OS dialog', 'macOS', 'live Provider/model',
             'OS sandbox', 'whole-filesystem output quota', 'complete failure matrix', 'whole product completion'],
         'checks': [], 'screenshots': [], 'cleanup': {}, 'inputs': attribution}
@@ -1098,7 +1099,7 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
                 'bytes': path.stat().st_size, 'viewport': page.viewport_size,
                 'focus_box_before_capture_observation': focus_box_before_capture,
                 'focus_viewport_asserted_before_capture': True, 'pixel_synchronized': False,
-                'dimension': 'Linux Chromium only'})
+                'dimension': f'{platform} Chromium only'})
             del report['active_screenshot']
         phase = 'actual_frontend'
         page.goto(server.origin + '/', wait_until='networkidle')
