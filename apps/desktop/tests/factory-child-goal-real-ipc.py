@@ -1074,13 +1074,25 @@ def bind_graph_observation(fixed, expected_argv, old, context, output, finite=No
     known = history.get(fixed['path'])
     require((old is None) == (known is None), 'Graph initial binding coverage not verified')
     result, observation = observe_graph_identity(fixed['owned_provider'], expected_argv, known)
+    durable = None
+    if observation.get('argv') == {'kind': 'empty', 'bytes': 0} and cancel_durable is not None:
+        durable = cancel_durable()
+    # Linux can clear cmdline before the same exiting process reports a
+    # terminal state. Keep its prior binding pending only after exact cancel.
+    if result['kind'] == 'not_verified' and known is not None and durable is True:
+        before, after = observation['before'], observation['after']
+        if (graph_sample_identity(before) == graph_sample_identity(after) == known
+                and known['uid'] == os.geteuid()
+                and before['state'] in GRAPH_LIVE_STATES and after['state'] in GRAPH_LIVE_STATES):
+            result = {'kind': 'repeat_exiting', 'binding': None, 'stop_proved': False}
+            observation['kind'] = result['kind']
     seen = context.setdefault('_graph_provider_observation_kinds', set())
     key = (fixed['path'], result['kind'])
     if key not in seen:
         require(len(seen) < 12, 'Bounded Graph observation kinds exceeded')
         base.write_private_json(output / ('observed-graph-' + str(fixed['owned_provider']['pid']) + '-' + result['kind'] + '.json'), observation)
         seen.add(key)
-    graph_finite_observation(finite, known, result, observation, cancel_durable)
+    graph_finite_observation(finite, known, result, observation, lambda: durable)
     require(result['kind'] != 'not_verified', 'Graph process observation not verified')
     if old is None:
         require(result['kind'] == 'initial_live' and graph_valid_identity(result['binding']) and len(history) < 2)
@@ -1088,7 +1100,8 @@ def bind_graph_observation(fixed, expected_argv, old, context, output, finite=No
         history[fixed['path']] = result['binding']
         publish_graph_binding_ack(fixed,context)
     else:
-        require(result['kind'] in ('repeat_live', 'repeat_absent', 'repeat_replaced', 'repeat_terminal')
+        require(result['kind'] in ('repeat_live', 'repeat_absent', 'repeat_replaced', 'repeat_terminal',
+                'repeat_exiting')
             and result['binding'] is None)
 
 

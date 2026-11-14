@@ -141,6 +141,53 @@ class PureGraphObservation(unittest.TestCase):
 
 
 class MockedCollectorControls(unittest.TestCase):
+    def test_only_exact_durable_cancel_can_defer_empty_argv_for_same_bound_process(self):
+        for old_bound, before, after, raw, durable, accepted in [
+            (True, sample('R'), sample('R'), b'', True, True),
+            (True, sample('R'), sample('S'), b'', True, True),
+            (True, sample(), sample(), b'', None, False),
+            (True, sample(), sample(), b'', False, False),
+            (True, sample(), sample(), b'', 1, False),
+            (True, sample(), sample(), None, True, False),
+            (True, sample(), sample(), b'wrong-argv', True, False),
+            (True, sample(), sample(ppid=2002), b'', True, False),
+            (True, sample(), sample(uid=1001), b'', True, False),
+            (True, sample(), {'observation': 'unobserved'}, b'', True, False),
+            (False, sample(), sample(), b'', True, False),
+        ]:
+            with self.subTest(bound=old_bound, after=after, raw=raw, durable=durable):
+                ns, writes = load()
+                fixed = {'path': 'record', 'owned_provider': EXPECTED}
+                old = copy.deepcopy(fixed) if old_bound else None
+                history = {'record': copy.deepcopy(IDENTITY)} if old_bound else {}
+                context = {'_graph_provider_identities': history}
+                known = history.get('record')
+                result = decision(ns, known=known, before=before, raw=raw, after=after)
+                observation = {'kind': result['kind'], 'before': before, 'after': after,
+                    'argv': ns['graph_argv_observation'](raw, ARGV), 'stop_proved': False}
+                ns['observe_graph_identity'] = mock.Mock(return_value=(result, observation))
+                ns['graph_empty_identity_diagnostic'] = mock.Mock(
+                    side_effect=lambda known, before, after, proof: {'durable': proof})
+                finite = mock.Mock()
+                read_cancel = mock.Mock(return_value=durable)
+
+                def observe():
+                    ns['bind_graph_observation'](fixed, ARGV, old, context, Path('/synthetic'),
+                        finite, read_cancel)
+
+                if accepted:
+                    observe()
+                    self.assertEqual(writes[0][1]['kind'], 'repeat_exiting')
+                    self.assertFalse(writes[0][1]['stop_proved'])
+                    finite.graph_argv.assert_not_called()
+                else:
+                    with self.assertRaises(AssertionError):
+                        observe()
+                self.assertEqual(read_cancel.call_count, 1 if raw == b'' else 0)
+                self.assertEqual(history, {'record': IDENTITY} if old_bound else {})
+                ns['publish_graph_binding_ack'].assert_not_called()
+                self.assertTrue(all(name.startswith('observed-graph-') for name, _ in writes))
+
     def fixture(self, root):
         ns, writes = load(); workspace = {'root': str(root / 'workspace'), 'id': 'workspace'}
         reports = Path(workspace['root']) / 'reports'; reports.mkdir(parents=True)

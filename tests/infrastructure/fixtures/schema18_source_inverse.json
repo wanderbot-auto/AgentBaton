@@ -81,7 +81,30 @@
         "expected": "    value.update(schema_required=18,harness_sha256=base.sha(Path(__file__).read_bytes()),\n",
         "replacement": "    value.update(schema_required=17,harness_sha256=base.sha(Path(__file__).read_bytes()),\n"
       }
-    ]
+    ],
+    "followup": {
+      "after": "706c588d4d28d66ab4b5ee47b96df68ffe458a5eb37beacbab51ad2f739b8a1d",
+      "edits": [
+        {
+          "start": 1076,
+          "end": 1088,
+          "expected": "    durable = None\n    if observation.get('argv') == {'kind': 'empty', 'bytes': 0} and cancel_durable is not None:\n        durable = cancel_durable()\n    # Linux can clear cmdline before the same exiting process reports a\n    # terminal state. Keep its prior binding pending only after exact cancel.\n    if result['kind'] == 'not_verified' and known is not None and durable is True:\n        before, after = observation['before'], observation['after']\n        if (graph_sample_identity(before) == graph_sample_identity(after) == known\n                and known['uid'] == os.geteuid()\n                and before['state'] in GRAPH_LIVE_STATES and after['state'] in GRAPH_LIVE_STATES):\n            result = {'kind': 'repeat_exiting', 'binding': None, 'stop_proved': False}\n            observation['kind'] = result['kind']\n",
+          "replacement": ""
+        },
+        {
+          "start": 1094,
+          "end": 1095,
+          "expected": "    graph_finite_observation(finite, known, result, observation, lambda: durable)\n",
+          "replacement": "    graph_finite_observation(finite, known, result, observation, cancel_durable)\n"
+        },
+        {
+          "start": 1102,
+          "end": 1104,
+          "expected": "        require(result['kind'] in ('repeat_live', 'repeat_absent', 'repeat_replaced', 'repeat_terminal',\n                'repeat_exiting')\n",
+          "replacement": "        require(result['kind'] in ('repeat_live', 'repeat_absent', 'repeat_replaced', 'repeat_terminal')\n"
+        }
+      ]
+    }
   },
   "apps/desktop/tests/factory-child-planning-real-ipc.py": {
     "before": "325b013eefa3978107016ecb644290316cb820aa7d4a0d46286ca3c364cf85a3",
