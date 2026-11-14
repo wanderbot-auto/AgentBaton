@@ -10,6 +10,12 @@ Consult `docs/execution/OWNER_INBOX.md` and update `docs/execution/STATUS.md` at
 
 # AgentBaton repository instructions
 
+## Local parallel development
+
+- Read [docs/parallel-development.md](docs/parallel-development.md) before starting parallel work. Use one task branch, one worktree and one writing window per task. Confirm the exact base, write scope and acceptance checks before editing.
+- Reserve literal paths using `scripts/collab.sh new`. Coordinate IPC/schema, migrations, lockfiles, shared entrypoints, CI, and global execution status with the integration window. Keep per-task evidence in separate paths. A subagent must not write the same files as its parent or a sibling.
+- Before handoff, run the scope and conflict checks and report exact base/head SHAs, verification and unresolved dependencies. One designated integration window manages final PR merges. Use a private rebase only for unpublished, unshared work; sync published PRs without rewriting them. Preserve other worktrees and the existing protection and review requirements.
+
 ## Product baseline
 
 Implement Design v0.2: one AgentBaton task-centric UI with quick agent chat; goal-driven autonomous planning, delegation, verification and bounded rework. Do not implement an external Ghostty session observer, terminal wrapper, generic embedded terminal, or parallel terminal interaction entry.
