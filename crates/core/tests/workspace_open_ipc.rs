@@ -98,7 +98,7 @@ fn image(db: &Connection) -> Vec<(String, Vec<Vec<SqlValue>>)> {
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        17
+        18
     );
     let mut names = db
         .prepare("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")
