@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { api, DaemonError, taskAllowsExecution, type Task, type JournalEvent } from './api';
+import { api, acknowledgeTaskMessage, DaemonError, taskAllowsExecution, type Task, type JournalEvent } from './api';
 import { sessionApi, type ManagedSession, type NamedConnection } from './session-api';
 import { sessionEventText } from './ManagedSessions';
 import type { Language } from './i18n';
@@ -40,6 +40,7 @@ export function QuickConversation(props: Props) {
       const result = await sessionApi.sessionsSend(observed,message,key);
       if (!sameSession(result,observed) || observed.native_session_id !== null && result.native_session_id !== observed.native_session_id || !Number.isSafeInteger(result.revision) || result.revision <= observed.revision) throw new Error();
       floors.current.set(result.id,result.revision); keys.current.delete(fingerprint); setText(''); setFresh(null); setTick(value => value+1);
+      await acknowledgeTaskMessage(result.id, key).catch(() => { /* Refresh will show the retained receipt. */ });
     } catch (failure) {
       const uncertain = !(failure instanceof DaemonError) || failure.code === 'OUTCOME_UNKNOWN' || !['none','not_started'].includes(failure.sideEffectState);
       if (uncertain) props.onUncertain(observed.id);

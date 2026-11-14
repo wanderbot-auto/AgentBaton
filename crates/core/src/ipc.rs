@@ -1,6 +1,10 @@
 //! Versioned, authenticated local IPC. No TCP listener, shell, SQL, or arbitrary file API.
 use crate::{
-    conversations::ConversationSupervisor, sessions::Supervisor, storage::Store, CoreError, Result,
+    client_recovery_journal::{ClientRecoveryJournal, TaskMessageIntent},
+    conversations::ConversationSupervisor,
+    sessions::Supervisor,
+    storage::Store,
+    CoreError, Result,
 };
 use fs2::FileExt;
 use serde::Deserialize;
@@ -1518,7 +1522,29 @@ impl Daemon {
                 let p: SessionId = params(r.params)?;
                 Ok(json!(self.store.get_session(&p.session_id)?))
             }
-            "sessions.send" => {
+            "sessions.saved_message_receipts" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                let intents: Vec<TaskMessageIntent> = params(r.params)?;
+                if intents.len() > crate::client_recovery_journal::MESSAGE_LIMIT {
+                    return Err(invalid());
+                }
+                let receipts: Vec<Value> = intents.iter().map(|intent| {
+                    self.store.recover_saved_task_message(intent).unwrap_or(Value::Null)
+                }).collect();
+                Ok(json!(receipts))
+            }
+            "sessions.send_receipt" => {
+                let p: SendSession = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                Ok(match self.store.recover_session_send(&p.session_id, &p.text, revision, &key)? {
+                    Some((turn_id, session)) => json!({"turn_id":turn_id,"session":session}),
+                    None => Value::Null,
+                })
+            }
+            "sessions.send" | "sessions.send_recoverable" => {
                 let p: SendSession = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
                 let revision = r.expected_revision.ok_or_else(invalid)?;
@@ -1526,9 +1552,14 @@ impl Daemon {
                     self.store
                         .send_session(&p.session_id, &p.text, revision, &key)?;
                 if dispatch {
-                    if let Err(error) = self.supervisor.send(&s.id, &p.text) {
+                    if let Err(mut error) = self.supervisor.send(&s.id, &p.text) {
                         self.supervisor.cancel(&s.id);
-                        self.store.record_turn_queue_failure(&s.id)?;
+                        // The turn committed before attempting to queue execution.
+                        self.store.record_turn_queue_failure(&s.id).map_err(|mut failure| {
+                            failure.side_effect_state = "unknown".into();
+                            failure
+                        })?;
+                        error.side_effect_state = "unknown".into();
                         return Err(error);
                     }
                 }
@@ -1700,12 +1731,195 @@ fn read_frame(stream: &UnixStream, max_frame: u64) -> Result<String> {
     }
     String::from_utf8(bytes).map_err(|_| invalid())
 }
+/// Recover a missing send acknowledgement with a read. Never issue a second
+/// send from this helper, and keep the original uncertainty on a lookup miss.
+pub fn send_session_with_receipt_recovery(runtime_dir: &Path, command: Value) -> Result<Value> {
+    send_with_durable_intent(runtime_dir, command, |mut wire| {
+        if wire["method"] != "sessions.send" {
+            return call(runtime_dir, wire);
+        }
+        // An older daemon must reject this method before committing a turn
+        // that it would not know how to recover.
+        wire["method"] = json!("sessions.send_recoverable");
+        let mut reply = call(runtime_dir, wire)?;
+        if reply["error"]["code"] == "CAPABILITY_UNSUPPORTED"
+            && reply["error"]["side_effect_state"] == "not_started"
+        {
+            reply["error"]["message"] = json!(
+                "The running daemon does not support task message recovery. Restart the daemon with the updated app before sending."
+            );
+        }
+        Ok(reply)
+    })
+}
+
+fn send_with_durable_intent(
+    runtime_dir: &Path,
+    command: Value,
+    request: impl FnMut(Value) -> Result<Value>,
+) -> Result<Value> {
+    if command["method"] != "sessions.send" {
+        return Err(invalid());
+    }
+    let message: SendSession = params(command["params"].clone())?;
+    if message.text.trim().is_empty() || message.text.len() > 65536 {
+        return Err(invalid());
+    }
+    let intent = TaskMessageIntent {
+        session_id: message.session_id,
+        request_key: command["idempotency_key"]
+            .as_str()
+            .ok_or_else(invalid)?
+            .into(),
+        expected_revision: command["expected_revision"].as_u64().ok_or_else(invalid)?,
+        text_sha256: agentbaton_workspaces::validation::sha256(message.text.as_bytes()),
+    };
+    let journal = ClientRecoveryJournal::new(runtime_dir)?;
+    // Hold the native lock until the send has returned. A second desktop cannot
+    // check and clear this marker while the first desktop is still sending.
+    let mut messages = journal.task_messages()?;
+    if messages.entries().contains(&intent) {
+        // An exact retry of a retained send can only look up its receipt.
+        return lookup_session_send(command, request)
+            .ok_or_else(crate::client_recovery_journal::task_message_recovery_required);
+    }
+    messages.reserve(intent.clone())?;
+
+    let reply = send_with_receipt_lookup(command, request);
+    let definitive = match &reply {
+        Err(error) => matches!(error.side_effect_state.as_str(), "none" | "not_started"),
+        Ok(wire) => {
+            wire["request_id"].is_string()
+                && wire["error"]["code"] != "OUTCOME_UNKNOWN"
+                && wire["error"]["code"] != "CONFIG_CONFLICT"
+                && matches!(
+                    wire["error"]["side_effect_state"].as_str(),
+                    Some("none" | "not_started")
+                )
+        }
+    };
+    if definitive {
+        // A cleanup failure leaves the marker available for the next read.
+        let _ = messages.clear(&intent.session_id);
+    }
+    reply
+}
+
+/// Reopening the desktop only queries SQLite through the daemon. Keep missing
+/// or unverifiable receipts so a new send cannot silently replace them.
+pub fn recover_task_messages(runtime_dir: &Path) -> Result<Value> {
+    let journal = ClientRecoveryJournal::new(runtime_dir)?;
+    let messages = journal.task_messages()?;
+    let intents = messages.entries();
+    let mut pending = Vec::new();
+    let mut recovered = Vec::new();
+    let response = if intents.is_empty() {
+        Value::Null
+    } else {
+        call(
+            runtime_dir,
+            json!({"method":"sessions.saved_message_receipts","params":intents}),
+        )
+        .unwrap_or(Value::Null)
+    };
+    for (index, intent) in intents.iter().enumerate() {
+        if let Some(receipt) = checked_saved_receipt(&response["result"][index], intent) {
+            recovered.push(receipt);
+        } else {
+            pending.push(intent.session_id.clone());
+        }
+    }
+    Ok(json!({"pending_sessions": pending, "recovered": recovered}))
+}
+
+/// Clear only the exact marker acknowledged by the renderer, after validating
+/// the receipt again. A delayed acknowledgement cannot clear a newer send.
+pub fn acknowledge_task_message(runtime_dir: &Path, session_id: &str, key: &str) -> Result<()> {
+    let journal = ClientRecoveryJournal::new(runtime_dir)?;
+    let mut messages = journal.task_messages()?;
+    let intent = messages
+        .entries()
+        .iter()
+        .find(|intent| intent.session_id == session_id && intent.request_key == key);
+    if let Some(intent) = intent {
+        let response = call(
+            runtime_dir,
+            json!({
+                "method": "sessions.saved_message_receipts",
+                "params": [intent],
+            }),
+        )?;
+        if checked_saved_receipt(&response["result"][0], intent).is_none() {
+            return Err(crate::client_recovery_journal::task_message_recovery_required());
+        }
+        messages.clear(session_id)?;
+    }
+    Ok(())
+}
+
+fn checked_saved_receipt(receipt: &Value, intent: &TaskMessageIntent) -> Option<Value> {
+    (receipt["session_id"] == intent.session_id
+        && receipt["turn_id"].is_string()
+        && receipt["task_id"].is_string()
+        && receipt["text"].as_str().is_some_and(|text| {
+            agentbaton_workspaces::validation::sha256(text.as_bytes()) == intent.text_sha256
+        }))
+    .then(|| {
+        let mut receipt = receipt.clone();
+        receipt["request_key"] = json!(intent.request_key);
+        receipt
+    })
+}
+
+fn send_with_receipt_lookup(
+    command: Value,
+    mut request: impl FnMut(Value) -> Result<Value>,
+) -> Result<Value> {
+    if command["method"] != "sessions.send" {
+        return Err(invalid());
+    }
+    let original = request(command.clone());
+    let uncertain = match &original {
+        Ok(wire) => wire["error"]["side_effect_state"] == "unknown",
+        Err(error) => error.side_effect_state == "unknown",
+    };
+    if !uncertain {
+        return original;
+    }
+    lookup_session_send(command, request).map_or(original, Ok)
+}
+
+fn lookup_session_send(
+    mut command: Value,
+    mut request: impl FnMut(Value) -> Result<Value>,
+) -> Option<Value> {
+    command["method"] = json!("sessions.send_receipt");
+    let mut wire = request(command).ok()?;
+    if wire.get("error").is_some() || wire["result"]["turn_id"].as_str().is_none() {
+        return None;
+    }
+    let session = wire["result"]
+        .get_mut("session")
+        .filter(|v| v.is_object())?
+        .take();
+    wire["result"] = session;
+    Some(wire)
+}
+
 /// Host-selected runtime only. Reads private session authentication and applies the version envelope.
 pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
+    let before_write = || {
+        let mut error = CoreError::transport();
+        if command["method"] == "sessions.send_recoverable" {
+            error.side_effect_state = "not_started".into();
+            error.message = "Local daemon connection failed before sending the task message".into();
+        }
+        error
+    };
     check_private(runtime_dir, true)?;
-    check_private(&runtime_dir.join("session.token"), false)?;
-    let token = fs::read_to_string(runtime_dir.join("session.token"))
-        .map_err(|_| CoreError::transport())?;
+    let token_path = runtime_dir.join("session.token");
+    check_private(&token_path, false)?;
+    let token = fs::read_to_string(token_path).map_err(|_| before_write())?;
     let mut object = command.as_object().cloned().ok_or_else(invalid)?;
     let read_timeout = if matches!(
         object.get("method").and_then(Value::as_str),
@@ -1725,24 +1939,189 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
     object.insert("request_id".into(), json!(Uuid::new_v4().to_string()));
     object.insert("token".into(), json!(token));
     let mut stream =
-        UnixStream::connect(runtime_dir.join("batond.sock")).map_err(|_| CoreError::transport())?;
+        UnixStream::connect(runtime_dir.join("batond.sock")).map_err(|_| before_write())?;
     stream
         .set_read_timeout(Some(read_timeout))
-        .map_err(|_| CoreError::transport())?;
+        .map_err(|_| before_write())?;
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
-        .map_err(|_| CoreError::transport())?;
+        .map_err(|_| before_write())?;
     serde_json::to_writer(&mut stream, &object).map_err(|_| CoreError::transport())?;
     stream
         .write_all(b"\n")
         .map_err(|_| CoreError::transport())?;
-    let raw = read_frame(&stream, 32 * MAX_FRAME)?;
-    serde_json::from_str(&raw).map_err(|_| CoreError::transport())
+    let raw = read_frame(&stream, 32 * MAX_FRAME).map_err(|error| {
+        if matches!(
+            object["method"].as_str(),
+            Some("sessions.send" | "sessions.send_recoverable")
+        ) {
+            // An EOF or truncated reply after sending cannot prove that the
+            // daemon did not commit the turn.
+            CoreError::transport()
+        } else {
+            error
+        }
+    })?;
+    let response: Value = serde_json::from_str(&raw).map_err(|_| CoreError::transport())?;
+    if matches!(
+        object["method"].as_str(),
+        Some(
+            "sessions.send"
+                | "sessions.send_recoverable"
+                | "sessions.send_receipt"
+                | "sessions.saved_message_receipts"
+        )
+    ) && response["request_id"] != object["request_id"]
+    {
+        return Err(CoreError::transport());
+    }
+    Ok(response)
 }
 
 #[cfg(test)]
 mod frame_tests {
     use super::*;
+
+    #[test]
+    fn unreachable_daemon_does_not_leave_a_pending_task_message() {
+        let temp = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = temp.path().canonicalize().unwrap();
+        let token = runtime.join("session.token");
+        fs::write(&token, "fixture token").unwrap();
+        fs::set_permissions(token, fs::Permissions::from_mode(0o600)).unwrap();
+        let mut send = json!({
+            "method": "sessions.send",
+            "params": {"session_id": "08c1d907-a7c2-4c49-a11b-657cc7a6d67a", "text": "message"},
+            "expected_revision": 2,
+            "idempotency_key": "484cda4d-7107-4817-b0a3-f2d947871ca6"
+        });
+        for key in [
+            "484cda4d-7107-4817-b0a3-f2d947871ca6",
+            "9c232d05-ec20-4ab3-809b-b7e5a61320d4",
+        ] {
+            send["idempotency_key"] = json!(key);
+            let error = send_session_with_receipt_recovery(&runtime, send.clone()).unwrap_err();
+            assert_eq!(error.code, "PROVIDER_DISCONNECTED");
+            assert_eq!(error.side_effect_state, "not_started");
+            assert_eq!(
+                recover_task_messages(&runtime).unwrap()["pending_sessions"],
+                json!([])
+            );
+        }
+    }
+
+    #[test]
+    fn legacy_daemon_rejects_recoverable_send_without_fallback() {
+        let temp = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = temp.path().canonicalize().unwrap();
+        let token = runtime.join("session.token");
+        fs::write(&token, "fixture token").unwrap();
+        fs::set_permissions(token, fs::Permissions::from_mode(0o600)).unwrap();
+        let listener = UnixListener::bind(runtime.join("batond.sock")).unwrap();
+        let worker = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            configure_accepted_stream(&stream).unwrap();
+            let request: Value =
+                serde_json::from_str(&read_frame(&stream, MAX_FRAME).unwrap()).unwrap();
+            assert_eq!(request["method"], "sessions.send_recoverable");
+            let reply = json!({
+                "request_id": request["request_id"],
+                "error": CoreError::new("CAPABILITY_UNSUPPORTED", "Unknown or unavailable method")
+            });
+            writeln!(stream, "{reply}").unwrap();
+            listener
+        });
+        let reply = send_session_with_receipt_recovery(
+            &runtime,
+            json!({
+                "method": "sessions.send",
+                "params": {"session_id": "08c1d907-a7c2-4c49-a11b-657cc7a6d67a", "text": "message"},
+                "expected_revision": 2,
+                "idempotency_key": "484cda4d-7107-4817-b0a3-f2d947871ca6"
+            }),
+        )
+        .unwrap();
+        assert_eq!(reply["error"]["code"], "CAPABILITY_UNSUPPORTED");
+        assert_eq!(reply["error"]["side_effect_state"], "not_started");
+        let listener = worker.join().unwrap();
+        listener.set_nonblocking(true).unwrap();
+        assert_eq!(
+            listener.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock
+        );
+        assert_eq!(
+            recover_task_messages(&runtime).unwrap()["pending_sessions"],
+            json!([])
+        );
+    }
+
+    #[test]
+    fn uncommitted_client_intent_survives_reopen_and_does_not_send_again() {
+        let temp = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = temp.path().canonicalize().unwrap();
+        let send = json!({
+            "method": "sessions.send",
+            "params": {"session_id": "08c1d907-a7c2-4c49-a11b-657cc7a6d67a", "text": "message"},
+            "expected_revision": 2,
+            "idempotency_key": "484cda4d-7107-4817-b0a3-f2d947871ca6"
+        });
+        assert!(
+            send_with_durable_intent(&runtime, send.clone(), |_| Err(CoreError::transport()))
+                .is_err()
+        );
+        let recovery = recover_task_messages(&runtime).unwrap();
+        assert_eq!(
+            recovery["pending_sessions"],
+            json!([send["params"]["session_id"]])
+        );
+        let err = send_with_durable_intent(&runtime, send, |lookup| {
+            assert_eq!(lookup["method"], "sessions.send_receipt");
+            Ok(json!({"result": null}))
+        })
+        .unwrap_err();
+        assert_eq!(err.code, "TASK_MESSAGE_RECOVERY_REQUIRED");
+        assert_eq!(recover_task_messages(&runtime).unwrap(), recovery);
+    }
+
+    #[test]
+    fn session_send_recovery_only_checks_the_original_intent() {
+        let send = json!({
+            "method": "sessions.send",
+            "params": {"session_id": "session", "text": "message"},
+            "expected_revision": 2,
+            "idempotency_key": "original-key"
+        });
+        let mut lookup = send.clone();
+        lookup["method"] = json!("sessions.send_receipt");
+        let session = json!({"id":"session","revision":3});
+        for found in [true, false] {
+            let mut commands = Vec::new();
+            let result = send_with_receipt_lookup(send.clone(), |command| {
+                commands.push(command);
+                match commands.len() {
+                    1 => Err(CoreError::transport()),
+                    2 if found => Ok(json!({"result":{"turn_id":"turn","session":session}})),
+                    2 => Ok(json!({"result":null})),
+                    _ => panic!("unexpected resend"),
+                }
+            });
+            assert_eq!(commands, [send.clone(), lookup.clone()]);
+            if found {
+                assert_eq!(result.unwrap()["result"], session);
+            } else {
+                assert_eq!(result.unwrap_err().side_effect_state, "unknown");
+            }
+        }
+    }
 
     #[test]
     fn inherited_nonblocking_stream_waits_for_the_delayed_complete_first_frame() {
@@ -2083,8 +2462,17 @@ impl Daemon {
                 }
                 ids.push(p.workspace_id);
             }
-            "sessions.send" => {
+            "sessions.send" | "sessions.send_recoverable" => {
                 let p: SendSession = params(request.params)?;
+                let key = request.idempotency_key.as_deref().ok_or_else(invalid)?;
+                let revision = request.expected_revision.ok_or_else(invalid)?;
+                if self
+                    .store
+                    .recover_session_send(&p.session_id, &p.text, revision, key)?
+                    .is_some()
+                {
+                    return Ok(vec![]);
+                }
                 ids.push(self.store.get_session(&p.session_id)?.workspace_id);
             }
             "goal_planning.prepare" | "goal_planning.start" => {

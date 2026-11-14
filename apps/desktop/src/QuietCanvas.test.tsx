@@ -2,11 +2,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
-import { api, DaemonError, type Task } from './api';
+import { api, acknowledgeTaskMessage, DaemonError, type Task } from './api';
 import { sessionApi, type ManagedSession } from './session-api';
 import { validationApi } from './validation-api';
 import { dataValidationApi } from './data-validation-api';
-vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { snapshot: vi.fn(), taskGet:vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), workspacesList: vi.fn() } }));
+vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), acknowledgeTaskMessage: vi.fn(), api: { snapshot: vi.fn(), taskGet:vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), workspacesList: vi.fn() } }));
 vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn(), sessionsGet:vi.fn(), sessionsSend: vi.fn() } }));
 vi.mock('./validation-api', async original => ({ ...await original<typeof import('./validation-api')>(), validationApi: { policiesList: vi.fn(), recordsList: vi.fn(), policiesApprove: vi.fn(), run: vi.fn(), revoke: vi.fn() } }));
 vi.mock('./data-validation-api', async original => ({ ...await original<typeof import('./data-validation-api')>(), dataValidationApi: { policiesList: vi.fn(), recordsList: vi.fn(), approve: vi.fn(), run: vi.fn(), revoke: vi.fn() } }));
@@ -109,6 +109,37 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
     expect(document.querySelector('script')).toBeNull();
   });
+  it('shows a reopened receipt once and requires acknowledgement before another send', async () => {
+    const user = userEvent.setup();
+    const session: ManagedSession = { id: 'session-ready', task_id: draft.id, project_id: 'project', workspace_id: 'workspace', connection_id: 'connection', grant_id: 'grant', state: 'ready', revision: 3, native_session_id: 'native', created_at: date, updated_at: date, last_error: null, turn_state: 'completed' };
+    const receipt = { task_id: draft.id, session_id: session.id, request_key: 'saved-key', turn_id: 'original-turn', text: 'Already recorded message' };
+    const snapshot = { tasks: [draft], sequence: 1, api_version: 1, database_schema_version: 18 };
+    vi.mocked(api.snapshot).mockResolvedValue({ ...snapshot, task_message_recovery: { pending_sessions: [], recovered: [receipt] } });
+    vi.mocked(sessionApi.sessionsList).mockResolvedValue([session]);
+    vi.mocked(api.events).mockResolvedValue({ events: [{
+      sequence: 1, event_id: 'event', aggregate_id: session.id, revision: 3,
+      kind: 'session.message_queued', occurred_at: date, source: 'user_action',
+      payload: { turn_id: receipt.turn_id, text: receipt.text },
+    }], next_cursor: 1, sequence: 1, gap: false });
+    vi.mocked(acknowledgeTaskMessage).mockImplementation(async () => {
+      vi.mocked(api.snapshot).mockResolvedValue({ ...snapshot, task_message_recovery: { pending_sessions: [], recovered: [] } });
+      return null;
+    });
+
+    render(<App />);
+    await user.click(await screen.findByRole('button', { name: 'Task message receipt recovered' }));
+    expect(await screen.findByRole('heading', { name: draft.goal })).toBeVisible();
+    expect(screen.getAllByText(receipt.text)).toHaveLength(1);
+    expect(screen.getAllByText('Mark the recovered receipt as seen before sending another message.')).toHaveLength(2);
+    expect(screen.queryByText('Message outcome unknown. Reconcile the session before sending again.')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Task message')).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Mark as seen' }));
+    await waitFor(() => expect(screen.getByLabelText('Task message')).toBeEnabled());
+    expect(acknowledgeTaskMessage).toHaveBeenCalledExactlyOnceWith(session.id, receipt.request_key);
+    expect(screen.getAllByText(receipt.text)).toHaveLength(1);
+    expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
+  });
+
   it('keeps an uncertain task-composer send blocked and preserves the exact user text', async () => {
     const session: ManagedSession = { id: 'session-ready', task_id: draft.id, project_id: 'project', workspace_id: 'workspace', connection_id: 'connection', grant_id: 'grant', state: 'ready', revision: 2, native_session_id: 'native', created_at: date, updated_at: date, last_error: null, turn_state: null };
     vi.mocked(sessionApi.sessionsList).mockResolvedValue([session]);
