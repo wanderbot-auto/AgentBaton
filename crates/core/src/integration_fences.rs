@@ -269,7 +269,9 @@ mod conversation_writer_tests {
     // Synthetic persisted owner records test admission boundaries, not Provider
     // execution. Separate directories model distinct managed worktree roots.
     fn fixture() -> (tempfile::TempDir, Store, IntegrationGitPin, Conversation) {
-        let dir = tempfile::tempdir().unwrap();
+        // The identity check rejects symlink ancestors, including macOS /var.
+        let parent = std::env::temp_dir().canonicalize().unwrap();
+        let dir = tempfile::tempdir_in(parent).unwrap();
         let store = Store::open(&dir.path().join("state.sqlite3")).unwrap();
         store
             .conn
