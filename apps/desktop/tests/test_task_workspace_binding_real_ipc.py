@@ -355,7 +355,8 @@ class ManagedFixturePathTests(unittest.TestCase):
 
     def test_retained_created_after_precheck_is_still_atomically_not_overwritten(self):
         retained = self.work.with_name(self.work.name + '-retained-fixture')
-        real = ctypes.CDLL(None, use_errno=True).renameat2
+        symbol, _ = h.EXCLUSIVE_RENAME[h.sys.platform]
+        real = getattr(ctypes.CDLL(None, use_errno=True), symbol)
         real.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
         real.restype = ctypes.c_int
         class InjectConcurrentDestination:
@@ -363,7 +364,7 @@ class ManagedFixturePathTests(unittest.TestCase):
                 retained.mkdir()
                 (retained / 'preserve').write_bytes(b'late retained')
                 return real(*args)
-        with patch.object(h.ctypes, 'CDLL', return_value=SimpleNamespace(renameat2=InjectConcurrentDestination())):
+        with patch.object(h.ctypes, 'CDLL', return_value=SimpleNamespace(**{symbol: InjectConcurrentDestination()})):
             with self.assertRaises(OSError):
                 self.guard.replace_for_drift(self.binding, 'task-one')
         self.assertEqual((retained / 'preserve').read_bytes(), b'late retained')

@@ -19,6 +19,7 @@ import socket
 import sqlite3
 import stat
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -26,6 +27,10 @@ import uuid
 from functools import partial
 
 MAX_BODY = 32_768
+EXCLUSIVE_RENAME = {
+    'linux': ('renameat2', 1),  # RENAME_NOREPLACE
+    'darwin': ('renameatx_np', 4),  # RENAME_EXCL
+}
 MAX_REPLY = 4_194_304
 MAX_SAFE = 9_007_199_254_740_991
 BASE = '840334e2507c7b2b39e89917b491e75c1ca3de18'
@@ -362,13 +367,13 @@ class ManagedFixturePaths:
                 pass
             else:
                 raise ValueError('Retained fixture destination already exists')
-            # No overwrite window: Linux renameat2 RENAME_NOREPLACE, never fallback
-            # to ordinary replace/rename on unsupported systems.
+            # Require an atomic no-overwrite rename on both tested hosts.
             libc = ctypes.CDLL(None, use_errno=True)
-            rename = libc.renameat2
+            symbol, flags = EXCLUSIVE_RENAME[sys.platform]
+            rename = getattr(libc, symbol)
             rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
             rename.restype = ctypes.c_int
-            if rename(parent_fd, os.fsencode(original.name), parent_fd, os.fsencode(retained.name), 1) != 0:
+            if rename(parent_fd, os.fsencode(original.name), parent_fd, os.fsencode(retained.name), flags) != 0:
                 error = ctypes.get_errno()
                 raise OSError(error, 'Atomic private fixture rename refused')
             # The inode actually moved must be the one verified/opened above.

@@ -25,7 +25,8 @@ PNG_NAMES = (
     '07-unbound-entry-parent-refresh-recovery-desktop.png', '08-unbound-entry-exact-recovered-desktop.png',
 )
 TABLES = tuple('''approval_proposals attempts budgets command_validation_policies
-command_validation_runs command_workspace_fences connections data_validation_policies
+command_validation_runs command_workspace_fences connections conversation_budgets
+conversation_dispatches conversation_turns conversations data_validation_policies
 data_validation_runs data_workspace_creations data_workspace_previews data_workspace_receipts
 dispatch_intents events execution_grants factory_attempts factory_budget_reservations
 factory_child_goal_runs factory_child_plan_heads factory_child_plan_revisions factory_delegations
