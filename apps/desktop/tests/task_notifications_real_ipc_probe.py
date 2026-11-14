@@ -20,7 +20,8 @@ MAX_EVENTS = 500
 MAX_SOURCES_INSPECTED = 10
 MAX_SCREENSHOTS = 4
 READS = frozenset(('system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
-    'tasks.get', 'goal_scopes.list', 'events.subscribe', 'integration_context.get',
+    'tasks.get', 'goal_scopes.list', 'goal_graph_runs.get', 'fixture.client_recovery_list',
+    'events.subscribe', 'integration_context.get',
     'integration_targets.list', 'integration_policies.get', 'integration_policies.list',
     'integrations.get', 'integrations.list'))
 CHECKS = ('actual accepted Task projection and mapped journal observations',
