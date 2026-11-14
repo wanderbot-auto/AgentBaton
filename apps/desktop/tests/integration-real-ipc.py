@@ -51,7 +51,8 @@ GUARANTEES = {'local_unchecked_out_ref_only': True, 'merged_candidate_revalidati
     'os_network_sandbox': False, 'whole_filesystem_output_quota': False, 'remote_delivery_authorized': False}
 BASE_READS = {'system_snapshot': 'system.snapshot', 'projects_list': 'projects.list',
     'connections_list': 'connections.list', 'sessions_list': 'sessions.list'}
-TASK_READS = {'tasks_get': 'tasks.get', 'goal_scopes_list': 'goal_scopes.list'}
+TASK_READS = {'tasks_get': 'tasks.get', 'goal_scopes_list': 'goal_scopes.list',
+    'goal_runs_list': 'goal_runs.list', 'goal_graph_runs_list': 'goal_graph_runs.list'}
 ID_READS = {'integration_policies_get': ('integration_policies.get', 'policyId', 'policy_id', 'policies'),
     'integrations_get': ('integrations.get', 'integrationId', 'integration_id', 'runs')}
 WRITES = {'integration_policies_revoke': ('integration_policies.revoke', 'policyId', 'policy_id', 'policies'),
@@ -324,10 +325,11 @@ def selection(value, bounds):
 
 class Boundary:
     """Only actual generated fixture IDs may enter fixed typed invokes."""
-    def __init__(self, task, project, scope, target_head, validators, required=()):
+    def __init__(self, task, project, scope, target_head, validators, required=(), *, graph_run=None):
         self.task, self.project, self.scope, self.target_head = task, project, scope, target_head
         self.validators, self.required_validators = copy.deepcopy(validators), copy.deepcopy(list(required))
         self.policies, self.runs, self.writes = set(), set(), {}
+        self.graph_run = graph_run
         self.lock = threading.Lock()
 
     def route(self, envelope):
@@ -339,6 +341,9 @@ class Boundary:
         key = revision = None
         if command in BASE_READS:
             require(not args); return BASE_READS[command], {}, None, None
+        if command == 'client_recovery_list':
+            require(not args)
+            return 'fixture.client_recovery_list', {}, None, None
         if command == 'events_subscribe':
             require(set(args) <= {'cursor', 'limit'} and integer(args.get('cursor', 0))
                 and integer(args.get('limit', 100), 1, 100))
@@ -346,6 +351,13 @@ class Boundary:
         if command in TASK_READS:
             require(set(args) == {'taskId'} and args['taskId'] == self.task)
             return TASK_READS[command], {'task_id': self.task}, None, None
+        if command == 'goal_plans_list':
+            require(set(args) == {'scopeId'} and args['scopeId'] == self.scope)
+            return 'goal_plans.list', {'scope_id': self.scope}, None, None
+        if command == 'goal_graph_runs_get':
+            require(set(args) == {'runId'} and self.graph_run is not None
+                and args['runId'] == self.graph_run)
+            return 'goal_graph_runs.get', {'run_id': self.graph_run}, None, None
         if command == 'integration_context_get':
             require(set(args) == {'taskId', 'goalScopeId'} and args['taskId'] == self.task
                 and args['goalScopeId'] == self.scope)
@@ -715,6 +727,11 @@ def bootstrap(host, root, failing):
     source = root / 'project'; source.mkdir(mode=0o700)
     (source / 'inputs').mkdir(); (source / 'inputs/file').write_bytes(b'baseline')
     (source / 'unselected.txt').write_bytes(b'unselected baseline\n')
+    script_path = 'validators/correctness.sh'
+    script = (b"printf '%s\\n' 'fixed correctness failure' >&2; exit 7\n"
+              if failing else b'test -s reports/report.txt\n')
+    (source / 'validators').mkdir()
+    (source / script_path).write_bytes(script)
     (source / '.gitignore').write_text('/reports/\n')
     git(source, 'init', '-q', '--initial-branch=main'); git(source, 'add', '.')
     git(source, 'commit', '-qm', 'Generated integration browser input'); git(source, 'branch', TARGET[11:])
@@ -722,7 +739,7 @@ def bootstrap(host, root, failing):
     provider = root / 'generated-acp'
     provider.write_text('#!' + sys.executable + '\nOBSERVATION=' + repr(str(root / 'request.json')) + '\n' + PROVIDER)
     provider.chmod(0o700)
-    shell = root / 'fixed-sh'; shutil.copyfile(Path('/bin/sh').resolve(strict=True), shell); shell.chmod(0o700)
+    shell = Path('/bin/sh').resolve(strict=True)
     require(shell.stat().st_nlink == 1)
     require(host.result('system.snapshot', {})['database_schema_version'] == 18)
     project = host.result('projects.import', {'path': str(source), 'name': 'Generated integration browser'}, 'project')
@@ -770,10 +787,12 @@ def bootstrap(host, root, failing):
     require(request['run_id'] == graph['run']['id'] and request['plan_digest'] == candidate['plan_digest']
         and request['lineage']['attempt_id'] == candidate['attempt_id'] and type(request['task_binding']) is dict)
     command = host.approved('command_validation_policies.propose', {'session_id': candidate['session_id'],
-        'executable': str(shell), 'mode': 'native_executable', 'script': None,
+        'executable': str(shell), 'mode': 'posix_sh_stdin',
+        'script': {'artifact_id': 'integration-correctness-script', 'relative_path': script_path,
+            'max_bytes': len(script), 'expected_sha256': digest(script)},
         'inputs': [{'artifact_id': 'fixed-input', 'relative_path': 'inputs/file', 'max_bytes': 1024, 'expected_sha256': digest(b'baseline')}],
         'outputs': [{'artifact_id': 'report', 'relative_path': 'reports/report.txt', 'max_bytes': 1024, 'expected_sha256': None}],
-        'arguments': ['-c', "printf '%s\\n' 'fixed correctness failure' >&2; exit 7" if failing else 'test -s reports/report.txt'],
+        'arguments': [],
         'environment': {}, 'expected_exit_codes': [0], 'wall_time_ms': 500, 'cleanup_time_ms': 500, 'stdout_limit': 128, 'stderr_limit': 128,
         'require': {k: False for k in ('filesystem_isolation', 'network_isolation', 'process_tree_containment',
         'execution_time_input_immutability', 'auxiliary_source_immutability', 'sealed_executable_image')}}, 'correctness', 'command_validation')
@@ -888,7 +907,7 @@ def terminal_evidence(host, fixture, accepted, policy, done, failing):
             and exact(view['file_integrity']['subject'], subject) and view['file_integrity']['passed'] is True
             and exact(view['file_integrity']['policy_contract'], contract['file_contract'])
             and view['approval_id'] == policy['approval_id'] and view['policy_revision'] == receipt['definition_digest'])
-        for field in ('arguments', 'mode', 'script', 'argv0', 'image_policy', 'environment_sha256',
+        for field in ('arguments', 'mode', 'argv0', 'image_policy', 'environment_sha256',
             'expected_exit_codes', 'wall_time_ms', 'cleanup_time_ms', 'stdout_limit', 'stderr_limit', 'require'):
             require(exact(contract[field], old[field]))
         for field in ('canonical_root', 'root_device', 'root_inode'):
@@ -900,6 +919,13 @@ def terminal_evidence(host, fixture, accepted, policy, done, failing):
             (cwd['canonical_root'],)).fetchone()[0])
         require(exact(managed['identity'], cwd) and managed['base_revision'] == candidate
             and cwd['canonical_root'] != str(fixture['managed']) and cwd['kind']['head'] == candidate)
+        require(exact(contract['script']['requirement'], old['script']['requirement'])
+            and contract['script']['canonical_root'] == cwd['canonical_root']
+            and contract['script']['root_device'] == cwd['device']
+            and contract['script']['root_inode'] == cwd['inode'])
+        script = contract['script']['requirement']
+        require(digest((Path(cwd['canonical_root']) / script['relative_path']).read_bytes())
+            == script['expected_sha256'])
         for key, name, path, raw in [('inputs', 'fixed-input', 'inputs/file', b'baseline'),
             ('outputs', 'report', 'reports/report.txt', REPORT)]:
             values = [v for v in view['file_integrity'][key] if v['artifact_id'] == name]
@@ -982,6 +1008,9 @@ def serve(frontend, host, bounds, reviews, attribution):
                 stage = 'core_call'
                 if method == 'integration_policies.propose':
                     response = reviews.propose(params, key)
+                elif method == 'fixture.client_recovery_list':
+                    # This browser fixture does not start a Native client or write its journal.
+                    response = {'result': {'entries': []}, 'warnings': []}
                 else:
                     response = host.call(method, params, key, revision)
                 bounds.observe(method, response)
@@ -1044,7 +1073,7 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         host = Host(runtime); phase = 'real_private_graph_bootstrap'
         fixture = bootstrap(host, root, failing)
         bounds = Boundary(fixture['task']['id'], fixture['project']['id'], fixture['scope']['id'], fixture['target'],
-            [fixture['definition']['reference']])
+            [fixture['definition']['reference']], graph_run=fixture['graph']['run']['id'])
         reviews = Reviews(host, bounds, fixture['context'], fixture['definition'],
             expected_selection(fixture['context'], fixture['target'], fixture['definition']['reference']))
         server, thread = serve(frontend, host, bounds, reviews, attribution)

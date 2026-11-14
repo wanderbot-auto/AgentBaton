@@ -17,10 +17,18 @@ def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):
     digest = hashlib.sha256(text.encode()).hexdigest()
     if digest == layer['before'] or digest in legacy:
         return text
+    followup = layer.get('followup')
+    if followup is not None and digest == followup['after']:
+        text = restore(text, followup['edits'], layer['after'], error)
+        digest = layer['after']
     if digest != layer['after']:
         raise error('Unknown driver source: complete schema18 input changed')
+    return restore(text, layer['edits'], layer['before'], error)
+
+
+def restore(text, edits, expected, error):
     lines = text.splitlines(keepends=True)
-    for edit in reversed(layer['edits']):
+    for edit in reversed(edits):
         start, end = edit['start'], edit['end']
         if type(start) is not int or type(end) is not int or not 0 <= start < end <= len(lines):
             raise error('Schema18 inverse bounds changed')
@@ -28,6 +36,6 @@ def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):
             raise error('Schema18 inverse exact source span changed')
         lines[start:end] = edit['replacement'].splitlines(keepends=True)
     restored = ''.join(lines)
-    if hashlib.sha256(restored.encode()).hexdigest() != layer['before']:
+    if hashlib.sha256(restored.encode()).hexdigest() != expected:
         raise error('Schema18 inverse did not restore every original byte')
     return restored
