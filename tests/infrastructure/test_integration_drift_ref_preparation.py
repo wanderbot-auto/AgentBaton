@@ -24,7 +24,7 @@ class DriftPreparationSource(unittest.TestCase):
 
     def test_whole_runtime_and_existing_observers_restore_exact_original(self):
         current, before = self.current_and_before()
-        self.assertEqual(hashlib.sha256(current.encode()).hexdigest(), F.INPUT_SHA256)
+        self.assertEqual(hashlib.sha256(current.encode()).hexdigest(), F.CURRENT_SCHEMA18_SHA256)
         self.assertEqual(hashlib.sha256(before.encode()).hexdigest(), F.RESTORED_SHA256)
         self.assertEqual(F.restore_before_drift_ref_preparation(before), before)
         from integration_fixed_script_fixture import restore_before_fixed_scripts, FIXED_SCRIPT_RESTORED_SHA256

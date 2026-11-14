@@ -197,16 +197,17 @@ fn bounded_output(command: &mut Command) -> Result<Output, WorkspaceError> {
     };
     let out = std::thread::spawn(move || read(Box::new(stdout)));
     let err = std::thread::spawn(move || read(Box::new(stderr)));
-    let started = Instant::now();
+    let deadline = Instant::now() + Duration::from_secs(15);
     let (status, timed_out) = loop {
         if let Some(status) = child.try_wait()? {
             break (status, false);
         }
-        if started.elapsed() >= Duration::from_secs(15) {
+        let remaining = deadline.saturating_duration_since(Instant::now());
+        if remaining.is_zero() {
             let _ = child.kill();
             break (child.wait()?, true);
         }
-        std::thread::sleep(Duration::from_millis(10));
+        std::thread::sleep(Duration::from_millis(1).min(remaining));
     };
     let stdout = out.join().map_err(|_| WorkspaceError::ResourceLimit)??;
     let stderr = err.join().map_err(|_| WorkspaceError::ResourceLimit)??;
@@ -885,21 +886,32 @@ struct ControlledGitChild {
     reaped: bool,
     signal_attempted: bool,
 }
+
+fn child_exited_unreaped(pid: u32) -> io::Result<bool> {
+    let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
+    // Preserve the original leader PID until all group signals end. Darwin
+    // can report a stopped child even when WEXITED was the only event asked for.
+    let result = unsafe {
+        libc::waitid(
+            libc::P_PID,
+            pid as libc::id_t,
+            &mut info,
+            libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
+        )
+    };
+    if result < 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(unsafe { info.si_pid() } == pid as libc::pid_t
+        && matches!(
+            info.si_code,
+            libc::CLD_EXITED | libc::CLD_KILLED | libc::CLD_DUMPED
+        ))
+}
+
 impl ControlledGitChild {
     fn finished(&self) -> io::Result<bool> {
-        let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
-        let result = unsafe {
-            libc::waitid(
-                libc::P_PID,
-                libc::id_t::from(self.child.id()),
-                &mut info,
-                libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
-            )
-        };
-        if result < 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(unsafe { info.si_pid() } != 0)
+        child_exited_unreaped(self.child.id())
     }
     fn signal_own_group(&mut self) {
         // Never reap the leader before group signals end: its unreaped PID
@@ -994,6 +1006,46 @@ impl<T: Read + AsRawFd> ControlledCapture<T> {
         }
     }
 }
+// Wait for readable pipes or EOF so short Git calls do not each consume a
+// full sleep. Keep the existing polling interval for deadline/cancel checks.
+fn wait_for_git_output(
+    stdout: &ControlledCapture<std::process::ChildStdout>,
+    stderr: &ControlledCapture<std::process::ChildStderr>,
+    deadline: Instant,
+) -> io::Result<()> {
+    let mut pipes = [
+        libc::pollfd {
+            fd: stdout.pipe.as_ref().map_or(-1, AsRawFd::as_raw_fd),
+            events: libc::POLLIN,
+            revents: 0,
+        },
+        libc::pollfd {
+            fd: stderr.pipe.as_ref().map_or(-1, AsRawFd::as_raw_fd),
+            events: libc::POLLIN,
+            revents: 0,
+        },
+    ];
+    let wait = Duration::from_millis(2).min(deadline.saturating_duration_since(Instant::now()));
+    if wait < Duration::from_millis(1) {
+        std::thread::sleep(wait);
+        return Ok(());
+    }
+    let result = unsafe {
+        libc::poll(
+            pipes.as_mut_ptr(),
+            pipes.len() as libc::nfds_t,
+            wait.as_millis() as i32,
+        )
+    };
+    if result < 0 {
+        let error = io::Error::last_os_error();
+        if error.kind() != io::ErrorKind::Interrupted {
+            return Err(error);
+        }
+    }
+    Ok(())
+}
+
 pub(crate) fn controlled_output(
     command: &mut Command,
     control: &adoption::AdoptionControl<'_>,
@@ -1040,9 +1092,7 @@ pub(crate) fn controlled_output(
             break;
         }
         if !out_progress && !err_progress {
-            std::thread::sleep(
-                Duration::from_millis(2).min(deadline.saturating_duration_since(Instant::now())),
-            );
+            wait_for_git_output(&stdout, &stderr, deadline)?;
         }
     }
     // This always targets our own group before consuming the leader's identity,

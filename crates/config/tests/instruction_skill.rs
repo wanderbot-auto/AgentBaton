@@ -9,7 +9,7 @@ use agentbaton_config::{
 use std::{
     ffi::OsStr,
     fs,
-    os::unix::fs::{symlink, PermissionsExt},
+    os::unix::fs::{symlink, FileTypeExt, PermissionsExt},
     path::PathBuf,
 };
 const TEXT:&str="---\nname: demo-skill\ndescription: Bounded instruction fixture\n---\nRead the selected input.\n";
@@ -91,12 +91,14 @@ fn strict_source_refuses_extras_links_unsafe_ownership_modes_and_nonregular_file
     symlink(dir.path().join("linked"), path.join("SKILL.md")).unwrap();
     assert!(InstructionOnlySkill::read_selected(&path).is_err());
     fs::remove_file(path.join("SKILL.md")).unwrap();
-    rustix::fs::mkfifoat(
-        rustix::fs::CWD,
-        path.join("SKILL.md"),
-        rustix::fs::Mode::from_raw_mode(0o600),
-    )
-    .unwrap();
+    let fifo = path.join("SKILL.md");
+    assert!(std::process::Command::new("/usr/bin/mkfifo")
+        .args(["-m", "600"])
+        .arg(&fifo)
+        .status()
+        .unwrap()
+        .success());
+    assert!(fs::symlink_metadata(&fifo).unwrap().file_type().is_fifo());
     assert!(InstructionOnlySkill::read_selected(&path).is_err());
 }
 #[test]

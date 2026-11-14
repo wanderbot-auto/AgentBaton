@@ -1,3 +1,41 @@
+## 2026-11-14 · Mac mini：任务回执交付审阅
+
+交付范围包括普通任务消息的回执恢复、首次连接探测审批重放验收、schema 18 与事件分页回归，以及保持原限额的 macOS 兼容修复。清除了严格 Clippy 报告的基线告警。独立审阅后，新增了写入前连接失败和旧 daemon 拒绝回执感知请求的回归。原 daemon 仍在运行时，桌面需要更新后的 daemon 才能发送可恢复的消息。
+
+PR #19 的 Intel macOS 记录显示 Factory 第二轮返工在 Owner 验收前进入阻塞状态。按原时限验证该前置路径，再推进主线合并。下一阶段优先补齐真实桌面中的「创建任务 → 授权执行 → 查看结果 → Owner 验收」端到端证据，覆盖重启和验收前状态。需求统计继续以 `docs/execution/requirements-progress.json` 为准。
+
+## 2026-11-14 · Mac mini：schema 18 与 Rust 基线回归
+
+`dev/macmini-agentbaton` 以 `6a7c594` 为基线，保留先前未提交改动。Factory、Integration 和 Sessions 的当前库断言严格检查 schema 18；17→18 迁移仍从旧库验证。事件接口保留 500 条上限，回归通过多页游标扫描确认重放只产生一条入队事件。历史漂移夹具继续校验完整源码摘要。
+
+macOS 的验证器退出检查现在区分已暂停和已退出，测试夹具兼容 `ps` 的有符号 UID。Git 输出就绪时立即继续读取，保留原有截止时间、输出限额和进程回收顺序。回执日志通过排他创建处理首次并发打开，同一日志只允许一个预约成功。
+
+Apple Silicon 全量 Rust 串行回归通过：1130 项单元及集成用例、7 项编译失败文档测试，零失败、零忽略。其中 Factory 36/36、Integration 33/33、Sessions 63/63，客户端退出后找回原回执且写入和下游执行各一次。回执双进程锁另连续通过 250 次；基础设施 807 项、Workspaces 严格 Clippy 和独立代码复核均通过。全工作区严格 Clippy 仍有两条基线已有告警，正式 CI、Intel macOS 和 Linux 本轮未验证，暂不建议合并。本机日志、复跑命令和私有配套工具核验见 `artifacts/macmini-rust/`；本轮未接入 AWS，未提交或推送。
+
+## 2026-11-14 · Mac mini：基线对照与完整桌面回执验收
+
+在独立 worktree 复跑 `6a7c594` 的四个失败目标。基线只应用 macOS 编译所需的 fstat 类型修复。两侧分别构建配套工具，逐字节核对私有副本，并串行测试。Factory 从基线 33 通过、3 失败到开发分支 34 通过、2 失败。Integration 两侧均 19 通过、14 失败。Sessions 从 57 通过、3 失败到 60 通过、3 失败。Provider installation 从基线 3 通过、7 失败到开发分支两轮均 10 通过，单独复测曾命中同一个基线超时。按失败用例名对照，两轮开发分支均无新增 Rust 失败。上轮并行出现的中断校验器用例，开发分支串行复跑通过。
+
+从真正的 AgentBaton.app 发送测试消息。真实 daemon 提交后，测试代理阻断首次响应并结束原桌面 PID。重开新 PID 后，窗口显示原消息、测试 Provider 的答复和恢复入口。实机发现已找回回执仍被提示为结果未知，已修正并重新打包复验。确认已查看后输入框解锁。最终日志验证一个发送请求、一条 SQLite turn、一次 Provider 调用和一个完成事件。前端 1434 项通过，Tauri 150 项通过、2 项忽略，审批回归 3 项通过。验收使用本机生成的 ACP Provider。
+
+Rust 对照和实机证据保存在 `artifacts/macmini-audit/`。基线仍有确定失败，建议保持草稿，待正式 CI 门槛通过后合并。改动保留在 `dev/macmini-agentbaton` 的未提交工作区。
+
+## 2026-11-14 · Mac mini：审批重放与桌面重开回执
+
+连接首次版本探测未能调度时，审批已落库，连接为 `failed` 且有未启动证据。重放原审批返回同一连接的当前状态。审批 IPC 回归 3 项通过，确认记录、连接和未启动事件各一条。
+
+桌面发送前在私有目录持久化会话、原版本、请求键与消息摘要。重开后在后台只读查回执，确认查看后清除对应标记。查不到回执时保留未决标记。Apple Silicon 的真实 daemon 测试截住首次回复，结束发送进程并启动新的客户端进程，验证原 turn ID、SQLite 行、写入事件、完成事件和测试 Provider 启动计数均保持唯一。前端另外验证找回的消息只显示一次。使用生成的本地测试 Provider。
+
+前端 1434 项、Tauri 150 项（2 项忽略）、回执命中与未命中、原有丢回执和 daemon/CLI 冒烟均通过。全量 Rust 仍有 4 个测试目标失败，涉及 Factory 配套工具、旧 schema 断言、既有会话控制用例和版本探测超时。Factory 的正式准备脚本要求干净 checkout，本轮保留未提交改动。日志位于 `artifacts/macmini-reopen/`。没有本轮 GUI 手动重开、Intel macOS、Linux 或真实 Provider 验收。
+
+## 2026-11-14 · Mac mini 接手：任务消息回执恢复
+
+以草稿 PR #21 的 head `6a7c5943b3fa6145d38026a04490f69298ab5f33` 为基线，在本地 `dev/macmini-agentbaton` 实现普通任务消息回执查询。验收：相同会话、版本、消息和键找回同一 turn ID，读取或重试不再次调度；无记录时保持未知。Goal/Factory 私有调度、MCP/Skill 创建恢复和执行授权边界保持独立。macOS 兼容修复保留原日志锁身份与真实 FIFO 断言。
+
+Apple Silicon 实测：回执丢失、原键重试、daemon 重启和正常消息 IPC 通过；桌面端 1433 项前端测试及类型检查/构建通过，Tauri 150 项通过（2 项忽略），基础设施 Python 807 项通过。原生 WebView 已连接临时后台，验证草稿创建、任务详情、结果与验收入口以及返回任务卡片；未调用真实 Provider。OWNER-002 的默认任务卡片与任务中心要求已核对，本次未改 UI 布局。
+
+规范临时目录下 Core 库测试 366 项通过；全量 Rust suite 在原有连接探测审批测试停止，仅加 macOS 编译修复的基线对照同样失败。严格 Clippy 的配置模块告警也在原基线复现。日志见本地忽略目录 `artifacts/macmini-handoff/`。macOS Intel、Linux、真实 Provider 未测；未接入 AWS，未创建或恢复 Cloud 任务。改动留在工作区。
+
 ## Reviewed local source mapped to exact tested tree — metadata review pending
 
 Main committed `2d04d6cc8b666e6110b1cb901fd5e804876be793` only after applicablechecks and independentactualaudit; its tree exactlymatches testedb8. The local assembly branch normally FF'd d309→same2d04, with no extra mergecommit or remote write. Actualchecks remain stagedtreeb8/baseHEADd309 evidence; d309Workspaces is a separate execution with scope-equivalence proof. [Exact mapping and evidence](integration-git-path-observation/EVIDENCE.json).
