@@ -10,6 +10,8 @@ BG_STEP_NAME = 'Actual Native background registration IPC in generated private p
 # Exact workflow at 4ce910b and the same bytes with the new Native step.
 BASE_WORKFLOW_SHA256 = 'e9e70c5340ca711528e6df6f9c2434104e021068054bf74cb5d3f9efc90984e5'
 COMPOSED_WORKFLOW_SHA256 = '97500089880e6810080169f62779b0446c3aee85eada81ba20541b516c4c0357'
+CURRENT_MAC_MATRIX = '        os: [macos-15]\n'
+PREVIOUS_MAC_MATRIX = '        os: [macos-15, macos-15-intel]\n'
 BG_STEP_INDEX = 46
 BG_STEP = (
     '      - name: Actual Native background registration IPC in generated private paths\n'
@@ -22,7 +24,19 @@ BG_STEP = (
 )
 
 
+def restore_previous_mac_matrix(text):
+    """Reverse only the exact Apple Silicon matrix change for historical pins."""
+    if text.count(CURRENT_MAC_MATRIX) != 1 or PREVIOUS_MAC_MATRIX in text:
+        raise ValueError('Expected one Apple Silicon matrix')
+    restored = text.replace(CURRENT_MAC_MATRIX, PREVIOUS_MAC_MATRIX, 1)
+    if hashlib.sha256(restored.encode()).hexdigest() != COMPOSED_WORKFLOW_SHA256:
+        raise ValueError('Apple Silicon matrix change did not preserve the exact parent workflow')
+    return restored
+
+
 def strip_background_native_smoke_layer(text):
+    if CURRENT_MAC_MATRIX in text:
+        text = restore_previous_mac_matrix(text)
     # Exact current whole input, exact adjacent block, exact old whole output.
     # No git-object dependency, old-code execution or arbitrary future hash list.
     if hashlib.sha256(text.encode()).hexdigest() != COMPOSED_WORKFLOW_SHA256:
@@ -239,7 +253,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         text=(ROOT/'.github/workflows/product.yml').read_text();old=strip_background_native_smoke_layer(text)
         self.assertEqual(hashlib.sha256(old.encode()).hexdigest(),BASE_WORKFLOW_SHA256)
         self.assertEqual(text.count(BG_STEP),1)
-        self.assertEqual(text.replace(BG_STEP,'',1),old)
+        self.assertEqual(restore_previous_mac_matrix(text).replace(BG_STEP,'',1),old)
         for predecessor in ('cargo build --release --locked --bin batond --bin baton',
                             'bash scripts/prepare-desktop-sidecars.sh'):
             # The preparation stays in the original host tests. The new

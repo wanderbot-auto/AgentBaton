@@ -43,8 +43,8 @@ class RuntimePolicyTests(unittest.TestCase):
             {'runs-on': 'self-hosted'},
             {'runs-on': 'macos-15'},
             {'matrix': {'os': ['macos-15', 'ubuntu-24.04']}},
-            {'matrix': {'os': ['macos-15', 'macos-15-intel', 'macos-15']}},
-            {'matrix': {'os': ['macos-15', 'macos-15-intel'], 'include': [{'os': 'self-hosted'}]}},
+            {'matrix': {'os': ['macos-15', 'macos-15-intel']}},
+            {'matrix': {'os': ['macos-15'], 'include': [{'os': 'self-hosted'}]}},
             {'max-parallel': '3'}, {'max-parallel': None}, {'fail-fast': 'true'},
         ]
         for change in variants:

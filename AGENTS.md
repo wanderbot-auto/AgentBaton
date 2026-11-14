@@ -18,6 +18,8 @@ Consult `docs/execution/OWNER_INBOX.md` and update `docs/execution/STATUS.md` at
 
 ## Product baseline
 
+- macOS support is Apple Silicon (ARM64) only. Run native, development package, and CI acceptance on Apple Silicon. Intel (x86_64) compatibility and CI are deferred; historical Intel evidence remains valid for the versions it tested. Linux scope is unchanged.
+
 Implement Design v0.2: one AgentBaton task-centric UI with quick agent chat; goal-driven autonomous planning, delegation, verification and bounded rework. Do not implement an external Ghostty session observer, terminal wrapper, generic embedded terminal, or parallel terminal interaction entry.
 
 Default to Baton-managed isolated runtime environments. Program source, configuration ownership, identity, workspace and host are distinct. Support named native-config connections as an advanced read-only external-config mode, not attachment to existing terminal sessions. Do not overwrite native global files, copy authentication directories or silently synchronize configurations.
@@ -41,7 +43,7 @@ Read README.md, docs/12-decisions.md, specs/decisions.json, specs/requirements.j
 
 ## Evidence and long-horizon work
 
-The immutable design baseline labels requirements specified. Track real implementation and verification separately in docs/execution/. Do not downgrade full scope to a mock demo. Select dependency-ready authorized work; establish actual build/test commands, implement real error paths, independently review, record exact commit/environment/commands/results. Unknown, unsupported, untested and blocked are separate. Mock tests do not prove real Provider integration; browser tests do not prove macOS native support; both Apple Silicon and Intel need evidence.
+The immutable design baseline labels requirements specified. Track real implementation and verification separately in docs/execution/. Do not downgrade full scope to a mock demo. Select dependency-ready authorized work; establish actual build/test commands, implement real error paths, independently review, record exact commit/environment/commands/results. Unknown, unsupported, untested and blocked are separate. Mock tests do not prove real Provider integration; browser tests do not prove macOS native support; macOS acceptance requires real Apple Silicon evidence.
 
 Save per-task PLAN, PROGRESS, CHECKPOINT and EVIDENCE. New cloud runs must verify real repository state; do not assume they inherit uncommitted changes. Do not promise work continues without an actual executor. Do not ask users about routine reversible engineering choices; use ADRs. Escalate only scope, privacy, authority, licensing, production release or unresolved material risk. At most three short product questions per escalation.
 

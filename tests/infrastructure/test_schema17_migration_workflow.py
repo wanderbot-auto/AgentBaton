@@ -393,7 +393,7 @@ class Genuine16WorkflowWiring(unittest.TestCase):
         self.assertEqual(self.workflow['jobs']['core']['timeout-minutes'], '25')
         mac = next(j for j in self.workflow['jobs'].values() if 'strategy' in j)
         self.assertEqual(mac['timeout-minutes'], '60')
-        self.assertEqual(mac['strategy']['matrix']['os'], ['macos-15', 'macos-15-intel'])
+        self.assertEqual(mac['strategy']['matrix']['os'], ['macos-15'])
 
     def test_build_and_generate_use_exact_source_builder_and_private_pair_before_current_build(self):
         for job in self.lanes():

@@ -22,10 +22,6 @@
     {
       "label": "macos-15",
       "purpose": "Apple Silicon environment preflight"
-    },
-    {
-      "label": "macos-15-intel",
-      "purpose": "Intel environment preflight"
     }
   ],
   "minimum_supported_macos": null,

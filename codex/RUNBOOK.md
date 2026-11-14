@@ -29,7 +29,7 @@
 
 UI 必须连接真实核心；以 fixture 为后端的浏览器测试另行标注。macOS 应用需在真 macOS 上构建和验证 Tauri/IPC/窗口/后台生命周期；两种架构分别有证据。缺少测试环境不能把浏览器或 Linux 通过冒充桌面通过。测试控制端口与测试权限不能进入给用户的生产构建。
 
-开发安装包可作为 GitHub Actions artifact 交付，不触发正式 Release。记录架构、commit、校验值、签名状态与已知限制。尚无 Developer ID 时明确未正式签名；代码签名、公证及公开正式发布需独立授权。最低 macOS 按依赖和实测决定，不自行放弃 Intel。
+开发安装包可作为 GitHub Actions artifact 交付，不触发正式 Release。记录架构、commit、校验值、签名状态与已知限制。尚无 Developer ID 时明确未正式签名；代码签名、公证及公开正式发布需独立授权。macOS 仅维护 Apple Silicon（ARM64），Intel 暂不适配；最低 macOS 仍按依赖和实测决定。
 
 ## 文件与沟通
 

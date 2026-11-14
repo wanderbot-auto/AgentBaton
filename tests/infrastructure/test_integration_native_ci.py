@@ -111,12 +111,12 @@ class IntegrationNativeCiTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),
                          '599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc')
 
-    def test_both_mac_lanes_keep_existing_jobs_limits_actions_and_permissions(self):
+    def test_apple_silicon_lane_keeps_existing_jobs_limits_actions_and_permissions(self):
         document = workflow()
         self.assertEqual(set(document['jobs']), {'core', 'frontend', 'desktop'})
         desktop = document['jobs']['desktop']
         self.assertEqual(desktop['name'], 'Product / ${{ matrix.os }}')
-        self.assertEqual(desktop['strategy']['matrix']['os'], ['macos-15', 'macos-15-intel'])
+        self.assertEqual(desktop['strategy']['matrix']['os'], ['macos-15'])
         self.assertEqual(desktop['strategy']['fail-fast'], 'false')
         self.assertEqual(desktop['strategy']['max-parallel'], '2')
         self.assertEqual(desktop['timeout-minutes'], '60')
