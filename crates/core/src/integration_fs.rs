@@ -1243,14 +1243,30 @@ pub(super) fn inspect_git(
             return Err(changed());
         }
     }
-    let metadata = run(&[
-        "rev-parse",
-        "--path-format=absolute",
-        "--show-toplevel",
-        "--git-common-dir",
-        "--verify",
-        "HEAD^{commit}",
-    ])?;
+    let metadata = || {
+        run(&[
+            "rev-parse",
+            "--path-format=absolute",
+            "--show-toplevel",
+            "--git-common-dir",
+            "--verify",
+            "HEAD^{commit}",
+        ])
+    };
+    let index = || run(&["ls-files", "--cached", "--stage", "-v", "-z"]);
+    // After the config guard, overlap two read-only probes on Apple Silicon.
+    // Status and the final identity seal still require both results.
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    let (metadata, entries) = std::thread::scope(|scope| {
+        let entries = std::thread::Builder::new()
+            .spawn_scoped(scope, index)
+            .map_err(|_| limited())?;
+        let metadata = metadata();
+        let entries = entries.join();
+        Ok::<_, CoreError>((metadata?, entries.map_err(|_| limited())??))
+    })?;
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    let metadata = metadata()?;
     let fields = std::str::from_utf8(&metadata)
         .map_err(|_| changed())?
         .lines()
@@ -1262,7 +1278,8 @@ pub(super) fn inspect_git(
         return Err(changed());
     }
     let common_dir = Path::new(fields[1]).canonicalize().map_err(|_| changed())?;
-    let entries = run(&["ls-files", "--cached", "--stage", "-v", "-z"])?;
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    let entries = index()?;
     let mut gitlink = false;
     for entry in entries.split(|b| *b == 0).filter(|r| !r.is_empty()) {
         if entry.len() < 3 || entry[1] != b' ' || entry[0].is_ascii_lowercase() || entry[0] == b'S'

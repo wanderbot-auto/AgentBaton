@@ -631,16 +631,41 @@ fn verify_repository_controlled(
         return Err(WorkspaceError::Dirty.into());
     }
     reject_bound_unsafe_config_controlled(grant, control)?;
-    reject_symbolic_target(&grant.root, Some(grant), &grant.target_ref, control)?;
-    let actual = bound_text_controlled(
-        grant,
-        &[
-            "rev-parse",
-            "--verify",
-            &format!("{}^{{commit}}", grant.target_ref),
-        ],
-        control,
-    )?;
+    let direct = || reject_symbolic_target(&grant.root, Some(grant), &grant.target_ref, control);
+    let peel = || {
+        bound_text_controlled(
+            grant,
+            &[
+                "rev-parse",
+                "--verify",
+                &format!("{}^{{commit}}", grant.target_ref),
+            ],
+            control,
+        )
+    };
+    // On Apple Silicon, both commands observe the already bound Git
+    // directory. Keep the fresh config audit first and join both checks
+    // before effects; a symbolic target still takes precedence over peeling.
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    let actual = if control.is_some() {
+        std::thread::scope(|scope| {
+            let peel = std::thread::Builder::new()
+                .spawn_scoped(scope, peel)
+                .map_err(WorkspaceError::Io)?;
+            let direct = direct();
+            let peeled = peel.join();
+            direct?;
+            peeled.map_err(|_| WorkspaceError::ResourceLimit)?
+        })?
+    } else {
+        direct()?;
+        peel()?
+    };
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    let actual = {
+        direct()?;
+        peel()?
+    };
     if actual != grant.expected_target_head {
         return Err(AdoptionError::StaleHead);
     }
@@ -765,19 +790,48 @@ fn prepare_candidate_inner(
 ) -> Result<PreparedCandidate, AdoptionError> {
     // The repository recheck includes the fresh audit of the pinned Git dir.
     verify_repository_controlled(&grant, control)?;
-    let source = bound_text_controlled(
-        &grant,
-        &[
-            "rev-parse",
-            "--verify",
-            &format!("{}^{{commit}}", grant.source_candidate),
-        ],
-        control,
-    )?;
-    if source != grant.source_candidate {
-        return Err(AdoptionError::SubjectMismatch);
+    let source_commit = || {
+        let source = bound_text_controlled(
+            &grant,
+            &[
+                "rev-parse",
+                "--verify",
+                &format!("{}^{{commit}}", grant.source_candidate),
+            ],
+            control,
+        )?;
+        if source != grant.source_candidate {
+            return Err(AdoptionError::SubjectMismatch);
+        }
+        Ok(())
+    };
+    let source_tree = || reject_candidate_gitlinks(&grant, &grant.source_candidate, control);
+    // The authorized source is already an exact object ID. Validate its type
+    // and scan its tree concurrently, but do not merge unless both pass.
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    let (commit_check, tree_check) = if control.is_some() {
+        std::thread::scope(|scope| {
+            let tree = std::thread::Builder::new()
+                .spawn_scoped(scope, source_tree)
+                .map_err(WorkspaceError::Io)?;
+            let commit = source_commit();
+            let tree = tree.join();
+            Ok::<_, AdoptionError>((commit, tree.map_err(|_| WorkspaceError::ResourceLimit)?))
+        })?
+    } else {
+        source_commit()?;
+        (Ok(()), source_tree())
+    };
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    {
+        commit_check?;
+        tree_check?;
     }
-    reject_candidate_gitlinks(&grant, &grant.source_candidate, control)?;
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    {
+        source_commit()?;
+        source_tree()?;
+    }
     controlled_check(control)?;
     if let Some(control) = control {
         control.note_effects();
