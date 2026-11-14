@@ -8,12 +8,15 @@ use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 mod approval;
-mod integration_approval;
-mod native_parent;
 mod background_policy;
+mod background_service;
 mod background_window;
-mod detached_daemon;
 mod client_recovery_bridge;
+mod detached_daemon;
+mod integration_approval;
+#[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+pub mod native_background_service_test;
+mod native_parent;
 mod workspace_open;
 
 // Read-only limits shared with the feature-gated Native test binary. The
@@ -51,6 +54,8 @@ pub mod native_integration_test_view {
 
 struct Runtime {
     directory: PathBuf,
+    #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+    background_mode: background_service::smoke::Mode,
 }
 
 async fn call(runtime: &Runtime, command: Value, connect: bool) -> Result<Value, String> {
@@ -58,10 +63,11 @@ async fn call(runtime: &Runtime, command: Value, connect: bool) -> Result<Value,
     tauri::async_runtime::spawn_blocking(move || {
         if connect {
             let mut snapshot = ensure_daemon(&directory)?;
-            snapshot["result"]["task_message_recovery"] = match ipc::recover_task_messages(&directory) {
-                Ok(recovery) => recovery,
-                Err(error) => json!({"error":error.code}),
-            };
+            snapshot["result"]["task_message_recovery"] =
+                match ipc::recover_task_messages(&directory) {
+                    Ok(recovery) => recovery,
+                    Err(error) => json!({"error":error.code}),
+                };
             return Ok(snapshot);
         }
         // Preserve side-effect uncertainty across the Tauri bridge. A failed
@@ -93,6 +99,85 @@ async fn confirm_proposed(
             )
         })
     }).await.map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn background_service_status(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+    let mode = runtime.background_mode.clone();
+    Ok(tauri::async_runtime::spawn_blocking(move || {
+        #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+        if let background_service::smoke::Mode::Fixture(capability) = mode {
+            return background_service::smoke::invoke(
+                capability,
+                &directory,
+                background_service::smoke::Operation::Status,
+                || background_service::status(&directory),
+            );
+        }
+        background_service::status(&directory)
+    })
+    .await
+    .unwrap_or_else(|_| background_service::observation_failed()))
+}
+#[tauri::command]
+async fn background_service_enable(
+    window: tauri::WebviewWindow,
+    runtime: tauri::State<'_, Runtime>,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+    let mode = runtime.background_mode.clone();
+    Ok(tauri::async_runtime::spawn_blocking(move || {
+        #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+        if let background_service::smoke::Mode::Fixture(capability) = mode {
+            return background_service::smoke::invoke(
+                capability,
+                &directory,
+                background_service::smoke::Operation::Enable,
+                || {
+                    background_service::change(
+                        window,
+                        directory.clone(),
+                        background_service::Action::Enable,
+                    )
+                },
+            );
+        }
+        background_service::change(window, directory, background_service::Action::Enable)
+    })
+    .await
+    .unwrap_or_else(|_| background_service::mutation_unknown()))
+}
+#[tauri::command]
+async fn background_service_disable(
+    window: tauri::WebviewWindow,
+    runtime: tauri::State<'_, Runtime>,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+    let mode = runtime.background_mode.clone();
+    Ok(tauri::async_runtime::spawn_blocking(move || {
+        #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+        if let background_service::smoke::Mode::Fixture(capability) = mode {
+            return background_service::smoke::invoke(
+                capability,
+                &directory,
+                background_service::smoke::Operation::Disable,
+                || {
+                    background_service::change(
+                        window,
+                        directory.clone(),
+                        background_service::Action::Disable,
+                    )
+                },
+            );
+        }
+        background_service::change(window, directory, background_service::Action::Disable)
+    })
+    .await
+    .unwrap_or_else(|_| background_service::mutation_unknown()))
 }
 
 #[tauri::command]
@@ -421,58 +506,132 @@ async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, S
 }
 
 #[tauri::command]
-async fn client_recovery_list(runtime: tauri::State<'_, Runtime>) -> Result<Value,String> {
-    let directory=runtime.directory.clone();
-    tauri::async_runtime::spawn_blocking(move||client_recovery_bridge::list(&directory)).await.map_err(|e|e.to_string())?
+async fn client_recovery_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || client_recovery_bridge::list(&directory))
+        .await
+        .map_err(|e| e.to_string())?
 }
 #[tauri::command]
-async fn client_recovery_get(runtime: tauri::State<'_, Runtime>,entry_id:String) -> Result<Value,String> {
-    let directory=runtime.directory.clone();
-    tauri::async_runtime::spawn_blocking(move||client_recovery_bridge::get(&directory,&entry_id,|command|ipc::call(&directory,command).map_err(|e|e.to_string()))).await.map_err(|e|e.to_string())?
+async fn client_recovery_get(
+    runtime: tauri::State<'_, Runtime>,
+    entry_id: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        client_recovery_bridge::get(&directory, &entry_id, |command| {
+            ipc::call(&directory, command).map_err(|e| e.to_string())
+        })
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 #[tauri::command]
-async fn client_recovery_status(runtime: tauri::State<'_, Runtime>,binding:Value) -> Result<Value,String> {
+async fn client_recovery_status(
+    runtime: tauri::State<'_, Runtime>,
+    binding: Value,
+) -> Result<Value, String> {
     // Lookup filters only: never clear a journal entry or cancel a request.
-    call(&runtime,json!({"method":"managed_creations.status","params":binding}),false).await
+    call(
+        &runtime,
+        json!({"method":"managed_creations.status","params":binding}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn client_recovery_abandon(runtime: tauri::State<'_, Runtime>,window:tauri::WebviewWindow,entry_id:String) -> Result<Value,String> {
-    let directory=runtime.directory.clone();
-    tauri::async_runtime::spawn_blocking(move||{
-        let marker=match client_recovery_bridge::captured(&directory,&entry_id){Ok(m)=>m,Err(e)=>return Ok(json!({"error":e,"revision":0,"warnings":[]}))};
-        let response=ipc::call(&directory,json!({"method":"managed_creations.get","params":marker})).map_err(|e|e.to_string())?;
-        if client_recovery_bridge::outcome_state(&response,&marker).ok()!=Some("unresolved") {
-            return client_recovery_bridge::reconcile_response(&directory,&marker,response);
+async fn client_recovery_abandon(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    entry_id: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let marker = match client_recovery_bridge::captured(&directory, &entry_id) {
+            Ok(m) => m,
+            Err(e) => return Ok(json!({"error":e,"revision":0,"warnings":[]})),
+        };
+        let response = ipc::call(
+            &directory,
+            json!({"method":"managed_creations.get","params":marker}),
+        )
+        .map_err(|e| e.to_string())?;
+        if client_recovery_bridge::outcome_state(&response, &marker).ok() != Some("unresolved") {
+            return client_recovery_bridge::reconcile_response(&directory, &marker, response);
         }
-        let response=native_parent::with_caller(window,|parent|client_recovery_bridge::confirm_abandon(&marker,response,
-            |message|parent.confirm("AgentBaton — Abandon original creation",message),
-            |command|parent.finalize(||{
-                client_recovery_bridge::still_current(&directory,&marker).map_err(|e|e.to_string())?;
-                ipc::call(&directory,command).map_err(|e|e.to_string())
-            })))?;
-        client_recovery_bridge::reconcile_response(&directory,&marker,response)
-    }).await.map_err(|e|e.to_string())?
+        let response = native_parent::with_caller(window, |parent| {
+            client_recovery_bridge::confirm_abandon(
+                &marker,
+                response,
+                |message| parent.confirm("AgentBaton — Abandon original creation", message),
+                |command| {
+                    parent.finalize(|| {
+                        client_recovery_bridge::still_current(&directory, &marker)
+                            .map_err(|e| e.to_string())?;
+                        ipc::call(&directory, command).map_err(|e| e.to_string())
+                    })
+                },
+            )
+        })?;
+        client_recovery_bridge::reconcile_response(&directory, &marker, response)
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
 async fn managed_mcps_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
-    call(&runtime, json!({"method":"managed_mcps.list","params":{}}), false).await
+    call(
+        &runtime,
+        json!({"method":"managed_mcps.list","params":{}}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn managed_mcp_preview(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"managed_mcps.preview","params":request}), false).await
+async fn managed_mcp_preview(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"managed_mcps.preview","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn managed_mcp_find(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"managed_mcps.find","params":request}), false).await
+async fn managed_mcp_find(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"managed_mcps.find","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn managed_mcp_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"managed_mcps.get","params":request}), false).await
+async fn managed_mcp_get(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"managed_mcps.get","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn managed_mcp_create(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, selection: Value, idempotency_key: String) -> Result<Value, String> {
-    let directory=runtime.directory.clone();
+async fn managed_mcp_create(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    selection: Value,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
         client_recovery_bridge::create(&directory,agentbaton_core::client_recovery_journal::ManagedCreationKind::ManagedMcp,&selection,&idempotency_key,
             ||native_parent::with_caller(window,|parent|{
@@ -485,23 +644,57 @@ async fn managed_mcp_create(runtime: tauri::State<'_, Runtime>, window: tauri::W
 }
 #[tauri::command]
 async fn managed_skills_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
-    call(&runtime, json!({"method":"managed_skills.list","params":{}}), false).await
+    call(
+        &runtime,
+        json!({"method":"managed_skills.list","params":{}}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn managed_skill_preview(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"managed_skills.preview","params":request}), false).await
+async fn managed_skill_preview(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"managed_skills.preview","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn managed_skill_find(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"managed_skills.find","params":request}), false).await
+async fn managed_skill_find(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"managed_skills.find","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn managed_skill_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"managed_skills.get","params":request}), false).await
+async fn managed_skill_get(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"managed_skills.get","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn managed_skill_create(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, selection: Value, idempotency_key: String) -> Result<Value, String> {
-    let directory=runtime.directory.clone();
+async fn managed_skill_create(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    selection: Value,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
         client_recovery_bridge::create(&directory,agentbaton_core::client_recovery_journal::ManagedCreationKind::ManagedSkill,&selection,&idempotency_key,
             ||native_parent::with_caller(window,|parent|{
@@ -513,19 +706,48 @@ async fn managed_skill_create(runtime: tauri::State<'_, Runtime>, window: tauri:
     }).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
-async fn connection_inspect(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"connections.inspect","params":request}), false).await
+async fn connection_inspect(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"connections.inspect","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn connection_probe_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"connections.probe.get","params":request}), false).await
+async fn connection_probe_get(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"connections.probe.get","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn connection_probe_find(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"connections.probe.find","params":request}), false).await
+async fn connection_probe_find(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"connections.probe.find","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn connection_probe_retry(runtime: tauri::State<'_, Runtime>, window: tauri::WebviewWindow, request: Value, idempotency_key: String) -> Result<Value, String> {
+async fn connection_probe_retry(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    request: Value,
+    idempotency_key: String,
+) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
         native_parent::with_caller(window, |parent| {
@@ -1908,23 +2130,57 @@ fn goal_plan_frame(
     )
 }
 #[tauri::command]
-async fn goal_planning_prepare(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"goal_planning.prepare","params":request}), false).await
+async fn goal_planning_prepare(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_planning.prepare","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn goal_planning_start(runtime: tauri::State<'_, Runtime>, request: Value, expected_revision: u64, idempotency_key: String) -> Result<Value, String> {
+async fn goal_planning_start(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
     call(&runtime, json!({"method":"goal_planning.start","params":request,"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
 }
 #[tauri::command]
-async fn goal_planning_get(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"goal_planning.get","params":request}), false).await
+async fn goal_planning_get(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_planning.get","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn goal_planning_list(runtime: tauri::State<'_, Runtime>, request: Value) -> Result<Value, String> {
-    call(&runtime, json!({"method":"goal_planning.list","params":request}), false).await
+async fn goal_planning_list(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_planning.list","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
-async fn goal_planning_cancel(runtime: tauri::State<'_, Runtime>, request: Value, expected_revision: u64, idempotency_key: String) -> Result<Value, String> {
+async fn goal_planning_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    request: Value,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
     call(&runtime, json!({"method":"goal_planning.cancel","params":request,"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
 }
 // Keep candidate_json as a string inside the request: only Core's strict typed
@@ -1934,14 +2190,24 @@ async fn goal_plan_advice_context(
     runtime: tauri::State<'_, Runtime>,
     request: Value,
 ) -> Result<Value, String> {
-    call(&runtime, json!({"method":"goal_plans.advice_context","params":request}), false).await
+    call(
+        &runtime,
+        json!({"method":"goal_plans.advice_context","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
 async fn goal_plan_advice_import(
     runtime: tauri::State<'_, Runtime>,
     request: Value,
 ) -> Result<Value, String> {
-    call(&runtime, json!({"method":"goal_plans.advice_import","params":request}), false).await
+    call(
+        &runtime,
+        json!({"method":"goal_plans.advice_import","params":request}),
+        false,
+    )
+    .await
 }
 #[tauri::command]
 async fn goal_multi_plan_draft(
@@ -2161,6 +2427,9 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        background_service_status,
+        background_service_enable,
+        background_service_disable,
         integration_policy_approve,
         integration_targets_list,
         integration_context_get,
@@ -2305,8 +2574,15 @@ pub fn desktop_builder(directory: PathBuf) -> tauri::Builder<tauri::Wry> {
         .plugin(tauri_plugin_dialog::init())
         .on_window_event(background_window::on_window_event)
         .manage(background_window::BackgroundWindow::default())
-        .setup(|app| { background_window::install(app)?; Ok(()) })
-        .manage(Runtime { directory })
+        .setup(|app| {
+            background_window::install(app)?;
+            Ok(())
+        })
+        .manage(Runtime {
+            directory,
+            #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
+            background_mode: background_service::smoke::Mode::Production,
+        })
         .invoke_handler(dispatch_production)
 }
 
@@ -2321,15 +2597,15 @@ pub fn run() {
     desktop_builder(directory)
         .build(tauri::generate_context!())
         .expect("Desktop runtime failed")
-        .run(|app,event| {
+        .run(|app, event| {
             #[cfg(target_os = "macos")]
             if let tauri::RunEvent::Reopen { .. } = event {
-                if let Err(error)=background_window::restore_main(app) {
+                if let Err(error) = background_window::restore_main(app) {
                     eprintln!("Cannot restore AgentBaton main window: {error}");
                 }
             }
             #[cfg(not(target_os = "macos"))]
-            let _=(app,event);
+            let _ = (app, event);
         });
 }
 

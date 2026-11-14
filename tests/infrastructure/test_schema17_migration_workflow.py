@@ -7,6 +7,7 @@ import shlex
 import unittest
 
 import yaml
+from tests.infrastructure import test_background_service_native_smoke_source as BG
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE_PRODUCT_SHA256 = '4b7543d61e8846248e1b7474ff6fe15d64068612fadbd44f6fe7585933a3378d'
@@ -86,6 +87,8 @@ PRIVATE_BROWSER_BUILD_STEP_SHA256 = '30ec3a29323f835e235254015eadf8375b4e9e9f1b1
 
 def strip_private_browser_python(text):
     """Reverse only the complete pinned browser dependency step's one command."""
+    if BG.BG_STEP_NAME in text:
+        text = BG.strip_background_native_smoke_layer(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
     title = '      - name: Real daemon and browser test dependencies\n'
     if [i for i, h in enumerate(headers) if h.group(0) == title] != [25] or len(headers) <= 26:

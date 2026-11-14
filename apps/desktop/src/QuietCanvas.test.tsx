@@ -32,9 +32,14 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     await user.click(screen.getByRole('button', { name: 'Settings' }));
     const close = screen.getByRole('button', { name: 'Close' });
     const summary = screen.getByText('Connection evidence');
+    const background = screen.getByText('Background and login');
     expect(summary.closest('details')).not.toHaveAttribute('open');
+    expect(background.closest('details')).not.toHaveAttribute('open');
+    expect(screen.queryByRole('region', { name: 'Start background work at next login' })).not.toBeInTheDocument();
     expect(close).toHaveFocus();
+    await user.tab({ shift: true }); expect(background).toHaveFocus();
     await user.tab({ shift: true }); expect(summary).toHaveFocus();
+    await user.tab(); expect(background).toHaveFocus();
     await user.tab(); expect(close).toHaveFocus();
     await user.keyboard('{Escape}');
     expect(screen.getByRole('button', { name: 'Settings' })).toHaveFocus();
