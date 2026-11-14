@@ -494,7 +494,8 @@ mod tests {
         os::unix::fs::{symlink, PermissionsExt},
     };
     fn fixture() -> (tempfile::TempDir, ClientRecoveryJournal) {
-        let d = tempfile::tempdir().unwrap();
+        let parent = std::env::temp_dir().canonicalize().unwrap();
+        let d = tempfile::tempdir_in(parent).unwrap();
         fs::set_permissions(d.path(), fs::Permissions::from_mode(0o700)).unwrap();
         let j = ClientRecoveryJournal::new(d.path()).unwrap();
         (d, j)

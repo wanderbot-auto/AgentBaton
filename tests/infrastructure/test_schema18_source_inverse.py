@@ -14,7 +14,8 @@ class Schema18SourceInverse(unittest.TestCase):
         for path, layer in F.LAYERS.items():
             with self.subTest(path=path):
                 current = (ROOT / path).read_text()
-                self.assertEqual(hashlib.sha256(current.encode()).hexdigest(), layer['after'])
+                current_layer = layer.get('followup', layer)
+                self.assertEqual(hashlib.sha256(current.encode()).hexdigest(), current_layer['after'])
                 restored = F.strip_schema18_source(path, current)
                 self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), layer['before'])
                 self.assertEqual(F.strip_schema18_source(path, restored), restored)
@@ -23,7 +24,7 @@ class Schema18SourceInverse(unittest.TestCase):
         for path, layer in F.LAYERS.items():
             text = (ROOT / path).read_text()
             mutations = [text + '# unreviewed outside change\n']
-            for edit in layer['edits']:
+            for edit in layer.get('followup', layer)['edits']:
                 start, end = edit['start'], edit['end']
                 lines = text.splitlines(keepends=True)
                 mutations += [
