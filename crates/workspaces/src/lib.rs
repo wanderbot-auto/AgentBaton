@@ -1412,14 +1412,36 @@ pub(crate) fn inspect_controlled(
             return Err(WorkspaceError::UnsafeRepository);
         }
     }
-    let batch = run(&[
-        "rev-parse",
-        "--path-format=absolute",
-        "--show-toplevel",
-        "--git-common-dir",
-        "--verify",
-        "HEAD^{commit}",
-    ])?;
+    let metadata_probe = || {
+        run(&[
+            "rev-parse",
+            "--path-format=absolute",
+            "--show-toplevel",
+            "--git-common-dir",
+            "--verify",
+            "HEAD^{commit}",
+        ])
+    };
+    let index_probe = || run(&["ls-files", "--cached", "--stage", "-v", "-z"]);
+    let sparse_probe = || run(&["config", "--bool", "--get", "core.sparseCheckout"]);
+    // On Apple Silicon, overlap independent read-only subprocess startup
+    // after checking config. STATUS still runs only after all three results
+    // pass the original checks. No child outlives this inspection.
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    let (batch, entries, sparse) = std::thread::scope(|scope| {
+        let index = std::thread::Builder::new().spawn_scoped(scope, index_probe)?;
+        let sparse = std::thread::Builder::new().spawn_scoped(scope, sparse_probe)?;
+        let metadata = metadata_probe();
+        let index = index.join();
+        let sparse = sparse.join();
+        Ok::<_, WorkspaceError>((
+            metadata?,
+            index.map_err(|_| WorkspaceError::ResourceLimit)??,
+            sparse.map_err(|_| WorkspaceError::ResourceLimit)??,
+        ))
+    })?;
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    let batch = metadata_probe()?;
     let parsed = if batch.status.success() {
         let text = String::from_utf8(batch.stdout).map_err(|_| WorkspaceError::InvalidPath)?;
         let fields = text.lines().collect::<Vec<_>>();
@@ -1460,7 +1482,8 @@ pub(crate) fn inspect_controlled(
     if top != canonical_root || !is_oid(&head) {
         return Err(WorkspaceError::InvalidPath);
     }
-    let entries = run(&["ls-files", "--cached", "--stage", "-v", "-z"])?;
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    let entries = index_probe()?;
     if !entries.status.success() {
         return Err(WorkspaceError::NotRepository);
     }
@@ -1472,7 +1495,8 @@ pub(crate) fn inspect_controlled(
         }
         submodules |= entry[2..].starts_with(b"160000 ");
     }
-    let sparse = run(&["config", "--bool", "--get", "core.sparseCheckout"])?;
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    let sparse = sparse_probe()?;
     if (sparse.status.success() && sparse.stdout != b"false\n")
         || (!sparse.status.success() && sparse.status.code() != Some(1))
     {
