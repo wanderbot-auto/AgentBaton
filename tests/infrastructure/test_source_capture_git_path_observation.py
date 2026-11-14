@@ -11,7 +11,7 @@ ROOT=Path(__file__).resolve().parents[2]
 SOURCE=ROOT/'crates/workspaces/src/source_capture.rs'
 RUST_TEST=ROOT/'crates/workspaces/src/source_capture_git_path_observation_tests.rs'
 HEAD_BATCH_INVERSE=Path(__file__).parent/'fixtures/source_capture_head_batch_inverse.json'
-HEAD_BATCH_INVERSE_SHA256='8c61d585500ca4730803b5e79b37139aee6a07dffbc145db812b6d9c532de264'
+HEAD_BATCH_INVERSE_SHA256='0133b3565f56712448fe26d3bab1b89914ba349130ea36a2a0f9b70dea75401e'
 ORIGINAL_SHA256='f589fc936d466e75a524482686cd7caade2350f0453c8171d25fb35e2635aeb8'
 CANDIDATE_SHA256='7b76540fa3186e2df503f9eabc17cd951fdccf9fc5cc64c9f841cc9d563924ed'
 FRAGMENTS={'helper': '// One fresh read per original recheck boundary; never retained as authority.\n// Paths cannot contain newlines/control bytes in the original contract. Require\n// exactly three complete fields and the original canonical pin for each one.\nfn verify_git_path_observation(\n    raw: &[u8],\n    expected: [&Path; 3],\n    deadline: Instant,\n    control: Option<&crate::adoption::AdoptionControl<\'_>>,\n) -> Result<(), WorkspaceError> {\n    check_capture_control(deadline, control)?;\n    let text = std::str::from_utf8(raw).map_err(|_| WorkspaceError::InvalidPath)?;\n    if text.len() > 3 * (MAX_PATH_BYTES + 1) {\n        return Err(WorkspaceError::InvalidPath);\n    }\n    let text = text.strip_suffix(\'\\n\').ok_or(WorkspaceError::InvalidPath)?;\n    let fields = text.splitn(4, \'\\n\').collect::<Vec<_>>();\n    if fields.len() != 3 {\n        return Err(WorkspaceError::InvalidPath);\n    }\n    for (text, expected) in fields.into_iter().zip(expected) {\n        check_capture_control(deadline, control)?;\n        if text.is_empty() || text.len() > MAX_PATH_BYTES || text.chars().any(char::is_control) {\n            return Err(WorkspaceError::InvalidPath);\n        }\n        let path = Path::new(text);\n        if fs::canonicalize(path)? != path || path != expected {\n            return Err(WorkspaceError::InvalidPath);\n        }\n        check_capture_control(deadline, control)?;\n    }\n    Ok(())\n}\nfn recheck_git_paths(\n    deadline: Instant,\n    root: &Path,\n    expected: [&Path; 3],\n    control: Option<&crate::adoption::AdoptionControl<\'_>>,\n) -> Result<(), WorkspaceError> {\n    let raw = text_output_controlled(\n        deadline,\n        git_command(root).args([\n            "rev-parse",\n            "--path-format=absolute",\n            "--show-toplevel",\n            "--absolute-git-dir",\n            "--git-common-dir",\n        ]),\n        control,\n    )?;\n    verify_git_path_observation(&raw, expected, deadline, control)\n}\n\n', 'old': '        if git_path(deadline, &self.root, "--show-toplevel", control)? != self.root\n            || git_path(deadline, &self.root, "--absolute-git-dir", control)? != self.git_dir\n            || git_path(deadline, &self.root, "--git-common-dir", control)? != self.common_dir\n        {\n            return Err(WorkspaceError::InvalidPath);\n        }\n', 'new': '        recheck_git_paths(\n            deadline,\n            &self.root,\n            [&self.root, &self.git_dir, &self.common_dir],\n            control,\n        )?;\n', 'module': '\n#[cfg(test)]\n#[path = "source_capture_git_path_observation_tests.rs"]\nmod git_path_observation_tests;\n'}
@@ -21,22 +21,30 @@ def digest(raw):
 
 
 def before_head_batch(path, raw):
-    """Authenticate both complete byte sequences around the HEAD batching."""
+    """Authenticate the current source and restore each exact historical layer."""
     inverse = HEAD_BATCH_INVERSE.read_bytes()
     if digest(inverse) != HEAD_BATCH_INVERSE_SHA256:
         raise AssertionError('Unknown HEAD batch inverse fixture')
     layers = json.loads(inverse)
     layer = layers[path.relative_to(ROOT).as_posix()]
-    if type(raw) is not bytes or digest(raw) != layer['after']:
+    followup = layer.get('followup')
+    current = followup or layer
+    if type(raw) is not bytes or digest(raw) != current['after']:
         raise AssertionError('Unknown HEAD batch composition')
+    if followup is not None:
+        raw = restore_exact_spans(raw, followup['edits'], layer['after'])
+    return restore_exact_spans(raw, layer['edits'], layer['before'])
+
+
+def restore_exact_spans(raw, edits, expected):
     lines = raw.decode().splitlines(keepends=True)
-    for edit in reversed(layer['edits']):
+    for edit in reversed(edits):
         start, end = edit['start'], edit['end']
         if not 0 <= start < end <= len(lines) or ''.join(lines[start:end]) != edit['expected']:
             raise AssertionError('Missing or displaced HEAD batch span')
         lines[start:end] = edit['replacement'].splitlines(keepends=True)
     restored = ''.join(lines).encode()
-    if digest(restored) != layer['before']:
+    if digest(restored) != expected:
         raise AssertionError('Complete pre-batch source not restored')
     return restored
 

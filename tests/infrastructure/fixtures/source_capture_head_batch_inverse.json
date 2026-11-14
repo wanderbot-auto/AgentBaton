@@ -87,7 +87,30 @@
         "expected": "        )?;\n",
         "replacement": "        )?;\n        if oid(text_output_controlled(\n            deadline,\n            self.command()\n                .args([\"rev-parse\", \"--verify\", \"HEAD^{commit}\"]),\n            control,\n        )?)? != self.base\n        {\n            return Err(WorkspaceError::StaleHead);\n        }\n"
       }
-    ]
+    ],
+    "followup": {
+      "after": "a3db99ebaad780d8cd5e4692b91e8e61b5f864f3cf70eef69d77784ac050cbe6",
+      "edits": [
+        {
+          "start": 1045,
+          "end": 1084,
+          "expected": "        let paths = || check_tree_paths(self, tree, control);\n        let diff = || {\n            text_output_controlled(\n                self.deadline,\n                self.command().args([\n                    \"diff-tree\",\n                    \"-r\",\n                    \"--raw\",\n                    \"--no-abbrev\",\n                    \"-z\",\n                    \"--no-renames\",\n                    \"--no-ext-diff\",\n                    \"--ignore-submodules=none\",\n                    self.base.as_str(),\n                    tree,\n                ]),\n                control,\n            )\n        };\n        // Both commands read immutable object IDs with external diff disabled.\n        // Keep the full path safety check before accepting any diff or proceeding.\n        #[cfg(all(target_os = \"macos\", target_arch = \"aarch64\"))]\n        let raw = if control.is_some() {\n            std::thread::scope(|scope| {\n                let diff = std::thread::Builder::new().spawn_scoped(scope, diff)?;\n                let paths = paths();\n                let diff = diff.join();\n                paths?;\n                diff.map_err(|_| WorkspaceError::ResourceLimit)?\n            })?\n        } else {\n            paths()?;\n            diff()?\n        };\n        #[cfg(not(all(target_os = \"macos\", target_arch = \"aarch64\")))]\n        let raw = {\n            paths()?;\n            diff()?\n        };\n",
+          "replacement": "        check_tree_paths(self, tree, control)?;\n        let raw = text_output_controlled(\n            self.deadline,\n            self.command().args([\n                \"diff-tree\",\n                \"-r\",\n                \"--raw\",\n                \"--no-abbrev\",\n                \"-z\",\n                \"--no-renames\",\n                \"--no-ext-diff\",\n                \"--ignore-submodules=none\",\n                self.base.as_str(),\n                tree,\n            ]),\n            control,\n        )?;\n"
+        },
+        {
+          "start": 1404,
+          "end": 1408,
+          "expected": "        use std::os::{\n            fd::{AsFd, AsRawFd},\n            unix::process::CommandExt,\n        };\n",
+          "replacement": "        use std::os::{fd::AsRawFd, unix::process::CommandExt};\n"
+        },
+        {
+          "start": 1509,
+          "end": 1517,
+          "expected": "                if let Err(error) = crate::wait_for_git_output(\n                    (!eof).then(|| stdout.as_fd()),\n                    stderr.pipe.as_ref().map(AsFd::as_fd),\n                    control.deadline(),\n                ) {\n                    failure = Some(error.into());\n                    break;\n                }\n",
+          "replacement": "                std::thread::sleep(\n                    Duration::from_millis(2)\n                        .min(control.deadline().saturating_duration_since(Instant::now())),\n                );\n"
+        }
+      ]
+    }
   },
   "crates/workspaces/src/source_capture_git_path_observation_tests.rs": {
     "before": "18ee67e144e0d7420c7fd59bde173daa47ec21dd7e799d3a5191d0b51d2b61f5",
