@@ -1,0 +1,559 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T22:50:46.228498+00:00",
+  "record_head": "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+  "source_tree": "264073df372861ad6c541730fc3425abdab2c53f",
+  "requirements": [
+    "AB-SES-009",
+    "AB-PRJ-005"
+  ],
+  "scope": "Linux built React/Chromium with actual same-source normal Core17/CLI Unix IPC and generated private local fixtures; Task-workspace regression slice only. Direct driver plus finite collector, not whole CI or Native Terminal acceptance.",
+  "actual": {
+    "full-infrastructure1": {
+      "source": "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+      "tree": "264073df372861ad6c541730fc3425abdab2c53f",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 19.8474200849887,
+      "result_sha256": "7754874cc8c6c8ec88433e2e0d5f78d14851e980695ddd4043f65b410edc1dcb",
+      "inputs_sha256": "9ea75d10e063a13132d6449330eb29c7de993da069121fde70c3fc8b5bc4a42c",
+      "log_sha256": "66eaa60b31a2117f84ed40f198cbe3236664dcd27f1aa6b4a3975679769cec29",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+    },
+    "normal-build1": {
+      "source": "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+      "tree": "264073df372861ad6c541730fc3425abdab2c53f",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton"
+      ],
+      "exit": 0,
+      "seconds": 22.777020237990655,
+      "result_sha256": "a8c551cff87366948ac40af80faa184ad463be3571921430d052fd653aa72ae7",
+      "inputs_sha256": "4d3126b356cc9be0dfaaed45ec8a4e2c4d96c307aa9ea916092437fe3d125a77",
+      "log_sha256": "2bc8663ff507450b95207c4f2a367fa54d81e772138839d0ef036493fa7ee259",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+    },
+    "normal-freeze1": {
+      "source": "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+      "tree": "264073df372861ad6c541730fc3425abdab2c53f",
+      "command": [
+        "python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+        "--output",
+        "/workspace/.onboarding/directory-task-driver-scoped-normal-frozen1",
+        "--evidence",
+        "/workspace/.onboarding/directory-task-driver-scoped-normal-freeze-evidence1"
+      ],
+      "exit": 0,
+      "seconds": 0.4014090049895458,
+      "result_sha256": "7c554303c2c2c8b4d3126afee62f4e628d806fbc05483039086a39e8a688fe41",
+      "inputs_sha256": "255f158b14d678a87301500281e8210c7fa9d6c0a154fe49bfcc54324af2a734",
+      "log_sha256": "9e7555da6260b722c36d5b12e6e05ab15fc7c04c7645df90de71035a3e36aa71",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+    },
+    "frontend-build1": {
+      "source": "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+      "tree": "264073df372861ad6c541730fc3425abdab2c53f",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 1.6119963829987682,
+      "result_sha256": "76885cf6e0272fe7b4e5f414601861e39627b7e2399cd1baa1e79623572280bb",
+      "inputs_sha256": "f46d84b55ff2180a99074d51c46556a7f029096b3e3aea93d39989ca4d368d12",
+      "log_sha256": "fb82f26b02669b96ea7ba72d6e817a86bb25c6b197f4409823a9be9adceb2134",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+    },
+    "browser1": {
+      "source": "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+      "tree": "264073df372861ad6c541730fc3425abdab2c53f",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/directory-task-driver-scoped-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/directory-task-driver-scoped-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/directory-task-driver-scoped-normal-frozen1/baton",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+        "apps/desktop/tests/task-workspace-binding-real-ipc.py",
+        "--run",
+        "--batond",
+        "/workspace/.onboarding/directory-task-driver-scoped-normal-frozen1/batond",
+        "--candidate-manifest",
+        "/workspace/.onboarding/directory-task-driver-scoped-candidate1.json",
+        "--frontend",
+        "apps/desktop/dist",
+        "--frontend-build-record",
+        "/workspace/.onboarding/directory-task-driver-scoped-frontend-build1/RESULT.json",
+        "--expected-source-head",
+        "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+        "--chromium",
+        "/workspace/.onboarding/directory-task-driver-chromium-launcher1",
+        "--output",
+        "/workspace/.onboarding/directory-task-driver-scoped-browser1-private"
+      ],
+      "exit": 0,
+      "seconds": 8.925250218017027,
+      "result_sha256": "07f9c44bd52b92890d36482d2bc5594ec2d1577ca809bf28a37f50f8c39a8fe6",
+      "inputs_sha256": "2387497a1327ab9238ba50fbbae508e3bcaa789745632626ff8bc175161c46fc",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "frozen_tools_role": "Explicit same-source normal17 tools for actual browser IPC"
+    },
+    "finite1": {
+      "source": "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+      "tree": "264073df372861ad6c541730fc3425abdab2c53f",
+      "command": [
+        "python3",
+        "scripts/record-task-workspace-ci-evidence.py",
+        "--private",
+        "/workspace/.onboarding/directory-task-driver-scoped-browser1-private",
+        "--output",
+        "/workspace/.onboarding/directory-task-driver-scoped-finite1-published",
+        "--expected-source-head",
+        "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208"
+      ],
+      "exit": 0,
+      "seconds": 0.20090790302492678,
+      "result_sha256": "8fbf607f1eacdd4898dd2b526ee468aed86bf45baca6885e037ffb38a8efdfa8",
+      "inputs_sha256": "63f6af06ea9c4eb80953aff66e50ff264b884f28fe3ea4b5657038b0bbdfef3f",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+    }
+  },
+  "counts": {
+    "full_infrastructure": 725,
+    "task_workspace_cases": 6,
+    "original_pngs": 8
+  },
+  "same_source_pair": {
+    "candidate_manifest_sha256": "de6bab1650ec5e8a02771fd785845ec4f1b957754a44c1c286f798e0504e8d3d",
+    "frozen_manifest_sha256": "c86551a177ec5a9f7f71662204f2885f5b974a59cb2f2befd521c9b07921e2d2",
+    "compiled_core_source": "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+    "frontend_source": "4aa5f8e0784cc554a02fb97bb63b0e3cc3fed208",
+    "schema": 17,
+    "normal_binaries": {
+      "batond": "f18cc44474296e862dd18e492910714e4fd515644c7ee8ed2ff7118050929371",
+      "baton": "340c443feb4d429b1065d214a5855b57452411d0ee6c022245277b565d513b1b"
+    },
+    "browser": "Owned fixed local wrapper adds no-sandbox to an installed owned Chromium ELF; Linux only, no OS sandbox claim. No resources downloaded."
+  },
+  "browser": {
+    "report_sha256": "2883677c566317dc3d79b4d9472c2747ab377ee8e7582ef600c02811d533278b",
+    "finite_summary_sha256": "78d1f74dbfb531ff6f5c2643d24e383480d029dd3253fb8e663c4c310f9f33c5",
+    "checks": [
+      {
+        "id": "WSI-B01",
+        "status": "passed"
+      },
+      {
+        "id": "WSI-B02",
+        "status": "passed"
+      },
+      {
+        "id": "WSI-B05",
+        "status": "passed"
+      },
+      {
+        "id": "WSI-B06",
+        "status": "passed"
+      },
+      {
+        "id": "WSI-B03",
+        "status": "passed"
+      },
+      {
+        "id": "WSI-B04",
+        "status": "passed"
+      }
+    ],
+    "scenarios": {
+      "WSI-B01": "passed",
+      "WSI-B02": "passed",
+      "WSI-B03": "passed",
+      "WSI-B04": "passed",
+      "WSI-B05": "passed",
+      "WSI-B06": "passed"
+    },
+    "cleanup": {
+      "complete": true,
+      "daemon_joined": true,
+      "http_joined": true,
+      "nullable_cleanup_complete": true,
+      "input_hashes_unchanged": true
+    },
+    "daemon_exit": 0,
+    "daemon_reaped": true,
+    "http_thread_joined": true,
+    "no_execution_or_grants": true,
+    "original_inputs_equal_after_cleanup": true,
+    "original_pngs": [
+      {
+        "name": "01-first-task-ready-desktop.png",
+        "sha256": "4490fd6d62dcd740b95457ea101b54c0819110373a58b5b2dc720fc53a2d8e40",
+        "bytes": 130324,
+        "width": 1440,
+        "height": 1100,
+        "published_bytes_equal_private_original": true
+      },
+      {
+        "name": "02-second-task-exact-recovered-desktop.png",
+        "sha256": "84fb99741db5481a6c4c82d32dc97f0f755838ba514d8f8459753eb4fd3fc4fd",
+        "bytes": 131130,
+        "width": 1440,
+        "height": 1100,
+        "published_bytes_equal_private_original": true
+      },
+      {
+        "name": "03-drift-invalidates-proof-desktop.png",
+        "sha256": "747a7950b07abf655ceea1e3aa6ab6e314b65d73fb451fc282854ad7360f9157",
+        "bytes": 136844,
+        "width": 1440,
+        "height": 1100,
+        "published_bytes_equal_private_original": true
+      },
+      {
+        "name": "04-drift-history-mobile.png",
+        "sha256": "a060a73cb65777bdcd61eff7144e91c47485ae42ffe771f9aa5d04d0d116300d",
+        "bytes": 52135,
+        "width": 390,
+        "height": 844,
+        "published_bytes_equal_private_original": true
+      },
+      {
+        "name": "05-task2-bound-execution-desktop.png",
+        "sha256": "0232ab427f43530b230b7d9f57ef4ac266c09cfc7c41e9dfe28b777b5ddd6f5d",
+        "bytes": 179533,
+        "width": 1440,
+        "height": 1100,
+        "published_bytes_equal_private_original": true
+      },
+      {
+        "name": "06-task1-bound-execution-mobile.png",
+        "sha256": "e9f57348f50fca6bcd0aa19cfed9f188eef7a30ad7e6770ef9f9ea369f452122",
+        "bytes": 49457,
+        "width": 390,
+        "height": 844,
+        "published_bytes_equal_private_original": true
+      },
+      {
+        "name": "07-unbound-entry-parent-refresh-recovery-desktop.png",
+        "sha256": "918949a66f6c75f79242ed5fff664fe70614839832775fb307271b791ddbec4a",
+        "bytes": 157304,
+        "width": 1440,
+        "height": 1100,
+        "published_bytes_equal_private_original": true
+      },
+      {
+        "name": "08-unbound-entry-exact-recovered-desktop.png",
+        "sha256": "f7e7e991aac6a7a523769df1a3a0856acb96bd62cb982fc0792cd5d4ea2b44a8",
+        "bytes": 181675,
+        "width": 1440,
+        "height": 1100,
+        "published_bytes_equal_private_original": true
+      }
+    ],
+    "visual_review": "Metadata author verified all8 original PNG identities/dimensions. Main agent separately viewed04-drift-history-mobile.png as a Linux visual observation; no new design approval, full pixel acceptance, Native/macOS evidence claimed."
+  },
+  "before": {
+    "source": "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+    "records": {
+      "normal-build1": {
+        "source": "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+        "tree": "0c4a3bc3ba8594c1a5e58bb9b31df3e7e75d6c50",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "seconds": 21.755836329015438,
+        "result_sha256": "d5fcf3a19738d9a4dd887b2218b51e51fc7a1f094952a15d87560a210e847e39",
+        "inputs_sha256": "2a6b7e8df5365bce2c307556ea1073384333586e9a6380bd45239244ee182f5f",
+        "log_sha256": "940e098576ae401730ebbd006d3d27b5b431ac707d027214bc1f6abdf299707a",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+      },
+      "normal-freeze1": {
+        "source": "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+        "tree": "0c4a3bc3ba8594c1a5e58bb9b31df3e7e75d6c50",
+        "command": [
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/workspace/.onboarding/directory-task-driver-repro-normal-frozen1",
+          "--evidence",
+          "/workspace/.onboarding/directory-task-driver-repro-normal-freeze-evidence1"
+        ],
+        "exit": 0,
+        "seconds": 0.4015001179650426,
+        "result_sha256": "afc1992bdacf0cab2b0da079694fd5f080a6c8fb8ffccca7103949386f1f8394",
+        "inputs_sha256": "c2ea48ac7d3972807343520a87a2e56344500743b2d04f8a308b847dd5ed0ff5",
+        "log_sha256": "c38b5f802f8482c4ae3140adc73f81934f87871ae3643cfe8e07408c5b55fa29",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+      },
+      "frontend-build1": {
+        "source": "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+        "tree": "0c4a3bc3ba8594c1a5e58bb9b31df3e7e75d6c50",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.6058370149694383,
+        "result_sha256": "3de224e5630962c9ffaddb7e6de23249d065d509e4244bd5820988501fb15354",
+        "inputs_sha256": "51ec80645d54c41d040f7c773f0c4884c12bedf647779ad4a5d860c75f23bb09",
+        "log_sha256": "b516b2b0b65a0c7b9862e8913248807c8a61e2581385baaa2dee7aaea26f8242",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+      },
+      "browser1": {
+        "source": "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+        "tree": "0c4a3bc3ba8594c1a5e58bb9b31df3e7e75d6c50",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/directory-task-driver-repro-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/directory-task-driver-repro-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/directory-task-driver-repro-normal-frozen1/baton",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/task-workspace-binding-real-ipc.py",
+          "--run",
+          "--batond",
+          "/workspace/.onboarding/directory-task-driver-repro-normal-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/directory-task-driver-repro-candidate1.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/directory-task-driver-repro-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+          "--chromium",
+          "/workspace/.onboarding/directory-task-driver-chromium-launcher1",
+          "--output",
+          "/workspace/.onboarding/directory-task-driver-repro-browser1-private"
+        ],
+        "exit": 1,
+        "seconds": 2.0064493679674342,
+        "result_sha256": "04e2bf530f9b2dfa13142b1657ca37423fabf84e39822ad1502ef2ff980f7cb1",
+        "inputs_sha256": "bf677bff4fc62c3bc1d30936d030322facbc22a8b8caabd052a379215e2c1063",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+      },
+      "browser2": {
+        "source": "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+        "tree": "0c4a3bc3ba8594c1a5e58bb9b31df3e7e75d6c50",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/directory-task-driver-repro-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/directory-task-driver-repro-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/directory-task-driver-repro-normal-frozen1/baton",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "/workspace/.onboarding/trace-directory-task-driver1.py",
+          "--run",
+          "--batond",
+          "/workspace/.onboarding/directory-task-driver-repro-normal-frozen1/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/directory-task-driver-repro-candidate1.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--frontend-build-record",
+          "/workspace/.onboarding/directory-task-driver-repro-frontend-build1/RESULT.json",
+          "--expected-source-head",
+          "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+          "--chromium",
+          "/workspace/.onboarding/directory-task-driver-chromium-launcher1",
+          "--output",
+          "/workspace/.onboarding/directory-task-driver-repro-browser2-private"
+        ],
+        "exit": 1,
+        "seconds": 2.918561447004322,
+        "result_sha256": "72482841558545e60ff66d45a709a9ecfbf4f466ff4011fd4f61f5dcd5785164",
+        "inputs_sha256": "a47d19b7ea34d1d9c34464db5a650fff4811a3eb6d71b8300ffc17d194d85b49",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "frozen_tools_role": "Runner inherited pins recorded and unchanged; not evidence that this command executed these inherited tools"
+      }
+    },
+    "same_source_candidate_manifest_sha256": "978019f5bc5612d6c0814c4aac515277324140c97ad61ede46bc4c49501e3af5",
+    "failed_reports": [
+      {
+        "record": "browser1",
+        "source": "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+        "report_sha256": "284d8d8276beecfd3fd5154e286e0cadad1bbfd307ccbb8279476beac595b5ac",
+        "status": "failed",
+        "phase": "normal_first_task",
+        "exception_kind": "AssertionError",
+        "completed_cases": 0
+      },
+      {
+        "record": "browser2",
+        "source": "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+        "report_sha256": "6a5e71b4f6754303737c840822db1c4aa406c08b2761403edd6275006d2c4989",
+        "status": "failed",
+        "phase": "normal_first_task",
+        "exception_kind": "AssertionError",
+        "completed_cases": 0
+      }
+    ],
+    "diagnostic": {
+      "wrapper_sha256": "f7e5dd111aa3501146defd7cab99f0879573f5c8f7b7f4e1d6e8bfe043d70895",
+      "observations_sha256": "8d50ae7e789db4ae852479c52736fc8c1d55385be4f8a087bdb11b5737e0508e",
+      "closed_observations": [
+        {
+          "function": "open_task",
+          "line": 802,
+          "kind": "AssertionError",
+          "strict_mode_violation": true,
+          "resolved_two_elements": true,
+          "section_locator": true
+        },
+        {
+          "function": "run",
+          "line": 820,
+          "kind": "AssertionError",
+          "strict_mode_violation": true,
+          "resolved_two_elements": true,
+          "section_locator": true
+        }
+      ],
+      "interpretation": "Local exact-source normal run failed before any case; extra trace identifies strict section selector matching two elements at open_task802. Trace overhead is not performance evidence."
+    }
+  },
+  "change": {
+    "selector_source": "c017c5fbfc450a955f9d6726e0163e4d69e69acc",
+    "original_driver_sha256": "7c2a4a56f85c1e42500d1f32131239f017d40037ee3a5e3f04172ae4827060c4",
+    "fixed_driver_sha256": "68e28a34412b7b42931cd08e5b1ec6e1b3e299f8d7b9aadd020441b91e07f92d",
+    "delta": "One selector becomes :scope > section; the strict aria-busy=false assertion and original deadlines remain. Production components unchanged.",
+    "finite_stage_source": "864f20da95aa5f7b0b5d325f64b5a71d65a5b3ff; cherry-picked as4aa",
+    "finite_stage": "Optional closed stage/kind/completed-case observations only. Original metadata-only/failure/zeroPNG/exit semantics and successful collection retained."
+  },
+  "reviews": [
+    {
+      "source": "c017c5fbfc450a955f9d6726e0163e4d69e69acc",
+      "review_sha256": "2f87541ae607d2b80224ce406751c54b9abec220c26ccd3e49226fefb5b0d9c5",
+      "decision": "SOURCE_READY",
+      "check_count": 134
+    },
+    {
+      "source": "864f20da95aa5f7b0b5d325f64b5a71d65a5b3ff",
+      "review_sha256": "dfb4f30b8977d1bfdecbbce6f0ee3674ad05c100a56e850b3422258ee01c8802",
+      "decision": "SOURCE_READY",
+      "check_count": 107
+    }
+  ],
+  "previous_remote": {
+    "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/23",
+    "source": "877bbee45f4df0acfe29e79839be2e9d4c231e14",
+    "Environment_run": 41246831380,
+    "Environment_result": "completed success; metadata author independently read official API and retained exact-source response",
+    "Product_run": 41246833773,
+    "UI_job": 124671906659,
+    "UI_result": "Task-workspace driver1/projector0; six NOT_RUN, cleanup complete, no PNGs. Original summary contains no failure stage.",
+    "UI_summary_sha256": "d80ae6bcd4bceb34bd69704bf1ef56cee036bbf606b1ff24d40bc5a8c58b5431",
+    "mac_results": {
+      "arm64": {
+        "job": 124671906649,
+        "status": "failed",
+        "log_sha256": "084691fa560aa46cb9e6d96d993e85a6d3c8e00e04fbe0aa17ddad45d063ef03",
+        "target": "integration IPC",
+        "passed": 19,
+        "failed": 11,
+        "first_failure": "accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_source at integration_runtime.rs138: integrations.get observation expired, state validating, code null",
+        "other_failures": "Other integration paths include FIFO-ready and command-leader-stop observations; not diagnosed as one cause."
+      },
+      "x86_64": {
+        "job": 124671906675,
+        "status": "failed",
+        "log_sha256": "34b3dbf0d512a51e184406f6c8b16b5990220ca13571b35d9dd8cf26a23f3419",
+        "target": "Factory IPC",
+        "passed": 35,
+        "failed": 1,
+        "first_failure": "rework at factory_child_goal_rework.rs488: fixed readonly reconciliation attempts exhausted; original transport error remains recorded",
+        "cleanup": {
+          "daemon_result": "ok",
+          "joined": true
+        }
+      }
+    },
+    "causality_limit": "The local strict-selector reproduction is proven locally. The original remote UI finite summary lacks stage information, and these separate ARM integration and Intel rework failures remain unresolved. The local4aa driver fix does not establish or repair either Mac failure; do not equate them with Root e509 outcome_unknown or rev2 blocked outcomes.",
+    "Product_result": "completed failure; Rust success, UI and both Mac jobs failure",
+    "official_api_observations": {
+      "environment": {
+        "path": "/workspace/.onboarding/pr23-877bbee4-ci/metadata-final-observation1/environment.json",
+        "sha256": "e39ec0fe6ce54f67484723b23c0789d9417b279eab793e5bc67dfbe290816fbf"
+      },
+      "product": {
+        "path": "/workspace/.onboarding/pr23-877bbee4-ci/metadata-final-observation1/product.json",
+        "sha256": "3f9ae8ab0bcb74c3c2e064520762ab9d18344687786d0854df91a29bb36d7f2f"
+      },
+      "product-jobs": {
+        "path": "/workspace/.onboarding/pr23-877bbee4-ci/metadata-final-observation1/product-jobs.json",
+        "sha256": "01652511b55397a2497e808c385be2d84b8ea36208fc31c08d455e0199b242ed"
+      }
+    }
+  },
+  "not_run": [
+    "New exact-head remote CI after4aa",
+    "Actual macOS Terminal target-directory observation and Native handoff",
+    "Current dual-architecture development packages/manual acceptance",
+    "Real product Provider/model calls or extra remote hosts",
+    "Whole product acceptance"
+  ],
+  "limits": [
+    "Existing source-bound274Core/7IPC/1194UI/126LinuxNative/715infra records remain at their original f5a/2ee/fd15 sources; they are not relabeled4aa.",
+    "This slice does not start Agent/session/Grant/approval or transfer an external session.",
+    "No formal Approve/merge/production/signing/private credentials/new spending authority added. Full130 scope remains incomplete."
+  ]
+}

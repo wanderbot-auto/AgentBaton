@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T22:02:26.653774+00:00",
+  "record_head": "fc1a483ad060d4962a44e7135062cdd14b8d532d",
+  "requirement": "AB-SES-009",
+  "actual": {
+    "directory-capture-composed-normal-build1": {
+      "source": "f5a6af91dc782444564dc09233bac3291d3397f8",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton"
+      ],
+      "exit": 0,
+      "seconds": 21.577195639023557,
+      "log_sha256": "4d43f8175ce2a28f0d61c834dc7f0274cf110ed65e7202621444a61d2b7ed731",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "4db380dd465861ce96efd655d79d02954e07e026a11617dbd093ab9a33aa2d53",
+      "inputs_sha256": "4139dedbd65ea099581eda4f92150226dc52fd51af1dd57b433f88be9feff714"
+    },
+    "directory-capture-composed-normal-freeze1": {
+      "source": "f5a6af91dc782444564dc09233bac3291d3397f8",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+        "--output",
+        "/workspace/.onboarding/directory-capture-composed-normal-frozen1",
+        "--evidence",
+        "/workspace/.onboarding/directory-capture-composed-normal-probe1"
+      ],
+      "exit": 0,
+      "seconds": 0.40137480600969866,
+      "log_sha256": "0b70902fb520c62bdafe7b335c451e6e95572f7ac64939aa7cef2ac98c7c80f2",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "f5a7a642dc4352d9276cab4f1eef7de822fa9bb10e5920273728a329f3c094a0",
+      "inputs_sha256": "fd650ab332386dcfe968f4d14ff8c799cef9e31fba22c63341c5fe159f775c8d"
+    },
+    "directory-capture-composed-core-full1": {
+      "source": "f5a6af91dc782444564dc09233bac3291d3397f8",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/directory-capture-composed-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 187.00204385904362,
+      "log_sha256": "49f5bb2fa111f4299d4a9af7087f84a8994b957647221585cdd7962cfbc70626",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "b80bc4cb85f15352ddfe93af40bb4c89192bb458f8feba9c691bcb92f719158e",
+      "inputs_sha256": "7bbba58f7bb2d528f136bed3e3dcd27aa05a913d031cae9b9596a123c4915644"
+    },
+    "directory-capture-composed-ipc1": {
+      "source": "f5a6af91dc782444564dc09233bac3291d3397f8",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/directory-capture-composed-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "workspace_open_ipc",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 24.582203569996636,
+      "log_sha256": "a83810fa143f06e94dec2549f008a41a75f26b3853bcd463076ef045aa70ca59",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "b194595db15b2086a838832a3f92ec341b03b877bfe5fcbef8d625b253a269b0",
+      "inputs_sha256": "37b079aef0a3abb45b944277e0d5b078e646608719bbf3f0f0eaa89615c7486e"
+    },
+    "directory-capture-bounded-workers-full-ui1": {
+      "source": "2ee07c9efd8dbe1731b888a8de96afc68ee8d4c9",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 50.8397656280431,
+      "log_sha256": "51394c3c32d2272e580da035db3372a145118fc32121c7686ad3cb07112f3ed1",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "a4590630283f000a00243faa70a8ee5878630482ced7c4a97ccde4450c35b88e",
+      "inputs_sha256": "0a6e1737bfa05feec29ad4a0c5c17bd8eb3f5aa896915d3ae0da65aa90db34c8"
+    },
+    "directory-capture-composed-workspace-clippy1": {
+      "source": "2ee07c9efd8dbe1731b888a8de96afc68ee8d4c9",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/directory-capture-composed-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--locked",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 20.775078286998905,
+      "log_sha256": "8e2078366f8abb502005cc75b0add437f87831ade038dc3a3439e734dff6cd99",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "991dfdcd00b740617059ca918bae2ffd41ca040ca12a84878530190da2562f17",
+      "inputs_sha256": "57f8451144152f2dc4ef7330b4e126ca00fff8b96483e77349b8e52b9b80a1f1"
+    },
+    "directory-capture-composed-native-clippy1": {
+      "source": "fd15f4884f125221161f2e4cfbb6af11a11c5f1d",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+        "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+        "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+        "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/directory-capture-composed-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 14.54696787300054,
+      "log_sha256": "9c8744a94d7f7a965540e884fd68792186a4801d60b6e4624e0324f96def719f",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "1fc8d17f8100023c53eed15894fb06793e38d3b4e6e4834e03848029582323ed",
+      "inputs_sha256": "3ec9f6b0fdd6265ec69c8945eb6da8c6abc42d40ac549381ca4ce8a388288ebe"
+    },
+    "directory-capture-composed-native-units1": {
+      "source": "fd15f4884f125221161f2e4cfbb6af11a11c5f1d",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot",
+        "PKG_CONFIG_LIBDIR=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:/workspace/.toolchains/linux-ui/sysroot/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+        "LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+        "LD_LIBRARY_PATH=/workspace/.toolchains/linux-ui/sysroot/usr/lib/x86_64-linux-gnu",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/directory-capture-composed-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/directory-capture-composed-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 27.390164109005127,
+      "log_sha256": "e305907b3b5680639df5117d371f9ccc73fd08f806133cc3c6804e9c42026f7c",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "61b556b9918b0a76650188266be91cad661d082cc184305479def8ef13d37ff5",
+      "inputs_sha256": "36b06d8e255fe02e1d167efb8aed7f2d07f32bd8e98b2e6bd120838e2088dbd3"
+    },
+    "directory-capture-composed-full-infrastructure1": {
+      "source": "fd15f4884f125221161f2e4cfbb6af11a11c5f1d",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 19.06316306599183,
+      "log_sha256": "92e884575574961465869c4a0dd55947c3e7fe4a1435117150d0e6f43514614f",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "4341ad1ef6f66e7c57b58c20b5109381f22856833deeda25caf06d870f97efa4",
+      "inputs_sha256": "504256db1a9cffb344aae12f1f97dad79575b7494f79adb2eb6c7b9704ed8a3a"
+    },
+    "directory-capture-composed-frontend-build1": {
+      "source": "fd15f4884f125221161f2e4cfbb6af11a11c5f1d",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 1.605769562011119,
+      "log_sha256": "3bee282cdea41dd9de65b7f461bfed65de8d041d190dac023f6d98b584374d10",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "72a7e3ac0b756fbafd2ae96bcb75483e1c2cb731bfdd27b754c47a77b2bbd603",
+      "inputs_sha256": "afcd9f6bfb5af371a795381b3cc03bd27b5c1c36ee64545f2b222d05b2115391"
+    }
+  },
+  "source_counts": {
+    "f5a6af91": "Fresh matching normal Core17/CLI build/freeze; full Core274 and actual UnixIPC7 pass. Nested helper1 included, not additive.",
+    "2ee07c9e": "Default fullUI1194/67files and strict workspace all-targets Clippy pass; only inherited two complete Root test/config files changed after f5a runtime.",
+    "fd15f488": "Strict NativeLinux all-target Clippy,126 LinuxNative library units,715 full infrastructure tests,frontend type/build pass. Only exact Root three Python diagnostic/test files changed after2ee.",
+    "fc1a483a": "Metadata-only mergee509; every crates/apps/scripts/tests/workflow/toolchain byte equals fd15. No re-execution or new-head test pass is inferred."
+  },
+  "reviews": {
+    "feature23-capture-composition-independent-review": {
+      "sha256": "2d2f31d41f17820e86d2762524cf1b5080762c16c40e78ff74a1aa375fb17500",
+      "status": "SOURCE_READY"
+    },
+    "root-readonly-poll-observation-independent-review": {
+      "sha256": "e74491e4905e6d4e36d689c404073e37c0ec4610cc16e8ed5f6774799f3234d5",
+      "status": "SOURCE_READY"
+    },
+    "root-jsdom-worker-bound-independent-review": {
+      "sha256": "c94e9b9aed05bc637dcb4b3853cd5de59d4507f0bab00d84ec61333a08dd943b",
+      "status": "SOURCE_READY"
+    },
+    "integration-runtime-failure-projection-independent-review": {
+      "sha256": "bd53c26c370316488d6c7d9c565f3d26c945015a6d00f414cf50278b08784bce",
+      "status": "SOURCE_READY"
+    },
+    "two-features-root5971-composition-independent-review": {
+      "sha256": "dde57b33a3e45014c888efb38198d59a295cace3ba2194ff01ee540506f6903d",
+      "status": "SOURCE_READY"
+    },
+    "root-readonly-ci-a7-metadata-independent-review": {
+      "sha256": "ad49f2de94b06d9161bee4984a0556b77ae52ead5f05d84d9c77e06eb0807f13",
+      "status": "SOURCE_READY"
+    }
+  },
+  "composition": {
+    "source": "Original directory Core/Native/UI and Owner raw-frame validation stay exact; real merge preserves Root17 runtime, fresh Git-config safety and owned capture/fatal cleanup. Current helper/config/failed-runtime projection inherit reviewed Root bytes.",
+    "metadata": "Root e509 contributes only seven reviewed metadata files; feature STATUS history retained under incoming prefix,130 complete Feature rows kept with only incoming evidence appends,93pins verified."
+  },
+  "directory_contract": {
+    "action": "Only an explicit selected registered directory opens through fixed macOS Terminal handoff. No task/session/Agent/approval/Grant/dispatch transfer or automatic workspace creation.",
+    "safety": "Fresh Owner-only Core context; held no-follow ancestor descriptors; revision/type/path/strict raw frame checks; fixed argv/cleared environment/bounded opener lifetime; unknown stop remains unknown.",
+    "evidence_limit": "LinuxNative units/mock UI and actual Core UnixIPC are separate. They do not establish a macOS Terminal process/window or its actual target directory."
+  },
+  "remote": {
+    "PR": 23,
+    "remote_head_at_record": "6b1fc354ccbd7f739241fc56220513347e81f93a",
+    "status": "new reviewed composition not yet pushed; no current feature CI or installers",
+    "upstream_PR21": {
+      "head": "e509b2192020a12dc5474f0a0070846182a9cc5f",
+      "Environment": 41246131296,
+      "Product": 41246133682,
+      "status": "pending at last read; old a7 failures retained"
+    }
+  },
+  "not_run": [
+    "new exact Feature remote CI",
+    "actual macOS Terminal target-directory observation",
+    "current dualMac Native acceptance/development installers/manual review",
+    "live Provider/approved remote-host testing"
+  ],
+  "full130_complete": false
+}

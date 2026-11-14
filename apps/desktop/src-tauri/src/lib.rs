@@ -14,6 +14,7 @@ mod background_policy;
 mod background_window;
 mod detached_daemon;
 mod client_recovery_bridge;
+mod workspace_open;
 
 // Read-only limits shared with the feature-gated Native test binary. The
 // default application exports no test view; all values have one definition.
@@ -261,6 +262,15 @@ fn workspace_resolution_frame(
     selection: &agentbaton_core::CodeWorkspacePreparationRequest,
 ) -> Value {
     json!({"method":"workspaces.resolve","params":selection})
+}
+
+#[tauri::command]
+async fn open_workspace_terminal(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    request: Value,
+) -> Result<Value, String> {
+    Ok(workspace_open::handoff(runtime.directory.clone(), window, request).await)
 }
 
 #[tauri::command]
@@ -2238,6 +2248,7 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         workspaces_create,
         workspaces_list,
         workspaces_resolve,
+        open_workspace_terminal,
         workspaces_prepare_task_git,
         tasks_get,
         data_workspace_previews_start,

@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "requirement": "AB-SES-009",
+  "base_commit": "e874b123d3e7f329a551e21922baf1a7a643548f",
+  "branch": "codex/workspace-open-core",
+  "tree": "/tmp/workspace-open-core-e874",
+  "contract": {
+    "path": "/workspace/.onboarding/workspace-open-contract-v1.json",
+    "sha256": "ef4e134f8300a8a8ff7f58de213f059beef3e7e3981db3cdfd76910cba0cd442"
+  },
+  "dimension": "Core implemented source and authored test cases only; no Rust/SQLite/IPC/native execution",
+  "production_source": "crates/core/src/workspace_open.rs",
+  "source_sha256": {
+    "crates/core/src/workspace_open.rs": "eba9107a0450c08a8ef98a3eace44e0d96834b21b0dd78ff15b8dd723528477b",
+    "crates/core/src/workspace_open_tests.rs": "332a8f81aa9aec2d9c58e82ad1cf7b38b5f92ff88f52819b9737b76f9afdf11d",
+    "crates/core/tests/workspace_open_ipc.rs": "1d7bf9ddbca1610f42ac5248180425b76b7dd4f1ba4eb5e2b5cfdfa1990656a9"
+  },
+  "public_api": [
+    "WorkspaceOpenSelection (+validate)",
+    "WorkspaceOpenRequest",
+    "WorkspaceDirectoryIdentity {device:String,inode:String}",
+    "WorkspaceOpenContext {selection,canonical_path:String,directory_identity:Vec<WorkspaceDirectoryIdentity>}",
+    "Store::workspace_open_context(&WorkspaceOpenSelection)->Result<WorkspaceOpenContext>",
+    "pin_open_context(&WorkspaceOpenContext)->Result<WorkspaceOpenDirectoryPin>",
+    "WorkspaceOpenDirectoryPin::recheck()->Result<()>"
+  ],
+  "contract_limits": {
+    "closed_read": "Strict canonical UUIDs/exact positive u64 revisions; project/workspace normalized row/document consistency, matching membership/revisions; no archived/pending/unknown/unpinned target",
+    "directory_identity": "Only held local directory metadata, root-to-leaf <=129, path<=32768bytes, decimal u64 strings; all named/held chain comparisons; no symlink/alias fallback",
+    "dirty_git": "No Git, HEAD or contents inspected; editing a dirty workspace remains legitimate",
+    "no_authority_transfer": "No creation/assignment/adoption/leases/approvals/Grants/sessions/attempts/events/budget/reservations/host credentials",
+    "native_helper": "Filesystem correspondence only, not context/caller authentication or continuous pathname immutability",
+    "raw_guard": "New method only after original token match and final exact method; typed reparse preserves duplicate keys. Same seven real Request fields; rejects CAS/idempotency presence even explicit null; old routes untouched"
+  },
+  "root_hook_patch": {
+    "path": "/tmp/workspace-open-core-hooks-e874.patch",
+    "sha256": "5dd8d920cc18451010757d6dd1324ba22ea1d98bcddeeaa9d2104e5ed49bd389",
+    "status": "PROPOSED_NOT_APPLIED",
+    "changed_shared_paths": [
+      "crates/core/src/lib.rs",
+      "crates/core/src/ipc.rs"
+    ],
+    "command": "git apply --check /tmp/workspace-open-core-hooks-e874.patch",
+    "check_exit_code": 0,
+    "companion_allowlist": "unchanged; no new scoped method"
+  },
+  "validation": [
+    {
+      "kind": "pure_source",
+      "status": "PASS",
+      "count": 8,
+      "command": "python3 /tmp/workspace-open-core-source-check.py",
+      "script_sha256": "c124bc3c881757918e15d96831bd2cdae8d52154ba0cc304aae8fbd1b15af5e0",
+      "result": "/tmp/workspace-open-core-source-check.json",
+      "result_sha256": "e3fceb4b8ffcbb00b82a1f15caf282e17846f3d8c3c9415b8b63ba45d1cdfd26",
+      "checks": [
+        "Existing shared Core hooks, registry, Store/schema and dependencies byte-identical to e874; only new files authored",
+        "Production leg has only two bounded parameterized SELECTs/read transaction, no write/event/execution/Grant/Git/content/environment/subprocess API",
+        "Bounded root-to-leaf held and freshly named NOFOLLOW directory chain and exact path/identity correspondence required; no alias fallback",
+        "Closed UUID/u64 selection and context shape with canonical decimal strings; device/inode never serialized as numbers",
+        "Registered row/document correspondence, project/workspace revisions/membership, archived/pending/unknown/unpinned and actual leaf identity refusals remain required; no dirty-HEAD condition",
+        "Method-only raw typed decoder matches all seven actual Owner Request fields; authenticated exact method hook only; explicit/null write fields refused, no companion/global parser expansion",
+        "Pure source-template projection: all six raw negative frame templates form valid JSON; four carry duplicate keys at intended three levels and two retain explicit-null write fields (not Rust/IPC execution)",
+        "18 authored meaningful unit/real Unix IPC cases retain exact whole-database no-write and explicit zero execution-domain counters, plus same-leaf/changed-ancestor and dirty Git/data controls; NOT_RUN"
+      ],
+      "limit": "Raw negative-frame source templates rendered/parsed in Python only; no Rust format! evaluation, serde runtime behavior, actual filesystem, SQLite or IPC is proven."
+    },
+    {
+      "kind": "rustfmt",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --config skip_children=true --check crates/core/src/workspace_open.rs crates/core/src/workspace_open_tests.rs crates/core/tests/workspace_open_ipc.rs"
+    },
+    {
+      "kind": "staged_diff_check",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "git diff --cached --check"
+    }
+  ],
+  "authored_tests": {
+    "unit_count": 11,
+    "unit_names": [
+      "selection_and_envelope_reject_extra_remote_paths_noncanonical_ids_and_noninteger_revisions",
+      "identity_wire_is_canonical_text_and_preserves_values_above_javascript_precision",
+      "managed_selection_requires_both_exact_revisions_and_no_extra_fields",
+      "path_parser_rejects_alias_spellings_and_enforces_root_to_leaf_bound_without_io",
+      "full_chain_pin_accepts_directory_names_as_data_and_rejects_wrong_context_facts",
+      "ancestor_replacement_is_detected_even_when_the_original_leaf_inode_is_preserved",
+      "leaf_and_ancestor_symlinks_and_leaf_replacement_are_refused",
+      "store_reads_registered_source_without_writes_and_detects_stale_or_replaced_registration",
+      "ready_git_and_data_records_open_without_inspecting_head_or_assigning_tasks",
+      "workspace_membership_state_identity_and_both_revisions_are_required",
+      "archived_oversized_and_malformed_stored_records_fail_closed"
+    ],
+    "unix_ipc_count": 7,
+    "unix_ipc_names": [
+      "owner_unix_read_returns_full_opaque_identity_chain_without_any_writes",
+      "owner_reads_real_ready_dirty_git_and_typed_ready_data_without_execution",
+      "malformed_remote_cas_stale_missing_and_foreign_reads_are_refused_without_writes",
+      "owner_read_refuses_pending_unknown_missing_identity_and_changed_leaf",
+      "owner_read_refuses_an_ancestor_alias_and_a_replaced_source_without_mutation",
+      "scoped_companion_and_wrong_owner_token_cannot_obtain_directory_context",
+      "raw_owner_duplicate_keys_at_all_three_levels_and_null_write_fields_are_refused"
+    ],
+    "total": 18,
+    "execution": "NOT_RUN",
+    "fixture_limit": "Ready data/Git unit rows and ready data IPC row are explicitly typed registry fixtures, not creation/adoption evidence. IPC Git case uses generated repository + real public workspaces.create. No Provider or terminal is started by tests.",
+    "no_write_checks": "Full schema17 table images before/after every Owner read/refusal and explicit zero tasks/attempts/sessions/turns/grants/approval/connection/Factory execution domains; raw/scoped negative batches retain before/after images."
+  },
+  "not_run": [
+    "Rust compilation/Cargo/clippy",
+    "Rust unit and actual filesystem cases",
+    "SQLite queries or migrations",
+    "actual Unix IPC tests",
+    "Git fixture subprocess",
+    "Native/terminal handoff",
+    "Node/browser",
+    "network/CI"
+  ],
+  "root_pending": [
+    "cherry-pick source and apply exact Root-only hooks before compiling",
+    "independent source/interface/negative-control review",
+    "focused Core workspace_open unit tests",
+    "actual workspace_open_ipc target and no-write counters",
+    "format/clippy/applicable full regressions",
+    "Desktop real bridge/UI integration",
+    "actual dual-Mac native handoff and target-directory observation or precise pending manual smoke"
+  ],
+  "acceptance": {
+    "requirement_complete": false,
+    "native_pass": false,
+    "provider_pass": false,
+    "formal_approve": false,
+    "whole_130_complete": false
+  },
+  "authority": "AB-START-001 and Root fixed contract only; no new accounts/Provider/spending/permissions/signing/production and no recursive agents"
+}
