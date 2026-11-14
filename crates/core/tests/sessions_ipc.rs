@@ -197,6 +197,8 @@ for line in sys.stdin:
     send({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'native-fixture','update':{'sessionUpdate':'agent_message_chunk','content':{'type':'text','text':'chunk-'+str(chunk)}}}});time.sleep(.005)
    continue
   if text=='edit':open('file','w').write('fixture writer changed file')
+  if text=='重开后找回原消息':
+   with open('fixture-message-starts','a') as starts: starts.write('start\n')
   output=','.join(sorted(os.environ)) if text=='env' else 'fixture:'+text
   send({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'native-fixture','update':{'sessionUpdate':'agent_message_chunk','content':{'type':'text','text':output}}}})
   send({'jsonrpc':'2.0','id':i,'result':{'stopReason':'end_turn'}});pending=None
@@ -363,6 +365,267 @@ fn real_session_turns_survive_ui_requests_and_never_imply_acceptance() {
     );
     assert_eq!(stopped["last_error"], Value::Null);
 }
+#[test]
+fn lost_task_message_reply_recovers_original_turn_without_dispatching_again() {
+    use std::{io::Write, os::unix::net::UnixStream};
+
+    let mut f = Scenario::new(10_000);
+    let session = f.create();
+    let ready = f.ready(&session["id"]);
+    let mut send = json!({
+        "method": "sessions.send",
+        "params": {"session_id": ready["id"], "text": "lost reply fixture"},
+        "expected_revision": ready["revision"],
+        "idempotency_key": "lost-reply"
+    });
+    let mut receipt = send.clone();
+    receipt["method"] = json!("sessions.send_receipt");
+    assert!(result(f.server.request(receipt.clone())).is_null());
+
+    // Keep the connection open until the turn commits, but never read the
+    // reply. Closing immediately can also discard the request on Darwin.
+    let mut raw = send.clone();
+    raw["api_version"] = json!(agentbaton_core::ipc::API_VERSION);
+    raw["request_id"] = json!("discard-this-reply");
+    raw["token"] = json!(std::fs::read_to_string(f.server.runtime.join("session.token")).unwrap());
+    let mut socket = UnixStream::connect(f.server.runtime.join("batond.sock")).unwrap();
+    serde_json::to_writer(&mut socket, &raw).unwrap();
+    socket.write_all(b"\n").unwrap();
+    socket.shutdown(std::net::Shutdown::Write).unwrap();
+
+    let completed = wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id": ready["id"]}),
+        |v| v["state"] == "ready" && v["turn_state"] == "completed",
+    );
+    drop(socket);
+    let recovered = result(f.server.request(receipt.clone()));
+    let turn_id = recovered["turn_id"].as_str().unwrap();
+    assert_eq!(recovered["session"], completed);
+
+    let mut conflict = receipt.clone();
+    conflict["expected_revision"] = completed["revision"].clone();
+    assert_eq!(
+        f.server.request(conflict)["error"]["code"],
+        "CONFIG_CONFLICT"
+    );
+    let mut conflict = receipt.clone();
+    conflict["params"]["text"] = json!("another message");
+    assert_eq!(
+        f.server.request(conflict)["error"]["code"],
+        "CONFIG_CONFLICT"
+    );
+
+    assert_eq!(result(f.server.request(send.clone())), completed);
+    let runtime = f.server.runtime.clone();
+    f.server.shutdown();
+    f.server = Server::start(&runtime);
+    let after_restart = result(f.server.request(receipt));
+    assert_eq!(after_restart["turn_id"], turn_id);
+    assert_eq!(
+        result(f.server.request(send.clone())),
+        after_restart["session"]
+    );
+    send["idempotency_key"] = json!("fresh-key");
+    assert_eq!(f.server.request(send)["error"]["code"], "STALE_REVISION");
+
+    let events = result(
+        f.server
+            .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":500}})),
+    );
+    let events = events["events"].as_array().unwrap();
+    let for_session = |kind: &str| {
+        events
+            .iter()
+            .filter(|e| e["aggregate_id"] == ready["id"] && e["kind"] == kind)
+            .collect::<Vec<_>>()
+    };
+    let queued = for_session("session.message_queued");
+    assert_eq!(queued.len(), 1);
+    assert_eq!(queued[0]["payload"]["turn_id"], turn_id);
+    assert_eq!(queued[0]["payload"]["text"], "lost reply fixture");
+    assert_eq!(for_session("session.turn_ended").len(), 1);
+}
+
+// Runs the same native send path as the desktop in an independent process.
+#[test]
+fn task_message_client_process_fixture() {
+    let Some(runtime) = std::env::var_os("BATON_TASK_MESSAGE_CLIENT_RUNTIME") else {
+        return;
+    };
+    if let Ok(command) = std::env::var("BATON_TASK_MESSAGE_CLIENT_COMMAND") {
+        let command = serde_json::from_str(&command).unwrap();
+        agentbaton_core::ipc::send_session_with_receipt_recovery(Path::new(&runtime), command)
+            .unwrap();
+    } else {
+        let recovery = agentbaton_core::ipc::recover_task_messages(Path::new(&runtime)).unwrap();
+        std::fs::write(
+            Path::new(&runtime).join("fixture-reopened-receipts.json"),
+            recovery.to_string(),
+        )
+        .unwrap();
+    }
+}
+
+#[test]
+fn desktop_process_exit_recovers_committed_message_without_resending() {
+    use agentbaton_core::ipc::{
+        acknowledge_task_message, recover_task_messages, send_session_with_receipt_recovery,
+    };
+    use std::{
+        io::{BufRead, BufReader, Write},
+        os::unix::net::{UnixListener, UnixStream},
+        process::Stdio,
+    };
+    let f = Scenario::new(30_000);
+    let created = f.create();
+    let ready = f.ready(&created["id"]);
+    let send = json!({
+        "method": "sessions.send",
+        "params": {"session_id":ready["id"],"text":"重开后找回原消息"},
+        "expected_revision": ready["revision"],
+        "idempotency_key": "f6216bc8-32da-4a58-9f58-d55011eaeb23",
+    });
+
+    // Interpose only on the test socket. Forward the mutation to the real
+    // daemon but hold back its reply until the native client has exited.
+    let runtime = &f.server.runtime;
+    let socket = runtime.join("batond.sock");
+    let original = runtime.join("real.sock");
+    std::fs::rename(&socket, &original).unwrap();
+    let proxy = UnixListener::bind(&socket).unwrap();
+    proxy.set_nonblocking(true).unwrap();
+    let mut client = Command::new(std::env::current_exe().unwrap())
+        .args(["--exact", "task_message_client_process_fixture"])
+        .env("BATON_TASK_MESSAGE_CLIENT_RUNTIME", runtime)
+        .env("BATON_TASK_MESSAGE_CLIENT_COMMAND", send.to_string())
+        .stdout(Stdio::null())
+        .spawn()
+        .unwrap();
+    let deadline = Instant::now() + Duration::from_secs(4);
+    let incoming = loop {
+        match proxy.accept() {
+            Ok((incoming, _)) => break incoming,
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                assert!(
+                    Instant::now() < deadline,
+                    "desktop never reached the socket"
+                );
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            Err(error) => panic!("{error}"),
+        }
+    };
+    incoming.set_nonblocking(false).unwrap();
+    incoming
+        .set_read_timeout(Some(Duration::from_secs(2)))
+        .unwrap();
+    let mut request = String::new();
+    BufReader::new(&incoming).read_line(&mut request).unwrap();
+    assert_eq!(
+        serde_json::from_str::<Value>(&request).unwrap()["method"],
+        "sessions.send_recoverable"
+    );
+    let journal = std::fs::read_to_string(runtime.join("task-message-recovery.json")).unwrap();
+    assert!(journal.contains(send["idempotency_key"].as_str().unwrap()));
+    assert!(!journal.contains(send["params"]["text"].as_str().unwrap()));
+
+    let mut backend = UnixStream::connect(&original).unwrap();
+    backend
+        .set_read_timeout(Some(Duration::from_secs(3)))
+        .unwrap();
+    backend.write_all(request.as_bytes()).unwrap();
+    let mut reply = String::new();
+    BufReader::new(backend).read_line(&mut reply).unwrap();
+    let reply: Value = serde_json::from_str(&reply).unwrap();
+    assert_eq!(result(reply)["id"], ready["id"]);
+    assert!(client.try_wait().unwrap().is_none());
+    client.kill().unwrap();
+    assert!(!client.wait().unwrap().success());
+    drop(incoming);
+    drop(proxy);
+    std::fs::rename(original, socket).unwrap();
+
+    let reopened = Command::new(std::env::current_exe().unwrap())
+        .args(["--exact", "task_message_client_process_fixture"])
+        .env("BATON_TASK_MESSAGE_CLIENT_RUNTIME", runtime)
+        .env_remove("BATON_TASK_MESSAGE_CLIENT_COMMAND")
+        .output()
+        .unwrap();
+    assert!(
+        reopened.status.success(),
+        "{}",
+        String::from_utf8_lossy(&reopened.stdout)
+    );
+    let recovered: Value = serde_json::from_slice(
+        &std::fs::read(runtime.join("fixture-reopened-receipts.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(recovered["pending_sessions"], json!([]));
+    let receipt = &recovered["recovered"][0];
+    assert_eq!(receipt["text"], send["params"]["text"]);
+    assert_eq!(receipt["session_id"], ready["id"]);
+    assert_eq!(receipt["task_id"], f.task["id"]);
+    assert_eq!(recover_task_messages(runtime).unwrap(), recovered);
+    assert_eq!(
+        result(send_session_with_receipt_recovery(runtime, send.clone()).unwrap())["id"],
+        ready["id"]
+    );
+    let mut different = send;
+    different["idempotency_key"] = json!("d1286ac8-e556-4ca1-854b-f969ac42641a");
+    assert_eq!(
+        send_session_with_receipt_recovery(runtime, different)
+            .unwrap_err()
+            .code,
+        "TASK_MESSAGE_RECOVERY_REQUIRED"
+    );
+    let session_id = receipt["session_id"].as_str().unwrap();
+    acknowledge_task_message(runtime, session_id, "another-key").unwrap();
+    assert_eq!(recover_task_messages(runtime).unwrap(), recovered);
+    acknowledge_task_message(
+        runtime,
+        session_id,
+        receipt["request_key"].as_str().unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        recover_task_messages(runtime).unwrap()["recovered"],
+        json!([])
+    );
+    let done = f.ready(&ready["id"]);
+    assert_eq!(done["turn_state"], "completed");
+    let journal = result(
+        f.server
+            .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":500}})),
+    );
+    let events = journal["events"].as_array().unwrap();
+    for kind in ["session.message_queued", "session.turn_ended"] {
+        let matching: Vec<_> = events
+            .iter()
+            .filter(|event| event["aggregate_id"] == session_id && event["kind"] == kind)
+            .collect();
+        assert_eq!(matching.len(), 1, "{kind}");
+        if kind == "session.message_queued" {
+            assert_eq!(matching[0]["payload"]["turn_id"], receipt["turn_id"]);
+        }
+    }
+    let db = rusqlite::Connection::open(runtime.join("baton.sqlite3")).unwrap();
+    let turn_count: u32 = db
+        .query_row(
+            "SELECT count(*) FROM session_turns WHERE session_id=?1",
+            [session_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(turn_count, 1);
+    let workspace = Path::new(f.workspace["root"].as_str().unwrap());
+    assert_eq!(
+        std::fs::read_to_string(workspace.join("fixture-message-starts")).unwrap(),
+        "start\n"
+    );
+}
+
 #[test]
 fn cancel_live_prompt_does_not_block_daemon_or_claim_stop_early() {
     let f = Scenario::new(10_000);
@@ -3789,8 +4052,8 @@ impl GraphOwnerGrantClock {
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
         assert_eq!(
-            version, 17,
-            "This Factory integration fixture must link exact current schema17"
+            version, 18,
+            "The graph owner fixture must observe the current schema 18"
         );
         let raw: String = db
             .query_row(
@@ -5265,12 +5528,10 @@ fn actual_command_definition_graph_fixture(command_case: &str) -> (Scenario, Val
     let session = &source_done["nodes"][0]["session_id"];
     let executable = if command_case == "normal" {
         "/usr/bin/printf"
+    } else if Path::new("/usr/bin/sleep").exists() {
+        "/usr/bin/sleep"
     } else {
-        if Path::new("/usr/bin/sleep").exists() {
-            "/usr/bin/sleep"
-        } else {
-            "/bin/sleep"
-        }
+        "/bin/sleep"
     };
     let arguments = if command_case == "normal" {
         vec!["fixed command observed"]
@@ -6289,21 +6550,43 @@ fn standalone_conversation_ipc_never_creates_a_task_or_replays_a_turn() {
     .as_array()
     .unwrap()
     .is_empty());
-    let events = result(
+    let snapshot = result(
         f.server
-            .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":1000}})),
+            .request(json!({"method":"system.snapshot","params":{}})),
     );
-    assert_eq!(
-        events["events"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .filter(
-                |e| e["aggregate_id"] == ready["id"] && e["kind"] == "conversation.message_queued"
-            )
-            .count(),
-        1
-    );
+    let through = snapshot["sequence"].as_u64().unwrap();
+    let over_limit = f
+        .server
+        .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":501}}));
+    assert_eq!(over_limit["error"]["code"], "INVALID_REQUEST");
+
+    // Walk several bounded pages through the observed journal head. Counting
+    // only the first page could miss a duplicate written by the replay.
+    let limit = 4;
+    assert!(through > limit);
+    let mut cursor = 0;
+    let mut queued = 0;
+    while cursor < through {
+        let page = result(f.server.request(
+            json!({"method":"events.subscribe","params":{"cursor":cursor,"limit":limit}}),
+        ));
+        assert_eq!(page["gap"], false);
+        let events = page["events"].as_array().unwrap();
+        assert!(!events.is_empty() && events.len() <= limit as usize);
+        for event in events {
+            let sequence = event["sequence"].as_u64().unwrap();
+            assert!(sequence > cursor);
+            cursor = sequence;
+            if sequence <= through
+                && event["aggregate_id"] == ready["id"]
+                && event["kind"] == "conversation.message_queued"
+            {
+                queued += 1;
+            }
+        }
+        assert_eq!(page["next_cursor"], cursor);
+    }
+    assert_eq!(queued, 1);
     let cancelled=result(f.server.request(json!({"method":"conversations.cancel","params":{"conversation_id":ended["id"]},"expected_revision":ended["revision"],"idempotency_key":"standalone-cancel"})));
     assert!(matches!(
         cancelled["state"].as_str(),

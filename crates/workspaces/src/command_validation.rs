@@ -746,20 +746,7 @@ struct OwnedChild {
 }
 impl OwnedChild {
     fn finished(&self) -> Result<bool, CommandError> {
-        let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
-        // WNOWAIT preserves the original leader PID until all group signals end.
-        let result = unsafe {
-            libc::waitid(
-                libc::P_PID,
-                self.child.id() as libc::id_t,
-                &mut info,
-                libc::WEXITED | libc::WNOHANG | libc::WNOWAIT,
-            )
-        };
-        if result < 0 {
-            return Err(CommandError::Io);
-        }
-        Ok(unsafe { info.si_pid() } != 0)
+        crate::child_exited_unreaped(self.child.id()).map_err(|_| CommandError::Io)
     }
     fn kill_owned(&mut self) {
         if !self.reaped && !self.group_signal_sent && self.finished().is_ok() {

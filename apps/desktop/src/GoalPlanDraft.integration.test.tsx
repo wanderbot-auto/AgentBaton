@@ -1,4 +1,4 @@
-import {fireEvent,render,screen,waitFor,within} from '@testing-library/react';
+import {act,fireEvent,render,screen,waitFor,within} from '@testing-library/react';
 import {expect,it,vi} from 'vitest';
 import {GoalPlanning} from './GoalPlanning';
 import {goalApi} from './goal-api';
@@ -28,6 +28,11 @@ it('prioritizes a complete one-step draft with validator and owner nodes while f
  vi.mocked(goalApi.grantsList).mockResolvedValue([grant]);vi.mocked(goalApi.scopesList).mockResolvedValue([f.scope]);vi.mocked(goalApi.plansList).mockResolvedValue([]);vi.mocked(goalMultiPlanDraftApi.generate).mockResolvedValue(f.draft);
  render(<GoalPlanning task={f.task} language="en" connected navigation={{target:'plan',requestId:'complete'}}/>);await waitFor(()=>expect(screen.getByRole('button',{name:'Generate step plan draft'})).toBeEnabled());expect(screen.getByText('Compatibility: work-node-only template',{selector:'summary'}).closest('details')).not.toHaveAttribute('open');expect(screen.getByText('Generate initial draft',{selector:'button'})).not.toBeVisible();expect(goalMultiPlanDraftApi.generate).not.toHaveBeenCalled();
  for(const [label,value] of [['Step-plan risks to review','Review overwritten files'],['Step-plan prohibited actions','Do not publish'],['Work step goal step-1','Write report'],['Runtime limit (ms) step-1','1000'],['Output limit (bytes) step-1','4096'],['Runtime per review node (ms) step-1','100'],['Output per review node (bytes) step-1','256']])fireEvent.change(screen.getByLabelText(label),{target:{value}});
- fireEvent.click(screen.getByLabelText('Produced artifacts step-1: report · outputs/report.txt'));fireEvent.click(screen.getByRole('button',{name:'Generate step plan draft'}));await screen.findByText(f.draft.approved_acceptance_criteria);expect(screen.getByText('baton-review-1-2: Required review · rule-validator')).toBeVisible();
+ fireEvent.click(screen.getByLabelText('Produced artifacts step-1: report · outputs/report.txt'));
+ const generate=screen.getByRole('button',{name:'Generate step plan draft'});
+ expect(generate).toBeEnabled();
+ await act(async()=>{fireEvent.click(generate);});
+ expect(screen.getByText(f.draft.approved_acceptance_criteria)).toBeVisible();
+ expect(screen.getByText('baton-review-1-2: Required review · rule-validator')).toBeVisible();
  for(const label of ['I reviewed all step goals, dependencies and artifact mappings.','I reviewed risks, prohibited actions and the total limits.','I reviewed the approved acceptance criteria and upstream waiting.'])fireEvent.click(screen.getByLabelText(label));fireEvent.click(screen.getByRole('button',{name:'Use reviewed step plan'}));expect(screen.getByLabelText('Plan proposal JSON')).toHaveValue(JSON.stringify(f.draft.plan,null,2));expect(goalApi.propose).not.toHaveBeenCalled();expect(goalApi.approve).not.toHaveBeenCalled();expect(goalApi.preview).not.toHaveBeenCalled();
 });

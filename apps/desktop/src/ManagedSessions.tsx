@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { api, DaemonError, type JournalEvent, type ManagedWorkspace, type Project, type Task } from './api';
+import { api, acknowledgeTaskMessage, DaemonError, type JournalEvent, type ManagedWorkspace, type Project, type Task } from './api';
 import { sessionApi, type ExecutionGrant, type ManagedSession, type NamedConnection } from './session-api';
 import { sessionMessages } from './session-i18n';
 import { messages, type Language } from './i18n';
@@ -73,7 +73,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const scopeRequest = useRef(0);
   const evidenceRequest = useRef(0);
   const selected = sessions.find(session => session.id === sessionId);
-  const taskUncertainSend = !!selected && sessions.some(session => session.task_id === selected.task_id && (uncertainSend.has(session.id) || uncertainSessions?.has(session.id)));
+  const taskUncertainSend = !!selected && sessions.some(session => session.task_id === selected.task_id && (uncertainSessions ?? uncertainSend).has(session.id));
   const project = projects.find(record => record.id === projectId);
   const workspace = workspaces.find(record => record.id === workspaceId);
   const connection = connections.find(record => record.id === connectionId);
@@ -240,6 +240,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
       if (!record || !(['id','task_id','project_id','workspace_id','connection_id','grant_id'] as const).every(field => record[field] === selected[field]) || selected.native_session_id !== null && record.native_session_id !== selected.native_session_id || !Number.isSafeInteger(record.revision) || record.revision <= selected.revision) throw new Error(t.uncertain);
       operationKeys.current.delete(fingerprint);
       setText(''); setSessions(current => mergeSessions(current, [record]));
+      await acknowledgeTaskMessage(record.id, key).catch(() => { /* Refresh will show the retained receipt. */ });
       await refreshEvidence(record.id);
     } catch (e) {
       if (!(e instanceof DaemonError) || e.code === 'OUTCOME_UNKNOWN' || !['none', 'not_started'].includes(e.sideEffectState)) { setUncertainSend(current => new Set([...current, selected.id])); onUncertain?.(selected.id); }

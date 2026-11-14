@@ -701,10 +701,9 @@ impl Store {
                 .map_err(db_error)?;
             let mut run = records::run(&tx, &id)?;
             let mut rows = attempts(&tx, &id)?;
-            if !terminal(run.state)
-                && !(run.state == IntegrationState::OutcomeUnknown
-                    && run.io_completion == Some(IntegrationIoCompletion::InterruptedNoJoinReceipt))
-            {
+            let awaiting_join_receipt = run.state == IntegrationState::OutcomeUnknown
+                && run.io_completion == Some(IntegrationIoCompletion::InterruptedNoJoinReceipt);
+            if !(terminal(run.state) || awaiting_join_receipt) {
                 let mut held = fence(&tx, &run)?;
                 for row in rows.iter_mut().filter(|r| !r.view.settled) {
                     let mut dispatch: DispatchIntent = decode(

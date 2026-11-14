@@ -56,7 +56,23 @@ export interface JournalEvent {
   payload: unknown;
   source: string;
 }
-export interface Snapshot { tasks: Task[]; sequence: number; api_version: number; database_schema_version: number }
+export interface TaskMessageReceipt {
+  session_id: string;
+  task_id: string;
+  turn_id: string;
+  request_key: string;
+  text: string;
+}
+export type TaskMessageRecovery =
+  | { pending_sessions: string[]; recovered: TaskMessageReceipt[] }
+  | { error: string };
+export interface Snapshot {
+  tasks: Task[];
+  sequence: number;
+  api_version: number;
+  database_schema_version: number;
+  task_message_recovery?: TaskMessageRecovery;
+}
 export interface EventBatch { events: JournalEvent[]; next_cursor: number; sequence: number; gap: boolean; page_bytes?: number; byte_limited?: boolean }
 interface Envelope<T> {
   result?: T;
@@ -85,6 +101,9 @@ export async function request<T>(command: string, args?: Record<string, unknown>
     if(!recoveryNotified&&(command==='managed_mcp_create'||command==='managed_skill_create'))notifyRecovery();
   }
 }
+export const acknowledgeTaskMessage = (sessionId: string, requestKey: string) =>
+  request<null>('task_message_acknowledge', { sessionId, requestKey });
+
 export const api = {
   taskGet: async (taskId: string) => {
     const selected = validateTaskGetId(taskId);

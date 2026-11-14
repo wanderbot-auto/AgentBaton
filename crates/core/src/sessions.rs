@@ -197,6 +197,42 @@ fn connection_from(conn: &Connection, id: &str) -> Result<ProviderConnection> {
         .map_err(db_error)?;
     decode(&raw.ok_or_else(|| CoreError::new("NOT_FOUND", "Connection does not exist"))?)
 }
+fn recorded_session_turn(
+    conn: &Connection,
+    id: &str,
+    text: &str,
+    revision: u64,
+    key: &str,
+) -> Result<Option<String>> {
+    let old = session_turn_record(conn, id, key)?;
+    match old {
+        Some((turn_id, payload))
+            if payload == encode(&json!({"text":text,"expected_revision":revision}))? =>
+        {
+            Ok(Some(turn_id))
+        }
+        Some(_) => Err(turn_key_conflict()),
+        None => Ok(None),
+    }
+}
+
+fn turn_key_conflict() -> CoreError {
+    CoreError::new(
+        "CONFIG_CONFLICT",
+        "Turn key already used with another message",
+    )
+}
+
+fn session_turn_record(conn: &Connection, id: &str, key: &str) -> Result<Option<(String, String)>> {
+    conn.query_row(
+        "SELECT id,payload FROM session_turns WHERE session_id=?1 AND idempotency_key=?2",
+        params![id, key],
+        |r| Ok((r.get(0)?, r.get(1)?)),
+    )
+    .optional()
+    .map_err(db_error)
+}
+
 fn session_from(conn: &Connection, id: &str) -> Result<ManagedSession> {
     let raw: Option<String> = conn
         .query_row("SELECT document FROM sessions WHERE id=?1", [id], |r| {
@@ -835,6 +871,62 @@ impl Store {
         }
         Ok(session)
     }
+    // Read a committed ordinary task turn by its original send intent. A
+    // missing row is not evidence that an in-flight request will never commit.
+    pub(crate) fn recover_session_send(
+        &self,
+        id: &str,
+        text: &str,
+        revision: u64,
+        key: &str,
+    ) -> Result<Option<(String, ManagedSession)>> {
+        key_valid(key)?;
+        self.require_ordinary_session(id)?;
+        let turn_id = recorded_session_turn(&self.conn, id, text, revision, key)?;
+        turn_id
+            .map(|turn_id| Ok((turn_id, session_from(&self.conn, id)?)))
+            .transpose()
+    }
+
+    pub(crate) fn recover_saved_task_message(
+        &self,
+        intent: &crate::client_recovery_journal::TaskMessageIntent,
+    ) -> Result<Value> {
+        intent.validate()?;
+        self.require_ordinary_session(&intent.session_id)?;
+        let Some((turn_id, payload)) =
+            session_turn_record(&self.conn, &intent.session_id, &intent.request_key)?
+        else {
+            return Ok(Value::Null);
+        };
+        let payload: Value = decode(&payload)?;
+        let text = payload["text"].as_str().ok_or_else(turn_key_conflict)?;
+        if payload["expected_revision"].as_u64() != Some(intent.expected_revision)
+            || agentbaton_workspaces::validation::sha256(text.as_bytes()) != intent.text_sha256
+        {
+            return Err(turn_key_conflict());
+        }
+        let session = session_from(&self.conn, &intent.session_id)?;
+        Ok(json!({
+            "session_id": session.id,
+            "task_id": session.task_id,
+            "turn_id": turn_id,
+            "text": text,
+        }))
+    }
+
+    fn require_ordinary_session(&self, id: &str) -> Result<()> {
+        if crate::goal_store::owns_session(&self.conn, id)?
+            || crate::factory::owns_session(&self.conn, id)?
+        {
+            return Err(CoreError::new(
+                "AUTH_REQUIRED",
+                "Owned turns require their private dispatcher",
+            ));
+        }
+        Ok(())
+    }
+
     pub fn send_session(
         &mut self,
         id: &str,
@@ -895,14 +987,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        let old:Option<(String,String)>=tx.query_row("SELECT payload,document FROM session_turns WHERE session_id=?1 AND idempotency_key=?2",params![id,key],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
-        if let Some((old, _)) = old {
-            if old != payload {
-                return Err(CoreError::new(
-                    "CONFIG_CONFLICT",
-                    "Turn key already used with another message",
-                ));
-            }
+        if recorded_session_turn(&tx, id, text, revision, key)?.is_some() {
             return Ok((session_from(&tx, id)?, false));
         }
         let mut session = session_from(&tx, id)?;
@@ -2652,6 +2737,16 @@ impl Store {
             return self.finalize_goal_scope_proposal(id, revision);
         }
         if let Some(result) = result {
+            if proposal.kind == "connection" {
+                let approved: ProviderConnection = decode(&result)?;
+                let current = connection_from(&self.conn, &approved.id)?;
+                if current.approval_id != approved.approval_id
+                    || current.executable_sha256 != approved.executable_sha256
+                {
+                    return Err(invalid("Stored connection approval no longer matches"));
+                }
+                return Ok(json!(current));
+            }
             return decode(&result);
         }
         if proposal.revision != revision {

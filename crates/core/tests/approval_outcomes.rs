@@ -289,7 +289,9 @@ fn finalized_connection_probe_refusal_reports_confirmed_effect_and_reconciles_sa
     let connections = request(json!({"method":"connections.list","params":{}}));
     let original = &connections["result"][0];
     assert_eq!(connections["result"].as_array().unwrap().len(), 1);
-    assert_eq!(original["probe_state"], "pending");
+    assert_eq!(original["probe_state"], "failed");
+    assert_eq!(original["revision"], 2);
+    assert!(original["version_evidence"].is_null());
     let db = Connection::open(runtime.join("baton.sqlite3")).unwrap();
     assert_eq!(confirmation_count(&db), 1);
     assert_eq!(
@@ -311,7 +313,7 @@ fn finalized_connection_probe_refusal_reports_confirmed_effect_and_reconciles_sa
         "preserve this file"
     );
     assert!(!directory.path().join("unexpected-execution").exists());
-    eprintln!("actual IPC probe-refusal: error={}, durable_connection={}, confirmation_journal_count=1, probe_pending=true, executable_not_run=true", failed["error"], original["id"]);
+    eprintln!("actual IPC probe-refusal: error={}, durable_connection={}, confirmation_journal_count=1, probe_not_started=true, executable_not_run=true", failed["error"], original["id"]);
     assert_eq!(failed["error"]["code"], "PERMISSION_DENIED");
     assert_eq!(failed["error"]["side_effect_state"], "confirmed");
     assert_eq!(
@@ -326,7 +328,9 @@ fn finalized_connection_probe_refusal_reports_confirmed_effect_and_reconciles_sa
         .unwrap()
         .contains("same proposal"));
     let retry = request(finalize);
-    assert_eq!(retry["error"], failed["error"]);
+    assert_eq!(retry["result"], *original);
+    assert!(retry.get("error").is_none());
+    assert_eq!(count(&db, "SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='connection.initial_probe_not_started' AND json_extract(document,'$.payload.not_started')=1"), 1);
     assert_eq!(confirmation_count(&db), 1);
     assert_eq!(count(&db, "SELECT count(*) FROM connections"), 1);
     assert_eq!(count(&db, "SELECT count(*) FROM approval_proposals"), 1);
@@ -338,7 +342,7 @@ fn finalized_connection_probe_refusal_reports_confirmed_effect_and_reconciles_sa
             proposal["revision"].as_u64().unwrap(),
         )
         .unwrap();
-    assert_eq!(reconciled["id"], original["id"]);
+    assert_eq!(reconciled, *original);
     assert_eq!(confirmation_count(&db), 1);
     assert!(!directory.path().join("unexpected-execution").exists());
 }

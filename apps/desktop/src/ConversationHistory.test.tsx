@@ -49,13 +49,14 @@ it('preserves captured excerpts across language changes and latest refresh',asyn
 it('keeps selected context reviewable after the bounded window is replaced',async()=>{
  let revision=601;
  vi.mocked(conversationHistoryApi.page).mockImplementation(async()=>{const events=Array.from({length:100},(_,i)=>event(revision-99+i));revision-=100;return {...page(events),snapshot_revision:601,snapshot_sequence:6010};});
- render(<ConversationHistory {...props} conversation={{...identity,revision:601}}/>);
- fireEvent.click(await screen.findByLabelText('Agent: Message 601'));
+ await act(async()=>{render(<ConversationHistory {...props} conversation={{...identity,revision:601}}/>);});
+ fireEvent.click(screen.getByLabelText('Agent: Message 601'));
+ const loadEarlier=screen.getByRole('button',{name:'Load earlier history'});
  for(let index=0;index<5;index++){
-  fireEvent.click(screen.getByRole('button',{name:'Load earlier history'}));
-  await screen.findByLabelText('Agent: Message '+(501-index*100));
+  await act(async()=>{fireEvent.click(loadEarlier);});
+  expect(screen.getByText('Agent: Message '+(501-index*100),{selector:'label'})).toBeInTheDocument();
  }
- expect(screen.queryByLabelText('Agent: Message 601')).not.toBeInTheDocument();
+ expect(screen.queryByText('Agent: Message 601',{selector:'label'})).not.toBeInTheDocument();
  expect(screen.getByText('Agent: Message 601',{selector:'p'})).toBeInTheDocument();
  fireEvent.click(screen.getByRole('button',{name:'Use selected excerpts'}));expect(summary).toHaveBeenCalledWith('Agent: Message 601','project');
  fireEvent.click(screen.getByRole('button',{name:'Remove excerpt #6010'}));expect(screen.getByRole('button',{name:'Use selected excerpts'})).toBeDisabled();

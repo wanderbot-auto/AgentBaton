@@ -56,7 +56,12 @@ async fn call(runtime: &Runtime, command: Value, connect: bool) -> Result<Value,
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
         if connect {
-            return ensure_daemon(&directory);
+            let mut snapshot = ensure_daemon(&directory)?;
+            snapshot["result"]["task_message_recovery"] = match ipc::recover_task_messages(&directory) {
+                Ok(recovery) => recovery,
+                Err(error) => json!({"error":error.code}),
+            };
+            return Ok(snapshot);
         }
         // Preserve side-effect uncertainty across the Tauri bridge. A failed
         // write transport is not proof that the daemon did not commit it.
@@ -693,7 +698,31 @@ async fn sessions_send(
     text: String,
     idempotency_key: String,
 ) -> Result<Value, String> {
-    call(&runtime, json!({"method":"sessions.send","params":{"session_id":session_id,"text":text},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let command = json!({"method":"sessions.send","params":{"session_id":session_id,"text":text},"expected_revision":expected_revision,"idempotency_key":idempotency_key});
+        ipc::send_session_with_receipt_recovery(&directory, command)
+            .unwrap_or_else(|error| json!({"request_id":null,"error":error,"revision":0,"warnings":[]}))
+    })
+    .await
+    .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn task_message_acknowledge(
+    runtime: tauri::State<'_, Runtime>,
+    session_id: String,
+    request_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        match ipc::acknowledge_task_message(&directory, &session_id, &request_key) {
+            Ok(()) => json!({"result":null,"warnings":[]}),
+            Err(error) => json!({"error":error,"warnings":[]}),
+        }
+    })
+    .await
+    .map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -2252,6 +2281,7 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         sessions_get,
         sessions_create,
         sessions_send,
+        task_message_acknowledge,
         sessions_cancel
     ];
     handler(invoke)

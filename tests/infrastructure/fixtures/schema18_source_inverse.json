@@ -159,7 +159,120 @@
         "expected": "    require(host.result('system.snapshot', {})['database_schema_version'] == 18)\n",
         "replacement": "    require(host.result('system.snapshot', {})['database_schema_version'] == 17)\n"
       }
-    ]
+    ],
+    "followup": {
+      "after": "8f2372193a8496a0fb68ecc97c1541ffbd7e42cc8e86cf8edc852cb2bc85734b",
+      "edits": [
+        {
+          "start": 1,
+          "end": 2,
+          "expected": "\"\"\"Built React/Chromium -> finite test bridge -> actual Core18 Unix IPC.\n",
+          "replacement": "\"\"\"Built React/Linux Chromium -> finite test bridge -> actual Core17 Unix IPC.\n"
+        },
+        {
+          "start": 53,
+          "end": 55,
+          "expected": "TASK_READS = {'tasks_get': 'tasks.get', 'goal_scopes_list': 'goal_scopes.list',\n    'goal_runs_list': 'goal_runs.list', 'goal_graph_runs_list': 'goal_graph_runs.list'}\n",
+          "replacement": "TASK_READS = {'tasks_get': 'tasks.get', 'goal_scopes_list': 'goal_scopes.list'}\n"
+        },
+        {
+          "start": 327,
+          "end": 328,
+          "expected": "    def __init__(self, task, project, scope, target_head, validators, required=(), *, graph_run=None):\n",
+          "replacement": "    def __init__(self, task, project, scope, target_head, validators, required=()):\n"
+        },
+        {
+          "start": 331,
+          "end": 332,
+          "expected": "        self.graph_run = graph_run\n",
+          "replacement": ""
+        },
+        {
+          "start": 343,
+          "end": 346,
+          "expected": "        if command == 'client_recovery_list':\n            require(not args)\n            return 'fixture.client_recovery_list', {}, None, None\n",
+          "replacement": ""
+        },
+        {
+          "start": 353,
+          "end": 360,
+          "expected": "        if command == 'goal_plans_list':\n            require(set(args) == {'scopeId'} and args['scopeId'] == self.scope)\n            return 'goal_plans.list', {'scope_id': self.scope}, None, None\n        if command == 'goal_graph_runs_get':\n            require(set(args) == {'runId'} and self.graph_run is not None\n                and args['runId'] == self.graph_run)\n            return 'goal_graph_runs.get', {'run_id': self.graph_run}, None, None\n",
+          "replacement": ""
+        },
+        {
+          "start": 729,
+          "end": 734,
+          "expected": "    script_path = 'validators/correctness.sh'\n    script = (b\"printf '%s\\\\n' 'fixed correctness failure' >&2; exit 7\\n\"\n              if failing else b'test -s reports/report.txt\\n')\n    (source / 'validators').mkdir()\n    (source / script_path).write_bytes(script)\n",
+          "replacement": ""
+        },
+        {
+          "start": 741,
+          "end": 742,
+          "expected": "    shell = Path('/bin/sh').resolve(strict=True)\n",
+          "replacement": "    shell = root / 'fixed-sh'; shutil.copyfile(Path('/bin/sh').resolve(strict=True), shell); shell.chmod(0o700)\n"
+        },
+        {
+          "start": 789,
+          "end": 792,
+          "expected": "        'executable': str(shell), 'mode': 'posix_sh_stdin',\n        'script': {'artifact_id': 'integration-correctness-script', 'relative_path': script_path,\n            'max_bytes': len(script), 'expected_sha256': digest(script)},\n",
+          "replacement": "        'executable': str(shell), 'mode': 'native_executable', 'script': None,\n"
+        },
+        {
+          "start": 794,
+          "end": 795,
+          "expected": "        'arguments': [],\n",
+          "replacement": "        'arguments': ['-c', \"printf '%s\\\\n' 'fixed correctness failure' >&2; exit 7\" if failing else 'test -s reports/report.txt'],\n"
+        },
+        {
+          "start": 909,
+          "end": 910,
+          "expected": "        for field in ('arguments', 'mode', 'argv0', 'image_policy', 'environment_sha256',\n",
+          "replacement": "        for field in ('arguments', 'mode', 'script', 'argv0', 'image_policy', 'environment_sha256',\n"
+        },
+        {
+          "start": 921,
+          "end": 928,
+          "expected": "        require(exact(contract['script']['requirement'], old['script']['requirement'])\n            and contract['script']['canonical_root'] == cwd['canonical_root']\n            and contract['script']['root_device'] == cwd['device']\n            and contract['script']['root_inode'] == cwd['inode'])\n        script = contract['script']['requirement']\n        require(digest((Path(cwd['canonical_root']) / script['relative_path']).read_bytes())\n            == script['expected_sha256'])\n",
+          "replacement": ""
+        },
+        {
+          "start": 1010,
+          "end": 1013,
+          "expected": "                elif method == 'fixture.client_recovery_list':\n                    # This browser fixture does not start a Native client or write its journal.\n                    response = {'result': {'entries': []}, 'warnings': []}\n",
+          "replacement": ""
+        },
+        {
+          "start": 1042,
+          "end": 1043,
+          "expected": "    platform = 'Linux' if sys.platform == 'linux' else 'macOS'\n",
+          "replacement": ""
+        },
+        {
+          "start": 1044,
+          "end": 1045,
+          "expected": "        'dimension': f'{platform} built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host',\n",
+          "replacement": "        'dimension': 'Linux built React/Chromium + finite TEST bridge + actual Core17 Unix IPC + generated ACP + private trusted test host',\n"
+        },
+        {
+          "start": 1076,
+          "end": 1077,
+          "expected": "            [fixture['definition']['reference']], graph_run=fixture['graph']['run']['id'])\n",
+          "replacement": "            [fixture['definition']['reference']])\n"
+        },
+        {
+          "start": 1090,
+          "end": 1091,
+          "expected": "            focus.evaluate(\"(element) => element.scrollIntoView({block: 'center', inline: 'nearest', behavior: 'instant'})\")\n",
+          "replacement": ""
+        },
+        {
+          "start": 1102,
+          "end": 1103,
+          "expected": "                'dimension': f'{platform} Chromium only'})\n",
+          "replacement": "                'dimension': 'Linux Chromium only'})\n"
+        }
+      ]
+    }
   },
   "scripts/record-child-goal-ci-evidence.py": {
     "before": "a628fa04b8799a96d57e6cad97f1ecfab266468e287acf5f6d70693a696af02e",
@@ -231,7 +344,18 @@
         "expected": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18\n",
         "replacement": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 17\n"
       }
-    ]
+    ],
+    "followup": {
+      "after": "f4cae560fb2dbd3d5105f1433c4a8c4461d134e3fa940c2a099abb789fa5f411",
+      "edits": [
+        {
+          "start": 44,
+          "end": 46,
+          "expected": "    'goal_scopes.list', 'goal_runs.list', 'goal_graph_runs.list', 'goal_graph_runs.get', 'goal_plans.list',\n    'fixture.client_recovery_list', 'events.subscribe', 'integration_context.get', 'integration_targets.list',\n",
+          "replacement": "    'goal_scopes.list', 'events.subscribe', 'integration_context.get', 'integration_targets.list',\n"
+        }
+      ]
+    }
   },
   "tests/infrastructure/test_factory_rework_attempt_budget.py": {
     "before": "1eda2dc2c944b2e48347e5687d173963451eefb14780375a9f6fb8f704387a24",

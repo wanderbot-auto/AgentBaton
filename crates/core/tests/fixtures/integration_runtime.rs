@@ -289,7 +289,7 @@ impl RuntimeFixture {
         let server = Server::start(root.join("runtime"));
         assert_eq!(
             rpc(&server, "system.snapshot", json!({}), None, None)["database_schema_version"],
-            17
+            18
         );
         let project = rpc(
             &server,
@@ -765,7 +765,7 @@ fn readonly(f: &RuntimeFixture) -> Connection {
     let version: i64 = db
         .query_row("PRAGMA user_version", [], |r| r.get(0))
         .unwrap();
-    assert_eq!(version, 17);
+    assert_eq!(version, 18);
     db
 }
 struct OriginalCommand {
@@ -2386,11 +2386,21 @@ struct ObservedCommandIdentity {
 fn numeric_ps_row(line: &str) -> (ObservedCommandIdentity, &str) {
     let mut words = line.split_whitespace();
     let mut number = || words.next().unwrap().parse::<u32>().unwrap();
+    let pid = number();
+    let parent = number();
+    let group = number();
+    // Darwin ps prints some unsigned uid_t values using signed notation.
+    let raw_uid = words.next().unwrap();
+    let uid = if raw_uid.starts_with('-') {
+        raw_uid.parse::<i32>().unwrap() as u32
+    } else {
+        raw_uid.parse::<u32>().unwrap()
+    };
     let identity = ObservedCommandIdentity {
-        pid: number(),
-        parent: number(),
-        group: number(),
-        uid: number(),
+        pid,
+        parent,
+        group,
+        uid,
     };
     let state = words.next().unwrap();
     assert!(words.next().is_none(), "unexpected numeric ps columns");

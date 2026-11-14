@@ -937,7 +937,9 @@ impl ControlledGitChild {
                 | rustix::process::WaitIdOptions::NOHANG
                 | rustix::process::WaitIdOptions::NOWAIT,
         )
-        .map(|status| status.is_some())
+        .map(|status| {
+            status.is_some_and(|status| status.exited() || status.killed() || status.dumped())
+        })
         .map_err(io::Error::from)
     }
     fn signal_own_group(&mut self) {
@@ -1101,7 +1103,7 @@ pub(super) fn git_status(
         reaped: false,
         signal_attempted: false,
     };
-    #[cfg(test)]
+    #[cfg(all(test, target_os = "linux"))]
     controlled_pipe_hook::apply(owned.child.id());
     let mut stdout = ControlledCapture::new(owned.child.stdout.take().ok_or_else(changed)?)
         .map_err(|_| changed())?;
@@ -1146,10 +1148,19 @@ pub(super) fn git_status(
             ));
             break;
         }
-        if !progress {
-            std::thread::sleep(
-                Duration::from_millis(2).min(deadline.saturating_duration_since(Instant::now())),
-            );
+        if !progress
+            && agentbaton_workspaces::wait_for_git_output(
+                stdout.pipe.as_ref().map(AsFd::as_fd),
+                stderr.pipe.as_ref().map(AsFd::as_fd),
+                deadline,
+            )
+            .is_err()
+        {
+            failure = Some(CoreError::new(
+                "OUTCOME_UNKNOWN",
+                "Owned integration Git output could not be observed",
+            ));
+            break;
         }
     }
     owned.signal_own_group();
@@ -1384,7 +1395,7 @@ mod controlled_git_tests {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, target_os = "linux"))]
 mod controlled_pipe_hook {
     use std::cell::RefCell;
     type Hook = Box<dyn FnOnce(u32)>;

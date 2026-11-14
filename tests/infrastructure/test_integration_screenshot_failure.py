@@ -26,10 +26,11 @@ class ActualShotOperations(unittest.TestCase):
                 raise AssertionError(F.SECRET)
             return result
         focus = types.SimpleNamespace(scroll_into_view_if_needed=lambda: operation('scroll'),
+            evaluate=lambda script: self.assertIn("block: 'center'", script),
             bounding_box=lambda: operation('bounding_box', {'x': 0, 'y': 0, 'width': 10, 'height': 10}))
         def screenshot(*, path):
             operation('capture'); Path(path).write_bytes(b'synthetic image bytes')
-        namespace = {'report': report, 'output': folder,
+        namespace = {'report': report, 'output': folder, 'platform': 'Linux',
             'expect': lambda _: types.SimpleNamespace(to_be_in_viewport=lambda **kw: operation('viewport')),
             'page': types.SimpleNamespace(screenshot=screenshot, viewport_size={'width': 1440, 'height': 1100}),
             'digest': lambda raw: operation('record', hashlib.sha256(raw).hexdigest())}
@@ -152,6 +153,7 @@ class CompleteOldSourceInverse(unittest.TestCase):
             text = (ROOT / path).read_text()
             mutations = [text + '\n# unreviewed outside change\n', text.replace('= 536870912', '= 1073741824', 1) if path.startswith('apps/') else text.replace('MAX_REPORT, MAX_STATUS', 'CHANGED_REPORT, MAX_STATUS', 1)]
             for _, new in edits:
+                new = new.replace("'dimension': 'Linux Chromium only'", "'dimension': f'{platform} Chromium only'")
                 mutations.extend([text.replace(new, '', 1), text.replace(new, new * 2, 1),
                     text.replace(new, new.replace('\n', '\r\n'), 1)])
             for changed in mutations:

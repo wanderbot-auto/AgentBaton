@@ -1,7 +1,7 @@
 //! Durable client intent only: never includes configuration bodies or authority.
 use crate::CoreError;
 use fs2::FileExt;
-use rustix::fs::{openat, renameat, statat, AtFlags, Mode, OFlags};
+use rustix::fs::{fstat, openat, renameat, statat, AtFlags, Mode, OFlags};
 use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
@@ -15,6 +15,36 @@ type Result<T> = std::result::Result<T, CoreError>;
 const LIMIT: u64 = 16 * 1024;
 const LOCK: &str = "client-recovery.lock";
 const JOURNAL: &str = "client-recovery.json";
+const MESSAGE_LOCK: &str = "task-message-recovery.lock";
+const MESSAGE_JOURNAL: &str = "task-message-recovery.json";
+pub(crate) const MESSAGE_LIMIT: usize = 32;
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct TaskMessageIntent {
+    pub session_id: String,
+    pub request_key: String,
+    pub expected_revision: u64,
+    pub text_sha256: String,
+}
+
+impl TaskMessageIntent {
+    pub(crate) fn validate(&self) -> Result<()> {
+        if !valid_uuid(&self.session_id)
+            || !valid_uuid(&self.request_key)
+            || self.expected_revision == 0
+            || self.expected_revision > 9_007_199_254_740_991
+            || self.text_sha256.len() != 64
+            || !self
+                .text_sha256
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+        {
+            return Err(err());
+        }
+        Ok(())
+    }
+}
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum ManagedCreationKind {
@@ -51,9 +81,9 @@ pub struct ClientRecoveryMarker {
 }
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct Journal {
+struct Journal<T> {
     version: u32,
-    entries: Vec<ClientRecoveryMarker>,
+    entries: T,
 }
 fn err() -> CoreError {
     CoreError::new(
@@ -222,13 +252,27 @@ impl ClientRecoveryJournal {
         Ok(())
     }
     fn lock(&self) -> Result<JournalLock> {
+        self.lock_file(LOCK)
+    }
+
+    fn lock_file(&self, name: &str) -> Result<JournalLock> {
         self.check_directory()?;
-        let lock: File = openat(
-            &self.directory,
-            LOCK,
-            OFlags::RDWR | OFlags::CREATE | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
-            Mode::from_raw_mode(0o600),
-        )
+        let flags = OFlags::RDWR | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC;
+        let open_existing = || openat(&self.directory, name, flags, Mode::empty());
+        // Keep creation exclusive. On macOS two concurrent nonexclusive
+        // O_CREAT|O_NOFOLLOW opens can report ENOENT for the losing opener.
+        let lock: File = match open_existing() {
+            Err(rustix::io::Errno::NOENT) => match openat(
+                &self.directory,
+                name,
+                flags | OFlags::CREATE | OFlags::EXCL,
+                Mode::from_raw_mode(0o600),
+            ) {
+                Err(rustix::io::Errno::EXIST) => open_existing(),
+                result => result,
+            },
+            result => result,
+        }
         .map_err(|_| err())?
         .into();
         Self::check_file(&lock)?;
@@ -242,18 +286,18 @@ impl ClientRecoveryJournal {
                 err()
             }
         })?;
-        let st = statat(&self.directory, LOCK, AtFlags::SYMLINK_NOFOLLOW).map_err(|_| err())?;
-        let m = lock.metadata().map_err(|_| err())?;
-        if st.st_ino != m.ino() || st.st_dev != m.dev() {
+        let st = statat(&self.directory, name, AtFlags::SYMLINK_NOFOLLOW).map_err(|_| err())?;
+        let fd_stat = fstat(&lock).map_err(|_| err())?;
+        if st.st_ino != fd_stat.st_ino || st.st_dev != fd_stat.st_dev {
             return Err(err());
         }
         Self::check_file(&lock)?;
         Ok(JournalLock(lock))
     }
-    fn read(&self) -> Result<Vec<ClientRecoveryMarker>> {
+    fn read_entries<T: serde::de::DeserializeOwned>(&self, name: &str) -> Result<Vec<T>> {
         let f = match openat(
             &self.directory,
-            JOURNAL,
+            name,
             OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
             Mode::empty(),
         ) {
@@ -272,22 +316,29 @@ impl ClientRecoveryJournal {
         if bytes.len() as u64 > LIMIT {
             return Err(err());
         }
-        let j: Journal = serde_json::from_slice(&bytes).map_err(|_| err())?;
-        if j.version != 1 || j.entries.len() > 2 {
+        let journal: Journal<Vec<T>> = serde_json::from_slice(&bytes).map_err(|_| err())?;
+        if journal.version != 1 {
             return Err(err());
         }
-        for (i, m) in j.entries.iter().enumerate() {
+        Ok(journal.entries)
+    }
+    fn read(&self) -> Result<Vec<ClientRecoveryMarker>> {
+        let entries: Vec<ClientRecoveryMarker> = self.read_entries(JOURNAL)?;
+        if entries.len() > 2 {
+            return Err(err());
+        }
+        for (i, m) in entries.iter().enumerate() {
             validate_marker(m)?;
-            if j.entries[..i]
+            if entries[..i]
                 .iter()
                 .any(|p| p.kind == m.kind || p.entry_id == m.entry_id)
             {
                 return Err(err());
             }
         }
-        Ok(j.entries)
+        Ok(entries)
     }
-    fn write(&self, entries: Vec<ClientRecoveryMarker>) -> Result<()> {
+    fn write_entries<T: Serialize>(&self, destination: &str, entries: &[T]) -> Result<()> {
         let bytes = serde_json::to_vec(&Journal {
             version: 1,
             entries,
@@ -309,7 +360,7 @@ impl ClientRecoveryJournal {
             Self::check_file(&f)?;
             f.write_all(&bytes).map_err(|_| err())?;
             f.sync_all().map_err(|_| err())?;
-            renameat(&self.directory, name.as_str(), &self.directory, JOURNAL)
+            renameat(&self.directory, name.as_str(), &self.directory, destination)
                 .map_err(|_| err())?;
             self.directory.sync_all().map_err(|_| {
                 let mut e = err();
@@ -349,7 +400,7 @@ impl ClientRecoveryJournal {
         };
         validate_marker(&marker)?;
         entries.push(marker.clone());
-        self.write(entries)?;
+        self.write_entries(JOURNAL, &entries)?;
         Ok(marker)
     }
     pub fn list(&self) -> Result<Vec<ClientRecoveryMarker>> {
@@ -364,8 +415,75 @@ impl ClientRecoveryJournal {
             return Ok(false);
         };
         entries.remove(index);
-        self.write(entries)?;
+        self.write_entries(JOURNAL, &entries)?;
         Ok(true)
+    }
+
+    pub(crate) fn task_messages(&self) -> Result<TaskMessageJournal<'_>> {
+        let lock = self.lock_file(MESSAGE_LOCK)?;
+        let entries: Vec<TaskMessageIntent> = self.read_entries(MESSAGE_JOURNAL)?;
+        if entries.len() > MESSAGE_LIMIT {
+            return Err(err());
+        }
+        for (i, entry) in entries.iter().enumerate() {
+            entry.validate()?;
+            if entries[..i]
+                .iter()
+                .any(|previous| previous.session_id == entry.session_id)
+            {
+                return Err(err());
+            }
+        }
+        Ok(TaskMessageJournal {
+            journal: self,
+            _lock: lock,
+            entries,
+        })
+    }
+}
+
+pub(crate) fn task_message_recovery_required() -> CoreError {
+    let mut error = CoreError::new(
+        "TASK_MESSAGE_RECOVERY_REQUIRED",
+        "Check the previous message receipt before sending again",
+    );
+    error.side_effect_state = "unknown".into();
+    error
+}
+
+pub(crate) struct TaskMessageJournal<'a> {
+    journal: &'a ClientRecoveryJournal,
+    _lock: JournalLock,
+    entries: Vec<TaskMessageIntent>,
+}
+
+impl TaskMessageJournal<'_> {
+    pub(crate) fn entries(&self) -> &[TaskMessageIntent] {
+        &self.entries
+    }
+
+    pub(crate) fn reserve(&mut self, intent: TaskMessageIntent) -> Result<()> {
+        intent.validate()?;
+        if self
+            .entries
+            .iter()
+            .any(|previous| previous.session_id == intent.session_id)
+        {
+            return Err(task_message_recovery_required());
+        }
+        if self.entries.len() == MESSAGE_LIMIT {
+            return Err(CoreError::new(
+                "RESOURCE_LIMIT",
+                "Too many unresolved task messages",
+            ));
+        }
+        self.entries.push(intent);
+        self.journal.write_entries(MESSAGE_JOURNAL, &self.entries)
+    }
+
+    pub(crate) fn clear(&mut self, session_id: &str) -> Result<()> {
+        self.entries.retain(|entry| entry.session_id != session_id);
+        self.journal.write_entries(MESSAGE_JOURNAL, &self.entries)
     }
 }
 #[cfg(test)]
@@ -376,7 +494,8 @@ mod tests {
         os::unix::fs::{symlink, PermissionsExt},
     };
     fn fixture() -> (tempfile::TempDir, ClientRecoveryJournal) {
-        let d = tempfile::tempdir().unwrap();
+        let parent = std::env::temp_dir().canonicalize().unwrap();
+        let d = tempfile::tempdir_in(parent).unwrap();
         fs::set_permissions(d.path(), fs::Permissions::from_mode(0o700)).unwrap();
         let j = ClientRecoveryJournal::new(d.path()).unwrap();
         (d, j)
@@ -502,7 +621,10 @@ mod tests {
             Ok(_) => 10,
             Err(e) if e.code == "CLIENT_RECOVERY_REQUIRED" => 11,
             Err(e) if e.code == "CLIENT_RECOVERY_BUSY" => 13,
-            Err(_) => 12,
+            Err(error) => {
+                eprintln!("unexpected journal reserve error: {error:?}");
+                12
+            }
         };
         std::process::exit(code);
     }
@@ -514,21 +636,26 @@ mod tests {
                 .args([
                     "--exact",
                     "client_recovery_journal::tests::subprocess_reserve_fixture",
+                    "--nocapture",
                 ])
                 .env("BATON_JOURNAL_TEST_ROOT", d.path())
                 .stdout(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
+                .stderr(std::process::Stdio::piped())
                 .spawn()
                 .unwrap()
         };
-        let mut a = spawn();
-        let mut b = spawn();
-        let mut codes = [
-            a.wait().unwrap().code().unwrap(),
-            b.wait().unwrap().code().unwrap(),
-        ];
+        let a = spawn();
+        let b = spawn();
+        let a = a.wait_with_output().unwrap();
+        let b = b.wait_with_output().unwrap();
+        let mut codes = [a.status.code().unwrap(), b.status.code().unwrap()];
         codes.sort();
-        assert!(codes == [10, 11] || codes == [10, 13], "{codes:?}");
+        assert!(
+            codes == [10, 11] || codes == [10, 13],
+            "{codes:?}: {} {}",
+            String::from_utf8_lossy(&a.stderr),
+            String::from_utf8_lossy(&b.stderr)
+        );
         assert_eq!(
             journal.reserve(binding()).unwrap_err().code,
             "CLIENT_RECOVERY_REQUIRED"
