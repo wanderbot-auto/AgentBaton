@@ -224,6 +224,8 @@ CONVERSATION_SCHEMA18_SITES = (
 )
 
 def strip_conversation_schema18(text):
+    if BG.BG_STEP_NAME in text:
+        text = BG.strip_background_native_smoke_layer(text)
     for current, historical in CONVERSATION_SCHEMA18_SITES:
         if text.count(current) != 1 or historical in text:
             raise ValueError('Exactly the three current schema18 candidate/probe sites are required')
@@ -498,6 +500,7 @@ class Genuine16WorkflowWiring(unittest.TestCase):
     def test_reviewed_native_blocks_refuse_changed_duplicate_missing_or_moved_steps(self):
         original = (ROOT / '.github/workflows/product.yml').read_bytes().decode('utf-8')
         verify_only_six_historical_target_changes(original)
+        original = BG.strip_background_native_smoke_layer(original)
         headers = list(re.finditer(r'^      - .*\n', original, re.MULTILINE))
         blocks = []
         changes = [

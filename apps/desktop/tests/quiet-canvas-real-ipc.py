@@ -351,8 +351,11 @@ def main():
                 assert background_summary.evaluate('(e)=>e===document.activeElement')
                 page.keyboard.press('Tab')
                 assert close.evaluate('(e)=>e===document.activeElement')
+                # The composed settings add recovery and daemon controls before the
+                # two closed summaries. Forward tabbing must stay in the dialog.
                 page.keyboard.press('Tab')
-                assert summary.evaluate('(e)=>e===document.activeElement')
+                assert settings.evaluate('(e)=>e.contains(document.activeElement)')
+                assert not background_summary.evaluate('(e)=>e.parentElement.contains(document.activeElement)')
                 page.keyboard.press('Shift+Tab')
                 assert close.evaluate('(e)=>e===document.activeElement')
                 assert summary.evaluate('(e)=>e.parentElement.open===false')

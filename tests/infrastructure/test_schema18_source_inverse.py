@@ -5,6 +5,7 @@ from pathlib import Path
 import unittest
 from unittest import mock
 from tests.infrastructure import schema18_source_fixture as F
+from tests.infrastructure import notification_screenshot_composition_fixture as N
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -15,7 +16,11 @@ class Schema18SourceInverse(unittest.TestCase):
             with self.subTest(path=path):
                 current = (ROOT / path).read_text()
                 current_layer = layer.get('followup', layer)
-                self.assertEqual(hashlib.sha256(current.encode()).hexdigest(), current_layer['after'])
+                if path == 'apps/desktop/tests/integration-real-ipc.py':
+                    uncomposed = N.strip_current_notification_layer(current)
+                else:
+                    uncomposed = current
+                self.assertEqual(hashlib.sha256(uncomposed.encode()).hexdigest(), current_layer['after'])
                 restored = F.strip_schema18_source(path, current)
                 self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), layer['before'])
                 self.assertEqual(F.strip_schema18_source(path, restored), restored)
@@ -24,6 +29,8 @@ class Schema18SourceInverse(unittest.TestCase):
         for path, layer in F.LAYERS.items():
             text = (ROOT / path).read_text()
             mutations = [text + '# unreviewed outside change\n']
+            if path == 'apps/desktop/tests/integration-real-ipc.py':
+                text = N.strip_current_notification_layer(text)
             for edit in layer.get('followup', layer)['edits']:
                 start, end = edit['start'], edit['end']
                 lines = text.splitlines(keepends=True)

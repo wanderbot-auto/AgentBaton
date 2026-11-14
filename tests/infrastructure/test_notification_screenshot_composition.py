@@ -12,7 +12,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class NotificationScreenshotComposition(unittest.TestCase):
     def variants(self):
-        composed = (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text()
+        current = (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text()
+        composed = C.restore_historical_composition(current)
         notification = C.strip_composed_screenshot_layer(composed)
         root = C.strip_composed_notification_layer(composed)
         original = S.strip_screenshot_driver_layer(root)
@@ -31,17 +32,24 @@ class NotificationScreenshotComposition(unittest.TestCase):
             self.assertEqual(strip(original), original)
         self.assertIn("phase = 'notification_probe'", composed)
         self.assertIn("report['active_screenshot']", composed)
+        current = (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text()
+        self.assertEqual(C.strip_composed_screenshot_layer(current), notification)
+        current_root = C.strip_composed_notification_layer(current)
+        self.assertEqual(hashlib.sha256(current_root.encode()).hexdigest(), C.CURRENT_WITHOUT_NOTIFICATION_SHA256)
+        self.assertEqual(S.strip_screenshot_driver_layer(current_root), original)
 
     def test_all_four_variants_still_restore_the_entire_preflight_baseline(self):
         controls = P.ExactOriginalSourceControls()
-        for text in self.variants():
+        current = (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text()
+        for text in (*self.variants(), current):
             with self.subTest(source=hashlib.sha256(text.encode()).hexdigest()):
                 restored = controls.restore_driver(text)
                 self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),
                     '1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e')
 
     def test_unknown_or_removed_duplicate_moved_changed_layer_and_original_guards_refuse(self):
-        for text in self.variants():
+        current = (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text()
+        for text in (*self.variants(), current):
             changes = [text + '\nUNKNOWN_UNREVIEWED_BYTE = True\n',
                 text.replace('MAX_CHROMIUM_IMAGE = 536870912', 'MAX_CHROMIUM_IMAGE = 1073741824', 1),
                 text.replace('MAX_BODY, MAX_REPLY, MAX_REVIEW = 270336, 4194304, 1048576',

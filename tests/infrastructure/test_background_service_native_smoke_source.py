@@ -1,15 +1,25 @@
 """Pure strict source layers. No historical source, Native process or SQL executed."""
 from pathlib import Path
 import hashlib
+import json
 import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 BG_STEP_NAME = 'Actual Native background registration IPC in generated private paths'
-BASE_WORKFLOW_SHA256 = '19424794adab93619e420f1ec5304f0d386fe0dcea15d743885b5a2308e3f526'
-COMPOSED_WORKFLOW_SHA256 = 'e25d0db6e55d054a6a5c91fedc9ac810bde981d02366ae2ba94809b1c22af90c'
-BG_STEP_INDEX = 37
-BG_STEP = '      - name: Actual Native background registration IPC in generated private paths\n        run: |\n          set -euo pipefail\n          # Matching normal17 tools/sidecars; later original steps reuse caches.\n          cargo build --locked --bin batond --bin baton\n          cargo build --release --locked --bin batond --bin baton\n          bash scripts/prepare-desktop-sidecars.sh\n          cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --lib background_service -- --test-threads=1\n          cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-background-service-smoke\n          cp target/debug/batond apps/desktop/src-tauri/target/debug/batond\n          python3 scripts/native-background-service-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-background-service-smoke --daemon target/debug/batond --output artifacts/native-smoke/background-registration\n'
+# Exact workflow at 4ce910b and the same bytes with the new Native step.
+BASE_WORKFLOW_SHA256 = 'e9e70c5340ca711528e6df6f9c2434104e021068054bf74cb5d3f9efc90984e5'
+COMPOSED_WORKFLOW_SHA256 = '97500089880e6810080169f62779b0446c3aee85eada81ba20541b516c4c0357'
+BG_STEP_INDEX = 46
+BG_STEP = (
+    '      - name: Actual Native background registration IPC in generated private paths\n'
+    '        run: |\n'
+    '          set -euo pipefail\n'
+    '          cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --lib background_service -- --test-threads=1\n'
+    '          cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-background-service-smoke\n'
+    '          cp target/debug/batond apps/desktop/src-tauri/target/debug/batond\n'
+    '          python3 scripts/native-background-service-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-background-service-smoke --daemon target/debug/batond --output artifacts/native-smoke/background-registration\n'
+)
 
 
 def strip_background_native_smoke_layer(text):
@@ -23,7 +33,9 @@ def strip_background_native_smoke_layer(text):
     if indices != [BG_STEP_INDEX] or BG_STEP_INDEX+1 >= len(headers):
         raise ValueError('Background Native step count/position changed')
     start,end = headers[BG_STEP_INDEX].start(),headers[BG_STEP_INDEX+1].start()
-    if text[start:end] != BG_STEP or headers[BG_STEP_INDEX+1].group(0) != '      - name: Core and native host tests\n':
+    if (text[start:end] != BG_STEP
+            or headers[BG_STEP_INDEX-1].group(0) != '      - name: Native library tests with smoke features\n'
+            or headers[BG_STEP_INDEX+1].group(0) != '      - name: Actual Native integration approval and early cancellation\n'):
         raise ValueError('Background Native exact block/neighbor changed')
     restored = text[:start]+text[end:]
     if hashlib.sha256(restored.encode()).hexdigest() != BASE_WORKFLOW_SHA256:
@@ -92,7 +104,6 @@ def strip_fixture_cfg(source):
 def tokens(source):return [token for token,_,_ in lex(source)]
 def token_sha(source):return hashlib.sha256(json_tokens(source)).hexdigest()
 def json_tokens(source):
-    import json
     return json.dumps(tokens(source),ensure_ascii=False,separators=(',',':')).encode()
 def original_function(source,name):
     match=re.search(r'\bfn '+re.escape(name)+r'\s*\(',source)
@@ -106,77 +117,136 @@ def original_function(source,name):
     raise ValueError('Unclosed old function')
 
 
-def production_tokens(path,source):
-    restored=strip_fixture_cfg(source)
-    values=tokens(restored)
-    if path.endswith('/lib.rs'):
-        # The sole ungated adaptation is an equivalent pure closure block.
-        before=tokens('move || { background_service::status(&directory) }')
-        after=tokens('move || background_service::status(&directory)')
-        positions=[i for i in range(len(values)) if values[i:i+len(before)]==before]
-        if len(positions)!=1:raise ValueError('Unknown status closure adaptation')
-        i=positions[0];values[i:i+len(before)]=after
-        before=tokens('.manage(Runtime { directory, })');after=tokens('.manage(Runtime { directory })')
-        positions=[i for i in range(len(values)) if values[i:i+len(before)]==before]
-        if len(positions)!=1:raise ValueError('Unknown default builder adaptation')
-        i=positions[0];values[i:i+len(before)]=after
-        before=tokens('.unwrap_or_else(|_| background_service::observation_failed()))')
-        after=tokens('.unwrap_or_else(|_| background_service::observation_failed()),)')
-        positions=[i for i in range(len(values)) if values[i:i+len(before)]==before]
-        if len(positions)!=1:raise ValueError('Unknown status trailing-comma adaptation')
-        i=positions[0];values[i:i+len(before)]=after
-    return values
+def replace_tokens_once(values, old, new):
+    before = tokens(old)
+    positions = [i for i in range(len(values)) if values[i:i + len(before)] == before]
+    if len(positions) != 1:
+        raise ValueError(f'Expected one Native bridge composition site: {old}')
+    index = positions[0]
+    values[index:index + len(before)] = tokens(new)
 
-PRODUCTION_TOKEN_PINS = {'apps/desktop/src-tauri/src/lib.rs': '017cac89ac762bede996a7afdec3ccd699cc4a04b85e15cc745bfe121e34bc7f', 'apps/desktop/src-tauri/src/background_service.rs': '7794f157346c723f5083631e3bc6fd715e84910af3479aa0bed60cafa00977be'}
+
+def restored_parent_bridge_token_sha(source):
+    """Remove the registration bridge to recover the formatted parent sources."""
+    restored = strip_fixture_cfg(source)
+    # The three exact functions are checked separately against #24 with and
+    # without fixture cfg before their removal here.
+    for name in BRIDGE_COMMAND_PINS:
+        definition = original_function(restored, name)
+        replace_at = restored.index(definition)
+        prefix_start = restored.rfind('#[tauri::command]', 0, replace_at)
+        if prefix_start < 0 or restored[prefix_start:replace_at].split() != ['#[tauri::command]', 'async']:
+            raise ValueError(f'Native bridge command declaration changed: {name}')
+        restored = restored[:prefix_start] + restored[replace_at + len(definition):]
+
+    values = tokens(restored)
+    replace_tokens_once(values, 'mod background_policy; mod background_service; mod background_window;',
+                        'mod background_policy; mod background_window;')
+    replace_tokens_once(values, '.manage(Runtime { directory, })', '.manage(Runtime { directory })')
+    replace_tokens_once(values, 'tauri::generate_handler![background_service_status, '
+                        'background_service_enable, background_service_disable,',
+                        'tauri::generate_handler![')
+    return hashlib.sha256(json.dumps(values, ensure_ascii=False, separators=(',', ':')).encode()).hexdigest()
+
+
+# Parent is the workspace/recovery composition 4ce910b, normalized with rustfmt
+# 2021 and skip_children=true, as the integration run formatted the bridge.
+# #24's exact command functions and its original 19 tests have their own pins.
+PARENT_BRIDGE_TOKEN_SHA256 = 'b5dcc8f034fc0f8f73b8b5d74cffd772f94b2ce4b81eda2c671240696641cb2d'
+BACKGROUND_ENGINE_TOKEN_SHA256 = '7794f157346c723f5083631e3bc6fd715e84910af3479aa0bed60cafa00977be'
+BRIDGE_COMMAND_PINS = {
+    'background_service_status': (
+        '7b1e0cc5b72e74104f6e1961be18b445fb8537b53c8897fa81df9794ad2cf5d5',
+        '251952c29d5d24714605027a1cc9f9e49c1a8eeee00f6142f8777b42895ad9dc',
+    ),
+    'background_service_enable': (
+        '5b6144f12b08f463dd0669619a66768e69dac058e403178cea35ea75663c6551',
+        'f58ff64393e3e29364cb9e19564cce5f6b6701980bec46d0a3a9b234d73f2232',
+    ),
+    'background_service_disable': (
+        '53fadcde009205e94799b524605dafd03a6e9b32ec79a62bffa49b61d9fc62bd',
+        'f97e24e7b1a0e1dc8eb85c7c876d88cdd1df08e187986543647a6588ebc7c57a',
+    ),
+}
 ORIGINAL_19_TEST_PINS = {'default_observation_is_disabled_and_creates_nothing': '4b16b3e0b6db9dd3aa180d4cea223921fb0314d44f461ec90e29a08a8abe12bd', 'next_login_registration_and_revocation_never_execute_a_program': 'f25143d68f0f3c14ef0f7dd299defc2b109ffddd5e28de7f11abe62bee1f61f2', 'registration_is_fixed_shell_free_and_xml_escaped': 'e2acde65044673960ccfa5644ffb214f8b5b8f4923eac019b48be5eccfec1c8e', 'xml_and_layout_reject_xml10_forbidden_scalars_without_rejecting_unicode': '9e76c23bee10a614cae54fb389e2472d02267c24df2b2198fd9702bc2f9ed9ec', 'missing_symlink_or_nonprivate_runtime_is_refused_without_repair': '9bf0596002f4245c2902af07484689c476ff83210f670367705aafac8794cd0f', 'runtime_replacement_invalidates_preconfirmed_enable_and_disable': '04ef7743db10c949f60adfcb1c8390c434856b09c0f643669d63651491ef89a2', 'runtime_replacement_after_receipt_is_never_reported_as_applied': 'aa21ef73df6a2112d66c6a7ea4f544b9ad98e82cd69e61710c589ccb015c75d9', 'nonroot_owned_world_writable_sticky_ancestor_is_refused': '92321c582b16a4ea99bd1c9df8d452f0127d1adaf492f6d6bdc5068a237889d3', 'custom_runtime_relative_and_unbundled_installations_are_refused': '2e149ff8ad65c47a60f36657e65c61b3a9a0d5a64959843f9c80f968ecfa4534', 'unknown_existing_plist_or_receipt_is_not_replaced_or_removed': 'a8ad727a0c663c2abd20afa57e6e16db513e5a3499af1ffabf99597e3161e9d5', 'symlink_leaf_ancestor_and_nonprivate_modes_are_refused': 'f17b71c3900c4c574d53ad1f36aad2057cb635fdcaea7cb111586fba62f61d78', 'hardlink_and_replaced_same_content_inode_do_not_gain_ownership': '8046d6e6a1e887c1913f2659233659da4ec75f2192e360f339c39c5f780f9599', 'changed_directory_or_executable_blocks_a_preconfirmed_snapshot': '3ffff0d09af0beb35195c1d5130192d79d4cb753697d644b649d619087a803c5', 'receipt_only_is_disabled_and_explicit_enable_can_complete_it': '7425728e3ca97e708ecb694fef0caa928af7216b3c5cfbb4095e060ab6bee87d', 'directory_replacement_after_receipt_reports_real_partial_and_never_registers': 'f4e3f4a4d4e01f7945814deb29683c24461e88bd07603d1e0bfa18124501738a', 'unknown_file_arriving_after_receipt_is_preserved_and_partial_is_not_success': 'b7d792814a0eb0ee67c2d3af243c7c65eb0bcb978c735dfbd54e69f8e35d2807', 'create_never_clobbers_an_existing_unknown_file': 'f4c0b8545e5ae6cc5aac76acdb30d31c425555325d19862fdd049609287450b5', 'detached_directory_descriptor_cannot_write_into_a_replaced_binding': '687059b71735c73b7b7053bed0f7036824580e707f8964fe64c2d72c9a53e5b7', 'report_contains_only_closed_state_and_never_private_paths': 'f2df32b651c15e6b21bc0e42c57ae7812ccb8cce9260bc7aef06c4cd21b4a4b0'}
-UNCHANGED_FILE_PINS = {'apps/desktop/src-tauri/Cargo.lock': 'f1ad092cfc6b1317d259831e197e160d100de8c6ef292b075104531276667515', 'apps/desktop/src-tauri/src/native_parent.rs': '15387d3493af707f9e50b019dc04fe7b6e7b0d95bc68623791a875123a80e9da', 'apps/desktop/src-tauri/src/bin/native_smoke.rs': '6afdd3becc2d278f5032c96567bf7cbeb41d2e36ea612d997690806473edc194', 'apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs': 'e7b8e4bf6d6656f2dc9e5c2c92c656dad2ea7ad6230cb97243f13f2fae2d7fdb', 'apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs': '77521457c597183eac0ddf37073713e22e223717d608576e23f5dfad71614828', 'apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs': '636d710271160a6b4640d5da2702fc012cdc61c788bab9463cc40910559a7010', 'apps/desktop/src-tauri/src/native_owner_dialog_test/integration_database.rs': 'b73668985e0367f8f4d8fb2afd3f45fe17077f3a28dc162cb2d0ac390833d138', 'scripts/native-macos-smoke.sh': '22931a868be18fdc3b54689ced42a76392e80f42ca11e7ed60d11fa4b1c88cfd', 'scripts/native-owner-dialog-smoke.py': '583ef9625cfca7c664bb675cabadd38dddf047babc16c7f376d0e2559fe07dba', 'scripts/native-run.py': '314895a19a8a2194f51f1acb5222c05d30f2c5fe1264dcfe4fb9d8a3604541c1'}
-OLD_COMPOSITION_PINS = {'apps/desktop/src-tauri/Cargo.toml': '0f32bd15f1052232cafa688f1a62d7c635943e469bc1653f2060bfe3d6c9938f', 'scripts/native-audit-release.sh': 'fff2bf0cefea1a1004a83cbef4caf31d6b9b99e5870fb22cc32527706ce0ad58', 'tests/infrastructure/test_schema17_migration_workflow.py': 'c20f445140c07a86f7d0d1cc9c96db59fbdf3397ecb75f176de03a8fdcd3e04f', 'tests/infrastructure/test_private_browser_python.py': '578bc980e0c707dcc9f15b85346e22409fc631059e98154c3e11c222b2e4a655', 'tests/infrastructure/test_integration_setup_diagnostics.py': 'b962181836ed27b23af5187c7cedefb94a0cb7df39fe08520e43a16d910445c4'}
-ENSURE_DAEMON_SHA256 = 'fe08cd65f492bf24f2f8021e77ea4bfc3c6fb925a234ede4d1eafe451c7cd4d6'
+UNCHANGED_FILE_PINS = {
+    'apps/desktop/src-tauri/src/native_parent.rs': '92e3b3a947a5d2131a136b84de07face812f1bafc3b74ec128238c216fdd1caf',
+    'apps/desktop/src-tauri/src/bin/native_smoke.rs': '95da64173f62be210d35fd626006f76ff33cda5ce96b333517c1244d23d2a4e0',
+    'apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs': 'e7b8e4bf6d6656f2dc9e5c2c92c656dad2ea7ad6230cb97243f13f2fae2d7fdb',
+    'apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs': 'c82d39abb4074971a8bf43b25454b5b6698f6b3b6a7b35beb85dbfb41b8d959d',
+    'apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs': '636d710271160a6b4640d5da2702fc012cdc61c788bab9463cc40910559a7010',
+    'apps/desktop/src-tauri/src/native_owner_dialog_test/integration_database.rs': '8730e078ebb48136802c3a614c44636d656c9336f3974b37d5bf018a83762755',
+    'scripts/native-macos-smoke.sh': '79841c8b178ed3a68a6a62d13ccc81581e43798be3c1c29a00bf161a8b3dfefd',
+    'scripts/native-owner-dialog-smoke.py': 'e2ca962c8e5d8af29bc04bb477c6d9d4fc876b7143b33ffafca8a730944fad94',
+    'scripts/native-run.py': '205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a',
+}
+PARENT_NATIVE_AUDIT_SHA256 = 'fff2bf0cefea1a1004a83cbef4caf31d6b9b99e5870fb22cc32527706ce0ad58'
+PARENT_ENSURE_DAEMON_SHA256 = 'e9708f857866f23dd41f988124b85216b50a1ed432690b2adacfd4f175e30a2b'
 
 
 class NativeBackgroundSourceBoundaries(unittest.TestCase):
     def test_complete_production_inverse_and_all_nineteen_original_tests(self):
-        import json
-        for path,pin in PRODUCTION_TOKEN_PINS.items():
-            values=production_tokens(path,(ROOT/path).read_text())
-            self.assertEqual(hashlib.sha256(json.dumps(values,ensure_ascii=False,separators=(',',':')).encode()).hexdigest(),pin,path)
-        source=(ROOT/'apps/desktop/src-tauri/src/background_service.rs').read_text()
-        self.assertEqual(len(ORIGINAL_19_TEST_PINS),19)
-        for name,pin in ORIGINAL_19_TEST_PINS.items():
-            self.assertEqual(hashlib.sha256(original_function(source,name).encode()).hexdigest(),pin,name)
-        lib=(ROOT/'apps/desktop/src-tauri/src/lib.rs').read_text()
-        self.assertEqual(hashlib.sha256(original_function(lib,'ensure_daemon').encode()).hexdigest(),ENSURE_DAEMON_SHA256)
+        source = (ROOT/'apps/desktop/src-tauri/src/background_service.rs').read_text()
+        self.assertEqual(token_sha(strip_fixture_cfg(source)), BACKGROUND_ENGINE_TOKEN_SHA256)
+        self.assertEqual(len(ORIGINAL_19_TEST_PINS), 19)
+        for name, pin in ORIGINAL_19_TEST_PINS.items():
+            self.assertEqual(hashlib.sha256(original_function(source, name).encode()).hexdigest(), pin, name)
 
-    def test_all_old_harness_guards_lock_and_cargo_source_are_exact(self):
-        for path,pin in UNCHANGED_FILE_PINS.items():
-            self.assertEqual(hashlib.sha256((ROOT/path).read_bytes()).hexdigest(),pin,path)
-        source=(ROOT/'apps/desktop/src-tauri/Cargo.toml').read_text()
-        addition='\n# Private generated-tree registration IPC; never enabled in application bundles.\n[[bin]]\nname = "agentbaton-native-background-service-smoke"\npath = "src/bin/native_background_service_smoke.rs"\nrequired-features = ["native-smoke"]\n'
-        self.assertEqual(source.count(addition),1)
-        self.assertEqual(hashlib.sha256(source.replace(addition,'',1).encode()).hexdigest(),OLD_COMPOSITION_PINS['apps/desktop/src-tauri/Cargo.toml'])
+        lib = (ROOT/'apps/desktop/src-tauri/src/lib.rs').read_text()
+        for name, (command_pin, production_pin) in BRIDGE_COMMAND_PINS.items():
+            function = original_function(lib, name)
+            self.assertEqual(token_sha(function), command_pin, name)
+            self.assertEqual(token_sha(strip_fixture_cfg(function)), production_pin, name)
+        self.assertEqual(restored_parent_bridge_token_sha(lib), PARENT_BRIDGE_TOKEN_SHA256)
+        self.assertEqual(hashlib.sha256(original_function(lib, 'ensure_daemon').encode()).hexdigest(),
+                         PARENT_ENSURE_DAEMON_SHA256)
 
-    def test_three_legacy_python_layers_restore_entire_original_bytes(self):
-        path='tests/infrastructure/test_schema17_migration_workflow.py';source=(ROOT/path).read_text()
-        source=source.replace('from tests.infrastructure import test_background_service_native_smoke_source as BG\n','',1)
-        branch='    if BG.BG_STEP_NAME in text:\n        text = BG.strip_background_native_smoke_layer(text)\n'
-        self.assertEqual(source.count(branch),1);source=source.replace(branch,'',1)
-        self.assertEqual(hashlib.sha256(source.encode()).hexdigest(),OLD_COMPOSITION_PINS[path])
-        for path,new,old,count in [
-            ('tests/infrastructure/test_private_browser_python.py',"text=BG.strip_background_native_smoke_layer((ROOT/'.github/workflows/product.yml').read_text())","text=(ROOT/'.github/workflows/product.yml').read_text()",2),
-            ('tests/infrastructure/test_integration_setup_diagnostics.py','text = BG.strip_background_native_smoke_layer(F.WORKFLOW.read_text())','text = F.WORKFLOW.read_text()',3)]:
-            source=(ROOT/path).read_text()
-            declaration='from tests.infrastructure import test_background_service_native_smoke_source as BG\n\n\n'
-            self.assertEqual(source.count(declaration),1);source=source.replace(declaration,'',1)
-            self.assertEqual(source.count(new),count);source=source.replace(new,old)
-            self.assertEqual(hashlib.sha256(source.encode()).hexdigest(),OLD_COMPOSITION_PINS[path])
+    def test_all_parent_harness_guards_lock_and_cargo_source_are_exact(self):
+        for path, pin in UNCHANGED_FILE_PINS.items():
+            self.assertEqual(hashlib.sha256((ROOT/path).read_bytes()).hexdigest(), pin, path)
 
-    def test_exact_new_mac_step_recovers_entire_old_workflow_before_core(self):
+        lock = (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_text()
+        addition = ('name = "agentbaton-desktop"\nversion = "0.1.0"\ndependencies = [\n'
+                    ' "agentbaton-core",\n "libc",\n')
+        self.assertEqual(lock.count(addition), 1)
+        parent_lock = lock.replace(addition, addition.removesuffix(' "libc",\n'), 1)
+        self.assertEqual(hashlib.sha256(parent_lock.encode()).hexdigest(),
+                         '4d47820152c17d63b61829fa7d83d2fbbdb4c9cbbfdbd03168207f0e442e068d')
+
+        manifest = (ROOT/'apps/desktop/src-tauri/Cargo.toml').read_text()
+        additions = (
+            '# Reuse the exact already-locked POSIX ABI for per-user filesystem ownership.\nlibc = "=0.2.191"\n',
+            '\n# Private generated-tree registration IPC; never enabled in application bundles.\n'
+            '[[bin]]\nname = "agentbaton-native-background-service-smoke"\n'
+            'path = "src/bin/native_background_service_smoke.rs"\nrequired-features = ["native-smoke"]\n',
+        )
+        for addition in additions:
+            self.assertEqual(manifest.count(addition), 1)
+            manifest = manifest.replace(addition, '', 1)
+        self.assertEqual(hashlib.sha256(manifest.encode()).hexdigest(),
+                         '3b6bb5205adb7610d639fb42cb7154c189e04030d8e18ccf71d2c42070bcb028')
+
+    def test_workflow_normalizers_peel_only_the_exact_new_layer(self):
+        from tests.infrastructure import test_schema17_migration_workflow as workflow
+        composed = (ROOT/'.github/workflows/product.yml').read_text()
+        parent = strip_background_native_smoke_layer(composed)
+        for normalize in (workflow.strip_conversation_schema18, workflow.strip_private_browser_python):
+            self.assertEqual(normalize(composed), normalize(parent))
+            with self.assertRaises(ValueError):
+                normalize(composed.replace('contents: read', 'contents: write', 1))
+
+    def test_exact_new_mac_step_recovers_entire_parent_workflow(self):
         text=(ROOT/'.github/workflows/product.yml').read_text();old=strip_background_native_smoke_layer(text)
         self.assertEqual(hashlib.sha256(old.encode()).hexdigest(),BASE_WORKFLOW_SHA256)
         self.assertEqual(text.count(BG_STEP),1)
         self.assertEqual(text.replace(BG_STEP,'',1),old)
-        self.assertIn('cargo build --release --locked --bin batond --bin baton',BG_STEP)
-        self.assertIn('bash scripts/prepare-desktop-sidecars.sh',BG_STEP)
+        for predecessor in ('cargo build --release --locked --bin batond --bin baton',
+                            'bash scripts/prepare-desktop-sidecars.sh'):
+            # The preparation stays in the original host tests. The new
+            # step uses their verified binaries and avoids rebuilding them.
+            desktop = text[text.index('  desktop:\n'):]
+            self.assertLess(desktop.index(predecessor), desktop.index(BG_STEP))
+            self.assertNotIn(predecessor, BG_STEP)
         self.assertNotIn('continue-on-error',BG_STEP);self.assertNotIn('always()',BG_STEP)
         self.assertNotIn('timeout-minutes',BG_STEP)
 
@@ -243,10 +313,12 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         source=(ROOT/'scripts/native-audit-release.sh').read_text()
         added='native_background_service_fixture_report|native_background_fixture_alarm|abg-registration-fixture-v1|'
         self.assertEqual(source.count(added),1)
-        self.assertEqual(hashlib.sha256(source.replace(added,'',1).encode()).hexdigest(),OLD_COMPOSITION_PINS['scripts/native-audit-release.sh'])
+        self.assertEqual(hashlib.sha256(source.replace(added,'',1).encode()).hexdigest(),PARENT_NATIVE_AUDIT_SHA256)
         lib=(ROOT/'apps/desktop/src-tauri/src/lib.rs').read_text()
         gate='#[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]'
         self.assertIn(gate+'\npub mod native_background_service_test;',lib)
+        builder = original_function(lib, 'desktop_builder')
+        self.assertIn(gate+'\n            background_mode: background_service::smoke::Mode::Production,', builder)
         engine=(ROOT/'apps/desktop/src-tauri/src/background_service.rs').read_text()
         self.assertIn(gate+'\n    pub(crate) mod smoke',engine)
         binary=(ROOT/'apps/desktop/src-tauri/src/bin/native_background_service_smoke.rs').read_text()

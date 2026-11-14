@@ -17,6 +17,14 @@ def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):
     digest = hashlib.sha256(text.encode()).hexdigest()
     if digest == layer['before'] or digest in legacy:
         return text
+    if path == 'apps/desktop/tests/integration-real-ipc.py':
+        from tests.infrastructure import notification_screenshot_composition_fixture as notification
+        if digest == notification.CURRENT_COMPOSED_SHA256:
+            try:
+                text = notification.strip_current_notification_layer(text)
+            except AssertionError as exc:
+                raise error(str(exc)) from exc
+            digest = notification.CURRENT_WITHOUT_NOTIFICATION_SHA256
     followup = layer.get('followup')
     if followup is not None and digest == followup['after']:
         text = restore(text, followup['edits'], layer['after'], error)

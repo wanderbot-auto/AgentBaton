@@ -198,7 +198,7 @@ class FiniteSetupProjection(unittest.TestCase):
 
 class ExactDiagnosticSourceInverse(unittest.TestCase):
     def test_complete_step_restores_exact7ee_and_all_older_whole_workflow_pins(self):
-        text = F.WORKFLOW.read_text()
+        text = W.BG.strip_background_native_smoke_layer(F.WORKFLOW.read_text())
         setup_restored = W.strip_integration_setup_diagnostics(text)
         self.assertEqual(hashlib.sha256(setup_restored.encode()).hexdigest(),
             'cedf02dd804568c13adffe3a06d0d3ee7691b133961414aa62e1ef892055e4da')
@@ -221,7 +221,7 @@ class ExactDiagnosticSourceInverse(unittest.TestCase):
             self.assertEqual(before[name], after[name])
 
     def test_exact_complete_flagged_step_restores765_driver_before_its_original_inverse(self):
-        text = F.WORKFLOW.read_text()
+        text = W.BG.strip_background_native_smoke_layer(F.WORKFLOW.read_text())
         # The real notification workflow is already flagged; construct the
         # standalone diagnostic variant with exactly that reviewed flag removed.
         self.assertEqual(text.count(W.INTEGRATION_SETUP_NOTIFICATION_FLAG), 1)
@@ -243,7 +243,7 @@ class ExactDiagnosticSourceInverse(unittest.TestCase):
                 W.strip_integration_setup_diagnostics(flagged.replace(old, new, 1))
 
     def test_any_diagnostic_guard_outside_edit_move_missing_duplicate_or_fixture_corruption_refuses(self):
-        text = F.WORKFLOW.read_text()
+        text = W.BG.strip_background_native_smoke_layer(F.WORKFLOW.read_text())
         changes = [("'exception_kind': None", "'exception_kind': 'unknown'"),
             ("diagnostic['stage'] = 'schema_probe'", "diagnostic['stage'] = 'driver_returned'"),
             ("'traceback_bytes': 0", "'traceback_bytes': True"),

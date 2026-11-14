@@ -12,23 +12,50 @@ ROOT = Path(__file__).resolve().parents[2]
 P = F.P
 SOURCE_BEFORE_SHA256 = 'd30279722e2967da93bb52d62c2db4c03a04e83c4287cebb517e15c629244f61'
 SOURCE_AFTER_SHA256 = '98481eb1cc07fd08c2476a27a734d0ba66e28fdfa612f03edb57e76fcaf05b36'
+COMPOSED_SHA256 = 'dd602c15aac5429939a768ff5d3ff8cc7eab0d1c2c02fe8bed5ce4437fd9d1da'
+SCHEMA18_BEFORE_FAILURE_STAGE_SHA256 = 'a7ae6f55da81c3287dd9a768104db6d61db6536146178a3db10fe659628bd24b'
 LAYER_SHA256 = '882a21ca6c44d76e8241e41cd4dab1e55b83fbd40cdd4a08568905e20d1f421d'
 LAYER_MARKER = '# Closed observations only; these do not establish a passing driver or cleanup.\n'
 CALL_ADDITION = "    if not complete:\n        observation = failure_observation(report, len(passed))\n        if observation is not None:\n            result['runtime_failure'] = observation\n"
 
 
+def strip_schema18_projection(text):
+    if hashlib.sha256(text.encode()).hexdigest() != COMPOSED_SHA256:
+        raise ValueError('Unknown complete schema18 failure observation source')
+    edits = (
+        ('command_validation_runs command_workspace_fences connections conversation_budgets\n'
+         'conversation_dispatches conversation_turns conversations data_validation_policies',
+         'command_validation_runs command_workspace_fences connections data_validation_policies'),
+        ("type(value.get('schema')) is int and value['schema'] == 18",
+         "type(value.get('schema')) is int and value['schema'] == 17"),
+        ("return {'schema': 18, 'driver_asserted_no_execution':",
+         "return {'schema': 17, 'driver_asserted_no_execution':"),
+    )
+    for current, previous in edits:
+        if text.count(current) != 1:
+            raise ValueError('Unknown schema18 projector anchor')
+        text = text.replace(current, previous, 1)
+    if hashlib.sha256(text.encode()).hexdigest() != SOURCE_AFTER_SHA256:
+        raise ValueError('Schema18 projection inverse did not restore all original bytes')
+    return text
+
+
 def strip_failure_stage_layer(text):
     digest = hashlib.sha256(text.encode()).hexdigest()
-    if digest == SOURCE_BEFORE_SHA256:
+    if digest in (SOURCE_BEFORE_SHA256, SCHEMA18_BEFORE_FAILURE_STAGE_SHA256):
         return text
-    if digest != SOURCE_AFTER_SHA256 or text.count(LAYER_MARKER) != 1 or text.count(CALL_ADDITION) != 1:
+    before = {
+        SOURCE_AFTER_SHA256: SOURCE_BEFORE_SHA256,
+        COMPOSED_SHA256: SCHEMA18_BEFORE_FAILURE_STAGE_SHA256,
+    }.get(digest)
+    if before is None or text.count(LAYER_MARKER) != 1 or text.count(CALL_ADDITION) != 1:
         raise ValueError('Unrecognized complete failure observation source')
     start, end = text.index(LAYER_MARKER), text.index('def png_pixels(')
     block = text[start:end]
     if hashlib.sha256(block.encode()).hexdigest() != LAYER_SHA256:
         raise ValueError('Failure observation block changed')
     restored = (text[:start] + text[end:]).replace(CALL_ADDITION, '', 1)
-    if hashlib.sha256(restored.encode()).hexdigest() != SOURCE_BEFORE_SHA256:
+    if hashlib.sha256(restored.encode()).hexdigest() != before:
         raise ValueError('Failure observation inverse did not restore all original bytes')
     return restored
 
@@ -164,14 +191,16 @@ class ExactStageSource(unittest.TestCase):
 
     def test_complete_inverse_retains_original_source_and_every_old_function(self):
         source = (ROOT / 'scripts/record-task-workspace-ci-evidence.py').read_text()
-        restored = strip_failure_stage_layer(source)
+        historical_composition = strip_schema18_projection(source)
+        restored = strip_failure_stage_layer(historical_composition)
         self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), SOURCE_BEFORE_SHA256)
         self.assertEqual(strip_failure_stage_layer(restored), restored)
         def functions(text): return {n.name: ast.get_source_segment(text, n) for n in ast.parse(text).body if isinstance(n, ast.FunctionDef)}
-        old, new = functions(restored), functions(source)
-        self.assertEqual([name for name in old if old[name] != new[name]], ['project'])
-        self.assertEqual(new['project'].replace(CALL_ADDITION, '', 1), old['project'])
-        self.assertEqual(set(new) - set(old), {'failure_observation'})
+        for before, after in ((restored, historical_composition), (strip_failure_stage_layer(source), source)):
+            old, new = functions(before), functions(after)
+            self.assertEqual([name for name in old if old[name] != new[name]], ['project'])
+            self.assertEqual(new['project'].replace(CALL_ADDITION, '', 1), old['project'])
+            self.assertEqual(set(new) - set(old), {'failure_observation'})
 
     def test_unknown_layer_original_guard_and_outside_bytes_cannot_be_normalized(self):
         text = (ROOT / 'scripts/record-task-workspace-ci-evidence.py').read_text()
@@ -188,6 +217,7 @@ class ExactStageSource(unittest.TestCase):
         for changed in variants:
             self.assertNotEqual(changed, text)
             with self.assertRaises(ValueError): strip_failure_stage_layer(changed)
+            with self.assertRaises(ValueError): strip_schema18_projection(changed)
 
 
 if __name__ == '__main__': unittest.main()

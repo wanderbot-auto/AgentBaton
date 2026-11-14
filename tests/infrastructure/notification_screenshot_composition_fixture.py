@@ -4,6 +4,8 @@ from tests.infrastructure import integration_screenshot_failure_fixture as S
 
 NOTIFICATION_BEFORE_SHA256 = '55f8144175c0a1d0809da7c95c66339c535a6f8e6d90ece9d11ecb89227df993'
 NOTIFICATION_AFTER_SHA256 = '9561fb33327b2cbf3cf0e0d7a51b755245bf90ce4a9dabcdbeb39cfe523fd70f'
+CURRENT_COMPOSED_SHA256 = '9096f8b934364318ed3963f6aca8de7d1044fcca6f3cd2610f53ca0851634f67'
+CURRENT_WITHOUT_NOTIFICATION_SHA256 = '8f2372193a8496a0fb68ecc97c1541ffbd7e42cc8e86cf8edc852cb2bc85734b'
 NOTIFICATION_EDITS = [('', 'import types\n'),
  ('',
   '\n'
@@ -92,8 +94,28 @@ def _inverse(text, edits, expected):
     return text
 
 
+def strip_current_notification_layer(text):
+    """Restore the exact schema18 driver from the reviewed combined source."""
+    if _digest(text) != CURRENT_COMPOSED_SHA256:
+        raise AssertionError('Unknown current notification composition')
+    return _inverse(text, NOTIFICATION_EDITS, CURRENT_WITHOUT_NOTIFICATION_SHA256)
+
+
+def restore_historical_composition(text):
+    """Keep the notification layer while reversing the exact schema18 spans."""
+    from tests.infrastructure.schema18_source_fixture import LAYERS
+    layer = LAYERS['apps/desktop/tests/integration-real-ipc.py']
+    if _digest(text) != CURRENT_COMPOSED_SHA256:
+        raise AssertionError('Unknown current notification composition')
+    edits = [(edit['replacement'], edit['expected'])
+             for part in (layer['followup'], layer) for edit in part['edits']]
+    return _inverse(text, edits, NOTIFICATION_AFTER_SHA256)
+
+
 def strip_composed_screenshot_layer(text):
     digest = _digest(text)
+    if digest == CURRENT_COMPOSED_SHA256:
+        return strip_composed_screenshot_layer(restore_historical_composition(text))
     if digest in (NOTIFICATION_BEFORE_SHA256, S.DRIVER_BEFORE_SHA256):
         return text
     if digest == S.DRIVER_AFTER_SHA256:
@@ -105,6 +127,8 @@ def strip_composed_screenshot_layer(text):
 
 def strip_composed_notification_layer(text):
     digest = _digest(text)
+    if digest == CURRENT_COMPOSED_SHA256:
+        return strip_current_notification_layer(text)
     if digest in (S.DRIVER_BEFORE_SHA256, S.DRIVER_AFTER_SHA256):
         return text
     if digest == NOTIFICATION_BEFORE_SHA256:
