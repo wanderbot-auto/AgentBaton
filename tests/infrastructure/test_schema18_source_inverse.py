@@ -33,8 +33,8 @@ class Schema18SourceInverse(unittest.TestCase):
                     ''.join(lines[:start] + lines[end:]) + edit['expected'],
                 ]
             for changed in mutations:
-                if hashlib.sha256(changed.encode()).hexdigest() == layer['before']:
-                    continue  # Exact already-restored historical source is supported.
+                if hashlib.sha256(changed.encode()).hexdigest() in {layer['before'], layer['after']}:
+                    continue  # Only complete, pinned historical sources are supported.
                 with self.subTest(path=path), self.assertRaises(AssertionError):
                     F.strip_schema18_source(path, changed)
 
