@@ -158,7 +158,24 @@
         "expected": "            'pending': ['Root reviewed harness', 'fixed schema18 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})\n",
         "replacement": "            'pending': ['Root reviewed harness', 'fixed schema17 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})\n"
       }
-    ]
+    ],
+    "followup": {
+      "after": "99140ac582fdb74762bc5bd7f6bcc604800a9f174309daa6e1f7054c6c3d7e68",
+      "edits": [
+        {
+          "start": 1298,
+          "end": 1299,
+          "expected": "            'single_delivered_activation_only': True, 'pointer_attempts': 0}\n",
+          "replacement": "            'single_click_only': True}\n"
+        },
+        {
+          "start": 1322,
+          "end": 1353,
+          "expected": "            # The enabled button can become disabled between Playwright's\n            # readiness check and pointer release. Only retry that undelivered\n            # pointer gesture, within the original 5s. Once a click or invoke\n            # starts, wait for the original receipt outcome without replay.\n            deadline = time.monotonic() + 5\n            baseline = page.evaluate('() => window.__childPlanSubmitObservation.starts')\n            for attempt in range(1, 5):\n                diagnostic['pointer_attempts'] = attempt\n                store_button.evaluate(LOCAL_ACTIVATION_INSTALL)\n                try:\n                    remaining = (deadline - time.monotonic()) * 1000\n                    assert remaining > 0, 'CP08 activation deadline expired'\n                    store_button.click(timeout=remaining)\n                    activation = page.evaluate(LOCAL_ACTIVATION_READ)\n                    diagnostic['last_activation'] = activation\n                    if not (\n                        activation['clicks'] == 0\n                        and not activation['denied'] and not activation['not_sent']\n                        and activation['starts'] == baseline and activation['active'] == 0\n                        and not browser_request_count and faults['drop_next_submit']\n                        and sum(r['method']=='factory_child_plans.submit' for r in report['http']) == diagnostic['submit_count_before']\n                        and local_activation_decision(activation, baseline) == 'retry'\n                    ):\n                        break\n                finally:\n                    page.evaluate(LOCAL_ACTIVATION_REMOVE)\n            else:\n                raise AssertionError('CP08 no native click was delivered')\n            remaining = (deadline - time.monotonic()) * 1000\n            assert remaining > 0, 'CP08 outcome deadline expired'\n            expect(root_region.locator(':scope > p[role=\"alert\"]').filter(has_text=re.compile(r'^Submission outcome unknown\\.(?:\\s|$)'))).to_contain_text('Submission outcome unknown.', timeout=remaining)\n",
+          "replacement": "            # Observe without adding any wait, invoking handlers, or retrying.\n            # The existing single click and5s unknown assertion stay intact.\n            store_button.click()\n            expect(root_region.locator(':scope > p[role=\"alert\"]').filter(has_text=re.compile(r'^Submission outcome unknown\\.(?:\\s|$)'))).to_contain_text('Submission outcome unknown.')\n"
+        }
+      ]
+    }
   },
   "apps/desktop/tests/integration-real-ipc.py": {
     "before": "76f2915296d2aa2ac164b67bb221775dcea734e1efa8e694789138784bd5de92",

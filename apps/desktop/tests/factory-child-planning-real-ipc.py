@@ -1296,7 +1296,7 @@ def runtime_driver(args, output, manifest):
         store_button = root_region.get_by_role('button', name='Store next plan revision', exact=True)
         diagnostic = {'raw_sha256': sha(raw4.encode()), 'armed_utc_ms': int(time.time()*1000),
             'submit_count_before': sum(r['method']=='factory_child_plans.submit' for r in report['http']),
-            'single_click_only': True}
+            'single_delivered_activation_only': True, 'pointer_attempts': 0}
         report['observations']['CP08_submission_transition'] = diagnostic
         diagnostic_errors = []; probe = None; listener_installed = False
         def note_diagnostic_error(stage, error):
@@ -1320,10 +1320,37 @@ def runtime_driver(args, output, manifest):
             page.on('request',observe_original_request);listener_installed=True
         except BaseException as error: note_diagnostic_error('listener_install',error)
         try:
-            # Observe without adding any wait, invoking handlers, or retrying.
-            # The existing single click and5s unknown assertion stay intact.
-            store_button.click()
-            expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Submission outcome unknown\.(?:\s|$)'))).to_contain_text('Submission outcome unknown.')
+            # The enabled button can become disabled between Playwright's
+            # readiness check and pointer release. Only retry that undelivered
+            # pointer gesture, within the original 5s. Once a click or invoke
+            # starts, wait for the original receipt outcome without replay.
+            deadline = time.monotonic() + 5
+            baseline = page.evaluate('() => window.__childPlanSubmitObservation.starts')
+            for attempt in range(1, 5):
+                diagnostic['pointer_attempts'] = attempt
+                store_button.evaluate(LOCAL_ACTIVATION_INSTALL)
+                try:
+                    remaining = (deadline - time.monotonic()) * 1000
+                    assert remaining > 0, 'CP08 activation deadline expired'
+                    store_button.click(timeout=remaining)
+                    activation = page.evaluate(LOCAL_ACTIVATION_READ)
+                    diagnostic['last_activation'] = activation
+                    if not (
+                        activation['clicks'] == 0
+                        and not activation['denied'] and not activation['not_sent']
+                        and activation['starts'] == baseline and activation['active'] == 0
+                        and not browser_request_count and faults['drop_next_submit']
+                        and sum(r['method']=='factory_child_plans.submit' for r in report['http']) == diagnostic['submit_count_before']
+                        and local_activation_decision(activation, baseline) == 'retry'
+                    ):
+                        break
+                finally:
+                    page.evaluate(LOCAL_ACTIVATION_REMOVE)
+            else:
+                raise AssertionError('CP08 no native click was delivered')
+            remaining = (deadline - time.monotonic()) * 1000
+            assert remaining > 0, 'CP08 outcome deadline expired'
+            expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Submission outcome unknown\.(?:\s|$)'))).to_contain_text('Submission outcome unknown.', timeout=remaining)
         finally:
             if listener_installed:
                 try: page.remove_listener('request',observe_original_request)
