@@ -937,7 +937,9 @@ impl ControlledGitChild {
                 | rustix::process::WaitIdOptions::NOHANG
                 | rustix::process::WaitIdOptions::NOWAIT,
         )
-        .map(|status| status.is_some())
+        .map(|status| {
+            status.is_some_and(|status| status.exited() || status.killed() || status.dumped())
+        })
         .map_err(io::Error::from)
     }
     fn signal_own_group(&mut self) {
@@ -1146,10 +1148,19 @@ pub(super) fn git_status(
             ));
             break;
         }
-        if !progress {
-            std::thread::sleep(
-                Duration::from_millis(2).min(deadline.saturating_duration_since(Instant::now())),
-            );
+        if !progress
+            && agentbaton_workspaces::wait_for_git_output(
+                stdout.pipe.as_ref().map(AsFd::as_fd),
+                stderr.pipe.as_ref().map(AsFd::as_fd),
+                deadline,
+            )
+            .is_err()
+        {
+            failure = Some(CoreError::new(
+                "OUTCOME_UNKNOWN",
+                "Owned integration Git output could not be observed",
+            ));
+            break;
         }
     }
     owned.signal_own_group();

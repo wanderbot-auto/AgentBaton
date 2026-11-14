@@ -1006,21 +1006,21 @@ impl<T: Read + AsRawFd> ControlledCapture<T> {
         }
     }
 }
-// Wait for readable pipes or EOF so short Git calls do not each consume a
-// full sleep. Keep the existing polling interval for deadline/cancel checks.
-fn wait_for_git_output(
-    stdout: &ControlledCapture<std::process::ChildStdout>,
-    stderr: &ControlledCapture<std::process::ChildStderr>,
+/// Wait for readable Git pipes or EOF for at most 2 ms and never past the
+/// caller's deadline. Callers retain responsibility for ownership and cancellation.
+pub fn wait_for_git_output(
+    stdout: Option<std::os::fd::BorrowedFd<'_>>,
+    stderr: Option<std::os::fd::BorrowedFd<'_>>,
     deadline: Instant,
 ) -> io::Result<()> {
     let mut pipes = [
         libc::pollfd {
-            fd: stdout.pipe.as_ref().map_or(-1, AsRawFd::as_raw_fd),
+            fd: stdout.as_ref().map_or(-1, AsRawFd::as_raw_fd),
             events: libc::POLLIN,
             revents: 0,
         },
         libc::pollfd {
-            fd: stderr.pipe.as_ref().map_or(-1, AsRawFd::as_raw_fd),
+            fd: stderr.as_ref().map_or(-1, AsRawFd::as_raw_fd),
             events: libc::POLLIN,
             revents: 0,
         },
@@ -1050,6 +1050,7 @@ pub(crate) fn controlled_output(
     command: &mut Command,
     control: &adoption::AdoptionControl<'_>,
 ) -> Result<ControlledGitOutput, WorkspaceError> {
+    use std::os::fd::AsFd;
     use std::os::unix::process::CommandExt;
     control.check()?;
     let started = Instant::now();
@@ -1092,7 +1093,11 @@ pub(crate) fn controlled_output(
             break;
         }
         if !out_progress && !err_progress {
-            wait_for_git_output(&stdout, &stderr, deadline)?;
+            wait_for_git_output(
+                stdout.pipe.as_ref().map(AsFd::as_fd),
+                stderr.pipe.as_ref().map(AsFd::as_fd),
+                deadline,
+            )?;
         }
     }
     // This always targets our own group before consuming the leader's identity,
