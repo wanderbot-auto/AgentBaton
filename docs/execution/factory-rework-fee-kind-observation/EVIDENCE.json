@@ -1,0 +1,1096 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T22:13:31.293257+00:00",
+  "record_head": "e94d7f11c0875303d85338f4b7dcb88232dc7356",
+  "requirements": [
+    "AB-PRJ-002",
+    "AB-PRJ-003",
+    "AB-PRJ-005",
+    "AB-TSK-010",
+    "AB-TSK-012"
+  ],
+  "actual_source_bound_results": [
+    {
+      "result": {
+        "source": "7bd647dc4f32af33c41fdc24806d684b84f4ff38",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "workspace_preparation_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 17.949820978043135,
+        "minimum_free_bytes": 1948893184,
+        "interruption": null,
+        "log_sha256": "995648488d8bdbd9e4c38f770f097e18f882b02be63b553f8de8a4a7dc0b560b",
+        "summaries": [
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.96s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "inputs": {
+        "head": "7bd647dc4f32af33c41fdc24806d684b84f4ff38",
+        "tree": "268028fd9e0d87d105767ef3c4c20c634887c1c7",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "workspace_preparation_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "env": {
+          "CARGO_HOME": "/workspace/.toolchains/cargo",
+          "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+          "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+          "CARGO_INCREMENTAL": "0",
+          "CARGO_BUILD_JOBS": "2",
+          "CARGO_PROFILE_TEST_DEBUG": "0",
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "RUST_TEST_THREADS": "1",
+          "CARGO_NET_OFFLINE": "true",
+          "AGENTBATON_FACTORY_TEST_TOOLS": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+          "AGENTBATON_CHILD_PLAN_COMPANION": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/baton"
+        },
+        "command_environment_overrides": {},
+        "frozen_tools": {
+          "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/baton": "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+          "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/batond": "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+        },
+        "source_freshness": [
+          {
+            "path": "apps/cli/src/main.rs",
+            "sha256": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "apps/daemon/src/main.rs",
+            "sha256": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "apps/daemon/tests/signals.rs",
+            "sha256": "150a794d8659152bcd93d42c9870026d98287e320b7772e9dde719e7364027ff",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs",
+            "sha256": "e7b8e4bf6d6656f2dc9e5c2c92c656dad2ea7ad6230cb97243f13f2fae2d7fdb",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+            "sha256": "4d69ef311a83a34ac4f2d759f8940febdee798ab2eab506b03220713019cfb65",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "apps/desktop/src-tauri/src/lib.rs",
+            "sha256": "726c1ecf73f642a95510db6fcd9d02ae143ac188538e6198bfc79e2a6406f15a",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "apps/desktop/src-tauri/src/main.rs",
+            "sha256": "61e7a9044505398ae2375a1841897542d99cba6661f3d17d3d41347c54b5bc65",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/config/src/lib.rs",
+            "sha256": "1611d7511c10b45ba6099ddc30e09ecb080967a3745993137272868e62f47411",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/config/tests/capabilities.rs",
+            "sha256": "b27c0a7460acd0433734aed8db3ad7a99b577ca003c1a6a270d44416df576acc",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/config/tests/native_sources.rs",
+            "sha256": "13e67f49c4bb434d5655e97ea09234ad17a3af2e89d4d7c2d0af2ced8251aa15",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/config/tests/runtime.rs",
+            "sha256": "f9d3446916a0ec4961c077a2dc9cd85fe39d2eb9cbc7059cce3a90a1c09821ae",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/config/tests/transactions.rs",
+            "sha256": "efb15cab097e5751557e665e3d846e31641a813adbe1604ec39e5318cb768212",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/src/lib.rs",
+            "sha256": "2044c7f67d1a314d8feb9f2e26016073710e897dc374c410e520547ad68935ec",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/admission_performance.rs",
+            "sha256": "75d31295d5db294df5500102b5732908848b94d221bc2e2d0295c4d3a59d9c8d",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/approval_outcomes.rs",
+            "sha256": "dbc6adc0de7e2c086e31a022f52df374cf7fc3c7c6d3f71e1ccc53e3acf96a67",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/command_validation.rs",
+            "sha256": "cd82bbbb3184adb57095f0d137e58fe35644bc70ff9695cac7e5b1b76b0bbac0",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/command_validation_migration.rs",
+            "sha256": "c939c6faf78ebc62be14e05931fe4216893888ad308ea3f854864264eeee78e7",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/data_workspace_migration.rs",
+            "sha256": "e6a22c1698ad4a2e58ef1a4d80f810f8438bdd1398318da58856e54b9517b621",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/data_workspaces.rs",
+            "sha256": "4079e50fbc03f94d7e2107d7c4cbb6ca49464bf90d6197cdd8bb8e62bb2a8465",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/execution.rs",
+            "sha256": "cc275e1641e4e32aed89f4c3de5b7284cad84824b031bcd5c52b0fbc7b30d113",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+            "sha256": "f2e355e401ff9fbae97d518c37ee49fe43f2c6b9fc6d6fe70b944399c847aab3",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/factory_child_plan_migration.rs",
+            "sha256": "4a7e0e38e857e0eec51cd04a591075aa268dd61ec2381e1199a970a72bc39931",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/factory_migration.rs",
+            "sha256": "0ebf9769eadad6062d3153de71041d2fb63bf72b405633fc5b0e335002c8b5aa",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/factory_runtime_ipc.rs",
+            "sha256": "ccd1e5444c91511ed6d1b96c518275ce9511bdc9ba4218450bd0c0096a1e2b1c",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/factory_scope.rs",
+            "sha256": "65b4fa5f20c3c5514832b9120b5cbfb76e59ba17b068decaa583fa21456122ed",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/goal_graph_migration.rs",
+            "sha256": "3cf5fc8271502f9a4636d715a93903b349cfba4d826c9d25f0c97c05dc91cb29",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/goal_plan.rs",
+            "sha256": "c8085531a51fc8adf69a1a0a5827cab8c46503cb60552175690a9fc1e93c15cd",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/goal_runtime_migration.rs",
+            "sha256": "84cc930b93c946670ea1d13a61f1ccd9f4227b74077ebb9d6f56231e5e72f1c5",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/goal_store.rs",
+            "sha256": "f2262514d84f51cba76253c060ed47580a5b3efb4ec4e04d25598d031e94e454",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/goal_store_migration.rs",
+            "sha256": "847fbd72f47f5c96001f8bdf9e4ca4cc10ae1833189f03761b41fe99da579c91",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/ipc.rs",
+            "sha256": "26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/migration_v3.rs",
+            "sha256": "461a1c09d5d22939a6ed1fc4e36cdbe8a4f60fbd5c871864bd5bfed09eb6df43",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/migration_v5.rs",
+            "sha256": "66b3914316ac901205cb248abe971326e7cdf68364b93d36690aa186c1deda51",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/migration_v6.rs",
+            "sha256": "79754fa95b95d65385c9c62449d58cf40b6ffc6a765084059eb71b2b8b015c56",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/migration_v7.rs",
+            "sha256": "45abab4a5e3009920c3af45ca10630a6fda25cf082359511a4b4e2c759ccc23f",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/policy.rs",
+            "sha256": "52eb621f116060ec2e7447d0375de14ebd81f7d6043beeef5e1bf0474fa8ed4f",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/project_ipc.rs",
+            "sha256": "9b38de8f283a706730edb49060c11124ad6341111ac0e76abdb07930884205f8",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/registry.rs",
+            "sha256": "9355f135a16a3f4cb2a2523053f11bc3442d640101be7f5e2b04926891f60e19",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/sessions_ipc.rs",
+            "sha256": "8a5c6924d9118325c72626174d5926674ef5cbd5c368ab01e30d07739ef3babc",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/storage.rs",
+            "sha256": "3febfd2a9e74fa964294c287b52db1843a466d4b5140f30df2b27dd636541b61",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/task_workspace_actual15_migration.rs",
+            "sha256": "4e21eef627aa37b693adfecb0adf36fa478b03096e292109d3f6b94cd1158db4",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/task_workspace_binding.rs",
+            "sha256": "56aad20e79a5873cc412ac7bbcabb7cd976d252cc84591374b7876b496db6754",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/task_workspace_binding_ipc.rs",
+            "sha256": "27899ec5e2fd22f2e32434f7dcf0b339e853a89ae1e882c6d10a7b99366eaa1b",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/core/tests/workspace_preparation_ipc.rs",
+            "sha256": "b577eca9c0674b3fd7c92a030f17c554c8a387ae7ef4f99dedcfd9da88050115",
+            "old_mtime_ns": 1793484489033133113,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/providers/src/lib.rs",
+            "sha256": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/providers/tests/connections.rs",
+            "sha256": "31aa177dff7ad010fa147c68f3e338ef5c33f1fdb430322a95cde9b65d4199c3",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/providers/tests/contracts.rs",
+            "sha256": "9a4d3f1a5f5a059e7b446b2d143b5f4ba990deb1bc8c49b399ff5ee31c734c38",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/providers/tests/installation.rs",
+            "sha256": "90724f1d9d6c3fe5641ae7076d9c9442293a6550a4b20bb7baecbfcd6e6b1531",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/providers/tests/native_codex.rs",
+            "sha256": "aff6e9cac154f7877b6f0a969d4cadaaa7e32c2a28638fcb9546b088d7b1c8e3",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/providers/tests/routes.rs",
+            "sha256": "02b6ee5fee49b883adafb704639f0c6245002b142b5901d902f2fa0b586afb93",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/providers/tests/stdio.rs",
+            "sha256": "1be8c06e63a6107e94fc903bcdbcbddf662f77d4d96cf475f3eddb6485972dfd",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/workspaces/src/lib.rs",
+            "sha256": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/workspaces/tests/command_validation.rs",
+            "sha256": "289b61ff90d16535fbe500cf857d37a19ada5e1cd5216e325d37f520b109a9d9",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/workspaces/tests/data_workspace.rs",
+            "sha256": "f1aa9b30b601becab1a9b52e50c090a585f6becfbe4c5a80e1c963ed75b8d77b",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/workspaces/tests/deterministic.rs",
+            "sha256": "340f91af93a8550712b2c96daa1e890065843e4ddcf09c4c40907073c55cb286",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/workspaces/tests/lazy_fetch.rs",
+            "sha256": "8f4de1e700b317e9e100a8bff3ec9f4feb9402b9a86f218992a020b577dcf711",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/workspaces/tests/safety.rs",
+            "sha256": "cc5fe6204309fc5a7a678e38830f63e24f30efc1a91faa449ffad6c82afa9b59",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "crates/workspaces/tests/validation_adoption.rs",
+            "sha256": "eba06f2101967215f73705a83bd8f1dbce0cb02e1456bf5df65e8d59c886a6a8",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          },
+          {
+            "path": "tools/environment-smoke/src/main.rs",
+            "sha256": "3138c6db0bf43dc1b3fbbd358c8f10d44128ced7aad29e4c2f99b247ab29521c",
+            "old_mtime_ns": 1793481361678679242,
+            "new_mtime_ns": 1793484489222279143
+          }
+        ],
+        "source_freshness_reason": "Prevent observed cross-worktree shared-target false Fresh; owned entry mtimes only, all bytes verified unchanged"
+      },
+      "declared_test_count": 5,
+      "dimension": "Linux actual Unix IPC; four original workspace read cases plus symlink-parent refusal"
+    },
+    {
+      "result": {
+        "source": "e94d7f11c0875303d85338f4b7dcb88232dc7356",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-v"
+        ],
+        "exit": 0,
+        "seconds": 11.02745216502808,
+        "minimum_free_bytes": 1699323904,
+        "interruption": null,
+        "log_sha256": "6f3950efccacea17af99e959a654b11ec68bf2ed5df3d02308bb0a571817a4b2",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "inputs": {
+        "head": "e94d7f11c0875303d85338f4b7dcb88232dc7356",
+        "tree": "fcce90b0c70c82725b0d5417fe1adf3f31d4cd38",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-v"
+        ],
+        "env": {
+          "CARGO_HOME": "/workspace/.toolchains/cargo",
+          "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+          "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+          "CARGO_INCREMENTAL": "0",
+          "CARGO_BUILD_JOBS": "2",
+          "CARGO_PROFILE_TEST_DEBUG": "0",
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "RUST_TEST_THREADS": "1",
+          "CARGO_NET_OFFLINE": "true",
+          "AGENTBATON_FACTORY_TEST_TOOLS": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+          "AGENTBATON_CHILD_PLAN_COMPANION": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/baton"
+        },
+        "command_environment_overrides": {},
+        "frozen_tools": {
+          "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/baton": "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+          "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/batond": "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+        },
+        "source_freshness": [],
+        "source_freshness_reason": "Prevent observed cross-worktree shared-target false Fresh; owned entry mtimes only, all bytes verified unchanged"
+      },
+      "declared_test_count": 392,
+      "dimension": "Pure infrastructure plus generated SQLite/filesystem; no actual private retained database"
+    },
+    {
+      "result": {
+        "source": "e94d7f11c0875303d85338f4b7dcb88232dc7356",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "workspace_preparation_ipc",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 9.42546948097879,
+        "minimum_free_bytes": 1699250176,
+        "interruption": null,
+        "log_sha256": "53d48451feb2c35fdb03014ba00170a4eccbaf64a454e3b54b088c614623b324",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "inputs": {
+        "head": "e94d7f11c0875303d85338f4b7dcb88232dc7356",
+        "tree": "fcce90b0c70c82725b0d5417fe1adf3f31d4cd38",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "workspace_preparation_ipc",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "env": {
+          "CARGO_HOME": "/workspace/.toolchains/cargo",
+          "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+          "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+          "CARGO_INCREMENTAL": "0",
+          "CARGO_BUILD_JOBS": "2",
+          "CARGO_PROFILE_TEST_DEBUG": "0",
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "RUST_TEST_THREADS": "1",
+          "CARGO_NET_OFFLINE": "true",
+          "AGENTBATON_FACTORY_TEST_TOOLS": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+          "AGENTBATON_CHILD_PLAN_COMPANION": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION": "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/baton"
+        },
+        "command_environment_overrides": {},
+        "frozen_tools": {
+          "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/baton": "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+          "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen/batond": "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+        },
+        "source_freshness": [
+          {
+            "path": "apps/cli/src/main.rs",
+            "sha256": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "apps/daemon/src/main.rs",
+            "sha256": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "apps/daemon/tests/signals.rs",
+            "sha256": "150a794d8659152bcd93d42c9870026d98287e320b7772e9dde719e7364027ff",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs",
+            "sha256": "e7b8e4bf6d6656f2dc9e5c2c92c656dad2ea7ad6230cb97243f13f2fae2d7fdb",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+            "sha256": "4d69ef311a83a34ac4f2d759f8940febdee798ab2eab506b03220713019cfb65",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "apps/desktop/src-tauri/src/lib.rs",
+            "sha256": "726c1ecf73f642a95510db6fcd9d02ae143ac188538e6198bfc79e2a6406f15a",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "apps/desktop/src-tauri/src/main.rs",
+            "sha256": "61e7a9044505398ae2375a1841897542d99cba6661f3d17d3d41347c54b5bc65",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/config/src/lib.rs",
+            "sha256": "1611d7511c10b45ba6099ddc30e09ecb080967a3745993137272868e62f47411",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/config/tests/capabilities.rs",
+            "sha256": "b27c0a7460acd0433734aed8db3ad7a99b577ca003c1a6a270d44416df576acc",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/config/tests/native_sources.rs",
+            "sha256": "13e67f49c4bb434d5655e97ea09234ad17a3af2e89d4d7c2d0af2ced8251aa15",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/config/tests/runtime.rs",
+            "sha256": "f9d3446916a0ec4961c077a2dc9cd85fe39d2eb9cbc7059cce3a90a1c09821ae",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/config/tests/transactions.rs",
+            "sha256": "efb15cab097e5751557e665e3d846e31641a813adbe1604ec39e5318cb768212",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/src/lib.rs",
+            "sha256": "2044c7f67d1a314d8feb9f2e26016073710e897dc374c410e520547ad68935ec",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/admission_performance.rs",
+            "sha256": "75d31295d5db294df5500102b5732908848b94d221bc2e2d0295c4d3a59d9c8d",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/approval_outcomes.rs",
+            "sha256": "dbc6adc0de7e2c086e31a022f52df374cf7fc3c7c6d3f71e1ccc53e3acf96a67",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/command_validation.rs",
+            "sha256": "cd82bbbb3184adb57095f0d137e58fe35644bc70ff9695cac7e5b1b76b0bbac0",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/command_validation_migration.rs",
+            "sha256": "c939c6faf78ebc62be14e05931fe4216893888ad308ea3f854864264eeee78e7",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/data_workspace_migration.rs",
+            "sha256": "e6a22c1698ad4a2e58ef1a4d80f810f8438bdd1398318da58856e54b9517b621",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/data_workspaces.rs",
+            "sha256": "4079e50fbc03f94d7e2107d7c4cbb6ca49464bf90d6197cdd8bb8e62bb2a8465",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/execution.rs",
+            "sha256": "cc275e1641e4e32aed89f4c3de5b7284cad84824b031bcd5c52b0fbc7b30d113",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+            "sha256": "f2e355e401ff9fbae97d518c37ee49fe43f2c6b9fc6d6fe70b944399c847aab3",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/factory_child_plan_migration.rs",
+            "sha256": "4a7e0e38e857e0eec51cd04a591075aa268dd61ec2381e1199a970a72bc39931",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/factory_migration.rs",
+            "sha256": "0ebf9769eadad6062d3153de71041d2fb63bf72b405633fc5b0e335002c8b5aa",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/factory_runtime_ipc.rs",
+            "sha256": "ccd1e5444c91511ed6d1b96c518275ce9511bdc9ba4218450bd0c0096a1e2b1c",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/factory_scope.rs",
+            "sha256": "65b4fa5f20c3c5514832b9120b5cbfb76e59ba17b068decaa583fa21456122ed",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/goal_graph_migration.rs",
+            "sha256": "3cf5fc8271502f9a4636d715a93903b349cfba4d826c9d25f0c97c05dc91cb29",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/goal_plan.rs",
+            "sha256": "c8085531a51fc8adf69a1a0a5827cab8c46503cb60552175690a9fc1e93c15cd",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/goal_runtime_migration.rs",
+            "sha256": "84cc930b93c946670ea1d13a61f1ccd9f4227b74077ebb9d6f56231e5e72f1c5",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/goal_store.rs",
+            "sha256": "f2262514d84f51cba76253c060ed47580a5b3efb4ec4e04d25598d031e94e454",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/goal_store_migration.rs",
+            "sha256": "847fbd72f47f5c96001f8bdf9e4ca4cc10ae1833189f03761b41fe99da579c91",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/ipc.rs",
+            "sha256": "26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/migration_v3.rs",
+            "sha256": "461a1c09d5d22939a6ed1fc4e36cdbe8a4f60fbd5c871864bd5bfed09eb6df43",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/migration_v5.rs",
+            "sha256": "66b3914316ac901205cb248abe971326e7cdf68364b93d36690aa186c1deda51",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/migration_v6.rs",
+            "sha256": "79754fa95b95d65385c9c62449d58cf40b6ffc6a765084059eb71b2b8b015c56",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/migration_v7.rs",
+            "sha256": "45abab4a5e3009920c3af45ca10630a6fda25cf082359511a4b4e2c759ccc23f",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/policy.rs",
+            "sha256": "52eb621f116060ec2e7447d0375de14ebd81f7d6043beeef5e1bf0474fa8ed4f",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/project_ipc.rs",
+            "sha256": "9b38de8f283a706730edb49060c11124ad6341111ac0e76abdb07930884205f8",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/registry.rs",
+            "sha256": "9355f135a16a3f4cb2a2523053f11bc3442d640101be7f5e2b04926891f60e19",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/sessions_ipc.rs",
+            "sha256": "8a5c6924d9118325c72626174d5926674ef5cbd5c368ab01e30d07739ef3babc",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/storage.rs",
+            "sha256": "3febfd2a9e74fa964294c287b52db1843a466d4b5140f30df2b27dd636541b61",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/task_workspace_actual15_migration.rs",
+            "sha256": "4e21eef627aa37b693adfecb0adf36fa478b03096e292109d3f6b94cd1158db4",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/task_workspace_binding.rs",
+            "sha256": "56aad20e79a5873cc412ac7bbcabb7cd976d252cc84591374b7876b496db6754",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/task_workspace_binding_ipc.rs",
+            "sha256": "27899ec5e2fd22f2e32434f7dcf0b339e853a89ae1e882c6d10a7b99366eaa1b",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/core/tests/workspace_preparation_ipc.rs",
+            "sha256": "b577eca9c0674b3fd7c92a030f17c554c8a387ae7ef4f99dedcfd9da88050115",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/providers/src/lib.rs",
+            "sha256": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/providers/tests/connections.rs",
+            "sha256": "31aa177dff7ad010fa147c68f3e338ef5c33f1fdb430322a95cde9b65d4199c3",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/providers/tests/contracts.rs",
+            "sha256": "9a4d3f1a5f5a059e7b446b2d143b5f4ba990deb1bc8c49b399ff5ee31c734c38",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/providers/tests/installation.rs",
+            "sha256": "90724f1d9d6c3fe5641ae7076d9c9442293a6550a4b20bb7baecbfcd6e6b1531",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/providers/tests/native_codex.rs",
+            "sha256": "aff6e9cac154f7877b6f0a969d4cadaaa7e32c2a28638fcb9546b088d7b1c8e3",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/providers/tests/routes.rs",
+            "sha256": "02b6ee5fee49b883adafb704639f0c6245002b142b5901d902f2fa0b586afb93",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/providers/tests/stdio.rs",
+            "sha256": "1be8c06e63a6107e94fc903bcdbcbddf662f77d4d96cf475f3eddb6485972dfd",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/workspaces/src/lib.rs",
+            "sha256": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/workspaces/tests/command_validation.rs",
+            "sha256": "289b61ff90d16535fbe500cf857d37a19ada5e1cd5216e325d37f520b109a9d9",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/workspaces/tests/data_workspace.rs",
+            "sha256": "f1aa9b30b601becab1a9b52e50c090a585f6becfbe4c5a80e1c963ed75b8d77b",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/workspaces/tests/deterministic.rs",
+            "sha256": "340f91af93a8550712b2c96daa1e890065843e4ddcf09c4c40907073c55cb286",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/workspaces/tests/lazy_fetch.rs",
+            "sha256": "8f4de1e700b317e9e100a8bff3ec9f4feb9402b9a86f218992a020b577dcf711",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/workspaces/tests/safety.rs",
+            "sha256": "cc5fe6204309fc5a7a678e38830f63e24f30efc1a91faa449ffad6c82afa9b59",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "crates/workspaces/tests/validation_adoption.rs",
+            "sha256": "eba06f2101967215f73705a83bd8f1dbce0cb02e1456bf5df65e8d59c886a6a8",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          },
+          {
+            "path": "tools/environment-smoke/src/main.rs",
+            "sha256": "3138c6db0bf43dc1b3fbbd358c8f10d44128ced7aad29e4c2f99b247ab29521c",
+            "old_mtime_ns": 1793484489222279143,
+            "new_mtime_ns": 1793484746572229360
+          }
+        ],
+        "source_freshness_reason": "Prevent observed cross-worktree shared-target false Fresh; owned entry mtimes only, all bytes verified unchanged"
+      },
+      "declared_test_count": null,
+      "dimension": "Strict Core workspace-preparation integration-test Clippy, Linux"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "/tmp/preparation-canonical-fixture-independent-review/REVIEW.json",
+      "sha256": "29b892004c44bf2bb8fd9820faba9901a78d5e422c7e77b02669c54ff9441b3a",
+      "head": "7bd647dc4f32af33c41fdc24806d684b84f4ff38",
+      "decision": "SOURCE_READY"
+    },
+    {
+      "path": "/tmp/rework-fee-kind-independent-review/REVIEW.json",
+      "sha256": "4734f3725b5d3c4f056d48f444b66374f9fe7caa539d17a087960ffef313187e",
+      "head": "e14461633e520e8a208f28ddd7b63494dafcc82f",
+      "decision": "SOURCE_READY"
+    }
+  ],
+  "author_synthetic_history": {
+    "recorded_at_utc": "2026-10-31T22:09:15.707631+00:00",
+    "base": "32432f29bfc6125a5eb8fc3d47f682d63c446093",
+    "requirements": [
+      "AB-TSK-010",
+      "AB-TSK-012"
+    ],
+    "input_diagnosis_sha256": "75e83a9b3867c465bcf5583495563a1dc468ba287c99a22fdcd0cd39714c1748",
+    "dimension": "Fresh generated SQLite/filesystem/JSON and exact original-source inverse tests only; no private retained DB, product, Provider/model/browser/Cargo/CI run.",
+    "command": "python3 -m unittest tests.infrastructure.test_factory_rework_ci_evidence tests.infrastructure.test_factory_rework_stop_correlation tests.infrastructure.test_factory_rework_fee_kinds -v",
+    "actual_runs": [
+      {
+        "log": "/tmp/rework-fee-kind-first-tests.log",
+        "sha256": "4be96e778e1bcad5ebd8e6fe1927117c59d8ea06a7e5ce948f865e28cc3a9fb7",
+        "tests": 104,
+        "seconds": 0.507,
+        "exit": 1,
+        "note": "Private test-file generator formatting failed;103 old tests passed and new module was missing, no product runs."
+      },
+      {
+        "log": "/tmp/rework-fee-kind-second-tests.log",
+        "sha256": "1d6266b01f444a640d750f939df568082c4ce0096cce78e7d7188532c22da424",
+        "tests": 125,
+        "seconds": 0.88,
+        "exit": 1,
+        "note": "Only new inverse negative locator failed because its broad first replacement hit the new helper, not the original budget function. Old aggregate/source unchanged."
+      },
+      {
+        "log": "/tmp/rework-fee-kind-third-tests.log",
+        "sha256": "6c56d8f7ed56d8aa85e093cb2cad0f5523c29cf80d1b9251abc5c2ca05f2bb3f",
+        "tests": 125,
+        "seconds": 0.919,
+        "exit": 0,
+        "note": "Focused old-budget locator corrected;125 passed. Exact duration taken from log below."
+      },
+      {
+        "log": "/tmp/rework-fee-kind-fourth-tests.log",
+        "sha256": "04f7f8718f8273f39f6969c7d8e09c6d72d04a085b86f6f6f9290af7d9ad779e",
+        "tests": 128,
+        "seconds": 0.886,
+        "exit": 0,
+        "note": "Added bool aliases, reused preparation and node-row bounds controls;128 passed."
+      },
+      {
+        "log": "/tmp/rework-fee-kind-final-tests.log",
+        "sha256": "44ce6da692f334b108be6b558d248fd359884aadd9d5aba53e60cb2dcf663c84",
+        "tests": 129,
+        "seconds": 1.085,
+        "exit": 0,
+        "note": "Added orphan paid-node completeness and checked queue≤known settled actual;129 passed."
+      }
+    ],
+    "files_sha256": {
+      "scripts/record-factory-rework-ci-evidence.py": "34cd29ddb750a941d02fbc139ab2788bcaaaee8143c2e0596f445f87a61c6fdf",
+      "tests/infrastructure/test_factory_rework_fee_kinds.py": "9f5df0be17e7fa48a22453aa1d33c0d308bb2ac6b942918b2c51b66c5e23f4a1"
+    },
+    "source_proof": {
+      "original_full_projector_restored_sha256": "8c9bb584fc561bc030b6e36ecc2ea5ab26f7424c78b779a93fa2f1e67e0b25e8",
+      "new_helper_block_sha256": "60337c1ab8557d38722b7d3ad09308b1b7952c8f72c31b01949d3b043c9b4bf2",
+      "original_budget_usage_restored_sha256": "78feade13b1c0368714cb2eea24555f31ef4607e02e08bf2a71b4c561696fe68",
+      "five_pure_insertions": [
+        "    out['fee_kind_observations'] = fee_kind_unavailable()\n",
+        "        fee_records = []\n",
+        "            fee_records.append(('graph', attempt, value))\n",
+        "                fee_records.append(('factory', attempt, value))\n",
+        "        out['fee_kind_observations'] = fee_kind_observations(conn, goal, scope, child, record, fee_records, totals)\n"
+      ],
+      "all_other_original_function_source_byte_equal": [
+        "ancestor_admission",
+        "boolean",
+        "bucket_revision",
+        "case",
+        "collect",
+        "directory",
+        "enum",
+        "event_fields",
+        "integer",
+        "main",
+        "need",
+        "progress",
+        "project_db",
+        "project_events",
+        "read_file",
+        "render_public",
+        "scalar",
+        "settled_session_stop",
+        "stamp",
+        "strict_json",
+        "validation_observations"
+      ],
+      "no_old_tests_or_pins_modified": true
+    },
+    "limits": [
+      "Factory recovery plan_revision denotes the failed Graph context, not a guessed new planning revision.",
+      "Missing/unprovable relation remains an unlinked Factory session or unavailable; no subtraction attribution.",
+      "Missing queued_ms remains unavailable, never0. Unknown actual remains null and the old aggregate pending status survives.",
+      "Only existing same-input seen-unique records are classified; original aggregate/admission/status/exit paths and all costs remain unchanged.",
+      "Complete direct linkage requires unambiguous original Node or Factory prepared→reserved event counterparts. Missing schemas/old records remain explicit unavailable/partial.",
+      "No actual new CI evidence or previous Intel failure root-cause fix is established."
+    ]
+  },
+  "ci": {
+    "head": "32432f29bfc6125a5eb8fc3d47f682d63c446093",
+    "merge_checkout": "37d22045b74a497d6e290380acd02b6a995fe5bc",
+    "product": 41243422606,
+    "environment": 41243422609,
+    "environment_result": "success_all3",
+    "product_result": "failure_terminal",
+    "Rust": "success",
+    "UI": "success",
+    "Intel": {
+      "job": 124661826422,
+      "Core": 212,
+      "Factory_passed": 29,
+      "Factory_failed": 1,
+      "failure": "REWORK_REVISION2_TERMINAL; plan2/run14blocked; no Task acceptance; daemon ok/joined",
+      "child_settled_runtime_ms": 15033,
+      "next_reservation_runtime_ms": 6000,
+      "child_cap_runtime_ms": 20000,
+      "known_capture_actual_ms": [
+        2555,
+        3794
+      ],
+      "first_validator_actual_ms": 2703,
+      "remaining_fee_identity": "not_established; subtraction5981 is not an observed planner fee",
+      "public_artifact": 13058867630,
+      "selected_finite_sha256": "73ba4d00efa31ba9790e1eca0119463aa5a9a3ec6c18500aad53ee097e45c66d"
+    },
+    "ARM": {
+      "job": 124661826521,
+      "workspace_preparation_ipc_passed": 0,
+      "workspace_preparation_ipc_failed": 4,
+      "failure": "Daemon::bind returned PERMISSION_DENIED / Runtime paths must not contain symbolic links at test line25",
+      "raw_log_sha256": "7491800dc6881ffa6bcae68d3593ec397f7c18dd12eae2a986a282f2fee43fad",
+      "path_identity": "Not printed by CI. Source still used default tempfile parent; Darwin alias explanation is source-supported, not a logged exact-path measurement."
+    },
+    "terminal_api_records": {
+      "run": {
+        "path": "/workspace/.onboarding/pr19-32432f29-ci/terminal-run.json",
+        "sha256": "6e7d9255457efa81ff481f2b031687adc304a455e34f3cff7068788ccc5a1f21"
+      },
+      "jobs": {
+        "path": "/workspace/.onboarding/pr19-32432f29-ci/terminal-jobs.json",
+        "sha256": "b1a1d4128c0f17eb1e9075d5b442caf7e001530476b63e44dd40c4da3e17806a"
+      }
+    }
+  },
+  "changes": {
+    "fixture": "Canonical short /tmp parent and generated0700 root only; original four no-write/source/permissions cases retained. New actual symlink-parent refusal verifies not_started and no runtime creation. Production ipc.rs unchanged.",
+    "diagnostic": "Optional closed per-kind observations from the same original deduplicated fee rows. Exact historical Graph links or unique Factory prepared-to-reserved linkage required; missing becomes partial/unavailable. queued_ms only if present in the record, never guessed or subtracted. Original aggregate/admission/charging/status/exit logic unchanged."
+  },
+  "retained_failures": [
+    "Original ARM0/4 and Intel29/1 remain failed; all Mac Native/packaging gates after these failures skipped.",
+    "First fmt call lacked RUSTUP_HOME and failed read-only home setup; corrected with explicit existing toolchain, formatting-only7bd retained. No failing version was pushed.",
+    "First metadata preflight expected status instead of the actual review decision key; stopped before cherry-pick; retried only after reading the actual review schema.",
+    "Author pure-test construction and inverse locator errors remain in author_synthetic_history."
+  ],
+  "limits": [
+    "No new exact CI, macOS acceptance, current installers or whole130 completion claimed.",
+    "Linux5 IPC and392 infrastructure are different dimensions, not Mac replacement.",
+    "Synthetic5981 fixture is seeded data, not the identity of the old Intel remainder.",
+    "No widened4s/6s/20s budget, shifted clock, discounted cost, production authority or private Provider call."
+  ]
+}

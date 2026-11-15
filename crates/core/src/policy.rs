@@ -341,6 +341,7 @@ fn validate_registered(
     scope: &GrantScope,
     check_input: bool,
     data: Option<&crate::data_workspaces::DataInputWitness>,
+    integration: Option<&crate::integration::IntegrationFencePermit>,
 ) -> Result<(
     BTreeMap<String, GrantedConnection>,
     BTreeMap<String, WorkspaceIdentity>,
@@ -381,6 +382,7 @@ fn validate_registered(
                 "Workspace identity has not been confirmed",
             )
         })?;
+        crate::integration::check_workspace_fences(conn, &pinned, integration)?;
         if matches!(pinned.kind, WorkspaceKind::Directory) {
             crate::data_workspaces::require_data_input_from(conn, &workspace, data)?;
             workspaces.insert(id.clone(), pinned);
@@ -462,7 +464,7 @@ pub(crate) fn grant_proposal_refs_with_data(
         max_depth: 0,
         max_children: 0,
     };
-    let (connections, _) = validate_registered(conn, project_id, &scope, true, data)?;
+    let (connections, _) = validate_registered(conn, project_id, &scope, true, data, None)?;
     let project: Project = read_document(conn, "projects", project_id)?;
     let workspace: ManagedWorkspace = read_document(conn, "managed_workspaces", workspace_id)?;
     let connection: Value = read_document(conn, "connections", connection_id)?;
@@ -483,6 +485,27 @@ pub(crate) fn grant_proposal_refs_with_data(
         })?
     };
     let mut refs = json!({"project_revision":project.revision,"project_name":project.name,"workspace_revision":workspace.revision,"workspace_identity":identity,"connection":connections[connection_id],"execution_recipient":{"connection_id":connection_id,"name":connection["name"],"provider":connection["provider"],"protocol_route":connection["protocol_route"],"executable":connection["executable"],"arguments":connection["arguments"],"executable_sha256":connection["executable_sha256"],"identity_status":connection["identity_status"],"config_status":connection["config_status"]}});
+    // Historical connections without this capability keep their exact approval
+    // shape and compatibility rules; only the new marker opens typed MCP review.
+    let marker = agentbaton_config::runtime::MANAGED_CODEX_MCP_SOURCE;
+    let managed_mcp = connection["runtime_plan"]["source_refs"]
+        .as_array()
+        .is_some_and(|refs| refs.iter().any(|r| r["source_ref"] == marker))
+        || connection["runtime_plan"]["mcp_servers"]
+            .as_array()
+            .is_some_and(|servers| {
+                servers.iter().any(|s| {
+                    s["provenance"]["source_ref"] == marker || !s["codex_policy"].is_null()
+                })
+            });
+    if managed_mcp {
+        let c: crate::sessions::ProviderConnection = serde_json::from_value(connection.clone())
+            .map_err(|_| CoreError::new("INPUT_CHANGED", "Connection changed"))?;
+        let plan = crate::runtime_config::approved_plan(&c)?;
+        if let Some(server) = crate::sessions::managed_mcps::summary(&plan)? {
+            refs["native_mcp"] = json!({"server":server,"scope":"native_stdio_tools_for_new_sessions","native_io_isolation":false,"interactive_tool_approval":"unsupported_requests_denied","credentials_imported":false});
+        }
+    }
     if matches!(identity.kind, WorkspaceKind::Directory) {
         refs["data_input"] = crate::data_workspaces::data_input_approval_view(conn, &workspace)?;
     }
@@ -608,7 +631,7 @@ pub(crate) fn validate_ancestor_grant_budgets_from(conn: &Connection, id: &str) 
             return Err(denied("Grant budget lineage is cyclic or too deep"));
         }
         let (total, active): (i64, i64) = conn.query_row(
-            "WITH RECURSIVE descendants(id) AS (SELECT ?1 UNION SELECT g.id FROM execution_grants g JOIN descendants d ON g.parent_id=d.id) SELECT count(*),COALESCE(SUM(CASE WHEN s.state NOT IN('stopped','failed') THEN 1 ELSE 0 END),0) FROM sessions s WHERE s.grant_id IN (SELECT id FROM descendants)",
+            "WITH RECURSIVE descendants(id) AS (SELECT ?1 UNION SELECT g.id FROM execution_grants g JOIN descendants d ON g.parent_id=d.id) SELECT count(*),COALESCE(SUM(CASE WHEN s.state NOT IN('stopped','failed') THEN 1 ELSE 0 END),0) FROM (SELECT grant_id,state FROM sessions UNION ALL SELECT grant_id,state FROM conversations) s WHERE s.grant_id IN (SELECT id FROM descendants)",
             [&current.id], |r|Ok((r.get(0)?,r.get(1)?))
         ).map_err(db_error)?;
         if total >= i64::from(current.scope.max_attempts)
@@ -657,7 +680,7 @@ pub(crate) fn validate_grant_from_with_data(
         workspace_id,
         connection_id,
         true,
-        data,
+        (data, None),
     )
 }
 
@@ -679,7 +702,7 @@ pub(crate) fn validate_grant_live_from_with_data(
         workspace_id,
         connection_id,
         false,
-        data,
+        (data, None),
     )
 }
 
@@ -690,8 +713,12 @@ fn validate_grant_inner(
     workspace_id: &str,
     connection_id: &str,
     check_input: bool,
-    data: Option<&crate::data_workspaces::DataInputWitness>,
+    observations: (
+        Option<&crate::data_workspaces::DataInputWitness>,
+        Option<&crate::integration::IntegrationFencePermit>,
+    ),
 ) -> Result<ExecutionGrant> {
+    let (data, integration) = observations;
     let grant = checked_lineage(conn, grant_id)?;
     if grant.id != grant_id
         || grant.project_id != project_id
@@ -706,8 +733,14 @@ fn validate_grant_inner(
             "Dispatch is outside the approved project, workspace or connection",
         ));
     }
-    let (connections, workspaces) =
-        validate_registered(conn, project_id, &grant.scope, check_input, data)?;
+    let (connections, workspaces) = validate_registered(
+        conn,
+        project_id,
+        &grant.scope,
+        check_input,
+        data,
+        integration,
+    )?;
     if connections != grant.connection_bindings || workspaces != grant.workspace_bindings {
         return Err(CoreError::new("INPUT_CHANGED","Approved connection, account, environment or workspace binding changed; obtain a new grant"));
     }
@@ -798,8 +831,14 @@ impl Store {
         if let Some(old) = replay(&tx, &idem_scope, key, &payload)? {
             return Ok(old);
         }
-        let (connection_bindings, workspace_bindings) =
-            validate_registered(&tx, project_id, &scope, true, self.data_input.as_ref())?;
+        let (connection_bindings, workspace_bindings) = validate_registered(
+            &tx,
+            project_id,
+            &scope,
+            true,
+            self.data_input.as_ref(),
+            None,
+        )?;
         let id = Uuid::new_v4().to_string();
         let expires_at_ms = milliseconds()?
             .checked_add(scope.max_duration_ms as i64)
@@ -1021,6 +1060,7 @@ impl Store {
             &scope,
             true,
             self.data_input.as_ref(),
+            None,
         )?;
         for (id, binding) in &connection_bindings {
             if parent.connection_bindings.get(id) != Some(binding) {
@@ -1117,6 +1157,27 @@ pub(crate) fn observe_grant_bindings(conn: &Connection, grant: &ExecutionGrant) 
         }
     }
     Ok(())
+}
+
+/// Only a privately authenticated integration stage may read through its own
+/// physical-repository fence; this does not change the original Grant scope.
+pub(crate) fn validate_grant_for_integration(
+    db: &Connection,
+    grant_id: &str,
+    project_id: &str,
+    workspace_id: &str,
+    connection_id: &str,
+    permit: &crate::integration::IntegrationFencePermit,
+) -> Result<ExecutionGrant> {
+    validate_grant_inner(
+        db,
+        grant_id,
+        project_id,
+        workspace_id,
+        connection_id,
+        false,
+        (None, Some(permit)),
+    )
 }
 
 #[cfg(test)]

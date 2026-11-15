@@ -1,0 +1,11 @@
+# Progress
+
+Readonly second-fresh investigation found direct joined_error DEADLINE_EXCEEDED/false/not_started at original whole-clock844ms. Validator queued_ms39, reservation2000ms, and policy/GoalScope/allGrant expiries still25224ms away. Original stopped main/sidecar bytes/identity/mtime were unchanged, with no DB write, recovery, retry or Actor execution. Source maps verify the four phase modules exactly against actual53e.
+
+Effects_admittedtrue excludes read/admission/verify-on-worker errors, which set false. IntegrationPreparedContext.validation has no direct DeadlineExceeded construction. PreparedGoalValidator.execute has a full-ticket Guard and the required-remaining Command wall+cleanup guard; Command library errors map to different Core codes and post-run Guard failure is returned inside an observation. Ticket uses originalqueued+2000 capped only by the still-live authority;844<2000 excludes full-ticket exhaustion in these retained clock/source facts. The direct error therefore identifies the pre-command remaining<1500 guard, not an executed FIFO timeout. Absolute authorization wall arithmetic and original monotonic duration remain distinct.
+
+Source06c tightens only the new Command to500+500, and returns one Host deadline from ready reception through ps/get/Git/release. It checks before/after observations and before Git spawn, so late replies cannot authorize new target writes. The new definition/approval remains real and independently constructed in every fresh fixture. No production field or guard changed.
+
+Independent review found06c omitted the FIFO write return-time check. Source55c adds only that same-host-deadline assertion after the9-byte write.06c source/manifest/P2 remains preserved; Root's third fresh run already started against06/c1b, so its outcome does not verify55c. No result is reclassified.
+
+Fifty static/inverse/model/formatter checks pass for55c. Whole old seven-case fixture prefix inverses exactly to b3 by undoing only its three earlier constructor parameterizations; two outer cases remain byte-identical. Every original eighth-case assert source fragment remains present, with stricter Host checks added. No Rust, FIFO, Git product, ps, Actor, IPC, Native or browser execution was performed by this author.

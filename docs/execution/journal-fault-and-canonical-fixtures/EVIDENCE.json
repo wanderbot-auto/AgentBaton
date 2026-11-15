@@ -1,0 +1,78 @@
+{
+  "base": "b4dc2dcc549b11d2b9448147b5ae0dc3cf96174f",
+  "requirement_ids": [
+    "AB-SEC-007"
+  ],
+  "dimension": "Test fixture source correction only; no actual command/Core/SQLite or Mac verification",
+  "original_failures": [
+    {
+      "source": "b4dc2dcc549b11d2b9448147b5ae0dc3cf96174f",
+      "log": "/workspace/.onboarding/integration17-current-command-data-targets1/command.log",
+      "log_sha256": "62a99dfd5ebab8c13b55b01fd02b382a17842e029987bb3bba660ea34f4c2eaf",
+      "target_results": {
+        "command_validation": "13pass1fail",
+        "data_workspaces": "21pass"
+      },
+      "failure": "terminal_journal_failure_never_frees_fence_or_reexecutes_after_restart Store::open INPUT_CHANGED with injected unknown trigger still present"
+    },
+    {
+      "source": "ba4612a6d7dc6e23b1bb1cfa22fbf9ce32a89947",
+      "Product_run": 41154588518,
+      "ARM_job": 124398474609,
+      "log": "/workspace/.onboarding/root17-ba4612a-ci/arm-job-api.log",
+      "log_sha256": "397991b573a639fe93fef2fbbe27e9c9acc4a21cd67ceb3d1075030d33833375",
+      "target_result": "Core225:224pass1fail",
+      "failure": "real_owned_data_io_pending_reap_blocks_new_preparation_but_not_readonly_task_status Daemon::bind PERMISSION_DENIED: Runtime paths must not contain symbolic links"
+    }
+  ],
+  "source_checks": {
+    "count": 24,
+    "record": "/workspace/.onboarding/journal-fault-and-canonical-fixtures1/STATIC.json",
+    "sha256": "2d47e5f165777e956c6f0a721db3bd3ad60af94acb225de2cdc651d6fe20875c",
+    "inverse_whole_files_exact": true,
+    "actual_format": "rustfmt --edition2021 --check both changed files exit0",
+    "actual_diff": "git diff --check exit0",
+    "local_tmp_parent": {
+      "requested_parent": "/tmp",
+      "canonical_parent": "/tmp",
+      "canonical_path_resolves_to_itself": true,
+      "canonical_final_is_directory": true,
+      "canonical_final_is_not_symlink": true,
+      "dimension": "Read-only current Linux parent metadata only; no Rust tempfile created, no Darwin path verification executed"
+    }
+  },
+  "files": {
+    "crates/core/tests/command_validation.rs": {
+      "before_sha256": "77bd573f821e5de281fb6684959ffcec3e10c8da033d79aedadff9e115f6a822",
+      "candidate_sha256": "403bad61318a1e9651e5d67486a45c5cd85a328ecc6b56e5dd9a1db230f14170"
+    },
+    "crates/core/src/task_workspace_binding_ipc_tests.rs": {
+      "before_sha256": "f2620fb45faef9e1c1dda2070982012ab5526f3d3b07dc9c2058b94c40ac42e0",
+      "candidate_sha256": "1a40d61a326ab9f8f915c405e01e2ec16dc6341b3b3c4313450331f1903706cd"
+    }
+  },
+  "test_counts_unchanged": {
+    "command_validation": 14,
+    "task_workspace_binding_ipc_module": 2
+  },
+  "preserved": [
+    "original real terminal fault command and marker=x/running/fence1 assertions",
+    "original worker/store drop and same-key restart outcome_unknown/no reexecution",
+    "strict current schema unknown-trigger refusal",
+    "original real Data I/O owned pending/reap/read-only Task/mutation-free/shutdown assertions",
+    "all original budgets/timeouts/permissions/skip states"
+  ],
+  "not_run": [
+    "Cargo or Rust compilation",
+    "actual command/Core/Data or SQLite execution",
+    "Darwin/Native/browser",
+    "network/CI/real Provider"
+  ],
+  "Root_next": [
+    "independent review",
+    "complete actual command_validation14",
+    "complete actual Core229",
+    "exact-candidate Mac/CI verification"
+  ],
+  "authority": "No product runtime code, safety guard, budget, timeout or permission change"
+}

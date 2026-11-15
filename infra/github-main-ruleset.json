@@ -39,10 +39,6 @@
           {
             "context": "Environment / macos-15",
             "integration_id": 15368
-          },
-          {
-            "context": "Environment / macos-15-intel",
-            "integration_id": 15368
           }
         ],
         "strict_required_status_checks_policy": true

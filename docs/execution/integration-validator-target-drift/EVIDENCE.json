@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005"
+  ],
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "source_commit": "08fbc4856a17ee84f4df42530dc02fff7620e1a8",
+  "library_source": "775d723b243e7613d6731e1e6054e3e54ceea093",
+  "base": "fc8fbd10815051c4f3e1587a7e31c2f7a69c1ee4",
+  "author_validation": {
+    "rustfmt_check": {
+      "exit": 0,
+      "scope": "seven Core/test paths; standalone rustfmt; no Cargo"
+    },
+    "git_diff_check": {
+      "exit": 0
+    },
+    "static_checks_file": "/workspace/.onboarding/integration-validator-target-drift-core-source/STATIC_CHECKS.json",
+    "source_map": "/workspace/.onboarding/integration-validator-target-drift-core-source/SOURCE_MAP.json",
+    "cargo": "NOT_RUN",
+    "core_runtime": "NOT_RUN",
+    "new_cfg_units": {
+      "count": 3,
+      "status": "NOT_RUN"
+    },
+    "fresh_three_round_fixture": "NOT_RUN",
+    "macos": "NOT_RUN"
+  },
+  "root_reported_library_validation": {
+    "assembly": "d2267de",
+    "source": "775d723",
+    "lib_unique_tests": 22,
+    "lib_seconds": 28.83,
+    "components": 6,
+    "component_seconds": 2.32,
+    "wrapper_seconds": 35.2012,
+    "exit": 0,
+    "log_sha256": "f31ea5bd8d9f87be2e634f5aaaf5fddfa12955368132a0e565ec3c0397074023",
+    "dimension": "Linux generated Git and owned program; not Core/Owner/descendant/Mac"
+  },
+  "library_independent_review": {
+    "revision": "775d723",
+    "review_sha256": "e91c945f5bcc7f329ba07a630e503104c3b3f618e8c90c5433ffa044d18e9b50",
+    "manifest_sha256": "33066b15937a04fb32dc9be334325379a5832aa336158aec94ce7c5c6dceaa2f",
+    "scope": "source closure only; 35 static/inverse/inert; no Rust by reviewer"
+  },
+  "preserved_failures": [
+    {
+      "root_source": "329bc3e",
+      "log_sha256": "50c60e4b74dbf245724c3562cee5ca00dc462e9ee5eb892332747e3225367a26",
+      "actual": "0PASS/1FAIL; no retained direct error; unknown not replayed"
+    },
+    {
+      "root_source": "53e2c1b",
+      "log_sha256": "6478529644e1050c6c635170bf9b3278769fcca147226e822c28813f9876fa3e",
+      "actual": "0PASS/1FAIL; direct DEADLINE_EXCEEDED/not_started; unknown not replayed"
+    },
+    {
+      "root_source": "c1b2270",
+      "log_sha256": "21f9a17a01b8f389cb0d1a6059021dcf8a89595102c075a786672c66aa0eb463",
+      "actual": "0PASS/1FAIL; first actual validator false/artifact_contract_failed after target advance; first prep1336ms/12B, validator1253ms/exit0/process311ms; no prior failure relabelled"
+    }
+  ],
+  "known_limits": [
+    "Core source not compiled/run by author",
+    "Original 2s stage/20s shared/30s Grant/500+500ms Command/Host500ms/observation5s unchanged; fresh full readonly postprobe must fit or honestly fail",
+    "Recovery tree bounds 8192entries/256directories/1MiB names+paths/depth128; unsupported recovery trees reject",
+    "No fullVAL009/realProvider/Mac/performance claim",
+    "Kernel filesystem stalls not claimed interruptible; no descendant containment expansion"
+  ],
+  "initial_source_commit": "1af2a8acb77902696dd6907639af5cc20b6ec1f8",
+  "raw_db_reseal_correction": {
+    "source_commit": "08fbc4856a17ee84f4df42530dc02fff7620e1a8",
+    "parent": "8a7127f147c23203c1ff344096fb3d0339432634",
+    "scope": "integration_reads.rs only; private descriptor-sharing builder; original row/material/request checks unchanged",
+    "finding_dimension": "static source path, no dynamic lock experiment",
+    "rustfmt_check_exit": 0,
+    "git_diff_check_exit": 0,
+    "rust": "NOT_RUN",
+    "initial_manifest_sha256": "81a9cafcecaa599fb8b90bed016d7291ea747d8cdf2e42016338b9e92abed1d6",
+    "initial_artifact_frozen_bindings": "/workspace/.onboarding/integration-validator-target-drift-core-source/frozen-1af2a8a-records/BINDINGS.json"
+  }
+}

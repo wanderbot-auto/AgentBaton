@@ -1,3 +1,5 @@
+import { parseTaskWorkspaceBindingView, parseTaskWithWorkspaceBinding, validateTaskGetId, validateTaskGitWorkspacePreparation, type TaskGitWorkspacePreparation, type TaskWorkspaceBinding } from './task-workspace-binding-wire';
+import { parseCodeWorkspacePreparation, validateCodeWorkspacePreparationRequest, type CodeWorkspacePreparationRequest } from './workspace-preparation-wire';
 import { invoke } from '@tauri-apps/api/core';
 
 export interface Task {
@@ -9,6 +11,7 @@ export interface Task {
   readonly spec_revision?: number;
   readonly acceptance_ref?: string | null;
   readonly acceptance_sequence?: number | null;
+  readonly code_workspace_binding?: TaskWorkspaceBinding | null;
   created_at: string;
   updated_at: string;
 }
@@ -53,7 +56,23 @@ export interface JournalEvent {
   payload: unknown;
   source: string;
 }
-export interface Snapshot { tasks: Task[]; sequence: number; api_version: number }
+export interface TaskMessageReceipt {
+  session_id: string;
+  task_id: string;
+  turn_id: string;
+  request_key: string;
+  text: string;
+}
+export type TaskMessageRecovery =
+  | { pending_sessions: string[]; recovered: TaskMessageReceipt[] }
+  | { error: string };
+export interface Snapshot {
+  tasks: Task[];
+  sequence: number;
+  api_version: number;
+  database_schema_version: number;
+  task_message_recovery?: TaskMessageRecovery;
+}
 export interface EventBatch { events: JournalEvent[]; next_cursor: number; sequence: number; gap: boolean; page_bytes?: number; byte_limited?: boolean }
 interface Envelope<T> {
   result?: T;
@@ -65,17 +84,36 @@ export class DaemonError extends Error {
     super(message);
   }
 }
+export const clientRecoveryRequiredEvent='agentbaton:client-recovery-required';
 export async function request<T>(command: string, args?: Record<string, unknown>): Promise<T> {
-  const envelope = await invoke<Envelope<T>>(command, args);
-  if (envelope.error) {
-    throw new DaemonError(envelope.error.code, envelope.error.message, envelope.error.side_effect_state,
-      typeof envelope.error.retryable === 'boolean' ? envelope.error.retryable : undefined);
+  let recoveryNotified=false;
+  const notifyRecovery=()=>{if(typeof window!=='undefined'){window.dispatchEvent(new Event(clientRecoveryRequiredEvent));recoveryNotified=true;}};
+  try {
+    const envelope = await invoke<Envelope<T>>(command, args);
+    if (envelope.error) {
+      if(envelope.error.code==='CLIENT_RECOVERY_REQUIRED')notifyRecovery();
+      throw new DaemonError(envelope.error.code, envelope.error.message, envelope.error.side_effect_state,
+        typeof envelope.error.retryable === 'boolean' ? envelope.error.retryable : undefined);
+    }
+    if (envelope.result === undefined) throw new Error('Daemon returned no result');
+    return envelope.result;
+  } finally {
+    if(!recoveryNotified&&(command==='managed_mcp_create'||command==='managed_skill_create'))notifyRecovery();
   }
-  if (envelope.result === undefined) throw new Error('Daemon returned no result');
-  return envelope.result;
 }
+export const acknowledgeTaskMessage = (sessionId: string, requestKey: string) =>
+  request<null>('task_message_acknowledge', { sessionId, requestKey });
+
 export const api = {
-  snapshot: async () => {const value=await request<Snapshot>('system_snapshot');if(value.tasks.some(task=>task.state==='accepted'&&(!taskHasAcceptanceProjection(task)||!Number.isSafeInteger(value.sequence)||task.acceptance_sequence!>value.sequence)))throw new Error('Invalid accepted Task projection');return value;},
+  taskGet: async (taskId: string) => {
+    const selected = validateTaskGetId(taskId);
+    return parseTaskWithWorkspaceBinding(await request<unknown>('tasks_get', { taskId: selected }), selected);
+  },
+  workspacesPrepareTaskGit: async (selection: TaskGitWorkspacePreparation, idempotencyKey: string) => {
+    const selected = validateTaskGitWorkspacePreparation(selection, idempotencyKey);
+    return parseTaskWorkspaceBindingView(await request<unknown>('workspaces_prepare_task_git', { selection: selected, idempotencyKey }), selected, idempotencyKey);
+  },
+  snapshot: async () => {const value=await request<Snapshot>('system_snapshot');if(value.api_version!==1||value.database_schema_version!==18||!Array.isArray(value.tasks)||!Number.isSafeInteger(value.sequence)||value.sequence<0)throw new Error('Unsupported database schema or snapshot contract');if(value.tasks.some(task=>task.state==='accepted'&&(!taskHasAcceptanceProjection(task)||!Number.isSafeInteger(value.sequence)||task.acceptance_sequence!>value.sequence)))throw new Error('Invalid accepted Task projection');return value;},
   create: (goal: string, idempotencyKey: string, projectId?: string) => request<Task>('tasks_create', { goal, idempotencyKey, ...(projectId ? { projectId } : {}) }),
   cancel: (task: Task, idempotencyKey: string) => request<Task>('tasks_cancel', { taskId: task.id, expectedRevision: task.revision, idempotencyKey }),
   events: (cursor: number) => request<EventBatch>('events_subscribe', { cursor, limit: 100 }),
@@ -85,4 +123,8 @@ export const api = {
   projectsReassociate: (project: Project, path: string, idempotencyKey: string) => request<Project>('projects_reassociate', { projectId: project.id, path, expectedRevision: project.revision, idempotencyKey }),
   workspacesCreate: (project: Project, expectedHead: string, idempotencyKey: string) => request<ManagedWorkspace>('workspaces_create', { projectId: project.id, expectedHead, expectedRevision: project.revision, idempotencyKey }),
   workspacesList: (projectId: string) => request<ManagedWorkspace[]>('workspaces_list', { projectId }),
+  workspacesResolve: async (selection: CodeWorkspacePreparationRequest) => {
+    const checked = validateCodeWorkspacePreparationRequest(selection);
+    return parseCodeWorkspacePreparation(await request<unknown>('workspaces_resolve', { selection: checked }), checked);
+  },
 };

@@ -1,0 +1,6 @@
+            try:current=support.proc_identity(identity['pid'])
+            except FileNotFoundError:current=None
+            if current is not None and current['start_ticks']==identity['start_ticks']:
+                argv=Path('/proc',str(identity['pid']),'cmdline').read_bytes();assert 0<len(argv)<=8192 and argv.endswith(b'\0')
+                assert [v.decode()for v in argv[:-1].split(b'\0')][-3:]==row['provider_argv']
+                assert os.getpgid(identity['pid'])==identity['pgid']

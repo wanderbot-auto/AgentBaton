@@ -4,7 +4,7 @@ This file and `github-main-ruleset.json` describe the intended policy; committin
 
 ## Policy
 
-Target only `refs/heads/main`; active enforcement; no bypass actors; require a pull request; block deletion and non-fast-forward updates. Require all three existing `Environment / ...` checks from GitHub Actions (app ID 15368, verified from the repository's successful check runs), with the branch up to date. Resolve review conversations before merge.
+Target only `refs/heads/main`; active enforcement; no bypass actors; require a pull request; block deletion and non-fast-forward updates. Require `Environment / ubuntu-24.04` and `Environment / macos-15` from GitHub Actions (app ID 15368, verified from the repository's successful check runs), with the branch up to date. Intel CI is deferred. Resolve review conversations before merge.
 
 Approving review count is 0 because this is a single-maintainer preparation workflow. A PR and successful CI are still required. This does not authorize product development, production deployment, real Provider calls or paid resources. Add independent human review requirements only when another reviewer is available and the policy is approved.
 

@@ -54,7 +54,7 @@ def strict_json_equal(left,right):
     return False
 
 def candidate_summary(raw):
-    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==15 and m.get('dirty')is False)
+    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==18 and m.get('dirty')is False)
     for key in ('git_head','source_head','compiled_core_source_head'):
         require(type(m.get(key))is str and re.fullmatch('[0-9a-f]{40}',m[key])is not None)
     require(m['git_head']==m['source_head']==m['compiled_core_source_head'])
@@ -62,7 +62,7 @@ def candidate_summary(raw):
     for value in tools.values():require(type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None)
     assets=m.get('frontend_assets');require(type(assets)is dict and 0<len(assets)<=4096)
     for key,value in assets.items():require(type(key)is str and type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None)
-    summary={'schema':15,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],
+    summary={'schema':18,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],
         'manifest_sha256':sha(raw),'tools_sha256':{'batond':tools['batond'],'baton':tools['baton']},
         'frontend_asset_count':len(assets),'frontend_assets_sha256':sha(json.dumps(assets,sort_keys=True,separators=(',',':')).encode())}
     return m,summary
@@ -173,6 +173,21 @@ def unobserved_diagnostics():
         'graph_provider_identity':None}
 
 def finite_diagnostics(value):
+    # V5 is failure-only: preserve and validate the complete original v4 first.
+    if type(value)is dict and type(value.get('version'))is int and value['version']==5:
+        require(set(value)==set(unobserved_diagnostics())|{'owner_ui_state','capture_failure'})
+        legacy={k:v for k,v in value.items()if k!='capture_failure'};legacy['version']=4
+        finite_diagnostics(legacy)
+        require(value['failure_class']is not None)
+        capture_failure_diagnostic(value['capture_failure'],value['failure_class'])
+        return value
+    # V4 is an explicit extension; validate its unchanged v3 payload first.
+    if type(value)is dict and type(value.get('version'))is int and value['version']==4:
+        require(set(value)==set(unobserved_diagnostics())|{'owner_ui_state'})
+        legacy={k:v for k,v in value.items()if k!='owner_ui_state'};legacy['version']=3
+        finite_diagnostics(legacy)
+        owner_ui_state_diagnostic(value['owner_ui_state'],value['owner_refresh'])
+        return value
     if value is None:return unobserved_diagnostics()
     require(type(value)is dict and type(value.get('version'))is int and value['version']in (1,2,3))
     expected=set(unobserved_diagnostics())
@@ -181,7 +196,7 @@ def finite_diagnostics(value):
     require(set(value)==expected)
     if value['version']>=2 and value['graph_provider_argv']is not None:
         graph_argv_diagnostic(value['graph_provider_argv'])
-        require(value['failure_class']=='assertion')
+        require(value['failure_class']in ({'assertion','refusal'}if value['version']==3 else {'assertion'}))
     if value['version']==3:
         owner_refresh_diagnostic(value['owner_refresh'])
         if value['graph_provider_identity']is not None:graph_identity_diagnostic(value['graph_provider_identity'])
@@ -243,6 +258,10 @@ class FiniteRuntimeDiagnostics:
                     else:kind='unmapped_error'
                 elif 'result'in reply:kind='result'
             window['reads'].append({'method':method,'binding':'scope_task_run','started_ns':started_ns,'finished_ns':finished_ns,'reply_class':kind,'error':error})
+    def graph_argv(self,value):
+        with self._lock:
+            if self._value['graph_provider_argv']is None:
+                self._value['graph_provider_argv']=dict(graph_argv_diagnostic(value))
     def graph_identity(self,value):
         with self._lock:
             if self._value['graph_provider_identity']is None:
@@ -274,6 +293,7 @@ class FiniteRuntimeDiagnostics:
     def failure(self,error,phase,filename,refusal_type,timeout_types=()):
         with self._lock:
             if self._value['failure_class']is not None:return
+            self._failure_identity=error
             if isinstance(error,refusal_type):kind='refusal'
             elif isinstance(error,AssertionError):kind='assertion'
             elif isinstance(error,(TimeoutError,)+timeout_types):kind='timeout'
@@ -299,6 +319,138 @@ class FiniteRuntimeDiagnostics:
             # All retained fields have already been reduced to finite scalars.
             return json.loads(json.dumps(self._value,allow_nan=False))
 
+# V4 is renderer-local, untrusted metadata. It is never an Owner/stop receipt,
+# a full-refresh completion proof, or input to the unchanged PASS predicate.
+OWNER_UI_FLAGS=('fresh','loading','capacity','connected','busy','cancel_reading',
+    'disabled','has_view','summary_fresh','parent_ready','parent_refresh_only')
+OWNER_UI_PENDING={'none','start','cancel','advance','owner','reject'}
+
+def unobserved_owner_ui_sample():
+    return {'observation':'unobserved','sampled_ns':None,'epoch':None,
+        **{key:None for key in OWNER_UI_FLAGS},'pending_kind':None,
+        'pending_unknown':None,'owner_present':None,'owner_disabled':None}
+
+def unobserved_owner_ui_state():
+    return {'source':'renderer_local_untrusted','authority':'none',
+        'begin':unobserved_owner_ui_sample(),'end':unobserved_owner_ui_sample()}
+
+def owner_ui_sample_diagnostic(value):
+    require(type(value)is dict and set(value)==set(unobserved_owner_ui_sample()))
+    if value['observation']=='unobserved':
+        require(strict_json_equal(value,unobserved_owner_ui_sample()));return value
+    require(value['observation']=='observed')
+    require(type(value['sampled_ns'])is int and 0<value['sampled_ns']<2**63)
+    require(type(value['epoch'])is int and 0<=value['epoch']<=9007199254740991)
+    require(all(type(value[key])is bool for key in OWNER_UI_FLAGS))
+    require(value['has_view']is True)
+    require(type(value['pending_kind'])is str and value['pending_kind']in OWNER_UI_PENDING)
+    require(value['pending_unknown']is None if value['pending_kind']=='none'else type(value['pending_unknown'])is bool)
+    require(type(value['owner_present'])is bool)
+    require(type(value['owner_disabled'])is bool if value['owner_present']else value['owner_disabled']is None)
+    return value
+
+def owner_ui_state_diagnostic(value,window):
+    require(type(value)is dict and set(value)==set(unobserved_owner_ui_state()))
+    require(value['source']=='renderer_local_untrusted' and value['authority']=='none')
+    for slot in ('begin','end'):
+        sample=owner_ui_sample_diagnostic(value[slot])
+        if sample['observation']=='observed':
+            require(window['observation']=='observed')
+            require(window['started_ns']<=sample['sampled_ns'])
+            require(window['finished_ns']is None or sample['sampled_ns']<=window['finished_ns'])
+    if all(value[slot]['observation']=='observed'for slot in ('begin','end')):
+        require(value['begin']['sampled_ns']<=value['end']['sampled_ns'])
+    return value
+
+def owner_ui_dom_sample(raw,sampled_ns):
+    """Parse fixed, size-bounded DOM scalars; absent/foreign/invalid stays unknown."""
+    unknown=unobserved_owner_ui_sample()
+    try:
+        require(type(raw)is dict and set(raw)==set(OWNER_UI_FLAGS)|{'epoch','pending_kind','pending_unknown','owner_present','owner_disabled'})
+        require(all(type(raw[k])is str and len(raw[k])<=32 for k in (*OWNER_UI_FLAGS,'epoch','pending_kind','pending_unknown')))
+        require(re.fullmatch(r'0|[1-9][0-9]{0,15}',raw['epoch'])is not None)
+        require(all(raw[key]in {'true','false'}for key in OWNER_UI_FLAGS))
+        require(raw['pending_kind']in OWNER_UI_PENDING)
+        require(raw['pending_unknown']=='none'if raw['pending_kind']=='none'else raw['pending_unknown']in {'true','false'})
+        value={'observation':'observed','sampled_ns':sampled_ns,'epoch':int(raw['epoch']),
+            **{key:raw[key]=='true'for key in OWNER_UI_FLAGS},'pending_kind':raw['pending_kind'],
+            'pending_unknown':None if raw['pending_kind']=='none'else raw['pending_unknown']=='true',
+            'owner_present':raw['owner_present'],'owner_disabled':raw['owner_disabled']}
+        return owner_ui_sample_diagnostic(value)
+    except Refused:return unknown
+
+class FiniteRuntimeDiagnosticsV4(FiniteRuntimeDiagnostics):
+    """Opt-in main-thread endpoint samples; default recorder remains exactly v3."""
+    def __init__(self):
+        super().__init__();self._ui=unobserved_owner_ui_state();self._ui_slots=set()
+    def owner_ui_sample(self,slot,raw,sampled_ns):
+        require(type(slot)is str and slot in {'begin','end'})
+        sample=owner_ui_dom_sample(raw,sampled_ns)
+        with self._lock:
+            # Duplicate endpoints are unavailable, not a choice of best snapshot.
+            self._ui[slot]=unobserved_owner_ui_sample()if slot in self._ui_slots else sample
+            self._ui_slots.add(slot)
+    def snapshot(self):
+        value=super().snapshot()
+        if value.get('version')!=3:return value
+        with self._lock:state=json.loads(json.dumps(self._ui,allow_nan=False))
+        value.update(version=4,owner_ui_state=state)
+        return value
+
+# Failure-only capture observations. No extra probe/read/retry is performed.
+def capture_failure_diagnostic(value,failure_class):
+    require(type(value)is dict and set(value)=={'substage','errno','helper_source','helper_line'})
+    require(type(value['substage'])is str and value['substage']in {'started_records','graph_records'})
+    number=value['errno']
+    require(number is None or type(number)is int and 1<=number<=4095 and failure_class in {'os_error','timeout'})
+    source,line=value['helper_source'],value['helper_line']
+    require((source is None and line is None)or(type(source)is str and source in {'factory_base','child_goal_driver'}
+        and type(line)is int and 1<=line<=1000000))
+    return value
+
+
+def capture_failure_observation(substage,error):
+    require(type(substage)is str and substage in {'started_records','graph_records'})
+    number=error.errno if isinstance(error,OSError)else None
+    number=number if type(number)is int and 1<=number<=4095 else None
+    # These are exact repository source names, never an exception-supplied path.
+    tests=Path(__file__).absolute().parents[1]/'apps/desktop/tests'
+    sources={str(tests/'factory-real-ipc.py'):'factory_base',
+             str(tests/'factory-child-goal-real-ipc.py'):'child_goal_driver'}
+    source,line=None,None
+    tb=error.__traceback__
+    for _ in range(4096):
+        if tb is None:break
+        candidate=sources.get(tb.tb_frame.f_code.co_filename)
+        if candidate is not None and type(tb.tb_lineno)is int and 1<=tb.tb_lineno<=1000000:
+            source,line=candidate,tb.tb_lineno
+        tb=tb.tb_next
+    if tb is not None:source,line=None,None
+    return {'substage':substage,'errno':number,'helper_source':source,'helper_line':line}
+
+
+class FiniteRuntimeDiagnosticsV5(FiniteRuntimeDiagnosticsV4):
+    """Successful snapshots stay v4; only the actual first capture failure extends it."""
+    def capture_failure(self,substage,error):
+        try:
+            observation=capture_failure_observation(substage,error)
+            with self._lock:
+                if not hasattr(self,'_capture_error'):
+                    self._capture_error=error;self._capture_observation=observation
+        except BaseException:
+            # Metadata collection cannot replace the original exception/raise.
+            return
+    def snapshot(self):
+        value=super().snapshot()
+        if value.get('version')!=4 or value.get('failure_class')is None:return value
+        with self._lock:
+            capture=getattr(self,'_capture_error',None)
+            if capture is None or capture is not getattr(self,'_failure_identity',None):return value
+            observation=dict(self._capture_observation)
+        value.update(version=5,capture_failure=observation)
+        return value
+
+
 def project(report, candidate, summary, case, exit_code, harness_sha):
     require(case in CASES and (exit_code is None or type(exit_code)is int and -128<=exit_code<=255))
     require(type(report)is dict and report.get('case')==case and report.get('status')in ('passed','failed_or_interrupted'))
@@ -311,6 +463,8 @@ def project(report, candidate, summary, case, exit_code, harness_sha):
         seen.add(check['id']);safe.append({'id':check['id'],'status':'passed'})
     cleanup=report.get('cleanup');require(type(cleanup)is list and len(cleanup)<=256 and type(report.get('cleanup_complete'))is bool)
     diagnostics=finite_diagnostics(report.get('finite_diagnostics'))
+    if diagnostics.get('version')==5:
+        require(report['status']=='failed_or_interrupted'and exit_code!=0)
     passed=(exit_code==0 and report['status']=='passed' and report['cleanup_complete']is True
         and not report.get('failure') and report.get('http_unexpected_errors')==[] and seen==EXPECTED[case]
         and diagnostics.get('graph_provider_argv')is None)

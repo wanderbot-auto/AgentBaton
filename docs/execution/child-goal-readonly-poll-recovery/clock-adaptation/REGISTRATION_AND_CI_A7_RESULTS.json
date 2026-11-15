@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T21:55:04.834110+00:00",
+  "record_head": "5971cada25daed01803d0de22563df70089d1f67",
+  "requirements": [
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-010",
+    "AB-TSK-012"
+  ],
+  "actual": {
+    "root17-capture-frontier-full-core2": {
+      "source": "a7d37ffe07ca0ad2a5f4a21f59b4c9c22d7e64f7",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root17-capture-frontier-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root17-capture-frontier-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root17-capture-frontier-normal-frozen1/baton",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 185.13798224297352,
+      "log_sha256": "f5617852b7013fc717de86f844c59ef1a489691431ee4980b5dfdcbd92b417bf",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "6f3bb0f9ced589ba905ade80713bb0fb41ae174e67c82db0df5a04a0d2c9a15b",
+      "inputs_sha256": "670d271b279286aca813f0266c736a0ad36ef51c84d6fa619f754ea10541f9f5"
+    },
+    "root-readonly-poll-registration-focused1": {
+      "source": "ea0d49ded0718ece42ba77806366a113186d2769",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "--maxWorkers=1",
+        "src/FactoryChildGoals.test.tsx"
+      ],
+      "exit": 0,
+      "seconds": 6.828033868048806,
+      "log_sha256": "c1c8240c9006c61b9028f351a5c2775220ce513db80bb8601267a3a14c9a9e72",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "74bec6ba5c8e44b3a495273d528e250985a3e6c46b63ef1bb9e3c516738fbcd9",
+      "inputs_sha256": "20724d810dd20c520fecfdffb1759e3615fbfdc382d00de8dd997fc5e51875ae"
+    },
+    "root-readonly-bounded-workers-full-ui1": {
+      "source": "29e2f849bdb77c9d61418683d5053712c46ec3a5",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 46.42586035997374,
+      "log_sha256": "96f971a2472315e84e0e91aa9242b5df903fa17afb6d826259e581f04f6e6d32",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "252a296661b63c3423e8a158515812b97807a48b5a1ea13ffd878d2e6da3c56a",
+      "inputs_sha256": "4ee14ce70f02047755fd8672fd601fa65457be104746d11fb0146c23126d2e25"
+    },
+    "root-readonly-runtime-pair-normal-build1": {
+      "source": "29e2f849bdb77c9d61418683d5053712c46ec3a5",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton"
+      ],
+      "exit": 0,
+      "seconds": 21.66245493601309,
+      "log_sha256": "7846bcd5558490cabb8a38b7dd9aa5a4bd573e58640663d6da9b947a887cc2f1",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "124eb6bb6e60e47eea0458b241cf1679c952b254ec6d83fbe1b631812ffaa241",
+      "inputs_sha256": "6f03cdd3c1feffeaaf1d46fb56acb427d546680bde6c786e3ba28438018d42a2"
+    },
+    "root-readonly-runtime-pair-normal-freeze1": {
+      "source": "29e2f849bdb77c9d61418683d5053712c46ec3a5",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+        "--output",
+        "/workspace/.onboarding/root-readonly-runtime-pair-normal-frozen1",
+        "--evidence",
+        "/workspace/.onboarding/root-readonly-runtime-pair-normal-probe1"
+      ],
+      "exit": 0,
+      "seconds": 0.4015051060123369,
+      "log_sha256": "ebc61ab8a1d6542a04024170e7b3ac5993a515c287d4fced073678fbe9871a44",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "efaeaf7c45cfe7ec8d9d74e39127e48b22261d6f72315f5db9a6a8280096913f",
+      "inputs_sha256": "8b0d6ccf27de510890bab14162e02a1b923c86008d8883c23cd69cb9cf84bbb8"
+    },
+    "root-readonly-runtime-pair-frontend-build1": {
+      "source": "29e2f849bdb77c9d61418683d5053712c46ec3a5",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 1.6077087369631045,
+      "log_sha256": "681ec4e11092452a95f45fabc3b42324ee6fce5c88e329e5c7b9a772da1582fc",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "3b8fa3afae420d20918d7126fbb5cf879b9af4ff1d33fd69bfcbcaa673652e08",
+      "inputs_sha256": "5520e254603e2ce27e62bd78bc6b0672232eff44e1cfc03ddbe85d66e0f6f342"
+    },
+    "root-readonly-runtime-pair-integration-browser1": {
+      "source": "29e2f849bdb77c9d61418683d5053712c46ec3a5",
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/root-readonly-runtime-pair-normal-frozen1",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/root-readonly-runtime-pair-normal-frozen1/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/root-readonly-runtime-pair-normal-frozen1/baton",
+        "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+        "apps/desktop/tests/integration-real-ipc.py",
+        "--run",
+        "--case",
+        "all",
+        "--batond",
+        "/workspace/.onboarding/root-readonly-runtime-pair-normal-frozen1/batond",
+        "--candidate-manifest",
+        "/workspace/.onboarding/root-readonly-runtime-pair-candidate1.json",
+        "--frontend",
+        "apps/desktop/dist",
+        "--frontend-build-record",
+        "/workspace/.onboarding/root-readonly-runtime-pair-frontend-build1/RESULT.json",
+        "--expected-source-head",
+        "29e2f849bdb77c9d61418683d5053712c46ec3a5",
+        "--chromium",
+        "/workspace/.onboarding/root29-owned-chromium-runtime1/chromium",
+        "--output",
+        "/workspace/.onboarding/root-readonly-runtime-pair-integration-browser1-private"
+      ],
+      "exit": 0,
+      "seconds": 23.171591719030403,
+      "log_sha256": "a412fbcb4e0552ce74fe4fddadb7e7354f107dc8b6787568167cb9076de4e61d",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "ad803a558e4843d3e7af8ba0117b79ef13a13b2453f2bba47a8aa00fa6779e36",
+      "inputs_sha256": "c54832c002bb84aa06f2233772d14c42e1066f2b82fb56430b9c23effc2dd31b"
+    },
+    "root-runtime-failure-projection-full-infrastructure1": {
+      "source": "567d93e50a54328aeefb6807b3d63a8b81811eb5",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 19.14222843403695,
+      "log_sha256": "83f2f281b332e01b81326000130ad4be57020d710da419582d0dbe17eff4a8da",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "6d1a520c8ffbf83cda7b3d6ca8e9dd1eff084901f0c559c435b841f528a74d9d",
+      "inputs_sha256": "dbac5c4ee0b3810f164aed76826bc4764109a518179ddee9f55702e7cfad2dce"
+    },
+    "root-runtime-failure-projection-full-infrastructure2": {
+      "source": "5971cada25daed01803d0de22563df70089d1f67",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 20.348139523004647,
+      "log_sha256": "0227c4e75d1fffaa110740f9956380d36c385fb42a2b2773023a42657b8f2453",
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "result_sha256": "d19c5c7e0b57f509c93e96407a3ed69369101e06bf4dc0643476a0042a5a19e0",
+      "inputs_sha256": "e2c95d3102707542bdbd810ac0978d905a1e8bc4399d537d5a439ff6fe2b554d"
+    }
+  },
+  "reviews": {
+    "root-readonly-poll-observation-independent-review": {
+      "sha256": "e74491e4905e6d4e36d689c404073e37c0ec4610cc16e8ed5f6774799f3234d5",
+      "status": "SOURCE_READY"
+    },
+    "root-jsdom-worker-bound-independent-review": {
+      "sha256": "c94e9b9aed05bc637dcb4b3853cd5de59d4507f0bab00d84ec61333a08dd943b",
+      "status": "SOURCE_READY"
+    },
+    "integration-runtime-failure-projection-independent-review": {
+      "sha256": "bd53c26c370316488d6c7d9c565f3d26c945015a6d00f414cf50278b08784bce",
+      "status": "SOURCE_READY"
+    }
+  },
+  "source_counts": {
+    "a7d37ffe": "263 full Core tests; nested helper1 included, not additive",
+    "ea0d49de": "84 focused FactoryChildGoals tests",
+    "29e2f849": "1147 UI tests/64files by default npm command; no CLI worker override. Type/build and matching normal Core17/CLI freeze pass. Actual direct integration normal5/failing4 and12original PNGs pass.",
+    "567d93e5": "706 full infrastructure tests, before the real bootstrap-phase coverage correction",
+    "5971cada": "707 full infrastructure tests after correction; no new actual failing CI projection or new Mac result claimed"
+  },
+  "browser": {
+    "source": "29e2f849bdb77c9d61418683d5053712c46ec3a5",
+    "manifest_sha256": "e6539813413f24964b04aee63568391ad5143a0e6a079a09abb80e90c5344086",
+    "cases": {
+      "normal": {
+        "checks": 5,
+        "original_pngs": 6,
+        "report_sha256": "29b6f2ce225c589ba26d3f27d12339fde6972d28859698ded17c597ae8417ca6",
+        "cleanup": {
+          "pending_reviews_stopped": true,
+          "browser_closed": true,
+          "playwright_stopped": true,
+          "http_shutdown": true,
+          "http_thread_joined": true,
+          "daemon_joined": {
+            "exit": 0,
+            "joined": true,
+            "forced_kill": false
+          },
+          "private_transcript_saved": true,
+          "tools_assets_unchanged": true,
+          "fixture_removed": true
+        }
+      },
+      "command-failure": {
+        "checks": 4,
+        "original_pngs": 6,
+        "report_sha256": "f59433fba8bc97051ff9975eb2294d4db372ea682eb020d0031493ada0e3087c",
+        "cleanup": {
+          "pending_reviews_stopped": true,
+          "browser_closed": true,
+          "playwright_stopped": true,
+          "http_shutdown": true,
+          "http_thread_joined": true,
+          "daemon_joined": {
+            "exit": 0,
+            "joined": true,
+            "forced_kill": false
+          },
+          "private_transcript_saved": true,
+          "tools_assets_unchanged": true,
+          "fixture_removed": true
+        }
+      }
+    },
+    "runtime": "owned copy of installed actual Chromium ELF and required assets; fresh private generated ACP/Owner; no new download or product Provider call",
+    "visual": "Main agent viewed actual normal terminal-state-desktop screenshot. No new design approval or Native/macOS acceptance.",
+    "limit": "Direct real driver, not a whole CI wrapper pass. Local pass does not establish or dismiss the different a7 remote runtime failure."
+  },
+  "changes": {
+    "poll_observation": "Test-only read of already registered1000ms slot,999ms no read,1ms exact next read, then completed refresh; original1000ms real observation cap and20read product budget preserved. New deferred revoked history control forbids concurrent polling/writes before full reply. All old assertions retained.",
+    "worker_bound": "Vitest per-invocation maxWorkers2 only; original deadlines/isolation/case selection/product settings unchanged. No CPU/parallelism cause is established by the old Intel log.",
+    "finite_runtime_failure": "Strict paired source/tool/manifest/build/schema17 admission and descriptor witnesses; only closed stages/exceptions/check-prefix/cleanup observations on exit1; zero PNG/private message/path/history disclosure. Unknown/missing/unsafe/raced input remains unavailable; original successful collection unchanged.",
+    "retained_gap": "Original841 stage allowlist omitted the actual real_private_graph_bootstrap phase; independent AST review confirmed the gap. Fixed5971 adds that literal and a zero-check/missing-cleanup regression. Original old pins remain exact; no earlier passed test is relabelled as new-source pass."
+  },
+  "remote_failures": {
+    "PR21_a7": {
+      "head": "a7d37ffe07ca0ad2a5f4a21f59b4c9c22d7e64f7",
+      "environment": {
+        "id": 41244137760,
+        "conclusion": "success"
+      },
+      "product": {
+        "id": 41244140064,
+        "status": "last observed Rust migrations running; all other jobs failed separately"
+      },
+      "ARM": {
+        "job": 124663943596,
+        "first": "Frontend revoked readonly polling expected list3 observed2;1145 passed/1failed; Core/Native skipped",
+        "raw_log_sha256": "20638f36f46b6ac155e25c1136ee272e4f28802ba18c986704ae7846ef9f0eda"
+      },
+      "Intel": {
+        "job": 124663943373,
+        "first": "Frontend ManagedSessionsWorkspaceEntry firstcase missing prepare button at original waitFor;1145/1; Core/Native skipped",
+        "raw_log_sha256": "9581ec53162a2b584ddcdfb71a46571114ccfc14c18b6ed7de4a5b8d4e044047"
+      },
+      "UI": {
+        "job": 124663943758,
+        "first": "actual integration browser driver exit1 after schema probe and browser guards succeeded; finite runtime phase missing. ChildGoal normal/cancel/lost-start passed separately.",
+        "raw_log_sha256": "fc9c92a973fefe8c2f3c6c9c8b13b76f7ab1d36ea09618f2b0606de10d7ba2ba",
+        "finite_summary_sha256": "76fb4a35c7d78dff81a6232f1621ab62a34b96ee1ca97fd9cfeb4c51a165b810",
+        "artifact": 13059410189
+      }
+    },
+    "PR19_324": {
+      "head": "32432f29bfc6125a5eb8fc3d47f682d63c446093",
+      "CI_checkout": "37d22045b74a497d6e290380acd02b6a995fe5bc",
+      "product": 41243422606,
+      "Intel_job": 124661826422,
+      "first": "Factory rework terminal blocked at plan2/run14; Core212 passed including new fatal-frontier controls; Factory29/1. ARM still running at last read.",
+      "finite_artifact": 13058867630,
+      "finite_sha256": "73ba4d00efa31ba9790e1eca0119463aa5a9a3ec6c18500aad53ee097e45c66d",
+      "budget_observation": "Capture2555/3794ms both within original4000ms; child settled15033+next validator declared6000=21033 exceeds original20000 by1033. Guard correctly refuses. Four record identities not exposed by current finite evidence; cannot assign the remaining5981ms to a named planner solely from subtraction. No budget widened or charges discounted."
+    }
+  },
+  "not_run": [
+    "new exact remote CI with these fixes",
+    "actual runtime failure projection from new CI",
+    "current Root Native/macOS dual architecture runtime and development packages",
+    "live Provider/approved remote-host/production signing tests"
+  ],
+  "full130_complete": false
+}

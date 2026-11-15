@@ -1,6 +1,11 @@
-//! Controlled test-only inverse from current schema15 to generated predecessors.
+//! Controlled test-only inverse from current schema16 to generated predecessors.
 //! This does not make a genuine historical14 fixture and never runs on live data.
+#[path = "pre_conversation_schema.rs"]
+pub mod pre_conversation_schema;
+#[path = "pre_integration_schema.rs"]
+pub mod pre_integration_schema;
 use rusqlite::{Connection, Transaction};
+use std::collections::BTreeSet;
 
 pub const FACTORY_TABLES: [&str; 12] = [
     "factory_child_goal_runs",
@@ -22,11 +27,64 @@ const SCOPE_INDEX: &str =
     "CREATE UNIQUE INDEX goal_one_active_scope_per_task ON goal_scopes(task_id) WHERE revoked=0";
 const RUN_INDEX: &str = "CREATE UNIQUE INDEX goal_one_running_scope ON goal_runs(scope_id) WHERE state IN('queued','running','cancel_requested','outcome_unknown')";
 
+fn check_old_task_semantics(transaction: &Transaction<'_>) -> rusqlite::Result<()> {
+    // Production16 added no table: it added Task semantics. The inverse may
+    // accept only rows already representable before that semantic increment.
+    // Never clear a binding (including explicit null), serialize a parsed Task
+    // back over raw JSON, or treat malformed/unknown raw fields as an old Task.
+    let source = include_str!("../../src/storage.rs");
+    let expected = source
+        .split_once("CREATE TABLE tasks(")
+        .and_then(|(_, tail)| {
+            tail.split_once(';')
+                .map(|(sql, _)| format!("CREATE TABLE tasks({sql}"))
+        })
+        .ok_or(rusqlite::Error::InvalidQuery)?;
+    let actual: String = transaction.query_row(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='tasks'",
+        [],
+        |row| row.get(0),
+    )?;
+    if actual != expected || transaction.query_row(
+        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE tbl_name='tasks' AND type IN('index','trigger') AND sql IS NOT NULL)",
+        [], |row| row.get::<_, bool>(0),
+    )? { return Err(rusqlite::Error::InvalidQuery); }
+    let mut statement = transaction.prepare(
+        "SELECT id,length(CAST(document AS BLOB)),CASE WHEN length(CAST(document AS BLOB))<=262144 THEN document END FROM tasks",
+    )?;
+    let mut rows = statement.query([])?;
+    while let Some(row) = rows.next()? {
+        let id: String = row.get(0)?;
+        let size: i64 = row.get(1)?;
+        let raw: Option<String> = row.get(2)?;
+        if size <= 0 || size > 262_144 {
+            return Err(rusqlite::Error::InvalidQuery);
+        }
+        let raw = raw.ok_or(rusqlite::Error::InvalidQuery)?;
+        let value: serde_json::Value =
+            serde_json::from_str(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
+        if !value.is_object() || value.get("code_workspace_binding").is_some() {
+            return Err(rusqlite::Error::InvalidQuery);
+        }
+        let task: agentbaton_core::storage::Task =
+            serde_json::from_str(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
+        if task.id != id
+            || task.revision == 0
+            || task.spec_revision == 0
+            || task.code_workspace_binding.is_some()
+        {
+            return Err(rusqlite::Error::InvalidQuery);
+        }
+    }
+    Ok(())
+}
+
 fn check_empty_factory(transaction: &Transaction<'_>) -> rusqlite::Result<()> {
     let version: u32 = transaction.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version != 15 {
+    if version != 16 {
         return Err(rusqlite::Error::InvalidQuery);
     }
+    check_old_task_semantics(transaction)?;
     // Every named domain must exist AND be empty before the first DDL. Neither
     // missing tables nor malformed nonempty history are treated as zero.
     for table in FACTORY_TABLES {
@@ -59,15 +117,32 @@ fn check_empty_factory(transaction: &Transaction<'_>) -> rusqlite::Result<()> {
         if actual != expected || expected.contains('\\') {
             return Err(rusqlite::Error::InvalidQuery);
         }
+        // Require the exact full named-index set, not just that each remaining
+        // object is recognized. A missing known index is not an old fixture.
+        let mut expected_indexes = BTreeSet::new();
+        for source in sources {
+            for (offset, _) in source.match_indices("CREATE ") {
+                let tail = &source[offset..];
+                if !(tail.starts_with("CREATE INDEX ") || tail.starts_with("CREATE UNIQUE INDEX "))
+                {
+                    continue;
+                }
+                let Some((sql, _)) = tail.split_once(';') else {
+                    continue;
+                };
+                if sql.contains(&format!(" ON {table}(")) {
+                    expected_indexes.insert(sql.to_owned());
+                }
+            }
+        }
+        let mut actual_indexes = BTreeSet::new();
         let mut objects = transaction.prepare("SELECT sql FROM sqlite_master WHERE tbl_name=?1 AND type IN('index','trigger') AND sql IS NOT NULL")?;
         for sql in objects.query_map([table], |row| row.get::<_, String>(0))? {
             let sql = sql?;
-            if !sources
-                .iter()
-                .any(|source| source.contains(&format!("{sql};")))
-            {
-                return Err(rusqlite::Error::InvalidQuery);
-            }
+            actual_indexes.insert(sql);
+        }
+        if actual_indexes != expected_indexes {
+            return Err(rusqlite::Error::InvalidQuery);
         }
     }
     Ok(())
@@ -76,6 +151,9 @@ fn check_empty_factory(transaction: &Transaction<'_>) -> rusqlite::Result<()> {
 // Inner only so a caller can atomically synthesize13 as well as12. The outer
 // caller must own its isolated connection and restore foreign_keys afterwards.
 pub fn remove_empty_child_goal_increment(transaction: &Transaction<'_>) -> rusqlite::Result<()> {
+    if transaction.is_autocommit() {
+        return Err(rusqlite::Error::InvalidQuery);
+    }
     check_empty_factory(transaction)?;
     let foreign_keys: bool =
         transaction.pragma_query_value(None, "foreign_keys", |row| row.get(0))?;
@@ -140,6 +218,29 @@ PRAGMA user_version=14;")?;
 }
 
 pub fn remove_empty_factory_increment(connection: &Connection) -> rusqlite::Result<()> {
+    remove_empty_factory_increment_impl(connection, false)
+}
+
+/// Explicit current18 generator, not an acceptance range for the old16 inverse.
+pub fn remove_empty_current_factory_increment(connection: &Connection) -> rusqlite::Result<()> {
+    remove_empty_factory_increment_impl(connection, true)
+}
+
+/// Caller keeps the entire18 ->17 ->14 ->13 sequence inside its original transaction.
+pub fn remove_empty_current_child_goal_increment(
+    transaction: &Transaction<'_>,
+) -> rusqlite::Result<()> {
+    pre_conversation_schema::remove_empty_conversation18_in_transaction(transaction)
+        .map_err(|_| rusqlite::Error::InvalidQuery)?;
+    pre_integration_schema::remove_empty_integration17_in_transaction(transaction)
+        .map_err(|_| rusqlite::Error::InvalidQuery)?;
+    remove_empty_child_goal_increment(transaction)
+}
+
+fn remove_empty_factory_increment_impl(
+    connection: &Connection,
+    current18: bool,
+) -> rusqlite::Result<()> {
     if !connection.is_autocommit() {
         return Err(rusqlite::Error::InvalidQuery);
     }
@@ -148,7 +249,11 @@ pub fn remove_empty_factory_increment(connection: &Connection) -> rusqlite::Resu
     connection.pragma_update(None, "foreign_keys", false)?;
     let result = (|| {
         let transaction = connection.unchecked_transaction()?;
-        remove_empty_child_goal_increment(&transaction)?;
+        if current18 {
+            remove_empty_current_child_goal_increment(&transaction)?;
+        } else {
+            remove_empty_child_goal_increment(&transaction)?;
+        }
         transaction.execute_batch(
             "DROP TABLE factory_child_plan_heads;
 DROP TABLE factory_child_plan_revisions;

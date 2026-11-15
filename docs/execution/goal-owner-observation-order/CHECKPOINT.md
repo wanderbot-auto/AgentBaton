@@ -1,3 +1,5 @@
+Current Root17/main composition is pending new runtime verification. Both historical source records below are retained with their original scope and timestamps.
+
 # Checkpoint
 
 Worktree /workspace/.worktrees/goal-owner-observation-order; branch codex/goal-owner-observation-order; base9f70bede88506f0d35b0a00a433e49f391c4efae. Only apps/desktop/tests/factory-child-goal-real-ipc.py and this directory changed. No PR or remote action.
@@ -8,6 +10,7 @@ Pure evidence: /workspace/.onboarding/goal-owner-observation-order-pure1/check.p
 
 Latest closure includes tests/infrastructure/test_factory_bound_provider_exit.py and test_child_goal_bound_readonly_wait.py under Root's explicit follow-up authorization. Re-review strict7 names/operation fault injection and helper-loader preservation before any actual bd-derived runtime. The selected3+15 pure checks passed; full collector SQL controls and real cases remain Root work.
 
+Root17 follow-up: current tree `/tmp/root17-owner-observation-backport`, branch `codex/root17-owner-observation-backport`, base `6ca8c2968cfde74c03f68903152429c5f6103877`. Original Parent15 records above remain historical; current backport source SHA is `40607488a0f0e82a0146ba98b70267c1f828b9403d9e5b7336af2bca17b96419`. Pure source/clock45, full harness pure390, related unittest51 and Python AST73 passed. Root17 schema/DDL/zero-table and original Owner validation/wire/recorder code preservation have explicit AST checks. No actual Root17 runtime or fresh CI result is claimed. Root next: independent review, integrate exact candidate, run authorized Root17 actual cases and full applicable checks, then decide exact-SHA CI. Preserve notif784 lost-start as failed/unknown-root-cause; do not substitute Parent15 runtime evidence.
 
 ## Outer stop/read-cycle and same-click Owner observation verified — 2026-10-31T03:09:30.745908+00:00
 

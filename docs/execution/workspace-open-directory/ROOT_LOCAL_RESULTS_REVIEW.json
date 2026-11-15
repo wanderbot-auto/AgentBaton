@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_READY",
+  "formal_approval": false,
+  "candidate": "d689647afff27bae771c655c2233b6de4e8ae0a6",
+  "product_source": "8ac3062617c35aa06a97de4ad3cc6dcb46d7e4bf",
+  "ROOT_LOCAL_RESULTS_sha256": "f2c1acc04a43c6a83aadb84250cc170028a678bca405f7237d7e98518e58d61f",
+  "checks": [
+    "All21 command entries match exact retained RESULT JSON fields/SHA and actual logSHA; all6 independent review bytes pinned, including prior CHANGES_REQUIRED.",
+    "Current Core246 unique is distinguished from recursive child1/245filtered, historical11subset and original7 actual IPC sourcea3.",
+    "NativeLinux126 and focused9 are separate from macOS OS handoff; UI1116/62 atc97, targeted47 and readonly6 are subset counts; infrastructure594 verified in raw logs.",
+    "Strict workspace/all-target and Native Clippy, build/type and formatting exact source/exit attribution checked; no later source relabel.",
+    "Four early Native failures, mounted5/1, TS2540 and first fmt failure all retained with original nonzero RESULT/log; later passes remain separate.",
+    "fc\u21928ac changes only IPC formatting; removing whitespace produces exact whole bytes; metadata commit after8ac changes only7metadata paths.",
+    "Requirement baseline130 IDs preserved; onlySES009 row changed not_started\u2192implementing/partial; native_arm64/native_x86_64/provider remain not_run and full end-to-end not accepted.",
+    "Manifest semantic delta only STATUS hash, matching actual STATUS bytes; unit EVIDENCE leaf pin matches exactROOT_LOCAL_RESULTS.",
+    "Public status/checkpoint/progress separate actual Core IPC, mocked UI transport and Linux Native, retain actualMac/manual/featureCI notrun and full130 incomplete."
+  ],
+  "blocking_findings": [],
+  "RESULT_and_log_pairs_verified": 21,
+  "review_pins_verified": 6,
+  "review_decisions_retained": {
+    "workspace-open-core-a3c-independent-source-review.json": "SOURCE_READY",
+    "F566_WORKSPACE_NATIVE_CHANGES_REQUIRED.review.json": "CHANGES_REQUIRED",
+    "14E5_WORKSPACE_NATIVE_CLOSURE.review.json": "SOURCE_READY",
+    "9299711_TAURI_ASYNC_HOOK_CLOSURE.review.json": "SOURCE_READY",
+    "workspace-open-flight-5d-independent-review.json": "SOURCE_READY",
+    "workspace-open-fc186-test-readonly-independent-review.json": "SOURCE_READY"
+  },
+  "count_interpretation": "246 Core unique; child1/245filtered and11subset not additive; historicalIPC7/sourcea3, Native126/9subset, UI1116/62/c97 plus47 and6subsets, infra594.",
+  "only_requirement_row_changed": [
+    "AB-SES-009"
+  ],
+  "manifest_changed_semantic_leaf": "/files/docs/execution/STATUS.md",
+  "status_sha256": "c467c446c8f333735666f8dc14ca3b25fb95d2da9c2e63ae5b4988ee6f9f82fe",
+  "retained_nonzero_commands": [
+    "native-first-unit1",
+    "native-first-unit2",
+    "native-first-unit3",
+    "native-first-unit4",
+    "mounted-integration-first1",
+    "c97-type-build1",
+    "fc186-format1"
+  ],
+  "not_run_by_reviewer": [
+    "Node/Cargo/SQL/Rustfmt/browser/product/process/network",
+    "actual UI\u2192Native\u2192Core\u2192OS",
+    "Mac/native/manual acceptance"
+  ],
+  "candidate_or_Root_modified": false
+}

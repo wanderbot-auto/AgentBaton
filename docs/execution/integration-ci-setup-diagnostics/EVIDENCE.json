@@ -1,0 +1,42 @@
+{
+  "contract": "agentbaton.integration-ci-setup-diagnostics.source-evidence.v1",
+  "base": "7ee2437db08695347650a28f445cb0034b5f3f58",
+  "recorded_at": "2026-10-31T03:54:43.890651+00:00",
+  "verification_dimension": "pure synthetic and exact source only",
+  "tests": {
+    "command": "python3 -m unittest tests.infrastructure.test_integration_setup_diagnostics tests.infrastructure.test_integration_browser_ci tests.infrastructure.test_integration_browser_ci_evidence tests.infrastructure.test_schema17_migration_workflow",
+    "exit": 0,
+    "tests": 54
+  },
+  "diff_check_exit": 0,
+  "source_sha256": {
+    ".github/workflows/product.yml": "6d82c3f8799925f89b8a13e395356066995680c7d131d10345c2d6e64fd0bc3d",
+    "scripts/record-integration-browser-ci-evidence.py": "0f1de4bc3e2ff73bd88764069d3b5b345a3c8af5b2c4ff36259ad5c85e10a167",
+    "tests/infrastructure/test_schema17_migration_workflow.py": "5a8ff8e2b8012706eb51822d9faabb8b3b24b9eb795aeed02fd3e4a9403d1fe1",
+    "tests/infrastructure/test_integration_setup_diagnostics.py": "712f576e78ef552573dc9389f44e4d585550623e8b882f8dad82d53632df4d01",
+    "tests/infrastructure/fixtures/integration_setup_diagnostics/pre_diagnostics_step.yml.txt": "a1db5e7447f25ac6dd8f7a3fff8005e071971cb75c0aee109ace816b23ece680"
+  },
+  "original_whole_workflow_sha256": "2571ca962ee7eca8ef0b679b86bd939187d69427d83fce3d5ca18c885fc18d23",
+  "standalone_complete_new_step_sha256": "dd33c3a86f61185a9cefb2e313ea228830c8679bc3efb0807eaf80568d3ae003",
+  "flagged_complete_new_step_sha256": "1c98001b8fd0a1f95f2e3c0d0100c76240f0082168be7a4beaabfeac0e8c733e",
+  "composition": {
+    "actual287_workflow_restored_exactly": true,
+    "restored_workflow_sha256": "cedf02dd804568c13adffe3a06d0d3ee7691b133961414aa62e1ef892055e4da",
+    "all765_and_older_source_pins_passed": true
+  },
+  "private_replay_script_sha256": "fffc455f29ee1455c13c424887560a09256ca6a49015516a5788732b33f2d152",
+  "private_replay_source_proof_sha256": "b21f1460638e1f5bcb147f4b7107589f9ebf72c45568a51e5bca709de4406d7a",
+  "prior_ci_root_cause": "unknown",
+  "not_run": [
+    "Core",
+    "Cargo",
+    "Node",
+    "SQL",
+    "browser",
+    "network",
+    "CI",
+    "full wrapper execution",
+    "real model/Provider calls"
+  ],
+  "review": "Root independent review pending"
+}

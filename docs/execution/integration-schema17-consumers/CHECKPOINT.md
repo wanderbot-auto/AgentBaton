@@ -1,0 +1,11 @@
+# Checkpoint
+
+Tree /workspace/.worktrees/integration-schema17-consumers, branch codex/integration-schema17-consumers. Baselinec8128e42b1f280f6f7dc232e319235e15673d8a4. Latest codef9baff81bff1c7a04c26e3cf3e385996a972ac2c; prior7338216/fd7a434 retained. Own docs separate. Root owns full integration and all actual compiler/Actor/browser/CI. Core17/DDL is other sole writer; NativeRust/TS not changed here.
+
+Current readonly/version/4table/Python finite consumers frozen with246 unique unittests PASS; no whole schema17/product run. Source16 build/generation scripts written but NOT_RUN. Product workflow remains baseline16 until Core supplies exact required16→17 migration target/env/feature; do not push as a completed17 pipeline. Genuine14/15 historical producers not modified. Root must integrate new Core/Native producers, independently review and actually generate real16 history/migrate/rollback/check59 tables.
+
+Next dependency: Core's genuine16 gate contract. Root's separately authorized new --integration Native OS mutation Py/Sh driver goes to another leaf/commit chain; do not mix its future tests with these pass records. No background execution promised; no shared target lease held.
+
+## Genuine16 gate contract update
+
+Root now froze feature `actual-schema16-migration-tests`, target `integration_actual16_migration`, and `AGENTBATON_ACTUAL_SCHEMA16_FIXTURE` as a manifest **file**. Source d017d274cd4433f1084b3e0aef03198efba3d3b8 adds real fixed-source16 builder/generator and required test+Clippy to Rust and existing two-platform Mac matrix; old14/15 blocks are intact. Four new workflow source controls PASS (0.069s), all four new shell blocks parse; reversing only added steps/current private tool label restores complete baseline YAML. First new test assumed matrix.label and failed1/4; corrected test to unchanged matrix.os, preserved FIRST_OBSERVATION.json. Current pure counts246+4=250 distinct functions, not a runtime migration. Core feature registration/test source/Native producers must be integrated by Root before actual CI; historical16 build/generation/migration and schema17 Store59-table/runtime/Mac remain NOT_RUN. No Cargo/Actor/browser/OS/target writer. Earlier pending-gate notes describe prior source only.

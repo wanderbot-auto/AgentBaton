@@ -1,5 +1,11 @@
 //! Versioned, authenticated local IPC. No TCP listener, shell, SQL, or arbitrary file API.
-use crate::{sessions::Supervisor, storage::Store, CoreError, Result};
+use crate::{
+    client_recovery_journal::{ClientRecoveryJournal, TaskMessageIntent},
+    conversations::ConversationSupervisor,
+    sessions::Supervisor,
+    storage::Store,
+    CoreError, Result,
+};
 use fs2::FileExt;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -22,6 +28,9 @@ use uuid::Uuid;
 #[cfg(debug_assertions)]
 #[path = "goal_runtime_diagnostics.rs"]
 pub(crate) mod goal_diagnostics;
+
+#[path = "task_workspace_binding_ipc.rs"]
+mod task_binding_wire;
 
 pub const API_VERSION: u32 = 1;
 const MAX_FRAME: u64 = 1_048_576;
@@ -124,6 +133,8 @@ struct RegisterConnection {
     executable: String,
     #[serde(default)]
     arguments: Vec<String>,
+    #[serde(default)]
+    configuration_source: Option<String>,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -154,6 +165,26 @@ struct ValidationTaskId {
 #[serde(deny_unknown_fields)]
 struct ValidationPolicyId {
     policy_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CreateConversation {
+    project_id: String,
+    title: String,
+    workspace_id: String,
+    connection_id: String,
+    grant_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ConversationId {
+    conversation_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SendConversation {
+    conversation_id: String,
+    text: String,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -213,6 +244,37 @@ fn invalid() -> CoreError {
 fn params<T: for<'de> Deserialize<'de>>(v: Value) -> Result<T> {
     serde_json::from_value(v).map_err(|_| invalid())
 }
+fn background_read(
+    request: &Request,
+    token: &str,
+    store: &Store,
+    identity: &crate::background_status::BackgroundIdentity,
+    owned_provider_workers: bool,
+) -> Result<Value> {
+    if request.token != token {
+        return Err(CoreError::new(
+            "AUTH_REQUIRED",
+            "Local authentication failed",
+        ));
+    }
+    if request.api_version != API_VERSION {
+        return Err(CoreError::new(
+            "VERSION_UNSUPPORTED",
+            "Unsupported local API version",
+        ));
+    }
+    if request.method != "system.background"
+        || request.request_id.is_empty()
+        || request.request_id.len() > 128
+        || request.expected_revision.is_some()
+        || request.idempotency_key.is_some()
+    {
+        return Err(invalid());
+    }
+    empty(&request.params)?;
+    Ok(json!(identity.read(store, owned_provider_workers)?))
+}
+
 fn empty(v: &Value) -> Result<()> {
     if v.as_object().is_some_and(|o| o.is_empty()) || v.is_null() {
         Ok(())
@@ -526,6 +588,7 @@ impl FactoryQueueClock {
 }
 
 pub struct Daemon {
+    background_identity: crate::background_status::BackgroundIdentity,
     listener: UnixListener,
     store: Store,
     history_workers: crate::factory::FactoryHistoryWorkers,
@@ -534,6 +597,7 @@ pub struct Daemon {
     socket: PathBuf,
     managed_root: PathBuf,
     supervisor: Supervisor,
+    conversations: ConversationSupervisor,
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
     goal_pending: Option<(String, Receiver<GoalAdvanceReply>)>,
@@ -541,8 +605,12 @@ pub struct Daemon {
     factory_pending: Option<(String, Receiver<Value>)>,
     factory_fatal_error: Option<CoreError>,
     graph_workers: crate::goal_store::GraphWorkers,
+    integration_workers: crate::integration::IntegrationWorkers,
 }
 impl Daemon {
+    fn has_provider_workers(&self) -> bool {
+        self.supervisor.has_workers() || self.conversations.has_workers()
+    }
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
         ensure_runtime(runtime_dir)?;
         let data_workers = crate::data_workspace_workers::DataWorkspaceWorkers::new(runtime_dir)?;
@@ -554,6 +622,7 @@ impl Daemon {
         // POSIX locks. Finish permission preparation before SQLite owns any connection.
         drop(private_file(&db)?);
         let store = Store::open(&db)?;
+        let background_identity = crate::background_status::BackgroundIdentity::after_store_open()?;
         let managed_root = runtime_dir.join("workspaces");
         ensure_runtime(&managed_root)?;
         let socket = runtime_dir.join("batond.sock");
@@ -587,6 +656,7 @@ impl Daemon {
             .and_then(|()| token_file.sync_all())
             .map_err(|_| CoreError::new("INTERNAL_ERROR", "Cannot initialize authentication"))?;
         Ok(Self {
+            background_identity,
             listener,
             store,
             history_workers: Default::default(),
@@ -595,6 +665,7 @@ impl Daemon {
             socket,
             managed_root,
             supervisor: Supervisor::new(runtime_dir),
+            conversations: ConversationSupervisor::new(runtime_dir),
             command_workers: Default::default(),
             data_workers,
             goal_pending: None,
@@ -602,6 +673,7 @@ impl Daemon {
             factory_pending: None,
             factory_fatal_error: None,
             graph_workers: Default::default(),
+            integration_workers: Default::default(),
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
@@ -613,6 +685,7 @@ impl Daemon {
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
             self.supervisor.tick(&mut self.store)?;
+            self.conversations.tick(&mut self.store)?;
             // A terminal owned Goal turn committed by this outer service pass
             // must reach the original fresh stop policy before expensive ticks.
             // This hint selects no new work and is never a stop/join receipt.
@@ -622,9 +695,15 @@ impl Daemon {
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
             self.history_workers.poll(&self.store);
+            self.finish_integration_read();
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
             }
+            // A ready proof or finished integration stage need not wait behind
+            // full Factory/Goal frontier scans for admission or join.
+            // This keeps the existing supervisor/owned-worker pass above and
+            // runs all ordinary stage checks; no armed-policy scan occurs here.
+            self.integration_workers.tick_ready_stage(&mut self.store)?;
             // Inspect only the FIFO head after the original worker/fatal pass.
             // Other methods retain their position until the original drain.
             let (mut turn, early_read) = ReadyTurn::queue_head(&ready, &self.token);
@@ -639,6 +718,13 @@ impl Daemon {
             self.tick_factory()?;
             #[cfg(debug_assertions)]
             self.trace_goal_stage("factory_tick_end", Some(factory_clock.elapsed()), 0, None);
+            // Factory dispatch can retain a fatal error while returning Ok.
+            // Propagate it before any newly prioritized completion/continuation.
+            if let Some(error) = self.factory_fatal_error.take() {
+                return Err(error);
+            }
+            // The original worker may have a proof or completion ready after Factory work.
+            self.integration_workers.tick_ready_stage(&mut self.store)?;
             #[cfg(debug_assertions)]
             let goal_clock = Instant::now();
             #[cfg(debug_assertions)]
@@ -646,9 +732,12 @@ impl Daemon {
             self.tick_goals()?;
             #[cfg(debug_assertions)]
             self.trace_goal_stage("goal_tick_end", Some(goal_clock.elapsed()), 0, None);
+            self.tick_integrations()?;
             while let Some(job) = turn.next(&ready) {
                 self.handle_ready_request(job);
                 self.service_after_ready_request()?;
+                self.finish_integration_read();
+                self.tick_integrations()?;
             }
             readers.retain(|reader| !reader.is_finished());
             match self.listener.accept() {
@@ -671,9 +760,34 @@ impl Daemon {
         drop(ready);
         drop(requests);
         self.history_workers.cancel_owned();
+        self.integration_workers.stop_reads();
+        if let Some((job, result)) = self.integration_workers.join_reads() {
+            // Shutdown consumes the original worker and proof without admitting
+            // a late mutation, even if its readonly observation completed first.
+            drop(result);
+            let _ = job.reply.try_send(self.ready_error(
+                &job.raw,
+                CoreError::new(
+                    "CANCEL_REQUESTED",
+                    "Daemon stopped before integration read admission",
+                ),
+            ));
+        }
+        if let Some((job, result)) = self.integration_workers.join_targets() {
+            drop(result);
+            let _ = job.reply.try_send(self.ready_error(
+                &job.raw,
+                CoreError::new(
+                    "CANCEL_REQUESTED",
+                    "Daemon stopped before integration targets observation admission",
+                ),
+            ));
+        }
+        self.integration_workers.shutdown_stages(&mut self.store)?;
         self.data_workers.shutdown(&mut self.store)?;
         self.command_workers.shutdown(&mut self.store)?;
         self.supervisor.shutdown(&mut self.store)?;
+        self.conversations.shutdown(&mut self.store)?;
         self.graph_workers.shutdown(&mut self.store)?;
         self.history_workers.reap_owned_workers();
         self.history_workers.release_database(&self.store);
@@ -693,6 +807,7 @@ impl Daemon {
     }
     fn service_after_ready_request(&mut self) -> Result<()> {
         self.supervisor.tick(&mut self.store)?;
+        self.conversations.tick(&mut self.store)?;
         // A committed owned Goal terminal turn may need its original
         // stop-only policy now; this never selects or admits new work.
         self.service_hinted_goal_stops()?;
@@ -719,9 +834,12 @@ impl Daemon {
         let id = request.as_ref().ok().map(|r| r.request_id.clone());
         let authenticated = request.as_ref().is_ok_and(|r| r.token == self.token);
         let mut admission = None;
-        let result = request
-            .map_err(|_| invalid())
-            .and_then(|r| self.dispatch(r, &mut admission));
+        let result = request.map_err(|_| invalid()).and_then(|r| {
+            if r.token == self.token && r.method == "workspace_open.context" {
+                crate::workspace_open::validate_workspace_open_frame(raw)?;
+            }
+            self.dispatch(r, &mut admission)
+        });
         let revision = if authenticated {
             self.store.sequence().unwrap_or(0)
         } else {
@@ -760,7 +878,7 @@ impl Daemon {
         if r.request_id.is_empty() || r.request_id.len() > 128 {
             return Err(invalid());
         }
-        if (self.supervisor.has_workers()
+        if (self.has_provider_workers()
             || self.command_workers.has_workers()
             || self.data_workers.has_workers()
             || self.graph_workers.has_workers())
@@ -769,19 +887,35 @@ impl Daemon {
                 "projects.import"
                     | "projects.reassociate"
                     | "workspaces.create"
+                    | "workspaces.prepare_task_git"
                     | "connections.propose"
+                    | "connections.inspect"
+                    | "connections.reprobe.propose"
+                    | "managed_mcps.preview"
+                    | "managed_mcps.propose"
+                    | "managed_skills.preview"
+                    | "managed_skills.propose"
                     | "grants.propose"
                     | "goal_scopes.propose"
+                    | "goal_plans.draft"
+                    | "goal_plans.draft_multi"
+                    | "goal_plans.advice_context"
+                    | "goal_plans.advice_import"
+                    | "goal_planning.prepare"
+                    | "goal_planning.start"
                     | "factory_scopes.propose"
                     | "factory_runs.start"
                     | "approvals.finalize"
                     | "sessions.create"
+                    | "conversations.create"
                     | "command_validation_policies.propose"
             )
         {
             let replay=match r.method.as_str(){
                 "factory_runs.start"=>{let p:FactoryScopeId=params(r.params.clone())?;self.store.factory_start_replay(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,r.idempotency_key.as_deref().ok_or_else(invalid)?)?.is_some()},
 
+                "goal_planning.start"=>{let p:crate::goal_store::GoalPlanningStartRequest=params(r.params.clone())?;match r.idempotency_key.as_deref(){Some(key)=>self.store.goal_planning_start_replay(&p,key)?.is_some(),None=>false}},
+                "conversations.create"=> match r.idempotency_key.as_deref() { Some(key) => self.store.conversation_create_replay(r.params["project_id"].as_str().unwrap_or(""),key)?, None => false },
                 "sessions.create"=>r.idempotency_key.as_ref().is_some_and(|key|self.store.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions WHERE task_id=?1 AND idempotency_key=?2)",rusqlite::params![r.params["task_id"].as_str().unwrap_or(""),key],|row|row.get::<_,bool>(0)).unwrap_or(false)),
                 "approvals.finalize"=>self.store.conn.query_row("SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",[r.params["proposal_id"].as_str().unwrap_or("")],|row|row.get::<_,bool>(0)).unwrap_or(false),
                 _=>false,
@@ -830,7 +964,7 @@ impl Daemon {
                         if let Err(error)=self.supervisor.launch(&mut self.store,&session.id){self.supervisor.record_local_launch_failure(&mut self.store,&session.id)?;self.store.settle_goal_worker(&session.id,u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),true,true)?;return Err(error);}
                         return Ok(());
                     }
-                    if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send(&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
+                    if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send_goal(&mut self.store,&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
                 })();
                 if let Err(error)=action {return Err(recorded_goal_dispatch_error(&p.run_id,&receipt,error,admission));}Ok(receipt)
             }
@@ -874,6 +1008,67 @@ impl Daemon {
             "goal_scopes.list" => {let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_scopes(&p.task_id)?))}
             "goal_scopes.get" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.get_goal_scope(&p.scope_id)?))}
             "goal_scopes.revoke" => {let p:GoalScopeId=params(r.params)?;let key=r.idempotency_key.ok_or_else(invalid)?;Ok(json!(self.store.revoke_goal_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&key)?))}
+            "goal_planning.prepare" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::goal_store::GoalPlanningPrepareRequest = params(r.params)?;
+                Ok(json!(self.store.prepare_goal_planning(&p)?))
+            }
+            "goal_planning.start" => {
+                let p: crate::goal_store::GoalPlanningStartRequest = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let (run, new) = self.store.start_goal_planning(&p, r.expected_revision.ok_or_else(invalid)?, &key)?;
+                if !new { return Ok(json!(run)); }
+                let recorded = |mut error: CoreError| {
+                    // A durable start receipt already exists. Even a secondary
+                    // settlement/read failure must preserve its retry identity.
+                    error.side_effect_state = "confirmed".into();
+                    error.details_ref = Some(format!("local-planning-recorded:{}", run.conversation_id));
+                    error
+                };
+                if let Err(error) = self.conversations.launch(&mut self.store, &run.conversation_id) {
+                    if let Err(settlement) = self.conversations.record_local_launch_failure(&mut self.store, &run.conversation_id) {
+                        return Err(recorded(settlement));
+                    }
+                    return Err(recorded(error));
+                }
+                Ok(json!(self.store.get_goal_planning(&run.conversation_id).map_err(recorded)?))
+            }
+            "goal_planning.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::goal_store::GoalPlanningId = params(r.params)?;
+                Ok(json!(self.store.get_goal_planning(&p.conversation_id)?))
+            }
+            "goal_planning.list" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::goal_store::GoalPlanningListRequest = params(r.params)?;
+                Ok(json!(self.store.list_goal_planning(&p.task_id)?))
+            }
+            "goal_planning.cancel" => {
+                let p: crate::goal_store::GoalPlanningId = params(r.params)?;
+                let run = self.store.cancel_goal_planning(&p.conversation_id, r.expected_revision.ok_or_else(invalid)?, &r.idempotency_key.ok_or_else(invalid)?)?;
+                self.conversations.cancel(&run.conversation_id);
+                Ok(json!(run))
+            }
+            "goal_plans.advice_context" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let query: crate::goal_store::GoalPlanAdviceQuery = params(r.params)?;
+                Ok(json!(self.store.goal_plan_advice_context(&query)?))
+            }
+            "goal_plans.advice_import" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let request: crate::goal_store::GoalPlanAdviceImportRequest = params(r.params)?;
+                Ok(json!(self.store.import_goal_plan_advice(&request)?))
+            }
+            "goal_plans.draft_multi" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let request: crate::goal_store::GoalMultiPlanDraftRequest = params(r.params)?;
+                Ok(json!(self.store.goal_multi_plan_draft(&request)?))
+            }
+            "goal_plans.draft" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let request: crate::goal_store::GoalPlanDraftRequest = params(r.params)?;
+                Ok(json!(self.store.goal_plan_draft(&request)?))
+            }
             "goal_plans.propose" | "goal_plans.revise" => {
                 let p:crate::goal_store::GoalPlanRawSubmission=params(r.params)?;
                 let key=r.idempotency_key.ok_or_else(invalid)?;
@@ -883,14 +1078,101 @@ impl Daemon {
             "goal_plans.list" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.list_goal_plan_revisions(&p.scope_id)?))}
             "goal_plans.ready_preview" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.preview_goal_ready(&p.scope_id,r.expected_revision.ok_or_else(invalid)?)?))}
             "goal_scopes.approve" | "goal_plans.dispatch" | "goal_plans.reserve" | "goal_plans.accept" => Err(CoreError::new("AUTH_REQUIRED","Renderer approval flags, dispatch/reservation and Task acceptance are not Goal preview methods")),
+            "managed_creations.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let marker: crate::client_recovery_journal::ClientRecoveryMarker=params(r.params)?;
+                Ok(json!(self.store.managed_creation_outcome(&marker)?))
+            }
+            "managed_creations.status" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let binding: crate::client_recovery_journal::ManagedCreationBinding=params(r.params)?;
+                Ok(json!(self.store.managed_creation_binding_outcome(&binding)?))
+            }
+            "managed_creations.abandon" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let marker: crate::client_recovery_journal::ClientRecoveryMarker=params(r.params)?;
+                // No execution, Grant, budget reset or probe scheduling here.
+                Ok(json!(self.store.abandon_managed_creation(&marker)?))
+            }
+            "managed_mcps.list" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                empty(&r.params)?;
+                Ok(json!(self.store.list_managed_mcp_profiles()?))
+            }
+            "managed_mcps.preview" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedMcpRequest = params(r.params)?;
+                Ok(json!(self.store.preview_managed_mcp(&p)?))
+            }
+            "managed_mcps.propose" => {
+                if r.expected_revision.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedMcpSelection = params(r.params)?;
+                Ok(json!(self.store.propose_managed_mcp(&p, &r.idempotency_key.ok_or_else(invalid)?)?))
+            }
+            "managed_mcps.find" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedMcpFind = params(r.params)?;
+                Ok(json!(self.store.find_managed_mcp(&p)?))
+            }
+            "managed_mcps.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedMcpConnectionId = params(r.params)?;
+                Ok(json!(self.store.get_managed_mcp_profile(&p.connection_id)?))
+            }
+            "managed_skills.list" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                empty(&r.params)?;
+                Ok(json!(self.store.list_managed_skill_profiles()?))
+            }
+            "managed_skills.preview" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedSkillRequest = params(r.params)?;
+                Ok(json!(self.store.preview_managed_skill(&p)?))
+            }
+            "managed_skills.propose" => {
+                if r.expected_revision.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedSkillSelection = params(r.params)?;
+                Ok(json!(self.store.propose_managed_skill(&p, &r.idempotency_key.ok_or_else(invalid)?)?))
+            }
+            "managed_skills.find" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedSkillFind = params(r.params)?;
+                Ok(json!(self.store.find_managed_skill(&p)?))
+            }
+            "managed_skills.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ManagedSkillConnectionId = params(r.params)?;
+                Ok(json!(self.store.get_managed_skill_profile(&p.connection_id)?))
+            }
+            "connections.inspect" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ConnectionInspectRequest = params(r.params)?;
+                Ok(json!(self.store.inspect_connection(&p)?))
+            }
+            "connections.reprobe.propose" => {
+                if r.expected_revision.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ConnectionInspectRequest = params(r.params)?;
+                Ok(json!(self.store.propose_connection_probe(&p, &r.idempotency_key.ok_or_else(invalid)?)?))
+            }
+            "connections.probe.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ConnectionProbeId = params(r.params)?;
+                Ok(json!(self.store.get_connection_probe(&p.attempt_id)?))
+            }
+            "connections.probe.find" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let p: crate::sessions::ConnectionProbeFind = params(r.params)?;
+                Ok(json!(self.store.find_connection_probe(&p)?))
+            }
             "connections.propose" => {
                 let p: RegisterConnection = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                Ok(json!(self.store.propose_connection(
+                Ok(json!(self.store.propose_connection_with_configuration(
                     &p.name,
                     &p.provider,
                     Path::new(&p.executable),
                     &p.arguments,
+                    p.configuration_source.as_deref(),
                     &key
                 )?))
             }
@@ -912,13 +1194,39 @@ impl Daemon {
                         }
                     }
                 }
-                if result.get("provider").is_some() {
+                if !already_confirmed && result.get("profile").is_some() && result.get("connection").is_some() {
+                    let id = result["connection"]["id"].as_str().filter(|id| !id.is_empty()).ok_or_else(|| {
+                        let mut error = CoreError::new("OUTCOME_UNKNOWN", "Managed connection was approved but its probe binding is unavailable; reconcile the original creation key");
+                        error.side_effect_state = "confirmed".into();
+                        error
+                    })?;
+                    if let Err(error) = self.supervisor.probe(&self.store, id) {
+                        let mut error = self.store.record_initial_probe_not_started(id).err().unwrap_or(error);
+                        if matches!(error.side_effect_state.as_str(), "none" | "not_started") { error.side_effect_state = "confirmed".into(); }
+                        let label = if result["profile"].get("managed_mcp").is_some() { "managed-mcp" } else { "managed-skill" };
+                        error.details_ref = Some(format!("{label}-connection-probe-not-scheduled:{id}"));
+                        return Err(error);
+                    }
+                }
+                if !already_confirmed && result.get("probe_attempt").is_some() {
+                    let id = result["probe_attempt"]["id"].as_str().ok_or_else(invalid)?;
+                    if let Err(mut error) = self.supervisor.probe_retry(&mut self.store, id) {
+                        if matches!(error.side_effect_state.as_str(), "none" | "not_started") { error.side_effect_state = "confirmed".into(); }
+                        error.details_ref = Some(format!("connection-probe-attempt:{id}"));
+                        return Err(error);
+                    }
+                }
+                if !already_confirmed && result.get("provider").is_some() {
                     if let Some(id) = result["id"].as_str() {
-                        if let Err(mut error) = self.supervisor.probe(&self.store, id) {
+                        if let Err(error) = self.supervisor.probe(&self.store, id) {
+                            // This error is before the probe thread is spawned.
+                            // Preserve that exact no-start proof; a later retry
+                            // needs its own Native approval, never replay.
+                            let mut error = self.store.record_initial_probe_not_started(id).err().unwrap_or(error);
                             // The owner-approved connection and confirmation
                             // receipt already committed; only probe scheduling
                             // failed. Never report the approval as not started.
-                            error.side_effect_state = "confirmed".into();
+                            if matches!(error.side_effect_state.as_str(), "none" | "not_started") { error.side_effect_state = "confirmed".into(); }
                             error.details_ref =
                                 Some(format!("connection-approved-probe-not-scheduled:{id}"));
                             error.message = format!(
@@ -931,6 +1239,22 @@ impl Daemon {
                 }
                 Ok(result)
             }
+            "integration_policies.propose"=>{
+                let selection:crate::integration::IntegrationPolicySelection=params(r.params)?;
+                if r.expected_revision.is_some_and(|v|v!=selection.expected_task_revision){return Err(CoreError::new("STALE_REVISION","Integration outer CAS differs from the Task selection"));}
+                let key=r.idempotency_key.ok_or_else(invalid)?;
+                self.store.integration_proposal_replay(&selection,&key)?.map(|p|json!(p)).ok_or_else(||CoreError::new("AUTH_REQUIRED","A request-owned integration observation is required before proposing authority"))
+            },
+            "integration_targets.list"=>Err(CoreError::new("AUTH_REQUIRED","Integration targets require their request-owned observation")),
+            "integration_context.get"=>Err(CoreError::new("AUTH_REQUIRED","Integration context requires its request-owned observation")),
+            "integration_policies.get"=>{let p:crate::integration::IntegrationPolicyId=params(r.params)?;Ok(json!(self.store.get_integration_policy(&p.policy_id)?))},
+            "integration_policies.list"=>{let p:crate::integration::IntegrationListQuery=params(r.params)?;Ok(json!(self.store.list_integration_policies(&p)?))},
+            "integration_policies.revoke"=>{let p:crate::integration::IntegrationPolicyId=params(r.params)?;Ok(json!(self.store.revoke_integration_policy(&p.policy_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))},
+            "integrations.start"=>Err(CoreError::new("AUTH_REQUIRED","Integration start requires its original queued Owner request")),
+            "integrations.list"=>{let p:crate::integration::IntegrationListQuery=params(r.params)?;Ok(json!(self.store.list_integrations(&p)?))},
+            "integrations.get"=>{let p:crate::integration::IntegrationRunId=params(r.params)?;Ok(json!(self.store.get_integration(&p.integration_id)?))},
+            "integrations.cancel"=>{let p:crate::integration::IntegrationRunId=params(r.params)?;Ok(json!(self.store.cancel_integration(&p.integration_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))},
+            "integrations.reconcile"=>{let p:crate::integration::IntegrationRunId=params(r.params)?;Ok(json!(self.store.reconcile_integration(&p.integration_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))},
             "connections.register" | "grants.create" => Err(CoreError::new(
                 "AUTH_REQUIRED",
                 "Server proposal and trusted native owner confirmation are required",
@@ -1054,7 +1378,7 @@ impl Daemon {
                 let p: ValidationPolicyId = params(r.params)?;
                 let revision = r.expected_revision.ok_or_else(invalid)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                if self.supervisor.has_owned_io() {
+                if self.supervisor.has_owned_io() || self.conversations.has_workers() {
                     if let Some(replay) = self.store.command_replay(&p.policy_id, revision, &key)? {
                         return Ok(json!(replay));
                     }
@@ -1098,7 +1422,7 @@ impl Daemon {
             "data_validations.run" => {
                 let p: ValidationPolicyId = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                if self.supervisor.has_workers() || self.command_workers.has_workers() {
+                if self.has_provider_workers() || self.command_workers.has_workers() {
                     return Err(CoreError::new(
                         "WORKSPACE_BUSY",
                         "Stop active owned sessions before this bounded data-validation operation",
@@ -1134,7 +1458,7 @@ impl Daemon {
             "validations.run" => {
                 let p: ValidationPolicyId = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                if self.supervisor.has_workers() || self.command_workers.has_workers() {
+                if self.has_provider_workers() || self.command_workers.has_workers() {
                     return Err(CoreError::new(
                         "WORKSPACE_BUSY",
                         "Stop active owned sessions before this bounded file-validation operation",
@@ -1146,6 +1470,51 @@ impl Daemon {
                     &key
                 )?))
             }
+            "conversations.list" => {
+                empty(&r.params)?;
+                Ok(json!(self.store.list_conversations()?))
+            }
+            "conversations.history" => {
+                let request: crate::conversations_history::ConversationHistoryRequest = params(r.params)?;
+                Ok(json!(self.store.conversation_history(&request)?))
+            }
+            "conversations.get" => {
+                let p: ConversationId = params(r.params)?;
+                Ok(json!(self.store.get_conversation(&p.conversation_id)?))
+            }
+            "conversations.create" => {
+                let p: CreateConversation = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let conversation = self.store.create_conversation(&p.project_id, &p.title, &p.workspace_id, &p.connection_id, &p.grant_id, &key)?;
+                if let Err(mut error) = self.conversations.launch(&mut self.store, &conversation.id) {
+                    self.conversations.record_local_launch_failure(&mut self.store, &conversation.id)?;
+                    error.side_effect_state = "confirmed".into();
+                    error.details_ref = Some(format!("local-conversation-recorded:{}", conversation.id));
+                    return Err(error);
+                }
+                Ok(json!(self.store.get_conversation(&conversation.id)?))
+            }
+            "conversations.send" => {
+                let p: SendConversation = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let (conversation, dispatch) = self.store.send_conversation(&p.conversation_id, revision, &p.text, &key)?;
+                if dispatch {
+                    if let Err(mut error) = self.conversations.send(&conversation.id, &p.text) {
+                        self.conversations.cancel(&conversation.id);
+                        self.store.conversation_failure(&conversation.id, "turn_queue_failed")?;
+                        error.side_effect_state = "unknown".into();
+                        return Err(error);
+                    }
+                }
+                Ok(json!(conversation))
+            }
+            "conversations.cancel" => {
+                let p: ConversationId = params(r.params)?;
+                let conversation = self.store.cancel_conversation(&p.conversation_id, r.expected_revision.ok_or_else(invalid)?, &r.idempotency_key.ok_or_else(invalid)?)?;
+                self.conversations.cancel(&conversation.id);
+                Ok(json!(conversation))
+            }
             "sessions.list" => {
                 empty(&r.params)?;
                 Ok(json!(self.store.list_sessions()?))
@@ -1154,7 +1523,29 @@ impl Daemon {
                 let p: SessionId = params(r.params)?;
                 Ok(json!(self.store.get_session(&p.session_id)?))
             }
-            "sessions.send" => {
+            "sessions.saved_message_receipts" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                let intents: Vec<TaskMessageIntent> = params(r.params)?;
+                if intents.len() > crate::client_recovery_journal::MESSAGE_LIMIT {
+                    return Err(invalid());
+                }
+                let receipts: Vec<Value> = intents.iter().map(|intent| {
+                    self.store.recover_saved_task_message(intent).unwrap_or(Value::Null)
+                }).collect();
+                Ok(json!(receipts))
+            }
+            "sessions.send_receipt" => {
+                let p: SendSession = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                Ok(match self.store.recover_session_send(&p.session_id, &p.text, revision, &key)? {
+                    Some((turn_id, session)) => json!({"turn_id":turn_id,"session":session}),
+                    None => Value::Null,
+                })
+            }
+            "sessions.send" | "sessions.send_recoverable" => {
                 let p: SendSession = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
                 let revision = r.expected_revision.ok_or_else(invalid)?;
@@ -1162,9 +1553,14 @@ impl Daemon {
                     self.store
                         .send_session(&p.session_id, &p.text, revision, &key)?;
                 if dispatch {
-                    if let Err(error) = self.supervisor.send(&s.id, &p.text) {
+                    if let Err(mut error) = self.supervisor.send(&s.id, &p.text) {
                         self.supervisor.cancel(&s.id);
-                        self.store.record_turn_queue_failure(&s.id)?;
+                        // The turn committed before attempting to queue execution.
+                        self.store.record_turn_queue_failure(&s.id).map_err(|mut failure| {
+                            failure.side_effect_state = "unknown".into();
+                            failure
+                        })?;
+                        error.side_effect_state = "unknown".into();
                         return Err(error);
                     }
                 }
@@ -1229,6 +1625,32 @@ impl Daemon {
                     &key
                 )?))
             }
+            "workspaces.prepare_task_git" => {
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.as_deref().ok_or_else(invalid)?;
+                if revision == 0 || key.is_empty() || key.len() > 256 { return Err(invalid()); }
+                let p: task_binding_wire::PrepareTaskGit = params(r.params)?;
+                // No outer current-Task CAS: the Store recognizes the immutable
+                // same-key receipt first, then freshly validates the binding.
+                Ok(json!(self.store.prepare_task_git_workspace(
+                    &p.with_task_revision(revision), &self.managed_root, key,
+                )?))
+            }
+            "workspace_open.context" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::WorkspaceOpenRequest = params(r.params)?;
+                Ok(json!(self.store.workspace_open_context(&p.selection)?))
+            }
+            "workspaces.resolve" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::CodeWorkspacePreparationRequest = params(r.params)?;
+                let preparation = self.store.resolve_code_workspace_preparation(&p)?;
+                Ok(json!(crate::workspace_resolution::CodeWorkspacePreparationWire::from(preparation)))
+            }
             "workspaces.list" => {
                 let p: ProjectId = params(r.params)?;
                 Ok(json!(self.store.list_workspaces(&p.project_id)?))
@@ -1262,10 +1684,11 @@ impl Daemon {
                 let p: Events = params(r.params)?;
                 self.store.events(p.cursor, p.limit)
             }
+            "system.background" => background_read(&r, &self.token, &self.store, &self.background_identity, self.has_provider_workers()),
             "system.snapshot" => {
                 empty(&r.params)?;
                 Ok(
-                    json!({"tasks":self.store.list()?,"sequence":self.store.sequence()?,"api_version":API_VERSION}),
+                    json!({"tasks":self.store.list()?,"sequence":self.store.sequence()?,"api_version":API_VERSION,"database_schema_version":self.store.conn.pragma_query_value(None,"user_version",|row|row.get::<_,u32>(0)).map_err(crate::storage::db_error)?}),
                 )
             }
             _ => Err(CoreError::new(
@@ -1280,10 +1703,18 @@ impl Drop for Daemon {
         // Error/unwind paths also retain authority until every owned worker is
         // cancelled and joined. Unpersisted outcomes are reconciled on restart.
         self.history_workers.cancel_owned();
+        self.integration_workers.stop_reads();
+        self.integration_workers.stop_stages();
+        // Consume the actual JoinHandle before unlinking the socket or
+        // unlocking writer.lock, including early error/unwind paths.
+        drop(self.integration_workers.join_reads());
+        drop(self.integration_workers.join_targets());
+        self.integration_workers.join_stages();
         self.graph_workers.reap_owned_workers();
         self.data_workers.reap_owned_workers();
         self.command_workers.reap_owned_workers();
         self.supervisor.reap_owned_workers();
+        self.conversations.reap_owned_workers();
         self.history_workers.reap_owned_workers();
         self.history_workers.release_database(&self.store);
         let _ = fs::remove_file(&self.socket);
@@ -1308,12 +1739,195 @@ fn read_frame(stream: &UnixStream, max_frame: u64) -> Result<String> {
     }
     String::from_utf8(bytes).map_err(|_| invalid())
 }
+/// Recover a missing send acknowledgement with a read. Never issue a second
+/// send from this helper, and keep the original uncertainty on a lookup miss.
+pub fn send_session_with_receipt_recovery(runtime_dir: &Path, command: Value) -> Result<Value> {
+    send_with_durable_intent(runtime_dir, command, |mut wire| {
+        if wire["method"] != "sessions.send" {
+            return call(runtime_dir, wire);
+        }
+        // An older daemon must reject this method before committing a turn
+        // that it would not know how to recover.
+        wire["method"] = json!("sessions.send_recoverable");
+        let mut reply = call(runtime_dir, wire)?;
+        if reply["error"]["code"] == "CAPABILITY_UNSUPPORTED"
+            && reply["error"]["side_effect_state"] == "not_started"
+        {
+            reply["error"]["message"] = json!(
+                "The running daemon does not support task message recovery. Restart the daemon with the updated app before sending."
+            );
+        }
+        Ok(reply)
+    })
+}
+
+fn send_with_durable_intent(
+    runtime_dir: &Path,
+    command: Value,
+    request: impl FnMut(Value) -> Result<Value>,
+) -> Result<Value> {
+    if command["method"] != "sessions.send" {
+        return Err(invalid());
+    }
+    let message: SendSession = params(command["params"].clone())?;
+    if message.text.trim().is_empty() || message.text.len() > 65536 {
+        return Err(invalid());
+    }
+    let intent = TaskMessageIntent {
+        session_id: message.session_id,
+        request_key: command["idempotency_key"]
+            .as_str()
+            .ok_or_else(invalid)?
+            .into(),
+        expected_revision: command["expected_revision"].as_u64().ok_or_else(invalid)?,
+        text_sha256: agentbaton_workspaces::validation::sha256(message.text.as_bytes()),
+    };
+    let journal = ClientRecoveryJournal::new(runtime_dir)?;
+    // Hold the native lock until the send has returned. A second desktop cannot
+    // check and clear this marker while the first desktop is still sending.
+    let mut messages = journal.task_messages()?;
+    if messages.entries().contains(&intent) {
+        // An exact retry of a retained send can only look up its receipt.
+        return lookup_session_send(command, request)
+            .ok_or_else(crate::client_recovery_journal::task_message_recovery_required);
+    }
+    messages.reserve(intent.clone())?;
+
+    let reply = send_with_receipt_lookup(command, request);
+    let definitive = match &reply {
+        Err(error) => matches!(error.side_effect_state.as_str(), "none" | "not_started"),
+        Ok(wire) => {
+            wire["request_id"].is_string()
+                && wire["error"]["code"] != "OUTCOME_UNKNOWN"
+                && wire["error"]["code"] != "CONFIG_CONFLICT"
+                && matches!(
+                    wire["error"]["side_effect_state"].as_str(),
+                    Some("none" | "not_started")
+                )
+        }
+    };
+    if definitive {
+        // A cleanup failure leaves the marker available for the next read.
+        let _ = messages.clear(&intent.session_id);
+    }
+    reply
+}
+
+/// Reopening the desktop only queries SQLite through the daemon. Keep missing
+/// or unverifiable receipts so a new send cannot silently replace them.
+pub fn recover_task_messages(runtime_dir: &Path) -> Result<Value> {
+    let journal = ClientRecoveryJournal::new(runtime_dir)?;
+    let messages = journal.task_messages()?;
+    let intents = messages.entries();
+    let mut pending = Vec::new();
+    let mut recovered = Vec::new();
+    let response = if intents.is_empty() {
+        Value::Null
+    } else {
+        call(
+            runtime_dir,
+            json!({"method":"sessions.saved_message_receipts","params":intents}),
+        )
+        .unwrap_or(Value::Null)
+    };
+    for (index, intent) in intents.iter().enumerate() {
+        if let Some(receipt) = checked_saved_receipt(&response["result"][index], intent) {
+            recovered.push(receipt);
+        } else {
+            pending.push(intent.session_id.clone());
+        }
+    }
+    Ok(json!({"pending_sessions": pending, "recovered": recovered}))
+}
+
+/// Clear only the exact marker acknowledged by the renderer, after validating
+/// the receipt again. A delayed acknowledgement cannot clear a newer send.
+pub fn acknowledge_task_message(runtime_dir: &Path, session_id: &str, key: &str) -> Result<()> {
+    let journal = ClientRecoveryJournal::new(runtime_dir)?;
+    let mut messages = journal.task_messages()?;
+    let intent = messages
+        .entries()
+        .iter()
+        .find(|intent| intent.session_id == session_id && intent.request_key == key);
+    if let Some(intent) = intent {
+        let response = call(
+            runtime_dir,
+            json!({
+                "method": "sessions.saved_message_receipts",
+                "params": [intent],
+            }),
+        )?;
+        if checked_saved_receipt(&response["result"][0], intent).is_none() {
+            return Err(crate::client_recovery_journal::task_message_recovery_required());
+        }
+        messages.clear(session_id)?;
+    }
+    Ok(())
+}
+
+fn checked_saved_receipt(receipt: &Value, intent: &TaskMessageIntent) -> Option<Value> {
+    (receipt["session_id"] == intent.session_id
+        && receipt["turn_id"].is_string()
+        && receipt["task_id"].is_string()
+        && receipt["text"].as_str().is_some_and(|text| {
+            agentbaton_workspaces::validation::sha256(text.as_bytes()) == intent.text_sha256
+        }))
+    .then(|| {
+        let mut receipt = receipt.clone();
+        receipt["request_key"] = json!(intent.request_key);
+        receipt
+    })
+}
+
+fn send_with_receipt_lookup(
+    command: Value,
+    mut request: impl FnMut(Value) -> Result<Value>,
+) -> Result<Value> {
+    if command["method"] != "sessions.send" {
+        return Err(invalid());
+    }
+    let original = request(command.clone());
+    let uncertain = match &original {
+        Ok(wire) => wire["error"]["side_effect_state"] == "unknown",
+        Err(error) => error.side_effect_state == "unknown",
+    };
+    if !uncertain {
+        return original;
+    }
+    lookup_session_send(command, request).map_or(original, Ok)
+}
+
+fn lookup_session_send(
+    mut command: Value,
+    mut request: impl FnMut(Value) -> Result<Value>,
+) -> Option<Value> {
+    command["method"] = json!("sessions.send_receipt");
+    let mut wire = request(command).ok()?;
+    if wire.get("error").is_some() || wire["result"]["turn_id"].as_str().is_none() {
+        return None;
+    }
+    let session = wire["result"]
+        .get_mut("session")
+        .filter(|v| v.is_object())?
+        .take();
+    wire["result"] = session;
+    Some(wire)
+}
+
 /// Host-selected runtime only. Reads private session authentication and applies the version envelope.
 pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
+    let before_write = || {
+        let mut error = CoreError::transport();
+        if command["method"] == "sessions.send_recoverable" {
+            error.side_effect_state = "not_started".into();
+            error.message = "Local daemon connection failed before sending the task message".into();
+        }
+        error
+    };
     check_private(runtime_dir, true)?;
-    check_private(&runtime_dir.join("session.token"), false)?;
-    let token = fs::read_to_string(runtime_dir.join("session.token"))
-        .map_err(|_| CoreError::transport())?;
+    let token_path = runtime_dir.join("session.token");
+    check_private(&token_path, false)?;
+    let token = fs::read_to_string(token_path).map_err(|_| before_write())?;
     let mut object = command.as_object().cloned().ok_or_else(invalid)?;
     let read_timeout = if matches!(
         object.get("method").and_then(Value::as_str),
@@ -1333,24 +1947,189 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
     object.insert("request_id".into(), json!(Uuid::new_v4().to_string()));
     object.insert("token".into(), json!(token));
     let mut stream =
-        UnixStream::connect(runtime_dir.join("batond.sock")).map_err(|_| CoreError::transport())?;
+        UnixStream::connect(runtime_dir.join("batond.sock")).map_err(|_| before_write())?;
     stream
         .set_read_timeout(Some(read_timeout))
-        .map_err(|_| CoreError::transport())?;
+        .map_err(|_| before_write())?;
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
-        .map_err(|_| CoreError::transport())?;
+        .map_err(|_| before_write())?;
     serde_json::to_writer(&mut stream, &object).map_err(|_| CoreError::transport())?;
     stream
         .write_all(b"\n")
         .map_err(|_| CoreError::transport())?;
-    let raw = read_frame(&stream, 32 * MAX_FRAME)?;
-    serde_json::from_str(&raw).map_err(|_| CoreError::transport())
+    let raw = read_frame(&stream, 32 * MAX_FRAME).map_err(|error| {
+        if matches!(
+            object["method"].as_str(),
+            Some("sessions.send" | "sessions.send_recoverable")
+        ) {
+            // An EOF or truncated reply after sending cannot prove that the
+            // daemon did not commit the turn.
+            CoreError::transport()
+        } else {
+            error
+        }
+    })?;
+    let response: Value = serde_json::from_str(&raw).map_err(|_| CoreError::transport())?;
+    if matches!(
+        object["method"].as_str(),
+        Some(
+            "sessions.send"
+                | "sessions.send_recoverable"
+                | "sessions.send_receipt"
+                | "sessions.saved_message_receipts"
+        )
+    ) && response["request_id"] != object["request_id"]
+    {
+        return Err(CoreError::transport());
+    }
+    Ok(response)
 }
 
 #[cfg(test)]
 mod frame_tests {
     use super::*;
+
+    #[test]
+    fn unreachable_daemon_does_not_leave_a_pending_task_message() {
+        let temp = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = temp.path().canonicalize().unwrap();
+        let token = runtime.join("session.token");
+        fs::write(&token, "fixture token").unwrap();
+        fs::set_permissions(token, fs::Permissions::from_mode(0o600)).unwrap();
+        let mut send = json!({
+            "method": "sessions.send",
+            "params": {"session_id": "08c1d907-a7c2-4c49-a11b-657cc7a6d67a", "text": "message"},
+            "expected_revision": 2,
+            "idempotency_key": "484cda4d-7107-4817-b0a3-f2d947871ca6"
+        });
+        for key in [
+            "484cda4d-7107-4817-b0a3-f2d947871ca6",
+            "9c232d05-ec20-4ab3-809b-b7e5a61320d4",
+        ] {
+            send["idempotency_key"] = json!(key);
+            let error = send_session_with_receipt_recovery(&runtime, send.clone()).unwrap_err();
+            assert_eq!(error.code, "PROVIDER_DISCONNECTED");
+            assert_eq!(error.side_effect_state, "not_started");
+            assert_eq!(
+                recover_task_messages(&runtime).unwrap()["pending_sessions"],
+                json!([])
+            );
+        }
+    }
+
+    #[test]
+    fn legacy_daemon_rejects_recoverable_send_without_fallback() {
+        let temp = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = temp.path().canonicalize().unwrap();
+        let token = runtime.join("session.token");
+        fs::write(&token, "fixture token").unwrap();
+        fs::set_permissions(token, fs::Permissions::from_mode(0o600)).unwrap();
+        let listener = UnixListener::bind(runtime.join("batond.sock")).unwrap();
+        let worker = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            configure_accepted_stream(&stream).unwrap();
+            let request: Value =
+                serde_json::from_str(&read_frame(&stream, MAX_FRAME).unwrap()).unwrap();
+            assert_eq!(request["method"], "sessions.send_recoverable");
+            let reply = json!({
+                "request_id": request["request_id"],
+                "error": CoreError::new("CAPABILITY_UNSUPPORTED", "Unknown or unavailable method")
+            });
+            writeln!(stream, "{reply}").unwrap();
+            listener
+        });
+        let reply = send_session_with_receipt_recovery(
+            &runtime,
+            json!({
+                "method": "sessions.send",
+                "params": {"session_id": "08c1d907-a7c2-4c49-a11b-657cc7a6d67a", "text": "message"},
+                "expected_revision": 2,
+                "idempotency_key": "484cda4d-7107-4817-b0a3-f2d947871ca6"
+            }),
+        )
+        .unwrap();
+        assert_eq!(reply["error"]["code"], "CAPABILITY_UNSUPPORTED");
+        assert_eq!(reply["error"]["side_effect_state"], "not_started");
+        let listener = worker.join().unwrap();
+        listener.set_nonblocking(true).unwrap();
+        assert_eq!(
+            listener.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock
+        );
+        assert_eq!(
+            recover_task_messages(&runtime).unwrap()["pending_sessions"],
+            json!([])
+        );
+    }
+
+    #[test]
+    fn uncommitted_client_intent_survives_reopen_and_does_not_send_again() {
+        let temp = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = temp.path().canonicalize().unwrap();
+        let send = json!({
+            "method": "sessions.send",
+            "params": {"session_id": "08c1d907-a7c2-4c49-a11b-657cc7a6d67a", "text": "message"},
+            "expected_revision": 2,
+            "idempotency_key": "484cda4d-7107-4817-b0a3-f2d947871ca6"
+        });
+        assert!(
+            send_with_durable_intent(&runtime, send.clone(), |_| Err(CoreError::transport()))
+                .is_err()
+        );
+        let recovery = recover_task_messages(&runtime).unwrap();
+        assert_eq!(
+            recovery["pending_sessions"],
+            json!([send["params"]["session_id"]])
+        );
+        let err = send_with_durable_intent(&runtime, send, |lookup| {
+            assert_eq!(lookup["method"], "sessions.send_receipt");
+            Ok(json!({"result": null}))
+        })
+        .unwrap_err();
+        assert_eq!(err.code, "TASK_MESSAGE_RECOVERY_REQUIRED");
+        assert_eq!(recover_task_messages(&runtime).unwrap(), recovery);
+    }
+
+    #[test]
+    fn session_send_recovery_only_checks_the_original_intent() {
+        let send = json!({
+            "method": "sessions.send",
+            "params": {"session_id": "session", "text": "message"},
+            "expected_revision": 2,
+            "idempotency_key": "original-key"
+        });
+        let mut lookup = send.clone();
+        lookup["method"] = json!("sessions.send_receipt");
+        let session = json!({"id":"session","revision":3});
+        for found in [true, false] {
+            let mut commands = Vec::new();
+            let result = send_with_receipt_lookup(send.clone(), |command| {
+                commands.push(command);
+                match commands.len() {
+                    1 => Err(CoreError::transport()),
+                    2 if found => Ok(json!({"result":{"turn_id":"turn","session":session}})),
+                    2 => Ok(json!({"result":null})),
+                    _ => panic!("unexpected resend"),
+                }
+            });
+            assert_eq!(commands, [send.clone(), lookup.clone()]);
+            if found {
+                assert_eq!(result.unwrap()["result"], session);
+            } else {
+                assert_eq!(result.unwrap_err().side_effect_state, "unknown");
+            }
+        }
+    }
 
     #[test]
     fn inherited_nonblocking_stream_waits_for_the_delayed_complete_first_frame() {
@@ -1691,9 +2470,80 @@ impl Daemon {
                 }
                 ids.push(p.workspace_id);
             }
-            "sessions.send" => {
+            "sessions.send" | "sessions.send_recoverable" => {
                 let p: SendSession = params(request.params)?;
+                let key = request.idempotency_key.as_deref().ok_or_else(invalid)?;
+                let revision = request.expected_revision.ok_or_else(invalid)?;
+                if self
+                    .store
+                    .recover_session_send(&p.session_id, &p.text, revision, key)?
+                    .is_some()
+                {
+                    return Ok(vec![]);
+                }
                 ids.push(self.store.get_session(&p.session_id)?.workspace_id);
+            }
+            "goal_planning.prepare" | "goal_planning.start" => {
+                let is_start = request.method == "goal_planning.start";
+                let scope_id = if is_start {
+                    let p: crate::goal_store::GoalPlanningStartRequest = params(request.params)?;
+                    let key = request.idempotency_key.as_deref().ok_or_else(invalid)?;
+                    if request.expected_revision.is_none() {
+                        return Err(invalid());
+                    }
+                    if self.store.goal_planning_start_replay(&p, key)?.is_some() {
+                        return Ok(vec![]);
+                    }
+                    p.preparation.query.scope_id
+                } else {
+                    if request.expected_revision.is_some() || request.idempotency_key.is_some() {
+                        return Err(invalid());
+                    }
+                    params::<crate::goal_store::GoalPlanningPrepareRequest>(request.params)?
+                        .query
+                        .scope_id
+                };
+                if self.has_provider_workers()
+                    || self.command_workers.has_workers()
+                    || self.data_workers.has_workers()
+                    || self.graph_workers.has_workers()
+                {
+                    return Err(CoreError::new(
+                        "WORKSPACE_BUSY",
+                        "Stop active owned execution before preparing a planning run",
+                    ));
+                }
+                ids.push(self.store.get_goal_scope(&scope_id)?.workspace_id);
+            }
+            "goal_plans.draft"
+            | "goal_plans.draft_multi"
+            | "goal_plans.advice_context"
+            | "goal_plans.advice_import" => {
+                if request.expected_revision.is_some() || request.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                if self.has_provider_workers()
+                    || self.command_workers.has_workers()
+                    || self.data_workers.has_workers()
+                    || self.graph_workers.has_workers()
+                {
+                    return Err(CoreError::new(
+                        "WORKSPACE_BUSY",
+                        "Stop active owned execution before validating a new plan draft",
+                    ));
+                }
+                let scope_id = if request.method == "goal_plans.draft" {
+                    params::<crate::goal_store::GoalPlanDraftRequest>(request.params)?.scope_id
+                } else if request.method == "goal_plans.draft_multi" {
+                    params::<crate::goal_store::GoalMultiPlanDraftRequest>(request.params)?.scope_id
+                } else if request.method == "goal_plans.advice_context" {
+                    params::<crate::goal_store::GoalPlanAdviceQuery>(request.params)?.scope_id
+                } else {
+                    params::<crate::goal_store::GoalPlanAdviceImportRequest>(request.params)?
+                        .query
+                        .scope_id
+                };
+                ids.push(self.store.get_goal_scope(&scope_id)?.workspace_id);
             }
             "goal_plans.propose" | "goal_plans.revise" => {
                 let p: crate::goal_store::GoalPlanRawSubmission = params(request.params)?;
@@ -2027,7 +2877,7 @@ impl Daemon {
         };
         if plan.is_some() {
             if (!plan.as_ref().is_some_and(|p| p.is_child_planning())
-                && (self.supervisor.has_workers()
+                && (self.has_provider_workers()
                     || self.command_workers.has_workers()
                     || self.graph_workers.has_workers()))
                 || self.data_workers.has_workers()
@@ -2080,6 +2930,49 @@ impl Daemon {
             }
             let _ = job.reply.try_send(json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before admission"),"revision":0,"warnings":[]}));
             return;
+        }
+        if job.factory_dispatch.is_none() {
+            match self.integration_start_for_request(&job.raw, job.deadline) {
+                Err(error) => {
+                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    return;
+                }
+                Ok(Some(view)) => {
+                    let _ = job
+                        .reply
+                        .try_send(self.ready_success(&job.raw, json!(view)));
+                    return;
+                }
+                Ok(None) => (),
+            }
+            match self.integration_targets_for_request(&job.raw) {
+                Err(error) => {
+                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    return;
+                }
+                Ok(Some(plan)) => {
+                    if let Err(failure) = self.integration_workers.defer_targets(plan, job) {
+                        let (error, job) = *failure;
+                        let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    }
+                    return;
+                }
+                Ok(None) => (),
+            }
+            match self.integration_read_for_request(&job.raw) {
+                Err(error) => {
+                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    return;
+                }
+                Ok(Some(plan)) => {
+                    if let Err(failure) = self.integration_workers.defer_read(plan, job) {
+                        let (error, job) = *failure;
+                        let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    }
+                    return;
+                }
+                Ok(None) => (),
+            }
         }
         if let Some(ticket) = job.factory_dispatch.as_ref() {
             #[cfg(debug_assertions)]
@@ -2679,6 +3572,7 @@ impl Daemon {
         {
             return json!({"request_id":id,"error":CoreError::new("AUTH_REQUIRED","Scoped Factory callers cannot access owner approval, configuration or arbitrary IPC"),"revision":0,"warnings":[]});
         }
+        // workspaces.resolve is an owner IPC read, never a scoped companion tool.
         let caller = match self
             .store
             .authenticate_factory_handle(&request.handle_id, &request.scoped_token)
@@ -3157,9 +4051,359 @@ impl Daemon {
 }
 
 #[cfg(test)]
+#[path = "task_workspace_binding_ipc_tests.rs"]
+mod task_binding_bridge_tests;
+
+impl Daemon {
+    fn integration_read_for_request(
+        &self,
+        raw: &str,
+    ) -> Result<Option<crate::integration::IntegrationReadPlan>> {
+        use crate::integration::IntegrationReadIntent as Intent;
+        let request: Request = match serde_json::from_str(raw) {
+            Ok(r) => r,
+            Err(_) => return Ok(None),
+        };
+        if request.token != self.token || request.api_version != API_VERSION {
+            return Ok(None);
+        }
+        if request.request_id.is_empty() || request.request_id.len() > 128 {
+            return Err(invalid());
+        }
+        let intent = match request.method.as_str() {
+            "integration_context.get" => Intent::Context(params(request.params)?),
+            "integration_policies.propose" => {
+                let s: crate::integration::IntegrationPolicySelection = params(request.params)?;
+                if request
+                    .expected_revision
+                    .is_some_and(|v| v != s.expected_task_revision)
+                {
+                    return Err(CoreError::new(
+                        "STALE_REVISION",
+                        "Integration outer CAS differs from the Task selection",
+                    ));
+                }
+                let key = request.idempotency_key.as_deref().ok_or_else(invalid)?;
+                if self.store.integration_proposal_replay(&s, key)?.is_some() {
+                    return Ok(None);
+                }
+                Intent::Proposal(Box::new(s))
+            }
+            "approvals.finalize" => {
+                let p: ProposalId = params(request.params)?;
+                let Some(_proposal) = self
+                    .store
+                    .integration_proposal_for_request(&p.proposal_id)?
+                else {
+                    return Ok(None);
+                };
+                let revision = request.expected_revision.ok_or_else(invalid)?;
+                if self
+                    .store
+                    .integration_finalization_replay(&p.proposal_id, revision)?
+                    .is_some()
+                {
+                    return Ok(None);
+                }
+                Intent::Finalize {
+                    proposal_id: p.proposal_id,
+                    revision,
+                }
+            }
+            _ => return Ok(None),
+        };
+        if self.has_provider_workers()
+            || self.command_workers.has_workers()
+            || self.data_workers.has_workers()
+            || self.graph_workers.has_workers()
+        {
+            return Err(CoreError::new("WORKSPACE_BUSY","Stop active source writers before preparing an independent integration observation"));
+        }
+        self.store
+            .prepare_integration_scope_read(intent, raw)
+            .map(Some)
+    }
+    fn tick_integrations(&mut self) -> Result<()> {
+        // Keep supervisor/parent stop reconciliation before this call. Only new
+        // admission waits for other workers; existing owned work must always be
+        // cancellable and genuinely joined/settled.
+        self.integration_workers.tick_stages(&mut self.store)?;
+        let idle = !self.has_provider_workers()
+            && !self.command_workers.has_workers()
+            && !self.data_workers.has_workers()
+            && !self.graph_workers.has_workers()
+            && self.factory_pending.is_none()
+            && self.goal_pending.is_none();
+        self.integration_workers
+            .tick_armed(&mut self.store, &self.managed_root, idle)
+    }
+    fn integration_start_for_request(
+        &mut self,
+        raw: &str,
+        deadline: Instant,
+    ) -> Result<Option<crate::integration::IntegrationRunView>> {
+        let request: Request = match serde_json::from_str(raw) {
+            Ok(r) => r,
+            Err(_) => return Ok(None),
+        };
+        if request.method != "integrations.start"
+            || request.token != self.token
+            || request.api_version != API_VERSION
+        {
+            return Ok(None);
+        }
+        if request.request_id.is_empty() || request.request_id.len() > 128 {
+            return Err(invalid());
+        }
+        let params: crate::integration::IntegrationPolicyId = params(request.params)?;
+        let revision = request.expected_revision.ok_or_else(invalid)?;
+        let key = request.idempotency_key.as_deref().ok_or_else(invalid)?;
+        if let Some(view) = self
+            .store
+            .integration_start_replay(&params.policy_id, revision, key)?
+        {
+            return Ok(Some(view));
+        }
+        if !self.store.integration_existing_run(&params.policy_id)?
+            && (self.has_provider_workers()
+                || self.command_workers.has_workers()
+                || self.data_workers.has_workers()
+                || self.graph_workers.has_workers()
+                || self.factory_pending.is_some()
+                || self.goal_pending.is_some())
+        {
+            return Err(CoreError::new(
+                "WORKSPACE_BUSY",
+                "Stop active source writers before starting independent integration work",
+            ));
+        }
+        // ReadyRequest's original socket admission clock is exactly deadline-60s;
+        // it is not a fresh clock started after queuing, DB setup or API checks.
+        let queued_at = deadline
+            .checked_sub(Duration::from_secs(60))
+            .ok_or_else(invalid)?;
+        self.integration_workers
+            .start(
+                &mut self.store,
+                &params.policy_id,
+                revision,
+                key,
+                &self.managed_root,
+                queued_at,
+            )
+            .map(Some)
+    }
+    fn integration_targets_for_request(
+        &self,
+        raw: &str,
+    ) -> Result<Option<crate::integration::IntegrationTargetPlan>> {
+        let request: Request = match serde_json::from_str(raw) {
+            Ok(r) => r,
+            Err(_) => return Ok(None),
+        };
+        if request.method != "integration_targets.list"
+            || request.token != self.token
+            || request.api_version != API_VERSION
+        {
+            return Ok(None);
+        }
+        if request.request_id.is_empty() || request.request_id.len() > 128 {
+            return Err(invalid());
+        }
+        if self.has_provider_workers()
+            || self.command_workers.has_workers()
+            || self.data_workers.has_workers()
+            || self.graph_workers.has_workers()
+        {
+            return Err(CoreError::new(
+                "WORKSPACE_BUSY",
+                "Stop active source writers before reading integration targets",
+            ));
+        }
+        self.store
+            .prepare_integration_targets_read(params(request.params)?, raw)
+            .map(Some)
+    }
+    fn finish_integration_targets(&mut self) {
+        let Some((job, result)) = self.integration_workers.poll_targets() else {
+            return;
+        };
+        let response = (|| -> Result<Value> {
+            let request: Request = serde_json::from_str(&job.raw).map_err(|_| invalid())?;
+            if request.token != self.token
+                || request.api_version != API_VERSION
+                || request.method != "integration_targets.list"
+            {
+                return Err(CoreError::new(
+                    "AUTH_REQUIRED",
+                    "Integration targets request authentication changed",
+                ));
+            }
+            let proof = result?;
+            Ok(json!(proof.verify(&self.store, &job.raw, job.deadline)?))
+        })();
+        let response = match response {
+            Ok(value) => self.ready_success(&job.raw, value),
+            Err(error) => self.ready_error(&job.raw, error),
+        };
+        let _ = job.reply.try_send(response);
+    }
+    fn finish_integration_read(&mut self) {
+        self.finish_integration_targets();
+        let Some((job, result)) = self.integration_workers.poll_read() else {
+            return;
+        };
+        let response = (|| -> Result<Value> {
+            use crate::integration::IntegrationReadIntent as Intent;
+            let request: Request = serde_json::from_str(&job.raw).map_err(|_| invalid())?;
+            if request.token != self.token || request.api_version != API_VERSION {
+                return Err(CoreError::new(
+                    "AUTH_REQUIRED",
+                    "Integration request authentication changed",
+                ));
+            }
+            let proof = result?;
+            if Instant::now() >= job.deadline {
+                return Err(CoreError::new(
+                    "DEADLINE_EXCEEDED",
+                    "Integration observation arrived after the original request deadline",
+                ));
+            }
+            match proof.intent() {
+                Intent::Context(_) => {
+                    if request.method != "integration_context.get" {
+                        return Err(invalid());
+                    }
+                    proof.verify(&self.store, &job.raw, job.deadline)?;
+                    Ok(json!(proof.context()))
+                }
+                Intent::Proposal(_) => {
+                    let selection: crate::integration::IntegrationPolicySelection =
+                        params(request.params)?;
+                    Ok(json!(self.store.propose_integration_policy_observed(
+                        &selection,
+                        request.idempotency_key.as_deref().ok_or_else(invalid)?,
+                        proof,
+                        &job.raw,
+                        job.deadline
+                    )?))
+                }
+                Intent::Finalize {
+                    proposal_id,
+                    revision,
+                } => {
+                    let id = proposal_id.clone();
+                    let revision = *revision;
+                    self.store.finalize_integration_policy_observed(
+                        &id,
+                        revision,
+                        proof,
+                        &job.raw,
+                        job.deadline,
+                    )
+                }
+                Intent::Stage(_) => Err(CoreError::new(
+                    "AUTH_REQUIRED",
+                    "Only the private integration stage admission may consume this observation",
+                )),
+            }
+        })();
+        let response = match response {
+            Ok(value) => self.ready_success(&job.raw, value),
+            Err(error) => self.ready_error(&job.raw, error),
+        };
+        let _ = job.reply.try_send(response);
+    }
+}
+
+#[cfg(test)]
 #[path = "goal_stop_service_tests.rs"]
 mod goal_stop_service_tests;
 
 #[cfg(test)]
 #[path = "ipc_owner_read_queue_tests.rs"]
 mod owner_read_queue_tests;
+
+#[cfg(test)]
+mod conversation_wire_tests {
+    use super::*;
+
+    #[test]
+    fn conversation_create_is_taskless_and_closed() {
+        let payload = json!({"project_id":"p","title":"Discussion","workspace_id":"w","connection_id":"c","grant_id":"g"});
+        let parsed: CreateConversation = params(payload.clone()).unwrap();
+        assert_eq!(parsed.project_id, "p");
+        assert_eq!(parsed.title, "Discussion");
+        for field in [
+            "task_id",
+            "approved",
+            "caller_id",
+            "runtime_snapshot",
+            "require_enforcement",
+        ] {
+            let mut extra = payload.clone();
+            extra[field] = json!("untrusted");
+            assert!(params::<CreateConversation>(extra).is_err());
+        }
+        let mut missing = payload;
+        missing.as_object_mut().unwrap().remove("grant_id");
+        assert!(params::<CreateConversation>(missing).is_err());
+    }
+
+    #[test]
+    fn conversation_message_requires_exact_identity_and_closed_payload() {
+        let parsed: SendConversation =
+            params(json!({"conversation_id":"chat","text":"hello"})).unwrap();
+        assert_eq!(parsed.conversation_id, "chat");
+        assert_eq!(parsed.text, "hello");
+        assert!(params::<SendConversation>(json!({"session_id":"chat","text":"hello"})).is_err());
+        assert!(params::<SendConversation>(
+            json!({"conversation_id":"chat","text":"hello","grant_id":"other"})
+        )
+        .is_err());
+        assert!(params::<ConversationId>(json!({"conversation_id":"chat","force":true})).is_err());
+    }
+}
+
+#[cfg(test)]
+mod background_wire_tests {
+    use super::*;
+    #[test]
+    fn background_owner_read_rejects_mutation_envelopes_and_scoped_credentials() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::open(&dir.path().join("db")).unwrap();
+        let identity = crate::background_status::BackgroundIdentity::after_store_open().unwrap();
+        let base = json!({"api_version":1,"request_id":"client-a","token":"owner","method":"system.background","params":{}});
+        let read = |v: Value| {
+            let r: Request = serde_json::from_value(v).map_err(|_| invalid())?;
+            background_read(&r, "owner", &store, &identity, false)
+        };
+        let first = read(base.clone()).unwrap();
+        if let Some(path) = std::env::var_os("AGENTBATON_BACKGROUND_STATUS_FIXTURE") {
+            std::fs::write(path, serde_json::to_vec_pretty(&first).unwrap()).unwrap();
+        }
+        let mut next = base.clone();
+        next["request_id"] = json!("client-b");
+        assert_eq!(first, read(next).unwrap());
+        let changes = store.conn.total_changes();
+        for (field, value) in [
+            ("expected_revision", json!(0)),
+            ("idempotency_key", json!("key")),
+            ("params", json!({"start":true})),
+            ("params", json!([])),
+            ("method", json!("system.snapshot")),
+        ] {
+            let mut bad = base.clone();
+            bad[field] = value;
+            assert!(read(bad).is_err());
+        }
+        let mut bad = base.clone();
+        bad["token"] = json!("scoped-token");
+        assert_eq!(read(bad).unwrap_err().code, "AUTH_REQUIRED");
+        let scoped = json!({"api_version":1,"request_id":"scoped","handle_id":"handle","scoped_token":"scoped-token","method":"system.background","params":{}});
+        assert!(serde_json::from_value::<Request>(scoped.clone()).is_err());
+        let _: FactoryScopedRequest = serde_json::from_value(scoped.clone()).unwrap();
+        assert!(read(scoped).is_err());
+        assert_eq!(store.conn.total_changes(), changes);
+    }
+}

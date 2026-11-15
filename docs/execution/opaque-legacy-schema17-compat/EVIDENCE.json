@@ -1,0 +1,70 @@
+{
+  "base_commit": "4f962940533241fdec74b96a87c01a99788a62ee",
+  "branch": "codex/opaque-legacy-schema17-compat",
+  "original_failure": {
+    "source": "parent-reported actual execution, not rerun by source author",
+    "log": "/workspace/.onboarding/integration17-current-migration-targets1/command.log",
+    "sha256": "6dc13459134eb2e284a1bc4d41a6ac492d4ae9e0d408fc3f846c8d676a65d0fd",
+    "target": "command_validation_migration",
+    "passed": 6,
+    "failed": 1,
+    "failure": "real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_and_blob: INPUT_CHANGED exact table set"
+  },
+  "static_checks": [
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 crates/core/src/integration_store.rs crates/core/tests/integration_schema17.rs",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "failed_tool_attempt": {
+    "command": "rustfmt without explicit RUSTUP_HOME",
+    "result": "could not create /home/agent/.rustup: read-only filesystem; corrected workspace toolchain env, no escalation"
+  },
+  "new_test_source": {
+    "functions": 5,
+    "generated_negative_variants": 20,
+    "negative_versions": [
+      16,
+      17
+    ],
+    "status": "not_run"
+  },
+  "not_run": [
+    "Cargo/type checking",
+    "actual SQLite migration/rollback/backup execution",
+    "original schema7 regression",
+    "historical producer generation",
+    "Actor/Node/browser",
+    "network/remote/CI",
+    "macOS/native",
+    "real Provider",
+    "independent re-review of P2 patch"
+  ],
+  "authority": "AB-START-001; source author static-only task; no permission changes",
+  "requirement_ids": [
+    "AB-SEC-007",
+    "AB-COR-002"
+  ],
+  "source_sha256": {
+    "crates/core/src/integration_store.rs": "0ca5326c0d818e08fb8d2f9448839f0d0537b705915374a941ba33aa9f9fee08",
+    "crates/core/tests/integration_schema17.rs": "f0874d4b09ec14dacce01ee2e2b04e1c1398f36db04313778db820b67c2df0fb"
+  },
+  "review_feedback": {
+    "severity": "P2",
+    "finding": "ordinary opaque pragma_table_list could shadow unparenthesized SELECT metadata source",
+    "fix": "direct PRAGMA main.table_list; same-name ordinary content remains opaque",
+    "negative_source": "RTREE virtual/shadow type forgery, versions16 and17",
+    "positive_source": "harmless same-name ordinary table preserved across16 migration and17 reopen",
+    "status": "implemented_source; re-review and execution pending"
+  },
+  "root_actual_verification": {
+    "source": "107f72cd150cbbf11b58c55eddc4e95fc3a76bbc",
+    "result_ref": "docs/execution/authorized-integration/MIGRATION_COMPAT_RESULTS.json",
+    "sha256": "f7216d194980bc31ca7f154d4969cdbf100f5f08e4982ee4823dc07847989a99",
+    "dimension": "Actual Linux only; independent source review and all retained failures remain separate; not Native/Mac/full acceptance"
+  }
+}

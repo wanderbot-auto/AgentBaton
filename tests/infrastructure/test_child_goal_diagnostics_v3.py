@@ -180,8 +180,38 @@ class V3DiagnosticsTests(unittest.TestCase):
         self.assertIn('if call is None:return None',text)
         for forbidden in ('host.wire','host.result','time.sleep','os.kill','os.waitpid'):
             self.assertNotIn(forbidden,text)
-        collector=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='collect_graph_records')
-        self.assertIn("finite_projection.check_graph_provider_argv(argv,row['provider_argv'],old is not None)",ast.get_source_segment(source,collector))
+        from tests.infrastructure.test_graph_observation_handshake import strip_composed_outer_layer
+        historical=strip_composed_outer_layer(source,'theirs')
+        old_tree=ast.parse(historical)
+        old_collector=next(n for n in old_tree.body if isinstance(n,ast.FunctionDef)and n.name=='collect_graph_records')
+        self.assertIn("finite_projection.check_graph_provider_argv(argv,row['provider_argv'],old is not None)",ast.get_source_segment(historical,old_collector))
+        # The actual collector delegates to Root's unchanged strong binding;
+        # the finite bridge can annotate only its existing closed refusal.
+        functions={n.name:n for n in tree.body if isinstance(n,ast.FunctionDef)}
+        collector=functions['collect_graph_records']
+        self.assertIn('bind_graph_observation(fixed, row[',ast.unparse(collector))
+        finite=functions['graph_finite_observation'];binding=functions['bind_graph_observation']
+        env={'Path':Path,'base':types.SimpleNamespace(write_private_json=lambda *args:None),
+             'require':lambda value,*args:None if value else (_ for _ in ()).throw(AssertionError('original binding refused')),
+             'graph_valid_identity':lambda value:True,'publish_graph_binding_ack':lambda *args:None}
+        exec(compile(ast.Module(body=[finite,binding],type_ignores=[]),'<actual-closed-finite-binding-bridge>','exec'),env)
+        fixed={'path':'synthetic-record','owned_provider':{'pid':2001}}
+        for kind,reason in [('empty','empty'),('oversize','oversized'),('missing_nul','missing_nul'),('mismatch','argv_mismatch'),('invalid_utf8',None)]:
+            # Empty identity metadata is tested above; this branch tests only
+            # the original refusal→closed argv diagnostic→same assertion order.
+            observation={'argv':{'kind':kind},'before':{},'after':{}}
+            result={'kind':'not_verified','binding':None,'stop_proved':False}
+            env['observe_graph_identity']=lambda *args:(copy.deepcopy(result),copy.deepcopy(observation))
+            env['graph_empty_identity_diagnostic']=h['graph_empty_identity_diagnostic']
+            recorder=P.FiniteRuntimeDiagnostics()
+            with self.subTest(kind=kind),self.assertRaises(AssertionError):
+                env['bind_graph_observation'](fixed,[],None,{},Path('/synthetic'),recorder)
+            value=recorder.snapshot()['graph_provider_argv']
+            self.assertEqual(value,None if reason is None else {'reason':reason,'previously_bound':False})
+        for kind in ('initial_live','repeat_live','repeat_terminal'):
+            recorder=P.FiniteRuntimeDiagnostics()
+            env['graph_finite_observation'](recorder,None,{'kind':kind},{'argv':{'kind':'valid'}},None)
+            self.assertIsNone(recorder.snapshot()['graph_provider_argv'])
 
 
 if __name__=='__main__':unittest.main()

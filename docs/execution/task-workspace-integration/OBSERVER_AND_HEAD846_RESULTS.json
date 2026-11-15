@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T20:52:06.900099+00:00",
+  "source": "8600c2b4e8be5cae5c13b04ff7462cd07368e3a8",
+  "requirements": [
+    "AB-TSK-007",
+    "AB-TSK-008"
+  ],
+  "change": "Test-only closed error classifier/case labels and owned generated TempDir retention on panic. Missing file remains a hard failure; no retry, skip, repair, production path, authority or migration changes. Lost unread-response fixture remains from8bc; original exact-payload/CAS/receipt/no-execution assertions unchanged.",
+  "actual": {
+    "Core_13": {
+      "result": {
+        "source": "8600c2b4e8be5cae5c13b04ff7462cd07368e3a8",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-plan-reuse-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-plan-reuse-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-plan-reuse-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "task_workspace_binding::tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 29.692979504994582,
+        "minimum_free_bytes": 3129376768,
+        "interruption": null,
+        "log_sha256": "7620e925dcc6a778699cbdb35ccd739db09eb5387057bbb6c922ef5c874aa313",
+        "summaries": [
+          "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 197 filtered out; finished in 9.06s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "648fd35755b413afe75d27ff8f6607d55c6730f4bfdcb33da58b4070c10585e0",
+      "inputs_sha256": "a68d917e0dc92243815a9398784e31ad47def333b9b7b507e7c893ed2fcce314"
+    },
+    "infrastructure_366": {
+      "result": {
+        "source": "8600c2b4e8be5cae5c13b04ff7462cd07368e3a8",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "exit": 0,
+        "seconds": 12.232665007002652,
+        "minimum_free_bytes": 3128930304,
+        "interruption": null,
+        "log_sha256": "b564c2e74fcc0058c6c783cf6aad8e4702b09a5e479b7733d6aae7908869ecb4",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "96d73b4ed755b0ab1ce4ceda778358981ac503c6d4cfb9ad4f5b5c7237510e4c",
+      "inputs_sha256": "86be965c5226657e8534e3b338f36a6a92f3b49db4f968fff54752a7b664f61c"
+    },
+    "IPC_4_prior8bc": {
+      "result": {
+        "source": "8bc17f4397a8554b53223a0f1c63595f705ecf77",
+        "root": "/workspace/.worktrees/task-workspace-integration",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-plan-reuse-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-plan-reuse-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-plan-reuse-normal-frozen1/baton",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "task_workspace_binding_ipc",
+          "--",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "seconds": 20.868884003022686,
+        "minimum_free_bytes": 3175227392,
+        "interruption": null,
+        "log_sha256": "5d6020f643ba30ebb6cbadd3708bd0edec99b3d1f499d630761e741d7bb3cff9",
+        "summaries": [
+          "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.43s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      },
+      "result_sha256": "b3dcdd80676dfda4b7297057805d1507e7651434569b57b804bc0d21984a8a23",
+      "inputs_sha256": "73bb8cde7ba3c8e97f5c72a89cb40e1f575e91deb4adc81b21f9d5883634169d"
+    }
+  },
+  "independent_review": {
+    "observer": {
+      "sha256": "ed60da14a233040fd5168a0261205ab8234a695f7dd2784f3b3102d3043916a1",
+      "source_sha256": "26e90db36b4f6a2ae9077f6914800b704c5fc7b8075da7f5b1dd52c46f5884aa",
+      "source_checks": 56,
+      "status": "SOURCE_READY"
+    },
+    "unread_response": {
+      "sha256": "daac8866237dd826f09ad371f80204ce2247eae99055e829ab9b100bdafdc205",
+      "source_checks": 31,
+      "status": "SOURCE_READY"
+    }
+  },
+  "exact_remote_CI": {
+    "head": "84686534d9761b6ca033aa814c95ba7e145e6f82",
+    "Environment": {
+      "run": 41238532911,
+      "conclusion": "success",
+      "lanes": 3
+    },
+    "Product": {
+      "run": 41238532886,
+      "conclusion": "failure",
+      "Rust": {
+        "job": 124647302412,
+        "conclusion": "success"
+      },
+      "UI": {
+        "job": 124647302348,
+        "conclusion": "success"
+      },
+      "ARM": {
+        "job": 124647302374,
+        "conclusion": "failure",
+        "first_error": "Core replaced_workspace_and_cleared_binding_history_cannot_reassign_or_repeat_creation line154:49 symlink_metadata unwrap Os2 NotFound; 209 passed/1 failed. Exact missing entry not retained by original fixture. Secondary evidence retention failure is not first cause.",
+        "log_sha256": "7029ec20928f36e0dff0247e3e05e456692085a17003708a3fe1c2cd2ef1cb13"
+      },
+      "Intel": {
+        "job": 124647302467,
+        "conclusion": "failure",
+        "first_error": "Factory rework line470:25 REWORK_REVISION2_TERMINAL plan2/run12 blocked, false acceptance;29 passed/1 failed; daemon ok/joined.",
+        "log_sha256": "38e6768edd36c7c15320dc10fe1ae81df5b93a7eebd359c7b56c9b77a4128803"
+      }
+    },
+    "development_installers": "not produced by failed native lanes; no current Mac acceptance"
+  },
+  "Intel_finite_evidence": {
+    "artifact_id": 13056922920,
+    "zip_sha256": "c3511ae8f6bd72259906ac886d9b744fdf800397ac4b4e6a1e5ee0b1ebee4e2c",
+    "finite_json_sha256": "7b265a132cbc5a52fcfe12c06c9e11916ed7b2ed71f0123f84d177cc7986cef8",
+    "extraction": "official archive digest/size, bounded ZIP paths/types/count/total checked; only finite JSON selected; no raw database replay or publication",
+    "last_readonly_observation": {
+      "approved_scope_remaining_ms": 24643,
+      "call_elapsed_ms": 2372,
+      "call_number": 26,
+      "configured_actor_request_budget_ms": 60000,
+      "configured_client_read_timeout_ms": 5000,
+      "list_progress": {
+        "cancel_requested": false,
+        "failure_code": "REWORK_REVISION2_TERMINAL",
+        "plan_digest_matches": true,
+        "plan_revision": 2,
+        "run_plan_revision": 2,
+        "run_revision": 12,
+        "run_state": "blocked",
+        "run_task_accepted": false,
+        "summary_count": 1,
+        "task_accepted": false
+      },
+      "method": "factory_child_goals.list",
+      "method_calls": {
+        "factory_child_goals.get": 0,
+        "factory_child_goals.list": 18,
+        "factory_runs.get": 8
+      },
+      "method_total_elapsed_ms": {
+        "factory_child_goals.get": 0,
+        "factory_child_goals.list": 30290,
+        "factory_runs.get": 734
+      },
+      "node_count": null,
+      "observation_overdue_ms": 0,
+      "observation_remaining_ms": 23287,
+      "phase": "wait_rework_awaiting_owner",
+      "plan_revision": null,
+      "received_before_original_deadline": true,
+      "reply_is_error": false,
+      "reply_object_supplied": true,
+      "reply_revision": 130,
+      "run_completed": null,
+      "run_outcome_unknown": null,
+      "run_revision": null,
+      "scenario_elapsed_ms": 38178,
+      "stage": "response_received",
+      "wall_ms": 1793479315967
+    },
+    "associated_events": {
+      "code": "same_observed_run_revision",
+      "events": [
+        {
+          "actual_output_bytes": 20,
+          "actual_runtime_ms": 4092,
+          "capture_join_observed_queue_ms": 529,
+          "capture_state": "failed",
+          "capture_timing_status": "observed",
+          "capture_worker_completed_queue_ms": 424,
+          "capture_worker_elapsed_ms": 0,
+          "capture_worker_joined": true,
+          "capture_worker_started_queue_ms": 423,
+          "io_completion": "worker_joined",
+          "kind": "goal.capture_settled",
+          "ordinal": 1,
+          "producer_elapsed_ms": 3563,
+          "producer_stop_confirmed": true,
+          "runtime_reservation_ms": 4000,
+          "task_accepted": false
+        }
+      ],
+      "observed_plan_revision": 2,
+      "observed_run_revision": 12,
+      "previous_node_settlement": {
+        "event": {
+          "actual_output_bytes": 20,
+          "actual_runtime_ms": 4092,
+          "budget_overrun": true,
+          "kind": "goal.node_settled",
+          "node_state": "candidate",
+          "observed_runtime_lower_bound_ms": 4092,
+          "stop_confirmed": true,
+          "task_accepted": false
+        },
+        "run_revision": 11,
+        "same_observed_revision": false,
+        "same_plan_not_established": true,
+        "settled_session_stop": {
+          "completed_turn_count": 1,
+          "no_process_started": false,
+          "process_reaped": true,
+          "status": "observed",
+          "stop_reason": "cancelled",
+          "turn_completed": true,
+          "turn_completed_basis": "derived_from_same_session_turn_state",
+          "turn_status": "observed"
+        }
+      },
+      "prior_capture_settlements": [],
+      "settled_session_stops": [],
+      "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+      "status": "collected_historical_events"
+    },
+    "budget_usage": {
+      "child": {
+        "settled_actual_runtime_ms": 16726,
+        "settled_count": 4,
+        "settled_runtime_unknown": false,
+        "unsettled_count": 0,
+        "unsettled_reserved_runtime_ms": 0
+      },
+      "code": "existing_ledger_and_child_records",
+      "not_an_authority_or_admission_verdict": true,
+      "project": {
+        "actual_runtime_ms": 19602,
+        "observed_attempts": 6,
+        "runtime_unknown": false
+      },
+      "root": {
+        "actual_runtime_ms": 19602,
+        "observed_attempts": 6,
+        "runtime_unknown": false
+      },
+      "snapshot_time": "post_owned_shutdown_not_admission_instant",
+      "status": "collected_post_shutdown_budget_facts"
+    },
+    "interpretation_limit": "Observed producer3563ms + capture queue529ms =4092ms exceeds unchanged4000ms; worker starts423ms/completes424ms/elapsed0ms. Queue includes preparation/admission and scheduling; not proven pure Actor idle. Historical stop receipt is not same-plan or new authority. Original unknown/overrun rejection remains required."
+  },
+  "not_run": [
+    "new860 exact CI",
+    "Mac reproduction of missing entry",
+    "Mac corrected unread-response verification",
+    "current dual-architecture installers"
+  ],
+  "full130_complete": false
+}

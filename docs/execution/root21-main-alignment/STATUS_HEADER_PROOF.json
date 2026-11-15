@@ -1,0 +1,7 @@
+{
+  "status_before_header_sha256": "25bf031c97c00e33900c9c820846d50ef466f84998a21efd6593b74f6eca4fd2",
+  "header_bytes": 1177,
+  "after_sha256": "fc67191488d7697d3d02cd06e9b071e0e24136319698477c13819e81a5f5050e",
+  "reviewed_entire_prior_status_unchanged_suffix": true,
+  "prior_docs_proof_sha256": "d9ef91adf6c126a9a6a631eac436332a32d6c3b5ca2ecec40cc2be689a7ee1bc"
+}

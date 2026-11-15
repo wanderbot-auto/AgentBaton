@@ -1,0 +1,58 @@
+{
+  "contract": "agentbaton.pr19.squash-marker-independent-after-review.v1",
+  "verdict": "SOURCE_READY_ACTUAL_MARKER_CONTENT_PRESERVED",
+  "formal_approval": false,
+  "blocking_findings": [],
+  "fixed_marker": "19e9eb275e4e76ada50f93d036003e3ffa2b2ba1",
+  "first_parent": "5dd4a72d9b6ddaec5aff9c6214202c5a40e36eaa",
+  "second_parent": "7ecf0c51e53de26cb443b328ad660b4b1f491e5a",
+  "complete_before_after_tree": "58f9d66f6f43b892e75b8418a3fb551746db6819",
+  "file_delta": [],
+  "conclusion": "Actual marker records the exact already-integrated PR18 squash ancestry and preserves the immediate premarker complete tree; this is not protected-main merge or new PR19 runtime/CI acceptance",
+  "independent_checks": [
+    "Actual marker Git object has exactly the two required ordered parents and identical premarker tree",
+    "Approved ae42 was ancestor of the premarker; ae42 and exact squash7ecf are ancestors of the marker",
+    "Exact protected squash and original ae42 whole trees match b6bdb713755a427827baa76533ad5391304a4d52",
+    "Separate ADR/proof commit5dd parent72fc changes exactly three docs and preserves all copied artifact bytes/hashes",
+    "Root actual3 report hash7cda860... matches Git object/tree/parents and records exact before/after fresh main7ecf",
+    "Raw and normalized Owner Inbox hashes independently recomputed; original proof1 label error explicitly corrected in retained proof2/3",
+    "Original proof1/2 hashes preserved and checked; metadata72fc independent SOURCE_READY hash763d18... checked",
+    "Tracked worktree/index unchanged; only preexisting untracked node_modules symlink remains"
+  ],
+  "proof": {
+    "path": "/workspace/.onboarding/pr19-safe-squash-marker-actual3.json",
+    "sha256": "7cda860997816741e81df8c1d8c2df4d43c0fd7ced21d9be0e8a0281373b2e5c"
+  },
+  "check_artifact": {
+    "path": "/tmp/pr19-safe-squash-marker-after-check.json",
+    "sha256": "0715d166a2690f28e8a493433741b4cea0c182fe303c969d1ee0a65be0c5bb3c"
+  },
+  "retained_proof_history": [
+    {
+      "path": "/workspace/.onboarding/pr19-safe-squash-marker-actual1.json",
+      "sha256": "856c034fcd808c0114412e9bfd3983047403103481dd517ccba70f67ddf9e5c3"
+    },
+    {
+      "path": "/workspace/.onboarding/pr19-safe-squash-marker-actual2.json",
+      "sha256": "75e70694b934390857f4aa1f9b6188a9fefc58d8a4ead6ec09db617ab14038a6"
+    }
+  ],
+  "freshness_scope": "Root actual3 records before and after remote observations; this reviewer used no network and did not independently repeat them",
+  "root_actual_after_remote_fields": {
+    "fresh_remote_main": "7ecf0c51e53de26cb443b328ad660b4b1f491e5a",
+    "fresh_remote_main_observed_at": "2026-10-31T08:15:19.404917+00:00"
+  },
+  "not_performed": [
+    "network/fresh remote query",
+    "SQL/product process/Cargo/Node/browser/tests",
+    "new exact PR19 CI/native/installers",
+    "Root source/index edits",
+    "commit or marker merge",
+    "formal GitHub Approve or protected-main merge"
+  ],
+  "remaining_conditions": [
+    "Normal protected PR19 exact-candidate checks/review and fresh target validation still required",
+    "Any new main SHA requires ordinary review/integration; prior exact7ecf decision is not reusable",
+    "No full130/Provider/remote/signing/production completion inferred"
+  ]
+}

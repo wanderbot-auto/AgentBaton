@@ -1,0 +1,76 @@
+## Actual846 failures and860 test observer checkpoint — 2026-10-31
+
+Exact846 Environment41238532911 passes all3; Product41238532886 is terminal failed despite Rust/UI pass. ARM Core209/1 fails on an unidentified symlink_metadata NotFound entry, distinct from the earlier dropped-write IPC failure. Intel Factory29/1 is plan2/run12blocked with real4092ms runtime above unchanged4000ms: producer3563ms, capture queue529ms, actual worker0ms. These observations do not establish a shared cause, pure Actor idle, or a permission to discount costs. Native acceptance/build/installers remain blocked.
+
+Reviewed860 test-only closed diagnostics retain only generated roots on panic and still fail on missing entries. Exact860 Core13 and infrastructure366 pass; prior8bc real UnixIPC4 remains source-bound. No refusal, budget, authority, migration or assertion was removed. [Source-bound evidence](OBSERVER_AND_HEAD846_RESULTS.json). Next: source-trace capture preparation/frontier costs, make a reviewed bounded change only if justified, then one exact remote candidate; preserve all failed logs. Full130 remains incomplete.
+
+## Explicit commit-with-unread-response fixture — 2026-10-31
+
+Exact8bc17f4 passes all4 Task binding real UnixIPC cases; independent review daac8866 checks31 source predicates and exact whole-file inverse. Keep the original5s durable observation and every stable-payload/CAS/receipt/no-execution assertion. [Source-bound evidence](UNREAD_RESPONSE_RESULTS.json). No Mac or production-root-cause claim. Remote846 Environment has passed; its Product remains a separate candidate and local8bc has not been pushed.
+
+## PR19 exact-main ancestry verified; own CI next — 2026-10-31T08:16:48.963781+00:00
+
+The reviewed content integration23d and local regressions remain source-bound. Protected main7ecf exactly equals approved Parent18 ae42's complete tree; a genuine prior merge already included ae42. After a separate reviewed ADR/proof commit, marker19e9 records7ecf ancestry with exactly zero file changes and an identical immediate before/after tree. Independent after-review ecb381308d1886562bf64914e7fb5c10e2b6806c3ec96a4334c607a000853a7b confirms ordered parents and ancestry. [Actual proof](SQUASH_ANCESTRY_ACTUAL_PROOF.json) retains the earlier Owner digest-label correction; raw and normalized text hashes are explicit. No Owner instruction changed.
+
+PR19 will be retargeted to main and pushed normally for its own exact-candidate Environment/Product/native/dualMac checks. These are pending, and Parent18's successful packages do not certify schema16. Full130 and all permission limits remain unchanged; no formalApprove or protected-main action was performed by this marker.
+
+## Parent18 merged; schema16 current regression verified — 2026-10-31T08:03:57.927916+00:00
+
+PR18 was normally protected-squash merged as7ecf0c5 after exact ae42 checks and independent review. PR19 source23d normally merges original ae42 and keeps strict16 history reads (15/17 refused). Actual210 Core (11history subset),33 Factory,58sessions,9Task targets,6genuine14 and5fresh genuine15 migrations pass; strict workspace/alltargets and migration Clippy/fmt pass. Type/build and1069 UI/59files plus342 infrastructure pass. All6 actual Chromium/React→normalCore16 UnixIPC scenarios/8originalPNG pass with genuine daemon wait0/cleanupcomplete; Root inspected2 originals. No NativeMac/Provider result is inferred.
+
+Preserve old stale-helper5failure, sparse-checkout342/1failure and initial0matched filter. Complete checkout source/index unchanged; fresh genuine15 input came from immutable original old15 binaries. [Exact commands and evidence](PARENT_AE42_COMPOSED_RESULTS.json). PR19 retarget/ancestry marker and exact new CI/dualMac/installers remain pending. Owner001/002 ACK/no003; full130 incomplete and all authority limits unchanged.
+
+## Parent674d schema16 actual regression — 2026-10-30T06:44:24.923165+00:00
+
+Exact2e preserves strict16 and both reviewed histories; merge source audit176 assertions/72 pure Python is separate from product tests. Actual2e Core166PASS104.19s (nested helper excluded), Factory30PASS105.45s, infrastructure241PASS, format and strict workspace/all-targets Clippy pass. First Factory build capacity SIGTERM/-15 ran no tests; full result/log and subsequent lossless cache archive68 are retained before unchanged-source retry. Explicit16 immutable tools are separately pinned before/after; generic runner INPUT15 is not the actual overridden16 environment.
+
+Historicalbc10 six real browser/UnixIPC paths/8 PNGs PASS9.039s and frontend1016/56 retain original source attribution. Production TS/Native/Task binding/migration bytes are unchanged; no new2e paired browser, Native, Mac or package pass is claimed. Parent60ba Environment/Rust/UI passed, Intel failed Factory rework revision2/resource admission; ARM still running at this record. Parent CI is not schema16 evidence. PR20 SourceCapture and ongoing Core17 integration remain separate. Exact16 CI/native/dual-Mac artifacts and full130 acceptance remain open; OWNER001002 ACK and authority boundaries unchanged. See PARENT_674D_COMPOSED_RESULTS.json.
+
+## Reviewed Parent34f composition verified on schema16 — 2026-10-30T04:13:18.951553+00:00
+
+Exact bc10 keeps the reviewed Parent34f containment/Graph-service/fixture fixes and the Task schema16/default-entry recovery. Only STATUS/manifest conflicts needed explicit resolution; both histories and93 actual hashes are preserved. Independent source/merge audit is sealed (6226c9d3be91/6f3b9e32858b);2047 Git/source assertions are not product tests.
+
+Actual matched bc10: Factory30PASS106.49s, Core156PASS103.44s (nested helper excluded), infrastructure235PASS; actual same-head frontend/type and Core evidence-tool rebuilds pass. All6 real browser/UnixIPC paths pass9.039s with8 original PNGs, cleanupcomplete/daemonwait0 and unchanged assets/tools. Finite metadata publication is not an extra product pass; Root viewed original07. Explicit16 tools match immutable pins; generic runner INPUT15 is not the explicit16 execution. Prior1016/56 frontend tests and genuine14/15→16 migration results retain their own source attribution, productionTS/migrations unchanged.
+
+Parent34f remote is Environment3/UI/Rust/ARMpass, Intel original4000ms capture budget failure; wholeProductfailed. ARMartifact12953590846 is metadata-only here, not a verified installer and never schema16 evidence. Own exact16 CI/native/dual-Mac/audit/packages remain unrun. Later Root diagnostics are not composed. Full130/adoption/remote scope continues; OWNER001002ACK/main653679d and all authority boundaries unchanged. See PARENT_34F_COMPOSED_RESULTS.json.
+
+## Default coding workspace entry and six actual paths — 2026-10-30T03:29:42.183153+00:00
+
+Fresh draft Git Tasks now enter their own isolated workspace preparation from execution setup. While preparation is unknown/pending, the original same-key recovery stays mounted through parent refresh and new Grant/session remain blocked; after explicit recovery, independent fresh Task/scope reads lock the recorded workspace. Other project kinds/historical views preserve their existing explicit behavior. Root old3counterexamplesFAIL and new3PASS are separately retained; fullNode1016/56 at363 and actualtype/build pass, with productionTS unchanged through this checkpoint. Independent293 review closes that P2.
+
+Actual current115 Core16+frontend rebuilt as a matched pair; driver483 now passes all6 browser/UnixIPC scenarios in8.930s with8PNGs/cleanuptrue/daemonwait0. B06 confirms sameDOM/key lostreply→parentrefresh→explicitrecovery→fresh binding, both earlier working trees/source unchanged and zero new execution authority. Root viewed original07/08. Finite publisher passes strict6/8 and exposes no private history; driver58pure and fullinfrastructure227 pass. Original115 setupFAIL3checks remains: privateTask3 creation needed existingreadonlyAppbarRefresh, not a newproductionpoll or a larger deadline. Originaloldworkingtree/growing-read source findings also remain.
+
+Parentd514 composition f91 independently verified exact16/reject15+17 and93hashes; actualFactory26PASS82.32s/Core156PASS102.95s (nested1notadditive), Rust/Cargo source unchanged through this checkpoint. Rootnew34f inCI is not yet composed here, and no16remote/nativeMac/package result is claimed. See DEFAULT_WORKSPACE_ENTRY_AND_SIX_PATHS_RESULTS.json. Full130 and authorization boundaries remain; main653679d/OWNER001002ACK/no003.
+
+## Parentde0b exact16 composition locally verified — 2026-10-30T00:10:01.983268+00:00
+
+Composed bc86 actual Factory26PASS83.78s, fullinfra192PASS (includes66collector controls), allworkspace/alltargets strictClippy and format passed. Initial Cargo compiled17.86s but the running test group reached the150MiB external reserve; original interrupted logs/ELF/DB remain, not passed. Generated rlib was SHA-roundtrip archived, then the exact unchanged compiled test ELF executed all26 with explicit pinned schema16tools and unchanged source. New actual joined16 snapshot finite CLI passed, as did separate prior16 retained input. No test/threshold/production policy was weakened, and no timer comparison proves a performance gain.
+
+Independent integration review7fa6 confirms entire collector differs from de0b only in exact16, old15/future17 rejection/66controls preserved, and both STATUS histories plus all93manifest paths retained. New parent Runtime b651 source review and P2receipt/ledger closures remain separately bound. Original Core156/migrations/fiveactualbrowser/995Node evidence is not re-labelled as replay. See PARENT_DE0B_COMPOSED_RESULTS.json.
+
+Parentde0b exactEnv3PASS/ProductUIFAIL at strict previously-bound provider cmdline exit race; Rust/bothMac still running. Root is fixing only that harness guard via a separate source tree, no duplicate active CI. PR19 remains dependent/draft/unmerged, no own16CI/native/Mac/installers accepted. Full130/defaultcoding/childisolation/adoption/remote remain. main653679d/OWNER001002 ACK, no new authority.
+
+# 可恢复检查点
+
+2026-10-29T22:23:32.173082+00:00
+
+当前分支codex/task-workspace-integration，最新产品验证source e313b98，后80c63a5仅整合作者P2记录；Root实际证据见EVIDENCE.json。未开本分支PR，父PR18 draft/open/unmerged、准确727双Mac返工失败。main653679d/OWNER001/002已ACK，无003。
+
+下一步：第五真实浏览器场景源码→独审→Root同源e313工具与前端实跑；保留原四断言和0execution。父分支有限诊断收集器继续，不放宽55/60/30/5/60。所有适用CI/双Mac/native/release隔离与新16开发包待实际执行；完整130未完成。
+
+临时owned apps/desktop/node_modules符号链接仅复用等锁依赖，Node窗口后移除这个链接；不删除原依赖。私有无损缓存压缩保留全部字节及mode/mtime/SHA，原失败ELF/DB/旧工具不清理。没有额外支出、账号/凭据、生产、签名或正式Approve动作。
+
+
+## 新五场景实际通过
+
+2026-10-29T22:31:20.443289+00:00：Root在6c0908执行新5场景7.020026s/六PNG、清理/回收完整；compiledCore和前端均e313，四次[2,1,2,1]执行对话框freshTask/defaultownbinding，0Grant/session，原B01-04全保。Root看过05桌面/06手机。独审09074a源与纯检查，不冒独立重跑。新发现CI rawprivate-output上传边界P2在修，不阻本地事实但阻CI候选。PR19草稿依赖PR18，未合入；完整130和Mac16/Native未完成。详见ACTUAL_FIVE_BROWSER_RESULTS.json。
+
+
+## CI私有边界修订已整合、未推送
+
+Root接线改为RUNNER_TEMP private logs和exactcandidatehash的single-link500工具副本；不chmod原Cargo target。有限Task投影bf241有界PNG修订待独审，随后Root真实报告/六PNG投影与CI函数全量边界审。原7fbd PNG不合法接受反例保留，旧29/新33纯控不加总。PR19仍draft依赖18；parent a866新Environment双Mac3fail/28errors正在fixturealias诊断，Product尚在跑，不能转签/重触取消。
+
+
+## Parent7ac与完整本地组合核验
+
+2026-10-29T23:25:30.430636+00:00：已合Parent7ac且保exact16 guard；actualFactory26PASS82.97s(含编译100.284s)/alltargetsstrictClippy14.357s/fmt通过c1，新40event纯控制整合后全infra166PASS c961。真16已join四文件同bytescopy collector有效postjoin，observed失败事件仍unknown不假造。Taskbf有限PNG/012private500+绝对输出接线独审、真实原报告/六图过滤通过，不冒新browser/CI。原完整149两次2fails2errors、166两次2/1FAIL保留：已恢复Git精确MD/JSON+修oldextractor+精确16assert，未放宽guard/忽略检查。详见POST_PARENT_COMPOSED_RESULTS.json。下一保存PR19新head，parent7ac七CI待结果；schema16 native/Mac/包未跑，完整130保持未完。

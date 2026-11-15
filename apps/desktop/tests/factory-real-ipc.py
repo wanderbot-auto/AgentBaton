@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Built Factory UI -> fixed test HTTP -> actual authenticated Core15 Unix IPC.
+"""Built Factory UI -> fixed test HTTP -> actual authenticated Core17 Unix IPC.
 
 Owner review/finalization and resource creation exist only in the private host
 fixture. Generated ACP/MCP is an account-free test program, never a real model.
@@ -46,7 +46,7 @@ MUTATIONS = frozenset({'factory_runs.start', 'factory_runs.cancel'})
 READS = frozenset({'system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
     'workspaces.list', 'grants.list', 'events.subscribe', 'goal_scopes.list',
     'factory_scopes.get', 'factory_scopes.list', 'factory_runs.get'})
-PENDING = ('Root immutable matching schema15 batond and sibling baton with manifest hashes',
+PENDING = ('Root immutable matching schema18 batond and sibling baton with manifest hashes',
     'Root actual composed built Factory frontend and asset hashes',
     'Core-author confirmation of actual Factory runtime/ledger and private MCP contract')
 
@@ -231,7 +231,8 @@ def diagnostic_snapshot(runtime, workspace, output, owner_token):
             result['schema'] = db.execute('PRAGMA user_version').fetchone()[0]
             names = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")]
             fixed = {'events','sessions','session_turns','attempts','dispatch_intents','workspace_leases',
-                'execution_grants','budgets','tasks','projects','managed_workspaces','connections','session_runtime_snapshots'}
+                'execution_grants','budgets','tasks','projects','managed_workspaces','connections','session_runtime_snapshots',
+                'integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences'}
             total = 0
             for name in sorted(n for n in names if n in fixed or n.startswith('factory_')):
                 assert re.fullmatch('[a-z_]+', name)
@@ -352,7 +353,7 @@ class FixtureControllerReaper:
 
 
 
-def _bound_identity_disappeared(old, fixed, field, before):
+def _bound_identity_disappeared(old, fixed, field, before, *, short_exit_observation=False):
     """Preserve validated history only; absence is NOT a Core stop/join receipt.
 
     Caller has just revalidated all files, nonce, Core session/turn/attempt and
@@ -363,11 +364,24 @@ def _bound_identity_disappeared(old, fixed, field, before):
     expected = fixed[field]
     if before['pid'] != expected['pid'] or before['start_ticks'] != expected['start_ticks']:
         return False
-    try:
-        after = support.proc_identity(expected['pid'])
-    except (FileNotFoundError, ProcessLookupError):
-        after = None
-    return after is None
+    # Linux may release an exiting process's argv before removing its stat
+    # entry. Only reobserve the exact already-bound identity. An extant
+    # process still fails, and a new PID birth always fails immediately.
+    deadline = time.monotonic() + (0.02 if short_exit_observation else 0)
+    for _ in range(5 if short_exit_observation else 1):
+        if short_exit_observation and time.monotonic() >= deadline:
+            return False
+        try:
+            after = support.proc_identity(expected['pid'])
+        except (FileNotFoundError, ProcessLookupError):
+            return not short_exit_observation or time.monotonic() < deadline
+        if after['pid'] != expected['pid'] or after['start_ticks'] != expected['start_ticks']:
+            return False
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False
+        time.sleep(min(.004, remaining))
+    return False
 
 
 def collect_started_records(runtime, workspace, scope, context, verified, output, reaper=None):
@@ -529,7 +543,9 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         # no signal, no inference of argv validity or stop/join.
                         deferred_bound_provider = True
                         continue
-                    if observed in (None, b'') and field == 'owned_provider' and _bound_identity_disappeared(old, fixed, field, current):
+                    if (observed in (None, b'') and field == 'owned_provider'
+                            and _bound_identity_disappeared(old, fixed, field, current,
+                                                           short_exit_observation=observed == b'')):
                         continue  # Keep the original binding, not a new argv or stop proof.
                     try:
                         assert observed is not None
@@ -1012,7 +1028,7 @@ def preflight(args):
     binary = args.batond.resolve(strict=True)
     raw = args.candidate_manifest.resolve(strict=True).read_bytes()
     manifest = json.loads(raw, object_pairs_hook=unique_object)
-    assert type(manifest.get('schema')) is int and manifest['schema'] == 15, 'Only integer schema15 candidate is Factory runtime evidence'
+    assert type(manifest.get('schema')) is int and manifest['schema'] == 18, 'Only integer schema18 candidate is Factory runtime evidence'
     companion = binary.with_name('baton').resolve(strict=True)
     for name, path in [('batond', binary), ('baton', companion)]:
         assert manifest['binaries'][name] == sha(path.read_bytes()), (name, 'frozen binary SHA mismatch')
@@ -1466,7 +1482,7 @@ def runtime_driver(args, output, attribution, prepared):
                     with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
                         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
                         report['observations']['actual_sqlite_schema'] = db.execute('PRAGMA user_version').fetchone()[0]
-                        assert report['observations']['actual_sqlite_schema'] == 15
+                        assert report['observations']['actual_sqlite_schema'] == 18
                         counts = support.current_factory_counts(db)
                         report['observations']['factory_record_counts'] = counts
                         assert counts['child_goal_runs'] == counts['child_plan_heads'] == counts['child_plan_revisions'] == 0
@@ -1920,7 +1936,7 @@ def main():
     args = parser.parse_args()
     assert sum([args.self_check, args.fixture_self_check, args.cleanup_self_check, args.diagnostic_self_check, bool(args.case)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
-    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 15}
+    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 18}
     if args.self_check:
         report = {**attribution, **boundary_self_check()}
         (output / 'boundary-checks.json').write_text(json.dumps(report, indent=2) + '\n')

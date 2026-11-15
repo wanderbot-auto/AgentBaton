@@ -1,0 +1,74 @@
+{
+  "recorded_at": "2026-10-31T20:36:01.359555+00:00",
+  "requirements": [
+    "AB-TSK-007",
+    "AB-TSK-008"
+  ],
+  "source": "8bc17f4397a8554b53223a0f1c63595f705ecf77",
+  "change": "Only test transport: send complete original authenticated frame, shutdown write, keep receive descriptor without reading until separate Tasks.get proves durable ready/advanced revision within original5s. Drop original response then recover original stable payload/key. Original CAS/receipt/rejection/no-execution assertions and all other cases stay unchanged.",
+  "scope_limit": "Does not claim full-close delivery, BSD root cause or a production fix. The intended commit-with-unread-response recovery case is explicit.",
+  "actual_result": {
+    "source": "8bc17f4397a8554b53223a0f1c63595f705ecf77",
+    "root": "/workspace/.worktrees/task-workspace-integration",
+    "command": [
+      "env",
+      "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+      "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/pr19-plan-reuse-normal-frozen1",
+      "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/pr19-plan-reuse-normal-frozen1/baton",
+      "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/pr19-plan-reuse-normal-frozen1/baton",
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "task_workspace_binding_ipc",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 20.868884003022686,
+    "minimum_free_bytes": 3175227392,
+    "interruption": null,
+    "log_sha256": "5d6020f643ba30ebb6cbadd3708bd0edec99b3d1f499d630761e741d7bb3cff9",
+    "summaries": [
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.43s"
+    ],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "result_sha256": "b3dcdd80676dfda4b7297057805d1507e7651434569b57b804bc0d21984a8a23",
+  "source_sha256": "27899ec5e2fd22f2e32434f7dcf0b339e853a89ae1e882c6d10a7b99366eaa1b",
+  "independent_review": {
+    "sha256": "daac8866237dd826f09ad371f80204ce2247eae99055e829ab9b100bdafdc205",
+    "checks": 31,
+    "status": "SOURCE_READY",
+    "actual_calls": 0
+  },
+  "old_failed_CI": {
+    "head": "60a5c63ecfb1afaa82c44c4b47a7057e90bdd370",
+    "Product": 41192343794,
+    "ARM": "TaskIPC3pass1fail durable-state observation expired",
+    "Intel": "Factory29pass1fail rework plan2/run12blocked",
+    "status": "retained failed, distinct causes not established"
+  },
+  "remote_CI_at_record": {
+    "head": "84686534d9761b6ca033aa814c95ba7e145e6f82",
+    "Environment": {
+      "run": 41238532911,
+      "result": "success"
+    },
+    "Product": {
+      "run": 41238532886,
+      "UI": "success",
+      "remaining": "last observed in_progress; not acceptance for local8bc"
+    }
+  },
+  "not_run": [
+    "Mac lost-response fixture revalidation",
+    "new exact8bc CI",
+    "current dualMac development installers"
+  ],
+  "full130_complete": false
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "baseline": "82773a3b78e9fbf0a5224b054c64d06ef90037f9",
+  "branch": "codex/historical-cargo-cache-isolation",
+  "requirement_scope": "CI reliability for genuine migration history; product authorization unchanged",
+  "changed_implementation_paths": [
+    ".github/workflows/product.yml",
+    "tests/infrastructure/test_schema17_migration_workflow.py"
+  ],
+  "implementation_sha256": {
+    ".github/workflows/product.yml": "d0e0dac00daeb1876c4160e138947a989c4a820387966c699d8ec8f1090bb21c",
+    "tests/infrastructure/test_schema17_migration_workflow.py": "21c540afef08693622e104e70f55a0ee3647ca6c7bde2425bf399dcc85da46b9"
+  },
+  "baseline_product_sha256": "4b7543d61e8846248e1b7474ff6fe15d64068612fadbd44f6fe7585933a3378d",
+  "actual_commands": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_schema17_migration_workflow.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.3272572650166694,
+      "dimension": "pure Python/YAML/static only",
+      "stdout_stderr": "test_build_and_generate_use_exact_source_builder_and_private_pair_before_current_build (test_schema17_migration_workflow.Genuine16WorkflowWiring.test_build_and_generate_use_exact_source_builder_and_private_pair_before_current_build) ... ok\ntest_exact_six_argument_reverse_normalization_retains_the_entire_old_workflow (test_schema17_migration_workflow.Genuine16WorkflowWiring.test_exact_six_argument_reverse_normalization_retains_the_entire_old_workflow) ... ok\ntest_existing_job_names_permissions_timeouts_and_matrix_are_retained (test_schema17_migration_workflow.Genuine16WorkflowWiring.test_existing_job_names_permissions_timeouts_and_matrix_are_retained) ... ok\ntest_missing_or_duplicate_target_arguments_fail_closed (test_schema17_migration_workflow.Genuine16WorkflowWiring.test_missing_or_duplicate_target_arguments_fail_closed) ... ok\ntest_older_fourteen_and_fifteen_gates_and_always_finite_publishers_remain (test_schema17_migration_workflow.Genuine16WorkflowWiring.test_older_fourteen_and_fifteen_gates_and_always_finite_publishers_remain) ... ok\ntest_required_gate_passes_manifest_file_and_executes_real_test_and_clippy_fail_hard (test_schema17_migration_workflow.Genuine16WorkflowWiring.test_required_gate_passes_manifest_file_and_executes_real_test_and_clippy_fail_hard) ... ok\ntest_reverse_normalization_does_not_hide_any_other_workflow_change (test_schema17_migration_workflow.Genuine16WorkflowWiring.test_reverse_normalization_does_not_hide_any_other_workflow_change) ... ok\ntest_shared_historical_or_current_targets_fail_closed_in_each_lane (test_schema17_migration_workflow.Genuine16WorkflowWiring.test_shared_historical_or_current_targets_fail_closed_in_each_lane) ... ok\ntest_three_historical_targets_are_distinct_from_each_other_and_current_target (test_schema17_migration_workflow.Genuine16WorkflowWiring.test_three_historical_targets_are_distinct_from_each_other_and_current_target) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.253s\n\nOK\n",
+      "log_sha256": "6f8ca4f4006e7e709ded17b52fc13f88a4d299541eb420a7ee336f7acb108637"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_runtime_policy.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.18926280399318784,
+      "dimension": "pure Python/YAML/static only",
+      "stdout_stderr": "test_actual_same_architecture_build_has_a_finite_60_minute_budget (test_runtime_policy.RuntimePolicyTests.test_actual_same_architecture_build_has_a_finite_60_minute_budget) ... ok\ntest_changed_runner_matrix_or_concurrency_cannot_borrow_budget (test_runtime_policy.RuntimePolicyTests.test_changed_runner_matrix_or_concurrency_cannot_borrow_budget) ... ok\ntest_exception_cannot_be_borrowed_by_environment_other_jobs_or_workflows (test_runtime_policy.RuntimePolicyTests.test_exception_cannot_be_borrowed_by_environment_other_jobs_or_workflows) ... ok\ntest_larger_zero_and_negative_budgets_are_refused (test_runtime_policy.RuntimePolicyTests.test_larger_zero_and_negative_budgets_are_refused) ... ok\ntest_missing_dynamic_and_malformed_timeouts_are_refused (test_runtime_policy.RuntimePolicyTests.test_missing_dynamic_and_malformed_timeouts_are_refused) ... ok\ntest_ordinary_job_bound_is_preserved (test_runtime_policy.RuntimePolicyTests.test_ordinary_job_bound_is_preserved) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.101s\n\nOK\n",
+      "log_sha256": "288d2cd7f8a0f00000eb7b0b2370582188ffe27ff4079683f8f843ab06afdae0"
+    }
+  ],
+  "unique_pure_tests": 15,
+  "repeat_runs_not_additive": true,
+  "root_diagnosis": "Parent-reported observed shared historical/local target cache interface mismatch; not replayed by this author",
+  "root_evidence_paths": [
+    ".onboarding/integration17-workspaces-cache-diagnosis1",
+    ".onboarding/integration17-workspaces-build-diagnostic1",
+    ".onboarding/integration17-workspaces-build-refresh1"
+  ],
+  "not_run": [
+    "Cargo",
+    "Actor",
+    "Node",
+    "historical builder/generator",
+    "product runtime",
+    "Rust CI",
+    "macOS Apple Silicon CI",
+    "macOS Intel CI"
+  ],
+  "limitations": [
+    "Each historical source now performs an isolated compilation; extra actual CI runtime/storage remains unmeasured.",
+    "Original25/60-minute limits and all checks remain unchanged.",
+    "Existing genuine fixtures were not changed; no new artifact hashes or macOS results are claimed."
+  ]
+}

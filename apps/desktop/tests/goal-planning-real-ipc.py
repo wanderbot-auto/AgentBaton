@@ -323,7 +323,7 @@ def main():
                     assert not any(r['method'].startswith('goal_') for r in report['requests'])
                     open_details(panel.locator(':scope > details'))
                     wait(lambda: report['requests'], lambda rows: any(r['method'] == 'goal_plans.list' for r in rows))
-                    expect(panel.locator('[aria-busy]')).to_have_attribute('aria-busy', 'false')
+                    expect(panel.locator(':scope > details > [aria-busy]')).to_have_attribute('aria-busy', 'false')
                     report['observations']['empty_history_response'] = ipc('goal_plans.list', {'scope_id': scope['id']})
                     screenshot('01-fresh-goal-expanded')
                     assert report['observations']['empty_history_response'].get('result') == [], 'Fresh approved scope must return an empty plan history; no NOT_FOUND translation or preseed permitted'
@@ -533,7 +533,7 @@ def main():
                     expect(panel.get_by_role('button', name='Read readiness preview', exact=True)).to_be_disabled()
                     expect(panel.get_by_role('button', name='Store revised plan proposal', exact=True)).to_be_disabled()
                     panel.get_by_role('button', name='Refresh Goal records', exact=True).click()
-                    expect(panel.locator('[aria-busy]')).to_have_attribute('aria-busy', 'false')
+                    expect(panel.locator(':scope > details > [aria-busy]')).to_have_attribute('aria-busy', 'false')
                     report['observations']['revoked_history_response'] = ipc('goal_plans.list', {'scope_id': scope['id']})
                     screenshot('06-revoked-historical-scope')
                     assert report['observations']['revoked_history_response'].get('result') == history, 'Revocation must not erase strict immutable historical read access'

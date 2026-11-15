@@ -1,0 +1,42 @@
+{
+  "original_harness_sha256": "b7cac9f5eda5d8933de6b739da65d2246063fea3ce29272cf33963ca0dc0239a",
+  "addition_sha256": "a4b8f476cd72c6ff465cab3bd3bdc617e2d43aaa42d9fefdefafe74384f19705",
+  "replacements": [
+    [
+      "    recovery_line=\"            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled(timeout=15000);recover.click()\\n\"\n    assert source.count(recovery_line)==1\n    for name,replacement in {\n        'implicit-default5s':recovery_line.replace('(timeout=15000)','()'),\n        'expanded16s':recovery_line.replace('timeout=15000','timeout=16000'),\n        'zero-observation':recovery_line.replace('timeout=15000','timeout=0'),\n        'inexact-recovery-locator':recovery_line.replace('exact=True','exact=False'),\n        'click-before-enabled':recovery_line.replace('expect(recover).to_be_enabled(timeout=15000);recover.click()','recover.click();expect(recover).to_be_enabled(timeout=15000)'),\n    }.items():\n        mutated=source.replace(recovery_line,replacement);assert mutated!=source\n        try:lost_start_observation_self_check(mutated)\n        except AssertionError:pass\n        else:raise AssertionError(name)\n        checks.append('pure-lost-start-observation-refuses:'+name)\n\n",
+      "    recovery_line=\"            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True)\\n            wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)\\n            recover.click()\\n\"\n    assert source.count(recovery_line)==1\n    observation_call=\"wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)\"\n    mutations={\n        'implicit-default5s':source.replace(recovery_line,recovery_line.replace(observation_call,'expect(recover).to_be_enabled()')),\n        'expanded16s':source.replace('deadline=time.monotonic()+15\\n    def read_enabled','deadline=time.monotonic()+16\\n    def read_enabled'),\n        'zero-observation':source.replace('deadline=time.monotonic()+15\\n    def read_enabled','deadline=time.monotonic()+0\\n    def read_enabled'),\n        'inexact-recovery-locator':source.replace(recovery_line,recovery_line.replace('exact=True','exact=False')),\n        'click-before-enabled':source.replace(recovery_line,recovery_line.replace('            '+observation_call+'\\n            recover.click()','            recover.click()\\n            '+observation_call)),\n    }\n    for name,mutated in mutations.items():\n        assert mutated!=source\n        try:lost_start_observation_self_check(mutated)\n        except AssertionError:pass\n        else:raise AssertionError(name)\n        checks.append('pure-lost-start-observation-refuses:'+name)\n\n"
+    ],
+    [
+      "        'expect(recover).to_be_enabled(timeout=15000)\\nrecover.click()\\n').body\n",
+      "        'wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)\\nrecover.click()\\n').body\n"
+    ],
+    [
+      "    return ['pure-lost-start-exact-recovery-after-bounded15s-read-observation']\n",
+      "    helper=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)and n.name=='wait_graph_recovery_enabled')\n    end=helper.body[1]\n    assert isinstance(end,ast.Assign)and ast.unparse(end.targets[0])=='deadline'and ast.unparse(end.value)=='time.monotonic() + 15'\n    calls=[n for n in ast.walk(helper)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='wait']\n    assert len(calls)==1 and [(k.arg,ast.unparse(k.value))for k in calls[0].keywords]==[('seconds','15')]\n    probes=[n for n in ast.walk(helper)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='is_enabled']\n    assert len(probes)==1 and [(k.arg,ast.unparse(k.value))for k in probes[0].keywords]==[('timeout','min(20, remaining)')]\n    return ['pure-lost-start-exact-recovery-after-bounded15s-read-observation']\n"
+    ],
+    [
+      "        ('mcp=None;mid=0', EXEC_PLAN_HELPER + '\\nmcp=None;mid=0'),",
+      "        ('mcp=None;mid=0', EXEC_PLAN_HELPER + '\\n' + GRAPH_OBSERVATION_ACK_CODE + '\\nmcp=None;mid=0'),"
+    ],
+    [
+      "    proof={'request_text':raw,'request_sha256':hashlib.sha256(raw.encode()).hexdigest(),\n     'owned_provider':identity(os.getpid()),'fixture_nonce':settings['nonce'],\n     'native_session_id':native_session_id,'program_sha256':file_hash(__file__),\n     'settings_sha256':file_hash(settings_path),'provider_argv':sys.argv,'mcp_servers':[]}\n    record='reports/graph-request-'+str(os.getpid())+'.json'\n    fd=os.open(record+'.tmp',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)\n    with os.fdopen(fd,'w')as f:json.dump(proof,f)\n    os.replace(record+'.tmp',record)\n",
+      "    graph_channel=graph_ack_prepare(settings,c,FIXTURE_STARTED_NS)\n    try:\n     proof={'request_text':raw,'request_sha256':hashlib.sha256(raw.encode()).hexdigest(),\n      'owned_provider':identity(os.getpid()),'fixture_nonce':settings['nonce'],\n      'native_session_id':native_session_id,'program_sha256':file_hash(__file__),\n      'settings_sha256':file_hash(settings_path),'provider_argv':sys.argv,'mcp_servers':[]}\n     record='reports/graph-request-'+str(os.getpid())+'.json'\n     fd=os.open(record+'.tmp',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)\n     with os.fdopen(fd,'w')as f:json.dump(proof,f)\n     os.replace(record+'.tmp',record)\n     graph_ack_wait(graph_channel)\n    finally:graph_ack_close(graph_channel)\n"
+    ],
+    [
+      "        history[fixed['path']] = result['binding']\n",
+      "        history[fixed['path']] = result['binding']\n        publish_graph_binding_ack(fixed,context)\n"
+    ],
+    [
+      "        settings_value={'case':args.case",
+      "        graph_observation_directory=root/'graph-observation'\n        graph_observation_directory.mkdir(mode=0o700)\n        require(not graph_observation_directory.is_relative_to(wroot.resolve(strict=True))\n            and not graph_observation_directory.is_relative_to(source_root.resolve(strict=True)))\n        graph_directory_fd,graph_directory_pin=graph_ack_directory(graph_observation_directory)\n        os.close(graph_directory_fd)\n        settings_value={'graph_observation_directory':str(graph_observation_directory),'graph_observation_directory_pin':graph_directory_pin,'case':args.case"
+    ],
+    [
+      "        record_context.update(nonce=settings_value['nonce'],",
+      "        record_context.update(graph_observation_directory=str(graph_observation_directory),graph_observation_directory_pin=graph_directory_pin,nonce=settings_value['nonce'],"
+    ],
+    [
+      "            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled(timeout=15000);recover.click()\n",
+      "            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True)\n            wait_graph_recovery_enabled(recover,lambda timeout:expect(recover).to_be_enabled(timeout=timeout),PlaywrightTimeoutError,wait=wait)\n            recover.click()\n"
+    ]
+  ]
+}

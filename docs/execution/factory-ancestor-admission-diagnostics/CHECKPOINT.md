@@ -1,3 +1,5 @@
+Current Root17/main composition is pending new runtime verification. Both historical source records below are retained with their original scope and timestamps.
+
 # Checkpoint
 
 Branch: `codex/factory-budget-admission-diagnostics`. Source: `9e7ce2c031a2800cf2bbb42b2a84e987ed23ddd8`. Base: `3e882a8d516707b40c991706714eaa4b81885fc8`.

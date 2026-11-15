@@ -1,0 +1,9 @@
+# ADR · Goal 单次完成后停止
+
+状态：本地8367源码已实现并经独立源码审查；验证范围见EVIDENCE，非全部产品接受。
+
+原Goal Work只能由私有固定节点dispatcher提交一次turn。原stop policy对completed独立要求停止，没有完成后保持会话等待Owner下一turn的授权需求。故由真实launch身份和Actor已经提交的turn构造不可序列化stop-only ticket；worker只能结束自己原已拥有的process。普通/shared/Factory/MCP和非Work节点保留原行为。
+
+完成证据走owned joined receipt；日志队列不是可靠结算渠道。原Actor保留全部Grant/输入/租约/费用/候选与Owner验收。队列满仍是失败，当前turn unknown；真实历史completed只能作为准确历史留存，不能把通道失败变成功。
+
+不用增加4秒预算、扣减Actor等待、刷新原clock、自动再dispatch或弱化freshness。旧hint控制用同样受原权限检查的Summary节点单独覆盖；不能借新fix删旧安全断言。生命周期drain需要另一个固定stop-only settlement，不能让普通Graph capture顺路产生新作业。

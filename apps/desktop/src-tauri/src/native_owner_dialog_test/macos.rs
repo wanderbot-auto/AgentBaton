@@ -5,6 +5,7 @@ use objc2_foundation::NSRect;
 use serde_json::{json, Value};
 use std::{
     fs,
+    io::Read,
     path::{Path, PathBuf},
     process::{Child, Command, Stdio},
     sync::{
@@ -17,6 +18,8 @@ use tauri::{Manager, RunEvent, WebviewWindow};
 
 struct State {
     expected: Value,
+    integration_runtime: PathBuf,
+    integration_before: Option<Value>,
     output: PathBuf,
     caller: Mutex<Option<WebviewWindow>>,
     phase: Mutex<Phase>,
@@ -67,10 +70,25 @@ fn fail(app: &tauri::AppHandle, reason: &str) {
     app.exit(1);
 }
 fn invoke_script(expected: &Value) -> String {
+    if controller::is_integration(expected) {
+        return format!("(async()=>{{try{{const response=await window.__TAURI_INTERNALS__.invoke('integration_policy_approve',{});await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response}})}}catch(error){{await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response:{{bridge_error:String(error)}}}})}}}})()",expected["invoke"]);
+    }
     if controller::is_factory(expected) {
         return format!("(async()=>{{try{{const response=await window.__TAURI_INTERNALS__.invoke('factory_scope_approve',{});await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response}})}}catch(error){{await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response:{{bridge_error:String(error)}}}})}}}})()",expected["invoke"]);
     }
     format!("(async()=>{{try{{const response=await window.__TAURI_INTERNALS__.invoke('grants_create',{});await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response}})}}catch(error){{await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response:{{bridge_error:String(error)}}}})}}}})()",expected["invoke"])
+}
+fn integration_database_report(state: &State, response: &Value) -> Result<Value, String> {
+    let before = state
+        .integration_before
+        .as_ref()
+        .ok_or("Missing real integration database baseline")?;
+    let after = controller::integration_database_checkpoint(
+        &state.integration_runtime,
+        &state.expected,
+        Some(response),
+    )?;
+    controller::integration_database_evidence(before, &after, &state.expected)
 }
 fn record_report(
     window: WebviewWindow,
@@ -97,7 +115,14 @@ fn record_report(
             drop(phase);
             return Err("Cancel response mismatch".into());
         }
-        if controller::is_factory(&state.expected) {
+        if controller::is_independent(&state.expected) {
+            if controller::is_integration(&state.expected) {
+                let evidence = integration_database_report(&state, &response)?;
+                write(
+                    &state.output.join("owner-dialog.json"),
+                    &json!({"status":"os_button_paths_completed_database_check_passed","dimension":"macos_own_process_real_sheet","provider_model_calls":"not_run","automated_fixture_not_human_owner":true,"integration_approval_database":evidence}),
+                )?;
+            }
             state.done.store(true, Ordering::Release);
             app.exit(0);
             return Ok(());
@@ -117,7 +142,9 @@ fn record_report(
             .eval(invoke_script(&state.expected))
             .map_err(|e| e.to_string())?;
     } else {
-        let checked = if controller::is_factory(&state.expected) {
+        let checked = if controller::is_integration(&state.expected) {
+            controller::validate_integration_response(&response, &state.expected)
+        } else if controller::is_factory(&state.expected) {
             controller::validate_factory_response(&response, &state.expected)
         } else {
             controller::validate_grant_response(&response, &state.expected)
@@ -126,10 +153,13 @@ fn record_report(
             drop(phase);
             return Err("Grant response mismatch".into());
         }
-        write(
-            &state.output.join("owner-dialog.json"),
-            &json!({"status":"os_button_paths_completed_database_check_pending","dimension":"macos_own_process_real_sheet","provider_model_calls":"not_run","automated_fixture_not_human_owner":true}),
-        )?;
+        let mut report = json!({"status":"os_button_paths_completed_database_check_pending","dimension":"macos_own_process_real_sheet","provider_model_calls":"not_run","automated_fixture_not_human_owner":true});
+        if controller::is_integration(&state.expected) {
+            report["integration_approval_database"] =
+                integration_database_report(&state, &response)?;
+            report["status"] = json!("os_button_paths_completed_database_check_passed");
+        }
+        write(&state.output.join("owner-dialog.json"), &report)?;
         state.done.store(true, Ordering::Release);
         app.exit(0);
     }
@@ -232,8 +262,19 @@ fn observe(
         Some((seen, _)) if *seen != number => {
             return Err("Attached sheet changed during the armed phase".into())
         }
-        Some((_, when)) if when.elapsed() < Duration::from_millis(500) => return Ok(None),
-        _ => {}
+        Some((_, when)) => {
+            let ready = if controller::is_integration(expected) {
+                // A visible, key sheet can be inspected once AppKit finishes
+                // presenting it. Capture still requires the full layout and
+                // contents below, and they are verified again before clicking.
+                when.elapsed() >= Duration::from_millis(200) && sheet.isKeyWindow()
+            } else {
+                when.elapsed() >= Duration::from_millis(500)
+            };
+            if !ready {
+                return Ok(None);
+            }
+        }
     }
     *diagnostic = Some(SheetDiagnostic {
         number,
@@ -353,6 +394,9 @@ fn observe(
     if controller::is_factory(expected) {
         value["review_nonce"] = expected["review_nonce"].clone();
         value["factory_page"] = expected["factory_contexts"][index].clone();
+    } else if controller::is_integration(expected) {
+        value["review_nonce"] = expected["review_nonce"].clone();
+        value["integration_page"] = expected["integration_contexts"][index].clone();
     }
     diagnostic["validation_stage"] = json!("controller_validate");
     controller::validate(&value, expected, phase, index)?;
@@ -499,6 +543,18 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
         Ok(Some(observed)) => observed,
         Ok(None) => return Ok(()),
         Err(reason) => {
+            // Before the original settle interval, a partially animated
+            // sheet can still fail layout checks. Wait for the same window,
+            // without taking a screenshot or publishing a click permit.
+            if controller::is_integration(&state.expected)
+                && diagnostic.as_ref().is_some_and(|d| {
+                    phase.sheet_seen.is_some_and(|(window, when)| {
+                        window == d.number && when.elapsed() < Duration::from_millis(500)
+                    })
+                })
+            {
+                return Ok(());
+            }
             let number = diagnostic.as_ref().map(|d| d.number).filter(|n| *n > 0);
             phase.observation_failure = Some(json!({"status":"failed","reason":reason,
                 "failure_phase":"observation_before_click","observation":diagnostic.map(|d|d.value),
@@ -540,14 +596,16 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
     if let Some(worker) = phase.capture_worker.take() {
         worker.join().map_err(|_| "Sheet capture worker panicked")?;
     }
-    write(
-        &state.output.join(format!(
-            "{}-page-{:04}-sheet-ready.json",
-            phase.name,
-            phase.page + 1
-        )),
-        &observed.value,
-    )?;
+    let ready_path = state.output.join(format!(
+        "{}-page-{:04}-sheet-ready.json",
+        phase.name,
+        phase.page + 1
+    ));
+    // The owned screenshot joins before this witness is first published.
+    // Reobservations while waiting for the host's permit need no rewrite.
+    if !ready_path.exists() {
+        write(&ready_path, &observed.value)?;
+    }
     let permit = state.output.join(format!(
         "{}-page-{:04}-database-permit.json",
         phase.name,
@@ -571,6 +629,8 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
     }
     if controller::is_factory(&state.expected) {
         controller::validate_factory_identity(&permit, &state.expected, phase.page)?;
+    } else if controller::is_integration(&state.expected) {
+        controller::validate_integration_identity(&permit, &state.expected, phase.page)?;
     }
     // Mark before public action to prevent reentrant polling from clicking twice.
     let final_page = phase.page + 1 == state.expected["presentation"].as_array().unwrap().len();
@@ -598,14 +658,25 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let fixture = std::env::args_os()
-        .nth(1)
-        .ok_or("Expected generated host fixture file")?;
-    if fs::metadata(&fixture)?.len() > 65536 {
-        return Err("Generated Grant fixture exceeds 64 KiB bound".into());
+    let (fixture, integration_mode, limit) =
+        controller::fixture_arguments(std::env::args_os().skip(1))?;
+    if fs::metadata(&fixture)?.len() > limit {
+        return Err("Generated Owner fixture exceeds mode-specific envelope".into());
     }
-    let mut expected: Value = serde_json::from_slice(&fs::read(fixture)?)?;
-    if controller::is_factory(&expected) {
+    let mut bytes = Vec::new();
+    fs::File::open(fixture)?
+        .take(limit + 1)
+        .read_to_end(&mut bytes)?;
+    if bytes.len() as u64 > limit {
+        return Err("Owner fixture grew beyond mode-specific envelope".into());
+    }
+    let mut expected: Value = serde_json::from_slice(&bytes)?;
+    if integration_mode != controller::is_integration(&expected) {
+        return Err("Explicit integration mode/kind mismatch".into());
+    }
+    if integration_mode {
+        controller::prepare_integration(&mut expected)?;
+    } else if controller::is_factory(&expected) {
         controller::prepare_factory(&mut expected)?;
     } else {
         let intent = json!({"project_id":expected["invoke"]["projectId"],"workspace_id":expected["invoke"]["workspaceId"],"connection_id":expected["invoke"]["connectionId"],"max_attempts":1,"max_concurrency":1,"max_duration_ms":1000});
@@ -649,12 +720,21 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         window.incognito = true;
         window.data_directory = Some("owner-smoke-webview".into());
     }
-    let initial_phase = if controller::is_factory(&expected) && expected["phase"] == "approve" {
+    let initial_phase = if controller::is_independent(&expected) && expected["phase"] == "approve" {
         "approve"
     } else {
         "cancel"
     };
+    let integration_before = if controller::is_integration(&expected) {
+        Some(controller::integration_database_checkpoint(
+            &runtime, &expected, None,
+        )?)
+    } else {
+        None
+    };
     let state = State {
+        integration_runtime: runtime.clone(),
+        integration_before,
         expected,
         output,
         caller: Mutex::new(None),
@@ -730,7 +810,13 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
             {
                 return;
             }
-            std::thread::sleep(Duration::from_millis(100));
+            let state = handle.state::<State>();
+            let interval = if controller::is_integration(&state.expected) {
+                25
+            } else {
+                100
+            };
+            std::thread::sleep(Duration::from_millis(interval));
         }
     });
     let code = app.run_return(|app, event| {

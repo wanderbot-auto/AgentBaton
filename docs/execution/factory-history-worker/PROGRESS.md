@@ -1,3 +1,5 @@
+Current Root17/main composition is pending new runtime verification. Both historical source records below are retained with their original scope and timestamps.
+
 # Progress
 
 Source frozen `4e9e20d25c7b104c57cffc51a92de3a2eff82a71`, based on exact Parent61. Four product files, two new cfg test files and two append-only cfg registrations only. Source is not modified by the later own-record commit.

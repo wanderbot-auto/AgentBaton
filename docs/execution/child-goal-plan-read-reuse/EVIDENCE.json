@@ -1,0 +1,105 @@
+{
+  "base": "c67569856050fd40195b540b4bb71d3406e0e907",
+  "scope": "same-refresh exact immutable-ref reuse; no budget/gate/Python changes",
+  "source_files": {
+    "apps/desktop/src/FactoryChildGoals.tsx": "ec4297a52530384def5797a914b8a4e519bb264908c2df4e09cb2dea6106d5ba",
+    "apps/desktop/src/FactoryChildGoals.test.tsx": "a5d64073640091631b09e79b11ff77b320a2ac231f78081ddbdc93b385fdf1cc",
+    "apps/desktop/src/FactoryChildGoals.owner-ui-diagnostics.test.tsx": "83b6824e0ebdb6b2a15ad4366db63ac506b74c395e1553c966a71b38e2c5ef1b",
+    "apps/desktop/src/FactoryChildGoals.plan-read-reuse.test.tsx": "de3f1fedf994d8c1195a27dbd469956bd9e2768dbd8e4ecad4ae427051412394"
+  },
+  "source_audit": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /tmp/child-goal-plan-read-reuse-audit.py",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "checks_passed": 39,
+    "inverse_path": "docs/execution/child-goal-plan-read-reuse/SOURCE_INVERSE.json",
+    "inverse_sha256": "f6975f9150a50e62d298edcfa903992b0f05abe871008642b7e6ec761dbb9579",
+    "all_original_assertion_source_lines_preserved": true,
+    "original_write_render_and_validation_suffix_byteexact": true
+  },
+  "authored_mounted": {
+    "new_cases": 19,
+    "existing_cases_adapted": 5,
+    "run": "NOT_RUN",
+    "new_suite": "apps/desktop/src/FactoryChildGoals.plan-read-reuse.test.tsx",
+    "covers": [
+      "same-ref1RPC/3raw checks",
+      "new head DTO every refresh",
+      "different initial/adopted/head references original APIs",
+      "full-reference-field mismatches",
+      "raw/shape before and after intervening Goal await",
+      "foreign scope/task/run head",
+      "superseded epoch/disconnect no Owner/no writes"
+    ]
+  },
+  "old_CI": {
+    "feature_source": "c67569856050fd40195b540b4bb71d3406e0e907",
+    "synthetic_compiled_source": "ff4376a636a4f7e6cd2776040afb2b4a9a1a5389",
+    "Product_run": 41188874038,
+    "official_artifact": 13038236044,
+    "finite_summary_sha256": "8dd4a2794b180f39d01e4e1c184a8ce94da0dd368245694e3b71263c114b91d5",
+    "status": "failed",
+    "checks": [
+      {
+        "id": "CG01",
+        "status": "passed"
+      },
+      {
+        "id": "CG02",
+        "status": "passed"
+      }
+    ],
+    "cleanup_complete": false,
+    "driver_lines": [
+      1732
+    ],
+    "window_ms": 5063.848145,
+    "get_start_ms": 3208.713642,
+    "get_finished_ms": 4189.900549,
+    "end_DOM": {
+      "observation": "observed",
+      "epoch": 6,
+      "fresh": true,
+      "loading": false,
+      "disabled": false,
+      "parent_ready": true,
+      "owner_present": true,
+      "owner_disabled": false
+    },
+    "interpretation": "end observation only; exact enable instant and failed expectation root cause remain unknown"
+  },
+  "not_run": [
+    "Node/type/build/mounted UI",
+    "Core/Cargo/SQL/process/browser/Provider",
+    "network/exact CI",
+    "native/macOS/full130 acceptance"
+  ],
+  "not_claimed": [
+    "old CI root cause established",
+    "CI fixed",
+    "actual RPC performance measured",
+    "Owner authority or changed permissions"
+  ],
+  "next": "Root actual type/focused/full UI verification and independent source review; keep failed CI as failed",
+  "inherited_pure_v4_execution": {
+    "result": {
+      "tests": 14,
+      "failures": [
+        "tests.infrastructure.test_child_goal_diagnostics_v4.V4DiagnosticsTests.test_full_source_inverse_preserves_all_original_ui_harness_projector_bytes"
+      ],
+      "errors": [],
+      "seconds": 0.12901579297613353,
+      "forbidden_actual_calls": [],
+      "scope": "inherited v4 finite/AST/source controls, not TypeScript/runtime execution",
+      "expected_retained_source_boundary_failure": "Old full-source inverse requires a separately reviewed outer reuse layer; Python source untouched"
+    },
+    "result_path": "/tmp/child-goal-plan-read-reuse-v4-pure.json",
+    "result_sha256": "9fd656a2f9f2c3c2698f7be85408a6108546909080826c6321e3c842891c97d2",
+    "log_path": "/tmp/child-goal-plan-read-reuse-v4-pure.log",
+    "log_sha256": "af311c461e707cd28975e7dc92118a4e546bb3547d9ba24d873c74fce882ba9f",
+    "exit": 1,
+    "Python_source_changed": false,
+    "resolution": "Root/independent reviewer must adapt old whole-source inverse to this reviewed outer layer without removing negative controls; outside author allowed paths"
+  },
+  "root_verification_record": "ROOT_RESULTS.json",
+  "current_state": "reviewed integrated optimization; source-bound local browser/UI and integrated IPC/infrastructure pass; new CI/Mac pending; historical author not_run entries retained"
+}

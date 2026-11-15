@@ -1,0 +1,81 @@
+{
+  "unit": "schema16-migration-ci-metadata",
+  "requirements": [
+    "AB-SEC-007",
+    "AB-PRJ-005"
+  ],
+  "authorization": "AB-START-001",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "baseline": "e188aa95da5ea2216ad23344e03f0091955cbae3",
+  "source_commit": "e1aae865881929059c589f5aa6833c059b8c62b1",
+  "branch": "codex/schema16-migration-ci-metadata",
+  "tree": "/workspace/.worktrees/schema16-migration-ci-metadata",
+  "source_guard": {
+    "baseline": "e188aa95da5ea2216ad23344e03f0091955cbae3",
+    "old_projection_functions_byte_exact": [
+      "require",
+      "digest",
+      "known_status",
+      "public_host",
+      "public_build",
+      "public_fixture"
+    ],
+    "old_8_test_class_byte_exact": true,
+    "only_changed_source_paths": [
+      "scripts/record-legacy-migration-ci-evidence.py",
+      "tests/infrastructure/test_legacy_migration_ci_evidence.py"
+    ],
+    "source_sha256": {
+      "scripts/record-legacy-migration-ci-evidence.py": "32c9e42b345daf7dc52b92fc25686ea952faeebae97702faaf2832337c7f8c68",
+      "tests/infrastructure/test_legacy_migration_ci_evidence.py": "f5a9790942fc5ef30a8c909e627fdafb9efbcb8c7d1a3797ecb3ba786071ce27"
+    },
+    "pure_tests": 17,
+    "actual_compiler_product_generator_old_tool_runs": "NOT_RUN"
+  },
+  "check": {
+    "command": "python3 -B -m unittest discover -s tests/infrastructure -p test_legacy_migration_ci_evidence.py -v",
+    "result": "PASS",
+    "exit": 0,
+    "tests": 17,
+    "seconds": 0.014,
+    "log": "/workspace/.onboarding/schema16-migration-ci-metadata/PURE_TESTS.log",
+    "log_sha256": "7dcab461a3124dda24c08a7632a92f37eaccb5d1dacdff0b3db9a823e9b79faa"
+  },
+  "new_private_metadata_paths": [
+    "agentbaton-legacy15-build/frozen/source-build-manifest.json",
+    "agentbaton-legacy15-fixture/manifest.json"
+  ],
+  "new_public_keys": [
+    "schema15_source_build",
+    "schema15_fixture"
+  ],
+  "metadata_only": true,
+  "fixed_source15": {
+    "commit": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+    "tree": "fabfe01e74189f4986ea8c133f32a5f1ed52006b"
+  },
+  "not_run": [
+    "actual build",
+    "actual producer",
+    "actual consumer",
+    "Cargo/Actor/daemon/old tools",
+    "browser/Node",
+    "real database inspection/copy",
+    "macOS",
+    "CI",
+    "product acceptance"
+  ],
+  "no_edits": [
+    "production/Core/DDL",
+    "Cargo/locks",
+    "workflow/pins/budgets/job names",
+    "producer/helper",
+    "existing real14 fixture",
+    "Root STATUS"
+  ],
+  "independent_review": "PENDING",
+  "next": "Root independent review, integrate and connect mandatory15 gate; keep compilation/fixture metadata separate from consumer/native acceptance"
+}

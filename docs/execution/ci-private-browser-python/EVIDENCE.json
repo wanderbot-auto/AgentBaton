@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T06:41:47.535990+00:00",
+  "base": "e874b123d3e7f329a551e21922baf1a7a643548f",
+  "status": "source_pure_passed_independent_review_and_actual_runtime_pending",
+  "scope": "private browser environment preparation / one workflow line / exact inverse tests / unit docs",
+  "source_sha256": {
+    "scripts/prepare-browser-runtime.py": "0a64845d47ba537a4c20cb88852205cec2c4d9e33eea3c276954f579c5f10173",
+    "tests/infrastructure/test_private_browser_python.py": "578bc980e0c707dcc9f15b85346e22409fc631059e98154c3e11c222b2e4a655",
+    ".github/workflows/product.yml": "19424794adab93619e420f1ec5304f0d386fe0dcea15d743885b5a2308e3f526",
+    "tests/infrastructure/test_schema17_migration_workflow.py": "c20f445140c07a86f7d0d1cc9c96db59fbdf3397ecb75f176de03a8fdcd3e04f",
+    "tests/infrastructure/test_ui_preview_dev_profile_workflow.py": "14afba7f84a95db82fd317a5a171df335288c1c1c27697eeafec6ede0a09fbdd"
+  },
+  "retained_official_failure": {
+    "source": "e874b123d3e7f329a551e21922baf1a7a643548f",
+    "artifact_id": 13033301936,
+    "zip_sha256": "2f48169337f8481bd45d54f5330bef02b853a27273941a18ddb6c8aa347c00e8",
+    "finite_summary_sha256": "fbbee753965b0c6f841aa66747ef93c898e471411f5532619d108b50d17a548a",
+    "stage": "runtime_owner_mode_guard",
+    "runtime_checks": {
+      "chromium_owner_allowed": true,
+      "python_owner_allowed": true,
+      "chromium_mode_allowed": true,
+      "python_mode_allowed": false
+    },
+    "runtime_case_entered": false,
+    "driver_exit": 2,
+    "established": "Python group/world-write predicate rejected; owner predicate passed.",
+    "exact_Python_mode_or_path": "not_recorded",
+    "earlier_accc_cause": "unknown_not_reclassified"
+  },
+  "implementation_boundaries": {
+    "EnvBuilder": {
+      "symlinks": false,
+      "with_pip": true
+    },
+    "output": "fresh private0700 descendant of owned cwd; existing output or aliased parent refused",
+    "interpreter_names": "python/python3/python3.<current minor> only",
+    "copy_mode": "0500",
+    "mutation": "fchmod of held euid-owned regular single-link distinct copied interpreter descriptors only",
+    "shared_source": "read/hash/stable identity checks; never chmod",
+    "source_layout": "standard pyvenv.cfg/base stdlib/pip layout retained",
+    "failed_preparation": "refused; partial creation retained, no automatic deletion",
+    "credentials_or_user_configuration_copied": false,
+    "existing_driver_guard_or_limit_relaxed": false
+  },
+  "workflow_inverse": {
+    "new_complete_dependency_step_sha256": "30ec3a29323f835e235254015eadf8375b4e9e9f1b113210dce5b0e46d1df1cc",
+    "original_complete_dependency_step_sha256": "7ea6ff61070a94e8e12f7c7da31954fed8356d7d5953b2d109564d82f72ef0c5",
+    "entire_original_workflow_sha256": "6d82c3f8799925f89b8a13e395356066995680c7d131d10345c2d6e64fd0bc3d",
+    "old_hashes_unchanged": true,
+    "unknown_changes_ignored": false
+  },
+  "pure_validation": {
+    "tests": 74,
+    "exit": 0,
+    "seconds": 2.814,
+    "dimension": "synthetic files / mocked EnvBuilder / real original preflight on synthetic files with source guard mocked; no subprocess or SQL",
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.infrastructure.test_private_browser_python tests.infrastructure.test_ui_preview_dev_profile_workflow tests.infrastructure.test_schema17_migration_workflow tests.infrastructure.test_integration_setup_diagnostics tests.infrastructure.test_integration_browser_ci tests.infrastructure.test_integration_driver_preflight_diagnostics",
+    "diff_check": "passed",
+    "unowned_control": "held inode based mock; no /proc or platform path assumption"
+  },
+  "not_run": [
+    "actual venv creation or Python child process",
+    "ensurepip/pip/Playwright install",
+    "actual stdlib/Playwright import in prepared runtime",
+    "Core/browser/schema/SQLite execution",
+    "network/CI/Mac",
+    "formal approval"
+  ],
+  "Root_next_commands": [
+    "python3 scripts/prepare-browser-runtime.py --output artifacts/browser-venv",
+    "artifacts/browser-venv/bin/python -c \"import asyncio, hashlib, json, ssl, sqlite3, sys, venv; print(sys.prefix)\"",
+    "artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt",
+    "artifacts/browser-venv/bin/python -c \"import playwright.sync_api\""
+  ],
+  "next": "Independent review, then Root actual layout/import/original guard and whole wrapper execution on exact clean candidate before new CI conclusions."
+}

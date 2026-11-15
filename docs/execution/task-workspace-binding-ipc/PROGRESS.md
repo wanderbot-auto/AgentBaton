@@ -1,0 +1,17 @@
+# 进展
+
+仅只读接口准备与文档，未实现workspaces.prepare_task_git/Native/TS。已核Owner普通Request与FactoryScopedRequest的不同认证/固定allowlist、旧workspaces.create的envelope和setup-busy行为、call(false)桥与既有能力文件空permissions。阅读WSI3固定2b/461及其kind错误修复2f，不改原树。
+
+已重读本地origin/main `653679db60d5c68f7e3c5b5e146ef58aed10de23` 的OWNER_INBOX（Parent已确认main仍此源），ACK001/002，无003。本代理未远程fetch/批准/合并或新增身份；不用公开Agent输出作为授权。
+
+源实现Root首测已12PASS1FAIL，kind-drift错误分类source2f已修并独审source-ready；Root重验仍待。原源冻结与真实失败不能因接口计划覆盖。没有Cargo/Node/Actor/真实Git/目标工具占用。
+
+后续Root在0d实际13unit+public1通过，strictClippy101两个类型复杂度；4d aliases展开wholefile等0d，作者不变SQL/错误/测试。原功能树2026620 cleanfreeze给Root，未占heavy。原reviewer4d source-ready REVIEW8058b423807424b102a9fa0613da3ec72b560dd4b305d30daffb71141749015f/MANIFESTd070cc4e5ce58879b3fbe328f9d166af5e60337dc03d6758235a8b7030ab7be8仅源码结论，新lint待跑。当前接口仍全NOT_RUN。
+
+## 当前源码实现完成（未运行）
+
+Root批准508合同后另建实现树从95c693d，并导入纯合同d43b9a8；source3362cba仅8限定源码。Core fixedwrite+typed6body/原CAS稳定key、同setupbusy，Native两固定callfalse，TS canonicalFS/safeint/严格状态与receipt约束已接真实方法，无mock产品success。Backend/schema/storage/registry/session/Cargo/锁/权限/UI组件及旧API测试原字节保持。
+
+实际作者只执行rustfmt五Rust文件applied/check、diffcheck及插入逆改/路径/旧源码保持静态0，没有Cargo/Node/Actor/真实Git或Native运行。新4Unix+2Core+1Native函数及TS suite仍NOT_COMPILED/NOT_RUN。原recorded Task binding metadata读取不凭state ready宣fresh或Grant；只有新prepare成功view包含identity_revalidated=true且execution_authorized=false。
+
+reviewer再次静态误判JS无m的$尾行语义；作者及其各自内建V8对current decimal/hex63/component/acceptance四pattern×LF/CR/U+2028/U+2029实际16项全部false，候选已撤回并保留消息/反证。未改合法生产正则迎合误报，无旧NodeFAIL；新it.each终止符负控源码仍待Root实际Node执行。

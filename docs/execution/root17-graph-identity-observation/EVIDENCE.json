@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T04:51:45.190367+00:00",
+  "base": "7b8fe19dd6970d3e1c025117c8efbb69b0277527",
+  "status": "source_and_pure_controls_passed_independent_review_and_Root_runtime_pending",
+  "scope": "harness/synthetic controls/private bounded process observation only",
+  "source_sha256": {
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": "b7cac9f5eda5d8933de6b739da65d2246063fea3ce29272cf33963ca0dc0239a",
+    "tests/infrastructure/test_graph_identity_observation.py": "b8e111ea40a7c9a7a74463b57f1593a1fe397657c4130c942b6c1e24c8238a95",
+    "tests/infrastructure/fixtures/graph_identity_observation/pre_observation_block.py.txt": "9af3fe5525eacfdcb1ecc805bc5b1676102812aaf87f430838c3a9361d33beb7"
+  },
+  "original_harness_full_inverse_sha256": "40607488a0f0e82a0146ba98b70267c1f828b9403d9e5b7336af2bca17b96419",
+  "original_6a_failure": {
+    "source": "6a4649b3f69d8273d0d6b5bae4506b58ad97d43b",
+    "RESULT_sha256": "a471cff5d0b72eef52ffdd2b678aad6b363df5edcf04f7db7ca5989255578612",
+    "INPUTS_sha256": "12cd722803adb45d94fca14177cd594468a19769ba6ff431a6ecc17f02966776",
+    "command_log_sha256": "3a38e8111890d13d03d0cf7fc1b73a484a3229800a66451617fe161940cf9834",
+    "report_sha256": "242b62c6680bcde096f04282ee4e8ecfbca2d9e13bcc788b58a417d904bf77e0",
+    "weak_verified_Graph_record_sha256": "49b1bf99df21696f02c39bd511f1b0efb1b62c1102c410cca009598d47c604a9",
+    "exit": 1,
+    "specific_cmdline_or_process_state_cause": "unknown; composite assertion only; failing bytes/length/terminator/state not retained",
+    "actual_cancel_calls": 1,
+    "deliberately_dropped_committed_cancel_replies": 1,
+    "daemon_exit": 0,
+    "later_recorded_identity_absent": true,
+    "cleanup_complete": false,
+    "business_cancel_recovery_pass": false,
+    "old_initial_binding_is_new_strong_proof": false
+  },
+  "pure_checks": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.infrastructure.test_graph_identity_observation tests.infrastructure.test_child_goal_bound_readonly_wait tests.infrastructure.test_child_goal_finite_diagnostics",
+    "exit": 0,
+    "tests": 39,
+    "seconds": 3.555,
+    "raw_log": "tool invocation output only; no standalone command log recorded",
+    "first_new_test_run": "One test-only expectation failed because a valid live sample without prior history correctly creates initial_live; expectation corrected, not an implementation or product failure."
+  },
+  "source_boundaries": {
+    "all_original_non_observation_harness_bytes_preserved_by_full_inverse": true,
+    "same_key_recovery_actual_cancelled_joins_deadlines_unchanged": true,
+    "Root17_schema_DDL_support_and_zero_tables_unchanged": true,
+    "workflow_and_production_sources_changed": false,
+    "private_observation_record_maximum": 12,
+    "cmdline_read_maximum": 8193,
+    "new_observation_is_stop_proof": false
+  },
+  "not_run": [
+    "real process metadata or signals/wait",
+    "SQLite/database execution",
+    "Core/Cargo/Node/browser",
+    "network/CI",
+    "actual normal/cancel/lost-start candidate runs",
+    "macOS",
+    "real model/Provider calls",
+    "formal Approve or whole-product acceptance"
+  ],
+  "review": "independent source review pending",
+  "next": [
+    "Independent review of strict initial/repeat predicates and exact source inverse.",
+    "Root fresh actual fixtures; retain initial not_verified when no live metadata was observed.",
+    "Keep original6a cause unknown and all old failed/unknown outcomes intact; do not block independent exact Mac diagnostic CI."
+  ]
+}

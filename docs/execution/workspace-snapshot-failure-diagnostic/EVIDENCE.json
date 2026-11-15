@@ -1,0 +1,98 @@
+{
+  "scope": "Supporting diagnostic only; no requirement completion, root-cause or Mac fix claim",
+  "requirements": [
+    "AB-PRJ-002",
+    "AB-PRJ-003",
+    "AB-PRJ-005",
+    "AB-REL-001"
+  ],
+  "baseline": "47343222062d84fd6c2b12d574f9812a25ce8264",
+  "source_commit": "d68469d9f3103c2fd8121487e1cf8dd9c790ac9a",
+  "source_sha256": "7e32523311e89672a714a7af77ceec2e3d83b680728919ad09f31e7adeb086f8",
+  "actual_runs": [
+    {
+      "name": "workspace-snapshot-failure-focused1",
+      "result_sha256": "b16b5b6d24e4683f52e0fd5680bea7f99cb0118c5604e742ab5bbaccdcbe1fad",
+      "result": {
+        "source": "8aed3f3cb0a409d6e350c4af3543d0ea7443e6d9",
+        "root": "/tmp/workspace-snapshot-failure-diagnostic",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "workspace_resolution::tests::",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "exit": 101,
+        "seconds": 14.344375388987828,
+        "minimum_free_bytes": 2209755136,
+        "interruption": null,
+        "log_sha256": "59a10b0f102f8db661e38da7ed150675dcc7e1f7c2c37169abc54c468608189c",
+        "summaries": [],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    },
+    {
+      "name": "workspace-snapshot-failure-focused2",
+      "result_sha256": "3c378c7ca57ae2b9abf1205b1f132ed78c6ad22a034c47795b2c4bb9fb658f28",
+      "result": {
+        "source": "d68469d9f3103c2fd8121487e1cf8dd9c790ac9a",
+        "root": "/tmp/workspace-snapshot-failure-diagnostic",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "test",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "workspace_resolution::tests::",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "exit": 0,
+        "seconds": 28.38879294198705,
+        "minimum_free_bytes": 2137239552,
+        "interruption": null,
+        "log_sha256": "6aedec67c2eef39036f854bbea223a01a28a3ccfd7164662edd48ae1a8abee7f",
+        "summaries": [
+          "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 258 filtered out; finished in 3.73s"
+        ],
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+      }
+    }
+  ],
+  "independent_review": {
+    "sha256": "6b52c2509ffd40131fa6bbf7c90d53a66fa4b24a563714489734f68e74e64591",
+    "decision": "SOURCE_READY",
+    "dimension": "read-only exact source inverse and parent actual logs; not formal GitHub approval"
+  },
+  "remote_failure": {
+    "head": "f744db55a079f1b174ace5670f213fcc1265622e",
+    "run": 41256237628,
+    "job": 124699887688,
+    "raw_log_sha256": "3f48fe97af69fc7a05c541f0ffff7ceb4d46e69e659828ba226264bc774702ff",
+    "observation": "Core260 passed1failed; workspace_resolution_tests.rs152 metadata after enumeration returned ENOENT. Exact leaf/path/phase unknown; no root cause inferred. Old846865 Task-binding failure is another test."
+  },
+  "retained_failure": "8aed first compilation E0061 at two foreign snapshot call sites, no tests ran; fixed by preserving original files(root) wrapper. Original full ten test bodies byte-identical; no skip or assertion weakening.",
+  "behavior": "All read/entry/stat/content errors still panic; all .git objects and contents still included. New fixed source/managed/foreign and before/after/unspecified tags and closed region/leaf/error-kind carry no arbitrary path/text. Only generated failing fixture retained; normal cleanup unchanged. No retry.",
+  "not_run": [
+    "New failure branch on an actual Mac filesystem",
+    "Exact new remote CI and dual Mac desktop/installer validation",
+    "Provider model calls or production/signing actions"
+  ],
+  "historical_diagnostic_report_sha256": "db8dbd72e40fc72488ce52c38ea9450a7652bc42b71887905b98907af0de0b73"
+}

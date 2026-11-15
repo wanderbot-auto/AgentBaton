@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "status": "READ_ONLY_MERGE_PREPARATION_COMPLETE_NOT_INTEGRATED",
+  "root": "fcc208989ffc24c75cbf4377b560a7e1e25ed195",
+  "incoming_Parent": "c67569856050fd40195b540b4bb71d3406e0e907",
+  "merge_base": "b55c44a20a5316afc9197fea4489ff1a11f00446",
+  "dangling_merged_tree": "94c473760e472342644e0019c15122371348dffe",
+  "merge_tree_exit": 1,
+  "merge_tree_stdout_sha256": "3f33c3bb3e57d3d6724c919825510c7eec11942060e200ded2fd5c574da735c6",
+  "real_conflict_paths": [
+    "BOOTSTRAP_MANIFEST.json",
+    "docs/execution/STATUS.md",
+    "docs/execution/requirements-progress.json"
+  ],
+  "source_automerge": {
+    "files": {
+      "apps/desktop/src/FactoryChildGoals.tsx": {
+        "root_sha256": "7c386d3262f90876f0c72d9b12ff1ba25020a0510a70d18c08c6cf4dce1dc267",
+        "parent_sha256": "57a6899da9526ae6289cafe54509fd2da5cae8146ca748a4640f3b042f7d3281",
+        "merged_sha256": "57a6899da9526ae6289cafe54509fd2da5cae8146ca748a4640f3b042f7d3281"
+      },
+      "apps/desktop/tests/factory-child-goal-real-ipc.py": {
+        "root_sha256": "9acadb5d494e7cd055b871530867fc273bff9588384beeb9415ffbdaa68c2610",
+        "parent_sha256": "b959489950486874cf9730b9877dc36ee6c0121688dbc3fd9ef567138279268d",
+        "merged_sha256": "dd80aebe8fba1c1a031b10e77bdfba64d8d1d349819521fb2deb36a02435cd9d"
+      },
+      "scripts/record-child-goal-ci-evidence.py": {
+        "root_sha256": "b51d1c3d4f371c6e1c908e7cd4be308f6c6f6262e2bcccbe1a073df2c545ae14",
+        "parent_sha256": "44d55431fad475248094fabd50cab3543241530dee37537276fa140fb0463f1a",
+        "merged_sha256": "9907ea6815187bf57de2dd2706f2bc6f4c47456a5ff6c979e896d65b6ba7b768"
+      }
+    },
+    "exact_v4_removal_equals_root_complete_files": true,
+    "root_all_existing_top_level_harness_functions_except_runtime_AST_equal": 47,
+    "runtime_whole_byte_inverse_preserved": true,
+    "ACK_and_identity_assignments_AST_equal": true,
+    "projector_existing_AST_preserved": [
+      "FiniteRuntimeDiagnostics",
+      "unobserved_diagnostics",
+      "unobserved_owner_refresh",
+      "owner_refresh_diagnostic",
+      "graph_identity_diagnostic",
+      "candidate_summary",
+      "project"
+    ],
+    "new_v4_UI_exact_incoming": true
+  },
+  "known_source_guard_failures_on_auto_merge": {
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": "original whole source changed",
+    "scripts/record-child-goal-ci-evidence.py": "original whole source changed",
+    "old_composed_ours": "Unknown composed driver source refused",
+    "old_composed_theirs": "Unknown composed driver source refused"
+  },
+  "four_existing_guard_locators": [
+    "tests/infrastructure/test_graph_observation_handshake.py::SourceControls.test_exact_handshake_layer_inverse_preserves_all_old_harness_business_budget_and_cleanup",
+    "tests/infrastructure/test_graph_identity_observation.py::OriginalHarnessSourceBoundary.test_exact_inverse_preserves_all_original_business_sql_schema_time_and_cleanup_source",
+    "tests/infrastructure/test_graph_provider_argv_diagnostics.py::GraphProviderArgvDiagnosticsTests.test_driver_call_remains_within_existing_identity_and_pgid_guards",
+    "tests/infrastructure/test_child_goal_diagnostics_v3.py::V3DiagnosticsTests.test_cancel_observation_never_replays_or_turns_absence_into_false_stop"
+  ],
+  "source_plan": [
+    {
+      "step": 1,
+      "action": "Root alone performs ordinary merge only when ready; resolve only three metadata conflicts, retaining both exact historical entries/limitations. Requirements evidence arrays should retain Root platform closure plus new Parent Owner-v4 results without changing requirement status. STATUS must retain Root17 current scope and distinct schema16 Parent evidence. BOOTSTRAP only final actual STATUS pin, not incoming stale hash."
+    },
+    {
+      "step": 2,
+      "action": "Keep auto-merged product/UI/harness/projector code. Exact v4 removal already yields full original fcc files; no strong binding/ACK/refusal/schema/permission/budget logic changes are needed."
+    },
+    {
+      "step": 3,
+      "action": "Add a narrow explicitly reviewed v4 OUTER inverse before strip_composed_outer_layer digest evaluation, preferably new fixed fixture/helper local to test source guards. Accept only exact automerged v4 whole source SHA or exact already-restored legacy source SHA; remove SHA-checked helper and exact one optin/begin/end additions, require full old fcc source SHA. Then call unchanged old composed inverse. Preserve every byte of the existing 95,572-byte test file embedded mapping data, its old merged9aca/Root4b03/Parent7dc pins, and downstream handshake/identity fixture pins. No ignored region, regex removal, merely changed expected hash, broadened arbitrary source variant, or input source from current working HEAD."
+    },
+    {
+      "step": 4,
+      "action": "Extend new v4 three-file inverse to TWO explicitly fixed reviewed variants, leaving the existing Parent(b3) original hashes and exact-layer hashes untouched. The Root17 variant must strip ONLY the same reviewed v4 layers and recover the complete immutable fcc Root originals listed in source_automerge. Include historical Parent-positive fixture bytes and Root17-positive current source plus negatives for outside edit, helper edit, lost optin/missing/duplicate/reordered endpoint and weakened original guard/schema. No executable runtime schema normalization: transformations are source proof only."
+    },
+    {
+      "step": 5,
+      "action": "Keep namespacefix from Parent test: exact real sampler AST, fake no-evaluate panel, one unavailable end sample only in Owner expect; preserve Root older assertions. Existing four guards should delegate through the new outer layer automatically; avoid editing each historical locator/assertion. Do not touch production Rust/driver budgets or original 95KiB embedded edit mapping."
+    },
+    {
+      "step": 6,
+      "action": "Root validates source/pure all affected metadata/identity/ACK/argv/namespace controls, then full infrastructure, mounted UI/type/build and a fresh genuine Root17 paired-source normal/cancel/lost-start run before exact CI. Parent local/schema16 results and all failed CI stay historical; no relabeling. No duplicate triggering of active Parent CI."
+    }
+  ],
+  "minimal_possible_followup_test_paths": [
+    "tests/infrastructure/test_graph_observation_handshake.py (tiny outer helper/delegation only; embedded mapping untouched)",
+    "tests/infrastructure/test_child_goal_diagnostics_v4.py (explicit Parent+Root17 inverse variants and negative controls)",
+    "tests/infrastructure/fixtures/child_goal_owner_ui_v4/* (only exact immutable reviewed source fixture if needed)"
+  ],
+  "production_Core_proof": {
+    "entire_crates_git_tree": "40564a48f4245fb744f8fc146492352bfd274c3b",
+    "merged_crates_same_git_tree": "40564a48f4245fb744f8fc146492352bfd274c3b",
+    "Cargo_toml_lock_product_workflow_byte_equal": true,
+    "all_production_Rust_inputs_unchanged": true,
+    "limit": "This is exact tracked source-input equivalence; no binary was built/hashed and no compiled-source-head metadata is reattributed to a future merge. New paired build metadata must obey existing same-head checks."
+  },
+  "bounded_pure_checks": {
+    "schema17_accept_and_15_16_18_float_bool_refusal": true,
+    "v4_inherits_original_graph_argv_assertion_refusal": true,
+    "v4_unobserved_UI_with_graph_failure": true,
+    "original_failure_prevents_pass": true,
+    "old_two_target_inverse_succeeds_after_v4_outer_strip": {
+      "ours": "4b0332152c2dff9e4d4d7df94dede8ce23b0735c1b76adbef14398c142811b88",
+      "theirs": "7dc4732f18be492fddcc49bb989f233cd4fc409bb11de33a7951f7d5cf36e338"
+    }
+  },
+  "not_run": [
+    "actual merge/worktree/index mutation or commit",
+    "candidate code change",
+    "Cargo/Node/browser/SQL/product processes/network/CI",
+    "full source-control suite or full tests on merged tree"
+  ],
+  "authority": "No formal Approve or CI/root-cause conclusion. Parent Product41188874038/Environment41188874085 are Root-reported active; not polled or retriggered."
+}

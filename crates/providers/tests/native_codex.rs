@@ -616,3 +616,136 @@ fn native_control_backpressure_fails_closed_instead_of_losing_denial_evidence() 
     assert!(p.diagnostics().process_reaped);
     assert!(p.diagnostics().update_records_dropped > 0);
 }
+
+const POLICY_FIXTURE: &str = r#"
+import sys,json,os
+sandbox,approval,mode=sys.argv[1:];cwd=os.getcwd();turn_count=0
+def record(direction,value):
+ with open('wire.ndjson','a') as f:f.write(json.dumps({'direction':direction,'frame':value})+'\n')
+def send(r,value):
+ frame={'id':r['id'],'result':value};record('provider',frame);print(json.dumps(frame),flush=True)
+for line in sys.stdin:
+ r=json.loads(line);record('client',r);m=r['method']
+ if m=='initialize':send(r,{'codexHome':os.environ.get('CODEX_HOME',cwd),'platformFamily':'unix','platformOs':'fixture','userAgent':'generated policy fixture'})
+ elif m=='initialized':assert r=={'method':'initialized'}
+ elif m=='thread/start':
+  assert r['params']=={'cwd':cwd,'approvalPolicy':approval,'sandbox':sandbox,'ephemeral':True}
+  scope={'type':'readOnly','networkAccess':False} if sandbox=='read-only' else {'type':'workspaceWrite','networkAccess':False,'writableRoots':[cwd]}
+  effective_approval=approval
+  if mode=='wrong_approval':effective_approval='never'
+  if mode=='wrong_sandbox':scope={'type':'dangerFullAccess'}
+  if mode=='network':scope['networkAccess']=True
+  if mode=='malformed_network':scope['networkAccess']='false'
+  if mode=='extra_root':scope['writableRoots']=[cwd,'/unapproved']
+  if mode=='missing_type':scope.pop('type')
+  t={'id':'policy-thread','cliVersion':'fixture','createdAt':1,'updatedAt':1,'cwd':cwd,'ephemeral':True,'modelProvider':'fixture','preview':'','projectId':None,'sessionId':'native-policy','source':'appServer','status':{'type':'idle'},'turns':[]}
+  send(r,{'thread':t,'cwd':cwd,'approvalPolicy':effective_approval,'approvalsReviewer':'user','model':'fixture','modelProvider':'fixture','sandbox':scope})
+ elif m=='turn/start':
+  turn_count+=1
+  policy={'type':'readOnly','networkAccess':False} if sandbox=='read-only' else {'type':'workspaceWrite','writableRoots':[cwd],'networkAccess':False,'excludeSlashTmp':True,'excludeTmpdirEnvVar':True}
+  assert r['params']=={'threadId':'policy-thread','input':[{'type':'text','text':'generated local turn'}],'cwd':cwd,'approvalPolicy':approval,'sandboxPolicy':policy}
+  turn={'id':'policy-turn-'+str(turn_count),'items':[],'status':'inProgress'}
+  send(r,{'turn':turn})
+  turn['status']='completed';frame={'method':'turn/completed','params':{'threadId':'policy-thread','turn':turn}}
+  record('provider',frame);print(json.dumps(frame),flush=True)
+ else:raise AssertionError(m)
+"#;
+fn policy_installation(
+    sandbox: &str,
+    approval: &str,
+    mode: &str,
+) -> (tempfile::TempDir, ApprovedInstallation) {
+    let (dir, mut installation) = installation("normal");
+    std::fs::write(PathBuf::from(&installation.arguments[1]), POLICY_FIXTURE).unwrap();
+    installation.arguments.truncate(2);
+    installation
+        .arguments
+        .extend([sandbox.into(), approval.into(), mode.into()]);
+    (dir, installation)
+}
+#[test]
+fn selected_native_policy_is_immutable_and_used_on_every_generated_turn() {
+    for sandbox in ["read-only", "workspace-write"] {
+        for approval in ["untrusted", "on-request"] {
+            let (dir, installation) = policy_installation(sandbox, approval, "normal");
+            let mut p = ManagedProviderProcess::start(
+                ProtocolRoute::CodexAppServer,
+                installation,
+                Duration::from_millis(500),
+            )
+            .unwrap();
+            let policy = json!({"sandbox_mode":sandbox,"approval_policy":approval});
+            p.configure_session_configuration(&policy).unwrap();
+            for bad in [
+                json!({"sandbox_mode":"danger-full-access","approval_policy":approval}),
+                json!({"sandbox_mode":sandbox,"approval_policy":"never"}),
+                json!({"sandbox_mode":sandbox}),
+                json!({"sandbox_mode":sandbox,"approval_policy":approval,"model":"not-imported"}),
+                json!({"sandbox_mode":sandbox,"approval_policy":approval,"mcpServers":[]}),
+            ] {
+                assert!(p.configure_session_configuration(&bad).is_err());
+            }
+            let thread = p.new_session("approved-snapshot-policy").unwrap();
+            assert!(p.configure_session_configuration(&policy).is_err());
+            for _ in 0..2 {
+                p.begin_prompt(&thread, "generated local turn").unwrap();
+                assert_eq!(p.wait_prompt(&thread).unwrap(), TurnState::Completed);
+            }
+            p.terminate();
+            assert!(p.diagnostics().process_reaped);
+            let wire = std::fs::read_to_string(dir.path().join("wire.ndjson")).unwrap();
+            let records: Vec<serde_json::Value> = wire
+                .lines()
+                .map(|line| serde_json::from_str(line).unwrap())
+                .collect();
+            assert_eq!(
+                records
+                    .iter()
+                    .filter(|r| r["direction"] == "client" && r["frame"]["method"] == "turn/start")
+                    .count(),
+                2
+            );
+            if let Some(destination) = std::env::var_os("AGENTBATON_TEST_CODEX_POLICY_CAPTURE_DIR")
+            {
+                std::fs::copy(
+                    dir.path().join("wire.ndjson"),
+                    PathBuf::from(destination).join(format!("{sandbox}-{approval}.ndjson")),
+                )
+                .unwrap();
+            }
+        }
+    }
+}
+#[test]
+fn selected_native_policy_rejects_expanded_effective_scope_and_reaps_before_any_turn() {
+    for sandbox in ["read-only", "workspace-write"] {
+        for mode in [
+            "wrong_approval",
+            "wrong_sandbox",
+            "network",
+            "malformed_network",
+            "extra_root",
+            "missing_type",
+        ] {
+            let (dir, installation) = policy_installation(sandbox, "untrusted", mode);
+            let mut p = ManagedProviderProcess::start(
+                ProtocolRoute::CodexAppServer,
+                installation,
+                Duration::from_millis(500),
+            )
+            .unwrap();
+            p.configure_session_configuration(
+                &json!({"sandbox_mode":sandbox,"approval_policy":"untrusted"}),
+            )
+            .unwrap();
+            assert!(
+                p.new_session("approved-snapshot-policy").is_err(),
+                "{sandbox}/{mode}"
+            );
+            assert!(p.diagnostics().process_reaped);
+            assert!(!std::fs::read_to_string(dir.path().join("wire.ndjson"))
+                .unwrap()
+                .contains("turn/start"));
+        }
+    }
+}

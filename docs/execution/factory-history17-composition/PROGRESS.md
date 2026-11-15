@@ -1,0 +1,9 @@
+# Progress
+
+Created codex/history17-composition from exact e0; prior integration-core-lints branch remains intact. Source cherry-pick 442feb1 and docs-only cherry-pick 9cae70f retain the requested two Parent commits without merging Parent metadata. IPC had four content conflicts, resolved by retaining both original blocks verbatim: history poll/cancel precedes the original Integration finish/tick/join block. All three conflict stages, conflicted input, hunk resolutions and final IPC SHA are preserved.
+
+Adapter abd6d4e changes the new history reader's exact current-schema guard from15 to17 and appends one cfg test. It rejects15/16/18 with INPUT_CHANGED/not_started, absent result and zero response revision; checks the actual stored pragma, sequence, execution counts and four Integration table counts remain unchanged; then checks a real17 history reply and original snapshot sequence. This is unexecuted Rust test source, not actual coverage. The readonly Store constructor already matches Core17 fields exactly and needs no adaptation.
+
+Forty-one mechanical assertions and standalone rustfmt/diff checks passed. Removing every original Parent IPC insertion yields the entire e0 IPC file byte-for-byte. Reversing the four DatabasePin visibility changes restores e0 factory_reads byte-for-byte, including exact17 and old15/old16/future18 negative guards. The new history service matches Parent byte-for-byte except its schema literal; all ten original history test bodies and two manual Actor/Unix test bodies remain intact. No SQL, DDL, deadlines, fees, PASS/unknown/empty-list semantics or other Core code changed.
+
+Parent's separately reported10 unit/2 manual Actor Unix passes and strict Clippy are Parent evidence only. They do not verify this Core17 composition. The previous Core17 pre-composition tests likewise are not claimed as passes for this source. No Cargo, Clippy, Rust/Actor/IPC/Native runtime or performance test ran here.

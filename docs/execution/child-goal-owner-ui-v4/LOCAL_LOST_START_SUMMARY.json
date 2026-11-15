@@ -1,0 +1,175 @@
+{
+  "contract": "agentbaton.child-goal-ci.v1",
+  "case": "lost-start",
+  "status": "passed",
+  "schema": 16,
+  "source_head": "ea62e2873431484aab352bc4bcaae3f15b758f35",
+  "compiled_core_source_head": "ea62e2873431484aab352bc4bcaae3f15b758f35",
+  "manifest_sha256": "b2cc024418aff0422f25b215de1e05e8784b0cb3c0a7fdcf2e5fc0cba0abece5",
+  "tools_sha256": {
+    "batond": "23ec86c384c474d20e759f54f34920c27f655e10a39065311fbbe1f594eeb066",
+    "baton": "7e35167228f5717f699807d220811099989926f164380480c7fd8000f318bf83"
+  },
+  "frontend_asset_count": 3,
+  "frontend_assets_sha256": "52b798bec119937ade6ce13e9c62bc7c6577bb15b7a80af45dc1f700aba28ba7",
+  "harness_sha256": "b959489950486874cf9730b9877dc36ee6c0121688dbc3fd9ef567138279268d",
+  "exit_code": 0,
+  "command_state": "returned",
+  "checks": [
+    {
+      "id": "CG01",
+      "status": "passed"
+    },
+    {
+      "id": "CG02",
+      "status": "passed"
+    },
+    {
+      "id": "CG03",
+      "status": "passed"
+    },
+    {
+      "id": "CG05",
+      "status": "passed"
+    },
+    {
+      "id": "CG06",
+      "status": "passed"
+    }
+  ],
+  "cleanup_complete": true,
+  "cleanup_record_count": 5,
+  "failure_kind": "none",
+  "screenshots_published": false,
+  "private_history_published": false,
+  "finite_diagnostics": {
+    "version": 4,
+    "failure_class": null,
+    "driver_lines": null,
+    "lines_truncated": null,
+    "phase": null,
+    "last_completed_check": "CG06",
+    "core_replies": {
+      "observation": "observed",
+      "captured_count": 304,
+      "truncated": false,
+      "unmapped_error_count": 0,
+      "errors": [
+        {
+          "method": "factory_child_goals.start",
+          "code": "AUTH_REQUIRED",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 1
+        },
+        {
+          "method": "factory_scopes.propose",
+          "code": "AUTH_REQUIRED",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 2
+        },
+        {
+          "method": "factory_runs.get",
+          "code": "NOT_FOUND",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 1
+        },
+        {
+          "method": "factory_child_goals.start",
+          "code": "STALE_REVISION",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 2
+        },
+        {
+          "method": "factory_child_goals.start",
+          "code": "CONFIG_CONFLICT",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 1
+        }
+      ]
+    },
+    "graph_provider_argv": null,
+    "owner_refresh": {
+      "observation": "observed",
+      "source_epoch": null,
+      "started_ns": 308454499267948,
+      "click_finished_ns": 308456400803134,
+      "finished_ns": 308459264432875,
+      "refresh_completed": null,
+      "full_fresh": null,
+      "loading": null,
+      "pending_kind": "unobserved",
+      "correlation": "temporal_only",
+      "click_causality": "not_established",
+      "reads": [
+        {
+          "method": "factory_child_goals.get",
+          "binding": "scope_task_run",
+          "started_ns": 308455183736811,
+          "finished_ns": 308455582736654,
+          "reply_class": "result",
+          "error": null
+        },
+        {
+          "method": "factory_child_goals.get",
+          "binding": "scope_task_run",
+          "started_ns": 308458296102748,
+          "finished_ns": 308458641814159,
+          "reply_class": "result",
+          "error": null
+        }
+      ],
+      "scope_task_only_read_count": 1,
+      "truncated": false
+    },
+    "graph_provider_identity": null,
+    "owner_ui_state": {
+      "source": "renderer_local_untrusted",
+      "authority": "none",
+      "begin": {
+        "observation": "observed",
+        "sampled_ns": 308454512576051,
+        "epoch": 7,
+        "fresh": false,
+        "loading": true,
+        "capacity": false,
+        "connected": true,
+        "busy": false,
+        "cancel_reading": false,
+        "disabled": true,
+        "has_view": true,
+        "summary_fresh": true,
+        "parent_ready": false,
+        "parent_refresh_only": true,
+        "pending_kind": "start",
+        "pending_unknown": true,
+        "owner_present": true,
+        "owner_disabled": true
+      },
+      "end": {
+        "observation": "observed",
+        "sampled_ns": 308459264335110,
+        "epoch": 8,
+        "fresh": true,
+        "loading": false,
+        "capacity": false,
+        "connected": true,
+        "busy": false,
+        "cancel_reading": false,
+        "disabled": false,
+        "has_view": true,
+        "summary_fresh": true,
+        "parent_ready": false,
+        "parent_refresh_only": true,
+        "pending_kind": "none",
+        "pending_unknown": null,
+        "owner_present": true,
+        "owner_disabled": false
+      }
+    }
+  }
+}

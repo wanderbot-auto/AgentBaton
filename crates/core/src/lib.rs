@@ -1,4 +1,6 @@
 //! AgentBaton's single business authority, shared by every local client.
+pub mod background_status;
+pub mod client_recovery_journal;
 pub mod command_validation;
 pub mod command_workers;
 pub mod data_validation;
@@ -8,15 +10,35 @@ pub mod execution;
 pub mod goal_plan;
 pub mod goal_store;
 mod goal_validator_io;
+pub mod integration;
 pub mod ipc;
 pub mod policy;
 pub mod registry;
 mod routes;
 mod runtime_config;
 pub use runtime_config::RuntimeBinding;
+#[cfg(test)]
+mod conversation_tests;
+pub mod conversations;
+pub mod conversations_history;
 pub mod sessions;
 pub mod storage;
+mod task_workspace_binding;
 pub mod validation;
+pub use task_workspace_binding::{
+    GitWorkspacePin, TaskGitWorkspacePreparation, TaskWorkspaceBinding, TaskWorkspaceBindingState,
+    TaskWorkspaceBindingView, TaskWorkspaceReservationReceipt,
+};
+mod workspace_open;
+pub use workspace_open::{
+    pin_open_context, WorkspaceDirectoryIdentity, WorkspaceOpenContext, WorkspaceOpenDirectoryPin,
+    WorkspaceOpenRequest, WorkspaceOpenSelection,
+};
+mod workspace_resolution;
+pub use workspace_resolution::{
+    CodeWorkspaceCandidateInfo, CodeWorkspacePreparation, CodeWorkspacePreparationReason,
+    CodeWorkspacePreparationRequest, CodeWorkspacePreparationState,
+};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

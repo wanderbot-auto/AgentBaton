@@ -1,0 +1,457 @@
+{
+  "contract": "agentbaton.child-plan-local-activation.v1",
+  "recorded_at": "2026-11-01T02:27:17.717345+00:00",
+  "state": "LOCAL_RESULTS_RECORDED_PENDING_METADATA_REVIEW",
+  "source": {
+    "harness_commit": "6a172435e51acfb539a8a3c6454c0e878f33f53f",
+    "root_actual_execution_commit": "89f83e6bc2968f3d70cb449135f828e4ade2dafe",
+    "source_tree": "5e1af136ea2502c4ed672ffc3661fac93d5c17e6",
+    "harness_and_root_tree_byte_equal": true,
+    "metadata_branch": "codex/child-plan-local-activation-evidence",
+    "remote_PR": 21,
+    "remote_head_at_Root_handoff": "db28129bd5e63a6b99bf8385843e4f3fb6f741eb",
+    "local_Root_execution_commit_pushed": false,
+    "metadata_committed_or_pushed": false
+  },
+  "scope": "Record a test-harness local activation repair and exact local evidence. No product/requirement/permission changes; no full130 acceptance.",
+  "authority_ack": "OWNER-001 and OWNER-002 read; this evidence does not change AB-START-001 or separately gated Provider, spend, production, credentials, signing or formal Approve.",
+  "source_review": {
+    "decision": "SOURCE_READY",
+    "source": "6a172435e51acfb539a8a3c6454c0e878f33f53f",
+    "report_sha256": "9cf9ea8e932ecb0607b3a6e6ade1d6a5632389882fac0c366d8db90b7b71ec59",
+    "dimension": "Independent source review +19 pure finite-decision/inverse tests; not browser proof"
+  },
+  "independent_pure_result": {
+    "source": "6a172435e51acfb539a8a3c6454c0e878f33f53f",
+    "passed": 19,
+    "failed": 0,
+    "unittest_seconds": 0.043,
+    "command_template": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/infrastructure",
+      "-p",
+      "test_child_planning_local_activation*.py",
+      "-v"
+    ],
+    "log_sha256": "0644a3580bd0260eae42fcf9121b9d3c2bda949c1df0553476fedc24f764f052"
+  },
+  "repair_boundary": {
+    "changed_product_or_Core": false,
+    "whole_old_driver_inverse_sha256": "174931beb6999e4120e4e6419cd3485db373f8f5383bfd72415e0982e8e39c02",
+    "current_driver_sha256": "325b013eefa3978107016ecb644290316cb820aa7d4a0d46286ca3c364cf85a3",
+    "observer": "Passive exact-button pointerdown/up/click + synchronous private bridge submit-start/active counters; no forced click or fake success",
+    "retry_witnesses": [
+      "Full original native press/release and no click delivered",
+      "Delivered click with explicit product not_sent publication"
+    ],
+    "common_requirements": "No new submit starts, active0, connected, no unknown outcome; HTTP row absence alone never authorizes replay",
+    "delivered_without_not_sent": "wait then fail within same deadline; never replay",
+    "maximum_local_activations": 4,
+    "original_total_deadline_seconds": 5,
+    "negative_checks_preserved": [
+      "All four exact local invalid drafts",
+      "Independent Core refusal code and side_effect_state=not_started",
+      "Unchanged original DB fingerprint",
+      "Original permissions, budgets, CAS and exact-key unknown recovery rules"
+    ]
+  },
+  "commands": [
+    {
+      "record": "child-planning-native-activation-control-command1",
+      "source": "89f83e6bc2968f3d70cb449135f828e4ade2dafe",
+      "exit": 0,
+      "wrapper_seconds": 1.1033261090051383,
+      "actual_argv_canonical_json_sha256": "ab93df4bbd6c475362e4e4c977e3f205c098fd0906c2ac5c4af0f90ed64cf5a2",
+      "argv_hash_encoding": "UTF-8 JSON array; ensure_ascii=false; comma/colon separators",
+      "sha256": {
+        "RESULT.json": "84ad65075176163674a118e5e3d86a197e22b9877f557efc0fed1e2bf9d7cb23",
+        "INPUTS.json": "6a34bc72b44401ae283133c84ebe4adf0b7177905678efa70feec361299b2487",
+        "command.log": "c720aee6c91344c7c2021a065c064e2ca98869663f992806e210a470f9ce60aa"
+      },
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "interruption": null,
+      "dimension": "Controlled real Chromium native DOM; no product/Core/Provider",
+      "command_template": [
+        "pinned-browser-python",
+        "controlled-native-activation-recipe.py"
+      ],
+      "status": "PASS",
+      "browser_version": "151.0.7922.34",
+      "genuine_activations": 2,
+      "submit_starts": 0,
+      "refresh_between_press_release": true,
+      "context_closed": true,
+      "browser_closed": true
+    },
+    {
+      "record": "child-planning-local-activation-browser1",
+      "source": "89f83e6bc2968f3d70cb449135f828e4ade2dafe",
+      "exit": 0,
+      "wrapper_seconds": 12.232590364990756,
+      "actual_argv_canonical_json_sha256": "3e5ac82b7fbd310163d294717af0b2c99d04db778d09c1f4e7f8a75379e096d4",
+      "argv_hash_encoding": "UTF-8 JSON array; ensure_ascii=false; comma/colon separators",
+      "sha256": {
+        "RESULT.json": "947a4a5f021246ca7602a7663ca1b912169dc2a8e61953afb996c31e9be5188e",
+        "INPUTS.json": "a47e0528da36bf05d7395b4532490ac1f95d73ff3c4c94cf8852599c55591d7b",
+        "command.log": "f66ea7d8eb5e42551c607bac3d859a754e19b3cbc3eb32a7f0931cd93b1b382b"
+      },
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "interruption": null,
+      "dimension": "Actual built React frontend + fixed private HTTP adapter + real Unix IPC/Core SQLite + generated ACP/MCP fixtures; no private Provider or Native OS dialog",
+      "command_template": [
+        "pinned-browser-python",
+        "apps/desktop/tests/factory-child-planning-real-ipc.py",
+        "--run",
+        "--tools",
+        "$FROZEN_SCHEMA17_PAIR",
+        "--frontend",
+        "$MATCHING_FRONTEND",
+        "--manifest",
+        "$PINNED_MANIFEST",
+        "--chromium",
+        "$PINNED_CHROMIUM",
+        "--output",
+        "$PRIVATE_OUTPUT"
+      ],
+      "status": "PASS",
+      "checks": 9,
+      "original_pngs": 4
+    }
+  ],
+  "infrastructure": {
+    "status": "PASS",
+    "attempts": [
+      {
+        "record": "child-planning-local-activation-infrastructure1",
+        "source": "89f83e6bc2968f3d70cb449135f828e4ade2dafe",
+        "exit": 127,
+        "wrapper_seconds": 0.10072341904742643,
+        "actual_argv_canonical_json_sha256": "77b9908bf219903837b0c6543b7d2ebabe4bcfaa828d040e0e5a3feeddb49b67",
+        "argv_hash_encoding": "UTF-8 JSON array; ensure_ascii=false; comma/colon separators",
+        "sha256": {
+          "RESULT.json": "8dfa6064a81f5a8ff84bead1792d45c639087c8a30a394c5a21d0aa08a723bbb",
+          "INPUTS.json": "441e69f8a5dce03cdb33363766ba64f578694f0fb17ab4f4847963f9da2fb0bf",
+          "command.log": "8d3a5d27882ef8071fd7e8ccacce02d1779fd456f955a16911412a4380ae785d"
+        },
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "interruption": null,
+        "dimension": "Infrastructure command startup only; unittest did not execute",
+        "command_template": [
+          "env",
+          "PATH=$PINNED_COMMAND_PATH",
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "status": "COMMAND_START_FAILED",
+        "tests_executed": 0,
+        "reason": "The explicit command PATH had no python executable; exit127. No test assertion ran."
+      },
+      {
+        "record": "child-planning-local-activation-infrastructure2",
+        "source": "89f83e6bc2968f3d70cb449135f828e4ade2dafe",
+        "exit": 0,
+        "wrapper_seconds": 21.852104846970178,
+        "actual_argv_canonical_json_sha256": "63503f64f656784601eebaa405660cbc39bda714ccd693b7c9aeebcaaf1941fd",
+        "argv_hash_encoding": "UTF-8 JSON array; ensure_ascii=false; comma/colon separators",
+        "sha256": {
+          "RESULT.json": "eb3b5cf307e16863804e299c33bf6710906d61f2d060ca9f21b89a1534659709",
+          "INPUTS.json": "7baa5d816772325cc05aaf9adaacfdb81c35f3bd5ce1b145b328b542443a7e43",
+          "command.log": "5e6777b528ba1cbf149d575b5144b90d94123e87cde661d4b9eb4ac10f72aa14"
+        },
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true,
+        "interruption": null,
+        "dimension": "Full local Python infrastructure suite; not product acceptance",
+        "command_template": [
+          "env",
+          "PATH=$PINNED_COMMAND_PATH",
+          "$ABSOLUTE_PINNED_RUNTIME_PYTHON",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py"
+        ],
+        "status": "PASS",
+        "tests_passed": 787,
+        "tests_failed": 0,
+        "unittest_seconds": 21.389,
+        "selected_frozen_tools_sha256": [
+          "0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f",
+          "5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984"
+        ],
+        "selected_tools_are_browser_schema17_pair": false
+      }
+    ]
+  },
+  "actual_child_planning": {
+    "private_report_sha256": "67953bc6735c3806a3d37855cd8d4f7a47bb31c53f7596c10da33d75a9b6f486",
+    "status": "passed",
+    "checks": [
+      {
+        "id": "CP01",
+        "evidence": "Actual UI complete policy -> private simulated Native review -> actual Core approval, no spawn/no Grant delegation",
+        "status": "passed"
+      },
+      {
+        "id": "CP02",
+        "evidence": "HTTP excludes Native approval/finalize/generic/scoped tool/session routes",
+        "status": "passed"
+      },
+      {
+        "id": "CP03",
+        "evidence": "Generated ACP -> actual private MCP5 -> root 1/2 and child 1/2 immutable refs; live third parent held after real child-ref2 handoff, prior attempts truly stopped",
+        "status": "passed"
+      },
+      {
+        "id": "CP04",
+        "evidence": "UI list refs and select r1 retrieves exact original GoalPlan bytes and raw SHA, not fabricated history",
+        "status": "passed"
+      },
+      {
+        "id": "CP05",
+        "evidence": "Real structured GoalPlan UI edit -> fixed Owner submit -> atomic revision3; no execution/new Grant/workspace/budget mutation",
+        "status": "passed"
+      },
+      {
+        "id": "CP06",
+        "evidence": "UI rejects coherent budget/input/output/mandatory-owner-validator drift; actual Core independently rejects exact payloads with zero DB mutation",
+        "status": "passed"
+      },
+      {
+        "id": "CP07",
+        "evidence": "Actual stale plan CAS refuses atomically; observed head/floors remain r3",
+        "status": "passed"
+      },
+      {
+        "id": "CP08",
+        "evidence": "Actual committed reply dropped; UI only reads/reconciles then explicit exact raw/key/CAS replay returns same immutable receipt without new row, changed payload conflicts",
+        "status": "passed"
+      },
+      {
+        "id": "CP09",
+        "evidence": "Six raw revisions bind independent real journal receipts; original Grant children0, exactly3 attempts, active0, no new Goal/TaskAccepted/workspace, source unchanged",
+        "status": "passed"
+      }
+    ],
+    "screenshots": [
+      {
+        "name": "01-explicit-planning-policy.png",
+        "sha256": "514f54458eeb8f48b571e400168a5fb2d1b91e7944e491882dc876ab8395fd27",
+        "bytes": 149286,
+        "width": 1488,
+        "height": 1400
+      },
+      {
+        "name": "02-real-child-ref-history-original-plan.png",
+        "sha256": "114ee71690206eacaebe43a7a3d437d0f9915bc4e10ddb9f91a12a0a6a79ebe0",
+        "bytes": 192346,
+        "width": 1488,
+        "height": 1400
+      },
+      {
+        "name": "03-real-ui-stored-root-plan-r3.png",
+        "sha256": "876d1e9cdd14c67db7e9127d4a78bbd5e48e501aed9d5345aa3e49c80a45e27c",
+        "bytes": 193367,
+        "width": 1488,
+        "height": 1400
+      },
+      {
+        "name": "04-exact-key-recovered-r4.png",
+        "sha256": "e97e66687ab47ba9d033f910839d7d3b3fb02c80bd5cf4fbfce0afbc8f6c0388",
+        "bytes": 191508,
+        "width": 1488,
+        "height": 1400
+      }
+    ],
+    "local_negative_activations": [
+      {
+        "variant": "budget",
+        "attempts": 1,
+        "outcome": "local_denied",
+        "submit_starts_delta": 0
+      },
+      {
+        "variant": "input",
+        "attempts": 1,
+        "outcome": "local_denied",
+        "submit_starts_delta": 0
+      },
+      {
+        "variant": "outputs",
+        "attempts": 1,
+        "outcome": "local_denied",
+        "submit_starts_delta": 0
+      },
+      {
+        "variant": "validators",
+        "attempts": 1,
+        "outcome": "local_denied",
+        "submit_starts_delta": 0
+      }
+    ],
+    "http_unexpected_errors": 0,
+    "readonly_aborts": 0,
+    "cleanup": {
+      "http_serve_and_handlers_joined": true,
+      "active_handlers": 0,
+      "daemon_wait_exit": 0,
+      "required_records": 3,
+      "actual_bound_verified_records": 3,
+      "required_original_identities": 6,
+      "actual_bound_inspected_identities": 6,
+      "original_identity_gone": 6,
+      "signal_sent_false_for_these_identities": 6,
+      "matches_original_record_identity_bytes": true,
+      "complete": true,
+      "global_no_kill_claim": false,
+      "linux_controller_reaper_restored": true,
+      "core_descendant_join_claimed_from_controller": false
+    },
+    "verified_original_record_pins": [
+      {
+        "sha256": "a0297f7376000766b535131375777cf1c86dfd6864a7f3d21a6871f793489dee",
+        "dimension": "verified generated fixture record, not authority from an Agent",
+        "original_file_sha256": "3c48a93ab17ecb0406561f96ac2c9198a250ba5e395b255e62b6e745263febcf"
+      },
+      {
+        "sha256": "968e8298150814f9c99c5136a8f7ce8ffc8c014758650d773b8372f629595295",
+        "dimension": "verified generated fixture record, not authority from an Agent",
+        "original_file_sha256": "1773bcaaba4331c819116c89bbed728ee669755e5e9cf84eb546ffb6d6e1a6a6"
+      },
+      {
+        "sha256": "0b537f45f28416d22d6ba3085394df1ab0b4a1704f59ca9576eba68bc3bc9713",
+        "dimension": "verified generated fixture record, not authority from an Agent",
+        "original_file_sha256": "b2f4ba08e6c5f78eec68784741e531f7ab85268c3de92103fb8b80ab833bd5ef"
+      }
+    ],
+    "dimension_limits": [
+      "Private Owner bridge is an explicitly simulated Native approval UI; actual Core finalization is exercised.",
+      "Generated ACP/MCP fixture programs are not real private Provider/model calls.",
+      "Controller subreaper is a Linux test cleanup mechanism, not Core descendant-join proof.",
+      "Nine checks and four PNGs cover this scenario only, not the complete browser suite or130 requirements.",
+      "PNG original bytes, hashes and IHDR dimensions were checked; no visual acceptance is claimed."
+    ]
+  },
+  "matching_built_inputs": {
+    "schema": 17,
+    "manifest_sha256": "e53a842563e59d103434f003511387dabe9275b0a821e8919402bed5ae2871b9",
+    "compiled_Core_source": "960550722366ee533431f4daf162a677e7c63d80",
+    "compiled_Core_tree": "c1e22337957b747d6c6f3b75f6624c4d55401147",
+    "frontend_build_source": "960550722366ee533431f4daf162a677e7c63d80",
+    "binaries_sha256": {
+      "batond": "f1b34e74473c7b0bf53c60d9f0f4deac12133e787b6deb0942033e0a3bfa3eee",
+      "baton": "cb8fabab476c480426bfcfb86caeb685405d27933b1f4541236706e0ea9247a0"
+    },
+    "frontend_assets_sha256": {
+      "assets/index-CxSi7Q5u.js": "a057a3b703d2a4ecbad8f1000d03396ed461c42270db31a40aa5f8de5864dad1",
+      "assets/index-Do9en2m0.css": "73a730d394d1d11ec8a348aac5b8933208bdd7150bab5f84da524c615a056420",
+      "index.html": "bfe8934c6f10cd72b1170bc7ee827667e2b07c74a6f0b68069029222d00ba16c"
+    },
+    "build_records": [
+      {
+        "record": "goal-owned-root-normal-build1",
+        "sha256": {
+          "RESULT.json": "5be15c110227fa02077347f08a082946c1f0b7fdf0d55fdf16ed0f5a84b75d8b",
+          "INPUTS.json": "12fd7b13fde198756e54a35985c5bfd37ae5602fd7977dc3a7b7e8ff5018af34",
+          "command.log": "2f43952fe4e0912b3f665054ae5741e9f981a402b68fc0965858873b5027b354"
+        }
+      },
+      {
+        "record": "goal-owned-root-frontend-build1",
+        "sha256": {
+          "RESULT.json": "24c91a030efd1396f4de48134386cc391ff45a4d2ee2ff7f769565c502ef5574",
+          "INPUTS.json": "e8a401a274269147d1e6997bf2b428f82b02eb91f2afa4b816355a09fc2693db",
+          "command.log": "85dcce395c38c707906dea4cb8bc437d50a58afb7887912ee82590190d6ef045"
+        }
+      }
+    ],
+    "source_equivalence_paths": [
+      "BOOTSTRAP_MANIFEST.json",
+      "apps/desktop/tests/factory-child-planning-real-ipc.py",
+      "docs/execution/STATUS.md",
+      "docs/execution/goal-owned-root-composition/CHECKPOINT.md",
+      "docs/execution/goal-owned-root-composition/EVIDENCE.json",
+      "docs/execution/goal-owned-root-composition/PLAN.md",
+      "docs/execution/goal-owned-root-composition/PROGRESS.md",
+      "docs/execution/requirements-progress.json",
+      "tests/infrastructure/test_child_planning_local_activation.py",
+      "tests/infrastructure/test_child_planning_local_activation_inverse.py"
+    ],
+    "source_equivalence_statement": "The listed exact960-to89f diff contains only metadata, this driver and two new pure tests. Core/frontend source matches the actual960 build. Frozen pair/frontend were hashed again and match the manifest; this is equivalence, not a new89f build.",
+    "new_build_at_89f": false
+  },
+  "retained_remote_failures": {
+    "source": "db28129bd5e63a6b99bf8385843e4f3fb6f741eb",
+    "Environment_run": 41262056804,
+    "Environment_state": "SUCCESS reported by Root; no new network polling by metadata author",
+    "Product_run": 41262058900,
+    "Rust_state": "SUCCESS reported by Root",
+    "UI": {
+      "job": 124717157868,
+      "state": "FAIL",
+      "child_planning_checks_before_failure": 5,
+      "pngs_retained": 4,
+      "first_failure": "Original local-negative input-variant Plan submission refused alert absent for original5000ms at factory-child-planning-real-ipc.py:1186",
+      "diagnostic_sha256": "9849e458ae790bc9589d5209984c381cf1d2ce4b9e57d8166e9fd86215068d6b",
+      "official_job_log_sha256": "67dfeec02dbae3ce92d8d13e7d6353f9ef694055db1346196c766790aba74ac1",
+      "diagnostic_report_sha256": "8ca9814cbaf3a618e9a982a566343c80e45495400084f180467bde409748e003",
+      "sole_cause": "UNKNOWN; historical records have no native-event trace. Disabled/read-only state is consistent with lost activation but does not prove a unique root cause.",
+      "historical_cleanup": "HTTP join and daemon wait0 were observed; overall cleanup_complete=false and identity cleanup contract complete=false remain unchanged."
+    },
+    "ARM": {
+      "job": 124717158134,
+      "state": "FAIL",
+      "Integration_passed": 21,
+      "Integration_failed": 12,
+      "diagnostic_sha256": "10883b7e66bcecbb1bad577c62cfe101d2f2224e7a4b7c4a4430110fcb11fe6f",
+      "official_job_log_sha256": "8244295fb88a9fadea0b8f87f3e7a4d818301f98fa5468d906a4a83218636885",
+      "meaning": "Distinct Integration preparation/observation failures; this UI harness repair and Linux passes do not close them.",
+      "Integration_seconds": 235.61
+    },
+    "new_exact_candidate_CI": "NOT_RUN",
+    "as_of_UTC": "2026-11-01T02:22:38Z",
+    "Product_state": "FAIL; all jobs terminal; Rust passed, UI and both Mac Integration lanes failed",
+    "Intel_prior_handoff_state": "RUNNING at Root handoff; no final terminal result is claimed here",
+    "Intel": {
+      "state": "FAIL",
+      "Integration_passed": 21,
+      "Integration_failed": 12,
+      "Integration_seconds": 248.62,
+      "official_job_log_sha256": "42c30721b591120f115fe8846a86065ebbcfa734d3a39803b898f7d216defe85",
+      "first_failure": "accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_source: integrations.get observation expired; state validating, code null; integration_runtime.rs:138:9",
+      "meaning": "Different first observation from ARM OUTCOME_UNKNOWN; no shared root cause or Mac closure inferred. The unit-only caught panic is not this final failing test."
+    }
+  },
+  "remaining_acceptance": [
+    "Independent staged metadata review",
+    "Precise new remote Environment/Product CI and their actual terminal results",
+    "Retained ARM and Intel Integration failures",
+    "Later child-Goal normal/cancel/lost-start on a new precise candidate",
+    "Current macOS Native/dual-architecture development packages",
+    "Real private Provider/model tests under separate authority",
+    "All remaining130 requirement completion evidence"
+  ],
+  "privacy": "Publish finite statuses/counts/digests/basename screenshots only. Raw temporary paths, process identities, request/settings/nonce, raw plan and owner review contents remain in private local evidence. Canonical raw argv hashes bind external INPUTS without publishing its private paths.",
+  "non_actions": [
+    "No production, account, credential, signing, budget or permission changes",
+    "No formal Approve, merge to protected main, push or new CI from this metadata author",
+    "No product source or requirements-progress edits"
+  ]
+}

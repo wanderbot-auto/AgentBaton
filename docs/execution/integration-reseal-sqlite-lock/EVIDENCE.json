@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "baseline": "84c530459fa165ad14f36bac0ace01eb9462f309",
+  "source_head": "dcc1a39871730fbce2cc7f711934481f5369b866",
+  "state": "source_only_not_runtime_verified",
+  "source_files": {
+    "crates/core/src/integration_reads.rs": "d0a4167d45a17378ed2b6d74e72733b6730187fe69b7b9933844c6c3122631f6",
+    "crates/core/src/integration_reads_reseal_lock_tests.rs": "a938548c3d322092a17c5ca9561e2d3a3e710b9c11810c23ba5a0398ba7a4fbe"
+  },
+  "checks": [
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --check crates/core/src/integration_reads_reseal_lock_tests.rs",
+      "exit": 0,
+      "dimension": "source_format"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "dimension": "source_whitespace"
+    }
+  ],
+  "runtime": {
+    "cargo_compile": "not_run",
+    "sqlite_child_experiments": "not_run",
+    "linux": "not_run",
+    "macos_arm64": "not_run",
+    "macos_x86_64": "not_run",
+    "full_reseal_path": "not_exercised_by_this_narrow_fixture"
+  },
+  "new_test_declarations": 3,
+  "actual_parent_child_lock_experiments": 2,
+  "inert_child_helper_declarations": 1,
+  "authority": "existing AB-START-001; test-only source; no formal PR approval",
+  "source_review_correction": "Explicit crate-relative exact libtest probe name; old module_path selector not executed"
+}

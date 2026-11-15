@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "scope": "schema17composition of Parent finite diagnostics only",
+  "Root_base": "53e2c1b0432c4e7d96d44fc8205450114709e08d",
+  "branch": "codex/child-goal-finite-diagnostics17",
+  "Parent_source": "f8225a4b6a592753eccfab76ca3a83811031bec9",
+  "Parent_metadata": "455646e",
+  "source_cherry_pick": "445216385142904d3b6b5656e5bfb0a99453140e",
+  "metadata_cherry_pick": "dd1057ea7f2714440ca9c1d01cba43cc8bc9edd3",
+  "text_conflicts": false,
+  "source_files": [
+    {
+      "path": "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "sha256": "10079c36f6c5fb6e0bb08fcf2ca644ba0d2cbc1a9c63ec5a5bcdfb1482cc4c10"
+    },
+    {
+      "path": "scripts/record-child-goal-ci-evidence.py",
+      "sha256": "51c2aee9491f5df4b37ce00044b62e42e1cd39ffe2b75db9144ae3583b6b9653"
+    },
+    {
+      "path": "tests/infrastructure/test_child_goal_finite_diagnostics.py",
+      "sha256": "bc53cb04b3806ee1a1c7bd9fee713dd62f6963879939d90c364b0ea646b57287"
+    }
+  ],
+  "whole_file_inverse": [
+    {
+      "path": "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "Parent_exact_diagnostic_hunks": 6,
+      "Root53e_byte_equal_after_inverse": true,
+      "Root53e_sha256": "83ca71b1b0d22904632fbf4de3502e87696bae8d4d045045387e303132e3fd24",
+      "composed_sha256": "10079c36f6c5fb6e0bb08fcf2ca644ba0d2cbc1a9c63ec5a5bcdfb1482cc4c10"
+    },
+    {
+      "path": "scripts/record-child-goal-ci-evidence.py",
+      "Parent_exact_diagnostic_hunks": 4,
+      "Root53e_byte_equal_after_inverse": true,
+      "Root53e_sha256": "0482c55d8cb73f378191ead07ec86609992d1dc0c945b78786e51d8f2d23ee35",
+      "composed_sha256": "51c2aee9491f5df4b37ce00044b62e42e1cd39ffe2b75db9144ae3583b6b9653"
+    }
+  ],
+  "new_test_only_adaptation": "explicit integer17 positive;15/16/18 candidate refusal; all Parent diagnostics byte-identical",
+  "old13_test_file": {
+    "path": "tests/infrastructure/test_child_goal_ci_evidence.py",
+    "sha256": "0cd914f4724b14d0db9abbad3cfab043caefb3e422231999d9e5eeeb88c3746d",
+    "Root53e_byte_equal": true
+  },
+  "Parent_records_unchanged": [
+    {
+      "path": "docs/execution/child-goal-finite-diagnostics/PLAN.md",
+      "sha256": "af0117eca3f1aae0cf611fe7610bd28889ad3effedf6c6899c4b20ddb48dadc2",
+      "Parent455_byte_equal": true
+    },
+    {
+      "path": "docs/execution/child-goal-finite-diagnostics/PROGRESS.md",
+      "sha256": "594bc521ecd475913b5abc9b21f794ff3cda04469963bfdb0c92327de61ba47a",
+      "Parent455_byte_equal": true
+    },
+    {
+      "path": "docs/execution/child-goal-finite-diagnostics/CHECKPOINT.md",
+      "sha256": "795a7494abc40c9e50e613e04371d1b66dcd1821a3c9c69f21698e48ecde0ccd",
+      "Parent455_byte_equal": true
+    },
+    {
+      "path": "docs/execution/child-goal-finite-diagnostics/EVIDENCE.json",
+      "sha256": "caea96b0c46450f18c799dffdb84f0fecdfbb67ea9e6b68fea60384637f35d54",
+      "Parent455_byte_equal": true
+    }
+  ],
+  "actual_pure_checks": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.infrastructure.test_child_goal_ci_evidence",
+        "tests.infrastructure.test_child_goal_finite_diagnostics",
+        "-q"
+      ],
+      "tests": 26,
+      "old": 13,
+      "new": 13,
+      "exit": 0,
+      "seconds": 0.243
+    },
+    {
+      "command": [
+        "python3",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--self-check",
+        "--output",
+        "<new private temporary output>"
+      ],
+      "exit": 0,
+      "status": "passed",
+      "schema_required": 17,
+      "count": 362,
+      "seconds": 1.428222057002131,
+      "stdout_sha256": "66d800a07ea249ee70efbfc9b97b06ae1977114eb85d8e3cdb21337db35fab77",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_runtime": "NOT_RUN; self-check does not execute products",
+      "temporary_output": "removed after successful pure check"
+    }
+  ],
+  "counts_nonadditive": true,
+  "prior_handoff_expected_selfcheck": 322,
+  "actual_Root17_selfcheck": 362,
+  "actual_CoreError_DTO_source": "crates/core/src/lib.rs:37 code/message/retryable/side_effect_state/details_ref, observed source only",
+  "Parent_prior_runtime_attribution": {
+    "Root_reported_combination": [
+      "f8225a4",
+      "ad400f0"
+    ],
+    "compiled_Core_frontend_source": "4155548fbeca71f238309cff33a248ea1e2d53ca",
+    "frozen_schema": 15,
+    "normal_checks": 4,
+    "seconds": 34.938,
+    "projector": "Root reported passed",
+    "not_revalidated_by_author": true,
+    "not_transferable_to_new17": true,
+    "ad400f0_imported": false
+  },
+  "syntax": "AST PASS",
+  "whitespace": "git diff --check exit0",
+  "unchanged": [
+    "strict17 schema/API/version/IPC controls",
+    "schema15/16/18 refusals",
+    "Root integration-zero guards",
+    "runtimewait/pass/retry/budget/cleanup",
+    "RootCore/UI/CI/profile/locks/status",
+    "Parent sealed EVIDENCE"
+  ],
+  "not_run": [
+    "actual Core/Actor/Unix IPC",
+    "browser/Node/Cargo/CI",
+    "schema17 runtime/migration",
+    "OS/macOS",
+    "live Provider/network"
+  ],
+  "independent_review": "PENDING",
+  "formal_pr_approve": false,
+  "capture_failure_observation_bd7_2026_11_01": {
+    "source_head": "bd7fa954e545d8aa7d5a8037b15ab951bbf4ce53",
+    "source_tree": "7cf52acbadb194f2dc4ebe7520303284a48934be",
+    "source_baseline": "e2cfe090dd3268bff541008860ebd098d159b348",
+    "branch": "codex/child-goal-capture-failure-observation",
+    "scope": "Failure-only started_records/graph_records substage, bounded errno and exact two-source helper enum/line; original exception re-raised; no product, budget, window, identity/stop guard or retry change.",
+    "source_review": {
+      "path": "/tmp/child-goal-capture-failure-independent-review/REVIEW.json",
+      "sha256": "04c2ea793e77b2ee5a7e6534caeb48fbea6af86a8cdc7309fcbfa77fc55b5620",
+      "decision": "SOURCE_READY",
+      "checks": 236,
+      "independent_unique_pure_tests": 177,
+      "mustfix": [],
+      "formal_pr_approval": false
+    },
+    "source_author_evidence": {
+      "path": "/tmp/child-goal-capture-failure-observation-evidence/RESULTS.json",
+      "sha256": "35084e161d1f21b278a181d3b0bd7dbdc9c1184b46174888f2cb9cfceb79c66c",
+      "whole_source_and_old_test_inverse": "Exact e2 full driver, projector and original v4 source/test pins and negatives restored; unknown layer rejected.",
+      "prior_failed_checks": "Retained initial source-guard refusals, syntax/no-op negative fixture failures and missing-method replacement hazard in original author SOURCE_PROOF logs; no failures deleted."
+    },
+    "actual_Linux_main_runs": {
+      "infrastructure1": {
+        "result_path": "/workspace/.onboarding/child-goal-capture-failure-infrastructure1/RESULT.json",
+        "result_sha256": "674ae219ccfdd500b1b2d249b162d68fcb7b63a2542c64eff5bc19454fa7d90f",
+        "inputs_path": "/workspace/.onboarding/child-goal-capture-failure-infrastructure1/INPUTS.json",
+        "inputs_sha256": "9289233fc34187e6a41204d1d3dc008cf75ddb52779e8ef9905c01581958842a",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-v"
+        ],
+        "exit": 0,
+        "wrapper_seconds": 23.25575371499872,
+        "log_sha256": "38487281059baf5fce64ad1f4f77698e47d58791c5f8e0bb58485058e8246f82",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true
+      },
+      "normal-build1": {
+        "result_path": "/workspace/.onboarding/child-goal-capture-failure-normal-build1/RESULT.json",
+        "result_sha256": "fd6cf4115cf4c76ddbe5494dec41dc82dda05374f83694835ee80b46708f47b7",
+        "inputs_path": "/workspace/.onboarding/child-goal-capture-failure-normal-build1/INPUTS.json",
+        "inputs_sha256": "a202ab560d397486e219613c7040b39fd5ee2fadcd775493a581238722d69a7c",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit": 0,
+        "wrapper_seconds": 22.063322431000415,
+        "log_sha256": "93719bf5b96758d3e217050391f9999bf9f28ac8be32dd76f28cf8427dd1dbb2",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true
+      },
+      "normal-freeze1": {
+        "result_path": "/workspace/.onboarding/child-goal-capture-failure-normal-freeze1/RESULT.json",
+        "result_sha256": "4b06264bf0f8856703543548644affaeed3539191b456bc973e68ce291820e15",
+        "inputs_path": "/workspace/.onboarding/child-goal-capture-failure-normal-freeze1/INPUTS.json",
+        "inputs_sha256": "d9036a4f4d063d59b3ef2432a41c1146b48f5e85c1f4415a6e04d913235571c2",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+          "--output",
+          "/tmp/child-goal-capture-failure-normal-frozen1",
+          "--evidence",
+          "/tmp/child-goal-capture-failure-normal-freeze-evidence1"
+        ],
+        "exit": 0,
+        "wrapper_seconds": 0.40150743001140654,
+        "log_sha256": "520afc3919d7b547ae324af34ffc96ed5bd3d0a6e80ba21a299c6f6d55d87fe6",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true
+      },
+      "frontend-build1": {
+        "result_path": "/workspace/.onboarding/child-goal-capture-failure-frontend-build1/RESULT.json",
+        "result_sha256": "48ddbb8b54f6f0df935e7fd52afb5b1552234f5a185f990e63d026cf451e6f5f",
+        "inputs_path": "/workspace/.onboarding/child-goal-capture-failure-frontend-build1/INPUTS.json",
+        "inputs_sha256": "b010beb1b6fe0672a60dc2819bcdcea4631045440502bb3fc546aa61b8131a6b",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "wrapper_seconds": 2.0441608679830097,
+        "log_sha256": "a54138e6786fdbc60c51cb34b83ad7bb23dd820fa9bf7ac4ff5b9633ffce40a8",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true
+      },
+      "browser-cancel1": {
+        "result_path": "/workspace/.onboarding/child-goal-capture-failure-browser-cancel1/RESULT.json",
+        "result_sha256": "7a0e8f0168f2ed84a143f9e86a6415fb6d809a0d705034b1ad5161fa0eb18c4e",
+        "inputs_path": "/workspace/.onboarding/child-goal-capture-failure-browser-cancel1/INPUTS.json",
+        "inputs_sha256": "037e95f4ea0870bba437be083aa20fd7750e0411ba358de6978588e99116bd42",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "PYTHONHOME=/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+          "AGENTBATON_FACTORY_TEST_TOOLS=/tmp/child-goal-capture-failure-normal-frozen1",
+          "AGENTBATON_CHILD_PLAN_COMPANION=/tmp/child-goal-capture-failure-normal-frozen1/baton",
+          "AGENTBATON_CHILD_GOAL_COMPANION=/tmp/child-goal-capture-failure-normal-frozen1/baton",
+          "/workspace/.onboarding/integration17-owned-browser-runtime1/python",
+          "apps/desktop/tests/factory-child-goal-real-ipc.py",
+          "--run",
+          "--case",
+          "cancel",
+          "--tools",
+          "/tmp/child-goal-capture-failure-normal-frozen1",
+          "--manifest",
+          "/workspace/.onboarding/child-goal-capture-failure-browser-manifest1.json",
+          "--frontend",
+          "apps/desktop/dist",
+          "--chromium",
+          "/workspace/.onboarding/root29-owned-chromium-runtime1/chromium",
+          "--output",
+          "/tmp/child-goal-capture-failure-browser-cancel1-private"
+        ],
+        "exit": 0,
+        "wrapper_seconds": 19.165206262026913,
+        "log_sha256": "26c30fdb5c75b729eaaad07e87ea3357fc579ad444d51d9a5087fb6f936fa0ea",
+        "source_head_and_tracked_unchanged": true,
+        "frozen_tools_unchanged": true
+      }
+    },
+    "infrastructure_summary": {
+      "passed": 768,
+      "failed": 0,
+      "unittest_seconds": 22.648,
+      "wrapper_seconds": 23.25575371499872,
+      "counts_nonadditive": "Includes related pure controls; do not sum with author/reviewer177."
+    },
+    "runtime_binding": {
+      "schema": 17,
+      "manifest_path": "/workspace/.onboarding/child-goal-capture-failure-browser-manifest1.json",
+      "manifest_sha256": "1c0b745b39bc6c52177a7206c36f79c97bd85726bba54116a77d5a885760903d",
+      "source_head": "bd7fa954e545d8aa7d5a8037b15ab951bbf4ce53",
+      "compiled_core_source_head": "bd7fa954e545d8aa7d5a8037b15ab951bbf4ce53",
+      "frontend_build_source_head": "bd7fa954e545d8aa7d5a8037b15ab951bbf4ce53",
+      "frozen_directory": "/tmp/child-goal-capture-failure-normal-frozen1",
+      "frozen_manifest_sha256": "3269cbfb2f01b44d67cd91f0b000a1a49a498bc0f87f11b6d6823e319100c790",
+      "binaries_sha256": {
+        "batond": "c9631cd73f7881c62b133212ed4362ba8a4f0ba78dfc388aaef2e8d8e5c2ff50",
+        "baton": "31faa8df8c98aae3514ef74415917840d08dd28e01f8a5f76ef476830c3629e7"
+      },
+      "frontend_assets_sha256": {
+        "index.html": "bfe8934c6f10cd72b1170bc7ee827667e2b07c74a6f0b68069029222d00ba16c",
+        "assets/index-Do9en2m0.css": "73a730d394d1d11ec8a348aac5b8933208bdd7150bab5f84da524c615a056420",
+        "assets/index-CxSi7Q5u.js": "a057a3b703d2a4ecbad8f1000d03396ed461c42270db31a40aa5f8de5864dad1"
+      }
+    },
+    "actual_Linux_cancel": {
+      "status": "passed",
+      "private_report_path": "/tmp/child-goal-capture-failure-browser-cancel1-private/report.json",
+      "private_report_sha256": "f8f2ba3675f33408ca83499734f25e9dfa72458f0749bdf97544c8ad41ec348c",
+      "check_ids": [
+        "CG01",
+        "CG02",
+        "CG04",
+        "CG06"
+      ],
+      "screenshot_count": 3,
+      "screenshots": [
+        {
+          "name": "01-complete-explicit-execution-policy.png",
+          "sha256": "d6190ee284562ff0d77c7e311da3f5e773ea31d61eda65b97d1cc8b3c33a2b49",
+          "bytes": 150911,
+          "dimension": "Linux Chromium, NOT Native/macOS"
+        },
+        {
+          "name": "02-exact-saved-raw-reference-before-start.png",
+          "sha256": "0ed01148e4e7b329b951fbe13debdffe3dd9dcf158ef4610f03520b11bf404df",
+          "bytes": 200488,
+          "dimension": "Linux Chromium, NOT Native/macOS"
+        },
+        {
+          "name": "04-persisted-final-graph-and-factory.png",
+          "sha256": "a5561e9bf17d979867357c309a32aba31196c42a5e889040365406a889f21f65",
+          "bytes": 208182,
+          "dimension": "Linux Chromium, NOT Native/macOS"
+        }
+      ],
+      "cleanup_complete": true,
+      "daemon_exit_code": 0,
+      "HTTP_join_confirmed": true,
+      "fixed_binding": {
+        "verified_records": 1,
+        "inspected_identities": 2,
+        "all_original_identities_gone": true,
+        "observed_identity_signal_sent": [
+          false,
+          false
+        ]
+      },
+      "Graph_identity_gone": true,
+      "Graph_observed_signal_sent": false,
+      "persisted_sessions_match_bound_stopped_processes": true,
+      "global_noKill_field": "not present; no such property invented",
+      "finite_diagnostics_version": 4,
+      "failure_class": null,
+      "limit": "Linux Chromium/frontend with genuine generated local daemon/IPC. Successful cancel exercises original success/cleanup, not a real injected v5 capture exception or Mac Native acceptance."
+    },
+    "prior_Root003_CI_failure_retained": {
+      "source": "00341987587209945a878bb9802ff49fb062bb8b",
+      "run": 41254032180,
+      "Rust": {
+        "job": 124693288358,
+        "conclusion": "success"
+      },
+      "Intel": {
+        "job": 124693288432,
+        "target": "factory_runtime_ipc",
+        "passed": 35,
+        "failed": 1,
+        "code": "REWORK_REVISION2_TERMINAL",
+        "run_state": "blocked",
+        "capture_actual_runtime_ms": 4344,
+        "capture_declared_runtime_ms": 4000,
+        "producer_elapsed_ms": 4027,
+        "io_completion": "not_started",
+        "cleanup_actor_joined": true,
+        "evidence_path": "/tmp/root003-first-phase-mac-diagnostic/RESULTS.json",
+        "sha256": "fbe39de6100313a43ffbc501417d405578ee2b12173e8bb5e77527837fe06ee3"
+      },
+      "ARM": {
+        "job": 124693288478,
+        "Core": {
+          "passed": 266,
+          "failed": 0
+        },
+        "Factory": {
+          "passed": 36,
+          "failed": 0
+        },
+        "Integration": {
+          "passed": 21,
+          "failed": 12
+        },
+        "first_case": "accepted_graph_explicit_start_fresh_correctness_and_exact_cas_preserve_owner_source",
+        "source_line": 1080,
+        "code": "OUTCOME_UNKNOWN",
+        "phase13_cases": 11,
+        "snapshot_time": "post_owned_shutdown_not_failure_instant",
+        "evidence_path": "/tmp/root003-arm-phase-mac-diagnostic/RESULTS.json",
+        "sha256": "d77eb00b5b5b3c82c015f4a98cf4e1d05cf6df32c5633fd592f5abc657c99994"
+      },
+      "UI": {
+        "job": 124693288241,
+        "case": "cancel",
+        "completed_check_count": 2,
+        "failure_class": "os_error",
+        "capture_helper_line": 1708,
+        "specific_errno_or_original_rootcause": "not retained; not established by current diagnostic patch or successful local cancel",
+        "evidence_path": "/tmp/root003-native74da-ci-diagnostic/RESULTS2.json",
+        "sha256": "99c1c16ffad086902365a61db53c701100e94c44337cfb0c93feb3264b4b6d1c",
+        "binding_erratum": "RESULTS2 preserves and corrects older report architecture-job binding; old original report not overwritten."
+      },
+      "limit": "Different source and failure classes; no old result transferred to bd7 or next integrated CI. Historical failure retained, no new Root CI requested by this metadata task."
+    },
+    "not_run_for_bd7": [
+      "normal/lost-start actual browser cases",
+      "actual v5 exception injected runtime",
+      "new exact-candidate Product/Environment CI",
+      "Apple Silicon and Intel/macOS Native acceptance",
+      "development installer/signature validation",
+      "real Provider/model calls",
+      "complete product delivery"
+    ],
+    "permission_and_scope": "Design v0.2/AB-START-001 and all130 requirements retained; no new credentials, accounts, paid resources, production/signing or formal Approve. SOURCE_READY/local success is not full delivery."
+  }
+}

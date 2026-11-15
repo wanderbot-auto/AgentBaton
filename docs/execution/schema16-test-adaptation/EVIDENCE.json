@@ -1,0 +1,47 @@
+{
+  "kind": "authored source/static/synthetic evidence",
+  "base": "61c730ba4fdb5bdd0858cb4fc52ee07d29dce6c8",
+  "source_commit": "84e6969edc46eba385c6a9bd1473ddc93a4ee51a",
+  "inventory": {
+    "top_level_targets": 17,
+    "current_assertions": 18,
+    "future_negative_functions": 10,
+    "changed_test_files": 19,
+    "Rust_negative_variants_source_only": 30
+  },
+  "completed": {
+    "static_source_checks": 35,
+    "synthetic_SQLite_WAL_model_controls": 22,
+    "rustfmt_files": 19
+  },
+  "results_scope": "No Rust/helper/Store test execution; no genuine14 migration execution. Checks are not additive product coverage.",
+  "not_run": [
+    "Rust compilation/tests/Clippy",
+    "real migrations/genuine14 consumer",
+    "Actor/daemon",
+    "Node/browser",
+    "macOS/CI"
+  ],
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "sha256": "02c08a7cb2c5f6a478d360da7b4745489446000488ce4f9e3662874c3def98dc",
+    "bytes": 15887,
+    "members": 20,
+    "roundtrip_verified": true
+  },
+  "manifest_sha256": "26c751dfdafd6134644365c2e3a5cf694b0058ab6b6b3d6e686fbc428838857b",
+  "external_directory": "/workspace/.onboarding/schema16-test-adaptation",
+  "failure_retained": "first-checker-failure: own Python checker predicate failure, corrected; not product failure",
+  "protected_source_bytes_equal": true,
+  "narrow_task_array_revision": {
+    "source_commit": "e57a99f6f5fc15bfd10f2ba577ee15f0aa836f75",
+    "static_checks": 8,
+    "Rust_variants_source_only": 31,
+    "Rust_execution": "NOT_RUN",
+    "prior_checks_not_relabelled": true,
+    "archive": "TASK_ARRAY_EVIDENCE.tar.gz",
+    "archive_sha256": "62b537c17b7417b58df3d79e98cd784f8528e0c40e691400d77a2ba3d803bb57",
+    "manifest_sha256": "739e01f0982cfcdd880eb76e033f64a640e4af91a22131e844bee9f2838ce201",
+    "roundtrip_verified": true
+  }
+}

@@ -1,3 +1,9 @@
+## Prior settlement association extension — 2026-10-31
+
+The latest Intel observation is a capture settlement at run revision12 after a separate node settlement at11. Reuse the existing strict reservation/session correlation for that previous node as well; keep it inside previous_node_settlement and retain both historical/not-same-plan labels. The original helper, event bounds, redaction, source predicates and runtime budgets remain unchanged. No causal or authority claim follows from a stop reason or completed turn.
+
+Root103 generated-SQLite tests pass, including6 new prior-binding/missing/duplicate/foreign/late/numeric controls. Independent source review passes64 checks and independently runs102 cases; its one guard-blocked old FIFO method and original attempt are separate, never counted passed. All original17 stop methods/80 collector methods remain; actual enhanced Core/Mac/CI projection is not run. See the appended EVIDENCE.json entry; old failures and source pins remain historical.
+
 # Finite rework stop/turn correlation
 
 Basead400f09b6f55601d600099de68b7d6ca00406dd. Independent branchcodex/factory-rework-stop-correlation. Evidence-only slice for AB-TSK-007/008/009 and AB-VAL-009; not completed requirements, stop authentication, admission or causal diagnosis. Original OWNER-001/002 and development boundary stay unchanged.

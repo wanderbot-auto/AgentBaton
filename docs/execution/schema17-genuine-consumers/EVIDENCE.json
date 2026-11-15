@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "unit": "schema17-genuine-consumers",
+  "recorded_at": "2026-10-30T23:27:55.569035+00:00",
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-005",
+    "AB-TSK-008",
+    "AB-TSK-010"
+  ],
+  "base": "9b695892a1814dc9daf7e09486e94cbefdc25b2f",
+  "source": "b05b6dcd9fbf2c388c14f8e08025526075ba2ae8",
+  "state": "SOURCE_ONLY_RUNTIME_NOT_RUN",
+  "allowed_source_paths": [
+    "crates/core/tests/factory_child_goal_legacy_migration.rs",
+    "crates/core/tests/task_workspace_actual15_migration.rs"
+  ],
+  "source_sha256": {
+    "crates/core/tests/factory_child_goal_legacy_migration.rs": "73229ba6d8287fbe1b10753910e63d0d19acd75ed4d0493f089892abbf3e05c7",
+    "crates/core/tests/task_workspace_actual15_migration.rs": "9bead11767f2810df74cac0f14203c6458aaba61d1edfb25ae972c4b3d268753"
+  },
+  "dependency": {
+    "source": "dd69cdc5bae0d270de4006244d00dc8e63732728",
+    "path": "crates/core/tests/fixtures/pre_integration_schema.rs",
+    "owner": "schema17_inverse_current_migrations",
+    "required_before_compilation": true,
+    "contract": [
+      "pub const INTEGRATION17_TABLES: [&str; 4]",
+      "pub fn verify_empty_integration17(&rusqlite::Connection) -> Result<(), String>"
+    ],
+    "not_authored_or_modified_here": true
+  },
+  "static": {
+    "checks": 31,
+    "all_passed": true,
+    "path": "/workspace/.onboarding/schema17-genuine-consumers-source1/STATIC.json",
+    "sha256": "3802818657198ca325eb39e357bd443652f7860460bf09fa8f09229055754228",
+    "dimension": "source/byte/static only; no SQLite or compiler/runtime execution"
+  },
+  "commands_executed": [
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --config skip_children=true --check crates/core/tests/factory_child_goal_legacy_migration.rs crates/core/tests/task_workspace_actual15_migration.rs",
+      "exit": 0,
+      "dimension": "format only; separate helper is not materialized in this sparse tree"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "dimension": "whitespace only"
+    }
+  ],
+  "retained_author_failure": {
+    "path": "/workspace/.onboarding/schema17-genuine-consumers-source1/STATIC-selector-failed.json",
+    "sha256": "1b251f66ae6557c3c1805773cb5d284d31bc46c422b51acdd383defb77b3b45d",
+    "kind": "static_script_selector",
+    "explanation": "Initial check mistakenly expected zero quoted new goal_scopes DDL literals while the exact approved new definition necessarily occurs once. Corrected selector; source hashes unchanged; original failure retained. Not a compiler or migration failure."
+  },
+  "changes": {
+    "genuine15": "Strict17; preserve all original55 table/index/trigger DDL and rows/rowids/raw; allow only4 strict empty Integration tables+indexes; exact actual schema cookie delta8; preserve pre-v16 safety proof plus new pre-v17 original15 proof and reopen idempotence; true future18.",
+    "genuine14": "Strict17; strengthen rows to SELECT rowid,* and schema to type/name/table/SQL including autoindexes. Only exact historical goal_scopes/goal_runs id-to-approval proposal FK definitions transform to their already approved15 definitions. All remaining predecessor objects/rows remain equal. Verify new4 Integration domain empty; preserve original pre-v15/pre-v16 plus new pre-v17 full14 schema/rows/rowids/application_id proof; true future18 raw/no-backup control."
+  },
+  "unchanged": [
+    "genuine14 fixture loader/provenance functions byte-identical",
+    "genuine15 fixture loader/provenance functions byte-identical",
+    "historical producer source/tree/hash/manifest/generator/private inputs unchanged",
+    "original negative corruption/FK/capability/receipt bodies retained",
+    "public production Store/migrations/schema/permissions/budgets/lockfiles unchanged",
+    "test entry count unchanged:6 genuine14 and5 genuine15"
+  ],
+  "required_root_commands": [
+    {
+      "command": "AGENTBATON_ACTUAL_SCHEMA14_FIXTURE=/workspace/.onboarding/factory-child-goal-legacy-rebuild-root-run1/fixture cargo test --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- --nocapture --test-threads=1",
+      "state": "NOT_RUN_BY_AUTHOR",
+      "dimension": "actual genuine14->Store17 migration; original private fixture required"
+    },
+    {
+      "command": "AGENTBATON_ACTUAL_SCHEMA15_FIXTURE=/workspace/.onboarding/task-workspace-actual15-input1 cargo test --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- --nocapture --test-threads=1",
+      "state": "NOT_RUN_BY_AUTHOR",
+      "dimension": "actual genuine15->Store17 migration; original private fixture required"
+    },
+    {
+      "command": "cargo clippy --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- -D warnings",
+      "state": "NOT_RUN_BY_AUTHOR"
+    },
+    {
+      "command": "cargo clippy --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- -D warnings",
+      "state": "NOT_RUN_BY_AUTHOR"
+    }
+  ],
+  "not_run": [
+    "Cargo compilation",
+    "actual genuine14/15 migration",
+    "new shared helper SQL verification",
+    "macOS arm64/Intel",
+    "Native GUI or Provider",
+    "new exact CI"
+  ],
+  "not_claimed": [
+    "genuine legacy producer reconstruction from a current database",
+    "whole-product acceptance",
+    "new permissions/signing/production authorization"
+  ]
+}

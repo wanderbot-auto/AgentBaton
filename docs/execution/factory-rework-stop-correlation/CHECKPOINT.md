@@ -1,3 +1,9 @@
+## Prior settlement association extension — 2026-10-31
+
+The latest Intel observation is a capture settlement at run revision12 after a separate node settlement at11. Reuse the existing strict reservation/session correlation for that previous node as well; keep it inside previous_node_settlement and retain both historical/not-same-plan labels. The original helper, event bounds, redaction, source predicates and runtime budgets remain unchanged. No causal or authority claim follows from a stop reason or completed turn.
+
+Root103 generated-SQLite tests pass, including6 new prior-binding/missing/duplicate/foreign/late/numeric controls. Independent source review passes64 checks and independently runs102 cases; its one guard-blocked old FIFO method and original attempt are separate, never counted passed. All original17 stop methods/80 collector methods remain; actual enhanced Core/Mac/CI projection is not run. See the appended EVIDENCE.json entry; old failures and source pins remain historical.
+
 # Checkpoint
 
 Frozen source28773f2105ed2a3a12fb0ccabfe2eae0ac3059b9 in /workspace/.worktrees/factory-rework-stop-correlation, basead400. Only own records may change while Root reviews the fixed source. No shared target or heavy execution lease is held.
@@ -7,3 +13,7 @@ Actual lightweight commands: `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest disc
 New settled_session_stops entries carry only original event ordinal, fixed availability status/reason category, nullable strict flags, nullable completed-turn count/bool and fixed derivation dimension. Internal run/node/session/attempt values, event text, DB/path and parameters never leave. Unknown or ambiguous association is not zero. Data describes post-owned-shutdown historical association, not a live deadline snapshot, TaskAccepted, causality or a permission to retry/replay.
 
 Pending: independent source/pure review; actual collector on a future exact CI candidate's retained DB; any real Core/runtime/OS/Mac execution. Original Intel415 lacked the needed raw event data in its official ZIP; do not invent the missing stop/turn reason from its finite overrun/tag. Root owns actual binding and integration. No old PASS or budget threshold is changed to obtain a result.
+
+## Full infrastructure result after extension — 2026-10-31
+
+Exact4cc7967470a57ade6c433af218e436297f2130c1 passes all366 infrastructure tests in10.827s; log SHA-256 `faef1223c5ab07847a20a670bc26e532e3c697b636b5fc15eae5805e5b59e4b2`. Runner confirms tracked source and frozen tools unchanged. All93 bootstrap pins pass. This does not run an actual Mac collector or resolve the separate CI failures. New exact remote checks remain required.

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "unit": "integration-failure-diagnostics",
+  "requirements": [
+    "AB-VAL-009",
+    "AB-PRJ-004",
+    "AB-PRJ-005",
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-005"
+  ],
+  "base_commit": "329bc3eac9dc569240e0b4e98dc88c3bd203c054",
+  "source_commit": "b07e33c2cf55a649dd1e2a09eb3a630e6d5ad90c",
+  "source_path": "crates/core/src/integration_settlement.rs",
+  "manifest": {
+    "path": "/workspace/.onboarding/integration-failure-diagnostics-b07e33c/MANIFEST.json",
+    "sha256": "452be085615c6014180f9c6ce9879fbc004ce43c7cee2b8e01925bd9dad4d428"
+  },
+  "original_failure_readonly_diagnosis": {
+    "manifest": "/workspace/.onboarding/integration-reprepare-runtime-original1-diagnosis/MANIFEST.json",
+    "sha256": "ae82fb510a99a42320ca9ac2eb74934b7fc3e8aedc2815cfe94a94a1b7325461"
+  },
+  "executed": [
+    {
+      "command": "python3 /workspace/.onboarding/integration-failure-diagnostics-work/check.py",
+      "exit_code": 0,
+      "static_and_model_checks": 84,
+      "finite_Python_JSON_models": 64,
+      "maximum_model_bytes": 86
+    },
+    {
+      "command": "standalone absolute rustfmt --edition2021 --config skip_children=true [source]",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "Rust_unit_source_not_run": 2,
+  "changed_runtime_contract": {
+    "new_diagnostic_event_field": "joined_error",
+    "primary_OUTCOME_UNKNOWN_changed": false,
+    "fees_reservation_settlement_changed": false,
+    "budget_clock_timeout_changed": false,
+    "authority_join_fence_changed": false
+  },
+  "not_run": [
+    "Cargo check/Clippy",
+    "Rust units/actualSerde",
+    "fresh runtime/Actor/UnixIPC",
+    "Git product tests",
+    "Node/browser/Native/OS"
+  ],
+  "root_commands": "/workspace/.onboarding/integration-failure-diagnostics-b07e33c/ROOT_COMMANDS.json"
+}

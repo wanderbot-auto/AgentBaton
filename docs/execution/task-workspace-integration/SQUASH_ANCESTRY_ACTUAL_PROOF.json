@@ -1,0 +1,37 @@
+{
+  "contract": "agentbaton.pr19.actual-squash-ancestry-marker.v1",
+  "at": "2026-10-31T08:13:25.696268+00:00",
+  "before": {
+    "head": "5dd4a72d9b6ddaec5aff9c6214202c5a40e36eaa",
+    "tree": "58f9d66f6f43b892e75b8418a3fb551746db6819",
+    "fresh_remote_main": "7ecf0c51e53de26cb443b328ad660b4b1f491e5a",
+    "approved_original": "ae42fcdc55473ef1574f1844432c19395c7373a6",
+    "owner_ack": [
+      "OWNER-001",
+      "OWNER-002"
+    ],
+    "metadata_review_sha256": "763d18f2962bafe78bf5f8aace65d9b1f0fa90c05cb43cef47e91bf780fc9a33",
+    "ancestry_source_review_sha256": "927fee987e9a13c5e04cf4317e2081f9dec8c280a6e0f28c1707d56505945a78",
+    "owner_inbox_normalized_strip_text_sha256": "9a21562fedef0fff83fe732aa63c3c7c79ef69633b9ba05c198b3fba465253e5",
+    "owner_inbox_raw_git_bytes_sha256": "094a77884272d0919bece0654237419f2d226a9245e7d826e0891a8f661f811f"
+  },
+  "after": {
+    "head": "19e9eb275e4e76ada50f93d036003e3ffa2b2ba1",
+    "tree": "58f9d66f6f43b892e75b8418a3fb551746db6819",
+    "parents": [
+      "5dd4a72d9b6ddaec5aff9c6214202c5a40e36eaa",
+      "7ecf0c51e53de26cb443b328ad660b4b1f491e5a"
+    ],
+    "file_delta": [],
+    "fresh_remote_main": "7ecf0c51e53de26cb443b328ad660b4b1f491e5a",
+    "fresh_remote_main_observed_at": "2026-10-31T08:15:19.404917+00:00"
+  },
+  "protected_main_modified": false,
+  "formal_approve_submitted": false,
+  "pending": "new exact PR19 Environment/Product/native/macOS/installers; full130 incomplete",
+  "metadata_correction": {
+    "original_proof_sha256": "856c034fcd808c0114412e9bfd3983047403103481dd517ccba70f67ddf9e5c3",
+    "reason": "Original owner digest was decoded text.strip() not raw Git bytes; both meanings now explicit. Original proof retained unchanged. No Owner instruction or marker content changed.",
+    "prior_corrected_proof_sha256": "75e70694b934390857f4aa1f9b6188a9fefc58d8a4ead6ec09db617ab14038a6"
+  }
+}

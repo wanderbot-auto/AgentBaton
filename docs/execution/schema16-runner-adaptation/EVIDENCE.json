@@ -1,0 +1,42 @@
+{
+  "kind": "authored source/pure evidence",
+  "base": "7d7b7016295a93a4f7ba5fe0e4e320f197e3b530",
+  "source_commit": "1d17d0f256118c4ebf2e612278231c69bc3f6746",
+  "changed_files": 13,
+  "completed": {
+    "selected_python_tests": 81,
+    "selected_python_skipped": 0,
+    "source_AST_checks": 31,
+    "compiled_python_files": 12,
+    "Graph_pure": 29,
+    "focused_Graph_manifest_controls": 10,
+    "ChildGoal_pure": 328,
+    "shell_syntax_exit": 0,
+    "diffcheck_exit": 0
+  },
+  "counts_not_additive": true,
+  "not_run": [
+    "Rust/Cargo/Clippy",
+    "real Core/Store/daemon/Actor",
+    "product browser/Native/macOS",
+    "genuine14/15 fixture regeneration",
+    "actual release-package audit",
+    "CI"
+  ],
+  "integration_dependencies": [
+    "Root-owned Factory runtime and childplanning support exact16 after e8",
+    "Root-owned NativeRust exact16",
+    "Root-owned CI declarations",
+    "genuine15 new input2 from real old15 tool if changed helper SHA is expected; input1 immutable"
+  ],
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "sha256": "0ece2e050229ea465612a6ccff4fa28cf076f013b0fbfda7141832b1e49ceba1",
+    "bytes": 22237,
+    "regular_members": 29,
+    "roundtrip_verified": true
+  },
+  "manifest_sha256": "4376ac88d5617c83c994c8989f1e9c9d5b5f869b2b12254f58c159fc221539aa",
+  "external_directory": "/workspace/.onboarding/schema16-runner-adaptation",
+  "original_production_and_historical_fixture_bytes_unchanged": true
+}

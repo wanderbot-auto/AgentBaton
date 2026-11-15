@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-31T05:41:48.119968+00:00",
+  "base": "426cd1e530f8894cb38fff6c0386ae0451dea478",
+  "status": "pure_and_source_controls_passed_independent_review_and_actual_execution_pending",
+  "source_sha256": {
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": "704aff1c008f64a0e09d82222d6c4fb2e1e2244c182198e699a1505e24dc6477",
+    "tests/infrastructure/test_graph_observation_handshake.py": "d9b07d42352b3b31e0853fc1f70956d8c94f6203464432730f722a549eb876a3",
+    "tests/infrastructure/test_graph_identity_observation.py": "7189122ed4fd05246b422fadec7c680f02f63e9fa431adfcb077d6dcc4f8f4a2",
+    "tests/infrastructure/fixtures/graph_observation_handshake/source_inverse.json": "07b30b4300a4f18eaa4765a520bf7876bd44eef3a41bbdef8828c85e67f5527e"
+  },
+  "original_complete_harness_inverse_sha256": "b7cac9f5eda5d8933de6b739da65d2246063fea3ce29272cf33963ca0dc0239a",
+  "prior_Root426_actual_runs": [
+    {
+      "record_label": "root17-graph-identity-cancel-command2",
+      "source": "426cd1e530f8894cb38fff6c0386ae0451dea478",
+      "exit": 0,
+      "seconds": 16.552026890974957,
+      "RESULT_sha256": "6cc9aaeb01b2266905933479b5fb124d55d6c3be9e4b1390ef99948c5e6974b6",
+      "command_log_sha256": "25ae0e614511d33e48e1831afeee3fd0b72dc77cca78e261c81f5ac8c3b205f5",
+      "report_sha256": "043184deab3fadcd4c4af1629445704c927f20688fcdc67804281a4b53aa5a07",
+      "checks": 4,
+      "cleanup_complete": true,
+      "status": "passed"
+    },
+    {
+      "record_label": "root17-graph-identity-lost-start-command1",
+      "source": "426cd1e530f8894cb38fff6c0386ae0451dea478",
+      "exit": 1,
+      "seconds": 14.037546455976553,
+      "RESULT_sha256": "f838d71b06bedc62cde1fe5762af0b301044344dd52f7e098610c6bd0af49185",
+      "command_log_sha256": "cc193505c3fc534f21acec47eab8dfbbb3a9da5b3bed011e52caaf525dbeddde",
+      "report_sha256": "49294b76522bfd7f58912322d263115820e7d9fa979c9d3fa5b75f03ed18f8ad",
+      "checks": 2,
+      "cleanup_complete": false,
+      "status": "failed_or_interrupted"
+    },
+    {
+      "record_label": "root17-graph-identity-normal-command1",
+      "source": "426cd1e530f8894cb38fff6c0386ae0451dea478",
+      "exit": 0,
+      "seconds": 24.087025144021027,
+      "RESULT_sha256": "d65a0e38be75b590a6de66f1aec432f07a5f362f72e3b2dd9d9be8d9866e6ca0",
+      "command_log_sha256": "aa4fbeac96ef415c138dd21953fd2b2ff87cf65cd6ee5b387d5c1a0ca6286fb7",
+      "report_sha256": "d5b8f07e1ecfb7c0b1aac8370c9d1194551143a2d7e36d633074de9d3b091e8e",
+      "checks": 4,
+      "cleanup_complete": true,
+      "status": "passed"
+    }
+  ],
+  "retained_lost_start_observation": {
+    "sha256": "907166e5f012376d4f78ef7ee92b75b5206b4ab77c387913d421b4159d63b16f",
+    "before": "absent",
+    "after": "absent",
+    "argv_kind": "not_read",
+    "initial_binding_verified": false,
+    "outcome_reclassified": false
+  },
+  "scope_boundaries": {
+    "generated_test_Provider_only": true,
+    "private_instrumentation_outside_source_and_workspace": true,
+    "original_request_reservation_ms": {
+      "normal": 4000,
+      "lost-start": 4000,
+      "cancel": 10000
+    },
+    "epoch": "existing generated FIXTURE_STARTED_NS; no renewal",
+    "original_recovery_UI_window_seconds": 15,
+    "readonly_locator_slice_maximum_ms": 20,
+    "observation_ACK_maximum_bytes": 4096,
+    "one_atomic_nonblocking_pipe_write": true,
+    "ACK_only_after_sealed_initial_host_sample": true,
+    "repeat_sends_new_ACK": false,
+    "self_report_replaces_host_live_sample": false,
+    "observation_ACK_is_business_stop_join_or_Owner_approval": false,
+    "product_schema_SQL_authority_fixture_budget_or_workflow_change": false
+  },
+  "pure_validation": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.infrastructure.test_graph_observation_handshake tests.infrastructure.test_graph_identity_observation tests.infrastructure.test_child_goal_bound_readonly_wait tests.infrastructure.test_child_goal_finite_diagnostics",
+    "exit": 0,
+    "tests": 51,
+    "seconds": 4.761,
+    "dimension": "AST/bytes/fake selectors, clocks and descriptors; no actual FIFO/process/SQLite/browser opened",
+    "original_full_harness_and_sampler_inverse": "passed",
+    "initial_control_issues": "First pure run had one missing test namespace import and an older inverse-control expectation; both controls corrected without relaxing runtime rules.",
+    "diff_check": "passed"
+  },
+  "not_run": [
+    "actual FIFOs or process metadata",
+    "real Core/SQLite/browser/Node/Cargo",
+    "network/CI",
+    "new actual normal/cancel/lost-start candidate runs",
+    "macOS",
+    "real model/Provider calls",
+    "formal product approval"
+  ],
+  "next": [
+    "Independent review of FIFO ownership/pin/noninheritance/frame/deadline and only-initial ACK paths.",
+    "Root fresh exact-source normal/cancel/lost-start with real paired Core/frontend and retained original budgets.",
+    "Keep old lost-start unverified and earlier6a cause unknown; do not backfill old private metadata or reclassify failed runs."
+  ]
+}

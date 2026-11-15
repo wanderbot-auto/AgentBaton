@@ -1,0 +1,220 @@
+{
+  "document_state": "SOURCE8367_LOCAL_PARTIAL_VERIFICATION_REVIEW_PENDING_METADATA",
+  "recorded_at": "2026-11-01T01:07:12.724790+00:00",
+  "requirement_support_only": [
+    "AB-TSK-007",
+    "AB-TSK-009",
+    "AB-TSK-010",
+    "AB-TSK-012",
+    "AB-ACP-005",
+    "AB-SEC-006"
+  ],
+  "baseline": "bd7fa954e545d8aa7d5a8037b15ab951bbf4ce53",
+  "branch": "codex/goal-owned-turn-stop",
+  "source_head": "8367a663017c1e2c6b9c00b172cc7272fc050ab4",
+  "tree": "9546193b9ea2b8f836cd2308fd9beccf9c9dc29f",
+  "source_files": {
+    "crates/core/src/ipc.rs": "06d2f6eee65f4324b09677b2b3e3dde36a54da9d2a8f51316d04e411ee1e85ee",
+    "crates/core/src/sessions.rs": "305d366c7ad6b5baec53139b50b8283bc6cf86d430093d883204ad36cdd810de",
+    "crates/core/src/sessions_owned_stop.rs": "f512903b17611f9bd27609842dee4ac4eb32ff22e0903d69609c4e405ac2d582",
+    "crates/core/src/sessions_owned_stop_tests.rs": "23fdb2e903772bdbaa584d6fa14b9abda9385dd1c16e9148515e6450420641c7",
+    "crates/core/src/goal_stop_service_tests.rs": "afbdba61b17ee216bea4ba5bdb867aa928a417e206a36fb04bfb38472d4ef211"
+  },
+  "actual_checks": [
+    {
+      "path": "/workspace/.onboarding/goal-owned-turn-stop-focused1",
+      "source": "45ca63b3f58254fa8567d46a4d87a19d441b3263",
+      "exit_code": 0,
+      "executed_tests": 12,
+      "summaries": [
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 268 filtered out; finished in 22.12s"
+      ],
+      "wrapper_seconds": 46.93953130900627,
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "sessions::owned_stop::tests::",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "sha256": {
+        "INPUTS.json": "fb375aca937e016fac1dfc45e9aaca1fa4ff8df88d06016271806fd2cb4f9ad6",
+        "RESULT.json": "52fa3d3d75932731ccdf81854cc4a252633ecdf9310de6c442f264ff6408b969",
+        "command.log": "d6f8ce6e459470eb0434023699a8d8f360407bd4c4fb3f14fdc89bfb692bf8df"
+      },
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "interpretation": "Exact source-specific result; compile failure ran no tests. Local Linux generated process/Store controls, not macOS or real vendor/model verification."
+    },
+    {
+      "path": "/workspace/.onboarding/goal-owned-turn-stop-focused2",
+      "source": "396fc6a9cdff0536394a37fcdfefa0cd94b6130e",
+      "exit_code": 101,
+      "executed_tests": 0,
+      "summaries": [],
+      "wrapper_seconds": 15.551094938011374,
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "sessions::owned_stop::tests::",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "sha256": {
+        "INPUTS.json": "7ac5418dd49eac697ec42b0c8713714e43f165ba3c81bc37cb516c07ee70c9cb",
+        "RESULT.json": "39b67e7ddc12e1f95c93391dab57ae8c79245c67b6bd9a5b6262dfed59e1c0d9",
+        "command.log": "6f897b5826f93fe76ea14ba668635095bc9a889bcb611b4da885b0dc2db7e2dc"
+      },
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "interpretation": "Exact source-specific result; compile failure ran no tests. Local Linux generated process/Store controls, not macOS or real vendor/model verification."
+    },
+    {
+      "path": "/workspace/.onboarding/goal-owned-turn-stop-focused3",
+      "source": "8367a663017c1e2c6b9c00b172cc7272fc050ab4",
+      "exit_code": 0,
+      "executed_tests": 13,
+      "summaries": [
+        "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 268 filtered out; finished in 24.24s"
+      ],
+      "wrapper_seconds": 48.14237460802542,
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "sessions::owned_stop::tests::",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "sha256": {
+        "INPUTS.json": "e5c56d3f346ec72c16fe37613ae36da410aae0d49c13c27241ab1107ac48001f",
+        "RESULT.json": "fd949a2de05dc9a22a03d40706c69527ef0000e0f3c3825f89cd10fe445509f0",
+        "command.log": "da9c2f781a959286ec6cb6460b47f46b7857045a3b805da92ec760d2190058a0"
+      },
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "interpretation": "Exact source-specific result; compile failure ran no tests. Local Linux generated process/Store controls, not macOS or real vendor/model verification."
+    },
+    {
+      "path": "/workspace/.onboarding/goal-owned-turn-stop-original-hints1",
+      "source": "8367a663017c1e2c6b9c00b172cc7272fc050ab4",
+      "exit_code": 0,
+      "executed_tests": 12,
+      "summaries": [
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 269 filtered out; finished in 14.37s"
+      ],
+      "wrapper_seconds": 40.320188133977354,
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "ipc::goal_stop_service_tests::",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "sha256": {
+        "INPUTS.json": "83dcc29115de25ac01754184e6d102d66ac0993efa1a28c7889360714805b1d0",
+        "RESULT.json": "0d47f4e31e7ac1fa0ec6b97215ddf884d602b170e5c518b1835455854636eb92",
+        "command.log": "ae4c996152a47fbe4165583627c104833bf0148dcbcbd0840cda283e4534cb30"
+      },
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "interpretation": "Actual original regression on exact8367, local Linux generated process/Store scope only."
+    },
+    {
+      "path": "/workspace/.onboarding/goal-owned-turn-stop-original-sessions1",
+      "source": "8367a663017c1e2c6b9c00b172cc7272fc050ab4",
+      "exit_code": 0,
+      "executed_tests": 2,
+      "summaries": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 279 filtered out; finished in 0.07s"
+      ],
+      "wrapper_seconds": 23.882767326955218,
+      "command": [
+        "env",
+        "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "sessions::tests::",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "sha256": {
+        "INPUTS.json": "6f784dbe32e84f27647d194175e74f2ceac27a5291c4b3317605acf09dd1d08c",
+        "RESULT.json": "b1237c5e87e8fa79554d49a59db3944b9f507530f5562b456a9b6d62006364fc",
+        "command.log": "b5b4191d0f70baf34c867aef19b89a6125750125b57e56c8bc7a43211fb85e07"
+      },
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command",
+      "interpretation": "Actual original regression on exact8367, local Linux generated process/Store scope only."
+    }
+  ],
+  "independent_source_review": {
+    "path": "/tmp/goal-owned-turn-stop-independent-review/REVIEW.json",
+    "sha256": "85862489f85193ab53edc34c6f33832318d04aa6a83b3d3290075eeefe7289c0",
+    "decision": "SOURCE_READY",
+    "check_count": 57,
+    "scope": "8367 Goal source only; not actual runtime/CI/Core18 hooks acceptance"
+  },
+  "historical_failure_evidence": {
+    "root003_diagnosis": {
+      "path": "/tmp/root003-first-phase-mac-diagnostic/RESULTS.json",
+      "sha256": "fbe39de6100313a43ffbc501417d405578ee2b12173e8bb5e77527837fe06ee3"
+    },
+    "backpressure_review_failure": "45ca dropped Completed proof when same poll yielded update+Completed and log queue full; first12PASS did not cover it. 396 retained failure/currentunknown and added13th two-order regression.",
+    "compile_failure": "396 actual first compilation E0277: revision u64 ToSql unsupported; no tests executed. 8367 uses checked i64 conversion and explicit overflow refusal source test."
+  },
+  "pending_validation": {
+    "old_goal_stop_hint_Summary": "PASS12/0FAILED14.37s exact8367; genuine Summary lane retains original fresh policy/deadlines/negative assertions.",
+    "old_sessions_tests": "PASS2/0FAILED0.07s exact8367.",
+    "strict_clippy_infrastructure_full_Core_Factory": "not verified for8367",
+    "browser_and_real_IPC": "not verified for8367",
+    "dualMac_and_exact_CI_and_installers": "not run/verified for8367"
+  },
+  "separate_unimplemented_scope": "Supervisor lifecycle inventory/drain/probe retention hooks require separate commit and fresh review/tests. These are not in8367 or its57check review. Core18 migration/drain/Native/fullquit remains separate and unfinished.",
+  "scope_limits": [
+    "13PASS proves local generated ACP/real owned process/SQLite cases only; original4s and full original fee clocks remain. No actual Intel/ARM4s performance success claimed.",
+    "Original130 requirements remain incomplete overall; no status/dimension/ref is promoted.",
+    "No realProvider identity/model invocation, production release, signing, spending or account permission granted.",
+    "No newCI/push/merge/Approve or installer generated; source branch local only."
+  ],
+  "non_actions": "This metadata records source-specific local evidence. No push, new CI, formalApprove, merge, installer, Provider account/model call, signature, production release or paid resource. Supervisor lifecycle hooks are not included.",
+  "current_source_unique_tests": {
+    "source": "8367a663017c1e2c6b9c00b172cc7272fc050ab4",
+    "commands": 3,
+    "passed_unique": 27,
+    "failed": 0,
+    "breakdown": {
+      "owned_turn_stop": 13,
+      "original_goal_hint": 12,
+      "original_sessions": 2
+    },
+    "not_counted_again": "Historical45ca12PASS overlaps the new source cases and is preserved separately, not an additional current-source success."
+  }
+}

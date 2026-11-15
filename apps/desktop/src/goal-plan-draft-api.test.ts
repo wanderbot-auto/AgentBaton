@@ -1,0 +1,10 @@
+import {expect,it,vi} from 'vitest';
+import {request} from './api';
+import {draftRequest,goalPlanDraftApi,parseGoalPlanDraft} from './goal-plan-draft-api';
+import {goalDraftFixture} from './goal-plan-draft-test-fixtures';
+vi.mock('./api',async original=>({...await original<typeof import('./api')>(),request:vi.fn()}));
+it('reads the draft via the exact read-only command and validates the initial template',async()=>{const f=goalDraftFixture();vi.mocked(request).mockResolvedValue(f.draft);expect(await goalPlanDraftApi.generate(f.selection,f.task,f.scope)).toEqual(f.draft);expect(request).toHaveBeenCalledWith('goal_plan_draft',{request:f.selection});});
+it.each(['task_id','task_revision','spec_revision','scope_id','scope_revision','scope_digest','authority_revision','task_goal'])('rejects changed source %s',key=>{const f=goalDraftFixture();expect(()=>parseGoalPlanDraft({...f.draft,source:{...f.draft.source,[key]:'foreign'}},f.selection,f.task,f.scope)).toThrow();});
+it('rejects authority flags, unknown fields, and unrecognized risk facts',()=>{const f=goalDraftFixture();for(const value of [{...f.draft,dispatched:true},{...f.draft,planning_only:false},{...f.draft,extra:true},{...f.draft,risk_facts:['safe']}])expect(()=>parseGoalPlanDraft(value,f.selection,f.task,f.scope)).toThrow();});
+it('rejects missing risk text, changed budgets, and foreign outputs',()=>{const f=goalDraftFixture();for(const change of [()=>{f.draft.plan.nodes[0].goal=f.task.goal;},()=>{f.draft.plan.nodes[0].budget.runtime_ms++;},()=>{f.draft.approved_outputs[0].artifact.relative_path='other/report.txt';}]){const copy=structuredClone(f.draft);change();expect(()=>parseGoalPlanDraft(f.draft,f.selection,f.task,f.scope)).toThrow();f.draft=copy;}});
+it('rejects blank risk and non-finite or over-scope numeric inputs without rounding',()=>{const f=goalDraftFixture();for(const runtime of ['0','1.5','1e3','9007199254740992','10001'])expect(()=>draftRequest(f.task,f.scope,'risk','no publish',runtime,'4096')).toThrow();expect(()=>draftRequest(f.task,f.scope,' ','none','1','1')).toThrow();expect(()=>draftRequest(f.task,f.scope,'界'.repeat(1400),'none','1','1')).toThrow();});

@@ -11,7 +11,7 @@ import { goalGraphMessages } from './goal-graph-i18n';
 import { graphGraphLabel } from './goal-graph-labels';
 import type { Language } from './i18n';
 import './goal-graph.css';
-type Props={task:Task;scope:GoalScope;latest:GoalPlan|null;language:Language;connected:boolean;approvalAllowed:boolean;historyScopes?:GoalScope[]};
+type Props={task:Task;scope:GoalScope;latest:GoalPlan|null;language:Language;connected:boolean;approvalAllowed:boolean;historyScopes?:GoalScope[];openRequest?:string};
 type Intent={mode:'graph';kind:'approve'|'advance'|'cancel'|'owner'|'reject';key:string;scopeId:string;rootGrantId:string;inputRevision:string;planRevision:number;planDigest:string;sourcePlanRevision?:number;sourcePlanDigest?:string;runId?:string;nodeId?:string;revision?:number;selection?:GoalGraphSelection;advance?:GoalGraphAdvance;node?:GoalNodeSelection;floors:[string,GraphEvidenceFloor][];ledger:number;uncertain:boolean;reconciled:boolean;receipt?:{runId:string;revision:number;decisionId?:string;approvalId?:string;decision?:'accepted'|'rejected'}};
 const intents=new Map<string,Intent>();
 const uncertain=(failure:unknown)=>!(failure instanceof DaemonError)||failure.code==='OUTCOME_UNKNOWN'||!['none','not_started'].includes(failure.sideEffectState);

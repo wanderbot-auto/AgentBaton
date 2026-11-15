@@ -444,7 +444,7 @@ impl Store {
             revision: 1,
             kind: "approval.proposed".into(),
             occurred_at: now()?,
-            payload: json!({"kind":proposal.kind,"snapshot":proposal.snapshot}),
+            payload: crate::sessions::approval_event_payload(&proposal.kind, &proposal.snapshot)?,
             source: "user_action".into(),
         };
         let document = bounded_graph_proposal(&proposal, &proposed)?;
@@ -698,11 +698,17 @@ struct CaptureWorker {
     unknown_recorded: bool,
     queued_at: std::time::Instant,
 }
+#[cfg(test)]
+type CaptureReadProbe = Box<dyn FnOnce(bool, std::sync::Arc<std::sync::atomic::AtomicBool>) + Send>;
 #[derive(Default)]
 pub(crate) struct GraphWorkers {
     captures: std::collections::HashMap<String, CaptureWorker>,
     stopping: bool,
     validators: validators::ValidatorWorkers,
+    #[cfg(test)]
+    capture_read_probe: Option<CaptureReadProbe>,
+    #[cfg(test)]
+    capture_read_ready: Option<std::sync::mpsc::Receiver<()>>,
 }
 impl GraphWorkers {
     pub(crate) fn start_validation(
@@ -744,7 +750,15 @@ impl GraphWorkers {
     }
     fn mark_started_capture_and_poll(&mut self, store: &mut Store, id: &str) -> Result<()> {
         store.mark_graph_capture_started(&self.captures.get(id).ok_or_else(changed)?.origin)?;
-        // The original frontier/origin checks and durable start receipt have
+        // Only the test fixture may hold a real completed read across the
+        // later fault. Normal libraries contain no checkpoint or receiver.
+        #[cfg(test)]
+        if let Some(ready) = self.capture_read_ready.take() {
+            ready
+                .recv_timeout(std::time::Duration::from_secs(5))
+                .map_err(|_| err("RESOURCE_LIMIT", "Test capture checkpoint was not reached"))?;
+        }
+        // The original fresh origin checks and durable start receipt have
         // succeeded. Observe a fast owned read's real join before unrelated
         // Actor work, without renewing or discounting its original clock.
         self.poll_finished_captures(store)
@@ -773,7 +787,13 @@ impl GraphWorkers {
         if self.has_workers() || self.stopping {
             return Ok(());
         }
-        store.reconcile_graph_frontiers()?;
+        // A persisted capture already belongs to a stopped producer. Service its
+        // original fresh checks and owned read before an unrelated full sweep;
+        // the same Actor call still reconciles every frontier before dispatch.
+        self.service_prepared_capture(store)?;
+        store.reconcile_graph_frontiers()
+    }
+    fn service_prepared_capture(&mut self, store: &mut Store) -> Result<()> {
         raw_collection_budget(&store.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(state)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE state='prepared' AND json_extract(document,'$.job_kind') IS NULL",[],1,MAX_STORED_BYTES)?;
         let doc: Option<String> = store
             .conn
@@ -804,9 +824,22 @@ impl GraphWorkers {
         };
         let cancel = prepared.cancelled.clone();
         let deadline = prepared.deadline;
+        #[cfg(test)]
+        let probe = self.capture_read_probe.take();
+        #[cfg(test)]
+        let probe_cancel = cancel.clone();
         let thread = std::thread::Builder::new()
             .name("baton-goal-evidence".into())
-            .spawn(move || observe_capture_worker(queued_at, || prepared.execute()));
+            .spawn(move || {
+                observe_capture_worker(queued_at, || {
+                    let result = prepared.execute();
+                    #[cfg(test)]
+                    if let Some(probe) = probe {
+                        probe(result.is_ok(), probe_cancel);
+                    }
+                    result
+                })
+            });
         match thread {
             Ok(thread) => {
                 let id = origin.id.clone();
@@ -1450,7 +1483,12 @@ impl Store {
                 return Err(changed());
             }
             let foreign:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions s WHERE s.workspace_id=?1 AND json_extract(s.document,'$.fencing_token')>?2 AND NOT EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=?3 AND n.session_id=s.id AND ((n.state='candidate' AND json_extract(n.document,'$.stop_confirmed')=1) OR (n.state='reserved' AND n.session_id=?4))))",params![record.refs.workspace.id,sql_num(a.writer_epoch)?,r.id,lease.holder],|row|row.get(0)).map_err(db_error)?;
-            if foreign {
+            let foreign_conversation = crate::conversations::has_writer_after(
+                &self.conn,
+                &record.refs.workspace.id,
+                sql_num(a.writer_epoch)?,
+            )?;
+            if foreign || foreign_conversation {
                 return Err(changed());
             }
         }
@@ -2202,7 +2240,7 @@ impl Store {
             revision: 1,
             kind: "approval.proposed".into(),
             occurred_at: now()?,
-            payload: json!({"kind":p.kind,"snapshot":p.snapshot}),
+            payload: crate::sessions::approval_event_payload(&p.kind, &p.snapshot)?,
             source: "user_action".into(),
         };
         let doc = bounded_graph_proposal(&p, &e)?;
@@ -3049,7 +3087,7 @@ fn verify_owner_decision_receipt(
     if proposal_seq <= 0
         || event.source != "user_action"
         || event.payload["kind"] != p.kind
-        || event.payload["snapshot"] != p.snapshot
+        || event.payload != crate::sessions::approval_event_payload(&p.kind, &p.snapshot)?
     {
         return Err(denied());
     }
@@ -3137,8 +3175,17 @@ impl Drop for GraphWorkers {
 
 #[cfg(test)]
 impl GraphWorkers {
-    /// An owned cancellation-observing reader fixture, not a Provider, Goal
-    /// candidate, approval or accepted output. Only tests can install it.
+    /// Test-only observation after real file I/O; never compiled into normal libraries.
+    pub(crate) fn install_capture_read_probe(
+        &mut self,
+        ready: std::sync::mpsc::Receiver<()>,
+        probe: impl FnOnce(bool, std::sync::Arc<std::sync::atomic::AtomicBool>) + Send + 'static,
+    ) {
+        assert!(self.capture_read_probe.is_none());
+        self.capture_read_probe = Some(Box::new(probe));
+        self.capture_read_ready = Some(ready);
+    }
+    /// An owned cancellation-observing reader fixture, not an approval.
     pub(crate) fn install_drop_fixture(
         &mut self,
         root: std::path::PathBuf,
@@ -3272,6 +3319,397 @@ pub(super) fn verify_pending_factory_validator(
     validators::verify_pending_factory_validator(db, r, n, attempt, intent)
 }
 
+impl Store {
+    /// Recorded Goal/Factory provenance only. The integration owner-read worker
+    /// performs filesystem/hash/Git checks; this method grants no execution.
+    pub(crate) fn integration_scope_material(
+        &self,
+        scope_id: &str,
+        task_id: &str,
+    ) -> Result<crate::integration::IntegrationScopeMaterial> {
+        let view = stored_scope_view(&self.conn, scope_id)?;
+        let record: ScopeRecord = raw(&self.conn, "goal_scopes", scope_id)?;
+        let task: Task = raw(&self.conn, "tasks", task_id)?;
+        let project: Project = raw(&self.conn, "projects", &task.project_id)?;
+        let workspace: ManagedWorkspace =
+            raw(&self.conn, "managed_workspaces", &record.refs.workspace.id)?;
+        if view.revoked
+            || view.expires_at_ms <= ms()?
+            || record.revoked
+            || task.id != task_id
+            || task.id != record.refs.task_id
+            || task.id != view.task_id
+            || task.spec_revision != record.refs.spec_revision
+            || task.goal != record.refs.task_goal
+            || project.id != record.refs.project_id
+            || project.revision != record.refs.project_revision
+            || project.archived
+            || encode(&workspace)? != encode(&record.refs.workspace)?
+            || matches!(
+                task.state,
+                TaskState::CancelRequested | TaskState::Cancelled | TaskState::OutcomeUnknown
+            )
+        {
+            return Err(denied());
+        }
+        let workspace_ownership = if task.code_workspace_binding.is_some() {
+            crate::integration::IntegrationWorkspaceMaterial::TaskManaged(Box::new(
+                crate::task_workspace_binding::verify_task_binding_for_integration(
+                    &self.conn, &task, &workspace,
+                )?,
+            ))
+        } else if let Some(origin) = &record.factory_origin {
+            let delegated =
+                self.integration_factory_workspace_material(&origin.factory_scope_id, &task.id)?;
+            if delegated.workspace_id != workspace.id
+                || delegated.source_base != workspace.base_revision
+            {
+                return Err(changed());
+            }
+            crate::integration::IntegrationWorkspaceMaterial::FactoryDelegated(Box::new(delegated))
+        } else {
+            return Err(err("CAPABILITY_UNSUPPORTED","Integration requires genuine Task-managed or authenticated Factory-delegated managed Git ownership"));
+        };
+        let grant = crate::policy::checked_lineage(&self.conn, &record.refs.grant_after.id)?;
+        if grant != record.refs.grant_after {
+            return Err(changed());
+        }
+        let mut lineage = Vec::new();
+        let mut current = Some(grant.id.clone());
+        let mut seen = BTreeSet::new();
+        while let Some(id) = current {
+            if lineage.len() >= 256 || !seen.insert(id.clone()) {
+                return Err(changed());
+            }
+            let g = crate::policy::checked_lineage(&self.conn, &id)?;
+            current = g.parent_id.clone();
+            lineage.push(g);
+        }
+        let mut validators = Vec::new();
+        for def in &record.refs.validators {
+            let table = match def.reference.kind {
+                GoalValidatorKind::Integrity => "validation_policies",
+                GoalValidatorKind::Data => "data_validation_policies",
+                GoalValidatorKind::Command => "command_validation_policies",
+            };
+            let live: Value = raw(&self.conn, table, &def.reference.policy_id)?;
+            if live["revoked"] != false
+                || live["revision"] != def.reference.revision
+                || sha(&live)? != def.digest
+                || live != def.definition
+            {
+                return Err(changed());
+            }
+            let artifact =
+                |v: &Value| -> Result<Option<crate::integration::IntegrationArtifactBinding>> {
+                    if v.is_null() {
+                        return Ok(None);
+                    }
+                    Ok(Some(crate::integration::IntegrationArtifactBinding {
+                        canonical_root: serde_json::from_value(v["canonical_root"].clone())
+                            .map_err(|_| changed())?,
+                        root_device: v["root_device"].as_u64().ok_or_else(changed)?.to_string(),
+                        root_inode: v["root_inode"].as_u64().ok_or_else(changed)?.to_string(),
+                        requirement: serde_json::from_value(v["requirement"].clone())
+                            .map_err(|_| changed())?,
+                    }))
+                };
+            validators.push(crate::integration::IntegrationValidatorBinding {
+                reference: def.reference.clone(),
+                rule_id: def.rule_id.clone(),
+                definition_digest: def.digest.clone(),
+                definition_json: encode(&def.definition)?,
+                program: artifact(&def.definition["contract"]["program"])?,
+                script: artifact(&def.definition["contract"]["script"])?,
+            });
+        }
+        let root = root_task(&record).to_owned();
+        let (pc, pa, rc, ra) = counts(&self.conn, &task, &grant)?;
+        let pm = meter(
+            &self.conn,
+            &format!("project:{}", project.id),
+            &record.selection.project_budget,
+            pc,
+        )?;
+        let rm = meter(
+            &self.conn,
+            &format!("root-grant:{}", grant.root_grant_id),
+            &record.selection.root_budget,
+            rc,
+        )?;
+        let project_children:u32=self.conn.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND project_id=?1",[&project.id],|row|row.get(0)).map_err(db_error)?;
+        let root_children:u32=self.conn.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND json_extract(document,'$.root_grant_id')=?1",[&grant.root_grant_id],|row|row.get(0)).map_err(db_error)?;
+        let usage = |m: &MeterLedger, attempts, active, children| {
+            crate::integration::IntegrationBudgetUsage {
+                attempts,
+                active,
+                children,
+                runtime_ms: m.runtime_ms,
+                output_bytes: m.output_bytes,
+                tokens: m.tokens,
+                cost_microunits: m.cost_microunits,
+            }
+        };
+        let origin = record.factory_origin.as_ref();
+        Ok(crate::integration::IntegrationScopeMaterial {
+            task,
+            project,
+            workspace,
+            grant,
+            grant_lineage: lineage,
+            root_task_id: root.clone(),
+            factory_scope_id: origin.map(|x| x.factory_scope_id.clone()),
+            ancestors: origin.map_or_else(|| vec![root], |x| x.ancestors.clone()),
+            scope_id: record.id.clone(),
+            scope_revision: record.revision,
+            scope_digest: record.scope_digest.clone(),
+            root_budget: record.selection.root_budget.clone(),
+            project_budget: record.selection.project_budget.clone(),
+            inputs: record
+                .refs
+                .inputs
+                .iter()
+                .map(|i| {
+                    let mut a = i.artifact.clone();
+                    a.expected_sha256 = Some(i.sha256.clone());
+                    a
+                })
+                .collect(),
+            outputs: record.selection.outputs.clone(),
+            validators,
+            usage: crate::integration::IntegrationSharedUsage {
+                root: usage(&rm, rc, ra, root_children),
+                project: usage(&pm, pc, pa, project_children),
+            },
+            expires_at_ms: view.expires_at_ms,
+            workspace_ownership,
+        })
+    }
+    /// Historical authenticated acceptance is not current filesystem authority.
+    pub(crate) fn integration_verified_acceptance(
+        &self,
+        scope_id: &str,
+        task_id: &str,
+    ) -> Result<Option<GraphTaskAcceptance>> {
+        let task: Task = raw(&self.conn, "tasks", task_id)?;
+        if task.id != task_id {
+            return Err(changed());
+        }
+        if task.state != TaskState::Accepted {
+            return Ok(None);
+        }
+        let id = task.acceptance_ref.as_ref().ok_or_else(denied)?;
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_acceptances WHERE id=?1",[id],1,MAX_STORED_BYTES)?;
+        let text: String = self
+            .conn
+            .query_row(
+                "SELECT document FROM goal_graph_acceptances WHERE id=?1",
+                [id],
+                |row| row.get(0),
+            )
+            .map_err(db_error)?;
+        let expected: GraphTaskAcceptance = decode(&text)?;
+        let r = run(&self.conn, &expected.run_id)?;
+        let actual = verify_accepted_state(&self.conn, &r)?;
+        if actual.scope_id != scope_id || actual.task_id != task_id || encode(&actual)? != text {
+            return Err(changed());
+        }
+        Ok(Some(actual))
+    }
+}
+
+// Independently approved definitions offered to a new integration approval only.
+// This deliberately does not consume/replenish an old one-shot command run.
+impl Store {
+    pub(crate) fn integration_available_validators(
+        &self,
+        material: &crate::integration::IntegrationScopeMaterial,
+    ) -> Result<Vec<crate::integration::IntegrationValidatorBinding>> {
+        let mut out = Vec::new();
+        for (table, kind, approval_kind, tag) in [
+            (
+                "data_validation_policies",
+                GoalValidatorKind::Data,
+                "data_validation",
+                "data",
+            ),
+            (
+                "command_validation_policies",
+                GoalValidatorKind::Command,
+                "command_validation",
+                "command",
+            ),
+        ] {
+            let check=format!("SELECT count(*),COALESCE(sum(octet_length(id)+octet_length(task_id)+octet_length(session_id)+octet_length(attempt_id)+octet_length(workspace_id)+octet_length(approval_id)+octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM {table} WHERE json_extract(document,'$.project_id')=?1 AND workspace_id=?2 AND json_extract(document,'$.revoked')=0");
+            let (count, bytes, max): (i64, i64, i64) = self
+                .conn
+                .query_row(
+                    &check,
+                    params![material.project.id, material.workspace.id],
+                    |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                )
+                .map_err(db_error)?;
+            if !(0..=64).contains(&count)
+                || !(0..=1_048_576).contains(&bytes)
+                || !(0..=1_048_576).contains(&max)
+            {
+                return Err(limited());
+            }
+            let sql=format!("SELECT id,task_id,session_id,attempt_id,workspace_id,approval_id,document FROM {table} WHERE json_extract(document,'$.project_id')=?1 AND workspace_id=?2 AND json_extract(document,'$.revoked')=0 ORDER BY id");
+            let mut statement = self.conn.prepare(&sql).map_err(db_error)?;
+            let rows = statement
+                .query_map(params![material.project.id, material.workspace.id], |r| {
+                    Ok((
+                        r.get::<_, String>(0)?,
+                        r.get::<_, String>(1)?,
+                        r.get::<_, String>(2)?,
+                        r.get::<_, String>(3)?,
+                        r.get::<_, String>(4)?,
+                        r.get::<_, String>(5)?,
+                        r.get::<_, String>(6)?,
+                    ))
+                })
+                .map_err(db_error)?
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .map_err(db_error)?;
+            for (row_id, row_task, row_session, row_attempt, row_workspace, row_approval, text) in
+                rows
+            {
+                let definition: Value = decode(&text)?;
+                if !definition.is_object()
+                    || definition["id"].as_str() != Some(row_id.as_str())
+                    || definition["task_id"].as_str() != Some(row_task.as_str())
+                    || definition["session_id"].as_str() != Some(row_session.as_str())
+                    || definition["attempt_id"].as_str() != Some(row_attempt.as_str())
+                    || definition["workspace_id"].as_str() != Some(row_workspace.as_str())
+                    || definition["approval_id"].as_str() != Some(row_approval.as_str())
+                {
+                    return Err(changed());
+                }
+                // Original typed policy decoding rejects duplicate/foreign fields.
+                if kind == GoalValidatorKind::Data {
+                    let _: crate::data_validation::DataValidationPolicy = decode(&text)?;
+                } else {
+                    let _: crate::command_validation::CommandValidationPolicy = decode(&text)?;
+                }
+                let reference = GoalValidatorRef {
+                    kind: kind.clone(),
+                    policy_id: definition["id"].as_str().ok_or_else(changed)?.into(),
+                    revision: definition["revision"].as_u64().ok_or_else(changed)?,
+                };
+                if material.validators.iter().any(|v| v.reference == reference) {
+                    continue;
+                }
+                let approval = definition["approval_id"].as_str().ok_or_else(changed)?;
+                let (proposal, original) =
+                    native_confirmation(&self.conn, approval, approval_kind)?;
+                if original != definition
+                    || definition["project_id"] != material.project.id
+                    || definition["workspace_id"] != material.workspace.id
+                    || definition["revoked"] != false
+                {
+                    return Err(changed());
+                }
+                let file = if kind == GoalValidatorKind::Data {
+                    &definition["file_contract"]
+                } else {
+                    &definition["contract"]["file_contract"]
+                };
+                if kind == GoalValidatorKind::Data {
+                    if proposal.snapshot["file_contract"] != definition["file_contract"]
+                        || proposal.snapshot["table"] != definition["table"]
+                        || proposal.snapshot["contract_digest"] != definition["contract_digest"]
+                    {
+                        return Err(changed());
+                    }
+                } else if proposal.snapshot["intent"] != definition["selection"]
+                    || proposal.snapshot["contract"] != definition["contract"]
+                    || proposal.snapshot["refs"] != definition["refs"]
+                    || proposal.snapshot["contract_digest"] != definition["contract_digest"]
+                {
+                    return Err(changed());
+                }
+                let contract: agentbaton_workspaces::validation::ValidationPolicyContractView =
+                    serde_json::from_value(file.clone()).map_err(|_| changed())?;
+                let source_task: Task = raw(&self.conn, "tasks", &row_task)?;
+                if source_task.id != row_task
+                    || contract.subject.task_id != source_task.id
+                    || contract.subject.spec_revision != source_task.spec_revision
+                    || contract.subject.input_revision != material.workspace.base_revision
+                {
+                    return Err(changed());
+                }
+                if contract.outputs.is_empty()
+                    || contract.outputs.len() > 16
+                    || contract.inputs.len() > 16
+                {
+                    return Err(changed());
+                }
+                let identity = material.workspace.identity.as_ref().ok_or_else(changed)?;
+                let same_root = |a: &agentbaton_workspaces::validation::ArtifactContractView| {
+                    a.canonical_root == material.workspace.root
+                        && a.root_device == identity.device
+                        && a.root_inode == identity.inode
+                };
+                let program_id =
+                    definition["contract"]["program"]["requirement"]["artifact_id"].as_str();
+                let script_id =
+                    definition["contract"]["script"]["requirement"]["artifact_id"].as_str();
+                // Program/script have their own exact original bindings; neither
+                // is silently promoted into an ordinary Goal input requirement.
+                // Unsupported contracts are not offered as selectable permissions.
+                if !contract.outputs.iter().all(|a| {
+                    same_root(a) && material.outputs.iter().any(|o| o.artifact == a.requirement)
+                }) || !contract
+                    .inputs
+                    .iter()
+                    .filter(|a| {
+                        Some(a.requirement.artifact_id.as_str()) != program_id
+                            && Some(a.requirement.artifact_id.as_str()) != script_id
+                    })
+                    .all(|a| {
+                        same_root(a)
+                            && a.requirement.expected_sha256.is_some()
+                            && material.inputs.contains(&a.requirement)
+                    })
+                {
+                    continue;
+                }
+                let artifact =
+                    |v: &Value| -> Result<Option<crate::integration::IntegrationArtifactBinding>> {
+                        if v.is_null() {
+                            return Ok(None);
+                        }
+                        let a: agentbaton_workspaces::validation::ArtifactContractView =
+                            serde_json::from_value(v.clone()).map_err(|_| changed())?;
+                        if a.requirement.expected_sha256.is_none() {
+                            return Err(changed());
+                        }
+                        Ok(Some(crate::integration::IntegrationArtifactBinding {
+                            canonical_root: a.canonical_root,
+                            root_device: a.root_device.to_string(),
+                            root_inode: a.root_inode.to_string(),
+                            requirement: a.requirement,
+                        }))
+                    };
+                out.push(crate::integration::IntegrationValidatorBinding {
+                    reference,
+                    rule_id: format!("{tag}:{}", definition["id"].as_str().ok_or_else(changed)?),
+                    definition_digest: sha(&definition)?,
+                    definition_json: encode(&definition)?,
+                    program: artifact(&definition["contract"]["program"])?,
+                    script: artifact(&definition["contract"]["script"])?,
+                });
+                if out.len() + material.validators.len() > 64 {
+                    return Err(limited());
+                }
+            }
+        }
+        out.sort_by(|a, b| a.rule_id.cmp(&b.rule_id));
+        Ok(out)
+    }
+}
+
 #[cfg(test)]
 mod proposal_size_tests {
     use super::*;
@@ -3299,7 +3737,7 @@ mod proposal_size_tests {
             revision: 1,
             kind: "approval.proposed".into(),
             occurred_at: "2026-10-28T00:00:00Z".into(),
-            payload: json!({"kind":p.kind,"snapshot":p.snapshot}),
+            payload: crate::sessions::approval_event_payload(&p.kind, &p.snapshot).unwrap(),
             source: "user_action".into(),
         };
         assert_eq!(

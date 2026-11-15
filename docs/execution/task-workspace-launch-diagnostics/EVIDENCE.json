@@ -1,0 +1,95 @@
+{
+  "base": "55a9d490529452bf7cf0a97bc5925f69adec41de",
+  "requirement_ids": [
+    "AB-SEC-007"
+  ],
+  "dimension": "Finite CI diagnostics and synthetic AST/stub projection contracts, not product/browser tests",
+  "original_observation": {
+    "source": "ba4612a6d7dc6e23b1bb1cfa22fbf9ce32a89947",
+    "Product_run": 41154588518,
+    "UI_job": 124398474801,
+    "artifact": 13025090990,
+    "zip_sha256": "7df245ecd97c2087f72b68bbecf1dc155716f9be69177e0e343767a33fc1ac6f",
+    "finite_summary_sha256": "c32f2c62440dda80d057e0e1bce161c37e53b908ec17297aaed9f52f199353db",
+    "status": "pending",
+    "failure_kind": "report_missing",
+    "cause": "not_established; copy/launch/preflight boundaries previously indistinguishable"
+  },
+  "implemented_contract": {
+    "name": "agentbaton.task-workspace-ci-launch.v1",
+    "maximum_utf8_bytes": 4096,
+    "publication": "one JSON line to job stdout after projector attempt, no raw private artifact upload",
+    "stage": "closed enums only",
+    "tool_role": "batond/baton/null",
+    "metadata": [
+      "bounded bytes/mode",
+      "regular/owner_matches/writable booleans",
+      "identity_unchanged/digest_matches boolOrNull"
+    ],
+    "exits": "strict int32/null",
+    "no_pass_authority": true,
+    "forbidden": [
+      "paths",
+      "argv",
+      "exception text",
+      "uid/inode/PID values",
+      "raw history",
+      "private logs",
+      "credentials"
+    ]
+  },
+  "actual_checks": {
+    "new_AST_tests": 20,
+    "original_projector_tests": 37,
+    "unique_total_per_run": 57,
+    "matrix": [
+      "umask0022 all57pass",
+      "umask0077 all57pass"
+    ],
+    "initial17_only_AST_pass": "not additive; superseded by final20 plus37 matrix",
+    "source_inverse": "all original runtime AST preserved after removing instrumentation and restoring strict-int exit strengthening; both launch argv and copy guards unchanged",
+    "outside_workflow_function_byteexact": true,
+    "harness_and_projector_byteexact": true,
+    "diff_check_exit": 0
+  },
+  "evidence": {
+    "FINAL_RESULTS.json": {
+      "sha256": "11b95455d7319243bdfeafcd7dab2b1d9828ac1edb7c17c982fdfbab9912cde1",
+      "bytes": 762
+    },
+    "pure-077.log": {
+      "sha256": "d90a6a93ca4edc23b6df2c8bcfaf14e9650a08b9f9c924b323e35c81d1b5f0e7",
+      "bytes": 10392
+    },
+    "pure-022.log": {
+      "sha256": "a01f3b85f22cd09ea921647213cf223830ffa0f88ce7634073be1959e88cfd51",
+      "bytes": 10392
+    },
+    "RESULTS.json": {
+      "sha256": "04cf07d568e36e2255ce7579ebeea72033df219817363922523f29bb2a915f3a",
+      "bytes": 1247
+    },
+    "final-pure-022.log": {
+      "sha256": "78aa7f5755f9450c834e397babacf0cb87b664c09ef549e0eb61b7177acba00f",
+      "bytes": 10897
+    },
+    "final-pure-077.log": {
+      "sha256": "e4869868d8b92cd5671efb9f426afdb0d0a25428320e5ba08a756d38b6b8f690",
+      "bytes": 10897
+    }
+  },
+  "source_sha256": {
+    ".github/workflows/product.yml": "9565f2f62e937e1263aa1ee4042dccdba62580b440ab87a1c4a08b60e2022c97",
+    "tests/infrastructure/test_task_workspace_ci_launch_diagnostics.py": "8ee1afe1170455f7d8e91b710681a8f156a275a2bb4eac394e9c406f91dd9226",
+    "apps/desktop/tests/task-workspace-binding-real-ipc.py": "7c2a4a56f85c1e42500d1f32131239f017d40037ee3a5e3f04172ae4827060c4",
+    "scripts/record-task-workspace-ci-evidence.py": "d30279722e2967da93bb52d62c2db4c03a04e83c4287cebb517e15c629244f61"
+  },
+  "not_run": [
+    "full infrastructure suite",
+    "Cargo/SQLite/Core/Actor",
+    "actual TaskWorkspace driver or browser",
+    "new CI/network/macOS",
+    "real Provider"
+  ],
+  "authority": "Root explicitly approved this engineering diagnostic implementation; no permission, resources, workflow checks/actions/timeouts/conditions or production boundary changed"
+}

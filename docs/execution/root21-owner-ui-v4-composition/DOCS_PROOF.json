@@ -1,0 +1,15 @@
+{
+  "head": "fcc208989ffc24c75cbf4377b560a7e1e25ed195",
+  "incoming": "c67569856050fd40195b540b4bb71d3406e0e907",
+  "STATUS_conflicts_preserved_both": [
+    [
+      24273,
+      1422
+    ]
+  ],
+  "STATUS_sha256": "6dccf8061edb8d0b2ae0975ffc4158743b4eae1f4e76bdf7e05104fee1066615",
+  "requirements_all130_status_coverage_unchanged_against_both": true,
+  "requirements_after_sha256": "8368f88a3b9c87cce0696d8e2c58438d86da660f9fe679683f69c825068356ce",
+  "manifest_only_STATUS_differed": true,
+  "tracked_index_not_staged": true
+}

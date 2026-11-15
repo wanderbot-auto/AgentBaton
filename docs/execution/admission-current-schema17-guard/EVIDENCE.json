@@ -1,0 +1,40 @@
+{
+  "base": "2681d58fdfbd6d0218d598c24831037781906ef9",
+  "requirement_ids": [
+    "AB-SEC-007"
+  ],
+  "change": "Only current Store typed user_version expected literal16 becomes17",
+  "root_reported_remote_failure": {
+    "source": "ba4612a6d7dc6e23b1bb1cfa22fbf9ce32a89947",
+    "run": 41154588518,
+    "test": "real_admission_profile_and_post_reservation_input_drift_remain_guarded",
+    "line": 105,
+    "actual": 17,
+    "expected_before": 16,
+    "provenance": "Parent root-reported log result; not independently fetched or executed by this source task"
+  },
+  "actual_checks": [
+    {
+      "command": "Pure Python exact byte delta and six source invariants",
+      "result": "all six pass",
+      "record": "/workspace/.onboarding/admission-current-schema17-guard1/STATIC.json",
+      "sha256": "a7acfea3392e5b770db19ef5e59a0d677a540546ba9d9baece9c1219ed3af480"
+    },
+    {
+      "command": "workspace rustfmt --edition2021 --check crates/core/tests/admission_performance.rs",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "source_sha256": "441359793df7563e5530a834d131ae17aaecec6ab202efee2215a3204c246e90",
+  "not_run": [
+    "Cargo/Rust compilation",
+    "Actual admission/SQLite execution",
+    "Browser/Core/Unix IPC",
+    "CI/network/Mac/Provider"
+  ],
+  "scope": "No production/workflow/harness or other test body changes; full product acceptance unchanged"
+}

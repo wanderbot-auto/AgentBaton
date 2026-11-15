@@ -5,6 +5,7 @@ use crate::transport::{
     ApprovedInstallation, Diagnostics, FailureKind, ProviderEvent, TransportFailure,
 };
 use crate::{ProtocolError, TurnState, UpdateKind, MAX_SESSIONS};
+use serde::Deserialize;
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -56,6 +57,50 @@ pub fn validate_native_envelope(frame: &Value) -> Result<(), ProtocolError> {
     }
     Ok(())
 }
+/// Closed native policy projection. No model, identity, billing or arbitrary
+/// config passthrough. The trusted caller must resolve its approved snapshot.
+#[derive(Clone, Copy, Debug, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CodexExecutionPolicy {
+    sandbox_mode: SandboxMode,
+    approval_policy: ApprovalPolicy,
+}
+#[derive(Clone, Copy, Debug, Default, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum SandboxMode {
+    ReadOnly,
+    #[default]
+    WorkspaceWrite,
+}
+#[derive(Clone, Copy, Debug, Default, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum ApprovalPolicy {
+    Untrusted,
+    #[default]
+    OnRequest,
+}
+impl CodexExecutionPolicy {
+    fn sandbox_name(self) -> &'static str {
+        match self.sandbox_mode {
+            SandboxMode::ReadOnly => "read-only",
+            SandboxMode::WorkspaceWrite => "workspace-write",
+        }
+    }
+    fn approval_name(self) -> &'static str {
+        match self.approval_policy {
+            ApprovalPolicy::Untrusted => "untrusted",
+            ApprovalPolicy::OnRequest => "on-request",
+        }
+    }
+    fn turn_sandbox(self, workspace: &Path) -> Value {
+        match self.sandbox_mode {
+            SandboxMode::ReadOnly => json!({"type":"readOnly","networkAccess":false}),
+            SandboxMode::WorkspaceWrite => {
+                json!({"type":"workspaceWrite","writableRoots":[workspace],"networkAccess":false,"excludeSlashTmp":true,"excludeTmpdirEnvVar":true})
+            }
+        }
+    }
+}
 struct Thread {
     binding: String,
     state: TurnState,
@@ -79,6 +124,7 @@ pub struct CodexProcess {
     pending: Option<PendingTurn>,
     control_ids: BTreeSet<u64>,
     completed_turns: BTreeSet<String>,
+    policy: CodexExecutionPolicy,
 }
 impl CodexProcess {
     pub fn start(
@@ -99,6 +145,7 @@ impl CodexProcess {
             pending: None,
             control_ids: BTreeSet::new(),
             completed_turns: BTreeSet::new(),
+            policy: CodexExecutionPolicy::default(),
         };
         let request=process.request("initialize",json!({"clientInfo":{"name":"agentbaton","title":"AgentBaton","version":env!("CARGO_PKG_VERSION")},"capabilities":{"experimentalApi":false}}))?;
         let response = process.exchange(&request)?;
@@ -115,6 +162,16 @@ impl CodexProcess {
         process.io.enqueue_frame(&json!({"method":"initialized"}))?;
         process.io.flush_outbound()?;
         Ok(process)
+    }
+    pub fn configure_policy(
+        &mut self,
+        policy: CodexExecutionPolicy,
+    ) -> Result<(), TransportFailure> {
+        if !self.threads.is_empty() || self.pending.is_some() {
+            return Err(protocol(ProtocolError::UnexpectedState));
+        }
+        self.policy = policy;
+        Ok(())
     }
     fn request(&mut self, method: &str, params: Value) -> Result<Value, TransportFailure> {
         self.next_id = self
@@ -166,7 +223,7 @@ impl CodexProcess {
         if binding.is_empty() || binding.len() > 256 || self.threads.len() >= MAX_SESSIONS {
             return Err(protocol(ProtocolError::InvalidParams));
         }
-        let request=self.request("thread/start",json!({"cwd":self.workspace,"approvalPolicy":"on-request","sandbox":"workspace-write","ephemeral":true}))?;
+        let request=self.request("thread/start",json!({"cwd":self.workspace,"approvalPolicy":self.policy.approval_name(),"sandbox":self.policy.sandbox_name(),"ephemeral":true}))?;
         let response = self.exchange(&request)?;
         let id = match self.validate_thread_response(&response) {
             Ok(id) => id,
@@ -194,11 +251,24 @@ impl CodexProcess {
         .to_owned();
         // Check the declared effective scope; this does not establish OS enforcement.
         if Path::new(text(result, "cwd")?) != self.workspace
-            || result["approvalPolicy"] != "on-request"
-            || result["sandbox"]["type"] != "workspaceWrite"
+            || result["approvalPolicy"] != self.policy.approval_name()
+            || result["sandbox"]["type"]
+                != match self.policy.sandbox_mode {
+                    SandboxMode::ReadOnly => "readOnly",
+                    SandboxMode::WorkspaceWrite => "workspaceWrite",
+                }
             || result["sandbox"]
                 .get("networkAccess")
                 .is_some_and(|v| v.as_bool() != Some(false))
+        {
+            return Err(protocol(ProtocolError::PermissionDenied));
+        }
+        if matches!(self.policy.sandbox_mode, SandboxMode::ReadOnly)
+            && result["sandbox"].as_object().is_none_or(|scope| {
+                scope
+                    .keys()
+                    .any(|key| key != "type" && key != "networkAccess")
+            })
         {
             return Err(protocol(ProtocolError::PermissionDenied));
         }
@@ -249,7 +319,7 @@ impl CodexProcess {
         ) {
             return Err(protocol(ProtocolError::UnexpectedState));
         }
-        let request=self.request("turn/start",json!({"threadId":thread,"input":[{"type":"text","text":prompt}],"cwd":self.workspace,"approvalPolicy":"on-request","sandboxPolicy":{"type":"workspaceWrite","writableRoots":[self.workspace],"networkAccess":false,"excludeSlashTmp":true,"excludeTmpdirEnvVar":true}}))?;
+        let request=self.request("turn/start",json!({"threadId":thread,"input":[{"type":"text","text":prompt}],"cwd":self.workspace,"approvalPolicy":self.policy.approval_name(),"sandboxPolicy":self.policy.turn_sandbox(&self.workspace)}))?;
         self.pending = Some(PendingTurn {
             thread: thread.into(),
             request_id: request["id"].as_u64().unwrap(),

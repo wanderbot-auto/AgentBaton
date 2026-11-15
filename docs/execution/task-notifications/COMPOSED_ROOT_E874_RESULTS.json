@@ -1,0 +1,470 @@
+{
+  "recorded_at": "2026-10-31T06:41:12.403981+00:00",
+  "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+  "parents": [
+    "784afd593f81ac62e638f16dbcf065de4b6fcde9",
+    "e874b123d3e7f329a551e21922baf1a7a643548f"
+  ],
+  "dimension": "actual fresh composed Linux Core17/React/authenticated UnixIPC/generatedACP/private fixture Owner; explicit local installed Chromium launcher adapter; not CI bundled browser discovery, Native/Mac/real Provider",
+  "commands": {
+    "notifications-root-e874-full-infra1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 1,
+      "seconds": 21.15505060798023,
+      "log_sha256": "a08f3d342aeff4d89679ac7023acd23e3d3b49a35b6a95e01bd2ff3f086b64a1",
+      "interruption": null,
+      "result_sha256": "d1b3701c94067f220f3790ee40358dad241e228b6eec8de846e528107bfcd835",
+      "inputs_sha256": "76a86f6856377240a3f34dbc14748f2b00ce40e5cad7e94e0c876f103cbe7bd8"
+    },
+    "notifications-root-e874-full-infra2": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 21.053526256990153,
+      "log_sha256": "f0257012d8cb2069a9549057e16df8169d8c1747977097ce9b9a9175c2ed6ea6",
+      "interruption": null,
+      "result_sha256": "1a0a3d9b87faa60cd6559e6c5ea95e9b701c66f9eb9e7f80da451d89c00ec0c6",
+      "inputs_sha256": "76a86f6856377240a3f34dbc14748f2b00ce40e5cad7e94e0c876f103cbe7bd8"
+    },
+    "notifications898-types-fullui1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 34.64361180603737,
+      "log_sha256": "768354971b40b3b1fc8c525c1d79ebb2358240809188e7bb16fea6de14cddcde",
+      "interruption": null,
+      "result_sha256": "8d71b9619912bcb7db03d8c6887aeadb0c9e1c6c6c1465d6e4c004b17fdc3cc5",
+      "inputs_sha256": "574697eecc237ac409db81fba7a3ad4468efd406626e2ecfb5dd91a348ed0cf3"
+    },
+    "notifications898-core-preview-build1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 28.682508525031153,
+      "log_sha256": "f215e6d0c8a9fa8d21154d262201bdb849b5d6edc1789cb9e2ee0fbe80a19dfb",
+      "interruption": null,
+      "result_sha256": "9c30386d688c882a964479c3a6639baf8305791dd9e4fe7b450613631cea90c0",
+      "inputs_sha256": "a6c0ceda953ba2bcabad5e41f1f1fb4fafd4dbfc838c2c0a47b0bea6d345e9da"
+    },
+    "notifications898-frontend-build1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 1.6083470690064132,
+      "log_sha256": "0c39b57548e8d13ece51c1038b9278197e5bd2710af47940cc2ac77fab3d312c",
+      "interruption": null,
+      "result_sha256": "e77bc745b0f89cf34208277dc1a3d2631985b0370cd95a992a01e74ee9162522",
+      "inputs_sha256": "2d5f3c459c59d5b505337ad12626975a1c3e7457269b5eb8666162b60fd5cd3e"
+    },
+    "notifications898-full-wrapper-command1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 27.39585148502374,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interruption": null,
+      "result_sha256": "072700d114e704ea89ee4144e2c4d9a202d52af3d066eeb5090f04a27062a502",
+      "inputs_sha256": "29fe751237b09f613abf98e9167930c11ad9aaa2b9e738324bfbe2e6519238fd"
+    },
+    "notifications898-integration-projection-command1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 0.20088488998590037,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interruption": null,
+      "result_sha256": "c475de4a4ea4cfdf536eacd93a4a44b9e2c90bc0d5f8c02e2ff1875e8f66dc6f",
+      "inputs_sha256": "a9bf3fa7b16c284066f51116ddd40007dd0ac71dd2e506ab08ebde280b261b09"
+    },
+    "notifications898-notifications-projection-command1": {
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "exit": 0,
+      "seconds": 0.20105629495810717,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interruption": null,
+      "result_sha256": "1443bd261732e71513f78fa360703220894881646dd07c7ed1e6ce295697f56d",
+      "inputs_sha256": "be97a92c0f1f0f002cfc5764ac954a98c2260b3ae789b620de73293af07d9dd5"
+    }
+  },
+  "counts": {
+    "full_infrastructure": 600,
+    "full_ui_unique": 1088,
+    "ui_files": 61,
+    "integration_checks": 9,
+    "integration_original_pngs": 12,
+    "notification_checks": 6,
+    "notification_original_pngs": 4
+  },
+  "source_proof": {
+    "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+    "desktop_src_all_blobs_equal_actual287_source": {
+      "count": 161,
+      "proof": "all full desktop/src and src-tauri/src tracked blobs equal; excludes browser harness, metadata and Rust Core/workspaces source"
+    },
+    "rust_src_all_blobs_equal_reviewed_e874_root": {
+      "count": 100,
+      "proof": "all crates/**/src, daemon/src, cli/src tracked blobs exactequal; tests separate, no old366-files claim"
+    },
+    "not_claimed": "old actual287 runtimes moved to898 or Mac product unchanged since287; fresh898 actual composition still required"
+  },
+  "source_proof_sha256": "7784cc83ec9b092e43e1b96032ddf5337ae31e67b573351cfd88780221ed14ce",
+  "paired_build_proof": {
+    "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+    "fresh_results": {
+      "core": {
+        "result_sha256": "9c30386d688c882a964479c3a6639baf8305791dd9e4fe7b450613631cea90c0",
+        "log_sha256": "f215e6d0c8a9fa8d21154d262201bdb849b5d6edc1789cb9e2ee0fbe80a19dfb",
+        "command": [
+          "env",
+          "PATH=/workspace/.toolchains/cargo/bin:/usr/bin:/bin",
+          "CARGO_BUILD_JOBS=1",
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton",
+          "--features",
+          "agentbaton-core/preview-evidence"
+        ]
+      },
+      "frontend": {
+        "result_sha256": "e77bc745b0f89cf34208277dc1a3d2631985b0370cd95a992a01e74ee9162522",
+        "log_sha256": "0c39b57548e8d13ece51c1038b9278197e5bd2710af47940cc2ac77fab3d312c",
+        "command": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ]
+      }
+    },
+    "manifest_sha256": "f7d3a43c2733c20911ca342cbfc135c27179152ddb207b7b25ad9579a262f723",
+    "frontend_build_record_sha256": "e77bc745b0f89cf34208277dc1a3d2631985b0370cd95a992a01e74ee9162522",
+    "binaries": {
+      "batond": "10516d79f927448b871ac1427f5bb5a8b025d2ccbd7c1ad6cc46ec1f49b2c635",
+      "baton": "d0e026163a8282f7fd13846343d6d08dd3537ea1d51fedaf11fbae863739b35f"
+    },
+    "frontend_assets": {
+      "assets/index-BJV22tsE.css": "5669c32b15974e92bf4989ff52d81201547a89def6da1a89d53e8930499c2e4d",
+      "assets/index-Dr9lmYb8.js": "2545323f0849c33e7e689adb8583a7f4beb260bcb172859636868c05b9f95ac4",
+      "index.html": "06eda26bc19984394bc6e6e02b1e42826b18e883478c383c24216452717c6488"
+    },
+    "layout": "byte-identical copied same898 fresh build outputs in real clean898 detached checkout; no hardlinks/symlink or source relabel; private runtimes outside repo"
+  },
+  "paired_build_proof_sha256": "eef286d6c7f0eb30a38dbb3ac7ee85cedb9486c379b8f8ef8dd40d27aec4687c",
+  "wrapper": {
+    "private_helper_sha256": "020e20d8a7d269c9b473977acc3679d5c43c1c38a45aaedf3f9a2c23097c7440",
+    "scope": "Seven exact original complete workflow functions, one original notification flag, all schema/copy/pin/private-mode/metadata/driver-argv guards. Sole declared adaptation is local installed Chromium launcher discovery."
+  },
+  "finite_integration": {
+    "sha256": "7f98adb606c4d0bcfacc4d0ed9b4cbdeada38eccb38483ee5508b28bc3f55b99",
+    "summary": {
+      "contract": "agentbaton.integration-browser-ci.v1",
+      "status": "passed",
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "driver_sha256": "55f8144175c0a1d0809da7c95c66339c535a6f8e6d90ece9d11ecb89227df993",
+      "manifest_sha256": "f7d3a43c2733c20911ca342cbfc135c27179152ddb207b7b25ad9579a262f723",
+      "build_record_sha256": "e77bc745b0f89cf34208277dc1a3d2631985b0370cd95a992a01e74ee9162522",
+      "tools_sha256": {
+        "batond": "10516d79f927448b871ac1427f5bb5a8b025d2ccbd7c1ad6cc46ec1f49b2c635",
+        "baton": "d0e026163a8282f7fd13846343d6d08dd3537ea1d51fedaf11fbae863739b35f"
+      },
+      "runtime_tools_sha256": {
+        "chromium": "2c8d32d29dc6781c35ae196ea83299d507ac88fc339301abe74672feda299779",
+        "python": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+      },
+      "asset_count": 3,
+      "assets_sha256": "0399a21e53e42e00e8698a6b53620ee37b46b4782d67d5c4011327c4d073eb5c",
+      "cases": [
+        {
+          "case": "normal",
+          "status": "passed",
+          "checks": 5,
+          "terminal": {
+            "state": "confirmed_local_ref",
+            "stages": 3,
+            "cas_attempts": 1,
+            "command_exit": 0,
+            "shared_runtime_ms": 2920,
+            "shared_output_bytes": 364,
+            "tokens": null,
+            "cost_microunits": null
+          },
+          "automatic_watcher_without_start": true,
+          "cleanup": {
+            "owned_daemon_exit": 0,
+            "joined": true,
+            "http_handlers_joined": true,
+            "browser_closed": true,
+            "source_tools_assets_unchanged": true,
+            "fixture_removed": true
+          }
+        },
+        {
+          "case": "command-failure",
+          "status": "passed",
+          "checks": 4,
+          "terminal": {
+            "state": "failed",
+            "stages": 2,
+            "cas_attempts": 0,
+            "command_exit": 7,
+            "shared_runtime_ms": 2182,
+            "shared_output_bytes": 50,
+            "tokens": null,
+            "cost_microunits": null
+          },
+          "automatic_watcher_without_start": true,
+          "cleanup": {
+            "owned_daemon_exit": 0,
+            "joined": true,
+            "http_handlers_joined": true,
+            "browser_closed": true,
+            "source_tools_assets_unchanged": true,
+            "fixture_removed": true
+          }
+        }
+      ],
+      "checks": 9,
+      "actual_schema_probe": {
+        "api_version": 1,
+        "database_schema_version": 17,
+        "joined": true
+      },
+      "private_history_published": false,
+      "screenshots_published": true,
+      "screenshots": [
+        {
+          "name": "normal-task-pending-before-acceptance.png",
+          "sha256": "f173db5ac93bf07fde32396f7293aa4bcbf9a42f3794f366b5e8956f91307ecc",
+          "bytes": 136100,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "normal-permission-before-task-acceptance.png",
+          "sha256": "0dbbe8f87978eaf88ea0fb65616918c7598aa36235df2c0520ddbc6e458ff580",
+          "bytes": 147088,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "normal-terminal-state-desktop.png",
+          "sha256": "b95f34e7e45543fbafa85d9e14247f91a2d090428f1274fbc603765eb15ceb73",
+          "bytes": 139591,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "normal-terminal-receipt-desktop.png",
+          "sha256": "c2f03a64b1dd261661ae2226dc98fc5cd4f4cdc20ce0de357db0fe8108551fd9",
+          "bytes": 140667,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "normal-terminal-state-mobile.png",
+          "sha256": "ba166ad8e2f84903ac17b5967e15ca807f134e65844ec70586429d4ab7a94f61",
+          "bytes": 52597,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "normal-terminal-receipt-mobile.png",
+          "sha256": "1674a859738697878df38ff4cb9200916d7e96e8420e5e18291f07f9c0bea390",
+          "bytes": 57437,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "command-failure-task-pending-before-acceptance.png",
+          "sha256": "71cc588e21d9087236a773b23c9117b3c8a64f7117bffab2e758c365c65ecec7",
+          "bytes": 135962,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "command-failure-permission-before-task-acceptance.png",
+          "sha256": "a307e3370735d0d6c8d046e8d961f3e4ec1b0e44ba2fb0e497ebea5327544250",
+          "bytes": 147062,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "command-failure-terminal-state-desktop.png",
+          "sha256": "cd72c63e310ad5f07eb5e6d046c35c374574737c7dafc798e30a425e842715cd",
+          "bytes": 141273,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "command-failure-terminal-receipt-desktop.png",
+          "sha256": "3da6901c91196e37bb8673343ee6dc0c568faa7d55bc656b21db068c3c3ee39f",
+          "bytes": 142057,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "command-failure-terminal-state-mobile.png",
+          "sha256": "904d0086ba55e81aebfeeb2320abd7957569f19cb69be1c9da705e0af533d617",
+          "bytes": 51836,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "command-failure-terminal-receipt-mobile.png",
+          "sha256": "6beaf820020f173e73cfa65ea4154ab9cba861217609f38ea49232c194938ec1",
+          "bytes": 61417,
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "visual_review": "not_performed_by_projector",
+      "pixel_synchronized": false,
+      "not_claimed": [
+        "production Tauri Native formatter",
+        "OS dialog",
+        "macOS",
+        "live Provider/model",
+        "OS sandbox",
+        "whole-filesystem output quota",
+        "complete failure matrix",
+        "whole product completion"
+      ]
+    }
+  },
+  "finite_notifications": {
+    "sha256": "a5ffbe612b8c99557c89f69be14a98c2c42c40c0bea4b88f23d6c3ce0d30e2c9",
+    "summary": {
+      "contract": "agentbaton.task-notifications-ci.v1",
+      "status": "passed",
+      "source": "898c469c532be7dd6a80a44b8bb05b2a19cfffd5",
+      "checks": 6,
+      "task_notices": 1,
+      "naturally_observed_events": 12,
+      "inspected_event_count": 10,
+      "synthetic_repeated_events": 0,
+      "original_event_payload_matched": true,
+      "same_task_navigation": true,
+      "modal_shortcuts": 4,
+      "dnd_ui_reload": true,
+      "bridge_read_counts": {
+        "system.snapshot": 4,
+        "projects.list": 3,
+        "events.subscribe": 3,
+        "connections.list": 3,
+        "tasks.get": 1,
+        "sessions.list": 3,
+        "goal_scopes.list": 1,
+        "integration_policies.list": 1,
+        "integrations.list": 1,
+        "integrations.get": 1,
+        "integration_context.get": 1,
+        "integration_targets.list": 1
+      },
+      "private_read_counts": {
+        "system.snapshot": 4,
+        "projects.list": 3,
+        "events.subscribe": 3,
+        "connections.list": 3,
+        "tasks.get": 1,
+        "sessions.list": 3,
+        "goal_scopes.list": 1,
+        "integration_policies.list": 1,
+        "integrations.list": 1,
+        "integrations.get": 1,
+        "integration_context.get": 1,
+        "integration_targets.list": 1
+      },
+      "actual_reply_sha256": "af5913f38b965a5a6eb84efb8577728ae9f231cdf800c88425dcea4dfdd2922f",
+      "cleanup": {
+        "owned_daemon_exit": 0,
+        "joined": true,
+        "http_handlers_joined": true,
+        "browser_closed": true,
+        "source_tools_assets_unchanged": true,
+        "fixture_removed": true
+      },
+      "probe_source_sha256": "1567444210aea42b2ebadcc8d15ac06a3bedd94eabb40a91da39cdaa85c11c22",
+      "driver_sha256": "55f8144175c0a1d0809da7c95c66339c535a6f8e6d90ece9d11ecb89227df993",
+      "manifest_sha256": "f7d3a43c2733c20911ca342cbfc135c27179152ddb207b7b25ad9579a262f723",
+      "build_record_sha256": "e77bc745b0f89cf34208277dc1a3d2631985b0370cd95a992a01e74ee9162522",
+      "assets_sha256": "0399a21e53e42e00e8698a6b53620ee37b46b4782d67d5c4011327c4d073eb5c",
+      "probe_report_sha256": "625effa4dd439dc284be7c09b00df5831a7fd4ef57051eb12f11cd663f71f248",
+      "screenshots": [
+        {
+          "name": "accepted-task-desktop.png",
+          "sha256": "675ebe7f839591ac3d3e8ccd8b6a045f51ed78466eedc6ace6e37983d72f64e3",
+          "bytes": 124208,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "real-source-desktop.png",
+          "sha256": "20b3248ede72f09d052bd25f9a8bc558b5fdcd9abd3e88a5288ecdf89916ce18",
+          "bytes": 138064,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "original-journal-desktop.png",
+          "sha256": "3b6b3e6202247cb973e8ca7687947b2ad3c30466c4bd622eb789c77a7abb5f29",
+          "bytes": 177887,
+          "width": 1440,
+          "height": 1100
+        },
+        {
+          "name": "dnd-mobile.png",
+          "sha256": "e9ad10d91eedcea3a8822afffb9e6384d2236fa157fedc181661971d4d0cc7a0",
+          "bytes": 46050,
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "screenshots_published": true,
+      "private_history_published": false,
+      "visual_review": "not_performed_by_projector",
+      "pixel_synchronized": false,
+      "not_claimed": [
+        "production Tauri IPC",
+        "macOS Native",
+        "live Provider/model",
+        "OS notifications",
+        "background notification delivery",
+        "100 real repeated events",
+        "whole product completion"
+      ]
+    }
+  },
+  "root_visual_review": {
+    "images": [
+      "accepted-task-desktop.png",
+      "dnd-mobile.png"
+    ],
+    "scope": "Root viewed original same898 finite PNGs: visible one Task notice,12 source fold, task navigation and DND mobile layout. No pixel synchronization or Native claim."
+  },
+  "preserved_failure": {
+    "first_full_infrastructure": "600 total,3 failures10errors from1769 missing tracked sparse-checkout files; source/index/dependency link unchanged on materialization, then same-head full600 passed. Not a product regression diagnosis.",
+    "materialization_proof_sha256": "8ebda540f6ddf1f8b0c7cd69b0075ee996d14d760109f57d88a7b4bbaa9c4da0",
+    "initial_pure_conflict_controls": "64 passed/2 failed inverse-layer controls retained; exact Feature+Root layer correction yielded68 pure passed, included in full600",
+    "old_remote_784": "Env41168423931 and Product41168426054 failed; no old report rewritten"
+  },
+  "independent_reviews": [
+    {
+      "name": "NOTIFY_898C469_ROOT_MERGE_SOURCE.review.json",
+      "sha256": "c6d28c6a004e6dd62adb0dc0676bc0700506d73c34514041c07d62b27d381c91",
+      "scope": "source/pure; actual results separate"
+    },
+    {
+      "name": "notify898-wrapper-independent-source-review.json",
+      "sha256": "312b80018f84a0cb2d5a596c1ebdb563afd60b934b8aeaa31d8f3f468873f874",
+      "scope": "source/pure; actual results separate"
+    }
+  ],
+  "next": "Hold new Feature CI until the shared known Python permission preparation failure is corrected and independently verified. Then run exact candidate CI; current Root e874 Env all3PASS but UI preflight Python mode false, runtime not entered. Do not attribute exact oldaccc cause or claim Native success.",
+  "not_run": [
+    "new composed macOS Native/dual-build/audit/development packages",
+    "OS notifications/background delivery",
+    "real100 repeated events",
+    "real Provider/private identity",
+    "full130 acceptance"
+  ],
+  "authority": "AB-START-001 unchanged; no formal Approve, production, signing credentials, spending or new remote accounts"
+}

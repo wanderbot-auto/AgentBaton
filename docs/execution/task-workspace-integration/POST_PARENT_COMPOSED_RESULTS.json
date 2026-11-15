@@ -1,0 +1,268 @@
+{
+  "recorded_at": "2026-10-29T23:25:30.430636+00:00",
+  "parent_integrated": "7acabad023ae32801b7dbd3b5f687d6b199c0118",
+  "latest_actual_schema16_source": "c9614b3439efd99714ff3e0d8d896b808bf119c6",
+  "product_Rust_full_Factory_source": "c1a9783cab29bfc3c07c088891ce103d01d1e0d2",
+  "branch": "codex/task-workspace-integration",
+  "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/19",
+  "PR_state": "draft/dependent/unmerged; exactschema16CI notrun",
+  "results": [
+    {
+      "record": "schema16-composed-factory-runtime1",
+      "source": "c1a9783cab29bfc3c07c088891ce103d01d1e0d2",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "env",
+        "AGENTBATON_FACTORY_TEST_TOOLS=/workspace/.onboarding/task-bound-session-schema16-frozen",
+        "AGENTBATON_CHILD_PLAN_COMPANION=/workspace/.onboarding/task-bound-session-schema16-frozen/baton",
+        "AGENTBATON_CHILD_GOAL_COMPANION=/workspace/.onboarding/task-bound-session-schema16-frozen/baton",
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 100.28426347201457,
+      "minimum_free_bytes": 235999232,
+      "interruption": null,
+      "log_sha256": "0467652de7d714f58dcb0653d383b1f71e465fe071d184256fcbe3f48904767d",
+      "summaries": [
+        "test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 82.97s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "schema16-post-parent-clippy2",
+      "source": "c1a9783cab29bfc3c07c088891ce103d01d1e0d2",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 14.357637709996197,
+      "minimum_free_bytes": 236343296,
+      "interruption": null,
+      "log_sha256": "52dc3651a98cd4021fab66ddefd1b96cccddddf9ce7c4a84d841f17eb13aac41",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "schema16-post-parent-format2",
+      "source": "c1a9783cab29bfc3c07c088891ce103d01d1e0d2",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.3072967999905813,
+      "minimum_free_bytes": 236683264,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "schema16-events-composed-infrastructure9",
+      "source": "c9614b3439efd99714ff3e0d8d896b808bf119c6",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0,
+      "seconds": 1.9043905439903028,
+      "minimum_free_bytes": 235323392,
+      "interruption": null,
+      "log_sha256": "3d19728449763e1397051b3334a55eab6133d3266b00b72409eba9989266f215",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "schema16-rework-event-collector-actual1",
+      "source": "c9614b3439efd99714ff3e0d8d896b808bf119c6",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "python3",
+        "scripts/record-factory-rework-ci-evidence.py",
+        "--evidence-root",
+        "/workspace/.onboarding/schema16-rework-retained-collector-input1"
+      ],
+      "exit": 0,
+      "seconds": 0.10077970000565983,
+      "minimum_free_bytes": 233721856,
+      "interruption": null,
+      "log_sha256": "6e0d47bc1463e2bd254e93baf0a2a3e3ee77948f04c1a5e74e98ca236be8cdcc",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "task-workspace-ci-projection-pure1",
+      "source": "f9aeb8412a761baffbd41264bd0ea0d83261f267",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_task_workspace_ci_evidence.py"
+      ],
+      "exit": 0,
+      "seconds": 1.1028265430068132,
+      "minimum_free_bytes": 229470208,
+      "interruption": null,
+      "log_sha256": "a376064cdc29f7acfd9aaf63fb66ff212097303af29673d39d3a3b51ee9b953c",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "task-workspace-ci-projection-actual1",
+      "source": "f9aeb8412a761baffbd41264bd0ea0d83261f267",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "python3",
+        "scripts/record-task-workspace-ci-evidence.py",
+        "--private",
+        "/workspace/.onboarding/task-bound-session-browser-five-actual-evidence1",
+        "--output",
+        "/workspace/.onboarding/task-workspace-ci-projection-actual-public1",
+        "--expected-source-head",
+        "e313b98f886160c680b40a04ff33d3a1d00a9d4e"
+      ],
+      "exit": 0,
+      "seconds": 0.2008792069973424,
+      "minimum_free_bytes": 229515264,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  ],
+  "counts_by_dimension_not_additive": {
+    "actual_Factory_Runtime": 26,
+    "full_infrastructure_latest": 166,
+    "schema16collector_subset": 40,
+    "Task_private_projector_subset": 33,
+    "prior_full_Node": 995,
+    "prior_actual_browser": 5,
+    "prior_actual_browser_PNG": 6
+  },
+  "retained_16_tools_after_actual_Factory": {
+    "frozen16_expected_source": "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+    "post_test_binaries": {
+      "batond": {
+        "sha256": "621c43a1eed9db2621cbef3f339b43e7a585c49e6ad49e7027bfb950708de225",
+        "bytes": 35582728,
+        "mode": "0o500",
+        "nlink": 1
+      },
+      "baton": {
+        "sha256": "055ab354897519591528b59e8052f9eda821eae8e539064e4c82bb0247cb8f50",
+        "bytes": 2832344,
+        "mode": "0o500",
+        "nlink": 1
+      }
+    },
+    "match_preexisting_manifest_pins": true,
+    "normal_frozen_source_not_relabelled_to_current_head": true,
+    "frontend_source_diff_command": [
+      "git",
+      "diff",
+      "--quiet",
+      "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+      "HEAD",
+      "--",
+      "apps/desktop/src",
+      "apps/desktop/package.json",
+      "apps/desktop/package-lock.json"
+    ],
+    "frontend_source_byte_equal_e313": true,
+    "not_Node_test_replay": true
+  },
+  "actual16postjoin_projection": {
+    "input_copy_sha256": "7957ad70a5fd993520421ad34e5176b6b5baa2eb8da63a6796aa0d807fdcea44",
+    "result": "collected_post_shutdown; metadata only; successfulcase lastFactoryGet has no coherent childlist observation so associated_events pendingunknown, not a failurecausal claim",
+    "input_untouched": "Four retained actual schema16 bytes copied with NoFollow/regular/singlelink/mode600/uid/boundedsize/stamp+SHA beforeafter; no schema or receipt/observedrevision rewrite"
+  },
+  "Task_CI_projection_real_input": {
+    "status": "passedmetadata derived from alreadycompletedRootfiveflow; no newbrowser/CI replay",
+    "published_files": "summary.json plus exactsixfixedoriginalPNGs only; byteeq original; no rawreport/log/HTTP/DB/IDs",
+    "summary_sha256": "f33da8e03979a3ddb99f49e442ff729c4d5494e3b1d78fb11a8c6ca228f1c18f"
+  },
+  "independent_reviews": {
+    "PNGfix_bf": "5b2ee7625337c4dabaac31b1cb14853942279a7af49463760ae5566af3c59f98",
+    "CI_private500_absoluteoutput012": "e769c1a955d7cfb4dd1c2a525b9902eebab9b706dc82a2fd6f0743ec0171d7eb",
+    "original_exact16port9c": "eaa36af0a33a4e6a412abe0b01c9e33257990a7fe5072f99a297678207b40630",
+    "CGCIextractionc1": "ac8bfbb6011df84acffcb6aeae39bdbddf5b0e9633905c289bcf0a60e4ae4460",
+    "importedevent_exact16assert_c961": "27cbbbe8d373c03011b0ec551056f5dab6d0649811171d1de7bf8d70f941d744",
+    "parent_event40dd": "05e515fc0d19c3b3847496791bf8b76515f5c71733fae861169a7048fa206fe1",
+    "review_dimensions": "Independent source/pure/inert realCLI controls; none claimed Actor/browser/Mac reruns"
+  },
+  "source_exact_port_proof": "Collector entirefile equalsParent7ac exceptSCHEMA15→16. Tests entirefile equalParent except positive16, old15/future17 negatives and exact16assert; no compatibilityaccept or guard weakening.",
+  "retained_integration_failures": [
+    {
+      "record": "schema16-composed-infrastructure4",
+      "result": "149 failed2/errors2; wrongnestedimport selected by oldextractor + absenttrackedmetadata link"
+    },
+    {
+      "record": "schema16-composed-infrastructure5",
+      "result": "149 failed2/errors2; exactJSON materialized but sparseapply removed unlistednewMD, sameextractor unchanged. Alloriginal failures retained."
+    },
+    {
+      "record": "schema16-events-composed-infrastructure7",
+      "result": "166 failed2; newlymergedmetadata absent plus importedexact15assert notyetported"
+    },
+    {
+      "record": "schema16-events-composed-infrastructure8",
+      "result": "166 failed1 exact16!=15; docs fixed, exactschemaassert then narrowported16 withnegative15/17 intact"
+    }
+  ],
+  "environment_remediation": "Private noncone patterns preserve allold rules and include authoredMarkdown plus onlyknownfinite-metadataJSONfolder, exactGitbyte restored; no designchecker skip/source change. Old failed logs stay.",
+  "latest_static_checks": "design130/14packages/27answers, staticinfra andbootstrap93 passed after currentmergeddocs physically present; not product/native CI",
+  "remaining": [
+    "PR18 functional r2 blocked/failed cause unresolved; current7ac actual7CI inprogress",
+    "This schema16 branch exactrequiredCI/native/Mac/release-control/build/installers notrun",
+    "Full130/defaultcoding dispatch/isolation/Factorychildworkspace/adoption/remote completeness remainspartial; liveProvider/privateidentity/signature/license/spend separateapproval",
+    "Linuxprocess/Chromium/generatedACP is not realProvider or Mac validation"
+  ]
+}

@@ -13,9 +13,9 @@ def validate_job_timeout(workflow_name, job_name, job):
         # One explicit cold-build budget, not a general permission for longer CI.
         check(job.get('runs-on') == '${{ matrix.os }}', 'Unexpected product build host selector')
         strategy = job.get('strategy', {})
-        check(strategy.get('matrix') == {'os': ['macos-15', 'macos-15-intel']}, 'Unexpected product build matrix')
+        check(strategy.get('matrix') == {'os': ['macos-15']}, 'Unexpected product build matrix')
         check(str(strategy.get('max-parallel')) == '2', 'Unexpected product build concurrency')
-        check(str(strategy.get('fail-fast')).lower() == 'false', 'Both product architectures must complete')
+        check(str(strategy.get('fail-fast')).lower() == 'false', 'Product runner must complete')
         maximum = 60
     value = job.get('timeout-minutes')
     check(type(value) in (str, int), 'Invalid CI job timeout')
@@ -44,7 +44,7 @@ def main():
             check(set(d['on']) == {'workflow_dispatch', 'push', 'pull_request'}, 'Unexpected infrastructure trigger')
             check(d['on']['push'] == {'branches': ['main'], 'paths': ['infra/ci-request.json']}, 'Unexpected infrastructure main trigger')
             check(d['on']['pull_request'] == {'branches': ['main'], 'types': ['opened', 'synchronize', 'reopened', 'ready_for_review']}, 'Required checks must run on every main PR')
-            check(d['jobs']['preflight']['strategy']['matrix']['os'] == ['ubuntu-24.04', 'macos-15', 'macos-15-intel'], 'Dual-architecture hosts missing')
+            check(d['jobs']['preflight']['strategy']['matrix']['os'] == ['ubuntu-24.04', 'macos-15'], 'Expected Linux and Apple Silicon preflight hosts')
         for job_name, job in d['jobs'].items():
             validate_job_timeout(f.name, job_name, job)
             check('self-hosted' not in str(job.get('runs-on', '')), 'Personal runners not approved')

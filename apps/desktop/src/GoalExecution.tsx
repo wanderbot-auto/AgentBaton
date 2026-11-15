@@ -6,7 +6,7 @@ import { goalExecutionMessages } from './goal-execution-i18n';
 import type { Language } from './i18n';
 import './goal-execution.css';
 
-type Props={task:Task;scope:GoalScope;latest:GoalPlan|null;language:Language;connected:boolean;approvalAllowed:boolean;panel?:(expanded:boolean)=>ReactNode;footer?:(expanded:boolean)=>ReactNode;title?:string;onPendingChange?:(blocked:boolean)=>void};
+type Props={task:Task;scope:GoalScope;latest:GoalPlan|null;language:Language;connected:boolean;approvalAllowed:boolean;panel?:(expanded:boolean)=>ReactNode;footer?:(expanded:boolean)=>ReactNode;title?:string;onPendingChange?:(blocked:boolean)=>void;openRequest?:string};
 type Floors=[string,GoalRunFloor][];
 type Pending={kind:'approve'|'cancel'|'advance';key:string;scopeId:string;rootGrantId:string;runId?:string;revision?:number;selection?:GoalRunSelection;advance?:GoalPlanAdvance;planDigest?:string;receipt?:{id:string;revision:number};floors:Floors;ledger?:number;uncertain:boolean;reconciled:boolean};
 // UI-process recovery only. This is neither a durable outbox nor a background writer.
@@ -19,8 +19,9 @@ const mergeReceiptFloor=(floors:Map<string,GoalRunFloor>,run:GoalRun)=>{
 };
 const storedPlanInScope=(plan:GoalPlan|null,task:Task,scope:GoalScope)=>taskAllowsExecution(task)&&!!plan&&plan.scope_id===scope.id&&plan.state==='validated_proposal'&&plan.dispatched===false&&/^[a-f0-9]{64}$/.test(plan.digest)&&!!plan.proposal&&plan.proposal.schema_version===1&&safeInteger(plan.proposal.revision,1)&&plan.proposal.expected_revision===plan.proposal.revision-1&&plan.proposal.scope_revision===scope.authority_revision&&Array.isArray(plan.proposal.nodes)&&plan.proposal.nodes.length>0&&plan.proposal.nodes.length<=256&&!!plan.proposal.goal&&(['project_id','root_task_id','task_id','spec_revision','input_revision']as const).every(key=>plan.proposal.goal[key]===scope.goal[key])&&scope.goal.task_id===task.id&&scope.goal.project_id===task.project_id;
 export function GoalExecution(props:Props){
-  const [started,setStarted]=useState(false),[expanded,setExpanded]=useState(false);
-  return <section className="goal-execution" data-testid="goal-execution" data-execution-mode={props.panel?'graph':'legacy'}><details onToggle={event=>{const open=event.currentTarget.open;setExpanded(open);if(open)setStarted(true);}}><summary><h3>{props.title??goalExecutionMessages[props.language].title}</h3></summary>{started&&(props.panel?props.panel(expanded):<ExecutionPanel key={`${props.task.id}:${props.scope.id}`} {...props} expanded={expanded}/>)}{started&&props.footer?.(expanded)}</details></section>;
+  const [started,setStarted]=useState(!!props.openRequest),[expanded,setExpanded]=useState(!!props.openRequest);
+  useEffect(()=>{if(props.openRequest){setStarted(true);setExpanded(true);}},[props.openRequest]);
+  return <section className="goal-execution" data-testid="goal-execution" data-execution-mode={props.panel?'graph':'legacy'}><details open={expanded} onToggle={event=>{const open=event.currentTarget.open;setExpanded(open);if(open)setStarted(true);}}><summary><h3>{props.title??goalExecutionMessages[props.language].title}</h3></summary>{started&&(props.panel?props.panel(expanded):<ExecutionPanel key={`${props.task.id}:${props.scope.id}`} {...props} expanded={expanded}/>)}{started&&props.footer?.(expanded)}</details></section>;
 }
 function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,expanded,onPendingChange}:Props&{expanded:boolean}){
   const t=goalExecutionMessages[language],saved=intents.get(task.id);

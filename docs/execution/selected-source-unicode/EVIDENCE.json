@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    "AB-PRJ-004",
+    "AB-PRJ-005",
+    "AB-VAL-009"
+  ],
+  "source_commit": "8d8f24c413875290db377a1b76a1ca005b6ca88d",
+  "dependency_commit": "949cf1ea4aa74230c1caf0cae93efa5a1e8b9521",
+  "baseline_product": "77792da462278b0ba812611b473ec631d9e26137",
+  "state": "source_only_runtime_not_run",
+  "source_hashes": {
+    "source_capture.rs": "93a090f6328b32a595c31736327133a85b32b14e830094ef6d175a94db3e177c",
+    "source_capture_tests.rs": "78f033e66ff3703a4585ee7a1743bb38d43c830f8a2fea54329f85d8bcc02920"
+  },
+  "static_checks": {
+    "raw_object_capture_and_all_private_unit_test_tail_byte_exact": true,
+    "old_ascii_case_guard_body_byte_exact_after_name_change": true,
+    "old_test_entrypoints_preserved_except_explicit_obsolete_ascii_slice_name": true,
+    "selection_count_256_unchanged": true,
+    "selection_bytes_64MiB_unchanged": true,
+    "original_15s_duration_occurrences_unchanged": true,
+    "no_new_public_declaration_or_serde_witness": true,
+    "full_casefold_mature_library_no_handwritten_table": true,
+    "no_unicode_normalization_dependency_or_output_rewrite": true,
+    "readdir_real_record_length_bound": true,
+    "no_regular_leaf_open_for_alias_identity": true,
+    "changed_only_two_allowed_source_paths": true
+  },
+  "author_commands": [
+    {
+      "command": "CARGO_HOME=/workspace/.toolchains/cargo RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 crates/workspaces/src/source_capture.rs crates/workspaces/tests/source_capture.rs",
+      "exit": 0,
+      "dimension": "source formatting only"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "dimension": "source whitespace only"
+    }
+  ],
+  "new_actual_git_fixture_test_declarations": 8,
+  "old_ascii_security_body": "byte_preserved_under_narrower_name",
+  "historical_valid_unicode_blanket_refusal": "superseded by approved full UTF8 contract; prior source retained in Git",
+  "runtime": {
+    "cargo_compile": "NOT_RUN",
+    "workspaces_real_git": "NOT_RUN",
+    "core_unicode_capture": "NOT_RUN",
+    "command_unicode": "NOT_RUN",
+    "integration_unicode": "NOT_RUN",
+    "browser_unicode": "NOT_RUN",
+    "macos_arm64": "NOT_RUN",
+    "macos_intel": "NOT_RUN"
+  },
+  "limits": {
+    "selected_files": 256,
+    "selected_bytes": 67108864,
+    "global_capture_seconds": 15,
+    "encoded_path_bytes": 4096,
+    "alias_audit_directory_entries": 65536,
+    "alias_audit_name_bytes": 4194304,
+    "alias_audit_prefix_cache_bytes": 4194304
+  },
+  "not_claimed": [
+    "production authority",
+    "actual FS collation on unobserved hosts",
+    "Unicode normalization rewrite",
+    "OS sandbox or kernel I/O preemption",
+    "product-wide Unicode completion"
+  ],
+  "source_manifest_sha256": "17fee5e06b173823c1be16f0a6fa4537f19049284f3a7d97383203434e17ee37",
+  "review_correction_0fa": {
+    "source_commit": "0fa6dad9bc474731c0d8778745b458b8dbc47945",
+    "source_hashes": {
+      "crates/workspaces/src/source_capture.rs": "f589fc936d466e75a524482686cd7caade2350f0453c8171d25fb35e2635aeb8",
+      "crates/workspaces/tests/source_capture.rs": "1dc9790430b796585ae3ab7ff8832aebb0fdbafc87de8186046660798d1fe847"
+    },
+    "original_review": "8d8f24c CHANGES_REQUIRED P2-01/P2-02 retained",
+    "checks": {
+      "same_original_deadline_and_control": true,
+      "five_inner_walk_checks_no_new_clock": true,
+      "invalid_UTF8_raw_Git_fixture_no_invalid_host_filename": true,
+      "raw_Git_setup_success_required_and_cap_constructed": true,
+      "exact_InvalidPath_from_capture": true,
+      "direct_invalid_selection_exact_InvalidContract": true,
+      "other_six_new_fixture_blocks_byte_unchanged": true,
+      "control_path_test_error_types_matched_separately": true
+    },
+    "cargo": "NOT_RUN",
+    "runtime": "NOT_RUN",
+    "manifest_sha256": "4eab0e470a1fce08c6e445eb31af765f1b068c4d3209c593858ab0698c632ddb"
+  },
+  "independent_source_review_0fa": {
+    "source": "0fa6dad9bc474731c0d8778745b458b8dbc47945",
+    "verdict": "SOURCE_READY",
+    "review_sha256": "7043000ec1adf89a8f62bdb002d4deb4ce22c73d50467a3cca723c47c06ad290",
+    "manifest_sha256": "f7ee20d27b0635fb33e270f30586be92de9ec3f1bd322b16d5422782b2a02f2f",
+    "scope": "independent static source review only; old8d CHANGES_REQUIRED retained",
+    "cargo": "NOT_RUN",
+    "runtime": "NOT_RUN",
+    "macos": "NOT_RUN"
+  }
+}
