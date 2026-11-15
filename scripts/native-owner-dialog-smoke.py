@@ -231,7 +231,16 @@ def expected_message(proposal, source):
     template = json.loads(match.group(1))
     if template.count('{}') != 1 or template.count('{table_explanation}') != 1 or template.count('{snapshot}') != 1:
         raise ValueError('Unexpected production formatter placeholders')
-    action = 'Grant this exact recipient and workspace the bounded execution scope below'
+    action = (
+        'Grant this exact recipient and workspace the bounded execution scope below. '
+        'If native_mcp is present, explicitly review and authorize the displayed local '
+        'executable, hash and finite tools for this connection: the program may access '
+        'account resources and receive native context or arguments. Baton network-deny/'
+        'recipient rules are not OS isolation for native MCP. Prompted approvals remain '
+        'required; unsupported callbacks are denied. This does not expand another '
+        'connection or existing Grant. / 如包含 native_mcp，须同时核对并明确批准其本地程序与工具范围；'
+        '它可能访问账号资源，不保证原生 MCP 的系统隔离。'
+    )
     snapshot = json.dumps(proposal['snapshot'], ensure_ascii=False, indent=2, sort_keys=True)
     # serde_json default map is sorted in this workspace; mechanical source/fixture check.
     return template.replace('{}', action, 1).replace('{table_explanation}', '', 1).replace('{snapshot}', snapshot, 1)

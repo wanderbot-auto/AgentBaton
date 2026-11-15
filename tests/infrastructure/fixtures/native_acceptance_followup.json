@@ -62,5 +62,16 @@
         "replacement": "            std::thread::sleep(Duration::from_millis(100));\n"
       }
     ]
+  },
+  "scripts/native-owner-dialog-smoke.py": {
+    "after": "6a5406689896c52aef7d3d478bacf156cd27a8c1a5f0c8d3de552ba07d345d55",
+    "edits": [
+      {
+        "start": 233,
+        "end": 243,
+        "expected": "    action = (\n        'Grant this exact recipient and workspace the bounded execution scope below. '\n        'If native_mcp is present, explicitly review and authorize the displayed local '\n        'executable, hash and finite tools for this connection: the program may access '\n        'account resources and receive native context or arguments. Baton network-deny/'\n        'recipient rules are not OS isolation for native MCP. Prompted approvals remain '\n        'required; unsupported callbacks are denied. This does not expand another '\n        'connection or existing Grant. / 如包含 native_mcp，须同时核对并明确批准其本地程序与工具范围；'\n        '它可能访问账号资源，不保证原生 MCP 的系统隔离。'\n    )\n",
+        "replacement": "    action = 'Grant this exact recipient and workspace the bounded execution scope below'\n"
+      }
+    ]
   }
 }
