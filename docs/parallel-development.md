@@ -16,7 +16,7 @@
 
 ## Mac mini 的日常命令
 
-脚本支持 macOS Bash 3.2 和具有 `merge-tree --write-tree` 的 Git（2.38 起）；不依赖 GitHub CLI。第一次可从脚本所在的协作分支用绝对路径调用；合入后在任何仓库工作树调用该版本。以下 T101/T102 只是分工示例，路径按实际任务缩小。在依赖 #25 的任务上把 base 显式换成 `origin/dev/macmini-agentbaton`，并记录 #25 依赖。
+脚本支持 macOS Bash 3.2 和具有 `merge-tree --write-tree` 的 Git（2.38 起）；不依赖 GitHub CLI。第一次可从脚本所在的协作分支用绝对路径调用；合入后在任何仓库工作树调用该版本。以下 T101/T102 只是分工示例，路径按实际任务缩小。只有依赖尚未合入的任务才使用明确的上游分支，并记录相应 PR 依赖。
 
 ```sh
 git fetch --no-tags origin
@@ -28,6 +28,22 @@ bash scripts/collab.sh new t102-provider origin/main crates/providers
 `new` 会打印绝对路径。在 Codex 为每个任务单独选择该目录作为**本地**工作目录；这棵 worktree 已存在，别再叠加一次自动创建。若任务基准早于手册与脚本入主分支，仍用协作分支中脚本的绝对路径，并指示新窗口读该手册。发出第一条任务消息前，用 `git rev-parse --show-toplevel` 和 `git branch --show-current` 确认两者。不要在主 checkout 切到任务分支，也不要给同一 worktree 开两个写窗口。Codex 的 Worktree、本地执行与子代理行为见 [OpenAI 的 Worktrees 文档](https://learn.chatgpt.com/docs/environments/git-worktrees)和[子代理文档](https://learn.chatgpt.com/docs/agent-configuration/subagents)。
 
 每棵 worktree 使用自己的 `.venv`、`node_modules`、构建目录和测试证据。可共用 Cargo registry 和 npm 下载缓存；避免共用 `CARGO_TARGET_DIR`、运行时 SQLite、IPC 路径和 dev-server 端口。启动桌面测试时按 [桌面 README](../apps/desktop/README.md) 使用 task 专属的短路径（例如新建 `mktemp -d /tmp/ab-t101.XXXXXX`，按测试脚本约定设置 `BATON_RUNTIME_DIR`）；关闭自己启动的进程。并行跑针对性测试，完整 Rust/原生桌面重测试按需错峰，防止本机负载干扰时限测试。
+
+### 任务运行入口
+
+在任务 worktree 中通过以下入口运行命令（需要 Python 3；macOS/Linux）：
+
+```sh
+bash scripts/collab.sh run -- cargo test --workspace --locked
+# 原生桌面开发占用同一 checkout 的原生独占锁：
+bash scripts/collab.sh run --native -- bash
+```
+
+`run` 为每个任务保留一个独立、权限为 0700 的短 runtime，并强制设置 `BATON_RUNTIME_DIR` 和本 worktree 的 `CARGO_TARGET_DIR`；不会继承调用窗口里指向另一任务的这两个值，也不改变 HOME、身份或认证目录。runtime 路径登记在共用 Git 目录的 `agentbaton-collab/runtime-<id>`，正常退出后保留，便于同任务重连。缺失、符号链接或权限漂移均报错，不自动修复或另建 runtime。任务彻底结束、确认全部关联进程停止后，按登记路径人工清理测试数据；`finish` 不删除这些数据。
+
+同任务同时只允许一个 `run`；`finish` 在它运行期间拒绝释放认领。`--native` 另持有整个 checkout 的原生独占锁，防止默认 1420 端口与原生交互测试相撞；其他任务的普通检查仍可运行。锁由操作系统随持有进程退出释放，不要删除 `.lock` 文件。同一任务需要 daemon 和 UI 时，在同一个受锁前台命令内启动和回收两者；退出前停止并等待自己启动的后台子进程。包装器转发 INT/TERM 给命令进程组，保留退出码；它不是后台进程管理器，不保证回收主动脱离进程组的程序。
+
+保持 Vite、Tauri 和原生来源校验的固定开发端口，不通过放宽信任列表实现并行。普通产品登录后台管理使用用户级 LaunchAgent，隔离 runtime 下会明确拒绝；这部分仅由集成窗口串行验证，优先使用已有私有 native-smoke 夹具，不能为了测试改 HOME 或操作其他窗口的服务。手动绕过 `run`、另一 clone/机器和同一 worktree 的编辑器仍不受这些锁保护；一工作树一写窗口及 scope/preview 交付检查继续有效。
 
 ```sh
 git fetch --no-tags origin
@@ -50,7 +66,7 @@ bash scripts/collab.sh rebase --private
 
 ## AgentBaton 当前接入路径
 
-当前主分支是 `main`。阶段成果由 PR #26 统一验收；后续独立任务以最新 `origin/main` 为起点。依赖未合入的成果可从明确的上游分支开发，最终合并受父链约束；不得把相互重叠的 PR 未经核对分别合入同一个目标。当前的 Product workflow 默认只在面向 main 的 PR 自动跑；堆叠分支若用 workflow_dispatch 验证，必须区分被测组合与将合入的精确目标。
+当前主分支是 `main`。阶段成果 PR #26 已合入；后续独立任务以最新 `origin/main` 为起点。依赖未合入的成果可从明确的上游分支开发，最终合并受父链约束；不得把相互重叠的 PR 未经核对分别合入同一个目标。当前的 Product workflow 默认只在面向 main 的 PR 自动跑；堆叠分支若用 workflow_dispatch 验证，必须区分被测组合与将合入的精确目标。
 
 已核对 main 的生效规则：Linux 与 Apple Silicon 的两个 Environment 检查必需，要求分支更新，并要求解决审查对话；Product 尚未列为必需。建议单独用一项 CI/规则变更把适用的 Product / Rust、UI、Apple Silicon 检查设为必需，先验证一个测试 PR 上的实际 check 名称与触发覆盖再上线，保留已有检查。当前是个人名下公开仓库，根据 [GitHub 官方的 Merge Queue 资格](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue)，目前采用单集成窗口。以后若迁到符合资格的组织且 PR 吞吐有需要，先让两份 required-check workflow 支持 `merge_group`，验证合成分支能跑完整检查，再启用队列。
 

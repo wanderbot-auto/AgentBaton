@@ -1,0 +1,64 @@
+{
+  "base_commit": "f71556c154cb1f20679f4882c861895a4e0fb538",
+  "recorded_at": "2026-11-15T09:13:03.759606+00:00",
+  "executor": "local Codex; no Cloud launch claimed",
+  "environment": {
+    "os": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "architecture": "arm64",
+    "python": "Python 3.12.12",
+    "bash": "GNU bash, version 3.2.57(1)-release (arm64-apple-darwin25)",
+    "git": "git version 2.54.0 (Apple Git-157)"
+  },
+  "source_sha256": {
+    "scripts/collab.sh": "d8724ce223d6c3dea9998d7db67d0c5244d93ca81dc82787af1c52be0769e6e1",
+    "scripts/collab-run.py": "a164c0d0c2e070216e6321a32a6f413398463fa61c0c0ad199ad22a71a3df908",
+    "tests/infrastructure/test_collab.py": "167aa0ac1250c3d7db66ff0604b9bcc8922e077b4c4ef0f51c67186a9370288c"
+  },
+  "checks": [
+    {
+      "command": "python3 -m unittest tests.infrastructure.test_collab -v",
+      "exit_code": 0,
+      "tests": 12
+    },
+    {
+      "command": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python -m unittest discover -s tests/infrastructure -p test_*.py -v",
+      "exit_code": 0,
+      "tests": 877,
+      "seconds": 21.06,
+      "log": "artifacts/collab/infrastructure.log",
+      "log_sha256": "3605f251578bb8277d91dac84fcd6871388d467f83ea3c19c5c597cb2e53b377"
+    },
+    {
+      "command": "scripts/verify_bootstrap_manifest.py; scripts/validate_infrastructure.py; scripts/validate_design.py (using existing project venv)",
+      "exit_code": 0,
+      "bootstrap_files": 93
+    },
+    {
+      "command": "bash -n scripts/collab.sh; python3 -m py_compile scripts/collab-run.py tests/infrastructure/test_collab.py",
+      "exit_code": 0
+    },
+    {
+      "command": "bash scripts/collab.sh scope",
+      "exit_code": 0
+    }
+  ],
+  "independent_review": {
+    "agent": "collab_review",
+    "result": "passed; no must-fix findings",
+    "reproduced_cli_tests": 12,
+    "additional_checks": [
+      "SIGINT forwarding, exit130, lease released",
+      "wrapper SIGKILL keeps direct-child lease until child exits"
+    ],
+    "write_scope": "none"
+  },
+  "remote_ci": "pending",
+  "product_native_acceptance": "not_run",
+  "remaining_boundaries": [
+    "advisory editor/path ownership",
+    "shared Git directory only",
+    "foreground owned/joined children only",
+    "real user login services integration-only",
+    "Product required checks pending PR observation"
+  ]
+}

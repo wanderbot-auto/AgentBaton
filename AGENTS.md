@@ -14,6 +14,7 @@ Consult `docs/execution/OWNER_INBOX.md` and update `docs/execution/STATUS.md` at
 
 - Read [docs/parallel-development.md](docs/parallel-development.md) before starting parallel work. Use one task branch, one worktree and one writing window per task. Confirm the exact base, write scope and acceptance checks before editing.
 - Reserve literal paths using `scripts/collab.sh new`. Coordinate IPC/schema, migrations, lockfiles, shared entrypoints, CI, and global execution status with the integration window. Keep per-task evidence in separate paths. A subagent must not write the same files as its parent or a sibling.
+- Run task commands through `scripts/collab.sh run -- COMMAND...` for task-local runtime/build output. Use `run --native -- COMMAND...` for serialized native development. Keep child processes owned and joined; user-level login service operations remain integration-only. This is coordination, not a sandbox.
 - Before handoff, run the scope and conflict checks and report exact base/head SHAs, verification and unresolved dependencies. One designated integration window manages final PR merges. Use a private rebase only for unpublished, unshared work; sync published PRs without rewriting them. Preserve other worktrees and the existing protection and review requirements.
 
 ## Product baseline
