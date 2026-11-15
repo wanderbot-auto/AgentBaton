@@ -27,3 +27,18 @@ debug = 1
 [profile.dev.package.agentbaton-workspaces]
 opt-level = 2
 debug = 1
+
+# The debug daemon runs the same bounded IPC stage with repeated JSON proof
+# serialization and SQLite query binding. Optimize dependency helpers while
+# retaining the same debug assertions, budgets, and release profile.
+[profile.dev.package.serde_json]
+opt-level = 3
+debug = 1
+
+[profile.dev.package.serde_core]
+opt-level = 3
+debug = 1
+
+[profile.dev.package.rusqlite]
+opt-level = 2
+debug = 1
