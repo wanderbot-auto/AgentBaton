@@ -108,5 +108,12 @@
     "passed": true,
     "seconds_to_native_run": 5.532,
     "missing_sidecar_error": false
+  },
+  "initial_ci_failure": {
+    "head": "9cd39e8d8785d845251fbde7ce1d8b643c82b10e",
+    "run": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/43737286922",
+    "conclusion": "failure",
+    "cause": "STATUS.md content changed but its BOOTSTRAP_MANIFEST.json hash was not refreshed; both environment jobs stopped at integrity validation",
+    "log_sha256": "f5f0f6ecefd7c9a16d067705a5709d039bfce0de303bf969d4dd02195f26dc3d"
   }
 }
