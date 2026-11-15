@@ -353,7 +353,7 @@ class FixtureControllerReaper:
 
 
 
-def _bound_identity_disappeared(old, fixed, field, before):
+def _bound_identity_disappeared(old, fixed, field, before, *, short_exit_observation=False):
     """Preserve validated history only; absence is NOT a Core stop/join receipt.
 
     Caller has just revalidated all files, nonce, Core session/turn/attempt and
@@ -364,11 +364,22 @@ def _bound_identity_disappeared(old, fixed, field, before):
     expected = fixed[field]
     if before['pid'] != expected['pid'] or before['start_ticks'] != expected['start_ticks']:
         return False
-    try:
-        after = support.proc_identity(expected['pid'])
-    except (FileNotFoundError, ProcessLookupError):
-        after = None
-    return after is None
+    # Linux may release an exiting process's argv before removing its stat
+    # entry. Only reobserve the exact already-bound identity. An extant
+    # process still fails, and a new PID birth always fails immediately.
+    deadline = time.monotonic() + (0.02 if short_exit_observation else 0)
+    for _ in range(5 if short_exit_observation else 1):
+        try:
+            after = support.proc_identity(expected['pid'])
+        except (FileNotFoundError, ProcessLookupError):
+            return True
+        if after['pid'] != expected['pid'] or after['start_ticks'] != expected['start_ticks']:
+            return False
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False
+        time.sleep(min(.004, remaining))
+    return False
 
 
 def collect_started_records(runtime, workspace, scope, context, verified, output, reaper=None):
@@ -530,7 +541,9 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         # no signal, no inference of argv validity or stop/join.
                         deferred_bound_provider = True
                         continue
-                    if observed in (None, b'') and field == 'owned_provider' and _bound_identity_disappeared(old, fixed, field, current):
+                    if (observed in (None, b'') and field == 'owned_provider'
+                            and _bound_identity_disappeared(old, fixed, field, current,
+                                                           short_exit_observation=observed == b'')):
                         continue  # Keep the original binding, not a new argv or stop proof.
                     try:
                         assert observed is not None

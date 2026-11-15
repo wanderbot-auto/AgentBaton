@@ -165,6 +165,12 @@ class BoundExitTests(unittest.TestCase):
         self.retained(f)
         self.assertNotIn(f.provider, f.pgid_calls)
 
+    def test_bound_empty_provider_can_disappear_after_the_same_live_stat_sample(self):
+        f = self.fixture(); f.argv_overrides[f.provider] = b''
+        f.proc_steps[f.provider] = [f.identity(f.provider), f.identity(f.provider), None]
+        self.retained(f)
+        self.assertNotIn(f.provider, f.pgid_calls)
+
     def test_bound_missing_cmdline_and_fresh_absence_retains_only_original_binding(self):
         f = self.fixture(); f.argv_overrides[f.provider] = FileNotFoundError()
         f.proc_steps[f.provider] = [f.identity(f.provider), None]
