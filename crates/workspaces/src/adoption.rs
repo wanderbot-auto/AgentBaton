@@ -1028,6 +1028,7 @@ fn prepare_candidate_inner(
         verify_original()?;
         workspace
     };
+    controlled_check(control)?;
     Ok(PreparedCandidate {
         authorization: grant,
         workspace,

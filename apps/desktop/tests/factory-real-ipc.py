@@ -369,10 +369,12 @@ def _bound_identity_disappeared(old, fixed, field, before, *, short_exit_observa
     # process still fails, and a new PID birth always fails immediately.
     deadline = time.monotonic() + (0.02 if short_exit_observation else 0)
     for _ in range(5 if short_exit_observation else 1):
+        if short_exit_observation and time.monotonic() >= deadline:
+            return False
         try:
             after = support.proc_identity(expected['pid'])
         except (FileNotFoundError, ProcessLookupError):
-            return True
+            return not short_exit_observation or time.monotonic() < deadline
         if after['pid'] != expected['pid'] or after['start_ticks'] != expected['start_ticks']:
             return False
         remaining = deadline - time.monotonic()
