@@ -83,10 +83,13 @@ mod tests {
         std::process::exit(0);
     }
     fn wait_for(path: &Path) -> Vec<u8> {
+        wait_for_matching(path, |_| true)
+    }
+    fn wait_for_matching(path: &Path, matches: impl Fn(&[u8]) -> bool) -> Vec<u8> {
         let start = Instant::now();
         loop {
             if let Ok(value) = fs::read(path) {
-                if !value.is_empty() {
+                if !value.is_empty() && matches(&value) {
                     return value;
                 }
             }
@@ -159,14 +162,41 @@ publish('finished.json',{'count':count})
         assert_eq!(ready["pid"], ready["sid"]);
         assert_ne!(ready["sid"], parent_pid);
         let first: Value = serde_json::from_slice(&wait_for(&root.join("progress.json"))).unwrap();
-        std::thread::sleep(Duration::from_millis(100));
-        let second: Value = serde_json::from_slice(&wait_for(&root.join("progress.json"))).unwrap();
+        // Observe actual progress after parent exit, within the original 5s
+        // observation bound, rather than assume scheduling within a 100ms sleep.
+        let second = wait_for_matching(&root.join("progress.json"), |bytes| {
+            let progress: Value = serde_json::from_slice(bytes).unwrap();
+            progress["count"].as_u64().unwrap() > first["count"].as_u64().unwrap()
+        });
+        let second: Value = serde_json::from_slice(&second).unwrap();
         assert!(second["count"].as_u64().unwrap() > first["count"].as_u64().unwrap());
         assert_eq!(second["sid"], ready["sid"]);
         fs::write(root.join("finish"), b"generated fixture finish").unwrap();
         let finished: Value =
             serde_json::from_slice(&wait_for(&root.join("finished.json"))).unwrap();
         assert!(finished["count"].as_u64().unwrap() >= second["count"].as_u64().unwrap());
+    }
+    #[test]
+    fn frozen_progress_never_satisfies_the_bounded_observation() {
+        let path = std::env::temp_dir().join(format!(
+            "baton-frozen-progress-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::write(&path, br#"{"count":1}"#).unwrap();
+        let started = Instant::now();
+        let outcome = std::panic::catch_unwind(|| {
+            wait_for_matching(&path, |bytes| {
+                let progress: Value = serde_json::from_slice(bytes).unwrap();
+                progress["count"].as_u64().unwrap() > 1
+            })
+        });
+        fs::remove_file(path).unwrap();
+        assert!(outcome.is_err(), "unchanged progress must time out");
+        assert!(started.elapsed() >= Duration::from_secs(5));
     }
     #[test]
     fn failed_detached_program_start_does_not_fallback_to_another_launcher() {

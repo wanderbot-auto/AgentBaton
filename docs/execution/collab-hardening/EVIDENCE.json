@@ -13,7 +13,8 @@
     "scripts/collab.sh": "d8724ce223d6c3dea9998d7db67d0c5244d93ca81dc82787af1c52be0769e6e1",
     "scripts/collab-run.py": "a164c0d0c2e070216e6321a32a6f413398463fa61c0c0ad199ad22a71a3df908",
     "tests/infrastructure/test_collab.py": "167aa0ac1250c3d7db66ff0604b9bcc8922e077b4c4ef0f51c67186a9370288c",
-    "tests/infrastructure/test_factory_bound_provider_exit.py": "82afd969597ba2bf952340e24bbf60ebf6e9a9165bad7843112f0a3baaaf5b37"
+    "tests/infrastructure/test_factory_bound_provider_exit.py": "82afd969597ba2bf952340e24bbf60ebf6e9a9165bad7843112f0a3baaaf5b37",
+    "apps/desktop/src-tauri/src/detached_daemon.rs": "c81597ef9145297be4c7746d3c7394d68e57761b1ca98153538ed9b9bfd0b7fa"
   },
   "checks": [
     {
@@ -54,6 +55,14 @@
       "command": "python3 -m unittest tests.infrastructure.test_factory_bound_provider_exit tests.infrastructure.test_factory_exiting_argv_observation -v",
       "exit_code": 0,
       "tests": 52
+    },
+    {
+      "command": "project venv python -m unittest discover -s tests/infrastructure -p test_*.py -v",
+      "tests": 878,
+      "exit_code": 0,
+      "seconds": 20.386,
+      "log": "artifacts/collab/infrastructure-native-sync.log",
+      "log_sha256": "b49d277899752af0b43a13272d157e864f2b728fc78f29f122814510fe862b3f"
     }
   ],
   "independent_review": {
@@ -113,5 +122,57 @@
     "product_browser_source_changed": false,
     "deadline_ms": 20,
     "evidence_dimension": "synthetic unit control, not actual process timing"
+  },
+  "native_ci_failure": {
+    "head": "1560dbf4a6710cb10d3198258bb46b109db7b0ee",
+    "product_run": 43698753534,
+    "macos_job": 132765068833,
+    "passed_checks": [
+      "Environment / ubuntu-24.04",
+      "Environment / macos-15",
+      "Product / Rust",
+      "Product / UI"
+    ],
+    "failed_check": "Product / macos-15",
+    "failure": "detached_daemon::tests::a_generated_service_uses_its_own_session_and_outlives_its_parent_client: second count not greater after fixed100ms wait",
+    "native_unit_result": {
+      "passed": 177,
+      "failed": 1,
+      "ignored_existing_helpers": 2
+    },
+    "log": "artifacts/collab/product-native-failed.log",
+    "log_sha256": "55880641c173bd98fe91a0ec4c482293e28813b388b84b05238ecde5b3db0602",
+    "retention_projection_failure": "secondary: native integration cases never ran"
+  },
+  "native_test_only_correction": {
+    "non_test_prefix_unchanged": true,
+    "original_assertions_preserved": true,
+    "observation_limit_seconds": 5,
+    "poll_ms": 10,
+    "service_fixture_lifetime_seconds": 4,
+    "fixed100ms_sleep_removed": true,
+    "frozen_progress_timeout_control": true,
+    "local_module_harness": {
+      "passed": 4,
+      "existing_helper_ignored": 1,
+      "helper_actually_invoked_by_parent_exit_case": true,
+      "seconds": 5.59,
+      "path": "artifacts/collab/detached-harness",
+      "module_sha256": "c81597ef9145297be4c7746d3c7394d68e57761b1ca98153538ed9b9bfd0b7fa",
+      "log_sha256": "7d94ce2f28bd598e615002143b72282716e9107652ca16ea11765cf18e64897b",
+      "real_parent_exit_repeats_passed": 20
+    },
+    "dimension": "exact module actual Unix processes on local AppleSilicon; not full Tauri/native acceptance",
+    "new_candidate_ci": "pending",
+    "independent_review": {
+      "result": "accepted actual diff; non-test prefix identical",
+      "independent_exact_module_harness": {
+        "passed": 4,
+        "existing_helper_ignored": 1,
+        "seconds": 5.32,
+        "directory": "reviewer-owned /tmp",
+        "offline": true
+      }
+    }
   }
 }

@@ -14,3 +14,5 @@ Acceptance: independent task runtime/target paths; reject overlapping run/native
 OWNER-001/002 read: this narrow user-requested infrastructure repair preserves their product/UI instructions; it does not claim to finish them. Local executor, no new Cloud run or persistent Goal created.
 
 CI-discovered scope adjustment: the integration owner reserved tests/infrastructure/test_factory_bound_provider_exit.py under the registry lock. An unchanged synthetic proc test depended on a real 20ms observation window; independent delayed-sleep reproduction matched its failure. Inject only its namespace clock and add an expired-observation refusal control. Product/browser source, deadlines and old assertions stay intact.
+
+Second CI-discovered scope adjustment: integration reserved apps/desktop/src-tauri/src/detached_daemon.rs. Only its cfg(test) observer is changed: replace a fixed100ms assumption with condition polling inside the existing5s wait, retain actual detached4s fixture and every original assertion, add frozen-progress refusal. Non-test source prefix remains byte-identical. No production behavior or timeout-policy expansion.
