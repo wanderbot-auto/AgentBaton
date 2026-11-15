@@ -143,8 +143,12 @@ impl QueryProof {
         remaining: &mut (usize, usize),
     ) -> Result<Self> {
         let check = format!("SELECT count(*),COALESCE(sum(octet_length(value)),0) FROM ({sql})");
+        // The Actor and worker revisit these fixed projections. Cache SQL
+        // statements, never their row values or the resource-bound result.
         let (count, bytes): (i64, i64) = db
-            .query_row(&check, rusqlite::params_from_iter(&args), |r| {
+            .prepare_cached(&check)
+            .map_err(db_error)?
+            .query_row(rusqlite::params_from_iter(&args), |r| {
                 Ok((r.get(0)?, r.get(1)?))
             })
             .map_err(db_error)?;
@@ -155,7 +159,7 @@ impl QueryProof {
         }
         remaining.0 -= bytes;
         remaining.1 -= count;
-        let mut statement = db.prepare(sql).map_err(db_error)?;
+        let mut statement = db.prepare_cached(sql).map_err(db_error)?;
         let rows = statement
             .query_map(rusqlite::params_from_iter(&args), |r| r.get::<_, String>(0))
             .map_err(db_error)?

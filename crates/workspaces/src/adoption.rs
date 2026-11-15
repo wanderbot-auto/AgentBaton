@@ -678,11 +678,10 @@ fn direct_ref_snapshot_requires_one_exact_unsymbolic_commit() {
     }
 }
 
-fn verify_repository_controlled(
+fn inspect_grant_repository(
     grant: &AuthorizedIntegration,
     control: Option<&AdoptionControl<'_>>,
 ) -> Result<WorkspaceIdentity, AdoptionError> {
-    controlled_check(control)?;
     let current = inspect_bound(&grant.root, control)?;
     if (current.device, current.inode) != grant.identity {
         return Err(AdoptionError::SubjectMismatch);
@@ -693,13 +692,25 @@ fn verify_repository_controlled(
     if common_dir != &grant.common_dir {
         return Err(AdoptionError::SubjectMismatch);
     }
-    let common_metadata = fs::metadata(common_dir).map_err(WorkspaceError::Io)?;
-    if (common_metadata.dev(), common_metadata.ino()) != grant.common_identity {
-        return Err(AdoptionError::SubjectMismatch);
-    }
+    check_grant_common_identity(grant)?;
     if matches!(current.kind, WorkspaceKind::Git { dirty: true, .. }) {
         return Err(WorkspaceError::Dirty.into());
     }
+    Ok(current)
+}
+
+fn check_grant_common_identity(grant: &AuthorizedIntegration) -> Result<(), AdoptionError> {
+    let metadata = fs::metadata(&grant.common_dir).map_err(WorkspaceError::Io)?;
+    if !metadata.is_dir() || (metadata.dev(), metadata.ino()) != grant.common_identity {
+        return Err(AdoptionError::SubjectMismatch);
+    }
+    Ok(())
+}
+
+fn observe_grant_target(
+    grant: &AuthorizedIntegration,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<(), AdoptionError> {
     reject_bound_unsafe_config_controlled(grant, control)?;
     let direct = || reject_symbolic_target(&grant.root, Some(grant), &grant.target_ref, control);
     let peel = || {
@@ -731,6 +742,36 @@ fn verify_repository_controlled(
         return Err(AdoptionError::StaleHead);
     }
     controlled_check(control)?;
+    Ok(())
+}
+
+fn verify_repository_controlled(
+    grant: &AuthorizedIntegration,
+    control: Option<&AdoptionControl<'_>>,
+) -> Result<WorkspaceIdentity, AdoptionError> {
+    controlled_check(control)?;
+    // These independent reads inspect either the original worktree or the
+    // previously pinned Git directory. On ARM64, overlap them after verifying
+    // the bound directory still has its authorized identity. Each read retains
+    // its own config checks, and no Git effects start before both are joined.
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    if control.is_some() {
+        check_grant_common_identity(grant)?;
+        return std::thread::scope(|scope| {
+            let target = std::thread::Builder::new()
+                .spawn_scoped(scope, || observe_grant_target(grant, control))
+                .map_err(WorkspaceError::Io)?;
+            let current = inspect_grant_repository(grant, control);
+            let target = target.join();
+            let current = current?;
+            target.map_err(|_| WorkspaceError::ResourceLimit)??;
+            controlled_check(control)?;
+            check_grant_common_identity(grant)?;
+            Ok(current)
+        });
+    }
+    let current = inspect_grant_repository(grant, control)?;
+    observe_grant_target(grant, control)?;
     Ok(current)
 }
 fn bound_config_categories(bytes: &[u8]) -> Result<[bool; 4], AdoptionError> {
