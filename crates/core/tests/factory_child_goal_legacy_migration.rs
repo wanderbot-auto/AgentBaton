@@ -343,7 +343,7 @@ fn fixture() -> (FixtureDir, PathBuf, Value) {
         tempfile::Builder::new()
             .prefix("legacy14-")
             .permissions(fs::Permissions::from_mode(0o700))
-            .tempdir()
+            .tempdir_in(std::env::temp_dir().canonicalize().unwrap())
             .unwrap(),
     ));
     let path = dir.path().join("history.sqlite3");
