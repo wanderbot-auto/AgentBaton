@@ -608,6 +608,76 @@ fn reject_symbolic_target(
         Err(WorkspaceError::UnsafeRepository.into())
     }
 }
+// A single snapshot of an exact direct ref to a commit. Other ref/object
+// shapes use the original symbolic-ref and commit-peeling checks.
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+fn observe_direct_commit(
+    grant: &AuthorizedIntegration,
+    control: &AdoptionControl<'_>,
+) -> Result<Option<String>, AdoptionError> {
+    let observation = bound_output(
+        grant,
+        &[
+            "for-each-ref",
+            "--count=2",
+            "--format=%(refname)%00%(symref)%00%(objecttype)%00%(objectname)",
+            "--",
+            &grant.target_ref,
+        ],
+        Some(control),
+    )?;
+    controlled_check(Some(control))?;
+    if observation.interrupted || !observation.output.status.success() {
+        return Ok(None);
+    }
+    Ok(parse_direct_commit(
+        &observation.output.stdout,
+        &grant.target_ref,
+    ))
+}
+
+#[cfg(any(test, all(target_os = "macos", target_arch = "aarch64")))]
+fn parse_direct_commit(output: &[u8], target: &str) -> Option<String> {
+    let mut fields = output.strip_suffix(b"\n")?.split(|&byte| byte == 0);
+    let (reference, symbolic, object_type, object) = (
+        fields.next()?,
+        fields.next()?,
+        fields.next()?,
+        fields.next()?,
+    );
+    if fields.next().is_some() {
+        return None;
+    }
+    let oid = std::str::from_utf8(object).ok()?;
+    (reference == target.as_bytes()
+        && symbolic.is_empty()
+        && object_type == b"commit"
+        && is_oid(oid))
+    .then(|| oid.to_owned())
+}
+
+#[cfg(test)]
+#[test]
+fn direct_ref_snapshot_requires_one_exact_unsymbolic_commit() {
+    let target = "refs/heads/integration";
+    let oid = "0123456789abcdef0123456789abcdef01234567";
+    let direct = format!("{target}\0\0commit\0{oid}\n");
+    assert_eq!(
+        parse_direct_commit(direct.as_bytes(), target).as_deref(),
+        Some(oid)
+    );
+    for wrong in [
+        direct.replace(target, "refs/heads/integration/child"),
+        direct.replace("\0\0", "\0refs/heads/other\0"),
+        direct.replace("commit", "tag"),
+        direct.replace(oid, "malformed"),
+        direct.trim_end().to_owned(),
+        format!("{direct}{direct}"),
+    ] {
+        assert!(parse_direct_commit(wrong.as_bytes(), target).is_none());
+    }
+}
+
 fn verify_repository_controlled(
     grant: &AuthorizedIntegration,
     control: Option<&AdoptionControl<'_>>,
@@ -643,28 +713,19 @@ fn verify_repository_controlled(
             control,
         )
     };
-    // On Apple Silicon, both commands observe the already bound Git
-    // directory. Keep the fresh config audit first and join both checks
-    // before effects; a symbolic target still takes precedence over peeling.
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
-    let actual = if control.is_some() {
-        std::thread::scope(|scope| {
-            let peel = std::thread::Builder::new()
-                .spawn_scoped(scope, peel)
-                .map_err(WorkspaceError::Io)?;
-            let direct = direct();
-            let peeled = peel.join();
-            direct?;
-            peeled.map_err(|_| WorkspaceError::ResourceLimit)?
-        })?
-    } else {
-        direct()?;
-        peel()?
+    let observed = match control {
+        Some(control) => observe_direct_commit(grant, control)?,
+        None => None,
     };
     #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
-    let actual = {
-        direct()?;
-        peel()?
+    let observed: Option<String> = None;
+    let actual = match observed {
+        Some(actual) => actual,
+        None => {
+            direct()?;
+            peel()?
+        }
     };
     if actual != grant.expected_target_head {
         return Err(AdoptionError::StaleHead);

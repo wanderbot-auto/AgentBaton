@@ -1113,50 +1113,68 @@ fn observe_target(
         &[OsStr::new("check-ref-format"), OsStr::new(&s.target_ref)],
         control,
     )?;
-    let (status, bytes) = super::fs::git_status(
-        root,
-        program,
-        &[
-            OsStr::new("symbolic-ref"),
-            OsStr::new("--quiet"),
-            OsStr::new(&s.target_ref),
-        ],
-        control,
-    )?;
-    if status.code() != Some(1) || !bytes.is_empty() {
-        return Err(changed());
-    }
-    let reference = format!("{}^{{commit}}", s.target_ref);
-    let bytes = super::fs::git(
-        root,
-        program,
-        &[
-            OsStr::new("rev-parse"),
-            OsStr::new("--verify"),
-            OsStr::new(&reference),
-        ],
-        control,
-    )?;
-    let head = std::str::from_utf8(&bytes)
-        .map_err(|_| changed())?
-        .trim_end_matches('\n');
-    if !oid(head) || (head != s.expected_target_head && !allow_descendant_observation) {
-        return Err(CoreError::new(
-            "INPUT_CHANGED",
-            "Integration target head changed before approval or stage admission",
-        ));
-    }
-    let worktrees = super::fs::git(
-        root,
-        program,
-        &[
-            OsStr::new("worktree"),
-            OsStr::new("list"),
-            OsStr::new("--porcelain"),
-            OsStr::new("-z"),
-        ],
-        control,
-    )?;
+    let direct_head = || -> Result<String> {
+        let (status, bytes) = super::fs::git_status(
+            root,
+            program,
+            &[
+                OsStr::new("symbolic-ref"),
+                OsStr::new("--quiet"),
+                OsStr::new(&s.target_ref),
+            ],
+            control,
+        )?;
+        if status.code() != Some(1) || !bytes.is_empty() {
+            return Err(changed());
+        }
+        let reference = format!("{}^{{commit}}", s.target_ref);
+        let bytes = super::fs::git(
+            root,
+            program,
+            &[
+                OsStr::new("rev-parse"),
+                OsStr::new("--verify"),
+                OsStr::new(&reference),
+            ],
+            control,
+        )?;
+        let head = std::str::from_utf8(&bytes)
+            .map_err(|_| changed())?
+            .trim_end_matches('\n');
+        if !oid(head) || (head != s.expected_target_head && !allow_descendant_observation) {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Integration target head changed before approval or stage admission",
+            ));
+        }
+        Ok(head.to_owned())
+    };
+    let checked_out = || {
+        super::fs::git(
+            root,
+            program,
+            &[
+                OsStr::new("worktree"),
+                OsStr::new("list"),
+                OsStr::new("--porcelain"),
+                OsStr::new("-z"),
+            ],
+            control,
+        )
+    };
+    // All reads use the original proof clock. Checking checked-out state can
+    // overlap the direct ref check and peel, but neither can authorize alone.
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    let (head, worktrees) = std::thread::scope(|scope| {
+        let worktrees = std::thread::Builder::new()
+            .spawn_scoped(scope, checked_out)
+            .map_err(|_| limited())?;
+        let head = direct_head();
+        let worktrees = worktrees.join();
+        Ok::<_, CoreError>((head?, worktrees.map_err(|_| limited())??))
+    })?;
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    let (head, worktrees) = (direct_head()?, checked_out()?);
     for field in worktrees.split(|b| *b == 0) {
         if field.strip_prefix(b"branch ") == Some(s.target_ref.as_bytes()) {
             return Err(CoreError::new(
@@ -1165,7 +1183,7 @@ fn observe_target(
             ));
         }
     }
-    Ok(head.to_owned())
+    Ok(head)
 }
 
 #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]

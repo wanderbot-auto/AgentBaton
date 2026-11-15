@@ -1397,8 +1397,14 @@ pub(crate) fn inspect_controlled(
     if !config.status.success() || (!config.stdout.is_empty() && config.stdout.last() != Some(&0)) {
         return Err(WorkspaceError::NotRepository);
     }
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    let mut sparse_declared = false;
     for record in config.stdout.split(|b| *b == 0).filter(|r| !r.is_empty()) {
         let key = record.split(|b| *b == b'\n').next().unwrap_or_default();
+        #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+        {
+            sparse_declared |= key == b"core.sparsecheckout";
+        }
         if key == b"include.path"
             || (key.starts_with(b"includeif.")
                 && key.ends_with(b".path")
@@ -1430,14 +1436,21 @@ pub(crate) fn inspect_controlled(
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
     let (batch, entries, sparse) = std::thread::scope(|scope| {
         let index = std::thread::Builder::new().spawn_scoped(scope, index_probe)?;
-        let sparse = std::thread::Builder::new().spawn_scoped(scope, sparse_probe)?;
+        // Absence in this fresh effective config is the normal false
+        // default. If declared, retain Git's own bool parsing and failure
+        // behavior (including invalid values and duplicate declarations).
+        let sparse = sparse_declared
+            .then(|| std::thread::Builder::new().spawn_scoped(scope, sparse_probe))
+            .transpose()?;
         let metadata = metadata_probe();
         let index = index.join();
-        let sparse = sparse.join();
+        let sparse = sparse.map(|worker| worker.join());
         Ok::<_, WorkspaceError>((
             metadata?,
             index.map_err(|_| WorkspaceError::ResourceLimit)??,
-            sparse.map_err(|_| WorkspaceError::ResourceLimit)??,
+            sparse
+                .map(|result| result.map_err(|_| WorkspaceError::ResourceLimit)?)
+                .transpose()?,
         ))
     })?;
     #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
@@ -1496,10 +1509,11 @@ pub(crate) fn inspect_controlled(
         submodules |= entry[2..].starts_with(b"160000 ");
     }
     #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
-    let sparse = sparse_probe()?;
-    if (sparse.status.success() && sparse.stdout != b"false\n")
-        || (!sparse.status.success() && sparse.status.code() != Some(1))
-    {
+    let sparse = Some(sparse_probe()?);
+    if sparse.is_some_and(|sparse| {
+        (sparse.status.success() && sparse.stdout != b"false\n")
+            || (!sparse.status.success() && sparse.status.code() != Some(1))
+    }) {
         return Err(WorkspaceError::UnverifiedIndex);
     }
     let status = run(&[
