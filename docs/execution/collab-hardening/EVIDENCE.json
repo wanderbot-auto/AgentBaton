@@ -58,7 +58,30 @@
     "advisory editor/path ownership",
     "shared Git directory only",
     "foreground owned/joined children only",
-    "real user login services integration-only",
-    "Product required checks pending PR observation"
-  ]
+    "real user login services integration-only"
+  ],
+  "implementation_commit": "5b703b1d5b27daf7415a332423570b121ddc7b3d",
+  "pull_request": "https://github.com/wanderbot-auto/AgentBaton/pull/27",
+  "rules_update": {
+    "id": 25893455,
+    "observed_pr_head": "5b703b1d5b27daf7415a332423570b121ddc7b3d",
+    "check_app_id": 15368,
+    "required_checks": [
+      "Environment / ubuntu-24.04",
+      "Environment / macos-15",
+      "Product / Rust",
+      "Product / UI",
+      "Product / macos-15"
+    ],
+    "unchanged": [
+      "enforcement",
+      "conditions",
+      "bypass_actors",
+      "deletion",
+      "non_fast_forward",
+      "pull_request",
+      "strict_required_status_checks_policy"
+    ],
+    "result": "updated and response verified; final candidate CI still pending"
+  }
 }

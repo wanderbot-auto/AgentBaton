@@ -62,13 +62,13 @@ bash scripts/collab.sh rebase --private
 1. **私有分支**：在干净的任务 worktree 中显式运行 `rebase --private`。脚本拒绝脏工作区和检测到已发布的分支，保留旧 head 到本地备份 ref。冲突用 `git status` 和 `git diff --name-only --diff-filter=U` 找文件，结合两边意图及相关测试编辑；逐个暂存后 `git rebase --continue`，不能安全解决可 `git rebase --abort`。复核补丁序列可用 `git range-diff <old-base>..<backup> <new-base>..HEAD`，再运行相关验证。禁止整文件盲选 ours/theirs、跳过提交或把改动搬进别的任务工作树。
 2. **已发布、被依赖或进入审核的分支**：通常在它自己的干净 worktree 普通合入更新后的实际 base（`git merge <base-ref>`），解决冲突和验证后正常更新 PR。不同窗口不得并发写同一个 head；禁止为更新共享 PR 强推。堆叠 PR 父分支若 squash/rebase 合并，旧父 SHA 可能不在新基准历史中；保留旧 head，新建接续分支，仅移植子任务范围（明确旧父/子 SHA，用 `git rebase --onto` 于新私有分支，或逐一挑选子提交）。比对旧新补丁、PR diff、测试结果后更新 PR 合并计划。
 3. **交付**：提交前后运行 scope，更新并记录实际 base SHA、head SHA、变更范围、验收命令/结果、已知缺口和依赖。合并前集成窗口核对 GitHub 显示的 base/head 与验证对象、独立审查和未解决反馈；确认预期的环境、产品和平台测试均通过。base 或 head 变动后重新验证候选；同一 PR 的陈旧绿灯不能沿用。一个候选受阻则回交给原作者，其余无依赖 PR 继续。
-4. **最终合并**：独立 PR 优先 squash，方便按任务回退。已有堆叠 PR 由集成窗口逐层验证，允许用保留祖先的 merge commit（需符合仓库规则和已授权策略）；默认不得同时把父和子当两个独立 PR 合入 main。GitHub CLI 可使用 `gh pr merge <PR> --squash --match-head-commit <reviewed-head>` 作为独立 PR 的执行命令；它只钉住 head，base 由集成者复查并依赖现有严格更新规则，仍需通过保护。产品检查未成为必需项前不要启用自动合并，也不要用 admin 绕过。合并确认后，或已记录负责人与接续位置的交接后，用 `collab.sh finish --merged` 或 `--handoff` 释放路径。它只登记释放、不验证远端合并、不删 worktree。之后仅用正常的 `git worktree remove <path>` 清理已确认无须保留的工作树；有未追踪证据时先归档。
+4. **最终合并**：独立 PR 优先 squash，方便按任务回退。已有堆叠 PR 由集成窗口逐层验证，允许用保留祖先的 merge commit（需符合仓库规则和已授权策略）；默认不得同时把父和子当两个独立 PR 合入 main。GitHub CLI 可使用 `gh pr merge <PR> --squash --match-head-commit <reviewed-head>` 作为独立 PR 的执行命令；它只钉住 head，base 由集成者复查并依赖现有严格更新规则，仍需通过保护。不得绕过产品检查或用 admin 绕过保护。合并确认后，或已记录负责人与接续位置的交接后，用 `collab.sh finish --merged` 或 `--handoff` 释放路径。它只登记释放、不验证远端合并、不删 worktree。之后仅用正常的 `git worktree remove <path>` 清理已确认无须保留的工作树；有未追踪证据时先归档。
 
 ## AgentBaton 当前接入路径
 
 当前主分支是 `main`。阶段成果 PR #26 已合入；后续独立任务以最新 `origin/main` 为起点。依赖未合入的成果可从明确的上游分支开发，最终合并受父链约束；不得把相互重叠的 PR 未经核对分别合入同一个目标。当前的 Product workflow 默认只在面向 main 的 PR 自动跑；堆叠分支若用 workflow_dispatch 验证，必须区分被测组合与将合入的精确目标。
 
-已核对 main 的生效规则：Linux 与 Apple Silicon 的两个 Environment 检查必需，要求分支更新，并要求解决审查对话；Product 尚未列为必需。建议单独用一项 CI/规则变更把适用的 Product / Rust、UI、Apple Silicon 检查设为必需，先验证一个测试 PR 上的实际 check 名称与触发覆盖再上线，保留已有检查。当前是个人名下公开仓库，根据 [GitHub 官方的 Merge Queue 资格](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue)，目前采用单集成窗口。以后若迁到符合资格的组织且 PR 吞吐有需要，先让两份 required-check workflow 支持 `merge_group`，验证合成分支能跑完整检查，再启用队列。
+已核对 main 的生效规则：Linux 与 Apple Silicon 的两个 Environment 检查必需，要求分支更新，并要求解决审查对话；PR #27 已确认实际 check 名称与 GitHub Actions 来源，并在 2026-11-15 将 `Product / Rust`、`Product / UI`、`Product / macos-15` 追加为必需，保留两个 Environment 检查、严格更新、PR 与审查对话要求、无 bypass。独立审阅仍按任务证据执行；规则不要求额外 GitHub 审批人数。当前是个人名下公开仓库，根据 [GitHub 官方的 Merge Queue 资格](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue)，目前采用单集成窗口。以后若迁到符合资格的组织且 PR 吞吐有需要，先让两份 required-check workflow 支持 `merge_group`，验证合成分支能跑完整检查，再启用队列。
 
 发送给新的任务窗口：
 
