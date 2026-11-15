@@ -1,0 +1,66 @@
+{
+  "apps/desktop/src-tauri/src/bin/native_smoke.rs": {
+    "after": "5145fdce52955077dcfd591b712977452dec3cfd09bb4bb06807968e0a1bcdfa",
+    "edits": [
+      {
+        "start": 2102,
+        "end": 2104,
+        "expected": "            (\"schema_version\",\"PRAGMA user_version=17\",17),\n            (\"schema_version\",\"PRAGMA user_version=19\",19),\n",
+        "replacement": "            (\"schema_version\",\"PRAGMA user_version=18\",18),\n"
+      },
+      {
+        "start": 2373,
+        "end": 2375,
+        "expected": "            (\"schema_version\", \"PRAGMA user_version=17\", 17),\n            (\"schema_version\", \"PRAGMA user_version=19\", 19),\n",
+        "replacement": "            (\"schema_version\", \"PRAGMA user_version=18\", 18),\n"
+      },
+      {
+        "start": 2904,
+        "end": 2906,
+        "expected": "            \"PRAGMA user_version=17\",\n            \"PRAGMA user_version=19\",\n",
+        "replacement": "            \"PRAGMA user_version=18\",\n"
+      },
+      {
+        "start": 2946,
+        "end": 2947,
+        "expected": "        for schema in [0, 12, 13, 14, 15, 16, 17, 19] {\n",
+        "replacement": "        for schema in [0, 12, 13, 14, 15, 16, 18] {\n"
+      },
+      {
+        "start": 3095,
+        "end": 3097,
+        "expected": "            \"PRAGMA user_version=17\",\n            \"PRAGMA user_version=19\",\n",
+        "replacement": "            \"PRAGMA user_version=18\",\n"
+      }
+    ]
+  },
+  "apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs": {
+    "after": "10405e60cec786b98bd794d95d9f853d0ef83ea29f1414383ca36beca0b8d1df",
+    "edits": [
+      {
+        "start": 264,
+        "end": 277,
+        "expected": "        Some((_, when)) => {\n            let ready = if controller::is_integration(expected) {\n                // A visible, key sheet can be inspected once AppKit finishes\n                // presenting it. Capture still requires the full layout and\n                // contents below, and they are verified again before clicking.\n                when.elapsed() >= Duration::from_millis(200) && sheet.isKeyWindow()\n            } else {\n                when.elapsed() >= Duration::from_millis(500)\n            };\n            if !ready {\n                return Ok(None);\n            }\n        }\n",
+        "replacement": "        Some((_, when)) if when.elapsed() < Duration::from_millis(500) => return Ok(None),\n        _ => {}\n"
+      },
+      {
+        "start": 545,
+        "end": 557,
+        "expected": "            // Before the original settle interval, a partially animated\n            // sheet can still fail layout checks. Wait for the same window,\n            // without taking a screenshot or publishing a click permit.\n            if controller::is_integration(&state.expected)\n                && diagnostic.as_ref().is_some_and(|d| {\n                    phase.sheet_seen.is_some_and(|(window, when)| {\n                        window == d.number && when.elapsed() < Duration::from_millis(500)\n                    })\n                })\n            {\n                return Ok(());\n            }\n",
+        "replacement": ""
+      },
+      {
+        "start": 598,
+        "end": 608,
+        "expected": "    let ready_path = state.output.join(format!(\n        \"{}-page-{:04}-sheet-ready.json\",\n        phase.name,\n        phase.page + 1\n    ));\n    // The owned screenshot joins before this witness is first published.\n    // Reobservations while waiting for the host's permit need no rewrite.\n    if !ready_path.exists() {\n        write(&ready_path, &observed.value)?;\n    }\n",
+        "replacement": "    write(\n        &state.output.join(format!(\n            \"{}-page-{:04}-sheet-ready.json\",\n            phase.name,\n            phase.page + 1\n        )),\n        &observed.value,\n    )?;\n"
+      },
+      {
+        "start": 812,
+        "end": 819,
+        "expected": "            let state = handle.state::<State>();\n            let interval = if controller::is_integration(&state.expected) {\n                25\n            } else {\n                100\n            };\n            std::thread::sleep(Duration::from_millis(interval));\n",
+        "replacement": "            std::thread::sleep(Duration::from_millis(100));\n"
+      }
+    ]
+  }
+}

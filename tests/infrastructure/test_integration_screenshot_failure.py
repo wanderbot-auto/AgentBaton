@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 import tempfile
+import time
 import types
 import unittest
 from unittest import mock
@@ -31,7 +32,10 @@ class ActualShotOperations(unittest.TestCase):
             bounding_box=lambda: operation('bounding_box', {'x': 0, 'y': 0, 'width': 10, 'height': 10}))
         def screenshot(*, path):
             operation('capture'); Path(path).write_bytes(b'synthetic image bytes')
-        namespace = {'report': report, 'output': folder, 'platform': 'Linux',
+        def require(value, message):
+            if not value:
+                raise AssertionError(message)
+        namespace = {'require': require, 'report': report, 'output': folder, 'platform': 'Linux', 'time': time,
             'expect': lambda _: types.SimpleNamespace(to_be_in_viewport=lambda **kw: operation('viewport')),
             'page': types.SimpleNamespace(screenshot=screenshot, viewport_size={'width': 1440, 'height': 1100}),
             'digest': lambda raw: operation('record', hashlib.sha256(raw).hexdigest())}
@@ -152,15 +156,16 @@ class CompleteOldSourceInverse(unittest.TestCase):
         self.assertEqual(hashlib.sha256(original.encode()).hexdigest(), R.RUNTIME_BASE_PROJECTOR_SHA256)
 
     def test_inserted_and_original_unknown_changes_are_not_normalized(self):
-        pairs = [('apps/desktop/tests/integration-real-ipc.py', strip_driver, I.DRIVER_EDITS, AssertionError),
+        pairs = [('apps/desktop/tests/integration-real-ipc.py', strip_driver, [*I.DRIVER_EDITS, C.REFOCUS_EDIT], AssertionError),
             ('scripts/record-integration-browser-ci-evidence.py', I.strip_screenshot_projector_layer, I.PROJECTOR_EDITS, ValueError)]
         for path, strip, edits, error in pairs:
             text = (ROOT / path).read_text()
             mutations = [text + '\n# unreviewed outside change\n', text.replace('= 536870912', '= 1073741824', 1) if path.startswith('apps/') else text.replace('MAX_REPORT, MAX_STATUS', 'CHANGED_REPORT, MAX_STATUS', 1)]
             for _, new in edits:
                 new = new.replace("'dimension': 'Linux Chromium only'", "'dimension': f'{platform} Chromium only'")
-                mutations.extend([text.replace(new, '', 1), text.replace(new, new * 2, 1),
-                    text.replace(new, new.replace('\n', '\r\n'), 1)])
+                if new in text:
+                    mutations.extend([text.replace(new, '', 1), text.replace(new, new * 2, 1),
+                        text.replace(new, new.replace('\n', '\r\n'), 1)])
             for changed in mutations:
                 self.assertNotEqual(changed, text)
                 with self.subTest(path=path), self.assertRaises(error): strip(changed)

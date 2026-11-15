@@ -4,7 +4,9 @@ from tests.infrastructure import integration_screenshot_failure_fixture as S
 
 NOTIFICATION_BEFORE_SHA256 = '55f8144175c0a1d0809da7c95c66339c535a6f8e6d90ece9d11ecb89227df993'
 NOTIFICATION_AFTER_SHA256 = '9561fb33327b2cbf3cf0e0d7a51b755245bf90ce4a9dabcdbeb39cfe523fd70f'
-CURRENT_COMPOSED_SHA256 = '9096f8b934364318ed3963f6aca8de7d1044fcca6f3cd2610f53ca0851634f67'
+PRE_REFOCUS_SHA256 = '9096f8b934364318ed3963f6aca8de7d1044fcca6f3cd2610f53ca0851634f67'
+CURRENT_COMPOSED_SHA256 = '0131bee1842f3856507def3f41d4d45f0a9b38511167886461fc96d8a32d37fe'
+REFOCUS_EDIT = ('            expect(focus).to_be_in_viewport(ratio=1)\n', '            # Polling UI may move the same evidence after the initial scroll.\n            # Re-center within the existing 5s viewport assertion budget and\n            # capture only after Playwright observes complete visibility.\n            deadline = time.monotonic() + 5\n            for attempt in range(5):\n                remaining = (deadline - time.monotonic()) * 1000\n                require(remaining > 0, \'Full screenshot focus visibility expired\')\n                try:\n                    expect(focus).to_be_in_viewport(ratio=1, timeout=min(1000, remaining))\n                    break\n                except AssertionError:\n                    if attempt == 4 or time.monotonic() >= deadline:\n                        raise\n                    focus.evaluate("(element) => element.scrollIntoView({block: \'center\', inline: \'nearest\', behavior: \'instant\'})")\n')
 CURRENT_WITHOUT_NOTIFICATION_SHA256 = '8f2372193a8496a0fb68ecc97c1541ffbd7e42cc8e86cf8edc852cb2bc85734b'
 NOTIFICATION_EDITS = [('', 'import types\n'),
  ('',
@@ -94,10 +96,17 @@ def _inverse(text, edits, expected):
     return text
 
 
-def strip_current_notification_layer(text):
-    """Restore the exact schema18 driver from the reviewed combined source."""
+def restore_before_refocus(text):
+    if _digest(text) == PRE_REFOCUS_SHA256:
+        return text
     if _digest(text) != CURRENT_COMPOSED_SHA256:
         raise AssertionError('Unknown current notification composition')
+    return _inverse(text, [REFOCUS_EDIT], PRE_REFOCUS_SHA256)
+
+
+def strip_current_notification_layer(text):
+    """Restore the exact schema18 driver from the reviewed combined source."""
+    text = restore_before_refocus(text)
     return _inverse(text, NOTIFICATION_EDITS, CURRENT_WITHOUT_NOTIFICATION_SHA256)
 
 
@@ -105,8 +114,7 @@ def restore_historical_composition(text):
     """Keep the notification layer while reversing the exact schema18 spans."""
     from tests.infrastructure.schema18_source_fixture import LAYERS
     layer = LAYERS['apps/desktop/tests/integration-real-ipc.py']
-    if _digest(text) != CURRENT_COMPOSED_SHA256:
-        raise AssertionError('Unknown current notification composition')
+    text = restore_before_refocus(text)
     edits = [(edit['replacement'], edit['expected'])
              for part in (layer['followup'], layer) for edit in part['edits']]
     return _inverse(text, edits, NOTIFICATION_AFTER_SHA256)
@@ -114,7 +122,7 @@ def restore_historical_composition(text):
 
 def strip_composed_screenshot_layer(text):
     digest = _digest(text)
-    if digest == CURRENT_COMPOSED_SHA256:
+    if digest in (CURRENT_COMPOSED_SHA256, PRE_REFOCUS_SHA256):
         return strip_composed_screenshot_layer(restore_historical_composition(text))
     if digest in (NOTIFICATION_BEFORE_SHA256, S.DRIVER_BEFORE_SHA256):
         return text
@@ -127,7 +135,7 @@ def strip_composed_screenshot_layer(text):
 
 def strip_composed_notification_layer(text):
     digest = _digest(text)
-    if digest == CURRENT_COMPOSED_SHA256:
+    if digest in (CURRENT_COMPOSED_SHA256, PRE_REFOCUS_SHA256):
         return strip_current_notification_layer(text)
     if digest in (S.DRIVER_BEFORE_SHA256, S.DRIVER_AFTER_SHA256):
         return text

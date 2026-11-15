@@ -194,6 +194,7 @@ UNCHANGED_FILE_PINS = {
     'scripts/native-owner-dialog-smoke.py': 'e2ca962c8e5d8af29bc04bb477c6d9d4fc876b7143b33ffafca8a730944fad94',
     'scripts/native-run.py': '205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a',
 }
+NATIVE_ACCEPTANCE_FOLLOWUP_SHA256 = '792b08e8789919ed64ef7d85b815cf73f9d49040d96103b12a6818fa659fde5f'
 PARENT_NATIVE_AUDIT_SHA256 = 'fff2bf0cefea1a1004a83cbef4caf31d6b9b99e5870fb22cc32527706ce0ad58'
 PARENT_ENSURE_DAEMON_SHA256 = 'e9708f857866f23dd41f988124b85216b50a1ed432690b2adacfd4f175e30a2b'
 
@@ -216,8 +217,17 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
                          PARENT_ENSURE_DAEMON_SHA256)
 
     def test_all_parent_harness_guards_lock_and_cargo_source_are_exact(self):
+        from tests.infrastructure.schema18_source_fixture import restore
+        inverse = (Path(__file__).parent/'fixtures/native_acceptance_followup.json').read_bytes()
+        self.assertEqual(hashlib.sha256(inverse).hexdigest(), NATIVE_ACCEPTANCE_FOLLOWUP_SHA256)
+        layers = json.loads(inverse)
         for path, pin in UNCHANGED_FILE_PINS.items():
-            self.assertEqual(hashlib.sha256((ROOT/path).read_bytes()).hexdigest(), pin, path)
+            raw = (ROOT/path).read_bytes()
+            if path in layers:
+                layer = layers[path]
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), layer['after'], path)
+                raw = restore(raw.decode(), layer['edits'], pin, AssertionError).encode()
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), pin, path)
 
         lock = (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_text()
         addition = ('name = "agentbaton-desktop"\nversion = "0.1.0"\ndependencies = [\n'

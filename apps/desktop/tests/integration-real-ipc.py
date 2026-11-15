@@ -1129,7 +1129,20 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
             focus.scroll_into_view_if_needed()
             focus.evaluate("(element) => element.scrollIntoView({block: 'center', inline: 'nearest', behavior: 'instant'})")
             report['active_screenshot']['step'] = 'viewport'
-            expect(focus).to_be_in_viewport(ratio=1)
+            # Polling UI may move the same evidence after the initial scroll.
+            # Re-center within the existing 5s viewport assertion budget and
+            # capture only after Playwright observes complete visibility.
+            deadline = time.monotonic() + 5
+            for attempt in range(5):
+                remaining = (deadline - time.monotonic()) * 1000
+                require(remaining > 0, 'Full screenshot focus visibility expired')
+                try:
+                    expect(focus).to_be_in_viewport(ratio=1, timeout=min(1000, remaining))
+                    break
+                except AssertionError:
+                    if attempt == 4 or time.monotonic() >= deadline:
+                        raise
+                    focus.evaluate("(element) => element.scrollIntoView({block: 'center', inline: 'nearest', behavior: 'instant'})")
             report['active_screenshot']['step'] = 'bounding_box'
             focus_box_before_capture = focus.bounding_box()
             report['active_screenshot']['step'] = 'capture'

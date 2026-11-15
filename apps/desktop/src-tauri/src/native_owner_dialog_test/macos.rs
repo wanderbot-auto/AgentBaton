@@ -262,8 +262,19 @@ fn observe(
         Some((seen, _)) if *seen != number => {
             return Err("Attached sheet changed during the armed phase".into())
         }
-        Some((_, when)) if when.elapsed() < Duration::from_millis(500) => return Ok(None),
-        _ => {}
+        Some((_, when)) => {
+            let ready = if controller::is_integration(expected) {
+                // A visible, key sheet can be inspected once AppKit finishes
+                // presenting it. Capture still requires the full layout and
+                // contents below, and they are verified again before clicking.
+                when.elapsed() >= Duration::from_millis(200) && sheet.isKeyWindow()
+            } else {
+                when.elapsed() >= Duration::from_millis(500)
+            };
+            if !ready {
+                return Ok(None);
+            }
+        }
     }
     *diagnostic = Some(SheetDiagnostic {
         number,
@@ -532,6 +543,18 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
         Ok(Some(observed)) => observed,
         Ok(None) => return Ok(()),
         Err(reason) => {
+            // Before the original settle interval, a partially animated
+            // sheet can still fail layout checks. Wait for the same window,
+            // without taking a screenshot or publishing a click permit.
+            if controller::is_integration(&state.expected)
+                && diagnostic.as_ref().is_some_and(|d| {
+                    phase.sheet_seen.is_some_and(|(window, when)| {
+                        window == d.number && when.elapsed() < Duration::from_millis(500)
+                    })
+                })
+            {
+                return Ok(());
+            }
             let number = diagnostic.as_ref().map(|d| d.number).filter(|n| *n > 0);
             phase.observation_failure = Some(json!({"status":"failed","reason":reason,
                 "failure_phase":"observation_before_click","observation":diagnostic.map(|d|d.value),
@@ -573,14 +596,16 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
     if let Some(worker) = phase.capture_worker.take() {
         worker.join().map_err(|_| "Sheet capture worker panicked")?;
     }
-    write(
-        &state.output.join(format!(
-            "{}-page-{:04}-sheet-ready.json",
-            phase.name,
-            phase.page + 1
-        )),
-        &observed.value,
-    )?;
+    let ready_path = state.output.join(format!(
+        "{}-page-{:04}-sheet-ready.json",
+        phase.name,
+        phase.page + 1
+    ));
+    // The owned screenshot joins before this witness is first published.
+    // Reobservations while waiting for the host's permit need no rewrite.
+    if !ready_path.exists() {
+        write(&ready_path, &observed.value)?;
+    }
     let permit = state.output.join(format!(
         "{}-page-{:04}-database-permit.json",
         phase.name,
@@ -785,7 +810,13 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
             {
                 return;
             }
-            std::thread::sleep(Duration::from_millis(100));
+            let state = handle.state::<State>();
+            let interval = if controller::is_integration(&state.expected) {
+                25
+            } else {
+                100
+            };
+            std::thread::sleep(Duration::from_millis(interval));
         }
     });
     let code = app.run_return(|app, event| {

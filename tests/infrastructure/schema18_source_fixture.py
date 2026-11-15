@@ -19,7 +19,7 @@ def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):
         return text
     if path == 'apps/desktop/tests/integration-real-ipc.py':
         from tests.infrastructure import notification_screenshot_composition_fixture as notification
-        if digest == notification.CURRENT_COMPOSED_SHA256:
+        if digest in (notification.CURRENT_COMPOSED_SHA256, notification.PRE_REFOCUS_SHA256):
             try:
                 text = notification.strip_current_notification_layer(text)
             except AssertionError as exc:
