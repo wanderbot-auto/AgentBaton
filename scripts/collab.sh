@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Local coordination for worktrees that share this repository's Git directory.
 set -euo pipefail
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 die() { printf 'collab: %s\n' "$*" >&2; exit 2; }
 usage() {
@@ -10,6 +11,7 @@ Usage (run from the repository or a task worktree):
   collab.sh list                       list worktrees and active reservations
   collab.sh scope                      check committed and local edits against this task's paths
   collab.sh preview BASE [HEAD]         simulate merging two committed refs
+  collab.sh run [--native] -- CMD...    run with task-local runtime/build output; serialize native dev
   collab.sh rebase --private            rebase a clean, unpublished, unshared task
   collab.sh finish --merged|--handoff   release paths after merge or documented handoff
 
@@ -172,6 +174,10 @@ case "$cmd" in
       exit "$status"
     fi
     ;;
+  run)
+    read_task
+    exec python3 "$script_dir/collab-run.py" run "$state" "$id" "$top" "$@"
+    ;;
   finish)
     [[ $# == 1 && ( "$1" == --merged || "$1" == --handoff ) ]] ||
       die 'finish requires --merged or --handoff; confirm the handoff before releasing ownership'
@@ -179,7 +185,7 @@ case "$cmd" in
     require_idle
     take_lock
     [[ -f "$claim" && ! -e "$state/closed/$id" ]] || die "reservation changed before release: $id"
-    mv "$claim" "$state/closed/$id"
+    python3 "$script_dir/collab-run.py" finish "$state" "$id"
     printf 'Released paths for %s; kept the worktree and branch.\n' "$id"
     ;;
   *) usage >&2; die "unknown command: $cmd" ;;
