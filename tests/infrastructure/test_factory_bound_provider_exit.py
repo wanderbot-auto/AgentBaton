@@ -168,7 +168,27 @@ class BoundExitTests(unittest.TestCase):
     def test_bound_empty_provider_can_disappear_after_the_same_live_stat_sample(self):
         f = self.fixture(); f.argv_overrides[f.provider] = b''
         f.proc_steps[f.provider] = [f.identity(f.provider), f.identity(f.provider), None]
+        # Proc transitions here are synthetic; a loaded runner oversleeping the
+        # real 4ms pause must not change their intended within-deadline order.
+        clock = [0.0]
+        def pause(seconds): clock[0] += seconds
+        f.ns['time'] = SimpleNamespace(monotonic=lambda: clock[0], sleep=pause)
         self.retained(f)
+        self.assertEqual(clock[0], 0.004)
+        self.assertNotIn(f.provider, f.pgid_calls)
+
+    def test_bound_provider_disappearance_after_deadline_still_refuses(self):
+        f = self.fixture(); f.argv_overrides[f.provider] = b''
+        f.proc_steps[f.provider] = [f.identity(f.provider), f.identity(f.provider), None]
+        clock = [0.0]
+        def oversleep(seconds): clock[0] += seconds + 0.02
+        f.ns['time'] = SimpleNamespace(monotonic=lambda: clock[0], sleep=oversleep)
+        with self.assertRaisesRegex(AssertionError, 'Fixed generated argv guard failed'):
+            f.collect()
+        self.assertGreaterEqual(clock[0], 0.02)
+        observation = json.loads((f.out / 'fixed-argv-first-failure.json').read_text())
+        self.assertIsNone(observation['identity_after'])
+        self.assertEqual(f.verified, f.original)
         self.assertNotIn(f.provider, f.pgid_calls)
 
     def test_bound_missing_cmdline_and_fresh_absence_retains_only_original_binding(self):

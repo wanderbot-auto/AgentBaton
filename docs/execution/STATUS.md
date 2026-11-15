@@ -1,6 +1,6 @@
 ## 2026-11-15 · 多窗口协作最小加固（本地验证通过）
 
-基于 main `f71556c1`，在登记的 `collab/collab-hardening` 独立工作树补齐任务运行入口、独立 runtime/构建目录、同任务运行锁与原生开发串行锁。保留固定端口及产品来源校验；用户级登录后台操作继续由集成窗口串行处理。新增 12 项真实 CLI 回归及完整 877 项基础设施测试在本机 Apple Silicon/Bash 3.2 通过，独立审查通过；设计、静态基础设施及 93 文件完整性检查通过。[PR #27](https://github.com/wanderbot-auto/AgentBaton/pull/27) 已建立，远端 CI 待完成。核对该 PR 实际 check 名称后，已追加三个 Product 必需检查，原有规则与权限保持。未声明真实多 Codex 窗口或产品验收通过。见 [任务记录](collab-hardening/PLAN.md)。
+基于 main `f71556c1`，在登记的 `collab/collab-hardening` 独立工作树补齐任务运行入口、独立 runtime/构建目录、同任务运行锁与原生开发串行锁。保留固定端口及产品来源校验；用户级登录后台操作继续由集成窗口串行处理。新增 12 项真实 CLI 回归及完整 878 项基础设施测试在本机 Apple Silicon/Bash 3.2 通过，独立审查通过；设计、静态基础设施及 93 文件完整性检查通过。[PR #27](https://github.com/wanderbot-auto/AgentBaton/pull/27) 已建立，前候选 d3bb 的 Linux Environment 通过，macOS 的 12 项新用例通过，但旧模拟进程夹具因真实时钟观察窗口失败；保留日志并只为该模拟场景注入确定性时钟，新增超时拒绝负控，产品源码和 20ms 上限未改。修正候选的远端 CI 待完成。核对该 PR 实际 check 名称后，已追加三个 Product 必需检查，原有规则与权限保持。未声明真实多 Codex 窗口或产品验收通过。见 [任务记录](collab-hardening/PLAN.md)。
 
 ## 2026-11-14 · Mac mini：阶段成果集成候选
 

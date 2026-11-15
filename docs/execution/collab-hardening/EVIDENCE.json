@@ -12,7 +12,8 @@
   "source_sha256": {
     "scripts/collab.sh": "d8724ce223d6c3dea9998d7db67d0c5244d93ca81dc82787af1c52be0769e6e1",
     "scripts/collab-run.py": "a164c0d0c2e070216e6321a32a6f413398463fa61c0c0ad199ad22a71a3df908",
-    "tests/infrastructure/test_collab.py": "167aa0ac1250c3d7db66ff0604b9bcc8922e077b4c4ef0f51c67186a9370288c"
+    "tests/infrastructure/test_collab.py": "167aa0ac1250c3d7db66ff0604b9bcc8922e077b4c4ef0f51c67186a9370288c",
+    "tests/infrastructure/test_factory_bound_provider_exit.py": "82afd969597ba2bf952340e24bbf60ebf6e9a9165bad7843112f0a3baaaf5b37"
   },
   "checks": [
     {
@@ -40,6 +41,19 @@
     {
       "command": "bash scripts/collab.sh scope",
       "exit_code": 0
+    },
+    {
+      "command": "project venv python -m unittest discover -s tests/infrastructure -p test_*.py -v",
+      "exit_code": 0,
+      "tests": 878,
+      "seconds": 21.38,
+      "log": "artifacts/collab/infrastructure-with-clock-control.log",
+      "log_sha256": "ab2914731cff093b6859f2b5613ec32f7d5afae71df0f41e8b30e3f517f2d4fc"
+    },
+    {
+      "command": "python3 -m unittest tests.infrastructure.test_factory_bound_provider_exit tests.infrastructure.test_factory_exiting_argv_observation -v",
+      "exit_code": 0,
+      "tests": 52
     }
   ],
   "independent_review": {
@@ -52,7 +66,15 @@
     ],
     "write_scope": "none"
   },
-  "remote_ci": "pending",
+  "remote_ci": {
+    "candidate": "d3bb0c393640625480f21d8129e4b3906358d4cc",
+    "environment_run": 43698278274,
+    "linux": "passed",
+    "macos": "failed one unchanged synthetic clock test; all12 collaboration regressions passed",
+    "failure_log": "artifacts/collab/environment-failed.log",
+    "failure_log_sha256": "12df0be4c6e507f59f9570c062c2fe7228d6a96ebab1c15adc521dd90f154819",
+    "final_candidate": "pending"
+  },
   "product_native_acceptance": "not_run",
   "remaining_boundaries": [
     "advisory editor/path ownership",
@@ -83,5 +105,13 @@
       "strict_required_status_checks_policy"
     ],
     "result": "updated and response verified; final candidate CI still pending"
+  },
+  "clock_fixture_correction": {
+    "independently_reviewed": true,
+    "reproduction": "same live/live/absent sequence fails if nominal4ms sleep overshoots20ms; exact remote delay unknown",
+    "change": "per-test logical namespace time; >=20ms refusal with absent diagnostic and unchanged binding",
+    "product_browser_source_changed": false,
+    "deadline_ms": 20,
+    "evidence_dimension": "synthetic unit control, not actual process timing"
   }
 }

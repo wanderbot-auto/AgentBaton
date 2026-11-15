@@ -12,3 +12,5 @@ Scope: collaboration scripts, CLI regression tests, collaboration/agent instruct
 Acceptance: independent task runtime/target paths; reject overlapping run/native commands and finish while running; forward signals and keep argv/exit status; retained existing scope/conflict behavior. No new product integration, real Provider calls, credentials or production deployment.
 
 OWNER-001/002 read: this narrow user-requested infrastructure repair preserves their product/UI instructions; it does not claim to finish them. Local executor, no new Cloud run or persistent Goal created.
+
+CI-discovered scope adjustment: the integration owner reserved tests/infrastructure/test_factory_bound_provider_exit.py under the registry lock. An unchanged synthetic proc test depended on a real 20ms observation window; independent delayed-sleep reproduction matched its failure. Inject only its namespace clock and add an expired-observation refusal control. Product/browser source, deadlines and old assertions stay intact.
