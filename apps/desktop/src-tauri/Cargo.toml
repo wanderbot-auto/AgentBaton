@@ -59,6 +59,31 @@ required-features = ["native-smoke"]
 [profile.dev.package.sha2]
 opt-level = 3
 
+# This is a separate Cargo workspace. Match the root's runtime-sensitive dev
+# overrides so the helper can reuse dependencies in one checkout-local target.
+[profile.dev.package.libsqlite3-sys]
+opt-level = 3
+
+[profile.dev.package.agentbaton-core]
+opt-level = 2
+debug = 1
+
+[profile.dev.package.agentbaton-workspaces]
+opt-level = 2
+debug = 1
+
+[profile.dev.package.serde_json]
+opt-level = 3
+debug = 1
+
+[profile.dev.package.serde_core]
+opt-level = 3
+debug = 1
+
+[profile.dev.package.rusqlite]
+opt-level = 2
+debug = 1
+
 # Private generated-tree registration IPC; never enabled in application bundles.
 [[bin]]
 name = "agentbaton-native-background-service-smoke"

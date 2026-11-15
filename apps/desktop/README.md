@@ -2,7 +2,9 @@
 
 This desktop client uses Tauri IPC and the authenticated local daemon. It has no browser HTTP service and does not substitute fixture data when the daemon is absent.
 
-From the repository root, build `batond` and `baton` with Cargo. Start `batond` for development. In `apps/desktop`, run `npm ci`, `npm run typecheck`, `npm test`, `npm run build`, and `npm run tauri -- dev`. Use the same trusted `BATON_RUNTIME_DIR` for desktop and daemon when overriding the platform default. Never expose that directory or its credential to the renderer.
+From the repository root, use `bash scripts/desktop-dev.sh start` for native development. The helper installs locked frontend dependencies when needed, builds debug daemon/CLI sidecars, starts an authenticated daemon, and launches Tauri with Vite hot reload. Use `dev` instead of `start` for foreground logs and Ctrl-C cleanup. See [all commands and performance options](../../docs/DEVELOPMENT.md#desktop-development-shortcuts).
+
+The lower-level `npm run tauri -- dev` now prepares debug sidecars automatically before starting Vite. It uses the platform's normal runtime, while the helper uses a separate runtime for each checkout. Both daemon and desktop must use the same trusted `BATON_RUNTIME_DIR` when overriding it. Never expose that directory or its credential to the renderer. Frontend checks remain `npm run typecheck`, `npm test`, and `npm run build`.
 
 For macOS packaging, prepare the target-suffixed daemon and CLI binaries under `src-tauri/binaries/`, then run `npm run tauri -- build --bundles app`. The app starts the bundled sibling daemon when its socket is absent. Closing the UI leaves the daemon running. This is an unsigned development build; formal signing, notarization and production release are separate gates. The configured deployment target is provisional until it is built and validated on Apple Silicon (ARM64). Intel is outside the current macOS maintenance scope.
 

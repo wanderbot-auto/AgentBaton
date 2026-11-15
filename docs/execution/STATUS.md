@@ -1226,3 +1226,8 @@ PR12真实优化sourcecb82（本地cherry5cea，docs47ab）已独审227unique+4c
 尚无新双Mac耗时收益、原预算达标或新CI/桌面/安装包证据；旧db281 ARM Integration21/12失败原样保留，不挪用Linux结果或合并不同根因。第二config batching未实现；130需求记录整字节不变、完整Designv0.2/27决定继续，整体未完。未新增生产、费用/主机、私人Provider/账号凭据、签名、许可证或正式PR Approve授权。
 
 同一Root18c严格Clippy（Workspaces+Core/all-targets/-D warnings）exit0/18.667750135s，完整infra793PASS（测试19.105s/wrapper19.455937190s，已含6纯guard）。负向fixture的failed_or_interrupted打印不改外层793 OK；这些Linux结果不新增Mac/新CI或产品完成声明。
+
+
+## 2026-11-16 · Desktop dev shortcuts
+
+`collab/desktop-dev` 从 `f6133388` 隔离实施，ACK OWNER-001/002。已复现并修复缺失 debug sidecar 导致的 `npm run tauri -- dev` 构建错误；新增 `scripts/desktop-dev.sh` 的 start/dev/stop/restart/status/logs/setup，独立运行时/端口、具名子进程组清理，同 worktree Cargo 缓存复用和较少 debug 信息；release、安全断言、权限与真实 Provider 门槛保持。独审四项进程/状态/target/并发问题已修，复审通过。Apple Silicon macOS26.6.1 本机 helper12/12、native library179 passed（既有2 ignored）、UI typecheck/build通过；真实原生进程＋daemon authenticated schema18、热重启7.512s、停止后所记录UI/Vite/daemon进程无残留且端口关闭。0.36s是一次缓存命中Cargo构建，不是冷构建提速比例。CUA未能选择未打包dev进程，不声称视觉验收或完整产品完成。确切命令/限制见 `desktop-dev/EVIDENCE.json`；尚待PR的准确CI与受保护合入。
