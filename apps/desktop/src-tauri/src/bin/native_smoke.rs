@@ -2100,7 +2100,8 @@ mod fixture_tests {
             ("schema_version","PRAGMA user_version=14",14),
             ("schema_version","PRAGMA user_version=15",15),
             ("schema_version","PRAGMA user_version=16",16),
-            ("schema_version","PRAGMA user_version=18",18),
+            ("schema_version","PRAGMA user_version=17",17),
+            ("schema_version","PRAGMA user_version=19",19),
             ("run_count","INSERT INTO goal_runs VALUES('count-probe','scope','project','task',1,'queued','{}')",1),
             ("node_count","INSERT INTO goal_run_nodes VALUES('count-probe',1,'node',0,'not_started',NULL,NULL,'{}')",1),
             ("reservation_count","INSERT INTO goal_run_reservations VALUES('attempt','count-probe','node',NULL,'{}')",1),
@@ -2370,7 +2371,8 @@ mod fixture_tests {
             ("schema_version", "PRAGMA user_version=14", 14),
             ("schema_version", "PRAGMA user_version=15", 15),
             ("schema_version", "PRAGMA user_version=16", 16),
-            ("schema_version", "PRAGMA user_version=18", 18),
+            ("schema_version", "PRAGMA user_version=17", 17),
+            ("schema_version", "PRAGMA user_version=19", 19),
             ("capability_count", "INSERT INTO goal_graph_capabilities(run_id,approval_id,version,document) VALUES('probe','approval',1,'{}')", 1),
             ("job_count", "INSERT INTO goal_graph_jobs(id,run_id,node_id,plan_revision,state,attempt_id,workspace_id,document) VALUES('probe','run','node',1,'queued',NULL,'workspace','{}')", 1),
             ("candidate_count", "INSERT INTO goal_graph_candidates(id,run_id,node_id,plan_revision,attempt_id,document) VALUES('probe','run','node',1,'attempt','{}')", 1),
@@ -2900,7 +2902,8 @@ mod fixture_tests {
             "PRAGMA user_version=14",
             "PRAGMA user_version=15",
             "PRAGMA user_version=16",
-            "PRAGMA user_version=18",
+            "PRAGMA user_version=17",
+            "PRAGMA user_version=19",
             "DROP TABLE factory_scopes",
             "DROP TABLE factory_budget_reservations",
             "DROP TABLE factory_child_plan_heads",
@@ -2941,7 +2944,7 @@ mod fixture_tests {
             missing.as_object_mut().unwrap().remove(field);
             assert!(!valid_integration_counts(&missing), "{field}");
         }
-        for schema in [0, 12, 13, 14, 15, 16, 18] {
+        for schema in [0, 12, 13, 14, 15, 16, 17, 19] {
             let mut changed = counts.clone();
             changed["schema_version"] = json!(schema);
             assert!(!valid_integration_counts(&changed));
@@ -3090,7 +3093,8 @@ mod fixture_tests {
     fn integration_readonly_never_migrates_old_or_future_schema_or_hides_missing_table() {
         for sql in [
             "PRAGMA user_version=16",
-            "PRAGMA user_version=18",
+            "PRAGMA user_version=17",
+            "PRAGMA user_version=19",
             "DROP TABLE integration_policies",
             "DROP TABLE integrations",
             "DROP TABLE integration_attempts",
