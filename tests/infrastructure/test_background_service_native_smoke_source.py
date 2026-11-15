@@ -3,9 +3,45 @@ from pathlib import Path
 import hashlib
 import json
 import re
+import tomllib
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
+DESKTOP_DEV_PROFILE_LAYER = '''# This is a separate Cargo workspace. Match the root's runtime-sensitive dev
+# overrides so the helper can reuse dependencies in one checkout-local target.
+[profile.dev.package.libsqlite3-sys]
+opt-level = 3
+
+[profile.dev.package.agentbaton-core]
+opt-level = 2
+debug = 1
+
+[profile.dev.package.agentbaton-workspaces]
+opt-level = 2
+debug = 1
+
+[profile.dev.package.serde_json]
+opt-level = 3
+debug = 1
+
+[profile.dev.package.serde_core]
+opt-level = 3
+debug = 1
+
+[profile.dev.package.rusqlite]
+opt-level = 2
+debug = 1
+
+'''
+
+
+def strip_desktop_dev_profile_layer(manifest):
+    """Peel only the reviewed dev profiles; retain the historical parent pin."""
+    if manifest.count(DESKTOP_DEV_PROFILE_LAYER) != 1:
+        raise ValueError('Expected exactly the reviewed desktop dev profiles')
+    return manifest.replace(DESKTOP_DEV_PROFILE_LAYER, '', 1)
+
+
 BG_STEP_NAME = 'Actual Native background registration IPC in generated private paths'
 # Exact workflow at 4ce910b and the same bytes with the new Native step.
 BASE_WORKFLOW_SHA256 = 'e9e70c5340ca711528e6df6f9c2434104e021068054bf74cb5d3f9efc90984e5'
@@ -237,7 +273,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         self.assertEqual(hashlib.sha256(parent_lock.encode()).hexdigest(),
                          '4d47820152c17d63b61829fa7d83d2fbbdb4c9cbbfdbd03168207f0e442e068d')
 
-        manifest = (ROOT/'apps/desktop/src-tauri/Cargo.toml').read_text()
+        manifest = strip_desktop_dev_profile_layer((ROOT/'apps/desktop/src-tauri/Cargo.toml').read_text())
         additions = (
             '# Reuse the exact already-locked POSIX ABI for per-user filesystem ownership.\nlibc = "=0.2.191"\n',
             '\n# Private generated-tree registration IPC; never enabled in application bundles.\n'
@@ -249,6 +285,23 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
             manifest = manifest.replace(addition, '', 1)
         self.assertEqual(hashlib.sha256(manifest.encode()).hexdigest(),
                          '3b6bb5205adb7610d639fb42cb7154c189e04030d8e18ccf71d2c42070bcb028')
+
+    def test_dev_profile_layer_matches_root_and_refuses_changed_or_repeated_layer(self):
+        layer = tomllib.loads(DESKTOP_DEV_PROFILE_LAYER)
+        root = tomllib.loads((ROOT/'Cargo.toml').read_text())
+        self.assertEqual(set(layer), {'profile'})
+        self.assertEqual(set(layer['profile']), {'dev'})
+        for package, settings in layer['profile']['dev']['package'].items():
+            self.assertEqual(settings, root['profile']['dev']['package'][package])
+        manifest = (ROOT/'apps/desktop/src-tauri/Cargo.toml').read_text()
+        for corrupt in (
+            manifest.replace('opt-level = 2', 'opt-level = 0', 1),
+            manifest.replace('debug = 1', 'debug = 0', 1),
+            manifest + DESKTOP_DEV_PROFILE_LAYER,
+            manifest.replace(DESKTOP_DEV_PROFILE_LAYER, '', 1),
+        ):
+            with self.assertRaises(ValueError):
+                strip_desktop_dev_profile_layer(corrupt)
 
     def test_workflow_normalizers_peel_only_the_exact_new_layer(self):
         from tests.infrastructure import test_schema17_migration_workflow as workflow
