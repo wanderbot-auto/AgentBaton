@@ -89,7 +89,9 @@ impl Repo {
                 &self.root,
                 &["status", "--porcelain=v1", "--untracked-files=all"],
             ),
-            git(&self.root, &["diff"]),
+            // The observer must not refresh cached stat data in the user's
+            // index after reading its bytes, even with --no-optional-locks.
+            git(&self.root, &["-c", "diff.autoRefreshIndex=false", "diff"]),
         )
     }
 }
