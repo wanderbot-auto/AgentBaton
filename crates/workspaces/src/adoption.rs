@@ -539,7 +539,7 @@ fn create_bound_isolated(
     name: &str,
     commit: &str,
     control: Option<&AdoptionControl<'_>>,
-) -> Result<WorkspaceIdentity, AdoptionError> {
+) -> Result<PathBuf, AdoptionError> {
     controlled_check(control)?;
     if name.is_empty()
         || name.starts_with('.')
@@ -582,7 +582,7 @@ fn create_bound_isolated(
     if !output.status.success() {
         return Err(AdoptionError::Conflict);
     }
-    Ok(inspect_bound(&destination, control)?)
+    Ok(destination)
 }
 // A symbolic target names a different authority slot. Exit 1 alone means a
 // direct ref; other failures must never be interpreted as permission to write.
@@ -999,9 +999,35 @@ fn prepare_candidate_inner(
     // create_bound_isolated checks repository identity, target ref and config
     // immediately before the checkout; keep that fresh check and the one
     // below after checkout. No Git effects are allowed between them unchecked.
-    let workspace =
+    let destination =
         create_bound_isolated(&grant, managed_root, name, &integration_candidate, control)?;
-    verify_repository_controlled(&grant, control)?;
+    let inspect_candidate = || inspect_bound(&destination, control);
+    let verify_original = || verify_repository_controlled(&grant, control);
+    // The checkout has completed. Both full post-checks are read-only and
+    // must finish under the original deadline before returning the candidate.
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    let workspace = if control.is_some() {
+        std::thread::scope(|scope| {
+            let original = std::thread::Builder::new()
+                .spawn_scoped(scope, verify_original)
+                .map_err(WorkspaceError::Io)?;
+            let workspace = inspect_candidate();
+            let original = original.join();
+            let workspace = workspace?;
+            original.map_err(|_| WorkspaceError::ResourceLimit)??;
+            Ok::<_, AdoptionError>(workspace)
+        })?
+    } else {
+        let workspace = inspect_candidate()?;
+        verify_original()?;
+        workspace
+    };
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    let workspace = {
+        let workspace = inspect_candidate()?;
+        verify_original()?;
+        workspace
+    };
     Ok(PreparedCandidate {
         authorization: grant,
         workspace,

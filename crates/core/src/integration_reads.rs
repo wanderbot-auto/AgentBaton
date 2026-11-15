@@ -589,20 +589,7 @@ impl IntegrationReadPlan {
             // name the same worktree. Reuse only this read plan's observation,
             // sealed by the enclosing filesystem proof, while comparing it
             // independently to each different binding and its clean rule.
-            let mut inspected = std::collections::BTreeMap::new();
-            let mut inspect = |expected: &WorkspaceIdentity, base: &str, allow_dirty: bool| {
-                use std::collections::btree_map::Entry;
-                let current = match inspected.entry(expected.canonical_root.clone()) {
-                    Entry::Occupied(entry) => entry.into_mut(),
-                    Entry::Vacant(entry) => entry.insert(super::fs::inspect_git(
-                        &expected.canonical_root,
-                        &program,
-                        &control,
-                    )?),
-                };
-                check_exact(current, expected, base, allow_dirty)?;
-                Ok::<_, CoreError>(current.clone())
-            };
+            let mut workspace_bindings = Vec::new();
             for grant in &material.grant_lineage {
                 control.check()?;
                 let first_ws = grant.scope.workspace_ids.first().ok_or_else(denied)?;
@@ -644,18 +631,60 @@ impl IntegrationReadPlan {
                 for (id, pinned) in &grant.workspace_bindings {
                     let workspace: crate::registry::ManagedWorkspace =
                         raw(&reader.conn, "managed_workspaces", id)?;
-                    phase = "worker-grant-workspace-inspection";
-                    inspect(
+                    workspace_bindings.push((
                         pinned,
-                        &workspace.base_revision,
+                        workspace.base_revision,
                         id == &material.workspace.id,
-                    )?;
+                    ));
                 }
             }
             let project_head = match &material.project.identity.kind {
                 WorkspaceKind::Git { head, .. } => head,
                 _ => return Err(changed()),
             };
+            let mut inspected = std::collections::BTreeMap::new();
+            // Once all original grant and executable bindings have passed,
+            // speculate only on the two already pinned repository roots.
+            // All consuming checks and the enclosing filesystem seal remain.
+            #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+            if let Some((workspace, _, _)) = workspace_bindings.first() {
+                let workspace_root = &workspace.canonical_root;
+                let project_root = &material.project.identity.canonical_root;
+                if workspace_root != project_root {
+                    phase = "worker-grant-workspace-inspection";
+                    let (workspace, project) = std::thread::scope(|scope| {
+                        let project = std::thread::Builder::new()
+                            .spawn_scoped(scope, || {
+                                super::fs::inspect_git(project_root, &program, &control)
+                            })
+                            .map_err(|_| limited())?;
+                        let workspace = super::fs::inspect_git(workspace_root, &program, &control);
+                        let project = project.join();
+                        Ok::<_, CoreError>((workspace?, project.map_err(|_| limited())?))
+                    })?;
+                    phase = "worker-project-inspection";
+                    inspected.insert(project_root.clone(), project?);
+                    inspected.insert(workspace_root.clone(), workspace);
+                }
+            }
+            let mut inspect = |expected: &WorkspaceIdentity, base: &str, allow_dirty: bool| {
+                use std::collections::btree_map::Entry;
+                let current = match inspected.entry(expected.canonical_root.clone()) {
+                    Entry::Occupied(entry) => entry.into_mut(),
+                    Entry::Vacant(entry) => entry.insert(super::fs::inspect_git(
+                        &expected.canonical_root,
+                        &program,
+                        &control,
+                    )?),
+                };
+                check_exact(current, expected, base, allow_dirty)?;
+                Ok::<_, CoreError>(current.clone())
+            };
+            for (pinned, base, allow_dirty) in workspace_bindings {
+                control.check()?;
+                phase = "worker-grant-workspace-inspection";
+                inspect(pinned, &base, allow_dirty)?;
+            }
             phase = "worker-project-inspection";
             let project = inspect(&material.project.identity, project_head, false)?;
             phase = "worker-source-inspection";
