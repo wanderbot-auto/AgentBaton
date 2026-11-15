@@ -1,6 +1,6 @@
 {
   "base_sha": "f6133388622f5b83bf648fc088ae63463735c593",
-  "implementation_commit": "see git log -- scripts/desktop-dev.py (evidence authored with implementation)",
+  "implementation_commit": "005c391e",
   "environment": {
     "os": "macOS 26.6.1",
     "arch": "arm64",
@@ -89,6 +89,10 @@
     "artifacts/desktop-dev/native-lifecycle.json": {
       "sha256": "840ff2caf111135966567d2650790ad0cf0fc35209cbfc92f34c72397dd10083",
       "bytes": 459
+    },
+    "artifacts/desktop-dev/raw-tauri.log": {
+      "sha256": "4a6ec7880e95c861e7bbf821d6d26f859643b80e28964e127dc0e1dd72053621",
+      "bytes": 1387
     }
   },
   "not_claimed": [
@@ -97,5 +101,12 @@
     "production packaging/signing/release",
     "whole Design v0.2 completion"
   ],
-  "ci": "pending PR"
+  "ci": "pending PR",
+  "raw_tauri": {
+    "command": "npm run tauri -- dev -- --locked",
+    "environment": "helper Cargo cache/debug settings; explicit same-runtime owned daemon; default beforeDevCommand and default port1420",
+    "passed": true,
+    "seconds_to_native_run": 5.532,
+    "missing_sidecar_error": false
+  }
 }
