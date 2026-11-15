@@ -9,3 +9,5 @@ Acceptance: reproduce missing target-suffixed sidecars; repair raw Tauri dev pre
 OWNER-001/002 read and ACK; task does not alter product scope or UI design. No Goal created: this is the owner's scoped development tooling request, not a request to start the full product goal.
 
 Integration scope handoff (2026-11-16): the designated integration window confirms BOOTSTRAP_MANIFEST.json is unclaimed and extends this task’s literal reservation under the collaboration registry lock. Only the STATUS.md SHA-256 entry may change; do not regenerate unrelated entries or weaken the verifier. This is a routine metadata dependency of the already-claimed STATUS update.
+
+Integration scope handoff: add the unclaimed tests/infrastructure/test_background_service_native_smoke_source.py to preserve its original parent Cargo pin while explicitly validating and peeling only the exact new dev-profile layer. All dependency, feature, harness, permission and workflow pins remain in force; add negative mutation controls.

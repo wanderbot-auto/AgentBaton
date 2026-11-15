@@ -39,6 +39,13 @@
     {
       "command": "python3 scripts/verify_bootstrap_manifest.py; python3 scripts/validate_infrastructure.py; python3 scripts/check_gate.py --scope product",
       "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/python -m unittest discover -s tests/infrastructure -p test_*.py",
+      "exit_code": 0,
+      "passed": 879,
+      "elapsed_seconds": 20.417,
+      "log_sha256": "255e5dda81693686644883b4c3e297bcabdb6e03c7b23dae341db8837997c4a6"
     }
   ],
   "native_lifecycle": {
@@ -115,5 +122,28 @@
     "conclusion": "failure",
     "cause": "STATUS.md content changed but its BOOTSTRAP_MANIFEST.json hash was not refreshed; both environment jobs stopped at integrity validation",
     "log_sha256": "f5f0f6ecefd7c9a16d067705a5709d039bfce0de303bf969d4dd02195f26dc3d"
+  },
+  "second_ci_failure": {
+    "head": "65bcb0496eeb7e11422d69f1265dccd6d78ea26e",
+    "run": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/43737482621",
+    "cause": "Exact historical Cargo source pin did not yet recognize the new reviewed dev-profile-only layer",
+    "preserved_constraints": "Old 3b6bb520 parent hash and all original dependency/lock/feature/native/workflow assertions retained; exact profile layer peeled with negative controls and root-setting equality",
+    "log_sha256": "5ccc075320282ac6d3df0bb4763934cf66ed1d533cc2f8f878d8cfa1edc9f08e"
+  },
+  "profile_guard_review": {
+    "status": "passed",
+    "independent_tests": "10/10 PASS 0.595s",
+    "normalized_manifest": "byte-for-byte equal to base f6133388 Cargo.toml",
+    "test_module_sha256": "f2e3a76e54f0b53505fb8f8c9ea7533d17fb71aa453bef740aa5e603137d4d25"
+  },
+  "local_infrastructure_initial_failure": {
+    "passed": false,
+    "tests": 878,
+    "failures": [
+      "Expected dev-profile parent source pin mismatch",
+      "Missing local jsonschema dependency in default Python"
+    ],
+    "log_sha256": "2a43afeaeaada68cba2b1fbfb554849fbdd8d212c6f8a69650d1e2a87064cc74",
+    "dependency_resolution": "Installed pinned infra requirements into worktree .venv using official PyPI and existing macOS /etc/ssl/cert.pem; earlier TLS failures retained, no TLS verification bypass or global trust/config changes."
   }
 }
