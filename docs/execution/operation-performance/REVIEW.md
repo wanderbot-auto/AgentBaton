@@ -9,3 +9,7 @@ Reviewer: native subagent `/root/performance_audit`, independent read-only conte
 - Suggested actual-App typing and overlapping-refresh tests added. Suggested next-page malformed BLOB guard added as well. Existing safety/failure tests retained.
 
 This is source review, distinct from root's executed acceptance evidence. No remote PR review approval, CI success, native WebView latency, or Provider acceptance is implied.
+
+Final frontend amendment review: reviewer confirmed warm-restart bounded read-only retry behavior and memo dependencies for task sessions/events, message rendering and EventList, including language/focus updates. Recovery/persistent/stale tests and actual-App128KiB typing test inspected. No blocking findings. Initial/data-refresh folded JSON cost remains outside the typing claim.
+
+Metadata review: reviewer verified all listed source/log digests,65outer target summaries=1163PASS including7doc, frontend1543/build, backend tree equality to7c015, realIPC/frozen records, and the sole STATUS digest change. No blocking finding. Subsequent infrastructure result879PASS is retained in infrastructure-system-ca.log; initial missing-dependency/TLS and manifest-refusal logs remain.

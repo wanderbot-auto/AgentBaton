@@ -11,3 +11,5 @@ Base: origin/main `b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c`; task branch `colla
 5. Detail reads: parallelize independent plan/run and task/project reads, keep scope/revision validation and stale-response guards. Test pending reads and existing regressions.
 
 Acceptance: focused tests per item, full frontend suite/typecheck/build, relevant Rust tests/format, independent source/diff review, scope and merge-conflict preview. Real native/Provider acceptance is separate from mocked frontend tests. Record actual commands/results, baseline measurements and unverified dimensions. Feature branch delivery; no main write or owner's app restart.
+
+Integration scope extension: root owns global STATUS for this task. After verifying no other active reservation owns BOOTSTRAP_MANIFEST.json, root reserved this literal path under the collaboration registration lock to refresh only the reviewed STATUS digest. The verifier and other hashes remain unchanged. Independent metadata review required before acceptance.
