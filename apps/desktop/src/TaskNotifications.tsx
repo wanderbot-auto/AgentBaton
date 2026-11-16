@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { JournalEvent, Task } from './api';
 import type { ManagedSession } from './session-api';
 import type { Language } from './i18n';
@@ -29,11 +29,12 @@ export function TaskNotifications({ tasks, sessions, events, language, observati
     try { return { enabled: localStorage.getItem(preferenceKey) === 'true', windowOnly: false }; }
     catch { return { enabled: false, windowOnly: true }; }
   });
-  const evidence = retainNotificationEvidence(retained, tasks, sessions, events, observation.eventSequence);
+  const evidence = useMemo(() => retainNotificationEvidence(retained, tasks, sessions, events, observation.eventSequence), [retained, tasks, sessions, events, observation.eventSequence]);
   useEffect(() => {
     setRetained(previous => retainNotificationEvidence(previous, tasks, sessions, events, observation.eventSequence));
   }, [tasks, sessions, events, observation.eventSequence]);
-  const model = aggregateTaskNotifications(tasks, sessions, evidence, observation);
+  const { connected, tasksFresh, sessionsFresh, eventsFresh, eventLimited, eventSequence } = observation;
+  const model = useMemo(() => aggregateTaskNotifications(tasks, sessions, evidence, { connected, tasksFresh, sessionsFresh, eventsFresh, eventLimited, eventSequence }), [tasks, sessions, evidence, connected, tasksFresh, sessionsFresh, eventsFresh, eventLimited, eventSequence]);
   const pages = Math.max(1, Math.ceil(model.rows.length / NOTIFICATION_LIMITS.rows));
   const currentPage = Math.min(page, pages - 1);
   const attention = !preference.enabled && model.rows.some(row => !row.stale && !['accepted', 'observed'].includes(row.category));

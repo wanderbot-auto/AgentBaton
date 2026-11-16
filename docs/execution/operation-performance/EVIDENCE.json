@@ -1,0 +1,161 @@
+{
+  "work_id": "operation-performance",
+  "date_local": "2026-11-17",
+  "base_commit": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
+  "branch": "collab/operation-performance",
+  "status": "focused_verified_full_backend_pending",
+  "environment": {
+    "os": "macOS26.6.1",
+    "architecture": "arm64",
+    "node": "26.7.0",
+    "rustc": "1.91.1"
+  },
+  "related_requirements": [
+    "AB-UX-009",
+    "AB-UX-008",
+    "AB-COR-004"
+  ],
+  "requirement_acceptance_upgraded": false,
+  "production_source_sha256": {
+    "apps/desktop/src/App.tsx": "7fa5312190ceafa6df376bce379562ce01865774aa0cbe413fa889b86c803615",
+    "apps/desktop/src/TaskGrid.tsx": "40eecdb1e633a6ad316802a22dc663338a5f194f7b90eac03dd3999d60d95db4",
+    "apps/desktop/src/task-grid-model.ts": "7ead3404f94d85d9f006678ddb58224afd0060e1b3af36d7c5c5eea50a7c3133",
+    "apps/desktop/src/TaskNotifications.tsx": "920d18f3dd1a15b3c02b625fed437bf5eab1c6350a6874d7fbb1ddf59cace976",
+    "apps/desktop/src/TaskPlanSummary.tsx": "b3767809dc7314523ec36aee50a51bbe382f2449cad28b46e38b965306734080",
+    "apps/desktop/src/TaskCodeWorkspace.tsx": "4af8981699f4cc6ca87cd2c5866df863ebc72e42b69e1f781444009a2aec44c7",
+    "crates/core/src/storage.rs": "7496eeb7211fc6af1da4ec5a6db9c0d0d979bca51bcf4e4ed1611c2063858ffd",
+    "crates/core/src/operation_performance_tests.rs": "1cd46d5c44d1eb24d523cd6759c9256e7389c986b3a7f9f1176710be52750b7d"
+  },
+  "measurements": {
+    "journal100events2KiB": {
+      "unit": "ms/page",
+      "baseline_median": 0.175244165,
+      "single_cursor_medians": [
+        0.16231125,
+        0.166306875
+      ],
+      "sql_statements_before": 102,
+      "sql_statements_after": 2,
+      "interpretation": "local warm storage microbenchmark; not end-to-end IPC latency"
+    },
+    "task_grid1000": {
+      "fixture": {
+        "tasks": 1000,
+        "projects": 1000,
+        "sessions": 1000,
+        "connections": 1000,
+        "events": 1000
+      },
+      "unit": "milliseconds_per_lookup_batch",
+      "equivalent": true,
+      "originalMedian": 3.461714599999999,
+      "indexedMedian": 0.09796460000000025,
+      "originalSamples": [
+        3.35089165,
+        3.402406250000001,
+        3.4431166500000017,
+        3.4519604000000017,
+        3.461714599999999,
+        3.4627375000000002,
+        3.491383349999995,
+        3.503664550000002,
+        8.9294104
+      ],
+      "indexedSamples": [
+        0.08731875000000286,
+        0.08847499999999968,
+        0.08989789999999971,
+        0.09623960000000124,
+        0.09796460000000025,
+        0.1257604000000015,
+        0.1361582999999996,
+        0.1523729000000003,
+        0.1809603999999993
+      ]
+    },
+    "typing": {
+      "composer_edits": 10,
+      "unchanged_card_goal_reads": 0,
+      "unrelated_notification_recomputations": 0,
+      "dimension": "jsdom component tests"
+    }
+  },
+  "verification": [
+    {
+      "command": "cargo test -p agentbaton-core --lib operation_performance_tests --locked -- --nocapture",
+      "result": "passed",
+      "tests": 3
+    },
+    {
+      "command": "cargo test -p agentbaton-core --test storage --locked",
+      "result": "passed",
+      "tests": 8
+    },
+    {
+      "command": "npm --prefix apps/desktop test",
+      "result": "passed",
+      "tests": 1539,
+      "files": 111
+    },
+    {
+      "command": "npm --prefix apps/desktop run build",
+      "result": "passed",
+      "includes": "tsc --noEmit and vite build"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "result": "passed"
+    }
+  ],
+  "independent_review": "REVIEW.md",
+  "full_backend_acceptance": "pending on clean source commit with frozen companions",
+  "native_webview_performance": "not_run",
+  "real_provider_calls": "not_run_not_authorized",
+  "owner_running_app": "untouched",
+  "retained_local_logs": {
+    "backend-acceptance.log": {
+      "path": "artifacts/collab/backend-acceptance.log",
+      "sha256": "e20a0dd14f6e7f0387e9593885a0249dddbed0b85c5d68a16800ef1f42c42e27"
+    },
+    "backend-full-final.log": {
+      "path": "artifacts/collab/backend-full-final.log",
+      "sha256": "cced54c163bf69ebef97a0e227f26c3c3f9914d5af62f1202146b03a1afae66c"
+    },
+    "backend-full.log": {
+      "path": "artifacts/collab/backend-full.log",
+      "sha256": "1308bee5b6865afa7c53e433eb1849cf215bb38c4c9efc315e2f8bd1407e9226"
+    },
+    "baseline-frontend.log": {
+      "path": "artifacts/collab/baseline-frontend.log",
+      "sha256": "e5a8219a6c4c97aa4b8a4b0801bd65bec4f6d623b2f7d69af5ef0c7ba1d7cee1"
+    },
+    "baseline-journal.log": {
+      "path": "artifacts/collab/baseline-journal.log",
+      "sha256": "45d0532d148204447a4a35efe0c6a78bf561aa17493c95db8f2d4cb6a0fe1d9c"
+    },
+    "focused.log": {
+      "path": "artifacts/collab/focused.log",
+      "sha256": "97428d48c982f5edcbce1ec0f5b2dd088315c7845ad2dc0467262b9c7f3f750c"
+    },
+    "frontend-focused-final.log": {
+      "path": "artifacts/collab/frontend-focused-final.log",
+      "sha256": "804cda63cfbfe6d98ba5a2cbb2f99a325898546dd0b97bab1b8fb1ff6e6ee9ce"
+    },
+    "frontend-focused.log": {
+      "path": "artifacts/collab/frontend-focused.log",
+      "sha256": "9b2c7a3bb18bf379029b1420a4f28276d55a00627e9e81d50e0ad1e6b0cd4dce"
+    },
+    "frontend-full.log": {
+      "path": "artifacts/collab/frontend-full.log",
+      "sha256": "ecf82e7f856b76e90083c745c7598424830d0e5c5005ae9d41919bd2b3150105"
+    },
+    "precommit-acceptance.log": {
+      "path": "artifacts/collab/precommit-acceptance.log",
+      "sha256": "ed83b14bab4c7810ff5acc4f6c0d9ea58912a72505c88cda1639baca61c0f026"
+    },
+    "single-cursor-acceptance.log": {
+      "path": "artifacts/collab/single-cursor-acceptance.log",
+      "sha256": "2751fbaa75faf44f29682bc283a7a1cd187a6eba922d813c4a52668470ef8b92"
+    }
+  }
+}
