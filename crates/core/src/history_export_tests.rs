@@ -555,3 +555,29 @@ fn unsafe_javascript_sequence_and_expired_capture_fail_without_output() {
     );
     assert!(!f.directory().exists());
 }
+
+#[test]
+fn oversize_stored_intent_is_corruption_not_a_retriable_capture_limit() {
+    let f = Fixture::new();
+    let preview = f.preview();
+    let path = f
+        .directory()
+        .join(format!("{}.snapshot", preview.reference.preview_id));
+    std::fs::OpenOptions::new()
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .set_len((MAX_PACKAGE + 1) as u64)
+        .unwrap();
+    assert_eq!(
+        existing_preview(
+            &f.directory(),
+            &f.selection(),
+            &preview.reference.preview_id
+        )
+        .unwrap_err()
+        .code,
+        "INPUT_CHANGED"
+    );
+    assert_eq!(std::fs::read_dir(f.directory()).unwrap().count(), 1);
+}

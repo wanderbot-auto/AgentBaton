@@ -859,14 +859,20 @@ impl ExportDirectory {
         let file = File::from(fd);
         private(&file, false)?;
         if file.metadata().map_err(|_| io_error())?.len() > MAX_PACKAGE as u64 {
-            return Err(limited());
+            return Err(err(
+                "INPUT_CHANGED",
+                "Stored history package exceeds its format bound",
+            ));
         }
         let mut bytes = Vec::new();
         file.take((MAX_PACKAGE + 1) as u64)
             .read_to_end(&mut bytes)
             .map_err(|_| io_error())?;
         if bytes.len() > MAX_PACKAGE {
-            return Err(limited());
+            return Err(err(
+                "INPUT_CHANGED",
+                "Stored history package exceeds its format bound",
+            ));
         }
         Ok(Some(bytes))
     }
