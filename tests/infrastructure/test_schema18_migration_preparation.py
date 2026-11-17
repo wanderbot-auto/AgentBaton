@@ -1,0 +1,162 @@
+"""Pure finite provenance/FS/archive controls; no Git/compiler/product invocation."""
+import copy
+import importlib.util
+import io
+import json
+import os
+from pathlib import Path
+import platform
+import struct
+import sys
+import tarfile
+import tempfile
+import unittest
+from unittest import mock
+
+ROOT = Path(__file__).resolve().parents[2]
+SPEC = importlib.util.spec_from_file_location('build18_controls', ROOT / 'scripts/prepare-schema18-migration-fixture.py')
+H = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(H)
+
+
+def synthetic_build():
+    files = {'Cargo.lock': H.LOCK_SHA256, 'Cargo.toml': 'a' * 64}
+    files.update({'crates/synthetic' + str(i) + '.rs': 'b' * 64 for i in range(242)})
+    record = dict(contract=H.CONTRACT, status='compiled', schema=18, platform=sys.platform,
+        architecture=platform.machine(), builder_sha256=H.sha(Path(H.__file__).read_bytes()),
+        helpers_sha256=H.HELPERS.copy(),
+        source=dict(commit=H.SOURCE, tree=H.TREE, repository=H.REPOSITORY,
+                    archive_sha256=H.ARCHIVE_SHA256, files_sha256=files, compiled_source_clean=True),
+        build=dict(argv=['/never-executed/cargo', *H.BUILD_ARGS], features=[], default_features=True,
+                   exit_code=0, lockfile_sha256=H.LOCK_SHA256, group_quiescent_before_reap=True),
+        binaries={name: dict(sha256='c' * 64, bytes=100, mode='0o500', nlink=1,
+                            architecture=platform.machine()) for name in ('batond', 'baton')},
+        toolchain={name: dict(path='/never-executed/' + name, sha256='d' * 64,
+                             version=name + ' 1.91.1') for name in ('cargo', 'rustc')})
+    return record
+
+
+def archive(entries):
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode='w') as output:
+        for name, kind in entries:
+            member = tarfile.TarInfo(name)
+            member.type = kind
+            member.mode = 0o644
+            data = b'only synthetic bytes'
+            if kind == tarfile.REGTYPE:
+                member.size = len(data)
+            else:
+                member.linkname = 'Cargo.toml'
+            output.addfile(member, io.BytesIO(data) if kind == tarfile.REGTYPE else None)
+    return buffer.getvalue()
+
+
+class Normal18BuildContracts(unittest.TestCase):
+    def test_fixed_source_archive_and_legacy_helpers_are_independent(self):
+        self.assertEqual(H.SOURCE, 'a4e03303b54bd5a5544131e95ad39662f8310e29')
+        self.assertEqual(H.TREE, 'ddd5bddbeeb8011fa070d53e67f7978deae87214')
+        self.assertEqual(H.ARCHIVE_SHA256, '1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3')
+        self.assertEqual(H.SOURCE_FILES_SHA256, '6f064dafeed10bdd60470301262f57472531a935f8f9fc4e849d021ca2412db4')
+        self.assertEqual(len(H.SCHEMA_TABLES), 63)
+        self.assertNotIn('host_registrations', H.SCHEMA_TABLES)
+        for name, pin in H.HELPERS.items():
+            self.assertEqual(H.sha((ROOT / 'scripts' / name).read_bytes()), pin)
+
+    def test_finite_synthetic_metadata_positive_and_source_tool_feature_negatives(self):
+        # This patches ONLY the synthetic index for finite parser tests. It is
+        # never accepted as actual build or fixture evidence.
+        original = synthetic_build()
+        with mock.patch.object(H, 'SOURCE_FILES_SHA256', H.sha(H.canonical(original['source']['files_sha256']))), \
+             mock.patch.object(H.subprocess, 'Popen', side_effect=AssertionError('no process')):
+            H.validate_compiled(original)
+            cases = [(('schema',), x) for x in [17, 19, True, 18.0, '18', None]] + [
+                (('source', 'commit'), 'f' * 40), (('source', 'tree'), 'f' * 40),
+                (('source', 'archive_sha256'), 'f' * 64), (('source', 'compiled_source_clean'), 1),
+                (('builder_sha256',), 'f' * 64), (('helpers_sha256',), {}),
+                (('build', 'features'), ['native-smoke']), (('build', 'default_features'), 1),
+                (('build', 'argv'), ['/never/cargo', 'test']), (('build', 'exit_code'), False),
+                (('build', 'group_quiescent_before_reap'), False),
+                (('build', 'lockfile_sha256'), 'e' * 64), (('architecture',), 'unbound')]
+            for path, bad in cases:
+                value = copy.deepcopy(original)
+                target = value
+                for key in path[:-1]:
+                    target = target[key]
+                target[path[-1]] = bad
+                with self.subTest(path=path, bad=bad), self.assertRaises(ValueError):
+                    H.validate_compiled(value)
+            for mutation in ['path', 'lock', 'extra', 'removed']:
+                value = copy.deepcopy(original)
+                files = value['source']['files_sha256']
+                if mutation == 'path':
+                    files['../stolen'] = files.pop('crates/synthetic0.rs')
+                elif mutation == 'lock':
+                    files['Cargo.lock'] = 'f' * 64
+                elif mutation == 'extra':
+                    files['crates/unknown.rs'] = 'f' * 64
+                else:
+                    files.pop('crates/synthetic0.rs')
+                with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                    H.validate_compiled(value)
+
+    def test_archive_links_duplicate_traversal_root_type_and_total_bounds(self):
+        valid = archive([('Cargo.toml', tarfile.REGTYPE)])
+        self.assertEqual(H.archive_files(valid), {'Cargo.toml': H.sha(b'only synthetic bytes')})
+        cases = [[('/absolute', tarfile.REGTYPE)], [('../escape', tarfile.REGTYPE)],
+                 [('crates/../escape', tarfile.REGTYPE)], [('other/file', tarfile.REGTYPE)],
+                 [('Cargo.toml', tarfile.SYMTYPE)], [('Cargo.toml', tarfile.LNKTYPE)],
+                 [('Cargo.toml', tarfile.FIFOTYPE)], [('Cargo.toml', tarfile.REGTYPE)] * 2]
+        for entries in cases:
+            with self.subTest(entries=entries), self.assertRaises(ValueError):
+                H.archive_files(archive(entries))
+        with tempfile.TemporaryDirectory() as directory, self.assertRaisesRegex(ValueError, 'archive'):
+            H.extract_source(valid, Path(directory))
+        with self.assertRaises(ValueError):
+            H.archive_files(b'')
+
+    def test_duplicate_and_nonfinite_manifest_json_refuse(self):
+        for raw in [b'{"schema":18,"schema":18}', b'{"schema":NaN}', b'{"schema":Infinity}']:
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                H.parse_json(raw)
+
+    def test_secure_regular_reader_and_source_index_reject_aliases_and_links(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            path = root / 'Cargo.toml'
+            path.write_bytes(b'synthetic')
+            path.chmod(0o600)
+            self.assertEqual(H.read_regular(path, 32), b'synthetic')
+            self.assertEqual(H.source_hashes(root), {'Cargo.toml': H.sha(b'synthetic')})
+            alias = root / 'Cargo.lock'
+            alias.symlink_to(path)
+            with self.assertRaises((ValueError, OSError)):
+                H.read_regular(alias, 32)
+            with self.assertRaises(ValueError):
+                H.source_hashes(root)
+            alias.unlink()
+            os.link(path, alias)
+            with self.assertRaises(ValueError):
+                H.read_regular(path, 32)
+            with self.assertRaises(ValueError):
+                H.source_hashes(root)
+            alias.unlink()
+            path.chmod(0o644)
+            with self.assertRaises(ValueError):
+                H.read_regular(path, 32)
+
+    def test_wrong_native_tool_format_cannot_be_frozen(self):
+        for raw in [b'', b'test endpoint script', b'\x7fELF' + b'\0' * 32]:
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                H.OLD.binary_metadata(raw)
+
+    def test_unbound_pair_requires_adjacent_build_manifest_before_metadata(self):
+        with tempfile.TemporaryDirectory() as directory:
+            frozen = Path(directory).resolve()
+            with mock.patch.object(H, 'tool_records', side_effect=AssertionError('no tool read')):
+                with self.assertRaisesRegex(ValueError, 'manifest'):
+                    H.provenance(frozen, None)
+
+
+if __name__ == '__main__':
+    unittest.main()

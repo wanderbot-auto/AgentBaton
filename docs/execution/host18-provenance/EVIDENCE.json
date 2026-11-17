@@ -1,0 +1,11 @@
+{
+  "task": "HOST18-P0",
+  "base": "a6418d94bb9f1725fa3eef6135820197784008fb",
+  "fixed_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "source_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "status": "implementation_in_progress",
+  "tests": "not_run",
+  "build": "not_run",
+  "actual_UDS": "not_run",
+  "P1_native_CI": "not_run_out_of_scope"
+}
