@@ -1,5 +1,5 @@
-#[path = "../tests/fixtures/pre_conversation_schema.rs"]
-mod pre_conversation_schema;
+use crate::host_registry_migration::tests::current19_schema::pre_conversation_schema;
+
 use super::*;
 use crate::CodeWorkspacePreparationRequest;
 use rusqlite::types::Value as SqlValue;
