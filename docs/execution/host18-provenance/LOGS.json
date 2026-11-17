@@ -208,5 +208,19 @@
     "bytes": 1222,
     "sha256": "122ba3ca79f0c73d29e052821af23f1ae80fd412ba29776ae04a505699db2b91",
     "archive_sha256": "0813c8bdfc531d0f0ef03ba766953b2f8fbb8da4c213595b04a3edad2054a8ca"
+  },
+  {
+    "source": "artifacts/host18-provenance/full-infra.log",
+    "archive": "logs/full-infra.log.gz",
+    "bytes": 182592,
+    "sha256": "fab1ead7d4127f35e1a5801711af34bd8341779f37e4b0e5fcef55a3e8a5438b",
+    "archive_sha256": "feda6696b7992fc041cc79b5116080e8059699e6e9911deaeae53c645a13d670"
+  },
+  {
+    "source": "artifacts/host18-provenance/full-infra.json",
+    "archive": "logs/full-infra.json.gz",
+    "bytes": 1738,
+    "sha256": "37a4f6a97a85e7233cf7afe3553a3cafbb2ea08199b21d329fec228643326294",
+    "archive_sha256": "d4456112fa001251fdfa52f1e3bb91173e59b90c91b2f9d88135605e3eafc98e"
   }
 ]

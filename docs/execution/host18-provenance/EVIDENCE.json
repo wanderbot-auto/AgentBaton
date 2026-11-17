@@ -17,7 +17,10 @@
   "environment": {
     "platform": "darwin",
     "architecture": "arm64",
-    "python": "3.14.0a7 (v3.14.0a7:29af6cee02f, Apr  8 2025, 07:53:42) [Clang 16.0.0 (clang-1600.0.26.6)]"
+    "python": "3.14.0a7 (v3.14.0a7:29af6cee02f, Apr  8 2025, 07:53:42) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "macOS": "26.6.1",
+    "kernel": "25.6.0",
+    "full_infra_python": "repo venv Python3.12.12"
   },
   "verification": {
     "python": {
@@ -65,6 +68,20 @@
       "positive": 1,
       "rejected": 9,
       "product_children_started": 0
+    },
+    "full_infrastructure": {
+      "status": "passed",
+      "total": 916,
+      "passed": 900,
+      "skipped_original": 16,
+      "failed": 0,
+      "seconds": 23.119,
+      "python": "repo venv Python3.12.12",
+      "before_after_head": "d38c5cd3c1b172d144aebb88bba68e17cf2416b9",
+      "source_unchanged": true,
+      "log_sha256": "fab1ead7d4127f35e1a5801711af34bd8341779f37e4b0e5fcef55a3e8a5438b",
+      "record": "FULL_INFRA_RESULT.json",
+      "dimension": "source/finite/mock/local infrastructure;not Linux OS/native/Provider acceptance"
     }
   },
   "artifact": {
@@ -103,7 +120,7 @@
   "review": "two source review stages closed P2 at84022;root evidence acceptance pending",
   "logs": {
     "index": "LOGS.json",
-    "count": 30
+    "count": 32
   },
   "artifacts": {
     "SOURCE_BEFORE_BUILD.json": {
@@ -135,16 +152,20 @@
       "bytes": 2031
     },
     "DELIVERY.md": {
-      "sha256": "8a4129839e5d58035b5d99e17f14cb143a6de231364dde04e8a76f5c0f830fe6",
-      "bytes": 3678
+      "sha256": "1e969d5cc84e9c0e7f143b155feccd19e13de3bc309890ca18b1f3ccf718ab5b",
+      "bytes": 4045
     },
     "LOGS.json": {
-      "sha256": "58e3ad8a197a0de0c2558512142507205cef5694b41c3c55ed55aff5d0972c49",
-      "bytes": 9540
+      "sha256": "9df17adcc46cd902a279804580ab04f6d5a82db5551d8b07eac7249e07235d69",
+      "bytes": 10144
     },
     "FINAL_CHECKS.json": {
-      "sha256": "00fc31eb4a4e5fd988dd6aae6c3e3566dcff2dc7a883413c3b10ea6d8b42baab",
-      "bytes": 821
+      "sha256": "6931d8a11b7b06c80e08ff4da6f12fd40921d030057256ee680e5e0c68c0adcc",
+      "bytes": 1099
+    },
+    "FULL_INFRA_RESULT.json": {
+      "sha256": "aecbe544c0e685a7a4512066f0ee6913f0ad1cf793efe52d60a52ee081bf0903",
+      "bytes": 5620
     }
   }
 }
