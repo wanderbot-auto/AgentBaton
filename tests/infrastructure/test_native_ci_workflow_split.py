@@ -27,7 +27,8 @@ def validate_actual(document):
     require(core['runs-on'] == '${{ matrix.os }}' and core['strategy'] == {
         'fail-fast': 'false', 'max-parallel': '2', 'matrix': {'os': ['macos-15']}})
     require(core['timeout-minutes'] == '60')
-    require(native['runs-on'] == 'macos-15' and native['timeout-minutes'] == '30' and native['needs'] == 'desktop')
+    require(native['runs-on'] == '${{ matrix.os }}' and native['strategy'] == core['strategy']
+            and native['timeout-minutes'] == '30' and native['needs'] == 'desktop')
     require(gate['name'] == 'Product / macos-15' and gate['needs'] == ['desktop', 'native']
             and gate['if'] == 'always()' and gate['runs-on'] == 'ubuntu-24.04'
             and gate['timeout-minutes'] == '5')
@@ -44,9 +45,15 @@ def validate_actual(document):
     require(len([j for j in jobs.values() if j['name'] == 'Product / macos-15']) == 1)
     for job in (core, native, gate):
         require(job['env']['NATIVE_CI_PR_HEAD'] == '${{ github.event.pull_request.head.sha || github.sha }}')
-    require(gate['env']['NATIVE_CI_CANCELLED'] == '${{ cancelled() }}')
+    require('NATIVE_CI_CANCELLED' not in gate['env'])
     require(gate['env']['NATIVE_CI_NEEDS'] == '${{ toJSON(needs) }}')
     gate_runs = '\n'.join(s.get('run', '') for s in gate['steps'])
+    cancel = next(s for s in gate['steps'] if s.get('name') == 'Refuse cancelled workflow')
+    require(cancel['if'] == 'cancelled()' and cancel['run'] == 'exit 1')
+    for step in gate['steps']:
+        if 'native-ci-handoff.py aggregate' in step.get('run', ''):
+            require(step['if'] == '${{ !cancelled() && success() }}'
+                    and step['env']['NATIVE_CI_CANCELLED'] == 'false')
     require("needs[name]['result'] != 'success'" in gate_runs
             and "os.environ['NATIVE_CI_CANCELLED'] != 'false'" in gate_runs
             and 'native-ci-handoff.py aggregate' in gate_runs)
@@ -78,7 +85,8 @@ def validate_actual(document):
     require(native_steps[complete_index - 1]['uses'].startswith('actions/upload-artifact@')
             and native_steps[complete_index - 1]['with']['path'] == 'artifacts/development/'
             and 'if' not in native_steps[complete_index - 1]
-            and 'if' not in native_steps[complete_index])
+            and native_steps[complete_index]['if'] == '${{ !cancelled() && success() }}'
+            and native_steps[complete_index]['env']['NATIVE_CI_CANCELLED'] == 'false')
     pins = json.loads((ROOT / 'infra/action-pins.json').read_text())['actions']
     for job in jobs.values():
         for step in job['steps']:

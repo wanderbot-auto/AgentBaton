@@ -807,8 +807,13 @@ jobs:
   native:
     name: Product / Native and default application / macos-15
     needs: desktop
-    runs-on: macos-15
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [macos-15]
     env:
       NATIVE_CI_PR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
     outputs:
@@ -841,7 +846,7 @@ jobs:
           set -euo pipefail
           python3 scripts/native-ci-handoff.py restore --directory "$RUNNER_TEMP/native-ci-core" --expected "$CORE_MANIFEST"
           cargo build --locked --bin batond --bin baton
-          python3 scripts/native-ci-handoff.py probe --directory "$RUNNER_TEMP/native-ci-actual"
+          python3 scripts/native-ci-handoff.py probe --directory "$RUNNER_TEMP/native-ci-actual" --expected "$CORE_MANIFEST"
           bash scripts/prepare-desktop-sidecars.sh
       - name: Actual macOS WebView and daemon lifecycle acceptance
         run: |
@@ -994,9 +999,10 @@ jobs:
           retention-days: 14
       - name: Seal complete Native and default application acceptance
         id: native_receipt
+        if: ${{ !cancelled() && success() }}
         env:
           CORE_MANIFEST: ${{ needs.desktop.outputs.manifest_sha256 }}
-          NATIVE_CI_CANCELLED: ${{ cancelled() }}
+          NATIVE_CI_CANCELLED: 'false'
         run: python3 scripts/native-ci-handoff.py complete --directory "$RUNNER_TEMP/native-ci-core" --expected "$CORE_MANIFEST" --actual "$RUNNER_TEMP/native-ci-actual" --receipt "$RUNNER_TEMP/native-ci-receipt"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: native_receipt_upload
@@ -1013,13 +1019,18 @@ jobs:
     timeout-minutes: 5
     env:
       NATIVE_CI_PR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
-      NATIVE_CI_CANCELLED: ${{ cancelled() }}
       NATIVE_CI_NEEDS: ${{ toJSON(needs) }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+      - name: Refuse cancelled workflow
+        if: cancelled()
+        run: exit 1
       - name: Refuse incomplete or cancelled ARM dependencies
+        if: ${{ !cancelled() && success() }}
+        env:
+          NATIVE_CI_CANCELLED: 'false'
         run: |
           python3 - <<'PY_GATE'
           import json, os
@@ -1039,7 +1050,9 @@ jobs:
           path: ${{ runner.temp }}/native-ci-receipt
           merge-multiple: true
       - name: Independently verify current source and complete ARM acceptance
+        if: ${{ !cancelled() && success() }}
         env:
+          NATIVE_CI_CANCELLED: 'false'
           CORE_MANIFEST: ${{ needs.desktop.outputs.manifest_sha256 }}
           NATIVE_RECEIPT: ${{ needs.native.outputs.receipt_sha256 }}
         run: python3 scripts/native-ci-handoff.py aggregate --directory "$RUNNER_TEMP/native-ci-core" --expected "$CORE_MANIFEST" --receipt "$RUNNER_TEMP/native-ci-receipt" --receipt-sha "$NATIVE_RECEIPT"

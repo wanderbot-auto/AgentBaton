@@ -142,5 +142,89 @@ class Handoff(unittest.TestCase):
         needs['native']['outputs']['receipt_sha256'] = H.digest(H.read(receipt / 'native.json'))
         with self.assertRaises(ValueError): self.run_gate(receipt, needs)
 
+    def actual_fixture(self):
+        actual = self.root / 'actual'; actual.mkdir()
+        record = {'contract': H.CONTRACT, 'identity': IDENTITY.copy(), 'host': 'darwin-arm64',
+                  'tools': H.tools(), 'empty_schema': 18, 'debug_and_release_probe': True,
+                  'sigterm_joined': True, 'producer_manifest_sha256': self.expected,
+                  'build': {'debug': ['cargo', 'build', '--locked', '--bin', 'batond', '--bin', 'baton'],
+                            'release': 'verified_current_source_producer_handoff', 'features': []}}
+        H.write(actual / 'actual.json', record)
+        for path in ('apps/desktop/src-tauri/target/debug/batond',
+                     'apps/desktop/src-tauri/binaries/baton-aarch64-apple-darwin',
+                     'apps/desktop/src-tauri/binaries/batond-aarch64-apple-darwin'):
+            p = self.root / path; p.parent.mkdir(parents=True, exist_ok=True); p.write_bytes(self.image)
+        return actual
+
+    def test_actual_check_refuses_rebuilt_bytes_native_sibling_sidecar_or_probe_replay(self):
+        actual = self.actual_fixture(); H.check_actual(actual)
+        for path in ('target/debug/baton', 'apps/desktop/src-tauri/target/debug/batond',
+                     'apps/desktop/src-tauri/binaries/baton-aarch64-apple-darwin'):
+            p = self.root / path; p.write_bytes(self.image + b'different-reconstruction')
+            with self.subTest(path=path), self.assertRaises(ValueError): H.check_actual(actual)
+            p.write_bytes(self.image)
+        p = actual / 'actual.json'; value = json.loads(p.read_text()); value['identity']['attempt'] = '1'; p.write_text(json.dumps(value))
+        with self.assertRaises(ValueError): H.check_actual(actual)
+
+    def package_fixture(self):
+        p = self.root / H.APP; p.parent.mkdir(parents=True); p.write_bytes(self.image)
+        dev = self.root / 'artifacts/development'; dev.mkdir()
+        name = 'AgentBaton-arm64-' + IDENTITY['test_merge'] + '-development.dmg'
+        (dev / name).write_bytes(b'synthetic-package-never-mounted')
+        (dev / 'SHA256SUMS').write_text(H.digest((dev / name).read_bytes()) + '  ./' + name + '\n')
+        (dev / 'build-record.txt').write_text('commit=' + IDENTITY['test_merge'] + '\narchitecture=arm64\n')
+        (dev / 'DEVELOPMENT_ACCEPTANCE.md').write_text('synthetic acceptance source')
+        return dev, name
+
+    def test_complete_reads_real_default_image_package_and_checksums_before_receipt(self):
+        actual = self.actual_fixture(); dev, name = self.package_fixture(); receipt = self.root / 'complete'
+        H.complete(self.directory, self.expected, actual, receipt)
+        value = H.load(receipt / 'native.json')
+        self.assertEqual(value['default_app'], H.binary(self.root / H.APP))
+        self.assertEqual(value['package_sha256'], H.digest((dev / name).read_bytes()))
+        self.assertTrue(value['release_audit_success'])
+
+    def test_complete_refuses_package_corruption_missing_audit_image_extra_files_and_cancel(self):
+        actual = self.actual_fixture(); dev, name = self.package_fixture(); receipt = self.root / 'never'
+        sums = dev / 'SHA256SUMS'; original = sums.read_bytes(); sums.write_text('0' * 64 + '  ./' + name + '\n')
+        with self.assertRaises(ValueError): H.complete(self.directory, self.expected, actual, receipt)
+        self.assertFalse(receipt.exists()); sums.write_bytes(original)
+        p = self.root / H.APP; image = p.read_bytes(); p.unlink()
+        with self.assertRaises(OSError): H.complete(self.directory, self.expected, actual, receipt)
+        p.write_bytes(image)
+        extra = dev / 'test-control-app'; extra.write_bytes(b'forbidden')
+        with self.assertRaises(ValueError): H.complete(self.directory, self.expected, actual, receipt)
+        extra.unlink()
+        with mock.patch.dict(os.environ, NATIVE_CI_CANCELLED='true'), self.assertRaises(ValueError):
+            H.complete(self.directory, self.expected, actual, receipt)
+        self.assertFalse(receipt.exists())
+
+    def test_probe_records_fresh_debug_reconstruction_and_rejects_changed_bytes_or_failed_probe(self):
+        # Stub only the existing empty-runtime probe. No fixture executable runs.
+        helper = type('Probe', (), {})()
+        def probe(tools, evidence):
+            return {'schema': 18, 'snapshot_api_version': 1, 'sigterm_sent': True,
+                    'forced_kill': False, 'original_daemon_SIGTERM_wait_exit': 0}
+        helper.probe = probe
+        source = H.importlib.util.spec_from_file_location('probe_for_test', ROOT / 'scripts/prepare-factory-test-tools.py')
+        source.loader = type('Loader', (), {'exec_module': lambda *args: None})()
+        # The real helper import is replaced, never product/process behavior.
+        with mock.patch.object(H.importlib.util, 'spec_from_file_location', return_value=source), \
+                mock.patch.object(H.importlib.util, 'module_from_spec', return_value=helper):
+            rebuilt = self.root / 'target/debug/baton'; rebuilt.write_bytes(self.image + b'fresh-source-build')
+            H.probe_actual(self.root / 'probed', self.expected)
+            value = H.load(self.root / 'probed/actual.json')
+            self.assertNotEqual(value['tools']['debug-baton'], H.load(self.directory / 'manifest.json')['tools']['debug-baton'])
+            helper.probe = lambda *args: {'schema': 18, 'snapshot_api_version': 1, 'sigterm_sent': False,
+                                         'forced_kill': True, 'original_daemon_SIGTERM_wait_exit': -9}
+            with self.assertRaises(ValueError): H.probe_actual(self.root / 'bad-probe', self.expected)
+            self.assertFalse((self.root / 'bad-probe/actual.json').exists())
+            def changing(tools, evidence):
+                rebuilt.write_bytes(rebuilt.read_bytes() + b'changed-mid-probe')
+                return probe(tools, evidence)
+            helper.probe = changing
+            with self.assertRaises(ValueError): H.probe_actual(self.root / 'changed-probe', self.expected)
+            self.assertFalse((self.root / 'changed-probe/actual.json').exists())
+
 
 if __name__ == '__main__': unittest.main()

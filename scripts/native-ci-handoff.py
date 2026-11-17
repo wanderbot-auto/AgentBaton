@@ -197,7 +197,7 @@ def restore(directory, expected):
         require(binary(target) == value['tools'][name])
 
 
-def probe_actual(directory):
+def probe_actual(directory, expected):
     arm_host()
     directory = safe_path(directory)
     directory.mkdir(mode=0o700, exist_ok=False)
@@ -209,21 +209,32 @@ def probe_actual(directory):
     for profile in ('debug', 'release'):
         evidence = directory / profile
         evidence.mkdir(mode=0o700)
-        observations[profile] = helper.probe(ROOT / 'target' / profile, evidence)
+        observation = helper.probe(ROOT / 'target' / profile, evidence)
+        require(observation['schema'] == 18 and observation['snapshot_api_version'] == 1
+                and observation['sigterm_sent'] is True and observation['forced_kill'] is False
+                and type(observation['original_daemon_SIGTERM_wait_exit']) is int
+                and observation['original_daemon_SIGTERM_wait_exit'] == 0)
+        observations[profile] = observation
     require(before == tools(), 'Actual companion bytes changed during probe')
     # Existing probe logs stay private in RUNNER_TEMP. Public receipt is closed.
     write(directory / 'actual.json', {'contract': CONTRACT, 'identity': identity(),
           'host': 'darwin-arm64', 'tools': before, 'empty_schema': 18,
+          'producer_manifest_sha256': sha(expected),
+          'build': {'debug': ['cargo', 'build', '--locked', '--bin', 'batond', '--bin', 'baton'],
+                    'release': 'verified_current_source_producer_handoff', 'features': []},
           'debug_and_release_probe': True, 'sigterm_joined': True})
 
 
 def check_actual(directory):
     arm_host()
     actual = load(directory / 'actual.json')
-    require(type(actual) is dict and set(actual) == {'contract', 'identity', 'host', 'tools', 'empty_schema', 'debug_and_release_probe', 'sigterm_joined'})
+    require(type(actual) is dict and set(actual) == {'contract', 'identity', 'host', 'tools', 'empty_schema', 'debug_and_release_probe', 'sigterm_joined', 'producer_manifest_sha256', 'build'})
     require(actual['contract'] == CONTRACT and actual['identity'] == identity() and actual['host'] == 'darwin-arm64'
             and actual['empty_schema'] == 18 and actual['debug_and_release_probe'] is True and actual['sigterm_joined'] is True)
     validate_tools(actual['tools'])
+    sha(actual['producer_manifest_sha256'])
+    require(actual['build'] == {'debug': ['cargo', 'build', '--locked', '--bin', 'batond', '--bin', 'baton'],
+                               'release': 'verified_current_source_producer_handoff', 'features': []})
     require(actual['tools'] == tools(), 'Reconstructed tools changed: fresh provenance required')
     # native-macos-smoke copies the actual normal daemon beside its own driver.
     require(binary(ROOT / 'apps/desktop/src-tauri/target/debug/batond') == actual['tools']['debug-batond'])
@@ -234,8 +245,11 @@ def check_actual(directory):
 
 def complete(directory, expected, actual_dir, receipt_dir):
     arm_host()
-    validate_manifest(directory, expected)
+    producer = validate_manifest(directory, expected)
     actual = check_actual(actual_dir)
+    require(actual['producer_manifest_sha256'] == expected)
+    for name in ('baton', 'batond'):
+        require(actual['tools']['release-' + name] == producer['tools']['release-' + name])
     require(os.environ['NATIVE_CI_CANCELLED'] == 'false')
     image = binary(ROOT / APP)
     # The exact unmodified default build, release audit, package and successful
@@ -308,7 +322,7 @@ def main():
     args = parser.parse_args()
     if args.mode == 'pack': pack(args.directory)
     elif args.mode == 'restore': restore(args.directory, args.expected)
-    elif args.mode == 'probe': probe_actual(args.directory)
+    elif args.mode == 'probe': probe_actual(args.directory, args.expected)
     elif args.mode == 'check': check_actual(args.directory)
     elif args.mode == 'complete': complete(args.directory, args.expected, args.actual, args.receipt)
     else: aggregate(args.directory, args.expected, args.receipt, args.receipt_sha)
