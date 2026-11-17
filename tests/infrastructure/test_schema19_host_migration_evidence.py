@@ -109,8 +109,18 @@ class Genuine18EvidenceControls(unittest.TestCase):
                 db.execute('PRAGMA user_version=18')
             path.chmod(0o600)
             before = path.read_bytes()
-            with mock.patch.object(G.subprocess, 'Popen', side_effect=AssertionError('no daemon')):
+            opened = []
+            connect = sqlite3.connect
+            def tracked_connect(*args, **kwargs):
+                connection = connect(*args, **kwargs)
+                opened.append(connection)
+                return connection
+            with mock.patch.object(G.subprocess, 'Popen', side_effect=AssertionError('no daemon')), \
+                 mock.patch.object(G.sqlite3, 'connect', side_effect=tracked_connect):
                 self.assertEqual(G.probe(path)['schema'], 18)
+            for connection in opened:
+                with self.assertRaises(sqlite3.ProgrammingError):
+                    connection.execute('SELECT 1')
             self.assertEqual(path.read_bytes(), before)
             for schema in [17, 19, 20]:
                 with sqlite3.connect(path) as db:
