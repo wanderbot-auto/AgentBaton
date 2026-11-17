@@ -1,278 +1,308 @@
 {
-  "head": "59564cac701960cf292421af509a3cd47de0f865",
+  "status": "local_composition_review_ready_not_main_accepted",
   "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
-  "source_equality_verified": 33,
-  "started": "2026-11-17T20:11:35.099017+00:00",
-  "input_count": 2996,
-  "environment": {
-    "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-integration/target",
-    "BATON_RUNTIME_DIR": "/private/tmp/ab-collab-rqfc_2w8",
-    "CARGO_BUILD_JOBS": "2",
-    "RUST_TEST_THREADS": "1",
-    "RUSTFLAGS": null,
-    "CARGO_ENCODED_RUSTFLAGS": null,
-    "RUSTC_WRAPPER": null
+  "integrated_delivery": "9947f88c6da2823072badf2fe132c1a85f41df63",
+  "Rust_verified_source": "649cbab200f613a5e8a66d281da45932adccc7c5",
+  "Python_verified_source": "0930cc6fa9f4222d8adca172a13bca79a5354c70",
+  "product_edits_by_root": false,
+  "review": "independent pragma/inverse/rawbyte fixes closed; root3 source blobs/7 raw logs/3actual binaries/6unchanged manifests verified",
+  "results": {
+    "Rust_selected": 61,
+    "Rust_counts": [
+      42,
+      3,
+      15,
+      1
+    ],
+    "fmt_exit": 0,
+    "strict_alltargets_clippy_exit": 0,
+    "infra_total": 897,
+    "infra_passed": 881,
+    "infra_failed": 0,
+    "infra_skipped": 16,
+    "bootstrap_files": 93,
+    "design_requirements": 130,
+    "design_links": 242
   },
-  "commands": [
-    {
-      "label": "fmt",
-      "command": [
-        "cargo",
-        "fmt",
-        "--all",
-        "--",
-        "--check"
-      ],
-      "start": "2026-11-17T20:11:35.099171+00:00",
-      "end": "2026-11-17T20:11:36.310906+00:00",
-      "exit": 0,
-      "expected_counts": [],
-      "actual_counts": [],
-      "nonzero_count_gate": true,
-      "log": "artifacts/collab/combined-validation/fmt.log",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "bytes": 0
+  "original_source_pins": "439\u2192f1ad\u2192original4d478 unchanged; no normalization/Gitfallback",
+  "historical_baseline_snapshot": {
+    "head": "59564cac701960cf292421af509a3cd47de0f865",
+    "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "source_equality_verified": 33,
+    "started": "2026-11-17T20:11:35.099017+00:00",
+    "input_count": 2996,
+    "environment": {
+      "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-integration/target",
+      "BATON_RUNTIME_DIR": "/private/tmp/ab-collab-rqfc_2w8",
+      "CARGO_BUILD_JOBS": "2",
+      "RUST_TEST_THREADS": "1",
+      "RUSTFLAGS": null,
+      "CARGO_ENCODED_RUSTFLAGS": null,
+      "RUSTC_WRAPPER": null
     },
-    {
-      "label": "precompile",
-      "command": [
-        "cargo",
-        "test",
-        "--offline",
-        "--locked",
-        "-p",
-        "agentbaton-core",
-        "--lib",
-        "--test",
-        "conversation_schema18",
-        "--test",
-        "integration_schema17",
-        "-j",
-        "2",
-        "--no-run"
-      ],
-      "start": "2026-11-17T20:11:36.311215+00:00",
-      "end": "2026-11-17T20:14:10.230021+00:00",
-      "exit": 0,
-      "expected_counts": [],
-      "actual_counts": [],
-      "nonzero_count_gate": true,
-      "log": "artifacts/collab/combined-validation/precompile.log",
-      "sha256": "daa3721a0973dabfdfdc3e3d419bb860d12f60677f762cffa96043939547ad9a",
-      "bytes": 3018
+    "commands": [
+      {
+        "label": "fmt",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "start": "2026-11-17T20:11:35.099171+00:00",
+        "end": "2026-11-17T20:11:36.310906+00:00",
+        "exit": 0,
+        "expected_counts": [],
+        "actual_counts": [],
+        "nonzero_count_gate": true,
+        "log": "artifacts/collab/combined-validation/fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "label": "precompile",
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--test",
+          "conversation_schema18",
+          "--test",
+          "integration_schema17",
+          "-j",
+          "2",
+          "--no-run"
+        ],
+        "start": "2026-11-17T20:11:36.311215+00:00",
+        "end": "2026-11-17T20:14:10.230021+00:00",
+        "exit": 0,
+        "expected_counts": [],
+        "actual_counts": [],
+        "nonzero_count_gate": true,
+        "log": "artifacts/collab/combined-validation/precompile.log",
+        "sha256": "daa3721a0973dabfdfdc3e3d419bb860d12f60677f762cffa96043939547ad9a",
+        "bytes": 3018
+      },
+      {
+        "label": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--all-targets",
+          "-j",
+          "2",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "start": "2026-11-17T20:14:10.230608+00:00",
+        "end": "2026-11-17T20:14:27.913567+00:00",
+        "exit": 0,
+        "expected_counts": [],
+        "actual_counts": [],
+        "nonzero_count_gate": true,
+        "log": "artifacts/collab/combined-validation/clippy.log",
+        "sha256": "ceaa99ca5bca7d5e1a91c20a72ba15db53a4e8ecfd8889ce7c61dabb7db9c4ff",
+        "bytes": 2391
+      },
+      {
+        "label": "host39",
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "host_registry",
+          "-j",
+          "2",
+          "--",
+          "--test-threads=1",
+          "--nocapture"
+        ],
+        "start": "2026-11-17T20:14:27.913891+00:00",
+        "end": "2026-11-17T20:14:34.220356+00:00",
+        "exit": 0,
+        "expected_counts": [
+          39
+        ],
+        "actual_counts": [
+          39
+        ],
+        "nonzero_count_gate": true,
+        "log": "artifacts/collab/combined-validation/host39.log",
+        "sha256": "e0b8cce2164973031daeb307e8c72a1fa8fbf485f5e7db168d5d1e2cbbbcd1fb",
+        "bytes": 25890
+      },
+      {
+        "label": "original18",
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "conversation_schema18",
+          "--test",
+          "integration_schema17",
+          "-j",
+          "2",
+          "--",
+          "--test-threads=1"
+        ],
+        "start": "2026-11-17T20:14:34.220720+00:00",
+        "end": "2026-11-17T20:14:37.196506+00:00",
+        "exit": 0,
+        "expected_counts": [
+          3,
+          15
+        ],
+        "actual_counts": [
+          3,
+          15
+        ],
+        "nonzero_count_gate": true,
+        "log": "artifacts/collab/combined-validation/original18.log",
+        "sha256": "b4b92dda1dee8c278ead0dfb6332e41c5f765e03a2af453b3faca74d7422137c",
+        "bytes": 2144
+      },
+      {
+        "label": "original-caller",
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19",
+          "-j",
+          "2",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "start": "2026-11-17T20:14:37.196830+00:00",
+        "end": "2026-11-17T20:14:37.362552+00:00",
+        "exit": 0,
+        "expected_counts": [
+          1
+        ],
+        "actual_counts": [
+          1
+        ],
+        "nonzero_count_gate": true,
+        "log": "artifacts/collab/combined-validation/original-caller.log",
+        "sha256": "94607b5c0c3eccf329ddd127bfe6fba8062fc21c9b794397a08c3b2aafbb2a19",
+        "bytes": 389
+      },
+      {
+        "label": "infrastructure",
+        "command": [
+          "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure"
+        ],
+        "start": "2026-11-17T20:14:37.362899+00:00",
+        "end": "2026-11-17T20:15:01.323080+00:00",
+        "exit": 1,
+        "expected_counts": [],
+        "actual_counts": [],
+        "nonzero_count_gate": true,
+        "log": "artifacts/collab/combined-validation/infrastructure.log",
+        "sha256": "2dccdbd9ff1d8a393c76c732b0ec357ad33a32561614bb64e302d3bb9caf94f3",
+        "bytes": 3438
+      }
+    ],
+    "product_edits": false,
+    "finished": "2026-11-17T20:15:01.711145+00:00",
+    "inputs_unchanged": true,
+    "tracked_clean": true,
+    "all_owned_children_joined": true,
+    "exit": 1,
+    "decision": "not_accepted_known_cross_module_P2_and_strict_source_guard_failure",
+    "tests_selected": {
+      "passed": 58,
+      "failed": 0,
+      "ignored": 0
     },
-    {
-      "label": "clippy",
-      "command": [
-        "cargo",
-        "clippy",
-        "--offline",
-        "--locked",
-        "-p",
-        "agentbaton-core",
-        "--all-targets",
-        "-j",
-        "2",
-        "--",
-        "-D",
-        "warnings"
-      ],
-      "start": "2026-11-17T20:14:10.230608+00:00",
-      "end": "2026-11-17T20:14:27.913567+00:00",
-      "exit": 0,
-      "expected_counts": [],
-      "actual_counts": [],
-      "nonzero_count_gate": true,
-      "log": "artifacts/collab/combined-validation/clippy.log",
-      "sha256": "ceaa99ca5bca7d5e1a91c20a72ba15db53a4e8ecfd8889ce7c61dabb7db9c4ff",
-      "bytes": 2391
+    "infrastructure": {
+      "total": 895,
+      "passed": 878,
+      "failed": 1,
+      "skipped": 16
     },
-    {
-      "label": "host39",
-      "command": [
-        "cargo",
-        "test",
-        "--offline",
-        "--locked",
-        "-p",
-        "agentbaton-core",
-        "--lib",
-        "host_registry",
-        "-j",
-        "2",
-        "--",
-        "--test-threads=1",
-        "--nocapture"
-      ],
-      "start": "2026-11-17T20:14:27.913891+00:00",
-      "end": "2026-11-17T20:14:34.220356+00:00",
-      "exit": 0,
-      "expected_counts": [
-        39
-      ],
-      "actual_counts": [
-        39
-      ],
-      "nonzero_count_gate": true,
-      "log": "artifacts/collab/combined-validation/host39.log",
-      "sha256": "e0b8cce2164973031daeb307e8c72a1fa8fbf485f5e7db168d5d1e2cbbbcd1fb",
-      "bytes": 25890
-    },
-    {
-      "label": "original18",
-      "command": [
-        "cargo",
-        "test",
-        "--offline",
-        "--locked",
-        "-p",
-        "agentbaton-core",
-        "--test",
-        "conversation_schema18",
-        "--test",
-        "integration_schema17",
-        "-j",
-        "2",
-        "--",
-        "--test-threads=1"
-      ],
-      "start": "2026-11-17T20:14:34.220720+00:00",
-      "end": "2026-11-17T20:14:37.196506+00:00",
-      "exit": 0,
-      "expected_counts": [
-        3,
-        15
-      ],
-      "actual_counts": [
-        3,
-        15
-      ],
-      "nonzero_count_gate": true,
-      "log": "artifacts/collab/combined-validation/original18.log",
-      "sha256": "b4b92dda1dee8c278ead0dfb6332e41c5f765e03a2af453b3faca74d7422137c",
-      "bytes": 2144
-    },
-    {
-      "label": "original-caller",
-      "command": [
-        "cargo",
-        "test",
-        "--offline",
-        "--locked",
-        "-p",
-        "agentbaton-core",
-        "--lib",
-        "task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19",
-        "-j",
-        "2",
-        "--",
-        "--exact",
-        "--test-threads=1"
-      ],
-      "start": "2026-11-17T20:14:37.196830+00:00",
-      "end": "2026-11-17T20:14:37.362552+00:00",
-      "exit": 0,
-      "expected_counts": [
-        1
-      ],
-      "actual_counts": [
-        1
-      ],
-      "nonzero_count_gate": true,
-      "log": "artifacts/collab/combined-validation/original-caller.log",
-      "sha256": "94607b5c0c3eccf329ddd127bfe6fba8062fc21c9b794397a08c3b2aafbb2a19",
-      "bytes": 389
-    },
-    {
-      "label": "infrastructure",
-      "command": [
-        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
-        "-m",
-        "unittest",
-        "discover",
-        "-s",
-        "tests/infrastructure"
-      ],
-      "start": "2026-11-17T20:14:37.362899+00:00",
-      "end": "2026-11-17T20:15:01.323080+00:00",
-      "exit": 1,
-      "expected_counts": [],
-      "actual_counts": [],
-      "nonzero_count_gate": true,
-      "log": "artifacts/collab/combined-validation/infrastructure.log",
-      "sha256": "2dccdbd9ff1d8a393c76c732b0ec357ad33a32561614bb64e302d3bb9caf94f3",
-      "bytes": 3438
-    }
-  ],
-  "product_edits": false,
-  "finished": "2026-11-17T20:15:01.711145+00:00",
-  "inputs_unchanged": true,
-  "tracked_clean": true,
-  "all_owned_children_joined": true,
-  "exit": 1,
-  "decision": "not_accepted_known_cross_module_P2_and_strict_source_guard_failure",
-  "tests_selected": {
-    "passed": 58,
-    "failed": 0,
-    "ignored": 0
+    "source_mapping_review": "independent completion_audit verified33 mappings no other non-doc source",
+    "original_pins_assertions": "must preserve; no hash replacement/global acceptance",
+    "archives": [
+      {
+        "source": "artifacts/collab/combined-validation/fmt.log",
+        "archive": "logs/fmt.log.gz",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      {
+        "source": "artifacts/collab/combined-validation/precompile.log",
+        "archive": "logs/precompile.log.gz",
+        "raw_sha256": "daa3721a0973dabfdfdc3e3d419bb860d12f60677f762cffa96043939547ad9a",
+        "raw_bytes": 3018,
+        "archive_sha256": "e65f6a09747fd0090f07c22277e4c8961beb179f85175540b95f13394af80abb"
+      },
+      {
+        "source": "artifacts/collab/combined-validation/clippy.log",
+        "archive": "logs/clippy.log.gz",
+        "raw_sha256": "ceaa99ca5bca7d5e1a91c20a72ba15db53a4e8ecfd8889ce7c61dabb7db9c4ff",
+        "raw_bytes": 2391,
+        "archive_sha256": "17c527432a0e88e16f74401a01967692c5e7967dc4e0b1086d92263df32cee3f"
+      },
+      {
+        "source": "artifacts/collab/combined-validation/host39.log",
+        "archive": "logs/host39.log.gz",
+        "raw_sha256": "e0b8cce2164973031daeb307e8c72a1fa8fbf485f5e7db168d5d1e2cbbbcd1fb",
+        "raw_bytes": 25890,
+        "archive_sha256": "8d6d5604ff1421052f41502b0a84cef6b83df2fe67cabf74af3f9f3bee4c6930"
+      },
+      {
+        "source": "artifacts/collab/combined-validation/original18.log",
+        "archive": "logs/original18.log.gz",
+        "raw_sha256": "b4b92dda1dee8c278ead0dfb6332e41c5f765e03a2af453b3faca74d7422137c",
+        "raw_bytes": 2144,
+        "archive_sha256": "790d6de3c4c94b3c28807af2671ef5cea658863d4490e688d1a5e7e6ab0bc7a0"
+      },
+      {
+        "source": "artifacts/collab/combined-validation/original-caller.log",
+        "archive": "logs/original-caller.log.gz",
+        "raw_sha256": "94607b5c0c3eccf329ddd127bfe6fba8062fc21c9b794397a08c3b2aafbb2a19",
+        "raw_bytes": 389,
+        "archive_sha256": "88a50db8142323cba7b9a26030e95e194c2e9065c04215d345616292d100cb75"
+      },
+      {
+        "source": "artifacts/collab/combined-validation/infrastructure.log",
+        "archive": "logs/infrastructure.log.gz",
+        "raw_sha256": "2dccdbd9ff1d8a393c76c732b0ec357ad33a32561614bb64e302d3bb9caf94f3",
+        "raw_bytes": 3438,
+        "archive_sha256": "b4a4826bad71c0b39735449e004a8fffd49f61c3a5e8c449baa85cf9d488bdcc"
+      }
+    ]
   },
-  "infrastructure": {
-    "total": 895,
-    "passed": 878,
-    "failed": 1,
-    "skipped": 16
-  },
-  "source_mapping_review": "independent completion_audit verified33 mappings no other non-doc source",
-  "original_pins_assertions": "must preserve; no hash replacement/global acceptance",
-  "archives": [
-    {
-      "source": "artifacts/collab/combined-validation/fmt.log",
-      "archive": "logs/fmt.log.gz",
-      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "raw_bytes": 0,
-      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
-    },
-    {
-      "source": "artifacts/collab/combined-validation/precompile.log",
-      "archive": "logs/precompile.log.gz",
-      "raw_sha256": "daa3721a0973dabfdfdc3e3d419bb860d12f60677f762cffa96043939547ad9a",
-      "raw_bytes": 3018,
-      "archive_sha256": "e65f6a09747fd0090f07c22277e4c8961beb179f85175540b95f13394af80abb"
-    },
-    {
-      "source": "artifacts/collab/combined-validation/clippy.log",
-      "archive": "logs/clippy.log.gz",
-      "raw_sha256": "ceaa99ca5bca7d5e1a91c20a72ba15db53a4e8ecfd8889ce7c61dabb7db9c4ff",
-      "raw_bytes": 2391,
-      "archive_sha256": "17c527432a0e88e16f74401a01967692c5e7967dc4e0b1086d92263df32cee3f"
-    },
-    {
-      "source": "artifacts/collab/combined-validation/host39.log",
-      "archive": "logs/host39.log.gz",
-      "raw_sha256": "e0b8cce2164973031daeb307e8c72a1fa8fbf485f5e7db168d5d1e2cbbbcd1fb",
-      "raw_bytes": 25890,
-      "archive_sha256": "8d6d5604ff1421052f41502b0a84cef6b83df2fe67cabf74af3f9f3bee4c6930"
-    },
-    {
-      "source": "artifacts/collab/combined-validation/original18.log",
-      "archive": "logs/original18.log.gz",
-      "raw_sha256": "b4b92dda1dee8c278ead0dfb6332e41c5f765e03a2af453b3faca74d7422137c",
-      "raw_bytes": 2144,
-      "archive_sha256": "790d6de3c4c94b3c28807af2671ef5cea658863d4490e688d1a5e7e6ab0bc7a0"
-    },
-    {
-      "source": "artifacts/collab/combined-validation/original-caller.log",
-      "archive": "logs/original-caller.log.gz",
-      "raw_sha256": "94607b5c0c3eccf329ddd127bfe6fba8062fc21c9b794397a08c3b2aafbb2a19",
-      "raw_bytes": 389,
-      "archive_sha256": "88a50db8142323cba7b9a26030e95e194c2e9065c04215d345616292d100cb75"
-    },
-    {
-      "source": "artifacts/collab/combined-validation/infrastructure.log",
-      "archive": "logs/infrastructure.log.gz",
-      "raw_sha256": "2dccdbd9ff1d8a393c76c732b0ec357ad33a32561614bb64e302d3bb9caf94f3",
-      "raw_bytes": 3438,
-      "archive_sha256": "b4a4826bad71c0b39735449e004a8fffd49f61c3a5e8c449baa85cf9d488bdcc"
-    }
-  ]
+  "limits": "ordinaryStore18; dormant helper/private SQLite only, no daemon19/IPC/UI/native/SSH/Provider/main acceptance; no newCI",
+  "ownership": "background reader next serialhandedtoCI, no concurrent edits"
 }
