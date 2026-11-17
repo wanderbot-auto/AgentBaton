@@ -1,0 +1,34 @@
+{
+  "task": "RHOST002C1",
+  "base": "56746af61789e3e7121e7f43d39b4a5d2b567576",
+  "status": "source_implemented_committing_before_checks",
+  "scope": [
+    "crates/core/src/ipc.rs",
+    "crates/core/src/host_registry_ipc.rs",
+    "crates/core/src/host_registry_ipc_tests.rs",
+    "docs/execution/host-registry-ipc-c1"
+  ],
+  "recorded_utc": "2026-11-17T21:13:35.791618+00:00",
+  "not_run": [
+    "new checks",
+    "production Store19/actor/UDS/native/UI",
+    "Provider/SSH",
+    "push/CI"
+  ],
+  "declared_tests": 12,
+  "source_sha256": {
+    "crates/core/src/ipc.rs": "97ef8e947fb05b6d3e75dcac5d6bab000bebfacc081ff2991b0894741f8b908f",
+    "crates/core/src/host_registry_ipc.rs": "e29491da500f5531391c2e5c670d915a8d206e28bc54637bff9db49ce66467cd",
+    "crates/core/src/host_registry_ipc_tests.rs": "e2ebd4fedd8f68cc80aa822d4257a1a075af40fd7c5e910a39507f86d4eaf719"
+  },
+  "source_dependencies_untouched": {
+    "crates/core/src/host_registry.rs": "8c942c738da0e2dfb0e850e8a93951fcacaa2f588bcf86acaaf462425d613844",
+    "crates/core/src/host_registry_migration.rs": "3f2d0151d4d1ce8ce08670f528dee1ef024a27054ff5f7e3c70bf3bfdf612168",
+    "crates/core/src/storage.rs": "6cfdeb71b2732ff2443c5a261161e28f89c990bf000b83b5fd5de7a6d85cef4c",
+    "crates/core/src/lib.rs": "04aba96339080025e02ee1a5034c3d22c852048dffde68d987396c009cd02dfb",
+    "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5"
+  }
+}

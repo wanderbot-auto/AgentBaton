@@ -32,6 +32,9 @@ pub(crate) mod goal_diagnostics;
 #[path = "task_workspace_binding_ipc.rs"]
 mod task_binding_wire;
 
+#[path = "host_registry_ipc.rs"]
+mod host_registry_wire;
+
 pub const API_VERSION: u32 = 1;
 const MAX_FRAME: u64 = 1_048_576;
 #[derive(Deserialize)]
@@ -929,6 +932,10 @@ impl Daemon {
             }
         }
         match r.method.as_str() {
+            "hosts.register" => host_registry_wire::register(&mut self.store, &r),
+            "hosts.find_registration" => host_registry_wire::find_registration(&mut self.store, &r),
+            "hosts.get" => host_registry_wire::get(&mut self.store, &r),
+            "hosts.list" => host_registry_wire::list(&mut self.store, &r),
             "data_workspace_previews.start" => {
                 let selection:crate::data_workspaces::DataWorkspaceSelection=params(r.params)?;
                 Ok(json!(self.data_workers.preview(&mut self.store,&selection,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))
