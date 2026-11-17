@@ -25,10 +25,8 @@ fn changed() -> CoreError {
 }
 
 fn version(db: &Connection) -> Result<i64> {
-    db.pragma_query_value(Some(rusqlite::DatabaseName::Main), "user_version", |r| {
-        r.get(0)
-    })
-    .map_err(db_error)
+    db.pragma_query_value(Some("main"), "user_version", |r| r.get(0))
+        .map_err(db_error)
 }
 
 /// Schema-only reference, without constructing a Store, recovery or disk DB.

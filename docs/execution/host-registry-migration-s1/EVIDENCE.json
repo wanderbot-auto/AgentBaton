@@ -1,6 +1,6 @@
 {
   "task": "HOST19-S1",
-  "status": "active_implementation_not_yet_tested",
+  "status": "source_fix_waiting_heavy_slot_and_recheck",
   "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
   "branch": "collab/host-registry-migration-s1",
   "B_contract": "4e48985d68f324d3980a981abd5c7789d0379090",
@@ -14,8 +14,7 @@
     }
   ],
   "not_run": [
-    "dynamic tests",
-    "build",
+    "dynamic test cases",
     "lint",
     "native/GUI",
     "CI",
@@ -35,5 +34,50 @@
     "compiled DDL literal bytes statically equal fixedB SQL SHA",
     "git diff --check and scope passed"
   ],
-  "test_functions_pending_execution": 15
+  "test_functions_pending_execution": 15,
+  "builds": [
+    {
+      "source": "334a1ac7be88db241a29dde5ad91f826b9109bc4",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "host_registry_migration",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "jobs": 2,
+      "start": "2026-11-17T19:10:36.285292+00:00",
+      "end": "2026-11-17T19:11:08.382904+00:00",
+      "exit_code": 101,
+      "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+      "architecture": "arm64",
+      "log": "artifacts/host-registry-migration-s1/targeted-334a1ac7.log",
+      "cargo_target_dir": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registry-migration-s1/target",
+      "child_joined": true,
+      "test_cases_executed": 0,
+      "result": "compile_failed_E0433_DatabaseName_absent",
+      "preserved": "LOGS.json"
+    }
+  ],
+  "source_fix": "SOURCE_API_AND_REVIEW_FIX.json",
+  "reviews": [
+    {
+      "reviewer": "schema_inverse_audit",
+      "source": "334a1ac7be88db241a29dde5ad91f826b9109bc4",
+      "dimension": "strict fixtures/tx/test design",
+      "P1_P2": "none found;no tests executed"
+    },
+    {
+      "reviewer": "schema_current_guards",
+      "source": "334a1ac7be88db241a29dde5ad91f826b9109bc4",
+      "finding": "P2 kind-only Event envelope validation could permit truncated non-Host event",
+      "fix": "full Core Event deserialization plus closed8 outer keys;typed duplicates/missing/unknown negative cases;recheck pending"
+    }
+  ]
 }

@@ -13,3 +13,5 @@ processes=no App/daemon/build processes
 dependencies=S2 real predecessor/backup/Store19 activation/reader/native/source-evidence closure;S3 record APIs and bounded integrity audit
 HEXP=frozen559a3feb331f4c8aac8b67c8407e9cabf7236885;manual9 closed/not accepted;no retry
 schema19_preflight=frozen406be16f56c89495595bf263a307a9d861d8e2a3
+
+334a fixed-source first offline jobs2 compile ran UTC19:10:36–19:11:08, exit101 E0433:rusqlite0.38 removed DatabaseName;0testcases executed, original log+record retained raw and gzip. Process joined and heavy slot explicitly released to B. API corrected from pinned local pragma.rs Option<&str>. Independent source review found P2 kind-only envelope gap: fixed full required8 Event outer fields/duplicate/unknown handling plus meaningful SQLite negatives. New source commit follows334a, then readonly re-review;no next Cargo until root regrant. Original Store/oldhelpers/locks unchanged, normal schema18.

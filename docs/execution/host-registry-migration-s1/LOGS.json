@@ -1,0 +1,16 @@
+[
+  {
+    "source": "artifacts/host-registry-migration-s1/targeted-334a1ac7.log",
+    "archive": "logs/targeted-334a1ac7.log.gz",
+    "sha256": "096d290ca811c1e05d637aee54481ba1571fc4bd576843fd2e19ac5373f413b6",
+    "archive_sha256": "6714ca5b47f2954c5f753f3dd9fb848984395af167705020c2807a824944713d",
+    "bytes": 2951
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/targeted-334a1ac7.json",
+    "archive": "logs/targeted-334a1ac7.json.gz",
+    "sha256": "2efb77a3bcf97973bfe9fa063897f8a2fee956f0a7426eac813e4fc3f37f8f6a",
+    "archive_sha256": "936e881494833ed52532a7d04bf0300c6fece23d91375a132c9aa24c9a95467b",
+    "bytes": 697
+  }
+]

@@ -1,8 +1,8 @@
 //! TEST-ONLY exact empty19 ->18 inverse. Never import from a production module.
+//! The including test module binds Core's Event and dormant migration module.
 #![cfg(test)]
-use super::host_registry_migration;
+use super::{host_registry_migration, Event};
 use rusqlite::{Connection, Transaction, TransactionBehavior};
-use serde::Deserialize;
 
 type Object = (String, String, String, Option<String>);
 const REFUSED: &str = "controlled empty Host19 inverse refused";
@@ -33,14 +33,9 @@ fn objects(db: &Connection) -> Result<Vec<Object>, String> {
     result
 }
 
-#[derive(Deserialize)]
-struct EventKind {
-    kind: String,
-}
-
 fn empty_journal_namespace(db: &Connection) -> Result<(), String> {
-    // Classification only: unrelated payloads are retained, not reinterpreted.
-    // Typed deserialization rejects missing/nonstring/duplicated kind fields.
+    // Validate the complete a4 outer envelope, including duplicate known fields,
+    // before classification. Unrelated payloads are retained, not interpreted.
     let (count,bytes,max): (i64,i64,i64) = db.query_row(
         "SELECT count(*),coalesce(sum(octet_length(document)),0),coalesce(max(octet_length(document)),0) FROM events", [],
         |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?)),
@@ -56,7 +51,23 @@ fn empty_journal_namespace(db: &Connection) -> Result<(), String> {
         .map_err(refused)?
     {
         let raw = raw.map_err(refused)?;
-        let event: EventKind = serde_json::from_str(&raw).map_err(refused)?;
+        let event: Event = serde_json::from_str(&raw).map_err(refused)?;
+        let value: serde_json::Value = serde_json::from_str(&raw).map_err(refused)?;
+        let fields = value.as_object().ok_or_else(|| REFUSED.to_owned())?;
+        let expected = [
+            "sequence",
+            "event_id",
+            "aggregate_id",
+            "revision",
+            "kind",
+            "occurred_at",
+            "payload",
+            "source",
+        ];
+        if fields.len() != expected.len() || expected.iter().any(|name| !fields.contains_key(*name))
+        {
+            return Err(REFUSED.into());
+        }
         if event.kind.is_empty() || event.kind.to_ascii_lowercase().starts_with("host") {
             return Err(REFUSED.into());
         }

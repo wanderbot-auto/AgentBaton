@@ -455,6 +455,7 @@ fn inverse_refuses_orphan_unknown_and_malformed_host_event_receipt_evidence() {
         "{",
         r#"{"kind":1}"#,
         r#"{"unexpected":"host.registered"}"#,
+        r#"{"kind":"project.imported"}"#,
         r#"{"kind":"host.registered","kind":"project.imported"}"#,
     ] {
         let db = seeded19();
@@ -482,6 +483,74 @@ fn inverse_checks_row_and_byte_bounds_without_silent_truncation() {
     let before = image(&db);
     assert!(pre_host_schema::remove_empty_host19(&db).is_err());
     unchanged(&db, before, "namespace_row_bound");
+}
+
+#[test]
+fn inverse_refuses_every_missing_or_duplicated_event_outer_field() {
+    for field in [
+        "sequence",
+        "event_id",
+        "aggregate_id",
+        "revision",
+        "kind",
+        "occurred_at",
+        "payload",
+        "source",
+    ] {
+        for mode in ["missing", "duplicate"] {
+            let db = seeded19();
+            let original: String = db
+                .query_row(
+                    "SELECT document FROM events ORDER BY sequence LIMIT 1",
+                    [],
+                    |r| r.get(0),
+                )
+                .unwrap();
+            let mut document: serde_json::Value = serde_json::from_str(&original).unwrap();
+            let raw = match mode {
+                "missing" => {
+                    document.as_object_mut().unwrap().remove(field);
+                    serde_json::to_string(&document).unwrap()
+                }
+                "duplicate" => format!(
+                    "{},{}:{}}}",
+                    original.strip_suffix('}').unwrap(),
+                    serde_json::to_string(field).unwrap(),
+                    serde_json::to_string(&document[field]).unwrap()
+                ),
+                _ => unreachable!("fixed two-case test matrix"),
+            };
+            db.execute("INSERT INTO events(document) VALUES(?1)", [&raw])
+                .unwrap();
+            let before = image(&db);
+            assert!(
+                pre_host_schema::remove_empty_host19(&db).is_err(),
+                "{field}:{mode}"
+            );
+            unchanged(&db, before, &format!("event_outer_{field}_{mode}"));
+        }
+    }
+    let db = seeded19();
+    let original: String = db
+        .query_row(
+            "SELECT document FROM events ORDER BY sequence LIMIT 1",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let mut document: serde_json::Value = serde_json::from_str(&original).unwrap();
+    document
+        .as_object_mut()
+        .unwrap()
+        .insert("unknown_outer".into(), serde_json::json!(true));
+    db.execute(
+        "INSERT INTO events(document) VALUES(?1)",
+        [serde_json::to_string(&document).unwrap()],
+    )
+    .unwrap();
+    let before = image(&db);
+    assert!(pre_host_schema::remove_empty_host19(&db).is_err());
+    unchanged(&db, before, "event_unknown_outer");
 }
 
 #[test]
