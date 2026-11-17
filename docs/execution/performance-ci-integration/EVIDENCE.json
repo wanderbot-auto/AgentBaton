@@ -31,7 +31,9 @@
   "original_results": "docs/execution/native-ci-split/EVIDENCE.json",
   "native_CI": "not_run",
   "cold30": "not_established",
-  "push": "not_yet_observed",
+  "push": "normal FF c3\u2192401 observed; exact CI401 Env failed as preserved CI401_FAILURE.json",
   "production_implementation_by_leader": false,
-  "no_Host567_in_this_candidate": true
+  "no_Host567_in_this_candidate": true,
+  "CI401_failure": "CI401_FAILURE.json",
+  "manifest_correction": "only reviewed action-pins digest; bootstrap93/design130243/rawvalidator0"
 }

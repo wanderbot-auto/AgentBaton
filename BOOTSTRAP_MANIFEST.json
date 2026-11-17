@@ -43,7 +43,7 @@
     "infra/BRANCH_PROTECTION.md": "f0be5355c53d16459102bd4a4a5fd4a1abd03f8029d3a22fde21649f1e777049",
     "infra/CI-PLAN.md": "13451b8b7dfe2d07c02d86ddcec289a6e40f38300046f255fd2c06005ff64b9e",
     "infra/PREPARATION_CHECKLIST.md": "2a20dc9e0a0b7c5187efc8f05cf9d06108b136456ee183fb5f3320bdc720ee57",
-    "infra/action-pins.json": "30ceb8840327e5ae7b9f8fd7428c91353224cc8ea4a9b61d06657cf4441d1ceb",
+    "infra/action-pins.json": "29d2ab8417affc44a98d9b19a7bdfb23c7bdd760b2c3978df6051ffaedf71bc3",
     "infra/ci-request.json": "9246ff023059ede4efb12e4b953cf06d2893b6612dac3abb85e914bfce52ee5a",
     "infra/environment-plan.json": "a58d6129f193fcea10331a734bc490f0e5335bd2c58de1d8cfc8c53c43933c08",
     "infra/execution-gate.json": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e",
