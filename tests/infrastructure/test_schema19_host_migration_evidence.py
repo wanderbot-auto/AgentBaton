@@ -63,7 +63,9 @@ class Genuine18EvidenceControls(unittest.TestCase):
             (('backup_logical_exact',), False), (('linked_journal_verified',), False),
             (('daemon', 'forced_kill'), True), (('daemon', 'daemon_wait_exit'), False),
             (('daemon', 'identity_gone_after_join'), False), (('daemon', 'cleanup_errors'), ['unknown']),
-            (('initial_probe', 'sequence'), False)]
+            (('initial_probe', 'sequence'), False),
+            (('final_probe', 'sequence'), 5.0), (('final_api_sequence',), 5.0),
+            (('final_probe', 'sequence'), True), (('final_api_sequence',), True)]
         for path, bad in cases:
             value = copy.deepcopy(original)
             target = value
