@@ -1,0 +1,22 @@
+    Checking agentbaton-remote-host v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/crates/remote-host)
+error: used `assert_eq!` with a literal bool
+   --> tests/foundation.rs:409:5
+    |
+409 | /     assert_eq!(
+410 | |         db.query_row::<bool, _, _>("SELECT paused FROM meta", [], |r| r.get(0))
+411 | |             .unwrap(),
+412 | |         false
+413 | |     );
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#bool_assert_comparison
+    = note: `-D clippy::bool-assert-comparison` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::bool_assert_comparison)]`
+help: replace it with `assert!(..)`
+    |
+409 ~     assert!(
+410 ~         !db.query_row::<bool, _, _>("SELECT paused FROM meta", [], |r| r.get(0))
+411 ~             .unwrap()
+    |
+
+error: could not compile `agentbaton-remote-host` (test "foundation") due to 1 previous error

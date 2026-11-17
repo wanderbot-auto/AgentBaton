@@ -1,0 +1,24 @@
+   Compiling agentbaton-remote-host v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/crates/remote-host)
+error[E0034]: multiple applicable items in scope
+   --> src/transport.rs:170:14
+    |
+170 |             .by_ref()
+    |              ^^^^^^ multiple `by_ref` found
+    |
+    = note: candidate #1 is defined in an impl of the trait `std::io::Read` for the type `File`
+    = note: candidate #2 is defined in an impl of the trait `std::io::Write` for the type `File`
+help: disambiguate the method for candidate #1
+    |
+169 -         known_file
+170 -             .by_ref()
+169 +         std::io::Read::by_ref(&mut known_file)
+    |
+help: disambiguate the method for candidate #2
+    |
+169 -         known_file
+170 -             .by_ref()
+169 +         std::io::Write::by_ref(&mut known_file)
+    |
+
+For more information about this error, try `rustc --explain E0034`.
+error: could not compile `agentbaton-remote-host` (lib) due to 1 previous error

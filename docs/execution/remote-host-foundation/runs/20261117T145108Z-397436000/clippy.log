@@ -1,0 +1,75 @@
+    Checking bitflags v2.13.2
+    Checking errno v0.3.14
+    Checking once_cell v1.21.4
+    Checking fastrand v2.5.0
+    Checking getrandom v0.4.3
+    Checking rusqlite v0.38.0
+    Checking rustix v1.1.5
+    Checking agentbaton-remote-host v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/crates/remote-host)
+    Checking tempfile v3.27.0
+error: enclosing `Ok` and `?` operator are unneeded
+  --> src/protocol.rs:61:5
+   |
+61 | /     Ok(std::time::SystemTime::now()
+62 | |         .duration_since(std::time::UNIX_EPOCH)
+63 | |         .map_err(|_| Error::new("clock"))?
+64 | |         .as_millis()
+65 | |         .try_into()
+66 | |         .map_err(|_| Error::new("clock"))?)
+   | |___________________________________________^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#needless_question_mark
+   = note: `-D clippy::needless-question-mark` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::needless_question_mark)]`
+help: remove the enclosing `Ok` and `?` operator
+   |
+61 ~     std::time::SystemTime::now()
+62 |         .duration_since(std::time::UNIX_EPOCH)
+...
+65 |         .try_into()
+66 ~         .map_err(|_| Error::new("clock"))
+   |
+
+error: casting to the same type is unnecessary (`i64` -> `i64`)
+   --> src/protocol.rs:113:30
+    |
+113 |                 && g.fence < i64::MAX as i64,
+    |                              ^^^^^^^^^^^^^^^ help: try: `i64::MAX`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#unnecessary_cast
+    = note: `-D clippy::unnecessary-cast` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::unnecessary_cast)]`
+
+error: casting to the same type is unnecessary (`i64` -> `i64`)
+   --> src/protocol.rs:142:35
+    |
+142 |                 && g.expires_ms < i64::MAX as i64,
+    |                                   ^^^^^^^^^^^^^^^ help: try: `i64::MAX`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#unnecessary_cast
+
+error: large size difference between variants
+   --> src/protocol.rs:222:1
+    |
+222 | / pub enum Reply {
+223 | |     Accepted { job: String },
+    | |     ------------------------ the second-largest variant contains at least 24 bytes
+224 | |     CancelRequested,
+225 | |     Revoked,
+226 | |     Snapshot { snapshot: Snapshot },
+    | |     ------------------------------- the largest variant contains at least 376 bytes
+227 | | }
+    | |_^ the entire enum is at least 376 bytes
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#large_enum_variant
+    = note: `-D clippy::large-enum-variant` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::large_enum_variant)]`
+help: consider boxing the large fields or introducing indirection in some other way to reduce the total size of the enum
+    |
+226 -     Snapshot { snapshot: Snapshot },
+226 +     Snapshot { snapshot: Box<Snapshot> },
+    |
+
+error: could not compile `agentbaton-remote-host` (lib) due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `agentbaton-remote-host` (lib test) due to 4 previous errors

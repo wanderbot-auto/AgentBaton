@@ -1,0 +1,10 @@
+Initial cargo test 2026-11-17: 8 tests, 3 passed, 5 failed.
+strict_ssh_argv... directory_permissions
+configuration_owner... expected configuration_permissions got directory_permissions
+real_child... disconnected
+actual_cancel... disconnected
+malformed_events... disconnected
+Cause: fixture base directory tempfile default inherited umask, not explicitly 0700, correctly rejected by trusted config parent checks. Fixed fixture to create private parent; no production check weakened.
+Earlier compilation: rusqlite u64/usize SQL conversion unsupported; changed validated SQL INTEGER representation. Test helper Debug bound on secret-bearing Config corrected without adding Debug to credential configuration.
+
+Second run: 8 tests, 5 passed, 3 real-client tests failed with timeout. Root cause: Rust Stdin internally buffers a frame; poll on underlying fd then waited while remaining bytes were already buffered. Replaced serve stdio with owned unbuffered dup File descriptors; deadlines unchanged.
