@@ -1,0 +1,31 @@
+{
+  "task": "HOST-PRAGMA-COMPAT",
+  "base": "8f8d0a17861920b0577b3754ca972f0329819745",
+  "status": "regression_implementation",
+  "write_scope": [
+    "crates/core/src/host_registry.rs",
+    "crates/core/src/host_registry_tests.rs",
+    "tests/infrastructure/test_background_service_native_smoke_source.py",
+    "docs/execution/host-pragma-compat"
+  ],
+  "historical_baseline": {
+    "tested_source": "59564cac701960cf292421af509a3cd47de0f865",
+    "infrastructure": {
+      "total": 895,
+      "passed": 878,
+      "failed": 1,
+      "skipped": 16
+    },
+    "raw_log_sha256": "2dccdbd9ff1d8a393c76c732b0ec357ad33a32561614bb64e302d3bb9caf94f3",
+    "copy": "baseline-infrastructure-failure.log",
+    "is_new_verification": false
+  },
+  "not_run": [
+    "new regression",
+    "fix checks",
+    "new native/IPC/Store19 activation",
+    "SSH/Provider",
+    "CI/push"
+  ],
+  "recorded_utc": "2026-11-17T20:29:13.014299+00:00"
+}

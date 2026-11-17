@@ -1038,3 +1038,144 @@ fn corrupt_autoindex_sql_cannot_masquerade_as_its_legitimate_null() {
         }
     }
 }
+
+#[test]
+fn actual_a_migration_then_b_inventory_preserves_shadow_pragma_rows_and_quoted_names() {
+    let directory = TempDir::new().unwrap();
+    let path = directory.path().join("actual-a-b.sqlite3");
+    let mut store = Store::open(&path).unwrap();
+    store
+        .create("local", "preserve original task", "cross-module-task")
+        .unwrap();
+    let unusual = "opaque \"quoted'; DROP TABLE tasks;--";
+    store.conn.execute_batch("CREATE TABLE pragma_foreign_key_list(raw BLOB,note TEXT); CREATE INDEX opaque_shadow_note ON pragma_foreign_key_list(note);").unwrap();
+    let quoted = unusual.replace('"', "\"\"");
+    store.conn.execute_batch(&format!("CREATE TABLE \"{quoted}\"(raw BLOB,note TEXT); CREATE INDEX opaque_quoted_note ON \"{quoted}\"(note);")).unwrap();
+    let payload = vec![0u8, 255, 128, 1, 222, 173, 190, 239];
+    for table in ["pragma_foreign_key_list", unusual] {
+        let quoted = table.replace('"', "\"\"");
+        store
+            .conn
+            .execute(
+                &format!("INSERT INTO \"{quoted}\"(rowid,raw,note) VALUES(71,?1,?2)"),
+                params![payload, "opaque 原始内容"],
+            )
+            .unwrap();
+    }
+    fn opaque_image(
+        db: &Connection,
+        table: &str,
+    ) -> (
+        Vec<(String, String, Option<String>)>,
+        Vec<(i64, Vec<u8>, String)>,
+    ) {
+        let mut schema = db
+            .prepare(
+                "SELECT type,name,sql FROM main.sqlite_schema WHERE tbl_name=?1 ORDER BY type,name",
+            )
+            .unwrap();
+        let objects = schema
+            .query_map([table], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
+            .unwrap()
+            .collect::<rusqlite::Result<Vec<_>>>()
+            .unwrap();
+        let quoted = table.replace('"', "\"\"");
+        let mut rows = db
+            .prepare(&format!(
+                "SELECT rowid,raw,note FROM \"{quoted}\" ORDER BY rowid"
+            ))
+            .unwrap();
+        let rows = rows
+            .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
+            .unwrap()
+            .collect::<rusqlite::Result<Vec<_>>>()
+            .unwrap();
+        (objects, rows)
+    }
+    let before_shadow = opaque_image(&store.conn, "pragma_foreign_key_list");
+    let before_quoted = opaque_image(&store.conn, unusual);
+    assert_eq!(
+        store
+            .conn
+            .pragma_query_value(None, "user_version", |r| r.get::<_, i64>(0))
+            .unwrap(),
+        18
+    );
+    // Actual A helper, with the shadow table already present. No hand-written
+    // Host DDL or version stamp is used in this cross-module case.
+    crate::host_registry_migration::migrate(&mut store.conn).unwrap();
+    assert_eq!(
+        store
+            .conn
+            .pragma_query_value(None, "user_version", |r| r.get::<_, i64>(0))
+            .unwrap(),
+        19
+    );
+    assert_eq!(
+        opaque_image(&store.conn, "pragma_foreign_key_list"),
+        before_shadow
+    );
+    assert_eq!(opaque_image(&store.conn, unusual), before_quoted);
+    let before = counts(&store);
+    let result = store.register_host(&registration(), "cross-module-host");
+    if result.is_err() {
+        assert_eq!(
+            counts(&store),
+            before,
+            "failed metadata lookup must not write partial registration"
+        );
+    }
+    let receipt=result.expect("actual A migration must compose with B even when a lawful opaque table shadows a table-valued PRAGMA");
+    assert_eq!(
+        store
+            .get_host_registration(&receipt.host_id)
+            .unwrap()
+            .record
+            .registration,
+        registration()
+    );
+    assert_eq!(
+        store
+            .list_host_registrations(&HostListRequest {
+                limit: 25,
+                after_created_sequence: None
+            })
+            .unwrap()
+            .hosts
+            .len(),
+        1
+    );
+    assert_eq!(
+        store.find_host_registration("cross-module-host").unwrap(),
+        Some(receipt.clone())
+    );
+    assert_eq!(
+        store
+            .register_host(&registration(), "cross-module-host")
+            .unwrap(),
+        receipt
+    );
+    assert_eq!(counts(&store), (1, 1, 1));
+    crate::host_registry_migration::validate_current19(&store.conn).unwrap();
+    assert_eq!(
+        opaque_image(&store.conn, "pragma_foreign_key_list"),
+        before_shadow
+    );
+    assert_eq!(opaque_image(&store.conn, unusual), before_quoted);
+    drop(store);
+    // Explicit private connection reopening remains distinct from unimplemented
+    // product Store::open19 startup/backup/recovery acceptance.
+    let mut reopened = reopen_explicit_fixture(&path);
+    crate::host_registry_migration::validate_current19(&reopened.conn).unwrap();
+    assert_eq!(
+        reopened
+            .find_host_registration("cross-module-host")
+            .unwrap(),
+        Some(receipt)
+    );
+    assert_eq!(
+        opaque_image(&reopened.conn, "pragma_foreign_key_list"),
+        before_shadow
+    );
+    assert_eq!(opaque_image(&reopened.conn, unusual), before_quoted);
+}
