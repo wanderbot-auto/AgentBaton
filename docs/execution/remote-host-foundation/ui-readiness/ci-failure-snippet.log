@@ -1,0 +1,21 @@
+306: 2026-11-17T15:40:03.0403040Z 
+307: 2026-11-17T15:40:03.0503820Z 
+308: 2026-11-17T15:40:03.0506310Z [2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m107 passed[39m[22m[90m (108)[39m
+309: 2026-11-17T15:40:03.0610680Z [41m[1m FAIL [22m[49m src/GoalPlanDraft.integration.test.tsx[2m > [22mprioritizes a complete one-step draft with validator and owner nodes while folding the compatibility template
+310: 2026-11-17T15:40:03.0695960Z [2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1527 passed[39m[22m[90m (1528)[39m
+311: 2026-11-17T15:40:03.0700110Z [31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toBeEnabled()[22m
+312: 2026-11-17T15:40:03.0704280Z [2m   Start at [22m 15:38:51
+313: 2026-11-17T15:40:03.0815770Z 
+314: 2026-11-17T15:40:03.0822370Z [2m   Duration [22m 71.67s[2m (tests 47%, environment 38%, setup 7%, transform 4%, import 4%)[22m
+315: 2026-11-17T15:40:03.0925200Z Received element is not enabled:
+316: 2026-11-17T15:40:03.0925540Z 
+332:   disabled=""
+333:   type="button"
+334: />
+335:  ❯ src/GoalPlanDraft.integration.test.tsx:33:19
+336: 
+337: 
+338: 2026-11-17T15:40:03.1562590Z     [90m 32|[39m  const generate=screen.getByRole('button',{name:'Generate step plan dr…
+339: 2026-11-17T15:40:03.1563240Z     [90m 33|[39m  expect(generate).toBeEnabled();
+340: 2026-11-17T15:40:03.1563750Z     [90m   |[39m                   [31m^[39m
+341: 2026-11-17T15:40:03.1564150Z     [90m 34|[39m  await act(async()=>{fireEvent.click(generate);});

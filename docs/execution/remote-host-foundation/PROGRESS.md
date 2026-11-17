@@ -42,3 +42,14 @@
 
 - Capacity product fix committed as 9457b43b42858168b7a91e4c7c97c7c3a04ae111. Clean-head run20261117T153134Z-819857000 passes18 Rust+16 actual subprocess tests and all other explicit checks, source hashdad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7. All log/binary/trace hashes retained; worktree was clean at test start.
 - Final code/test/verifier sources frozen after clean-head verification. Only task evidence/docs remain to commit/push; Cargo slot released to perf window. Leader receives normal appended commits, no rewrite/main merge.
+
+## PR30 macOS UI readiness follow-up (leader single-file scope extension)
+
+- Leader identified latest Mac job134152899605 failed GoalPlanDraft.integration second test at original line33 (1527pass/1fail); later native steps skipped, not runner0. Shared collab registration now additionally reserves only apps/desktop/src/GoalPlanDraft.integration.test.tsx for B. No production component, fixture, lockfile, timeout, permission or assertion relaxation authorized.
+- GoalPanel refresh selects the default scope, updates scopeId, and triggers a second refresh that clears freshness. Original waitFor can observe the intermediate enabled render. Existing fixture authority is Date.now()+600000, not a stale fixed date.
+- Minimal original-test edit wraps second render in existing async act, preserving the original expect(generate).toBeEnabled and all authority/acceptance assertions. Added deferred second-refresh valid/reject/invalid coverage with pending disabled/no generation/propose/approve/preview and only valid release enabled.
+- UI validation is separate mocked-transport React evidence; remote implementation/hash remains9457/dad334..., no new remote claim. Await A fullRust slot before target/fullUI; this worktree has no task-local node_modules yet.
+
+- A fullRust/focus/doc run completed and joined before B's Node load. Standard pinned npm ci --ignore-scripts --no-audit --no-fund succeeded in task-local node_modules. Target GoalPlanDraft.integration suite passes5/5 including deferred valid/reject/invalid; no source drift in the10 checked production/fixture/config files or12 remote files.
+- Independent readonly review finds no blocker in async-act/deferred coverage. Original test prefix, after undoing only act wrapper/type import, equals baseline byte-for-byte; all original assertions retained. CI job134152899605 logs independently retrieved and hashed, failure33/1527pass confirmed; native steps skipped.
+- UI test change will be committed before typecheck/fullUI, binding those checks to its actual clean commit. Remote crate is unchanged and is not being rebuilt/retested for this test-only addition.

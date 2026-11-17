@@ -132,7 +132,7 @@
     "approved real SSH and macOS/Linux cross-machine validation"
   ],
   "target_main": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
-  "delivery_note": "Final documentation/evidence commit will be a descendant with identical product+test+verifier source hashes. Its exact head is recorded in draft PR and handoff.",
+  "delivery_note": "Standalone remote sources remain exactly9457/dad334. Later delivery includes an independently scoped GoalPlanDraft integration-test preparation/deferred-readiness fix, so it is no longer a docs-only descendant. UI evidence is separate.",
   "draft_pr": "https://github.com/wanderbot-auto/AgentBaton/pull/30",
   "prior_delivery_head": "4a2e8a46ee4774a78d2ecf90ed42f2f0d0a3da8b",
   "capacity_fix": {
@@ -147,5 +147,12 @@
   },
   "implementation_commit": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
   "verified_source_commit": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
-  "tested_worktree_dirty": []
+  "tested_worktree_dirty": [],
+  "ui_readiness": {
+    "status": "target_pass_full_pending",
+    "evidence": "docs/execution/remote-host-foundation/ui-readiness/runs/20261117T160346Z-261412000/evidence.json",
+    "scope": "apps/desktop/src/GoalPlanDraft.integration.test.tsx only",
+    "test_sha256": "3fc08e5b7e055b5bfe8ea6d59364e9105f61cc5fc49a7d27363542d34da4dbed",
+    "remote_sources_unchanged": true
+  }
 }

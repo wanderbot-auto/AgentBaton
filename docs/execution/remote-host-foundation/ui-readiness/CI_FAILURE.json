@@ -1,0 +1,132 @@
+{
+  "authenticated": true,
+  "job_id": 134152899605,
+  "name": "Product / macos-15",
+  "run_id": 44115665810,
+  "head_sha": "e75bc50588be8186c6bd364bd7ef914789d569aa",
+  "conclusion": "failure",
+  "html_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/44115665810/job/134152899605",
+  "steps": [
+    {
+      "name": "Set up job",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "conclusion": "success"
+    },
+    {
+      "name": "Toolchain",
+      "conclusion": "success"
+    },
+    {
+      "name": "Frontend dependencies and validation",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Build genuine native schema14 history for the required migration gate",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Build genuine schema15 Task history for the required migration gate",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Build genuine schema16 workspace history for the required migration gate",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Core and native host tests",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Migrate genuine native schema14 history with corruption and rollback controls",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Migrate genuine nonempty schema15 Task history with corruption and receipt controls",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Migrate genuine nonempty schema16 workspace history with corruption and receipt controls",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Actual macOS WebView and daemon lifecycle acceptance",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Actual native Owner Grant dialog and private database acceptance",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Actual Native Factory planning approval and unchanged Grant evidence",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Native library tests with smoke features",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Actual Native background registration IPC in generated private paths",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Actual Native integration approval and early cancellation",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Retain finite Native integration evidence without private snapshots",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Retain bounded native migration metadata without private history",
+      "conclusion": "success"
+    },
+    {
+      "name": "Retain finite rework progress without private runtime data",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "conclusion": "success"
+    },
+    {
+      "name": "Build desktop UI and application",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Audit the actual default release application for test controls",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Package development application and evidence",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "conclusion": "success"
+    }
+  ],
+  "raw_log_path": "/private/tmp/ab-collab-wlcqzsyp/pr30-e75-macos-job134152899605.log",
+  "raw_log_bytes": 48557,
+  "raw_log_sha256": "7c975c778201027902fe0a53d1f6de2de1041009588b4b5b3265093649a145a6",
+  "snippet": "ci-failure-snippet.log",
+  "snippet_sha256": "139cb3f44e150149ed68d3b5b5e740347ff2d1b2204594b0941bc7c35d921f86"
+}
