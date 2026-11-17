@@ -1,4 +1,4 @@
-from tests.infrastructure.native_ci_workflow_split import restore_native_ci_split
+from tests.infrastructure.native_ci_workflow_split import read_workflow_source, restore_native_ci_split
 """Source wiring controls only; these do not execute historical tools or migration."""
 from pathlib import Path
 import copy
@@ -384,7 +384,7 @@ def verify_only_six_historical_target_changes(text):
 
 class Genuine16WorkflowWiring(unittest.TestCase):
     def setUp(self):
-        self.workflow = yaml.load(restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_text()), Loader=yaml.BaseLoader)
+        self.workflow = yaml.load(restore_native_ci_split(read_workflow_source(ROOT / '.github/workflows/product.yml')), Loader=yaml.BaseLoader)
 
     def lanes(self):
         lanes = []
@@ -482,7 +482,7 @@ class Genuine16WorkflowWiring(unittest.TestCase):
                             historical_targets(job)
 
     def test_schema18_inverse_refuses_missing_duplicate_or_other_version_at_each_exact_site(self):
-        text = restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_text())
+        text = restore_native_ci_split(read_workflow_source(ROOT / '.github/workflows/product.yml'))
         for current, historical in CONVERSATION_SCHEMA18_SITES:
             for changed in (text.replace(current, historical, 1), text.replace(current, current.replace('18', '19'), 1), text + current):
                 with self.assertRaises(ValueError):
@@ -490,10 +490,10 @@ class Genuine16WorkflowWiring(unittest.TestCase):
         self.assertEqual(strip_conversation_schema18(text).count("              'schema': 17,\n"), 1)
 
     def test_exact_six_argument_reverse_normalization_retains_the_entire_old_workflow(self):
-        verify_only_six_historical_target_changes(restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_text()))
+        verify_only_six_historical_target_changes(restore_native_ci_split(read_workflow_source(ROOT / '.github/workflows/product.yml')))
 
     def test_reverse_normalization_does_not_hide_any_other_workflow_change(self):
-        original = restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_text())
+        original = restore_native_ci_split(read_workflow_source(ROOT / '.github/workflows/product.yml'))
         for old, new in [
             ('timeout-minutes: 60', 'timeout-minutes: 61'),
             ('contents: read', 'contents: write'),

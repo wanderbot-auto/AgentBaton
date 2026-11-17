@@ -3,11 +3,12 @@ import copy
 import hashlib
 import json
 from pathlib import Path
+import tempfile
 import unittest
 
 import yaml
 from tests.infrastructure.native_ci_workflow_split import (
-    BASE_SHA256, ORIGINAL_STEP_SHA256, restore_native_ci_split)
+    BASE_SHA256, ORIGINAL_STEP_SHA256, read_workflow_source, restore_native_ci_split)
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / '.github/workflows/product.yml'
@@ -102,7 +103,7 @@ def validate_actual(document):
 
 class WorkflowSplit(unittest.TestCase):
     def setUp(self):
-        self.text = WORKFLOW.read_text()
+        self.text = read_workflow_source(WORKFLOW)
         self.document = yaml.load(self.text, Loader=yaml.BaseLoader)
 
     def test_complete_byte_inverse_preserves_every_original_command_and_pin(self):
@@ -125,6 +126,21 @@ class WorkflowSplit(unittest.TestCase):
                 restore_native_ci_split(self.text.replace(before, after, 1))
         with self.assertRaises(ValueError):
             restore_native_ci_split(self.text + '# unreviewed byte\n')
+
+    def test_real_file_reader_preserves_and_refuses_crlf_bom_and_other_unknown_bytes(self):
+        original = WORKFLOW.read_bytes()
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / 'product.yml'
+            source.write_bytes(original)
+            self.assertEqual(read_workflow_source(source).encode('utf-8'), original)
+            restore_native_ci_split(read_workflow_source(source))
+            for raw in (original.replace(b'\n', b'\r\n'), b'\xef\xbb\xbf' + original,
+                        original + b'# unexpected source byte\n'):
+                source.write_bytes(raw)
+                observed = read_workflow_source(source)
+                self.assertEqual(observed.encode('utf-8'), raw)
+                with self.subTest(prefix=raw[:4]), self.assertRaises(ValueError):
+                    restore_native_ci_split(observed)
 
     def test_raw_dag_negative_conditions_are_checked_without_inverse(self):
         changes = [

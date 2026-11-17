@@ -1,4 +1,4 @@
-from tests.infrastructure.native_ci_workflow_split import restore_native_ci_split
+from tests.infrastructure.native_ci_workflow_split import read_workflow_source, restore_native_ci_split
 """CI flow contracts only; no Cargo, Core, Native process or OS dialog runs."""
 import contextlib
 import hashlib
@@ -27,7 +27,7 @@ SECRET = 'PRIVATE_CANARY_PROPOSAL_TOKEN_SNAPSHOT_PATH'
 
 
 def workflow():
-    return yaml.load(restore_native_ci_split(WORKFLOW.read_text()), Loader=yaml.BaseLoader)
+    return yaml.load(restore_native_ci_split(read_workflow_source(WORKFLOW)), Loader=yaml.BaseLoader)
 
 
 def step(name):
@@ -108,7 +108,7 @@ def fake_process(namespace, returns):
 
 class IntegrationNativeCiTests(unittest.TestCase):
     def test_entire_native_workflow_retains_actual_b3_baseline_after_exact_ui_layer(self):
-        restored = strip_integration_browser_ci_layer(restore_native_ci_split(WORKFLOW.read_text()))
+        restored = strip_integration_browser_ci_layer(restore_native_ci_split(read_workflow_source(WORKFLOW)))
         self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),
                          '599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc')
 
