@@ -1,0 +1,41 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_remote_host-a7ff49045faf7497)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/baton_host_companion-76f01ce78f248ea0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/foundation.rs (target/debug/deps/foundation-23998c7fcb5419a6)
+
+running 16 tests
+test identity_authority_fencing_and_cumulative_budget ... ok
+test directory_symlink_absolute_traversal_config_owner_and_unknown_version ... ok
+test future_wal_schemas_are_rejected_before_journal_mode_mutation ... ok
+test generated_ssh_identity_effective_configuration_without_connecting ... ok
+test root_replacement_and_private_journal_permissions_are_rejected ... ok
+test strict_ssh_argv_has_no_shell_injection_and_pins_known_hosts_file ... ok
+test lock_wait_does_not_masquerade_as_clock_rollback ... ok
+test reserved_dispatch_does_not_acquire_a_replacement_grant ... ok
+test lease_expiry_rollback_replay_and_revocation_are_fail_closed ... ok
+test malformed_events_cannot_forge_confirmed_stop_or_advance_cursor ... ok
+test maximum_snapshot_fits_one_frame ... ok
+test transport_registration_prevents_cross_host_bytes_and_reconciliation_is_bound ... ok
+test paged_reconciliation_is_required_and_event_capacity_reserves_completion_space ... ok
+test actual_cancel_waits_for_child_exit_and_offline_intent_survives_controller_reopen ... ok
+test real_child_persistence_duplicates_reopen_and_local_event_replay ... ok
+test journal_failure_rolls_back_reservation_receipt_and_budget ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+
+   Doc-tests agentbaton_remote_host
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,42 @@
+test_actual_worker_cannot_adopt_new_fence_lease (__main__.RealCompanionTests.test_actual_worker_cannot_adopt_new_fence_lease) ... ok
+test_clock_rollback_stops_actual_worker_but_keeps_cancel_and_reconcile (__main__.RealCompanionTests.test_clock_rollback_stops_actual_worker_but_keeps_cancel_and_reconcile) ... ok
+test_disconnect_cancel_reconcile_and_join (__main__.RealCompanionTests.test_disconnect_cancel_reconcile_and_join) ... ok
+test_half_frame_unknown_fields_unknown_version_and_oversize (__main__.RealCompanionTests.test_half_frame_unknown_fields_unknown_version_and_oversize) ... ok
+test_journal_failure_after_file_effect_remains_unknown_without_retry (__main__.RealCompanionTests.test_journal_failure_after_file_effect_remains_unknown_without_retry) ... ok
+test_journal_write_failure_before_any_spawn (__main__.RealCompanionTests.test_journal_write_failure_before_any_spawn) ... ok
+test_lease_expires_during_actual_worker (__main__.RealCompanionTests.test_lease_expires_during_actual_worker) ... ok
+test_lost_response_and_lost_ack_reopen_exactly_one_effect (__main__.RealCompanionTests.test_lost_response_and_lost_ack_reopen_exactly_one_effect) ... ok
+test_old_companion_deadline_cannot_pause_new_fence (__main__.RealCompanionTests.test_old_companion_deadline_cannot_pause_new_fence) ... FAIL
+test_parallel_owned_workers_do_not_false_pause_on_highwater (__main__.RealCompanionTests.test_parallel_owned_workers_do_not_false_pause_on_highwater) ... /Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x105e516c0>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x105e515d0>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x105e517b0>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x105e518a0>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_partial_frame_deadline (__main__.RealCompanionTests.test_partial_frame_deadline) ... ok
+test_process_kill_after_dispatch_is_unknown_not_replayed (__main__.RealCompanionTests.test_process_kill_after_dispatch_is_unknown_not_replayed) ... ok
+test_real_auth_budget_permission_and_binding_denials (__main__.RealCompanionTests.test_real_auth_budget_permission_and_binding_denials) ... ok
+test_real_idle_is_not_partial_frame_timeout (__main__.RealCompanionTests.test_real_idle_is_not_partial_frame_timeout) ... ok
+test_reopen_fails_on_corrupt_or_future_schema_without_effects (__main__.RealCompanionTests.test_reopen_fails_on_corrupt_or_future_schema_without_effects) ... ok
+test_symlink_output_cannot_overwrite_source (__main__.RealCompanionTests.test_symlink_output_cannot_overwrite_source) ... ok
+
+======================================================================
+FAIL: test_old_companion_deadline_cannot_pause_new_fence (__main__.RealCompanionTests.test_old_companion_deadline_cannot_pause_new_fence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/tests/infrastructure/test_remote_host.py", line 339, in test_old_companion_deadline_cannot_pause_new_fence
+    self.assertFalse(self.snapshot(fresh)["paused"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 16 tests in 6.858s
+
+FAILED (failures=1)

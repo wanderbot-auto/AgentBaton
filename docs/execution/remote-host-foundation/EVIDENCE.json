@@ -1,0 +1,162 @@
+{
+  "task": "RHOST-001",
+  "status": "review",
+  "base": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
+  "branch": "collab/remote-host-foundation",
+  "pr_base": "main",
+  "source_sha256": "dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7",
+  "verification": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/evidence.json",
+  "checks": [
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T15:31:34Z",
+      "elapsed_seconds": 0.392,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "rust-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T15:31:35Z",
+      "elapsed_seconds": 1.671,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/rust-tests.log",
+      "log_sha256": "4b1373a4f26967fd405fd9c6f416931671ed5e952f3986bdbc946c4f9aa3c510"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--locked",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T15:31:36Z",
+      "elapsed_seconds": 0.189,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/clippy.log",
+      "log_sha256": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+    },
+    {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T15:31:37Z",
+      "elapsed_seconds": 0.151,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/build.log",
+      "log_sha256": "ee1d3fffa2022e962e63e0dbe4d35c9c198450a20c29fc09030f635dbb38bfcd"
+    },
+    {
+      "name": "real-subprocess-faults",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "tests/infrastructure/test_remote_host.py"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T15:31:37Z",
+      "elapsed_seconds": 7.732,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/real-subprocess-faults.log",
+      "log_sha256": "25a99101a62830e5b3578b980bdb625e8000db048291b4e38dde65d1162978c8"
+    }
+  ],
+  "binary": {
+    "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/target/debug/baton-host-companion",
+    "sha256": "d9d8b38815b4a74ca36be6ecf04bde84d4d708b891ba3ad5388d8510429b4bb0",
+    "size": 4345992,
+    "signing": "development, no production signing"
+  },
+  "sanitized_stdio_trace": {
+    "path": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/stdio-trace.jsonl",
+    "sha256": "6022140d15dbbc9a7c5378d70f0e13ce7097e27c4e118ec532103a2fca91035e",
+    "bytes": 132384
+  },
+  "counts": {
+    "rust": 18,
+    "real_subprocess": 16
+  },
+  "independent_review": "REVIEW.md",
+  "processes": "real fixture supervisors use EOF/join, crash groups use SIGKILL/OS reap; suite asserts no surviving process groups",
+  "all_runs": [
+    "docs/execution/remote-host-foundation/runs/20261117T145108Z-397436000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T145229Z-238823000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T145617Z-235126000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T145805Z-556911000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T145903Z-659748000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T145952Z-324474000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T150127Z-472136000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T150258Z-59859000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T152431Z-547280000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/evidence.json"
+  ],
+  "unverified": [
+    "real SSH handshake",
+    "cross-machine macOS/Linux",
+    "Linux execution",
+    "Provider integration",
+    "Core/UI wiring",
+    "signed release"
+  ],
+  "dependencies": [
+    "trusted Core Host/key registration and provisioning",
+    "shared project/root budget authority across attempts",
+    "Core IPC/history, routing and desktop integration",
+    "remote cache retention/policy integration",
+    "approved real SSH and macOS/Linux cross-machine validation"
+  ],
+  "target_main": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
+  "delivery_note": "Standalone remote9457/dad334 sources are unchanged. Delivery additionally contains the separately authorized GoalPlanDraft integration-test fix, verified on clean29111; final successor of29111 is docs-only. Not a docs-only successor of9457.",
+  "draft_pr": "https://github.com/wanderbot-auto/AgentBaton/pull/30",
+  "prior_delivery_head": "4a2e8a46ee4774a78d2ecf90ed42f2f0d0a3da8b",
+  "capacity_fix": {
+    "admission_reserve": 96,
+    "total_event_cap": 10000,
+    "job_cap": 32,
+    "receipt_cap": 4096,
+    "remaining_debt": "pending_wait + unsettled_terminal + first_controls + necessary_reopen",
+    "worst_initial_debt": 67,
+    "red_log": "review-capacity/red.log",
+    "review": "native read-only reviewer confirmed no remaining capacity blocker"
+  },
+  "implementation_commit": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
+  "verified_source_commit": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
+  "tested_worktree_dirty": [],
+  "ui_readiness": {
+    "status": "review",
+    "evidence": "docs/execution/remote-host-foundation/ui-readiness/EVIDENCE.json",
+    "verified_commit": "29111d448d441cc3dcc87c98894906ab73a27fb5",
+    "target_tests": 5,
+    "full_ui_tests": 1531,
+    "full_ui_files": 108,
+    "typecheck": "passed",
+    "test_sha256": "3fc08e5b7e055b5bfe8ea6d59364e9105f61cc5fc49a7d27363542d34da4dbed",
+    "remote_sources_unchanged": true
+  }
+}

@@ -1,7 +1,7 @@
 import {act,fireEvent,render,screen,waitFor,within} from '@testing-library/react';
 import {expect,it,vi} from 'vitest';
 import {GoalPlanning} from './GoalPlanning';
-import {goalApi} from './goal-api';
+import {goalApi,type GoalScope} from './goal-api';
 import {goalMultiPlanDraftApi} from './goal-multi-plan-draft-api';
 import {oneStepDraftFixture} from './goal-multi-plan-draft-test-fixtures';
 import {goalPlanDraftApi} from './goal-plan-draft-api';
@@ -26,7 +26,7 @@ it('applies reviewed initial draft in the real Goal panel without proposing or a
 it('prioritizes a complete one-step draft with validator and owner nodes while folding the compatibility template',async()=>{
  const f=oneStepDraftFixture(true);const grant={id:f.scope.root_grant_id,root_grant_id:f.scope.root_grant_id,parent_id:null,project_id:f.task.project_id,revision:2,expires_at_ms:f.scope.expires_at_ms,revoked:false,scope:{workspace_ids:['workspace'],connection_ids:['connection'],host_ids:['local'],max_attempts:5,max_concurrency:1,max_duration_ms:10000,max_children:3,max_depth:1}} as ExecutionGrant;
  vi.mocked(goalApi.grantsList).mockResolvedValue([grant]);vi.mocked(goalApi.scopesList).mockResolvedValue([f.scope]);vi.mocked(goalApi.plansList).mockResolvedValue([]);vi.mocked(goalMultiPlanDraftApi.generate).mockResolvedValue(f.draft);
- render(<GoalPlanning task={f.task} language="en" connected navigation={{target:'plan',requestId:'complete'}}/>);await waitFor(()=>expect(screen.getByRole('button',{name:'Generate step plan draft'})).toBeEnabled());expect(screen.getByText('Compatibility: work-node-only template',{selector:'summary'}).closest('details')).not.toHaveAttribute('open');expect(screen.getByText('Generate initial draft',{selector:'button'})).not.toBeVisible();expect(goalMultiPlanDraftApi.generate).not.toHaveBeenCalled();
+ await act(async()=>{render(<GoalPlanning task={f.task} language="en" connected navigation={{target:'plan',requestId:'complete'}}/>);});await waitFor(()=>expect(screen.getByRole('button',{name:'Generate step plan draft'})).toBeEnabled());expect(screen.getByText('Compatibility: work-node-only template',{selector:'summary'}).closest('details')).not.toHaveAttribute('open');expect(screen.getByText('Generate initial draft',{selector:'button'})).not.toBeVisible();expect(goalMultiPlanDraftApi.generate).not.toHaveBeenCalled();
  for(const [label,value] of [['Step-plan risks to review','Review overwritten files'],['Step-plan prohibited actions','Do not publish'],['Work step goal step-1','Write report'],['Runtime limit (ms) step-1','1000'],['Output limit (bytes) step-1','4096'],['Runtime per review node (ms) step-1','100'],['Output per review node (bytes) step-1','256']])fireEvent.change(screen.getByLabelText(label),{target:{value}});
  fireEvent.click(screen.getByLabelText('Produced artifacts step-1: report · outputs/report.txt'));
  const generate=screen.getByRole('button',{name:'Generate step plan draft'});
@@ -35,4 +35,31 @@ it('prioritizes a complete one-step draft with validator and owner nodes while f
  expect(screen.getByText(f.draft.approved_acceptance_criteria)).toBeVisible();
  expect(screen.getByText('baton-review-1-2: Required review · rule-validator')).toBeVisible();
  for(const label of ['I reviewed all step goals, dependencies and artifact mappings.','I reviewed risks, prohibited actions and the total limits.','I reviewed the approved acceptance criteria and upstream waiting.'])fireEvent.click(screen.getByLabelText(label));fireEvent.click(screen.getByRole('button',{name:'Use reviewed step plan'}));expect(screen.getByLabelText('Plan proposal JSON')).toHaveValue(JSON.stringify(f.draft.plan,null,2));expect(goalApi.propose).not.toHaveBeenCalled();expect(goalApi.approve).not.toHaveBeenCalled();expect(goalApi.preview).not.toHaveBeenCalled();
+});
+
+function deferred<T>(){
+ let resolve!:(value:T)=>void,reject!:(reason:Error)=>void;
+ const promise=new Promise<T>((yes,no)=>{resolve=yes;reject=no;});
+ return {promise,resolve,reject};
+}
+it.each(['valid','rejected','invalid'] as const)('keeps draft actions blocked through the scope-selection refresh until its %s result',async outcome=>{
+ vi.clearAllMocks();
+ const f=oneStepDraftFixture(true);const grant={id:f.scope.root_grant_id,root_grant_id:f.scope.root_grant_id,parent_id:null,project_id:f.task.project_id,revision:2,expires_at_ms:f.scope.expires_at_ms,revoked:false,scope:{workspace_ids:['workspace'],connection_ids:['connection'],host_ids:['local'],max_attempts:5,max_concurrency:1,max_duration_ms:10000,max_children:3,max_depth:1}} as ExecutionGrant;
+ const second=deferred<GoalScope[]>();
+ vi.mocked(goalApi.grantsList).mockResolvedValue([grant]);
+ vi.mocked(goalApi.scopesList).mockResolvedValue([f.scope]).mockResolvedValueOnce([f.scope]).mockImplementationOnce(()=>second.promise);
+ vi.mocked(goalApi.plansList).mockResolvedValue([]);vi.mocked(goalMultiPlanDraftApi.generate).mockResolvedValue(f.draft);
+ await act(async()=>{render(<GoalPlanning task={f.task} language="en" connected navigation={{target:'plan',requestId:'readiness'}}/>);});
+ expect(goalApi.scopesList).toHaveBeenCalledTimes(2);expect(goalApi.plansList).toHaveBeenCalledTimes(1);
+ const generate=screen.getByRole('button',{name:'Generate step plan draft'});
+ expect(generate).toBeDisabled();fireEvent.click(generate);
+ expect(goalPlanDraftApi.generate).not.toHaveBeenCalled();expect(goalMultiPlanDraftApi.generate).not.toHaveBeenCalled();expect(goalApi.propose).not.toHaveBeenCalled();expect(goalApi.approve).not.toHaveBeenCalled();expect(goalApi.preview).not.toHaveBeenCalled();
+ await act(async()=>{
+  if(outcome==='rejected')second.reject(new Error('Second Goal refresh failed'));
+  else second.resolve(outcome==='invalid'?[{...f.scope,project_id:'foreign'}]:[f.scope]);
+ });
+ if(outcome==='valid'){expect(generate).toBeEnabled();expect(goalApi.plansList).toHaveBeenCalledTimes(2);}
+ else{expect(generate).toBeDisabled();expect(screen.getByRole('alert')).toHaveTextContent(outcome==='rejected'?'Second Goal refresh failed':'Foreign, stale');expect(goalApi.plansList).toHaveBeenCalledTimes(1);}
+ expect(goalApi.scopesList).toHaveBeenCalledTimes(2);
+ expect(goalPlanDraftApi.generate).not.toHaveBeenCalled();expect(goalMultiPlanDraftApi.generate).not.toHaveBeenCalled();expect(goalApi.propose).not.toHaveBeenCalled();expect(goalApi.approve).not.toHaveBeenCalled();expect(goalApi.preview).not.toHaveBeenCalled();
 });

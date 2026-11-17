@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "task": "RHOST-001",
+  "head": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
+  "dirty": [
+    "?? crates/remote-host/",
+    "?? docs/execution/remote-host-foundation/",
+    "?? scripts/verify-remote-host.py",
+    "?? tests/infrastructure/test_remote_host.py"
+  ],
+  "source_hash": "600c712de36852235ce97d3634c7200b7b0a8be258a188e58d01daa18ea987c9",
+  "source_sha256": {
+    "crates/remote-host/Cargo.lock": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/src/controller.rs": "7f2487054dddc5628a873f5e297e013f40a751252010e729fe8b75bf950edad0",
+    "crates/remote-host/src/lib.rs": "401c499aae7f72978cbfd816df50c81c59b3e1c9658f259b04fb4d299b3a5a6c",
+    "crates/remote-host/src/main.rs": "9243c4224963e7b73120e337828d01e0700e58b5cd9aa8f12dded7cc92515e7f",
+    "crates/remote-host/src/protocol.rs": "cf75bc67caa2435fd484cfb2e9b7ff6506917a098cafb3fe806805fc43b4111e",
+    "crates/remote-host/src/store.rs": "8d64e325f55d2edd7586ad8f69a6aa892d31b1c905cee08b434a5035a8cc4a1d",
+    "crates/remote-host/src/transport.rs": "a4047a4c4a811ed9707124e75ba1679e21ed20071e7ee0c5ed4a7f864c221e78",
+    "crates/remote-host/src/worker.rs": "9bcddabcac87028b977a40fbc80e1ab1ec713a449b378cec18de17595863992a",
+    "crates/remote-host/tests/foundation.rs": "998c519a487ac4e0e1f8609dc64ea8bbe991bee34e142c4eb66e65d02d8fc41d",
+    "scripts/verify-remote-host.py": "09d5dfa83992b489f60743035018a6b09c2dea578e8ea8d93f03d55f9579e435",
+    "tests/infrastructure/test_remote_host.py": "8b6a81ae3081265952c0eb62de201c5581b42aa1966682a267272f8d36f326fa"
+  },
+  "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "runtime": "/private/tmp/ab-collab-wlcqzsyp",
+  "target": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/target",
+  "checks": [
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T14:59:52Z",
+      "elapsed_seconds": 0.133,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T145952Z-324474000/fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "rust-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T14:59:52Z",
+      "elapsed_seconds": 2.989,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T145952Z-324474000/rust-tests.log",
+      "log_sha256": "e871ae8b6d12be4e0ae370893f7850c389eea7d44e54f418cf4e70d1031ebc76"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--locked",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T14:59:55Z",
+      "elapsed_seconds": 0.622,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T145952Z-324474000/clippy.log",
+      "log_sha256": "0f1f2e4b39023d71dd29f83a2e778f65372a404227d61a2665615a2ccc1efed2"
+    },
+    {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T14:59:56Z",
+      "elapsed_seconds": 0.613,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T145952Z-324474000/build.log",
+      "log_sha256": "6ae03a0962de756a92b6779297341fc8671be4894a79358038052d710da30917"
+    },
+    {
+      "name": "real-subprocess-faults",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "tests/infrastructure/test_remote_host.py"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T14:59:56Z",
+      "elapsed_seconds": 7.256,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T145952Z-324474000/real-subprocess-faults.log",
+      "log_sha256": "e8beccc3f1df64d3079a2b9db16035c3fef55a0b13f0a52d0a23005f1e12c1a6"
+    }
+  ],
+  "unverified": [
+    "real SSH handshake",
+    "cross-machine macOS/Linux",
+    "Linux execution",
+    "Provider integration",
+    "Core/UI wiring",
+    "signed release"
+  ],
+  "processes": "real fixture supervisors use EOF/join, crash groups use SIGKILL/OS reap; suite asserts no surviving process groups",
+  "binary": {
+    "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/target/debug/baton-host-companion",
+    "sha256": "752dc9edb127cdadb741f246f19c822f19374e2f86fec1ce0abfbcded6a091cb",
+    "size": 4324360,
+    "signing": "development, no production signing"
+  },
+  "source_unchanged_during_verification": true,
+  "passed": true
+}

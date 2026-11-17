@@ -1,0 +1,13 @@
+
+> @agentbaton/desktop@0.1.0 test
+> vitest run src/GoalPlanDraft.integration.test.tsx
+
+
+ RUN  v5.0.5 /Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  00:03:48
+   Duration  743ms (tests 40%, environment 31%, transform 19%, setup 5%, import 4%)
+

@@ -1,0 +1,22 @@
+   Compiling agentbaton-remote-host v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/crates/remote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.74s
+     Running tests/foundation.rs (target/debug/deps/foundation-23998c7fcb5419a6)
+
+running 1 test
+test first_controls_and_worker_completion_survive_reachable_admission_boundary ... FAILED
+
+failures:
+
+---- first_controls_and_worker_completion_survive_reachable_admission_boundary stdout ----
+
+thread 'first_controls_and_worker_completion_survive_reachable_admission_boundary' (45371563) panicked at tests/foundation.rs:686:40:
+called `Result::unwrap()` on an `Err` value: Error { code: "journal_capacity" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    first_controls_and_worker_completion_survive_reachable_admission_boundary
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `--test foundation`

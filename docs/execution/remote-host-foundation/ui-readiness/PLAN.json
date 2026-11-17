@@ -1,0 +1,79 @@
+{
+  "status": "static_ready_waiting_A_fullRust_slot",
+  "head": "e75bc50588be8186c6bd364bd7ef914789d569aa",
+  "allowed_test": "apps/desktop/src/GoalPlanDraft.integration.test.tsx",
+  "scope_record": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/leader-control/docs/execution/leader-control/PR30_READINESS_SCOPE.json",
+  "scope_record_sha256": "b94df74fad9ca5d1b7150ff275394b064aef58a5110175c9897fc9fee5196a95",
+  "scope": {
+    "task": "remote-host-foundation",
+    "writer": "B only",
+    "added_path": "apps/desktop/src/GoalPlanDraft.integration.test.tsx",
+    "method": "leader written handoff and atomic claim amendment under standard registration lock; no product permission expansion",
+    "trigger": "PR30 e75 job134152899605 failed at unchanged GoalPlanDraft integration readiness assertion; source-only asynchronous race candidate",
+    "scope": "test preparation and controlled pending/reject/invalid readiness cases only; no production UI/fixture budget/timeout/policy changes",
+    "old_claim_sha256": "cc6e777b65b9e9bce4859bcfe986ac670274439498ee32b931eb096005f261c9",
+    "new_claim_sha256": "1f1ce13f236e985cb02726d9fa8e864ff09bd7d5ca99d3df92be76210c7a97dd",
+    "review_required": [
+      "preserve all original assertions and runtime/authority limits",
+      "async act flush known resolved fixture effect chain; no sleep/timeout increase",
+      "hold second refresh, assert disabled/no generate/propose/approve/preview",
+      "resolve valid -> enabled; reject/invalid -> remains blocked",
+      "UI source hashes equal base; explicit new test provenance separate from standalone remote verifier"
+    ]
+  },
+  "unchanged_production_fixture_config_sha256": {
+    "apps/desktop/src/GoalPlanning.tsx": "a76629623c9fd47037f6af8421d61e4c66e120ccb847aaecf860be0a02e138d9",
+    "apps/desktop/src/GoalMultiPlanDraft.tsx": "791a5709cc577b8c32cae7ec522014db633e547637a432bac675d35b39517bc2",
+    "apps/desktop/src/GoalPlanDraft.tsx": "e7144762874369f0b80e4628171123668493f656c84dd093df3d19c90a54a8f6",
+    "apps/desktop/src/goal-execution-test-fixtures.ts": "76112fe6c1d37826537d23f867694aa3a97ec68d3b2e45cb05c34c56e10aec89",
+    "apps/desktop/src/goal-plan-draft-test-fixtures.ts": "9f3017a105d3a8b8e707ed3cf64c4282ff4c7c350d7259803b9d70e3736c1dd4",
+    "apps/desktop/src/goal-multi-plan-draft-test-fixtures.ts": "29336dcbe917db464fdec20c85ba8553cf8522f28c927368dd6548468edb944c",
+    "apps/desktop/vite.config.ts": "e93937479b6bfe7e0a71a21517ec72a629bcf7ab839b81f632aa3f039a901774",
+    "apps/desktop/package.json": "62b1f3ad51ffbedd2dafd7ed30ad3848740d22c74fc4ad1e1dea291ec257e60b",
+    "apps/desktop/package-lock.json": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d",
+    "apps/desktop/src/test-setup.ts": "ae4b6b92c8c0f06526032b2dedeb4fb0e93b85af2a138a423386f2e36894a685"
+  },
+  "planned_checks": [
+    [
+      "npm",
+      "--prefix",
+      "apps/desktop",
+      "ci",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund"
+    ],
+    [
+      "npm",
+      "--prefix",
+      "apps/desktop",
+      "test",
+      "--",
+      "src/GoalPlanDraft.integration.test.tsx"
+    ],
+    [
+      "npm",
+      "--prefix",
+      "apps/desktop",
+      "run",
+      "typecheck"
+    ],
+    [
+      "npm",
+      "--prefix",
+      "apps/desktop",
+      "test"
+    ]
+  ],
+  "review": "native read-only reviewer: no blocker; no tests/npm/run-lock used",
+  "remote_source_sha256": "dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7",
+  "not_proof": [
+    "Core/native transport",
+    "real remote Host",
+    "UI/macOS native acceptance"
+  ],
+  "original_test_prefix_except_render_and_type_import_equals_base": true,
+  "unchanged_original_test_sha256": "ecfe9d8722c7582c43996995c7bfe967b0fc7c1b8882a4294531196959485c21",
+  "remote_12_source_hashes_unchanged": true,
+  "remote_product_commit": "9457b43b42858168b7a91e4c7c97c7c3a04ae111"
+}
