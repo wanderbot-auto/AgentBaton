@@ -1,5 +1,6 @@
 """Finite18-input evidence rejection controls. No19 migration/native claim."""
 import copy
+from contextlib import closing
 import importlib.util
 import json
 import os
@@ -101,7 +102,7 @@ class Genuine18EvidenceControls(unittest.TestCase):
         # generated predecessors, tool evidence or successful lifecycle data.
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory).resolve() / 'synthetic.sqlite3'
-            with sqlite3.connect(path) as db:
+            with closing(sqlite3.connect(path)) as db:
                 for table in H.SCHEMA_TABLES:
                     if table == 'sqlite_sequence':
                         continue
@@ -123,7 +124,7 @@ class Genuine18EvidenceControls(unittest.TestCase):
                     connection.execute('SELECT 1')
             self.assertEqual(path.read_bytes(), before)
             for schema in [17, 19, 20]:
-                with sqlite3.connect(path) as db:
+                with closing(sqlite3.connect(path)) as db:
                     db.execute('PRAGMA user_version=' + str(schema))
                 before = path.read_bytes()
                 with self.assertRaises(ValueError):

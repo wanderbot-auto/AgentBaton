@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Genuine normal18 project/task history via production UDS; no SQL synthesis."""
 import argparse
+from contextlib import closing
 import importlib.util
 import json
 import os
@@ -33,7 +34,7 @@ def encoded(value):
 
 def probe(path):
     H.read_regular(path, 16_777_216)
-    with sqlite3.connect(path.as_uri() + '?mode=ro', uri=True) as db:
+    with closing(sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)) as db:
         db.execute('PRAGMA query_only=ON')
         db.execute('BEGIN')
         version = db.execute('PRAGMA user_version').fetchone()[0]
@@ -286,9 +287,9 @@ def main():
                 destination = output / 'actual-schema18.sqlite3'
                 fd = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
                 os.close(fd)
-                with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as original_db:
+                with closing(sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True)) as original_db:
                     original_db.execute('PRAGMA query_only=ON')
-                    with sqlite3.connect(destination) as backup:
+                    with closing(sqlite3.connect(destination)) as backup:
                         original_db.backup(backup)
                 copied = probe(destination)
                 H.require(copied['logical_sha256'] == report['final_probe']['logical_sha256']
