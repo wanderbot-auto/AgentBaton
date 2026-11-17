@@ -1,0 +1,136 @@
+{
+  "status": "read_only_proposal_audit_not_implementation",
+  "audit_start_head": "ac8277ed3bac7a9cb8f086f792a61b1072e5fdab",
+  "accepted_source_base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "explicit_private_B_source": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "main_HEXP559_content": "not assumed; no merge/fetch/peer private source used",
+  "recorded_utc": "2026-11-17T19:56:03.628493+00:00",
+  "files": [
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sha256": "f0da1089accc1cc88158240953d01d0ff009645195ead02e7ff1469d7a19e0e2",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "crates/core/src/lib.rs",
+      "sha256": "a6a27b376a1e869fab1f273c61be90b81f98f97ce6c7de9d5242a62490f918ae",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "crates/core/src/storage.rs",
+      "sha256": "6cfdeb71b2732ff2443c5a261161e28f89c990bf000b83b5fd5de7a6d85cef4c",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "crates/core/src/client_recovery_journal.rs",
+      "sha256": "d547955d36ac1ebbd4ba6d327b93690e5682dbdf267fc0f5530372c597cba649",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/client_recovery_bridge.rs",
+      "sha256": "5ed0e4a4dbe9085bc9f052bde37267d0fa23a916dc28e6c45a8daec75fc81d18",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/Cargo.toml",
+      "sha256": "aa39d0eb4cf8e504556acf515d2734089cdc6dbf84c698bbd63ca6f7a7d2baa2",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/capabilities/main.json",
+      "sha256": "090491e6dce371a7853acf44c4a65c38e2e372ac50df6a5e313a36a5ec8acf9a",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src/App.tsx",
+      "sha256": "4dba10bcedf797802d9dc906325d3a134233fbfd28e193d0736d950ccd173095",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src/api.ts",
+      "sha256": "cd862ff7218b63baaafe3b02e020903a2ae083688d79fd13b365bbd01c1e2683",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src/session-api.ts",
+      "sha256": "c7c1f213458682a3ab502ce201a2d83b27cb2747989c0f1eccbe336a3c30d1ec",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src/RecoveryCenter.tsx",
+      "sha256": "8b7e36d7dc6b849da51cf2a0ed5703016e43ee817df74a64a5b1717961d59edf",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src/recovery-center-api.ts",
+      "sha256": "b8feca7bc2403ef15255e725c579980d21aedee23e6e2747c4a8611cc4877925",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src/background-service-api.ts",
+      "sha256": "9eea2600832865cb324cf225c131509b85bdba443c32d1cdaf5dd7865bde6496",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/src/style.css",
+      "sha256": "c027530e26155e6b1857f53ed0278ab661fa004458e31c1350af490aa5851708",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "apps/desktop/package.json",
+      "sha256": "62b1f3ad51ffbedd2dafd7ed30ad3848740d22c74fc4ad1e1dea291ec257e60b",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "crates/core/tests/sessions_ipc.rs",
+      "sha256": "061d08606be8138d60acdf84c05158dad40c19cbc9827a6a5424b02428dd191d",
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "current_equals_accepted_a4": true
+    },
+    {
+      "path": "crates/core/src/host_registry.rs",
+      "sha256": "64f8eae852349cacd7cf9b8ea12e1cb47af3fd4a73df91c67399642c6f7f4eb8",
+      "source": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+      "private_B_source_not_claimed_main": true
+    },
+    {
+      "path": "crates/core/src/registry.rs",
+      "sha256": "0c54b75e3ad90c48d0fa91bba6abab3496a8cdaa24ea17ea7bf6414d6ed64ca0",
+      "source": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+      "private_B_source_not_claimed_main": true
+    },
+    {
+      "path": "crates/core/src/host_registry_tests.rs",
+      "sha256": "5da3f54ae559b7202d84969bb3c7e7b7fbcff4aab4907dce8fc33d4898e64e50",
+      "source": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+      "private_B_source_not_claimed_main": true
+    }
+  ],
+  "navigation_misses_not_tests": [
+    "connections-api.ts does not exist; actual session-api.ts read",
+    "managed-create-recovery.ts does not exist; actual RecoveryCenter/recovery-center-api/native bridge read",
+    "styles.css does not exist; actual style.css discovered/read"
+  ],
+  "no_build_test_Cargo_network_CI": true
+}

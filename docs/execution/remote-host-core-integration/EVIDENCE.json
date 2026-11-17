@@ -1,7 +1,7 @@
 {
   "task": "RHOST-002",
   "phase": "RHOST002B",
-  "status": "Store_verified_source_frozen_pending_root_review",
+  "status": "dormant_Store_local_review_ready_entrypoint_docs_proposal",
   "audited_source_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
   "branch": "collab/remote-host-core-integration",
   "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration",
@@ -33,7 +33,6 @@
     "No real SSH/Provider/Linux/native/UI/CI/push"
   ],
   "unresolved": [
-    "root final source review/acceptance",
     "A dormant migration/reference package and coordinated Store19 activation/current-historical closure",
     "Core IPC/native/UI registration vertical and full integration acceptance",
     "real SSH/Linux/Provider/routing/offline execution/data transfer/retention/budget integration"
@@ -110,5 +109,9 @@
     "phase": "RHOST002A_docs_contract",
     "status": "accepted fixed docs contract before eight-literal Store assignment"
   },
-  "current_additional_product_scope": "artifacts/collab/STORE_TASK.md (eight root-reserved literals); registry entry only, root/native locks minimal"
+  "current_additional_product_scope": "artifacts/collab/STORE_TASK.md (eight root-reserved literals); registry entry only, root/native locks minimal",
+  "entrypoint_proposal": "entrypoints/PROPOSED_SCOPE.json",
+  "entrypoint_source_audit": "entrypoints/SOURCE_AUDIT.json",
+  "entrypoint_contract": "entrypoints/CONTRACT.md",
+  "entrypoint_limits": "Docs-only, no new product allocation/implementation/build; main/HEXP559 not assumed."
 }

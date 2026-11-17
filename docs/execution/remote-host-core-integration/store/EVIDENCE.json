@@ -1,7 +1,7 @@
 {
   "task": "RHOST-002",
   "phase": "RHOST002B",
-  "status": "verified_source_frozen_independent_review_pending",
+  "status": "dormant_Store_locally_reviewed_ready_pending_composition_new_CI",
   "accepted_base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
   "package_start": "4e48985d68f324d3980a981abd5c7789d0379090",
   "branch": "collab/remote-host-core-integration",
@@ -67,7 +67,7 @@
     "new_services_companions": 0,
     "heavy_slot": "released to root after final successful command"
   },
-  "independent_review": "Initial4c2P2 fixed; root final039 source review pending. Passing tests do not substitute for review.",
+  "independent_review": "Leader reports independent verification of039/ac thirteen source Git blobs, fourteen cb5-frozen files, three original command logs/JSON/21 counts and actual binary; dormant slice locally ready, not main/Store19/IPC acceptance.",
   "historical_attempts": [
     {
       "head": "4c84a654f035c4b0150ce5b714beef638aa31927",
@@ -101,7 +101,6 @@
     "No real SSH/Provider/Linux/native/UI/CI/push"
   ],
   "unresolved": [
-    "root final source review/acceptance",
     "A dormant migration/reference package and coordinated Store19 activation/current-historical closure",
     "Core IPC/native/UI registration vertical and full integration acceptance",
     "real SSH/Linux/Provider/routing/offline execution/data transfer/retention/budget integration"

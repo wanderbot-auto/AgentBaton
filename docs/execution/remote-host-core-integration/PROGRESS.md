@@ -37,3 +37,10 @@
 ## Current RHOST002B Store-only result
 
 Root allocated eight additional literals via STORE_TASK after4e contract acceptance. Source039 implements actual Store create/find/get/list and exact metadata/event/idempotency transaction/read integrity; ordinary Store18 and activation/IPC/native/UI remain untouched.21 actual targeted tests +fmt+all-target strictclippy pass at exact039; previous failures/results and all hashes in store/. Root/native locks have only new Host node/Core edge and retain all old dependency edges/pins. All executors joined/heavy slot released. Source frozen pending root independent review; no push/CI/merge. Earlier scope/no-resolution/no-test statements are historical phase snapshots.
+
+## Entrypoint dependency proposal (docs only)
+
+- Leader independently reverified all039/ac13 product files/14 frozen foundation files/logs/counts/binary; dormant Store locally ready, pending A composition/new CI, not main/Store19/IPC acceptance. B source and locks remain frozen.
+- Read actual a4 Core authenticated IPC/actor, native Runtime/call/fixed handler/startup, Settings/API/parsers and existing managed/task-message recovery.20 hashes bind source; no HEXP559/private A source or main readiness assumed.
+- Proposed concrete stages and literals in entrypoints/: four Core methods after auth; reuse private journal I/O for max1 typed Host intent without extending MCP/Skill enums; seven fixed native commands including post-delivery acknowledgement; one Settings disclosure with complete metadata form/types/parsers/recovery; real UDS/native evidence only after coherent19 activation.
+- A Core receipt visibility-only unfreeze plus shared IPC/native/App/recovery-module claims require root allocation. Current16KiB journal wrapper fit remains a required future maximum-input test. No product changes/build/tests/Cargo/CI in this docs phase; A retains heavy slot.

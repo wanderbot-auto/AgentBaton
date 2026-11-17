@@ -1,9 +1,9 @@
 # Current RHOST-002 checkpoint
 
-RHOST002A pure product source remains cb5-frozen and independently accepted. Fixed4e Core registry contract led to root's eight-literal RHOST002B authorization in artifacts/collab/STORE_TASK.md.
+B039 dormant Store and21 tests/fmt/strictclippy evidence are independently reverified by leader, locally ready pending A composition/new CI. This does not accept main/Store19/IPC/native/UI.13 product and14 foundation source hashes remain frozen.
 
-Current source039de47012d073a4ac6fde7e7202c22786dd3e53 implements real Store persistence/read layer only. Workspace fmt, Core all-target strictclippy and21 targeted actual SQLite tests pass. store/EVIDENCE.json and VERIFIED_SOURCE.json distinguish exact current results from8c0test failure/23820pass history and pin13 changed product files,14 unchanged foundation files, binary/log/input hashes. Both locks minimal/offline-verified with old pins/edges retained.
+Current continuation is docs-only entrypoint plan from a4 plus explicit B039. entrypoints/PLAN.md, CONTRACT.md, PROPOSED_SCOPE.json and SOURCE_AUDIT.json give exact staged literals, four Core methods, durable Host intent/acknowledgement and seven fixed native bridge commands, one Settings entry, error/recovery tests and shared activation/source-composition dependencies. No new product reservation or code write.
 
-Source frozen pending root final independent review; docs archive/handoff only. Heavy slot released, all command children joined, no service/companion/remote/provider process started. No push/CI/merge.
+Next: root allocates specific C stage/regions and accepted composition base. C1 private dispatch fixtures cannot prove a real19 actor; real UDS/native waits coordinated19 activation. Existing managed/task recovery, startup policy, permissions and original historical source helpers stay separate/preserved.
 
-Ordinary Store18 and schema activation/lib/storage/IPC/native/UI unchanged. Private SQLite19 fixture reopen is not product migration/open acceptance; method return-discard is not real IPC disconnect. Full400 Core execution/native GUI/real SSH/Linux/Provider/routing/offline/data/retention/budget integration remain deferred/unverified. Global status and A's paths remain leader-owned.
+All B executors remain joined, no new services/companions; heavy slot staysA. No push/CI/merge or Cargo/build/test during the proposal. Own-docs final commit SHA reported after commit; product bytes remain039.
