@@ -1,0 +1,120 @@
+{
+  "task": "ITDIAG-001",
+  "base_sha": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+  "branch": "collab/integration-timing-diagnostic",
+  "change": "debug-only publication of existing preparation phase trace when original settlement clock exceeds original reservation",
+  "authority_and_action_changes": false,
+  "new_production_clock_samples": false,
+  "verification": {
+    "python_source_inverse": {
+      "passed": 22,
+      "failed": 0
+    },
+    "rust_phase_filter": {
+      "passed": 9,
+      "new_settlement_controls": 3,
+      "existing_trace_controls": 5,
+      "existing_read_control": 1,
+      "failed": 0,
+      "ignored": 0,
+      "filtered_out": 377
+    },
+    "rustfmt": "passed",
+    "cargo_check": "passed",
+    "diff_check": "passed",
+    "scope": "passed"
+  },
+  "stage1_commands": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "test_integration_stage_evidence_source",
+        "test_integration_stage_evidence_phase_inverse"
+      ],
+      "start": "2026-11-17T16:33:19.580685+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-0.log"
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/core/src/integration_settlement.rs"
+      ],
+      "start": "2026-11-17T16:33:19.658562+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-1.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--lib",
+        "phase",
+        "--",
+        "--test-threads=1"
+      ],
+      "start": "2026-11-17T16:33:19.848380+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-2.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "check",
+        "-p",
+        "agentbaton-core",
+        "--locked"
+      ],
+      "start": "2026-11-17T16:35:01.343900+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-3.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "start": "2026-11-17T16:35:11.814564+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-4.log"
+    }
+  ],
+  "environment": {
+    "architecture": "arm64",
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "runtime": "/private/tmp/ab-collab-vx3miuxk",
+    "target": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target",
+    "build_jobs": 2
+  },
+  "artifact_sha256": {
+    "artifacts/collab/itdiag/environment.json": "7551d4c55708e036a5e99fd529fad41d19bf67fb3a13024885c1c316398af83c",
+    "artifacts/collab/itdiag/stage1-0.log": "5e6add775a10d9244f841cc5de981cbbf8a31379900507751f236c15ce0a0d30",
+    "artifacts/collab/itdiag/stage1-1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/collab/itdiag/stage1-2.log": "562cde55dfa2fb98875761c26a6df791247d399e8be627bf4e1eafda87f401aa",
+    "artifacts/collab/itdiag/stage1-3.log": "fc720529d85b2107404b923cdfbb5cbf929fad4b655b55bcc796e05db9fde4d2",
+    "artifacts/collab/itdiag/stage1-4.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/collab/itdiag/stage1.json": "c17547947f013a73b74a7a475a9315fbd6ab41298b1ab54abd2427b540e3276e"
+  },
+  "limits": {
+    "stage2_batond_debug_release_marker": "pending resource slot",
+    "default_release_native_app_audit": "not run on this source; pending",
+    "independent_review": "passed; native subagent /root/performance_audit; no blocking findings; leader integration review separate",
+    "remote_ci": "not run; not authorized in this task",
+    "prior_ci_timeout": "unresolved; existing attempt2 preparation actual_runtime_ms=2009 vs declared_runtime_ms=2000; no validator admitted",
+    "original_ab": "six unchanged local trials passed (base3/head3), retained separately; not this diagnostic validation or Mac15 proof",
+    "unattributed_elapsed": "2009 minus control lifetime1600 is not attributed to any unmeasured phase"
+  },
+  "prior_evidence": "../operation-performance/artifacts/collab/merge-push/FINAL_MERGE_PUSH_EVIDENCE.json"
+}

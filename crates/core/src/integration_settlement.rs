@@ -288,11 +288,15 @@ impl Store {
             #[cfg(debug_assertions)]
             let payload = {
                 let mut payload = payload;
-                if joined.result.is_err() || !io.io_complete() || joined.output_bytes.is_none() {
-                    if let Some(trace) = &ticket.phase_observation {
-                        trace.extend_event(&mut payload);
-                    }
-                }
+                extend_preparation_phase_observation(
+                    &mut payload,
+                    ticket.phase_observation.as_deref(),
+                    joined.result.is_err(),
+                    io.io_complete(),
+                    joined.output_bytes.is_some(),
+                    clock_ms,
+                    attempt.view.reservation.runtime_ms,
+                );
                 payload
             };
             records::event(
@@ -913,5 +917,162 @@ mod joined_error_tests {
             serde_json::Value::Null
         );
         assert_eq!(serde_json::to_vec(&joined_error(None)).unwrap(), b"null");
+    }
+}
+
+#[cfg(debug_assertions)]
+fn extend_preparation_phase_observation(
+    payload: &mut serde_json::Value,
+    trace: Option<&super::stage_workers::phase_observation::Trace>,
+    worker_failed: bool,
+    io_complete: bool,
+    output_known: bool,
+    clock_ms: u64,
+    reserved_runtime_ms: u64,
+) {
+    // Reuse settlement's original observation, never a new clock or authority.
+    if worker_failed || !io_complete || !output_known || clock_ms > reserved_runtime_ms {
+        if let Some(trace) = trace {
+            trace.extend_event(payload);
+        }
+    }
+}
+
+#[cfg(all(test, debug_assertions))]
+mod preparation_phase_settlement_tests {
+    use super::super::stage_workers::phase_observation::{Phase, Trace};
+    use super::*;
+    use std::time::Instant;
+
+    fn trace(joined: bool) -> Trace {
+        let trace = Trace::new(Instant::now());
+        for phase in [
+            Phase::WorkerEntered,
+            Phase::ReadProofReady,
+            Phase::ActorAdmissionReceived,
+            Phase::WorkerProofVerified,
+            Phase::PrepareEntered,
+        ] {
+            trace.before_control(phase);
+        }
+        for phase in [
+            Phase::SourceAuthorize,
+            Phase::SourceCapture,
+            Phase::ControlIsolate,
+            Phase::IntegrationAuthorize,
+            Phase::CandidatePrepare,
+            Phase::ArtifactIntegrity,
+            Phase::PreparationReturned,
+        ] {
+            trace.control(phase, Some((0, 0, 0)));
+        }
+        if joined {
+            trace.joined();
+        }
+        trace
+    }
+
+    fn base() -> serde_json::Value {
+        json!({"attempt_id":"attempt-test","io":{"io_complete":true},"measurement_not_authority":true,"whole_filesystem_output":null})
+    }
+
+    #[test]
+    fn successful_preparation_publishes_only_above_original_runtime_boundary() {
+        let trace = trace(true);
+        let original = base();
+        for clock_ms in [1999, 2000, 2001] {
+            let mut observed = original.clone();
+            extend_preparation_phase_observation(
+                &mut observed,
+                Some(&trace),
+                false,
+                true,
+                true,
+                clock_ms,
+                2000,
+            );
+            if clock_ms <= 2000 {
+                assert_eq!(
+                    serde_json::to_vec(&observed).unwrap(),
+                    serde_json::to_vec(&original).unwrap()
+                );
+                continue;
+            }
+            let diagnostic = observed
+                .as_object_mut()
+                .unwrap()
+                .remove("phase_observation")
+                .unwrap();
+            assert_eq!(observed, original);
+            assert_eq!(
+                diagnostic["contract"],
+                "agentbaton.integration-preparation-phases.v1"
+            );
+            let samples = diagnostic["samples"].as_array().unwrap();
+            assert_eq!(samples.len(), 13);
+            assert!(samples.iter().all(|sample| !sample.is_null()));
+            assert_eq!(samples[0]["control_elapsed_ms"], serde_json::Value::Null);
+            assert_eq!(
+                samples[12]["counter_snapshot"],
+                "historical_preparation_returned"
+            );
+            assert_eq!(
+                samples[11]["control_elapsed_ms"],
+                samples[12]["control_elapsed_ms"]
+            );
+            assert!(serde_json::to_vec(&diagnostic).unwrap().len() <= 4096);
+        }
+    }
+
+    #[test]
+    fn existing_failure_incomplete_io_and_unknown_output_triggers_are_preserved() {
+        let trace = trace(true);
+        for (failed, complete, known) in [
+            (true, true, true),
+            (false, false, true),
+            (false, true, false),
+        ] {
+            let original = base();
+            let mut observed = original.clone();
+            extend_preparation_phase_observation(
+                &mut observed,
+                Some(&trace),
+                failed,
+                complete,
+                known,
+                1999,
+                2000,
+            );
+            assert!(observed
+                .as_object_mut()
+                .unwrap()
+                .remove("phase_observation")
+                .is_some());
+            assert_eq!(observed, original);
+        }
+    }
+
+    #[test]
+    fn unavailable_unjoined_and_invalid_trace_leave_base_event_byte_identical() {
+        let unjoined = trace(false);
+        let invalid = trace(true);
+        invalid.before_control(Phase::WorkerEntered);
+        let original = base();
+        for trace in [None, Some(&unjoined), Some(&invalid)] {
+            let mut observed = original.clone();
+            extend_preparation_phase_observation(
+                &mut observed,
+                trace,
+                false,
+                true,
+                true,
+                2001,
+                2000,
+            );
+            assert_eq!(
+                serde_json::to_vec(&observed).unwrap(),
+                serde_json::to_vec(&original).unwrap()
+            );
+        }
     }
 }
