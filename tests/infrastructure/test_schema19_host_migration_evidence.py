@@ -121,6 +121,38 @@ class Genuine18EvidenceControls(unittest.TestCase):
             with self.assertRaises(sqlite3.DatabaseError):
                 G.probe(path)
 
+    def test_identity_sampling_failure_records_failed_daemon_and_reaps_direct_child(self):
+        class Child:
+            pid = 4321002
+            killed = False
+            joined = False
+            def kill(self):
+                self.killed = True
+            def wait(self, timeout=None):
+                self.joined = True
+                return -9
+        child = Child()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            output = root / 'output'
+            frozen = root / 'frozen'
+            frozen.mkdir()
+            argv = ['generator', '--frozen', str(frozen), '--build-manifest', str(frozen / 'source-build-manifest.json'), '--output', str(output)]
+            with mock.patch.object(G.sys, 'argv', argv), \
+                 mock.patch.object(H, 'provenance', return_value=({}, b'synthetic build', {})), \
+                 mock.patch.object(G.subprocess, 'Popen', return_value=child), \
+                 mock.patch.object(H.COMMON, 'darwin_owned_identity', side_effect=ValueError('identity unavailable')), \
+                 mock.patch.object(H.COMMON.os, 'killpg', side_effect=AssertionError('unknown group signal')) as group:
+                with self.assertRaises(ValueError):
+                    G.main()
+            self.assertTrue(child.killed)
+            self.assertTrue(child.joined)
+            value = json.loads((output / 'manifest.json').read_text())
+            self.assertEqual(value['status'], 'failed_or_interrupted')
+            self.assertTrue(value['daemon']['forced_kill'])
+            self.assertFalse(value['daemon']['identity_gone_after_join'])
+            group.assert_not_called()
+
     def test_tampered_database_rejects_before_sqlite_or_process(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory).resolve()

@@ -150,6 +150,29 @@ class Normal18BuildContracts(unittest.TestCase):
             with self.subTest(raw=raw), self.assertRaises(ValueError):
                 H.OLD.binary_metadata(raw)
 
+    def test_identity_sampling_failure_still_reaps_owned_compiler_without_unknown_group_signal(self):
+        class Child:
+            pid = 4321001
+            killed = False
+            joined = False
+            def kill(self):
+                self.killed = True
+            def wait(self, timeout=None):
+                self.joined = True
+                return -9
+        child = Child()
+        record = {}
+        with mock.patch.object(H.subprocess, 'Popen', return_value=child), \
+             mock.patch.object(H.COMMON, 'darwin_owned_identity', side_effect=ValueError('identity unavailable')), \
+             mock.patch.object(H.COMMON.os, 'killpg', side_effect=AssertionError('unknown group signal')) as group:
+            with self.assertRaises(ValueError):
+                H.run_build(['/never/cargo'], Path('/never'), {}, io.BytesIO(), record)
+        self.assertTrue(child.killed)
+        self.assertTrue(child.joined)
+        self.assertFalse(record['failed_build_cleanup']['identity_gone_after_join'])
+        self.assertTrue(record['failed_build_cleanup']['forced_kill'])
+        group.assert_not_called()
+
     def test_unbound_pair_requires_adjacent_build_manifest_before_metadata(self):
         with tempfile.TemporaryDirectory() as directory:
             frozen = Path(directory).resolve()
