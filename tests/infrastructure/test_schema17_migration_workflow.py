@@ -1,3 +1,4 @@
+from tests.infrastructure.native_ci_workflow_split import restore_native_ci_split
 """Source wiring controls only; these do not execute historical tools or migration."""
 from pathlib import Path
 import copy
@@ -87,6 +88,7 @@ PRIVATE_BROWSER_BUILD_STEP_SHA256 = '30ec3a29323f835e235254015eadf8375b4e9e9f1b1
 
 def strip_private_browser_python(text):
     """Reverse only the complete pinned browser dependency step's one command."""
+    text = restore_native_ci_split(text)
     if BG.BG_STEP_NAME in text:
         text = BG.strip_background_native_smoke_layer(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
@@ -110,6 +112,7 @@ def strip_private_browser_python(text):
 
 def strip_approved_ui_preview_profile(text):
     """Reverse only the exact reviewed UI build step and candidate scope."""
+    text = restore_native_ci_split(text)
     text = strip_private_browser_python(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
     name = '      - name: Real daemon and browser test dependencies\n'
@@ -150,6 +153,7 @@ PRE_DIAGNOSTIC_TASK_WORKSPACE_FUNCTION_BYTES = 4189
 
 def strip_approved_task_workspace_launch_diagnostics(text):
     """Restore only the complete exact reviewed function, never arbitrary AST."""
+    text = restore_native_ci_split(text)
     definition = '          def run_task_workspace_evidence():\n'
     call = '          run_task_workspace_evidence()\n'
     if text.count(definition) != 1 or text.count(call) != 1:
@@ -178,6 +182,7 @@ TASK_NOTIFICATION_FLAG = "                          '--notification-probe',\n"
 
 def strip_task_notification_ci_layer(text):
     """Reverse only the complete reviewed notification step and one argv flag."""
+    text = restore_native_ci_split(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
     title = '      - name: Retain finite task notification evidence without private runtime data\n'
     if [i for i, header in enumerate(headers) if header.group(0) == title] != [29] or len(headers) <= 30:
@@ -224,6 +229,7 @@ CONVERSATION_SCHEMA18_SITES = (
 )
 
 def strip_conversation_schema18(text):
+    text = restore_native_ci_split(text)
     if BG.BG_STEP_NAME in text:
         text = BG.strip_background_native_smoke_layer(text)
     for current, historical in CONVERSATION_SCHEMA18_SITES:
@@ -236,6 +242,7 @@ def strip_conversation_schema18(text):
 
 def strip_integration_setup_diagnostics(text):
     """Replace only a complete pinned step with its complete pinned original."""
+    text = restore_native_ci_split(text)
     # Older inverse tests also pass the already-peeled, exactly schema17 layer.
     # Mixed, missing and duplicated current sites still fail the strict inverse.
     if any(current in text for current, _ in CONVERSATION_SCHEMA18_SITES):
@@ -273,6 +280,7 @@ def strip_integration_setup_diagnostics(text):
 
 def strip_integration_browser_ci_layer(text):
     """Restore the reviewed diagnostic layer, then exact UI blocks/schema."""
+    text = restore_native_ci_split(text)
     text = strip_integration_setup_diagnostics(text)
     text = strip_task_notification_ci_layer(text)
     text = strip_approved_ui_preview_profile(text)
@@ -312,6 +320,7 @@ def strip_integration_browser_ci_layer(text):
 
 def strip_approved_native_ci_steps(text):
     """Remove only the exact three approved adjacent desktop step blocks."""
+    text = restore_native_ci_split(text)
     headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
     indices = []
     for name, expected_index, expected_digest in APPROVED_NATIVE_CI_STEPS:
@@ -375,7 +384,7 @@ def verify_only_six_historical_target_changes(text):
 
 class Genuine16WorkflowWiring(unittest.TestCase):
     def setUp(self):
-        self.workflow = yaml.load((ROOT / '.github/workflows/product.yml').read_text(), Loader=yaml.BaseLoader)
+        self.workflow = yaml.load(restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_text()), Loader=yaml.BaseLoader)
 
     def lanes(self):
         lanes = []
@@ -473,7 +482,7 @@ class Genuine16WorkflowWiring(unittest.TestCase):
                             historical_targets(job)
 
     def test_schema18_inverse_refuses_missing_duplicate_or_other_version_at_each_exact_site(self):
-        text = (ROOT / '.github/workflows/product.yml').read_text()
+        text = restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_text())
         for current, historical in CONVERSATION_SCHEMA18_SITES:
             for changed in (text.replace(current, historical, 1), text.replace(current, current.replace('18', '19'), 1), text + current):
                 with self.assertRaises(ValueError):
@@ -481,10 +490,10 @@ class Genuine16WorkflowWiring(unittest.TestCase):
         self.assertEqual(strip_conversation_schema18(text).count("              'schema': 17,\n"), 1)
 
     def test_exact_six_argument_reverse_normalization_retains_the_entire_old_workflow(self):
-        verify_only_six_historical_target_changes((ROOT / '.github/workflows/product.yml').read_text())
+        verify_only_six_historical_target_changes(restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_text()))
 
     def test_reverse_normalization_does_not_hide_any_other_workflow_change(self):
-        original = (ROOT / '.github/workflows/product.yml').read_text()
+        original = restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_text())
         for old, new in [
             ('timeout-minutes: 60', 'timeout-minutes: 61'),
             ('contents: read', 'contents: write'),
