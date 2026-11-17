@@ -1,0 +1,70 @@
+{
+  "status": "proposal_only_not_reserved",
+  "current_reserved": [
+    "docs/execution/remote-host-core-integration"
+  ],
+  "new_module_and_test_paths": [
+    "crates/remote-host/src/registration.rs",
+    "crates/remote-host/tests/registration.rs",
+    "crates/core/src/host_registry.rs",
+    "crates/core/src/host_registry_ipc.rs",
+    "crates/core/tests/host_registry.rs",
+    "crates/core/tests/host_registry_ipc.rs",
+    "crates/core/tests/host_registry_migration.rs",
+    "apps/desktop/src-tauri/src/hosts.rs",
+    "apps/desktop/src/Hosts.tsx",
+    "apps/desktop/src/Hosts.test.tsx",
+    "apps/desktop/src/Hosts.entry.test.tsx",
+    "apps/desktop/src/hosts-api.ts",
+    "apps/desktop/src/hosts-api.test.ts",
+    "apps/desktop/src/hosts-types.ts",
+    "apps/desktop/src/hosts-types.test.ts",
+    "apps/desktop/src/hosts-i18n.ts"
+  ],
+  "existing_vertical_wiring_paths": [
+    "crates/remote-host/src/lib.rs",
+    "crates/remote-host/src/transport.rs",
+    "crates/core/src/lib.rs",
+    "crates/core/src/ipc.rs",
+    "crates/core/src/storage.rs",
+    "crates/core/Cargo.toml",
+    "Cargo.lock",
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/src-tauri/src/lib.rs"
+  ],
+  "schema19_production_compatibility_paths": [
+    "crates/core/src/background_status.rs",
+    "crates/core/src/integration_targets.rs",
+    "crates/core/src/integration_budget.rs",
+    "crates/core/src/factory_history_reads.rs",
+    "crates/core/src/integration_reads.rs",
+    "crates/core/src/integration_fences.rs",
+    "crates/core/src/factory_reads.rs",
+    "apps/desktop/src/api.ts",
+    "apps/desktop/src/background-service-api.ts",
+    "apps/desktop/src/TaskIntegration.tsx",
+    "apps/desktop/src-tauri/src/background_policy.rs"
+  ],
+  "shared_blockers": {
+    "A_current_owner": [
+      "crates/core/src/lib.rs",
+      "crates/core/src/ipc.rs",
+      "apps/desktop/src-tauri/src/lib.rs"
+    ],
+    "integration_owned": [
+      "Cargo.lock",
+      "crates/core/src/storage.rs"
+    ],
+    "A_unmerged_export": "must not assume private source; integrate only after accepted base/ownership handoff",
+    "PR29": "pending real CI; do not modify or merge; leader coordinates base/sync order"
+  },
+  "schema19_evidence_closure": "SOURCE_AUDIT.json gives literal candidates. They require classification and one owner before reservation, not blanket 18->19 rewriting. Existing frozen predecessor18 sources/proofs remain historical.",
+  "not_required": [
+    "Cargo.toml root workspace membership change",
+    "new scheduler/daemon/config sync system",
+    "permissions expansion in Tauri main capability",
+    "execution policy/local-host restriction removal",
+    "native approval kind for metadata-only registration",
+    "real SSH/Provider/remote filesystem probing"
+  ]
+}

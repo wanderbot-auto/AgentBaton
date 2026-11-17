@@ -1,0 +1,62 @@
+{
+  "task": "RHOST-002",
+  "phase": "phase1",
+  "status": "dependency_review",
+  "audited_source_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "branch": "collab/remote-host-core-integration",
+  "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration",
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64"
+  },
+  "claim": [
+    "docs/execution/remote-host-core-integration"
+  ],
+  "source_manifest": "SOURCE_AUDIT.json",
+  "dependency_contract": "DEPENDENCY_CONTRACT.md",
+  "proposed_scope": "PROPOSED_SCOPE.json",
+  "checks": [
+    {
+      "command": "git branch/rev-parse/status",
+      "result": "expected branch and accepted base, clean at start"
+    },
+    {
+      "command": "bash scripts/collab.sh scope",
+      "result": "passed before docs"
+    },
+    {
+      "command": "rg/read/hash accepted source",
+      "result": "static audit only"
+    },
+    {
+      "command": "git ls-remote --heads origin refs/heads/main",
+      "result": "main=a4e03303b54bd5a5544131e95ad39662f8310e29; read-only, no CI trigger"
+    }
+  ],
+  "not_run": [
+    "product implementation",
+    "Cargo/npm metadata/build/test",
+    "GUI/native",
+    "CI",
+    "real SSH/remote Host",
+    "Provider",
+    "paid/signing/production"
+  ],
+  "unresolved": [
+    "leader exact path/schema19 evidence ownership",
+    "A shared entrypoint transfer/accepted export base",
+    "PR29 merge/sync order",
+    "future execution ref and authority compatibility"
+  ],
+  "files_written": [
+    "PLAN.md",
+    "DEPENDENCY_CONTRACT.md",
+    "PROPOSED_SCOPE.json",
+    "SOURCE_AUDIT.json",
+    "PROGRESS.md",
+    "CHECKPOINT.md",
+    "EVIDENCE.json"
+  ],
+  "checkpoint_recorded_utc": "2026-11-17T17:51:28.274236+00:00",
+  "actual_start": "Window B verified live precreated branch/worktree/base before audit; no exact earlier wall-clock timestamp was captured and none is invented."
+}
