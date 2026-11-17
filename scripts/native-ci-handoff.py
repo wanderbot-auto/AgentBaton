@@ -13,7 +13,6 @@ import os
 from pathlib import Path
 import platform
 import re
-import shutil
 import stat
 import struct
 import subprocess

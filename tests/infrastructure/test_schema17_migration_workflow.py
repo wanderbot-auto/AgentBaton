@@ -507,7 +507,7 @@ class Genuine16WorkflowWiring(unittest.TestCase):
                     verify_only_six_historical_target_changes(original.replace(old, new, 1))
 
     def test_reviewed_native_blocks_refuse_changed_duplicate_missing_or_moved_steps(self):
-        original = (ROOT / '.github/workflows/product.yml').read_bytes().decode('utf-8')
+        original = restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_bytes().decode('utf-8'))
         verify_only_six_historical_target_changes(original)
         original = BG.strip_background_native_smoke_layer(original)
         headers = list(re.finditer(r'^      - .*\n', original, re.MULTILINE))
