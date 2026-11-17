@@ -1,11 +1,11 @@
 {
   "task": "RHOST-001",
-  "status": "review",
+  "status": "review_fix_verified_pending_commit",
   "base": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
   "branch": "collab/remote-host-foundation",
   "pr_base": "main",
-  "source_sha256": "0e31277319804c089c8142ebef68a1f44cc05ffd7eb844517f75011794d3a2e3",
-  "verification": "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/evidence.json",
+  "source_sha256": "dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7",
+  "verification": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/evidence.json",
   "checks": [
     {
       "name": "fmt",
@@ -18,9 +18,9 @@
         "--check"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:05:38Z",
-      "elapsed_seconds": 0.273,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/fmt.log",
+      "started_utc": "2026-11-17T15:28:26Z",
+      "elapsed_seconds": 0.151,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/fmt.log",
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
@@ -33,10 +33,10 @@
         "--locked"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:05:38Z",
-      "elapsed_seconds": 1.094,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/rust-tests.log",
-      "log_sha256": "4ef275f4388d80426c487b6c4629eb765d449874d161ed4695db18face3abb5e"
+      "started_utc": "2026-11-17T15:28:26Z",
+      "elapsed_seconds": 3.827,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/rust-tests.log",
+      "log_sha256": "c7ce2eb3315121b19e9565d95b11cdd50393e922610e84ba2477960d9b87f0bb"
     },
     {
       "name": "clippy",
@@ -52,10 +52,10 @@
         "warnings"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:05:40Z",
-      "elapsed_seconds": 0.202,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/clippy.log",
-      "log_sha256": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+      "started_utc": "2026-11-17T15:28:30Z",
+      "elapsed_seconds": 0.517,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/clippy.log",
+      "log_sha256": "441aa0a6b09e7d4eb58a328a3f571991800d1f7534b5ce2a529a70134b249d38"
     },
     {
       "name": "build",
@@ -67,10 +67,10 @@
         "--locked"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:05:40Z",
-      "elapsed_seconds": 0.091,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/build.log",
-      "log_sha256": "736e2582f563605dd272e5fb977840b0c0767377d27b6940c440caf75eec7157"
+      "started_utc": "2026-11-17T15:28:31Z",
+      "elapsed_seconds": 0.499,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/build.log",
+      "log_sha256": "de3f30ad5c47b361d8bc49ab685738be91373196a8fbf8ada3d7a39a55968098"
     },
     {
       "name": "real-subprocess-faults",
@@ -79,25 +79,25 @@
         "tests/infrastructure/test_remote_host.py"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:05:40Z",
-      "elapsed_seconds": 7.348,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/real-subprocess-faults.log",
-      "log_sha256": "aa4fa63365b3fac1966dc5c453c6131022acf981dc9c52ba189519cae92672ab"
+      "started_utc": "2026-11-17T15:28:31Z",
+      "elapsed_seconds": 7.636,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/real-subprocess-faults.log",
+      "log_sha256": "783f87928579643b5c78ebf150825a9e361a3f63d55177cf07f3e59d4fd459fb"
     }
   ],
   "binary": {
     "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-foundation/target/debug/baton-host-companion",
-    "sha256": "f841f43a72013b26602a101454f794a2fe671352bef53d9f746f3ad6f4c74468",
-    "size": 4324360,
+    "sha256": "d9d8b38815b4a74ca36be6ecf04bde84d4d708b891ba3ad5388d8510429b4bb0",
+    "size": 4345992,
     "signing": "development, no production signing"
   },
   "sanitized_stdio_trace": {
-    "path": "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/stdio-trace.jsonl",
-    "sha256": "eabc9b37f556734c5b5ef8386e2a9b3f876edc4f7b2aace3e526082ab99f37fa",
-    "bytes": 127822
+    "path": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/stdio-trace.jsonl",
+    "sha256": "c824e02b63ba82188e2896bde1f839556583eaf253a552ecaea37be5bb70fcdc",
+    "bytes": 131197
   },
   "counts": {
-    "rust": 16,
+    "rust": 18,
     "real_subprocess": 16
   },
   "independent_review": "REVIEW.md",
@@ -111,7 +111,9 @@
     "docs/execution/remote-host-foundation/runs/20261117T145952Z-324474000/evidence.json",
     "docs/execution/remote-host-foundation/runs/20261117T150127Z-472136000/evidence.json",
     "docs/execution/remote-host-foundation/runs/20261117T150258Z-59859000/evidence.json",
-    "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/evidence.json"
+    "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T152431Z-547280000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/evidence.json"
   ],
   "unverified": [
     "real SSH handshake",
@@ -128,16 +130,31 @@
     "remote cache retention/policy integration",
     "approved real SSH and macOS/Linux cross-machine validation"
   ],
-  "implementation_commit": "6df13c36b5bbf82c608ff104588f0cd98e238121",
-  "verified_source_commit": "6df13c36b5bbf82c608ff104588f0cd98e238121",
-  "tested_worktree_dirty": [],
   "target_main": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
-  "conflict_preview": {
-    "result": "no_conflict",
-    "target": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
-    "source": "6df13c36b5bbf82c608ff104588f0cd98e238121",
-    "tree": "8e9e3b7311bf8252bba19ec4ab2c151226bc4366"
-  },
   "delivery_note": "Final documentation/evidence commit will be a descendant with identical product+test+verifier source hashes. Its exact head is recorded in draft PR and handoff.",
-  "draft_pr": "https://github.com/wanderbot-auto/AgentBaton/pull/30"
+  "draft_pr": "https://github.com/wanderbot-auto/AgentBaton/pull/30",
+  "prior_delivery_head": "4a2e8a46ee4774a78d2ecf90ed42f2f0d0a3da8b",
+  "capacity_fix": {
+    "admission_reserve": 96,
+    "total_event_cap": 10000,
+    "job_cap": 32,
+    "receipt_cap": 4096,
+    "remaining_debt": "pending_wait + unsettled_terminal + first_controls + necessary_reopen",
+    "worst_initial_debt": 67,
+    "red_log": "review-capacity/red.log",
+    "review": "native read-only reviewer confirmed no remaining capacity blocker"
+  },
+  "verification_base_head": "4a2e8a46ee4774a78d2ecf90ed42f2f0d0a3da8b",
+  "verification_dirty": [
+    " M crates/remote-host/src/store.rs",
+    " M crates/remote-host/src/worker.rs",
+    " M crates/remote-host/tests/foundation.rs",
+    " M docs/execution/remote-host-foundation/.gitattributes",
+    " M docs/execution/remote-host-foundation/ADR-001.md",
+    " M docs/execution/remote-host-foundation/CHECKPOINT.md",
+    " M docs/execution/remote-host-foundation/PROGRESS.md",
+    " M tests/infrastructure/test_remote_host.py",
+    "?? docs/execution/remote-host-foundation/review-capacity/",
+    "?? docs/execution/remote-host-foundation/runs/20261117T152431Z-547280000/"
+  ]
 }

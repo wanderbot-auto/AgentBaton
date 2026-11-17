@@ -147,6 +147,7 @@ impl Store {
             .db
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         let now = now_ms()?;
+        let mut reserved = 3 * MAX_JOBS;
         let previous: Option<(String, String, i64, i64, String)> = tx
             .query_row(
                 "SELECT identity,grant_hash,fence,highwater,ceiling FROM meta WHERE id=1",
@@ -184,9 +185,16 @@ impl Store {
                 )?;
             } else if activate {
                 // Restart cannot establish continuity of a monotonic deadline: pause, reconcile, require fresh local grant.
+                let was_paused: bool =
+                    tx.query_row("SELECT paused FROM meta WHERE id=1", [], |r| r.get(0))?;
                 tx.execute("UPDATE meta SET paused=1 WHERE id=1", [])?;
-                tx.execute("UPDATE jobs SET state='outcome_unknown' WHERE stop_evidence IS NULL AND state IN ('reserved','running','effect_intent')",[])?;
-                tx.execute("INSERT INTO events(kind) VALUES('reopened_paused')", [])?;
+                let changed=tx.execute("UPDATE jobs SET state='outcome_unknown' WHERE stop_evidence IS NULL AND state IN ('reserved','running','effect_intent')",[])?;
+                if !was_paused || changed > 0 {
+                    tx.execute("INSERT INTO events(kind) VALUES('reopened_paused')", [])?;
+                }
+            }
+            if g.fence == fence {
+                reserved = settlement_reserve(&tx)?;
             }
         } else {
             require(
@@ -208,7 +216,7 @@ impl Store {
                 [],
             )?;
         }
-        event_limit(&tx, 3 * MAX_JOBS)?;
+        event_limit(&tx, reserved)?;
         tx.commit()?;
         Ok(())
     }
@@ -328,12 +336,16 @@ impl Store {
             }
             Action::Cancel => {
                 tx.execute("UPDATE meta SET cancelled=1 WHERE id=1", [])?;
-                tx.execute("INSERT INTO events(kind) VALUES('cancel_requested')", [])?;
+                if !cancelled {
+                    tx.execute("INSERT INTO events(kind) VALUES('cancel_requested')", [])?;
+                }
                 Reply::CancelRequested
             }
             Action::Revoke => {
                 tx.execute("UPDATE meta SET revoked=1 WHERE id=1", [])?;
-                tx.execute("INSERT INTO events(kind) VALUES('revoked')", [])?;
+                if !revoked {
+                    tx.execute("INSERT INTO events(kind) VALUES('revoked')", [])?;
+                }
                 Reply::Revoked
             }
             Action::Reconcile { .. } => unreachable!(),
@@ -346,7 +358,12 @@ impl Store {
                 serde_json::to_string(&reply)?
             ],
         )?;
-        event_limit(&tx, 3 * MAX_JOBS)?;
+        let reserved = if matches!(request.action, Action::Record { .. }) {
+            3 * MAX_JOBS
+        } else {
+            settlement_reserve(&tx)?
+        };
+        event_limit(&tx, reserved)?;
         tx.commit()?;
         Ok(reply)
     }
@@ -361,11 +378,12 @@ impl Store {
         let tx = self
             .db
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        tx.execute("UPDATE jobs SET state='spawn_failed_no_effect',stop_evidence='spawn_failed_no_child' WHERE id=?1",[job])?;
+        if tx.execute("UPDATE jobs SET state='spawn_failed_no_effect',stop_evidence='spawn_failed_no_child' WHERE id=?1 AND stop_evidence IS NULL",[job])?==0 {return Ok(());}
         tx.execute(
             "INSERT INTO events(kind,job) VALUES('spawn_failed_no_child',?1)",
             [job],
         )?;
+        event_limit(&tx, 0)?;
         tx.commit()?;
         Ok(())
     }
@@ -373,6 +391,14 @@ impl Store {
         let tx = self
             .db
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let already_joined: bool = tx.query_row(
+            "SELECT stop_evidence IS NOT NULL FROM jobs WHERE id=?1",
+            [job],
+            |r| r.get(0),
+        )?;
+        if already_joined {
+            return Ok(());
+        }
         tx.execute("UPDATE jobs SET stop_evidence=?1,state=CASE WHEN state IN ('reserved','running','effect_intent') THEN 'outcome_unknown' ELSE state END WHERE id=?2",params![if success { "owned_child_wait_exit_0" } else { "owned_child_wait_nonzero" },job])?;
         tx.execute(
             "INSERT INTO events(kind,job) VALUES('child_wait_confirmed',?1)",
@@ -396,7 +422,27 @@ impl Store {
         self.config.state_dir.join("journal.sqlite3")
     }
 }
-fn event_limit(db: &Connection, reserved: usize) -> Result<()> {
+// Each admitted job owes at most one worker-terminal event plus one owned wait
+// (or spawn-failure event). Preserve first Cancel/Revoke and a needed reopen too.
+fn settlement_reserve(db: &Connection) -> Result<usize> {
+    let pending: i64 = db.query_row(
+        "SELECT count(*) FROM jobs WHERE stop_evidence IS NULL",
+        [],
+        |r| r.get(0),
+    )?;
+    let (cancelled, revoked, paused): (bool, bool, bool) = db.query_row(
+        "SELECT cancelled,revoked,paused FROM meta WHERE id=1",
+        [],
+        |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+    )?;
+    let unsettled:i64=db.query_row("SELECT count(*) FROM jobs WHERE stop_evidence IS NULL AND state IN ('reserved','running','effect_intent')",[],|r|r.get(0))?;
+    Ok(pending as usize
+        + unsettled as usize
+        + usize::from(!cancelled)
+        + usize::from(!revoked)
+        + usize::from(!paused || unsettled > 0))
+}
+pub(crate) fn event_limit(db: &Connection, reserved: usize) -> Result<()> {
     let n: i64 = db.query_row("SELECT count(*) FROM events", [], |r| r.get(0))?;
     require(n <= 10000 - reserved as i64, "journal_capacity")
 }

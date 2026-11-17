@@ -1,2 +1,3 @@
 # Preserve raw subprocess output and its recorded hashes, including trailing blank lines.
 runs/**/*.log -whitespace
+review-capacity/*.log -whitespace

@@ -29,3 +29,13 @@
 - Build/test slot released to PR29 A/B window after exact-head verification. Remaining work is evidence-only commit, normal push and draft PR.
 
 - Normal push of implementation succeeded; draft PR created: https://github.com/wanderbot-auto/AgentBaton/pull/30. Evidence-only descendant follows, with no rewrite/merge of main.
+
+## Leader review P2: control capacity at new-effect admission boundary
+
+- Leader identified a reachable low-frequency case: repeated same-lease pause/local higher-fence provisioning history reaches 9903 events; Record commits event 9904, then first Cancel/Revoke incorrectly uses the same 96-slot admission gate and rolls back. This is not a short ordinary-RPC exhaustion claim.
+- Added a directional regression with equivalent legal 9903-event history/current trusted fence (no deletion), both first-control orders, duplicate keys, unchanged 32 jobs/4096 receipts limits, actual worker process + wait and capacity-safe reopen. Implementation correction in progress; build/test pending PR29 diagnostic slot.
+- Receipt-capacity first-control natural exhaustion is not established by this evidence and no receipt-limit expansion is proposed.
+
+- Capacity regression red reproduced journal_capacity on 4a2 product source. Final debt accounting pays terminal and wait independently, retains both first controls and required reopen, and checks hard cap on all terminal writes. Already-durable controls and unchanged paused opens no longer consume events; receipts remain bounded and payload conflicts unchanged.
+- 32 actual worker terminal-before-wait boundary regression added after reviewer found conservative double counting. 18 Rust +16 actual subprocess tests, fmt/clippy/build all pass in run20261117T152826Z-576186000. Intermediate failed run retained; rollback fault now requires actual running precondition without loosening expected stopped_without_effect.
+- Final targeted independent read-only capacity review confirms no blocker. New product commit and clean-commit verification follow; no changes outside original scope.

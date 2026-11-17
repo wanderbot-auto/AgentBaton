@@ -1,15 +1,10 @@
 # Checkpoint
 
-status=review
-base/target=b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c
-implementation/tested-head=6df13c36b5bbf82c608ff104588f0cd98e238121
-branch=collab/remote-host-foundation; draft PR target=main
-Verification worktree was clean. Latest run= runs/20261117T150538Z-544397000/evidence.json; 16 Rust +16 real subprocess tests, fmt, locked build and strict clippy all pass. Exact source hash=0e31277319804c089c8142ebef68a1f44cc05ffd7eb844517f75011794d3a2e3.
-Fetch confirms target still base; collab preview reports no conflict (tree 8e9e3b7311bf8252bba19ec4ab2c151226bc4366). Final docs/evidence-only descendant has identical implementation/test/verifier sources; exact delivery head is in PR/handoff.
-Current dirty before evidence commit: this directory only (CHECKPOINT/PROGRESS/EVIDENCE/HANDOFF + final run logs). No product source or tests changed after clean-head verification.
-Complete: implementation + ADR + independent read-only review/fixes + authentic real local chain/fault evidence + sanitized wire traces and artifact hashes.
-Processes: all owned test supervisors/children exited and were joined (or whole crash group killed/OS reaped); no surviving owned groups asserted. No service registered, no background executor left. Cargo/test slot released to PR29 A/B window.
-Unverified: actual SSH handshake/key rejection, Linux/cross-machine run, Provider, Core/UI/shared-project-budget/cache retention, production signing/release. Record worker is only a restricted foundation capability.
-leader_actions: independent acceptance of exact draft head; global STATUS/requirement ledger update; coordinate follow-up integration. B does not merge. Scope reservation retained through review for B-authored fixes; no autonomous work after handoff.
-
-Draft PR created: https://github.com/wanderbot-auto/AgentBaton/pull/30. Final pending changes are task evidence/docs only; no source modifications.
+status=review_fix_verified_pending_commit
+base=b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c; current head=4a2e8a46ee4774a78d2ecf90ed42f2f0d0a3da8b; PR30/main
+Dirty product: crates/remote-host/src/{store,worker}.rs, crates/remote-host/tests/foundation.rs, tests/infrastructure/test_remote_host.py. Dirty evidence/docs: this task directory only. No root/shared/global modifications.
+Leader P2 fixed: separate96-slot admission from accurate remaining settlement debt; retain first controls, real worker/wait and necessary reopen, with unchanged10000/32/4096 caps and idempotent unchanged projections.
+Latest run20261117T152826Z-576186000 passed18 Rust+16 actual subprocess tests, fmt, locked build, strict clippy; source hash dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7. Native read-only capacity re-review has no blocker.
+Next: append normal commit, clean-head explicit verifier, evidence-only descendant and normal PR30 push/update. No rebase/force push/main merge.
+Processes: previous fixtures joined/cleaned; build slot still B until final validation, then released to perf window. No live companion/service.
+Unverified SSH/Linux/Provider/Core/UI/root-budget/retention/production release boundaries unchanged. Leader owns global status and exact-head admission.

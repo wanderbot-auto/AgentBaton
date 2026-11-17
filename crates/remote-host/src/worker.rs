@@ -1,6 +1,9 @@
 //! The only foundation operation: a bounded, exclusive UTF-8 record in the approved mapping.
 //! No shell, arbitrary executable, Provider, network, or directory synchronization interface.
-use crate::{protocol::*, store::Store};
+use crate::{
+    protocol::*,
+    store::{event_limit, Store},
+};
 use rusqlite::{params, TransactionBehavior};
 use std::ffi::CString;
 use std::fs::File;
@@ -71,6 +74,7 @@ pub fn run(mut store: Store, job: &str) -> Result<()> {
                 "INSERT INTO events(kind,job) VALUES('worker_effects_stopped',?1)",
                 [job],
             )?;
+            event_limit(&tx, 0)?;
             tx.commit()?;
             return Ok(());
         }
@@ -105,6 +109,7 @@ pub fn run(mut store: Store, job: &str) -> Result<()> {
                 "INSERT INTO events(kind,job) VALUES('exclusive_create_failed',?1)",
                 [job],
             )?;
+            event_limit(&tx, 0)?;
             tx.commit()?;
             return Ok(());
         }
@@ -118,6 +123,7 @@ pub fn run(mut store: Store, job: &str) -> Result<()> {
             "INSERT INTO events(kind,job) VALUES('record_durable',?1)",
             [job],
         )?;
+        event_limit(&tx, 0)?;
         tx.commit()?;
         return Ok(());
     }

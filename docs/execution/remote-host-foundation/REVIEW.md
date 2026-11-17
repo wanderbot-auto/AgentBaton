@@ -17,3 +17,11 @@ Reviewer: native read-only subagent `/root/remote_review`; no product source wri
 | Future schema mutated before rejection | Store and Ledger validate user_version before write pragmas. Both future-WAL journals remain WAL/version99 in regression. |
 
 Final targeted reviewer disposition: all listed issues fixed, no remaining source-review blocker. This is source/ADR review, not a claim that reviewer independently executed dynamic tests. Parent explicit tests below remain subject to leader's review against final submitted SHA.
+
+## Leader P2 capacity follow-up
+
+Leader identified that first Cancel/Revoke was rejected at event9904 by the 96-slot new-effect gate. The equivalent legal9903 provisioning/reopen seed reproduced the failure on 4a2 product code ([red log](review-capacity/red.log)). The fix separates new-effect admission from settlement/control debt and coalesces only unchanged control/reopen projections.
+
+Follow-up native reviewer caught over-counting worker-terminal debt after terminal events were already durable. Final formula is pending-wait + unsettled-terminal + first controls + necessary reopen. Tests cover both first-control orders and 32 actual owned workers with terminal events before recorded wait; metadata counts progress9904→9936→9938→9970→9971, preserving actual stop evidence and budgets. Independent targeted disposition: formula/accounting correct, no remaining capacity blocker; no reviewer test execution.
+
+The failed intermediate verifier 20261117T152431Z-547280000 remains evidence, not a pass: one rollback fixture observed outcome_unknown before a running worker had been established. The fixture now asserts actual running before injecting its specified in-flight clock fault, preserving the original strict stop-state assertion and failing explicitly on startup failure. No unsupported claim about the failure's underlying OS cause is made.

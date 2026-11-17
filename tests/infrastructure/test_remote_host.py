@@ -268,7 +268,16 @@ class RealCompanionTests(unittest.TestCase):
         p = self.start()
         self.snapshot(p)
         self.record(p, delay=1000)
+        # Inject rollback during an actual running worker, not during its startup.
+        deadline = time.monotonic() + 3
         with sqlite3.connect(self.state / "journal.sqlite3") as db:
+            while True:
+                state = db.execute("SELECT state FROM jobs WHERE id='job'").fetchone()[0]
+                if state == "running":
+                    break
+                self.assertEqual(state, "reserved", "worker failed before clock fault injection")
+                self.assertLess(time.monotonic(), deadline, "worker never entered running state")
+                time.sleep(.01)
             db.execute("UPDATE meta SET highwater=highwater+20000")
         s = self.joined(p)
         self.assertTrue(s["paused"])

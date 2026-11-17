@@ -523,13 +523,18 @@ fn generated_ssh_identity_effective_configuration_without_connecting() {
 
 #[test]
 fn paged_reconciliation_is_required_and_event_capacity_reserves_completion_space() {
-    let f = Fixture::new();
+    let mut f = Fixture::new();
     let mut store = Store::open(f.cfg.clone(), true).unwrap();
-    for i in 0..70 {
-        store
-            .handle(&f.req(&format!("cancel{i}"), Action::Cancel))
-            .unwrap();
+    // Populate real state transitions, rather than repeated already-true control events.
+    for _ in 0..35 {
+        drop(store);
+        store = Store::open(f.cfg.clone(), true).unwrap();
+        drop(store);
+        f.cfg.grant.fence += 1;
+        f.save();
+        store = Store::open(f.cfg.clone(), true).unwrap();
     }
+    store.handle(&f.req("cancel", Action::Cancel)).unwrap();
     drop(store);
     let mut c = f.client();
     let first = f.snapshot(&mut c);
@@ -661,4 +666,247 @@ fn future_wal_schemas_are_rejected_before_journal_mode_mutation() {
             .unwrap(),
         99
     );
+}
+
+/// Reachable precondition, not 9903 ordinary RPCs: initial grant, then 4951
+/// same-lease pauses alternating with trusted local higher-fence provisions.
+/// Seed the equivalent durable history to keep this boundary regression bounded.
+fn seed_reachable_9903(f: &mut Fixture) -> Store {
+    let store = Store::open(f.cfg.clone(), true).unwrap();
+    let db = rusqlite::Connection::open(store.path()).unwrap();
+    db.execute_batch("BEGIN IMMEDIATE; WITH RECURSIVE n(x) AS (SELECT 2 UNION ALL SELECT x+1 FROM n WHERE x<9903) INSERT INTO events(kind) SELECT CASE WHEN x%2=0 THEN 'reopened_paused' ELSE 'local_grant_installed' END FROM n;").unwrap();
+    f.cfg.grant.fence = 4952;
+    let grant = serde_json::to_vec(&f.cfg.grant).unwrap();
+    db.execute(
+        "UPDATE meta SET fence=?1,grant_hash=?2,ceiling=?3,paused=0 WHERE id=1",
+        rusqlite::params![
+            f.cfg.grant.fence,
+            digest(&grant),
+            String::from_utf8(grant).unwrap()
+        ],
+    )
+    .unwrap();
+    db.execute_batch("COMMIT").unwrap();
+    drop(db);
+    drop(store);
+    f.save();
+    Store::open(f.cfg.clone(), false).unwrap()
+}
+#[test]
+fn first_controls_and_worker_completion_survive_reachable_admission_boundary() {
+    assert_eq!(MAX_JOBS, 32);
+    assert_eq!(MAX_RECEIPTS, 4096);
+    for cancel_first in [true, false] {
+        let mut f = Fixture::new();
+        let mut store = seed_reachable_9903(&mut f);
+        let db = rusqlite::Connection::open(store.path()).unwrap();
+        let count = || {
+            db.query_row::<i64, _, _>("SELECT count(*) FROM events", [], |r| r.get(0))
+                .unwrap()
+        };
+        assert_eq!(count(), 9903);
+        store.handle(&f.record("pending", "no_effect", 0)).unwrap();
+        assert_eq!(count(), 9904);
+        code(
+            store.handle(&f.record("denied", "no_extra", 0)),
+            "journal_capacity",
+        );
+        assert_eq!(count(), 9904);
+        let (first, second) = if cancel_first {
+            (Action::Cancel, Action::Revoke)
+        } else {
+            (Action::Revoke, Action::Cancel)
+        };
+        let first = f.req("first_control", first);
+        let second = f.req("second_control", second);
+        let first_reply = store.handle(&first).unwrap();
+        let second_reply = store.handle(&second).unwrap();
+        assert_eq!(count(), 9906);
+        assert_eq!(
+            serde_json::to_value(store.handle(&first).unwrap()).unwrap(),
+            serde_json::to_value(first_reply).unwrap()
+        );
+        assert_eq!(
+            serde_json::to_value(store.handle(&second).unwrap()).unwrap(),
+            serde_json::to_value(second_reply).unwrap()
+        );
+        assert_eq!(count(), 9906);
+        // New control key may obtain a receipt, but cannot flood repeated state events.
+        store
+            .handle(&f.req("cancel_again", Action::Cancel))
+            .unwrap();
+        assert_eq!(count(), 9906);
+        assert_eq!(
+            db.query_row::<i64, _, _>("SELECT count(*) FROM receipts", [], |r| r.get(0))
+                .unwrap(),
+            4
+        );
+        assert_eq!(
+            db.query_row::<i64, _, _>("SELECT count(*) FROM jobs", [], |r| r.get(0))
+                .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row::<i64, _, _>("SELECT used_ops FROM meta", [], |r| r.get(0))
+                .unwrap(),
+            1
+        );
+        match store
+            .handle(&f.req("pre_wait", Action::Reconcile { cursor: 9904 }))
+            .unwrap()
+        {
+            Reply::Snapshot { snapshot } => assert!(!snapshot.confirmed_stopped),
+            _ => panic!(),
+        }
+        let status = std::process::Command::new(env!("CARGO_BIN_EXE_baton-host-companion"))
+            .arg("--worker")
+            .arg(&f.path)
+            .arg("pending")
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .status()
+            .unwrap();
+        assert!(status.success());
+        store.child_exited("pending", status.success()).unwrap();
+        assert_eq!(count(), 9908);
+        store.child_exited("pending", status.success()).unwrap();
+        assert_eq!(count(), 9908);
+        match store
+            .handle(&f.req("post_wait", Action::Reconcile { cursor: 9904 }))
+            .unwrap()
+        {
+            Reply::Snapshot { snapshot } => assert!(snapshot.confirmed_stopped),
+            _ => panic!(),
+        }
+
+        assert_eq!(
+            db.query_row::<String, _, _>("SELECT state FROM jobs", [], |r| r.get(0))
+                .unwrap(),
+            "stopped_without_effect"
+        );
+        assert_eq!(
+            db.query_row::<String, _, _>("SELECT stop_evidence FROM jobs", [], |r| r.get(0))
+                .unwrap(),
+            "owned_child_wait_exit_0"
+        );
+        assert_eq!(fs::read_dir(&f.cfg.root).unwrap().count(), 0);
+        drop(store);
+        let mut reopened = Store::open(f.cfg.clone(), true).unwrap();
+        assert_eq!(count(), 9909);
+        reopened
+            .handle(&f.req("sync", Action::Reconcile { cursor: 9904 }))
+            .unwrap();
+        drop(reopened);
+        for _ in 0..3 {
+            drop(Store::open(f.cfg.clone(), true).unwrap());
+        }
+        assert_eq!(count(), 9909);
+        assert!(count() <= 10000);
+    }
+}
+
+#[test]
+fn all_32_terminal_events_before_wait_preserve_first_controls_and_reopen() {
+    for cancel_first in [true, false] {
+        let mut f = Fixture::new();
+        f.cfg.grant.max_operations = 32;
+        f.save();
+        let store = Store::open(f.cfg.clone(), true).unwrap();
+        let db = rusqlite::Connection::open(store.path()).unwrap();
+        drop(store);
+        // 9871 alternating valid pause/local-grant events, then one additional trusted
+        // grant without a pause: active fence4937 and 9872 events before 32 dispatches.
+        db.execute_batch("BEGIN IMMEDIATE; WITH RECURSIVE n(x) AS (SELECT 2 UNION ALL SELECT x+1 FROM n WHERE x<9871) INSERT INTO events(kind) SELECT CASE WHEN x%2=0 THEN 'reopened_paused' ELSE 'local_grant_installed' END FROM n; INSERT INTO events(kind) VALUES('local_grant_installed');").unwrap();
+        f.cfg.grant.fence = 4937;
+        let grant = serde_json::to_vec(&f.cfg.grant).unwrap();
+        db.execute(
+            "UPDATE meta SET fence=?1,grant_hash=?2,ceiling=?3,paused=0 WHERE id=1",
+            rusqlite::params![
+                f.cfg.grant.fence,
+                digest(&grant),
+                String::from_utf8(grant).unwrap()
+            ],
+        )
+        .unwrap();
+        db.execute_batch("COMMIT").unwrap();
+        f.save();
+        let mut store = Store::open(f.cfg.clone(), false).unwrap();
+        let count = || {
+            db.query_row::<i64, _, _>("SELECT count(*) FROM events", [], |r| r.get(0))
+                .unwrap()
+        };
+        for i in 0..32 {
+            store
+                .handle(&f.record(&format!("j{i}"), &format!("f{i}"), 0))
+                .unwrap();
+        }
+        assert_eq!(count(), 9904);
+        let mut statuses = Vec::new();
+        for i in 0..32 {
+            let status = std::process::Command::new(env!("CARGO_BIN_EXE_baton-host-companion"))
+                .arg("--worker")
+                .arg(&f.path)
+                .arg(format!("j{i}"))
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .status()
+                .unwrap();
+            assert!(status.success());
+            statuses.push(status);
+        }
+        assert_eq!(count(), 9936);
+        assert_eq!(
+            db.query_row::<i64, _, _>(
+                "SELECT count(*) FROM jobs WHERE state='succeeded' AND stop_evidence IS NULL",
+                [],
+                |r| r.get(0)
+            )
+            .unwrap(),
+            32
+        );
+        let actions = if cancel_first {
+            [Action::Cancel, Action::Revoke]
+        } else {
+            [Action::Revoke, Action::Cancel]
+        };
+        for (i, action) in actions.into_iter().enumerate() {
+            let r = f.req(&format!("control{i}"), action);
+            store.handle(&r).unwrap();
+            store.handle(&r).unwrap();
+        }
+        assert_eq!(count(), 9938);
+        match store
+            .handle(&f.req("before_wait", Action::Reconcile { cursor: 9936 }))
+            .unwrap()
+        {
+            Reply::Snapshot { snapshot } => assert!(!snapshot.confirmed_stopped),
+            _ => panic!(),
+        }
+        for (i, status) in statuses.into_iter().enumerate() {
+            store
+                .child_exited(&format!("j{i}"), status.success())
+                .unwrap();
+        }
+        assert_eq!(count(), 9970);
+        assert_eq!(fs::read_dir(&f.cfg.root).unwrap().count(), 32);
+        assert_eq!(
+            db.query_row::<i64, _, _>("SELECT used_ops FROM meta", [], |r| r.get(0))
+                .unwrap(),
+            32
+        );
+        drop(store);
+        let mut reopened = Store::open(f.cfg.clone(), true).unwrap();
+        assert_eq!(count(), 9971);
+        match reopened
+            .handle(&f.req("after_wait", Action::Reconcile { cursor: 9936 }))
+            .unwrap()
+        {
+            Reply::Snapshot { snapshot } => assert!(snapshot.confirmed_stopped),
+            _ => panic!(),
+        }
+        drop(reopened);
+        drop(Store::open(f.cfg.clone(), true).unwrap());
+        assert_eq!(count(), 9971);
+        assert!(count() <= 10000);
+    }
 }
