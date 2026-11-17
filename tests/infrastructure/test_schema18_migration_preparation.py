@@ -26,9 +26,13 @@ def synthetic_build():
         architecture=platform.machine(), builder_sha256=H.sha(Path(H.__file__).read_bytes()),
         helpers_sha256=H.HELPERS.copy(),
         source=dict(commit=H.SOURCE, tree=H.TREE, repository=H.REPOSITORY,
-                    archive_sha256=H.ARCHIVE_SHA256, files_sha256=files, compiled_source_clean=True),
+                    archive_sha256=H.ARCHIVE_SHA256, files_sha256=files, compiled_source_clean=True,
+                    directory='/never-executed/source'),
         build=dict(argv=['/never-executed/cargo', *H.BUILD_ARGS], features=[], default_features=True,
-                   exit_code=0, lockfile_sha256=H.LOCK_SHA256, group_quiescent_before_reap=True),
+                   exit_code=0, lockfile_sha256=H.LOCK_SHA256, group_quiescent_before_reap=True,
+                   cwd='/never-executed/source', target_dir='/never-executed/target',
+                   cargo_config_paths_checked=H.cargo_config_paths(Path('/never-executed/source')),
+                   cargo_config_absent_before=True, cargo_config_absent_after=True),
         binaries={name: dict(sha256='c' * 64, bytes=100, mode='0o500', nlink=1,
                             architecture=platform.machine()) for name in ('batond', 'baton')},
         toolchain={name: dict(path='/never-executed/' + name, sha256='d' * 64,
@@ -77,6 +81,9 @@ class Normal18BuildContracts(unittest.TestCase):
                 (('build', 'features'), ['native-smoke']), (('build', 'default_features'), 1),
                 (('build', 'argv'), ['/never/cargo', 'test']), (('build', 'exit_code'), False),
                 (('build', 'group_quiescent_before_reap'), False),
+                (('build', 'cargo_config_absent_before'), False),
+                (('build', 'cargo_config_absent_after'), False),
+                (('build', 'cargo_config_paths_checked'), []),
                 (('build', 'lockfile_sha256'), 'e' * 64), (('architecture',), 'unbound')]
             for path, bad in cases:
                 value = copy.deepcopy(original)
@@ -149,6 +156,26 @@ class Normal18BuildContracts(unittest.TestCase):
         for raw in [b'', b'test endpoint script', b'\x7fELF' + b'\0' * 32]:
             with self.subTest(raw=raw), self.assertRaises(ValueError):
                 H.OLD.binary_metadata(raw)
+
+    def test_cargo_ancestor_config_and_symlink_refuse_without_global_changes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory).resolve()
+            source = parent / 'source'
+            source.mkdir()
+            H.assert_no_ambient_config(source)
+            folder = parent / '.cargo'
+            folder.mkdir()
+            for name in ('config', 'config.toml'):
+                path = folder / name
+                path.write_text('[build]\nrustflags = ["--cfg", "test-control"]\n')
+                with self.assertRaisesRegex(ValueError, 'Cargo'):
+                    H.assert_no_ambient_config(source)
+                path.unlink()
+                path.symlink_to(parent / 'missing')
+                with self.assertRaisesRegex(ValueError, 'Cargo'):
+                    H.assert_no_ambient_config(source)
+                path.unlink()
+            self.assertEqual(H.assert_no_ambient_config(source), H.cargo_config_paths(source))
 
     def test_identity_sampling_failure_still_reaps_owned_compiler_without_unknown_group_signal(self):
         class Child:

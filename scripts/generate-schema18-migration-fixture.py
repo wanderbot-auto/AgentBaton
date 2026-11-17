@@ -112,6 +112,7 @@ def validate_report(m):
     H.require(first['counts']['tasks'] == 0 and type(first['sequence']) is int and first['sequence'] == 0
               and last['counts']['tasks'] == 3 and last['counts']['projects'] == 1
               and last['counts']['events'] == 5 and last['counts']['idempotency'] == 4
+              and type(last['sequence']) is int and type(m['final_api_sequence']) is int
               and last['sequence'] == m['final_api_sequence'] == 5
               and all(last['counts'][name] == 0 for name in H.EMPTY_AUTHORITY),
               'Missing genuine nonempty history or unexpected authority')
@@ -190,10 +191,10 @@ def main():
         env['BATON_RUNTIME_DIR'] = str(runtime)
         with (output / 'daemon.log').open('xb') as log:
             os.fchmod(log.fileno(), 0o600)
+            report['daemon'] = dict(owned_identity=None, sigterm_sent=False, forced_kill=False)
             child = subprocess.Popen([str(frozen / 'batond')], env=env, stdout=log,
                                      stderr=subprocess.STDOUT, start_new_session=True)
-            report['daemon'] = dict(owned_identity=H.COMMON.darwin_owned_identity(child),
-                                    sigterm_sent=False, forced_kill=False)
+            report['daemon']['owned_identity'] = H.COMMON.darwin_owned_identity(child)
             wait_ready(runtime, child)
             report['initial_probe'] = probe(runtime / 'baton.sqlite3')
             token = H.read_regular(runtime / 'session.token', 1024).decode()

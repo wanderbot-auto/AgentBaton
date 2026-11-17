@@ -168,6 +168,10 @@ def validate_compiled(m):
             and type(b['exit_code']) is int and b['exit_code'] == 0
             and b['lockfile_sha256'] == LOCK_SHA256 and b['group_quiescent_before_reap'] is True,
             'Not a normal joined locked default build')
+    require(b['cwd'] == s['directory'] and Path(b['target_dir']).is_absolute()
+            and b['cargo_config_paths_checked'] == cargo_config_paths(Path(s['directory']))
+            and b['cargo_config_absent_before'] is True and b['cargo_config_absent_after'] is True,
+            'Ambient Cargo config absence not bound to complete ancestor chain')
     require(set(m['binaries']) == {'batond', 'baton'}, 'Missing normal tool pair')
     for item in m['binaries'].values():
         require(OLD.digest(item['sha256']) and type(item['bytes']) is int
@@ -218,15 +222,33 @@ def git_archive(repository):
     return raw
 
 
+def cargo_config_paths(source):
+    return [str(parent / '.cargo' / name) for parent in (source, *source.parents)
+            for name in ('config', 'config.toml')]
+
+
+def assert_no_ambient_config(source):
+    paths = cargo_config_paths(source)
+    for name in paths:
+        path = Path(name)
+        require(not path.exists() and not path.is_symlink(), 'Ambient Cargo configuration refused')
+    return paths
+
+
 def run_build(argv, source, env, log, report):
-    child = subprocess.Popen(argv, cwd=source, env=env, stdout=log, stderr=subprocess.STDOUT,
-                             start_new_session=True)
-    owned = COMMON.darwin_owned_identity(child)
-    report['owned_identity'] = owned
-    deadline = time.monotonic() + 1800
-    joined = False
+    child, owned, joined = None, None, False
     try:
-        while NATIVE.owned_child_exited(child.pid) is False:
+        child = subprocess.Popen(argv, cwd=source, env=env, stdout=log, stderr=subprocess.STDOUT,
+                                 start_new_session=True)
+        report['owned_identity'] = None
+        owned = COMMON.darwin_owned_identity(child)
+        report['owned_identity'] = owned
+        deadline = time.monotonic() + 1800
+        while True:
+            exited = NATIVE.owned_child_exited(child.pid)
+            require(type(exited) is bool, 'Unknown compiler exit observation')
+            if exited:
+                break
             require(time.monotonic() < deadline, 'Normal18 compile deadline expired')
             time.sleep(.5)
         require(NATIVE.owned_group_is_quiescent(child.pid) is True, 'Compiler group still active')
@@ -234,7 +256,7 @@ def run_build(argv, source, env, log, report):
         report['exit_code'] = child.wait(timeout=5)
         joined = True
     finally:
-        if not joined:
+        if child is not None and not joined:
             cleanup = dict(owned_identity=owned, sigterm_sent=False, forced_kill=False)
             COMMON.stop_darwin_owned(child, NATIVE, cleanup)
             report['failed_build_cleanup'] = cleanup
@@ -258,6 +280,7 @@ def main():
                   frozen_directory=str(frozen), not_claimed=['runtime probe (separate generator)',
                   'Store19 activation/backup/restore', 'native GUI/Provider/SSH'])
     try:
+        require(shutil.disk_usage(output).free >= 200 * 1024 * 1024, 'Insufficient private build space')
         root = Path(tempfile.mkdtemp(prefix='ab18-build-', dir='/tmp')).resolve()
         root.chmod(0o700)
         source = root / 'source'
@@ -294,11 +317,15 @@ def main():
         argv = [str(cargo), *BUILD_ARGS]
         report['build'] = dict(argv=argv, cwd=str(source), target_dir=str(target), features=[],
                                default_features=True, lockfile_sha256=files['Cargo.lock'],
-                               cargo_home=str(cargo_home), cache_scope='registry only; no config/auth copied')
+                               cargo_home=str(cargo_home), cache_scope='registry only; no config/auth copied',
+                               cargo_config_paths_checked=assert_no_ambient_config(source),
+                               cargo_config_absent_before=True, cargo_config_absent_after=False)
         started = time.monotonic()
         with (output / 'build.log').open('xb') as log:
             os.fchmod(log.fileno(), 0o600)
             run_build(argv, source, env, log, report['build'])
+        assert_no_ambient_config(source)
+        report['build']['cargo_config_absent_after'] = True
         report['build'].update(elapsed_seconds=time.monotonic() - started,
                                log_sha256=sha((output / 'build.log').read_bytes()))
         require(source_hashes(source) == files, 'Compiled source/lock changed')
