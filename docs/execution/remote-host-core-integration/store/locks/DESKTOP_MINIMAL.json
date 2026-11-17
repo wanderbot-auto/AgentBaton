@@ -1,0 +1,27 @@
+{
+  "recorded_utc": "2026-11-17T19:18:36.323336+00:00",
+  "command": [
+    "cargo",
+    "metadata",
+    "--offline",
+    "--locked",
+    "--format-version",
+    "1",
+    "--manifest-path",
+    "apps/desktop/src-tauri/Cargo.toml"
+  ],
+  "exit_code": 0,
+  "before_lock_sha256": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+  "after_lock_sha256": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+  "unchanged_by_locked_metadata": true,
+  "all_previous_pins_and_dependency_edges_exact_except_Core_Host": true,
+  "stdout_private_runtime_path": "/private/tmp/ab-collab-lztfoica/desktop-minimal-metadata.stdout.json",
+  "stdout_sha256": "a4ffebcca9e73b3ed9f365f08acb05f0abdfdc749d825f23ad36838847d0516c",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "original_unexpected_resolver_attempt_retained": "EVIDENCE.json / desktop.patch / desktop.log",
+  "no_build_or_network": true,
+  "package_count": 442,
+  "workspace_members": [
+    "path+file:///Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/apps/desktop/src-tauri#agentbaton-desktop@0.1.0"
+  ]
+}

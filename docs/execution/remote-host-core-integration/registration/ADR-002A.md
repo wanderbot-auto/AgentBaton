@@ -1,0 +1,13 @@
+# RHOST-002A pure registration metadata
+
+Scope is exactly the four foundation Rust paths allocated by leader plus this task's evidence docs. Core/schema19/locks/UI remain untouched. No push/CI is authorized in this subphase.
+
+Expose pure SSH endpoint/path syntax helpers with the original predicates and errors. Existing SshConfig::argv calls only those helpers, in the same order, then its unchanged filesystem/pin checks and fixed strict flags. It must not construct or validate a complete registration, since registration adds its own metadata policy and is not the transport contract.
+
+HostRegistrationV1 is bounded, closed metadata: declared macOS/Linux; display name; endpoint and expected protocol Host ID; known_hosts file digest/reference; opaque SSH identity reference; declared companion configuration reference/ownership; optional declared directory mappings. Opaque refs use a bounded reference token alphabet including colon, never become protocol::Binding/Grant identity and are not resolved. A valid reference proves neither existence nor authorization. File digest is explicitly the expected SHA-256 of known_hosts bytes, not an SSH key fingerprint or identity proof.
+
+Full registration validation may enforce metadata-only semantics such as reserved-local rejection, digest shape, unique mapping IDs and nonambiguous declared remote roots. The generic SSH syntax helpers retain the original broader accepted syntax (including local as an identifier and slash path syntax) so refactoring cannot silently add registration policy to legacy argv. Bounds: raw JSON16KiB, name256UTF-8 bytes, reference256ASCII token bytes, mappings0..8, root512ASCII bytes. Remote roots are declared absolute Unix strings with no dot segments, repeated/trailing separators or root-only namespace; no canonicalization/existence/symlink verification is implied.
+
+The validator does not read/stat/canonicalize files, resolve DNS, spawn SSH/processes, read time, modify a journal, or grant recipient/permission/execution capability. It returns validated metadata/errors only. Unknown/authority-bearing fields and future versions fail closed. This subphase adds no registration storage/status endpoint and closes no full Core/Host requirement. Core migration19/evidence closure is a separate review, and phase1's95 schema candidates are not a complete current assertion/inverse plan; frozen18 proofs are not batch rewritten.
+
+Duplicate IDs use deterministic BTreeSet; validation does not request random hash seeds. The source guard also rejects HashSet/clock/IO/process/Grant construction tokens. Source guards supplement, rather than replace, behavioral boundary and legacy argv tests.

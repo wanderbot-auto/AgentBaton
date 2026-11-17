@@ -1,0 +1,14 @@
+{
+  "status": "retained_failed_docs_whitespace_check_before_artifact_attributes",
+  "recorded_utc": "2026-11-17T18:44:40.368725+00:00",
+  "command": [
+    "git",
+    "diff",
+    "--cached",
+    "--check"
+  ],
+  "exit_code": 2,
+  "output": "docs/execution/remote-host-core-integration/layout/manifest.patch:5: trailing whitespace.\n+ \ndocs/execution/remote-host-core-integration/layout/minimal-exclude.patch:9: trailing whitespace.\n+ \ndocs/execution/remote-host-core-integration/layout/minimal-exclude.patch:16: trailing whitespace.\n+ \n",
+  "reason": "Raw unified-diff artifact context lines contain required one-space blank context; preserve exact evidence diff/hash, not product formatting changes.",
+  "resolution": "Task-doc .gitattributes marks only the two raw layout patch artifacts -whitespace; all Rust/product/source checks remain unchanged."
+}

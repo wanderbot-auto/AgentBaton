@@ -1,0 +1,65 @@
+{
+  "status": "closure_attempts",
+  "recorded_utc": "2026-11-17T19:15:58.388186+00:00",
+  "source_head_before_fix_commit": "4c84a654f035c4b0150ce5b714beef638aa31927",
+  "results": [
+    {
+      "manifest": "Cargo.toml",
+      "lock": "Cargo.lock",
+      "command": [
+        "cargo",
+        "update",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--manifest-path",
+        "Cargo.toml"
+      ],
+      "exit_code": 0,
+      "before_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+      "after_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+      "all_existing_package_pins_preserved": true,
+      "changed_or_added_package_records": [
+        "agentbaton-core",
+        "agentbaton-remote-host"
+      ],
+      "log_sha256": "2f6e68187ef73ad8f595d23bc3c137c565ae6f9fd00985f5c9ae03bbe402b992",
+      "patch_sha256": "8e969dfad3c67a3b5b9ec10e3e3beb9df7c7c70b26fcf3343efa6f30b153320d"
+    },
+    {
+      "manifest": "apps/desktop/src-tauri/Cargo.toml",
+      "lock": "apps/desktop/src-tauri/Cargo.lock",
+      "command": [
+        "cargo",
+        "update",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "before_sha256": "f1ad092cfc6b1317d259831e197e160d100de8c6ef292b075104531276667515",
+      "after_sha256": "f21b0926008693e24997fc92f3e02009dfcadefcce34a78668d87017c0fa3b43",
+      "all_existing_package_pins_preserved": true,
+      "changed_or_added_package_records": [
+        "agentbaton-core",
+        "agentbaton-remote-host",
+        "cssparser-macros",
+        "dirs-sys",
+        "errno",
+        "muda",
+        "rustix",
+        "socket2",
+        "tempfile",
+        "tray-icon",
+        "winapi-util",
+        "window-vibrancy",
+        "winreg"
+      ],
+      "log_sha256": "c827c53eaa36fa2f1570d714cc1b0b6e21c461cc9f37ab2870407dd55f526f3f",
+      "patch_sha256": "5576302d98505d90b394a260448a53a61328e7c1412d26b2d265d81e183fae03"
+    }
+  ],
+  "not_build_or_test": true
+}

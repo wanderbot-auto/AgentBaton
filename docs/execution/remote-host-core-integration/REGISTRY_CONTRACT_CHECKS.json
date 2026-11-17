@@ -1,0 +1,117 @@
+{
+  "status": "docs_only_checks_passed_no_product_retest",
+  "execution_head": "cb5bfd1ed856dd6d3d30f190b867692411cee2f7",
+  "recorded_utc": "2026-11-17T18:45:06.880600+00:00",
+  "accepted_base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "product_source_sha256": {
+    "crates/remote-host/Cargo.lock": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/src/controller.rs": "395ceef6cd37380f2d1e9b9afd142a3f3e3eaa88a13259f5827d9f587bfc10d3",
+    "crates/remote-host/src/lib.rs": "1e830c4a5dcb254e6162d50aa93624f185fa941b48757e677e028b11534acf21",
+    "crates/remote-host/src/main.rs": "9243c4224963e7b73120e337828d01e0700e58b5cd9aa8f12dded7cc92515e7f",
+    "crates/remote-host/src/protocol.rs": "cf75bc67caa2435fd484cfb2e9b7ff6506917a098cafb3fe806805fc43b4111e",
+    "crates/remote-host/src/registration.rs": "3330e12d4dbfe92f622de5372d10eeee47786aa8902083ac0b1ffb4553b87c52",
+    "crates/remote-host/src/store.rs": "a778611326e3bd01052cc53725eb2eaa6a84dc7a3d4b7c066cc4c5e9acab1668",
+    "crates/remote-host/src/transport.rs": "233a4d337a15799bfeef20cf570b2fc855e07342cd9b0aac150873dbe4b80912",
+    "crates/remote-host/src/worker.rs": "4320abb29aa4e240d49a801a1a220fd9c2f086285444c5bd4b0f9d6f29d36d40",
+    "crates/remote-host/tests/foundation.rs": "9c3a94fdc60e1dc1db6ff438890728bd9a0d05d74097482944422bab6f4e5c55",
+    "crates/remote-host/tests/registration.rs": "03a3bccc3e8deb9546403e05e921cebaa4c957bb21482460759f2b6ddaa8090d",
+    "scripts/verify-remote-host.py": "4fc7c8b17de1f560043b6c3f1cbb7fdfecc4845a4812267930cb7079c8bcf367",
+    "tests/infrastructure/test_remote_host.py": "10ae86b1a95b8167658f46cdb0facb1696f0543584190f422f947f4048a665f7"
+  },
+  "frozen_source_composite": "8bcf564ab311bce58cd75a70caba53d2d3795bdab9c3fe5f3d4dee1d135b05fe",
+  "frozen_all14_equal_prior_verified_bytes_and_cb5": true,
+  "docs_only_diff_from_cb5": true,
+  "A_DDL_exact_equal_commit": "406be16f56c89495595bf263a307a9d861d8e2a3",
+  "ddl_sha256": "a81ce46f0c66692b48ed887a389c7f7d30890840c7111c324b78503145a7815c",
+  "record_fixture_sha256": "0a554aa2e917ca2e956dae8ea5b3da01fe82f1943ae301ad8a9100bda0265640",
+  "receipt_fixture_sha256": "44efa554001d7fdb68efe3a4b44083e8bc8f3e43cb13e259df1cb064f1627a7e",
+  "prior_docs_whitespace_failure": "REGISTRY_CONTRACT_CHECK_FAILURE.json",
+  "pending": "leader final review/explicit S1 or vertical path allocation; no product acceptance",
+  "not_run": [
+    "product tests (unchanged frozen source)",
+    "additional metadata after bounded initial+correction",
+    "Core compilation/migration/IPC/native/UI",
+    "remote SSH/Provider",
+    "push/CI"
+  ],
+  "processes": "Two metadata subprocess.run calls returned/joined; no new test/service/companion; mirror retained private runtime",
+  "artifact_sha256": {
+    ".gitattributes": "663ae2ecd7f091b1e34c20ac1294776571ef93f2ba01c7a70e591a7a583a073d",
+    "CHECKPOINT.md": "47b00d4faab69eeca0c3977a533710b908b4c37a8937812dcc2620e288676e6f",
+    "CORE_REGISTRY_CONTRACT.md": "2fb6abab084049c9294954428c20d8b92d76c70d0db270ae4e3a629d3b8d7c59",
+    "DEPENDENCY_CONTRACT.md": "511de1aba2b8a8b41038bb74528f2f2f5b4b4999bc1b5e752dc5fb7e3986a6d8",
+    "EVIDENCE.json": "0488b941d4a89989333df482c95b98305389fc59d1a22318b85b5a1e3e1a84f7",
+    "HOST19_ALIGNMENT.json": "59f6289bfe5a697e4b10392420ac29771128bf8c1cdc0834b6ecc1c26c4c58cd",
+    "HOST19_ALIGNMENT.md": "ceb6d405deb1065d05b4c1e789a3237834b559722595021c9113be6c0d02b6d4",
+    "PLAN.md": "4ae9b7ea58a5997877f58d42a768d477b5addff8169a3aab04aaf1c8459ecc57",
+    "PROGRESS.md": "1b4bebf58cfd969d271ed39bbbc40f6d10374db350950c7febfe1a831027cb49",
+    "PROPOSED_SCOPE.json": "b9fa056386e2bab33c42348be99c94f9b3e68409c008abca0ae80f320dd85cdb",
+    "REGISTRY_CONTRACT_CHECK_FAILURE.json": "639a9e64ea0bfc46242884eb6dcdeb539e45e861a064a5ef9d44526f599c3fa1",
+    "REGISTRY_CONTRACT_REVIEW.md": "55de274b0b6af2190e2ac3ce4aaba860a2f887e40e08efb923140e755dad22e1",
+    "SOURCE_AUDIT.json": "5349194fc31f0481f382523c4392f449e89a908305920ddfc6f187d31ce86cd9",
+    "layout/EVIDENCE.json": "11f7789f8c9300167135674d05856c87a55b1b28d14ca5c8ce1da97bdf1d3222",
+    "layout/INITIAL.json": "eeb88cef87f03911c5159dfc230c00abf93394b782e9796f1598390745845466",
+    "layout/initial.stderr.log": "01698b16488cf319165d2bcf2e12ac75bade24b95e44ed9a31fb99065611a73f",
+    "layout/initial.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "layout/manifest.patch": "a52525cc9eb8b8ba0ad8ca1d7c2a5e5e83fab581fefec6ad10b793cf1079af5a",
+    "layout/metadata.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "layout/metadata.stdout.json": "c9b3a8ecd7481984f54962921828b4fe3c1fbc04826432973521a5477ad3c58e",
+    "layout/minimal-exclude.patch": "e5128506d220c90f621d6f3ee8f61ac8b24dce259d6176fd455929d8db277e2a",
+    "registration/ADR-002A.md": "c0ffc171ca78d20041088809e4606ffe1419c9eb25cb0a86d8e33b8fb0aa81a2",
+    "registration/AFTER.json": "c71c3519d16a2a0bf16c020efa78f3d48f4906aef647d91c21ddfc427af0d46c",
+    "registration/BEFORE.json": "44a27b93bd1818d1e016fc61f0a5e619dec6faad39db8326e9cc84f9faa06881",
+    "registration/PURE_TESTS.json": "a107776a0d4f5e970d458a7fc98039a0cbb6e6a4d8e6d40db61befdc580b9bcc",
+    "registration/PURE_TESTS_INITIAL.json": "6f98ecdd00c74063c0eab1ad4e935ce6cbff127e483ce7f1a062554c5a5cf5c0",
+    "registration/REVIEW.md": "bdeb9d701784256d0ee9f7cb9105b52d16c3b912134941de9edcf1d866252f1d",
+    "registration/VERIFIER_RELOCATION.json": "947eece1681f63facc33a130bae7f6abc17cad06255444c4c3eb79090b69250d",
+    "registration/input-v1.json": "4a7cba703c7db8252649273ddfeca6764efe51526ee3fe4a9eeb625eb891c3d5",
+    "registration/pure-tests-initial.log": "f89dd4e8b1819386ec9381b71bb820bcc3bc746ce3eeb62c3fedfe197075342a",
+    "registration/pure-tests.log": "6af3b5529b3d1637167526a76bd09c18a7fb4129c8445f57613e557f1c91e095",
+    "registration/run-foundation.py": "655399d5c50053201f1e4b2a2d7f4d02bc439d6fc4f60ad82eafc50149c184e7",
+    "registration/runs/20261117T180951Z-988877000/build.log": "80bd7220ca4a11f371863670e1c87510635a367abf8a45b492a505bfdbdcebb4",
+    "registration/runs/20261117T180951Z-988877000/clippy.log": "6c7c22e9c80b8df77d9a4dd865f62882c8e516899e4feb92cbd9a7b4c40fb97a",
+    "registration/runs/20261117T180951Z-988877000/evidence.json": "c6c9516f34ae540e4d12433bfc9fcc2ea721b8ea73272c68bbd908cad44eb6cc",
+    "registration/runs/20261117T180951Z-988877000/fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "registration/runs/20261117T180951Z-988877000/real-subprocess-faults.log": "ea9ef3378cf5099a5846b26dc701bb83ff7006ad55c9eeeca00a3abbdb017ccd",
+    "registration/runs/20261117T180951Z-988877000/rust-tests.log": "195a8ec8aec7e7713155e169dba01277235ea99e0ad7829f1496295d1e9604b7",
+    "registration/runs/20261117T180951Z-988877000/stdio-trace.jsonl": "443e34a13215b160f4c40ce4efe62d400c1d7a98c242fbc975a3686a918b4b4d",
+    "registry-contract/CONTRACT.json": "b52a0710480ac3717a6206557eb9216b2e8a418c51101bd06846e58ec84014ee",
+    "registry-contract/ddl.sql": "a81ce46f0c66692b48ed887a389c7f7d30890840c7111c324b78503145a7815c",
+    "registry-contract/event-payload-v1.json": "38d7bc16ff6bb6c53775a9ea985a9ea9928a592e2d0674a2afb8232eed993677",
+    "registry-contract/payload-v1.json": "4a7cba703c7db8252649273ddfeca6764efe51526ee3fe4a9eeb625eb891c3d5",
+    "registry-contract/receipt-v1.json": "44efa554001d7fdb68efe3a4b44083e8bc8f3e43cb13e259df1cb064f1627a7e",
+    "registry-contract/record-v1.json": "0a554aa2e917ca2e956dae8ea5b3da01fe82f1943ae301ad8a9100bda0265640"
+  },
+  "checks": [
+    {
+      "command": [
+        "git",
+        "add",
+        "--",
+        "docs/execution/remote-host-core-integration"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "scope"
+      ],
+      "exit_code": 0,
+      "output": "Scope OK against merge base a4e03303b54bd5a5544131e95ad39662f8310e29.\n"
+    }
+  ]
+}

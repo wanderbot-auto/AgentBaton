@@ -1,0 +1,4 @@
+   Compiling bitflags v2.13.2
+   Compiling rusqlite v0.38.0
+   Compiling agentbaton-remote-host v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/crates/remote-host)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.21s

@@ -1,0 +1,19 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "crates/remote-host/Cargo.toml",
+    "--locked",
+    "--test",
+    "registration",
+    "--",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "head": "b7ebd5ef7e501981413f40cd1448c8368ca66c8b",
+  "test_sha256": "7423ea25b77522962c0f281415c88b9e4225362ad8533f69f7776ffe93e42955",
+  "module_sha256": "cebced4cff5fca62eff51e72904a6b151e631e38b65f43213182de4d2b3f541b",
+  "elapsed_seconds": 7.384,
+  "log_sha256": "f89dd4e8b1819386ec9381b71bb820bcc3bc746ce3eeb62c3fedfe197075342a"
+}

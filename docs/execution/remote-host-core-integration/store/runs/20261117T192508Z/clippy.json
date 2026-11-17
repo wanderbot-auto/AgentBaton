@@ -1,0 +1,27 @@
+{
+  "source_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "status": "passed",
+  "command": [
+    "cargo",
+    "clippy",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "Cargo.toml",
+    "-p",
+    "agentbaton-core",
+    "--all-targets",
+    "-j",
+    "2",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "started_utc": "2026-11-17T19:25:09.384261+00:00",
+  "note": "Explicit private SQLite19 fixtures only; no product activation/IPC/native/SSH/Provider acceptance.",
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T19:25:26.259793+00:00",
+  "log_sha256": "c06a65ef911c7fae591a674fad6937d52ce67e82b2e7c7890e71e407b7714ff1",
+  "log_bytes": 1733,
+  "all_started_child_processes_joined": true
+}

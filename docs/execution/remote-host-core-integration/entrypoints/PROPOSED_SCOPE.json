@@ -1,0 +1,114 @@
+{
+  "status": "proposal_only_no_new_product_paths_reserved",
+  "source_base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "private_B_verified_source": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "audit_start": "ac8277ed3bac7a9cb8f086f792a61b1072e5fdab",
+  "current_write_scope": [
+    "docs/execution/remote-host-core-integration"
+  ],
+  "product_source_and_locks": "frozen039; no build/Cargo/CI permitted in docs phase",
+  "stages": {
+    "C1_Core_IPC": {
+      "existing": [
+        "crates/core/src/ipc.rs"
+      ],
+      "new": [
+        "crates/core/src/host_registry_ipc.rs",
+        "crates/core/src/host_registry_ipc_tests.rs"
+      ],
+      "scope": "module+post-auth four dispatch arms only; new helpers/closed DTOs/tests; normal18 refusal and explicit private dispatch19 fixtures are not actor/socket acceptance"
+    },
+    "C2_durable_Host_intent": {
+      "existing": [
+        "crates/core/src/client_recovery_journal.rs",
+        "crates/core/src/host_registry.rs"
+      ],
+      "new": [
+        "crates/core/src/host_registration_recovery.rs",
+        "crates/core/src/host_registration_recovery_tests.rs"
+      ],
+      "scope": "journal parent module/re-export only; child reuses private anchored I/O and distinct fixed Host file/lock max1; Host receipt validate visibility only pub(crate), no Store change; preserve old Managed/Task marker schemas/kinds/bounds"
+    },
+    "C3_native": {
+      "existing": [
+        "apps/desktop/src-tauri/src/lib.rs"
+      ],
+      "new": [
+        "apps/desktop/src-tauri/src/hosts.rs",
+        "apps/desktop/src-tauri/src/hosts_tests.rs",
+        "apps/desktop/src-tauri/tests/test_hosts_native_source.py"
+      ],
+      "scope": "parent mod+seven fixed handlers; no schema handshake/Runtime privacy/approval/lifecycle/permissions changes"
+    },
+    "C4_Settings": {
+      "existing": [
+        "apps/desktop/src/App.tsx"
+      ],
+      "new": [
+        "apps/desktop/src/Hosts.tsx",
+        "apps/desktop/src/Hosts.test.tsx",
+        "apps/desktop/src/Hosts.entry.test.tsx",
+        "apps/desktop/src/hosts-api.ts",
+        "apps/desktop/src/hosts-api.test.ts",
+        "apps/desktop/src/hosts-types.ts",
+        "apps/desktop/src/hosts-types.test.ts",
+        "apps/desktop/src/hosts-i18n.ts"
+      ],
+      "scope": "one import+Settings disclosure; new typed complete form/recovery/parsers/tests/bilingual labels; reuse style.css no global polling/navigation change"
+    },
+    "C5_real_flow_after_activation": {
+      "new": [
+        "crates/core/tests/host_registration_real_ipc.rs"
+      ],
+      "scope": "real production Daemon/batond UDS after A/root coordinated19 activation; no private schema stamp in this lane; real native AppleSilicon manual evidence separately under own docs with native slot"
+    }
+  },
+  "shared_claims_requiring_root_transfer": [
+    "crates/core/src/ipc.rs (HEXP/A shared entrypoint)",
+    "apps/desktop/src-tauri/src/lib.rs (HEXP/A shared entrypoint, A19 handshake distinct region)",
+    "apps/desktop/src/App.tsx (shared app composition)",
+    "crates/core/src/client_recovery_journal.rs (existing durable recovery primitive and source inverse closure)",
+    "crates/core/src/host_registry.rs (currently frozen B039; proposed narrow receipt validator visibility unfreeze)"
+  ],
+  "activation_owned_by_A_root_not_in_B_proposal": [
+    "crates/core/src/lib.rs",
+    "crates/core/src/storage.rs",
+    "crates/core/src/host_registry_migration.rs",
+    "current19 full reader/collector/source inverse/true predecessor closure",
+    "native require_current_database_schema and frontend snapshot/background contracts",
+    "original historical native-run.py and14/15/16 helper pins (preserved)"
+  ],
+  "not_requested": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "crates/core/Cargo.toml",
+    "apps/desktop/src-tauri/Cargo.toml",
+    "apps/desktop/src-tauri/Cargo.lock",
+    "apps/desktop/package.json",
+    "npm locks",
+    "apps/desktop/src/style.css",
+    "apps/desktop/src/api.ts",
+    "apps/desktop/src/session-api.ts",
+    "apps/desktop/src/RecoveryCenter.tsx",
+    "apps/desktop/src/recovery-center-api.ts",
+    "apps/desktop/src-tauri/src/client_recovery_bridge.rs",
+    "apps/desktop/src-tauri/capabilities/main.json",
+    "CI/global STATUS/OWNER_INBOX/requirements",
+    "any remote-host product source",
+    "A S1 files"
+  ],
+  "dependencies": [
+    "Root exact region/claim serialization and accepted composition base, no assumed HEXP559/main",
+    "A/root Store19 coherent activation needed before real19 actor/socket/native acceptance",
+    "C2 durable intent and acknowledgement needed before honest create UI recovery across Tauri reply loss",
+    "Maximal schema1 intent+wrapper16KiB fit test before actual dispatch acceptance",
+    "Actual native ARM64 slot and evidence separate from browser/unit checks"
+  ],
+  "not_run": [
+    "implementation of proposed files",
+    "new Cargo/resolve/build/test",
+    "UDS/native/UI flow",
+    "SSH/Provider",
+    "CI/push"
+  ]
+}

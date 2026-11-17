@@ -1,0 +1,28 @@
+{
+  "source_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "status": "passed",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "Cargo.toml",
+    "-p",
+    "agentbaton-core",
+    "--lib",
+    "registry::host_registry::tests",
+    "-j",
+    "2",
+    "--",
+    "--nocapture",
+    "--test-threads=2"
+  ],
+  "started_utc": "2026-11-17T19:25:26.260012+00:00",
+  "note": "Explicit private SQLite19 fixtures only; no product activation/IPC/native/SSH/Provider acceptance.",
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T19:26:11.398544+00:00",
+  "log_sha256": "b9d494ae0911f8fb95f3ea99e3fe5136b8c3249fe05a60beac6c85cf8b71b5c7",
+  "log_bytes": 2643,
+  "all_started_child_processes_joined": true
+}

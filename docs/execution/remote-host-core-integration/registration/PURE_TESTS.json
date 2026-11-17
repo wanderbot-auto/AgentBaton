@@ -1,0 +1,25 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "crates/remote-host/Cargo.toml",
+    "--locked",
+    "--test",
+    "registration",
+    "--",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "head": "b7ebd5ef7e501981413f40cd1448c8368ca66c8b",
+  "source_sha256": {
+    "crates/remote-host/src/registration.rs": "3330e12d4dbfe92f622de5372d10eeee47786aa8902083ac0b1ffb4553b87c52",
+    "crates/remote-host/tests/registration.rs": "03a3bccc3e8deb9546403e05e921cebaa4c957bb21482460759f2b6ddaa8090d",
+    "crates/remote-host/src/lib.rs": "1e830c4a5dcb254e6162d50aa93624f185fa941b48757e677e028b11534acf21",
+    "crates/remote-host/src/transport.rs": "233a4d337a15799bfeef20cf570b2fc855e07342cd9b0aac150873dbe4b80912"
+  },
+  "input_sha256": "4a7cba703c7db8252649273ddfeca6764efe51526ee3fe4a9eeb625eb891c3d5",
+  "input_path": "docs/execution/remote-host-core-integration/registration/input-v1.json",
+  "elapsed_seconds": 0.247,
+  "log_sha256": "6af3b5529b3d1637167526a76bd09c18a7fb4129c8445f57613e557f1c91e095"
+}

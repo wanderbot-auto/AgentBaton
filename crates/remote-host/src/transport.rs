@@ -1,4 +1,8 @@
-use crate::{protocol::*, store::private_dir};
+use crate::{
+    protocol::*,
+    registration::{ssh_path_syntax, validate_ssh_endpoint_syntax},
+    store::private_dir,
+};
 use std::io::{Read, Write};
 use std::os::fd::AsRawFd;
 use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
@@ -110,35 +114,16 @@ pub struct SshConfig {
     pub identity_file: PathBuf,
     pub remote_config: String,
 }
-fn safe_path(path: &str) -> bool {
-    path.starts_with('/')
-        && path.len() <= 512
-        && path
-            .bytes()
-            .all(|b| b.is_ascii_alphanumeric() || b"/_-.".contains(&b))
-        && !path.split('/').any(|p| p == ".." || p == ".")
-}
 impl SshConfig {
     pub fn argv(&self) -> Result<Vec<String>> {
-        require(
-            identifier(&self.expected_host_identity),
-            "ssh_host_identity",
+        validate_ssh_endpoint_syntax(
+            &self.expected_host_identity,
+            &self.host,
+            &self.user,
+            self.port,
+            &self.host_key_alias,
         )?;
-        require(
-            !self.host.is_empty()
-                && self.host.len() <= 253
-                && !self.host.starts_with('-')
-                && self
-                    .host
-                    .bytes()
-                    .all(|c| c.is_ascii_alphanumeric() || b".-".contains(&c)),
-            "ssh_host",
-        )?;
-        require(
-            identifier(&self.user) && identifier(&self.host_key_alias) && self.port > 0,
-            "ssh_identity",
-        )?;
-        require(safe_path(&self.remote_config), "ssh_remote_path")?;
+        require(ssh_path_syntax(&self.remote_config), "ssh_remote_path")?;
         let known = self
             .known_hosts
             .to_str()
@@ -147,7 +132,10 @@ impl SshConfig {
             .identity_file
             .to_str()
             .ok_or_else(|| Error::new("ssh_path"))?;
-        require(safe_path(known) && safe_path(identity), "ssh_path")?;
+        require(
+            ssh_path_syntax(known) && ssh_path_syntax(identity),
+            "ssh_path",
+        )?;
         // Explicit private task/config directory, no default ~/.ssh discovery or config execution.
         for path in [&self.known_hosts, &self.identity_file] {
             private_dir(path.parent().ok_or_else(|| Error::new("ssh_path"))?)?;

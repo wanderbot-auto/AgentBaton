@@ -1,0 +1,3 @@
+# Independent read-only review
+
+Native reviewer /root/remote_review reviewed accepted a4e03303 versus the b7 worktree patch. No writes/tests/builds were performed by reviewer. Disposition: no blocker; syntax helpers preserve legacy predicates/error ordering; FS/pin/argv unchanged; complete metadata policy separate; no filesystem/network/clock/process/Grant actions or opaque-reference identity conversion. Tests cover limits/version/unknown fields/refs and old argv. Evidence prefix relocation is explicit. Root still independently admits the committed candidate. No Core/UI/real Host acceptance is inferred.
