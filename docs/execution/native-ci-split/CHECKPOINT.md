@@ -1,7 +1,28 @@
 # Checkpoint
 
 Implementation base c3a001f8b248d79302317689f86ed7703e59e077.
-Reviewed/validated source d4905e12370b571c698a865fed9533ff3c77d590.
+Final reviewed/validated source 76fdc57bef072cf70a02f8d247e88cf2d6508b10.
+Latest full infrastructure: **913 cases, 897 passed, 16 skipped, zero failures
+or errors**. The unmodified raw validator, scope, diff check and merge previews
+passed. Complete tracked-input maps are identical before/after validation.
+
+Integration explicitly transferred the background reader after B finished.
+This branch changed only its workflow raw read entries and two strict inverse
+entry calls. Old Rust lock assertions/pins remain untouched; B's Host-dependent
+file was not copied. Final independent source review reports no blocker.
+
+Actual integration target supplied by leader is
+56746af61789e3e7121e7f43d39b4a5d2b567576. The first preview used stale local
+feature tracking c3; a separate explicit preview against exact56746af6 passed
+without conflict, resulting candidate tree a7f49706279b07acf518d78b436352240400f891.
+No refs were changed. That merge-tree preview is not candidate regression or
+native acceptance. Leader owns normal integration and exact new-head CI.
+
+No Cargo/native product process, push, dispatch, rerun, cancel or merge was
+performed by this package. Cold ARM Native/default completion within30 minutes
+and the full default App audit/package/upload still require real new-head CI.
+
+The following records describe earlier checkpoints and retained failures.
 
 Independent source review passed after fixing unsupported status expressions,
 the Native matrix context and the late-cancellation verifier-skip edge case.

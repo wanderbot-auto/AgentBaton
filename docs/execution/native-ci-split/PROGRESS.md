@@ -50,3 +50,19 @@ reader files; 479f3dcc73e94b400b6b28e25976651b7fa28ca7 changes only their
 imports and workflow reads. All 112 targeted tests pass with identical tracked
 inputs before/after. Semantic AST/YAML readers and runtime policy stay frozen.
 Full regression waits for the background reader's explicit serial transfer.
+
+After B's handoff, integration explicitly granted the background workflow
+reader. 76fdc57bef072cf70a02f8d247e88cf2d6508b10 adds only three raw workflow
+reads and two strict inverse entry calls on this branch's c3 version, retaining
+all its original Rust assertions/pins. One final full run passed913 cases
+(897 passed,16 skipped), as did the unmodified infrastructure validator,
+scope, diff check and preview. Tracked inputs were identical before/after.
+
+Feature tracking locally still resolved c3 although leader's actual target is
+56746af61789e3e7121e7f43d39b4a5d2b567576. A separate explicit exact-target
+preview passed; no parent/tracking ref was mutated. Its tree is
+a7f49706279b07acf518d78b436352240400f891, which remains subject to integration
+regression and genuine Native/default CI. Final independent source review at
+exact76fdc57b found no blocking implementation issue. Evidence archives retain
+all earlier errors and TLS failure. No product build/native/CI execution or
+remote mutation occurred in this package.

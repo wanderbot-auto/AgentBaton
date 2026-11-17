@@ -1,58 +1,172 @@
 {
-  "head": "d4905e12370b571c698a865fed9533ff3c77d590",
-  "command": [
-    ".venv/bin/python",
-    "-m",
-    "unittest",
-    "discover",
-    "-s",
-    "tests/infrastructure",
-    "-p",
-    "test_*.py",
-    "-v"
-  ],
-  "exit": 1,
-  "seconds": 21.796982765197754,
-  "before_equals_after": true,
-  "log": "artifacts/collab/native-ci-split/d4905e12-full-infrastructure.log",
-  "log_sha256": "db64935ffa1b38bcdc0a4b714d0e4db6920593a31470e74a13f48837ca0a8d57",
-  "tests": {
-    "total": 912,
-    "passed": 891,
-    "skipped": 16,
-    "errors": 5,
-    "failed": 0
-  },
-  "review": {
-    "reviewer": "/root/performance_audit",
-    "exact_head": "d4905e12370b571c698a865fed9533ff3c77d590",
-    "result": "source_review_passed_no_remaining_blocking_findings",
-    "actual_native_or_ci_execution": false
-  },
-  "pending": [
-    "background source-reader ownership transfer and strict entry adapter",
-    "complete infrastructure pass on new committed source",
-    "real cold Apple Silicon Native/default acceptance within 30 minutes",
-    "leader exact candidate integration and required checks"
-  ],
-  "tracked_input_manifest_sha256": {
-    "d4905e12-inputs-before.json": "686351b508071321978546a135c0ef1a830ec9220ee5288a3d2f87b5fc462ebf",
-    "d4905e12-inputs-after.json": "686351b508071321978546a135c0ef1a830ec9220ee5288a3d2f87b5fc462ebf"
-  },
-  "status": "source_reviewed_waiting_serial_reader_handoff",
+  "status": "source_reviewed_and_pure_infrastructure_passed_awaiting_integration_and_native_ci",
   "base": "c3a001f8b248d79302317689f86ed7703e59e077",
+  "source_commit": "76fdc57bef072cf70a02f8d247e88cf2d6508b10",
+  "tests": {
+    "total": 913,
+    "passed": 897,
+    "skipped": 16,
+    "failed": 0,
+    "errors": 0
+  },
+  "tracked_file_count": 2940,
+  "before_equals_after": true,
+  "commands": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit": 0,
+      "seconds": 22.17772388458252,
+      "log": "artifacts/collab/native-ci-split/76fdc57b-final-0.log",
+      "log_sha256": "a3133a57c8af558d59583b3d54e825373c2399c1b5a9b07db0afa940f3df9408"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/validate_infrastructure.py"
+      ],
+      "exit": 0,
+      "seconds": 0.044603824615478516,
+      "log": "artifacts/collab/native-ci-split/76fdc57b-final-1.log",
+      "log_sha256": "344f4c691a592380a522d4f4d760b269484cfdbc45e37c34c6a5eca566e1af9e"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "c3a001f8b248d79302317689f86ed7703e59e077",
+        "HEAD"
+      ],
+      "exit": 0,
+      "seconds": 0.020035982131958008,
+      "log": "artifacts/collab/native-ci-split/76fdc57b-final-2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "scope"
+      ],
+      "exit": 0,
+      "seconds": 0.20270681381225586,
+      "log": "artifacts/collab/native-ci-split/76fdc57b-final-3.log",
+      "log_sha256": "a918a4d12b4fa3b51c4fc7cb1d9f0f295bb9da91dc444df32fae4a35a79056f2"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "preview",
+        "origin/collab/operation-performance"
+      ],
+      "exit": 0,
+      "seconds": 0.05275273323059082,
+      "log": "artifacts/collab/native-ci-split/76fdc57b-final-4.log",
+      "log_sha256": "2885dbfd3ee2150a7068e5c886ee2abbd18066a69f5367470ef68d4db88dcbc4"
+    }
+  ],
+  "source_review": {
+    "reviewer": "/root/performance_audit",
+    "exact_source": "76fdc57bef072cf70a02f8d247e88cf2d6508b10",
+    "result": "passed_no_blocking_findings",
+    "dimension": "read_only_source_review"
+  },
+  "actual_parent_preview": {
+    "source": "76fdc57bef072cf70a02f8d247e88cf2d6508b10",
+    "target": "56746af61789e3e7121e7f43d39b4a5d2b567576",
+    "command": [
+      "bash",
+      "scripts/collab.sh",
+      "preview",
+      "56746af61789e3e7121e7f43d39b4a5d2b567576",
+      "76fdc57bef072cf70a02f8d247e88cf2d6508b10"
+    ],
+    "exit": 0,
+    "log_sha256": "17ff4298e776d5e80a1b6a3f57de6b138b92966185c2298b399ab0ec78e38e92",
+    "actual_source_validation": "separate exact-source tests; merge preview alone is not acceptance"
+  },
+  "initial_preview_tracking_value": "c3a001f8b248d79302317689f86ed7703e59e077",
   "raw_evidence_manifest": "docs/execution/native-ci-split/raw/MANIFEST.json",
   "native_acceptance": "not_run",
   "cold_30_minute_acceptance": "not_established",
   "remote_mutations_performed": false,
-  "source_guard_background": "byte_frozen_at_c3",
-  "raw_byte_followup": {
-    "source": "479f3dcc73e94b400b6b28e25976651b7fa28ca7",
-    "targeted_tests": 112,
-    "result": "passed",
-    "tracked_inputs_before_equals_after": true,
-    "real_filesystem_raw_crlf_bom_unknown_bytes": "refused",
-    "whole_infrastructure": "pending_serial_background_reader_handoff",
-    "native_ci": "not_run"
+  "cargo_or_native_product_processes_run": false,
+  "historical_failures": {
+    "head": "d4905e12370b571c698a865fed9533ff3c77d590",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/infrastructure",
+      "-p",
+      "test_*.py",
+      "-v"
+    ],
+    "exit": 1,
+    "seconds": 21.796982765197754,
+    "before_equals_after": true,
+    "log": "artifacts/collab/native-ci-split/d4905e12-full-infrastructure.log",
+    "log_sha256": "db64935ffa1b38bcdc0a4b714d0e4db6920593a31470e74a13f48837ca0a8d57",
+    "tests": {
+      "total": 912,
+      "passed": 891,
+      "skipped": 16,
+      "errors": 5,
+      "failed": 0
+    },
+    "review": {
+      "reviewer": "/root/performance_audit",
+      "exact_head": "d4905e12370b571c698a865fed9533ff3c77d590",
+      "result": "source_review_passed_no_remaining_blocking_findings",
+      "actual_native_or_ci_execution": false
+    },
+    "pending": [
+      "background source-reader ownership transfer and strict entry adapter",
+      "complete infrastructure pass on new committed source",
+      "real cold Apple Silicon Native/default acceptance within 30 minutes",
+      "leader exact candidate integration and required checks"
+    ],
+    "tracked_input_manifest_sha256": {
+      "d4905e12-inputs-before.json": "686351b508071321978546a135c0ef1a830ec9220ee5288a3d2f87b5fc462ebf",
+      "d4905e12-inputs-after.json": "686351b508071321978546a135c0ef1a830ec9220ee5288a3d2f87b5fc462ebf"
+    },
+    "status": "source_reviewed_waiting_serial_reader_handoff",
+    "base": "c3a001f8b248d79302317689f86ed7703e59e077",
+    "raw_evidence_manifest": "docs/execution/native-ci-split/raw/MANIFEST.json",
+    "native_acceptance": "not_run",
+    "cold_30_minute_acceptance": "not_established",
+    "remote_mutations_performed": false,
+    "source_guard_background": "byte_frozen_at_c3",
+    "raw_byte_followup": {
+      "source": "479f3dcc73e94b400b6b28e25976651b7fa28ca7",
+      "targeted_tests": 112,
+      "result": "passed",
+      "tracked_inputs_before_equals_after": true,
+      "real_filesystem_raw_crlf_bom_unknown_bytes": "refused",
+      "whole_infrastructure": "pending_serial_background_reader_handoff",
+      "native_ci": "not_run"
+    }
+  },
+  "remaining": [
+    "leader normal integration against exact frozen56746af6 target and regression on resulting candidate",
+    "new-head required CI including genuine ARM Native/default App audit/package/upload",
+    "leader verify current target/checks and authorized merge"
+  ],
+  "input_manifest_sha256": {
+    "76fdc57b-inputs-before.json": "8109b689301057fe577f3e06952ed7b265998b5e6cea9a506b18f2b71c066d8b",
+    "76fdc57b-inputs-after.json": "8109b689301057fe577f3e06952ed7b265998b5e6cea9a506b18f2b71c066d8b"
   }
 }
