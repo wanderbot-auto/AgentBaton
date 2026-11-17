@@ -1,2 +1,6 @@
 # Keep exact raw command-output bytes and their recorded hashes.
 registration/**/*.log -whitespace
+
+# Preserve exact raw unified-diff evidence, including blank context prefix bytes.
+layout/manifest.patch -whitespace
+layout/minimal-exclude.patch -whitespace

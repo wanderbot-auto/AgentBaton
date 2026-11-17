@@ -28,6 +28,7 @@
     "crates/core/src/ipc.rs",
     "crates/core/src/storage.rs",
     "crates/core/Cargo.toml",
+    "Cargo.toml",
     "Cargo.lock",
     "apps/desktop/src/App.tsx",
     "apps/desktop/src-tauri/src/lib.rs"
@@ -60,12 +61,19 @@
   },
   "schema19_evidence_closure": "NOT COMPLETE. Phase1 95 candidates omitted current factory_history_reads_tests399/487, factory_reads2080, integration_runtime768, integration_ipc64, sessions_ipc4055, genuine15/16/legacy output assertions and precise19->18 inverse. Leader assigned separate read-only closure audit to A; no Core/schema/lock path allocated to B. Historical frozen18 cannot be blanket rewritten.",
   "not_required": [
-    "Cargo.toml root workspace membership change",
     "new scheduler/daemon/config sync system",
     "permissions expansion in Tauri main capability",
     "execution policy/local-host restriction removal",
     "native approval kind for metadata-only registration",
-    "real SSH/Provider/remote filesystem probing"
+    "real SSH/Provider/remote filesystem probing",
+    "adding remote-host to root workspace members (explicit exclude is required by mirror parse)"
   ],
-  "allocated_subphase": "RHOST002A only: registration.rs, tests/registration.rs, lib.rs, transport.rs in existing foundation + own docs"
+  "allocated_subphase": "RHOST002A only: registration.rs, tests/registration.rs, lib.rs, transport.rs in existing foundation + own docs",
+  "layout_validation": {
+    "evidence": "layout/EVIDENCE.json",
+    "result": "offline no-deps metadata: Core path-only fails101 multiple workspace roots; explicit root exclude succeeds0 original6members",
+    "required_additional_proposed_literal_path": "Cargo.toml",
+    "authority": "proposal only; no repo root/Core/lock write allocated",
+    "limits": "No build or dependency-resolution/schema19 evidence"
+  }
 }

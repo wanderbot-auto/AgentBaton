@@ -1,0 +1,96 @@
+{
+  "status": "proposed_bytes_not_implemented_or_tested",
+  "ddl": "ddl.sql",
+  "ddl_sha256": "a81ce46f0c66692b48ed887a389c7f7d30890840c7111c324b78503145a7815c",
+  "record_field_order": [
+    "record_version",
+    "id",
+    "revision",
+    "created_sequence",
+    "created_at",
+    "creation_key",
+    "registration",
+    "creation_facts"
+  ],
+  "receipt_field_order": [
+    "receipt_version",
+    "host_id",
+    "revision",
+    "created_sequence",
+    "created_at",
+    "registration"
+  ],
+  "event_payload_field_order": [
+    "payload_version",
+    "host_id",
+    "revision",
+    "creation_key",
+    "registration_sha256"
+  ],
+  "creation_facts_field_order": [
+    "local_validation",
+    "references",
+    "remote_probe",
+    "remote_connection",
+    "remote_capabilities",
+    "execution_enabled"
+  ],
+  "all_fields_required": true,
+  "unknown_fields_rejected": true,
+  "versions": {
+    "metadata_schema_version": 1,
+    "record_version": 1,
+    "receipt_version": 1,
+    "event_payload_version": 1,
+    "sqlite_proposed_user_version": 19,
+    "ipc_api_version": "unchanged existing1"
+  },
+  "event": {
+    "kind": "host.registered",
+    "aggregate_id": "host UUID",
+    "revision": 1,
+    "source": "user_action",
+    "occurred_at": "same once-generated created_at",
+    "document_sequence": 0,
+    "sql_sequence": "actual inserted events.sequence; equals Host/receipt created_sequence",
+    "payload": "event-payload-v1.json shape"
+  },
+  "idempotency": {
+    "scope": "hosts.register:v1",
+    "key": "original bounded stable key",
+    "payload": "canonical payload-v1 shape",
+    "result": "canonical receipt-v1 shape"
+  },
+  "limits": {
+    "metadata_bytes": 16384,
+    "host_document_bytes": 24576,
+    "receipt_bytes": 24576,
+    "creation_event_document_bytes": 4096,
+    "inventory_rows": 128,
+    "integrity_scan_row_limit": 129,
+    "list_rows": 25,
+    "whole_list_response_bytes": 524288,
+    "max_sequence": 9007199254740991
+  },
+  "strict_types": "All integers are integer JSON tokens, not floats/strings/bools; persisted/IPC params Value lexical limitations explicitly documented. created_sequence range1..9007199254740991. No optional/null/default fields in persisted record/receipt/event-payload/metadata. create key ASCII token1..256. UUID canonical lowercase v4 generated server-side. creation_facts values must exactly equal fixture constants.",
+  "encoding": "Compact UTF-8 JSON without BOM/newline, struct field order as lists and frozen metadata order, arrays unchanged; serde_json default string escaping; decimal integers; no Unicode normalization/case-fold. Exact scalar bytes retained. Typed serializer required; generic Value/map encoding does not define v1 canonical field order.",
+  "fixture_notice": "Synthetic examples only, not real DB/event/receipt evidence. SQL sequence41 and timestamp are fixed illustrative values, no daemon/SSH contact or clock sample implied.",
+  "fixtures": {
+    "payload-v1.json": {
+      "bytes": 614,
+      "sha256": "4a7cba703c7db8252649273ddfeca6764efe51526ee3fe4a9eeb625eb891c3d5"
+    },
+    "record-v1.json": {
+      "bytes": 1021,
+      "sha256": "0a554aa2e917ca2e956dae8ea5b3da01fe82f1943ae301ad8a9100bda0265640"
+    },
+    "receipt-v1.json": {
+      "bytes": 771,
+      "sha256": "44efa554001d7fdb68efe3a4b44083e8bc8f3e43cb13e259df1cb064f1627a7e"
+    },
+    "event-payload-v1.json": {
+      "bytes": 209,
+      "sha256": "38d7bc16ff6bb6c53775a9ea985a9ea9928a592e2d0674a2afb8232eed993677"
+    }
+  }
+}

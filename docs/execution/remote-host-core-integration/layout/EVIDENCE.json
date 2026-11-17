@@ -1,0 +1,108 @@
+{
+  "status": "layout_parse_only_passed_with_explicit_exclude",
+  "executed_at_utc": "2026-11-17T18:34:38.701944+00:00",
+  "repo_head": "cb5bfd1ed856dd6d3d30f190b867692411cee2f7",
+  "cargo_version": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+  "mirror": "/private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he",
+  "mirror_is_outside_worktree": true,
+  "initial_failure": "INITIAL.json",
+  "initial_exit_code": 101,
+  "manifest_diff": "--- repo/Cargo.toml\n+++ mirror/Cargo.toml\n@@ -1,7 +1,7 @@\n [workspace]\n resolver = \"2\"\n members = [\"crates/core\", \"crates/providers\", \"crates/workspaces\", \"crates/config\", \"apps/daemon\", \"apps/cli\"]\n-exclude = [\"tools/environment-smoke\", \"apps/desktop/src-tauri\"]\n+exclude = [\"tools/environment-smoke\", \"apps/desktop/src-tauri\", \"crates/remote-host\"]\n \n [workspace.dependencies]\n serde = { version = \"1.0\", features = [\"derive\"] }\n--- repo/crates/core/Cargo.toml\n+++ mirror/crates/core/Cargo.toml\n@@ -5,6 +5,7 @@\n publish = false\n \n [dependencies]\n+agentbaton-remote-host = { path = \"../remote-host\" }\n agentbaton-config = { path = \"../config\" }\n agentbaton-providers = { path = \"../providers\" }\n sha2 = \"0.10\"\n",
+  "changed_mirror_manifests": [
+    "Cargo.toml",
+    "crates/core/Cargo.toml"
+  ],
+  "repo_manifests_unchanged": true,
+  "source_hashes": {
+    "Cargo.toml": "35e047cb3e44d4ef0615e0c1200e5c93be3898f4b8ae26a360d09d1741bd3cc1",
+    "Cargo.lock": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+    "crates/core/Cargo.toml": "f8aa362c7edb71416e6d99165607be6d2dd6698dbf1ef838f90abb5af239c8ec",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/Cargo.lock": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43"
+  },
+  "command": [
+    "cargo",
+    "metadata",
+    "--offline",
+    "--no-deps",
+    "--format-version",
+    "1",
+    "--manifest-path",
+    "/private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/Cargo.toml"
+  ],
+  "exit_code": 0,
+  "root_lock_before_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+  "root_lock_after_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+  "workspace_members": [
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/core#agentbaton-core@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/config#agentbaton-config@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/providers#agentbaton-providers@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/workspaces#agentbaton-workspaces@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/apps/daemon#batond@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/apps/cli#baton@0.1.0"
+  ],
+  "workspace_default_members": [
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/core#agentbaton-core@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/config#agentbaton-config@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/providers#agentbaton-providers@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/workspaces#agentbaton-workspaces@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/apps/daemon#batond@0.1.0",
+    "path+file:///private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/apps/cli#baton@0.1.0"
+  ],
+  "packages": [
+    {
+      "name": "agentbaton-core",
+      "manifest_path": "/private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/core/Cargo.toml",
+      "dependencies": [
+        {
+          "name": "agentbaton-remote-host",
+          "source": null,
+          "req": "*",
+          "kind": null,
+          "rename": null,
+          "optional": false,
+          "uses_default_features": true,
+          "features": [],
+          "target": null,
+          "registry": null,
+          "path": "/private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/remote-host"
+        }
+      ]
+    },
+    {
+      "name": "agentbaton-config",
+      "manifest_path": "/private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/config/Cargo.toml",
+      "dependencies": []
+    },
+    {
+      "name": "agentbaton-providers",
+      "manifest_path": "/private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/providers/Cargo.toml",
+      "dependencies": []
+    },
+    {
+      "name": "agentbaton-workspaces",
+      "manifest_path": "/private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/crates/workspaces/Cargo.toml",
+      "dependencies": []
+    },
+    {
+      "name": "batond",
+      "manifest_path": "/private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/apps/daemon/Cargo.toml",
+      "dependencies": []
+    },
+    {
+      "name": "baton",
+      "manifest_path": "/private/tmp/ab-collab-lztfoica/rhost002-layout-b6uv8_he/apps/cli/Cargo.toml",
+      "dependencies": []
+    }
+  ],
+  "required_new_literal_scope": [
+    "Cargo.toml"
+  ],
+  "limits": "Initial one offline --no-deps metadata layout failure; one bounded offline retry with explicit exclusion, as leader requested mirror-only workspace correction. No build/check/test/network/download/CI. No-deps omits excluded dependency from members/package output and does not prove dependency resolution, Core compilation, lock closure, standalone execution or schema19 readiness.",
+  "artifacts": {
+    "INITIAL.json": "eeb88cef87f03911c5159dfc230c00abf93394b782e9796f1598390745845466",
+    "minimal-exclude.patch": "e5128506d220c90f621d6f3ee8f61ac8b24dce259d6176fd455929d8db277e2a",
+    "metadata.stdout.json": "c9b3a8ecd7481984f54962921828b4fe3c1fbc04826432973521a5477ad3c58e",
+    "metadata.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

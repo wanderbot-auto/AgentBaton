@@ -1,7 +1,7 @@
 {
   "task": "RHOST-002",
-  "phase": "RHOST002A",
-  "status": "verified_local_review_pending",
+  "phase": "RHOST002A_docs_registry_refinement",
+  "status": "fixed_docs_contract_ready_for_local_handoff",
   "audited_source_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
   "branch": "collab/remote-host-core-integration",
   "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration",
@@ -34,17 +34,17 @@
     }
   ],
   "not_run": [
-    "Core/schema/lock/UI implementation or tests",
+    "Core/schema/lock/UI repository implementation or tests; mirror metadata parsing is not implementation",
     "real SSH/Host/Provider",
     "GUI/native",
     "CI/push",
     "paid/signing/production"
   ],
   "unresolved": [
-    "leader exact path/schema19 evidence ownership",
-    "A shared entrypoint transfer/accepted export base",
-    "PR29 merge/sync order",
-    "future execution ref and authority compatibility"
+    "root final fixed record/receipt/encoding review and A current-vs-historical schema19 closure",
+    "leader exact shared path transfer and accepted base",
+    "future Core/IPC/native/UI/error/reopen/retention verification",
+    "future execution reference and authority compatibility"
   ],
   "files_written": [
     "PLAN.md",
@@ -53,7 +53,11 @@
     "SOURCE_AUDIT.json",
     "PROGRESS.md",
     "CHECKPOINT.md",
-    "EVIDENCE.json"
+    "EVIDENCE.json",
+    "CORE_REGISTRY_CONTRACT.md",
+    "HOST19_ALIGNMENT.md",
+    "HOST19_ALIGNMENT.json",
+    "REGISTRY_CONTRACT_REVIEW.md"
   ],
   "checkpoint_recorded_utc": "2026-11-17T17:51:28.274236+00:00",
   "actual_start": "Window B verified live precreated branch/worktree/base before audit; no exact earlier wall-clock timestamp was captured and none is invented.",
@@ -76,5 +80,27 @@
     "foundation_rust": 18,
     "registration_pure": 8,
     "real_subprocess_faults": 16
-  }
+  },
+  "product_source_commit": "cb5bfd1ed856dd6d3d30f190b867692411cee2f7",
+  "frozen_product_paths": [
+    "crates/remote-host/src/registration.rs",
+    "crates/remote-host/tests/registration.rs",
+    "crates/remote-host/src/lib.rs",
+    "crates/remote-host/src/transport.rs"
+  ],
+  "registry_contract": "CORE_REGISTRY_CONTRACT.md",
+  "registry_contract_status": "proposal_only_no_Core_or_schema_implementation",
+  "docs_checks_manifest": "REGISTRY_CONTRACT_CHECKS.json",
+  "layout_evidence": "layout/EVIDENCE.json",
+  "layout_result": "path-only failed101; mirror explicit-exclude passed0; six original members; no dependency resolution/build/network",
+  "additional_proposed_scope": [
+    "Cargo.toml"
+  ],
+  "registry_contract_review": "REGISTRY_CONTRACT_REVIEW.md",
+  "Host19_alignment": "HOST19_ALIGNMENT.json",
+  "fixed_registry_contract": "registry-contract/CONTRACT.json",
+  "docs_execution_head": "cb5bfd1ed856dd6d3d30f190b867692411cee2f7",
+  "delivery_commit": "Containing commit; exact head reported to leader after commit (no self-referential SHA claim)",
+  "independent_docs_review": "Final no P1/P2, read-only; REGISTRY_CONTRACT_REVIEW.md",
+  "processes": "Both metadata subprocess calls joined; no tests/services/companions launched in docs phase; private mirror retained."
 }
