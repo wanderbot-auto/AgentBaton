@@ -13,3 +13,5 @@ Heavy slot granted. Source P2 fixes WIP; native offline resolver produced unrela
 Minimal lock coordination complete: native unrelated edges restored to exact4c; full offline locked metadata0/no hash change. Root/native final closure only Core Host edge+Host node. Source SQL gates/opaque and actual-instance negatives fixed;20 tests authored/not_run. Next fixed clean source commit then jobs2/2testthreads Store tests and lint, retaining first failure.
 
 8c first tests=compile E0277/0 executed; retained191947Z failure. Test-only i64 SQLite read fix; unchanged boundary semantics. Next commit then identical retry while B owns slot.
+
+238 targeted20pass is retained as prior-source evidence only. Root additional SQL integer/schema-null P2 fixes now written;21 tests authored including true private autoindex.sql corruption. Need fixed new clean commit/tests/lint. No current child process.

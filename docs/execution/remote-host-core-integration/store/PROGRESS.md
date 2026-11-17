@@ -14,3 +14,6 @@
 - P2 source fixes+minimal root/native lock closure now committed before testing.20 tests authored; same14 foundation source hashes still frozen. No Store19 activation or IPC/native/UI claim.
 
 - First clean8c jobs2/2-testthread targeted command failed at compile E0277: new counter assertion requested u64 FromSql, unsupported by rusqlite.0 tests executed; full failure/log hash retained runs/20261117T191947Z. All children joined. Fixed the test to read SQLite's i64 and compare unchanged MAX_SEQUENCE as i64; no product/test weakening. Small commit before identical retry.
+
+- Clean238/i64 counter fix ran original command:20 tests passed, log5ab97c73f78b9926a72f0cbd8c70b49aaeb1509a0953318fb18a3a93cbd150fa; all executors joined. This does not close root's additional SQL guard findings.
+- Root found remaining raw integer-mirror projection and schema.sql NULL aliasing: added CASE typeof(integer) gates without SQL AND-short-circuit reliance; illegal schema SQL becomes a rejecting BLOB sentinel, distinct from legitimate autoindex NULL. Extended4MiB TEXT/BLOB numeric-column tests with fixture-only FK/CHECK corruption injection restored before methods, raw original-type/bytes preservation assertions, and precise actual autoindex.sql corruption controls. No product/global permission changes. New source commit precedes justified rerun.

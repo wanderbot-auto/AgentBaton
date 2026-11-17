@@ -9,7 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
 const READ_RECEIPTS_SQL: &str = "SELECT CASE WHEN typeof(key)='text' AND octet_length(key)<=256 THEN key END,CASE WHEN typeof(payload)='text' AND octet_length(payload)<=16384 THEN payload END,CASE WHEN typeof(result)='text' AND octet_length(result)<=24576 THEN result END FROM idempotency WHERE scope=?1 ORDER BY key LIMIT 129";
-const READ_HOSTS_SQL: &str = "SELECT CASE WHEN typeof(id)='text' AND octet_length(id)<=36 THEN id END,CASE WHEN typeof(name)='text' AND octet_length(name)<=256 THEN name END,CASE WHEN typeof(name_key)='text' AND octet_length(name_key)<=256 THEN name_key END,revision,created_sequence,CASE WHEN typeof(document)='text' AND octet_length(document)<=24576 THEN document END FROM host_registrations ORDER BY created_sequence LIMIT 129";
+const READ_HOSTS_SQL: &str = "SELECT CASE WHEN typeof(id)='text' AND octet_length(id)<=36 THEN id END,CASE WHEN typeof(name)='text' AND octet_length(name)<=256 THEN name END,CASE WHEN typeof(name_key)='text' AND octet_length(name_key)<=256 THEN name_key END,CASE WHEN typeof(revision)='integer' THEN revision END,CASE WHEN typeof(created_sequence)='integer' THEN created_sequence END,CASE WHEN typeof(document)='text' AND octet_length(document)<=24576 THEN document END FROM host_registrations ORDER BY created_sequence LIMIT 129";
 const READ_EVENT_SQL: &str = "SELECT CASE WHEN typeof(document)='text' AND octet_length(document)<=4096 THEN document END FROM events WHERE sequence=?1";
 
 const SCOPE: &str = "hosts.register:v1";
@@ -260,7 +260,7 @@ fn validate_schema(db: &Connection) -> Result<()> {
     if foreign_keys != 1 {
         return Err(integrity());
     }
-    let mut statement=db.prepare("SELECT CASE WHEN typeof(type)='text' AND octet_length(type)<=32 THEN type END,CASE WHEN typeof(name)='text' AND octet_length(name)<=128 THEN name END,CASE WHEN typeof(tbl_name)='text' AND octet_length(tbl_name)<=128 THEN tbl_name END,CASE WHEN typeof(sql)='text' AND octet_length(sql)<=16384 THEN sql END FROM sqlite_schema WHERE lower(tbl_name)='host_registrations' OR lower(name) IN ('host_registrations','host_registrations_name_id') ORDER BY name LIMIT 9").map_err(db_error)?;
+    let mut statement=db.prepare("SELECT CASE WHEN typeof(type)='text' AND octet_length(type)<=32 THEN type END,CASE WHEN typeof(name)='text' AND octet_length(name)<=128 THEN name END,CASE WHEN typeof(tbl_name)='text' AND octet_length(tbl_name)<=128 THEN tbl_name END,CASE WHEN typeof(sql)='null' THEN NULL WHEN typeof(sql)='text' AND octet_length(sql)<=16384 THEN sql ELSE x'00' END FROM sqlite_schema WHERE lower(tbl_name)='host_registrations' OR lower(name) IN ('host_registrations','host_registrations_name_id') ORDER BY name LIMIT 9").map_err(db_error)?;
     let mut rows = statement.query([]).map_err(db_error)?;
     let mut actual = BTreeMap::new();
     let mut budget = Budget::default();

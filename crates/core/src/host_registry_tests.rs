@@ -881,6 +881,8 @@ fn sql_projects_oversized_or_wrong_type_bodies_as_null_without_hiding_rows() {
         ("host_registrations", "name", 1),
         ("host_registrations", "name_key", 2),
         ("host_registrations", "document", 5),
+        ("host_registrations", "revision", 3),
+        ("host_registrations", "created_sequence", 4),
         ("events", "document", 0),
     ] {
         for blob in [false, true] {
@@ -890,11 +892,36 @@ fn sql_projects_oversized_or_wrong_type_bodies_as_null_without_hiding_rows() {
             // and project NULL before rusqlite is asked to copy a body.
             let text = "x".repeat(4 * 1024 * 1024);
             let sql = format!("UPDATE {target} SET {column}=?1");
+            // Corrupt only this disposable fixture. Restore all enforcement
+            // before invoking product methods; no runtime bypass is exposed.
+            f.store
+                .conn
+                .pragma_update(None, "foreign_keys", false)
+                .unwrap();
+            f.store
+                .conn
+                .pragma_update(None, "ignore_check_constraints", true)
+                .unwrap();
             if blob {
                 f.store.conn.execute(&sql, [text.as_bytes()]).unwrap();
             } else {
-                f.store.conn.execute(&sql, [text]).unwrap();
+                f.store.conn.execute(&sql, [&text]).unwrap();
             }
+            f.store
+                .conn
+                .pragma_update(None, "ignore_check_constraints", false)
+                .unwrap();
+            f.store
+                .conn
+                .pragma_update(None, "foreign_keys", true)
+                .unwrap();
+            let raw_query = format!("SELECT typeof({column}),CAST({column} AS BLOB) FROM {target}");
+            let before: (String, Vec<u8>) = f
+                .store
+                .conn
+                .query_row(&raw_query, [], |r| Ok((r.get(0)?, r.get(1)?)))
+                .unwrap();
+            assert_eq!(before.1, text.as_bytes());
             let value: Option<String> = match target {
                 "idempotency" => f
                     .store
@@ -923,6 +950,91 @@ fn sql_projects_oversized_or_wrong_type_bodies_as_null_without_hiding_rows() {
                 .store
                 .register_host(&registration(), "replacement")
                 .is_err());
+            let after: (String, Vec<u8>) = f
+                .store
+                .conn
+                .query_row(&raw_query, [], |r| Ok((r.get(0)?, r.get(1)?)))
+                .unwrap();
+            assert_eq!(
+                before, after,
+                "rejection must preserve original corrupt bytes/type"
+            );
+        }
+    }
+}
+
+#[test]
+fn corrupt_autoindex_sql_cannot_masquerade_as_its_legitimate_null() {
+    for index in [
+        "sqlite_autoindex_host_registrations_1",
+        "sqlite_autoindex_host_registrations_2",
+    ] {
+        for blob in [false, true] {
+            let mut f = fixture();
+            let original: Option<String> = f
+                .store
+                .conn
+                .query_row(
+                    "SELECT sql FROM sqlite_schema WHERE name=?1",
+                    [index],
+                    |r| r.get(0),
+                )
+                .unwrap();
+            assert!(original.is_none());
+            assert!(f.store.find_host_registration("absent").unwrap().is_none());
+            let bytes = "x".repeat(4 * 1024 * 1024);
+            f.store
+                .conn
+                .pragma_update(None, "writable_schema", true)
+                .unwrap();
+            if blob {
+                f.store
+                    .conn
+                    .execute(
+                        "UPDATE sqlite_schema SET sql=?1 WHERE name=?2",
+                        params![bytes.as_bytes(), index],
+                    )
+                    .unwrap();
+            } else {
+                f.store
+                    .conn
+                    .execute(
+                        "UPDATE sqlite_schema SET sql=?1 WHERE name=?2",
+                        params![bytes, index],
+                    )
+                    .unwrap();
+            }
+            f.store
+                .conn
+                .pragma_update(None, "writable_schema", false)
+                .unwrap();
+            // No schema-cookie bump/reopen: inspect the injected raw metadata
+            // on this sole private connection; production never writes schema.
+            let before: (String, Vec<u8>) = f
+                .store
+                .conn
+                .query_row(
+                    "SELECT typeof(sql),CAST(sql AS BLOB) FROM sqlite_schema WHERE name=?1",
+                    [index],
+                    |r| Ok((r.get(0)?, r.get(1)?)),
+                )
+                .unwrap();
+            assert_eq!(before.1.len(), 4 * 1024 * 1024);
+            assert!(
+                f.store.find_host_registration("absent").is_err(),
+                "invalid SQL metadata is not legal NULL"
+            );
+            assert!(f.store.register_host(&registration(), "new").is_err());
+            let after: (String, Vec<u8>) = f
+                .store
+                .conn
+                .query_row(
+                    "SELECT typeof(sql),CAST(sql AS BLOB) FROM sqlite_schema WHERE name=?1",
+                    [index],
+                    |r| Ok((r.get(0)?, r.get(1)?)),
+                )
+                .unwrap();
+            assert_eq!(before, after);
         }
     }
 }

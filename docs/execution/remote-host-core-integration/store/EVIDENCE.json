@@ -1,7 +1,7 @@
 {
   "phase": "RHOST002B",
   "start_head": "4e48985d68f324d3980a981abd5c7789d0379090",
-  "status": "P2_fixed_minimal_locks_resolved_committing_before_tests",
+  "status": "additional_SQL_P2_fixed_committing_before_rerun",
   "recorded_utc": "2026-11-17T18:58:59.670279+00:00",
   "authority": "artifacts/collab/STORE_TASK.md",
   "not_run": [
@@ -18,10 +18,10 @@
     "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0",
     "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
     "crates/core/src/registry.rs": "0c54b75e3ad90c48d0fa91bba6abab3496a8cdaa24ea17ea7bf6414d6ed64ca0",
-    "crates/core/src/host_registry.rs": "1df06976f94cbbaedb831c0b7335deb0f41184ba7312b5dc80d5416df9a6dc2b",
-    "crates/core/src/host_registry_tests.rs": "b2dfe684469f6688c95f3adafe286a5b98ea12a40a6e07e55755780d6b9b9e7a"
+    "crates/core/src/host_registry.rs": "64f8eae852349cacd7cf9b8ea12e1cb47af3fd4a73df91c67399642c6f7f4eb8",
+    "crates/core/src/host_registry_tests.rs": "5da3f54ae559b7202d84969bb3c7e7b7fbcff4aab4907dce8fc33d4898e64e50"
   },
-  "declared_tests": 20,
+  "declared_tests": 21,
   "tests_executed": false,
   "remote_host_all14_frozen": true,
   "source_edit_note": "Initial nested-shell heredoc parse failed before file write; corrected via quoted Python heredoc. Direct rustfmt edited only two new files; not Cargo or test execution.",
@@ -29,5 +29,13 @@
   "slot": "B granted by root after A explicit release",
   "initial_source_review": "REVIEW_4c.md:2P2, fixed here; final review pending",
   "lock_evidence": "locks/EVIDENCE.json and locks/DESKTOP_MINIMAL.json",
-  "closure": "Root/native only Core Host edge+newHost node; all previous package records/pins/dependency edges exact. Original native resolver unrelated changes retained and not accepted. Full desktop offline locked metadata exits0 with identical before/after minimal lock hash."
+  "closure": "Root/native only Core Host edge+newHost node; all previous package records/pins/dependency edges exact. Original native resolver unrelated changes retained and not accepted. Full desktop offline locked metadata exits0 with identical before/after minimal lock hash.",
+  "prior_targeted_result": {
+    "source": "2383a3b4c1ad27dc2f1cd8c90a80260d30e1b6ac",
+    "tests": 20,
+    "passed": 20,
+    "evidence": "runs/20261117T192113Z/tests.json",
+    "not_final_SQL_P2_clearance": true
+  },
+  "additional_P2": "Integer SQL projection and schema.sql invalid-vs-NULL aliasing fixed; original raw field bytes preserved in controls; current source not yet tested."
 }
