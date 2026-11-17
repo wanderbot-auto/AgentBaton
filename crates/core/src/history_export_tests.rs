@@ -581,3 +581,55 @@ fn oversize_stored_intent_is_corruption_not_a_retriable_capture_limit() {
     );
     assert_eq!(std::fs::read_dir(f.directory()).unwrap().count(), 1);
 }
+
+// Linux filesystems permit names that macOS APFS does not necessarily accept.
+#[cfg(target_os = "linux")]
+#[test]
+fn non_utf8_unknown_names_consume_distinct_reserved_capacity_without_lossy_aliases() {
+    use std::os::unix::ffi::OsStringExt;
+    let f = Fixture::new();
+    ExportDirectory::open(&f.directory()).unwrap();
+    for byte in 0x80..0xa0 {
+        std::fs::write(
+            f.directory()
+                .join(std::ffi::OsString::from_vec(vec![b'x', byte])),
+            b"unfamiliar",
+        )
+        .unwrap();
+    }
+    assert_eq!(
+        existing_preview(&f.directory(), &f.selection(), &Uuid::new_v4().to_string())
+            .unwrap_err()
+            .code,
+        "EXPORT_CAPACITY"
+    );
+    assert_eq!(std::fs::read_dir(f.directory()).unwrap().count(), 32);
+}
+
+#[test]
+fn unfamiliar_uuid_filename_does_not_alias_a_generated_intent_slot() {
+    let f = Fixture::new();
+    let preview = f.preview();
+    std::fs::write(
+        f.directory().join(&preview.reference.preview_id),
+        b"unfamiliar",
+    )
+    .unwrap();
+    for n in 0..30 {
+        std::fs::write(f.directory().join(format!("unfamiliar-{n}")), b"keep").unwrap();
+    }
+    assert_eq!(
+        existing_preview(&f.directory(), &f.selection(), &Uuid::new_v4().to_string())
+            .unwrap_err()
+            .code,
+        "EXPORT_CAPACITY"
+    );
+    assert_eq!(std::fs::read_dir(f.directory()).unwrap().count(), 32);
+    assert!(existing_preview(
+        &f.directory(),
+        &f.selection(),
+        &preview.reference.preview_id
+    )
+    .unwrap()
+    .is_some());
+}

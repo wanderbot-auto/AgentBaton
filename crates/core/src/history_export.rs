@@ -535,18 +535,17 @@ fn capacity(root: &Path) -> Result<()> {
     let mut entries = 0;
     for entry in std::fs::read_dir(root).map_err(|_| io_error())?.take(97) {
         entries += 1;
-        let name = entry
-            .map_err(|_| io_error())?
-            .file_name()
-            .to_string_lossy()
-            .into_owned();
-        let slot = match (name.get(..36), name.get(36..)) {
-            (Some(id), Some(".snapshot" | ".history.json" | ".snapshot.writing"))
+        let name = entry.map_err(|_| io_error())?.file_name();
+        let slot = match name
+            .to_str()
+            .and_then(|text| Some((text.get(..36)?, text.get(36..)?)))
+        {
+            Some((id, ".snapshot" | ".history.json" | ".snapshot.writing"))
                 if validate_intent(id).is_ok() =>
             {
-                id.to_string()
+                (0u8, std::ffi::OsString::from(id))
             }
-            _ => name,
+            _ => (1u8, name),
         };
         slots.insert(slot);
     }
