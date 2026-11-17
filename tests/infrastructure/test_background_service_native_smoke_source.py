@@ -1,3 +1,4 @@
+from tests.infrastructure.native_ci_workflow_split import read_workflow_source, restore_native_ci_split
 """Pure strict source layers. No historical source, Native process or SQL executed."""
 from pathlib import Path
 import hashlib
@@ -62,6 +63,7 @@ BG_STEP = (
 
 def restore_previous_mac_matrix(text):
     """Reverse only the exact Apple Silicon matrix change for historical pins."""
+    text = restore_native_ci_split(text)
     if text.count(CURRENT_MAC_MATRIX) != 1 or PREVIOUS_MAC_MATRIX in text:
         raise ValueError('Expected one Apple Silicon matrix')
     restored = text.replace(CURRENT_MAC_MATRIX, PREVIOUS_MAC_MATRIX, 1)
@@ -71,6 +73,7 @@ def restore_previous_mac_matrix(text):
 
 
 def strip_background_native_smoke_layer(text):
+    text = restore_native_ci_split(text)
     if CURRENT_MAC_MATRIX in text:
         text = restore_previous_mac_matrix(text)
     # Exact current whole input, exact adjacent block, exact old whole output.
@@ -305,7 +308,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
 
     def test_workflow_normalizers_peel_only_the_exact_new_layer(self):
         from tests.infrastructure import test_schema17_migration_workflow as workflow
-        composed = (ROOT/'.github/workflows/product.yml').read_text()
+        composed = read_workflow_source(ROOT / '.github/workflows/product.yml')
         parent = strip_background_native_smoke_layer(composed)
         for normalize in (workflow.strip_conversation_schema18, workflow.strip_private_browser_python):
             self.assertEqual(normalize(composed), normalize(parent))
@@ -313,7 +316,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
                 normalize(composed.replace('contents: read', 'contents: write', 1))
 
     def test_exact_new_mac_step_recovers_entire_parent_workflow(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text();old=strip_background_native_smoke_layer(text)
+        text=read_workflow_source(ROOT / '.github/workflows/product.yml');old=strip_background_native_smoke_layer(text)
         self.assertEqual(hashlib.sha256(old.encode()).hexdigest(),BASE_WORKFLOW_SHA256)
         self.assertEqual(text.count(BG_STEP),1)
         self.assertEqual(restore_previous_mac_matrix(text).replace(BG_STEP,'',1),old)
@@ -328,7 +331,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         self.assertNotIn('timeout-minutes',BG_STEP)
 
     def test_any_unknown_missing_duplicate_moved_budget_or_permission_change_refuses(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text()
+        text=read_workflow_source(ROOT / '.github/workflows/product.yml')
         variants=[text.replace(BG_STEP,'',1),text.replace(BG_STEP,BG_STEP*2,1),
                   BG_STEP+text.replace(BG_STEP,'',1),text+'# unknown\n',text.replace('\n','\r\n'),
                   text.replace('timeout-minutes: 60','timeout-minutes: 61',1),
