@@ -679,10 +679,10 @@ fn unsafe_inserted_sequence_rolls_back_including_event_counter() {
             .query_row(
                 "SELECT seq FROM sqlite_sequence WHERE name='events'",
                 [],
-                |r| r.get::<_, u64>(0)
+                |r| r.get::<_, i64>(0)
             )
             .unwrap(),
-        MAX_SEQUENCE
+        MAX_SEQUENCE as i64
     );
 }
 #[test]

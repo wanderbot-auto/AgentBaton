@@ -12,3 +12,5 @@
 
 - Root authorized restoration of only the resolver's unrelated native edges to exact4c bytes, preserving the Host addition. Asserted every original package record/dependency edge/pin unchanged except Core→Host. One FULL cargo metadata --offline --locked (not no-deps) passed0 for desktop, with identical lock SHA439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5 before/after; full stdout retained private runtime/hash. No baseline retry required. No dependency builds/Store tests yet.
 - P2 source fixes+minimal root/native lock closure now committed before testing.20 tests authored; same14 foundation source hashes still frozen. No Store19 activation or IPC/native/UI claim.
+
+- First clean8c jobs2/2-testthread targeted command failed at compile E0277: new counter assertion requested u64 FromSql, unsupported by rusqlite.0 tests executed; full failure/log hash retained runs/20261117T191947Z. All children joined. Fixed the test to read SQLite's i64 and compare unchanged MAX_SEQUENCE as i64; no product/test weakening. Small commit before identical retry.
