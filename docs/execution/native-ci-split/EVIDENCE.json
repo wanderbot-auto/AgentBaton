@@ -82,20 +82,6 @@
     "result": "passed_no_blocking_findings",
     "dimension": "read_only_source_review"
   },
-  "actual_parent_preview": {
-    "source": "76fdc57bef072cf70a02f8d247e88cf2d6508b10",
-    "target": "56746af61789e3e7121e7f43d39b4a5d2b567576",
-    "command": [
-      "bash",
-      "scripts/collab.sh",
-      "preview",
-      "56746af61789e3e7121e7f43d39b4a5d2b567576",
-      "76fdc57bef072cf70a02f8d247e88cf2d6508b10"
-    ],
-    "exit": 0,
-    "log_sha256": "17ff4298e776d5e80a1b6a3f57de6b138b92966185c2298b399ab0ec78e38e92",
-    "actual_source_validation": "separate exact-source tests; merge preview alone is not acceptance"
-  },
   "initial_preview_tracking_value": "c3a001f8b248d79302317689f86ed7703e59e077",
   "raw_evidence_manifest": "docs/execution/native-ci-split/raw/MANIFEST.json",
   "native_acceptance": "not_run",
@@ -161,12 +147,42 @@
     }
   },
   "remaining": [
-    "leader normal integration against exact frozen56746af6 target and regression on resulting candidate",
+    "leader final source/evidence review and normal feature fast-forward from c3 for PR29 against current maina4, excluding unaccepted Host package",
     "new-head required CI including genuine ARM Native/default App audit/package/upload",
     "leader verify current target/checks and authorized merge"
   ],
   "input_manifest_sha256": {
     "76fdc57b-inputs-before.json": "8109b689301057fe577f3e06952ed7b265998b5e6cea9a506b18f2b71c066d8b",
     "76fdc57b-inputs-after.json": "8109b689301057fe577f3e06952ed7b265998b5e6cea9a506b18f2b71c066d8b"
+  },
+  "host_parent_compatibility_preview": {
+    "source": "76fdc57bef072cf70a02f8d247e88cf2d6508b10",
+    "target": "56746af61789e3e7121e7f43d39b4a5d2b567576",
+    "command": [
+      "bash",
+      "scripts/collab.sh",
+      "preview",
+      "56746af61789e3e7121e7f43d39b4a5d2b567576",
+      "76fdc57bef072cf70a02f8d247e88cf2d6508b10"
+    ],
+    "exit": 0,
+    "log_sha256": "17ff4298e776d5e80a1b6a3f57de6b138b92966185c2298b399ab0ec78e38e92",
+    "actual_source_validation": "separate exact-source tests; merge preview alone is not acceptance"
+  },
+  "first_ci_combination": {
+    "pull_request": 29,
+    "feature_start": "c3a001f8b248d79302317689f86ed7703e59e077",
+    "feature_update": "normal fast-forward to this package final head by leader",
+    "target_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "unaccepted_host_package_included": false,
+    "host_parent_preview_purpose": "separate future compatibility evidence, not first CI combination"
+  },
+  "final_evidence_review": {
+    "reviewer": "/root/performance_audit",
+    "reviewed_docs_head": "b4b91048636cab732ee0a165062b8d03dc1ddc88",
+    "archives_checked": 33,
+    "tracked_blobs_checked": 2940,
+    "result": "passed_no_discrepancies",
+    "dimension": "read_only_lossless_archive/input/object verification"
   }
 }

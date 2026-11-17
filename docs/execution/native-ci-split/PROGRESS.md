@@ -66,3 +66,9 @@ regression and genuine Native/default CI. Final independent source review at
 exact76fdc57b found no blocking implementation issue. Evidence archives retain
 all earlier errors and TLS failure. No product build/native/CI execution or
 remote mutation occurred in this package.
+
+Integration clarified the first CI combination: PR29 performance c3 normally
+fast-forwards to this final package, against main
+a4e03303b54bd5a5544131e95ad39662f8310e29. The unaccepted Host parent56746af6 is
+excluded from that run. Its separately recorded preview is only future
+compatibility evidence; no Host merge, source change or extra test was requested.

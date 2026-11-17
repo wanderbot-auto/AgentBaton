@@ -11,12 +11,15 @@ This branch changed only its workflow raw read entries and two strict inverse
 entry calls. Old Rust lock assertions/pins remain untouched; B's Host-dependent
 file was not copied. Final independent source review reports no blocker.
 
-Actual integration target supplied by leader is
-56746af61789e3e7121e7f43d39b4a5d2b567576. The first preview used stale local
-feature tracking c3; a separate explicit preview against exact56746af6 passed
-without conflict, resulting candidate tree a7f49706279b07acf518d78b436352240400f891.
-No refs were changed. That merge-tree preview is not candidate regression or
-native acceptance. Leader owns normal integration and exact new-head CI.
+The first CI target remains PR29: normally fast-forward the performance feature
+from c3 to this package's final head, testing against main
+a4e03303b54bd5a5544131e95ad39662f8310e29. It does not include the unaccepted Host
+package. The c3 preview covers that feature ancestry. A separate explicit
+compatibility preview against Host parent
+56746af61789e3e7121e7f43d39b4a5d2b567576 passed without conflict, producing tree
+a7f49706279b07acf518d78b436352240400f891. This is future compatibility evidence,
+not the first CI combination or candidate/native acceptance. No refs changed.
+Leader owns final review, the normal feature fast-forward and exact new-head CI.
 
 No Cargo/native product process, push, dispatch, rerun, cancel or merge was
 performed by this package. Cold ARM Native/default completion within30 minutes
