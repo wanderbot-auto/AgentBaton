@@ -40,3 +40,13 @@ Full infrastructure at clean d4905e12370b571c698a865fed9533ff3c77d590:
 five errors all flow through the still-frozen background workflow reader.
 Independent review of this exact source reported no remaining blocking source
 finding. No native or real CI timing acceptance is implied.
+
+Integration review subsequently found that read_text() normalizes actual CRLF
+bytes before strict string hashing. 272dcf38 introduced an explicit
+read_bytes().decode('utf-8') reader at authorized entries, preserving CRLF/BOM
+without stripping, and a real temporary-file refusal test. A read-only review
+confirmed the correction. Integration granted four additional exact-source
+reader files; 479f3dcc73e94b400b6b28e25976651b7fa28ca7 changes only their
+imports and workflow reads. All 112 targeted tests pass with identical tracked
+inputs before/after. Semantic AST/YAML readers and runtime policy stay frozen.
+Full regression waits for the background reader's explicit serial transfer.

@@ -117,5 +117,33 @@
     "original_bytes": 302,
     "original_sha256": "9e5c82269e9acf38c5709579b465a8ee0917bfb9b0f000224cca5acea4eb7930",
     "archive_sha256": "200ce68725454b80ef4e8589ec6824471511eb1a8b5d0e9c72d90734e8aa209d"
+  },
+  {
+    "original": "artifacts/collab/native-ci-split/479f3dcc-raw-source-targeted.log",
+    "archive": "docs/execution/native-ci-split/raw/479f3dcc-raw-source-targeted.log.gz",
+    "original_bytes": 25195,
+    "original_sha256": "6858de27847b12366a25247e4a0a24d1e863eb8df493976728ea178bfbf44df3",
+    "archive_sha256": "ab9658fe6c730c1ac6e6180504d5afd6cda9e0cc6a1bf0c8af302b49bda0f87b"
+  },
+  {
+    "original": "artifacts/collab/native-ci-split/479f3dcc-results.json",
+    "archive": "docs/execution/native-ci-split/raw/479f3dcc-results.json.gz",
+    "original_bytes": 956,
+    "original_sha256": "b1d5f08fffb97c913171f81cf840fd58f0740712e8c3c997788c2e7520484b26",
+    "archive_sha256": "63cf693fd22dc9c369cc7ab5ac1ffee6635d9ddfb7375bb1896ef6323889420a"
+  },
+  {
+    "original": "artifacts/collab/native-ci-split/479f3dcc-inputs-before.json",
+    "archive": "docs/execution/native-ci-split/raw/479f3dcc-inputs-before.json.gz",
+    "original_bytes": 382721,
+    "original_sha256": "9ed0f5b6b20a4b416fffc3bcf301e4368a116d8c3ba38255d2ef2293ccbf0ac8",
+    "archive_sha256": "9e30bed100d841f6a7a4eb8d2405451fbcfd900640464663d6b4609733179782"
+  },
+  {
+    "original": "artifacts/collab/native-ci-split/479f3dcc-inputs-after.json",
+    "archive": "docs/execution/native-ci-split/raw/479f3dcc-inputs-after.json.gz",
+    "original_bytes": 382721,
+    "original_sha256": "9ed0f5b6b20a4b416fffc3bcf301e4368a116d8c3ba38255d2ef2293ccbf0ac8",
+    "archive_sha256": "9e30bed100d841f6a7a4eb8d2405451fbcfd900640464663d6b4609733179782"
   }
 ]

@@ -45,5 +45,14 @@
   "native_acceptance": "not_run",
   "cold_30_minute_acceptance": "not_established",
   "remote_mutations_performed": false,
-  "source_guard_background": "byte_frozen_at_c3"
+  "source_guard_background": "byte_frozen_at_c3",
+  "raw_byte_followup": {
+    "source": "479f3dcc73e94b400b6b28e25976651b7fa28ca7",
+    "targeted_tests": 112,
+    "result": "passed",
+    "tracked_inputs_before_equals_after": true,
+    "real_filesystem_raw_crlf_bom_unknown_bytes": "refused",
+    "whole_infrastructure": "pending_serial_background_reader_handoff",
+    "native_ci": "not_run"
+  }
 }

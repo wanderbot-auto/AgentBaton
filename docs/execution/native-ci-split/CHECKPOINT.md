@@ -22,3 +22,10 @@ Raw failures and successful targeted checks are gzip archived losslessly under
 raw/ with byte counts and SHA256 mappings. The original 60-minute cancellation
 is unchanged. No Cargo/native process, push, new CI run or merge was performed.
 Real cold Native/default acceptance within 30 minutes remains unverified.
+
+Follow-up source: 479f3dcc73e94b400b6b28e25976651b7fa28ca7. Actual workflow
+read entries now preserve raw bytes before hashing; a real filesystem test
+refuses CRLF/BOM/appended bytes. Integration explicitly granted four further
+exact-source reader imports/read entries. 112 targeted tests pass, identical
+tracked before/after inputs. Full regression remains pending the background
+entry transfer. No repeated known-failing full run was started while waiting.
