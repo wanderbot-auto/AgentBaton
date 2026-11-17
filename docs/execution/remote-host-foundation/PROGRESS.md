@@ -20,3 +20,12 @@
 - All historical failed runs remain in runs/. Run 20261117T145903Z-659748000 failed compilation and ran a prior binary; it is explicitly failed, not acceptance evidence. Verifier now refuses stale binary after build failure. Idempotency payload regression and earlier clippy/fixture failures are preserved without weakening assertions.
 - Final verifier includes sanitized actual pipe send/response records, actual supervisor PIDs/exit/no-survivor checks and synthetic file hashes. Credentials and record bodies are excluded from outbound trace.
 - No new remote resource/login, Provider call, native global configuration, license choice or production signing/publishing performed. All code is the bounded record foundation; not a full remote product.
+
+## Committed implementation validation
+
+- Implementation commit 6df13c36b5bbf82c608ff104588f0cd98e238121 tested from a clean worktree. Final run 20261117T150538Z-544397000 passes all five checks (16 Rust +16 actual subprocess tests). Source hash unchanged from prior successful run.
+- Fetched origin/main=b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c; scope and conflict preview pass. No target sync/merge required.
+- Task-local .gitattributes preserves raw command logs (including original trailing newlines and hashes) while source/doc whitespace checks remain enabled. No test or CI rule weakened.
+- Build/test slot released to PR29 A/B window after exact-head verification. Remaining work is evidence-only commit, normal push and draft PR.
+
+- Normal push of implementation succeeded; draft PR created: https://github.com/wanderbot-auto/AgentBaton/pull/30. Evidence-only descendant follows, with no rewrite/merge of main.
