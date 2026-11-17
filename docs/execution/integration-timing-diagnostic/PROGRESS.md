@@ -6,4 +6,5 @@
 - The strict new-to-parent source inverse preserves all historical pins. The two source/inverse Python modules passed 22 tests; rustfmt passed.
 - Stage1 joined: Rust phase tests 9/9 and cargo check passed with two build jobs; diff check and scope passed. Heavy work paused for the owner's separately coordinated native GUI acceptance. Stage2 binary builds have not started.
 - Independent read-only reviewer `/root/performance_audit` found no blockers; see REVIEW.md. Leader integration review remains separate.
+- Leader static review found no code blocker and requested a provenance correction: Stage1 ran before commit, without captured before/after input digests. EVIDENCE.json and CHECKPOINT.md now state that limitation. A clean-HEAD bounded recheck and binary proof await resource release; Stage1 is not represented as clean-8b execution.
 - No CI, push, parent branch mutation or merge has run for this task.

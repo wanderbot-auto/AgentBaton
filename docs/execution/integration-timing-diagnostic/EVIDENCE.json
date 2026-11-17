@@ -116,5 +116,12 @@
     "original_ab": "six unchanged local trials passed (base3/head3), retained separately; not this diagnostic validation or Mac15 proof",
     "unattributed_elapsed": "2009 minus control lifetime1600 is not attributed to any unmeasured phase"
   },
-  "prior_evidence": "../operation-performance/artifacts/collab/merge-push/FINAL_MERGE_PUSH_EVIDENCE.json"
+  "prior_evidence": "../operation-performance/artifacts/collab/merge-push/FINAL_MERGE_PUSH_EVIDENCE.json",
+  "stage1_provenance": {
+    "execution_state": "uncommitted task changes on parent cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "clean_commit_execution": false,
+    "input_digest_before_after": "not captured in the original Stage1 run",
+    "limitation": "Stage1 logs show the executed checks and results but do not independently bind an unchanged clean 8b298fde source tree during execution. Do not label Stage1 as a clean-commit run.",
+    "follow_up": "After leader releases Stage2 resource slot, record actual clean HEAD and complete tracked input hashes before/after, confirm source equals code commit 8b298fde82931928bbd22f532dfe50df1f2921b7, repeat only the nine already-built phase controls and twenty-two source controls once, then bounded default debug/release batond marker proof."
+  }
 }
