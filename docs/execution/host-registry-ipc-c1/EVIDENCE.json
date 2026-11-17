@@ -1,41 +1,94 @@
 {
   "task": "RHOST002C1",
+  "status": "verified_source_frozen_root_review_clear_ready_handoff",
   "base": "56746af61789e3e7121e7f43d39b4a5d2b567576",
-  "status": "first16pass_complete_LF_fix_committing",
+  "branch": "collab/host-registry-ipc-c1",
+  "verified_source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+  "delivery_commit": "Containing docs-only commit; exact head reported after commit, source3 identical to VERIFIED_SOURCE.json.",
+  "source_manifest": "VERIFIED_SOURCE.json",
+  "source_composite_sha256": "dd346fbad914203c713810ccdaaa1f3f7ff17d6d277a3243b1fa0f87b48cd6f7",
   "scope": [
     "crates/core/src/ipc.rs",
     "crates/core/src/host_registry_ipc.rs",
     "crates/core/src/host_registry_ipc_tests.rs",
     "docs/execution/host-registry-ipc-c1"
   ],
-  "recorded_utc": "2026-11-17T21:13:35.791618+00:00",
-  "not_run": [
-    "new checks",
-    "production Store19/actor/UDS/native/UI",
-    "Provider/SSH",
-    "push/CI"
+  "current_results": {
+    "fmt": 0,
+    "all_target_strict_clippy": 0,
+    "new12": 12,
+    "old4": 4,
+    "Rust_distinct_passed": 16,
+    "infrastructure_total": 897,
+    "infrastructure_passed": 881,
+    "infrastructure_failed": 0,
+    "infrastructure_skipped": 16,
+    "inputs_unchanged": true,
+    "captured_before_input_subset": 751
+  },
+  "historical_attempts": [
+    {
+      "head": "c1e6be7541fae68ad7f1159a7dc33bc4a43fee64",
+      "evidence": "runs/first",
+      "Rust_selected_passed": 16,
+      "not_final_or_added_twice": true,
+      "note": "Review LF complete framing clarification; no current legalDTO overflow reproduced."
+    },
+    {
+      "head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+      "evidence": "runs/lf-complete",
+      "Rust_selected_passed": 16,
+      "LF_included": true
+    },
+    {
+      "head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+      "evidence": "runs/infrastructure",
+      "total": 897,
+      "skipped": 16,
+      "failed": 0,
+      "reason": "root requested closure check for new shared IPC, no Rust repeat"
+    }
   ],
-  "declared_tests": 12,
-  "source_sha256": {
-    "crates/core/src/ipc.rs": "97ef8e947fb05b6d3e75dcac5d6bab000bebfacc081ff2991b0894741f8b908f",
-    "crates/core/src/host_registry_ipc.rs": "e29491da500f5531391c2e5c670d915a8d206e28bc54637bff9db49ce66467cd",
-    "crates/core/src/host_registry_ipc_tests.rs": "e2ebd4fedd8f68cc80aa822d4257a1a075af40fd7c5e910a39507f86d4eaf719"
+  "failures": "No verification failure; one edit-script formatting match stopped before test-file write, corrected before commit/verification, recorded PROGRESS.",
+  "review": "Root reports independent493 review noP1/P2 and LF closed; firstc1e no main-path blocker but framing clarification preserved.",
+  "test_binary": {
+    "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registry-ipc-c1/target/debug/deps/agentbaton_core-3e149a5721946c12",
+    "bytes": 33021840,
+    "sha256": "07199c531bcfe40fcc878a20e4c4c5ac16d3b65ac4bfd819059818ffbb383350"
   },
-  "source_dependencies_untouched": {
-    "crates/core/src/host_registry.rs": "8c942c738da0e2dfb0e850e8a93951fcacaa2f588bcf86acaaf462425d613844",
-    "crates/core/src/host_registry_migration.rs": "3f2d0151d4d1ce8ce08670f528dee1ef024a27054ff5f7e3c70bf3bfdf612168",
-    "crates/core/src/storage.rs": "6cfdeb71b2732ff2443c5a261161e28f89c990bf000b83b5fd5de7a6d85cef4c",
-    "crates/core/src/lib.rs": "04aba96339080025e02ee1a5034c3d22c852048dffde68d987396c009cd02dfb",
-    "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
-    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
-    "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0",
-    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5"
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "run_env": {
+      "BATON_RUNTIME_DIR": "/private/tmp/ab-collab-c34vkzoi",
+      "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registry-ipc-c1/target",
+      "CARGO_BUILD_JOBS": null,
+      "RUST_TEST_THREADS": null,
+      "RUSTFLAGS": null,
+      "CARGO_ENCODED_RUSTFLAGS": null,
+      "RUSTC_WRAPPER": null
+    }
   },
-  "prior_result": {
-    "head": "c1e6be7541fae68ad7f1159a7dc33bc4a43fee64",
-    "passed": 16,
-    "evidence": "runs/first",
-    "not_final_or_added_twice": true
+  "processes": {
+    "all_sessions_joined": [
+      62993,
+      39965,
+      52117
+    ],
+    "new_service_actor_workers": 0,
+    "heavy_slot": "released after successful fixed493 checks; additional infrastructure also joined"
   },
-  "review_clarification": "512KiB complete response includes final LF; current legalDTO overflow not reproduced; reserve1byte and append/count LF in boundary controls."
+  "protected": "All listed base dependencies/source/locks unchanged; parent IPC byte-restoration proof in manifest.",
+  "not_run": [
+    "Param limit applies serialized Value before typed decoding, not original raw spans/duplicate keys",
+    "Post-guard Host successful result envelope includes request ID/worst-case revision/empty warnings plus final LF<=512KiB; global invalid-envelope/error limits remain unchanged",
+    "Private Daemon.handle with actual A migration19, not real actor/new Host socket/native",
+    "Actual frame regression is existing old parser control, not new Host UDS evidence",
+    "No Store19 activation/startup/backup or C2 durable client intent/native/UI/SSH/Provider/main/CI acceptance",
+    "Full root workspace runtime suite not run; explicit16+all-target lint+infra only"
+  ],
+  "next": "Final containing docs commit/scope/preview and root-agreed finish --handoff; no more tests/source writes/push.",
+  "input_capture_semantics": "751 captured-before non-doc existing tracked input subset; post-run artifact stores unchanged boolean and empty changed_inputs only, not a second hash manifest. Current independent/root and own rereads corroborate before hashes."
 }
