@@ -1,0 +1,74 @@
+{
+  "recorded_at": "2026-11-17T18:25:36.024951+00:00",
+  "dimension": "static_documentation_and_source_integrity_only",
+  "source_base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "source_manifest_files_verified": 207,
+  "matrix_files_verified": 174,
+  "literal_regions_match_actual_source": true,
+  "json_parse": "passed",
+  "checks": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "scope"
+      ],
+      "exit_code": 0,
+      "stdout": "Scope OK against merge base a4e03303b54bd5a5544131e95ad39662f8310e29.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "origin/main"
+      ],
+      "exit_code": 0,
+      "stdout": "a4e03303b54bd5a5544131e95ad39662f8310e29\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "exit_code": 0,
+      "stdout": "?? docs/execution/schema19-host-preflight/\n",
+      "stderr": ""
+    }
+  ],
+  "product_tests": "not_run",
+  "exploratory_failures": [
+    {
+      "dimension": "static source read only",
+      "command": "subagent rg including nonexistent guessed factory_schema/conversation_validation paths",
+      "exit_code": 2,
+      "correction": "continued with actual tracked paths; no tests or writes"
+    },
+    {
+      "dimension": "static source read only",
+      "command": "Python lines47..77 of scripts/native-linux-smoke.py",
+      "exit_code": 1,
+      "error": "IndexError: list index out of range",
+      "correction": "bounded read to len(lines), exit0"
+    },
+    {
+      "dimension": "static source read only",
+      "command": "Python regex literal containing unescaped backslash-s",
+      "exit_code": 0,
+      "warning": "SyntaxWarning: invalid escape sequence",
+      "correction": "later raw regex used; no source/product warning suppressed"
+    }
+  ]
+}
