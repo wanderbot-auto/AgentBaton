@@ -1,7 +1,7 @@
 {
   "task": "RHOST-002",
-  "phase": "phase1",
-  "status": "dependency_review",
+  "phase": "RHOST002A",
+  "status": "verified_local_review_pending",
   "audited_source_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
   "branch": "collab/remote-host-core-integration",
   "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration",
@@ -34,12 +34,10 @@
     }
   ],
   "not_run": [
-    "product implementation",
-    "Cargo/npm metadata/build/test",
+    "Core/schema/lock/UI implementation or tests",
+    "real SSH/Host/Provider",
     "GUI/native",
-    "CI",
-    "real SSH/remote Host",
-    "Provider",
+    "CI/push",
     "paid/signing/production"
   ],
   "unresolved": [
@@ -58,5 +56,25 @@
     "EVIDENCE.json"
   ],
   "checkpoint_recorded_utc": "2026-11-17T17:51:28.274236+00:00",
-  "actual_start": "Window B verified live precreated branch/worktree/base before audit; no exact earlier wall-clock timestamp was captured and none is invented."
+  "actual_start": "Window B verified live precreated branch/worktree/base before audit; no exact earlier wall-clock timestamp was captured and none is invented.",
+  "phase1_snapshot": {
+    "phase": "phase1",
+    "status": "dependency_review",
+    "audited_source_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "source_manifest": "SOURCE_AUDIT.json"
+  },
+  "registration_evidence": "registration/AFTER.json",
+  "registered_product_scope": [
+    "crates/remote-host/src/registration.rs",
+    "crates/remote-host/tests/registration.rs",
+    "crates/remote-host/src/lib.rs",
+    "crates/remote-host/src/transport.rs"
+  ],
+  "registration_source_hash": "8bcf564ab311bce58cd75a70caba53d2d3795bdab9c3fe5f3d4dee1d135b05fe",
+  "input_sha256": "4a7cba703c7db8252649273ddfeca6764efe51526ee3fe4a9eeb625eb891c3d5",
+  "counts": {
+    "foundation_rust": 18,
+    "registration_pure": 8,
+    "real_subprocess_faults": 16
+  }
 }

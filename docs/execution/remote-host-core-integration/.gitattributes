@@ -1,0 +1,2 @@
+# Keep exact raw command-output bytes and their recorded hashes.
+registration/**/*.log -whitespace

@@ -1,0 +1,15 @@
+{
+  "original_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/scripts/verify-remote-host.py",
+  "original_sha256": "4fc7c8b17de1f560043b6c3f1cbb7fdfecc4845a4812267930cb7079c8bcf367",
+  "executed_sha256": "f9e74ef29af364c3a18f52e0046dbdd97d3193727cf4fba22721d4d940d60156",
+  "only_change": [
+    "--- original\n",
+    "+++ evidence-prefix-only\n",
+    "@@ -40,3 +40,3 @@\n",
+    "     source_hash = hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest()",
+    "-    run = Path(\"docs/execution/remote-host-foundation/runs\") / (time.strftime(\"%Y%m%dT%H%M%SZ\", time.gmtime()) + \"-\" + str(time.time_ns() % 1000000000))",
+    "+    run = Path(\"docs/execution/remote-host-core-integration/registration/runs\") / (time.strftime(\"%Y%m%dT%H%M%SZ\", time.gmtime()) + \"-\" + str(time.time_ns() % 1000000000))",
+    "     run.mkdir(parents=True)"
+  ],
+  "scope_reason": "Legacy verifier writes prior-task docs outside current claim; current output must remain in the allocated RHOST002 directory."
+}

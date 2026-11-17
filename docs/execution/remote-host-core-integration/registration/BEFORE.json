@@ -1,0 +1,33 @@
+{
+  "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "head": "b7ebd5ef7e501981413f40cd1448c8368ca66c8b",
+  "recorded_utc": "2026-11-17T18:03:22.050174+00:00",
+  "sha256": {
+    "crates/remote-host/src/lib.rs": "401c499aae7f72978cbfd816df50c81c59b3e1c9658f259b04fb4d299b3a5a6c",
+    "crates/remote-host/src/transport.rs": "a4047a4c4a811ed9707124e75ba1679e21ed20071e7ee0c5ed4a7f864c221e78",
+    "crates/remote-host/src/protocol.rs": "cf75bc67caa2435fd484cfb2e9b7ff6506917a098cafb3fe806805fc43b4111e",
+    "crates/remote-host/src/store.rs": "a778611326e3bd01052cc53725eb2eaa6a84dc7a3d4b7c066cc4c5e9acab1668",
+    "crates/remote-host/src/controller.rs": "395ceef6cd37380f2d1e9b9afd142a3f3e3eaa88a13259f5827d9f587bfc10d3",
+    "crates/remote-host/src/worker.rs": "4320abb29aa4e240d49a801a1a220fd9c2f086285444c5bd4b0f9d6f29d36d40",
+    "crates/remote-host/src/main.rs": "9243c4224963e7b73120e337828d01e0700e58b5cd9aa8f12dded7cc92515e7f",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/Cargo.lock": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43",
+    "crates/remote-host/tests/foundation.rs": "9c3a94fdc60e1dc1db6ff438890728bd9a0d05d74097482944422bab6f4e5c55",
+    "scripts/verify-remote-host.py": "4fc7c8b17de1f560043b6c3f1cbb7fdfecc4845a4812267930cb7079c8bcf367",
+    "tests/infrastructure/test_remote_host.py": "10ae86b1a95b8167658f46cdb0facb1696f0543584190f422f947f4048a665f7",
+    "Cargo.toml": "35e047cb3e44d4ef0615e0c1200e5c93be3898f4b8ae26a360d09d1741bd3cc1",
+    "Cargo.lock": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+    "crates/core/Cargo.toml": "f8aa362c7edb71416e6d99165607be6d2dd6698dbf1ef838f90abb5af239c8ec",
+    "crates/core/src/lib.rs": "a6a27b376a1e869fab1f273c61be90b81f98f97ce6c7de9d5242a62490f918ae",
+    "crates/core/src/ipc.rs": "f0da1089accc1cc88158240953d01d0ff009645195ead02e7ff1469d7a19e0e2",
+    "crates/core/src/storage.rs": "6cfdeb71b2732ff2443c5a261161e28f89c990bf000b83b5fd5de7a6d85cef4c",
+    "apps/desktop/src/App.tsx": "4dba10bcedf797802d9dc906325d3a134233fbfd28e193d0736d950ccd173095",
+    "apps/desktop/src-tauri/src/lib.rs": "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb"
+  },
+  "planned_write_paths": [
+    "crates/remote-host/src/registration.rs",
+    "crates/remote-host/tests/registration.rs",
+    "crates/remote-host/src/lib.rs",
+    "crates/remote-host/src/transport.rs"
+  ]
+}
