@@ -1,0 +1,13 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_core-4aa30b31f14f57df)
+
+running 6 tests
+test integration::reads::lease_projection_tests::additional_proof_queries_share_the_original_byte_budget ... ok
+test integration::reads::lease_projection_tests::existing_schema_lease_expiry_column_is_projected_and_rechecked ... ok
+test integration::reads::lease_projection_tests::fixed_phase_annotation_preserves_original_error_and_numeric_diagnostics ... ok
+test integration::reads::reseal_lock_tests::competing_sqlite_writer_probe ... ok
+test integration::reads::reseal_lock_tests::original_database_pin_clone_drop_keeps_real_writer_lock_until_commit ... ok
+test integration::reads::reseal_lock_tests::separate_raw_database_close_control_releases_rollback_journal_posix_lock ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 380 filtered out; finished in 0.15s
+

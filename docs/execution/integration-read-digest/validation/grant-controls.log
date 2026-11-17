@@ -1,0 +1,20 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running tests/policy.rs (target/debug/deps/policy-2394b2b90a732380)
+
+running 13 tests
+test attempts_bind_exact_server_grant_revision_and_immutable_snapshots ... ok
+test connection_identity_host_environment_and_revision_cannot_silently_change ... ok
+test corrupted_or_cyclic_lineage_fails_closed ... ok
+test explicit_user_intent_generates_approval_and_no_native_enforcement_claim ... ok
+test grant_record_and_approval_journal_are_transactional ... ok
+test narrowed_ancestor_budget_counts_grandchildren_and_never_refunds_attempts ... ok
+test native_owner_grant_snapshot_identifies_the_exact_registered_recipient ... ok
+test owner_confirmed_snapshot_must_match_current_registered_references ... ok
+test persisted_delegation_preserves_root_budget_lineage_and_global_fanout ... ok
+test persisted_project_and_workspace_ownership_are_checked ... ok
+test pure_scope_subset_rejects_each_permission_or_budget_expansion ... ok
+test revocation_and_expiry_block_new_dispatch_without_claiming_inflight_stop ... ok
+test task_grant_cannot_widen_an_existing_shared_project_budget ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.66s
+
