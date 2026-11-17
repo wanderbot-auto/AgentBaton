@@ -698,7 +698,7 @@ impl Daemon {
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
             self.history_workers.poll(&self.store);
-            self.export_workers.poll();
+            self.export_workers.poll(&self.store);
             self.finish_integration_read();
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
@@ -934,18 +934,7 @@ impl Daemon {
             }
         }
         match r.method.as_str() {
-            "history_exports.preview" => {
-                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
-                let selection: crate::history_export::Selection = params(r.params)?;
-                Ok(json!(self.store.history_export_preview(&self.managed_root.parent().ok_or_else(invalid)?.join("history-exports"), &selection)?))
-            }
-            "history_exports.publish" | "history_exports.get" => {
-                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
-                let reference: crate::history_export::Reference = params(r.params)?;
-                let root = self.managed_root.parent().ok_or_else(invalid)?.join("history-exports");
-                if r.method == "history_exports.publish" { Ok(json!(crate::history_export::publish(&root,&reference)?)) }
-                else { Ok(json!(crate::history_export::get(&root,&reference)?)) }
-            }
+            "history_exports.preview" | "history_exports.publish" | "history_exports.get" => Err(CoreError::new("INVALID_REQUEST","History exports require the owned ready request path")),
             "data_workspace_previews.start" => {
                 let selection:crate::data_workspaces::DataWorkspaceSelection=params(r.params)?;
                 Ok(json!(self.data_workers.preview(&mut self.store,&selection,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))
@@ -2935,6 +2924,20 @@ impl Daemon {
         json!({"request_id":request_id,"error":error,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
     }
     fn handle_ready_request(&mut self, job: ReadyRequest) {
+        if Instant::now() > job.deadline {
+            if job.factory_dispatch.is_some() {
+                self.finish_factory_ticket_error(
+                    job,
+                    CoreError::new(
+                        "RESOURCE_LIMIT",
+                        "Queued private Factory dispatch expired before admission",
+                    ),
+                );
+                return;
+            }
+            let _ = job.reply.try_send(json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before admission"),"revision":0,"warnings":[]}));
+            return;
+        }
         if let Ok(request) = serde_json::from_str::<Request>(&job.raw) {
             if request.token == self.token
                 && request.api_version == API_VERSION
@@ -2946,18 +2949,27 @@ impl Daemon {
                 )
             {
                 let operation = (|| -> Result<crate::history_export::Operation> {
-                    if request.expected_revision.is_some() || request.idempotency_key.is_some() {
+                    if request.expected_revision.is_some()
+                        || (request.method != "history_exports.preview"
+                            && request.idempotency_key.is_some())
+                    {
                         return Err(invalid());
                     }
-                    self.export_workers.poll();
+                    self.export_workers.poll(&self.store);
                     if self.export_workers.busy() {
                         return Err(CoreError::new("WORKSPACE_BUSY","One history export filesystem operation is already running; reconcile after it finishes"));
                     }
                     if request.method == "history_exports.preview" {
                         let selection = params(request.params)?;
-                        Ok(crate::history_export::Operation::Preview(
-                            self.store.capture_history_export(&selection)?,
-                        ))
+                        crate::history_export::validate_selection(&selection)?;
+                        let intent = request.idempotency_key.ok_or_else(invalid)?;
+                        if uuid::Uuid::parse_str(&intent)
+                            .map(|id| id.to_string() != intent || id.get_version_num() != 4)
+                            .unwrap_or(true)
+                        {
+                            return Err(invalid());
+                        }
+                        Ok(crate::history_export::Operation::Lookup(selection, intent))
                     } else {
                         let reference = params(request.params)?;
                         if request.method == "history_exports.publish" {
@@ -2987,20 +2999,6 @@ impl Daemon {
             }
         }
 
-        if Instant::now() > job.deadline {
-            if job.factory_dispatch.is_some() {
-                self.finish_factory_ticket_error(
-                    job,
-                    CoreError::new(
-                        "RESOURCE_LIMIT",
-                        "Queued private Factory dispatch expired before admission",
-                    ),
-                );
-                return;
-            }
-            let _ = job.reply.try_send(json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before admission"),"revision":0,"warnings":[]}));
-            return;
-        }
         if job.factory_dispatch.is_none() {
             match self.integration_start_for_request(&job.raw, job.deadline) {
                 Err(error) => {
@@ -4475,5 +4473,35 @@ mod background_wire_tests {
         let _: FactoryScopedRequest = serde_json::from_value(scoped.clone()).unwrap();
         assert!(read(scoped).is_err());
         assert_eq!(store.conn.total_changes(), changes);
+    }
+}
+
+#[cfg(test)]
+mod history_export_deadline_tests {
+    use super::*;
+    #[test]
+    fn expired_original_request_never_captures_or_starts_export_filesystem_state() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+        let mut daemon = Daemon::bind(&root).unwrap();
+        let (sender, receiver) = mpsc::sync_channel(1);
+        let before = daemon.store.sequence().unwrap();
+        let raw=json!({"api_version":1,"request_id":"expired-preview","token":daemon.token,"method":"history_exports.preview","params":{"version":1,"project_id":"missing-project","from_sequence":0,"to_sequence":null,"tasks":true,"messages":false,"events":false},"idempotency_key":Uuid::new_v4().to_string()}).to_string();
+        daemon.handle_ready_request(ReadyRequest {
+            raw,
+            reply: ReadyReply::Wire(sender),
+            deadline: Instant::now() - Duration::from_millis(1),
+            factory_dispatch: None,
+        });
+        let response = receiver.recv_timeout(Duration::from_secs(1)).unwrap();
+        assert_eq!(response["error"]["code"], "RESOURCE_LIMIT");
+        assert_eq!(
+            response["error"]["message"],
+            "Queued request expired before admission"
+        );
+        assert!(!daemon.export_workers.busy());
+        assert!(!root.join("history-exports").exists());
+        assert_eq!(daemon.store.sequence().unwrap(), before);
     }
 }

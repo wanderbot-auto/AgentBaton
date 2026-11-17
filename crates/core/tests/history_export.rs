@@ -67,7 +67,7 @@ fn authenticated_daemon_preview_publish_reconcile_and_reject_bad_envelopes() {
     let p: Preview = serde_json::from_value(
         ipc::call(
             &root,
-            json!({"method":"history_exports.preview","params":selection}),
+            json!({"method":"history_exports.preview","params":selection,"idempotency_key":uuid::Uuid::new_v4().to_string()}),
         )
         .unwrap()["result"]
             .clone(),

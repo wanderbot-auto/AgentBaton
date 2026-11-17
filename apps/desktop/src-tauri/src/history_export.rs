@@ -10,10 +10,11 @@ use serde_json::{json, Value};
 pub(super) async fn history_export_preview(
     runtime: tauri::State<'_, Runtime>,
     selection: Selection,
+    idempotency_key: String,
 ) -> Result<Value, String> {
     crate::call(
         &runtime,
-        json!({"method":"history_exports.preview","params":selection}),
+        json!({"method":"history_exports.preview","params":selection,"idempotency_key":idempotency_key}),
         false,
     )
     .await

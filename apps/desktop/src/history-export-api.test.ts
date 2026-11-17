@@ -5,8 +5,8 @@ vi.mock('./api',()=>({request:vi.fn()}));
 const selection={version:1 as const,project_id:'p',from_sequence:0,to_sequence:null,tasks:true,messages:false,events:false};
 beforeEach(()=>vi.clearAllMocks());
 it('forwards only selection and rejects a mismatched preview',async()=>{
- vi.mocked(request).mockResolvedValue({});await expect(historyExportApi.preview(selection)).rejects.toThrow('INVALID_EXPORT_RESPONSE');
- expect(request).toHaveBeenCalledWith('history_export_preview',{selection});
+ vi.mocked(request).mockResolvedValue({});await expect(historyExportApi.preview(selection,'469fcb86-cd29-4c49-b647-99f884d12f87')).rejects.toThrow('INVALID_EXPORT_RESPONSE');
+ expect(request).toHaveBeenCalledWith('history_export_preview',{selection,idempotencyKey:'469fcb86-cd29-4c49-b647-99f884d12f87'});
 });
 it('forwards only fixed reference for native retrieval',async()=>{
  const reference={preview_id:'469fcb86-cd29-4c49-b647-99f884d12f87',selection_digest:'a'.repeat(64),package_sha256:'b'.repeat(64)};

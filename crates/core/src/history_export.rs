@@ -168,7 +168,7 @@ fn project_fields(value: &Value, fields: &[&str]) -> Value {
     Value::Object(map)
 }
 struct Bound {
-    started: Instant,
+    deadline: Instant,
     rows: usize,
     bytes: usize,
 }
@@ -177,35 +177,50 @@ impl Bound {
         self.rows += 1;
         let raw = raw.ok_or_else(limited)?;
         self.bytes += raw.len();
-        if self.rows > MAX_ROWS
-            || self.bytes > MAX_BYTES
-            || self.started.elapsed() > Duration::from_secs(2)
-        {
+        if self.rows > MAX_ROWS || self.bytes > MAX_BYTES || Instant::now() >= self.deadline {
             return Err(limited());
         }
         serde_json::from_str(&raw).map_err(|_| err("INPUT_CHANGED", "History record is invalid"))
     }
 }
+pub(crate) fn validate_selection(selection: &Selection) -> Result<()> {
+    if selection.version != 1
+        || selection.project_id.is_empty()
+        || selection.project_id.len() > 128
+        || !(selection.tasks || selection.messages || selection.events)
+        || selection.from_sequence > 9_007_199_254_740_991
+        || selection
+            .to_sequence
+            .is_some_and(|n| n > 9_007_199_254_740_991 || n < selection.from_sequence)
+    {
+        return Err(invalid());
+    }
+    Ok(())
+}
 impl Store {
     pub fn history_export_preview(&self, root: &Path, selection: &Selection) -> Result<Preview> {
-        self.capture_history_export(selection)?.persist(root)
+        self.capture_history_export(
+            selection,
+            &Uuid::new_v4().to_string(),
+            Instant::now() + Duration::from_secs(2),
+        )?
+        .persist(root)
     }
-    pub(crate) fn capture_history_export(&self, selection: &Selection) -> Result<Capture> {
-        if selection.version != 1
-            || selection.project_id.is_empty()
-            || selection.project_id.len() > 128
-            || !(selection.tasks || selection.messages || selection.events)
-            || selection.from_sequence > 9_007_199_254_740_991
-            || selection
-                .to_sequence
-                .is_some_and(|n| n > 9_007_199_254_740_991 || n < selection.from_sequence)
-        {
-            return Err(invalid());
+    pub(crate) fn capture_history_export(
+        &self,
+        selection: &Selection,
+        intent: &str,
+        deadline: Instant,
+    ) -> Result<Capture> {
+        validate_intent(intent)?;
+        if Instant::now() >= deadline {
+            return Err(limited());
         }
+        validate_selection(selection)?;
         let tx = self.conn.unchecked_transaction().map_err(db_error)?;
         let project: Option<String> = tx.query_row("SELECT CASE WHEN octet_length(document)<=262144 THEN document END FROM projects WHERE id=?1", [&selection.project_id], |r| r.get(0)).map_err(|_| err("NOT_FOUND", "Project unavailable"))?;
         let mut bound = Bound {
-            started: Instant::now(),
+            deadline: deadline.min(Instant::now() + Duration::from_secs(2)),
             rows: 0,
             bytes: 0,
         };
@@ -219,6 +234,9 @@ impl Store {
             })
             .map_err(db_error)?;
         let cutoff = u64::try_from(cutoff).map_err(|_| invalid())?;
+        if cutoff > 9_007_199_254_740_991 {
+            return Err(limited());
+        }
         let end = selection.to_sequence.unwrap_or(cutoff);
         if end > cutoff || selection.from_sequence > end {
             return Err(err(
@@ -463,7 +481,7 @@ impl Store {
                 json!({"sha256":sha(content.as_bytes()),"content":content}),
             );
         }
-        let id = Uuid::new_v4().to_string();
+        let id = intent.to_string();
         let digest = sha(&encoded(selection)?);
         let warnings = vec![
             "history_only_not_restorable".into(), "entity_metadata_current_at_snapshot_journal_range_only".into(),
@@ -475,7 +493,7 @@ impl Store {
         scrub(&mut package["manifest"]["project"]["name"], &mut redacted);
         package["report"]["redacted_fields"] = json!(redacted);
         let bytes = encoded(&package)?;
-        if bytes.len() > MAX_PACKAGE {
+        if bytes.len() > MAX_PACKAGE || Instant::now() >= bound.deadline {
             return Err(limited());
         }
         let preview = Preview {
@@ -500,20 +518,94 @@ pub(crate) struct Capture {
     preview: Preview,
     bytes: Vec<u8>,
 }
+fn validate_intent(intent: &str) -> Result<()> {
+    if !Uuid::parse_str(intent).is_ok_and(|id| {
+        id.to_string() == intent && id.get_version_num() == 4 && id.as_bytes()[8] & 0xc0 == 0x80
+    }) {
+        return Err(invalid());
+    }
+    Ok(())
+}
+fn capacity(root: &Path) -> Result<()> {
+    // Reserve both snapshot and publication names for at most 32 intents.
+    // An interrupted unlink can leave a third hard-link name for that same
+    // inode; at most 96 generated entries, normally at most 64. Unknown names
+    // also consume a slot; never remove an unfamiliar file to make space.
+    let mut slots = HashSet::new();
+    let mut entries = 0;
+    for entry in std::fs::read_dir(root).map_err(|_| io_error())?.take(97) {
+        entries += 1;
+        let name = entry
+            .map_err(|_| io_error())?
+            .file_name()
+            .to_string_lossy()
+            .into_owned();
+        let slot = match (name.get(..36), name.get(36..)) {
+            (Some(id), Some(".snapshot" | ".history.json" | ".snapshot.writing"))
+                if validate_intent(id).is_ok() =>
+            {
+                id.to_string()
+            }
+            _ => name,
+        };
+        slots.insert(slot);
+    }
+    if slots.len() >= 32 || entries >= 97 {
+        return Err(err(
+            "EXPORT_CAPACITY",
+            "Retained history export capacity (32 intents) is full; no files were removed",
+        ));
+    }
+    Ok(())
+}
+fn existing_preview(root: &Path, selection: &Selection, intent: &str) -> Result<Option<Preview>> {
+    validate_intent(intent)?;
+    let directory = ExportDirectory::open(root)?;
+    let digest = sha(&encoded(selection)?);
+    for suffix in ["snapshot", "history.json"] {
+        if let Some(bytes) = directory.read(&format!("{intent}.{suffix}"))? {
+            let value: Value = serde_json::from_slice(&bytes).map_err(|_| {
+                err(
+                    "INPUT_CHANGED",
+                    "Stored preview is corrupt; original intent was not replaced",
+                )
+            })?;
+            if value["manifest"]["selection_digest"] != digest {
+                return Err(err(
+                    "IDEMPOTENCY_CONFLICT",
+                    "Preview intent already belongs to another selection",
+                ));
+            }
+            let reference = Reference {
+                preview_id: intent.into(),
+                selection_digest: digest,
+                package_sha256: sha(&bytes),
+            };
+            return preview_from(&bytes, &reference).map(Some);
+        }
+    }
+    if directory
+        .read(&format!("{intent}.snapshot.writing"))?
+        .is_some()
+    {
+        return Err(err(
+            "PREVIEW_INCOMPLETE",
+            "Original preview was interrupted before publication; incomplete evidence was retained",
+        ));
+    }
+    capacity(root)?;
+    Ok(None)
+}
 impl Capture {
     fn persist(self, root: &Path) -> Result<Preview> {
-        let directory = ExportDirectory::open(root)?;
-        if std::fs::read_dir(root)
-            .map_err(|_| io_error())?
-            .take(65)
-            .count()
-            >= 64
-        {
-            return Err(err(
-                "EXPORT_CAPACITY",
-                "Retained history export storage is full; no files were removed",
-            ));
+        if let Some(preview) = existing_preview(
+            root,
+            &self.preview.selection,
+            &self.preview.reference.preview_id,
+        )? {
+            return Ok(preview);
         }
+        let directory = ExportDirectory::open(root)?;
         directory.write_new(
             &format!("{}.snapshot", self.preview.reference.preview_id),
             &self.bytes,
@@ -521,21 +613,63 @@ impl Capture {
         Ok(self.preview)
     }
 }
-// Only filesystem work crosses this worker boundary. SQLite capture stays in a
-// bounded Actor read transaction; fsync never blocks the daemon service loop.
+// A filesystem lookup precedes capture so retries never scan newer SQLite
+// history or spend another capacity slot. Only the joined continuation returns
+// to the Actor for its bounded read transaction. No SQLite crosses threads.
 pub(crate) enum Operation {
-    Preview(Capture),
+    Lookup(Selection, String),
+    Persist(Capture),
     Publish(Reference),
     Get(Reference),
 }
+struct Continuation {
+    root: PathBuf,
+    selection: Selection,
+    intent: String,
+    request_id: String,
+    revision: u64,
+    job: crate::ipc::ReadyRequest,
+}
 #[derive(Default)]
 pub(crate) struct Workers {
-    thread: Option<std::thread::JoinHandle<()>>,
+    thread: Option<std::thread::JoinHandle<Option<Continuation>>>,
+}
+fn reply(job: &crate::ipc::ReadyRequest, request_id: &str, revision: u64, result: Result<Value>) {
+    let wire = match result {
+        Ok(value) => {
+            json!({"request_id":request_id,"result":value,"revision":revision,"warnings":[]})
+        }
+        Err(error) => {
+            json!({"request_id":request_id,"error":error,"revision":revision,"warnings":[]})
+        }
+    };
+    let _ = job.reply.try_send(wire);
 }
 impl Workers {
-    pub(crate) fn poll(&mut self) {
-        if self.thread.as_ref().is_some_and(|t| t.is_finished()) {
-            let _ = self.thread.take().unwrap().join();
+    pub(crate) fn poll(&mut self, store: &Store) {
+        if !self.thread.as_ref().is_some_and(|t| t.is_finished()) {
+            return;
+        }
+        let continuation = self.thread.take().unwrap().join().ok().flatten();
+        if let Some(c) = continuation {
+            let result = if Instant::now() >= c.job.deadline {
+                Err(err(
+                    "RESOURCE_LIMIT",
+                    "Queued request expired before capture",
+                ))
+            } else {
+                store.capture_history_export(&c.selection, &c.intent, c.job.deadline)
+            };
+            match result {
+                Ok(capture) => self.start(
+                    c.root,
+                    Operation::Persist(capture),
+                    c.request_id,
+                    c.revision,
+                    c.job,
+                ),
+                Err(error) => reply(&c.job, &c.request_id, c.revision, Err(error)),
+            }
         }
     }
     pub(crate) fn busy(&self) -> bool {
@@ -551,29 +685,45 @@ impl Workers {
     ) {
         let fallback = job.reply.clone();
         let fallback_id = request_id.clone();
-        let spawned=std::thread::Builder::new().name("baton-history-export".into()).spawn(move || {
-            let result = if Instant::now() >= job.deadline {
-                Err(err(
-                    "DEADLINE_EXCEEDED",
-                    "Export request expired before filesystem work",
-                ))
-            } else {
-                match operation {
-                    Operation::Preview(c) => c.persist(&root).map(|p| json!(p)),
-                    Operation::Publish(r) => publish(&root, &r).map(|r| json!(r)),
-                    Operation::Get(r) => get(&root, &r).map(|r| json!(r)),
+        let spawned = std::thread::Builder::new()
+            .name("baton-history-export".into())
+            .spawn(move || {
+                if Instant::now() >= job.deadline {
+                    reply(
+                        &job,
+                        &request_id,
+                        revision,
+                        Err(err(
+                            "RESOURCE_LIMIT",
+                            "Queued request expired before filesystem work",
+                        )),
+                    );
+                    return None;
                 }
-            };
-            let wire = match result {
-                Ok(value) => {
-                    json!({"request_id":request_id,"result":value,"revision":revision,"warnings":[]})
-                }
-                Err(error) => {
-                    json!({"request_id":request_id,"error":error,"revision":revision,"warnings":[]})
-                }
-            };
-            let _ = job.reply.try_send(wire);
-        });
+                let result = match operation {
+                    Operation::Lookup(selection, intent) => {
+                        match existing_preview(&root, &selection, &intent) {
+                            Ok(Some(preview)) => Ok(json!(preview)),
+                            Ok(None) => {
+                                return Some(Continuation {
+                                    root,
+                                    selection,
+                                    intent,
+                                    request_id,
+                                    revision,
+                                    job,
+                                })
+                            }
+                            Err(error) => Err(error),
+                        }
+                    }
+                    Operation::Persist(capture) => capture.persist(&root).map(|p| json!(p)),
+                    Operation::Publish(reference) => publish(&root, &reference).map(|r| json!(r)),
+                    Operation::Get(reference) => get(&root, &reference).map(|r| json!(r)),
+                };
+                reply(&job, &request_id, revision, result);
+                None
+            });
         match spawned {
             Ok(thread) => self.thread = Some(thread),
             Err(_) => {
@@ -745,6 +895,34 @@ fn preview_from(bytes: &[u8], reference: &Reference) -> Result<Preview> {
     let value: Value = serde_json::from_slice(bytes).map_err(|_| invalid())?;
     let m = &value["manifest"];
     let report = &value["report"];
+    if m["format"] != "agentbaton-history" || m["schema_version"] != 1 || m["restorable"] != false {
+        return Err(err("INPUT_CHANGED", "History package format changed"));
+    }
+    let files = value["files"].as_object().ok_or_else(invalid)?;
+    if files.len() != 4 {
+        return Err(invalid());
+    }
+    for name in [
+        "tasks.json",
+        "sessions.json",
+        "messages.json",
+        "events.json",
+    ] {
+        let content = files
+            .get(name)
+            .and_then(|f| f["content"].as_str())
+            .ok_or_else(invalid)?;
+        if files[name]["sha256"] != sha(content.as_bytes()) {
+            return Err(err(
+                "INPUT_CHANGED",
+                "History logical file checksum changed",
+            ));
+        }
+        let records: Vec<Value> = serde_json::from_str(content).map_err(|_| invalid())?;
+        if m["counts"][name].as_u64() != Some(records.len() as u64) {
+            return Err(err("INPUT_CHANGED", "History file count changed"));
+        }
+    }
     if m["export_id"] != reference.preview_id || m["selection_digest"] != reference.selection_digest
     {
         return Err(err("INPUT_CHANGED", "Export selection changed"));

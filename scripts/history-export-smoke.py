@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import platform
 from pathlib import Path
 import shutil
 import socket
@@ -26,7 +27,7 @@ def rpc(runtime,method,params=None,key=None,drop_reply=False):
             # Keep the authenticated request alive until the server has made
             # the fixed publication durable, then discard the unread response.
             # Closing immediately can legitimately abandon before admission.
-            published=runtime/'history-exports'/(params['preview_id']+'.history.json')
+            published=runtime/'history-exports'/((key+'.snapshot') if method=='history_exports.preview' else (params['preview_id']+'.history.json'))
             deadline=time.monotonic()+5
             while not published.exists():
                 if time.monotonic()>=deadline: raise TimeoutError('publication did not reach the lost-response boundary')
@@ -80,13 +81,15 @@ def validate_package(path,reference):
     return data
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,default=ROOT/'artifacts/history-export/ipc');args=parser.parse_args();args.output.mkdir(parents=True,exist_ok=True)
+    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,default=ROOT/'artifacts/history-export/ipc');args=parser.parse_args();args.output.mkdir(parents=True,exist_ok=False)
     with tempfile.TemporaryDirectory(prefix='ab-hexp-') as temporary, (args.output/'daemon.log').open('w') as log:
         runtime=Path(temporary).resolve();runtime.chmod(0o700);project=seed(runtime,log);before=business_hash(runtime);process=start(runtime,log)
         try:
             selection=dict(version=1,project_id=project['id'],from_sequence=0,to_sequence=None,tasks=True,messages=True,events=True)
-            preview=rpc(runtime,'history_exports.preview',selection);ref={key:preview[key] for key in ('preview_id','selection_digest','package_sha256')}
+            intent=str(uuid.uuid4());rpc(runtime,'history_exports.preview',selection,key=intent,drop_reply=True);stop(process);process=start(runtime,log);preview=rpc(runtime,'history_exports.preview',selection,key=intent);assert len(list((runtime/'history-exports').glob('*.snapshot')))==1;ref={key:preview[key] for key in ('preview_id','selection_digest','package_sha256')}
             assert rpc(runtime,'history_exports.get',ref)['state']=='preview'
+            try: rpc(runtime,'history_exports.preview',dict(selection,messages=False),key=intent);raise AssertionError('preview intent conflict accepted')
+            except RuntimeError as error: assert 'IDEMPOTENCY_CONFLICT' in str(error)
             rpc(runtime,'history_exports.publish',ref,drop_reply=True)
             deadline=time.monotonic()+8
             while True:
@@ -104,7 +107,7 @@ def main():
             stop(process);process=start(runtime,log);assert rpc(runtime,'history_exports.get',ref)['state']=='ready'
             assert before==business_hash(runtime)
             destination=args.output/'sample.history.json';destination.write_bytes(data);destination.chmod(0o600)
-            record=dict(status='passed',dimension='real_daemon_unix_ipc_sqlite_synthetic_history',provider_calls='not_run',native_webview='not_run',selection=selection,reference=ref,sha256=digest(data),bytes=len(data),business_hash_before=before,business_hash_after=business_hash(runtime),checks=['manifest','file_sha256','redaction','cross_project','unknown_reply_reconcile','no_overwrite_retry','tampered_selection','daemon_restart','business_history_unchanged'],artifact=str(destination.resolve()))
+            record=dict(implementation_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),architecture=platform.machine(),os=platform.platform(),daemon_sha256=digest((Path(os.environ.get('CARGO_TARGET_DIR',str(ROOT/'target')))/'debug/batond').read_bytes()),status='passed',dimension='real_daemon_unix_ipc_sqlite_synthetic_history',provider_calls='not_run',native_webview='not_run',selection=selection,reference=ref,sha256=digest(data),bytes=len(data),business_hash_before=before,business_hash_after=business_hash(runtime),checks=['manifest','file_sha256','redaction','cross_project','lost_preview_reply_same_intent','preview_intent_restart','preview_selection_conflict','unknown_reply_reconcile','no_overwrite_retry','tampered_selection','daemon_restart','business_history_unchanged'],artifact=str(destination.resolve()))
             (args.output/'report.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2))
         finally: stop(process)
 if __name__=='__main__': main()

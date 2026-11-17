@@ -347,3 +347,211 @@ fn cross_entity_ambiguous_aggregate_is_excluded_and_session_task_mirror_checked(
         "INPUT_CHANGED"
     );
 }
+
+#[test]
+fn stable_preview_intent_recovers_before_live_capture_and_full_capacity() {
+    let f = Fixture::new();
+    let selection = f.selection();
+    let intent = Uuid::new_v4().to_string();
+    let first = f
+        .store
+        .capture_history_export(&selection, &intent, Instant::now() + Duration::from_secs(2))
+        .unwrap()
+        .persist(&f.directory())
+        .unwrap();
+    let original = std::fs::read(f.directory().join(format!("{intent}.snapshot"))).unwrap();
+    f.event(&f.task, json!({"text":"LATER".repeat(60000)})); // current capture now fails single-record bound
+    assert_eq!(
+        f.store
+            .capture_history_export(
+                &selection,
+                &Uuid::new_v4().to_string(),
+                Instant::now() + Duration::from_secs(2)
+            )
+            .err()
+            .unwrap()
+            .code,
+        "RESOURCE_LIMIT"
+    );
+    let directory = ExportDirectory::open(&f.directory()).unwrap();
+    for _ in 0..31 {
+        directory
+            .write_new(&format!("{}.snapshot", Uuid::new_v4()), b"{}")
+            .unwrap();
+    }
+    let again = existing_preview(&f.directory(), &selection, &intent)
+        .unwrap()
+        .unwrap();
+    assert_eq!(again.reference, first.reference);
+    assert_eq!(again.snapshot_sequence, first.snapshot_sequence);
+    assert_eq!(std::fs::read_dir(f.directory()).unwrap().count(), 32);
+    assert_eq!(
+        existing_preview(&f.directory(), &selection, &Uuid::new_v4().to_string())
+            .unwrap_err()
+            .code,
+        "EXPORT_CAPACITY"
+    );
+    let mut changed = selection.clone();
+    changed.messages = false;
+    assert_eq!(
+        existing_preview(&f.directory(), &changed, &intent)
+            .unwrap_err()
+            .code,
+        "IDEMPOTENCY_CONFLICT"
+    );
+    assert_eq!(
+        std::fs::read(f.directory().join(format!("{intent}.snapshot"))).unwrap(),
+        original
+    );
+    // Exercise the actual two-stage worker interface: an existing result must not
+    // reach Actor capture against the now-oversize live record.
+    let (sender, receiver) = std::sync::mpsc::sync_channel(1);
+    let mut workers = Workers::default();
+    workers.start(
+        f.directory(),
+        Operation::Lookup(selection, intent),
+        "retry".into(),
+        0,
+        crate::ipc::ReadyRequest {
+            raw: String::new(),
+            reply: crate::ipc::ReadyReply::Wire(sender),
+            deadline: Instant::now() + Duration::from_secs(5),
+            factory_dispatch: None,
+        },
+    );
+    let until = Instant::now() + Duration::from_secs(5);
+    let response = loop {
+        workers.poll(&f.store);
+        if let Ok(response) = receiver.try_recv() {
+            break response;
+        }
+        assert!(Instant::now() < until);
+        std::thread::sleep(Duration::from_millis(1));
+    };
+    workers.join();
+    assert_eq!(
+        response["result"]["package_sha256"],
+        first.reference.package_sha256
+    );
+}
+#[test]
+fn thirty_two_intents_reserve_all_publication_slots_and_keep_existing_recoverable() {
+    let f = Fixture::new();
+    let selection = f.selection();
+    let mut previews = Vec::new();
+    for _ in 0..32 {
+        let key = Uuid::new_v4().to_string();
+        previews.push(
+            f.store
+                .capture_history_export(&selection, &key, Instant::now() + Duration::from_secs(2))
+                .unwrap()
+                .persist(&f.directory())
+                .unwrap(),
+        );
+    }
+    assert_eq!(std::fs::read_dir(f.directory()).unwrap().count(), 32);
+    for p in &previews {
+        publish(&f.directory(), &p.reference).unwrap();
+    }
+    assert_eq!(std::fs::read_dir(f.directory()).unwrap().count(), 64);
+    assert_eq!(
+        existing_preview(&f.directory(), &selection, &Uuid::new_v4().to_string())
+            .unwrap_err()
+            .code,
+        "EXPORT_CAPACITY"
+    );
+    assert_eq!(
+        existing_preview(
+            &f.directory(),
+            &selection,
+            &previews[0].reference.preview_id
+        )
+        .unwrap()
+        .unwrap()
+        .reference,
+        previews[0].reference
+    );
+    // A retained interrupted-unlink name is the same inode, not another payload.
+    for p in &previews {
+        std::fs::hard_link(
+            f.directory()
+                .join(format!("{}.snapshot", p.reference.preview_id)),
+            f.directory()
+                .join(format!("{}.snapshot.writing", p.reference.preview_id)),
+        )
+        .unwrap();
+    }
+    assert_eq!(std::fs::read_dir(f.directory()).unwrap().count(), 96);
+    assert_eq!(
+        existing_preview(&f.directory(), &selection, &Uuid::new_v4().to_string())
+            .unwrap_err()
+            .code,
+        "EXPORT_CAPACITY"
+    );
+    assert!(existing_preview(
+        &f.directory(),
+        &selection,
+        &previews[0].reference.preview_id
+    )
+    .unwrap()
+    .is_some());
+}
+#[test]
+fn interrupted_and_corrupt_intents_are_never_recaptured_or_silently_replaced() {
+    let f = Fixture::new();
+    let selection = f.selection();
+    let key = Uuid::new_v4().to_string();
+    let directory = ExportDirectory::open(&f.directory()).unwrap();
+    directory
+        .write_new(&format!("{key}.snapshot.writing"), b"partial")
+        .unwrap();
+    assert_eq!(
+        existing_preview(&f.directory(), &selection, &key)
+            .unwrap_err()
+            .code,
+        "PREVIEW_INCOMPLETE"
+    );
+    assert_eq!(std::fs::read_dir(f.directory()).unwrap().count(), 1);
+    let preview = f.preview();
+    let path = f
+        .directory()
+        .join(format!("{}.snapshot", preview.reference.preview_id));
+    std::fs::write(&path, b"{").unwrap();
+    assert_eq!(
+        existing_preview(&f.directory(), &selection, &preview.reference.preview_id)
+            .unwrap_err()
+            .code,
+        "INPUT_CHANGED"
+    );
+    assert_eq!(std::fs::read(path).unwrap(), b"{");
+}
+
+#[test]
+fn unsafe_javascript_sequence_and_expired_capture_fail_without_output() {
+    let f = Fixture::new();
+    let selection = f.selection();
+    let key = Uuid::new_v4().to_string();
+    assert_eq!(
+        f.store
+            .capture_history_export(&selection, &key, Instant::now() - Duration::from_millis(1))
+            .err()
+            .unwrap()
+            .code,
+        "RESOURCE_LIMIT"
+    );
+    f.store
+        .conn
+        .execute(
+            "INSERT INTO events(sequence,document) VALUES(9007199254740992,'{}')",
+            [],
+        )
+        .unwrap();
+    assert_eq!(
+        f.store
+            .history_export_preview(&f.directory(), &selection)
+            .unwrap_err()
+            .code,
+        "RESOURCE_LIMIT"
+    );
+    assert!(!f.directory().exists());
+}

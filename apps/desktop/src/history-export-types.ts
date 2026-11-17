@@ -1,6 +1,7 @@
 export interface HistorySelection {version:1;project_id:string;from_sequence:number;to_sequence:number|null;tasks:boolean;messages:boolean;events:boolean}
 export interface HistoryReference {preview_id:string;selection_digest:string;package_sha256:string}
 export interface HistoryPreview extends HistoryReference {selection:HistorySelection;snapshot_sequence:number;counts:Record<string,number>;excluded_events:number;missing_references:number;redacted_fields:number;bytes:number;warnings:string[]}
+export interface PreviewIntent {kind:'preview_intent';key:string;selection:HistorySelection}
 export interface HistoryReceipt {preview:HistoryPreview;state:'preview'|'ready';filename:string}
 const integer=(v:unknown):v is number=>typeof v==='number'&&Number.isSafeInteger(v)&&v>=0;
 const hash=(v:unknown):v is string=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
@@ -11,3 +12,5 @@ export const reference=(p:HistoryReference):HistoryReference=>({preview_id:p.pre
 export function previewShape(p:HistoryPreview,selection?:HistorySelection):boolean {return referenceShape(p)&&selectionShape(p.selection)&&(!selection||sameSelection(p.selection,selection))&&integer(p.snapshot_sequence)&&p.snapshot_sequence>=p.selection.from_sequence&&integer(p.bytes)&&p.bytes<=8388608&&integer(p.excluded_events)&&integer(p.missing_references)&&integer(p.redacted_fields)&&!!p.counts&&Object.keys(p.counts).sort().join(',')==='events.json,messages.json,sessions.json,tasks.json'&&Object.values(p.counts).every(integer)&&Array.isArray(p.warnings)&&p.warnings.length<=16&&p.warnings.every(v=>typeof v==='string'&&v.length<=256);}
 export function receiptShape(r:HistoryReceipt,ref:HistoryReference):boolean {return !!r&&previewShape(r.preview)&&r.preview.preview_id===ref.preview_id&&r.preview.package_sha256===ref.package_sha256&&r.preview.selection_digest===ref.selection_digest&&(r.state==='preview'||r.state==='ready')&&r.filename===ref.preview_id+'.history.json';}
 export function sequenceInput(text:string):number {if(!/^(0|[1-9]\d*)$/.test(text)||!integer(Number(text)))throw new Error('INVALID_RANGE');return Number(text);}
+
+export function intentShape(value:unknown):value is PreviewIntent {if(!value||typeof value!=='object')return false;const v=value as PreviewIntent;return v.kind==='preview_intent'&&referenceShape({preview_id:v.key,selection_digest:'a'.repeat(64),package_sha256:'b'.repeat(64)})&&selectionShape(v.selection)&&Object.keys(v).sort().join(',')==='key,kind,selection';}
