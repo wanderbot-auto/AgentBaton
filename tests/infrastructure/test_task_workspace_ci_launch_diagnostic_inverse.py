@@ -5,6 +5,7 @@ import unittest
 from unittest import mock
 
 from tests.infrastructure import test_schema17_migration_workflow as H
+from tests.infrastructure.native_ci_workflow_split import restore_native_ci_split
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFINITION = '          def run_task_workspace_evidence():\n'
@@ -13,7 +14,7 @@ CALL = '          run_task_workspace_evidence()\n'
 
 class TaskWorkspaceDiagnosticInverse(unittest.TestCase):
     def setUp(self):
-        self.text = (ROOT / '.github/workflows/product.yml').read_text()
+        self.text = restore_native_ci_split((ROOT / '.github/workflows/product.yml').read_text())
         self.start = self.text.index(DEFINITION)
         self.end = self.text.index(CALL)
         self.reviewed = self.text[self.start:self.end]
