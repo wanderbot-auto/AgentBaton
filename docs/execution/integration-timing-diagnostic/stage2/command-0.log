@@ -1,0 +1,16 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_core-4aa30b31f14f57df)
+
+running 9 tests
+test integration::reads::lease_projection_tests::fixed_phase_annotation_preserves_original_error_and_numeric_diagnostics ... ok
+test integration::settlement::preparation_phase_settlement_tests::existing_failure_incomplete_io_and_unknown_output_triggers_are_preserved ... ok
+test integration::settlement::preparation_phase_settlement_tests::successful_preparation_publishes_only_above_original_runtime_boundary ... ok
+test integration::settlement::preparation_phase_settlement_tests::unavailable_unjoined_and_invalid_trace_leave_base_event_byte_identical ... ok
+test integration::stage_workers::phase_observation::tests::actual_poison_and_pre_return_join_do_not_fabricate_a_snapshot ... ok
+test integration::stage_workers::phase_observation::tests::duplicate_backward_missing_and_impossible_counters_are_sticky_unavailable ... ok
+test integration::stage_workers::phase_observation::tests::failed_phase_has_no_fabricated_later_operation_or_completion ... ok
+test integration::stage_workers::phase_observation::tests::fixed_slots_distinguish_all_original_boundaries_without_clamping_overrun ... ok
+test integration::stage_workers::phase_observation::tests::real_owned_return_and_join_survive_unavailable_recording_without_new_cancel ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 377 filtered out; finished in 0.01s
+
