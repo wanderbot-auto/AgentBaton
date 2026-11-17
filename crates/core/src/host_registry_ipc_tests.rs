@@ -389,7 +389,7 @@ fn bounded_params_enforce_serialized_bytes_before_typed_decode() {
     assert_eq!(host_counts(&f), before);
 }
 #[test]
-fn complete_response_includes_request_id_escaping_and_maximum_revision_digits() {
+fn complete_response_includes_lf_request_id_escaping_and_maximum_revision_digits() {
     let f = Fixture::ordinary18();
     let mut packet = f.packet("hosts.list", json!({"limit":1}), None);
     packet["request_id"] = json!("\n".repeat(128));
@@ -399,9 +399,14 @@ fn complete_response_includes_request_id_escaping_and_maximum_revision_digits() 
     )
     .unwrap()
     .len();
-    let exact = "a".repeat(MAX_HOST_RESPONSE - overhead);
+    let exact = "a".repeat(MAX_HOST_RESPONSE - overhead - RESPONSE_LF_BYTES);
     let value = response(&request, &exact, false).unwrap();
-    assert_eq!(serde_json::to_vec(&json!({"request_id":request.request_id,"result":value,"revision":u64::MAX,"warnings":[]})).unwrap().len(),MAX_HOST_RESPONSE);
+    let mut framed = serde_json::to_vec(
+        &json!({"request_id":request.request_id,"result":value,"revision":u64::MAX,"warnings":[]}),
+    )
+    .unwrap();
+    framed.push(b'\n');
+    assert_eq!(framed.len(), MAX_HOST_RESPONSE);
     let over = exact + "a";
     assert_eq!(
         response(&request, &over, false).unwrap_err().code,
@@ -427,7 +432,7 @@ fn actual_paginated_dispatch_responses_are_bounded_and_progress_without_duplicat
         );
         packet["request_id"] = json!("\"\n".repeat(64));
         let reply = f.handle(packet);
-        assert!(serde_json::to_vec(&reply).unwrap().len() <= MAX_HOST_RESPONSE);
+        assert!(serde_json::to_vec(&reply).unwrap().len() + RESPONSE_LF_BYTES <= MAX_HOST_RESPONSE);
         let page = result(reply);
         let rows = page["hosts"].as_array().unwrap();
         assert!(!rows.is_empty());
@@ -464,7 +469,9 @@ fn unsupported_ordinary18_and_future20_return_errors_without_creating_schema_or_
             let reply = f.call(method, params, key);
             assert_eq!(code(&reply), "VERSION_UNSUPPORTED");
             assert!(reply.get("result").is_none());
-            assert!(serde_json::to_vec(&reply).unwrap().len() < MAX_HOST_RESPONSE);
+            assert!(
+                serde_json::to_vec(&reply).unwrap().len() + RESPONSE_LF_BYTES < MAX_HOST_RESPONSE
+            );
         }
         assert_eq!(f.daemon.store.conn.total_changes(), before);
         f.assert_version(version);

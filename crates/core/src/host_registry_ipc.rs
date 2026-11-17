@@ -11,6 +11,8 @@ use std::io::{self, Write};
 
 const MAX_HOST_PARAMS: usize = 16 * 1024;
 const MAX_HOST_RESPONSE: usize = 512 * 1024;
+// socket_worker appends one LF after the compact JSON response.
+const RESPONSE_LF_BYTES: usize = 1;
 
 struct LimitedJson {
     bytes: Vec<u8>,
@@ -97,7 +99,7 @@ fn response<T: Serialize>(request: &Request, result: &T, committed: bool) -> Res
     let value = serde_json::to_value(result).map_err(|_| response_error(committed))?;
     // Match handle_observed's fixed envelope, including exact request-ID JSON
     // escaping, empty warnings and the maximum possible global u64 revision.
-    // This dominates its actual compact serialized length without reading time
+    // Reserve the final LF as well. This dominates the complete frame without reading time
     // or mistaking the outer global sequence for Host revision/created_sequence.
     let envelope = HostResponseBound {
         request_id: &request.request_id,
@@ -105,7 +107,8 @@ fn response<T: Serialize>(request: &Request, result: &T, committed: bool) -> Res
         revision: u64::MAX,
         warnings: [],
     };
-    bounded_json(&envelope, MAX_HOST_RESPONSE).map_err(|_| response_error(committed))?;
+    bounded_json(&envelope, MAX_HOST_RESPONSE - RESPONSE_LF_BYTES)
+        .map_err(|_| response_error(committed))?;
     Ok(value)
 }
 pub(super) fn register(store: &mut Store, request: &Request) -> Result<Value> {

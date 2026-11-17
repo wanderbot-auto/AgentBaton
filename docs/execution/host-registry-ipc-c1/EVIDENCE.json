@@ -1,7 +1,7 @@
 {
   "task": "RHOST002C1",
   "base": "56746af61789e3e7121e7f43d39b4a5d2b567576",
-  "status": "source_implemented_committing_before_checks",
+  "status": "first16pass_complete_LF_fix_committing",
   "scope": [
     "crates/core/src/ipc.rs",
     "crates/core/src/host_registry_ipc.rs",
@@ -30,5 +30,12 @@
     "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
     "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0",
     "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5"
-  }
+  },
+  "prior_result": {
+    "head": "c1e6be7541fae68ad7f1159a7dc33bc4a43fee64",
+    "passed": 16,
+    "evidence": "runs/first",
+    "not_final_or_added_twice": true
+  },
+  "review_clarification": "512KiB complete response includes final LF; current legalDTO overflow not reproduced; reserve1byte and append/count LF in boundary controls."
 }
