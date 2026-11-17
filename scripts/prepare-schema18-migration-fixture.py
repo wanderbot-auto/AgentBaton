@@ -151,11 +151,19 @@ def source_hashes(source):
     return files
 
 
+def validate_identity(value):
+    require(type(value) is dict and set(value) == {'pid', 'pgid'}
+            and type(value['pid']) is int and type(value['pgid']) is int
+            and value['pid'] > 1 and value['pid'] == value['pgid'],
+            'Missing/invalid owned session identity')
+
+
 def validate_compiled(m):
     native_platform()
     require(type(m) is dict and m.get('contract') == CONTRACT and m.get('status') == 'compiled'
             and type(m.get('schema')) is int and m['schema'] == 18, 'Wrong compiled18 contract')
     s, b = m['source'], m['build']
+    validate_identity(b.get('owned_identity'))
     require(s['commit'] == SOURCE and s['tree'] == TREE and s['repository'] == REPOSITORY
             and s['archive_sha256'] == ARCHIVE_SHA256 and s['compiled_source_clean'] is True,
             'Wrong compiled source/archive')
@@ -207,10 +215,18 @@ def provenance(frozen, manifest):
     return record, raw, measured
 
 
+def git_environment():
+    env = {k: v for k, v in os.environ.items() if k in ('PATH', 'LANG', 'LC_ALL', 'TMPDIR')}
+    env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null', GIT_NO_REPLACE_OBJECTS='1',
+               GIT_NO_LAZY_FETCH='1', GIT_ALLOW_PROTOCOL='', GIT_PROTOCOL_FROM_USER='0',
+               GIT_TERMINAL_PROMPT='0', GIT_ASKPASS='/usr/bin/false', SSH_ASKPASS='/usr/bin/false')
+    return env
+
+
 def git_archive(repository):
-    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-    env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null', GIT_NO_REPLACE_OBJECTS='1')
-    prefix = ['git', '--no-replace-objects', '-c', 'core.fsmonitor=false', '-c',
+    env = git_environment()
+    prefix = ['git', '--no-replace-objects', '-c', 'protocol.allow=never',
+              '-c', 'credential.helper=', '-c', 'core.askPass=', '-c', 'core.fsmonitor=false', '-c',
               'core.hooksPath=/dev/null', '-c', 'core.attributesFile=/dev/null', '-c', 'tar.umask=0002',
               '-C', str(repository)]
     for suffix, expected in [('^{commit}', SOURCE), ('^{tree}', TREE)]:

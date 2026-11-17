@@ -108,6 +108,31 @@ def wait_ready(runtime, child):
               and stat.S_IMODE(info.st_mode) == 0o600, 'Unsafe owned socket')
 
 
+def safe_integer(value, expected=None):
+    H.require(type(value) is int and 0 <= value <= 9_007_199_254_740_991
+              and (expected is None or value == expected), 'Invalid typed protocol integer')
+    return value
+
+
+def snapshot_observation(value, sequence, tasks):
+    H.require(type(value) is dict and type(value.get('tasks')) is list and len(value['tasks']) == tasks,
+              'Wrong actual snapshot task projection')
+    return dict(api_version=safe_integer(value.get('api_version'), 1),
+                database_schema_version=safe_integer(value.get('database_schema_version'), 18),
+                sequence=safe_integer(value.get('sequence'), sequence))
+
+
+def journal_observation(value, sequence):
+    H.require(type(value) is dict and type(value.get('events')) is list
+              and len(value['events']) == sequence <= 32, 'Wrong actual journal projection')
+    cursor = safe_integer(value.get('sequence'), sequence)
+    observed = []
+    for index, event in enumerate(value['events'], 1):
+        H.require(type(event) is dict, 'Malformed Event object')
+        observed.append(safe_integer(event.get('sequence'), index))
+    return dict(sequence=cursor, event_sequences=observed)
+
+
 def validate_report(m):
     H.require(type(m) is dict and m.get('contract') == CONTRACT and m.get('status') == 'passed'
               and type(m.get('schema')) is int and m['schema'] == 18
@@ -121,11 +146,16 @@ def validate_report(m):
               and m['owner_rejection'] == 'AUTH_REQUIRED' and m['conflict_rejection'] == 'CONFIG_CONFLICT'
               and m['receipt_replay_exact'] is True, 'Missing actual tool/owner/replay evidence')
     d = m['daemon']
+    H.validate_identity(d.get('owned_identity'))
     H.require(d['sigterm_sent'] is True and d['forced_kill'] is False
               and type(d['daemon_wait_exit']) is int and d['daemon_wait_exit'] == 0
               and d['identity_gone_after_join'] is True and d['group_quiescent_before_reaping'] is True
               and d['leader_unreaped_until_signalling'] is True and d['cleanup_errors'] == [],
               'No confirmed normal owned daemon join')
+    H.require(H.strict_equal(m['initial_api_probe'], dict(api_version=1, database_schema_version=18, sequence=0))
+              and H.strict_equal(m['final_api_probe'], dict(api_version=1, database_schema_version=18, sequence=5))
+              and H.strict_equal(m['journal_api_probe'], dict(sequence=5, event_sequences=list(range(1, 6)))),
+              'Missing actual typed IPC observations')
     first, last = m['initial_probe'], m['final_probe']
     for item in (first, last):
         H.require(type(item['schema']) is int and item['schema'] == 18 and item['query_only'] is True
@@ -252,17 +282,17 @@ def main():
                     H.require('result' in reply and not reply.get('error'), 'Actual production RPC failed')
                     return reply['result']
                 initial = call('system.snapshot', {})
-                H.require(initial['api_version'] == 1 and type(initial['database_schema_version']) is int
-                          and initial['database_schema_version'] == 18 and initial['tasks'] == []
-                          and initial['sequence'] == 0, 'Wrong actual18 protocol/snapshot')
+                report['initial_api_probe'] = snapshot_observation(initial, 0, 0)
                 call('system.snapshot', {}, wrong_token=True, expected_error='AUTH_REQUIRED')
                 report['owner_rejection'] = 'AUTH_REQUIRED'
                 cli = subprocess.run([str(frozen / 'baton'), 'snapshot'], env=env, capture_output=True, timeout=10)
                 H.require(cli.returncode == 0 and len(cli.stdout) <= 1_048_576 and len(cli.stderr) <= 262_144,
                           'Actual companion snapshot failed')
                 cli_value = H.parse_json(cli.stdout)['result']
+                cli_observed = snapshot_observation(cli_value, 0, 0)
                 H.require(H.strict_equal(cli_value, initial), 'Companion/daemon snapshot mismatch')
-                report['actual_cli_probe'] = dict(exit_code=0, api_version=1, database_schema_version=18)
+                report['actual_cli_probe'] = dict(exit_code=cli.returncode,
+                    api_version=cli_observed['api_version'], database_schema_version=cli_observed['database_schema_version'])
                 project = call('projects.import', dict(path=str(source), name='Genuine18 generated project'), 'p18-project')
                 tasks = []
                 for i, project_id in enumerate([project['id'], project['id'], 'local']):
@@ -282,10 +312,8 @@ def main():
                 report['receipt_replay_exact'] = True
                 final = call('system.snapshot', {})
                 journal = call('events.subscribe', dict(cursor=0, limit=32))
-                H.require(final['database_schema_version'] == 18 and len(final['tasks']) == 3
-                          and final['sequence'] == journal['sequence'] == 5
-                          and [x['sequence'] for x in journal['events']] == list(range(1, 6)),
-                          'Missing actual linked18 journal')
+                report['final_api_probe'] = snapshot_observation(final, 5, 3)
+                report['journal_api_probe'] = journal_observation(journal, 5)
                 H.require({x['aggregate_id'] for x in journal['events']} == {project['id'], *(x['id'] for x in tasks)},
                           'Journal aggregate links mismatch')
                 H.require(all(set(x) == {'sequence', 'event_id', 'aggregate_id', 'revision', 'kind',

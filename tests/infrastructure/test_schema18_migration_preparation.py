@@ -1,4 +1,4 @@
-"""Pure finite provenance/FS/archive controls; no Git/compiler/product invocation."""
+"""Finite provenance/FS/archive and local missing-object Git controls; no network/compiler/product."""
 import copy
 import importlib.util
 import io
@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import platform
 import struct
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -31,6 +32,7 @@ def synthetic_build():
         build=dict(argv=['/never-executed/cargo', *H.BUILD_ARGS], features=[], default_features=True,
                    exit_code=0, lockfile_sha256=H.LOCK_SHA256, group_quiescent_before_reap=True,
                    cwd='/never-executed/source', target_dir='/never-executed/target',
+                   owned_identity=dict(pid=4321001, pgid=4321001),
                    cargo_config_paths_checked=H.cargo_config_paths(Path('/never-executed/source')),
                    cargo_config_absent_before=True, cargo_config_absent_after=True),
         binaries={name: dict(sha256='c' * 64, bytes=100, mode='0o500', nlink=1,
@@ -81,6 +83,9 @@ class Normal18BuildContracts(unittest.TestCase):
                 (('build', 'features'), ['native-smoke']), (('build', 'default_features'), 1),
                 (('build', 'argv'), ['/never/cargo', 'test']), (('build', 'exit_code'), False),
                 (('build', 'group_quiescent_before_reap'), False),
+                (('build', 'owned_identity'), None), (('build', 'owned_identity'), {'pid':True,'pgid':True}),
+                (('build', 'owned_identity'), {'pid':42.0,'pgid':42.0}),
+                (('build', 'owned_identity'), {'pid':42,'pgid':43}),
                 (('build', 'cargo_config_absent_before'), False),
                 (('build', 'cargo_config_absent_after'), False),
                 (('build', 'cargo_config_paths_checked'), []),
@@ -156,6 +161,29 @@ class Normal18BuildContracts(unittest.TestCase):
         for raw in [b'', b'test endpoint script', b'\x7fELF' + b'\0' * 32]:
             with self.subTest(raw=raw), self.assertRaises(ValueError):
                 H.OLD.binary_metadata(raw)
+
+    def test_archive_git_disables_lazy_fetch_every_transport_and_interaction(self):
+        with mock.patch.object(H.subprocess, 'check_output', side_effect=subprocess.CalledProcessError(128, 'git')) as command:
+            with self.assertRaises(subprocess.CalledProcessError):
+                H.git_archive(Path('/never-repository'))
+        env = command.call_args.kwargs['env']
+        self.assertEqual(env['GIT_NO_LAZY_FETCH'], '1')
+        self.assertEqual(env['GIT_ALLOW_PROTOCOL'], '')
+        self.assertEqual(env['GIT_TERMINAL_PROMPT'], '0')
+        self.assertEqual(env['GIT_PROTOCOL_FROM_USER'], '0')
+        self.assertEqual(env['GIT_ASKPASS'], '/usr/bin/false')
+        self.assertIn('protocol.allow=never', command.call_args.args[0])
+
+    def test_local_missing_promisor_object_fails_closed_without_transport(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory).resolve() / 'missing.git'
+            subprocess.run(['git', '-c', 'init.templateDir=', 'init', '--bare', '--quiet', str(repo)],
+                           env=H.git_environment(), check=True, capture_output=True, timeout=10)
+            with (repo / 'config').open('a') as stream:
+                stream.write('\n[extensions]\npartialClone = fixture\n[remote "fixture"]\nurl = https://example.invalid/never-contacted\npromisor = true\n')
+            with self.assertRaises(subprocess.CalledProcessError):
+                H.git_archive(repo)
+            self.assertEqual(list((repo / 'objects' / 'pack').iterdir()), [])
 
     def test_cargo_ancestor_config_and_symlink_refuse_without_global_changes(self):
         with tempfile.TemporaryDirectory() as directory:

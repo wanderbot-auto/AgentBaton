@@ -33,7 +33,10 @@ def synthetic_report():
         helper_sha256=H.sha(Path(H.__file__).read_bytes()), helpers_sha256=H.HELPERS.copy(),
         actual_cli_probe=dict(exit_code=0, api_version=1, database_schema_version=18),
         owner_rejection='AUTH_REQUIRED', conflict_rejection='CONFIG_CONFLICT', receipt_replay_exact=True,
-        daemon=dict(sigterm_sent=True, forced_kill=False, daemon_wait_exit=0,
+        initial_api_probe=dict(api_version=1,database_schema_version=18,sequence=0),
+        final_api_probe=dict(api_version=1,database_schema_version=18,sequence=5),
+        journal_api_probe=dict(sequence=5,event_sequences=list(range(1,6))),
+        daemon=dict(owned_identity=dict(pid=4321001,pgid=4321001),sigterm_sent=True, forced_kill=False, daemon_wait_exit=0,
                     identity_gone_after_join=True, group_quiescent_before_reaping=True,
                     leader_unreaped_until_signalling=True, cleanup_errors=[]),
         initial_probe=first, final_probe=last, final_api_sequence=5,
@@ -62,7 +65,13 @@ class Genuine18EvidenceControls(unittest.TestCase):
             (('owner_rejection',), None), (('conflict_rejection',), None),
             (('receipt_replay_exact',), 1), (('source_content_unchanged',), False),
             (('backup_logical_exact',), False), (('linked_journal_verified',), False),
-            (('daemon', 'forced_kill'), True), (('daemon', 'daemon_wait_exit'), False),
+            (('daemon', 'forced_kill'), True), (('daemon', 'owned_identity'), None),
+            (('daemon', 'owned_identity'), {'pid':True,'pgid':True}),
+            (('daemon', 'owned_identity'), {'pid':2.0,'pgid':2.0}),
+            (('daemon', 'owned_identity'), {'pid':2,'pgid':3}),
+            (('daemon', 'owned_identity'), {'pid':1,'pgid':1}),
+            (('initial_api_probe','api_version'), True), (('final_api_probe','database_schema_version'),18.0),
+            (('journal_api_probe','sequence'),5.0), (('journal_api_probe','event_sequences'),[True,2,3,4,5]), (('daemon', 'daemon_wait_exit'), False),
             (('daemon', 'identity_gone_after_join'), False), (('daemon', 'cleanup_errors'), ['unknown']),
             (('initial_probe', 'sequence'), False),
             (('final_probe', 'sequence'), 5.0), (('final_api_sequence',), 5.0),
@@ -133,6 +142,24 @@ class Genuine18EvidenceControls(unittest.TestCase):
             path.write_bytes(b'corrupt disposable bytes')
             with self.assertRaises(sqlite3.DatabaseError):
                 G.probe(path)
+
+    def test_actual_wire_numbers_reject_float_boolean_missing_and_wrong_protocol(self):
+        good = dict(api_version=1, database_schema_version=18, sequence=0, tasks=[])
+        self.assertEqual(G.snapshot_observation(good,0,0), dict(api_version=1,database_schema_version=18,sequence=0))
+        for key, values in [('api_version',[True,1.0,2,None]),
+                            ('database_schema_version',[18.0,True,19,'18',None]),
+                            ('sequence',[False,0.0,-1,9_007_199_254_740_992,None])]:
+            for bad in values:
+                value = dict(good);value[key] = bad
+                with self.subTest(key=key,bad=bad), self.assertRaises(ValueError):
+                    G.snapshot_observation(value,0,0)
+        journal = dict(sequence=5,events=[dict(sequence=i) for i in range(1,6)])
+        self.assertEqual(G.journal_observation(journal,5), dict(sequence=5,event_sequences=list(range(1,6))))
+        for key, bad in [('sequence',5.0),('sequence',True),('events',[dict(sequence=True)]+journal['events'][1:]),
+                         ('events',[dict(sequence=1.0)]+journal['events'][1:])]:
+            value = copy.deepcopy(journal);value[key] = bad
+            with self.subTest(key=key,bad=bad), self.assertRaises(ValueError):
+                G.journal_observation(value,5)
 
     def test_identity_sampling_failure_records_failed_daemon_and_reaps_direct_child(self):
         class Child:
