@@ -176,6 +176,32 @@ def replace_tokens_once(values, old, new):
     values[index:index + len(before)] = tokens(new)
 
 
+HISTORY_EXPORT_COMMANDS = (
+    'history_export_preview', 'history_export_publish',
+    'history_export_get', 'history_export_reveal',
+)
+
+
+def remove_exact_history_export_layer(values):
+    """Invert only HEXP-001's single module and four closed command entries.
+
+    A parent with no layer remains valid. Partial, renamed, duplicated or extra
+    compositions must still fail this inverse or the unchanged parent SHA pin.
+    """
+    module = tokens('mod history_export;')
+    entries = [tokens('history_export::'+name+',') for name in HISTORY_EXPORT_COMMANDS]
+    def count(fragment):
+        return sum(values[i:i+len(fragment)] == fragment for i in range(len(values)))
+    counts = [count(module), *(count(entry) for entry in entries)]
+    if counts == [0, 0, 0, 0, 0]:
+        return
+    if counts != [1, 1, 1, 1, 1]:
+        raise ValueError('History export bridge must contain exactly one closed complete layer')
+    replace_tokens_once(values, 'mod history_export;', '')
+    for name in HISTORY_EXPORT_COMMANDS:
+        replace_tokens_once(values, 'history_export::'+name+',', '')
+
+
 def restored_parent_bridge_token_sha(source):
     """Remove the registration bridge to recover the formatted parent sources."""
     restored = strip_fixture_cfg(source)
@@ -190,6 +216,7 @@ def restored_parent_bridge_token_sha(source):
         restored = restored[:prefix_start] + restored[replace_at + len(definition):]
 
     values = tokens(restored)
+    remove_exact_history_export_layer(values)
     replace_tokens_once(values, 'mod background_policy; mod background_service; mod background_window;',
                         'mod background_policy; mod background_window;')
     replace_tokens_once(values, '.manage(Runtime { directory, })', '.manage(Runtime { directory })')
