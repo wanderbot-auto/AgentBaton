@@ -1,0 +1,212 @@
+[
+  {
+    "source": "artifacts/host18-provenance/actual-negative-controls.json",
+    "archive": "logs/actual-negative-controls.json.gz",
+    "bytes": 3093,
+    "sha256": "eb77747284cbb9502e0370fca211a3ba2a2a5e4abde73af2d8b458bdf63ca99e",
+    "archive_sha256": "d007294569e6565bf6a489e06ba9d09c60d2865d6469deedccbea86e8bf5bac4"
+  },
+  {
+    "source": "artifacts/host18-provenance/actual-negative-first-failure.json",
+    "archive": "logs/actual-negative-first-failure.json.gz",
+    "bytes": 690,
+    "sha256": "af361432fa5de650acc5e7157e007eee3c24b45014c95850803737cac48b372d",
+    "archive_sha256": "b1b60a996ed356c026fb9737b5c42ace350871b0eaf56f68c3f16b7554dd000e"
+  },
+  {
+    "source": "artifacts/host18-provenance/build-boundaries/build.log",
+    "archive": "logs/build-boundaries--build.log.gz",
+    "bytes": 2442,
+    "sha256": "a2525e38580728f5fe9bc7a6878cab5287dc82dafcc73aedefdb2e55bc6dbd51",
+    "archive_sha256": "6e2a7a345619fcbb5d270c3a144991570598b946f91922d535762d7869c46eec"
+  },
+  {
+    "source": "artifacts/host18-provenance/build-boundaries/frozen/source-build-manifest.json",
+    "archive": "logs/build-boundaries--frozen--source-build-manifest.json.gz",
+    "bytes": 32887,
+    "sha256": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+    "archive_sha256": "abe598e16bffca06934c3b48cd18c3ba6ac51c52827a5eaaaba421bfb0a4c304"
+  },
+  {
+    "source": "artifacts/host18-provenance/build-first/build.log",
+    "archive": "logs/build-first--build.log.gz",
+    "bytes": 2442,
+    "sha256": "4fe06dc426d57a296894ecbf6a277fdd7500333ca25f27db6804b4cab97b446a",
+    "archive_sha256": "3a307b03e952375325a72a6f0aa263f0bb057135e9f71ed423084cd8d26fd29c"
+  },
+  {
+    "source": "artifacts/host18-provenance/build-first/frozen/source-build-manifest.json",
+    "archive": "logs/build-first--frozen--source-build-manifest.json.gz",
+    "bytes": 32877,
+    "sha256": "6fc5305cdb63d16bad4b59b2c61975950bfce23f8843bbd544e1c5b39ff3aab0",
+    "archive_sha256": "54183b3b02dfd87ce814ae964b0c90b08a183b3e294e2a10cb866d1ad786ddbd"
+  },
+  {
+    "source": "artifacts/host18-provenance/generate-boundaries.json",
+    "archive": "logs/generate-boundaries.json.gz",
+    "bytes": 1167,
+    "sha256": "587fb7ce993d188c0935ef365fc3425f561563410e22041bf6c5e86754b4bb34",
+    "archive_sha256": "7afff9305ebd6f098da0f11c0533dee65e979db4e5d977014dc080b0f3e715bc"
+  },
+  {
+    "source": "artifacts/host18-provenance/generate-boundaries.log",
+    "archive": "logs/generate-boundaries.log.gz",
+    "bytes": 145,
+    "sha256": "b2100984e996c41d66c598dfe09fc44d93c2eb3946c6782115c4e7acbbfc7274",
+    "archive_sha256": "e67ce69ecf9ed8950c64d340e05a4de17d45b810e399a5b1a8c85b3117ababf9"
+  },
+  {
+    "source": "artifacts/host18-provenance/generate-first.json",
+    "archive": "logs/generate-first.json.gz",
+    "bytes": 1138,
+    "sha256": "24004e2b6e798d667596f9a0d0af77d6679c12e537da92051ccd5487a7a52ac1",
+    "archive_sha256": "0f4ea2465b2b33d9e02a9f628ce903b4586dc5b9098486aa6575e50ec47c41f6"
+  },
+  {
+    "source": "artifacts/host18-provenance/generate-first.log",
+    "archive": "logs/generate-first.log.gz",
+    "bytes": 1871,
+    "sha256": "e3d955cff3fa7258d948f96ad50096ad40bbffe92ccca654f2285f51606deedf",
+    "archive_sha256": "27f5deff3ad377caa008c7933dc60243e1625535976d1234dc3d97df6904df85"
+  },
+  {
+    "source": "artifacts/host18-provenance/generated-boundaries/daemon.log",
+    "archive": "logs/generated-boundaries--daemon.log.gz",
+    "bytes": 60,
+    "sha256": "63f0d5c28700c710f95a61f62cd39054bf34f3733bd0d7ee609befdd3ca28942",
+    "archive_sha256": "0273494d34b3c178764ca8071073f17957c95af44922c9cde263d6d4cbe4afbc"
+  },
+  {
+    "source": "artifacts/host18-provenance/generated-boundaries/manifest.json",
+    "archive": "logs/generated-boundaries--manifest.json.gz",
+    "bytes": 12906,
+    "sha256": "99fa1de184bbe40a737d1db6f37c6f27b51e34acfdbcd45e47e645f74595cbfb",
+    "archive_sha256": "699589bae6d2a274d90c35b950a176045d841ee15c6ed7f2b8442ca684840aa8"
+  },
+  {
+    "source": "artifacts/host18-provenance/generated-first/daemon.log",
+    "archive": "logs/generated-first--daemon.log.gz",
+    "bytes": 60,
+    "sha256": "634d6834d3576385720348a63975a8e90d5f25a46a754568c430c59a908eee97",
+    "archive_sha256": "878ffa5a2c395223f27b9fd0f9a06544eae586f8e3e28ffabf7f384880ab5ee8"
+  },
+  {
+    "source": "artifacts/host18-provenance/generated-first/manifest.json",
+    "archive": "logs/generated-first--manifest.json.gz",
+    "bytes": 8885,
+    "sha256": "b9f8a78a942cdaedd772a404308481f21cb4ea8e552defb4cf2af1aabc3d12d8",
+    "archive_sha256": "41b32c0634ef84936ccd575c2c47e400d8f86015aeb0203b755cb00703db713f"
+  },
+  {
+    "source": "artifacts/host18-provenance/identity-red.json",
+    "archive": "logs/identity-red.json.gz",
+    "bytes": 743,
+    "sha256": "d34f94af8d33e201b379a091503ae2ec4f672cd8fec7fb1c16b47f89f428e03d",
+    "archive_sha256": "c9b89fe607c771809ff032e07d144f24ac5e6dafd2583ce8ef3332ce3f449549"
+  },
+  {
+    "source": "artifacts/host18-provenance/identity-red.log",
+    "archive": "logs/identity-red.log.gz",
+    "bytes": 2206,
+    "sha256": "fb38d55dff6fbd1a83538ea46ab806c1d1dbee852050af38c36f39f2b36f421e",
+    "archive_sha256": "4e4d6f4bf195aa07b80f005962effded05d2eb26d4eb9a2144776431f831f53c"
+  },
+  {
+    "source": "artifacts/host18-provenance/python-boundaries.json",
+    "archive": "logs/python-boundaries.json.gz",
+    "bytes": 634,
+    "sha256": "898a2d259cbf26a00292627170f574ff3d4cf5310e1767dc360f28d2aa843111",
+    "archive_sha256": "07b3676cb2f576f11e44d6b6a061ede6c11470d8215e7e6cd20f6f06d9f17622"
+  },
+  {
+    "source": "artifacts/host18-provenance/python-boundaries.log",
+    "archive": "logs/python-boundaries.log.gz",
+    "bytes": 4660,
+    "sha256": "f4da1080410a9e1707b452984b0d0da4658b38717bc2356fde6f5b48875cac81",
+    "archive_sha256": "560391bade1db0ea709ba832a46d8e35045f03836a70912b1c1ad79119609e33"
+  },
+  {
+    "source": "artifacts/host18-provenance/python-final.json",
+    "archive": "logs/python-final.json.gz",
+    "bytes": 622,
+    "sha256": "10cbfe443275f3f1215c0ac399d5168e29949effe0651c587c59edba215d3bca",
+    "archive_sha256": "62ad16cb89b8babebd79cca947b5ecf758ecbfb1699b0de3079f5c917f1c16fb"
+  },
+  {
+    "source": "artifacts/host18-provenance/python-final.log",
+    "archive": "logs/python-final.log.gz",
+    "bytes": 3498,
+    "sha256": "a58b9f2553170a167ad7587443ab412f8ed75e761b0cabda3751085dad03c8a6",
+    "archive_sha256": "56d57d27fc1595e02ac2529462c6ce37148c85c1ade4029b987ad5aed9f87363"
+  },
+  {
+    "source": "artifacts/host18-provenance/python-first.json",
+    "archive": "logs/python-first.json.gz",
+    "bytes": 596,
+    "sha256": "ecb11fac0584a39038d9200a9e3e5f7d58d2ad5fdcbc63b750a2bf3fbf3fcdf0",
+    "archive_sha256": "7d1dc57f968b85a95af100809c6519c54200bff2d7749bbe0cb48eddea6c0705"
+  },
+  {
+    "source": "artifacts/host18-provenance/python-first.log",
+    "archive": "logs/python-first.log.gz",
+    "bytes": 2762,
+    "sha256": "990bf065329b0afde802b15e0b0f01745a542f6b26197f89ed77b60c7870c59b",
+    "archive_sha256": "80229744b229b8d0b113a313ed4ec4e4fa4e6b78462274f5c2cf8c8c49d86161"
+  },
+  {
+    "source": "artifacts/host18-provenance/python-fixed.json",
+    "archive": "logs/python-fixed.json.gz",
+    "bytes": 459,
+    "sha256": "248402c7a7091395ff949ec50612329d8fddf58d848d07e876548a3996afa8b1",
+    "archive_sha256": "4409468d62f0f8e7e26fcd009942e55da1d7c9b0316f4a8ef7f6a08bcd2a143f"
+  },
+  {
+    "source": "artifacts/host18-provenance/python-fixed.log",
+    "archive": "logs/python-fixed.log.gz",
+    "bytes": 3744,
+    "sha256": "2aa0a4c46866a2f60afff799924c2f9e1c4d8d2d48136ba9cfddce2c8265c017",
+    "archive_sha256": "4d56e3e081fb62bc5d801d31d4ba88c1a95d79117625915eeb9502d2793a6fa3"
+  },
+  {
+    "source": "artifacts/host18-provenance/sequence-red.json",
+    "archive": "logs/sequence-red.json.gz",
+    "bytes": 453,
+    "sha256": "2f087a82bbbacb35cefb9b11f6fbd45a5630ac60ad49465d9150966f8b2938ba",
+    "archive_sha256": "2e757bf49d85cbdf17662356613feab9ea548823e7ca62a0ae893f9644e3b990"
+  },
+  {
+    "source": "artifacts/host18-provenance/sequence-red.log",
+    "archive": "logs/sequence-red.log.gz",
+    "bytes": 2718,
+    "sha256": "7a66a75a714c3c89aded34bb389a75571ac414a33b6eeeb47251a597863b9d46",
+    "archive_sha256": "f681a49ac66450ab3bb67dd245b7bca6f757053115486a647af2e1330bf6b532"
+  },
+  {
+    "source": "artifacts/host18-provenance/sidecar-red.json",
+    "archive": "logs/sidecar-red.json.gz",
+    "bytes": 454,
+    "sha256": "02623cc860d7d5f87310b32c1327e4eb229c5dfa18eaabfa19d8683cb09db862",
+    "archive_sha256": "ce1d185a560e6b0c69eedd0e096fc5529bf3ce3cf93ddd93d9ec422b15c62183"
+  },
+  {
+    "source": "artifacts/host18-provenance/sidecar-red.log",
+    "archive": "logs/sidecar-red.log.gz",
+    "bytes": 2226,
+    "sha256": "6c5bcb8d5c2fcdf68fb4ad19f6abc833d1533b690eb1bc0dafa712d5b5c9bad2",
+    "archive_sha256": "94b6e201cc21c637ad49d793443efcfa81287f915de840a7db87a86e4cb8a7f2"
+  },
+  {
+    "source": "artifacts/host18-provenance/sqlite-close-red.json",
+    "archive": "logs/sqlite-close-red.json.gz",
+    "bytes": 462,
+    "sha256": "79f2d0b270de105d497d2e276c4ebcf7b32f8d0d439f5b994018f24fea8d5345",
+    "archive_sha256": "782c7dfe6ff72225a689889fc5b27b040bcc02037b02ee7947957202ac73aee8"
+  },
+  {
+    "source": "artifacts/host18-provenance/sqlite-close-red.log",
+    "archive": "logs/sqlite-close-red.log.gz",
+    "bytes": 1222,
+    "sha256": "122ba3ca79f0c73d29e052821af23f1ae80fd412ba29776ae04a505699db2b91",
+    "archive_sha256": "0813c8bdfc531d0f0ef03ba766953b2f8fbb8da4c213595b04a3edad2054a8ca"
+  }
+]

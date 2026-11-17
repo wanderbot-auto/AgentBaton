@@ -1,11 +1,150 @@
 {
   "task": "HOST18-P0",
   "base": "a6418d94bb9f1725fa3eef6135820197784008fb",
-  "fixed_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
-  "source_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
-  "status": "implementation_in_progress",
-  "tests": "not_run",
-  "build": "not_run",
-  "actual_UDS": "not_run",
-  "P1_native_CI": "not_run_out_of_scope"
+  "verified_source": "84022e3c0980ff8bba2dcc720f8a843291c73788",
+  "status": "ready_for_root_review",
+  "source_files": [
+    "scripts/prepare-schema18-migration-fixture.py",
+    "scripts/generate-schema18-migration-fixture.py",
+    "tests/infrastructure/test_schema18_migration_preparation.py",
+    "tests/infrastructure/test_schema19_host_migration_evidence.py"
+  ],
+  "fixed_predecessor_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "archive_sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+  "source_index_sha256": "6f064dafeed10bdd60470301262f57472531a935f8f9fc4e849d021ca2412db4",
+  "source_files_count": 244,
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "python": "3.14.0a7 (v3.14.0a7:29af6cee02f, Apr  8 2025, 07:53:42) [Clang 16.0.0 (clang-1600.0.26.6)]"
+  },
+  "verification": {
+    "python": {
+      "count": 19,
+      "status": "passed",
+      "raw_record": "artifacts/host18-provenance/python-boundaries.json",
+      "log_sha256": "f4da1080410a9e1707b452984b0d0da4658b38717bc2356fde6f5b48875cac81"
+    },
+    "current_normal_build": {
+      "status": "passed",
+      "creator_source": "84022e3c0980ff8bba2dcc720f8a843291c73788",
+      "manifest_sha256": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+      "elapsed": 79.46663616690785
+    },
+    "actual_UDS": {
+      "status": "passed",
+      "creator_source": "84022e3c0980ff8bba2dcc720f8a843291c73788",
+      "manifest_sha256": "99fa1de184bbe40a737d1db6f37c6f27b51e34acfdbcd45e47e645f74595cbfb",
+      "protocol": {
+        "exit_code": 0,
+        "api_version": 1,
+        "database_schema_version": 18
+      },
+      "counts": {
+        "projects": 1,
+        "tasks": 3,
+        "events": 5,
+        "idempotency": 4
+      },
+      "daemon": {
+        "owned_identity": {
+          "pid": 50602,
+          "pgid": 50602
+        },
+        "sigterm_sent": true,
+        "forced_kill": false,
+        "cleanup_errors": [],
+        "leader_unreaped_until_signalling": true,
+        "daemon_wait_exit": 0,
+        "group_quiescent_before_reaping": true,
+        "identity_gone_after_join": true
+      }
+    },
+    "actual_copy_controls": {
+      "positive": 1,
+      "rejected": 9,
+      "product_children_started": 0
+    }
+  },
+  "artifact": {
+    "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/generated-boundaries/actual-schema18.sqlite3",
+    "bytes": 737280,
+    "sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+    "logical_sha256": "18cd31cbe4b21cfecaeb7870db6e653a91190d8fe7bcdb65a3b3364ca41459fb",
+    "source_cookie": 82,
+    "artifact_cookie": 1
+  },
+  "failure_dimensions": [
+    "identity-red2 mock only",
+    "sequence-float-red2 subtests",
+    "SQLite-close-red1",
+    "sidecar-red1",
+    "actual generator2c8 failed inventory after confirmed join",
+    "auxiliary copy harness permission failure;no product child"
+  ],
+  "old_build": {
+    "creator": "2c8d32c348918a0bc3a597b6a515e60a7010a43b",
+    "manifest_sha256": "6fc5305cdb63d16bad4b59b2c61975950bfce23f8843bbd544e1c5b39ff3aab0",
+    "status": "compiled;later Git boundary not claimed;retained immutable;not current accepted producer"
+  },
+  "not_run": [
+    "P1 Rust consumer",
+    "Store19 migration/backup/restore/reopen/rollback",
+    "actual18 reopening backup",
+    "nonempty other domains",
+    "Linux",
+    "native Tauri/GUI",
+    "CI",
+    "Provider/SSH"
+  ],
+  "network_boundary": "Git all transports/lazyfetch/interaction denied;Cargo offline;UDS only;no packet capture claim",
+  "processes": "all own compiler/daemon/CLI joined;none active",
+  "review": "two source review stages closed P2 at84022;root evidence acceptance pending",
+  "logs": {
+    "index": "LOGS.json",
+    "count": 30
+  },
+  "artifacts": {
+    "SOURCE_BEFORE_BUILD.json": {
+      "sha256": "22bcfea9e6a52f0a4c9095ce2285a47c068a91bc010dfdd8db970419564934c6",
+      "bytes": 954
+    },
+    "SOURCE_BOUNDARY_FIX.json": {
+      "sha256": "24f7f8921ec3a79fdc46372fd5b737520caa56868cc1f14e0704400075c729e2",
+      "bytes": 922
+    },
+    "BUILD_RESULT.json": {
+      "sha256": "83bd358978e1070484b344583850e7650cad2ae87d258bb7406a6a5ac5a35926",
+      "bytes": 3632
+    },
+    "ACTUAL_BOUNDARIES_RESULT.json": {
+      "sha256": "a3f429fc19a831a36432b63005e5fc1c326aa119c3b4231a2bca48e1738da082",
+      "bytes": 8344
+    },
+    "ACTUAL_NEGATIVE_CONTROLS.json": {
+      "sha256": "eb77747284cbb9502e0370fca211a3ba2a2a5e4abde73af2d8b458bdf63ca99e",
+      "bytes": 3093
+    },
+    "FREEZE_CHECK.json": {
+      "sha256": "0397d00fc17b987b640ddb410bd91f1a711739cbbbf7f07989a19e134464e8a7",
+      "bytes": 2333
+    },
+    "REVIEW.md": {
+      "sha256": "dff4c7568d048c2c8859445adc52cf2b855726e8ed337e7ae1eb1a06be411e13",
+      "bytes": 2031
+    },
+    "DELIVERY.md": {
+      "sha256": "8a4129839e5d58035b5d99e17f14cb143a6de231364dde04e8a76f5c0f830fe6",
+      "bytes": 3678
+    },
+    "LOGS.json": {
+      "sha256": "58e3ad8a197a0de0c2558512142507205cef5694b41c3c55ed55aff5d0972c49",
+      "bytes": 9540
+    },
+    "FINAL_CHECKS.json": {
+      "sha256": "00fc31eb4a4e5fd988dd6aae6c3e3566dcff2dc7a883413c3b10ea6d8b42baab",
+      "bytes": 821
+    }
+  }
 }

@@ -1,0 +1,24 @@
+{
+  "recorded_at": "2026-11-17T22:40:20.212698+00:00",
+  "base": "a6418d94bb9f1725fa3eef6135820197784008fb",
+  "verified_source": "84022e3c0980ff8bba2dcc720f8a843291c73788",
+  "exact_source_unchanged": true,
+  "only4source_plus_own_docs": true,
+  "archive_count_verified": 30,
+  "checks": {
+    "git diff --check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bash scripts/collab.sh scope": {
+      "exit_code": 0,
+      "stdout": "Scope OK against merge base a6418d94bb9f1725fa3eef6135820197784008fb.\n",
+      "stderr": ""
+    }
+  },
+  "product_tests": "19 recorded earlier; no rerun",
+  "actual": "recorded actual build/gen/control receipts;no new product executor",
+  "not_run": "P1/native/GUI/CI/Linux/Provider/SSH",
+  "processes": "all own compiler/daemon/CLI joined;heavy released"
+}

@@ -1,0 +1,24 @@
+{
+  "source_head": "2c8d32c348918a0bc3a597b6a515e60a7010a43b",
+  "base": "a6418d94bb9f1725fa3eef6135820197784008fb",
+  "fixed_predecessor": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "recorded_at": "2026-11-17T22:09:06.348542+00:00",
+  "files": {
+    "scripts/prepare-schema18-migration-fixture.py": {
+      "sha256": "1be78998890c37b55ac974f4c6573a874061bc71cde466ac19e141269e22609f",
+      "bytes": 18929
+    },
+    "scripts/generate-schema18-migration-fixture.py": {
+      "sha256": "4170c8fa893214e70601614a23917b4dc8fe4bf7e17d3e9dac7ea6954ef46bb5",
+      "bytes": 19932
+    },
+    "tests/infrastructure/test_schema18_migration_preparation.py": {
+      "sha256": "2907600206113dcb0644bce929c74ceb5ae0b4d3b6ed06b1d2dafc86724d3cd5",
+      "bytes": 10930
+    },
+    "tests/infrastructure/test_schema19_host_migration_evidence.py": {
+      "sha256": "3e1840cbb7fd322e4d5b3b14b90f3700e6578a2e0425b6d3e1ab22acf9043e83",
+      "bytes": 10124
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "source_head": "84022e3c0980ff8bba2dcc720f8a843291c73788",
+  "files": {
+    "scripts/prepare-schema18-migration-fixture.py": {
+      "sha256": "92bfb6825f0fba168ca6652bb78a2a2ea871c57b6aa3e8015002fd3e003fd289",
+      "bytes": 19638
+    },
+    "scripts/generate-schema18-migration-fixture.py": {
+      "sha256": "9e4fafaa50bc4484e4e639610bebdc8b55c7fbb4bed5e1f826a53f66921dd973",
+      "bytes": 22697
+    },
+    "tests/infrastructure/test_schema18_migration_preparation.py": {
+      "sha256": "39f43c6cdf1f381878d0f8c9e3d5b3d7c30b5edfbbccaed0be06b7c681feeb7e",
+      "bytes": 12828
+    },
+    "tests/infrastructure/test_schema19_host_migration_evidence.py": {
+      "sha256": "6ddda8778482da206a23eb106ec7b66b5d70bf43ab29c30d1bfa5682ec9fd34c",
+      "bytes": 13436
+    }
+  },
+  "previous_build": "2c8 creator immutable; no relabel/rewrite",
+  "next": "one necessary normal prepare after builder SHA/Git-boundary fix"
+}
