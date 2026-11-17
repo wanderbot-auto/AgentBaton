@@ -400,6 +400,7 @@ impl GoalAdvanceReply {
         (self.wire, self.admission)
     }
 }
+#[derive(Clone)]
 pub(crate) enum ReadyReply {
     Wire(SyncSender<Value>),
     Goal(SyncSender<GoalAdvanceReply>),
@@ -592,6 +593,7 @@ pub struct Daemon {
     listener: UnixListener,
     store: Store,
     history_workers: crate::factory::FactoryHistoryWorkers,
+    export_workers: crate::history_export::Workers,
     token: String,
     _lock: File,
     socket: PathBuf,
@@ -660,6 +662,7 @@ impl Daemon {
             listener,
             store,
             history_workers: Default::default(),
+            export_workers: Default::default(),
             token,
             _lock: lock,
             socket,
@@ -695,6 +698,7 @@ impl Daemon {
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
             self.history_workers.poll(&self.store);
+            self.export_workers.poll();
             self.finish_integration_read();
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
@@ -759,6 +763,7 @@ impl Daemon {
         }
         drop(ready);
         drop(requests);
+        self.export_workers.join();
         self.history_workers.cancel_owned();
         self.integration_workers.stop_reads();
         if let Some((job, result)) = self.integration_workers.join_reads() {
@@ -929,6 +934,18 @@ impl Daemon {
             }
         }
         match r.method.as_str() {
+            "history_exports.preview" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let selection: crate::history_export::Selection = params(r.params)?;
+                Ok(json!(self.store.history_export_preview(&self.managed_root.parent().ok_or_else(invalid)?.join("history-exports"), &selection)?))
+            }
+            "history_exports.publish" | "history_exports.get" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() { return Err(invalid()); }
+                let reference: crate::history_export::Reference = params(r.params)?;
+                let root = self.managed_root.parent().ok_or_else(invalid)?.join("history-exports");
+                if r.method == "history_exports.publish" { Ok(json!(crate::history_export::publish(&root,&reference)?)) }
+                else { Ok(json!(crate::history_export::get(&root,&reference)?)) }
+            }
             "data_workspace_previews.start" => {
                 let selection:crate::data_workspaces::DataWorkspaceSelection=params(r.params)?;
                 Ok(json!(self.data_workers.preview(&mut self.store,&selection,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))
@@ -1702,6 +1719,7 @@ impl Drop for Daemon {
     fn drop(&mut self) {
         // Error/unwind paths also retain authority until every owned worker is
         // cancelled and joined. Unpersisted outcomes are reconciled on restart.
+        self.export_workers.join();
         self.history_workers.cancel_owned();
         self.integration_workers.stop_reads();
         self.integration_workers.stop_stages();
@@ -2917,6 +2935,58 @@ impl Daemon {
         json!({"request_id":request_id,"error":error,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
     }
     fn handle_ready_request(&mut self, job: ReadyRequest) {
+        if let Ok(request) = serde_json::from_str::<Request>(&job.raw) {
+            if request.token == self.token
+                && request.api_version == API_VERSION
+                && !request.request_id.is_empty()
+                && request.request_id.len() <= 128
+                && matches!(
+                    request.method.as_str(),
+                    "history_exports.preview" | "history_exports.publish" | "history_exports.get"
+                )
+            {
+                let operation = (|| -> Result<crate::history_export::Operation> {
+                    if request.expected_revision.is_some() || request.idempotency_key.is_some() {
+                        return Err(invalid());
+                    }
+                    self.export_workers.poll();
+                    if self.export_workers.busy() {
+                        return Err(CoreError::new("WORKSPACE_BUSY","One history export filesystem operation is already running; reconcile after it finishes"));
+                    }
+                    if request.method == "history_exports.preview" {
+                        let selection = params(request.params)?;
+                        Ok(crate::history_export::Operation::Preview(
+                            self.store.capture_history_export(&selection)?,
+                        ))
+                    } else {
+                        let reference = params(request.params)?;
+                        if request.method == "history_exports.publish" {
+                            Ok(crate::history_export::Operation::Publish(reference))
+                        } else {
+                            Ok(crate::history_export::Operation::Get(reference))
+                        }
+                    }
+                })();
+                match operation {
+                    Ok(operation) => {
+                        let root = self.managed_root.parent().unwrap().join("history-exports");
+                        let revision = self.store.sequence().unwrap_or(0);
+                        self.export_workers.start(
+                            root,
+                            operation,
+                            request.request_id,
+                            revision,
+                            job,
+                        );
+                    }
+                    Err(error) => {
+                        let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    }
+                }
+                return;
+            }
+        }
+
         if Instant::now() > job.deadline {
             if job.factory_dispatch.is_some() {
                 self.finish_factory_ticket_error(

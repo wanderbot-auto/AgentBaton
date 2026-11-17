@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, DaemonError, type ManagedWorkspace, type Project } from './api';
 import { messages, type Language } from './i18n';
+import { ProjectHistoryExport } from './ProjectHistoryExport';
 import { DataWorkspaces } from './DataWorkspaces';
 import { dataWorkspaceMessages } from './data-workspace-i18n';
 
@@ -85,6 +86,7 @@ export function Projects({ projects, selectedId, onSelect, refresh, connected, l
         event.preventDefault();
         if (replacement.trim()) void mutate(JSON.stringify(['reassociate',selected.id,replacement.trim()]), key => api.projectsReassociate(selected, replacement.trim(), key), () => setReplacement(''));
       }}><label htmlFor="replacement-path">{t.reassociatePath}</label><input id="replacement-path" disabled={busy} value={replacement} onChange={event => setReplacement(event.target.value)} maxLength={4096} required /><p className="hint">{t.reassociateHelp}</p><button disabled={busy || !connected || selected.archived || !replacement.trim()}>{t.reassociate}</button></form>
+      <ProjectHistoryExport key={"history-"+selected.id} projectId={selected.id} connected={connected} language={language}/>
       <DataWorkspaces key={selected.id} project={selected} connected={connected} language={language} onReady={()=>setDataVersion(value=>value+1)}/>
       <section aria-labelledby="workspaces-heading"><h3 id="workspaces-heading">{t.isolatedWorkspace}</h3><p className="hint">{t.workspaceHelp}</p>
         <button disabled={busy || !connected || workspaceLoad !== 'loaded' || selected.archived || !git?.head || workspaces.some(workspace => workspace.state !== 'ready')} onClick={() => {
