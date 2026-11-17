@@ -6,7 +6,7 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 
 #[path = "../tests/fixtures/current19_schema.rs"]
-mod current19_schema;
+pub(crate) mod current19_schema;
 #[path = "../tests/fixtures/pre_host_schema.rs"]
 mod pre_host_schema;
 
@@ -250,6 +250,20 @@ fn migration_preserves_nonempty_old_history_opaque_rows_and_idempotent_recogniti
             .filter(|r| r.0 != HOST_TABLE)
             .collect::<Vec<_>>(),
         before.rows.iter().collect::<Vec<_>>()
+    );
+    eprintln!(
+        "{}",
+        serde_json::json!({
+            "case":"forward18_to19_preserves_original_data",
+            "logical_before_sha256":logical_hash(&before),
+            "logical_after_sha256":logical_hash(&after),
+            "before_version":before.version,"after_version":after.version,
+            "before_cookie":before.cookie,"after_cookie":after.cookie,
+            "expected_cookie_delta":2,
+            "original_rows_equal":true,"original_ddl_equal":true,
+            "application_id_equal":before.application==after.application,
+            "hashes_describe":"whole logical images;Host objects/version/cookie intentionally differ"
+        })
     );
     migrate(&mut db).unwrap();
     unchanged(&db, after, "idempotent19_recognition");

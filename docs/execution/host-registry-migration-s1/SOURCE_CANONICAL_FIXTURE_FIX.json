@@ -1,0 +1,25 @@
+{
+  "validation_predecessor": "dd92b4a97a47217c7fb79c9dc0a7063010641af6",
+  "scope_amendment": "leader/task literal task_workspace_binding_tests.rs import-only; no original body change",
+  "caller_before_sha256": "26bc87dc9a75a6fe05b55ad8d12123507c0c39f30b38e299e9383c8335ff6863",
+  "caller_original_suffix_sha256": "d448456adf36045d56c0131ed75275b5014b46ae426b3aea8d14e5a2e82a70cf",
+  "caller_suffix_byte_identical": true,
+  "production_module_prefix_equal_dd92": true,
+  "production_prefix_sha256": "9b3b6bc58e6d6879d3a4d60c1fac3a920c842e19a3279756ecd574a6576e3d45",
+  "source": {
+    "crates/core/src/lib.rs": "04aba96339080025e02ee1a5034c3d22c852048dffde68d987396c009cd02dfb",
+    "crates/core/src/host_registry_migration.rs": "3f2d0151d4d1ce8ce08670f528dee1ef024a27054ff5f7e3c70bf3bfdf612168",
+    "crates/core/src/host_registry_migration_tests.rs": "308b8578bda1f7eebaac9a2dcc4a7dddf48dbb7a99e3ffc4671e1cc16c9d8149",
+    "crates/core/tests/fixtures/pre_host_schema.rs": "55a054f083d698ba28199b210e6a2e79def42f7ab83f952b43cf621e4c377cb2",
+    "crates/core/tests/fixtures/current19_schema.rs": "7bb919b921531733be630611a60fa14534aac927580e7d5084db09bd5de6bde1",
+    "crates/core/src/task_workspace_binding_tests.rs": "fe93a2b0e3863e872ed4f980ce0f153ce3c217f195e47820e198d72eda190ea7"
+  },
+  "tests_unchanged_assertions": "original caller and helpers unchanged;added positive forward input hash log only",
+  "next_checks": [
+    "18 new SQLite tests",
+    "original Conversation3/Integration15",
+    "exact original task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19",
+    "fmt",
+    "strict Core all-target clippy"
+  ]
+}

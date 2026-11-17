@@ -12,5 +12,68 @@
     "sha256": "2efb77a3bcf97973bfe9fa063897f8a2fee956f0a7426eac813e4fc3f37f8f6a",
     "archive_sha256": "936e881494833ed52532a7d04bf0300c6fece23d91375a132c9aa24c9a95467b",
     "bytes": 697
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/targeted-dd92.log",
+    "archive": "logs/targeted-dd92.log.gz",
+    "sha256": "ec71f1ed9f09db4b83c132bbd59af63e9249de48e6865f9b8fd877640abfec49",
+    "archive_sha256": "ca81f2ac754e2b4d1f18f1591d2b1e05b7bcc140054425bfaa11c47957942724",
+    "bytes": 23322
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/targeted-dd92.json",
+    "archive": "logs/targeted-dd92.json.gz",
+    "sha256": "3c585ab5500e6a2314e4d677fc6b2dc78bf97a9e0f9836a949c8e134881aae2d",
+    "archive_sha256": "7383d2d7924ff736a4394ad2d34b978c1e727c64e5e7a5127e43f72a677ddb8c",
+    "bytes": 961
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/original-fixtures-dd92.log",
+    "archive": "logs/original-fixtures-dd92.log.gz",
+    "sha256": "9488566b49f4f5c852818d031885ba18b138a9dd03a823e7e17a1044246d5efa",
+    "archive_sha256": "ff9d5fe445c9412df169cab71f8c16950696ce255c694ef10b49e8cf024ce7e2",
+    "bytes": 2294
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/original-fixtures-dd92.json",
+    "archive": "logs/original-fixtures-dd92.json.gz",
+    "sha256": "e6a1fac0c0326513ea9988d20c5a8d1b27d95b17dc289d74a49de0b90d5eb0ee",
+    "archive_sha256": "05293cabd7fba526cecf3943d7be5ce89c99aa8f0932f680858c0dc2a2244f0b",
+    "bytes": 1001
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/fmt-dd92.log",
+    "archive": "logs/fmt-dd92.log.gz",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "bytes": 0
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/fmt-dd92.json",
+    "archive": "logs/fmt-dd92.json.gz",
+    "sha256": "b2f898bb5fd9c5e7b06e6687a06787061b0a09473c8feb6113886f414e6c0508",
+    "archive_sha256": "5de70d6a8c110557d5f0b80306c9a67cc9bcaf395235f7c4a9d624c1cac667a5",
+    "bytes": 825
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/clippy-dd92.log",
+    "archive": "logs/clippy-dd92.log.gz",
+    "sha256": "8ff45876d9ffc45c3cea04c831d74c47a1bea6a043c78595b4d6a63e53f6e8cf",
+    "archive_sha256": "43c5874924d2e84a5fd371cecd9c0c1fffa6327b6ac982031b9398e3efe2eca9",
+    "bytes": 3305
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/clippy-dd92.json",
+    "archive": "logs/clippy-dd92.json.gz",
+    "sha256": "a516a8cf5182aa582b3a7e3edbbad3462546549d6dc23ee8813afe958b775856",
+    "archive_sha256": "6826d9023b1d3766495b38605bcc360ab5f3f527ab2ce1baa9d2f9b544094dac",
+    "bytes": 921
+  },
+  {
+    "source": "artifacts/host-registry-migration-s1/dd92-package.json",
+    "archive": "logs/dd92-package.json.gz",
+    "sha256": "204b85d12bbc3301d6a66df003c70d633c8661cddb78fbc7457fe11dd0d08216",
+    "archive_sha256": "b7fbed33a1c32d33558b07b0ec35a0a7aba5c742ba5151755f05263edc6c475a",
+    "bytes": 3943
   }
 ]

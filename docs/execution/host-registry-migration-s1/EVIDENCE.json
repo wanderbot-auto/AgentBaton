@@ -1,6 +1,6 @@
 {
   "task": "HOST19-S1",
-  "status": "source_fix_waiting_heavy_slot_and_recheck",
+  "status": "fixed_source_before_final_validation",
   "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
   "branch": "collab/host-registry-migration-s1",
   "B_contract": "4e48985d68f324d3980a981abd5c7789d0379090",
@@ -14,8 +14,6 @@
     }
   ],
   "not_run": [
-    "dynamic test cases",
-    "lint",
     "native/GUI",
     "CI",
     "remote/Provider",
@@ -34,7 +32,7 @@
     "compiled DDL literal bytes statically equal fixedB SQL SHA",
     "git diff --check and scope passed"
   ],
-  "test_functions_pending_execution": 15,
+  "test_functions_pending_execution": 18,
   "builds": [
     {
       "source": "334a1ac7be88db241a29dde5ad91f826b9109bc4",
@@ -86,5 +84,21 @@
       "dynamic_status": "pending heavy-slot regrant"
     }
   ],
-  "source_opaque_integrity_fix": "SOURCE_OPAQUE_INTEGRITY_FIX.json"
+  "source_opaque_integrity_fix": "SOURCE_OPAQUE_INTEGRITY_FIX.json",
+  "dd92_results": {
+    "source": "dd92b4a97a47217c7fb79c9dc0a7063010641af6",
+    "package_record": "artifacts/host-registry-migration-s1/dd92-package.json",
+    "results": {
+      "new_sqlite": 18,
+      "original_conversation": 3,
+      "original_integration": 15,
+      "failed_or_ignored": 0,
+      "fmt": "passed",
+      "clippy": "failed duplicate_mod only",
+      "all_children_joined": true
+    }
+  },
+  "scope_request": "SCOPE_REQUEST.json",
+  "scope_request_result": "leader granted literal in amended TASK;only prefix alias and test-only visibility changed",
+  "canonical_fixture_fix": "SOURCE_CANONICAL_FIXTURE_FIX.json"
 }

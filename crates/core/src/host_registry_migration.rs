@@ -321,4 +321,4 @@ fn normalize(sql: &str) -> String {
 
 #[cfg(test)]
 #[path = "host_registry_migration_tests.rs"]
-mod tests;
+pub(crate) mod tests;
