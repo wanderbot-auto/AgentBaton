@@ -42,5 +42,8 @@
     "green fixed-source tests",
     "independent fixed-source review",
     "IPC/Store19 product activation/native/remote/CI/push"
-  ]
+  ],
+  "first_fixed_failure": "runs/fixed-1/background.json",
+  "first_fixed_failure_reason": "Exact v1 node block missed one known adjacent LF; full old-f1ad gate correctly refused; corrected exact literal, no pin/lock change",
+  "independent_review": "Native read-only6a no additionalP1/P2; actual dynamic initial adapter failure retained"
 }

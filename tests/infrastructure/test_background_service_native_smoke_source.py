@@ -52,10 +52,11 @@ HOST_CORE_EDGE_V1 = (
     ' "agentbaton-config",\n "agentbaton-providers",\n'
     ' "agentbaton-remote-host",\n "agentbaton-workspaces",\n'
 )
+# Exact reviewed node includes its additional adjacent newline in439 bytes.
 HOST_PACKAGE_V1 = (
     '[[package]]\nname = "agentbaton-remote-host"\nversion = "0.1.0"\n'
     'dependencies = [\n "libc",\n "rusqlite",\n "serde",\n'
-    ' "serde_json",\n "sha2",\n]\n\n'
+    ' "serde_json",\n "sha2",\n]\n\n\n'
 )
 
 
@@ -319,6 +320,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
             'missing Host node': source.replace(HOST_PACKAGE_V1, '', 1),
             'duplicate Host node': source + HOST_PACKAGE_V1,
             'lock format version': source.replace('version = 4\n', 'version = 3\n', 1),
+            'Host node padding': source.replace(HOST_PACKAGE_V1, HOST_PACKAGE_V1[:-1], 1),
             'Host version': source.replace(HOST_PACKAGE_V1, HOST_PACKAGE_V1.replace('version = "0.1.0"', 'version = "0.2.0"'), 1),
             'Host dependency': source.replace(HOST_PACKAGE_V1, HOST_PACKAGE_V1.replace(' "libc",', ' "not-approved",'), 1),
             'unrelated checksum': source.replace(checksum, changed_checksum, 1),
