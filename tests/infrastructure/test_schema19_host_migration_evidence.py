@@ -166,6 +166,32 @@ class Genuine18EvidenceControls(unittest.TestCase):
             self.assertFalse(value['daemon']['identity_gone_after_join'])
             group.assert_not_called()
 
+    def test_empty_sqlite_sidecar_inventory_preserves_zero_bytes_and_rejects_links(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            main = root / 'baton.sqlite3'
+            wal = root / 'baton.sqlite3-wal'
+            shm = root / 'baton.sqlite3-shm'
+            for path, raw in [(main, b'synthetic inventory only'), (wal, b''), (shm, b'0' * 32768)]:
+                path.write_bytes(raw)
+                path.chmod(0o600)
+            value = G.inventory(root)
+            self.assertTrue(value['baton.sqlite3-wal']['exists'])
+            self.assertEqual(value['baton.sqlite3-wal']['bytes'], 0)
+            self.assertEqual(value['baton.sqlite3-wal']['sha256'], H.sha(b''))
+            wal.unlink()
+            wal.symlink_to(main)
+            with self.assertRaises((OSError, ValueError)):
+                G.inventory(root)
+            wal.unlink()
+            os.link(main, wal)
+            with self.assertRaises(ValueError):
+                G.inventory(root)
+            wal.unlink()
+            main.write_bytes(b'')
+            with self.assertRaises(ValueError):
+                G.inventory(root)
+
     def test_tampered_database_rejects_before_sqlite_or_process(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory).resolve()
