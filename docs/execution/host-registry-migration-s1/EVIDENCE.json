@@ -1,0 +1,39 @@
+{
+  "task": "HOST19-S1",
+  "status": "active_implementation_not_yet_tested",
+  "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "branch": "collab/host-registry-migration-s1",
+  "B_contract": "4e48985d68f324d3980a981abd5c7789d0379090",
+  "A_preflight": "406be16f56c89495595bf263a307a9d861d8e2a3",
+  "ddl_sha256": "a81ce46f0c66692b48ed887a389c7f7d30890840c7111c324b78503145a7815c",
+  "normal_Store_activation": "not_changed_schema18",
+  "checks": [
+    {
+      "command": "collab run identity/status/scope",
+      "result": "expected clean a4 worktree;scope passed"
+    }
+  ],
+  "not_run": [
+    "dynamic tests",
+    "build",
+    "lint",
+    "native/GUI",
+    "CI",
+    "remote/Provider",
+    "permission changes"
+  ],
+  "exploratory_failure": {
+    "dimension": "readonly source read",
+    "exit_code": 1,
+    "error": "IndexError reading beyond storage.rs length",
+    "followup": "bounded reread passed"
+  },
+  "source_binding": "SOURCE_BEFORE_VALIDATION.json",
+  "static_checks": [
+    "rustfmt four owned files skip_children=true passed",
+    "original helpers/storage/migrations/locks equal accepted base",
+    "compiled DDL literal bytes statically equal fixedB SQL SHA",
+    "git diff --check and scope passed"
+  ],
+  "test_functions_pending_execution": 15
+}

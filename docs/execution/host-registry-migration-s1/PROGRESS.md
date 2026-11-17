@@ -1,0 +1,5 @@
+# HOST19-S1 progress
+
+Actual start: expected precreated worktree/branch/base verified clean; scope passed. Fixed B4e DDL/record/event/receipt and A406 preflight read. Product writes limited to five registered paths. Dormant public module and strict test-only fixtures are being implemented; ordinary Store remains18. Read-only helper design review identified external-own-crate name risk in Factory helper: S1 composes only the required18→17→16 originals, with no lib alias or old helper changes; Factory chain deferred explicitly. An initial bounded source-read command overran file length (IndexError/exit1); bounded reread passed; no tests/build occurred at that point.
+
+Implemented owned five paths: compiled public dormant helpers; strict TEST-only inverse with bounded event/scope scans, actual FK/DDL/unknown extension checks; original18/17→16 one-tx composition; meaningful real SQLite tests. Static rustfmt/scope/diff/original source/DDL-byte checks passed. Dynamic tests have not executed; fixed-source commit is the next validation subject. SOURCE_BEFORE_VALIDATION.json binds exact inputs.
