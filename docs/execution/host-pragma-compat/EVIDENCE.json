@@ -1,58 +1,139 @@
 {
   "task": "HOST-PRAGMA-COMPAT",
+  "status": "verified_fixed_source_handoff",
   "base": "8f8d0a17861920b0577b3754ca972f0329819745",
-  "status": "Rust_green_Python_exact_input_hardening_before_final_checks",
-  "write_scope": [
+  "branch": "collab/host-pragma-compat",
+  "final_source_head": "0930cc6fa9f4222d8adca172a13bca79a5354c70",
+  "rust_verified_head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+  "python_verified_head": "0930cc6fa9f4222d8adca172a13bca79a5354c70",
+  "delivery_commit": "Containing docs-only commit, exact head reported after commit; three source hashes equal VERIFIED_SOURCE.json.",
+  "source_manifest": "VERIFIED_SOURCE.json",
+  "source_composite_sha256": "a174fb822be318a30e3b9e35ff70337d7f7b042f283f02e4c63c5928c9c10009",
+  "source_sha256": {
+    "crates/core/src/host_registry.rs": "8c942c738da0e2dfb0e850e8a93951fcacaa2f588bcf86acaaf462425d613844",
+    "crates/core/src/host_registry_tests.rs": "b251f6b3f83722bb89b85813a61e9ea7157af63d9deb50c4c2e9244aace87210",
+    "tests/infrastructure/test_background_service_native_smoke_source.py": "1789740886cb10769cf899603ef6a123ffd5a58a3b86767f61ceef7cd18b72cd"
+  },
+  "scope": [
     "crates/core/src/host_registry.rs",
     "crates/core/src/host_registry_tests.rs",
     "tests/infrastructure/test_background_service_native_smoke_source.py",
     "docs/execution/host-pragma-compat"
   ],
-  "historical_baseline": {
-    "tested_source": "59564cac701960cf292421af509a3cd47de0f865",
-    "infrastructure": {
-      "total": 895,
-      "passed": 878,
-      "failed": 1,
-      "skipped": 16
-    },
-    "raw_log_sha256": "2dccdbd9ff1d8a393c76c732b0ec357ad33a32561614bb64e302d3bb9caf94f3",
-    "copy": "baseline-infrastructure-failure.log",
-    "is_new_verification": false
+  "current_results": {
+    "distinct_selected_Rust_passed": 61,
+    "Host_migration": 42,
+    "original_conversation": 3,
+    "original_integration": 15,
+    "original_caller": 1,
+    "infrastructure_total": 897,
+    "infrastructure_passed": 881,
+    "infrastructure_failed": 0,
+    "infrastructure_skipped": 16,
+    "background_subset_passed": 12,
+    "background_is_infrastructure_subset_not_added": true
   },
-  "not_run": [
-    "new regression",
-    "fix checks",
-    "new native/IPC/Store19 activation",
-    "SSH/Provider",
-    "CI/push"
-  ],
-  "recorded_utc": "2026-11-17T20:29:13.014299+00:00",
-  "expected_red": "runs/expected-red/evidence.json",
-  "source_sha256": {
-    "crates/core/src/host_registry.rs": "8c942c738da0e2dfb0e850e8a93951fcacaa2f588bcf86acaaf462425d613844",
-    "crates/core/src/host_registry_tests.rs": "b251f6b3f83722bb89b85813a61e9ea7157af63d9deb50c4c2e9244aace87210",
-    "tests/infrastructure/test_background_service_native_smoke_source.py": "df3203d08502f852cdbaa9714bc9c314ebed3a4c2d17d27fd41be76e063246ea"
-  },
-  "untouched_lock_sha256": {
+  "checks": "runs/fixed-2 Rust/fmt/clippy; runs/fixed-3-python final background/fullinfra",
+  "unchanged_manifests_locks": {
+    "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
     "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/Cargo.lock": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43",
     "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5"
   },
-  "current_not_run": [
-    "green fixed-source tests",
-    "independent fixed-source review",
-    "IPC/Store19 product activation/native/remote/CI/push"
-  ],
-  "first_fixed_failure": "runs/fixed-1/background.json",
-  "first_fixed_failure_reason": "Exact v1 node block missed one known adjacent LF; full old-f1ad gate correctly refused; corrected exact literal, no pin/lock change",
-  "independent_review": "Native read-only6a no additionalP1/P2; actual dynamic initial adapter failure retained",
-  "rust_verified_source": "649cbab200f613a5e8a66d281da45932adccc7c5",
-  "rust_distinct_selected_passed": 61,
-  "prior_full_infrastructure": {
-    "source": "649cbab200f613a5e8a66d281da45932adccc7c5",
-    "total": 897,
-    "failures": 0,
-    "skipped": 16
+  "original_source_guards": {
+    "old_assertions_AST_identical": true,
+    "old_assertion_count": 7,
+    "other_old_test_methods_AST_identical": true,
+    "old_global_pin_values_AST_identical": true,
+    "inverse_chain": [
+      "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+      "f1ad092cfc6b1317d259831e197e160d100de8c6ef292b075104531276667515",
+      "4d47820152c17d63b61829fa7d83d2fbbdb4c9cbbfdbd03168207f0e442e068d"
+    ],
+    "no_Git_runtime_fallback_or_lock_edit": true
   },
-  "current_delta": "Python caller raw read_bytes and CRLF/BOM refusal only; Rust bytes unchanged, no repeat compilation needed."
+  "historical_attempts": [
+    {
+      "phase": "Root59564 baseline",
+      "evidence": "baseline-infrastructure-failure.log",
+      "tests_selected_passed": 58,
+      "infrastructure_total": 895,
+      "failures": 1,
+      "skipped": 16,
+      "is_current_verification": false
+    },
+    {
+      "phase": "817 regression-only expected red",
+      "head": "817282d0ae8e56e5bcf6894e2fc17f3179f061fa",
+      "evidence": "runs/expected-red/evidence.json",
+      "compiled": true,
+      "passed": 0,
+      "failed": 1,
+      "not_added_to_success_count": true
+    },
+    {
+      "phase": "6a first adapter",
+      "head": "6a9dc95eb5f8f35142e40e81c6e64b0ceda60ccc",
+      "evidence": "runs/fixed-1/background.json",
+      "total": 12,
+      "passed": 9,
+      "errors": 3,
+      "later_commands_not_run": true
+    },
+    {
+      "phase": "649 complete check pass",
+      "head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+      "rust_distinct_passed": 61,
+      "infrastructure_total": 897,
+      "infrastructure_skipped": 16,
+      "Python_checks_superseded_by_093_not_added_again": true
+    },
+    {
+      "phase": "093 raw-byte strengthening",
+      "head": "0930cc6fa9f4222d8adca172a13bca79a5354c70",
+      "Rust_inputs_equal_649": true,
+      "background_passed": 12,
+      "infrastructure_total": 897,
+      "infrastructure_passed": 881,
+      "infrastructure_skipped": 16,
+      "failures": 0
+    }
+  ],
+  "independent_review": "REVIEW.md; native6a Rust /093 Python no P1/P2, dynamic LF failure preserved separately",
+  "processes": {
+    "all_sessions_joined": [
+      90882,
+      55530,
+      76469
+    ],
+    "new_services_companions": 0,
+    "heavy_slot": "released after final Python/infrastructure command"
+  },
+  "binaries": [
+    {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-pragma-compat/target/debug/deps/agentbaton_core-3e149a5721946c12",
+      "bytes": 32780112,
+      "sha256": "270c1e9c2566533941080512cb9af0b404eb21ed5603b9b819ab532e0c09a2ea"
+    },
+    {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-pragma-compat/target/debug/deps/conversation_schema18-1e5841b27b483af3",
+      "bytes": 8487992,
+      "sha256": "11cd158fce9cbd975f5e6c814196a10e3b5a47aa76316ac69bbc16faf6bf56de"
+    },
+    {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-pragma-compat/target/debug/deps/integration_schema17-322ac0b290238bf1",
+      "bytes": 9075128,
+      "sha256": "7e56d4e9ddd5ac8c80a6f7ae731ea0e0dc809b31187c5a083db1309f5899a83a"
+    }
+  ],
+  "not_run": [
+    "draft parent base not main accepted",
+    "A helper + B methods on actual private SQLite only; ordinary Store18 unchanged",
+    "No product migration backup/startup/recovery19, real actor/UDS/native/SSH/Provider/CI evidence",
+    "Source guard proves exact historical bytes/inverse only, not native behavior",
+    "Only selected61 Rust execution; not full root workspace runtime tests"
+  ],
+  "handoff": "Root coordinates normal parent composition, reclaims scopes and serial CI-window source reader transfer; no push/CI/parent ref mutation by B."
 }

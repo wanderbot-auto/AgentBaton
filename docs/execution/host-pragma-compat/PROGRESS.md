@@ -13,3 +13,9 @@
 
 - Fixed649 full result: background12pass, fmt0, strict all-target clippy0, Host/migration42pass, original conversation3+integration15+caller1pass (61 distinct Rust selected total), full infrastructure897total/0fail/16skips. Source/logs separate from expected-red817 and failed6a. All commands naturally joined.
 - Self-review found a strictness gap at the historical caller: read_text then encode could normalize CRLF before the exact-byte adapter (the module's raw positive pin still rejected the changed file, but the individual caller should be exact too). Changed only that input read to read_bytes, preserving every original assertion/inverse/pin, and added CRLF/BOM plus legacy-CRLF refusal. Rust source/inputs unchanged; keep649 Rust verified bytes and rerun only affected background/fullinfra after this new commit.
+
+## Final verified local handoff
+
+- Python093 raw-byte caller/CRLF/BOM controls:12background pass and fullinfra897total/881pass/0fail/16skip, final full log7c5a7b3399e0e283782d681433d4d6b840919b634204ea23b6a18c23399c4955. Rust unchanged from649:61 distinct selected passes (42+3+15+1), fmt/strictclippy0. No duplicated background subset/old runs in totals.
+- Native independent review final093 Python diff and unchangedRust found noP1/P2. All7 original assertion ASTs, other old methods and all original global pin values unchanged; lock/manifest hashes equal exact8f base.3-source composite a174fb822be318a30e3b9e35ff70337d7f7b042f283f02e4c63c5928c9c10009.
+- All sessions90882/55530/76469 joined; no service/companion/native/remote/provider processes; heavy slot released. Source frozen, docs-only final archive; scope/preview/release to follow. Root alone handles normal parent absorption and later CI-reader transfer.
