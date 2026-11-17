@@ -1,0 +1,5 @@
+# PERF-INT-001 plan
+
+Root leader integration-only task, base origin/main a4e03303. Normal merge reviewed performance cbf and reviewed diagnostic937 while preserving both ancestors; no new product implementation. Three source families retain prior independent review and exact local proof. Root owns this worktree as a single integration writer. STATUS/BOOTSTRAP paths were temporarily handed off from leader-control under the common collab lock.
+
+Verify source-byte equality, original source/inverse controls, bootstrap integrity, design links and exact main preview. Commit only integration metadata/global status after the reviewed merges, then normal fast-forward push to the existing feature PR29 branch after confirming remote head stillcbf. This yields one new combined CI candidate. No direct main push, force, admin, altered time/fee/refund/assertions or unchanged-head rerun. Existing protected squash auto-merge is retained; final all5checks and exact target/head remain mandatory. The old2009/2000 and2020/2000 failures are unresolved; diagnostic observation is not a repair or causal conclusion.

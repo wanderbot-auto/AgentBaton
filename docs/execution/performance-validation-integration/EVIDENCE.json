@@ -1,0 +1,42 @@
+{
+  "task": "PERF-INT-001",
+  "role": "leader integration only",
+  "at": "2026-11-17T17:18:23.755019+00:00",
+  "base_sha": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "reviewed_perf": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+  "reviewed_diag": "93745834d870de6cd0d4c114ce07836e8ff02311",
+  "source_merge_sha": "a833f6c270cbf8c698bc7c3917eb5e3c7332840f",
+  "all_parents_preserved": true,
+  "source_equality": "SOURCE_EQUALITY.json",
+  "source_blobs_verified": 30,
+  "manual_product_source_edits": false,
+  "checks": [
+    {
+      "command": "env PYTHONPATH=tests/infrastructure python3 -m unittest test_integration_stage_evidence_source test_integration_stage_evidence_phase_inverse",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "command": "python3 scripts/verify_bootstrap_manifest.py",
+      "files": 93,
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check; collab.sh scope; collab.sh preview origin/main",
+      "status": "passed",
+      "preview_tree_before_docs": "9802c37c3b9f1f79b233cb66f2b0fd2ba6fb7450"
+    }
+  ],
+  "prior_dynamic_provenance": {
+    "performance": "cbf prior independent/evidence; six original A/B trials not treated as current combined execution",
+    "diagnostic": "cleanf95 actual9/22/defaultdebugrelease daemon; source8b, oldWIPstage1 separately limited",
+    "remote_and_readiness": "acceptedmaina4 retained; notrerun standalone remote suite"
+  },
+  "new_combined_dynamic_product_tests": "pending actualnewhead CI; not represented as run locally",
+  "limits": [
+    "old2009/2000 and2020/2000 failures not fixed by observation",
+    "no realProvider, SSH/Linux, production/signing expansion",
+    "actual default nativeApp audit must pass in new CI, daemon marker proof not substitution"
+  ],
+  "temporary_scope_handoff": "2global paths standard collab lock/leader receipt; return after featurepush"
+}

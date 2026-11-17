@@ -1,0 +1,182 @@
+[
+  {
+    "path": "apps/desktop/src/App.performance.test.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "e0a3e60a18296d45ccc39e11b4f651b05d899a27e6c3f9d4f60bce771bdd2a79",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/App.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "cfcc695796c6aece751883b71dd978f3358cfbdeb040145ab6c81687a6b5aef4",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/TaskCodeWorkspace.test.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "9afe1f3b7403a8095c9f9523d5b8bf88b3724926dacb09d24ba4ef4706018649",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/TaskCodeWorkspace.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "4af8981699f4cc6ca87cd2c5866df863ebc72e42b69e1f781444009a2aec44c7",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/TaskGrid.test.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "25368fece90dfb023afbf0bcf391cbe99732ab708ab36e5ec9e251d69da60e8d",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/TaskGrid.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "40eecdb1e633a6ad316802a22dc663338a5f194f7b90eac03dd3999d60d95db4",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/TaskNotifications.performance.test.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "c907d353b7a86f7b9b401f24c80fd49a728d9bae240a2156ec602fa5d8df5203",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/TaskNotifications.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "920d18f3dd1a15b3c02b625fed437bf5eab1c6350a6874d7fbb1ddf59cace976",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/TaskPlanSummary.test.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "d49c216ce3e6e23aeb6510d40d7362ba42fa06e62b1939d4861f55937d608a2d",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/TaskPlanSummary.tsx",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "b3767809dc7314523ec36aee50a51bbe382f2449cad28b46e38b965306734080",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/task-grid-model.ts",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "7ead3404f94d85d9f006678ddb58224afd0060e1b3af36d7c5c5eea50a7c3133",
+    "matches": true
+  },
+  {
+    "path": "crates/core/src/operation_performance_tests.rs",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "1cd46d5c44d1eb24d523cd6759c9256e7389c986b3a7f9f1176710be52750b7d",
+    "matches": true
+  },
+  {
+    "path": "crates/core/src/storage.rs",
+    "expected_source": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "sha256": "7496eeb7211fc6af1da4ec5a6db9c0d0d979bca51bcf4e4ed1611c2063858ffd",
+    "matches": true
+  },
+  {
+    "path": "crates/core/src/integration_settlement.rs",
+    "expected_source": "93745834d870de6cd0d4c114ce07836e8ff02311",
+    "sha256": "a91406687191eee64b4a9ac0fc592a52891015b9cbceb3463baa648aa0be06dc",
+    "matches": true
+  },
+  {
+    "path": "tests/infrastructure/test_integration_stage_evidence_source.py",
+    "expected_source": "93745834d870de6cd0d4c114ce07836e8ff02311",
+    "sha256": "98e41c28311de02803fca52b4441d12e0e1e6e916aefdbd8e507d8a5c6bc58b0",
+    "matches": true
+  },
+  {
+    "path": "tests/infrastructure/test_integration_stage_evidence_phase_inverse.py",
+    "expected_source": "93745834d870de6cd0d4c114ce07836e8ff02311",
+    "sha256": "12e70dfb356b5127b69cf42b40e34b974646dc12fc02c153b01c5f0cbca7898e",
+    "matches": true
+  },
+  {
+    "path": "apps/desktop/src/GoalPlanDraft.integration.test.tsx",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "3fc08e5b7e055b5bfe8ea6d59364e9105f61cc5fc49a7d27363542d34da4dbed",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/Cargo.lock",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/Cargo.toml",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/README.md",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "b24da334a7c691e831190132d4b7230c1f9a5448f88d306f919a7ddbb5848225",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/src/controller.rs",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "395ceef6cd37380f2d1e9b9afd142a3f3e3eaa88a13259f5827d9f587bfc10d3",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/src/lib.rs",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "401c499aae7f72978cbfd816df50c81c59b3e1c9658f259b04fb4d299b3a5a6c",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/src/main.rs",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "9243c4224963e7b73120e337828d01e0700e58b5cd9aa8f12dded7cc92515e7f",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/src/protocol.rs",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "cf75bc67caa2435fd484cfb2e9b7ff6506917a098cafb3fe806805fc43b4111e",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/src/store.rs",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "a778611326e3bd01052cc53725eb2eaa6a84dc7a3d4b7c066cc4c5e9acab1668",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/src/transport.rs",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "a4047a4c4a811ed9707124e75ba1679e21ed20071e7ee0c5ed4a7f864c221e78",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/src/worker.rs",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "4320abb29aa4e240d49a801a1a220fd9c2f086285444c5bd4b0f9d6f29d36d40",
+    "matches": true
+  },
+  {
+    "path": "crates/remote-host/tests/foundation.rs",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "9c3a94fdc60e1dc1db6ff438890728bd9a0d05d74097482944422bab6f4e5c55",
+    "matches": true
+  },
+  {
+    "path": "scripts/verify-remote-host.py",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "4fc7c8b17de1f560043b6c3f1cbb7fdfecc4845a4812267930cb7079c8bcf367",
+    "matches": true
+  },
+  {
+    "path": "tests/infrastructure/test_remote_host.py",
+    "expected_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "sha256": "10ae86b1a95b8167658f46cdb0facb1696f0543584190f422f947f4048a665f7",
+    "matches": true
+  }
+]

@@ -1,0 +1,3 @@
+# Checkpoint
+
+Base a4e03303; preserved parents cbf performance and937 timing observation. Source merge a833f6c2, no product edits. Global state only: B foundation already main; A export fixture d186+docs9595 remains local/remote0feb, real valid IPC passed but native access denied and oldMac timeout not closed. This candidate is not accepted or merged main. Next: verify final docs-only descendant, normal fast-forward feature push PR29, record real new CI run IDs, return the temporary2global-path claims to leader, and let the original performance window observe this one actual CI run without parallel head mutations/retries.

@@ -1,3 +1,11 @@
+## 2026-11-18 · 性能＋诊断候选同步已验收基础层
+
+RHOST-001基础层已通过独立复审和5必需检查，PR30正常squash为main a4e03303；未关闭整项WP14，真实SSH/Linux/跨机、Core/UI路由、共享项目根预算与远端留存仍待接线或验证。
+
+root集成工作树基于a4，普通合并已审性能cbf与debug-only诊断937。source merge a833f6c2的13性能blob、3诊断blob及accepted main的remote/readiness源均逐字匹配，22source/inverse、manifest93、scope/diff/精确main预检通过；后续doc/status提交不更改产品源。新combined head仍需实际5项CI，原2009/2000和2020/2000超时未宣称修复、不调整预算/断言/费用。
+
+A已本地d186修测试历史seed并真实IPC验证通过，docs后继9595保留旧失败。owner明确重试后的native6仍CUA访问拒绝，所有own子进程join，GUI blocked/not_run，远端PR31仍0feb且Mac失败未关闭。没有替代UI自动化、额外权限、Provider或生产发布操作。
+
 ## 2026-11-17 · 操作性能 TOP5（本地验收通过）
 
 独立 `collab/operation-performance` 工作树已完成暖刷新并发与重连补读、任务卡片/对话输入渲染隔离、事件单游标读取、通知聚合复用和详情并行查询。前端1543项及类型检查/构建通过；精确7c015后端1163项（含7项文档测试）、严格Clippy、配套工具完整性和真实daemon/CLI重启恢复通过，后续Rust输入未变。独立审阅无阻塞发现。1000任务查找3.46→0.098ms；100事件页0.175→0.162–0.166ms，SQL102→2。数值为本地微基准，非整机/native交互延迟。PR必需CI和原生验收待运行；未改动用户运行中的app。见 [计划与证据](operation-performance/PLAN.md)。
