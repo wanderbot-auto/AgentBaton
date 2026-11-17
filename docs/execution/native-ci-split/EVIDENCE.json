@@ -1,1 +1,49 @@
-{"status":"implementation_in_progress","base":"c3a001f8b248d79302317689f86ed7703e59e077","tests_run":[],"native_acceptance":"not_run","cold_30_minute_acceptance":"not_established","merge":"not_authorized_for_this_window"}
+{
+  "head": "d4905e12370b571c698a865fed9533ff3c77d590",
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/infrastructure",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "exit": 1,
+  "seconds": 21.796982765197754,
+  "before_equals_after": true,
+  "log": "artifacts/collab/native-ci-split/d4905e12-full-infrastructure.log",
+  "log_sha256": "db64935ffa1b38bcdc0a4b714d0e4db6920593a31470e74a13f48837ca0a8d57",
+  "tests": {
+    "total": 912,
+    "passed": 891,
+    "skipped": 16,
+    "errors": 5,
+    "failed": 0
+  },
+  "review": {
+    "reviewer": "/root/performance_audit",
+    "exact_head": "d4905e12370b571c698a865fed9533ff3c77d590",
+    "result": "source_review_passed_no_remaining_blocking_findings",
+    "actual_native_or_ci_execution": false
+  },
+  "pending": [
+    "background source-reader ownership transfer and strict entry adapter",
+    "complete infrastructure pass on new committed source",
+    "real cold Apple Silicon Native/default acceptance within 30 minutes",
+    "leader exact candidate integration and required checks"
+  ],
+  "tracked_input_manifest_sha256": {
+    "d4905e12-inputs-before.json": "686351b508071321978546a135c0ef1a830ec9220ee5288a3d2f87b5fc462ebf",
+    "d4905e12-inputs-after.json": "686351b508071321978546a135c0ef1a830ec9220ee5288a3d2f87b5fc462ebf"
+  },
+  "status": "source_reviewed_waiting_serial_reader_handoff",
+  "base": "c3a001f8b248d79302317689f86ed7703e59e077",
+  "raw_evidence_manifest": "docs/execution/native-ci-split/raw/MANIFEST.json",
+  "native_acceptance": "not_run",
+  "cold_30_minute_acceptance": "not_established",
+  "remote_mutations_performed": false,
+  "source_guard_background": "byte_frozen_at_c3"
+}

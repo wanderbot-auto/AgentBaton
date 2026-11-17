@@ -27,3 +27,16 @@ Created task-local .venv using the unchanged requirements-infra.txt. Initial
 configured mirror failed TLS verification; retained that failure. Official
 PyPI with system CA verification succeeded without disabling TLS or changing
 global configuration. Full rerun waits for a new committed source snapshot.
+
+07f8dc531db8fdf17c69d025a09d30278cde2315 passed all 66 targeted tests and
+the unmodified raw infrastructure validator, with identical tracked inputs
+before/after. Independent re-review identified late cancellation after artifact
+download as a remaining edge case; 2a05f9cc added a fixed verifier id and final
+always-running outcome/cancellation refusal. d4905e12 then applied the one
+additional literal diagnostic reader authorized by integration.
+
+Full infrastructure at clean d4905e12370b571c698a865fed9533ff3c77d590:
+912 total / 891 passed / 16 skipped / five errors / zero failures. The remaining
+five errors all flow through the still-frozen background workflow reader.
+Independent review of this exact source reported no remaining blocking source
+finding. No native or real CI timing acceptance is implied.
