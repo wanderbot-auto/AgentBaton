@@ -341,32 +341,42 @@
       "sha256": "f87cb7c45ba48bbd38b17c0bb49fd84ce37a0fbd2669ad61353989a88c3ac8e4"
     },
     "artifacts/collab/digest/validation/fs-controls.log": {
-      "archive": "docs/execution/integration-read-digest/validation/fs-controls.log",
-      "sha256": "48bf5a1fa50c0e399c3089c4cc7e599b0b4aefc40f4d141bdf59c5bd4babbc23"
+      "archive": "docs/execution/integration-read-digest/validation/fs-controls.log.gz",
+      "sha256": "d6d74b9c760933c95b1c79ba479fba16275c12f6c26ca9050e514bf13293736d",
+      "encoding": "gzip",
+      "raw_sha256": "48bf5a1fa50c0e399c3089c4cc7e599b0b4aefc40f4d141bdf59c5bd4babbc23"
     },
     "artifacts/collab/digest/validation/grant-controls.log": {
-      "archive": "docs/execution/integration-read-digest/validation/grant-controls.log",
-      "sha256": "a7f4e79a19fcf3ffe2157e1230d07183cf348c68aec06baab6cf46b241d69aaa"
+      "archive": "docs/execution/integration-read-digest/validation/grant-controls.log.gz",
+      "sha256": "1fa5a86abfd78564142fa55027860bf28134964d7b5eb2ab3a42ad73a5b2b5b7",
+      "encoding": "gzip",
+      "raw_sha256": "a7f4e79a19fcf3ffe2157e1230d07183cf348c68aec06baab6cf46b241d69aaa"
     },
     "artifacts/collab/digest/validation/normal-tools-build.log": {
       "archive": "docs/execution/integration-read-digest/validation/normal-tools-build.log",
       "sha256": "77fb3473867b4ff604dc402d1cb1cdd87d7b76da1718c8d228e55b92246adcd2"
     },
     "artifacts/collab/digest/validation/original-non-descendant.log": {
-      "archive": "docs/execution/integration-read-digest/validation/original-non-descendant.log",
-      "sha256": "9dad3c6f498f6934b4816fe6a8022848a37943c9ff6c66be4d2f887d27c119e5"
+      "archive": "docs/execution/integration-read-digest/validation/original-non-descendant.log.gz",
+      "sha256": "3a80cccbcefdccb84d0e28bee1838137b72379201df3a54d6d74288aa9cc77fb",
+      "encoding": "gzip",
+      "raw_sha256": "9dad3c6f498f6934b4816fe6a8022848a37943c9ff6c66be4d2f887d27c119e5"
     },
     "artifacts/collab/digest/validation/original-owner-cancel.log": {
-      "archive": "docs/execution/integration-read-digest/validation/original-owner-cancel.log",
-      "sha256": "8096ff02f9b11b6753e325ee586f20e1e9e4b1506042f1b70133519621739d47"
+      "archive": "docs/execution/integration-read-digest/validation/original-owner-cancel.log.gz",
+      "sha256": "f753bc0874dc7be6bac66a2075f2dccbfd93388ff8e35c3a5c1e204b9a82a587",
+      "encoding": "gzip",
+      "raw_sha256": "8096ff02f9b11b6753e325ee586f20e1e9e4b1506042f1b70133519621739d47"
     },
     "artifacts/collab/digest/validation/precompile-tests.log": {
       "archive": "docs/execution/integration-read-digest/validation/precompile-tests.log",
       "sha256": "1445aea5aa6af9cddcfbf74b2377981c3a42c458f9b173054be0569082001b6f"
     },
     "artifacts/collab/digest/validation/read-controls.log": {
-      "archive": "docs/execution/integration-read-digest/validation/read-controls.log",
-      "sha256": "086a63c7cdda187bbfd7cdf3310bba6c6dfce4f84d57dee4810373bd2d69d022"
+      "archive": "docs/execution/integration-read-digest/validation/read-controls.log.gz",
+      "sha256": "3f69a0d9fd2d799b32e4b5da91e2d82ca094a1bb46197d2487fb14ff940b1a82",
+      "encoding": "gzip",
+      "raw_sha256": "086a63c7cdda187bbfd7cdf3310bba6c6dfce4f84d57dee4810373bd2d69d022"
     },
     "artifacts/collab/digest/validation/verify-tools-after.log": {
       "archive": "docs/execution/integration-read-digest/validation/verify-tools-after.log",
@@ -419,5 +429,6 @@
     "log_sha256": "03bf2cf0ac32ad42af3c00670888e9fea442c6ffc9f1d164aa4bbcf5e2a31b6b",
     "retained_path": "../integration-timing-diagnostic/artifacts/collab/ci-watch-499b7aa/44135730314-job-134224619820.log",
     "not_resolved_by_local_pass": true
-  }
+  },
+  "archive_format_note": "Five original Cargo test logs end with blank lines. Committed snapshot diff-check flagged these raw EOFs; lossless gzip copies preserve every raw byte/hash without whitespace normalization. Original raw logs and failed archive-check receipt remain in ignored artifacts. No source, tests or validation rerun."
 }
