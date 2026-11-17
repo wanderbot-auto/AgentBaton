@@ -1,0 +1,320 @@
+{
+  "task": "ITDIAG-001",
+  "base_sha": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+  "branch": "collab/integration-timing-diagnostic",
+  "change": "debug-only publication of existing preparation phase trace when original settlement clock exceeds original reservation",
+  "authority_and_action_changes": false,
+  "new_production_clock_samples": false,
+  "verification": {
+    "python_source_inverse": {
+      "passed": 22,
+      "failed": 0
+    },
+    "rust_phase_filter": {
+      "passed": 9,
+      "new_settlement_controls": 3,
+      "existing_trace_controls": 5,
+      "existing_read_control": 1,
+      "failed": 0,
+      "ignored": 0,
+      "filtered_out": 377
+    },
+    "rustfmt": "passed",
+    "cargo_check": "passed",
+    "diff_check": "passed",
+    "scope": "passed"
+  },
+  "stage1_commands": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "test_integration_stage_evidence_source",
+        "test_integration_stage_evidence_phase_inverse"
+      ],
+      "start": "2026-11-17T16:33:19.580685+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-0.log"
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/core/src/integration_settlement.rs"
+      ],
+      "start": "2026-11-17T16:33:19.658562+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-1.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--lib",
+        "phase",
+        "--",
+        "--test-threads=1"
+      ],
+      "start": "2026-11-17T16:33:19.848380+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-2.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "check",
+        "-p",
+        "agentbaton-core",
+        "--locked"
+      ],
+      "start": "2026-11-17T16:35:01.343900+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-3.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "start": "2026-11-17T16:35:11.814564+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage1-4.log"
+    }
+  ],
+  "environment": {
+    "architecture": "arm64",
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "runtime": "/private/tmp/ab-collab-vx3miuxk",
+    "target": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target",
+    "build_jobs": 2
+  },
+  "artifact_sha256": {
+    "artifacts/collab/itdiag/environment.json": "7551d4c55708e036a5e99fd529fad41d19bf67fb3a13024885c1c316398af83c",
+    "artifacts/collab/itdiag/stage1-0.log": "5e6add775a10d9244f841cc5de981cbbf8a31379900507751f236c15ce0a0d30",
+    "artifacts/collab/itdiag/stage1-1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/collab/itdiag/stage1-2.log": "562cde55dfa2fb98875761c26a6df791247d399e8be627bf4e1eafda87f401aa",
+    "artifacts/collab/itdiag/stage1-3.log": "fc720529d85b2107404b923cdfbb5cbf929fad4b655b55bcc796e05db9fde4d2",
+    "artifacts/collab/itdiag/stage1-4.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/collab/itdiag/stage1.json": "c17547947f013a73b74a7a475a9315fbd6ab41298b1ab54abd2427b540e3276e"
+  },
+  "limits": {
+    "stage2_batond_debug_release_marker": "passed on actual clean f95db43f78def107aabc4afb403e2927a82915e3; both default ARM64 daemon binaries inspected, debug positive/release negative; not native app proof",
+    "default_release_native_app_audit": "not run on this source; pending",
+    "independent_review": "passed; native subagent /root/performance_audit; no blocking findings; leader integration review separate",
+    "remote_ci": "not run; not authorized in this task",
+    "prior_ci_timeout": "unresolved; existing attempt2 preparation actual_runtime_ms=2009 vs declared_runtime_ms=2000; no validator admitted",
+    "original_ab": "six unchanged local trials passed (base3/head3), retained separately; not this diagnostic validation or Mac15 proof",
+    "unattributed_elapsed": "2009 minus control lifetime1600 is not attributed to any unmeasured phase",
+    "independent_stage2_evidence_review": "passed, leader and separate native subagent; source/daemon proof only, not native app/remote CI/timeout fix"
+  },
+  "prior_evidence": "../operation-performance/artifacts/collab/merge-push/FINAL_MERGE_PUSH_EVIDENCE.json",
+  "stage1_provenance": {
+    "execution_state": "uncommitted task changes on parent cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "clean_commit_execution": false,
+    "input_digest_before_after": "not captured in the original Stage1 run",
+    "limitation": "Stage1 logs show the executed checks and results but do not independently bind an unchanged clean 8b298fde source tree during execution. Do not label Stage1 as a clean-commit run.",
+    "follow_up": "After leader releases Stage2 resource slot, record actual clean HEAD and complete tracked input hashes before/after, confirm source equals code commit 8b298fde82931928bbd22f532dfe50df1f2921b7, repeat only the nine already-built phase controls and twenty-two source controls once, then bounded default debug/release batond marker proof.",
+    "follow_up_status": "Completed once in Stage2 at actual clean f95db43f78def107aabc4afb403e2927a82915e3; original Stage1 provenance limitation remains historical."
+  },
+  "stage2": {
+    "head": "f95db43f78def107aabc4afb403e2927a82915e3",
+    "code_commit": "8b298fde82931928bbd22f532dfe50df1f2921b7",
+    "clean_before": true,
+    "code_equals_reviewed_commit": true,
+    "started": "2026-11-17T16:47:13.316548+00:00",
+    "input_count": 2758,
+    "input_manifest_before_sha256": "a51827cb0e06a88fa11aafb96dfa21e14977f41615cc001012ff4564d1d450eb",
+    "environment": {
+      "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+      "arch": "arm64",
+      "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+      "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+      "CARGO_BUILD_JOBS": "2",
+      "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target",
+      "BATON_RUNTIME_DIR": "/private/tmp/ab-collab-vx3miuxk",
+      "RUSTFLAGS": null,
+      "CARGO_ENCODED_RUSTFLAGS": null,
+      "RUSTC_WRAPPER": null
+    },
+    "commands": [
+      {
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-core",
+          "--locked",
+          "--lib",
+          "phase",
+          "--",
+          "--test-threads=1"
+        ],
+        "start": "2026-11-17T16:47:13.508921+00:00",
+        "finish": "2026-11-17T16:47:13.727096+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/itdiag/stage2/command-0.log",
+        "log_sha256": "4cb9c032687c0fc60fc3702ade3a6b2bbcfba637b7e3d14a5ad65dfcae5c849b"
+      },
+      {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "-v",
+          "test_integration_stage_evidence_source",
+          "test_integration_stage_evidence_phase_inverse"
+        ],
+        "start": "2026-11-17T16:47:13.727384+00:00",
+        "finish": "2026-11-17T16:47:13.791816+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/itdiag/stage2/command-1.log",
+        "log_sha256": "f76dbb351c7e72379637ecfe1de8a21305c71e218d55bb8eec53d4d3191b4c5c"
+      },
+      {
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond"
+        ],
+        "start": "2026-11-17T16:47:13.792064+00:00",
+        "finish": "2026-11-17T16:48:16.214284+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/itdiag/stage2/command-2.log",
+        "log_sha256": "91519beb8ec7454b428eaee42c29dd2e82d23e6ed99c8bc32911998760a661b0"
+      },
+      {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--locked",
+          "--bin",
+          "batond"
+        ],
+        "start": "2026-11-17T16:48:16.214534+00:00",
+        "finish": "2026-11-17T16:49:42.320948+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/itdiag/stage2/command-3.log",
+        "log_sha256": "acde7a4edfc52cb8ed7611bc4462ad561b4f752cc557fd1046b87ab7917f4e27"
+      }
+    ],
+    "native_release_application_audit": "not run; daemon proof does not prove actual default native app isolation",
+    "ci": "not run",
+    "rust_selected_passed": 9,
+    "python_selected_passed": 22,
+    "binaries": [
+      {
+        "profile": "debug",
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target/debug/batond",
+        "size_bytes": 26155224,
+        "sha256": "c65097b79c859cd703b8fe6af6ab5312aa7f650ff76fe8d36aab00500a855e3e",
+        "file": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target/debug/batond: Mach-O 64-bit executable arm64",
+        "marker": "agentbaton.integration-preparation-phases.v1",
+        "marker_present": true,
+        "strings_exit_code": 0,
+        "strings_stdout_sha256": "822c56b5e42e2788ed855cb259ca1007dadad1199e48cc19c653fe0e40b1dfb5"
+      },
+      {
+        "profile": "release",
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target/release/batond",
+        "size_bytes": 17177744,
+        "sha256": "53d4dff165f57ead4a1d774d0bf2e5a91424570ff9c67ecaf299a0a056de8236",
+        "file": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target/release/batond: Mach-O 64-bit executable arm64",
+        "marker": "agentbaton.integration-preparation-phases.v1",
+        "marker_present": false,
+        "strings_exit_code": 0,
+        "strings_stdout_sha256": "e7cb8e02ce40009d747adea915cef131294fbe0d0c4a45dd11621112cb23c3ad"
+      }
+    ],
+    "input_manifest_after_sha256": "a51827cb0e06a88fa11aafb96dfa21e14977f41615cc001012ff4564d1d450eb",
+    "inputs_unchanged": true,
+    "head_after": "f95db43f78def107aabc4afb403e2927a82915e3",
+    "clean_after": true,
+    "finished": "2026-11-17T16:49:42.786747+00:00",
+    "passed": true
+  },
+  "stage2_artifact_sha256": {
+    "artifacts/collab/itdiag/stage2/command-0.log": "4cb9c032687c0fc60fc3702ade3a6b2bbcfba637b7e3d14a5ad65dfcae5c849b",
+    "artifacts/collab/itdiag/stage2/command-1.log": "f76dbb351c7e72379637ecfe1de8a21305c71e218d55bb8eec53d4d3191b4c5c",
+    "artifacts/collab/itdiag/stage2/command-2.log": "91519beb8ec7454b428eaee42c29dd2e82d23e6ed99c8bc32911998760a661b0",
+    "artifacts/collab/itdiag/stage2/command-3.log": "acde7a4edfc52cb8ed7611bc4462ad561b4f752cc557fd1046b87ab7917f4e27",
+    "artifacts/collab/itdiag/stage2/inputs-after.json": "a51827cb0e06a88fa11aafb96dfa21e14977f41615cc001012ff4564d1d450eb",
+    "artifacts/collab/itdiag/stage2/inputs-before.json": "a51827cb0e06a88fa11aafb96dfa21e14977f41615cc001012ff4564d1d450eb",
+    "artifacts/collab/itdiag/stage2/report.json": "87f4c136223251f28dd5107ac828ec7fb50a7be70d370f8b23d272d2a2fea146"
+  },
+  "stage2_selected_inputs": [
+    {
+      "kind": "file",
+      "path": "Cargo.lock",
+      "sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38"
+    },
+    {
+      "kind": "file",
+      "path": "Cargo.toml",
+      "sha256": "35e047cb3e44d4ef0615e0c1200e5c93be3898f4b8ae26a360d09d1741bd3cc1"
+    },
+    {
+      "kind": "file",
+      "path": "apps/daemon/Cargo.toml",
+      "sha256": "20d92630b9f65de42c0913c2fa93749084d1d9eeebc1a01e0d2bafe27683297c"
+    },
+    {
+      "kind": "file",
+      "path": "crates/core/src/integration_settlement.rs",
+      "sha256": "a91406687191eee64b4a9ac0fc592a52891015b9cbceb3463baa648aa0be06dc"
+    },
+    {
+      "kind": "file",
+      "path": "tests/infrastructure/test_integration_stage_evidence_phase_inverse.py",
+      "sha256": "12e70dfb356b5127b69cf42b40e34b974646dc12fc02c153b01c5f0cbca7898e"
+    },
+    {
+      "kind": "file",
+      "path": "tests/infrastructure/test_integration_stage_evidence_source.py",
+      "sha256": "98e41c28311de02803fca52b4441d12e0e1e6e916aefdbd8e507d8a5c6bc58b0"
+    }
+  ],
+  "stage2_archives": {
+    "artifacts/collab/itdiag/stage2/report.json": {
+      "archive": "docs/execution/integration-timing-diagnostic/stage2/report.json",
+      "sha256": "87f4c136223251f28dd5107ac828ec7fb50a7be70d370f8b23d272d2a2fea146"
+    },
+    "artifacts/collab/itdiag/stage2/command-0.log": {
+      "archive": "docs/execution/integration-timing-diagnostic/stage2/command-0.log",
+      "sha256": "4cb9c032687c0fc60fc3702ade3a6b2bbcfba637b7e3d14a5ad65dfcae5c849b"
+    },
+    "artifacts/collab/itdiag/stage2/command-1.log": {
+      "archive": "docs/execution/integration-timing-diagnostic/stage2/command-1.log",
+      "sha256": "f76dbb351c7e72379637ecfe1de8a21305c71e218d55bb8eec53d4d3191b4c5c"
+    },
+    "artifacts/collab/itdiag/stage2/command-2.log": {
+      "archive": "docs/execution/integration-timing-diagnostic/stage2/command-2.log",
+      "sha256": "91519beb8ec7454b428eaee42c29dd2e82d23e6ed99c8bc32911998760a661b0"
+    },
+    "artifacts/collab/itdiag/stage2/command-3.log": {
+      "archive": "docs/execution/integration-timing-diagnostic/stage2/command-3.log",
+      "sha256": "acde7a4edfc52cb8ed7611bc4462ad561b4f752cc557fd1046b87ab7917f4e27"
+    },
+    "artifacts/collab/itdiag/stage2/inputs-before.json": {
+      "archive": "docs/execution/integration-timing-diagnostic/stage2/inputs-identical.json",
+      "sha256": "a51827cb0e06a88fa11aafb96dfa21e14977f41615cc001012ff4564d1d450eb"
+    },
+    "artifacts/collab/itdiag/stage2/inputs-after.json": {
+      "archive": "docs/execution/integration-timing-diagnostic/stage2/inputs-identical.json",
+      "sha256": "a51827cb0e06a88fa11aafb96dfa21e14977f41615cc001012ff4564d1d450eb"
+    }
+  },
+  "stage2_provenance_review": "Leader independent evidence review passed; native subagent /root/performance_audit independently matched all 2758 input entries to execution HEAD f95 via Git objects, all raw artifact hashes, 9+22 logs, actual binary hashes and strings digests; no blockers."
+}

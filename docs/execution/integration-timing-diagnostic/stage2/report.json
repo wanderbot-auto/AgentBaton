@@ -1,0 +1,119 @@
+{
+  "head": "f95db43f78def107aabc4afb403e2927a82915e3",
+  "code_commit": "8b298fde82931928bbd22f532dfe50df1f2921b7",
+  "clean_before": true,
+  "code_equals_reviewed_commit": true,
+  "started": "2026-11-17T16:47:13.316548+00:00",
+  "input_count": 2758,
+  "input_manifest_before_sha256": "a51827cb0e06a88fa11aafb96dfa21e14977f41615cc001012ff4564d1d450eb",
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "arch": "arm64",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target",
+    "BATON_RUNTIME_DIR": "/private/tmp/ab-collab-vx3miuxk",
+    "RUSTFLAGS": null,
+    "CARGO_ENCODED_RUSTFLAGS": null,
+    "RUSTC_WRAPPER": null
+  },
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--lib",
+        "phase",
+        "--",
+        "--test-threads=1"
+      ],
+      "start": "2026-11-17T16:47:13.508921+00:00",
+      "finish": "2026-11-17T16:47:13.727096+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage2/command-0.log",
+      "log_sha256": "4cb9c032687c0fc60fc3702ade3a6b2bbcfba637b7e3d14a5ad65dfcae5c849b"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "test_integration_stage_evidence_source",
+        "test_integration_stage_evidence_phase_inverse"
+      ],
+      "start": "2026-11-17T16:47:13.727384+00:00",
+      "finish": "2026-11-17T16:47:13.791816+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage2/command-1.log",
+      "log_sha256": "f76dbb351c7e72379637ecfe1de8a21305c71e218d55bb8eec53d4d3191b4c5c"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "batond"
+      ],
+      "start": "2026-11-17T16:47:13.792064+00:00",
+      "finish": "2026-11-17T16:48:16.214284+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage2/command-2.log",
+      "log_sha256": "91519beb8ec7454b428eaee42c29dd2e82d23e6ed99c8bc32911998760a661b0"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--bin",
+        "batond"
+      ],
+      "start": "2026-11-17T16:48:16.214534+00:00",
+      "finish": "2026-11-17T16:49:42.320948+00:00",
+      "exit_code": 0,
+      "log": "artifacts/collab/itdiag/stage2/command-3.log",
+      "log_sha256": "acde7a4edfc52cb8ed7611bc4462ad561b4f752cc557fd1046b87ab7917f4e27"
+    }
+  ],
+  "native_release_application_audit": "not run; daemon proof does not prove actual default native app isolation",
+  "ci": "not run",
+  "rust_selected_passed": 9,
+  "python_selected_passed": 22,
+  "binaries": [
+    {
+      "profile": "debug",
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target/debug/batond",
+      "size_bytes": 26155224,
+      "sha256": "c65097b79c859cd703b8fe6af6ab5312aa7f650ff76fe8d36aab00500a855e3e",
+      "file": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target/debug/batond: Mach-O 64-bit executable arm64",
+      "marker": "agentbaton.integration-preparation-phases.v1",
+      "marker_present": true,
+      "strings_exit_code": 0,
+      "strings_stdout_sha256": "822c56b5e42e2788ed855cb259ca1007dadad1199e48cc19c653fe0e40b1dfb5"
+    },
+    {
+      "profile": "release",
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target/release/batond",
+      "size_bytes": 17177744,
+      "sha256": "53d4dff165f57ead4a1d774d0bf2e5a91424570ff9c67ecaf299a0a056de8236",
+      "file": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-timing-diagnostic/target/release/batond: Mach-O 64-bit executable arm64",
+      "marker": "agentbaton.integration-preparation-phases.v1",
+      "marker_present": false,
+      "strings_exit_code": 0,
+      "strings_stdout_sha256": "e7cb8e02ce40009d747adea915cef131294fbe0d0c4a45dd11621112cb23c3ad"
+    }
+  ],
+  "input_manifest_after_sha256": "a51827cb0e06a88fa11aafb96dfa21e14977f41615cc001012ff4564d1d450eb",
+  "inputs_unchanged": true,
+  "head_after": "f95db43f78def107aabc4afb403e2927a82915e3",
+  "clean_after": true,
+  "finished": "2026-11-17T16:49:42.786747+00:00",
+  "passed": true
+}

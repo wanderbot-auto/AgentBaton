@@ -1,0 +1,8 @@
+{
+  "head": "499b7aa7151820310460f8acd0ff4c7e00a2caf6",
+  "clean": true,
+  "source": "crates/core/src/integration_reads.rs",
+  "source_sha256": "4d2f9fb5eaf86dbde7ebe403ce252d64f5dc25a8e4bb150565fecd891a860778",
+  "initial_created_head": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+  "baseline_correction": "No development writes or tests occurred on cbf. Integration leader updated stale origin tracking and normally fast-forwarded this clean unpublished task branch to fixed499 before implementation. Starting registration history retained."
+}

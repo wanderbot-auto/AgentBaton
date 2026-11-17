@@ -1,3 +1,4 @@
+from tests.infrastructure.native_ci_workflow_split import read_workflow_source
 """Source-only UI preview build-profile controls; never run Cargo or the driver."""
 import ast
 import hashlib
@@ -15,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class UiPreviewDevProfileWorkflow(unittest.TestCase):
     def setUp(self):
-        self.text = (ROOT / '.github/workflows/product.yml').read_text()
+        self.text = read_workflow_source(ROOT / '.github/workflows/product.yml')
         self.headers = list(re.finditer(r'^      - .*\n', self.text, re.MULTILINE))
         self.build_start, self.build_end = self.headers[25].start(), self.headers[26].start()
         self.build = self.text[self.build_start:self.build_end]

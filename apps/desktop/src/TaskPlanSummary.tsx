@@ -57,10 +57,12 @@ function PlanSummary({ task, language, connected }: Props) {
     setDetail(null); setFailed(false);
     if (!connected || catalog !== 'ready' || !scope) return () => { active = false; };
     void (async () => {
-      const history = await goalApi.plansList(scope.id);
+      const [history, view] = await Promise.all([
+        goalApi.plansList(scope.id),
+        run ? graph ? goalGraphApi.get(run.id) : goalExecutionApi.get(run.id) : Promise.resolve(null),
+      ]);
       if (!Array.isArray(history) || history.length > 256 || history.some(plan => !planMatches(plan,scope)) || new Set(history.map(plan => plan.proposal.revision)).size !== history.length || new Set(history.map(plan => plan.proposal.plan_id)).size > 1) throw new Error();
       const plan = [...history].sort((a,b) => b.proposal.revision-a.proposal.revision)[0] ?? null;
-      const view = run ? graph ? await goalGraphApi.get(run.id) : await goalExecutionApi.get(run.id) : null;
       if (!active) return;
       if (view && (!run || view.run.id !== run.id || !history.some(p => p.proposal.revision === view.run.plan_revision && p.digest === view.run.plan_digest))) throw new Error();
       if (view && graph) {

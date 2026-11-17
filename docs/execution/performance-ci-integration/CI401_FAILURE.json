@@ -1,0 +1,41 @@
+{
+  "at": "2026-11-17T21:12:05.646783+00:00",
+  "head": "401cdaf912d633238abd22282bab5aedb3c6a6a8",
+  "merge": "a7e4a49771c2a85ba61030b71b422ec1fdd29582",
+  "tree": "ba829232dfabc46ca39ee032150a247f07557e4e",
+  "parents": [
+    "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "401cdaf912d633238abd22282bab5aedb3c6a6a8"
+  ],
+  "env_run": 44176900045,
+  "product_run": 44176900101,
+  "env_result": "both failure at step8 bootstrap action-pins digest, other Product jobs running when observed",
+  "reason": "reviewed action-pins changed but bootstrap manifest digest stale; leader integration completeness omission",
+  "correction": "only update bootstrap infra/action-pins digest30ceb... to29d2...; all other93 manifest entries unchanged",
+  "verification": {
+    "bootstrap93": "passed",
+    "design130_links243": "passed",
+    "rawvalidator": "passed",
+    "diff_scope": "passed",
+    "product_source": "identical76; no repeated builds/tests necessary for digest-only correction"
+  },
+  "archive_maps": [
+    {
+      "job": 134370566147,
+      "platform": "ubuntu-24.04",
+      "representation": "connector decoded UTF8 job log, not original ZIP or gzip API bytes",
+      "log_sha256": "cca5505d6fdcf41be4d4d881924897f66bcb49b86cf9d94b4842efe2c5a359e4",
+      "archive": "docs/execution/performance-ci-integration/CI401-Env-ubuntu-24.04.log.gz",
+      "archive_sha256": "ac1fdd0c1185e4d9533f0f60651a7c05656c04bc73446699856ee511cf467e0a"
+    },
+    {
+      "job": 134370566363,
+      "platform": "macos-15",
+      "representation": "connector decoded UTF8 job log, not original ZIP or gzip API bytes",
+      "log_sha256": "51513dc38974f247eff2759106c6e5e604b5fbf93d61dacfc7bfe36ffddadd34",
+      "archive": "docs/execution/performance-ci-integration/CI401-Env-macos-15.log.gz",
+      "archive_sha256": "a4b9b4c7709d57f420c23a6227134a08850879f06b5b7d1f074cba5a5a525503"
+    }
+  ],
+  "rerun": "none; new fixed-head normal push will trigger existing PR workflows, existing concurrency handles superseded Product run"
+}

@@ -1,0 +1,434 @@
+{
+  "task": "INT-READ-OPT-001",
+  "base": {
+    "head": "499b7aa7151820310460f8acd0ff4c7e00a2caf6",
+    "clean": true,
+    "source": "crates/core/src/integration_reads.rs",
+    "source_sha256": "4d2f9fb5eaf86dbde7ebe403ce252d64f5dc25a8e4bb150565fecd891a860778",
+    "initial_created_head": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "baseline_correction": "No development writes or tests occurred on cbf. Integration leader updated stale origin tracking and normally fast-forwarded this clean unpublished task branch to fixed499 before implementation. Starting registration history retained."
+  },
+  "implementation_source_sha256": "d93a0a5f593d513e1b31a20184d96194041e9c7ca4331b613caf2aac2901d561",
+  "change": "Reuse the two verified immutable invocation-local digests; preserve material-first short-circuit, canonical hash algorithm and every freshness/control check.",
+  "static_checks": {
+    "rustfmt_check": "passed before local commit; exact implementation source hash above",
+    "diff_check": "passed"
+  },
+  "tests_and_builds": "33 selected controls passed (6 read,12 FS,13 Grant,1+1 originals), format/build/freeze/precompile/clippy/verify passed on clean956",
+  "runtime_cost_observation": "Not measured. Passing scenarios do not emit failed-stage phase snapshots, and no paired digest microbenchmark was run. Removing two pure computations is source-proven, not a measured191ms/11ms saving.",
+  "prior_remote_failures": "2011/2000 settled overrun and separate interrupted/unknown case remain unresolved.",
+  "authority_changes": false,
+  "push_ci_or_parent_changes": false,
+  "validation": {
+    "head": "95637f62468fde04f132ba05af93998dfb1954eb",
+    "base": "499b7aa7151820310460f8acd0ff4c7e00a2caf6",
+    "clean_before": true,
+    "started": "2026-11-17T18:23:39.322215+00:00",
+    "input_count": 2887,
+    "input_manifest_before_sha256": "4a0d047e0ebefa624fd696a4c0b4efad52b646fd543b6b61c26f2e7b2b2287c5",
+    "environment": {
+      "CARGO_BUILD_JOBS": "2",
+      "RUST_TEST_THREADS": "1",
+      "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/target",
+      "BATON_RUNTIME_DIR": "/private/tmp/ab-collab-d8ei55nj",
+      "AGENTBATON_FACTORY_TEST_TOOLS": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/artifacts/collab/digest/validation/frozen-tools",
+      "AGENTBATON_CHILD_PLAN_COMPANION": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/artifacts/collab/digest/validation/frozen-tools/baton",
+      "AGENTBATON_CHILD_GOAL_COMPANION": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/artifacts/collab/digest/validation/frozen-tools/baton",
+      "RUSTFLAGS": null,
+      "CARGO_ENCODED_RUSTFLAGS": null,
+      "RUSTC_WRAPPER": null
+    },
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "arch": "arm64",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "commands": [
+      {
+        "label": "format",
+        "command": [
+          "rustfmt",
+          "--edition",
+          "2021",
+          "--check",
+          "crates/core/src/integration_reads.rs"
+        ],
+        "start": "2026-11-17T18:23:39.610238+00:00",
+        "finish": "2026-11-17T18:23:39.671838+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/format.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "normal-tools-build",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "start": "2026-11-17T18:23:39.672056+00:00",
+        "finish": "2026-11-17T18:25:01.272441+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/normal-tools-build.log",
+        "log_sha256": "77fb3473867b4ff604dc402d1cb1cdd87d7b76da1718c8d228e55b92246adcd2"
+      },
+      {
+        "label": "freeze-tools",
+        "command": [
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/target/debug",
+          "--output",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/artifacts/collab/digest/validation/frozen-tools",
+          "--evidence",
+          "artifacts/collab/digest/validation/frozen-evidence"
+        ],
+        "start": "2026-11-17T18:25:01.272696+00:00",
+        "finish": "2026-11-17T18:25:02.652565+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/freeze-tools.log",
+        "log_sha256": "f87cb7c45ba48bbd38b17c0bb49fd84ce37a0fbd2669ad61353989a88c3ac8e4"
+      },
+      {
+        "label": "precompile-tests",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-core",
+          "--locked",
+          "--lib",
+          "--test",
+          "integration_ipc",
+          "--test",
+          "policy",
+          "--no-run"
+        ],
+        "start": "2026-11-17T18:25:02.652792+00:00",
+        "finish": "2026-11-17T18:27:18.406754+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/precompile-tests.log",
+        "log_sha256": "1445aea5aa6af9cddcfbf74b2377981c3a42c458f9b173054be0569082001b6f"
+      },
+      {
+        "label": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--locked",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "start": "2026-11-17T18:27:18.407026+00:00",
+        "finish": "2026-11-17T18:27:31.473254+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/clippy.log",
+        "log_sha256": "7a612bb22a3203f430ae11f369b57a4e9e923efc6a86d247ca763e9a645704e3"
+      },
+      {
+        "label": "verify-tools-before",
+        "command": [
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--verify",
+          "--output",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/artifacts/collab/digest/validation/frozen-tools"
+        ],
+        "start": "2026-11-17T18:27:31.473469+00:00",
+        "finish": "2026-11-17T18:27:31.618635+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/verify-tools-before.log",
+        "log_sha256": "f87cb7c45ba48bbd38b17c0bb49fd84ce37a0fbd2669ad61353989a88c3ac8e4"
+      },
+      {
+        "label": "read-controls",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-core",
+          "--locked",
+          "--lib",
+          "integration::reads",
+          "--",
+          "--test-threads=1"
+        ],
+        "start": "2026-11-17T18:27:31.618864+00:00",
+        "finish": "2026-11-17T18:27:32.542045+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/read-controls.log",
+        "log_sha256": "086a63c7cdda187bbfd7cdf3310bba6c6dfce4f84d57dee4810373bd2d69d022",
+        "test_counts": [
+          {
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0
+          }
+        ]
+      },
+      {
+        "label": "fs-controls",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-core",
+          "--locked",
+          "--lib",
+          "integration::fs",
+          "--",
+          "--test-threads=1"
+        ],
+        "start": "2026-11-17T18:27:32.542492+00:00",
+        "finish": "2026-11-17T18:27:32.996382+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/fs-controls.log",
+        "log_sha256": "48bf5a1fa50c0e399c3089c4cc7e599b0b4aefc40f4d141bdf59c5bd4babbc23",
+        "test_counts": [
+          {
+            "passed": 12,
+            "failed": 0,
+            "ignored": 0
+          }
+        ]
+      },
+      {
+        "label": "grant-controls",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-core",
+          "--locked",
+          "--test",
+          "policy",
+          "--",
+          "--test-threads=1"
+        ],
+        "start": "2026-11-17T18:27:32.996659+00:00",
+        "finish": "2026-11-17T18:27:44.150840+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/grant-controls.log",
+        "log_sha256": "a7f4e79a19fcf3ffe2157e1230d07183cf348c68aec06baab6cf46b241d69aaa",
+        "test_counts": [
+          {
+            "passed": 13,
+            "failed": 0,
+            "ignored": 0
+          }
+        ]
+      },
+      {
+        "label": "original-non-descendant",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-core",
+          "--locked",
+          "--test",
+          "integration_ipc",
+          "integration_runtime::non_descendant_rewrite_during_real_validator_never_reprepares_or_refunds",
+          "--",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "start": "2026-11-17T18:27:44.151189+00:00",
+        "finish": "2026-11-17T18:27:49.604344+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/original-non-descendant.log",
+        "log_sha256": "9dad3c6f498f6934b4816fe6a8022848a37943c9ff6c66be4d2f887d27c119e5",
+        "test_counts": [
+          {
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0
+          }
+        ]
+      },
+      {
+        "label": "original-owner-cancel",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-core",
+          "--locked",
+          "--test",
+          "integration_ipc",
+          "integration_runtime::owner_cancel_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+          "--",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "start": "2026-11-17T18:27:49.604595+00:00",
+        "finish": "2026-11-17T18:27:54.287655+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/original-owner-cancel.log",
+        "log_sha256": "8096ff02f9b11b6753e325ee586f20e1e9e4b1506042f1b70133519621739d47",
+        "test_counts": [
+          {
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0
+          }
+        ]
+      },
+      {
+        "label": "verify-tools-after",
+        "command": [
+          "python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--verify",
+          "--output",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/artifacts/collab/digest/validation/frozen-tools"
+        ],
+        "start": "2026-11-17T18:27:54.288043+00:00",
+        "finish": "2026-11-17T18:27:54.377478+00:00",
+        "exit_code": 0,
+        "log": "artifacts/collab/digest/validation/verify-tools-after.log",
+        "log_sha256": "f87cb7c45ba48bbd38b17c0bb49fd84ce37a0fbd2669ad61353989a88c3ac8e4"
+      }
+    ],
+    "timing_gain": "not measured; do not attribute all191ms or old409/425ms to hashing",
+    "prior_remote_failures": "2011/2000 and separate interrupted/unknown case remain unresolved until actual remote validation",
+    "ci_push_gui_or_parent_ref_mutation": false,
+    "frozen_binaries": [
+      {
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/artifacts/collab/digest/validation/frozen-tools/batond",
+        "sha256": "01477dfa40c0166ab8a27c1a995b70c95905d5342626de3f81fadd43e9b8f790",
+        "bytes": 26145720
+      },
+      {
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/integration-read-digest/artifacts/collab/digest/validation/frozen-tools/baton",
+        "sha256": "b98a4c493eff1e3b7892e3cb1e3254095e1b9aeeef02d97174c8ad6822012ec8",
+        "bytes": 1442728
+      }
+    ],
+    "input_manifest_after_sha256": "4a0d047e0ebefa624fd696a4c0b4efad52b646fd543b6b61c26f2e7b2b2287c5",
+    "inputs_unchanged": true,
+    "head_after": "95637f62468fde04f132ba05af93998dfb1954eb",
+    "clean_after": true,
+    "finished": "2026-11-17T18:27:54.939405+00:00",
+    "all_owned_commands_joined": true,
+    "passed": true
+  },
+  "archives": {
+    "artifacts/collab/digest/validation/report.json": {
+      "archive": "docs/execution/integration-read-digest/validation/report.json",
+      "sha256": "d8df65b0f2f2d86947c3a53228aceeaaa59ed033e76088fd35e73398d0a01533"
+    },
+    "artifacts/collab/digest/validation/clippy.log": {
+      "archive": "docs/execution/integration-read-digest/validation/clippy.log",
+      "sha256": "7a612bb22a3203f430ae11f369b57a4e9e923efc6a86d247ca763e9a645704e3"
+    },
+    "artifacts/collab/digest/validation/format.log": {
+      "archive": "docs/execution/integration-read-digest/validation/format.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "artifacts/collab/digest/validation/freeze-tools.log": {
+      "archive": "docs/execution/integration-read-digest/validation/freeze-tools.log",
+      "sha256": "f87cb7c45ba48bbd38b17c0bb49fd84ce37a0fbd2669ad61353989a88c3ac8e4"
+    },
+    "artifacts/collab/digest/validation/fs-controls.log": {
+      "archive": "docs/execution/integration-read-digest/validation/fs-controls.log.gz",
+      "sha256": "d6d74b9c760933c95b1c79ba479fba16275c12f6c26ca9050e514bf13293736d",
+      "encoding": "gzip",
+      "raw_sha256": "48bf5a1fa50c0e399c3089c4cc7e599b0b4aefc40f4d141bdf59c5bd4babbc23"
+    },
+    "artifacts/collab/digest/validation/grant-controls.log": {
+      "archive": "docs/execution/integration-read-digest/validation/grant-controls.log.gz",
+      "sha256": "1fa5a86abfd78564142fa55027860bf28134964d7b5eb2ab3a42ad73a5b2b5b7",
+      "encoding": "gzip",
+      "raw_sha256": "a7f4e79a19fcf3ffe2157e1230d07183cf348c68aec06baab6cf46b241d69aaa"
+    },
+    "artifacts/collab/digest/validation/normal-tools-build.log": {
+      "archive": "docs/execution/integration-read-digest/validation/normal-tools-build.log",
+      "sha256": "77fb3473867b4ff604dc402d1cb1cdd87d7b76da1718c8d228e55b92246adcd2"
+    },
+    "artifacts/collab/digest/validation/original-non-descendant.log": {
+      "archive": "docs/execution/integration-read-digest/validation/original-non-descendant.log.gz",
+      "sha256": "3a80cccbcefdccb84d0e28bee1838137b72379201df3a54d6d74288aa9cc77fb",
+      "encoding": "gzip",
+      "raw_sha256": "9dad3c6f498f6934b4816fe6a8022848a37943c9ff6c66be4d2f887d27c119e5"
+    },
+    "artifacts/collab/digest/validation/original-owner-cancel.log": {
+      "archive": "docs/execution/integration-read-digest/validation/original-owner-cancel.log.gz",
+      "sha256": "f753bc0874dc7be6bac66a2075f2dccbfd93388ff8e35c3a5c1e204b9a82a587",
+      "encoding": "gzip",
+      "raw_sha256": "8096ff02f9b11b6753e325ee586f20e1e9e4b1506042f1b70133519621739d47"
+    },
+    "artifacts/collab/digest/validation/precompile-tests.log": {
+      "archive": "docs/execution/integration-read-digest/validation/precompile-tests.log",
+      "sha256": "1445aea5aa6af9cddcfbf74b2377981c3a42c458f9b173054be0569082001b6f"
+    },
+    "artifacts/collab/digest/validation/read-controls.log": {
+      "archive": "docs/execution/integration-read-digest/validation/read-controls.log.gz",
+      "sha256": "3f69a0d9fd2d799b32e4b5da91e2d82ca094a1bb46197d2487fb14ff940b1a82",
+      "encoding": "gzip",
+      "raw_sha256": "086a63c7cdda187bbfd7cdf3310bba6c6dfce4f84d57dee4810373bd2d69d022"
+    },
+    "artifacts/collab/digest/validation/verify-tools-after.log": {
+      "archive": "docs/execution/integration-read-digest/validation/verify-tools-after.log",
+      "sha256": "f87cb7c45ba48bbd38b17c0bb49fd84ce37a0fbd2669ad61353989a88c3ac8e4"
+    },
+    "artifacts/collab/digest/validation/verify-tools-before.log": {
+      "archive": "docs/execution/integration-read-digest/validation/verify-tools-before.log",
+      "sha256": "f87cb7c45ba48bbd38b17c0bb49fd84ce37a0fbd2669ad61353989a88c3ac8e4"
+    },
+    "artifacts/collab/digest/validation/inputs-before.json": {
+      "archive": "docs/execution/integration-read-digest/validation/inputs-identical.json",
+      "sha256": "4a0d047e0ebefa624fd696a4c0b4efad52b646fd543b6b61c26f2e7b2b2287c5"
+    },
+    "artifacts/collab/digest/validation/inputs-after.json": {
+      "archive": "docs/execution/integration-read-digest/validation/inputs-identical.json",
+      "sha256": "4a0d047e0ebefa624fd696a4c0b4efad52b646fd543b6b61c26f2e7b2b2287c5"
+    },
+    "artifacts/collab/digest/validation/frozen-evidence/manifest.json": {
+      "archive": "docs/execution/integration-read-digest/validation/frozen-evidence/manifest.json",
+      "sha256": "8dd4589ce8f89559aece95750a2c0461c4054c7bb706a0b86fde2beb0c826026"
+    },
+    "artifacts/collab/digest/validation/frozen-evidence/probe-cleanup.json": {
+      "archive": "docs/execution/integration-read-digest/validation/frozen-evidence/probe-cleanup.json",
+      "sha256": "f73d2af5584ad6f5a37f68099caab4cb42e4d35f47809145a5fec7bd0f6d863d"
+    },
+    "artifacts/collab/digest/validation/frozen-evidence/probe-snapshot.json": {
+      "archive": "docs/execution/integration-read-digest/validation/frozen-evidence/probe-snapshot.json",
+      "sha256": "ff3201eb4bd8828c6b268863fba95084124d6a1411197e9a3204ae8adf5e1ac2"
+    },
+    "artifacts/collab/digest/validation/frozen-evidence/probe-snapshot.stderr": {
+      "archive": "docs/execution/integration-read-digest/validation/frozen-evidence/probe-snapshot.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "artifacts/collab/digest/validation/frozen-evidence/probe-stderr.log": {
+      "archive": "docs/execution/integration-read-digest/validation/frozen-evidence/probe-stderr.log",
+      "sha256": "f3ec996211e4db42e4e45fdc5d15f2413a75ccd80f0d6e039bc05de9287bc039"
+    },
+    "artifacts/collab/digest/validation/frozen-evidence/probe-stdout.log": {
+      "archive": "docs/execution/integration-read-digest/validation/frozen-evidence/probe-stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "review": {
+    "source": "independent native subagent /root/performance_audit fixed956 review passed, no blocker",
+    "evidence": "Independent native subagent /root/performance_audit verified all12 raw log hashes/results, all2887 input Git blobs at fixed956, actual frozen/normal binary bytes, manifest/tree binding and command ordering; no blocker. No product tests/build/runtime run by reviewer."
+  },
+  "prior_failure_binding": {
+    "source_head": "499b7aa7151820310460f8acd0ff4c7e00a2caf6",
+    "mac_job": 134224619820,
+    "log_sha256": "03bf2cf0ac32ad42af3c00670888e9fea442c6ffc9f1d164aa4bbcf5e2a31b6b",
+    "retained_path": "../integration-timing-diagnostic/artifacts/collab/ci-watch-499b7aa/44135730314-job-134224619820.log",
+    "not_resolved_by_local_pass": true
+  },
+  "archive_format_note": "Five original Cargo test logs end with blank lines. Committed snapshot diff-check flagged these raw EOFs; lossless gzip copies preserve every raw byte/hash without whitespace normalization. Original raw logs and failed archive-check receipt remain in ignored artifacts. No source, tests or validation rerun."
+}

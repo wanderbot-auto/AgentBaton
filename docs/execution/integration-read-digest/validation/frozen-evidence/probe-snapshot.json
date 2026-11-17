@@ -1,0 +1,11 @@
+{
+  "request_id": "d86c6a03-2575-44d0-b5e3-5886c1d51dd3",
+  "result": {
+    "api_version": 1,
+    "database_schema_version": 18,
+    "sequence": 0,
+    "tasks": []
+  },
+  "revision": 0,
+  "warnings": []
+}

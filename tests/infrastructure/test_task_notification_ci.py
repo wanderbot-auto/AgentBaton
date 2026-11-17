@@ -1,3 +1,4 @@
+from tests.infrastructure.native_ci_workflow_split import read_workflow_source
 """Synthetic CI/projector controls only; no browser/Core/SQL/network execution."""
 import copy
 import hashlib
@@ -72,7 +73,7 @@ def seed(root):
 
 class NotificationWorkflowInverse(unittest.TestCase):
     def test_exact_inverse_restores_entire_prior_workflow_and_all_historical_pins(self):
-        text = WORKFLOW.read_text()
+        text = read_workflow_source(WORKFLOW)
         # The independently pinned setup layer is composed before this layer.
         setup_restored = W.strip_integration_setup_diagnostics(text)
         self.assertEqual(hashlib.sha256(setup_restored.encode()).hexdigest(),
@@ -86,7 +87,7 @@ class NotificationWorkflowInverse(unittest.TestCase):
         self.assertEqual(text.count('apps/desktop/tests/integration-real-ipc.py\', \'--run\', \'--case\', \'all\''), 1)
 
     def test_unknown_permission_owner_memory_toolchain_job_writes_and_other_changes_refuse(self):
-        text = WORKFLOW.read_text()
+        text = read_workflow_source(WORKFLOW)
         for old, new in [('contents: read', 'contents: write'), ('timeout-minutes: 20', 'timeout-minutes: 21'),
             ('AGENTBATON_OWNER_FIXTURE_DAEMON:', 'AGENTBATON_OWNER_FAKE_DAEMON:'), ('134217728', '268435456'),
             ('set -euo pipefail', 'export RUSTFLAGS=-Copt-level=3\n          set -euo pipefail'),
@@ -98,7 +99,7 @@ class NotificationWorkflowInverse(unittest.TestCase):
             with self.subTest(old=old), self.assertRaises(ValueError): W.verify_only_six_historical_target_changes(text.replace(old, new, 1))
 
     def test_exact_step_cannot_move_duplicate_disappear_or_hide_an_extra_job(self):
-        text = W.strip_integration_setup_diagnostics(WORKFLOW.read_text())
+        text = W.strip_integration_setup_diagnostics(read_workflow_source(WORKFLOW))
         self.assertEqual(hashlib.sha256(W.strip_task_notification_ci_layer(text).encode()).hexdigest(),
             '2571ca962ee7eca8ef0b679b86bd939187d69427d83fce3d5ca18c885fc18d23')
         headers = list(re.finditer(r'^      - .*\n', text, re.M))
@@ -115,7 +116,7 @@ class NotificationWorkflowInverse(unittest.TestCase):
         with self.assertRaises(ValueError): W.strip_task_notification_ci_layer(moved)
 
     def program(self):
-        text = WORKFLOW.read_text(); start = text.index('      - name: ' + STEP + '\n')
+        text = read_workflow_source(WORKFLOW); start = text.index('      - name: ' + STEP + '\n')
         block = text[start:text.index('      - uses:', start)]
         source = block.split("          python3 - <<'TASK_NOTIFICATION_EVIDENCE'\n", 1)[1].rsplit('          TASK_NOTIFICATION_EVIDENCE\n', 1)[0]
         source = '\n'.join(line[10:] if line.startswith('          ') else line for line in source.splitlines())

@@ -23,6 +23,28 @@ class IntegrationPreparationPhaseInverseTests(unittest.TestCase):
             self.assertEqual(original.fields(original.MODULE.read_text(), raw),
                              set(original.re.findall(r'"([a-z_]+)"\s*:', tail)))
 
+    def test_overrun_composition_restores_exact_parent_and_rejects_diagnostic_mutations(self):
+        text = (original.ROOT / 'crates/core/src/integration_settlement.rs').read_text()
+        parent = original.settlement_before_overrun(text)
+        self.assertEqual(hashlib.sha256(parent.encode()).hexdigest(), original.PHASE_SETTLEMENT_SHA256)
+        marker = original.OVERRUN_SUFFIX_MARKER
+        prefix, suffix = text[:text.index(marker)], text[text.index(marker):]
+        mutations = [
+            text.replace('clock_ms > reserved_runtime_ms', 'clock_ms >= reserved_runtime_ms', 1),
+            prefix, text + suffix, suffix + prefix,
+            text.replace('fn extend_preparation_phase_observation(', 'fn changed_diagnostic(', 1),
+            text.replace('#[cfg(all(test, debug_assertions))]', '#[cfg(test)]', 1),
+            text.replace('for clock_ms in [1999, 2000, 2001]', 'for clock_ms in [2001]', 1),
+            text.replace('samples.len(), 13', 'samples.len(), 0', 1),
+        ]
+        for changed in mutations:
+            with self.subTest(changed=hashlib.sha256(changed.encode()).hexdigest()):
+                self.assertNotEqual(changed, text)
+                with self.assertRaises(AssertionError):
+                    original.settlement_before_overrun(changed)
+        with self.assertRaises(AssertionError):
+            original.settlement_before_overrun(parent)
+
     def test_changed_original_fields_clocks_fees_or_outside_region_are_rejected(self):
         text = (original.ROOT / 'crates/core/src/integration_settlement.rs').read_text()
         mutations = [text + '// unknown-outside-region\n',
@@ -36,7 +58,7 @@ class IntegrationPreparationPhaseInverseTests(unittest.TestCase):
 
     def test_changed_missing_duplicate_or_moved_alias_is_rejected(self):
         text = (original.ROOT / 'crates/core/src/integration_settlement.rs').read_text()
-        block = original.PHASE_PAYLOAD_ALIAS
+        block = original.OVERRUN_PHASE_PAYLOAD_ALIAS
         self.assertEqual(text.count(block), 1)
         mutations = [text.replace(block, '', 1), text + block,
                      text.replace(block, block.replace('let mut payload = payload;', 'let mut payload = json!({});'), 1),

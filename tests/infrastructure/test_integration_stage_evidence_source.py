@@ -100,8 +100,29 @@ def rust_controls_before_schema18(text):
     exact_source_pin(original, PHASE_RUST_TEST_SHA256)
     return original
 
+# ITDIAG-001 composes strictly back to the complete unchanged cbf source.
+OVERRUN_SETTLEMENT_SHA256 = 'a91406687191eee64b4a9ac0fc592a52891015b9cbceb3463baa648aa0be06dc'
+OVERRUN_SUFFIX_SHA256 = '2a5c003a0ac1a8e171cb830033f0e56e08210033ae92eded8975e2d172fcf436'
+OVERRUN_SUFFIX_MARKER = '\n#[cfg(debug_assertions)]\nfn extend_preparation_phase_observation('
+OVERRUN_PHASE_PAYLOAD_ALIAS = '            let payload = json!({"attempt_id":attempt.view.attempt_id,"io":io,"measurement_not_authority":true,"whole_filesystem_output":null});\n            #[cfg(debug_assertions)]\n            let payload = {\n                let mut payload = payload;\n                extend_preparation_phase_observation(\n                    &mut payload,\n                    ticket.phase_observation.as_deref(),\n                    joined.result.is_err(),\n                    io.io_complete(),\n                    joined.output_bytes.is_some(),\n                    clock_ms,\n                    attempt.view.reservation.runtime_ms,\n                );\n                payload\n            };\n'
+
+
+def settlement_before_overrun(text):
+    exact_source_pin(text, OVERRUN_SETTLEMENT_SHA256)
+    if text.count(OVERRUN_SUFFIX_MARKER) != 1:
+        raise AssertionError("unique reviewed debug helper/test suffix required")
+    start = text.index(OVERRUN_SUFFIX_MARKER)
+    exact_source_pin(text[start:], OVERRUN_SUFFIX_SHA256)
+    text = text[:start]
+    if text.count(OVERRUN_PHASE_PAYLOAD_ALIAS) != 1:
+        raise AssertionError("unique reviewed overrun publication block required")
+    text = text.replace(OVERRUN_PHASE_PAYLOAD_ALIAS, PHASE_PAYLOAD_ALIAS, 1)
+    exact_source_pin(text, PHASE_SETTLEMENT_SHA256)
+    return text
+
 
 def settlement_before_phase(text):
+    text = settlement_before_overrun(text)
     exact_source_pin(text, PHASE_SETTLEMENT_SHA256)
     text = remove_once(text, PHASE_PAYLOAD_ALIAS)
     if text.count('                &payload,\n') != 1:

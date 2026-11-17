@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, DaemonError, acknowledgeTaskMessage, taskAllowsExecution, type JournalEvent, type Task, type Project, type TaskMessageReceipt } from './api';
 import { initialLanguage, messages, type Language } from './i18n';
 import { canvasMessages } from './canvas-i18n';
@@ -28,6 +28,7 @@ import { FactoryRuntime } from './FactoryRuntime';
 import { Icon, type IconName } from './Icons';
 import { earlierEventWindow, type WindowReplacement } from './event-window';
 import { TaskNotifications } from './TaskNotifications';
+import { TaskGrid } from './TaskGrid';
 
 type View = 'work' | 'tasks' | 'capabilities' | 'history' | 'quick';
 type Filter = 'all' | 'active' | 'attention' | 'drafts' | 'done';
@@ -36,6 +37,11 @@ type Dialog = 'projects' | 'execution' | 'search' | 'settings' | 'conversion' | 
 const activeStates = new Set(['queued', 'running', 'starting', 'ready']);
 const attentionStates = new Set(['outcome_unknown', 'unknown', 'cancel_requested', 'failed', 'awaiting_approval']);
 const finishedStates = new Set(['accepted', 'cancelled', 'failed', 'execution_succeeded', 'validation_passed']);
+
+async function retryFailedRead<T>(observed: PromiseSettledResult<T>, read: () => Promise<T>): Promise<PromiseSettledResult<T>> {
+  if (observed.status === 'fulfilled') return observed;
+  return (await Promise.allSettled([read()]))[0];
+}
 
 export function App() {
   const [language, setLanguage] = useState<Language>(initialLanguage);
@@ -98,7 +104,7 @@ export function App() {
   const composer = useRef<HTMLTextAreaElement>(null);
   const selected = tasks.find(task => task.id === selectedId);
   useEffect(()=>{setTaskIntent(null);setDetailsTaskId(undefined);},[selectedId]);
-  const selectedSessions = sessions.filter(session => session.task_id === selectedId);
+  const selectedSessions = useMemo(() => sessions.filter(session => session.task_id === selectedId), [sessions, selectedId]);
   const readySessions=selectedSessions.filter(session=>session.state==='ready'&&session.project_id===selected?.project_id);
   const readySession=!messageRecoveryUnavailable&&selected&&taskAllowsExecution(selected)&&readySessions.length===1?readySessions[0]:undefined;
   const uncertainTaskSend = selectedSessions.some(session => uncertainSessions.has(session.id));
@@ -117,6 +123,10 @@ export function App() {
     setTasksFresh(false); setSessionsFresh(false); setEventsFresh(false);
     if (!silent) setStatus('connecting');
     try {
+      // Bootstrap must finish before ordinary IPC can connect to a cold daemon.
+      // Once connected these independent reads can overlap snapshot/recovery.
+      const readCatalogs = () => Promise.allSettled([api.projectsList(), sessionApi.connectionsList(), sessionApi.sessionsList()]);
+      const catalogs = currentStatus.current === 'connected' ? readCatalogs() : null;
       const snapshot = await api.snapshot();
       if (request !== refreshSequence.current) return;
       const messageRecovery = snapshot.task_message_recovery;
@@ -132,7 +142,20 @@ export function App() {
       }
       setTasks(snapshot.tasks); setTasksFresh(true); setStatus('connected');
       const cursor = eventRequestCursor.current ?? Math.max(0, snapshot.sequence - 100);
-      const [history, projectRecords, nextConnections, nextSessions] = await Promise.allSettled([api.events(cursor), api.projectsList(), sessionApi.connectionsList(), sessionApi.sessionsList()]);
+      // The previous connected observation can outlive its daemon. If snapshot
+      // successfully bootstrapped a replacement, recheck only failed speculative
+      // reads once. Never retry writes or replay messages here.
+      const reconciledCatalogs = catalogs ? catalogs.then(([projects, connections, sessions]) => {
+        if (request !== refreshSequence.current) return [projects, connections, sessions] as const;
+        return Promise.all([
+          retryFailedRead(projects, api.projectsList),
+          retryFailedRead(connections, sessionApi.connectionsList),
+          retryFailedRead(sessions, sessionApi.sessionsList),
+        ]);
+      }) : readCatalogs();
+      const [[history], [projectRecords, nextConnections, nextSessions]] = await Promise.all([
+        Promise.allSettled([api.events(cursor)]), reconciledCatalogs,
+      ]);
       if (request !== refreshSequence.current) return;
       const failures: string[] = [];
       for (const result of [history, projectRecords, nextConnections, nextSessions]) {
@@ -275,12 +298,17 @@ export function App() {
     } catch (e) { showError(e); }
     finally { setBusy(false); }
   }
-  function openTask(id: string) { eventRequestCursor.current = undefined; setSelectedId(id); setGoal(''); setTab('conversation'); setView('tasks'); setDialog(null); setMobileNav(false); createKey.current = null; }
+  const openTask = useCallback((id: string) => { eventRequestCursor.current = undefined; setSelectedId(id); setGoal(''); setTab('conversation'); setView('tasks'); setDialog(null); setMobileNav(false); createKey.current = null; }, []);
   function viewNotificationEvent(eventId: string) { setFocusedEventId(eventId); setFocusedEventRequest(current => current + 1); setView('history'); setSelectedId(undefined); setDialog(null); setMobileNav(false); }
   function navigate(next: View) { if (next !== 'history') eventRequestCursor.current = undefined; setView(next); setSelectedId(undefined); setMobileNav(false); setGoal(''); createKey.current = null; }
-  const filtered = tasks.filter(task => (!projectId || task.project_id === projectId) && (filter === 'all' || (filter === 'active' ? activeStates.has(task.state) : filter === 'attention' ? attentionStates.has(task.state) : filter === 'drafts' ? task.state === 'draft' : finishedStates.has(task.state))));
-  const taskEvents = selected ? events.filter(event => event.aggregate_id === selected.id || selectedSessions.some(session => session.id === event.aggregate_id)) : [];
-  const conversationEvents = taskEvents.filter(event => sessionEventText(event));
+  const filtered = useMemo(() => tasks.filter(task => (!projectId || task.project_id === projectId) && (filter === 'all' || (filter === 'active' ? activeStates.has(task.state) : filter === 'attention' ? attentionStates.has(task.state) : filter === 'drafts' ? task.state === 'draft' : finishedStates.has(task.state)))), [tasks, projectId, filter]);
+  const selectedTaskId = selected?.id;
+  const taskEvents = useMemo(() => {
+    if (!selectedTaskId) return [];
+    const sessionIds = new Set(selectedSessions.map(session => session.id));
+    return events.filter(event => event.aggregate_id === selectedTaskId || sessionIds.has(event.aggregate_id));
+  }, [events, selectedTaskId, selectedSessions]);
+  const conversationEvents = useMemo(() => taskEvents.filter(event => sessionEventText(event)), [taskEvents]);
   const displayedTurns = new Set(conversationEvents
     .filter(event => event.kind === 'session.message_queued')
     .map(event => (event.payload as { turn_id?: string } | null)?.turn_id));
@@ -321,18 +349,14 @@ export function App() {
       ))}
       {error && <div className="error" role="alert"><strong>{t.error}</strong><p>{error}</p></div>}
       {status === 'disconnected' && <section className="disconnected-panel"><h2>{t.disconnected}</h2><p>{t.disconnectedHelp}</p><button onClick={() => void refresh()}>{t.reconnect}</button></section>}
-      {showingCanvas && !selected && <><div className="page-heading"><h1>{c.yourTasks}</h1><button className="text-button" onClick={() => setDialog('projects')}><Icon name="folder" />{projectId ? projectName(projectId) : c.allProjects}</button></div><div className="filter-row" aria-label={language === 'zh' ? '任务状态筛选' : 'Task status filters'}>{(['all', 'active', 'attention', 'drafts', 'done'] as const).map(item => <button key={item} aria-pressed={filter === item} onClick={() => setFilter(item)}>{c[item]}</button>)}</div>{tasks.length === 0 ? <div className="canvas-empty"><Icon name="task" /><p>{t.empty}</p></div> : filtered.length === 0 ? <p className="canvas-empty">{c.noMatches}</p> : <div className="task-grid">{filtered.map(task => {
-        const session = sessions.find(record => record.task_id === task.id), connection = connections.find(record => record.id === session?.connection_id);
-        const latest = [...events].reverse().find(event => event.aggregate_id === task.id);
-        return <button className="task-card" data-testid="task-card" data-task-id={task.id} key={task.id} onClick={() => openTask(task.id)} aria-label={`${c.openTask}: ${task.goal}`}><div className="card-top"><span className={`task-state state-${task.state}`}><span className="status-dot" />{stateText(task.state)}</span><Icon name="arrow" /></div><h2>{task.goal}</h2><p className="card-preview">{!latest || latest.kind === 'task.created' ? c.recent : latest.kind === 'task.cancelled' ? t.cancelled : c.recordedAction}</p><div className="card-footer"><span><Icon name="folder" />{projectName(task.project_id)}</span><span>{connection?.name ?? c.noConnection}</span></div></button>;
-      })}</div>}</>}
+      {showingCanvas && !selected && <><div className="page-heading"><h1>{c.yourTasks}</h1><button className="text-button" onClick={() => setDialog('projects')}><Icon name="folder" />{projectId ? projectName(projectId) : c.allProjects}</button></div><div className="filter-row" aria-label={language === 'zh' ? '任务状态筛选' : 'Task status filters'}>{(['all', 'active', 'attention', 'drafts', 'done'] as const).map(item => <button key={item} aria-pressed={filter === item} onClick={() => setFilter(item)}>{c[item]}</button>)}</div>{tasks.length === 0 ? <div className="canvas-empty"><Icon name="task" /><p>{t.empty}</p></div> : filtered.length === 0 ? <p className="canvas-empty">{c.noMatches}</p> : <TaskGrid tasks={filtered} projects={projects} sessions={sessions} connections={connections} events={events} language={language} onOpenTask={openTask} />}</>}
       {showingCanvas && selected && <section className="task-thread" data-testid="task-thread" data-task-id={selected.id}><div className="thread-back"><button className="text-button" onClick={() => setSelectedId(undefined)}><Icon name="back" />{c.back}</button><button className="text-button" onClick={() => {setTaskIntent(null);setDialog('execution');}}><Icon name="settings" />{c.execution}</button></div><div className="thread-heading"><h1>{selected.goal}</h1><span className={`task-state state-${selected.state}`}><span className="status-dot" />{stateText(selected.state)}</span></div><div className="thread-tabs" role="tablist" aria-label={language === 'zh' ? '任务内容' : 'Task content'}>{(['conversation', 'artifacts', 'details'] as const).map(item => <button key={item} role="tab" aria-selected={tab === item} tabIndex={tab === item ? 0 : -1} id={`tab-${item}`} aria-controls={`panel-${item}`} onKeyDown={event => {
         const order: Tab[] = ['conversation', 'artifacts', 'details'];
         const index = order.indexOf(item);
         const next = event.key === 'ArrowRight' ? order[(index + 1) % order.length] : event.key === 'ArrowLeft' ? order[(index + order.length - 1) % order.length] : event.key === 'Home' ? order[0] : event.key === 'End' ? order[order.length - 1] : null;
         if (next) { event.preventDefault(); setTab(next); if(next==='details')setDetailsTaskId(selected.id); document.getElementById(`tab-${next}`)?.focus(); }
       }} onClick={() => {setTab(item);if(item==='details')setDetailsTaskId(selected.id);}}>{c[item]}</button>)}</div><div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
-        {tab === 'conversation' && <><div className="conversation"><article className="user-message"><p>{selected.goal}</p></article>{conversationEvents.map(event => <article className={event.kind === 'session.message_queued' ? 'user-message' : 'agent-message'} key={event.event_id}><p>{sessionEventText(event)}</p></article>)}{recoveredForTask.map(receipt => (
+        {tab === 'conversation' && <><div className="conversation"><article className="user-message"><p>{selected.goal}</p></article><ConversationMessages events={conversationEvents} />{recoveredForTask.map(receipt => (
           <article className="user-message" key={receipt.turn_id}>
             {!displayedTurns.has(receipt.turn_id) && <p>{receipt.text}</p>}
             <p role="status">{recoveryLabels.received}</p>
@@ -358,7 +382,10 @@ export function App() {
     </ContextDialog>}
   </div>;
 }
-function EventList({ events, title, empty, focusedEventId, focusRequest = 0 }: { events: JournalEvent[]; title: string; empty: string; focusedEventId?: string; focusRequest?: number }) {
+const ConversationMessages = memo(function ConversationMessages({ events }: { events: JournalEvent[] }) {
+  return <>{events.map(event => <article className={event.kind === 'session.message_queued' ? 'user-message' : 'agent-message'} key={event.event_id}><p>{sessionEventText(event)}</p></article>)}</>;
+});
+const EventList = memo(function EventList({ events, title, empty, focusedEventId, focusRequest = 0 }: { events: JournalEvent[]; title: string; empty: string; focusedEventId?: string; focusRequest?: number }) {
   useEffect(() => { if (focusedEventId) document.getElementById(`journal-event-${focusedEventId}`)?.scrollIntoView?.({ block: 'nearest' }); }, [focusedEventId, focusRequest]);
   return <section className="events"><h2>{title}</h2>{events.length ? <ol>{events.map(event => <li id={`journal-event-${event.event_id}`} key={event.event_id}><details open={event.event_id === focusedEventId || undefined}><summary><span>{event.kind}</span> <time>{event.occurred_at}</time> <span>#{event.sequence}</span></summary><pre>{JSON.stringify(event.payload, null, 2)}</pre></details></li>)}</ol> : <p>{empty}</p>}</section>;
-}
+});

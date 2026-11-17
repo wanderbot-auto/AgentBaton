@@ -1,3 +1,4 @@
+from tests.infrastructure.native_ci_workflow_split import read_workflow_source
 """Synthetic files and mocked EnvBuilder only; never create or execute a venv."""
 import contextlib
 import hashlib
@@ -216,7 +217,7 @@ def strip_composed_notification_layer(text):
 
 class ExactWorkflowLayer(unittest.TestCase):
     def test_single_command_inverse_restores_entire_e874_workflow_and_all_old_pins(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text()
+        text=read_workflow_source(ROOT / '.github/workflows/product.yml')
         schema17 = W.strip_conversation_schema18(text)
         old = W.strip_private_browser_python(schema17)
         self.assertEqual(hashlib.sha256(strip_composed_notification_layer(old).encode()).hexdigest(), E874_WORKFLOW_SHA256)
@@ -225,7 +226,7 @@ class ExactWorkflowLayer(unittest.TestCase):
         W.verify_only_six_historical_target_changes(old)
 
     def test_unknown_command_extra_step_changed_guard_or_outside_edit_cannot_be_hidden(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text()
+        text=read_workflow_source(ROOT / '.github/workflows/product.yml')
         for before,after in [(W.PRIVATE_BROWSER_PYTHON_AFTER,W.PRIVATE_BROWSER_PYTHON_BEFORE+'          echo unknown\n'),
             ('--output artifacts/browser-venv','--output /global/python'),
             ('--require-hashes','--no-deps'),('contents: read','contents: write'),
@@ -237,7 +238,7 @@ class ExactWorkflowLayer(unittest.TestCase):
             W.verify_only_six_historical_target_changes(text.replace(W.PRIVATE_BROWSER_PYTHON_AFTER,W.PRIVATE_BROWSER_PYTHON_AFTER*2,1))
 
     def test_composed_inverse_preserves_original_driver_and_old_workflow_without_git_objects(self):
-        composed = W.strip_private_browser_python(W.strip_conversation_schema18((ROOT/'.github/workflows/product.yml').read_text()))
+        composed = W.strip_private_browser_python(W.strip_conversation_schema18(read_workflow_source(ROOT / '.github/workflows/product.yml')))
         restored = strip_composed_notification_layer(composed)
         self.assertEqual(hashlib.sha256(composed.encode()).hexdigest(), NOTIFICATION_BEFORE_PRIVATE_PYTHON_SHA256)
         self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), E874_WORKFLOW_SHA256)
@@ -249,7 +250,7 @@ class ExactWorkflowLayer(unittest.TestCase):
         self.assertEqual(hashlib.sha256(restored[start:end].encode()).hexdigest(), W.INTEGRATION_SETUP_STEP_SHA256)
 
     def test_composed_layer_rejects_changed_missing_duplicate_moved_or_raw_edited_notification(self):
-        text = W.strip_private_browser_python(W.strip_conversation_schema18((ROOT/'.github/workflows/product.yml').read_text()))
+        text = W.strip_private_browser_python(W.strip_conversation_schema18(read_workflow_source(ROOT / '.github/workflows/product.yml')))
         self.assertEqual(hashlib.sha256(strip_composed_notification_layer(text).encode()).hexdigest(), E874_WORKFLOW_SHA256)
         title = '      - name: Retain finite task notification evidence without private runtime data\n'
         start = text.index(title); end = text.index('      - uses:', start)
@@ -271,7 +272,7 @@ class ExactWorkflowLayer(unittest.TestCase):
                 strip_composed_notification_layer(changed)
 
     def test_composition_cannot_hide_changes_to_either_complete_workflow(self):
-        composed = W.strip_private_browser_python(W.strip_conversation_schema18((ROOT/'.github/workflows/product.yml').read_text()))
+        composed = W.strip_private_browser_python(W.strip_conversation_schema18(read_workflow_source(ROOT / '.github/workflows/product.yml')))
         original = strip_composed_notification_layer(composed)
         for label, text in [('composed', composed), ('original', original)]:
             self.assertEqual(hashlib.sha256(strip_composed_notification_layer(text).encode()).hexdigest(), E874_WORKFLOW_SHA256)

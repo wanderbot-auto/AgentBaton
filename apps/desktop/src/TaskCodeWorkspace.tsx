@@ -57,8 +57,8 @@ function WorkspacePanel(props: Props & { open: boolean }) {
     if (!initial.connected) { setError(t.disconnected); return; }
     setLoading(true);
     try {
-      const task = parseTaskWithWorkspaceBinding(await api.taskGet(initial.task.id), initial.task.id);
-      const projects = await api.projectsList();
+      const [taskRecord, projects] = await Promise.all([api.taskGet(initial.task.id), api.projectsList()]);
+      const task = parseTaskWithWorkspaceBinding(taskRecord, initial.task.id);
       if (!Array.isArray(projects) || projects.filter(p => p.id === task.project_id).length > 1) throw new Error(t.invalid);
       const project = projects.find(p => p.id === task.project_id) ?? null;
       if (task.revision < saved.taskFloor || task.revision < initial.task.revision || task.project_id !== initial.task.project_id && !(task.project_id === 'local' && !initial.task.project_id) || task.spec_revision !== initial.task.spec_revision && initial.task.spec_revision !== undefined) throw new Error(t.invalid);

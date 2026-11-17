@@ -672,16 +672,21 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
   desktop:
-    name: Product / ${{ matrix.os }}
+    name: Product / Core and migrations / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    # Native tests, two application profiles, release audit and DMG packaging
-    # must finish on the same exact checkout. Per-test/product limits stay fixed.
+    # Core and genuine migrations retain the existing cold-build exception.
+    # Native/default acceptance follows on the exact same source tree.
     timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 2
       matrix:
         os: [macos-15]
+    env:
+      NATIVE_CI_PR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    outputs:
+      manifest_sha256: ${{ steps.handoff.outputs.manifest_sha256 }}
+      artifact_id: ${{ steps.handoff_upload.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -764,11 +769,92 @@ jobs:
           set -euo pipefail
           cargo test --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- -D warnings
+      - name: Retain bounded native migration metadata without private history
+        if: always()
+        run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration
+      - name: Retain finite rework progress without private runtime data
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, sys
+          output = pathlib.Path('artifacts/native-smoke')
+          output.mkdir(parents=True, exist_ok=True)
+          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
+          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+          with os.fdopen(fd, 'wb') as report:
+              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
+          PY
+      - name: Seal fixed normal companions and finite Core receipt
+        id: handoff
+        run: python3 scripts/native-ci-handoff.py pack --directory "$RUNNER_TEMP/native-ci-core"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: handoff_upload
+        with:
+          name: native-ci-core-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: ${{ runner.temp }}/native-ci-core/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload original finite Core projections
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: native-ci-core-metadata-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: |
+            artifacts/native-smoke/legacy-migration/summary.json
+            artifacts/native-smoke/factory-rework-progress.json
+          if-no-files-found: warn
+          retention-days: 14
+  native:
+    name: Product / Native and default application / macos-15
+    needs: desktop
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [macos-15]
+    env:
+      NATIVE_CI_PR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    outputs:
+      receipt_sha256: ${{ steps.native_receipt.outputs.receipt_sha256 }}
+      artifact_id: ${{ steps.native_receipt_upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Fresh consumer frontend and toolchain
+        run: |
+          set -euo pipefail
+          test "$(uname -s)" = Darwin
+          test "$(uname -m)" = arm64
+          rustup toolchain install stable --profile minimal --component rustfmt,clippy
+          npm --prefix apps/desktop ci --ignore-scripts --no-audit --no-fund
+          npm --prefix apps/desktop run build
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: ${{ needs.desktop.outputs.artifact_id }}
+          path: ${{ runner.temp }}/native-ci-core
+          merge-multiple: true
+      - name: Validate current-run handoff and rebuild actual consumer companions
+        env:
+          CORE_MANIFEST: ${{ needs.desktop.outputs.manifest_sha256 }}
+        run: |
+          set -euo pipefail
+          python3 scripts/native-ci-handoff.py restore --directory "$RUNNER_TEMP/native-ci-core" --expected "$CORE_MANIFEST"
+          cargo build --locked --bin batond --bin baton
+          python3 scripts/native-ci-handoff.py probe --directory "$RUNNER_TEMP/native-ci-actual" --expected "$CORE_MANIFEST"
+          bash scripts/prepare-desktop-sidecars.sh
       - name: Actual macOS WebView and daemon lifecycle acceptance
         run: |
           set -euo pipefail
           mkdir -p artifacts/native-smoke
           bash scripts/native-macos-smoke.sh artifacts/native-smoke 2>&1 | tee artifacts/native-smoke/lane.log
+      - name: Verify actual reconstructed Native companion bytes
+        run: python3 scripts/native-ci-handoff.py check --directory "$RUNNER_TEMP/native-ci-actual"
       - name: Actual native Owner Grant dialog and private database acceptance
         run: |
           set -euo pipefail
@@ -889,21 +975,6 @@ jobs:
           if __name__ == '__main__':
               project_integration_cases()
           INTEGRATION_EVIDENCE
-      - name: Retain bounded native migration metadata without private history
-        if: always()
-        run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration
-      - name: Retain finite rework progress without private runtime data
-        if: always()
-        run: |
-          python3 - <<'PY'
-          import os, pathlib, subprocess, sys
-          output = pathlib.Path('artifacts/native-smoke')
-          output.mkdir(parents=True, exist_ok=True)
-          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
-          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-          with os.fdopen(fd, 'wb') as report:
-              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
-          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -926,3 +997,66 @@ jobs:
           path: artifacts/development/
           if-no-files-found: error
           retention-days: 14
+      - name: Seal complete Native and default application acceptance
+        id: native_receipt
+        if: ${{ !cancelled() && success() }}
+        env:
+          CORE_MANIFEST: ${{ needs.desktop.outputs.manifest_sha256 }}
+          NATIVE_CI_CANCELLED: 'false'
+        run: python3 scripts/native-ci-handoff.py complete --directory "$RUNNER_TEMP/native-ci-core" --expected "$CORE_MANIFEST" --actual "$RUNNER_TEMP/native-ci-actual" --receipt "$RUNNER_TEMP/native-ci-receipt"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: native_receipt_upload
+        with:
+          name: native-ci-acceptance-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: ${{ runner.temp }}/native-ci-receipt/
+          if-no-files-found: error
+          retention-days: 14
+  desktop_acceptance:
+    name: Product / macos-15
+    needs: [desktop, native]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      NATIVE_CI_PR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      NATIVE_CI_NEEDS: ${{ toJSON(needs) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Refuse cancelled workflow
+        if: cancelled()
+        run: exit 1
+      - name: Refuse incomplete or cancelled ARM dependencies
+        if: ${{ !cancelled() && success() }}
+        env:
+          NATIVE_CI_CANCELLED: 'false'
+        run: |
+          python3 - <<'PY_GATE'
+          import json, os
+          needs = json.loads(os.environ['NATIVE_CI_NEEDS'])
+          if (os.environ['NATIVE_CI_CANCELLED'] != 'false' or set(needs) != {'desktop', 'native'}
+                  or any(needs[name]['result'] != 'success' for name in needs)):
+              raise SystemExit('Both current-run ARM stages must succeed')
+          PY_GATE
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: ${{ needs.desktop.outputs.artifact_id }}
+          path: ${{ runner.temp }}/native-ci-core
+          merge-multiple: true
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: ${{ needs.native.outputs.artifact_id }}
+          path: ${{ runner.temp }}/native-ci-receipt
+          merge-multiple: true
+      - name: Independently verify current source and complete ARM acceptance
+        id: verify_native
+        if: ${{ !cancelled() && success() }}
+        env:
+          NATIVE_CI_CANCELLED: 'false'
+          CORE_MANIFEST: ${{ needs.desktop.outputs.manifest_sha256 }}
+          NATIVE_RECEIPT: ${{ needs.native.outputs.receipt_sha256 }}
+        run: python3 scripts/native-ci-handoff.py aggregate --directory "$RUNNER_TEMP/native-ci-core" --expected "$CORE_MANIFEST" --receipt "$RUNNER_TEMP/native-ci-receipt" --receipt-sha "$NATIVE_RECEIPT"
+      - name: Fail cancelled or unverified protected acceptance
+        if: ${{ always() && (cancelled() || steps.verify_native.outcome != 'success') }}
+        run: exit 1
