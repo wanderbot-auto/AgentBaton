@@ -16,6 +16,16 @@ beforeEach(() => {
   vi.mocked(goalExecutionApi.list).mockResolvedValue([f.run]); vi.mocked(goalExecutionApi.get).mockResolvedValue(f.view);
 });
 function open(container: HTMLElement) { const details = container.querySelector('details')!; details.open = true; fireEvent(details,new Event('toggle')); }
+it('starts run detail before independent plan history resolves, then validates both', async () => {
+  let resolve!: (plans: typeof f.plan[]) => void;
+  vi.mocked(goalApi.plansList).mockImplementationOnce(() => new Promise(done => { resolve = done; }));
+  const { container } = render(<TaskPlanSummary task={f.task} language="en" connected />); open(container);
+  await waitFor(() => expect(goalApi.plansList).toHaveBeenCalledTimes(1));
+  expect(goalExecutionApi.get).toHaveBeenCalledWith(f.run.id);
+  expect(screen.queryByText('Recorded proposal · Revision 1')).not.toBeInTheDocument();
+  await act(async () => resolve([f.plan]));
+  expect(await screen.findByText('Recorded proposal · Revision 1')).toBeInTheDocument();
+});
 it('reads recorded proposal and execution only when expanded', async () => {
   const { container } = render(<TaskPlanSummary task={f.task} language="en" connected />);
   expect(goalApi.scopesList).not.toHaveBeenCalled(); open(container);

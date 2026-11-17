@@ -1,0 +1,274 @@
+{
+  "work_id": "operation-performance",
+  "date_local": "2026-11-17",
+  "base_commit": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
+  "branch": "collab/operation-performance",
+  "status": "local_product_acceptance_passed_ci_pending",
+  "environment": {
+    "os": "macOS26.6.1",
+    "architecture": "arm64",
+    "node": "26.7.0",
+    "rustc": "1.91.1"
+  },
+  "related_requirements": [
+    "AB-UX-009",
+    "AB-UX-008",
+    "AB-COR-004"
+  ],
+  "requirement_acceptance_upgraded": false,
+  "production_source_sha256": {
+    "apps/desktop/src/App.tsx": "cfcc695796c6aece751883b71dd978f3358cfbdeb040145ab6c81687a6b5aef4",
+    "apps/desktop/src/TaskGrid.tsx": "40eecdb1e633a6ad316802a22dc663338a5f194f7b90eac03dd3999d60d95db4",
+    "apps/desktop/src/task-grid-model.ts": "7ead3404f94d85d9f006678ddb58224afd0060e1b3af36d7c5c5eea50a7c3133",
+    "apps/desktop/src/TaskNotifications.tsx": "920d18f3dd1a15b3c02b625fed437bf5eab1c6350a6874d7fbb1ddf59cace976",
+    "apps/desktop/src/TaskPlanSummary.tsx": "b3767809dc7314523ec36aee50a51bbe382f2449cad28b46e38b965306734080",
+    "apps/desktop/src/TaskCodeWorkspace.tsx": "4af8981699f4cc6ca87cd2c5866df863ebc72e42b69e1f781444009a2aec44c7",
+    "crates/core/src/storage.rs": "7496eeb7211fc6af1da4ec5a6db9c0d0d979bca51bcf4e4ed1611c2063858ffd",
+    "crates/core/src/operation_performance_tests.rs": "1cd46d5c44d1eb24d523cd6759c9256e7389c986b3a7f9f1176710be52750b7d"
+  },
+  "measurements": {
+    "journal100events2KiB": {
+      "unit": "ms/page",
+      "baseline_median": 0.175244165,
+      "single_cursor_medians": [
+        0.16231125,
+        0.166306875
+      ],
+      "sql_statements_before": 102,
+      "sql_statements_after": 2,
+      "interpretation": "local warm storage microbenchmark; not end-to-end IPC latency"
+    },
+    "task_grid1000": {
+      "fixture": {
+        "tasks": 1000,
+        "projects": 1000,
+        "sessions": 1000,
+        "connections": 1000,
+        "events": 1000
+      },
+      "unit": "milliseconds_per_lookup_batch",
+      "equivalent": true,
+      "originalMedian": 3.461714599999999,
+      "indexedMedian": 0.09796460000000025,
+      "originalSamples": [
+        3.35089165,
+        3.402406250000001,
+        3.4431166500000017,
+        3.4519604000000017,
+        3.461714599999999,
+        3.4627375000000002,
+        3.491383349999995,
+        3.503664550000002,
+        8.9294104
+      ],
+      "indexedSamples": [
+        0.08731875000000286,
+        0.08847499999999968,
+        0.08989789999999971,
+        0.09623960000000124,
+        0.09796460000000025,
+        0.1257604000000015,
+        0.1361582999999996,
+        0.1523729000000003,
+        0.1809603999999993
+      ]
+    },
+    "typing": {
+      "composer_edits": 10,
+      "unchanged_card_goal_reads": 0,
+      "unrelated_notification_recomputations": 0,
+      "dimension": "jsdom component tests",
+      "task_thread_edits": 10,
+      "unchanged_conversation_text_and_payload_reads": 0,
+      "thread_fixture_extra_payload_bytes": 131072
+    }
+  },
+  "verification": [
+    {
+      "command": "cargo test -p agentbaton-core --lib operation_performance_tests --locked -- --nocapture",
+      "result": "passed",
+      "tests": 3
+    },
+    {
+      "command": "cargo test -p agentbaton-core --test storage --locked",
+      "result": "passed",
+      "tests": 8
+    },
+    {
+      "command": "npm --prefix apps/desktop test",
+      "result": "passed",
+      "tests": 1543,
+      "files": 111
+    },
+    {
+      "command": "npm --prefix apps/desktop run build",
+      "result": "passed",
+      "includes": "tsc --noEmit and vite build"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "result": "passed"
+    },
+    {
+      "command": "RUST_TEST_THREADS=1 cargo test --workspace --locked (with same-commit frozen companions)",
+      "result": "passed",
+      "tests_including_doctests": 1163,
+      "failed": 0,
+      "ignored": 0,
+      "source_commit": "7c015476be9ff3743d74734a87800dd899f7fb2a"
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "result": "passed",
+      "source_commit": "7c015476be9ff3743d74734a87800dd899f7fb2a"
+    },
+    {
+      "command": "python3 scripts/smoke-local-product.py",
+      "result": "passed",
+      "dimension": "real daemon/CLI Unix IPC, cancellation journal and SIGKILL restart persistence",
+      "source_commit": "7c015476be9ff3743d74734a87800dd899f7fb2a"
+    }
+  ],
+  "independent_review": "REVIEW.md",
+  "full_backend_acceptance": {
+    "source_commit": "7c015476be9ff3743d74734a87800dd899f7fb2a",
+    "results": {
+      "workspace_tests": 0,
+      "frozen_tools_verify": 0,
+      "clippy": 0,
+      "real_ipc_smoke": 0
+    },
+    "workspace_summary": {
+      "passed": 1163,
+      "failed": 0,
+      "ignored": 0,
+      "source": "7c015476be9ff3743d74734a87800dd899f7fb2a",
+      "counting": "last outer result per Cargo target; nested helper summaries excluded",
+      "target_groups": 65,
+      "local_detailed_summary": "artifacts/collab/workspace-summary.json",
+      "summary_sha256": "a33ac65dc6fa1f13ba97641cee174b416ac2d9188605ff64f27ce7f2776d8077"
+    },
+    "followup_scope_equivalence": "Later changes affect App.tsx/App.performance.test.tsx and documentation/manifest metadata only; crates, daemon, cli and Cargo inputs unchanged from tested commit.",
+    "unchanged_input_trees": {
+      "crates": "d817063f75e59622b611986d5b5ac30e62ffb759",
+      "apps/daemon": "e99a84b4417a57b10945851dcdff3af6b0026e4d",
+      "apps/cli": "fce8009215a305006c24680065d64b00ed54f3c0"
+    },
+    "frozen_tool_binaries": {
+      "baton": "650b4b81740f67431893c3f29ba05f28f014980374b1a05e18cbebb7acefc0bc",
+      "batond": "18f62a0426adee6c92e548f5a5cd5fd6690397be03b6512b0e4d3112dfcc8e20"
+    }
+  },
+  "native_webview_performance": "not_run",
+  "real_provider_calls": "not_run_not_authorized",
+  "owner_running_app": "untouched",
+  "retained_local_logs": {
+    "artifacts/collab/backend-acceptance.log": {
+      "sha256": "e20a0dd14f6e7f0387e9593885a0249dddbed0b85c5d68a16800ef1f42c42e27"
+    },
+    "artifacts/collab/backend-full-final.log": {
+      "sha256": "cced54c163bf69ebef97a0e227f26c3c3f9914d5af62f1202146b03a1afae66c"
+    },
+    "artifacts/collab/backend-full.log": {
+      "sha256": "1308bee5b6865afa7c53e433eb1849cf215bb38c4c9efc315e2f8bd1407e9226"
+    },
+    "artifacts/collab/baseline-frontend.log": {
+      "sha256": "e5a8219a6c4c97aa4b8a4b0801bd65bec4f6d623b2f7d69af5ef0c7ba1d7cee1"
+    },
+    "artifacts/collab/baseline-journal.log": {
+      "sha256": "45d0532d148204447a4a35efe0c6a78bf561aa17493c95db8f2d4cb6a0fe1d9c"
+    },
+    "artifacts/collab/clippy.log": {
+      "sha256": "79a769610e6bb63d453d702fc784b47475215e505b146cfd10a7f46cc41c98c3"
+    },
+    "artifacts/collab/exact-commit-backend.log": {
+      "sha256": "ca1b67860af64c5037f90da4aefe87009998ff81e13b0d4911cdbbac13334bad"
+    },
+    "artifacts/collab/final-frontend-infra.log": {
+      "sha256": "f472efed7c39b46bbbcb3cfc9e88cb28049c5bc5a6e9a0e319e43ab30a230f9e"
+    },
+    "artifacts/collab/focused.log": {
+      "sha256": "97428d48c982f5edcbce1ec0f5b2dd088315c7845ad2dc0467262b9c7f3f750c"
+    },
+    "artifacts/collab/frontend-focused-final.log": {
+      "sha256": "804cda63cfbfe6d98ba5a2cbb2f99a325898546dd0b97bab1b8fb1ff6e6ee9ce"
+    },
+    "artifacts/collab/frontend-focused.log": {
+      "sha256": "9b2c7a3bb18bf379029b1420a4f28276d55a00627e9e81d50e0ad1e6b0cd4dce"
+    },
+    "artifacts/collab/frontend-full.log": {
+      "sha256": "ecf82e7f856b76e90083c745c7598424830d0e5c5005ae9d41919bd2b3150105"
+    },
+    "artifacts/collab/frontend-recovery-focused.log": {
+      "sha256": "7416033ccf135bcb951cf5c720d4e2fc14891ede0446441b5ac8cff8b5968aa7"
+    },
+    "artifacts/collab/infrastructure-acceptance.log": {
+      "sha256": "e31d4f418df3247b3535fddd7a4d59146b48a44f27ed2e2da6b6198b671974f2"
+    },
+    "artifacts/collab/infrastructure-official-index.log": {
+      "sha256": "4210e19b8253bc6f9c450fee67820e56818d05b6d1c2a6a5902bb0ca2ab97e0a"
+    },
+    "artifacts/collab/infrastructure-system-ca.log": {
+      "sha256": "b2f4c91c779018225637969af6016d2c20285441fea1acad54a815093e858272"
+    },
+    "artifacts/collab/precommit-acceptance.log": {
+      "sha256": "ed83b14bab4c7810ff5acc4f6c0d9ea58912a72505c88cda1639baca61c0f026"
+    },
+    "artifacts/collab/real-ipc-smoke.log": {
+      "sha256": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805"
+    },
+    "artifacts/collab/single-cursor-acceptance.log": {
+      "sha256": "2751fbaa75faf44f29682bc283a7a1cd187a6eba922d813c4a52668470ef8b92"
+    },
+    "artifacts/collab/static-infrastructure.log": {
+      "sha256": "b18bf766273edf7a83f8085ddfbcf438ce0631a18864fecd930c2b69d58c0771"
+    },
+    "artifacts/collab/workspace-tests.log": {
+      "sha256": "9f58e5fd0b67facf7cb186a9e7e5d9e06d608a132304da2fe7889b402c613d3d"
+    }
+  },
+  "infrastructure_acceptance": {
+    "result": "passed",
+    "python_tests": 879,
+    "bootstrap_files": 93,
+    "design_validation": "passed",
+    "static_infrastructure_validation": "passed",
+    "python": "3.14 task-local venv",
+    "tls": "existing /etc/ssl/cert.pem supplied to pip; verification enabled; no global trust change",
+    "log": "artifacts/collab/infrastructure-system-ca.log"
+  },
+  "scope": "operation_performance_top5",
+  "whole_product_complete": false,
+  "top5": [
+    {
+      "priority": 1,
+      "feature": "Warm refresh and task status",
+      "implementation": "Concurrent independent catalogs; cold bootstrap retained; failed speculative reads retried once only after current snapshot",
+      "verification": "App.performance.test.tsx deferred/recovery/failure/stale tests; mocked transport"
+    },
+    {
+      "priority": 2,
+      "feature": "Task cards and conversation typing",
+      "implementation": "Lookup indexes plus memoized grid/messages/events and stable derived arrays",
+      "verification": "1000-task semantic-equivalent lookup benchmark and actual App component10-edit tests; no native timing claim"
+    },
+    {
+      "priority": 3,
+      "feature": "Event history paging",
+      "implementation": "One guarded live cursor;2SQL statements for100events instead of102",
+      "verification": "Actual SQLite byte/Unicode/malformed/oversized/cursor tests, full Rust and real Unix IPC smoke"
+    },
+    {
+      "priority": 4,
+      "feature": "Notification center",
+      "implementation": "Memoized retained evidence and aggregation keyed by data and every observation primitive",
+      "verification": "Zero recomputations across10 unrelated renders; freshness/data invalidation; existing safety tests"
+    },
+    {
+      "priority": 5,
+      "feature": "Workspace and plan detail expansion",
+      "implementation": "Parallel independent read-only task/project and plan/run requests with original validation",
+      "verification": "Deferred-promise start-order tests plus existing scope/revision/stale/failure cases"
+    }
+  ]
+}

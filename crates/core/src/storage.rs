@@ -10,6 +10,10 @@ use uuid::Uuid;
 /// alone do not bound memory when normalized Provider messages are large.
 pub const MAX_EVENT_PAGE_BYTES: usize = 4 * 1024 * 1024;
 
+#[cfg(test)]
+#[path = "operation_performance_tests.rs"]
+mod operation_performance_tests;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum TaskState {
@@ -588,27 +592,22 @@ impl Store {
                 "Event batch limit must be 1 through 500",
             ));
         }
-        let mut stmt = self
-            .conn
-            .prepare(
-                "SELECT sequence,octet_length(document) FROM events WHERE sequence>?1 ORDER BY sequence LIMIT ?2",
-            )
-            .map_err(db_error)?;
-        let rows = stmt
-            .query_map(params![cursor as i64, limit], |r| {
-                Ok((r.get::<_, i64>(0)? as u64, r.get::<_, i64>(1)?))
-            })
+        // SQLite suppresses individually oversized documents before they enter
+        // the result. Check the cumulative byte budget before copying String
+        // data into Rust. One live cursor keeps metadata and body in the same
+        // read snapshot and replaces one document query per accepted event.
+        let mut stmt = self.conn.prepare_cached(
+            "SELECT sequence,octet_length(document),CASE WHEN octet_length(document)<=?3 THEN document END FROM events WHERE sequence>?1 ORDER BY sequence LIMIT ?2",
+        ).map_err(db_error)?;
+        let mut rows = stmt
+            .query(params![cursor as i64, limit, MAX_EVENT_PAGE_BYTES as i64])
             .map_err(db_error)?;
         let mut events = Vec::new();
         let mut raw_bytes = 0usize;
         let mut byte_limited = false;
-        let mut documents = self
-            .conn
-            .prepare_cached("SELECT document FROM events WHERE sequence=?1")
-            .map_err(db_error)?;
-        for row in rows {
-            let (seq, bytes) = row.map_err(db_error)?;
-            let bytes = usize::try_from(bytes)
+        while let Some(row) = rows.next().map_err(db_error)? {
+            let seq = row.get::<_, i64>(0).map_err(db_error)? as u64;
+            let bytes = usize::try_from(row.get::<_, i64>(1).map_err(db_error)?)
                 .map_err(|_| CoreError::new("INTERNAL_ERROR", "Invalid journal record length"))?;
             if bytes > MAX_EVENT_PAGE_BYTES.saturating_sub(raw_bytes) {
                 if events.is_empty() {
@@ -622,12 +621,7 @@ impl Store {
                 byte_limited = true;
                 break;
             }
-            let sequence_id = i64::try_from(seq)
-                .map_err(|_| CoreError::new("INTERNAL_ERROR", "Invalid journal sequence"))?;
-            let raw: String = documents
-                .query_row([sequence_id], |row| row.get(0))
-                .map_err(db_error)?;
-            // Same connection/read snapshot, with a defensive post-read check.
+            let raw: String = row.get(2).map_err(db_error)?;
             if raw.len() != bytes {
                 return Err(CoreError::new(
                     "INPUT_CHANGED",

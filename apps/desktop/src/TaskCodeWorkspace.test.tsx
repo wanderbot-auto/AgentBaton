@@ -37,6 +37,14 @@ function deferred<T>() { let resolve!: (value: T) => void; const promise = new P
 beforeEach(() => vi.resetAllMocks());
 
 describe('Task code workspace component / mocked fixed daemon transport only', () => {
+  it('starts project and task reads together but resolves workspace only after both validate', async () => {
+    const f = fixture(); setup(f); const task = deferred<Task>(); vi.mocked(api.taskGet).mockReturnValueOnce(task.promise);
+    render(<TaskCodeWorkspace task={f.task} language="en" connected autoOpen />);
+    expect(api.projectsList).toHaveBeenCalledTimes(1); expect(api.workspacesResolve).not.toHaveBeenCalled();
+    await act(async () => task.resolve(f.task));
+    await waitFor(() => expect(api.workspacesResolve).toHaveBeenCalledTimes(1));
+    expect(prepare()).toBeEnabled();
+  });
   it('is folded and performs no reads or writes on task-detail mount', () => {
     const f = fixture(); render(<TaskCodeWorkspace task={f.task} language="en" connected />);
     expect(screen.getByTestId('task-code-workspace')).not.toHaveAttribute('open');
