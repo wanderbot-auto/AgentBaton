@@ -1,9 +1,11 @@
 # Checkpoint
 
-status=ui_readiness_target_verified_full_pending
-head-before-test-commit=e75bc50588be8186c6bd364bd7ef914789d569aa; PR30/main; base=b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c
-Authorized additional scope: apps/desktop/src/GoalPlanDraft.integration.test.tsx only; leader record/hash in ui-readiness/PLAN.json. Shared claim confirmed.
-Target verification: ui-readiness/runs/20261117T160346Z-261412000/evidence.json — locked task-local npm ci and5/5 target tests pass. Deferred second refresh pending disabled/no mutation, valid-only release, rejected/foreign blocked. All original assertions preserved; production/fixtures/config and remote sources unchanged. Native read-only reviewer no blocker.
-Next: commit UI test/docs, run typecheck+fullUI on exact clean commit, release A native-round2 slot, record independent UI provenance, normal PR30 push and diff review. No Cargo/native compile or head rewrite.
-Remote accepted-source evidence remains9457b43b42858168b7a91e4c7c97c7c3a04ae111, 18Rust/16subprocess with hashdad334...; new UI commit is not docs-only. ActualSSH/Linux/Provider/CoreUI/root-budget/cache/release boundaries unchanged.
-Processes: installation and target Vitest joined; fullUI next under B slot. No companion/service. Scope/artifacts retained for leader admission/fixes.
+status=review
+base=b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c; PR30/main
+Remote implementation/tested=9457b43b42858168b7a91e4c7c97c7c3a04ae111 (18Rust+16actual subprocess, source dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7 unchanged).
+UI-test implementation/tested=29111d448d441cc3dcc87c98894906ab73a27fb5. Authorized only apps/desktop/src/GoalPlanDraft.integration.test.tsx. Target5/5 + clean-head typecheck/fullUI108files1531tests pass; ui-readiness/EVIDENCE.json contains separate provenance and CI failure reference.
+UI test hash3fc08e5b7e055b5bfe8ea6d59364e9105f61cc5fc49a7d27363542d34da4dbed; all original assertions preserved, production UI/fixture/limits/timeout unchanged. Native read-only review no blocker. Final docs-only successor of29111 has identical source; successor of9457 additionally contains this test and is not docs-only.
+Pending before evidence commit: this task directory only (final UI logs/EVIDENCE/HANDOFF/REVIEW/PROGRESS/CHECKPOINT). No source edits after clean-head UI verification.
+All npm/Vitest/Cargo/companion test executors joined; no background service. A immediately received released test slot for native-round2; B only docs/Git/PR work now.
+Next: normal appended evidence commit/push, final scope/preview/remote-head checks, leader diff review and required5checks on new exact head. No main merge/force/retrigger-old-CI.
+ActualSSH/Linux/Provider/CoreUI/root-budget/cache/production release boundaries unchanged. Scope/build artifacts retained for leader admission or B-authored fixes.

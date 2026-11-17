@@ -3,9 +3,9 @@
 Draft PR: https://github.com/wanderbot-auto/AgentBaton/pull/30 (`main` ← `collab/remote-host-foundation`). Do not merge automatically. This delivers an independent foundation, not complete remote product acceptance.
 
 - Base/exact fetched target: `b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c`.
-- Clean implementation and verified commit: `9457b43b42858168b7a91e4c7c97c7c3a04ae111`.
-- Final evidence-only descendant's exact head is published in the PR and leader handoff; no product/test/verifier source changes after this tested commit. This document cannot embed its own Git SHA.
-- Source set SHA-256: `dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7`.
+- Clean remote implementation and verified commit: `9457b43b42858168b7a91e4c7c97c7c3a04ae111`.
+- Delivery also includes the separately authorized UI integration-test correction verified on `29111d448d441cc3dcc87c98894906ab73a27fb5`; it is not a docs-only successor of9457. Final docs-only successor of29111 keeps the UI test/harness and standalone remote source hashes unchanged. Its exact head is in PR/leader handoff; this document cannot embed its own SHA.
+- Standalone remote source set SHA-256: `dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7`.
 - Owned write scope only: `crates/remote-host/**`, `scripts/verify-remote-host.py`, `tests/infrastructure/test_remote_host.py`, `docs/execution/remote-host-foundation/**`.
 
 ## Interface and acceptance evidence
@@ -20,7 +20,7 @@ Failure coverage includes identity/config/root inode drift, auth/permission/budg
 - Sanitized actual stdio trace SHA-256: `6022140d15dbbc9a7c5378d70f0e13ce7097e27c4e118ec532103a2fca91035e` ([trace](runs/20261117T153134Z-819857000/stdio-trace.jsonl)). Outbound metadata excludes credential/body; inbound results use synthetic test data. Each owned supervisor exit and no-surviving-group check, plus resulting synthetic file sizes/hashes, is included.
 - Log hashes and exact argv/environment/timings: [EVIDENCE.json](EVIDENCE.json), per-run manifest. Raw logs preserved byte-for-byte; task-local git whitespace attribute applies only to generated logs.
 - Independent read-only source/ADR review: [REVIEW.md](REVIEW.md); all reported issues fixed. Reviewer did not run tests; leader still owns independent admission.
-- Scope, diff whitespace and conflict preview passed against fetched target. Final descendant conflict preview is recorded in the PR/leader handoff against the latest fetched target. No root Cargo/Core IPC/database migrations/desktop/CI/global ledger changes.
+- Scope, diff whitespace and conflict preview passed against fetched target. Final descendant conflict preview is recorded in the PR/leader handoff against the latest fetched target. No root Cargo/Core IPC/database migrations/production desktop/CI/global ledger changes; leader separately reserved the single desktop integration-test file described below.
 
 ## Process ownership and continuation
 
@@ -39,3 +39,13 @@ AB-EXT-001/007/009/011 have a real foundation and failure evidence, not full req
 The first-control failure is repaired without raising any limits. New effects/grants still reserve96 slots; settlement keeps one per pending wait plus one per unsettled worker terminal, each missing first control, and a necessary reopen. Worst initial debt is64+2+1=67. First controls do not consume promised completion slots, and unchanged controls/paused opens append no repeated state event. All terminal append paths enforce10000; 32jobs and4096receipts remain unchanged. In the 32 actual worker test, event counts are9904→9936→9938→9970→9971, real waits precede confirmed stop, and 32file effects/consumed operations remain intact.
 
 The original legal9903 seed regression red log and intermediate failed verifier are preserved under review-capacity/ and runs/. The final clean implementation commit above passes18 Rust+16 actual subprocess tests. Native read-only targeted review confirms the corrected debt formula, no remaining capacity blocker. Receipt first-control natural exhaustion is not claimed by this finding.
+
+## Separately authorized PR30 UI readiness correction
+
+Leader added exactly `apps/desktop/src/GoalPlanDraft.integration.test.tsx` to B's claim; scope record/hash in [ui-readiness/PLAN.json](ui-readiness/PLAN.json). CI e75 Product/macOS job134152899605 failed the original line33 assertion after1527 passes; subsequent native steps were skipped. The original failure log remains hashed and linked in [CI_FAILURE.json](ui-readiness/CI_FAILURE.json); no old-head rerun was used to obtain green.
+
+Only the second test render is wrapped in the existing async act to settle the resolved fixture/effect chain, plus a type import and three new deferred-second-refresh cases. After undoing just that render wrapper/import, original test text is byte-for-byte baseline, including line33 and every permission/acceptance expectation. The deferred test holds the scope-selection second read: pending means disabled and no draft generation/propose/approve/preview; valid release enables, rejection/foreign scope stay blocked. Production UI, shared fixtures, authority budgets, Vite worker config and timeouts were not changed.
+
+Task-local standard pinned npm ci succeeded. Target suite5/5; clean UI-test commit29111d448d441cc3dcc87c98894906ab73a27fb5 passed typecheck and full UI108 files/1531 tests. Logs/source hashes/environment are in [UI evidence](ui-readiness/EVIDENCE.json) and run20261117T160545Z-539113000. UI test SHA-256: `3fc08e5b7e055b5bfe8ea6d59364e9105f61cc5fc49a7d27363542d34da4dbed`. Local environment is Apple Silicon, Node26.7.0/npm11.19.0; this is React/jsdom mocked-transport evidence, not macOS native/Core/SSH acceptance. The10 monitored UI production/fixture/config files equal baseline, and all12 standalone remote files retain9457/dad334 hashes. No remote retest/rebuild was necessary.
+
+A finished/joined fullRust before B Node load; B released the test slot immediately after fullUI/typecheck so A could do native-round2. No npm/Vitest/test service remains. Native read-only reviewer found no test-diff blocker; leader still independently reviews the new exact head and waits for its required CI.
