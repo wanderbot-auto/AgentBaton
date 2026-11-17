@@ -60,15 +60,39 @@ def probe(path):
                     application_id=image['application_id'])
 
 
-def inventory(runtime):
+def read_inventory_file(path, allow_empty):
+    # Inventory must represent a legitimate empty WAL/SHM; tools/manifests and
+    # main databases retain the original strictly-nonempty secure reader.
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        before = os.fstat(fd)
+        H.require(stat.S_ISREG(before.st_mode) and before.st_uid == os.geteuid()
+                  and before.st_nlink == 1 and stat.S_IMODE(before.st_mode) == 0o600
+                  and (0 if allow_empty else 1) <= before.st_size <= 16_777_216,
+                  'Unsafe SQLite inventory file')
+        with os.fdopen(os.dup(fd), 'rb') as stream:
+            raw = stream.read(16_777_217)
+        after = os.fstat(fd)
+        fields = lambda x: (x.st_dev, x.st_ino, x.st_size, x.st_mtime_ns, x.st_ctime_ns,
+                            x.st_mode, x.st_nlink, x.st_uid)
+        H.require(fields(before) == fields(after) and len(raw) == before.st_size,
+                  'SQLite inventory changed during bounded read')
+        return raw
+    finally:
+        os.close(fd)
+
+
+def inventory(runtime, basename='baton.sqlite3'):
+    H.require(basename in ('baton.sqlite3', 'actual-schema18.sqlite3'), 'Fixed SQLite inventory name required')
     result = {}
-    for name in ('baton.sqlite3', 'baton.sqlite3-wal', 'baton.sqlite3-shm'):
+    for suffix in ('', '-wal', '-shm'):
+        name = basename + suffix
         path = runtime / name
         if not path.exists():
             H.require(not path.is_symlink(), 'Dangling SQLite inventory link')
             result[name] = {'exists': False}
         else:
-            raw = H.read_regular(path, 16_777_216)
+            raw = read_inventory_file(path, allow_empty=bool(suffix))
             result[name] = dict(exists=True, bytes=len(raw), sha256=H.sha(raw), mode='0o600')
     return result
 
@@ -298,7 +322,8 @@ def main():
                               database_sha256=H.sha(H.read_regular(destination, 16_777_216)),
                               database_bytes=destination.stat().st_size,
                               rpc_transcript_sha256=H.sha(H.read_regular(output / 'rpc-private.jsonl', 1_048_576)),
-                              joined_sqlite_inventory_after_read=inventory(runtime), status='passed')
+                              joined_sqlite_inventory_after_read=inventory(runtime),
+                              backup_sqlite_inventory=inventory(output, 'actual-schema18.sqlite3'), status='passed')
                 validate_report(report)
                 H.provenance(frozen, args.build_manifest)
         except BaseException as caught:
