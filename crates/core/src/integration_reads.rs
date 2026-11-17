@@ -556,8 +556,12 @@ impl IntegrationReadPlan {
             phase = "worker-validator-catalog";
             let available = reader.integration_available_validators(&material)?;
             phase = "worker-material-consistency";
-            if sha(&material)? != sha(&self.material)? || sha(&available)? != sha(&self.available)?
-            {
+            let material_digest = sha(&material)?;
+            if material_digest != sha(&self.material)? {
+                return Err(changed());
+            }
+            let available_digest = sha(&available)?;
+            if available_digest != sha(&self.available)? {
                 return Err(changed());
             }
             let stage_permit = match &self.intent {
@@ -878,8 +882,8 @@ impl IntegrationReadPlan {
                 intent: self.intent,
                 context,
                 target_advance,
-                material_digest: sha(&material)?,
-                available_digest: sha(&available)?,
+                material_digest,
+                available_digest,
                 database: self.database,
                 queries: self.queries,
                 observation: observed,

@@ -1,0 +1,22 @@
+{
+  "task": "INT-READ-OPT-001",
+  "base": {
+    "head": "499b7aa7151820310460f8acd0ff4c7e00a2caf6",
+    "clean": true,
+    "source": "crates/core/src/integration_reads.rs",
+    "source_sha256": "4d2f9fb5eaf86dbde7ebe403ce252d64f5dc25a8e4bb150565fecd891a860778",
+    "initial_created_head": "cbf3bb65fa5922660778a74e5db1ec546ae73d59",
+    "baseline_correction": "No development writes or tests occurred on cbf. Integration leader updated stale origin tracking and normally fast-forwarded this clean unpublished task branch to fixed499 before implementation. Starting registration history retained."
+  },
+  "implementation_source_sha256": "d93a0a5f593d513e1b31a20184d96194041e9c7ca4331b613caf2aac2901d561",
+  "change": "Reuse the two verified immutable invocation-local digests; preserve material-first short-circuit, canonical hash algorithm and every freshness/control check.",
+  "static_checks": {
+    "rustfmt_check": "passed before local commit; exact implementation source hash above",
+    "diff_check": "passed"
+  },
+  "tests_and_builds": "not run yet",
+  "runtime_cost_observation": "not run; no savings claim",
+  "prior_remote_failures": "2011/2000 settled overrun and separate interrupted/unknown case remain unresolved.",
+  "authority_changes": false,
+  "push_ci_or_parent_changes": false
+}
