@@ -86,7 +86,7 @@ pub fn migrate_in_transaction(tx: &Transaction<'_>) -> Result<()> {
             }) {
                 return Err(changed());
             }
-            integrity(tx)?;
+            integrity(tx, &reference)?;
             tx.execute_batch(HOST_DDL).map_err(db_error)?;
             tx.pragma_update(None, "user_version", 19)
                 .map_err(db_error)?;
@@ -108,28 +108,41 @@ pub fn validate_current19(db: &Connection) -> Result<()> {
             "Expected exact Host schema19",
         ));
     }
-    compatible_schema(db, &schema19_reference()?, 64)?;
-    integrity(db)
+    let reference = schema19_reference()?;
+    compatible_schema(db, &reference, 64)?;
+    integrity(db, &reference)
 }
 
-fn integrity(db: &Connection) -> Result<()> {
-    let mut check = db.prepare("PRAGMA main.quick_check").map_err(db_error)?;
-    let results = check
-        .query_map([], |r| r.get::<_, String>(0))
-        .map_err(db_error)?;
-    let mut count = 0;
-    for result in results {
-        if result.map_err(db_error)? != "ok" || count != 0 {
+fn integrity(db: &Connection, reference: &Connection) -> Result<()> {
+    // SQLite quick_check evaluates CHECK expressions. Limit it to the trusted
+    // authority tables: a whole-main check would execute/re-resolve opaque UDFs.
+    // Pinned SQLite supports the table argument for both quick/integrity_check.
+    for (_, name, _, _) in objects(reference)?.iter().filter(|o| o.0 == "table") {
+        let quoted = name.replace('"', "\"\"");
+        let mut check = db
+            .prepare(&format!("PRAGMA main.quick_check(\"{quoted}\")"))
+            .map_err(db_error)?;
+        let results = check
+            .query_map([], |r| r.get::<_, String>(0))
+            .map_err(db_error)?;
+        let mut count = 0;
+        for result in results {
+            if result.map_err(db_error)? != "ok" || count != 0 {
+                return Err(changed());
+            }
+            count += 1;
+        }
+        if count != 1 {
             return Err(changed());
         }
-        count += 1;
     }
-    if count != 1
-        || db
-            .prepare("PRAGMA main.foreign_key_check")
-            .map_err(db_error)?
-            .exists([])
-            .map_err(db_error)?
+    // Compatible opaque tables have no FKs or generated columns. This checks
+    // actual declared FK relationships without evaluating their CHECK payloads.
+    if db
+        .prepare("PRAGMA main.foreign_key_check")
+        .map_err(db_error)?
+        .exists([])
+        .map_err(db_error)?
     {
         return Err(changed());
     }

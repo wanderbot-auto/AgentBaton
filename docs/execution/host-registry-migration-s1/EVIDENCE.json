@@ -78,6 +78,13 @@
       "source": "334a1ac7be88db241a29dde5ad91f826b9109bc4",
       "finding": "P2 kind-only Event envelope validation could permit truncated non-Host event",
       "fix": "full Core Event deserialization plus closed8 outer keys;typed duplicates/missing/unknown negative cases;recheck pending"
+    },
+    {
+      "reviewer": "leader independent source review334a",
+      "finding": "P2 whole-main quick_check could resolve/evaluate legacy opaque CHECK/UDF",
+      "fix": "partial main.quick_check for trusted reference tables only;retain known schema/FK errors;never evaluate opaque CHECK expressions",
+      "dynamic_status": "pending heavy-slot regrant"
     }
-  ]
+  ],
+  "source_opaque_integrity_fix": "SOURCE_OPAQUE_INTEGRITY_FIX.json"
 }

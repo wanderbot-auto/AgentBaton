@@ -258,6 +258,121 @@ fn migration_preserves_nonempty_old_history_opaque_rows_and_idempotent_recogniti
     unchanged(&db, before, "opaque_product_data_not_fixture_extension");
 }
 
+// Existing rusqlite ffi needs no extra Cargo feature. This harmless test-only
+// callback proves whether SQLite evaluates the legacy opaque CHECK expression.
+fn install_opaque_counter(
+    db: &Connection,
+    counter: &std::sync::Arc<std::sync::atomic::AtomicUsize>,
+) {
+    unsafe extern "C" fn evaluate(
+        context: *mut rusqlite::ffi::sqlite3_context,
+        _count: std::ffi::c_int,
+        _values: *mut *mut rusqlite::ffi::sqlite3_value,
+    ) {
+        // SAFETY: the connection owns this exact boxed Arc until destroy; the
+        // callback never unwinds, touches external resources or frees the box.
+        let counter = unsafe {
+            &*rusqlite::ffi::sqlite3_user_data(context)
+                .cast::<std::sync::Arc<std::sync::atomic::AtomicUsize>>()
+        };
+        counter.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        unsafe { rusqlite::ffi::sqlite3_result_int(context, 1) };
+    }
+    unsafe extern "C" fn destroy(data: *mut std::ffi::c_void) {
+        // SAFETY: create_function_v2 owns the Box and invokes this once on
+        // replacement/connection close (also on a registration failure).
+        unsafe {
+            drop(Box::from_raw(
+                data.cast::<std::sync::Arc<std::sync::atomic::AtomicUsize>>(),
+            ))
+        };
+    }
+    let state = Box::into_raw(Box::new(counter.clone()));
+    // SAFETY: fixed nul-terminated name, matching SQLite C callbacks, owned
+    // context and destructor; this registration exists only in a private test DB.
+    let code = unsafe {
+        rusqlite::ffi::sqlite3_create_function_v2(
+            db.handle(),
+            c"opaque_guard".as_ptr(),
+            1,
+            rusqlite::ffi::SQLITE_UTF8 | rusqlite::ffi::SQLITE_DETERMINISTIC,
+            state.cast(),
+            Some(evaluate),
+            None,
+            None,
+            Some(destroy),
+        )
+    };
+    assert_eq!(code, rusqlite::ffi::SQLITE_OK);
+}
+
+#[test]
+fn opaque_check_udf_is_not_evaluated_and_missing_udf_legacy_reopen_is_preserved() {
+    use std::sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    };
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("legacy-opaque.sqlite3");
+    let counter = Arc::new(AtomicUsize::new(0));
+    let mut store = Store::open(&path).unwrap();
+    store
+        .create("local", "preserve actual legacy task", "opaque:create")
+        .unwrap();
+    install_opaque_counter(&store.conn, &counter);
+    store.conn.execute_batch("CREATE TABLE opaque_checked(payload BLOB CHECK(opaque_guard(payload)));CREATE INDEX opaque_payload ON opaque_checked(payload);INSERT INTO opaque_checked VALUES(x'00ffdeadbeef');").unwrap();
+    assert_eq!(counter.load(Ordering::SeqCst), 1); // insertion is the positive UDF control.
+    drop(store);
+
+    // Reopen with NO function registered: metadata/known-authority checks must
+    // succeed without resolving/evaluating a legacy opaque CHECK/UDF.
+    let reopened = Store::open(&path).unwrap();
+    assert_eq!(version(&reopened.conn).unwrap(), 18);
+    let mut db = reopened.conn;
+    counter.store(0, Ordering::SeqCst);
+    let before = image(&db);
+    migrate(&mut db).unwrap();
+    let after = image(&db);
+    assert_eq!(
+        after
+            .rows
+            .iter()
+            .filter(|r| r.0 != HOST_TABLE)
+            .collect::<Vec<_>>(),
+        before.rows.iter().collect::<Vec<_>>()
+    );
+    assert_eq!(counter.load(Ordering::SeqCst), 0);
+
+    install_opaque_counter(&db, &counter);
+    let direct: String = db
+        .query_row("PRAGMA main.quick_check", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(direct, "ok");
+    assert!(counter.load(Ordering::SeqCst) > 0); // detects the original whole-main bug.
+    counter.store(0, Ordering::SeqCst);
+    let before = image(&db);
+    validate_current19(&db).unwrap();
+    migrate(&mut db).unwrap();
+    assert!(pre_host_schema::remove_empty_host19(&db).is_err()); // strict fixture rejects extra table before quick_check.
+    assert_eq!(counter.load(Ordering::SeqCst), 0);
+    unchanged(&db, before, "opaque_check_not_evaluated");
+}
+
+#[test]
+fn known_authority_check_corruption_still_refuses_recognition_without_changes() {
+    let mut db = seeded19();
+    insert_host(
+        &db,
+        "11111111-1111-4111-8111-111111111111",
+        "synthetic-create:v1",
+    );
+    db.execute_batch("PRAGMA ignore_check_constraints=ON;UPDATE host_registrations SET revision=2;PRAGMA ignore_check_constraints=OFF;").unwrap();
+    let before = image(&db);
+    assert!(validate_current19(&db).is_err());
+    assert!(migrate(&mut db).is_err());
+    unchanged(&db, before, "known_authority_check_still_enforced");
+}
+
 #[test]
 fn real_sql_sequence_unique_fk_no_action_and_repeated_name_semantics() {
     let mut db = seeded19();
