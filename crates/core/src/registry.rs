@@ -1,4 +1,11 @@
 //! Persistent owner-selected projects, isolated workspace intents, and fenced workspace leases.
+#[path = "host_registry.rs"]
+mod host_registry;
+pub use host_registry::{
+    HostCreationFacts, HostCreationReceipt, HostListRequest, HostRegistrationPage,
+    HostRegistrationRecord, HostRegistrationView,
+};
+
 use crate::storage::{db_error, decode, encode, now, Event, Store};
 use crate::{CoreError, Result};
 use agentbaton_workspaces::{
