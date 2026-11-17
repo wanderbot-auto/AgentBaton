@@ -1,7 +1,7 @@
 {
   "task": "HOST-PRAGMA-COMPAT",
   "base": "8f8d0a17861920b0577b3754ca972f0329819745",
-  "status": "fix_source_committing_before_green_tests",
+  "status": "Rust_green_Python_exact_input_hardening_before_final_checks",
   "write_scope": [
     "crates/core/src/host_registry.rs",
     "crates/core/src/host_registry_tests.rs",
@@ -45,5 +45,14 @@
   ],
   "first_fixed_failure": "runs/fixed-1/background.json",
   "first_fixed_failure_reason": "Exact v1 node block missed one known adjacent LF; full old-f1ad gate correctly refused; corrected exact literal, no pin/lock change",
-  "independent_review": "Native read-only6a no additionalP1/P2; actual dynamic initial adapter failure retained"
+  "independent_review": "Native read-only6a no additionalP1/P2; actual dynamic initial adapter failure retained",
+  "rust_verified_source": "649cbab200f613a5e8a66d281da45932adccc7c5",
+  "rust_distinct_selected_passed": 61,
+  "prior_full_infrastructure": {
+    "source": "649cbab200f613a5e8a66d281da45932adccc7c5",
+    "total": 897,
+    "failures": 0,
+    "skipped": 16
+  },
+  "current_delta": "Python caller raw read_bytes and CRLF/BOM refusal only; Rust bytes unchanged, no repeat compilation needed."
 }

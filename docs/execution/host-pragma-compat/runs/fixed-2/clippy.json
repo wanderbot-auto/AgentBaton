@@ -1,0 +1,28 @@
+{
+  "source_head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+  "command": [
+    "cargo",
+    "clippy",
+    "--offline",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--all-targets",
+    "-j",
+    "2",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "started_utc": "2026-11-17T20:43:06.183403+00:00",
+  "expected_rust_counts": null,
+  "note": "Actual dormant A helper+B data methods; not product Store19/native/IPC/remote.",
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T20:43:24.890316+00:00",
+  "log_sha256": "dd78f22e6dd8bcbcd65ac45d935fb064aac2f2bc63c6cbf4941babecbb87be48",
+  "log_bytes": 2336,
+  "actual_rust_counts": [],
+  "count_gate": true,
+  "all_children_joined": true,
+  "status": "passed"
+}

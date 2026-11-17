@@ -1,0 +1,22 @@
+{
+  "source_head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+  "command": [
+    "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/infrastructure"
+  ],
+  "started_utc": "2026-11-17T20:45:31.009772+00:00",
+  "expected_rust_counts": null,
+  "note": "Actual dormant A helper+B data methods; not product Store19/native/IPC/remote.",
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T20:45:54.495487+00:00",
+  "log_sha256": "3f5cfed21104d9aa671f25f188ade92ea82925e40bca7d6320ee196e0520e94f",
+  "log_bytes": 2420,
+  "actual_rust_counts": [],
+  "count_gate": true,
+  "all_children_joined": true,
+  "status": "passed"
+}

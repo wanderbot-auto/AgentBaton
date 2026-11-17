@@ -326,13 +326,15 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
             'unrelated checksum': source.replace(checksum, changed_checksum, 1),
             'unrelated resolved edge': source.replace(' "syn 3.0.9",', ' "syn 2.0.119",', 1),
             'unknown suffix': source + '\n# unreviewed\n',
+            'CRLF normalization': source.replace('\n', '\r\n'),
+            'UTF8 BOM': '\ufeff' + source,
         }
         for label, changed in bad.items():
             self.assertNotEqual(changed, source, label)
             with self.subTest(label=label), self.assertRaises(ValueError):
                 strip_host_registration_lock_v1(changed.encode())
         parent = strip_host_registration_lock_v1(raw)
-        for unknown in (b'', b'unknown', parent + b'\n', b'\xff', source):
+        for unknown in (b'', b'unknown', parent + b'\n', parent.replace(b'\n', b'\r\n'), b'\xff', source):
             with self.subTest(unknown=type(unknown).__name__), self.assertRaises(ValueError):
                 strip_host_registration_lock_v1(unknown)
 
@@ -349,8 +351,9 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
                 raw = restore(raw.decode(), layer['edits'], pin, AssertionError).encode()
             self.assertEqual(hashlib.sha256(raw).hexdigest(), pin, path)
 
-        lock = (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_text()
-        lock = strip_host_registration_lock_v1(lock.encode('utf-8')).decode('utf-8')
+        lock = strip_host_registration_lock_v1(
+            (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_bytes()
+        ).decode('utf-8')
         addition = ('name = "agentbaton-desktop"\nversion = "0.1.0"\ndependencies = [\n'
                     ' "agentbaton-core",\n "libc",\n')
         self.assertEqual(lock.count(addition), 1)
