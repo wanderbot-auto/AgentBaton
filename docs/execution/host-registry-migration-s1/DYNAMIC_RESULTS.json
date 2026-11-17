@@ -1,0 +1,185 @@
+{
+  "source_head": "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+  "executed_tests": 37,
+  "failed": 0,
+  "ignored": 0,
+  "checks": [
+    {
+      "name": "targeted-ee0279",
+      "source": "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "host_registry_migration",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "jobs": 2,
+      "start": "2026-11-17T19:39:50.899261+00:00",
+      "end": "2026-11-17T19:40:43.225014+00:00",
+      "exit_code": 0,
+      "required_pass_counts": [
+        18
+      ],
+      "actual_pass_counts": [
+        18
+      ],
+      "nonzero_case_gate": true,
+      "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+      "architecture": "arm64",
+      "versions": {
+        "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2\n",
+        "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)\n"
+      },
+      "log": "artifacts/host-registry-migration-s1/targeted-ee0279.log",
+      "log_sha256": "3cee60a22bd3c96af990b4bbf922005e90be4c825052b4a864641fa46f979ca5",
+      "child_joined": true
+    },
+    {
+      "name": "original-fixtures-ee0279",
+      "source": "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "conversation_schema18",
+        "--test",
+        "integration_schema17",
+        "--",
+        "--test-threads=1"
+      ],
+      "jobs": 2,
+      "start": "2026-11-17T19:40:43.284904+00:00",
+      "end": "2026-11-17T19:40:49.904726+00:00",
+      "exit_code": 0,
+      "required_pass_counts": [
+        3,
+        15
+      ],
+      "actual_pass_counts": [
+        3,
+        15
+      ],
+      "nonzero_case_gate": true,
+      "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+      "architecture": "arm64",
+      "versions": {
+        "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2\n",
+        "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)\n"
+      },
+      "log": "artifacts/host-registry-migration-s1/original-fixtures-ee0279.log",
+      "log_sha256": "e156923cc48496e211abefe7f1288d3e5717b96bd888f9a71713c088d216327f",
+      "child_joined": true
+    },
+    {
+      "name": "original-caller-ee0279",
+      "source": "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "jobs": 2,
+      "start": "2026-11-17T19:40:49.905058+00:00",
+      "end": "2026-11-17T19:40:50.045576+00:00",
+      "exit_code": 0,
+      "required_pass_counts": [
+        1
+      ],
+      "actual_pass_counts": [
+        1
+      ],
+      "nonzero_case_gate": true,
+      "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+      "architecture": "arm64",
+      "versions": {
+        "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2\n",
+        "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)\n"
+      },
+      "log": "artifacts/host-registry-migration-s1/original-caller-ee0279.log",
+      "log_sha256": "e176e0cd1a0c55a34f04ed2d6a92bea92213d84833cb2774d3d153b44ec8347c",
+      "child_joined": true
+    },
+    {
+      "name": "fmt-ee0279",
+      "source": "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "jobs": 2,
+      "start": "2026-11-17T19:40:50.045909+00:00",
+      "end": "2026-11-17T19:40:51.125008+00:00",
+      "exit_code": 0,
+      "required_pass_counts": [],
+      "actual_pass_counts": [],
+      "nonzero_case_gate": true,
+      "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+      "architecture": "arm64",
+      "versions": {
+        "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2\n",
+        "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)\n"
+      },
+      "log": "artifacts/host-registry-migration-s1/fmt-ee0279.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "child_joined": true
+    },
+    {
+      "name": "clippy-ee0279",
+      "source": "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "jobs": 2,
+      "start": "2026-11-17T19:40:51.125424+00:00",
+      "end": "2026-11-17T19:41:01.855386+00:00",
+      "exit_code": 0,
+      "required_pass_counts": [],
+      "actual_pass_counts": [],
+      "nonzero_case_gate": true,
+      "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+      "architecture": "arm64",
+      "versions": {
+        "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2\n",
+        "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)\n"
+      },
+      "log": "artifacts/host-registry-migration-s1/clippy-ee0279.log",
+      "log_sha256": "0fa8b932d6939256c6603f75399cfc7f4799cb41d8cc6221bfdbdde9644186ad",
+      "child_joined": true
+    }
+  ],
+  "source_unchanged_during_validation": true,
+  "all_validation_children_joined": true,
+  "heavy_slot": "released to leader after terminal success",
+  "not_full_workspace_or_native_acceptance": true
+}
