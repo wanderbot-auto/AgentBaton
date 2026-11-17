@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-17T21:09:40.493598+00:00",
+  "base": "c3a001f8b248d79302317689f86ed7703e59e077",
+  "accepted_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "source": "76fdc57bef072cf70a02f8d247e88cf2d6508b10",
+  "delivery": "58321c3368cdec0996e39cda3d71a2cc39293e1b",
+  "delivery_tree": "4e9fb266a98a3241a45fd281d17e8548770c8246",
+  "merge": "normal FF; exact main preview equals delivery tree",
+  "source_relation": "all non-doc code/tests identical76 to583",
+  "independent_reviews": [
+    {
+      "reviewer": "hexp_ui_native_review",
+      "source": "76fdc57bef072cf70a02f8d247e88cf2d6508b10",
+      "result": "noP1/P2"
+    },
+    {
+      "reviewer": "completion_audit",
+      "source": "76fdc57bef072cf70a02f8d247e88cf2d6508b10",
+      "result": "noP1/P2; independently rebuilt25oldsteps exactc3 inverse"
+    }
+  ],
+  "root_verified": {
+    "logs": 5,
+    "infra_total": 913,
+    "passed": 897,
+    "skipped": 16,
+    "raw_validator_exit": 0,
+    "tracked_inputs_match_fixed_Git_blobs": 2940,
+    "raw_archives_lossless": 33
+  },
+  "original_results": "docs/execution/native-ci-split/EVIDENCE.json",
+  "native_CI": "not_run",
+  "cold30": "not_established",
+  "push": "not_yet_observed",
+  "production_implementation_by_leader": false,
+  "no_Host567_in_this_candidate": true
+}
