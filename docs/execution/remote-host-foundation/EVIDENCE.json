@@ -1,11 +1,11 @@
 {
   "task": "RHOST-001",
-  "status": "review_fix_verified_pending_commit",
+  "status": "review",
   "base": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
   "branch": "collab/remote-host-foundation",
   "pr_base": "main",
   "source_sha256": "dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7",
-  "verification": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/evidence.json",
+  "verification": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/evidence.json",
   "checks": [
     {
       "name": "fmt",
@@ -18,9 +18,9 @@
         "--check"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:28:26Z",
-      "elapsed_seconds": 0.151,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/fmt.log",
+      "started_utc": "2026-11-17T15:31:34Z",
+      "elapsed_seconds": 0.392,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/fmt.log",
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
@@ -33,10 +33,10 @@
         "--locked"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:28:26Z",
-      "elapsed_seconds": 3.827,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/rust-tests.log",
-      "log_sha256": "c7ce2eb3315121b19e9565d95b11cdd50393e922610e84ba2477960d9b87f0bb"
+      "started_utc": "2026-11-17T15:31:35Z",
+      "elapsed_seconds": 1.671,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/rust-tests.log",
+      "log_sha256": "4b1373a4f26967fd405fd9c6f416931671ed5e952f3986bdbc946c4f9aa3c510"
     },
     {
       "name": "clippy",
@@ -52,10 +52,10 @@
         "warnings"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:28:30Z",
-      "elapsed_seconds": 0.517,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/clippy.log",
-      "log_sha256": "441aa0a6b09e7d4eb58a328a3f571991800d1f7534b5ce2a529a70134b249d38"
+      "started_utc": "2026-11-17T15:31:36Z",
+      "elapsed_seconds": 0.189,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/clippy.log",
+      "log_sha256": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "build",
@@ -67,10 +67,10 @@
         "--locked"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:28:31Z",
-      "elapsed_seconds": 0.499,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/build.log",
-      "log_sha256": "de3f30ad5c47b361d8bc49ab685738be91373196a8fbf8ada3d7a39a55968098"
+      "started_utc": "2026-11-17T15:31:37Z",
+      "elapsed_seconds": 0.151,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/build.log",
+      "log_sha256": "ee1d3fffa2022e962e63e0dbe4d35c9c198450a20c29fc09030f635dbb38bfcd"
     },
     {
       "name": "real-subprocess-faults",
@@ -79,10 +79,10 @@
         "tests/infrastructure/test_remote_host.py"
       ],
       "exit_code": 0,
-      "started_utc": "2026-11-17T15:28:31Z",
-      "elapsed_seconds": 7.636,
-      "log": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/real-subprocess-faults.log",
-      "log_sha256": "783f87928579643b5c78ebf150825a9e361a3f63d55177cf07f3e59d4fd459fb"
+      "started_utc": "2026-11-17T15:31:37Z",
+      "elapsed_seconds": 7.732,
+      "log": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/real-subprocess-faults.log",
+      "log_sha256": "25a99101a62830e5b3578b980bdb625e8000db048291b4e38dde65d1162978c8"
     }
   ],
   "binary": {
@@ -92,9 +92,9 @@
     "signing": "development, no production signing"
   },
   "sanitized_stdio_trace": {
-    "path": "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/stdio-trace.jsonl",
-    "sha256": "c824e02b63ba82188e2896bde1f839556583eaf253a552ecaea37be5bb70fcdc",
-    "bytes": 131197
+    "path": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/stdio-trace.jsonl",
+    "sha256": "6022140d15dbbc9a7c5378d70f0e13ce7097e27c4e118ec532103a2fca91035e",
+    "bytes": 132384
   },
   "counts": {
     "rust": 18,
@@ -113,7 +113,8 @@
     "docs/execution/remote-host-foundation/runs/20261117T150258Z-59859000/evidence.json",
     "docs/execution/remote-host-foundation/runs/20261117T150538Z-544397000/evidence.json",
     "docs/execution/remote-host-foundation/runs/20261117T152431Z-547280000/evidence.json",
-    "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/evidence.json"
+    "docs/execution/remote-host-foundation/runs/20261117T152826Z-576186000/evidence.json",
+    "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/evidence.json"
   ],
   "unverified": [
     "real SSH handshake",
@@ -144,17 +145,7 @@
     "red_log": "review-capacity/red.log",
     "review": "native read-only reviewer confirmed no remaining capacity blocker"
   },
-  "verification_base_head": "4a2e8a46ee4774a78d2ecf90ed42f2f0d0a3da8b",
-  "verification_dirty": [
-    " M crates/remote-host/src/store.rs",
-    " M crates/remote-host/src/worker.rs",
-    " M crates/remote-host/tests/foundation.rs",
-    " M docs/execution/remote-host-foundation/.gitattributes",
-    " M docs/execution/remote-host-foundation/ADR-001.md",
-    " M docs/execution/remote-host-foundation/CHECKPOINT.md",
-    " M docs/execution/remote-host-foundation/PROGRESS.md",
-    " M tests/infrastructure/test_remote_host.py",
-    "?? docs/execution/remote-host-foundation/review-capacity/",
-    "?? docs/execution/remote-host-foundation/runs/20261117T152431Z-547280000/"
-  ]
+  "implementation_commit": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
+  "verified_source_commit": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
+  "tested_worktree_dirty": []
 }

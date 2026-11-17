@@ -1,10 +1,12 @@
 # Checkpoint
 
-status=review_fix_verified_pending_commit
-base=b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c; current head=4a2e8a46ee4774a78d2ecf90ed42f2f0d0a3da8b; PR30/main
-Dirty product: crates/remote-host/src/{store,worker}.rs, crates/remote-host/tests/foundation.rs, tests/infrastructure/test_remote_host.py. Dirty evidence/docs: this task directory only. No root/shared/global modifications.
-Leader P2 fixed: separate96-slot admission from accurate remaining settlement debt; retain first controls, real worker/wait and necessary reopen, with unchanged10000/32/4096 caps and idempotent unchanged projections.
-Latest run20261117T152826Z-576186000 passed18 Rust+16 actual subprocess tests, fmt, locked build, strict clippy; source hash dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7. Native read-only capacity re-review has no blocker.
-Next: append normal commit, clean-head explicit verifier, evidence-only descendant and normal PR30 push/update. No rebase/force push/main merge.
-Processes: previous fixtures joined/cleaned; build slot still B until final validation, then released to perf window. No live companion/service.
-Unverified SSH/Linux/Provider/Core/UI/root-budget/retention/production release boundaries unchanged. Leader owns global status and exact-head admission.
+status=review
+base=b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c
+new implementation/tested-head=9457b43b42858168b7a91e4c7c97c7c3a04ae111; PR30/main
+Clean-head verifier= runs/20261117T153134Z-819857000/evidence.json; source SHA-256=dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7.
+18Rust+16 actual subprocess tests, fmt, locked build, strict clippy all pass. All listed review findings including capacity P2 and terminal-before-wait debt resolved; independent source-only re-review has no blocker.
+Capacity limits remain10000events/32jobs/4096receipts; new-effect reserve96, precise settlement debt retains first controls, worker/wait and necessary reopen. Both legal9903 control boundary and32 owned workers (terminal-before-wait) covered.
+Pending changes before final evidence commit: this directory only, including final clean-head logs/HANDOFF/EVIDENCE/PROGRESS/CHECKPOINT. Product/test/verifier sources unchanged after tested-head; final docs descendant SHA is in PR/leader handoff.
+All owned test processes joined/cleaned; zero task companion processes. Build/test slot released to perf window. No service/background executor or new scope.
+Next: evidence-only descendant, normal push PR30, final scope/conflict/remote-head check; leader owns independent exact-head admission/global status/main merge.
+Unverified boundaries unchanged: actualSSH/cross-machine/Linux/Provider/Core/UI/shared root budgets/cache-retention/production release. Scope/build artifacts retained for review fixes; no autonomous continuation promised.
