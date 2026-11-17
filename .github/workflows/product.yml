@@ -1050,9 +1050,13 @@ jobs:
           path: ${{ runner.temp }}/native-ci-receipt
           merge-multiple: true
       - name: Independently verify current source and complete ARM acceptance
+        id: verify_native
         if: ${{ !cancelled() && success() }}
         env:
           NATIVE_CI_CANCELLED: 'false'
           CORE_MANIFEST: ${{ needs.desktop.outputs.manifest_sha256 }}
           NATIVE_RECEIPT: ${{ needs.native.outputs.receipt_sha256 }}
         run: python3 scripts/native-ci-handoff.py aggregate --directory "$RUNNER_TEMP/native-ci-core" --expected "$CORE_MANIFEST" --receipt "$RUNNER_TEMP/native-ci-receipt" --receipt-sha "$NATIVE_RECEIPT"
+      - name: Fail cancelled or unverified protected acceptance
+        if: ${{ always() && (cancelled() || steps.verify_native.outcome != 'success') }}
+        run: exit 1

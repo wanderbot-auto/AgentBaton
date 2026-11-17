@@ -53,7 +53,12 @@ def validate_actual(document):
     for step in gate['steps']:
         if 'native-ci-handoff.py aggregate' in step.get('run', ''):
             require(step['if'] == '${{ !cancelled() && success() }}'
+                    and step['id'] == 'verify_native'
                     and step['env']['NATIVE_CI_CANCELLED'] == 'false')
+    require(gate['steps'][-1] == {
+        'name': 'Fail cancelled or unverified protected acceptance',
+        'if': "${{ always() && (cancelled() || steps.verify_native.outcome != 'success') }}",
+        'run': 'exit 1'})
     require("needs[name]['result'] != 'success'" in gate_runs
             and "os.environ['NATIVE_CI_CANCELLED'] != 'false'" in gate_runs
             and 'native-ci-handoff.py aggregate' in gate_runs)
@@ -137,6 +142,19 @@ class WorkflowSplit(unittest.TestCase):
                 validate_actual(changed)
         changed = copy.deepcopy(self.document)
         changed['jobs']['native']['steps'][-3]['continue-on-error'] = 'true'
+        with self.assertRaises(ValueError): validate_actual(changed)
+
+    def test_late_cancel_missing_or_skipped_final_verification_cannot_satisfy_gate(self):
+        # Canonical supported GitHub if is bound by validate_actual above. Its
+        # fail condition must remain true when cancellation follows downloads
+        # or causes the actual verifier to skip.
+        validate_actual(self.document)
+        for cancelled in (False, True):
+            for outcome in ('success', 'skipped', 'cancelled', 'failure', 'neutral', 'unknown', ''):
+                fail = cancelled or outcome != 'success'
+                self.assertEqual(fail, not (not cancelled and outcome == 'success'))
+        changed = copy.deepcopy(self.document)
+        changed['jobs']['desktop_acceptance']['steps'].pop()
         with self.assertRaises(ValueError): validate_actual(changed)
 
 
