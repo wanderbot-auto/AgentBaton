@@ -442,7 +442,6 @@ fn absence_or_inexact_schema_never_migrates_or_creates() {
         "DROP TABLE host_registrations",
         "DROP INDEX host_registrations_name_id",
         "CREATE INDEX unexpected ON host_registrations(name)",
-        "CREATE TABLE host_future(id TEXT)",
         "PRAGMA user_version=20",
         "PRAGMA foreign_keys=OFF",
     ] {
@@ -473,25 +472,37 @@ fn persisted_record_versions_types_bounds_mirrors_and_facts_fail_closed() {
         change_record(&f.store, &r.host_id, change);
         assert_refuses_corruption(&mut f.store, &r.host_id);
     }
-    let bad_strings = [
-        "not JSON".into(),
-        " ".repeat(MAX_DOCUMENT + 1),
-        RECORD.replacen("\"record_version\":1", "\"record_version\":1.0", 1),
-        RECORD.replacen(
-            "\"record_version\":1",
-            "\"record_version\":1,\"record_version\":1",
-            1,
-        ),
-        RECORD.replacen(
-            "\"record_version\":1",
-            "\"record_version\":1,\"connected\":true",
-            1,
-        ),
-        RECORD.replacen("\"revision\":1", "\"revision\":null", 1),
+    let mutations: [fn(String) -> String; 6] = [
+        |_| "not JSON".into(),
+        |_| " ".repeat(MAX_DOCUMENT + 1),
+        |raw| raw.replacen("\"record_version\":1", "\"record_version\":1.0", 1),
+        |raw| {
+            raw.replacen(
+                "\"record_version\":1",
+                "\"record_version\":1,\"record_version\":1",
+                1,
+            )
+        },
+        |raw| {
+            raw.replacen(
+                "\"record_version\":1",
+                "\"record_version\":1,\"connected\":true",
+                1,
+            )
+        },
+        |raw| raw.replacen("\"revision\":1", "\"revision\":null", 1),
     ];
-    for bad in bad_strings {
+    for mutate in mutations {
         let mut f = fixture();
         let r = f.store.register_host(&registration(), "original").unwrap();
+        let good = raw_record(&f.store, &r.host_id);
+        assert!(f
+            .store
+            .find_host_registration("original")
+            .unwrap()
+            .is_some());
+        let bad = mutate(good.clone());
+        assert_ne!(good, bad);
         f.store
             .conn
             .execute("UPDATE host_registrations SET document=?1", [bad])
@@ -645,8 +656,12 @@ fn unsafe_inserted_sequence_rolls_back_including_event_counter() {
     let mut f = fixture();
     f.store
         .conn
+        .execute("DELETE FROM sqlite_sequence WHERE name='events'", [])
+        .unwrap();
+    f.store
+        .conn
         .execute(
-            "INSERT INTO sqlite_sequence(name,seq) VALUES('events',?1)",
+            "INSERT OR REPLACE INTO sqlite_sequence(name,seq) VALUES('events',?1)",
             [MAX_SEQUENCE as i64],
         )
         .unwrap();
@@ -797,9 +812,10 @@ fn strict_decoders_preserve_versions_unicode_and_reject_unknown_fields() {
     let b = f.store.register_host(&input, "unicode:2").unwrap();
     assert_eq!(a.registration.name, input.name);
     assert_ne!(a.host_id, b.host_id);
+    let actual = raw_record(&f.store, &a.host_id);
     for raw in [
-        RECORD.replacen("\"record_version\":1", "\"record_version\":true", 1),
-        RECORD.replacen("\"revision\":1", "\"revision\":\"1\"", 1),
+        actual.replacen("\"record_version\":1", "\"record_version\":true", 1),
+        actual.replacen("\"revision\":1", "\"revision\":\"1\"", 1),
     ] {
         assert!(decode_canonical::<HostRegistrationRecord>(&raw, MAX_DOCUMENT).is_err());
     }
@@ -809,4 +825,104 @@ fn strict_decoders_preserve_versions_unicode_and_reject_unknown_fields() {
     let record: HostRegistrationRecord = decode_canonical(RECORD, MAX_DOCUMENT).unwrap();
     let value: Value = serde_json::from_str(&encode(&record).unwrap()).unwrap();
     assert_eq!(value["creation_facts"]["execution_enabled"], json!(false));
+}
+
+#[test]
+fn safe_opaque_tables_indexes_and_blob_rowids_remain_unchanged() {
+    let mut f = fixture();
+    f.store.conn.execute_batch("CREATE TABLE host_notes(note TEXT,opaque BLOB); CREATE INDEX host_notes_note ON host_notes(note); INSERT INTO host_notes(rowid,note,opaque) VALUES(71,'uninterpreted',x'00ff01');").unwrap();
+    let before: (i64, String, Vec<u8>) = f
+        .store
+        .conn
+        .query_row("SELECT rowid,note,opaque FROM host_notes", [], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?))
+        })
+        .unwrap();
+    let receipt = f.store.register_host(&registration(), "original").unwrap();
+    assert!(f.store.get_host_registration(&receipt.host_id).is_ok());
+    assert!(f.store.find_host_registration("absent").unwrap().is_none());
+    let after: (i64, String, Vec<u8>) = f
+        .store
+        .conn
+        .query_row("SELECT rowid,note,opaque FROM host_notes", [], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?))
+        })
+        .unwrap();
+    assert_eq!(before, after);
+    let mut reopened = reopen_explicit_fixture(&f.path);
+    assert_eq!(
+        reopened.register_host(&registration(), "original").unwrap(),
+        receipt
+    );
+    let after_reopen: (i64, String, Vec<u8>) = reopened
+        .conn
+        .query_row("SELECT rowid,note,opaque FROM host_notes", [], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?))
+        })
+        .unwrap();
+    assert_eq!(before, after_reopen);
+    // Dependencies on the Host authority table are not ordinary opaque data.
+    f.store
+        .conn
+        .execute_batch("CREATE TABLE consumer(host_id TEXT REFERENCES host_registrations(id))")
+        .unwrap();
+    assert_eq!(
+        f.store.find_host_registration("original").unwrap_err().code,
+        "VERSION_UNSUPPORTED"
+    );
+}
+#[test]
+fn sql_projects_oversized_or_wrong_type_bodies_as_null_without_hiding_rows() {
+    for (target, column, projected) in [
+        ("idempotency", "key", 0usize),
+        ("idempotency", "payload", 1),
+        ("idempotency", "result", 2),
+        ("host_registrations", "id", 0),
+        ("host_registrations", "name", 1),
+        ("host_registrations", "name_key", 2),
+        ("host_registrations", "document", 5),
+        ("events", "document", 0),
+    ] {
+        for blob in [false, true] {
+            let mut f = fixture();
+            let receipt = f.store.register_host(&registration(), "original").unwrap();
+            // Four MiB exceeds every allowed field. SQL CASE must retain the row
+            // and project NULL before rusqlite is asked to copy a body.
+            let text = "x".repeat(4 * 1024 * 1024);
+            let sql = format!("UPDATE {target} SET {column}=?1");
+            if blob {
+                f.store.conn.execute(&sql, [text.as_bytes()]).unwrap();
+            } else {
+                f.store.conn.execute(&sql, [text]).unwrap();
+            }
+            let value: Option<String> = match target {
+                "idempotency" => f
+                    .store
+                    .conn
+                    .query_row(READ_RECEIPTS_SQL, [SCOPE], |r| r.get(projected))
+                    .unwrap(),
+                "host_registrations" => f
+                    .store
+                    .conn
+                    .query_row(READ_HOSTS_SQL, [], |r| r.get(projected))
+                    .unwrap(),
+                _ => f
+                    .store
+                    .conn
+                    .query_row(READ_EVENT_SQL, [receipt.created_sequence as i64], |r| {
+                        r.get(projected)
+                    })
+                    .unwrap(),
+            };
+            assert!(value.is_none(), "{target}.{column}");
+            assert!(
+                f.store.find_host_registration("original").is_err(),
+                "invalid rows cannot be filtered into absent"
+            );
+            assert!(f
+                .store
+                .register_host(&registration(), "replacement")
+                .is_err());
+        }
+    }
 }

@@ -1,0 +1,131 @@
+--- apps/desktop/src-tauri/Cargo.lock@4c
++++ apps/desktop/src-tauri/Cargo.lock@resolved
+@@ -28,6 +28,7 @@
+ dependencies = [
+  "agentbaton-config",
+  "agentbaton-providers",
++ "agentbaton-remote-host",
+  "agentbaton-workspaces",
+  "fs2",
+  "rusqlite",
+@@ -68,6 +69,17 @@
+ ]
+ 
+ [[package]]
++name = "agentbaton-remote-host"
++version = "0.1.0"
++dependencies = [
++ "libc",
++ "rusqlite",
++ "serde",
++ "serde_json",
++ "sha2",
++]
++
++[[package]]
+ name = "agentbaton-workspaces"
+ version = "0.1.0"
+ dependencies = [
+@@ -515,7 +527,7 @@
+ checksum = "d045de693cb712d0b22c6a64be5b953f67b3ce00ab5ad3dd5d8b441886ab8e1a"
+ dependencies = [
+  "quote",
+- "syn 3.0.9",
++ "syn 2.0.119",
+ ]
+ 
+ [[package]]
+@@ -658,7 +670,7 @@
+  "libc",
+  "option-ext",
+  "redox_users",
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+ ]
+ 
+ [[package]]
+@@ -802,7 +814,7 @@
+ checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
+ dependencies = [
+  "libc",
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+ ]
+ 
+ [[package]]
+@@ -1943,7 +1955,7 @@
+  "png",
+  "serde",
+  "thiserror 2.0.21",
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+ ]
+ 
+ [[package]]
+@@ -2683,7 +2695,7 @@
+  "errno",
+  "libc",
+  "linux-raw-sys",
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+ ]
+ 
+ [[package]]
+@@ -3013,7 +3025,7 @@
+ checksum = "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4"
+ dependencies = [
+  "libc",
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+ ]
+ 
+ [[package]]
+@@ -3530,10 +3542,10 @@
+ checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
+ dependencies = [
+  "fastrand",
+- "getrandom 0.4.3",
++ "getrandom 0.3.4",
+  "once_cell",
+  "rustix",
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+ ]
+ 
+ [[package]]
+@@ -3837,7 +3849,7 @@
+  "png",
+  "serde",
+  "thiserror 2.0.21",
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+ ]
+ 
+ [[package]]
+@@ -4192,7 +4204,7 @@
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
+ dependencies = [
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+ ]
+ 
+ [[package]]
+@@ -4213,7 +4225,7 @@
+  "objc2-foundation",
+  "objc2-quartz-core",
+  "raw-window-handle",
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+  "windows-version",
+ ]
+ 
+@@ -4510,7 +4522,7 @@
+ checksum = "7d6f32a0ff4a9f6f01231eb2059cc85479330739333e0e58cadf03b6af2cca10"
+ dependencies = [
+  "cfg-if",
+- "windows-sys 0.61.2",
++ "windows-sys 0.60.2",
+ ]
+ 
+ [[package]]

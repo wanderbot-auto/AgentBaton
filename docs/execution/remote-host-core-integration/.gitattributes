@@ -4,3 +4,9 @@ registration/**/*.log -whitespace
 # Preserve exact raw unified-diff evidence, including blank context prefix bytes.
 layout/manifest.patch -whitespace
 layout/minimal-exclude.patch -whitespace
+
+# Raw Store dependency-resolution diff evidence preserves blank context bytes.
+store/locks/root.patch -whitespace
+store/locks/desktop.patch -whitespace
+store/**/*.log -whitespace
+store/locks/desktop-minimal.patch -whitespace

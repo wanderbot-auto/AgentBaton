@@ -1,0 +1,28 @@
+--- Cargo.lock@4c
++++ Cargo.lock@resolved
+@@ -23,6 +23,7 @@
+ dependencies = [
+  "agentbaton-config",
+  "agentbaton-providers",
++ "agentbaton-remote-host",
+  "agentbaton-workspaces",
+  "fs2",
+  "libc",
+@@ -45,6 +46,17 @@
+  "serde_json",
+  "sha2",
+  "tempfile",
++]
++
++[[package]]
++name = "agentbaton-remote-host"
++version = "0.1.0"
++dependencies = [
++ "libc",
++ "rusqlite",
++ "serde",
++ "serde_json",
++ "sha2",
+ ]
+ 
+ [[package]]

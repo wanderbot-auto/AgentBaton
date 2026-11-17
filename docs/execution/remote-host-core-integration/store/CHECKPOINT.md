@@ -7,3 +7,7 @@ Store18/migration19 activation, IPC/native/UI/real SSH/Provider remain unimpleme
 No child processes/services started.
 
 Source implementation ready;18 tests authored/not_run. Direct rustfmt edits and static scope pass. Source before-resolution manifest in EVIDENCE.json; same14 frozen foundation source. Heavy slot requested, not granted yet. Locks unchanged; no Cargo resolve/build/test. Next local source commit then independent readonly review and slot-gated checks.
+
+Heavy slot granted. Source P2 fixes WIP; native offline resolver produced unrelated dependency-edge changes, stopped before acceptance/tests/commit and reported root. Root closure minimal; logs locks/. No test process. Source4c initial review had2P2, not accepted.
+
+Minimal lock coordination complete: native unrelated edges restored to exact4c; full offline locked metadata0/no hash change. Root/native final closure only Core Host edge+Host node. Source SQL gates/opaque and actual-instance negatives fixed;20 tests authored/not_run. Next fixed clean source commit then jobs2/2testthreads Store tests and lint, retaining first failure.

@@ -1,7 +1,7 @@
 {
   "phase": "RHOST002B",
   "start_head": "4e48985d68f324d3980a981abd5c7789d0379090",
-  "status": "source_implemented_committing_before_resolution_tests",
+  "status": "P2_fixed_minimal_locks_resolved_committing_before_tests",
   "recorded_utc": "2026-11-17T18:58:59.670279+00:00",
   "authority": "artifacts/collab/STORE_TASK.md",
   "not_run": [
@@ -14,14 +14,20 @@
   ],
   "source_sha256": {
     "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
     "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
     "crates/core/src/registry.rs": "0c54b75e3ad90c48d0fa91bba6abab3496a8cdaa24ea17ea7bf6414d6ed64ca0",
-    "crates/core/src/host_registry.rs": "5814a248ba16cb6a5770e224186881ee9c0530d69fd390ed698e33c732211f1e",
-    "crates/core/src/host_registry_tests.rs": "39baf35058209e7aca80abf19325a0b49d86dee200302dc9a5a5449f1ab804bb"
+    "crates/core/src/host_registry.rs": "1df06976f94cbbaedb831c0b7335deb0f41184ba7312b5dc80d5416df9a6dc2b",
+    "crates/core/src/host_registry_tests.rs": "b2dfe684469f6688c95f3adafe286a5b98ea12a40a6e07e55755780d6b9b9e7a"
   },
-  "declared_tests": 18,
+  "declared_tests": 20,
   "tests_executed": false,
   "remote_host_all14_frozen": true,
   "source_edit_note": "Initial nested-shell heredoc parse failed before file write; corrected via quoted Python heredoc. Direct rustfmt edited only two new files; not Cargo or test execution.",
-  "locks": "Static parse finds every existing foundation pin in both original locks; no resolution or lock edit yet."
+  "locks": "Static parse finds every existing foundation pin in both original locks; no resolution or lock edit yet.",
+  "slot": "B granted by root after A explicit release",
+  "initial_source_review": "REVIEW_4c.md:2P2, fixed here; final review pending",
+  "lock_evidence": "locks/EVIDENCE.json and locks/DESKTOP_MINIMAL.json",
+  "closure": "Root/native only Core Host edge+newHost node; all previous package records/pins/dependency edges exact. Original native resolver unrelated changes retained and not accepted. Full desktop offline locked metadata exits0 with identical before/after minimal lock hash."
 }

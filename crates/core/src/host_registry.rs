@@ -8,6 +8,10 @@ use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
+const READ_RECEIPTS_SQL: &str = "SELECT CASE WHEN typeof(key)='text' AND octet_length(key)<=256 THEN key END,CASE WHEN typeof(payload)='text' AND octet_length(payload)<=16384 THEN payload END,CASE WHEN typeof(result)='text' AND octet_length(result)<=24576 THEN result END FROM idempotency WHERE scope=?1 ORDER BY key LIMIT 129";
+const READ_HOSTS_SQL: &str = "SELECT CASE WHEN typeof(id)='text' AND octet_length(id)<=36 THEN id END,CASE WHEN typeof(name)='text' AND octet_length(name)<=256 THEN name END,CASE WHEN typeof(name_key)='text' AND octet_length(name_key)<=256 THEN name_key END,revision,created_sequence,CASE WHEN typeof(document)='text' AND octet_length(document)<=24576 THEN document END FROM host_registrations ORDER BY created_sequence LIMIT 129";
+const READ_EVENT_SQL: &str = "SELECT CASE WHEN typeof(document)='text' AND octet_length(document)<=4096 THEN document END FROM events WHERE sequence=?1";
+
 const SCOPE: &str = "hosts.register:v1";
 const MAX_HOSTS: usize = 128;
 const MAX_METADATA: usize = 16 * 1024;
@@ -223,6 +227,9 @@ fn decode_canonical<T: DeserializeOwned + Serialize>(raw: &str, bound: usize) ->
     }
     Ok(value)
 }
+// SQL projects invalid/oversized values as NULL rather than omitting the row.
+// This post-projection guard still rejects wrong SQLite types/UTF-8 and checks
+// cumulative Rust decoding bytes; it is not a whole-engine memory sandbox.
 fn read_text(row: &Row<'_>, column: usize, bound: usize, budget: &mut Budget) -> Result<String> {
     match row.get_ref(column).map_err(db_error)? {
         ValueRef::Text(bytes) if bytes.len() <= bound => {
@@ -253,7 +260,7 @@ fn validate_schema(db: &Connection) -> Result<()> {
     if foreign_keys != 1 {
         return Err(integrity());
     }
-    let mut statement=db.prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema WHERE tbl_name='host_registrations' OR lower(name) GLOB 'host_*' ORDER BY name LIMIT 9").map_err(db_error)?;
+    let mut statement=db.prepare("SELECT CASE WHEN typeof(type)='text' AND octet_length(type)<=32 THEN type END,CASE WHEN typeof(name)='text' AND octet_length(name)<=128 THEN name END,CASE WHEN typeof(tbl_name)='text' AND octet_length(tbl_name)<=128 THEN tbl_name END,CASE WHEN typeof(sql)='text' AND octet_length(sql)<=16384 THEN sql END FROM sqlite_schema WHERE lower(tbl_name)='host_registrations' OR lower(name) IN ('host_registrations','host_registrations_name_id') ORDER BY name LIMIT 9").map_err(db_error)?;
     let mut rows = statement.query([]).map_err(db_error)?;
     let mut actual = BTreeMap::new();
     let mut budget = Budget::default();
@@ -297,6 +304,15 @@ fn validate_schema(db: &Connection) -> Result<()> {
     })
     .collect();
     if actual != expected {
+        return Err(unsupported());
+    }
+    // Inspect dependency metadata only; unrelated ordinary opaque tables/rows
+    // remain uninterpreted and are not rejected by their name prefix.
+    let incoming: bool = db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM sqlite_schema s JOIN pragma_foreign_key_list(s.name,'main') f WHERE s.type='table' AND lower(f.\"table\")='host_registrations')",
+        [], |row| row.get(0),
+    ).map_err(db_error)?;
+    if incoming {
         return Err(unsupported());
     }
     Ok(())
@@ -353,11 +369,7 @@ fn audit(db: &Connection) -> Result<Vec<AuditedHost>> {
     let mut budget = Budget::default();
     let mut receipts = BTreeMap::new();
     {
-        let mut statement = db
-            .prepare(
-                "SELECT key,payload,result FROM idempotency WHERE scope=?1 ORDER BY key LIMIT 129",
-            )
-            .map_err(db_error)?;
+        let mut statement = db.prepare(READ_RECEIPTS_SQL).map_err(db_error)?;
         let mut rows = statement.query([SCOPE]).map_err(db_error)?;
         while let Some(row) = rows.next().map_err(db_error)? {
             if receipts.len() >= MAX_HOSTS {
@@ -377,7 +389,7 @@ fn audit(db: &Connection) -> Result<Vec<AuditedHost>> {
             receipts.insert(key, (payload, receipt));
         }
     }
-    let mut statement=db.prepare("SELECT id,name,name_key,revision,created_sequence,document FROM host_registrations ORDER BY created_sequence LIMIT 129").map_err(db_error)?;
+    let mut statement = db.prepare(READ_HOSTS_SQL).map_err(db_error)?;
     let mut rows = statement.query([]).map_err(db_error)?;
     let mut audited = Vec::new();
     let mut keys = BTreeSet::new();
@@ -408,9 +420,7 @@ fn audit(db: &Connection) -> Result<Vec<AuditedHost>> {
         if receipt != record.receipt() {
             return Err(integrity());
         }
-        let mut event_statement = db
-            .prepare("SELECT document FROM events WHERE sequence=?1")
-            .map_err(db_error)?;
+        let mut event_statement = db.prepare(READ_EVENT_SQL).map_err(db_error)?;
         let mut event_rows = event_statement.query([sequence as i64]).map_err(db_error)?;
         let event_row = event_rows.next().map_err(db_error)?.ok_or_else(integrity)?;
         let raw_event = read_text(event_row, 0, MAX_EVENT, &mut budget)?;
