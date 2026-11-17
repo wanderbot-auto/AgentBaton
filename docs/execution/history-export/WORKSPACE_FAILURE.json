@@ -1,0 +1,56 @@
+{
+  "candidate": "1aabbc8900206fb32e547ea8818b94749806f827",
+  "original_full": {
+    "status": "failed",
+    "log": "logs/final-rust-workspace.log.gz",
+    "test": "version_probe_failures_preserve_distinct_non_success_evidence",
+    "sample": "invalid",
+    "actual": "TimedOut",
+    "expected": "InvalidOutput",
+    "timeout_ms": 500
+  },
+  "diagnostics": [
+    {
+      "command": "RUST_TEST_THREADS=1 cargo test -p agentbaton-providers --test installation --locked",
+      "status": "passed",
+      "count": 10,
+      "log": "logs/final-provider-installation-rerun.log.gz"
+    },
+    {
+      "command": "target/debug/deps/installation-ce4d7cd593e06a5e --exact version_probe_failures_preserve_distinct_non_success_evidence --test-threads=1",
+      "status": "passed",
+      "count": 1,
+      "log": "logs/final-provider-original-binary-rerun.log.gz"
+    },
+    {
+      "command": "RUST_TEST_THREADS=1 cargo test -p agentbaton-providers -p agentbaton-workspaces --locked",
+      "status": "passed",
+      "log": "logs/final-remaining-packages.log.gz",
+      "installation_group_repeated_once": true
+    },
+    {
+      "command": "cargo test -p agentbaton-config -p agentbaton-core --doc --locked",
+      "status": "passed",
+      "log": "logs/final-remaining-doctests.log.gz"
+    }
+  ],
+  "original_test_binary_sha256": "0ac7935e3f64b1e756207f422f999dcef3678ecc993b15542d3295b2db4ac4e1",
+  "scope": "No Provider sources, test assertions, 500ms budget or lockfiles changed; all passes are focus/segmented evidence, never rewrite original full failure; no unique root cause established; base command not dynamically reexecuted",
+  "source_equivalence": {
+    "crates/providers/tests/installation.rs": {
+      "base_sha256": "90724f1d9d6c3fe5641ae7076d9c9442293a6550a4b20bb7baecbfcd6e6b1531",
+      "candidate_sha256": "90724f1d9d6c3fe5641ae7076d9c9442293a6550a4b20bb7baecbfcd6e6b1531",
+      "byte_identical": true
+    },
+    "crates/providers/src/installation.rs": {
+      "base_sha256": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+      "candidate_sha256": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+      "byte_identical": true
+    },
+    "Cargo.lock": {
+      "base_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+      "candidate_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+      "byte_identical": true
+    }
+  }
+}

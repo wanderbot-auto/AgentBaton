@@ -1,0 +1,20 @@
+# HEXP-001 checkpoint
+status=review
+base=b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c
+head_at_checkpoint=1aabbc8900206fb32e547ea8818b94749806f827
+product_source_commit=7cc8ed418a8d3ff17f25bc35ee3aa885858fb93e
+branch=collab/history-export
+pr_target=main
+dirty_at_checkpoint=docs/execution/history-export final evidence files only; product and guard sources committed and unchanged
+completed=real Core/SQLite snapshot, safe local package, authenticated IPC, typed Tauri bridge, bilingual project details UI, durable preview/publication reconciliation, bounded capacity/failure handling, independent source review fixes, local verification
+verification=Core16+realIPC1, root all-target clippy, UI111/1548+typecheck/build, infra884/newguard5, stable-intent daemon smoke passed; arm64 App built and nativehost179passed/2originalignored
+full_workspace=final run failed1 unchanged Provider invalid-output probe (TimedOut vs InvalidOutput at original500ms); focus10, originalbinary1 and complete Providers+Workspaces/doc supplement passed independently; failure retained, no full passed claim
+native_gui=two real isolated App launches, same Cua entry rejected exact same path before and after owner settings report; blocked/not_run; both App/daemon pairs reaped; NATIVE_GUI.json
+native_extra_clippy=candidate14errors in unchanged files; source-equivalence only, no dynamic baseline rerun; no suppression
+artifact=artifacts/history-export/intent-ipc-round1/sample.history.json
+artifact_sha256=27e573cb094133f522bbd82788ba076702c2cc6c88a8620c015781f3f853a241
+scope_extension=leader-authorized single original source guard file; exact new layer inverse only; original pins/assertions unchanged; scope passes
+independent_review=implementation findings closed at product7cc; leader independently checked guard-only1a; final acceptance/required GitHub checks remain separate
+processes=all own build/test/native sessions joined, no ongoing executor or user login service operations
+next=commit evidence, normal push, draft PR, exact base/head/scope/conflict/CI snapshot handoff; no main merge
+leader_actions=independent exact delivery-head acceptance and required-check review; decide follow-up for GUI access and pre-existing-source failures

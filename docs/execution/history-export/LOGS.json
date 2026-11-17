@@ -1,0 +1,554 @@
+{
+  "preservation": "Exact raw bytes retained; gzip mtime0; no whitespace normalization; original failed and successful runs remain separate",
+  "logs": [
+    {
+      "original_name": "core-check-2.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/core-check-2.log",
+      "raw_bytes": 563,
+      "raw_sha256": "1fd1496aec4d34747c4906a3ece37a31418a0e59f247f7459e3e332691d9e255",
+      "archive": "logs/core-check-2.log.gz",
+      "archive_bytes": 355,
+      "archive_sha256": "3422623e54d89b7330913969df40562b948e97be45f0061e1de42686f5affef7"
+    },
+    {
+      "original_name": "core-check-workers.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/core-check-workers.log",
+      "raw_bytes": 209,
+      "raw_sha256": "b7ce62ee8093b0cbdc6e8b0422f83653a71580a1db926d74d1749ed8b27c990e",
+      "archive": "logs/core-check-workers.log.gz",
+      "archive_bytes": 184,
+      "archive_sha256": "c491243413263ebfe6bdf87cfd950000952bc49a3fdd848f27755cbdbdc62e3d"
+    },
+    {
+      "original_name": "core-check.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/core-check.log",
+      "raw_bytes": 3085,
+      "raw_sha256": "280d0c630fd54e374f05ae182aa6631ebb042fbe884cd99171ff5a48e7c967fd",
+      "archive": "logs/core-check.log.gz",
+      "archive_bytes": 901,
+      "archive_sha256": "49654a7495874da7d2812c753d1d44df900583846d0554161ad5c0029642b983"
+    },
+    {
+      "original_name": "core-ipc-test-2.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/core-ipc-test-2.log",
+      "raw_bytes": 495,
+      "raw_sha256": "9102a38908ac7f34a8853bfe0ce6b72934d1c3874fb60760389e001e780fce66",
+      "archive": "logs/core-ipc-test-2.log.gz",
+      "archive_bytes": 343,
+      "archive_sha256": "c386224dbf4e010c776e5b982914bdaa9899854d790fd6d72bf08a6145a04508"
+    },
+    {
+      "original_name": "core-ipc-test.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/core-ipc-test.log",
+      "raw_bytes": 1256,
+      "raw_sha256": "03e75e86e487ebc10087f722c8ce6786b3f8825149a619823ad1adda11af13a9",
+      "archive": "logs/core-ipc-test.log.gz",
+      "archive_bytes": 684,
+      "archive_sha256": "042b63ea49f5b7338f097b318d99e499fa25c4dbc59cfe90ed8b3e3ba136acc9"
+    },
+    {
+      "original_name": "core-tests-2.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/core-tests-2.log",
+      "raw_bytes": 1252,
+      "raw_sha256": "aa9515f248ee308dfa2298472c7bb094c6f5fd355d91ac8abdb374a8a5ce132d",
+      "archive": "logs/core-tests-2.log.gz",
+      "archive_bytes": 627,
+      "archive_sha256": "189b97a81cde00ecec7569c06d71e91ef8ab961901c9d83affe6b38fdecc8f85"
+    },
+    {
+      "original_name": "core-tests-final.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/core-tests-final.log",
+      "raw_bytes": 1252,
+      "raw_sha256": "f40e8497e2527afa89caeed1e80278210e09ccc02a4c74e22b072863517ac8e6",
+      "archive": "logs/core-tests-final.log.gz",
+      "archive_bytes": 626,
+      "archive_sha256": "0fb4680344b9efa299f232b7a6d1d0a64a3d1b4277f6f25a25a4de9d2d5efa3f"
+    },
+    {
+      "original_name": "core-tests-first.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/core-tests-first.log",
+      "raw_bytes": 2785,
+      "raw_sha256": "d2ccb11788736bc2920fb78571f818686b066a4e7a2dc1abb62a92be0820f01c",
+      "archive": "logs/core-tests-first.log.gz",
+      "archive_bytes": 996,
+      "archive_sha256": "b8d5492c62366f4563cbad179011dd39143686da243d732607d0dd2c344fbcc3"
+    },
+    {
+      "original_name": "core-tests-workers.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/core-tests-workers.log",
+      "raw_bytes": 1864,
+      "raw_sha256": "103d3ec6330ef6efc62262d3502e3522135abd25f6988b4f592518012bff65c3",
+      "archive": "logs/core-tests-workers.log.gz",
+      "archive_bytes": 888,
+      "archive_sha256": "ca8a3cd3025c672a927f97e32a8bf35606b8bec7f92b90dd8aee0a61ecc283fb"
+    },
+    {
+      "original_name": "daemon-build.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/daemon-build.log",
+      "raw_bytes": 731,
+      "raw_sha256": "fd352128671d58e3f9295f39165d76d8813ee22beec872cf21e81bb6520f70c3",
+      "archive": "logs/daemon-build.log.gz",
+      "archive_bytes": 266,
+      "archive_sha256": "726ad65f8018ba880ed33fe86522c56442f7d61e8682ee0fdd29dbc23a096c75"
+    },
+    {
+      "original_name": "daemon-smoke-2.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/daemon-smoke-2.log",
+      "raw_bytes": 1286,
+      "raw_sha256": "9e841d952dc65bb80a33d6941a2955e0d3145c069ff6d6e1361e4c7f78754dde",
+      "archive": "logs/daemon-smoke-2.log.gz",
+      "archive_bytes": 652,
+      "archive_sha256": "cf8aa6eb802efdfbbe0922e5d748a84b2e9ca0704a845e39f86aa75d93aa6fe7"
+    },
+    {
+      "original_name": "daemon-smoke.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/daemon-smoke.log",
+      "raw_bytes": 509,
+      "raw_sha256": "2f3a0fbbf0d2b6ee009c10cf86ba5e8242c791aeaaaeae2aac40a6753c366aec",
+      "archive": "logs/daemon-smoke.log.gz",
+      "archive_bytes": 257,
+      "archive_sha256": "b01d66d34f0ad073b38c31978f9148d41cf6c0711e8471c2acfd9051341ffc14"
+    },
+    {
+      "original_name": "final-clippy.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-clippy.log",
+      "raw_bytes": 1117,
+      "raw_sha256": "26eaa448edbecdec2c510108fa679f662a1653dd5c83e3793713128ed6d013cd",
+      "archive": "logs/final-clippy.log.gz",
+      "archive_bytes": 332,
+      "archive_sha256": "48edb2b94fafd130451ea1357d5faae1e4982960ad92c3abc4781050bc7bd252"
+    },
+    {
+      "original_name": "final-core-targeted.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-core-targeted.log",
+      "raw_bytes": 2006,
+      "raw_sha256": "4d3c9c05d8a7b3eae101022c8d0dde8144c5d28d9a1e033b370ba09cb5f2e8b4",
+      "archive": "logs/final-core-targeted.log.gz",
+      "archive_bytes": 874,
+      "archive_sha256": "7b219040bad72b28a8a9add75870eed92329f10729b1ed8dc64ed091c5cefdd1"
+    },
+    {
+      "original_name": "final-daemon-build.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-daemon-build.log",
+      "raw_bytes": 462,
+      "raw_sha256": "fc87fbd76b1ef298edc75aa60df44dd74267bef8bcbca88bf34db781e9d0a338",
+      "archive": "logs/final-daemon-build.log.gz",
+      "archive_bytes": 210,
+      "archive_sha256": "423cf10dfdd5fc56646e6a764ab3b7fe7c82934f97685a7f14d4548d37e06cf1"
+    },
+    {
+      "original_name": "final-daemon-smoke.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-daemon-smoke.log",
+      "raw_bytes": 1634,
+      "raw_sha256": "e0f94d60c104f8f231d3b72b7cfa9a6d81088cdcca829127786e7c7afa63321e",
+      "archive": "logs/final-daemon-smoke.log.gz",
+      "archive_bytes": 824,
+      "archive_sha256": "b9d1377f26436cb7a3158313ef8e511a0876841a3482eb7f39ce64b2406de1fc"
+    },
+    {
+      "original_name": "final-frozen-tools-verify-2.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-frozen-tools-verify-2.log",
+      "raw_bytes": 1864,
+      "raw_sha256": "52ccebdbbdccc900925607b59d562b37beceaab76da0ae197cb489a53fbb988c",
+      "archive": "logs/final-frozen-tools-verify-2.log.gz",
+      "archive_bytes": 759,
+      "archive_sha256": "d8c9e5940ab2a26b6b2a3d2a9440e3061e8945676b9d911881e991fa676aa791"
+    },
+    {
+      "original_name": "final-frozen-tools-verify.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-frozen-tools-verify.log",
+      "raw_bytes": 675,
+      "raw_sha256": "c9a20cee6ff492167101b032bcb0262e6611c30761f4fe4259c7a17d135c0b74",
+      "archive": "logs/final-frozen-tools-verify.log.gz",
+      "archive_bytes": 283,
+      "archive_sha256": "26c5e3fbe20b1f3c3fdd4ecdc35ac37f83b8f808b4d21e1eecdda0b6a4f477f2"
+    },
+    {
+      "original_name": "final-frozen-tools.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-frozen-tools.log",
+      "raw_bytes": 1864,
+      "raw_sha256": "52ccebdbbdccc900925607b59d562b37beceaab76da0ae197cb489a53fbb988c",
+      "archive": "logs/final-frozen-tools.log.gz",
+      "archive_bytes": 759,
+      "archive_sha256": "d8c9e5940ab2a26b6b2a3d2a9440e3061e8945676b9d911881e991fa676aa791"
+    },
+    {
+      "original_name": "final-infrastructure-guarded.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-infrastructure-guarded.log",
+      "raw_bytes": 240307,
+      "raw_sha256": "b77527a98449f7fe8b8786c9333b301f7e1dbaacf147357460212a37bd83557c",
+      "archive": "logs/final-infrastructure-guarded.log.gz",
+      "archive_bytes": 29667,
+      "archive_sha256": "3852f3d0db50faf624a005cfe4e0b484e01ee928c43f8f080d94dc2e60aa3aa0"
+    },
+    {
+      "original_name": "final-infrastructure.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-infrastructure.log",
+      "raw_bytes": 244426,
+      "raw_sha256": "054785577fb6b144bfe5dfe8b2d19292c36adc0ce55b3e2736185af50270a6ea",
+      "archive": "logs/final-infrastructure.log.gz",
+      "archive_bytes": 30228,
+      "archive_sha256": "b10499f4c308246aafb62326fd89b42ee16a213c696bb4d69639015544fcad7a"
+    },
+    {
+      "original_name": "final-ipc-targeted.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-ipc-targeted.log",
+      "raw_bytes": 496,
+      "raw_sha256": "d743da90c6728fa433bd08bca00ab2f33e05741b2625bd0ab2c8d5f2a0ef7222",
+      "archive": "logs/final-ipc-targeted.log.gz",
+      "archive_bytes": 344,
+      "archive_sha256": "cb82716b1b635f0fa68f387ec8cef9a75c0e7b9147314f928536ee81e40f867e"
+    },
+    {
+      "original_name": "final-native-bundle.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-native-bundle.log",
+      "raw_bytes": 2587,
+      "raw_sha256": "662d9c788577ee06394318905100133b82434b74449c3f67901ee9c6da63d825",
+      "archive": "logs/final-native-bundle.log.gz",
+      "archive_bytes": 1033,
+      "archive_sha256": "ef3ce7b1ac878dcf678bfb91d776314f8a77e77abbd2f2fbd6da60bb1297cdbf"
+    },
+    {
+      "original_name": "final-native-clippy.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-native-clippy.log",
+      "raw_bytes": 14560,
+      "raw_sha256": "8c03b9ce5b51ed9881aa8fd6a8eae6c295784c0d6b35cad49053644d7bfb9e0d",
+      "archive": "logs/final-native-clippy.log.gz",
+      "archive_bytes": 3537,
+      "archive_sha256": "78f10b4d4bdcba36971fe7749ca982e62004988d4369fd09d956781abe44b9e3"
+    },
+    {
+      "original_name": "final-native-host-tests.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-native-host-tests.log",
+      "raw_bytes": 21394,
+      "raw_sha256": "8d453c2acf2b8d83d2e9c75f397db8a1ce04e0eabc71656c54235ab2b911a2d6",
+      "archive": "logs/final-native-host-tests.log.gz",
+      "archive_bytes": 5685,
+      "archive_sha256": "1c0f70a70ae6c81a31781180ab6b2260ed0609e3ab796cf851dc7ed4a1ac9583"
+    },
+    {
+      "original_name": "final-provider-installation-rerun.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-provider-installation-rerun.log",
+      "raw_bytes": 1169,
+      "raw_sha256": "00de40f1ec84c8ce0448e6489ec70c68ffa95642b7ee670e03f1bfd25dc85942",
+      "archive": "logs/final-provider-installation-rerun.log.gz",
+      "archive_bytes": 633,
+      "archive_sha256": "8bc4bfd7a47a4987bca3d4690d36c095de8404288de72dd612b0ebe99c4f2f80"
+    },
+    {
+      "original_name": "final-provider-original-binary-rerun.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-provider-original-binary-rerun.log",
+      "raw_bytes": 186,
+      "raw_sha256": "75d40a8e3812ed2de8429c69d500cec262a1efa40cfe0a8cd6e99002ddf02c9b",
+      "archive": "logs/final-provider-original-binary-rerun.log.gz",
+      "archive_bytes": 148,
+      "archive_sha256": "1860040f45f44f28f2d4fd9ae68a5bbb504fa182a76f8fae929e869e227361f6"
+    },
+    {
+      "original_name": "final-remaining-doctests.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-remaining-doctests.log",
+      "raw_bytes": 496,
+      "raw_sha256": "d6f4e51cbe7d1e6c4a6f7a5385317886ddd24e05b328c4e08924441240c39930",
+      "archive": "logs/final-remaining-doctests.log.gz",
+      "archive_bytes": 269,
+      "archive_sha256": "f987edaf07fa9d840560c76e131564589c15477f3624c78dc3ecfbce25faef66"
+    },
+    {
+      "original_name": "final-remaining-packages.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-remaining-packages.log",
+      "raw_bytes": 30233,
+      "raw_sha256": "cff99c294883cac091c0bf62b5735ddbe23f07850dc6f72a27f14028d0f48ff1",
+      "archive": "logs/final-remaining-packages.log.gz",
+      "archive_bytes": 8543,
+      "archive_sha256": "0c642fd6ccc96901ef2ccb09e0c1ed0c0b1b9923a02624002680825cbdb04678"
+    },
+    {
+      "original_name": "final-rust-workspace.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-rust-workspace.log",
+      "raw_bytes": 104025,
+      "raw_sha256": "92e99eab9cfae1da6c5140c8d0c8a624287d57c8faa462a24e07261c1412bd9b",
+      "archive": "logs/final-rust-workspace.log.gz",
+      "archive_bytes": 25605,
+      "archive_sha256": "012dd3b7adc84b5e02028873a8a8d9c60b3173ca2d1219ad3b5d45217beb08f3"
+    },
+    {
+      "original_name": "final-tools-build.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-tools-build.log",
+      "raw_bytes": 491,
+      "raw_sha256": "c18ecbc324406bbf40f3193567636c25eef84d15c40bac20527df021c10946c1",
+      "archive": "logs/final-tools-build.log.gz",
+      "archive_bytes": 222,
+      "archive_sha256": "8954bdacb6f25a4a08903053f8b2aa79784e9dccf21d7a1ecaac45a0d51910db"
+    },
+    {
+      "original_name": "final-ui-build.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-ui-build.log",
+      "raw_bytes": 777,
+      "raw_sha256": "6b54c9f8f376ab4f1f8d3469b2fce3a3d003b493c792f68c809d8783a73c0190",
+      "archive": "logs/final-ui-build.log.gz",
+      "archive_bytes": 482,
+      "archive_sha256": "7a9af9020ff082d1b4829c2c4114578c67fb3d746d47279b974e976bf3d49053"
+    },
+    {
+      "original_name": "final-ui-full.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-ui-full.log",
+      "raw_bytes": 634,
+      "raw_sha256": "37be6f09afe9711ffe132921e18f5cec2d9654b9ddfe9eb26a8495aa2e1837a8",
+      "archive": "logs/final-ui-full.log.gz",
+      "archive_bytes": 423,
+      "archive_sha256": "e9db6d80d7618ea53bdf0fa051e9c6488605b4b331382d9322595f7e41b5f5c7"
+    },
+    {
+      "original_name": "final-ui-typecheck.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/final-ui-typecheck.log",
+      "raw_bytes": 55,
+      "raw_sha256": "81a908ca176d0b18d9dd2470e07fabb394420707cf4a00e9b2f28551bdcdc175",
+      "archive": "logs/final-ui-typecheck.log.gz",
+      "archive_bytes": 75,
+      "archive_sha256": "9466c0f1a7d64ef4095346fc20b85000908297146679d6175ed91b0a7ecf21a4"
+    },
+    {
+      "original_name": "frozen-tools-2.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/frozen-tools-2.log",
+      "raw_bytes": 3716,
+      "raw_sha256": "f91c8168b8822d6040b4e85ece555f7388d16d044102beac005ae9942b4a02f5",
+      "archive": "logs/frozen-tools-2.log.gz",
+      "archive_bytes": 777,
+      "archive_sha256": "79f8aa2f704a63e545430ea4b5dede6f80cf178a66db549c89f6e1b84dae307d"
+    },
+    {
+      "original_name": "frozen-tools.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/frozen-tools.log",
+      "raw_bytes": 935,
+      "raw_sha256": "6fc29e6bd605d0c8a960f007a665af40b067a2147539d845e4060295b26def50",
+      "archive": "logs/frozen-tools.log.gz",
+      "archive_bytes": 323,
+      "archive_sha256": "f890ee3f13319cf809b46fa2a57c996a46532eaea19af8e88217f028d1c2e87e"
+    },
+    {
+      "original_name": "history-export-guards-2.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/history-export-guards-2.log",
+      "raw_bytes": 1143,
+      "raw_sha256": "1c3b4e5a8443b2cdbd7cab5087a3f6d6525a2b7ccb7ec633002b5658769b291e",
+      "archive": "logs/history-export-guards-2.log.gz",
+      "archive_bytes": 346,
+      "archive_sha256": "7c3d37e7538b5f7345216a66b354160bd1ca848f42b60e754bc43bb38a4e2090"
+    },
+    {
+      "original_name": "history-export-guards.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/history-export-guards.log",
+      "raw_bytes": 3054,
+      "raw_sha256": "13f5966af300d5809af87e69fcaaee06dedb9316fda3d60d4b03d4f2799bfb4b",
+      "archive": "logs/history-export-guards.log.gz",
+      "archive_bytes": 763,
+      "archive_sha256": "a95e4d72eeae3d4aad21b49cf5b3e4e85178c3728ef2f1b2d1988da0c95f7bf9"
+    },
+    {
+      "original_name": "incidental-formatting.diff",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/incidental-formatting.diff",
+      "raw_bytes": 1836,
+      "raw_sha256": "8ec3555cc5ec72c87909ae20bb46ea67cb60a3eafd954d45bd8fde318ca931eb",
+      "archive": "logs/incidental-formatting.diff.gz",
+      "archive_bytes": 804,
+      "archive_sha256": "3ec1f2b8f8f543ddc8135df3ebaa752af7c97adc8a75bc0986c31028cf20f635"
+    },
+    {
+      "original_name": "infra-dependencies-ca.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/infra-dependencies-ca.log",
+      "raw_bytes": 1590,
+      "raw_sha256": "a6924f9f02eaba0b14a57727661ab1e37a175d15a417f639f4c4807ed7398cda",
+      "archive": "logs/infra-dependencies-ca.log.gz",
+      "archive_bytes": 440,
+      "archive_sha256": "b8d9646806304555552572558caf3cf1d9375131e3e99ab7d64a17d2a7e4da85"
+    },
+    {
+      "original_name": "infra-dependencies-official.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/infra-dependencies-official.log",
+      "raw_bytes": 2010,
+      "raw_sha256": "abc397ce95839e949c865f5844ab8834fb3227e6bbb591aa280df6fb6a8881a8",
+      "archive": "logs/infra-dependencies-official.log.gz",
+      "archive_bytes": 478,
+      "archive_sha256": "5f4d7cefb52b839b4458487e1a5041282622cb6b37aef79dc38ed249d56a450e"
+    },
+    {
+      "original_name": "infra-dependencies.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/infra-dependencies.log",
+      "raw_bytes": 2510,
+      "raw_sha256": "690de3e7f715cb109dca087d70189df4960a2c1ca415c9f0b891df0509d69c0e",
+      "archive": "logs/infra-dependencies.log.gz",
+      "archive_bytes": 522,
+      "archive_sha256": "ebb7e4ce332c804b60399d6d0358222f5ee047c205c2803caa194d461598bbc6"
+    },
+    {
+      "original_name": "initial-check.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/initial-check.log",
+      "raw_bytes": 3217,
+      "raw_sha256": "256645c750dcf4fadba391658084b2a0ce1202542e2b870c656a5713c343ae96",
+      "archive": "logs/initial-check.log.gz",
+      "archive_bytes": 1162,
+      "archive_sha256": "4503f0b5d6dae07249eff25d3f13e283e37b3e747caa912dd209d5d0f268c698"
+    },
+    {
+      "original_name": "intent-core-tests.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/intent-core-tests.log",
+      "raw_bytes": 1703,
+      "raw_sha256": "abc3a0eda06b6643c19c93bdd74bf030ef6e4691fc282ec8e470b1075de54b5d",
+      "archive": "logs/intent-core-tests.log.gz",
+      "archive_bytes": 779,
+      "archive_sha256": "5c8be622b5dc768c329a48c50c1535db6dcaa57ea3a5ed348c7255c7f27eecbf"
+    },
+    {
+      "original_name": "intent-ipc-tests.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/intent-ipc-tests.log",
+      "raw_bytes": 496,
+      "raw_sha256": "e4b621d479746095f86703a37df09463011de064ce07d79d41a6614305802e3a",
+      "archive": "logs/intent-ipc-tests.log.gz",
+      "archive_bytes": 344,
+      "archive_sha256": "2e2ae8a097d0a451668df9ae49e9cf178dd786bc092a80ab7d0b6c77ae77e591"
+    },
+    {
+      "original_name": "intent-typecheck.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/intent-typecheck.log",
+      "raw_bytes": 55,
+      "raw_sha256": "81a908ca176d0b18d9dd2470e07fabb394420707cf4a00e9b2f28551bdcdc175",
+      "archive": "logs/intent-typecheck.log.gz",
+      "archive_bytes": 75,
+      "archive_sha256": "9466c0f1a7d64ef4095346fc20b85000908297146679d6175ed91b0a7ecf21a4"
+    },
+    {
+      "original_name": "intent-ui-tests-2.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/intent-ui-tests-2.log",
+      "raw_bytes": 650,
+      "raw_sha256": "1b76eebefb73214c90b8cc95170c117a001ad2ec9ddf6f787acd3e7b0e309b63",
+      "archive": "logs/intent-ui-tests-2.log.gz",
+      "archive_bytes": 412,
+      "archive_sha256": "dded6365eb925c22850d646f04db9110d22afa9ae8f5294d9747093b64fe65c6"
+    },
+    {
+      "original_name": "intent-ui-tests.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/intent-ui-tests.log",
+      "raw_bytes": 7002,
+      "raw_sha256": "01460355f60df9a483c4f48697f3d98f98bc6f5fd7df67cac064ad6e677845d7",
+      "archive": "logs/intent-ui-tests.log.gz",
+      "archive_bytes": 1759,
+      "archive_sha256": "85c85b42d7e52a13f4effc8557debae7f2c6c495b1ad9761b464e7eb60824555"
+    },
+    {
+      "original_name": "latest-owner-inbox.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/latest-owner-inbox.log",
+      "raw_bytes": 2985,
+      "raw_sha256": "094a77884272d0919bece0654237419f2d226a9245e7d826e0891a8f661f811f",
+      "archive": "logs/latest-owner-inbox.log.gz",
+      "archive_bytes": 1861,
+      "archive_sha256": "72641b8d1e46291f598680988dd4de9cebd137f3538de71a3e17adb5769f3240"
+    },
+    {
+      "original_name": "native-build.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/native-build.log",
+      "raw_bytes": 7423,
+      "raw_sha256": "768d1150c6075d5fe22f0cd25245dbe734db820b81302ddc6f9481090f99f767",
+      "archive": "logs/native-build.log.gz",
+      "archive_bytes": 2084,
+      "archive_sha256": "f6b8e952de7b1caa080148ccacaf2079750f6952bb2de3e06ba23e99fef7a154"
+    },
+    {
+      "original_name": "npm-ci.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/npm-ci.log",
+      "raw_bytes": 29,
+      "raw_sha256": "01b4e8147587d8bf81f00e23dbe5ad2fded0b24eb65f4c725a7c7c97ea66f433",
+      "archive": "logs/npm-ci.log.gz",
+      "archive_bytes": 49,
+      "archive_sha256": "464b72df15425cad9d30128e1646198ed8a11abeb3c448eed8a7961f8ec6ffbe"
+    },
+    {
+      "original_name": "rust-full-configured.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/rust-full-configured.log",
+      "raw_bytes": 129576,
+      "raw_sha256": "68f44cee9f5c1a306e3061bf0dd627c3fec4ba4f7eb0e70c684722085cca4822",
+      "archive": "logs/rust-full-configured.log.gz",
+      "archive_bytes": 31750,
+      "archive_sha256": "d5c50391f87e5e7c35ef718a486a71238bfe5548fe70275e819d84ef01811bad"
+    },
+    {
+      "original_name": "rust-full.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/rust-full.log",
+      "raw_bytes": 73913,
+      "raw_sha256": "93a09e439dae4e88354ffa07394024f220378bb064adc5bc5cbae1f2c63b46e8",
+      "archive": "logs/rust-full.log.gz",
+      "archive_bytes": 17353,
+      "archive_sha256": "fdf906e0e7a796c6213df896bf9fd3aa3267bed4e2273d1ece6303cfc744df3a"
+    },
+    {
+      "original_name": "tools-build.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/tools-build.log",
+      "raw_bytes": 196,
+      "raw_sha256": "7e4c1e3df183658655be042bbdb6eb077b94114192eeaf3809e73962012b1aec",
+      "archive": "logs/tools-build.log.gz",
+      "archive_bytes": 177,
+      "archive_sha256": "27f1655c274d76fe0b918dd99c4f0fb24baf9450ebf81febea57fdd5bac1c361"
+    },
+    {
+      "original_name": "typecheck-final-2.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/typecheck-final-2.log",
+      "raw_bytes": 55,
+      "raw_sha256": "81a908ca176d0b18d9dd2470e07fabb394420707cf4a00e9b2f28551bdcdc175",
+      "archive": "logs/typecheck-final-2.log.gz",
+      "archive_bytes": 75,
+      "archive_sha256": "9466c0f1a7d64ef4095346fc20b85000908297146679d6175ed91b0a7ecf21a4"
+    },
+    {
+      "original_name": "typecheck-final.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/typecheck-final.log",
+      "raw_bytes": 55,
+      "raw_sha256": "81a908ca176d0b18d9dd2470e07fabb394420707cf4a00e9b2f28551bdcdc175",
+      "archive": "logs/typecheck-final.log.gz",
+      "archive_bytes": 75,
+      "archive_sha256": "9466c0f1a7d64ef4095346fc20b85000908297146679d6175ed91b0a7ecf21a4"
+    },
+    {
+      "original_name": "typecheck.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/typecheck.log",
+      "raw_bytes": 55,
+      "raw_sha256": "81a908ca176d0b18d9dd2470e07fabb394420707cf4a00e9b2f28551bdcdc175",
+      "archive": "logs/typecheck.log.gz",
+      "archive_bytes": 75,
+      "archive_sha256": "9466c0f1a7d64ef4095346fc20b85000908297146679d6175ed91b0a7ecf21a4"
+    },
+    {
+      "original_name": "ui-build.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/ui-build.log",
+      "raw_bytes": 777,
+      "raw_sha256": "7b275f398c7eeaa3ec8430a946ea44675fcb1b79643ba4436fbb0c515ec70764",
+      "archive": "logs/ui-build.log.gz",
+      "archive_bytes": 482,
+      "archive_sha256": "983d510ad6cc8b56748434e535feb592848f4ae2285a28e164251ad119dff668"
+    },
+    {
+      "original_name": "ui-full.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/ui-full.log",
+      "raw_bytes": 634,
+      "raw_sha256": "2839d581fd4d1701d940b90e4b0deed73c3fb888eac9e86ed2896de983e658bd",
+      "archive": "logs/ui-full.log.gz",
+      "archive_bytes": 421,
+      "archive_sha256": "29697666ebda18f2802c1b1ac8435597025aa9f962f525857869a63c4e066e50"
+    },
+    {
+      "original_name": "ui-targeted-final.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/ui-targeted-final.log",
+      "raw_bytes": 650,
+      "raw_sha256": "f64c2a06d8da5d34fd8050dd2525d653be9426a57d057126a6af91b2b79cd569",
+      "archive": "logs/ui-targeted-final.log.gz",
+      "archive_bytes": 410,
+      "archive_sha256": "0baee42b8fb22a7b5afd36c6b067b364c780a77630fa76a93b0dd4a48113aca1"
+    },
+    {
+      "original_name": "ui-targeted.log",
+      "raw_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/raw-evidence-1aabbc/ui-targeted.log",
+      "raw_bytes": 429,
+      "raw_sha256": "d11f303ef8a4f3455f81a788f49e811d3dd2a22b8cb448a7702ccc1a0b552d55",
+      "archive": "logs/ui-targeted.log.gz",
+      "archive_bytes": 292,
+      "archive_sha256": "04d0ceb677c0da9f8e89e2b0b94adaf974ace77a71a23f93693e1c79814d4562"
+    }
+  ]
+}
