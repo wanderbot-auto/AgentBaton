@@ -288,7 +288,7 @@
     "log": "logs/final-frozen-tools-verify-2.log.gz",
     "original_parameter_failure_log": "logs/final-frozen-tools-verify.log.gz"
   },
-  "updated_at": "2026-11-18T00:10:35.716659+08:00",
+  "updated_at": "2026-11-18T00:15:17.957064+08:00",
   "verification_subject_commit": "1aabbc8900206fb32e547ea8818b94749806f827",
   "remaining_gaps": [
     "Native WebView/Finder interaction blocked by computer-use app permission after two same-entry attempts; no GUI pass claimed",
@@ -384,5 +384,25 @@
     "active_owned_test_build_processes": 0,
     "native_fixture_children_reaped": true,
     "all_command_sessions_joined": true
+  },
+  "pr": {
+    "number": 31,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/pull/31",
+    "draft": true,
+    "base_ref": "main",
+    "head_ref": "collab/history-export",
+    "head_at_creation": "375edc8d0d9d272d9d917bfd04f76d7ad0f6bb53",
+    "final_live_snapshot_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/ci-final.json",
+    "final_head": "recorded by live PR metadata and final handoff after this evidence-only commit"
+  },
+  "source_unchanged_after_verification_subject": true,
+  "documentation_validation": {
+    "status": "passed",
+    "scope": "design_package_validation_only",
+    "command": ".venv/bin/python scripts/validate_design.py",
+    "local_links_checked": 232,
+    "raw_log": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/final-doc-validation.log",
+    "raw_sha256": "c4250d1117abf9e0f5378294b012089bb796731ef31bd32fd66d8cb88991665a",
+    "not_product_or_native_evidence": true
   }
 }
