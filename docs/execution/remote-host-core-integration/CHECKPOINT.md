@@ -1,17 +1,9 @@
-# Checkpoint
+# Current RHOST-002 checkpoint
 
-status=fixed_docs_contract_complete_for_local_handoff
-base=a4e03303b54bd5a5544131e95ad39662f8310e29; product_source_head=cb5bfd1ed856dd6d3d30f190b867692411cee2f7; current docs execution starts at that HEAD.
-branch=collab/remote-host-core-integration; no push/CI authorized.
-Frozen product paths: crates/remote-host/src/{registration.rs,lib.rs,transport.rs}, crates/remote-host/tests/registration.rs. Current writes: own docs only; Core/schema/locks/UI/native-run.py unchanged.
-Done: CORE_REGISTRY_CONTRACT.md refines Core requests/immutable receipt, reconciliation before capacity, lost-response recovery, UUID/protocol identity separation, explicit nonunique-name rules, record/event/idempotency transaction and created_sequence FK/retention. This is a proposal awaiting root/A Host19 DDL unification, not a runnable Core registry or final DDL.
-Verified product evidence retained unchanged:8 pure+18 original Rust+16 actual faults, fmt/strictclippy/build at recorded WIP source hash8bcf564ab311bce58cd75a70caba53d2d3795bdab9c3fe5f3d4dee1d135b05fe; same14 source hashes at cb5. No retest claimed for this docs phase.
-Handoff: this checkpoint belongs to the local documentation commit reported by exact SHA to leader after commit.14 frozen source hashes, exact A DDL, synthetic fixture/layout hashes and JSON checks pass; manifest REGISTRY_CONTRACT_CHECKS.json. No product/shared writes without leader allocation. No further edits after handoff unless review requests fixes.
-Processes: no test/service/companion started in this docs phase; prior executors joined. Runtime/target retained; no background continuation promised.
-Unresolved: root/A current-vs-historical schema19 closure, final event/receipt/DDL agreement, future exact shared path transfer and accepted base, real Core/IPC/native/UI/error/retention tests. Remote routing/offline execution/data transfer/identity/config proof/real SSH/Linux/Provider remain outside this implemented subphase.
+RHOST002A pure product source remains cb5-frozen and independently accepted. Fixed4e Core registry contract led to root's eight-literal RHOST002B authorization in artifacts/collab/STORE_TASK.md.
 
-Layout dependency: private-mirror cargo1.91.1 offline --no-deps metadata failed101 with Core path-only, passed0 with root exclude remote-host; layout/EVIDENCE.json. New proposed literal Cargo.toml exclude remains unallocated. Repo Cargo/Core/locks unchanged, no build/network.
+Current source039de47012d073a4ac6fde7e7202c22786dd3e53 implements real Store persistence/read layer only. Workspace fmt, Core all-target strictclippy and21 targeted actual SQLite tests pass. store/EVIDENCE.json and VERIFIED_SOURCE.json distinguish exact current results from8c0test failure/23820pass history and pin13 changed product files,14 unchanged foundation files, binary/log/input hashes. Both locks minimal/offline-verified with old pins/edges retained.
 
-A406be16 docs alignment: exact six-column/one-index proposal, names repeat/UUID distinguishes, default NO ACTION FK. B withdrew initial unique-name/creation-key SQL-index/RESTRICT proposals. HOST19_ALIGNMENT.md records server document creation_key and bounded128-row scan tradeoff for root/A JSON/size/work confirmation; no source scope assumed.
+Source frozen pending root final independent review; docs archive/handoff only. Heavy slot released, all command children joined, no service/companion/remote/provider process started. No push/CI/merge.
 
-Leader engineering agreement received; fixed DDL/record/receipt/event-payload/encoding and bounded audit proposal in registry-contract/CONTRACT.json with synthetic canonical fixtures. Pending root final review only; product/shared write scope remains unallocated.
+Ordinary Store18 and schema activation/lib/storage/IPC/native/UI unchanged. Private SQLite19 fixture reopen is not product migration/open acceptance; method return-discard is not real IPC disconnect. Full400 Core execution/native GUI/real SSH/Linux/Provider/routing/offline/data/retention/budget integration remain deferred/unverified. Global status and A's paths remain leader-owned.

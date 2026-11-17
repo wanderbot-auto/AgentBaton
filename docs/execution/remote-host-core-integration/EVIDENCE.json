@@ -1,7 +1,7 @@
 {
   "task": "RHOST-002",
-  "phase": "RHOST002A_docs_registry_refinement",
-  "status": "fixed_docs_contract_ready_for_local_handoff",
+  "phase": "RHOST002B",
+  "status": "Store_verified_source_frozen_pending_root_review",
   "audited_source_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
   "branch": "collab/remote-host-core-integration",
   "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration",
@@ -17,34 +17,26 @@
   "proposed_scope": "PROPOSED_SCOPE.json",
   "checks": [
     {
-      "command": "git branch/rev-parse/status",
-      "result": "expected branch and accepted base, clean at start"
+      "phase": "historical phase1",
+      "details": "Source_audit / phase1_snapshot retained; see Git4e for original static checks"
     },
     {
-      "command": "bash scripts/collab.sh scope",
-      "result": "passed before docs"
-    },
-    {
-      "command": "rg/read/hash accepted source",
-      "result": "static audit only"
-    },
-    {
-      "command": "git ls-remote --heads origin refs/heads/main",
-      "result": "main=a4e03303b54bd5a5544131e95ad39662f8310e29; read-only, no CI trigger"
+      "phase": "current RHOST002B",
+      "details": "store/VERIFIED_SOURCE.json exact039 fmt/strictclippy/21pass and minimal offline locks"
     }
   ],
   "not_run": [
-    "Core/schema/lock/UI repository implementation or tests; mirror metadata parsing is not implementation",
-    "real SSH/Host/Provider",
-    "GUI/native",
-    "CI/push",
-    "paid/signing/production"
+    "Private19 fixture only; ordinary Store::open18 and schema activation unchanged",
+    "Response-loss test discards method return, not real IPC/network disconnect",
+    "DELETE-journal path collision and deferred-FK commit failure are actual faults; production WAL crash/power-loss I/O not proven",
+    "No full400 Core execution; all-target strict clippy compiled targets,21 actual targeted tests only",
+    "No real SSH/Provider/Linux/native/UI/CI/push"
   ],
   "unresolved": [
-    "root final fixed record/receipt/encoding review and A current-vs-historical schema19 closure",
-    "leader exact shared path transfer and accepted base",
-    "future Core/IPC/native/UI/error/reopen/retention verification",
-    "future execution reference and authority compatibility"
+    "root final source review/acceptance",
+    "A dormant migration/reference package and coordinated Store19 activation/current-historical closure",
+    "Core IPC/native/UI registration vertical and full integration acceptance",
+    "real SSH/Linux/Provider/routing/offline execution/data transfer/retention/budget integration"
   ],
   "files_written": [
     "PLAN.md",
@@ -102,5 +94,21 @@
   "docs_execution_head": "cb5bfd1ed856dd6d3d30f190b867692411cee2f7",
   "delivery_commit": "Containing commit; exact head reported to leader after commit (no self-referential SHA claim)",
   "independent_docs_review": "Final no P1/P2, read-only; REGISTRY_CONTRACT_REVIEW.md",
-  "processes": "Both metadata subprocess calls joined; no tests/services/companions launched in docs phase; private mirror retained."
+  "processes": "Both metadata subprocess calls joined; no tests/services/companions launched in docs phase; private mirror retained.",
+  "current_store_evidence": "store/EVIDENCE.json",
+  "current_store_verified_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "current_store_counts": {
+    "fmt": 0,
+    "Core_all_targets_strict_clippy": 0,
+    "targeted_tests": 21,
+    "passed": 21,
+    "failed": 0,
+    "other_lib_tests_filtered": 380
+  },
+  "previous_phase_snapshot": {
+    "head": "4e48985d68f324d3980a981abd5c7789d0379090",
+    "phase": "RHOST002A_docs_contract",
+    "status": "accepted fixed docs contract before eight-literal Store assignment"
+  },
+  "current_additional_product_scope": "artifacts/collab/STORE_TASK.md (eight root-reserved literals); registry entry only, root/native locks minimal"
 }

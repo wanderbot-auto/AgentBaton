@@ -1,17 +1,15 @@
-status=RHOST002B_implementing_before_heavy_slot
-start=4e48985d68f324d3980a981abd5c7789d0379090
-product_baseline=cb5frozen_remote_host
-Write scope=eight STORE_TASK literals + own docs; registry only module/re-export.
-Tests/build/resolve=not_run_pending_slot; source will be committed first.
-Store18/migration19 activation, IPC/native/UI/real SSH/Provider remain unimplemented dependencies.
-No child processes/services started.
+# RHOST002B final local verification checkpoint
 
-Source implementation ready;18 tests authored/not_run. Direct rustfmt edits and static scope pass. Source before-resolution manifest in EVIDENCE.json; same14 frozen foundation source. Heavy slot requested, not granted yet. Locks unchanged; no Cargo resolve/build/test. Next local source commit then independent readonly review and slot-gated checks.
+status=verified039_source_frozen_pending_root_review
+accepted_base=a4e03303b54bd5a5544131e95ad39662f8310e29
+package_start=4e48985d68f324d3980a981abd5c7789d0379090
+verified_source_head=039de47012d073a4ac6fde7e7202c22786dd3e53
+branch=collab/remote-host-core-integration
 
-Heavy slot granted. Source P2 fixes WIP; native offline resolver produced unrelated dependency-edge changes, stopped before acceptance/tests/commit and reported root. Root closure minimal; logs locks/. No test process. Source4c initial review had2P2, not accepted.
+Real Core Store typed immutable create/receipt, bounded integrity audit/replay, consistent snapshot find/get/list implemented under eight additional literals. registry.rs only module/re-export; ordinary Store18/lib/storage/IPC/native/UI/CI untouched. Foundation14 source hashes remain cb5.
 
-Minimal lock coordination complete: native unrelated edges restored to exact4c; full offline locked metadata0/no hash change. Root/native final closure only Core Host edge+Host node. Source SQL gates/opaque and actual-instance negatives fixed;20 tests authored/not_run. Next fixed clean source commit then jobs2/2testthreads Store tests and lint, retaining first failure.
+Current exact039 results: fmt0; all-target Core strictclippy jobs2/-Dwarnings0;21 targeted tests pass0fail,380 other library tests filtered. Old8c compile E0277/0tests and23820pass retained separately, never summed. runs/20261117T192508Z and VERIFIED_SOURCE.json bind source/binary/commands/counts/log hashes. All executors joined; heavy slot explicitly released to root; no services/companions started.
 
-8c first tests=compile E0277/0 executed; retained191947Z failure. Test-only i64 SQLite read fix; unchanged boundary semantics. Next commit then identical retry while B owns slot.
+Root/native locks minimal Host node/Core edge; all old pins/edges preserved. Native original broad resolver output retained, unrelated edges restored; full offline locked metadata0 with stable lock hash. No network/download/global toolchain/cache change.
 
-238 targeted20pass is retained as prior-source evidence only. Root additional SQL integer/schema-null P2 fixes now written;21 tests authored including true private autoindex.sql corruption. Need fixed new clean commit/tests/lint. No current child process.
+Only docs archive may follow this checkpoint; resulting exact docs-commit SHA reported after commit. Product bytes remain frozen039 pending root source review; no push/CI/merge. Actual migration19/open/recovery/IPC/native/UI, full400 Core execution, real SSH/Linux/Provider and WAL crash/power-loss acceptance remain unverified/deferred, not closed by private19 fixtures. Response-loss test is method-return discard, not real IPC disconnect.

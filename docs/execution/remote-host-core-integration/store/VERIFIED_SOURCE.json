@@ -1,0 +1,154 @@
+{
+  "source_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "package_start": "4e48985d68f324d3980a981abd5c7789d0379090",
+  "accepted_base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "source_sha256": {
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+    "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0",
+    "crates/core/src/host_registry.rs": "64f8eae852349cacd7cf9b8ea12e1cb47af3fd4a73df91c67399642c6f7f4eb8",
+    "crates/core/src/host_registry_tests.rs": "5da3f54ae559b7202d84969bb3c7e7b7fbcff4aab4907dce8fc33d4898e64e50",
+    "crates/core/src/registry.rs": "0c54b75e3ad90c48d0fa91bba6abab3496a8cdaa24ea17ea7bf6414d6ed64ca0",
+    "crates/core/tests/fixtures/host_registration/README.md": "eace15bc6d0b42613c38fa6a92f5fe496b6406add51c02f725318e18493cc878",
+    "crates/core/tests/fixtures/host_registration/ddl.sql": "a81ce46f0c66692b48ed887a389c7f7d30890840c7111c324b78503145a7815c",
+    "crates/core/tests/fixtures/host_registration/event-payload-v1.json": "38d7bc16ff6bb6c53775a9ea985a9ea9928a592e2d0674a2afb8232eed993677",
+    "crates/core/tests/fixtures/host_registration/payload-v1.json": "4a7cba703c7db8252649273ddfeca6764efe51526ee3fe4a9eeb625eb891c3d5",
+    "crates/core/tests/fixtures/host_registration/receipt-v1.json": "44efa554001d7fdb68efe3a4b44083e8bc8f3e43cb13e259df1cb064f1627a7e",
+    "crates/core/tests/fixtures/host_registration/record-v1.json": "0a554aa2e917ca2e956dae8ea5b3da01fe82f1943ae301ad8a9100bda0265640"
+  },
+  "source_composite_sha256": "cc239474bb936843f0714f3bb7468c31e3c90b8d9bb40a4fff03a3832b12f1ab",
+  "remote_host_frozen14_sha256": {
+    "crates/remote-host/Cargo.lock": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/src/controller.rs": "395ceef6cd37380f2d1e9b9afd142a3f3e3eaa88a13259f5827d9f587bfc10d3",
+    "crates/remote-host/src/lib.rs": "1e830c4a5dcb254e6162d50aa93624f185fa941b48757e677e028b11534acf21",
+    "crates/remote-host/src/main.rs": "9243c4224963e7b73120e337828d01e0700e58b5cd9aa8f12dded7cc92515e7f",
+    "crates/remote-host/src/protocol.rs": "cf75bc67caa2435fd484cfb2e9b7ff6506917a098cafb3fe806805fc43b4111e",
+    "crates/remote-host/src/registration.rs": "3330e12d4dbfe92f622de5372d10eeee47786aa8902083ac0b1ffb4553b87c52",
+    "crates/remote-host/src/store.rs": "a778611326e3bd01052cc53725eb2eaa6a84dc7a3d4b7c066cc4c5e9acab1668",
+    "crates/remote-host/src/transport.rs": "233a4d337a15799bfeef20cf570b2fc855e07342cd9b0aac150873dbe4b80912",
+    "crates/remote-host/src/worker.rs": "4320abb29aa4e240d49a801a1a220fd9c2f086285444c5bd4b0f9d6f29d36d40",
+    "crates/remote-host/tests/foundation.rs": "9c3a94fdc60e1dc1db6ff438890728bd9a0d05d74097482944422bab6f4e5c55",
+    "crates/remote-host/tests/registration.rs": "03a3bccc3e8deb9546403e05e921cebaa4c957bb21482460759f2b6ddaa8090d",
+    "scripts/verify-remote-host.py": "4fc7c8b17de1f560043b6c3f1cbb7fdfecc4845a4812267930cb7079c8bcf367",
+    "tests/infrastructure/test_remote_host.py": "10ae86b1a95b8167658f46cdb0facb1696f0543584190f422f947f4048a665f7"
+  },
+  "checks": [
+    {
+      "source_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+      "status": "passed",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "started_utc": "2026-11-17T19:25:08.237085+00:00",
+      "note": "Explicit private SQLite19 fixtures only; no product activation/IPC/native/SSH/Provider acceptance.",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T19:25:09.384025+00:00",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_bytes": 0,
+      "all_started_child_processes_joined": true
+    },
+    {
+      "source_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+      "status": "passed",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "Cargo.toml",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "-j",
+        "2",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "started_utc": "2026-11-17T19:25:09.384261+00:00",
+      "note": "Explicit private SQLite19 fixtures only; no product activation/IPC/native/SSH/Provider acceptance.",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T19:25:26.259793+00:00",
+      "log_sha256": "c06a65ef911c7fae591a674fad6937d52ce67e82b2e7c7890e71e407b7714ff1",
+      "log_bytes": 1733,
+      "all_started_child_processes_joined": true
+    },
+    {
+      "source_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+      "status": "passed",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "Cargo.toml",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "registry::host_registry::tests",
+        "-j",
+        "2",
+        "--",
+        "--nocapture",
+        "--test-threads=2"
+      ],
+      "started_utc": "2026-11-17T19:25:26.260012+00:00",
+      "note": "Explicit private SQLite19 fixtures only; no product activation/IPC/native/SSH/Provider acceptance.",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T19:26:11.398544+00:00",
+      "log_sha256": "b9d494ae0911f8fb95f3ea99e3fe5136b8c3249fe05a60beac6c85cf8b71b5c7",
+      "log_bytes": 2643,
+      "all_started_child_processes_joined": true
+    }
+  ],
+  "test_binary": {
+    "printed_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/target/debug/deps/agentbaton_core-3e149a5721946c12",
+    "resolved_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/target/debug/deps/agentbaton_core-3e149a5721946c12",
+    "exists": true,
+    "bytes": 32406048,
+    "sha256": "cdb3854d1415079c579feea4085fa8b18949a4026c5d05f055f5f7b0cf6589f2"
+  },
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cargo_version": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/target",
+    "target_resolved": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/target"
+  },
+  "counts": {
+    "current_targeted_tests": 21,
+    "current_passed": 21,
+    "current_failed": 0,
+    "other_lib_tests_filtered": 380
+  },
+  "previous_attempts_not_added_to_count": [
+    "8c compile E0277/0tests: runs/20261117T191947Z",
+    "238 old-source20pass: runs/20261117T192113Z"
+  ],
+  "processes": {
+    "executor_sessions_joined": [
+      35379,
+      79293,
+      54910
+    ],
+    "all_commands_returned": true,
+    "new_services_companions": 0,
+    "heavy_slot": "released to root after final successful command"
+  },
+  "limits": [
+    "Private19 fixture only; ordinary Store::open18 and schema activation unchanged",
+    "Response-loss test discards method return, not real IPC/network disconnect",
+    "DELETE-journal path collision and deferred-FK commit failure are actual faults; production WAL crash/power-loss I/O not proven",
+    "No full400 Core execution; all-target strict clippy compiled targets,21 actual targeted tests only",
+    "No real SSH/Provider/Linux/native/UI/CI/push"
+  ]
+}

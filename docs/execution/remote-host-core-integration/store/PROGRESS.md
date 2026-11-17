@@ -17,3 +17,9 @@
 
 - Clean238/i64 counter fix ran original command:20 tests passed, log5ab97c73f78b9926a72f0cbd8c70b49aaeb1509a0953318fb18a3a93cbd150fa; all executors joined. This does not close root's additional SQL guard findings.
 - Root found remaining raw integer-mirror projection and schema.sql NULL aliasing: added CASE typeof(integer) gates without SQL AND-short-circuit reliance; illegal schema SQL becomes a rejecting BLOB sentinel, distinct from legitimate autoindex NULL. Extended4MiB TEXT/BLOB numeric-column tests with fixture-only FK/CHECK corruption injection restored before methods, raw original-type/bytes preservation assertions, and precise actual autoindex.sql corruption controls. No product/global permission changes. New source commit precedes justified rerun.
+
+## Current039 verification and local handoff
+
+- Exact039de47012d073a4ac6fde7e7202c22786dd3e53: workspace fmt0, Core --all-targets strictclippy jobs2/-Dwarnings0,21 targeted tests pass/0fail (380 other lib tests filtered), all at runs/20261117T192508Z. Binary SHA cdb3854d1415079c579feea4085fa8b18949a4026c5d05f055f5f7b0cf6589f2. Do not add old23820pass or8c0test compile failure to current counts.
+- All command children joined and B heavy slot released to root immediately. No background service/companion/SSH/Provider was started.13 product-file hashes and14 frozen foundation hashes retained in VERIFIED_SOURCE.json; final docs commit must preserve those bytes.
+- Current EVIDENCE.json rewritten with explicit historical attempt records and true current lock/build/test state; old no-resolution/not_run claims are historical only. Initial raw heredoc quoting failure remains earlier chronology, not a product failure. Root final source review pending; no new test or source rewrite without a concrete finding.
