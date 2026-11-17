@@ -1062,13 +1062,10 @@ fn actual_a_migration_then_b_inventory_preserves_shadow_pragma_rows_and_quoted_n
             )
             .unwrap();
     }
-    fn opaque_image(
-        db: &Connection,
-        table: &str,
-    ) -> (
-        Vec<(String, String, Option<String>)>,
-        Vec<(i64, Vec<u8>, String)>,
-    ) {
+    type OpaqueObjects = Vec<(String, String, Option<String>)>;
+    type OpaqueRows = Vec<(i64, Vec<u8>, String)>;
+    type OpaqueImage = (OpaqueObjects, OpaqueRows);
+    fn opaque_image(db: &Connection, table: &str) -> OpaqueImage {
         let mut schema = db
             .prepare(
                 "SELECT type,name,sql FROM main.sqlite_schema WHERE tbl_name=?1 ORDER BY type,name",
@@ -1178,4 +1175,75 @@ fn actual_a_migration_then_b_inventory_preserves_shadow_pragma_rows_and_quoted_n
         before_shadow
     );
     assert_eq!(opaque_image(&reopened.conn, unusual), before_quoted);
+}
+
+#[test]
+fn direct_main_fk_metadata_still_refuses_incoming_case_variants_and_host_objects() {
+    for target in [
+        "host_registrations",
+        "HOST_REGISTRATIONS",
+        "HoSt_ReGiStRaTiOnS",
+    ] {
+        let mut f = fixture();
+        f.store.conn.execute_batch("CREATE TABLE pragma_foreign_key_list(raw BLOB); INSERT INTO pragma_foreign_key_list VALUES(x'00ff');").unwrap();
+        let receipt = f.store.register_host(&registration(), "original").unwrap();
+        f.store
+            .conn
+            .execute_batch(&format!(
+                "CREATE TABLE \"consumer with space\"(host_id TEXT REFERENCES \"{target}\"(id))"
+            ))
+            .unwrap();
+        assert_eq!(
+            f.store.find_host_registration("original").unwrap_err().code,
+            "VERSION_UNSUPPORTED"
+        );
+        assert_refuses_corruption(&mut f.store, &receipt.host_id);
+        let raw: Vec<u8> = f
+            .store
+            .conn
+            .query_row("SELECT raw FROM pragma_foreign_key_list", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(raw, vec![0, 255]);
+    }
+    for ddl in ["CREATE INDEX unexpected_host_index ON host_registrations(name)","CREATE TRIGGER unexpected_host_trigger AFTER INSERT ON host_registrations BEGIN SELECT 1; END"] {
+        let mut f=fixture();let receipt=f.store.register_host(&registration(),"original").unwrap();f.store.conn.execute_batch(ddl).unwrap();assert_refuses_corruption(&mut f.store,&receipt.host_id);
+    }
+}
+#[test]
+fn direct_main_fk_scan_preserves_existing_schema_budget_and_long_opaque_names() {
+    let mut f = fixture();
+    let long_name = format!("opaque_{}", "a".repeat(4096));
+    f.store
+        .conn
+        .execute_batch(&format!("CREATE TABLE \"{long_name}\"(raw BLOB)"))
+        .unwrap();
+    let mut count: i64 = f
+        .store
+        .conn
+        .query_row("SELECT count(*) FROM main.sqlite_schema", [], |r| r.get(0))
+        .unwrap();
+    let mut n = 0;
+    while count < MAX_SCHEMA_OBJECTS as i64 {
+        f.store
+            .conn
+            .execute_batch(&format!("CREATE TABLE opaque_budget_{n}(raw BLOB)"))
+            .unwrap();
+        n += 1;
+        count += 1;
+    }
+    assert_eq!(count, 256);
+    // A's exact policy still accepts this shape; B must not impose a smaller
+    // arbitrary table/name cap. This test is structural, not Store activation.
+    crate::host_registry_migration::validate_current19(&f.store.conn).unwrap();
+    let receipt = f.store.register_host(&registration(), "original").unwrap();
+    assert_eq!(
+        f.store.find_host_registration("original").unwrap(),
+        Some(receipt.clone())
+    );
+    f.store
+        .conn
+        .execute_batch("CREATE TABLE opaque_one_too_many(raw BLOB)")
+        .unwrap();
+    assert!(crate::host_registry_migration::validate_current19(&f.store.conn).is_err());
+    assert_refuses_corruption(&mut f.store, &receipt.host_id);
 }

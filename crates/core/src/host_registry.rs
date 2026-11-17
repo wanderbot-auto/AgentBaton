@@ -21,6 +21,10 @@ const MAX_RESPONSE: usize = 512 * 1024;
 // The later IPC adapter must measure its actual complete envelope as well.
 const FRAME_RESERVE: usize = 2048;
 const MAX_SEQUENCE: u64 = 9_007_199_254_740_991;
+// Match the composed migration's existing main-schema metadata policy, not a
+// lower arbitrary limit on lawful opaque names/tables.
+const MAX_SCHEMA_OBJECTS: usize = 256;
+const MAX_SCHEMA_BYTES: usize = 1_048_576;
 const MAX_AUDIT_BYTES: usize = MAX_HOSTS * (MAX_DOCUMENT * 2 + MAX_METADATA + MAX_EVENT + 1024);
 const TABLE_SQL: &str = "CREATE TABLE host_registrations(\n id TEXT PRIMARY KEY,\n name TEXT NOT NULL,\n name_key TEXT NOT NULL,\n revision INTEGER NOT NULL CHECK(revision=1),\n created_sequence INTEGER NOT NULL UNIQUE REFERENCES events(sequence),\n document TEXT NOT NULL\n)";
 const INDEX_SQL: &str =
@@ -260,7 +264,7 @@ fn validate_schema(db: &Connection) -> Result<()> {
     if foreign_keys != 1 {
         return Err(integrity());
     }
-    let mut statement=db.prepare("SELECT CASE WHEN typeof(type)='text' AND octet_length(type)<=32 THEN type END,CASE WHEN typeof(name)='text' AND octet_length(name)<=128 THEN name END,CASE WHEN typeof(tbl_name)='text' AND octet_length(tbl_name)<=128 THEN tbl_name END,CASE WHEN typeof(sql)='null' THEN NULL WHEN typeof(sql)='text' AND octet_length(sql)<=16384 THEN sql ELSE x'00' END FROM sqlite_schema WHERE lower(tbl_name)='host_registrations' OR lower(name) IN ('host_registrations','host_registrations_name_id') ORDER BY name LIMIT 9").map_err(db_error)?;
+    let mut statement=db.prepare("SELECT CASE WHEN typeof(type)='text' AND octet_length(type)<=32 THEN type END,CASE WHEN typeof(name)='text' AND octet_length(name)<=128 THEN name END,CASE WHEN typeof(tbl_name)='text' AND octet_length(tbl_name)<=128 THEN tbl_name END,CASE WHEN typeof(sql)='null' THEN NULL WHEN typeof(sql)='text' AND octet_length(sql)<=16384 THEN sql ELSE x'00' END FROM main.sqlite_schema WHERE lower(tbl_name)='host_registrations' OR lower(name) IN ('host_registrations','host_registrations_name_id') ORDER BY name LIMIT 9").map_err(db_error)?;
     let mut rows = statement.query([]).map_err(db_error)?;
     let mut actual = BTreeMap::new();
     let mut budget = Budget::default();
@@ -306,17 +310,82 @@ fn validate_schema(db: &Connection) -> Result<()> {
     if actual != expected {
         return Err(unsupported());
     }
-    // Inspect dependency metadata only; unrelated ordinary opaque tables/rows
-    // remain uninterpreted and are not rejected by their name prefix.
-    let incoming: bool = db.query_row(
-        "SELECT EXISTS(SELECT 1 FROM sqlite_schema s JOIN pragma_foreign_key_list(s.name,'main') f WHERE s.type='table' AND lower(f.\"table\")='host_registrations')",
-        [], |row| row.get(0),
-    ).map_err(db_error)?;
-    if incoming {
+    // Inspect dependency metadata only; ordinary opaque pragma_* tables may
+    // shadow table-valued PRAGMAs. Direct main PRAGMA syntax cannot name them
+    // as a query source, and it never evaluates their rows/CHECK expressions.
+    if has_incoming_host_fk(db)? {
         return Err(unsupported());
     }
     Ok(())
 }
+fn has_incoming_host_fk(db: &Connection) -> Result<bool> {
+    let (objects, bytes): (i64, i64) = db.query_row(
+        "SELECT count(*),coalesce(sum(octet_length(type)+octet_length(name)+octet_length(tbl_name)+coalesce(octet_length(sql),0)),0) FROM main.sqlite_schema",
+        [], |row| Ok((row.get(0)?, row.get(1)?)),
+    ).map_err(db_error)?;
+    if !(1..=MAX_SCHEMA_OBJECTS as i64).contains(&objects)
+        || !(1..=MAX_SCHEMA_BYTES as i64).contains(&bytes)
+    {
+        return Err(unsupported());
+    }
+    // Do not filter malformed metadata into absence. All main objects remain
+    // in this N+1 projection; only their validated table names select a PRAGMA.
+    let mut statement = db.prepare(
+        "SELECT CASE WHEN typeof(type)='text' AND type IN ('table','index','view','trigger') THEN type END,CASE WHEN typeof(name)='text' AND octet_length(name)<=?1 THEN name END,CASE WHEN typeof(tbl_name)='text' AND octet_length(tbl_name)<=?1 THEN tbl_name END FROM main.sqlite_schema ORDER BY type,name LIMIT ?2",
+    ).map_err(db_error)?;
+    let mut rows = statement
+        .query(params![
+            MAX_SCHEMA_BYTES as i64,
+            (MAX_SCHEMA_OBJECTS + 1) as i64
+        ])
+        .map_err(db_error)?;
+    let mut seen = 0;
+    let mut fk_rows = 0usize;
+    let mut budget = Budget::default();
+    while let Some(row) = rows.next().map_err(db_error)? {
+        if seen >= MAX_SCHEMA_OBJECTS {
+            return Err(unsupported());
+        }
+        seen += 1;
+        let kind = read_text(row, 0, 7, &mut budget)?;
+        let name = read_text(row, 1, MAX_SCHEMA_BYTES, &mut budget)?;
+        let table = read_text(row, 2, MAX_SCHEMA_BYTES, &mut budget)?;
+        if name.contains('\0') || table.contains('\0') {
+            return Err(integrity());
+        }
+        if kind != "table" {
+            continue;
+        }
+        if name != table {
+            return Err(integrity());
+        }
+        // PRAGMA arguments use SQLite's quoted-identifier syntax. The source is
+        // bounded main-schema metadata, never a caller command or SQL fragment.
+        let quoted = name.replace('"', "\"\"");
+        let mut keys = db
+            .prepare(&format!("PRAGMA main.foreign_key_list(\"{quoted}\")"))
+            .map_err(db_error)?;
+        let mut keys = keys.query([]).map_err(db_error)?;
+        while let Some(key) = keys.next().map_err(db_error)? {
+            // Every FK result requires source syntax within the existing1MiB
+            // schema budget. This finite ceiling adds no smaller opaque limit;
+            // accepted ordinary opaque tables have no FK declarations at all.
+            if fk_rows >= MAX_SCHEMA_BYTES {
+                return Err(unsupported());
+            }
+            fk_rows += 1;
+            let target = read_text(key, 2, MAX_SCHEMA_BYTES, &mut budget)?;
+            if target.eq_ignore_ascii_case("host_registrations") {
+                return Ok(true);
+            }
+        }
+    }
+    if seen as i64 != objects {
+        return Err(integrity());
+    }
+    Ok(false)
+}
+
 impl HostRegistrationRecord {
     fn receipt(&self) -> HostCreationReceipt {
         HostCreationReceipt {

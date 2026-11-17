@@ -1,0 +1,26 @@
+{
+  "source_head": "817282d0ae8e56e5bcf6894e2fc17f3179f061fa",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--lib",
+    "registry::host_registry::tests::actual_a_migration_then_b_inventory_preserves_shadow_pragma_rows_and_quoted_names",
+    "-j",
+    "2",
+    "--",
+    "--exact",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "expected": "One compiled cross-module test fails at B registration on shadowed table-valued PRAGMA; compile failure is not the expected proof.",
+  "started_utc": "2026-11-17T20:31:24.126986+00:00",
+  "exit_code": 101,
+  "finished_utc": "2026-11-17T20:33:05.763641+00:00",
+  "log_sha256": "6ce93c31a982288bcca239319ed0d3e9cac068e3675a4b0e2a3b582d0921cae7",
+  "expected_red_observed": true,
+  "all_children_joined": true
+}

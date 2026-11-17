@@ -1,7 +1,7 @@
 {
   "task": "HOST-PRAGMA-COMPAT",
   "base": "8f8d0a17861920b0577b3754ca972f0329819745",
-  "status": "regression_implementation",
+  "status": "fix_source_committing_before_green_tests",
   "write_scope": [
     "crates/core/src/host_registry.rs",
     "crates/core/src/host_registry_tests.rs",
@@ -27,5 +27,20 @@
     "SSH/Provider",
     "CI/push"
   ],
-  "recorded_utc": "2026-11-17T20:29:13.014299+00:00"
+  "recorded_utc": "2026-11-17T20:29:13.014299+00:00",
+  "expected_red": "runs/expected-red/evidence.json",
+  "source_sha256": {
+    "crates/core/src/host_registry.rs": "8c942c738da0e2dfb0e850e8a93951fcacaa2f588bcf86acaaf462425d613844",
+    "crates/core/src/host_registry_tests.rs": "b251f6b3f83722bb89b85813a61e9ea7157af63d9deb50c4c2e9244aace87210",
+    "tests/infrastructure/test_background_service_native_smoke_source.py": "df3203d08502f852cdbaa9714bc9c314ebed3a4c2d17d27fd41be76e063246ea"
+  },
+  "untouched_lock_sha256": {
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5"
+  },
+  "current_not_run": [
+    "green fixed-source tests",
+    "independent fixed-source review",
+    "IPC/Store19 product activation/native/remote/CI/push"
+  ]
 }

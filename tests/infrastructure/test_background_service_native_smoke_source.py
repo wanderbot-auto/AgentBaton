@@ -42,6 +42,44 @@ def strip_desktop_dev_profile_layer(manifest):
     return manifest.replace(DESKTOP_DEV_PROFILE_LAYER, '', 1)
 
 
+
+# Versioned Host registration dependency layer. These are complete immutable
+# inputs, not a discovered baseline or permission to regenerate historical pins.
+HOST_DESKTOP_LOCK_V1_SHA256 = '439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5'
+PRE_HOST_DESKTOP_LOCK_SHA256 = 'f1ad092cfc6b1317d259831e197e160d100de8c6ef292b075104531276667515'
+HOST_CORE_EDGE_V1 = (
+    'name = "agentbaton-core"\nversion = "0.1.0"\ndependencies = [\n'
+    ' "agentbaton-config",\n "agentbaton-providers",\n'
+    ' "agentbaton-remote-host",\n "agentbaton-workspaces",\n'
+)
+HOST_PACKAGE_V1 = (
+    '[[package]]\nname = "agentbaton-remote-host"\nversion = "0.1.0"\n'
+    'dependencies = [\n "libc",\n "rusqlite",\n "serde",\n'
+    ' "serde_json",\n "sha2",\n]\n\n'
+)
+
+
+def strip_host_registration_lock_v1(raw):
+    """Exact439 -> exactf1ad, then the caller retains its original libc inverse."""
+    if not isinstance(raw, bytes):
+        raise ValueError('Host lock inverse requires exact bytes')
+    pin = hashlib.sha256(raw).hexdigest()
+    if pin == PRE_HOST_DESKTOP_LOCK_SHA256:
+        return raw
+    if pin != HOST_DESKTOP_LOCK_V1_SHA256:
+        raise ValueError('Unknown complete desktop lock input for Host layer v1')
+    source = raw.decode('utf-8')
+    if source.count(HOST_CORE_EDGE_V1) != 1 or source.count(HOST_PACKAGE_V1) != 1:
+        raise ValueError('Host v1 dependency edge/node must each occur exactly once')
+    parent = source.replace(
+        HOST_CORE_EDGE_V1,
+        HOST_CORE_EDGE_V1.replace(' "agentbaton-remote-host",\n', '', 1), 1,
+    ).replace(HOST_PACKAGE_V1, '', 1).encode('utf-8')
+    if hashlib.sha256(parent).hexdigest() != PRE_HOST_DESKTOP_LOCK_SHA256:
+        raise ValueError('Host layer did not restore the complete historical parent')
+    return parent
+
+
 BG_STEP_NAME = 'Actual Native background registration IPC in generated private paths'
 # Exact workflow at 4ce910b and the same bytes with the new Native step.
 BASE_WORKFLOW_SHA256 = 'e9e70c5340ca711528e6df6f9c2434104e021068054bf74cb5d3f9efc90984e5'
@@ -252,6 +290,50 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         self.assertEqual(hashlib.sha256(original_function(lib, 'ensure_daemon').encode()).hexdigest(),
                          PARENT_ENSURE_DAEMON_SHA256)
 
+    def test_host_lock_v1_restores_exact_parent_before_original_libc_inverse(self):
+        raw = (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), HOST_DESKTOP_LOCK_V1_SHA256)
+        parent = strip_host_registration_lock_v1(raw)
+        self.assertEqual(hashlib.sha256(parent).hexdigest(), PRE_HOST_DESKTOP_LOCK_SHA256)
+        self.assertEqual(strip_host_registration_lock_v1(parent), parent)
+        before = tomllib.loads(parent.decode())['package']
+        current = tomllib.loads(raw.decode())['package']
+        self.assertEqual(len(current), len(before) + 1)
+        by_id = {(p['name'], p['version'], p.get('source')): p for p in current}
+        for old in before:
+            expected = dict(old)
+            if old['name'] == 'agentbaton-core':
+                expected['dependencies'] = sorted(old['dependencies'] + ['agentbaton-remote-host'])
+            self.assertEqual(by_id[(old['name'], old['version'], old.get('source'))], expected)
+
+    def test_host_lock_v1_refuses_changed_edges_nodes_versions_checksums_and_unknown_bytes(self):
+        raw = (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), HOST_DESKTOP_LOCK_V1_SHA256)
+        source = raw.decode()
+        checksum = re.search(r'checksum = "([0-9a-f]{64})"', source).group(1)
+        changed_checksum = ('0' if checksum[0] != '0' else '1') + checksum[1:]
+        bad = {
+            'missing Core edge': source.replace(HOST_CORE_EDGE_V1, HOST_CORE_EDGE_V1.replace(' "agentbaton-remote-host",\n', '', 1), 1),
+            'duplicate Core edge': source.replace(HOST_CORE_EDGE_V1, HOST_CORE_EDGE_V1.replace(' "agentbaton-remote-host",\n', ' "agentbaton-remote-host",\n "agentbaton-remote-host",\n', 1), 1),
+            'changed Core edge': source.replace(HOST_CORE_EDGE_V1, HOST_CORE_EDGE_V1.replace(' "agentbaton-remote-host",', ' "agentbaton-remote-host 0.2.0",'), 1),
+            'missing Host node': source.replace(HOST_PACKAGE_V1, '', 1),
+            'duplicate Host node': source + HOST_PACKAGE_V1,
+            'lock format version': source.replace('version = 4\n', 'version = 3\n', 1),
+            'Host version': source.replace(HOST_PACKAGE_V1, HOST_PACKAGE_V1.replace('version = "0.1.0"', 'version = "0.2.0"'), 1),
+            'Host dependency': source.replace(HOST_PACKAGE_V1, HOST_PACKAGE_V1.replace(' "libc",', ' "not-approved",'), 1),
+            'unrelated checksum': source.replace(checksum, changed_checksum, 1),
+            'unrelated resolved edge': source.replace(' "syn 3.0.9",', ' "syn 2.0.119",', 1),
+            'unknown suffix': source + '\n# unreviewed\n',
+        }
+        for label, changed in bad.items():
+            self.assertNotEqual(changed, source, label)
+            with self.subTest(label=label), self.assertRaises(ValueError):
+                strip_host_registration_lock_v1(changed.encode())
+        parent = strip_host_registration_lock_v1(raw)
+        for unknown in (b'', b'unknown', parent + b'\n', b'\xff', source):
+            with self.subTest(unknown=type(unknown).__name__), self.assertRaises(ValueError):
+                strip_host_registration_lock_v1(unknown)
+
     def test_all_parent_harness_guards_lock_and_cargo_source_are_exact(self):
         from tests.infrastructure.schema18_source_fixture import restore
         inverse = (Path(__file__).parent/'fixtures/native_acceptance_followup.json').read_bytes()
@@ -266,6 +348,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
             self.assertEqual(hashlib.sha256(raw).hexdigest(), pin, path)
 
         lock = (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_text()
+        lock = strip_host_registration_lock_v1(lock.encode('utf-8')).decode('utf-8')
         addition = ('name = "agentbaton-desktop"\nversion = "0.1.0"\ndependencies = [\n'
                     ' "agentbaton-core",\n "libc",\n')
         self.assertEqual(lock.count(addition), 1)
