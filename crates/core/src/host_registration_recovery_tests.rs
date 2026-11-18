@@ -441,3 +441,392 @@ fn maximal_registration_fits_with_the_full_wrapper_and_read_limit_applies_to_all
     assert_unavailable(&journal);
     assert_eq!(fs::read(path).unwrap(), bytes);
 }
+
+fn read_registration(
+    store: &mut crate::storage::Store,
+    key: &str,
+) -> Result<HostRegistrationLookup> {
+    Ok(HostRegistrationLookup {
+        lookup_version: 1,
+        key: key.into(),
+        receipt: store.find_host_registration(key)?,
+    })
+}
+
+struct CommittedRegistration {
+    directory: tempfile::TempDir,
+    journal: ClientRecoveryJournal,
+    store: crate::storage::Store,
+    intent: HostRegistrationIntent,
+    receipt: HostCreationReceipt,
+}
+
+impl CommittedRegistration {
+    fn new() -> Self {
+        let (directory, journal) = fixture();
+        let mut store =
+            crate::storage::Store::open(&directory.path().join("registry.sqlite3")).unwrap();
+        let intent = journal
+            .reserve_host_registration(REQUEST_KEY.into(), registration())
+            .unwrap();
+        let receipt = store
+            .register_host(&intent.registration, &intent.request_key)
+            .unwrap();
+        Self {
+            directory,
+            journal,
+            store,
+            intent,
+            receipt,
+        }
+    }
+
+    fn journal_path(&self) -> std::path::PathBuf {
+        self.directory.path().join(HOST_JOURNAL)
+    }
+}
+
+#[test]
+fn lookup_reply_requires_explicit_null_or_a_closed_receipt() {
+    let absent = json!({"lookup_version":1,"key":REQUEST_KEY,"receipt":null});
+    let decoded: HostRegistrationLookup = serde_json::from_value(absent.clone()).unwrap();
+    assert_eq!(decoded.receipt, None);
+    assert_eq!(serde_json::to_value(decoded).unwrap(), absent);
+    for invalid in [
+        json!({"lookup_version":1,"key":REQUEST_KEY}),
+        json!({"lookup_version":1,"key":REQUEST_KEY,"receipt":null,"extra":true}),
+        json!({"lookup_version":1,"key":REQUEST_KEY,"receipt":{}}),
+    ] {
+        assert!(serde_json::from_value::<HostRegistrationLookup>(invalid).is_err());
+    }
+    let duplicate =
+        format!(r#"{{"lookup_version":1,"key":"{REQUEST_KEY}","receipt":null,"receipt":null}}"#);
+    assert!(serde_json::from_str::<HostRegistrationLookup>(&duplicate).is_err());
+}
+
+#[test]
+fn a_fresh_matching_store_receipt_acknowledges_only_the_host_journal() {
+    let mut f = CommittedRegistration::new();
+    let journal_path = f.journal_path();
+    let stored_bytes = fs::read(&journal_path).unwrap();
+    let lookup = read_registration(&mut f.store, REQUEST_KEY).unwrap();
+    assert_eq!(lookup.receipt.as_ref(), Some(&f.receipt));
+    f.intent.validate_lookup(&lookup).unwrap();
+    assert_eq!(fs::read(&journal_path).unwrap(), stored_bytes);
+
+    f.journal
+        .reserve(ManagedCreationBinding {
+            kind: ManagedCreationKind::ManagedMcp,
+            request_key: OTHER_KEY.into(),
+            preview_digest: "a".repeat(64),
+            base_connection_id: "synthetic".into(),
+            base_connection_revision: 1,
+            operation: ManagedCreationOperation::Replace,
+        })
+        .unwrap();
+    let _managed_lock = f.journal.lock().unwrap();
+    let mut messages = f.journal.task_messages().unwrap();
+    messages
+        .reserve(TaskMessageIntent {
+            session_id: OTHER_KEY.into(),
+            request_key: REQUEST_KEY.into(),
+            expected_revision: 1,
+            text_sha256: "b".repeat(64),
+        })
+        .unwrap();
+    let legacy_files = [JOURNAL, MESSAGE_JOURNAL].map(|name| {
+        let path = f.directory.path().join(name);
+        let bytes = fs::read(&path).unwrap();
+        (path, bytes)
+    });
+
+    let reopened = ClientRecoveryJournal::new(f.directory.path()).unwrap();
+    assert!(reopened
+        .acknowledge_host_registration(
+            &f.intent.entry_id,
+            &f.receipt.host_id,
+            f.receipt.created_sequence,
+            |key| {
+                assert_eq!(key, REQUEST_KEY);
+                read_registration(&mut f.store, key)
+            },
+        )
+        .unwrap());
+
+    assert_eq!(
+        ClientRecoveryJournal::new(f.directory.path())
+            .unwrap()
+            .pending_host_registration()
+            .unwrap(),
+        None
+    );
+    assert_eq!(
+        serde_json::from_slice::<Value>(&fs::read(&journal_path).unwrap()).unwrap(),
+        json!({"version":1,"entries":[]})
+    );
+    for (path, bytes) in legacy_files {
+        assert_eq!(fs::read(path).unwrap(), bytes);
+    }
+    assert_eq!(
+        f.store.find_host_registration(REQUEST_KEY).unwrap(),
+        Some(f.receipt.clone())
+    );
+    let host = f.store.get_host_registration(&f.receipt.host_id).unwrap();
+    assert_eq!(host.record.created_sequence, f.receipt.created_sequence);
+    assert_eq!(host.record.creation_key, REQUEST_KEY);
+    let cleared_bytes = fs::read(&journal_path).unwrap();
+    assert!(!reopened
+        .acknowledge_host_registration(
+            &f.intent.entry_id,
+            &f.receipt.host_id,
+            f.receipt.created_sequence,
+            |_| { panic!("a repeated acknowledgement must not look up a cleared intent") }
+        )
+        .unwrap());
+    assert_eq!(fs::read(journal_path).unwrap(), cleared_bytes);
+}
+
+#[test]
+fn absent_or_failed_lookup_never_writes_the_host_journal() {
+    let (directory, journal) = fixture();
+    let mut store =
+        crate::storage::Store::open(&directory.path().join("registry.sqlite3")).unwrap();
+    let intent = journal
+        .reserve_host_registration(REQUEST_KEY.into(), registration())
+        .unwrap();
+    let path = directory.path().join(HOST_JOURNAL);
+    let bytes = fs::read(&path).unwrap();
+
+    assert!(!journal
+        .acknowledge_host_registration(&intent.entry_id, OTHER_KEY, 1, |key| {
+            assert_eq!(key, REQUEST_KEY);
+            read_registration(&mut store, key)
+        })
+        .unwrap());
+    assert_eq!(fs::read(&path).unwrap(), bytes);
+
+    let disconnected = CoreError::transport();
+    assert_eq!(
+        journal
+            .acknowledge_host_registration(&intent.entry_id, OTHER_KEY, 1, |key| {
+                assert_eq!(key, REQUEST_KEY);
+                Err(disconnected.clone())
+            })
+            .unwrap_err(),
+        disconnected
+    );
+    assert_eq!(fs::read(path).unwrap(), bytes);
+    assert_eq!(journal.pending_host_registration().unwrap(), Some(intent));
+    assert_eq!(store.find_host_registration(REQUEST_KEY).unwrap(), None);
+}
+
+#[test]
+fn acknowledgement_rejects_wrong_key_body_host_or_sequence() {
+    let mut f = CommittedRegistration::new();
+    let path = f.journal_path();
+    let bytes = fs::read(&path).unwrap();
+    let other = f
+        .store
+        .register_host(&f.intent.registration, OTHER_KEY)
+        .unwrap();
+    let wrong_key = f
+        .journal
+        .acknowledge_host_registration(
+            &f.intent.entry_id,
+            &other.host_id,
+            other.created_sequence,
+            |key| {
+                assert_eq!(key, REQUEST_KEY);
+                read_registration(&mut f.store, OTHER_KEY)
+            },
+        )
+        .unwrap_err();
+    assert_eq!(wrong_key.code, "CONFIG_CONFLICT");
+    assert_eq!(fs::read(&path).unwrap(), bytes);
+
+    let mut changed = read_registration(&mut f.store, REQUEST_KEY).unwrap();
+    changed.receipt.as_mut().unwrap().registration.name = "Different valid Host metadata".into();
+    let wrong_body = f
+        .journal
+        .acknowledge_host_registration(
+            &f.intent.entry_id,
+            &f.receipt.host_id,
+            f.receipt.created_sequence,
+            |_| Ok(changed),
+        )
+        .unwrap_err();
+    assert_eq!(wrong_body.code, "CONFIG_CONFLICT");
+    assert_eq!(fs::read(&path).unwrap(), bytes);
+
+    for (host_id, seq) in [
+        (other.host_id.as_str(), f.receipt.created_sequence),
+        (f.receipt.host_id.as_str(), other.created_sequence),
+    ] {
+        assert_eq!(
+            f.journal
+                .acknowledge_host_registration(&f.intent.entry_id, host_id, seq, |key| {
+                    read_registration(&mut f.store, key)
+                })
+                .unwrap_err()
+                .code,
+            "CONFIG_CONFLICT"
+        );
+        assert_eq!(fs::read(&path).unwrap(), bytes);
+    }
+    assert_eq!(
+        f.journal.pending_host_registration().unwrap(),
+        Some(f.intent)
+    );
+}
+
+#[test]
+fn acknowledgement_reuses_receipt_semantic_checks() {
+    let mut f = CommittedRegistration::new();
+    let path = f.journal_path();
+    let bytes = fs::read(&path).unwrap();
+    let lookup = read_registration(&mut f.store, REQUEST_KEY).unwrap();
+    for (pointer, value, code) in [
+        ("/lookup_version", json!(2), "VERSION_UNSUPPORTED"),
+        ("/receipt/receipt_version", json!(2), "VERSION_UNSUPPORTED"),
+        ("/receipt/revision", json!(2), "OUTCOME_UNKNOWN"),
+        (
+            "/receipt/created_at",
+            json!("2025-02-29T00:00:00Z"),
+            "OUTCOME_UNKNOWN",
+        ),
+        ("/receipt/created_sequence", json!(0), "OUTCOME_UNKNOWN"),
+        ("/receipt/host_id", json!("invalid"), "OUTCOME_UNKNOWN"),
+    ] {
+        let mut invalid = serde_json::to_value(&lookup).unwrap();
+        *invalid.pointer_mut(pointer).unwrap() = value;
+        let invalid: HostRegistrationLookup = serde_json::from_value(invalid).unwrap();
+        assert_eq!(
+            f.journal
+                .acknowledge_host_registration(
+                    &f.intent.entry_id,
+                    &f.receipt.host_id,
+                    f.receipt.created_sequence,
+                    |_| Ok(invalid),
+                )
+                .unwrap_err()
+                .code,
+            code
+        );
+        assert_eq!(fs::read(&path).unwrap(), bytes);
+    }
+}
+
+#[test]
+fn acknowledgement_compares_all_captured_fields_after_the_lookup() {
+    let mut f = CommittedRegistration::new();
+    let path = f.journal_path();
+    let mut edited = f.intent.clone();
+    edited.created_at = "2000-02-29T01:02:03Z".into();
+    assert_ne!(edited, f.intent);
+    let bytes = serde_json::to_vec(&json!({"version":1,"entries":[edited]})).unwrap();
+    assert!(!f
+        .journal
+        .acknowledge_host_registration(
+            &f.intent.entry_id,
+            &f.receipt.host_id,
+            f.receipt.created_sequence,
+            |key| {
+                let lookup = read_registration(&mut f.store, key)?;
+                write_private(&path, &bytes);
+                Ok(lookup)
+            },
+        )
+        .unwrap());
+    assert_eq!(f.journal.pending_host_registration().unwrap(), Some(edited));
+    assert_eq!(fs::read(path).unwrap(), bytes);
+}
+
+#[test]
+fn a_concurrent_acknowledgement_and_reservation_cannot_lose_the_new_intent() {
+    let mut f = CommittedRegistration::new();
+    let other = ClientRecoveryJournal::new(f.directory.path()).unwrap();
+    let store_path = f.directory.path().join("registry.sqlite3");
+    let mut replacement = None;
+    assert!(!f
+        .journal
+        .acknowledge_host_registration(
+            &f.intent.entry_id,
+            &f.receipt.host_id,
+            f.receipt.created_sequence,
+            |key| {
+                let lookup = read_registration(&mut f.store, key)?;
+                replacement = Some(thread::scope(|scope| {
+                    scope
+                        .spawn(|| {
+                            let mut store = crate::storage::Store::open(&store_path).unwrap();
+                            assert!(other
+                                .acknowledge_host_registration(
+                                    &f.intent.entry_id,
+                                    &f.receipt.host_id,
+                                    f.receipt.created_sequence,
+                                    |key| { read_registration(&mut store, key) },
+                                )
+                                .unwrap());
+                            other
+                                .reserve_host_registration(
+                                    REQUEST_KEY.into(),
+                                    f.intent.registration.clone(),
+                                )
+                                .unwrap()
+                        })
+                        .join()
+                        .unwrap()
+                }));
+                Ok(lookup)
+            },
+        )
+        .unwrap());
+    let replacement = replacement.unwrap();
+    assert_ne!(replacement.entry_id, f.intent.entry_id);
+    assert_eq!(replacement.request_key, f.intent.request_key);
+    assert_eq!(replacement.registration, f.intent.registration);
+    let bytes = fs::read(f.journal_path()).unwrap();
+    assert!(!other
+        .acknowledge_host_registration(
+            &f.intent.entry_id,
+            &f.receipt.host_id,
+            f.receipt.created_sequence,
+            |_| panic!("a stale entry ID must not perform an external lookup"),
+        )
+        .unwrap());
+    assert_eq!(
+        f.journal.pending_host_registration().unwrap(),
+        Some(replacement)
+    );
+    assert_eq!(fs::read(f.journal_path()).unwrap(), bytes);
+}
+
+#[test]
+fn acknowledgement_reports_lock_contention_after_lookup_and_keeps_intent() {
+    let mut f = CommittedRegistration::new();
+    let path = f.journal_path();
+    let bytes = fs::read(&path).unwrap();
+    let mut held = None;
+    let error = f
+        .journal
+        .acknowledge_host_registration(
+            &f.intent.entry_id,
+            &f.receipt.host_id,
+            f.receipt.created_sequence,
+            |key| {
+                let lookup = read_registration(&mut f.store, key)?;
+                held = Some(f.journal.lock_file(HOST_LOCK)?);
+                Ok(lookup)
+            },
+        )
+        .unwrap_err();
+    assert!(held.is_some());
+    assert_eq!(error.code, BUSY);
+    assert_eq!(error.side_effect_state, "not_started");
+    drop(held);
+    assert_eq!(
+        f.journal.pending_host_registration().unwrap(),
+        Some(f.intent)
+    );
+    assert_eq!(fs::read(path).unwrap(), bytes);
+}

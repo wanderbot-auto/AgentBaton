@@ -415,7 +415,7 @@ impl HostRegistrationRecord {
     }
 }
 impl HostCreationReceipt {
-    fn validate(&self) -> Result<()> {
+    pub(crate) fn validate(&self) -> Result<()> {
         if self.receipt_version != 1 {
             return Err(unsupported());
         }

@@ -21,7 +21,9 @@ pub(crate) const MESSAGE_LIMIT: usize = 32;
 
 #[path = "host_registration_recovery.rs"]
 mod host_registration_recovery;
-pub use host_registration_recovery::{HostRegistration, HostRegistrationIntent};
+pub use host_registration_recovery::{
+    HostRegistration, HostRegistrationIntent, HostRegistrationLookup,
+};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
