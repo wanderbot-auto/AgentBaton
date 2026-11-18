@@ -380,7 +380,7 @@
     "paid Provider/session execution",
     "shared CI manifest and other consumer adaptations"
   ],
-  "review": "cleanup-gate review feedback incorporated; awaiting independent acceptance of final evidence",
+  "review": "Independent integration review accepted at f853be6b352ca050ff870de36709d3a594b1229b. All 9 focused schema and cleanup tests passed the independent rerun. The 4 Notification/Integration failures reproduced from both the fixed baseline and the current composition.",
   "artifact_sha256": {
     "logs/actual-build-candidate.json": "9cfc8c94b2b3f26369c8555d6fea58b02b077ab17fdae3825c4da52655303d7b",
     "logs/actual-runs.log.gz": "8f1a6c6b628e3d9ce98006a07c8360c8efcc76906bd15aabac3fec8d4eea62c0",

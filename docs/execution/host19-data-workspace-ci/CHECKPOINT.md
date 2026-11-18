@@ -6,3 +6,7 @@
 - 有针对性证明 `schema18`、`schema20`、布尔 schema 及混配伴随工具均拒绝。额外桌面全量仍有 4 个已独立复现的基线 Notifications/Integration 问题。托管 Linux、native WebView/OwnerDialog、Provider 与中途读写取消均未测。本工单无 workflow、产品权限或其他消费者改动。
 
 [验证索引](EVIDENCE.json) · [源码合并预览](logs/source-preview.log.gz) · [现行无清单完整报告](logs/current-audited/report.json.gz) · [候选清单完整报告](logs/manifest-audited/report.json.gz)
+
+## 独立审阅与交接
+
+集成负责人独审接受 `f853be6b352ca050ff870de36709d3a594b1229b`。复核清理负例、58 份归档、83 个解包摘要、12 张最终截图及两次真实浏览器执行各 8 项通过、0 未运行。确认两次 daemon 均 wait 0，HTTP 均 join。独立复跑 9 条定向测试通过，Notifications/Integration 的 4 个既有问题在固定旧源及新组合均复现。本次交接只更新任务证据，保留构建、浏览器产物、工作树与分支。
