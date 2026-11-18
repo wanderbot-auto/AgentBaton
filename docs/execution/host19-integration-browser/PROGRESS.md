@@ -26,3 +26,8 @@ The standalone driver entry also returned exit 2 at candidate_schema_guard
 using the actual schema19 tool provenance. Source attribution separately read
 the exact tracked live file. Browser UI and CI were outside the successful
 validation. The evidence and conflict-free preview are ready for leader review.
+
+Leader independently accepted the driver slice at
+`90114161afb560614a0c3d836f4438b1a977e3e3` and authorized release of all
+eight task reservations. Preserve the worktree and local test artifacts for
+integration review.

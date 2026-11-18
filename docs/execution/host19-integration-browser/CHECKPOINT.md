@@ -19,3 +19,14 @@
   and projection stay in the separate integration stage.
 - Leader review pending. The in-app task messaging transport failed repeatedly.
   Claims remain active until a documented handoff.
+
+## Independent acceptance
+
+Leader accepted the two driver read guards at
+`90114161afb560614a0c3d836f4438b1a977e3e3` and verified the 35 archived
+artifacts, real private Core IPC and SQLite/WAL checks, historical inverse,
+41 focused tests and 943 infrastructure results. The accepted source is
+`86c7cd20a7528d5b7e3dabcfd9738a64dd60275c`. Only this checkpoint and the
+progress entry are added after review. Leader authorized
+`scripts/collab.sh finish --handoff`. Integration, actual browser runtime and
+CI remain pending for their separate stage.
