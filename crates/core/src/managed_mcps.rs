@@ -6,6 +6,9 @@ use agentbaton_config::runtime::{
     ManagedMcpTransport, NonSecretText, SourceProvenance,
 };
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
+
+#[path = "managed_mcps/diagnostics.rs"]
+pub mod diagnostics;
 const MARKER: &str = "baton-managed-codex-mcp";
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
