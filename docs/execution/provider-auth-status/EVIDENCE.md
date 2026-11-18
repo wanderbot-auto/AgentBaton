@@ -38,3 +38,13 @@
 | providers-first.log | 1191eb78b03770eb94d78c288e82793fe50abbad1c47ceab87020cc3121574f3 |
 | version-baseline-separate-target.log | 6ef65415a58dc2754d8082a4af2376c5a382e50bf8c1084f5c52d0821dd15f9c |
 | providers-homebrew.log | 0e2048940b4cdd7ee98b8c1772677b89cd4fd60df394bcdffed5c31a6a56fd50 |
+
+## Linux ARM64 实测
+
+使用精确提交 ce95d4247c6f74539a874a146529e0bd254841ed、树 a3d60528d8e3ebae916b33c41577112c882f46d5 的归档源码。归档 SHA-256 为 67ae883fad0eb45391f738538127733e18071abfa4c3510b76646d7668b027d2。采用本地固定镜像 rust@sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33，实测 Linux 6.12.69-linuxkit aarch64、Rust 1.91.1 (aarch64-unknown-linux-gnu)、Python 3.11.2。容器关闭网络，以非 root 用户运行，使用只读源码及独立 HOME、Cargo 缓存和输出目录。
+
+在 RUST_TEST_THREADS=1 与 CARGO_NET_OFFLINE=true 下运行 cargo test --locked -p agentbaton-providers。102 通过，0 失败，包含 6 个新增认证测试和 10 个原有安装测试。容器实际退出 0 并回收。日志 SHA-256 为 e7d6aafc6c733fd547e540e2c40b82e92f6664fc4550b82495769771ac6cf034。 [Linux 原日志](logs/linux-arm64-provider.log)
+
+现有小管道测试在 Linux 可走 F_SETPIPE_SZ 路径，独立探针确认把管道容量从 65536 字节调至 4096 字节。Darwin 的系统 Python 没有该接口，测试使用默认管道容量。两平台均通过原有的 4 MiB 和 500 ms 检查，也均观察到认证超时回收、信号分类和不明确状态的封闭投影。探针日志 SHA-256 为 17f56c92f5b5e9dc89395dea0089ede6405b11dd18eb4b54ed2c63c1922c0201。 [平台探针原日志](logs/pipe-platform.log)
+
+向功能集成目标 6126cc29bdfa2124a1a7bc0e77cd3b53ee910848 预演 ce95d424，合成树 24862ff61a74b8a3b0fa37f7c070f86e95e7e555，无冲突。合成树和实测归档的 Cargo.toml、Cargo.lock 及 crates/providers 对象完全一致。真实 Provider 的生产运行能力依然待验收。
