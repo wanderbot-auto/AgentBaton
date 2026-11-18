@@ -321,14 +321,19 @@
     "reviewer": "leader-control",
     "source_sha": "2039ac842fcb13c87dcbc39a013ffd675c1b8dfe",
     "source_tree": "d20e11485274982ed07bb18a6ff54ed1a7a2e9bc",
-    "combined_target_sha": "a183f4dd2df0e95d9a73575015275ef9a0daddb9",
-    "combined_tree": "cde89155345873d9dc0b70f4546f7d07a35a1172",
     "platform": "Linux ARM64 offline container",
     "toolchain": "rustc 1.91.1",
     "scope": "managed_mcps test filter covering 11 new and 4 existing tests with real generated local children",
     "passed": 15,
     "failed": 0,
-    "log": "logs/independent-linux-arm64.log.gz"
+    "log": "logs/independent-linux-arm64.log.gz",
+    "tested_snapshot": "exact_product_source_tree",
+    "preview": {
+      "target_sha": "a183f4dd2df0e95d9a73575015275ef9a0daddb9",
+      "tree_sha": "cde89155345873d9dc0b70f4546f7d07a35a1172",
+      "result": "git_conflict_preview_only",
+      "tests_executed_on_this_tree": false
+    }
   },
   "preview": {
     "target_ref": "origin/collab/host-registration-integration",

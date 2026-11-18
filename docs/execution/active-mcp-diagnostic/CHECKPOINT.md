@@ -19,4 +19,4 @@
 
 ## 验证边界
 
-Apple Silicon 上 15 项 MCP、4 项配置、9 项更新门槛通过。完整 Core 单元 467/468，会话 IPC 59/63，五项失败在干净认领基准上逐一复现。Linux ARM64 独立合成候选 15/15。产品、基准对照、独立 Linux 候选和各自原始日志均见 [EVIDENCE.json](EVIDENCE.json)。
+Apple Silicon 上 15 项 MCP、4 项配置、9 项更新门槛通过。完整 Core 单元 467/468，会话 IPC 59/63，五项失败在干净认领基准上逐一复现。Linux ARM64 独立复跑精确产品源码树 `d20e11485274982ed07bb18a6ff54ed1a7a2e9bc`，15/15。与 `a183f4dd2df0e95d9a73575015275ef9a0daddb9` 组合的树 `cde89155345873d9dc0b70f4546f7d07a35a1172` 仅做了 Git 冲突预演。产品、基准对照、独立 Linux 源码运行和各自原始日志均见 [EVIDENCE.json](EVIDENCE.json)。
