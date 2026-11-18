@@ -39,3 +39,47 @@
 | `candidate-clippy.log` | `bdc689c75f682aa65194e083e32380dbe8150a70e6331caa59b5d72a75f8e8d0` |
 | `candidate-factory-regression.log` | `ea97e463ed1a39d5eb3fed3a9dd0d528f0057ac942a829a0499d647007802c93` |
 | `candidate-session-regression.log` | `448f01ae32ce2e42f81b2987edba26f7a5d20cf5e7cb45f38c7cdd110ce294d3` |
+
+## a6a9ba9b 补充验收
+
+- 集成目标 `a6a9ba9b4cb11e9531e9b0b9f7f39ef9be9cb505`。首轮 Linux 候选 `ce179dfd32ad6442921838d1f19e3d1aa049f2ef`，树 `faf1f67d6de2b97fa6e7dd9705990eb213ee28b9`。它与已测 Mac `a135ca3ef77c5122fb10b534cf59fab34343aa43` 的 Cargo、Rust、App 和准备脚本输入逐字一致。
+- Mac 首轮按原时限、串行执行完整 `factory_runtime_ipc`，35/36，退出 101。失败是 `actual_data_copy_owner_scope_and_scoped_mcp_parent_child_parent_use_fresh_private_witnesses` 的第二个 attempt。它已持久绑定并已发送，3150.614 ms 后报告 `provider_session_creation_failed`，无 `session.ready`，随后回收。生成的 fixture stderr 为 0 字节。原因未能进一步确定。
+- 基线 `a6a9ba9b4cb11e9531e9b0b9f7f39ef9be9cb505` 与候选 `a135ca3ef77c5122fb10b534cf59fab34343aa43` 使用相同 Runtime fixture、参数及原时限，各自工具身份前后相同。初次独立基线执行因缺少诊断输出目录退出 101，原日志保留。两方补齐同等证据目录后各通过 1/1（3.14s、3.06s）。子会话 runtime plan SHA-256 相同，首次失败未在单测对照复现。保留完整组 35/36 的结论。
+- Linux ARM64 首轮 `ce179dfd32ad6442921838d1f19e3d1aa049f2ef` 为 30/32。两个新 Factory 用例从测试进程的 Cargo 布局查找 companion，真实安全守卫拒绝该文件。对照方案采用冻结工具启动普通 batond，batond 按产品逻辑选择同目录 baton。
+- 后续测试提交 `c079dbe2360e9bd5efd3268a7ee77115c7303b73` 的精确候选 `99300ad8b481fc99eacba110c0b206876107a193`，树 `5bc88dde4344d01b94f374ac33afd69718101da1`。Mac 修复后项目配置测试 6/6，fmt 和 Clippy 通过。Mac 使用原已核验工具，生产源码相同。Linux 修复候选从其精确源重新构建，断网 ARM64 容器中项目配置 6、项目 IPC 3、登记 10、策略 13 全部通过，容器已回收。
+- Linux 冻结前后一致。普通 Cargo 文件布局实测为 baton 0o755 nlink=2 / batond 0o755 nlink=2。冻结工具均为私有 0500、单链接的真实二进制。第一轮没有记录普通路径文件的逐项元数据。修复运行的工具哈希为 `baton` `fbdf5735673584d6a42f67eb19d9bf474a0c339b16694e0e86dee73e05429309`，`batond` `d1ef6ae0d43710388a069278e975a0f60046205e30e05518be5d9bbcac339c45`。
+- 原全量 Mac 组的后续准入仍交独立审查。B 的 `wrong_start` 红属于另一份实测记录。未将它归入 A 的 `data_copy` 错误。
+
+原始日志位于本任务 `artifacts/project-config-core-ipc/supplement/`。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `identity.txt` | `b33fbeaba2d9284311f18828f982265678c1166a4199716acb2fbb3ddc50cb1a` |
+| `fixed-identity.txt` | `99a2128d8b10df734042bffe930d22e8e31702c21ac6fbe500a0e3880e588144` |
+| `mac-input-tree.sha256` | `df2c7afdf851b7148f28469c3a4b3dcd5b702ccdceab7c0628b5c0545a3bed25` |
+| `final-input-tree.sha256` | `df2c7afdf851b7148f28469c3a4b3dcd5b702ccdceab7c0628b5c0545a3bed25` |
+| `test-fixture-only.diff` | `7e018fc07d7e6a421ee275c433ff72df7f22eb3ac6358e162745136a21290f7a` |
+| `mac/factory.log` | `001a63b06f0f82b664faff356c92aceae5db9ba23cad2c9cd6377f05660bc164` |
+| `mac/first-failure-events.json` | `3a5f5cf0c5ab384bff3e79625c11bc3c80d7087ecb283e3ef08d2b57d7b494e2` |
+| `mac/before-verify.json` | `bb481b85750afb0a6e7109a6eb56d897230c8dd913182e31bda0aafe282cba94` |
+| `mac/after-verify.json` | `bb481b85750afb0a6e7109a6eb56d897230c8dd913182e31bda0aafe282cba94` |
+| `mac-compare/baseline/case.log` | `acf0cede697e384d894785564089a4cb317949469306d5ef84c2a9b2566b2e06` |
+| `mac-compare/candidate/case.log` | `13eb9277403cda40ce0d38d3d2c760832cccbdfeed009b4fa18fb6ac6f6907ea` |
+| `mac-compare/fixed-ipc/test.log` | `7e9fefb833229809ae748088e2641c48b458ceabf7ba4a6a016706fc50514528` |
+| `mac-compare/fixed-ipc/clippy.log` | `12f2a833c3653cd8fcec54aee0ecacf81ba09ac1547463d311296edec7234dfe` |
+| `mac-compare/fixed-ipc/fmt.log` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `mac-compare/replay-baseline/case.log` | `ea2c144671d6ca894d8918bf6e17269ab45c3b825a943e956aa25f081c861c9c` |
+| `mac-compare/replay-candidate/case.log` | `793b527725f4c052bea371917c018cdf7b0f1cea62709ba5cb82bc1712ef46e1` |
+| `mac-compare/session-timing.json` | `e06b3ccd8bd3bb6b6e07fbb24cee34206f4520407522bd74833c2c2efa35a01f` |
+| `linux/targeted.log` | `53d79ac46ac76c05273a748852cb0bee3327f1d35fdf2ba527ed31ab894e335a` |
+| `linux/prepare.json` | `0ba9e0f35a858cd43346131f475e05b661e6d863ac3add2ca5b4e03ea02faf60` |
+| `linux-retry/platform` | `52d9994dfe0f2703159d02524605323f6137d32dd30f4856b4623d1f0f74a846` |
+| `linux-retry/build.log` | `fd37e9a59d14cd7a679dc0d86eb983ff6528f48a848d032b911d630c2b87528b` |
+| `linux-retry/targeted.log` | `c901f69fc76072f5c53971f2be8598b026127fe5b0a6aae89230c41fc840276a` |
+| `linux-retry/prepare.json` | `39aa14eec03829a58e34203fbd6b1918fa70e94131e0e4f05195fc7a1def6a92` |
+| `linux-retry/before-verify.json` | `39aa14eec03829a58e34203fbd6b1918fa70e94131e0e4f05195fc7a1def6a92` |
+| `linux-retry/after-verify.json` | `39aa14eec03829a58e34203fbd6b1918fa70e94131e0e4f05195fc7a1def6a92` |
+| `linux-retry/companion-layout.json` | `032af86147ad2d0163beefc278cd4ad7c34c80e2718677a1fb5907cbf9e75f73` |
+| `linux-retry/post-container-inspect.log` | `540662eaf05fd89f7276f0b0cb70015892690956bc79e0f92ca32dd15a353324` |
+| `mac-compare/replay-baseline/runtime-diagnostics-5521f19bd9bf20926f7014a2ab8bfc25a6f321aeb499fc73acce82d6c9029405.json` | `5521f19bd9bf20926f7014a2ab8bfc25a6f321aeb499fc73acce82d6c9029405` |
+| `mac-compare/replay-candidate/runtime-diagnostics-8d7af251c076eee0f908f41283f9ab22d8f97d634dca47bbfab970117f13fac5.json` | `8d7af251c076eee0f908f41283f9ab22d8f97d634dca47bbfab970117f13fac5` |
