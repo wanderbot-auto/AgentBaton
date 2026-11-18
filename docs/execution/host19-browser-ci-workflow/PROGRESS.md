@@ -11,3 +11,7 @@
 `94d60adc` 的首轮全链保留了 Child Planning 的 CP04 红。两面板同时读取时，实际 root context 六次完成，随后同范围 child context 的成对请求分别晚 5、3、1、1、0、0 毫秒进入并收到 `WORKSPACE_BUSY/not_started`。原 Child Goal 编排的独立测试确认 lost-start、cancel 通过及真实修订同步。normal 在准备阶段同样遇到实际只读冲突，未发送 start。已将 Child Goal 的原一次 Refresh 放到父读状态就绪之后，合用原 5 秒就绪窗口，保留全部写调用及结果时限。
 
 CP04 依次读取真实 root 和 child 历史。保留两条 r2 断言、child r1 原字节和 SHA、原截图及期限，随后重新打开 root 面板执行原编辑。两个历史逆向层均复验精确来源，Child Goal 固定 Child Planning 新摘要。当前及历史相关的 128 项定向测试通过。
+
+`668cdf28` 的独立 Linux 运行通过 CP01–09 与 Child Goal 三案。随后同份实际构建的完整链通过 CP01–06，在 CP07 的直接 Owner 负控收到 `WORKSPACE_BUSY/not_started`。原始 IPC 显示请求前 8 毫秒 root context 已开始，后续真实 list/get 仍在返回。保留原红、原请求和精确 `STALE_REVISION`。独立执行的同源 Integration、通知和四个工作流拒绝控制均达到预期。集成窗口的设施检查另发现两个故障注入上下文未同步，`f744a972` 只修复测试输入并验证七段 finally、异常身份、时钟元数据和证据字段未写入。该提交的 1012 项基础设施测试通过，16 项跳过，运行驱动与工作流与 `668cdf28` 字节相同。
+
+CP07 现在按原界面关闭 root 历史面板，观察已发历史请求完成，并在自然发生的下一次父读期间验证无新增历史请求。随后发送原单次 CAS 负控并复开面板，继续原 CP08 丢应答和同键核对。当前及历史相关的 98 项定向测试通过，更新两个驱动的精确来源校验。

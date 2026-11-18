@@ -536,11 +536,11 @@ LAYERS = {'apps/desktop/tests/factory-child-goal-real-ipc.py': ('33bc3a72c30e509
 
 DRIVER = 'apps/desktop/tests/factory-child-goal-real-ipc.py'
 PRIOR_DRIVER_LAYER = LAYERS[DRIVER]
-RENDERED_ROOT_LAYER = ('6ec57f7e55775f19e18294d163c249125daead921c942fef7cfa3154ad55574f',
+RENDERED_ROOT_LAYER = ('06d78e2c4df8af6beb816ae85d9cec37256ea7315263e8fb3038be2439bb6855',
  '33bc3a72c30e509ae64cfce573743f58aa4406e4632ac42e3354d125f7ac242c',
  [(32,
    37,
-   'dcce75242f817991384f21f44e891ce99d21a76e28e2cf7fb0cafa301bd2aa68',
+   '0374c1701c2444b168e2745da5c88fdeb282f6cf5f1f09e261a330a4d9af1f1f',
    '\n'
    "PLANNING_PATH = Path(__file__).with_name('factory-child-planning-real-ipc.py')\n"
    "PLANNING_SHA256 = '9c2e0a94b80634650c0f3b5d90d447fe2122f787a8f5b0aca8c37e9f84e484a7'\n"
@@ -590,13 +590,12 @@ LAYERS[DRIVER] = (RENDERED_ROOT_LAYER[0], PRIOR_DRIVER_LAYER[1], RENDERED_ROOT_L
 
 
 PLANNING_DRIVER = 'apps/desktop/tests/factory-child-planning-real-ipc.py'
-SERIAL_PLAN_HISTORY_LAYER = ('845a5faef8c2d9d2ce14eeabc1866d461487cc070e5b40cce059598d2103e041',
+SERIAL_PLAN_HISTORY_LAYER = ('64e27e2d1b49750542933ea50d9ad6a85ec93964ec1c21411a82c2a1451a6ea6',
  '9c2e0a94b80634650c0f3b5d90d447fe2122f787a8f5b0aca8c37e9f84e484a7',
  [(1264,
    1272,
    'd404b9f2ad049b6e20ed1cac5708c1238cd74db62e9c4d11d7d28e863d82d91f',
-   "        root_region = root_summary.locator('..').get_by_role('region', name='Child task plans', "
-   'exact=True)\n'
+   "        root_region = root_summary.locator('..').get_by_role('region', name='Child task plans', exact=True)\n"
    "        expect(root_region.get_by_text('Current plan head: r2', exact=False)).to_be_visible()\n"
    "        child_summary = panel.locator('summary').filter(has_text='Child task plans · ' + child_id); "
    'child_summary.click()\n'
@@ -606,11 +605,28 @@ SERIAL_PLAN_HISTORY_LAYER = ('845a5faef8c2d9d2ce14eeabc1866d461487cc070e5b40cce0
    1286,
    'db7b2e27a134a59b64fa89a9240f5d5850ff3a4d7d633a75c33719af5a8e2fac',
    "        shot('02-real-child-ref-history-original-plan', child_region)\n"
-   "        passed('CP04', 'UI list refs and select r1 retrieves exact original GoalPlan bytes and raw SHA, "
-   "not fabricated history')\n"
+   "        passed('CP04', 'UI list refs and select r1 retrieves exact original GoalPlan bytes and raw SHA, not "
+   "fabricated history')\n"
    "        editor = root_region.get_by_test_id('factory-child-plan-editor'); editor.locator(':scope > "
    "summary').click()\n"
-   "        editor.get_by_role('button', name='Prepare steps from latest revision', exact=True).click()\n")])
+   "        editor.get_by_role('button', name='Prepare steps from latest revision', exact=True).click()\n"),
+  (1332,
+   1377,
+   '695201a2a79aa5367984afc22d4cb840e201455ef4a1bce0f96f3311298b0c31',
+   "        passed('CP06', 'UI rejects coherent budget/input/output/mandatory-owner-validator drift; actual Core "
+   "independently rejects exact payloads with zero DB mutation')\n"
+   '        # Stale head uses a new key and is denied; this is not transport replay.\n'
+   '        before_stale = fingerprint_db(runtime)\n'
+   "        stale = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], "
+   "'planJson': original_draft,\n"
+   "            'expectedPlanRevision': 2, 'expectedRevision': scope['revision'], 'idempotencyKey': "
+   "'actual-stale-head'})\n"
+   "        assert stale['value']['error']['code'] == 'STALE_REVISION'\n"
+   "        assert stale['value']['error']['side_effect_state'] == 'not_started' and fingerprint_db(runtime) == "
+   'before_stale\n'
+   "        passed('CP07', 'Actual stale plan CAS refuses atomically; observed head/floors remain r3')\n"
+   "        root_region.get_by_role('button', name='Discard local draft', exact=True).click()\n"
+   "        raw4 = next_raw(stored, 'Actual lost-response UI revision four')\n")])
 
 def sha(text):
     return hashlib.sha256(text.encode()).hexdigest()

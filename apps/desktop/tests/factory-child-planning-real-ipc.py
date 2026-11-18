@@ -1332,12 +1332,47 @@ def runtime_driver(args, output, prepared):
         report['observations']['actual_plan_refusals'] = refusals
         passed('CP06', 'UI rejects coherent budget/input/output/mandatory-owner-validator drift; actual Core independently rejects exact payloads with zero DB mutation')
         # Stale head uses a new key and is denied; this is not transport replay.
+        # Close the history browser before issuing this separate Owner control.
+        # Let any already launched reads settle and witness a normal parent
+        # refresh without another root history read.
+        root_details = root_summary.locator('..')
+        root_summary.click()
+        assert root_details.evaluate('details => details.open') is False
+        cp07_read_deadline = time.monotonic() + 5
+        refresh_history = root_details.get_by_role('button', name='Refresh child-plan history', exact=True, include_hidden=True)
+        expect(refresh_history).to_be_enabled(timeout=5000)
+
+        def cp07_reads():
+            with lock:
+                history = [row for row in report['http']
+                    if row['method'] in {'factory_child_plans.context', 'factory_child_plans.list', 'factory_child_plans.get'}
+                    and row['params'].get('task_id') == task['id']]
+                parent_reads = sum(row['method'] == 'factory_runs.get' and row['response_complete'] is True
+                    and row['params'].get('scope_id') == scope['id'] for row in report['http'])
+                return {'history_reads': len(history), 'pending_history_reads': sum(not row['response_complete'] for row in history),
+                    'completed_parent_reads': parent_reads}
+
+        before_parent_refresh = cp07_reads()
+        assert before_parent_refresh['pending_history_reads'] == 0
+        remaining = cp07_read_deadline - time.monotonic()
+        assert remaining > 0, 'CP07 closed history observation expired'
+        after_parent_refresh = wait(cp07_reads,
+            lambda observed: observed['completed_parent_reads'] > before_parent_refresh['completed_parent_reads'], seconds=remaining)
+        report['observations']['CP07_closed_root_history'] = {'before_parent_refresh': before_parent_refresh,
+            'after_parent_refresh': after_parent_refresh}
+        assert after_parent_refresh['history_reads'] == before_parent_refresh['history_reads']
+        assert after_parent_refresh['pending_history_reads'] == 0
+        assert root_details.evaluate('details => details.open') is False
         before_stale = fingerprint_db(runtime)
         stale = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': original_draft,
             'expectedPlanRevision': 2, 'expectedRevision': scope['revision'], 'idempotencyKey': 'actual-stale-head'})
+        after_stale = cp07_reads()
+        report['observations']['CP07_closed_root_history']['after_stale_request'] = after_stale
+        assert after_stale['history_reads'] == after_parent_refresh['history_reads']
         assert stale['value']['error']['code'] == 'STALE_REVISION'
         assert stale['value']['error']['side_effect_state'] == 'not_started' and fingerprint_db(runtime) == before_stale
         passed('CP07', 'Actual stale plan CAS refuses atomically; observed head/floors remain r3')
+        root_summary.click()
         root_region.get_by_role('button', name='Discard local draft', exact=True).click()
         raw4 = next_raw(stored, 'Actual lost-response UI revision four')
         draft.fill(raw4); faults['drop_next_submit'] = True
