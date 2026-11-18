@@ -34,7 +34,7 @@ factory_handoffs factory_runs factory_scoped_handles factory_scopes factory_task
 factory_task_lineage goal_external_action_journal goal_grant_revisions goal_graph_acceptances
 goal_graph_candidates goal_graph_capabilities goal_graph_jobs goal_graph_owner_decisions
 goal_graph_validations goal_ledgers goal_node_evidence goal_plan_heads goal_plan_proposals
-goal_plan_revisions goal_run_nodes goal_run_reservations goal_runs goal_scopes idempotency
+goal_plan_revisions goal_run_nodes goal_run_reservations goal_runs goal_scopes host_registrations idempotency
 integration_policies integrations integration_attempts integration_ref_fences
 managed_workspaces projects session_runtime_snapshots session_turns sessions sqlite_sequence
 tasks validation_policies validation_runs workspace_leases'''.split())
@@ -211,14 +211,15 @@ def execution_summary(report):
     value = report.get('no_execution')
     if value is None:
         return {'driver_asserted_no_execution': False}
-    require(type(value) is dict and type(value.get('schema')) is int and value['schema'] == 18
+    require(type(value) is dict and type(value.get('schema')) is int and value['schema'] == 19
             and type(value.get('no_execution_or_grants')) is bool)
     counts = value.get('table_counts')
     require(type(counts) is dict and set(counts) == set(TABLES))
     for number in counts.values():
         bounded(number, 0, 10000)
+    require(counts['host_registrations'] == 0)
     zero = all(counts[name] == 0 for name in TABLES if name not in NONZERO_ALLOWED)
-    return {'schema': 18, 'driver_asserted_no_execution': value['no_execution_or_grants'] is True and zero,
+    return {'schema': 19, 'driver_asserted_no_execution': value['no_execution_or_grants'] is True and zero,
             'table_counts': {name: counts[name] for name in TABLES}}
 
 

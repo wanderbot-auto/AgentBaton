@@ -1,9 +1,11 @@
 """Pure boundary/fail-closed tests; no Node, Playwright, subprocess or Core runtime."""
+from contextlib import closing
 import copy
 import ctypes
 from unittest.mock import patch
 import importlib.util
 import json
+import sqlite3
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -13,6 +15,73 @@ PATH = Path(__file__).with_name('task-workspace-binding-real-ipc.py')
 SPEC = importlib.util.spec_from_file_location('task_workspace_browser', PATH)
 h = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(h)
+
+
+class ReadonlySchema19Tests(unittest.TestCase):
+    def fixture(self, runtime, version=19):
+        path = runtime / 'baton.sqlite3'
+        with closing(sqlite3.connect(path)) as writer, writer:
+            writer.execute(f'PRAGMA user_version={version}')
+            writer.execute('CREATE TABLE tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, payload TEXT)')
+            writer.execute("INSERT INTO tasks(payload) VALUES ('generated task evidence')")
+            for name in h.TABLES:
+                if name not in ('tasks', 'sqlite_sequence'):
+                    writer.execute(f'CREATE TABLE "{name}" (payload TEXT)')
+        return path
+
+    def test_current_sqlite_keeps_empty_host_table_and_never_selects_payload(self):
+        with tempfile.TemporaryDirectory(prefix='schema 19 # ', dir='/tmp') as temporary:
+            runtime = Path(temporary)
+            path = self.fixture(runtime)
+            image = path.read_bytes()
+            real_connect = sqlite3.connect
+            statements = []
+
+            def trace(*args, **kwargs):
+                db = real_connect(*args, **kwargs)
+                db.set_trace_callback(statements.append)
+                return db
+
+            with patch.object(h.sqlite3, 'connect', side_effect=trace):
+                rows = h.db_image(runtime)
+                result = h.no_execution(runtime)
+            self.assertEqual(set(rows), set(h.TABLES))
+            self.assertEqual(rows['host_registrations'], [])
+            self.assertEqual(result['schema'], 19)
+            self.assertEqual(result['table_counts']['host_registrations'], 0)
+            self.assertEqual(result['table_counts']['tasks'], 1)
+            host_reads = [sql for sql in statements if 'host_registrations' in sql]
+            self.assertEqual(host_reads, ['SELECT 1 FROM main.host_registrations LIMIT 1'] * 2)
+            self.assertIn('PRAGMA query_only=ON', statements)
+            self.assertEqual(path.read_bytes(), image)
+
+    def test_missing_unknown_view_replacement_and_nonempty_host_fail_closed(self):
+        edits = (
+            ("DROP TABLE host_registrations",),
+            ("DROP TABLE managed_workspaces",),
+            ("CREATE TABLE unrecognized (payload TEXT)",),
+            ("DROP TABLE host_registrations", "CREATE VIEW host_registrations AS SELECT 1 AS id WHERE 0"),
+            ("INSERT INTO host_registrations VALUES ('unpublished synthetic payload')",),
+        )
+        for sql in edits:
+            with self.subTest(controls=sql), tempfile.TemporaryDirectory() as temporary:
+                runtime = Path(temporary)
+                path = self.fixture(runtime)
+                with closing(sqlite3.connect(path)) as writer, writer:
+                    for statement in sql:
+                        writer.execute(statement)
+                before = path.read_bytes()
+                with self.assertRaisesRegex(ValueError, 'Unexpected (schema 19 table set|Host registration row)'):
+                    h.no_execution(runtime)
+                self.assertEqual(path.read_bytes(), before)
+
+    def test_database_schema_18_and_20_are_rejected_before_row_reads(self):
+        for version in (18, 20):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as temporary:
+                runtime = Path(temporary)
+                self.fixture(runtime, version=version)
+                with self.assertRaises(ValueError):
+                    h.db_image(runtime)
 
 
 class FixedBoundaryTests(unittest.TestCase):
@@ -170,7 +239,7 @@ class PreflightTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        root = Path(self.temp.name)
+        root = Path(self.temp.name).resolve()
         self.binary = root / 'batond'
         self.cli = root / 'baton'
         for path in (self.binary, self.cli):
@@ -181,7 +250,7 @@ class PreflightTests(unittest.TestCase):
         (self.front / 'index.html').write_text('<div>Metadata only, never served</div>')
         self.manifest = root / 'manifest.json'
         self.build = root / 'build.json'
-        self.data = {'schema': 18, 'git_head': h.BASE,
+        self.data = {'schema': 19, 'git_head': h.BASE,
                      'binaries': {'batond': h.file_digest(self.binary)['sha256'],
                                   'baton': h.file_digest(self.cli)['sha256']}}
         self.build_data = {'source': h.BASE, 'exit': 0, 'source_head_and_tracked_unchanged': True,
@@ -203,16 +272,32 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(result['frontend_assets']['index.html']['sha256'], h.sha((self.front / 'index.html').read_bytes()))
 
     def test_schema_float_bool_old_future_and_unmatched_source_are_refused(self):
-        for schema in (16.0, 18.0, True, 15, 16, 17, 19):
+        for schema in (16.0, 18.0, 19.0, True, False, 15, 16, 17, 18, 20, "19"):
             self.data['schema'] = schema
             self.save()
             with self.assertRaises(ValueError):
                 h.preflight(self.args)
-        self.data['schema'] = 18
+        self.data['schema'] = 19
         self.data['git_head'] = 'a'*40
         self.save()
         with self.assertRaises(ValueError):
             h.preflight(self.args)
+
+    def test_manifest_digest_uses_the_same_bytes_as_schema_and_source_validation(self):
+        raw = self.manifest.read_bytes()
+        real_read = Path.read_bytes
+        reads = []
+
+        def checked_read(path):
+            if path == self.manifest.resolve():
+                reads.append(path)
+                return raw if len(reads) == 1 else b'changed after validation'
+            return real_read(path)
+
+        with patch.object(Path, 'read_bytes', checked_read):
+            result = h.preflight(self.args)[2]
+        self.assertEqual(len(reads), 1)
+        self.assertEqual(result['manifest_sha256'], h.sha(raw))
 
     def test_wrong_binary_and_failed_or_foreign_build_record_refused(self):
         self.data['binaries']['batond'] = 'a'*64
