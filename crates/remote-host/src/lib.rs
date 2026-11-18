@@ -5,5 +5,6 @@ pub mod protocol;
 pub mod registration;
 pub mod routing;
 pub mod store;
+pub mod transfer;
 pub mod transport;
 pub mod worker;
