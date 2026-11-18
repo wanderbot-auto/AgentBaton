@@ -1,5 +1,7 @@
 //! Explicit synthetic stopped-session storage fixtures; only generated local
 //! validator scripts run. No Provider/model/account/native-dialog is invoked.
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::{
     command_validation::*,
     command_workers::CommandWorkers,
@@ -93,14 +95,17 @@ impl Fixture {
         fs::create_dir(&managed).unwrap();
         fs::set_permissions(&managed, fs::Permissions::from_mode(0o700)).unwrap();
         let mut store = Store::open(&db).unwrap();
-        assert_eq!(
-            Connection::open(&db)
-                .unwrap()
-                .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
-                .unwrap(),
-            18,
-            "CI fixture must link exact schema18 source"
-        );
+        {
+            let live = Connection::open_with_flags(&db, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
+                .unwrap();
+            assert_eq!(
+                live.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+                    .unwrap(),
+                19,
+                "CI fixture must link exact schema19 source"
+            );
+            schema19_legacy_migration::assert_empty_host19(&live);
+        }
         let project = store
             .import_project(&source, "Synthetic project", "import")
             .unwrap();

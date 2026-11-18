@@ -1,4 +1,4 @@
-use crate::host_registry_migration::tests::current19_schema::pre_conversation_schema;
+use crate::host_registry_migration::tests::current19_schema;
 
 use super::*;
 use crate::CodeWorkspacePreparationRequest;
@@ -744,8 +744,49 @@ fn replaced_workspace_and_cleared_binding_history_cannot_reassign_or_repeat_crea
     }
 }
 
+fn prepare_controlled_schema15(connection: &Connection) {
+    // Schema 16 added Task semantics without changing DDL. Lower that label
+    // only after proving the exact empty schema increments and the old Task
+    // envelope, within the same transaction on this owned fixture.
+    let tx =
+        rusqlite::Transaction::new_unchecked(connection, rusqlite::TransactionBehavior::Immediate)
+            .unwrap();
+    assert_eq!(
+        tx.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+            .unwrap(),
+        19
+    );
+    for table in [
+        "integration_ref_fences",
+        "integration_attempts",
+        "integrations",
+        "integration_policies",
+    ] {
+        let count: i64 = tx
+            .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(
+            count, 0,
+            "nonempty integration history must never be erased"
+        );
+    }
+    let semantic:i64=tx.query_row("SELECT count(*) FROM tasks WHERE json_type(document,'$.code_workspace_binding') IS NOT NULL",[],|r|r.get(0)).unwrap();
+    assert_eq!(
+        semantic, 0,
+        "old15 predecessor must have no new semantic field, including null"
+    );
+    current19_schema::remove_empty_current19_in_transaction(&tx).unwrap();
+    assert_eq!(
+        tx.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+            .unwrap(),
+        16
+    );
+    tx.pragma_update(None, "user_version", 15u32).unwrap();
+    tx.commit().unwrap();
+}
+
 #[test]
-fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19() {
+fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future20() {
     // A local shape control, NOT a genuine old15-binary fixture; Root supplies that separately.
     let f = Fixture::new(false);
     let path = f.path.clone();
@@ -779,49 +820,16 @@ fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19() {
         }
         (schema, rows)
     };
+    current19_schema::verify_empty_current19(&f.store.conn).unwrap();
     let current_exact = exact(&f.store.conn);
     assert_eq!(
         f.store
             .conn
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
-    // Synthetic shape only, never labelled as an actual old15 binary result.
-    // Child-before-parent removal is permitted ONLY while these four domains
-    // are genuinely empty, in this own fixture's single transaction.
-    let tx = rusqlite::Transaction::new_unchecked(
-        &f.store.conn,
-        rusqlite::TransactionBehavior::Immediate,
-    )
-    .unwrap();
-    assert_eq!(
-        tx.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
-            .unwrap(),
-        18
-    );
-    pre_conversation_schema::remove_empty_conversation18_in_transaction(&tx).unwrap();
-    for table in [
-        "integration_ref_fences",
-        "integration_attempts",
-        "integrations",
-        "integration_policies",
-    ] {
-        let count: i64 = tx
-            .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
-            .unwrap();
-        assert_eq!(
-            count, 0,
-            "nonempty integration history must never be erased"
-        );
-    }
-    let semantic:i64=tx.query_row("SELECT count(*) FROM tasks WHERE json_type(document,'$.code_workspace_binding') IS NOT NULL",[],|r|r.get(0)).unwrap();
-    assert_eq!(
-        semantic, 0,
-        "old15 predecessor must have no new semantic field, including null"
-    );
-    tx.execute_batch("DROP TABLE integration_ref_fences; DROP TABLE integration_attempts; DROP TABLE integrations; DROP TABLE integration_policies; PRAGMA user_version=15;").unwrap();
-    tx.commit().unwrap();
+    prepare_controlled_schema15(&f.store.conn);
     let old_before = image(&f.store.conn);
     let old_exact = exact(&f.store.conn);
     drop(f.store);
@@ -831,11 +839,12 @@ fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19() {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
+    current19_schema::verify_empty_current19(&store.conn).unwrap();
     assert!(before == image(&store.conn));
     assert!(current_exact == exact(&store.conn));
-    for prefix in ["pre-v16-", "pre-v18-"] {
+    for prefix in ["pre-v16-", "pre-v18-", "pre-v19-"] {
         let backups: Vec<_> = fs::read_dir(&parent)
             .unwrap()
             .map(|e| e.unwrap().path())
@@ -855,36 +864,64 @@ fn controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19() {
         assert!(old_before == image(&backup));
         assert!(old_exact == exact(&backup));
     }
+    let backup_names = || {
+        fs::read_dir(&parent)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .filter(|name| name.to_string_lossy().contains(".pre-v"))
+            .collect::<std::collections::BTreeSet<_>>()
+    };
+    let backups_before = backup_names();
     store
         .conn
-        .pragma_update(None, "user_version", 19u32)
+        .pragma_update(None, "wal_autocheckpoint", 0)
         .unwrap();
-    drop(store);
+    store
+        .conn
+        .pragma_update(None, "user_version", 20u32)
+        .unwrap();
+    let wal = path.with_file_name("store.sqlite3-wal");
     let original = fs::read(&path).unwrap();
+    let committed_wal = fs::read(&wal).unwrap();
+    assert!(committed_wal.len() > 32);
     let error = match Store::open(&path) {
         Ok(_) => panic!("future database accepted"),
         Err(e) => e,
     };
     assert_eq!(error.code, "VERSION_UNSUPPORTED");
+    assert_eq!(error.message, "Database was created by a newer application");
     assert_eq!(fs::read(&path).unwrap(), original);
+    assert_eq!(fs::read(wal).unwrap(), committed_wal);
+    assert_eq!(backup_names(), backups_before);
 }
 
 #[test]
 fn version15_cannot_hide_a_new_semantic_field_even_when_null() {
     let f = Fixture::new(false);
-    f.store.conn.execute("UPDATE tasks SET document=json_set(document,'$.code_workspace_binding',json('null')) WHERE id=?1",[&f.task.id]).unwrap();
+    prepare_controlled_schema15(&f.store.conn);
     f.store
         .conn
-        .pragma_update(None, "user_version", 15u32)
+        .pragma_update(None, "wal_autocheckpoint", 0)
         .unwrap();
+    f.store.conn.execute("UPDATE tasks SET document=json_set(document,'$.code_workspace_binding',json('null')) WHERE id=?1",[&f.task.id]).unwrap();
+
     let path = f.path.clone();
     let before = image(&f.store.conn);
-    drop(f.store);
+    let wal = path.with_file_name("store.sqlite3-wal");
+    let original = fs::read(&path).unwrap();
+    let committed_wal = fs::read(&wal).unwrap();
+    assert!(committed_wal.len() > 32);
     let error = match Store::open(&path) {
         Ok(_) => panic!("hidden new semantic field accepted"),
         Err(e) => e,
     };
     assert_eq!(error.code, "INPUT_CHANGED");
+    assert_eq!(
+        error.message,
+        "Task workspace binding references changed; revalidate explicitly"
+    );
+    assert_eq!(fs::read(&path).unwrap(), original);
+    assert_eq!(fs::read(wal).unwrap(), committed_wal);
     let db = Connection::open(&path).unwrap();
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))

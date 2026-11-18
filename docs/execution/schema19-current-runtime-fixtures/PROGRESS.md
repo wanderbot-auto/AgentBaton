@@ -1,0 +1,7 @@
+# Progress
+
+The clean Apple Silicon base reproduced all six named failures. Task Workspace and three sessions cases had old live-schema expectations or an old check before the current19 inverse. The fourth sessions case shared the same old Owner clock check. The representative Command process scenario stopped at the old schema18 assertion. All three default Cargo baseline logs are archived.
+
+Focused checks passed both Task Workspace cases, all four reproduced sessions IPC cases, and the Command real worker. The initial sessions compilation error in the new backup permission assertion is archived. It was corrected by reading Unix permission bits through the imported permission trait while checking the old backup is a regular file.
+
+The Task fixture composes the exact Host19, Conversation18 and Integration17 inverses inside the original transaction before the checked semantic downgrade to 15. Its null-field negative now begins with this same schema15 shape. It keeps all prior backup and row checks, adds the private pre-v19 copy, and verifies the real current future20 guard, logical bytes and committed WAL. The Graph migration fixture applies the strict empty Host19 inverse after the real daemon joins and retains all original stopped-worker, meter, raw history, and exact historical schema checks. It verifies both the original pre-v12 and new pre-v19 backups. Current Command and Graph fixtures observe actual schema19. No timeouts, Grant windows, approvals or dispatch assertions change.
