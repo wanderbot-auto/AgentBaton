@@ -136,13 +136,10 @@ def candidate_attribution(raw, tools, preview_evidence):
             'matched_core_tools': ['batond', 'baton'], 'not_final_review_or_ci_acceptance': True}
 
 
-def select_chromium(override):
+def select_chromium(override, installed):
     if override is not None:
         return Path(override).resolve(strict=True), 'explicit'
-    from playwright.sync_api import sync_playwright
-
-    with sync_playwright() as playwright:
-        installed = Path(playwright.chromium.executable_path)
+    installed = Path(installed)
     if installed.is_file():
         return installed.resolve(strict=True), 'playwright_install'
     return Path('/usr/bin/chromium').resolve(strict=True), 'system_fallback'
@@ -435,8 +432,7 @@ def main():
     parser.add_argument('--candidate-manifest', type=Path, help='Optional immutable candidate attribution; no build or authority is inferred')
     args = parser.parse_args()
     binary, frontend, output = args.batond.resolve(strict=True), args.frontend.resolve(strict=True), args.output.resolve()
-    chromium, chromium_origin = select_chromium(args.chromium)
-    tools = {'batond': binary, 'chromium': chromium, 'python': Path(sys.executable).resolve(strict=True)}
+    tools = {'batond': binary, 'python': Path(sys.executable).resolve(strict=True)}
     companion = binary.with_name('baton')
     if companion.exists() or companion.is_symlink():
         tools['baton'] = companion.resolve(strict=True)
@@ -448,7 +444,7 @@ def main():
               'not_claimed': ['native macOS App', 'native WebView', 'Provider/session/model', 'OS sandbox', 'DLP', 'atomic directory freeze', 'execution grant', 'Task acceptance'],
               'platform': {'system': platform.system(), 'machine': platform.machine()},
               'source': repository_attribution(Path(__file__).resolve()),
-              'tools': identity, 'chromium_selection': chromium_origin, 'daemon_sha256': identity['batond']['sha256'],
+              'tools': identity, 'daemon_sha256': identity['batond']['sha256'],
               'harness_sha256': file_sha(Path(__file__)),
               'schema_evidence': {'expected': CURRENT_SCHEMA, 'ipc': None, 'readonly_sqlite': None},
               'frontend_assets_sha256': {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()},
@@ -830,6 +826,9 @@ def main():
             from playwright.sync_api import expect, sync_playwright
 
             with sync_playwright() as playwright:
+                chromium, origin = select_chromium(args.chromium, playwright.chromium.executable_path)
+                report['chromium_selection'] = origin
+                report['tools']['chromium'] = pinned_tool(chromium)
                 browser = playwright.chromium.launch(executable_path=str(chromium), headless=True, args=['--disable-dev-shm-usage'])
                 report['tools']['chromium']['browser_version'] = browser.version
                 context = browser.new_context(viewport={'width': 1488, 'height': 981}, locale='en-US')
@@ -1162,6 +1161,10 @@ def main():
             daemon_log.close()
             report['cleanup'] = {'daemon_exit_code': daemon_exit, 'daemon_forced': forced,
                                  'http_thread_joined': thread is None or not thread.is_alive()}
+            if report['status'] == 'passed' and (daemon_exit != 0 or forced
+                    or not report['cleanup']['http_thread_joined'] or report.get('browser_closed') is not True):
+                report['status'] = 'failed_or_interrupted'
+                report['failure'] = {'stage': 'cleanup', 'type': 'FixtureProcessNotJoined'}
             # Defense in depth: authentication bytes never become evidence.
             (output / 'report.json').write_text(safe(json.dumps(report, indent=2)) + '\n')
             print(json.dumps({'status': report['status'], 'checks': len(report['checks']), 'unrun': len(report['unrun']), 'report': str(output / 'report.json')}), flush=True)
