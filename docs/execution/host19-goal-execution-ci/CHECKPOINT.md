@@ -1,0 +1,5 @@
+# Checkpoint
+
+Review follow-up is ready for independent acceptance at fixed base `7de2112b9833fb5ec1b4f62b36ea9b5a3c88c603` and cleanup source `258c52e653bf069b3a85c02c59ac4477a9d77d9b`. Original source `9d7751e463f1f3446ad6291bb70b24035ba8fd10` and evidence commit `86934259dd19327e90f09e999e593043f32f6c45` remain available. The delivery commit adds only task evidence and notes. The exact head and final integration preview are recorded in the handoff.
+
+The first ARM64 private Core witness passed. The 16 targeted tests and full infrastructure suite passed on the cleanup source. The complete local Linux x86_64 scenario passed with real procfs, ten checks, seven owned stop receipt chains, and all required transport exits confirmed. The driver itself emitted no Playwright teardown warning on this rerun. The first warning and the later tool metadata, bounded download and Debian 502 failures remain recorded. All owned containers and executors were removed or joined. The leader owns the shared workflow producer and the combined hosted CI candidate.

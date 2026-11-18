@@ -1,0 +1,829 @@
+{
+  "task": "host19-goal-execution-ci",
+  "base": "7de2112b9833fb5ec1b4f62b36ea9b5a3c88c603",
+  "tested_source": "9d7751e463f1f3446ad6291bb70b24035ba8fd10",
+  "recorded_at_utc": "2026-11-18T18:51:49.807539+00:00",
+  "collected_source_sha256": "92790418bf7287706b6ec359e9e534ca63c84860d9d58073b8bde79a07a52c23",
+  "current_worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci",
+  "old_baseline": {
+    "case": {
+      "source": "apps/desktop/tests/goal-execution-real-ipc.py",
+      "sha256": "d94dbf358408c37756dfb819f2ddad92ddb5b4ce79dfe8618ffb8ed8c5ccdc78",
+      "exit": 1,
+      "exact_refusal": "Explicit coherent schema18 candidate is required",
+      "raw_log": "goal-execution.log",
+      "raw_log_sha256": "a65cb5ee050326490592ca39f0e439e3ab52b667ee1f391e889b8bbf478a9336",
+      "preflight_report_sha256": null
+    },
+    "raw_log_verified": true,
+    "baseline_source_verified": true
+  },
+  "original_assertions": [
+    {
+      "region": "generated owned ACP executable including Linux /proc marker",
+      "sha256_of_unchanged_source_bytes": "74fc607e8f369ea430ace99b76466c008a4607817a70b00298f8f0c66da88e3a",
+      "bytes": 3633
+    },
+    {
+      "region": "scenario setup/plans/execution snapshot checks",
+      "sha256_of_unchanged_source_bytes": "b6ba9306827fe85413c2e15d7854cf6fe72439a6399556369871293e5efd9568",
+      "bytes": 10047
+    },
+    {
+      "region": "HTTP allowlist, browser assertions, budget/control scenarios and teardown",
+      "sha256_of_unchanged_source_bytes": "d7dfdf619952bf1d9f458f68fc27fca5435aa2e6456ad735ad8d4ce1ba2e1ff3",
+      "bytes": 37924
+    },
+    {
+      "region": "owned stop receipt inspection",
+      "existing_conditions_unchanged": true,
+      "only_added_shared_read_only_schema_guard": true
+    }
+  ],
+  "tests": {
+    "targeted": {
+      "passed": 11,
+      "head": "9d7751e463f1f3446ad6291bb70b24035ba8fd10",
+      "command": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "apps/desktop/tests/test_goal_execution_schema19.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 1.291
+    },
+    "infrastructure": {
+      "passed": 975,
+      "skipped": 16,
+      "head": "9d7751e463f1f3446ad6291bb70b24035ba8fd10",
+      "command": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 24.817
+    },
+    "first_infrastructure_failure": {
+      "failed": 1,
+      "reason": "ambient Python lacked jsonschema",
+      "log": "full-infrastructure.log"
+    },
+    "format": "git diff --check passed",
+    "frontend": {
+      "start_head": "7de2112b9833fb5ec1b4f62b36ea9b5a3c88c603",
+      "source_may_have_uncommitted_task_changes": true,
+      "runs": [
+        {
+          "command": [
+            "npm",
+            "--prefix",
+            "apps/desktop",
+            "ci",
+            "--offline",
+            "--no-audit",
+            "--no-fund"
+          ],
+          "exit_code": 0,
+          "seconds": 0.959
+        },
+        {
+          "command": [
+            "npm",
+            "--prefix",
+            "apps/desktop",
+            "run",
+            "build"
+          ],
+          "exit_code": 0,
+          "seconds": 2.054
+        }
+      ]
+    }
+  },
+  "environment": {
+    "macOS_arm64": {
+      "platform": "macOS arm64",
+      "core_build": {
+        "source": "7de2112b9833fb5ec1b4f62b36ea9b5a3c88c603",
+        "command": [
+          "cargo",
+          "build",
+          "--offline",
+          "--locked",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton",
+          "--features",
+          "agentbaton-core/preview-evidence"
+        ],
+        "exit": 0,
+        "wall_seconds": 65.548,
+        "tool_env": {
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "CARGO_BUILD_JOBS": "3"
+        },
+        "tools": {
+          "baton": {
+            "sha256": "07f5c30918f42516cfccc187c11f7180b9beb8bebb78b4d64b0997649ab0d003",
+            "kind": "Mach-O 64-bit executable arm64"
+          },
+          "batond": {
+            "sha256": "4555d1035f24d942924da88cf6e37dc19b611020ca559ac1a96711cb411fbb53",
+            "kind": "Mach-O 64-bit executable arm64"
+          }
+        }
+      },
+      "core_probe": {
+        "head": "9d7751e463f1f3446ad6291bb70b24035ba8fd10",
+        "host": "macOS-26.6.1-arm64-arm-64bit",
+        "driver_sha256": "92790418bf7287706b6ec359e9e534ca63c84860d9d58073b8bde79a07a52c23",
+        "manifest_sha256": "c005d3a4ed5cd0411d794d9f812790705184272f0a64cd5dca301b135ef75ba5",
+        "tools": {
+          "baton": "07f5c30918f42516cfccc187c11f7180b9beb8bebb78b4d64b0997649ab0d003",
+          "batond": "4555d1035f24d942924da88cf6e37dc19b611020ca559ac1a96711cb411fbb53"
+        },
+        "mode": "actual private Core/CLI/SQLite startup witness; no browser, ACP process or Linux claim",
+        "fresh": {
+          "api_version": 1,
+          "sqlite_schema_version": 19,
+          "sequence": 0,
+          "matched_cli_snapshot": true,
+          "read_only": true
+        },
+        "nonempty": {
+          "api_version": 1,
+          "sqlite_schema_version": 19,
+          "sequence": 1,
+          "matched_cli_snapshot": true,
+          "read_only": true
+        },
+        "database_observations_match_before_and_after_read": true,
+        "cleanup": {
+          "pid": 90551,
+          "exit": 0,
+          "joined": true,
+          "forced_kill": false
+        }
+      },
+      "driver_platform_refusal": {
+        "head": "9d7751e463f1f3446ad6291bb70b24035ba8fd10",
+        "command": [
+          "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/apps/desktop/tests/goal-execution-real-ipc.py",
+          "--batond",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/target/debug/batond",
+          "--candidate-manifest",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/mac-candidate.json",
+          "--frontend",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/apps/desktop/dist",
+          "--output",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/mac-driver-refusal"
+        ],
+        "exit_code": 1,
+        "seconds": 0.099
+      }
+    },
+    "real_local_linux": {
+      "local_engine_platform": "Linux ARM64 Docker Desktop (leader verified actual /proc/self/stat)",
+      "local_run": {
+        "candidate_source": "9d7751e463f1f3446ad6291bb70b24035ba8fd10",
+        "base_image": "docker.io/library/python@sha256:05a994d2344eb364cc186910f4fc8786a38215f39f00d0acc25bff33a08f4177",
+        "platform": "linux/amd64 local Docker Desktop guest on an ARM64 host; separate from hosted CI",
+        "host_mounts": [
+          {
+            "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-source.bundle",
+            "guest": "/input/source.bundle",
+            "read_only": true
+          }
+        ],
+        "hosted_ci": false,
+        "provider_calls": false,
+        "commands": {
+          "image-pull": {
+            "argv": [
+              "docker",
+              "pull",
+              "--platform",
+              "linux/amd64",
+              "docker.io/library/python@sha256:05a994d2344eb364cc186910f4fc8786a38215f39f00d0acc25bff33a08f4177"
+            ],
+            "exit": 0,
+            "seconds": 5.32
+          },
+          "start": {
+            "argv": [
+              "docker",
+              "start",
+              "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd"
+            ],
+            "exit": 0,
+            "seconds": 0.185
+          },
+          "guest-setup": {
+            "argv": [
+              "docker",
+              "exec",
+              "-i",
+              "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd",
+              "bash",
+              "-s"
+            ],
+            "exit": 0,
+            "seconds": 77.527,
+            "script_sha256": "aceabb70f08298dab390ba130e03becc85f0082979af85da745d71e9dbffbbfe"
+          },
+          "linux-build": {
+            "argv": [
+              "docker",
+              "exec",
+              "-i",
+              "--user",
+              "10001:10001",
+              "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd",
+              "bash",
+              "-s",
+              "--",
+              "9d7751e463f1f3446ad6291bb70b24035ba8fd10"
+            ],
+            "exit": 0,
+            "seconds": 208.023,
+            "script_sha256": "ba1cc568acb8d7a7292ca7d850e045adb74d3f50529e85b5c53ea6a423a02a80"
+          },
+          "linux-browser": {
+            "argv": [
+              "docker",
+              "exec",
+              "-i",
+              "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd",
+              "bash",
+              "-s"
+            ],
+            "exit": 0,
+            "seconds": 114.578,
+            "script_sha256": "7e496da9d8b546d80c4c9585936460521b67a3cfa6390f9a156dac87eecfa28b"
+          },
+          "disconnect-network": {
+            "argv": [
+              "docker",
+              "network",
+              "disconnect",
+              "bridge",
+              "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd"
+            ],
+            "exit": 0,
+            "seconds": 0.257
+          },
+          "linux-driver": {
+            "argv": [
+              "docker",
+              "exec",
+              "-i",
+              "--user",
+              "10001:10001",
+              "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd",
+              "bash",
+              "-s",
+              "--",
+              "9d7751e463f1f3446ad6291bb70b24035ba8fd10"
+            ],
+            "exit": 0,
+            "seconds": 22.552,
+            "script_sha256": "66c6e41f25094ffc0eba9dc7f76a13eea76997a558c339ca3b325b35ed967383"
+          },
+          "copy-private-evidence": {
+            "argv": [
+              "docker",
+              "cp",
+              "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd:/evidence/.",
+              "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-x64-run/private"
+            ],
+            "exit": 0,
+            "seconds": 0.035
+          },
+          "stop-owned-container": {
+            "argv": [
+              "docker",
+              "stop",
+              "-t",
+              "5",
+              "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd"
+            ],
+            "exit": 0,
+            "seconds": 5.174
+          },
+          "remove-owned-container": {
+            "argv": [
+              "docker",
+              "rm",
+              "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd"
+            ],
+            "exit": 0,
+            "seconds": 0.593
+          }
+        },
+        "container_id": "14e7e20705837774c2d3a0b3a404f93205ec47d9eee44e126fe7a55fb2825ffd",
+        "networks_before_test": "{}",
+        "driver_exit": 0,
+        "container_absent_after_removal": true,
+        "source_bundle_sha256": "a229666eeb133c3856683210f0def2a5cca059ce1446f87e4e7b523946dcda83"
+      },
+      "hosted_x64_ci": "not run by this work package",
+      "candidate": {
+        "schema": 19,
+        "git_head": "9d7751e463f1f3446ad6291bb70b24035ba8fd10",
+        "git_tree": "93b6e058fcb89d40710b929193aaa8f911b06321",
+        "dirty": false,
+        "cargo_features": [
+          "agentbaton-core/preview-evidence"
+        ],
+        "binaries": {
+          "baton": "fe0a1018991bde1268299b47ac47c74083b59fc6eafcd3d96b77ebe0d1a3938d",
+          "batond": "484c83303edbb420a73c396e96c19de85a6dffa071827c4c19d0cf67acade4d1"
+        },
+        "scope": "Task-owned local Linux x86_64 Docker candidate, no shared workflow, account or model"
+      },
+      "guest_platform": {
+        "platform": "Linux-6.12.69-linuxkit-x86_64-with-glibc2.41",
+        "machine": "x86_64",
+        "binary_kind": {
+          "baton": "ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=be22c37a77415ae98524870506c065494cc1e116, with debug_info, not stripped",
+          "batond": "ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=f6928d5a87680e46fa498f3cc2fe915fa7c2ad13, with debug_info, not stripped"
+        },
+        "browser_path": "/opt/goal/browser/chromium-1234/chrome-linux64/chrome",
+        "browser_sha256": "0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71"
+      },
+      "goal_execution": {
+        "status": "passed",
+        "report_sha256": "6f93e63ec54f935cf3a48d4185fc21c154aa3352dc69fb07db9afe7c35d8131c",
+        "report": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/report.json",
+        "checks": [
+          "private host approves generated local inputs and planning scopes; no execution or SQL-forged authority",
+          "actual Goal execution is lazy/read-only with no stored plan and no authority from planning approval",
+          "HTTP denies approval/finalize/generic dispatch or execution and foreign run references without database writes",
+          "HTTP-external real Owner fixture starts full TaskRequest, real artifact and owned-reaped candidate without acceptance",
+          "UI stores rev2 then explicitly adopts same-scope plan; dropped real response recovers exact key without new Owner, attempt replay or budget/history reset",
+          "native-confirmed actual selected-file Directory copy supplies real Goal TaskRequest inputs without Git initialization or source writes",
+          "real partial-write Goal cancellation keeps request receipt separate from actual owned stop; dropped response reconciles by current reads without a second mutation",
+          "actual1200ms owned timeout remains unknown after reaping and cancellation; UI blocks new approval/adoption and never fabricates TaskAccepted",
+          "one initial approved plan automatically drains independent Work and Summary nodes with distinct outputs, owned-stop lineage and cumulative two-attempt budgets; UI shows both same-plan candidates",
+          "original generated sources unchanged, real scoped history retained and no browser runtime errors"
+        ],
+        "screenshots": [
+          {
+            "relative": "linux-x64-run/private/goal-execution/01-stored-plan-no-execution.png",
+            "sha256": "3a8857285f0eac238a3112f481ed3038c7b553c676030faf9690750657a1fce8",
+            "bytes": 114420
+          },
+          {
+            "relative": "linux-x64-run/private/goal-execution/02-real-generated-candidate.png",
+            "sha256": "4302e77d9f7131a1a4a659c7fed052d2fc46395dc3cf2af2df6bb0b3d4492c87",
+            "bytes": 134761
+          },
+          {
+            "relative": "linux-x64-run/private/goal-execution/03-real-plan-advance-response-lost.png",
+            "sha256": "ab93f96aed256e4a741ccfcffe82c3c00f3889cfd71bea0d1af4ed2c8ce43d52",
+            "bytes": 137231
+          },
+          {
+            "relative": "linux-x64-run/private/goal-execution/04-same-scope-replan-history-kept.png",
+            "sha256": "6ff4497a987e9d549e413efe062f4d6e6012237361675e256b6efbb8885746d1",
+            "bytes": 128263
+          },
+          {
+            "relative": "linux-x64-run/private/goal-execution/05-real-data-workspace-goal-candidate.png",
+            "sha256": "024d58f7eb8cb94ea4fe5b9c8290fe91ef30a86154bccf9e586b0730136e0ed5",
+            "bytes": 131971
+          },
+          {
+            "relative": "linux-x64-run/private/goal-execution/06-real-owned-cancel-retains-partial-report.png",
+            "sha256": "e7b97aa33bbca0ecb03580e065a9cb641f51f4954bf60ebfa5e09d1274062700",
+            "bytes": 134247
+          },
+          {
+            "relative": "linux-x64-run/private/goal-execution/07-timeout-owned-stop-effects-still-unknown.png",
+            "sha256": "f623fae62c5e58215495dfc985dff20f9a70664328938c212cd04c6771e1c8cb",
+            "bytes": 136854
+          },
+          {
+            "relative": "linux-x64-run/private/goal-execution/08-timeout-mobile-unknown.png",
+            "sha256": "af44eb3b7f5a6f85c1244d4c2c527c760e7f818fef231a6f1f8206cfeef3fe07",
+            "bytes": 50062
+          },
+          {
+            "relative": "linux-x64-run/private/goal-execution/09-same-plan-work-and-summary-frontier.png",
+            "sha256": "9c9830d701f916fc9e3c0fa00383b52e23b75c1226aa661a4cae05587e53622f",
+            "bytes": 127974
+          }
+        ],
+        "schema_preflight": {
+          "api_version": 1,
+          "sqlite_schema_version": 19,
+          "sequence": 0,
+          "matched_cli_snapshot": true,
+          "read_only": true
+        },
+        "owned_stop_chains": 7,
+        "normalized_failure": null,
+        "failure_cleanup_count": 0,
+        "playwright_teardown_warning": true,
+        "reported_page_errors": []
+      }
+    }
+  },
+  "integration": {
+    "scope": "Scope OK against merge base 7de2112b9833fb5ec1b4f62b36ea9b5a3c88c603.",
+    "target": "f4b1e5217085fe20c9122b3fae12bff535d24930",
+    "target_ref": "refs/remotes/origin/collab/host-registration-integration",
+    "direct_remote_observation": {
+      "exit": "timeout",
+      "exact_target_confirmed": false
+    },
+    "preview_command": [
+      "bash",
+      "scripts/collab.sh",
+      "preview",
+      "f4b1e5217085fe20c9122b3fae12bff535d24930",
+      "9d7751e463f1f3446ad6291bb70b24035ba8fd10"
+    ],
+    "source_preview": [
+      "Previewing target f4b1e5217085fe20c9122b3fae12bff535d24930 + source 9d7751e463f1f3446ad6291bb70b24035ba8fd10 (committed snapshots only).",
+      "cf19292186bd14a3251c6e5396c9b861900a6d7f",
+      "No Git merge conflict. Run tests; rebase can still conflict while replaying commits."
+    ],
+    "dependency": "Shared product.yml producer at the fixed base emits schema 18, and simultaneous migration of downstream readers remains leader-owned."
+  },
+  "archive": {
+    "path": "docs/execution/host19-goal-execution-ci/validation-logs.tar.gz",
+    "archive_entries": 46,
+    "sha256": "e1c75e7ff27aeff55bb1842a0d21ad59bd744bf9aadbe5d49117ffed673de8cb",
+    "raw_inputs": [
+      {
+        "path": "artifacts/host19-goal-execution-ci/baseline-goal-execution.log",
+        "bytes": 813,
+        "sha256": "a65cb5ee050326490592ca39f0e439e3ab52b667ee1f391e889b8bbf478a9336",
+        "archive_member": "baseline-goal-execution.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/core-build.json",
+        "bytes": 696,
+        "sha256": "a088ee665415e119297296b49fc80e9fa79a0992439b111ff0b07a46b6053203",
+        "archive_member": "core-build.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/core-build.log",
+        "bytes": 2945,
+        "sha256": "f8768b152cc24783a4508841caf28f2803a3a5b38a046734df074e488876af68",
+        "archive_member": "core-build.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/docker-availability.log",
+        "bytes": 12,
+        "sha256": "8e0770e07c23940b641360866fee9a4fe9202fadae5086d5162337bab0307e89",
+        "archive_member": "docker-availability.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/format.json",
+        "bytes": 265,
+        "sha256": "52796cfa399b127ce8a9eb2f9a7b5b65b8f07f3afbcfd129edd7281cae7d8657",
+        "archive_member": "format.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/format.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "format.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/frontend.json",
+        "bytes": 529,
+        "sha256": "9d64717fe1ff4c1f8520263ff197ce13b297f3b7c935df0652560c7fa0706658",
+        "archive_member": "frontend.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/frontend.log",
+        "bytes": 1112,
+        "sha256": "2289bfc37784bfdc5418dd919affabf22fa209f162cb2334ca61eb141b28535a",
+        "archive_member": "frontend.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/full-exact.json",
+        "bytes": 274,
+        "sha256": "a2448b4a075adbfc3bf252b3e80148c0e924f6cdeee2fa3666c9cca900f5e44e",
+        "archive_member": "full-exact.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/full-exact.log",
+        "bytes": 196378,
+        "sha256": "c6d014f7880ff67cb3db33bb01f16a232995576abaede61a8a6cb121e6185c80",
+        "archive_member": "full-exact.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/full-infrastructure.json",
+        "bytes": 405,
+        "sha256": "585641b4bb08f6a5406d516920c22887543bc39b59072e8755158c163cc64740",
+        "archive_member": "full-infrastructure.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/full-infrastructure.log",
+        "bytes": 259789,
+        "sha256": "f062f70e653c05928b4fef70175d9ac7e2dbab120cbcfadbeb4756dc0abf5159",
+        "archive_member": "full-infrastructure.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/integration-fetch-first-status.json",
+        "bytes": 308,
+        "sha256": "e18de9f7480fc566b2a38405b049bebb7c048ed0d863205de3ce6eb5fc4a2fe3",
+        "archive_member": "integration-fetch-first-status.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/integration-remote-ref.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "integration-remote-ref.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/integration-remote-status.json",
+        "bytes": 228,
+        "sha256": "f3f86b48babd84ffcd20a971f0aeabee31d09c14bc5e7d6ae6f7d378a4cacb67",
+        "archive_member": "integration-remote-status.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/leader-baseline.json",
+        "bytes": 3227,
+        "sha256": "18ad2200fc9c4086e0b01f7d63abcd09f323d3d719a16b6a4256d6b81d340e86",
+        "archive_member": "leader-baseline.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-availability.json",
+        "bytes": 150,
+        "sha256": "67c515f55e6a1166481847a506b4a434cd69e3eebfa132dc77a858885b61cd0d",
+        "archive_member": "linux-availability.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-python-image.json",
+        "bytes": 163,
+        "sha256": "0063d27cc01cfe290080755fe3b03a6e208054ed9ff9441cfad338bcf7d8b3d8",
+        "archive_member": "linux-x64-python-image.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-python-registry.json",
+        "bytes": 230,
+        "sha256": "4cc5096cc621bdfc7f5a87b35fb926136f9e98137743f2fee8e49b9267d06df9",
+        "archive_member": "linux-x64-python-registry.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-python-registry.log",
+        "bytes": 10373,
+        "sha256": "5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b",
+        "archive_member": "linux-x64-python-registry.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/copy-private-evidence.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "linux-x64-run/copy-private-evidence.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/disconnect-network.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "linux-x64-run/disconnect-network.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/guest-setup.log",
+        "bytes": 33266,
+        "sha256": "7c76e5af9a8a0d292d63780891440fcaef0fa7ce22fd759abd67a51753334e10",
+        "archive_member": "linux-x64-run/guest-setup.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/guest-setup.sh",
+        "bytes": 1276,
+        "sha256": "aceabb70f08298dab390ba130e03becc85f0082979af85da745d71e9dbffbbfe",
+        "archive_member": "linux-x64-run/guest-setup.sh"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/image-pull.log",
+        "bytes": 781,
+        "sha256": "9556c5b8d910c1b4d02413f5ea42fc1925808e9f5fc72aefaf5d544902310f6d",
+        "archive_member": "linux-x64-run/image-pull.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/linux-browser.log",
+        "bytes": 43463,
+        "sha256": "67992a195037a20b462df9bae042bc7145db2da0dbc14aac8a32e089ffe64e03",
+        "archive_member": "linux-x64-run/linux-browser.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/linux-browser.sh",
+        "bytes": 137,
+        "sha256": "7e496da9d8b546d80c4c9585936460521b67a3cfa6390f9a156dac87eecfa28b",
+        "archive_member": "linux-x64-run/linux-browser.sh"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/linux-build.log",
+        "bytes": 9555,
+        "sha256": "7a132dc5e5593341da0ad1eae00cc61a0a84fdf612153deef3c7a0f23693e838",
+        "archive_member": "linux-x64-run/linux-build.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/linux-build.sh",
+        "bytes": 945,
+        "sha256": "ba1cc568acb8d7a7292ca7d850e045adb74d3f50529e85b5c53ea6a423a02a80",
+        "archive_member": "linux-x64-run/linux-build.sh"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/linux-driver.log",
+        "bytes": 580,
+        "sha256": "107653b185dd229fe5e465fe0dd495de30810fafa0bdf72af5ca0be9ebd1fd90",
+        "archive_member": "linux-x64-run/linux-driver.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/linux-driver.sh",
+        "bytes": 1845,
+        "sha256": "66c6e41f25094ffc0eba9dc7f76a13eea76997a558c339ca3b325b35ed967383",
+        "archive_member": "linux-x64-run/linux-driver.sh"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/candidate.json",
+        "bytes": 501,
+        "sha256": "9c049b8b43925b01f428724c8de53e4c8794c9ec5049cced714c4f3fb5541c63",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/driver-command.json",
+        "bytes": 337,
+        "sha256": "4fb17322984c4df18e70f01f8e86c207994423aab86b24d04583265edb884942",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/01-stored-plan-no-execution.png",
+        "bytes": 114420,
+        "sha256": "3a8857285f0eac238a3112f481ed3038c7b553c676030faf9690750657a1fce8",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/02-real-generated-candidate.png",
+        "bytes": 134761,
+        "sha256": "4302e77d9f7131a1a4a659c7fed052d2fc46395dc3cf2af2df6bb0b3d4492c87",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/03-real-plan-advance-response-lost.png",
+        "bytes": 137231,
+        "sha256": "ab93f96aed256e4a741ccfcffe82c3c00f3889cfd71bea0d1af4ed2c8ce43d52",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/04-same-scope-replan-history-kept.png",
+        "bytes": 128263,
+        "sha256": "6ff4497a987e9d549e413efe062f4d6e6012237361675e256b6efbb8885746d1",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/05-real-data-workspace-goal-candidate.png",
+        "bytes": 131971,
+        "sha256": "024d58f7eb8cb94ea4fe5b9c8290fe91ef30a86154bccf9e586b0730136e0ed5",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/06-real-owned-cancel-retains-partial-report.png",
+        "bytes": 134247,
+        "sha256": "e7b97aa33bbca0ecb03580e065a9cb641f51f4954bf60ebfa5e09d1274062700",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/07-timeout-owned-stop-effects-still-unknown.png",
+        "bytes": 136854,
+        "sha256": "f623fae62c5e58215495dfc985dff20f9a70664328938c212cd04c6771e1c8cb",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/08-timeout-mobile-unknown.png",
+        "bytes": 50062,
+        "sha256": "af44eb3b7f5a6f85c1244d4c2c527c760e7f818fef231a6f1f8206cfeef3fe07",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/09-same-plan-work-and-summary-frontier.png",
+        "bytes": 127974,
+        "sha256": "9c9830d701f916fc9e3c0fa00383b52e23b75c1226aa661a4cae05587e53622f",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/daemon.log",
+        "bytes": 66,
+        "sha256": "c941bd7bcebdec95a2186dfc38fa9644da571a9db2443861744bed833665b42c",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/goal-execution/report.json",
+        "bytes": 1027395,
+        "sha256": "6f93e63ec54f935cf3a48d4185fc21c154aa3352dc69fb07db9afe7c35d8131c",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/private/platform.json",
+        "bytes": 757,
+        "sha256": "76c2d911ca4d020729fd2b6e131341606d7acac898b77db8230eb52a1b1c7fa2",
+        "archive_member": null
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/receipt.json",
+        "bytes": 3933,
+        "sha256": "9c9259cf95ab24b4f0afa51febdc12be806c259d28a16eaf05bf2724d86079da",
+        "archive_member": "linux-x64-run/receipt.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/remove-owned-container.log",
+        "bytes": 65,
+        "sha256": "54b6bd33d6a4dd83395d5535896d16b5e5b0c2eb1f9b6d6dfe7d41b7f2c744a8",
+        "archive_member": "linux-x64-run/remove-owned-container.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/start.log",
+        "bytes": 65,
+        "sha256": "54b6bd33d6a4dd83395d5535896d16b5e5b0c2eb1f9b6d6dfe7d41b7f2c744a8",
+        "archive_member": "linux-x64-run/start.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-run/stop-owned-container.log",
+        "bytes": 65,
+        "sha256": "54b6bd33d6a4dd83395d5535896d16b5e5b0c2eb1f9b6d6dfe7d41b7f2c744a8",
+        "archive_member": "linux-x64-run/stop-owned-container.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/mac-candidate.json",
+        "bytes": 502,
+        "sha256": "c005d3a4ed5cd0411d794d9f812790705184272f0a64cd5dca301b135ef75ba5",
+        "archive_member": "mac-candidate.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/mac-driver-refusal.json",
+        "bytes": 973,
+        "sha256": "1a0f995e3c7589ec4c8b48ee2f8d60feed314d58dc766d3acc8c23ccac829b8e",
+        "archive_member": "mac-driver-refusal.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/mac-driver-refusal.log",
+        "bytes": 70,
+        "sha256": "3a3293851fd2d5cd20fc12836c7cafc9dbf00a1aea018a348e2ed20d7fb8e5f2",
+        "archive_member": "mac-driver-refusal.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/mac-private-core.json",
+        "bytes": 1013,
+        "sha256": "309b1dde83b655409d1608d4b2351ca73f61bd66767cc4e98e7e344ba4970d64",
+        "archive_member": "mac-private-core.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/mac-private-daemon.log",
+        "bytes": 102,
+        "sha256": "3a6ea22c947fcaeea073aec70b1672f51244c0b47293410d359de74dddcdb15d",
+        "archive_member": "mac-private-daemon.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/multipass-availability.log",
+        "bytes": 314,
+        "sha256": "459c02fcb1c5d610cb244597f6e015af33db304c474d78f67db5945241f3812b",
+        "archive_member": "multipass-availability.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/source-integration-preview.log",
+        "bytes": 263,
+        "sha256": "59bc46cffb5b8e9a7231c8ad05af701a36702eabc53948b899509a5f7a35fad1",
+        "archive_member": "source-integration-preview.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/targeted-exact.json",
+        "bytes": 251,
+        "sha256": "732c13e2339f4b9b5ff07a8628a1dae56107cae5e611a6d6469a1b3b76965879",
+        "archive_member": "targeted-exact.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/targeted-exact.log",
+        "bytes": 1712,
+        "sha256": "4726418b649d60dd0f4f5aaa70661ffe169d60271871528a03b07dc4c4ded00c",
+        "archive_member": "targeted-exact.log"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/targeted-python.json",
+        "bytes": 365,
+        "sha256": "8f207e710db2c5c0092a2929752caa99dff75ec8a6214665ddef0837894f8eee",
+        "archive_member": "targeted-python.json"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/targeted-python.log",
+        "bytes": 1712,
+        "sha256": "394ad3e8a781bcca0ccf4dc1e787d83f712fc3d75d764c8f19399a5ec2fd2c32",
+        "archive_member": "targeted-python.log"
+      }
+    ]
+  },
+  "review": "pending independent leader review"
+}
