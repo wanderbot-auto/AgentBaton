@@ -80,7 +80,7 @@
     "cleanup-time revalidation and deletion",
     "native remote Host or Linux/CI"
   ],
-  "review": "implementation and evidence self-reviewed; awaiting independent integration review",
+  "review": "independent integration review accepted at 60097581e1f3cfdb167a6cf2d515d98410a14c21; main history wiring and cleanup remain unverified",
   "log_sha256": {
     "logs/all.log.gz": "3caafc889a1b5fdf980b5bdb00e202da1bb75abb00deb936b689587fa0a7280e",
     "logs/baseline-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
