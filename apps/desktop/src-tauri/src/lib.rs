@@ -2379,9 +2379,9 @@ fn authenticated_snapshot(runtime: &Path, deadline: Instant) -> Result<Value, St
 fn require_current_database_schema(response: &Value) -> Result<(), String> {
     if response.get("error").is_some()
         || response["result"]["api_version"].as_u64() != Some(1)
-        || response["result"]["database_schema_version"].as_u64() != Some(18)
+        || response["result"]["database_schema_version"].as_u64() != Some(19)
     {
-        return Err("Authenticated daemon requires exact database schema18; old/future/unknown schema is unsupported".into());
+        return Err("Authenticated daemon requires exact database schema19; old/future/unknown schema is unsupported".into());
     }
     Ok(())
 }

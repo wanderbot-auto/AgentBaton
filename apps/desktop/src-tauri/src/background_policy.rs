@@ -39,7 +39,7 @@ pub(crate) fn status_instance<'a>(
         .ok_or("Background identity is unavailable; refresh its status")?;
     if !closed
         || status["api_version"] != 1
-        || status["database_schema_version"] != 18
+        || status["database_schema_version"] != 19
         || status["sequence"]
             .as_u64()
             .is_none_or(|n| n > 9_007_199_254_740_991)

@@ -4,6 +4,7 @@ from pathlib import Path
 import unittest
 
 from tests.infrastructure.host_native_bridge_source_fixture import restore_host_native_bridge_v1
+from tests.infrastructure.host_native_schema19_source_fixture import restore_host_native_schema18
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,7 +23,8 @@ HANDLERS = (
 
 class HostNativeBridgeSourceFixtureTests(unittest.TestCase):
     def test_actual_candidate_restores_only_eight_reviewed_lines(self):
-        current = LIB.read_bytes()
+        raw = LIB.read_bytes()
+        current = restore_host_native_schema18(raw)
         self.assertEqual(
             sha256(current).hexdigest(),
             "338fbef7689416a71ec101aaad3ac5afb91e433c55d5c1c4bf413242108944d5",
@@ -36,10 +38,10 @@ class HostNativeBridgeSourceFixtureTests(unittest.TestCase):
             sha256(predecessor).hexdigest(),
             "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb",
         )
-        self.assertEqual(LIB.read_bytes(), current)
+        self.assertEqual(LIB.read_bytes(), raw)
 
     def test_dispatch_insertions_cannot_be_missing_duplicated_moved_or_changed(self):
-        current = LIB.read_bytes()
+        current = restore_host_native_schema18(LIB.read_bytes())
         for insertion in (MODULE, HANDLERS):
             without = current.replace(insertion, b"", 1)
             changes = {
@@ -55,7 +57,7 @@ class HostNativeBridgeSourceFixtureTests(unittest.TestCase):
                         restore_host_native_bridge_v1(changed)
 
     def test_extra_handler_anchor_context_or_unrelated_production_edits_are_refused(self):
-        current = LIB.read_bytes()
+        current = restore_host_native_schema18(LIB.read_bytes())
         changes = {
             "extra handler": current.replace(HANDLERS, HANDLERS + b"        hosts::extra,\n", 1),
             "module neighbor": current.replace(
@@ -76,7 +78,7 @@ class HostNativeBridgeSourceFixtureTests(unittest.TestCase):
                     restore_host_native_bridge_v1(changed)
 
     def test_predecessor_and_raw_byte_changes_are_refused(self):
-        current = LIB.read_bytes()
+        current = restore_host_native_schema18(LIB.read_bytes())
         predecessor = restore_host_native_bridge_v1(current)
         for label, changed in (
             ("exact predecessor", predecessor),
@@ -90,7 +92,7 @@ class HostNativeBridgeSourceFixtureTests(unittest.TestCase):
                 restore_host_native_bridge_v1(changed)
 
     def test_text_and_byte_like_values_are_refused(self):
-        current = LIB.read_bytes()
+        current = restore_host_native_schema18(LIB.read_bytes())
         for changed in (current.decode("utf-8"), bytearray(current), memoryview(current), None):
             with self.subTest(source_type=type(changed).__name__), self.assertRaises(ValueError):
                 restore_host_native_bridge_v1(changed)

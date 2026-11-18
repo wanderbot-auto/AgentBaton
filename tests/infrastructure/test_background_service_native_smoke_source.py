@@ -7,6 +7,7 @@ import tomllib
 import unittest
 
 from tests.infrastructure.host_native_bridge_source_fixture import restore_host_native_bridge_v1
+from tests.infrastructure.host_native_schema19_source_fixture import restore_host_native_schema18
 
 ROOT = Path(__file__).resolve().parents[2]
 DESKTOP_DEV_PROFILE_LAYER = '''# This is a separate Cargo workspace. Match the root's runtime-sensitive dev
@@ -290,7 +291,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
             function = original_function(lib, name)
             self.assertEqual(token_sha(function), command_pin, name)
             self.assertEqual(token_sha(strip_fixture_cfg(function)), production_pin, name)
-        predecessor = restore_host_native_bridge_v1(raw_lib).decode('utf-8')
+        predecessor = restore_host_native_bridge_v1(restore_host_native_schema18(raw_lib)).decode('utf-8')
         self.assertEqual(restored_parent_bridge_token_sha(predecessor), PARENT_BRIDGE_TOKEN_SHA256)
         self.assertEqual(hashlib.sha256(original_function(lib, 'ensure_daemon').encode()).hexdigest(),
                          PARENT_ENSURE_DAEMON_SHA256)
