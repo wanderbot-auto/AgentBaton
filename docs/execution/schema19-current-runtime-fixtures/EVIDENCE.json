@@ -1,0 +1,404 @@
+{
+  "baseline": {
+    "base": "becaef521b0470f0d9fd99c184307a4bab0a0768",
+    "environment": {
+      "CARGO_BUILD_JOBS": 3,
+      "CARGO_PROFILE_DEV_DEBUG": 0,
+      "architecture": "arm64"
+    },
+    "checks": {
+      "baseline-core": {
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "--",
+          "--exact",
+          "task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19",
+          "--test-threads=1"
+        ],
+        "exit_code": 101,
+        "seconds": 86.703,
+        "log_sha256": "494db7be0653c1c5f95601d44858e888716829b5e3d9ef4ef0ab46c266b837f6",
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 467 filtered out; finished in 0.99s",
+        "archive": "baseline-core.log.gz",
+        "archive_sha256": "df6df2223d2cb13449a69554cb1158e88e08528ae0fb208573f133a64acf1313"
+      },
+      "baseline-sessions": {
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "sessions_ipc",
+          "--",
+          "--exact",
+          "actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input",
+          "actual_graph_owner_fixture_original_grant_expiry_still_refuses_new_dispatch",
+          "actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_executor_is_connected",
+          "actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_hashes_or_authority",
+          "--test-threads=1"
+        ],
+        "exit_code": 101,
+        "seconds": 72.971,
+        "log_sha256": "32a09f71cf975873f612b0c29010219bb84ac8b577214090ddfa2a1d121bf31b",
+        "summary": "test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 59 filtered out; finished in 7.78s",
+        "archive": "baseline-sessions.log.gz",
+        "archive_sha256": "4ec71be739df45375fa7d6bf2ab3b5cd339f5d77eef65263e3788e264740c7de"
+      },
+      "baseline-command": {
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "command_validation",
+          "--",
+          "--exact",
+          "real_script_policy_worker_and_idempotent_history_are_scoped_and_persistent",
+          "--test-threads=1"
+        ],
+        "exit_code": 101,
+        "seconds": 5.184,
+        "log_sha256": "7fa6b24ee203ec4222af80086526647fe78b45588929aaedf289d6acaf9b3f55",
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.14s",
+        "archive": "baseline-command.log.gz",
+        "archive_sha256": "7d27079cfb3edda4d67ccaa65e98f9cca4ab67fc09fe60fe7c83ac187be2b86e"
+      }
+    }
+  },
+  "focused": {
+    "focused-core": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--exact",
+        "task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future20",
+        "task_workspace_binding::tests::version15_cannot_hide_a_new_semantic_field_even_when_null",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 66.909,
+      "log_sha256": "380fa84f830d0fb2fe178851963359f2717d0e38cedf0187940e7ef2e6c6c368",
+      "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 466 filtered out; finished in 0.39s",
+      "archive": "focused-core.log.gz",
+      "archive_sha256": "7fe4b5a9040a48b5d33d49179e346adf0b26a5605d8b7897292fe4f9d1b2037e"
+    },
+    "focused-sessions": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--exact",
+        "actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input",
+        "actual_graph_owner_fixture_original_grant_expiry_still_refuses_new_dispatch",
+        "actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_executor_is_connected",
+        "actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_hashes_or_authority",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "seconds": 1.57,
+      "log_sha256": "e5fce3125158ebb7bcc0087b74ee7a2e624d2f7f680a71af3e36e872179df79f",
+      "summary": null,
+      "archive": "focused-sessions.log.gz",
+      "archive_sha256": "cf40450abb8815e70026bb8297f14b3097498fc0012498965c4a2b91ff68de22"
+    },
+    "focused-command": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "command_validation",
+        "--",
+        "--exact",
+        "real_script_policy_worker_and_idempotent_history_are_scoped_and_persistent",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 5.447,
+      "log_sha256": "4dcf696879be7cbf5e2061a3cde2a31885826c7b173a42d52fc9f48546b90c7f",
+      "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 1.24s",
+      "archive": "focused-command.log.gz",
+      "archive_sha256": "4fc0ec8b1ece959a72437116a4be4d52bfb1feea2532623df8593187e86341f3"
+    },
+    "focused-sessions-retry": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--exact",
+        "actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input",
+        "actual_graph_owner_fixture_original_grant_expiry_still_refuses_new_dispatch",
+        "actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_executor_is_connected",
+        "actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_hashes_or_authority",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 59.125,
+      "log_sha256": "062d95eaa7c6b5359254ae3357161129264aab3ca5a70d042eec69de443cbf8f",
+      "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 59 filtered out; finished in 21.42s",
+      "archive": "focused-sessions-retry.log.gz",
+      "archive_sha256": "4f04359bd0f7098819e67d2bd233c2ce5f4ec302f0fbaaaea7b54d61d73f54b7"
+    }
+  },
+  "tested_source_head": "c80aa9aeea47b66a9128de044837dc76857f0a32",
+  "complete": {
+    "command": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "command_validation",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 36.15,
+      "log_sha256": "698d5ca8256e25b1add524bebceb6057b44be7678c94c1a309066b332b5e17ba",
+      "summary": "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 35.69s",
+      "archive": "command.log.gz",
+      "archive_sha256": "aecf4290270afd6811dce9191968b1b334cbaba8b34a447f21fa7831cd627db9",
+      "counts": {
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0
+      },
+      "failures": []
+    },
+    "sessions": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 169.697,
+      "log_sha256": "7522d85b5ce030f891bfce29ccd752f79fec498f56c7931a3606d2032b0397f3",
+      "summary": "test result: ok. 63 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 169.41s",
+      "archive": "sessions.log.gz",
+      "archive_sha256": "4d0591fed64e8ed851115b02e32ad1d3d283382449286f170e0c8354b30a7745",
+      "counts": {
+        "passed": 63,
+        "failed": 0,
+        "ignored": 0
+      },
+      "failures": []
+    },
+    "core-lib": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--show-output",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 273.879,
+      "log_sha256": "5ba1d234d3ef9e24113065bbc3859965e535c0a9fe6b5f7ddc7812e25b17bf47",
+      "summary": "test result: ok. 468 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 273.64s",
+      "archive": "core-lib.log.gz",
+      "archive_sha256": "f85b1cddfef4b6306470c8c96364cd82de04938f105c1ddec1a1cdf833af5d14",
+      "counts": {
+        "passed": 468,
+        "failed": 0,
+        "ignored": 0
+      },
+      "failures": []
+    },
+    "strict-clippy": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 18.476,
+      "log_sha256": "62f7a9305e3ac5ec3b3d71d26bcd363ea695ee4e8cf77174d9d18a6ed1c54970",
+      "summary": null,
+      "archive": "strict-clippy.log.gz",
+      "archive_sha256": "c991754347f43a3e654d0fdb6134e241ff9f79857922586006da4c21e3b088e2",
+      "failures": []
+    },
+    "fmt": {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 3.852,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": null,
+      "archive": "fmt.log.gz",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "failures": []
+    }
+  },
+  "graph_owner_phases": {
+    "after-enclosing-grant-approval": {
+      "schema": 19,
+      "expiry": 1795037217404,
+      "remaining": 29985,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-after-enclosing-grant-approval-07202bdf1cadecede502ca68797fc3f38a76822dcac2f114af9ab30c550bb9e9.json",
+        "sha256": "07202bdf1cadecede502ca68797fc3f38a76822dcac2f114af9ab30c550bb9e9"
+      }
+    },
+    "plan-ready": {
+      "schema": 19,
+      "expiry": 1795037217404,
+      "remaining": 29720,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-plan-ready-4658c261e2617d5a7b2447783b3564d7223f0bb2166d70ecf251c6459fd5c1ea.json",
+        "sha256": "4658c261e2617d5a7b2447783b3564d7223f0bb2166d70ecf251c6459fd5c1ea"
+      }
+    },
+    "graph-approved": {
+      "schema": 19,
+      "expiry": 1795037217404,
+      "remaining": 29538,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-graph-approved-d75ee2acd719a314b80fe82c32e7c07e00b1929d577956ff5094d18573ae5dc2.json",
+        "sha256": "d75ee2acd719a314b80fe82c32e7c07e00b1929d577956ff5094d18573ae5dc2"
+      }
+    },
+    "first-owner-ready": {
+      "schema": 19,
+      "expiry": 1795037217404,
+      "remaining": 29367,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-first-owner-ready-ef6611b0bee93c66e34ee4e9967e0a4ddd829080b738da4f515b09a2590529f4.json",
+        "sha256": "ef6611b0bee93c66e34ee4e9967e0a4ddd829080b738da4f515b09a2590529f4"
+      }
+    },
+    "first-owner-before-finalize": {
+      "schema": 19,
+      "expiry": 1795037217404,
+      "remaining": 29304,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-first-owner-before-finalize-0f127a7c9c826d21c9e0da165ffb68b192bd0eb6396f2ae0e9e87fa7183ff81f.json",
+        "sha256": "0f127a7c9c826d21c9e0da165ffb68b192bd0eb6396f2ae0e9e87fa7183ff81f"
+      }
+    },
+    "first-owner-after-finalize": {
+      "schema": 19,
+      "expiry": 1795037217404,
+      "remaining": 29262,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-first-owner-after-finalize-d96c47c6f04e60dd13a3b6acd4afad0f46e3b04e4f3dea9ce868b62aaea2bed0.json",
+        "sha256": "d96c47c6f04e60dd13a3b6acd4afad0f46e3b04e4f3dea9ce868b62aaea2bed0"
+      }
+    },
+    "second-owner-before-finalize": {
+      "schema": 19,
+      "expiry": 1795037217404,
+      "remaining": 28894,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-second-owner-before-finalize-8576175bb790498433fac2e99bcb600f167ef4d4a5244314e9d83f8eaa9c22de.json",
+        "sha256": "8576175bb790498433fac2e99bcb600f167ef4d4a5244314e9d83f8eaa9c22de"
+      }
+    },
+    "second-owner-after-finalize": {
+      "schema": 19,
+      "expiry": 1795037217404,
+      "remaining": 28840,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-second-owner-after-finalize-22edb397694a54569b03af8b68f1db54dc51788908bda98c5cdab62184c67e65.json",
+        "sha256": "22edb397694a54569b03af8b68f1db54dc51788908bda98c5cdab62184c67e65"
+      }
+    },
+    "original10s-expiry-start": {
+      "schema": 19,
+      "expiry": 1795037199943,
+      "remaining": 9992,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-original10s-expiry-start-de75b354ab380440b0ddd3a3735ee8c4b319e0e5b0619c67696d0332714bacf2.json",
+        "sha256": "de75b354ab380440b0ddd3a3735ee8c4b319e0e5b0619c67696d0332714bacf2"
+      }
+    },
+    "original10s-expiry-refused": {
+      "schema": 19,
+      "expiry": 1795037199943,
+      "remaining": -17,
+      "artifact": {
+        "path": "artifacts/goal-validation-graph/owner-grant-original10s-expiry-refused-4c2a4533ca350e81e46d3a4ea3982bea439357be5fb9243f6a35844935edffa4.json",
+        "sha256": "4c2a4533ca350e81e46d3a4ea3982bea439357be5fb9243f6a35844935edffa4"
+      }
+    }
+  },
+  "preserved_source_controls": {
+    "clock_only_expected_schema_changed": true,
+    "command_after_current_database_probe_byte_identical": true,
+    "task_workspace_unentered_controls_byte_identical": true
+  },
+  "historical_future19": {
+    "receipt": "docs/execution/schema17-rust-gate/historical-daemon-receipt.json",
+    "sha256": "4f8fb5ade8f9d2aefe2a3f761d6fb38e4754a8145c58ce7037e7ac98c950c3b4",
+    "source": "a4e03303b54bd5a5544131e95ad39662f8310e29"
+  },
+  "workspace": {
+    "status": "not_run",
+    "prior_prerequisite_evidence": "docs/execution/schema17-rust-gate/EVIDENCE.json",
+    "prior_prerequisite_head": "dff96b7006a44f54c6cb254cf882eb735b2c8f81",
+    "same_tool_workflow_and_store_schema_paths": true,
+    "prior_observed_schema": 19
+  }
+}
