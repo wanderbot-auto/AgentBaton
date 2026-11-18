@@ -5,7 +5,7 @@ use agentbaton_core::{
     sessions::Supervisor,
     storage::{Store, TaskState},
 };
-use rusqlite::Connection;
+use rusqlite::{Connection, OpenFlags};
 use std::{
     fs,
     os::unix::fs::{OpenOptionsExt, PermissionsExt},
@@ -102,13 +102,22 @@ impl Fixture {
         fs::create_dir(&managed).unwrap();
         fs::set_permissions(&managed, fs::Permissions::from_mode(0o700)).unwrap();
         let mut store = Store::open(&db).unwrap();
+        let database = Connection::open_with_flags(&db, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
         assert_eq!(
-            Connection::open(&db)
-                .unwrap()
+            database
                 .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
                 .unwrap(),
-            18
+            19
         );
+        assert_eq!(
+            database
+                .query_row("SELECT count(*) FROM host_registrations", [], |r| {
+                    r.get::<_, u32>(0)
+                })
+                .unwrap(),
+            0
+        );
+        drop(database);
         let p = store
             .import_project(&source, "Admission fixture", "project")
             .unwrap();
