@@ -348,12 +348,24 @@ fn ready_copy_survives_deleted_original_and_restart_without_touching_model_budge
         )["state"],
         "ready"
     );
-    let database = rusqlite::Connection::open(f.runtime.join("baton.sqlite3")).unwrap();
+    let database = rusqlite::Connection::open_with_flags(
+        f.runtime.join("baton.sqlite3"),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+    )
+    .unwrap();
     assert_eq!(
         database
             .pragma_query_value::<u32, _>(None, "user_version", |r| r.get(0))
             .unwrap(),
-        18
+        19
+    );
+    assert_eq!(
+        database
+            .query_row("SELECT count(*) FROM host_registrations", [], |r| {
+                r.get::<_, u32>(0)
+            })
+            .unwrap(),
+        0
     );
     assert_eq!(
         database

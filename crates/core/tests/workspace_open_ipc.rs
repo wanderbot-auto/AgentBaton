@@ -98,7 +98,7 @@ fn image(db: &Connection) -> Vec<(String, Vec<Vec<SqlValue>>)> {
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
     let mut names = db
         .prepare("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")
@@ -126,6 +126,12 @@ fn image(db: &Connection) -> Vec<(String, Vec<Vec<SqlValue>>)> {
             .unwrap();
         image.push((name, rows));
     }
+    assert!(
+        image
+            .iter()
+            .any(|(name, rows)| name == "host_registrations" && rows.is_empty()),
+        "Database image must include an empty Host registry"
+    );
     image
 }
 fn execution_counts(db: &Connection) -> Vec<(&'static str, i64)> {

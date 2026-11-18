@@ -1,0 +1,35 @@
+--- crates/core/tests/migration_v6.rs
++++ diagnostic-v6.rs
+@@ -1 +1 @@
+-#[path = "fixtures/pre_factory_schema.rs"]
++#[path = "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema19-default-rust-workspace/crates/core/tests/fixtures/pre_factory_schema.rs"]
+@@ -3 +3 @@
+-#[path = "fixtures/schema19_legacy_migration.rs"]
++#[path = "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema19-default-rust-workspace/crates/core/tests/fixtures/schema19_legacy_migration.rs"]
+@@ -155,0 +156 @@
++    record_files(&database, "before");
+@@ -162 +163,2 @@
+-    assert!(database_bytes(&database) == before);
++    record_files(&database, "after");
++    println!("original physical equality: {}", database_bytes(&database) == before);
+@@ -164,0 +167 @@
++    println!("checking full original logical equality");
+@@ -206,0 +210,18 @@
++
++fn record_files(path: &std::path::Path, boundary: &str) {
++    let output = std::path::PathBuf::from(std::env::var_os("AB_SCHEMA19_RAW_DIAGNOSTIC").unwrap());
++    for (name, suffix) in [("main", ""), ("wal", "-wal"), ("shm", "-shm")] {
++        let mut source = path.as_os_str().to_os_string();
++        source.push(suffix);
++        match std::fs::read(source) {
++            Ok(bytes) => {
++                println!("{boundary} {name}: present, {} bytes", bytes.len());
++                std::fs::write(output.join(format!("{boundary}-{name}")), bytes).unwrap();
++            }
++            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
++                println!("{boundary} {name}: absent");
++            }
++            Err(error) => panic!("{boundary} {name}: {error}"),
++        }
++    }
++}
