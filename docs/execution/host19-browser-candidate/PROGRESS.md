@@ -21,3 +21,7 @@ the two desktop terminal screenshots were reviewed. Owned processes are gone.
 
 The source scope and integration preview passed. Proof and archive are ready
 for independent review.
+
+Leader independently accepted local browser verification and historical
+source restoration at `d8a1b20e296bfc63fcad1a22ab88047065aef377` and authorized releasing all nine
+reservations. The two task documents record the handoff decision.

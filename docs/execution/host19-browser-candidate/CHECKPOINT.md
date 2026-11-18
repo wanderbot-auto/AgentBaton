@@ -19,3 +19,14 @@
 - Independent review pending. The in-app leader transport returned repeated
   connection errors. Eight source file claims plus the evidence directory
   remain active until documented handoff.
+
+## Independent acceptance
+
+Leader independently accepted delivery `d8a1b20e296bfc63fcad1a22ab88047065aef377` and tested source
+`c79a31fbc54f9dff846cfaeccbfb8a93b9e86043` for the local Chromium normal and command-failure cases and
+historical driver provenance. The 37 archived items and 37 local artifacts,
+including 12 PNGs, were rechecked against their hashes. Leader authorized
+`scripts/collab.sh finish --handoff` for the nine task reservations.
+This follow-up records the decision in task documents. The worktree,
+branch and local artifacts are retained. CI, evidence projection and the
+optional notification browser entry remain separate.
