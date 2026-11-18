@@ -51,6 +51,7 @@ export const hostMessages = {
     acknowledge: 'Acknowledge registration',
     unresolved: 'No receipt was found for the original request. It may still commit.',
     acknowledged: 'Registration acknowledged.',
+    verifiedClear: 'The original receipt still matches and the private recovery journal is empty.',
     recheck: 'Acknowledgement is unresolved. Check the original registration again.',
     issues: {
       unsupported: 'The local daemon does not support this Host registry version.',
@@ -118,6 +119,7 @@ export const hostMessages = {
     acknowledge: '确认登记回执',
     unresolved: '尚未查到原请求的回执，原请求仍可能提交。',
     acknowledged: '登记回执已确认。',
+    verifiedClear: '已核实原登记回执，私有恢复日志为空。',
     recheck: '确认结果尚不明确，请重新核对原登记。',
     issues: {
       unsupported: '本机后台不支持此主机登记版本。',

@@ -281,3 +281,124 @@ it('allows a new attempt only after an explicit pre-dispatch refusal and a succe
   expect(api.register).toHaveBeenCalledTimes(1);
   expect(api.reconcile).not.toHaveBeenCalled();
 });
+
+it('recovers a lost acknowledgement reply on reopen only after the saved receipt and empty journal are both verified', async () => {
+  api.pending.mockResolvedValue(pending());
+  api.reconcile.mockResolvedValue(receipt());
+  api.get.mockResolvedValue(record(metadata.name));
+  api.acknowledge.mockImplementation(async () => {
+    api.pending.mockResolvedValue(null);
+    throw new Error('reply lost after journal clear');
+  });
+  render(<Harness />);
+  open();
+  fireEvent.click(await screen.findByRole('button', { name: en.acknowledge }));
+  expect(await screen.findByText(en.issues.local)).toBeVisible();
+  expect(screen.getByRole('button', { name: en.register })).toBeDisabled();
+
+  const disclosure = screen.getByText(en.title, { selector: 'summary' }).closest('details')!;
+  disclosure.open = false;
+  fireEvent(disclosure, new Event('toggle'));
+  open();
+  expect(await screen.findByText(en.verifiedClear)).toBeVisible();
+  expect(screen.queryByText(en.acknowledged)).toBeNull();
+  expect(screen.getByRole('region', { name: en.registered })).toHaveTextContent(id);
+  await waitFor(() => expect(screen.getByRole('button', { name: en.register })).toBeEnabled());
+  expect(api.get.mock.calls).toEqual([[id]]);
+  expect(api.pending).toHaveBeenCalledTimes(3);
+  expect(api.pending.mock.invocationCallOrder[1]).toBeLessThan(api.get.mock.invocationCallOrder[0]);
+  expect(api.get.mock.invocationCallOrder[0]).toBeLessThan(api.pending.mock.invocationCallOrder[2]);
+  expect(api.acknowledge).toHaveBeenCalledTimes(1);
+  expect(api.retry).not.toHaveBeenCalled();
+  expect(api.register).not.toHaveBeenCalled();
+});
+
+it.each([
+  ['ID', { id: otherId }],
+  ['creation key', { creation_key: otherId }],
+  ['creation sequence', { created_sequence: 29 }],
+  ['creation time', { created_at: '2025-03-01T00:00:00Z' }],
+  ['registration', { registration: { ...metadata, name: 'Unrelated Host' } }],
+] satisfies [string, Partial<HostRecord>][])(
+  'does not release a lost acknowledgement for a mismatched registry %s', async (_, changed) => {
+    api.pending.mockResolvedValue(pending());
+    api.reconcile.mockResolvedValue(receipt());
+    api.acknowledge.mockResolvedValue(false);
+    api.get.mockResolvedValue({ ...record(metadata.name), ...changed });
+    render(<Harness />);
+    open();
+    fireEvent.click(await screen.findByRole('button', { name: en.acknowledge }));
+    expect(await screen.findByText(en.recheck)).toBeVisible();
+    api.pending.mockResolvedValue(null);
+    fireEvent.click(screen.getByRole('button', { name: en.check }));
+    expect(await screen.findByText(en.issues.conflict)).toBeVisible();
+    expect(screen.getByRole('button', { name: en.register })).toBeDisabled();
+    expect(screen.getByRole('region', { name: en.registered })).toHaveTextContent(id);
+    expect(api.get.mock.calls).toEqual([[id]]);
+    expect(api.pending).toHaveBeenCalledTimes(2);
+    expect(api.acknowledge).toHaveBeenCalledTimes(1);
+  },
+);
+
+it('keeps the capture when registry verification fails or the empty journal is replaced', async () => {
+  api.pending.mockResolvedValue(pending());
+  api.reconcile.mockResolvedValue(receipt());
+  api.acknowledge.mockResolvedValue(false);
+  api.get.mockRejectedValueOnce(new DaemonError('AUTH_REQUIRED', 'auth', 'not_started'))
+    .mockResolvedValueOnce(record(metadata.name));
+  render(<Harness />);
+  open();
+  fireEvent.click(await screen.findByRole('button', { name: en.acknowledge }));
+  expect(await screen.findByText(en.recheck)).toBeVisible();
+
+  api.pending.mockResolvedValue(null);
+  fireEvent.click(screen.getByRole('button', { name: en.check }));
+  expect(await screen.findByText(en.issues.auth)).toBeVisible();
+  expect(screen.getByRole('button', { name: en.register })).toBeDisabled();
+
+  api.pending.mockResolvedValueOnce(null).mockResolvedValueOnce({ ...pending(), entry_id: otherId });
+  fireEvent.click(screen.getByRole('button', { name: en.check }));
+  expect(await screen.findByText(en.issues.conflict)).toBeVisible();
+  expect(screen.getByRole('button', { name: en.register })).toBeDisabled();
+  expect(screen.getByRole('region', { name: en.registered })).toHaveTextContent(id);
+  expect(api.acknowledge).toHaveBeenCalledTimes(1);
+  expect(api.retry).not.toHaveBeenCalled();
+  expect(api.register).not.toHaveBeenCalled();
+});
+
+it('keeps a displayed receipt when the journal is empty but the user never acknowledged it', async () => {
+  api.pending.mockResolvedValue(pending());
+  api.reconcile.mockResolvedValue(receipt());
+  render(<Harness />);
+  open();
+  expect(await screen.findByRole('button', { name: en.acknowledge })).toBeVisible();
+  api.pending.mockResolvedValue(null);
+  fireEvent.click(screen.getByRole('button', { name: en.check }));
+  expect(await screen.findByText(en.recheck)).toBeVisible();
+  expect(screen.getByRole('button', { name: en.register })).toBeDisabled();
+  expect(api.get).not.toHaveBeenCalled();
+  expect(api.acknowledge).not.toHaveBeenCalled();
+});
+
+it('requires a successful registry page on each connection before enabling fresh registration', async () => {
+  const second = deferred<HostPage>();
+  api.list.mockRejectedValueOnce(new DaemonError('CAPABILITY_UNSUPPORTED', 'old API', 'not_started'))
+    .mockResolvedValueOnce({ hosts: [record('Read successfully')], next_created_sequence: null })
+    .mockReturnValueOnce(second.promise);
+  const harness = render(<Harness />);
+  open();
+  expect(await screen.findByText(new RegExp(en.issues.unsupported))).toBeVisible();
+  const submit = screen.getByRole('button', { name: en.register });
+  expect(submit).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: en.refresh }));
+  await waitFor(() => expect(submit).toBeEnabled());
+
+  harness.rerender(<Harness connected={false} />);
+  expect(submit).toBeDisabled();
+  harness.rerender(<Harness connected />);
+  await waitFor(() => expect(api.list).toHaveBeenCalledTimes(3));
+  expect(submit).toBeDisabled();
+  await act(async () => second.resolve({ hosts: [], next_created_sequence: null }));
+  await waitFor(() => expect(submit).toBeEnabled());
+  expect(api.register).not.toHaveBeenCalled();
+});

@@ -15,6 +15,7 @@ interface Capture {
   confirmed?: HostSubmission;
   failure?: HostIssue;
   refused?: boolean;
+  acknowledgementAttempted?: boolean;
 }
 
 interface HostSession {
@@ -29,7 +30,7 @@ export function useHostRegistrationSession() {
 
 type Session = ReturnType<typeof useHostRegistrationSession>;
 type Copy = (typeof hostMessages)[Language];
-type Phase = 'reading' | 'empty' | 'pending' | 'unresolved' | 'confirmed' | 'blocked' | 'cleared';
+type Phase = 'reading' | 'empty' | 'pending' | 'unresolved' | 'confirmed' | 'blocked' | 'cleared' | 'verifiedClear';
 type Problem = HostIssue | 'recheck';
 interface Recovery {
   phase: Phase;
@@ -75,10 +76,18 @@ function matchesCapture(capture: Capture, intent: HostIntent): boolean {
 
 function rememberReceipt(session: Session, intent: HostIntent, receipt: HostReceipt): HostSubmission {
   const confirmed = { entry_id: intent.entry_id, receipt };
+  const previous = session.current.capture;
   session.current.capture = {
     key: intent.request_key, registration: intent.registration, entryId: intent.entry_id, confirmed,
+    acknowledgementAttempted: previous?.entryId === intent.entry_id ? previous.acknowledgementAttempted : undefined,
   };
   return confirmed;
+}
+
+function matchesReceipt(record: HostRecord, key: string, receipt: HostReceipt): boolean {
+  return record.id === receipt.host_id && record.creation_key === key &&
+    record.created_sequence === receipt.created_sequence && record.created_at === receipt.created_at &&
+    sameHostRegistration(record.registration, receipt.registration);
 }
 
 function Metadata({ registration: r, copy }: { registration: HostRegistration; copy: Copy }) {
@@ -229,6 +238,7 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
   const [formVersion, setFormVersion] = useState(0);
   const [inventory, setInventory] = useState<HostPage | null>(null);
   const [listing, setListing] = useState(false);
+  const [registryReady, setRegistryReady] = useState(false);
   const [listIssue, setListIssue] = useState<HostIssue | null>(null);
   const [detail, setDetail] = useState<{ record: HostRecord; loading: boolean; failure?: HostIssue } | null>(null);
 
@@ -236,6 +246,7 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
     if (!daemonConnected) return;
     const token = ++listRead.current;
     setListing(true);
+    if (after === null) setRegistryReady(false);
     setListIssue(null);
     try {
       const result = await hostsApi.list(after);
@@ -246,8 +257,12 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
         if (result.hosts.some(host => ids.has(host.id) || keys.has(host.creation_key))) throw new HostWireError('conflict');
       }
       setInventory(previous ? { ...result, hosts: [...previous.hosts, ...result.hosts] } : result);
+      if (after === null) setRegistryReady(true);
     } catch (error) {
-      if (token === listRead.current) setListIssue(failure(error, 'badResult'));
+      if (token === listRead.current) {
+        setRegistryReady(false);
+        setListIssue(failure(error, 'badResult'));
+      }
     } finally {
       if (token === listRead.current) setListing(false);
     }
@@ -274,6 +289,19 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
       }
       const capture = session.current.capture;
       if (!intent) {
+        if (capture?.acknowledgementAttempted && capture.confirmed && daemonConnected) {
+          const { confirmed } = capture;
+          const registered = await hostsApi.get(confirmed.receipt.host_id);
+          if (!current()) return;
+          if (!matchesReceipt(registered, capture.key, confirmed.receipt)) throw new HostWireError('conflict');
+          const stillPending = await hostsApi.pending();
+          if (!current()) return;
+          if (stillPending !== null || session.current.capture !== capture) throw new HostWireError('conflict');
+          session.current.capture = null;
+          setRecovery({ intent: null, confirmed, phase: 'verifiedClear' });
+          setFormVersion(version => version + 1);
+          return;
+        }
         if (capture?.refused) session.current.capture = null;
         const remaining = session.current.capture;
         setRecovery(state => ({
@@ -321,6 +349,7 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
   useLayoutEffect(() => {
     let open = true;
     recoveryBusy.current = true;
+    setRegistryReady(false);
     queueMicrotask(() => {
       if (!open) return;
       setListing(false);
@@ -367,8 +396,7 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
   }
 
   function register(registration: HostRegistration) {
-    if (recovery.phase !== 'empty' && recovery.phase !== 'cleared') return;
-    if (session.current.capture) return;
+    if (!ready || session.current.capture) return;
     void write(async () => {
       const capture: Capture = { key: crypto.randomUUID(), registration };
       session.current.capture = capture;
@@ -399,9 +427,12 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
 
   function acknowledge(confirmed: HostSubmission) {
     if (recovery.phase !== 'confirmed' || recovery.intent?.entry_id !== confirmed.entry_id) return;
+    const capture = session.current.capture;
+    if (!capture || capture.confirmed !== confirmed) return;
     void write(async () => {
+      capture.acknowledgementAttempted = true;
       const cleared = await hostsApi.acknowledge(confirmed.entry_id, confirmed.receipt);
-      if (cleared && session.current.capture?.entryId === confirmed.entry_id) session.current.capture = null;
+      if (cleared && session.current.capture === capture) session.current.capture = null;
       return cleared;
     }, cleared => {
       if (cleared) {
@@ -415,7 +446,8 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
 
   const { phase, intent, confirmed, captured, problem } = recovery;
   const original = captured?.registration ?? intent?.registration;
-  const ready = daemonConnected && (phase === 'empty' || phase === 'cleared') && !captured;
+  const ready = daemonConnected && registryReady && !captured &&
+    (phase === 'empty' || phase === 'cleared' || phase === 'verifiedClear');
   return <section aria-label={copy.title}>
     {!daemonConnected && <p role="status">{copy.disconnected}</p>}
     <h3>{copy.inventory}</h3>
@@ -455,6 +487,7 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
         created={confirmed.receipt.created_at} registration={confirmed.receipt.registration} copy={copy} />
       {phase === 'confirmed' && <button type="button" disabled={!daemonConnected} onClick={() => acknowledge(confirmed)}>{copy.acknowledge}</button>}
       {phase === 'cleared' && <p role="status">{copy.acknowledged}</p>}
+      {phase === 'verifiedClear' && <p role="status">{copy.verifiedClear}</p>}
     </section>}
     <HostForm key={formVersion} copy={copy} disabled={!ready} onRegister={register} />
   </section>;
