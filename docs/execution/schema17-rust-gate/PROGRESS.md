@@ -9,3 +9,5 @@ Historical exact-18 setup uses the existing pre_host_schema::remove_empty_host19
 The leader independently ran the frozen historical ARM64 daemon and CLI from accepted a4e03303. The ordinary default test executes the checked source prefix without requiring those separately built tools. The leader receipt is archived verbatim.
 
 Candidate dff96b7006a44f54c6cb254cf882eb735b2c8f81 passed the Apple Silicon CI workspace binary build. The unchanged preparation script received API 1, schema 19 and sequence 0 from those tools, then refused the database at its exact schema18 guard. The owned daemon stopped and was joined cleanly. The workspace test command was not reached. The leader reproduced the same earliest blocker independently on the baseline. Nine other default Core targets remain separate; the leader reproduced 30 failures in 37 tests on the baseline. No workflow, production modules or shared fixtures changed.
+
+Leader independently reran four actual migration targets on dff96b7006a44f54c6cb254cf882eb735b2c8f81. All 34 tests passed. The review log is archived. The leader authorized handoff with the clean diagnosis and frozen test sources.

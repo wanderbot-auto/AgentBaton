@@ -10,3 +10,6 @@ ci_workspace=normal binaries built; unchanged prepare-factory-test-tools refused
 next=leader integration review and separate authorization for tool freezer plus nine legacy test targets
 processes=own validation commands complete; CI probe daemon joined and verified absent
 publication=local reserved branch, final exact source and scope/preview in handoff; integration managed by leader
+
+leader_independent_review=34 passed across four migration targets on tested_implementation_head; raw log archived
+handoff=leader authorized release after final commit, clean scope and conflict preview; branch, worktree and evidence retained

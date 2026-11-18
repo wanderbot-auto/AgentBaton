@@ -243,5 +243,19 @@
       "migration_v7",
       "storage"
     ]
+  },
+  "leader_independent_review": {
+    "head": "dff96b7006a44f54c6cb254cf882eb735b2c8f81",
+    "source": "/private/tmp/ab-a-schema17-review.4jIDdnhb/cargo.log",
+    "exit_code": 0,
+    "counts": {
+      "conversation_schema18": 6,
+      "host_registry_migration": 4,
+      "host_schema19_fixture": 8,
+      "integration_schema17": 16
+    },
+    "archive": "leader-independent-review.log.gz",
+    "raw_log_sha256": "cb8b0d712e03655b0d16d288a1d2fd3eae417706cf2d63c0f001aeee27a04855",
+    "archive_sha256": "dd2ef85f0aaf9e0d7673fb95bb93c400d9fa0c6f1af10e389e74793d9ee856a3"
   }
 }
