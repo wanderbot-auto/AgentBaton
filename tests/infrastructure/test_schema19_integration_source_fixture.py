@@ -29,7 +29,8 @@ class Schema19IntegrationSourceFixtureTests(unittest.TestCase):
                 self.assertNotEqual(raw, restored)
                 self.assertEqual(sha256(restored).hexdigest(), expected)
                 self.assertEqual(read_schema18_source(ROOT, source).encode("utf-8"), restored)
-                self.assertEqual(restore_schema18_source(path, restored), restored)
+                with self.assertRaises(AssertionError):
+                    restore_schema18_source(path, restored)
                 self.assertEqual(source.read_bytes(), raw)
 
     def test_actual_candidate_runs_unchanged_historical_chains(self):

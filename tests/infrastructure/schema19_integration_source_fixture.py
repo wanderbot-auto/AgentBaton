@@ -43,17 +43,14 @@ _SOURCES = {
 
 
 def restore_schema18_source(path: str, source: bytes) -> bytes:
-    """Restore the pinned current source, or recognize its exact predecessor."""
+    """Restore only the pinned current schema19 source."""
     if type(path) is not str or path not in _SOURCES:
         raise AssertionError("Unknown Integration source path")
     if type(source) is not bytes or not 0 < len(source) <= _MAX_SOURCE_BYTES:
         raise AssertionError("Integration source must be bounded raw bytes")
 
     current_sha, predecessor_sha, anchors = _SOURCES[path]
-    digest = sha256(source).hexdigest()
-    if digest == predecessor_sha:
-        return source
-    if digest != current_sha:
+    if sha256(source).hexdigest() != current_sha:
         raise AssertionError("Unknown exact schema19 Integration source")
 
     restored = source
