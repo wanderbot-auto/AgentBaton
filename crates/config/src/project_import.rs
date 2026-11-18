@@ -1,4 +1,4 @@
-//! Read-only project configuration review and one confirmed managed snapshot.
+//! Read-only project configuration review and approved managed snapshots.
 //! Project source files do not confer authority. The trusted caller resolves
 //! project identity, current input revisions, non-secret text classification,
 //! eligible registered MCP definitions, and the original approval.
@@ -6,16 +6,17 @@ use crate::{
     capabilities::{
         native::{
             DiscoveryLimits, InstructionOnlySkillMetadata, NativeFormat, NativeSourceRoot,
-            NativeTransport, ParseStatus, SkillDialect,
+            NativeTransport, ParseStatus, SkillDialect, SkillDiscovery,
         },
         ProviderRevision, SourceDescriptor, SourceKind,
     },
-    error, io_error, load_report, open_dir_at, open_private, read_at,
+    error, io_error, load_report, open_dir_at, open_private, outcome_unknown, read_at,
     runtime::{
         ManagedMcpServer, ManagedMcpTransport, NonSecretText, RuntimePlan, RuntimeProvider,
         SelectedSkill, SourceProvenance,
     },
-    sha256, Edit, ErrorCode, FileState, LockGuard, ManagedRoot, Phase, Result, MAX_BYTES,
+    save_report, sha256, write_new, Edit, ErrorCode, FileReport, FileState, LockGuard, ManagedRoot,
+    Phase, Report, Result, MAX_BYTES,
 };
 use rustix::fs::{self as rfs, AtFlags, FileType, Mode, OFlags};
 use serde::{Deserialize, Serialize};
@@ -222,7 +223,7 @@ pub struct ProjectImportReview {
     pub new_runtime_required: bool,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ProjectImportSelectionPreview {
     pub capability: ProjectCapabilityKey,
     pub managed_provenance: SourceProvenance,
@@ -252,6 +253,7 @@ struct Inspection {
     preview: ProjectImportInspection,
     skills: BTreeMap<ProjectCapabilityKey, (InstructionOnlySkillMetadata, String)>,
     mcp: BTreeMap<ProjectCapabilityKey, NativeTransport>,
+    skill_catalogs: BTreeMap<ProjectSource, SkillDiscovery>,
 }
 
 fn identifier(value: &str) -> bool {
@@ -385,6 +387,7 @@ fn inspect_pinned(root: &File, policy: &ProjectImportPolicy) -> Result<Inspectio
         },
         skills: BTreeMap::new(),
         mcp: BTreeMap::new(),
+        skill_catalogs: BTreeMap::new(),
     };
     for source in &policy.sources {
         let (source_id, relative, source_type) = source.locator();
@@ -422,7 +425,7 @@ fn inspect_pinned(root: &File, policy: &ProjectImportPolicy) -> Result<Inspectio
                     summary
                         .diagnostics
                         .extend(discovery.diagnostics.iter().map(|d| d.code.clone()));
-                    for skill in discovery.skills {
+                    for skill in &discovery.skills {
                         let key = ProjectCapabilityKey {
                             source: *source,
                             kind: ProjectCapabilityKind::Skill,
@@ -450,10 +453,11 @@ fn inspect_pinned(root: &File, policy: &ProjectImportPolicy) -> Result<Inspectio
                         inspection.preview.candidates.push(candidate(
                             key,
                             safe_name(skill.name.as_deref().unwrap_or(&skill.directory_name)),
-                            skill.source_digest,
+                            skill.source_digest.clone(),
                             admission,
                         ));
                     }
+                    inspection.skill_catalogs.insert(*source, discovery);
                 }
                 SourceType::Document(format) => {
                     let document = reader.read_native(descriptor, path, format)?;
@@ -593,13 +597,7 @@ fn prepare(request: &ProjectImportRequest<'_>) -> Result<(ProjectImportReview, V
     if !canonical_uuid(request.proposal_id) || request.choices.len() > 32 {
         return Err(error(ErrorCode::Conflict));
     }
-    if request
-        .managed_project_root
-        .starts_with(&request.scope.root)
-        || request.scope.root.starts_with(request.managed_project_root)
-    {
-        return Err(error(ErrorCode::PermissionDenied));
-    }
+    require_disjoint(&request.scope.root, request.managed_project_root)?;
     let target = target_root(request.managed_project_root)?;
     let (managed_root_device, managed_root_inode) = pin(&target)?;
     let inspection = inspect(request.scope, request.policy)?;
@@ -728,9 +726,12 @@ fn approved_target(path: &Path, approval: &ConfirmedProjectImport<'_>) -> Result
     Ok(root)
 }
 
-fn observed_state(
+fn observed_snapshot(
     root: &File,
-    binding: &ProjectImportBinding,
+    relative: &Path,
+    transaction_id: &str,
+    digest: &str,
+    valid_contents: impl FnOnce(&[u8]) -> bool,
 ) -> Result<(ProjectImportState, bool)> {
     use ProjectImportState as State;
     let lock = match rfs::statat(root, ".baton-config.lock", AtFlags::SYMLINK_NOFOLLOW) {
@@ -745,7 +746,7 @@ fn observed_state(
         Ok(guard) => guard,
         Err(_) => return Ok((State::NeedsReconciliation, true)),
     };
-    let current = match read_at(root, Path::new(SNAPSHOT)) {
+    let current = match read_at(root, relative) {
         Ok(bytes) => bytes,
         Err(_) => return Ok((State::NeedsReconciliation, true)),
     };
@@ -757,17 +758,13 @@ fn observed_state(
             Err(_) => return Err(error(ErrorCode::Io)),
         }
         let journals = open_dir_at(root, Path::new(".baton-transactions"))?;
-        match rfs::statat(
-            &journals,
-            binding.proposal_id.as_str(),
-            AtFlags::SYMLINK_NOFOLLOW,
-        ) {
+        match rfs::statat(&journals, transaction_id, AtFlags::SYMLINK_NOFOLLOW) {
             Err(rustix::io::Errno::NOENT) => return Ok(None),
             Ok(_) => {}
             Err(_) => return Err(error(ErrorCode::Io)),
         }
-        let journal = open_dir_at(&journals, Path::new(&binding.proposal_id))?;
-        load_report(&journal, &binding.proposal_id).map(Some)
+        let journal = open_dir_at(&journals, Path::new(transaction_id))?;
+        load_report(&journal, transaction_id).map(Some)
     })();
     let report = match journal {
         Ok(None) if current.is_none() => return Ok((State::NotApplied, false)),
@@ -778,9 +775,9 @@ fn observed_state(
         return Ok((State::NeedsReconciliation, true));
     };
     if (report.root_device, report.root_inode) != pin(root)?
-        || file.relative_path != Path::new(SNAPSHOT)
+        || file.relative_path != relative
         || file.before_sha256.is_some()
-        || file.after_sha256 != binding.snapshot_sha256
+        || file.after_sha256 != digest
         || matches!(
             report.phase,
             Phase::RollingBack | Phase::RolledBack | Phase::Conflict
@@ -789,18 +786,8 @@ fn observed_state(
         return Ok((State::NeedsReconciliation, true));
     }
     match current.as_deref() {
-        Some(bytes) if sha256(bytes) == binding.snapshot_sha256 => {
-            #[derive(Deserialize)]
-            struct Header {
-                schema_version: u32,
-                proposal_id: String,
-                scope: ProjectImportScope,
-            }
-            if !serde_json::from_slice::<Header>(bytes).is_ok_and(|header| {
-                header.schema_version == VERSION
-                    && header.proposal_id == binding.proposal_id
-                    && header.scope.project_id == binding.project_id
-            }) {
+        Some(bytes) if sha256(bytes) == digest => {
+            if !valid_contents(bytes) {
                 return Ok((State::NeedsReconciliation, true));
             }
             // A crash can leave an applying journal after publication. The
@@ -823,6 +810,31 @@ fn observed_state(
     }
 }
 
+fn observed_state(
+    root: &File,
+    binding: &ProjectImportBinding,
+) -> Result<(ProjectImportState, bool)> {
+    #[derive(Deserialize)]
+    struct Header {
+        schema_version: u32,
+        proposal_id: String,
+        scope: ProjectImportScope,
+    }
+    observed_snapshot(
+        root,
+        Path::new(SNAPSHOT),
+        &binding.proposal_id,
+        &binding.snapshot_sha256,
+        |bytes| {
+            serde_json::from_slice::<Header>(bytes).is_ok_and(|header| {
+                header.schema_version == VERSION
+                    && header.proposal_id == binding.proposal_id
+                    && header.scope.project_id == binding.project_id
+            })
+        },
+    )
+}
+
 /// Point-in-time reconciliation of the approved destination receipt and exact
 /// bytes. No uncertain write is replayed; first-import snapshots are immutable.
 pub fn recover_project_import(
@@ -840,34 +852,49 @@ pub fn read_imported_project_plan(
     path: &Path,
     approval: &ConfirmedProjectImport<'_>,
 ) -> Result<Option<RuntimePlan>> {
-    #[derive(Deserialize)]
-    struct StoredPlan {
-        schema_version: u32,
-        proposal_id: String,
-        scope: ProjectImportScope,
-        runtime_plan_sha256: String,
-        runtime_plan: RuntimePlan,
-    }
     let root = approved_target(path, approval)?;
-    match observed_state(&root, approval.binding)?.0 {
+    Ok(read_approved_import(&root, approval.binding)?.map(|stored| stored.runtime_plan))
+}
+
+#[derive(Deserialize)]
+struct StoredImport {
+    schema_version: u32,
+    proposal_id: String,
+    scope: ProjectImportScope,
+    policy: ProjectImportPolicy,
+    inspection: ProjectImportInspection,
+    selections: Vec<ProjectImportSelectionPreview>,
+    runtime_plan_sha256: String,
+    runtime_plan: RuntimePlan,
+}
+
+fn read_approved_import(
+    root: &File,
+    binding: &ProjectImportBinding,
+) -> Result<Option<StoredImport>> {
+    match observed_state(root, binding)?.0 {
         ProjectImportState::Applied => {}
         ProjectImportState::NotApplied => return Ok(None),
         _ => return Err(error(ErrorCode::OutcomeUnknown)),
     }
-    let bytes = read_at(&root, Path::new(SNAPSHOT))?.ok_or_else(|| error(ErrorCode::Conflict))?;
-    if sha256(&bytes) != approval.binding.snapshot_sha256 {
-        return Err(error(ErrorCode::Conflict));
-    }
-    let plan: StoredPlan = io_error(serde_json::from_slice(&bytes))?;
+    let bytes = read_exact_snapshot(root, Path::new(SNAPSHOT), &binding.snapshot_sha256)?;
+    let plan: StoredImport = io_error(serde_json::from_slice(&bytes))?;
     if plan.schema_version != VERSION
-        || plan.proposal_id != approval.binding.proposal_id
-        || plan.scope.project_id != approval.binding.project_id
+        || plan.proposal_id != binding.proposal_id
+        || plan.scope.project_id != binding.project_id
         || plan.runtime_plan.plan_digest()? != plan.runtime_plan_sha256
     {
         return Err(error(ErrorCode::Conflict));
     }
-    plan.runtime_plan.validate()?;
-    Ok(Some(plan.runtime_plan))
+    Ok(Some(plan))
+}
+
+fn read_exact_snapshot(root: &File, relative: &Path, digest: &str) -> Result<Vec<u8>> {
+    let bytes = read_at(root, relative)?.ok_or_else(|| error(ErrorCode::Conflict))?;
+    if sha256(&bytes) != digest {
+        return Err(error(ErrorCode::Conflict));
+    }
+    Ok(bytes)
 }
 
 pub fn apply_project_import(
@@ -912,6 +939,586 @@ pub fn apply_project_import(
     } else {
         result.map(|_| state)
     }
+}
+
+/// This rule admits changed bytes for explicitly selected instruction-only
+/// skills. Deployment, executable definitions, and all other source structure
+/// stay bound to the approved import.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProjectConfigUpdateRule {
+    pub revision: String,
+    pub instruction_keys: BTreeSet<ProjectCapabilityKey>,
+}
+
+/// A review binding to persist in the trusted approval registry. Deserializing
+/// it from an untrusted caller does not establish approval.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProjectConfigUpdateBinding {
+    pub initial_import: ProjectImportBinding,
+    rule_sha256: String,
+    source_shapes: BTreeMap<ProjectSource, String>,
+}
+
+pub struct ConfirmedProjectConfigUpdate<'a> {
+    pub approval_ref: &'a str,
+    pub binding: &'a ProjectConfigUpdateBinding,
+    pub rule: &'a ProjectConfigUpdateRule,
+}
+
+/// Exact local version identity. The caller retains it before requesting
+/// publication and supplies its accepted version as the next update's base.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProjectConfigVersionBinding {
+    pub transaction_id: String,
+    pub parent_sha256: String,
+    pub snapshot_sha256: String,
+}
+
+pub struct ProjectConfigUpdateRequest<'a> {
+    pub transaction_id: &'a str,
+    pub managed_project_root: &'a Path,
+    pub scope: &'a ProjectImportScope,
+    pub policy: &'a ProjectImportPolicy,
+    /// None selects the original approved import.
+    pub base: Option<&'a ProjectConfigVersionBinding>,
+    /// Trusted non-secret classifications for the exact new instruction bytes.
+    pub classified_instructions: &'a BTreeMap<ProjectCapabilityKey, String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "reason", content = "subject")]
+pub enum ProjectConfigUpdateReviewReason {
+    ScopeOrPolicyChanged,
+    UnverifiableSource,
+    StaleBase,
+    UnresolvedConflict,
+    ExecutableOrSettingsChanged(ProjectSource),
+    CapabilityStructureChanged(ProjectSource),
+    InstructionClassificationRequired(ProjectCapabilityKey),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ProjectConfigUpdatePreview {
+    Unchanged,
+    ReviewRequired(ProjectConfigUpdateReviewReason),
+    Ready(ProjectConfigVersionBinding),
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct StoredUpdate {
+    schema_version: u32,
+    transaction_id: String,
+    parent_sha256: String,
+    approval_sha256: String,
+    source_state_sha256: String,
+    runtime_plan_sha256: String,
+    runtime_plan: RuntimePlan,
+}
+
+struct PreparedUpdate {
+    binding: ProjectConfigVersionBinding,
+    source_state_sha256: String,
+    bytes: Vec<u8>,
+}
+
+enum EvaluatedUpdate {
+    Ready(PreparedUpdate),
+    Unchanged,
+    Review(ProjectConfigUpdateReviewReason),
+}
+
+fn update_slot(parent_sha256: &str) -> PathBuf {
+    PathBuf::from(format!("project-config-next-{parent_sha256}.json"))
+}
+
+fn valid_version(version: &ProjectConfigVersionBinding) -> bool {
+    canonical_uuid(&version.transaction_id)
+        && crate::valid_hash(&version.parent_sha256)
+        && crate::valid_hash(&version.snapshot_sha256)
+        && version.parent_sha256 != version.snapshot_sha256
+}
+
+fn validate_rule(rule: &ProjectConfigUpdateRule) -> Result<()> {
+    if !identifier(&rule.revision)
+        || rule.instruction_keys.is_empty()
+        || rule.instruction_keys.len() > 32
+        || rule
+            .instruction_keys
+            .iter()
+            .any(|key| key.kind != ProjectCapabilityKind::Skill || !identifier(&key.locator))
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    Ok(())
+}
+
+fn source_shapes(
+    inspection: &Inspection,
+    rule: &ProjectConfigUpdateRule,
+) -> Result<BTreeMap<ProjectSource, String>> {
+    inspection
+        .preview
+        .sources
+        .iter()
+        .map(|source| {
+            let mut summary = source.clone();
+            let mut catalog = inspection.skill_catalogs.get(&source.source).cloned();
+            let mut candidates: Vec<_> = inspection
+                .preview
+                .candidates
+                .iter()
+                .filter(|item| item.key.source == source.source)
+                .cloned()
+                .collect();
+            if let Some(catalog) = catalog.as_mut().filter(|_| {
+                rule.instruction_keys
+                    .iter()
+                    .any(|key| key.source == source.source)
+            }) {
+                // The full catalog includes per-skill script digests, diagnostics
+                // and metadata. Mask only allowed document hashes and the
+                // aggregate that changes when the document length changes.
+                summary.sha256 = None;
+                catalog.inspected_bytes = 0;
+                for skill in &mut catalog.skills {
+                    let key = ProjectCapabilityKey {
+                        source: source.source,
+                        kind: ProjectCapabilityKind::Skill,
+                        locator: safe_name(&skill.directory_name),
+                    };
+                    if rule.instruction_keys.contains(&key) {
+                        skill.source_digest.clear();
+                    }
+                }
+                for item in &mut candidates {
+                    if rule.instruction_keys.contains(&item.key) {
+                        item.source_sha256.clear();
+                    }
+                }
+            }
+            Ok((
+                source.source,
+                document_digest(&(summary, catalog, candidates))?,
+            ))
+        })
+        .collect()
+}
+
+fn require_disjoint(source: &Path, target: &Path) -> Result<()> {
+    if source.starts_with(target) || target.starts_with(source) {
+        return Err(error(ErrorCode::PermissionDenied));
+    }
+    Ok(())
+}
+
+/// Derive the update rule's review binding while the source still matches the
+/// exact approved first-import inspection. This operation is read-only.
+pub fn prepare_project_config_update_binding(
+    managed_project_root: &Path,
+    first: &ConfirmedProjectImport<'_>,
+    rule: &ProjectConfigUpdateRule,
+) -> Result<ProjectConfigUpdateBinding> {
+    validate_rule(rule)?;
+    let root = approved_target(managed_project_root, first)?;
+    let anchor =
+        read_approved_import(&root, first.binding)?.ok_or_else(|| error(ErrorCode::Conflict))?;
+    require_disjoint(&anchor.scope.root, managed_project_root)?;
+    let inspection = inspect(&anchor.scope, &anchor.policy)?;
+    if document_digest(&inspection.preview)? != document_digest(&anchor.inspection)? {
+        return Err(error(ErrorCode::Conflict));
+    }
+    for key in &rule.instruction_keys {
+        let complete = inspection.preview.sources.iter().any(|source| {
+            source.source == key.source && source.status == Some(ParseStatus::Parsed)
+        });
+        let instruction_only = inspection
+            .preview
+            .candidates
+            .iter()
+            .filter(|candidate| candidate.key.source == key.source)
+            .all(|candidate| {
+                candidate.admission == ProjectCapabilityAdmission::ReviewedInstruction
+            });
+        if !complete
+            || !instruction_only
+            || !inspection.skills.contains_key(key)
+            || !anchor
+                .selections
+                .iter()
+                .any(|selection| selection.capability == *key)
+        {
+            return Err(error(ErrorCode::PermissionDenied));
+        }
+    }
+    Ok(ProjectConfigUpdateBinding {
+        initial_import: first.binding.clone(),
+        rule_sha256: document_digest(rule)?,
+        source_shapes: source_shapes(&inspection, rule)?,
+    })
+}
+
+fn update_target(path: &Path, approval: &ConfirmedProjectConfigUpdate<'_>) -> Result<File> {
+    validate_rule(approval.rule)?;
+    if document_digest(approval.rule)? != approval.binding.rule_sha256 {
+        return Err(error(ErrorCode::PermissionDenied));
+    }
+    approved_target(
+        path,
+        &ConfirmedProjectImport {
+            approval_ref: approval.approval_ref,
+            binding: &approval.binding.initial_import,
+        },
+    )
+}
+
+fn matches_update(
+    record: &StoredUpdate,
+    version: &ProjectConfigVersionBinding,
+    approval_sha256: &str,
+) -> bool {
+    record.schema_version == VERSION
+        && record.transaction_id == version.transaction_id
+        && record.parent_sha256 == version.parent_sha256
+        && record.approval_sha256 == approval_sha256
+        && crate::valid_hash(&record.source_state_sha256)
+        && record
+            .runtime_plan
+            .plan_digest()
+            .is_ok_and(|digest| digest == record.runtime_plan_sha256)
+}
+
+fn observed_update(
+    root: &File,
+    approval: &ProjectConfigUpdateBinding,
+    version: &ProjectConfigVersionBinding,
+) -> Result<(ProjectImportState, bool)> {
+    if !valid_version(version) || version.transaction_id == approval.initial_import.proposal_id {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let approved = document_digest(approval)?;
+    observed_snapshot(
+        root,
+        &update_slot(&version.parent_sha256),
+        &version.transaction_id,
+        &version.snapshot_sha256,
+        |bytes| {
+            serde_json::from_slice::<StoredUpdate>(bytes)
+                .is_ok_and(|record| matches_update(&record, version, &approved))
+        },
+    )
+}
+
+fn read_update(
+    root: &File,
+    approval: &ProjectConfigUpdateBinding,
+    version: &ProjectConfigVersionBinding,
+) -> Result<Option<StoredUpdate>> {
+    match observed_update(root, approval, version)?.0 {
+        ProjectImportState::Applied => {}
+        ProjectImportState::NotApplied => return Ok(None),
+        _ => return Err(error(ErrorCode::OutcomeUnknown)),
+    }
+    let bytes = read_exact_snapshot(
+        root,
+        &update_slot(&version.parent_sha256),
+        &version.snapshot_sha256,
+    )?;
+    let record = io_error(serde_json::from_slice::<StoredUpdate>(&bytes))?;
+    if !matches_update(&record, version, &document_digest(approval)?) {
+        return Err(error(ErrorCode::Conflict));
+    }
+    Ok(Some(record))
+}
+
+fn same_source(left: &ProjectImportScope, right: &ProjectImportScope) -> bool {
+    left.project_id == right.project_id
+        && left.project_revision == right.project_revision
+        && left.root == right.root
+        && left.root_device == right.root_device
+        && left.root_inode == right.root_inode
+}
+
+fn evaluate_update(
+    root: &File,
+    request: &ProjectConfigUpdateRequest<'_>,
+    approval: &ConfirmedProjectConfigUpdate<'_>,
+) -> Result<EvaluatedUpdate> {
+    use ProjectConfigUpdateReviewReason as Reason;
+    let first = &approval.binding.initial_import;
+    if !canonical_uuid(request.transaction_id)
+        || request.transaction_id == first.proposal_id
+        || request.classified_instructions.len() > 32
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let anchor = read_approved_import(root, first)?.ok_or_else(|| error(ErrorCode::Conflict))?;
+    require_disjoint(&anchor.scope.root, request.managed_project_root)?;
+    if !same_source(request.scope, &anchor.scope)
+        || document_digest(request.policy)? != document_digest(&anchor.policy)?
+    {
+        return Ok(EvaluatedUpdate::Review(Reason::ScopeOrPolicyChanged));
+    }
+    let (previous_sha256, previous_source, mut plan) = match request.base {
+        Some(previous) => {
+            if previous.transaction_id == request.transaction_id {
+                return Err(error(ErrorCode::Conflict));
+            }
+            let previous_record = read_update(root, approval.binding, previous)?
+                .ok_or_else(|| error(ErrorCode::Conflict))?;
+            (
+                &previous.snapshot_sha256,
+                previous_record.source_state_sha256,
+                previous_record.runtime_plan,
+            )
+        }
+        None => (
+            &first.snapshot_sha256,
+            document_digest(&anchor.inspection)?,
+            anchor.runtime_plan,
+        ),
+    };
+    if read_at(root, &update_slot(previous_sha256))?.is_some() {
+        return Ok(EvaluatedUpdate::Review(Reason::StaleBase));
+    }
+    let Ok(inspection) = inspect(request.scope, request.policy) else {
+        return Ok(EvaluatedUpdate::Review(Reason::UnverifiableSource));
+    };
+    let source_state_sha256 = document_digest(&inspection.preview)?;
+    if source_state_sha256 == previous_source {
+        return Ok(EvaluatedUpdate::Unchanged);
+    }
+    if inspection
+        .preview
+        .candidates
+        .iter()
+        .any(|item| item.conflict_count != 0)
+    {
+        return Ok(EvaluatedUpdate::Review(Reason::UnresolvedConflict));
+    }
+    let current_shapes = source_shapes(&inspection, approval.rule)?;
+    for (source, digest) in &current_shapes {
+        if approval.binding.source_shapes.get(source) != Some(digest) {
+            let reason = match source.locator().2 {
+                SourceType::Skills(_) => Reason::CapabilityStructureChanged(*source),
+                SourceType::Document(_) => Reason::ExecutableOrSettingsChanged(*source),
+            };
+            return Ok(EvaluatedUpdate::Review(reason));
+        }
+    }
+    if current_shapes.len() != approval.binding.source_shapes.len() {
+        return Ok(EvaluatedUpdate::Review(Reason::UnverifiableSource));
+    }
+    let mut changed = false;
+    for key in &approval.rule.instruction_keys {
+        let (metadata, instruction) = inspection
+            .skills
+            .get(key)
+            .ok_or_else(|| error(ErrorCode::Conflict))?;
+        let source_ref = format!("project-import:{}", key.source.locator().0);
+        let slot = plan
+            .skills
+            .iter_mut()
+            .find(|skill| {
+                skill.directory_name == metadata.directory_name
+                    && skill.provenance.source_ref == source_ref
+            })
+            .ok_or_else(|| error(ErrorCode::Conflict))?;
+        if slot.provenance.sha256 == metadata.sha256 {
+            continue;
+        }
+        if request.classified_instructions.get(key) != Some(&metadata.sha256) {
+            return Ok(EvaluatedUpdate::Review(
+                Reason::InstructionClassificationRequired(key.clone()),
+            ));
+        }
+        slot.instruction = NonSecretText::approved(instruction.clone())?;
+        slot.provenance
+            .revision
+            .clone_from(&request.scope.input_revision);
+        slot.provenance.sha256.clone_from(&metadata.sha256);
+        changed = true;
+    }
+    if !changed {
+        // Never explain an unclassified observational difference as an
+        // approved content edit.
+        return Ok(EvaluatedUpdate::Review(Reason::UnverifiableSource));
+    }
+    let record = StoredUpdate {
+        schema_version: VERSION,
+        transaction_id: request.transaction_id.into(),
+        parent_sha256: previous_sha256.clone(),
+        approval_sha256: document_digest(approval.binding)?,
+        source_state_sha256: source_state_sha256.clone(),
+        runtime_plan_sha256: plan.plan_digest()?,
+        runtime_plan: plan,
+    };
+    let bytes = io_error(serde_json::to_vec(&record))?;
+    if bytes.len() > MAX_BYTES {
+        return Err(error(ErrorCode::ResourceLimit));
+    }
+    Ok(EvaluatedUpdate::Ready(PreparedUpdate {
+        binding: ProjectConfigVersionBinding {
+            transaction_id: record.transaction_id,
+            parent_sha256: record.parent_sha256,
+            snapshot_sha256: sha256(&bytes),
+        },
+        source_state_sha256,
+        bytes,
+    }))
+}
+
+/// Read-only drift classification. Ready means the existing rule covers these
+/// exact bytes. The trusted caller should retain the binding before applying.
+pub fn prepare_project_config_update(
+    request: &ProjectConfigUpdateRequest<'_>,
+    approval: &ConfirmedProjectConfigUpdate<'_>,
+) -> Result<ProjectConfigUpdatePreview> {
+    let root = update_target(request.managed_project_root, approval)?;
+    Ok(match evaluate_update(&root, request, approval)? {
+        EvaluatedUpdate::Unchanged => ProjectConfigUpdatePreview::Unchanged,
+        EvaluatedUpdate::Review(reason) => ProjectConfigUpdatePreview::ReviewRequired(reason),
+        EvaluatedUpdate::Ready(update) => ProjectConfigUpdatePreview::Ready(update.binding),
+    })
+}
+
+// Reuse the managed root's lock, transaction directory, report contract and
+// durability routines. A per-parent slot needs an OS-level exclusive rename
+// even against a non-cooperating writer that appears after revalidation.
+fn publish_update(
+    root: &ManagedRoot,
+    update: PreparedUpdate,
+    revalidate: impl FnOnce() -> Result<()>,
+) -> Result<()> {
+    let _lock = LockGuard::acquire(&root.lock)?;
+    let version = update.binding;
+    let relative_path = update_slot(&version.parent_sha256);
+    if read_at(&root.root, &relative_path)?.is_some() {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let transaction = root.create_transaction(&version.transaction_id)?;
+    let mut report = Report {
+        schema_version: 1,
+        transaction_id: version.transaction_id,
+        root_device: root.root_identity.0,
+        root_inode: root.root_identity.1,
+        phase: Phase::Applying,
+        files: vec![FileReport {
+            relative_path,
+            before_sha256: None,
+            after_sha256: version.snapshot_sha256,
+            state: FileState::Pending,
+        }],
+    };
+    save_report(&transaction, &report)?;
+    write_new(&transaction, "pending-version", &update.bytes)?;
+    revalidate()?;
+    rfs::renameat_with(
+        &transaction,
+        "pending-version",
+        &root.root,
+        &report.files[0].relative_path,
+        rfs::RenameFlags::NOREPLACE,
+    )
+    .map_err(|failure| {
+        if failure == rustix::io::Errno::EXIST {
+            error(ErrorCode::Conflict)
+        } else {
+            error(ErrorCode::Io)
+        }
+    })?;
+    let post_publish = || outcome_unknown(&report.transaction_id);
+    root.root.sync_all().map_err(|_| post_publish())?;
+    transaction.sync_all().map_err(|_| post_publish())?;
+    report.phase = Phase::Applied;
+    report.files[0].state = FileState::Written;
+    save_report(&transaction, &report).map_err(|_| outcome_unknown(&report.transaction_id))
+}
+
+/// Publish the exact prepared version through the already-approved rule.
+/// An existing intent is reconciled by exact bytes and is never replayed.
+pub fn apply_project_config_update(
+    request: &ProjectConfigUpdateRequest<'_>,
+    approval: &ConfirmedProjectConfigUpdate<'_>,
+    expected: &ProjectConfigVersionBinding,
+) -> Result<ProjectImportState> {
+    if expected.transaction_id != request.transaction_id {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let target = update_target(request.managed_project_root, approval)?;
+    let first = &approval.binding.initial_import;
+    let anchor = read_approved_import(&target, first)?.ok_or_else(|| error(ErrorCode::Conflict))?;
+    require_disjoint(&anchor.scope.root, request.managed_project_root)?;
+    let parent = request
+        .base
+        .map_or(&first.snapshot_sha256, |base| &base.snapshot_sha256);
+    if expected.parent_sha256 != *parent
+        || !same_source(request.scope, &anchor.scope)
+        || document_digest(request.policy)? != document_digest(&anchor.policy)?
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let (observed, started) = observed_update(&target, approval.binding, expected)?;
+    if started {
+        return Ok(observed);
+    }
+    let EvaluatedUpdate::Ready(update) = evaluate_update(&target, request, approval)? else {
+        return Err(error(ErrorCode::Conflict));
+    };
+    if update.binding != *expected {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let observation = update.source_state_sha256.clone();
+    let managed = ManagedRoot::from_private_directory(target)?;
+    let result = publish_update(&managed, update, || {
+        let root = update_target(request.managed_project_root, approval)?;
+        let first = &approval.binding.initial_import;
+        read_exact_snapshot(&root, Path::new(SNAPSHOT), &first.snapshot_sha256)?;
+        if let Some(previous) = request.base {
+            read_exact_snapshot(
+                &root,
+                &update_slot(&previous.parent_sha256),
+                &previous.snapshot_sha256,
+            )?;
+        }
+        let current = inspect(request.scope, request.policy)?;
+        if document_digest(&current.preview)? != observation {
+            return Err(error(ErrorCode::Conflict));
+        }
+        Ok(())
+    });
+    let Ok(root) = update_target(request.managed_project_root, approval) else {
+        return Ok(ProjectImportState::NeedsReconciliation);
+    };
+    let (observed, started) = observed_update(&root, approval.binding, expected)?;
+    if started || result.is_ok() {
+        Ok(observed)
+    } else {
+        result.map(|_| observed)
+    }
+}
+
+/// Reconcile the exact operation after restart or an ambiguous response.
+pub fn recover_project_config_update(
+    managed_project_root: &Path,
+    approval: &ConfirmedProjectConfigUpdate<'_>,
+    version: &ProjectConfigVersionBinding,
+) -> Result<ProjectImportState> {
+    let root = update_target(managed_project_root, approval)?;
+    Ok(observed_update(&root, approval.binding, version)?.0)
+}
+
+/// Read an exact version for a new runtime or an existing version reference.
+pub fn read_project_config_version(
+    managed_project_root: &Path,
+    approval: &ConfirmedProjectConfigUpdate<'_>,
+    version: &ProjectConfigVersionBinding,
+) -> Result<Option<RuntimePlan>> {
+    let root = update_target(managed_project_root, approval)?;
+    Ok(read_update(&root, approval.binding, version)?.map(|record| record.runtime_plan))
 }
 
 #[cfg(test)]
@@ -989,6 +1596,51 @@ mod tests {
         fs::rename(&parked, &original).unwrap();
         let restored = inspect_project_config(&scope, &policy).unwrap();
         assert_eq!(document_digest(&restored).unwrap(), initial);
+    }
+
+    #[test]
+    fn exclusive_publication_preserves_a_file_created_after_the_destination_check() {
+        let private = tempfile::tempdir().unwrap();
+        let path = private.path().canonicalize().unwrap();
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o700)).unwrap();
+        let managed = ManagedRoot::open(&path, Ownership::BatonManaged).unwrap();
+        let bytes = b"owned fixture snapshot".to_vec();
+        let version = ProjectConfigVersionBinding {
+            transaction_id: Uuid::new_v4().to_string(),
+            parent_sha256: sha256(b"approved parent"),
+            snapshot_sha256: sha256(&bytes),
+        };
+        let slot = update_slot(&version.parent_sha256);
+        let target = path.join(&slot);
+        let err = publish_update(
+            &managed,
+            PreparedUpdate {
+                binding: version.clone(),
+                source_state_sha256: sha256(b"verified observation"),
+                bytes,
+            },
+            || {
+                write_new(
+                    &managed.root,
+                    slot.to_str().unwrap(),
+                    b"unrelated newer occupant",
+                )
+            },
+        )
+        .unwrap_err();
+        assert_eq!(err.code, ErrorCode::Conflict);
+        assert_eq!(fs::read(target).unwrap(), b"unrelated newer occupant");
+        assert_eq!(
+            observed_snapshot(
+                &managed.root,
+                &slot,
+                &version.transaction_id,
+                &version.snapshot_sha256,
+                |_| true,
+            )
+            .unwrap(),
+            (ProjectImportState::NeedsReconciliation, true)
+        );
     }
 
     #[test]

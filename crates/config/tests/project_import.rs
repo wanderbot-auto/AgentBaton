@@ -1,12 +1,16 @@
 use agentbaton_config::{
     capabilities::ProviderRevision,
     project_import::{
-        apply_project_import, inspect_project_config, prepare_project_import,
-        read_imported_project_plan, recover_project_import, ConfirmedProjectImport,
-        ProjectCapabilityAdmission as Admission, ProjectCapabilityKind as Kind,
-        ProjectImportBinding, ProjectImportChoice as Choice, ProjectImportDecision as Decision,
-        ProjectImportPolicy, ProjectImportRequest, ProjectImportScope, ProjectImportState as State,
-        ProjectSource,
+        apply_project_config_update, apply_project_import, inspect_project_config,
+        prepare_project_config_update, prepare_project_config_update_binding,
+        prepare_project_import, read_imported_project_plan, read_project_config_version,
+        recover_project_config_update, recover_project_import, ConfirmedProjectConfigUpdate,
+        ConfirmedProjectImport, ProjectCapabilityAdmission as Admission, ProjectCapabilityKey,
+        ProjectCapabilityKind as Kind, ProjectConfigUpdateBinding, ProjectConfigUpdatePreview,
+        ProjectConfigUpdateRequest, ProjectConfigUpdateReviewReason as ReviewReason,
+        ProjectConfigUpdateRule, ProjectConfigVersionBinding, ProjectImportBinding,
+        ProjectImportChoice as Choice, ProjectImportDecision as Decision, ProjectImportPolicy,
+        ProjectImportRequest, ProjectImportScope, ProjectImportState as State, ProjectSource,
     },
     runtime::{
         ManagedMcpServer, ManagedMcpTransport, NonSecretText, RuntimeRequirements, RuntimeRoot,
@@ -16,6 +20,7 @@ use agentbaton_config::{
 };
 use serde_json::{json, Value};
 use std::{
+    collections::{BTreeMap, BTreeSet},
     fs,
     os::unix::{
         ffi::OsStrExt,
@@ -626,4 +631,516 @@ fn destination_drift_after_confirmation_never_changes_the_original() {
     );
     let after: Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
     assert_eq!(after, changed);
+}
+
+const UPDATE_ONE: &str = "99999999-1234-4234-8234-123456789abd";
+const UPDATE_TWO: &str = "99999999-1234-4234-8234-123456789abe";
+const UPDATE_THREE: &str = "99999999-1234-4234-8234-123456789abf";
+const RESTART_RECEIPT: &str = "AGENTBATON_TEST_DRIFT_RESTART_RECEIPT";
+const PATH_TO_SKILL: &str = ".claude/skills/review/SKILL.md";
+
+struct DriftFixture {
+    first: ProjectImportBinding,
+    binding: ProjectConfigUpdateBinding,
+    rule: ProjectConfigUpdateRule,
+    key: ProjectCapabilityKey,
+}
+
+impl DriftFixture {
+    fn accept(f: &Fixture) -> Self {
+        let view = inspect_project_config(&f.scope, &f.policy).unwrap();
+        let key = view
+            .candidates
+            .iter()
+            .find(|item| item.key.kind == Kind::Skill)
+            .unwrap()
+            .key
+            .clone();
+        let mcp = view
+            .candidates
+            .iter()
+            .find(|item| item.name == "fixture")
+            .unwrap();
+        let registered = registered_mcp("fixture");
+        let choices = [
+            Choice::Skill {
+                key: &key,
+                nonsecret_sha256: &sha256(SKILL.as_bytes()),
+            },
+            Choice::RegisteredMcp {
+                key: &mcp.key,
+                definition: &registered,
+            },
+        ];
+        let request = f.request(&choices);
+        let first = prepare_project_import(&request).unwrap().binding;
+        assert_eq!(
+            apply_project_import(&request, Decision::Confirm(approval(&first))).unwrap(),
+            State::Applied
+        );
+        let rule = ProjectConfigUpdateRule {
+            revision: "selected-safe-instructions-v1".into(),
+            instruction_keys: BTreeSet::from([key.clone()]),
+        };
+        let binding =
+            prepare_project_config_update_binding(&f.managed, &approval(&first), &rule).unwrap();
+        Self {
+            first,
+            binding,
+            rule,
+            key,
+        }
+    }
+
+    fn approval(&self) -> ConfirmedProjectConfigUpdate<'_> {
+        ConfirmedProjectConfigUpdate {
+            approval_ref: "confirmed-by-trusted-test-owner",
+            binding: &self.binding,
+            rule: &self.rule,
+        }
+    }
+
+    fn classified(&self, instruction: &str) -> BTreeMap<ProjectCapabilityKey, String> {
+        BTreeMap::from([(self.key.clone(), sha256(instruction.as_bytes()))])
+    }
+}
+
+fn drift_request<'a>(
+    f: &'a Fixture,
+    id: &'a str,
+    scope: &'a ProjectImportScope,
+    base: Option<&'a ProjectConfigVersionBinding>,
+    classified: &'a BTreeMap<ProjectCapabilityKey, String>,
+) -> ProjectConfigUpdateRequest<'a> {
+    ProjectConfigUpdateRequest {
+        transaction_id: id,
+        managed_project_root: &f.managed,
+        scope,
+        policy: &f.policy,
+        base,
+        classified_instructions: classified,
+    }
+}
+
+fn ready(result: ProjectConfigUpdatePreview) -> ProjectConfigVersionBinding {
+    let ProjectConfigUpdatePreview::Ready(binding) = result else {
+        panic!("expected a prepared update, got {result:?}");
+    };
+    binding
+}
+
+fn revised_instruction(body: &str) -> String {
+    SKILL.replace("Review the provided plain-text report.", body)
+}
+
+fn commit_skill(f: &Fixture, content: &str) -> ProjectImportScope {
+    put(&f.scope.root, PATH_TO_SKILL, content.as_bytes());
+    git(&f.scope.root, &["add", PATH_TO_SKILL]);
+    git(
+        &f.scope.root,
+        &["commit", "-m", "Revise the selected instruction"],
+    );
+    let mut scope = f.scope.clone();
+    scope.input_revision = git(&scope.root, &["rev-parse", "HEAD"]);
+    scope
+}
+
+fn journal_count(f: &Fixture) -> usize {
+    fs::read_dir(f.managed.join(".baton-transactions"))
+        .unwrap()
+        .count()
+}
+
+#[test]
+fn approved_drift_creates_immutable_versions_and_reopens_in_a_fresh_process() {
+    if let Some(receipt) = std::env::var_os(RESTART_RECEIPT) {
+        // This branch runs in a new instance of the integration test binary.
+        let data: Value = serde_json::from_slice(&fs::read(receipt).unwrap()).unwrap();
+        let binding = serde_json::from_value(data["binding"].clone()).unwrap();
+        let rule = serde_json::from_value(data["rule"].clone()).unwrap();
+        let managed = Path::new(data["managed"].as_str().unwrap());
+        let approval = ConfirmedProjectConfigUpdate {
+            approval_ref: "confirmed-by-trusted-test-owner",
+            binding: &binding,
+            rule: &rule,
+        };
+        for entry in data["versions"].as_array().unwrap() {
+            let version = serde_json::from_value(entry["version"].clone()).unwrap();
+            assert_eq!(
+                recover_project_config_update(managed, &approval, &version).unwrap(),
+                State::Applied
+            );
+            let plan = read_project_config_version(managed, &approval, &version)
+                .unwrap()
+                .unwrap();
+            assert_eq!(
+                plan.skills[0].instruction_text(),
+                entry["text"].as_str().unwrap()
+            );
+        }
+        return;
+    }
+    let f = Fixture::new();
+    let drift = DriftFixture::accept(&f);
+    let original = fs::read(f.managed.join("project-config.json")).unwrap();
+    let original_settings = fs::read(f.scope.root.join(".claude/settings.json")).unwrap();
+    let original_plan = read_imported_project_plan(&f.managed, &approval(&drift.first))
+        .unwrap()
+        .unwrap();
+    let empty = BTreeMap::new();
+    let initial = drift_request(&f, UPDATE_ONE, &f.scope, None, &empty);
+    assert_eq!(
+        prepare_project_config_update(&initial, &drift.approval()).unwrap(),
+        ProjectConfigUpdatePreview::Unchanged
+    );
+    let mut same_input = f.scope.clone();
+    same_input.input_revision = "unrelated-new-input-revision".into();
+    let same = drift_request(&f, UPDATE_ONE, &same_input, None, &empty);
+    assert_eq!(
+        prepare_project_config_update(&same, &drift.approval()).unwrap(),
+        ProjectConfigUpdatePreview::Unchanged
+    );
+    assert_eq!(journal_count(&f), 1);
+
+    let version_one_text = revised_instruction("Summarize the plain-text report.");
+    let scope = commit_skill(&f, &version_one_text);
+    let unclassified = drift_request(&f, UPDATE_ONE, &scope, None, &empty);
+    assert_eq!(
+        prepare_project_config_update(&unclassified, &drift.approval()).unwrap(),
+        ProjectConfigUpdatePreview::ReviewRequired(
+            ReviewReason::InstructionClassificationRequired(drift.key.clone())
+        )
+    );
+    let classified = drift.classified(&version_one_text);
+    let request = drift_request(&f, UPDATE_ONE, &scope, None, &classified);
+    let v1 = ready(prepare_project_config_update(&request, &drift.approval()).unwrap());
+    assert_eq!(journal_count(&f), 1);
+    assert_eq!(
+        recover_project_config_update(&f.managed, &drift.approval(), &v1).unwrap(),
+        State::NotApplied
+    );
+    assert!(
+        read_project_config_version(&f.managed, &drift.approval(), &v1)
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(
+        apply_project_config_update(&request, &drift.approval(), &v1).unwrap(),
+        State::Applied
+    );
+    assert_eq!(
+        apply_project_config_update(&request, &drift.approval(), &v1).unwrap(),
+        State::Applied
+    );
+    assert_eq!(journal_count(&f), 2);
+    let old_slot = f
+        .managed
+        .join(format!("project-config-next-{}.json", v1.parent_sha256));
+    let saved_v1 = fs::read(&old_slot).unwrap();
+    assert_eq!(sha256(&saved_v1), v1.snapshot_sha256);
+    assert_eq!(fs::metadata(&old_slot).unwrap().mode() & 0o7777, 0o600);
+    assert!(!String::from_utf8_lossy(&saved_v1).contains(CANARY));
+    let plan_one = read_project_config_version(&f.managed, &drift.approval(), &v1)
+        .unwrap()
+        .unwrap();
+    assert_eq!(plan_one.skills[0].instruction_text(), version_one_text);
+    assert_eq!(plan_one.skills[0].provenance.revision, scope.input_revision);
+    assert_eq!(
+        serde_json::to_value(&plan_one.mcp_servers).unwrap(),
+        serde_json::to_value(&original_plan.mcp_servers).unwrap()
+    );
+    let nothing_more = drift_request(&f, UPDATE_TWO, &scope, Some(&v1), &empty);
+    assert_eq!(
+        prepare_project_config_update(&nothing_more, &drift.approval()).unwrap(),
+        ProjectConfigUpdatePreview::Unchanged
+    );
+
+    let version_two_text = revised_instruction("Summarize the report and include its date.");
+    let scope_two = commit_skill(&f, &version_two_text);
+    let classified_two = drift.classified(&version_two_text);
+    let next = drift_request(&f, UPDATE_TWO, &scope_two, Some(&v1), &classified_two);
+    let v2 = ready(prepare_project_config_update(&next, &drift.approval()).unwrap());
+    assert_eq!(
+        apply_project_config_update(&next, &drift.approval(), &v2).unwrap(),
+        State::Applied
+    );
+    assert_eq!(journal_count(&f), 3);
+    let stale = drift_request(&f, UPDATE_THREE, &scope_two, None, &classified_two);
+    assert_eq!(
+        prepare_project_config_update(&stale, &drift.approval()).unwrap(),
+        ProjectConfigUpdatePreview::ReviewRequired(ReviewReason::StaleBase)
+    );
+    let newest = drift_request(&f, UPDATE_THREE, &scope_two, Some(&v2), &empty);
+    assert_eq!(
+        prepare_project_config_update(&newest, &drift.approval()).unwrap(),
+        ProjectConfigUpdatePreview::Unchanged
+    );
+    assert_eq!(fs::read(&old_slot).unwrap(), saved_v1);
+    assert_eq!(
+        fs::read(f.managed.join("project-config.json")).unwrap(),
+        original
+    );
+    assert_eq!(
+        read_imported_project_plan(&f.managed, &approval(&drift.first))
+            .unwrap()
+            .unwrap()
+            .skills[0]
+            .instruction_text(),
+        SKILL
+    );
+    assert_eq!(
+        fs::read(f.scope.root.join(PATH_TO_SKILL)).unwrap(),
+        version_two_text.as_bytes()
+    );
+    assert_eq!(
+        fs::read(f.scope.root.join(".claude/settings.json")).unwrap(),
+        original_settings
+    );
+    assert_eq!(
+        fs::read(f.scope.root.join("auth.json")).unwrap(),
+        CANARY.as_bytes()
+    );
+    assert!(!f.private.path().join("project-command-ran").exists());
+
+    // Leave the second durable intent in the state reachable after publication
+    // but before the final report is recorded.
+    let manifest = f
+        .managed
+        .join(".baton-transactions")
+        .join(&v2.transaction_id)
+        .join("manifest.json");
+    let mut report: Value = serde_json::from_slice(&fs::read(&manifest).unwrap()).unwrap();
+    report["phase"] = json!("Applying");
+    report["files"][0]["state"] = json!("Pending");
+    fs::write(&manifest, serde_json::to_vec(&report).unwrap()).unwrap();
+    let receipt = f.private.path().join("restart-receipt.json");
+    fs::write(&receipt, serde_json::to_vec(&json!({
+        "binding": drift.binding,
+        "rule": drift.rule,
+        "managed": f.managed,
+        "versions": [{"version": v1, "text": version_one_text}, {"version": v2, "text": version_two_text}]
+    })).unwrap()).unwrap();
+    let child = Command::new(std::env::current_exe().unwrap())
+        .args([
+            "--exact",
+            "approved_drift_creates_immutable_versions_and_reopens_in_a_fresh_process",
+            "--nocapture",
+        ])
+        .env(RESTART_RECEIPT, receipt)
+        .output()
+        .unwrap();
+    assert!(
+        child.status.success(),
+        "fresh-process recovery failed: {}",
+        String::from_utf8_lossy(&child.stderr)
+    );
+    assert_eq!(journal_count(&f), 3);
+    assert_eq!(fs::read(&old_slot).unwrap(), saved_v1);
+}
+
+#[test]
+fn executable_settings_and_capability_drift_require_review_without_publication() {
+    for (file, text, reason) in [
+        (
+            ".mcp.json",
+            r#"{"mcpServers":{"fixture":{"command":"changed-project-command"},"new":{"command":"new-project-command"}}}"#,
+            ReviewReason::ExecutableOrSettingsChanged(ProjectSource::ClaudeMcp),
+        ),
+        (
+            ".claude/settings.local.json",
+            r#"{"hooks":{"PostToolUse":[]}}"#,
+            ReviewReason::ExecutableOrSettingsChanged(ProjectSource::ClaudeLocalSettings),
+        ),
+        (
+            ".claude/skills/unselected/scripts/inert.txt",
+            "This fixture cannot run.",
+            ReviewReason::CapabilityStructureChanged(ProjectSource::ClaudeSkills),
+        ),
+        (
+            ".claude/skills/ambiguity/SKILL.md",
+            SKILL,
+            ReviewReason::UnresolvedConflict,
+        ),
+    ] {
+        let f = Fixture::new();
+        put(
+            &f.scope.root,
+            ".claude/skills/unselected/SKILL.md",
+            SKILL.replace("name: review", "name: unselected").as_bytes(),
+        );
+        let drift = DriftFixture::accept(&f);
+        let original = fs::read(f.managed.join("project-config.json")).unwrap();
+        let revised = revised_instruction("Provide a shorter review.");
+        let scope = commit_skill(&f, &revised);
+        // Combine a legitimate text edit with another changed source.
+        put(&scope.root, file, text.as_bytes());
+        let classified = drift.classified(&revised);
+        let request = drift_request(&f, UPDATE_ONE, &scope, None, &classified);
+        let preview = prepare_project_config_update(&request, &drift.approval()).unwrap();
+        assert!(!format!("{preview:?}").contains(CANARY));
+        assert_eq!(preview, ProjectConfigUpdatePreview::ReviewRequired(reason));
+        assert_eq!(journal_count(&f), 1);
+        assert_eq!(
+            fs::read(f.managed.join("project-config.json")).unwrap(),
+            original
+        );
+        assert!(!f.private.path().join("project-command-ran").exists());
+    }
+}
+
+#[test]
+fn forged_rule_classification_and_version_binding_do_not_publish() {
+    let f = Fixture::new();
+    let drift = DriftFixture::accept(&f);
+    let text = revised_instruction("Include two sentences.");
+    let scope = commit_skill(&f, &text);
+    let stale_classification = drift.classified(SKILL);
+    let classified = drift.classified(&text);
+    let request = drift_request(&f, UPDATE_ONE, &scope, None, &classified);
+    let ready_binding = ready(prepare_project_config_update(&request, &drift.approval()).unwrap());
+    let stale = drift_request(&f, UPDATE_ONE, &scope, None, &stale_classification);
+    assert_eq!(
+        apply_project_config_update(&stale, &drift.approval(), &ready_binding)
+            .unwrap_err()
+            .code,
+        ErrorCode::Conflict
+    );
+    let mut rule = drift.rule.clone();
+    rule.revision = "unapproved-rule".into();
+    let changed_rule = ConfirmedProjectConfigUpdate {
+        rule: &rule,
+        ..drift.approval()
+    };
+    assert_eq!(
+        prepare_project_config_update(&request, &changed_rule)
+            .unwrap_err()
+            .code,
+        ErrorCode::PermissionDenied
+    );
+    let mut binding = drift.binding.clone();
+    binding.initial_import.snapshot_sha256 = sha256(b"foreign import");
+    let changed_binding = ConfirmedProjectConfigUpdate {
+        binding: &binding,
+        ..drift.approval()
+    };
+    assert!(prepare_project_config_update(&request, &changed_binding).is_err());
+    let mut foreign = ready_binding;
+    foreign.snapshot_sha256 = sha256(b"foreign normalized plan");
+    assert_eq!(
+        apply_project_config_update(&request, &drift.approval(), &foreign)
+            .unwrap_err()
+            .code,
+        ErrorCode::Conflict
+    );
+    let mut changed_scope = scope.clone();
+    changed_scope.project_revision += 1;
+    let changed_request = drift_request(&f, UPDATE_ONE, &changed_scope, None, &classified);
+    assert_eq!(
+        prepare_project_config_update(&changed_request, &drift.approval()).unwrap(),
+        ProjectConfigUpdatePreview::ReviewRequired(ReviewReason::ScopeOrPolicyChanged)
+    );
+    let mut changed_policy = f.policy.clone();
+    changed_policy.provider.version = "unapproved-provider".into();
+    let changed_request = ProjectConfigUpdateRequest {
+        policy: &changed_policy,
+        ..request
+    };
+    assert_eq!(
+        prepare_project_config_update(&changed_request, &drift.approval()).unwrap(),
+        ProjectConfigUpdatePreview::ReviewRequired(ReviewReason::ScopeOrPolicyChanged)
+    );
+    assert_eq!(journal_count(&f), 1);
+}
+
+#[test]
+fn source_drift_and_destination_replacement_after_preview_cannot_redirect_publication() {
+    let f = Fixture::new();
+    let drift = DriftFixture::accept(&f);
+    let text = revised_instruction("Summarize the report.");
+    let scope = commit_skill(&f, &text);
+    let classified = drift.classified(&text);
+    let request = drift_request(&f, UPDATE_ONE, &scope, None, &classified);
+    let expected = ready(prepare_project_config_update(&request, &drift.approval()).unwrap());
+    put(
+        &scope.root,
+        PATH_TO_SKILL,
+        revised_instruction("Change the source after preview.").as_bytes(),
+    );
+    assert_eq!(
+        apply_project_config_update(&request, &drift.approval(), &expected)
+            .unwrap_err()
+            .code,
+        ErrorCode::Conflict
+    );
+    assert_eq!(journal_count(&f), 1);
+    put(&scope.root, PATH_TO_SKILL, text.as_bytes());
+    let parked = f.private.path().join("parked-project");
+    fs::rename(&scope.root, &parked).unwrap();
+    fs::create_dir(&scope.root).unwrap();
+    put(&scope.root, PATH_TO_SKILL, text.as_bytes());
+    assert_eq!(
+        prepare_project_config_update(&request, &drift.approval()).unwrap(),
+        ProjectConfigUpdatePreview::ReviewRequired(ReviewReason::UnverifiableSource)
+    );
+    fs::rename(&scope.root, f.private.path().join("foreign-source")).unwrap();
+    fs::rename(parked, &scope.root).unwrap();
+
+    let old_target = f.private.path().join("parked-managed");
+    fs::rename(&f.managed, &old_target).unwrap();
+    fs::create_dir(&f.managed).unwrap();
+    fs::set_permissions(&f.managed, fs::Permissions::from_mode(0o700)).unwrap();
+    assert_eq!(
+        apply_project_config_update(&request, &drift.approval(), &expected)
+            .unwrap_err()
+            .code,
+        ErrorCode::Conflict
+    );
+    assert_eq!(fs::read_dir(&f.managed).unwrap().count(), 0);
+    assert_eq!(
+        fs::read_dir(old_target.join(".baton-transactions"))
+            .unwrap()
+            .count(),
+        1
+    );
+}
+
+#[test]
+fn concurrent_updates_can_create_only_one_successor() {
+    let f = Fixture::new();
+    let drift = DriftFixture::accept(&f);
+    let text = revised_instruction("Keep the summary short.");
+    let scope = commit_skill(&f, &text);
+    let classified = drift.classified(&text);
+    let left = drift_request(&f, UPDATE_ONE, &scope, None, &classified);
+    let right = drift_request(&f, UPDATE_TWO, &scope, None, &classified);
+    let v1 = ready(prepare_project_config_update(&left, &drift.approval()).unwrap());
+    let v2 = ready(prepare_project_config_update(&right, &drift.approval()).unwrap());
+    let start = std::sync::Barrier::new(2);
+    let results = std::thread::scope(|threads| {
+        let l = threads.spawn(|| {
+            start.wait();
+            apply_project_config_update(&left, &drift.approval(), &v1)
+        });
+        let r = threads.spawn(|| {
+            start.wait();
+            apply_project_config_update(&right, &drift.approval(), &v2)
+        });
+        [l.join().unwrap(), r.join().unwrap()]
+    });
+    let winners: Vec<_> = results
+        .iter()
+        .zip([&v1, &v2])
+        .filter_map(|(result, version)| {
+            result
+                .as_ref()
+                .is_ok_and(|state| *state == State::Applied)
+                .then_some(version)
+        })
+        .collect();
+    assert_eq!(winners.len(), 1, "{results:?}");
+    assert_eq!(journal_count(&f), 2);
+    let plan = read_project_config_version(&f.managed, &drift.approval(), winners[0])
+        .unwrap()
+        .unwrap();
+    assert_eq!(plan.skills[0].instruction_text(), text);
 }

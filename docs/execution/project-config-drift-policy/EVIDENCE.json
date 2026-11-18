@@ -1,0 +1,137 @@
+{
+  "baseline": {
+    "base": "c89085fa90187a30df32735b1089d967766f1306",
+    "architecture": "arm64",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "agentbaton-config",
+      "--test",
+      "project_import",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": 2,
+      "CARGO_PROFILE_DEV_DEBUG": 0
+    },
+    "exit_code": 0,
+    "seconds": 13.834,
+    "log_sha256": "63b1b0fb8cab997530fb5748eb560f392021ce3c0b5c6ee0a61fad9d4a692d18",
+    "summary": "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.72s",
+    "archive": "baseline.log.gz",
+    "archive_sha256": "ef73317163389ce902aaa366e4a4543cdbed4d223f926b2564ea8c42b9340c54"
+  },
+  "verification": {
+    "checks": {
+      "config-test": {
+        "exit_code": 0,
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-config",
+          "--",
+          "--show-output",
+          "--test-threads=1"
+        ],
+        "seconds": 14.041,
+        "log_sha256": "ec4c71f85bb35c7b1a02f76101950e0d6b93757570f5107c18d02a80302b6966",
+        "results": [
+          "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s",
+          "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+          "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s",
+          "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s",
+          "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+          "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+          "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.64s",
+          "test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.43s",
+          "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.73s",
+          "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+        ],
+        "archive": "config-test.log.gz",
+        "archive_sha256": "074da46a8bdfc3949ab57f46ba56615c510cee0c9956a31259a7a122beb03f94"
+      },
+      "config-clippy": {
+        "exit_code": 0,
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-config",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "seconds": 2.295,
+        "log_sha256": "d382c5a053785ccacb10ec7a8f15e715c45f33a81485970833f03090730d62dc",
+        "results": [],
+        "archive": "config-clippy.log.gz",
+        "archive_sha256": "cf67b8a56dc734c700ae4a42f7502179fca510b07ef1f4ceaf3853a786b124be"
+      },
+      "fmt": {
+        "exit_code": 0,
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--check"
+        ],
+        "seconds": 1.422,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "results": [],
+        "archive": "fmt.log.gz",
+        "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "initial-check": {
+        "log_sha256": "5b3ff6007b3dc8cf9c848fe37a6c7894490578231c6b7f54cdd80184b86d91dd",
+        "exit_code": 101,
+        "archive": "initial-check.log.gz",
+        "archive_sha256": "449507a4c3d33dbb3f17ddd81efc91da14911291c9b6698e149636daeb3b677a"
+      },
+      "first-candidate": {
+        "log_sha256": "87598d4ae4539349af23900114029854e794cc64d586ee8820d9165bb63bc3cc",
+        "exit_code": 0,
+        "archive": "first-candidate.log.gz",
+        "archive_sha256": "636b4daf7473c561182966b2617320f278e2c0a327bc8d54026355387bae5216"
+      },
+      "contention-repeat": {
+        "log_sha256": "ce471e9ae93b3c69f626b1178c7bb3a2ccf4e23595304d5cc63d1b646b64bb0c",
+        "exit_code": 0,
+        "archive": "contention-repeat.log.gz",
+        "archive_sha256": "4f8bd0a8a8f8109f1f2cd51e6c2889fa16cac65a97edab383f61f7f141660c69"
+      }
+    },
+    "source_sha256": {
+      "crates/config/src/project_import.rs": "dced6482343bfbb0e072b20cce8cddba80582d02331233c11bca872cba8109dc",
+      "crates/config/tests/project_import.rs": "9bb98f128d6313e2067d8aa4fee9216145598864319d5345c240c1d28df9792d"
+    }
+  },
+  "complete_config_tests": 105,
+  "deterministic_contention_runs": 12,
+  "constraints": {
+    "only_existing_selected_instruction_keys": true,
+    "requires_trusted_exact_nonsecret_digest": true,
+    "complete_instruction_only_catalog_for_rule": true,
+    "scope_provider_policy_bound": true,
+    "managed_root_descriptor_pinned": true,
+    "source_rechecked_before_publish": true,
+    "exclusive_successor_rename": true,
+    "source_or_target_foreign_bytes_not_overwritten": true,
+    "original_and_previous_versions_readable": true
+  },
+  "integration": {
+    "core_app_wired": false,
+    "normal_entry_verified": false,
+    "real_providers_invoked": false,
+    "linux_run": false
+  }
+}
