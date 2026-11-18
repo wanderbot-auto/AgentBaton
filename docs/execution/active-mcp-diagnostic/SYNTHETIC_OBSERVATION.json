@@ -1,0 +1,38 @@
+{
+  "connection_projection_equal": true,
+  "direct_child_exit_verified": true,
+  "observed_methods": [
+    "initialize",
+    "notifications/initialized",
+    "tools/list",
+    "tools/list"
+  ],
+  "receipt": {
+    "configured_tools_seen": [
+      "read_note"
+    ],
+    "diagnostic_id": "111ccfdb-36bc-44d6-808f-e43f841ce932",
+    "direct_child": {
+      "exit_code": 0,
+      "kill_requested": false,
+      "signal": null,
+      "state": "reaped"
+    },
+    "entry_cleanup": "removed",
+    "entry_directory": "entry-3b7f7730-0c3b-45c1-b342-4a559137d794",
+    "evidence_source": "standalone_local_mcp_diagnostic",
+    "launched_entry": {
+      "device": 16777234,
+      "inode": 70270027,
+      "sha256": "2e2011c07469eddea51ad31d21fe60f6dcb2e7250671bc00b560733d7b5a5389"
+    },
+    "other_tool_count": 1,
+    "outcome": "enumerated",
+    "protocol_version": "2024-11-05",
+    "review_digest": "518460c07311cec3655c604712b16da0079627c8f362ddba32b32a2865e05f6a",
+    "runtime_snapshot_digest": "466fabebba8923e74c58ce1ab88cbfe2896ec8b2d54e94f6c0409c1658142400",
+    "stderr_bytes_observed": 25
+  },
+  "session_count": 0,
+  "stdin_close_observed": true
+}
