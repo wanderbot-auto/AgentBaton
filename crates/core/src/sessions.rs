@@ -152,6 +152,374 @@ pub struct ManagedSession {
     #[serde(default)]
     pub runtime_snapshot: Option<crate::RuntimeBinding>,
 }
+
+/// The caller resolves this session-specific observation independently from an
+/// authorized native verifier. Version output, a saved native ID and a claim by
+/// the Provider do not establish identity or permission to load a session.
+#[derive(Debug)]
+pub struct NativeSessionRecoveryEvidence<'a> {
+    pub session_id: &'a str,
+    pub attempt_id: &'a str,
+    pub native_session_id: &'a str,
+    pub binding: &'a ExecutionBinding,
+    /// Task specification revision captured when the original session was bound.
+    pub task_spec_revision: u64,
+    pub runtime: &'a crate::RuntimeBinding,
+    pub connection_revision: u64,
+    pub route: ProtocolRoute,
+    pub executable_sha256: &'a BinaryDigest,
+    pub support: &'a agentbaton_providers::connections::SupportManifest,
+    pub valid_until_unix_ms: u64,
+}
+
+/// A handoff already selected and resolved by a trusted caller for this
+/// project/task/attempt. Admission only carries its reference and digest.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SelectedSessionHandoff {
+    pub project_id: String,
+    pub task_id: String,
+    pub source_attempt_id: String,
+    pub reference: String,
+    pub sha256: BinaryDigest,
+}
+
+#[derive(Debug)]
+pub struct SessionRecoveryRequest<'a> {
+    pub session_id: &'a str,
+    pub expected_session_revision: u64,
+    pub expected_task_revision: u64,
+    pub native: Option<&'a NativeSessionRecoveryEvidence<'a>>,
+    pub handoff: Option<&'a SelectedSessionHandoff>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SessionRecoveryReason {
+    IncompleteHistory,
+    UnresolvedProcess,
+    UnresolvedTurn,
+    UnresolvedTask,
+    UnresolvedWriter,
+    WorkspaceOrInputChanged,
+    BindingOrApprovalChanged,
+    IdentityUnverified,
+    NativeSessionUnavailable,
+    RuntimeSnapshotUnavailable,
+    NativeRecoveryUnsupported,
+    CompatibilityEvidenceUnavailable,
+    CompatibilityEvidenceMismatch,
+}
+
+/// A read-only result for a trusted in-process caller, not an executable
+/// command or a reservation. Recheck before an authorized side effect.
+#[derive(Debug, PartialEq, Eq)]
+pub enum SessionRecoveryAdmission {
+    NativeEligible {
+        attempt_id: String,
+        native_session_id: String,
+    },
+    NewAttemptRequired {
+        prior_attempt_id: String,
+        reason: SessionRecoveryReason,
+        handoff: Option<SelectedSessionHandoff>,
+    },
+    Reconcile {
+        prior_attempt_id: String,
+        reason: SessionRecoveryReason,
+    },
+}
+
+impl Supervisor {
+    /// Assesses recovery under the existing actor's read boundary. It never
+    /// loads a session, creates an attempt, releases a fence, or replays a turn.
+    pub fn assess_session_recovery(
+        &self,
+        store: &Store,
+        request: &SessionRecoveryRequest<'_>,
+    ) -> Result<SessionRecoveryAdmission> {
+        use SessionRecoveryReason as Reason;
+        if request.session_id.is_empty() || request.session_id.len() > 128 {
+            return Err(invalid("A bounded session ID is required"));
+        }
+        let session = store.get_session(request.session_id)?;
+        store.require_ordinary_session(request.session_id)?;
+        let task = store.get(&session.task_id)?;
+        if session.revision != request.expected_session_revision
+            || task.revision != request.expected_task_revision
+        {
+            return Err(CoreError::new(
+                "STALE_REVISION",
+                "Session or task changed before recovery assessment",
+            ));
+        }
+        let reconcile = |reason| SessionRecoveryAdmission::Reconcile {
+            prior_attempt_id: session.attempt_id.clone(),
+            reason,
+        };
+        let Some(intent) = recovery_intent(&store.conn, &session, &task, request.session_id)?
+        else {
+            return Ok(reconcile(Reason::IncompleteHistory));
+        };
+        if self.owns(&session.id)
+            || !matches!(session.state.as_str(), "stopped" | "failed")
+            || intent.state != IntentState::Stopped
+        {
+            return Ok(reconcile(Reason::UnresolvedProcess));
+        }
+        let unresolved_turn: bool = store
+            .conn
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM session_turns WHERE session_id=?1 AND state!='ended')
+              OR EXISTS(SELECT 1 FROM events WHERE json_extract(document,'$.aggregate_id')=?1
+                  AND json_extract(document,'$.kind')='session.turn_ended'
+                  AND json_extract(document,'$.payload.turn_state')='outcome_unknown')",
+                [&session.id],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+        if unresolved_turn
+            || !matches!(
+                session.turn_state.as_deref(),
+                None | Some("completed" | "cancelled" | "interrupted")
+            )
+        {
+            return Ok(reconcile(Reason::UnresolvedTurn));
+        }
+        if matches!(
+            task.state,
+            TaskState::OutcomeUnknown | TaskState::CancelRequested | TaskState::Running
+        ) {
+            return Ok(reconcile(Reason::UnresolvedTask));
+        }
+        if task.state == TaskState::Accepted {
+            return Err(CoreError::new(
+                "PERMISSION_DENIED",
+                "An accepted task cannot resume execution",
+            ));
+        }
+        let unresolved_writer: bool = store.conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM workspace_leases WHERE resource=?1 AND holder!='')
+              OR EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=?1)
+              OR EXISTS(SELECT 1 FROM sessions WHERE workspace_id=?1 AND state NOT IN('stopped','failed'))
+              OR EXISTS(SELECT 1 FROM conversations WHERE workspace_id=?1 AND state NOT IN('stopped','failed'))
+              OR EXISTS(SELECT 1 FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?2 AND d.state!='stopped')",
+            params![session.workspace_id, task.id],
+            |r| r.get(0),
+        ).map_err(db_error)?;
+        if unresolved_writer {
+            return Ok(reconcile(Reason::UnresolvedWriter));
+        }
+        let new_attempt = |reason| -> Result<_> {
+            let handoff = request
+                .handoff
+                .map(|selected| {
+                    if selected.project_id != session.project_id
+                        || selected.task_id != task.id
+                        || selected.source_attempt_id != session.attempt_id
+                        || !recovery_reference(&selected.reference)
+                    {
+                        Err(invalid("Selected handoff does not belong to this attempt"))
+                    } else {
+                        Ok(selected.clone())
+                    }
+                })
+                .transpose()?;
+            Ok(SessionRecoveryAdmission::NewAttemptRequired {
+                prior_attempt_id: session.attempt_id.clone(),
+                reason,
+                handoff,
+            })
+        };
+
+        match store.get_grant(&session.grant_id).and_then(|grant| {
+            crate::task_workspace_binding::require_task_binding_for_session(
+                &store.conn,
+                &task,
+                &task.id,
+                &intent.binding.workspace_id,
+            )?;
+            store.validate_execution_grant(
+                &session.grant_id,
+                grant.revision,
+                &task.id,
+                &intent.binding,
+            )
+        }) {
+            Ok(_) => {}
+            Err(error) => {
+                return match error.code.as_str() {
+                    "OUTCOME_UNKNOWN" | "WORKSPACE_BUSY" => Ok(reconcile(Reason::UnresolvedWriter)),
+                    "INPUT_CHANGED" | "CONFIG_CONFLICT" => {
+                        new_attempt(Reason::WorkspaceOrInputChanged)
+                    }
+                    "NOT_FOUND"
+                    | "PERMISSION_DENIED"
+                    | "AUTH_REQUIRED"
+                    | "CAPABILITY_UNSUPPORTED"
+                    | "STALE_REVISION" => new_attempt(Reason::BindingOrApprovalChanged),
+                    _ => Err(error),
+                }
+            }
+        };
+        let Some(native_id) = session
+            .native_session_id
+            .as_deref()
+            .filter(|id| id.len() <= 256 && recovery_reference(id))
+        else {
+            return new_attempt(Reason::NativeSessionUnavailable);
+        };
+        if session.state != "stopped"
+            || intent.executor_instance.as_deref() != Some(session.id.as_str())
+        {
+            return new_attempt(Reason::NativeSessionUnavailable);
+        }
+        let Some(runtime) = store.runtime_binding(&session.id)? else {
+            return new_attempt(Reason::RuntimeSnapshotUnavailable);
+        };
+        if session.runtime_snapshot.as_ref() != Some(&runtime)
+            || runtime.session_id != session.id
+            || runtime.attempt_id != session.attempt_id
+            || runtime.connection_config_revision != intent.binding.config_revision
+        {
+            return new_attempt(Reason::RuntimeSnapshotUnavailable);
+        }
+        let connection = store.get_connection(&session.connection_id)?;
+        if connection.protocol_route == ProtocolRoute::CodexAppServer {
+            // This route starts ephemeral threads and has no native load contract.
+            return new_attempt(Reason::NativeRecoveryUnsupported);
+        }
+        if connection.identity_status != "verified"
+            || !recovery_reference(&intent.binding.identity_ref)
+            || intent.binding.identity_ref == "unknown"
+            || intent.binding.identity_ref.starts_with("unknown:")
+        {
+            return new_attempt(Reason::IdentityUnverified);
+        }
+        let Some(evidence) = request.native else {
+            return new_attempt(Reason::CompatibilityEvidenceUnavailable);
+        };
+        if evidence.task_spec_revision == 0 || evidence.task_spec_revision != task.spec_revision {
+            return new_attempt(Reason::WorkspaceOrInputChanged);
+        }
+        let now = u64::try_from(ms()?)
+            .map_err(|_| CoreError::new("INTERNAL_ERROR", "Invalid recovery clock"))?;
+        if !native_recovery_matches(evidence, &session, &intent, &runtime, &connection, now) {
+            return new_attempt(Reason::CompatibilityEvidenceMismatch);
+        }
+        let plan = crate::runtime_config::approved_plan(&connection)?;
+        let actual = RuntimeRoot::open(&self.runtime.join("runtime-config")).and_then(|root| {
+            root.verify_before_launch(&runtime.snapshot, RuntimeRequirements::default())
+        });
+        if !actual.is_ok_and(|snapshot| snapshot.plan_digest() == runtime.plan_digest)
+            || plan
+                .plan_digest()
+                .map_err(crate::runtime_config::config_error)?
+                != runtime.plan_digest
+        {
+            return new_attempt(Reason::RuntimeSnapshotUnavailable);
+        }
+        if verify_executable(&connection.executable, evidence.executable_sha256).is_err() {
+            return new_attempt(Reason::CompatibilityEvidenceMismatch);
+        }
+        Ok(SessionRecoveryAdmission::NativeEligible {
+            attempt_id: session.attempt_id,
+            native_session_id: native_id.into(),
+        })
+    }
+}
+
+fn recovery_reference(value: &str) -> bool {
+    !value.trim().is_empty() && value.len() <= 512 && !value.chars().any(char::is_control)
+}
+
+fn recovery_intent(
+    db: &Connection,
+    session: &ManagedSession,
+    task: &Task,
+    session_id: &str,
+) -> Result<Option<DispatchIntent>> {
+    let row = db
+        .query_row(
+            "SELECT a.binding,d.state,d.executor_instance,d.document
+           FROM sessions s JOIN attempts a ON a.id=?2 AND a.task_id=s.task_id AND a.root_task_id=s.task_id
+                JOIN dispatch_intents d ON d.attempt_id=a.id AND d.id=?3
+          WHERE s.id=?1 AND s.task_id=?4 AND s.project_id=?5 AND s.workspace_id=?6
+            AND s.connection_id=?7 AND s.grant_id=?8 AND s.state=?9",
+            params![
+                session_id, session.attempt_id, session.intent_id, task.id, task.project_id,
+                session.workspace_id, session.connection_id, session.grant_id, session.state,
+            ],
+            |r| {
+                Ok((
+                    r.get::<_, String>(0)?,
+                    r.get::<_, String>(1)?,
+                    r.get::<_, Option<String>>(2)?,
+                    r.get::<_, String>(3)?,
+                ))
+            },
+        )
+        .optional()
+        .map_err(db_error)?;
+    let Some((binding, state, executor, record)) = row else {
+        return Ok(None);
+    };
+    let intent: DispatchIntent = decode(&record)?;
+    let binding: ExecutionBinding = decode(&binding)?;
+    let intent_state = match intent.state {
+        IntentState::Prepared => "prepared",
+        IntentState::Sent => "sent",
+        IntentState::OutcomeUnknown => "outcome_unknown",
+        IntentState::Stopped => "stopped",
+    };
+    Ok((session.id == session_id
+        && session.task_id == task.id
+        && session.project_id == task.project_id
+        && intent.task_id == task.id
+        && intent.root_task_id == task.id
+        && intent.id == session.intent_id
+        && intent.attempt_id == session.attempt_id
+        && intent_state == state
+        && intent.executor_instance == executor
+        && binding == intent.binding
+        && binding.workspace_id == session.workspace_id
+        && binding.connection_id == session.connection_id)
+        .then_some(intent))
+}
+
+fn native_recovery_matches(
+    evidence: &NativeSessionRecoveryEvidence<'_>,
+    session: &ManagedSession,
+    intent: &DispatchIntent,
+    runtime: &crate::RuntimeBinding,
+    connection: &ProviderConnection,
+    now: u64,
+) -> bool {
+    let support = evidence.support;
+    let Some(probe) = connection.version_evidence.as_ref() else {
+        return false;
+    };
+    evidence.session_id == session.id
+        && evidence.attempt_id == session.attempt_id
+        && session.native_session_id.as_deref() == Some(evidence.native_session_id)
+        && evidence.binding == &intent.binding
+        && evidence.runtime == runtime
+        && evidence.connection_revision == connection.revision
+        && evidence.route == connection.protocol_route
+        && evidence.executable_sha256.as_str() == connection.executable_sha256
+        && evidence.valid_until_unix_ms > now
+        && probe.state == VersionProbeState::Succeeded
+        && probe.exit_code == Some(0)
+        && probe.process_reaped
+        && probe.executable_sha256 == *evidence.executable_sha256
+        && probe.observed_at_unix_ms != 0
+        && probe.version_line.as_deref() == Some(support.provider_version.as_str())
+        && support.provider == connection.protocol_route.provider()
+        && support.require_runtime_capability("session-load").is_ok()
+        && support.capabilities.iter().any(|item| {
+            item.capability == "session-load"
+                && (probe.observed_at_unix_ms..=now).contains(&item.observed_at_unix_ms)
+        })
+}
+
 fn invalid(message: &str) -> CoreError {
     CoreError::new("INVALID_REQUEST", message)
 }
