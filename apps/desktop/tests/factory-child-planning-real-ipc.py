@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Schema15 built UI / fixed Owner bridges / actual Unix IPC / generated MCP5.
+"""Schema19 built UI / fixed Owner bridges / actual Unix IPC / generated MCP5.
 
 No OS Owner dialog, real model, account or generic Owner HTTP bridge. Running
 without --run records NOT_RUN. --self-check starts no listener or subprocess.
@@ -32,7 +32,9 @@ BASE_PATH = Path(__file__).with_name('factory-real-ipc.py')
 _spec = importlib.util.spec_from_file_location('_child_planning_factory_support', BASE_PATH)
 base = importlib.util.module_from_spec(_spec)
 sys.modules[_spec.name] = base
-_spec.loader.exec_module(base)
+BASE_SOURCE = BASE_PATH.read_bytes()
+exec(compile(BASE_SOURCE, str(BASE_PATH), 'exec'), base.__dict__)
+FACTORY_SUPPORT_SHA256 = 'e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464'
 FixedCall, Refusal, require = base.FixedCall, base.BoundaryRefusal, base.require
 sha, safe_integer, unique_object = base.sha, base.safe_integer, base.unique_object
 exact_json = base.support.exact_json_value
@@ -181,29 +183,41 @@ def review_scope(proposal, selection, resources):
         'complete_review_bytes': len(raw), 'complete_review_sha256': sha(raw)}
 
 
+def fingerprint_rows(db, read_factory_counts):
+    names = {v[0] for v in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    fixed = {'execution_grants', 'managed_workspaces', 'tasks', 'attempts', 'sessions', 'factory_attempts', 'factory_runs',
+        'factory_child_plan_heads', 'factory_child_plan_revisions', 'budgets', 'workspace_leases',
+        'factory_budget_reservations', 'goal_ledgers', 'idempotency', 'events'}
+    fixed |= base.support.LEGACY_GOAL_TABLES
+    fixed |= set(base.support.FACTORY_RECORD_TABLES.values())
+    fixed |= set(base.support.INTEGRATION_RECORD_TABLES.values())
+    assert fixed <= names, ('Missing required current tables', sorted(fixed - names))
+    counts = read_factory_counts(db)
+    assert counts['child_goal_runs'] == 0, 'Planning-only scope cannot dispatch a derived Goal'
+    rows = {}; total = 0
+    for name in sorted(fixed):
+        count = db.execute('SELECT count(*) FROM "' + name + '"').fetchone()[0]
+        assert count <= 1024
+        values = db.execute('SELECT * FROM "' + name + '" ORDER BY rowid').fetchall()
+        raw = json.dumps(values, separators=(',', ':'), allow_nan=False).encode()
+        total += len(raw); assert total <= 8 * 1024 * 1024
+        rows[name] = {'count': count, 'sha256': sha(raw)}
+    return rows
+
+
 def fingerprint_db(runtime):
-    """Readonly, bounded exact rows; no Store::open/migration/recovery."""
+    """Preserve schema 18 for historical read-only consumers."""
     with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
         assert db.execute('PRAGMA user_version').fetchone()[0] == 18
-        names = {v[0] for v in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        fixed = {'execution_grants', 'managed_workspaces', 'tasks', 'attempts', 'sessions', 'factory_attempts', 'factory_runs',
-            'factory_child_plan_heads', 'factory_child_plan_revisions', 'budgets', 'workspace_leases',
-            'factory_budget_reservations', 'goal_ledgers', 'idempotency', 'events'}
-        fixed |= base.support.LEGACY_GOAL_TABLES
-        fixed |= set(base.support.FACTORY_RECORD_TABLES.values())
-        fixed |= set(base.support.INTEGRATION_RECORD_TABLES.values())
-        assert fixed <= names, ('Missing required current tables', sorted(fixed - names))
-        counts = base.support.current_factory_counts(db)
-        assert counts['child_goal_runs'] == 0, 'Planning-only scope cannot dispatch a derived Goal'
-        rows = {}; total = 0
-        for name in sorted(fixed):
-            count = db.execute('SELECT count(*) FROM "' + name + '"').fetchone()[0]
-            assert count <= 1024
-            values = db.execute('SELECT * FROM "' + name + '" ORDER BY rowid').fetchall()
-            raw = json.dumps(values, separators=(',', ':'), allow_nan=False).encode()
-            total += len(raw); assert total <= 8 * 1024 * 1024
-            rows[name] = {'count': count, 'sha256': sha(raw)}
+        rows = fingerprint_rows(db, base.support.current_factory_counts)
+        db.rollback()
+    return rows
+
+
+def current_fingerprint_db(runtime):
+    with base.support.graph_database(runtime) as db:
+        rows = fingerprint_rows(db, base.support.graph_factory_counts)
         db.rollback()
     return rows
 
@@ -953,24 +967,47 @@ def sql_self_check(previous_report):
         'dimension':'pure SQLite replay of retained real Core14 events on exact source-derived events table DDL; NOT new daemon/browser/complete Store migration'}
 
 
-def runtime_driver(args, output, manifest):
-    from playwright.sync_api import expect, sync_playwright
-    raw_daemon = args.tools / 'batond'; raw_cli = args.tools / 'baton'
-    frontend = args.frontend.resolve(strict=True)
+def verify_planning_support():
+    require(sha(BASE_SOURCE) == sha(BASE_PATH.read_bytes()) == FACTORY_SUPPORT_SHA256,
+        'Child Planning requires the reviewed schema19 Factory source')
+
+
+def current_planning_preflight(args):
+    require(args.tools and args.frontend and args.manifest,
+        'Supply frozen Factory tools, manifest and built frontend')
+    verify_planning_support()
+    return base.current_factory_preflight(argparse.Namespace(
+        batond=args.tools / 'batond', candidate_manifest=args.manifest, frontend=args.frontend))
+
+
+def verify_planning_run_inputs(prepared, source_sha256):
+    verify_planning_support()
+    require(sha(Path(__file__).read_bytes()) == source_sha256, 'Child Planning driver changed')
+    base.verify_factory_run_inputs(prepared, FACTORY_SUPPORT_SHA256)
+
+
+def planning_preflight_refusal(output, failure):
+    base.write_private_json(output / 'preflight-refusal.json', {
+        'status': 'preflight_refused', 'actual_runtime': 'not_run',
+        'schema_required': base.FACTORY_SCHEMA, 'no_process_token_read_or_listener': True,
+        'error': str(failure), 'traceback': traceback.format_exc()})
+    return 2
+
+
+def runtime_driver(args, output, prepared):
+    try:
+        from playwright.sync_api import expect, sync_playwright
+    except ImportError as failure:
+        return planning_preflight_refusal(output, failure)
+    raw_daemon, raw_cli = (prepared.tool_paths[name] for name in ('batond', 'baton'))
+    frontend, manifest = prepared.frontend, prepared.manifest
     source = Path(__file__).read_bytes()
-    asset_paths=list(frontend.rglob('*'))
-    assert len(asset_paths)<=4096 and not any(p.is_symlink() for p in asset_paths)
-    assert sum(p.stat().st_size for p in asset_paths if p.is_file())<=64*1024*1024
-    assets = {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(asset_paths) if p.is_file()}
-    assert (frontend / 'index.html').is_file() and len(assets) <= 4096
-    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema18 frontend required'
-    for name, path in [('batond', raw_daemon), ('baton', raw_cli)]:
-        assert sha(path.read_bytes()) == manifest['binaries'][name]
-    assert type(manifest['schema']) is int and manifest['schema'] == 18
-    assert re.fullmatch('[a-f0-9]{40}',manifest['source_head']) and re.fullmatch('[a-f0-9]{40}',manifest['compiled_core_source_head'])
-    report = {'status': 'failed_or_interrupted', 'schema_required': 18, 'harness_sha256': sha(source), 'candidate_manifest_sha256': sha(args.manifest.read_bytes()),
-        'support_sha256': sha(BASE_PATH.read_bytes()), 'candidate': manifest, 'frontend_assets': assets,
-        'harness_git_head': subprocess.check_output(['git','rev-parse','HEAD'],cwd=Path(__file__).resolve().parents[3],text=True).strip(),
+    assets = {name: pin['sha256'] for name, pin in prepared.asset_pins.items()}
+    fingerprint_db = current_fingerprint_db
+    report = {'status': 'failed_or_interrupted', 'schema_required': base.FACTORY_SCHEMA, 'harness_sha256': sha(source),
+        'candidate_manifest_sha256': sha(prepared.manifest_raw), 'support_sha256': sha(BASE_SOURCE),
+        'candidate': manifest, 'frontend_assets': assets, 'frozen_tool_pins': prepared.tool_pins,
+        'harness_git_head': prepared.source_head, 'harness_git_tree': prepared.source_tree,
         'checks': [], 'screenshots': [], 'http': [], 'private_owner_reviews': [], 'cleanup': [],
         'http_unexpected_errors': [], 'readonly_aborts': [], 'observations': {}, 'cleanup_complete': False,
         'not_claimed': ['OS Native Owner dialog', 'macOS', 'real Provider/model', 'child Goal execution',
@@ -999,6 +1036,8 @@ def runtime_driver(args, output, manifest):
         report['controller_reaper'] = {}; reaper = base.FixtureControllerReaper(report['controller_reaper']); reaper.enable()
         report['private_installation'] = {}
         binary, companion = base.install_private_tools(raw_daemon, raw_cli, root / 'installed', report['private_installation'])
+        installed_pins = base.verify_factory_installation(prepared, report['private_installation'], binary, companion)
+        report['private_installation']['installed_file_pins'] = installed_pins
         provider = root / 'generated-factory-acp'; settings = root / 'generated-settings.json'
         provider.write_text('#!' + sys.executable + '\n' + program); provider.chmod(0o700)
         report['generated_program_sha256'] = sha(provider.read_bytes())
@@ -1008,6 +1047,8 @@ def runtime_driver(args, output, manifest):
         wait(lambda: ((runtime / 'session.token').exists(), (runtime / 'batond.sock').exists(), daemon.poll()),
             lambda v: v[0] and v[1] and v[2] is None)
         host = base.PrivateHost(runtime); token = host.token
+        report['observations']['schema_evidence'] = {'manifest_schema': manifest['schema'],
+            **base.observe_factory_schema(host, runtime)}
         def resource(method, params, kind, key):
             proposal = host.result(method, params, key)
             assert proposal['kind'] == kind
@@ -1016,7 +1057,7 @@ def runtime_driver(args, output, manifest):
                 'authority': 'private generated fixture, NOT OS Native approval'})
             return host.result('approvals.finalize', {'proposal_id': proposal['id']},
                 'proposal:' + proposal['id'], proposal['revision'])
-        connection = resource('connections.propose', {'name': 'Generated schema18 MCP5', 'provider': 'custom_acp',
+        connection = resource('connections.propose', {'name': 'Generated schema19 MCP5', 'provider': 'custom_acp',
             'executable': str(provider), 'arguments': ['--fixture-settings', str(settings)]}, 'connection', 'planning:connection')
         cid = connection['id']
         rows = wait(lambda: host.result('connections.list', {}), lambda rows: any(c['id'] == cid and c['probe_state'] == 'ready' for c in rows))
@@ -1407,8 +1448,7 @@ def runtime_driver(args, output, manifest):
         assert all(t['confirmed_stop'] for t in details['tasks']) and details['run']['active_session_id'] is None
         report['observations']['terminal_run']=details
         # Immutable refs and SQL journal agree independently of UI state.
-        with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
-            db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
+        with base.support.graph_database(runtime) as db:
             rows = db.execute('SELECT document,plan_json,raw_sha256,plan_digest,record_digest,receipt_sequence FROM factory_child_plan_revisions ORDER BY receipt_sequence').fetchall()
             assert len(rows) == 6
             journals = []
@@ -1449,7 +1489,9 @@ def runtime_driver(args, output, manifest):
                 continue  # Exact shared meters proved above; no structural Goal exemption.
             assert final_state[name] == after_approval[name], ('Unexpected Goal dispatch', name)
         assert not errors and not report['http_unexpected_errors'], (errors, report['http_unexpected_errors'])
-        assert sha(Path(__file__).read_bytes()) == sha(source)
+        verify_planning_run_inputs(prepared, report['harness_sha256'])
+        require(base.factory_tools_pins({'batond': binary, 'baton': companion}) == installed_pins,
+            'Child Planning installed tool identity changed')
         passed('CP09', 'Six raw revisions bind independent real journal receipts; original Grant children0, exactly3 attempts, active0, no new Goal/TaskAccepted/workspace, source unchanged')
         report['status'] = 'passed'
     except BaseException as error:
@@ -1462,14 +1504,16 @@ def runtime_driver(args, output, manifest):
             def final_diagnostics():
                 info, _ = base.diagnostic_snapshot(runtime, workspace, output, token)
                 report['observations']['final_diagnostics'] = info
-                assert info['complete'] is True and info['schema'] == 18
+                assert info['complete'] is True and type(info['schema']) is int and info['schema'] == base.FACTORY_SCHEMA
             base.cleanup_call(report, 'readonly_final_diagnostics', final_diagnostics, clean)
         close_browser_engine(browser,playwright,report,clean)
         http_complete = True
         if server is not None:
-            base.cleanup_call(report, 'http_shutdown', server.shutdown, clean)
-            http_thread.join(timeout=5)
-            http_complete = not http_thread.is_alive()
+            http_complete = http_thread is not None and http_thread.ident is not None
+            if http_complete:
+                base.cleanup_call(report, 'http_shutdown', server.shutdown, clean)
+                base.cleanup_call(report, 'http_thread_join', lambda: http_thread.join(timeout=5), clean)
+                http_complete = base.cleanup_call(report, 'http_thread_inspection', http_thread.is_alive, clean) is False
             base.cleanup_call(report, 'http_handlers_close', server.server_close, clean)
             http_complete = http_complete and not active
             report['cleanup'].append({'action': 'HTTP serve and handler join', 'confirmed': http_complete, 'active': list(active.values())})
@@ -1499,16 +1543,15 @@ def runtime_driver(args, output, manifest):
                 require_full=report['status'] == 'passed' and not report.get('failure')), clean) is True
         elif daemon is not None: fail('identity_coverage', AssertionError('No actual bound process records; cannot claim cleanup completeness'))
         if log is not None:
-            log.close(); path = output / 'daemon.log'
-            if token: path.write_bytes(path.read_bytes().replace(token.encode(), b'[redacted generated Owner token]'))
+            base.cleanup_call(report, 'daemon_log_close', log.close, clean)
+            if token:
+                def redact_log():
+                    path = output / 'daemon.log'
+                    path.write_bytes(path.read_bytes().replace(token.encode(), b'[redacted generated Owner token]'))
+                base.cleanup_call(report, 'daemon_log_redaction', redact_log, clean)
         if reaper is not None: base.cleanup_call(report, 'subreaper_restore', reaper.restore, clean)
-        for name, raw in [('batond', raw_daemon), ('baton', raw_cli)]:
-            try: assert sha(raw.read_bytes()) == manifest['binaries'][name]
-            except BaseException as error: fail('immutable_tool_changed', error)
-        try:
-            assert {str(p.relative_to(frontend)):sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()} == assets
-            assert sha(args.manifest.read_bytes()) == report['candidate_manifest_sha256']
-        except BaseException as error: fail('frozen_inputs_changed',error)
+        base.cleanup_call(report, 'frozen_inputs_changed',
+            lambda: verify_planning_run_inputs(prepared, report['harness_sha256']), clean)
         base.cleanup_call(report, 'private_temporary_fixture_cleanup', temporary.cleanup, clean)
         seal_runtime_report(report, daemon_complete, identities_complete, http_complete, clean)
         base.write_private_json(output / 'report.json', json.loads(clean(json.dumps(report))))
@@ -1556,16 +1599,13 @@ def main():
         base.write_private_json(output/'sql-check.json',value);print(json.dumps(value));return 0
     if not args.run:
         base.write_private_json(output / 'NOT_RUN.json', {'actual_runtime': 'not_run',
-            'pending': ['Root reviewed harness', 'fixed schema18 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
+            'pending': ['Root reviewed harness', 'fixed schema19 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
         return 2
-    assert args.tools and args.frontend and args.manifest
-    manifest = json.loads(args.manifest.read_bytes(), object_pairs_hook=unique_object)
     try:
-        return runtime_driver(args, output, manifest)
-    except BaseException as error:
-        if not (output/'report.json').exists():
-            base.write_private_json(output/'preflight-refusal.json',{'status':'preflight_refused','actual_runtime':'not_run','error':str(error),'traceback':traceback.format_exc()})
-        raise
+        prepared = current_planning_preflight(args)
+    except (AssertionError, OSError, ValueError, KeyError, subprocess.CalledProcessError) as failure:
+        return planning_preflight_refusal(output, failure)
+    return runtime_driver(args, output, prepared)
 
 
 if __name__ == '__main__':

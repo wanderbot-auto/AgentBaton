@@ -7,6 +7,9 @@ import ast
 import hashlib
 from pathlib import Path
 import unittest
+from unittest.mock import patch
+
+from tests.infrastructure import schema18_source_fixture as S
 
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = ROOT / 'apps/desktop/tests/factory-child-planning-real-ipc.py'
@@ -38,7 +41,7 @@ class ExactDriverComposition(unittest.TestCase):
         self.assertEqual(sha(original_driver(DRIVER.read_bytes())), ORIGINAL_SHA256)
 
     def test_all_original_function_bodies_restore_and_new_helpers_are_only_additions(self):
-        raw = DRIVER.read_bytes(); before = ast.parse(original_driver(raw)); after = ast.parse(raw)
+        raw = DRIVER.read_bytes(); before = ast.parse(original_driver(raw)); after = ast.parse(S.child_planning_before_schema19(raw.decode()))
         old_names = {n.name for n in before.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
         new_names = {n.name for n in after.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
         self.assertEqual(new_names - old_names, {'local_activation_decision', 'observe_local_refusal'})
@@ -68,6 +71,26 @@ class ExactDriverComposition(unittest.TestCase):
         raw = DRIVER.read_bytes(); block = FRAGMENTS['block'].encode()
         for changed in [block + raw, raw.replace(block, b'') + block]:
             with self.assertRaisesRegex(AssertionError, 'Unknown driver source'): original_driver(changed)
+
+    def test_current_and_unchanged_historical_followup_both_restore_old_sources(self):
+        raw = DRIVER.read_bytes()
+        legacy = S.child_planning_before_schema19(raw.decode()).encode()
+        self.assertEqual(sha(legacy), '99140ac582fdb74762bc5bd7f6bcc604800a9f174309daa6e1f7054c6c3d7e68')
+        self.assertEqual(S.child_planning_before_schema19(legacy.decode()).encode(), legacy)
+        self.assertEqual(original_driver(raw), original_driver(legacy))
+
+    def test_current_and_historical_layers_refuse_unknown_bytes_and_bad_span(self):
+        raw = DRIVER.read_bytes()
+        legacy = S.child_planning_before_schema19(raw.decode()).encode()
+        for source in (raw, legacy):
+            with self.assertRaisesRegex(AssertionError, 'Unknown driver source'):
+                original_driver(source + b'\n# foreign source')
+        entries = S.LAYERS[S.CHILD_PLANNING_PATH]
+        for name, source in (('followup', raw), ('historical_followup', legacy)):
+            layer = entries[name]
+            malformed = {**layer, 'edits': [{**layer['edits'][0], 'start': -1}, *layer['edits'][1:]]}
+            with patch.dict(entries, {name: malformed}), self.assertRaisesRegex(AssertionError, 'bounds changed'):
+                original_driver(source)
 
     def test_old_bridge_and_full_negative_loop_recovered(self):
         source = original_driver(DRIVER.read_bytes()).decode()
