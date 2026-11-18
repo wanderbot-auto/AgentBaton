@@ -6,6 +6,8 @@ import re
 import tomllib
 import unittest
 
+from tests.infrastructure.host_native_bridge_source_fixture import restore_host_native_bridge_v1
+
 ROOT = Path(__file__).resolve().parents[2]
 DESKTOP_DEV_PROFILE_LAYER = '''# This is a separate Cargo workspace. Match the root's runtime-sensitive dev
 # overrides so the helper can reuse dependencies in one checkout-local target.
@@ -282,12 +284,14 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         for name, pin in ORIGINAL_19_TEST_PINS.items():
             self.assertEqual(hashlib.sha256(original_function(source, name).encode()).hexdigest(), pin, name)
 
-        lib = (ROOT/'apps/desktop/src-tauri/src/lib.rs').read_text()
+        raw_lib = (ROOT/'apps/desktop/src-tauri/src/lib.rs').read_bytes()
+        lib = raw_lib.decode('utf-8')
         for name, (command_pin, production_pin) in BRIDGE_COMMAND_PINS.items():
             function = original_function(lib, name)
             self.assertEqual(token_sha(function), command_pin, name)
             self.assertEqual(token_sha(strip_fixture_cfg(function)), production_pin, name)
-        self.assertEqual(restored_parent_bridge_token_sha(lib), PARENT_BRIDGE_TOKEN_SHA256)
+        predecessor = restore_host_native_bridge_v1(raw_lib).decode('utf-8')
+        self.assertEqual(restored_parent_bridge_token_sha(predecessor), PARENT_BRIDGE_TOKEN_SHA256)
         self.assertEqual(hashlib.sha256(original_function(lib, 'ensure_daemon').encode()).hexdigest(),
                          PARENT_ENSURE_DAEMON_SHA256)
 
