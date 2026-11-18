@@ -97,7 +97,7 @@ pub(crate) fn check_workspace_fences(
         }
         return Err(changed());
     }
-    if version != 18 {
+    if version != 19 {
         return Err(changed());
     }
     crate::conversations::validate_schema(db)?;

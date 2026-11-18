@@ -7,6 +7,8 @@ from unittest import mock
 import re
 import unittest
 
+from schema19_integration_source_fixture import read_schema18_source
+
 
 ROOT = Path(__file__).resolve().parents[2]
 IPC = "crates/core/tests/integration_ipc.rs"
@@ -85,7 +87,7 @@ def strip_post_join_layer(path,text):
 
 class IntegrationDiagnosticsSourceConstraints(unittest.TestCase):
     def test_ipc_keeps_original_call_and_result_assertion(self):
-        current=(ROOT / IPC).read_text()
+        current=read_schema18_source(ROOT, ROOT / IPC)
         for changed in (current+'\n// unknown source region\n',
                 current.replace('self.server.finish();','self.server.finish(); // changed original join',1)
                 if IPC == RUNTIME else current.replace('let outcome = thread.join();','let outcome = thread.join(); // changed original join',1)):
@@ -99,7 +101,7 @@ class IntegrationDiagnosticsSourceConstraints(unittest.TestCase):
         # Remove only the reviewed observer additions, then compare the source
         # to its 7ee2437 baseline digest. No Git history/process is required in
         # shallow CI. Intentional future fixture changes must review this guard.
-        restored = strip_post_join_layer(IPC, (ROOT / IPC).read_text()).replace(
+        restored = strip_post_join_layer(IPC, read_schema18_source(ROOT, ROOT / IPC)).replace(
             '#[path = "fixtures/integration_diagnostics.rs"]\nmod diagnostics;\n\nstruct Server {',
             "struct Server {",
             1,
@@ -122,7 +124,7 @@ class IntegrationDiagnosticsSourceConstraints(unittest.TestCase):
                          "645e11fb6f1bfae4d52c9c844efce398e4fabdf6be85517b988ba5bf6b37e15c")
 
     def test_runtime_fixture_only_adds_readonly_observers(self):
-        current=(ROOT / RUNTIME).read_text()
+        current=read_schema18_source(ROOT, ROOT / RUNTIME)
         for changed in (current+'\n// unknown source region\n',
                 current.replace('self.server.finish();','self.server.finish(); // changed original join',1)
                 if RUNTIME == RUNTIME else current.replace('let outcome = thread.join();','let outcome = thread.join(); // changed original join',1)):
@@ -133,7 +135,7 @@ class IntegrationDiagnosticsSourceConstraints(unittest.TestCase):
             else:bad[RUNTIME]['restored_sha256']='0'*64
             with mock.patch.dict(_POST_JOIN_LAYERS,bad,clear=True),self.assertRaises(AssertionError):
                 strip_post_join_layer(RUNTIME,current)
-        restored = strip_post_join_layer(RUNTIME, (ROOT / RUNTIME).read_text()).replace(
+        restored = strip_post_join_layer(RUNTIME, read_schema18_source(ROOT, ROOT / RUNTIME)).replace(
             "use super::{diagnostics, git, result, Server};",
             "use super::{git, result, Server};", 1,
         ).replace(
@@ -184,7 +186,7 @@ class IntegrationDiagnosticsSourceConstraints(unittest.TestCase):
         self.assertIn('.unwrap_or("other")', details)
         self.assertNotIn("to_owned()", details)
         self.assertNotIn("to_string()", details)
-        ipc = (ROOT / IPC).read_text()
+        ipc = read_schema18_source(ROOT, ROOT / IPC)
         request = ipc.split("    fn request(", 1)[1].split("    fn image(", 1)[0]
         self.assertLess(request.index("call("), request.index("ipc_error("))
         self.assertIn('if let Some(error) = reply.get("error")', request)
