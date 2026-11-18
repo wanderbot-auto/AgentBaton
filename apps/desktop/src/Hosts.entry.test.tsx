@@ -101,8 +101,9 @@ it('retains the original in-flight Host request when Settings closes before rese
   await user.tab({ shift: true });
   expect(within(dialog).getByText('Connection evidence', { selector: 'summary' })).toHaveFocus();
   await user.tab({ shift: true });
-  expect(within(dialog).getByText(en.title, { selector: 'summary' })).toHaveFocus();
-  await user.keyboard('{Enter}');
+  const hostSummary = within(dialog).getByText(en.title, { selector: 'summary' });
+  expect(hostSummary).toHaveFocus();
+  await user.click(hostSummary);
   expect(within(dialog).getByRole('region', { name: 'Recover connection creations' })).toBeVisible();
   expect(within(dialog).getByText('Background and login', { selector: 'summary' })).toBeVisible();
   expect(within(dialog).getByText('Appearance')).toBeVisible();
