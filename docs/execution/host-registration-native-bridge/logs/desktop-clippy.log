@@ -1,0 +1,386 @@
+Source: 4cdbce3c565266892f36c7da60fd475ffefdacd2
+Started (UTC): 2026-11-18T14:49:22Z
+Command: cargo clippy --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets -- -D warnings
+collab: task runtime /private/tmp/ab-collab-1dxf6n87
+    Checking serde_core v1.0.229
+   Compiling siphasher v1.0.4
+   Compiling phf_shared v0.13.1
+   Compiling phf_generator v0.13.1
+   Compiling cfg-if v1.0.5
+   Compiling libc v0.2.191
+   Compiling memchr v2.8.3
+   Compiling zerofrom v0.1.8
+   Compiling smallvec v1.16.4
+   Compiling yoke v0.8.4
+    Checking serde v1.0.229
+   Compiling zerovec v0.11.9
+   Compiling itoa v1.0.18
+    Checking bitflags v2.13.2
+   Compiling phf_macros v0.13.1
+   Compiling num-conv v0.2.2
+   Compiling time-core v0.1.9
+   Compiling tinystr v0.8.5
+   Compiling phf_codegen v0.13.1
+   Compiling litemap v0.8.3
+   Compiling writeable v0.6.4
+   Compiling potential_utf v0.1.6
+   Compiling icu_locale_core v2.4.0
+   Compiling zerotrie v0.2.5
+   Compiling zmij v1.0.23
+   Compiling utf8_iter v1.0.4
+   Compiling icu_collections v2.4.0
+   Compiling icu_provider v2.4.0
+   Compiling serde_json v1.0.154
+   Compiling parking_lot_core v0.9.12
+   Compiling phf v0.13.1
+   Compiling string_cache_codegen v0.6.1
+   Compiling icu_properties_data v2.4.0
+   Compiling icu_normalizer_data v2.4.0
+    Checking stable_deref_trait v1.2.1
+   Compiling icu_normalizer v2.4.0
+   Compiling icu_properties v2.4.0
+   Compiling web_atoms v0.2.6
+   Compiling parking_lot v0.12.5
+   Compiling winnow v1.0.4
+   Compiling string_cache v0.9.0
+   Compiling toml_parser v1.1.5+spec-1.1.0
+   Compiling idna_adapter v1.2.2
+    Checking objc2-exception-helper v0.1.1
+   Compiling getrandom v0.4.3
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+   Compiling serde_spanned v1.1.2
+   Compiling toml_writer v1.1.3+spec-1.1.0
+   Compiling log v0.4.34
+    Checking objc2-encode v4.1.0
+    Checking objc2 v0.6.5
+   Compiling form_urlencoded v1.2.2
+   Compiling toml v1.1.8+spec-1.1.0
+   Compiling uuid v1.29.0
+   Compiling idna v1.1.0
+   Compiling selectors v0.38.0
+   Compiling aho-corasick v1.1.5
+   Compiling regex-syntax v0.8.11
+   Compiling alloc-no-stdlib v3.0.0
+   Compiling alloc-stdlib v0.3.0
+   Compiling regex-automata v0.4.18
+   Compiling cssparser v0.37.0
+   Compiling markup5ever v0.39.0
+   Compiling url v2.5.8
+   Compiling swift-rs v1.0.9
+   Compiling typeid v1.0.3
+   Compiling thiserror v2.0.21
+   Compiling equivalent v1.0.3
+   Compiling deranged v0.5.9
+   Compiling hashbrown v0.17.1
+   Compiling web-time v1.1.0
+   Compiling powerfmt v0.2.1
+   Compiling fnv v1.0.7
+   Compiling cfb v0.14.0
+   Compiling time v0.3.55
+   Compiling indexmap v2.14.2
+   Compiling erased-serde v0.4.11
+   Compiling html5ever v0.39.0
+   Compiling regex v1.13.1
+   Compiling brotli-decompressor v6.2.0
+   Compiling jsonptr v0.7.1
+   Compiling quick-xml v0.42.0
+   Compiling bytes v1.12.1
+   Compiling dunce v1.0.5
+   Compiling same-file v1.0.6
+   Compiling base64 v0.23.1
+   Compiling http v1.5.0
+   Compiling plist v1.10.3
+   Compiling dom_query v0.28.0
+   Compiling schemars v0.8.22
+   Compiling walkdir v2.5.0
+   Compiling brotli v9.1.0
+   Compiling cargo_metadata v0.19.2
+   Compiling json-patch v4.2.0
+   Compiling urlpattern v0.6.0
+   Compiling serde-untagged v0.1.9
+   Compiling infer v0.22.0
+    Checking objc2-core-foundation v0.3.2
+    Checking block2 v0.6.2
+   Compiling serde_with v3.24.0
+   Compiling anyhow v1.0.104
+   Compiling ctor v1.0.13
+   Compiling glob v0.3.4
+   Compiling tauri-utils v2.10.2
+    Checking objc2-foundation v0.3.2
+    Checking objc2-quartz-core v0.3.2
+    Checking objc2-app-kit v0.3.2
+   Compiling option-ext v0.2.0
+   Compiling embed-resource v3.0.12
+   Compiling dirs-sys v0.5.0
+   Compiling time-macros v0.2.32
+    Checking percent-encoding v2.3.2
+   Compiling simd-adler32 v0.3.10
+   Compiling heck v0.5.0
+   Compiling tauri-winres v0.3.7
+   Compiling dirs v7.0.0
+   Compiling cargo_toml v1.0.1
+   Compiling adler2 v2.0.1
+   Compiling typenum v1.20.1
+   Compiling generic-array v0.14.7
+   Compiling tauri-build v2.7.4
+    Checking dpi v0.1.2
+    Checking raw-window-handle v0.6.2
+    Checking crossbeam-utils v0.8.23
+   Compiling miniz_oxide v0.9.1
+   Compiling crc32fast v1.5.3
+    Checking core-foundation-sys v0.8.7
+    Checking core-foundation v0.10.1
+   Compiling flate2 v1.1.10
+    Checking crossbeam-channel v0.5.17
+   Compiling tauri v2.12.5
+    Checking block-buffer v0.10.4
+    Checking crypto-common v0.1.7
+   Compiling miniz_oxide v0.8.9
+   Compiling fdeflate v0.3.7
+   Compiling tauri-plugin v2.7.2
+    Checking foreign-types-shared v0.3.1
+    Checking foreign-types v0.5.0
+   Compiling png v0.18.1
+   Compiling digest v0.10.7
+   Compiling wry v0.57.1
+    Checking cookie v0.18.2
+    Checking core-graphics-types v0.2.0
+    Checking objc2-web-kit v0.3.2
+    Checking dispatch2 v0.3.1
+    Checking cpufeatures v0.2.17
+    Checking semver v1.0.28
+   Compiling ico v0.6.0
+   Compiling sha2 v0.10.9
+    Checking core-graphics v0.25.0
+   Compiling tauri-plugin-fs v2.7.1
+    Checking keyboard-types v0.8.3
+    Checking once_cell v1.21.4
+    Checking foldhash v0.2.0
+    Checking muda v0.20.0
+    Checking hashbrown v0.16.1
+    Checking tauri-runtime v2.12.2
+    Checking tao v0.37.2
+   Compiling tauri-codegen v2.7.4
+    Checking objc2-core-graphics v0.3.2
+    Checking toml_datetime v0.6.3
+    Checking serde_spanned v0.6.9
+    Checking pin-project-lite v0.2.17
+    Checking winnow v0.5.40
+   Compiling tauri-macros v2.7.4
+    Checking toml_edit v0.20.2
+    Checking tokio v1.54.1
+    Checking serialize-to-javascript v0.1.2
+    Checking tray-icon v0.25.1
+    Checking libsqlite3-sys v0.36.0
+    Checking tauri-runtime-wry v2.12.3
+    Checking getrandom v0.3.4
+    Checking hashlink v0.11.1
+   Compiling tauri-plugin-dialog v2.8.3
+    Checking window-vibrancy v0.8.1
+    Checking errno v0.3.14
+    Checking fallible-iterator v0.3.0
+    Checking fallible-streaming-iterator v0.1.9
+    Checking ryu v1.0.23
+    Checking unsafe-libyaml v0.2.11
+    Checking mime v0.3.17
+    Checking embed_plist v1.2.2
+    Checking serde_yaml_ng v0.10.0
+    Checking rusqlite v0.38.0
+    Checking rustix v1.1.5
+    Checking toml v0.8.2
+    Checking fs2 v0.4.3
+    Checking focaccia v2.5.0
+    Checking agentbaton-workspaces v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-bridge/crates/workspaces)
+    Checking agentbaton-config v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-bridge/crates/config)
+    Checking agentbaton-remote-host v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-bridge/crates/remote-host)
+    Checking rfd v0.16.1
+    Checking agentbaton-providers v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-bridge/crates/providers)
+   Compiling agentbaton-desktop v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-bridge/apps/desktop/src-tauri)
+    Checking agentbaton-core v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-bridge/crates/core)
+error: this boolean expression can be simplified
+   --> src/approval_managed_mcp.rs:129:12
+    |
+129 |         || !snapshot["warning"].as_str().is_some_and(|v| !v.is_empty())
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `snapshot["warning"].as_str().is_none_or(|v| v.is_empty())`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+    = note: `-D clippy::nonminimal-bool` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::nonminimal_bool)]`
+
+error: this boolean expression can be simplified
+   --> src/approval_managed_mcp.rs:157:12
+    |
+157 |         || preview.base.has_managed_skill != !expected_plan.skills.is_empty()
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `preview.base.has_managed_skill == expected_plan.skills.is_empty()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+
+error: this boolean expression can be simplified
+   --> src/approval.rs:772:12
+    |
+772 |           || !snapshot["warning"]
+    |  ____________^
+773 | |             .as_str()
+774 | |             .is_some_and(|text| !text.is_empty())
+    | |_________________________________________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+help: try
+    |
+772 ~         || snapshot["warning"]
+773 +             .as_str().is_none_or(|text| text.is_empty())
+    |
+
+error: this boolean expression can be simplified
+    --> src/approval.rs:1965:25
+     |
+1965 | /                         !p.is_empty()
+1966 | |                             && p.len() <= 4096
+1967 | |                             && !p.starts_with('/')
+1968 | |                             && !p.contains('\\')
+1969 | |                             && !(p.len() > 1
+1970 | |                                 && p.as_bytes()[0].is_ascii_alphabetic()
+1971 | |                                 && p.as_bytes()[1] == b':')
+     | |___________________________________________________________^ help: try: `!(p.is_empty() || p.len() > 4096 || p.starts_with('/') || p.contains('\\') || p.len() > 1 && p.as_bytes()[0].is_ascii_alphabetic() && p.as_bytes()[1] == b':')`
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+
+error: this boolean expression can be simplified
+    --> src/approval.rs:2633:8
+     |
+2633 |       if !grant["scope"]["max_attempts"]
+     |  ________^
+2634 | |         .as_u64()
+2635 | |         .is_some_and(|n| root["attempts"].as_u64().unwrap_or(u64::MAX) <= n)
+     | |____________________________________________________________________________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+help: try
+     |
+2633 ~     if grant["scope"]["max_attempts"]
+2634 +         .as_u64().is_none_or(|n| root["attempts"].as_u64().unwrap_or(u64::MAX) > n)
+     |
+
+error: this boolean expression can be simplified
+    --> src/approval.rs:2636:12
+     |
+2636 |           || !grant["scope"]["max_concurrency"]
+     |  ____________^
+2637 | |             .as_u64()
+2638 | |             .is_some_and(|n| root["parallel"].as_u64().unwrap_or(u64::MAX) <= n)
+     | |________________________________________________________________________________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+help: try
+     |
+2636 ~         || grant["scope"]["max_concurrency"]
+2637 +             .as_u64().is_none_or(|n| root["parallel"].as_u64().unwrap_or(u64::MAX) > n)
+     |
+
+error: this boolean expression can be simplified
+    --> src/approval.rs:2820:12
+     |
+2820 |         || !proposal["id"].as_str().is_some_and(|id| id.len() <= 128)
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `proposal["id"].as_str().is_none_or(|id| id.len() > 128)`
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+
+error: unneeded `return` statement
+  --> src/background_service.rs:25:9
+   |
+25 |         return engine::observe(runtime);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#needless_return
+   = note: `-D clippy::needless-return` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::needless_return)]`
+help: remove `return`
+   |
+25 -         return engine::observe(runtime);
+25 +         engine::observe(runtime)
+   |
+
+error: unneeded `return` statement
+  --> src/background_service.rs:37:9
+   |
+37 |         return engine::change(window, runtime, action);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#needless_return
+help: remove `return`
+   |
+37 -         return engine::change(window, runtime, action);
+37 +         engine::change(window, runtime, action)
+   |
+
+error: unneeded `return` statement
+  --> src/background_service.rs:49:9
+   |
+49 |         return engine::failure_value(false);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#needless_return
+help: remove `return`
+   |
+49 -         return engine::failure_value(false);
+49 +         engine::failure_value(false)
+   |
+
+error: unneeded `return` statement
+  --> src/background_service.rs:60:9
+   |
+60 |         return engine::failure_value(true);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#needless_return
+help: remove `return`
+   |
+60 -         return engine::failure_value(true);
+60 +         engine::failure_value(true)
+   |
+
+error: this creates an owned instance just for comparison
+   --> src/background_service.rs:284:17
+    |
+284 |                 PathBuf::from(p) != home.join("Library/Application Support/dev.agentbaton/runtime")
+    |                 ^^^^^^^^^^^^^^^^ help: try: `p`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#cmp_owned
+    = note: `-D clippy::cmp-owned` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::cmp_owned)]`
+
+error: could not compile `agentbaton-desktop` (lib) due to 12 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: `format!` in `format!` args
+    --> src/approval.rs:5709:27
+     |
+5709 |           let instruction = format!(
+     |  ___________________________^
+5710 | |             "---\nname: writing\ndescription: Explain changes clearly.\n---\n{}",
+5711 | |             format!(
+5712 | |                 "{}{}",
+...    |
+5716 | |         );
+     | |_________^
+     |
+     = help: combine the `format!(..)` arguments with the outer `format!(..)` call
+     = help: or consider changing `format!` to `format_args!`
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#format_in_format_args
+     = note: `-D clippy::format-in-format-args` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::format_in_format_args)]`
+
+error: called `.err().expect()` on a `Result` value
+   --> src/detached_daemon.rs:230:14
+    |
+230 |               .err()
+    |  ______________^
+231 | |             .expect("mandatory detachment must fail");
+    | |___________________^ help: try: `expect_err`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#err_expect
+    = note: `-D clippy::err-expect` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::err_expect)]`
+
+error: could not compile `agentbaton-desktop` (lib test) due to 14 previous errors
+Finished (UTC): 2026-11-18T14:50:04Z
+Exit: 101

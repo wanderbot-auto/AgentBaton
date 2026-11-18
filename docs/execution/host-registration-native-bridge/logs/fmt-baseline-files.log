@@ -1,0 +1,3 @@
+apps/desktop/src-tauri/src/approval.rs: baseline and current identical (401a39051a210684563ae6c6e97c345d579d6066)
+apps/desktop/src-tauri/src/bin/native_smoke.rs: baseline and current identical (5aa130480635e29602ba7c21aca5c4edb75f7af3)
+apps/desktop/src-tauri/src/native_parent.rs: baseline and current identical (24b1a9a95e54aba1fcdafc0ac55b2dcc9c0102ae)
