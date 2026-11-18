@@ -1,0 +1,301 @@
+{
+  "requirement": "AB-DOM-006",
+  "approval": "AB-START-001",
+  "branch": "collab/requirements-coverage",
+  "fixed_base": "f3ee057c874582427e77129e21014574c57484ae",
+  "tested_source": "79c2a892d94189f09a3f46c04e4c3d0a6d43c3d5",
+  "recorded_at_utc": "2026-11-18T17:29:24Z",
+  "environment": {
+    "os": "macOS 26.6.1 (25G76)",
+    "architecture": "arm64",
+    "kernel": "Darwin 25.6.0",
+    "python": "3.12.12",
+    "infra_dependencies": {
+      "jsonschema": "4.26.0",
+      "PyYAML": "6.0.3"
+    },
+    "git": "2.54.0 (Apple Git-157)",
+    "node": "26.7.0",
+    "cargo": "1.91.1"
+  },
+  "invocation": {
+    "test_wrapper": "scripts/collab.sh run --",
+    "cli": "python scripts/report-requirements-coverage.py --format {json,markdown}",
+    "live_leader_args": "--ledger \"$leader_root/docs/execution/requirements-progress.json\"",
+    "historical_leader_args": "--ledger \"$reports/leader-101-input.json\" --evidence-root \"$leader_root\"",
+    "checkout_relative_paths": "Paths are relative to the common parent of the two worktrees unless marked task runtime.",
+    "replay": "Each output was rendered twice and compared with cmp. Independent counts, stable ID roster, package totals, Markdown roster and input SHA-256 were checked against the input bytes."
+  },
+  "samples": {
+    "feature": {
+      "inputs": {
+        "ledger": {
+          "approval_id": "AB-START-001",
+          "design_version": "0.2",
+          "path": "requirements-coverage/docs/execution/requirements-progress.json",
+          "reference_root": "requirements-coverage",
+          "sha256": "65a1a0881dad2f218329d3fd89f258cd0621a05eb676cea02cb37d5ab26ac8c7"
+        },
+        "spec": {
+          "design_version": "0.2",
+          "path": "requirements-coverage/specs/requirements.json",
+          "reference_root": "requirements-coverage",
+          "sha256": "c63d01857ed4fab8ff592b5beb3ac70022cf49548f4b373259c6e2562b156d54"
+        }
+      },
+      "requirements": 130,
+      "by_status": {
+        "implementing": 97,
+        "not_started": 33
+      },
+      "partial_implementation": 97,
+      "whole_requirement_accepted": 0,
+      "references": {
+        "exists": 2041,
+        "missing": 0,
+        "unavailable": 0,
+        "unsafe": 0
+      },
+      "reference_findings": [],
+      "json_sha256": "0648770ac991a1688cd26f71804c8f0681d0a3d6f64058858be69964bb4460bb",
+      "markdown_sha256": "d77f91520e0474cdd1230ad9e0f4713fb4c61a345fba7bd85244828f7de141fa",
+      "repeat_output_identical": true,
+      "ledger_commit": "f3ee057c874582427e77129e21014574c57484ae"
+    },
+    "leader": {
+      "inputs": {
+        "ledger": {
+          "approval_id": "AB-START-001",
+          "design_version": "0.2",
+          "path": "leader-control/docs/execution/requirements-progress.json",
+          "reference_root": "leader-control",
+          "sha256": "3c1c21b936d881df2ec1975ecc84d1321b0469f62629a9d51f3a6ba2db078488"
+        },
+        "spec": {
+          "design_version": "0.2",
+          "path": "requirements-coverage/specs/requirements.json",
+          "reference_root": "requirements-coverage",
+          "sha256": "c63d01857ed4fab8ff592b5beb3ac70022cf49548f4b373259c6e2562b156d54"
+        }
+      },
+      "requirements": 130,
+      "by_status": {
+        "implementing": 102,
+        "not_started": 28
+      },
+      "partial_implementation": 102,
+      "whole_requirement_accepted": 0,
+      "references": {
+        "exists": 2072,
+        "missing": 4,
+        "unavailable": 0,
+        "unsafe": 0
+      },
+      "reference_findings": [
+        {
+          "id": "AB-EXT-001",
+          "field": "ledger.verified_slices[1].evidence",
+          "path": "docs/execution/host-registration-native-e2e/EVIDENCE.md",
+          "reference": "docs/execution/host-registration-native-e2e/EVIDENCE.md",
+          "status": "missing"
+        },
+        {
+          "id": "AB-EXT-008",
+          "field": "ledger.implementation_refs[0]",
+          "path": "crates/remote-host/src/routing.rs",
+          "reference": "crates/remote-host/src/routing.rs",
+          "status": "missing"
+        },
+        {
+          "id": "AB-EXT-008",
+          "field": "ledger.verification_refs[0]",
+          "path": "crates/remote-host/tests/routing.rs",
+          "reference": "crates/remote-host/tests/routing.rs",
+          "status": "missing"
+        },
+        {
+          "id": "AB-EXT-008",
+          "field": "ledger.evidence[0]",
+          "path": "docs/execution/remote-host-routing-policy/EVIDENCE.json",
+          "reference": "docs/execution/remote-host-routing-policy/EVIDENCE.json",
+          "status": "missing"
+        }
+      ],
+      "json_sha256": "d0d34dd09a41814bd07ac19a919e0809666e5ff6b88a8a3611356a480a7bccbf",
+      "markdown_sha256": "59acad98c9b4bde22c88676b1e3206130a43b6ab30a43651e78f5e6629f6b7e3",
+      "repeat_output_identical": true,
+      "ledger_commit": "7f371feb5d063c018af8f65ae974a726adb9b826"
+    },
+    "leader-101": {
+      "inputs": {
+        "ledger": {
+          "approval_id": "AB-START-001",
+          "design_version": "0.2",
+          "path": "coverage-reports/leader-101-input.json",
+          "reference_root": "leader-control",
+          "sha256": "ccb038fc13a6ac4b379d57c8975bdedbf208f621023a28d1bc58ba5938dbc448",
+          "path_base": "task runtime"
+        },
+        "spec": {
+          "design_version": "0.2",
+          "path": "requirements-coverage/specs/requirements.json",
+          "reference_root": "requirements-coverage",
+          "sha256": "c63d01857ed4fab8ff592b5beb3ac70022cf49548f4b373259c6e2562b156d54"
+        }
+      },
+      "requirements": 130,
+      "by_status": {
+        "implementing": 101,
+        "not_started": 29
+      },
+      "partial_implementation": 101,
+      "whole_requirement_accepted": 0,
+      "references": {
+        "exists": 2071,
+        "missing": 1,
+        "unavailable": 0,
+        "unsafe": 0
+      },
+      "reference_findings": [
+        {
+          "id": "AB-EXT-001",
+          "field": "ledger.verified_slices[1].evidence",
+          "path": "docs/execution/host-registration-native-e2e/EVIDENCE.md",
+          "reference": "docs/execution/host-registration-native-e2e/EVIDENCE.md",
+          "status": "missing"
+        }
+      ],
+      "json_sha256": "63f82e4203180edb279019dba7d9ee0ffa3b74f603e0054daf4fd61725051a0f",
+      "markdown_sha256": "5ff11e482c3c0ea63f8e72af2e46cfa210addba304fa05c4d9b6ec9fbb698a38",
+      "repeat_output_identical": true,
+      "ledger_commit": "520aa9dd926d80330168331d2cdaedb80cf9ce07",
+      "reference_root_commit": "7f371feb5d063c018af8f65ae974a726adb9b826"
+    }
+  },
+  "local_checks": [
+    {
+      "name": "focused",
+      "command": "python -m unittest discover -s tests/infrastructure -p test_requirements_coverage_report.py -v",
+      "exit_code": 0,
+      "result": "11 passed",
+      "log": "coverage-checks/focused.log",
+      "log_sha256": "608d73a552b9e7e9f1cfa7ca226a620f92e6157a7f7deaf286188b3103103c4d"
+    },
+    {
+      "name": "manifest",
+      "command": "python scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "result": "93 files",
+      "log": "coverage-checks/manifest.log",
+      "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    },
+    {
+      "name": "design",
+      "command": "python scripts/validate_design.py",
+      "exit_code": 0,
+      "result": "passed",
+      "log": "coverage-checks/design.log",
+      "log_sha256": "6e1fc6f6661494ab034063a5ae45d0d9dbc47416e8e107751d5a27744290e291"
+    },
+    {
+      "name": "infrastructure",
+      "command": "python scripts/validate_infrastructure.py",
+      "exit_code": 0,
+      "result": "passed",
+      "log": "coverage-checks/infrastructure.log",
+      "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+    },
+    {
+      "name": "gate",
+      "command": "python scripts/check_gate.py --scope preparation",
+      "exit_code": 0,
+      "result": "passed",
+      "log": "coverage-checks/gate.log",
+      "log_sha256": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146"
+    },
+    {
+      "name": "full-python",
+      "command": "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "963 total, 947 passed, 16 existing real-companion skips; focused 11 included",
+      "log": "coverage-checks/full-python.log",
+      "log_sha256": "72e9da4b5cdadddb01bde9d27a7ee44766566b2994b7d639b08d212c328a51c5"
+    },
+    {
+      "name": "node",
+      "command": "npm test",
+      "exit_code": 0,
+      "result": "4 passed",
+      "log": "coverage-checks/node.log",
+      "log_sha256": "51607bb638ee924fc139792439831f5e91e7d7f67b8ed1f385900399749c0260"
+    },
+    {
+      "name": "rust-smoke",
+      "command": "cargo test --locked --manifest-path tools/environment-smoke/Cargo.toml",
+      "exit_code": 101,
+      "result": "Nested worktree fixture resolved into the outer workspace and Cargo refused to run.",
+      "log": "coverage-checks/rust-smoke.log",
+      "log_sha256": "6f087f68772ceb5f1bc9c3557e64363ae6dcac69b2fca863352e88c34a64723c"
+    },
+    {
+      "name": "rust-smoke-clippy",
+      "command": "cargo clippy --locked --manifest-path tools/environment-smoke/Cargo.toml --all-targets -- -D warnings",
+      "exit_code": 101,
+      "result": "Same Cargo workspace discovery failure.",
+      "log": "coverage-checks/rust-smoke-clippy.log",
+      "log_sha256": "6f087f68772ceb5f1bc9c3557e64363ae6dcac69b2fca863352e88c34a64723c"
+    },
+    {
+      "name": "rust-smoke-copy",
+      "command": "cargo test --locked --manifest-path \"$staging/tools/environment-smoke/Cargo.toml\"",
+      "exit_code": 0,
+      "result": "2 passed. Archive from tested_source and cmp verified Cargo.lock, Cargo.toml and src/main.rs.",
+      "log": "coverage-checks/rust-smoke-copy.log",
+      "log_sha256": "a1a6b6a339c61b18e9356fb42e9e55b8618f5f339f60602e53ff20ef85bb3fc1"
+    },
+    {
+      "name": "rust-smoke-clippy-copy",
+      "command": "cargo clippy --locked --manifest-path \"$staging/tools/environment-smoke/Cargo.toml\" --all-targets -- -D warnings",
+      "exit_code": 0,
+      "result": "passed against the same byte-identical fixture",
+      "log": "coverage-checks/rust-smoke-clippy-copy.log",
+      "log_sha256": "a87cd73bbc8432004cdb7cbcf3842d08e28dd054a10b17fc1bb149880f6ff14c"
+    },
+    {
+      "name": "doctor",
+      "command": "python scripts/doctor.py --strict",
+      "exit_code": 0,
+      "result": "passed",
+      "log": "coverage-checks/doctor.log",
+      "log_sha256": "539303e7ac0910d2d09333d2e347d01c5e63f0ff0160e15e2fdb695643820448"
+    }
+  ],
+  "initial_focused_failure": {
+    "python": "3.13.2",
+    "exit_code": 1,
+    "test": "test_both_formats_are_reproducible_and_display_unknowns",
+    "reason": "Assertion normalized away a space, then expected that space. Changed to assert the actual report text and the preserved Intel note."
+  },
+  "preview": [
+    {
+      "base": "f3ee057c874582427e77129e21014574c57484ae",
+      "tree": "9af9d808edc120b352871cdf64c01bd625401bf1",
+      "exit_code": 0
+    },
+    {
+      "base": "46e38016256dfe3ff2646eb546cad5b8179e27ef",
+      "tree": "adf266ea69547e5530c051aeaeac2ec8399e80f9",
+      "exit_code": 0
+    },
+    {
+      "base": "7f371feb5d063c018af8f65ae974a726adb9b826",
+      "tree": "6956ec78b25105e2014d96f9cf0cecc91cb010df",
+      "exit_code": 0
+    }
+  ],
+  "unverified": [
+    "Independent review and exact-target integration checks pending in leader-control.",
+    "Remote CI, real Provider, remote companion runtime and native desktop product acceptance not run.",
+    "Report reference checks cover local file metadata only. Fragment and Rust symbol contents remain unchecked."
+  ]
+}
