@@ -103,7 +103,7 @@ fn independent_latest_pages_preserve_global_order_and_fixed_snapshot() {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
 }
 #[test]
