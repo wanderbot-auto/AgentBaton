@@ -32,3 +32,5 @@ Source 1e5b709ad6f50d245616f56f849af149fe970532. Base and freshly fetched target
 Both new entry points require the fixed schema19 whole-source digest. Temporary exact schema18 copies of both fixtures fail at the disk entry point, and the pure inverse also refuses those same exact old bytes as input. The inverse still restores each whole schema18 digest and passes the result directly to the original history helpers. Both historical output hashes, the six source path digests, the byte-identical old helper and consumer checks, and all original mutation logic were rechecked.
 
 Updated total log archive SHA-256 6a8151892548a95a40ff1daf5308b1d8522d92638adaa06f2a523d6ac8122bae. All test controllers joined. Local Python source and infrastructure evidence only. Rust, native, CLI, CI and remaining historical fixture work were outside this slice.
+
+Leader independently reviewed and accepted the final source-only slice at delivery 5eebbb88c7e836a2c9f0d95b814c31f49f971478. This acceptance records the local Python verification. Combined Core and desktop readiness remains pending independent integration validation.
