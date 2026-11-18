@@ -16,3 +16,13 @@
   revalidated transactional cleanup are separate follow-on slices.
 - All owned test and build processes joined. Leader review is pending.
   The in-app messaging transport repeatedly failed; four claims remain active.
+
+## Independent acceptance
+
+Leader accepted the read-only retention preview at delivery `a91450f4a47b3f154b8a4286de403ec0c0a544d0`
+and tested source `c7e672cd2d92edfa232656c0cab1328aff86565f`. The 18 archives and three ARM64 binaries
+were rechecked. The focused suite passed all seven tests and the exact
+baseline reproduced the three existing failures. Leader authorized release
+of all four task reservations via `scripts/collab.sh finish --handoff`.
+Persisted policy, UI and actual deletion remain separate verification.
+The branch, worktree and evidence are retained.

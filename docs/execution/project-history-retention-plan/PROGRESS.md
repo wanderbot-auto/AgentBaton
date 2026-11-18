@@ -19,3 +19,6 @@ schema18 suite had one pass and two failures. Isolated fixed-base execution
 reproduced the same tests and exit codes. All four red runs are preserved.
 Scope and integration merge preview passed. Evidence is ready for independent
 review.
+
+Leader independently accepted `a91450f4a47b3f154b8a4286de403ec0c0a544d0` and authorized the four-path
+handoff. This follow-up records the decision in the task documents.
