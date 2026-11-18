@@ -2,17 +2,15 @@
 //! come from a trusted host adapter. These Rust inputs are deliberately not
 //! deserializable, and a decision cannot reserve budget or dispatch a repair.
 use super::{
-    authority, budget, records, IntegrationIoCompletion, IntegrationSharedUsage,
-    IntegrationStageKind, IntegrationState,
+    authority, records, runtime, IntegrationIoCompletion, IntegrationSharedUsage, IntegrationState,
 };
 use crate::{
     execution::ExecutionBinding,
     goal_plan::{AttemptReservation, BudgetLimits},
     policy::GrantScope,
-    storage::{db_error, decode, Event, Store, TaskState},
+    storage::{db_error, Store, TaskState},
     Result,
 };
-use rusqlite::Connection;
 use serde::Serialize;
 use std::collections::BTreeSet;
 
@@ -539,7 +537,10 @@ impl Store {
             || task.acceptance_ref.as_deref() != Some(&run.acceptance_ref)
             || run.state != IntegrationState::ConfirmedLocalRef
             || run.active_stage.is_some()
-            || !confirmed_candidate(&tx, &run, &policy)?
+            || !runtime::historical_cas_attempt(&tx, &run)?.is_some_and(|attempt| {
+                attempt.view.settled
+                    && attempt.view.io_completion == Some(IntegrationIoCompletion::WorkerJoined)
+            })
         {
             return Ok(view(blocked(CiRepairBlock::CandidateNotCurrent)));
         }
@@ -685,46 +686,4 @@ impl Store {
             shared_usage: material.usage,
         })
     }
-}
-
-fn confirmed_candidate(
-    db: &Connection,
-    run: &super::IntegrationRun,
-    policy: &super::IntegrationPolicy,
-) -> Result<bool> {
-    let mut query = db.prepare(
-        "SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM events
-         WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='integration_core'
-         AND json_extract(document,'$.kind')='integration.cas_observed'
-         AND json_type(document,'$.payload.historical_cas_confirmed')='true' ORDER BY sequence LIMIT 2",
-    ).map_err(db_error)?;
-    let mut rows = query.query([&run.id]).map_err(db_error)?;
-    let Some(row) = rows.next().map_err(db_error)? else {
-        return Ok(false);
-    };
-    let document: Option<String> = row.get(0).map_err(db_error)?;
-    if rows.next().map_err(db_error)?.is_some() || document.is_none() {
-        return Ok(false);
-    }
-    let event: Event = decode(document.as_deref().ok_or_else(authority::changed)?)?;
-    let Some(attempt_id) = event.payload["attempt_id"]
-        .as_str()
-        .filter(|value| authority::id(value))
-    else {
-        return Ok(false);
-    };
-    let attempt = budget::attempt(db, attempt_id)?;
-    let record = &event.payload["record"];
-    Ok(attempt.integration_id == run.id
-        && attempt.view.kind == IntegrationStageKind::Cas
-        && attempt.view.round == run.round
-        && attempt.view.settled
-        && attempt.view.io_completion == Some(IntegrationIoCompletion::WorkerJoined)
-        && event.revision <= run.revision
-        && event.payload["round"] == run.round
-        && record["state"] == "confirmed_local_ref"
-        && record["grant_ref"] == policy.approval_id
-        && record["target_ref"] == run.target_ref
-        && record["expected_target_head"] == run.expected_target_head
-        && record["candidate_commit"].as_str() == run.integration_commit.as_deref())
 }
