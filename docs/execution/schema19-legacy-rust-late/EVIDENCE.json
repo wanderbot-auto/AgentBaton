@@ -318,5 +318,25 @@
         "status": "separate_prior_probe_failed_expected18_got19"
       }
     }
+  },
+  "tested_source_head": "fc0675a68d0defe7ea6151a69277f7e54bdd6294",
+  "leader_independent_review": {
+    "head": "fc0675a68d0defe7ea6151a69277f7e54bdd6294",
+    "exit_code": 0,
+    "results": {
+      "factory_child_plan_migration": 4,
+      "factory_migration": 3,
+      "goal_graph_migration": 3,
+      "goal_runtime_migration": 3
+    },
+    "source": "/private/tmp/ab-a-late-migration-review.LCOrXDo8/cargo.log",
+    "archive": "leader-independent-review.log.gz",
+    "log_sha256": "c2a37d148da65e4bc169d3d6fa7ed0b56a8dad04e58522988e15583d36160242",
+    "archive_sha256": "5f7c3858768ac5524717e10b474352595b0f79467c2148018fdea5a16d350329"
+  },
+  "handoff": {
+    "preview_target": "375a054e69d3d411f32266c41b03ba2f6c682460",
+    "target_changes_reserved_test_files": false,
+    "release_authorized": true
   }
 }
