@@ -147,6 +147,101 @@
     "source": "/tmp/ab-actual18-future19.HEGRQvt7/receipt.json",
     "archive": "historical-daemon-receipt.json",
     "sha256": "4f8fb5ade8f9d2aefe2a3f761d6fb38e4754a8145c58ce7037e7ac98c950c3b4",
-    "receipt_status": null
+    "receipt_status": "positive_schema18_and_future19_refusal_verified_by_leader"
+  },
+  "candidate": "dff96b7006a44f54c6cb254cf882eb735b2c8f81",
+  "ci_workspace_attempt": {
+    "head": "dff96b7006a44f54c6cb254cf882eb735b2c8f81",
+    "tests": [
+      {
+        "name": "workspace-bins",
+        "command": [
+          "cargo",
+          "build",
+          "--workspace",
+          "--locked",
+          "--bins"
+        ],
+        "exit_code": 0,
+        "seconds": 55.381,
+        "raw_log_sha256": "7a26011e02f9e5d58ae1a92f2c4f29076144044cc7d072a4008aae02a05992c1",
+        "archive": "workspace-bins.log.gz",
+        "archive_sha256": "b129910078e30a1e8205ace8f449ef2eff9a6cb4f231047bd77f34a5a43c7e45"
+      },
+      {
+        "name": "ci-prepare-tools",
+        "command": [
+          "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+          "scripts/prepare-factory-test-tools.py",
+          "--source",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema17-rust-gate/target/debug",
+          "--output",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema17-rust-gate/artifacts/schema17-rust-gate/ci-schema17-tools",
+          "--evidence",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema17-rust-gate/artifacts/schema17-rust-gate/ci-prepare-probe"
+        ],
+        "exit_code": 1,
+        "seconds": 1.283,
+        "raw_log_sha256": "804121e71db2c90664026c90811302f3cad9156ec183431674c0e7a9b7e6ad87",
+        "archive": "ci-prepare-tools.log.gz",
+        "archive_sha256": "03f7510be6903872c0e026af364832465205393a9f52f86e5d30a7c100ad2401"
+      }
+    ],
+    "quoted_environment": {
+      "CARGO_BUILD_JOBS": 3,
+      "CARGO_PROFILE_DEV_DEBUG": 0,
+      "CARGO_NET_OFFLINE": true,
+      "RUST_TEST_THREADS": 1
+    },
+    "stopped_at": "ci-prepare-tools",
+    "snapshot": {
+      "api_version": 1,
+      "database_schema_version": 19,
+      "sequence": 0,
+      "tasks": []
+    },
+    "cleanup": {
+      "owned_pid": 78301,
+      "sigterm_sent": true,
+      "forced_kill": false,
+      "wait_exit": 0
+    },
+    "archive_probes": [
+      {
+        "archive": "probe-snapshot.json.gz",
+        "raw_log_sha256": "714615ddc86671d0435a6861f9b50620b0d5dea82a86a1d189b5afec2fdd8bf0",
+        "archive_sha256": "f557bd8ca2b5cb6606c9f6b447a79f14dbea2f0c3f27e3d34f71c00942e36d00"
+      },
+      {
+        "archive": "probe-cleanup.json.gz",
+        "raw_log_sha256": "0e395e712d53a6c1cb7232b1bf03fc69c21925ffa79be5bb5540971023b4903e",
+        "archive_sha256": "774b7a93ef8a91067210c031533d34d61f9c83340719e6b1d74ae39d16b74141"
+      },
+      {
+        "archive": "probe-failure.json.gz",
+        "raw_log_sha256": "bc135230c65e5044e0c4730686f2521cf2c7c6701589a5e75db01493642356f9",
+        "archive_sha256": "850662eea2798f13397d8851b43987ae9d810e27dae8aa129340620976e1ed56"
+      }
+    ],
+    "workspace_test": "not_run_prerequisite_failed",
+    "hosted_CI": "not_run"
+  },
+  "leader_other_default_targets": {
+    "source": "../leader-control/docs/execution/leader-control/SCHEMA19_REQUIRED_RUST_BASELINE.json",
+    "sha256": "559b682faeba34a3dc014aaba4dbe7736b5ba21d4b0a71450150afdb0679d03d",
+    "base": "bd894a012ddb504b0e576f20f1f8fabb3dc8e949",
+    "total": 37,
+    "failures": 30,
+    "targets": [
+      "command_validation_migration",
+      "data_workspace_migration",
+      "factory_child_plan_migration",
+      "factory_migration",
+      "goal_graph_migration",
+      "goal_runtime_migration",
+      "goal_store_migration",
+      "migration_v7",
+      "storage"
+    ]
   }
 }
