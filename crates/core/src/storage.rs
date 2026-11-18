@@ -672,6 +672,7 @@ impl Store {
             params![task.id, encode(&task)?],
         )
         .map_err(db_error)?;
+        crate::project_config::pin_task(&tx, project_id, &task.id)?;
         append_event(&tx, &task, "task.created", json!({"goal":task.goal}))?;
         tx.execute(
             "INSERT INTO idempotency VALUES(?1,?2,?3,?4)",

@@ -405,7 +405,12 @@ impl Supervisor {
         if !native_recovery_matches(evidence, &session, &intent, &runtime, &connection, now) {
             return new_attempt(Reason::CompatibilityEvidenceMismatch);
         }
-        let plan = crate::runtime_config::approved_plan(&connection)?;
+        let plan = crate::runtime_config::approved_task_plan(
+            &store.conn,
+            &task.id,
+            &session.project_id,
+            &connection,
+        )?;
         let actual = RuntimeRoot::open(&self.runtime.join("runtime-config")).and_then(|root| {
             root.verify_before_launch(&runtime.snapshot, RuntimeRequirements::default())
         });
@@ -534,7 +539,7 @@ fn ms() -> Result<i64> {
     i64::try_from(OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000)
         .map_err(|_| CoreError::new("INTERNAL_ERROR", "Clock outside supported range"))
 }
-fn event(
+pub(crate) fn event(
     tx: &Transaction<'_>,
     id: &str,
     revision: u64,
@@ -1201,6 +1206,9 @@ impl Store {
         } else if goal.is_none() {
             Store::reserve_ordinary_shared_budget(&tx, &session, &grant, &canonical_root)?;
         }
+        // Factory lineage and the exact reservation were verified above.
+        // Check the Task pin before committing any attempt or launch intent.
+        crate::runtime_config::check_task_plan(&tx, &task.id, &task.project_id, &connection)?;
         task.revision += 1;
         task.updated_at = timestamp;
         tx.execute(
@@ -1742,7 +1750,8 @@ impl Supervisor {
             return Ok(());
         }
         let c = store.get_connection(&s.connection_id)?;
-        let plan = crate::runtime_config::approved_plan(&c)?;
+        let plan =
+            crate::runtime_config::approved_task_plan(&store.conn, &s.task_id, &s.project_id, &c)?;
         let goal_duration = store
             .goal_session_duration(id)?
             .or(store.shared_session_duration(id)?);
@@ -3069,6 +3078,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == crate::project_config::KIND {
+            return self.finalize_project_config(proposal, revision, result);
+        }
         if proposal.kind == "managed_mcp" {
             return self.finalize_managed_mcp(id, revision);
         }
@@ -3228,7 +3240,11 @@ pub(crate) fn approval_event_payload(kind: &str, snapshot: &Value) -> Result<Val
             _ => false,
         }
     }
-    if matches!(kind, "managed_skill" | "managed_mcp") || contains_managed_skill(snapshot) {
+    if matches!(
+        kind,
+        "managed_skill" | "managed_mcp" | crate::project_config::KIND
+    ) || contains_managed_skill(snapshot)
+    {
         use sha2::{Digest, Sha256};
         Ok(
             json!({"kind":kind,"snapshot_digest":format!("{:x}",Sha256::digest(encode(snapshot)?.as_bytes()))}),

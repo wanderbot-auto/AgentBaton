@@ -346,6 +346,71 @@ pub(crate) fn approved_plan(connection: &ProviderConnection) -> Result<RuntimePl
     Ok(plan)
 }
 
+pub(crate) fn approved_task_plan(
+    db: &rusqlite::Connection,
+    task_id: &str,
+    project_id: &str,
+    connection: &ProviderConnection,
+) -> Result<RuntimePlan> {
+    let connection_plan = approved_plan(connection)?;
+    match crate::project_config::task_plan(db, task_id, project_id, &connection.provider)? {
+        Some(project_plan) => merge_task_plan(connection_plan, project_plan),
+        None => Ok(connection_plan),
+    }
+}
+
+/// Keep normal session admission unchanged for Tasks created without a pin.
+pub(crate) fn check_task_plan(
+    db: &rusqlite::Connection,
+    task_id: &str,
+    project_id: &str,
+    connection: &ProviderConnection,
+) -> Result<()> {
+    if let Some(project_plan) =
+        crate::project_config::task_plan(db, task_id, project_id, &connection.provider)?
+    {
+        merge_task_plan(approved_plan(connection)?, project_plan)?;
+    }
+    Ok(())
+}
+
+fn merge_task_plan(
+    mut connection_plan: RuntimePlan,
+    project_plan: RuntimePlan,
+) -> Result<RuntimePlan> {
+    use agentbaton_config::capabilities::native::INSTRUCTION_ONLY_SKILL_SOURCE;
+    if project_plan.provider != connection_plan.provider
+        || !project_plan.mcp_servers.is_empty()
+        || project_plan.codex.model.is_some()
+        || !project_plan.claude.enabled_project_mcp_names.is_empty()
+        || !project_plan.claude.disabled_project_mcp_names.is_empty()
+        || project_plan
+            .skills
+            .iter()
+            .any(|skill| !skill.assets.is_empty())
+        || (!project_plan.skills.is_empty()
+            && connection_plan
+                .skills
+                .iter()
+                .any(|skill| skill.provenance.source_ref == INSTRUCTION_ONLY_SKILL_SOURCE))
+        || project_plan.skills.iter().any(|project_skill| {
+            connection_plan
+                .skills
+                .iter()
+                .any(|skill| skill.directory_name == project_skill.directory_name)
+        })
+    {
+        return Err(CoreError::new(
+            "CONFIG_CONFLICT",
+            "Project instructions conflict with the approved connection or exceed the instruction-only scope",
+        ));
+    }
+    connection_plan.skills.extend(project_plan.skills);
+    connection_plan.source_refs.extend(project_plan.source_refs);
+    connection_plan.plan_digest().map_err(config_error)?;
+    Ok(connection_plan)
+}
+
 impl Store {
     pub fn runtime_binding(&self, session_id: &str) -> Result<Option<RuntimeBinding>> {
         let record: Option<String> = self
@@ -405,7 +470,7 @@ impl Store {
             )
             .map_err(db_error)?;
         let connection: ProviderConnection = decode(&connection_raw)?;
-        let plan = approved_plan(&connection)?;
+        let plan = approved_task_plan(&tx, &session.task_id, &session.project_id, &connection)?;
         if session.state != "starting"
             || intent_state != "prepared"
             || session.attempt_id != binding.attempt_id
