@@ -1,0 +1,152 @@
+{
+  "requirement": "AB-CFG-009",
+  "scope": "Config-only project inspection, trusted confirmation, managed snapshot publication and reconciliation",
+  "base_sha": "b5681ec4fa3ff2f48fe0c40bc24b436ce4e1c4ea",
+  "tested_source_sha": "c537182e7a723eed8562f8fe90cffe643f0213ad",
+  "verification_started_at_utc": "2026-11-18T19:40:03.595283+00:00",
+  "runner": {
+    "wrapper": [
+      "bash",
+      "scripts/collab.sh",
+      "run",
+      "--"
+    ],
+    "arch": "arm64",
+    "os": "macOS 26.6.1 (25G76)",
+    "rustc": "1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "1.91.1 (ea2d97820 2025-10-10)",
+    "environment_log": "logs/environment.txt"
+  },
+  "cargo_lock_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+  "fixtures": [
+    "Temporary local Git project; no hooks, git signing, remote or Provider invocation",
+    "Synthetic Skills, MCP and Hook declarations and a separately registered managed definition",
+    "Real manifest rename failure induced after atomic snapshot publication in a private test root"
+  ],
+  "checks": [
+    {
+      "label": "targeted",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-config",
+        "--locked",
+        "--offline",
+        "--test",
+        "project_import",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:07.540536+00:00",
+      "log": "logs/targeted.log.gz",
+      "totals": {
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0
+      }
+    },
+    {
+      "label": "actual-failure",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-config",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--",
+        "project_import",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:09.243635+00:00",
+      "log": "logs/actual-failure.log.gz",
+      "totals": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 1
+      }
+    },
+    {
+      "label": "full",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-config",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:16.274976+00:00",
+      "log": "logs/full.log.gz",
+      "totals": {
+        "passed": 98,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0
+      }
+    },
+    {
+      "label": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:17.469579+00:00",
+      "log": "logs/fmt.log.gz"
+    },
+    {
+      "label": "check",
+      "command": [
+        "cargo",
+        "check",
+        "-p",
+        "agentbaton-config",
+        "--all-targets",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:18.496658+00:00",
+      "log": "logs/check.log.gz"
+    },
+    {
+      "label": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "agentbaton-config",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:19.852185+00:00",
+      "log": "logs/clippy.log.gz"
+    }
+  ],
+  "scope_and_preview": "logs/scope-preview.txt",
+  "not_run": [
+    "Core project lifecycle, once-per-project owner confirmation registry, shared IPC",
+    "native App confirmation and cancellation, real Provider identity and runtime loading",
+    "native Hook activation and AB-CFG-010 subsequent risk checks",
+    "Linux and CI"
+  ]
+}
