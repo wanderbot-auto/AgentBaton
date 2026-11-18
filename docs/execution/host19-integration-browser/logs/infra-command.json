@@ -1,0 +1,15 @@
+{
+  "head": "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
+  "argv": [
+    "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/infrastructure",
+    "-v"
+  ],
+  "exit": 0,
+  "seconds": 21.684,
+  "log_sha256": "26ee5a2bbf32f781fa798f13708030bc50dd9ea3d7c34c391043c889104d07ad"
+}

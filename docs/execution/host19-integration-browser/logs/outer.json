@@ -1,0 +1,15 @@
+{
+  "status": "refused",
+  "workflow_blob_sha256": "edfffb07b5d5c8ecb3039962f5ad54e77cd187a4afd33f89941564b89603bff4",
+  "extracted_unchanged_function_sha256": "285a1348748179f8149ec33a08e1fa377920f32bb48fc5317b9d4fdf4684b89a",
+  "observations": [
+    {
+      "method": "system.snapshot",
+      "database_schema_version": 19,
+      "api_version": 1
+    }
+  ],
+  "clean_shutdown": true,
+  "runtime_removed": true,
+  "public_projection": "not_run"
+}
