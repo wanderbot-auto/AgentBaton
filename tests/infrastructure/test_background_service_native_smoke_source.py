@@ -13,6 +13,11 @@ from tests.infrastructure.host19_native_smoke_source_fixture import (
 from tests.infrastructure.host_native_bridge_source_fixture import restore_host_native_bridge_v1
 from tests.infrastructure.host_native_schema19_source_fixture import restore_host_native_schema18
 
+from tests.infrastructure.host19_native_integration_owner_source_fixture import (
+    SOURCE_LAYERS as INTEGRATION_OWNER_LAYERS,
+    restore_integration_owner_before_schema19,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 DESKTOP_DEV_PROFILE_LAYER = '''# This is a separate Cargo workspace. Match the root's runtime-sensitive dev
 # overrides so the helper can reuse dependencies in one checkout-local target.
@@ -354,6 +359,8 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         layers = json.loads(inverse)
         for path, pin in UNCHANGED_FILE_PINS.items():
             raw = (ROOT/path).read_bytes()
+            if path in INTEGRATION_OWNER_LAYERS:
+                raw = restore_integration_owner_before_schema19(path, raw)
             if path == NATIVE_SMOKE_PATH:
                 raw = restore_native_smoke_before_schema19(path, raw)
             if path in layers:
