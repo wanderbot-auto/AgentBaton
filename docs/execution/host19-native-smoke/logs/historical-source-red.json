@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.infrastructure.test_background_service_native_smoke_source.NativeBackgroundSourceBoundaries.test_all_parent_harness_guards_lock_and_cargo_source_are_exact"
+  ],
+  "exit": 1,
+  "log_sha256": "d2dfe50a3553d2ab724031fa044e7499a78f90a349ffcb43b44e70a32b3de1d2",
+  "source": "schema19 Rust changes with original consumer"
+}

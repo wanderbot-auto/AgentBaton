@@ -1,0 +1,9 @@
+{
+  "current_sha256": "58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c",
+  "parent_sha256": "5145fdce52955077dcfd591b712977452dec3cfd09bb4bb06807968e0a1bcdfa",
+  "parent_commit": "6fe6e7a06826020f72081a8f80dc39f995393c8b",
+  "historical_sha256": "95da64173f62be210d35fd626006f76ff33cda5ce96b333517c1244d23d2a4e0",
+  "historical_commit": "63e8a35fcc22d5c08bd135fbe015934d8bc2c44e",
+  "original_consumer_sha256": "8a30b8246bbba7d508ccda3d6d0efa736a78bfaa1ca9036785c8de2a145e2c2b",
+  "original_layer_sha256": "4c676e3f72912687d30844afcee5653c9420106ffe43d7cf33babb09b19d1f0a"
+}

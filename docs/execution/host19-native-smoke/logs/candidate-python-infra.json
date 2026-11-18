@@ -1,0 +1,21 @@
+{
+  "source": "17a6539fb561f6b72e954052511710fd27c2821e",
+  "argv": [
+    "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/infrastructure",
+    "-t",
+    ".",
+    "-v"
+  ],
+  "env": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_PROFILE_DEV_DEBUG": "0"
+  },
+  "exit": 1,
+  "seconds": 0.038,
+  "log_sha256": "5fe280c9ef03831c0710c6430c0c230a9461a063f3106da809ce1039fd8191bd"
+}

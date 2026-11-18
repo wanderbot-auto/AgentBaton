@@ -1,0 +1,25 @@
+{
+  "path": "target/debug/deps/agentbaton_native_smoke-f05a338b0797f692",
+  "sha256": "2b34a3bde45d2816f7b19b30a3da9721b0b29089f97c6612ef5298eb8ef750e1",
+  "file": "Mach-O 64-bit executable arm64",
+  "host": "26.6.1",
+  "rustc": [
+    "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "binary: rustc",
+    "commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb",
+    "commit-date: 2025-11-07",
+    "host: aarch64-apple-darwin",
+    "release: 1.91.1",
+    "LLVM version: 21.1.2"
+  ],
+  "locked_inputs": {
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+    "apps/desktop/package-lock.json": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d"
+  },
+  "frontend_dist": {
+    "apps/desktop/dist/assets/index-COiF135a.js": "0acf9b7a5b6596ca933fe08d157a9341ed6b3a62b42fdeed2ee65ee117303166",
+    "apps/desktop/dist/assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+    "apps/desktop/dist/index.html": "f1b875b214420deb753c6510e7f5df8b74f2f6bae113b9cba579d188991df996"
+  }
+}

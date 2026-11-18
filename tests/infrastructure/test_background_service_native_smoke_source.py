@@ -6,6 +6,10 @@ import re
 import tomllib
 import unittest
 
+from tests.infrastructure.host19_native_smoke_source_fixture import (
+    NATIVE_SMOKE_PATH,
+    restore_native_smoke_before_schema19,
+)
 from tests.infrastructure.host_native_bridge_source_fixture import restore_host_native_bridge_v1
 from tests.infrastructure.host_native_schema19_source_fixture import restore_host_native_schema18
 
@@ -350,6 +354,8 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         layers = json.loads(inverse)
         for path, pin in UNCHANGED_FILE_PINS.items():
             raw = (ROOT/path).read_bytes()
+            if path == NATIVE_SMOKE_PATH:
+                raw = restore_native_smoke_before_schema19(path, raw)
             if path in layers:
                 layer = layers[path]
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), layer['after'], path)
