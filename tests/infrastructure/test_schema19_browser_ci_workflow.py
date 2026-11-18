@@ -330,5 +330,58 @@ class IntegrationProbeControls(unittest.TestCase):
                 self.probe(good,**control)
 
 
+class ChildGoalRenderedRootControls(unittest.TestCase):
+    def setUp(self):
+        import sys
+        path = ROOT / 'apps/desktop/tests/factory-child-goal-real-ipc.py'
+        spec = importlib.util.spec_from_file_location('_child_goal_rendered_root_controls', path)
+        self.driver = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = self.driver
+        self.addCleanup(sys.modules.pop, spec.name)
+        spec.loader.exec_module(self.driver)
+        self.root = {'id':'root-fixed','project_id':'project-fixed','spec_revision':1,'revision':1,'state':'draft'}
+        self.reference = {'id':'plan-fixed','scope_id':'scope-fixed','run_id':'run-fixed','task_id':'child-fixed',
+            'revision':1,'plan_digest':'b'*64,'raw_sha256':'c'*64,'receipt_sequence':2}
+
+    def snapshot(self, revision, state, *, complete=True, **changes):
+        task = {**self.root,'revision':revision,'state':state,**changes}
+        return {'method':'system.snapshot','response_complete':complete,'original_reply_sha256':'d'*64,
+            'response':{'result':{'api_version':1,'database_schema_version':19,'tasks':[task]}}}
+
+    def renderer(self, revision, **changes):
+        return {'task_id':self.root['id'],'revision':str(revision),'state_matches':True,'parent_ready':True,
+            'selected_reference':self.reference,'action_ready':True,**changes}
+
+    def test_awaits_the_same_rendered_revision_before_the_single_action(self):
+        # Real diagnostic pattern: the Core root has moved, and React is still
+        # displaying the previous revision while the action looks enabled.
+        for state, before, after in (('running', 1, 3), ('outcome_unknown', 3, 4)):
+            with self.subTest(state=state):
+                record = self.snapshot(after,state)
+                self.assertIsNone(self.driver.rendered_root_action_witness(
+                    [record],self.renderer(before),self.root,self.reference,state,before))
+                witnessed = self.driver.rendered_root_action_witness(
+                    [record],self.renderer(after),self.root,self.reference,state,before)
+                self.assertEqual(witnessed,{'state':state,'revision':after,'snapshot_reply_sha256':'d'*64})
+
+    def test_never_reuses_older_snapshot_or_accepts_another_revision_plan_or_identity(self):
+        good = self.snapshot(3,'running')
+        for snapshots, rendered in (
+            ([good,self.snapshot(4,'outcome_unknown')], self.renderer(3)),
+            ([self.snapshot(3,'running',complete=False)], self.renderer(3)),
+            ([self.snapshot(3,'running',project_id='other')], self.renderer(3)),
+            ([self.snapshot(3,'running',spec_revision=True)], self.renderer(3)),
+            ([self.snapshot(3.0,'running')], self.renderer(3)),
+            ([good], self.renderer(3,task_id='other')),
+            ([good], self.renderer(3,parent_ready=False)),
+            ([good], self.renderer(3,state_matches=False)),
+            ([good], self.renderer(3,action_ready=False)),
+            ([good], self.renderer(3,selected_reference={**self.reference,'revision':2})),
+        ):
+            with self.subTest(state=rendered):
+                self.assertIsNone(self.driver.rendered_root_action_witness(
+                    snapshots,rendered,self.root,self.reference,'running',1))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -534,33 +534,82 @@ LAYERS = {'apps/desktop/tests/factory-child-goal-real-ipc.py': ('33bc3a72c30e509
                                                            '\n')])}
 
 
+DRIVER = 'apps/desktop/tests/factory-child-goal-real-ipc.py'
+PRIOR_DRIVER_LAYER = LAYERS[DRIVER]
+RENDERED_ROOT_LAYER = ('3cb6134e3cae6c252f1013a31847a4428da98e28dd2c52848980ba132082bfb8',
+ '33bc3a72c30e509ae64cfce573743f58aa4406e4632ac42e3354d125f7ac242c',
+ [(1692,
+   1744,
+   '5887ce63c9a963f19265b21e0ef9089fb368aebd7362c9c201c7c856002fbe33',
+   '\n'
+   '\n'
+   'def current_child_goal_preflight(args, output):\n'
+   '    require(base.sha(PLANNING_SOURCE) == base.sha(PLANNING_PATH.read_bytes()) == PLANNING_SHA256,\n'),
+  (2100,
+   2131,
+   '464cd763d157846abcf3f25d296887af50e38bba1691b3c4fb5a6c9e5902cc65',
+   "        goal_details=plans.get_by_test_id('factory-child-goals');expand(goal_details)\n"
+   "        goal_panel=goal_details.get_by_test_id('factory-child-goal-panel')\n"
+   "        goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()\n"
+   "        expect(goal_panel.get_by_role('button',name='Execute this exact saved child "
+   "plan',exact=True)).to_be_enabled()\n"
+   "        shot('02-exact-saved-raw-reference-before-start',goal_panel)\n"
+   "        goal_panel.get_by_role('button',name='Execute this exact saved child plan',exact=True).click()\n"
+   "        started=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and not "
+   "r.get('response',{}).get('error')and r.get('response')],lambda v:len(v)==1)[0]\n"
+   '        '
+   "initial=started['response']['result'];goal_id=initial['goal']['run']['id'];bounds.goal_runs[goal_id]=child['task_id']\n"),
+  (2181,
+   2191,
+   '813f912a348a4c5efea2cbe332f999fe4545aeec7a791d6d9ad2777233003c6d',
+   '                finite.owner_refresh_click_finished(time.monotonic_ns())\n'
+   "                phase_stamp('owner_UI_refresh_click','end')\n"
+   "            owner=goal_panel.get_by_role('button',name='Review exact Factory-origin candidate in native "
+   "dialog',exact=True)\n"
+   "            phase_stamp('owner_enabled_expect','start')\n"
+   '            try:expect(owner).to_be_enabled()\n'
+   '            finally:\n'
+   "                sample_owner_ui(finite,goal_panel,query['goal_run_id'],'end')\n")])
+LAYERS[DRIVER] = (RENDERED_ROOT_LAYER[0], PRIOR_DRIVER_LAYER[1], RENDERED_ROOT_LAYER[2])
+
+
 def sha(text):
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+def reverse_pinned_spans(source, layer, error=AssertionError):
+    current, historical, spans = layer
+    if sha(source) != current:
+        raise error('Unrecognized Child Goal source bytes')
+    lines = source.splitlines(keepends=True)
+    for start, end, span_sha, replacement in reversed(spans):
+        if not 0 <= start < end <= len(lines) or sha(''.join(lines[start:end])) != span_sha:
+            raise error('Child Goal inverse span changed')
+        lines[start:end] = replacement.splitlines(keepends=True)
+    restored = ''.join(lines)
+    if sha(restored) != historical:
+        raise error('Child Goal inverse did not restore the exact source')
+    return restored
 
 
 def restore_child_goal_before_schema19(path, source, *, error=AssertionError):
     if type(path) is not str or path not in LAYERS or type(source) is not str:
         raise error('Unknown Child Goal schema19 inverse arguments')
-    current, historical, spans = LAYERS[path]
+    layer = LAYERS[path]
     digest = sha(source)
-    if digest == historical:
+    if digest == layer[1]:
         return source
-    if digest != current:
-        raise error('Unrecognized Child Goal schema19 source bytes')
-    lines = source.splitlines(keepends=True)
-    for start, end, span_sha, replacement in reversed(spans):
-        if not 0 <= start < end <= len(lines) or sha(''.join(lines[start:end])) != span_sha:
-            raise error('Child Goal schema19 inverse span changed')
-        lines[start:end] = replacement.splitlines(keepends=True)
-    restored = ''.join(lines)
-    if sha(restored) != historical:
-        raise error('Child Goal schema19 inverse did not restore the exact source')
-    return restored
+    if path == DRIVER:
+        if digest == RENDERED_ROOT_LAYER[0]:
+            source = reverse_pinned_spans(source, RENDERED_ROOT_LAYER, error)
+        layer = PRIOR_DRIVER_LAYER
+    return reverse_pinned_spans(source, layer, error)
 
 
 def normalize_child_goal_outer_layer(path, source, *, error=AssertionError):
     layer = LAYERS.get(path)
-    if layer is not None and sha(source) == layer[0]:
+    digest = sha(source)
+    if layer is not None and (digest == layer[0] or path == DRIVER and digest == PRIOR_DRIVER_LAYER[0]):
         return restore_child_goal_before_schema19(path, source, error=error)
     return source
 
