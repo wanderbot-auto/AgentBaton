@@ -383,6 +383,17 @@ func textKey(_ text: String, pid: pid_t) {
     usleep(100_000)
 }
 
+func focus(_ item: Element, label: String) {
+    guard AXUIElementSetAttributeValue(item.node, "AXFocused" as CFString, kCFBooleanTrue) == .success else {
+        fail("Cannot focus owned control: " + label)
+    }
+    for _ in 0..<10 {
+        if attribute(item.node, "AXFocused") as? Bool == true { return }
+        usleep(50_000)
+    }
+    fail("Owned control is not focused: " + label)
+}
+
 let args = CommandLine.arguments
 guard AXIsProcessTrusted() else { fail("Accessibility denied by macOS; no actions taken") }
 guard args.count >= 4, let pid = Int32(args[1]),
@@ -432,14 +443,7 @@ if operation == "disclose" {
     guard AXUIElementPerformAction(target.node, "AXScrollToVisible" as CFString) == .success else {
         fail("Cannot scroll owned disclosure into view: " + label)
     }
-    if !app.isActive {
-        _ = app.activate(options: [])
-        for _ in 0..<15 where !app.isActive { usleep(50_000) }
-    }
-    guard app.isActive else { fail("Owned App could not activate for input") }
-    guard AXUIElementSetAttributeValue(target.node, "AXFocused" as CFString, kCFBooleanTrue) == .success else {
-        fail("Cannot focus owned disclosure: " + label)
-    }
+    focus(target, label: label)
     key(49, pid: pid)
     exit(0)
 }
@@ -470,11 +474,7 @@ guard matches.count == 1, let item = matches.first else { fail("Missing or ambig
 guard attribute(item.node, "AXEnabled") as? Bool != false else { fail("Control disabled: " + label) }
 if operation == "fill" {
     guard CGPreflightPostEventAccess() else { fail("Owned text input denied by macOS") }
-    guard AXUIElementSetAttributeValue(item.node, "AXFocused" as CFString, kCFBooleanTrue) == .success else {
-        fail("Cannot focus owned field: " + label)
-    }
-    usleep(100_000)
-    guard attribute(item.node, "AXFocused") as? Bool == true else { fail("Owned field is not focused: " + label) }
+    focus(item, label: label)
     let previous = string(item.node, "AXValue")
     guard previous.count <= 8 else { fail("Unexpected prefilled value in owned field: " + label) }
     for _ in previous { key(124, pid: pid) } // Move right through the default value.
@@ -489,9 +489,7 @@ if operation == "fill" {
 guard operation == "select", CGPreflightPostEventAccess(), !args[5].isEmpty else {
     fail("Unexpected selection or input access denied")
 }
-guard AXUIElementSetAttributeValue(item.node, "AXFocused" as CFString, kCFBooleanTrue) == .success else {
-    fail("Cannot focus owned selector: " + label)
-}
+focus(item, label: label)
 // HTML select supports type-ahead while the native popup remains closed.
 textKey(String(args[5].prefix(1)), pid: pid)
 '''
@@ -600,8 +598,10 @@ def app_case(paths, base, output, evidence):
         executable = paths["desktop"]
         with process(paths["daemon"], runtime, output, "daemon-app", evidence["cleanup"]) as daemon:
             background = ready(runtime, daemon)
+            item["daemon_instance"] = background["instance_id"]
             before = audit(runtime)
             empty(before)
+            item["before"] = before
             require(pending_entries(runtime) in (None, []), "Expected empty private Host journal initially")
             with process(executable, runtime, output, "desktop-first", evidence["cleanup"]) as app:
                 first_pid = app.pid
@@ -637,6 +637,7 @@ def app_case(paths, base, output, evidence):
                         "Journal must retain the exact displayed creation before acknowledgement")
                 item["journal_before_ack"] = journal[0]
                 item["receipt"] = receipt
+                item["after"] = with_pending
                 item["captured_receipt"] = frame(ax, app, executable, output, "pending-receipt")
                 ax.call(app, executable, "press", label_for("Acknowledge registration"))
                 observe(ax, app, executable, (label_for("Registration acknowledged."), receipt["host_id"]))
@@ -644,7 +645,14 @@ def app_case(paths, base, output, evidence):
                 require(audit(runtime) == with_pending, "Acknowledgement modified SQLite")
                 item["journal_empty_after_explicit_ack"] = True
 
-                ax.call(app, executable, "press", label_for("Close"))
+                close_label = label_for("Close")
+                ax.call(app, executable, "press", close_label)
+
+                def settings_closed():
+                    nodes = ax.dump(app, executable)
+                    return True if nodes and close_label not in accessible_text(nodes).splitlines() else None
+
+                eventually("Settings to close", settings_closed)
                 label_for = open_settings(ax, app, executable)
                 observe(ax, app, executable, (HOST_NAME, label_for("View registration")))
                 item["settings_reopened"] = True
@@ -662,7 +670,7 @@ def app_case(paths, base, output, evidence):
             require(pending_entries(runtime) == [] and audit(runtime) == with_pending,
                     "App reopen changed the registry or recovery state")
         require(not (runtime / "batond.sock").exists(), "Owned App daemon socket still exists")
-        item.update(status="passed", before=before, after=with_pending, same_daemon_across_app_reopen=True)
+        item.update(status="passed", same_daemon_across_app_reopen=True)
 
 
 def interrupted(signum, _frame):
