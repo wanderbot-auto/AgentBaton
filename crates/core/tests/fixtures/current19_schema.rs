@@ -1,4 +1,5 @@
-//! TEST-ONLY explicit19 ->18 ->17 ->16 composition; original helpers untouched.
+//! TEST-ONLY exact19 ->18 ->17 ->16 composition for activated Core19 fixtures.
+//! Factory composition has its separate transaction wrapper; old helpers untouched.
 #![cfg(test)]
 use super::pre_host_schema;
 use rusqlite::{Connection, Transaction, TransactionBehavior};

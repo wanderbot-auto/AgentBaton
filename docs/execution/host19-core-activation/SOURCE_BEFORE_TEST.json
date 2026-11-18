@@ -1,0 +1,63 @@
+{
+  "base": "c9225714319a91dae60e635c0a34ba4b3a4a670d",
+  "files": {
+    "crates/core/src/storage.rs": {
+      "sha256": "90e06b365942a6ea6dcb4dca927438a05fec4f8c448c308f79eb2799c7898077",
+      "bytes": 49690
+    },
+    "crates/core/src/integration_store.rs": {
+      "sha256": "25e2057f0321a82d62ea5b5efe420d958ca55ba665f03cbd8e7c6613d4d28699",
+      "bytes": 16091
+    },
+    "crates/core/src/integration_budget.rs": {
+      "sha256": "eb7abd8793b66c492523a3a77423c295a8cc9ab97519214427e5dd12449c18b8",
+      "bytes": 10487
+    },
+    "crates/core/src/host_registry.rs": {
+      "sha256": "4278b08477e90e54e3378715e27ea6858175e767f8a9c14735f82ce45d209364",
+      "bytes": 27371
+    },
+    "crates/core/src/host_registry_tests.rs": {
+      "sha256": "0aa7bdfeccd93e00a72a0a4e80519d71177d7ac208b77276a07b082ddc38bc5b",
+      "bytes": 45165
+    },
+    "crates/core/src/host_registry_migration.rs": {
+      "sha256": "a154f08419bfd6985cfa1df46048b33cad27f312fd4fc79a123a8e949089720a",
+      "bytes": 13144
+    },
+    "crates/core/src/host_registry_migration_tests.rs": {
+      "sha256": "9d8000a54877910bacc94d260a5bfc9f77ab5e0f4bb74987b4c9fd6d4bcddeb2",
+      "bytes": 31952
+    },
+    "crates/core/tests/fixtures/current19_schema.rs": {
+      "sha256": "526266c4387a1e4c80741c3cabf006f9fd397dd9416e900ec446b02bc8b155b2",
+      "bytes": 1839
+    },
+    "crates/core/tests/fixtures/current19_factory_schema.rs": {
+      "sha256": "62f2c6de660eadc2135ab163c62c0fd2068415602f339f7e86c8ec9b7bbb5ef0",
+      "bytes": 3664
+    },
+    "crates/core/tests/host_registry_migration.rs": {
+      "sha256": "ec85f57b44e46df1e5463f8b2ab3a4f2e56ab0e2fd17fca96364836e6ee0bf68",
+      "bytes": 5422
+    },
+    "crates/core/tests/host_schema19_fixture.rs": {
+      "sha256": "7f9287391106f1a70cf944a5bcfa02017271089acb295ed4a0ad9c8586ee32e9",
+      "bytes": 9564
+    },
+    "crates/core/src/host_registry_ipc_tests.rs": {
+      "sha256": "22f6246f1d7d31cc12c0fc956609b64d6a758d9907ed60aeca9c1413173decd4",
+      "bytes": 21438
+    },
+    "crates/core/tests/host_registry_actual18_migration.rs": {
+      "sha256": "bf9489f33c334a470112eacefd7ef85ebda4b48b8ab1b771b62c7b6adeabee0b",
+      "bytes": 14005
+    },
+    "crates/core/Cargo.toml": {
+      "sha256": "d29e3eafc262d85c4870a76363d68364f07581a1da2a1c428b6ec0f06af74fc2",
+      "bytes": 1782
+    }
+  },
+  "expected_source_scope": 14,
+  "stage": "before_first_validation"
+}

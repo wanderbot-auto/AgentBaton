@@ -569,6 +569,13 @@ fn page(
     Ok(page)
 }
 impl Store {
+    /// Bounded known Host/receipt/linked-event audit before startup recovery.
+    /// This is not a whole-journal/orphan or unknown-namespace scan.
+    pub(crate) fn validate_host_registry_startup(connection: &mut Connection) -> Result<()> {
+        let tx = connection.transaction().map_err(db_error)?;
+        audit(&tx)?;
+        tx.commit().map_err(db_error)
+    }
     pub fn register_host(
         &mut self,
         registration: &HostRegistration,

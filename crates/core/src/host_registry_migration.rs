@@ -1,8 +1,7 @@
-//! Dormant Host19 schema preparation. Ordinary `Store::open` still stops at18.
+//! Host19 schema/reference helpers used by ordinary Store startup.
 //!
-//! These explicit low-level helpers provide no startup wiring, private backup,
-//! Host registration API, record/receipt integrity audit or execution authority.
-//! Store19 activation and those contracts belong to the coordinated S2 slice.
+//! Store owns private backup/startup ordering; registry owns bounded record audit.
+//! Structural recognition alone grants no remote execution authority.
 use crate::storage::db_error;
 use crate::{CoreError, Result};
 use rusqlite::{Connection, Transaction, TransactionBehavior};
@@ -50,8 +49,7 @@ pub fn schema19_reference() -> Result<Connection> {
     Ok(db)
 }
 
-/// Explicit opt-in migration, deliberately not called by Store or IPC.
-/// The caller is responsible for the future product backup/activation contract.
+/// Host-only atomic increment. Store supplies backup and recovery ordering.
 pub fn migrate(connection: &mut Connection) -> Result<()> {
     if !connection.is_autocommit() {
         return Err(changed());
@@ -322,3 +320,34 @@ fn normalize(sql: &str) -> String {
 #[cfg(test)]
 #[path = "host_registry_migration_tests.rs"]
 pub(crate) mod tests;
+
+/// Controlled structural18 unit fixture, never a genuine old18 program output.
+#[cfg(test)]
+pub(crate) fn structural18_store(path: &std::path::Path) -> Result<crate::storage::Store> {
+    let reference = schema18_reference()?;
+    let conn = if path == std::path::Path::new(":memory:") {
+        reference
+    } else {
+        use std::os::unix::fs::OpenOptionsExt;
+        std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(path)
+            .map_err(|_| changed())?;
+        reference
+            .backup(rusqlite::MAIN_DB, path, None)
+            .map_err(db_error)?;
+        Connection::open(path).map_err(db_error)?
+    };
+    conn.pragma_update(None, "foreign_keys", true)
+        .map_err(db_error)?;
+    Ok(crate::storage::Store {
+        conn,
+        data_input: None,
+        graph_input: None,
+        factory_read_control: None,
+        graph_capture_clocks: Default::default(),
+        factory_recovery_queue_epochs: Vec::new(),
+    })
+}

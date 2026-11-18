@@ -15,7 +15,7 @@ struct Fixture {
     next_id: u32,
 }
 impl Fixture {
-    fn ordinary18() -> Self {
+    fn product19() -> Self {
         let root = std::env::var_os("BATON_RUNTIME_DIR")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(std::env::temp_dir);
@@ -32,7 +32,7 @@ impl Fixture {
                 .conn
                 .pragma_query_value(None, "user_version", |r| r.get::<_, i64>(0))
                 .unwrap(),
-            18
+            19
         );
         Self {
             daemon,
@@ -40,8 +40,15 @@ impl Fixture {
             next_id: 0,
         }
     }
+    // Explicit structural18 connection in a private handle fixture. The listener
+    // belongs to an ordinary19 bind; no actor/wire or old-program proof here.
+    fn structural18() -> Self {
+        let mut fixture = Self::product19();
+        fixture.daemon.store.conn = crate::host_registry_migration::schema18_reference().unwrap();
+        fixture
+    }
     fn migrated19() -> Self {
-        let mut f = Self::ordinary18();
+        let mut f = Self::structural18();
         // Lawful opaque shadow exists BEFORE the actual migration. No copied
         // Host DDL/version stamp or ordinary Store19 startup claim.
         f.daemon.store.conn.execute_batch("CREATE TABLE pragma_foreign_key_list(raw BLOB); INSERT INTO pragma_foreign_key_list(rowid,raw) VALUES(71,x'00ff80');").unwrap();
@@ -144,7 +151,7 @@ fn authority_image(f: &Fixture) -> AuthorityImage {
 }
 #[test]
 fn owner_api_request_id_guards_precede_host_params_and_schema() {
-    let mut f = Fixture::ordinary18();
+    let mut f = Fixture::structural18();
     let before = f.daemon.store.conn.total_changes();
     let mut bad = f.packet("hosts.register", json!({"not_metadata":true}), Some("key"));
     bad["token"] = json!("wrong-owner");
@@ -360,7 +367,7 @@ fn read_queries_are_closed_typed_and_use_registry_uuid_not_protocol_identity() {
 }
 #[test]
 fn bounded_params_enforce_serialized_bytes_before_typed_decode() {
-    let f = Fixture::ordinary18();
+    let f = Fixture::structural18();
     let mut r: Request = serde_json::from_value(f.packet(
         "hosts.get",
         Value::String("a".repeat(MAX_HOST_PARAMS - 2)),
@@ -390,7 +397,7 @@ fn bounded_params_enforce_serialized_bytes_before_typed_decode() {
 }
 #[test]
 fn complete_response_includes_lf_request_id_escaping_and_maximum_revision_digits() {
-    let f = Fixture::ordinary18();
+    let f = Fixture::structural18();
     let mut packet = f.packet("hosts.list", json!({"limit":1}), None);
     packet["request_id"] = json!("\n".repeat(128));
     let request: Request = serde_json::from_value(packet).unwrap();
@@ -449,8 +456,8 @@ fn actual_paginated_dispatch_responses_are_bounded_and_progress_without_duplicat
     assert_eq!(host_counts(&f), (29, 29, 29));
 }
 #[test]
-fn unsupported_ordinary18_and_future20_return_errors_without_creating_schema_or_records() {
-    let mut f = Fixture::ordinary18();
+fn unsupported_structural18_and_future20_return_errors_without_creating_schema_or_records() {
+    let mut f = Fixture::structural18();
     for version in [18, 20] {
         if version == 20 {
             f.daemon
@@ -548,4 +555,16 @@ fn scoped_or_unknown_methods_cannot_gain_a_generic_host_entry() {
         assert!(reply.get("result").is_none());
     }
     assert_eq!(host_counts(&f), before);
+}
+
+#[test]
+fn normal_store19_bound_dispatch_registers_without_private_schema_override() {
+    let mut fixture = Fixture::product19();
+    let reply = fixture.call("hosts.register", metadata(), Some("normal19"));
+    assert!(reply.get("error").is_none(), "{reply}");
+    assert!(reply.get("result").is_some());
+    let path = fixture._directory.path().join("baton.sqlite3");
+    // Actual lifecycle/reopen is exercised by the public Store tests; this is
+    // the normal19 bound-handle path, not a running actor/UDS test.
+    assert!(path.is_file());
 }

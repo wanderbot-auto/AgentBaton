@@ -95,7 +95,7 @@ fn unchanged(db: &Connection, before: Image, label: &str) {
     assert_eq!(before, after, "{label}");
 }
 fn seeded18() -> Connection {
-    let mut store = Store::open(Path::new(":memory:")).unwrap();
+    let mut store = structural18_store(Path::new(":memory:")).unwrap();
     store
         .create("local", "preserve original 中文 history", "original:create")
         .unwrap();
@@ -146,15 +146,15 @@ fn insert_host(db: &Connection, id: &str, key: &str) -> (i64, String) {
 }
 
 #[test]
-fn ordinary_store_is_still18_and_has_no_host_table() {
+fn ordinary_store_activates19_and_reopens_without_migration_backup() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("ordinary.sqlite3");
     let store = Store::open(&path).unwrap();
-    assert_eq!(version(&store.conn).unwrap(), 18);
-    assert!(!raw_objects(&store.conn).iter().any(|o| o.1 == HOST_TABLE));
+    assert_eq!(version(&store.conn).unwrap(), 19);
+    assert!(raw_objects(&store.conn).iter().any(|o| o.1 == HOST_TABLE));
     drop(store);
     let store = Store::open(&path).unwrap();
-    assert_eq!(version(&store.conn).unwrap(), 18);
+    assert_eq!(version(&store.conn).unwrap(), 19);
     assert_eq!(
         std::fs::read_dir(directory.path())
             .unwrap()
@@ -329,7 +329,7 @@ fn opaque_check_udf_is_not_evaluated_and_missing_udf_legacy_reopen_is_preserved(
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("legacy-opaque.sqlite3");
     let counter = Arc::new(AtomicUsize::new(0));
-    let mut store = Store::open(&path).unwrap();
+    let mut store = structural18_store(&path).unwrap();
     store
         .create("local", "preserve actual legacy task", "opaque:create")
         .unwrap();
@@ -340,9 +340,9 @@ fn opaque_check_udf_is_not_evaluated_and_missing_udf_legacy_reopen_is_preserved(
 
     // Reopen with NO function registered: metadata/known-authority checks must
     // succeed without resolving/evaluating a legacy opaque CHECK/UDF.
-    let reopened = Store::open(&path).unwrap();
-    assert_eq!(version(&reopened.conn).unwrap(), 18);
-    let mut db = reopened.conn;
+    let mut db = Connection::open(&path).unwrap();
+    db.pragma_update(None, "foreign_keys", true).unwrap();
+    assert_eq!(version(&db).unwrap(), 18);
     counter.store(0, Ordering::SeqCst);
     let before = image(&db);
     migrate(&mut db).unwrap();

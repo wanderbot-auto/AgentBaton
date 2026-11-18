@@ -94,6 +94,195 @@ pub struct Store {
     // transaction commits. They are neither persisted authority nor a refund.
     pub(crate) factory_recovery_queue_epochs: Vec<(String, u32, std::time::Instant)>,
 }
+
+/// Pre-v19 snapshot only. Earlier backup names/branches remain unchanged.
+/// A private, held staging directory isolates SQLite's pathname API; publication
+/// uses linkat with no replacement. Failed/partial staging evidence is retained.
+fn pre_host_backup(
+    source: &mut Connection,
+    path: &Path,
+    expected_version: u32,
+    destination: &Path,
+) -> Result<()> {
+    use rusqlite::{
+        backup::{Backup, StepResult},
+        OpenFlags, TransactionBehavior,
+    };
+    use rustix::fs::{AtFlags, Mode, OFlags};
+    use std::{
+        fs::{self, File},
+        os::unix::fs::MetadataExt,
+        time::{Duration, Instant},
+    };
+    let refused = || {
+        CoreError::new(
+            "INTERNAL_ERROR",
+            "Cannot safely preserve pre-v19 migration backup",
+        )
+    };
+    let parent = fs::canonicalize(
+        path.parent()
+            .filter(|p| !p.as_os_str().is_empty())
+            .unwrap_or(Path::new(".")),
+    )
+    .map_err(|_| refused())?;
+    let destination_parent = fs::canonicalize(
+        destination
+            .parent()
+            .filter(|p| !p.as_os_str().is_empty())
+            .unwrap_or(Path::new(".")),
+    )
+    .map_err(|_| refused())?;
+    if destination_parent != parent {
+        return Err(refused());
+    }
+    let name = destination.file_name().ok_or_else(refused)?;
+    let directory: File = rustix::fs::open(
+        &parent,
+        OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+        Mode::empty(),
+    )
+    .map_err(|_| refused())?
+    .into();
+    let dir_info = directory.metadata().map_err(|_| refused())?;
+    if dir_info.uid() != rustix::process::geteuid().as_raw() || dir_info.mode() & 0o022 != 0 {
+        return Err(refused());
+    }
+    let stage_name = format!(".pre-v19-stage-{}", Uuid::new_v4());
+    rustix::fs::mkdirat(&directory, &stage_name, Mode::from_bits_truncate(0o700))
+        .map_err(|_| refused())?;
+    let stage: File = rustix::fs::openat(
+        &directory,
+        &stage_name,
+        OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+        Mode::empty(),
+    )
+    .map_err(|_| refused())?
+    .into();
+    let stage_info = stage.metadata().map_err(|_| refused())?;
+    if stage_info.uid() != rustix::process::geteuid().as_raw()
+        || stage_info.mode() & 0o7777 != 0o700
+    {
+        return Err(refused());
+    }
+    let held: File = rustix::fs::openat(
+        &stage,
+        "snapshot.sqlite3",
+        OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+        Mode::from_bits_truncate(0o600),
+    )
+    .map_err(|_| refused())?
+    .into();
+    let pin = held.metadata().map_err(|_| refused())?;
+    if pin.uid() != rustix::process::geteuid().as_raw()
+        || pin.nlink() != 1
+        || pin.mode() & 0o7777 != 0o600
+        || !pin.is_file()
+    {
+        return Err(refused());
+    }
+    let stage_path = parent.join(&stage_name);
+    let file_path = stage_path.join("snapshot.sqlite3");
+    let same = |a: &fs::Metadata, b: &fs::Metadata| a.dev() == b.dev() && a.ino() == b.ino();
+    let verify_paths = || -> Result<()> {
+        let p = fs::symlink_metadata(&parent).map_err(|_| refused())?;
+        let s = fs::symlink_metadata(&stage_path).map_err(|_| refused())?;
+        let f = fs::symlink_metadata(&file_path).map_err(|_| refused())?;
+        if !same(&p, &dir_info)
+            || !same(&s, &stage_info)
+            || s.mode() & 0o7777 != 0o700
+            || !same(&f, &pin)
+            || !f.is_file()
+            || f.nlink() != 1
+            || f.mode() & 0o7777 != 0o600
+        {
+            return Err(refused());
+        }
+        Ok(())
+    };
+    verify_paths()?;
+    let source_tx = source
+        .transaction_with_behavior(TransactionBehavior::Deferred)
+        .map_err(db_error)?;
+    let version: u32 = source_tx
+        .pragma_query_value(Some("main"), "user_version", |r| r.get(0))
+        .map_err(db_error)?;
+    if version != expected_version {
+        return Err(CoreError::new(
+            "INPUT_CHANGED",
+            "Pre-v19 source version changed before snapshot",
+        ));
+    }
+    let mut target = Connection::open_with_flags(
+        &file_path,
+        OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NOFOLLOW,
+    )
+    .map_err(db_error)?;
+    target
+        .busy_timeout(Duration::from_millis(100))
+        .map_err(db_error)?;
+    target
+        .pragma_update(None, "synchronous", "FULL")
+        .map_err(db_error)?;
+    verify_paths()?;
+    {
+        let backup = Backup::new(&source_tx, &mut target).map_err(db_error)?;
+        let deadline = Instant::now() + Duration::from_secs(30);
+        loop {
+            if Instant::now() > deadline {
+                return Err(CoreError::new(
+                    "WORKSPACE_BUSY",
+                    "Pre-v19 backup deadline exceeded",
+                ));
+            }
+            match backup.step(64).map_err(db_error)? {
+                StepResult::Done => break,
+                StepResult::More => {}
+                StepResult::Busy | StepResult::Locked => {
+                    std::thread::sleep(Duration::from_millis(5))
+                }
+                _ => return Err(refused()),
+            }
+        }
+    }
+    let copied: u32 = target
+        .pragma_query_value(Some("main"), "user_version", |r| r.get(0))
+        .map_err(db_error)?;
+    if copied != expected_version {
+        return Err(refused());
+    }
+    target.close().map_err(|(_, error)| db_error(error))?;
+    source_tx.commit().map_err(db_error)?;
+    verify_paths()?;
+    if held.metadata().map_err(|_| refused())?.len() == 0 {
+        return Err(refused());
+    }
+    held.sync_all().map_err(|_| refused())?;
+    stage.sync_all().map_err(|_| refused())?;
+    // Exclusive link publication cannot replace an existing regular file or link.
+    rustix::fs::linkat(
+        &stage,
+        "snapshot.sqlite3",
+        &directory,
+        name,
+        AtFlags::empty(),
+    )
+    .map_err(|_| refused())?;
+    rustix::fs::unlinkat(&stage, "snapshot.sqlite3", AtFlags::empty()).map_err(|_| refused())?;
+    let final_info = fs::symlink_metadata(parent.join(name)).map_err(|_| refused())?;
+    if !same(&final_info, &pin)
+        || !final_info.is_file()
+        || final_info.nlink() != 1
+        || final_info.mode() & 0o7777 != 0o600
+    {
+        return Err(refused());
+    }
+    directory.sync_all().map_err(|_| refused())?;
+    // Keep the now-empty private staging directory as bounded failure provenance;
+    // no user source, retained backup or pre-existing path is removed here.
+    Ok(())
+}
+
 impl Store {
     pub fn open(path: &Path) -> Result<Self> {
         let mut conn = Connection::open(path).map_err(db_error)?;
@@ -102,11 +291,15 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 18 {
+        if version > 19 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
+        }
+        if version > 0 && version < 19 {
+            let backup = path.with_extension(format!("pre-v19-{}.sqlite3", Uuid::new_v4()));
+            pre_host_backup(&mut conn, path, version, &backup)?;
         }
         if version > 0 && version < 18 {
             let backup = path.with_extension(format!("pre-v18-{}.sqlite3", Uuid::new_v4()));
@@ -337,6 +530,8 @@ impl Store {
         crate::task_workspace_binding::migrate(&mut conn, version)?;
         crate::integration::migrate(&mut conn, version)?;
         crate::conversations::migrate(&mut conn, version)?;
+        crate::host_registry_migration::migrate(&mut conn)?;
+        Self::validate_host_registry_startup(&mut conn)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -761,4 +956,184 @@ pub(crate) fn integration_schema16_reference() -> Result<Connection> {
     crate::factory::migrate(&mut conn, 0)?;
     crate::task_workspace_binding::migrate(&mut conn, 0)?;
     Ok(conn)
+}
+
+#[cfg(test)]
+mod host19_backup_tests {
+    use super::*;
+    use rusqlite::types::Value as SqlValue;
+    use std::{collections::BTreeMap, fs, os::unix::fs::PermissionsExt};
+    type Rows = BTreeMap<String, Vec<Vec<SqlValue>>>;
+    fn rows(db: &Connection) -> Rows {
+        let names: Vec<String> = db
+            .prepare("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")
+            .unwrap()
+            .query_map([], |r| r.get(0))
+            .unwrap()
+            .map(std::result::Result::unwrap)
+            .collect();
+        names
+            .into_iter()
+            .map(|name| {
+                let mut s = db
+                    .prepare(&format!(
+                        "SELECT rowid,* FROM \"{}\" ORDER BY rowid",
+                        name.replace('"', "\"\"")
+                    ))
+                    .unwrap();
+                let width = s.column_count();
+                let values = s
+                    .query_map([], |r| {
+                        (0..width)
+                            .map(|i| r.get(i))
+                            .collect::<rusqlite::Result<Vec<SqlValue>>>()
+                    })
+                    .unwrap()
+                    .map(std::result::Result::unwrap)
+                    .collect();
+                (name, values)
+            })
+            .collect()
+    }
+    fn backup_files(root: &Path) -> Vec<std::path::PathBuf> {
+        fs::read_dir(root)
+            .unwrap()
+            .map(|e| e.unwrap().path())
+            .filter(|p| {
+                p.file_name()
+                    .unwrap()
+                    .to_string_lossy()
+                    .contains(".pre-v19-")
+                    && p.extension().is_some_and(|e| e == "sqlite3")
+            })
+            .collect()
+    }
+    #[test]
+    fn host19_backup_exclusive_destination_refuses_regular_symlink_and_unsafe_parent() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("source.sqlite3");
+        let mut store = crate::host_registry_migration::structural18_store(&path).unwrap();
+        store
+            .create("local", "untouched history", "original")
+            .unwrap();
+        let before = rows(&store.conn);
+        let destination = root.path().join("source.pre-v19-fixed.sqlite3");
+        fs::write(&destination, b"existing untouched").unwrap();
+        assert!(pre_host_backup(&mut store.conn, &path, 18, &destination).is_err());
+        assert_eq!(fs::read(&destination).unwrap(), b"existing untouched");
+        assert_eq!(rows(&store.conn), before);
+        fs::remove_file(&destination).unwrap();
+        std::os::unix::fs::symlink(&path, &destination).unwrap();
+        assert!(pre_host_backup(&mut store.conn, &path, 18, &destination).is_err());
+        assert_eq!(rows(&store.conn), before);
+        fs::remove_file(&destination).unwrap();
+        fs::set_permissions(root.path(), fs::Permissions::from_mode(0o770)).unwrap();
+        let error = Store::open(&path).err().unwrap();
+        fs::set_permissions(root.path(), fs::Permissions::from_mode(0o700)).unwrap();
+        assert_eq!(error.code, "INTERNAL_ERROR");
+        assert_eq!(rows(&store.conn), before);
+        assert_eq!(
+            store
+                .conn
+                .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+                .unwrap(),
+            18
+        );
+    }
+    #[test]
+    fn host19_backup_captures_committed_wal_and_preserves_old_rows_and_private_mode() {
+        use std::os::unix::fs::MetadataExt;
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("wal.sqlite3");
+        let mut old = crate::host_registry_migration::structural18_store(&path).unwrap();
+        old.conn.pragma_update(None, "journal_mode", "WAL").unwrap();
+        old.create("local", "committed WAL 原始 data", "wal-row")
+            .unwrap();
+        let before = rows(&old.conn);
+        assert!(
+            fs::metadata(root.path().join("wal.sqlite3-wal"))
+                .unwrap()
+                .len()
+                > 0
+        );
+        let current = Store::open(&path).unwrap();
+        assert_eq!(
+            current
+                .conn
+                .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+                .unwrap(),
+            19
+        );
+        let files = backup_files(root.path());
+        assert_eq!(files.len(), 1);
+        let info = fs::symlink_metadata(&files[0]).unwrap();
+        assert!(info.is_file());
+        assert_eq!(info.mode() & 0o7777, 0o600);
+        assert_eq!(info.nlink(), 1);
+        let backup =
+            Connection::open_with_flags(&files[0], rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
+                .unwrap();
+        assert_eq!(
+            backup
+                .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+                .unwrap(),
+            18
+        );
+        assert_eq!(rows(&backup), before);
+        let after = rows(&current.conn);
+        for (name, values) in before {
+            assert_eq!(after[&name], values);
+        }
+        drop(current);
+        drop(old);
+        drop(backup);
+        Store::open(&path).unwrap();
+        assert_eq!(backup_files(root.path()).len(), 1);
+    }
+    #[test]
+    fn host19_future20_refusal_keeps_delete_mode_main_and_file_inventory_exact() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("future.sqlite3");
+        drop(Store::open(&path).unwrap());
+        let db = Connection::open(&path).unwrap();
+        db.pragma_update(None, "journal_mode", "DELETE").unwrap();
+        db.pragma_update(None, "user_version", 20).unwrap();
+        drop(db);
+        let before = fs::read(&path).unwrap();
+        let mut names: Vec<_> = fs::read_dir(root.path())
+            .unwrap()
+            .map(|p| p.unwrap().file_name())
+            .collect();
+        names.sort();
+        assert_eq!(
+            Store::open(&path).err().unwrap().code,
+            "VERSION_UNSUPPORTED"
+        );
+        assert_eq!(fs::read(&path).unwrap(), before);
+        let mut after: Vec<_> = fs::read_dir(root.path())
+            .unwrap()
+            .map(|p| p.unwrap().file_name())
+            .collect();
+        after.sort();
+        assert_eq!(after, names);
+    }
+    #[test]
+    fn host19_invalid_current_schema_refuses_before_history_recovery() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("invalid.sqlite3");
+        let mut store = Store::open(&path).unwrap();
+        store
+            .create("local", "preserve before startup validation", "invalid")
+            .unwrap();
+        store
+            .conn
+            .execute_batch("DROP INDEX host_registrations_name_id;")
+            .unwrap();
+        let before = rows(&store.conn);
+        drop(store);
+        assert!(Store::open(&path).is_err());
+        let db = Connection::open(&path).unwrap();
+        assert_eq!(rows(&db), before);
+        assert_eq!(backup_files(root.path()).len(), 0);
+    }
 }

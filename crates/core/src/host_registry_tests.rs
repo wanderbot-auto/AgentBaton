@@ -1,4 +1,4 @@
-//! Real SQLite tests using an EXPLICIT PRIVATE19 fixture, not Store19 migration.
+//! Real SQLite Host tests, normal Store19 plus explicitly controlled18 shapes.
 use super::*;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -28,18 +28,16 @@ fn fixture() -> Fixture {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
-    store.conn.execute_batch(DDL).unwrap();
-    store.conn.pragma_update(None, "user_version", 19).unwrap();
     Fixture {
         _dir: dir,
         path,
         store,
     }
 }
-// Deliberate test-only connection reconstruction. Product Store::open19 is NOT
-// activated or bypassed. All reads/writes still use actual Core methods/SQLite.
+// Deliberate private connection for malformed-record/concurrency unit controls.
+// Normal Store19 startup/reopen is verified separately; no actor/wire claim here.
 fn reopen_explicit_fixture(path: &Path) -> Store {
     let conn = Connection::open(path).unwrap();
     conn.busy_timeout(std::time::Duration::from_secs(3))
@@ -296,11 +294,14 @@ fn lost_return_value_and_actual_connection_reopen_reconcile_original_key() {
     // Core-level response-loss simulation, not IPC/network acceptance evidence.
     let before = raw_record(&f.store, &expected.host_id);
     drop(f.store);
+    let mut reopened = Store::open(&f.path).unwrap();
     assert_eq!(
-        Store::open(&f.path).err().unwrap().code,
-        "VERSION_UNSUPPORTED"
+        reopened
+            .conn
+            .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+            .unwrap(),
+        19
     );
-    let mut reopened = reopen_explicit_fixture(&f.path);
     assert_eq!(
         reopened.find_host_registration("original").unwrap(),
         Some(expected.clone())
@@ -411,7 +412,9 @@ fn identity_pin_configuration_and_name_changes_are_not_upserts() {
 #[test]
 fn absence_or_inexact_schema_never_migrates_or_creates() {
     let dir = TempDir::new().unwrap();
-    let mut store = Store::open(&dir.path().join("schema18.sqlite3")).unwrap();
+    let mut store =
+        crate::host_registry_migration::structural18_store(&dir.path().join("schema18.sqlite3"))
+            .unwrap();
     assert_eq!(
         store
             .register_host(&registration(), "key")
@@ -1043,7 +1046,7 @@ fn corrupt_autoindex_sql_cannot_masquerade_as_its_legitimate_null() {
 fn actual_a_migration_then_b_inventory_preserves_shadow_pragma_rows_and_quoted_names() {
     let directory = TempDir::new().unwrap();
     let path = directory.path().join("actual-a-b.sqlite3");
-    let mut store = Store::open(&path).unwrap();
+    let mut store = crate::host_registry_migration::structural18_store(&path).unwrap();
     store
         .create("local", "preserve original task", "cross-module-task")
         .unwrap();
@@ -1160,8 +1163,8 @@ fn actual_a_migration_then_b_inventory_preserves_shadow_pragma_rows_and_quoted_n
     );
     assert_eq!(opaque_image(&store.conn, unusual), before_quoted);
     drop(store);
-    // Explicit private connection reopening remains distinct from unimplemented
-    // product Store::open19 startup/backup/recovery acceptance.
+    // This private connection remains a unit-control read; normal19 startup and
+    // genuine18 predecessor backup/recovery have separate evidence.
     let mut reopened = reopen_explicit_fixture(&path);
     crate::host_registry_migration::validate_current19(&reopened.conn).unwrap();
     assert_eq!(

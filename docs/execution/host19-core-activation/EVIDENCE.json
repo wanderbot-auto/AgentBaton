@@ -1,0 +1,11 @@
+{
+  "task": "HOST19-P1",
+  "base": "c9225714319a91dae60e635c0a34ba4b3a4a670d",
+  "status": "implementation_active",
+  "tests": "not_run",
+  "normal_Store19": "not_implemented_yet",
+  "genuine18_fixture_sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+  "fixture_cookie": 1,
+  "scope_source_files": 13,
+  "P2_native_UI_CI": "not_run_out_of_scope"
+}
