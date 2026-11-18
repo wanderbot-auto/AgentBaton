@@ -598,6 +598,14 @@ fn destination_drift_after_confirmation_never_changes_the_original() {
         apply_project_import(&request, Decision::Confirm(approval(binding))).unwrap(),
         State::Applied
     );
+    let other_project = ProjectImportBinding {
+        project_id: "different-project".into(),
+        ..binding.clone()
+    };
+    assert_eq!(
+        recover_project_import(&f.managed, &approval(&other_project)).unwrap(),
+        State::NeedsReconciliation
+    );
     let file = f.managed.join("project-config.json");
     let mut changed: Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
     changed["policy"]["revision"] = json!("later-edited");

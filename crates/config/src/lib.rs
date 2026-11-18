@@ -183,6 +183,10 @@ impl ManagedRoot {
             return Err(error(ErrorCode::InvalidPath));
         }
         let root = open_dir_at(rfs::CWD, path)?;
+        Self::from_private_directory(root)
+    }
+
+    fn from_private_directory(root: File) -> Result<Self> {
         let lock = open_private(&root, Path::new(".baton-config.lock"), true)?;
         match rfs::mkdirat(&root, ".baton-transactions", Mode::from_raw_mode(0o700)) {
             Ok(()) => io_error(root.sync_all())?,

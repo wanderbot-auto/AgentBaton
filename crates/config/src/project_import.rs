@@ -15,8 +15,7 @@ use crate::{
         ManagedMcpServer, ManagedMcpTransport, NonSecretText, RuntimePlan, RuntimeProvider,
         SelectedSkill, SourceProvenance,
     },
-    sha256, Edit, ErrorCode, FileState, LockGuard, ManagedRoot, Ownership, Phase, Result,
-    MAX_BYTES,
+    sha256, Edit, ErrorCode, FileState, LockGuard, ManagedRoot, Phase, Result, MAX_BYTES,
 };
 use rustix::fs::{self as rfs, AtFlags, FileType, Mode, OFlags};
 use serde::{Deserialize, Serialize};
@@ -741,7 +740,7 @@ fn observed_state(
         Err(_) => return Ok((State::NeedsReconciliation, true)),
     };
     let current = match read_at(root, Path::new(SNAPSHOT)) {
-        Ok(bytes) => bytes.as_deref().map(sha256),
+        Ok(bytes) => bytes,
         Err(_) => return Ok((State::NeedsReconciliation, true)),
     };
     let journal = (|| {
@@ -784,7 +783,20 @@ fn observed_state(
         return Ok((State::NeedsReconciliation, true));
     }
     match current.as_deref() {
-        Some(digest) if digest == binding.snapshot_sha256 => {
+        Some(bytes) if sha256(bytes) == binding.snapshot_sha256 => {
+            #[derive(Deserialize)]
+            struct Header {
+                schema_version: u32,
+                proposal_id: String,
+                scope: ProjectImportScope,
+            }
+            if !serde_json::from_slice::<Header>(bytes).is_ok_and(|header| {
+                header.schema_version == VERSION
+                    && header.proposal_id == binding.proposal_id
+                    && header.scope.project_id == binding.project_id
+            }) {
+                return Ok((State::NeedsReconciliation, true));
+            }
             // A crash can leave an applying journal after publication. The
             // replacement was fsynced before rename. Stabilize the directory
             // entry before reporting that the exact snapshot is applied.
@@ -876,10 +888,9 @@ pub fn apply_project_import(
     if review.binding != *binding {
         return Err(error(ErrorCode::Conflict));
     }
-    let managed = ManagedRoot::open(request.managed_project_root, Ownership::BatonManaged)?;
-    if managed.root_identity != pin(&target)? {
-        return Err(error(ErrorCode::Conflict));
-    }
+    // Use the already verified destination descriptor. Opening a fresh path
+    // here could initialize transaction files in a replacement directory.
+    let managed = ManagedRoot::from_private_directory(target)?;
     let result = managed
         .plan(vec![Edit::nonsecret_replacement(SNAPSHOT, None, bytes)])
         .and_then(|mut change| {
@@ -900,6 +911,7 @@ pub fn apply_project_import(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Ownership;
     use std::{fs, os::unix::fs::PermissionsExt};
 
     #[test]
