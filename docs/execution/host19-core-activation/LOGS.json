@@ -1,0 +1,66 @@
+{
+  "actual18-first.log": {
+    "sha256": "e84eaa8b778398409fec3079063e3b943e30cbc113810901e63520b2ad19f3a8",
+    "bytes": 5118
+  },
+  "actual18-missing-input.log": {
+    "sha256": "e38187528c9863a3857723c0ff981fe17a6d403202adfeec32478bf9e36ab78f",
+    "bytes": 896
+  },
+  "audit-red.log": {
+    "sha256": "888bf53122e82b55502db8971c00572f00e96b7837704d8e3d1ab42ef5aa44db",
+    "bytes": 980
+  },
+  "backup-green.log": {
+    "sha256": "6af2c44aba87cd7dca2973d4e046a14b3323684325c1ce04ac89f4203ee7245a",
+    "bytes": 866
+  },
+  "clippy-first.log": {
+    "sha256": "58c964fd50dd002d3376384bd6f64aaf797365783256acf308eb4dde84b7add6",
+    "bytes": 2988
+  },
+  "clippy-second.log": {
+    "sha256": "43c80846f1435fc792081968f441fbc4a5325ba4e033f7c9b09c0a6bd0273980",
+    "bytes": 1013
+  },
+  "clippy-third.log": {
+    "sha256": "cc526b581bcc31449988579473046582899f982129d197777f32520795efe788",
+    "bytes": 205
+  },
+  "final-focused.log": {
+    "sha256": "1b4f3667ee045a4a2363cf1e12f5ef4559fab03012bdd29fa345298d26115b21",
+    "bytes": 6587
+  },
+  "fmt-check.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "focused-green.log": {
+    "sha256": "69247721f2ca3728aac3debc249bb50c56390a68046e19ffae74639f6b210b97",
+    "bytes": 1676
+  },
+  "host-first.log": {
+    "sha256": "be008ebd21d6e543b349d2d720b08aad8cd727ef15722094ec03dc309b2ece93",
+    "bytes": 30420
+  },
+  "host-green.log": {
+    "sha256": "de6d3c47bf78302c879e8f0712cbc50fe94404bd50a6ea8e35e7bf49969519dd",
+    "bytes": 27801
+  },
+  "infra-first.log": {
+    "sha256": "f5a1d77714bd2d8e08448c61bb5285c25676638271085e5d9b953734c2474630",
+    "bytes": 15708
+  },
+  "infra-venv.log": {
+    "sha256": "a8f79c8c0a3b64a8019ed0f378ae1760ee6fb0c104f62e61b68c0a659359c412",
+    "bytes": 2669
+  },
+  "probe-preflight.log": {
+    "sha256": "b814197d116a1001bed452b3d0e1286d28a4b7601c635b7f5fb3dcf8adbb71fc",
+    "bytes": 662
+  },
+  "rollback-red.log": {
+    "sha256": "6788244a0181afe9c6e9d35852213ca266f41d515e2ad684db97ccf609833cc5",
+    "bytes": 1043
+  }
+}

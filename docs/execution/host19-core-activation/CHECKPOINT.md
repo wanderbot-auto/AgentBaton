@@ -1,22 +1,16 @@
 # Checkpoint
-status=active
+status=ready_for_leader_review_not_handoff
 base=c9225714319a91dae60e635c0a34ba4b3a4a670d
-head=c9225714319a91dae60e635c0a34ba4b3a4a670d
-dirty=own docs only
-processes=none
-next=implement13-path Core activation and tests; source commit before execution
-P2_native_UI_CI=not_run_not_authorized
-
-blocking_discovery=normal recovery unconditionally accounting_records rejects19 at unclaimed integration_budget.rs181;SCOPE_REQUEST.json;not modified
-next=continue in-scope backup/inverse/fixtures while leader coordinates one minimal literal
-
-source_implementation=14 authorised source paths implemented;accounting gate receipt applied;no extra source
-tests=not_run;source commit precedes focused compile and runtime
-processes=none
-next=commit source;Core Host/IPC/migration/Factory focused tests + genuine18 explicit feature;preserve first failure
-
-source_first=0523a0b553e07293ac9713b199349a71c72d1ba8
-first_host_lib=55passed;0failed
-red_regressions=2expected_failures_retained;fixes_implemented_not_yet_executed
-processes=none;red_run_session21630_joined_exit0(controller recorded both101)
-next=fix commit;wait leader heavy slot;focused tests+genuine18+strict clippy
+fetched_target=c9225714319a91dae60e635c0a34ba4b3a4a670d
+source_head=be23fbbd9558a94bfc17ab803eba9ce46dab9551
+source_commits=0523a0b553e07293ac9713b199349a71c72d1ba8,991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb,304deac6d6befde83b86053f31da84b9ab04ecb7,be23fbbd9558a94bfc17ab803eba9ce46dab9551
+source_dirty=none
+checkpoint_dirty=own docs evidence only (PROGRESS,CHECKPOINT,EVIDENCE,VALIDATION,LOGS,evidence-logs archive); delivery_head supplied after docs commit
+write_scope=14literal source + own docs; integration_budget grant receipt applied
+verification=72distinct focusedRust PASS across fixed sources;latest13 rerun;strictalltargetsClippyPASS;916infra=900pass16existingskip0fail;fmt,diff,scope,previewPASS
+first_failures=paired audit and denied-rollback reds;2Clippy;barePython infra;missing-required-input negative all retained;see EVIDENCE and LOGS
+processes=none;both frozen18daemon children normaljoined0;no forcedkill;all controllers joined;heavy slot released
+independent_static_review=991 two reviewers original findings closed;leader final independent review pending
+P2_native_UI_current19daemon_CI=not_run_not_authorized;not wholeproductready
+next=commit evidence;leader review;fix in-scope findings;finish only after agreed review
+push_PR_merge=not_authorized_this_slice;not_done

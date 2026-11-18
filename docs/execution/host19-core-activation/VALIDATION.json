@@ -1,0 +1,546 @@
+{
+  "source_head": "be23fbbd9558a94bfc17ab803eba9ce46dab9551",
+  "base": "c9225714319a91dae60e635c0a34ba4b3a4a670d",
+  "environment": {
+    "machine": "arm64",
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2\n",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)\n",
+    "python": "3.12.12 (main, Dec  9 2025, 19:05:33) [Clang 21.1.4 ]\n/Users/wander/Documents/code/agentBaton-next/.venv\n"
+  },
+  "source_files": {
+    "crates/core/Cargo.toml": "d29e3eafc262d85c4870a76363d68364f07581a1da2a1c428b6ec0f06af74fc2",
+    "crates/core/src/host_registry.rs": "1fc7027cd2898c0f9084cf5921674ed973e9f9d89b762c3ac295bc6c583858aa",
+    "crates/core/src/host_registry_ipc_tests.rs": "22f6246f1d7d31cc12c0fc956609b64d6a758d9907ed60aeca9c1413173decd4",
+    "crates/core/src/host_registry_migration.rs": "a154f08419bfd6985cfa1df46048b33cad27f312fd4fc79a123a8e949089720a",
+    "crates/core/src/host_registry_migration_tests.rs": "9d8000a54877910bacc94d260a5bfc9f77ab5e0f4bb74987b4c9fd6d4bcddeb2",
+    "crates/core/src/host_registry_tests.rs": "0aa7bdfeccd93e00a72a0a4e80519d71177d7ac208b77276a07b082ddc38bc5b",
+    "crates/core/src/integration_budget.rs": "eb7abd8793b66c492523a3a77423c295a8cc9ab97519214427e5dd12449c18b8",
+    "crates/core/src/integration_store.rs": "68347cc1e302e2e1b9c99bb942dc3e5a90625edaf329a49d341ae4d25346bb6a",
+    "crates/core/src/storage.rs": "c1a7368b3cb8bc505ee999f758e1e641e1ddde3907c8d6ddc7935470ea1a6c6e",
+    "crates/core/tests/fixtures/current19_factory_schema.rs": "b4545cb53059595a5dc4e27573b694903f5891667788b3802b166c1d1af10909",
+    "crates/core/tests/fixtures/current19_schema.rs": "526266c4387a1e4c80741c3cabf006f9fd397dd9416e900ec446b02bc8b155b2",
+    "crates/core/tests/host_registry_actual18_migration.rs": "bf9489f33c334a470112eacefd7ef85ebda4b48b8ab1b771b62c7b6adeabee0b",
+    "crates/core/tests/host_registry_migration.rs": "36b931f7f642ba5cdb39e270ca56a63be0b2af33a246fd2bff91e2a2ca2af993",
+    "crates/core/tests/host_schema19_fixture.rs": "758ef470fc396f2b721134ab5a915d96b42599f4df7d9a2f8476dddcd4d8303d"
+  },
+  "runs": {
+    "actual18-first": {
+      "source_head": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--test",
+        "host_registry_actual18_migration",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "inputs": {
+        "AGENTBATON_ACTUAL18_FIXTURE_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/generated-boundaries",
+        "AGENTBATON_ACTUAL18_FROZEN_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-boundaries/frozen",
+        "AGENTBATON_ACTUAL18_BUILD_MANIFEST": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-boundaries/frozen/source-build-manifest.json",
+        "AGENTBATON_ACTUAL18_PYTHON": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12"
+      },
+      "exit_code": 0,
+      "elapsed": 65.36246095923707,
+      "log_sha256": "e84eaa8b778398409fec3079063e3b943e30cbc113810901e63520b2ad19f3a8"
+    },
+    "actual18-missing-input": {
+      "source_head": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--test",
+        "host_registry_actual18_migration",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "expected": "nonzero missing required fixture, no skip",
+      "exit_code": 101,
+      "elapsed": 0.19200100004673004,
+      "log_sha256": "e38187528c9863a3857723c0ff981fe17a6d403202adfeec32478bf9e36ab78f"
+    },
+    "audit-red": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "host_registry_migration",
+        "rejected_legacy_host_receipt",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "elapsed": 70.8304678327404,
+      "log_sha256": "888bf53122e82b55502db8971c00572f00e96b7837704d8e3d1ab42ef5aa44db",
+      "source": "0523 plus red regression tests"
+    },
+    "backup-green": {
+      "source_head": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "host19_backup_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed": 49.6356686251238,
+      "log_sha256": "6af2c44aba87cd7dca2973d4e046a14b3323684325c1ce04ac89f4203ee7245a"
+    },
+    "clippy-first": {
+      "source_head": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 101,
+      "elapsed": 16.254899499937892,
+      "log_sha256": "58c964fd50dd002d3376384bd6f64aaf797365783256acf308eb4dde84b7add6"
+    },
+    "clippy-second": {
+      "source_head": "304deac6d6befde83b86053f31da84b9ab04ecb7",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 101,
+      "elapsed": 13.174908374901861,
+      "log_sha256": "43c80846f1435fc792081968f441fbc4a5325ba4e033f7c9b09c0a6bd0273980"
+    },
+    "clippy-third": {
+      "source_head": "be23fbbd9558a94bfc17ab803eba9ce46dab9551",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed": 0.8793944166973233,
+      "log_sha256": "cc526b581bcc31449988579473046582899f982129d197777f32520795efe788"
+    },
+    "final-focused": {
+      "source_head": "be23fbbd9558a94bfc17ab803eba9ce46dab9551",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--test",
+        "host_registry_migration",
+        "--test",
+        "host_schema19_fixture",
+        "--test",
+        "host_registry_actual18_migration",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed": 27.211336915846914,
+      "log_sha256": "1b4f3667ee045a4a2363cf1e12f5ef4559fab03012bdd29fa345298d26115b21"
+    },
+    "fmt-check": {
+      "source_head": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb",
+      "command": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "--check",
+        "crates/core/src/host_registry.rs",
+        "crates/core/src/host_registry_ipc_tests.rs",
+        "crates/core/src/host_registry_migration.rs",
+        "crates/core/src/host_registry_migration_tests.rs",
+        "crates/core/src/host_registry_tests.rs",
+        "crates/core/src/integration_budget.rs",
+        "crates/core/src/integration_store.rs",
+        "crates/core/src/storage.rs",
+        "crates/core/tests/fixtures/current19_factory_schema.rs",
+        "crates/core/tests/fixtures/current19_schema.rs",
+        "crates/core/tests/host_registry_actual18_migration.rs",
+        "crates/core/tests/host_registry_migration.rs",
+        "crates/core/tests/host_schema19_fixture.rs"
+      ],
+      "exit_code": 0,
+      "elapsed": 0.22603562520816922,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "focused-green": {
+      "source_head": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "host_registry_migration",
+        "--test",
+        "host_schema19_fixture",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed": 32.978842250071466,
+      "log_sha256": "69247721f2ca3728aac3debc249bb50c56390a68046e19ffae74639f6b210b97"
+    },
+    "host-first": {
+      "source_head": "0523a0b553e07293ac9713b199349a71c72d1ba8",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "host_registry",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 108.77635708311573,
+      "recorded_at": "2026-11-18T13:31:19.006824+00:00",
+      "log_sha256": "be008ebd21d6e543b349d2d720b08aad8cd727ef15722094ec03dc309b2ece93",
+      "jobs": 2
+    },
+    "host-green": {
+      "source_head": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "host_registry",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed": 7.319899958092719,
+      "log_sha256": "de6d3c47bf78302c879e8f0712cbc50fe94404bd50a6ea8e35e7bf49969519dd"
+    },
+    "infra-first": {
+      "source_head": "be23fbbd9558a94bfc17ab803eba9ce46dab9551",
+      "command": [
+        "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 1,
+      "elapsed": 21.87015829095617,
+      "log_sha256": "f5a1d77714bd2d8e08448c61bb5285c25676638271085e5d9b953734c2474630"
+    },
+    "infra-venv": {
+      "source_head": "be23fbbd9558a94bfc17ab803eba9ce46dab9551",
+      "command": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "elapsed": 22.860217458102852,
+      "log_sha256": "a8f79c8c0a3b64a8019ed0f378ae1760ee6fb0c104f62e61b68c0a659359c412"
+    },
+    "rollback-red": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "host_schema19_fixture",
+        "factory19_denied_rollback",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "elapsed": 3.61298512481153,
+      "log_sha256": "6788244a0181afe9c6e9d35852213ca266f41d515e2ad684db97ccf609833cc5",
+      "source": "0523 plus red regression tests"
+    }
+  },
+  "reports": [
+    {
+      "run": "actual18-first",
+      "root": "/private/tmp/ab19-a18-WOZSHW",
+      "report_sha256": "e2a99dc778a549e4b479396ccf158306671425915a9c8bfe9385fe52c435eda3",
+      "backup_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+      "input_sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+      "input_cookie": 1,
+      "migrated_cookie": 3,
+      "backup_cookie": 1,
+      "daemon": {
+        "cleanup_errors": [],
+        "daemon_wait_exit": 0,
+        "forced_kill": false,
+        "group_quiescent_before_reaping": true,
+        "identity_gone_after_join": true,
+        "leader_unreaped_until_signalling": true,
+        "owned_identity": {
+          "pgid": 74155,
+          "pid": 74155
+        },
+        "sigterm_sent": true
+      },
+      "observed": {
+        "api_version": 1,
+        "database_schema_version": 18,
+        "sequence": 5
+      },
+      "private_files": {
+        "input-proof-after.log": {
+          "sha256": "b814197d116a1001bed452b3d0e1286d28a4b7601c635b7f5fb3dcf8adbb71fc",
+          "bytes": 662,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input-proof.log": {
+          "sha256": "b814197d116a1001bed452b3d0e1286d28a4b7601c635b7f5fb3dcf8adbb71fc",
+          "bytes": 662,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.pre-v19-3a9ae603-0721-4b4c-9e9f-7892327e7f38.sqlite3": {
+          "sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+          "bytes": 737280,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.pre-v19-3a9ae603-0721-4b4c-9e9f-7892327e7f38.sqlite3-shm": {
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+          "bytes": 32768,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.pre-v19-3a9ae603-0721-4b4c-9e9f-7892327e7f38.sqlite3-wal": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.sqlite3": {
+          "sha256": "fd68b7790b1d4e3de6fa08f33289b6b4121e89494ce426000e68ffa2aad856d5",
+          "bytes": 753664,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.sqlite3-shm": {
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+          "bytes": 32768,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.sqlite3-wal": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "old18-controller.log": {
+          "sha256": "d757a9b834999e9d148789fdcaceed19efb72766e346f4309181e94d7cd7f02c",
+          "bytes": 4185,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "report.json": {
+          "sha256": "e2a99dc778a549e4b479396ccf158306671425915a9c8bfe9385fe52c435eda3",
+          "bytes": 6295,
+          "mode": "0o600",
+          "nlink": 1
+        }
+      }
+    },
+    {
+      "run": "final-focused",
+      "root": "/private/tmp/ab19-a18-tWXl6l",
+      "report_sha256": "1ba6dcaa25c3b191508c3444e9876e7d608b3f5eaf56e4ead4d38746a47a4b0b",
+      "backup_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+      "input_sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+      "input_cookie": 1,
+      "migrated_cookie": 3,
+      "backup_cookie": 1,
+      "daemon": {
+        "cleanup_errors": [],
+        "daemon_wait_exit": 0,
+        "forced_kill": false,
+        "group_quiescent_before_reaping": true,
+        "identity_gone_after_join": true,
+        "leader_unreaped_until_signalling": true,
+        "owned_identity": {
+          "pgid": 75958,
+          "pid": 75958
+        },
+        "sigterm_sent": true
+      },
+      "observed": {
+        "api_version": 1,
+        "database_schema_version": 18,
+        "sequence": 5
+      },
+      "private_files": {
+        "input-proof-after.log": {
+          "sha256": "b814197d116a1001bed452b3d0e1286d28a4b7601c635b7f5fb3dcf8adbb71fc",
+          "bytes": 662,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input-proof.log": {
+          "sha256": "b814197d116a1001bed452b3d0e1286d28a4b7601c635b7f5fb3dcf8adbb71fc",
+          "bytes": 662,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.pre-v19-f2f18f0f-d2fd-4208-a5d5-0b921c75f7df.sqlite3": {
+          "sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+          "bytes": 737280,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.pre-v19-f2f18f0f-d2fd-4208-a5d5-0b921c75f7df.sqlite3-shm": {
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+          "bytes": 32768,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.pre-v19-f2f18f0f-d2fd-4208-a5d5-0b921c75f7df.sqlite3-wal": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.sqlite3": {
+          "sha256": "fd68b7790b1d4e3de6fa08f33289b6b4121e89494ce426000e68ffa2aad856d5",
+          "bytes": 753664,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.sqlite3-shm": {
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+          "bytes": 32768,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "input.sqlite3-wal": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "old18-controller.log": {
+          "sha256": "46b0a60392f7cb97c732f5aa70f299b6fd5af36e9abc9b32f56fff4c00e1fad1",
+          "bytes": 4185,
+          "mode": "0o600",
+          "nlink": 1
+        },
+        "report.json": {
+          "sha256": "1ba6dcaa25c3b191508c3444e9876e7d608b3f5eaf56e4ead4d38746a47a4b0b",
+          "bytes": 6295,
+          "mode": "0o600",
+          "nlink": 1
+        }
+      }
+    }
+  ],
+  "compiled_tests": {
+    "target/debug/deps/agentbaton_core-c788a89c7fe269ab": {
+      "sha256": "b73f8285ff82f4fb270096dc44492a8111035c0ff741bca872f2e5f1e94f840f",
+      "file": "target/debug/deps/agentbaton_core-c788a89c7fe269ab: Mach-O 64-bit executable arm64",
+      "executed_at_source": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb"
+    },
+    "target/debug/deps/host_registry_actual18_migration-619cf18bc3daf39f": {
+      "sha256": "b07707903c3dfcafb5076b8c3a6b13074dc1218693ccc42b3bd5e13e9c4a34da",
+      "file": "target/debug/deps/host_registry_actual18_migration-619cf18bc3daf39f: Mach-O 64-bit executable arm64",
+      "executed_at_source": "be23fbbd9558a94bfc17ab803eba9ce46dab9551"
+    },
+    "target/debug/deps/host_registry_migration-b07c6ffb5a53bcaa": {
+      "sha256": "fd44ab730097ff4a3a8b2e41595d27028a9606f2350840c3315627968a5b109b",
+      "file": "target/debug/deps/host_registry_migration-b07c6ffb5a53bcaa: Mach-O 64-bit executable arm64",
+      "executed_at_source": "be23fbbd9558a94bfc17ab803eba9ce46dab9551"
+    },
+    "target/debug/deps/host_schema19_fixture-26286e038bb6cde5": {
+      "sha256": "46a541c1279c32beff6a3ab62310798aa719290d1f251aa13cd82a21f6b14b37",
+      "file": "target/debug/deps/host_schema19_fixture-26286e038bb6cde5: Mach-O 64-bit executable arm64",
+      "executed_at_source": "be23fbbd9558a94bfc17ab803eba9ce46dab9551"
+    }
+  }
+}
