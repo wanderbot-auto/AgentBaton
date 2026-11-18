@@ -208,7 +208,7 @@ pub enum CiRepairDecision {
     ContinueRequired,
     Eligible {
         deduplication_key: String,
-        run: CiRunIdentity,
+        run: Box<CiRunIdentity>,
         report_ref: String,
         rule_id: String,
         rule_revision: u64,
@@ -467,7 +467,7 @@ fn configured(
     .map_err(|_| ObservationUnverified)?;
     Ok(CiRepairDecision::Eligible {
         deduplication_key: format!("ci-repair:{key}"),
-        run: observation.run.clone(),
+        run: Box::new(observation.run.clone()),
         report_ref: report.into(),
         rule_id: rule.id.clone(),
         rule_revision: rule.revision,
