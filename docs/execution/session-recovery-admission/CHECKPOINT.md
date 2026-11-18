@@ -5,7 +5,7 @@
 | 任务分支 | `collab/session-recovery-admission` |
 | 认领基线 | `315902e2c7c9e0c6dbaad8a22a5285009630d8ff` |
 | 已测实现 | `ff13dd587b8b69001700245f7d2edd28d8ad0d31` |
-| 预检目标 | `collab/host-registration-integration` @ `315902e2c7c9e0c6dbaad8a22a5285009630d8ff` |
+| 预检目标 | `collab/host-registration-integration` @ `7e41a4834af2ee592c9bba94b00152a40eda9b7a` |
 | 接续 | `leader-control` 集成窗口独立审阅并验证固定合成树 |
 
 准入以持久化 session、attempt、intent 和任务为起点。旧进程、消息、执行结果或写权未结清时进入待对账。确认停止后，使用既有 grant 验证工作区与固定输入，验证具名连接、身份、原始规格修订、版本证据和磁盘上的运行快照。依据可信调用者提供的原生观察，返回原生候选资格，或要求新尝试并携带明确选定的同任务交接引用。旧运行快照及证据缺失有独立原因。
