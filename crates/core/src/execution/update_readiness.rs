@@ -471,7 +471,7 @@ fn observe_store(conn: &Connection) -> Result<(UpdateDatabaseBoundary, Vec<Updat
         lane(
             Source::Graph,
             "goal_graph_jobs",
-            &["finished", "passed", "failed", "cancelled"],
+            &["completed", "failed", "cancelled"],
             &["prepared", "running"],
         ),
         lane(
@@ -560,6 +560,12 @@ fn observe_store(conn: &Connection) -> Result<(UpdateDatabaseBoundary, Vec<Updat
           OR EXISTS(SELECT 1 FROM integration_ref_fences WHERE state!='released')
           OR EXISTS(SELECT 1 FROM budgets WHERE active!=0)
           OR EXISTS(SELECT 1 FROM attempts a LEFT JOIN dispatch_intents d ON d.attempt_id=a.id WHERE d.id IS NULL)
+          OR EXISTS(SELECT 1 FROM dispatch_intents WHERE COALESCE(json_extract(document,'$.state'),'')!=state)
+          OR EXISTS(SELECT 1 FROM sessions WHERE COALESCE(json_extract(document,'$.state'),'')!=state)
+          OR EXISTS(SELECT 1 FROM conversations WHERE COALESCE(json_extract(document,'$.state'),'')!=state)
+          OR EXISTS(SELECT 1 FROM goal_run_reservations WHERE COALESCE(json_extract(document,'$.settled'),0)!=1)
+          OR EXISTS(SELECT 1 FROM factory_budget_reservations WHERE COALESCE(json_extract(document,'$.settled'),0)!=1)
+          OR EXISTS(SELECT 1 FROM factory_attempts WHERE COALESCE(json_extract(document,'$.stop_confirmed'),0)!=1)
           OR EXISTS(SELECT 1 FROM tasks WHERE json_type(document,'$.code_workspace_binding')='object'
                      AND COALESCE(json_extract(document,'$.code_workspace_binding.state'),'')!='ready')
           OR EXISTS(SELECT 1 FROM goal_run_nodes WHERE session_id IS NOT NULL

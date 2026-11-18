@@ -68,19 +68,8 @@ impl Fixture {
         let backup = root.join("backup ? percent %.sqlite3");
         let migrated = root.join("migrated.sqlite3");
         let restored = root.join("restored.sqlite3");
-        let reader =
-            Connection::open_with_flags(&database, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
-        reader.backup(MAIN_DB, &backup, None).unwrap();
-        drop(reader);
-        fs::set_permissions(&backup, fs::Permissions::from_mode(0o600)).unwrap();
-        fs::copy(&backup, &migrated).unwrap();
-        // Rehearse an actual isolated, same-schema Core reopen on a copy.
-        let target = Store::open(&migrated).unwrap();
-        assert_eq!(target.sequence().unwrap(), boundary.sequence);
-        drop(target);
-        fs::copy(&backup, &restored).unwrap();
-        let backup_digest = executable_digest(&backup).unwrap();
-        let migrated_digest = executable_digest(&migrated).unwrap();
+        let (backup_digest, migrated_digest) =
+            rehearse_copies(&database, &boundary, &backup, &migrated, &restored);
         Self {
             private,
             root,
@@ -96,6 +85,20 @@ impl Fixture {
             migrated_digest,
             restored,
         }
+    }
+
+    fn refresh_database_proofs(&mut self) {
+        for copy in [&self.backup, &self.migrated, &self.restored] {
+            fs::remove_file(copy).unwrap();
+        }
+        self.boundary = self.store.update_database_boundary().unwrap();
+        (self.backup_digest, self.migrated_digest) = rehearse_copies(
+            &self.database,
+            &self.boundary,
+            &self.backup,
+            &self.migrated,
+            &self.restored,
+        );
     }
 
     fn proof(&self) -> Evidence<'_> {
@@ -165,6 +168,29 @@ impl Fixture {
             recovery: Some(&evidence.recovery),
         }
     }
+}
+
+fn rehearse_copies(
+    database: &Path,
+    boundary: &UpdateDatabaseBoundary,
+    backup: &Path,
+    migrated: &Path,
+    restored: &Path,
+) -> (BinaryDigest, BinaryDigest) {
+    let reader = Connection::open_with_flags(database, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    reader.backup(MAIN_DB, backup, None).unwrap();
+    drop(reader);
+    fs::set_permissions(backup, fs::Permissions::from_mode(0o600)).unwrap();
+    fs::copy(backup, migrated).unwrap();
+    // Rehearse an actual isolated, same-schema Core reopen on a copy.
+    let target = Store::open(migrated).unwrap();
+    assert_eq!(target.sequence().unwrap(), boundary.sequence);
+    drop(target);
+    fs::copy(backup, restored).unwrap();
+    (
+        executable_digest(backup).unwrap(),
+        executable_digest(migrated).unwrap(),
+    )
 }
 
 struct Evidence<'a> {
@@ -500,6 +526,7 @@ fn goal_graph_factory_and_command_durable_states_are_checked_independently() {
             VALUES('goal','scope','project','task',1,'queued','{}');
          INSERT INTO goal_graph_jobs VALUES('job','goal','node',1,'cancel_requested',NULL,'workspace','{}');
          INSERT INTO factory_runs VALUES('factory','factory-scope','root','project',1,'outcome_unknown','{}');
+         INSERT INTO factory_attempts VALUES('session','attempt','factory-scope','factory','task','root','{}','reserved','{}');
          INSERT INTO command_validation_runs VALUES('command','policy','task','workspace','running','{}','idem','{}');
          INSERT INTO events(document) VALUES(json_object(
               'kind','session.turn_ended','payload',json_object('turn_state','outcome_unknown')
@@ -520,11 +547,27 @@ fn goal_graph_factory_and_command_durable_states_are_checked_independently() {
     ] {
         assert!(result.blockers.contains(&Blocker::Work(source, work)));
     }
+    assert!(result.blockers.contains(&Blocker::StoreFencesUnresolved));
     assert!(result.ready.is_none());
+    database
+        .execute(
+            "UPDATE goal_graph_jobs SET state='completed' WHERE id='job'",
+            [],
+        )
+        .unwrap();
+    let current = f.store.update_database_boundary().unwrap();
+    let background = f.background(&current, false);
+    let result = f
+        .store
+        .assess_update_readiness(&f.request(&proof, Some(&available(&current, &background))));
+    assert!(!result
+        .blockers
+        .iter()
+        .any(|blocker| matches!(blocker, Blocker::Work(Source::Graph, _))));
 }
 
 #[test]
-fn real_managed_fixture_process_and_unjoined_cancel_are_blockers() {
+fn real_managed_work_blocks_until_the_completed_turn_and_stop_are_settled() {
     let mut f = Fixture::new();
     let source = f.root.join("source");
     let managed = f.root.join("managed");
@@ -606,6 +649,23 @@ fn real_managed_fixture_process_and_unjoined_cancel_are_blockers() {
         assert_eq!(f.store.update_database_boundary().unwrap(), database);
     }
     let session = f.store.get_session(&session.id).unwrap();
+    let prompt = "Finish a harmless local fixture turn";
+    let (_, queued) = f
+        .store
+        .send_session(&session.id, prompt, session.revision, "turn")
+        .unwrap();
+    assert!(queued);
+    supervisor.send(&session.id, prompt).unwrap();
+    wait_until(|| {
+        supervisor.tick(&mut f.store).unwrap();
+        f.store
+            .get_session(&session.id)
+            .unwrap()
+            .turn_state
+            .as_deref()
+            == Some("completed")
+    });
+    let session = f.store.get_session(&session.id).unwrap();
     f.store
         .cancel_session(&session.id, session.revision, "cancel", true)
         .unwrap();
@@ -628,6 +688,29 @@ fn real_managed_fixture_process_and_unjoined_cancel_are_blockers() {
     // Fixture cleanup belongs to the test. The readiness API never stops it.
     supervisor.shutdown(&mut f.store).unwrap();
     assert_eq!(f.store.get_session(&session.id).unwrap().state, "stopped");
+    assert_eq!(
+        f.store.intent(&session.intent_id).unwrap().state,
+        IntentState::Stopped
+    );
+    assert!(!supervisor.has_workers());
+    if cfg!(all(target_os = "macos", target_arch = "aarch64")) {
+        f.refresh_database_proofs();
+        let proof = f.proof();
+        let observed = UpdateRuntimeObservation {
+            database: &f.boundary,
+            background: UpdateBackground::ConfirmedStopped {
+                last_instance_id: &f.instance,
+                joined_stop_ref: &session.intent_id,
+            },
+            other_local_work: Work::Idle,
+            remote_work: Work::Idle,
+        };
+        let result = f
+            .store
+            .assess_update_readiness(&f.request(&proof, Some(&observed)));
+        assert!(result.blockers.is_empty(), "{:?}", result.blockers);
+        assert!(result.ready.is_some());
+    }
     assert!(f.private.path().exists());
 }
 
@@ -650,6 +733,9 @@ for line in sys.stdin:
   result={'protocolVersion':1,'agentCapabilities':{}}
  elif r['method']=='session/new':
   result={'sessionId':'generated-session'}
+ elif r['method']=='session/prompt':
+  assert r['params']['sessionId']=='generated-session'
+  result={'stopReason':'end_turn'}
  else:
   sys.exit(3)
  print(json.dumps({'jsonrpc':'2.0','id':r['id'],'result':result}),flush=True)
