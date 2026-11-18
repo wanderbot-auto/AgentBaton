@@ -1,5 +1,5 @@
 //! Generated ACP -> real fixed MCP -> Actor/Graph -> actual private Owner receipt.
-//! Uses an explicitly frozen schema15 companion. No model, paid API or OS dialog.
+//! Uses the explicitly frozen current-checkout companion. No model, paid API or OS dialog.
 use super::*;
 use agentbaton_core::ipc::{call, Daemon};
 use std::{
@@ -90,7 +90,9 @@ fn actual_factory_child_goal_one_second_deadline_retains_unknown_without_replay_
 }
 fn actual_generated_child_goal(root_self: bool, deadline_probe: bool) {
     let mut f = Fixture::new();
-    let companion=PathBuf::from(std::env::var_os("AGENTBATON_CHILD_GOAL_COMPANION").expect("Provide an explicitly frozen matching schema15 Baton companion; schema14 tools are not this test"));
+    let companion = PathBuf::from(std::env::var_os("AGENTBATON_CHILD_GOAL_COMPANION").expect(
+        "Provide the explicitly frozen Baton companion from the current Factory test-tool prebuild",
+    ));
     assert!(companion.is_absolute());
     fs::copy(&companion, &f.companion).unwrap();
     fs::set_permissions(&f.companion, fs::Permissions::from_mode(0o700)).unwrap();
@@ -253,7 +255,10 @@ fn actual_generated_child_goal(root_self: bool, deadline_probe: bool) {
                             std::thread::sleep(Duration::from_millis(10));
                         }
                         drop(running);
-                        let db = Connection::open(&f.path).unwrap();
+                        let db =
+                            Connection::open_with_flags(&f.path, OpenFlags::SQLITE_OPEN_READ_ONLY)
+                                .unwrap();
+                        let observed_schema = assert_current_factory_store(&db);
                         for (sql, expected) in [
                             ("SELECT count(*) FROM factory_attempts", 1),
                             ("SELECT count(*) FROM goal_run_reservations", 1),
@@ -336,7 +341,7 @@ fn actual_generated_child_goal(root_self: bool, deadline_probe: bool) {
                         .unwrap();
                         assert_eq!(cleanup["joined"], true);
                         assert_eq!(cleanup["daemon_result"], "ok");
-                        let body = json!({"dimension":"actual generated local ACP/MCP and original 1s node deadline; no paid Provider/OS dialog","deadline_probe":true,"provider_hold_marker_observed":hold_reached,"stage":if hold_reached {"prompt_reached_provider_before_deadline"}else{"deadline_before_provider_prompt_marker"},"source_sha256":sha256(include_bytes!("factory_child_goal_runtime.rs")),"companion_sha256":sha256(&fs::read(&companion).unwrap()),"scope":scope,"unknown_view":view,"factory":runs,"retained_reservation":reservation,"owned_cleanup":cleanup,"journal":db_events(&f.path)});
+                        let body = json!({"dimension":"actual generated local ACP/MCP and original 1s node deadline; no paid Provider/OS dialog","deadline_probe":true,"database_schema_version":observed_schema,"provider_hold_marker_observed":hold_reached,"stage":if hold_reached {"prompt_reached_provider_before_deadline"}else{"deadline_before_provider_prompt_marker"},"source_sha256":sha256(include_bytes!("factory_child_goal_runtime.rs")),"companion_sha256":sha256(&fs::read(&companion).unwrap()),"scope":scope,"unknown_view":view,"factory":runs,"retained_reservation":reservation,"owned_cleanup":cleanup,"journal":db_events(&f.path)});
                         let bytes = serde_json::to_vec_pretty(&body).unwrap();
                         let hash = sha256(&bytes);
                         fs::write(Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("../../artifacts/factory-runtime-core/actual-child-goal-timeout-{hash}.json")),bytes).unwrap();
@@ -420,13 +425,8 @@ fn actual_generated_child_goal(root_self: bool, deadline_probe: bool) {
     assert_eq!(cleanup["joined"], true);
     assert_eq!(cleanup["daemon_result"], "ok");
     assert_eq!(cleanup["test_panicking"], false);
-    let db = Connection::open(&f.path).unwrap();
-    assert_eq!(
-        db.pragma_query_value::<u32, _>(None, "user_version", |row| row.get(0))
-            .unwrap(),
-        18,
-        "The run must leave the current database at schema 18"
-    );
+    let db = Connection::open_with_flags(&f.path, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    let observed_schema = assert_current_factory_store(&db);
     for (sql,expected) in [("SELECT count(*) FROM factory_child_goal_runs",1),("SELECT count(*) FROM factory_attempts",if root_self {1}else{2}),("SELECT count(*) FROM goal_run_reservations",1),("SELECT count(*) FROM goal_graph_capabilities",0),("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",0),("SELECT count(*) FROM workspace_leases WHERE holder!=''",0),("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'",1),("SELECT count(*) FROM attempts WHERE root_task_id!=(SELECT root_task_id FROM factory_scopes LIMIT 1)",0)]{assert_eq!(db.query_row(sql,[],|row|row.get::<_,i64>(0)).unwrap(),expected,"{sql}");}
     if root_self {
         let root_result: String = db.query_row("SELECT json_extract(document,'$.result.acceptance_state') FROM factory_task_bindings WHERE task_id=?1",[&scope.root_task_id],|row|row.get(0)).unwrap();
@@ -450,7 +450,7 @@ fn actual_generated_child_goal(root_self: bool, deadline_probe: bool) {
     )
     .unwrap();
     assert_eq!(stored_grant, json!(grant));
-    let body = json!({"dimension":"generated local ACP + actual fixed schema15 MCP + Actor UnixIPC + actual joined workers/private Owner finalizer; no paid Provider or OS dialog","root_self":root_self,"source_hashes":{"factory_child_goal_runtime.rs":sha256(include_bytes!("factory_child_goal_runtime.rs")),"core_goal_factory.rs":sha256(include_bytes!("../../src/goal_factory.rs")),"core_graph_stop.rs":sha256(include_bytes!("../../src/goal_graph_stop.rs"))},"companion_sha256":sha256(&fs::read(companion).unwrap()),"scope":scope,"before_owner":before,"owner_proposal":proposal,"owner_decision":decision,"final_factory":final_run,"journal":db_events(&f.path)});
+    let body = json!({"dimension":"generated local ACP + current frozen MCP + Actor UnixIPC + actual joined workers/private Owner finalizer; no paid Provider or OS dialog","root_self":root_self,"database_schema_version":observed_schema,"source_hashes":{"factory_child_goal_runtime.rs":sha256(include_bytes!("factory_child_goal_runtime.rs")),"core_goal_factory.rs":sha256(include_bytes!("../../src/goal_factory.rs")),"core_graph_stop.rs":sha256(include_bytes!("../../src/goal_graph_stop.rs"))},"companion_sha256":sha256(&fs::read(companion).unwrap()),"scope":scope,"before_owner":before,"owner_proposal":proposal,"owner_decision":decision,"final_factory":final_run,"journal":db_events(&f.path)});
     let bytes = serde_json::to_vec_pretty(&body).unwrap();
     let hash = sha256(&bytes);
     fs::write(

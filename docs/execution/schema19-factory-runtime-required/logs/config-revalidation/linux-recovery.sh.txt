@@ -1,0 +1,58 @@
+set -euo pipefail
+export GIT_OPTIONAL_LOCKS=0
+export CARGO_HOME=/tmp/config-verify-cargo
+export CARGO_TARGET_DIR=/tmp/config-verify-target
+export RUST_TEST_THREADS=1
+[[ $(git rev-parse HEAD) == a72d35d01067fde5adae16f05a930870f58b1571 ]]
+[[ $(git rev-parse 'HEAD^{tree}') == aed04f79ea4e8ae2657bee2c055c46b062fcede9 ]]
+[[ -f /tmp/config-verify-build-complete && ! -e /evidence/factory.start ]]
+python3 - <<'PY' > /evidence/restart-identity.json
+import hashlib
+import json
+from pathlib import Path
+import runpy
+
+helpers = runpy.run_path("/source/scripts/prepare-factory-test-tools.py")
+old = json.loads(Path("/evidence/prepare.json").read_text())
+previous = Path(old["frozen_directory"])
+source = Path(old["source_directory"])
+evidence = {}
+for name, expected_hash in old["binaries"].items():
+    old_path = previous / name
+    old_hash = helpers["sha256"](old_path)
+    source_hash = helpers["sha256"](source / name)
+    current_identity = helpers["private_identity"](old_path.stat())
+    expected_identity = old["frozen_file_identities"][name]
+    assert old_hash == source_hash == expected_hash
+    evidence[name] = {
+        "original_sha256": expected_hash,
+        "current_original_source_sha256": source_hash,
+        "current_old_frozen_sha256": old_hash,
+        "expected_old_frozen_identity": expected_identity,
+        "current_old_frozen_identity": current_identity,
+    }
+assert any(entry["expected_old_frozen_identity"] != entry["current_old_frozen_identity"] for entry in evidence.values())
+print(json.dumps(evidence, indent=2))
+PY
+export AGENTBATON_FACTORY_TEST_TOOLS=/tmp/config-verify-live-frozen
+export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output "$AGENTBATON_FACTORY_TEST_TOOLS" --evidence /evidence/live-probe > /evidence/live-prepare.json 2> /evidence/live-prepare.stderr
+python3 - <<'PY'
+import json
+from pathlib import Path
+original = json.loads(Path("/evidence/prepare.json").read_text())
+live = json.loads(Path("/evidence/live-prepare.json").read_text())
+for key in ("git_head", "git_tree", "binaries"):
+    assert live[key] == original[key]
+PY
+python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS" > /evidence/before-verify.json
+cmp /evidence/live-prepare.json /evidence/before-verify.json
+printf '%s\n' "$$" > /evidence/factory.pid
+date -u +%FT%TZ > /evidence/factory.start
+result=0
+cargo test --offline --locked -p agentbaton-core --test factory_runtime_ipc -- --test-threads=1 --show-output > /evidence/factory.log 2>&1 || result=$?
+printf '%s\n' "$result" > /evidence/factory.exit
+date -u +%FT%TZ > /evidence/factory.end
+python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS" > /evidence/after-verify.json
+cmp /evidence/live-prepare.json /evidence/after-verify.json

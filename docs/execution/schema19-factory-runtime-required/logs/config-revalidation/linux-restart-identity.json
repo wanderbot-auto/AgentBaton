@@ -1,0 +1,16 @@
+{
+  "baton": {
+    "original_sha256": "767b0038395a8905b54e2890eaaab8e18a6df9c674481112b4fa9de820cdbbfe",
+    "current_original_source_sha256": "767b0038395a8905b54e2890eaaab8e18a6df9c674481112b4fa9de820cdbbfe",
+    "current_old_frozen_sha256": "767b0038395a8905b54e2890eaaab8e18a6df9c674481112b4fa9de820cdbbfe",
+    "expected_old_frozen_identity": "b6067890a7a679bb6785ec69a0a284548ca3618f80851e59d74341715260562f",
+    "current_old_frozen_identity": "1b691d9960467685f8ce96bad8c2c5b96aaa4f0007eec58ce9e61f711b57fc60"
+  },
+  "batond": {
+    "original_sha256": "a995df99398345de4dee07d9c2d533fa2611fb824327d7ade68b6780616fffd8",
+    "current_original_source_sha256": "a995df99398345de4dee07d9c2d533fa2611fb824327d7ade68b6780616fffd8",
+    "current_old_frozen_sha256": "a995df99398345de4dee07d9c2d533fa2611fb824327d7ade68b6780616fffd8",
+    "expected_old_frozen_identity": "f06adb5b45f08cfb0195c55f01064a4ae95bd438603dd38f2e05a5135b16902d",
+    "current_old_frozen_identity": "448a1630a77f0ff548c3d939ca750b9dc046820c5a9272a005168de8e62347d9"
+  }
+}
