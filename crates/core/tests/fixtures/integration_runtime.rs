@@ -289,7 +289,7 @@ impl RuntimeFixture {
         let server = Server::start(root.join("runtime"));
         assert_eq!(
             rpc(&server, "system.snapshot", json!({}), None, None)["database_schema_version"],
-            18
+            19
         );
         let project = rpc(
             &server,
