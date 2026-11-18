@@ -155,7 +155,7 @@ mod tests {
     use serde_json::json;
     use std::cell::Cell;
     fn status() -> Value {
-        json!({"result":{"instance_id":"d949034a-2109-419c-b3c1-63ebef46e6ac","started_at":"2026-11-09T00:00:00Z","api_version":1,"database_schema_version":18,"sequence":5,"owned_provider_workers":true,"store_recovery":"completed_on_start"}})
+        json!({"result":{"instance_id":"d949034a-2109-419c-b3c1-63ebef46e6ac","started_at":"2026-11-09T00:00:00Z","api_version":1,"database_schema_version":19,"sequence":5,"owned_provider_workers":true,"store_recovery":"completed_on_start"}})
     }
     #[test]
     fn hiding_requires_fresh_authenticated_instance_not_a_pid_or_historical_flag() {
@@ -176,6 +176,31 @@ mod tests {
             assert!(status_instance(&r, Some(id)).is_err());
         }
         assert!(status_instance(&original, Some("b949034a-2109-419c-b3c1-63ebef46e6ac")).is_err());
+    }
+    #[test]
+    fn background_status_rejects_noncurrent_schema_and_protocol_without_a_hide_action() {
+        let original = status();
+        let id = status_instance(&original, None).unwrap();
+        for (field, value) in [
+            ("database_schema_version", json!(18)),
+            ("database_schema_version", json!(20)),
+            ("database_schema_version", json!(19.0)),
+            ("database_schema_version", json!("19")),
+            ("database_schema_version", json!(true)),
+            ("database_schema_version", Value::Null),
+            ("api_version", json!(2)),
+            ("api_version", json!(1.0)),
+            ("api_version", json!("1")),
+            ("api_version", json!(true)),
+            ("api_version", Value::Null),
+        ] {
+            let mut response = original.clone();
+            response["result"][field] = value.clone();
+            assert!(
+                status_instance(&response, Some(id)).is_err(),
+                "{field}: {value}"
+            );
+        }
     }
     #[test]
     fn close_to_background_preserves_existing_draft_and_unknown_key_and_restores_same_window() {
