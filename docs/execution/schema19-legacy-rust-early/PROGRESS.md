@@ -1,0 +1,9 @@
+# Progress
+
+The branch started clean with seven literal reservations and matched the intended integration base. Apple Silicon default Cargo reproduced 7 passing and 17 failing tests across five targets. Fifteen failures reach an exact Conversation18 or Factory fixture entry from a current Store19. Two fail when the active Store receives the original future19 label. This clean-baseline run is archived with its hash.
+
+The first candidate and final 24-case default run both passed. The final focused regression also passed 37 related Integration, Conversation, Host migration, Host fixture and real Unix IPC cases. Workspace formatting and strict all-target Core Clippy passed.
+
+The existing Host19 inverse prepares exact schema18 before the unmodified historical fixture entry. The original Conversation, Integration and Factory operations retain their transaction boundaries. The tests snapshot the exact generated v6, v7, v8 and v9 shapes, verify real current Store19 with zero Host authority, preserve original backup assertions, and check the pre-v19 backup against every SQLite schema object and typed row plus version and application ID. The pre-v19 artifact retains its bytes and inode across reopen. The late and refused Factory inverses preserve committed WAL, main bytes and the full logical image. Original future cases exercise current future20. The merged Integration default target exercises the original source guard, and its independently run historical ARM64 daemon receipt records real Store18 refusing future19 before mutation or backup.
+
+No workflow, freezer, production or existing shared inverse source changed. The unchanged workflow prerequisite remains blocked by the exact schema18 tool guard proven in the previous package. The four deferred legacy targets were run separately against this source and are tracked in EVIDENCE.json for the next reservation. The whole workspace gate was not run with missing prerequisite tools.

@@ -1,7 +1,13 @@
 #[path = "fixtures/pre_factory_schema.rs"]
 pub mod pre_factory_schema;
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::storage::Store;
 use rusqlite::{params, Connection};
+use schema19_legacy_migration::{
+    assert_empty_host19, assert_future20_refused, database_bytes, database_bytes_with_wal,
+    fixture_logical_snapshot, host19_backup, legacy_predecessor, remove_empty_host19,
+};
 use std::{
     fs,
     os::unix::fs::{OpenOptionsExt, PermissionsExt},
@@ -27,6 +33,7 @@ fn fixture() -> (tempfile::TempDir, PathBuf) {
         .unwrap();
     drop(s);
     let c = Connection::open(&p).unwrap();
+    remove_empty_host19(&c).unwrap();
     pre_factory_schema::remove_empty_current_factory_increment(&c).unwrap();
     c.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;CREATE TABLE original_blob(bytes BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=7;").unwrap();
     let raw: String = c
@@ -56,6 +63,7 @@ fn backups(root: &Path) -> Vec<PathBuf> {
 #[test]
 fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_and_blob() {
     let (d, p) = fixture();
+    let predecessor = legacy_predecessor(&p, 7);
     let before = Connection::open(&p)
         .unwrap()
         .query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -63,10 +71,12 @@ fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_a
     let s = Store::open(&p).unwrap();
     drop(s);
     let c = Connection::open(&p).unwrap();
+    assert_empty_host19(&c);
+    let host_backup = host19_backup(&p, &predecessor);
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -118,6 +128,7 @@ fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_a
     drop(c);
     drop(b);
     drop(Store::open(&p).unwrap());
+    assert!(host19_backup(&p, &predecessor) == host_backup);
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
@@ -125,9 +136,20 @@ fn command_migration_failure_rolls_back_tables_and_version_retains_unknown_data(
     let (d, p) = fixture();
     let c = Connection::open(&p).unwrap();
     c.execute_batch("CREATE TABLE command_validation_runs(sentinel TEXT);INSERT INTO command_validation_runs VALUES('preserve schema7 unknown data');").unwrap();
+    let predecessor = fixture_logical_snapshot(&c);
     drop(c);
+    let before = database_bytes(&p);
     assert!(Store::open(&p).is_err());
     let c = Connection::open(&p).unwrap();
+    assert!(
+        database_bytes(&p) == before,
+        "failed migration rewrote SQLite bytes"
+    );
+    assert!(
+        fixture_logical_snapshot(&c) == predecessor,
+        "failed migration changed the logical database"
+    );
+    host19_backup(&p, &predecessor);
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
@@ -144,14 +166,12 @@ fn command_migration_failure_rolls_back_tables_and_version_retains_unknown_data(
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema19_refused_without_touching_bytes() {
+fn future_schema20_refused_without_touching_bytes() {
     let (_d, p) = fixture();
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=19;").unwrap();
+    c.execute_batch("PRAGMA user_version=20;").unwrap();
     drop(c);
-    let raw = fs::read(&p).unwrap();
-    assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
-    assert_eq!(fs::read(&p).unwrap(), raw);
+    assert_future20_refused(&p);
 }
 
 fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
@@ -176,76 +196,13 @@ fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
     let connection = Connection::open(&database).unwrap();
     // Preserve the original strict16 inverse controls after the separately
     // verified, empty17 ->16 fixture-only inverse.
+    remove_empty_host19(&connection).unwrap();
     pre_factory_schema::pre_conversation_schema::remove_empty_conversation18(&connection).unwrap();
     pre_factory_schema::pre_integration_schema::remove_empty_integration17(&connection).unwrap();
+    connection
+        .pragma_update(None, "wal_autocheckpoint", 0)
+        .unwrap();
     (directory, database, connection)
-}
-
-// No Debug implementation: a failed equality must not dump raw fixture rows.
-type FixtureSchemaObject = (String, String, String, Option<String>);
-type FixtureTableRows = (String, Vec<Vec<rusqlite::types::Value>>);
-#[derive(PartialEq)]
-struct FixtureLogicalSnapshot {
-    schema: Vec<FixtureSchemaObject>,
-    rows: Vec<FixtureTableRows>,
-    pragmas: Vec<(&'static str, rusqlite::types::Value)>,
-    autocommit: bool,
-}
-
-fn fixture_logical_snapshot(connection: &Connection) -> FixtureLogicalSnapshot {
-    let schema: Vec<FixtureSchemaObject> = connection
-        .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
-        .unwrap()
-        .query_map([], |row| {
-            Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
-        })
-        .unwrap()
-        .map(|row| row.unwrap())
-        .collect();
-    let mut rows = Vec::new();
-    for (_, name, _, _) in schema.iter().filter(|row| row.0 == "table") {
-        // All tables in these isolated fixtures have rowids. Include internal
-        // sqlite_sequence too, and quote even the generated identifiers.
-        let quoted = format!("\"{}\"", name.replace('"', "\"\""));
-        let mut statement = connection
-            .prepare(&format!("SELECT rowid,* FROM {quoted} ORDER BY rowid"))
-            .unwrap();
-        let columns = statement.column_count();
-        let data = statement
-            .query_map([], |row| {
-                (0..columns)
-                    .map(|column| row.get::<_, rusqlite::types::Value>(column))
-                    .collect::<rusqlite::Result<Vec<_>>>()
-            })
-            .unwrap()
-            .map(|row| row.unwrap())
-            .collect();
-        rows.push((name.clone(), data));
-    }
-    let pragmas = [
-        "user_version",
-        "schema_version",
-        "application_id",
-        "foreign_keys",
-        "journal_mode",
-        "defer_foreign_keys",
-        "query_only",
-        "synchronous",
-    ]
-    .into_iter()
-    .map(|name| {
-        let value = connection
-            .pragma_query_value(None, name, |row| row.get::<_, rusqlite::types::Value>(0))
-            .unwrap();
-        (name, value)
-    })
-    .collect();
-    FixtureLogicalSnapshot {
-        schema,
-        rows,
-        pragmas,
-        autocommit: connection.is_autocommit(),
-    }
 }
 
 #[test]
@@ -514,7 +471,7 @@ fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_an
         // logical database on this same connection after variant setup.
         assert!(connection.is_autocommit(), "{variant}");
         let logical_before = fixture_logical_snapshot(&connection);
-        let before = fs::read(&database).unwrap();
+        let before = database_bytes_with_wal(&database);
         assert!(
             pre_factory_schema::remove_empty_factory_increment(&connection).is_err(),
             "{variant}"
@@ -525,8 +482,8 @@ fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_an
             "logical rollback: {variant}"
         );
         assert!(
-            fs::read(&database).unwrap() == before,
-            "main-file rollback: {variant}"
+            database_bytes_with_wal(&database) == before,
+            "main/WAL rollback: {variant}"
         );
         assert!(connection.is_autocommit(), "{variant}");
         assert!(
@@ -549,7 +506,7 @@ fn fixture_inverse_caller_failure_rolls_back_complete_wal_database_and_pragmas()
         "wal"
     );
     let logical_before = fixture_logical_snapshot(&connection);
-    let before = fs::read(&database).unwrap();
+    let before = database_bytes_with_wal(&database);
     let foreign_keys: bool = connection
         .pragma_query_value(None, "foreign_keys", |r| r.get(0))
         .unwrap();
@@ -607,8 +564,8 @@ fn fixture_inverse_caller_failure_rolls_back_complete_wal_database_and_pragmas()
         "caller failure must restore all logical history"
     );
     assert!(
-        fs::read(&database).unwrap() == before,
-        "caller failure must preserve main-file bytes"
+        database_bytes_with_wal(&database) == before,
+        "caller failure must preserve main and committed WAL bytes"
     );
     assert!(connection.is_autocommit());
     assert!(connection

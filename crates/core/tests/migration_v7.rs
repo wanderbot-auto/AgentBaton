@@ -1,7 +1,13 @@
 #[path = "fixtures/pre_factory_schema.rs"]
 pub mod pre_factory_schema;
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::storage::Store;
 use rusqlite::{params, Connection};
+use schema19_legacy_migration::{
+    assert_empty_host19, assert_future20_refused, database_bytes, fixture_logical_snapshot,
+    host19_backup, legacy_predecessor, remove_empty_host19,
+};
 use std::{
     fs,
     os::unix::fs::{OpenOptionsExt, PermissionsExt},
@@ -33,6 +39,7 @@ fn v6_fixture(database: &Path) -> (String, String) {
         .unwrap();
     drop(store);
     let connection = Connection::open(database).unwrap();
+    remove_empty_host19(&connection).unwrap();
     pre_factory_schema::remove_empty_current_factory_increment(&connection).unwrap();
     connection.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;CREATE TABLE legacy_raw(id TEXT PRIMARY KEY,payload BLOB NOT NULL);PRAGMA user_version=6;").unwrap();
     let value: serde_json::Value = serde_json::from_str(
@@ -72,6 +79,7 @@ fn backups(directory: &Path) -> Vec<PathBuf> {
 fn real_v6_upgrade_keeps_raw_documents_and_blobs_in_private_reopenable_backup() {
     let (directory, database) = private_database();
     let (task, raw) = v6_fixture(&database);
+    let predecessor = legacy_predecessor(&database, 6);
     let store = Store::open(&database).unwrap();
     assert_eq!(store.get(&task).unwrap().goal, "Preserve raw v6 state");
     assert!(store
@@ -84,11 +92,13 @@ fn real_v6_upgrade_keeps_raw_documents_and_blobs_in_private_reopenable_backup() 
         .is_empty());
     drop(store);
     let connection = Connection::open(&database).unwrap();
+    assert_empty_host19(&connection);
+    let host_backup = host19_backup(&database, &predecessor);
     assert_eq!(
         connection
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
     assert_eq!(
         connection
@@ -147,6 +157,7 @@ fn real_v6_upgrade_keeps_raw_documents_and_blobs_in_private_reopenable_backup() 
     assert_eq!(backup.query_row("SELECT count(*) FROM sqlite_master WHERE name IN('data_validation_policies','data_validation_runs')",[],|r|r.get::<_,u32>(0)).unwrap(),0);
     drop(backup);
     drop(Store::open(&database).unwrap());
+    assert!(host19_backup(&database, &predecessor) == host_backup);
     assert_eq!(self::backups(directory.path()).len(), 1);
 }
 #[test]
@@ -155,9 +166,20 @@ fn failed_data_migration_rolls_back_new_table_and_version_without_deleting_unkno
     let (task, raw) = v6_fixture(&database);
     let connection = Connection::open(&database).unwrap();
     connection.execute_batch("CREATE TABLE data_validation_runs(sentinel TEXT);INSERT INTO data_validation_runs VALUES('preserve unknown v6 table');").unwrap();
+    let predecessor = fixture_logical_snapshot(&connection);
     drop(connection);
+    let before = database_bytes(&database);
     assert!(Store::open(&database).is_err());
     let connection = Connection::open(&database).unwrap();
+    assert!(
+        database_bytes(&database) == before,
+        "failed migration rewrote SQLite bytes"
+    );
+    assert!(
+        fixture_logical_snapshot(&connection) == predecessor,
+        "failed migration changed the logical database"
+    );
+    host19_backup(&database, &predecessor);
     assert_eq!(
         connection
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
@@ -191,15 +213,10 @@ fn failed_data_migration_rolls_back_new_table_and_version_without_deleting_unkno
     );
 }
 #[test]
-fn future_v19_database_is_refused_without_changing_its_raw_bytes() {
+fn future_v20_database_is_refused_without_changing_its_raw_bytes() {
     let (_directory, database) = private_database();
     let connection = Connection::open(&database).unwrap();
-    connection.execute_batch("CREATE TABLE sentinel(raw BLOB);INSERT INTO sentinel VALUES(x'00ff');PRAGMA user_version=19;").unwrap();
+    connection.execute_batch("CREATE TABLE sentinel(raw BLOB);INSERT INTO sentinel VALUES(x'00ff');PRAGMA user_version=20;").unwrap();
     drop(connection);
-    let before = fs::read(&database).unwrap();
-    assert_eq!(
-        Store::open(&database).err().unwrap().code,
-        "VERSION_UNSUPPORTED"
-    );
-    assert_eq!(fs::read(&database).unwrap(), before);
+    assert_future20_refused(&database);
 }
