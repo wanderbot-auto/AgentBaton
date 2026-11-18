@@ -1,0 +1,14 @@
+collab: task runtime /private/tmp/ab-collab-mo_d8u0a
+ec2ca48b12241451905157240238987c821e2b2a
+2026-11-18T17:12:34Z
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+cargo 1.91.1 (ea2d97820 2025-10-10)
+rustfmt 1.8.0-stable (ed61e7d7e2 2025-11-07)
+format_exit=0
+test_exit=0

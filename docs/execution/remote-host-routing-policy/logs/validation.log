@@ -1,0 +1,23 @@
+collab: task runtime /private/tmp/ab-collab-mo_d8u0a
+7e504de5e080db98cfa091760cb0576e01566a4e
+3b5d3ba8e29099639b9833b45c1afcc719abe7db
+2e59864e503191c24a64cdc126c7ec046d625548
+2026-11-18T17:18:09Z
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+Darwin 25.6.0 arm64
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+cargo 1.91.1 (ea2d97820 2025-10-10)
+rustfmt 1.8.0-stable (ed61e7d7e2 2025-11-07)
+cargo fmt --manifest-path crates/remote-host/Cargo.toml --all --check
+cargo test --manifest-path crates/remote-host/Cargo.toml --locked --offline --test routing
+cargo test --manifest-path crates/remote-host/Cargo.toml --locked --offline
+cargo clippy --manifest-path crates/remote-host/Cargo.toml --locked --offline --all-targets -- -D warnings
+completed_at=2026-11-18T17:18:17Z

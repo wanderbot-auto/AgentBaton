@@ -1,0 +1,104 @@
+{
+  "requirement": "AB-EXT-008",
+  "scope": "pure typed Host routing with caller-verified authorization and observations",
+  "base": "ec2ca48b12241451905157240238987c821e2b2a",
+  "validated_commit": "7e504de5e080db98cfa091760cb0576e01566a4e",
+  "validated_tree": "3b5d3ba8e29099639b9833b45c1afcc719abe7db",
+  "crate_tree": "dbaa123680fa3a688d0f1dbf591f821df8b83a72",
+  "cargo_lock_blob": "2e59864e503191c24a64cdc126c7ec046d625548",
+  "validated_source_sha256": {
+    "crates/remote-host/src/lib.rs": "a0ba82dd887c8e0ba58d8c1f45a14baeefda3fd67a910cf4231039be18f35184",
+    "crates/remote-host/src/routing.rs": "d99a892c441465cf9a3b3615107a5c408e8e3d848a8932652fea7b094d530cdd",
+    "crates/remote-host/tests/routing.rs": "e216a808b1a81c9ee673b5d16530dc9c257b5bfb91e577af6f7075d4e6adbe3b"
+  },
+  "platform": {
+    "host": "aarch64-apple-darwin",
+    "macos": "26.6.1 (25G76)",
+    "rustc": "1.91.1",
+    "cargo": "1.91.1",
+    "rustfmt": "1.8.0-stable"
+  },
+  "environment": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_BUILD_JOBS": "2"
+  },
+  "runner": "bash scripts/collab.sh run --",
+  "started_utc": "2026-11-18T17:18:09Z",
+  "ended_utc": "2026-11-18T17:18:17Z",
+  "baseline": {
+    "format_exit_code": 0,
+    "test_exit_code": 0,
+    "passed_tests": 26,
+    "log": "logs/baseline-test.log.gz"
+  },
+  "validation": [
+    {
+      "command": "cargo fmt --manifest-path crates/remote-host/Cargo.toml --all --check",
+      "exit_code": 0,
+      "log": "logs/fmt.log"
+    },
+    {
+      "command": "cargo test --manifest-path crates/remote-host/Cargo.toml --locked --offline --test routing",
+      "exit_code": 0,
+      "log": "logs/routing.log.gz",
+      "passed_tests": 10
+    },
+    {
+      "command": "cargo test --manifest-path crates/remote-host/Cargo.toml --locked --offline",
+      "exit_code": 0,
+      "log": "logs/all.log.gz",
+      "passed_tests": 36
+    },
+    {
+      "command": "cargo clippy --manifest-path crates/remote-host/Cargo.toml --locked --offline --all-targets -- -D warnings",
+      "exit_code": 0,
+      "log": "logs/clippy.log"
+    }
+  ],
+  "retained_failures": [
+    {
+      "description": "Strict Clippy found a complex type in the new test table; resolved by a type alias.",
+      "log": "logs/development-clippy.log"
+    },
+    {
+      "description": "Incorrect zsh variable expansion prevented the first subtree assertion; the corrected check matched.",
+      "log": "logs/source-preview-shell-error.log"
+    }
+  ],
+  "merge_preview": {
+    "target": "f3ee057c874582427e77129e21014574c57484ae",
+    "source": "7e504de5e080db98cfa091760cb0576e01566a4e",
+    "tree": "37c2b3be353028488c7104f325f29ba10b2d1c39",
+    "remote_host_subtree_matches_source": true,
+    "conflicts": false,
+    "log": "logs/source-preview.log"
+  },
+  "unverified": [
+    "scheduler wiring and revalidation at dispatch",
+    "live authority/Host observation acquisition",
+    "real remote Host, data transfer, Provider execution",
+    "Linux and CI runs for this candidate"
+  ],
+  "review": "implementation and evidence self-reviewed; awaiting independent integration review",
+  "log_sha256": {
+    "logs/baseline-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/baseline.log": "5d476a2a3d0e5fdef0216a1af41f140865cb97495c9171ed0b96391bcb881739",
+    "logs/clippy.log": "ee1d3fffa2022e962e63e0dbe4d35c9c198450a20c29fc09030f635dbb38bfcd",
+    "logs/development-clippy.log": "edad1fbf926d1d6e1aab4acc3f59c3c28b1663426639d98d3c72b4cef1932e29",
+    "logs/fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/source-preview-shell-error.log": "58cca095a3d51336565f6dde4038a1684b9f6250b4356efacdd240b6ede7d9a4",
+    "logs/source-preview.log": "02e49792b5448d6c3fcb2161fdd227d3c94c1e05b1cef33ae2dc6d990504104f",
+    "logs/updated-clippy.log": "8f08ef6326ef157bfe548835863e6d700cbb3c38eff8a018b31eb50d2c2385eb",
+    "logs/validation.log": "d0f03ee0abf051272bded11c34279391096b8a3685c09dc0b78032213f06945a",
+    "logs/all.log.gz": "2ff0b84718df13ab503c86808f9e0e6e77eac5cefdf1b6f29c84289b4b449423",
+    "logs/baseline-test.log.gz": "7f6abac1af62e6bc27a7538391d589add1aaaeae65d3b0014f75588162757acc",
+    "logs/development.log.gz": "8b2e87e8c675c48f722bba18d86fcbaf0edd5807eb555af5e58a016552e61e51",
+    "logs/routing.log.gz": "8cb7ad4f7c3cc7a48b6b98f0e452fcd1d845604a5ed154c20616d85235e8dbe5"
+  },
+  "uncompressed_log_sha256": {
+    "logs/all.log.gz": "ec059ed35b88f6ac48587b775078b398c689abb900fc76a7b71e23ead7254cca",
+    "logs/baseline-test.log.gz": "ca851b9c2e5eaf0069d1cfe9eda9cc0b98392a26464c7917c5a19ec91380192f",
+    "logs/development.log.gz": "18efe555b4fd3e764660681e5f72c668bb15b34f7155f7aeabab6b5cfb0ae2b3",
+    "logs/routing.log.gz": "eb8e898dd8b515ac2ee9a739cc6e81c2d58f7429163aab7a7ed660546e4e46d5"
+  }
+}
