@@ -1,0 +1,152 @@
+{
+  "baseline": {
+    "base": "bd894a012ddb504b0e576f20f1f8fabb3dc8e949",
+    "workspace": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema17-rust-gate",
+    "environment": "macOS-26.6.1-arm64-arm-64bit",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "integration_schema17",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit_code": 101,
+    "seconds": 85.491,
+    "failures": [
+      "controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen",
+      "controlled_current18_then_original_factory_inverse_keeps_one_rollback_boundary",
+      "controlled_empty17_inverse_preserves_all_predecessor_rows_and_exact_schema_then_upgrades",
+      "controlled_empty17_inverse_preserves_unrelated_unknown_schema_and_typed_bytes",
+      "controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_dependencies",
+      "controlled_empty17_outer_refuses_nested_and_inner_refuses_committed_transactions",
+      "fresh_store18_is_additive_empty_authority_and_reopen_preserves_real_store_rows",
+      "future19_refuses_before_backup_or_recovery_with_committed_wal_preserved",
+      "opaque16_at_object_budget_refuses_additive17_overflow_atomically",
+      "opaque_compatibility_never_substitutes_for_known_objects_or_accepts_dependencies",
+      "opaque_named_pragma_table_list_cannot_forge_virtual_or_shadow_table_metadata",
+      "opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated"
+    ],
+    "raw_log_sha256": "b3b56aca2ba1c71e046a2b94653364ea4e8a03569efb781b7d037a592b6795fd",
+    "archive": "baseline.log.gz",
+    "archive_sha256": "8797027e92e88bd823e98601ba4b3e8ac31b475aa1e15c309ef83182d1f7dcbd"
+  },
+  "current_checks": {
+    "fmt-core": {
+      "command": [
+        "cargo",
+        "fmt",
+        "-p",
+        "agentbaton-core",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.356,
+      "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "fmt-core.log.gz",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "fmt-workspace": {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.534,
+      "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "fmt-workspace.log.gz",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "focused": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_schema17",
+        "--test",
+        "conversation_schema18",
+        "--test",
+        "host_schema19_fixture",
+        "--test",
+        "host_registry_migration",
+        "--test",
+        "host_registration_real_ipc",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 22.839,
+      "raw_log_sha256": "778f649e1b88378d350b6a2db773722b67336dd7d9e519b0eaf83d7207c458e7",
+      "archive": "focused.log.gz",
+      "archive_sha256": "f677f003c73857a9ba9700423da6b03a5c506ba7c6753f6003193373a570ef7e",
+      "counts": {
+        "conversation_schema18": 6,
+        "host_registration_real_ipc": 3,
+        "host_registry_migration": 4,
+        "host_schema19_fixture": 8,
+        "integration_schema17": 16
+      }
+    },
+    "clippy-core": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 18.079,
+      "raw_log_sha256": "cca1cb1661093659fd2e615db73dfdce60229bbcab4a3798597c3ace13020afa",
+      "archive": "clippy-core.log.gz",
+      "archive_sha256": "08de8f9bcbca60ef89367ff1ab98baf9b8f959dbb8b19e6b2fdd3b0abdda4c2f"
+    },
+    "focus1": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_schema17",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "warning": "unused_mut in the archived historical open prefix; removed in the checked test adapter",
+      "archive": "focus1.log.gz",
+      "archive_sha256": "374432502bbb41717ff3778dc4ded9f0ceb59409beef27bc2664d5a0f93a0f8e",
+      "raw_log_sha256": "f1eaef12cf018d9d25f7a88049f8fafabd85b52e324933cf9edd4b32d40974c3"
+    }
+  },
+  "historical_source": {
+    "commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "blob": "f9e1682c46cca41bbfbd3b0b902d82f33fc5e1e5",
+    "raw_excerpt_sha256": "441a63157dac5258feefcf71c3ff0bb8a6b9d64ce48ade617ddef680b98813da",
+    "verified": true,
+    "adaptation": "Remove mutability from the binding, wrap the exact open prefix and return its version on success."
+  },
+  "leader_historical_daemon": {
+    "source": "/tmp/ab-actual18-future19.HEGRQvt7/receipt.json",
+    "archive": "historical-daemon-receipt.json",
+    "sha256": "4f8fb5ade8f9d2aefe2a3f761d6fb38e4754a8145c58ce7037e7ac98c950c3b4",
+    "receipt_status": null
+  }
+}
