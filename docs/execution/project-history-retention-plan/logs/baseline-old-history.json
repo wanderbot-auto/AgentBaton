@@ -1,0 +1,23 @@
+{
+  "source": "ec2ca48b12241451905157240238987c821e2b2a",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--lib",
+    "conversations_history::tests"
+  ],
+  "exit": 101,
+  "seconds": 91.319,
+  "log_sha256": "4bdcde261e17d4fc9ef9a93984933df5cca911c05e7baadc16b6bdc4bbd0a4d6",
+  "identical_result_set": true,
+  "same_code": true,
+  "env": {
+    "CARGO_BUILD_JOBS": "3",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/project-history-retention-plan/target/retention-baseline"
+  }
+}

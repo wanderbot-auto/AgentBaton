@@ -1,0 +1,12 @@
+{
+  "source": "ec2ca48b12241451905157240238987c821e2b2a",
+  "git_archive_sha256": "c9426c38a622218099168a4730606342ef5db8da2e848f09cec796780b6bf712",
+  "verified_git_blobs": {
+    "crates/core/src/conversations_history.rs": "e20529638c59b1068d17011e75623f6d3a47bdfa5246cb64afddd7672750618b",
+    "crates/core/src/conversations_history_tests.rs": "ad59109221480620e8cfbc214580bff46ecc5a5b36bb1616c72b550f8b79860b",
+    "crates/core/tests/conversation_schema18.rs": "d33b8e557dcc9129932d6ecc8bee75a6739d69b59b409fc0e5f887710d84eaf3",
+    "crates/core/src/storage.rs": "c1a7368b3cb8bc505ee999f758e1e641e1ddde3907c8d6ddc7935470ea1a6c6e",
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d"
+  },
+  "temporary_source_path": "artifacts/project-history-retention-plan/baseline-source"
+}
