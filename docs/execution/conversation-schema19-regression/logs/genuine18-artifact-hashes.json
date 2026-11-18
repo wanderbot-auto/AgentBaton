@@ -1,0 +1,27 @@
+{
+  "migrated-schema19.sqlite3": {
+    "path": "artifacts/conversation-schema19-regression/genuine18-artifacts/migrated-schema19.sqlite3",
+    "sha256": "fd68b7790b1d4e3de6fa08f33289b6b4121e89494ce426000e68ffa2aad856d5",
+    "bytes": 753664
+  },
+  "pre-v19.sqlite3": {
+    "path": "artifacts/conversation-schema19-regression/genuine18-artifacts/pre-v19.sqlite3",
+    "sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+    "bytes": 737280
+  },
+  "restored-by-frozen18.sqlite3": {
+    "path": "artifacts/conversation-schema19-regression/genuine18-artifacts/restored-by-frozen18.sqlite3",
+    "sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+    "bytes": 737280
+  },
+  "migration-report.json": {
+    "path": "artifacts/conversation-schema19-regression/genuine18-artifacts/migration-report.json",
+    "sha256": "ccfdcf414894727ffa6a54d0d1fe3cdc8876edc1959c859d413b45d9ec3b413d",
+    "bytes": 6900
+  },
+  "seal-report.json": {
+    "path": "artifacts/conversation-schema19-regression/genuine18-artifacts/seal-report.json",
+    "sha256": "c99cd1928d1a69dccac3213e46f28e1394dc48f58c15e06c5fac4e931aa8a0ec",
+    "bytes": 2636
+  }
+}
