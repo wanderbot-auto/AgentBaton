@@ -1,0 +1,14 @@
+{
+  "source": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+  "command": [
+    "/Users/wander/Applications/miniconda3/bin/python3.13",
+    "scripts/prepare-browser-runtime.py",
+    "--output",
+    "artifacts/host19-browser-candidate/browser-venv"
+  ],
+  "exit": 0,
+  "source_head_and_tracked_unchanged": true,
+  "tracked_clean": true,
+  "seconds": 1.727,
+  "log_sha256": "2d5d3df5c7b7c4180b38fa6afa5dd2ed2fce18527d94f5ecbe3b6589b6aa2839"
+}

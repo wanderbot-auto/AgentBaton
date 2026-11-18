@@ -1,0 +1,277 @@
+{
+  "case": "normal",
+  "status": "passed",
+  "dimension": "macOS built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host",
+  "not_claimed": [
+    "production Tauri Native formatter",
+    "OS dialog",
+    "macOS",
+    "live Provider/model",
+    "OS sandbox",
+    "whole-filesystem output quota",
+    "complete failure matrix",
+    "whole product completion"
+  ],
+  "checks": [
+    {
+      "name": "real managed Task/Graph before Task acceptance; visible new5s draft; optional original Command selected",
+      "status": "passed"
+    },
+    {
+      "name": "actual Core RESOURCE_LIMIT for oversized default output; no target/fence/policy/run/attempt authority",
+      "status": "passed"
+    },
+    {
+      "name": "complete real pending proposal and consumed receipt matched outside HTTP before TaskAccepted",
+      "status": "passed",
+      "proposal_sha256": "13167d764c7f8c3107c7bbb173986e5dc025a937e48db308e3b7fcfaa2518a8c",
+      "snapshot_sha256": "47cf0213afd8a57908cc87d5fae13d1a5efb06c2be2d7c0f0d7eaa2a18254b2c",
+      "proposal_bytes": 13815,
+      "snapshot_bytes": 13634,
+      "whole_response_bytes": 13906,
+      "whole_response_sha256": "a38d40b8eea5e4beb608f754ef84d7013c553c05a9512bd65d2e1190c2ad563c"
+    },
+    {
+      "name": "actual watcher fresh merged Command/owned stop/join/shared fees/source preservation and exact local ref result",
+      "status": "passed",
+      "state": "confirmed_local_ref",
+      "stages": 3,
+      "command_exit": 0,
+      "cas_attempts": 1,
+      "source_and_index_unchanged": true,
+      "original_command_unchanged": true,
+      "actual_owned_reap_and_join": true,
+      "shared_runtime_ms": 1938,
+      "shared_output_bytes": 368,
+      "tokens": null,
+      "cost_microunits": null
+    },
+    {
+      "name": "actual built component displays separate Task/integration result and real receipt; desktop/mobile screenshots",
+      "status": "passed"
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "task-pending-before-acceptance",
+      "sha256": "507564894e90811049651c56719db395b9bbfcb1ea7a7c1eff39fd2d401a1880",
+      "bytes": 152078,
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "focus_box_before_capture_observation": {
+        "x": 340,
+        "y": 475.6875,
+        "width": 281.0625,
+        "height": 21
+      },
+      "focus_viewport_asserted_before_capture": true,
+      "pixel_synchronized": false,
+      "dimension": "macOS Chromium only"
+    },
+    {
+      "name": "permission-before-task-acceptance",
+      "sha256": "bba366553c74f648cb006ecca297fd903a1cddb71d5fe8642edba591af19fd6d",
+      "bytes": 159645,
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "focus_box_before_capture_observation": {
+        "x": 340,
+        "y": 708.578125,
+        "width": 564.59375,
+        "height": 21
+      },
+      "focus_viewport_asserted_before_capture": true,
+      "pixel_synchronized": false,
+      "dimension": "macOS Chromium only"
+    },
+    {
+      "name": "terminal-state-desktop",
+      "sha256": "7df63af2e6ab3af30e1d2c55f950eff3eb0f89f8fd03d965780e31c329673bef",
+      "bytes": 160877,
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "focus_box_before_capture_observation": {
+        "x": 537.609375,
+        "y": 476.46875,
+        "width": 129.640625,
+        "height": 21
+      },
+      "focus_viewport_asserted_before_capture": true,
+      "pixel_synchronized": false,
+      "dimension": "macOS Chromium only"
+    },
+    {
+      "name": "terminal-receipt-desktop",
+      "sha256": "7a9d50447e66f60d3ed3e4ab44d3c8100ffb2c7d86d76b2b5cece57e0e74002c",
+      "bytes": 154983,
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "focus_box_before_capture_observation": {
+        "x": 738.03125,
+        "y": 476.46875,
+        "width": 331.859375,
+        "height": 21
+      },
+      "focus_viewport_asserted_before_capture": true,
+      "pixel_synchronized": false,
+      "dimension": "macOS Chromium only"
+    },
+    {
+      "name": "terminal-state-mobile",
+      "sha256": "59d85f0d09ce0ecab012c4b3c7264469d2ea88bc0a9749c692a1bdb8ece03593",
+      "bytes": 56991,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "focus_box_before_capture_observation": {
+        "x": 16,
+        "y": 337.453125,
+        "width": 129.640625,
+        "height": 21
+      },
+      "focus_viewport_asserted_before_capture": true,
+      "pixel_synchronized": false,
+      "dimension": "macOS Chromium only"
+    },
+    {
+      "name": "terminal-receipt-mobile",
+      "sha256": "401c595f42bb22c25e4904d115f4679548ee8f7b91056f73eaa20281617723df",
+      "bytes": 63404,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "focus_box_before_capture_observation": {
+        "x": 16,
+        "y": 337.453125,
+        "width": 331.859375,
+        "height": 21
+      },
+      "focus_viewport_asserted_before_capture": true,
+      "pixel_synchronized": false,
+      "dimension": "macOS Chromium only"
+    }
+  ],
+  "cleanup": {
+    "pending_reviews_stopped": true,
+    "browser_closed": true,
+    "playwright_stopped": true,
+    "http_shutdown": true,
+    "http_thread_joined": true,
+    "daemon_joined": {
+      "exit": 0,
+      "joined": true,
+      "forced_kill": false
+    },
+    "private_transcript_saved": true,
+    "tools_assets_unchanged": true,
+    "fixture_removed": true
+  },
+  "inputs": {
+    "source": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+    "tools": {
+      "batond": {
+        "sha256": "355fc7d88894b475a391e11d5cba70ad1ab6a21a3011872b20b50a4b79a53f58",
+        "bytes": 17574656,
+        "mode": 320,
+        "device": "16777234",
+        "inode": "68227170",
+        "uid": 501,
+        "links": 1
+      },
+      "baton": {
+        "sha256": "6f70be052ebe1c072b8cc23f62a0b75f768d598ecae36f55311b4752f42f201c",
+        "bytes": 808240,
+        "mode": 320,
+        "device": "16777234",
+        "inode": "68227172",
+        "uid": 501,
+        "links": 1
+      }
+    },
+    "assets": {
+      "assets/index-DZHSe46f.css": {
+        "sha256": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+        "bytes": 32470,
+        "mode": 420,
+        "device": "16777234",
+        "inode": "68224055",
+        "uid": 501,
+        "links": 1
+      },
+      "assets/index-Q47YZ8uE.js": {
+        "sha256": "b59f625846822412101c94cd389316f3180002167dd3ceefdfe4defd650cee16",
+        "bytes": 987211,
+        "mode": 420,
+        "device": "16777234",
+        "inode": "68224054",
+        "uid": 501,
+        "links": 1
+      },
+      "index.html": {
+        "sha256": "79f813e44000effb31bd7bca00146b246fb39be7c022b3faa1f01e3befb42f90",
+        "bytes": 441,
+        "mode": 420,
+        "device": "16777234",
+        "inode": "68224056",
+        "uid": 501,
+        "links": 1
+      }
+    },
+    "manifest_sha256": "5adf7dbbb4f3057f904a1292b6941b99c2126fc9f75976769736aa97a1fd75d3",
+    "build_record_sha256": "189640a56d5469cbb2e597bc628db84dfbb323a21b5b33b384facca7023d6f34",
+    "driver_sha256": "d7d163f945431abe328922c3f6e378c7665d3d37b9f8accbdc2f8a04454526be",
+    "source_guard": {
+      "head": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+      "tracked_clean": true,
+      "driver_sha256": "d7d163f945431abe328922c3f6e378c7665d3d37b9f8accbdc2f8a04454526be"
+    },
+    "runtime_tools": {
+      "chromium": {
+        "sha256": "11e393326c7d20a7c56641a7c65def33ea9c280da3b0b74cf8563b07989a0ee3",
+        "bytes": 159293248,
+        "mode": 493,
+        "device": "16777234",
+        "inode": "68227627",
+        "uid": 501,
+        "links": 1
+      },
+      "python": {
+        "sha256": "c4f10ec6ab82c9b4528e4e07407b2b51712485f904172fe59186c24b03add59d",
+        "bytes": 6095216,
+        "mode": 320,
+        "device": "16777234",
+        "inode": "68224118",
+        "uid": 501,
+        "links": 1
+      }
+    }
+  },
+  "browser_version": "149.0.7827.55",
+  "http_method_counts": {
+    "fixture.client_recovery_list": 1,
+    "system.snapshot": 10,
+    "events.subscribe": 4,
+    "projects.list": 4,
+    "connections.list": 4,
+    "sessions.list": 4,
+    "tasks.get": 6,
+    "goal_scopes.list": 6,
+    "integration_policies.list": 6,
+    "integrations.list": 6,
+    "integration_context.get": 6,
+    "integration_targets.list": 6,
+    "integration_policies.propose": 2,
+    "integrations.get": 2
+  },
+  "readonly_reply_aborts": 0
+}

@@ -1,0 +1,17 @@
+{
+  "source": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+  "command": [
+    "npm",
+    "--prefix",
+    "apps/desktop",
+    "ci",
+    "--offline",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "exit": 0,
+  "source_head_and_tracked_unchanged": true,
+  "tracked_clean": true,
+  "seconds": 1.023,
+  "log_sha256": "2ace395fef6505a0e19a21abf7a14675b678fe78ad35a00a9359b76a60999848"
+}

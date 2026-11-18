@@ -1,0 +1,22 @@
+{
+  "source": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+  "command": [
+    "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.infrastructure.test_host19_integration_browser_candidate",
+    "tests.infrastructure.test_host19_integration_browser_schema",
+    "tests.infrastructure.test_integration_driver_preflight_diagnostics",
+    "tests.infrastructure.test_private_browser_python",
+    "tests.infrastructure.test_integration_real_ipc",
+    "tests.infrastructure.test_schema18_source_inverse",
+    "tests.infrastructure.test_notification_screenshot_composition",
+    "tests.infrastructure.test_integration_screenshot_failure"
+  ],
+  "exit": 0,
+  "source_head_and_tracked_unchanged": true,
+  "tracked_clean": true,
+  "seconds": 1.494,
+  "log_sha256": "c0211beae5529e2a83c886c2c607f0eaba09ddd4d2943adf6771044960eac3da"
+}
