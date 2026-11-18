@@ -1,6 +1,6 @@
 {
   "recorded_utc": "2026-11-18T18:23:39.055535+00:00",
-  "status": "ready for independent source review; native UI acceptance blocked",
+  "status": "leader accepted schema 19 fixture and read-only witness; native AppKit acceptance blocked",
   "task": "host19-native-integration-owner",
   "base": "6d45b417210f892ec7d5f17dd992c05fc903773c",
   "tested_source": "285a6278ce18cbeb02808bb5c0993cabaf37fb42",
@@ -986,5 +986,23 @@
         "archive_member": "tauri-owner-tests.log"
       }
     ]
+  },
+  "independent_review": {
+    "leader_thread": "01a1e993-7604-7792-bcb6-d8c143cfeb90",
+    "accepted_head": "9574c19db9bb2f80e70482ca54a15c487d561136",
+    "accepted_scope": "schema 19 Integration Owner fixture and read-only database changes; actual pre-UI witness only",
+    "original_files_reviewed": 95,
+    "archive_members_reviewed": 84,
+    "raw_source_layers_verified": 5,
+    "arm64_tools_verified": true,
+    "independent_tests_reported": 44,
+    "exact_preview_target": "9e897d6f6bf0b823e187930fbb84f897be51b89e",
+    "baseline_whole_tauri_fmt_reproduced_from_old_inputs": true,
+    "baseline_whole_tauri_fmt_differing_files": 3,
+    "native_cancel": "both failed before the first observed AppKit sheet",
+    "native_approve": "not run",
+    "native_post_action_database_and_visual_review": "not run",
+    "handoff_authorized": true,
+    "leader_takes_over_integration": true
   }
 }
