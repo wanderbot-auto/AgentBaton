@@ -1264,6 +1264,10 @@ def runtime_driver(args, output, prepared):
         root_summary.click()
         root_region = root_summary.locator('..').get_by_role('region', name='Child task plans', exact=True)
         expect(root_region.get_by_text('Current plan head: r2', exact=False)).to_be_visible()
+        # Browse one history at a time. Both live panels use the same bounded
+        # Core read worker, while this case verifies each real history in turn.
+        root_summary.click()
+        assert root_summary.locator('..').evaluate('details => details.open') is False
         child_summary = panel.locator('summary').filter(has_text='Child task plans · ' + child_id); child_summary.click()
         child_region = child_summary.locator('..').get_by_role('region', name='Child task plans', exact=True)
         expect(child_region.get_by_text('Current plan head: r2', exact=False)).to_be_visible()
@@ -1275,6 +1279,9 @@ def runtime_driver(args, output, prepared):
         assert recorded == actual_child_one['plan_json']
         shot('02-real-child-ref-history-original-plan', child_region)
         passed('CP04', 'UI list refs and select r1 retrieves exact original GoalPlan bytes and raw SHA, not fabricated history')
+        child_summary.click()
+        assert child_summary.locator('..').evaluate('details => details.open') is False
+        root_summary.click()
         editor = root_region.get_by_test_id('factory-child-plan-editor'); editor.locator(':scope > summary').click()
         editor.get_by_role('button', name='Prepare steps from latest revision', exact=True).click()
         fixed_form_control(editor,'Step goal fixed-work','textarea').fill('Actual UI revised bounded root plan')

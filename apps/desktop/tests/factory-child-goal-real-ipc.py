@@ -32,7 +32,7 @@ import re
 import sys
 
 PLANNING_PATH = Path(__file__).with_name('factory-child-planning-real-ipc.py')
-PLANNING_SHA256 = '9c2e0a94b80634650c0f3b5d90d447fe2122f787a8f5b0aca8c37e9f84e484a7'
+PLANNING_SHA256 = '845a5faef8c2d9d2ce14eeabc1866d461487cc070e5b40cce059598d2103e041'
 PLANNING_SOURCE = PLANNING_PATH.read_bytes()
 _spec = importlib.util.spec_from_file_location('_child_goal_planning_support', PLANNING_PATH)
 planning = importlib.util.module_from_spec(_spec)
@@ -2102,29 +2102,36 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
         goal_panel=goal_details.get_by_test_id('factory-child-goal-panel')
         report['observations']['rendered_root_action'] = {}
 
-        def observe_rendered_root_action(button, label, phase, state, after_revision):
-            # Use the original 5s button-readiness window. Observe delivered
-            # snapshot bytes and the visible revision without issuing another IPC.
-            deadline = time.monotonic() + 5
-            def timeout_ms():
-                remaining = int((deadline - time.monotonic()) * 1000)
-                require(remaining > 0, 'Bound root renderer readiness expired')
-                return remaining
+        def action_ready_timeout(deadline):
+            remaining = int((deadline - time.monotonic()) * 1000)
+            require(remaining > 0, 'Bound root renderer readiness expired')
+            return remaining
+
+        def observe_rendered_root_action(button, label, state, after_revision, deadline):
+            # Observe delivered snapshot bytes and the visible revision without
+            # issuing another IPC. The caller shares one original 5s window.
             while True:
-                rendered = goal_panel.evaluate(RENDERED_ROOT_ACTION, {'state': state, 'label': label}, timeout=timeout_ms())
+                rendered = goal_panel.evaluate(RENDERED_ROOT_ACTION, {'state': state, 'label': label},
+                    timeout=action_ready_timeout(deadline))
                 witness = rendered_root_action_witness(report['http'], rendered, task, saved['reference'], state, after_revision)
                 if witness is not None:
-                    expect(button).to_be_enabled(timeout=timeout_ms())
-                    timeout_ms()
-                    report['observations']['rendered_root_action'][phase] = witness
+                    expect(button).to_be_enabled(timeout=action_ready_timeout(deadline))
+                    action_ready_timeout(deadline)
                     return witness
                 pump()
                 time.sleep(.02)
 
-        goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
+        refresh_label = 'Refresh child Goal execution'
+        refresh_button = goal_panel.get_by_role('button',name=refresh_label,exact=True)
         start_label = 'Execute this exact saved child plan'
         start_button = goal_panel.get_by_role('button',name=start_label,exact=True)
-        start_root = observe_rendered_root_action(start_button, start_label, 'start', 'running', task['revision'])
+        start_readiness_deadline = time.monotonic() + 5
+        # The parent Planning panel uses the same bounded Core read worker.
+        # Observe its fresh state before the original explicit refresh.
+        observe_rendered_root_action(refresh_button, refresh_label, 'running', task['revision'], start_readiness_deadline)
+        refresh_button.click(timeout=action_ready_timeout(start_readiness_deadline))
+        start_root = observe_rendered_root_action(start_button, start_label, 'running', task['revision'], start_readiness_deadline)
+        report['observations']['rendered_root_action']['start'] = start_root
         shot('02-exact-saved-raw-reference-before-start',goal_panel)
         start_button.click()
         started=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and not r.get('response',{}).get('error')and r.get('response')],lambda v:len(v)==1)[0]
@@ -2174,10 +2181,13 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
             try:capture()
             finally:phase_stamp('before_owner_capture','end')
             require(before_owner['details']['task_accepted']is False and before_owner['details']['task_acceptance']is None)
+            owner_readiness_deadline = time.monotonic() + 5
+            observe_rendered_root_action(refresh_button, refresh_label, 'outcome_unknown',
+                start_root['revision'], owner_readiness_deadline)
             phase_stamp('owner_UI_refresh_click','start')
             finite.owner_refresh_begin(bound_child_goal_query(query,bounds),time.monotonic_ns())
             sample_owner_ui(finite,goal_panel,query['goal_run_id'],'begin')
-            try:goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
+            try:refresh_button.click(timeout=action_ready_timeout(owner_readiness_deadline))
             finally:
                 finite.owner_refresh_click_finished(time.monotonic_ns())
                 phase_stamp('owner_UI_refresh_click','end')
@@ -2186,7 +2196,9 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
             phase_stamp('owner_enabled_expect','start')
             # The stopped fixture parent has an unknown generic Task outcome.
             # The action below is for the exact child under its Factory binding.
-            try:observe_rendered_root_action(owner, owner_label, 'owner', 'outcome_unknown', start_root['revision'])
+            try:
+                report['observations']['rendered_root_action']['owner'] = observe_rendered_root_action(
+                    owner, owner_label, 'outcome_unknown', start_root['revision'], owner_readiness_deadline)
             finally:
                 sample_owner_ui(finite,goal_panel,query['goal_run_id'],'end')
                 finite.owner_refresh_end(time.monotonic_ns())

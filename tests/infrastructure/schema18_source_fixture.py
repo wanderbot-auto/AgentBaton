@@ -47,6 +47,9 @@ def child_planning_before_schema19(text):
     layer = LAYERS[CHILD_PLANNING_PATH]
     historical = layer['historical_followup']
     assert type(text) is str, 'Unknown driver source: Child Planning input'
+    from tests.infrastructure.host19_child_goal_source_fixture import normalize_child_goal_outer_layer
+
+    text = normalize_child_goal_outer_layer(CHILD_PLANNING_PATH, text)
     digest = hashlib.sha256(text.encode()).hexdigest()
     if digest == historical['after']:
         restore(text, historical['edits'], layer['after'], AssertionError)
