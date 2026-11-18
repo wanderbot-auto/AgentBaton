@@ -18,3 +18,13 @@
 - Owned test and build processes returned and were joined. The harness main,
   native UI, package, CI, and real Provider/remote execution were outside this
   run. Leader independently reviews the exact delivery and integrates it.
+
+## Independent acceptance
+
+Leader accepted the scoped native unit and historical source verification at
+delivery commit `117e12098447c2543c39f8c674828c72eff3ae28`. The reviewed
+source remains `17a6539fb561f6b72e954052511710fd27c2821e`. All 37 archived
+files were rechecked against their raw and archive hashes. The only follow-up
+changes are this checkpoint and the progress entry. Leader authorized
+`scripts/collab.sh finish --handoff` and owns integration, actual App runtime
+verification and CI. The worktree and artifacts are retained.

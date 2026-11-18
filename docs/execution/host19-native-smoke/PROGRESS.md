@@ -19,3 +19,8 @@ Clean base, scope, gate and prior handshake verified. Copied two frozen accepted
   desktop fmt and strict Clippy failures are documented against the fixed base.
 - Target moved to 3519dcf2 with Settings. Scope and merge preview passed. The
   local source and evidence are ready for independent leader review and handoff.
+
+- Leader independently accepted the native unit and source verification at
+  `117e12098447c2543c39f8c674828c72eff3ae28` and authorized releasing the
+  five reserved paths. Integration, actual App runtime verification and CI
+  remain with leader.
