@@ -83,3 +83,10 @@
 | `linux-retry/post-container-inspect.log` | `540662eaf05fd89f7276f0b0cb70015892690956bc79e0f92ca32dd15a353324` |
 | `mac-compare/replay-baseline/runtime-diagnostics-5521f19bd9bf20926f7014a2ab8bfc25a6f321aeb499fc73acce82d6c9029405.json` | `5521f19bd9bf20926f7014a2ab8bfc25a6f321aeb499fc73acce82d6c9029405` |
 | `mac-compare/replay-candidate/runtime-diagnostics-8d7af251c076eee0f908f41283f9ab22d8f97d634dca47bbfab970117f13fac5.json` | `8d7af251c076eee0f908f41283f9ab22d8f97d634dca47bbfab970117f13fac5` |
+
+## 6126cc29 精确合成最终复验
+
+- 测试输入为目标 `6126cc29bdfa2124a1a7bc0e77cd3b53ee910848` 与交付 `d45f375229374810a9945886a9939554456fc396`。实际合成提交 `d19e4de310f7a21d0b8c5cbbdf64a50d9ffc205e`，树 `62aa93bd752716ebf6c957c9986e93ee987b9b12`。
+- Apple Silicon 从该 checkout 编译 Factory 目标。原生产工具的 Rust 和 Cargo 输入及 Factory 编译依赖逐字相同，复用原冻结 `baton`、`batond`，每阶段重新核对清单和隔离目标目录副本。测试二进制 SHA-256 `1f0e9d1ce706895493491f88ebfc95d41a55c690a008198fb3ff3bb0ae42fbd7`。
+- `cargo test --locked --offline -p agentbaton-core --test factory_runtime_ipc -- --test-threads=1 --show-output` 使用原时限，36/36，67.60 秒，退出 0。会话 60452 和执行 PID 35051 已结束。
+- 首轮 Mac 35/36、Linux 30/32、缺少诊断目录导致的无效基线原件按字节封存。同用例配对、Linux 32/32 和最终 Mac 全组日志均有封存记录。原件及归档哈希见 [合成收据](FINAL_6126.json)。

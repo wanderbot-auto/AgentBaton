@@ -22,3 +22,9 @@
 - status=review。最新功能实现仍为 `db6cd5f3e77f88b326374aa9ea02cfe7ffb295ea`，测试修复 `c079dbe2360e9bd5efd3268a7ee77115c7303b73`，Linux 实测候选 `99300ad8b481fc99eacba110c0b206876107a193`，树 `5bc88dde4344d01b94f374ac33afd69718101da1`。
 - 首轮 Mac 全组 35/36。原失败未在同用例的基线与候选单独复测中复现，双方 1/1。修复后 Mac IPC 6/6，Linux ARM64 定向 32/32。
 - 已结束所有 A 测试与容器并释放本机时限槽。补充未提交文件与最终交付 HEAD 在 `supplement/HANDOFF.json`。Mac 全组历史失败待 leader 独立判断，Linux 全量 Factory 和桌面/真实 Provider 不属本次实测。
+
+## 6126cc29 精确 Factory 复验封存
+
+- status=review，实际测试提交 `d19e4de310f7a21d0b8c5cbbdf64a50d9ffc205e`，树 `62aa93bd752716ebf6c957c9986e93ee987b9b12`。Mac 36/36，Linux 修复候选定向 32/32。
+- 本提交仅封存证据、原失败和合成收据。交付 HEAD 与证据提交后的合成树存于本地 `supplement/HANDOFF.json`。
+- 所有 A 验证进程已退出，认领等待 Leader ACK。App/Tauri、桌面链路和实际商业 Provider 留待后续。

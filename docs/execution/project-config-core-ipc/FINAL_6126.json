@@ -1,0 +1,184 @@
+{
+  "task_base": "7b04514caaf7807b46018547a8b10f2a5e7fc3d6",
+  "integration_target": "6126cc29bdfa2124a1a7bc0e77cd3b53ee910848",
+  "tested_delivery_head": "d45f375229374810a9945886a9939554456fc396",
+  "tested_commit": "d19e4de310f7a21d0b8c5cbbdf64a50d9ffc205e",
+  "tested_tree": "62aa93bd752716ebf6c957c9986e93ee987b9b12",
+  "mac_exact_factory": {
+    "delivery_head": "d45f375229374810a9945886a9939554456fc396",
+    "integration_target": "6126cc29bdfa2124a1a7bc0e77cd3b53ee910848",
+    "tested_commit": "d19e4de310f7a21d0b8c5cbbdf64a50d9ffc205e",
+    "tested_tree": "62aa93bd752716ebf6c957c9986e93ee987b9b12",
+    "exec_session": 60452,
+    "host_pid": 35051,
+    "host_pid_absent": true,
+    "compiled_factory_test_sha256": "1f0e9d1ce706895493491f88ebfc95d41a55c690a008198fb3ff3bb0ae42fbd7",
+    "production_tools_source_commit": "a135ca3ef77c5122fb10b534cf59fab34343aa43",
+    "production_tools_rebuilt": false,
+    "production_tools_hashes": {
+      "baton": "3e2aacfe9e65282230a7383f7701e4dd9746b1a6d66ee4844385ecf1d91882f0",
+      "batond": "df0836a0921e9606d5e551f06c416e91a8d1f958487eb63bacf2f4bdf20cb129"
+    },
+    "verified_frozen_identity_all_phases_equal": true,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "factory_runtime_ipc",
+      "--",
+      "--test-threads=1",
+      "--show-output"
+    ],
+    "passed": 36,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered": 0,
+    "exit": 0,
+    "test_start_utc": "2026-11-18T23:36:13Z",
+    "test_end_utc": "2026-11-18T23:37:22Z",
+    "runner_end_utc": "2026-11-18T23:37:22Z",
+    "previous_full_run": {
+      "passed": 35,
+      "failed": 1,
+      "exit": 101,
+      "log": "../mac/factory.log",
+      "failure_events": "../mac/first-failure-events.json"
+    },
+    "previous_linux_retest": {
+      "passed": 32,
+      "failed": 0,
+      "candidate": "99300ad8b481fc99eacba110c0b206876107a193"
+    },
+    "raw_sha256": {
+      "after-verify.json": "bb481b85750afb0a6e7109a6eb56d897230c8dd913182e31bda0aafe282cba94",
+      "b-original-pair.end": "1f7afbbfe8e237bf974495e2ed284227a59f54b85b64614b2c66df72d83f4589",
+      "before-verify.json": "bb481b85750afb0a6e7109a6eb56d897230c8dd913182e31bda0aafe282cba94",
+      "diagnostics/actual-child-goal-06eb47333e61490e66ca4069ffaf96c847f58a40c9c0334e4b865cab7fa699ad.json": "06eb47333e61490e66ca4069ffaf96c847f58a40c9c0334e4b865cab7fa699ad",
+      "diagnostics/actual-child-goal-997963c69475730de9c889b1d74e86279868a98d2803889a27b8201ff66c7152.json": "997963c69475730de9c889b1d74e86279868a98d2803889a27b8201ff66c7152",
+      "diagnostics/actual-child-goal-timeout-91aa67c95be517adf3de2a18c558eb8f515f2f382f810345066d9b244001f039.json": "91aa67c95be517adf3de2a18c558eb8f515f2f382f810345066d9b244001f039",
+      "diagnostics/real-runtime-last-events.json": "d7f60a5306e630e846f2c2e77429c87fbc262055e77c0a7a43cb25423db7cb8f",
+      "diagnostics/runtime-diagnostics-c19ed429531e83c3a7c1ba41fa97d4422aebc22f786651302271441cf8f796e5.json": "c19ed429531e83c3a7c1ba41fa97d4422aebc22f786651302271441cf8f796e5",
+      "diagnostics/runtime-diagnostics-db67e0072a9866d0f4cc8c68db4eb02ac7f9ee6ae8182826faff915eb1d8aa2d.json": "db67e0072a9866d0f4cc8c68db4eb02ac7f9ee6ae8182826faff915eb1d8aa2d",
+      "diagnostics/runtime-diagnostics-de3307a222d1e72d64445568fb48684f25bee87bfec11965223558dadd2943f0.json": "de3307a222d1e72d64445568fb48684f25bee87bfec11965223558dadd2943f0",
+      "diagnostics/wrong-start-cas-response-21b97ddca4a2606ce328a79db0913e7a72422413edf46310c6b3ebba5b43b927.json": "21b97ddca4a2606ce328a79db0913e7a72422413edf46310c6b3ebba5b43b927",
+      "end": "2ded04687e62744cb6a31a35d4899f2a17b510652a72e5c23a6834adfdff0378",
+      "factory.end": "2ded04687e62744cb6a31a35d4899f2a17b510652a72e5c23a6834adfdff0378",
+      "factory.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "factory.log": "0ab93702e1190a1d9057f1a139574309fe8374d498b0f05a3bc81003edd3e180",
+      "factory.start": "48f40601d726c1f20792235c4af627954901df43586951d88a9100bfaaf43e17",
+      "identity": "54aab68899adba96a7ff6a26d58ad8314c95c0718b4a29400fd789fcca00e4af",
+      "installed-layout": "e4f2d62f319ef75a1b1194ba86f887d59e7f31af7b27155c36e76a1bf6b0459e",
+      "no-run.log": "4985670b32f191c2886561cc91896e3a92041642b85fcf718b2e285b8f88e6f5",
+      "platform": "dc75b2bd6ab52c3faeb7a4037d6d7fac4b25b8a9ff59911a1faec334f1b17ac6",
+      "pre-run-verify.json": "bb481b85750afb0a6e7109a6eb56d897230c8dd913182e31bda0aafe282cba94",
+      "reuse-proof.json": "7dcfd3555c5233337f6fceafe2d721a52fa50a7fc45af8861edc59cc9ae71365",
+      "rust-input-delta.txt": "2e9e54746fc4540438fbf2e82192e34748595436a9e84603d21fe3d7761c9d57",
+      "source": "6b9c376a909e3560d1d40e99fff1eeb5074ba5e168cb03ea3513f5fe6a66765e",
+      "start": "a7dff6a1fa3c499def23c32c0ed4ac1446371b560a9485b51c0ddd0c23afc662",
+      "supervisor.pid": "e521384856dd99bd2f21b016e5c4c260b6dd8801ba83d582b6c4cbcfb2f8729c",
+      "test-binary.sha256": "b1a0b04573ba2007809b6e43a4aaabcf9bbbb92a5e511cdbea8edac38657b3ea",
+      "tool-identity-prep.json": "bb481b85750afb0a6e7109a6eb56d897230c8dd913182e31bda0aafe282cba94"
+    },
+    "reservation": "held_for_leader_ack"
+  },
+  "linux_retest": {
+    "candidate": "99300ad8b481fc99eacba110c0b206876107a193",
+    "tree": "5bc88dde4344d01b94f374ac33afd69718101da1",
+    "passed": 32,
+    "failed": 0,
+    "exec_session": 96111,
+    "container_reaped": true,
+    "image": "sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33 linux arm64",
+    "tool_sha256": {
+      "baton": "fbdf5735673584d6a42f67eb19d9bf474a0c339b16694e0e86dee73e05429309",
+      "batond": "d1ef6ae0d43710388a069278e975a0f60046205e30e05518be5d9bbcac339c45"
+    },
+    "matches_first_version_binary_hashes": true
+  },
+  "prior_mac_and_linux_results": {
+    "mac_first_full": {
+      "passed": 35,
+      "failed": 1,
+      "exit": 101,
+      "exec_session": 80349
+    },
+    "linux_first_targeted": {
+      "candidate": "ce179dfd32ad6442921838d1f19e3d1aa049f2ef",
+      "tree": "faf1f67d6de2b97fa6e7dd9705990eb213ee28b9",
+      "passed": 30,
+      "failed": 2,
+      "exec_session": 46613,
+      "container_reaped": true
+    },
+    "mac_initial_baseline_invalid": "missing ignored diagnostics output directory",
+    "mac_paired_control": {
+      "baseline_passed": 1,
+      "candidate_passed": 1,
+      "exec_session": 14356,
+      "initial_baseline_invalid_reason": "missing ignored diagnostics output directory",
+      "initial_candidate_passed": 1,
+      "initial_exec_session": 2806
+    }
+  },
+  "branch_source_delta": [
+    "M\tcrates/core/src/ipc.rs",
+    "M\tcrates/core/src/lib.rs",
+    "A\tcrates/core/src/project_config.rs",
+    "M\tcrates/core/src/runtime_config.rs",
+    "M\tcrates/core/src/sessions.rs",
+    "M\tcrates/core/src/storage.rs",
+    "A\tcrates/core/tests/project_config_ipc.rs"
+  ],
+  "archives": {
+    "mac-first-factory.log.gz": {
+      "original": "mac/factory.log",
+      "raw_sha256": "001a63b06f0f82b664faff356c92aceae5db9ba23cad2c9cd6377f05660bc164",
+      "gzip_sha256": "1ed426c4b20da78475dbb5d09677cb265a2053a4a8960f174d97e648809f4c50"
+    },
+    "mac-first-failure-events.json.gz": {
+      "original": "mac/first-failure-events.json",
+      "raw_sha256": "3a5f5cf0c5ab384bff3e79625c11bc3c80d7087ecb283e3ef08d2b57d7b494e2",
+      "gzip_sha256": "0d62129cc95b8774b1d26711321ff8e1c928f0282a5b45a55645ca19e53af64e"
+    },
+    "linux-first-targeted.log.gz": {
+      "original": "linux/targeted.log",
+      "raw_sha256": "53d79ac46ac76c05273a748852cb0bee3327f1d35fdf2ba527ed31ab894e335a",
+      "gzip_sha256": "daa1e24c2a61691a66d2b56fc5b3eded244db9f7c8db4874137c0f98634a8743"
+    },
+    "mac-initial-baseline-invalid.log.gz": {
+      "original": "mac-compare/baseline/case.log",
+      "raw_sha256": "acf0cede697e384d894785564089a4cb317949469306d5ef84c2a9b2566b2e06",
+      "gzip_sha256": "b3f9fbdb8db795ab5540084055e514fe3674d7a5b05a1ef0453e865d68df0b49"
+    },
+    "mac-paired-baseline.log.gz": {
+      "original": "mac-compare/replay-baseline/case.log",
+      "raw_sha256": "ea2c144671d6ca894d8918bf6e17269ab45c3b825a943e956aa25f081c861c9c",
+      "gzip_sha256": "90ad634af2997313c20224585ec350ea2b773423da5521769d7aa76d4fd1e766"
+    },
+    "mac-paired-candidate.log.gz": {
+      "original": "mac-compare/replay-candidate/case.log",
+      "raw_sha256": "793b527725f4c052bea371917c018cdf7b0f1cea62709ba5cb82bc1712ef46e1",
+      "gzip_sha256": "62d50e37a6ab874e1aed8619a4356c7ce30cb76b34d3bf6cc5439844df5efe94"
+    },
+    "linux-retest-targeted.log.gz": {
+      "original": "linux-retry/targeted.log",
+      "raw_sha256": "c901f69fc76072f5c53971f2be8598b026127fe5b0a6aae89230c41fc840276a",
+      "gzip_sha256": "b1e58aef4e6744a5928b5e4f8974317e39ca15c2371d8852875f2fd2b14f64ba"
+    },
+    "mac-exact-6126-factory.log.gz": {
+      "original": "mac-exact-6126/factory.log",
+      "raw_sha256": "0ab93702e1190a1d9057f1a139574309fe8374d498b0f05a3bc81003edd3e180",
+      "gzip_sha256": "c6d0fd9aecc4b974733d1d4492f8d3f47a6bad6675920ed0d7fef0a4d1824fd5"
+    }
+  },
+  "remaining": [
+    "App/Tauri integration and desktop acceptance",
+    "Real commercial Provider loading"
+  ],
+  "reservation": "held_for_leader_ack"
+}
