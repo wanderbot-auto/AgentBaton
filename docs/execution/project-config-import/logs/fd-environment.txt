@@ -1,0 +1,17 @@
+d601689a0dc85c47ef3b483bccef867de2d5d747
+Darwin arm64
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+cargo 1.91.1 (ea2d97820 2025-10-10)
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+clippy 0.1.91 (ed61e7d7e2 2025-11-07)
+rustfmt 1.8.0-stable (ed61e7d7e2 2025-11-07)
+git version 2.54.0 (Apple Git-157)
+d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d  Cargo.lock
