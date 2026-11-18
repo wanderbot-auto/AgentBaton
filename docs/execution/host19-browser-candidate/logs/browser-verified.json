@@ -1,0 +1,26 @@
+{
+  "normal": {
+    "state": "confirmed_local_ref",
+    "command_exit": 0,
+    "cas_attempts": 1,
+    "stages": 3,
+    "checks": 5,
+    "actual_schema19_snapshot_count": 12,
+    "screenshot_count": 6,
+    "browser": "149.0.7827.55",
+    "report_sha256": "c138965b696f263f7f211884afa45d3caa016838eb273c729155c1250058695d",
+    "visually_checked_desktop_terminal_state": true
+  },
+  "command-failure": {
+    "state": "failed",
+    "command_exit": 7,
+    "cas_attempts": 0,
+    "stages": 2,
+    "checks": 4,
+    "actual_schema19_snapshot_count": 10,
+    "screenshot_count": 6,
+    "browser": "149.0.7827.55",
+    "report_sha256": "240ecefc0ae48ff8bcf48248939f4261f2aee3b0ff138971e6927e5a2469c066",
+    "visually_checked_desktop_terminal_state": true
+  }
+}

@@ -52,7 +52,7 @@ def argv(root, *, run=True):
         p = root / name; p.write_bytes(('synthetic-' + name).encode()); p.chmod(0o500)
     frontend = root / 'frontend'; frontend.mkdir(); (frontend / 'index.html').write_text('synthetic frontend')
     manifest = root / 'candidate.json'
-    write(manifest, {'schema': 18, 'git_head': HEAD, 'dirty': False,
+    write(manifest, {'schema': 19, 'git_head': HEAD, 'dirty': False,
         'binaries': {k: sha((root / k).read_bytes()) for k in ('batond', 'baton')}})
     build = root / 'build.json'
     write(build, {'source': HEAD, 'exit': 0, 'command': ['npm', '--prefix', 'apps/desktop', 'run', 'build'],
@@ -131,7 +131,7 @@ class ActualPreflightStageControls(unittest.TestCase):
                 namespace = dict(D.__dict__)
                 exec(compile((FIXTURES / 'original_preflight.py.txt').read_text(), '<exact-original-preflight>', 'exec'), namespace)
                 # Compare the historical17 implementation to the exact restored17
-                # current driver; current18 acceptance is tested separately above.
+                # current driver; live schema19 acceptance is tested separately above.
                 from tests.infrastructure.schema18_source_fixture import strip_schema18_source
                 restored=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',read_historical_driver(ROOT))
                 current_node=next(n for n in ast.parse(restored).body if isinstance(n,ast.FunctionDef) and n.name=='preflight')

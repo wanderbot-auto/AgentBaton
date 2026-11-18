@@ -1,0 +1,67 @@
+{
+  "source": {
+    "head": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+    "tracked_clean": true,
+    "driver_sha256": "d7d163f945431abe328922c3f6e378c7665d3d37b9f8accbdc2f8a04454526be"
+  },
+  "build": {
+    "source": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--offline",
+      "--locked",
+      "--bin",
+      "baton",
+      "--bin",
+      "batond"
+    ],
+    "exit": 0,
+    "source_head_and_tracked_unchanged": true,
+    "tracked_clean": true,
+    "seconds": 71.301,
+    "log_sha256": "e525fa2f6394996db69fb1e91ae55a8f85eca17323ef6c3941cb0fd1ceef5beb"
+  },
+  "tools": {
+    "batond": {
+      "compiled_path": "target/release/batond",
+      "file": "Mach-O 64-bit executable arm64",
+      "pinned": {
+        "sha256": "355fc7d88894b475a391e11d5cba70ad1ab6a21a3011872b20b50a4b79a53f58",
+        "bytes": 17574656,
+        "mode": 320,
+        "device": "16777234",
+        "inode": "68227170",
+        "uid": 501,
+        "links": 1
+      }
+    },
+    "baton": {
+      "compiled_path": "target/release/baton",
+      "file": "Mach-O 64-bit executable arm64",
+      "pinned": {
+        "sha256": "6f70be052ebe1c072b8cc23f62a0b75f768d598ecae36f55311b4752f42f201c",
+        "bytes": 808240,
+        "mode": 320,
+        "device": "16777234",
+        "inode": "68227172",
+        "uid": 501,
+        "links": 1
+      }
+    }
+  },
+  "machine": "arm64",
+  "macos": "26.6.1",
+  "rustc": [
+    "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "binary: rustc",
+    "commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb",
+    "commit-date: 2025-11-07",
+    "host: aarch64-apple-darwin",
+    "release: 1.91.1",
+    "LLVM version: 21.1.2"
+  ],
+  "cargo_lock_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+  "frontend_lock_sha256": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d"
+}

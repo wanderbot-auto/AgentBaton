@@ -1,0 +1,37 @@
+{
+  "schema_probe_pid": 63182,
+  "schema_probe_joined": true,
+  "owned_processes_remaining": 0,
+  "browser_cleanup": {
+    "normal": {
+      "pending_reviews_stopped": true,
+      "browser_closed": true,
+      "playwright_stopped": true,
+      "http_shutdown": true,
+      "http_thread_joined": true,
+      "daemon_joined": {
+        "exit": 0,
+        "joined": true,
+        "forced_kill": false
+      },
+      "private_transcript_saved": true,
+      "tools_assets_unchanged": true,
+      "fixture_removed": true
+    },
+    "command-failure": {
+      "pending_reviews_stopped": true,
+      "browser_closed": true,
+      "playwright_stopped": true,
+      "http_shutdown": true,
+      "http_thread_joined": true,
+      "daemon_joined": {
+        "exit": 0,
+        "joined": true,
+        "forced_kill": false
+      },
+      "private_transcript_saved": true,
+      "tools_assets_unchanged": true,
+      "fixture_removed": true
+    }
+  }
+}
