@@ -765,7 +765,7 @@ fn readonly(f: &RuntimeFixture) -> Connection {
     let version: i64 = db
         .query_row("PRAGMA user_version", [], |r| r.get(0))
         .unwrap();
-    assert_eq!(version, 18);
+    assert_eq!(version, 19);
     db
 }
 struct OriginalCommand {
