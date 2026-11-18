@@ -81,7 +81,7 @@
     "external plugins or Provider calls",
     "Linux/CI"
   ],
-  "review": "implementation and evidence self-reviewed; awaiting independent integration review",
+  "review": "independent integration review accepted at 913074e39bdb7c2ca6ec082335f4abe25a777a5e; independent ARM64 reruns passed: 9 plugin_trust and 12 capabilities tests",
   "logs_redaction": "Known absolute worktree and collab task runtime output prefixes replaced before archival. Fixture assertions retain their actual results.",
   "log_sha256": {
     "logs/all.log.gz": "6539d7f78c63be4c5fd604b61f2348ba4825c6f3a2a68c055bbee0b9aceb1da2",
