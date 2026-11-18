@@ -12,7 +12,7 @@ use std::{
         net::UnixStream,
     },
     path::{Path, PathBuf},
-    process::Command,
+    process::{Child, Command, Stdio},
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc,
@@ -26,10 +26,14 @@ const SECOND: &str = "---\nname: review\ndescription: Review fixture\n---\nRevie
 const UNCLASSIFIED: &str =
     "---\nname: review\ndescription: Review fixture\n---\nNever auto-admit this change.\n";
 
+enum DaemonOwner {
+    Thread(Arc<AtomicBool>, JoinHandle<()>),
+    Process(Child),
+}
+
 struct Server {
     runtime: PathBuf,
-    stop: Arc<AtomicBool>,
-    thread: Option<JoinHandle<()>>,
+    owner: Option<DaemonOwner>,
 }
 
 impl Server {
@@ -40,8 +44,49 @@ impl Server {
         let thread = thread::spawn(move || daemon.run(signal).unwrap());
         Self {
             runtime: runtime.into(),
-            stop,
-            thread: Some(thread),
+            owner: Some(DaemonOwner::Thread(stop, thread)),
+        }
+    }
+
+    fn start_product(runtime: &Path) -> Self {
+        let tools = PathBuf::from(
+            std::env::var_os("AGENTBATON_FACTORY_TEST_TOOLS")
+                .expect("Prepare current Factory test tools before starting the product daemon"),
+        )
+        .canonicalize()
+        .unwrap();
+        let child = Command::new(tools.join("batond"))
+            .env_clear()
+            .env("PATH", "/usr/bin:/bin")
+            .env("BATON_RUNTIME_DIR", runtime)
+            .stdin(Stdio::null())
+            .spawn()
+            .unwrap();
+        let mut server = Self {
+            runtime: runtime.into(),
+            owner: Some(DaemonOwner::Process(child)),
+        };
+        let until = Instant::now() + Duration::from_secs(5);
+        let request = json!({"method":"system.snapshot","params":{}});
+        loop {
+            if runtime.join("session.token").is_file()
+                && call(runtime, request.clone())
+                    .is_ok_and(|reply| reply["result"]["api_version"] == API_VERSION)
+            {
+                return server;
+            }
+            let Some(DaemonOwner::Process(child)) = server.owner.as_mut() else {
+                unreachable!();
+            };
+            assert!(
+                child.try_wait().unwrap().is_none(),
+                "Fixture batond exited during startup"
+            );
+            assert!(
+                Instant::now() < until,
+                "Fixture batond did not publish its private IPC endpoint"
+            );
+            thread::sleep(Duration::from_millis(10));
         }
     }
 
@@ -86,9 +131,41 @@ impl Server {
 
 impl Drop for Server {
     fn drop(&mut self) {
-        self.stop.store(true, Ordering::Relaxed);
-        self.thread.take().unwrap().join().unwrap();
+        match self.owner.take().unwrap() {
+            DaemonOwner::Thread(stop, thread) => {
+                stop.store(true, Ordering::Relaxed);
+                thread.join().unwrap();
+            }
+            DaemonOwner::Process(mut child) => {
+                let outcome = stop_product(&mut child);
+                if !thread::panicking() {
+                    assert!(
+                        outcome.is_some_and(|status| status.success()),
+                        "Fixture batond did not shut down cleanly"
+                    );
+                }
+            }
+        }
     }
+}
+
+fn stop_product(child: &mut Child) -> Option<std::process::ExitStatus> {
+    if let Ok(Some(status)) = child.try_wait() {
+        return Some(status);
+    }
+    // Until wait reaps it, this PID belongs to the original Child.
+    let pid = rustix::process::Pid::from_raw(i32::try_from(child.id()).unwrap()).unwrap();
+    let _ = rustix::process::kill_process(pid, rustix::process::Signal::TERM);
+    let until = Instant::now() + Duration::from_secs(5);
+    while Instant::now() < until {
+        if let Ok(Some(status)) = child.try_wait() {
+            return Some(status);
+        }
+        thread::sleep(Duration::from_millis(10));
+    }
+    let _ = child.kill();
+    let _ = child.wait();
+    None
 }
 
 fn git(source: &Path, args: &[&str]) -> String {
@@ -122,6 +199,10 @@ struct Fixture {
 
 impl Fixture {
     fn start() -> (Self, Server) {
+        Self::start_with(Server::start)
+    }
+
+    fn start_with(start_server: fn(&Path) -> Server) -> (Self, Server) {
         let private = tempfile::tempdir().unwrap();
         let root = private.path().canonicalize().unwrap();
         let source = root.join("source");
@@ -136,7 +217,7 @@ impl Fixture {
         fs::create_dir_all(skill.parent().unwrap()).unwrap();
         fs::write(&skill, FIRST).unwrap();
         let runtime = root.join("runtime");
-        let server = Server::start(&runtime);
+        let server = start_server(&runtime);
         let project = server.result(json!({
             "method":"projects.import","params":{"path":source,"name":"Config fixture"},
             "idempotency_key":"import",
@@ -576,7 +657,7 @@ with (reports / 'generated-factory-stderr.txt').open('a') as diagnostic:
 }
 
 fn factory_child_keeps_root_pin(pinned: bool) {
-    let (fixture, server) = Fixture::start();
+    let (fixture, server) = Fixture::start_with(Server::start_product);
     let pre_config = (!pinned).then(|| fixture.task(&server, "factory-root"));
     let approval = fixture.proposal(&server, 0, &[SECOND], "project-config");
     let first = server.result(approve(&approval));

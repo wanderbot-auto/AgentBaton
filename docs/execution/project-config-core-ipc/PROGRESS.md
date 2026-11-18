@@ -9,3 +9,6 @@
 
 7. 在精确集成候选用本次构建的普通 baton/batond 完成准备、前置校验、真实 IPC 和后置校验。6 项专项、26 项项目/登记/Owner 既有回归以及原 Factory、原 Codex Session 各 1 项通过。专项涵盖两条真实 Factory 父子会话和重启 inode/目录不变断言。
 8. 候选格式、Clippy、范围和合并冲突检查完成。全量 Factory 与完整 Core/Session 回归的初轮日志单独保留。本次最终候选未重跑全量组，交 leader 独立审查。
+
+9. 补充候选 `ce179dfd32ad6442921838d1f19e3d1aa049f2ef`（树 `faf1f67d6de2b97fa6e7dd9705990eb213ee28b9`）相对上轮仅改变工作流、Python 检查和文档，完整 Rust 和准备脚本输入逐字一致。Mac Factory 串行全组 35/36，原诊断保留。Linux 第一轮 30/32，两条新 Factory 用例在真实 companion 文件检查前终止。
+10. 两条新 factory fixture 改为启动本次同源、已冻结的独立 batond，并使用其相邻的 baton。安全断言、时限和生产源码保持原状。B 正运行完整 workspace，先准备 Mac 同用例的基线/候选隔离对照和 Linux 冻结工具重跑。
