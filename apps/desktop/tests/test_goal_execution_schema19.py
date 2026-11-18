@@ -4,11 +4,12 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import signal
 import sqlite3
 import subprocess
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 
 spec = importlib.util.spec_from_file_location(
@@ -185,6 +186,80 @@ class CurrentCoreWitnessTest(unittest.TestCase):
                                   'matched_cli_snapshot': True, 'read_only': True})
         self.assertEqual(invoked.call_args.args[0], [str(companion), 'snapshot'])
         self.assertEqual(invoked.call_args.kwargs['env']['BATON_RUNTIME_DIR'], str(self.root))
+
+
+class OwnedTransportCleanupTest(unittest.TestCase):
+    def setUp(self):
+        self.cleanup = {'browser_closed': False, 'playwright_stopped': False,
+                        'http_server_closed': False, 'http_thread_joined': False,
+                        'daemon_joined': False, 'daemon_exit': None, 'daemon_forced_kill': False, 'errors': []}
+        self.browser = Mock()
+        self.browser.is_connected.return_value = False
+        self.server = Mock()
+        self.thread = Mock()
+        self.thread.is_alive.side_effect = [True, False]
+        self.daemon = Mock(pid=4321)
+        self.daemon.wait.return_value = 0
+
+    def finish(self):
+        with driver.owned_browser(self.browser, self.cleanup):
+            pass
+        self.cleanup['playwright_stopped'] = True
+        driver.stop_transports(self.server, self.thread, self.daemon, self.cleanup)
+
+    def test_pass_requires_confirmed_browser_http_and_daemon_cleanup(self):
+        self.finish()
+        self.assertTrue(driver.clean_exit(self.cleanup))
+        self.browser.close.assert_called_once_with()
+        self.server.shutdown.assert_called_once_with()
+        self.server.server_close.assert_called_once_with()
+        self.thread.join.assert_called_once_with(timeout=5)
+        self.daemon.terminate.assert_called_once_with()
+        self.daemon.wait.assert_called_once_with(timeout=5)
+        for key in ('browser_closed', 'playwright_stopped', 'http_server_closed', 'http_thread_joined', 'daemon_joined'):
+            with self.subTest(key=key):
+                self.assertFalse(driver.clean_exit({**self.cleanup, key: False}))
+
+    def test_daemon_wait_nonzero_is_failure_even_when_joined(self):
+        self.daemon.wait.return_value = 1
+        self.finish()
+        self.assertTrue(self.cleanup['daemon_joined'])
+        self.assertEqual(self.cleanup['daemon_exit'], 1)
+        self.assertFalse(driver.clean_exit(self.cleanup))
+
+    def test_forced_daemon_kill_cannot_pass_even_if_wait_returns_zero(self):
+        self.daemon.wait.side_effect = [subprocess.TimeoutExpired('batond', 5), 0]
+        with patch.object(driver.os, 'killpg') as kill:
+            self.finish()
+        kill.assert_called_once_with(4321, signal.SIGKILL)
+        self.assertEqual(self.daemon.wait.call_args_list, [call(timeout=5), call()])
+        self.assertTrue(self.cleanup['daemon_joined'])
+        self.assertTrue(self.cleanup['daemon_forced_kill'])
+        self.assertFalse(driver.clean_exit(self.cleanup))
+
+    def test_lingering_http_thread_and_still_connected_browser_cannot_pass(self):
+        self.thread.is_alive.side_effect = [True, True]
+        self.browser.is_connected.return_value = True
+        self.finish()
+        self.assertFalse(self.cleanup['http_thread_joined'])
+        self.assertFalse(self.cleanup['browser_closed'])
+        self.assertTrue(self.cleanup['daemon_joined'])
+        self.assertFalse(driver.clean_exit(self.cleanup))
+
+    def test_close_exception_preserves_original_failure_and_other_cleanup(self):
+        self.browser.close.side_effect = OSError('test browser close failure')
+        with self.assertRaisesRegex(RuntimeError, 'primary scenario'):
+            with driver.owned_browser(self.browser, self.cleanup):
+                raise RuntimeError('primary scenario')
+        self.server.shutdown.side_effect = OSError('test HTTP shutdown failure')
+        driver.stop_transports(self.server, self.thread, self.daemon, self.cleanup)
+        self.server.server_close.assert_called_once_with()
+        self.daemon.wait.assert_called_once_with(timeout=5)
+        self.assertEqual(self.cleanup['errors'], [
+            {'stage': 'browser_close', 'type': 'OSError'},
+            {'stage': 'http_shutdown', 'type': 'OSError'},
+        ])
+        self.assertFalse(driver.clean_exit(self.cleanup))
 
 
 if __name__ == '__main__':

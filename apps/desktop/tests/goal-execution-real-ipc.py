@@ -166,6 +166,62 @@ def verify_private_core(runtime, companion, snapshot):
             'sequence': snapshot['sequence'], 'matched_cli_snapshot': True, 'read_only': True}
 
 
+@contextmanager
+def owned_browser(browser, cleanup):
+    try:
+        yield browser
+    finally:
+        try:
+            browser.close()
+            cleanup['browser_closed'] = not browser.is_connected()
+        except Exception as error:
+            cleanup['errors'].append({'stage': 'browser_close', 'type': type(error).__name__})
+
+
+def stop_transports(server, thread, daemon, cleanup):
+    if server is not None:
+        try:
+            if thread is not None and thread.is_alive():
+                server.shutdown()
+        except Exception as error:
+            cleanup['errors'].append({'stage': 'http_shutdown', 'type': type(error).__name__})
+        try:
+            server.server_close()
+            cleanup['http_server_closed'] = True
+        except Exception as error:
+            cleanup['errors'].append({'stage': 'http_server_close', 'type': type(error).__name__})
+    if thread is not None:
+        try:
+            thread.join(timeout=5)
+            cleanup['http_thread_joined'] = not thread.is_alive()
+        except Exception as error:
+            cleanup['errors'].append({'stage': 'http_thread_join', 'type': type(error).__name__})
+    try:
+        daemon.terminate()
+    except OSError as error:
+        cleanup['errors'].append({'stage': 'daemon_terminate', 'type': type(error).__name__})
+    try:
+        try:
+            cleanup['daemon_exit'] = daemon.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            cleanup['daemon_forced_kill'] = True
+            try:
+                os.killpg(daemon.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            cleanup['daemon_exit'] = daemon.wait()
+        cleanup['daemon_joined'] = True
+    except OSError as error:
+        cleanup['errors'].append({'stage': 'daemon_cleanup', 'type': type(error).__name__})
+
+
+def clean_exit(cleanup):
+    return (cleanup['browser_closed'] is True and cleanup['playwright_stopped'] is True
+            and cleanup['http_server_closed'] is True and cleanup['http_thread_joined'] is True
+            and cleanup['daemon_joined'] is True and type(cleanup['daemon_exit']) is int and cleanup['daemon_exit'] == 0
+            and cleanup['daemon_forced_kill'] is False and not cleanup['errors'])
+
+
 def linux_start_ticks(pid):
     try:
         return Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()[19]
@@ -280,12 +336,16 @@ def main():
 
         report.update(candidate=manifest, daemon_sha256=hashes['batond'], companion_sha256=hashes['baton'])
         runtime = root / 'runtime'; runtime.mkdir(mode=0o700)
+        provider = root / 'generated-owned-goal-acp'
+        provider.write_text(f'#!{sys.executable}\n' + FIXTURE); provider.chmod(0o700)
         daemon_log = (output / 'daemon.log').open('wb')
         daemon = subprocess.Popen([str(tools['batond'])], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)}, stdout=daemon_log, stderr=subprocess.STDOUT, start_new_session=True)
         server = thread = None
+        checks_complete = False
+        transports = {'browser_closed': False, 'playwright_stopped': False,
+                      'http_server_closed': False, 'http_thread_joined': False,
+                      'daemon_joined': False, 'daemon_exit': None, 'daemon_forced_kill': False, 'errors': []}
         scenarios = {}
-        provider = root / 'generated-owned-goal-acp'
-        provider.write_text(f'#!{sys.executable}\n' + FIXTURE); provider.chmod(0o700)
         try:
             wait(lambda: ((runtime / 'session.token').is_file(), (runtime / 'batond.sock').exists(), daemon.poll()), lambda row: row[0] and row[1] and row[2] is None)
             token = (runtime / 'session.token').read_text()
@@ -545,8 +605,10 @@ def main():
             server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(frontend)))
             url = f'http://127.0.0.1:{server.server_port}'
             thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
-            with sync_playwright() as playwright:
-                browser = playwright.chromium.launch(executable_path=args.chromium, headless=True, args=['--disable-dev-shm-usage'])
+            with sync_playwright() as playwright, owned_browser(
+                playwright.chromium.launch(executable_path=args.chromium, headless=True, args=['--disable-dev-shm-usage']),
+                transports,
+            ) as browser:
                 context = browser.new_context(viewport={'width': 1488, 'height': 981}, locale='en-US')
                 context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{const r=await fetch('/__test_goal_execution_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw new Error('Fixed Goal execution adapter refused request');return r.json();}};""")
                 context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(url + '/') else route.abort())
@@ -785,25 +847,19 @@ def main():
                     assert not errors, errors
                     report['observations']['final_database'] = database(); report['observations']['page_errors'] = errors
                     passed('original generated sources unchanged, real scoped history retained and no browser runtime errors')
-                    report['status'] = 'passed'
                 except BaseException:
-                    shot('failure-current-ui')
+                    try:
+                        shot('failure-current-ui')
+                    except Exception as error:
+                        transports['errors'].append({'stage': 'failure_screenshot', 'type': type(error).__name__})
                     raise
-                finally:
-                    browser.close()
+            transports['playwright_stopped'] = True
+            checks_complete = True
         except BaseException as failure:
             report['failure'] = {'type': type(failure).__name__, 'message': safe(failure), 'traceback': safe(traceback.format_exc())}
             raise AssertionError(safe(failure)) from None
         finally:
-            if server is not None:
-                server.shutdown(); server.server_close()
-            if thread is not None:
-                thread.join(timeout=5)
-            daemon.terminate()
-            try:
-                daemon.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                os.killpg(daemon.pid, signal.SIGKILL); daemon.wait()
+            stop_transports(server, thread, daemon, transports)
             # Core owns child groups. Normal tests require its own stop/reap.
             # On a failed fixture, additionally signal ONLY a still-live exact
             # generated process identity/group, never global pkill/user PIDs.
@@ -834,6 +890,9 @@ def main():
                         cleanup.append({'scenario': scenario['task']['id'], 'action': 'refused unsafe or unavailable cleanup identity', 'error': safe(failure), 'stop_proof': False})
                         report['status'] = 'failed_or_interrupted'
             report['observations']['failure_cleanup'] = cleanup
+            report['observations']['transport_cleanup'] = transports
+            if checks_complete and clean_exit(transports) and not cleanup:
+                report['status'] = 'passed'
             daemon_log.close()
             (output / 'report.json').write_text(safe(json.dumps(report, ensure_ascii=False, indent=2)) + '\n')
             print(json.dumps({'status': report['status'], 'checks': len(report['checks']), 'screenshots': len(report['screenshots']), 'report': str(output / 'report.json')}), flush=True)
