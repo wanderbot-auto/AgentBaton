@@ -1,3 +1,6 @@
 # Progress
 
 Task card, gate, worktree, exact base, write scope and integration target confirmed. Implementing real socket tests before changing guards.
+
+Baseline test-only source 5cd64202b2f47cd48ffddab7aee7a57b934b4282 reproduced three socket failures. Source 26e69d53fdccf31ce27690887b3c156addf94d4d activates all seven exact19 checks. New real socket test3 plus existing ipc5/project3 PASS. Background3/Host55 PASS. Strict Clippy and scoped fmt passed. Factory broad filter returned57 pass/2 failures at the unclaimed current-fixture 18 assertions, preserved first. The Integration source filter matched zero; registered as no execution, then rerun using its exact test name. Existing external Integration 18 assertion failed without a production error, preserved separately.
+Leader receipt HOST19_HISTORY_READER_TEST_SCOPE.json added one literal for only two current daemon history tests. Matched active reservation SHA af4da593fc467cc6f1f5b540aff9752bd763aebfbc552b27624292f0af15940f. Adapted only current/negative discriminator assertions/name. History rows, events, counters, resource and worker checks preserved. Integration and older inverse consumers remain outside scope. Run each verification batch serially with A slot.
