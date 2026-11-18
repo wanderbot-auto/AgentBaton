@@ -12,6 +12,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 import time
 import traceback
 
@@ -21,7 +22,8 @@ MAX_SOURCES_INSPECTED = 10
 MAX_SCREENSHOTS = 4
 READS = frozenset(('system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
     'tasks.get', 'goal_scopes.list', 'goal_graph_runs.get', 'fixture.client_recovery_list',
-    'events.subscribe', 'integration_context.get',
+    'events.subscribe', 'goal_runs.list', 'goal_graph_runs.list', 'goal_plans.list',
+    'integration_context.get',
     'integration_targets.list', 'integration_policies.get', 'integration_policies.list',
     'integrations.get', 'integrations.list'))
 CHECKS = ('actual accepted Task projection and mapped journal observations',
@@ -101,7 +103,7 @@ def actual_observations(audit, task_id, project_id, acceptance):
     require(set(latest) == {'system.snapshot', 'sessions.list', 'events.subscribe'})
     snapshot, sessions, batch = (latest[k] for k in ('system.snapshot', 'sessions.list', 'events.subscribe'))
     require(type(snapshot) is dict and snapshot.get('api_version') == 1
-        and type(snapshot.get('api_version')) is int and snapshot.get('database_schema_version') == 18
+        and type(snapshot.get('api_version')) is int and snapshot.get('database_schema_version') == 19
         and type(snapshot.get('database_schema_version')) is int and integer(snapshot.get('sequence'))
         and type(snapshot.get('tasks')) is list and len(snapshot['tasks']) == 1)
     task = snapshot['tasks'][0]
@@ -123,28 +125,31 @@ def actual_observations(audit, task_id, project_id, acceptance):
         and batch.get('gap') is False and batch.get('byte_limited', False) is False
         and type(batch.get('events')) is list and len(batch['events']) <= MAX_EVENTS)
     mapped, all_ids = {}, set()
+    previous_sequence = 0
     for event in batch['events']:
         require(type(event) is dict and identifier(event.get('event_id')) and event['event_id'] not in all_ids
-            and integer(event.get('sequence'), 1) and event['sequence'] <= batch['sequence']
+            and integer(event.get('sequence'), 1) and previous_sequence < event['sequence'] <= batch['next_cursor']
             and integer(event.get('revision'), 1) and type(event.get('kind')) is str
             and len(event['kind']) <= 128 and type(event.get('source')) is str and len(event['source']) <= 256
             and type(event.get('occurred_at')) is str and len(event['occurred_at']) <= 80)
         all_ids.add(event['event_id'])
+        previous_sequence = event['sequence']
         if event.get('aggregate_id') == task_id or event.get('aggregate_id') in session_ids:
             mapped[event['event_id']] = event
     require(2 <= len(mapped) <= MAX_EVENTS, 'Natural journal did not supply multiple mapped events')
     accepted_events = [event for event in mapped.values() if event['kind'] == 'task.accepted'
-        and event['aggregate_id'] == task_id and event['sequence'] == task['acceptance_sequence']]
+        and event['source'] == 'baton_goal_acceptance' and event['aggregate_id'] == task_id and event['sequence'] == task['acceptance_sequence']]
     stopped_events = [event for event in mapped.values() if event['kind'] == 'session.stopped'
-        and event['aggregate_id'] in session_ids]
+        and event['source'] == 'baton_supervisor' and event['aggregate_id'] in session_ids]
     require(len(accepted_events) == 1 and bool(stopped_events), 'Actual acceptance and stopped-session sources required')
     return task, mapped, accepted_events[0], sha(compact(latest))
 
 
 def pending_report(source, probe_source):
     require(type(source) is str and re.fullmatch('[a-f0-9]{40}', source) is not None)
+    platform = 'Linux' if sys.platform == 'linux' else 'macOS'
     return {'contract': 'agentbaton.task-notifications-real-ipc.v1', 'status': 'NOT_RUN',
-        'flow_complete': False, 'dimension': 'Linux built React/Chromium + existing finite TEST bridge + actual Core18 Unix IPC',
+        'flow_complete': False, 'dimension': f'{platform} built React/Chromium + existing finite TEST bridge + actual Core19 Unix IPC',
         'not_claimed': ['production Tauri IPC', 'macOS Native', 'live Provider/model', 'OS notifications',
             'background notification delivery', '100 real repeated events', 'whole product completion'],
         'source': source, 'probe_source': copy.deepcopy(probe_source), 'checks': [], 'screenshots': [],
@@ -173,6 +178,7 @@ def run_probe(page, host, bounds, fixture, accepted, server, report, output, wri
     """Only UI actions and observation of the original host audit; no new RPC API."""
     from playwright.sync_api import expect
     deadline = time.monotonic() + SECONDS
+    platform = 'Linux' if sys.platform == 'linux' else 'macOS'
     with host.lock:
         audit_start = len(host.audit)
     calls_start = len(server.calls)
@@ -201,7 +207,7 @@ def run_probe(page, host, bounds, fixture, accepted, server, report, output, wri
         raw = path.read_bytes(); require(0 < len(raw) <= 16777216)
         report['screenshots'].append({'name': name, 'sha256': sha(raw), 'bytes': len(raw),
             'viewport': page.viewport_size, 'focus_box_before_capture_observation': box,
-            'pixel_synchronized': False, 'dimension': 'Linux Chromium only'})
+            'pixel_synchronized': False, 'dimension': f'{platform} Chromium only'})
     try:
         bounded(lambda: page.set_viewport_size({'width': 1440, 'height': 1100}))
         bounded(lambda: page.get_by_role('button', name='Refresh', exact=True).click())

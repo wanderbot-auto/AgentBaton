@@ -12,6 +12,12 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from tests.infrastructure import test_integration_driver_preflight_diagnostics as preflight_diagnostics
+from tests.infrastructure.host19_integration_browser_source_fixture import read_historical_driver
+from tests.infrastructure.notification_screenshot_composition_fixture import (
+    restore_historical_composition, strip_composed_screenshot_layer,
+)
+
 ROOT = Path(__file__).resolve().parents[3]
 PATH = Path(__file__).with_name('task_notifications_real_ipc_probe.py')
 
@@ -37,7 +43,7 @@ def replies():
         {'event_id': 'event-accepted', 'aggregate_id': task['id'], 'sequence': 9, 'revision': 3,
         'kind': 'task.accepted', 'source': 'baton_goal_acceptance', 'occurred_at': '2026-10-31T00:00:01Z',
         'payload': {'acceptance_ref': 'acceptance-one'}}]
-    values = {'system.snapshot': {'api_version': 1, 'database_schema_version': 17, 'sequence': 10, 'tasks': [task]},
+    values = {'system.snapshot': {'api_version': 1, 'database_schema_version': 19, 'sequence': 10, 'tasks': [task]},
         'sessions.list': [{'id': 'session-one', 'task_id': task['id'], 'project_id': task['project_id'],
             'revision': 2, 'state': 'stopped'}],
         'events.subscribe': {'sequence': 10, 'next_cursor': 10, 'gap': False, 'events': events}}
@@ -56,6 +62,26 @@ class RealObservationContracts(unittest.TestCase):
         self.assertEqual((accepted['kind'], accepted['sequence']), ('task.accepted', 9))
         self.assertRegex(witness, '^[a-f0-9]{64}$')
 
+    def test_other_or_noninteger_schema_is_refused(self):
+        for version in (18, 20, True, False, 19.0, '19', None):
+            audit = replies()
+            audit[0]['response']['result']['database_schema_version'] = version
+            with self.subTest(version=version), self.assertRaises(P.Refusal):
+                observe(audit)
+
+    def test_missing_or_forged_journal_sources_are_refused(self):
+        audit = replies()
+        audit[2]['response']['result']['events'].pop(0)
+        with self.assertRaisesRegex(P.Refusal, 'multiple mapped events'):
+            observe(audit)
+        for index in (0, 1):
+            audit = replies()
+            event = audit[2]['response']['result']['events'][index]
+            event['payload']['source'] = event['source']
+            event['source'] = 'synthetic_source'
+            with self.subTest(kind=event['kind']), self.assertRaisesRegex(P.Refusal, 'Actual acceptance'):
+                observe(audit)
+
     def test_payload_cannot_supply_task_mapping_acceptance_or_stopped_projection(self):
         for mutate in [lambda a: a[0]['response']['result']['tasks'][0].update(state='running'),
             lambda a: a[0]['response']['result']['tasks'][0].update(acceptance_ref=None),
@@ -73,6 +99,9 @@ class RealObservationContracts(unittest.TestCase):
             lambda a: a[2]['response']['result'].update(byte_limited=True),
             lambda a: a[2]['response']['result'].update(sequence=True),
             lambda a: a[2]['response']['result']['events'][0].update(sequence=9007199254740991),
+            lambda a: a[2]['response']['result'].update(next_cursor=8),
+            lambda a: a[2]['response']['result']['events'].reverse(),
+            lambda a: a[2]['response']['result']['events'][0].update(sequence=9),
             lambda a: a[2]['response']['result']['events'][0].update(event_id='event-accepted'),
             lambda a: a[2]['response']['result']['events'].extend(copy.deepcopy(a[2]['response']['result']['events']) * 250)]:
             audit = replies(); mutate(audit)
@@ -115,9 +144,6 @@ class RealObservationContracts(unittest.TestCase):
 
 
 class OriginalFlowPreserved(unittest.TestCase):
-    def tree(self):
-        return ast.parse(PATH.with_name('integration-real-ipc.py').read_text())
-
     def test_original_authority_boundary_runtime_timeouts_permissions_and_evidence_functions_unchanged(self):
         hashes = {
             'Boundary': '2577eb0fa76aaa058fc1e1e59bf255fcfea111d898b6cb5582d17a1920479fa5',
@@ -131,12 +157,16 @@ class OriginalFlowPreserved(unittest.TestCase):
             'parse_http': 'c194a3fd981a58fe3dd55fb3028a0c6478a4449b2193952e6feefc444c4cb9fb',
             'readonly_abort': 'b25d8c988cf40e44804680fee90a94de1a1cba46ce06a858aa2ebb1045a940a5',
         }
-        for node in self.tree().body:
-            if getattr(node, 'name', None) in hashes:
-                self.assertEqual(hashlib.sha256(ast.dump(node, include_attributes=False).encode()).hexdigest(), hashes[node.name], node.name)
+        source = preflight_diagnostics.ExactOriginalSourceControls().restore_driver(read_historical_driver(ROOT))
+        self.assertEqual(hashlib.sha256(source.encode()).hexdigest(),
+            '1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e')
+        actual = {node.name: hashlib.sha256(ast.dump(node, include_attributes=False).encode()).hexdigest()
+            for node in ast.parse(source).body if getattr(node, 'name', None) in hashes}
+        self.assertEqual(actual, hashes)
 
     def test_remove_only_optional_probe_statements_restores_entire_original_run_case_ast(self):
-        node = next(node for node in self.tree().body if getattr(node, 'name', None) == 'run_case')
+        source = strip_composed_screenshot_layer(restore_historical_composition(read_historical_driver(ROOT)))
+        node = next(node for node in ast.parse(source).body if getattr(node, 'name', None) == 'run_case')
         class StripProbe(ast.NodeTransformer):
             def visit_Assign(self, node):
                 if any(isinstance(target, ast.Name) and target.id.startswith('notification_') for target in node.targets): return None
