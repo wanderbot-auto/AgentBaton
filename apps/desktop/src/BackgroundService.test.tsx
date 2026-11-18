@@ -4,7 +4,7 @@ import {DaemonError} from './api';
 import {BackgroundService,backgroundInstanceStorageKey,type BackgroundUiState} from './BackgroundService';
 import {backgroundServiceApi,type BackgroundStatus} from './background-service-api';
 vi.mock('./background-service-api',async original=>({...await original<typeof import('./background-service-api')>(),backgroundServiceApi:{status:vi.fn(),hide:vi.fn()}}));
-const status:BackgroundStatus={instance_id:'12345678-1234-1234-1234-123456789abc',started_at:'2026-11-09T12:00:00Z',api_version:1,database_schema_version:18,sequence:1,owned_provider_workers:false,store_recovery:'completed_on_start'};
+const status:BackgroundStatus={instance_id:'12345678-1234-1234-1234-123456789abc',started_at:'2026-11-09T12:00:00Z',api_version:1,database_schema_version:19,sequence:1,owned_provider_workers:false,store_recovery:'completed_on_start'};
 const deferred=<T,>()=>{let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return{promise,resolve};};
 const setup=(uiState:BackgroundUiState={hide:'idle'})=>render(<BackgroundService language="en" connected uiState={uiState}/>);
 beforeEach(()=>{vi.restoreAllMocks();vi.resetAllMocks();localStorage.clear();vi.mocked(backgroundServiceApi.status).mockResolvedValue(status);vi.mocked(backgroundServiceApi.hide).mockResolvedValue({window:'main',action:'hidden',background_action:'unchanged'});});
