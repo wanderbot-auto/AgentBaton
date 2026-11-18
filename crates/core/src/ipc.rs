@@ -927,7 +927,11 @@ impl Daemon {
                 && self.store.pending_goal_execution_approval(
                     r.params["proposal_id"].as_str().unwrap_or(""),
                 )?;
-            if !replay && !fixed_goal_execution {
+            let fixed_project_config = r.method == "approvals.finalize"
+                && self
+                    .store
+                    .is_project_config_proposal(r.params["proposal_id"].as_str().unwrap_or(""))?;
+            if !replay && !fixed_goal_execution && !fixed_project_config {
                 return Err(CoreError::new("WORKSPACE_BUSY","Stop active sessions before adding projects, workspaces, connections, grants or sessions. Concurrent setup is not yet supported"));
             }
         }
@@ -1595,6 +1599,22 @@ impl Daemon {
                     &key
                 )?))
             }
+            "projects.config.preview" => self.store.project_config_preview(params(r.params)?),
+            "projects.config.get" => {
+                let p: ProjectId = params(r.params)?;
+                self.store.project_config_get(&p.project_id)
+            }
+            "projects.config.propose" => Ok(json!(self.store.project_config_propose(
+                params(r.params)?,
+                r.expected_revision.ok_or_else(invalid)?,
+                &r.idempotency_key.ok_or_else(invalid)?,
+            )?)),
+            "projects.config.refresh" => self.store.project_config_refresh(
+                params(r.params)?,
+                r.expected_revision.ok_or_else(invalid)?,
+                &r.idempotency_key.ok_or_else(invalid)?,
+            ),
+            "projects.config.reconcile" => self.store.project_config_reconcile(params(r.params)?),
             "projects.list" => {
                 empty(&r.params)?;
                 Ok(json!(self.store.list_projects()?))

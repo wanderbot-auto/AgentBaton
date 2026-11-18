@@ -14,6 +14,7 @@ pub mod host_registry_migration;
 pub mod integration;
 pub mod ipc;
 pub mod policy;
+mod project_config;
 pub mod registry;
 mod routes;
 mod runtime_config;
