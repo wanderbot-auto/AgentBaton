@@ -322,5 +322,126 @@
     "Exact integration candidate and independent review pending leader.",
     "Selected evidence is a bounded index. Vendor CLI versions, real Provider accounts, minimum OS candidate and release remain unestablished.",
     "No real Provider, native product, installer, update, remote companion or hosted CI execution was performed for this report task."
-  ]
+  ],
+  "leader_review_followup": {
+    "fixed_base": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+    "tested_source": "3221f26f03f805b2200f4c832f1ce2b27bb34234",
+    "environment": "Apple Silicon macOS 26.6.1 (25G76), Python 3.12.12",
+    "wrapper": "scripts/collab.sh run --",
+    "samples": {
+      "tested_source": "3221f26f03f805b2200f4c832f1ce2b27bb34234",
+      "primary_sources": 7,
+      "observations": 13,
+      "by_status": {
+        "passed": 10,
+        "failed": 1,
+        "not_run": 2
+      },
+      "browser_correction": {
+        "scope": "实际 Chromium 前端经测试桥接接入 schema 19 私有 Core Unix IPC，正常场景使用生成 ACP。schema 19 来自绑定到原报告摘要的快照核验。",
+        "source_fields": {
+          "browser_version": "149.0.7827.55",
+          "source_commit": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+          "source_dimension_label": "macOS built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host"
+        },
+        "evidence": {
+          "corroboration": {
+            "path": "docs/execution/host19-browser-candidate/logs/browser-verified.json",
+            "report_sha256_pointer": "/normal/report_sha256",
+            "schema19_snapshot_count": 12,
+            "schema19_snapshot_count_pointer": "/normal/actual_schema19_snapshot_count",
+            "sha256": "a0008003481f05e3d940e11c7da08664bc05e2b2319cd9489202591e06ba0585"
+          },
+          "observed_result": "passed",
+          "path": "docs/execution/host19-browser-candidate/logs/browser-all--normal--report.json",
+          "result_pointer": "/status",
+          "sha256": "c138965b696f263f7f211884afa45d3caa016838eb273c729155c1250058695d"
+        }
+      },
+      "minimum_system_assessment": "candidate_not_selected",
+      "confirmed_minimum": null,
+      "default_real_provider_rows": 0,
+      "repeat_output_identical": true,
+      "sha256": {
+        "report.json": "b9c2ed7580d812819a76e5afe6418a83adb2d063c5f3f1089009f312fdaf46cd",
+        "report.markdown": "a5061eab9fc2141a083fa6f4fc450af4718ce0727b0fd3a7eb4f4e39f0a5da8c"
+      },
+      "synthetic_misclassification_before_after": {
+        "same_input": "All six platform dimensions plus Generated Provider records with exact build/version fields relabeled in the index.",
+        "original_source": "010f9b005d5a189d5cd111a2c69aa1c43da0434c",
+        "original_exit": 0,
+        "original_assessment": "ready_for_release_review",
+        "fixed_exit": 2,
+        "fixed_stdout_empty": true,
+        "fixed_error": "report-compatibility-matrix.py: error: docs/execution/synthetic/observations.json: codex: expected a raw real_provider_execution receipt"
+      }
+    },
+    "checks": [
+      {
+        "name": "focused",
+        "command": "python -m unittest discover -s tests/infrastructure -p test_compatibility_matrix.py -v",
+        "exit_code": 0,
+        "result": "15 passed",
+        "log": "compat-review-checks/focused.log",
+        "log_sha256": "9e0cdc8fed27b43671ace3f0d62475f52189d272674c861438bade83e56a1ab5"
+      },
+      {
+        "name": "design",
+        "command": "python scripts/validate_design.py",
+        "exit_code": 0,
+        "result": "passed",
+        "log": "compat-review-checks/design.log",
+        "log_sha256": "9227953d58ffa4194b894700517228f83f66a590ef52d701d11fdc3049aca8e1"
+      },
+      {
+        "name": "infrastructure",
+        "command": "python scripts/validate_infrastructure.py",
+        "exit_code": 0,
+        "result": "passed",
+        "log": "compat-review-checks/infrastructure.log",
+        "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+      },
+      {
+        "name": "full-python",
+        "command": "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+        "exit_code": 0,
+        "result": "978 total, 962 passed, 16 existing real-companion skips",
+        "log": "compat-review-checks/full-python.log",
+        "log_sha256": "c2779bd28a251849ae7b2620fe137873b9961d808018f7f4fe67ec212c5cbfa6"
+      },
+      {
+        "name": "node",
+        "command": "npm test",
+        "exit_code": 0,
+        "result": "4 passed",
+        "log": "compat-review-checks/node.log",
+        "log_sha256": "09a12e3affdada04c0616042700b1770bdf126f1c92e907660f75c7295003e8a"
+      }
+    ],
+    "synthetic_positive": "Exact source, artifact, OS and all version tuples with three canonical synthetic account receipts satisfy review checks. The confirmed minimum remains null.",
+    "synthetic_negatives": [
+      "Previously accepted relabelled generated records now fail closed.",
+      "Missing or false invocation, integer invocation, generated mode, failed authentication and incomplete task.",
+      "Index attempts to borrow an unrelated successful result from the same raw document.",
+      "Wrong report SHA, boolean or zero schema 19 snapshot count in an otherwise pinned browser receipt."
+    ],
+    "preview": [
+      {
+        "target": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+        "tree": "fa26745d783272930f26e3aca66bc49eb7d5cfdb",
+        "exit_code": 0
+      },
+      {
+        "target": "6d45b417210f892ec7d5f17dd992c05fc903773c",
+        "tree": "8f15712bae7aa1e51f54cbef8dec13c3f9c74253",
+        "exit_code": 0
+      },
+      {
+        "target": "0db9c959ce56b80402146a3c375775dbca50a505",
+        "tree": "4abfd07964a7d1e32d9ffdd0d277e6b62b27ba39",
+        "exit_code": 0
+      }
+    ],
+    "unverified": "Real Provider execution, minimum system support, exact remote integration CI and re-review remain pending."
+  }
 }

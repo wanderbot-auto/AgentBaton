@@ -1,7 +1,7 @@
 # 兼容性矩阵交接
 
-- 固定基线为 51b9d762b2acc6ffa0e1c31411bb154ed4326b99，已验证代码与索引头为 32bfe65cf645150eb1e5cae10b2aad4f18219315。交接提交在其后追加此目录的任务证据。
-- 已与固定基线、采样时远端集成头 4be7d4493a3e82624e2eb45329ec5c358503486a、leader 控制分支 977f918905e0bfc6ae0c4600de036a2c4182f39a 预演合并。Leader 负责独审与实际集成候选验收。
+- 固定基线为 51b9d762b2acc6ffa0e1c31411bb154ed4326b99，本次审查修复验证头为 3221f26f03f805b2200f4c832f1ce2b27bb34234。交接提交在其后追加此目录的任务证据。
+- 已与固定基线、采样时远端集成头 6d45b417210f892ec7d5f17dd992c05fc903773c、leader 控制分支 0db9c959ce56b80402146a3c375775dbca50a505 预演合并。Leader 负责独审与实际集成候选验收。
 - 观察索引覆盖选定的历史存档。当前没有锁定到候选的真实 Provider 账户、最低系统整链或发布证明。AB-REL-009 仍待验证。
 
 ## 运行
@@ -9,7 +9,7 @@
 ~~~sh
 scripts/collab.sh run -- python3 scripts/report-compatibility-matrix.py --format markdown
 scripts/collab.sh run -- python3 scripts/report-compatibility-matrix.py --format json \
-    --source 32bfe65cf645150eb1e5cae10b2aad4f18219315
+    --source 3221f26f03f805b2200f4c832f1ce2b27bb34234
 ~~~
 
 默认用工作树 HEAD 比较记录。other_source 保留其他准确源码的结果。historical_intel 表示 macOS Intel 旧记录。unknown 表示缺少适用的判定。not_run 表示证据明确记载未执行。blocked、unsupported、not_applicable、failed 与 passed 保持独立。
