@@ -3,6 +3,7 @@
 pub mod controller;
 pub mod protocol;
 pub mod registration;
+pub mod routing;
 pub mod store;
 pub mod transport;
 pub mod worker;
