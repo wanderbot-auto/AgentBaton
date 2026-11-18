@@ -1,20 +1,22 @@
 {
   "base": "b7f7e3e190fe4fe03b357cdec0958b65e7e13fa9",
-  "tested_source": "caf445487fd622b3ae71f7a86e0b7ea570332e39",
+  "tested_source": "1e5b709ad6f50d245616f56f849af149fe970532",
   "target_ref": "origin/collab/host19-core-readers",
   "git_trees": {
     "a076fc734cffa3f4d90cf5ce45eaf55a2b1c3c28": "1d57be4acc6ec202141552fba3f20cad2f49bbc7",
     "56c56e9efda3b7bd7d38d559e8ffb1e9bde2ff09": "32ddbad7616402e02617d0eb35ca394d34542951",
     "b7f7e3e190fe4fe03b357cdec0958b65e7e13fa9": "73dabc4e3c061046865de770972deeb5be7b524e",
-    "caf445487fd622b3ae71f7a86e0b7ea570332e39": "0d70626ec4532a14e2d9e12a1b8b358124bdf319"
+    "caf445487fd622b3ae71f7a86e0b7ea570332e39": "0d70626ec4532a14e2d9e12a1b8b358124bdf319",
+    "67611e5fe6a00a9d0f9f8028d7550ac66f0df911": "8b67d606a0646ba4ab649a17137887f48372f25c",
+    "1e5b709ad6f50d245616f56f849af149fe970532": "ad8131f7f8ecf55f3f431b4bbe9c4972cd688ae6"
   },
   "scope_source_files": {
-    "tests/infrastructure/schema19_integration_source_fixture.py": "59a63b70c877c84e5138770fcaa2f6482b26283a033d1c81a6897da300c73eeb",
+    "tests/infrastructure/schema19_integration_source_fixture.py": "5502d29709eb7708cf2dc71d530412fd5c8488a5589a0c57dcc2ab24a2ca4e77",
     "tests/infrastructure/test_integration_drift_ref_preparation.py": "660e7bcbe95ea95f91b29f79b210b347c7a314cfd1b5f00c24465033fc19fdd5",
     "tests/infrastructure/test_integration_fixed_script_fixture.py": "87f88698f2ea4e91ec2ff24832efb2e428b535d35f14adb9f69472f45de017d3",
     "tests/infrastructure/test_integration_ipc_diagnostics.py": "b1c2ac8137270f11f94eba3702736908bfa0b5c92f2550507dd760d979b9fd13",
     "tests/infrastructure/test_integration_stage_evidence_source.py": "3b6c19d77dfe62daadb3e517717627165a1f8a9128207c3ae0ba1e4d22a876ab",
-    "tests/infrastructure/test_schema19_integration_source_fixture.py": "47cc940b59eb897464c7822360f690af121a587ac232aa49abf76130a97e3c44"
+    "tests/infrastructure/test_schema19_integration_source_fixture.py": "72cec447d0f3c813bba348bdb0756cb713453f7adff9775d4883cd1fec8ef5f6"
   },
   "layers": {
     "crates/core/tests/integration_ipc.rs": {
@@ -163,6 +165,59 @@
       "exit": 0,
       "seconds": 21.116,
       "log_sha256": "4275015adc8e8979456334d95c55d71abd95bd53d3c8554e00ff21a17afa06a8"
+    },
+    "live-rollback-red": {
+      "source": "67611e5fe6a00a9d0f9f8028d7550ac66f0df911",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "test_schema19_integration_source_fixture.Schema19IntegrationSourceFixtureTests.test_live_disk_reader_refuses_an_exact_schema18_checkout"
+      ],
+      "env": {
+        "PYTHONPATH": "tests/infrastructure"
+      },
+      "exit": 1,
+      "seconds": 0.053,
+      "log_sha256": "78b541a9a42cb82bfec514b8ad34699ef2fd73b7755c7e70ea284084a65557c6"
+    },
+    "strict-targeted": {
+      "source": "1e5b709ad6f50d245616f56f849af149fe970532",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "test_integration_ipc_diagnostics",
+        "test_integration_stage_evidence_source",
+        "test_integration_fixed_script_fixture",
+        "test_integration_drift_ref_preparation",
+        "test_schema19_integration_source_fixture"
+      ],
+      "env": {
+        "PYTHONPATH": "tests/infrastructure"
+      },
+      "exit": 0,
+      "seconds": 0.127,
+      "log_sha256": "3d569b7602c7044b6d817ae6221316b8a6d38a03c172ba66dc468467240b687c"
+    },
+    "strict-full-infra": {
+      "source": "1e5b709ad6f50d245616f56f849af149fe970532",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 20.873,
+      "log_sha256": "4d4e61384a20773d4957e0752c61e07109fe262f4e64f4fc0585fbc198318b51"
     }
   },
   "counts": {
@@ -178,6 +233,15 @@
       "passed": 905,
       "skipped": 16,
       "failed": 0
+    },
+    "strict_targeted": {
+      "passed": 38,
+      "failed": 0
+    },
+    "strict_full": {
+      "passed": 906,
+      "skipped": 16,
+      "failed": 0
     }
   },
   "environment": {
@@ -186,5 +250,15 @@
     "python": "3.12.12 (main, Dec  9 2025, 19:05:33) [Clang 21.1.4 ]",
     "python_executable": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python"
   },
-  "recorded_utc": "2026-11-18T14:33:18.659985+00:00"
+  "recorded_utc": "2026-11-18T14:35:34.030047+00:00",
+  "initial_source": "caf445487fd622b3ae71f7a86e0b7ea570332e39",
+  "review_resolution": {
+    "fixed_current_only": true,
+    "rejected_predecessor_disk_paths": [
+      "crates/core/tests/integration_ipc.rs",
+      "crates/core/tests/fixtures/integration_runtime.rs"
+    ],
+    "failed_subtests_at_review_red": 2,
+    "historical_chain_input": "exact restored bytes passed directly to old helper, no predecessor accepted by new API"
+  }
 }
