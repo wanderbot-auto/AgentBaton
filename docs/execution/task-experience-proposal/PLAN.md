@@ -1,6 +1,6 @@
 # AB-VAL-008 任务经验候选
 
-基线 `f10344872a3d2aa7d4f65bf9d8a9c6de2c85ed6c`。任务分支 `collab/task-experience-proposal`，基线分支 `origin/collab/host-registration-integration`。授权依据为 AB-START-001，产品依据为 D16、AB-VAL-008 和《编排与验收》第 6 章验收约束。
+基线 `f10344872a3d2aa7d4f65bf9d8a9c6de2c85ed6c`。任务分支 `collab/task-experience-proposal`，基线分支 `origin/collab/host-registration-integration`。授权依据为 AB-START-001，产品依据为 D16、AB-VAL-008 和《06 · 任务接力、管道与恢复》的验收约束。
 
 1. 在当前任务的详情页复用 Core 正式验收投影。以当前任务、任务修订、规格修订、项目 ID、验收引用和事件序号构造来源。
 2. 支持 Skill、模板和规则的中英文编辑与预览。用任务目标填充摘要，提供按类型区分的可编辑内容结构。候选仅在任务详情组件中保留，预览显示实际采用的文本和验收来源。
