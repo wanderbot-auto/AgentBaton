@@ -27,6 +27,10 @@ const MAX_PAGES: usize = 4;
 const MAX_TOOLS: usize = 128;
 const PROTOCOL: &str = "2025-06-18";
 const MAX_ENTRY_BYTES: u64 = 512 * 1024 * 1024;
+const PRIVATE_DIR_FLAGS: OFlags = OFlags::DIRECTORY
+    .union(OFlags::RDONLY)
+    .union(OFlags::NOFOLLOW)
+    .union(OFlags::CLOEXEC);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -76,6 +80,8 @@ pub struct PendingMcpDiagnostic {
     expires: Instant,
     #[cfg(test)]
     replace_source_before_spawn: Option<PathBuf>,
+    #[cfg(test)]
+    defer_wait_for_test: bool,
 }
 
 impl PendingMcpDiagnostic {
@@ -112,6 +118,11 @@ impl PendingMcpDiagnostic {
     #[cfg(test)]
     pub(super) fn replace_source_before_spawn_for_test(&mut self, replacement: PathBuf) {
         self.replace_source_before_spawn = Some(replacement);
+    }
+
+    #[cfg(test)]
+    pub(super) fn defer_wait_for_exit_for_test(&mut self) {
+        self.defer_wait_for_test = true;
     }
 
     fn check_expiry(&self) -> Result<()> {
@@ -161,6 +172,15 @@ pub enum McpDiagnosticExit {
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum McpDiagnosticEntryCleanup {
+    NotAllocated,
+    Removed,
+    WaitingForChild,
+    Unknown,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ManagedMcpDiagnosticReceipt {
@@ -172,6 +192,8 @@ pub struct ManagedMcpDiagnosticReceipt {
     pub protocol_version: Option<String>,
     pub runtime_snapshot_digest: Option<String>,
     pub launched_entry: Option<McpDiagnosticLaunchEvidence>,
+    pub entry_directory: Option<String>,
+    pub entry_cleanup: McpDiagnosticEntryCleanup,
     pub configured_tools_seen: Vec<String>,
     pub other_tool_count: Option<usize>,
     pub stderr_bytes_observed: usize,
@@ -192,6 +214,15 @@ impl ManagedMcpDiagnosticReceipt {
         self.outcome == McpDiagnosticOutcome::Enumerated
             && self.launched_entry.is_some()
             && matches!(self.direct_child, McpDiagnosticExit::Reaped { .. })
+            && self.entry_cleanup == McpDiagnosticEntryCleanup::Removed
+    }
+
+    pub fn needs_reconciliation(&self) -> bool {
+        matches!(self.direct_child, McpDiagnosticExit::Unknown { .. })
+            || matches!(
+                self.entry_cleanup,
+                McpDiagnosticEntryCleanup::WaitingForChild | McpDiagnosticEntryCleanup::Unknown
+            )
     }
 }
 
@@ -203,6 +234,7 @@ impl ManagedMcpDiagnosticReceipt {
 pub struct ManagedMcpDiagnosticAttempt {
     receipt: ManagedMcpDiagnosticReceipt,
     child: Option<Child>,
+    entry: Option<OwnedDiagnosticEntry>,
     recorded: bool,
 }
 
@@ -233,6 +265,25 @@ impl ManagedMcpDiagnosticAttempt {
                 self.recorded = false;
             }
         }
+        self.persist_observation(store)
+    }
+
+    fn persist_observation(&mut self, store: &mut Store) -> Result<()> {
+        if let Some(entry) = &mut self.entry {
+            self.receipt
+                .entry_directory
+                .get_or_insert_with(|| entry.name.clone());
+            let prior = self.receipt.entry_cleanup;
+            self.receipt.entry_cleanup = if self.child.is_some() {
+                McpDiagnosticEntryCleanup::WaitingForChild
+            } else if entry.remove() {
+                self.entry = None;
+                McpDiagnosticEntryCleanup::Removed
+            } else {
+                McpDiagnosticEntryCleanup::Unknown
+            };
+            self.recorded &= prior == self.receipt.entry_cleanup;
+        }
         if !self.recorded {
             record_receipt(store, &self.receipt)?;
             self.recorded = true;
@@ -244,10 +295,16 @@ impl ManagedMcpDiagnosticAttempt {
 impl Drop for ManagedMcpDiagnosticAttempt {
     fn drop(&mut self) {
         if let Some(child) = &mut self.child {
-            // Unsettled evidence stays pending. This fallback has no authority
-            // to signal a process group or to assert cleanup from a kill request.
+            // Only the retained Child may be signaled. Leave the copy in
+            // place unless stop is observed, and leave the durable marker
+            // pending because Drop publishes no evidence.
             let _ = child.kill();
-            let _ = child.try_wait();
+            if !matches!(child.try_wait(), Ok(Some(_))) {
+                return;
+            }
+        }
+        if let Some(entry) = &mut self.entry {
+            entry.remove();
         }
     }
 }
@@ -284,6 +341,8 @@ impl Store {
             expires,
             #[cfg(test)]
             replace_source_before_spawn: None,
+            #[cfg(test)]
+            defer_wait_for_test: false,
         })
     }
 
@@ -321,11 +380,14 @@ impl Store {
                 protocol_version: None,
                 runtime_snapshot_digest: None,
                 launched_entry: None,
+                entry_directory: None,
+                entry_cleanup: McpDiagnosticEntryCleanup::NotAllocated,
                 configured_tools_seen: vec![],
                 other_tool_count: None,
                 stderr_bytes_observed: 0,
             },
             child: None,
+            entry: None,
             recorded: false,
         };
         if !cancelled_before_admission && !cancel.load(Ordering::Acquire) {
@@ -336,7 +398,7 @@ impl Store {
         }
         // A failed SQLite write must not discard a collected receipt or an
         // unreaped child. The durable launch marker keeps further runs blocked.
-        let _ = attempt.reconcile(self);
+        let _ = attempt.persist_observation(self);
         Ok(attempt)
     }
 
@@ -360,7 +422,7 @@ impl Store {
         if !Uuid::parse_str(diagnostic_id).is_ok_and(|id| id.to_string() == diagnostic_id) {
             return Err(invalid("Expected an exact diagnostic identifier"));
         }
-        diagnostic_record(&self.conn, diagnostic_id)
+        diagnostic_record(&self.conn, diagnostic_id).map(|(record, _)| record)
     }
 }
 
@@ -486,7 +548,17 @@ fn journal_intent(tx: &Transaction<'_>, pending: &PendingMcpDiagnostic) -> Resul
     )
 }
 
-fn diagnostic_record(db: &Connection, id: &str) -> Result<ManagedMcpDiagnosticRecord> {
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct StoredDiagnosticObservation {
+    revision: u64,
+    receipt: ManagedMcpDiagnosticReceipt,
+}
+
+fn diagnostic_record(
+    db: &Connection,
+    id: &str,
+) -> Result<(ManagedMcpDiagnosticRecord, Option<u64>)> {
     let record: Option<(String, String)> = db
         .query_row(
             "SELECT payload,result FROM idempotency WHERE scope=?1 AND key=?2
@@ -500,7 +572,10 @@ fn diagnostic_record(db: &Connection, id: &str) -> Result<ManagedMcpDiagnosticRe
         record.ok_or_else(|| CoreError::new("NOT_FOUND", "Diagnostic record not found"))?;
     let review: ManagedMcpDiagnosticReview = decode(&payload)?;
     let review_digest = digest(&review)?;
-    let receipt: Option<ManagedMcpDiagnosticReceipt> = decode(&result)?;
+    let stored: Option<StoredDiagnosticObservation> = decode(&result)?;
+    let (receipt, revision) = stored.map_or((None, None), |observation| {
+        (Some(observation.receipt), Some(observation.revision))
+    });
     if review.diagnostic_id != id
         || receipt
             .as_ref()
@@ -508,11 +583,14 @@ fn diagnostic_record(db: &Connection, id: &str) -> Result<ManagedMcpDiagnosticRe
     {
         return Err(changed());
     }
-    Ok(ManagedMcpDiagnosticRecord {
-        review,
-        review_digest,
-        receipt,
-    })
+    Ok((
+        ManagedMcpDiagnosticRecord {
+            review,
+            review_digest,
+            receipt,
+        },
+        revision,
+    ))
 }
 
 fn record_receipt(store: &mut Store, receipt: &ManagedMcpDiagnosticReceipt) -> Result<()> {
@@ -521,21 +599,25 @@ fn record_receipt(store: &mut Store, receipt: &ManagedMcpDiagnosticReceipt) -> R
         .transaction_with_behavior(TransactionBehavior::Immediate)
         .map_err(db_error)?;
     let id = &receipt.diagnostic_id;
-    let before = diagnostic_record(&tx, id)?;
-    let encoded = encode(receipt)?;
-    let revision = if let Some(before) = before.receipt {
-        if encode(&before)? == encoded {
+    let (before, last_revision) = diagnostic_record(&tx, id)?;
+    let revision = if let Some(previous) = before.receipt {
+        if encode(&previous)? == encode(receipt)? {
             return Ok(());
         }
-        if !matches!(before.direct_child, McpDiagnosticExit::Unknown { .. })
-            || !matches!(receipt.direct_child, McpDiagnosticExit::Reaped { .. })
-        {
+        if !previous.needs_reconciliation() {
             return Err(changed());
         }
-        3
+        last_revision
+            .filter(|&v| v >= 2)
+            .and_then(|v| v.checked_add(1))
+            .ok_or_else(changed)?
     } else {
         2
     };
+    let encoded = encode(&StoredDiagnosticObservation {
+        revision,
+        receipt: receipt.clone(),
+    })?;
     let marker: Option<String> = tx
         .query_row(
             "SELECT payload FROM idempotency WHERE scope=?1 AND key=?2",
@@ -552,7 +634,7 @@ fn record_receipt(store: &mut Store, receipt: &ManagedMcpDiagnosticReceipt) -> R
         params![encoded, JOURNAL_SCOPE, id],
     )
     .map_err(db_error)?;
-    if !matches!(receipt.direct_child, McpDiagnosticExit::Unknown { .. }) {
+    if !receipt.needs_reconciliation() {
         tx.execute(
             "DELETE FROM idempotency WHERE scope=?1 AND key=?2 AND payload=?3",
             params![JOURNAL_SCOPE, PENDING, id],
@@ -626,6 +708,95 @@ fn private_paths(runtime: &Path, id: &str) -> Result<PrivatePaths> {
     })
 }
 
+#[derive(Debug)]
+struct OwnedDiagnosticEntry {
+    run: File,
+    name: String,
+    directory: Option<File>,
+    file: EntryFileOwnership,
+}
+
+#[derive(Debug)]
+enum EntryFileOwnership {
+    Absent,
+    Unpinned,
+    Pinned(File),
+}
+
+impl OwnedDiagnosticEntry {
+    fn allocate<'a>(run: &Path, output: &'a mut Option<Self>) -> ProbeResult<&'a mut Self> {
+        use McpDiagnosticOutcome::*;
+        let expected = private_directory(run).map_err(|_| InputChanged)?;
+        let parent = rfs::open(run, PRIVATE_DIR_FLAGS, Mode::empty())
+            .map(File::from)
+            .map_err(|_| StartupFailed)?;
+        let meta = parent.metadata().map_err(|_| StartupFailed)?;
+        if (meta.dev(), meta.ino()) != expected {
+            return Err(InputChanged);
+        }
+        let name = format!("entry-{}", Uuid::new_v4());
+        rfs::mkdirat(&parent, name.as_str(), Mode::RWXU).map_err(|_| StartupFailed)?;
+        // Own the allocation from this point, including failures to open or
+        // populate it. An unverified identity is retained for observation.
+        let allocated = output.insert(Self {
+            run: parent,
+            name,
+            directory: None,
+            file: EntryFileOwnership::Absent,
+        });
+        let directory = rfs::openat(
+            &allocated.run,
+            allocated.name.as_str(),
+            PRIVATE_DIR_FLAGS,
+            Mode::empty(),
+        )
+        .map(File::from)
+        .map_err(|_| StartupFailed)?;
+        allocated.directory = Some(directory);
+        Ok(allocated)
+    }
+
+    fn remove(&mut self) -> bool {
+        let Some(directory) = &self.directory else {
+            return false;
+        };
+        // Operate only on the held directory and the original run entry.
+        // A moved/replaced file or directory is inconclusive, even if it
+        // leaves the original name absent. The final rmdir requires empty.
+        let Some(held) = rfs::fstat(directory).ok() else {
+            return false;
+        };
+        let Ok(linked) = rfs::statat(&self.run, self.name.as_str(), AtFlags::SYMLINK_NOFOLLOW)
+        else {
+            return false;
+        };
+        if !same_inode(&held, &linked) || linked.st_mode & 0o777 != 0o700 {
+            return false;
+        }
+        match &self.file {
+            EntryFileOwnership::Unpinned => return false,
+            EntryFileOwnership::Pinned(owned) => {
+                let Ok(current) = rfs::statat(directory, "server", AtFlags::SYMLINK_NOFOLLOW)
+                else {
+                    return false;
+                };
+                if !rfs::fstat(owned).is_ok_and(|stat| same_inode(&stat, &current))
+                    || rfs::unlinkat(directory, "server", AtFlags::empty()).is_err()
+                {
+                    return false;
+                }
+                self.file = EntryFileOwnership::Absent;
+            }
+            EntryFileOwnership::Absent => {}
+        }
+        rfs::unlinkat(&self.run, self.name.as_str(), AtFlags::REMOVEDIR).is_ok()
+    }
+}
+
+fn same_inode(expected: &rfs::Stat, observed: &rfs::Stat) -> bool {
+    (expected.st_dev, expected.st_ino) == (observed.st_dev, observed.st_ino)
+}
+
 struct PrivateExecutableCopy {
     directory: PathBuf,
     directory_identity: (u64, u64),
@@ -639,6 +810,7 @@ impl PrivateExecutableCopy {
         run: &Path,
         review: &ManagedMcpDiagnosticReview,
         cancel: &AtomicBool,
+        owned_entry: &mut Option<OwnedDiagnosticEntry>,
     ) -> ProbeResult<Self> {
         use McpDiagnosticOutcome::*;
 
@@ -668,25 +840,24 @@ impl PrivateExecutableCopy {
         }
         verify_relocatable_format(&mut source)?;
 
-        let directory = run.join(format!("entry-{}", Uuid::new_v4()));
-        let mut builder = DirBuilder::new();
-        builder
-            .mode(0o700)
-            .create(&directory)
-            .map_err(|_| StartupFailed)?;
+        let allocated = OwnedDiagnosticEntry::allocate(run, owned_entry)?;
+        let directory = run.join(&allocated.name);
         let directory_identity = private_directory(&directory).map_err(|_| StartupFailed)?;
-        let parent = rfs::open(
-            &directory,
-            OFlags::DIRECTORY | OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-            Mode::empty(),
-        )
-        .map(File::from)
-        .map_err(|_| StartupFailed)?;
+        let parent = allocated
+            .directory
+            .as_ref()
+            .expect("the allocated directory is pinned");
         let held = parent.metadata().map_err(|_| StartupFailed)?;
         if (held.dev(), held.ino()) != directory_identity {
             return Err(InputChanged);
         }
-        let staged = stage_entry(&mut source, &parent, before.len(), cancel)?;
+        let staged = stage_entry(
+            &mut source,
+            parent,
+            before.len(),
+            cancel,
+            &mut allocated.file,
+        )?;
         let staged_len = staged.metadata().map_err(|_| StartupFailed)?.len();
         if staged_len != before.len()
             || source_file_identity(&source.metadata().map_err(|_| InputChanged)?)
@@ -780,6 +951,7 @@ fn stage_entry(
     parent: &File,
     _bytes: u64,
     cancel: &AtomicBool,
+    ownership: &mut EntryFileOwnership,
 ) -> ProbeResult<File> {
     use McpDiagnosticOutcome::*;
     if cancel.load(Ordering::Acquire) {
@@ -797,14 +969,10 @@ fn stage_entry(
         rustix::io::Errno::NOTSUP | rustix::io::Errno::XDEV => UnsupportedExecutable,
         _ => StartupFailed,
     })?;
-    rfs::openat(
-        parent,
-        "server",
-        OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
-        Mode::empty(),
-    )
-    .map(File::from)
-    .map_err(|_| StartupFailed)
+    *ownership = EntryFileOwnership::Unpinned;
+    let staged = open_read_only_entry(parent)?;
+    *ownership = EntryFileOwnership::Pinned(staged.try_clone().map_err(|_| StartupFailed)?);
+    Ok(staged)
 }
 
 #[cfg(target_os = "linux")]
@@ -813,6 +981,7 @@ fn stage_entry(
     parent: &File,
     limit: u64,
     cancel: &AtomicBool,
+    ownership: &mut EntryFileOwnership,
 ) -> ProbeResult<File> {
     use McpDiagnosticOutcome::*;
     let mut staged = File::from(
@@ -824,6 +993,14 @@ fn stage_entry(
         )
         .map_err(|_| StartupFailed)?,
     );
+    *ownership = EntryFileOwnership::Unpinned;
+    let pinned = open_read_only_entry(parent)?;
+    let staged_identity = rfs::fstat(&staged).map_err(|_| StartupFailed)?;
+    let pinned_identity = rfs::fstat(&pinned).map_err(|_| StartupFailed)?;
+    if !same_inode(&staged_identity, &pinned_identity) {
+        return Err(InputChanged);
+    }
+    *ownership = EntryFileOwnership::Pinned(pinned);
     let mut written = 0u64;
     let mut chunk = [0u8; 64 * 1024];
     loop {
@@ -840,6 +1017,17 @@ fn stage_entry(
         }
         staged.write_all(&chunk[..n]).map_err(|_| IoFailed)?;
     }
+}
+
+fn open_read_only_entry(parent: &File) -> ProbeResult<File> {
+    rfs::openat(
+        parent,
+        "server",
+        OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+        Mode::empty(),
+    )
+    .map(File::from)
+    .map_err(|_| McpDiagnosticOutcome::StartupFailed)
 }
 
 #[cfg(target_os = "macos")]
@@ -926,14 +1114,18 @@ fn launch(
         attempt.receipt.outcome = InputChanged;
         return;
     };
-    let entry =
-        match PrivateExecutableCopy::from_approved_source(&paths.run, &pending.review, cancel) {
-            Ok(entry) => entry,
-            Err(outcome) => {
-                attempt.receipt.outcome = outcome;
-                return;
-            }
-        };
+    let entry = match PrivateExecutableCopy::from_approved_source(
+        &paths.run,
+        &pending.review,
+        cancel,
+        &mut attempt.entry,
+    ) {
+        Ok(entry) => entry,
+        Err(outcome) => {
+            attempt.receipt.outcome = outcome;
+            return;
+        }
+    };
     if private_directory(&paths.work).ok() != Some(paths.work_identity)
         || recheck(db, pending).is_err()
     {
@@ -985,7 +1177,13 @@ fn launch(
         .err()
         .unwrap_or(Enumerated);
     let failed = attempt.receipt.outcome != Enumerated;
-    let exit = stop(&mut child, &mut io, failed);
+    let exit = stop(
+        &mut child,
+        &mut io,
+        failed,
+        #[cfg(test)]
+        pending.defer_wait_for_test,
+    );
     attempt.receipt.stderr_bytes_observed = io.stderr_bytes;
     attempt.receipt.direct_child = exit;
     if matches!(
@@ -1029,8 +1227,19 @@ fn qualify_exit(receipt: &mut ManagedMcpDiagnosticReceipt) {
     }
 }
 
-fn stop(child: &mut Child, io: &mut ProbeIo<'_>, abort: bool) -> McpDiagnosticExit {
+fn stop(
+    child: &mut Child,
+    io: &mut ProbeIo<'_>,
+    abort: bool,
+    #[cfg(test)] defer_wait: bool,
+) -> McpDiagnosticExit {
     drop(io.stdin.take());
+    #[cfg(test)]
+    if defer_wait {
+        return McpDiagnosticExit::Unknown {
+            kill_requested: child.kill().is_ok(),
+        };
+    }
     if !abort {
         if let Some(status) = wait_for_exit(child, io, EXIT_GRACE) {
             return reaped(status, false);

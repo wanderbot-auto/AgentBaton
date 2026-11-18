@@ -662,13 +662,17 @@ for line in sys.stdin:
  print(json.dumps({'jsonrpc':'2.0','id':query['id'],'result':result}),flush=True)
 with open('closed-input','w') as f:
  f.write('observed')
+if MODE=='stage-replaced':
+ os.rename(__file__,__file__+'.original')
+ with open(__file__,'w') as f:
+  f.write('replacement file owned by the fixture, preserve it')
 if MODE=='exit-nonzero':
  sys.exit(19)
 "#;
-        let shebang = if mode == "dynamic-interpreter" {
-            "#!/usr/bin/env python3"
-        } else {
-            &shebang
+        let shebang = match mode {
+            "dynamic-interpreter" => "#!/usr/bin/env python3",
+            "missing-interpreter" => "#!/missing-agentbaton-diagnostic-test-interpreter",
+            _ => &shebang,
         };
         let entry = executable.to_str().unwrap();
         let started_path = started.to_str().unwrap();
@@ -746,6 +750,12 @@ if MODE=='exit-nonzero':
             (pid, work, methods)
         }
 
+        fn entry_directory(&self, receipt: &ManagedMcpDiagnosticReceipt) -> PathBuf {
+            self.runtime_root()
+                .join(format!("mcp-diagnostic-{}", receipt.diagnostic_id))
+                .join(receipt.entry_directory.as_ref().unwrap())
+        }
+
         fn assert_reaped(&self, attempt: &ManagedMcpDiagnosticAttempt) {
             assert!(!attempt.has_unreaped_child());
             assert!(attempt.journal_recorded());
@@ -762,6 +772,11 @@ if MODE=='exit-nonzero':
             ));
             let actual: Value = serde_json::from_slice(&fs::read(&self.started).unwrap()).unwrap();
             assert_eq!(json!(attempt.receipt().launched_entry), actual["entry"]);
+            assert_eq!(
+                attempt.receipt().entry_cleanup,
+                McpDiagnosticEntryCleanup::Removed
+            );
+            assert!(!self.entry_directory(attempt.receipt()).exists());
             let record = self
                 .base
                 .store
@@ -1036,6 +1051,10 @@ if MODE=='exit-nonzero':
         let absent = f.run(approval, &AtomicBool::new(true)).unwrap();
         assert_eq!(absent.receipt().outcome, Cancelled);
         assert_eq!(absent.receipt().direct_child, McpDiagnosticExit::NotStarted);
+        assert_eq!(
+            absent.receipt().entry_cleanup,
+            McpDiagnosticEntryCleanup::NotAllocated
+        );
         assert!(absent.journal_recorded());
         assert!(!f.started.exists());
 
@@ -1183,6 +1202,96 @@ if MODE=='exit-nonzero':
             McpDiagnosticExit::NotStarted
         );
         assert!(!f.started.exists());
+    }
+
+    #[test]
+    fn staged_entry_is_removed_after_spawn_failure_or_confirmed_owned_stop() {
+        let mut missing = diagnostic_fixture("missing-interpreter");
+        let approval = missing.approval();
+        let attempt = missing.run(approval, &AtomicBool::new(false)).unwrap();
+        assert_eq!(attempt.receipt().outcome, UnsupportedExecutable);
+        assert_eq!(
+            attempt.receipt().direct_child,
+            McpDiagnosticExit::NotStarted
+        );
+        assert_eq!(
+            attempt.receipt().entry_cleanup,
+            McpDiagnosticEntryCleanup::Removed
+        );
+        assert!(!missing.entry_directory(attempt.receipt()).exists());
+        assert!(!missing.started.exists());
+        assert!(attempt.journal_recorded());
+
+        let mut f = diagnostic_fixture("list");
+        let mut pending = f.preview();
+        pending.defer_wait_for_exit_for_test();
+        let mut attempt = f.run(confirm(pending), &AtomicBool::new(false)).unwrap();
+        assert!(attempt.has_unreaped_child());
+        assert!(attempt.journal_recorded());
+        assert!(attempt.receipt().needs_reconciliation());
+        assert!(!attempt.receipt().verified());
+        assert_eq!(
+            attempt.receipt().entry_cleanup,
+            McpDiagnosticEntryCleanup::WaitingForChild
+        );
+        assert!(f
+            .entry_directory(attempt.receipt())
+            .join("server")
+            .is_file());
+        let prior = f
+            .base
+            .store
+            .get_managed_mcp_diagnostic(&attempt.receipt().diagnostic_id)
+            .unwrap();
+        assert!(prior.receipt.unwrap().needs_reconciliation());
+
+        let deadline = Instant::now() + Duration::from_secs(3);
+        while attempt.has_unreaped_child() {
+            attempt.reconcile(&mut f.base.store).unwrap();
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        f.assert_reaped(&attempt);
+        assert!(attempt.receipt().verified());
+        assert!(!f
+            .base
+            .store
+            .has_unresolved_managed_mcp_diagnostic()
+            .unwrap());
+    }
+
+    #[test]
+    fn cleanup_preserves_replacement_and_does_not_release_unsettled_entry() {
+        let mut f = diagnostic_fixture("stage-replaced");
+        let approval = f.approval();
+        let attempt = f.run(approval, &AtomicBool::new(false)).unwrap();
+        assert!(!attempt.has_unreaped_child());
+        assert!(attempt.journal_recorded());
+        assert!(attempt.receipt().needs_reconciliation());
+        assert_eq!(
+            attempt.receipt().entry_cleanup,
+            McpDiagnosticEntryCleanup::Unknown
+        );
+        assert!(!attempt.receipt().verified());
+        let entry = f.entry_directory(attempt.receipt());
+        let id = attempt.receipt().diagnostic_id.clone();
+        drop(attempt);
+        assert_eq!(
+            fs::read_to_string(entry.join("server")).unwrap(),
+            "replacement file owned by the fixture, preserve it"
+        );
+        assert!(entry.join("server.original").is_file());
+        assert!(f.executable.is_file());
+        let record = f.base.store.get_managed_mcp_diagnostic(&id).unwrap();
+        assert_eq!(
+            record.receipt.unwrap().entry_cleanup,
+            McpDiagnosticEntryCleanup::Unknown
+        );
+        assert!(f
+            .base
+            .store
+            .has_unresolved_managed_mcp_diagnostic()
+            .unwrap());
     }
 
     #[test]
