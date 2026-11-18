@@ -9,6 +9,9 @@ import tempfile
 import unittest
 from unittest import mock
 
+from tests.infrastructure.host19_browser_ci_projector_source_fixture import (
+    restore_driver_before_labels19,
+)
 from tests.infrastructure.host19_integration_browser_candidate_fixture import (
     CURRENT_GUARD,
     DRIVER_PATH,
@@ -107,7 +110,8 @@ class CurrentCandidateGuard(unittest.TestCase):
     def test_exact_predecessor_still_accepts_18_and_refuses_19(self):
         previous = self.root / DRIVER_PATH
         previous.parent.mkdir(parents=True)
-        previous.write_bytes(restore_integration_browser_before_candidate19(DRIVER_PATH, SOURCE.read_bytes()))
+        current = restore_driver_before_labels19(DRIVER_PATH, SOURCE.read_bytes())
+        previous.write_bytes(restore_integration_browser_before_candidate19(DRIVER_PATH, current))
         driver = load_driver(previous)
         self.manifest_with(schema=18)
         with mock.patch.object(driver, "source_guard", return_value={"head": HEAD}), \
@@ -122,7 +126,8 @@ class CurrentCandidateGuard(unittest.TestCase):
 
 class CandidateSourceInverse(unittest.TestCase):
     def test_two_layers_recover_the_exact_old_driver_blobs(self):
-        raw = SOURCE.read_bytes()
+        current = SOURCE.read_bytes()
+        raw = restore_driver_before_labels19(DRIVER_PATH, current)
         self.assertEqual(raw.count(CURRENT_GUARD), 1)
         self.assertNotIn(PARENT_GUARD, raw)
         parent = restore_integration_browser_before_candidate19(DRIVER_PATH, raw)
@@ -132,10 +137,11 @@ class CandidateSourceInverse(unittest.TestCase):
         earlier = restore_integration_browser_before_schema19(DRIVER_PATH, parent)
         self.assertEqual(hashlib.sha256(earlier).hexdigest(),
             "0131bee1842f3856507def3f41d4d45f0a9b38511167886461fc96d8a32d37fe")
-        self.assertEqual(SOURCE.read_bytes(), raw)
+        self.assertEqual(SOURCE.read_bytes(), current)
 
     def test_mutated_missing_repeated_old_and_noncanonical_bytes_refuse(self):
-        raw = SOURCE.read_bytes()
+        current = SOURCE.read_bytes()
+        raw = restore_driver_before_labels19(DRIVER_PATH, current)
         parent = restore_integration_browser_before_candidate19(DRIVER_PATH, raw)
         mutations = (parent, b"\xef\xbb\xbf" + raw, raw.replace(b"\n", b"\r\n"), raw + b"\n",
             raw.replace(CURRENT_GUARD, b"", 1),
