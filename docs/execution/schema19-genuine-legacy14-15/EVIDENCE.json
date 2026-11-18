@@ -1,0 +1,346 @@
+{
+  "baseline": {
+    "base": "17252ce69f1189a904ab24ff40385f9dca99e265",
+    "architecture": "arm64",
+    "checks": {
+      "genuine14": {
+        "command": [
+          "nice",
+          "-n",
+          "12",
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-core",
+          "--features",
+          "actual-legacy-migration-tests",
+          "--test",
+          "factory_child_goal_legacy_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "fixture_var": "AGENTBATON_ACTUAL_SCHEMA14_FIXTURE",
+        "fixture": "/private/tmp/ab-pr26-schema14.H0wZ51/fixture",
+        "input_inventory": {
+          "actual-schema14.sqlite3": {
+            "bytes": 860160,
+            "sha256": "f077635f0810e6045cd5d4c0df85fa4f64372457c3cde34f2e6d87209c0296f1"
+          },
+          "daemon.log": {
+            "bytes": 52,
+            "sha256": "0df350078f8c7f4a1c602c68adcfe539eeb7575cb91c064a1ab3c3f580eabc16"
+          },
+          "manifest.json": {
+            "bytes": 378533,
+            "sha256": "e15963ac998f673c732f5b52d45ac69c4dc5f96fe7ac13986ec2be7c81163f9a"
+          },
+          "source-build-manifest.json": {
+            "bytes": 16461,
+            "sha256": "72f500ef0986e25a18ba3f0492699ffe7e09fca52aa36992e94b37371749871a"
+          }
+        },
+        "inputs_unchanged": true,
+        "producer_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+        "source_build_manifest_sha256": "72f500ef0986e25a18ba3f0492699ffe7e09fca52aa36992e94b37371749871a",
+        "prior_log_sha256": "40333e95ca6527accdd3c970710557c88828c18e43581a6495e4d2e2e4f1d649",
+        "exit_code": 101,
+        "seconds": 198.674,
+        "log_sha256": "02b2c1e380b3180025bf6088659d7e57cea532024093f275ecd7b6f1e2eb9638",
+        "summary": "test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s",
+        "archive": "baseline-genuine14.log.gz",
+        "archive_sha256": "b2de78b14affa7484d1669412316bfb3fa2db3bf5ee8537edb5e8e9db6df7a6d"
+      },
+      "genuine15": {
+        "command": [
+          "nice",
+          "-n",
+          "12",
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-core",
+          "--features",
+          "actual-schema15-migration-tests",
+          "--test",
+          "task_workspace_actual15_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "fixture_var": "AGENTBATON_ACTUAL_SCHEMA15_FIXTURE",
+        "fixture": "/private/tmp/ab-genuine15-producer.ebHgXlyt/fixture",
+        "input_inventory": {
+          "actual-schema15.sqlite3": {
+            "bytes": 634880,
+            "sha256": "da60bc67f7f07e16a20fb6e0eac6972e8f77a4469cabc24e242489e5399970b5"
+          },
+          "actual-schema15.sqlite3-shm": {
+            "bytes": 32768,
+            "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+          },
+          "actual-schema15.sqlite3-wal": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "daemon.log": {
+            "bytes": 57,
+            "sha256": "41f9d0024d413051d623f6e90bcb37be5186c8e90e063456cf0a6df3f5887da2"
+          },
+          "manifest.json": {
+            "bytes": 8076,
+            "sha256": "b2291cae81a3640ddef89a81be1f3c0a4a1a70575f1d2e08837f1891c625de7a"
+          },
+          "rpc-private.jsonl": {
+            "bytes": 8195,
+            "sha256": "39379260ded1f0b019f311b73a3f6e1dd566bb23607ba30458346402c9100e3b"
+          },
+          "tool-provenance.json": {
+            "bytes": 18465,
+            "sha256": "d7c29013a73ad39b65aab60fa8c6bd1dd57cf556709fb85bf6f7877ec9bf0c0c"
+          }
+        },
+        "inputs_unchanged": true,
+        "producer_source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+        "source_build_manifest_sha256": "d7c29013a73ad39b65aab60fa8c6bd1dd57cf556709fb85bf6f7877ec9bf0c0c",
+        "prior_log_sha256": "7e715c4da19eb49c59da6842aebb4586fb4fa4d910fad33d36f4fd55e29f6068",
+        "exit_code": 101,
+        "seconds": 123.081,
+        "log_sha256": "5c0a269fb6a7a5caccc411bdbccba4b66a861b2bb05a127ecc9b6cda1334faa6",
+        "summary": "test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.60s",
+        "archive": "baseline-genuine15.log.gz",
+        "archive_sha256": "67b43383cb25b8694578b9978d656ca1c82d66abc3d0e70969be000b4c8354ae"
+      }
+    }
+  },
+  "checks": {
+    "candidate-genuine14": {
+      "command": [
+        "nice",
+        "-n",
+        "12",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-legacy-migration-tests",
+        "--test",
+        "factory_child_goal_legacy_migration",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fixture": "/private/tmp/ab-pr26-schema14.H0wZ51/fixture",
+      "inputs_unchanged": true,
+      "exit_code": 101,
+      "seconds": 0.578,
+      "log_sha256": "34a855b7ed94a5b8d2effb136e7c19b66e5beee5f1833af18cce609f26a3420b",
+      "summary": null,
+      "archive": "candidate-genuine14.log.gz",
+      "archive_sha256": "94ab7f1db3aaa4ab9bd801db2708a9c38ae8bf9488733cb52c5524619d33b97d"
+    },
+    "candidate-genuine15": {
+      "command": [
+        "nice",
+        "-n",
+        "12",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-schema15-migration-tests",
+        "--test",
+        "task_workspace_actual15_migration",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fixture": "/private/tmp/ab-genuine15-producer.ebHgXlyt/fixture",
+      "inputs_unchanged": true,
+      "exit_code": 101,
+      "seconds": 0.317,
+      "log_sha256": "62f67cd1fb3985b60002b0deaaffbe84928603bd42640e52fcb24fa0604bde34",
+      "summary": null,
+      "archive": "candidate-genuine15.log.gz",
+      "archive_sha256": "c0ff44d49fe5b272682ea7f63a28e381b80be2de035efc78e4122a2f2c7d0ab2"
+    },
+    "retry-genuine14": {
+      "command": [
+        "nice",
+        "-n",
+        "12",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-legacy-migration-tests",
+        "--test",
+        "factory_child_goal_legacy_migration",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fixture": "/private/tmp/ab-pr26-schema14.H0wZ51/fixture",
+      "inputs_unchanged": true,
+      "exit_code": 0,
+      "seconds": 5.73,
+      "log_sha256": "b0402a1ae1152c4d5a3958281f2ac30668a6c381bfe9ed894623f8bcab1e1cc9",
+      "summary": "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s",
+      "archive": "retry-genuine14.log.gz",
+      "archive_sha256": "8e1a05cc3ebdeb94f5b6ddabcc59a70bb9f7eac27793aed170500ceaf311ff3f"
+    },
+    "retry-genuine15": {
+      "command": [
+        "nice",
+        "-n",
+        "12",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-schema15-migration-tests",
+        "--test",
+        "task_workspace_actual15_migration",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fixture": "/private/tmp/ab-genuine15-producer.ebHgXlyt/fixture",
+      "inputs_unchanged": true,
+      "exit_code": 0,
+      "seconds": 5.195,
+      "log_sha256": "aee9e94aa500ba2455ba8161894251b6b2f0565a3863506ac10171bbc8884c1f",
+      "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.59s",
+      "archive": "retry-genuine15.log.gz",
+      "archive_sha256": "8da67beeb385fe89b1039f9ef0ae6c69e80f638bd6aa9d7deddc6b0fd509bef6"
+    },
+    "fmt": {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.368,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "fmt.log.gz",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "clippy-genuine14": {
+      "command": [
+        "nice",
+        "-n",
+        "12",
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-legacy-migration-tests",
+        "--test",
+        "factory_child_goal_legacy_migration",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 22.174,
+      "log_sha256": "b02db3d0fafa077fe235e3e400fe61fedb3d630e2d536289495796d616da343f",
+      "archive": "clippy-genuine14.log.gz",
+      "archive_sha256": "d8b6eff1ca6f326486d3c531a509f7d8bdfbda28950d4571c96ddf47029c5b57"
+    },
+    "clippy-genuine15": {
+      "command": [
+        "nice",
+        "-n",
+        "12",
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-schema15-migration-tests",
+        "--test",
+        "task_workspace_actual15_migration",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 11.379,
+      "log_sha256": "95ce2d74004fc057194e0ea7a222dd005eb1bd53f551ea10cc8aa6c4ae99276f",
+      "archive": "clippy-genuine15.log.gz",
+      "archive_sha256": "758bd02772cb849edd9c2023946cb249688691167ad5d643aab167a23ec9d1c0"
+    }
+  },
+  "protected_sources": {
+    "original_fixture_and_provenance_byte_identical": true,
+    "original_corruption_controls_byte_identical": true,
+    "no_new_shared_files": true
+  },
+  "actual_migration_contract": {
+    "14": {
+      "predecessor_sequence_unchanged": true,
+      "backups": [
+        "pre-v15",
+        "pre-v16",
+        "pre-v18",
+        "pre-v19"
+      ]
+    },
+    "15": {
+      "predecessor_sequence_unchanged": true,
+      "backup_original_application_id": true,
+      "original_idempotency_replay_after_migration": true,
+      "backups": [
+        "pre-v16",
+        "pre-v18",
+        "pre-v19"
+      ]
+    },
+    "both": {
+      "active_schema": 19,
+      "old_typed_rows_and_rowids_preserved": true,
+      "old_sqlite_sequence_rows_preserved": true,
+      "original_input_files_unchanged": true,
+      "committed_old_marker_wal_prefix_retained_during_migration": true,
+      "empty_host_authority": true,
+      "strict_schema18_checks_on_owned_in_memory_projection": true,
+      "wrong_label_19": "INPUT_CHANGED",
+      "future_20": "VERSION_UNSUPPORTED",
+      "refusals_main_wal_logical_image_unchanged_and_no_backup": true
+    }
+  },
+  "historical_future19": {
+    "receipt": "docs/execution/schema17-rust-gate/historical-daemon-receipt.json",
+    "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "receipt_sha256": "4f8fb5ade8f9d2aefe2a3f761d6fb38e4754a8145c58ce7037e7ac98c950c3b4"
+  },
+  "scheduling": {
+    "cargo_build_jobs": 1,
+    "nice": 12,
+    "additional_heavy_runs": false,
+    "literal_task_only": true
+  }
+}
