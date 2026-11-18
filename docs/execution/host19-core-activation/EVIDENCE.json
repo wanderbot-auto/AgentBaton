@@ -1,7 +1,7 @@
 {
   "task": "HOST19-P1",
   "base": "c9225714319a91dae60e635c0a34ba4b3a4a670d",
-  "status": "ready_for_leader_review",
+  "status": "leader_accepted_local_Core19_slice",
   "tests": {
     "focused_distinct_passed": 73,
     "historical_Host_and_backup": {
@@ -46,5 +46,7 @@
     "build": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
     "batond": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
     "baton": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf"
-  }
+  },
+  "accepted_delivery_head": "37bd007bed01504e4cde849e2510f2555bcaf984",
+  "handoff": "leader authorized finish --handoff;no further source/build/push"
 }
