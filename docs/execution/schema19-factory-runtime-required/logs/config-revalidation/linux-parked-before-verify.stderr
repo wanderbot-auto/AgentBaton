@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/source/scripts/prepare-factory-test-tools.py", line 385, in <module>
+    main()
+  File "/source/scripts/prepare-factory-test-tools.py", line 371, in main
+    record = verify(root, args.output)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/source/scripts/prepare-factory-test-tools.py", line 359, in verify
+    return _verify_manifest(root, tools, CURRENT_SCHEMA)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/source/scripts/prepare-factory-test-tools.py", line 347, in _verify_manifest
+    raise ValueError('Frozen test tool entry identity changed')
+ValueError: Frozen test tool entry identity changed

@@ -1,0 +1,29 @@
+set -euo pipefail
+p=$1
+cd "$(cat "$p/candidate-path")"
+[[ $(git rev-parse HEAD) == a72d35d01067fde5adae16f05a930870f58b1571 ]]
+[[ $(git rev-parse 'HEAD^{tree}') == aed04f79ea4e8ae2657bee2c055c46b062fcede9 ]]
+[[ -z $(git status --porcelain --untracked-files=no) ]]
+[[ ! -e "$p/mac-factory.start" ]]
+[[ $(cat "$p/mac-build.exit") == 0 && $(cat "$p/linux/build.exit") == 0 ]]
+export CARGO_TARGET_DIR="$CARGO_TARGET_DIR/config-replay"
+export RUST_TEST_THREADS=1
+export AGENTBATON_FACTORY_TEST_TOOLS="$p/mac-frozen"
+export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS" > "$p/mac-before-verify.json"
+cmp "$p/mac-prepare.json" "$p/mac-before-verify.json"
+printf '%s\n' "$$" > "$p/mac-factory.pid"
+date -u +%FT%TZ > "$p/mac-factory.start"
+result=0
+cargo test --offline --locked -p agentbaton-core --test factory_runtime_ipc -- --test-threads=1 --show-output > "$p/mac-factory.log" 2>&1 || result=$?
+printf '%s\n' "$result" > "$p/mac-factory.exit"
+date -u +%FT%TZ > "$p/mac-factory.end"
+python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS" > "$p/mac-after-verify.json"
+cmp "$p/mac-prepare.json" "$p/mac-after-verify.json"
+cid=$(cat "$p/linux/container.cid")
+[[ $(docker inspect --format '{{.State.Status}} {{.State.ExitCode}}' "$cid") == 'exited 0' ]]
+trap 'docker stop --time 5 "$cid" >/dev/null 2>&1 || true' INT TERM
+docker start --attach "$cid" > "$p/linux/test-container.log" 2>&1
+docker inspect --format '{{.State.Status}} {{.State.ExitCode}}' "$cid" > "$p/linux/test-container-exit"
+[[ $(cat "$p/linux/test-container-exit") == 'exited 0' ]]
