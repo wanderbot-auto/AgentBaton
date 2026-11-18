@@ -87,6 +87,18 @@ class Schema19IntegrationSourceFixtureTests(unittest.TestCase):
                         with self.assertRaises(AssertionError):
                             read_schema18_source(root, source)
 
+    def test_live_disk_reader_refuses_an_exact_schema18_checkout(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            for path in (IPC_PATH, RUNTIME_PATH):
+                with self.subTest(path=path):
+                    source = root / path
+                    source.parent.mkdir(parents=True, exist_ok=True)
+                    current = (ROOT / path).read_bytes()
+                    source.write_bytes(restore_schema18_source(path, current))
+                    with self.assertRaises(AssertionError):
+                        read_schema18_source(root, source)
+
     def test_path_and_type_checks_refuse_aliases_and_swapped_sources(self):
         ipc = (ROOT / IPC_PATH).read_bytes()
         with self.assertRaises(AssertionError):
