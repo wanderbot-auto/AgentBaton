@@ -6,7 +6,7 @@ pub(crate) fn migrate(db: &mut Connection, _original_version: u32) -> Result<()>
     let current: u32 = db
         .pragma_query_value(None, "user_version", |r| r.get(0))
         .map_err(db_error)?;
-    if matches!(current, 17 | 18 | 19) {
+    if matches!(current, 17..=19) {
         let mut reference = crate::storage::integration_schema16_reference()?;
         reference.execute_batch(DDL).map_err(db_error)?;
         let expected_tables = if current == 19 {

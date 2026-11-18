@@ -13,3 +13,12 @@ Source implementation complete before first test: normal Store19; pre-v19 privat
 - Fixed backup stage unlink durability/permissions rechecks; successful invocation only removes its own verified empty directory; failures retain evidence. No power-loss simulation claim.
 - Both read-only native subagent reviews fixed0523 completed; findings addressed pending execution. No source outside14 literals.
 - Heavy slot released after red run joined; B owns slot. No further Rust/Clippy until leader grants. No Provider/native/GUI/CI.
+
+Fixed991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb read-only independent re-review: both reviewers close their original findings, no new material findings. Static evidence only; no post-fix Rust execution yet. Inline Python AST and genuine18 input provenance PROBE passed using canonical interpreter; fixture613/binaries4fa+255/build84b unchanged. No active children. Await coordinated heavy slot after B.
+
+## Fixed991 execution
+- focused-green:4 external normal migration +8 Factory inverse all PASS; log69247721f2ca3728aac3debc249bb50c56390a68046e19ffae74639f6b210b97.
+- backup-green:4 PASS; log6af2c44aba87cd7dca2973d4e046a14b3323684325c1ce04ac89f4203ee7245a. host-green:55 PASS; logde6d3c47bf78302c879e8f0712cbc50fe94404bd50a6ea8e35e7bf49969519dd.
+- actual18-first:1 PASS/nonzero execution(0.60s),65.362s total; loge84eaa8b778398409fec3079063e3b943e30cbc113810901e63520b2ad19f3a8. Private retained root/private/tmp/ab19-a18-WOZSHW; backup2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d. Inputcookie1→migrated3;backup1. Original schema/typedrows/rowids/counters exact; old18 normal daemon/CLI API1/schema18/sequence5/task3, states cancelled/draft/draft. pid/pgid74155 normalSIGTERM/exit0/joined/quiescent/no forced/cleanup[]. Original input/tools unchanged. Original nonempty domains onlyprojects/tasks/events/idempotency; other historical authority coverage NOT claimed.
+- actual18-missing-input:expected101/1failed/0ignored (no empty pass/skip); loge38187528c9863a3857723c0ff981fe17a6d403202adfeec32478bf9e36ab78f. No child started.
+- fmt-check passed13 owned Rust files. Strict clippy first FAILED101/manual_range_patterns integration_store.rs9(log58c964fd50dd002d3376384bd6f64aaf797365783256acf308eb4dde84b7add6). Fix equivalent17|18|19→17..=19; no lint weakening. Pending rerun under new source.
