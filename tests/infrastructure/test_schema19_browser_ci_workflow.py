@@ -170,6 +170,10 @@ class CandidateSourceAndInputs(unittest.TestCase):
                 self.assertLess(freeze, source.index('/'+name+'-real-ipc.py'))
         self.assertIn("--candidate-manifest artifacts/ui-browser/goal-execution-candidate.json", source)
         self.assertIn("'--notification-probe',", integration_program())
+        for line in source.splitlines():
+            if line.startswith('artifacts/browser-venv/bin/python apps/desktop/tests/'):
+                self.assertIn('--chromium "$AGENTBATON_CI_CHROMIUM"', line)
+        self.assertLess(source.index("<<'CHROMIUM'"),source.index('/quiet-canvas-real-ipc.py'))
 
     def test_exact_outputs_bind_both_builds_and_readonly_private_executables(self):
         with workspace() as (root, tmp):
@@ -187,7 +191,7 @@ class CandidateSourceAndInputs(unittest.TestCase):
             first = P.PUBLIC/'goal-execution-candidate.json'
             second = P.PUBLIC/'factory-child-planning-candidate.json'
             self.assertEqual(first.read_bytes(), second.read_bytes())
-            data = P.verify_pair(first.read_bytes(), front.read_bytes(), HEAD, TREE)
+            data = P.verify_pair(first.read_bytes(), front.read_bytes(), core.read_bytes(), HEAD, TREE)
             self.assertEqual(data['schema'],19)
             self.assertEqual(data['core_build_record_sha256'],P.sha(core.read_bytes()))
             self.assertEqual(data['frontend_build_record_sha256'],P.sha(front.read_bytes()))
@@ -228,9 +232,11 @@ class CandidateSourceAndInputs(unittest.TestCase):
             raw = front.read_bytes()
             for schema in (18,20,True,19.0,'19'):
                 with self.subTest(schema=schema), self.assertRaises(ValueError):
-                    P.verify_pair(P.encode({**manifest,'schema':schema}),raw,HEAD,TREE)
+                    P.verify_pair(P.encode({**manifest,'schema':schema}),raw,core.read_bytes(),HEAD,TREE)
             with self.assertRaises(ValueError):
-                P.verify_pair(P.encode(manifest),raw+b' ',HEAD,TREE)
+                P.verify_pair(P.encode(manifest),raw+b' ',core.read_bytes(),HEAD,TREE)
+            with self.assertRaises(ValueError):
+                P.verify_pair(P.encode(manifest),raw,core.read_bytes()+b' ',HEAD,TREE)
 
 
 class IntegrationProbeControls(unittest.TestCase):

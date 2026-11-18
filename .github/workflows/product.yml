@@ -163,20 +163,27 @@ jobs:
           set -euo pipefail
           python3 scripts/prepare-schema19-browser-ci.py freeze --runner-temp "$RUNNER_TEMP"
           core_tools="$(realpath "$RUNNER_TEMP")/agentbaton-browser-candidate/tools"
-          artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond "$core_tools/batond" --output artifacts/ui-browser
-          artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --batond "$core_tools/batond" --output artifacts/ui-browser/approved-commands
-          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond "$core_tools/batond" --output artifacts/ui-browser/goal-planning
-          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond "$core_tools/batond" --structured-editor --output artifacts/ui-browser/goal-plan-editor
-          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --preview-evidence --batond "$core_tools/batond" --candidate-manifest artifacts/ui-browser/goal-execution-candidate.json --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
+          AGENTBATON_CI_CHROMIUM="$(
+          artifacts/browser-venv/bin/python - <<'CHROMIUM'
+          import pathlib
+          from playwright.sync_api import sync_playwright
+
+          with sync_playwright() as playwright:
+              print(pathlib.Path(playwright.chromium.executable_path).resolve(strict=True))
+          CHROMIUM
+          )"
+          test -x "$AGENTBATON_CI_CHROMIUM"
+          export AGENTBATON_CI_CHROMIUM
+          artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --output artifacts/ui-browser
+          artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --output artifacts/ui-browser/approved-commands
+          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --output artifacts/ui-browser/goal-planning
+          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --structured-editor --output artifacts/ui-browser/goal-plan-editor
+          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --preview-evidence --batond "$core_tools/batond" --candidate-manifest artifacts/ui-browser/goal-execution-candidate.json --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
           artifacts/browser-venv/bin/python - <<'PY'
-          import asyncio, hashlib, json, os, pathlib, subprocess, sys
-          from playwright.async_api import async_playwright
+          import hashlib, json, os, pathlib, subprocess, sys
           core_tools = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True) / 'agentbaton-browser-candidate/tools'
           candidate = json.loads(pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').read_bytes())
-          async def chromium_executable_path():
-              async with async_playwright() as playwright:
-                  return playwright.chromium.executable_path
-          chromium = asyncio.run(chromium_executable_path())
+          chromium = os.environ['AGENTBATON_CI_CHROMIUM']
           subprocess.run([
               sys.executable, 'apps/desktop/tests/goal-execution-real-ipc.py',
               '--batond', str(core_tools / 'batond'),
@@ -528,11 +535,13 @@ jobs:
                   build_path = pathlib.Path('artifacts/ui-browser/frontend-build-record.json')
                   manifest_raw = preparer.read_record(manifest_path)
                   build_raw = preparer.read_record(build_path)
+                  core_record = temporary / 'agentbaton-browser-core-build.json'
+                  core_raw = preparer.read_record(core_record)
                   diagnostic['stage'] = 'paired_record_decode'
                   manifest, build = module.decode(manifest_raw), module.decode(build_raw)
                   diagnostic['stage'] = 'paired_metadata_guard'
                   if not (type(manifest) is dict and type(build) is dict
-                          and preparer.verify_pair(manifest_raw, build_raw, source, tree) == manifest):
+                          and preparer.verify_pair(manifest_raw, build_raw, core_raw, source, tree) == manifest):
                       raise ValueError('Paired integration source/build metadata refused')
                   diagnostic['stage'] = 'private_records'
                   for name, raw in [('candidate.json', manifest_raw), ('frontend-build-record.json', build_raw)]:
@@ -559,11 +568,12 @@ jobs:
                       if (preparer.git_identity() != (source, tree)
                               or preparer.read_record(manifest_path) != manifest_raw
                               or preparer.read_record(build_path) != build_raw
+                              or preparer.read_record(core_record) != core_raw
                               or preparer.read_record(private / 'candidate.json') != manifest_raw
                               or preparer.read_record(private / 'frontend-build-record.json') != build_raw
                               or preparer.core_pins(tools) != private_pins):
                           raise ValueError('Integration probe input bytes or identity changed')
-                      preparer.verify_pair(manifest_raw, build_raw, source, tree)
+                      preparer.verify_pair(manifest_raw, build_raw, core_raw, source, tree)
 
                   diagnostic['stage'] = 'schema_probe'
                   actual_schema_probe(module, tools, private, binding, verify_inputs)

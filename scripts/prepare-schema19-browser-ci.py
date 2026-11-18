@@ -194,22 +194,34 @@ def verify_build(record, head, tree, command):
         'Paired build source, command or completion refused')
 
 
-def verify_pair(manifest_raw, frontend_raw, head, tree, frontend=FRONTEND):
+def verify_core(core_raw, head, tree):
+    core = decode(core_raw)
+    verify_build(core, head, tree, CARGO)
+    require(core.get('cargo_profile_dev_debug') == '0' and core.get('cargo_features') == FEATURES
+        and core.get('cargo_inputs_sha256') == core_config(), 'Core build configuration changed')
+    return core
+
+
+def verify_pair(manifest_raw, frontend_raw, core_raw, head, tree, frontend=FRONTEND):
     manifest, build = decode(manifest_raw), decode(frontend_raw)
     require(type(manifest.get('schema')) is int and manifest['schema'] == SCHEMA
         and all(manifest.get(name) == head for name in
             ('git_head', 'source_head', 'compiled_core_source_head', 'frontend_source_head'))
         and manifest.get('git_tree') == tree and manifest.get('dirty') is False and manifest.get('tracked_clean') is True
         and manifest.get('frontend_build_record_sha256') == sha(frontend_raw)
+        and manifest.get('core_build_record_sha256') == sha(core_raw)
         and manifest.get('cargo_command') == CARGO and manifest.get('cargo_features') == FEATURES
         and manifest.get('cargo_profile_dev_debug') == '0', 'Paired candidate source or build configuration refused')
     verify_build(build, head, tree, NPM)
+    core = verify_core(core_raw, head, tree)
+    require(manifest.get('cargo_inputs_sha256') == core['cargo_inputs_sha256'], 'Candidate Core configuration pin changed')
     require(manifest.get('frontend_assets') == build.get('frontend_assets') == frontend_assets(frontend),
         'Frontend assets do not match the paired build')
     tools = manifest.get('binaries')
     require(type(tools) is dict and set(tools) == set(TOOLS)
         and all(type(value) is str and re.fullmatch('[a-f0-9]{64}', value) for value in tools.values())
-        and len(set(tools.values())) == len(TOOLS), 'Invalid paired Core tool digests')
+        and len(set(tools.values())) == len(TOOLS)
+        and all(tools[name] == core['tool_pins'][name]['sha256'] for name in TOOLS), 'Invalid paired Core tool digests')
     return manifest
 
 
@@ -229,11 +241,8 @@ def copy_core_tool(source, destination, expected):
 def prepare_candidate(core_record, frontend_record, private):
     head, tree = git_identity()
     core_raw, frontend_raw = read_record(core_record), read_record(frontend_record)
-    core, build = decode(core_raw), decode(frontend_raw)
-    verify_build(core, head, tree, CARGO)
+    core, build = verify_core(core_raw, head, tree), decode(frontend_raw)
     verify_build(build, head, tree, NPM)
-    require(core.get('cargo_profile_dev_debug') == '0' and core.get('cargo_features') == FEATURES
-        and core.get('cargo_inputs_sha256') == core_config(), 'Core build configuration changed')
     require(build.get('frontend_assets') == frontend_assets(FRONTEND), 'Built frontend assets changed')
     original = core_pins(CORE_TOOLS)
     require(core.get('tool_pins') == original, 'Core tools do not match the measured build')
@@ -249,7 +258,7 @@ def prepare_candidate(core_record, frontend_record, private):
         'binaries': {name: pin['sha256'] for name, pin in copied.items()}, 'frontend_assets': build['frontend_assets'],
         'scope': SCOPE}
     raw = encode(candidate)
-    verify_pair(raw, frontend_raw, head, tree)
+    verify_pair(raw, frontend_raw, core_raw, head, tree)
     require(core_pins(CORE_TOOLS) == original and read_record(core_record) == core_raw
         and read_record(frontend_record) == frontend_raw and git_identity() == (head, tree),
         'Browser candidate inputs changed during freezing')
