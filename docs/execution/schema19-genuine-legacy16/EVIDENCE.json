@@ -1,0 +1,267 @@
+{
+  "baseline": {
+    "base": "af6d7e89576c367ada46f6135c384b94cf1984b2",
+    "command": [
+      "nice",
+      "-n",
+      "12",
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "agentbaton-core",
+      "--features",
+      "actual-schema16-migration-tests",
+      "--test",
+      "integration_actual16_migration",
+      "--",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "architecture": "arm64",
+      "CARGO_BUILD_JOBS": 1,
+      "CARGO_PROFILE_DEV_DEBUG": 0,
+      "nice": 12,
+      "AGENTBATON_ACTUAL_SCHEMA16_FIXTURE": "/private/tmp/ab-genuine16-producer.vX8Dtkts/fixture/manifest.json"
+    },
+    "fixture_inputs": {
+      "actual-schema16.sqlite3": {
+        "bytes": 634880,
+        "sha256": "45255ab1dd6adc47e97944947d088eada90a2b0e171921348b7432f5e1cca2f7"
+      },
+      "actual-schema16.sqlite3-shm": {
+        "bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      },
+      "actual-schema16.sqlite3-wal": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "daemon.log": {
+        "bytes": 57,
+        "sha256": "a408591eaddabbedc8e50acf416b827f4ee67a28c85940eef311067d2f60c6ae"
+      },
+      "manifest.json": {
+        "bytes": 9717,
+        "sha256": "37f106b224534d9075c7b87f74c533c218ab2d2b2da2a95fd1d003137a2f9443"
+      },
+      "rpc-private.jsonl": {
+        "bytes": 19693,
+        "sha256": "4f5648e74fa09156cbfa9b9b4d71edfab35b644092fbfc1084f3f64229bbb107"
+      },
+      "tool-provenance.json": {
+        "bytes": 20801,
+        "sha256": "758294acfd4600f7a88f406a0f7b09dec851a9acf58ebf2c489c8425cedf5bbd"
+      }
+    },
+    "producer": {
+      "commit": "0644ea9d8c10d075fef6b139bd9d7d363d5cc4fb",
+      "tree": "107895dfd43c996c668017d556f938d01fa17d3d",
+      "source_build": {
+        "path": "/private/tmp/ab-genuine16-producer.vX8Dtkts/build/frozen/source-build-manifest.json",
+        "sha256": "758294acfd4600f7a88f406a0f7b09dec851a9acf58ebf2c489c8425cedf5bbd"
+      },
+      "fixture_manifest": {
+        "path": "/private/tmp/ab-genuine16-producer.vX8Dtkts/fixture/manifest.json",
+        "sha256": "37f106b224534d9075c7b87f74c533c218ab2d2b2da2a95fd1d003137a2f9443"
+      },
+      "normal_bins": [
+        "baton",
+        "batond"
+      ]
+    },
+    "leader_evidence": {
+      "path": "../leader-control/docs/execution/leader-control/SCHEMA19_GENUINE16_BASELINE.json",
+      "sha256": "583db75486298e5678bc2fbbed43a263b9362cb45cfb168b985b46bb912b3ad8",
+      "prior_setup_failure": {
+        "reason": "The /tmp alias differs from the canonical /private/tmp manifest path; all cases stopped at input-path verification. The corrected run passed the guard.",
+        "log": {
+          "path": "/tmp/ab-required-genuine16-current.svxGqQ8q/cargo.log",
+          "sha256": "cd6e4906aabc1662cd77a2dff6d76006430c4ac55f27901e321e509bcfeba7f1"
+        }
+      },
+      "prior_reproduction": {
+        "result": {
+          "passed": 8,
+          "failed": 2,
+          "exit": 101
+        },
+        "log": {
+          "path": "/tmp/ab-genuine16-canonical-input.LzkFQyk1/cargo.log",
+          "sha256": "2f82526d729a3e748007c9b645c81aaf6e04a3e9836417ed1ae2432201b6c54c"
+        },
+        "fixture_input_hashes": {
+          "path": "/tmp/ab-genuine16-canonical-input.LzkFQyk1/inputs-before",
+          "sha256": "20c155f38a73e6ef334a0d88ad50142eabf0acf2e0b0a9141935aaa9c95b9633"
+        },
+        "fixture_inputs_unchanged": true
+      }
+    },
+    "input_bytes_unchanged": true,
+    "seconds": 200.532,
+    "exit_code": 101,
+    "log_sha256": "7af2cdf6cb6a7a3b467d46cf9f0ae24cefa9ad203ef8a271b19521a33850b7c7",
+    "summary": "test result: FAILED. 8 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s",
+    "archive": "baseline.log.gz",
+    "archive_sha256": "192dcce186148bf9c3d3fec5791ad4692f7ee85c22c2a4eec3d7b0e659c4cd28"
+  },
+  "prior_logs": {
+    "leader-path-alias-failure": {
+      "archive": "leader-path-alias-failure.log.gz",
+      "log_sha256": "cd6e4906aabc1662cd77a2dff6d76006430c4ac55f27901e321e509bcfeba7f1",
+      "archive_sha256": "2b6d34150061bef8c3b341d5c3ba13e90b5a2be3fc5e4b3b49e4b85b3835e25e"
+    },
+    "leader-canonical-prior-failure": {
+      "archive": "leader-canonical-prior-failure.log.gz",
+      "log_sha256": "2f82526d729a3e748007c9b645c81aaf6e04a3e9836417ed1ae2432201b6c54c",
+      "archive_sha256": "0eb46c6e1272c53993768d601e373d15bb7d10e7c73acd625d3e606f66b496e2"
+    }
+  },
+  "retained_baseline_read_only": {
+    "genuine16_all55_tables_raw_history_and_ready_git_receipt_survive_additive17_and_restart": {
+      "directory": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/actual16-migration-Pj7Yd2",
+      "sqlite_uri": "mode=ro&immutable=1",
+      "main": {
+        "bytes": 753664,
+        "sha256": "8a367c9b2c3f1ba4ca661ebe04058c6bc13b7b2d3860718f96d65dec041dc68f",
+        "mode": "0o600"
+      },
+      "schema": 19,
+      "old_typed_rows": 55,
+      "sequence": 9,
+      "host_rows": 0,
+      "backups": {
+        "18": {
+          "path": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/actual16-migration-Pj7Yd2/actual.pre-v18-844181e3-27e7-469a-b2fe-5f830073242f.sqlite3",
+          "sha256": "7c54ce9c9093992f4f51b830c84619893a8ac4c42003b3aedc4a0da67295062c",
+          "same_ddl_rows_version_sequence_application_id": true
+        },
+        "19": {
+          "path": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/actual16-migration-Pj7Yd2/actual.pre-v19-5610bc16-f150-4d9f-b201-8cc301396458.sqlite3",
+          "sha256": "7c54ce9c9093992f4f51b830c84619893a8ac4c42003b3aedc4a0da67295062c",
+          "same_ddl_rows_version_sequence_application_id": true
+        }
+      },
+      "directory_bytes_unchanged": true
+    },
+    "genuine16_copy_labelled_future19_is_refused_without_backup_or_any_byte_change": {
+      "directory": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/actual16-migration-ZBQ9zo",
+      "sqlite_uri": "mode=ro&immutable=1",
+      "main": {
+        "bytes": 634880,
+        "sha256": "78f15a4dd1fb869c25ccb19c495e63d74d762c2cd7853371dd0ea26ad274947c",
+        "mode": "0o600"
+      },
+      "schema": 19,
+      "old_typed_rows": 55,
+      "sequence": 9,
+      "host_rows": null,
+      "backups": {},
+      "directory_bytes_unchanged": true
+    }
+  },
+  "candidate": {
+    "checks": {
+      "candidate": {
+        "command": [
+          "nice",
+          "-n",
+          "12",
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-core",
+          "--features",
+          "actual-schema16-migration-tests",
+          "--test",
+          "integration_actual16_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "seconds": 6.12,
+        "log_sha256": "397dbe54507cccf15fa3d0d9bf7e40632d5b5232794e3094820650e31839e4bb",
+        "summary": "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.83s",
+        "archive": "candidate.log.gz",
+        "archive_sha256": "af778c50eac2ae933c7aac932aafb14b712a337d3bfb85be60ec8f7da696da9b"
+      },
+      "clippy": {
+        "command": [
+          "nice",
+          "-n",
+          "12",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-core",
+          "--features",
+          "actual-schema16-migration-tests",
+          "--test",
+          "integration_actual16_migration",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "seconds": 20.409,
+        "log_sha256": "0d548a288b553aaca4d51f2edcf91387cfefa5067f47b5baa4a705fb27600d8d",
+        "summary": null,
+        "archive": "clippy.log.gz",
+        "archive_sha256": "66ff6fbf48d8e96e0cb90c33bf85a0eb053223ed0c9c5d1fc5884b057d8641a1"
+      },
+      "fmt": {
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 1.345,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summary": null,
+        "archive": "fmt.log.gz",
+        "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      }
+    },
+    "input_bytes_unchanged": true,
+    "tested_source_sha256": "231590bcc2b58dbbc20a7cbbbd693417504ccef567c9761e73a3782d73d8d481"
+  },
+  "immutable_source_regions": {
+    "producer_guard": true,
+    "original_receipt_replay": true,
+    "older_negative_scenarios": true,
+    "late_rollback_changed_only_to_check_both_backups": true
+  },
+  "verified": {
+    "predecessor": 16,
+    "predecessor_tables": 55,
+    "current": 19,
+    "current_tables": 64,
+    "sequence": 9,
+    "empty_host_authority": true,
+    "old_rows_and_ready_receipt_preserved": true,
+    "wal_prefix_retained_during_migration": true,
+    "late_conflict_exact_wal_main_and_rollback": true,
+    "backups": [
+      "pre-v18",
+      "pre-v19"
+    ],
+    "private_backups_preserved_through_restart": true,
+    "wrong_label19": "INPUT_CHANGED",
+    "future20": "VERSION_UNSUPPORTED",
+    "both_version_refusals_identical_logical_main_wal_and_zero_backups": true
+  },
+  "historical_future19": {
+    "receipt": "docs/execution/schema17-rust-gate/historical-daemon-receipt.json",
+    "sha256": "4f8fb5ade8f9d2aefe2a3f761d6fb38e4754a8145c58ce7037e7ac98c950c3b4",
+    "source": "a4e03303b54bd5a5544131e95ad39662f8310e29"
+  }
+}
