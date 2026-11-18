@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """Publish finite child-Goal CI results; never copy private browser evidence."""
 import argparse
+from contextlib import closing
 import hashlib
 import json
 import math
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
+import sqlite3
 import stat
+import subprocess
 import threading
 
+CURRENT_SCHEMA = 19
 CASES = ('normal', 'lost-start', 'cancel')
 EXPECTED = {'normal': {'CG01','CG02','CG05','CG06'},
             'lost-start': {'CG01','CG02','CG03','CG05','CG06'},
@@ -30,7 +34,12 @@ def regular_bytes(path, maximum, private=False):
         info=os.fstat(stream.fileno())
         require(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and 0<info.st_size<=maximum)
         if private:require(stat.S_IMODE(info.st_mode)==0o600)
-        raw=stream.read(maximum+1);require(len(raw)<=maximum)
+        raw = stream.read(maximum + 1)
+        current = os.fstat(stream.fileno())
+        path_info = path.lstat()
+        require(len(raw) == info.st_size and all(
+            getattr(info, key) == getattr(current, key) == getattr(path_info, key)
+            for key in ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_size', 'st_mtime_ns', 'st_ctime_ns')))
         return raw
 
 def unique_object(pairs):
@@ -54,7 +63,11 @@ def strict_json_equal(left,right):
     return False
 
 def candidate_summary(raw):
-    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==18 and m.get('dirty')is False)
+    return candidate_fields(raw, 18)
+
+
+def candidate_fields(raw, schema):
+    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==schema and m.get('dirty')is False)
     for key in ('git_head','source_head','compiled_core_source_head'):
         require(type(m.get(key))is str and re.fullmatch('[0-9a-f]{40}',m[key])is not None)
     require(m['git_head']==m['source_head']==m['compiled_core_source_head'])
@@ -62,12 +75,31 @@ def candidate_summary(raw):
     for value in tools.values():require(type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None)
     assets=m.get('frontend_assets');require(type(assets)is dict and 0<len(assets)<=4096)
     for key,value in assets.items():require(type(key)is str and type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None)
-    summary={'schema':18,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],
+    summary={'schema':schema,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],
         'manifest_sha256':sha(raw),'tools_sha256':{'batond':tools['batond'],'baton':tools['baton']},
         'frontend_asset_count':len(assets),'frontend_assets_sha256':sha(json.dumps(assets,sort_keys=True,separators=(',',':')).encode())}
     return m,summary
 
-# Fixed Core15 method/code vocabulary, not user-supplied display strings.
+def current_candidate_summary(raw, head, tree):
+    candidate, summary = candidate_fields(raw, CURRENT_SCHEMA)
+    require(re.fullmatch('[0-9a-f]{40}', head) and re.fullmatch('[0-9a-f]{40}', tree))
+    require(candidate['source_head'] == head and candidate['git_tree'] == tree
+        and candidate.get('frontend_source_head', head) == head and candidate.get('tracked_clean', True) is True)
+    require('index.html' in candidate['frontend_assets'])
+    for name in candidate['frontend_assets']:
+        path = PurePosixPath(name)
+        require(name == path.as_posix() and name != '.' and not path.is_absolute()
+            and '..' not in path.parts and '\x00' not in name and '\\' not in name)
+    return candidate, {**summary, 'git_tree': tree}
+
+
+def current_checkout(root):
+    require(not subprocess.check_output(['git', 'status', '--porcelain=v1', '--untracked-files=no'], cwd=root))
+    head, tree = subprocess.check_output(['git', 'rev-parse', 'HEAD', 'HEAD^{tree}'], cwd=root, text=True).splitlines()
+    return head, tree
+
+
+# Fixed Core method/code vocabulary. New entries require review.
 DIAGNOSTIC_METHODS = frozenset(['approvals.decline', 'approvals.finalize', 'command_validation_policies.list', 'command_validation_policies.propose', 'command_validation_policies.revoke', 'command_validations.cancel', 'command_validations.get', 'command_validations.list', 'command_validations.run', 'connections.list', 'connections.propose', 'connections.register', 'data_validation_policies.list', 'data_validation_policies.propose', 'data_validation_policies.revoke', 'data_validations.list', 'data_validations.run', 'data_workspace_previews.cancel', 'data_workspace_previews.get', 'data_workspace_previews.list', 'data_workspace_previews.start', 'data_workspaces.approve', 'data_workspaces.cancel', 'data_workspaces.create', 'data_workspaces.get', 'data_workspaces.list', 'data_workspaces.propose', 'events.subscribe', 'factory_child_goals.advance_plan', 'factory_child_goals.cancel', 'factory_child_goals.get', 'factory_child_goals.list', 'factory_child_goals.start', 'factory_child_plans.context', 'factory_child_plans.get', 'factory_child_plans.list', 'factory_child_plans.submit', 'factory_runs.cancel', 'factory_runs.get', 'factory_runs.start', 'factory_scopes.get', 'factory_scopes.list', 'factory_scopes.propose', 'factory_scopes.revoke', 'goal_graph_runs.advance_plan', 'goal_graph_runs.cancel', 'goal_graph_runs.dispatch', 'goal_graph_runs.get', 'goal_graph_runs.list', 'goal_graph_runs.propose', 'goal_node_approvals.propose', 'goal_plans.accept', 'goal_plans.dispatch', 'goal_plans.get', 'goal_plans.list', 'goal_plans.propose', 'goal_plans.ready_preview', 'goal_plans.reserve', 'goal_plans.revise', 'goal_runs.advance_plan', 'goal_runs.cancel', 'goal_runs.dispatch', 'goal_runs.get', 'goal_runs.list', 'goal_runs.propose', 'goal_scopes.approve', 'goal_scopes.get', 'goal_scopes.list', 'goal_scopes.propose', 'goal_scopes.revoke', 'grants.create', 'grants.list', 'grants.propose', 'grants.revoke', 'projects.archive', 'projects.import', 'projects.list', 'projects.reassociate', 'sessions.cancel', 'sessions.create', 'sessions.get', 'sessions.list', 'sessions.send', 'system.snapshot', 'tasks.cancel', 'tasks.create', 'tasks.get', 'tasks.list', 'validation_policies.list', 'validation_policies.propose', 'validation_policies.revoke', 'validations.list', 'validations.run', 'workspaces.create', 'workspaces.list'])
 DIAGNOSTIC_CODES = frozenset(['AUTH_REQUIRED', 'BUDGET_UNKNOWN', 'CANCEL_REQUESTED', 'CAPABILITY_UNSUPPORTED', 'CHILD_CANCELLED', 'CONFIG_CONFLICT', 'DEADLINE_EXCEEDED', 'ENFORCEMENT_UNAVAILABLE', 'INPUT_CHANGED', 'INTERNAL_ERROR', 'INVALID_REQUEST', 'NOT_FOUND', 'OUTCOME_UNKNOWN', 'PERMISSION_DENIED', 'PROVIDER_DISCONNECTED', 'RESOURCE_LIMIT', 'STALE_REVISION', 'TIMEOUT', 'VERSION_UNSUPPORTED', 'WORKSPACE_BUSY'])
 DIAGNOSTIC_EFFECTS = frozenset({'not_started','confirmed','unknown'})
@@ -474,6 +506,131 @@ def project(report, candidate, summary, case, exit_code, harness_sha):
         'failure_kind':'none'if passed else 'runtime_failed','screenshots_published':False,
         'private_history_published':False,'finite_diagnostics':diagnostics}
 
+def exact_integer(value, expected):
+    return type(value) is int and value == expected
+
+
+def current_tool_records(report, candidate):
+    original = report['frozen_tool_pins']
+    installation = report['private_installation']
+    copied = installation['tools']
+    installed = installation['installed_file_pins']
+    expected = candidate['binaries']
+    require(original.keys() == copied.keys() == installed.keys() == expected.keys()
+        and exact_integer(installation['strip']['exitcode'], 0))
+    for name, digest in expected.items():
+        pin = original[name]
+        private = installed[name]
+        record = copied[name]
+        require(pin['sha256'] == record['original_sha256'] == record['copy_sha256'] == record['original_after_sha256'] == digest)
+        require(type(pin['bytes']) is int and 0 < pin['bytes'] <= (256 if name == 'batond' else 128) * 1024 * 1024
+            and exact_integer(record['original_bytes'], pin['bytes']))
+        require(type(private['bytes']) is int and 0 < private['bytes'] <= pin['bytes']
+            and exact_integer(record['installed_bytes'], private['bytes']))
+        require(type(private['sha256']) is str and re.fullmatch('[0-9a-f]{64}', private['sha256'])
+            and private['sha256'] == record['installed_sha256'])
+        if name == 'batond':
+            require(private['sha256'] == digest and private['bytes'] == pin['bytes'])
+
+
+def verify_snapshot_reply(report, directory):
+    observed = report['observations']['schema_evidence']
+    require(exact_integer(observed['ipc_api_version'], 1) and all(exact_integer(observed[key], CURRENT_SCHEMA)
+        for key in ('manifest_schema', 'ipc_database_schema_version', 'sqlite_user_version')))
+    raw = regular_bytes(directory / 'wire-reply-0.json', 4_194_304, private=True)
+    require(raw.endswith(b'\n') and sha(raw) == observed['snapshot_reply_sha256'])
+    snapshot = decode(raw)
+    require('error' not in snapshot and exact_integer(snapshot['result']['api_version'], 1)
+        and exact_integer(snapshot['result']['database_schema_version'], CURRENT_SCHEMA))
+    wires = report['actual_core_wires']
+    require(type(wires) is list and 0 < len(wires) <= 2048)
+    first = wires[0]
+    require(exact_integer(first['sequence'], 0) and first['method'] == 'system.snapshot'
+        and first['params'] == {} and first['key'] is None and first['revision'] is None
+        and first['capture_state'] == 'captured' and first['capture_complete'] is True
+        and first['sha256'] == sha(raw) and exact_integer(first['bytes'], len(raw)))
+
+
+def cleanup_sessions(cleanup, case):
+    def witness(action):
+        rows = [row for row in cleanup if row.get('action') == action]
+        require(len(rows) == 1)
+        return rows[0]
+
+    for action in ('browser_and_playwright_closed', 'frozen_inputs_rechecked',
+            'private_fixture_directory_cleanup_after_all_confirmed'):
+        require(witness(action)['confirmed'] is True)
+    http = witness('HTTP_serve_and_handler_join')
+    require(http['confirmed'] is True and http['active'] == {})
+    daemon = witness('actual_private_daemon_wait')
+    require(exact_integer(daemon['exitcode'], 0) and type(daemon['pid']) is int and daemon['pid'] > 1)
+
+    records = 1 if case == 'cancel' else 2
+    factory = witness('fixed previously verified generated identities inspected')
+    require(factory['complete'] is True and factory['workflow_successful_before_cleanup'] is True)
+    require(all(exact_integer(factory[key], records)
+        for key in ('required_records_for_success', 'actual_bound_records', 'verified_records')))
+    require(all(exact_integer(factory[key], records * 2)
+        for key in ('required_identities_for_success', 'actual_bound_identities', 'inspected_identities')))
+    identities = factory['observations']
+    require(type(identities) is list and len(identities) == records * 2
+        and sum(row['role'] == 'owned_provider' for row in identities) == records
+        and sum(row['role'] == 'owned_companion' for row in identities) == records)
+    bound = []
+    for row in identities:
+        require(row['original_identity_gone'] is True and row['signal_sent'] is False)
+        bound.append(row['expected'])
+    graph = witness('bound_Graph_provider_identity_gone')
+    require(graph['confirmed'] is True and graph['signal_sent'] is False)
+    bound.append(graph['expected'])
+    require(all(type(row['pid']) is int and row['pid'] > 1 and type(row['start_ticks']) is str
+        and re.fullmatch('[0-9]+', row['start_ticks']) for row in bound))
+    require(len({(row['pid'], row['start_ticks']) for row in bound}) == len(bound))
+
+    sessions = witness('all_persisted_sessions_match_bound_stopped_processes')
+    require(sessions['confirmed'] is True and type(sessions['session_ids']) is list
+        and len(sessions['session_ids']) == records + 1
+        and all(type(value) is str and 0 < len(value) <= 128 for value in sessions['session_ids'])
+        and len(set(sessions['session_ids'])) == records + 1)
+    return set(sessions['session_ids'])
+
+
+def verify_retained_database(report, directory, expected_sessions):
+    observations = report['observations']
+    require('retained_private_fixture' not in observations)
+    require(exact_integer(observations['final_snapshot']['schema'], CURRENT_SCHEMA)
+        and exact_integer(observations['final_diagnostics']['schema'], CURRENT_SCHEMA)
+        and observations['final_diagnostics']['complete'] is True)
+    retained = observations['retained_generated_private_database']
+    path = (directory / 'runtime.raw.sqlite3').absolute()
+    raw = regular_bytes(path, 16 * 1024 * 1024, private=True)
+    require(retained['mode'] == '0o600' and retained['contains_only_generated_test_resources'] is True
+        and exact_integer(retained['bytes'], len(raw)) and retained['sha256'] == sha(raw))
+    with closing(sqlite3.connect(path.as_uri() + '?mode=ro&immutable=1', uri=True)) as db:
+        db.execute('PRAGMA query_only=ON')
+        require(exact_integer(db.execute('PRAGMA user_version').fetchone()[0], CURRENT_SCHEMA))
+        rows = [decode(row) for row, in db.execute('SELECT document FROM sessions LIMIT 4')]
+        require(len(rows) == len(expected_sessions) and {row['id'] for row in rows} == expected_sessions
+            and all(row['state'] == 'stopped' for row in rows))
+    require(raw == regular_bytes(path, 16 * 1024 * 1024, private=True))
+
+
+def project_current(report, candidate, fields, case, exit_code, harness_sha, projector_sha, directory):
+    summary = project(report, candidate, fields, case, exit_code, harness_sha)
+    require(exact_integer(report['schema_required'], CURRENT_SCHEMA) and report['source_head'] == fields['source_head']
+        and report['git_tree'] == fields['git_tree'] and report['projector_sha256'] == projector_sha
+        and strict_json_equal(report['frontend_assets'], candidate['frontend_assets']))
+    summary['projector_sha256'] = projector_sha
+    if summary['status'] == 'passed':
+        require(not report.get('secondary_failures') and summary['finite_diagnostics']['version'] == 4
+            and summary['finite_diagnostics']['failure_class'] is None)
+        current_tool_records(report, candidate)
+        verify_snapshot_reply(report, directory)
+        sessions = cleanup_sessions(report['cleanup'], case)
+        verify_retained_database(report, directory, sessions)
+    return summary
+
+
 def publish(path,value):
     pending=path.with_name(path.name+'.pending')
     with os.fdopen(os.open(pending,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600),'wb')as stream:
@@ -485,26 +642,47 @@ def main():
     p.add_argument('--private-dir',type=Path,required=True);p.add_argument('--manifest',type=Path,required=True)
     p.add_argument('--case',choices=CASES,required=True);p.add_argument('--exit-code',required=True)
     p.add_argument('--output',type=Path,required=True);args=p.parse_args()
-    exit_code=None if args.exit_code=='unobserved'else int(args.exit_code)
-    require(exit_code is None or -128<=exit_code<=255)
     output=args.output.absolute();output.mkdir(mode=0o700,parents=True,exist_ok=False)
+    exit_code = None
+    if re.fullmatch('-?[0-9]{1,3}', args.exit_code):
+        parsed = int(args.exit_code)
+        if -128 <= parsed <= 255:
+            exit_code = parsed
     summary={'contract':'agentbaton.child-goal-ci.v1','case':args.case,'status':'failed',
         'exit_code':exit_code,'command_state':'unobserved'if exit_code is None else 'returned','failure_kind':'manifest_invalid','screenshots_published':False,'private_history_published':False,'finite_diagnostics':unobserved_diagnostics()}
-    stage='manifest_invalid'
+    stage = 'runtime_exit_invalid'
     try:
-        candidate,fields=candidate_summary(regular_bytes(args.manifest,4_194_304));summary.update(fields)
-        harness=Path(__file__).resolve().parents[1]/'apps/desktop/tests/factory-child-goal-real-ipc.py'
-        harness_sha=sha(regular_bytes(harness,2_097_152));summary['harness_sha256']=harness_sha
+        require(exit_code is not None or args.exit_code == 'unobserved')
+        stage = 'manifest_invalid'
+        projector = Path(__file__).resolve()
+        root = projector.parents[1]
+        head, tree = current_checkout(root)
+        candidate, fields = current_candidate_summary(regular_bytes(args.manifest, 1_048_576), head, tree)
+        summary.update(fields)
+        harness = root / 'apps/desktop/tests/factory-child-goal-real-ipc.py'
+        harness_sha = sha(regular_bytes(harness, 2_097_152))
+        projector_sha = sha(regular_bytes(projector, 2_097_152))
+        summary.update(harness_sha256=harness_sha, projector_sha256=projector_sha)
         stage='private_directory_invalid'
         info=args.private_dir.lstat();require(stat.S_ISDIR(info.st_mode)and not stat.S_ISLNK(info.st_mode)and stat.S_IMODE(info.st_mode)==0o700)
         stage='report_missing'
         report_path=args.private_dir/'report.json'
-        if not report_path.exists():
-            summary['failure_kind']='preflight_refused'if(args.private_dir/'preflight-refusal.json').is_file()else 'report_missing'
+        if not os.path.lexists(report_path):
+            summary['failure_kind'] = stage
+            refusal = args.private_dir / 'preflight-refusal.json'
+            if exit_code == 2 and os.path.lexists(refusal):
+                stage = 'report_invalid'
+                value = decode(regular_bytes(refusal, 1_048_576, private=True))
+                require(value['status'] == 'preflight_refused' and value['actual_runtime'] == 'not_run'
+                    and value['no_process_token_read_or_listener'] is True
+                    and exact_integer(value['schema_required'], CURRENT_SCHEMA))
+                summary['failure_kind'] = 'preflight_refused'
         else:
-            stage='report_invalid'
-            summary=project(decode(regular_bytes(report_path,33_554_432,private=True)),candidate,fields,args.case,exit_code,harness_sha)
-    except (OSError,ValueError,TypeError,KeyError,OverflowError,RecursionError):
+            stage = 'report_invalid'
+            summary = project_current(decode(regular_bytes(report_path, 33_554_432, private=True)),
+                candidate, fields, args.case, exit_code, harness_sha, projector_sha, args.private_dir)
+    except (OSError, ValueError, TypeError, KeyError, IndexError, AttributeError, OverflowError, RecursionError,
+            sqlite3.DatabaseError, subprocess.SubprocessError):
         summary['status']='failed';summary['failure_kind']=stage
     publish(output/'summary.json',summary)
     return 0 if summary['status']=='passed'else 1

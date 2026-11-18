@@ -171,7 +171,7 @@ class GraphProviderArgvDiagnosticsTests(unittest.TestCase):
             original=json.dumps(report).encode();(private/'report.json').write_bytes(original);(private/'report.json').chmod(0o600)
             manifest=root/'manifest.json';manifest.write_bytes(raw);out=root/'published'
             argv=['projection','--private-dir',str(private),'--manifest',str(manifest),'--case','cancel','--exit-code','1','--output',str(out)]
-            with mock.patch('sys.argv',argv):self.assertEqual(P.main(),1)
+            with mock.patch('sys.argv',argv):self.assertEqual(OLD.P.main(),1)
             value=(out/'summary.json').read_text();self.assertNotIn(SECRET,value)
             self.assertEqual(json.loads(value)['finite_diagnostics']['graph_provider_argv'],{'reason':'argv_mismatch','previously_bound':False})
             self.assertEqual([p.name for p in out.iterdir()],['summary.json'])

@@ -7,6 +7,7 @@ from unittest import mock
 from tests.infrastructure import schema18_source_fixture as F
 from tests.infrastructure import notification_screenshot_composition_fixture as N
 
+from tests.infrastructure.host19_child_goal_source_fixture import normalize_child_goal_outer_layer
 from tests.infrastructure.host19_browser_ci_projector_source_fixture import (
     PROJECTOR_PATH,
     restore_projector_before_schema19,
@@ -24,7 +25,7 @@ def input_source(path):
         return read_historical_driver(ROOT)
     if path == PROJECTOR_PATH:
         return restore_projector_before_schema19(path, (ROOT / path).read_bytes()).decode()
-    return (ROOT / path).read_text()
+    return normalize_child_goal_outer_layer(path, (ROOT / path).read_text())
 
 
 class Schema18SourceInverse(unittest.TestCase):

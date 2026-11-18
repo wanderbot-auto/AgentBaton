@@ -14,9 +14,10 @@ import types
 import unittest
 from unittest import mock
 
+from tests.infrastructure.host19_child_goal_source_fixture import load_historical_projector
+
 ROOT=Path(__file__).resolve().parents[2]
-P=types.ModuleType('child_goal_projection');P.__file__=str(ROOT/'scripts/record-child-goal-ci-evidence.py')
-exec(compile(Path(P.__file__).read_bytes(),P.__file__,'exec'),P.__dict__)
+P=load_historical_projector(ROOT)
 SECRET='PRIVATE_SENTINEL_TOKEN_GRANT_RPC_HTML'
 
 def inputs(case='normal'):
