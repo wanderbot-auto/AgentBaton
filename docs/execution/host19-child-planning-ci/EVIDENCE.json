@@ -1,0 +1,362 @@
+{
+  "base_head": "1240b1ce7109590f1c61584a6132e14a45ae901b",
+  "verified_source_head": "1239b4b6e12370509a58ffe4253e76392d58f36a",
+  "verified_source_tree": "7003c3db8e99c735900a1bb7afbbc59bec52493f",
+  "integration_target_observed": "ae236688c1727e1a4610c424dd42bdd832f76dab",
+  "build": {
+    "source_head": "1239b4b6e12370509a58ffe4253e76392d58f36a",
+    "source_tree": "7003c3db8e99c735900a1bb7afbbc59bec52493f",
+    "compiled_core_source_head": "1239b4b6e12370509a58ffe4253e76392d58f36a",
+    "core_build_exit": 0,
+    "frontend_build_exit": 0,
+    "tracked_source_clean_before_and_after": true,
+    "core_build_log_sha256": "33d62fa421b9da506166a86f2d0a8aac395bf5b7c3f024150273f10d82c92992",
+    "frontend_build_log_sha256": "f4b8074f7d787793f9173af4476f41574bbc8a421a395e126ac4b12440d75b37",
+    "candidate_manifest_sha256": "77bc91519246a0f74151f21169d4f69515509cb9cde4242801bc4877edd3422d",
+    "tools_sha256": {
+      "batond": "013af2afb1f6bf50dd565737b0e823bff20d0bea394063802902fdf357512518",
+      "baton": "b6acb6e963ae3a8449bb34a9334b4bd6c91318ff3fc7078f87ef0839423b9593"
+    },
+    "frontend_assets_sha256": {
+      "assets/index-D8twEwnK.js": "6f21a1ae2d9f6e8038d7329be5105a205ee7fc193b0ed79902753b58594f0090",
+      "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+      "index.html": "4a0c7f3301dd165c2e1bba76fe88dc01ccc88803321c0a275d5b2338f39f946c"
+    },
+    "core_build_host": "local isolated Linux ARM64 container",
+    "frontend_build_host": "Apple Silicon macOS",
+    "frontend_bytes_copied_and_verified": true,
+    "core_build_command": "CARGO_PROFILE_DEV_DEBUG=0 CARGO_BUILD_JOBS=2 cargo build --offline --locked --bin baton --bin batond --features agentbaton-core/preview-evidence",
+    "frontend_build_command": "npm --prefix apps/desktop run build",
+    "rust": "1.91.1",
+    "toolchain_image": "rust@sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "browser_image": "mcr.microsoft.com/playwright/python@sha256:ad879d1a9e49a94f6f8c99f6890f684b909498509c0494502320b70ddab655cf",
+    "wheel_lock_sha256": "64459894a6634ea3e7ac98d86291d8c63dc5d8a5083a997a3ea71ec6c3a19475",
+    "strip": {
+      "path": "/usr/bin/strip",
+      "version": "GNU strip (GNU Binutils for Debian) 2.40",
+      "sha256": "09ea31b5f54325e60310f43ee17fa532b4f816a177a13f4b59f72767d26932bf",
+      "runtime_dependency_sha256": {
+        "libbfd-2.40-system.so": "9c5dc62defb1aef00a23b77726cce74cc22b91aa418287da8e82e5854d74dd26",
+        "libsframe.so.0": "8e1afea39d191b0fd280c6607f463141b42d5cdd70270029012943698208cca2"
+      }
+    }
+  },
+  "actual_linux_container": {
+    "receipt_sha256": "68743c787fbaed14cfb29d01a997760aa7277ca72286aa5c16b8443ddd4f84d4",
+    "source": "1239b4b6e12370509a58ffe4253e76392d58f36a",
+    "git_tree": "7003c3db8e99c735900a1bb7afbbc59bec52493f",
+    "runtime": "Local Linux ARM64 Docker; actual procfs, private Unix Core, Chromium, generated ACP and actual Baton MCP",
+    "kernel": "6.12.69-linuxkit",
+    "python": "3.12.3",
+    "playwright": "1.61.0",
+    "chromium": "Chromium 149.0.7827.0",
+    "chromium_sha256": "c1aa0fb5b6c60eb093df69d9e40dd50ab2039d3ccba8836ef21880340a77af64",
+    "manifest_sha256": "77bc91519246a0f74151f21169d4f69515509cb9cde4242801bc4877edd3422d",
+    "harness_sha256": "9c2e0a94b80634650c0f3b5d90d447fe2122f787a8f5b0aca8c37e9f84e484a7",
+    "factory_support_sha256": "e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464",
+    "graph_support_sha256": "550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18",
+    "build_receipt_sha256": "56134ef17ebdf48eec7a8be555b5915afd76bb60a133b2f000fe9fa51dda5275",
+    "tools_sha256": {
+      "batond": "013af2afb1f6bf50dd565737b0e823bff20d0bea394063802902fdf357512518",
+      "baton": "b6acb6e963ae3a8449bb34a9334b4bd6c91318ff3fc7078f87ef0839423b9593"
+    },
+    "frontend_assets_sha256": {
+      "assets/index-D8twEwnK.js": "6f21a1ae2d9f6e8038d7329be5105a205ee7fc193b0ed79902753b58594f0090",
+      "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+      "index.html": "4a0c7f3301dd165c2e1bba76fe88dc01ccc88803321c0a275d5b2338f39f946c"
+    },
+    "loopback_only": true,
+    "private_case_fixtures_removed": true,
+    "preflight_controls": {
+      "old": {
+        "exit": 2,
+        "report_sha256": "b70f38100c7194e2ce82b82c2fb8726b74358157f6830dd0006208a4d216774d",
+        "error": "Only integer schema19 candidate is current Factory runtime evidence"
+      },
+      "future": {
+        "exit": 2,
+        "report_sha256": "b70f38100c7194e2ce82b82c2fb8726b74358157f6830dd0006208a4d216774d",
+        "error": "Only integer schema19 candidate is current Factory runtime evidence"
+      },
+      "false": {
+        "exit": 2,
+        "report_sha256": "b70f38100c7194e2ce82b82c2fb8726b74358157f6830dd0006208a4d216774d",
+        "error": "Only integer schema19 candidate is current Factory runtime evidence"
+      },
+      "float": {
+        "exit": 2,
+        "report_sha256": "b70f38100c7194e2ce82b82c2fb8726b74358157f6830dd0006208a4d216774d",
+        "error": "Only integer schema19 candidate is current Factory runtime evidence"
+      },
+      "string": {
+        "exit": 2,
+        "report_sha256": "b70f38100c7194e2ce82b82c2fb8726b74358157f6830dd0006208a4d216774d",
+        "error": "Only integer schema19 candidate is current Factory runtime evidence"
+      },
+      "wrong-head": {
+        "exit": 2,
+        "report_sha256": "b08177c3f248dcd70c1d1fed51368fb4ddf5d3fdffb22f74e1ea89ed5cd9785b",
+        "error": "Factory candidate source does not match the clean Git HEAD/tree"
+      },
+      "wrong-tree": {
+        "exit": 2,
+        "report_sha256": "b08177c3f248dcd70c1d1fed51368fb4ddf5d3fdffb22f74e1ea89ed5cd9785b",
+        "error": "Factory candidate source does not match the clean Git HEAD/tree"
+      },
+      "mixed-compile": {
+        "exit": 2,
+        "report_sha256": "b08177c3f248dcd70c1d1fed51368fb4ddf5d3fdffb22f74e1ea89ed5cd9785b",
+        "error": "Factory candidate source does not match the clean Git HEAD/tree"
+      },
+      "wrong-companion": {
+        "exit": 2,
+        "report_sha256": "4387bc688b30c579684f1039b99632dc9b1fb6827fd764a0627680958d478bbc",
+        "error": "Factory frozen tool digest mismatch"
+      },
+      "wrong-assets": {
+        "exit": 2,
+        "report_sha256": "0f6ab1f85a9dcaa5fc6a6546aac5347135871cbc41e5bef6e60225a1301b2b8b",
+        "error": "Factory candidate frontend assets do not match"
+      }
+    },
+    "current": {
+      "exit": 0,
+      "report_sha256": "3a4737a4cdb98d972e569d1dc08cc0add58b85db84c7580aba0fa888a929073b",
+      "status": "passed",
+      "checks": [
+        "CP01",
+        "CP02",
+        "CP03",
+        "CP04",
+        "CP05",
+        "CP06",
+        "CP07",
+        "CP08",
+        "CP09"
+      ],
+      "images": {
+        "01-explicit-planning-policy.png": {
+          "sha256": "24c4950fb9a1c5289eb034496f1283fb950380a53410a89f0cad58e9470d0c3c",
+          "bytes": 155223,
+          "dimensions": [
+            1488,
+            1400
+          ]
+        },
+        "02-real-child-ref-history-original-plan.png": {
+          "sha256": "c975c1c95bd3fc212f2fcca194f9508a7dcd6dfe71acb05cff0eabb9ee0a35ca",
+          "bytes": 186848,
+          "dimensions": [
+            1488,
+            1400
+          ]
+        },
+        "03-real-ui-stored-root-plan-r3.png": {
+          "sha256": "c63af8340a8119bcecffdbc0520cd94ddbaeafe5c8fce00144cfff426739e6a5",
+          "bytes": 199534,
+          "dimensions": [
+            1488,
+            1400
+          ]
+        },
+        "04-exact-key-recovered-r4.png": {
+          "sha256": "fedefffaad0b9229b1ca076fca796942854352e7ec1cdcb24ca203e255e1db6f",
+          "bytes": 199493,
+          "dimensions": [
+            1488,
+            1400
+          ]
+        }
+      },
+      "schema": {
+        "manifest_schema": 19,
+        "ipc_api_version": 1,
+        "ipc_database_schema_version": 19,
+        "sqlite_user_version": 19,
+        "snapshot_reply_sha256": "c49efab9a149c6a9a80da4f55eae8d8a8aa54396e3b5e629734cf707cffb92ea"
+      },
+      "revisions": 6,
+      "attempts": 3,
+      "active_slots": 0,
+      "real_core_refusal_codes": {
+        "budget": "AUTH_REQUIRED",
+        "input": "INPUT_CHANGED",
+        "outputs": "AUTH_REQUIRED",
+        "validators": "INVALID_REQUEST"
+      },
+      "exact_lost_reply_recovery": true,
+      "installed_tool_sha256": {
+        "batond": "013af2afb1f6bf50dd565737b0e823bff20d0bea394063802902fdf357512518",
+        "baton": "90abe8973e292cf0b91a9e495cb5a66f9f0098e91e499ed728a5b097ea3b68a2"
+      },
+      "cleanup": {
+        "daemon_wait0": true,
+        "http_thread_and_handlers_joined": true,
+        "original_process_identities_gone_without_signal": 6,
+        "cleanup_complete": true
+      }
+    },
+    "injected_teardown": {
+      "exit": 1,
+      "report_sha256": "f265df3532071d2cead8653ecec89a959076fdf275b290b2a104b94be7231bc7",
+      "status": "failed_or_interrupted",
+      "checks": [
+        "CP01",
+        "CP02",
+        "CP03",
+        "CP04",
+        "CP05",
+        "CP06",
+        "CP07",
+        "CP08",
+        "CP09"
+      ],
+      "images": {
+        "01-explicit-planning-policy.png": {
+          "sha256": "586ca0628f1fa95ea68deb02784b3df99577e6d18476d1cfe150bfb21902214f",
+          "bytes": 156565,
+          "dimensions": [
+            1488,
+            1400
+          ]
+        },
+        "02-real-child-ref-history-original-plan.png": {
+          "sha256": "2daa1864f9251cbea036f8afd10ccc192822d94fdb5a491a12975984bbd63533",
+          "bytes": 187912,
+          "dimensions": [
+            1488,
+            1400
+          ]
+        },
+        "03-real-ui-stored-root-plan-r3.png": {
+          "sha256": "88f679a54d5bf25eb726f310b42176c9afbb83feebb9acc9ac09b7cf8b685488",
+          "bytes": 199505,
+          "dimensions": [
+            1488,
+            1400
+          ]
+        },
+        "04-exact-key-recovered-r4.png": {
+          "sha256": "4c6ec7272dadcfeedbebe2bf6b41e54d6204ccfa5dff4f9451540d038e226f26",
+          "bytes": 199449,
+          "dimensions": [
+            1488,
+            1400
+          ]
+        }
+      },
+      "schema": {
+        "manifest_schema": 19,
+        "ipc_api_version": 1,
+        "ipc_database_schema_version": 19,
+        "sqlite_user_version": 19,
+        "snapshot_reply_sha256": "19234b5c4e83f143d3bc08bc4f424d1770551f2ad01e2869ab031953e444040a"
+      },
+      "failure_stage": "browser_close",
+      "failure_type": "RuntimeError",
+      "revisions": 6,
+      "attempts": 3,
+      "active_slots": 0,
+      "real_core_refusal_codes": {
+        "budget": "AUTH_REQUIRED",
+        "input": "INPUT_CHANGED",
+        "outputs": "AUTH_REQUIRED",
+        "validators": "INVALID_REQUEST"
+      },
+      "exact_lost_reply_recovery": true,
+      "installed_tool_sha256": {
+        "batond": "013af2afb1f6bf50dd565737b0e823bff20d0bea394063802902fdf357512518",
+        "baton": "90abe8973e292cf0b91a9e495cb5a66f9f0098e91e499ed728a5b097ea3b68a2"
+      },
+      "cleanup": {
+        "daemon_wait0": true,
+        "http_thread_and_handlers_joined": true,
+        "original_process_identities_gone_without_signal": 6,
+        "cleanup_complete": false
+      }
+    },
+    "owned_container_removed": true,
+    "fixture_policy_ttl_ms": 30000,
+    "runtime_wait_seconds": 15,
+    "local_refusal_absolute_seconds": 5,
+    "local_refusal_activation_cap": 4,
+    "companion_size_cap_bytes": 134217728
+  },
+  "verified_historical_source": {
+    "active_followup_sha256": "9c2e0a94b80634650c0f3b5d90d447fe2122f787a8f5b0aca8c37e9f84e484a7",
+    "archived_followup_sha256": "99140ac582fdb74762bc5bd7f6bcc604800a9f174309daa6e1f7054c6c3d7e68",
+    "schema18_inner_sha256": "83a41650d758f53221d28778840676634c72d741011d88e9936ff4a35c11abe7",
+    "before_schema18_activation_candidate_sha256": "325b013eefa3978107016ecb644290316cb820aa7d4a0d46286ca3c364cf85a3",
+    "original_before_activation_sha256": "174931beb6999e4120e4e6419cd3485db373f8f5383bfd72415e0982e8e39c02",
+    "historical_followup_equals_base_git_bytes": true,
+    "unchanged_other_inverse_domains": true,
+    "shared_schema18_inverse_tests_kept": true,
+    "self_check_output_except_source_attribution_equal": true,
+    "pure_checks": 47
+  },
+  "verification": {
+    "baseline_inverse_and_activation_passed": 22,
+    "current_inverse_and_activation_passed": 24,
+    "schema19_focused_passed": 7,
+    "shared_factory_meters_passed": 18,
+    "child_goal_pure_import_passed": 392,
+    "infrastructure": {
+      "passed": 987,
+      "skipped": 16,
+      "exit": 0
+    },
+    "desktop": {
+      "files": 114,
+      "passed": 1597,
+      "exit": 0
+    },
+    "root_node": {
+      "passed": 4,
+      "exit": 0
+    },
+    "preflight_checked": [
+      "verify_bootstrap_manifest",
+      "validate_design",
+      "validate_infrastructure",
+      "check_gate --scope preparation",
+      "doctor --strict"
+    ],
+    "isolated_rust_smoke": {
+      "passed": 2,
+      "strict_all_targets_clippy_exit": 0
+    },
+    "log_sha256": {
+      "baseline": "0d277de2b572b341438a47b57ae67a1febfef63c97d2eb0326ab65a77049cd13",
+      "focused-current": "9ffcfbfbe02ba0949d19dffdb447cb9e7f85191c07aea566039962a077641727",
+      "focused-inverse": "f3af3d6cecc10a26f58b22e5cac7e8e69d434cb2d54bf8d208cb5663a0974f96",
+      "wrapper-current": "af706a3d52c7ab88bbfbaeb27dbb7dd501b64aae47a7ffae4699550a216539ea",
+      "wrapper-historical": "6cd0f3096224298b232ec7ffa5ee446120f471a6f3f633bab796a3e7b648f829",
+      "child-goal-import": "b8bfb745725f33f920034ec163551a9d7f92bcf1023fb9ecd107cf3fd7ef2c5e",
+      "shared-meters": "26d6f36aeaf7fc5ed116deeda520c23a645ff07c7fa088b8a3e5f6138a0cf804",
+      "infra": "5cb93ceaf496e0d18d05eb31fc70b91c39a975eaefdf192b33aa3f744f5556e9",
+      "root-node": "a8bf804261597571a9ffe99485277e73dc4ad5fccd6c5a4390b8112202e0e83e",
+      "desktop": "323e603e71cc53f9acdc14ef4faaeca41127cb90c464798b7394c3e7fc34a402",
+      "verify_bootstrap_manifest": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "validate_design": "de881d169b6fdd93a6ac14e6b553067b2a33ee9a19a2d73cc59976f85bf09c04",
+      "validate_infrastructure": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "gate": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146",
+      "doctor": "aec553f89ca4c59c02588da7ac59df4ec1463cb903479906e7cbdac2887ad752",
+      "rust-smoke": "90257a7c391bb26499f5349ced18d30d6b31698fc9d1c129c0616078b6e6af18",
+      "smoke-clippy": "4e5504ab6c47ddcc1ae2a281a2ce18dac55003bdb5ec5d664b0df79e3807066d",
+      "linux-build": "33d62fa421b9da506166a86f2d0a8aac395bf5b7c3f024150273f10d82c92992",
+      "frontend-build": "f4b8074f7d787793f9173af4476f41574bbc8a421a395e126ac4b12440d75b37",
+      "locked-dependencies": "0c86acdba241fbb9ab7f486f33b6069ae343f45945eeef8dc1daee79c8963fe2"
+    }
+  },
+  "private_runtime": {
+    "root": "/private/tmp/ab-collab-srve5exz",
+    "actual_run": "linux-replay.a67oLj",
+    "candidate": "candidate",
+    "static": "static.sPcFQy",
+    "logs": "checks",
+    "historical_source": "historical-source"
+  },
+  "hosted_linux_ci": "not_run",
+  "macos_native_owner_ui": "not_run",
+  "child_goal_browser": "not_run_in_this_task"
+}
