@@ -1,0 +1,17 @@
+{
+  "source": "6fe6e7a06826020f72081a8f80dc39f995393c8b",
+  "argv": [
+    "npm",
+    "--prefix",
+    "apps/desktop",
+    "run",
+    "build"
+  ],
+  "env": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_PROFILE_DEV_DEBUG": "0"
+  },
+  "exit": 0,
+  "seconds": 1.938,
+  "log_sha256": "0b5ad43896ff628dfd359e0246b644a5db198a504b5d4b2273b5f6326b422709"
+}
