@@ -32,7 +32,7 @@ import re
 import sys
 
 PLANNING_PATH = Path(__file__).with_name('factory-child-planning-real-ipc.py')
-PLANNING_SHA256 = '9c2e0a94b80634650c0f3b5d90d447fe2122f787a8f5b0aca8c37e9f84e484a7'
+PLANNING_SHA256 = '64e27e2d1b49750542933ea50d9ad6a85ec93964ec1c21411a82c2a1451a6ea6'
 PLANNING_SOURCE = PLANNING_PATH.read_bytes()
 _spec = importlib.util.spec_from_file_location('_child_goal_planning_support', PLANNING_PATH)
 planning = importlib.util.module_from_spec(_spec)
@@ -1692,6 +1692,54 @@ def sample_owner_ui(finite,goal_panel,goal_id,slot):
     finite.owner_ui_sample(slot,raw,time.monotonic_ns())
 
 
+def rendered_root_action_witness(http_rows, rendered, root, reference, state, after_revision):
+    """Match the latest complete real Core read to the already rendered fixture action."""
+    snapshot = next((row for row in reversed(http_rows)
+        if row['method'] == 'system.snapshot' and row['response_complete'] is True), None)
+    if snapshot is None or type(rendered) is not dict:
+        return None
+    result = snapshot['response'].get('result')
+    if not (type(result) is dict and type(result.get('api_version')) is int and result['api_version'] == 1
+            and type(result.get('database_schema_version')) is int
+            and result['database_schema_version'] == base.FACTORY_SCHEMA and type(result.get('tasks')) is list):
+        return None
+    matches = [value for value in result['tasks'] if type(value) is dict and value.get('id') == root['id']]
+    if len(matches) != 1:
+        return None
+    task = matches[0]
+    revision = task.get('revision')
+    digest = snapshot.get('original_reply_sha256')
+    if not (task.get('project_id') == root['project_id'] and type(task.get('spec_revision')) is int
+            and task['spec_revision'] == root['spec_revision'] and positive(revision) and revision > after_revision
+            and task.get('state') == state and type(digest) is str and re.fullmatch('[a-f0-9]{64}', digest)):
+        return None
+    if not (rendered['task_id'] == root['id'] and rendered['revision'] == str(revision)
+            and rendered['state_matches'] is True and rendered['parent_ready'] is True and rendered['action_ready'] is True
+            and support.exact_json_value(rendered['selected_reference'], reference)):
+        return None
+    return {'state': state, 'revision': revision, 'snapshot_reply_sha256': digest}
+
+
+RENDERED_ROOT_ACTION = """
+(panel, { state, label }) => {
+    const thread = panel.closest('[data-testid="task-thread"]');
+    const revision = [...(thread?.querySelectorAll('.task-details > dl > dt') ?? [])]
+        .find(item => item.textContent === 'Revision')?.nextElementSibling?.textContent;
+    const selected = [...panel.querySelectorAll(':scope > details > summary')]
+        .find(item => item.textContent === 'Selected saved execution reference');
+    const reference = selected?.parentElement?.querySelector(':scope > pre')?.textContent ?? '';
+    const buttons = [...panel.querySelectorAll('button')].filter(button => button.textContent === label);
+    return {
+        task_id: thread?.getAttribute('data-task-id') ?? null,
+        revision: revision ?? null,
+        state_matches: thread?.querySelector('.thread-heading > .task-state')?.classList.contains('state-' + state) === true,
+        parent_ready: panel.getAttribute('data-cg-parent-ready') === 'true',
+        selected_reference: reference ? JSON.parse(reference) : null,
+        action_ready: buttons.length === 1 && !buttons[0].matches(':disabled'),
+    };
+}
+"""
+
 def current_child_goal_preflight(args, output):
     require(base.sha(PLANNING_SOURCE) == base.sha(PLANNING_PATH.read_bytes()) == PLANNING_SHA256,
         'Child Goal requires the reviewed schema19 Child Planning source')
@@ -2052,10 +2100,40 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
         revisions.get_by_role('button',name='r1 · '+saved['reference']['plan_digest'],exact=True).click()
         goal_details=plans.get_by_test_id('factory-child-goals');expand(goal_details)
         goal_panel=goal_details.get_by_test_id('factory-child-goal-panel')
-        goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
-        expect(goal_panel.get_by_role('button',name='Execute this exact saved child plan',exact=True)).to_be_enabled()
+        report['observations']['rendered_root_action'] = {}
+
+        def action_ready_timeout(deadline):
+            remaining = int((deadline - time.monotonic()) * 1000)
+            require(remaining > 0, 'Bound root renderer readiness expired')
+            return remaining
+
+        def observe_rendered_root_action(button, label, state, after_revision, deadline):
+            # Observe delivered snapshot bytes and the visible revision without
+            # issuing another IPC. The caller shares one original 5s window.
+            while True:
+                rendered = goal_panel.evaluate(RENDERED_ROOT_ACTION, {'state': state, 'label': label},
+                    timeout=action_ready_timeout(deadline))
+                witness = rendered_root_action_witness(report['http'], rendered, task, saved['reference'], state, after_revision)
+                if witness is not None:
+                    expect(button).to_be_enabled(timeout=action_ready_timeout(deadline))
+                    action_ready_timeout(deadline)
+                    return witness
+                pump()
+                time.sleep(.02)
+
+        refresh_label = 'Refresh child Goal execution'
+        refresh_button = goal_panel.get_by_role('button',name=refresh_label,exact=True)
+        start_label = 'Execute this exact saved child plan'
+        start_button = goal_panel.get_by_role('button',name=start_label,exact=True)
+        start_readiness_deadline = time.monotonic() + 5
+        # The parent Planning panel uses the same bounded Core read worker.
+        # Observe its fresh state before the original explicit refresh.
+        observe_rendered_root_action(refresh_button, refresh_label, 'running', task['revision'], start_readiness_deadline)
+        refresh_button.click(timeout=action_ready_timeout(start_readiness_deadline))
+        start_root = observe_rendered_root_action(start_button, start_label, 'running', task['revision'], start_readiness_deadline)
+        report['observations']['rendered_root_action']['start'] = start_root
         shot('02-exact-saved-raw-reference-before-start',goal_panel)
-        goal_panel.get_by_role('button',name='Execute this exact saved child plan',exact=True).click()
+        start_button.click()
         started=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and not r.get('response',{}).get('error')and r.get('response')],lambda v:len(v)==1)[0]
         initial=started['response']['result'];goal_id=initial['goal']['run']['id'];bounds.goal_runs[goal_id]=child['task_id']
         assert support.exact_json_value(initial['plan'],saved['reference'])and initial['goal']['task_accepted']is False
@@ -2103,16 +2181,24 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
             try:capture()
             finally:phase_stamp('before_owner_capture','end')
             require(before_owner['details']['task_accepted']is False and before_owner['details']['task_acceptance']is None)
+            owner_readiness_deadline = time.monotonic() + 5
+            observe_rendered_root_action(refresh_button, refresh_label, 'outcome_unknown',
+                start_root['revision'], owner_readiness_deadline)
             phase_stamp('owner_UI_refresh_click','start')
             finite.owner_refresh_begin(bound_child_goal_query(query,bounds),time.monotonic_ns())
             sample_owner_ui(finite,goal_panel,query['goal_run_id'],'begin')
-            try:goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
+            try:refresh_button.click(timeout=action_ready_timeout(owner_readiness_deadline))
             finally:
                 finite.owner_refresh_click_finished(time.monotonic_ns())
                 phase_stamp('owner_UI_refresh_click','end')
-            owner=goal_panel.get_by_role('button',name='Review exact Factory-origin candidate in native dialog',exact=True)
+            owner_label = 'Review exact Factory-origin candidate in native dialog'
+            owner = goal_panel.get_by_role('button',name=owner_label,exact=True)
             phase_stamp('owner_enabled_expect','start')
-            try:expect(owner).to_be_enabled()
+            # The stopped fixture parent has an unknown generic Task outcome.
+            # The action below is for the exact child under its Factory binding.
+            try:
+                report['observations']['rendered_root_action']['owner'] = observe_rendered_root_action(
+                    owner, owner_label, 'outcome_unknown', start_root['revision'], owner_readiness_deadline)
             finally:
                 sample_owner_ui(finite,goal_panel,query['goal_run_id'],'end')
                 finite.owner_refresh_end(time.monotonic_ns())

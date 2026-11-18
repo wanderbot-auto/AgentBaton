@@ -560,13 +560,20 @@ class ChildGoalTimingTests(unittest.TestCase):
             with self.subTest(phase=name):
                 stamps=[];calls=[];metadata=[];samples=[];original=RuntimeError('original unit failure')
                 def refuse(*a,**k):calls.append((a,k));raise original
-                button=SimpleNamespace(click=refuse);trace=object()
+                refresh_button=SimpleNamespace(click=mock.Mock(side_effect=refuse))
+                owner=SimpleNamespace(click=mock.Mock(side_effect=refuse))
+                owner_label='Review exact Factory-origin candidate in native dialog'
+                trace=object();witness_sentinel=object()
+                report={'goal_owner_binding':trace,'observations':{'rendered_root_action':{'owner':witness_sentinel}}}
+                readiness_deadline=234.0
+                action_ready_timeout=mock.Mock(return_value=567)
                 query={'scope_id':'scope','task_id':'child','goal_run_id':'graph'}
                 pump=lambda:None
                 ns={'phase_stamp':lambda *a:stamps.append(a),'wait':refuse,'wait_child_goal':refuse,'capture':refuse,
-                    'goal_panel':SimpleNamespace(get_by_role=lambda *a,**k:button),'owner':button,
-                    'expect':lambda _:SimpleNamespace(to_be_enabled=refuse),
-                    'wait_goal_owner_binding':refuse,'report':{'goal_owner_binding':trace},
+                    'goal_panel':SimpleNamespace(),'owner':owner,'owner_label':owner_label,
+                    'refresh_button':refresh_button,'action_ready_timeout':action_ready_timeout,
+                    'observe_rendered_root_action':refuse,'start_root':{'revision':17},'owner_readiness_deadline':readiness_deadline,
+                    'wait_goal_owner_binding':refuse,'report':report,
                     'finite':SimpleNamespace(owner_refresh_click_finished=lambda tick:metadata.append(('click_finished',tick)),
                         owner_refresh_end=lambda tick:metadata.append(('window_finished',tick)),
                         owner_ui_sample=lambda slot,raw,tick:samples.append((slot,raw,tick))),
@@ -583,7 +590,18 @@ class ChildGoalTimingTests(unittest.TestCase):
                 # This fake panel has no evaluate_all: the real helper must
                 # record unavailable raw=None without replacing the exception.
                 self.assertEqual(samples,[('end',None,456)]if name=='owner_enabled_expect'else [])
-                if name=='owner_receipt_observe':
+                self.assertIs(report['goal_owner_binding'],trace)
+                self.assertEqual(report['observations'],{'rendered_root_action':{'owner':witness_sentinel}})
+                if name=='owner_UI_refresh_click':
+                    action_ready_timeout.assert_called_once_with(readiness_deadline)
+                    refresh_button.click.assert_called_once_with(timeout=567)
+                    owner.click.assert_not_called()
+                elif name=='owner_enabled_expect':
+                    self.assertEqual(calls,[((owner,owner_label,'outcome_unknown',17,readiness_deadline),{})])
+                elif name=='owner_click':
+                    owner.click.assert_called_once_with()
+                    refresh_button.click.assert_not_called()
+                elif name=='owner_receipt_observe':
                     self.assertEqual(len(calls[0][0]),2);self.assertIs(calls[0][0][0],trace);self.assertIs(calls[0][0][1],query)
                     self.assertEqual(calls[0][1],{'deadline':123.0,'pump':pump,'capture':refuse})
                 elif name=='owner_core_acceptance':

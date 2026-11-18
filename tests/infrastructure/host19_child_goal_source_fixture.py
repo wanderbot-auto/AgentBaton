@@ -534,33 +534,139 @@ LAYERS = {'apps/desktop/tests/factory-child-goal-real-ipc.py': ('33bc3a72c30e509
                                                            '\n')])}
 
 
+DRIVER = 'apps/desktop/tests/factory-child-goal-real-ipc.py'
+PRIOR_DRIVER_LAYER = LAYERS[DRIVER]
+RENDERED_ROOT_LAYER = ('06d78e2c4df8af6beb816ae85d9cec37256ea7315263e8fb3038be2439bb6855',
+ '33bc3a72c30e509ae64cfce573743f58aa4406e4632ac42e3354d125f7ac242c',
+ [(32,
+   37,
+   '0374c1701c2444b168e2745da5c88fdeb282f6cf5f1f09e261a330a4d9af1f1f',
+   '\n'
+   "PLANNING_PATH = Path(__file__).with_name('factory-child-planning-real-ipc.py')\n"
+   "PLANNING_SHA256 = '9c2e0a94b80634650c0f3b5d90d447fe2122f787a8f5b0aca8c37e9f84e484a7'\n"
+   'PLANNING_SOURCE = PLANNING_PATH.read_bytes()\n'
+   "_spec = importlib.util.spec_from_file_location('_child_goal_planning_support', PLANNING_PATH)\n"),
+  (1692,
+   1744,
+   '5887ce63c9a963f19265b21e0ef9089fb368aebd7362c9c201c7c856002fbe33',
+   '\n'
+   '\n'
+   'def current_child_goal_preflight(args, output):\n'
+   '    require(base.sha(PLANNING_SOURCE) == base.sha(PLANNING_PATH.read_bytes()) == PLANNING_SHA256,\n'),
+  (2100,
+   2138,
+   'ac272aa001ef21982131bd8710e30fcadf00dc8b88a28e8cafd91141928de46b',
+   "        goal_details=plans.get_by_test_id('factory-child-goals');expand(goal_details)\n"
+   "        goal_panel=goal_details.get_by_test_id('factory-child-goal-panel')\n"
+   "        goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()\n"
+   "        expect(goal_panel.get_by_role('button',name='Execute this exact saved child "
+   "plan',exact=True)).to_be_enabled()\n"
+   "        shot('02-exact-saved-raw-reference-before-start',goal_panel)\n"
+   "        goal_panel.get_by_role('button',name='Execute this exact saved child plan',exact=True).click()\n"
+   "        started=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and not "
+   "r.get('response',{}).get('error')and r.get('response')],lambda v:len(v)==1)[0]\n"
+   '        '
+   "initial=started['response']['result'];goal_id=initial['goal']['run']['id'];bounds.goal_runs[goal_id]=child['task_id']\n"),
+  (2181,
+   2203,
+   '64054208b160ea991b53adbb254c1563ea261352b9167d3749721c84ac738d36',
+   "            finally:phase_stamp('before_owner_capture','end')\n"
+   "            require(before_owner['details']['task_accepted']is False and "
+   "before_owner['details']['task_acceptance']is None)\n"
+   "            phase_stamp('owner_UI_refresh_click','start')\n"
+   '            finite.owner_refresh_begin(bound_child_goal_query(query,bounds),time.monotonic_ns())\n'
+   "            sample_owner_ui(finite,goal_panel,query['goal_run_id'],'begin')\n"
+   "            try:goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()\n"
+   '            finally:\n'
+   '                finite.owner_refresh_click_finished(time.monotonic_ns())\n'
+   "                phase_stamp('owner_UI_refresh_click','end')\n"
+   "            owner=goal_panel.get_by_role('button',name='Review exact Factory-origin candidate in native "
+   "dialog',exact=True)\n"
+   "            phase_stamp('owner_enabled_expect','start')\n"
+   '            try:expect(owner).to_be_enabled()\n'
+   '            finally:\n'
+   "                sample_owner_ui(finite,goal_panel,query['goal_run_id'],'end')\n")])
+LAYERS[DRIVER] = (RENDERED_ROOT_LAYER[0], PRIOR_DRIVER_LAYER[1], RENDERED_ROOT_LAYER[2])
+
+
+PLANNING_DRIVER = 'apps/desktop/tests/factory-child-planning-real-ipc.py'
+SERIAL_PLAN_HISTORY_LAYER = ('64e27e2d1b49750542933ea50d9ad6a85ec93964ec1c21411a82c2a1451a6ea6',
+ '9c2e0a94b80634650c0f3b5d90d447fe2122f787a8f5b0aca8c37e9f84e484a7',
+ [(1264,
+   1272,
+   'd404b9f2ad049b6e20ed1cac5708c1238cd74db62e9c4d11d7d28e863d82d91f',
+   "        root_region = root_summary.locator('..').get_by_role('region', name='Child task plans', exact=True)\n"
+   "        expect(root_region.get_by_text('Current plan head: r2', exact=False)).to_be_visible()\n"
+   "        child_summary = panel.locator('summary').filter(has_text='Child task plans · ' + child_id); "
+   'child_summary.click()\n'
+   "        child_region = child_summary.locator('..').get_by_role('region', name='Child task plans', "
+   'exact=True)\n'),
+  (1279,
+   1286,
+   'db7b2e27a134a59b64fa89a9240f5d5850ff3a4d7d633a75c33719af5a8e2fac',
+   "        shot('02-real-child-ref-history-original-plan', child_region)\n"
+   "        passed('CP04', 'UI list refs and select r1 retrieves exact original GoalPlan bytes and raw SHA, not "
+   "fabricated history')\n"
+   "        editor = root_region.get_by_test_id('factory-child-plan-editor'); editor.locator(':scope > "
+   "summary').click()\n"
+   "        editor.get_by_role('button', name='Prepare steps from latest revision', exact=True).click()\n"),
+  (1332,
+   1377,
+   '695201a2a79aa5367984afc22d4cb840e201455ef4a1bce0f96f3311298b0c31',
+   "        passed('CP06', 'UI rejects coherent budget/input/output/mandatory-owner-validator drift; actual Core "
+   "independently rejects exact payloads with zero DB mutation')\n"
+   '        # Stale head uses a new key and is denied; this is not transport replay.\n'
+   '        before_stale = fingerprint_db(runtime)\n'
+   "        stale = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], "
+   "'planJson': original_draft,\n"
+   "            'expectedPlanRevision': 2, 'expectedRevision': scope['revision'], 'idempotencyKey': "
+   "'actual-stale-head'})\n"
+   "        assert stale['value']['error']['code'] == 'STALE_REVISION'\n"
+   "        assert stale['value']['error']['side_effect_state'] == 'not_started' and fingerprint_db(runtime) == "
+   'before_stale\n'
+   "        passed('CP07', 'Actual stale plan CAS refuses atomically; observed head/floors remain r3')\n"
+   "        root_region.get_by_role('button', name='Discard local draft', exact=True).click()\n"
+   "        raw4 = next_raw(stored, 'Actual lost-response UI revision four')\n")])
+
 def sha(text):
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+def reverse_pinned_spans(source, layer, error=AssertionError):
+    current, historical, spans = layer
+    if sha(source) != current:
+        raise error('Unrecognized Child Goal source bytes')
+    lines = source.splitlines(keepends=True)
+    for start, end, span_sha, replacement in reversed(spans):
+        if not 0 <= start < end <= len(lines) or sha(''.join(lines[start:end])) != span_sha:
+            raise error('Child Goal inverse span changed')
+        lines[start:end] = replacement.splitlines(keepends=True)
+    restored = ''.join(lines)
+    if sha(restored) != historical:
+        raise error('Child Goal inverse did not restore the exact source')
+    return restored
 
 
 def restore_child_goal_before_schema19(path, source, *, error=AssertionError):
     if type(path) is not str or path not in LAYERS or type(source) is not str:
         raise error('Unknown Child Goal schema19 inverse arguments')
-    current, historical, spans = LAYERS[path]
+    layer = LAYERS[path]
     digest = sha(source)
-    if digest == historical:
+    if digest == layer[1]:
         return source
-    if digest != current:
-        raise error('Unrecognized Child Goal schema19 source bytes')
-    lines = source.splitlines(keepends=True)
-    for start, end, span_sha, replacement in reversed(spans):
-        if not 0 <= start < end <= len(lines) or sha(''.join(lines[start:end])) != span_sha:
-            raise error('Child Goal schema19 inverse span changed')
-        lines[start:end] = replacement.splitlines(keepends=True)
-    restored = ''.join(lines)
-    if sha(restored) != historical:
-        raise error('Child Goal schema19 inverse did not restore the exact source')
-    return restored
+    if path == DRIVER:
+        if digest == RENDERED_ROOT_LAYER[0]:
+            source = reverse_pinned_spans(source, RENDERED_ROOT_LAYER, error)
+        layer = PRIOR_DRIVER_LAYER
+    return reverse_pinned_spans(source, layer, error)
 
 
 def normalize_child_goal_outer_layer(path, source, *, error=AssertionError):
     layer = LAYERS.get(path)
-    if layer is not None and sha(source) == layer[0]:
+    digest = sha(source)
+    if path == PLANNING_DRIVER and digest == SERIAL_PLAN_HISTORY_LAYER[0]:
+        return reverse_pinned_spans(source, SERIAL_PLAN_HISTORY_LAYER, error)
+    if layer is not None and (digest == layer[0] or path == DRIVER and digest == PRIOR_DRIVER_LAYER[0]):
         return restore_child_goal_before_schema19(path, source, error=error)
     return source
 

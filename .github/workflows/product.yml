@@ -138,27 +138,7 @@ jobs:
           set -euo pipefail
           npm --prefix apps/desktop run typecheck
           npm --prefix apps/desktop test
-          python3 - <<'PYBUILD'
-          import json, pathlib, subprocess, time
-          root = pathlib.Path.cwd()
-          def git(*args):
-              return subprocess.check_output(['git', *args], text=True).strip()
-          source = git('rev-parse', 'HEAD')
-          if git('status', '--porcelain', '--untracked-files=no'):
-              raise SystemExit('Frontend build requires a clean tracked checkout')
-          command = ['npm', '--prefix', 'apps/desktop', 'run', 'build']
-          started = time.monotonic()
-          result = subprocess.run(command)
-          unchanged = source == git('rev-parse', 'HEAD') and not git('status', '--porcelain', '--untracked-files=no')
-          record = {'source': source, 'command': command, 'exit': result.returncode,
-                    'seconds': time.monotonic() - started, 'source_head_and_tracked_unchanged': unchanged}
-          output = root / 'artifacts/ui-browser/frontend-build-record.json'
-          output.parent.mkdir(parents=True, exist_ok=True)
-          with output.open('x') as stream:
-              json.dump(record, stream, indent=2)
-              stream.write('\n')
-          raise SystemExit(result.returncode if result.returncode else (0 if unchanged else 1))
-          PYBUILD
+          python3 scripts/prepare-schema19-browser-ci.py frontend --runner-temp "$RUNNER_TEMP"
       - name: Preview transport timing and failure contracts
         run: |
           python3 apps/desktop/tests/test_data_preview_browser_timing.py
@@ -174,41 +154,39 @@ jobs:
           set -euo pipefail
           rustup toolchain install stable --profile minimal
           cargo test --locked -p agentbaton-core --features preview-evidence --lib evidence_gate -- --nocapture --test-threads=1
-          CARGO_PROFILE_DEV_DEBUG=0 cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence
+          CARGO_PROFILE_DEV_DEBUG=0 python3 scripts/prepare-schema19-browser-ci.py core --runner-temp "$RUNNER_TEMP"
           python3 scripts/prepare-browser-runtime.py --output artifacts/browser-venv
           artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt
           artifacts/browser-venv/bin/python -m playwright install --with-deps chromium
       - name: Actual frontend with real Unix IPC and responsive screenshots
         run: |
           set -euo pipefail
-          artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser
-          artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/approved-commands
-          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/goal-planning
-          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --structured-editor --output artifacts/ui-browser/goal-plan-editor
-          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --preview-evidence --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
+          python3 scripts/prepare-schema19-browser-ci.py freeze --runner-temp "$RUNNER_TEMP"
+          core_tools="$(realpath "$RUNNER_TEMP")/agentbaton-browser-candidate/tools"
+          AGENTBATON_CI_CHROMIUM="$(
+          artifacts/browser-venv/bin/python - <<'CHROMIUM'
+          import pathlib
+          from playwright.sync_api import sync_playwright
+
+          with sync_playwright() as playwright:
+              print(pathlib.Path(playwright.chromium.executable_path).resolve(strict=True))
+          CHROMIUM
+          )"
+          test -x "$AGENTBATON_CI_CHROMIUM"
+          export AGENTBATON_CI_CHROMIUM
+          artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --output artifacts/ui-browser
+          artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --output artifacts/ui-browser/approved-commands
+          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --output artifacts/ui-browser/goal-planning
+          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --structured-editor --output artifacts/ui-browser/goal-plan-editor
+          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --preview-evidence --batond "$core_tools/batond" --candidate-manifest artifacts/ui-browser/goal-execution-candidate.json --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
           artifacts/browser-venv/bin/python - <<'PY'
-          import asyncio, hashlib, json, pathlib, subprocess, sys
-          from playwright.async_api import async_playwright
-          def git(*args):
-              return subprocess.check_output(['git', *args], text=True).strip()
-          assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
-          candidate = {
-              'schema': 18,
-              'git_head': git('rev-parse', 'HEAD'),
-              'git_tree': git('rev-parse', 'HEAD^{tree}'),
-              'dirty': False,
-              'cargo_features': ['agentbaton-core/preview-evidence'],
-              'binaries': {name: hashlib.sha256(pathlib.Path('target/debug', name).read_bytes()).hexdigest() for name in ['batond', 'baton']},
-              'scope': 'CI-built Linux dev evidence candidate; only this UI preview tool build sets CARGO_PROFILE_DEV_DEBUG=0 (debuginfo=0); dev opt-level/debug_assertions/panic defaults and existing package overrides are unchanged; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact',
-          }
-          pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
-          async def chromium_executable_path():
-              async with async_playwright() as playwright:
-                  return playwright.chromium.executable_path
-          chromium = asyncio.run(chromium_executable_path())
+          import hashlib, json, os, pathlib, subprocess, sys
+          core_tools = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True) / 'agentbaton-browser-candidate/tools'
+          candidate = json.loads(pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').read_bytes())
+          chromium = os.environ['AGENTBATON_CI_CHROMIUM']
           subprocess.run([
               sys.executable, 'apps/desktop/tests/goal-execution-real-ipc.py',
-              '--batond', 'target/debug/batond',
+              '--batond', str(core_tools / 'batond'),
               '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
               '--frontend', 'apps/desktop/dist',
               '--output', 'artifacts/ui-browser/goal-execution',
@@ -356,7 +334,7 @@ jobs:
           run_task_workspace_evidence()
           graph_base = [
               sys.executable, 'apps/desktop/tests/goal-graph-real-ipc.py',
-              '--batond', 'target/debug/batond',
+              '--batond', str(core_tools / 'batond'),
               '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
               '--frontend', 'apps/desktop/dist', '--chromium', chromium,
           ]
@@ -373,7 +351,7 @@ jobs:
               try:
                   subprocess.run([
                       sys.executable, 'apps/desktop/tests/factory-real-ipc.py',
-                      '--case', case, '--batond', 'target/debug/batond',
+                      '--case', case, '--batond', str(core_tools / 'batond'),
                       '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
                       '--frontend', 'apps/desktop/dist', '--chromium', chromium,
                       '--output', 'artifacts/ui-browser/factory-' + case,
@@ -383,17 +361,10 @@ jobs:
           if factory_failures:
               raise SystemExit('Factory runtime checks failed: ' + json.dumps(factory_failures))
           frontend = pathlib.Path('apps/desktop/dist')
-          planning_candidate = {
-              **candidate,
-              'source_head': candidate['git_head'],
-              'compiled_core_source_head': candidate['git_head'],
-              'frontend_assets': {str(path.relative_to(frontend)): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(frontend.rglob('*')) if path.is_file()},
-          }
           planning_manifest = pathlib.Path('artifacts/ui-browser/factory-child-planning-candidate.json')
-          planning_manifest.write_text(json.dumps(planning_candidate, indent=2) + '\n')
           subprocess.run([
               sys.executable, 'apps/desktop/tests/factory-child-planning-real-ipc.py',
-              '--run', '--tools', 'target/debug', '--frontend', str(frontend),
+              '--run', '--tools', str(core_tools), '--frontend', str(frontend),
               '--manifest', str(planning_manifest), '--chromium', chromium,
               '--output', 'artifacts/ui-browser/factory-child-planning',
           ], check=True)
@@ -409,7 +380,7 @@ jobs:
                           subprocess.run([
                               sys.executable, 'apps/desktop/tests/factory-child-goal-real-ipc.py',
                               '--run', '--case', case,
-                              '--tools', 'target/debug', '--frontend', str(frontend),
+                              '--tools', str(child_goal_private.parent / 'agentbaton-browser-candidate/tools'), '--frontend', str(frontend),
                               '--manifest', str(planning_manifest), '--chromium', chromium,
                               '--output', str(child_goal_private / case),
                           ], check=True, stdout=log, stderr=subprocess.STDOUT)
@@ -469,6 +440,13 @@ jobs:
               spec.loader.exec_module(module)
               return module
 
+          def candidate_preparer():
+              path = pathlib.Path('scripts/prepare-schema19-browser-ci.py')
+              spec = importlib.util.spec_from_file_location('_ci_schema19_candidate', path)
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+
           def copy_tool(source, destination, expected):
               stamp = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_nlink,
                                     value.st_size, value.st_mtime_ns, value.st_ctime_ns)
@@ -493,7 +471,8 @@ jobs:
               if stamp(before) != stamp(os.stat(source, follow_symlinks=False)):
                   raise ValueError('Built integration tool path changed')
 
-          def actual_schema_probe(module, tools, private, source):
+          def actual_schema_probe(module, tools, private, binding, verify_inputs):
+              verify_inputs()
               runtime = private / 'probe-runtime'
               runtime.mkdir(mode=0o700)
               snapshot = None
@@ -506,12 +485,21 @@ jobs:
                           if process.poll() is not None or time.monotonic() >= deadline:
                               raise ValueError('Actual schema probe did not start')
                           time.sleep(.02)
+                      token = (runtime / 'session.token').lstat()
+                      endpoint = (runtime / 'batond.sock').lstat()
+                      if (process.poll() is not None or not stat.S_ISREG(token.st_mode)
+                              or stat.S_IMODE(token.st_mode) != 0o600 or token.st_uid != os.geteuid()
+                              or token.st_nlink != 1 or not stat.S_ISSOCK(endpoint.st_mode)
+                              or endpoint.st_uid != os.geteuid() or stat.S_IMODE(endpoint.st_mode) != 0o600):
+                          raise ValueError('Actual probe transport refused')
                       snapshot = module.Host(runtime).result('system.snapshot', {})
-                      if not (type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 18
+                      if not (type(snapshot) is dict
+                              and type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 19
                               and type(snapshot.get('api_version')) is int and snapshot['api_version'] == 1):
                           raise ValueError('Actual Core schema probe refused')
                   finally:
-                      if process.poll() is None:
+                      alive = process.poll() is None
+                      if alive:
                           process.send_signal(signal.SIGTERM)
                       try:
                           exit_code = process.wait(timeout=10)
@@ -519,10 +507,11 @@ jobs:
                           process.kill()
                           process.wait(timeout=5)
                           raise ValueError('Forced probe kill is not successful cleanup')
-                      if type(exit_code) is not int or exit_code != 0:
+                      if not alive or type(exit_code) is not int or exit_code != 0:
                           raise ValueError('Actual schema probe failed cleanup')
-              private_json(private / 'schema-probe.json', {'source': source, 'api_version': snapshot['api_version'],
-                           'database_schema_version': snapshot['database_schema_version'], 'daemon_exit': 0, 'joined': True})
+              verify_inputs()
+              private_json(private / 'schema-probe.json', {**binding, 'api_version': snapshot['api_version'],
+                           'database_schema_version': snapshot['database_schema_version'], 'daemon_exit': exit_code, 'joined': True})
 
           def run_integration_browser():
               temporary = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True)
@@ -537,17 +526,22 @@ jobs:
               try:
                   if git('status', '--porcelain', '--untracked-files=no'):
                       raise ValueError('Tracked integration source changed')
-                  diagnostic['stage'] = 'paired_record_read'
-                  manifest_raw = pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').read_bytes()
-                  build_raw = pathlib.Path('artifacts/ui-browser/frontend-build-record.json').read_bytes()
+                  tree = git('rev-parse', 'HEAD^{tree}')
                   diagnostic['stage'] = 'driver_import'
                   module = source_driver()
+                  preparer = candidate_preparer()
+                  diagnostic['stage'] = 'paired_record_read'
+                  manifest_path = pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json')
+                  build_path = pathlib.Path('artifacts/ui-browser/frontend-build-record.json')
+                  manifest_raw = preparer.read_record(manifest_path)
+                  build_raw = preparer.read_record(build_path)
+                  core_record = temporary / 'agentbaton-browser-core-build.json'
+                  core_raw = preparer.read_record(core_record)
                   diagnostic['stage'] = 'paired_record_decode'
                   manifest, build = module.decode(manifest_raw), module.decode(build_raw)
                   diagnostic['stage'] = 'paired_metadata_guard'
-                  if not (type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == source
-                          and manifest.get('dirty') is False and build['source'] == source and type(build['exit']) is int
-                          and build['exit'] == 0 and build['source_head_and_tracked_unchanged'] is True):
+                  if not (type(manifest) is dict and type(build) is dict
+                          and preparer.verify_pair(manifest_raw, build_raw, core_raw, source, tree) == manifest):
                       raise ValueError('Paired integration source/build metadata refused')
                   diagnostic['stage'] = 'private_records'
                   for name, raw in [('candidate.json', manifest_raw), ('frontend-build-record.json', build_raw)]:
@@ -560,9 +554,29 @@ jobs:
                   tools.mkdir(mode=0o700)
                   for name in ('batond', 'baton'):
                       diagnostic['stage'] = 'copy_' + name
-                      copy_tool(pathlib.Path('target/debug') / name, tools / name, manifest['binaries'][name])
+                      copy_tool(temporary / 'agentbaton-browser-candidate/tools' / name, tools / name, manifest['binaries'][name])
+                  private_pins = {name: preparer.file_pin(tools / name, preparer.TOOL_LIMIT,
+                      executable=True, single_link=True) for name in preparer.TOOLS}
+                  if not all(pin['mode'] == 0o500 and pin['sha256'] == manifest['binaries'][name]
+                             for name, pin in private_pins.items()):
+                      raise ValueError('Private Integration tool pin refused')
+                  binding = {'source': source, 'manifest_sha256': hashlib.sha256(manifest_raw).hexdigest(),
+                      'build_record_sha256': hashlib.sha256(build_raw).hexdigest(),
+                      'tools_sha256': {name: pin['sha256'] for name, pin in private_pins.items()}}
+
+                  def verify_inputs():
+                      if (preparer.git_identity() != (source, tree)
+                              or preparer.read_record(manifest_path) != manifest_raw
+                              or preparer.read_record(build_path) != build_raw
+                              or preparer.read_record(core_record) != core_raw
+                              or preparer.read_record(private / 'candidate.json') != manifest_raw
+                              or preparer.read_record(private / 'frontend-build-record.json') != build_raw
+                              or preparer.core_pins(tools) != private_pins):
+                          raise ValueError('Integration probe input bytes or identity changed')
+                      preparer.verify_pair(manifest_raw, build_raw, core_raw, source, tree)
+
                   diagnostic['stage'] = 'schema_probe'
-                  actual_schema_probe(module, tools, private, source)
+                  actual_schema_probe(module, tools, private, binding, verify_inputs)
                   status['probe_passed'] = True
                   diagnostic['stage'] = 'chromium_discovery'
                   chromium = chromium_path()
@@ -582,6 +596,7 @@ jobs:
                           '--expected-source-head', source, '--chromium', str(chromium), '--output', str(private / 'driver'),
                       ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
                   diagnostic['stage'] = 'driver_returned'
+                  verify_inputs()
               except Exception as error:
                   kinds = ((ImportError, 'import_error'), (OSError, 'os_error'), (ValueError, 'value_error'),
                            (KeyError, 'key_error'), (TypeError, 'type_error'), (AttributeError, 'attribute_error'))
@@ -597,7 +612,8 @@ jobs:
               finally:
                   private_json(private / 'status.json', status)
                   private_json(private / 'setup-diagnostic.json', diagnostic)
-              return 0 if type(status['driver_exit']) is int and status['driver_exit'] == 0 and status['probe_passed'] is True else 1
+              return 0 if (type(status['driver_exit']) is int and status['driver_exit'] == 0
+                  and status['probe_passed'] is True and diagnostic['exception_kind'] is None) else 1
 
           if __name__ == '__main__':
               raise SystemExit(run_integration_browser())

@@ -20,6 +20,8 @@ from tests.infrastructure.test_schema17_migration_workflow import (
     strip_integration_browser_ci_layer, verify_only_six_historical_target_changes, BROWSER_CI_STEPS)
 
 ROOT=Path(__file__).resolve().parents[2]
+from tests.infrastructure.test_schema19_browser_ci_workflow import historical_workflow
+
 WORKFLOW=ROOT/'.github/workflows/product.yml'
 RUN='Actual integration frontend with real Core IPC and generated correctness'
 PROJECT='Retain finite integration browser evidence without private runtime data'
@@ -28,7 +30,7 @@ SECRET='PRIVATE_CORE_PROPOSAL_TOKEN_DATABASE_PATH_CANARY'
 
 
 def document():
-    return yaml.load(WORKFLOW.read_text(),Loader=yaml.BaseLoader)
+    return yaml.load(historical_workflow(),Loader=yaml.BaseLoader)
 
 
 def step(name):
@@ -74,7 +76,7 @@ def fixture():
 
 class WorkflowSource(unittest.TestCase):
     def test_same_existing_jobs_checks_limits_actions_and_raw_whole_baseline_preserved(self):
-        text=WORKFLOW.read_text();restored=strip_integration_browser_ci_layer(text)
+        text=historical_workflow();restored=strip_integration_browser_ci_layer(text)
         self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),'599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc')
         verify_only_six_historical_target_changes(text)
         d=document();self.assertEqual(set(d['jobs']),{'core','frontend','desktop'})
@@ -88,7 +90,7 @@ class WorkflowSource(unittest.TestCase):
         self.assertEqual(step(PROJECT)['env'],{'INTEGRATION_BROWSER_DRIVER_OUTCOME':'${{ steps.integration_browser_driver.outcome }}'})
 
     def test_exact_added_block_hash_count_job_and_position_cannot_be_weakened(self):
-        text=WORKFLOW.read_text();headers=list(re.finditer(r'^      - .*\n',text,re.M))
+        text=historical_workflow();headers=list(re.finditer(r'^      - .*\n',text,re.M))
         for name,index,_ in BROWSER_CI_STEPS:
             start,end=headers[index].start(),headers[index+1].start();block=text[start:end]
             for changed in [text[:start]+block.replace('0o600','0o644',1)+text[end:],
@@ -114,7 +116,7 @@ class WorkflowSource(unittest.TestCase):
         self.assertIn('process.send_signal(signal.SIGTERM)',source)
         self.assertIn("'daemon_exit': 0, 'joined': True",source)
         self.assertNotIn('approvals.finalize',source)
-        self.assertEqual(WORKFLOW.read_text().count("              'schema': 18,"),1)
+        self.assertEqual(historical_workflow().count("              'schema': 18,"),1)
 
     def test_no_new_raw_public_paths_or_private_logs_are_uploaded(self):
         _,source=program(RUN,'INTEGRATION_BROWSER');_,projection=program(PROJECT,'INTEGRATION_BROWSER_EVIDENCE')
