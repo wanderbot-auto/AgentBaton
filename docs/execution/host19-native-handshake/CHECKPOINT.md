@@ -1,5 +1,5 @@
 # Checkpoint
 
-Base 02f2886285f21cf62ba616c8c1797728191677fe. 2 Rust and 4 exact Python claims. Production checks still at baseline. Test-only commit pending. No processes.
+Awaiting independent leader review. Base 02f2886285f21cf62ba616c8c1797728191677fe. Fetched feature target 02f2886285f21cf62ba616c8c1797728191677fe. Verified source 4f71ddab26d227a8d6b6db192d1ac60148506784. No pending source change. Own evidence delivery commit pending.
 
-Red batch joined. Four failures retained. Exact paired native reader update and new source inverse complete; freeze source before targeted Rust/Python, full infra and lint. No App window or user service.
+Two Rust and four Python source paths plus own evidence. 48 targeted Rust, 21 source + 3 C3, and 915 infrastructure passes with 16 existing skips. Four red schema19 controls, zero-match filter and known full fmt/Clippy red logs retained. Original 02f/source layer and pre-Host blobs verified. No owned child or daemon remains. No App window or services launched. Handoff after leader agrees.
