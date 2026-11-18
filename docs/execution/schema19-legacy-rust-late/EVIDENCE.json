@@ -1,0 +1,342 @@
+{
+  "baseline": {
+    "base": "6b03f0cdd7686db8ccaa7cb9f9b8e865c6eb6d5a",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "agentbaton-core",
+      "--no-fail-fast",
+      "--test",
+      "goal_runtime_migration",
+      "--test",
+      "goal_graph_migration",
+      "--test",
+      "factory_migration",
+      "--test",
+      "factory_child_plan_migration",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": 3,
+      "CARGO_PROFILE_DEV_DEBUG": 0,
+      "architecture": "arm64"
+    },
+    "exit_code": 101,
+    "seconds": 85.423,
+    "results": {
+      "factory_child_plan_migration": {
+        "passed": 0,
+        "failed": 4,
+        "ignored": 0
+      },
+      "factory_migration": {
+        "passed": 0,
+        "failed": 3,
+        "ignored": 0
+      },
+      "goal_graph_migration": {
+        "passed": 0,
+        "failed": 3,
+        "ignored": 0
+      },
+      "goal_runtime_migration": {
+        "passed": 0,
+        "failed": 3,
+        "ignored": 0
+      }
+    },
+    "log_sha256": "75c1dca682b19f74a2a62509799fc78dcb8ba3887bc41324ea7f0538491cff52",
+    "archive": "baseline.log.gz",
+    "archive_sha256": "f47e3ea2f370ae91daad058248912ea09001212a54d9dc7ccc9b7b9433db15f7"
+  },
+  "checks": {
+    "candidate": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--no-fail-fast",
+        "--test",
+        "goal_runtime_migration",
+        "--test",
+        "goal_graph_migration",
+        "--test",
+        "factory_migration",
+        "--test",
+        "factory_child_plan_migration",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 4.212,
+      "results": {
+        "factory_child_plan_migration": {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        },
+        "factory_migration": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "goal_graph_migration": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "goal_runtime_migration": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      },
+      "log_sha256": "b1f6b2f4575aee36975b2480e6ae943ec5dd234a36b7f82b655927b3f02fd2e7",
+      "archive": "candidate.log.gz",
+      "archive_sha256": "f082925ab9437a98731aec924a8064f44d7445a8575c2011104f86aa8bfd2a10"
+    },
+    "related": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--no-fail-fast",
+        "--test",
+        "storage",
+        "--test",
+        "migration_v7",
+        "--test",
+        "command_validation_migration",
+        "--test",
+        "goal_store_migration",
+        "--test",
+        "data_workspace_migration",
+        "--test",
+        "integration_schema17",
+        "--test",
+        "conversation_schema18",
+        "--test",
+        "host_schema19_fixture",
+        "--test",
+        "host_registry_migration",
+        "--test",
+        "host_registration_real_ipc",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 31.374,
+      "results": {
+        "command_validation_migration": {
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0
+        },
+        "conversation_schema18": {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0
+        },
+        "data_workspace_migration": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "goal_store_migration": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "host_registration_real_ipc": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "host_registry_migration": {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        },
+        "host_schema19_fixture": {
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0
+        },
+        "integration_schema17": {
+          "passed": 16,
+          "failed": 0,
+          "ignored": 0
+        },
+        "migration_v7": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "storage": {
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0
+        }
+      },
+      "log_sha256": "5e0d671ecd0c611d4b0a85dca857588dab71cafbf4b31ca4d0720617d2776749",
+      "archive": "related.log.gz",
+      "archive_sha256": "df1d4d55ea61f0efc086f08fc813ea16a6d2d54609973e2f63da5bcaaa9636d1"
+    },
+    "strict-clippy": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 18.541,
+      "results": {},
+      "log_sha256": "03566256e515db1c79d33782c1c0264eb218e3fb083d81f0eb753cc60b8cd80a",
+      "archive": "strict-clippy.log.gz",
+      "archive_sha256": "830b830137999d30b14fb264f356a7710e5cd5fa1def025c6042d07c1948075c"
+    },
+    "fmt": {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.455,
+      "results": {},
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "fmt.log.gz",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "candidate1": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--no-fail-fast",
+        "--test",
+        "goal_runtime_migration",
+        "--test",
+        "goal_graph_migration",
+        "--test",
+        "factory_migration",
+        "--test",
+        "factory_child_plan_migration",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 9.556,
+      "log_sha256": "8c0c67d9d88188c24520ee7e96ba9950b4d7cf018c336e8767bcd05c6512c72a",
+      "archive": "candidate1.log.gz",
+      "archive_sha256": "ab6622a3115d4e791bc05733a1b276f565ac1d8f40f954e135a3e3d491a0407e"
+    }
+  },
+  "history": {
+    "receipt": "docs/execution/schema17-rust-gate/historical-daemon-receipt.json",
+    "sha256": "4f8fb5ade8f9d2aefe2a3f761d6fb38e4754a8145c58ce7037e7ac98c950c3b4",
+    "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "binary_sha256": {
+      "batond": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+      "baton": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf"
+    },
+    "separate_source_proof_test": "integration_schema17"
+  },
+  "migrations": {
+    "goal_runtime_migration": {
+      "predecessor": 10,
+      "historical_backup": "pre-v11"
+    },
+    "goal_graph_migration": {
+      "predecessor": 11,
+      "historical_backup": "pre-v12"
+    },
+    "factory_migration": {
+      "predecessor": 12,
+      "historical_backup": "pre-v13"
+    },
+    "factory_child_plan_migration": {
+      "predecessor": 13,
+      "historical_backup": "pre-v14"
+    }
+  },
+  "current_contract": {
+    "store_version": 19,
+    "event_sequence": 1,
+    "preexisting_typed_rows_unchanged": true,
+    "empty_host_authority": true,
+    "private_full_pre_v19_preserved": true,
+    "collision_code": "INTERNAL_ERROR",
+    "collision_main_and_committed_wal_unchanged": true,
+    "unsupported_version": 20,
+    "future_code": "VERSION_UNSUPPORTED",
+    "future_main_and_committed_wal_unchanged": true
+  },
+  "unchanged_paths": [
+    "crates/core/src",
+    "crates/core/tests/fixtures",
+    "scripts/prepare-factory-test-tools.py",
+    ".github/workflows/product.yml",
+    "Cargo.lock",
+    "Cargo.toml"
+  ],
+  "workspace": {
+    "status": "not_run_prerequisite_failed_on_unchanged_source",
+    "prior_probe": "docs/execution/schema17-rust-gate/EVIDENCE.json",
+    "prior_probe_head": "dff96b7006a44f54c6cb254cf882eb735b2c8f81",
+    "same_workflow_tools_and_core_source": true,
+    "known_separate_downstream_probes": {
+      "real_script_policy_worker_and_idempotent_history_are_scoped_and_persistent": {
+        "source": "/private/tmp/ab-rust-owner-and-command-schema19.B81lltKD/command.log",
+        "sha256": "00b631bf606bae158eb83f9dbb23a4fdb570aaeca79f94dd8782740ac00cf4c0",
+        "status": "separate_prior_probe_failed_expected18_got19"
+      },
+      "actual_graph_owner_fixture_original_grant_expiry_still_refuses_new_dispatch": {
+        "source": "/private/tmp/ab-rust-owner-and-command-schema19.B81lltKD/owner.log",
+        "sha256": "2030aaa9f6bd07dda82ded6b4846762407502e71e5dd88f91903b10a47f178c5",
+        "status": "separate_prior_probe_failed_expected18_got19"
+      }
+    }
+  },
+  "tested_source_head": "fc0675a68d0defe7ea6151a69277f7e54bdd6294",
+  "leader_independent_review": {
+    "head": "fc0675a68d0defe7ea6151a69277f7e54bdd6294",
+    "exit_code": 0,
+    "results": {
+      "factory_child_plan_migration": 4,
+      "factory_migration": 3,
+      "goal_graph_migration": 3,
+      "goal_runtime_migration": 3
+    },
+    "source": "/private/tmp/ab-a-late-migration-review.LCOrXDo8/cargo.log",
+    "archive": "leader-independent-review.log.gz",
+    "log_sha256": "c2a37d148da65e4bc169d3d6fa7ed0b56a8dad04e58522988e15583d36160242",
+    "archive_sha256": "5f7c3858768ac5524717e10b474352595b0f79467c2148018fdea5a16d350329"
+  },
+  "handoff": {
+    "preview_target": "375a054e69d3d411f32266c41b03ba2f6c682460",
+    "target_changes_reserved_test_files": false,
+    "release_authorized": true
+  }
+}

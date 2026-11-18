@@ -1,8 +1,14 @@
-//! Controlled generated SQLite12->13 increment followed by current17.
+//! Controlled generated SQLite12->13 increment followed by current Store19.
 #[path = "fixtures/pre_factory_schema.rs"]
 pub mod pre_factory_schema;
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::storage::Store;
 use rusqlite::Connection;
+use schema19_legacy_migration::{
+    assert_empty_host19, assert_future20_refused, database_bytes_with_wal,
+    fixture_logical_snapshot, host19_backup, legacy_predecessor, remove_empty_host19,
+};
 use std::{
     fs,
     os::unix::fs::{OpenOptionsExt, PermissionsExt},
@@ -28,6 +34,7 @@ fn prior() -> (tempfile::TempDir, PathBuf, String) {
         .unwrap();
     drop(s);
     let c = Connection::open(&p).unwrap();
+    remove_empty_host19(&c).unwrap();
     pre_factory_schema::remove_empty_current_factory_increment(&c).unwrap();
     c.execute_batch("PRAGMA user_version=12;CREATE TABLE original_bytes(raw BLOB);INSERT INTO original_bytes VALUES(x'00ffdeadbeef');").unwrap();
     let raw: String = c
@@ -60,12 +67,25 @@ fn backups(d: &std::path::Path) -> Vec<PathBuf> {
 fn schema12_upgrade_preserves_exact_task_bytes_and_private_readable_backup_without_factory_authority(
 ) {
     let (d, p, raw) = prior();
-    drop(Store::open(&p).unwrap());
+    let predecessor = legacy_predecessor(&p, 12);
+    let store = Store::open(&p).unwrap();
+    assert_eq!(store.sequence().unwrap(), 1);
+    drop(store);
     let c = Connection::open(&p).unwrap();
+    assert_empty_host19(&c);
+    let current = fixture_logical_snapshot(&c);
+    assert!(
+        predecessor
+            .rows
+            .iter()
+            .all(|table| current.rows.contains(table)),
+        "legacy migration changed predecessor typed rows"
+    );
+    let host_backup = host19_backup(&p, &predecessor);
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -104,6 +124,8 @@ fn schema12_upgrade_preserves_exact_task_bytes_and_private_readable_backup_witho
         0o600
     );
     let old = Connection::open(&b[0]).unwrap();
+    assert!(fixture_logical_snapshot(&old).rows == predecessor.rows);
+    let legacy_backup_bytes = fs::read(&b[0]).unwrap();
     assert_eq!(
         old.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
@@ -118,19 +140,34 @@ fn schema12_upgrade_preserves_exact_task_bytes_and_private_readable_backup_witho
     drop(old);
     drop(c);
     drop(Store::open(&p).unwrap());
-    assert_eq!(backups(d.path()).len(), 1);
+    assert!(host19_backup(&p, &predecessor) == host_backup);
+    let retained = backups(d.path());
+    assert_eq!(retained.len(), 1);
+    assert!(fs::read(&retained[0]).unwrap() == legacy_backup_bytes);
 }
 #[test]
 fn factory_migration_collision_rolls_back_all_new_tables_and_preserves_unknown_original_rows() {
     let (d, p, _) = prior();
-    let c = Connection::open(&p).unwrap();
-    c.execute_batch(
-        "CREATE TABLE factory_runs(sentinel BLOB);INSERT INTO factory_runs VALUES(x'00ff');",
-    )
-    .unwrap();
-    drop(c);
+    let keeper = Connection::open(&p).unwrap();
+    keeper.pragma_update(None, "wal_autocheckpoint", 0).unwrap();
+    keeper
+        .execute_batch(
+            "CREATE TABLE factory_runs(sentinel BLOB);INSERT INTO factory_runs VALUES(x'00ff');",
+        )
+        .unwrap();
+    let predecessor = fixture_logical_snapshot(&keeper);
+    let before = database_bytes_with_wal(&p);
     assert_eq!(Store::open(&p).err().unwrap().code, "INTERNAL_ERROR");
     let c = Connection::open(&p).unwrap();
+    assert!(
+        database_bytes_with_wal(&p) == before,
+        "failed migration changed main or WAL bytes"
+    );
+    assert!(
+        fixture_logical_snapshot(&c) == predecessor,
+        "failed migration changed the logical database"
+    );
+    host19_backup(&p, &predecessor);
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
@@ -146,13 +183,15 @@ fn factory_migration_collision_rolls_back_all_new_tables_and_preserves_unknown_o
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema19_is_refused_without_mutation_or_factory_backup() {
+fn future_schema20_is_refused_without_mutation_or_factory_backup() {
     let (d, p, _) = prior();
-    let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=19;").unwrap();
-    drop(c);
-    let before = fs::read(&p).unwrap();
-    assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
-    assert_eq!(fs::read(&p).unwrap(), before);
+    let keeper = Connection::open(&p).unwrap();
+    keeper.pragma_update(None, "wal_autocheckpoint", 0).unwrap();
+    // Use an inert fixture label in a committed WAL frame to reach the actual
+    // current Store version guard.
+    keeper.pragma_update(None, "user_version", 20).unwrap();
+    let before = database_bytes_with_wal(&p);
+    assert_future20_refused(&p);
+    assert!(database_bytes_with_wal(&p) == before);
     assert!(backups(d.path()).is_empty());
 }
