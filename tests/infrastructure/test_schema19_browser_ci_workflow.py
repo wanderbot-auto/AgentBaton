@@ -38,6 +38,9 @@ def inverse_record():
 
 
 def restore_schema18_workflow(source, record=None):
+    from tests.infrastructure.test_schema17_migration_workflow import normalize_fresh18_workflow
+
+    source = normalize_fresh18_workflow(source)
     record = inverse_record() if record is None else record
     current = sha(source)
     if current == HISTORICAL_SHA256:
@@ -59,6 +62,9 @@ def restore_schema18_workflow(source, record=None):
 
 
 def normalize_workflow(source):
+    from tests.infrastructure.test_schema17_migration_workflow import normalize_fresh18_workflow
+
+    source = normalize_fresh18_workflow(source)
     record = inverse_record()
     if sha(source) == record['current_sha256']:
         return restore_schema18_workflow(source, record)
@@ -146,7 +152,9 @@ class CandidateSourceAndInputs(unittest.TestCase):
                 restore_schema18_workflow(changed)
 
     def test_only_original_approved_steps_change_and_candidate_precedes_consumers(self):
-        current_raw = WORKFLOW.read_bytes()
+        from tests.infrastructure.test_schema17_migration_workflow import restore_workflow_before_fresh18
+
+        current_raw = restore_workflow_before_fresh18(WORKFLOW.read_bytes().decode())
         previous_raw = historical_workflow()
         current, previous = (yaml.load(raw, Loader=yaml.BaseLoader) for raw in (current_raw, previous_raw))
         self.assertEqual({k:v for k,v in current.items() if k != 'jobs'}, {k:v for k,v in previous.items() if k != 'jobs'})
