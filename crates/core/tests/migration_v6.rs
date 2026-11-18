@@ -158,7 +158,7 @@ fn failed_validation_upgrade_preserves_old_schema_and_unknown_records() {
         .err()
         .expect("v5 migration must refuse the conflicting validation policy table");
     assert_eq!(error.code, "INTERNAL_ERROR");
-    assert_eq!(error.details_ref.as_deref(), Some("sqlite-code:1"));
+    assert_eq!(error.side_effect_state, "unknown");
     assert!(database_bytes(&database) == before);
     let connection =
         Connection::open_with_flags(&database, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
@@ -189,4 +189,18 @@ fn failed_validation_upgrade_preserves_old_schema_and_unknown_records() {
             .unwrap(),
         0
     );
+
+    // Change only the conflicting table in a separate SQLite backup.
+    let control_dir = tempfile::tempdir().unwrap();
+    let control = control_dir.path().join("state.sqlite3");
+    connection
+        .backup(rusqlite::MAIN_DB, &control, None)
+        .unwrap();
+    let copy = Connection::open(&control).unwrap();
+    copy.execute_batch("DROP TABLE validation_policies")
+        .unwrap();
+    drop(copy);
+    drop(Store::open(&control).unwrap());
+    let copy = Connection::open_with_flags(&control, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    assert_empty_host19(&copy);
 }

@@ -116,7 +116,7 @@ fn failed_runtime_migration_preserves_v4_version_and_unknown_table() {
         .err()
         .expect("v4 migration must refuse the conflicting runtime snapshot table");
     assert_eq!(error.code, "INTERNAL_ERROR");
-    assert_eq!(error.details_ref.as_deref(), Some("sqlite-code:1"));
+    assert_eq!(error.side_effect_state, "unknown");
     assert!(database_bytes(&path) == before);
     let db = Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
     assert!(fixture_logical_snapshot(&db) == predecessor);
@@ -135,4 +135,16 @@ fn failed_runtime_migration_preserves_v4_version_and_unknown_table() {
         .unwrap(),
         "preserve unknown data"
     );
+
+    // Change only the conflicting table in a separate SQLite backup.
+    let control_dir = tempfile::tempdir().unwrap();
+    let control = control_dir.path().join("db.sqlite3");
+    db.backup(rusqlite::MAIN_DB, &control, None).unwrap();
+    let copy = Connection::open(&control).unwrap();
+    copy.execute_batch("DROP TABLE session_runtime_snapshots")
+        .unwrap();
+    drop(copy);
+    drop(Store::open(&control).unwrap());
+    let copy = Connection::open_with_flags(&control, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    assert_empty_host19(&copy);
 }
