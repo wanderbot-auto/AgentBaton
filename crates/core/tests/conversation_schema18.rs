@@ -51,6 +51,9 @@ fn image(db: &Connection) -> Image {
 }
 fn backup(root: &Path, version: u32, expected: &Image) -> (PathBuf, Vec<u8>) {
     let prefix = format!("state.pre-v{version}-");
+    // macOS temp roots can contain the /var alias. Resolve the owned parent
+    // directory before applying SQLite NOFOLLOW to the actual backup entry.
+    let root = root.canonicalize().unwrap();
     let paths: Vec<_> = fs::read_dir(root)
         .unwrap()
         .map(|entry| entry.unwrap().path())
@@ -64,10 +67,9 @@ fn backup(root: &Path, version: u32, expected: &Image) -> (PathBuf, Vec<u8>) {
         .collect();
     assert_eq!(paths.len(), 1, "backup count for {prefix}");
     let path = paths.into_iter().next().unwrap();
-    assert_eq!(
-        fs::metadata(&path).unwrap().permissions().mode() & 0o777,
-        0o600
-    );
+    let metadata = fs::symlink_metadata(&path).unwrap();
+    assert!(metadata.is_file());
+    assert_eq!(metadata.permissions().mode() & 0o777, 0o600);
     let db = Connection::open_with_flags(
         &path,
         OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NOFOLLOW,
