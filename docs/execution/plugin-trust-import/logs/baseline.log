@@ -1,0 +1,17 @@
+collab: task runtime <private-task-runtime>
+cbac72707f7c075b202a63a658b46f4f0a2df9c8
+29fd2456bfc895b4bd2678efc78738c9489d0b39
+2026-11-18T18:03:59Z
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+rustfmt 1.8.0-stable (ed61e7d7e2 2025-11-07)
+format_exit=0
+test_exit=0
