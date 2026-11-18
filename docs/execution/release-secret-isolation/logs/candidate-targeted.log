@@ -1,0 +1,29 @@
+Python 3.13.2
+PyYAML 6.0.3 jsonschema 4.26.0
+{
+  "status": "passed",
+  "scope": "static_infrastructure_only",
+  "workflow_files": 2,
+  "pinned_action_references": 15,
+  "remote_ci_executed": false,
+  "product_development_authorized": true,
+  "product_tests_executed": false
+}
+test_action_credential_slots (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_action_credential_slots) ... ok
+test_actual_entry_checks_the_checked_in_workflows (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_actual_entry_checks_the_checked_in_workflows) ... ok
+test_aliases_keep_the_resolved_credential_semantics (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_aliases_keep_the_resolved_credential_semantics) ... ok
+test_environment_and_privileged_triggers (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_environment_and_privileged_triggers) ... ok
+test_explicit_job_and_workflow_permissions (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_explicit_job_and_workflow_permissions) ... ok
+test_ignores_comments_and_literal_expression_arguments (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_ignores_comments_and_literal_expression_arguments) ... ok
+test_original_required_job_name_cannot_drift (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_original_required_job_name_cannot_drift) ... ok
+test_original_timeout_pin_and_execution_gate_still_fail_closed (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_original_timeout_pin_and_execution_gate_still_fail_closed) ... ok
+test_registry_credentials_and_non_hosted_runners (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_registry_credentials_and_non_hosted_runners) ... ok
+test_rejects_duplicate_and_ambiguous_yaml_without_echoing_source (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_rejects_duplicate_and_ambiguous_yaml_without_echoing_source) ... ok
+test_reusable_calls_do_not_get_new_admission_or_secret_transfer (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_reusable_calls_do_not_get_new_admission_or_secret_transfer) ... ok
+test_secret_context_dot_index_and_whole_object_references (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_secret_context_dot_index_and_whole_object_references) ... ok
+test_yaml_suffix_narrow_permissions_and_builtin_token (test_pr_workflow_secret_isolation.WorkflowCredentialIsolationTests.test_yaml_suffix_narrow_permissions_and_builtin_token) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 18.537s
+
+OK
