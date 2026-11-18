@@ -323,5 +323,21 @@
     "Cargo.toml",
     "scripts/prepare-factory-test-tools.py",
     ".github/workflows/product.yml"
-  ]
+  ],
+  "tested_source_head": "287dcb4ec073fb55e4290eaeeadaea705fa01afd",
+  "leader_independent_review": {
+    "head": "287dcb4ec073fb55e4290eaeeadaea705fa01afd",
+    "exit_code": 0,
+    "results": {
+      "command_validation_migration": 7,
+      "data_workspace_migration": 3,
+      "goal_store_migration": 3,
+      "migration_v7": 3,
+      "storage": 8
+    },
+    "source": "/private/tmp/ab-a-early-migration-review.w7ID0KvG/cargo.log",
+    "archive": "leader-independent-review.log.gz",
+    "log_sha256": "2857e80ea04878d91bc96abeb6328372b8e09a20c7dd61952bd4846d9d7cc912",
+    "archive_sha256": "9d7fdc0bb29698583e70a72522872c1043d673f6ee86e9ec6023a565578b25b8"
+  }
 }
