@@ -1,0 +1,29 @@
+{
+  "source": "ada7d62b68befa27a221979e795f47067515ae50",
+  "argv": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--features",
+    "actual-schema18-migration-tests",
+    "--test",
+    "host_registry_actual18_migration",
+    "--",
+    "--nocapture",
+    "--test-threads=1"
+  ],
+  "exit": 0,
+  "seconds": 50.956,
+  "log_sha256": "2ebc471747fdfbd43745c2d47e9f43ed8217b2db6462bda8c88ba9c5a6d3dfb2",
+  "env": {
+    "CARGO_BUILD_JOBS": "3",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "AGENTBATON_ACTUAL18_FIXTURE_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/conversation-schema19-regression/artifacts/conversation-schema19-regression/actual18-input",
+    "AGENTBATON_ACTUAL18_FROZEN_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-boundaries/frozen",
+    "AGENTBATON_ACTUAL18_BUILD_MANIFEST": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-boundaries/frozen/source-build-manifest.json",
+    "AGENTBATON_ACTUAL18_PYTHON": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12"
+  }
+}
