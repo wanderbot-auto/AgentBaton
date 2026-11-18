@@ -13,6 +13,7 @@ mod background_service;
 mod background_window;
 mod client_recovery_bridge;
 mod detached_daemon;
+mod hosts;
 mod integration_approval;
 #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
 pub mod native_background_service_test;
@@ -2528,6 +2529,13 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         data_workspaces_list,
         data_workspaces_get,
         data_workspaces_cancel,
+        hosts::hosts_register,
+        hosts::hosts_list,
+        hosts::hosts_get,
+        hosts::hosts_registration_pending,
+        hosts::hosts_registration_reconcile,
+        hosts::hosts_registration_retry,
+        hosts::hosts_registration_acknowledge,
         connections_list,
         connections_register,
         client_recovery_list,
