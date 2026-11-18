@@ -236,6 +236,9 @@ def strip_conversation_schema18(text):
 
 def strip_integration_setup_diagnostics(text):
     """Replace only a complete pinned step with its complete pinned original."""
+    from tests.infrastructure.test_schema19_browser_ci_workflow import normalize_workflow
+
+    text = normalize_workflow(text)
     # Older inverse tests also pass the already-peeled, exactly schema17 layer.
     # Mixed, missing and duplicated current sites still fail the strict inverse.
     if any(current in text for current, _ in CONVERSATION_SCHEMA18_SITES):
@@ -473,7 +476,9 @@ class Genuine16WorkflowWiring(unittest.TestCase):
                             historical_targets(job)
 
     def test_schema18_inverse_refuses_missing_duplicate_or_other_version_at_each_exact_site(self):
-        text = (ROOT / '.github/workflows/product.yml').read_text()
+        from tests.infrastructure.test_schema19_browser_ci_workflow import historical_workflow
+
+        text = historical_workflow()
         for current, historical in CONVERSATION_SCHEMA18_SITES:
             for changed in (text.replace(current, historical, 1), text.replace(current, current.replace('18', '19'), 1), text + current):
                 with self.assertRaises(ValueError):

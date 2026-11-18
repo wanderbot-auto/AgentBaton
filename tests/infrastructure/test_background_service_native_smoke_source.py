@@ -113,6 +113,9 @@ BG_STEP = (
 
 def restore_previous_mac_matrix(text):
     """Reverse only the exact Apple Silicon matrix change for historical pins."""
+    from tests.infrastructure.test_schema19_browser_ci_workflow import normalize_workflow
+
+    text = normalize_workflow(text)
     if text.count(CURRENT_MAC_MATRIX) != 1 or PREVIOUS_MAC_MATRIX in text:
         raise ValueError('Expected one Apple Silicon matrix')
     restored = text.replace(CURRENT_MAC_MATRIX, PREVIOUS_MAC_MATRIX, 1)

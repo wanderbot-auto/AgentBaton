@@ -13,7 +13,9 @@ CALL = '          run_task_workspace_evidence()\n'
 
 class TaskWorkspaceDiagnosticInverse(unittest.TestCase):
     def setUp(self):
-        self.text = (ROOT / '.github/workflows/product.yml').read_text()
+        from tests.infrastructure.test_schema19_browser_ci_workflow import historical_workflow
+
+        self.text = historical_workflow()
         self.start = self.text.index(DEFINITION)
         self.end = self.text.index(CALL)
         self.reviewed = self.text[self.start:self.end]

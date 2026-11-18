@@ -1,0 +1,103 @@
+{
+  "base": "bd97dcf2adbe2a439aa2253ed4d118cc069cc850",
+  "current_sha256": "43b2a58d447332f6ef949b20b295180cfe9b864759fc3767685ea5adcbb290f1",
+  "historical_sha256": "edfffb07b5d5c8ecb3039962f5ad54e77cd187a4afd33f89941564b89603bff4",
+  "edits": [
+    {
+      "start": 138,
+      "end": 143,
+      "current_sha256": "20a00db30cc1cdbd8bbdc2516de21a89746595284a9791b0e6b887de7a30ebf4",
+      "historical": "          npm --prefix apps/desktop run typecheck\n          npm --prefix apps/desktop test\n          python3 - <<'PYBUILD'\n          import json, pathlib, subprocess, time\n          root = pathlib.Path.cwd()\n          def git(*args):\n              return subprocess.check_output(['git', *args], text=True).strip()\n          source = git('rev-parse', 'HEAD')\n          if git('status', '--porcelain', '--untracked-files=no'):\n              raise SystemExit('Frontend build requires a clean tracked checkout')\n          command = ['npm', '--prefix', 'apps/desktop', 'run', 'build']\n          started = time.monotonic()\n          result = subprocess.run(command)\n          unchanged = source == git('rev-parse', 'HEAD') and not git('status', '--porcelain', '--untracked-files=no')\n          record = {'source': source, 'command': command, 'exit': result.returncode,\n                    'seconds': time.monotonic() - started, 'source_head_and_tracked_unchanged': unchanged}\n          output = root / 'artifacts/ui-browser/frontend-build-record.json'\n          output.parent.mkdir(parents=True, exist_ok=True)\n          with output.open('x') as stream:\n              json.dump(record, stream, indent=2)\n              stream.write('\\n')\n          raise SystemExit(result.returncode if result.returncode else (0 if unchanged else 1))\n          PYBUILD\n      - name: Preview transport timing and failure contracts\n        run: |\n"
+    },
+    {
+      "start": 154,
+      "end": 159,
+      "current_sha256": "174e8f018c3a46d4f633e5bd667f457f82d9ca69c6b467cf8020a3fe6cc44237",
+      "historical": "          rustup toolchain install stable --profile minimal\n          cargo test --locked -p agentbaton-core --features preview-evidence --lib evidence_gate -- --nocapture --test-threads=1\n          CARGO_PROFILE_DEV_DEBUG=0 cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence\n          python3 scripts/prepare-browser-runtime.py --output artifacts/browser-venv\n          artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt\n"
+    },
+    {
+      "start": 161,
+      "end": 177,
+      "current_sha256": "c9547a3f2b71bf6584c5648a270e8217b74798271a9ff67c3a8e173742b60b87",
+      "historical": "        run: |\n          set -euo pipefail\n          artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser\n          artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/approved-commands\n          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/goal-planning\n          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --structured-editor --output artifacts/ui-browser/goal-plan-editor\n          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --preview-evidence --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces\n          artifacts/browser-venv/bin/python - <<'PY'\n          import asyncio, hashlib, json, pathlib, subprocess, sys\n          from playwright.async_api import async_playwright\n          def git(*args):\n              return subprocess.check_output(['git', *args], text=True).strip()\n          assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'\n          candidate = {\n              'schema': 18,\n              'git_head': git('rev-parse', 'HEAD'),\n              'git_tree': git('rev-parse', 'HEAD^{tree}'),\n              'dirty': False,\n              'cargo_features': ['agentbaton-core/preview-evidence'],\n              'binaries': {name: hashlib.sha256(pathlib.Path('target/debug', name).read_bytes()).hexdigest() for name in ['batond', 'baton']},\n              'scope': 'CI-built Linux dev evidence candidate; only this UI preview tool build sets CARGO_PROFILE_DEV_DEBUG=0 (debuginfo=0); dev opt-level/debug_assertions/panic defaults and existing package overrides are unchanged; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact',\n          }\n          pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\\n')\n          async def chromium_executable_path():\n              async with async_playwright() as playwright:\n"
+    },
+    {
+      "start": 179,
+      "end": 184,
+      "current_sha256": "1853ce339bfd16025e536eb366c41d410ff2ceb618b0cd0a7436377ad7cebc64",
+      "historical": "          subprocess.run([\n              sys.executable, 'apps/desktop/tests/goal-execution-real-ipc.py',\n              '--batond', 'target/debug/batond',\n              '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',\n              '--frontend', 'apps/desktop/dist',\n"
+    },
+    {
+      "start": 327,
+      "end": 332,
+      "current_sha256": "c95ef7594ff193c1775f1bd67eab35b2363fa9f7571529df2811cd47bef6872f",
+      "historical": "          graph_base = [\n              sys.executable, 'apps/desktop/tests/goal-graph-real-ipc.py',\n              '--batond', 'target/debug/batond',\n              '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',\n              '--frontend', 'apps/desktop/dist', '--chromium', chromium,\n"
+    },
+    {
+      "start": 344,
+      "end": 349,
+      "current_sha256": "8645eeaaffa215a2f0be21498047f42fa5e23a2ba0e6406871fcea242fb9b0a4",
+      "historical": "                  subprocess.run([\n                      sys.executable, 'apps/desktop/tests/factory-real-ipc.py',\n                      '--case', case, '--batond', 'target/debug/batond',\n                      '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',\n                      '--frontend', 'apps/desktop/dist', '--chromium', chromium,\n"
+    },
+    {
+      "start": 354,
+      "end": 362,
+      "current_sha256": "047c6a0768e5796c35e8253c9f586815590453b451bd491e7680be7f098f3d4d",
+      "historical": "              raise SystemExit('Factory runtime checks failed: ' + json.dumps(factory_failures))\n          frontend = pathlib.Path('apps/desktop/dist')\n          planning_candidate = {\n              **candidate,\n              'source_head': candidate['git_head'],\n              'compiled_core_source_head': candidate['git_head'],\n              'frontend_assets': {str(path.relative_to(frontend)): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(frontend.rglob('*')) if path.is_file()},\n          }\n          planning_manifest = pathlib.Path('artifacts/ui-browser/factory-child-planning-candidate.json')\n          planning_manifest.write_text(json.dumps(planning_candidate, indent=2) + '\\n')\n          subprocess.run([\n              sys.executable, 'apps/desktop/tests/factory-child-planning-real-ipc.py',\n              '--run', '--tools', 'target/debug', '--frontend', str(frontend),\n              '--manifest', str(planning_manifest), '--chromium', chromium,\n              '--output', 'artifacts/ui-browser/factory-child-planning',\n"
+    },
+    {
+      "start": 373,
+      "end": 378,
+      "current_sha256": "e8465546bbe5cc533a53dae3a9dd572231df89852f82afc5a8d1e5c00b397868",
+      "historical": "                              sys.executable, 'apps/desktop/tests/factory-child-goal-real-ipc.py',\n                              '--run', '--case', case,\n                              '--tools', 'target/debug', '--frontend', str(frontend),\n                              '--manifest', str(planning_manifest), '--chromium', chromium,\n                              '--output', str(child_goal_private / case),\n"
+    },
+    {
+      "start": 433,
+      "end": 444,
+      "current_sha256": "5f74dff07dfda9cfbc98119a3b2f66b934e6592e8e514ea5a79f28e8b3f81d24",
+      "historical": "              return module\n\n          def copy_tool(source, destination, expected):\n              stamp = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_nlink,\n"
+    },
+    {
+      "start": 464,
+      "end": 470,
+      "current_sha256": "44378aea14cd69caf69441fd4dd6da1f6052f9105320030afb41fa9d744ceae0",
+      "historical": "                  raise ValueError('Built integration tool path changed')\n\n          def actual_schema_probe(module, tools, private, source):\n              runtime = private / 'probe-runtime'\n              runtime.mkdir(mode=0o700)\n"
+    },
+    {
+      "start": 478,
+      "end": 497,
+      "current_sha256": "be1ca996cdc36a43b3f5259951a7c450b59bed13fc790d6e48009d5cdd8c61be",
+      "historical": "                              raise ValueError('Actual schema probe did not start')\n                          time.sleep(.02)\n                      snapshot = module.Host(runtime).result('system.snapshot', {})\n                      if not (type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 18\n                              and type(snapshot.get('api_version')) is int and snapshot['api_version'] == 1):\n                          raise ValueError('Actual Core schema probe refused')\n                  finally:\n                      if process.poll() is None:\n                          process.send_signal(signal.SIGTERM)\n                      try:\n"
+    },
+    {
+      "start": 500,
+      "end": 509,
+      "current_sha256": "9276859d5e28047d96b483b3aaad9e029d89535804da8451f9ae66f92d704520",
+      "historical": "                          process.wait(timeout=5)\n                          raise ValueError('Forced probe kill is not successful cleanup')\n                      if type(exit_code) is not int or exit_code != 0:\n                          raise ValueError('Actual schema probe failed cleanup')\n              private_json(private / 'schema-probe.json', {'source': source, 'api_version': snapshot['api_version'],\n                           'database_schema_version': snapshot['database_schema_version'], 'daemon_exit': 0, 'joined': True})\n\n          def run_integration_browser():\n"
+    },
+    {
+      "start": 519,
+      "end": 537,
+      "current_sha256": "0960e23afc1cf03dbee8ab536b306045a09e95e732f06c15af1c36fdbfe88b2a",
+      "historical": "                  if git('status', '--porcelain', '--untracked-files=no'):\n                      raise ValueError('Tracked integration source changed')\n                  diagnostic['stage'] = 'paired_record_read'\n                  manifest_raw = pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').read_bytes()\n                  build_raw = pathlib.Path('artifacts/ui-browser/frontend-build-record.json').read_bytes()\n                  diagnostic['stage'] = 'driver_import'\n                  module = source_driver()\n                  diagnostic['stage'] = 'paired_record_decode'\n                  manifest, build = module.decode(manifest_raw), module.decode(build_raw)\n                  diagnostic['stage'] = 'paired_metadata_guard'\n                  if not (type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == source\n                          and manifest.get('dirty') is False and build['source'] == source and type(build['exit']) is int\n                          and build['exit'] == 0 and build['source_head_and_tracked_unchanged'] is True):\n                      raise ValueError('Paired integration source/build metadata refused')\n                  diagnostic['stage'] = 'private_records'\n"
+    },
+    {
+      "start": 545,
+      "end": 571,
+      "current_sha256": "cad9d9a16ac714bd7c452ffae5c89ddf855a14bffef531d080d2e1204a1c8c7c",
+      "historical": "                  for name in ('batond', 'baton'):\n                      diagnostic['stage'] = 'copy_' + name\n                      copy_tool(pathlib.Path('target/debug') / name, tools / name, manifest['binaries'][name])\n                  diagnostic['stage'] = 'schema_probe'\n                  actual_schema_probe(module, tools, private, source)\n                  status['probe_passed'] = True\n                  diagnostic['stage'] = 'chromium_discovery'\n"
+    },
+    {
+      "start": 586,
+      "end": 591,
+      "current_sha256": "19969bd032490db72c4ad1ca59bbe6ffb22b0469036cb906f57400d32de88b9c",
+      "historical": "                      ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode\n                  diagnostic['stage'] = 'driver_returned'\n              except Exception as error:\n                  kinds = ((ImportError, 'import_error'), (OSError, 'os_error'), (ValueError, 'value_error'),\n"
+    },
+    {
+      "start": 602,
+      "end": 608,
+      "current_sha256": "62d58f51d0f47166121ec43f3431525027f29827275aefd19c271b062bd440de",
+      "historical": "                  private_json(private / 'status.json', status)\n                  private_json(private / 'setup-diagnostic.json', diagnostic)\n              return 0 if type(status['driver_exit']) is int and status['driver_exit'] == 0 and status['probe_passed'] is True else 1\n\n          if __name__ == '__main__':\n"
+    }
+  ]
+}
