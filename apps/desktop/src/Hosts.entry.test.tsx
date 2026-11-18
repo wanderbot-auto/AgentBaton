@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { api } from './api';
@@ -90,9 +91,18 @@ it('retains the original in-flight Host request when Settings closes before rese
     }
   });
 
+  const user = userEvent.setup();
   render(<App />);
   expect(native).not.toHaveBeenCalled();
-  const dialog = showHosts();
+  await user.click(screen.getByRole('button', { name: 'Settings' }));
+  const dialog = screen.getByRole('dialog', { name: 'Settings' });
+  await user.tab({ shift: true });
+  expect(within(dialog).getByText('Background and login', { selector: 'summary' })).toHaveFocus();
+  await user.tab({ shift: true });
+  expect(within(dialog).getByText('Connection evidence', { selector: 'summary' })).toHaveFocus();
+  await user.tab({ shift: true });
+  expect(within(dialog).getByText(en.title, { selector: 'summary' })).toHaveFocus();
+  await user.keyboard('{Enter}');
   expect(within(dialog).getByRole('region', { name: 'Recover connection creations' })).toBeVisible();
   expect(within(dialog).getByText('Background and login', { selector: 'summary' })).toBeVisible();
   expect(within(dialog).getByText('Appearance')).toBeVisible();
