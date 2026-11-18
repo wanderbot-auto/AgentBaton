@@ -10,6 +10,8 @@ use agentbaton_workspaces::validation::ArtifactRequirement;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, path::PathBuf};
 
+pub mod ci_repair;
+
 #[path = "integration_store.rs"]
 mod store;
 pub(crate) use store::migrate;
