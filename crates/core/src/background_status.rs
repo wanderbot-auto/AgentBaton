@@ -39,10 +39,10 @@ impl BackgroundIdentity {
             .conn
             .pragma_query_value(None, "user_version", |row| row.get(0))
             .map_err(db_error)?;
-        if schema != 18 {
+        if schema != 19 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
-                "Background status requires current database schema18",
+                "Background status requires current database schema19",
             ));
         }
         Ok(BackgroundStatus {
@@ -110,10 +110,22 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let store = Store::open(&dir.path().join("db")).unwrap();
         let identity = BackgroundIdentity::after_store_open().unwrap();
-        store.conn.pragma_update(None, "user_version", 19).unwrap();
         assert_eq!(
-            identity.read(&store, false).unwrap_err().code,
-            "VERSION_UNSUPPORTED"
+            identity
+                .read(&store, false)
+                .unwrap()
+                .database_schema_version,
+            19
         );
+        for version in [18, 20] {
+            store
+                .conn
+                .pragma_update(None, "user_version", version)
+                .unwrap();
+            assert_eq!(
+                identity.read(&store, false).unwrap_err().code,
+                "VERSION_UNSUPPORTED"
+            );
+        }
     }
 }

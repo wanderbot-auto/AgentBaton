@@ -269,9 +269,34 @@ fn git_project_and_target_reads_keep_the_fence_fail_closed() {
         "idempotency_key":"create-task"
     })));
     let targets = json!({"method":"integration_targets.list","params":{"task_id":task["id"]}});
-    // Exact19 reaches managed-ownership validation even for an unmanaged task.
     refusal(server.request(targets.clone()), "CAPABILITY_UNSUPPORTED");
+    let view = result(server.request(json!({
+        "method":"workspaces.resolve","params":{
+            "task_id":task["id"],"expected_task_revision":task["revision"],
+            "expected_project_revision":project["revision"],"host_id":"local"
+        }
+    })));
+    let ready = result(server.request(json!({
+        "method":"workspaces.prepare_task_git","params":{
+            "task_id":task["id"],"expected_spec_revision":view["spec_revision"],
+            "expected_project_revision":view["project_revision"],"host_id":"local",
+            "expected_source_pin":{
+                "canonical_root":view["source"]["canonical_root"],
+                "device":view["source"]["device"],"inode":view["source"]["inode"],
+                "common_dir":view["source"]["kind"]["common_dir"],"head":view["source_head"]
+            },
+            "preparation_key":view["preparation_key"]
+        },
+        "expected_revision":task["revision"],"idempotency_key":"prepare-git"
+    })));
+    assert_eq!(ready["binding"]["state"], "ready");
     let before = snapshot(&server);
+    let branches = result(server.request(targets));
+    assert_eq!(branches.as_array().unwrap().len(), 1);
+    assert_eq!(branches[0]["target_ref"], "refs/heads/main");
+    assert_eq!(branches[0]["head"], head);
+    assert_eq!(branches[0]["checked_out"], true);
+    assert_eq!(snapshot(&server), before);
     let db = server.db(OpenFlags::SQLITE_OPEN_READ_WRITE);
     // Deliberate local corruption control. Only this fixture connection can
     // inject an orphan fence, after normal startup. The production reader must
