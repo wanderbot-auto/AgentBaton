@@ -118,7 +118,7 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     const user = userEvent.setup();
     const session: ManagedSession = { id: 'session-ready', task_id: draft.id, project_id: 'project', workspace_id: 'workspace', connection_id: 'connection', grant_id: 'grant', state: 'ready', revision: 3, native_session_id: 'native', created_at: date, updated_at: date, last_error: null, turn_state: 'completed' };
     const receipt = { task_id: draft.id, session_id: session.id, request_key: 'saved-key', turn_id: 'original-turn', text: 'Already recorded message' };
-    const snapshot = { tasks: [draft], sequence: 1, api_version: 1, database_schema_version: 18 };
+    const snapshot = { tasks: [draft], sequence: 1, api_version: 1, database_schema_version: 19 };
     vi.mocked(api.snapshot).mockResolvedValue({ ...snapshot, task_message_recovery: { pending_sessions: [], recovered: [receipt] } });
     vi.mocked(sessionApi.sessionsList).mockResolvedValue([session]);
     vi.mocked(api.events).mockResolvedValue({ events: [{

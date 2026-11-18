@@ -1,0 +1,258 @@
+{
+  "base": "1f756ce201b8cf10f4b1798053674f4e960ac77d",
+  "tested_source": "4d120da1d45a7df3a7c191dda611d76d5fc9f21a",
+  "target_ref": "origin/collab/host-registration-integration",
+  "tree": "3e4da1b31591db2a1b0ffbb318fd1a6717daf605",
+  "red_tree": "b02229a9b5f0eba40d1ee55837856d4f7c9dafe8",
+  "environment": {
+    "device": "arm64",
+    "platform": "macOS-26.6.1-arm64-arm-64bit",
+    "node": "v26.7.0",
+    "npm": "11.19.0",
+    "python": "Python 3.12.12"
+  },
+  "isolated_dependency_versions": {
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5",
+    "react": "19.3.1",
+    "jsdom": "30.1.3"
+  },
+  "unchanged_manifest_and_lock_sha256": {
+    "apps/desktop/package-lock.json": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d",
+    "apps/desktop/package.json": "62b1f3ad51ffbedd2dafd7ed30ad3848740d22c74fc4ad1e1dea291ec257e60b",
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5"
+  },
+  "scope_source_sha256": {
+    "apps/desktop/src/BackgroundService.entry.test.tsx": "2f68d6563361c703dcb0422313845963a1a05515e9ec13b1f65f79b503ed27de",
+    "apps/desktop/src/BackgroundService.test.tsx": "19ad50d5dba817b44d9d5d416c25497d8000eedbd0e7e40efdb3c8e1f8b93dd4",
+    "apps/desktop/src/GoalGraphExecution.task-projection.test.ts": "35fe3242350b94f87daf85e7bce20ae4be6ab99e10defb6c314e413e1b82683a",
+    "apps/desktop/src/ManagedMcps.entry.test.tsx": "45126f9a3ced4e258d8f0792c07eabc9eac73bb9f3c905bf30064f6c331aec02",
+    "apps/desktop/src/ManagedSkills.entry.test.tsx": "ecbd0235772bf03c9a081d981f2ced7c4ae8e160f935b1275ff5eb6fa2a20a53",
+    "apps/desktop/src/QuietCanvas.test.tsx": "099e5299a3d3399ca2cddb7bdfda179184ef174207a66962a7b215f1647c5f09",
+    "apps/desktop/src/RecoveryCenter.entry.test.tsx": "aa7b042cb93e0de87c92c3a442b8c745ad9bf273720240b171d2a71514cc1875",
+    "apps/desktop/src/StandaloneConversations.test.tsx": "6e863201246d25dfde665d21364c45b8c36a6ef56f539ac9fd0890ef646fb18d",
+    "apps/desktop/src/TaskActions.test.tsx": "7de27e42bb3581d10a632bf8a60a32f25e291a7535ae4041d7d5d0aa08e79fba",
+    "apps/desktop/src/TaskIntegration.test.tsx": "4fac07ad1df2c0dc774e0e50f30e77d1c77079578b72a80baf83fbb9c2051da6",
+    "apps/desktop/src/TaskIntegration.tsx": "3098cd219ce9ce4a6010407873213a8066818051967bc20d4f95bde4c9078161",
+    "apps/desktop/src/api.ts": "89f5aa9166d003cba16cacf69fec14e2b77f269a9817be4f445380807f38d82b",
+    "apps/desktop/src/background-service-api.test.ts": "f6ace4701fc2407975e1c17e0a703b77a27415bd97695beefaab762f69a1877d",
+    "apps/desktop/src/background-service-api.ts": "b4511a2b456e7d0f765f7889032abc2984fd3af0e464d51ebc19a1f4f9c4d47b",
+    "apps/desktop/src/integration-api.test.ts": "a0a68fef7f3f4da57e238bed7aba2df491bd27e8663890112f71c345668d6eab",
+    "apps/desktop/src/integration-i18n.ts": "c18559ea3c09bb37a83a531424605ed7bc3e2f7904fd17848d48576983b958df"
+  },
+  "production_exact_literal_diff": {
+    "apps/desktop/src/api.ts": {
+      "base_sha256": "cd862ff7218b63baaafe3b02e020903a2ae083688d79fd13b365bbd01c1e2683",
+      "source_sha256": "89f5aa9166d003cba16cacf69fec14e2b77f269a9817be4f445380807f38d82b",
+      "approved_literal_changes": [
+        [
+          "value.database_schema_version!==18",
+          "value.database_schema_version!==19"
+        ]
+      ]
+    },
+    "apps/desktop/src/background-service-api.ts": {
+      "base_sha256": "9eea2600832865cb324cf225c131509b85bdba443c32d1cdaf5dd7865bde6496",
+      "source_sha256": "b4511a2b456e7d0f765f7889032abc2984fd3af0e464d51ebc19a1f4f9c4d47b",
+      "approved_literal_changes": [
+        [
+          "database_schema_version:18",
+          "database_schema_version:19"
+        ],
+        [
+          "row.database_schema_version!==18",
+          "row.database_schema_version!==19"
+        ]
+      ]
+    },
+    "apps/desktop/src/TaskIntegration.tsx": {
+      "base_sha256": "321d1fcf35c970bdf15cea2a1f52a1cf3ce9e0656f47aee96597aaea573a1d93",
+      "source_sha256": "3098cd219ce9ce4a6010407873213a8066818051967bc20d4f95bde4c9078161",
+      "approved_literal_changes": [
+        [
+          "snapshot.database_schema_version!==18",
+          "snapshot.database_schema_version!==19"
+        ]
+      ]
+    },
+    "apps/desktop/src/integration-i18n.ts": {
+      "base_sha256": "cec0276968e4d8c272667df1908198f7998d3b8aff4f6dad3e52298211c0d527",
+      "source_sha256": "c18559ea3c09bb37a83a531424605ed7bc3e2f7904fd17848d48576983b958df",
+      "approved_literal_changes": [
+        [
+          "This panel requires database schema 18.",
+          "This panel requires database schema 19."
+        ],
+        [
+          "\u6b64\u9762\u677f\u9700\u8981\u6570\u636e\u5e93 schema 18\u3002",
+          "\u6b64\u9762\u677f\u9700\u8981\u6570\u636e\u5e93 schema 19\u3002"
+        ]
+      ]
+    }
+  },
+  "web_dist_assets": {
+    "apps/desktop/dist/assets/index-COiF135a.js": {
+      "sha256": "0acf9b7a5b6596ca933fe08d157a9341ed6b3a62b42fdeed2ee65ee117303166",
+      "bytes": 961832
+    },
+    "apps/desktop/dist/assets/index-DZHSe46f.css": {
+      "sha256": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+      "bytes": 32470
+    },
+    "apps/desktop/dist/index.html": {
+      "sha256": "f1b875b214420deb753c6510e7f5df8b74f2f6bae113b9cba579d188991df996",
+      "bytes": 441
+    }
+  },
+  "runs": {
+    "build-first": {
+      "source": "4d120da1d45a7df3a7c191dda611d76d5fc9f21a",
+      "argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "apps/desktop",
+      "exit": 0,
+      "seconds": 1.109,
+      "log_sha256": "072a0d97217aeaff289663ba73aca96ee97f8aa8f94d6ffc32bbe0636ccca139"
+    },
+    "full-first": {
+      "source": "4d120da1d45a7df3a7c191dda611d76d5fc9f21a",
+      "argv": [
+        "npm",
+        "test"
+      ],
+      "cwd": "apps/desktop",
+      "exit": 0,
+      "seconds": 34.514,
+      "log_sha256": "ac5a099d1b5e41e47814e50c7b6efd352e29cc91570bd295688bb8344aab9503"
+    },
+    "infra-first": {
+      "source": "4d120da1d45a7df3a7c191dda611d76d5fc9f21a",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "cwd": ".",
+      "exit": 0,
+      "seconds": 21.683,
+      "log_sha256": "0cccd5927238d1d7fc9127da5d0e3e4a8823c0fada21ae31d0b872cd0606d54e"
+    },
+    "npm-ci": {
+      "source": "1f756ce201b8cf10f4b1798053674f4e960ac77d",
+      "argv": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--prefer-offline"
+      ],
+      "cwd": "apps/desktop",
+      "exit": 0,
+      "seconds": 0.9,
+      "log_sha256": "773c133596d25ba3736b29f309695189b5338b58dac20d3b8d7f84b643a5fbfc"
+    },
+    "readers-red": {
+      "source": "c3b41a6eb646bc64ef9afb521c9f261bad495078",
+      "argv": [
+        "npm",
+        "test",
+        "--",
+        "src/integration-api.test.ts",
+        "src/background-service-api.test.ts",
+        "src/TaskIntegration.test.tsx",
+        "-t",
+        "accepts a current schema19 snapshot|accepts the exact status|uses the full authoritative context|disables previously available lifecycle"
+      ],
+      "cwd": "apps/desktop",
+      "exit": 1,
+      "seconds": 2.931,
+      "log_sha256": "4bfc41d8afce4ad800e78feecf5bbb28b18b7d29f50ff8699146c187623e949b"
+    },
+    "targeted-first": {
+      "source": "4d120da1d45a7df3a7c191dda611d76d5fc9f21a",
+      "argv": [
+        "npm",
+        "test",
+        "--",
+        "src/BackgroundService.entry.test.tsx",
+        "src/BackgroundService.test.tsx",
+        "src/GoalGraphExecution.task-projection.test.ts",
+        "src/ManagedMcps.entry.test.tsx",
+        "src/ManagedSkills.entry.test.tsx",
+        "src/QuietCanvas.test.tsx",
+        "src/RecoveryCenter.entry.test.tsx",
+        "src/StandaloneConversations.test.tsx",
+        "src/TaskActions.test.tsx",
+        "src/TaskIntegration.test.tsx",
+        "src/background-service-api.test.ts",
+        "src/integration-api.test.ts"
+      ],
+      "cwd": "apps/desktop",
+      "exit": 0,
+      "seconds": 4.913,
+      "log_sha256": "69bb0f81ef88e726fd2a059f1369d0f88f95dc450db486e5280b1000b459f7f7"
+    },
+    "typecheck-first": {
+      "source": "4d120da1d45a7df3a7c191dda611d76d5fc9f21a",
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "apps/desktop",
+      "exit": 0,
+      "seconds": 1.052,
+      "log_sha256": "81a908ca176d0b18d9dd2470e07fabb394420707cf4a00e9b2f28551bdcdc175"
+    }
+  },
+  "logs": {
+    "build-first.log": {
+      "sha256": "072a0d97217aeaff289663ba73aca96ee97f8aa8f94d6ffc32bbe0636ccca139",
+      "bytes": 777
+    },
+    "full-first.log": {
+      "sha256": "ac5a099d1b5e41e47814e50c7b6efd352e29cc91570bd295688bb8344aab9503",
+      "bytes": 641
+    },
+    "infra-first.log": {
+      "sha256": "0cccd5927238d1d7fc9127da5d0e3e4a8823c0fada21ae31d0b872cd0606d54e",
+      "bytes": 2675
+    },
+    "npm-ci.log": {
+      "sha256": "773c133596d25ba3736b29f309695189b5338b58dac20d3b8d7f84b643a5fbfc",
+      "bytes": 335
+    },
+    "readers-red.log": {
+      "sha256": "4bfc41d8afce4ad800e78feecf5bbb28b18b7d29f50ff8699146c187623e949b",
+      "bytes": 28817
+    },
+    "targeted-first.log": {
+      "sha256": "69bb0f81ef88e726fd2a059f1369d0f88f95dc450db486e5280b1000b459f7f7",
+      "bytes": 1026
+    },
+    "typecheck-first.log": {
+      "sha256": "81a908ca176d0b18d9dd2470e07fabb394420707cf4a00e9b2f28551bdcdc175",
+      "bytes": 55
+    }
+  },
+  "test_counts": {
+    "targeted": 138,
+    "full_vitest": 1548,
+    "full_vitest_files": 108,
+    "full_infra_passed": 906,
+    "full_infra_existing_skips": 16,
+    "original_red_failures": 4
+  },
+  "processes": "Owned npm/Vitest/tsc/Vite/unittest commands and their wrapper joined naturally; no Vite dev server, Tauri app or daemon launched",
+  "recorded_utc": "2026-11-18T15:07:08.598942+00:00"
+}
