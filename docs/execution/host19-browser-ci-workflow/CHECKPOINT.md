@@ -11,3 +11,7 @@ Integration normal 与 command-failure、12 张 Integration 和 4 张通知有�
 设施回归运行 1,012 项，跳过 16 项。Node 4 项、Child Goal wire 14 项与 392 项驱动自检、七段故障注入、三份历史原字节逆向均通过。此前运行拒绝和设施注入失败原件的摘要见 [执行证据](EVIDENCE.json) 与 [早期执行证据](EARLIER_WORKFLOW_EVIDENCE.json)。
 
 在集成目标 `af6d7e89576c367ada46f6135c384b94cf1984b2` 上的无冲突模拟 tree 为 `f177e7f1f9437c8dd28e984e088dfdaccc9c93b1`。运行证据绑定上述任务源码。合成源码的复核及 GitHub 托管检查属于集成准入。前置归档和原件保存在任务私有运行目录。
+
+## 集成源重放
+
+实际重建的 detached 合成提交 a96acc79060c3509157e14748b54ba7f7d1365b8 绑定目标 af6d7e89576c367ada46f6135c384b94cf1984b2 与原交付头 0c83ee6de8b158df52353c00c3e40dde6ab19578，tree 精确为 06be1ac098d62c6c5841c5579027e18bace8011b。两个工具、前端和完整浏览器链均以该源码重建并验证。浏览器入口退出 0（142.60 秒），Integration、通知投影以及四个改件拒绝均通过。本地环境、原件与哈希见 [合成树执行证据](INTEGRATED_REPLAY.json)。
