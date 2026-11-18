@@ -598,7 +598,7 @@ mod active_diagnostic {
             .to_owned();
         let started = f.root.join("diagnostic-started");
         let body = r#"
-import json,os,stat,sys,time
+import hashlib,json,os,stat,sys,time
 assert len(sys.argv)==1
 assert stat.S_IMODE(os.stat('.').st_mode)==0o700
 assert os.path.basename(os.getcwd())=='work'
@@ -608,8 +608,13 @@ for name in ['HOME','TMPDIR','XDG_CONFIG_HOME','XDG_CACHE_HOME','XDG_DATA_HOME']
  assert os.path.isdir(os.environ[name])
 assert 'CODEX_HOME' not in os.environ and 'BATON_RUNTIME_DIR' not in os.environ
 assert 'AB_MCP_DIAGNOSTIC_SYNTHETIC_EVIDENCE' not in os.environ
-with open(os.path.join(os.path.dirname(__file__),'diagnostic-started'),'w') as f:
- json.dump({'pid':os.getpid(),'work':os.getcwd()}, f)
+actual=os.stat(__file__)
+assert stat.S_IMODE(actual.st_mode)==0o500
+assert os.path.dirname(os.path.dirname(__file__))==entered
+with open(__file__,'rb') as f:
+ sha=hashlib.sha256(f.read()).hexdigest()
+with open(STARTED,'w') as f:
+ json.dump({'pid':os.getpid(),'work':os.getcwd(),'entry':{'device':actual.st_dev,'inode':actual.st_ino,'sha256':sha}}, f)
 print('untrusted-stderr-content',file=sys.stderr,flush=True)
 seen=[]
 for line in sys.stdin:
@@ -649,7 +654,7 @@ for line in sys.stdin:
    if MODE=='repeated-cursor':
     result={'tools':[],'nextCursor':'untrusted-cursor'}
    if MODE=='drift':
-    os.chmod(__file__,0o500)
+    os.chmod(ORIGINAL,0o500)
  else:
   with open('forbidden-method','w') as f:
    f.write(method)
@@ -660,7 +665,20 @@ with open('closed-input','w') as f:
 if MODE=='exit-nonzero':
  sys.exit(19)
 "#;
-        fs::write(&executable, format!("{shebang}\nMODE={mode:?}\n{body}")).unwrap();
+        let shebang = if mode == "dynamic-interpreter" {
+            "#!/usr/bin/env python3"
+        } else {
+            &shebang
+        };
+        let entry = executable.to_str().unwrap();
+        let started_path = started.to_str().unwrap();
+        fs::write(
+            &executable,
+            format!(
+                "{shebang}\nMODE={mode:?}\nORIGINAL={entry:?}\nSTARTED={started_path:?}\n{body}"
+            ),
+        )
+        .unwrap();
         let (_, _, derived) = approve(&mut f, &create, "diagnostic-derived");
         ready(&mut f, &derived.connection.id);
         let connection = f.store.get_connection(&derived.connection.id).unwrap();
@@ -685,6 +703,7 @@ if MODE=='exit-nonzero':
                 connection_id: connection.id,
                 connection_revision: connection.revision,
                 server_name: "local_notes".into(),
+                entry_mode: McpDiagnosticEntryMode::Relocatable,
             },
         }
     }
@@ -741,6 +760,8 @@ if MODE=='exit-nonzero':
                 attempt.receipt().direct_child,
                 McpDiagnosticExit::Reaped { .. }
             ));
+            let actual: Value = serde_json::from_slice(&fs::read(&self.started).unwrap()).unwrap();
+            assert_eq!(json!(attempt.receipt().launched_entry), actual["entry"]);
             let record = self
                 .base
                 .store
@@ -794,7 +815,7 @@ if MODE=='exit-nonzero':
                 .code,
             "PERMISSION_DENIED"
         );
-        let bad_input = json!({"project_id":f.request.project_id,"project_revision":f.request.project_revision,"connection_id":f.request.connection_id,"connection_revision":f.request.connection_revision,"server_name":f.request.server_name,"owner_confirmed":true});
+        let bad_input = json!({"project_id":f.request.project_id,"project_revision":f.request.project_revision,"connection_id":f.request.connection_id,"connection_revision":f.request.connection_revision,"server_name":f.request.server_name,"entry_mode":"relocatable","owner_confirmed":true});
         assert!(serde_json::from_value::<ManagedMcpDiagnosticRequest>(bad_input).is_err());
         let approved = f.approval();
         let mut wrong_server = f.request.clone();
@@ -906,6 +927,14 @@ if MODE=='exit-nonzero':
         f.assert_reaped(&attempt);
         let receipt = attempt.receipt();
         assert!(receipt.verified());
+        assert_ne!(
+            receipt.launched_entry.as_ref().unwrap().inode,
+            fs::metadata(&f.executable).unwrap().ino()
+        );
+        assert_eq!(
+            receipt.launched_entry.as_ref().unwrap().sha256,
+            executable_digest(&f.executable).unwrap().as_str()
+        );
         assert_eq!(receipt.protocol_version.as_deref(), Some("2024-11-05"));
         assert!(receipt
             .runtime_snapshot_digest
@@ -1065,6 +1094,95 @@ if MODE=='exit-nonzero':
             f.assert_reaped(&attempt);
             assert!(!encode(attempt.receipt()).unwrap().contains("untrusted-"));
         }
+    }
+
+    #[test]
+    fn source_replaced_after_final_recheck_cannot_be_the_child() {
+        let mut f = diagnostic_fixture("list");
+        let replacement = f.executable.with_extension("replacement");
+        let unexpected = f.base.root.join("unapproved-program-started");
+        let shebang = fs::read_to_string(&f.executable)
+            .unwrap()
+            .lines()
+            .next()
+            .unwrap()
+            .to_owned();
+        fs::write(
+            &replacement,
+            format!(
+                "{shebang}\nopen({:?}, 'w').close()\n",
+                unexpected.to_str().unwrap()
+            ),
+        )
+        .unwrap();
+        fs::set_permissions(&replacement, fs::Permissions::from_mode(0o700)).unwrap();
+        let mut preview = f.preview();
+        let expected_sha = preview.review().server.executable_sha256.clone();
+        let approved_source_inode = fs::metadata(&f.executable).unwrap().ino();
+        preview.replace_source_before_spawn_for_test(replacement);
+        let attempt = f.run(confirm(preview), &AtomicBool::new(false)).unwrap();
+
+        assert!(
+            !unexpected.exists(),
+            "the substituted executable was launched"
+        );
+        assert_eq!(attempt.receipt().outcome, InputChanged);
+        let proof = attempt.receipt().launched_entry.as_ref().unwrap();
+        assert_eq!(proof.sha256, expected_sha);
+        assert_ne!(proof.inode, approved_source_inode);
+        assert_ne!(proof.inode, fs::metadata(&f.executable).unwrap().ino());
+        assert!(
+            f.started.is_file(),
+            "the approved executable's own canary is required"
+        );
+        f.assert_reaped(&attempt);
+    }
+
+    #[test]
+    fn unsupported_original_location_or_executable_metadata_never_starts() {
+        let mut f = diagnostic_fixture("list");
+        let mut original = f.request.clone();
+        original.entry_mode = McpDiagnosticEntryMode::RequiresOriginalLocation;
+        assert_eq!(
+            f.base
+                .store
+                .preview_managed_mcp_diagnostic(&original)
+                .unwrap_err()
+                .code,
+            "CAPABILITY_UNSUPPORTED",
+        );
+
+        #[cfg(target_os = "macos")]
+        let attribute = "com.apple.quarantine";
+        #[cfg(target_os = "linux")]
+        let attribute = "user.diagnostic-preserve";
+        rustix::fs::setxattr(
+            &f.executable,
+            attribute,
+            b"0081;0;GeneratedFixture;",
+            rustix::fs::XattrFlags::empty(),
+        )
+        .unwrap();
+        let approved = f.approval();
+        let attempt = f.run(approved, &AtomicBool::new(false)).unwrap();
+        assert_eq!(attempt.receipt().outcome, UnsupportedExecutable);
+        assert_eq!(
+            attempt.receipt().direct_child,
+            McpDiagnosticExit::NotStarted
+        );
+        assert!(attempt.receipt().launched_entry.is_none());
+        assert!(attempt.journal_recorded());
+        assert!(!f.started.exists());
+
+        let mut f = diagnostic_fixture("dynamic-interpreter");
+        let approved = f.approval();
+        let attempt = f.run(approved, &AtomicBool::new(false)).unwrap();
+        assert_eq!(attempt.receipt().outcome, UnsupportedExecutable);
+        assert_eq!(
+            attempt.receipt().direct_child,
+            McpDiagnosticExit::NotStarted
+        );
+        assert!(!f.started.exists());
     }
 
     #[test]

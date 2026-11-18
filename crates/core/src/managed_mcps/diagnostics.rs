@@ -2,11 +2,11 @@
 //! opened here. Only trusted in-process code may turn a review into authority.
 use super::*;
 use crate::registry::Project;
-use rustix::fs::{fcntl_getfl, fcntl_setfl, OFlags};
+use rustix::fs::{self as rfs, fcntl_getfl, fcntl_setfl, Access, AtFlags, Mode, OFlags};
 use std::{
     collections::BTreeSet,
-    fs::{self, DirBuilder},
-    io::{self, Read, Write},
+    fs::{self, DirBuilder, File},
+    io::{self, Read, Seek, Write},
     os::unix::{fs::DirBuilderExt, process::ExitStatusExt},
     process::{Child, ChildStderr, ChildStdin, ChildStdout, Command, ExitStatus, Stdio},
     time::{Duration, Instant},
@@ -26,6 +26,14 @@ const MAX_NOTIFICATIONS: usize = 32;
 const MAX_PAGES: usize = 4;
 const MAX_TOOLS: usize = 128;
 const PROTOCOL: &str = "2025-06-18";
+const MAX_ENTRY_BYTES: u64 = 512 * 1024 * 1024;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum McpDiagnosticEntryMode {
+    Relocatable,
+    RequiresOriginalLocation,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -35,6 +43,7 @@ pub struct ManagedMcpDiagnosticRequest {
     pub connection_id: String,
     pub connection_revision: u64,
     pub server_name: String,
+    pub entry_mode: McpDiagnosticEntryMode,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -65,6 +74,8 @@ pub struct PendingMcpDiagnostic {
     review: ManagedMcpDiagnosticReview,
     review_digest: String,
     expires: Instant,
+    #[cfg(test)]
+    replace_source_before_spawn: Option<PathBuf>,
 }
 
 impl PendingMcpDiagnostic {
@@ -98,6 +109,11 @@ impl PendingMcpDiagnostic {
         self.expires = Instant::now();
     }
 
+    #[cfg(test)]
+    pub(super) fn replace_source_before_spawn_for_test(&mut self, replacement: PathBuf) {
+        self.replace_source_before_spawn = Some(replacement);
+    }
+
     fn check_expiry(&self) -> Result<()> {
         if Instant::now() >= self.expires || ms()? >= self.review.expires_at_ms {
             return Err(CoreError::new(
@@ -122,6 +138,7 @@ pub enum McpDiagnosticOutcome {
     ApprovalExpired,
     InputChanged,
     StartupFailed,
+    UnsupportedExecutable,
     ProtocolFailed,
     UnsupportedProtocol,
     ToolsUnsupported,
@@ -154,9 +171,18 @@ pub struct ManagedMcpDiagnosticReceipt {
     pub direct_child: McpDiagnosticExit,
     pub protocol_version: Option<String>,
     pub runtime_snapshot_digest: Option<String>,
+    pub launched_entry: Option<McpDiagnosticLaunchEvidence>,
     pub configured_tools_seen: Vec<String>,
     pub other_tool_count: Option<usize>,
     pub stderr_bytes_observed: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct McpDiagnosticLaunchEvidence {
+    pub sha256: String,
+    pub device: u64,
+    pub inode: u64,
 }
 
 impl ManagedMcpDiagnosticReceipt {
@@ -164,6 +190,7 @@ impl ManagedMcpDiagnosticReceipt {
     /// Use a committed record or a separate journal check for durable evidence.
     pub fn verified(&self) -> bool {
         self.outcome == McpDiagnosticOutcome::Enumerated
+            && self.launched_entry.is_some()
             && matches!(self.direct_child, McpDiagnosticExit::Reaped { .. })
     }
 }
@@ -255,6 +282,8 @@ impl Store {
             review,
             review_digest,
             expires,
+            #[cfg(test)]
+            replace_source_before_spawn: None,
         })
     }
 
@@ -291,6 +320,7 @@ impl Store {
                 direct_child: McpDiagnosticExit::NotStarted,
                 protocol_version: None,
                 runtime_snapshot_digest: None,
+                launched_entry: None,
                 configured_tools_seen: vec![],
                 other_tool_count: None,
                 stderr_bytes_observed: 0,
@@ -349,7 +379,7 @@ fn review(
         )
         .optional()
         .map_err(db_error)?;
-    let project: Project = decode(&raw.ok_or_else(|| changed())?)?;
+    let project: Project = decode(&raw.ok_or_else(changed)?)?;
     if project.id != request.project_id
         || project.revision != request.project_revision
         || project.archived
@@ -376,6 +406,16 @@ fn review(
     if server.name != request.server_name {
         return Err(changed());
     }
+    if request.entry_mode != McpDiagnosticEntryMode::Relocatable
+        || Path::new(&server.executable)
+            .ancestors()
+            .any(|part| part.extension().is_some_and(|ext| ext == "app"))
+    {
+        return Err(CoreError::new(
+            "CAPABILITY_UNSUPPORTED",
+            "Active MCP diagnosis requires a standalone program that can run from a private copy",
+        ));
+    }
     let source = source_binding(&server.executable)?;
     if source["executable_sha256"] != server.executable_sha256 {
         return Err(changed());
@@ -399,7 +439,7 @@ fn review(
         environment: "fresh_baton_managed_state_without_credentials".into(),
         io_timeout_ms: IO_TIMEOUT.as_millis() as u64,
         expires_at_ms,
-        warning: "This starts the approved local executable under your operating system account. The working directory and managed environment are private. Native code can still access files, network, or start descendants using your account permissions. This diagnostic verifies the selected entry file at observation, and can only observe its direct child and the approved protocol operations. Interpreters, dependencies and later filesystem changes are outside that verification.".into(),
+        warning: "This runs a verified private copy of the approved entry file under your operating system account. Confirm only a standalone program that can run at a new path. Its original sibling files are not copied. Native code can still access files, network, or start descendants using your account permissions. Entry-file verification does not cover interpreters, dependencies or other processes.".into(),
     })
 }
 
@@ -531,6 +571,7 @@ fn record_receipt(store: &mut Store, receipt: &ManagedMcpDiagnosticReceipt) -> R
 }
 
 struct PrivatePaths {
+    run: PathBuf,
     work: PathBuf,
     work_identity: (u64, u64),
     runtime: RuntimeRoot,
@@ -577,11 +618,297 @@ fn private_paths(runtime: &Path, id: &str) -> Result<PrivatePaths> {
         )
         .map_err(crate::runtime_config::config_error)?;
     Ok(PrivatePaths {
+        run,
         work,
         work_identity,
         runtime: root,
         descriptor: snapshot.descriptor(),
     })
+}
+
+struct PrivateExecutableCopy {
+    directory: PathBuf,
+    directory_identity: (u64, u64),
+    path: PathBuf,
+    identity: Value,
+    evidence: McpDiagnosticLaunchEvidence,
+}
+
+impl PrivateExecutableCopy {
+    fn from_approved_source(
+        run: &Path,
+        review: &ManagedMcpDiagnosticReview,
+        cancel: &AtomicBool,
+    ) -> ProbeResult<Self> {
+        use McpDiagnosticOutcome::*;
+
+        let path = Path::new(&review.server.executable);
+        let mut source = File::from(
+            rfs::open(
+                path,
+                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+                Mode::empty(),
+            )
+            .map_err(|_| InputChanged)?,
+        );
+        let before = source.metadata().map_err(|_| InputChanged)?;
+        if !before.is_file() || source_file_identity(&before) != review.executable_identity {
+            return Err(InputChanged);
+        }
+        if before.len() > MAX_ENTRY_BYTES {
+            return Err(ResourceLimit);
+        }
+        // Refuse security metadata and mount conditions the private copy
+        // cannot preserve. Never make an otherwise non-executable source runnable.
+        if before.mode() & 0o6000 != 0
+            || rfs::accessat(rfs::CWD, path, Access::EXEC_OK, AtFlags::EACCESS).is_err()
+            || !supports_private_copy(&source)
+        {
+            return Err(UnsupportedExecutable);
+        }
+        verify_relocatable_format(&mut source)?;
+
+        let directory = run.join(format!("entry-{}", Uuid::new_v4()));
+        let mut builder = DirBuilder::new();
+        builder
+            .mode(0o700)
+            .create(&directory)
+            .map_err(|_| StartupFailed)?;
+        let directory_identity = private_directory(&directory).map_err(|_| StartupFailed)?;
+        let parent = rfs::open(
+            &directory,
+            OFlags::DIRECTORY | OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+            Mode::empty(),
+        )
+        .map(File::from)
+        .map_err(|_| StartupFailed)?;
+        let held = parent.metadata().map_err(|_| StartupFailed)?;
+        if (held.dev(), held.ino()) != directory_identity {
+            return Err(InputChanged);
+        }
+        let staged = stage_entry(&mut source, &parent, before.len(), cancel)?;
+        let staged_len = staged.metadata().map_err(|_| StartupFailed)?.len();
+        if staged_len != before.len()
+            || source_file_identity(&source.metadata().map_err(|_| InputChanged)?)
+                != review.executable_identity
+        {
+            return Err(InputChanged);
+        }
+        rfs::fchmod(&staged, Mode::RUSR | Mode::XUSR).map_err(|_| StartupFailed)?;
+        staged.sync_all().map_err(|_| StartupFailed)?;
+        if !preserved_security_metadata(&source, &staged) {
+            return Err(UnsupportedExecutable);
+        }
+        let file = staged.metadata().map_err(|_| StartupFailed)?;
+        Ok(Self {
+            path: directory.join("server"),
+            directory,
+            directory_identity,
+            identity: source_file_identity(&file),
+            evidence: McpDiagnosticLaunchEvidence {
+                sha256: review.server.executable_sha256.clone(),
+                device: file.dev(),
+                inode: file.ino(),
+            },
+        })
+    }
+
+    fn matches_private_copy(&self) -> bool {
+        if private_directory(&self.directory).ok() != Some(self.directory_identity) {
+            return false;
+        }
+        let same_file = || {
+            fs::symlink_metadata(&self.path).is_ok_and(|m| {
+                m.is_file()
+                    && m.nlink() == 1
+                    && m.uid() == rustix::process::geteuid().as_raw()
+                    && m.mode() & 0o7777 == 0o500
+                    && source_file_identity(&m) == self.identity
+            })
+        };
+        same_file()
+            && executable_digest(&self.path).is_ok_and(|sha| sha.as_str() == self.evidence.sha256)
+            && same_file()
+            && private_directory(&self.directory).ok() == Some(self.directory_identity)
+    }
+}
+
+fn verify_relocatable_format(source: &mut File) -> ProbeResult<()> {
+    use McpDiagnosticOutcome::*;
+    let mut prefix = [0u8; 256];
+    let n = source.read(&mut prefix).map_err(|_| IoFailed)?;
+    source.rewind().map_err(|_| IoFailed)?;
+    let bytes = &prefix[..n];
+    if let Some(script) = bytes.strip_prefix(b"#!") {
+        let len = script
+            .iter()
+            .position(|b| *b == b'\n')
+            .ok_or(UnsupportedExecutable)?;
+        let line = &script[..len];
+        let shebang = std::str::from_utf8(line).map_err(|_| UnsupportedExecutable)?;
+        let interpreter = shebang.trim();
+        if interpreter.starts_with('/')
+            && !interpreter.chars().any(char::is_whitespace)
+            && Path::new(interpreter)
+                .file_name()
+                .is_some_and(|name| name != "env")
+        {
+            return Ok(());
+        }
+    } else if native_executable_magic(bytes) {
+        return Ok(());
+    }
+    Err(UnsupportedExecutable)
+}
+
+#[cfg(target_os = "macos")]
+fn native_executable_magic(bytes: &[u8]) -> bool {
+    matches!(
+        bytes.get(..4),
+        Some([0xcf, 0xfa, 0xed, 0xfe] | [0xca, 0xfe, 0xba, 0xbe] | [0xca, 0xfe, 0xba, 0xbf])
+    )
+}
+
+#[cfg(target_os = "linux")]
+fn native_executable_magic(bytes: &[u8]) -> bool {
+    bytes.starts_with(b"\x7fELF")
+}
+
+#[cfg(target_os = "macos")]
+fn stage_entry(
+    source: &mut File,
+    parent: &File,
+    _bytes: u64,
+    cancel: &AtomicBool,
+) -> ProbeResult<File> {
+    use McpDiagnosticOutcome::*;
+    if cancel.load(Ordering::Acquire) {
+        return Err(Cancelled);
+    }
+    // Clone the already-open source and retain system provenance metadata.
+    // There is no path-based or metadata-dropping fallback.
+    rfs::fclonefileat(
+        source,
+        parent,
+        "server",
+        rfs::CloneFlags::NOFOLLOW | rfs::CloneFlags::NOOWNERCOPY,
+    )
+    .map_err(|error| match error {
+        rustix::io::Errno::NOTSUP | rustix::io::Errno::XDEV => UnsupportedExecutable,
+        _ => StartupFailed,
+    })?;
+    rfs::openat(
+        parent,
+        "server",
+        OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+        Mode::empty(),
+    )
+    .map(File::from)
+    .map_err(|_| StartupFailed)
+}
+
+#[cfg(target_os = "linux")]
+fn stage_entry(
+    source: &mut File,
+    parent: &File,
+    limit: u64,
+    cancel: &AtomicBool,
+) -> ProbeResult<File> {
+    use McpDiagnosticOutcome::*;
+    let mut staged = File::from(
+        rfs::openat(
+            parent,
+            "server",
+            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+            Mode::RUSR | Mode::WUSR,
+        )
+        .map_err(|_| StartupFailed)?,
+    );
+    let mut written = 0u64;
+    let mut chunk = [0u8; 64 * 1024];
+    loop {
+        if cancel.load(Ordering::Acquire) {
+            return Err(Cancelled);
+        }
+        let n = source.read(&mut chunk).map_err(|_| IoFailed)?;
+        if n == 0 {
+            return Ok(staged);
+        }
+        written += n as u64;
+        if written > limit {
+            return Err(InputChanged);
+        }
+        staged.write_all(&chunk[..n]).map_err(|_| IoFailed)?;
+    }
+}
+
+#[cfg(target_os = "macos")]
+const PROVENANCE: &str = "com.apple.provenance";
+
+fn supports_private_copy(source: &File) -> bool {
+    let mut names = [0u8; 256];
+    let Ok(count) = rfs::flistxattr(source, &mut names[..]) else {
+        return false;
+    };
+    #[cfg(target_os = "macos")]
+    let allowed = count == 0 || &names[..count] == b"com.apple.provenance\0";
+    #[cfg(target_os = "linux")]
+    let allowed = count == 0;
+    allowed && supports_copy_on_platform(source)
+}
+
+fn preserved_security_metadata(source: &File, staged: &File) -> bool {
+    if !supports_private_copy(source) || !supports_private_copy(staged) {
+        return false;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        let mut before = [0u8; 64];
+        let mut after = [0u8; 64];
+        match (
+            rfs::fgetxattr(source, PROVENANCE, &mut before[..]),
+            rfs::fgetxattr(staged, PROVENANCE, &mut after[..]),
+        ) {
+            (Ok(a), Ok(b)) => a == b && before[..a] == after[..b],
+            (Err(a), Err(b)) => a == rustix::io::Errno::NOATTR && a == b,
+            _ => false,
+        }
+    }
+    #[cfg(target_os = "linux")]
+    {
+        true
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn supports_copy_on_platform(source: &File) -> bool {
+    use std::{ffi::c_void, os::fd::AsRawFd};
+    // Defined by Darwin sys/mount.h. Darwin statvfs does not expose MNT_NOEXEC.
+    const MNT_NOEXEC: u32 = 0x4;
+    if !rfs::fstatfs(source).is_ok_and(|mount| mount.f_flags & MNT_NOEXEC == 0) {
+        return false;
+    }
+    unsafe extern "C" {
+        fn acl_get_fd(fd: std::ffi::c_int) -> *mut c_void;
+        fn acl_free(acl: *mut c_void) -> std::ffi::c_int;
+    }
+    // The live File owns this descriptor. Darwin returns ENOENT for an
+    // ordinary file without an extended ACL. An ACL or an unknown lookup
+    // result cannot authorize discarding its access control during relocation.
+    let acl = unsafe { acl_get_fd(source.as_raw_fd()) };
+    if acl.is_null() {
+        return io::Error::last_os_error().raw_os_error()
+            == Some(rustix::io::Errno::NOENT.raw_os_error());
+    }
+    // SAFETY: only a non-null, freshly allocated acl_t is released, exactly once.
+    unsafe { acl_free(acl) };
+    false
+}
+
+#[cfg(target_os = "linux")]
+fn supports_copy_on_platform(source: &File) -> bool {
+    // Linux access ACLs, file capabilities and labels appear as xattrs.
+    rfs::fstatvfs(source).is_ok_and(|mount| !mount.f_flag.contains(rfs::StatVfsMountFlags::NOEXEC))
 }
 
 fn launch(
@@ -599,9 +926,21 @@ fn launch(
         attempt.receipt.outcome = InputChanged;
         return;
     };
+    let entry =
+        match PrivateExecutableCopy::from_approved_source(&paths.run, &pending.review, cancel) {
+            Ok(entry) => entry,
+            Err(outcome) => {
+                attempt.receipt.outcome = outcome;
+                return;
+            }
+        };
     if private_directory(&paths.work).ok() != Some(paths.work_identity)
         || recheck(db, pending).is_err()
     {
+        attempt.receipt.outcome = InputChanged;
+        return;
+    }
+    if !entry.matches_private_copy() {
         attempt.receipt.outcome = InputChanged;
         return;
     }
@@ -613,9 +952,13 @@ fn launch(
         return;
     }
 
+    #[cfg(test)]
+    if let Some(replacement) = &pending.replace_source_before_spawn {
+        fs::rename(replacement, &pending.review.server.executable).unwrap();
+    }
     attempt.receipt.runtime_snapshot_digest = Some(paths.descriptor.digest);
     let deadline = Instant::now() + IO_TIMEOUT;
-    let child = Command::new(&pending.review.server.executable)
+    let child = Command::new(&entry.path)
         .args(&pending.review.arguments)
         .current_dir(&paths.work)
         .env_clear()
@@ -624,10 +967,17 @@ fn launch(
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn();
-    let Ok(mut child) = child else {
-        attempt.receipt.outcome = StartupFailed;
-        return;
+    let mut child = match child {
+        Ok(child) => child,
+        Err(error) => {
+            attempt.receipt.outcome = match error.kind() {
+                io::ErrorKind::NotFound | io::ErrorKind::Unsupported => UnsupportedExecutable,
+                _ => StartupFailed,
+            };
+            return;
+        }
     };
+    attempt.receipt.launched_entry = Some(entry.evidence);
     let mut io = ProbeIo::new(&mut child, cancel, deadline);
     attempt.receipt.outcome = io
         .nonblocking()
