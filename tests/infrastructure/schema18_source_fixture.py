@@ -7,6 +7,7 @@ import hashlib
 import json
 from pathlib import Path
 
+CHILD_PLANNING_PATH = 'apps/desktop/tests/factory-child-planning-real-ipc.py'
 LAYERS = json.loads((Path(__file__).parent / 'fixtures/schema18_source_inverse.json').read_text())
 
 
@@ -25,6 +26,10 @@ def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):
             except AssertionError as exc:
                 raise error(str(exc)) from exc
             digest = notification.CURRENT_WITHOUT_NOTIFICATION_SHA256
+    historical = layer.get('historical_followup') if path == CHILD_PLANNING_PATH else None
+    if historical is not None and digest == historical['after']:
+        text = restore(text, historical['edits'], layer['after'], error)
+        digest = layer['after']
     followup = layer.get('followup')
     if followup is not None and digest == followup['after']:
         text = restore(text, followup['edits'], layer['after'], error)
@@ -32,6 +37,34 @@ def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):
     if digest != layer['after']:
         raise error('Unknown driver source: complete schema18 input changed')
     return restore(text, layer['edits'], layer['before'], error)
+
+
+def child_planning_before_schema19(text):
+    """Verify the active layer and recompose the exact historical followup."""
+    layer = LAYERS[CHILD_PLANNING_PATH]
+    historical = layer['historical_followup']
+    assert type(text) is str, 'Unknown driver source: Child Planning input'
+    digest = hashlib.sha256(text.encode()).hexdigest()
+    if digest == historical['after']:
+        restore(text, historical['edits'], layer['after'], AssertionError)
+        return text
+    active = layer['followup']
+    assert digest == active['after'], 'Unknown driver source: current Child Planning input changed'
+    parent = restore(text, active['edits'], layer['after'], AssertionError)
+    lines = parent.splitlines(keepends=True)
+    # The old offsets are in the followup bytes. Applying spans in ascending
+    # order incorporates the preceding offset shifts before each next span.
+    for edit in historical['edits']:
+        start = edit['start']
+        original = edit['replacement'].splitlines(keepends=True)
+        assert type(start) is int and 0 <= start <= len(lines) - len(original), 'Historical span bounds changed'
+        assert lines[start:start + len(original)] == original, 'Historical parent span changed'
+        inserted = edit['expected'].splitlines(keepends=True)
+        assert start + len(inserted) == edit['end'], 'Historical followup span length changed'
+        lines[start:start + len(original)] = inserted
+    result = ''.join(lines)
+    assert hashlib.sha256(result.encode()).hexdigest() == historical['after'], 'Historical followup bytes changed'
+    return result
 
 
 def restore(text, edits, expected, error):
