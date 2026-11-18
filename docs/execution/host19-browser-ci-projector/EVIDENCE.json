@@ -1,0 +1,379 @@
+{
+  "task": "host19-browser-ci-projector",
+  "approval": "AB-START-001",
+  "fixed_base": "6feaa39ae60ed4094ff9220fc5edb79c895eb627",
+  "tested_source": "2f983e0166345c9957df4ae162878d1f1aeb563b",
+  "tested_tree": "016583ee8ba17a833a89591c326a2ff456293084",
+  "branch": "collab/host19-browser-ci-projector",
+  "recorded_at_utc": "2026-11-18T18:16:05Z",
+  "environment": {
+    "os": "macOS 26.6.1 (25G76)",
+    "arch": "arm64",
+    "kernel": "Darwin 25.6.0",
+    "versions": {
+      "git": "git version 2.54.0 (Apple Git-157)",
+      "node": "v26.7.0",
+      "npm": "11.19.0",
+      "python3": "Python 3.12.12",
+      "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+      "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+      "rustup": "rustup 1.28.2 (e4f3ad6f8 2025-04-28)",
+      "gh": "gh version 2.91.0 (2026-04-22)"
+    },
+    "infra_dependencies": {
+      "jsonschema": "4.26.0",
+      "PyYAML": "6.0.3"
+    },
+    "local_browser_inputs": "Task-owned copies of the earlier verified arm64 Chromium directory and private Playwright venv. Chromium and Python images compared with cmp. The copied venv passed pip check."
+  },
+  "pipeline": "scripts/collab.sh run --",
+  "checks": [
+    {
+      "name": "sidecars",
+      "command": "CARGO_BUILD_JOBS=2 cargo build --release --offline --locked --bin baton --bin batond",
+      "exit_code": 0,
+      "result": "passed, 1m 35s",
+      "log": {
+        "runtime_relative_path": "projector-checks/sidecars.log",
+        "sha256": "0cd80cfed8ad195924b7b645590d0f4263341c86e69c71dc48600550f879e8a2"
+      }
+    },
+    {
+      "name": "frontend",
+      "command": "npm --prefix apps/desktop run build",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "projector-checks/frontend.log",
+        "sha256": "492abffbefe8ccbbec8d70f588fdfb0f7b9f8380faab2af0ea5c6eb7ecf779ae"
+      }
+    },
+    {
+      "name": "design",
+      "command": "python scripts/validate_design.py",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "projector-checks/design.log",
+        "sha256": "1ddda695175849e82b165db892e45a751bab43a9a5d5dcc1e96b862606c525cf"
+      }
+    },
+    {
+      "name": "infrastructure",
+      "command": "python scripts/validate_infrastructure.py",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "projector-checks/infrastructure.log",
+        "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+      }
+    },
+    {
+      "name": "full-python",
+      "command": "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "985 ran, 969 passed, 16 preexisting skips",
+      "log": {
+        "runtime_relative_path": "projector-checks/full-python.log",
+        "sha256": "7f8cae6ccd60d496cc704dc29e8969e24db7528cfab9ee2c07dca8247804cdcb"
+      }
+    },
+    {
+      "name": "node",
+      "command": "npm test",
+      "exit_code": 0,
+      "result": "4 passed",
+      "log": {
+        "runtime_relative_path": "projector-checks/node.log",
+        "sha256": "ce908cc3db4f29d6d88d0f1f52e35152b7c408a09e7c985234f195113198efa0"
+      }
+    },
+    {
+      "name": "bootstrap",
+      "command": "python scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "result": "93 files verified",
+      "log": {
+        "runtime_relative_path": "projector-checks/bootstrap.log",
+        "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+      }
+    },
+    {
+      "name": "gate",
+      "command": "python scripts/check_gate.py --scope preparation",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "projector-checks/gate.log",
+        "sha256": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146"
+      }
+    },
+    {
+      "name": "doctor",
+      "command": "python scripts/doctor.py --strict",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "projector-checks/doctor.log",
+        "sha256": "7218419f82469521ff663e2370579894ff36cf3936992431a7708e33c4d5f78b"
+      }
+    },
+    {
+      "name": "rust-smoke",
+      "command": "cargo test --locked --manifest-path \"$staging/tools/environment-smoke/Cargo.toml\"",
+      "exit_code": 0,
+      "result": "2 passed. Byte-identical fixture extracted by git archive and checked with cmp.",
+      "log": {
+        "runtime_relative_path": "projector-checks/rust-smoke.log",
+        "sha256": "740806ae47e960371aae29b27a63dc5f35e3c74da950b3aa9f0bfddccd127834"
+      }
+    },
+    {
+      "name": "rust-clippy",
+      "command": "cargo clippy --locked --manifest-path \"$staging/tools/environment-smoke/Cargo.toml\" --all-targets -- -D warnings",
+      "exit_code": 0,
+      "result": "passed on the same archived fixture",
+      "log": {
+        "runtime_relative_path": "projector-checks/rust-clippy.log",
+        "sha256": "60291f10093dc95989c32b8cc9544cfa92291812143935d990e6745059f20b61"
+      }
+    }
+  ],
+  "targeted": {
+    "tests": 66,
+    "exit_code": 0,
+    "modules": [
+      "test_host19_browser_ci_projector_source_fixture",
+      "test_integration_browser_ci_evidence",
+      "test_integration_browser_ci_evidence_runtime",
+      "test_schema18_source_inverse",
+      "test_integration_screenshot_failure",
+      "test_host19_integration_browser_schema",
+      "test_host19_integration_browser_candidate"
+    ],
+    "negative_controls": [
+      "schema 18/20 plus legacy, booleans and wrong JSON types",
+      "same source with different frontend build record",
+      "cross-source and cross-case reports",
+      "probe candidate/build/tool hash mismatches",
+      "ownership, cleanup, finite outputs and image validation",
+      "private canary absent",
+      "macOS reports rejected by Linux projector"
+    ]
+  },
+  "historic_inverse": {
+    "verified_identical_to_base_bytes": true,
+    "sha256": {
+      "apps/desktop/tests/integration-real-ipc.py": "d7d163f945431abe328922c3f6e378c7665d3d37b9f8accbdc2f8a04454526be",
+      "scripts/record-integration-browser-ci-evidence.py": "f4cae560fb2dbd3d5105f1433c4a8c4461d134e3fa940c2a099abb789fa5f411"
+    }
+  },
+  "actual_local_browser": {
+    "scope": "Actual local macOS Chromium and private Core; Linux projector intentionally refuses macOS input",
+    "source": "2f983e0166345c9957df4ae162878d1f1aeb563b",
+    "tree": "016583ee8ba17a833a89591c326a2ff456293084",
+    "platform": {
+      "macos": "26.6.1",
+      "kernel": "25.6.0",
+      "arch": "arm64",
+      "browser_python": "3.13.2",
+      "playwright": "1.61.0"
+    },
+    "source_hashes": {
+      "driver": "f730621d77cb75f94e214794615b1125ba0f33cc454431a3432a8b43e8ddd0bb",
+      "projector": "ff120f159df969b1f5425e371b9ea4d2166daa833bcb29000e66e2552d1b7548"
+    },
+    "tools_sha256": {
+      "batond": "6d29949c9c95564d47808c6ab2812af0140c1ae00714148013605b61f15b0842",
+      "baton": "97562073048dd1d4d89f37b44e84fc619a611f34313975966a94f23f39aa0c3b"
+    },
+    "tool_formats": {
+      "batond": "Mach-O 64-bit executable arm64",
+      "baton": "Mach-O 64-bit executable arm64"
+    },
+    "runtime_tools_sha256": {
+      "python": "c4f10ec6ab82c9b4528e4e07407b2b51712485f904172fe59186c24b03add59d",
+      "chromium": "11e393326c7d20a7c56641a7c65def33ea9c280da3b0b74cf8563b07989a0ee3"
+    },
+    "candidate_sha256": "a71225e5b702b0ad23e5ca42c8dadedd39577c235b47c04b26e76d9b23cc2da1",
+    "frontend_build_record_sha256": "01eb5b4423459ee2e5f7242d51ca918cfd8bab96829548709139f1002644c343",
+    "actual_schema_probe": {
+      "api_version": 1,
+      "database_schema_version": 19,
+      "daemon_exit": 0,
+      "joined": true,
+      "sqlite_user_version": 19,
+      "receipt_sha256": "76c807d37ba1bcd39d58abd47cc6e1e6eab8767478450eb16026ce4e61e91e1a",
+      "socket_removed": true,
+      "private_runtime_removed": true
+    },
+    "driver_exit": 0,
+    "driver_log_sha256": "306fe35ce1d72f547b98539766b48a94c9919181232c77e9eb34d986f46b8147",
+    "local_cases": {
+      "normal": {
+        "sha256": "5ea9e2311851a528062ad5596b679741ff5e870c0c214de61b9a2d7b3e5f922f",
+        "status": "passed",
+        "dimension": "macOS built React/Chromium + finite TEST bridge + actual Core19 Unix IPC + generated ACP + private trusted test host",
+        "browser_version": "149.0.7827.55",
+        "terminal": {
+          "state": "confirmed_local_ref",
+          "stages": 3,
+          "cas_attempts": 1,
+          "command_exit": 0,
+          "shared_runtime_ms": 1863,
+          "shared_output_bytes": 368,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "checks": 5,
+        "cleanup": {
+          "owned_daemon_exit": 0,
+          "joined": true,
+          "http_handlers_joined": true,
+          "browser_closed": true,
+          "source_tools_assets_unchanged": true,
+          "fixture_removed": true
+        },
+        "original_screenshot_sha256": {
+          "task-pending-before-acceptance.png": "f21d0a5254f798069ba6960d4eebdd0231fd6c9edbfefbf6b8d06ae73a8f2dbb",
+          "permission-before-task-acceptance.png": "a3530b094181caff6b880e0e8666d8b8f9871f97127249aaad7f73834a114f67",
+          "terminal-state-desktop.png": "b42dd56ff870a910a08d7a09978abc09da4effe3215fdf32d0001e688220ead0",
+          "terminal-receipt-desktop.png": "08203c6364b8e7a84d5a737032ca0d874e0c022a3ff144eb77ec152c9a851e23",
+          "terminal-state-mobile.png": "6cf70fa29c2beb4baf34a1ef8cfc0cb472579feb9bccebe7f42a4e2c8ba87d9f",
+          "terminal-receipt-mobile.png": "67ad8efaf28dbdd06bab1834ac3f1b4d2ef3d48ecb134cac4bdd0ae603e791c1"
+        },
+        "raw_transcript_sha256": "d4073abcf8dfb81afe62f84ef423f8b62a3026ee899a143371330cfdd01312e2",
+        "transcript_snapshot_entries": 12
+      },
+      "command-failure": {
+        "sha256": "93d54e1fab8228661d588ad51b7611eca8df9023ce1c9029981bb76f1b25cc5d",
+        "status": "passed",
+        "dimension": "macOS built React/Chromium + finite TEST bridge + actual Core19 Unix IPC + generated ACP + private trusted test host",
+        "browser_version": "149.0.7827.55",
+        "terminal": {
+          "state": "failed",
+          "stages": 2,
+          "cas_attempts": 0,
+          "command_exit": 7,
+          "shared_runtime_ms": 1732,
+          "shared_output_bytes": 50,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "checks": 4,
+        "cleanup": {
+          "owned_daemon_exit": 0,
+          "joined": true,
+          "http_handlers_joined": true,
+          "browser_closed": true,
+          "source_tools_assets_unchanged": true,
+          "fixture_removed": true
+        },
+        "original_screenshot_sha256": {
+          "task-pending-before-acceptance.png": "385d6c3961ed2ec19aeb19275bbe98ae9e6991e248c65a5e6a3853042f9ec7e7",
+          "permission-before-task-acceptance.png": "22cca68a9385f903171d53c638ad0067f0490efbc36f2d92b66d815a7f87bbd4",
+          "terminal-state-desktop.png": "7e631a3ed14d2650035e1120a274751dce6b94e2b01921b4e7081f347206dad0",
+          "terminal-receipt-desktop.png": "6260c045b176d93c240f8d0bd37bbd90785169b6b97b9cd3d4d08190fb6dcf62",
+          "terminal-state-mobile.png": "f283eb495fc0519abf4e0999578822f122315445fd00896b1a308fe4c7d9b06f",
+          "terminal-receipt-mobile.png": "dbd5d83e7e5a115d0a8b6c308c87b40c8ea5ce503cbedac32a76fc26331b431e"
+        },
+        "raw_transcript_sha256": "db2e1ca35c2ddc1389d79f47bed47d90d60b886436c6f492e23ab9c55ad1897e",
+        "transcript_snapshot_entries": 10
+      }
+    },
+    "linux_projection_exit": 1,
+    "linux_projection_public": [
+      "summary.json"
+    ],
+    "linux_projection_sha256": "55a76984fa3f590b24445bf6e0f46abd2325891cbc135605b03a04dd50c15f3d",
+    "linux_projection_failure_kind": "invalid_failed_or_incomplete_private_evidence",
+    "hosted_linux_ci": "not_run",
+    "replay_command": {
+      "runtime_relative_path": "projector-local-replay.sh",
+      "sha256": "b8b97a3f5a87eed00e2f48351cbafae1d38de55be65fc114488493fd3b1b54ab"
+    },
+    "finite_sample": {
+      "runtime_relative_path": "projector-local.X1yvoC/finite-local-summary.json",
+      "sha256": "d6c4524edd409f4e9522c006bc9b1742c211a5168162f327ba9027a89feffa92"
+    },
+    "probe_log": {
+      "runtime_relative_path": "projector-local.X1yvoC/probe.log",
+      "sha256": "31b5d1f002666f40f98f8662e1ec586eb63a9f1307e296b48511be66d5a5e9b3"
+    },
+    "raw_retained_under": "projector-local.X1yvoC/private",
+    "raw_case_reports": [
+      {
+        "runtime_relative_path": "projector-local.X1yvoC/private/driver/normal/report.json",
+        "sha256": "5ea9e2311851a528062ad5596b679741ff5e870c0c214de61b9a2d7b3e5f922f"
+      },
+      {
+        "runtime_relative_path": "projector-local.X1yvoC/private/driver/command-failure/report.json",
+        "sha256": "93d54e1fab8228661d588ad51b7611eca8df9023ce1c9029981bb76f1b25cc5d"
+      }
+    ],
+    "linux_refusal_summary": {
+      "runtime_relative_path": "projector-local.X1yvoC/linux-projection/summary.json",
+      "sha256": "55a76984fa3f590b24445bf6e0f46abd2325891cbc135605b03a04dd50c15f3d"
+    },
+    "actual_copied_python_dependency_check": {
+      "runtime_relative_path": "projector-local.X1yvoC/browser-pip-check.log",
+      "sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
+    }
+  },
+  "synthetic_projector_cli": {
+    "scope": "Generated records and black PNG inputs for projector verification.",
+    "success": {
+      "exit_code": 0,
+      "public_files": [
+        "command-failure-permission-before-task-acceptance.png",
+        "command-failure-task-pending-before-acceptance.png",
+        "command-failure-terminal-receipt-desktop.png",
+        "command-failure-terminal-receipt-mobile.png",
+        "command-failure-terminal-state-desktop.png",
+        "command-failure-terminal-state-mobile.png",
+        "normal-permission-before-task-acceptance.png",
+        "normal-task-pending-before-acceptance.png",
+        "normal-terminal-receipt-desktop.png",
+        "normal-terminal-receipt-mobile.png",
+        "normal-terminal-state-desktop.png",
+        "normal-terminal-state-mobile.png",
+        "summary.json"
+      ],
+      "summary": {
+        "runtime_relative_path": "projector-synthetic.AS9MlQ/success/public/summary.json",
+        "sha256": "760510256801f39a352da9461167bfa1c81d1e1d5644f5eb127136612b7697bb"
+      }
+    },
+    "failure": {
+      "exit_code": 1,
+      "public_files": [
+        "summary.json"
+      ],
+      "summary": {
+        "runtime_relative_path": "projector-synthetic.AS9MlQ/failure/public/summary.json",
+        "sha256": "0d0c7f3be9f831ce0d68a682dbbea32895d500ad2361315836a148368a4ba4d9"
+      }
+    }
+  },
+  "preview": [
+    {
+      "target": "6feaa39ae60ed4094ff9220fc5edb79c895eb627",
+      "tree": "016583ee8ba17a833a89591c326a2ff456293084",
+      "exit_code": 0
+    },
+    {
+      "target": "3d19a89f10756966da9f494f928d6962ad63b20b",
+      "tree": "1e72f6a588e5abebf7a355969beba7d1edad5bdc",
+      "exit_code": 0
+    },
+    {
+      "target": "edd88f270eb412a9f3c1c515f9a2e7f24662f4d5",
+      "tree": "125f0a6308f3d88aa1cbce46cdd8eac162be2f54",
+      "exit_code": 0
+    }
+  ],
+  "unverified": [
+    "Independent review and exact integrated candidate pending leader.",
+    "Shared workflow and pending producer updates, hosted Linux CI, optional notification browser extension, real Provider and native desktop verification not run."
+  ]
+}
