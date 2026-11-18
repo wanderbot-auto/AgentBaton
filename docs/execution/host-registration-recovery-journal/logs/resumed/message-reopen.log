@@ -1,0 +1,13 @@
+Source: 8af2a779db682585d50968925be90f8e2440eb31
+Started (UTC): 2026-11-18T13:36:42Z
+Command: cargo test --locked -p agentbaton-core --test sessions_ipc desktop_process_exit_recovers_committed_message_without_resending -- --exact
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/sessions_ipc.rs (target/debug/deps/sessions_ipc-8e2583c848d1171e)
+
+running 1 test
+test desktop_process_exit_recovers_committed_message_without_resending ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 62 filtered out; finished in 1.08s
+
+Finished (UTC): 2026-11-18T13:36:43Z
+Exit: 0
