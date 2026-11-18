@@ -1,0 +1,107 @@
+{
+  "requirement": "AB-EXT-003",
+  "scope": "selected local plugin import and independent enablement eligibility in Config",
+  "base": "cbac72707f7c075b202a63a658b46f4f0a2df9c8",
+  "validated_commit": "6d08995b80375c2c3f1319b02ac32375171db4bf",
+  "validated_tree": "9b81a9bafd28add8ddf217eaa45a5263b7f3185f",
+  "config_tree": "043bc357cd83d385db63181cd5bf6e341217cd7d",
+  "lock_blob": "b111c362b7ad360d5b4f9f1143e5bac38c5f5d9c",
+  "source_sha256": {
+    "crates/config/src/capabilities.rs": "6d428f851fea185cedb1cb9066e745df940e5a3d7bcb8e5eb6eba254d6b82ca9",
+    "crates/config/src/capabilities/plugin_trust.rs": "17d0a37d353b7370c8515d7ddc122c326fa30f1cb2055af33f8de8bc5c37f790",
+    "crates/config/tests/plugin_trust.rs": "53bf9c0b4de8de613482996f507f6f314a345086455d19bd0e0b34a3d2d05299"
+  },
+  "platform": {
+    "host": "aarch64-apple-darwin",
+    "macos": "26.6.1 (25G76)",
+    "rustc": "1.91.1",
+    "cargo": "1.91.1",
+    "rustfmt": "1.8.0-stable"
+  },
+  "environment": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_BUILD_JOBS": "2"
+  },
+  "runner": "bash scripts/collab.sh run --",
+  "started_utc": "2026-11-18T18:10:06Z",
+  "ended_utc": "2026-11-18T18:10:17Z",
+  "baseline": {
+    "format_exit_code": 0,
+    "test_exit_code": 0,
+    "passed_tests": 81,
+    "log": "logs/baseline-test.log.gz"
+  },
+  "validation": [
+    {
+      "command": "cargo fmt -p agentbaton-config --check",
+      "exit_code": 0,
+      "log": "logs/fmt.log"
+    },
+    {
+      "command": "cargo test -p agentbaton-config --locked --offline --test plugin_trust",
+      "exit_code": 0,
+      "log": "logs/plugin-trust.log.gz",
+      "passed_tests": 9
+    },
+    {
+      "command": "cargo test -p agentbaton-config --locked --offline",
+      "exit_code": 0,
+      "log": "logs/all.log.gz",
+      "passed_tests": 90
+    },
+    {
+      "command": "cargo check -p agentbaton-config --locked --offline --all-targets",
+      "exit_code": 0,
+      "log": "logs/check.log"
+    },
+    {
+      "command": "cargo clippy -p agentbaton-config --locked --offline --all-targets -- -D warnings",
+      "exit_code": 0,
+      "log": "logs/clippy.log"
+    }
+  ],
+  "fixture_observations": [
+    "real selected files in private temp directories",
+    "synthetic executable script sentinel not created during import or eligibility check",
+    "preview does not expose the selected paths or raw script body",
+    "immutable review digest checks source/capability drift"
+  ],
+  "merge_preview": {
+    "target": "6feaa39ae60ed4094ff9220fc5edb79c895eb627",
+    "source": "6d08995b80375c2c3f1319b02ac32375171db4bf",
+    "tree": "646ff76ad0fba48ec716a88d1a7fbbe2efecd500",
+    "config_subtree_matches": true,
+    "conflicts": false,
+    "log": "logs/source-preview.log"
+  },
+  "unverified": [
+    "actual plugin loading and execution",
+    "UI and persistent approval integration",
+    "real adapter compatibility/isolation evidence",
+    "external plugins or Provider calls",
+    "Linux/CI"
+  ],
+  "review": "implementation and evidence self-reviewed; awaiting independent integration review",
+  "logs_redaction": "Known absolute worktree and collab task runtime output prefixes replaced before archival. Fixture assertions retain their actual results.",
+  "log_sha256": {
+    "logs/all.log.gz": "6539d7f78c63be4c5fd604b61f2348ba4825c6f3a2a68c055bbee0b9aceb1da2",
+    "logs/baseline-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/baseline-package-fmt.log": "18ed301a32d94054124597904e10f9872358fbaab545601fb9dc4f0abcfb3039",
+    "logs/baseline-test.log.gz": "a2940d9dc0b7df28ee21dc43ec521029ea1a6d1230ebf5ca1759ce8ea1570720",
+    "logs/baseline.log": "e9d10abf778cf563f956210aef9f27cdd4cab68aebd60a0e25190c2afefd114b",
+    "logs/check.log": "17ade7b5e499669de13362fee65a86d1c26df4080d867704302799240635f74d",
+    "logs/clippy.log": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6",
+    "logs/development-clippy.log": "880deaab950342ef216c5e6b0b281d63ab1a10dd672a35b2a081ccecd277ce99",
+    "logs/development.log.gz": "c7de11dd2eb415d79d3c2079d44ad17d4329292cd8b70cc9504f7b75879eedf3",
+    "logs/fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/plugin-trust.log.gz": "06afd86199f3e8c8cbefe9ebc065a550cba02b645718f6ef61e92faa44df729b",
+    "logs/source-preview.log": "b3ae2a19282e71dca080ba22eb6b62383b6167593168778e9422a49d5fd5d934",
+    "logs/validation.log": "2289bbd49b3bf19dc0488e3829dbd96e0a0ce3d818107ac802557f5e7af8f591"
+  },
+  "uncompressed_log_sha256": {
+    "logs/all.log.gz": "103d6a6b8901dad5cd79418d8bf89ae40eeaf3fd74193a3e0cbb10cea2f51d1e",
+    "logs/baseline-test.log.gz": "bccf6584b7c8be22f6cc91430325c4859e2881e161cab94a0e7c871d0de382c3",
+    "logs/development.log.gz": "b155edd322006f68795bffc44cc89b026a2a910c789fb2207c682d5593ebd20a",
+    "logs/plugin-trust.log.gz": "46ad54126c854ec1000f411f2d7d53086c2c5be0381d632bb0334663a8ec4b0b"
+  }
+}

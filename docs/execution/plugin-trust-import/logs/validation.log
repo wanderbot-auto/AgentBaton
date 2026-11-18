@@ -1,0 +1,24 @@
+collab: task runtime <private-task-runtime>
+6d08995b80375c2c3f1319b02ac32375171db4bf
+9b81a9bafd28add8ddf217eaa45a5263b7f3185f
+b111c362b7ad360d5b4f9f1143e5bac38c5f5d9c
+2026-11-18T18:10:06Z
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+Darwin 25.6.0 arm64
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+cargo 1.91.1 (ea2d97820 2025-10-10)
+rustfmt 1.8.0-stable (ed61e7d7e2 2025-11-07)
+cargo fmt -p agentbaton-config --check
+cargo test -p agentbaton-config --locked --offline --test plugin_trust
+cargo test -p agentbaton-config --locked --offline
+cargo check -p agentbaton-config --locked --offline --all-targets
+cargo clippy -p agentbaton-config --locked --offline --all-targets -- -D warnings
+completed_at=2026-11-18T18:10:17Z
