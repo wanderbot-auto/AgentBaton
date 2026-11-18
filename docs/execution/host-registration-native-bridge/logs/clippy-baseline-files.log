@@ -1,0 +1,4 @@
+apps/desktop/src-tauri/src/approval.rs: baseline and current identical (401a39051a210684563ae6c6e97c345d579d6066); diagnostics=6
+apps/desktop/src-tauri/src/approval_managed_mcp.rs: baseline and current identical (bd8edc0dcb9ad943a8ee7e65b35f883660f644e8); diagnostics=2
+apps/desktop/src-tauri/src/background_service.rs: baseline and current identical (e17ba8dd145a706cf8e48ff2619775eef54334cc); diagnostics=5
+apps/desktop/src-tauri/src/detached_daemon.rs: baseline and current identical (e725cab7fb8846bed8e324188407412ea2d6dd7c); diagnostics=1
