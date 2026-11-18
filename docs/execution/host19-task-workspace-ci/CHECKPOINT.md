@@ -19,3 +19,9 @@ scripts/collab.sh run -- python3 -m unittest tests.infrastructure.test_task_work
 ~~~
 
 本机实测使用按同一源码重新构建的 ARM64 release 侧车和当前前端。Chromium 与独立 Playwright venv 复制自已核验的本机夹具。原始运行文件留在任务私有 runtime。重跑脚本从准确实施提交的工作树启动，脚本本身调用 collab run。核心探针、原报告、8 张图、投影摘要、负控及日志校验见 [EVIDENCE.json](EVIDENCE.json)。
+
+## Leader 独审与交接
+
+Leader 接受 cffdbfa5a12271c853af4b29bad986f96c506b7f 的 Task Workspace schema 19 切片。独立复跑 62 项 driver 测试和 81 项投影定向测试，核对 42 条证据索引及两个实际 ARM64 工具。独审核实六案、64 表、空 Host 注册表、进程真实退出 0、8 张原始 PNG 的逐字节投影，以及两份旧源码的完整还原。
+
+共享候选生产端与实际托管 Linux CI 仍待验证。按交接流程释放 8 条认领，保留原分支、工作树和证据。集成由 leader 负责。
