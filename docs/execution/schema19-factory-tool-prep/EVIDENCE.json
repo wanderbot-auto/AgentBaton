@@ -1,0 +1,335 @@
+{
+  "task": "schema19-factory-tool-prep",
+  "claim_base": "375a054e69d3d411f32266c41b03ba2f6c682460",
+  "product_source_sha": "02fd3cba1218b7f7882015f5fa4af556a9ac35a3",
+  "product_source_tree": "614dc62a5b7cee647cefcac133355221a76969b3",
+  "status": "prepare_and_verify_passed_on_apple_silicon_and_linux_arm64",
+  "baseline_mac": {
+    "source_sha": "375a054e69d3d411f32266c41b03ba2f6c682460",
+    "schema_observed_by_rpc": 19,
+    "build_exit": 0,
+    "prepare_exit": 1,
+    "existing_unit_exit": 0,
+    "existing_unit_total": 18,
+    "manifest_published": false,
+    "logs": {
+      "build": {
+        "path": "logs/baseline-mac-build.log.gz",
+        "sha256": "f46d000b7f8981e1aa319f9d0968c1f9bf3e38f6cfca511aba1ffa61d596c8d6"
+      },
+      "prepare": {
+        "path": "logs/baseline-mac-prepare.log.gz",
+        "sha256": "db528308fa541e2f1acb9cdd6f384195d260be43727c7f1d513325fc807510cc"
+      },
+      "unit": {
+        "path": "logs/baseline-mac-unit.log.gz",
+        "sha256": "d2bbd8cc216b0849f2c6f288696d887aef4a94c0e412466a00b316a568fce6f8"
+      },
+      "snapshot": {
+        "path": "logs/baseline-mac-snapshot.json",
+        "sha256": "876091227b54d56e6ea26fab6451e310e8c913fa58baee030b0685f539fed8e3"
+      },
+      "cleanup": {
+        "path": "logs/baseline-mac-cleanup.json",
+        "sha256": "cc6c219256a91c8a154ae5a328aafd9831419435b3c8d4a8b563aab8e83a0b1a"
+      },
+      "failure": {
+        "path": "logs/baseline-mac-failure.json",
+        "sha256": "c5bed6c0e7982470c4b238ddb0b0f3f006937833d5988f36620f0f1efeded656"
+      }
+    }
+  },
+  "platforms": {
+    "apple_silicon": {
+      "source_sha": "02fd3cba1218b7f7882015f5fa4af556a9ac35a3",
+      "source_tree": "614dc62a5b7cee647cefcac133355221a76969b3",
+      "environment": [
+        "Darwin arm64",
+        "ProductName:\t\tmacOS",
+        "ProductVersion:\t\t26.6.1",
+        "BuildVersion:\t\t25G76",
+        "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+        "Python 3.14.0a7",
+        "3.49.1"
+      ],
+      "runner_kind": "local_macOS_Apple_Silicon",
+      "default_features": true,
+      "build_command": [
+        "cargo",
+        "build",
+        "--workspace",
+        "--locked",
+        "--offline",
+        "--bins"
+      ],
+      "prepare_and_verify_exit": [
+        0,
+        0
+      ],
+      "prepare_verify_stdout_identical": true,
+      "binary_sha256": {
+        "baton": "cc0873a5bc5aa80ac95ff1542126f147445d7f7ee639ce87631b992f0326e792",
+        "batond": "e5bbc28b67128977530389d8bd5a80cd6c2047d724453da27325adf77c10228e"
+      },
+      "probe_observation": {
+        "cli_snapshot_exit": 0,
+        "forced_kill": false,
+        "original_daemon_SIGTERM_wait_exit": 0,
+        "query_only": true,
+        "runtime_mode": "0o700",
+        "schema": 19,
+        "sequence": 0,
+        "sigterm_sent": true,
+        "snapshot_api_version": 1,
+        "snapshot_database_schema_version": 19,
+        "snapshot_sequence": 0,
+        "socket_utf8_bytes": 38,
+        "zero_tables": {
+          "factory_attempts": 0,
+          "factory_budget_reservations": 0,
+          "factory_child_goal_runs": 0,
+          "factory_child_plan_heads": 0,
+          "factory_child_plan_revisions": 0,
+          "factory_delegations": 0,
+          "factory_handoffs": 0,
+          "factory_runs": 0,
+          "factory_scoped_handles": 0,
+          "factory_scopes": 0,
+          "factory_task_bindings": 0,
+          "factory_task_lineage": 0,
+          "host_registrations": 0,
+          "integration_attempts": 0,
+          "integration_policies": 0,
+          "integration_ref_fences": 0,
+          "integrations": 0
+        }
+      },
+      "focused_tests": 25,
+      "logs": {
+        "build": {
+          "path": "logs/mac-build.log.gz",
+          "sha256": "1e02a2a882872352eebf6e6a0017f30153117da967d2e0284e85d96c5783bc76"
+        },
+        "prepare": {
+          "path": "logs/mac-prepare.json",
+          "sha256": "a0b9e940623aabdb3d61b441bad317384c7aff0324acb5b01f07174ca6cd33af"
+        },
+        "verify": {
+          "path": "logs/mac-verify.json",
+          "sha256": "a0b9e940623aabdb3d61b441bad317384c7aff0324acb5b01f07174ca6cd33af"
+        },
+        "snapshot": {
+          "path": "logs/mac-snapshot.json",
+          "sha256": "0ac3fec155868f400f3a9a302dbf2ce67ba7ea5d2e53f7bd771be0795c8708c3"
+        },
+        "cleanup": {
+          "path": "logs/mac-cleanup.json",
+          "sha256": "6df5935c1e7717377149f53e6a0c5ed0875229dce0c07ddf59da172f47a6fb57"
+        },
+        "unit": {
+          "path": "logs/mac-unit.log.gz",
+          "sha256": "af179889e6a912d8f5fe14b36e172546447c484208e2d103e913f09b6a0c4458"
+        }
+      }
+    },
+    "linux_arm64": {
+      "source_sha": "02fd3cba1218b7f7882015f5fa4af556a9ac35a3",
+      "source_tree": "614dc62a5b7cee647cefcac133355221a76969b3",
+      "environment": [
+        "Linux aarch64",
+        "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+        "Python 3.11.2",
+        "3.40.1"
+      ],
+      "runner_kind": "local_network_disabled_Linux_ARM64_container",
+      "default_features": true,
+      "build_command": [
+        "cargo",
+        "build",
+        "--workspace",
+        "--locked",
+        "--offline",
+        "--bins"
+      ],
+      "prepare_and_verify_exit": [
+        0,
+        0
+      ],
+      "prepare_verify_stdout_identical": true,
+      "binary_sha256": {
+        "baton": "11260bdb7466d76e60cde76256d802075171ab3dc221b36ddb1dba469f7c8123",
+        "batond": "549c00d75589634c4c3badef40b258cdd0cf3c3ed21889da1a74c239613a1829"
+      },
+      "probe_observation": {
+        "cli_snapshot_exit": 0,
+        "forced_kill": false,
+        "original_daemon_SIGTERM_wait_exit": 0,
+        "query_only": true,
+        "runtime_mode": "0o700",
+        "schema": 19,
+        "sequence": 0,
+        "sigterm_sent": true,
+        "snapshot_api_version": 1,
+        "snapshot_database_schema_version": 19,
+        "snapshot_sequence": 0,
+        "socket_utf8_bytes": 30,
+        "zero_tables": {
+          "factory_attempts": 0,
+          "factory_budget_reservations": 0,
+          "factory_child_goal_runs": 0,
+          "factory_child_plan_heads": 0,
+          "factory_child_plan_revisions": 0,
+          "factory_delegations": 0,
+          "factory_handoffs": 0,
+          "factory_runs": 0,
+          "factory_scoped_handles": 0,
+          "factory_scopes": 0,
+          "factory_task_bindings": 0,
+          "factory_task_lineage": 0,
+          "host_registrations": 0,
+          "integration_attempts": 0,
+          "integration_policies": 0,
+          "integration_ref_fences": 0,
+          "integrations": 0
+        }
+      },
+      "focused_tests": 25,
+      "logs": {
+        "build": {
+          "path": "logs/linux-build.log.gz",
+          "sha256": "081b47600f2032e20a3608e968168a950e9f67dae7ed4e91f05addc3c8a3c4e7"
+        },
+        "prepare": {
+          "path": "logs/linux-prepare.json",
+          "sha256": "2837c58d36759aad39ab6668336e41c9cd577de06bf152c696359881f24a4234"
+        },
+        "verify": {
+          "path": "logs/linux-verify.json",
+          "sha256": "2837c58d36759aad39ab6668336e41c9cd577de06bf152c696359881f24a4234"
+        },
+        "snapshot": {
+          "path": "logs/linux-snapshot.json",
+          "sha256": "c543a925b85c66246b2de7411533ecd5ff665dac9ba8733c24f92b5c73642d94"
+        },
+        "cleanup": {
+          "path": "logs/linux-cleanup.json",
+          "sha256": "9baf5595b9de3bdead978f8a75a1a75f4cee1b783e860e443b038fbab73d8194"
+        },
+        "unit": {
+          "path": "logs/linux-unit.log.gz",
+          "sha256": "3163c486e0187cfc647c4f438f506ea9808220031c1077979d7bb433ea659c1c"
+        }
+      },
+      "image": "sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33 arm64"
+    }
+  },
+  "historical_contract": {
+    "earlier_leader_run": {
+      "path": "logs/historical-real-schema18-receipt.json",
+      "sha256": "4f8fb5ade8f9d2aefe2a3f761d6fb38e4754a8145c58ce7037e7ac98c950c3b4"
+    },
+    "rerun_by_this_task": false,
+    "retained_unit_assertions": "explicit schema18 database and manifest fixtures in test_factory_test_tools.py",
+    "historical_prepared_manifests_accepted_by_current_cli": false
+  },
+  "independent_review": {
+    "reviewer": "leader-control",
+    "recorded_source_sha": "02fd3cba1218b7f7882015f5fa4af556a9ac35a3",
+    "prepare_and_verify_exit": [
+      0,
+      0
+    ],
+    "unit_tests": 25,
+    "receipt": {
+      "path": "logs/independent-review-prepare.json",
+      "sha256": "ff5347014970207d98d992b6e4bb9fda88e3738d784e870548036ad30ad31095"
+    },
+    "unit": {
+      "path": "logs/independent-review-unit.log.gz",
+      "sha256": "f084e8b27b96e7e7f72e01045694c822a07d5d639c6fc0f8e09127d07a38a922"
+    }
+  },
+  "mac_workspace_after_prepare": {
+    "command": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--locked",
+      "--offline",
+      "--",
+      "--show-output"
+    ],
+    "started_utc": "2026-11-18T21:22:49Z",
+    "finished_utc": "2026-11-18T21:29:46Z",
+    "environment": {
+      "RUST_TEST_THREADS": "1",
+      "AGENTBATON_FACTORY_TEST_TOOLS": "exact verified private output",
+      "AGENTBATON_CHILD_PLAN_COMPANION": "baton in verified private output",
+      "AGENTBATON_CHILD_GOAL_COMPANION": "baton in verified private output"
+    },
+    "exit": 101,
+    "footer": [
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s",
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s",
+      "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+      "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+      "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s",
+      "test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.51s",
+      "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.64s",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 467 filtered out; finished in 0.00s",
+      "failures:",
+      "failures:",
+      "test result: FAILED. 467 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 289.86s",
+      "error: test failed, to rerun pass `-p agentbaton-core --lib`"
+    ],
+    "log": {
+      "path": "logs/mac-workspace.log.gz",
+      "sha256": "0d94911c8ee210d88b52604d9320e967dcd3e63b1a66f04da7851ea4cff49141"
+    },
+    "post_workspace_manual_verify": {
+      "path": "logs/mac-post-workspace-verify.json",
+      "sha256": "a0b9e940623aabdb3d61b441bad317384c7aff0324acb5b01f07174ca6cd33af"
+    },
+    "first_failed_target": "agentbaton-core --lib",
+    "failed_test": "task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19",
+    "observed_schema": 19,
+    "expected_schema_in_old_test": 18
+  },
+  "infrastructure": {
+    "design": {
+      "path": "logs/design.log.gz",
+      "sha256": "7a0d4290823ff11a17e62c3919e8a6aa9764207bd948cd84d83173829d4f6f61"
+    },
+    "design_exit": 0,
+    "first_full_run": {
+      "exit": 1,
+      "log": {
+        "path": "logs/mac-infra-initial.log.gz",
+        "sha256": "e92320774229a9300cbd8ce7b0ffe55062456a0bf76e0863700bd69a8a9ffb2d"
+      },
+      "failure": "default Python lacked jsonschema for the separate design-discovery test"
+    },
+    "with_repository_venv": {
+      "exit": 0,
+      "log": {
+        "path": "logs/mac-infra-venv.log.gz",
+        "sha256": "74e871a4ec2bbe919e182cf8fb5facc46f35fe834faa1ed37bcb492300fba94d"
+      },
+      "python": "3.12.12",
+      "total": 1010,
+      "passed": 994,
+      "skipped": 16
+    }
+  },
+  "merge_preview": {
+    "target_sha": "becaef521b0470f0d9fd99c184307a4bab0a0768",
+    "source_sha": "02fd3cba1218b7f7882015f5fa4af556a9ac35a3",
+    "tree": "c527ee0c0d731808987f645bed148e9fafded159",
+    "source_snapshot_tested": true,
+    "this_preview_tested": false,
+    "log": {
+      "path": "logs/scope-preview.log.gz",
+      "sha256": "e9d39c898587631b891c4311fe58985d27ae2cb348f50881d415555c334cf594"
+    }
+  }
+}

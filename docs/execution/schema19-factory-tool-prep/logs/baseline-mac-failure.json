@@ -1,0 +1,11 @@
+{
+  "git_head": "375a054e69d3d411f32266c41b03ba2f6c682460",
+  "git_tree": "4350a90af7cae33a19040c01deb27da8519bc040",
+  "tracked_clean": true,
+  "binaries": {
+    "batond": "e5bbc28b67128977530389d8bd5a80cd6c2047d724453da27325adf77c10228e",
+    "baton": "cc0873a5bc5aa80ac95ff1542126f147445d7f7ee639ce87631b992f0326e792"
+  },
+  "error_type": "ValueError",
+  "dimension": "preparation probe failed; no product test pass claimed"
+}
