@@ -1,0 +1,424 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "path": "docs/execution/provider-startup-evidence/EVIDENCE.json",
+      "sha256": "0f34996401148c5a5c2798dedee81f47d355e183ff8ff92641f8fd4ee6707e03",
+      "observations": [
+        {
+          "id": "codex-generated-startup-contract",
+          "dimension": "provider_contract",
+          "origin": "local",
+          "provider_execution": "generated",
+          "scope": "20 个生成进程的启动与传输契约测试。Codex 厂商二进制版本、真实账户和模型任务均无实测。",
+          "result": {
+            "kind": "exit_code",
+            "path": "/checks/1/exit_code",
+            "value": 0
+          },
+          "fields": {
+            "source_commit": "/checks/1/source",
+            "platform_description": "/environment/os_arch",
+            "test_count": "/checks/1/passed",
+            "log_sha256": "/checks/1/sha256"
+          },
+          "context": {
+            "provider_id": "codex",
+            "adapter": "native App Server",
+            "os": "linux",
+            "architecture": "x86_64"
+          },
+          "expect": {
+            "/checks/1/command": "cargo test -p agentbaton-providers --test native_codex --locked -- --show-output",
+            "/checks/1/failed": 0,
+            "/preservation/fixture_bytes_unchanged": true
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/execution/host19-native-handshake/EVIDENCE.json",
+      "sha256": "e8e0960e52fb88939d3ceccc404f562e5e37d9f706101d99f967f59192ce20ce",
+      "observations": [
+        {
+          "id": "apple-silicon-schema19-library",
+          "dimension": "library",
+          "origin": "local",
+          "provider_execution": "none",
+          "scope": "Tauri 库代码与私有 daemon 契约。实际 Apple Silicon 主机上运行，范围为 crate 测试。",
+          "result": {
+            "kind": "exit_code",
+            "path": "/runs/handshake-green/exit",
+            "value": 0
+          },
+          "fields": {
+            "source_commit": "/runs/handshake-green/source",
+            "architecture": "/environment/architecture",
+            "platform_description": "/environment/platform",
+            "log_sha256": "/runs/handshake-green/log_sha256",
+            "recorded_at": "/recorded_utc"
+          },
+          "context": {
+            "os": "macos",
+            "os_version": "26.6.1"
+          },
+          "expect": {
+            "/environment/platform": "macOS-26.6.1-arm64-arm-64bit",
+            "/runs/handshake-green/argv/6": "--lib"
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/execution/host19-browser-candidate/logs/browser-summary.json",
+      "sha256": "d2e7f97984b2f2192010a461899fbb9664a86ab3bce6d8279e1a63e88988a65b",
+      "observations": [
+        {
+          "id": "apple-silicon-generated-acp-browser",
+          "dimension": "browser",
+          "origin": "local",
+          "provider_execution": "generated",
+          "scope": "实际 Chromium 前端与 Core18 Unix IPC 的正常场景，Provider 为生成 ACP。",
+          "result": {
+            "kind": "status",
+            "path": "/cases/normal/status",
+            "value": "passed"
+          },
+          "fields": {
+            "source_commit": "/source/head",
+            "platform_description": "/cases/normal/dimension"
+          },
+          "context": {
+            "os": "macos",
+            "architecture": "arm64"
+          },
+          "expect": {
+            "/source/tracked_clean": true,
+            "/exit": 0,
+            "/cases/normal/dimension": "macOS built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host"
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/execution/host-registration-native-e2e/logs/app-final/result.json",
+      "sha256": "467480854a6e836d02c6b4552595731326266a602036f8dd597836f90067f9f6",
+      "observations": [
+        {
+          "id": "apple-silicon-host-registration-app-final",
+          "dimension": "native_app",
+          "origin": "local",
+          "provider_execution": "none",
+          "scope": "隔离开发 App 的真实 WKWebView 登记、回执确认和同一 daemon 下重开，使用私有生成 Host 声明。",
+          "result": {
+            "kind": "status",
+            "path": "/status",
+            "value": "passed"
+          },
+          "fields": {
+            "source_commit": "/source",
+            "architecture": "/bundle/desktop/architecture",
+            "binary_sha256": "/bundle/desktop/sha256",
+            "platform_description": "/platform",
+            "driver_commit": "/driver_commit",
+            "driver_sha256": "/driver_source/sha256"
+          },
+          "context": {
+            "os": "macos",
+            "os_version": "26.6.1",
+            "os_build": "25G76"
+          },
+          "expect": {
+            "/phase": "app",
+            "/platform": "arm64-apple-darwin"
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/execution/host-registration-native-e2e/logs/app-frozen/result.json",
+      "sha256": "4c18e420ab878c96bde6f1138d60a8b3cae26aff56bb90c4f12428a3adc37b9f",
+      "observations": [
+        {
+          "id": "apple-silicon-host-registration-app-frozen",
+          "dimension": "native_app",
+          "origin": "local",
+          "provider_execution": "none",
+          "scope": "早期驱动在登记和确认后重开时遇到前台激活检查失败。保留该次失败及其驱动标识。",
+          "result": {
+            "kind": "status",
+            "path": "/status",
+            "value": "error"
+          },
+          "fields": {
+            "source_commit": "/source",
+            "architecture": "/bundle/desktop/architecture",
+            "binary_sha256": "/bundle/desktop/sha256",
+            "platform_description": "/platform",
+            "driver_commit": "/driver_commit",
+            "driver_sha256": "/driver_source/sha256"
+          },
+          "context": {
+            "os": "macos",
+            "os_version": "26.6.1",
+            "os_build": "25G76"
+          },
+          "expect": {
+            "/phase": "app",
+            "/platform": "arm64-apple-darwin"
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/execution/goal-runtime-integration/CI_9200_VERIFICATION.json",
+      "sha256": "27d7a3f8b2d533a30570de29b08f2ee80ce7698bd606c2b639632e9747a88615",
+      "observations": [
+        {
+          "id": "pr15-hosted-arm64",
+          "dimension": "hosted_ci",
+          "origin": "hosted_ci",
+          "provider_execution": "none",
+          "scope": "保存的 GitHub Actions 产品 job 结论。实际合并候选 checkout 与分支 head 分列。",
+          "result": {
+            "kind": "ci_conclusion",
+            "path": "/checks/0/conclusion",
+            "value": "success"
+          },
+          "fields": {
+            "source_commit": "/actual_checkout",
+            "feature_commit": "/checks/0/head_sha",
+            "tree": "/equal_tree",
+            "ci_job": "/checks/0/id",
+            "ci_run": "/product_run"
+          },
+          "context": {
+            "os": "macos",
+            "architecture": "arm64",
+            "runner": "macos-15"
+          },
+          "expect": {
+            "/checks/0/name": "Product / macos-15"
+          }
+        },
+        {
+          "id": "pr15-native-goal-arm64",
+          "dimension": "native_app",
+          "origin": "hosted_ci",
+          "provider_execution": "generated",
+          "scope": "专用原生 smoke 的 schema 11 Goal 与生命周期证据，范围为生成测试链路。",
+          "result": {
+            "kind": "status",
+            "path": "/native_pair/lifecycle",
+            "value": "passed"
+          },
+          "fields": {
+            "source_commit": "/actual_checkout",
+            "feature_commit": "/head",
+            "tree": "/equal_tree",
+            "ci_run": "/product_run",
+            "artifact_id": "/native_pair/arm"
+          },
+          "context": {
+            "os": "macos",
+            "architecture": "arm64",
+            "runner": "macos-15"
+          },
+          "expect": {
+            "/native_pair/schema11": true,
+            "/checks/0/conclusion": "success"
+          }
+        },
+        {
+          "id": "pr15-hosted-x86_64",
+          "dimension": "hosted_ci",
+          "origin": "hosted_ci",
+          "provider_execution": "none",
+          "scope": "保存的 GitHub Actions 产品 job 结论。实际合并候选 checkout 与分支 head 分列。",
+          "result": {
+            "kind": "ci_conclusion",
+            "path": "/checks/1/conclusion",
+            "value": "success"
+          },
+          "fields": {
+            "source_commit": "/actual_checkout",
+            "feature_commit": "/checks/1/head_sha",
+            "tree": "/equal_tree",
+            "ci_job": "/checks/1/id",
+            "ci_run": "/product_run"
+          },
+          "context": {
+            "os": "macos",
+            "architecture": "x86_64",
+            "runner": "macos-15-intel"
+          },
+          "expect": {
+            "/checks/1/name": "Product / macos-15-intel"
+          }
+        },
+        {
+          "id": "pr15-native-goal-x86_64",
+          "dimension": "native_app",
+          "origin": "hosted_ci",
+          "provider_execution": "generated",
+          "scope": "专用原生 smoke 的 schema 11 Goal 与生命周期证据，范围为生成测试链路。",
+          "result": {
+            "kind": "status",
+            "path": "/native_pair/lifecycle",
+            "value": "passed"
+          },
+          "fields": {
+            "source_commit": "/actual_checkout",
+            "feature_commit": "/head",
+            "tree": "/equal_tree",
+            "ci_run": "/product_run",
+            "artifact_id": "/native_pair/intel"
+          },
+          "context": {
+            "os": "macos",
+            "architecture": "x86_64",
+            "runner": "macos-15-intel"
+          },
+          "expect": {
+            "/native_pair/schema11": true,
+            "/checks/1/conclusion": "success"
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/execution/goal-runtime-integration/PACKAGE_9200_VERIFICATION.json",
+      "sha256": "f4b611e2695f3e6f2aaad4fb74532995ab41546f6754fa33fd4b710fd3dbd425",
+      "observations": [
+        {
+          "id": "pr15-development-archive-arm64",
+          "dimension": "package_archive",
+          "origin": "hosted_ci",
+          "provider_execution": "none",
+          "scope": "审计确切开发 DMG、归档、构建记录及校验值。系统版本和构建号来自构建机记录。",
+          "result": {
+            "kind": "package_audit",
+            "path": "/APIsha_strictsafeZIP_CRC_UDIF_SHA256SUMS_checkout_arch_buildrecord_checklist",
+            "value": "PASS"
+          },
+          "fields": {
+            "source_commit": "/checkout",
+            "feature_commit": "/head_sha",
+            "ci_run": "/run",
+            "artifact_id": "/artifacts/0/id",
+            "architecture": "/artifacts/0/architecture",
+            "artifact_sha256": "/artifacts/0/dmg_sha256",
+            "signature": "/artifacts/0/signature",
+            "os_version": {
+              "path": "/artifacts/0/build_record",
+              "line": "ProductVersion"
+            },
+            "os_build": {
+              "path": "/artifacts/0/build_record",
+              "line": "BuildVersion"
+            }
+          },
+          "context": {
+            "os": "macos",
+            "runner": "macos-15"
+          },
+          "expect": {
+            "/artifacts/0/architecture": "arm64",
+            "/artifacts/0/UDIF_koly": true
+          }
+        },
+        {
+          "id": "pr15-manual-install-arm64",
+          "dimension": "install",
+          "origin": "unknown",
+          "provider_execution": "none",
+          "scope": "历史开发包交付了人工清单。挂载、安装、Gatekeeper 和最低系统验收未运行。",
+          "result": {
+            "kind": "historical_manual_install",
+            "path": "/manual_mount_install_Gatekeeper_minOS",
+            "value": "NOT_RUN; checklist delivered, not performed"
+          },
+          "fields": {
+            "source_commit": "/checkout",
+            "feature_commit": "/head_sha",
+            "ci_run": "/run",
+            "artifact_id": "/artifacts/0/id",
+            "architecture": "/artifacts/0/architecture",
+            "artifact_sha256": "/artifacts/0/dmg_sha256",
+            "signature": "/artifacts/0/signature"
+          },
+          "context": {
+            "os": "macos"
+          },
+          "expect": {
+            "/artifacts/0/architecture": "arm64"
+          }
+        },
+        {
+          "id": "pr15-development-archive-x86_64",
+          "dimension": "package_archive",
+          "origin": "hosted_ci",
+          "provider_execution": "none",
+          "scope": "审计确切开发 DMG、归档、构建记录及校验值。系统版本和构建号来自构建机记录。",
+          "result": {
+            "kind": "package_audit",
+            "path": "/APIsha_strictsafeZIP_CRC_UDIF_SHA256SUMS_checkout_arch_buildrecord_checklist",
+            "value": "PASS"
+          },
+          "fields": {
+            "source_commit": "/checkout",
+            "feature_commit": "/head_sha",
+            "ci_run": "/run",
+            "artifact_id": "/artifacts/1/id",
+            "architecture": "/artifacts/1/architecture",
+            "artifact_sha256": "/artifacts/1/dmg_sha256",
+            "signature": "/artifacts/1/signature",
+            "os_version": {
+              "path": "/artifacts/1/build_record",
+              "line": "ProductVersion"
+            },
+            "os_build": {
+              "path": "/artifacts/1/build_record",
+              "line": "BuildVersion"
+            }
+          },
+          "context": {
+            "os": "macos",
+            "runner": "macos-15-intel"
+          },
+          "expect": {
+            "/artifacts/1/architecture": "x86_64",
+            "/artifacts/1/UDIF_koly": true
+          }
+        },
+        {
+          "id": "pr15-manual-install-x86_64",
+          "dimension": "install",
+          "origin": "unknown",
+          "provider_execution": "none",
+          "scope": "历史开发包交付了人工清单。挂载、安装、Gatekeeper 和最低系统验收未运行。",
+          "result": {
+            "kind": "historical_manual_install",
+            "path": "/manual_mount_install_Gatekeeper_minOS",
+            "value": "NOT_RUN; checklist delivered, not performed"
+          },
+          "fields": {
+            "source_commit": "/checkout",
+            "feature_commit": "/head_sha",
+            "ci_run": "/run",
+            "artifact_id": "/artifacts/1/id",
+            "architecture": "/artifacts/1/architecture",
+            "artifact_sha256": "/artifacts/1/dmg_sha256",
+            "signature": "/artifacts/1/signature"
+          },
+          "context": {
+            "os": "macos"
+          },
+          "expect": {
+            "/artifacts/1/architecture": "x86_64"
+          }
+        }
+      ]
+    }
+  ]
+}
