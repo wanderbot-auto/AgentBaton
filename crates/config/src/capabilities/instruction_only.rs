@@ -137,80 +137,93 @@ fn selected_directory(path: &Path) -> Result<File> {
     }
     Ok(directory)
 }
+/// Read and revalidate the same one-file shape using the caller's directory
+/// opener. Project callers resolve both opens beneath a pinned project FD.
+pub(super) fn read_instruction_only_at(
+    path: &Path,
+    open_directory: impl Fn() -> Result<File>,
+) -> Result<(InstructionOnlySkillMetadata, String)> {
+    let directory_name = path
+        .file_name()
+        .and_then(|v| v.to_str())
+        .filter(|v| leaf(v))
+        .ok_or_else(|| error(ErrorCode::InvalidPath))?
+        .to_owned();
+    let directory = open_directory()?;
+    let root_before = io_error(directory.metadata())?;
+    if directory_names(&directory, 2)? != ["SKILL.md"] {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let mut file = File::from(io_error(rfs::openat(
+        &directory,
+        "SKILL.md",
+        OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+        Mode::empty(),
+    ))?);
+    let before = io_error(file.metadata())?;
+    if !before.is_file()
+        || before.uid() != rustix::process::geteuid().as_raw()
+        || before.nlink() != 1
+        || before.mode() & 0o022 != 0
+    {
+        return Err(error(ErrorCode::PermissionDenied));
+    }
+    if before.len() > INSTRUCTION_ONLY_SKILL_MAX_BYTES as u64 {
+        return Err(error(ErrorCode::ResourceLimit));
+    }
+    let mut bytes = Vec::new();
+    io_error(
+        (&mut file)
+            .take((INSTRUCTION_ONLY_SKILL_MAX_BYTES + 1) as u64)
+            .read_to_end(&mut bytes),
+    )?;
+    if bytes.len() > INSTRUCTION_ONLY_SKILL_MAX_BYTES {
+        return Err(error(ErrorCode::ResourceLimit));
+    }
+    let instruction = String::from_utf8(bytes).map_err(|_| error(ErrorCode::Conflict))?;
+    let (name, description) = instruction_only_skill_metadata(&directory_name, &instruction)?;
+    let current = open_directory()?;
+    if stamp(&before) != stamp(&io_error(file.metadata())?)
+        || stamp(&root_before) != stamp(&io_error(current.metadata())?)
+        || directory_names(&current, 2)? != ["SKILL.md"]
+    {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let current_file = File::from(io_error(rfs::openat(
+        &current,
+        "SKILL.md",
+        OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+        Mode::empty(),
+    ))?);
+    if stamp(&io_error(current_file.metadata())?) != stamp(&before) {
+        return Err(error(ErrorCode::Conflict));
+    }
+    let source_identity = sha256(
+        &serde_json::to_vec(&(stamp(&root_before), stamp(&before)))
+            .map_err(|_| error(ErrorCode::Conflict))?,
+    );
+    Ok((
+        InstructionOnlySkillMetadata {
+            directory_name,
+            name,
+            description,
+            sha256: sha256(instruction.as_bytes()),
+            root_device: root_before.dev(),
+            root_inode: root_before.ino(),
+            file_device: before.dev(),
+            file_inode: before.ino(),
+            source_identity,
+        },
+        instruction,
+    ))
+}
+
 impl InstructionOnlySkill {
     pub fn read_selected(path: &Path) -> Result<Self> {
-        let directory_name = path
-            .file_name()
-            .and_then(|v| v.to_str())
-            .filter(|v| leaf(v))
-            .ok_or_else(|| error(ErrorCode::InvalidPath))?
-            .to_owned();
-        let directory = selected_directory(path)?;
-        let root_before = io_error(directory.metadata())?;
-        if directory_names(&directory, 2)? != ["SKILL.md"] {
-            return Err(error(ErrorCode::Conflict));
-        }
-        let mut file = File::from(io_error(rfs::openat(
-            &directory,
-            "SKILL.md",
-            OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
-            Mode::empty(),
-        ))?);
-        let before = io_error(file.metadata())?;
-        if !before.is_file()
-            || before.uid() != rustix::process::geteuid().as_raw()
-            || before.nlink() != 1
-            || before.mode() & 0o022 != 0
-        {
-            return Err(error(ErrorCode::PermissionDenied));
-        }
-        if before.len() > INSTRUCTION_ONLY_SKILL_MAX_BYTES as u64 {
-            return Err(error(ErrorCode::ResourceLimit));
-        }
-        let mut bytes = Vec::new();
-        io_error(
-            (&mut file)
-                .take((INSTRUCTION_ONLY_SKILL_MAX_BYTES + 1) as u64)
-                .read_to_end(&mut bytes),
-        )?;
-        if bytes.len() > INSTRUCTION_ONLY_SKILL_MAX_BYTES {
-            return Err(error(ErrorCode::ResourceLimit));
-        }
-        let instruction = String::from_utf8(bytes).map_err(|_| error(ErrorCode::Conflict))?;
-        let (name, description) = instruction_only_skill_metadata(&directory_name, &instruction)?;
-        let current = selected_directory(path)?;
-        if stamp(&before) != stamp(&io_error(file.metadata())?)
-            || stamp(&root_before) != stamp(&io_error(current.metadata())?)
-            || directory_names(&current, 2)? != ["SKILL.md"]
-        {
-            return Err(error(ErrorCode::Conflict));
-        }
-        let current_file = File::from(io_error(rfs::openat(
-            &current,
-            "SKILL.md",
-            OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
-            Mode::empty(),
-        ))?);
-        if stamp(&io_error(current_file.metadata())?) != stamp(&before) {
-            return Err(error(ErrorCode::Conflict));
-        }
-        let source_identity = sha256(
-            &serde_json::to_vec(&(stamp(&root_before), stamp(&before)))
-                .map_err(|_| error(ErrorCode::Conflict))?,
-        );
+        let (metadata, instruction) = read_instruction_only_at(path, || selected_directory(path))?;
         Ok(Self {
             path: path.into(),
-            metadata: InstructionOnlySkillMetadata {
-                directory_name,
-                name,
-                description,
-                sha256: sha256(instruction.as_bytes()),
-                root_device: root_before.dev(),
-                root_inode: root_before.ino(),
-                file_device: before.dev(),
-                file_inode: before.ino(),
-                source_identity,
-            },
+            metadata,
             instruction,
         })
     }

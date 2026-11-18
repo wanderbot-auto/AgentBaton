@@ -5,8 +5,8 @@
 use crate::{
     capabilities::{
         native::{
-            DiscoveryLimits, InstructionOnlySkill, NativeFormat, NativeSourceRoot, NativeTransport,
-            ParseStatus, SkillDialect,
+            DiscoveryLimits, InstructionOnlySkillMetadata, NativeFormat, NativeSourceRoot,
+            NativeTransport, ParseStatus, SkillDialect,
         },
         ProviderRevision, SourceDescriptor, SourceKind,
     },
@@ -250,7 +250,7 @@ pub enum ProjectImportState {
 
 struct Inspection {
     preview: ProjectImportInspection,
-    skills: BTreeMap<ProjectCapabilityKey, InstructionOnlySkill>,
+    skills: BTreeMap<ProjectCapabilityKey, (InstructionOnlySkillMetadata, String)>,
     mcp: BTreeMap<ProjectCapabilityKey, NativeTransport>,
 }
 
@@ -371,7 +371,13 @@ fn policy_provider(policy: &ProjectImportPolicy) -> Result<RuntimeProvider> {
 fn inspect(scope: &ProjectImportScope, policy: &ProjectImportPolicy) -> Result<Inspection> {
     policy_provider(policy)?;
     let root = open_source(scope)?;
-    let reader = NativeSourceRoot::open_selected(&scope.root)?;
+    let inspection = inspect_pinned(&root, policy)?;
+    open_source(scope)?;
+    Ok(inspection)
+}
+
+fn inspect_pinned(root: &File, policy: &ProjectImportPolicy) -> Result<Inspection> {
+    let reader = NativeSourceRoot::from_selected_directory(io_error(root.try_clone())?)?;
     let mut inspection = Inspection {
         preview: ProjectImportInspection {
             sources: vec![],
@@ -391,7 +397,7 @@ fn inspect(scope: &ProjectImportScope, policy: &ProjectImportPolicy) -> Result<I
             unknown_fields: 0,
             diagnostics: vec![],
         };
-        if source_present(&root, path, matches!(source_type, SourceType::Skills(_)))? {
+        if source_present(root, path, matches!(source_type, SourceType::Skills(_)))? {
             let descriptor = SourceDescriptor {
                 source_id: source_id.into(),
                 kind: SourceKind::Project,
@@ -424,20 +430,21 @@ fn inspect(scope: &ProjectImportScope, policy: &ProjectImportPolicy) -> Result<I
                         };
                         let selected =
                             if skill.status == ParseStatus::Parsed && skill.scripts.is_empty() {
-                                InstructionOnlySkill::read_selected(
-                                    &scope.root.join(path).join(&skill.directory_name),
-                                )
-                                .ok()
+                                reader
+                                    .read_instruction_only_skill(&path.join(&skill.directory_name))
+                                    .ok()
                             } else {
                                 None
                             };
                         let mut admission = ProjectCapabilityAdmission::Unsupported;
-                        if let Some(document) = selected {
-                            if document.metadata().sha256 != skill.source_digest {
+                        if let Some((metadata, instruction)) = selected {
+                            if metadata.sha256 != skill.source_digest {
                                 return Err(error(ErrorCode::Conflict));
                             }
                             admission = ProjectCapabilityAdmission::ReviewedInstruction;
-                            inspection.skills.insert(key.clone(), document);
+                            inspection
+                                .skills
+                                .insert(key.clone(), (metadata, instruction));
                         }
                         summary.unknown_fields += skill.unknown_frontmatter_names.len();
                         inspection.preview.candidates.push(candidate(
@@ -529,7 +536,6 @@ fn inspect(scope: &ProjectImportScope, policy: &ProjectImportPolicy) -> Result<I
     for item in &mut inspection.preview.candidates {
         item.conflict_count = groups[&(item.key.kind, item.name.clone())] - 1;
     }
-    open_source(scope)?;
     Ok(inspection)
 }
 
@@ -623,7 +629,7 @@ fn prepare(request: &ProjectImportRequest<'_>) -> Result<(ProjectImportReview, V
             ProjectImportChoice::Skill {
                 nonsecret_sha256, ..
             } => {
-                let skill = inspection
+                let (metadata, instruction) = inspection
                     .skills
                     .get(key)
                     .ok_or_else(|| error(ErrorCode::PermissionDenied))?;
@@ -631,8 +637,8 @@ fn prepare(request: &ProjectImportRequest<'_>) -> Result<(ProjectImportReview, V
                     return Err(error(ErrorCode::Conflict));
                 }
                 plan.skills.push(SelectedSkill {
-                    directory_name: skill.metadata().directory_name.clone(),
-                    instruction: NonSecretText::approved(skill.instruction().into())?,
+                    directory_name: metadata.directory_name.clone(),
+                    instruction: NonSecretText::approved(instruction.clone())?,
                     assets: vec![],
                     provenance: provenance.clone(),
                 });
@@ -913,6 +919,77 @@ mod tests {
     use super::*;
     use crate::Ownership;
     use std::{fs, os::unix::fs::PermissionsExt};
+
+    #[test]
+    fn source_root_swap_does_not_redirect_native_or_skill_reads() {
+        let private = tempfile::tempdir().unwrap();
+        let original = private.path().join("project");
+        let other = private.path().join("other");
+        let parked = private.path().join("parked");
+        let approved_skill = "---\nname: review\ndescription: Fixture\n---\nApproved text.\n";
+        let substituted_skill = approved_skill.replace("Approved text.", "Substituted text.");
+        for (path, server, skill) in [
+            (&original, "approved-server", approved_skill),
+            (&other, "substituted-server", &substituted_skill),
+        ] {
+            let skill_directory = path.join(".claude/skills/review");
+            fs::create_dir_all(&skill_directory).unwrap();
+            fs::write(skill_directory.join("SKILL.md"), skill).unwrap();
+            let mcp = serde_json::json!({"mcpServers": { (server): {"command": "never-run"} }});
+            fs::write(path.join(".mcp.json"), serde_json::to_vec(&mcp).unwrap()).unwrap();
+        }
+        let original = original.canonicalize().unwrap();
+        let metadata = fs::metadata(&original).unwrap();
+        let scope = ProjectImportScope {
+            project_id: "root-swap-fixture".into(),
+            project_revision: 1,
+            input_revision: "fixture-input".into(),
+            root: original.clone(),
+            root_device: metadata.dev(),
+            root_inode: metadata.ino(),
+        };
+        let policy = ProjectImportPolicy {
+            revision: "fixture-policy".into(),
+            provider: ProviderRevision {
+                provider_id: "claude-code".into(),
+                version: "fixture-v1".into(),
+            },
+            sources: vec![ProjectSource::ClaudeSkills, ProjectSource::ClaudeMcp],
+        };
+        let initial = document_digest(&inspect_project_config(&scope, &policy).unwrap()).unwrap();
+        let pinned = open_source(&scope).unwrap();
+        // Swap real directories after the approved descriptor is acquired. A
+        // normal path open now reaches the other directory without symlinks.
+        fs::rename(&original, &parked).unwrap();
+        fs::rename(&other, &original).unwrap();
+        assert!(fs::read_to_string(original.join(".mcp.json"))
+            .unwrap()
+            .contains("substituted-server"));
+        assert_eq!(
+            inspect_project_config(&scope, &policy).unwrap_err().code,
+            ErrorCode::Conflict
+        );
+
+        let inspected = inspect_pinned(&pinned, &policy).unwrap();
+        assert_eq!(document_digest(&inspected.preview).unwrap(), initial);
+        let skill = inspected.skills.values().next().unwrap();
+        assert_eq!(skill.1, approved_skill);
+        assert!(inspected
+            .preview
+            .candidates
+            .iter()
+            .any(|item| item.name == "approved-server"));
+        assert!(!inspected
+            .preview
+            .candidates
+            .iter()
+            .any(|item| item.name == "substituted-server"));
+
+        fs::rename(&original, &other).unwrap();
+        fs::rename(&parked, &original).unwrap();
+        let restored = inspect_project_config(&scope, &policy).unwrap();
+        assert_eq!(document_digest(&restored).unwrap(), initial);
+    }
 
     #[test]
     fn recover_real_post_publication_manifest_failure_without_a_second_write() {
