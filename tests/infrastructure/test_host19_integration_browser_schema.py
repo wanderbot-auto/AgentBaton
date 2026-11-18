@@ -8,6 +8,9 @@ import tempfile
 import unittest
 from unittest import mock
 
+from tests.infrastructure.host19_browser_ci_projector_source_fixture import (
+    restore_driver_before_labels19,
+)
 from tests.infrastructure.host19_integration_browser_candidate_fixture import (
     restore_integration_browser_before_candidate19,
 )
@@ -88,7 +91,8 @@ class CurrentDriverSchema(unittest.TestCase):
 class HistoricalDriverSource(unittest.TestCase):
     def setUp(self):
         self.current = SOURCE.read_bytes()
-        self.raw = restore_integration_browser_before_candidate19(DRIVER_PATH, self.current)
+        prior_labels = restore_driver_before_labels19(DRIVER_PATH, self.current)
+        self.raw = restore_integration_browser_before_candidate19(DRIVER_PATH, prior_labels)
 
     def test_two_exact_guards_restore_complete_parent(self):
         for current, parent in GUARD_EDITS:

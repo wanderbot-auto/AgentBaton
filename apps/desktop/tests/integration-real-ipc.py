@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Built React/Chromium -> finite test bridge -> actual Core18 Unix IPC.
+"""Built React/Chromium -> finite test bridge -> actual Core19 Unix IPC.
 
 Only --run starts processes. The private host, outside HTTP, reviews complete
 Core proposals and finalizes generated fixture permissions. This is NOT the
@@ -1077,7 +1077,7 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
     from playwright.sync_api import sync_playwright, expect
     platform = 'Linux' if sys.platform == 'linux' else 'macOS'
     report = {'case': 'command_exit7' if failing else 'normal', 'status': 'failed_or_interrupted',
-        'dimension': f'{platform} built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host',
+        'dimension': f'{platform} built React/Chromium + finite TEST bridge + actual Core19 Unix IPC + generated ACP + private trusted test host',
         'not_claimed': ['production Tauri Native formatter', 'OS dialog', 'macOS', 'live Provider/model',
             'OS sandbox', 'whole-filesystem output quota', 'complete failure matrix', 'whole product completion'],
         'checks': [], 'screenshots': [], 'cleanup': {}, 'inputs': attribution}
@@ -1342,7 +1342,9 @@ def main():
     for case in (('normal', 'command-failure') if args.case == 'all' else (args.case,)):
         output = args.output / case; output.mkdir(mode=0o700)
         result = run_case(args, binary, companion, frontend, attribution, output, case == 'command-failure') and result
-    print(json.dumps({'status': 'passed' if result else 'failed_or_interrupted', 'dimension': 'Linux/browser/generatedACP/private_test_host_not_OS'}))
+    platform = 'Linux' if sys.platform == 'linux' else 'macOS'
+    print(json.dumps({'status': 'passed' if result else 'failed_or_interrupted',
+        'dimension': f'{platform}/browser/generatedACP/private_test_host_not_OS'}))
     return 0 if result else 1
 
 

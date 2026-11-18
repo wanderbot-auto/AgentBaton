@@ -1,6 +1,9 @@
 """Test-only inverse for the two reviewed schema19 driver guards."""
 import hashlib
 
+from tests.infrastructure.host19_browser_ci_projector_source_fixture import (
+    restore_driver_before_labels19,
+)
 from tests.infrastructure.host19_integration_browser_candidate_fixture import (
     restore_integration_browser_before_candidate19,
 )
@@ -46,5 +49,6 @@ def restore_integration_browser_before_schema19(path, raw):
 def read_historical_driver(root):
     """Feed the exact pre-schema19 driver to the existing historical tests."""
     current = (root / DRIVER_PATH).read_bytes()
-    parent = restore_integration_browser_before_candidate19(DRIVER_PATH, current)
+    prior_labels = restore_driver_before_labels19(DRIVER_PATH, current)
+    parent = restore_integration_browser_before_candidate19(DRIVER_PATH, prior_labels)
     return restore_integration_browser_before_schema19(DRIVER_PATH, parent).decode()
