@@ -110,5 +110,32 @@ class CandidateTests(unittest.TestCase):
                     DRIVER.pinned_tool(path)
 
 
+class CleanupTests(unittest.TestCase):
+    def test_only_normal_joined_shutdown_preserves_success(self):
+        good = {'status': 'passed', 'browser_closed': True}
+        DRIVER.finalize_fixture_cleanup(good, 0, False, True)
+        self.assertEqual(good['status'], 'passed')
+        self.assertEqual(good['cleanup'], {'daemon_exit_code': 0, 'daemon_forced': False,
+                                          'http_thread_joined': True})
+        for exit_code, forced, http_joined, browser_closed in (
+                (1, False, True, True), (False, False, True, True),
+                (0, True, True, True), (0, False, False, True), (0, False, True, False)):
+            with self.subTest(exit_code=exit_code, forced=forced, http_joined=http_joined,
+                              browser_closed=browser_closed):
+                report = {'status': 'passed', 'browser_closed': browser_closed}
+                DRIVER.finalize_fixture_cleanup(report, exit_code, forced, http_joined)
+                self.assertEqual(report['status'], 'failed_or_interrupted')
+                self.assertEqual(report['failure']['stage'], 'cleanup')
+
+    def test_cleanup_refusal_preserves_an_earlier_failure(self):
+        earlier = {'stage': 'browser', 'type': 'OriginalFixtureFailure'}
+        for status in ('passed', 'failed_or_interrupted'):
+            report = {'status': status, 'browser_closed': False, 'failure': earlier}
+            DRIVER.finalize_fixture_cleanup(report, -9, True, False)
+            self.assertEqual(report['status'], 'failed_or_interrupted')
+            self.assertIs(report['failure'], earlier)
+            self.assertTrue(report['cleanup']['daemon_forced'])
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -157,6 +157,16 @@ def repository_attribution(driver):
             'harness_matches_tracked_source': tracked == driver.read_bytes()}
 
 
+def finalize_fixture_cleanup(report, daemon_exit, forced, http_thread_joined):
+    report['cleanup'] = {'daemon_exit_code': daemon_exit, 'daemon_forced': forced,
+                         'http_thread_joined': http_thread_joined}
+    if report['status'] == 'passed' and (type(daemon_exit) is not int or daemon_exit != 0
+            or forced is not False or http_thread_joined is not True
+            or report.get('browser_closed') is not True or 'failure' in report):
+        report['status'] = 'failed_or_interrupted'
+        report.setdefault('failure', {'stage': 'cleanup', 'type': 'FixtureProcessNotJoined'})
+
+
 def copy_completion(record):
     """Observe a real terminal receipt; missing legacy metadata never implies join."""
     completion = record.get('io_completion')
@@ -1159,12 +1169,7 @@ def main():
                 daemon.kill()
                 daemon_exit = daemon.wait()
             daemon_log.close()
-            report['cleanup'] = {'daemon_exit_code': daemon_exit, 'daemon_forced': forced,
-                                 'http_thread_joined': thread is None or not thread.is_alive()}
-            if report['status'] == 'passed' and (daemon_exit != 0 or forced
-                    or not report['cleanup']['http_thread_joined'] or report.get('browser_closed') is not True):
-                report['status'] = 'failed_or_interrupted'
-                report['failure'] = {'stage': 'cleanup', 'type': 'FixtureProcessNotJoined'}
+            finalize_fixture_cleanup(report, daemon_exit, forced, thread is not None and not thread.is_alive())
             # Defense in depth: authentication bytes never become evidence.
             (output / 'report.json').write_text(safe(json.dumps(report, indent=2)) + '\n')
             print(json.dumps({'status': report['status'], 'checks': len(report['checks']), 'unrun': len(report['unrun']), 'report': str(output / 'report.json')}), flush=True)
