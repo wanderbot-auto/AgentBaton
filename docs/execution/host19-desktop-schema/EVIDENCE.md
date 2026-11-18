@@ -21,3 +21,5 @@ Package manifests and locked dependency bytes are identical to the task base. np
 The wrapper and all owned test/build subprocesses returned naturally. The validation dimension is Vitest/jsdom with mocked Tauri transport and an actual web asset build. Actual native app IPC, signed packaging, Provider/remote and hosted CI are out of scope.
 
 Evidence log archive SHA-256 43f25bedab6b45bf93969e20fead0e2a707775a525c7d455b6e5a288549fa618.
+
+Leader accepted the fixed renderer slice after independent review. The acceptance includes the recorded Vitest and web build only. Actual native App/daemon handshake remains pending.
