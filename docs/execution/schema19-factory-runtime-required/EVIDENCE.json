@@ -1,0 +1,449 @@
+{
+  "task": "schema19-factory-runtime-required",
+  "claim_base": "577b922eb6df9f133c14508ffa26aa4b3bbaf290",
+  "source_sha": "531a5f14986d023cdadc65ca5a555af3a020214c",
+  "tested_composition": {
+    "head": "1e1c83184ed620d476e51a9d863876b11b383c29",
+    "tree": "ecc29d1ea251d8f6f1b2d3c9cbc3fa3dcf63365e",
+    "integration_parent": "17252ce69f1189a904ab24ff40385f9dca99e265"
+  },
+  "status": "see_platform_results_and_retained_failures",
+  "apple_silicon": {
+    "platform": [
+      "Darwin arm64",
+      "ProductName:\t\tmacOS",
+      "ProductVersion:\t\t26.6.1",
+      "BuildVersion:\t\t25G76",
+      "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+      "Python 3.14.0a7"
+    ],
+    "baseline_red": {
+      "exit": 101,
+      "counts": {
+        "passed": 0,
+        "failed": 3,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 33
+      },
+      "log": {
+        "path": "logs/mac-base-red.log.gz",
+        "sha256": "8236c3f58c5228eaa8ea2a57455b7d9c204279d15937070f66c6a3afa3a5f9a6"
+      }
+    },
+    "baseline_tool_preparation": {
+      "prepare_verify_identical": true,
+      "binaries": {
+        "baton": "a726cccc7b2d928feee8de2828b8ca927a758f2ce6b3ba8b001f37fb477efeb8",
+        "batond": "a690d3f2e8f5ae62ace22f12ea4e0ec2c113e25ac2fadd25921413669b465f6d"
+      },
+      "prepare": {
+        "path": "logs/baseline-prepare.json",
+        "sha256": "38c19da08fe8adc7702c24dbdd8041e291babea1a6a935643257322bfad521f3"
+      },
+      "verify": {
+        "path": "logs/baseline-verify.json",
+        "sha256": "38c19da08fe8adc7702c24dbdd8041e291babea1a6a935643257322bfad521f3"
+      }
+    },
+    "fixed_source_focused": {
+      "exit": 0,
+      "counts": {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 33
+      },
+      "log": {
+        "path": "logs/mac-fixed-targeted.log.gz",
+        "sha256": "aed1d9c70f8abf19035a1e12bacab9b657482212c348854bd570294cb876827f"
+      }
+    },
+    "fixed_source_tool_preparation": {
+      "prepare_verify_identical": true,
+      "binaries": {
+        "baton": "a726cccc7b2d928feee8de2828b8ca927a758f2ce6b3ba8b001f37fb477efeb8",
+        "batond": "a690d3f2e8f5ae62ace22f12ea4e0ec2c113e25ac2fadd25921413669b465f6d"
+      },
+      "prepare": {
+        "path": "logs/fixed-prepare.json",
+        "sha256": "23bc8e672d56ad3c985850ab49d758c33dda1e15b01e4a0993ca2275e89798b9"
+      },
+      "verify": {
+        "path": "logs/fixed-verify.json",
+        "sha256": "23bc8e672d56ad3c985850ab49d758c33dda1e15b01e4a0993ca2275e89798b9"
+      }
+    },
+    "combined_workspace": {
+      "exit": 101,
+      "counts": {
+        "passed": 0,
+        "failed": 1,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      },
+      "log": {
+        "path": "logs/mac-combined-workspace.log.gz",
+        "sha256": "b02a9f2095933ab8930944ca1ab52d9805f8eeed6b243d3de087a70c8ad7fb0c"
+      },
+      "core_unit_passed": 468,
+      "first_natural_failure": "admission_performance::real_admission_profile_and_post_reservation_input_drift_remain_guarded",
+      "observed_schema": 19,
+      "old_assertion": 18,
+      "started_utc": "2026-11-18T21:59:45Z",
+      "finished_utc": "2026-11-18T22:04:40Z",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--offline",
+        "--locked",
+        "--",
+        "--show-output"
+      ],
+      "rust_test_threads": 1,
+      "precompiled": {
+        "path": "logs/mac-combined-no-run.log.gz",
+        "sha256": "fe7a9c1615db0df674c0619a54980804c0a9a3ad50fa104cd1dbb03f80f1a460"
+      },
+      "frozen_tool_preparation": {
+        "prepare_verify_identical": true,
+        "binaries": {
+          "baton": "3690f6a06a0ea73f0a849e01693244ec3077e2fa6eda86a043a4b39e2650155f",
+          "batond": "e2db5ef04ad45482c27f51d066e21cfb620c3e81749fd9a7259ca6b8671976df"
+        },
+        "prepare": {
+          "path": "logs/mac-combined-prepare.json",
+          "sha256": "e59d8934ccc5d206e9e9ceae777cd41f7b1dbe3157dcb37cdde843a6101f2ba3"
+        },
+        "verify": {
+          "path": "logs/mac-combined-verify.json",
+          "sha256": "e59d8934ccc5d206e9e9ceae777cd41f7b1dbe3157dcb37cdde843a6101f2ba3"
+        }
+      },
+      "before_verify": {
+        "path": "logs/mac-combined-before-verify.json",
+        "sha256": "e59d8934ccc5d206e9e9ceae777cd41f7b1dbe3157dcb37cdde843a6101f2ba3"
+      }
+    },
+    "combined_factory_initial": {
+      "exit": 101,
+      "counts": {
+        "passed": 34,
+        "failed": 2,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      },
+      "log": {
+        "path": "logs/mac-combined-factory.log.gz",
+        "sha256": "ec2a75c8fb815207b25a4215016257fb8557cadbb7955833ac0d2e127a30af57"
+      },
+      "frozen_tool_preparation": {
+        "prepare_verify_identical": true,
+        "binaries": {
+          "baton": "3690f6a06a0ea73f0a849e01693244ec3077e2fa6eda86a043a4b39e2650155f",
+          "batond": "e2db5ef04ad45482c27f51d066e21cfb620c3e81749fd9a7259ca6b8671976df"
+        },
+        "prepare": {
+          "path": "logs/mac-factory-prepare.json",
+          "sha256": "e59d8934ccc5d206e9e9ceae777cd41f7b1dbe3157dcb37cdde843a6101f2ba3"
+        },
+        "verify": {
+          "path": "logs/mac-factory-verify.json",
+          "sha256": "e59d8934ccc5d206e9e9ceae777cd41f7b1dbe3157dcb37cdde843a6101f2ba3"
+        }
+      },
+      "interrupted_pre_run_build": {
+        "path": "logs/mac-factory-prerun-stop.log.gz",
+        "sha256": "488015bef849d19205bc1f47974a9e71805c4bbd8ac4ad5be210ec05eb58673c"
+      },
+      "wrong_cas_follow_on": {
+        "raw_events": {
+          "path": "logs/mac-wrong-cas-events.json.gz",
+          "sha256": "926699de7650706eda05a33155e32ab71923bfc24f93afa0dd9afa20d74dde47"
+        },
+        "observed_child_budget_ms": 5000,
+        "observed_child_settlement_ms": 5002,
+        "observed_parent_settlement_ms": 6528,
+        "provider_session_creation_failure_reaped": true,
+        "provider_internal_failure_detail_known": false,
+        "wrong_cas_refusal_confirmed_before_follow_on": true
+      },
+      "deadline_stage": {
+        "path": "logs/mac-deadline-first.json",
+        "sha256": "b1af3a9732188cd517a624cc4250cc6dc25a5e2de413ad1c77266cddedb9c122"
+      }
+    },
+    "data_snapshot_comparison": {
+      "mac-data-a1": {
+        "exit": 0,
+        "counts": {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 34
+        },
+        "log": {
+          "path": "logs/mac-data-a1.log.gz",
+          "sha256": "624a951db89d9de1e989c00ff3cc375efd5f78a8bb225cf1eeaf327c8be1324a"
+        },
+        "head": "1e1c83184ed620d476e51a9d863876b11b383c29",
+        "tree": "ecc29d1ea251d8f6f1b2d3c9cbc3fa3dcf63365e"
+      },
+      "mac-data-b1": {
+        "exit": 0,
+        "counts": {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 34
+        },
+        "log": {
+          "path": "logs/mac-data-b1.log.gz",
+          "sha256": "cef66a78b9ffd4f8c6f21adfe933ffa18735eb89297c0e2b6659e89d59907636"
+        },
+        "head": "230bba9f995b20e7708f600021c780a2793f846f",
+        "tree": "1cbb47206a7ea231b9b504686ec14ccf17b2d8f4"
+      },
+      "mac-data-b2": {
+        "exit": 101,
+        "counts": {
+          "passed": 1,
+          "failed": 1,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 34
+        },
+        "log": {
+          "path": "logs/mac-data-b2.log.gz",
+          "sha256": "8289eca146dfdf2aff7cd3ffbfc111882355b505f7c63a512bcf6c82e2e3714c"
+        },
+        "head": "230bba9f995b20e7708f600021c780a2793f846f",
+        "tree": "1cbb47206a7ea231b9b504686ec14ccf17b2d8f4"
+      },
+      "mac-data-a2": {
+        "exit": 0,
+        "counts": {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 34
+        },
+        "log": {
+          "path": "logs/mac-data-a2.log.gz",
+          "sha256": "75e5451ba47ac0eaea9974ace7c47a321c597d586a59b6c641c442f16b3b101c"
+        },
+        "head": "1e1c83184ed620d476e51a9d863876b11b383c29",
+        "tree": "ecc29d1ea251d8f6f1b2d3c9cbc3fa3dcf63365e"
+      },
+      "retained_diff": {
+        "path": "logs/mac-data-single-factor.diff",
+        "sha256": "453f05a9bedc10646c8b285448289c1c26987ddcab43e84097d7589974768a7c"
+      },
+      "control_frozen_pair": {
+        "prepare_verify_identical": true,
+        "binaries": {
+          "baton": "3690f6a06a0ea73f0a849e01693244ec3077e2fa6eda86a043a4b39e2650155f",
+          "batond": "e2db5ef04ad45482c27f51d066e21cfb620c3e81749fd9a7259ca6b8671976df"
+        },
+        "prepare": {
+          "path": "logs/mac-control-prepare.json",
+          "sha256": "ae25fb2f5c9481f55bc49fb52830c9c2206a7377a587e5d41cf817dc6b30242a"
+        },
+        "verify": {
+          "path": "logs/mac-control-verify.json",
+          "sha256": "ae25fb2f5c9481f55bc49fb52830c9c2206a7377a587e5d41cf817dc6b30242a"
+        }
+      },
+      "restored_original_verify": {
+        "path": "logs/mac-data-a-verify.json",
+        "sha256": "e59d8934ccc5d206e9e9ceae777cd41f7b1dbe3157dcb37cdde843a6101f2ba3"
+      },
+      "inference": "The added snapshot is not necessary for the missing-prompt failure. The wrong-CAS follow-on failure did not recur in the focused comparisons."
+    },
+    "combined_factory_confirmation": {
+      "exit": 0,
+      "counts": {
+        "passed": 36,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      },
+      "log": {
+        "path": "logs/mac-combined-factory-confirmation.log.gz",
+        "sha256": "8b5648aa47e2e26ee208ed478e1c41bbb7a6f892f7a9c165ccce462f665a8060"
+      },
+      "frozen_tool_preparation": {
+        "prepare_verify_identical": true,
+        "binaries": {
+          "baton": "3690f6a06a0ea73f0a849e01693244ec3077e2fa6eda86a043a4b39e2650155f",
+          "batond": "e2db5ef04ad45482c27f51d066e21cfb620c3e81749fd9a7259ca6b8671976df"
+        },
+        "prepare": {
+          "path": "logs/mac-factory-confirmation-prepare.json",
+          "sha256": "e59d8934ccc5d206e9e9ceae777cd41f7b1dbe3157dcb37cdde843a6101f2ba3"
+        },
+        "verify": {
+          "path": "logs/mac-factory-confirmation-verify.json",
+          "sha256": "e59d8934ccc5d206e9e9ceae777cd41f7b1dbe3157dcb37cdde843a6101f2ba3"
+        }
+      },
+      "deadline_stage": {
+        "path": "logs/mac-deadline-confirmation.json",
+        "sha256": "b1af3a9732188cd517a624cc4250cc6dc25a5e2de413ad1c77266cddedb9c122"
+      },
+      "started_utc": "2026-11-18T22:22:40Z",
+      "finished_utc": "2026-11-18T22:23:52Z"
+    }
+  },
+  "linux_arm64": {
+    "exit": 0,
+    "counts": {
+      "passed": 39,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 0
+    },
+    "log": {
+      "path": "logs/factory.log.gz",
+      "sha256": "d0d8cf159a4743d0a90abe3a146eb9b366ff4ce9c4f21d74b7052de17c43f5e3"
+    },
+    "platform": [
+      "Linux aarch64",
+      "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+      "Python 3.11.2",
+      "cc (Debian 12.2.0-14+deb12u1) 12.2.0"
+    ],
+    "container_image": "sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33 arm64",
+    "network_disabled": true,
+    "same_exact_candidate": true,
+    "started_utc": "2026-11-18T22:19:22Z",
+    "finished_utc": "2026-11-18T22:20:23Z",
+    "tool_preparation": {
+      "prepare_verify_identical": true,
+      "binaries": {
+        "baton": "5c9efc32e2bd290bd43cacc26c8f55f24188865aec74b143bc32c55853c8dc6f",
+        "batond": "d778046b3827bffb2fbdcd46f8e997408e6e3d04ce178a4a8fe9b9dfd9f28018"
+      },
+      "prepare": {
+        "path": "logs/linux-prepare.json",
+        "sha256": "ad7ed567f9966005bd2b82e126498900a02650b831f4b56560a0daa33b02cef5"
+      },
+      "verify": {
+        "path": "logs/linux-verify.json",
+        "sha256": "ad7ed567f9966005bd2b82e126498900a02650b831f4b56560a0daa33b02cef5"
+      }
+    },
+    "read_gates": {
+      "cancel": {
+        "outcome": {
+          "path": "logs/linux-read-gate-cancel-outcome.json",
+          "sha256": "9aa94a598c55dd4b8b91d2d6517fbfd4ff50a14771dd2362f2f432248259f4dc"
+        },
+        "cleanup": {
+          "path": "logs/linux-read-gate-cancel-cleanup.json",
+          "sha256": "52f83a665dface55cabda409d9a59d9af722cbe8949a5926b95d5822269e6980"
+        }
+      },
+      "revoke": {
+        "outcome": {
+          "path": "logs/linux-read-gate-revoke-outcome.json",
+          "sha256": "cda52749682a2fa35d6d28120c9716dd91008dbdf5f6c5fed4a5202c85b2abfb"
+        },
+        "cleanup": {
+          "path": "logs/linux-read-gate-revoke-cleanup.json",
+          "sha256": "7eaf95094969ef2b2d9f7a63cfc56ae1d61c0006e20062234f4215d6566f33e2"
+        }
+      },
+      "expiry": {
+        "outcome": {
+          "path": "logs/linux-read-gate-expiry-outcome.json",
+          "sha256": "6e968bcf3ee027700134f3c03e26ba8e7e864695cef92bf5ddb473b79b2d29ec"
+        },
+        "cleanup": {
+          "path": "logs/linux-read-gate-expiry-cleanup.json",
+          "sha256": "2bfed7b3b0e43092eca8fcd12251ca5de00c706a705b5c1af2c12fc3ef017277"
+        }
+      }
+    }
+  },
+  "latest_target_comparison": {
+    "target": "1060ff834f170de39e51cf14336525f53c2eb475",
+    "compared_against": "17252ce69f1189a904ab24ff40385f9dca99e265",
+    "rust_changes_gated_by_explicit_features": {
+      "crates/core/tests/factory_child_goal_legacy_migration.rs": "actual-legacy-migration-tests",
+      "crates/core/tests/integration_actual16_migration.rs": "actual-schema16-migration-tests",
+      "crates/core/tests/task_workspace_actual15_migration.rs": "actual-schema15-migration-tests"
+    },
+    "other_changed_paths": [
+      ".github/workflows/product.yml",
+      "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "apps/desktop/tests/factory-child-planning-real-ipc.py",
+      "docs/execution/host19-browser-ci-workflow/CHECKPOINT.md",
+      "docs/execution/host19-browser-ci-workflow/EARLIER_WORKFLOW_EVIDENCE.json",
+      "docs/execution/host19-browser-ci-workflow/EVIDENCE.json",
+      "docs/execution/host19-browser-ci-workflow/INTEGRATED_REPLAY.json",
+      "docs/execution/host19-browser-ci-workflow/PLAN.md",
+      "docs/execution/host19-browser-ci-workflow/PROGRESS.md",
+      "docs/execution/host19-browser-ci-workflow/WORKFLOW_INVERSE.json",
+      "docs/execution/schema19-genuine-legacy14-15/CHECKPOINT.md",
+      "docs/execution/schema19-genuine-legacy14-15/EVIDENCE.json",
+      "docs/execution/schema19-genuine-legacy14-15/PLAN.md",
+      "docs/execution/schema19-genuine-legacy14-15/PROGRESS.md",
+      "docs/execution/schema19-genuine-legacy14-15/baseline-genuine14.log.gz",
+      "docs/execution/schema19-genuine-legacy14-15/baseline-genuine15.log.gz",
+      "docs/execution/schema19-genuine-legacy14-15/candidate-genuine14.log.gz",
+      "docs/execution/schema19-genuine-legacy14-15/candidate-genuine15.log.gz",
+      "docs/execution/schema19-genuine-legacy14-15/clippy-genuine14.log.gz",
+      "docs/execution/schema19-genuine-legacy14-15/clippy-genuine15.log.gz",
+      "docs/execution/schema19-genuine-legacy14-15/fmt.log.gz",
+      "docs/execution/schema19-genuine-legacy14-15/retry-genuine14.log.gz",
+      "docs/execution/schema19-genuine-legacy14-15/retry-genuine15.log.gz",
+      "docs/execution/schema19-genuine-legacy16/CHECKPOINT.md",
+      "docs/execution/schema19-genuine-legacy16/EVIDENCE.json",
+      "docs/execution/schema19-genuine-legacy16/PLAN.md",
+      "docs/execution/schema19-genuine-legacy16/PROGRESS.md",
+      "docs/execution/schema19-genuine-legacy16/baseline.log.gz",
+      "docs/execution/schema19-genuine-legacy16/candidate.log.gz",
+      "docs/execution/schema19-genuine-legacy16/clippy.log.gz",
+      "docs/execution/schema19-genuine-legacy16/fmt.log.gz",
+      "docs/execution/schema19-genuine-legacy16/leader-canonical-prior-failure.log.gz",
+      "docs/execution/schema19-genuine-legacy16/leader-path-alias-failure.log.gz",
+      "scripts/prepare-schema19-browser-ci.py",
+      "tests/infrastructure/host19_child_goal_source_fixture.py",
+      "tests/infrastructure/schema18_source_fixture.py",
+      "tests/infrastructure/test_background_service_native_smoke_source.py",
+      "tests/infrastructure/test_factory_bound_provider_exit.py",
+      "tests/infrastructure/test_integration_browser_ci.py",
+      "tests/infrastructure/test_schema17_migration_workflow.py",
+      "tests/infrastructure/test_schema19_browser_ci_workflow.py",
+      "tests/infrastructure/test_task_workspace_ci_launch_diagnostic_inverse.py",
+      "tests/infrastructure/test_ui_preview_dev_profile_workflow.py"
+    ],
+    "default_workspace_tool_step_bytes_equal": true,
+    "precise_preview_tree": "95c12861fed204f23be20b88464e38fee7d8e44f",
+    "latest_preview_tree_tested": false,
+    "scope_and_preview": {
+      "path": "logs/scope-preview.log.gz",
+      "sha256": "887e6e6fde445f1d18408c83bb152a311198d9606484df70a5a8fe475baaa30c"
+    }
+  },
+  "fmt": {
+    "path": "logs/fmt.log.gz",
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "exit": 0
+  },
+  "clippy": {
+    "path": "logs/clippy.log.gz",
+    "sha256": "d43db75e508c14453a071907d1c06ef2e3defa91c860946f91aca5e985f904a1",
+    "exit": 0
+  }
+}
