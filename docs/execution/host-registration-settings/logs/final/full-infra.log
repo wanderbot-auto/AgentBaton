@@ -1,0 +1,42 @@
+Source: 1b1f207e0a5d3bc86ba31201d4539405d3ccc2b3
+Started (UTC): 2026-11-18T15:37:24Z
+Command: env PYTHONDONTWRITEBYTECODE=1 /Users/wander/Documents/code/agentBaton-next/.venv/bin/python -m unittest discover -s tests/infrastructure -p test_\*.py
+collab: task runtime /private/tmp/ab-collab-7_n1l9e_
+...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................Finite integration browser projection refused
+Finite integration browser projection refused
+...................................................................................................................................................Finite integration browser projection refused
+..............................................................Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+.Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+..Integration Native evidence projection refused
+.Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+...........................................................ssssssssssssssss.........................................fatal: ambiguous argument 'a4e03303b54bd5a5544131e95ad39662f8310e29^{commit}': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+..............................Finite task notification projection refused
+.........................................................................................................
+----------------------------------------------------------------------
+Ran 927 tests in 25.881s
+
+OK (skipped=16)
+{"status": "failed_or_interrupted", "dimension": "Linux/browser/generatedACP/private_test_host_not_OS"}
+{"status": "passed", "dimension": "Linux/browser/generatedACP/private_test_host_not_OS"}
+Finished (UTC): 2026-11-18T15:37:51Z
+Exit: 0

@@ -1,0 +1,11 @@
+Source: 1b1f207e0a5d3bc86ba31201d4539405d3ccc2b3
+Started (UTC): 2026-11-18T15:37:24Z
+Command: env PYTHONDONTWRITEBYTECODE=1 /Users/wander/Documents/code/agentBaton-next/.venv/bin/python apps/desktop/src-tauri/tests/test_hosts_native_source.py
+collab: task runtime /private/tmp/ab-collab-7_n1l9e_
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
+Finished (UTC): 2026-11-18T15:37:24Z
+Exit: 0

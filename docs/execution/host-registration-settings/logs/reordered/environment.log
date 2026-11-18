@@ -1,0 +1,11 @@
+2026-11-18T15:35:05Z
+1bc47f3096bd6e5cd88b3617226efea761d819f5
+f0a54e584342945684c8e84bc3b1971b8e21f4cf
+Darwin 25.6.0 arm64
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+v26.7.0
+11.19.0
+Python 3.12.12 (main, Dec  9 2025, 19:05:33) [Clang 21.1.4 ]
+58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d  apps/desktop/package-lock.json

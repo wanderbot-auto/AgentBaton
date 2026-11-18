@@ -13,6 +13,7 @@ import { ManagedSessions, sessionEventText } from './ManagedSessions';
 import { sessionApi, type ManagedSession, type NamedConnection } from './session-api';
 import { ContextDialog } from './ContextDialog';
 import { BackgroundServiceSettings } from './BackgroundServiceSettings';
+import { Hosts, useHostRegistrationSession } from './Hosts';
 import { ArtifactValidation } from './ArtifactValidation';
 import { DataContractValidation } from './DataContractValidation';
 import { CommandValidation } from './CommandValidation';
@@ -53,6 +54,7 @@ export function App() {
   }, []);
   const [dialog, setDialog] = useState<Dialog>(null);
   const recovery=useRecoveryCenter(dialog==='settings');
+  const hostRegistration = useHostRegistrationSession();
   const [taskIntent,setTaskIntent] = useState<{taskId:string;projectId:string|undefined;action:TaskAction;key:string}|null>(null);
   const [detailsTaskId,setDetailsTaskId]=useState<string>();
   const [filter, setFilter] = useState<Filter>('all');
@@ -352,7 +354,7 @@ export function App() {
       {dialog === 'projects' && <Projects projects={projects} selectedId={projectId} onSelect={id => { setProjectId(id); createKey.current = null; }} refresh={refresh} connected={status === 'connected'} language={language} />}
       {dialog === 'standalone' && <StandaloneConversations language={language} connected={status==='connected'} onBusy={setBusy} onConvert={(summary,sourceProject)=>{setConversionProject(sourceProject==='local'?'':sourceProject);setConversionSummary(summary);createKey.current=null;setDialog('conversion');}} />}
       {dialog === 'execution' && (taskIntent?.action==='workspace'&&!intentTask?<p>{taskActionsMessages[language].missing}</p>:<ManagedSessions sharedSendBusy={sendBusy||messageRecoveryUnavailable} onSendBusyChange={changeSendBusy} uncertainSessions={uncertainSessions} onUncertain={id=>setUncertainSessions(current=>new Set([...current,id]))} key={taskIntent?.action==='workspace'?taskIntent.taskId:'execution'} initialTaskId={taskIntent?.action==='workspace'?intentTask?.id:selected?.id} language={language} connected={status === 'connected'} projects={projects} tasks={taskIntent?.action==='workspace'&&intentTask?[intentTask]:tasks} projectId={taskIntent?.action==='workspace'?intentTask?.project_id??'':selected?.project_id ?? projectId} onProjectChange={id => { setProjectId(id); createKey.current = null; }} refreshTasks={refresh} />)}
-      {dialog === 'settings' && <><RecoveryCenter language={language} controller={recovery} /><BackgroundService language={language} connected={status === 'connected'} /><dl className="settings-list"><dt>{c.appearance}</dt><dd>{c.light}</dd><dt>{c.readOnly}</dt><dd>{c.retained}</dd></dl><details className="settings-connection"><summary>{c.connectedHelp}</summary><p>{t[status]}</p></details><BackgroundServiceSettings language={language} /></>}
+      {dialog === 'settings' && <><RecoveryCenter language={language} controller={recovery} /><BackgroundService language={language} connected={status === 'connected'} /><dl className="settings-list"><dt>{c.appearance}</dt><dd>{c.light}</dd><dt>{c.readOnly}</dt><dd>{c.retained}</dd></dl><Hosts language={language} daemonConnected={status === 'connected'} session={hostRegistration} /><details className="settings-connection"><summary>{c.connectedHelp}</summary><p>{t[status]}</p></details><BackgroundServiceSettings language={language} /></>}
       {dialog === 'search' && <><label className="sr-only" htmlFor="task-search">{c.searchTasks}</label><input id="task-search" value={query} onChange={event => setQuery(event.target.value)} placeholder={c.searchPlaceholder} data-dialog-autofocus /><ul className="search-results">{tasks.filter(task => task.goal.toLocaleLowerCase().includes(query.toLocaleLowerCase())).map(task => <li key={task.id}><button onClick={() => openTask(task.id)}><Icon name="task" /><span>{task.goal}</span><span className="task-state">{stateText(task.state)}</span></button></li>)}</ul>{!tasks.some(task => task.goal.toLocaleLowerCase().includes(query.toLocaleLowerCase())) && <p>{c.noMatches}</p>}</>}
       {dialog === 'conversion' && <>{error && <div className="error" role="alert"><strong>{t.error}</strong><p>{error}</p></div>}<p>{c.convertHelp}</p><label htmlFor="conversion-summary">{c.summary}</label><textarea id="conversion-summary" rows={5} value={conversionSummary} maxLength={8192} onChange={event => { setConversionSummary(event.target.value); createKey.current = null; }} /><div className="dialog-actions"><button onClick={() => setDialog(null)}>{c.close}</button><button className="primary" disabled={busy || status !== 'connected' || !conversionSummary.trim()} onClick={() => void createTask(undefined, conversionSummary, conversionProject)}>{c.createDraft}</button></div></>}
     </ContextDialog>}
