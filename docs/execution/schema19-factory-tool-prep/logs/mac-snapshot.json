@@ -1,0 +1,11 @@
+{
+  "request_id": "2cfe38ed-2cfe-4df1-b730-e4d698f3dfcc",
+  "result": {
+    "api_version": 1,
+    "database_schema_version": 19,
+    "sequence": 0,
+    "tasks": []
+  },
+  "revision": 0,
+  "warnings": []
+}
