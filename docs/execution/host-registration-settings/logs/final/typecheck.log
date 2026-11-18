@@ -1,0 +1,10 @@
+Source: 1b1f207e0a5d3bc86ba31201d4539405d3ccc2b3
+Started (UTC): 2026-11-18T15:36:40Z
+Command: npm --prefix apps/desktop run typecheck
+collab: task runtime /private/tmp/ab-collab-7_n1l9e_
+
+> @agentbaton/desktop@0.1.0 typecheck
+> tsc --noEmit
+
+Finished (UTC): 2026-11-18T15:36:41Z
+Exit: 0

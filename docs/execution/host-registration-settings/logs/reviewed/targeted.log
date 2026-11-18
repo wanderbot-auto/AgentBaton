@@ -1,0 +1,22 @@
+Source: 446e40ee82e36c126c80e62f42bd3228ed5caec1
+Started (UTC): 2026-11-18T15:41:56Z
+Command: npm --prefix apps/desktop test -- src/hosts-types.test.ts src/hosts-api.test.ts src/Hosts.test.tsx src/Hosts.entry.test.tsx src/QuietCanvas.test.tsx
+collab: task runtime /private/tmp/ab-collab-7_n1l9e_
+
+> @agentbaton/desktop@0.1.0 test
+> vitest run src/hosts-types.test.ts src/hosts-api.test.ts src/Hosts.test.tsx src/Hosts.entry.test.tsx src/QuietCanvas.test.tsx
+
+
+ RUN  v5.0.5 /Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-settings/apps/desktop
+
+
+ Test Files  5 passed (5)
+      Tests  39 passed (39)
+   Start at  23:41:56
+   Duration  2.05s (tests 50%, environment 35%, setup 7%, import 5%, transform 3%)
+
+    Isolate  5 workers spawned · ~311ms startup each (spawn + environment, per file)
+             at least ~467ms faster with isolate: false — reuses workers across files instead of one per file
+
+Finished (UTC): 2026-11-18T15:41:58Z
+Exit: 0
