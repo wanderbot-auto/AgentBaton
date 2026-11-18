@@ -8,6 +8,7 @@ No synthetic SQL writes, TaskAccepted, vendor/account/model or native OS claim.
 from __future__ import annotations
 
 import argparse
+from contextlib import closing, contextmanager
 from functools import partial
 import hashlib
 import http.server
@@ -18,6 +19,7 @@ import re
 import signal
 import socket
 import sqlite3
+import stat
 import subprocess
 import sys
 import tempfile
@@ -26,8 +28,9 @@ import time
 import traceback
 import uuid
 
-from playwright.sync_api import expect, sync_playwright
-
+ROOT = Path(__file__).resolve().parents[3]
+SCHEMA_VERSION = 19
+TOOL_ROLES = ('batond', 'baton')
 
 def sha(data):
     return hashlib.sha256(data).hexdigest()
@@ -44,6 +47,123 @@ def unique_object(pairs):
 
 def integer(value, minimum=0):
     return type(value) is int and minimum <= value <= 9_007_199_254_740_991
+
+
+def candidate_tools(binary, raw, staging):
+    manifest = json.loads(raw, object_pairs_hook=unique_object)
+    assert type(manifest) is dict and type(manifest.get('schema')) is int \
+        and manifest['schema'] == SCHEMA_VERSION, 'Explicit coherent schema19 candidate is required'
+
+    def git(*argv):
+        return subprocess.check_output(['git', *argv], cwd=ROOT, text=True).strip()
+
+    assert manifest.get('git_head') == git('rev-parse', 'HEAD') \
+        and manifest.get('git_tree') == git('rev-parse', 'HEAD^{tree}') \
+        and manifest.get('dirty') is False \
+        and not git('status', '--porcelain', '--untracked-files=no'), 'Candidate source does not match the tracked checkout'
+    binaries = manifest.get('binaries')
+    assert type(binaries) is dict and set(TOOL_ROLES) <= binaries.keys(), 'Both Core tool identities are required'
+    assert binary.name == 'batond', 'Candidate requires the batond/baton sibling build'
+    parent = binary.parent.resolve(strict=True)
+    staging.mkdir(mode=0o700)
+    tools = {}
+    hashes = {}
+
+    def identity(info):
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
+    for role in TOOL_ROLES:
+        entry = binaries[role]
+        expected = entry.get('sha256') if type(entry) is dict else entry
+        assert type(expected) is str and re.fullmatch('[0-9a-f]{64}', expected), 'Invalid candidate tool digest'
+        path = parent / role
+        destination = staging / role
+        with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:
+            before = os.fstat(source.fileno())
+            assert stat.S_ISREG(before.st_mode) and before.st_uid == os.geteuid() \
+                and before.st_mode & 0o111 and not before.st_mode & 0o022 \
+                and 0 < before.st_size <= 268_435_456, 'Candidate tool metadata refused'
+            digest = hashlib.sha256()
+            remaining = before.st_size
+            with os.fdopen(os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as copy:
+                while remaining and (block := source.read(min(1_048_576, remaining))):
+                    copy.write(block)
+                    digest.update(block)
+                    remaining -= len(block)
+                observed = digest.hexdigest()
+                assert remaining == 0 and observed == expected and identity(before) == identity(os.fstat(source.fileno())) \
+                    and identity(before) == identity(path.lstat()), 'Candidate tool bytes or identity do not match'
+                os.fchmod(copy.fileno(), 0o500)
+        tools[role] = destination
+        hashes[role] = observed
+    assert hashes['batond'] != hashes['baton'], 'Candidate tool roles share the same bytes'
+    return manifest, tools, hashes
+
+
+def require_current_snapshot(snapshot):
+    assert type(snapshot) is dict and type(snapshot.get('api_version')) is int and snapshot['api_version'] == 1 \
+        and type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == SCHEMA_VERSION \
+        and integer(snapshot.get('sequence')), 'Actual API 1 and integer schema 19 Core snapshot required'
+    return snapshot
+
+
+def unix_request(runtime, token, method, params, key=None, revision=None):
+    frame = {'api_version': 1, 'request_id': str(uuid.uuid4()), 'token': token, 'method': method, 'params': params}
+    if key is not None:
+        frame['idempotency_key'] = key
+    if revision is not None:
+        frame['expected_revision'] = revision
+    raw = json.dumps(frame).encode() + b'\n'
+    assert len(raw) <= 262_144
+    with socket.socket(socket.AF_UNIX) as stream:
+        stream.settimeout(5); stream.connect(str(runtime / 'batond.sock')); stream.sendall(raw)
+        with stream.makefile('rb') as reader:
+            response = reader.readline(8_388_609)
+    assert len(response) <= 8_388_608 and response.endswith(b'\n')
+    value = json.loads(response)
+    if method == 'system.snapshot' and 'result' in value:
+        require_current_snapshot(value['result'])
+    return value
+
+
+@contextmanager
+def readonly_database(runtime):
+    with closing(sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True)) as db:
+        db.execute('PRAGMA query_only=ON')
+        db.execute('PRAGMA trusted_schema=OFF')
+        db.execute('BEGIN')
+        assert db.execute('PRAGMA query_only').fetchone() == (1,)
+        schema = db.execute('PRAGMA user_version').fetchone()[0]
+        assert type(schema) is int and schema == SCHEMA_VERSION, 'Actual read-only SQLite schema 19 required'
+        yield db
+
+
+def database_observation(runtime):
+    with readonly_database(runtime) as db:
+        for table in ('host_registrations', 'factory_child_goal_runs', 'integration_policies', 'integrations',
+                      'integration_attempts', 'integration_ref_fences'):
+            assert db.execute('SELECT count(*) FROM '+table).fetchone()[0] == 0
+        tables = ['attempts', 'sessions', 'dispatch_intents', 'goal_runs', 'goal_run_nodes', 'goal_run_reservations', 'goal_plan_revisions', 'goal_node_evidence']
+        value = {name: db.execute('SELECT count(*) FROM ' + name).fetchone()[0] for name in tables}
+        value['sequence'] = db.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]
+        value['budgets'] = {scope: {'consumed': consumed, 'active': active} for scope, consumed, active in db.execute('SELECT scope,consumed,active FROM budgets ORDER BY scope')}
+        value['goal_ledgers'] = {scope: json.loads(raw) for scope, raw in db.execute('SELECT scope,document FROM goal_ledgers ORDER BY scope')}
+        value['execution_approvals'] = db.execute("SELECT count(*) FROM approval_proposals WHERE json_extract(document,'$.kind')='goal_execution'").fetchone()[0]
+        return value
+
+
+def verify_private_core(runtime, companion, snapshot):
+    require_current_snapshot(snapshot)
+    completed = subprocess.run([str(companion), 'snapshot'], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)},
+                               stdin=subprocess.DEVNULL, capture_output=True, timeout=5)
+    assert completed.returncode == 0 and 0 < len(completed.stdout) <= 8_388_608, 'Matching private baton snapshot required'
+    reply = json.loads(completed.stdout, object_pairs_hook=unique_object)
+    assert type(reply) is dict and 'error' not in reply, 'Matching private baton snapshot required'
+    cli_snapshot = require_current_snapshot(reply.get('result'))
+    assert json.dumps(cli_snapshot, sort_keys=True) == json.dumps(snapshot, sort_keys=True), 'CLI and private Unix Core snapshots disagree'
+    assert database_observation(runtime)['sequence'] == snapshot['sequence'], 'Private Unix Core and SQLite sequences disagree'
+    return {'api_version': snapshot['api_version'], 'sqlite_schema_version': snapshot['database_schema_version'],
+            'sequence': snapshot['sequence'], 'matched_cli_snapshot': True, 'read_only': True}
 
 
 def linux_start_ticks(pid):
@@ -118,21 +238,16 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
     args = parser.parse_args()
-    binary, frontend, output = args.batond.resolve(strict=True), args.frontend.resolve(strict=True), args.output.resolve()
+    frontend, output = args.frontend.resolve(strict=True), args.output.resolve()
     assert (frontend / 'index.html').is_file()
     output.mkdir(parents=True, exist_ok=False)
     manifest_bytes = args.candidate_manifest.resolve(strict=True).read_bytes()
-    manifest = json.loads(manifest_bytes)
-    binary_entry = manifest['binaries']['batond']
-    expected_binary = binary_entry['sha256'] if isinstance(binary_entry, dict) else binary_entry
-    assert type(manifest.get('schema')) is int and manifest['schema'] == 18 and sha(binary.read_bytes()) == expected_binary, 'Explicit coherent schema18 candidate is required'
     report = {'status': 'failed_or_interrupted',
               'dimension': 'actual built React / Linux Chromium / fixed test-only HTTP / authenticated Unix Core / generated owned ACP process',
               'native_owner_dialog': 'not_run; fixed private host fixture outside HTTP approves actual Core snapshots',
               'provider': 'generated local ACP, no account/credential/network/model',
               'not_claimed': ['macOS', 'native WebView', 'real Provider/model', 'TaskAccepted', 'independent artifact acceptance', 'OS sandbox', 'whole workspace output quota', 'whole product completion'],
-              'daemon_sha256': sha(binary.read_bytes()), 'manifest_sha256': sha(manifest_bytes),
-              'candidate': manifest, 'harness_sha256': sha(Path(__file__).read_bytes()),
+              'manifest_sha256': sha(manifest_bytes), 'harness_sha256': sha(Path(__file__).read_bytes()),
               'frontend_assets_sha256': {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()},
               'checks': [], 'requests': [], 'faults': [], 'observations': {}, 'screenshots': []}
     token = ''
@@ -158,9 +273,15 @@ def main():
     with tempfile.TemporaryDirectory(prefix='baton-goal-execution-') as temporary:
         root = Path(temporary).resolve()
         root.chmod(0o700)
+        manifest, tools, hashes = candidate_tools(args.batond, manifest_bytes, root / 'tools')
+        if sys.platform != 'linux' or linux_start_ticks(os.getpid()) is None:
+            raise SystemExit('NOT_RUN: Goal Execution browser evidence requires actual Linux procfs')
+        from playwright.sync_api import expect, sync_playwright
+
+        report.update(candidate=manifest, daemon_sha256=hashes['batond'], companion_sha256=hashes['baton'])
         runtime = root / 'runtime'; runtime.mkdir(mode=0o700)
         daemon_log = (output / 'daemon.log').open('wb')
-        daemon = subprocess.Popen([str(binary)], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)}, stdout=daemon_log, stderr=subprocess.STDOUT, start_new_session=True)
+        daemon = subprocess.Popen([str(tools['batond'])], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)}, stdout=daemon_log, stderr=subprocess.STDOUT, start_new_session=True)
         server = thread = None
         scenarios = {}
         provider = root / 'generated-owned-goal-acp'
@@ -170,19 +291,7 @@ def main():
             token = (runtime / 'session.token').read_text()
 
             def ipc(method, params, key=None, revision=None):
-                frame = {'api_version': 1, 'request_id': str(uuid.uuid4()), 'token': token, 'method': method, 'params': params}
-                if key is not None:
-                    frame['idempotency_key'] = key
-                if revision is not None:
-                    frame['expected_revision'] = revision
-                raw = json.dumps(frame).encode() + b'\n'
-                assert len(raw) <= 262_144
-                with socket.socket(socket.AF_UNIX) as stream:
-                    stream.settimeout(5); stream.connect(str(runtime / 'batond.sock')); stream.sendall(raw)
-                    with stream.makefile('rb') as reader:
-                        response = reader.readline(8_388_609)
-                assert len(response) <= 8_388_608 and response.endswith(b'\n')
-                return json.loads(response)
+                return unix_request(runtime, token, method, params, key, revision)
 
             def result(method, params, key=None, revision=None):
                 response = ipc(method, params, key, revision)
@@ -201,20 +310,9 @@ def main():
                 return finalize(proposal)
 
             def database():
-                with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
-                    db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-                    assert db.execute('PRAGMA user_version').fetchone()[0] == 18
-                    assert db.execute('SELECT count(*) FROM factory_child_goal_runs').fetchone()[0] == 0
-                    for table in ('integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences'):
-                        assert db.execute('SELECT count(*) FROM '+table).fetchone()[0] == 0
-                    tables = ['attempts', 'sessions', 'dispatch_intents', 'goal_runs', 'goal_run_nodes', 'goal_run_reservations', 'goal_plan_revisions', 'goal_node_evidence']
-                    value = {name: db.execute('SELECT count(*) FROM ' + name).fetchone()[0] for name in tables}
-                    value['sequence'] = db.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]
-                    value['budgets'] = {scope: {'consumed': consumed, 'active': active} for scope, consumed, active in db.execute('SELECT scope,consumed,active FROM budgets ORDER BY scope')}
-                    value['goal_ledgers'] = {scope: json.loads(raw) for scope, raw in db.execute('SELECT scope,document FROM goal_ledgers ORDER BY scope')}
-                    value['execution_approvals'] = db.execute("SELECT count(*) FROM approval_proposals WHERE json_extract(document,'$.kind')='goal_execution'").fetchone()[0]
-                    return value
+                return database_observation(runtime)
 
+            report['observations']['schema_preflight'] = verify_private_core(runtime, tools['baton'], result('system.snapshot', {}))
             connection = owner('connections.propose', {'name': 'Generated owned Goal ACP; no account', 'provider': 'custom_acp', 'executable': str(provider), 'arguments': []}, 'fixture-connection', 'connection')
             wait(lambda: result('connections.list', {}), lambda rows: any(row['id'] == connection['id'] and row['probe_state'] == 'ready' for row in rows))
             git_env = {**os.environ, 'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null', 'GIT_TERMINAL_PROMPT': '0', 'GIT_NO_LAZY_FETCH': '1'}
@@ -324,8 +422,7 @@ def main():
                 assert request['inputs'][0]['artifact']['relative_path'] == ('inputs/file' if scenario['data'] else 'file')
                 assert request['outputs'][0]['artifact']['relative_path'] == 'reports/report.txt'
                 report['observations'].setdefault('complete_task_requests', []).append({'scenario': scenario['task']['id'], 'utf8_bytes': len(raw), 'sha256': sha(raw), 'request': request, 'owned_stop_observed': True})
-                with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
-                    db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
+                with readonly_database(runtime) as db:
                     rows = db.execute("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id') IN(?,?,?) ORDER BY sequence LIMIT 513", [view['run']['id'], scenario['task']['id'], node['session_id']]).fetchall()
                     assert len(rows) <= 512 and all(len(document.encode()) <= 1_048_576 for _, document in rows)
                     events = [(sequence, json.loads(document)) for sequence, document in rows]
