@@ -4,6 +4,7 @@
 2. Classify nonterminal, unknown, stale and mismatched observations. Report continuation for a current terminal failure without an approved repair rule.
 3. Gate eligibility on exact scope, live identity, stable deduplication, bounded history, blocked cycles, known metering and shared capacity. Keep decision evaluation read-only.
 4. Check the existing Integration regression slice, focused cases, formatting, check and strict Clippy. Record exact source, integration preview, and producer, persistence and UI dependencies for review.
+5. With the additional runtime claim, share the authenticated CAS event read between the original reconciliation path and the CI decision. Keep the old return behavior and verify both paths against the unchanged Integration fixture.
 
 ## Production sources and remaining wiring
 
