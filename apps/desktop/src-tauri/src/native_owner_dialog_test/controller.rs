@@ -437,7 +437,7 @@ pub fn integration_consumed_proposal(proposal: &Value, phase: &str) -> Result<Va
 }
 fn integration_counts(value: &Value, policies: u64) -> bool {
     value.as_object().is_some_and(|v| v.len() == 6)
-        && value["schema_version"].as_u64() == Some(18)
+        && value["schema_version"].as_u64() == Some(19)
         && value["sequence"].as_u64().is_some()
         && value["policies"].as_u64() == Some(policies)
         && ["runs", "attempts", "ref_fences"]
@@ -1028,7 +1028,7 @@ mod integration_database_controls {
     use super::*;
     use serde_json::json;
     fn witness(policies: u64, sequence: u64, owner: Value, policy: Value) -> Value {
-        json!({"counts":{"schema_version":18,"sequence":sequence,"policies":policies,"runs":0,"attempts":0,"ref_fences":0},"proposal_matches":true,"proposal_result_matches":true,"policy_matches":true,"owner_event_matches":true,"policy_event_matches":true,"owner_event_sequence":owner,"policy_event_sequence":policy})
+        json!({"counts":{"schema_version":19,"sequence":sequence,"policies":policies,"runs":0,"attempts":0,"ref_fences":0},"proposal_matches":true,"proposal_result_matches":true,"policy_matches":true,"owner_event_matches":true,"policy_event_matches":true,"owner_event_sequence":owner,"policy_event_sequence":policy})
     }
     #[test]
     fn integration_mutation_witness_is_distinct_from_unchanged_readonly_group() {
@@ -1056,8 +1056,12 @@ mod integration_database_controls {
         for (field, bad) in [
             ("schema_version", json!(16)),
             ("schema_version", json!(17)),
-            ("schema_version", json!(19)),
+            ("schema_version", json!(18)),
+            ("schema_version", json!(20)),
             ("schema_version", json!(18.0)),
+            ("schema_version", json!(19.0)),
+            ("schema_version", json!("19")),
+            ("schema_version", json!(true)),
             ("policies", json!(true)),
             ("runs", json!(1)),
             ("attempts", json!(1)),

@@ -1129,6 +1129,7 @@ def _run_factory_pinned(binary, daemon_path, companion_path, output, cancel_at, 
 
 INTEGRATION_KIND = 'native_integration_os_dialog_fixture'
 INTEGRATION_KEY = 'owner-os-integration'
+INTEGRATION_SCHEMA_VERSION = 19
 INTEGRATION_TITLE = 'AgentBaton — Independent local integration approval'
 INTEGRATION_GROUP_FIELDS = frozenset({
     'read_only', 'phase', 'before', 'after', 'proposal_matches',
@@ -1161,8 +1162,8 @@ def integration_database_error(value, phase, baseline_sequence):
     for checkpoint in [before, after]:
         if (type(checkpoint) is not dict or set(checkpoint) != INTEGRATION_CHECKPOINT_FIELDS
                 or any(type(n) is not int or not 0 <= n <= (1 << 64) - 1 for n in checkpoint.values())
-                or checkpoint['schema_version'] != 18):
-            return 'Integration exact schema18/checkpoint typed count mismatch'
+                or checkpoint['schema_version'] != INTEGRATION_SCHEMA_VERSION):
+            return 'Integration exact schema19/checkpoint typed count mismatch'
     if (before['sequence'] != baseline_sequence or any(before[k] != 0 for k in ['policies', 'runs', 'attempts', 'ref_fences'])
             or any(after[k] != 0 for k in ['runs', 'attempts', 'ref_fences'])):
         return 'Integration baseline or zero execution changed'

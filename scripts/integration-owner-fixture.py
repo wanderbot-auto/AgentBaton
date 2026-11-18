@@ -21,11 +21,21 @@ import time
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
+SCHEMA_VERSION = 19
 
 
 def require(value, message='Generated integration fixture refused'):
     if not value:
         raise ValueError(message)
+
+
+def require_core_snapshot(value):
+    require(type(value) is dict
+            and type(value.get('api_version')) is int and value['api_version'] == 1
+            and type(value.get('database_schema_version')) is int
+            and value['database_schema_version'] == SCHEMA_VERSION
+            and type(value.get('sequence')) is int and 0 <= value['sequence'] <= (1 << 64) - 1,
+            'Actual API1 schema19 Core required')
 
 
 class ResourceClient:
@@ -66,6 +76,8 @@ class ResourceClient:
         self.transcript.append({'method': method, 'params': params, 'key': key, 'revision': revision, 'response': value})
         require('error' not in value and 'result' in value, 'Actual generated resource request failed: ' + method)
         result = value['result']
+        if method == 'system.snapshot':
+            require_core_snapshot(result)
         if method in self.PROPOSALS:
             require(result['kind'] == self.PROPOSALS[method] and result['consumed'] is False)
             require(len(self.owner.compact(result)) <= 16384, 'Original resource review cap unchanged')
@@ -186,11 +198,33 @@ def policy_scope_revision(owner, context, scope):
     return revision
 
 
+def paired_tools(daemon_path, companion_path):
+    daemon, companion = Path(daemon_path).absolute(), Path(companion_path).absolute()
+    require((daemon.name, companion.name) == ('batond', 'baton')
+            and daemon.parent.resolve(strict=True) == companion.parent.resolve(strict=True),
+            'Integration fixture requires the same-directory batond/baton build pair')
+    return daemon, companion
+
+
+def verify_bootstrap_identity(owner, installed, runtime, env, snapshot):
+    completed = subprocess.run([str(installed / 'baton'), 'snapshot'], env=env,
+                               stdin=subprocess.DEVNULL, capture_output=True, timeout=10, check=False)
+    require(completed.returncode == 0 and 0 < len(completed.stdout) <= 4_194_304,
+            'Matching private baton snapshot required')
+    reply = json.loads(completed.stdout)
+    require(type(reply) is dict and 'error' not in reply and owner.json_exact(reply.get('result'), snapshot),
+            'Integration companion and private Unix IPC snapshots disagree')
+    require(database(runtime)['sequence'] == snapshot['sequence'],
+            'Integration private SQLite and Core snapshot sequences disagree')
+
+
 @contextmanager
 def bootstrap(owner, daemon_path, companion_path, output):
     """Actual Core only, when Root explicitly runs it. No OS success fabricated."""
+    daemon_path, companion_path = paired_tools(daemon_path, companion_path)
     installed = output / 'private-tools'; installed.mkdir(mode=0o700)
     tools = {name: tool_copy(source, installed / name) for name, source in [('batond', daemon_path), ('baton', companion_path)]}
+    require(tools['batond']['sha256'] != tools['baton']['sha256'], 'Integration tool roles share the same image')
     private = output / 'bootstrap'; private.mkdir(mode=0o700)
     daemon = None; client = None; generated = {}; failure = None
     with tempfile.TemporaryDirectory(prefix='ab-int-own-', dir=Path('/tmp').resolve()) as temporary:
@@ -222,7 +256,7 @@ def bootstrap(owner, daemon_path, companion_path, output):
                 client = ResourceClient(runtime, owner)
                 wait(lambda: (runtime/'session.token').is_file() and (runtime/'batond.sock').exists(), bool, 10)
                 snapshot = client.call('system.snapshot', {})
-                require(type(snapshot['database_schema_version']) is int and snapshot['database_schema_version'] == 18, 'Actual schema18 Core required')
+                verify_bootstrap_identity(owner, installed, runtime, env, snapshot)
                 project = client.call('projects.import', {'path': str(source), 'name': 'Native independent integration generated'}, 'integration-owner:project')
                 task = client.call('tasks.create', {'project_id': project['id'], 'goal': 'Generated independent integration approval'}, 'integration-owner:task')
                 preview = client.call('workspaces.resolve', {'task_id': task['id'], 'expected_task_revision': task['revision'],
@@ -293,10 +327,11 @@ def database(runtime):
     spec = importlib.util.spec_from_file_location('_integration_owner_table_names', ROOT / 'scripts/prepare-schema16-migration-fixture.py')
     helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(helper)
     tables = tuple(sorted((*helper.SCHEMA_TABLES, 'integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences',
-                           'conversations', 'conversation_dispatches', 'conversation_turns', 'conversation_budgets')))
+                           'conversations', 'conversation_dispatches', 'conversation_turns', 'conversation_budgets', 'host_registrations')))
     with sqlite3.connect((runtime/'baton.sqlite3').as_uri()+'?mode=ro', uri=True) as db:
         db.execute('PRAGMA query_only=ON'); db.execute('PRAGMA trusted_schema=OFF'); db.execute('BEGIN')
-        require(db.execute('PRAGMA user_version').fetchone()[0] == 18)
+        schema = db.execute('PRAGMA user_version').fetchone()[0]
+        require(type(schema) is int and schema == SCHEMA_VERSION, 'Actual schema19 private SQLite required')
         require(tuple(r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")) == tables)
         columns, sizes, remaining, total_rows = {}, {}, 8_388_608, 0
         for table in tables:
@@ -307,10 +342,11 @@ def database(runtime):
             remaining -= size; total_rows += count
             require(remaining >= 0 and total_rows <= 100000, 'Private readonly raw history exceeds fixture bound')
             sizes[table] = count
+        require(sizes['host_registrations'] == 0, 'Generated Integration fixture must have no Host authority')
         encode_cell = lambda v: {'sqlite_blob_hex': v.hex()} if type(v) is bytes else v
         rows = {table: [[encode_cell(v) for v in row] for row in db.execute('SELECT rowid,* FROM "'+table+'" ORDER BY rowid')] for table in tables}
         db.rollback()
-    return {'read_only': True, 'schema_version': 18, 'columns': columns, 'counts': sizes, 'rows': rows,
+    return {'read_only': True, 'schema_version': schema, 'columns': columns, 'counts': sizes, 'rows': rows,
             'sequence': max((r[1] for r in rows['events']), default=0)}
 
 
@@ -318,12 +354,19 @@ def row_objects(value, table):
     return [dict(zip(['rowid', *value['columns'][table]], row)) for row in value['rows'][table]]
 
 
+def current_database(value):
+    return (type(value) is dict and value.get('read_only') is True
+            and type(value.get('schema_version')) is int and value['schema_version'] == SCHEMA_VERSION)
+
+
 def pending_error(owner, value, before):
-    return None if owner.json_exact(value, before) else 'Pending integration review changed actual private database history'
+    return (None if current_database(value) and owner.json_exact(value, before)
+            else 'Pending integration review changed actual private database history')
 
 
 def approved_error(owner, value, before, proposal, response):
-    if (value['schema_version'] != 18 or response.get('error') is not None or type(response.get('result')) is not dict
+    if (not current_database(before) or not current_database(value)
+            or response.get('error') is not None or type(response.get('result')) is not dict
             or value['sequence'] != before['sequence'] + 2 or value['columns'] != before['columns']):
         return 'Missing exact integration response/schema/two-event transaction'
     policy = response['result']
@@ -452,6 +495,6 @@ def run(owner, binary, daemon_path, companion_path, output, cancel_at=None):
                     owner._finish_factory_app(app, native, phase_out, failure)
         require(generated['daemon_cleanup']['ok'])
     owner.save(output/'result.json',{'status':'actual_integration_cancel_and_same_key_approval_visual_review_pending',
-        'phases':results,'daemon_cleanup':generated['daemon_cleanup'], 'schema':18,
+        'phases':results,'daemon_cleanup':generated['daemon_cleanup'], 'schema':SCHEMA_VERSION,
         'dimension':'macos_own_process_real_sheet','real_provider':'not_run','human_owner_approval':'not_claimed',
         'harness_binary_sha256':native['sha256'],'tools':generated['tools']})
