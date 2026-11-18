@@ -1,0 +1,8 @@
+da7e3ebaeddeca8dd4be183f7a592d8d61b3eb40
+Darwin arm64
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+v26.7.0
+11.19.0
+Python 3.12.12
