@@ -1,7 +1,13 @@
 #[path = "fixtures/pre_factory_schema.rs"]
 pub mod pre_factory_schema;
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::storage::Store;
 use rusqlite::{params, Connection};
+use schema19_legacy_migration::{
+    assert_empty_host19, assert_future20_refused, database_bytes, fixture_logical_snapshot,
+    host19_backup, legacy_predecessor, remove_empty_host19,
+};
 use std::{
     fs,
     os::unix::fs::{OpenOptionsExt, PermissionsExt},
@@ -28,6 +34,7 @@ fn schema8() -> (tempfile::TempDir, PathBuf, String) {
         .unwrap();
     drop(store);
     let c = Connection::open(&db).unwrap();
+    remove_empty_host19(&c).unwrap();
     pre_factory_schema::remove_empty_current_factory_increment(&c).unwrap();
     c.execute_batch(DROP_GOAL).unwrap();
     c.execute_batch("PRAGMA user_version=8;CREATE TABLE original_blob(bytes BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');").unwrap();
@@ -58,12 +65,15 @@ fn backups(path: &Path) -> Vec<PathBuf> {
 #[test]
 fn actual_schema8_upgrade_preserves_raw_rows_and_private_reopenable_backup() {
     let (dir, db, raw) = schema8();
+    let predecessor = legacy_predecessor(&db, 8);
     drop(Store::open(&db).unwrap());
     let c = Connection::open(&db).unwrap();
+    assert_empty_host19(&c);
+    let host_backup = host19_backup(&db, &predecessor);
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -118,6 +128,7 @@ fn actual_schema8_upgrade_preserves_raw_rows_and_private_reopenable_backup() {
     );
     drop(backup);
     drop(Store::open(&db).unwrap());
+    assert!(host19_backup(&db, &predecessor) == host_backup);
     assert_eq!(backups(dir.path()).len(), 1);
 }
 #[test]
@@ -125,9 +136,20 @@ fn migration9_failure_rolls_back_schema_and_preserves_unknown_goal_named_table()
     let (dir, db, raw) = schema8();
     let c = Connection::open(&db).unwrap();
     c.execute_batch("CREATE TABLE goal_scopes(sentinel TEXT);INSERT INTO goal_scopes VALUES('preserve unknown owner data');").unwrap();
+    let predecessor = fixture_logical_snapshot(&c);
     drop(c);
+    let before = database_bytes(&db);
     assert!(Store::open(&db).is_err());
     let c = Connection::open(&db).unwrap();
+    assert!(
+        database_bytes(&db) == before,
+        "failed migration rewrote SQLite bytes"
+    );
+    assert!(
+        fixture_logical_snapshot(&c) == predecessor,
+        "failed migration changed the logical database"
+    );
+    host19_backup(&db, &predecessor);
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
@@ -148,12 +170,10 @@ fn migration9_failure_rolls_back_schema_and_preserves_unknown_goal_named_table()
     assert_eq!(backups(dir.path()).len(), 1);
 }
 #[test]
-fn actual_future_schema19_is_rejected_without_modifying_bytes() {
+fn actual_future_schema20_is_rejected_without_modifying_bytes() {
     let (_dir, db, _) = schema8();
     let c = Connection::open(&db).unwrap();
-    c.execute_batch("PRAGMA user_version=19;").unwrap();
+    c.execute_batch("PRAGMA user_version=20;").unwrap();
     drop(c);
-    let before = fs::read(&db).unwrap();
-    assert_eq!(Store::open(&db).err().unwrap().code, "VERSION_UNSUPPORTED");
-    assert_eq!(fs::read(&db).unwrap(), before);
+    assert_future20_refused(&db);
 }
