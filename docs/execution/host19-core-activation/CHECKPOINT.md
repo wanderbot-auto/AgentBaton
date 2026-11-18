@@ -14,3 +14,8 @@ independent_static_review=991 two reviewers original findings closed;leader fina
 P2_native_UI_current19daemon_CI=not_run_not_authorized;not wholeproductready
 next=commit evidence;leader review;fix in-scope findings;finish only after agreed review
 push_PR_merge=not_authorized_this_slice;not_done
+
+leader_review=P2 accepted old-tool seal incomplete;source actual18+own docs only fix implemented;not yet validated
+source_dirty=owned actual18 test before fixed review-fix commit
+heavy_slot=leader released for necessary actual18/fmt/clippy/infra rerun
+EVIDENCE_json=initial13/notrun stale snapshot corrected to14 and prior executed facts;review-fix pending
