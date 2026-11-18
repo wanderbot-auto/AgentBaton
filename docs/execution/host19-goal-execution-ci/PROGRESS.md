@@ -1,0 +1,9 @@
+# Progress
+
+Clean fixed base `7de2112b9833fb5ec1b4f62b36ea9b5a3c88c603`, branch `collab/host19-goal-execution-ci`, with two source paths and this documentation directory reserved. Base workflow calls the driver with a sibling-built `target/debug/batond` and still emits schema 18. The integration window owns changing that producer. The direct leader notification could not connect.
+
+Source commit `9d7751e463f1f3446ad6291bb70b24035ba8fd10`. Eleven targeted checks passed, and the locked ARM64 Core pair and real frontend built successfully. First full infrastructure run stopped at one missing-`jsonschema` failure in the ambient Python; the intact test and first log were retained. Re-running with the repository’s existing validation environment. The running local Docker engine reports Linux arm64, and the checked-in browser lock explicitly requires CPython 3.12 Linux x86_64 wheels. Multipass was unavailable.
+
+The exact-source rerun passed all 11 targeted checks and 975 full infrastructure checks, with 16 existing external workspace skips. The actual ARM64 private Core witness matched schema 19, API 1 and sequences 0 and 1 between its real companion CLI, authenticated Unix IPC and read-only SQLite. It joined the daemon after exit 0. The real driver refused to start the Linux scene on macOS, before starting a daemon. The leader authorized local Docker and separately observed real ARM64 Linux procfs. An isolated Linux x86_64 dependency setup started in exec 50106 with candidate source `9d7751e4`.
+
+Exec 50106 completed. The locked x86_64 build, pinned Chromium install and disconnected-container full Goal Execution driver passed. The intact report has 10 checks, 7 owned stop receipt chains, 9 screenshots, zero reported page errors and no fallback cleanup. The raw Playwright shutdown warning is retained. The container stopped, was removed and was verified absent. All owned executors have exited.
