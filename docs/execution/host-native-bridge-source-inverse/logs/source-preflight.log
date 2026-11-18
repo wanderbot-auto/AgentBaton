@@ -1,0 +1,8 @@
+2026-11-18T15:03:33Z
+119d3b20dcf2c9ff24bd6fb0b6641447ccd3eae9
+ad9d6b424b82a8d4a9708bfd993570b90c747a00
+Scope OK against merge base 8aa4483d7028f9e9cb65a709bf2659f5e6715efd.
+Previewing target 8aa4483d7028f9e9cb65a709bf2659f5e6715efd + source 119d3b20dcf2c9ff24bd6fb0b6641447ccd3eae9 (committed snapshots only).
+ad9d6b424b82a8d4a9708bfd993570b90c747a00
+No Git merge conflict. Run tests; rebase can still conflict while replaying commits.
+Exit: 0
