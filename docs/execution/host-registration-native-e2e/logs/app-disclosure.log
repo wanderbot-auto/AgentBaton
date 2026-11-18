@@ -1,0 +1,14 @@
+collab: task runtime /private/tmp/ab-collab-wjo9gde4
+Traceback (most recent call last):
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 700, in <module>
+    main()
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 686, in main
+    app_case(paths, base, output, evidence)
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 595, in app_case
+    observe(ax, app, executable, (label_for("No Hosts are registered."), label_for("Register Host")))
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 537, in observe
+    return eventually(f"owned WebView text {text!r}", observed, timeout=35)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 115, in eventually
+    raise RuntimeError(f"Timed out waiting for {description}")
+RuntimeError: Timed out waiting for owned WebView text ('尚无已登记的主机。', '登记主机')
