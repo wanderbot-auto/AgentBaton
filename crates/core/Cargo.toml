@@ -29,6 +29,8 @@ actual-schema15-migration-tests = []
 actual-schema16-migration-tests = []
 # Required input: independently bound genuine schema18 fixture; missing is failure.
 actual-schema18-migration-tests = []
+# Explicit same-run trusted legacy build and genuine migration/restore.
+fresh-schema18-migration-tests = []
 actual-legacy-migration-tests = []
 # Non-default, debug-only deterministic evidence seam. Never product authority.
 preview-evidence = []
@@ -52,3 +54,8 @@ required-features = ["actual-schema16-migration-tests"]
 name = "host_registry_actual18_migration"
 path = "tests/host_registry_actual18_migration.rs"
 required-features = ["actual-schema18-migration-tests"]
+
+[[test]]
+name = "host_registry_fresh18_migration"
+path = "tests/host_registry_fresh18_migration.rs"
+required-features = ["fresh-schema18-migration-tests"]
