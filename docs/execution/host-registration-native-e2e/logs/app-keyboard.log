@@ -1,0 +1,15 @@
+collab: task runtime /private/tmp/ab-collab-wjo9gde4
+Traceback (most recent call last):
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 692, in <module>
+    main()
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 678, in main
+    app_case(paths, base, output, evidence)
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 586, in app_case
+    label_for = open_settings(ax, app, executable)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 563, in open_settings
+    copy = eventually("localized Settings button in the owned WebView", language, timeout=35)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 115, in eventually
+    raise RuntimeError(f"Timed out waiting for {description}")
+RuntimeError: Timed out waiting for localized Settings button in the owned WebView

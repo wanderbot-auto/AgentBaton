@@ -1,0 +1,11 @@
+2026-11-18T16:39:52Z
+8187cbcb7fa48b3b342e2bec4e735b3ca22bb069
+collab: task runtime /private/tmp/ab-collab-wjo9gde4
+test_journal_checks_presence_shape_and_private_inode (test_host_registration_native_smoke.HostRegistrationNativeSmokeTest.test_journal_checks_presence_shape_and_private_inode) ... ok
+test_proof_requires_one_matching_host_event_and_receipt_without_other_writes (test_host_registration_native_smoke.HostRegistrationNativeSmokeTest.test_proof_requires_one_matching_host_event_and_receipt_without_other_writes) ... ok
+test_response_is_linked_to_the_exact_private_socket_request (test_host_registration_native_smoke.HostRegistrationNativeSmokeTest.test_response_is_linked_to_the_exact_private_socket_request) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK

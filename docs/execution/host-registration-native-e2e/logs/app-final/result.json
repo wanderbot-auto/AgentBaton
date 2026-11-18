@@ -1,0 +1,358 @@
+{
+  "phase": "app",
+  "source": "cde501db847d1bbfc27a298e16cd772afc1a41e9",
+  "driver_commit": "522db444e96ccd1b92b3ebf400bd86c133390ba9",
+  "driver_source": {
+    "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py",
+    "bytes": 36217,
+    "sha256": "6c4d538672fcfdebb596b6d5019ea350607b397ae7fb31e1761ad89bac5e5e6b"
+  },
+  "status": "passed",
+  "cleanup": [
+    {
+      "name": "desktop-first",
+      "pid": 58182,
+      "exit": -15,
+      "signal": "SIGTERM",
+      "joined": true
+    },
+    {
+      "name": "desktop-reopened",
+      "pid": 58279,
+      "exit": -15,
+      "signal": "SIGTERM",
+      "joined": true
+    },
+    {
+      "name": "daemon-app",
+      "pid": 58181,
+      "exit": 0,
+      "signal": "SIGTERM",
+      "joined": true
+    }
+  ],
+  "platform": "arm64-apple-darwin",
+  "bundle": {
+    "info_plist": {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/target/release/bundle/macos/AgentBaton.app/Contents/Info.plist",
+      "bytes": 995,
+      "sha256": "cde8c5e2ec300fd99c8dc6c04c27a38b0b0c827e81bcf8db4e85d27132fc4eca"
+    },
+    "identifier": "dev.agentbaton.hoste2e-15adcdcc0da8",
+    "desktop": {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+      "bytes": 17301616,
+      "sha256": "b0c7e73b35d70348a981ebfba8b402e7aa4fa9c4e6eea2ed9822d7cd38b0d324",
+      "architecture": "arm64"
+    },
+    "daemon": {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/batond",
+      "bytes": 17574656,
+      "sha256": "48d0db5f9b4c85ef8c79724a3fc84520ff48cbde09c9a5d77fe1f3d63c7d9a1b",
+      "architecture": "arm64"
+    },
+    "cli": {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/baton",
+      "bytes": 808240,
+      "sha256": "6f70be052ebe1c072b8cc23f62a0b75f768d598ecae36f55311b4752f42f201c",
+      "architecture": "arm64"
+    }
+  },
+  "overlay": {
+    "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/docs/execution/host-registration-native-e2e/logs/bundle-overlay.json",
+    "bytes": 54,
+    "sha256": "ef4b5ad352b4096ff4b0f6806eb9832ce8aef6bd940fe32c6be76be3212f2575"
+  },
+  "desktop_configuration": {
+    "apps/desktop/src-tauri/tauri.conf.json": {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/apps/desktop/src-tauri/tauri.conf.json",
+      "bytes": 1263,
+      "sha256": "04bfa24791d0216e17f2aeda9527a952dc750ac5a08c0fab9e72a3d81dac78d9"
+    },
+    "apps/desktop/src-tauri/capabilities/main.json": {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/apps/desktop/src-tauri/capabilities/main.json",
+      "bytes": 232,
+      "sha256": "090491e6dce371a7853acf44c4a65c38e2e372ac50df6a5e313a36a5ec8acf9a"
+    },
+    "apps/desktop/dist/assets/index-DZHSe46f.css": {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/apps/desktop/dist/assets/index-DZHSe46f.css",
+      "bytes": 32470,
+      "sha256": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169"
+    },
+    "apps/desktop/dist/assets/index-Q47YZ8uE.js": {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/apps/desktop/dist/assets/index-Q47YZ8uE.js",
+      "bytes": 987211,
+      "sha256": "b59f625846822412101c94cd389316f3180002167dd3ceefdfe4defd650cee16"
+    },
+    "apps/desktop/dist/index.html": {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/apps/desktop/dist/index.html",
+      "bytes": 441,
+      "sha256": "79f813e44000effb31bd7bca00146b246fb39be7c022b3faa1f01e3befb42f90"
+    }
+  },
+  "app": {
+    "status": "passed",
+    "boundary": "isolated_release_app_ax_settings",
+    "daemon_instance": "c1cf135c-cfc8-4462-9898-f0246eab44bc",
+    "before": {
+      "schema": 19,
+      "hosts": [],
+      "idempotency": [],
+      "events": [],
+      "other": {
+        "projects": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "tasks": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "sessions": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "session_turns": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "connections": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "execution_grants": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    },
+    "initial_activation": "active=false finishedLaunching=true",
+    "empty_registry_observed": true,
+    "journal_before_ack": {
+      "intent_version": 1,
+      "entry_id": "4ca7ffed-b4f3-4733-90c7-bf0687c0777b",
+      "request_key": "2b5af6fc-fcfc-4691-808c-9e2f773354ab",
+      "registration": {
+        "schema_version": 1,
+        "name": "Synthetic Host E2E",
+        "declared_platform": "linux",
+        "endpoint": {
+          "expected_host_identity": "synthetic-protocol-host",
+          "address": "host.example.invalid",
+          "user": "fixture",
+          "port": 2222,
+          "host_key_alias": "synthetic-alias"
+        },
+        "known_hosts": {
+          "reference": "fixture:known-hosts",
+          "file_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "transport_identity_ref": "fixture:transport",
+        "configuration": {
+          "reference": "fixture:configuration",
+          "declared_ownership": "external_read_only"
+        },
+        "directory_mappings": []
+      },
+      "registration_sha256": "c2a3a4b9a55cbd18be364cc89cd516aa05094268a4ff82e6d650e4f7318f7bb6",
+      "created_at": "2026-11-18T16:42:15Z"
+    },
+    "receipt": {
+      "receipt_version": 1,
+      "host_id": "bc10b94e-ebcf-48ce-9f42-54905a299042",
+      "revision": 1,
+      "created_sequence": 1,
+      "created_at": "2026-11-18T16:42:15.751027Z",
+      "registration": {
+        "schema_version": 1,
+        "name": "Synthetic Host E2E",
+        "declared_platform": "linux",
+        "endpoint": {
+          "expected_host_identity": "synthetic-protocol-host",
+          "address": "host.example.invalid",
+          "user": "fixture",
+          "port": 2222,
+          "host_key_alias": "synthetic-alias"
+        },
+        "known_hosts": {
+          "reference": "fixture:known-hosts",
+          "file_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "transport_identity_ref": "fixture:transport",
+        "configuration": {
+          "reference": "fixture:configuration",
+          "declared_ownership": "external_read_only"
+        },
+        "directory_mappings": []
+      }
+    },
+    "after": {
+      "schema": 19,
+      "hosts": [
+        [
+          "bc10b94e-ebcf-48ce-9f42-54905a299042",
+          1,
+          1,
+          {
+            "record_version": 1,
+            "id": "bc10b94e-ebcf-48ce-9f42-54905a299042",
+            "revision": 1,
+            "created_sequence": 1,
+            "created_at": "2026-11-18T16:42:15.751027Z",
+            "creation_key": "2b5af6fc-fcfc-4691-808c-9e2f773354ab",
+            "registration": {
+              "schema_version": 1,
+              "name": "Synthetic Host E2E",
+              "declared_platform": "linux",
+              "endpoint": {
+                "expected_host_identity": "synthetic-protocol-host",
+                "address": "host.example.invalid",
+                "user": "fixture",
+                "port": 2222,
+                "host_key_alias": "synthetic-alias"
+              },
+              "known_hosts": {
+                "reference": "fixture:known-hosts",
+                "file_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              },
+              "transport_identity_ref": "fixture:transport",
+              "configuration": {
+                "reference": "fixture:configuration",
+                "declared_ownership": "external_read_only"
+              },
+              "directory_mappings": []
+            },
+            "creation_facts": {
+              "local_validation": "configuration_syntax_validated",
+              "references": "unresolved",
+              "remote_probe": "not_probed",
+              "remote_connection": "not_contacted",
+              "remote_capabilities": "unknown",
+              "execution_enabled": false
+            }
+          }
+        ]
+      ],
+      "idempotency": [
+        [
+          "2b5af6fc-fcfc-4691-808c-9e2f773354ab",
+          {
+            "schema_version": 1,
+            "name": "Synthetic Host E2E",
+            "declared_platform": "linux",
+            "endpoint": {
+              "expected_host_identity": "synthetic-protocol-host",
+              "address": "host.example.invalid",
+              "user": "fixture",
+              "port": 2222,
+              "host_key_alias": "synthetic-alias"
+            },
+            "known_hosts": {
+              "reference": "fixture:known-hosts",
+              "file_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            "transport_identity_ref": "fixture:transport",
+            "configuration": {
+              "reference": "fixture:configuration",
+              "declared_ownership": "external_read_only"
+            },
+            "directory_mappings": []
+          },
+          {
+            "receipt_version": 1,
+            "host_id": "bc10b94e-ebcf-48ce-9f42-54905a299042",
+            "revision": 1,
+            "created_sequence": 1,
+            "created_at": "2026-11-18T16:42:15.751027Z",
+            "registration": {
+              "schema_version": 1,
+              "name": "Synthetic Host E2E",
+              "declared_platform": "linux",
+              "endpoint": {
+                "expected_host_identity": "synthetic-protocol-host",
+                "address": "host.example.invalid",
+                "user": "fixture",
+                "port": 2222,
+                "host_key_alias": "synthetic-alias"
+              },
+              "known_hosts": {
+                "reference": "fixture:known-hosts",
+                "file_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              },
+              "transport_identity_ref": "fixture:transport",
+              "configuration": {
+                "reference": "fixture:configuration",
+                "declared_ownership": "external_read_only"
+              },
+              "directory_mappings": []
+            }
+          }
+        ]
+      ],
+      "events": [
+        [
+          1,
+          {
+            "sequence": 0,
+            "event_id": "5594c276-a08e-421d-99df-b4f47329a184",
+            "aggregate_id": "bc10b94e-ebcf-48ce-9f42-54905a299042",
+            "revision": 1,
+            "kind": "host.registered",
+            "occurred_at": "2026-11-18T16:42:15.751027Z",
+            "payload": {
+              "payload_version": 1,
+              "host_id": "bc10b94e-ebcf-48ce-9f42-54905a299042",
+              "revision": 1,
+              "creation_key": "2b5af6fc-fcfc-4691-808c-9e2f773354ab",
+              "registration_sha256": "c2a3a4b9a55cbd18be364cc89cd516aa05094268a4ff82e6d650e4f7318f7bb6"
+            },
+            "source": "user_action"
+          }
+        ]
+      ],
+      "other": {
+        "projects": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "tasks": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "sessions": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "session_turns": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "connections": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "execution_grants": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    },
+    "captured_receipt": {
+      "window_id": 23980,
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/docs/execution/host-registration-native-e2e/logs/app-final/pending-receipt.png",
+      "bytes": 426553,
+      "sha256": "0d5ea022cea6123a37805868b7f890e7317ff25b6df025b8a666587fccaccc73"
+    },
+    "journal_empty_after_explicit_ack": true,
+    "settings_reopened": true,
+    "reopen_activation": "active=false finishedLaunching=true",
+    "captured_reopened": {
+      "window_id": 23993,
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/docs/execution/host-registration-native-e2e/logs/app-final/app-reopened.png",
+      "bytes": 449926,
+      "sha256": "e227be9e22fd6e21d2fe5ff8514035a9024130d21dc6f0ebb245342abef4baa2"
+    },
+    "app_reopened": true,
+    "same_daemon_across_app_reopen": true
+  }
+}
