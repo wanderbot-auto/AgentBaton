@@ -44,12 +44,12 @@ pub struct InverseFailure {
     pub commit_observed: bool,
 }
 
-fn operation(error: rusqlite::Error) -> InverseFailure {
-    InverseFailure {
+fn operation(error: rusqlite::Error) -> Box<InverseFailure> {
+    Box::new(InverseFailure {
         operation: Some(error),
         restore: None,
         commit_observed: false,
-    }
+    })
 }
 
 /// Child-plan callers may append their existing explicit13 shape in THIS txn.
@@ -65,7 +65,7 @@ pub fn remove_empty_current19_child_goal_in_transaction(
 pub fn with_empty_current19_factory(
     connection: &Connection,
     caller: impl FnOnce(&Transaction<'_>) -> rusqlite::Result<()>,
-) -> Result<(), InverseFailure> {
+) -> Result<(), Box<InverseFailure>> {
     if !connection.is_autocommit() {
         return Err(operation(rusqlite::Error::InvalidQuery));
     }
@@ -107,10 +107,10 @@ pub fn with_empty_current19_factory(
         });
     match (result, restored) {
         (Ok(()), Ok(())) => Ok(()),
-        (operation, restore) => Err(InverseFailure {
+        (operation, restore) => Err(Box::new(InverseFailure {
             operation: operation.err(),
             restore: restore.err(),
             commit_observed,
-        }),
+        })),
     }
 }
