@@ -47,5 +47,36 @@ class IntegrationMetadataControls(unittest.TestCase):
                 G.current_factory_counts(self.database(schema))
 
 
+    def test_graph_schema19_retains_exact_factory_and_integration_counts(self):
+        db = self.database(19)
+        counts = G.graph_factory_counts(db)
+        self.assertEqual(counts, dict.fromkeys(G.FACTORY_RECORD_TABLES, 0))
+        db.execute('INSERT INTO factory_child_goal_runs VALUES(1)')
+        self.assertEqual(G.graph_factory_counts(db)['child_goal_runs'], 1)
+        for verify in (G.current_factory_counts, G.current_integration_counts):
+            with self.assertRaises(AssertionError):
+                verify(db)
+        for schema in (17, 18, 20):
+            with self.subTest(schema=schema), self.assertRaises(G.BoundaryRefusal):
+                G.graph_factory_counts(self.database(schema))
+
+    def test_graph_schema19_keeps_existing_row_and_table_boundary(self):
+        for table in G.INTEGRATION_RECORD_TABLES.values():
+            for condition in ('nonzero', 'missing', 'view'):
+                db = self.database(19)
+                if condition == 'nonzero':
+                    db.execute(f'INSERT INTO "{table}" VALUES(1)')
+                else:
+                    db.execute(f'DROP TABLE "{table}"')
+                    if condition == 'view':
+                        db.execute(f'CREATE VIEW "{table}" AS SELECT 0 AS id WHERE 0')
+                with self.subTest(table=table, condition=condition), self.assertRaises(AssertionError):
+                    G.graph_factory_counts(db)
+        db = self.database(19)
+        db.execute('DROP TABLE factory_child_goal_runs')
+        with self.assertRaises(sqlite3.OperationalError):
+            G.graph_factory_counts(db)
+
+
 if __name__ == '__main__':
     unittest.main()
