@@ -1,5 +1,5 @@
 {
-  "source_head": "be23fbbd9558a94bfc17ab803eba9ce46dab9551",
+  "source_head": "921661ecb06030115e6f49927e2931c2ec26be2e",
   "base": "c9225714319a91dae60e635c0a34ba4b3a4a670d",
   "environment": {
     "machine": "arm64",
@@ -20,7 +20,7 @@
     "crates/core/src/storage.rs": "c1a7368b3cb8bc505ee999f758e1e641e1ddde3907c8d6ddc7935470ea1a6c6e",
     "crates/core/tests/fixtures/current19_factory_schema.rs": "b4545cb53059595a5dc4e27573b694903f5891667788b3802b166c1d1af10909",
     "crates/core/tests/fixtures/current19_schema.rs": "526266c4387a1e4c80741c3cabf006f9fd397dd9416e900ec446b02bc8b155b2",
-    "crates/core/tests/host_registry_actual18_migration.rs": "bf9489f33c334a470112eacefd7ef85ebda4b48b8ab1b771b62c7b6adeabee0b",
+    "crates/core/tests/host_registry_actual18_migration.rs": "b3024da6f05c515944f042c1e6c582dff3c705f867d659ff3fb4b0aac9c62697",
     "crates/core/tests/host_registry_migration.rs": "36b931f7f642ba5cdb39e270ca56a63be0b2af33a246fd2bff91e2a2ca2af993",
     "crates/core/tests/host_schema19_fixture.rs": "758ef470fc396f2b721134ab5a915d96b42599f4df7d9a2f8476dddcd4d8303d"
   },
@@ -337,6 +337,90 @@
       "elapsed": 3.61298512481153,
       "log_sha256": "6788244a0181afe9c6e9d35852213ca266f41d515e2ad684db97ccf609833cc5",
       "source": "0523 plus red regression tests"
+    },
+    "seal-actual18": {
+      "source_head": "921661ecb06030115e6f49927e2931c2ec26be2e",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--test",
+        "host_registry_actual18_migration",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed": 4.034350332804024,
+      "log_sha256": "9817a6d7203bcd5827fe6c0bc54f91305ea7cc5c612aa6b412c87d694d4eef1a"
+    },
+    "seal-clippy": {
+      "source_head": "921661ecb06030115e6f49927e2931c2ec26be2e",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed": 0.42519516684114933,
+      "log_sha256": "51c5bde8b81868e8c7439c50c1e99b6185f9ed5c5985f7ebd80b9ec2a0cd872a"
+    },
+    "seal-fmt": {
+      "source_head": "921661ecb06030115e6f49927e2931c2ec26be2e",
+      "command": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "--check",
+        "crates/core/src/host_registry.rs",
+        "crates/core/src/host_registry_ipc_tests.rs",
+        "crates/core/src/host_registry_migration.rs",
+        "crates/core/src/host_registry_migration_tests.rs",
+        "crates/core/src/host_registry_tests.rs",
+        "crates/core/src/integration_budget.rs",
+        "crates/core/src/integration_store.rs",
+        "crates/core/src/storage.rs",
+        "crates/core/tests/fixtures/current19_factory_schema.rs",
+        "crates/core/tests/fixtures/current19_schema.rs",
+        "crates/core/tests/host_registry_actual18_migration.rs",
+        "crates/core/tests/host_registry_migration.rs",
+        "crates/core/tests/host_schema19_fixture.rs"
+      ],
+      "exit_code": 0,
+      "elapsed": 0.20397462509572506,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "seal-infra": {
+      "source_head": "921661ecb06030115e6f49927e2931c2ec26be2e",
+      "command": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "elapsed": 23.16657854197547,
+      "log_sha256": "894ed1410c971e434052ace5b4e70121a2178f9fae906b039a67172779406bcd"
     }
   },
   "reports": [
@@ -519,9 +603,70 @@
           "nlink": 1
         }
       }
+    },
+    {
+      "run": "seal-actual18",
+      "root": "/private/tmp/ab19-a18-ZnSXXi",
+      "report_sha256": "8d8ec301a96f05e2b44e2f2e76b567ae4a8e4810d801be646fbfdb85b2d9bef0",
+      "backup_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+      "input_sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+      "input_cookie": 1,
+      "migrated_cookie": 3,
+      "backup_cookie": 1,
+      "daemon": {
+        "cleanup_errors": [],
+        "daemon_wait_exit": 0,
+        "forced_kill": false,
+        "group_quiescent_before_reaping": true,
+        "identity_gone_after_join": true,
+        "leader_unreaped_until_signalling": true,
+        "owned_identity": {
+          "pgid": 82144,
+          "pid": 82144
+        },
+        "sigterm_sent": true
+      },
+      "observed": {
+        "api_version": 1,
+        "database_schema_version": 18,
+        "sequence": 5
+      },
+      "trusted_controller": {
+        "boundary": "local operator-selected trusted Python; not fixture-supplied or an untrusted executable",
+        "path": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12",
+        "sha256": "6a37ff35c2edec046bd7e5504f4603b93fdbd33166252a324d15b6e41cdd5483"
+      },
+      "accepted_pins": {
+        "accepted_build_sha256": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+        "accepted_daemon_sha256": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+        "accepted_cli_sha256": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf"
+      }
     }
   ],
   "compiled_tests": {
+    "target/debug/deps/agentbaton_core-c788a89c7fe269ab": {
+      "sha256": "b73f8285ff82f4fb270096dc44492a8111035c0ff741bca872f2e5f1e94f840f",
+      "file": "target/debug/deps/agentbaton_core-c788a89c7fe269ab: Mach-O 64-bit executable arm64",
+      "executed_at_source": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb"
+    },
+    "target/debug/deps/host_registry_actual18_migration-619cf18bc3daf39f": {
+      "sha256": "a5beebe43c915b176d81987524565c8b0d8ea922de77a9c898c35bd5c32aeb6c",
+      "file": "target/debug/deps/host_registry_actual18_migration-619cf18bc3daf39f: Mach-O 64-bit executable arm64",
+      "executed_at_source": "921661ecb06030115e6f49927e2931c2ec26be2e"
+    },
+    "target/debug/deps/host_registry_migration-b07c6ffb5a53bcaa": {
+      "sha256": "fd44ab730097ff4a3a8b2e41595d27028a9606f2350840c3315627968a5b109b",
+      "file": "target/debug/deps/host_registry_migration-b07c6ffb5a53bcaa: Mach-O 64-bit executable arm64",
+      "executed_at_source": "be23fbbd9558a94bfc17ab803eba9ce46dab9551"
+    },
+    "target/debug/deps/host_schema19_fixture-26286e038bb6cde5": {
+      "sha256": "46a541c1279c32beff6a3ab62310798aa719290d1f251aa13cd82a21f6b14b37",
+      "file": "target/debug/deps/host_schema19_fixture-26286e038bb6cde5: Mach-O 64-bit executable arm64",
+      "executed_at_source": "be23fbbd9558a94bfc17ab803eba9ce46dab9551"
+    }
+  },
+  "previous_source_head": "be23fbbd9558a94bfc17ab803eba9ce46dab9551",
+  "historical_compiled_tests": {
     "target/debug/deps/agentbaton_core-c788a89c7fe269ab": {
       "sha256": "b73f8285ff82f4fb270096dc44492a8111035c0ff741bca872f2e5f1e94f840f",
       "file": "target/debug/deps/agentbaton_core-c788a89c7fe269ab: Mach-O 64-bit executable arm64",
@@ -542,5 +687,84 @@
       "file": "target/debug/deps/host_schema19_fixture-26286e038bb6cde5: Mach-O 64-bit executable arm64",
       "executed_at_source": "be23fbbd9558a94bfc17ab803eba9ce46dab9551"
     }
+  },
+  "tool_seal_refusals": {
+    "report": {
+      "accepted_build": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+      "accepted_cli": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf",
+      "accepted_daemon": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+      "cases": [
+        {
+          "case": "manifest",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "manifest",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5c80aa0e2f448b8cfbae7a18306b9a0bd5591e4d7ca68c9ed69f68101092e207",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5c80aa0e2f448b8cfbae7a18306b9a0bd5591e4d7ca68c9ed69f68101092e207",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "0b0e35a3622065e850c885882b0cc6e0a88716353236c084b5302689e985ebdb",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "0b0e35a3622065e850c885882b0cc6e0a88716353236c084b5302689e985ebdb",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "mutually_updated_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "mutually_updated_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+          "runtime_empty": true,
+          "stage": "restore"
+        }
+      ],
+      "dimension": "accepted_P0_tool_seal_replacement_refusal",
+      "private_root": "/private/tmp/ab19-seal-bvlN5N",
+      "status": "passed",
+      "trusted_interpreter": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12"
+    },
+    "report_sha256": "e4c192e4bcf841deff094901393042db2530c46bc0a49706eaee9298a0db72f1",
+    "scope": "simultaneously replaced binary/digest fields in two manifests; not proof old full verifier accepted updated size/identity/provenance"
   }
 }

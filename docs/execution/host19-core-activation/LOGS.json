@@ -55,6 +55,10 @@
     "sha256": "a8f79c8c0a3b64a8019ed0f378ae1760ee6fb0c104f62e61b68c0a659359c412",
     "bytes": 2669
   },
+  "preview-final.log": {
+    "sha256": "587ddc83dbe65dea77eb29ca91dd7904c34a7877ffa69e4e671c31d72780f453",
+    "bytes": 263
+  },
   "probe-preflight.log": {
     "sha256": "b814197d116a1001bed452b3d0e1286d28a4b7601c635b7f5fb3dcf8adbb71fc",
     "bytes": 662
@@ -62,5 +66,57 @@
   "rollback-red.log": {
     "sha256": "6788244a0181afe9c6e9d35852213ca266f41d515e2ad684db97ccf609833cc5",
     "bytes": 1043
+  },
+  "scope-final.log": {
+    "sha256": "56e267a034768de9fc1c9eb680c1dcb2c0e02f5573179b44393b858e5957b8b6",
+    "bytes": 70
+  },
+  "seal-actual18.log": {
+    "sha256": "9817a6d7203bcd5827fe6c0bc54f91305ea7cc5c612aa6b412c87d694d4eef1a",
+    "bytes": 7910
+  },
+  "seal-clippy.log": {
+    "sha256": "51c5bde8b81868e8c7439c50c1e99b6185f9ed5c5985f7ebd80b9ec2a0cd872a",
+    "bytes": 205
+  },
+  "seal-fmt.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "seal-infra.log": {
+    "sha256": "894ed1410c971e434052ace5b4e70121a2178f9fae906b039a67172779406bcd",
+    "bytes": 2669
+  },
+  "seal-neg-cli-proof.log": {
+    "sha256": "0b0e35a3622065e850c885882b0cc6e0a88716353236c084b5302689e985ebdb",
+    "bytes": 168
+  },
+  "seal-neg-cli-restore.log": {
+    "sha256": "0b0e35a3622065e850c885882b0cc6e0a88716353236c084b5302689e985ebdb",
+    "bytes": 168
+  },
+  "seal-neg-daemon-proof.log": {
+    "sha256": "5c80aa0e2f448b8cfbae7a18306b9a0bd5591e4d7ca68c9ed69f68101092e207",
+    "bytes": 169
+  },
+  "seal-neg-daemon-restore.log": {
+    "sha256": "5c80aa0e2f448b8cfbae7a18306b9a0bd5591e4d7ca68c9ed69f68101092e207",
+    "bytes": 169
+  },
+  "seal-neg-manifest-proof.log": {
+    "sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+    "bytes": 168
+  },
+  "seal-neg-manifest-restore.log": {
+    "sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+    "bytes": 168
+  },
+  "seal-neg-mutually_updated_manifests_and_pair-proof.log": {
+    "sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+    "bytes": 168
+  },
+  "seal-neg-mutually_updated_manifests_and_pair-restore.log": {
+    "sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+    "bytes": 168
   }
 }
