@@ -1,6 +1,10 @@
 """Test-only inverse for the two reviewed schema19 driver guards."""
 import hashlib
 
+from tests.infrastructure.host19_integration_browser_candidate_fixture import (
+    restore_integration_browser_before_candidate19,
+)
+
 DRIVER_PATH = "apps/desktop/tests/integration-real-ipc.py"
 CURRENT_SHA256 = "e5036fd15afa431228a9b11553b0602e144636dda58fecf4fbbbcaac8633f6f3"
 PARENT_SHA256 = "0131bee1842f3856507def3f41d4d45f0a9b38511167886461fc96d8a32d37fe"
@@ -41,4 +45,6 @@ def restore_integration_browser_before_schema19(path, raw):
 
 def read_historical_driver(root):
     """Feed the exact pre-schema19 driver to the existing historical tests."""
-    return restore_integration_browser_before_schema19(DRIVER_PATH, (root / DRIVER_PATH).read_bytes()).decode()
+    current = (root / DRIVER_PATH).read_bytes()
+    parent = restore_integration_browser_before_candidate19(DRIVER_PATH, current)
+    return restore_integration_browser_before_schema19(DRIVER_PATH, parent).decode()

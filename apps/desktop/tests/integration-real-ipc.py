@@ -239,7 +239,7 @@ def preflight(args, diagnostic=None):
     driver_preflight_stage(diagnostic, 'candidate_decode')
     manifest = decode(manifest_raw)
     driver_preflight_stage(diagnostic, 'candidate_schema_guard')
-    require(type(manifest.get('schema')) is int and manifest['schema'] == 18)
+    require(type(manifest.get('schema')) is int and manifest['schema'] == 19)
     driver_preflight_stage(diagnostic, 'candidate_source_guard')
     aliases = [manifest[k] for k in ('source_head', 'git_head', 'compiled_core_source_head') if k in manifest]
     require(aliases and all(v == head for v in aliases))

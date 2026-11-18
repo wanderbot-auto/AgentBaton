@@ -8,6 +8,9 @@ import tempfile
 import unittest
 from unittest import mock
 
+from tests.infrastructure.host19_integration_browser_candidate_fixture import (
+    restore_integration_browser_before_candidate19,
+)
 from tests.infrastructure.host19_integration_browser_source_fixture import (
     DRIVER_PATH,
     GUARD_EDITS,
@@ -84,7 +87,8 @@ class CurrentDriverSchema(unittest.TestCase):
 
 class HistoricalDriverSource(unittest.TestCase):
     def setUp(self):
-        self.raw = SOURCE.read_bytes()
+        self.current = SOURCE.read_bytes()
+        self.raw = restore_integration_browser_before_candidate19(DRIVER_PATH, self.current)
 
     def test_two_exact_guards_restore_complete_parent(self):
         for current, parent in GUARD_EDITS:
@@ -96,7 +100,7 @@ class HistoricalDriverSource(unittest.TestCase):
         for current, parent in GUARD_EDITS:
             self.assertEqual(restored.count(parent), 1)
             self.assertNotIn(current, restored)
-        self.assertEqual(SOURCE.read_bytes(), self.raw)
+        self.assertEqual(SOURCE.read_bytes(), self.current)
 
     def test_parent_bom_line_endings_and_unreviewed_bytes_refuse(self):
         parent = restore_integration_browser_before_schema19(DRIVER_PATH, self.raw)
