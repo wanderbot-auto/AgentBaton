@@ -473,7 +473,8 @@ def database(runtime):
     db = sqlite3.connect((runtime / 'baton.sqlite3').resolve().as_uri() + '?mode=ro', uri=True, timeout=2)
     try:
         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-        require(db.execute('PRAGMA user_version').fetchone() == (18,))
+        version = db.execute('PRAGMA user_version').fetchone()
+        require(version == (19,) and type(version[0]) is int)
         yield db
     finally:
         db.close()
@@ -774,7 +775,8 @@ def bootstrap(host, root, failing):
     provider.chmod(0o700)
     shell = Path('/bin/sh').resolve(strict=True)
     require(shell.stat().st_nlink == 1)
-    require(host.result('system.snapshot', {})['database_schema_version'] == 18)
+    version = host.result('system.snapshot', {})['database_schema_version']
+    require(type(version) is int and version == 19)
     project = host.result('projects.import', {'path': str(source), 'name': 'Generated integration browser'}, 'project')
     task = host.result('tasks.create', {'project_id': project['id'], 'goal': 'Generated integration browser ' + ('failure' if failing else 'normal')}, 'task')
     resolved = host.result('workspaces.resolve', {'task_id': task['id'], 'expected_task_revision': task['revision'],

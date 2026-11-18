@@ -16,6 +16,8 @@ import types
 import unittest
 from unittest import mock
 
+from tests.infrastructure.host19_integration_browser_source_fixture import read_historical_driver
+
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = ROOT / 'apps/desktop/tests/integration-real-ipc.py'
 PROJECTOR = ROOT / 'scripts/record-integration-browser-ci-evidence.py'
@@ -131,7 +133,7 @@ class ActualPreflightStageControls(unittest.TestCase):
                 # Compare the historical17 implementation to the exact restored17
                 # current driver; current18 acceptance is tested separately above.
                 from tests.infrastructure.schema18_source_fixture import strip_schema18_source
-                restored=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',DRIVER.read_text())
+                restored=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',read_historical_driver(ROOT))
                 current_node=next(n for n in ast.parse(restored).body if isinstance(n,ast.FunctionDef) and n.name=='preflight')
                 exec(compile(ast.Module(body=[current_node],type_ignores=[]),'<restored-current-preflight>','exec'),namespace)
                 restored_preflight=namespace['preflight']
@@ -403,7 +405,7 @@ class ExactOriginalSourceControls(unittest.TestCase):
         return text
 
     def test_full_original_driver_and_projector_restore_exactly_no_region_ignored(self):
-        self.assertEqual(sha(self.restore_driver(DRIVER.read_text()).encode()),
+        self.assertEqual(sha(self.restore_driver(read_historical_driver(ROOT)).encode()),
             '1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e')
         from tests.infrastructure.test_integration_browser_ci_evidence_runtime import strip_runtime_failure_projection
         text = strip_runtime_failure_projection(PROJECTOR.read_text())
@@ -415,7 +417,7 @@ class ExactOriginalSourceControls(unittest.TestCase):
         self.assertEqual(sha(text.encode()), '0f1de4bc3e2ff73bd88764069d3b5b345a3c8af5b2c4ff36259ad5c85e10a167')
 
     def test_root_and_feature_composed_variants_both_restore_the_entire_original_driver(self):
-        combined = DRIVER.read_text()
+        combined = read_historical_driver(ROOT)
         root = self.restore_notification_layer(combined)
         self.assertNotEqual(combined, root)
         self.assertEqual(sha(root.encode()), '91ee42eb4112cab21f1ae3fba57e00743af1542dd4b3ef98833562605e43352a')
@@ -424,7 +426,7 @@ class ExactOriginalSourceControls(unittest.TestCase):
                 '1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e')
 
     def test_notification_layer_refuses_missing_duplicate_unknown_or_changed_function_bytes(self):
-        source = DRIVER.read_text()
+        source = read_historical_driver(ROOT)
         changes = [("    parser.add_argument('--notification-probe', action='store_true',\n", ''),
             ("'--notification-probe'", "'--notification-probe-unknown'"),
             ("'--notification-probe'", "'--notification-probe', '--notification-probe'"),
@@ -444,7 +446,7 @@ class ExactOriginalSourceControls(unittest.TestCase):
     def test_all_original_guard_expressions_and_pin_call_arguments_are_unchanged(self):
         before = ast.parse((FIXTURES / 'original_preflight.py.txt').read_text()).body[0]
         from tests.infrastructure.schema18_source_fixture import strip_schema18_source
-        source=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',DRIVER.read_text())
+        source=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',read_historical_driver(ROOT))
         after = next(n for n in ast.parse(source).body if isinstance(n, ast.FunctionDef) and n.name == 'preflight')
         def calls(node, name):
             return [ast.dump(n, include_attributes=False) for n in ast.walk(node)
@@ -456,7 +458,7 @@ class ExactOriginalSourceControls(unittest.TestCase):
         self.assertEqual(calls(before, 'source_guard'), calls(after, 'source_guard'))
 
     def test_inverse_never_hides_guard_size_source_or_unknown_outside_changes(self):
-        source = DRIVER.read_text()
+        source = read_historical_driver(ROOT)
         original = '1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e'
         self.assertEqual(sha(self.restore_driver(source).encode()), original)
         changes = [('MAX_CHROMIUM_IMAGE = 536870912', 'MAX_CHROMIUM_IMAGE = 1073741824'),
