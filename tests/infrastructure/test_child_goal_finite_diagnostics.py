@@ -117,7 +117,7 @@ class ChildGoalFiniteDiagnosticsTests(unittest.TestCase):
             argv=['projection','--private-dir',str(private),'--manifest',str(manifest),'--case','normal','--exit-code','0','--output',str(root/'out')]
             # Bind actual harness SHA, not the static unit placeholder.
             report['harness_sha256']=P.sha((ROOT/'apps/desktop/tests/factory-child-goal-real-ipc.py').read_bytes());(private/'report.json').write_text(json.dumps(report))
-            with mock.patch('sys.argv',argv):self.assertEqual(P.main(),1)
+            with mock.patch('sys.argv',argv):self.assertEqual(OLD.P.main(),1)
             published=(root/'out/summary.json').read_text();self.assertNotIn(SECRET,published);self.assertEqual(json.loads(published)['failure_kind'],'report_invalid')
 
     def test_driver_hook_preserves_single_backend_call_and_original_reply(self):

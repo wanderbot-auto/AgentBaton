@@ -14,6 +14,9 @@ LAYERS = json.loads((Path(__file__).parent / 'fixtures/schema18_source_inverse.j
 def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):
     if type(path) is not str or path not in LAYERS or type(text) is not str:
         raise error('Unknown driver source: schema18 inverse arguments')
+    from tests.infrastructure.host19_child_goal_source_fixture import normalize_child_goal_outer_layer
+
+    text = normalize_child_goal_outer_layer(path, text, error=error)
     layer = LAYERS[path]
     digest = hashlib.sha256(text.encode()).hexdigest()
     if digest == layer['before'] or digest in legacy:
