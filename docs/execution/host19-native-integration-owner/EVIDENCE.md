@@ -1,0 +1,22 @@
+# Integration Owner schema 19 evidence
+
+Fixed base `6d45b417210f892ec7d5f17dd992c05fc903773c`. Tested source `285a6278ce18cbeb02808bb5c0993cabaf37fb42`. The real runs used macOS 26.6.1 on ARM64. The machine-readable receipt records exact commands, original and current source hashes, binary hashes, and the raw evidence inventory. [EVIDENCE.json](EVIDENCE.json)
+
+| Verification | Result |
+| --- | --- |
+| Original Integration fixture | Real private Unix IPC returned API 1, schema 19. The old fixture refused it before resource creation with `Actual schema18 Core required`. Both original fixture blobs match the fixed base. All four supplied raw files matched their original hashes. |
+| Current private Core and SQLite | The copied companion’s actual CLI snapshot matched the daemon IPC snapshot. Read-only SQLite agreed at schema 19, sequence 41, 64 tables, zero Host registrations and zero Integration execution records. The real generated proposal was pending and both descriptors had 64 pages. |
+| Read-only SQL from the Rust witness | The exact query from the native test executable’s source accepted the actual private schema 19 database. It refused an incorrect proposal digest and scratch copies at schema 18 and 20. The live database still matched the pending baseline after the queries. |
+| Native Rust tests/build | 24 tests passed and the locked Tauri test binary built for Mach-O arm64. The compiled runner SHA-256 is `3626fb463becd183249a5d70b987386e284218bf05aa17a5931c111a1867d07a`. |
+| Actual NativeParent, cancel on last page / first page | Both attempts passed the initial Rust database witness. Each reached the original App deadline without observing the first sheet. Driver exit 1 for each, zero sheet-ready or permit records, no click result. Approval and post-click read-only checks did not run. |
+| Finite CI projection | Unit cases passed. The collector refused both incomplete actual results and produced no projection or acceptance claim. |
+| Historical source | Restored the five fixed full predecessor byte streams and compared them directly to the base Git blobs. Verified the existing Native Python follow-up layer and original pin. Wrong path, raw changes and incomplete inputs are refused. |
+| Python and formatting | 62 targeted Python tests passed. Full infrastructure discovery ran 969 tests, with 953 passing and 16 remote-workspace skips. Root and touched Rust formatting passed. The whole Tauri check found differences in three unchanged base files. The baseline formatter was not rerun independently. |
+
+The preserved runner calls `integration_database_checkpoint(&runtime, &expected, None)?` before creating state, building Tauri, or starting the watchdog. Both apps emitted the watchdog’s exact `Real Owner dialog deadline; no fallback driver or permission change` report. The pre-UI Rust checkpoint therefore returned successfully for both actual runs. Neither run reached the first page observation. The reason the sheet did not appear or become observable was undetermined. No driver, timeout, assertion or permission change was made. [Native runner source](../../../apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs#L727)
+
+Both failed apps exited 1 on their own. Their groups were already quiescent at cleanup, and the owner joined them without signals. Both private daemons terminated via SIGTERM and exited 0. The raw cleanup receipts retain the failure status and the separate process-reaping facts. PID checks confirmed all owned witness and modal processes absent after join.
+
+Core sidecar SHA-256 values are `97562073048dd1d4d89f37b44e84fc619a611f34313975966a94f23f39aa0c3b` for `baton` and `0550e4a344988c2c99132920da5333490887ba826ba08a482a3d363f5e56b06f` for `batond`. The actual pair was built offline and locked from the fixed base, with all relevant Core, CLI, daemon and frontend sources byte-identical at the tested head. The fixture checks same-directory roles and matching live snapshot/SQLite identity. The separate build and staging receipts identify the binaries used for this execution.
+
+Raw task-local artifacts remain under `artifacts/host19-native-integration-owner`. The log archive preserves the indexed diagnostics byte-for-byte. Private proposal descriptors, complete transcript responses and complete database snapshots are fingerprinted and kept local. No actual screenshots or successful native reports were produced. Hosted CI, external Host, Provider calls and signing were outside this run. [Validation logs](validation-logs.tar.gz)
