@@ -10,3 +10,6 @@ all pass. Repeated the genuine older binary/input gate, with all eight seal
 refusals observed before a runtime launch. Format and strict focused Clippy
 pass. Archived original failures, completed commands, raw receipt hashes and
 final ARM64 artifact bindings. Scope and the latest merge preview pass.
+
+Leader independently accepted `67990c6aa00b76a6bf7d9f71d9615c0ae9fee67b` and authorized releasing all four
+task reservations. This follow-up records the decision in the task documents.

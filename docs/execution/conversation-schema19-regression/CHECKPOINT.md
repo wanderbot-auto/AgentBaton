@@ -15,3 +15,11 @@
   tree `ef4bca744b4f20aecc1ec8a093bda880349a105e` have no Git conflict.
 - Owned processes are gone. Await independent review. The coordination tool
   returned a connection error. All four reservations stay active.
+
+## Independent acceptance
+
+Leader accepted the conversation regression fix at delivery `67990c6aa00b76a6bf7d9f71d9615c0ae9fee67b`
+and tested source `9d1d1d99b17982b0acc4b275179e5edff5820821`. The 42 archived items, five suite-to-ARM64
+binary bindings and genuine migration artifacts were rechecked. Leader
+authorized `scripts/collab.sh finish --handoff` for all four reservations.
+The worktree, branch, binaries and evidence remain available.
