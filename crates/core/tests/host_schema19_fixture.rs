@@ -66,12 +66,15 @@ fn image(db: &Connection) -> Image {
 }
 fn fixture(foreign_keys: bool) -> Connection {
     let db = host_registry_migration::schema19_reference().unwrap();
+    seed_retained(&db, foreign_keys);
+    db
+}
+fn seed_retained(db: &Connection, foreign_keys: bool) {
     db.pragma_update(None, "foreign_keys", foreign_keys)
         .unwrap();
     db.pragma_update(None, "application_id", 731).unwrap();
     db.execute("INSERT INTO idempotency(scope,key,payload,result) VALUES('original:bytes','retained',?1,?2)",
         rusqlite::params![vec![0u8,255,128], vec![222u8,173,190,239]]).unwrap();
-    db
 }
 fn fk(db: &Connection) -> bool {
     db.pragma_query_value(None, "foreign_keys", |r| r.get(0))
@@ -96,7 +99,13 @@ fn factory19_whole_source_tail_and_sql_pins_refuse_outside_or_tail_edits() {
 fn factory19_single_transaction_reaches12_and_restores_initial_fk_on_and_off() {
     for initial in [true, false] {
         let db = fixture(initial);
-        let bytes = image(&db).rows["idempotency"].clone();
+        let before = image(&db);
+        // Independent known12 result from the unmodified historical18 helper.
+        let reference = host_registry_migration::schema18_reference().unwrap();
+        seed_retained(&reference, initial);
+        let reference_before = image(&reference);
+        pre_factory_schema::remove_empty_current_factory_increment(&reference).unwrap();
+        let expected = image(&reference);
         current19_factory_schema::with_empty_current19_factory(&db, |tx| {
             assert_eq!(
                 tx.pragma_query_value(None, "user_version", |r| r.get::<_, i64>(0))
@@ -106,8 +115,16 @@ fn factory19_single_transaction_reaches12_and_restores_initial_fk_on_and_off() {
             Ok(())
         })
         .unwrap();
-        assert_eq!(image(&db).version, 12);
-        assert_eq!(image(&db).rows["idempotency"], bytes);
+        let mut actual = image(&db);
+        // Host inverse drops exactly two additional schema objects. Its original
+        // creation is already reflected in the distinct starting cookies.
+        assert_eq!(
+            actual.cookie - before.cookie,
+            expected.cookie - reference_before.cookie + 2
+        );
+        actual.cookie = expected.cookie;
+        assert_eq!(actual, expected);
+        assert_eq!(fk(&reference), initial);
         assert_eq!(fk(&db), initial);
         assert!(!db
             .prepare("PRAGMA foreign_key_check")
@@ -262,4 +279,63 @@ fn factory19_nonempty_registered_host_and_linked_history_are_never_erased() {
     assert!(error.operation.is_some());
     assert_eq!(image(&db), before);
     assert!(fk(&db));
+}
+
+unsafe extern "C" fn deny_rollback(
+    _: *mut c_void,
+    action: c_int,
+    first: *const c_char,
+    _: *const c_char,
+    _: *const c_char,
+    _: *const c_char,
+) -> c_int {
+    if action == rusqlite::ffi::SQLITE_TRANSACTION
+        && !first.is_null()
+        && unsafe { CStr::from_ptr(first) }.to_bytes() == b"ROLLBACK"
+    {
+        rusqlite::ffi::SQLITE_DENY
+    } else {
+        rusqlite::ffi::SQLITE_OK
+    }
+}
+#[test]
+fn factory19_denied_rollback_explicitly_reports_unrestored_policy_and_preserves_first_error() {
+    for initial in [true, false] {
+        let db = fixture(initial);
+        let before = image(&db);
+        let error = current19_factory_schema::with_empty_current19_factory(&db, |tx| {
+            unsafe {
+                assert_eq!(
+                    rusqlite::ffi::sqlite3_set_authorizer(
+                        tx.handle(),
+                        Some(deny_rollback),
+                        std::ptr::null_mut()
+                    ),
+                    rusqlite::ffi::SQLITE_OK
+                );
+            }
+            Err(rusqlite::Error::InvalidQuery)
+        })
+        .unwrap_err();
+        unsafe {
+            rusqlite::ffi::sqlite3_set_authorizer(db.handle(), None, std::ptr::null_mut());
+        }
+        let restore_reported = error.restore.is_some();
+        assert!(matches!(
+            error.operation,
+            Some(rusqlite::Error::InvalidQuery)
+        ));
+        assert!(!error.commit_observed);
+        assert!(!db.is_autocommit());
+        assert!(!fk(&db));
+        // Test owns cleanup only after removing the controlled fault.
+        db.execute_batch("ROLLBACK").unwrap();
+        db.pragma_update(None, "foreign_keys", initial).unwrap();
+        assert_eq!(image(&db), before);
+        assert_eq!(fk(&db), initial);
+        assert!(
+            restore_reported,
+            "active transaction must never report policy restoration success"
+        );
+    }
 }

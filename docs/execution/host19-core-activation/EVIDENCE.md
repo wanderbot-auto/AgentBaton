@@ -1,0 +1,5 @@
+
+## First execution / retained review regressions
+Source0523a0b553e07293ac9713b199349a71c72d1ba8, ARM64 local Core offline/locked jobs2. Host lib filter:55 passed/0 failed/384 filtered, test6.93s, overall108.776s. Exact command/log in artifacts/host19-core-activation/host-first.{json,log}; SHA be008ebd21d6e543b349d2d720b08aad8cd727ef15722094ec03dc309b2ece93.
+Before fixing production source, added two regression tests: audit-red failed(version19 vs expected18) SHA888bf53122e82b55502db8971c00572f00e96b7837704d8e3d1ab42ef5aa44db; rollback-red failed(active txn falsely reported no restore failure) SHA6788244a0181afe9c6e9d35852213ca266f41d515e2ad684db97ccf609833cc5. Both compiled/executed nonzero1 test, exited101; logs and commands retained. Controller joined normally, no daemon children. Corrections currently pending rerun, no green claim.
+Read-only independent agents schema_inverse_audit and schema_current_guards reviewed fixed0523 bytes; backup stage durability/uid checks and inverse restore/full12 comparison findings incorporated. Leader's startup transaction defect reproduced. No old helper/pin changes.

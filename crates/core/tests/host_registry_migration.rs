@@ -165,3 +165,54 @@ fn malformed_predeclared_host18_is_backed_up_but_never_partially_migrated() {
         18
     );
 }
+
+#[test]
+fn rejected_legacy_host_receipt_does_not_commit19_or_any_schema_change() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("bad-receipt.sqlite3");
+    fs::OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .mode(0o600)
+        .open(&path)
+        .unwrap();
+    host_registry_migration::schema18_reference()
+        .unwrap()
+        .backup(rusqlite::MAIN_DB, &path, None)
+        .unwrap();
+    let db = Connection::open(&path).unwrap();
+    db.execute("INSERT INTO idempotency(scope,key,payload,result) VALUES('hosts.register:v1','orphan','{}','{}')", []).unwrap();
+    let before = rows(&db);
+    let schema: Vec<(String, String, Option<String>)> = db
+        .prepare("SELECT type,name,sql FROM sqlite_schema ORDER BY type,name")
+        .unwrap()
+        .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
+        .unwrap()
+        .map(Result::unwrap)
+        .collect();
+    let cookie: i64 = db
+        .pragma_query_value(None, "schema_version", |r| r.get(0))
+        .unwrap();
+    drop(db);
+    assert!(Store::open(&path).is_err());
+    let db = Connection::open(&path).unwrap();
+    assert_eq!(
+        db.pragma_query_value(None, "user_version", |r| r.get::<_, i64>(0))
+            .unwrap(),
+        18
+    );
+    assert_eq!(
+        db.pragma_query_value(None, "schema_version", |r| r.get::<_, i64>(0))
+            .unwrap(),
+        cookie
+    );
+    let after: Vec<(String, String, Option<String>)> = db
+        .prepare("SELECT type,name,sql FROM sqlite_schema ORDER BY type,name")
+        .unwrap()
+        .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
+        .unwrap()
+        .map(Result::unwrap)
+        .collect();
+    assert_eq!(after, schema);
+    assert_eq!(rows(&db), before);
+}

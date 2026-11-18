@@ -189,10 +189,14 @@ fn pre_host_backup(
         let s = fs::symlink_metadata(&stage_path).map_err(|_| refused())?;
         let f = fs::symlink_metadata(&file_path).map_err(|_| refused())?;
         if !same(&p, &dir_info)
+            || p.uid() != dir_info.uid()
+            || p.mode() & 0o022 != 0
             || !same(&s, &stage_info)
+            || s.uid() != stage_info.uid()
             || s.mode() & 0o7777 != 0o700
             || !same(&f, &pin)
             || !f.is_file()
+            || f.uid() != pin.uid()
             || f.nlink() != 1
             || f.mode() & 0o7777 != 0o600
         {
@@ -269,17 +273,33 @@ fn pre_host_backup(
     )
     .map_err(|_| refused())?;
     rustix::fs::unlinkat(&stage, "snapshot.sqlite3", AtFlags::empty()).map_err(|_| refused())?;
+    // Persist the removal of the staging hardlink before reporting single-link
+    // publication; syncing only its parent would not persist this directory edit.
+    stage.sync_all().map_err(|_| refused())?;
+    let current_parent = fs::symlink_metadata(&parent).map_err(|_| refused())?;
+    let current_stage = fs::symlink_metadata(&stage_path).map_err(|_| refused())?;
+    if !same(&current_parent, &dir_info)
+        || current_parent.uid() != dir_info.uid()
+        || current_parent.mode() & 0o022 != 0
+        || !same(&current_stage, &stage_info)
+        || current_stage.uid() != stage_info.uid()
+        || current_stage.mode() & 0o7777 != 0o700
+    {
+        return Err(refused());
+    }
     let final_info = fs::symlink_metadata(parent.join(name)).map_err(|_| refused())?;
     if !same(&final_info, &pin)
         || !final_info.is_file()
+        || final_info.uid() != pin.uid()
         || final_info.nlink() != 1
         || final_info.mode() & 0o7777 != 0o600
     {
         return Err(refused());
     }
+    // Remove only this invocation's verified, empty directory. Never recurse;
+    // failure leaves backup/staging evidence and prevents source migration.
+    rustix::fs::unlinkat(&directory, &stage_name, AtFlags::REMOVEDIR).map_err(|_| refused())?;
     directory.sync_all().map_err(|_| refused())?;
-    // Keep the now-empty private staging directory as bounded failure provenance;
-    // no user source, retained backup or pre-existing path is removed here.
     Ok(())
 }
 
@@ -530,8 +550,17 @@ impl Store {
         crate::task_workspace_binding::migrate(&mut conn, version)?;
         crate::integration::migrate(&mut conn, version)?;
         crate::conversations::migrate(&mut conn, version)?;
-        crate::host_registry_migration::migrate(&mut conn)?;
-        Self::validate_host_registry_startup(&mut conn)?;
+        // Do not commit the Host increment until bounded authority audit succeeds.
+        // The daemon runtime lock serializes normal product writers; the transaction
+        // also pins this startup check against concurrent SQLite writers.
+        {
+            let tx = conn
+                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+                .map_err(db_error)?;
+            crate::host_registry_migration::migrate_in_transaction(&tx)?;
+            Self::validate_host_registry_startup(&tx)?;
+            tx.commit().map_err(db_error)?;
+        }
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )

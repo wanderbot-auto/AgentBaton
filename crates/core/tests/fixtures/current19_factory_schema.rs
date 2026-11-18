@@ -85,7 +85,26 @@ pub fn with_empty_current19_factory(
         tx.commit()
     })();
     let commit_observed = result.is_ok();
-    let restored = connection.pragma_update(None, "foreign_keys", captured);
+    let restored = connection
+        .pragma_update(None, "foreign_keys", captured)
+        .and_then(|()| {
+            // SQLite silently ignores FK writes inside an active transaction.
+            // A denied Drop rollback must remain an explicit restore failure.
+            if !connection.is_autocommit() {
+                return Err(rusqlite::Error::SqliteFailure(
+                    rusqlite::ffi::Error::new(rusqlite::ffi::SQLITE_MISUSE),
+                    Some(
+                        "Factory inverse transaction remains active; FK restoration unconfirmed"
+                            .into(),
+                    ),
+                ));
+            }
+            let actual: bool = connection.pragma_query_value(None, "foreign_keys", |r| r.get(0))?;
+            if actual != captured {
+                return Err(rusqlite::Error::InvalidQuery);
+            }
+            Ok(())
+        });
     match (result, restored) {
         (Ok(()), Ok(())) => Ok(()),
         (operation, restore) => Err(InverseFailure {
