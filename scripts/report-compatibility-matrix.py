@@ -32,7 +32,7 @@ CONTEXT_KEYS = {"provider_id", "adapter", "os", "os_version", "os_build", "archi
 FACT_KEYS = set(BUILD_KEYS + PROVIDER_KEYS) | CONTEXT_KEYS | {
     "feature_commit", "binary_sha256", "artifact_id", "ci_run", "ci_job",
     "signature", "recorded_at", "test_count", "platform_description", "tree", "log_sha256",
-    "driver_commit", "driver_sha256",
+    "driver_commit", "driver_sha256", "source_dimension_label", "browser_version",
 }
 PLATFORM_GATES = ("build", "native_app", "credential_store", "background", "install", "update")
 COMMIT = re.compile(r"[a-f0-9]{40}")
@@ -163,6 +163,54 @@ def result_status(kind, value):
     return outcomes[kind][choice(value, outcomes[kind], "recorded result")]
 
 
+def real_provider_execution(record, document, identifier):
+    """Read a single execution receipt using fixed fields in the pinned source."""
+    document = mapping(document, "real Provider evidence")
+    require(type(document.get("schema_version")) is int and document["schema_version"] == 1
+            and document.get("kind") == "real_provider_execution",
+            f"{identifier}: expected a raw real_provider_execution receipt")
+    require(not record.keys() & {"result", "fields", "context", "corroboration"},
+            f"{identifier}: the index cannot override real Provider receipt fields")
+    execution = mapping(document.get("account_execution"), "account_execution")
+    require(execution.get("mode") == "real_account" and execution.get("provider_invoked") is True,
+            f"{identifier}: evidence must record an actual real-account Provider invocation")
+    for field in ("authenticated", "task_completed"):
+        require(type(execution.get(field)) is bool, f"{identifier}: {field} must be a boolean")
+    status = choice(document.get("status"), ("passed", "failed"), f"{identifier}.status")
+    if status == "passed":
+        require(execution["authenticated"] and execution["task_completed"],
+                f"{identifier}: pass requires successful authentication and task completion")
+    build = mapping(document.get("build"), "real Provider build")
+    provider = mapping(document.get("provider"), "real Provider identity")
+    facts = {key: token(build.get(key), f"build.{key}") for key in BUILD_KEYS}
+    facts.update({key: token(provider.get(key), f"provider.{key}")
+                  for key in ("provider_id", *PROVIDER_KEYS)})
+    if "recorded_at" in document:
+        facts["recorded_at"] = token(document["recorded_at"], "recorded_at")
+    return status, facts, {
+        "provider_run_reference": token(execution.get("run_ref"), "account_execution.run_ref"),
+        "account_execution": {key: execution[key] for key in
+                              ("mode", "provider_invoked", "authenticated", "task_completed")},
+    }
+
+
+def corroborate_browser(spec, report, report_sha256):
+    spec = mapping(spec, "browser corroboration")
+    path = evidence_path(spec.get("path"))
+    expected = token(spec.get("sha256"), path, DIGEST)
+    document, metadata = read_document(path)
+    require(metadata["sha256"] == expected, f"{path}: SHA-256 mismatch")
+    case = choice(lookup(report, "/case"), ("normal", "command-failure"), "browser case")
+    link = f"/{case}/report_sha256"
+    exact_field(document, link, report_sha256)
+    count_pointer = f"/{case}/actual_schema19_snapshot_count"
+    snapshots = lookup(document, count_pointer)
+    require(type(snapshots) is int and snapshots > 0,
+            f"{path}: expected a positive schema 19 snapshot count")
+    return {**metadata, "report_sha256_pointer": link,
+            "schema19_snapshot_count_pointer": count_pointer, "schema19_snapshot_count": snapshots}
+
+
 def project_record(record, document, source, provider_ids, selected_source):
     record = mapping(record, "observation")
     identifier = token(record.get("id"), "observation ID")
@@ -172,25 +220,37 @@ def project_record(record, document, source, provider_ids, selected_source):
                   f"{identifier}.provider_execution")
     require(dimension != "provider_real" or mode == "real_account",
             f"{identifier}: provider_real requires real_account execution")
-    require(dimension != "provider_contract" or mode != "real_account",
-            f"{identifier}: provider_contract cannot claim real_account execution")
+    require(mode != "real_account" or dimension == "provider_real",
+            f"{identifier}: real_account requires a provider_real observation")
     require(dimension != "hosted_ci" or origin == "hosted_ci",
             f"{identifier}: hosted_ci dimension requires hosted_ci origin")
 
     for path, value in mapping(record.get("expect", {}), "expect").items():
         exact_field(document, path, value)
-    result = mapping(record.get("result"), "result")
-    require("value" in result, f"{identifier}: missing result value")
-    result_path = result.get("path")
-    observed = exact_field(document, result_path, result["value"])
-    status = result_status(result.get("kind"), observed)
-
-    fields = mapping(record.get("fields"), "fields")
-    labels = mapping(record.get("context", {}), "context")
-    require(fields.keys() <= FACT_KEYS and labels.keys() <= CONTEXT_KEYS,
-            f"{identifier}: unsupported evidence field")
-    require(not fields.keys() & labels.keys(), f"{identifier}: field also supplied as context")
-    facts = {key: extract_fact(document, selector) for key, selector in fields.items()}
+    evidence = dict(source)
+    if dimension == "provider_real":
+        status, facts, receipt = real_provider_execution(record, document, identifier)
+        # A result, identity and invocation from this one receipt remain bound.
+        labels = {}
+        evidence.update(result_pointer="/status", observed_result=status, **receipt)
+    else:
+        result = mapping(record.get("result"), "result")
+        require("value" in result, f"{identifier}: missing result value")
+        result_path = result.get("path")
+        observed = exact_field(document, result_path, result["value"])
+        status = result_status(result.get("kind"), observed)
+        evidence.update(result_pointer=result_path, observed_result=observed)
+        fields = mapping(record.get("fields"), "fields")
+        labels = mapping(record.get("context", {}), "context")
+        require(fields.keys() <= FACT_KEYS and labels.keys() <= CONTEXT_KEYS,
+                f"{identifier}: unsupported evidence field")
+        require(not fields.keys() & labels.keys(), f"{identifier}: field also supplied as context")
+        facts = {key: extract_fact(document, selector) for key, selector in fields.items()}
+        if "corroboration" in record:
+            require(dimension == "browser", f"{identifier}: expected a browser observation")
+            evidence["corroboration"] = corroborate_browser(
+                record["corroboration"], document, source["sha256"],
+            )
     for key in labels:
         token(labels[key], f"{identifier}.{key}")
     for key, value in facts.items():
@@ -225,7 +285,7 @@ def project_record(record, document, source, provider_ids, selected_source):
         "scope": token(record.get("scope"), f"{identifier}.scope"),
         "status": status, "relevance": relevance, "facts": facts, "context": labels,
         "unrecorded_fields": sorted(key for key in expected_fields if combined.get(key) is None),
-        "evidence": {**source, "result_pointer": result_path, "observed_result": observed},
+        "evidence": evidence,
     }
 
 
@@ -438,6 +498,12 @@ def markdown(report):
         link = quote(evidence["path"], safe="/")
         yield f"- 来源 [{cell(evidence['path'])}]({link}) · {cell(evidence['result_pointer'])}"
         yield f"- SHA-256 {evidence['sha256']}"
+        if corroboration := evidence.get("corroboration"):
+            link = quote(corroboration["path"], safe="/")
+            yield (f"- 核验 [schema 19 快照]({link}) · {corroboration['schema19_snapshot_count']} 条 "
+                   f"· SHA-256 {corroboration['sha256']}")
+        if run_reference := evidence.get("provider_run_reference"):
+            yield f"- 真实账户运行证据引用 {cell(run_reference)}"
         if row["unrecorded_fields"]:
             yield f"- 未登记字段 {cell(', '.join(row['unrecorded_fields']))}"
     yield ""

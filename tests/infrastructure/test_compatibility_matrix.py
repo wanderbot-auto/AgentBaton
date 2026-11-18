@@ -66,7 +66,18 @@ class PinnedEvidenceTests(unittest.TestCase):
                          ("provider_contract", "generated", "passed"))
         self.assertIn("provider_version", codex["unrecorded_fields"])
         self.assertEqual(rows["apple-silicon-schema19-library"]["dimension"], "library")
-        self.assertEqual(rows["apple-silicon-generated-acp-browser"]["dimension"], "browser")
+        browser = rows["apple-silicon-generated-acp-browser"]
+        self.assertEqual(browser["dimension"], "browser")
+        self.assertIn("schema 19", browser["scope"])
+        self.assertNotIn("Core18", browser["scope"])
+        self.assertIn("Core18", browser["facts"]["source_dimension_label"])
+        self.assertNotIn("platform_description", browser["facts"])
+        self.assertIn("os_version", browser["unrecorded_fields"])
+        receipt = browser["evidence"]["corroboration"]
+        self.assertEqual(receipt["schema19_snapshot_count"], 12)
+        verified_path = ROOT / receipt["path"]
+        self.assertEqual(receipt["sha256"], hashlib.sha256(verified_path.read_bytes()).hexdigest())
+        self.assertEqual(read_json(verified_path)["normal"]["report_sha256"], browser["evidence"]["sha256"])
         native = rows["apple-silicon-host-registration-app-final"]
         earlier = rows["apple-silicon-host-registration-app-frozen"]
         self.assertEqual(native["dimension"], "native_app")
@@ -117,6 +128,7 @@ class MinimumSystemControls(unittest.TestCase):
             for provider in PROVIDERS
         }
         self.document = {}
+        self.receipts = {}
         self.index = {
             "schema_version": 1,
             "sources": [{"path": FIXTURE_EVIDENCE, "sha256": None, "observations": []}],
@@ -144,8 +156,30 @@ class MinimumSystemControls(unittest.TestCase):
         self.index["sources"][0]["observations"].append(entry)
         return entry
 
+    def add_real_provider(self, identifier, provider, *, overrides=None, status="passed"):
+        receipt_path = f"docs/execution/synthetic/{identifier}-account.json"
+        receipt = {
+            "schema_version": 1, "kind": "real_provider_execution",
+            "build": self.build.copy(),
+            "provider": {"provider_id": provider, **self.versions[provider], **(overrides or {})},
+            "status": status,
+            "account_execution": {
+                "mode": "real_account", "provider_invoked": True, "authenticated": True,
+                "task_completed": status == "passed", "run_ref": f"synthetic/{identifier}",
+            },
+        }
+        self.receipts[receipt_path] = receipt
+        entry = {
+            "id": identifier, "dimension": "provider_real", "origin": "local",
+            "provider_execution": "real_account", "scope": "synthetic raw receipt",
+        }
+        self.index["sources"].append({"path": receipt_path, "sha256": None, "observations": [entry]})
+        return receipt, entry
+
     def save(self):
         self.index["sources"][0]["sha256"] = write_json(self.root / FIXTURE_EVIDENCE, self.document)
+        for source in self.index["sources"][1:]:
+            source["sha256"] = write_json(self.root / source["path"], self.receipts[source["path"]])
         write_json(self.root / FIXTURE_INDEX, self.index)
 
     def invoke(self, use_candidate=True):
@@ -167,7 +201,7 @@ class MinimumSystemControls(unittest.TestCase):
         for dimension in PLATFORM_CHECKS:
             self.add_observation(dimension, dimension)
         for provider in PROVIDERS:
-            self.add_observation(provider, "provider_real", provider=provider, mode="real_account")
+            self.add_real_provider(provider, provider)
         self.save()
         report = self.report()
         minimum = report["minimum_system_evidence"]
@@ -175,6 +209,10 @@ class MinimumSystemControls(unittest.TestCase):
         self.assertIsNone(minimum["confirmed_minimum"])
         self.assertTrue(all(gate["status"] == "passed" for gate in minimum["required_checks"]))
         self.assertTrue(all(row["candidate_match"] == "exact" for row in report["observations"]))
+        codex = next(row for row in report["observations"] if row["id"] == "codex")
+        self.assertEqual(codex["evidence"]["result_pointer"], "/status")
+        self.assertEqual(codex["evidence"]["provider_run_reference"], "synthetic/codex")
+        self.assertTrue(codex["evidence"]["account_execution"]["authenticated"])
 
     def test_gates_keep_distinct_outcomes_and_exclude_other_builds(self):
         self.add_observation("failed-build", "build", "failed")
@@ -182,16 +220,17 @@ class MinimumSystemControls(unittest.TestCase):
         self.add_observation("install", "install", "not_run")
         self.add_observation("background", "background", "blocked")
         self.add_observation("credential-store", "credential_store", "unsupported")
+        self.add_observation("update", "update", "not_applicable")
         self.add_observation("changed-build", "native_app", overrides={"os_build": "OTHER"})
         self.add_observation("changed-digest", "native_app", overrides={"artifact_sha256": "c" * 64})
         self.add_observation("other-source", "native_app", overrides={"source_commit": "d" * 40})
         self.add_observation("browser", "browser", mode="generated")
         self.add_observation("policy-note", "native_app", context={"os_build": "SYNTHETIC"})
         self.add_observation("ci", "library")
-        self.add_observation("old-version", "provider_real", provider="codex", mode="real_account",
-                             overrides={"adapter_version": "different"})
+        self.add_real_provider("old-version", "codex", overrides={"adapter_version": "different"})
         self.add_observation("contract", "provider_contract", provider="codex", mode="generated")
-        self.add_observation("qoder", "provider_real", "not_applicable", provider="qoder", mode="real_account")
+        qoder, _ = self.add_real_provider("qoder", "qoder", status="failed")
+        qoder["account_execution"]["authenticated"] = False
         self.save()
         report = self.report()
         minimum = report["minimum_system_evidence"]
@@ -202,8 +241,8 @@ class MinimumSystemControls(unittest.TestCase):
         self.assertEqual(gates, {
             ("build", None): "failed", ("native_app", None): "unknown",
             ("credential_store", None): "unsupported", ("background", None): "blocked",
-            ("install", None): "not_run", ("update", None): "unknown",
-            ("provider_real", "codex"): "unknown", ("provider_real", "qoder"): "not_applicable",
+            ("install", None): "not_run", ("update", None): "not_applicable",
+            ("provider_real", "codex"): "unknown", ("provider_real", "qoder"): "failed",
             ("provider_real", "claude-code"): "unknown",
         })
         rows = {row["id"]: row for row in report["observations"]}
@@ -216,6 +255,42 @@ class MinimumSystemControls(unittest.TestCase):
         self.add_observation("false-pass", "provider_real", provider="codex", mode="generated")
         self.save()
         self.assert_failed("provider_real requires real_account execution")
+
+    def test_matching_generated_evidence_cannot_be_relabeled_real(self):
+        for dimension in PLATFORM_CHECKS:
+            self.add_observation(dimension, dimension)
+        for provider in ("qoder", "claude-code"):
+            self.add_real_provider(provider, provider)
+        generated = self.add_observation("generated", "provider_contract", provider="codex", mode="generated")
+        self.document["generated"]["account_mode"] = "generated"
+        self.document["generated"]["note"] = "A real_account run would require separate evidence."
+        self.save()
+        self.assertEqual(self.report()["minimum_system_evidence"]["assessment"], "evidence_incomplete")
+        generated.update(dimension="provider_real", provider_execution="real_account")
+        self.save()
+        self.assert_failed("expected a raw real_provider_execution receipt")
+
+    def test_receipt_requires_actual_invocation_authentication_and_task_completion(self):
+        receipt, _ = self.add_real_provider("claim", "codex")
+        original = receipt["account_execution"].copy()
+        for field, value, error in (
+            ("mode", "generated", "actual real-account Provider invocation"),
+            ("provider_invoked", False, "actual real-account Provider invocation"),
+            ("provider_invoked", 1, "actual real-account Provider invocation"),
+            ("authenticated", False, "successful authentication and task completion"),
+            ("task_completed", False, "successful authentication and task completion"),
+        ):
+            with self.subTest(field=field, value=value):
+                receipt["account_execution"] = {**original, field: value}
+                self.save()
+                self.assert_failed(error)
+
+    def test_index_cannot_borrow_success_from_another_test_in_same_receipt(self):
+        receipt, entry = self.add_real_provider("claim", "codex", status="failed")
+        receipt["generated_exit"] = 0
+        entry["result"] = {"kind": "exit_code", "path": "/generated_exit", "value": 0}
+        self.save()
+        self.assert_failed("the index cannot override real Provider receipt fields")
 
     def test_candidate_requires_every_formal_provider_and_arm64(self):
         candidate = read_json(self.root / FIXTURE_CANDIDATE)
@@ -245,6 +320,23 @@ class MinimumSystemControls(unittest.TestCase):
         row["result"]["value"] = True
         self.save()
         self.assert_failed("exit_code requires an integer result")
+
+    def test_browser_snapshot_receipt_must_bind_the_exact_report_and_have_a_count(self):
+        row = self.add_observation("browser", "browser", mode="generated")
+        self.document["case"] = "normal"
+        self.save()
+        digest = self.index["sources"][0]["sha256"]
+        path = "docs/execution/synthetic/browser-verified.json"
+        for report_sha, count, error in (
+            ("0" * 64, 12, "evidence field does not match the index: /normal/report_sha256"),
+            (digest, True, "expected a positive schema 19 snapshot count"),
+            (digest, 0, "expected a positive schema 19 snapshot count"),
+        ):
+            with self.subTest(report_sha=report_sha, count=count):
+                receipt = {"normal": {"report_sha256": report_sha, "actual_schema19_snapshot_count": count}}
+                row["corroboration"] = {"path": path, "sha256": write_json(self.root / path, receipt)}
+                self.save()
+                self.assert_failed(error)
 
     def test_missing_reference_visible_even_with_other_fixed_input(self):
         self.add_observation("native", "native_app")

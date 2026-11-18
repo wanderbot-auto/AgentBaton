@@ -70,32 +70,36 @@
       ]
     },
     {
-      "path": "docs/execution/host19-browser-candidate/logs/browser-summary.json",
-      "sha256": "d2e7f97984b2f2192010a461899fbb9664a86ab3bce6d8279e1a63e88988a65b",
+      "path": "docs/execution/host19-browser-candidate/logs/browser-all--normal--report.json",
+      "sha256": "c138965b696f263f7f211884afa45d3caa016838eb273c729155c1250058695d",
       "observations": [
         {
           "id": "apple-silicon-generated-acp-browser",
           "dimension": "browser",
           "origin": "local",
           "provider_execution": "generated",
-          "scope": "实际 Chromium 前端与 Core18 Unix IPC 的正常场景，Provider 为生成 ACP。",
+          "scope": "实际 Chromium 前端经测试桥接接入 schema 19 私有 Core Unix IPC，正常场景使用生成 ACP。schema 19 来自绑定到原报告摘要的快照核验。",
           "result": {
             "kind": "status",
-            "path": "/cases/normal/status",
+            "path": "/status",
             "value": "passed"
           },
           "fields": {
-            "source_commit": "/source/head",
-            "platform_description": "/cases/normal/dimension"
+            "source_commit": "/inputs/source",
+            "source_dimension_label": "/dimension",
+            "browser_version": "/browser_version"
           },
           "context": {
             "os": "macos",
             "architecture": "arm64"
           },
           "expect": {
-            "/source/tracked_clean": true,
-            "/exit": 0,
-            "/cases/normal/dimension": "macOS built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host"
+            "/case": "normal",
+            "/dimension": "macOS built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host"
+          },
+          "corroboration": {
+            "path": "docs/execution/host19-browser-candidate/logs/browser-verified.json",
+            "sha256": "a0008003481f05e3d940e11c7da08664bc05e2b2319cd9489202591e06ba0585"
           }
         }
       ]
