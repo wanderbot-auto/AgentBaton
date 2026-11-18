@@ -28,3 +28,5 @@ The old source-only modules test_integration_ipc_diagnostics, test_integration_s
 Local arm64 process integration is the verified platform boundary. Standalone release daemon/CLI, desktop, native workflow, CI, full Integration runtime/PR29 suite, Provider and remote contact were outside this run. No workspace-level service operation was required.
 
 Raw check logs are preserved in evidence-logs.tar.gz with SHA-256 `5c10478c8c7034f52658e4d1f0cce978da295374346b4f1f24a1e5dc68b86b35`. LOGS.json records all extracted log digests. No database, authentication token or executable is packaged.
+
+Leader independently confirmed the ten scoped Rust file digests, 18 archived original logs, five ARM64 test binaries, 131 passing Rust cases, and the observed legacy source-pin refusal. Local Core19 and actual socket slice accepted at evidence delivery f7b6004bcc72137ca0594f0049e693f8b52d6f69. Combination pending two exact inverse compatibility layers and the remaining staged fixture scope.
