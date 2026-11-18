@@ -6,6 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from schema19_integration_source_fixture import read_schema18_source
+
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / 'crates/core/tests/fixtures/integration_runtime.rs'
 HOST = ROOT / 'crates/core/tests/integration_ipc.rs'
@@ -201,13 +203,13 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
             self.assertIn(required, source)
 
     def test_whole_fixture_inverse_exact_e874(self):
-        self.assertEqual(hashlib.sha256(fixture_inverse(FIXTURE.read_text()).encode()).hexdigest(), '149693770c6c6bce56def9b9b8a8fe43f8fc7c0657fb31adef45595b64813e06')
+        self.assertEqual(hashlib.sha256(fixture_inverse(read_schema18_source(ROOT, FIXTURE)).encode()).hexdigest(), '149693770c6c6bce56def9b9b8a8fe43f8fc7c0657fb31adef45595b64813e06')
 
     def test_whole_host_inverse_exact_e874(self):
-        self.assertEqual(hashlib.sha256(host_inverse(HOST.read_text()).encode()).hexdigest(), '90fe84ccdecccddcdb6b8d0530fcbf29dad8d9390c0ac3bfc7200e93a469aabb')
+        self.assertEqual(hashlib.sha256(host_inverse(read_schema18_source(ROOT, HOST)).encode()).hexdigest(), '90fe84ccdecccddcdb6b8d0530fcbf29dad8d9390c0ac3bfc7200e93a469aabb')
 
     def test_current_host_schema_inverse_refuses_old_or_future_reader(self):
-        original = HOST.read_text()
+        original = read_schema18_source(ROOT, HOST)
         for version in (17, 19):
             changed = original.replace('assert_eq!(version, 18);',
                                        f'assert_eq!(version, {version});', 1)
@@ -216,7 +218,7 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
 
     def test_inverse_rejects_unknown_region_and_missing_fragment(self):
         for path, inverse in [(FIXTURE, fixture_inverse), (HOST, host_inverse)]:
-            original = path.read_text()
+            original = read_schema18_source(ROOT, path)
             changed = original + '// unreviewed-region\n'
             if path == FIXTURE:
                 # The new exact whole-source layer now refuses an unknown
