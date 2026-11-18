@@ -35,3 +35,9 @@ scripts/collab.sh run -- python3 scripts/report-compatibility-matrix.py --format
 - 每个正式 Provider 需要在候选环境绑定明确版本、适配器和协议的真实账户任务。
 
 评估依据为同一候选文件与固定证据内的值。全部维度就绪时可进入发布评审，最低支持版本仍待正式定案。Tauri 10.15 是打包配置。已交付的开发 DMG 记录仅覆盖归档审核和其构建机版本。详见 [EVIDENCE.json](EVIDENCE.json)。
+
+## Leader 独审与交接
+
+Leader 接受 7ecee4c198d9d90acb11418d85d519509d770090 的兼容矩阵阶段。独立复核了固定原始版本、浏览器报告与 schema 19 快照的摘要绑定，以及真实 Provider 回执对生成记录误标的拒绝。独立复跑 15 项专项测试，核实 JSON 与 Markdown 各自逐字一致，并复核 7 份固定主证据与 13 条观察。Scope 检查及对 cbac72707f7c075b202a63a658b46f4f0a2df9c8 的合并预演通过。
+
+真实 Provider 账户与最低 macOS 支持仍待验收。开发窗口保留分支、工作树和证据，按交接流程释放三条路径认领。
