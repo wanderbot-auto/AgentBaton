@@ -3,7 +3,7 @@
 import hashlib
 
 DRIVER_PATH = 'apps/desktop/tests/goal-graph-real-ipc.py'
-CURRENT_SHA256 = '81713f3007b3c6d742e401725bc10926f541a4dd90c028c61ffc6a7f324e16b7'
+CURRENT_SHA256 = '550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18'
 HISTORICAL_SHA256 = '5c07f3fadcad286dffba98021f5d83c16eb999261d5887c506e830f5b52ca6cb'
 
 # Line offset in the current bytes, exact current span, exact historical span.
@@ -185,7 +185,25 @@ EDITS = (
             b"            raise AssertionError('Old schema was admitted')\n"
         ),
     ),
-    (1307,
+    (1306,
+        (
+            b'def verify_graph_run_inputs(report, manifest_path: Path, binary: Path):\n'
+            b"    require(graph_source() == (report['source'], report['git_tree'])\n"
+            b"        and sha(manifest_path.read_bytes()) == report['manifest_sha256']\n"
+            b"        and sha(binary.read_bytes()) == report['daemon_sha256']\n"
+            b"        and sha(Path(__file__).read_bytes()) == report['harness_sha256'],\n"
+            b"        'Graph candidate inputs changed during the run')\n"
+            b'\n'
+            b'\n'
+            b'def record_graph_failure(report, failure, clean):\n'
+            b"    report['status'] = 'failed_or_interrupted'\n"
+            b"    report['failure'] = {'type': type(failure).__name__, 'message': clean(failure), 'traceback': clean(traceback.format_exc())}\n"
+            b'\n'
+            b'\n'
+        ),
+        b'',
+    ),
+    (1320,
         (
             b'    """Runnable real driver. Every receipt comes from the supplied exact schema19 Core.\n'
         ),
@@ -193,12 +211,12 @@ EDITS = (
             b'    """Runnable real driver. Every receipt comes from the supplied exact schema18 Core.\n'
         ),
     ),
-    (1319,
+    (1332,
         (
             b'        manifest_path = args.candidate_manifest.resolve(strict=True)\n'
             b'        manifest_raw = manifest_path.read_bytes()\n'
-            b'        source, tree = graph_source()\n'
-            b'        manifest, daemon_digest = verify_graph_candidate(binary, manifest_raw, source, tree)\n'
+            b'        source_head, source_tree = graph_source()\n'
+            b'        manifest, daemon_digest = verify_graph_candidate(binary, manifest_raw, source_head, source_tree)\n'
             b"        assert daemon_digest != 'fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e', 'Old Owner-only Core5541 is not the new Graph validation-contract API'\n"
         ),
         (
@@ -207,13 +225,13 @@ EDITS = (
             b"        assert sha(binary.read_bytes()) != 'fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e', 'Old Owner-only Core5541 is not the new Graph validation-contract API'\n"
         ),
     ),
-    (1325,
+    (1338,
         (
             b"        require(sys.platform == 'linux' and Path('/proc/self/stat').is_file(), 'Current Graph browser evidence requires Linux procfs')\n"
         ),
         b'',
     ),
-    (1327,
+    (1340,
         (
             b'    except (AssertionError, OSError, ValueError, KeyError, ImportError, subprocess.CalledProcessError) as failure:\n'
         ),
@@ -221,7 +239,7 @@ EDITS = (
             b'    except (AssertionError, OSError, ValueError, KeyError, ImportError) as failure:\n'
         ),
     ),
-    (1329,
+    (1342,
         (
             b"            'harness_sha256': sha(Path(__file__).read_bytes()), 'schema_required': GRAPH_SCHEMA,\n"
         ),
@@ -229,23 +247,23 @@ EDITS = (
             b"            'harness_sha256': sha(Path(__file__).read_bytes()), 'schema_required': 18,\n"
         ),
     ),
-    (1339,
+    (1352,
         (
-            b"        'candidate': manifest, 'source': source, 'git_tree': tree, 'schema_required': GRAPH_SCHEMA,\n"
+            b"        'candidate': manifest, 'source': source_head, 'git_tree': source_tree, 'schema_required': GRAPH_SCHEMA,\n"
             b"        'manifest_sha256': sha(manifest_raw), 'daemon_sha256': daemon_digest,\n"
         ),
         (
             b"        'candidate': manifest, 'manifest_sha256': sha(manifest_raw), 'daemon_sha256': sha(binary.read_bytes()),\n"
         ),
     ),
-    (1388,
+    (1401,
         (
             b"            report['schema_evidence'] = {'manifest_schema': manifest['schema'], **graph_schema_evidence(host, runtime)}\n"
             b"            passed('exact schema 19 candidate, private IPC snapshot and read-only SQLite agree before fixture setup')\n"
         ),
         b'',
     ),
-    (1461,
+    (1474,
         (
             b'                with graph_database(runtime) as db:\n'
         ),
@@ -254,7 +272,7 @@ EDITS = (
             b"                    db.execute('PRAGMA query_only=ON')\n"
         ),
     ),
-    (1709,
+    (1722,
         (
             b'                        with graph_database(runtime) as db:\n'
         ),
@@ -263,7 +281,7 @@ EDITS = (
             b"                            db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')\n"
         ),
     ),
-    (1793,
+    (1806,
         (
             b'                        with graph_database(runtime) as db:\n'
             b"                            assert graph_factory_counts(db)['child_goal_runs'] == 0\n"
@@ -275,23 +293,27 @@ EDITS = (
             b"                            assert current_factory_counts(db)['child_goal_runs'] == 0\n"
         ),
     ),
-    (1992,
+    (1909,
+        (
+            b'            record_graph_failure(report, failure, clean)\n'
+        ),
+        (
+            b"            report['failure'] = {'type': type(failure).__name__, 'message': clean(failure), 'traceback': clean(traceback.format_exc())}\n"
+        ),
+    ),
+    (2005,
         (
             b'                try:\n'
-            b"                    require(graph_source() == (source, tree) and sha(manifest_path.read_bytes()) == report['manifest_sha256']\n"
-            b"                        and sha(binary.read_bytes()) == report['daemon_sha256']\n"
-            b"                        and sha(Path(__file__).read_bytes()) == report['harness_sha256'],\n"
-            b"                        'Graph candidate inputs changed during the run')\n"
+            b'                    verify_graph_run_inputs(report, manifest_path, binary)\n'
             b"                    passed('HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone')\n"
             b'                except (AssertionError, OSError, ValueError, subprocess.CalledProcessError) as failure:\n'
-            b"                    report['status'] = 'failed_or_interrupted'\n"
-            b"                    report['failure'] = {'type': type(failure).__name__, 'message': clean(failure)}\n"
+            b'                    record_graph_failure(report, failure, clean)\n'
         ),
         (
             b"                passed('HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone')\n"
         ),
     ),
-    (2029,
+    (2038,
         (
             b"    attribution = {'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'schema_required': GRAPH_SCHEMA}\n"
         ),
@@ -299,7 +321,7 @@ EDITS = (
             b"    attribution = {'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'schema_required': 18}\n"
         ),
     ),
-    (2064,
+    (2073,
         (
             b'    # The owner-only and validator scenarios require explicit invocation.\n'
         ),
@@ -308,7 +330,7 @@ EDITS = (
             b'    # invokes the separate real four-node driver, with a schema18 preflight.\n'
         ),
     ),
-    (2068,
+    (2077,
         (
             b'        raw = args.candidate_manifest.resolve(strict=True).read_bytes()\n'
             b"        report['manifest_sha256'] = sha(raw)\n"

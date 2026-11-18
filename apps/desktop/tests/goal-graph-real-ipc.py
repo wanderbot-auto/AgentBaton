@@ -1304,6 +1304,19 @@ def driver_self_check() -> dict:
     return {'status': 'passed', 'dimension': 'static plan constructor/generated Python syntax/manifest negatives and isolated readonly FD controls; no Core/browser execution or minted receipts', 'count': len(rows), 'checks': rows}
 
 
+def verify_graph_run_inputs(report, manifest_path: Path, binary: Path):
+    require(graph_source() == (report['source'], report['git_tree'])
+        and sha(manifest_path.read_bytes()) == report['manifest_sha256']
+        and sha(binary.read_bytes()) == report['daemon_sha256']
+        and sha(Path(__file__).read_bytes()) == report['harness_sha256'],
+        'Graph candidate inputs changed during the run')
+
+
+def record_graph_failure(report, failure, clean):
+    report['status'] = 'failed_or_interrupted'
+    report['failure'] = {'type': type(failure).__name__, 'message': clean(failure), 'traceback': clean(traceback.format_exc())}
+
+
 def owner_only_driver(args, output: Path) -> int:
     """Runnable real driver. Every receipt comes from the supplied exact schema19 Core.
 
@@ -1319,8 +1332,8 @@ def owner_only_driver(args, output: Path) -> int:
         binary, frontend = args.batond.resolve(strict=True), args.frontend.resolve(strict=True)
         manifest_path = args.candidate_manifest.resolve(strict=True)
         manifest_raw = manifest_path.read_bytes()
-        source, tree = graph_source()
-        manifest, daemon_digest = verify_graph_candidate(binary, manifest_raw, source, tree)
+        source_head, source_tree = graph_source()
+        manifest, daemon_digest = verify_graph_candidate(binary, manifest_raw, source_head, source_tree)
         assert daemon_digest != 'fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e', 'Old Owner-only Core5541 is not the new Graph validation-contract API'
         assert (frontend / 'index.html').is_file()
         require(sys.platform == 'linux' and Path('/proc/self/stat').is_file(), 'Current Graph browser evidence requires Linux procfs')
@@ -1337,7 +1350,7 @@ def owner_only_driver(args, output: Path) -> int:
         'dimension': 'actual built React/Linux Chromium/finite test HTTP/authenticated Unix Core/generated owned ACP',
         'not_claimed': ([] if case else ['deterministic Validate five-node flow']) + ['full Graph failure matrix', 'native OS Owner dialog',
             'macOS', 'real Provider/model', 'OS sandbox', 'whole product completion'],
-        'candidate': manifest, 'source': source, 'git_tree': tree, 'schema_required': GRAPH_SCHEMA,
+        'candidate': manifest, 'source': source_head, 'git_tree': source_tree, 'schema_required': GRAPH_SCHEMA,
         'manifest_sha256': sha(manifest_raw), 'daemon_sha256': daemon_digest,
         'harness_sha256': sha(Path(__file__).read_bytes()), 'frontend_assets_sha256': assets(),
         'checks': [], 'http_requests': [], 'private_reviews': [], 'observations': {}, 'screenshots': [], 'cleanup': [],
@@ -1894,7 +1907,7 @@ def owner_only_driver(args, output: Path) -> int:
                     phase['value'] = 'browser_closing'
                     browser.close(); browser = None
         except BaseException as failure:
-            report['failure'] = {'type': type(failure).__name__, 'message': clean(failure), 'traceback': clean(traceback.format_exc())}
+            record_graph_failure(report, failure, clean)
         finally:
             pump = lambda: None
             phase['value'] = 'http_shutdown'
@@ -1991,14 +2004,10 @@ def owner_only_driver(args, output: Path) -> int:
                 report['status'] = 'failed_or_interrupted'
             if report['status'] == 'passed':
                 try:
-                    require(graph_source() == (source, tree) and sha(manifest_path.read_bytes()) == report['manifest_sha256']
-                        and sha(binary.read_bytes()) == report['daemon_sha256']
-                        and sha(Path(__file__).read_bytes()) == report['harness_sha256'],
-                        'Graph candidate inputs changed during the run')
+                    verify_graph_run_inputs(report, manifest_path, binary)
                     passed('HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone')
                 except (AssertionError, OSError, ValueError, subprocess.CalledProcessError) as failure:
-                    report['status'] = 'failed_or_interrupted'
-                    report['failure'] = {'type': type(failure).__name__, 'message': clean(failure)}
+                    record_graph_failure(report, failure, clean)
             phase['value'] = 'closed'
             log.close()
             if token:

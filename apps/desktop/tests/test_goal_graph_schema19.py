@@ -93,6 +93,45 @@ class FrozenGraphCandidate(unittest.TestCase):
                     server.assert_not_called()
 
 
+class GraphRunResult(unittest.TestCase):
+    def test_final_input_check_keeps_git_identity_distinct_from_private_worktree(self):
+        with tempfile.TemporaryDirectory() as temp:
+            fixture_path = Path(temp) / 'source'
+            fixture_path.mkdir()
+            manifest = fixture_path / 'manifest.json'
+            manifest.write_bytes(raw(candidate()))
+            binary = fixture_path / 'batond'
+            binary.write_bytes(BINARY)
+            report = {'source': HEAD, 'git_tree': TREE, 'daemon_sha256': DIGEST,
+                'manifest_sha256': G.sha(manifest.read_bytes()), 'harness_sha256': G.sha(SOURCE.read_bytes())}
+
+            with patch.object(G, 'graph_source', return_value=(HEAD, TREE)):
+                G.verify_graph_run_inputs(report, manifest, binary)
+                with self.assertRaisesRegex(G.BoundaryRefusal, 'inputs changed'):
+                    G.verify_graph_run_inputs({**report, 'source': fixture_path}, manifest, binary)
+                binary.write_bytes(BINARY + b' changed')
+                with self.assertRaisesRegex(G.BoundaryRefusal, 'inputs changed'):
+                    G.verify_graph_run_inputs(report, manifest, binary)
+            binary.write_bytes(BINARY)
+            with patch.object(G, 'graph_source', return_value=('f' * 40, TREE)):
+                with self.assertRaisesRegex(G.BoundaryRefusal, 'inputs changed'):
+                    G.verify_graph_run_inputs(report, manifest, binary)
+
+    def test_close_exception_revokes_a_previously_successful_run(self):
+        report = {'status': 'passed'}
+        def clean(value):
+            return str(value).replace('generated-secret', '[redacted]')
+        secret = 'generated-secret'
+        try:
+            raise RuntimeError('browser close failed with ' + secret)
+        except RuntimeError as error:
+            G.record_graph_failure(report, error, clean)
+        self.assertEqual(report['status'], 'failed_or_interrupted')
+        self.assertEqual(report['failure']['type'], 'RuntimeError')
+        self.assertIn('browser close failed with [redacted]', report['failure']['message'])
+        self.assertNotIn('generated-secret', report['failure']['traceback'])
+
+
 class PrivateGraphSchema(unittest.TestCase):
     def setUp(self):
         runtime = tempfile.TemporaryDirectory()
