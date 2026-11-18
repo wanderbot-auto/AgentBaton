@@ -1,0 +1,61 @@
+{
+  "status": "blocked_not_run",
+  "dimension": "actual_arm64_app_launched_but_webview_interaction_unverified",
+  "owner_settings_report_between_attempts": "Owner replied that AgentBaton had been allowed; same original tool entry still rejected exact same App path",
+  "attempts": [
+    {
+      "attempt": "native-round1",
+      "session": {
+        "status": "awaiting_real_ui",
+        "runtime": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/ab-hexp-native-comx5vgm",
+        "project_id": "c449266a-e276-4932-9e4c-00fadb00fbdb",
+        "daemon_pid": 25250,
+        "app_pid": 25251,
+        "architecture": "arm64",
+        "os": "26.6.1",
+        "binary": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/target/debug/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+        "binary_sha256": "9b53dccbbf5eefbee32408d7b76e05dd9992fc0178fe7f3473e5f40aee823dec",
+        "implementation_commit": "1aabbc8900206fb32e547ea8818b94749806f827",
+        "provider_calls": "not_run"
+      },
+      "cleanup": {
+        "app_reaped": true,
+        "daemon_reaped": true,
+        "retained_runtime": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/ab-hexp-native-comx5vgm"
+      },
+      "tool_entry": "cua.getApp(exact built App path)",
+      "tool_result": "Computer Use was not approved to use AgentBaton",
+      "runner_stop": "explicit abort",
+      "runner_exit": 1,
+      "ui_operations_observed": 0
+    },
+    {
+      "attempt": "native-round2",
+      "session": {
+        "status": "awaiting_real_ui",
+        "runtime": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/ab-hexp-native-socdqwxw",
+        "project_id": "f20ca333-0231-4049-a075-e13b53c71cfb",
+        "daemon_pid": 3547,
+        "app_pid": 3548,
+        "architecture": "arm64",
+        "os": "26.6.1",
+        "binary": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/target/debug/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+        "binary_sha256": "9b53dccbbf5eefbee32408d7b76e05dd9992fc0178fe7f3473e5f40aee823dec",
+        "implementation_commit": "1aabbc8900206fb32e547ea8818b94749806f827",
+        "provider_calls": "not_run"
+      },
+      "cleanup": {
+        "app_reaped": true,
+        "daemon_reaped": true,
+        "retained_runtime": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/ab-hexp-native-socdqwxw"
+      },
+      "tool_entry": "cua.getApp(exact built App path)",
+      "tool_result": "Computer Use was not approved to use AgentBaton",
+      "runner_stop": "explicit abort",
+      "runner_exit": 1,
+      "ui_operations_observed": 0
+    }
+  ],
+  "all_owned_app_daemon_children_reaped": true,
+  "provider_calls": "not_run"
+}

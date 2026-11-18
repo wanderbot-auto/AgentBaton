@@ -1,0 +1,31 @@
+{
+  "command": "cargo clippy --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets --features custom-protocol -- -D warnings",
+  "status": "candidate_failed_in_unchanged_files",
+  "base": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
+  "candidate": "1aabbc8900206fb32e547ea8818b94749806f827",
+  "errors": 14,
+  "files": {
+    "apps/desktop/src-tauri/src/approval_managed_mcp.rs": {
+      "base_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429",
+      "candidate_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429",
+      "byte_identical": true
+    },
+    "apps/desktop/src-tauri/src/approval.rs": {
+      "base_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "candidate_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "byte_identical": true
+    },
+    "apps/desktop/src-tauri/src/background_service.rs": {
+      "base_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "candidate_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "byte_identical": true
+    },
+    "apps/desktop/src-tauri/src/detached_daemon.rs": {
+      "base_sha256": "c81597ef9145297be4c7746d3c7394d68e57761b1ca98153538ed9b9bfd0b7fa",
+      "candidate_sha256": "c81597ef9145297be4c7746d3c7394d68e57761b1ca98153538ed9b9bfd0b7fa",
+      "byte_identical": true
+    }
+  },
+  "baseline_command_reexecuted": false,
+  "classification": "source_equivalence_only_not_dynamic_baseline_failure_proof"
+}

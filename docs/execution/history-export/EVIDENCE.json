@@ -1,0 +1,408 @@
+{
+  "task": "HEXP-001",
+  "base": "b78ffbb5bcbe741de2e0cd8fcf2e568c4c7ef28c",
+  "head": "1aabbc8900206fb32e547ea8818b94749806f827",
+  "source_state": "product/guard sources committed; final evidence commit follows; no product drift",
+  "status": "review",
+  "environment": {
+    "os": "macOS 26.6.1",
+    "architecture": "arm64"
+  },
+  "tests": [
+    {
+      "command": "cargo test -p agentbaton-core --lib history_export --locked",
+      "status": "passed",
+      "count": 9,
+      "log": "logs/core-tests-final.log.gz",
+      "scope": "intermediate source"
+    },
+    {
+      "command": "npm test -- --run src/ProjectHistoryExport.test.tsx src/history-export-api.test.ts src/history-export-types.test.ts",
+      "status": "passed",
+      "count": 10,
+      "log": "logs/ui-targeted.log.gz",
+      "scope": "intermediate source"
+    },
+    {
+      "command": "python3 scripts/history-export-smoke.py",
+      "status": "failed",
+      "log": "logs/daemon-smoke.log.gz",
+      "reason": "fixture disconnected before admission; fixing drop boundary, original timeout retained"
+    },
+    {
+      "command": "python3 scripts/history-export-smoke.py",
+      "status": "passed",
+      "log": "logs/daemon-smoke-2.log.gz",
+      "report": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/ipc/report.json",
+      "artifact": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/ipc/sample.history.json",
+      "sha256": "f33968543f69e7e5500c946bf8918490dad3e236dead2892a0e3cd64bee857c8",
+      "bytes": 2709,
+      "dimension": "real_daemon_unix_ipc_sqlite_synthetic_history"
+    },
+    {
+      "command": "npm run typecheck && npm test && npm run build",
+      "status": "passed",
+      "files": 111,
+      "tests": 1539,
+      "logs": [
+        "logs/typecheck-final.log.gz",
+        "logs/ui-full.log.gz",
+        "logs/ui-build.log.gz"
+      ]
+    },
+    {
+      "command": "CI matching frozen tools + RUST_TEST_THREADS=1 cargo test --workspace --locked; verify frozen tools",
+      "status": "passed",
+      "implementation_commit": "af17614223012182dcec29b2ff9af0f8ecfdea1a",
+      "log": "logs/rust-full-configured.log.gz",
+      "tool_log": "logs/frozen-tools-2.log.gz",
+      "tests": 1172,
+      "applies_to_next_head": false
+    },
+    {
+      "command": "cargo test -p agentbaton-core --lib history_export --locked; cargo test -p agentbaton-core --test history_export --locked",
+      "status": "passed",
+      "count": 14,
+      "logs": [
+        "logs/intent-core-tests.log.gz",
+        "logs/intent-ipc-tests.log.gz"
+      ],
+      "scope": "working intent fix before final safe-integer negative case; exact new head rerun pending"
+    },
+    {
+      "command": "npm targeted history export + Projects tests",
+      "status": "passed",
+      "count": 18,
+      "log": "logs/intent-ui-tests-2.log.gz",
+      "scope": "before three added storage/corrupt/partial negative tests; exact new head rerun pending"
+    },
+    {
+      "command": "cargo test -p agentbaton-core --lib history_export --locked",
+      "status": "passed",
+      "count": 16,
+      "log": "logs/final-core-targeted.log.gz",
+      "source": "identical product files at 7cc8ed41"
+    },
+    {
+      "command": "cargo test -p agentbaton-core --test history_export --locked",
+      "status": "passed",
+      "count": 1,
+      "log": "logs/final-ipc-targeted.log.gz"
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "status": "passed",
+      "log": "logs/final-clippy.log.gz"
+    },
+    {
+      "command": "npm run typecheck && npm test && npm run build",
+      "status": "passed",
+      "count": 1548,
+      "files": 111,
+      "logs": [
+        "logs/final-ui-typecheck.log.gz",
+        "logs/final-ui-full.log.gz",
+        "logs/final-ui-build.log.gz"
+      ]
+    },
+    {
+      "command": ".venv/bin/python -m unittest discover -s tests/infrastructure -v",
+      "status": "passed",
+      "count": 884,
+      "log": "logs/final-infrastructure-guarded.log.gz",
+      "extra_guard_tests": 5,
+      "old_parent_pin_unchanged": true
+    },
+    {
+      "command": "python3 scripts/history-export-smoke.py --output artifacts/history-export/intent-ipc-round1",
+      "status": "passed",
+      "log": "logs/final-daemon-smoke.log.gz",
+      "report": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/intent-ipc-round1/report.json",
+      "artifact": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/intent-ipc-round1/sample.history.json",
+      "sha256": "27e573cb094133f522bbd82788ba076702c2cc6c88a8620c015781f3f853a241"
+    },
+    {
+      "command": "tauri build --debug --bundles app --ci (formal signing credential environment removed)",
+      "status": "passed",
+      "log": "logs/final-native-bundle.log.gz",
+      "architecture": "arm64",
+      "signature": "adhoc_linker_signed_no_team"
+    },
+    {
+      "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features custom-protocol",
+      "status": "passed",
+      "count": 179,
+      "ignored_existing": 2,
+      "log": "logs/final-native-host-tests.log.gz"
+    },
+    {
+      "command": "native cargo clippy --all-targets --features custom-protocol -- -D warnings",
+      "status": "failed_in_unchanged_files",
+      "errors": 14,
+      "log": "logs/final-native-clippy.log.gz",
+      "source_comparison": "NATIVE_CLIPPY_BASELINE.json",
+      "baseline_command_reexecuted": false
+    }
+  ],
+  "native_webview": {
+    "status": "blocked_not_run",
+    "dimension": "actual_arm64_app_launched_but_webview_interaction_unverified",
+    "owner_settings_report_between_attempts": "Owner replied that AgentBaton had been allowed; same original tool entry still rejected exact same App path",
+    "attempts": [
+      {
+        "attempt": "native-round1",
+        "session": {
+          "status": "awaiting_real_ui",
+          "runtime": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/ab-hexp-native-comx5vgm",
+          "project_id": "c449266a-e276-4932-9e4c-00fadb00fbdb",
+          "daemon_pid": 25250,
+          "app_pid": 25251,
+          "architecture": "arm64",
+          "os": "26.6.1",
+          "binary": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/target/debug/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+          "binary_sha256": "9b53dccbbf5eefbee32408d7b76e05dd9992fc0178fe7f3473e5f40aee823dec",
+          "implementation_commit": "1aabbc8900206fb32e547ea8818b94749806f827",
+          "provider_calls": "not_run"
+        },
+        "cleanup": {
+          "app_reaped": true,
+          "daemon_reaped": true,
+          "retained_runtime": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/ab-hexp-native-comx5vgm"
+        },
+        "tool_entry": "cua.getApp(exact built App path)",
+        "tool_result": "Computer Use was not approved to use AgentBaton",
+        "runner_stop": "explicit abort",
+        "runner_exit": 1,
+        "ui_operations_observed": 0
+      },
+      {
+        "attempt": "native-round2",
+        "session": {
+          "status": "awaiting_real_ui",
+          "runtime": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/ab-hexp-native-socdqwxw",
+          "project_id": "f20ca333-0231-4049-a075-e13b53c71cfb",
+          "daemon_pid": 3547,
+          "app_pid": 3548,
+          "architecture": "arm64",
+          "os": "26.6.1",
+          "binary": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/target/debug/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+          "binary_sha256": "9b53dccbbf5eefbee32408d7b76e05dd9992fc0178fe7f3473e5f40aee823dec",
+          "implementation_commit": "1aabbc8900206fb32e547ea8818b94749806f827",
+          "provider_calls": "not_run"
+        },
+        "cleanup": {
+          "app_reaped": true,
+          "daemon_reaped": true,
+          "retained_runtime": "/private/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/ab-hexp-native-socdqwxw"
+        },
+        "tool_entry": "cua.getApp(exact built App path)",
+        "tool_result": "Computer Use was not approved to use AgentBaton",
+        "runner_stop": "explicit abort",
+        "runner_exit": 1,
+        "ui_operations_observed": 0
+      }
+    ],
+    "all_owned_app_daemon_children_reaped": true,
+    "provider_calls": "not_run"
+  },
+  "provider_calls": "not_run",
+  "review": {
+    "kind": "independent_readonly_native_subagent",
+    "agent": "history_export_review",
+    "findings": "addressed; latest follow-up pending test confirmation",
+    "leader": "af withheld acceptance for preview intent/deadline/capacity; new 37d6b61e candidate submitted for readonly review",
+    "last_static": "independent reviewer no blocker at7cc and leader confirmed guard-only inverse diff at1a; final fullRust/CI/native-GUI dimensions remain separate"
+  },
+  "source_patch_sha256": "eadc996e1e470922bbc81573410a634cedfe93f7a91bc5b49a5f7e90e84d2ee9",
+  "source_files": {
+    "crates/core/src/history_export.rs": "aafdf4159adbde1a47b2dc02b37a9476ff643850db95976824c72a558e82d57d",
+    "crates/core/src/ipc.rs": "38687d21863b3947e15065ab07736b7dd54ad45bfed4f618905f037c566fb083",
+    "crates/core/src/lib.rs": "445bd003e2c88757b39153c2667c168a49ebb7226e248454981858bda8c026d0",
+    "apps/desktop/src/ProjectHistoryExport.tsx": "bf4051220e211a16c8c694130e19000fe234d707fd58b1916248231d15ee2299",
+    "apps/desktop/src/history-export-api.ts": "730bf4c02a1750c975d28e6a6e07bd502ebb4d2512cef05da71785a93adff055",
+    "apps/desktop/src/history-export-types.ts": "07825f20e27177efb9675ecbff7a672824223417b9c78fd9f82a08e44a31ba42",
+    "apps/desktop/src/history-export-i18n.ts": "877bccdafff16a9ffabd593fba9708e02401388825928abb69c418ba7465e98b",
+    "apps/desktop/src/Projects.tsx": "6f3fcf8bb066df2cc848ff58b32661d457369d72cb997b745ce5a0b6d91ed61c",
+    "apps/desktop/src-tauri/src/history_export.rs": "d158d123e5845271e9757693045d9d064873c87acee12d5f371a6e84920b58e3",
+    "apps/desktop/src-tauri/src/lib.rs": "6c06adc6184de8e0e12617da3dfd814b7e74558037243c05fcb9a1687319e102"
+  },
+  "product_source_commit": "7cc8ed418a8d3ff17f25bc35ee3aa885858fb93e",
+  "final_workspace_result": {
+    "candidate": "1aabbc8900206fb32e547ea8818b94749806f827",
+    "original_full": {
+      "status": "failed",
+      "log": "logs/final-rust-workspace.log.gz",
+      "test": "version_probe_failures_preserve_distinct_non_success_evidence",
+      "sample": "invalid",
+      "actual": "TimedOut",
+      "expected": "InvalidOutput",
+      "timeout_ms": 500
+    },
+    "diagnostics": [
+      {
+        "command": "RUST_TEST_THREADS=1 cargo test -p agentbaton-providers --test installation --locked",
+        "status": "passed",
+        "count": 10,
+        "log": "logs/final-provider-installation-rerun.log.gz"
+      },
+      {
+        "command": "target/debug/deps/installation-ce4d7cd593e06a5e --exact version_probe_failures_preserve_distinct_non_success_evidence --test-threads=1",
+        "status": "passed",
+        "count": 1,
+        "log": "logs/final-provider-original-binary-rerun.log.gz"
+      },
+      {
+        "command": "RUST_TEST_THREADS=1 cargo test -p agentbaton-providers -p agentbaton-workspaces --locked",
+        "status": "passed",
+        "log": "logs/final-remaining-packages.log.gz",
+        "installation_group_repeated_once": true
+      },
+      {
+        "command": "cargo test -p agentbaton-config -p agentbaton-core --doc --locked",
+        "status": "passed",
+        "log": "logs/final-remaining-doctests.log.gz"
+      }
+    ],
+    "original_test_binary_sha256": "0ac7935e3f64b1e756207f422f999dcef3678ecc993b15542d3295b2db4ac4e1",
+    "scope": "No Provider sources, test assertions, 500ms budget or lockfiles changed; all passes are focus/segmented evidence, never rewrite original full failure; no unique root cause established; base command not dynamically reexecuted",
+    "source_equivalence": {
+      "crates/providers/tests/installation.rs": {
+        "base_sha256": "90724f1d9d6c3fe5641ae7076d9c9442293a6550a4b20bb7baecbfcd6e6b1531",
+        "candidate_sha256": "90724f1d9d6c3fe5641ae7076d9c9442293a6550a4b20bb7baecbfcd6e6b1531",
+        "byte_identical": true
+      },
+      "crates/providers/src/installation.rs": {
+        "base_sha256": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+        "candidate_sha256": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+        "byte_identical": true
+      },
+      "Cargo.lock": {
+        "base_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+        "candidate_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+        "byte_identical": true
+      }
+    }
+  },
+  "frozen_tools_final_verification": {
+    "status": "passed",
+    "log": "logs/final-frozen-tools-verify-2.log.gz",
+    "original_parameter_failure_log": "logs/final-frozen-tools-verify.log.gz"
+  },
+  "updated_at": "2026-11-18T00:15:17.957064+08:00",
+  "verification_subject_commit": "1aabbc8900206fb32e547ea8818b94749806f827",
+  "remaining_gaps": [
+    "Native WebView/Finder interaction blocked by computer-use app permission after two same-entry attempts; no GUI pass claimed",
+    "Extra native all-target clippy failed14 in unchanged files; source-equivalence only, base command not rerun",
+    "Final whole-workspace run failed1 Provider500ms invalid-output classification; focus and segmented reruns passed but do not rewrite full failure",
+    "Physical disk exhaustion and power-loss during writes not exercised; deterministic boundary/partial/symlink/permissions/no-overwrite tests recorded separately"
+  ],
+  "required_github_checks": "unchanged; actual final PR checks will be recorded at handoff; no bypass or main merge",
+  "requirements_scope": "HEXP-001 export slice of AB-SEC-008 / AB-UX-008; not complete AB-SEC-008 acceptance",
+  "toolchain": {
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "node": "v26.7.0",
+    "npm": "11.19.0",
+    "python": "Python 3.14.0a7"
+  },
+  "git_diff_paths_before_evidence_commit": [
+    "apps/desktop/src-tauri/src/history_export.rs",
+    "apps/desktop/src-tauri/src/lib.rs",
+    "apps/desktop/src/ProjectHistoryExport.test.tsx",
+    "apps/desktop/src/ProjectHistoryExport.tsx",
+    "apps/desktop/src/Projects.tsx",
+    "apps/desktop/src/history-export-api.test.ts",
+    "apps/desktop/src/history-export-api.ts",
+    "apps/desktop/src/history-export-i18n.ts",
+    "apps/desktop/src/history-export-types.test.ts",
+    "apps/desktop/src/history-export-types.ts",
+    "crates/core/src/history_export.rs",
+    "crates/core/src/history_export_tests.rs",
+    "crates/core/src/ipc.rs",
+    "crates/core/src/lib.rs",
+    "crates/core/tests/history_export.rs",
+    "docs/execution/history-export/ADR-001.md",
+    "docs/execution/history-export/PLAN.md",
+    "scripts/history-export-smoke.py",
+    "scripts/native-history-export-smoke.py",
+    "tests/infrastructure/test_background_service_native_smoke_source.py",
+    "tests/infrastructure/test_history_export.py"
+  ],
+  "artifacts": [
+    {
+      "implementation_commit": "7cc8ed418a8d3ff17f25bc35ee3aa885858fb93e",
+      "architecture": "arm64",
+      "os": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+      "daemon_sha256": "526ec5f94eb1312c0f4d51b40e1dfd49f5cb7cd34e48fcb4a819b6f63555ea74",
+      "status": "passed",
+      "dimension": "real_daemon_unix_ipc_sqlite_synthetic_history",
+      "provider_calls": "not_run",
+      "native_webview": "not_run",
+      "selection": {
+        "version": 1,
+        "project_id": "7a971a03-f045-40d5-8a94-8e571c2564a8",
+        "from_sequence": 0,
+        "to_sequence": null,
+        "tasks": true,
+        "messages": true,
+        "events": true
+      },
+      "reference": {
+        "preview_id": "4042b9aa-c743-4e81-83c7-4c5d03a9922e",
+        "selection_digest": "1d22030c2334443b85518294c37b56e14bc19effa09feb71d77adf104e1a6f40",
+        "package_sha256": "27e573cb094133f522bbd82788ba076702c2cc6c88a8620c015781f3f853a241"
+      },
+      "sha256": "27e573cb094133f522bbd82788ba076702c2cc6c88a8620c015781f3f853a241",
+      "bytes": 2709,
+      "business_hash_before": "7b79fd7365e989bd327b2bec7f9f12b345359bb4ff5e2d50e2376f6cf498b36f",
+      "business_hash_after": "7b79fd7365e989bd327b2bec7f9f12b345359bb4ff5e2d50e2376f6cf498b36f",
+      "checks": [
+        "manifest",
+        "file_sha256",
+        "redaction",
+        "cross_project",
+        "lost_preview_reply_same_intent",
+        "preview_intent_restart",
+        "preview_selection_conflict",
+        "unknown_reply_reconcile",
+        "no_overwrite_retry",
+        "tampered_selection",
+        "daemon_restart",
+        "business_history_unchanged"
+      ],
+      "artifact": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/intent-ipc-round1/sample.history.json"
+    },
+    {
+      "kind": "development_app_executable",
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/target/debug/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+      "sha256": "9b53dccbbf5eefbee32408d7b76e05dd9992fc0178fe7f3473e5f40aee823dec",
+      "architecture": "arm64",
+      "signature": "ad-hoc linker signature; no TeamIdentifier",
+      "actual_ui_status": "blocked_not_run"
+    }
+  ],
+  "processes": {
+    "active_owned_test_build_processes": 0,
+    "native_fixture_children_reaped": true,
+    "all_command_sessions_joined": true
+  },
+  "pr": {
+    "number": 31,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/pull/31",
+    "draft": true,
+    "base_ref": "main",
+    "head_ref": "collab/history-export",
+    "head_at_creation": "375edc8d0d9d272d9d917bfd04f76d7ad0f6bb53",
+    "final_live_snapshot_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/ci-final.json",
+    "final_head": "recorded by live PR metadata and final handoff after this evidence-only commit"
+  },
+  "source_unchanged_after_verification_subject": true,
+  "documentation_validation": {
+    "status": "passed",
+    "scope": "design_package_validation_only",
+    "command": ".venv/bin/python scripts/validate_design.py",
+    "local_links_checked": 232,
+    "raw_log": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/history-export/artifacts/history-export/final-doc-validation.log",
+    "raw_sha256": "c4250d1117abf9e0f5378294b012089bb796731ef31bd32fd66d8cb88991665a",
+    "not_product_or_native_evidence": true
+  }
+}

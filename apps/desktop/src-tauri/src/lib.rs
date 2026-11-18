@@ -13,6 +13,7 @@ mod background_service;
 mod background_window;
 mod client_recovery_bridge;
 mod detached_daemon;
+mod history_export;
 mod integration_approval;
 #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
 pub mod native_background_service_test;
@@ -2427,6 +2428,10 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        history_export::history_export_preview,
+        history_export::history_export_publish,
+        history_export::history_export_get,
+        history_export::history_export_reveal,
         background_service_status,
         background_service_enable,
         background_service_disable,
