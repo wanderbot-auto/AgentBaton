@@ -19,6 +19,10 @@ const MESSAGE_LOCK: &str = "task-message-recovery.lock";
 const MESSAGE_JOURNAL: &str = "task-message-recovery.json";
 pub(crate) const MESSAGE_LIMIT: usize = 32;
 
+#[path = "host_registration_recovery.rs"]
+mod host_registration_recovery;
+pub use host_registration_recovery::{HostRegistration, HostRegistrationIntent};
+
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct TaskMessageIntent {
