@@ -30,3 +30,9 @@ scripts/collab.sh run -- python3 -m unittest tests.infrastructure.test_host19_br
 应用构建使用锁定 release 侧车与真实前端构建命令。本机重跑脚本、原始日志、报告、私有 transcript、截图和合成投影件在该任务 runtime 内保存，路径及摘要见 [EVIDENCE.json](EVIDENCE.json)。重跑脚本从准确实施提交的工作树外层启动，脚本本身调用 collab run。原始测试数据留在私有 runtime，交接文件记录有限摘要与哈希。
 
 标准两案使用生成 ACP，第一案确认本地引用，第二案保留预期的命令退出 7 和零次 CAS。Linux 投影器对真实 macOS 报告返回失败摘要。可发布的 Linux 投影当时仅通过合成正反例；共享 schema 19 生产端和通知扩展需在实际 Linux 候选上统一验证。
+
+## Leader 独审与交接
+
+Leader 接受 76d7aaf442f921c235d39f3106c5b7bb8af51639 的浏览器 schema 19 driver 与投影阶段。独立复跑 66 项，核对 20 条证据索引、两份 ARM64 工具和八键探针与原件的配对。独审核实正常与命令失败场景分别有 12 和 10 次真实 schema 19 快照，合计 12 张原图，并确认两份历史源文件均逐字节还原。
+
+实际托管 Linux CI 仍待验收。按交接流程释放任务认领，保留原分支、工作树和证据。集成由 leader 负责。
