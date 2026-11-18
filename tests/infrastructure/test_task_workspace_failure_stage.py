@@ -6,6 +6,7 @@ from pathlib import Path
 import unittest
 from unittest import mock
 
+from tests.infrastructure import host19_task_workspace_source_fixture as S19
 from tests.infrastructure import test_task_workspace_ci_evidence as F
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -17,6 +18,10 @@ SCHEMA18_BEFORE_FAILURE_STAGE_SHA256 = 'a7ae6f55da81c3287dd9a768104db6d61db65361
 LAYER_SHA256 = '882a21ca6c44d76e8241e41cd4dab1e55b83fbd40cdd4a08568905e20d1f421d'
 LAYER_MARKER = '# Closed observations only; these do not establish a passing driver or cleanup.\n'
 CALL_ADDITION = "    if not complete:\n        observation = failure_observation(report, len(passed))\n        if observation is not None:\n            result['runtime_failure'] = observation\n"
+
+
+def read_schema18_projector():
+    return S19.restore_schema18_source(S19.PROJECTOR_PATH, (ROOT / S19.PROJECTOR_PATH).read_bytes()).decode()
 
 
 def strip_schema18_projection(text):
@@ -125,7 +130,7 @@ class FailureStageProjection(unittest.TestCase):
 
     def test_original_success_summary_and_all_original_images_remain_identical(self):
         value = self.write(); code, result, out = self.run_projection()
-        old_text = strip_failure_stage_layer((ROOT / 'scripts/record-task-workspace-ci-evidence.py').read_text())
+        old_text = strip_failure_stage_layer(read_schema18_projector())
         old_project = next(n for n in ast.parse(old_text).body if isinstance(n, ast.FunctionDef) and n.name == 'project')
         namespace = dict(vars(P)); exec(compile(ast.Module(body=[old_project], type_ignores=[]), '<old-project>', 'exec'), namespace)
         expected = namespace['project'](value, result['report_sha256'], F.HEAD, F.HARNESS)
@@ -190,7 +195,7 @@ class ExactStageSource(unittest.TestCase):
         self.assertEqual(len(P.FAILURE_KINDS), len(set(P.FAILURE_KINDS)))
 
     def test_complete_inverse_retains_original_source_and_every_old_function(self):
-        source = (ROOT / 'scripts/record-task-workspace-ci-evidence.py').read_text()
+        source = read_schema18_projector()
         historical_composition = strip_schema18_projection(source)
         restored = strip_failure_stage_layer(historical_composition)
         self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), SOURCE_BEFORE_SHA256)
@@ -203,7 +208,7 @@ class ExactStageSource(unittest.TestCase):
             self.assertEqual(set(new) - set(old), {'failure_observation'})
 
     def test_unknown_layer_original_guard_and_outside_bytes_cannot_be_normalized(self):
-        text = (ROOT / 'scripts/record-task-workspace-ci-evidence.py').read_text()
+        text = read_schema18_projector()
         start, end = text.index(LAYER_MARKER), text.index('def png_pixels('); block = text[start:end]
         variants = [text + '\n# unknown byte\n', text.replace(CALL_ADDITION, '', 1),
             text.replace(CALL_ADDITION, CALL_ADDITION * 2, 1),
