@@ -112,7 +112,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal execution counts")?;
     if !valid_goal_execution_counts(&snapshot) {
         return Err(
-            "Goal execution fixture must have schema18 and no run/node/reservation authority"
+            "Goal execution fixture must have schema19 and no run/node/reservation authority"
                 .into(),
         );
     }
@@ -120,7 +120,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
 }
 fn valid_goal_execution_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 5)
-        && value["schema_version"].as_u64() == Some(18)
+        && value["schema_version"].as_u64() == Some(19)
         && ["run_count", "node_count", "reservation_count"]
             .iter()
             .all(|key| value[*key].as_u64() == Some(0))
@@ -223,7 +223,7 @@ db.close()
 
 fn valid_goal_graph_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 8)
-        && value["schema_version"].as_u64() == Some(18)
+        && value["schema_version"].as_u64() == Some(19)
         && GOAL_GRAPH_COUNT_FIELDS
             .iter()
             .all(|key| value[*key].as_u64() == Some(0))
@@ -238,7 +238,7 @@ fn goal_graph_database_snapshot(runtime: &Path) -> Result<Value, String> {
     let snapshot: Value =
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal graph counts")?;
     if !valid_goal_graph_counts(&snapshot) {
-        return Err("Goal graph fixture must have schema18 and six empty graph tables".into());
+        return Err("Goal graph fixture must have schema19 and six empty graph tables".into());
     }
     Ok(snapshot)
 }
@@ -357,7 +357,7 @@ db.close()
 "#;
 fn valid_factory_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 14)
-        && value["schema_version"].as_u64() == Some(18)
+        && value["schema_version"].as_u64() == Some(19)
         && value["sequence"].as_u64().is_some()
         && FACTORY_COUNT_FIELDS
             .iter()
@@ -373,7 +373,7 @@ fn factory_database_snapshot(runtime: &Path) -> Result<Value, String> {
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Factory counts")?;
     if !valid_factory_counts(&snapshot) {
         return Err(
-            "Factory fixture requires exact schema18 and twelve independently empty tables".into(),
+            "Factory fixture requires exact schema19 and twelve independently empty tables".into(),
         );
     }
     Ok(snapshot)
@@ -494,7 +494,7 @@ db.close()
 "#;
 fn valid_integration_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 6)
-        && value["schema_version"].as_u64() == Some(18)
+        && value["schema_version"].as_u64() == Some(19)
         && value["sequence"].as_u64().is_some()
         && INTEGRATION_COUNT_FIELDS
             .iter()
@@ -509,7 +509,7 @@ fn integration_database_snapshot(runtime: &Path) -> Result<Value, String> {
         .map_err(|_| "invalid readonly integration counts")?;
     if !valid_integration_counts(&snapshot) {
         return Err(
-            "Integration readonly fixture requires exact schema18 and four empty tables".into(),
+            "Integration readonly fixture requires exact schema19 and four empty tables".into(),
         );
     }
     Ok(snapshot)
@@ -2047,7 +2047,7 @@ mod fixture_tests {
         json!({"status":"running","goal_readonly_database":{"read_only":true,"unchanged":true,"before":goal,"after":goal}})
     }
     fn execution_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":18,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
+        json!({"schema_version":19,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
     }
     fn execution_result_fixture(sequence: u64) -> Value {
         json!({"goalExecutionLists":true,"goalExecutionMissingRunDenied":true,"readonlyGoalExecutionNoMutation":true,"goalReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionMissingRun":{"run_id":MISSING_GOAL_RUN_ID,"code":"NOT_FOUND","side_effect_state":"not_started"}})
@@ -2055,6 +2055,8 @@ mod fixture_tests {
     #[test]
     fn execution_readonly_actual_schema_counts_and_journal_observations_never_write() {
         let (_directory, runtime, mut store) = fresh_execution_fixture();
+        let database = runtime.join("baton.sqlite3");
+        let original = fs::read(&database).unwrap();
         let before = goal_execution_database_snapshot(&runtime).unwrap();
         assert_eq!(before, execution_counts_fixture(0));
         assert_eq!(store.sequence().unwrap(), 0);
@@ -2070,6 +2072,7 @@ mod fixture_tests {
         .unwrap();
         validate_goal_execution_evidence(&execution_result_fixture(0), &report).unwrap();
         assert_eq!(store.sequence().unwrap(), 0);
+        assert_eq!(fs::read(&database).unwrap(), original);
         store
             .create(
                 "local",
@@ -2101,7 +2104,8 @@ mod fixture_tests {
             ("schema_version","PRAGMA user_version=15",15),
             ("schema_version","PRAGMA user_version=16",16),
             ("schema_version","PRAGMA user_version=17",17),
-            ("schema_version","PRAGMA user_version=19",19),
+            ("schema_version","PRAGMA user_version=18",18),
+            ("schema_version","PRAGMA user_version=20",20),
             ("run_count","INSERT INTO goal_runs VALUES('count-probe','scope','project','task',1,'queued','{}')",1),
             ("node_count","INSERT INTO goal_run_nodes VALUES('count-probe',1,'node',0,'not_started',NULL,NULL,'{}')",1),
             ("reservation_count","INSERT INTO goal_run_reservations VALUES('attempt','count-probe','node',NULL,'{}')",1),
@@ -2113,7 +2117,10 @@ mod fixture_tests {
             // Goal, proves the independent query observes every actual table.
             let status=Command::new("python3").args(["-I","-S","-c","import sqlite3,sys;db=sqlite3.connect(sys.argv[1]);db.execute(sys.argv[2]);db.commit();db.close()"]).arg(runtime.join("baton.sqlite3")).arg(sql).status().unwrap();
             assert!(status.success());
+            let database = runtime.join("baton.sqlite3");
+            let original = fs::read(&database).unwrap();
             assert!(goal_execution_database_snapshot(&runtime).is_err());
+            assert_eq!(fs::read(&database).unwrap(), original);
             let mut command = Command::new("python3");
             command
                 .args(["-I", "-S", "-c", GOAL_EXECUTION_READONLY_SQL])
@@ -2295,7 +2302,7 @@ mod fixture_tests {
     }
 
     fn graph_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":18,"capability_count":0,"job_count":0,"candidate_count":0,"validation_count":0,"owner_decision_count":0,"acceptance_count":0,"sequence":sequence})
+        json!({"schema_version":19,"capability_count":0,"job_count":0,"candidate_count":0,"validation_count":0,"owner_decision_count":0,"acceptance_count":0,"sequence":sequence})
     }
     fn graph_report_fixture(sequence: u64) -> Value {
         let mut report = readonly_report_fixture(sequence);
@@ -2320,12 +2327,14 @@ mod fixture_tests {
     #[test]
     fn graph_readonly_actual_schema_six_counts_and_journal_never_write() {
         let (_directory, runtime, mut store) = fresh_execution_fixture();
+        let database = runtime.join("baton.sqlite3");
+        let original = fs::read(&database).unwrap();
         let before = goal_graph_database_snapshot(&runtime).unwrap();
         assert_eq!(before, graph_counts_fixture(0));
         assert_eq!(goal_database_snapshot(&runtime).unwrap()["sequence"], 0);
         assert_eq!(
             goal_execution_database_snapshot(&runtime).unwrap()["schema_version"],
-            18
+            19
         );
         let mut report = graph_report_fixture(0);
         record_goal_graph_checkpoint(0, "main", &mut report, "before", before.clone()).unwrap();
@@ -2339,6 +2348,7 @@ mod fixture_tests {
         .unwrap();
         validate_goal_graph_evidence(&graph_result_fixture(0), &report).unwrap();
         assert_eq!(store.sequence().unwrap(), 0);
+        assert_eq!(fs::read(&database).unwrap(), original);
         store
             .create(
                 "local",
@@ -2372,7 +2382,8 @@ mod fixture_tests {
             ("schema_version", "PRAGMA user_version=15", 15),
             ("schema_version", "PRAGMA user_version=16", 16),
             ("schema_version", "PRAGMA user_version=17", 17),
-            ("schema_version", "PRAGMA user_version=19", 19),
+            ("schema_version", "PRAGMA user_version=18", 18),
+            ("schema_version", "PRAGMA user_version=20", 20),
             ("capability_count", "INSERT INTO goal_graph_capabilities(run_id,approval_id,version,document) VALUES('probe','approval',1,'{}')", 1),
             ("job_count", "INSERT INTO goal_graph_jobs(id,run_id,node_id,plan_revision,state,attempt_id,workspace_id,document) VALUES('probe','run','node',1,'queued',NULL,'workspace','{}')", 1),
             ("candidate_count", "INSERT INTO goal_graph_candidates(id,run_id,node_id,plan_revision,attempt_id,document) VALUES('probe','run','node',1,'attempt','{}')", 1),
@@ -2387,7 +2398,10 @@ mod fixture_tests {
             // control, never a Core-approved capability, job or acceptance.
             let status = Command::new("python3").args(["-I","-S","-c","import sqlite3,sys;db=sqlite3.connect(sys.argv[1]);db.execute(sys.argv[2]);db.commit();db.close()"]).arg(runtime.join("baton.sqlite3")).arg(sql).status().unwrap();
             assert!(status.success());
+            let database = runtime.join("baton.sqlite3");
+            let original = fs::read(&database).unwrap();
             assert!(goal_graph_database_snapshot(&runtime).is_err());
+            assert_eq!(fs::read(&database).unwrap(), original);
             let mut command = Command::new("python3");
             command
                 .args(["-I", "-S", "-c", GOAL_GRAPH_READONLY_SQL])
@@ -2490,7 +2504,7 @@ mod fixture_tests {
         .is_err());
     }
     #[test]
-    fn graph_final_evidence_requires_independent_schema18_and_exact_core_denial() {
+    fn graph_final_evidence_requires_independent_schema19_and_exact_core_denial() {
         let mut report = graph_report_fixture(2);
         let counts = graph_counts_fixture(2);
         record_goal_graph_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
@@ -2577,7 +2591,7 @@ mod fixture_tests {
         let before = goal_graph_database_snapshot(&runtime).unwrap();
         let old_before = goal_database_snapshot(&runtime).unwrap();
         let execution_before = goal_execution_database_snapshot(&runtime).unwrap();
-        assert_eq!(before["schema_version"], 18);
+        assert_eq!(before["schema_version"], 19);
         let listed = ipc::call(
             &runtime,
             json!({"method":"goal_graph_runs.list","params":{"task_id":task_id}}),
@@ -2686,7 +2700,7 @@ mod fixture_tests {
         assert!(validate_webcrypto_evidence(&second, &report, true).is_err());
     }
     fn factory_counts_fixture(sequence: u64) -> Value {
-        let mut counts = json!({"schema_version":18,"sequence":sequence});
+        let mut counts = json!({"schema_version":19,"sequence":sequence});
         for field in FACTORY_COUNT_FIELDS {
             counts[field] = json!(0);
         }
@@ -2716,7 +2730,7 @@ mod fixture_tests {
         result
     }
     #[test]
-    fn factory_readonly_requires_exact_schema18_all_twelve_typed_counts_and_ordered_context() {
+    fn factory_readonly_requires_exact_schema19_all_twelve_typed_counts_and_ordered_context() {
         let counts = factory_counts_fixture(3);
         assert!(valid_factory_counts(&counts));
         for field in ["schema_version", "sequence"]
@@ -2744,7 +2758,7 @@ mod fixture_tests {
             changed[field] = json!(1);
             assert!(!valid_factory_counts(&changed));
         }
-        for schema in [11, 12, 13, 14, 15, 16, 17, 19] {
+        for schema in [11, 12, 13, 14, 15, 16, 17, 18, 20] {
             let mut changed = counts.clone();
             changed["schema_version"] = json!(schema);
             assert!(!valid_factory_counts(&changed));
@@ -2831,7 +2845,7 @@ mod fixture_tests {
         assert!(validate_factory_evidence(&replay_result, &replay).is_err());
     }
     #[test]
-    fn factory_actual_schema18_query_and_core_count_projection_leave_history_unchanged() {
+    fn factory_actual_schema19_query_and_core_count_projection_leave_history_unchanged() {
         let (_directory, runtime, mut store) = fresh_execution_fixture();
         let task = store
             .create(
@@ -2840,6 +2854,8 @@ mod fixture_tests {
                 "factory-readonly-task",
             )
             .unwrap();
+        let database = runtime.join("baton.sqlite3");
+        let original = fs::read(&database).unwrap();
         let before = factory_database_snapshot(&runtime).unwrap();
         assert_eq!(before, factory_counts_fixture(store.sequence().unwrap()));
         let projection =
@@ -2861,6 +2877,7 @@ mod fixture_tests {
         assert_eq!(before["sequence"], old_goal["sequence"]);
         assert_eq!(before["sequence"], old_execution["sequence"]);
         assert_eq!(before["sequence"], old_graph["sequence"]);
+        assert_eq!(fs::read(&database).unwrap(), original);
     }
     #[test]
     fn factory_real_sql_observes_each_table_drift_wrong_schema_and_missing_table_instead_of_zero() {
@@ -2885,7 +2902,10 @@ mod fixture_tests {
             // fixture. It is not a Core-approved scope, delegation or attempt.
             let status=Command::new("python3").args(["-I","-S","-c","import sqlite3,sys;db=sqlite3.connect(sys.argv[1]);db.execute(sys.argv[2]);db.commit();db.close()"]).arg(runtime.join("baton.sqlite3")).arg(sql).status().unwrap();
             assert!(status.success());
+            let database = runtime.join("baton.sqlite3");
+            let original = fs::read(&database).unwrap();
             assert!(factory_database_snapshot(&runtime).is_err());
+            assert_eq!(fs::read(&database).unwrap(), original);
             let mut command = Command::new("python3");
             command
                 .args(["-I", "-S", "-c", FACTORY_READONLY_SQL])
@@ -2903,7 +2923,8 @@ mod fixture_tests {
             "PRAGMA user_version=15",
             "PRAGMA user_version=16",
             "PRAGMA user_version=17",
-            "PRAGMA user_version=19",
+            "PRAGMA user_version=18",
+            "PRAGMA user_version=20",
             "DROP TABLE factory_scopes",
             "DROP TABLE factory_budget_reservations",
             "DROP TABLE factory_child_plan_heads",
@@ -2913,12 +2934,15 @@ mod fixture_tests {
             let (_directory, runtime, store) = fresh_execution_fixture();
             let status=Command::new("python3").args(["-I","-S","-c","import sqlite3,sys;db=sqlite3.connect(sys.argv[1]);db.execute(sys.argv[2]);db.commit();db.close()"]).arg(runtime.join("baton.sqlite3")).arg(sql).status().unwrap();
             assert!(status.success());
+            let database = runtime.join("baton.sqlite3");
+            let original = fs::read(&database).unwrap();
             assert!(factory_database_snapshot(&runtime).is_err());
+            assert_eq!(fs::read(&database).unwrap(), original);
             drop(store);
         }
     }
     fn integration_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":18,"sequence":sequence,"policies":0,"runs":0,"attempts":0,"ref_fences":0})
+        json!({"schema_version":19,"sequence":sequence,"policies":0,"runs":0,"attempts":0,"ref_fences":0})
     }
     fn integration_report_fixture(sequence: u64) -> Value {
         let mut report = factory_report_fixture(sequence);
@@ -2928,7 +2952,28 @@ mod fixture_tests {
         report
     }
     #[test]
-    fn integration_readonly_has_independent_exact_schema18_and_four_typed_zero_counts() {
+    fn current_readonly_counts_require_schema19_as_a_json_integer() {
+        let guards: [(Value, fn(&Value) -> bool); 4] = [
+            (execution_counts_fixture(0), valid_goal_execution_counts),
+            (graph_counts_fixture(0), valid_goal_graph_counts),
+            (factory_counts_fixture(0), valid_factory_counts),
+            (integration_counts_fixture(0), valid_integration_counts),
+        ];
+        for (counts, valid) in guards {
+            assert_eq!(counts["schema_version"], 19);
+            assert!(valid(&counts));
+            for version in [json!(18), json!(20), json!("19"), json!(19.0)] {
+                let mut invalid = counts.clone();
+                invalid["schema_version"] = version;
+                assert!(!valid(&invalid), "{invalid}");
+            }
+            let mut missing = counts;
+            missing.as_object_mut().unwrap().remove("schema_version");
+            assert!(!valid(&missing), "{missing}");
+        }
+    }
+    #[test]
+    fn integration_readonly_has_independent_exact_schema19_and_four_typed_zero_counts() {
         let counts = integration_counts_fixture(7);
         assert!(valid_integration_counts(&counts));
         for field in ["schema_version", "sequence"]
@@ -2944,7 +2989,7 @@ mod fixture_tests {
             missing.as_object_mut().unwrap().remove(field);
             assert!(!valid_integration_counts(&missing), "{field}");
         }
-        for schema in [0, 12, 13, 14, 15, 16, 17, 19] {
+        for schema in [0, 12, 13, 14, 15, 16, 17, 18, 20] {
             let mut changed = counts.clone();
             changed["schema_version"] = json!(schema);
             assert!(!valid_integration_counts(&changed));
@@ -3085,7 +3130,7 @@ mod fixture_tests {
             let observed: Value =
                 serde_json::from_slice(&bounded_goal_query(query).unwrap()).unwrap();
             assert_eq!(observed[field], 1);
-            assert_eq!(observed["schema_version"], 18);
+            assert_eq!(observed["schema_version"], 19);
             drop(store);
         }
     }
@@ -3094,7 +3139,8 @@ mod fixture_tests {
         for sql in [
             "PRAGMA user_version=16",
             "PRAGMA user_version=17",
-            "PRAGMA user_version=19",
+            "PRAGMA user_version=18",
+            "PRAGMA user_version=20",
             "DROP TABLE integration_policies",
             "DROP TABLE integrations",
             "DROP TABLE integration_attempts",
